@@ -86,6 +86,19 @@
         <method name="revert"/>
     </type>
     <type name="QAbstractListModel" extends="QAbstractItemModel"/>
+    <type name="QAccelerometer" extends="QSensor">
+        <exports>
+            <export module="QtMobility.sensors" version="1.1" type="Accelerometer"/>
+        </exports>
+    </type>
+    <type name="QAccelerometerReading" extends="QSensorReading">
+        <exports>
+            <export module="QtMobility.sensors" version="1.1" type="AccelerometerReading"/>
+        </exports>
+        <property name="x" type="qreal"/>
+        <property name="y" type="qreal"/>
+        <property name="z" type="qreal"/>
+    </type>
     <type name="QAction" extends="QObject">
         <enum name="MenuRole">
             <enumerator name="NoRole" value="0"/>
@@ -134,13 +147,6 @@
         <signal name="toggled">
             <param type="bool"/>
         </signal>
-        <signal name="activated">
-            <param type="int"/>
-        </signal>
-        <signal name="activated"/>
-        <method name="setOn">
-            <param name="b" type="bool"/>
-        </method>
         <method name="trigger"/>
         <method name="hover"/>
         <method name="setChecked">
@@ -156,6 +162,37 @@
         <method name="setVisible">
             <param type="bool"/>
         </method>
+    </type>
+    <type name="QAmbientLightReading" extends="QSensorReading">
+        <exports>
+            <export module="QtMobility.sensors" version="1.1" type="AmbientLightReading"/>
+        </exports>
+        <enum name="LightLevel">
+            <enumerator name="Undefined" value="0"/>
+            <enumerator name="Dark" value="1"/>
+            <enumerator name="Twilight" value="2"/>
+            <enumerator name="Light" value="3"/>
+            <enumerator name="Bright" value="4"/>
+            <enumerator name="Sunny" value="5"/>
+        </enum>
+        <property name="lightLevel" type="LightLevel"/>
+    </type>
+    <type name="QAmbientLightSensor" extends="QSensor">
+        <exports>
+            <export module="QtMobility.sensors" version="1.1" type="AmbientLightSensor"/>
+        </exports>
+    </type>
+    <type name="QCompass" extends="QSensor">
+        <exports>
+            <export module="QtMobility.sensors" version="1.1" type="Compass"/>
+        </exports>
+    </type>
+    <type name="QCompassReading" extends="QSensorReading">
+        <exports>
+            <export module="QtMobility.sensors" version="1.1" type="CompassReading"/>
+        </exports>
+        <property name="azimuth" type="qreal"/>
+        <property name="calibrationLevel" type="qreal"/>
     </type>
     <type name="QDeclarativeAbstractAnimation" extends="QObject">
         <exports>
@@ -207,8 +244,8 @@
     </type>
     <type name="QDeclarativeAnchorChanges" extends="QDeclarativeStateOperation">
         <exports>
-            <export module="Qt" version="4.7" type="AnchorChanges"/>
             <export module="QtQuick" version="1.0" type="AnchorChanges"/>
+            <export module="Qt" version="4.7" type="AnchorChanges"/>
         </exports>
         <property name="target" type="QDeclarativeItem" isWritable="true" isPointer="true"/>
         <property name="anchors" type="QDeclarativeAnchorSet" isPointer="true"/>
@@ -276,6 +313,69 @@
     <type name="QDeclarativeAnimationGroup" defaultProperty="animations" extends="QDeclarativeAbstractAnimation">
         <property name="animations" type="QDeclarativeAbstractAnimation" isList="true"/>
     </type>
+    <type name="QDeclarativeAudio" extends="QObject">
+        <exports>
+            <export module="QtMultimediaKit" version="1.1" type="Audio"/>
+        </exports>
+        <enum name="Status">
+            <enumerator name="UnknownStatus" value="0"/>
+            <enumerator name="NoMedia" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Loaded" value="3"/>
+            <enumerator name="Stalled" value="4"/>
+            <enumerator name="Buffering" value="5"/>
+            <enumerator name="Buffered" value="6"/>
+            <enumerator name="EndOfMedia" value="7"/>
+            <enumerator name="InvalidMedia" value="8"/>
+        </enum>
+        <enum name="Error">
+            <enumerator name="NoError" value="0"/>
+            <enumerator name="ResourceError" value="1"/>
+            <enumerator name="FormatError" value="2"/>
+            <enumerator name="NetworkError" value="3"/>
+            <enumerator name="AccessDenied" value="4"/>
+            <enumerator name="ServiceMissing" value="5"/>
+        </enum>
+        <property name="source" type="QUrl" isWritable="true"/>
+        <property name="autoLoad" type="bool" isWritable="true"/>
+        <property name="playing" type="bool" isWritable="true"/>
+        <property name="paused" type="bool" isWritable="true"/>
+        <property name="status" type="Status"/>
+        <property name="duration" type="int"/>
+        <property name="position" type="int" isWritable="true"/>
+        <property name="volume" type="qreal" isWritable="true"/>
+        <property name="muted" type="bool" isWritable="true"/>
+        <property name="bufferProgress" type="int"/>
+        <property name="seekable" type="bool"/>
+        <property name="playbackRate" type="qreal" isWritable="true"/>
+        <property name="error" type="Error"/>
+        <property name="errorString" type="string"/>
+        <property name="metaData" type="QDeclarativeMediaMetaData" isPointer="true"/>
+        <signal name="sourceChanged"/>
+        <signal name="autoLoadChanged"/>
+        <signal name="playingChanged"/>
+        <signal name="pausedChanged"/>
+        <signal name="started"/>
+        <signal name="resumed"/>
+        <signal name="paused"/>
+        <signal name="stopped"/>
+        <signal name="statusChanged"/>
+        <signal name="durationChanged"/>
+        <signal name="positionChanged"/>
+        <signal name="volumeChanged"/>
+        <signal name="mutedChanged"/>
+        <signal name="bufferProgressChanged"/>
+        <signal name="seekableChanged"/>
+        <signal name="playbackRateChanged"/>
+        <signal name="errorChanged"/>
+        <signal name="error">
+            <param name="error" type="QDeclarativeAudio.Error"/>
+            <param name="errorString" type="string"/>
+        </signal>
+        <method name="play"/>
+        <method name="pause"/>
+        <method name="stop"/>
+    </type>
     <type name="QDeclarativeBasePositioner" defaultProperty="data" extends="QDeclarativeItem">
         <property name="spacing" type="int" isWritable="true"/>
         <property name="move" type="QDeclarativeTransition" isWritable="true" isPointer="true"/>
@@ -286,8 +386,8 @@
     </type>
     <type name="QDeclarativeBehavior" defaultProperty="animation" extends="QObject">
         <exports>
-            <export module="QtQuick" version="1.0" type="Behavior"/>
             <export module="Qt" version="4.7" type="Behavior"/>
+            <export module="QtQuick" version="1.0" type="Behavior"/>
         </exports>
         <property name="animation" type="QDeclarativeAbstractAnimation" isWritable="true" isPointer="true"/>
         <property name="enabled" type="bool" isWritable="true"/>
@@ -295,8 +395,8 @@
     </type>
     <type name="QDeclarativeBind" extends="QObject">
         <exports>
-            <export module="QtQuick" version="1.0" type="Binding"/>
             <export module="Qt" version="4.7" type="Binding"/>
+            <export module="QtQuick" version="1.0" type="Binding"/>
         </exports>
         <property name="target" type="QObject" isWritable="true" isPointer="true"/>
         <property name="property" type="string" isWritable="true"/>
@@ -319,6 +419,175 @@
         <signal name="horizontalTileModeChanged"/>
         <signal name="verticalTileModeChanged"/>
     </type>
+    <type name="QDeclarativeCamera" defaultProperty="data" extends="QDeclarativeItem">
+        <exports>
+            <export module="QtMultimediaKit" version="1.1" type="Camera"/>
+        </exports>
+        <enum name="State">
+            <enumerator name="ActiveState" value="2"/>
+            <enumerator name="LoadedState" value="1"/>
+            <enumerator name="UnloadedState" value="0"/>
+        </enum>
+        <enum name="LockStatus">
+            <enumerator name="Unlocked" value="0"/>
+            <enumerator name="Searching" value="1"/>
+            <enumerator name="Locked" value="2"/>
+        </enum>
+        <enum name="Error">
+            <enumerator name="NoError" value="0"/>
+            <enumerator name="CameraError" value="1"/>
+            <enumerator name="InvalidRequestError" value="2"/>
+            <enumerator name="ServiceMissingError" value="3"/>
+            <enumerator name="NotSupportedFeatureError" value="4"/>
+        </enum>
+        <enum name="FlashMode">
+            <enumerator name="FlashAuto" value="1"/>
+            <enumerator name="FlashOff" value="2"/>
+            <enumerator name="FlashOn" value="4"/>
+            <enumerator name="FlashRedEyeReduction" value="8"/>
+            <enumerator name="FlashFill" value="16"/>
+            <enumerator name="FlashTorch" value="32"/>
+            <enumerator name="FlashSlowSyncFrontCurtain" value="64"/>
+            <enumerator name="FlashSlowSyncRearCurtain" value="128"/>
+            <enumerator name="FlashManual" value="256"/>
+        </enum>
+        <enum name="ExposureMode">
+            <enumerator name="ExposureAuto" value="0"/>
+            <enumerator name="ExposureManual" value="1"/>
+            <enumerator name="ExposurePortrait" value="2"/>
+            <enumerator name="ExposureNight" value="3"/>
+            <enumerator name="ExposureBacklight" value="4"/>
+            <enumerator name="ExposureSpotlight" value="5"/>
+            <enumerator name="ExposureSports" value="6"/>
+            <enumerator name="ExposureSnow" value="7"/>
+            <enumerator name="ExposureBeach" value="8"/>
+            <enumerator name="ExposureLargeAperture" value="9"/>
+            <enumerator name="ExposureSmallAperture" value="10"/>
+            <enumerator name="ExposureModeVendor" value="1000"/>
+        </enum>
+        <enum name="WhiteBalanceMode">
+            <enumerator name="WhiteBalanceAuto" value="0"/>
+            <enumerator name="WhiteBalanceManual" value="1"/>
+            <enumerator name="WhiteBalanceSunlight" value="2"/>
+            <enumerator name="WhiteBalanceCloudy" value="3"/>
+            <enumerator name="WhiteBalanceShade" value="4"/>
+            <enumerator name="WhiteBalanceTungsten" value="5"/>
+            <enumerator name="WhiteBalanceFluorescent" value="6"/>
+            <enumerator name="WhiteBalanceIncandescent" value="7"/>
+            <enumerator name="WhiteBalanceFlash" value="8"/>
+            <enumerator name="WhiteBalanceSunset" value="9"/>
+            <enumerator name="WhiteBalanceVendor" value="1000"/>
+        </enum>
+        <property name="cameraState" type="State" isWritable="true"/>
+        <property name="lockStatus" type="LockStatus"/>
+        <property name="errorString" type="string"/>
+        <property name="capturedImagePath" type="string"/>
+        <property name="iso" type="int" isWritable="true"/>
+        <property name="shutterSpeed" type="qreal"/>
+        <property name="aperture" type="qreal"/>
+        <property name="exposureCompensation" type="qreal" isWritable="true"/>
+        <property name="exposureMode" type="ExposureMode" isWritable="true"/>
+        <property name="flashMode" type="int" isWritable="true"/>
+        <property name="whiteBalanceMode" type="WhiteBalanceMode" isWritable="true"/>
+        <property name="manualWhiteBalance" type="int" isWritable="true"/>
+        <property name="captureResolution" type="QSize" isWritable="true"/>
+        <property name="opticalZoom" type="qreal" isWritable="true"/>
+        <property name="maximumOpticalZoom" type="qreal"/>
+        <property name="digitalZoom" type="qreal" isWritable="true"/>
+        <property name="maximumDigitalZoom" type="qreal"/>
+        <signal name="errorChanged"/>
+        <signal name="error">
+            <param name="error" type="QDeclarativeCamera.Error"/>
+            <param name="errorString" type="string"/>
+        </signal>
+        <signal name="cameraStateChanged">
+            <param type="QDeclarativeCamera.State"/>
+        </signal>
+        <signal name="lockStatusChanged"/>
+        <signal name="imageCaptured">
+            <param name="preview" type="string"/>
+        </signal>
+        <signal name="imageSaved">
+            <param name="path" type="string"/>
+        </signal>
+        <signal name="captureFailed">
+            <param name="message" type="string"/>
+        </signal>
+        <signal name="isoSensitivityChanged">
+            <param type="int"/>
+        </signal>
+        <signal name="apertureChanged">
+            <param type="qreal"/>
+        </signal>
+        <signal name="shutterSpeedChanged">
+            <param type="qreal"/>
+        </signal>
+        <signal name="exposureCompensationChanged">
+            <param type="qreal"/>
+        </signal>
+        <signal name="exposureModeChanged">
+            <param type="QDeclarativeCamera.ExposureMode"/>
+        </signal>
+        <signal name="flashModeChanged">
+            <param type="int"/>
+        </signal>
+        <signal name="whiteBalanceModeChanged">
+            <param type="QDeclarativeCamera.WhiteBalanceMode"/>
+        </signal>
+        <signal name="manualWhiteBalanceChanged">
+            <param type="int"/>
+        </signal>
+        <signal name="captureResolutionChanged">
+            <param type="QSize"/>
+        </signal>
+        <signal name="opticalZoomChanged">
+            <param type="qreal"/>
+        </signal>
+        <signal name="digitalZoomChanged">
+            <param type="qreal"/>
+        </signal>
+        <signal name="maximumOpticalZoomChanged">
+            <param type="qreal"/>
+        </signal>
+        <signal name="maximumDigitalZoomChanged">
+            <param type="qreal"/>
+        </signal>
+        <method name="start"/>
+        <method name="stop"/>
+        <method name="setCameraState">
+            <param name="state" type="State"/>
+        </method>
+        <method name="searchAndLock"/>
+        <method name="unlock"/>
+        <method name="captureImage"/>
+        <method name="setFlashMode">
+            <param type="int"/>
+        </method>
+        <method name="setExposureMode">
+            <param type="QDeclarativeCamera.ExposureMode"/>
+        </method>
+        <method name="setExposureCompensation">
+            <param name="ev" type="qreal"/>
+        </method>
+        <method name="setManualIsoSensitivity">
+            <param name="iso" type="int"/>
+        </method>
+        <method name="setWhiteBalanceMode">
+            <param name="mode" type="QDeclarativeCamera.WhiteBalanceMode"/>
+        </method>
+        <method name="setManualWhiteBalance">
+            <param name="colorTemp" type="int"/>
+        </method>
+        <method name="setCaptureResolution">
+            <param name="size" type="QSize"/>
+        </method>
+        <method name="setOpticalZoom">
+            <param type="qreal"/>
+        </method>
+        <method name="setDigitalZoom">
+            <param type="qreal"/>
+        </method>
+    </type>
     <type name="QDeclarativeColorAnimation" extends="QDeclarativePropertyAnimation">
         <exports>
             <export module="Qt" version="4.7" type="ColorAnimation"/>
@@ -329,14 +598,14 @@
     </type>
     <type name="QDeclarativeColumn" defaultProperty="data" extends="QDeclarativeBasePositioner">
         <exports>
-            <export module="QtQuick" version="1.0" type="Column"/>
             <export module="Qt" version="4.7" type="Column"/>
+            <export module="QtQuick" version="1.0" type="Column"/>
         </exports>
     </type>
     <type name="QDeclarativeComponent" extends="QObject">
         <exports>
-            <export module="QtQuick" version="1.0" type="Component"/>
             <export module="Qt" version="4.7" type="Component"/>
+            <export module="QtQuick" version="1.0" type="Component"/>
         </exports>
         <enum name="Status">
             <enumerator name="Null" value="0"/>
@@ -357,20 +626,824 @@
     </type>
     <type name="QDeclarativeConnections" extends="QObject">
         <exports>
-            <export module="Qt" version="4.7" type="Connections"/>
-            <export module="Qt" version="4.7" type="Connections"/>
             <export module="QtQuick" version="1.0" type="Connections"/>
             <export module="QtQuick" version="1.0" type="Connections"/>
+            <export module="Qt" version="4.7" type="Connections"/>
+            <export module="Qt" version="4.7" type="Connections"/>
         </exports>
         <property name="target" type="QObject" isWritable="true" isPointer="true"/>
         <property name="ignoreUnknownSignals" type="bool" isWritable="true"/>
         <signal name="targetChanged"/>
+    </type>
+    <type name="QDeclarativeContact" defaultProperty="details" extends="QObject">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Contact"/>
+        </exports>
+        <enum name="ContactType">
+            <enumerator name="Contact" value="0"/>
+            <enumerator name="Group" value="1"/>
+        </enum>
+        <property name="contactId" type="QContactLocalId"/>
+        <property name="manager" type="string"/>
+        <property name="details" type="QDeclarativeContactDetail" isList="true"/>
+        <property name="address" type="QDeclarativeContactAddress" isPointer="true"/>
+        <property name="anniversary" type="QDeclarativeContactAnniversary" isPointer="true"/>
+        <property name="avatar" type="QDeclarativeContactAvatar" isPointer="true"/>
+        <property name="birthday" type="QDeclarativeContactBirthday" isPointer="true"/>
+        <property name="displayLabel" type="string"/>
+        <property name="email" type="QDeclarativeContactEmailAddress" isPointer="true"/>
+        <property name="family" type="QDeclarativeContactFamily" isPointer="true"/>
+        <property name="favorite" type="QDeclarativeContactFavorite" isPointer="true"/>
+        <property name="gender" type="QDeclarativeContactGender" isPointer="true"/>
+        <property name="geolocation" type="QDeclarativeContactGeoLocation" isPointer="true"/>
+        <property name="globalPresence" type="QDeclarativeContactGlobalPresence" isPointer="true"/>
+        <property name="guid" type="QDeclarativeContactGuid" isPointer="true"/>
+        <property name="name" type="QDeclarativeContactName" isPointer="true"/>
+        <property name="nickname" type="QDeclarativeContactNickname" isPointer="true"/>
+        <property name="note" type="QDeclarativeContactNote" isPointer="true"/>
+        <property name="onlineAccount" type="QDeclarativeContactOnlineAccount" isPointer="true"/>
+        <property name="organization" type="QDeclarativeContactOrganization" isPointer="true"/>
+        <property name="phoneNumber" type="QDeclarativeContactPhoneNumber" isPointer="true"/>
+        <property name="presence" type="QDeclarativeContactPresence" isPointer="true"/>
+        <property name="ringtone" type="QDeclarativeContactRingtone" isPointer="true"/>
+        <property name="syncTarget" type="QDeclarativeContactSyncTarget" isPointer="true"/>
+        <property name="tag" type="QDeclarativeContactTag" isPointer="true"/>
+        <property name="thumbnail" type="QUrl" isWritable="true"/>
+        <property name="type" type="ContactType" isWritable="true"/>
+        <property name="url" type="QDeclarativeContactUrl" isPointer="true"/>
+        <property name="hobby" type="QDeclarativeContactHobby" isPointer="true"/>
+        <property name="modified" type="bool"/>
+        <signal name="contactIdChanged"/>
+        <signal name="managerChanged"/>
+        <signal name="detailsChanged"/>
+        <method name="clearDetails"/>
+        <method name="save"/>
+        <method name="detail" type="QDeclarativeContactDetail*">
+            <param name="name" type="QVariant"/>
+        </method>
+        <method name="details" type="QDeclarativeListProperty&lt;QDeclarativeContactDetail&gt;">
+            <param name="name" type="QVariant"/>
+        </method>
+        <method name="removeDetail" type="bool">
+            <param name="detail" type="QDeclarativeContactDetail" isPointer="true"/>
+        </method>
+    </type>
+    <type name="QDeclarativeContactActionFilter" defaultProperty="actionName" extends="QDeclarativeContactFilter">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="ActionFilter"/>
+        </exports>
+        <property name="actionName" type="string" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeContactAddress" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Address"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Street" value="0"/>
+            <enumerator name="Locality" value="1"/>
+            <enumerator name="Region" value="2"/>
+            <enumerator name="PostCode" value="3"/>
+            <enumerator name="Country" value="4"/>
+            <enumerator name="SubTypes" value="5"/>
+            <enumerator name="PostOfficeBox" value="6"/>
+        </enum>
+        <enum name="AddressSubType">
+            <enumerator name="Parcel" value="0"/>
+            <enumerator name="Postal" value="1"/>
+            <enumerator name="Domestic" value="2"/>
+            <enumerator name="International" value="3"/>
+        </enum>
+        <property name="street" type="string" isWritable="true"/>
+        <property name="locality" type="string" isWritable="true"/>
+        <property name="region" type="string" isWritable="true"/>
+        <property name="postcode" type="string" isWritable="true"/>
+        <property name="country" type="string" isWritable="true"/>
+        <property name="subTypes" type="QVariantList" isWritable="true"/>
+        <property name="postOfficeBox" type="string" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactAnniversary" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Anniversary"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="CalendarId" value="0"/>
+            <enumerator name="OriginalDate" value="1"/>
+            <enumerator name="Event" value="2"/>
+            <enumerator name="SubType" value="3"/>
+        </enum>
+        <enum name="AnniversarySubType">
+            <enumerator name="Unknown" value="0"/>
+            <enumerator name="Wedding" value="1"/>
+            <enumerator name="Engagement" value="2"/>
+            <enumerator name="House" value="3"/>
+            <enumerator name="Employment" value="4"/>
+            <enumerator name="Memorial" value="5"/>
+        </enum>
+        <property name="calendarId" type="string" isWritable="true"/>
+        <property name="originalDate" type="QDate" isWritable="true"/>
+        <property name="originalDateTime" type="QDateTime" isWritable="true"/>
+        <property name="event" type="string" isWritable="true"/>
+        <property name="subType" type="AnniversarySubType" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactAvatar" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Avatar"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="ImageUrl" value="0"/>
+            <enumerator name="VideoUrl" value="1"/>
+        </enum>
+        <property name="imageUrl" type="QUrl" isWritable="true"/>
+        <property name="videoUrl" type="QUrl" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactBirthday" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Birthday"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Birthday" value="0"/>
+        </enum>
+        <property name="birthday" type="QDateTime" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactChangeLogFilter" extends="QDeclarativeContactFilter">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="ChangeLogFilter"/>
+        </exports>
+        <enum name="EventType">
+            <enumerator name="EventAdded" value="0"/>
+            <enumerator name="EventChanged" value="1"/>
+            <enumerator name="EventRemoved" value="2"/>
+        </enum>
+        <property name="since" type="QDateTime" isWritable="true"/>
+        <property name="eventType" type="EventType" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeContactDetail" extends="QObject">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="ContactDetail"/>
+        </exports>
+        <enum name="ContactDetailType">
+            <enumerator name="Address" value="0"/>
+            <enumerator name="Anniversary" value="1"/>
+            <enumerator name="Avatar" value="2"/>
+            <enumerator name="Birthday" value="3"/>
+            <enumerator name="DisplayLabel" value="4"/>
+            <enumerator name="Email" value="5"/>
+            <enumerator name="Family" value="6"/>
+            <enumerator name="Favorite" value="7"/>
+            <enumerator name="Gender" value="8"/>
+            <enumerator name="Geolocation" value="9"/>
+            <enumerator name="GlobalPresence" value="10"/>
+            <enumerator name="Guid" value="11"/>
+            <enumerator name="Name" value="12"/>
+            <enumerator name="NickName" value="13"/>
+            <enumerator name="Note" value="14"/>
+            <enumerator name="OnlineAccount" value="15"/>
+            <enumerator name="Organization" value="16"/>
+            <enumerator name="PhoneNumber" value="17"/>
+            <enumerator name="Presence" value="18"/>
+            <enumerator name="Ringtone" value="19"/>
+            <enumerator name="SyncTarget" value="20"/>
+            <enumerator name="Tag" value="21"/>
+            <enumerator name="Timestamp" value="22"/>
+            <enumerator name="Url" value="23"/>
+            <enumerator name="Hobby" value="24"/>
+            <enumerator name="Customized" value="100"/>
+        </enum>
+        <property name="type" type="ContactDetailType"/>
+        <property name="definitionName" type="string"/>
+        <property name="contexts" type="QStringList" isWritable="true"/>
+        <property name="detailUri" type="string" isWritable="true"/>
+        <property name="linkedDetailUris" type="QStringList" isWritable="true"/>
+        <property name="fieldNames" type="QStringList"/>
+        <property name="readOnly" type="bool"/>
+        <property name="removable" type="bool"/>
+        <signal name="valueChanged"/>
+        <method name="value" type="QVariant">
+            <param name="key" type="string"/>
+        </method>
+        <method name="setValue" type="bool">
+            <param name="key" type="string"/>
+            <param name="value" type="QVariant"/>
+        </method>
+    </type>
+    <type name="QDeclarativeContactDetailFilter" extends="QDeclarativeContactFilter">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="DetailFilter"/>
+        </exports>
+        <property name="detail" type="QDeclarativeContactDetail.ContactDetailType" isWritable="true"/>
+        <property name="field" type="int" isWritable="true"/>
+        <property name="value" type="QVariant" isWritable="true"/>
+        <property name="matchFlags" type="MatchFlags" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeContactDetailRangeFilter" extends="QDeclarativeContactFilter">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="DetailRangeFilter"/>
+        </exports>
+        <enum name="RangeFlags">
+            <enumerator name="IncludeLower" value="0"/>
+            <enumerator name="IncludeUpper" value="1"/>
+            <enumerator name="ExcludeLower" value="2"/>
+            <enumerator name="ExcludeUpper" value="0"/>
+        </enum>
+        <property name="detail" type="QDeclarativeContactDetail.ContactDetailType" isWritable="true"/>
+        <property name="field" type="int" isWritable="true"/>
+        <property name="min" type="QVariant" isWritable="true"/>
+        <property name="max" type="QVariant" isWritable="true"/>
+        <property name="matchFlags" type="MatchFlags" isWritable="true"/>
+        <property name="rangeFlags" type="RangeFlags" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeContactDisplayLabel" defaultProperty="label" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="DisplayLabel"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Label" value="0"/>
+        </enum>
+        <property name="label" type="string"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactEmailAddress" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="EmailAddress"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="EmailAddress" value="0"/>
+        </enum>
+        <property name="emailAddress" type="string" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactFamily" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Family"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Spouse" value="0"/>
+            <enumerator name="Children" value="1"/>
+        </enum>
+        <property name="spouse" type="string" isWritable="true"/>
+        <property name="children" type="QStringList" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactFavorite" defaultProperty="index" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Favorite"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Favorite" value="0"/>
+            <enumerator name="Index" value="1"/>
+        </enum>
+        <property name="favorite" type="bool" isWritable="true"/>
+        <property name="index" type="int" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactFetchHint" extends="QObject">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="FetchHint"/>
+        </exports>
+        <enum name="OptimizationHints">
+            <enumerator name="AllRequired" value="0"/>
+            <enumerator name="NoRelationships" value="1"/>
+            <enumerator name="NoActionPreferences" value="2"/>
+            <enumerator name="NoBinaryBlobs" value="4"/>
+        </enum>
+        <property name="detailDefinitionsHint" type="QStringList" isWritable="true"/>
+        <property name="relationshipTypesHint" type="QStringList" isWritable="true"/>
+        <property name="optimizationHints" type="OptimizationHints" isWritable="true"/>
+        <property name="optimizationHints" type="QSize" isWritable="true"/>
+        <signal name="fetchHintChanged"/>
+    </type>
+    <type name="QDeclarativeContactFilter" extends="QObject">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Filter"/>
+        </exports>
+        <enum name="FilterType">
+            <enumerator name="InvalidFilter" value="0"/>
+            <enumerator name="DetailFilter" value="1"/>
+            <enumerator name="DetailRangeFilter" value="2"/>
+            <enumerator name="ChangeLogFilter" value="3"/>
+            <enumerator name="ActionFilter" value="4"/>
+            <enumerator name="RelationshipFilter" value="5"/>
+            <enumerator name="IntersectionFilter" value="6"/>
+            <enumerator name="UnionFilter" value="7"/>
+            <enumerator name="IdFilter" value="8"/>
+            <enumerator name="DefaultFilter" value="9"/>
+        </enum>
+        <enum name="MatchFlags">
+            <enumerator name="MatchExactly" value="0"/>
+            <enumerator name="MatchContains" value="1"/>
+            <enumerator name="MatchStartsWith" value="2"/>
+            <enumerator name="MatchEndsWith" value="3"/>
+            <enumerator name="MatchFixedString" value="8"/>
+            <enumerator name="MatchCaseSensitive" value="16"/>
+            <enumerator name="MatchPhoneNumber" value="1024"/>
+            <enumerator name="MatchKeypadCollation" value="2048"/>
+        </enum>
+        <property name="type" type="FilterType"/>
+        <signal name="typeChanged"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeContactGender" defaultProperty="gender" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Gender"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Gender" value="0"/>
+        </enum>
+        <enum name="GenderType">
+            <enumerator name="Male" value="0"/>
+            <enumerator name="Female" value="1"/>
+        </enum>
+        <property name="gender" type="GenderType" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactGeoLocation" defaultProperty="label" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Location"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Label" value="0"/>
+            <enumerator name="Latitude" value="1"/>
+            <enumerator name="Longitude" value="2"/>
+            <enumerator name="Accuracy" value="3"/>
+            <enumerator name="Altitude" value="4"/>
+            <enumerator name="AltitudeAccuracy" value="5"/>
+            <enumerator name="Heading" value="6"/>
+            <enumerator name="Speed" value="7"/>
+            <enumerator name="Timestamp" value="8"/>
+        </enum>
+        <property name="label" type="string" isWritable="true"/>
+        <property name="latitude" type="double" isWritable="true"/>
+        <property name="longitude" type="double" isWritable="true"/>
+        <property name="accuracy" type="double" isWritable="true"/>
+        <property name="altitude" type="double" isWritable="true"/>
+        <property name="altitudeAccuracy" type="double" isWritable="true"/>
+        <property name="heading" type="double" isWritable="true"/>
+        <property name="speed" type="double" isWritable="true"/>
+        <property name="timestamp" type="QDateTime" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactGlobalPresence" defaultProperty="state" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="GlobalPresence"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Timestamp" value="0"/>
+            <enumerator name="Nickname" value="1"/>
+            <enumerator name="State" value="2"/>
+            <enumerator name="StateText" value="3"/>
+            <enumerator name="ImageUrl" value="4"/>
+            <enumerator name="CustomMessage" value="5"/>
+        </enum>
+        <property name="timestamp" type="QDateTime" isWritable="true"/>
+        <property name="nickname" type="string" isWritable="true"/>
+        <property name="state" type="QDeclarativeContactPresence.PresenceStateType" isWritable="true"/>
+        <property name="stateText" type="string" isWritable="true"/>
+        <property name="imageUrl" type="QUrl" isWritable="true"/>
+        <property name="customMessage" type="string" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactGuid" defaultProperty="guid" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Guid"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Guid" value="0"/>
+        </enum>
+        <property name="guid" type="string" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactHobby" defaultProperty="hobby" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Hobby"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Hobby" value="0"/>
+        </enum>
+        <property name="hobby" type="string" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactIntersectionFilter" defaultProperty="filters" extends="QDeclarativeContactFilter">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="IntersectionFilter"/>
+        </exports>
+        <property name="filters" type="QDeclarativeContactFilter" isList="true"/>
+        <signal name="valueChanged"/>
+        <method name="setFilters"/>
+    </type>
+    <type name="QDeclarativeContactLocalIdFilter" defaultProperty="ids" extends="QDeclarativeContactFilter">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="IdFilter"/>
+        </exports>
+        <property name="ids" type="QStringList" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeContactModel" extends="QAbstractListModel">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="ContactModel"/>
+        </exports>
+        <property name="manager" type="string" isWritable="true"/>
+        <property name="availableManagers" type="QStringList"/>
+        <property name="error" type="string"/>
+        <property name="autoUpdate" type="bool" isWritable="true"/>
+        <property name="filter" type="QDeclarativeContactFilter" isWritable="true" isPointer="true"/>
+        <property name="fetchHint" type="QDeclarativeContactFetchHint" isWritable="true" isPointer="true"/>
+        <property name="contacts" type="QDeclarativeContact" isList="true"/>
+        <property name="sortOrders" type="QDeclarativeContactSortOrder" isList="true"/>
+        <signal name="managerChanged"/>
+        <signal name="filterChanged"/>
+        <signal name="errorChanged"/>
+        <signal name="fetchHintChanged"/>
+        <signal name="contactsChanged"/>
+        <signal name="vcardChanged"/>
+        <signal name="sortOrdersChanged"/>
+        <signal name="autoUpdateChanged"/>
+        <method name="update"/>
+        <method name="exportContacts">
+            <param name="url" type="QUrl"/>
+            <param name="profiles" type="QStringList"/>
+        </method>
+        <method name="exportContacts">
+            <param name="url" type="QUrl"/>
+        </method>
+        <method name="importContacts">
+            <param name="url" type="QUrl"/>
+            <param name="profiles" type="QStringList"/>
+        </method>
+        <method name="importContacts">
+            <param name="url" type="QUrl"/>
+        </method>
+        <method name="removeContacts">
+            <param name="ids" type="QList&lt;QContactLocalId&gt;"/>
+        </method>
+        <method name="fetchContacts">
+            <param name="contactIds" type="QList&lt;QContactLocalId&gt;"/>
+        </method>
+        <method name="removeContact">
+            <param name="id" type="QContactLocalId"/>
+        </method>
+        <method name="saveContact">
+            <param name="dc" type="QDeclarativeContact" isPointer="true"/>
+        </method>
+    </type>
+    <type name="QDeclarativeContactName" defaultProperty="firstName" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Name"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Prefix" value="0"/>
+            <enumerator name="FirstName" value="1"/>
+            <enumerator name="MiddleName" value="2"/>
+            <enumerator name="LastName" value="3"/>
+            <enumerator name="Suffix" value="4"/>
+            <enumerator name="CustomLabel" value="5"/>
+        </enum>
+        <property name="prefix" type="string" isWritable="true"/>
+        <property name="firstName" type="string" isWritable="true"/>
+        <property name="middleName" type="string" isWritable="true"/>
+        <property name="lastName" type="string" isWritable="true"/>
+        <property name="suffix" type="string" isWritable="true"/>
+        <property name="customLabel" type="string" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactNickname" defaultProperty="nickname" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Nickname"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="NickName" value="0"/>
+        </enum>
+        <property name="nickname" type="string" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactNote" defaultProperty="note" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Note"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Note" value="0"/>
+        </enum>
+        <property name="note" type="string" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactOnlineAccount" defaultProperty="accountUri" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="OnlineAccount"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="AccountUri" value="0"/>
+            <enumerator name="ServiceProvider" value="1"/>
+            <enumerator name="Capabilities" value="2"/>
+            <enumerator name="SubTypes" value="3"/>
+        </enum>
+        <enum name="OnlineAccountSubType">
+            <enumerator name="Unknown" value="0"/>
+            <enumerator name="Sip" value="1"/>
+            <enumerator name="SipVoip" value="2"/>
+            <enumerator name="Impp" value="3"/>
+            <enumerator name="VideoShare" value="4"/>
+        </enum>
+        <property name="accountUri" type="string" isWritable="true"/>
+        <property name="serviceProvider" type="string" isWritable="true"/>
+        <property name="capabilities" type="QStringList" isWritable="true"/>
+        <property name="subTypes" type="QVariantList" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactOrganization" defaultProperty="name" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Organization"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Name" value="0"/>
+            <enumerator name="LogoUrl" value="1"/>
+            <enumerator name="Department" value="2"/>
+            <enumerator name="Location" value="3"/>
+            <enumerator name="Role" value="4"/>
+            <enumerator name="Title" value="5"/>
+            <enumerator name="AssistantName" value="6"/>
+        </enum>
+        <property name="name" type="string" isWritable="true"/>
+        <property name="logoUrl" type="QUrl" isWritable="true"/>
+        <property name="department" type="QStringList" isWritable="true"/>
+        <property name="location" type="string" isWritable="true"/>
+        <property name="role" type="string" isWritable="true"/>
+        <property name="title" type="string" isWritable="true"/>
+        <property name="assistantName" type="string" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactPhoneNumber" defaultProperty="number" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="PhoneNumber"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Number" value="0"/>
+            <enumerator name="SubTypes" value="1"/>
+        </enum>
+        <enum name="PhoneNumberSubType">
+            <enumerator name="Unknown" value="0"/>
+            <enumerator name="Landline" value="1"/>
+            <enumerator name="Mobile" value="2"/>
+            <enumerator name="Fax" value="3"/>
+            <enumerator name="Pager" value="4"/>
+            <enumerator name="Voice" value="5"/>
+            <enumerator name="Modem" value="6"/>
+            <enumerator name="Video" value="7"/>
+            <enumerator name="Car" value="8"/>
+            <enumerator name="BulletinBoardSystem" value="9"/>
+            <enumerator name="MessagingCapable" value="10"/>
+            <enumerator name="Assistant" value="11"/>
+            <enumerator name="DtmfMenu" value="12"/>
+        </enum>
+        <property name="number" type="string" isWritable="true"/>
+        <property name="subTypes" type="QVariantList" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactPresence" defaultProperty="state" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Presence"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Timestamp" value="0"/>
+            <enumerator name="Nickname" value="1"/>
+            <enumerator name="State" value="2"/>
+            <enumerator name="StateText" value="3"/>
+            <enumerator name="ImageUrl" value="4"/>
+            <enumerator name="CustomMessage" value="5"/>
+        </enum>
+        <enum name="PresenceStateType">
+            <enumerator name="Unknown" value="0"/>
+            <enumerator name="Available" value="1"/>
+            <enumerator name="Hidden" value="2"/>
+            <enumerator name="Busy" value="3"/>
+            <enumerator name="Away" value="4"/>
+            <enumerator name="ExtendedAway" value="5"/>
+            <enumerator name="Offline" value="6"/>
+        </enum>
+        <property name="timestamp" type="QDateTime" isWritable="true"/>
+        <property name="nickname" type="string" isWritable="true"/>
+        <property name="state" type="PresenceStateType" isWritable="true"/>
+        <property name="stateText" type="string" isWritable="true"/>
+        <property name="imageUrl" type="QUrl" isWritable="true"/>
+        <property name="customMessage" type="string" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactRelationship" extends="QObject">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Relationship"/>
+        </exports>
+        <enum name="RelationshipRole">
+            <enumerator name="First" value="0"/>
+            <enumerator name="Second" value="1"/>
+            <enumerator name="Either" value="2"/>
+        </enum>
+        <enum name="RelationshipType">
+            <enumerator name="Unknown" value="0"/>
+            <enumerator name="HasMember" value="1"/>
+            <enumerator name="Aggregates" value="2"/>
+            <enumerator name="IsSameAs" value="3"/>
+            <enumerator name="HasAssistant" value="4"/>
+            <enumerator name="HasManager" value="5"/>
+            <enumerator name="HasSpouse" value="6"/>
+        </enum>
+        <property name="first" type="QContactLocalId" isWritable="true"/>
+        <property name="second" type="QContactLocalId" isWritable="true"/>
+        <property name="type" type="QVariant" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeContactRelationshipFilter" extends="QDeclarativeContactFilter">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="RelationshipFilter"/>
+        </exports>
+        <property name="relationshipType" type="QVariant" isWritable="true"/>
+        <property name="relatedContactId" type="QContactLocalId" isWritable="true"/>
+        <property name="relatedContactRole" type="QDeclarativeContactRelationship.RelationshipRole" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeContactRingtone" defaultProperty="audioRingtoneUrl" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Ringtone"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="AudioRingtoneUrl" value="0"/>
+            <enumerator name="VideoRingtoneUrl" value="1"/>
+            <enumerator name="VibrationRingtoneUrl" value="2"/>
+        </enum>
+        <property name="audioRingtoneUrl" type="QUrl" isWritable="true"/>
+        <property name="videoRingtoneUrl" type="QUrl" isWritable="true"/>
+        <property name="vibrationRingtoneUrl" type="QUrl" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactSortOrder" extends="QObject">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="SortOrder"/>
+        </exports>
+        <enum name="BlankPolicy">
+            <enumerator name="BlanksFirst" value="0"/>
+            <enumerator name="BlanksLast" value="1"/>
+        </enum>
+        <property name="detail" type="QDeclarativeContactDetail.ContactDetailType" isWritable="true"/>
+        <property name="field" type="int" isWritable="true"/>
+        <property name="direction" type="Qt.SortOrder" isWritable="true"/>
+        <property name="blankPolicy" type="BlankPolicy" isWritable="true"/>
+        <property name="caseSensitivity" type="Qt.CaseSensitivity" isWritable="true"/>
+        <signal name="sortOrderChanged"/>
+    </type>
+    <type name="QDeclarativeContactSyncTarget" defaultProperty="syncTarget" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="SyncTarget"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="SyncTarget" value="0"/>
+        </enum>
+        <property name="syncTarget" type="string" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactTag" defaultProperty="tag" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Tag"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Tag" value="0"/>
+        </enum>
+        <property name="tag" type="string" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactTimestamp" defaultProperty="lastModified" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Timestamp"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="LastModified" value="0"/>
+            <enumerator name="Created" value="1"/>
+        </enum>
+        <property name="lastModified" type="QDateTime" isWritable="true"/>
+        <property name="created" type="QDateTime" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeContactUnionFilter" defaultProperty="filters" extends="QDeclarativeContactFilter">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="UnionFilter"/>
+        </exports>
+        <property name="filters" type="QDeclarativeContactFilter" isList="true"/>
+        <signal name="valueChanged"/>
+        <method name="setFilters"/>
+    </type>
+    <type name="QDeclarativeContactUrl" defaultProperty="url" extends="QDeclarativeContactDetail">
+        <exports>
+            <export module="QtMobility.contacts" version="1.1" type="Url"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Url" value="0"/>
+            <enumerator name="SubType" value="1"/>
+        </enum>
+        <enum name="UrlSubType">
+            <enumerator name="Unknown" value="0"/>
+            <enumerator name="HomePage" value="1"/>
+            <enumerator name="Favourite" value="2"/>
+        </enum>
+        <property name="url" type="string" isWritable="true"/>
+        <property name="subType" type="UrlSubType" isWritable="true"/>
+        <signal name="fieldsChanged"/>
+    </type>
+    <type name="QDeclarativeCoordinate" extends="QObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="Coordinate"/>
+        </exports>
+        <property name="latitude" type="double" isWritable="true"/>
+        <property name="longitude" type="double" isWritable="true"/>
+        <property name="altitude" type="double" isWritable="true"/>
+        <signal name="latitudeChanged">
+            <param name="latitude" type="double"/>
+        </signal>
+        <signal name="longitudeChanged">
+            <param name="longitude" type="double"/>
+        </signal>
+        <signal name="altitudeChanged">
+            <param name="altitude" type="double"/>
+        </signal>
+        <method name="distanceTo" type="qreal">
+            <param name="coordinate" type="QObject" isPointer="true"/>
+        </method>
     </type>
     <type name="QDeclarativeCurve" extends="QDeclarativePathElement">
         <property name="x" type="qreal" isWritable="true"/>
         <property name="y" type="qreal" isWritable="true"/>
         <signal name="xChanged"/>
         <signal name="yChanged"/>
+    </type>
+    <type name="QDeclarativeDeviceInfo" extends="QSystemDeviceInfo">
+        <exports>
+            <export module="QtMobility.systeminfo" version="1.1" type="DeviceInfo"/>
+        </exports>
+        <signal name="batteryLevelChanged">
+            <param name="level" type="int"/>
+        </signal>
+        <signal name="batteryStatusChanged">
+            <param name="batteryStatus" type="QSystemDeviceInfo.BatteryStatus"/>
+        </signal>
+        <signal name="powerStateChanged">
+            <param name="powerState" type="QSystemDeviceInfo.PowerState"/>
+        </signal>
+        <signal name="currentProfileChanged">
+            <param name="currentProfile" type="QSystemDeviceInfo.Profile"/>
+        </signal>
+        <signal name="bluetoothStateChanged">
+            <param name="on" type="bool"/>
+        </signal>
+        <method name="startBatteryLevelChanged"/>
+        <method name="startBatteryStatusChanged"/>
+        <method name="startPowerStateChanged"/>
+        <method name="startCurrentProfileChanged"/>
+        <method name="startBluetoothStateChanged"/>
+    </type>
+    <type name="QDeclarativeDocumentGallery" extends="QObject">
+        <exports>
+            <export module="QtMobility.gallery" version="1.1" type="DocumentGallery"/>
+        </exports>
+        <enum name="ItemType">
+            <enumerator name="InvalidType" value="0"/>
+            <enumerator name="File" value="1"/>
+            <enumerator name="Folder" value="2"/>
+            <enumerator name="Document" value="3"/>
+            <enumerator name="Text" value="4"/>
+            <enumerator name="Audio" value="5"/>
+            <enumerator name="Image" value="6"/>
+            <enumerator name="Video" value="7"/>
+            <enumerator name="Playlist" value="8"/>
+            <enumerator name="Artist" value="9"/>
+            <enumerator name="AlbumArtist" value="10"/>
+            <enumerator name="Album" value="11"/>
+            <enumerator name="AudioGenre" value="12"/>
+            <enumerator name="PhotoAlbum" value="13"/>
+        </enum>
+    </type>
+    <type name="QDeclarativeDocumentGalleryItem" extends="QDeclarativeGalleryItem">
+        <exports>
+            <export module="QtMobility.gallery" version="1.1" type="DocumentGalleryItem"/>
+        </exports>
+        <property name="itemType" type="QDeclarativeDocumentGallery.ItemType"/>
+        <signal name="itemTypeChanged"/>
+    </type>
+    <type name="QDeclarativeDocumentGalleryModel" extends="QDeclarativeGalleryQueryModel">
+        <exports>
+            <export module="QtMobility.gallery" version="1.1" type="DocumentGalleryModel"/>
+        </exports>
+        <property name="rootType" type="QDeclarativeDocumentGallery.ItemType" isWritable="true"/>
+        <signal name="rootTypeChanged"/>
+    </type>
+    <type name="QDeclarativeDocumentGalleryType" extends="QDeclarativeGalleryType">
+        <exports>
+            <export module="QtMobility.gallery" version="1.1" type="DocumentGalleryType"/>
+        </exports>
+        <property name="itemType" type="QDeclarativeDocumentGallery.ItemType" isWritable="true"/>
+        <signal name="itemTypeChanged"/>
     </type>
     <type name="QDeclarativeDrag" extends="QObject">
         <exports>
@@ -401,8 +1474,8 @@
     </type>
     <type name="QDeclarativeEasingValueType" extends="QDeclarativeValueType">
         <exports>
-            <export module="Qt" version="4.7" type="Easing"/>
             <export module="QtQuick" version="1.0" type="Easing"/>
+            <export module="Qt" version="4.7" type="Easing"/>
         </exports>
         <enum name="Type">
             <enumerator name="Linear" value="0"/>
@@ -456,10 +1529,38 @@
         <property name="overshoot" type="qreal" isWritable="true"/>
         <property name="period" type="qreal" isWritable="true"/>
     </type>
+    <type name="QDeclarativeFeedback" extends="QObject">
+        <exports>
+            <export module="QtMobility.feedback" version="1.1" type="Feedback"/>
+        </exports>
+        <enum name="Duration">
+            <enumerator name="Infinite" value="-1"/>
+        </enum>
+        <enum name="State">
+            <enumerator name="Stopped" value="0"/>
+            <enumerator name="Paused" value="1"/>
+            <enumerator name="Running" value="2"/>
+            <enumerator name="Loading" value="3"/>
+        </enum>
+        <enum name="ErrorType">
+            <enumerator name="UnknownError" value="0"/>
+            <enumerator name="DeviceBusy" value="1"/>
+        </enum>
+    </type>
+    <type name="QDeclarativeFileEffect" extends="QFeedbackFileEffect">
+        <exports>
+            <export module="QtMobility.feedback" version="1.1" type="FileEffect"/>
+        </exports>
+        <property name="running" type="bool" isWritable="true"/>
+        <property name="paused" type="bool" isWritable="true"/>
+        <signal name="runningChanged"/>
+        <signal name="pausedChanged"/>
+        <method name="updateState"/>
+    </type>
     <type name="QDeclarativeFlickable" defaultProperty="flickableData" extends="QDeclarativeItem">
         <exports>
-            <export module="Qt" version="4.7" type="Flickable"/>
             <export module="QtQuick" version="1.0" type="Flickable"/>
+            <export module="Qt" version="4.7" type="Flickable"/>
         </exports>
         <enum name="BoundsBehavior">
             <enumerator name="StopAtBounds" value="0"/>
@@ -511,6 +1612,7 @@
         <signal name="horizontalVelocityChanged"/>
         <signal name="verticalVelocityChanged"/>
         <signal name="isAtBoundaryChanged"/>
+        <signal name="pageChanged"/>
         <signal name="flickableDirectionChanged"/>
         <signal name="interactiveChanged"/>
         <signal name="boundsBehaviorChanged"/>
@@ -527,18 +1629,7 @@
         <property name="yPosition" type="qreal"/>
         <property name="widthRatio" type="qreal"/>
         <property name="heightRatio" type="qreal"/>
-        <signal name="xPositionChanged">
-            <param name="xPosition" type="qreal"/>
-        </signal>
-        <signal name="yPositionChanged">
-            <param name="yPosition" type="qreal"/>
-        </signal>
-        <signal name="widthRatioChanged">
-            <param name="widthRatio" type="qreal"/>
-        </signal>
-        <signal name="heightRatioChanged">
-            <param name="heightRatio" type="qreal"/>
-        </signal>
+        <signal name="pageChanged"/>
     </type>
     <type name="QDeclarativeFlipable" defaultProperty="data" extends="QDeclarativeItem">
         <exports>
@@ -576,8 +1667,8 @@
     </type>
     <type name="QDeclarativeFocusScope" defaultProperty="data" extends="QDeclarativeItem">
         <exports>
-            <export module="QtQuick" version="1.0" type="FocusScope"/>
             <export module="Qt" version="4.7" type="FocusScope"/>
+            <export module="QtQuick" version="1.0" type="FocusScope"/>
         </exports>
     </type>
     <type name="QDeclarativeFolderListModel" extends="QAbstractListModel">
@@ -625,8 +1716,8 @@
     </type>
     <type name="QDeclarativeFontValueType" extends="QDeclarativeValueType">
         <exports>
-            <export module="Qt" version="4.7" type="Font"/>
             <export module="QtQuick" version="1.0" type="Font"/>
+            <export module="Qt" version="4.7" type="Font"/>
         </exports>
         <enum name="FontWeight">
             <enumerator name="Light" value="25"/>
@@ -655,6 +1746,419 @@
         <property name="letterSpacing" type="qreal" isWritable="true"/>
         <property name="wordSpacing" type="qreal" isWritable="true"/>
     </type>
+    <type name="QDeclarativeGalleryContainsFilter" extends="QDeclarativeGalleryStringFilter">
+        <exports>
+            <export module="QtMobility.gallery" version="1.1" type="GalleryContainsFilter"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeGalleryEndsWithFilter" extends="QDeclarativeGalleryStringFilter">
+        <exports>
+            <export module="QtMobility.gallery" version="1.1" type="GalleryEndsWithFilter"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeGalleryEqualsFilter" extends="QDeclarativeGalleryValueFilter">
+        <exports>
+            <export module="QtMobility.gallery" version="1.1" type="GalleryEqualsFilter"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeGalleryFilterBase" extends="QObject">
+        <signal name="filterChanged"/>
+    </type>
+    <type name="QDeclarativeGalleryFilterGroup" defaultProperty="filters" extends="QDeclarativeGalleryFilterBase">
+        <property name="filters" type="QDeclarativeGalleryFilterBase" isList="true"/>
+    </type>
+    <type name="QDeclarativeGalleryFilterIntersection" defaultProperty="filters" extends="QDeclarativeGalleryFilterGroup">
+        <exports>
+            <export module="QtMobility.gallery" version="1.1" type="GalleryFilterIntersection"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeGalleryFilterUnion" defaultProperty="filters" extends="QDeclarativeGalleryFilterGroup">
+        <exports>
+            <export module="QtMobility.gallery" version="1.1" type="GalleryFilterUnion"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeGalleryGreaterThanEqualsFilter" extends="QDeclarativeGalleryValueFilter">
+        <exports>
+            <export module="QtMobility.gallery" version="1.1" type="GalleryGreaterThanEqualsFilter"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeGalleryGreaterThanFilter" extends="QDeclarativeGalleryValueFilter">
+        <exports>
+            <export module="QtMobility.gallery" version="1.1" type="GalleryGreaterThanFilter"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeGalleryItem" extends="QObject">
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Active" value="1"/>
+            <enumerator name="Canceling" value="2"/>
+            <enumerator name="Canceled" value="3"/>
+            <enumerator name="Idle" value="4"/>
+            <enumerator name="Finished" value="5"/>
+            <enumerator name="Error" value="6"/>
+        </enum>
+        <property name="status" type="Status"/>
+        <property name="progress" type="qreal"/>
+        <property name="properties" type="QStringList" isWritable="true"/>
+        <property name="autoUpdate" type="bool" isWritable="true"/>
+        <property name="item" type="QVariant" isWritable="true"/>
+        <property name="available" type="bool"/>
+        <property name="itemUrl" type="QUrl"/>
+        <property name="metaData" type="QObject" isPointer="true"/>
+        <signal name="statusChanged"/>
+        <signal name="progressChanged"/>
+        <signal name="availableChanged"/>
+        <signal name="metaDataChanged"/>
+        <signal name="galleryChanged"/>
+        <signal name="propertyNamesChanged"/>
+        <signal name="autoUpdateChanged"/>
+        <signal name="itemIdChanged"/>
+        <method name="reload"/>
+        <method name="cancel"/>
+        <method name="clear"/>
+    </type>
+    <type name="QDeclarativeGalleryLessThanEqualsFilter" extends="QDeclarativeGalleryValueFilter">
+        <exports>
+            <export module="QtMobility.gallery" version="1.1" type="GalleryLessThanEqualsFilter"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeGalleryLessThanFilter" extends="QDeclarativeGalleryValueFilter">
+        <exports>
+            <export module="QtMobility.gallery" version="1.1" type="GalleryLessThanFilter"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeGalleryQueryModel" extends="QAbstractListModel">
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Active" value="1"/>
+            <enumerator name="Canceling" value="2"/>
+            <enumerator name="Canceled" value="3"/>
+            <enumerator name="Idle" value="4"/>
+            <enumerator name="Finished" value="5"/>
+            <enumerator name="Error" value="6"/>
+        </enum>
+        <enum name="Scope">
+            <enumerator name="AllDescendants" value="0"/>
+            <enumerator name="DirectDescendants" value="1"/>
+        </enum>
+        <property name="status" type="Status"/>
+        <property name="progress" type="qreal"/>
+        <property name="properties" type="QStringList" isWritable="true"/>
+        <property name="sortProperties" type="QStringList" isWritable="true"/>
+        <property name="autoUpdate" type="bool" isWritable="true"/>
+        <property name="rootItem" type="QVariant" isWritable="true"/>
+        <property name="scope" type="Scope" isWritable="true"/>
+        <property name="offset" type="int" isWritable="true"/>
+        <property name="limit" type="int" isWritable="true"/>
+        <property name="count" type="int"/>
+        <property name="filter" type="QDeclarativeGalleryFilterBase" isWritable="true" isPointer="true"/>
+        <signal name="statusChanged"/>
+        <signal name="progressChanged"/>
+        <signal name="propertyNamesChanged"/>
+        <signal name="sortPropertyNamesChanged"/>
+        <signal name="autoUpdateChanged"/>
+        <signal name="rootItemChanged"/>
+        <signal name="scopeChanged"/>
+        <signal name="filterChanged"/>
+        <signal name="offsetChanged"/>
+        <signal name="limitChanged"/>
+        <signal name="countChanged"/>
+        <method name="reload"/>
+        <method name="cancel"/>
+        <method name="clear"/>
+        <method name="get" type="QScriptValue">
+            <param name="index" type="QScriptValue"/>
+        </method>
+        <method name="property" type="QVariant">
+            <param name="index" type="int"/>
+            <param name="property" type="string"/>
+        </method>
+        <method name="set">
+            <param name="index" type="int"/>
+            <param name="value" type="QScriptValue"/>
+        </method>
+        <method name="setProperty">
+            <param name="index" type="int"/>
+            <param name="property" type="string"/>
+            <param name="value" type="QVariant"/>
+        </method>
+    </type>
+    <type name="QDeclarativeGalleryStartsWithFilter" extends="QDeclarativeGalleryStringFilter">
+        <exports>
+            <export module="QtMobility.gallery" version="1.1" type="GalleryStartsWithFilter"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeGalleryStringFilter" extends="QDeclarativeGalleryFilterBase">
+        <property name="property" type="string" isWritable="true"/>
+        <property name="value" type="string" isWritable="true"/>
+        <property name="negated" type="bool" isWritable="true"/>
+        <signal name="propertyNameChanged"/>
+        <signal name="valueChanged"/>
+        <signal name="negatedChanged"/>
+    </type>
+    <type name="QDeclarativeGalleryType" extends="QObject">
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Active" value="1"/>
+            <enumerator name="Canceling" value="2"/>
+            <enumerator name="Canceled" value="3"/>
+            <enumerator name="Idle" value="4"/>
+            <enumerator name="Finished" value="5"/>
+            <enumerator name="Error" value="6"/>
+        </enum>
+        <property name="status" type="Status"/>
+        <property name="progress" type="qreal"/>
+        <property name="properties" type="QStringList" isWritable="true"/>
+        <property name="autoUpdate" type="bool" isWritable="true"/>
+        <property name="available" type="bool"/>
+        <property name="metaData" type="QObject" isPointer="true"/>
+        <signal name="statusChanged"/>
+        <signal name="progressChanged"/>
+        <signal name="availableChanged"/>
+        <signal name="metaDataChanged"/>
+        <signal name="galleryChanged"/>
+        <signal name="propertyNamesChanged"/>
+        <signal name="autoUpdateChanged"/>
+        <method name="reload"/>
+        <method name="cancel"/>
+        <method name="clear"/>
+    </type>
+    <type name="QDeclarativeGalleryValueFilter" extends="QDeclarativeGalleryFilterBase">
+        <property name="property" type="string" isWritable="true"/>
+        <property name="value" type="QVariant" isWritable="true"/>
+        <property name="negated" type="bool" isWritable="true"/>
+        <signal name="propertyNameChanged"/>
+        <signal name="valueChanged"/>
+        <signal name="negatedChanged"/>
+    </type>
+    <type name="QDeclarativeGalleryWildcardFilter" extends="QDeclarativeGalleryStringFilter">
+        <exports>
+            <export module="QtMobility.gallery" version="1.1" type="GalleryWildcardFilter"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeGeneralInfo" extends="QSystemInfo">
+        <exports>
+            <export module="QtMobility.systeminfo" version="1.1" type="GeneralInfo"/>
+        </exports>
+        <signal name="currentLanguageChanged">
+            <param name="language" type="string"/>
+        </signal>
+        <method name="startCurrentLanguageChanged"/>
+    </type>
+    <type name="QDeclarativeGeoAddress" extends="QObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="Address"/>
+        </exports>
+        <property name="country" type="string" isWritable="true"/>
+        <property name="countryCode" type="string" isWritable="true"/>
+        <property name="state" type="string" isWritable="true"/>
+        <property name="county" type="string" isWritable="true"/>
+        <property name="city" type="string" isWritable="true"/>
+        <property name="district" type="string" isWritable="true"/>
+        <property name="street" type="string" isWritable="true"/>
+        <property name="postcode" type="string" isWritable="true"/>
+        <signal name="countryChanged"/>
+        <signal name="countryCodeChanged"/>
+        <signal name="stateChanged"/>
+        <signal name="countyChanged"/>
+        <signal name="cityChanged"/>
+        <signal name="districtChanged"/>
+        <signal name="streetChanged"/>
+        <signal name="postcodeChanged"/>
+    </type>
+    <type name="QDeclarativeGeoBoundingBox" extends="QObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="BoundingBox"/>
+        </exports>
+        <property name="bottomLeft" type="QDeclarativeCoordinate" isWritable="true" isPointer="true"/>
+        <property name="bottomRight" type="QDeclarativeCoordinate" isWritable="true" isPointer="true"/>
+        <property name="topLeft" type="QDeclarativeCoordinate" isWritable="true" isPointer="true"/>
+        <property name="topRight" type="QDeclarativeCoordinate" isWritable="true" isPointer="true"/>
+        <property name="center" type="QDeclarativeCoordinate" isWritable="true" isPointer="true"/>
+        <property name="height" type="double" isWritable="true"/>
+        <property name="width" type="double" isWritable="true"/>
+        <signal name="bottomLeftChanged"/>
+        <signal name="bottomRightChanged"/>
+        <signal name="topLeftChanged"/>
+        <signal name="topRightChanged"/>
+        <signal name="centerChanged"/>
+        <signal name="heightChanged"/>
+        <signal name="widthChanged"/>
+    </type>
+    <type name="QDeclarativeGeoMapCircleObject" extends="QGeoMapCircleObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="MapCircle"/>
+        </exports>
+        <property name="center" type="QDeclarativeCoordinate" isWritable="true" isPointer="true"/>
+        <property name="color" type="QColor" isWritable="true"/>
+        <property name="border" type="QDeclarativeGeoMapObjectBorder" isPointer="true"/>
+        <signal name="declarativeCenterChanged">
+            <param name="center" type="const QDeclarativeCoordinate" isPointer="true"/>
+        </signal>
+        <signal name="colorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+    </type>
+    <type name="QDeclarativeGeoMapObject" defaultProperty="objects" extends="QGeoMapGroupObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="MapGroup"/>
+        </exports>
+        <property name="objects" type="QGeoMapObject" isList="true"/>
+    </type>
+    <type name="QDeclarativeGeoMapObjectBorder" extends="QObject">
+        <property name="color" type="QColor" isWritable="true"/>
+        <property name="width" type="int" isWritable="true"/>
+        <signal name="colorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="widthChanged">
+            <param name="width" type="int"/>
+        </signal>
+    </type>
+    <type name="QDeclarativeGeoMapPixmapObject" extends="QGeoMapPixmapObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="MapImage"/>
+        </exports>
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Ready" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Error" value="3"/>
+        </enum>
+        <property name="coordinate" type="QDeclarativeCoordinate" isWritable="true" isPointer="true"/>
+        <property name="source" type="QUrl" isWritable="true"/>
+        <property name="status" type="Status"/>
+        <signal name="declarativeCoordinateChanged">
+            <param name="coordinate" type="const QDeclarativeCoordinate" isPointer="true"/>
+        </signal>
+        <signal name="sourceChanged">
+            <param name="source" type="QUrl"/>
+        </signal>
+        <signal name="statusChanged">
+            <param name="status" type="QDeclarativeGeoMapPixmapObject.Status"/>
+        </signal>
+    </type>
+    <type name="QDeclarativeGeoMapPolygonObject" defaultProperty="path" extends="QGeoMapPolygonObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="MapPolygon"/>
+        </exports>
+        <property name="path" type="QDeclarativeCoordinate" isList="true"/>
+        <property name="color" type="QColor" isWritable="true"/>
+        <property name="border" type="QDeclarativeGeoMapObjectBorder" isPointer="true"/>
+        <signal name="colorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+    </type>
+    <type name="QDeclarativeGeoMapPolylineObject" defaultProperty="path" extends="QGeoMapPolylineObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="MapPolyline"/>
+        </exports>
+        <property name="path" type="QDeclarativeCoordinate" isList="true"/>
+        <property name="border" type="QDeclarativeGeoMapObjectBorder" isPointer="true"/>
+    </type>
+    <type name="QDeclarativeGeoMapRectangleObject" extends="QGeoMapRectangleObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="MapRectangle"/>
+        </exports>
+        <property name="topLeft" type="QDeclarativeCoordinate" isWritable="true" isPointer="true"/>
+        <property name="bottomRight" type="QDeclarativeCoordinate" isWritable="true" isPointer="true"/>
+        <property name="color" type="QColor" isWritable="true"/>
+        <property name="border" type="QDeclarativeGeoMapObjectBorder" isPointer="true"/>
+        <signal name="declarativeTopLeftChanged">
+            <param name="center" type="const QDeclarativeCoordinate" isPointer="true"/>
+        </signal>
+        <signal name="declarativeBottomRightChanged">
+            <param name="center" type="const QDeclarativeCoordinate" isPointer="true"/>
+        </signal>
+        <signal name="colorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+    </type>
+    <type name="QDeclarativeGeoMapTextObject" extends="QGeoMapTextObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="MapText"/>
+        </exports>
+        <enum name="HorizontalAlignment">
+            <enumerator name="AlignHCenter" value="4"/>
+            <enumerator name="AlignLeft" value="1"/>
+            <enumerator name="AlignRight" value="2"/>
+        </enum>
+        <enum name="VerticalAlignment">
+            <enumerator name="AlignVCenter" value="128"/>
+            <enumerator name="AlignTop" value="32"/>
+            <enumerator name="AlignBottom" value="64"/>
+        </enum>
+        <property name="coordinate" type="QDeclarativeCoordinate" isWritable="true" isPointer="true"/>
+        <property name="color" type="QColor" isWritable="true"/>
+        <property name="horizontalAlignment" type="HorizontalAlignment" isWritable="true"/>
+        <property name="verticalAlignment" type="VerticalAlignment" isWritable="true"/>
+        <signal name="declarativeCoordinateChanged">
+            <param name="coordinate" type="const QDeclarativeCoordinate" isPointer="true"/>
+        </signal>
+        <signal name="colorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="horizontalAlignmentChanged">
+            <param name="alignment" type="HorizontalAlignment"/>
+        </signal>
+        <signal name="verticalAlignmentChanged">
+            <param name="alignment" type="VerticalAlignment"/>
+        </signal>
+    </type>
+    <type name="QDeclarativeGeoPlace" extends="QObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="Place"/>
+        </exports>
+        <property name="viewport" type="QDeclarativeGeoBoundingBox" isWritable="true" isPointer="true"/>
+        <property name="coordinate" type="QDeclarativeCoordinate" isWritable="true" isPointer="true"/>
+        <property name="address" type="QDeclarativeGeoAddress" isWritable="true" isPointer="true"/>
+        <signal name="viewportChanged"/>
+        <signal name="coordinateChanged"/>
+        <signal name="addressChanged"/>
+    </type>
+    <type name="QDeclarativeGeoSearchModel" extends="QAbstractListModel">
+        <property name="plugin" type="QDeclarativeGeoServiceProvider" isWritable="true" isPointer="true"/>
+        <property name="error" type="string"/>
+        <signal name="pluginChanged">
+            <param name="plugin" type="QDeclarativeGeoServiceProvider" isPointer="true"/>
+        </signal>
+        <signal name="errorChanged">
+            <param name="error" type="string"/>
+        </signal>
+        <signal name="placesChanged"/>
+    </type>
+    <type name="QDeclarativeGeoServiceProvider" defaultProperty="parameters" extends="QObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="Plugin"/>
+        </exports>
+        <property name="name" type="string" isWritable="true"/>
+        <property name="parameters" type="QDeclarativeGeoServiceProviderParameter" isList="true"/>
+        <signal name="nameChanged">
+            <param name="name" type="string"/>
+        </signal>
+    </type>
+    <type name="QDeclarativeGeoServiceProviderParameter" extends="QObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="PluginParameter"/>
+        </exports>
+        <property name="name" type="string" isWritable="true"/>
+        <property name="value" type="QVariant" isWritable="true"/>
+        <signal name="nameChanged">
+            <param name="name" type="string"/>
+        </signal>
+        <signal name="valueChanged">
+            <param name="value" type="QVariant"/>
+        </signal>
+    </type>
+    <type name="QDeclarativeGeocodeModel" extends="QDeclarativeGeoSearchModel">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="GeocodeModel"/>
+        </exports>
+        <property name="address" type="QDeclarativeGeoAddress" isWritable="true" isPointer="true"/>
+        <signal name="addressChanged">
+            <param name="address" type="QDeclarativeGeoAddress" isPointer="true"/>
+        </signal>
+    </type>
     <type name="QDeclarativeGestureArea" defaultProperty="data" extends="QDeclarativeItem">
         <exports>
             <export module="Qt.labs.gestures" version="1.0" type="GestureArea"/>
@@ -671,16 +2175,71 @@
     </type>
     <type name="QDeclarativeGradientStop" extends="QObject">
         <exports>
-            <export module="QtQuick" version="1.0" type="GradientStop"/>
             <export module="Qt" version="4.7" type="GradientStop"/>
+            <export module="QtQuick" version="1.0" type="GradientStop"/>
         </exports>
         <property name="position" type="qreal" isWritable="true"/>
         <property name="color" type="QColor" isWritable="true"/>
     </type>
+    <type name="QDeclarativeGraphicsGeoMap" defaultProperty="objects" extends="QDeclarativeItem">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="Map"/>
+        </exports>
+        <enum name="MapType">
+            <enumerator name="NoMap" value="0"/>
+            <enumerator name="StreetMap" value="1"/>
+            <enumerator name="SatelliteMapDay" value="2"/>
+            <enumerator name="SatelliteMapNight" value="3"/>
+            <enumerator name="TerrainMap" value="4"/>
+        </enum>
+        <enum name="ConnectivityMode">
+            <enumerator name="NoConnectivity" value="0"/>
+            <enumerator name="OfflineMode" value="1"/>
+            <enumerator name="OnlineMode" value="2"/>
+            <enumerator name="HybridMode" value="3"/>
+        </enum>
+        <property name="plugin" type="QDeclarativeGeoServiceProvider" isWritable="true" isPointer="true"/>
+        <property name="size" type="QSizeF" isWritable="true"/>
+        <property name="minimumZoomLevel" type="qreal"/>
+        <property name="maximumZoomLevel" type="qreal"/>
+        <property name="zoomLevel" type="qreal" isWritable="true"/>
+        <property name="mapType" type="MapType" isWritable="true"/>
+        <property name="center" type="QDeclarativeCoordinate" isWritable="true" isPointer="true"/>
+        <property name="connectivityMode" type="ConnectivityMode" isWritable="true"/>
+        <property name="objects" type="QGeoMapObject" isList="true"/>
+        <signal name="pluginChanged">
+            <param name="plugin" type="QDeclarativeGeoServiceProvider" isPointer="true"/>
+        </signal>
+        <signal name="sizeChanged">
+            <param name="size" type="QSizeF"/>
+        </signal>
+        <signal name="zoomLevelChanged">
+            <param name="zoomLevel" type="qreal"/>
+        </signal>
+        <signal name="declarativeCenterChanged">
+            <param name="coordinate" type="const QDeclarativeCoordinate" isPointer="true"/>
+        </signal>
+        <signal name="mapTypeChanged">
+            <param name="mapType" type="QDeclarativeGraphicsGeoMap.MapType"/>
+        </signal>
+        <signal name="connectivityModeChanged">
+            <param name="connectivityMode" type="QDeclarativeGraphicsGeoMap.ConnectivityMode"/>
+        </signal>
+        <method name="pan">
+            <param name="dx" type="int"/>
+            <param name="dy" type="int"/>
+        </method>
+        <method name="toCoordinate" type="QDeclarativeCoordinate*">
+            <param name="screenPosition" type="QPointF"/>
+        </method>
+        <method name="toScreenPosition" type="QPointF">
+            <param name="coordinate" type="QDeclarativeCoordinate" isPointer="true"/>
+        </method>
+    </type>
     <type name="QDeclarativeGrid" defaultProperty="data" extends="QDeclarativeBasePositioner">
         <exports>
-            <export module="QtQuick" version="1.0" type="Grid"/>
             <export module="Qt" version="4.7" type="Grid"/>
+            <export module="QtQuick" version="1.0" type="Grid"/>
         </exports>
         <enum name="Flow">
             <enumerator name="LeftToRight" value="0"/>
@@ -770,10 +2329,22 @@
             <param name="y" type="int"/>
         </method>
     </type>
+    <type name="QDeclarativeHapticsEffect" extends="QFeedbackHapticsEffect">
+        <exports>
+            <export module="QtMobility.feedback" version="1.1" type="HapticsEffect"/>
+        </exports>
+        <property name="actuators" type="QFeedbackActuator" isList="true"/>
+        <property name="running" type="bool" isWritable="true"/>
+        <property name="paused" type="bool" isWritable="true"/>
+        <signal name="runningChanged"/>
+        <signal name="pausedChanged"/>
+        <signal name="actuatorsChanged"/>
+        <method name="updateState"/>
+    </type>
     <type name="QDeclarativeImage" defaultProperty="data" extends="QDeclarativeImageBase">
         <exports>
-            <export module="QtQuick" version="1.0" type="Image"/>
             <export module="Qt" version="4.7" type="Image"/>
+            <export module="QtQuick" version="1.0" type="Image"/>
         </exports>
         <enum name="FillMode">
             <enumerator name="Stretch" value="0"/>
@@ -921,8 +2492,8 @@
     </type>
     <type name="QDeclarativeKeysAttached" extends="QObject">
         <exports>
-            <export module="QtQuick" version="1.0" type="Keys"/>
             <export module="Qt" version="4.7" type="Keys"/>
+            <export module="QtQuick" version="1.0" type="Keys"/>
         </exports>
         <enum name="Priority">
             <enumerator name="BeforeItem" value="0"/>
@@ -1054,6 +2625,141 @@
             <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
     </type>
+    <type name="QDeclarativeLandmark" extends="QDeclarativeGeoPlace">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="Landmark"/>
+        </exports>
+        <property name="name" type="string" isWritable="true"/>
+        <property name="phoneNumber" type="string" isWritable="true"/>
+        <property name="description" type="string" isWritable="true"/>
+        <property name="radius" type="double" isWritable="true"/>
+        <property name="iconSource" type="QUrl" isWritable="true"/>
+        <property name="url" type="QUrl" isWritable="true"/>
+        <signal name="nameChanged"/>
+        <signal name="phoneNumberChanged"/>
+        <signal name="descriptionChanged"/>
+        <signal name="radiusChanged"/>
+        <signal name="iconSourceChanged"/>
+        <signal name="urlChanged"/>
+        <signal name="coordinateChanged"/>
+    </type>
+    <type name="QDeclarativeLandmarkAbstractModel" extends="QAbstractListModel">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="LandmarkAbstractModel"/>
+        </exports>
+        <enum name="SortOrder">
+            <enumerator name="AscendingOrder" value="0"/>
+            <enumerator name="DescendingOrder" value="1"/>
+            <enumerator name="NoOrder" value="2"/>
+        </enum>
+        <enum name="SortKey">
+            <enumerator name="NoSort" value="0"/>
+            <enumerator name="NameSort" value="1"/>
+        </enum>
+        <property name="limit" type="int" isWritable="true"/>
+        <property name="offset" type="int" isWritable="true"/>
+        <property name="autoUpdate" type="bool" isWritable="true"/>
+        <property name="error" type="string"/>
+        <property name="sortBy" type="SortKey" isWritable="true"/>
+        <property name="sortOrder" type="SortOrder" isWritable="true"/>
+        <signal name="sortByChanged"/>
+        <signal name="sortOrderChanged"/>
+        <signal name="errorChanged"/>
+        <signal name="autoUpdateChanged"/>
+        <signal name="limitChanged"/>
+        <signal name="offsetChanged"/>
+        <signal name="modelChanged"/>
+        <signal name="databaseChanged"/>
+        <method name="update"/>
+        <method name="setDbFileName">
+            <param name="fileName" type="string"/>
+        </method>
+    </type>
+    <type name="QDeclarativeLandmarkBoxFilter" extends="QDeclarativeLandmarkFilterBase">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="LandmarkBoxFilter"/>
+        </exports>
+        <property name="topLeft" type="QDeclarativeCoordinate" isWritable="true" isPointer="true"/>
+        <property name="bottomRight" type="QDeclarativeCoordinate" isWritable="true" isPointer="true"/>
+        <signal name="topLeftChanged"/>
+        <signal name="bottomRightChanged"/>
+    </type>
+    <type name="QDeclarativeLandmarkCategory" extends="QObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="LandmarkCategory"/>
+        </exports>
+        <property name="name" type="string" isWritable="true"/>
+        <property name="iconSource" type="QUrl" isWritable="true"/>
+        <signal name="nameChanged"/>
+        <signal name="iconSourceChanged"/>
+    </type>
+    <type name="QDeclarativeLandmarkCategoryFilter" extends="QDeclarativeLandmarkFilterBase">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="LandmarkCategoryFilter"/>
+        </exports>
+        <property name="category" type="QDeclarativeLandmarkCategory" isWritable="true" isPointer="true"/>
+        <signal name="categoryChanged"/>
+    </type>
+    <type name="QDeclarativeLandmarkCategoryModel" extends="QDeclarativeLandmarkAbstractModel">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="LandmarkCategoryModel"/>
+        </exports>
+        <property name="count" type="int"/>
+        <property name="landmark" type="QDeclarativeLandmark" isWritable="true" isPointer="true"/>
+        <property name="categories" type="QDeclarativeLandmarkCategory" isList="true"/>
+        <signal name="countChanged"/>
+        <signal name="landmarkChanged"/>
+        <signal name="categoriesChanged"/>
+    </type>
+    <type name="QDeclarativeLandmarkCompoundFilter" defaultProperty="filters" extends="QDeclarativeLandmarkFilterBase">
+        <property name="filters" type="QDeclarativeLandmarkFilterBase" isList="true"/>
+    </type>
+    <type name="QDeclarativeLandmarkFilterBase" extends="QObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="LandmarkFilterBase"/>
+        </exports>
+        <signal name="filterContentChanged"/>
+    </type>
+    <type name="QDeclarativeLandmarkIntersectionFilter" defaultProperty="filters" extends="QDeclarativeLandmarkCompoundFilter">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="LandmarkIntersectionFilter"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeLandmarkModel" extends="QDeclarativeLandmarkAbstractModel">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="LandmarkModel"/>
+        </exports>
+        <property name="count" type="int"/>
+        <property name="filter" type="QDeclarativeLandmarkFilterBase" isWritable="true" isPointer="true"/>
+        <property name="landmarks" type="QDeclarativeLandmark" isList="true"/>
+        <property name="importFile" type="string" isWritable="true"/>
+        <signal name="countChanged"/>
+        <signal name="filterChanged"/>
+        <signal name="landmarksChanged"/>
+        <signal name="importFileChanged"/>
+        <method name="importLandmarks"/>
+    </type>
+    <type name="QDeclarativeLandmarkNameFilter" extends="QDeclarativeLandmarkFilterBase">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="LandmarkNameFilter"/>
+        </exports>
+        <property name="name" type="string" isWritable="true"/>
+        <signal name="nameChanged"/>
+    </type>
+    <type name="QDeclarativeLandmarkProximityFilter" extends="QDeclarativeLandmarkFilterBase">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="LandmarkProximityFilter"/>
+        </exports>
+        <property name="center" type="QDeclarativeCoordinate" isWritable="true" isPointer="true"/>
+        <property name="radius" type="double" isWritable="true"/>
+        <signal name="radiusChanged"/>
+        <signal name="centerChanged"/>
+    </type>
+    <type name="QDeclarativeLandmarkUnionFilter" defaultProperty="filters" extends="QDeclarativeLandmarkCompoundFilter">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="LandmarkUnionFilter"/>
+        </exports>
+    </type>
     <type name="QDeclarativeLayoutItem" defaultProperty="data" extends="QDeclarativeItem">
         <exports>
             <export module="Qt" version="4.7" type="LayoutItem"/>
@@ -1068,8 +2774,8 @@
     </type>
     <type name="QDeclarativeListElement" extends="QObject">
         <exports>
-            <export module="QtQuick" version="1.0" type="ListElement"/>
             <export module="Qt" version="4.7" type="ListElement"/>
+            <export module="QtQuick" version="1.0" type="ListElement"/>
         </exports>
     </type>
     <type name="QDeclarativeListModel" extends="QListModelInterface">
@@ -1111,8 +2817,8 @@
     </type>
     <type name="QDeclarativeListView" defaultProperty="data" extends="QDeclarativeFlickable">
         <exports>
-            <export module="Qt" version="4.7" type="ListView"/>
             <export module="QtQuick" version="1.0" type="ListView"/>
+            <export module="Qt" version="4.7" type="ListView"/>
         </exports>
         <enum name="HighlightRangeMode">
             <enumerator name="NoHighlightRange" value="0"/>
@@ -1194,8 +2900,8 @@
     </type>
     <type name="QDeclarativeLoader" defaultProperty="data" extends="QDeclarativeItem">
         <exports>
-            <export module="Qt" version="4.7" type="Loader"/>
             <export module="QtQuick" version="1.0" type="Loader"/>
+            <export module="Qt" version="4.7" type="Loader"/>
         </exports>
         <enum name="Status">
             <enumerator name="Null" value="0"/>
@@ -1214,10 +2920,120 @@
         <signal name="progressChanged"/>
         <signal name="loaded"/>
     </type>
+    <type name="QDeclarativeMessageFilter" extends="QDeclarativeMessageFilterBase">
+        <exports>
+            <export module="QtMobility.messaging" version="1.1" type="MessageFilter"/>
+        </exports>
+        <enum name="FilterType">
+            <enumerator name="AncestorFolder" value="0"/>
+            <enumerator name="ParentFolder" value="1"/>
+            <enumerator name="Priority" value="2"/>
+            <enumerator name="Recipients" value="3"/>
+            <enumerator name="Sender" value="4"/>
+            <enumerator name="Size" value="5"/>
+            <enumerator name="StandardFolder" value="6"/>
+            <enumerator name="Status" value="7"/>
+            <enumerator name="Subject" value="8"/>
+            <enumerator name="Timestamp" value="9"/>
+            <enumerator name="ReceptionTimestamp" value="10"/>
+            <enumerator name="Type" value="11"/>
+        </enum>
+        <enum name="Comparator">
+            <enumerator name="Includes" value="0"/>
+            <enumerator name="Excludes" value="1"/>
+            <enumerator name="Equal" value="2"/>
+            <enumerator name="NotEqual" value="3"/>
+            <enumerator name="LessThan" value="4"/>
+            <enumerator name="LessThanEqual" value="5"/>
+            <enumerator name="GreaterThan" value="6"/>
+            <enumerator name="GreaterThanEqual" value="7"/>
+        </enum>
+        <enum name="Priority">
+            <enumerator name="HighPriority" value="1"/>
+            <enumerator name="NormalPriority" value="2"/>
+            <enumerator name="LowPriority" value="3"/>
+        </enum>
+        <enum name="Type">
+            <enumerator name="Mms" value="1"/>
+            <enumerator name="Sms" value="2"/>
+            <enumerator name="Email" value="4"/>
+            <enumerator name="InstantMessage" value="8"/>
+            <enumerator name="AnyType" value="-1"/>
+        </enum>
+        <enum name="Status">
+            <enumerator name="Read" value="1"/>
+            <enumerator name="HasAttachments" value="2"/>
+            <enumerator name="Incoming" value="4"/>
+            <enumerator name="Removed" value="8"/>
+        </enum>
+        <property name="type" type="FilterType" isWritable="true"/>
+        <property name="value" type="QVariant" isWritable="true"/>
+        <property name="comparator" type="Comparator" isWritable="true"/>
+        <signal name="typeChanged"/>
+        <signal name="valueChanged"/>
+        <signal name="comparatorChanged"/>
+    </type>
+    <type name="QDeclarativeMessageFilterBase" extends="QObject">
+        <exports>
+            <export module="QtMobility.messaging" version="1.1" type="MessageFilterBase"/>
+        </exports>
+        <property name="negated" type="bool" isWritable="true"/>
+        <signal name="negatedChanged"/>
+    </type>
+    <type name="QDeclarativeMessageIntersectionFilter" defaultProperty="filters" extends="QDeclarativeMessageFilterBase">
+        <exports>
+            <export module="QtMobility.messaging" version="1.1" type="MessageIntersectionFilter"/>
+        </exports>
+        <property name="filters" type="QDeclarativeMessageFilterBase" isList="true"/>
+    </type>
+    <type name="QDeclarativeMessageModel" extends="QAbstractListModel">
+        <exports>
+            <export module="QtMobility.messaging" version="1.1" type="MessageModel"/>
+        </exports>
+        <enum name="SortKey">
+            <enumerator name="Priority" value="0"/>
+            <enumerator name="Sender" value="1"/>
+            <enumerator name="Size" value="2"/>
+            <enumerator name="StatusRead" value="3"/>
+            <enumerator name="StatusIncoming" value="4"/>
+            <enumerator name="Subject" value="5"/>
+            <enumerator name="Timestamp" value="6"/>
+            <enumerator name="ReceptionTimestamp" value="7"/>
+            <enumerator name="Recipients" value="8"/>
+            <enumerator name="Type" value="9"/>
+        </enum>
+        <enum name="SortOrder">
+            <enumerator name="AscendingOrder" value="0"/>
+            <enumerator name="DescendingOrder" value="1"/>
+        </enum>
+        <property name="filter" type="QDeclarativeMessageFilterBase" isWritable="true" isPointer="true"/>
+        <property name="sortBy" type="SortKey" isWritable="true"/>
+        <property name="sortOrder" type="SortOrder" isWritable="true"/>
+        <property name="count" type="int"/>
+        <property name="limit" type="int" isWritable="true"/>
+        <signal name="filterChanged"/>
+        <signal name="sortByChanged"/>
+        <signal name="sortOrderChanged"/>
+        <signal name="limitChanged"/>
+        <signal name="countChanged"/>
+        <signal name="messageAdded"/>
+        <method name="showMessage">
+            <param name="index" type="int"/>
+        </method>
+        <method name="removeMessage">
+            <param name="index" type="int"/>
+        </method>
+    </type>
+    <type name="QDeclarativeMessageUnionFilter" defaultProperty="filters" extends="QDeclarativeMessageFilterBase">
+        <exports>
+            <export module="QtMobility.messaging" version="1.1" type="MessageUnionFilter"/>
+        </exports>
+        <property name="filters" type="QDeclarativeMessageFilterBase" isList="true"/>
+    </type>
     <type name="QDeclarativeMouseArea" defaultProperty="data" extends="QDeclarativeItem">
         <exports>
-            <export module="Qt" version="4.7" type="MouseArea"/>
             <export module="QtQuick" version="1.0" type="MouseArea"/>
+            <export module="Qt" version="4.7" type="MouseArea"/>
         </exports>
         <property name="mouseX" type="qreal"/>
         <property name="mouseY" type="qreal"/>
@@ -1258,6 +3074,41 @@
         <signal name="exited"/>
         <signal name="canceled"/>
     </type>
+    <type name="QDeclarativeNetworkInfo" extends="QSystemNetworkInfo">
+        <exports>
+            <export module="QtMobility.systeminfo" version="1.1" type="NetworkInfo"/>
+        </exports>
+        <property name="networkStatus" type="string"/>
+        <property name="networkName" type="string"/>
+        <property name="networkSignalStrength" type="int"/>
+        <property name="macAddress" type="string"/>
+        <property name="mode" type="QSystemNetworkInfo.NetworkMode" isWritable="true"/>
+        <property name="availableModes" type="QList&lt;QSystemNetworkInfo.NetworkMode&gt;"/>
+        <signal name="statusChanged">
+            <param name="newStatus" type="string"/>
+        </signal>
+        <signal name="signalStrengthChanged">
+            <param name="strength" type="int"/>
+        </signal>
+        <signal name="nameChanged">
+            <param name="name" type="string"/>
+        </signal>
+        <signal name="modeChanged"/>
+        <signal name="currentMobileCountryCodeChanged">
+            <param name="newMcc" type="string"/>
+        </signal>
+        <signal name="currentMobileNetworkCodeChanged">
+            <param name="newMnc" type="string"/>
+        </signal>
+        <method name="interfaceForMode" type="QNetworkInterface"/>
+        <method name="startStatusChanged"/>
+        <method name="startSignalStrengthChanged"/>
+        <method name="startNameChanged"/>
+        <method name="startModeChanged"/>
+        <method name="startCurrentMobileCountryCodeChanged"/>
+        <method name="startCurrentMobileNetworkCodeChanged"/>
+        <method name="availableModes" type="QList&lt;QSystemNetworkInfo.NetworkMode&gt;"/>
+    </type>
     <type name="QDeclarativeNumberAnimation" extends="QDeclarativePropertyAnimation">
         <exports>
             <export module="QtQuick" version="1.0" type="NumberAnimation"/>
@@ -1265,6 +3116,623 @@
         </exports>
         <property name="from" type="qreal" isWritable="true"/>
         <property name="to" type="qreal" isWritable="true"/>
+    </type>
+    <type name="QDeclarativeOrganizerCollection" extends="QObject">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="Collection"/>
+        </exports>
+        <property name="collectionId" type="uint"/>
+        <property name="name" type="string" isWritable="true"/>
+        <property name="description" type="string" isWritable="true"/>
+        <property name="color" type="QColor" isWritable="true"/>
+        <property name="image" type="QUrl" isWritable="true"/>
+        <signal name="valueChanged"/>
+        <method name="setMetaData">
+            <param name="key" type="string"/>
+            <param name="value" type="QVariant"/>
+        </method>
+        <method name="metaData" type="QVariant">
+            <param name="key" type="string"/>
+        </method>
+    </type>
+    <type name="QDeclarativeOrganizerEvent" defaultProperty="details" extends="QDeclarativeOrganizerItem">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="Event"/>
+        </exports>
+        <property name="startDateTime" type="QDateTime" isWritable="true"/>
+        <property name="endDateTime" type="QDateTime" isWritable="true"/>
+        <property name="allDay" type="bool" isWritable="true"/>
+        <property name="location" type="string" isWritable="true"/>
+        <property name="priority" type="QDeclarativeOrganizerItemPriority.PriorityType" isWritable="true"/>
+        <property name="recurrence" type="QDeclarativeOrganizerItemRecurrence" isPointer="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerEventOccurrence" defaultProperty="details" extends="QDeclarativeOrganizerItem">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="EventOccurrence"/>
+        </exports>
+        <property name="startDateTime" type="QDateTime" isWritable="true"/>
+        <property name="endDateTime" type="QDateTime" isWritable="true"/>
+        <property name="location" type="string" isWritable="true"/>
+        <property name="priority" type="QDeclarativeOrganizerItemPriority.PriorityType" isWritable="true"/>
+        <property name="parentId" type="uint" isWritable="true"/>
+        <property name="originalDate" type="QDate" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerEventTime" extends="QDeclarativeOrganizerItemDetail">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="EventTime"/>
+        </exports>
+        <property name="startDateTime" type="QDateTime" isWritable="true"/>
+        <property name="endDateTime" type="QDateTime" isWritable="true"/>
+        <property name="isAllDay" type="bool" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItem" defaultProperty="details" extends="QObject">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="OrganizerItem"/>
+        </exports>
+        <enum name="OrganizerItemType">
+            <enumerator name="Event" value="0"/>
+            <enumerator name="EventOccurrence" value="1"/>
+            <enumerator name="Todo" value="2"/>
+            <enumerator name="TodoOccurrence" value="3"/>
+            <enumerator name="Journal" value="4"/>
+            <enumerator name="Note" value="5"/>
+            <enumerator name="Customized" value="100"/>
+        </enum>
+        <property name="details" type="QDeclarativeOrganizerItemDetail" isList="true"/>
+        <property name="manager" type="string"/>
+        <property name="itemId" type="uint"/>
+        <property name="type" type="string"/>
+        <property name="displayLabel" type="string" isWritable="true"/>
+        <property name="description" type="string" isWritable="true"/>
+        <property name="guid" type="string" isWritable="true"/>
+        <property name="modified" type="bool"/>
+        <signal name="itemChanged"/>
+        <method name="save"/>
+        <method name="clearDetails"/>
+        <method name="clearComments"/>
+        <method name="detail" type="QVariant">
+            <param name="name" type="string"/>
+        </method>
+        <method name="details" type="QVariant">
+            <param name="name" type="string"/>
+        </method>
+        <method name="addComment">
+            <param name="comment" type="string"/>
+        </method>
+        <method name="removeDetail" type="bool">
+            <param name="detail" type="QDeclarativeOrganizerItemDetail" isPointer="true"/>
+        </method>
+    </type>
+    <type name="QDeclarativeOrganizerItemAudibleReminder" extends="QDeclarativeOrganizerItemReminder">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="AudibleReminder"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="DataUrl" value="0"/>
+        </enum>
+        <property name="dataUrl" type="QUrl" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemChangelogFilter" extends="QDeclarativeOrganizerItemFilter">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="ChangelogFilter"/>
+        </exports>
+        <enum name="EventType">
+            <enumerator name="EventAdded" value="0"/>
+            <enumerator name="EventChanged" value="1"/>
+            <enumerator name="EventRemoved" value="2"/>
+        </enum>
+        <property name="since" type="QDateTime" isWritable="true"/>
+        <property name="eventType" type="EventType" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemCollectionFilter" extends="QDeclarativeOrganizerItemFilter">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="CollectionFilter"/>
+        </exports>
+        <property name="ids" type="QVariantList" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemDescription" extends="QDeclarativeOrganizerItemDetail">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="Description"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Description" value="0"/>
+        </enum>
+        <property name="description" type="string" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemDetail" extends="QObject">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="Detail"/>
+        </exports>
+        <enum name="ItemDetailType">
+            <enumerator name="EventTime" value="0"/>
+            <enumerator name="JournalTime" value="1"/>
+            <enumerator name="TodoTime" value="2"/>
+            <enumerator name="TodoProgress" value="3"/>
+            <enumerator name="Reminder" value="4"/>
+            <enumerator name="AudibleReminder" value="5"/>
+            <enumerator name="VisualReminder" value="6"/>
+            <enumerator name="EmailReminder" value="7"/>
+            <enumerator name="Comment" value="8"/>
+            <enumerator name="Description" value="9"/>
+            <enumerator name="DisplayLabel" value="10"/>
+            <enumerator name="Guid" value="11"/>
+            <enumerator name="Location" value="12"/>
+            <enumerator name="Parent" value="13"/>
+            <enumerator name="Priority" value="14"/>
+            <enumerator name="Recurrence" value="15"/>
+            <enumerator name="Timestamp" value="16"/>
+            <enumerator name="Type" value="17"/>
+            <enumerator name="Tag" value="18"/>
+            <enumerator name="Customized" value="100"/>
+        </enum>
+        <property name="definitionName" type="string"/>
+        <property name="fieldNames" type="QStringList"/>
+        <property name="type" type="ItemDetailType"/>
+        <property name="readOnly" type="bool"/>
+        <property name="removable" type="bool"/>
+        <signal name="detailChanged"/>
+        <method name="value" type="QVariant">
+            <param name="key" type="string"/>
+        </method>
+        <method name="setValue" type="bool">
+            <param name="key" type="string"/>
+            <param name="value" type="QVariant"/>
+        </method>
+        <method name="removeValue" type="bool">
+            <param name="key" type="string"/>
+        </method>
+    </type>
+    <type name="QDeclarativeOrganizerItemDetailFilter" extends="QDeclarativeOrganizerItemFilter">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="DetailFilter"/>
+        </exports>
+        <property name="value" type="QVariant" isWritable="true"/>
+        <property name="matchFlags" type="QDeclarativeOrganizerItemFilter.MatchFlags" isWritable="true"/>
+        <property name="detailFieldName" type="string" isWritable="true"/>
+        <property name="detailDefinitionName" type="string" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemDetailRangeFilter" extends="QDeclarativeOrganizerItemFilter">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="DetailRangeFilter"/>
+        </exports>
+        <enum name="RangeFlag">
+            <enumerator name="IncludeLower" value="0"/>
+            <enumerator name="IncludeUpper" value="1"/>
+            <enumerator name="ExcludeLower" value="2"/>
+            <enumerator name="ExcludeUpper" value="0"/>
+        </enum>
+        <enum name="RangeFlags">
+            <enumerator name="IncludeLower" value="0"/>
+            <enumerator name="IncludeUpper" value="1"/>
+            <enumerator name="ExcludeLower" value="2"/>
+            <enumerator name="ExcludeUpper" value="0"/>
+        </enum>
+        <property name="min" type="QVariant" isWritable="true"/>
+        <property name="max" type="QVariant" isWritable="true"/>
+        <property name="matchFlags" type="QDeclarativeOrganizerItemFilter.MatchFlags" isWritable="true"/>
+        <property name="rangeFlags" type="RangeFlags" isWritable="true"/>
+        <property name="detailFieldName" type="string" isWritable="true"/>
+        <property name="detailDefinitionName" type="string" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemDisplayLabel" extends="QDeclarativeOrganizerItemDetail">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="DisplayLabel"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Label" value="0"/>
+        </enum>
+        <property name="label" type="string" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemEmailReminder" extends="QDeclarativeOrganizerItemReminder">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="EmailReminder"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Subject" value="0"/>
+            <enumerator name="Body" value="1"/>
+            <enumerator name="Recipients" value="2"/>
+            <enumerator name="Attachments" value="3"/>
+        </enum>
+        <property name="subject" type="string" isWritable="true"/>
+        <property name="body" type="string" isWritable="true"/>
+        <property name="recipients" type="QStringList" isWritable="true"/>
+        <property name="attachments" type="QVariantList" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemFetchHint" extends="QObject">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="FetchHint"/>
+        </exports>
+        <enum name="OptimizationHint">
+            <enumerator name="AllRequired" value="0"/>
+            <enumerator name="NoActionPreferences" value="2"/>
+            <enumerator name="NoBinaryBlobs" value="4"/>
+        </enum>
+        <enum name="OptimizationHints">
+            <enumerator name="AllRequired" value="0"/>
+            <enumerator name="NoActionPreferences" value="2"/>
+            <enumerator name="NoBinaryBlobs" value="4"/>
+        </enum>
+        <property name="optimizationHints" type="OptimizationHints" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemFilter" extends="QObject">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="Filter"/>
+        </exports>
+        <enum name="FilterType">
+            <enumerator name="InvalidFilter" value="0"/>
+            <enumerator name="DetailFilter" value="1"/>
+            <enumerator name="DetailRangeFilter" value="2"/>
+            <enumerator name="ChangeLogFilter" value="3"/>
+            <enumerator name="ActionFilter" value="4"/>
+            <enumerator name="IntersectionFilter" value="5"/>
+            <enumerator name="UnionFilter" value="6"/>
+            <enumerator name="IdFilter" value="7"/>
+            <enumerator name="CollectionFilter" value="8"/>
+            <enumerator name="DefaultFilter" value="9"/>
+        </enum>
+        <enum name="MatchFlags">
+            <enumerator name="MatchExactly" value="0"/>
+            <enumerator name="MatchContains" value="1"/>
+            <enumerator name="MatchStartsWith" value="2"/>
+            <enumerator name="MatchEndsWith" value="3"/>
+            <enumerator name="MatchFixedString" value="8"/>
+            <enumerator name="MatchCaseSensitive" value="16"/>
+        </enum>
+        <property name="type" type="FilterType"/>
+        <signal name="filterChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemGuid" extends="QDeclarativeOrganizerItemDetail">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="Guid"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Guid" value="0"/>
+        </enum>
+        <property name="guid" type="string" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemIdFilter" extends="QDeclarativeOrganizerItemFilter">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="IdFilter"/>
+        </exports>
+        <property name="ids" type="QVariantList" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemIntersectionFilter" defaultProperty="subFilters" extends="QDeclarativeOrganizerItemFilter">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="IntersectionFilter"/>
+        </exports>
+        <property name="subFilters" type="QDeclarativeOrganizerItemFilter" isList="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemInvalidFilter" extends="QDeclarativeOrganizerItemFilter">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="InvalidFilter"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeOrganizerItemLocation" extends="QDeclarativeOrganizerItemDetail">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="Location"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Latitude" value="0"/>
+            <enumerator name="Longitude" value="1"/>
+            <enumerator name="Label" value="2"/>
+        </enum>
+        <property name="latitude" type="double" isWritable="true"/>
+        <property name="longitude" type="double" isWritable="true"/>
+        <property name="label" type="string" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemParent" extends="QDeclarativeOrganizerItemDetail">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="ItemParent"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="ParentId" value="0"/>
+            <enumerator name="OriginalDate" value="1"/>
+        </enum>
+        <property name="parentId" type="uint" isWritable="true"/>
+        <property name="originalDate" type="QDate" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemPriority" extends="QDeclarativeOrganizerItemDetail">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="Priority"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Priority" value="0"/>
+        </enum>
+        <enum name="PriorityType">
+            <enumerator name="Unknown" value="0"/>
+            <enumerator name="Highest" value="1"/>
+            <enumerator name="ExtremelyHigh" value="2"/>
+            <enumerator name="VeryHigh" value="3"/>
+            <enumerator name="High" value="4"/>
+            <enumerator name="Medium" value="5"/>
+            <enumerator name="Low" value="6"/>
+            <enumerator name="VeryLow" value="7"/>
+            <enumerator name="ExtremelyLow" value="8"/>
+            <enumerator name="Lowest" value="9"/>
+        </enum>
+        <property name="priority" type="PriorityType" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemRecurrence" extends="QDeclarativeOrganizerItemDetail">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="Recurrence"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="RecurrenceRules" value="0"/>
+            <enumerator name="ExceptionRules" value="1"/>
+            <enumerator name="RecurrenceDates" value="2"/>
+            <enumerator name="ExceptionDates" value="3"/>
+        </enum>
+        <property name="recurrenceRules" type="QDeclarativeOrganizerRecurrenceRule" isList="true"/>
+        <property name="exceptionRules" type="QDeclarativeOrganizerRecurrenceRule" isList="true"/>
+        <property name="recurrenceDates" type="QVariantList" isWritable="true"/>
+        <property name="exceptionDates" type="QVariantList" isWritable="true"/>
+        <signal name="recurrenceRulesChanged"/>
+        <signal name="exceptionRulesChanged"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemReminder" extends="QDeclarativeOrganizerItemDetail">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="Reminder"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Type" value="0"/>
+            <enumerator name="SecondsBeforeStart" value="1"/>
+            <enumerator name="RepetitionCount" value="2"/>
+            <enumerator name="RepetitionDelay" value="3"/>
+        </enum>
+        <enum name="ReminderType">
+            <enumerator name="NoReminder" value="0"/>
+            <enumerator name="VisualReminder" value="1"/>
+            <enumerator name="AudibleReminder" value="2"/>
+            <enumerator name="EmailReminder" value="3"/>
+        </enum>
+        <property name="reminderType" type="ReminderType"/>
+        <property name="secondsBeforeStart" type="int" isWritable="true"/>
+        <property name="repetitionCount" type="int" isWritable="true"/>
+        <property name="repetitionDelay" type="int" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemSortOrder" extends="QObject">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="SortOrder"/>
+        </exports>
+        <enum name="BlankPolicy">
+            <enumerator name="BlanksFirst" value="0"/>
+            <enumerator name="BlanksLast" value="1"/>
+        </enum>
+        <property name="definitionName" type="string" isWritable="true"/>
+        <property name="fieldName" type="string" isWritable="true"/>
+        <property name="blankPolicy" type="BlankPolicy" isWritable="true"/>
+        <property name="direction" type="Qt.SortOrder" isWritable="true"/>
+        <property name="sensitivity" type="Qt.CaseSensitivity" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemTimestamp" extends="QDeclarativeOrganizerItemDetail">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="Timestamp"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="LastModified" value="0"/>
+            <enumerator name="Created" value="1"/>
+        </enum>
+        <property name="lastModified" type="QDateTime" isWritable="true"/>
+        <property name="created" type="QDateTime" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemType" extends="QDeclarativeOrganizerItemDetail">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="ItemType"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="ItemType" value="0"/>
+        </enum>
+        <property name="itemType" type="OrganizerItemType" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemUnionFilter" defaultProperty="subFilters" extends="QDeclarativeOrganizerItemFilter">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="UnionFilter"/>
+        </exports>
+        <property name="subFilters" type="QDeclarativeOrganizerItemFilter" isList="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerItemVisualReminder" extends="QDeclarativeOrganizerItemReminder">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="VisualReminder"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="DataUrl" value="0"/>
+            <enumerator name="Message" value="1"/>
+        </enum>
+        <property name="message" type="string" isWritable="true"/>
+        <property name="dataUrl" type="QUrl" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerJournal" defaultProperty="details" extends="QDeclarativeOrganizerItem">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="Journal"/>
+        </exports>
+        <property name="dateTime" type="QDateTime" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerJournalTime" extends="QDeclarativeOrganizerItemDetail">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="JournalTime"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="EntryDateTime" value="0"/>
+        </enum>
+        <property name="entryDateTime" type="QDateTime" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerModel" extends="QAbstractListModel">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="OrganizerModel"/>
+        </exports>
+        <property name="manager" type="string" isWritable="true"/>
+        <property name="availableManagers" type="QStringList"/>
+        <property name="autoUpdate" type="bool" isWritable="true"/>
+        <property name="startPeriod" type="QDateTime" isWritable="true"/>
+        <property name="endPeriod" type="QDateTime" isWritable="true"/>
+        <property name="filter" type="QDeclarativeOrganizerItemFilter" isWritable="true" isPointer="true"/>
+        <property name="fetchHint" type="QDeclarativeOrganizerItemFetchHint" isWritable="true" isPointer="true"/>
+        <property name="sortOrders" type="QDeclarativeOrganizerItemSortOrder" isList="true"/>
+        <property name="items" type="QDeclarativeOrganizerItem" isList="true"/>
+        <property name="occurrences" type="QDeclarativeOrganizerItem" isList="true"/>
+        <property name="events" type="QDeclarativeOrganizerItem" isList="true"/>
+        <property name="eventOccurrences" type="QDeclarativeOrganizerItem" isList="true"/>
+        <property name="todos" type="QDeclarativeOrganizerItem" isList="true"/>
+        <property name="todoOccurrences" type="QDeclarativeOrganizerItem" isList="true"/>
+        <property name="journals" type="QDeclarativeOrganizerItem" isList="true"/>
+        <property name="notes" type="QDeclarativeOrganizerItem" isList="true"/>
+        <property name="error" type="string"/>
+        <signal name="managerChanged"/>
+        <signal name="availableManagersChanged"/>
+        <signal name="filterChanged"/>
+        <signal name="fetchHintChanged"/>
+        <signal name="itemsChanged"/>
+        <signal name="sortOrdersChanged"/>
+        <signal name="errorChanged"/>
+        <signal name="startPeriodChanged"/>
+        <signal name="endPeriodChanged"/>
+        <signal name="autoUpdateChanged"/>
+        <method name="update"/>
+        <method name="exportItems">
+            <param name="file" type="string"/>
+        </method>
+        <method name="importItems">
+            <param name="file" type="string"/>
+        </method>
+        <method name="removeItem">
+            <param name="id" type="uint"/>
+        </method>
+        <method name="removeItems">
+            <param name="ids" type="QList&lt;uint&gt;"/>
+        </method>
+        <method name="saveItem">
+            <param name="item" type="QDeclarativeOrganizerItem" isPointer="true"/>
+        </method>
+    </type>
+    <type name="QDeclarativeOrganizerNote" defaultProperty="details" extends="QDeclarativeOrganizerItem">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="Note"/>
+        </exports>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerRecurrenceRule" extends="QObject">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="RecurrenceRule"/>
+        </exports>
+        <enum name="Frequency">
+            <enumerator name="Invalid" value="0"/>
+            <enumerator name="Daily" value="1"/>
+            <enumerator name="Weekly" value="2"/>
+            <enumerator name="Monthly" value="3"/>
+            <enumerator name="Yearly" value="4"/>
+        </enum>
+        <enum name="Month">
+            <enumerator name="January" value="1"/>
+            <enumerator name="February" value="2"/>
+            <enumerator name="March" value="3"/>
+            <enumerator name="April" value="4"/>
+            <enumerator name="May" value="5"/>
+            <enumerator name="June" value="6"/>
+            <enumerator name="July" value="7"/>
+            <enumerator name="August" value="8"/>
+            <enumerator name="September" value="9"/>
+            <enumerator name="October" value="10"/>
+            <enumerator name="November" value="11"/>
+            <enumerator name="December" value="12"/>
+        </enum>
+        <property name="frequency" type="Frequency" isWritable="true"/>
+        <property name="limit" type="QVariant" isWritable="true"/>
+        <property name="interval" type="int" isWritable="true"/>
+        <property name="daysOfWeek" type="QVariantList" isWritable="true"/>
+        <property name="daysOfMonth" type="QVariantList" isWritable="true"/>
+        <property name="daysOfYear" type="QVariantList" isWritable="true"/>
+        <property name="monthsOfYear" type="QVariantList" isWritable="true"/>
+        <property name="positions" type="QVariantList" isWritable="true"/>
+        <property name="firstDayOfWeek" type="Qt.DayOfWeek" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerTodo" defaultProperty="details" extends="QDeclarativeOrganizerItem">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="Todo"/>
+        </exports>
+        <property name="startDateTime" type="QDateTime" isWritable="true"/>
+        <property name="dueDateTime" type="QDateTime" isWritable="true"/>
+        <property name="isAllDay" type="bool" isWritable="true"/>
+        <property name="priority" type="QDeclarativeOrganizerItemPriority.PriorityType" isWritable="true"/>
+        <property name="progressPercentage" type="int" isWritable="true"/>
+        <property name="status" type="QDeclarativeOrganizerTodoProgress.StatusType" isWritable="true"/>
+        <property name="finishedDateTime" type="QDateTime" isWritable="true"/>
+        <property name="recurrence" type="QDeclarativeOrganizerItemRecurrence" isPointer="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerTodoOccurrence" defaultProperty="details" extends="QDeclarativeOrganizerItem">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="TodoOccurrence"/>
+        </exports>
+        <property name="startDateTime" type="QDateTime" isWritable="true"/>
+        <property name="dueDateTime" type="QDateTime" isWritable="true"/>
+        <property name="priority" type="QDeclarativeOrganizerItemPriority.PriorityType" isWritable="true"/>
+        <property name="progressPercentage" type="int" isWritable="true"/>
+        <property name="status" type="QDeclarativeOrganizerTodoProgress.StatusType" isWritable="true"/>
+        <property name="finishedDateTime" type="QDateTime" isWritable="true"/>
+        <property name="parentId" type="uint" isWritable="true"/>
+        <property name="originalDate" type="QDate" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerTodoProgress" extends="QDeclarativeOrganizerItemDetail">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="TodoProgress"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="Status" value="0"/>
+            <enumerator name="Percentage" value="1"/>
+            <enumerator name="FinishedDateTime" value="2"/>
+        </enum>
+        <enum name="StatusType">
+            <enumerator name="NotStarted" value="0"/>
+            <enumerator name="InProgress" value="1"/>
+            <enumerator name="Complete" value="2"/>
+        </enum>
+        <property name="status" type="StatusType" isWritable="true"/>
+        <property name="percentage" type="int" isWritable="true"/>
+        <property name="finishedDateTime" type="QDateTime" isWritable="true"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativeOrganizerTodoTime" extends="QDeclarativeOrganizerItemDetail">
+        <exports>
+            <export module="QtMobility.organizer" version="1.1" type="TodoTime"/>
+        </exports>
+        <enum name="FieldType">
+            <enumerator name="AllDay" value="0"/>
+            <enumerator name="StartDateTime" value="1"/>
+            <enumerator name="DueDateTime" value="2"/>
+        </enum>
+        <property name="allDay" type="bool" isWritable="true"/>
+        <property name="startDateTime" type="QDateTime" isWritable="true"/>
+        <property name="dueDateTime" type="QDateTime" isWritable="true"/>
+        <signal name="valueChanged"/>
     </type>
     <type name="QDeclarativePackage" defaultProperty="data" extends="QObject">
         <exports>
@@ -1411,8 +3879,8 @@
     </type>
     <type name="QDeclarativePathCubic" extends="QDeclarativeCurve">
         <exports>
-            <export module="QtQuick" version="1.0" type="PathCubic"/>
             <export module="Qt" version="4.7" type="PathCubic"/>
+            <export module="QtQuick" version="1.0" type="PathCubic"/>
         </exports>
         <property name="control1X" type="qreal" isWritable="true"/>
         <property name="control1Y" type="qreal" isWritable="true"/>
@@ -1428,14 +3896,14 @@
     </type>
     <type name="QDeclarativePathLine" extends="QDeclarativeCurve">
         <exports>
-            <export module="QtQuick" version="1.0" type="PathLine"/>
             <export module="Qt" version="4.7" type="PathLine"/>
+            <export module="QtQuick" version="1.0" type="PathLine"/>
         </exports>
     </type>
     <type name="QDeclarativePathPercent" extends="QDeclarativePathElement">
         <exports>
-            <export module="Qt" version="4.7" type="PathPercent"/>
             <export module="QtQuick" version="1.0" type="PathPercent"/>
+            <export module="Qt" version="4.7" type="PathPercent"/>
         </exports>
         <property name="value" type="qreal" isWritable="true"/>
         <signal name="valueChanged"/>
@@ -1519,6 +3987,49 @@
         <property name="color" type="QColor" isWritable="true"/>
         <signal name="penChanged"/>
     </type>
+    <type name="QDeclarativePosition" extends="QObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="Position"/>
+        </exports>
+        <property name="latitudeValid" type="bool"/>
+        <property name="longitudeValid" type="bool"/>
+        <property name="altitudeValid" type="bool"/>
+        <property name="coordinate" type="QDeclarativeCoordinate" isPointer="true"/>
+        <property name="timestamp" type="QDateTime"/>
+        <property name="speed" type="double"/>
+        <property name="speedValid" type="bool"/>
+        <signal name="latitudeValidChanged"/>
+        <signal name="longitudeValidChanged"/>
+        <signal name="altitudeValidChanged"/>
+        <signal name="timestampChanged"/>
+        <signal name="speedChanged"/>
+        <signal name="speedValidChanged"/>
+        <signal name="coordinateChanged"/>
+    </type>
+    <type name="QDeclarativePositionSource" extends="QObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="PositionSource"/>
+        </exports>
+        <enum name="PositioningMethod">
+            <enumerator name="NoPositioningMethod" value="0"/>
+            <enumerator name="SatellitePositioningMethod" value="255"/>
+            <enumerator name="NonSatellitePositioningMethod" value="-256"/>
+            <enumerator name="AllPositioningMethods" value="-1"/>
+        </enum>
+        <property name="position" type="QDeclarativePosition" isPointer="true"/>
+        <property name="active" type="bool" isWritable="true"/>
+        <property name="nmeaSource" type="QUrl" isWritable="true"/>
+        <property name="updateInterval" type="int" isWritable="true"/>
+        <property name="positioningMethod" type="PositioningMethod"/>
+        <signal name="positionChanged"/>
+        <signal name="activeChanged"/>
+        <signal name="nmeaSourceChanged"/>
+        <signal name="updateIntervalChanged"/>
+        <signal name="positioningMethodChanged"/>
+        <method name="update"/>
+        <method name="start"/>
+        <method name="stop"/>
+    </type>
     <type name="QDeclarativePropertyAction" extends="QDeclarativeAbstractAnimation">
         <exports>
             <export module="QtQuick" version="1.0" type="PropertyAction"/>
@@ -1580,10 +4091,17 @@
         <property name="restoreEntryValues" type="bool" isWritable="true"/>
         <property name="explicit" type="bool" isWritable="true"/>
     </type>
+    <type name="QDeclarativePropertyMap" extends="QObject">
+        <signal name="valueChanged">
+            <param name="key" type="string"/>
+            <param name="value" type="QVariant"/>
+        </signal>
+        <method name="keys" type="QStringList"/>
+    </type>
     <type name="QDeclarativeRectangle" defaultProperty="data" extends="QDeclarativeItem">
         <exports>
-            <export module="Qt" version="4.7" type="Rectangle"/>
             <export module="QtQuick" version="1.0" type="Rectangle"/>
+            <export module="Qt" version="4.7" type="Rectangle"/>
         </exports>
         <property name="color" type="QColor" isWritable="true"/>
         <property name="gradient" type="QDeclarativeGradient" isWritable="true" isPointer="true"/>
@@ -1604,10 +4122,19 @@
         <signal name="delegateChanged"/>
         <signal name="countChanged"/>
     </type>
+    <type name="QDeclarativeReverseGeocodeModel" extends="QDeclarativeGeoSearchModel">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="ReverseGeocodeModel"/>
+        </exports>
+        <property name="coordinate" type="QDeclarativeCoordinate" isWritable="true" isPointer="true"/>
+        <signal name="coordinateChanged">
+            <param name="coordinate" type="QDeclarativeCoordinate" isPointer="true"/>
+        </signal>
+    </type>
     <type name="QDeclarativeRotationAnimation" extends="QDeclarativePropertyAnimation">
         <exports>
-            <export module="QtQuick" version="1.0" type="RotationAnimation"/>
             <export module="Qt" version="4.7" type="RotationAnimation"/>
+            <export module="QtQuick" version="1.0" type="RotationAnimation"/>
         </exports>
         <enum name="RotationDirection">
             <enumerator name="Numerical" value="0"/>
@@ -1622,8 +4149,8 @@
     </type>
     <type name="QDeclarativeRow" defaultProperty="data" extends="QDeclarativeBasePositioner">
         <exports>
-            <export module="Qt" version="4.7" type="Row"/>
             <export module="QtQuick" version="1.0" type="Row"/>
+            <export module="Qt" version="4.7" type="Row"/>
         </exports>
     </type>
     <type name="QDeclarativeScaleGrid" extends="QObject">
@@ -1633,19 +4160,68 @@
         <property name="bottom" type="int" isWritable="true"/>
         <signal name="borderChanged"/>
     </type>
+    <type name="QDeclarativeScreenSaver" extends="QObject">
+        <exports>
+            <export module="QtMobility.systeminfo" version="1.1" type="ScreenSaver"/>
+        </exports>
+        <property name="screenSaverDelayed" type="bool" isWritable="true"/>
+        <method name="setScreenSaverDelayed">
+            <param name="on" type="bool"/>
+        </method>
+    </type>
     <type name="QDeclarativeScriptAction" extends="QDeclarativeAbstractAnimation">
         <exports>
-            <export module="QtQuick" version="1.0" type="ScriptAction"/>
             <export module="Qt" version="4.7" type="ScriptAction"/>
+            <export module="QtQuick" version="1.0" type="ScriptAction"/>
         </exports>
         <property name="script" type="QDeclarativeScriptString" isWritable="true"/>
         <property name="scriptName" type="string" isWritable="true"/>
     </type>
     <type name="QDeclarativeSequentialAnimation" defaultProperty="animations" extends="QDeclarativeAnimationGroup">
         <exports>
-            <export module="QtQuick" version="1.0" type="SequentialAnimation"/>
             <export module="Qt" version="4.7" type="SequentialAnimation"/>
+            <export module="QtQuick" version="1.0" type="SequentialAnimation"/>
         </exports>
+    </type>
+    <type name="QDeclarativeService" extends="QObject">
+        <exports>
+            <export module="QtMobility.serviceframework" version="1.1" type="Service"/>
+        </exports>
+        <property name="interfaceName" type="string" isWritable="true"/>
+        <property name="serviceName" type="string"/>
+        <property name="majorVersion" type="int"/>
+        <property name="minorVersion" type="int"/>
+        <property name="valid" type="bool"/>
+        <property name="serviceObject" type="QObject" isPointer="true"/>
+        <signal name="validChanged"/>
+        <signal name="serviceObjectChanged"/>
+        <signal name="interfaceNameChanged"/>
+        <signal name="serviceNameChanged"/>
+        <signal name="majorVersionChanged"/>
+        <signal name="minorVersionChanged"/>
+    </type>
+    <type name="QDeclarativeServiceList" extends="QObject">
+        <exports>
+            <export module="QtMobility.serviceframework" version="1.1" type="ServiceList"/>
+        </exports>
+        <enum name="MatchRule">
+            <enumerator name="Minimum" value="0"/>
+            <enumerator name="Exact" value="1"/>
+        </enum>
+        <property name="serviceName" type="string" isWritable="true"/>
+        <property name="interfaceName" type="string" isWritable="true"/>
+        <property name="majorVersion" type="int" isWritable="true"/>
+        <property name="minorVersion" type="int" isWritable="true"/>
+        <property name="services" type="QDeclarativeService" isList="true"/>
+        <property name="versionMatch" type="MatchRule" isWritable="true"/>
+        <signal name="servicesChanged">
+            <param type="QDeclarativeService"/>
+        </signal>
+        <signal name="serviceNameChanged"/>
+        <signal name="interfaceNameChanged"/>
+        <signal name="minorVersionChanged"/>
+        <signal name="majorVersionChanged"/>
+        <signal name="versionMatchChanged"/>
     </type>
     <type name="QDeclarativeSmoothedAnimation" extends="QDeclarativeNumberAnimation">
         <exports>
@@ -1692,8 +4268,8 @@
     </type>
     <type name="QDeclarativeStateChangeScript" extends="QDeclarativeStateOperation">
         <exports>
-            <export module="QtQuick" version="1.0" type="StateChangeScript"/>
             <export module="Qt" version="4.7" type="StateChangeScript"/>
+            <export module="QtQuick" version="1.0" type="StateChangeScript"/>
         </exports>
         <property name="script" type="QDeclarativeScriptString" isWritable="true"/>
         <property name="name" type="string" isWritable="true"/>
@@ -1740,8 +4316,8 @@
     </type>
     <type name="QDeclarativeText" defaultProperty="data" extends="QDeclarativeItem">
         <exports>
-            <export module="Qt" version="4.7" type="Text"/>
             <export module="QtQuick" version="1.0" type="Text"/>
+            <export module="Qt" version="4.7" type="Text"/>
         </exports>
         <enum name="HAlignment">
             <enumerator name="AlignLeft" value="1"/>
@@ -1825,8 +4401,8 @@
     </type>
     <type name="QDeclarativeTextEdit" defaultProperty="data" extends="QDeclarativePaintedItem">
         <exports>
-            <export module="QtQuick" version="1.0" type="TextEdit"/>
             <export module="Qt" version="4.7" type="TextEdit"/>
+            <export module="QtQuick" version="1.0" type="TextEdit"/>
         </exports>
         <enum name="HAlignment">
             <enumerator name="AlignLeft" value="1"/>
@@ -1948,8 +4524,8 @@
     </type>
     <type name="QDeclarativeTextInput" defaultProperty="data" extends="QDeclarativePaintedItem">
         <exports>
-            <export module="Qt" version="4.7" type="TextInput"/>
             <export module="QtQuick" version="1.0" type="TextInput"/>
+            <export module="Qt" version="4.7" type="TextInput"/>
         </exports>
         <enum name="EchoMode">
             <enumerator name="Normal" value="0"/>
@@ -2058,10 +4634,56 @@
         <method name="openSoftwareInputPanel"/>
         <method name="closeSoftwareInputPanel"/>
     </type>
+    <type name="QDeclarativeThemeEffect" extends="QObject">
+        <exports>
+            <export module="QtMobility.feedback" version="1.1" type="ThemeEffect"/>
+        </exports>
+        <enum name="ThemeEffect">
+            <enumerator name="Basic" value="0"/>
+            <enumerator name="Sensitive" value="1"/>
+            <enumerator name="BasicButton" value="2"/>
+            <enumerator name="SensitiveButton" value="3"/>
+            <enumerator name="BasicKeypad" value="4"/>
+            <enumerator name="SensitiveKeypad" value="5"/>
+            <enumerator name="BasicSlider" value="6"/>
+            <enumerator name="SensitiveSlider" value="7"/>
+            <enumerator name="BasicItem" value="8"/>
+            <enumerator name="SensitiveItem" value="9"/>
+            <enumerator name="ItemScroll" value="10"/>
+            <enumerator name="ItemPick" value="11"/>
+            <enumerator name="ItemDrop" value="12"/>
+            <enumerator name="ItemMoveOver" value="13"/>
+            <enumerator name="BounceEffect" value="14"/>
+            <enumerator name="CheckBox" value="15"/>
+            <enumerator name="MultipleCheckBox" value="16"/>
+            <enumerator name="Editor" value="17"/>
+            <enumerator name="TextSelection" value="18"/>
+            <enumerator name="BlankSelection" value="19"/>
+            <enumerator name="LineSelection" value="20"/>
+            <enumerator name="EmptyLineSelection" value="21"/>
+            <enumerator name="PopUp" value="22"/>
+            <enumerator name="PopupOpen" value="23"/>
+            <enumerator name="PopupClose" value="24"/>
+            <enumerator name="Flick" value="25"/>
+            <enumerator name="StopFlick" value="26"/>
+            <enumerator name="MultiPointTouchActivate" value="27"/>
+            <enumerator name="RotateStep" value="28"/>
+            <enumerator name="LongPress" value="29"/>
+            <enumerator name="PositiveTacticon" value="30"/>
+            <enumerator name="NeutralTacticon" value="31"/>
+            <enumerator name="NegativeTacticon" value="32"/>
+            <enumerator name="NumberOfThemeEffects" value="33"/>
+            <enumerator name="ThemeUser" value="65535"/>
+        </enum>
+        <property name="supported" type="bool"/>
+        <property name="effect" type="ThemeEffect" isWritable="true"/>
+        <signal name="effectChanged"/>
+        <method name="play"/>
+    </type>
     <type name="QDeclarativeTimer" extends="QObject">
         <exports>
-            <export module="QtQuick" version="1.0" type="Timer"/>
             <export module="Qt" version="4.7" type="Timer"/>
+            <export module="QtQuick" version="1.0" type="Timer"/>
         </exports>
         <property name="interval" type="int" isWritable="true"/>
         <property name="running" type="bool" isWritable="true"/>
@@ -2079,8 +4701,8 @@
     </type>
     <type name="QDeclarativeTransition" defaultProperty="animations" extends="QObject">
         <exports>
-            <export module="Qt" version="4.7" type="Transition"/>
             <export module="QtQuick" version="1.0" type="Transition"/>
+            <export module="Qt" version="4.7" type="Transition"/>
         </exports>
         <property name="from" type="string" isWritable="true"/>
         <property name="to" type="string" isWritable="true"/>
@@ -2092,8 +4714,8 @@
     </type>
     <type name="QDeclarativeTranslate" extends="QGraphicsTransform">
         <exports>
-            <export module="Qt" version="4.7" type="Translate"/>
             <export module="QtQuick" version="1.0" type="Translate"/>
+            <export module="Qt" version="4.7" type="Translate"/>
         </exports>
         <property name="x" type="qreal" isWritable="true"/>
         <property name="y" type="qreal" isWritable="true"/>
@@ -2108,6 +4730,79 @@
         </exports>
         <property name="from" type="QVector3D" isWritable="true"/>
         <property name="to" type="QVector3D" isWritable="true"/>
+    </type>
+    <type name="QDeclarativeVideo" defaultProperty="data" extends="QDeclarativeItem">
+        <exports>
+            <export module="QtMultimediaKit" version="1.1" type="Video"/>
+        </exports>
+        <enum name="FillMode">
+            <enumerator name="Stretch" value="0"/>
+            <enumerator name="PreserveAspectFit" value="1"/>
+            <enumerator name="PreserveAspectCrop" value="2"/>
+        </enum>
+        <enum name="Status">
+            <enumerator name="UnknownStatus" value="0"/>
+            <enumerator name="NoMedia" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Loaded" value="3"/>
+            <enumerator name="Stalled" value="4"/>
+            <enumerator name="Buffering" value="5"/>
+            <enumerator name="Buffered" value="6"/>
+            <enumerator name="EndOfMedia" value="7"/>
+            <enumerator name="InvalidMedia" value="8"/>
+        </enum>
+        <enum name="Error">
+            <enumerator name="NoError" value="0"/>
+            <enumerator name="ResourceError" value="1"/>
+            <enumerator name="FormatError" value="2"/>
+            <enumerator name="NetworkError" value="3"/>
+            <enumerator name="AccessDenied" value="4"/>
+            <enumerator name="ServiceMissing" value="5"/>
+        </enum>
+        <property name="source" type="QUrl" isWritable="true"/>
+        <property name="autoLoad" type="bool" isWritable="true"/>
+        <property name="playing" type="bool" isWritable="true"/>
+        <property name="paused" type="bool" isWritable="true"/>
+        <property name="status" type="Status"/>
+        <property name="duration" type="int"/>
+        <property name="position" type="int" isWritable="true"/>
+        <property name="volume" type="qreal" isWritable="true"/>
+        <property name="muted" type="bool" isWritable="true"/>
+        <property name="hasAudio" type="bool"/>
+        <property name="hasVideo" type="bool"/>
+        <property name="bufferProgress" type="int"/>
+        <property name="seekable" type="bool"/>
+        <property name="playbackRate" type="qreal" isWritable="true"/>
+        <property name="error" type="Error"/>
+        <property name="errorString" type="string"/>
+        <property name="fillMode" type="FillMode" isWritable="true"/>
+        <property name="metaData" type="QDeclarativeMediaMetaData" isPointer="true"/>
+        <signal name="sourceChanged"/>
+        <signal name="autoLoadChanged"/>
+        <signal name="playingChanged"/>
+        <signal name="pausedChanged"/>
+        <signal name="started"/>
+        <signal name="resumed"/>
+        <signal name="paused"/>
+        <signal name="stopped"/>
+        <signal name="statusChanged"/>
+        <signal name="durationChanged"/>
+        <signal name="positionChanged"/>
+        <signal name="volumeChanged"/>
+        <signal name="mutedChanged"/>
+        <signal name="hasAudioChanged"/>
+        <signal name="hasVideoChanged"/>
+        <signal name="bufferProgressChanged"/>
+        <signal name="seekableChanged"/>
+        <signal name="playbackRateChanged"/>
+        <signal name="errorChanged"/>
+        <signal name="error">
+            <param name="error" type="QDeclarativeVideo.Error"/>
+            <param name="errorString" type="string"/>
+        </signal>
+        <method name="play"/>
+        <method name="pause"/>
+        <method name="stop"/>
     </type>
     <type name="QDeclarativeViewSection" extends="QObject">
         <exports>
@@ -2151,8 +4846,8 @@
     <type name="QDeclarativeVisualDataModelParts" extends="QObject"/>
     <type name="QDeclarativeVisualItemModel" defaultProperty="children" extends="QDeclarativeVisualModel">
         <exports>
-            <export module="Qt" version="4.7" type="VisualItemModel"/>
             <export module="QtQuick" version="1.0" type="VisualItemModel"/>
+            <export module="Qt" version="4.7" type="VisualItemModel"/>
         </exports>
         <property name="children" type="QDeclarativeItem" isList="true"/>
         <signal name="childrenChanged"/>
@@ -2171,10 +4866,6 @@
         <signal name="itemsMoved">
             <param name="from" type="int"/>
             <param name="to" type="int"/>
-            <param name="count" type="int"/>
-        </signal>
-        <signal name="itemsChanged">
-            <param name="index" type="int"/>
             <param name="count" type="int"/>
         </signal>
         <signal name="modelReset"/>
@@ -2341,8 +5032,8 @@
     </type>
     <type name="QDeclarativeXmlListModelRole" extends="QObject">
         <exports>
-            <export module="Qt" version="4.7" type="XmlRole"/>
             <export module="QtQuick" version="1.0" type="XmlRole"/>
+            <export module="Qt" version="4.7" type="XmlRole"/>
         </exports>
         <property name="name" type="string" isWritable="true"/>
         <property name="query" type="string" isWritable="true"/>
@@ -2364,6 +5055,233 @@
         <property name="top" type="double" isWritable="true"/>
         <property name="decimals" type="int" isWritable="true"/>
         <property name="notation" type="Notation" isWritable="true"/>
+    </type>
+    <type name="QFeedbackActuator" extends="QObject">
+        <exports>
+            <export module="QtMobility.feedback" version="1.1" type="Actuator"/>
+        </exports>
+        <enum name="Capability">
+            <enumerator name="Envelope" value="0"/>
+            <enumerator name="Period" value="1"/>
+        </enum>
+        <enum name="State">
+            <enumerator name="Busy" value="0"/>
+            <enumerator name="Ready" value="1"/>
+            <enumerator name="Unknown" value="2"/>
+        </enum>
+        <property name="id" type="int"/>
+        <property name="name" type="string"/>
+        <property name="state" type="QFeedbackActuator.State"/>
+        <property name="valid" type="bool"/>
+        <property name="enabled" type="bool" isWritable="true"/>
+        <signal name="enabledChanged"/>
+        <method name="isCapabilitySupported" type="bool">
+            <param type="Capability"/>
+        </method>
+    </type>
+    <type name="QFeedbackEffect" extends="QObject">
+        <enum name="ThemeEffect">
+            <enumerator name="ThemeBasic" value="0"/>
+            <enumerator name="ThemeSensitive" value="1"/>
+            <enumerator name="ThemeBasicButton" value="2"/>
+            <enumerator name="ThemeSensitiveButton" value="3"/>
+            <enumerator name="ThemeBasicKeypad" value="4"/>
+            <enumerator name="ThemeSensitiveKeypad" value="5"/>
+            <enumerator name="ThemeBasicSlider" value="6"/>
+            <enumerator name="ThemeSensitiveSlider" value="7"/>
+            <enumerator name="ThemeBasicItem" value="8"/>
+            <enumerator name="ThemeSensitiveItem" value="9"/>
+            <enumerator name="ThemeItemScroll" value="10"/>
+            <enumerator name="ThemeItemPick" value="11"/>
+            <enumerator name="ThemeItemDrop" value="12"/>
+            <enumerator name="ThemeItemMoveOver" value="13"/>
+            <enumerator name="ThemeBounceEffect" value="14"/>
+            <enumerator name="ThemeCheckBox" value="15"/>
+            <enumerator name="ThemeMultipleCheckBox" value="16"/>
+            <enumerator name="ThemeEditor" value="17"/>
+            <enumerator name="ThemeTextSelection" value="18"/>
+            <enumerator name="ThemeBlankSelection" value="19"/>
+            <enumerator name="ThemeLineSelection" value="20"/>
+            <enumerator name="ThemeEmptyLineSelection" value="21"/>
+            <enumerator name="ThemePopUp" value="22"/>
+            <enumerator name="ThemePopupOpen" value="23"/>
+            <enumerator name="ThemePopupClose" value="24"/>
+            <enumerator name="ThemeFlick" value="25"/>
+            <enumerator name="ThemeStopFlick" value="26"/>
+            <enumerator name="ThemeMultiPointTouchActivate" value="27"/>
+            <enumerator name="ThemeRotateStep" value="28"/>
+            <enumerator name="ThemeLongPress" value="29"/>
+            <enumerator name="ThemePositiveTacticon" value="30"/>
+            <enumerator name="ThemeNeutralTacticon" value="31"/>
+            <enumerator name="ThemeNegativeTacticon" value="32"/>
+            <enumerator name="NumberOfThemeEffects" value="33"/>
+            <enumerator name="ThemeUser" value="65535"/>
+        </enum>
+        <enum name="Duration">
+            <enumerator name="Infinite" value="-1"/>
+        </enum>
+        <enum name="State">
+            <enumerator name="Stopped" value="0"/>
+            <enumerator name="Paused" value="1"/>
+            <enumerator name="Running" value="2"/>
+            <enumerator name="Loading" value="3"/>
+        </enum>
+        <enum name="ErrorType">
+            <enumerator name="UnknownError" value="0"/>
+            <enumerator name="DeviceBusy" value="1"/>
+        </enum>
+        <property name="duration" type="int"/>
+        <property name="state" type="State"/>
+        <signal name="error">
+            <param type="QFeedbackEffect.ErrorType"/>
+        </signal>
+        <signal name="stateChanged"/>
+        <method name="start"/>
+        <method name="stop"/>
+        <method name="pause"/>
+    </type>
+    <type name="QFeedbackFileEffect" extends="QFeedbackEffect">
+        <property name="loaded" type="bool" isWritable="true"/>
+        <property name="source" type="QUrl" isWritable="true"/>
+    </type>
+    <type name="QFeedbackHapticsEffect" extends="QFeedbackEffect">
+        <property name="duration" type="int" isWritable="true"/>
+        <property name="intensity" type="qreal" isWritable="true"/>
+        <property name="attackTime" type="int" isWritable="true"/>
+        <property name="attackIntensity" type="qreal" isWritable="true"/>
+        <property name="fadeTime" type="int" isWritable="true"/>
+        <property name="fadeIntensity" type="int" isWritable="true"/>
+        <property name="period" type="int" isWritable="true"/>
+        <property name="actuator" type="QFeedbackActuator" isWritable="true" isPointer="true"/>
+    </type>
+    <type name="QGeoMapCircleObject" extends="QGeoMapObject">
+        <property name="center" type="QGeoCoordinate" isWritable="true"/>
+        <property name="radius" type="qreal" isWritable="true"/>
+        <property name="pen" type="QPen" isWritable="true"/>
+        <property name="brush" type="QBrush" isWritable="true"/>
+        <signal name="centerChanged">
+            <param name="center" type="QGeoCoordinate"/>
+        </signal>
+        <signal name="radiusChanged">
+            <param name="radius" type="qreal"/>
+        </signal>
+        <signal name="penChanged">
+            <param name="pen" type="QPen"/>
+        </signal>
+        <signal name="brushChanged">
+            <param name="brush" type="QBrush"/>
+        </signal>
+    </type>
+    <type name="QGeoMapGroupObject" extends="QGeoMapObject">
+        <signal name="childAdded">
+            <param name="childObject" type="QGeoMapObject" isPointer="true"/>
+        </signal>
+        <signal name="childRemoved">
+            <param name="childObject" type="QGeoMapObject" isPointer="true"/>
+        </signal>
+    </type>
+    <type name="QGeoMapObject" extends="QObject">
+        <exports>
+            <export module="QtMobility.location" version="1.1" type="QGeoMapObject"/>
+        </exports>
+        <property name="zValue" type="int" isWritable="true"/>
+        <property name="visible" type="bool" isWritable="true"/>
+        <property name="selected" type="bool" isWritable="true"/>
+        <signal name="zValueChanged">
+            <param name="zValue" type="int"/>
+        </signal>
+        <signal name="visibleChanged">
+            <param name="visible" type="bool"/>
+        </signal>
+        <signal name="selectedChanged">
+            <param name="selected" type="bool"/>
+        </signal>
+    </type>
+    <type name="QGeoMapPixmapObject" extends="QGeoMapObject">
+        <property name="coordinate" type="QGeoCoordinate" isWritable="true"/>
+        <property name="pixmap" type="QPixmap" isWritable="true"/>
+        <property name="offset" type="QPoint" isWritable="true"/>
+        <signal name="coordinateChanged">
+            <param name="coordinate" type="QGeoCoordinate"/>
+        </signal>
+        <signal name="pixmapChanged">
+            <param name="pixmap" type="QPixmap"/>
+        </signal>
+        <signal name="offsetChanged">
+            <param name="offset" type="QPoint"/>
+        </signal>
+    </type>
+    <type name="QGeoMapPolygonObject" extends="QGeoMapObject">
+        <property name="path" type="QList&lt;QGeoCoordinate&gt;" isWritable="true"/>
+        <property name="pen" type="QPen" isWritable="true"/>
+        <property name="brush" type="QBrush" isWritable="true"/>
+        <signal name="pathChanged">
+            <param name="path" type="QList&lt;QGeoCoordinate&gt;"/>
+        </signal>
+        <signal name="penChanged">
+            <param name="pen" type="QPen"/>
+        </signal>
+        <signal name="brushChanged">
+            <param name="brush" type="QBrush"/>
+        </signal>
+    </type>
+    <type name="QGeoMapPolylineObject" extends="QGeoMapObject">
+        <property name="path" type="QList&lt;QGeoCoordinate&gt;" isWritable="true"/>
+        <property name="pen" type="QPen" isWritable="true"/>
+        <signal name="pathChanged">
+            <param name="path" type="QList&lt;QGeoCoordinate&gt;"/>
+        </signal>
+        <signal name="penChanged">
+            <param name="pen" type="QPen"/>
+        </signal>
+    </type>
+    <type name="QGeoMapRectangleObject" extends="QGeoMapObject">
+        <property name="topLeft" type="QGeoCoordinate" isWritable="true"/>
+        <property name="bottomRight" type="QGeoCoordinate" isWritable="true"/>
+        <property name="pen" type="QPen" isWritable="true"/>
+        <property name="brush" type="QBrush" isWritable="true"/>
+        <signal name="topLeftChanged">
+            <param name="topLeft" type="QGeoCoordinate"/>
+        </signal>
+        <signal name="bottomRightChanged">
+            <param name="bottomRight" type="QGeoCoordinate"/>
+        </signal>
+        <signal name="penChanged">
+            <param name="pen" type="QPen"/>
+        </signal>
+        <signal name="brushChanged">
+            <param name="brush" type="QBrush"/>
+        </signal>
+    </type>
+    <type name="QGeoMapTextObject" extends="QGeoMapObject">
+        <property name="coordinate" type="QGeoCoordinate" isWritable="true"/>
+        <property name="text" type="string" isWritable="true"/>
+        <property name="font" type="QFont" isWritable="true"/>
+        <property name="pen" type="QPen" isWritable="true"/>
+        <property name="brush" type="QBrush" isWritable="true"/>
+        <property name="offset" type="QPoint" isWritable="true"/>
+        <property name="alignment" type="Qt.Alignment" isWritable="true"/>
+        <signal name="coordinateChanged">
+            <param name="coordinate" type="QGeoCoordinate"/>
+        </signal>
+        <signal name="textChanged">
+            <param name="text" type="string"/>
+        </signal>
+        <signal name="fontChanged">
+            <param name="font" type="QFont"/>
+        </signal>
+        <signal name="penChanged">
+            <param name="pen" type="QPen"/>
+        </signal>
+        <signal name="brushChanged">
+            <param name="brush" type="QBrush"/>
+        </signal>
+        <signal name="offsetChanged">
+            <param name="offset" type="QPoint"/>
+        </signal>
+        <signal name="alignmentChanged">
+            <param name="alignment" type="Qt.Alignment"/>
+        </signal>
     </type>
     <type name="QGesture" extends="QObject">
         <exports>
@@ -2418,8 +5336,8 @@
     </type>
     <type name="QGraphicsScale" extends="QGraphicsTransform">
         <exports>
-            <export module="Qt" version="4.7" type="Scale"/>
             <export module="QtQuick" version="1.0" type="Scale"/>
+            <export module="Qt" version="4.7" type="Scale"/>
         </exports>
         <property name="origin" type="QVector3D" isWritable="true"/>
         <property name="xScale" type="qreal" isWritable="true"/>
@@ -2473,10 +5391,24 @@
             <param name="roles" type="QList&lt;int&gt;"/>
         </signal>
     </type>
+    <type name="QMagnetometer" extends="QSensor">
+        <exports>
+            <export module="QtMobility.sensors" version="1.1" type="Magnetometer"/>
+        </exports>
+    </type>
+    <type name="QMagnetometerReading" extends="QSensorReading">
+        <exports>
+            <export module="QtMobility.sensors" version="1.1" type="MagnetometerReading"/>
+        </exports>
+        <property name="x" type="qreal"/>
+        <property name="y" type="qreal"/>
+        <property name="z" type="qreal"/>
+        <property name="calibrationLevel" type="qreal"/>
+    </type>
     <type name="QObject">
         <exports>
-            <export module="QtQuick" version="1.0" type="QtObject"/>
             <export module="Qt" version="4.7" type="QtObject"/>
+            <export module="QtQuick" version="1.0" type="QtObject"/>
         </exports>
         <property name="objectName" type="string" isWritable="true"/>
         <signal name="destroyed">
@@ -2484,6 +5416,26 @@
         </signal>
         <signal name="destroyed"/>
         <method name="deleteLater"/>
+    </type>
+    <type name="QOrientationReading" extends="QSensorReading">
+        <exports>
+            <export module="QtMobility.sensors" version="1.1" type="OrientationReading"/>
+        </exports>
+        <enum name="Orientation">
+            <enumerator name="Undefined" value="0"/>
+            <enumerator name="TopUp" value="1"/>
+            <enumerator name="TopDown" value="2"/>
+            <enumerator name="LeftUp" value="3"/>
+            <enumerator name="RightUp" value="4"/>
+            <enumerator name="FaceUp" value="5"/>
+            <enumerator name="FaceDown" value="6"/>
+        </enum>
+        <property name="orientation" type="Orientation"/>
+    </type>
+    <type name="QOrientationSensor" extends="QSensor">
+        <exports>
+            <export module="QtMobility.sensors" version="1.1" type="OrientationSensor"/>
+        </exports>
     </type>
     <type name="QPanGesture" extends="QGesture">
         <exports>
@@ -2522,12 +5474,91 @@
         <property name="lastCenterPoint" type="QPointF" isWritable="true"/>
         <property name="centerPoint" type="QPointF" isWritable="true"/>
     </type>
+    <type name="QProximityReading" extends="QSensorReading">
+        <exports>
+            <export module="QtMobility.sensors" version="1.1" type="ProximityReading"/>
+        </exports>
+        <property name="close" type="bool"/>
+    </type>
+    <type name="QProximitySensor" extends="QSensor">
+        <exports>
+            <export module="QtMobility.sensors" version="1.1" type="ProximitySensor"/>
+        </exports>
+    </type>
     <type name="QRegExpValidator" extends="QValidator">
         <exports>
             <export module="QtQuick" version="1.0" type="RegExpValidator"/>
             <export module="Qt" version="4.7" type="RegExpValidator"/>
         </exports>
         <property name="regExp" type="QRegExp" isWritable="true"/>
+    </type>
+    <type name="QRotationReading" extends="QSensorReading">
+        <exports>
+            <export module="QtMobility.sensors" version="1.1" type="RotationReading"/>
+        </exports>
+        <property name="x" type="qreal"/>
+        <property name="y" type="qreal"/>
+        <property name="z" type="qreal"/>
+    </type>
+    <type name="QRotationSensor" extends="QSensor">
+        <exports>
+            <export module="QtMobility.sensors" version="1.1" type="RotationSensor"/>
+        </exports>
+    </type>
+    <type name="QSensor" extends="QObject">
+        <property name="sensorid" type="QByteArray" isWritable="true"/>
+        <property name="type" type="QByteArray"/>
+        <property name="connectedToBackend" type="bool"/>
+        <property name="availableDataRates" type="QtMobility.qrangelist"/>
+        <property name="dataRate" type="int" isWritable="true"/>
+        <property name="reading" type="QSensorReading" isPointer="true"/>
+        <property name="busy" type="bool"/>
+        <property name="active" type="bool" isWritable="true"/>
+        <property name="outputRanges" type="QtMobility.qoutputrangelist"/>
+        <property name="outputRange" type="int" isWritable="true"/>
+        <property name="description" type="string"/>
+        <property name="error" type="int"/>
+        <signal name="busyChanged"/>
+        <signal name="activeChanged"/>
+        <signal name="readingChanged"/>
+        <signal name="sensorError">
+            <param name="error" type="int"/>
+        </signal>
+        <method name="start" type="bool"/>
+        <method name="stop"/>
+        <method name="connectToBackend" type="bool"/>
+    </type>
+    <type name="QSensorReading" extends="QObject">
+        <property name="timestamp" type="QtMobility.qtimestamp"/>
+    </type>
+    <type name="QSoundEffect" extends="QObject">
+        <exports>
+            <export module="QtMultimediaKit" version="1.1" type="SoundEffect"/>
+        </exports>
+        <enum name="Loop">
+            <enumerator name="Infinite" value="-2"/>
+        </enum>
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Loading" value="1"/>
+            <enumerator name="Ready" value="2"/>
+            <enumerator name="Error" value="3"/>
+        </enum>
+        <property name="source" type="QUrl" isWritable="true"/>
+        <property name="loops" type="int" isWritable="true"/>
+        <property name="volume" type="qreal" isWritable="true"/>
+        <property name="muted" type="bool" isWritable="true"/>
+        <property name="playing" type="bool"/>
+        <property name="status" type="Status"/>
+        <signal name="sourceChanged"/>
+        <signal name="loopCountChanged"/>
+        <signal name="volumeChanged"/>
+        <signal name="mutedChanged"/>
+        <signal name="loadedChanged"/>
+        <signal name="playingChanged"/>
+        <signal name="statusChanged"/>
+        <method name="play"/>
+        <method name="stop"/>
     </type>
     <type name="QSwipeGesture" extends="QGesture">
         <exports>
@@ -2545,6 +5576,207 @@
         <property name="swipeAngle" type="qreal" isWritable="true"/>
         <property name="velocity" type="qreal" isWritable="true"/>
     </type>
+    <type name="QSystemDeviceInfo" extends="QObject">
+        <enum name="BatteryStatus">
+            <enumerator name="NoBatteryLevel" value="0"/>
+            <enumerator name="BatteryCritical" value="1"/>
+            <enumerator name="BatteryVeryLow" value="2"/>
+            <enumerator name="BatteryLow" value="3"/>
+            <enumerator name="BatteryNormal" value="4"/>
+        </enum>
+        <enum name="PowerState">
+            <enumerator name="UnknownPower" value="0"/>
+            <enumerator name="BatteryPower" value="1"/>
+            <enumerator name="WallPower" value="2"/>
+            <enumerator name="WallPowerChargingBattery" value="3"/>
+        </enum>
+        <enum name="InputMethod">
+            <enumerator name="Keys" value="1"/>
+            <enumerator name="Keypad" value="2"/>
+            <enumerator name="Keyboard" value="4"/>
+            <enumerator name="SingleTouch" value="8"/>
+            <enumerator name="MultiTouch" value="16"/>
+            <enumerator name="Mouse" value="32"/>
+        </enum>
+        <enum name="InputMethodFlags">
+            <enumerator name="Keys" value="1"/>
+            <enumerator name="Keypad" value="2"/>
+            <enumerator name="Keyboard" value="4"/>
+            <enumerator name="SingleTouch" value="8"/>
+            <enumerator name="MultiTouch" value="16"/>
+            <enumerator name="Mouse" value="32"/>
+        </enum>
+        <enum name="Profile">
+            <enumerator name="UnknownProfile" value="0"/>
+            <enumerator name="SilentProfile" value="1"/>
+            <enumerator name="NormalProfile" value="2"/>
+            <enumerator name="LoudProfile" value="3"/>
+            <enumerator name="VibProfile" value="4"/>
+            <enumerator name="OfflineProfile" value="5"/>
+            <enumerator name="PowersaveProfile" value="6"/>
+            <enumerator name="CustomProfile" value="7"/>
+            <enumerator name="BeepProfile" value="8"/>
+        </enum>
+        <enum name="SimStatus">
+            <enumerator name="SimNotAvailable" value="0"/>
+            <enumerator name="SingleSimAvailable" value="1"/>
+            <enumerator name="DualSimAvailable" value="2"/>
+            <enumerator name="SimLocked" value="3"/>
+        </enum>
+        <property name="currentProfile" type="Profile"/>
+        <property name="powerState" type="PowerState"/>
+        <property name="simStatus" type="SimStatus"/>
+        <property name="batteryStatus" type="BatteryStatus"/>
+        <property name="inputMethodType" type="InputMethodFlags"/>
+        <property name="imei" type="string"/>
+        <property name="imsi" type="string"/>
+        <property name="manufacturer" type="string"/>
+        <property name="model" type="string"/>
+        <property name="productName" type="string"/>
+        <property name="batteryLevel" type="int"/>
+        <property name="isDeviceLocked" type="bool"/>
+        <property name="currentBluetoothPowerState" type="bool"/>
+        <property name="currentPowerState" type="QSystemDeviceInfo.PowerState"/>
+        <signal name="batteryLevelChanged">
+            <param name="level" type="int"/>
+        </signal>
+        <signal name="batteryStatusChanged">
+            <param name="batteryStatus" type="QSystemDeviceInfo.BatteryStatus"/>
+        </signal>
+        <signal name="powerStateChanged">
+            <param name="powerState" type="QSystemDeviceInfo.PowerState"/>
+        </signal>
+        <signal name="currentProfileChanged">
+            <param name="currentProfile" type="QSystemDeviceInfo.Profile"/>
+        </signal>
+        <signal name="bluetoothStateChanged">
+            <param name="on" type="bool"/>
+        </signal>
+    </type>
+    <type name="QSystemDisplayInfo" extends="QObject">
+        <exports>
+            <export module="QtMobility.systeminfo" version="1.1" type="DisplayInfo"/>
+        </exports>
+    </type>
+    <type name="QSystemInfo" extends="QObject">
+        <enum name="Version">
+            <enumerator name="Os" value="1"/>
+            <enumerator name="QtCore" value="2"/>
+            <enumerator name="Firmware" value="3"/>
+            <enumerator name="QtMobility" value="4"/>
+        </enum>
+        <enum name="Feature">
+            <enumerator name="BluetoothFeature" value="0"/>
+            <enumerator name="CameraFeature" value="1"/>
+            <enumerator name="FmradioFeature" value="2"/>
+            <enumerator name="IrFeature" value="3"/>
+            <enumerator name="LedFeature" value="4"/>
+            <enumerator name="MemcardFeature" value="5"/>
+            <enumerator name="UsbFeature" value="6"/>
+            <enumerator name="VibFeature" value="7"/>
+            <enumerator name="WlanFeature" value="8"/>
+            <enumerator name="SimFeature" value="9"/>
+            <enumerator name="LocationFeature" value="10"/>
+            <enumerator name="VideoOutFeature" value="11"/>
+            <enumerator name="HapticsFeature" value="12"/>
+        </enum>
+        <property name="currentLanguage" type="string"/>
+        <property name="availableLanguages" type="QStringList"/>
+        <property name="currentCountryCode" type="string"/>
+        <signal name="currentLanguageChanged">
+            <param type="string"/>
+        </signal>
+    </type>
+    <type name="QSystemNetworkInfo" extends="QObject">
+        <enum name="NetworkStatus">
+            <enumerator name="UndefinedStatus" value="0"/>
+            <enumerator name="NoNetworkAvailable" value="1"/>
+            <enumerator name="EmergencyOnly" value="2"/>
+            <enumerator name="Searching" value="3"/>
+            <enumerator name="Busy" value="4"/>
+            <enumerator name="Connected" value="5"/>
+            <enumerator name="HomeNetwork" value="6"/>
+            <enumerator name="Denied" value="7"/>
+            <enumerator name="Roaming" value="8"/>
+        </enum>
+        <enum name="NetworkMode">
+            <enumerator name="UnknownMode" value="0"/>
+            <enumerator name="GsmMode" value="1"/>
+            <enumerator name="CdmaMode" value="2"/>
+            <enumerator name="WcdmaMode" value="3"/>
+            <enumerator name="WlanMode" value="4"/>
+            <enumerator name="EthernetMode" value="5"/>
+            <enumerator name="BluetoothMode" value="6"/>
+            <enumerator name="WimaxMode" value="7"/>
+        </enum>
+        <property name="cellId" type="int"/>
+        <property name="locationAreaCode" type="int"/>
+        <property name="currentMobileCountryCode" type="string"/>
+        <property name="currentMobileNetworkCode" type="string"/>
+        <property name="homeMobileCountryCode" type="string"/>
+        <property name="homeMobileNetworkCode" type="string"/>
+        <property name="currentMode" type="QSystemNetworkInfo.NetworkMode"/>
+        <signal name="networkStatusChanged">
+            <param type="QSystemNetworkInfo.NetworkMode"/>
+            <param type="QSystemNetworkInfo.NetworkStatus"/>
+        </signal>
+        <signal name="networkSignalStrengthChanged">
+            <param type="QSystemNetworkInfo.NetworkMode"/>
+            <param type="int"/>
+        </signal>
+        <signal name="currentMobileCountryCodeChanged">
+            <param type="string"/>
+        </signal>
+        <signal name="currentMobileNetworkCodeChanged">
+            <param type="string"/>
+        </signal>
+        <signal name="networkNameChanged">
+            <param type="QSystemNetworkInfo.NetworkMode"/>
+            <param type="string"/>
+        </signal>
+        <signal name="networkModeChanged">
+            <param type="QSystemNetworkInfo.NetworkMode"/>
+        </signal>
+        <method name="networkStatus" type="QSystemNetworkInfo.NetworkStatus">
+            <param name="mode" type="QSystemNetworkInfo.NetworkMode"/>
+        </method>
+        <method name="networkSignalStrength" type="int">
+            <param name="mode" type="QSystemNetworkInfo.NetworkMode"/>
+        </method>
+        <method name="macAddress" type="string">
+            <param name="mode" type="QSystemNetworkInfo.NetworkMode"/>
+        </method>
+        <method name="currentMode" type="QSystemNetworkInfo.NetworkMode"/>
+        <method name="networkName" type="string">
+            <param name="mode" type="QSystemNetworkInfo.NetworkMode"/>
+        </method>
+    </type>
+    <type name="QSystemStorageInfo" extends="QObject">
+        <exports>
+            <export module="QtMobility.systeminfo" version="1.1" type="StorageInfo"/>
+        </exports>
+        <enum name="DriveType">
+            <enumerator name="NoDrive" value="0"/>
+            <enumerator name="InternalDrive" value="1"/>
+            <enumerator name="RemovableDrive" value="2"/>
+            <enumerator name="RemoteDrive" value="3"/>
+            <enumerator name="CdromDrive" value="4"/>
+        </enum>
+        <property name="logicalDrives" type="QStringList"/>
+        <signal name="logicalDriveChanged">
+            <param name="added" type="bool"/>
+            <param name="vol" type="string"/>
+        </signal>
+        <method name="totalDiskSpace" type="qlonglong">
+            <param name="driveVolume" type="string"/>
+        </method>
+        <method name="availableDiskSpace" type="qlonglong">
+            <param name="driveVolume" type="string"/>
+        </method>
+        <method name="typeForDrive" type="QSystemStorageInfo.DriveType">
+            <param name="driveVolume" type="string"/>
+        </method>
+    </type>
     <type name="QTapAndHoldGesture" extends="QGesture">
         <exports>
             <export module="Qt.labs.gestures" version="1.0" type="TapAndHoldGesture"/>
@@ -2557,7 +5789,39 @@
         </exports>
         <property name="position" type="QPointF" isWritable="true"/>
     </type>
+    <type name="QTapReading" extends="QSensorReading">
+        <exports>
+            <export module="QtMobility.sensors" version="1.1" type="TapReading"/>
+        </exports>
+        <enum name="TapDirection">
+            <enumerator name="Undefined" value="0"/>
+            <enumerator name="X" value="1"/>
+            <enumerator name="Y" value="2"/>
+            <enumerator name="Z" value="4"/>
+            <enumerator name="X_Pos" value="17"/>
+            <enumerator name="Y_Pos" value="34"/>
+            <enumerator name="Z_Pos" value="68"/>
+            <enumerator name="X_Neg" value="257"/>
+            <enumerator name="Y_Neg" value="514"/>
+            <enumerator name="Z_Neg" value="1028"/>
+        </enum>
+        <property name="tapDirection" type="TapDirection"/>
+        <property name="doubleTap" type="bool"/>
+    </type>
+    <type name="QTapSensor" extends="QSensor">
+        <exports>
+            <export module="QtMobility.sensors" version="1.1" type="TapSensor"/>
+        </exports>
+    </type>
     <type name="QValidator" extends="QObject"/>
+    <type name="QValueSpaceSubscriber" extends="QObject">
+        <exports>
+            <export module="QtMobility.publishsubscribe" version="1.1" type="ValueSpaceSubscriber"/>
+        </exports>
+        <property name="path" type="string" isWritable="true"/>
+        <property name="value" type="QVariant"/>
+        <signal name="contentsChanged"/>
+    </type>
     <type name="Qt">
         <enum name="GlobalColor">
             <enumerator name="color0" value="0"/>
@@ -2675,44 +5939,6 @@
             <enumerator name="WindowCancelButtonHint" value="1048576"/>
             <enumerator name="WindowSoftkeysVisibleHint" value="1073741824"/>
             <enumerator name="WindowSoftkeysRespondHint" value="-2147483648"/>
-            <enumerator name="WMouseNoMask" value="524288"/>
-            <enumerator name="WDestructiveClose" value="1048576"/>
-            <enumerator name="WStaticContents" value="2097152"/>
-            <enumerator name="WGroupLeader" value="4194304"/>
-            <enumerator name="WShowModal" value="8388608"/>
-            <enumerator name="WNoMousePropagation" value="16777216"/>
-            <enumerator name="WType_TopLevel" value="1"/>
-            <enumerator name="WType_Dialog" value="3"/>
-            <enumerator name="WType_Popup" value="9"/>
-            <enumerator name="WType_Desktop" value="17"/>
-            <enumerator name="WType_Mask" value="255"/>
-            <enumerator name="WStyle_Customize" value="0"/>
-            <enumerator name="WStyle_NormalBorder" value="0"/>
-            <enumerator name="WStyle_DialogBorder" value="256"/>
-            <enumerator name="WStyle_NoBorder" value="2048"/>
-            <enumerator name="WStyle_Title" value="4096"/>
-            <enumerator name="WStyle_SysMenu" value="8192"/>
-            <enumerator name="WStyle_Minimize" value="16384"/>
-            <enumerator name="WStyle_Maximize" value="32768"/>
-            <enumerator name="WStyle_MinMax" value="49152"/>
-            <enumerator name="WStyle_Tool" value="11"/>
-            <enumerator name="WStyle_StaysOnTop" value="262144"/>
-            <enumerator name="WStyle_ContextHelp" value="65536"/>
-            <enumerator name="WPaintDesktop" value="0"/>
-            <enumerator name="WPaintClever" value="0"/>
-            <enumerator name="WX11BypassWM" value="1024"/>
-            <enumerator name="WWinOwnDC" value="512"/>
-            <enumerator name="WMacSheet" value="5"/>
-            <enumerator name="WMacDrawer" value="7"/>
-            <enumerator name="WStyle_Splash" value="15"/>
-            <enumerator name="WNoAutoErase" value="0"/>
-            <enumerator name="WRepaintNoErase" value="0"/>
-            <enumerator name="WNorthWestGravity" value="2097152"/>
-            <enumerator name="WType_Modal" value="8388611"/>
-            <enumerator name="WStyle_Dialog" value="3"/>
-            <enumerator name="WStyle_NoBorderEx" value="2048"/>
-            <enumerator name="WResizeNoErase" value="0"/>
-            <enumerator name="WMacNoSheet" value="0"/>
         </enum>
         <enum name="WindowFlags">
             <enumerator name="Widget" value="0"/>
@@ -2748,44 +5974,6 @@
             <enumerator name="WindowCancelButtonHint" value="1048576"/>
             <enumerator name="WindowSoftkeysVisibleHint" value="1073741824"/>
             <enumerator name="WindowSoftkeysRespondHint" value="-2147483648"/>
-            <enumerator name="WMouseNoMask" value="524288"/>
-            <enumerator name="WDestructiveClose" value="1048576"/>
-            <enumerator name="WStaticContents" value="2097152"/>
-            <enumerator name="WGroupLeader" value="4194304"/>
-            <enumerator name="WShowModal" value="8388608"/>
-            <enumerator name="WNoMousePropagation" value="16777216"/>
-            <enumerator name="WType_TopLevel" value="1"/>
-            <enumerator name="WType_Dialog" value="3"/>
-            <enumerator name="WType_Popup" value="9"/>
-            <enumerator name="WType_Desktop" value="17"/>
-            <enumerator name="WType_Mask" value="255"/>
-            <enumerator name="WStyle_Customize" value="0"/>
-            <enumerator name="WStyle_NormalBorder" value="0"/>
-            <enumerator name="WStyle_DialogBorder" value="256"/>
-            <enumerator name="WStyle_NoBorder" value="2048"/>
-            <enumerator name="WStyle_Title" value="4096"/>
-            <enumerator name="WStyle_SysMenu" value="8192"/>
-            <enumerator name="WStyle_Minimize" value="16384"/>
-            <enumerator name="WStyle_Maximize" value="32768"/>
-            <enumerator name="WStyle_MinMax" value="49152"/>
-            <enumerator name="WStyle_Tool" value="11"/>
-            <enumerator name="WStyle_StaysOnTop" value="262144"/>
-            <enumerator name="WStyle_ContextHelp" value="65536"/>
-            <enumerator name="WPaintDesktop" value="0"/>
-            <enumerator name="WPaintClever" value="0"/>
-            <enumerator name="WX11BypassWM" value="1024"/>
-            <enumerator name="WWinOwnDC" value="512"/>
-            <enumerator name="WMacSheet" value="5"/>
-            <enumerator name="WMacDrawer" value="7"/>
-            <enumerator name="WStyle_Splash" value="15"/>
-            <enumerator name="WNoAutoErase" value="0"/>
-            <enumerator name="WRepaintNoErase" value="0"/>
-            <enumerator name="WNorthWestGravity" value="2097152"/>
-            <enumerator name="WType_Modal" value="8388611"/>
-            <enumerator name="WStyle_Dialog" value="3"/>
-            <enumerator name="WStyle_NoBorderEx" value="2048"/>
-            <enumerator name="WResizeNoErase" value="0"/>
-            <enumerator name="WMacNoSheet" value="0"/>
         </enum>
         <enum name="WindowState">
             <enumerator name="WindowNoState" value="0"/>
@@ -2913,6 +6101,7 @@
             <enumerator name="WA_TouchPadAcceptSingleTouchEvents" value="123"/>
             <enumerator name="WA_MergeSoftkeys" value="124"/>
             <enumerator name="WA_MergeSoftkeysRecursively" value="125"/>
+            <enumerator name="WA_Maemo5StackedWindow" value="127"/>
             <enumerator name="WA_X11DoNotAcceptFocus" value="132"/>
             <enumerator name="WA_AttributeCount" value="133"/>
         </enum>
@@ -3530,28 +6719,6 @@
             <enumerator name="ScrollBarAlwaysOff" value="1"/>
             <enumerator name="ScrollBarAlwaysOn" value="2"/>
         </enum>
-        <enum name="BackgroundMode">
-            <enumerator name="FixedColor" value="0"/>
-            <enumerator name="FixedPixmap" value="1"/>
-            <enumerator name="NoBackground" value="2"/>
-            <enumerator name="PaletteForeground" value="3"/>
-            <enumerator name="PaletteButton" value="4"/>
-            <enumerator name="PaletteLight" value="5"/>
-            <enumerator name="PaletteMidlight" value="6"/>
-            <enumerator name="PaletteDark" value="7"/>
-            <enumerator name="PaletteMid" value="8"/>
-            <enumerator name="PaletteText" value="9"/>
-            <enumerator name="PaletteBrightText" value="10"/>
-            <enumerator name="PaletteBase" value="11"/>
-            <enumerator name="PaletteBackground" value="12"/>
-            <enumerator name="PaletteShadow" value="13"/>
-            <enumerator name="PaletteHighlight" value="14"/>
-            <enumerator name="PaletteHighlightedText" value="15"/>
-            <enumerator name="PaletteButtonText" value="16"/>
-            <enumerator name="PaletteLink" value="17"/>
-            <enumerator name="PaletteLinkVisited" value="18"/>
-            <enumerator name="X11ParentRelative" value="19"/>
-        </enum>
         <enum name="CaseSensitivity">
             <enumerator name="CaseInsensitive" value="0"/>
             <enumerator name="CaseSensitive" value="1"/>
@@ -3751,6 +6918,10 @@
         </enum>
     </type>
     <type name="__extended__.QGraphicsWidget" defaultProperty="children" extends="QGraphicsObject">
+        <exports>
+            <export module="Qt" version="4.7" type="QGraphicsWidget"/>
+            <export module="QtQuick" version="1.0" type="QGraphicsWidget"/>
+        </exports>
         <property name="palette" type="QPalette" isWritable="true"/>
         <property name="font" type="QFont" isWritable="true"/>
         <property name="layoutDirection" type="Qt.LayoutDirection" isWritable="true"/>
