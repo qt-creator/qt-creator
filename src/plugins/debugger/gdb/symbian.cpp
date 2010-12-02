@@ -36,6 +36,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
+#include <QtCore/QFileInfo>
 
 namespace Debugger {
 namespace Internal {
@@ -542,6 +543,83 @@ QVector<QByteArray> gdbStartupSequence()
     // FIXME: replace with  stack-cache for newer gdb?
     s.push_back(QByteArray("set remotecache on"));  // "info dcache" to check
     return s;
+}
+
+// Local symbol file handling
+
+enum { symDebug = 0 };
+
+// Build complete file name of a local sym file from DLL
+// 'QtCore.dll' to 'c:\\foo\QtCore.dll.sym'.
+
+static inline QString symFileName(const QString &folder,
+                                  const QString &libName)
+{
+    QString fileName = folder;
+    fileName.append(QLatin1Char('/'));
+    fileName.append(libName);
+    fileName.append(QLatin1String(".sym"));
+    return fileName;
+}
+
+// Look up in local symbol file matching remote library loaded in
+// cache pointed to by environmentname or in standard location
+// (next to application.sym file).
+QString localSymFileForLibrary(const QByteArray &libName,
+                               // urel/udeb: exe directory
+                               const QString &standardSymDirectory)
+{
+    // Check
+    const QByteArray envSymFileCacheDirectory = qgetenv("QTC_SYMBIAN_SYMBOLFILE_CACHE");
+    if (envSymFileCacheDirectory.isEmpty() && standardSymDirectory.isEmpty())
+        return QString();
+    // Base name
+    int lastSlashPos = libName.lastIndexOf('/');
+    if (lastSlashPos == -1)
+        lastSlashPos = libName.lastIndexOf('\\');
+    const QString libBaseName = QString::fromLatin1(lastSlashPos != - 1 ? libName.mid(lastSlashPos + 1) : libName);
+    // Check environment variable
+    if (!envSymFileCacheDirectory.isEmpty()) {
+        const QFileInfo envFi(symFileName(QString::fromLatin1(envSymFileCacheDirectory), libBaseName));
+        if (symDebug)
+            qDebug("SYM-ENV: %s exists %d\n", qPrintable(envFi.absoluteFilePath()), envFi.isFile());
+        if (envFi.isFile())
+            return envFi.absoluteFilePath();
+    }
+    // Check standard location
+    if (!standardSymDirectory.isEmpty()) {
+        const QFileInfo standardFi(symFileName(standardSymDirectory, libBaseName));
+        if (symDebug)
+            qDebug("SYM-STANDARD: %s exists %d\n", qPrintable(standardFi.absoluteFilePath()), standardFi.isFile());
+        if (standardFi.isFile())
+            return standardFi.absoluteFilePath();
+    }
+    return QString();
+}
+
+// Return a load command for a local symbol file for a library with address.
+QByteArray symFileLoadCommand(const QString &symFileNameIn,
+                              quint64 code, quint64 data)
+{
+    QByteArray symFileName = symFileNameIn.toLatin1();
+    symFileName.replace('\\', '/'); // gdb wants forward slashes
+    QByteArray command = "add-symbol-file \"";
+    command += symFileName;
+    command += "\" 0x";
+    command += QByteArray::number(code, 16);
+    if (data) {
+        command += " -s .data 0x";
+        command += QByteArray::number(data, 16);
+    }
+    return command;
+}
+
+QString msgLoadLocalSymFile(const QString &symFileName,
+                            const QByteArray &libName, quint64 code)
+{
+    return QString::fromAscii("Loading symbol file '%1' for '%2' at 0x%3").
+            arg(symFileName, QString::fromLatin1(libName)).
+            arg(code, 0, 16);
 }
 
 } // namespace Symbian

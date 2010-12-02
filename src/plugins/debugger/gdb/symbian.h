@@ -197,6 +197,16 @@ extern const char *gdbArchitectureXml;
 
 QVector<QByteArray> gdbStartupSequence();
 
+// Look up in symbol file matching library name in local cache
+QString localSymFileForLibrary(const QByteArray &libName,
+                               const QString &standardSymDirectory = QString());
+// Return a load command for a local symbol file for a library
+QByteArray symFileLoadCommand(const QString &symFileName, quint64 code,
+                              quint64 data = 0);
+// Utility message
+QString msgLoadLocalSymFile(const QString &symFileName,
+                            const QByteArray &libName, quint64 code);
+
 } // namespace Symbian
 
 // Generic gdb server helpers: read 'm','X' commands.

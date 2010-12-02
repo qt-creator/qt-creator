@@ -226,6 +226,7 @@ private:
     QString m_remoteExecutable;
     QString m_remoteArguments;
     QString m_symbolFile;
+    QString m_symbolFileFolder;
     int m_verbose;
     bool m_bufferedMemoryRead;
     LocalGdbProcess m_gdbProc;

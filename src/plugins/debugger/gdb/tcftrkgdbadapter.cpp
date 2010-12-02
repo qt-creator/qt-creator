@@ -211,6 +211,16 @@ void TcfTrkGdbAdapter::handleTcfTrkRunControlModuleLoadContextSuspendedEvent(con
             library.dataseg = minfo.dataAddress;
             library.pid = RunControlContext::processIdFromTcdfId(se.id());
             m_session.libraries.push_back(library);
+            // Load local symbol file into gdb provided there is one
+            if (library.codeseg) {
+                const QString localSymFileName = Symbian::localSymFileForLibrary(library.name,
+                                                                                 m_symbolFileFolder);
+                if (!localSymFileName.isEmpty()) {
+                    showMessage(Symbian::msgLoadLocalSymFile(localSymFileName, library.name, library.codeseg), LogMisc);
+                    m_engine->postCommand(Symbian::symFileLoadCommand(localSymFileName, library.codeseg, library.dataseg));
+                } // has local sym
+            } // code seg
+
         } else {
             const int index = m_session.modules.indexOf(moduleName);
             if (index != -1) {
@@ -974,6 +984,8 @@ void TcfTrkGdbAdapter::startAdapter()
     m_remoteExecutable = parameters.executable;
     m_remoteArguments = Utils::QtcProcess::splitArgs(parameters.processArgs);
     m_symbolFile = parameters.symbolFileName;
+    if (!m_symbolFile.isEmpty())
+        m_symbolFileFolder = QFileInfo(m_symbolFile).absolutePath();
 
     QPair<QString, unsigned short> tcfTrkAddress;
 

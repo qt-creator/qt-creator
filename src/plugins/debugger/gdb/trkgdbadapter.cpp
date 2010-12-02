@@ -1041,6 +1041,15 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             if (tid && tid != unsigned(-1) && m_snapshot.indexOfThread(tid) == -1)
                 m_snapshot.addThread(tid);
             logMessage(logMsg);
+            // Load local symbol file into gdb provided there is one
+            if (lib.codeseg) {
+                const QString localSymFileName = Symbian::localSymFileForLibrary(lib.name, m_symbolFileFolder);
+                if (!localSymFileName.isEmpty()) {
+                    showMessage(Symbian::msgLoadLocalSymFile(localSymFileName, lib.name, lib.codeseg), LogMisc);
+                    m_engine->postCommand(Symbian::symFileLoadCommand(localSymFileName, lib.codeseg, lib.dataseg));
+                } // has local sym
+            } // code seg
+
             // This lets gdb trigger a register update etc.
             // With CS gdb 6.4 we get a non-standard $qfDllInfo#7f+ request
             // afterwards, so don't use it for now.
@@ -1550,6 +1559,8 @@ void TrkGdbAdapter::startAdapter()
     m_remoteExecutable = parameters.executable;
     m_remoteArguments = parameters.processArgs;
     m_symbolFile = parameters.symbolFileName;
+    if (!m_symbolFile.isEmpty())
+        m_symbolFileFolder = QFileInfo(m_symbolFile).absolutePath();
     QString remoteChannel = parameters.remoteChannel;
     // FIXME: testing hack, remove!
     if (m_remoteArguments.startsWith(__("@sym@ "))) {
