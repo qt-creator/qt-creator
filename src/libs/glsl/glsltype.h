@@ -47,7 +47,7 @@ public:
     virtual const UIntType *asUIntType() const { return 0; }
     virtual const FloatType *asFloatType() const { return 0; }
     virtual const DoubleType *asDoubleType() const { return 0; }
-    virtual const OpaqueType *asOpaqueType() const { return 0; }
+    virtual const ScalarType *asScalarType() const { return 0; }
     virtual const IndexType *asIndexType() const { return 0; }
     virtual const VectorType *asVectorType() const { return 0; }
     virtual const MatrixType *asMatrixType() const { return 0; }

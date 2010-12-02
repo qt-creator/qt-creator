@@ -38,10 +38,10 @@
 
 namespace GLSL {
 
-class GLSL_EXPORT OpaqueType: public Type
+class GLSL_EXPORT ScalarType: public Type
 {
 public:
-    virtual const OpaqueType *asOpaqueType() const { return this; }
+    virtual const ScalarType *asScalarType() const { return this; }
 };
 
 class GLSL_EXPORT UndefinedType: public Type
@@ -62,7 +62,7 @@ public:
     virtual bool isLessThan(const Type *other) const;
 };
 
-class GLSL_EXPORT BoolType: public Type
+class GLSL_EXPORT BoolType: public ScalarType
 {
 public:
     virtual QString toString() const { return QLatin1String("bool"); }
@@ -71,7 +71,7 @@ public:
     virtual bool isLessThan(const Type *other) const;
 };
 
-class GLSL_EXPORT IntType: public Type
+class GLSL_EXPORT IntType: public ScalarType
 {
 public:
     virtual QString toString() const { return QLatin1String("int"); }
@@ -80,7 +80,7 @@ public:
     virtual bool isLessThan(const Type *other) const;
 };
 
-class GLSL_EXPORT UIntType: public Type
+class GLSL_EXPORT UIntType: public ScalarType
 {
 public:
     virtual QString toString() const { return QLatin1String("uint"); }
@@ -89,7 +89,7 @@ public:
     virtual bool isLessThan(const Type *other) const;
 };
 
-class GLSL_EXPORT FloatType: public Type
+class GLSL_EXPORT FloatType: public ScalarType
 {
 public:
     virtual QString toString() const { return QLatin1String("float"); }
@@ -98,7 +98,7 @@ public:
     virtual bool isLessThan(const Type *other) const;
 };
 
-class GLSL_EXPORT DoubleType: public Type
+class GLSL_EXPORT DoubleType: public ScalarType
 {
 public:
     virtual QString toString() const { return QLatin1String("double"); }

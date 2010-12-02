@@ -185,6 +185,12 @@ const MatrixType *Engine::matrixType(const Type *elementType, int columns, int r
                                           vectorType(elementType, rows)));
 }
 
+const ArrayType *Engine::arrayType(const Type *elementType)
+{
+    return _arrayTypes.intern(ArrayType(elementType));
+}
+
+
 QList<DiagnosticMessage> Engine::diagnosticMessages() const
 {
     return _diagnosticMessages;

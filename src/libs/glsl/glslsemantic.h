@@ -30,6 +30,7 @@
 #define GLSLSEMANTIC_H
 
 #include "glslastvisitor.h"
+#include "glsltype.h"
 
 namespace GLSL {
 
@@ -43,8 +44,15 @@ public:
         ExprResult(const Type *type = 0, bool isConstant = false)
             : type(type), isConstant(isConstant) {}
 
-        bool isValid() const { return type != 0; }
-        operator bool() const { return type != 0; }
+        bool isValid() const {
+            if (! type)
+                return false;
+            else if (type->asUndefinedType() != 0)
+                return false;
+            return true;
+        }
+
+        operator bool() const { return isValid(); }
 
         const Type *type;
         bool isConstant;

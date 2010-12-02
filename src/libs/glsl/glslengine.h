@@ -113,6 +113,7 @@ public:
     const SamplerType *samplerType(int kind);
     const VectorType *vectorType(const Type *elementType, int dimension);
     const MatrixType *matrixType(const Type *elementType, int columns, int rows);
+    const ArrayType *arrayType(const Type *elementType);
 
     // symbols
     Namespace *newNamespace();
@@ -136,6 +137,7 @@ private:
     QSet<QString> _numbers;
     TypeTable<VectorType> _vectorTypes;
     TypeTable<MatrixType> _matrixTypes;
+    TypeTable<ArrayType> _arrayTypes;
     TypeTable<SamplerType> _samplerTypes;
     MemoryPool _pool;
     QList<DiagnosticMessage> _diagnosticMessages;

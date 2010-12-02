@@ -198,7 +198,11 @@ bool Semantic::visit(LiteralExpressionAST *ast)
     if (ast->value) {
         _expr.isConstant = true;
 
-        if (ast->value->endsWith(QLatin1Char('u')) || ast->value->endsWith(QLatin1Char('U')))
+        if (ast->value->at(0) == QLatin1Char('t') && *ast->value == QLatin1String("true"))
+            _expr.type = _engine->boolType();
+        else if (ast->value->at(0) == QLatin1Char('f') && *ast->value == QLatin1String("false"))
+            _expr.type = _engine->boolType();
+        else if (ast->value->endsWith(QLatin1Char('u')) || ast->value->endsWith(QLatin1Char('U')))
             _expr.type = _engine->uintType();
         else if (ast->value->endsWith(QLatin1String("lf")) || ast->value->endsWith(QLatin1String("LF")))
             _expr.type = _engine->doubleType();
@@ -217,11 +221,17 @@ bool Semantic::visit(BinaryExpressionAST *ast)
     _expr.isConstant = left.isConstant && right.isConstant;
     switch (ast->kind) {
     case AST::Kind_ArrayAccess:
+        if (left.type) {
+            if (const IndexType *idxType = left.type->asIndexType())
+                _expr = idxType->indexElementType();
+            else
+                _engine->error(ast->lineno, QString("Invalid type `%1' for array subscript").arg(left.type->toString()));
+        }
         break;
 
+    case AST::Kind_Modulus:
     case AST::Kind_Multiply:
     case AST::Kind_Divide:
-    case AST::Kind_Modulus:
     case AST::Kind_Plus:
     case AST::Kind_Minus:
     case AST::Kind_ShiftLeft:
@@ -301,8 +311,56 @@ bool Semantic::visit(MemberAccessExpressionAST *ast)
 
 bool Semantic::implicitCast(const Type *type, const Type *target) const
 {
-    // ### implement me
-    return type->isEqualTo(target);
+    if (! (type && target)) {
+        return false;
+    } else if (type->isEqualTo(target)) {
+        return true;
+    } else if (target->asUIntType() != 0) {
+        return type->asIntType() != 0;
+    } else if (target->asFloatType() != 0) {
+        return type->asIntType() != 0 ||
+                type->asUIntType() != 0;
+    } else if (target->asDoubleType() != 0) {
+        return type->asIntType() != 0 ||
+                type->asUIntType() != 0 ||
+                type->asFloatType() != 0;
+    } else if (const VectorType *targetVecTy = target->asVectorType()) {
+        if (const VectorType *vecTy = type->asVectorType()) {
+            if (targetVecTy->dimension() == vecTy->dimension()) {
+                const Type *targetElementType = targetVecTy->elementType();
+                const Type *elementType = vecTy->elementType();
+
+                if (targetElementType->asUIntType() != 0) {
+                    // uvec* -> ivec*
+                    return elementType->asIntType() != 0;
+                } else if (targetElementType->asFloatType() != 0) {
+                    // vec* -> ivec* | uvec*
+                    return elementType->asIntType() != 0 ||
+                            elementType->asUIntType() != 0;
+                } else if (targetElementType->asDoubleType() != 0) {
+                    // dvec* -> ivec* | uvec* | fvec*
+                    return elementType->asIntType() != 0 ||
+                            elementType->asUIntType() != 0 ||
+                            elementType->asFloatType() != 0;
+                }
+            }
+        }
+    } else if (const MatrixType *targetMatTy = target->asMatrixType()) {
+        if (const MatrixType *matTy = type->asMatrixType()) {
+            if (targetMatTy->columns() == matTy->columns() &&
+                    targetMatTy->rows() == matTy->rows()) {
+                const Type *targetElementType = targetMatTy->elementType();
+                const Type *elementType = matTy->elementType();
+
+                if (targetElementType->asDoubleType() != 0) {
+                    // dmat* -> mat*
+                    return elementType->asFloatType() != 0;
+                }
+            }
+        }
+    }
+
+    return false;
 }
 
 bool Semantic::visit(FunctionCallExpressionAST *ast)
@@ -337,11 +395,19 @@ bool Semantic::visit(FunctionCallExpressionAST *ast)
                         candidates.append(f);
                 }
             }
-            if (candidates.size() == 1)
-                _expr.type = candidates.first()->returnType();
-            else
-                _expr.type = overloads->functions().first()->returnType();
 
+            if (candidates.isEmpty()) {
+                // ### error, unresolved call.
+                Q_ASSERT(! overloads->functions().isEmpty());
+
+                _expr.type = overloads->functions().first()->returnType();
+            } else {
+                _expr.type = candidates.first()->returnType();
+
+                if (candidates.size() != 1) {
+                    // ### error, ambiguous call
+                }
+            }
         } else {
             // called as constructor, e.g. vec2(a, b)
             _expr.type = id.type;
@@ -693,7 +759,7 @@ bool Semantic::visit(ArrayTypeAST *ast)
     const Type *elementType = type(ast->elementType);
     Q_UNUSED(elementType);
     ExprResult size = expression(ast->size);
-    // ### array type
+    _type = _engine->arrayType(elementType); // ### ignore the size for now
     return false;
 }
 
