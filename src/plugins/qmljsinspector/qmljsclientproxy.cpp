@@ -356,11 +356,11 @@ void ClientProxy::contextChanged()
         m_objectTreeQuery.clear();
         m_requestObjectsTimer.stop();
 
-        fetchContextObjectRecusrsive(rootContext);
+        fetchContextObjectRecursive(rootContext);
     }
 }
 
-void ClientProxy::fetchContextObjectRecusrsive(const QDeclarativeDebugContextReference& context)
+void ClientProxy::fetchContextObjectRecursive(const QDeclarativeDebugContextReference& context)
 {
     foreach (const QDeclarativeDebugObjectReference & obj, context.objects()) {
         QDeclarativeDebugObjectQuery* query = m_engineClient->queryObjectRecursive(obj, this);
@@ -374,7 +374,7 @@ void ClientProxy::fetchContextObjectRecusrsive(const QDeclarativeDebugContextRef
         }
     }
     foreach (const QDeclarativeDebugContextReference& child, context.contexts()) {
-        fetchContextObjectRecusrsive(child);
+        fetchContextObjectRecursive(child);
     }
 }
 
