@@ -149,8 +149,8 @@ public:
     explicit QmlEnginePrivate(QmlEngine *q);
     ~QmlEnginePrivate() { delete m_adapter; }
 
-    friend class Debugger::QmlEngine;
 private:
+    friend class QmlEngine;
     int m_ping;
     QmlAdapter *m_adapter;
     ProjectExplorer::ApplicationLauncher m_applicationLauncher;
@@ -160,9 +160,6 @@ QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
     : m_ping(0), m_adapter(new QmlAdapter(q))
 {}
 
-} // namespace Internal
-
-using namespace Internal;
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -177,8 +174,7 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
 }
 
 QmlEngine::~QmlEngine()
-{
-}
+{}
 
 void QmlEngine::gotoLocation(const QString &fileName, int lineNumber, bool setMarker)
 {
@@ -867,5 +863,6 @@ QString QmlEngine::fromShadowBuildFilename(const QString &filename) const
     return newFilename;
 }
 
+} // namespace Internal
 } // namespace Debugger
 

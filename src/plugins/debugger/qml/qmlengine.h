@@ -36,24 +36,23 @@
 #include <QtNetwork/QAbstractSocket>
 
 namespace Debugger {
-
 namespace Internal {
-class QmlEnginePrivate;
-} // namespace Internal
 
-class DEBUGGER_EXPORT QmlEngine : public DebuggerEngine
+class QmlEnginePrivate;
+
+class QmlEngine : public DebuggerEngine
 {
     Q_OBJECT
 
 public:
     explicit QmlEngine(const DebuggerStartParameters &startParameters);
-    virtual ~QmlEngine();
+    ~QmlEngine();
 
     void handleRemoteSetupDone(int port);
     void handleRemoteSetupFailed(const QString &message);
 
     void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
-    void gotoLocation(const Internal::StackFrame &frame, bool setMarker);
+    void gotoLocation(const StackFrame &frame, bool setMarker);
 
     void pauseConnection();
 
@@ -65,7 +64,7 @@ signals:
     void remoteStartupRequested();
 
 private:
-    // DebuggerEngine implementation
+    // DebuggerEngine implementation.
     bool isSynchronous() const { return false; }
     void executeStep();
     void executeStepOut();
@@ -95,7 +94,7 @@ private:
     void attemptBreakpointSynchronization();
     bool acceptsBreakpoint(BreakpointId id) const;
 
-    void assignValueInDebugger(const Internal::WatchData *data,
+    void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);
     void loadSymbols(const QString &moduleName);
     void loadAllSymbols();
@@ -106,8 +105,8 @@ private:
     void reloadFullStack() {}
 
     bool supportsThreads() const { return false; }
-    void updateWatchData(const Internal::WatchData &data,
-        const Internal::WatchUpdateFlags &flags);
+    void updateWatchData(const WatchData &data,
+        const WatchUpdateFlags &flags);
     void executeDebuggerCommand(const QString &command);
 
     unsigned int debuggerCapabilities() const;
@@ -141,9 +140,10 @@ private:
 private:
     friend class QmlCppEngine;
 
-    QScopedPointer<Internal::QmlEnginePrivate> d;
+    QScopedPointer<QmlEnginePrivate> d;
 };
 
+} // namespace Internal
 } // namespace Debugger
 
 #endif // DEBUGGER_QMLENGINE_H

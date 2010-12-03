@@ -33,9 +33,9 @@ public:
     QmlCppEnginePrivate();
     ~QmlCppEnginePrivate() {}
 
-    friend class Debugger::QmlCppEngine;
+    friend class QmlCppEngine;
 private:
-    QmlEngine *m_qmlEngine;
+    DebuggerEngine *m_qmlEngine;
     DebuggerEngine *m_cppEngine;
     DebuggerEngine *m_activeEngine;
     DebuggerState m_errorState;
@@ -48,20 +48,17 @@ QmlCppEnginePrivate::QmlCppEnginePrivate()
     m_errorState(InferiorRunOk)
 {}
 
-} // namespace Internal
-
-using namespace Internal;
 
 QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
     : DebuggerEngine(sp), d(new QmlCppEnginePrivate)
 {
-    d->m_qmlEngine = qobject_cast<QmlEngine*>(Internal::createQmlEngine(sp));
+    d->m_qmlEngine = createQmlEngine(sp);
 
     if (startParameters().cppEngineType == GdbEngineType) {
-        d->m_cppEngine = Internal::createGdbEngine(sp);
+        d->m_cppEngine = createGdbEngine(sp);
     } else {
         QString errorMessage;
-        d->m_cppEngine = Internal::createCdbEngine(sp, &errorMessage);
+        d->m_cppEngine = createCdbEngine(sp, &errorMessage);
         if (!d->m_cppEngine) {
             qWarning("%s", qPrintable(errorMessage));
             return;
@@ -239,7 +236,7 @@ void QmlCppEngine::updateAll()
 void QmlCppEngine::attemptBreakpointSynchronization()
 {
     d->m_cppEngine->attemptBreakpointSynchronization();
-    static_cast<DebuggerEngine*>(d->m_qmlEngine)->attemptBreakpointSynchronization();
+    d->m_qmlEngine->attemptBreakpointSynchronization();
 }
 
 bool QmlCppEngine::acceptsBreakpoint(BreakpointId id) const
@@ -642,5 +639,5 @@ DebuggerEngine *QmlCppEngine::cppEngine() const
     return d->m_cppEngine;
 }
 
-
+} // namespace Internal
 } // namespace Debugger

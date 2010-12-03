@@ -60,7 +60,6 @@ namespace Debugger {
 
 class DebuggerEnginePrivate;
 class DebuggerRunControl;
-class QmlCppEngine;
 
 class DEBUGGER_EXPORT DebuggerStartParameters
 {
@@ -132,6 +131,7 @@ class SourceFilesHandler;
 class ThreadsHandler;
 class WatchHandler;
 class BreakpointParameters;
+class QmlCppEngine;
 
 struct WatchUpdateFlags
 {
@@ -349,7 +349,7 @@ protected:
 
 private:
     // Wrapper engine needs access to state of its subengines.
-    friend class QmlCppEngine;
+    friend class Internal::QmlCppEngine;
     void setState(DebuggerState state, bool forced = false);
     void setSlaveEngine(bool value);
 
