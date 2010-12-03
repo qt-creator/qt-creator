@@ -203,11 +203,11 @@ void QmlEngine::setupInferior()
         emit remoteStartupRequested();
     } else {
         connect(&d->m_applicationLauncher, SIGNAL(processExited(int)),
-                this, SLOT(disconnected()));
+                SLOT(disconnected()));
         connect(&d->m_applicationLauncher, SIGNAL(appendMessage(QString,bool)),
-                runControl(), SLOT(emitAppendMessage(QString,bool)));
-        connect(&d->m_applicationLauncher, SIGNAL(appendOutput(QString, bool)),
-                runControl(), SLOT(emitAddToOutputWindow(QString, bool)));
+                SLOT(appendMessage(QString,bool)));
+        connect(&d->m_applicationLauncher, SIGNAL(appendOutput(QString,bool)),
+                SLOT(appendOutput(QString,bool)));
         connect(&d->m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
                 runControl(), SLOT(bringApplicationToForeground(qint64)));
 
@@ -216,6 +216,16 @@ void QmlEngine::setupInferior()
 
         notifyInferiorSetupOk();
     }
+}
+
+void QmlEngine::appendMessage(const QString &msg, bool)
+{
+    showMessage(msg, AppStuff);
+}
+
+void QmlEngine::appendOutput(const QString &msg, bool)
+{
+    showMessage(msg, AppOutput);
 }
 
 void QmlEngine::connectionEstablished()

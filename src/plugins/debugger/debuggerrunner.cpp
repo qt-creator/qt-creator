@@ -422,31 +422,6 @@ AbstractGdbAdapter *DebuggerRunControlPrivate::gdbAdapter() const
 //
 ////////////////////////////////////////////////////////////////////////
 
-DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
-        unsigned enabledEngines, const DebuggerStartParameters &sp)
-    : RunControl(runConfiguration, Constants::DEBUGMODE),
-      d(new DebuggerRunControlPrivate(this, runConfiguration, enabledEngines))
-{
-    connect(this, SIGNAL(finished()), SLOT(handleFinished()));
-    createEngine(sp);
-}
-
-DebuggerRunControl::~DebuggerRunControl()
-{
-    disconnect();
-    if (DebuggerEngine *engine = d->m_engine) {
-        d->m_engine = 0;
-        engine->disconnect();
-        delete engine;
-    }
-}
-
-const DebuggerStartParameters &DebuggerRunControl::startParameters() const
-{
-    QTC_ASSERT(d->m_engine, return *(new DebuggerStartParameters()));
-    return d->m_engine->startParameters();
-}
-
 static DebuggerEngineType engineForToolChain(int toolChainType)
 {
     switch (toolChainType) {
@@ -481,13 +456,17 @@ static DebuggerEngineType engineForToolChain(int toolChainType)
     return NoEngineType;
 }
 
-void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams)
+DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
+        unsigned enabledEngines, const DebuggerStartParameters &startParams)
+    : RunControl(runConfiguration, Constants::DEBUGMODE),
+      d(new DebuggerRunControlPrivate(this, runConfiguration, enabledEngines))
 {
-    DebuggerStartParameters sp = startParams;
+    connect(this, SIGNAL(finished()), SLOT(handleFinished()));
 
     // Figure out engine according to toolchain, executable, attach or default.
     DebuggerEngineType engineType = NoEngineType;
     DebuggerLanguages activeLangs = debuggerCore()->activeLanguages();
+    DebuggerStartParameters sp = startParams;
     const unsigned enabledEngineTypes = d->enabledEngines();
     if (sp.executable.endsWith(_(".js")))
         engineType = ScriptEngineType;
@@ -579,6 +558,22 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
             msg, QString(), QLatin1String(Constants::DEBUGGER_SETTINGS_CATEGORY),
             d->m_settingsIdHint);
     }
+}
+
+DebuggerRunControl::~DebuggerRunControl()
+{
+    disconnect();
+    if (DebuggerEngine *engine = d->m_engine) {
+        d->m_engine = 0;
+        engine->disconnect();
+        delete engine;
+    }
+}
+
+const DebuggerStartParameters &DebuggerRunControl::startParameters() const
+{
+    QTC_ASSERT(d->m_engine, return *(new DebuggerStartParameters()));
+    return d->m_engine->startParameters();
 }
 
 QString DebuggerRunControl::displayName() const
@@ -806,16 +801,6 @@ void DebuggerRunControl::handleRemoteSetupFailed(const QString &message)
         return;
     }
     QTC_ASSERT(false, /**/);
-}
-
-void DebuggerRunControl::emitAddToOutputWindow(const QString &line, bool onStdErr)
-{
-    emit addToOutputWindow(this, line, onStdErr);
-}
-
-void DebuggerRunControl::emitAppendMessage(const QString &m, bool isError)
-{
-    emit appendMessage(this, m, isError);
 }
 
 RunConfiguration *DebuggerRunControl::runConfiguration() const

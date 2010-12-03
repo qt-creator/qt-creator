@@ -116,6 +116,9 @@ public:
     bool isQmlActive() const;
     void setSimpleDockWidgetArrangement();
     void updateUi();
+    // Debuggable languages are registered with this function.
+    void addLanguage(const DebuggerLanguage &language, const Core::Context &context);
+
 
 public slots:
     void resetDebuggerLayout();
@@ -237,9 +240,8 @@ DebuggerMainWindow::DebuggerMainWindow()
 {
     d = new DebuggerMainWindowPrivate(this);
     d->createViewsMenuItems();
-
-    addLanguage(CppLanguage, Context(C_CPPDEBUGGER));
-    addLanguage(QmlLanguage, Context(C_QMLDEBUGGER));
+    d->addLanguage(CppLanguage, Context(C_CPPDEBUGGER));
+    d->addLanguage(QmlLanguage, Context(C_QMLDEBUGGER));
 }
 
 DebuggerMainWindow::~DebuggerMainWindow()
@@ -329,14 +331,14 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
     m_viewsMenu->addAction(cmd);
 }
 
-void DebuggerMainWindow::addLanguage(const DebuggerLanguage &languageId,
+void DebuggerMainWindowPrivate::addLanguage(const DebuggerLanguage &languageId,
     const Context &context)
 {
-    d->m_supportedLanguages = d->m_supportedLanguages | languageId;
-    d->m_languageCount++;
+    m_supportedLanguages = m_supportedLanguages | languageId;
+    m_languageCount++;
 
-    d->m_toolBars.insert(languageId, 0);
-    d->m_contextsForLanguage.insert(languageId, context);
+    m_toolBars.insert(languageId, 0);
+    m_contextsForLanguage.insert(languageId, context);
 }
 
 void DebuggerMainWindowPrivate::updateUi()

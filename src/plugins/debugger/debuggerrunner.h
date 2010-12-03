@@ -83,18 +83,17 @@ class DEBUGGER_EXPORT DebuggerRunControl
 
 public:
     typedef ProjectExplorer::RunConfiguration RunConfiguration;
-    explicit DebuggerRunControl(RunConfiguration *runConfiguration,
+    DebuggerRunControl(RunConfiguration *runConfiguration,
         unsigned enabledEngines, const DebuggerStartParameters &sp);
     ~DebuggerRunControl();
 
     // ProjectExplorer::RunControl
-    virtual void start();
-    virtual bool aboutToStop() const;
-    virtual StopResult stop();
-    virtual bool isRunning() const;
+    void start();
+    bool aboutToStop() const;
+    StopResult stop(); // Called from SnapshotWindow.
+    bool isRunning() const;
     QString displayName() const;
 
-    void createEngine(const DebuggerStartParameters &startParameters);
     void setCustomEnvironment(Utils::Environment env);
     void startFailed();
     void debuggingFinished();
@@ -116,10 +115,6 @@ public:
 
 signals:
     void engineRequestSetup();
-
-public slots:
-    void emitAddToOutputWindow(const QString &line, bool onStdErr);
-    void emitAppendMessage(const QString &, bool isError);
 
 private slots:
     void handleFinished();

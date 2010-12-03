@@ -61,9 +61,6 @@ public:
     DebuggerMainWindow();
     ~DebuggerMainWindow();
 
-    // Debuggable languages are registered with this function.
-    void addLanguage(const DebuggerLanguage &language, const Core::Context &context);
-
     // Debugger toolbars are registered  with this function.
     void setToolbar(const DebuggerLanguage &language, QWidget *widget);
 
@@ -72,7 +69,6 @@ public:
 
     // Called when all dependent plugins have loaded.
     void initialize();
-
 
     void onModeChanged(Core::IMode *mode);
     QDockWidget *dockWidget(const QString &objectName) const;

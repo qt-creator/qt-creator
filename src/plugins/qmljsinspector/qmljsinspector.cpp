@@ -554,7 +554,7 @@ void InspectorUi::setupDockWidgets()
 
     QWidget *observerWidget = new QWidget;
     observerWidget->setWindowTitle(tr("QML Observer"));
-    observerWidget->setObjectName(QLatin1String("QMLObserver"));
+    observerWidget->setObjectName(Debugger::Constants::DOCKWIDGET_QML_INSPECTOR);
 
     QVBoxLayout *wlay = new QVBoxLayout(observerWidget);
     wlay->setMargin(0);
@@ -565,9 +565,7 @@ void InspectorUi::setupDockWidgets()
     wlay->addWidget(m_crumblePath);
 
     Debugger::DebuggerMainWindow *mw = Debugger::DebuggerPlugin::mainWindow();
-    QDockWidget *dock = mw->createDockWidget(Debugger::QmlLanguage,
-        observerWidget, Debugger::Constants::DOCKWIDGET_QML_INSPECTOR,
-        Qt::BottomDockWidgetArea);
+    QDockWidget *dock = mw->createDockWidget(Debugger::QmlLanguage, observerWidget);
     dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
     dock->setTitleBarWidget(new QWidget(dock));
 }
