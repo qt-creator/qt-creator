@@ -81,8 +81,15 @@ public:
     int qtVersionId() const;
     Qt4ProjectManager::QtVersion *qtVersion() const;
 
+    enum MainScriptSource {
+        FileInEditor,
+        FileInProjectFile,
+        FileInSettings
+    };
+    MainScriptSource mainScriptSource() const;
+    void setScriptSource(MainScriptSource source, const QString &settingsPath = QString());
+
     QString mainScript() const;
-    void setMainScript(const QString &scriptFile);
 
     Utils::Environment environment() const;
 

@@ -33,7 +33,7 @@
 #include <QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QComboBox);
-QT_FORWARD_DECLARE_CLASS(QStringListModel);
+QT_FORWARD_DECLARE_CLASS(QStandardItemModel);
 
 namespace ProjectExplorer {
 
@@ -58,11 +58,11 @@ public:
 public slots:
     void updateQtVersionComboBox();
     void userEnvironmentChangesChanged();
-
-private slots:
     void updateFileComboBox();
 
-    void setMainScript(const QString &file);
+private slots:
+
+    void setMainScript(int index);
     void onQtVersionSelectionChanged();
     void onViewerArgsChanged();
     void useCppDebuggerToggled(bool toggled);
@@ -78,7 +78,7 @@ private:
 
     QComboBox *m_qtVersionComboBox;
     QComboBox *m_fileListCombo;
-    QStringListModel *m_fileListModel;
+    QStandardItemModel *m_fileListModel;
 
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
 };

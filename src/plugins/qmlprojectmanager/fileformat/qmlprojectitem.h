@@ -25,6 +25,7 @@ class QmlProjectItem : public QObject {
     Q_PROPERTY(QDeclarativeListProperty<QmlProjectManager::QmlProjectContentItem> content READ content DESIGNABLE false)
     Q_PROPERTY(QString sourceDirectory READ sourceDirectory NOTIFY sourceDirectoryChanged)
     Q_PROPERTY(QStringList importPaths READ importPaths WRITE setImportPaths NOTIFY importPathsChanged)
+    Q_PROPERTY(QString mainFile READ mainFile WRITE setMainFile NOTIFY mainFileChanged)
 
     Q_CLASSINFO("DefaultProperty", "content");
 
@@ -43,10 +44,15 @@ public:
     QStringList files() const;
     bool matchesFile(const QString &filePath) const;
 
+    QString mainFile() const;
+    void setMainFile(const QString &mainFilePath);
+
+
 signals:
     void qmlFilesChanged(const QSet<QString> &, const QSet<QString> &);
     void sourceDirectoryChanged();
     void importPathsChanged();
+    void mainFileChanged();
 
 protected:
     QmlProjectItemPrivate *d_ptr;

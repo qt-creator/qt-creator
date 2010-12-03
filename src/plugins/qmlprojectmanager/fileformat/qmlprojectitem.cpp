@@ -11,6 +11,7 @@ public:
     QString sourceDirectory;
     QStringList importPaths;
     QStringList absoluteImportPaths;
+    QString mainFile;
 
     QList<QmlFileFilterItem*> qmlFileFilters() const;
 
@@ -146,6 +147,21 @@ bool QmlProjectItem::matchesFile(const QString &filePath) const
         }
     }
     return false;
+}
+
+QString QmlProjectItem::mainFile() const
+{
+    Q_D(const QmlProjectItem);
+    return d->mainFile;
+}
+
+void QmlProjectItem::setMainFile(const QString &mainFilePath)
+{
+    Q_D(QmlProjectItem);
+    if (mainFilePath == d->mainFile)
+        return;
+    d->mainFile = mainFilePath;
+    emit mainFileChanged();
 }
 
 } // namespace QmlProjectManager

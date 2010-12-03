@@ -158,6 +158,13 @@ QStringList QmlProject::files() const
     return files;
 }
 
+QString QmlProject::mainFile() const
+{
+    if (m_projectItem)
+        return m_projectItem.data()->mainFile();
+    return QString();
+}
+
 bool QmlProject::validProjectFile() const
 {
     return !m_projectItem.isNull();

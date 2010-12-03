@@ -95,6 +95,7 @@ public:
 
     QDir projectDir() const;
     QStringList files() const;
+    QString mainFile() const;
     QStringList importPaths() const;
 
     bool addFiles(const QStringList &filePaths);

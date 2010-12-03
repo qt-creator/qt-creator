@@ -50,7 +50,7 @@ using namespace QmlProjectManager::Internal;
 
 namespace QmlProjectManager {
 
-const char * const M_CURRENT_FILE  = "CurrentFile";
+const char * const M_CURRENT_FILE = "CurrentFile";
 
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent) :
     ProjectExplorer::RunConfiguration(parent, QLatin1String(Constants::QML_RC_ID)),
@@ -67,12 +67,13 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent,
                                                        QmlProjectRunConfiguration *source) :
     ProjectExplorer::RunConfiguration(parent, source),
     m_qtVersionId(source->m_qtVersionId),
+    m_scriptFile(source->m_scriptFile),
     m_qmlViewerArgs(source->m_qmlViewerArgs),
     m_projectTarget(parent),
+    m_usingCurrentFile(source->m_usingCurrentFile),
     m_userEnvironmentChanges(source->m_userEnvironmentChanges)
 {
     ctor();
-    setMainScript(source->m_scriptFile);
     updateQtVersions();
 }
 
@@ -191,29 +192,57 @@ ProjectExplorer::OutputFormatter *QmlProjectRunConfiguration::createOutputFormat
     return new Qt4ProjectManager::QtOutputFormatter(qmlTarget()->qmlProject());
 }
 
-QString QmlProjectRunConfiguration::mainScript() const
+QmlProjectRunConfiguration::MainScriptSource QmlProjectRunConfiguration::mainScriptSource() const
 {
-    if (m_usingCurrentFile)
-        return m_currentFileFilename;
-
-    return m_mainScriptFilename;
+    if (m_usingCurrentFile) {
+        return FileInEditor;
+    }
+    if (!m_mainScriptFilename.isEmpty()) {
+        return FileInSettings;
+    }
+    return FileInProjectFile;
 }
 
-void QmlProjectRunConfiguration::setMainScript(const QString &scriptFile)
+/**
+  Returns absolute path to main script file.
+  */
+QString QmlProjectRunConfiguration::mainScript() const
 {
-    m_scriptFile = scriptFile;
-    // replace with locale-agnostic string
-    if (m_scriptFile == CURRENT_FILE)
-        m_scriptFile = M_CURRENT_FILE;
-
-    if (m_scriptFile.isEmpty() || m_scriptFile == M_CURRENT_FILE) {
-        m_usingCurrentFile = true;
-        changeCurrentFile(Core::EditorManager::instance()->currentEditor());
-    } else {
-        m_usingCurrentFile = false;
-        m_mainScriptFilename = qmlTarget()->qmlProject()->projectDir().absoluteFilePath(scriptFile);
-        updateEnabled();
+    if (m_usingCurrentFile) {
+        return m_currentFileFilename;
     }
+
+    if (!m_mainScriptFilename.isEmpty()) {
+        return m_mainScriptFilename;
+    }
+
+    QString path = qmlTarget()->qmlProject()->mainFile();
+    if (QFileInfo(path).isAbsolute()) {
+        return path;
+    } else {
+        return qmlTarget()->qmlProject()->projectDir().absoluteFilePath(path);
+    }
+}
+
+void QmlProjectRunConfiguration::setScriptSource(MainScriptSource source,
+                                                 const QString &settingsPath)
+{
+    if (source == FileInEditor) { m_scriptFile.clear();
+        m_mainScriptFilename.clear();
+        m_usingCurrentFile = true;
+    } else if (source == FileInProjectFile) {
+        m_scriptFile.clear();
+        m_mainScriptFilename.clear();
+        m_usingCurrentFile = false;
+    } else { // FileInSettings
+        m_scriptFile = settingsPath;
+        m_mainScriptFilename
+                = qmlTarget()->qmlProject()->projectDir().absoluteFilePath(m_scriptFile);
+        m_usingCurrentFile = false;
+    }
+    updateEnabled();
+    if (m_configurationWidget)
+        m_configurationWidget.data()->updateFileComboBox();
 }
 
 Utils::Environment QmlProjectRunConfiguration::environment() const
@@ -245,7 +274,13 @@ bool QmlProjectRunConfiguration::fromMap(const QVariantMap &map)
 
 
     updateQtVersions();
-    setMainScript(m_scriptFile);
+    if (m_scriptFile == M_CURRENT_FILE) {
+        setScriptSource(FileInEditor);
+    } else if (m_scriptFile.isEmpty()) {
+        setScriptSource(FileInProjectFile);
+    } else {
+        setScriptSource(FileInSettings, m_scriptFile);
+    }
 
     return RunConfiguration::fromMap(map);
 }
@@ -284,7 +319,7 @@ void QmlProjectRunConfiguration::updateEnabled()
             }
         }
     } else { // use default one
-        qmlFileFound = !m_mainScriptFilename.isEmpty();
+        qmlFileFound = !mainScript().isEmpty();
     }
 
     bool newValue = (QFileInfo(viewerPath()).exists()
