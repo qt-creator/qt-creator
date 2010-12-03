@@ -1,5 +1,5 @@
 TEMPLATE = app
-QT += script declarative
+QT += script declarative webkit
 CONFIG += qtestlib testcase
 CONFIG += console
 CONFIG -= app_bundle
