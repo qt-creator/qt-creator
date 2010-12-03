@@ -97,9 +97,13 @@ private:
 class ToolChainSelectorWidget : public QWidget {
     Q_OBJECT
 public:
+    typedef GdbChooserWidget::BinaryToolChainMap BinaryToolChainMap;
+
     explicit ToolChainSelectorWidget(QWidget *parent = 0);
 
-    void setEnabledToolChains(const QList<int> &);
+    void setEnabledToolChains(const QList<int> &enabled,
+                              // Optionally used for generating a tooltip for the disabled check boxes
+                              const BinaryToolChainMap *binaryToolChainMap = 0);
 
     void setCheckedToolChains(const QList<int> &);
     QList<int> checkedToolChains() const;
@@ -125,9 +129,13 @@ private:
 class BinaryToolChainDialog : public QDialog {
     Q_OBJECT
 public:
+    typedef GdbChooserWidget::BinaryToolChainMap BinaryToolChainMap;
+
     explicit BinaryToolChainDialog(QWidget *parent);
 
-    void setToolChainChoices(const QList<int> &);
+    void setToolChainChoices(const QList<int> &,
+                             // Optionally used for generating a tooltip for the disabled check boxes
+                             const BinaryToolChainMap *binaryToolChainMap = 0);
 
     void setToolChains(const QList<int> &);
     QList<int> toolChains() const;
