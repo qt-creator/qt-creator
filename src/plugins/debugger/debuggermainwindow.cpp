@@ -114,7 +114,7 @@ public:
     void createViewsMenuItems();
     bool isQmlCppActive() const;
     bool isQmlActive() const;
-    void setSimpleDockWidgetArrangement(DebuggerLanguages activeLanguages);
+    void setSimpleDockWidgetArrangement();
     void updateUi();
 
 public slots:
@@ -628,7 +628,7 @@ void DebuggerMainWindow::readSettings()
 
 void DebuggerMainWindowPrivate::resetDebuggerLayout()
 {
-    setSimpleDockWidgetArrangement(m_activeDebugLanguages);
+    setSimpleDockWidgetArrangement();
 
     if (isQmlActive())
         m_dockWidgetActiveStateQmlCpp = q->saveSettings();
@@ -678,8 +678,7 @@ QMenu *DebuggerMainWindow::createPopupMenu()
     return menu;
 }
 
-void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement
-    (DebuggerLanguages activeLanguages)
+void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
 {
     QTC_ASSERT(q, return);
     q->setTrackingEnabled(false);
@@ -716,9 +715,9 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement
         dockWidget->hide();
     }
 
-    if ((activeLanguages.testFlag(CppLanguage)
-                && !activeLanguages.testFlag(QmlLanguage))
-            || activeLanguages == AnyLanguage) {
+    if ((m_activeDebugLanguages.testFlag(CppLanguage)
+                && !m_activeDebugLanguages.testFlag(QmlLanguage))
+            || m_activeDebugLanguages == AnyLanguage) {
         m_stackDock->show();
         m_breakDock->show();
         m_watchDock->show();
