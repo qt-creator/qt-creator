@@ -741,12 +741,6 @@ bool DebuggerRunControl::isRunning() const
     return d->m_running;
 }
 
-DebuggerState DebuggerRunControl::state() const
-{
-    QTC_ASSERT(d->m_engine, return DebuggerNotReady);
-    return d->m_engine->state();
-}
-
 DebuggerEngine *DebuggerRunControl::engine()
 {
     QTC_ASSERT(d->m_engine, /**/);

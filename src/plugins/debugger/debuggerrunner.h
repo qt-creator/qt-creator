@@ -66,6 +66,7 @@ public:
     // FIXME: Used by qmljsinspector.cpp:469
     RunControl *create(RunConfiguration *runConfiguration, const QString &mode);
     bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
+
 private:
     QString displayName() const;
     QWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
@@ -98,8 +99,6 @@ public:
     void startFailed();
     void debuggingFinished();
     RunConfiguration *runConfiguration() const;
-
-    DebuggerState state() const;
     DebuggerEngine *engine();
 
     void showMessage(const QString &msg, int channel);
