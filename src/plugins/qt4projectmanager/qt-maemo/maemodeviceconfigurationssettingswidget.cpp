@@ -75,7 +75,7 @@ class NameValidator : public QValidator
 {
 public:
     NameValidator(const QList<MaemoDeviceConfig> &devConfs, QWidget *parent = 0)
-        : m_devConfs(devConfs)
+        : QValidator(parent), m_devConfs(devConfs)
     {
     }
 
