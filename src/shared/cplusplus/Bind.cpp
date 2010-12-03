@@ -1722,10 +1722,25 @@ bool Bind::visit(BracedInitializerAST *ast)
     return false;
 }
 
+static int methodKeyForInvokableToken(int kind)
+{
+    if (kind == T_Q_SIGNAL)
+        return Function::SignalMethod;
+    else if (kind == T_Q_SLOT)
+        return Function::SlotMethod;
+    else if (kind == T_Q_INVOKABLE)
+        return Function::InvokableMethod;
+
+    return Function::NormalMethod;
+}
 
 // DeclarationAST
 bool Bind::visit(SimpleDeclarationAST *ast)
 {
+    int methodKey = _methodKey;
+    if (ast->qt_invokable_token)
+        methodKey = methodKeyForInvokableToken(tokenKind(ast->qt_invokable_token));
+
     // unsigned qt_invokable_token = ast->qt_invokable_token;
     FullySpecifiedType type;
     for (SpecifierListAST *it = ast->decl_specifier_list; it; it = it->next) {
@@ -1782,7 +1797,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
             decl->setVisibility(_visibility);
 
             if (Function *funTy = decl->type()->asFunctionType()) {
-                funTy->setMethodKey(_methodKey);
+                funTy->setMethodKey(methodKey);
 
                 if (funTy->isVirtual() && it->value->equal_token)
                     funTy->setPureVirtual(true);
@@ -1921,7 +1936,10 @@ bool Bind::visit(ExceptionDeclarationAST *ast)
 
 bool Bind::visit(FunctionDefinitionAST *ast)
 {
-    // unsigned qt_invokable_token = ast->qt_invokable_token;
+    int methodKey = _methodKey;
+    if (ast->qt_invokable_token)
+        methodKey = methodKeyForInvokableToken(tokenKind(ast->qt_invokable_token));
+
     FullySpecifiedType declSpecifiers;
     for (SpecifierListAST *it = ast->decl_specifier_list; it; it = it->next) {
         declSpecifiers = this->specifier(it->value, declSpecifiers);
@@ -1937,7 +1955,7 @@ bool Bind::visit(FunctionDefinitionAST *ast)
 
         if (_scope->isClass()) {
             fun->setVisibility(_visibility);
-            fun->setMethodKey(_methodKey);
+            fun->setMethodKey(methodKey);
         }
 
         if (declaratorId && declaratorId->name) {
