@@ -89,6 +89,7 @@ bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
 
 void QmlJSToolsPlugin::extensionsInitialized()
 {
+    m_modelManager->delayedInitialization();
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlJSToolsPlugin::aboutToShutdown()

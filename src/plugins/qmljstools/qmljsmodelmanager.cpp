@@ -39,6 +39,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/mimedatabase.h>
+#include <cplusplus/ModelManagerInterface.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/parser/qmldirparser_p.h>
@@ -56,6 +57,7 @@
 #include <qtconcurrent/runextensions.h>
 #include <QTextStream>
 #include <QCoreApplication>
+#include <QTimer>
 
 #include <QDebug>
 
@@ -72,6 +74,11 @@ ModelManager::ModelManager(QObject *parent):
 {
     m_synchronizer.setCancelOnWait(true);
 
+    m_updateCppQmlTypesTimer = new QTimer(this);
+    m_updateCppQmlTypesTimer->setInterval(1000);
+    m_updateCppQmlTypesTimer->setSingleShot(true);
+    connect(m_updateCppQmlTypesTimer, SIGNAL(timeout()), SLOT(updateCppQmlTypes()));
+
     qRegisterMetaType<QmlJS::Document::Ptr>("QmlJS::Document::Ptr");
     qRegisterMetaType<QmlJS::LibraryInfo>("QmlJS::LibraryInfo");
 
@@ -79,6 +86,16 @@ ModelManager::ModelManager(QObject *parent):
 
     m_defaultImportPaths << environmentImportPaths();
     updateImportPaths();
+}
+
+void ModelManager::delayedInitialization()
+{
+    CPlusPlus::CppModelManagerInterface *cppModelManager =
+            CPlusPlus::CppModelManagerInterface::instance();
+    if (cppModelManager) {
+        connect(cppModelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
+                m_updateCppQmlTypesTimer, SLOT(start()));
+    }
 }
 
 void ModelManager::loadQmlTypeDescriptions()
@@ -536,4 +553,17 @@ void ModelManager::updateImportPaths()
 void ModelManager::loadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri)
 {
     m_pluginDumper->loadPluginTypes(libraryPath, importPath, importUri);
+}
+
+void ModelManager::updateCppQmlTypes()
+{
+    CPlusPlus::CppModelManagerInterface *cppModelManager =
+            CPlusPlus::CppModelManagerInterface::instance();
+    if (!cppModelManager)
+        return;
+
+    QList<const LanguageUtils::FakeMetaObject *> constFMOs;
+    foreach (LanguageUtils::FakeMetaObject *fmo, cppModelManager->exportedQmlObjects())
+        constFMOs.append(fmo);
+    Interpreter::CppQmlTypesLoader::cppObjects = constFMOs;
 }

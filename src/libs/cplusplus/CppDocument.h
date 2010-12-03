@@ -125,6 +125,8 @@ public:
 
     void check(CheckMode mode = FullCheck);
 
+    void findExposedQmlTypes();
+
     void releaseSource();
     void releaseTranslationUnit();
 
@@ -318,6 +320,19 @@ public:
     const MacroUse *findMacroUseAt(unsigned offset) const;
     const UndefinedMacroUse *findUndefinedMacroUseAt(unsigned offset) const;
 
+    class ExportedQmlType {
+    public:
+        QString packageName;
+        QString typeName;
+        int majorVersion;
+        int minorVersion;
+        Scope *scope;
+        QString typeExpression;
+    };
+
+    QList<ExportedQmlType> exportedQmlTypes() const
+    { return _exportedQmlTypes; }
+
 private:
     QString _fileName;
     Control *_control;
@@ -329,6 +344,7 @@ private:
     QList<Block> _skippedBlocks;
     QList<MacroUse> _macroUses;
     QList<UndefinedMacroUse> _undefinedMacroUses;
+    QList<ExportedQmlType> _exportedQmlTypes;
     QByteArray _source;
     QDateTime _lastModified;
     unsigned _revision;

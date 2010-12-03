@@ -35,6 +35,7 @@
 #define CPPMODELMANAGERINTERFACE_H
 
 #include <cplusplus/CppDocument.h>
+#include <languageutils/fakemetaobject.h>
 #include <QtCore/QObject>
 #include <QtCore/QHash>
 #include <QtCore/QPointer>
@@ -145,6 +146,8 @@ public:
     virtual void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context) = 0;
 
     virtual void findMacroUsages(const CPlusPlus::Macro &macro) = 0;
+
+    virtual QList<LanguageUtils::FakeMetaObject *> exportedQmlObjects() const = 0;
 
 Q_SIGNALS:
     void documentUpdated(CPlusPlus::Document::Ptr doc);

@@ -162,8 +162,25 @@ void Link::populateImportedTypes(TypeEnvironment *typeEnv, Document::Ptr doc)
 {
     Q_D(Link);
 
-    if (! (doc->qmlProgram() && doc->qmlProgram()->imports))
+    if (! doc->qmlProgram())
         return;
+
+    // implicit imports: the <default> package is always available
+    const QLatin1String defaultPackage("<default>");
+    if (engine()->cppQmlTypes().hasPackage(defaultPackage)) {
+        ImportInfo info(ImportInfo::LibraryImport, defaultPackage);
+        ObjectValue *import = d->importCache.value(ImportCacheKey(info));
+        if (!import) {
+            import = new ObjectValue(engine());
+            foreach (QmlObjectValue *object,
+                     engine()->cppQmlTypes().typesForImport(defaultPackage, ComponentVersion())) {
+                import->setProperty(object->className(), object);
+            }
+            d->importCache.insert(ImportCacheKey(info), import);
+        }
+        typeEnv->addImport(import, info);
+    }
+
 
     // implicit imports:
     // qml files in the same directory are available without explicit imports

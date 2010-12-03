@@ -585,6 +585,122 @@ void Document::check(CheckMode mode)
     }
 }
 
+class FindExposedQmlTypes : protected ASTVisitor
+{
+    Document *_doc;
+    QList<Document::ExportedQmlType> _exportedTypes;
+public:
+    FindExposedQmlTypes(Document *doc)
+        : ASTVisitor(doc->translationUnit())
+        , _doc(doc)
+    {}
+
+    QList<Document::ExportedQmlType> operator()()
+    {
+        _exportedTypes.clear();
+        accept(translationUnit()->ast());
+        return _exportedTypes;
+    }
+
+protected:
+    virtual bool visit(CallAST *ast)
+    {
+        IdExpressionAST *idExp = ast->base_expression->asIdExpression();
+        if (!idExp || !idExp->name)
+            return false;
+        TemplateIdAST *templateId = idExp->name->asTemplateId();
+        if (!templateId || !templateId->identifier_token)
+            return false;
+
+        // check the name
+        const Identifier *templateIdentifier = translationUnit()->identifier(templateId->identifier_token);
+        if (!templateIdentifier)
+            return false;
+        const QString callName = QString::fromUtf8(templateIdentifier->chars());
+        if (callName != QLatin1String("qmlRegisterType"))
+            return false;
+
+        // must have a single typeid template argument
+        if (!templateId->template_argument_list || !templateId->template_argument_list->value
+                || templateId->template_argument_list->next)
+            return false;
+        TypeIdAST *typeId = templateId->template_argument_list->value->asTypeId();
+        if (!typeId)
+            return false;
+
+        // must have four arguments
+        if (!ast->expression_list
+                || !ast->expression_list->value || !ast->expression_list->next
+                || !ast->expression_list->next->value || !ast->expression_list->next->next
+                || !ast->expression_list->next->next->value || !ast->expression_list->next->next->next
+                || !ast->expression_list->next->next->next->value
+                || ast->expression_list->next->next->next->next)
+            return false;
+
+        // first and last arguments must be string literals
+        const StringLiteral *packageLit = 0;
+        const StringLiteral *nameLit = 0;
+        if (StringLiteralAST *packageAst = ast->expression_list->value->asStringLiteral())
+            packageLit = translationUnit()->stringLiteral(packageAst->literal_token);
+        if (StringLiteralAST *nameAst = ast->expression_list->next->next->next->value->asStringLiteral())
+            nameLit = translationUnit()->stringLiteral(nameAst->literal_token);
+        if (!nameLit) {
+            translationUnit()->warning(ast->expression_list->next->next->next->value->firstToken(),
+                                       "The type will only be available in Qt Creator's QML editors when the type name is a string literal");
+            return false;
+        }
+
+        // second and third argument must be integer literals
+        const NumericLiteral *majorLit = 0;
+        const NumericLiteral *minorLit = 0;
+        if (NumericLiteralAST *majorAst = ast->expression_list->next->value->asNumericLiteral())
+            majorLit = translationUnit()->numericLiteral(majorAst->literal_token);
+        if (NumericLiteralAST *minorAst = ast->expression_list->next->next->value->asNumericLiteral())
+            minorLit = translationUnit()->numericLiteral(minorAst->literal_token);
+
+        // build the descriptor
+        Document::ExportedQmlType exportedType;
+        exportedType.typeName = QString::fromUtf8(nameLit->chars(), nameLit->size());
+        if (packageLit && majorLit && minorLit && majorLit->isInt() && minorLit->isInt()) {
+            exportedType.packageName = QString::fromUtf8(packageLit->chars(), packageLit->size());
+            exportedType.majorVersion = QString::fromUtf8(majorLit->chars(), majorLit->size()).toInt();
+            exportedType.minorVersion = QString::fromUtf8(minorLit->chars(), minorLit->size()).toInt();
+        } else {
+            translationUnit()->warning(ast->base_expression->firstToken(),
+                                       "The package will only be available in Qt Creator's QML editors when the package name is a string literal and\n"
+                                       "the versions are integer literals. The type will be available globally.");
+            exportedType.packageName = QLatin1String("<default>");
+        }
+
+        // we want to do lookup later, so also store the surrounding scope
+        unsigned line, column;
+        translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
+        exportedType.scope = _doc->scopeAt(line, column);
+
+        // and the expression
+        const Token begin = translationUnit()->tokenAt(typeId->firstToken());
+        const Token last = translationUnit()->tokenAt(typeId->lastToken() - 1);
+        exportedType.typeExpression = _doc->source().mid(begin.begin(), last.end() - begin.begin());
+
+        _exportedTypes += exportedType;
+
+        return false;
+    }
+};
+
+void Document::findExposedQmlTypes()
+{
+    if (! _translationUnit->ast())
+        return;
+
+    QByteArray token("qmlRegisterType");
+    if (! _translationUnit->control()->findIdentifier(token.constData(), token.size()))
+        return;
+
+    FindExposedQmlTypes finder(this);
+    _exportedQmlTypes = finder();
+}
+
 void Document::releaseSource()
 {
     _source.clear();

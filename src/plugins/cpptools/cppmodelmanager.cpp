@@ -77,6 +77,7 @@
 #include <Token.h>
 #include <Parser.h>
 #include <Control.h>
+#include <CoreTypes.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
@@ -290,6 +291,8 @@ public:
     void operator()()
     {
         _doc->check(_mode);
+        _doc->findExposedQmlTypes();
+        _doc->releaseSource();
         _doc->releaseTranslationUnit();
 
         if (_mode == Document::FastCheck)
@@ -589,7 +592,6 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type, unsigned
 
     doc->setSource(preprocessedCode);
     doc->tokenize();
-    doc->releaseSource();
 
     snapshot.insert(doc);
     m_todo.remove(fileName);
@@ -601,6 +603,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type, unsigned
 
     (void) switchDocument(previousDoc);
 #else
+    doc->releaseSource();
     Document::CheckMode mode = Document::FastCheck;
     mode = Document::FullCheck;
     doc->parse();
@@ -1416,6 +1419,163 @@ void CppModelManager::GC()
     protectSnapshot.lock();
     m_snapshot = newSnapshot;
     protectSnapshot.unlock();
+}
+
+static FullySpecifiedType stripPointerAndReference(const FullySpecifiedType &type)
+{
+    Type *t = type.type();
+    while (t) {
+        if (PointerType *ptr = t->asPointerType())
+            t = ptr->elementType().type();
+        else if (ReferenceType *ref = t->asReferenceType())
+            t = ref->elementType().type();
+        else
+            break;
+    }
+    return FullySpecifiedType(t);
+}
+
+static QString toQmlType(const FullySpecifiedType &type)
+{
+    Overview overview;
+    QString result = overview(stripPointerAndReference(type));
+    if (result == QLatin1String("QString"))
+        result = QLatin1String("string");
+    return result;
+}
+
+static Class *lookupClass(const QString &expression, Scope *scope, TypeOfExpression &typeOf)
+{
+    QList<LookupItem> results = typeOf(expression, scope);
+    Class *klass = 0;
+    foreach (const LookupItem &item, results) {
+        if (item.declaration()) {
+            klass = item.declaration()->asClass();
+            if (klass)
+                return klass;
+        }
+    }
+    return 0;
+}
+
+static void populate(LanguageUtils::FakeMetaObject *fmo, Class *klass,
+                     QHash<Class *, LanguageUtils::FakeMetaObject *> *classes,
+                     TypeOfExpression &typeOf)
+{
+    using namespace LanguageUtils;
+
+    Overview namePrinter;
+
+    classes->insert(klass, fmo);
+
+    for (unsigned i = 0; i < klass->memberCount(); ++i) {
+        Symbol *member = klass->memberAt(i);
+        if (!member->name())
+            continue;
+        if (Function *func = member->type()->asFunctionType()) {
+            if (!func->isSlot() && !func->isInvokable() && !func->isSignal())
+                continue;
+            FakeMetaMethod method(namePrinter(func->name()), toQmlType(func->returnType()));
+            if (func->isSignal())
+                method.setMethodType(FakeMetaMethod::Signal);
+            else
+                method.setMethodType(FakeMetaMethod::Slot);
+            for (unsigned a = 0; a < func->argumentCount(); ++a) {
+                Symbol *arg = func->argumentAt(a);
+                QString name(CppModelManager::tr("unnamed"));
+                if (arg->name())
+                    name = namePrinter(arg->name());
+                method.addParameter(name, toQmlType(arg->type()));
+            }
+            fmo->addMethod(method);
+        }
+        if (QtPropertyDeclaration *propDecl = member->asQtPropertyDeclaration()) {
+            const FullySpecifiedType &type = propDecl->type();
+            const bool isList = false; // ### fixme
+            const bool isWritable = propDecl->flags() & QtPropertyDeclaration::WriteFunction;
+            const bool isPointer = type.type() && type.type()->isPointerType();
+            FakeMetaProperty property(
+                        namePrinter(propDecl->name()),
+                        toQmlType(type),
+                        isList, isWritable, isPointer);
+            fmo->addProperty(property);
+        }
+        if (QtEnum *qtEnum = member->asQtEnum()) {
+            // find the matching enum
+            Enum *e = 0;
+            QList<LookupItem> result = typeOf(namePrinter(qtEnum->name()), klass);
+            foreach (const LookupItem &item, result) {
+                if (item.declaration()) {
+                    e = item.declaration()->asEnum();
+                    if (e)
+                        break;
+                }
+            }
+            if (!e)
+                continue;
+
+            FakeMetaEnum metaEnum(namePrinter(e->name()));
+            for (unsigned j = 0; j < e->memberCount(); ++j) {
+                Symbol *enumMember = e->memberAt(j);
+                if (!enumMember->name())
+                    continue;
+                metaEnum.addKey(namePrinter(enumMember->name()), 0);
+            }
+            fmo->addEnum(metaEnum);
+        }
+    }
+
+    // only single inheritance is supported
+    if (klass->baseClassCount() > 0) {
+        BaseClass *base = klass->baseClassAt(0);
+        if (!base->name())
+            return;
+
+        const QString baseClassName = namePrinter(base->name());
+        fmo->setSuperclassName(baseClassName);
+
+        Class *baseClass = lookupClass(baseClassName, klass, typeOf);
+        if (!baseClass)
+            return;
+
+        FakeMetaObject *baseFmo = classes->value(baseClass);
+        if (!baseFmo) {
+            baseFmo = new FakeMetaObject;
+            populate(baseFmo, baseClass, classes, typeOf);
+        }
+        fmo->setSuperclass(baseFmo);
+    }
+}
+
+QList<LanguageUtils::FakeMetaObject *> CppModelManager::exportedQmlObjects() const
+{
+    using namespace LanguageUtils;
+    QList<FakeMetaObject *> exportedObjects;
+    QHash<Class *, FakeMetaObject *> classes;
+
+    const Snapshot currentSnapshot = snapshot();
+    foreach (Document::Ptr doc, currentSnapshot) {
+        TypeOfExpression typeOf;
+        typeOf.init(doc, currentSnapshot);
+        foreach (const Document::ExportedQmlType &exportedType, doc->exportedQmlTypes()) {
+            FakeMetaObject *fmo = new FakeMetaObject;
+            fmo->addExport(exportedType.typeName, exportedType.packageName,
+                           ComponentVersion(exportedType.majorVersion, exportedType.minorVersion));
+            exportedObjects += fmo;
+
+            Class *klass = lookupClass(exportedType.typeExpression, exportedType.scope, typeOf);
+            if (!klass)
+                continue;
+
+            // add the no-package export, so the cpp name can be used in properties
+            Overview overview;
+            fmo->addExport(overview(klass->name()), QString(), ComponentVersion());
+
+            populate(fmo, klass, &classes, typeOf);
+        }
+    }
+
+    return exportedObjects;
 }
 
 #endif

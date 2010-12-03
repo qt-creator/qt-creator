@@ -44,6 +44,8 @@
 #include <QMutex>
 #include <QProcess>
 
+QT_FORWARD_DECLARE_CLASS(QTimer)
+
 namespace Core {
 class ICore;
 class MimeType;
@@ -60,6 +62,8 @@ class QMLJSTOOLS_EXPORT ModelManager: public QmlJS::ModelManagerInterface
 
 public:
     ModelManager(QObject *parent = 0);
+
+    void delayedInitialization();
 
     virtual WorkingCopy workingCopy() const;
     virtual QmlJS::Snapshot snapshot() const;
@@ -99,6 +103,9 @@ protected:
 
     void updateImportPaths();
 
+private slots:
+    void updateCppQmlTypes();
+
 private:
     static bool matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType);
 
@@ -109,6 +116,7 @@ private:
     QStringList m_defaultImportPaths;
 
     QFutureSynchronizer<void> m_synchronizer;
+    QTimer *m_updateCppQmlTypesTimer;
 
     // project integration
     QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;
