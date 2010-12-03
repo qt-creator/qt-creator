@@ -83,7 +83,6 @@ public:
     virtual void showQtDumperLibraryWarning(const QString &details) = 0;
     virtual QIcon locationMarkIcon() const = 0;
     virtual const CPlusPlus::Snapshot &cppCodeModelSnapshot() const = 0;
-    virtual bool isRegisterViewVisible() const = 0;
     virtual bool hasSnapshots() const = 0;
     virtual void openTextEditor(const QString &titlePattern, const QString &contents) = 0;
     virtual BreakHandler *breakHandler() const = 0;
@@ -92,7 +91,6 @@ public:
     virtual bool isActiveDebugLanguage(int language) const = 0;
 
     virtual void clearCppCodeModelSnapshot() = 0;
-    virtual void ensureLogVisible() = 0;
 
     // void runTest(const QString &fileName);
     virtual void showMessage(const QString &msg, int channel, int timeout = -1) = 0;
@@ -114,6 +112,7 @@ public:
 
     virtual bool initialize(const QStringList &arguments, QString *errorMessage) = 0;
     virtual QWidget *mainWindow() const = 0;
+    virtual bool isDockVisible(const QString &objectName) const = 0;
     virtual QString gdbBinaryForToolChain(int toolChain) const = 0;
     virtual void showModuleSymbols(const QString &moduleName,
         const QVector<Symbol> &symbols) = 0;

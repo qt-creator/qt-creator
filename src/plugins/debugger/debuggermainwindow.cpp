@@ -444,22 +444,29 @@ QDockWidget *DebuggerMainWindow::qmlInspectorWindow() const
 
 QDockWidget *DebuggerMainWindow::dockWidget(const QString &objectName) const
 {
-    foreach(QDockWidget *dockWidget, d->m_dockWidgets) {
+    foreach (QDockWidget *dockWidget, d->m_dockWidgets) {
         if (dockWidget->objectName() == objectName)
             return dockWidget;
     }
     return 0;
 }
 
+bool DebuggerMainWindow::isDockVisible(const QString &objectName) const
+{
+    QDockWidget *dock = dockWidget(objectName);
+    return dock && dock->toggleViewAction()->isChecked();
+}
+
 /*!
     Keep track of dock widgets so they can be shown/hidden for different languages
 */
 QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &language,
-    QWidget *widget, Qt::DockWidgetArea area)
+    QWidget *widget, const QString &objectName, Qt::DockWidgetArea area)
 {
 //    qDebug() << "CREATE DOCK" << widget->objectName() << "LANGUAGE ID" << language
 //             << "VISIBLE BY DEFAULT" << ((d->m_activeDebugLanguages & language) ? "true" : "false");
     QDockWidget *dockWidget = addDockForWidget(widget);
+    dockWidget->setObjectName(objectName);
     addDockWidget(area, dockWidget);
     d->m_dockWidgets.append(dockWidget);
 
@@ -471,7 +478,7 @@ QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &langua
     ActionManager *am = ICore::instance()->actionManager();
     QAction *toggleViewAction = dockWidget->toggleViewAction();
     Command *cmd = am->registerAction(toggleViewAction,
-                         QString("Debugger." + dockWidget->objectName()), globalContext);
+             QString("Debugger." + objectName), globalContext);
     cmd->setAttribute(Command::CA_Hide);
     d->m_viewsMenu->addAction(cmd);
 

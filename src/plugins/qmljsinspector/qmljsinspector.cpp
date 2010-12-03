@@ -566,8 +566,8 @@ void InspectorUi::setupDockWidgets()
 
     Debugger::DebuggerMainWindow *mw = Debugger::DebuggerPlugin::mainWindow();
     QDockWidget *dock = mw->createDockWidget(Debugger::QmlLanguage,
-        observerWidget, Qt::BottomDockWidgetArea);
-    dock->setObjectName(Debugger::Constants::DOCKWIDGET_QML_INSPECTOR);
+        observerWidget, Debugger::Constants::DOCKWIDGET_QML_INSPECTOR,
+        Qt::BottomDockWidgetArea);
     dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
     dock->setTitleBarWidget(new QWidget(dock));
 }

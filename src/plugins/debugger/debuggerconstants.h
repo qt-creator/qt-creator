@@ -47,7 +47,7 @@ const char * const STEPOUT              = "Debugger.StepOut";
 const char * const NEXT                 = "Debugger.NextLine";
 const char * const REVERSE              = "Debugger.ReverseDirection";
 
-const char * const M_DEBUG_VIEWS               = "Debugger.Menu.View.Debug";
+const char * const M_DEBUG_VIEWS        = "Debugger.Menu.View.Debug";
 
 const char * const C_DEBUGMODE          = "Debugger.DebugMode";
 const char * const C_CPPDEBUGGER        = "Gdb Debugger";
@@ -63,16 +63,16 @@ const char * const DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON =
     ":/core/images/category_debug.png";
 
 // dock widget names
-const char * const DOCKWIDGET_BREAK = "Debugger.Docks.Break";
-const char * const DOCKWIDGET_CONSOLE = "Debugger.Docks.Console";
-const char * const DOCKWIDGET_MODULES = "Debugger.Docks.Modules";
-const char * const DOCKWIDGET_REGISTER = "Debugger.Docks.Register";
-const char * const DOCKWIDGET_OUTPUT = "Debugger.Docks.Output";
-const char * const DOCKWIDGET_SNAPSHOTS = "Debugger.Docks.Snapshots";
-const char * const DOCKWIDGET_STACK = "Debugger.Docks.Stack";
+const char * const DOCKWIDGET_BREAK      = "Debugger.Docks.Break";
+const char * const DOCKWIDGET_CONSOLE    = "Debugger.Docks.Console";
+const char * const DOCKWIDGET_MODULES    = "Debugger.Docks.Modules";
+const char * const DOCKWIDGET_REGISTER   = "Debugger.Docks.Register";
+const char * const DOCKWIDGET_OUTPUT     = "Debugger.Docks.Output";
+const char * const DOCKWIDGET_SNAPSHOTS  = "Debugger.Docks.Snapshots";
+const char * const DOCKWIDGET_STACK      = "Debugger.Docks.Stack";
 const char * const DOCKWIDGET_SOURCE_FILES = "Debugger.Docks.SourceFiles";
-const char * const DOCKWIDGET_THREADS = "Debugger.Docks.Threads";
-const char * const DOCKWIDGET_WATCHERS = "Debugger.Docks.LocalsAndWatchers";
+const char * const DOCKWIDGET_THREADS    = "Debugger.Docks.Threads";
+const char * const DOCKWIDGET_WATCHERS   = "Debugger.Docks.LocalsAndWatchers";
 
 const char * const DOCKWIDGET_QML_INSPECTOR = "Debugger.Docks.QmlInspector";
 const char * const DOCKWIDGET_QML_SCRIPTCONSOLE = "Debugger.Docks.ScriptConsole";

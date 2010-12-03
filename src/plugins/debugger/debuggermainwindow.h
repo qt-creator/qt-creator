@@ -73,6 +73,7 @@ public:
     // Called when all dependent plugins have loaded.
     void initialize();
 
+
     void onModeChanged(Core::IMode *mode);
 
     // Most common debugger windows.
@@ -85,10 +86,11 @@ public:
     QDockWidget *qmlInspectorWindow() const;
 
     QDockWidget *dockWidget(const QString &objectName) const;
+    bool isDockVisible(const QString &objectName) const;
 
     // Dockwidgets are registered to the main window.
     QDockWidget *createDockWidget(const DebuggerLanguage &language, QWidget *widget,
-                                  Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
+        const QString &objectName, Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
 
     QWidget *createContents(Core::IMode *mode);
     QMenu *createPopupMenu();
