@@ -456,6 +456,8 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
         foreach (Symbol *s, binding->symbols()) {
             if (s->isFriend())
                 continue;
+            else if (s->isUsingNamespaceDirective())
+                continue;
 
             if (Scope *scope = s->asScope()) {
                 if (Class *klass = scope->asClass()) {
@@ -509,6 +511,8 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
         for (Symbol *s = scope->find(id); s; s = s->next()) {
             if (s->isFriend())
                 continue; // skip friends
+            else if (s->isUsingNamespaceDirective())
+                continue; // skip using namespace directives
             else if (! id->isEqualTo(s->identifier()))
                 continue;
             else if (s->name()->isQualifiedNameId())
