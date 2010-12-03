@@ -507,49 +507,23 @@ static DebuggerEngine *dummyEngine()
 class DebugMode : public IMode
 {
 public:
-    DebugMode(QObject *parent = 0) : IMode(parent)
-    {
-        setDisplayName(QCoreApplication::translate("Debugger::Internal::DebugMode", "Debug"));
-        setType(CC::MODE_EDIT_TYPE);
-        setId(MODE_DEBUG);
-        setIcon(QIcon(__(":/fancyactionbar/images/mode_Debug.png")));
-        setPriority(P_MODE_DEBUG);
-    }
+    DebugMode() : m_widget(0) {}
 
-    ~DebugMode()
-    {
-        // Make sure the editor manager does not get deleted.
-        EditorManager::instance()->setParent(0);
-    }
+    // Make sure the editor manager does not get deleted.
+    ~DebugMode() { EditorManager::instance()->setParent(0); }
 
     // IMode
-    QString displayName() const { return m_displayName; }
-    QIcon icon() const { return m_icon; }
-    int priority() const { return m_priority; }
-    QWidget *widget() { return m_widget; }
-    QString id() const { return m_id; }
-    QString type() const { return m_type; }
-    Context context() const { return m_context; }
-    QString contextHelpId() const { return m_helpId; }
-
-    void setDisplayName(const QString &name) { m_displayName = name; }
-    void setIcon(const QIcon &icon) { m_icon = icon; }
-    void setPriority(int priority) { m_priority = priority; }
-    void setWidget(QWidget *widget) { m_widget = widget; }
-    void setId(const QString &id) { m_id = id; }
-    void setType(const QString &type) { m_type = type; }
-    void setContextHelpId(const QString &helpId) { m_helpId = helpId; }
-    void setContext(const Context &context) { m_context = context; }
-
+    QString displayName() const { return DebuggerPlugin::tr("Debug"); }
+    QIcon icon() const { return QIcon(__(":/fancyactionbar/images/mode_Debug.png")); }
+    int priority() const { return P_MODE_DEBUG; }
+    QWidget *widget();
+    QString id() const { return MODE_DEBUG; }
+    QString type() const { return CC::MODE_EDIT_TYPE; }
+    Context context() const
+        { return Context(CC::C_EDITORMANAGER, C_DEBUGMODE, CC::C_NAVIGATION_PANE); }
+    QString contextHelpId() const { return QString(); }
 private:
-    QString m_displayName;
-    QIcon m_icon;
-    int m_priority;
     QWidget *m_widget;
-    QString m_id;
-    QString m_type;
-    QString m_helpId;
-    Context m_context;
 };
 
 
@@ -1059,7 +1033,7 @@ public slots:
     void showQtDumperLibraryWarning(const QString &details);
     DebuggerMainWindow *mainWindow() const { return m_mainWindow; }
     bool isDockVisible(const QString &objectName) const
-        { return m_mainWindow->isDockVisible(objectName); }
+        { return mainWindow()->isDockVisible(objectName); }
 
     bool hasSnapshots() const { return m_snapshotHandler->size(); }
     void createNewDock(QWidget *widget, const QString &objectName);
@@ -2760,13 +2734,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_snapshotWindow->setObjectName(QLatin1String("CppDebugSnapshots"));
     m_snapshotWindow->setModel(m_snapshotHandler->model());
 
-    // Debug mode setup
-    m_debugMode = new DebugMode(this);
-    m_debugMode->setWidget(m_mainWindow->createContents(m_debugMode));
-    m_debugMode->setContext(
-        Context(CC::C_EDITORMANAGER, C_DEBUGMODE, CC::C_NAVIGATION_PANE));
-
-
     // Watchers
     connect(m_localsWindow->header(), SIGNAL(sectionResized(int,int,int)),
         SLOT(updateWatchersHeader(int,int,int)), Qt::QueuedConnection);
@@ -3170,7 +3137,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
         SLOT(onModeChanged(Core::IMode*)));
-    m_debugMode->widget()->setFocusProxy(EditorManager::instance());
+
+
+    // Debug mode setup
+    m_debugMode = new DebugMode;
     m_plugin->addObject(m_debugMode);
 
 
@@ -3409,6 +3379,15 @@ DebuggerMainWindow *DebuggerPlugin::mainWindow()
     return theDebuggerCore->m_mainWindow;
 }
 
+QWidget *DebugMode::widget()
+{
+    if (!m_widget) {
+        //qDebug() << "CREATING DEBUG MODE WIDGET";
+        m_widget = theDebuggerCore->m_mainWindow->createContents(this);
+        m_widget->setFocusProxy(EditorManager::instance());
+    }
+    return m_widget;
+}
 
 //////////////////////////////////////////////////////////////////////
 //
