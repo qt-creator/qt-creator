@@ -69,7 +69,6 @@ public:
     std::string type() const;
     std::wstring value() const;
     unsigned size() const;
-    static inline unsigned sizeOf(const char *type) { return GetTypeSize(type); }
 
     int intValue(int defaultValue = -1) const;
     double floatValue(double defaultValue = -999) const;
@@ -81,6 +80,9 @@ public:
     std::wstring wcharPointerData(unsigned charCount, unsigned maxCharCount = 512) const;
 
     std::string error() const;
+
+    static inline unsigned sizeOf(const char *type) { return GetTypeSize(type); }
+    static std::string stripPointerType(const std::string &);
 
 private:
     bool ensureExpanded() const;
@@ -97,6 +99,7 @@ enum KnownType {
     KT_Qt_Type = 0x10000,
     KT_STL_Type = 0x20000,
     KT_ContainerType = 0x40000,
+    // Qt Basic
     KT_QChar = KT_Qt_Type + 1,
     KT_QByteArray = KT_Qt_Type + 2,
     KT_QString = KT_Qt_Type + 3,
@@ -115,8 +118,25 @@ enum KnownType {
     KT_QVariant = KT_Qt_Type + 17,
     KT_QBasicAtomicInt = KT_Qt_Type + 18,
     KT_QAtomicInt = KT_Qt_Type + 19,
+    KT_QObject = KT_Qt_Type + 20,
+    KT_QWidget = KT_Qt_Type + 21,
+    // Qt Containers
+    KT_QStringList = KT_Qt_Type + KT_ContainerType + 1,
+    KT_QList = KT_Qt_Type + KT_ContainerType + 2,
+    KT_QVector = KT_Qt_Type + KT_ContainerType + 3,
+    KT_QSet = KT_Qt_Type + KT_ContainerType + 4,
+    KT_QHash = KT_Qt_Type + KT_ContainerType + 5,
+    KT_QMap = KT_Qt_Type + KT_ContainerType + 6,
+    KT_QMultiMap = KT_Qt_Type + KT_ContainerType + 7,
+    // STL
     KT_StdString = KT_STL_Type + 1,
-    KT_StdWString = KT_STL_Type + 2
+    KT_StdWString = KT_STL_Type + 2,
+    // STL containers
+    KT_StdVector =  KT_STL_Type + KT_ContainerType + 1,
+    KT_StdList =  KT_STL_Type + KT_ContainerType + 2,
+    KT_StdSet =  KT_STL_Type + KT_ContainerType + 3,
+    KT_StdMap =  KT_STL_Type + KT_ContainerType + 4,
+    KT_StdMultiMap =  KT_STL_Type + KT_ContainerType + 5,
 };
 
 KnownType knownType(const std::string &type);
@@ -124,5 +144,9 @@ KnownType knownType(const std::string &type);
 // Dump builtin simple types using SymbolGroupValue expressions,
 // returning SymbolGroupNode dumper flags.
 unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx, std::wstring *s);
+
+// Return size of container or -1
+int containerSize(KnownType ct, const SymbolGroupValue &v);
+int containerSize(KnownType ct, SymbolGroupNode  *n, const SymbolGroupValueContext &ctx);
 
 #endif // SYMBOLGROUPVALUE_H

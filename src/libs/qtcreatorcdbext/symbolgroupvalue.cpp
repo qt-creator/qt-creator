@@ -215,6 +215,11 @@ std::string SymbolGroupValue::error() const
     return m_errorMessage;
 }
 
+std::string SymbolGroupValue::stripPointerType(const std::string &t)
+{
+    return endsWith(t, " *") ? t.substr(0, t.size() - 2) : t;
+}
+
 // -------------------- Simple dumping helpers
 
 // Courtesy of qdatetime.cpp
@@ -302,20 +307,76 @@ KnownType knownType(const std::string &type)
     const std::wstring::size_type compareLen =
             endsWith(type, " *") ? type.size() -2 : type.size();
     // STL ?
-    if (!type.compare(0, 11, "class std::")) {
+    const std::wstring::size_type templatePos = type.find('<');
+    static const std::wstring::size_type stlClassPos = 11;
+    if (!type.compare(0, stlClassPos, "class std::")) {
+        // STL containers
+        if (templatePos != std::string::npos) {
+            switch (templatePos - stlClassPos) {
+            case 3:
+                if (!type.compare(stlClassPos, 3, "set"))
+                    return KT_StdSet;
+                if (!type.compare(stlClassPos, 3, "map"))
+                    return KT_StdMap;
+                break;
+            case 4:
+                if (!type.compare(stlClassPos, 4, "list"))
+                    return KT_StdList;
+                break;
+            case 6:
+                if (!type.compare(stlClassPos, 6, "vector"))
+                    return KT_StdVector;
+                break;
+            case 8:
+                if (!type.compare(stlClassPos, 8, "multimap"))
+                    return KT_StdMultiMap;
+                break;
+            }
+        }
+        // STL strings
         if (!type.compare(0, compareLen, stdStringTypeC))
             return KT_StdString;
         if (!type.compare(0, compareLen, stdWStringTypeC))
             return KT_StdWString;
-    }
-    // Check for a 'Q' (beware of namespaced Qt: 'nsp::QString'). TODO: match QQuark as well?
-    const std::wstring::size_type qPos = type.rfind('Q');
-    if (qPos == std::wstring::npos)
+        return KT_Unknown;
+    } // std::sth
+    // Check for a 'Q' past the last namespace (beware of namespaced Qt:
+    // 'nsp::QString').
+    const std::wstring::size_type lastNameSpacePos = type.rfind(':');
+    const std::wstring::size_type qPos =
+            lastNameSpacePos == std::string::npos ? type.find('Q') : lastNameSpacePos + 1;
+    if (qPos == std::string::npos || qPos >= type.size() || type.at(qPos) != 'Q')
         return KT_Unknown;
     // Qt types (templates)
-    if (type.find("QFlags<") != std::wstring::npos)
-        return KT_QFlags;
-    // Remaining types:
+    if (templatePos != std::string::npos) {
+        switch (templatePos - qPos) {
+        case 4:
+            if (!type.compare(qPos, 4, "QSet"))
+                return KT_QSet;
+            if (!type.compare(qPos, 4, "QMap"))
+                return KT_QMap;
+            break;
+        case 5:
+            if (!type.compare(qPos, 5, "QHash"))
+                return KT_QHash;
+            if (!type.compare(qPos, 5, "QList"))
+                return KT_QList;
+            break;
+        case 6:
+            if (!type.compare(qPos, 6, "QFlags"))
+                return KT_QFlags;
+            break;
+        case 7:
+            if (!type.compare(qPos, 7, "QVector"))
+                return KT_QVector;
+            break;
+        case 9:
+            if (!type.compare(qPos, 9, "QMultiMap"))
+                return KT_QMultiMap;
+            break;
+        }
+    }
+    // Remaining non-template types
     switch (compareLen - qPos) {
     case 5:
         if (!type.compare(qPos, 5, "QChar"))
@@ -348,6 +409,10 @@ KnownType knownType(const std::string &type)
             return KT_QString;
         if (!type.compare(qPos, 7, "QPointF"))
             return KT_QPointF;
+        if (!type.compare(qPos, 7, "QObject"))
+            return KT_QObject;
+        if (!type.compare(qPos, 7, "QWidget"))
+            return KT_QWidget;
         break;
     case 8:
         if (!type.compare(qPos, 8, "QVariant"))
@@ -358,6 +423,10 @@ KnownType knownType(const std::string &type)
             return KT_QAtomicInt;
         if (!type.compare(qPos, 10, "QByteArray"))
             return KT_QByteArray;
+        break;
+    case 11:
+        if (!type.compare(qPos, 11, "QStringList"))
+            return KT_QStringList;
         break;
     case 15:
         if (!type.compare(qPos, 15, "QBasicAtomicInt"))
@@ -563,6 +632,18 @@ static inline bool dumpQRectF(const SymbolGroupValue &v, std::wostream &str)
     return true;
 }
 
+// Dump the object name
+static inline bool dumpQObject(const SymbolGroupValue &v, std::wostream &str)
+{
+    if (SymbolGroupValue oName = v["d_ptr"]["d"].pointerTypeCast("QObjectPrivate *")["objectName"]) {
+        str << L'"';
+        dumpQString(oName, str);
+        str << L'"';
+        return true;
+    }
+    return false;
+}
+
 // Dump a std::string.
 static bool dumpStd_W_String(const SymbolGroupValue &v, std::wostream &str)
 {
@@ -710,6 +791,107 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str)
     return true;
 }
 
+// Return size of container or -1
+
+int containerSize(KnownType kt, SymbolGroupNode *n, const SymbolGroupValueContext &ctx)
+{
+    if ((kt & KT_ContainerType) == 0)
+        return -1;
+    return containerSize(kt, SymbolGroupValue(n, ctx));
+}
+
+// Return size from an STL vector (last/first iterators).
+static inline int msvcStdVectorSize(const SymbolGroupValue &v)
+{
+    if (const SymbolGroupValue myFirstPtrV = v["_Myfirst"]) {
+        if (const SymbolGroupValue myLastPtrV = v["_Mylast"]) {
+            const ULONG64 firstPtr = myFirstPtrV.pointerValue();
+            const ULONG64 lastPtr = myLastPtrV.pointerValue();
+            if (!firstPtr || lastPtr < firstPtr)
+                return -1;
+            if (lastPtr == firstPtr)
+                return 0;
+            // Subtract the pointers: We need to do the pointer arithmetics ourselves
+            // as we get char *pointers.
+            const std::string innerType = SymbolGroupValue::stripPointerType(myFirstPtrV.type());
+            const size_t size = SymbolGroupValue::sizeOf(innerType.c_str());
+            if (size == 0)
+                return -1;
+            return static_cast<int>((lastPtr - firstPtr) / size);
+        }
+    }
+    return -1;
+}
+
+int containerSize(KnownType kt, const SymbolGroupValue &v)
+{
+    switch (kt) {
+    case KT_QStringList:
+        if (const SymbolGroupValue base = v[unsigned(0)])
+            return containerSize(KT_QList, base);
+        break;
+    case KT_QList:
+        if (const SymbolGroupValue dV = v["d"]) {
+            if (const SymbolGroupValue beginV = dV["begin"]) {
+                const int begin = beginV.intValue();
+                const int end = dV["end"].intValue();
+                if (begin >= 0 && end >= begin)
+                    return end - begin;
+            }
+        }
+        break;
+    case KT_QHash:
+    case KT_QMap:
+    case KT_QVector:
+        if (const SymbolGroupValue sizeV = v["d"]["size"])
+            return sizeV.intValue();
+        break;
+    case KT_QSet:
+        if (const SymbolGroupValue base = v[unsigned(0)])
+            return containerSize(KT_QHash, base);
+        break;
+    case KT_QMultiMap:
+        if (const SymbolGroupValue base = v[unsigned(0)])
+            return containerSize(KT_QMap, base);
+        break;
+    case KT_StdVector: {
+        if (const SymbolGroupValue base = v[unsigned(0)]) {
+            const int msvc10Size = msvcStdVectorSize(base);
+            if (msvc10Size >= 0)
+                return msvc10Size;
+        }
+        const int msvc8Size = msvcStdVectorSize(v);
+        if (msvc8Size >= 0)
+            return msvc8Size;
+    }
+        break;
+    case KT_StdList:
+        if (const SymbolGroupValue sizeV =  v["_Mysize"]) // VS 8
+            return sizeV.intValue();
+        if (const SymbolGroupValue sizeV = v[unsigned(0)][unsigned(0)]["_Mysize"]) // VS10
+            return sizeV.intValue();
+        break;
+    case KT_StdSet:
+    case KT_StdMap:
+    case KT_StdMultiMap:
+        if (const SymbolGroupValue baseV = v[unsigned(0)]) {
+            if (const SymbolGroupValue sizeV = baseV["_Mysize"]) // VS 8
+                return sizeV.intValue();
+            if (const SymbolGroupValue sizeV = baseV[unsigned(0)][unsigned(0)]["_Mysize"]) // VS 10
+                return sizeV.intValue();
+        }
+        break;
+    }
+    return -1;
+}
+
+static inline std::wstring msgContainerSize(int s)
+{
+    std::wostringstream str;
+    str << L'<' << s << L" items>";
+    return str.str();
+}
+
 // Dump builtin simple types using SymbolGroupValue expressions.
 unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx, std::wstring *s)
 {
@@ -720,6 +902,15 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
         return SymbolGroupNode::DumperNotApplicable;
 
     const SymbolGroupValue v(n, ctx);
+    // Simple dump of size for containers
+    if (kt & KT_ContainerType) {
+        const int size = containerSize(kt, v);
+        if (size >= 0) {
+            *s = msgContainerSize(size);
+            return SymbolGroupNode::DumperOk;
+        }
+        return SymbolGroupNode::DumperFailed;
+    }
     std::wostringstream str;
     unsigned rc = SymbolGroupNode::DumperNotApplicable;
     switch (kt) {
@@ -770,6 +961,12 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
         break;
     case KT_QBasicAtomicInt:
         rc = dumpQBasicAtomicInt(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_QObject:
+        rc = dumpQObject(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_QWidget:
+        rc = dumpQObject(v[unsigned(0)], str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
         break;
     case KT_StdString:
     case KT_StdWString:
