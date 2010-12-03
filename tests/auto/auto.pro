@@ -16,6 +16,6 @@ SUBDIRS += \
     utils_stringutils \
     filesearch
 
-contains (QT_CONFIG, declarative) {
-SUBDIRS += qml
-}
+#contains (QT_CONFIG, declarative) {
+#SUBDIRS += qml
+#}

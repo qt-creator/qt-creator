@@ -130,7 +130,7 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
             TrkLauncherPtr launcher = createLauncher(actions, arguments.at(a), serialFrame, verbosity);
             launcher->addStartupActions(trk::Launcher::ActionRun);
             launcher->setFileName(arguments.at(a + 1));
-            launcher->setCommandLineArgs(remoteArguments);
+            launcher->setCommandLineArgs(remoteArguments.join(" "));
             return launcher;
 
         }
@@ -142,7 +142,7 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
             if (remainingArgsCount == 3) {
                 launcher->addStartupActions(trk::Launcher::ActionRun);
                 launcher->setFileName(arguments.at(a + 2));
-                launcher->setCommandLineArgs(remoteArguments);
+                launcher->setCommandLineArgs(remoteArguments.join(" "));
             }
             return launcher;
         }
@@ -155,7 +155,7 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
             if (remainingArgsCount == 4) {
                 launcher->addStartupActions(trk::Launcher::ActionRun);
                 launcher->setFileName(arguments.at(a + 3));
-                launcher->setCommandLineArgs(remoteArguments);
+                launcher->setCommandLineArgs(remoteArguments.join(" "));
             }
             return launcher;
         }

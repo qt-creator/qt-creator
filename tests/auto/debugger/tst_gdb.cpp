@@ -71,7 +71,7 @@ bool checkUninitialized = false;
 #ifdef Q_OS_WIN
 QString gdbBinary = "c:\\MinGw\\bin\\gdb.exe";
 #else
-QString gdbBinary = "./gdb";
+QString gdbBinary = "gdb";
 #endif
 
 void nothing() {}

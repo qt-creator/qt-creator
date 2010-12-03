@@ -192,14 +192,14 @@ void tst_PluginSpec::locationAndPath()
 {
     Internal::PluginSpecPrivate spec(0);
     QVERIFY(spec.read("testspecs/simplespec.xml"));
-    QCOMPARE(spec.location, QDir::currentPath()+"/testspecs");
-    QCOMPARE(spec.filePath, QDir::currentPath()+"/testspecs/simplespec.xml");
+    QCOMPARE(spec.location, QString(QDir::currentPath()+"/testspecs"));
+    QCOMPARE(spec.filePath, QString(QDir::currentPath()+"/testspecs/simplespec.xml"));
     QVERIFY(spec.read("testdir/../testspecs/simplespec.xml"));
-    QCOMPARE(spec.location, QDir::currentPath()+"/testspecs");
-    QCOMPARE(spec.filePath, QDir::currentPath()+"/testspecs/simplespec.xml");
+    QCOMPARE(spec.location, QString(QDir::currentPath()+"/testspecs"));
+    QCOMPARE(spec.filePath, QString(QDir::currentPath()+"/testspecs/simplespec.xml"));
     QVERIFY(spec.read("testdir/spec.xml"));
-    QCOMPARE(spec.location, QDir::currentPath()+"/testdir");
-    QCOMPARE(spec.filePath, QDir::currentPath()+"/testdir/spec.xml");
+    QCOMPARE(spec.location, QString(QDir::currentPath()+"/testdir"));
+    QCOMPARE(spec.filePath, QString(QDir::currentPath()+"/testdir/spec.xml"));
 }
 
 void tst_PluginSpec::resolveDependencies()
