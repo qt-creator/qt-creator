@@ -692,11 +692,11 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
     QDockWidget *m_breakDock = q->breakWindow();
     QDockWidget *m_stackDock = q->stackWindow();
     QDockWidget *m_watchDock = q->watchWindow();
-    QDockWidget *m_snapshotDock = q->snapshotsWindow();
+    QDockWidget *m_snapshotsDock = q->snapshotsWindow();
     QDockWidget *m_threadsDock = q->threadsWindow();
     QDockWidget *m_outputDock = q->outputWindow();
-    //QDockWidget *m_qmlInspectorDock =
-    //    q->dockWidget(Constants::DOCKWIDGET_QML_INSPECTOR);
+    QDockWidget *m_qmlInspectorDock =
+        q->dockWidget(Constants::DOCKWIDGET_QML_INSPECTOR);
     QDockWidget *m_scriptConsoleDock =
         q->dockWidget(Constants::DOCKWIDGET_QML_SCRIPTCONSOLE);
     QDockWidget *m_modulesDock =
@@ -707,41 +707,70 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
         q->dockWidget(Constants::DOCKWIDGET_SOURCE_FILES);
 
     foreach (QDockWidget *dockWidget, m_dockWidgets) {
-        if (dockWidget == m_outputDock /*|| dockWidget == m_consoleDock*/) {
+        if (dockWidget == m_outputDock /*|| dockWidget == m_consoleDock*/)
             q->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
-        } else {
+        else
             q->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
-        }
         dockWidget->hide();
     }
 
-    if ((m_activeDebugLanguages.testFlag(CppLanguage)
+    if (m_activeDebugLanguages.testFlag(Debugger::CppLanguage)
+            && m_activeDebugLanguages.testFlag(Debugger::QmlLanguage)) {
+        // cpp + qml
+        foreach (QDockWidget *dockWidget, m_dockWidgets) {
+            if (dockWidget == m_outputDock)
+                q->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
+            else
+                q->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+
+            if (dockWidget == m_qmlInspectorDock)
+                dockWidget->show();
+            else
+                dockWidget->hide();
+        }
+
+        m_stackDock->show();
+        m_watchDock->show();
+        m_breakDock->show();
+        m_threadsDock->show();
+        m_snapshotsDock->show();
+        m_qmlInspectorDock->show();
+
+        q->splitDockWidget(q->toolBarDockWidget(), m_stackDock, Qt::Vertical);
+        q->splitDockWidget(m_stackDock, m_watchDock, Qt::Horizontal);
+        q->tabifyDockWidget(m_watchDock, m_breakDock);
+        q->tabifyDockWidget(m_watchDock, m_qmlInspectorDock);
+
+    } else {
+
+        if ((m_activeDebugLanguages.testFlag(CppLanguage)
                 && !m_activeDebugLanguages.testFlag(QmlLanguage))
             || m_activeDebugLanguages == AnyLanguage) {
-        m_stackDock->show();
-        m_breakDock->show();
-        m_watchDock->show();
-        m_threadsDock->show();
-        m_snapshotDock->show();
-    } else {
-        m_stackDock->show();
-        m_breakDock->show();
-        m_watchDock->show();
-        m_scriptConsoleDock->show();
+            m_stackDock->show();
+            m_breakDock->show();
+            m_watchDock->show();
+            m_threadsDock->show();
+            m_snapshotsDock->show();
+        } else {
+            m_stackDock->show();
+            m_breakDock->show();
+            m_watchDock->show();
+            m_scriptConsoleDock->show();
+            if (q->qmlInspectorWindow())
+                q->qmlInspectorWindow()->show();
+        }
+        q->splitDockWidget(q->toolBarDockWidget(), m_stackDock, Qt::Vertical);
+        q->splitDockWidget(m_stackDock, m_watchDock, Qt::Horizontal);
+        q->tabifyDockWidget(m_watchDock, m_breakDock);
+        q->tabifyDockWidget(m_watchDock, m_modulesDock);
+        q->tabifyDockWidget(m_watchDock, m_registerDock);
+        q->tabifyDockWidget(m_watchDock, m_threadsDock);
+        q->tabifyDockWidget(m_watchDock, m_sourceFilesDock);
+        q->tabifyDockWidget(m_watchDock, m_snapshotsDock);
+        q->tabifyDockWidget(m_watchDock, m_scriptConsoleDock);
         if (q->qmlInspectorWindow())
-            q->qmlInspectorWindow()->show();
+            q->tabifyDockWidget(m_watchDock, q->qmlInspectorWindow());
     }
-    q->splitDockWidget(q->toolBarDockWidget(), m_stackDock, Qt::Vertical);
-    q->splitDockWidget(m_stackDock, m_watchDock, Qt::Horizontal);
-    q->tabifyDockWidget(m_watchDock, m_breakDock);
-    q->tabifyDockWidget(m_watchDock, m_modulesDock);
-    q->tabifyDockWidget(m_watchDock, m_registerDock);
-    q->tabifyDockWidget(m_watchDock, m_threadsDock);
-    q->tabifyDockWidget(m_watchDock, m_sourceFilesDock);
-    q->tabifyDockWidget(m_watchDock, m_snapshotDock);
-    q->tabifyDockWidget(m_watchDock, m_scriptConsoleDock);
-    if (q->qmlInspectorWindow())
-        q->tabifyDockWidget(m_watchDock, q->qmlInspectorWindow());
 
     q->setTrackingEnabled(true);
 }
