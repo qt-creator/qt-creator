@@ -43,11 +43,8 @@
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljseditor/qmljseditor.h>
 #include <debugger/debuggerconstants.h>
-#include <debugger/debuggerengine.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerplugin.h>
-#include <debugger/debuggerrunner.h>
-#include <debugger/qml/qmlengine.h>
 
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
@@ -105,7 +102,6 @@
 using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSInspector::Internal;
-using namespace Debugger::Internal;
 
 enum {
     MaxConnectionAttempts = 50,
@@ -159,21 +155,23 @@ void InspectorUi::restoreSettings()
     m_settings->restoreSettings(Core::ICore::instance()->settings());
 }
 
-void InspectorUi::setDebuggerEngine(Debugger::QmlEngine *qmlEngine)
+void InspectorUi::setDebuggerEngine(QObject *qmlEngine)
 {
     if (m_qmlEngine && !qmlEngine) {
-        disconnect(m_qmlEngine, SIGNAL(tooltipRequested(QPoint,TextEditor::ITextEditor*,int)),
-                   this, SLOT(showDebuggerTooltip(QPoint,TextEditor::ITextEditor*,int)));
+        disconnect(m_qmlEngine,
+            SIGNAL(tooltipRequested(QPoint,TextEditor::ITextEditor*,int)),
+            this, SLOT(showDebuggerTooltip(QPoint,TextEditor::ITextEditor*,int)));
     }
 
     m_qmlEngine = qmlEngine;
     if (m_qmlEngine) {
-        connect(m_qmlEngine, SIGNAL(tooltipRequested(QPoint,TextEditor::ITextEditor*,int)),
-                this, SLOT(showDebuggerTooltip(QPoint,TextEditor::ITextEditor*,int)));
+        connect(m_qmlEngine,
+            SIGNAL(tooltipRequested(QPoint,TextEditor::ITextEditor*,int)),
+            this, SLOT(showDebuggerTooltip(QPoint,TextEditor::ITextEditor*,int)));
     }
 }
 
-Debugger::QmlEngine *InspectorUi::debuggerEngine() const
+QObject *InspectorUi::debuggerEngine() const
 {
     return m_qmlEngine;
 }

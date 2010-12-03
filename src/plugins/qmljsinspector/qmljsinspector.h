@@ -60,10 +60,6 @@ namespace QmlJS {
     class ModelManagerInterface;
 }
 
-namespace Debugger {
-    class QmlEngine;
-}
-
 namespace QmlJSInspector {
 namespace Internal {
 
@@ -105,8 +101,8 @@ public:
     bool isConnected() const;
     void connected(ClientProxy *clientProxy);
     void disconnected();
-    void setDebuggerEngine(Debugger::QmlEngine *qmlEngine);
-    Debugger::QmlEngine *debuggerEngine() const;
+    void setDebuggerEngine(QObject *qmlEngine);
+    QObject *debuggerEngine() const;
 
 signals:
     void statusMessage(const QString &text);
@@ -157,7 +153,7 @@ private:
 
     InspectorSettings *m_settings;
     ClientProxy *m_clientProxy;
-    Debugger::QmlEngine *m_qmlEngine;
+    QObject *m_qmlEngine;
     QDeclarativeDebugExpressionQuery *m_debugQuery;
     int m_lastSelectedDebugId;
 
