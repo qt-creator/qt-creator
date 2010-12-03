@@ -1489,6 +1489,10 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         errorMessage->clear();
     }
 
+    // Cpp/Qml ui setup
+    m_mainWindow = new DebuggerMainWindow;
+    ExtensionSystem::PluginManager::instance()->addObject(m_mainWindow);
+
     return true;
 }
 
@@ -2795,6 +2799,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     // Debug mode setup
     m_debugMode = new DebugMode(this);
+    m_debugMode->setWidget(m_mainWindow->createContents(m_debugMode));
 
     // Watchers
     connect(m_localsWindow->header(), SIGNAL(sectionResized(int,int,int)),
@@ -2887,14 +2892,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     ActionContainer *debugMenu =
         am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
-
-    // Cpp/Qml ui setup
-    m_mainWindow = new DebuggerMainWindow;
-    m_debugMode->setWidget(m_mainWindow->createContents(m_debugMode));
-    ExtensionSystem::PluginManager::instance()->addObject(m_mainWindow);
-    m_mainWindow->addLanguage(CppLanguage, cppDebuggercontext);
-    m_mainWindow->addLanguage(QmlLanguage, qmlDebuggerContext);
-    m_mainWindow->initialize();
 
     readSettings();
 

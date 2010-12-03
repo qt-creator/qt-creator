@@ -69,6 +69,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Debugger::Constants;
 
 namespace Debugger {
 namespace Internal {
@@ -157,8 +158,6 @@ public:
     QWeakPointer<Project> m_previousProject;
     QWeakPointer<Target> m_previousTarget;
     QWeakPointer<RunConfiguration> m_previousRunConfiguration;
-
-    bool m_initialized;
 };
 
 DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
@@ -172,7 +171,6 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
     , m_previousDebugLanguages(AnyLanguage)
     , m_activeDebugLanguages(AnyLanguage)
     , m_viewsMenu(0)
-    , m_initialized(false)
 {}
 
 void DebuggerMainWindowPrivate::updateUiOnFileListChange()
@@ -241,7 +239,11 @@ using namespace Internal;
 
 DebuggerMainWindow::DebuggerMainWindow()
 {
-  d = new DebuggerMainWindowPrivate(this);
+    d = new DebuggerMainWindowPrivate(this);
+    d->createViewsMenuItems();
+
+    addLanguage(CppLanguage, Context(C_CPPDEBUGGER));
+    addLanguage(QmlLanguage, Context(C_QMLDEBUGGER));
 }
 
 DebuggerMainWindow::~DebuggerMainWindow()
@@ -303,6 +305,8 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
     ICore *core = ICore::instance();
     ActionManager *am = core->actionManager();
     Context globalcontext(Core::Constants::C_GLOBAL);
+    m_viewsMenu = am->actionContainer(Id(Core::Constants::M_WINDOW_VIEWS));
+    QTC_ASSERT(m_viewsMenu, return)
 
     QAction *openMemoryEditorAction = new QAction(this);
     openMemoryEditorAction->setText(tr("Memory..."));
@@ -331,22 +335,16 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
 
 void DebuggerMainWindow::addLanguage(const DebuggerLanguage &languageId, const Context &context)
 {
-    bool activate = (d->m_supportedLanguages == AnyLanguage);
     d->m_supportedLanguages = d->m_supportedLanguages | languageId;
     d->m_languageCount++;
 
     d->m_toolBars.insert(languageId, 0);
     d->m_contextsForLanguage.insert(languageId, context);
-
-    d->updateUiForRunConfiguration(0);
-
-    if (activate)
-        d->updateUi();
 }
 
 void DebuggerMainWindowPrivate::updateUi()
 {
-    if (m_changingUI || !m_initialized || !m_inDebugMode)
+    if (m_changingUI || !m_inDebugMode)
         return;
 
     m_changingUI = true;
@@ -633,20 +631,6 @@ void DebuggerMainWindow::readSettings()
     d->m_activeDebugLanguages = langs;
 }
 
-void DebuggerMainWindow::initialize()
-{
-    d->createViewsMenuItems();
-
-    d->setSimpleDockWidgetArrangement(AnyLanguage);
-    readSettings();
-
-    d->updateUi();
-
-    d->hideInactiveWidgets();
-    setDockActionsVisible(false);
-    d->m_initialized = true;
-}
-
 void DebuggerMainWindowPrivate::resetDebuggerLayout()
 {
     setSimpleDockWidgetArrangement(m_activeDebugLanguages);
@@ -717,8 +701,8 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement
     QDockWidget *m_snapshotDock = q->snapshotsWindow();
     QDockWidget *m_threadsDock = q->threadsWindow();
     QDockWidget *m_outputDock = q->outputWindow();
-    QDockWidget *m_qmlInspectorDock =
-        q->dockWidget(Constants::DOCKWIDGET_QML_INSPECTOR);
+    //QDockWidget *m_qmlInspectorDock =
+    //    q->dockWidget(Constants::DOCKWIDGET_QML_INSPECTOR);
     QDockWidget *m_scriptConsoleDock =
         q->dockWidget(Constants::DOCKWIDGET_QML_SCRIPTCONSOLE);
     QDockWidget *m_modulesDock =
