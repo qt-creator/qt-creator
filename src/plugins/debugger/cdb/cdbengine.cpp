@@ -41,7 +41,6 @@
 #include "cdbexceptionutils.h"
 #include "cdbsymbolpathlisteditor.h"
 #include "debuggeragents.h"
-#include "debuggeruiswitcher.h"
 #include "debuggercore.h"
 #include "dbgwinutils.h"
 
