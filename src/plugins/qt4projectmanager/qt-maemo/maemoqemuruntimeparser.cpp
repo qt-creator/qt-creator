@@ -63,7 +63,7 @@ public:
 
 private:
     struct Port {
-        Port() : port(-1) {}
+        Port() : port(-1), ssh(false) {}
         int port;
         bool ssh;
     };
