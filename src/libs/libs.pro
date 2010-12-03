@@ -8,6 +8,7 @@ SUBDIRS   = \
     extensionsystem \
     utils \
     utils/process_stub.pro \
+    languageutils \
     cplusplus \
     qmljs \
     glsl \
