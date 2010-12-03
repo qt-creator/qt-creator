@@ -1057,8 +1057,7 @@ public slots:
     const CPlusPlus::Snapshot &cppCodeModelSnapshot() const;
 
     void showQtDumperLibraryWarning(const QString &details);
-    DebuggerMainWindow *debuggerMainWindow() const;
-    QWidget *mainWindow() const { return m_mainWindow; }
+    DebuggerMainWindow *mainWindow() const { return m_mainWindow; }
 
     bool isRegisterViewVisible() const;
     bool hasSnapshots() const { return m_snapshotHandler->size(); }
@@ -2583,11 +2582,6 @@ void DebuggerPluginPrivate::showMessage(const QString &msg, int channel, int tim
             m_logWindow->showOutput(channel, msg);
             break;
     }
-}
-
-DebuggerMainWindow *DebuggerPluginPrivate::debuggerMainWindow() const
-{
-    return qobject_cast<DebuggerMainWindow*>(mainWindow());
 }
 
 void DebuggerPluginPrivate::showQtDumperLibraryWarning(const QString &details)
