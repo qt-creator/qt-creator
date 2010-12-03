@@ -237,6 +237,35 @@ void tst_FileFormat::testFileFilter()
         qDebug() << project->files().toSet() << expectedFiles.toSet();
         QCOMPARE(project->files().toSet(), expectedFiles.toSet());
     }
+
+    //
+    // use Files element (1.1)
+    //
+    projectFile = QLatin1String(
+            "import QmlProject 1.1\n"
+            "Project {\n"
+            "  Files {\n"
+            "    filter: \"image.gif\"\n"
+            "  }\n"
+            "}\n");
+
+    {
+        QDeclarativeEngine engine;
+        QDeclarativeComponent component(&engine);
+        component.setData(projectFile.toUtf8(), QUrl());
+        if (!component.isReady())
+            qDebug() << component.errorString();
+        QVERIFY(component.isReady());
+
+        QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
+        QVERIFY(project);
+
+        project->setSourceDirectory(testDataDir);
+
+        QStringList expectedFiles(QStringList() << testDataDir + "/image.gif");
+        qDebug() << project->files().toSet() << expectedFiles.toSet();
+        QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+    }
 }
 
 void tst_FileFormat::testMatchesFile()
