@@ -1126,11 +1126,9 @@ void CppCodeCompletion::globalCompletion(Scope *currentScope)
         completeNamespace(b);
 
     addKeywords();
-    addSnippets();
-    qStableSort(m_completions.begin(), m_completions.end(), completionItemLessThan);
-
     addMacros(QLatin1String("<configuration>"), context.snapshot());
     addMacros(context.thisDocument()->fileName(), context.snapshot());
+    addSnippets();
 }
 
 static Scope *enclosingNonTemplateScope(Symbol *symbol)
