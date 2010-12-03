@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<snippets>
+<snippet group="Text" trigger="global" id="text_global" complement="example">// This is available in all editors.</snippet>
+</snippets>

@@ -100,10 +100,14 @@ int SnippetsCollection::Hint::index() const
 
 // SnippetsCollection
 SnippetsCollection::SnippetsCollection() :
-    m_builtInSnippetsPath(QLatin1String(":/texteditor/snippets/")),
     m_userSnippetsPath(Core::ICore::instance()->userResourcePath() + QLatin1String("/snippets/")),
-    m_snippetsFileName(QLatin1String("snippets.xml"))
+    m_userSnippetsFile(QLatin1String("snippets.xml"))
 {
+    QDir dir(Core::ICore::instance()->resourcePath() + QLatin1String("/snippets/"));
+    dir.setNameFilters(QStringList(QLatin1String("*.xml")));
+    foreach (const QFileInfo &fi, dir.entryInfoList())
+        m_builtInSnippetsFiles.append(fi.absoluteFilePath());
+
     connect(Core::ICore::instance(), SIGNAL(coreOpened()), this, SLOT(identifyGroups()));
 }
 
@@ -261,10 +265,11 @@ Snippet SnippetsCollection::revertedSnippet(int index, const QString &groupId) c
     const Snippet &candidate = snippet(index, groupId);
     Q_ASSERT(candidate.isBuiltIn());
 
-    const QList<Snippet> &builtIn =
-        readXML(m_builtInSnippetsPath + m_snippetsFileName, candidate.id());
-    if (builtIn.size() == 1)
-        return builtIn.at(0);
+    foreach (const QString &fileName, m_builtInSnippetsFiles) {
+        const QList<Snippet> &builtIn = readXML(fileName, candidate.id());
+        if (builtIn.size() == 1)
+            return builtIn.at(0);
+    }
     return Snippet(groupId);
 }
 
@@ -272,7 +277,7 @@ void SnippetsCollection::reset(const QString &groupId)
 {
     clearSnippets(groupIndex(groupId));
 
-    const QList<Snippet> &builtInSnippets = readXML(m_builtInSnippetsPath + m_snippetsFileName);
+    const QList<Snippet> &builtInSnippets = allBuiltInSnippets();
     foreach (const Snippet &snippet, builtInSnippets)
         if (groupId == snippet.groupId())
             insertSnippet(snippet);
@@ -282,12 +287,12 @@ void SnippetsCollection::reload()
 {
     clearSnippets();
 
-    const QList<Snippet> &builtInSnippets = readXML(m_builtInSnippetsPath + m_snippetsFileName);
+    const QList<Snippet> &builtInSnippets = allBuiltInSnippets();
     QHash<QString, Snippet> activeBuiltInSnippets;
     foreach (const Snippet &snippet, builtInSnippets)
         activeBuiltInSnippets.insert(snippet.id(), snippet);
 
-    const QList<Snippet> &userSnippets = readXML(m_userSnippetsPath + m_snippetsFileName);
+    const QList<Snippet> &userSnippets = readXML(m_userSnippetsPath + m_userSnippetsFile);
     foreach (const Snippet &snippet, userSnippets) {
         if (snippet.isBuiltIn())
             // This user snippet overrides the corresponding built-in snippet.
@@ -302,7 +307,7 @@ void SnippetsCollection::reload()
 void SnippetsCollection::synchronize()
 {
     if (QFile::exists(m_userSnippetsPath) || QDir().mkpath(m_userSnippetsPath)) {
-        QFile file(m_userSnippetsPath + m_snippetsFileName);
+        QFile file(m_userSnippetsPath + m_userSnippetsFile);
         if (file.open(QFile::WriteOnly | QFile::Truncate)) {
             QXmlStreamWriter writer(&file);
             writer.setAutoFormatting(true);
@@ -387,6 +392,14 @@ QList<Snippet> SnippetsCollection::readXML(const QString &fileName, const QStrin
     }
 
     return snippets;
+}
+
+QList<Snippet> SnippetsCollection::allBuiltInSnippets() const
+{
+    QList<Snippet> builtInSnippets;
+    foreach (const QString &fileName, m_builtInSnippetsFiles)
+        builtInSnippets.append(readXML(fileName));
+    return builtInSnippets;
 }
 
 int SnippetsCollection::groupIndex(const QString &groupId) const

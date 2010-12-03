@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<snippets>
+<snippet group="QML" trigger="property" id="qml_property">property $type$ $name$: $value$</snippet>
+<snippet group="QML" trigger="Item" id="qml_item">Item {
+    id: $name$
+}</snippet>
+<snippet group="QML" trigger="BorderImage" id="qml_borderimage">BorderImage {
+    id: $name$
+    source: "$file$"
+    width: $100$; height: $100$
+    border.left: $5$; border.top: $5$
+    border.right: $5$; border.bottom: $5$
+}</snippet>
+<snippet  group="QML" trigger="Image" id="qml_image">Image {
+    id: $name$
+    source: "$file$"
+}</snippet>
+<snippet group="QML" trigger="Text" id="qml_text">Text {
+    id: $name$
+    text: "$text$"
+}</snippet>
+<snippet group="QML" trigger="states" id="qml_states">states: [
+    State {
+        name: "$name$"
+        PropertyChanges {
+            target: $name$
+            $$
+        }
+    }
+]</snippet>
+<snippet group="QML" trigger="State" id="qml_state">State {
+    name: "$name$"
+    PropertyChanges {
+        target: $name$
+        $$
+    }
+}</snippet>
+<snippet group="QML" trigger="transitions" id="qml_transitions">transitions: [
+    Transition {
+        from: "$name$"
+        to: "$name$"
+        $$
+     }
+]</snippet>
+<snippet group="QML" trigger="Transition" id="qml_transition">Transition {
+    from: "$name$"
+    to: "$name$"
+    $$
+}</snippet>
+<snippet group="QML" trigger="PropertyChanges" id="qml_propertychanges">PropertyChanges {
+    target: $name$
+    $$
+}</snippet>
+<snippet group="QML" trigger="NumberAnimation" id="qml_numberanimationwithtargets" complement="with targets">NumberAnimation { targets: [$name$]; properties: "$name$"; duration: $200$ }</snippet>
+<snippet group="QML" trigger="NumberAnimation" id="qml_numberanimationwithtarget" complement="with target">NumberAnimation { target: $name$; property: "$name$"; to: $value$; duration: $200$ }</snippet>
+<snippet group="QML" trigger="PropertyAction" id="qml_propertyactionwithtargets" complement="with targets">PropertyAction { targets: [$name$]; properties: "$name$" }</snippet>
+<snippet group="QML" trigger="PropertyAction" id="qml_propertyactionwithtarget" complement="with target">PropertyAction { target: $name$; property: "$name$"; value: $value$ }</snippet>
+<snippet group="QML" trigger="PauseAnimation" id="qml_pauseanimation">PauseAnimation { duration: $200$ }</snippet>
+<snippet group="QML" trigger="ColorAnimation" id="qml_coloranimation">ColorAnimation { from: $"white"$; to: $"black"$; duration: $200$ }</snippet>
+</snippets>

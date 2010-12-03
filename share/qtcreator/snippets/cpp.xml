@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<snippets>
+<snippet group="C++" trigger="class" id="cpp_genericclass">class $name$
+{
+public:
+    $name$() {}
+};</snippet>
+<snippet group="C++" trigger="class" id="cpp_qobjectclass" complement="derived from QObject">class $name$ : public QObject
+{
+    Q_OBJECT
+public:
+    $name$() {}
+    virtual ~$name$() {}
+};</snippet>
+<snippet group="C++" trigger="class" id="cpp_qwidgetclass" complement="derived from QWidget">class $name$ : public QWidget
+{
+    Q_OBJECT
+public:
+    $name$() {}
+    virtual ~$name$() {}
+};</snippet>
+<snippet group="C++" trigger="class" id="cpp_classtemplate" complement="template">template &lt;typename $T$&gt;
+class $name$
+{
+public:
+    $name$() {}
+};</snippet>
+<snippet group="C++" trigger="do" id="cpp_do">do {
+
+} while ($condition$);</snippet>
+<snippet group="C++" trigger="else" id="cpp_else" >else {
+
+}</snippet>
+<snippet group="C++" trigger="else" id="cpp_elsewithif" complement="with if">else if ($condition$) {
+
+}</snippet>
+<snippet group="C++" trigger="for" id="cpp_for">for (int $var$ = 0; $var$ &lt; $total$; ++$var$) {
+
+}</snippet>
+<snippet group="C++" trigger="foreach" id="cpp_foreach">foreach ($var$, $container$) {
+
+}</snippet>
+<snippet group="C++" trigger="if" id="cpp_if">if ($condition$) {
+
+}</snippet>
+<snippet group="C++" trigger="if" id="cpp_ifandelse" complement="and else">if ($condition$) {
+
+} else {
+
+}</snippet>
+<snippet group="C++" trigger="namespace" id="cpp_namespace">namespace $name$ {
+
+}</snippet>
+<snippet group="C++" trigger="try" id="cpp_trycatch" complement="and catch">try {
+
+} catch (...) {
+
+}</snippet>
+<snippet group="C++" trigger="using" id="cpp_usingnamespace" complement="namespace">using namespace $name$;</snippet>
+<snippet group="C++" trigger="while" id="cpp_while">while ($condition$) {
+
+}</snippet>
+</snippets>
