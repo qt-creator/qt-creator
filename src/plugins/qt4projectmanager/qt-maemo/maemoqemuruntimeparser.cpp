@@ -29,8 +29,10 @@
 #include "maemoqemuruntimeparser.h"
 
 #include "maemoglobal.h"
+#include "maemoqemusettings.h"
 
 #include <qt4projectmanager/qtversionmanager.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QProcess>
@@ -68,10 +70,11 @@ private:
 
     void handleTargetTag(QString &runtimeName);
     MaemoQemuRuntime handleRuntimeTag();
-    QProcessEnvironment handleEnvironmentTag();
-    QPair<QString, QString> handleVariableTag();
+    void handleEnvironmentTag(MaemoQemuRuntime &runtime);
+    void handleVariableTag(MaemoQemuRuntime &runtime);
     QList<Port> handleTcpPortListTag();
     Port handlePortTag();
+    MaemoQemuSettings::OpenGlMode openGlTagToEnum(const QString &tag) const;
 };
 
 MaemoQemuRuntimeParser::MaemoQemuRuntimeParser(const QString &madInfoOutput,
@@ -220,13 +223,13 @@ void MaemoQemuRuntimeParserV1::setEnvironment(MaemoQemuRuntime *runTime,
 {
     QString remainingEnvSpec = envSpec;
     QString currentKey;
-    runTime->m_environment = QProcessEnvironment::systemEnvironment();
     while (true) {
         const int nextEqualsSignPos
             = remainingEnvSpec.indexOf(QLatin1Char('='));
         if (nextEqualsSignPos == -1) {
             if (!currentKey.isEmpty())
-                runTime->m_environment.insert(currentKey, remainingEnvSpec);
+                runTime->m_normalVars << MaemoQemuRuntime::Variable(currentKey,
+                    remainingEnvSpec);
             break;
         }
         const int keyStartPos
@@ -236,7 +239,7 @@ void MaemoQemuRuntimeParserV1::setEnvironment(MaemoQemuRuntime *runTime,
             const int valueEndPos
                 = remainingEnvSpec.lastIndexOf(QRegExp(QLatin1String("\\S")),
                     qMax(0, keyStartPos - 1)) + 1;
-            runTime->m_environment.insert(currentKey,
+            runTime->m_normalVars << MaemoQemuRuntime::Variable(currentKey,
                 remainingEnvSpec.left(valueEndPos));
         }
         currentKey = remainingEnvSpec.mid(keyStartPos,
@@ -316,7 +319,7 @@ MaemoQemuRuntime MaemoQemuRuntimeParserV2::handleRuntimeTag()
         } else if (m_madInfoReader.name() == QLatin1String("args")) {
             runtime.m_args = m_madInfoReader.readElementText();
         } else if (m_madInfoReader.name() == QLatin1String("environment")) {
-            runtime.m_environment = handleEnvironmentTag();
+            handleEnvironmentTag(runtime);
         } else if (m_madInfoReader.name() == QLatin1String("tcpportmap")) {
             const QList<Port> &ports = handleTcpPortListTag();
             foreach (const Port &port, ports) {
@@ -332,49 +335,59 @@ MaemoQemuRuntime MaemoQemuRuntimeParserV2::handleRuntimeTag()
     return runtime;
 }
 
-QProcessEnvironment MaemoQemuRuntimeParserV2::handleEnvironmentTag()
+void MaemoQemuRuntimeParserV2::handleEnvironmentTag(MaemoQemuRuntime &runtime)
 {
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    while (m_madInfoReader.readNextStartElement()) {
-        const QPair<QString, QString> &var = handleVariableTag();
-        if (!var.first.isEmpty())
-            env.insert(var.first, var.second);
-    }
+    while (m_madInfoReader.readNextStartElement())
+        handleVariableTag(runtime);
+
 #ifdef Q_OS_WIN
     const QString root = QDir::toNativeSeparators(m_maddeRoot)
         + QLatin1Char('/');
     const QLatin1Char colon(';');
     const QLatin1String key("PATH");
-    env.insert(key, root + QLatin1String("bin") + colon + env.value(key));
-    env.insert(key, root + QLatin1String("madlib") + colon + env.value(key));
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    runtime.m_normalVars << MaemoQemuRuntime::Variable(key,
+        root + QLatin1String("bin") + colon + env.value(key));
+    runtime.m_normalVars << MaemoQemuRuntime::Variable(key,
+        root + QLatin1String("madlib") + colon + env.value(key));
 #endif
-    return env;
 }
 
-QPair<QString, QString> MaemoQemuRuntimeParserV2::handleVariableTag()
+void MaemoQemuRuntimeParserV2::handleVariableTag(MaemoQemuRuntime &runtime)
 {
-    QPair<QString, QString> var;
     if (m_madInfoReader.name() != QLatin1String("variable")) {
         m_madInfoReader.skipCurrentElement();
-        return var;
+        return;
     }
 
     const bool isGlBackend = m_madInfoReader.attributes().value(QLatin1String("purpose"))
         == QLatin1String("glbackend");
+    QString varName;
+    QString varValue;
     while (m_madInfoReader.readNextStartElement()) {
         const QXmlStreamAttributes &attrs = m_madInfoReader.attributes();
         if (m_madInfoReader.name() == QLatin1String("name")) {
-            var.first = m_madInfoReader.readElementText();
+            varName = m_madInfoReader.readElementText();
         } else if (m_madInfoReader.name() == QLatin1String("value")
-                   && attrs.value(QLatin1String("set")) != QLatin1String("false")
-                   && (!isGlBackend || attrs.value(QLatin1String("option"))
-                   == QLatin1String("software-rendering"))) {
-            var.second = m_madInfoReader.readElementText();
+                   && attrs.value(QLatin1String("set")) != QLatin1String("false")) {
+            varValue = m_madInfoReader.readElementText();
+            if (isGlBackend) {
+                MaemoQemuSettings::OpenGlMode openGlMode
+                    = openGlTagToEnum(attrs.value(QLatin1String("option")).toString());
+                runtime.m_openGlBackendVarValues.insert(openGlMode, varValue);
+            }
         } else {
             m_madInfoReader.skipCurrentElement();
         }
     }
-    return var;
+
+    if (varName.isEmpty())
+        return;
+    if (isGlBackend) {
+        runtime.m_openGlBackendVarName = varName;
+    } else {
+        runtime.m_normalVars << MaemoQemuRuntime::Variable(varName, varValue);
+    }
 }
 
 QList<MaemoQemuRuntimeParserV2::Port> MaemoQemuRuntimeParserV2::handleTcpPortListTag()
@@ -402,6 +415,17 @@ MaemoQemuRuntimeParserV2::Port MaemoQemuRuntimeParserV2::handlePortTag()
         }
     }
     return port;
+}
+
+MaemoQemuSettings::OpenGlMode MaemoQemuRuntimeParserV2::openGlTagToEnum(const QString &tag) const
+{
+    if (tag == QLatin1String("hardware-acceleration"))
+        return MaemoQemuSettings::HardwareAcceleration;
+    if (tag == QLatin1String("software-rendering"))
+        return MaemoQemuSettings::SoftwareRendering;
+    if (tag == QLatin1String("autodetect"))
+        return MaemoQemuSettings::AutoDetect;
+    QTC_ASSERT(false, return MaemoQemuSettings::AutoDetect);
 }
 
 }   // namespace Internal

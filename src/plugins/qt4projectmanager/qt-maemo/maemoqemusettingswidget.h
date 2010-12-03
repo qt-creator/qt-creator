@@ -38,76 +38,35 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#ifndef MAEMOQEMUSETTINGSWIDGET_H
+#define MAEMOQEMUSETTINGSWIDGET_H
 
-#include "maemosettingspage.h"
+#include <QtGui/QWidget>
 
-#include "maemosettingswidget.h"
-
-#include <projectexplorer/projectexplorerconstants.h>
-
-#include <QtCore/QCoreApplication>
+QT_BEGIN_NAMESPACE
+namespace Ui {
+    class MaemoQemuSettingsWidget;
+}
+QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoSettingsPage::MaemoSettingsPage(QObject *parent)
-    : Core::IOptionsPage(parent)
+class MaemoQemuSettingsWidget : public QWidget
 {
-}
+    Q_OBJECT
 
-MaemoSettingsPage::~MaemoSettingsPage()
-{
-}
+public:
+    explicit MaemoQemuSettingsWidget(QWidget *parent = 0);
+    ~MaemoQemuSettingsWidget();
+    void saveSettings();
+    QString keywords() const;
 
-QString MaemoSettingsPage::id() const
-{
-    return QLatin1String("ZZ.Maemo Device Configurations");
-}
-
-QString MaemoSettingsPage::displayName() const
-{
-    return tr("Maemo Device Configurations");
-}
-
-QString MaemoSettingsPage::category() const
-{
-    using namespace ProjectExplorer;
-    return QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-}
-
-QString MaemoSettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("ProjectExplorer",
-        ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-}
-
-QIcon MaemoSettingsPage::categoryIcon() const
-{
-    using namespace ProjectExplorer;
-    return QIcon(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
-}
-
-bool MaemoSettingsPage::matches(const QString &searchKeyWord) const
-{
-    return m_keywords.contains(searchKeyWord, Qt::CaseInsensitive);
-}
-
-QWidget *MaemoSettingsPage::createPage(QWidget *parent)
-{
-    m_widget = new MaemoSettingsWidget(parent);
-    if (m_keywords.isEmpty())
-        m_keywords = m_widget->searchKeywords();
-    return m_widget;
-}
-
-void MaemoSettingsPage::apply()
-{
-    m_widget->saveSettings();
-}
-
-void MaemoSettingsPage::finish()
-{
-}
+private:
+    Ui::MaemoQemuSettingsWidget *ui;
+};
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
+
+#endif // MAEMOQEMUSETTINGSWIDGET_H

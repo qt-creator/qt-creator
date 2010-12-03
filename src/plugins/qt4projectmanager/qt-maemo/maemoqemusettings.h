@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-** This file is part of the Qt Assistant of the Qt Toolkit.
+** This file is part of Qt Creator.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** No Commercial Usage
@@ -28,50 +28,31 @@
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at qt-info@nokia.com.
 **
-**
-**
-**
-**
-**
-**
-**
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#ifndef MAEMOQEMUSETTINGS_H
+#define MAEMOQEMUSETTINGS_H
 
-#ifndef MAEMOSETTINGSPAGE_H
-#define MAEMOSETTINGSPAGE_H
-
-#include <coreplugin/dialogs/ioptionspage.h>
-
-namespace Qt4ProjectManager{
+namespace Qt4ProjectManager {
 namespace Internal {
 
-class MaemoSettingsWidget;
-
-class MaemoSettingsPage : public Core::IOptionsPage
+class MaemoQemuSettings
 {
-    Q_OBJECT
 public:
-    MaemoSettingsPage(QObject *parent);
-    ~MaemoSettingsPage();
+    enum OpenGlMode { HardwareAcceleration, SoftwareRendering, AutoDetect };
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QString category() const;
-    virtual QString displayCategory() const;
-    virtual QIcon categoryIcon() const;
-    virtual bool matches(const QString &searchKeyWord) const;
-    virtual QWidget *createPage(QWidget *parent);
-    virtual void apply();
-    virtual void finish();
+    static OpenGlMode openGlMode();
+    static void setOpenGlMode(OpenGlMode openGlMode);
 
 private:
-    QString m_keywords;
-    MaemoSettingsWidget *m_widget;
+    MaemoQemuSettings();
+
+    static bool m_initialized;
+    static OpenGlMode m_openGlMode;
 };
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // MAEMOSETTINGSPAGE_H
+#endif // MAEMOQEMUSETTINGS_H

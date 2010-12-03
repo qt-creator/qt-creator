@@ -41,7 +41,7 @@
 #include "maemomanager.h"
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
-#include "maemosettingspage.h"
+#include "maemosettingspages.h"
 #include "maemotoolchain.h"
 
 #include <coreplugin/coreconstants.h>
@@ -159,9 +159,9 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
     }
 
     connect(addDevConfLabel, SIGNAL(linkActivated(QString)), this,
-        SLOT(showSettingsDialog(QString)));
+        SLOT(showDeviceConfigurationsDialog(QString)));
     connect(debuggerConfLabel, SIGNAL(linkActivated(QString)), this,
-        SLOT(showSettingsDialog(QString)));
+        SLOT(showDeviceConfigurationsDialog(QString)));
     connect(m_argsLineEdit, SIGNAL(textEdited(QString)), this,
         SLOT(argumentsEdited(QString)));
     connect(m_debugCppOnlyButton, SIGNAL(toggled(bool)), this,
@@ -336,10 +336,11 @@ void MaemoRunConfigurationWidget::handleToolchainChanged()
     m_runConfiguration->updateFactoryState();
 }
 
-void MaemoRunConfigurationWidget::showSettingsDialog(const QString &link)
+void MaemoRunConfigurationWidget::showDeviceConfigurationsDialog(const QString &link)
 {
     if (link == QLatin1String("deviceconfig")) {
-        MaemoSettingsPage *page = MaemoManager::instance().settingsPage();
+        MaemoDeviceConfigurationsSettingsPage *page
+            = MaemoManager::instance().deviceConfigurationsSettingsPage();
         Core::ICore::instance()->showOptionsDialog(page->category(), page->id());
     } else if (link == QLatin1String("debugger")) {
         Core::ICore::instance()->showOptionsDialog(QLatin1String("O.Debugger"),

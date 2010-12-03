@@ -7,8 +7,8 @@ HEADERS += \
     $$PWD/maemorunconfigurationwidget.h \
     $$PWD/maemoruncontrol.h \
     $$PWD/maemorunfactories.h \
-    $$PWD/maemosettingspage.h \
-    $$PWD/maemosettingswidget.h \
+    $$PWD/maemosettingspages.h \
+    $$PWD/maemodeviceconfigurationssettingswidget.h \
     $$PWD/maemosshconfigdialog.h \
     $$PWD/maemotoolchain.h \
     $$PWD/maemopackagecreationstep.h \
@@ -43,7 +43,9 @@ HEADERS += \
     $$PWD/maemopublishingresultpagefremantlefree.h \
     $$PWD/maemopublisherfremantlefree.h \
     $$PWD/maemoqemuruntime.h \
-    qt-maemo/maemoqemuruntimeparser.h
+    $$PWD/maemoqemuruntimeparser.h \
+    $$PWD/maemoqemusettingswidget.h \
+    $$PWD/maemoqemusettings.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -53,8 +55,8 @@ SOURCES += \
     $$PWD/maemorunconfigurationwidget.cpp \
     $$PWD/maemoruncontrol.cpp \
     $$PWD/maemorunfactories.cpp \
-    $$PWD/maemosettingspage.cpp \
-    $$PWD/maemosettingswidget.cpp \
+    $$PWD/maemosettingspages.cpp \
+    $$PWD/maemodeviceconfigurationssettingswidget.cpp \
     $$PWD/maemosshconfigdialog.cpp \
     $$PWD/maemotoolchain.cpp \
     $$PWD/maemopackagecreationstep.cpp \
@@ -87,11 +89,13 @@ SOURCES += \
     $$PWD/maemopublishingwizardfremantlefree.cpp \
     $$PWD/maemopublishingresultpagefremantlefree.cpp \
     $$PWD/maemopublisherfremantlefree.cpp \
-    qt-maemo/maemoqemuruntimeparser.cpp
+    $$PWD/maemoqemuruntimeparser.cpp \
+    $$PWD/maemoqemusettingswidget.cpp \
+    $$PWD/maemoqemusettings.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \
-    $$PWD/maemosettingswidget.ui \
+    $$PWD/maemodeviceconfigurationssettingswidget.ui \
     $$PWD/maemosshconfigdialog.ui \
     $$PWD/maemopackagecreationwidget.ui \
     $$PWD/maemodeploystepwidget.ui \
@@ -100,6 +104,7 @@ FORMS += \
     $$PWD/maemopublishingbuildsettingspagefremantlefree.ui \
     $$PWD/maemopublishingfileselectiondialog.ui \
     $$PWD/maemopublishinguploadsettingspagefremantlefree.ui \
-    $$PWD/maemopublishingresultpagefremantlefree.ui
+    $$PWD/maemopublishingresultpagefremantlefree.ui \
+    $$PWD/maemoqemusettingswidget.ui
 
 RESOURCES += $$PWD/qt-maemo.qrc

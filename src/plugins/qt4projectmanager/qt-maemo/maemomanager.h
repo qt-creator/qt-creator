@@ -46,8 +46,9 @@ class MaemoPackageCreationFactory;
 class MaemoPublishingWizardFactoryFremantleFree;
 class MaemoRunControlFactory;
 class MaemoRunConfigurationFactory;
-class MaemoSettingsPage;
+class MaemoDeviceConfigurationsSettingsPage;
 class MaemoQemuManager;
+class MaemoQemuSettingsPage;
 
 class MaemoManager : public QObject
 {
@@ -61,7 +62,8 @@ public:
     bool isValidMaemoQtVersion(const Qt4ProjectManager::QtVersion *version) const;
     ToolChain *maemoToolChain(const Qt4ProjectManager::QtVersion *version) const;
 
-    MaemoSettingsPage *settingsPage() const { return m_settingsPage; }
+    MaemoDeviceConfigurationsSettingsPage *deviceConfigurationsSettingsPage() const { return m_deviceConfigurationsSettingsPage; }
+    MaemoQemuSettingsPage *qemuSettingsPage() const { return m_qemuSettingsPage; }
 
 private:
     static MaemoManager *m_instance;
@@ -70,7 +72,8 @@ private:
     MaemoRunConfigurationFactory *m_runConfigurationFactory;
     MaemoPackageCreationFactory *m_packageCreationFactory;
     MaemoDeployStepFactory *m_deployStepFactory;
-    MaemoSettingsPage *m_settingsPage;
+    MaemoDeviceConfigurationsSettingsPage *m_deviceConfigurationsSettingsPage;
+    MaemoQemuSettingsPage *m_qemuSettingsPage;
     MaemoQemuManager *m_qemuRuntimeManager;
     MaemoPublishingWizardFactoryFremantleFree *m_publishingFactoryFremantleFree;
 };

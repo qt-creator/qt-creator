@@ -31,6 +31,7 @@
 
 #include "maemoglobal.h"
 #include "maemoqemuruntimeparser.h"
+#include "maemoqemusettings.h"
 #include "maemorunconfiguration.h"
 #include "maemotoolchain.h"
 #include "qtversionmanager.h"
@@ -353,7 +354,7 @@ void MaemoQemuManager::startRuntime()
 
     m_runningQtId = version->uniqueId();
     const MaemoQemuRuntime rt = m_runtimes.value(version->uniqueId());
-    m_qemuProcess->setProcessEnvironment(rt.m_environment);
+    m_qemuProcess->setProcessEnvironment(rt.environment());
     m_qemuProcess->setWorkingDirectory(rt.m_root);
     m_qemuProcess->start(rt.m_bin % QLatin1Char(' ') % rt.m_args);
     if (!m_qemuProcess->waitForStarted())
@@ -415,9 +416,23 @@ void MaemoQemuManager::qemuStatusChanged(QemuStatus status, const QString &error
         case QemuFailedToStart:
             message = tr("Qemu failed to start: %1").arg(error);
             break;
-        case QemuCrashed:
-            message = tr("Qemu crashed");
+        case QemuCrashed: {
+            const MaemoQemuSettings::OpenGlMode openGlMode
+                = MaemoQemuSettings::openGlMode();
+            message = tr("Qemu crashed.");
+
+            // TODO: Provide a link to the settings page (how?).
+            if (openGlMode == MaemoQemuSettings::HardwareAcceleration) {
+                message += tr("\nYou have configured Qemu to use OpenGL "
+                    "hardware acceleration, which might not be supported by "
+                    "your system. You could try using software rendering instead.");
+            } else if (openGlMode == MaemoQemuSettings::AutoDetect) {
+                message += tr("\nQemu is currently configured to auto-detect the "
+                    "OpenGl mode, which is known to not work in some cases."
+                    "You might want to use software rendering instead");
+            }
             break;
+        }
         case QemuFinished:
             message = error;
             break;

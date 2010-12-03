@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MaemoSettingsWidget</class>
- <widget class="QWidget" name="MaemoSettingsWidget">
+ <class>MaemoDeviceConfigurationsSettingsWidget</class>
+ <widget class="QWidget" name="MaemoDeviceConfigurationsSettingsWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -409,7 +409,7 @@
   <connection>
    <sender>deviceButton</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>deviceTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -425,7 +425,7 @@
   <connection>
    <sender>hostLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>hostNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -441,7 +441,7 @@
   <connection>
    <sender>userLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>userNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -457,7 +457,7 @@
   <connection>
    <sender>pwdLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>passwordEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -473,7 +473,7 @@
   <connection>
    <sender>simulatorButton</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>deviceTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -489,7 +489,7 @@
   <connection>
    <sender>addConfigButton</sender>
    <signal>clicked()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>addConfig()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -505,7 +505,7 @@
   <connection>
    <sender>removeConfigButton</sender>
    <signal>clicked()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>deleteConfig()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -521,7 +521,7 @@
   <connection>
    <sender>passwordButton</sender>
    <signal>toggled(bool)</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>authenticationTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -537,7 +537,7 @@
   <connection>
    <sender>keyFileLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -553,7 +553,7 @@
   <connection>
    <sender>keyFileLineEdit</sender>
    <signal>browsingFinished()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -569,7 +569,7 @@
   <connection>
    <sender>testConfigButton</sender>
    <signal>clicked()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>testConfig()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -585,7 +585,7 @@
   <connection>
    <sender>deployKeyButton</sender>
    <signal>clicked()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>deployKey()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -601,7 +601,7 @@
   <connection>
    <sender>keyButton</sender>
    <signal>toggled(bool)</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>authenticationTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -617,7 +617,7 @@
   <connection>
    <sender>nameLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>configNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -633,7 +633,7 @@
   <connection>
    <sender>generateKeyButton</sender>
    <signal>clicked()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>showGenerateSshKeyDialog()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -649,7 +649,7 @@
   <connection>
    <sender>timeoutSpinBox</sender>
    <signal>editingFinished()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -665,7 +665,7 @@
   <connection>
    <sender>timeoutSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -681,7 +681,7 @@
   <connection>
    <sender>sshPortSpinBox</sender>
    <signal>editingFinished()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>sshPortEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -697,7 +697,7 @@
   <connection>
    <sender>sshPortSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>sshPortEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -713,7 +713,7 @@
   <connection>
    <sender>showPasswordCheckBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>showPassword(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -729,7 +729,7 @@
   <connection>
    <sender>portsLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>handleFreePortsChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -745,7 +745,7 @@
   <connection>
    <sender>remoteProcessesButton</sender>
    <signal>clicked()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
+   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
    <slot>showRemoteProcesses()</slot>
    <hints>
     <hint type="sourcelabel">

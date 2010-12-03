@@ -76,7 +76,7 @@ public:
 private slots:
     void runConfigurationEnabledChange(bool enabled);
     void argumentsEdited(const QString &args);
-    void showSettingsDialog(const QString &link);
+    void showDeviceConfigurationsDialog(const QString &link);
     void updateTargetInformation();
     void handleCurrentDeviceConfigChanged();
     void addMount();

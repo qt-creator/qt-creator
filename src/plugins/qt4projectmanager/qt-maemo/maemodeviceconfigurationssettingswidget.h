@@ -32,8 +32,8 @@
 **
 ****************************************************************************/
 
-#ifndef MAEMOSETTINGSWIDGET_H
-#define MAEMOSETTINGSWIDGET_H
+#ifndef MAEMODEVICECONFIGURATIONSSETTINGSWIDGET_H
+#define MAEMODEVICECONFIGURATIONSSETTINGSWIDGET_H
 
 #include "maemodeviceconfigurations.h"
 
@@ -45,7 +45,7 @@
 QT_BEGIN_NAMESPACE
 class QLineEdit;
 
-class Ui_MaemoSettingsWidget;
+class Ui_MaemoDeviceConfigurationsSettingsWidget;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -57,12 +57,12 @@ namespace Internal {
 
 class NameValidator;
 
-class MaemoSettingsWidget : public QWidget
+class MaemoDeviceConfigurationsSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    MaemoSettingsWidget(QWidget *parent);
-    ~MaemoSettingsWidget();
+    MaemoDeviceConfigurationsSettingsWidget(QWidget *parent);
+    ~MaemoDeviceConfigurationsSettingsWidget();
 
     void saveSettings();
     QString searchKeywords() const;
@@ -105,7 +105,7 @@ private:
     void fillInValues();
     void updatePortsWarningLabel();
 
-    Ui_MaemoSettingsWidget *m_ui;
+    Ui_MaemoDeviceConfigurationsSettingsWidget *m_ui;
     QList<MaemoDeviceConfig> m_devConfs;
     MaemoDeviceConfig m_lastConfigHW;
     MaemoDeviceConfig m_lastConfigSim;
@@ -117,4 +117,4 @@ private:
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // MAEMOSETTINGSWIDGET_H
+#endif // MAEMODEVICECONFIGURATIONSSETTINGSWIDGET_H

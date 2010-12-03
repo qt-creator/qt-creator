@@ -30,7 +30,11 @@
 #define MAEMOQEMURUNTIME_H
 
 #include "maemodeviceconfigurations.h"
+#include "maemoqemusettings.h"
 
+#include <QtCore/QHash>
+#include <QtCore/QList>
+#include <QtCore/QPair>
 #include <QtCore/QProcessEnvironment>
 #include <QtCore/QString>
 
@@ -47,10 +51,22 @@ enum QemuStatus {
 
 struct MaemoQemuRuntime
 {
+    typedef QPair<QString, QString> Variable;
+
     MaemoQemuRuntime() {}
     MaemoQemuRuntime(const QString &root) : m_root(root) {}
     bool isValid() const {
         return !m_bin.isEmpty();
+    }
+    QProcessEnvironment environment() const {
+        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+        foreach (const Variable &var, m_normalVars)
+            env.insert(var.first, var.second);
+        QHash<MaemoQemuSettings::OpenGlMode, QString>::ConstIterator it
+            = m_openGlBackendVarValues.find(MaemoQemuSettings::openGlMode());
+        if (it != m_openGlBackendVarValues.constEnd())
+            env.insert(m_openGlBackendVarName, it.value());
+        return env;
     }
 
     QString m_name;
@@ -59,8 +75,10 @@ struct MaemoQemuRuntime
     QString m_args;
     QString m_sshPort;
     QString m_watchPath;
-    QProcessEnvironment m_environment;
     MaemoPortList m_freePorts;
+    QList<Variable> m_normalVars;
+    QString m_openGlBackendVarName;
+    QHash<MaemoQemuSettings::OpenGlMode, QString> m_openGlBackendVarValues;
 };
 
 }   // namespace Internal
