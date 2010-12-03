@@ -612,12 +612,10 @@ void QmlEngine::sendPing()
     sendMessage(reply);
 }
 
-namespace Internal {
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp)
 {
     return new QmlEngine(sp);
 }
-} // namespace Internal
 
 unsigned QmlEngine::debuggerCapabilities() const
 {
