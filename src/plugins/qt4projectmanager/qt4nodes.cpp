@@ -722,6 +722,24 @@ void Qt4PriFileNode::folderChanged(const QString &folder)
 
     contents.updateSubFolders(this, this);
     m_project->updateFileList();
+
+    // The files to be packaged are listed inside the symbian build system.
+    // We need to regenerate that list by running qmake
+    // Other platforms do not have a explicit list of files to package, but package
+    // directories
+    foreach (ProjectExplorer::Target *target, m_project->targets()) {
+        if (target->id() == Constants::S60_DEVICE_TARGET_ID) {
+            foreach (ProjectExplorer::BuildConfiguration *bc, target->buildConfigurations()) {
+                Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(bc);
+                if (qt4bc) {
+                    QMakeStep *qmakeStep = qt4bc->qmakeStep();
+                    if (qmakeStep)
+                        qmakeStep->setForced(true);
+                }
+            }
+        }
+    }
+
 }
 
 bool Qt4PriFileNode::deploysFolder(const QString &folder) const
