@@ -407,41 +407,6 @@ void DebuggerMainWindow::setToolbar(const DebuggerLanguage &language, QWidget *w
     d->m_toolbarStack->addWidget(widget);
 }
 
-QDockWidget *DebuggerMainWindow::breakWindow() const
-{
-    return dockWidget(Constants::DOCKWIDGET_BREAK);
-}
-
-QDockWidget *DebuggerMainWindow::stackWindow() const
-{
-    return dockWidget(Constants::DOCKWIDGET_STACK);
-}
-
-QDockWidget *DebuggerMainWindow::watchWindow() const
-{
-    return dockWidget(Constants::DOCKWIDGET_WATCHERS);
-}
-
-QDockWidget *DebuggerMainWindow::outputWindow() const
-{
-    return dockWidget(Constants::DOCKWIDGET_OUTPUT);
-}
-
-QDockWidget *DebuggerMainWindow::snapshotsWindow() const
-{
-    return dockWidget(Constants::DOCKWIDGET_SNAPSHOTS);
-}
-
-QDockWidget *DebuggerMainWindow::threadsWindow() const
-{
-    return dockWidget(Constants::DOCKWIDGET_THREADS);
-}
-
-QDockWidget *DebuggerMainWindow::qmlInspectorWindow() const
-{
-    return dockWidget(Constants::DOCKWIDGET_QML_INSPECTOR);
-}
-
 QDockWidget *DebuggerMainWindow::dockWidget(const QString &objectName) const
 {
     foreach (QDockWidget *dockWidget, d->m_dockWidgets) {
@@ -461,13 +426,13 @@ bool DebuggerMainWindow::isDockVisible(const QString &objectName) const
     Keep track of dock widgets so they can be shown/hidden for different languages
 */
 QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &language,
-    QWidget *widget, const QString &objectName, Qt::DockWidgetArea area)
+    QWidget *widget)
 {
 //    qDebug() << "CREATE DOCK" << widget->objectName() << "LANGUAGE ID" << language
 //             << "VISIBLE BY DEFAULT" << ((d->m_activeDebugLanguages & language) ? "true" : "false");
     QDockWidget *dockWidget = addDockForWidget(widget);
-    dockWidget->setObjectName(objectName);
-    addDockWidget(area, dockWidget);
+    dockWidget->setObjectName(widget->objectName());
+    addDockWidget(Qt::TopDockWidgetArea, dockWidget);
     d->m_dockWidgets.append(dockWidget);
 
     if (!(d->m_activeDebugLanguages & language))
@@ -478,7 +443,7 @@ QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &langua
     ActionManager *am = ICore::instance()->actionManager();
     QAction *toggleViewAction = dockWidget->toggleViewAction();
     Command *cmd = am->registerAction(toggleViewAction,
-             QString("Debugger." + objectName), globalContext);
+             QString("Debugger." + widget->objectName()), globalContext);
     cmd->setAttribute(Command::CA_Hide);
     d->m_viewsMenu->addAction(cmd);
 
@@ -670,16 +635,11 @@ bool DebuggerMainWindowPrivate::isQmlActive() const
 QMenu *DebuggerMainWindow::createPopupMenu()
 {
     QMenu *menu = 0;
-
-    const QList<QDockWidget* > dockwidgets = d->m_dockWidgets;
-
-    if (!dockwidgets.isEmpty()) {
+    if (!d->m_dockWidgets.isEmpty()) {
         menu = FancyMainWindow::createPopupMenu();
-
-        foreach (QDockWidget *dockWidget, dockwidgets) {
+        foreach (QDockWidget *dockWidget, d->m_dockWidgets)
             if (dockWidget->parentWidget() == this)
                 menu->addAction(dockWidget->toggleViewAction());
-        }
         menu->addSeparator();
     }
     return menu;
@@ -696,12 +656,18 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
     }
 
     // FIXME: Temporary.
-    QDockWidget *m_breakDock = q->breakWindow();
-    QDockWidget *m_stackDock = q->stackWindow();
-    QDockWidget *m_watchDock = q->watchWindow();
-    QDockWidget *m_snapshotsDock = q->snapshotsWindow();
-    QDockWidget *m_threadsDock = q->threadsWindow();
-    QDockWidget *m_outputDock = q->outputWindow();
+    QDockWidget *m_breakDock =
+        q->dockWidget(Constants::DOCKWIDGET_BREAK);
+    QDockWidget *m_stackDock =
+        q->dockWidget(Constants::DOCKWIDGET_STACK);
+    QDockWidget *m_watchDock =
+        q->dockWidget(Constants::DOCKWIDGET_WATCHERS);
+    QDockWidget *m_snapshotsDock =
+        q->dockWidget(Constants::DOCKWIDGET_SNAPSHOTS);
+    QDockWidget *m_threadsDock =
+        q->dockWidget(Constants::DOCKWIDGET_THREADS);
+    QDockWidget *m_outputDock =
+        q->dockWidget(Constants::DOCKWIDGET_OUTPUT);
     QDockWidget *m_qmlInspectorDock =
         q->dockWidget(Constants::DOCKWIDGET_QML_INSPECTOR);
     QDockWidget *m_scriptConsoleDock =
@@ -763,8 +729,8 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
             m_breakDock->show();
             m_watchDock->show();
             m_scriptConsoleDock->show();
-            if (q->qmlInspectorWindow())
-                q->qmlInspectorWindow()->show();
+            if (m_qmlInspectorDock)
+                m_qmlInspectorDock->show();
         }
         q->splitDockWidget(q->toolBarDockWidget(), m_stackDock, Qt::Vertical);
         q->splitDockWidget(m_stackDock, m_watchDock, Qt::Horizontal);
@@ -775,8 +741,8 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
         q->tabifyDockWidget(m_watchDock, m_sourceFilesDock);
         q->tabifyDockWidget(m_watchDock, m_snapshotsDock);
         q->tabifyDockWidget(m_watchDock, m_scriptConsoleDock);
-        if (q->qmlInspectorWindow())
-            q->tabifyDockWidget(m_watchDock, q->qmlInspectorWindow());
+        if (m_qmlInspectorDock)
+            q->tabifyDockWidget(m_watchDock, m_qmlInspectorDock);
     }
 
     q->setTrackingEnabled(true);

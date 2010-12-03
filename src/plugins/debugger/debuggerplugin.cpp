@@ -1036,7 +1036,7 @@ public slots:
         { return mainWindow()->isDockVisible(objectName); }
 
     bool hasSnapshots() const { return m_snapshotHandler->size(); }
-    void createNewDock(QWidget *widget, const QString &objectName);
+    void createNewDock(QWidget *widget);
 
     void runControlStarted(DebuggerRunControl *runControl);
     void runControlFinished(DebuggerRunControl *runControl);
@@ -2569,12 +2569,11 @@ void DebuggerPluginPrivate::showQtDumperLibraryWarning(const QString &details)
     }
 }
 
-void DebuggerPluginPrivate::createNewDock(QWidget *widget, const QString &name)
+void DebuggerPluginPrivate::createNewDock(QWidget *widget)
 {
     QDockWidget *dockWidget =
-        m_mainWindow->createDockWidget(CppLanguage, widget, name);
+        m_mainWindow->createDockWidget(CppLanguage, widget);
     dockWidget->setWindowTitle(widget->windowTitle());
-    dockWidget->setObjectName(widget->windowTitle());
     dockWidget->setFeatures(QDockWidget::DockWidgetClosable);
     //dockWidget->setWidget(widget);
     //mainWindow()->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
@@ -2698,24 +2697,23 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     m_breakHandler = new BreakHandler;
     m_breakWindow = new BreakWindow;
-    m_breakWindow->setObjectName(QLatin1String("CppDebugBreakpoints"));
+    m_breakWindow->setObjectName(DOCKWIDGET_BREAK);
     m_breakWindow->setModel(m_breakHandler->model());
 
     //m_consoleWindow = new ConsoleWindow;
     //m_consoleWindow->setObjectName(QLatin1String("CppDebugConsole"));
     m_modulesWindow = new ModulesWindow;
-    m_modulesWindow->setObjectName(QLatin1String("CppDebugModules"));
+    m_modulesWindow->setObjectName(DOCKWIDGET_MODULES);
     m_logWindow = new LogWindow;
-    m_logWindow->setObjectName(QLatin1String("CppDebugOutput"));
-
+    m_logWindow->setObjectName(DOCKWIDGET_OUTPUT);
     m_registerWindow = new RegisterWindow;
-    m_registerWindow->setObjectName(QLatin1String("CppDebugRegisters"));
+    m_registerWindow->setObjectName(DOCKWIDGET_REGISTER);
     m_stackWindow = new StackWindow;
-    m_stackWindow->setObjectName(QLatin1String("CppDebugStack"));
+    m_stackWindow->setObjectName(DOCKWIDGET_STACK);
     m_sourceFilesWindow = new SourceFilesWindow;
-    m_sourceFilesWindow->setObjectName(QLatin1String("CppDebugSources"));
+    m_sourceFilesWindow->setObjectName(DOCKWIDGET_SOURCE_FILES);
     m_threadsWindow = new ThreadsWindow;
-    m_threadsWindow->setObjectName(QLatin1String("CppDebugThreads"));
+    m_threadsWindow->setObjectName(DOCKWIDGET_THREADS);
     m_returnWindow = new WatchWindow(WatchWindow::ReturnType);
     m_returnWindow->setObjectName(QLatin1String("CppDebugReturn"));
     m_localsWindow = new WatchWindow(WatchWindow::LocalsType);
@@ -2724,14 +2722,14 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_watchersWindow->setObjectName(QLatin1String("CppDebugWatchers"));
     m_scriptConsoleWindow = new ScriptConsole;
     m_scriptConsoleWindow->setWindowTitle(tr("QML Script Console"));
-    m_scriptConsoleWindow->setObjectName(QLatin1String("QMLScriptConsole"));
+    m_scriptConsoleWindow->setObjectName(DOCKWIDGET_QML_SCRIPTCONSOLE);
     connect(m_scriptConsoleWindow, SIGNAL(expressionEntered(QString)),
         SLOT(scriptExpressionEntered(QString)));
 
     // Snapshot
     m_snapshotHandler = new SnapshotHandler;
     m_snapshotWindow = new SnapshotWindow(m_snapshotHandler);
-    m_snapshotWindow->setObjectName(QLatin1String("CppDebugSnapshots"));
+    m_snapshotWindow->setObjectName(DOCKWIDGET_SNAPSHOTS);
     m_snapshotWindow->setModel(m_snapshotHandler->model());
 
     // Watchers
@@ -2829,41 +2827,28 @@ void DebuggerPluginPrivate::extensionsInitialized()
     readSettings();
 
     // Dock widgets
-    m_mainWindow->createDockWidget(CppLanguage, m_breakWindow, _(DOCKWIDGET_BREAK));
-
-    //m_mainWindow->createDockWidget(CppLanguage, m_consoleWindow,
-    // _(DOCKWIDGET_OUTPUT), Qt::TopDockWidgetArea);
-
     QDockWidget *dock = 0;
-    dock = m_mainWindow->createDockWidget(CppLanguage, m_modulesWindow,
-         _(DOCKWIDGET_MODULES), Qt::TopDockWidgetArea);
+    dock = m_mainWindow->createDockWidget(CppLanguage, m_modulesWindow);
     connect(dock->toggleViewAction(), SIGNAL(toggled(bool)),
         SLOT(modulesDockToggled(bool)), Qt::QueuedConnection);
 
-    dock = m_mainWindow->createDockWidget(CppLanguage, m_registerWindow,
-         _(DOCKWIDGET_REGISTER), Qt::TopDockWidgetArea);
+    dock = m_mainWindow->createDockWidget(CppLanguage, m_registerWindow);
     connect(dock->toggleViewAction(), SIGNAL(toggled(bool)),
         SLOT(registerDockToggled(bool)), Qt::QueuedConnection);
 
-    dock = m_mainWindow->createDockWidget(AnyLanguage, m_logWindow,
-        _(DOCKWIDGET_OUTPUT), Qt::TopDockWidgetArea);
-
-    dock = m_mainWindow->createDockWidget(CppLanguage, m_snapshotWindow,
-        _(DOCKWIDGET_SNAPSHOTS));
-
-    dock = m_mainWindow->createDockWidget(CppLanguage, m_stackWindow,
-        _(DOCKWIDGET_STACK));
-
-    dock = m_mainWindow->createDockWidget(CppLanguage, m_sourceFilesWindow,
-        _(DOCKWIDGET_SOURCE_FILES), Qt::TopDockWidgetArea);
+    dock = m_mainWindow->createDockWidget(CppLanguage, m_sourceFilesWindow);
     connect(dock->toggleViewAction(), SIGNAL(toggled(bool)),
         SLOT(sourceFilesDockToggled(bool)), Qt::QueuedConnection);
 
-    dock = m_mainWindow->createDockWidget(CppLanguage, m_threadsWindow,
-        _(DOCKWIDGET_THREADS));
+    m_mainWindow->createDockWidget(CppLanguage, m_breakWindow);
+    //m_mainWindow->createDockWidget(CppLanguage, m_consoleWindow);
+    m_mainWindow->createDockWidget(AnyLanguage, m_logWindow);
+    m_mainWindow->createDockWidget(CppLanguage, m_snapshotWindow);
+    m_mainWindow->createDockWidget(CppLanguage, m_stackWindow);
+    m_mainWindow->createDockWidget(CppLanguage, m_threadsWindow);
 
     QSplitter *localsAndWatchers = new Core::MiniSplitter(Qt::Vertical);
-    localsAndWatchers->setObjectName(QLatin1String("CppDebugLocalsAndWatchers"));
+    localsAndWatchers->setObjectName(DOCKWIDGET_WATCHERS);
     localsAndWatchers->setWindowTitle(m_localsWindow->windowTitle());
     localsAndWatchers->addWidget(m_localsWindow);
     localsAndWatchers->addWidget(m_returnWindow);
@@ -2872,11 +2857,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
     localsAndWatchers->setStretchFactor(1, 1);
     localsAndWatchers->setStretchFactor(2, 1);
 
-    dock = m_mainWindow->createDockWidget(CppLanguage, localsAndWatchers,
-        _(DOCKWIDGET_WATCHERS));
-
-    dock = m_mainWindow->createDockWidget(QmlLanguage, m_scriptConsoleWindow,
-        _(DOCKWIDGET_QML_SCRIPTCONSOLE));
+    m_mainWindow->createDockWidget(CppLanguage, localsAndWatchers);
+    m_mainWindow->createDockWidget(QmlLanguage, m_scriptConsoleWindow);
 
     // Register factory of DebuggerRunControl.
     m_debuggerRunControlFactory = new DebuggerRunControlFactory
@@ -3263,6 +3245,7 @@ void DebuggerPluginPrivate::showModuleSymbols(const QString &moduleName,
     w->setRootIsDecorated(false);
     w->setAlternatingRowColors(true);
     w->setSortingEnabled(true);
+    w->setObjectName("Symbols." + moduleName);
     QStringList header;
     header.append(tr("Symbol"));
     header.append(tr("Address"));
@@ -3280,7 +3263,7 @@ void DebuggerPluginPrivate::showModuleSymbols(const QString &moduleName,
         it->setData(4, Qt::DisplayRole, s.demangled);
         w->addTopLevelItem(it);
     }
-    createNewDock(w, w->windowTitle());
+    createNewDock(w);
 }
 
 } // namespace Internal
