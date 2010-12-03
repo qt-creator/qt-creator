@@ -60,19 +60,10 @@
 using namespace QmlJSInspector::Internal;
 using namespace QmlJSInspector::Constants;
 
-namespace {
-
-InspectorPlugin *g_instance = 0; // the global QML/JS inspector instance
-
-} // end of anonymous namespace
-
 InspectorPlugin::InspectorPlugin()
     : IPlugin()
     , m_clientProxy(0)
 {
-    Q_ASSERT(! g_instance);
-    g_instance = this;
-
     m_inspectorUi = new InspectorUi(this);
 }
 
@@ -83,11 +74,6 @@ InspectorPlugin::~InspectorPlugin()
 QmlJS::ModelManagerInterface *InspectorPlugin::modelManager() const
 {
     return ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>();
-}
-
-InspectorPlugin *InspectorPlugin::instance()
-{
-    return g_instance;
 }
 
 InspectorUi *InspectorPlugin::inspector() const
