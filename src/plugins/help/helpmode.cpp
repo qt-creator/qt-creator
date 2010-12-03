@@ -38,6 +38,7 @@ using namespace Help::Internal;
 HelpMode::HelpMode(QWidget *widget, QObject *parent)
     : BaseMode(parent)
 {
+    setObjectName(QLatin1String("HelpMode"));
     setDisplayName(tr("Help"));
     setId(QLatin1String(Constants::ID_MODE_HELP));
     setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Reference.png")));

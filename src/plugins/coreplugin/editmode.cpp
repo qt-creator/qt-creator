@@ -53,6 +53,7 @@ EditMode::EditMode(EditorManager *editorManager) :
     m_splitter(new MiniSplitter),
     m_rightSplitWidgetLayout(new QVBoxLayout)
 {
+    setObjectName(QLatin1String("EditMode"));
     m_rightSplitWidgetLayout->setSpacing(0);
     m_rightSplitWidgetLayout->setMargin(0);
     QWidget *rightSplitWidget = new QWidget;
@@ -68,7 +69,9 @@ EditMode::EditMode(EditorManager *editorManager) :
     MiniSplitter *splitter = new MiniSplitter;
     splitter->setOrientation(Qt::Vertical);
     splitter->insertWidget(0, rightPaneSplitter);
-    splitter->insertWidget(1, new Core::OutputPanePlaceHolder(this, splitter));
+    QWidget *outputPane = new Core::OutputPanePlaceHolder(this, splitter);
+    outputPane->setObjectName(QLatin1String("EditModeOutputPanePlaceHolder"));
+    splitter->insertWidget(1, outputPane);
     splitter->setStretchFactor(0, 3);
     splitter->setStretchFactor(1, 0);
 

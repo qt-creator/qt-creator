@@ -337,7 +337,9 @@ void FormEditorW::fullInit()
     // 'Run' in 'Design' mode emits output.
     Core::MiniSplitter *splitter = new Core::MiniSplitter(Qt::Vertical);
     splitter->addWidget(m_editorWidget);
-    splitter->addWidget(new Core::OutputPanePlaceHolder(m_designMode, splitter));
+    QWidget *outputPane = new Core::OutputPanePlaceHolder(m_designMode, splitter);
+    outputPane->setObjectName(QLatin1String("DesignerOutputPanePlaceHolder"));
+    splitter->addWidget(outputPane);
     layout->addWidget(splitter);
     m_modeWidget->setLayout(layout);
 

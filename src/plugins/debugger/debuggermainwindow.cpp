@@ -529,7 +529,9 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     // Right-side window with editor, output etc.
     MiniSplitter *mainWindowSplitter = new MiniSplitter;
     mainWindowSplitter->addWidget(this);
-    mainWindowSplitter->addWidget(new OutputPanePlaceHolder(mode, mainWindowSplitter));
+    QWidget *outputPane = new OutputPanePlaceHolder(mode, mainWindowSplitter);
+    outputPane->setObjectName(QLatin1String("DebuggerOutputPanePlaceHolder"));
+    mainWindowSplitter->addWidget(outputPane);
     mainWindowSplitter->setStretchFactor(0, 10);
     mainWindowSplitter->setStretchFactor(1, 0);
     mainWindowSplitter->setOrientation(Qt::Vertical);

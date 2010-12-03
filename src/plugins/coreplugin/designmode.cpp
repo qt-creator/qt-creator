@@ -114,6 +114,7 @@ DesignModePrivate::DesignModePrivate(DesignMode *q, EditorManager *editorManager
 DesignMode::DesignMode(EditorManager *editorManager) :
         IMode(), d(new DesignModePrivate(this, editorManager))
 {
+    setObjectName(QLatin1String("DesignMode"));
     setEnabled(false);
     ExtensionSystem::PluginManager::instance()->addObject(d->m_coreListener);
 

@@ -507,7 +507,7 @@ static DebuggerEngine *dummyEngine()
 class DebugMode : public IMode
 {
 public:
-    DebugMode() : m_widget(0) {}
+    DebugMode() : m_widget(0) {  setObjectName(QLatin1String("DebugMode"));  }
 
     // Make sure the editor manager does not get deleted.
     ~DebugMode() { EditorManager::instance()->setParent(0); }
