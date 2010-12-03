@@ -31,9 +31,9 @@
 **
 **************************************************************************/
 
-#include "qmljscomponentversion.h"
+#include "componentversion.h"
 
-using namespace QmlJS;
+using namespace LanguageUtils;
 
 const int ComponentVersion::NoVersion = -1;
 
@@ -56,7 +56,7 @@ bool ComponentVersion::isValid() const
     return _major >= 0 && _minor >= 0;
 }
 
-namespace QmlJS {
+namespace LanguageUtils {
 
 bool operator<(const ComponentVersion &lhs, const ComponentVersion &rhs)
 {

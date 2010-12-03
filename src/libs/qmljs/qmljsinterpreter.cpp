@@ -38,6 +38,8 @@
 #include "qmljsscopebuilder.h"
 #include "parser/qmljsast_p.h"
 
+#include <languageutils/fakemetaobject.h>
+
 #include <QtCore/QFile>
 #include <QtCore/QDir>
 #include <QtCore/QString>
@@ -48,6 +50,7 @@
 #include <QtCore/QProcess>
 #include <QtCore/QDebug>
 
+using namespace LanguageUtils;
 using namespace QmlJS::Interpreter;
 using namespace QmlJS::AST;
 
@@ -102,210 +105,6 @@ public:
         return process(name, value);
     }
 };
-
-} // end of anonymous namespace
-
-namespace QmlJS {
-namespace Interpreter {
-
-class FakeMetaEnum {
-    QString m_name;
-    QStringList m_keys;
-    QList<int> m_values;
-
-public:
-    FakeMetaEnum(const QString &name)
-        : m_name(name)
-    {}
-
-    QString name() const
-    { return m_name; }
-
-    void addKey(const QString &key, int value)
-    { m_keys.append(key); m_values.append(value); }
-
-    QString key(int index) const
-    { return m_keys.at(index); }
-
-    int keyCount() const
-    { return m_keys.size(); }
-
-    QStringList keys() const
-    { return m_keys; }
-};
-
-class FakeMetaMethod {
-public:
-    enum {
-        Signal,
-        Slot,
-        Method
-    };
-
-    enum {
-        Private,
-        Protected,
-        Public
-    };
-
-public:
-    FakeMetaMethod(const QString &name, const QString &returnType = QString())
-        : m_name(name), m_returnType(returnType), m_methodTy(Method), m_methodAccess(Public)
-    {}
-
-    QString methodName() const
-    { return m_name; }
-
-    QStringList parameterNames() const
-    { return m_paramNames; }
-
-    QStringList parameterTypes() const
-    { return m_paramTypes; }
-
-    void addParameter(const QString &name, const QString &type)
-    { m_paramNames.append(name); m_paramTypes.append(type); }
-
-    int methodType() const
-    { return m_methodTy; }
-    void setMethodType(int methodType)
-    { m_methodTy = methodType; }
-
-    int access() const
-    { return m_methodAccess; }
-
-private:
-    QString m_name;
-    QString m_returnType;
-    QStringList m_paramNames;
-    QStringList m_paramTypes;
-    int m_methodTy;
-    int m_methodAccess;
-};
-
-class FakeMetaProperty {
-    QString m_propertyName;
-    QString m_type;
-    bool m_isList;
-    bool m_isWritable;
-    bool m_isPointer;
-
-public:
-    FakeMetaProperty(const QString &name, const QString &type, bool isList, bool isWritable, bool isPointer)
-        : m_propertyName(name), m_type(type), m_isList(isList), m_isWritable(isWritable), m_isPointer(isPointer)
-    {}
-
-    QString name() const
-    { return m_propertyName; }
-
-    QString typeName() const
-    { return m_type; }
-
-    bool isList() const
-    { return m_isList; }
-
-    bool isWritable() const
-    { return m_isWritable; }
-
-    bool isPointer() const
-    { return m_isPointer; }
-};
-
-class FakeMetaObject {
-    Q_DISABLE_COPY(FakeMetaObject)
-
-public:
-    class Export {
-    public:
-        QString package;
-        QString type;
-        QmlJS::ComponentVersion version;
-        QString packageNameVersion;
-    };
-
-private:
-    QList<Export> m_exports;
-    const FakeMetaObject *m_super;
-    QString m_superName;
-    QList<FakeMetaEnum> m_enums;
-    QHash<QString, int> m_enumNameToIndex;
-    QList<FakeMetaProperty> m_props;
-    QHash<QString, int> m_propNameToIdx;
-    QList<FakeMetaMethod> m_methods;
-    QString m_defaultPropertyName;
-
-public:
-    FakeMetaObject()
-        : m_super(0)
-    {
-    }
-
-    void addExport(const QString &name, const QString &package, QmlJS::ComponentVersion version)
-    {
-        Export exp;
-        exp.type = name;
-        exp.package = package;
-        exp.version = version;
-        exp.packageNameVersion = QString::fromLatin1("%1.%2 %3.%4").arg(
-                package, name,
-                QString::number(version.majorVersion()),
-                QString::number(version.minorVersion()));
-        m_exports.append(exp);
-    }
-    QList<Export> exports() const
-    { return m_exports; }
-
-    void setSuperclassName(const QString &superclass)
-    { m_superName = superclass; }
-    QString superclassName() const
-    { return m_superName; }
-
-    void setSuperclass(FakeMetaObject *superClass)
-    { m_super = superClass; }
-    const FakeMetaObject *superClass() const
-    { return m_super; }
-
-    void addEnum(const FakeMetaEnum &fakeEnum)
-    { m_enumNameToIndex.insert(fakeEnum.name(), m_enums.size()); m_enums.append(fakeEnum); }
-    int enumeratorCount() const
-    { return m_enums.size(); }
-    int enumeratorOffset() const
-    { return 0; }
-    FakeMetaEnum enumerator(int index) const
-    { return m_enums.at(index); }
-    int enumeratorIndex(const QString &name) const
-    { return m_enumNameToIndex.value(name, -1); }
-
-    void addProperty(const FakeMetaProperty &property)
-    { m_propNameToIdx.insert(property.name(), m_props.size()); m_props.append(property); }
-    int propertyCount() const
-    { return m_props.size(); }
-    int propertyOffset() const
-    { return 0; }
-    FakeMetaProperty property(int index) const
-    { return m_props.at(index); }
-    int propertyIndex(const QString &name) const
-    { return m_propNameToIdx.value(name, -1); }
-
-    void addMethod(const FakeMetaMethod &method)
-    { m_methods.append(method); }
-    int methodCount() const
-    { return m_methods.size(); }
-    int methodOffset() const
-    { return 0; }
-    FakeMetaMethod method(int index) const
-    { return m_methods.at(index); }
-
-    QString defaultPropertyName() const
-    { return m_defaultPropertyName; }
-
-    void setDefaultPropertyName(const QString defaultPropertyName)
-    { m_defaultPropertyName = defaultPropertyName; }
-};
-
-} // end of Interpreter namespace
-} // end of QmlJS namespace
-
-namespace {
 
 class MetaFunction: public FunctionValue
 {
@@ -423,7 +222,7 @@ private:
 
         bool doInsert = true;
         QString name, defaultPropertyName;
-        QmlJS::ComponentVersion version;
+        ComponentVersion version;
         QString extends;
         QString id;
         foreach (const QXmlStreamAttribute &attr, _xml.attributes()) {
@@ -469,7 +268,7 @@ private:
                 unexpectedElement(_xml.name(), tag);
         }
 
-        metaObject->addExport(id, QString(), QmlJS::ComponentVersion());
+        metaObject->addExport(id, QString(), ComponentVersion());
 
         if (doInsert) {
             _objects->insert(id, metaObject);
@@ -738,7 +537,7 @@ private:
             if (_xml.name() == childTag) {
                 QString type;
                 QString package;
-                QmlJS::ComponentVersion version;
+                ComponentVersion version;
                 foreach (const QXmlStreamAttribute &attr, _xml.attributes()) {
                     if (attr.name() == QLatin1String("module")) {
                         package = attr.value().toString();
@@ -754,7 +553,7 @@ private:
                                 invalidAttr(versionStr, QLatin1String("version"), childTag);
                                 continue;
                             }
-                            version = QmlJS::ComponentVersion(major, QmlJS::ComponentVersion::NoVersion);
+                            version = ComponentVersion(major, ComponentVersion::NoVersion);
                         } else {
                             bool ok = false;
                             const int major = versionStr.left(dotIdx).toInt(&ok);
@@ -767,7 +566,7 @@ private:
                                 invalidAttr(versionStr, QLatin1String("version"), childTag);
                                 continue;
                             }
-                            version = QmlJS::ComponentVersion(major, minor);
+                            version = ComponentVersion(major, minor);
                         }
                     } else {
                         ignoreAttr(attr);
@@ -789,7 +588,7 @@ private:
 } // end of anonymous namespace
 
 QmlObjectValue::QmlObjectValue(const FakeMetaObject *metaObject, const QString &className,
-                               const QString &packageName, const QmlJS::ComponentVersion version, Engine *engine)
+                               const QString &packageName, const ComponentVersion version, Engine *engine)
     : ObjectValue(engine),
       _metaObject(metaObject),
       _packageName(packageName),
@@ -927,7 +726,7 @@ QString QmlObjectValue::nameInPackage(const QString &packageName) const
     return QString();
 }
 
-QmlJS::ComponentVersion QmlObjectValue::version() const
+ComponentVersion QmlObjectValue::version() const
 { return _componentVersion; }
 
 QString QmlObjectValue::defaultPropertyName() const
@@ -2255,7 +2054,7 @@ void CppQmlTypes::load(Engine *engine, const QList<const FakeMetaObject *> &obje
     }
 }
 
-QList<QmlObjectValue *> CppQmlTypes::typesForImport(const QString &packageName, QmlJS::ComponentVersion version) const
+QList<QmlObjectValue *> CppQmlTypes::typesForImport(const QString &packageName, ComponentVersion version) const
 {
     QMap<QString, QmlObjectValue *> objectValuesByName;
 
@@ -2280,7 +2079,7 @@ QList<QmlObjectValue *> CppQmlTypes::typesForImport(const QString &packageName, 
 }
 
 QmlObjectValue *CppQmlTypes::typeForImport(const QString &qualifiedName,
-                                           QmlJS::ComponentVersion version) const
+                                           ComponentVersion version) const
 {
     QString name = qualifiedName;
     QString packageName;
@@ -2317,7 +2116,7 @@ bool CppQmlTypes::hasPackage(const QString &package) const
     return _typesByPackage.contains(package);
 }
 
-QString CppQmlTypes::qualifiedName(const QString &package, const QString &type, QmlJS::ComponentVersion version)
+QString CppQmlTypes::qualifiedName(const QString &package, const QString &type, ComponentVersion version)
 {
     return QString("%1.%2 %3.%4").arg(
                 package, type,
@@ -2330,7 +2129,7 @@ QmlObjectValue *CppQmlTypes::typeByQualifiedName(const QString &name) const
     return _typesByFullyQualifiedName.value(name);
 }
 
-QmlObjectValue *CppQmlTypes::typeByQualifiedName(const QString &package, const QString &type, QmlJS::ComponentVersion version) const
+QmlObjectValue *CppQmlTypes::typeByQualifiedName(const QString &package, const QString &type, ComponentVersion version) const
 {
     return typeByQualifiedName(qualifiedName(package, type, version));
 }
@@ -2353,7 +2152,7 @@ QmlObjectValue *CppQmlTypes::getOrCreate(const QString &package, const QString &
     if (!value) {
         *created = true;
         value = new QmlObjectValue(
-                    metaObject, typeName, package, QmlJS::ComponentVersion(), engine);
+                    metaObject, typeName, package, ComponentVersion(), engine);
         _typesByFullyQualifiedName[qName] = value;
     } else {
         *created = false;
@@ -3484,7 +3283,7 @@ ImportInfo::ImportInfo()
 }
 
 ImportInfo::ImportInfo(Type type, const QString &name,
-                       QmlJS::ComponentVersion version, UiImport *ast)
+                       ComponentVersion version, UiImport *ast)
     : _type(type)
     , _name(name)
     , _version(version)
@@ -3514,7 +3313,7 @@ QString ImportInfo::id() const
     return QString();
 }
 
-QmlJS::ComponentVersion ImportInfo::version() const
+ComponentVersion ImportInfo::version() const
 {
     return _version;
 }

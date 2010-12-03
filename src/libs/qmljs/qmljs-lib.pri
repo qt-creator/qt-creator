@@ -22,7 +22,6 @@ HEADERS += \
     $$PWD/qmljslookupcontext.h \
     $$PWD/qmljslineinfo.h \
     $$PWD/qmljscompletioncontextfinder.h \
-    $$PWD/qmljscomponentversion.h \
     $$PWD/qmljsmodelmanagerinterface.h \
     $$PWD/qmljsicontextpane.h \
     $$PWD/qmljspropertyreader.h \
@@ -42,7 +41,6 @@ SOURCES += \
     $$PWD/qmljslookupcontext.cpp \
     $$PWD/qmljslineinfo.cpp \
     $$PWD/qmljscompletioncontextfinder.cpp \
-    $$PWD/qmljscomponentversion.cpp \
     $$PWD/qmljsmodelmanagerinterface.cpp \
     $$PWD/qmljspropertyreader.cpp \
     $$PWD/qmljsrewriter.cpp \

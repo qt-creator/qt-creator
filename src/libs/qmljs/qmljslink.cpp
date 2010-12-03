@@ -40,10 +40,13 @@
 #include "qmljsscopebuilder.h"
 #include "qmljsmodelmanagerinterface.h"
 
+#include <languageutils/componentversion.h>
+
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 
+using namespace LanguageUtils;
 using namespace QmlJS;
 using namespace QmlJS::Interpreter;
 using namespace QmlJS::AST;

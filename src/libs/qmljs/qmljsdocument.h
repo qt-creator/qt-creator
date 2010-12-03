@@ -45,14 +45,14 @@
 
 QT_QML_BEGIN_NAMESPACE
 
+namespace LanguageUtils {
+    class FakeMetaObject;
+}
+
 namespace QmlJS {
 
 class Bind;
 class Snapshot;
-
-namespace Interpreter {
-    class FakeMetaObject;
-}
 
 class QMLJS_EXPORT Document
 {
@@ -134,7 +134,7 @@ private:
     bool _valid;
     QList<QmlDirParser::Component> _components;
     QList<QmlDirParser::Plugin> _plugins;
-    typedef QList<const Interpreter::FakeMetaObject *> FakeMetaObjectList;
+    typedef QList<const LanguageUtils::FakeMetaObject *> FakeMetaObjectList;
     FakeMetaObjectList _metaObjects;
 
     DumpStatus _dumpStatus;

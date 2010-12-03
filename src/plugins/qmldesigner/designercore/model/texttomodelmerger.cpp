@@ -44,6 +44,7 @@
 #include "rewriterview.h"
 #include "variantproperty.h"
 
+#include <languageutils/componentversion.h>
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljslink.h>
@@ -54,6 +55,7 @@
 #include <QtCore/QSet>
 #include <QtGui/QMessageBox>
 
+using namespace LanguageUtils;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 

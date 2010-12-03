@@ -36,10 +36,13 @@
 #include "qmljscheck.h"
 #include "qmljsdocument.h"
 
+#include <languageutils/componentversion.h>
+
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
+using namespace LanguageUtils;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJS::Interpreter;

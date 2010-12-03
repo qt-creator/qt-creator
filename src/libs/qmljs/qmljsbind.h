@@ -36,7 +36,6 @@
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsinterpreter.h>
-#include <qmljs/qmljscomponentversion.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QStringList>

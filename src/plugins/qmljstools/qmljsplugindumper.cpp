@@ -42,6 +42,7 @@
 
 #include <QtCore/QDir>
 
+using namespace LanguageUtils;
 using namespace QmlJS;
 using namespace QmlJSTools;
 using namespace QmlJSTools::Internal;
@@ -125,15 +126,15 @@ static QString qmldumpFailedMessage()
     return PluginDumper::tr("Type dump of C++ plugin failed.\nCheck 'General Messages' output pane for details.");
 }
 
-static QList<const Interpreter::FakeMetaObject *> parseHelper(const QByteArray &xml, QString *error)
+static QList<const FakeMetaObject *> parseHelper(const QByteArray &xml, QString *error)
 {
-    QList<const Interpreter::FakeMetaObject *> ret;
-    QMap<QString, Interpreter::FakeMetaObject *> newObjects;
+    QList<const FakeMetaObject *> ret;
+    QMap<QString, FakeMetaObject *> newObjects;
     *error = Interpreter::CppQmlTypesLoader::parseQmlTypeXml(xml, &newObjects);
 
     if (error->isEmpty()) {
         // convert from QList<T *> to QList<const T *>
-        QMapIterator<QString, Interpreter::FakeMetaObject *> it(newObjects);
+        QMapIterator<QString, FakeMetaObject *> it(newObjects);
         while (it.hasNext()) {
             it.next();
             ret.append(it.value());
@@ -161,7 +162,7 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
 
     const QByteArray output = process->readAllStandardOutput();
     QString error;
-    QList<const Interpreter::FakeMetaObject *> objectsList = parseHelper(output, &error);
+    QList<const FakeMetaObject *> objectsList = parseHelper(output, &error);
     if (exitCode == 0 && !error.isEmpty()) {
         libraryInfo.setDumpStatus(LibraryInfo::DumpError, tr("Type dump of C++ plugin failed. Parse error:\n'%1'").arg(error));
     }
@@ -228,7 +229,7 @@ void PluginDumper::dump(const Plugin &plugin)
         libraryXmlFile.close();
 
         QString error;
-        const QList<const Interpreter::FakeMetaObject *> objectsList = parseHelper(xml, &error);
+        const QList<const FakeMetaObject *> objectsList = parseHelper(xml, &error);
 
         if (error.isEmpty()) {
             libraryInfo.setMetaObjects(objectsList);

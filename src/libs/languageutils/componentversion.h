@@ -31,14 +31,14 @@
 **
 **************************************************************************/
 
-#ifndef QMLJSCOMPONENTVERSION_H
-#define QMLJSCOMPONENTVERSION_H
+#ifndef COMPONENTVERSION_H
+#define COMPONENTVERSION_H
 
-#include "qmljs_global.h"
+#include "languageutils_global.h"
 
-namespace QmlJS {
+namespace LanguageUtils {
 
-class QMLJS_EXPORT ComponentVersion
+class LANGUAGEUTILS_EXPORT ComponentVersion
 {
     int _major;
     int _minor;
@@ -58,11 +58,11 @@ public:
     bool isValid() const;
 };
 
-bool operator<(const ComponentVersion &lhs, const ComponentVersion &rhs);
-bool operator<=(const ComponentVersion &lhs, const ComponentVersion &rhs);
-bool operator==(const ComponentVersion &lhs, const ComponentVersion &rhs);
-bool operator!=(const ComponentVersion &lhs, const ComponentVersion &rhs);
+bool LANGUAGEUTILS_EXPORT operator<(const ComponentVersion &lhs, const ComponentVersion &rhs);
+bool LANGUAGEUTILS_EXPORT operator<=(const ComponentVersion &lhs, const ComponentVersion &rhs);
+bool LANGUAGEUTILS_EXPORT operator==(const ComponentVersion &lhs, const ComponentVersion &rhs);
+bool LANGUAGEUTILS_EXPORT operator!=(const ComponentVersion &lhs, const ComponentVersion &rhs);
 
-} // namespace QmlJS
+} // namespace LanguageUtils
 
-#endif // QMLJSCOMPONENTVERSION_H
+#endif // COMPONENTVERSION_H
