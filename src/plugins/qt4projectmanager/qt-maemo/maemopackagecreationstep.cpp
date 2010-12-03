@@ -263,8 +263,12 @@ bool MaemoPackageCreationStep::copyDebianFiles(bool inSourceBuild)
         }
 
         // Workaround for Harmattan icon bug
-        if (harmattanWorkaroundNeeded && fileName == QLatin1String("rules"))
-            addWorkaroundForHarmattanBug(destFile);
+        if (fileName == QLatin1String("rules")) {
+            if (harmattanWorkaroundNeeded)
+                addWorkaroundForHarmattanBug(destFile);
+            QFile rulesFile(destFile);
+            rulesFile.setPermissions(rulesFile.permissions() | QFile::ExeUser);
+        }
     }
 
     QFile magicFile(magicFilePath);
