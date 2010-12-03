@@ -128,7 +128,6 @@ InspectorUi::InspectorUi(QObject *parent)
     , m_toolbar(0)
     , m_crumblePath(0)
     , m_objectTreeWidget(0)
-    , m_inspectorDockWidget(0)
     , m_settings(new InspectorSettings(this))
     , m_clientProxy(0)
     , m_qmlEngine(0)
@@ -483,51 +482,6 @@ void InspectorUi::reloadQmlViewer()
         m_clientProxy->reloadQmlViewer();
 }
 
-void InspectorUi::setSimpleDockWidgetArrangement(const Debugger::DebuggerLanguages &activeLanguages)
-{
-    Debugger::DebuggerMainWindow *mw = Debugger::DebuggerPlugin::mainWindow();
-
-    mw->setTrackingEnabled(false);
-
-    if (activeLanguages.testFlag(Debugger::CppLanguage)
-            && activeLanguages.testFlag(Debugger::QmlLanguage)) {
-        // cpp + qml
-        QList<QDockWidget *> dockWidgets = mw->dockWidgets();
-        foreach (QDockWidget *dockWidget, dockWidgets) {
-            dockWidget->setFloating(false);
-            mw->removeDockWidget(dockWidget);
-        }
-        foreach (QDockWidget *dockWidget, dockWidgets) {
-            if (dockWidget == mw->outputWindow()) {
-                mw->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
-            } else {
-                mw->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
-            }
-
-            if (dockWidget == m_inspectorDockWidget) {
-                dockWidget->show();
-            } else {
-                dockWidget->hide();
-            }
-        }
-
-        mw->stackWindow()->show();
-        mw->watchWindow()->show();
-        mw->breakWindow()->show();
-        mw->threadsWindow()->show();
-        mw->snapshotsWindow()->show();
-        m_inspectorDockWidget->show();
-
-        mw->splitDockWidget(mw->toolBarDockWidget(), mw->stackWindow(), Qt::Vertical);
-        mw->splitDockWidget(mw->stackWindow(), mw->watchWindow(), Qt::Horizontal);
-        mw->tabifyDockWidget(mw->watchWindow(), mw->breakWindow());
-        mw->tabifyDockWidget(mw->watchWindow(), m_inspectorDockWidget);
-
-    }
-
-    mw->setTrackingEnabled(true);
-}
-
 void InspectorUi::gotoObjectReferenceDefinition(QList<QDeclarativeDebugObjectReference>
                                                 objectReferences)
 {
@@ -613,11 +567,11 @@ void InspectorUi::setupDockWidgets()
     wlay->addWidget(m_crumblePath);
 
     Debugger::DebuggerMainWindow *mw = Debugger::DebuggerPlugin::mainWindow();
-    m_inspectorDockWidget = mw->createDockWidget(Debugger::QmlLanguage,
+    QDockWidget *dock = mw->createDockWidget(Debugger::QmlLanguage,
         observerWidget, Qt::BottomDockWidgetArea);
-    m_inspectorDockWidget->setObjectName(Debugger::Constants::DOCKWIDGET_QML_INSPECTOR);
-    m_inspectorDockWidget->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
-    m_inspectorDockWidget->setTitleBarWidget(new QWidget(m_inspectorDockWidget));
+    dock->setObjectName(Debugger::Constants::DOCKWIDGET_QML_INSPECTOR);
+    dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
+    dock->setTitleBarWidget(new QWidget(dock));
 }
 
 void InspectorUi::crumblePathElementClicked(int pathIndex)

@@ -64,8 +64,6 @@ namespace Debugger {
     class QmlEngine;
 }
 
-QT_FORWARD_DECLARE_CLASS(QDockWidget)
-
 namespace QmlJSInspector {
 namespace Internal {
 
@@ -115,7 +113,6 @@ signals:
     void livePreviewActivated(bool isActivated);
 
 public slots:
-    void setSimpleDockWidgetArrangement(const Debugger::DebuggerLanguages &activeLanguages);
     void reloadQmlViewer();
     void serverReloaded();
     void setApplyChangesToQmlObserver(bool applyChanges);
@@ -157,7 +154,6 @@ private:
     QmlInspectorToolbar *m_toolbar;
     ContextCrumblePath *m_crumblePath;
     QmlJSObjectTree *m_objectTreeWidget;
-    QDockWidget *m_inspectorDockWidget;
 
     InspectorSettings *m_settings;
     ClientProxy *m_clientProxy;
