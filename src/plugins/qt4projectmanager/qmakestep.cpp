@@ -316,7 +316,8 @@ QStringList QMakeStep::parserArguments()
             result << arg;
         } else {
             for (int i = 0; i < ProFileOption::modeMapSize; ++i) {
-                if (QLatin1String(ProFileOption::modeMap[i].qmakeOption) == arg) {
+                // Workaround: Apple GCC does not like ProFileOption::modeMap[i], because the array's bounds are not known
+                if (QLatin1String((&ProFileOption::modeMap[0] + i)->qmakeOption) == arg) {
                     result << arg;
                     break;
                 }
