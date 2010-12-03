@@ -101,9 +101,6 @@ bool DockWidgetEventFilter::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-// first: language id, second: menu item
-typedef QPair<DebuggerLanguage, QAction *> ViewsMenuItems;
-
 class DebuggerMainWindowPrivate : public QObject
 {
     Q_OBJECT
@@ -118,9 +115,9 @@ public:
     bool isQmlCppActive() const;
     bool isQmlActive() const;
     void setSimpleDockWidgetArrangement(DebuggerLanguages activeLanguages);
+    void updateUi();
 
 public slots:
-    void updateUi();
     void resetDebuggerLayout();
 
     void updateUiForProject(ProjectExplorer::Project *project);
@@ -131,7 +128,6 @@ public slots:
 
 public:
     DebuggerMainWindow *q;
-    QList<ViewsMenuItems> m_viewsMenuItems;
     QList<QDockWidget *> m_dockWidgets;
 
     QHash<QString, QVariant> m_dockWidgetActiveStateCpp;
@@ -333,7 +329,8 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
     m_viewsMenu->addAction(cmd);
 }
 
-void DebuggerMainWindow::addLanguage(const DebuggerLanguage &languageId, const Context &context)
+void DebuggerMainWindow::addLanguage(const DebuggerLanguage &languageId,
+    const Context &context)
 {
     d->m_supportedLanguages = d->m_supportedLanguages | languageId;
     d->m_languageCount++;
@@ -477,8 +474,6 @@ QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &langua
                          QString("Debugger." + dockWidget->objectName()), globalContext);
     cmd->setAttribute(Command::CA_Hide);
     d->m_viewsMenu->addAction(cmd);
-
-    d->m_viewsMenuItems.append(qMakePair(language, toggleViewAction));
 
     dockWidget->installEventFilter(d->m_resizeEventFilter);
 
