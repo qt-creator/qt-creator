@@ -34,7 +34,7 @@
 #ifndef CMAKEUICODEMODELSUPPORT_H
 #define CMAKEUICODEMODELSUPPORT_H
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cplusplus/ModelManagerInterface.h>
 #include <cpptools/uicodecompletionsupport.h>
 
 #include <QtCore/QDateTime>
@@ -47,7 +47,7 @@ class CMakeProject;
 class CMakeUiCodeModelSupport : public CppTools::UiCodeModelSupport
 {
 public:
-    CMakeUiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
+    CMakeUiCodeModelSupport(CPlusPlus::CppModelManagerInterface *modelmanager,
                           CMakeProject *project,
                           const QString &sourceFile,
                           const QString &uiHeaderFile);

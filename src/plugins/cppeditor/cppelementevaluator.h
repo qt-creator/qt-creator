@@ -82,7 +82,7 @@ private:
                                const CPlusPlus::LookupContext &lookupContext);
 
     CPPEditor *m_editor;
-    CppTools::CppModelManagerInterface *m_modelManager;
+    CPlusPlus::CppModelManagerInterface *m_modelManager;
     QTextCursor m_tc;
     bool m_lookupBaseClasses;
     QSharedPointer<CppElement> m_element;

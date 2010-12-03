@@ -51,9 +51,11 @@ namespace Find {
     struct SearchResultItem;
 } // end of namespace Find
 
-namespace CppTools {
+namespace CPlusPlus {
 class CppModelManagerInterface;
+}
 
+namespace CppTools {
 namespace Internal {
 
 class CppFindReferences: public QObject
@@ -61,7 +63,7 @@ class CppFindReferences: public QObject
     Q_OBJECT
 
 public:
-    CppFindReferences(CppModelManagerInterface *modelManager);
+    CppFindReferences(CPlusPlus::CppModelManagerInterface *modelManager);
     virtual ~CppFindReferences();
 
     QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context) const;
@@ -90,7 +92,7 @@ private:
     void setDependencyTable(const CPlusPlus::DependencyTable &newTable);
 
 private:
-    QPointer<CppModelManagerInterface> _modelManager;
+    QPointer<CPlusPlus::CppModelManagerInterface> _modelManager;
     Find::SearchResultWindow *_resultWindow;
     QFutureWatcher<CPlusPlus::Usage> m_watcher;
 

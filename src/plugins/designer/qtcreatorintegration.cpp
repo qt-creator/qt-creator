@@ -40,10 +40,10 @@
 #include "codemodelhelpers.h"
 #include <widgethost.h>
 
-#include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/insertionpointlocator.h>
+#include <cplusplus/ModelManagerInterface.h>
 #include <cplusplus/Symbols.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/CoreTypes.h>
@@ -89,10 +89,10 @@ static QString msgClassNotFound(const QString &uiClassName, const QList<Document
     return QtCreatorIntegration::tr("The class definition of '%1' could not be found in %2.").arg(uiClassName, files);
 }
 
-static inline CppTools::CppModelManagerInterface *cppModelManagerInstance()
+static inline CppModelManagerInterface *cppModelManagerInstance()
 {
     return ExtensionSystem::PluginManager::instance()
-        ->getObject<CppTools::CppModelManagerInterface>();
+        ->getObject<CppModelManagerInterface>();
 }
 
 QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent) :
@@ -259,7 +259,7 @@ static Function *findDeclaration(const Class *cl, const QString &functionName)
 // TODO: remove me, this is taken from cppeditor.cpp. Find some common place for this method
 static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
 {
-    if (CppTools::CppModelManagerInterface *cppModelManager = cppModelManagerInstance()) {
+    if (CppModelManagerInterface *cppModelManager = cppModelManagerInstance()) {
         const Snapshot snapshot = cppModelManager->snapshot();
 
         if (Symbol *def = snapshot.findMatchingDefinition(functionDeclaration)) {
@@ -490,7 +490,7 @@ static inline QString uiClassName(QString formObjectName)
     return formObjectName;
 }
 
-static Document::Ptr getParsedDocument(const QString &fileName, CppTools::CppModelManagerInterface::WorkingCopy &workingCopy, Snapshot &snapshot)
+static Document::Ptr getParsedDocument(const QString &fileName, CppModelManagerInterface::WorkingCopy &workingCopy, Snapshot &snapshot)
 {
     QString src;
     if (workingCopy.contains(fileName)) {
@@ -606,7 +606,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         }
     } else {
         // add function declaration to cl
-        CppTools::CppModelManagerInterface::WorkingCopy workingCopy = cppModelManagerInstance()->workingCopy();
+        CppModelManagerInterface::WorkingCopy workingCopy = cppModelManagerInstance()->workingCopy();
         const QString fileName = doc->fileName();
         getParsedDocument(fileName, workingCopy, docTable);
         addDeclaration(docTable, fileName, cl, functionNameWithParameterNames);

@@ -35,17 +35,19 @@
 #ifndef UICODECOMPLETIONSUPPORT_H
 #define UICODECOMPLETIONSUPPORT_H
 
-#include "cppmodelmanagerinterface.h"
 #include "cpptools_global.h"
+#include "abstracteditorsupport.h"
+
+#include <cplusplus/ModelManagerInterface.h>
 
 #include <QtCore/QDateTime>
 
 namespace CppTools {
 
-class CPPTOOLS_EXPORT UiCodeModelSupport : public CppTools::AbstractEditorSupport
+class CPPTOOLS_EXPORT UiCodeModelSupport : public AbstractEditorSupport
 {
 public:
-    UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
+    UiCodeModelSupport(CPlusPlus::CppModelManagerInterface *modelmanager,
                        const QString &sourceFile,
                        const QString &uiHeaderFile);
     ~UiCodeModelSupport();

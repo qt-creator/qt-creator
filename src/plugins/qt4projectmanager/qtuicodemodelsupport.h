@@ -36,6 +36,10 @@
 
 #include <cpptools/uicodecompletionsupport.h>
 
+namespace CPlusPlus {
+class CppModelManagerInterface;
+}
+
 namespace Qt4ProjectManager {
 class Qt4Project;
 namespace Internal {
@@ -43,7 +47,7 @@ namespace Internal {
 class Qt4UiCodeModelSupport : public CppTools::UiCodeModelSupport
 {
 public:
-    Qt4UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
+    Qt4UiCodeModelSupport(CPlusPlus::CppModelManagerInterface *modelmanager,
                           Qt4Project *project,
                           const QString &sourceFile,
                           const QString &uiHeaderFile);

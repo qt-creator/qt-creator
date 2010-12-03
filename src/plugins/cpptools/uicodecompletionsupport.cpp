@@ -37,11 +37,12 @@
 enum { debug = 0 };
 
 using namespace CppTools;
+using namespace CPlusPlus;
 
-UiCodeModelSupport::UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
+UiCodeModelSupport::UiCodeModelSupport(CppModelManagerInterface *modelmanager,
                                        const QString &source,
                                        const QString &uiHeaderFile)
-    : CppTools::AbstractEditorSupport(modelmanager),
+    : AbstractEditorSupport(modelmanager),
       m_sourceName(source),
       m_fileName(uiHeaderFile),
       m_updateIncludingFiles(false),

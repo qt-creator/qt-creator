@@ -47,7 +47,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/toolchain.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cplusplus/ModelManagerInterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <designer/formwindoweditor.h>
 #include <utils/qtcassert.h>
@@ -95,8 +95,8 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
 CMakeProject::~CMakeProject()
 {
     // Remove CodeModel support
-    CppTools::CppModelManagerInterface *modelManager
-            = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
+    CPlusPlus::CppModelManagerInterface *modelManager
+            = ExtensionSystem::PluginManager::instance()->getObject<CPlusPlus::CppModelManagerInterface>();
     QMap<QString, CMakeUiCodeModelSupport *>::const_iterator it, end;
     it = m_uiCodeModelSupport.constBegin();
     end = m_uiCodeModelSupport.constEnd();
@@ -282,10 +282,10 @@ bool CMakeProject::parseCMakeLists()
     allIncludePaths.append(projectDirectory());
 
     allIncludePaths.append(cbpparser.includeFiles());
-    CppTools::CppModelManagerInterface *modelmanager =
-            ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
+    CPlusPlus::CppModelManagerInterface *modelmanager =
+            ExtensionSystem::PluginManager::instance()->getObject<CPlusPlus::CppModelManagerInterface>();
     if (modelmanager) {
-        CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
+        CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
         if (pinfo.includePaths != allIncludePaths
             || pinfo.sourceFiles != m_files
             || pinfo.defines != activeBC->toolChain()->predefinedMacros()
@@ -608,8 +608,8 @@ QString CMakeProject::uiHeaderFile(const QString &uiFile)
 void CMakeProject::createUiCodeModelSupport()
 {
 //    qDebug()<<"creatUiCodeModelSupport()";
-    CppTools::CppModelManagerInterface *modelManager
-            = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
+    CPlusPlus::CppModelManagerInterface *modelManager
+            = ExtensionSystem::PluginManager::instance()->getObject<CPlusPlus::CppModelManagerInterface>();
 
     // First move all to
     QMap<QString, CMakeUiCodeModelSupport *> oldCodeModelSupport;

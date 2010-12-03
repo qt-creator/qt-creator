@@ -38,7 +38,7 @@
 #include "mobilelibraryparameters.h"
 
 #include <utils/codegeneration.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/abstracteditorsupport.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtCore/QDir>

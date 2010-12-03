@@ -34,7 +34,8 @@
 #ifndef CPPMODELMANAGER_H
 #define CPPMODELMANAGER_H
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include "cpptools_global.h"
+#include <cplusplus/ModelManagerInterface.h>
 #ifndef ICHECK_BUILD
 #  include <projectexplorer/project.h>
 #endif
@@ -83,13 +84,15 @@ class CppPreprocessor;
 class CppFindReferences;
 
 #ifndef ICHECK_BUILD
-class CppModelManager : public CppModelManagerInterface
+class CppModelManager : public CPlusPlus::CppModelManagerInterface
 {
     Q_OBJECT
 
 public:
     CppModelManager(QObject *parent);
     virtual ~CppModelManager();
+
+    static CppModelManager *instance();
 
     virtual QFuture<void> updateSourceFiles(const QStringList &sourceFiles);
     virtual WorkingCopy workingCopy() const;
@@ -139,6 +142,7 @@ Q_SIGNALS:
 public Q_SLOTS:
     void editorOpened(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *editor);
+    virtual void updateModifiedSourceFiles();
 
 private Q_SLOTS:
     // this should be executed in the GUI thread.
@@ -251,7 +255,7 @@ public:
     virtual ~CppPreprocessor();
 
     void setRevision(unsigned revision);
-    void setWorkingCopy(const CppModelManagerInterface::WorkingCopy &workingCopy);
+    void setWorkingCopy(const CPlusPlus::CppModelManagerInterface::WorkingCopy &workingCopy);
     void setIncludePaths(const QStringList &includePaths);
     void setFrameworkPaths(const QStringList &frameworkPaths);
     void addFrameworkPath(const QString &frameworkPath);
@@ -299,7 +303,7 @@ private:
     CPlusPlus::Preprocessor preprocess;
     QStringList m_includePaths;
     QStringList m_systemIncludePaths;
-    CppModelManagerInterface::WorkingCopy m_workingCopy;
+    CPlusPlus::CppModelManagerInterface::WorkingCopy m_workingCopy;
     QStringList m_projectFiles;
     QStringList m_frameworkPaths;
     QSet<QString> m_included;

@@ -31,49 +31,37 @@
 **
 **************************************************************************/
 
-#ifndef QTCREATORINTEGRATION_H
-#define QTCREATORINTEGRATION_H
+#ifndef ABSTRACTEDITORSUPPORT_H
+#define ABSTRACTEDITORSUPPORT_H
+
+#include "cpptools_global.h"
 
 #include <cplusplus/ModelManagerInterface.h>
 
-#include "qt_private/qdesigner_integration_p.h"
+namespace CppTools {
 
-QT_FORWARD_DECLARE_CLASS(QUrl)
-
-namespace Designer {
-namespace Internal {
-
-class FormEditorW;
-
-class QtCreatorIntegration : public qdesigner_internal::QDesignerIntegration {
-    Q_OBJECT
+class CPPTOOLS_EXPORT AbstractEditorSupport
+{
 public:
-    explicit QtCreatorIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent = 0);
+    explicit AbstractEditorSupport(CPlusPlus::CppModelManagerInterface *modelmanager);
+    virtual ~AbstractEditorSupport();
 
-    QWidget *containerWindow(QWidget *widget) const;
+    virtual QByteArray contents() const = 0;
+    virtual QString fileName() const = 0;
 
-    bool supportsToSlotNavigation() { return true; }
+    void updateDocument();
 
-signals:
-    void creatorHelpRequested(const QUrl &url);
+    // TODO: find a better place for common utility functions
+    static QString functionAt(const CPlusPlus::CppModelManagerInterface *mm,
+                              const QString &fileName,
+                              int line, int column);
 
-public slots:
-    void updateSelection();
-
-private slots:
-    void slotNavigateToSlot(const QString &objectName, const QString &signalSignature, const QStringList &parameterNames);
-    void slotDesignerHelpRequested(const QString &manual, const QString &document);
-    void slotSyncSettingsToDesigner();
+    static QString licenseTemplate(const QString &file = QString(), const QString &className = QString());
 
 private:
-    bool navigateToSlot(const QString &objectName,
-                        const QString &signalSignature,
-                        const QStringList &parameterNames,
-                        QString *errorMessage);
-    FormEditorW *m_few;
+    CPlusPlus::CppModelManagerInterface *m_modelmanager;
 };
 
-} // namespace Internal
-} // namespace Designer
+}
 
-#endif // QTCREATORINTEGRATION_H
+#endif // ABSTRACTEDITORSUPPORT_H

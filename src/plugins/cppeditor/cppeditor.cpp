@@ -54,6 +54,7 @@
 #include <SymbolVisitor.h>
 #include <TranslationUnit.h>
 #include <cplusplus/ASTPath.h>
+#include <cplusplus/ModelManagerInterface.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/Overview.h>
@@ -64,7 +65,6 @@
 #include <cplusplus/FastPreprocessor.h>
 
 #include <cpptools/cpptoolsplugin.h>
-#include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppcodeformatter.h>
 
@@ -426,7 +426,7 @@ CPPEditor::CPPEditor(QWidget *parent)
 
     baseTextDocument()->setSyntaxHighlighter(new CppHighlighter);
 
-    m_modelManager = CppTools::CppModelManagerInterface::instance();
+    m_modelManager = CppModelManagerInterface::instance();
 
     if (m_modelManager) {
         connect(m_modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
@@ -558,7 +558,7 @@ void CPPEditor::cut()
     finishRename();
 }
 
-CppTools::CppModelManagerInterface *CPPEditor::modelManager() const
+CppModelManagerInterface *CPPEditor::modelManager() const
 {
     return m_modelManager;
 }
@@ -666,7 +666,7 @@ const Macro *CPPEditor::findCanonicalMacro(const QTextCursor &cursor, Document::
 void CPPEditor::findUsages()
 {
     SemanticInfo info = m_lastSemanticInfo;
-    info.snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
+    info.snapshot = CppModelManagerInterface::instance()->snapshot();
     info.snapshot.insert(info.doc);
 
     CanonicalSymbol cs(this, info);
@@ -682,7 +682,7 @@ void CPPEditor::findUsages()
 void CPPEditor::renameUsagesNow(const QString &replacement)
 {
     SemanticInfo info = m_lastSemanticInfo;
-    info.snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
+    info.snapshot = CppModelManagerInterface::instance()->snapshot();
     info.snapshot.insert(info.doc);
 
     CanonicalSymbol cs(this, info);
@@ -778,7 +778,7 @@ static QList<int> lazyFindReferences(Scope *scope, QString code, Document::Ptr d
     snapshot.insert(doc);
     typeOfExpression.init(doc, snapshot);
     if (Symbol *canonicalSymbol = CanonicalSymbol::canonicalSymbol(scope, code, typeOfExpression)) {
-        return CppTools::CppModelManagerInterface::instance()->references(canonicalSymbol, typeOfExpression.context());
+        return CppModelManagerInterface::instance()->references(canonicalSymbol, typeOfExpression.context());
     }
     return QList<int>();
 }

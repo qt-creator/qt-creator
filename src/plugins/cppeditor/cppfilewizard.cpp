@@ -35,7 +35,7 @@
 #include "cppeditor.h"
 #include "cppeditorconstants.h"
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/abstracteditorsupport.h>
 #include <utils/codegeneration.h>
 
 #include <QtCore/QTextStream>

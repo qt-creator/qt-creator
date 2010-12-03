@@ -38,7 +38,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cplusplus/ModelManagerInterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>

@@ -62,8 +62,8 @@
 #include <texteditor/texteditorplugin.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/texteditorconstants.h>
+#include <cplusplus/ModelManagerInterface.h>
 #include <cpptools/cpptoolsconstants.h>
-#include <cpptools/cppmodelmanagerinterface.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
@@ -307,7 +307,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     cppToolsMenu->addAction(createSeparator(am, this, globalContext, CppEditor::Constants::SEPARATOR4));
     m_updateCodeModelAction = new QAction(tr("Update Code Model"), this);
     cmd = am->registerAction(m_updateCodeModelAction, Core::Id(Constants::UPDATE_CODEMODEL), globalContext);
-    CppTools::CppModelManagerInterface *cppModelManager = CppTools::CppModelManagerInterface::instance();
+    CPlusPlus::CppModelManagerInterface *cppModelManager = CPlusPlus::CppModelManagerInterface::instance();
     connect(m_updateCodeModelAction, SIGNAL(triggered()), cppModelManager, SLOT(updateModifiedSourceFiles()));
     cppToolsMenu->addAction(cmd);
 

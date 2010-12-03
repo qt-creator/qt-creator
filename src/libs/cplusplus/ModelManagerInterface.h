@@ -34,7 +34,6 @@
 #ifndef CPPMODELMANAGERINTERFACE_H
 #define CPPMODELMANAGERINTERFACE_H
 
-#include <cpptools/cpptools_global.h>
 #include <cplusplus/CppDocument.h>
 #include <QtCore/QObject>
 #include <QtCore/QHash>
@@ -59,14 +58,12 @@ namespace TextEditor {
 }
 
 namespace CppTools {
-
-class AbstractEditorSupport;
-
-namespace Internal {
-class CppEditorSupport;
+    class AbstractEditorSupport;
 }
 
-class CPPTOOLS_EXPORT CppModelManagerInterface : public QObject
+namespace CPlusPlus {
+
+class CPLUSPLUS_EXPORT CppModelManagerInterface : public QObject
 {
     Q_OBJECT
 
@@ -121,8 +118,8 @@ public:
     };
 
 public:
-    CppModelManagerInterface(QObject *parent = 0) : QObject(parent) {}
-    virtual ~CppModelManagerInterface() {}
+    CppModelManagerInterface(QObject *parent = 0);
+    virtual ~CppModelManagerInterface();
 
     static CppModelManagerInterface *instance();
 
@@ -137,8 +134,8 @@ public:
 
     virtual QStringList includesInPath(const QString &path) const = 0;
 
-    virtual void addEditorSupport(AbstractEditorSupport *editorSupport) = 0;
-    virtual void removeEditorSupport(AbstractEditorSupport *editorSupport) = 0;
+    virtual void addEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
+    virtual void removeEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
 
     virtual QList<int> references(CPlusPlus::Symbol *symbol,
                                   const CPlusPlus::LookupContext &context) = 0;
@@ -153,33 +150,11 @@ Q_SIGNALS:
     void documentUpdated(CPlusPlus::Document::Ptr doc);
 
 public Q_SLOTS:
-    void updateModifiedSourceFiles();
+    virtual void updateModifiedSourceFiles() = 0;
     virtual QFuture<void> updateSourceFiles(const QStringList &sourceFiles) = 0;
     virtual void GC() = 0;
 };
 
-class CPPTOOLS_EXPORT AbstractEditorSupport
-{
-public:
-    explicit AbstractEditorSupport(CppModelManagerInterface *modelmanager);
-    virtual ~AbstractEditorSupport();
-
-    virtual QByteArray contents() const = 0;
-    virtual QString fileName() const = 0;
-
-    void updateDocument();
-
-    // TODO: find a better place for common utility functions
-    static QString functionAt(const CppModelManagerInterface *mm,
-                              const QString &fileName,
-                              int line, int column);
-
-    static QString licenseTemplate(const QString &file = QString(), const QString &className = QString());
-
-private:
-    CppModelManagerInterface *m_modelmanager;
-};
-
-} // namespace CppTools
+} // namespace CPlusPlus
 
 #endif // CPPMODELMANAGERINTERFACE_H

@@ -85,7 +85,7 @@
 #include <coreplugin/modemanager.h>
 
 #include <cppeditor/cppeditorconstants.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cplusplus/ModelManagerInterface.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -2404,9 +2404,8 @@ void DebuggerPluginPrivate::coreShutdown()
 
 const CPlusPlus::Snapshot &DebuggerPluginPrivate::cppCodeModelSnapshot() const
 {
-    using namespace CppTools;
     if (m_codeModelSnapshot.isEmpty() && action(UseCodeModel)->isChecked())
-        m_codeModelSnapshot = CppModelManagerInterface::instance()->snapshot();
+        m_codeModelSnapshot = CPlusPlus::CppModelManagerInterface::instance()->snapshot();
     return m_codeModelSnapshot;
 }
 

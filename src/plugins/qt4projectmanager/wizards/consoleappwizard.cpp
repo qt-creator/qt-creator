@@ -36,7 +36,7 @@
 #include "consoleappwizarddialog.h"
 #include "qt4projectmanagerconstants.h"
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/abstracteditorsupport.h>
 
 #include <QtGui/QIcon>
 

@@ -41,7 +41,7 @@
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cplusplus/ModelManagerInterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/pathchooser.h>
 #include <coreplugin/icore.h>
@@ -203,13 +203,13 @@ void GenericProject::refresh(RefreshOptions options)
     if (options & Files)
         m_rootNode->refresh();
 
-    CppTools::CppModelManagerInterface *modelManager =
-        ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
+    CPlusPlus::CppModelManagerInterface *modelManager =
+        ExtensionSystem::PluginManager::instance()->getObject<CPlusPlus::CppModelManagerInterface>();
 
     if (m_toolChain && modelManager) {
         const QByteArray predefinedMacros = m_toolChain->predefinedMacros();
 
-        CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
+        CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
         pinfo.defines = predefinedMacros;
         pinfo.defines += '\n';
         pinfo.defines += m_defines;

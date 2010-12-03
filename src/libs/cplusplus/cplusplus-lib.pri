@@ -50,7 +50,8 @@ HEADERS += \
     $$PWD/pp-cctype.h \
     $$PWD/pp-engine.h \
     $$PWD/pp-macro-expander.h \
-    $$PWD/pp-scanner.h
+    $$PWD/pp-scanner.h \
+    $$PWD/ModelManagerInterface.h
 
 SOURCES += \
     $$PWD/SimpleLexer.cpp \
@@ -76,6 +77,7 @@ SOURCES += \
     $$PWD/Macro.cpp \
     $$PWD/pp-engine.cpp \
     $$PWD/pp-macro-expander.cpp \
-    $$PWD/pp-scanner.cpp
+    $$PWD/pp-scanner.cpp \
+    $$PWD/ModelManagerInterface.cpp
 
 RESOURCES += $$PWD/cplusplus.qrc

@@ -34,7 +34,7 @@
 #include "testwizard.h"
 #include "testwizarddialog.h"
 
-#include <cpptools/cppmodelmanager.h>
+#include <cpptools/abstracteditorsupport.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/qtcassert.h>

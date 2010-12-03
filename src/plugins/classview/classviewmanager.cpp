@@ -41,7 +41,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <texteditor/basetexteditor.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cplusplus/ModelManagerInterface.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -86,7 +86,7 @@ struct ManagerPrivate
     QThread parserThread;
 
     //! cpp code model manager
-    QPointer<CppTools::CppModelManagerInterface> codeModelManager;
+    QPointer<CPlusPlus::CppModelManagerInterface> codeModelManager;
 
     //! there is some massive operation ongoing so temporary we should wait
     bool disableCodeParser;
@@ -167,7 +167,7 @@ void Manager::initialize()
             SLOT(onAllTasksFinished(QString)), Qt::QueuedConnection);
 
     // connect to the cpp model manager for signals about document updates
-    d_ptr->codeModelManager = CppTools::CppModelManagerInterface::instance();
+    d_ptr->codeModelManager = CPlusPlus::CppModelManagerInterface::instance();
 
     // when code manager signals that document is updated - handle it by ourselves
     connect(d_ptr->codeModelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),

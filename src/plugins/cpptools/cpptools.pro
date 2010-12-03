@@ -14,7 +14,6 @@ HEADERS += completionsettingspage.h \
     cppcurrentdocumentfilter.h \
     cppfunctionsfilter.h \
     cppmodelmanager.h \
-    cppmodelmanagerinterface.h \
     cpplocatorfilter.h \
     cpptools_global.h \
     cpptoolsconstants.h \
@@ -28,7 +27,8 @@ HEADERS += completionsettingspage.h \
     symbolsfindfilter.h \
     uicodecompletionsupport.h \
     insertionpointlocator.h \
-    cpprefactoringchanges.h
+    cpprefactoringchanges.h \
+    abstracteditorsupport.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \

@@ -51,7 +51,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <extensionsystem/pluginmanager.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cplusplus/ModelManagerInterface.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildenvironmentwidget.h>
@@ -421,9 +421,9 @@ void Qt4Project::updateCppCodeModel()
 {
     Qt4BuildConfiguration *activeBC = activeTarget()->activeBuildConfiguration();
 
-    CppTools::CppModelManagerInterface *modelmanager =
+    CPlusPlus::CppModelManagerInterface *modelmanager =
         ExtensionSystem::PluginManager::instance()
-            ->getObject<CppTools::CppModelManagerInterface>();
+            ->getObject<CPlusPlus::CppModelManagerInterface>();
 
     if (!modelmanager)
         return;
@@ -544,7 +544,7 @@ void Qt4Project::updateCppCodeModel()
     files += m_projectFiles->files[SourceType];
     files += m_projectFiles->generatedFiles[SourceType];
 
-    CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
+    CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
 
     //qDebug()<<"Using precompiled header"<<allPrecompileHeaders;
 

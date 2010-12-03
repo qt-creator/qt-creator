@@ -38,6 +38,7 @@
 #include "cppquickfix.h"
 #include "cppsemanticinfo.h"
 
+#include <cplusplus/ModelManagerInterface.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>
 #include <texteditor/basetexteditor.h>
@@ -178,7 +179,7 @@ public:
     virtual void paste(); // reimplemented from BaseTextEditor
     virtual void cut(); // reimplemented from BaseTextEditor
 
-    CppTools::CppModelManagerInterface *modelManager() const;
+    CPlusPlus::CppModelManagerInterface *modelManager() const;
 
     virtual void setMimeType(const QString &mt);
 
@@ -273,7 +274,7 @@ private:
 
     QModelIndex indexForPosition(int line, int column, const QModelIndex &rootIndex = QModelIndex()) const;
 
-    CppTools::CppModelManagerInterface *m_modelManager;
+    CPlusPlus::CppModelManagerInterface *m_modelManager;
 
     QComboBox *m_outlineCombo;
     CPlusPlus::OverviewModel *m_outlineModel;

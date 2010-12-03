@@ -46,9 +46,10 @@
 #include <texteditor/texteditorconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <cpptools/abstracteditorsupport.h>
 
+#include <cplusplus/ModelManagerInterface.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Overview.h>
 #include <Symbols.h>
@@ -709,13 +710,13 @@ bool currentTextEditorPosition(QString *fileNameIn /* = 0 */,
     return !fileName.isEmpty();
 }
 
-static CppTools::CppModelManagerInterface *cppModelManager()
+static CPlusPlus::CppModelManagerInterface *cppModelManager()
 {
-    using namespace CppTools;
+    using namespace CPlusPlus;
     static QPointer<CppModelManagerInterface> modelManager;
     if (!modelManager.data())
         modelManager = ExtensionSystem::PluginManager::instance()->
-                getObject<CppTools::CppModelManagerInterface>();
+                getObject<CPlusPlus::CppModelManagerInterface>();
     return modelManager.data();
 }
 
@@ -724,6 +725,7 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
                         int *line, int *column, QString *function /* = 0 */)
 {
     using namespace CppTools;
+    using namespace CPlusPlus;
     *line = *column = 0;
     if (function)
         function->clear();

@@ -31,7 +31,7 @@
 **
 **************************************************************************/
 
-#include "cppmodelmanagerinterface.h"
+#include "abstracteditorsupport.h"
 #include "cpptoolsconstants.h"
 #include "cppfilesettingspage.h"
 
@@ -45,6 +45,8 @@
 
 #include <coreplugin/icore.h>
 #include <QtCore/QDebug>
+
+using namespace CPlusPlus;
 
 namespace CppTools {
 

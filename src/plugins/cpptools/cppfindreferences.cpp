@@ -32,7 +32,6 @@
 **************************************************************************/
 
 #include "cppfindreferences.h"
-#include "cppmodelmanagerinterface.h"
 #include "cpptoolsconstants.h"
 
 #include <texteditor/basetexteditor.h>
@@ -54,6 +53,7 @@
 #include <Names.h>
 #include <Scope.h>
 
+#include <cplusplus/ModelManagerInterface.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/FindUsages.h>
@@ -72,7 +72,7 @@ using namespace CppTools::Internal;
 using namespace CPlusPlus;
 
 static QString getSource(const QString &fileName,
-                         const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy)
+                         const CppModelManagerInterface::WorkingCopy &workingCopy)
 {
     if (workingCopy.contains(fileName)) {
         return workingCopy.source(fileName);
@@ -89,13 +89,13 @@ namespace {
 
 class ProcessFile: public std::unary_function<QString, QList<Usage> >
 {
-    const CppTools::CppModelManagerInterface::WorkingCopy workingCopy;
+    const CppModelManagerInterface::WorkingCopy workingCopy;
     const Snapshot snapshot;
     Document::Ptr symbolDocument;
     Symbol *symbol;
 
 public:
-    ProcessFile(const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy,
+    ProcessFile(const CppModelManagerInterface::WorkingCopy &workingCopy,
                 const Snapshot snapshot,
                 Document::Ptr symbolDocument,
                 Symbol *symbol)
@@ -157,7 +157,7 @@ public:
 
 } // end of anonymous namespace
 
-CppFindReferences::CppFindReferences(CppTools::CppModelManagerInterface *modelManager)
+CppFindReferences::CppFindReferences(CppModelManagerInterface *modelManager)
     : QObject(modelManager),
       _modelManager(modelManager),
       _resultWindow(Find::SearchResultWindow::instance())
@@ -183,7 +183,7 @@ QList<int> CppFindReferences::references(Symbol *symbol, const LookupContext &co
 }
 
 static void find_helper(QFutureInterface<Usage> &future,
-                        const CppTools::CppModelManagerInterface::WorkingCopy workingCopy,
+                        const CppModelManagerInterface::WorkingCopy workingCopy,
                         const LookupContext context,
                         CppFindReferences *findRefs,
                         Symbol *symbol)
@@ -260,7 +260,7 @@ void CppFindReferences::findAll_helper(Symbol *symbol, const LookupContext &cont
 
     _resultWindow->popup(true);
 
-    const CppTools::CppModelManagerInterface::WorkingCopy workingCopy = _modelManager->workingCopy();
+    const CppModelManagerInterface::WorkingCopy workingCopy = _modelManager->workingCopy();
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
@@ -321,12 +321,12 @@ namespace {
 
 class FindMacroUsesInFile: public std::unary_function<QString, QList<Usage> >
 {
-    const CppTools::CppModelManagerInterface::WorkingCopy workingCopy;
+    const CppModelManagerInterface::WorkingCopy workingCopy;
     const Snapshot snapshot;
     const Macro &macro;
 
 public:
-    FindMacroUsesInFile(const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy,
+    FindMacroUsesInFile(const CppModelManagerInterface::WorkingCopy &workingCopy,
                         const Snapshot snapshot,
                         const Macro &macro)
         : workingCopy(workingCopy), snapshot(snapshot), macro(macro)
@@ -388,7 +388,7 @@ public:
 } // end of anonymous namespace
 
 static void findMacroUses_helper(QFutureInterface<Usage> &future,
-                                 const CppTools::CppModelManagerInterface::WorkingCopy workingCopy,
+                                 const CppModelManagerInterface::WorkingCopy workingCopy,
                                  const Snapshot snapshot,
                                  CppFindReferences *findRefs,
                                  const Macro macro)

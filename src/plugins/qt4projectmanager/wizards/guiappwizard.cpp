@@ -36,7 +36,7 @@
 #include "guiappwizarddialog.h"
 #include "qt4projectmanagerconstants.h"
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/abstracteditorsupport.h>
 #include <designer/cpp/formclasswizardparameters.h>
 #include <coreplugin/icore.h>
 

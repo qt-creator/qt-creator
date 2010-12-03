@@ -36,7 +36,7 @@
 
 #include <coreplugin/basefilewizard.h>
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/abstracteditorsupport.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>

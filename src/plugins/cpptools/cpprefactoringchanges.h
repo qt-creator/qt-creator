@@ -35,10 +35,10 @@
 #define CPPREFACTORINGCHANGES_H
 
 #include <ASTfwd.h>
+#include <cplusplus/ModelManagerInterface.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>
 
-#include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptools_global.h>
 
 #include <texteditor/refactoringchanges.h>
@@ -99,8 +99,8 @@ private:
     CPlusPlus::Document::Ptr m_thisDocument;
     CPlusPlus::Snapshot m_snapshot;
     CPlusPlus::LookupContext m_context;
-    CppTools::CppModelManagerInterface *m_modelManager;
-    CppTools::CppModelManagerInterface::WorkingCopy m_workingCopy;
+    CPlusPlus::CppModelManagerInterface *m_modelManager;
+    CPlusPlus::CppModelManagerInterface::WorkingCopy m_workingCopy;
 };
 
 } // namespace CppTools

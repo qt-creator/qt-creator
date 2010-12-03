@@ -51,7 +51,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cplusplus/ModelManagerInterface.h>
 #include <cplusplus/CppDocument.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -1328,8 +1328,8 @@ Qt4ProFileNode::Qt4ProFileNode(Qt4Project *project,
 
 Qt4ProFileNode::~Qt4ProFileNode()
 {
-    CppTools::CppModelManagerInterface *modelManager
-            = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
+    CPlusPlus::CppModelManagerInterface *modelManager
+            = ExtensionSystem::PluginManager::instance()->getObject<CPlusPlus::CppModelManagerInterface>();
     QMap<QString, Qt4UiCodeModelSupport *>::const_iterator it, end;
     end = m_uiCodeModelSupport.constEnd();
     for (it = m_uiCodeModelSupport.constBegin(); it != end; ++it) {
@@ -1890,8 +1890,8 @@ QStringList Qt4ProFileNode::updateUiFiles()
         removeFileNodes(toRemove, this);
     }
 
-    CppTools::CppModelManagerInterface *modelManager =
-        ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
+    CPlusPlus::CppModelManagerInterface *modelManager =
+        ExtensionSystem::PluginManager::instance()->getObject<CPlusPlus::CppModelManagerInterface>();
 
     if (!toAdd.isEmpty()) {
         foreach (FileNode *file, toAdd) {
@@ -2192,8 +2192,8 @@ QString Qt4ProFileNode::uiHeaderFile(const QString &uiDir, const QString &formFi
 void Qt4ProFileNode::createUiCodeModelSupport()
 {
 //    qDebug()<<"creatUiCodeModelSupport()";
-    CppTools::CppModelManagerInterface *modelManager
-            = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
+    CPlusPlus::CppModelManagerInterface *modelManager
+            = ExtensionSystem::PluginManager::instance()->getObject<CPlusPlus::CppModelManagerInterface>();
 
     // First move all to
     QMap<QString, Qt4UiCodeModelSupport *> oldCodeModelSupport;

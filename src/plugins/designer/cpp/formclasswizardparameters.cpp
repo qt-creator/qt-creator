@@ -35,7 +35,7 @@
 #include "formtemplatewizardpage.h"
 
 #include <utils/codegeneration.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/abstracteditorsupport.h>
 
 #include <QtCore/QTextStream>
 #include <QtCore/QSettings>

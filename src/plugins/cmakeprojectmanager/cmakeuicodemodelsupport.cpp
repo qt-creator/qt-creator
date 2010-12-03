@@ -36,12 +36,14 @@
 #include "cmaketarget.h"
 #include "cmakebuildconfiguration.h"
 
+#include <cplusplus/ModelManagerInterface.h>
+
 #include <QtCore/QProcess>
 
 using namespace CMakeProjectManager;
 using namespace Internal;
 
-CMakeUiCodeModelSupport::CMakeUiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
+CMakeUiCodeModelSupport::CMakeUiCodeModelSupport(CPlusPlus::CppModelManagerInterface *modelmanager,
                                              CMakeProject *project,
                                              const QString &source,
                                              const QString &uiHeaderFile)

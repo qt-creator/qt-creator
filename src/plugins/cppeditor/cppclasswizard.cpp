@@ -35,7 +35,7 @@
 #include "cppeditorconstants.h"
 
 #include <cpptools/cpptoolsconstants.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/abstracteditorsupport.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 

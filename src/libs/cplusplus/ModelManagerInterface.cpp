@@ -31,49 +31,27 @@
 **
 **************************************************************************/
 
-#ifndef QTCREATORINTEGRATION_H
-#define QTCREATORINTEGRATION_H
+#include "ModelManagerInterface.h"
 
-#include <cplusplus/ModelManagerInterface.h>
+using namespace CPlusPlus;
 
-#include "qt_private/qdesigner_integration_p.h"
+static CppModelManagerInterface *g_instance = 0;
 
-QT_FORWARD_DECLARE_CLASS(QUrl)
+CppModelManagerInterface::CppModelManagerInterface(QObject *parent)
+    : QObject(parent)
+{
+    Q_ASSERT(! g_instance);
+    g_instance = this;
+}
 
-namespace Designer {
-namespace Internal {
+CppModelManagerInterface::~CppModelManagerInterface()
+{
+    Q_ASSERT(g_instance == this);
+    g_instance = 0;
+}
 
-class FormEditorW;
+CppModelManagerInterface *CppModelManagerInterface::instance()
+{
+    return g_instance;
+}
 
-class QtCreatorIntegration : public qdesigner_internal::QDesignerIntegration {
-    Q_OBJECT
-public:
-    explicit QtCreatorIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent = 0);
-
-    QWidget *containerWindow(QWidget *widget) const;
-
-    bool supportsToSlotNavigation() { return true; }
-
-signals:
-    void creatorHelpRequested(const QUrl &url);
-
-public slots:
-    void updateSelection();
-
-private slots:
-    void slotNavigateToSlot(const QString &objectName, const QString &signalSignature, const QStringList &parameterNames);
-    void slotDesignerHelpRequested(const QString &manual, const QString &document);
-    void slotSyncSettingsToDesigner();
-
-private:
-    bool navigateToSlot(const QString &objectName,
-                        const QString &signalSignature,
-                        const QStringList &parameterNames,
-                        QString *errorMessage);
-    FormEditorW *m_few;
-};
-
-} // namespace Internal
-} // namespace Designer
-
-#endif // QTCREATORINTEGRATION_H

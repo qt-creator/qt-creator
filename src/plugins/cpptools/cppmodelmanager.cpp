@@ -35,6 +35,7 @@
 #include <cplusplus/Overview.h>
 
 #include "cppmodelmanager.h"
+#include "abstracteditorsupport.h"
 #ifndef ICHECK_BUILD
 #  include "cpptoolsconstants.h"
 #  include "cpptoolseditorsupport.h"
@@ -189,7 +190,7 @@ CppPreprocessor::~CppPreprocessor()
 void CppPreprocessor::setRevision(unsigned revision)
 { m_revision = revision; }
 
-void CppPreprocessor::setWorkingCopy(const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy)
+void CppPreprocessor::setWorkingCopy(const CppModelManagerInterface::WorkingCopy &workingCopy)
 { m_workingCopy = workingCopy; }
 
 void CppPreprocessor::setIncludePaths(const QStringList &includePaths)
@@ -617,7 +618,7 @@ Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
 }
 
 #ifndef ICHECK_BUILD
-void CppTools::CppModelManagerInterface::updateModifiedSourceFiles()
+void CppModelManager::updateModifiedSourceFiles()
 {
     const Snapshot snapshot = this->snapshot();
     QStringList sourceFiles;
@@ -636,11 +637,10 @@ void CppTools::CppModelManagerInterface::updateModifiedSourceFiles()
     updateSourceFiles(sourceFiles);
 }
 
-CppTools::CppModelManagerInterface *CppTools::CppModelManagerInterface::instance()
+CppModelManager *CppModelManager::instance()
 {
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
-    return pluginManager->getObject<CppTools::CppModelManagerInterface>();
-
+    return pluginManager->getObject<CppModelManager>();
 }
 
 
@@ -1417,5 +1417,6 @@ void CppModelManager::GC()
     m_snapshot = newSnapshot;
     protectSnapshot.unlock();
 }
+
 #endif
 
