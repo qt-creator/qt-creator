@@ -578,15 +578,6 @@ QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
     return saveModifiedFiles(files, cancelled, false, message, alwaysSaveMessage, alwaysSave);
 }
 
-static QMessageBox::StandardButton skipFailedPrompt(QWidget *parent, const QString &fileName)
-{
-    return QMessageBox::question(parent,
-                                 FileManager::tr("Cannot save file"),
-                                 FileManager::tr("Cannot save changes to '%1'. Do you want to continue and lose your changes?").arg(fileName),
-                                 QMessageBox::YesToAll| QMessageBox::Yes|QMessageBox::No,
-                                 QMessageBox::No);
-}
-
 QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
                                               bool *cancelled,
                                               bool silently,
