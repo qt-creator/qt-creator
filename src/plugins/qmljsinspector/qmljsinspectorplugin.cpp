@@ -35,7 +35,6 @@
 
 #include <debugger/debuggerconstants.h>
 #include <debugger/qml/qmladapter.h>
-#include <debugger/qml/qmlengine.h>
 
 #include <qmlprojectmanager/qmlproject.h>
 #include <qmljseditor/qmljseditorconstants.h>
@@ -135,10 +134,8 @@ void InspectorPlugin::objectAdded(QObject *object)
         return;
     }
 
-    Debugger::QmlEngine *engine = qobject_cast<Debugger::QmlEngine*>(object);
-    if (engine) {
-        m_inspectorUi->setDebuggerEngine(engine);
-    }
+    if (object->objectName() == QLatin1String("QmlEngine"))
+        m_inspectorUi->setDebuggerEngine(object);
 }
 
 void InspectorPlugin::aboutToRemoveObject(QObject *obj)
