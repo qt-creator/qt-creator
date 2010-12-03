@@ -33,7 +33,6 @@
 #include "qmljsclientproxy.h"
 #include "qmlinspectortoolbar.h"
 
-#include <debugger/debuggeruiswitcher.h>
 #include <debugger/debuggerconstants.h>
 #include <debugger/qml/qmladapter.h>
 #include <debugger/qml/qmlengine.h>
