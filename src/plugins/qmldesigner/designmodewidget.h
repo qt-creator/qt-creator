@@ -148,6 +148,8 @@ private slots:
     void updateAvailableSidebarItemsLeft();
     void updateAvailableSidebarItemsRight();
 
+    void deleteSidebarWidgets();
+
 protected:
     void resizeEvent(QResizeEvent *event);
 

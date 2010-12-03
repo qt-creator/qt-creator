@@ -670,6 +670,9 @@ void DesignModeWidget::setup()
     connect(m_leftSideBar, SIGNAL(availableItemsChanged()), SLOT(updateAvailableSidebarItemsRight()));
     connect(m_rightSideBar, SIGNAL(availableItemsChanged()), SLOT(updateAvailableSidebarItemsLeft()));
 
+    connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
+            this, SLOT(deleteSidebarWidgets()));
+
     m_fakeToolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsStandalone);
     //m_fakeToolBar->addEditor(textEditor()); ### what does this mean?
     m_fakeToolBar->setNavigationVisible(false);
@@ -736,6 +739,14 @@ void DesignModeWidget::updateAvailableSidebarItemsLeft()
 {
     // event comes from m_rightSidebar, so update left side.
     m_leftSideBar->setUnavailableItemIds(m_rightSideBar->unavailableItemIds());
+}
+
+void DesignModeWidget::deleteSidebarWidgets()
+{
+    delete m_leftSideBar;
+    delete m_rightSideBar;
+    m_leftSideBar = 0;
+    m_rightSideBar = 0;
 }
 
 void DesignModeWidget::resizeEvent(QResizeEvent *event)
