@@ -75,6 +75,7 @@ private slots:
     void objectAdded(QObject *object);
     void aboutToRemoveObject(QObject *obj);
     void clientProxyConnected();
+    void modeAboutToChange(Core::IMode *mode);
 
 private:
     void createActions();

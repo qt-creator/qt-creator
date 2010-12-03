@@ -45,6 +45,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/modemanager.h>
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QStringList>
 #include <QtCore/QtPlugin>
@@ -114,7 +117,9 @@ void InspectorPlugin::extensionsInitialized()
     connect(pluginManager, SIGNAL(objectAdded(QObject*)), SLOT(objectAdded(QObject*)));
     connect(pluginManager, SIGNAL(aboutToRemoveObject(QObject*)), SLOT(aboutToRemoveObject(QObject*)));
 
-    m_inspectorUi->setupUi();
+    Core::ICore *core = Core::ICore::instance();
+    connect(core->modeManager(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
+            this, SLOT(modeAboutToChange(Core::IMode*)));
 }
 
 void InspectorPlugin::objectAdded(QObject *object)
@@ -153,6 +158,20 @@ void InspectorPlugin::aboutToRemoveObject(QObject *obj)
 void InspectorPlugin::clientProxyConnected()
 {
     m_inspectorUi->connected(m_clientProxy);
+}
+
+void InspectorPlugin::modeAboutToChange(Core::IMode *newMode)
+{
+    QTC_ASSERT(newMode, return);
+
+    if (newMode->id() == Debugger::Constants::MODE_DEBUG) {
+        m_inspectorUi->setupUi();
+
+        // make sure we're not called again
+        Core::ICore *core = Core::ICore::instance();
+        disconnect(core->modeManager(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
+                   this, SLOT(modeAboutToChange(Core::IMode*)));
+    }
 }
 
 Q_EXPORT_PLUGIN(InspectorPlugin)
