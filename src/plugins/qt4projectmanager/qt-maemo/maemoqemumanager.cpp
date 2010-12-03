@@ -30,8 +30,9 @@
 #include "maemoqemumanager.h"
 
 #include "maemoglobal.h"
+#include "maemomanager.h"
 #include "maemoqemuruntimeparser.h"
-#include "maemoqemusettings.h"
+#include "maemosettingspages.h"
 #include "maemorunconfiguration.h"
 #include "maemotoolchain.h"
 #include "qtversionmanager.h"
@@ -406,45 +407,27 @@ void MaemoQemuManager::qemuProcessError(QProcess::ProcessError error)
 
 void MaemoQemuManager::qemuStatusChanged(QemuStatus status, const QString &error)
 {
-    QString message;
     bool running = false;
-
     switch (status) {
         case QemuStarting:
             running = true;
             break;
         case QemuFailedToStart:
-            message = tr("Qemu failed to start: %1").arg(error);
+            QMessageBox::warning(0, tr("Qemu error"),
+                tr("Qemu failed to start: %1"));
             break;
-        case QemuCrashed: {
-            const MaemoQemuSettings::OpenGlMode openGlMode
-                = MaemoQemuSettings::openGlMode();
-            message = tr("Qemu crashed.");
-
-            // TODO: Provide a link to the settings page (how?).
-            if (openGlMode == MaemoQemuSettings::HardwareAcceleration) {
-                message += tr("\nYou have configured Qemu to use OpenGL "
-                    "hardware acceleration, which might not be supported by "
-                    "your system. You could try using software rendering instead.");
-            } else if (openGlMode == MaemoQemuSettings::AutoDetect) {
-                message += tr("\nQemu is currently configured to auto-detect the "
-                    "OpenGl mode, which is known to not work in some cases."
-                    "You might want to use software rendering instead");
-            }
+        case QemuCrashed:
+            MaemoManager::instance().qemuSettingsPage()->showQemuCrashDialog();
             break;
-        }
         case QemuFinished:
-            message = error;
-            break;
         case QemuUserReason:
-            message = error;
+            if (!error.isEmpty())
+                QMessageBox::warning(0, tr("Qemu error"), error);
             break;
         default:
             Q_ASSERT(!"Missing handling of Qemu status");
     }
 
-    if (!message.isEmpty())
-        QMessageBox::warning(0, tr("Qemu error"), message);
     updateStarterIcon(running);
 }
 

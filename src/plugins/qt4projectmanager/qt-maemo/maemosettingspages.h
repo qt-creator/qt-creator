@@ -89,6 +89,8 @@ public:
     virtual void apply();
     virtual void finish();
 
+    void showQemuCrashDialog();
+
 private:
     QString m_keywords;
     MaemoQemuSettingsWidget *m_widget;

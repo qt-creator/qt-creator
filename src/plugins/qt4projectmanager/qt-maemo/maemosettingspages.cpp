@@ -43,9 +43,17 @@
 
 #include "maemoconstants.h"
 #include "maemodeviceconfigurationssettingswidget.h"
+#include "maemoqemusettings.h"
 #include "maemoqemusettingswidget.h"
 
+#include <coreplugin/icore.h>
+
 #include <QtCore/QCoreApplication>
+#include <QtGui/QDialog>
+#include <QtGui/QDialogButtonBox>
+#include <QtGui/QFrame>
+#include <QtGui/QLabel>
+#include <QtGui/QVBoxLayout>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -163,5 +171,68 @@ void MaemoQemuSettingsPage::finish()
 {
 }
 
+
+class MaemoQemuCrashDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    MaemoQemuCrashDialog(MaemoQemuSettingsPage *settingsPage)
+        : m_settingsPage(settingsPage)
+    {
+        setWindowTitle(tr("Qemu error"));
+        QString message = tr("Qemu crashed.");
+        const MaemoQemuSettings::OpenGlMode openGlMode
+            = MaemoQemuSettings::openGlMode();
+        const QString linkString = QLatin1String("<p><a href=\"dummy\">")
+            + tr("Click here to change the OpenGL mode.")
+            + QLatin1String("</a>");
+        if (openGlMode == MaemoQemuSettings::HardwareAcceleration) {
+            message += tr("<p>You have configured Qemu to use OpenGL "
+                "hardware acceleration, which might not be supported by "
+                "your system. You could try using software rendering instead.");
+            message += linkString;
+        } else if (openGlMode == MaemoQemuSettings::AutoDetect) {
+            message += tr("<p>Qemu is currently configured to auto-detect the "
+                "OpenGL mode, which is known to not work in some cases."
+                "You might want to use software rendering instead.");
+            message += linkString;
+        }
+        QLabel * const messageLabel = new QLabel(message, this);
+        messageLabel->setWordWrap(true);
+        messageLabel->setTextFormat(Qt::RichText);
+        connect(messageLabel, SIGNAL(linkActivated(QString)),
+            SLOT(showSettingsPage()));
+        QVBoxLayout *mainLayout = new QVBoxLayout(this);
+        mainLayout->addWidget(messageLabel);
+        QFrame * const separator = new QFrame;
+        separator->setFrameShape(QFrame::HLine);
+        separator->setFrameShadow(QFrame::Sunken);
+        mainLayout->addWidget(separator);
+        QDialogButtonBox * const buttonBox = new QDialogButtonBox;
+        buttonBox->addButton(QDialogButtonBox::Ok);
+        connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+        mainLayout->addWidget(buttonBox);
+    }
+
+private:
+    Q_SLOT void showSettingsPage()
+    {
+        Core::ICore::instance()->showOptionsDialog(m_settingsPage->category(),
+            m_settingsPage->id());
+        accept();
+    }
+
+    MaemoQemuSettingsPage * const m_settingsPage;
+};
+
+
+void MaemoQemuSettingsPage::showQemuCrashDialog()
+{
+    MaemoQemuCrashDialog dlg(this);
+    dlg.exec();
+}
+
 } // namespace Internal
 } // namespace Qt4ProjectManager
+
+#include "maemosettingspages.moc"
