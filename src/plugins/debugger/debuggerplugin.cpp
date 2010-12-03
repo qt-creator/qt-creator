@@ -1016,8 +1016,6 @@ public slots:
         }
     }
 
-    void setSimpleDockWidgetArrangement(Debugger::DebuggerLanguages activeLanguages);
-
     void editorOpened(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *editor);
     void setBusyCursor(bool busy);
@@ -2134,58 +2132,6 @@ void DebuggerPluginPrivate::setBusyCursor(bool busy)
     m_scriptConsoleWindow->setCursor(cursor);
 }
 
-void DebuggerPluginPrivate::setSimpleDockWidgetArrangement
-    (Debugger::DebuggerLanguages activeLanguages)
-{
-    QTC_ASSERT(m_mainWindow, return);
-    m_mainWindow->setTrackingEnabled(false);
-
-    QList<QDockWidget *> dockWidgets = m_mainWindow->dockWidgets();
-    foreach (QDockWidget *dockWidget, dockWidgets) {
-        dockWidget->setFloating(false);
-        m_mainWindow->removeDockWidget(dockWidget);
-    }
-
-    foreach (QDockWidget *dockWidget, dockWidgets) {
-        if (dockWidget == m_outputDock /*|| dockWidget == m_consoleDock*/) {
-            m_mainWindow->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
-        } else {
-            m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
-        }
-        dockWidget->hide();
-    }
-
-    if ((activeLanguages.testFlag(CppLanguage)
-                && !activeLanguages.testFlag(QmlLanguage))
-            || activeLanguages == AnyLanguage) {
-        m_stackDock->show();
-        m_breakDock->show();
-        m_watchDock->show();
-        m_threadsDock->show();
-        m_snapshotDock->show();
-    } else {
-        m_stackDock->show();
-        m_breakDock->show();
-        m_watchDock->show();
-        m_scriptConsoleDock->show();
-        if (m_mainWindow->qmlInspectorWindow())
-            m_mainWindow->qmlInspectorWindow()->show();
-    }
-    m_mainWindow->splitDockWidget(m_mainWindow->toolBarDockWidget(), m_stackDock, Qt::Vertical);
-    m_mainWindow->splitDockWidget(m_stackDock, m_watchDock, Qt::Horizontal);
-    m_mainWindow->tabifyDockWidget(m_watchDock, m_breakDock);
-    m_mainWindow->tabifyDockWidget(m_watchDock, m_modulesDock);
-    m_mainWindow->tabifyDockWidget(m_watchDock, m_registerDock);
-    m_mainWindow->tabifyDockWidget(m_watchDock, m_threadsDock);
-    m_mainWindow->tabifyDockWidget(m_watchDock, m_sourceFilesDock);
-    m_mainWindow->tabifyDockWidget(m_watchDock, m_snapshotDock);
-    m_mainWindow->tabifyDockWidget(m_watchDock, m_scriptConsoleDock);
-    if (m_mainWindow->qmlInspectorWindow())
-        m_mainWindow->tabifyDockWidget(m_watchDock, m_mainWindow->qmlInspectorWindow());
-
-    m_mainWindow->setTrackingEnabled(true);
-}
-
 void DebuggerPluginPrivate::setInitialState()
 {
     m_watchersWindow->setVisible(false);
@@ -3268,8 +3214,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
         m_plugin->addAutoReleasedObject(op);
     m_plugin->addAutoReleasedObject(new DebuggingHelperOptionPage);
 
-    //setSimpleDockWidgetArrangement(Lang_Cpp);
-
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
         SLOT(onModeChanged(Core::IMode*)));
     m_debugMode->widget()->setFocusProxy(EditorManager::instance());
@@ -3335,9 +3279,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     hbox->addWidget(m_statusLabel, 10);
 
     m_mainWindow->setToolbar(CppLanguage, toolbarContainer);
-    connect(m_mainWindow,
-        SIGNAL(dockResetRequested(Debugger::DebuggerLanguages)),
-        SLOT(setSimpleDockWidgetArrangement(Debugger::DebuggerLanguages)));
 
     connect(action(EnableReverseDebugging),
         SIGNAL(valueChanged(QVariant)),

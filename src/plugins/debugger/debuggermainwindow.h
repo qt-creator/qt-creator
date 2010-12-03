@@ -75,7 +75,7 @@ public:
 
     void onModeChanged(Core::IMode *mode);
 
-    // Most common debugger windows
+    // Most common debugger windows.
     QDockWidget *breakWindow() const;
     QDockWidget *stackWindow() const;
     QDockWidget *watchWindow() const;
@@ -97,7 +97,6 @@ signals:
     // Emit when user changes active languages from the menu.
     // Both UI and debugger startup are affected.
     void activeLanguagesChanged(Debugger::DebuggerLanguages activeLanguages);
-    void dockResetRequested(Debugger::DebuggerLanguages activeLanguages);
     void memoryEditorRequested();
 
 public slots:
