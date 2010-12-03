@@ -1615,6 +1615,29 @@ QString QtVersion::invalidReason() const
     return QString();
 }
 
+QString QtVersion::description() const
+{
+    if (!isValid())
+        return invalidReason();
+    if (possibleToolChainTypes().isEmpty())
+        return QCoreApplication::translate("QtVersion", "This Qt Version has a unknown toolchain.");
+    QSet<QString> targets = supportedTargetIds();
+    QString envs;
+    if (targets.contains(Constants::DESKTOP_TARGET_ID))
+        envs = QCoreApplication::translate("QtVersion", "Desktop", "Qt Version is meant for the desktop");
+    else if (targets.contains(Constants::S60_DEVICE_TARGET_ID) ||
+             targets.contains(Constants::S60_EMULATOR_TARGET_ID))
+        envs = QCoreApplication::translate("QtVersion", "Symbian", "Qt Version is meant for Symbian");
+    else if (targets.contains(Constants::MAEMO_DEVICE_TARGET_ID))
+        envs = QCoreApplication::translate("QtVersion", "Maemo", "Qt Version is meant for Maemo");
+    else if (targets.contains(Constants::QT_SIMULATOR_TARGET_ID))
+        envs = QCoreApplication::translate("QtVersion", "Qt Simulator", "Qt Version is meant for Qt Simulator");
+    else
+        envs = QCoreApplication::translate("QtVersion", "unkown", "No idea what this Qt Version is meant for!");
+    return QCoreApplication::translate("QtVersion", "Qt version %1, using mkspec %2 (%3)")
+           .arg(qtVersionString(), mkspec(), envs);
+}
+
 QtVersion::QmakeBuildConfigs QtVersion::defaultBuildConfig() const
 {
     updateToolChainAndMkspec();

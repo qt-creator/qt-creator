@@ -71,6 +71,7 @@ public:
 
     bool isValid() const; //TOOD check that the dir exists and the name is non empty
     QString invalidReason() const;
+    QString description() const;
     bool isAutodetected() const { return m_isAutodetected; }
     QString autodetectionSource() const { return m_autodetectionSource; }
 
