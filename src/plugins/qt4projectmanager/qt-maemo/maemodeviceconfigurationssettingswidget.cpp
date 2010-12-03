@@ -74,7 +74,7 @@ bool configNameExists(const QList<MaemoDeviceConfig> &devConfs,
 class NameValidator : public QValidator
 {
 public:
-    NameValidator(const QList<MaemoDeviceConfig> &devConfs)
+    NameValidator(const QList<MaemoDeviceConfig> &devConfs, QWidget *parent = 0)
         : m_devConfs(devConfs)
     {
     }
@@ -106,7 +106,7 @@ MaemoDeviceConfigurationsSettingsWidget::MaemoDeviceConfigurationsSettingsWidget
     : QWidget(parent),
       m_ui(new Ui_MaemoDeviceConfigurationsSettingsWidget),
       m_devConfs(MaemoDeviceConfigurations::instance().devConfigs()),
-      m_nameValidator(new NameValidator(m_devConfs)),
+      m_nameValidator(new NameValidator(m_devConfs, this)),
       m_saveSettingsRequested(false)
 {
     initGui();
