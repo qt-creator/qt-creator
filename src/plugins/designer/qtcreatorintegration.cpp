@@ -372,8 +372,18 @@ static QString addParameterNames(const QString &functionSignature, const QString
             functionName += QLatin1String(", ");
         functionName += arguments.at(i);
         if (i < pCount) {
-            functionName += QLatin1Char(' ');
-            functionName += parameterNames.at(i);
+            // prepare parameterName
+            QString parameterName = parameterNames.at(i);
+            if (parameterName.isEmpty()) {
+                const QString generatedName = QLatin1String("arg") + QString::number(i + 1);
+                if (!parameterNames.contains(generatedName))
+                    parameterName = generatedName;
+            }
+            // add parameterName if not empty
+            if (!parameterName.isEmpty()) {
+                functionName += QLatin1Char(' ');
+                functionName += parameterName;
+            }
         }
     }
     functionName += QLatin1Char(')');
