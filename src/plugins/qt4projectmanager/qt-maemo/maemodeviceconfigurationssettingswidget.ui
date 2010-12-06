@@ -24,7 +24,10 @@
        <item row="0" column="0">
         <widget class="QLabel" name="configurationLabel">
          <property name="text">
-          <string>Configuration:</string>
+          <string>&amp;Configuration:</string>
+         </property>
+         <property name="buddy">
+          <cstring>configurationComboBox</cstring>
          </property>
         </widget>
        </item>
@@ -70,7 +73,10 @@
            <item row="0" column="0">
             <widget class="QLabel" name="deviceNameLabel">
              <property name="text">
-              <string>Name</string>
+              <string>&amp;Name</string>
+             </property>
+             <property name="buddy">
+              <cstring>nameLineEdit</cstring>
              </property>
             </widget>
            </item>
@@ -100,7 +106,7 @@
               <item>
                <widget class="QRadioButton" name="simulatorButton">
                 <property name="text">
-                 <string>Maemo emulator</string>
+                 <string>Maemo &amp;emulator</string>
                 </property>
                </widget>
               </item>
@@ -130,7 +136,7 @@
               <item>
                <widget class="QRadioButton" name="keyButton">
                 <property name="text">
-                 <string>Key</string>
+                 <string>&amp;Key</string>
                 </property>
                </widget>
               </item>
@@ -140,7 +146,10 @@
            <item row="3" column="0">
             <widget class="QLabel" name="hostNameLabel">
              <property name="text">
-              <string>Host name:</string>
+              <string>&amp;Host name:</string>
+             </property>
+             <property name="buddy">
+              <cstring>hostLineEdit</cstring>
              </property>
             </widget>
            </item>
@@ -154,7 +163,10 @@
            <item row="4" column="0">
             <widget class="QLabel" name="sshPortLabel">
              <property name="text">
-              <string>SSH port:</string>
+              <string>&amp;SSH port:</string>
+             </property>
+             <property name="buddy">
+              <cstring>sshPortSpinBox</cstring>
              </property>
             </widget>
            </item>
@@ -193,6 +205,9 @@
              <property name="text">
               <string>Free ports:</string>
              </property>
+             <property name="buddy">
+              <cstring>portsLineEdit</cstring>
+             </property>
             </widget>
            </item>
            <item row="5" column="1">
@@ -229,7 +244,10 @@
            <item row="6" column="0">
             <widget class="QLabel" name="connectionTimeoutLabel">
              <property name="text">
-              <string>Connection timeout:</string>
+              <string>Connection time&amp;out:</string>
+             </property>
+             <property name="buddy">
+              <cstring>timeoutSpinBox</cstring>
              </property>
             </widget>
            </item>
@@ -269,7 +287,10 @@
            <item row="7" column="0">
             <widget class="QLabel" name="userNameLabel">
              <property name="text">
-              <string>Username:</string>
+              <string>&amp;Username:</string>
+             </property>
+             <property name="buddy">
+              <cstring>userLineEdit</cstring>
              </property>
             </widget>
            </item>
@@ -279,7 +300,10 @@
            <item row="8" column="0">
             <widget class="QLabel" name="passwordLabel">
              <property name="text">
-              <string>Password:</string>
+              <string>&amp;Password:</string>
+             </property>
+             <property name="buddy">
+              <cstring>pwdLineEdit</cstring>
              </property>
             </widget>
            </item>
@@ -304,7 +328,7 @@
            <item row="9" column="0">
             <widget class="QLabel" name="keyLabel">
              <property name="text">
-              <string>Private key file:</string>
+              <string>Private key &amp;file:</string>
              </property>
             </widget>
            </item>
@@ -324,7 +348,7 @@
      <item>
       <widget class="QPushButton" name="addConfigButton">
        <property name="text">
-        <string>Add</string>
+        <string>&amp;Add</string>
        </property>
       </widget>
      </item>
@@ -334,7 +358,7 @@
         <bool>false</bool>
        </property>
        <property name="text">
-        <string>Remove</string>
+        <string>&amp;Remove</string>
        </property>
       </widget>
      </item>
@@ -344,7 +368,7 @@
         <bool>false</bool>
        </property>
        <property name="text">
-        <string>Test</string>
+        <string>&amp;Test</string>
        </property>
       </widget>
      </item>
@@ -354,7 +378,7 @@
         <bool>false</bool>
        </property>
        <property name="text">
-        <string>Generate SSH Key ...</string>
+        <string>&amp;Generate SSH Key ...</string>
        </property>
       </widget>
      </item>
@@ -364,7 +388,7 @@
         <bool>false</bool>
        </property>
        <property name="text">
-        <string>Deploy Public Key ...</string>
+        <string>&amp;Deploy Public Key ...</string>
        </property>
       </widget>
      </item>
@@ -445,8 +469,8 @@
    <slot>userNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>384</x>
-     <y>302</y>
+     <x>430</x>
+     <y>274</y>
     </hint>
     <hint type="destinationlabel">
      <x>422</x>
@@ -461,8 +485,8 @@
    <slot>passwordEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>256</x>
-     <y>334</y>
+     <x>306</x>
+     <y>302</y>
     </hint>
     <hint type="destinationlabel">
      <x>423</x>
@@ -541,8 +565,8 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>384</x>
-     <y>356</y>
+     <x>430</x>
+     <y>323</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -557,8 +581,8 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>384</x>
-     <y>356</y>
+     <x>430</x>
+     <y>323</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -653,8 +677,8 @@
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>237</x>
-     <y>270</y>
+     <x>217</x>
+     <y>245</y>
     </hint>
     <hint type="destinationlabel">
      <x>6</x>
@@ -669,8 +693,8 @@
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>237</x>
-     <y>270</y>
+     <x>217</x>
+     <y>245</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -685,8 +709,8 @@
    <slot>sshPortEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>228</x>
-     <y>200</y>
+     <x>210</x>
+     <y>189</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -701,8 +725,8 @@
    <slot>sshPortEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>230</x>
-     <y>204</y>
+     <x>210</x>
+     <y>189</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -717,8 +741,8 @@
    <slot>showPassword(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>383</x>
-     <y>332</y>
+     <x>429</x>
+     <y>301</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -733,8 +757,8 @@
    <slot>handleFreePortsChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>184</x>
-     <y>225</y>
+     <x>259</x>
+     <y>218</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -749,8 +773,8 @@
    <slot>showRemoteProcesses()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>443</x>
-     <y>183</y>
+     <x>591</x>
+     <y>198</y>
     </hint>
     <hint type="destinationlabel">
      <x>598</x>

@@ -44,7 +44,10 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Key size:</string>
+         <string>Key &amp;size:</string>
+        </property>
+        <property name="buddy">
+         <cstring>comboBox</cstring>
         </property>
        </widget>
       </item>
@@ -98,7 +101,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>RSA</string>
+           <string>&amp;RSA</string>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -114,7 +117,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>DSA</string>
+           <string>&amp;DSA</string>
           </property>
          </widget>
         </item>
@@ -175,7 +178,7 @@
         <item>
          <widget class="QPushButton" name="generateButton">
           <property name="text">
-           <string>Generate SSH Key</string>
+           <string>&amp;Generate SSH Key</string>
           </property>
          </widget>
         </item>
@@ -198,7 +201,7 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Save Public Key...</string>
+           <string>Save P&amp;ublic Key...</string>
           </property>
          </widget>
         </item>
@@ -208,7 +211,7 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Save Private Key...</string>
+           <string>Save Pr&amp;ivate Key...</string>
           </property>
          </widget>
         </item>
@@ -235,7 +238,7 @@
      <item>
       <widget class="QPushButton" name="closeButton">
        <property name="text">
-        <string>Close</string>
+        <string>&amp;Close</string>
        </property>
       </widget>
      </item>

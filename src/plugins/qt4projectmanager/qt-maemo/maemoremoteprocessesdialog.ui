@@ -19,7 +19,7 @@
      <item>
       <widget class="QLabel" name="filterLabel">
        <property name="text">
-        <string>Filter by process name:</string>
+        <string>&amp;Filter by process name:</string>
        </property>
       </widget>
      </item>
@@ -67,14 +67,14 @@
        <item>
         <widget class="QPushButton" name="updateListButton">
          <property name="text">
-          <string>Update List</string>
+          <string>&amp;Update List</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="killProcessButton">
          <property name="text">
-          <string>Kill Selected Process</string>
+          <string>&amp;Kill Selected Process</string>
          </property>
         </widget>
        </item>

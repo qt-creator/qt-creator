@@ -29,14 +29,14 @@
      <item>
       <widget class="QPushButton" name="checkAllButton">
        <property name="text">
-        <string>Check all</string>
+        <string>&amp;Check all</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="uncheckAllButton">
        <property name="text">
-        <string>Uncheck All</string>
+        <string>&amp;Uncheck All</string>
        </property>
       </widget>
      </item>
