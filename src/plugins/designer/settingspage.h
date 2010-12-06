@@ -61,6 +61,25 @@ public:
 
 private:
     QDesignerOptionsPageInterface *m_designerPage;
+    bool m_initialized;
+};
+
+class SettingsPageProvider : public Core::IOptionsPageProvider
+{
+    Q_OBJECT
+
+public:
+    SettingsPageProvider(QObject *parent = 0);
+    ~SettingsPageProvider();
+
+    QString category() const;
+    QString displayCategory() const;
+    QIcon categoryIcon() const;
+
+    QList<Core::IOptionsPage *> pages() const;
+
+private:
+    mutable bool m_initialized;
 };
 
 } // namespace Internal

@@ -34,14 +34,19 @@
   \mainclass
   \brief The IOptionsPage is an interface for providing options pages.
 
+  You need to subclass this interface and put an instance of your subclass
+  into the plugin manager object pool (e.g. ExtensionSystem::PluginManager::addObject).
   Guidelines for implementing:
   \list
-  \o id() is an id used for filtering when calling ICore:: showOptionsDialog()
-  \o displayName() is the (translated) name for display.
-  \o category() is the category used for filtering when calling ICore:: showOptionsDialog()
-  \o displayCategory() is the translated category
+  \o id() is a unique identifier for referencing this page
+  \o displayName() is the (translated) name for display
+  \o category() is the unique id for the category that the page should be displayed in
+  \o displayCategory() is the translated name of the category
+  \o createPage() is called to retrieve the widget to show in the preferences dialog
+     The widget will be destroyed by the widget hierarchy when the dialog closes
   \o apply() is called to store the settings. It should detect if any changes have been
-         made and store those.
-  \o matches() is used for the options dialog search filter.
+         made and store those
+  \o finish() is called directly before the preferences dialog closes
+  \o matches() is used for the options dialog search filter
   \endlist
 */

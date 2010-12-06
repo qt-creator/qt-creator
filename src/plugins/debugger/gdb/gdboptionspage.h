@@ -64,7 +64,7 @@ public:
     static void writeGdbBinarySettings();
 
 private:
-    Ui::GdbOptionsPage m_ui;
+    Ui::GdbOptionsPage *m_ui;
     Utils::SavedActionSet m_group;
     QString m_searchKeywords;
 };

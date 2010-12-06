@@ -76,7 +76,7 @@ Settings SettingsWidget::settings()
 }
 
 SettingsPage::SettingsPage(const QSharedPointer<Settings> &settings) :
-    m_settings(settings)
+    m_settings(settings), m_widget(0)
 {
 }
 
@@ -121,7 +121,8 @@ QWidget *SettingsPage::createPage(QWidget *parent)
 
 void SettingsPage::apply()
 {
-    QTC_ASSERT(m_widget, return)
+    if (!m_widget) // page was never shown
+        return;
     const Settings newSettings = m_widget->settings();
     if (newSettings != *m_settings) {
         *m_settings = newSettings;

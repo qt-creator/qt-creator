@@ -133,6 +133,8 @@ QWidget *QtOptionsPage::createPage(QWidget *parent)
 
 void QtOptionsPage::apply()
 {
+    if (!m_widget) // page was never shown
+        return;
     m_widget->finish();
 
     QtVersionManager *vm = QtVersionManager::instance();
@@ -559,8 +561,8 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
 {
     if (item) {
         int index = indexForTreeItem(item);
-        m_ui->errorLabel->setText("");
         if (index < 0) {
+            m_ui->errorLabel->setText("");
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeS60Visible(false);
@@ -575,10 +577,6 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeS60Visible(false);
-            if (!m_versions.at(index)->isValid())
-                m_ui->errorLabel->setText(m_versions.at(index)->invalidReason());
-            else
-                m_ui->errorLabel->setText(tr("This Qt Version has a unknown toolchain."));
         } else if (types.contains(ProjectExplorer::ToolChain_MinGW)) {
             makeMSVCVisible(false);
             makeMingwVisible(true);
@@ -621,23 +619,7 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             makeS60Visible(false);
         }
 
-        if (m_ui->errorLabel->text().isEmpty()) {
-            QString envs;
-            if (targets.contains(Constants::DESKTOP_TARGET_ID))
-                envs = tr("Desktop", "Qt Version is meant for the desktop");
-            else if (targets.contains(Constants::S60_DEVICE_TARGET_ID) ||
-                     targets.contains(Constants::S60_EMULATOR_TARGET_ID))
-                envs = tr("Symbian", "Qt Version is meant for Symbian");
-            else if (targets.contains(Constants::MAEMO_DEVICE_TARGET_ID))
-                envs = tr("Maemo", "Qt Version is meant for Maemo");
-            else if (targets.contains(Constants::QT_SIMULATOR_TARGET_ID))
-                envs = tr("Qt Simulator", "Qt Version is meant for Qt Simulator");
-            else
-                envs = tr("unkown", "No idea what this Qt Version is meant for!");
-            m_ui->errorLabel->setText(tr("Found Qt version %1, using mkspec %2 (%3)")
-                                      .arg(m_versions.at(index)->qtVersionString(),
-                                           m_versions.at(index)->mkspec(), envs));
-        }
+        m_ui->errorLabel->setText(m_versions.at(index)->description());
     } else {
         makeMSVCVisible(false);
         makeMingwVisible(false);
@@ -720,6 +702,7 @@ void QtOptionsPageWidget::updateCurrentQtName()
         return;
     m_versions[currentItemIndex]->setDisplayName(m_ui->nameEdit->text());
     currentItem->setText(0, m_versions[currentItemIndex]->displayName());
+    m_ui->errorLabel->setText(m_versions.at(currentItemIndex)->description());
 }
 
 

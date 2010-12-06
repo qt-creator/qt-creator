@@ -54,6 +54,7 @@
 using namespace Help::Internal;
 
 GeneralSettingsPage::GeneralSettingsPage()
+    : m_ui(0)
 {
     m_font = qApp->font();
 #if !defined(QT_NO_WEBKIT)
@@ -90,10 +91,10 @@ QIcon GeneralSettingsPage::categoryIcon() const
 QWidget *GeneralSettingsPage::createPage(QWidget *parent)
 {
     QWidget *widget = new QWidget(parent);
-
-    m_ui.setupUi(widget);
-    m_ui.sizeComboBox->setEditable(false);
-    m_ui.styleComboBox->setEditable(false);
+    m_ui = new Ui::GeneralSettingsPage;
+    m_ui->setupUi(widget);
+    m_ui->sizeComboBox->setEditable(false);
+    m_ui->styleComboBox->setEditable(false);
 
     Core::HelpManager *manager = Core::HelpManager::instance();
     m_font = qVariantValue<QFont>(manager->customValue(QLatin1String("font"),
@@ -109,58 +110,60 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
         m_homePage = manager->customValue(QLatin1String("DefaultHomePage"),
             Help::Constants::AboutBlank).toString();
     }
-    m_ui.homePageLineEdit->setText(m_homePage);
+    m_ui->homePageLineEdit->setText(m_homePage);
 
     const int startOption = manager->customValue(QLatin1String("StartOption"),
         Help::Constants::ShowLastPages).toInt();
-    m_ui.helpStartComboBox->setCurrentIndex(startOption);
+    m_ui->helpStartComboBox->setCurrentIndex(startOption);
 
     m_contextOption = manager->customValue(QLatin1String("ContextHelpOption"),
         Help::Constants::SideBySideIfPossible).toInt();
-    m_ui.contextHelpComboBox->setCurrentIndex(m_contextOption);
+    m_ui->contextHelpComboBox->setCurrentIndex(m_contextOption);
 
-    connect(m_ui.currentPageButton, SIGNAL(clicked()), this, SLOT(setCurrentPage()));
-    connect(m_ui.blankPageButton, SIGNAL(clicked()), this, SLOT(setBlankPage()));
-    connect(m_ui.defaultPageButton, SIGNAL(clicked()), this, SLOT(setDefaultPage()));
+    connect(m_ui->currentPageButton, SIGNAL(clicked()), this, SLOT(setCurrentPage()));
+    connect(m_ui->blankPageButton, SIGNAL(clicked()), this, SLOT(setBlankPage()));
+    connect(m_ui->defaultPageButton, SIGNAL(clicked()), this, SLOT(setDefaultPage()));
 
     HelpViewer *viewer = CentralWidget::instance()->currentHelpViewer();
     if (!viewer)
-        m_ui.currentPageButton->setEnabled(false);
+        m_ui->currentPageButton->setEnabled(false);
 
-    m_ui.errorLabel->setVisible(false);
-    connect(m_ui.importButton, SIGNAL(clicked()), this, SLOT(importBookmarks()));
-    connect(m_ui.exportButton, SIGNAL(clicked()), this, SLOT(exportBookmarks()));
+    m_ui->errorLabel->setVisible(false);
+    connect(m_ui->importButton, SIGNAL(clicked()), this, SLOT(importBookmarks()));
+    connect(m_ui->exportButton, SIGNAL(clicked()), this, SLOT(exportBookmarks()));
 
     if (m_searchKeywords.isEmpty()) {
-        QTextStream(&m_searchKeywords) << ' ' << m_ui.contextHelpLabel->text()
-           << ' ' << m_ui.startPageLabel->text() << ' ' << m_ui.homePageLabel->text()
-           << ' ' << m_ui.bookmarkGroupBox->title();
+        QTextStream(&m_searchKeywords) << ' ' << m_ui->contextHelpLabel->text()
+           << ' ' << m_ui->startPageLabel->text() << ' ' << m_ui->homePageLabel->text()
+           << ' ' << m_ui->bookmarkGroupBox->title();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
 
     m_returnOnClose = manager->customValue(QLatin1String("ReturnOnClose"),
         false).toBool();
-    m_ui.m_returnOnClose->setChecked(m_returnOnClose);
+    m_ui->m_returnOnClose->setChecked(m_returnOnClose);
 
     return widget;
 }
 
 void GeneralSettingsPage::apply()
 {
+    if (!m_ui) // page was never shown
+        return;
     QFont newFont;
-    const QString &family = m_ui.familyComboBox->currentFont().family();
+    const QString &family = m_ui->familyComboBox->currentFont().family();
     newFont.setFamily(family);
 
     int fontSize = 14;
-    int currentIndex = m_ui.sizeComboBox->currentIndex();
+    int currentIndex = m_ui->sizeComboBox->currentIndex();
     if (currentIndex != -1)
-        fontSize = m_ui.sizeComboBox->itemData(currentIndex).toInt();
+        fontSize = m_ui->sizeComboBox->itemData(currentIndex).toInt();
     newFont.setPointSize(fontSize);
 
     QString fontStyle = QLatin1String("Normal");
-    currentIndex = m_ui.styleComboBox->currentIndex();
+    currentIndex = m_ui->styleComboBox->currentIndex();
     if (currentIndex != -1)
-        fontStyle = m_ui.styleComboBox->itemText(currentIndex);
+        fontStyle = m_ui->styleComboBox->itemText(currentIndex);
     newFont.setBold(m_fontDatabase.bold(family, fontStyle));
     if (fontStyle.contains(QLatin1String("Italic")))
         newFont.setStyle(QFont::StyleItalic);
@@ -180,15 +183,15 @@ void GeneralSettingsPage::apply()
         emit fontChanged();
     }
 
-    QString homePage = m_ui.homePageLineEdit->text();
+    QString homePage = m_ui->homePageLineEdit->text();
     if (homePage.isEmpty())
         homePage = Help::Constants::AboutBlank;
     manager->setCustomValue(QLatin1String("HomePage"), homePage);
 
-    const int startOption = m_ui.helpStartComboBox->currentIndex();
+    const int startOption = m_ui->helpStartComboBox->currentIndex();
     manager->setCustomValue(QLatin1String("StartOption"), startOption);
 
-    const int helpOption = m_ui.contextHelpComboBox->currentIndex();
+    const int helpOption = m_ui->contextHelpComboBox->currentIndex();
     if (m_contextOption != helpOption) {
         m_contextOption = helpOption;
         manager->setCustomValue(QLatin1String("ContextHelpOption"), helpOption);
@@ -201,7 +204,7 @@ void GeneralSettingsPage::apply()
         emit contextHelpOptionChanged();
     }
 
-    const bool close = m_ui.m_returnOnClose->isChecked();
+    const bool close = m_ui->m_returnOnClose->isChecked();
     if (m_returnOnClose != close) {
         m_returnOnClose = close;
         manager->setCustomValue(QLatin1String("ReturnOnClose"), close);
@@ -213,24 +216,24 @@ void GeneralSettingsPage::setCurrentPage()
 {
     HelpViewer *viewer = CentralWidget::instance()->currentHelpViewer();
     if (viewer)
-        m_ui.homePageLineEdit->setText(viewer->source().toString());
+        m_ui->homePageLineEdit->setText(viewer->source().toString());
 }
 
 void GeneralSettingsPage::setBlankPage()
 {
-    m_ui.homePageLineEdit->setText(Help::Constants::AboutBlank);
+    m_ui->homePageLineEdit->setText(Help::Constants::AboutBlank);
 }
 
 void GeneralSettingsPage::setDefaultPage()
 {
     const QString &defaultHomePage = Core::HelpManager::instance()
         ->customValue(QLatin1String("DefaultHomePage"), QString()).toString();
-    m_ui.homePageLineEdit->setText(defaultHomePage);
+    m_ui->homePageLineEdit->setText(defaultHomePage);
 }
 
 void GeneralSettingsPage::importBookmarks()
 {
-    m_ui.errorLabel->setVisible(false);
+    m_ui->errorLabel->setVisible(false);
 
     QString fileName = QFileDialog::getOpenFileName(0, tr("Import Bookmarks"),
         QDir::currentPath(), tr("Files (*.xbel)"));
@@ -246,13 +249,13 @@ void GeneralSettingsPage::importBookmarks()
             return;
     }
 
-    m_ui.errorLabel->setVisible(true);
-    m_ui.errorLabel->setText(tr("There was an error while importing bookmarks!"));
+    m_ui->errorLabel->setVisible(true);
+    m_ui->errorLabel->setText(tr("There was an error while importing bookmarks!"));
 }
 
 void GeneralSettingsPage::exportBookmarks()
 {
-    m_ui.errorLabel->setVisible(false);
+    m_ui->errorLabel->setVisible(false);
 
     QString fileName = QFileDialog::getSaveFileName(0, tr("Save File"),
         "untitled.xbel", tr("Files (*.xbel)"));
@@ -277,18 +280,18 @@ void GeneralSettingsPage::updateFontSize()
     if (pointSizes.empty())
         pointSizes = QFontDatabase::standardSizes();
 
-    m_ui.sizeComboBox->clear();
-    m_ui.sizeComboBox->setCurrentIndex(-1);
-    m_ui.sizeComboBox->setEnabled(!pointSizes.empty());
+    m_ui->sizeComboBox->clear();
+    m_ui->sizeComboBox->setCurrentIndex(-1);
+    m_ui->sizeComboBox->setEnabled(!pointSizes.empty());
 
     //  try to maintain selection or select closest.
     if (!pointSizes.empty()) {
         QString n;
         foreach (int pointSize, pointSizes)
-            m_ui.sizeComboBox->addItem(n.setNum(pointSize), QVariant(pointSize));
+            m_ui->sizeComboBox->addItem(n.setNum(pointSize), QVariant(pointSize));
         const int closestIndex = closestPointSizeIndex(m_font.pointSize());
         if (closestIndex != -1)
-            m_ui.sizeComboBox->setCurrentIndex(closestIndex);
+            m_ui->sizeComboBox->setCurrentIndex(closestIndex);
     }
 }
 
@@ -297,32 +300,32 @@ void GeneralSettingsPage::updateFontStyle()
     const QString &fontStyle = m_fontDatabase.styleString(m_font);
     const QStringList &styles = m_fontDatabase.styles(m_font.family());
 
-    m_ui.styleComboBox->clear();
-    m_ui.styleComboBox->setCurrentIndex(-1);
-    m_ui.styleComboBox->setEnabled(!styles.empty());
+    m_ui->styleComboBox->clear();
+    m_ui->styleComboBox->setCurrentIndex(-1);
+    m_ui->styleComboBox->setEnabled(!styles.empty());
 
     if (!styles.empty()) {
         int normalIndex = -1;
         const QString normalStyle = QLatin1String("Normal");
         foreach (const QString &style, styles) {
             // try to maintain selection or select 'normal' preferably
-            const int newIndex = m_ui.styleComboBox->count();
-            m_ui.styleComboBox->addItem(style);
+            const int newIndex = m_ui->styleComboBox->count();
+            m_ui->styleComboBox->addItem(style);
             if (fontStyle == style) {
-                m_ui.styleComboBox->setCurrentIndex(newIndex);
+                m_ui->styleComboBox->setCurrentIndex(newIndex);
             } else {
                 if (fontStyle ==  normalStyle)
                     normalIndex = newIndex;
             }
         }
-        if (m_ui.styleComboBox->currentIndex() == -1 && normalIndex != -1)
-            m_ui.styleComboBox->setCurrentIndex(normalIndex);
+        if (m_ui->styleComboBox->currentIndex() == -1 && normalIndex != -1)
+            m_ui->styleComboBox->setCurrentIndex(normalIndex);
     }
 }
 
 void GeneralSettingsPage::updateFontFamily()
 {
-    m_ui.familyComboBox->setCurrentFont(m_font);
+    m_ui->familyComboBox->setCurrentFont(m_font);
 }
 
 int GeneralSettingsPage::closestPointSizeIndex(int desiredPointSize) const
@@ -331,9 +334,9 @@ int GeneralSettingsPage::closestPointSizeIndex(int desiredPointSize) const
     int closestIndex = -1;
     int closestAbsError = 0xFFFF;
 
-    const int pointSizeCount = m_ui.sizeComboBox->count();
+    const int pointSizeCount = m_ui->sizeComboBox->count();
     for (int i = 0; i < pointSizeCount; i++) {
-        const int itemPointSize = m_ui.sizeComboBox->itemData(i).toInt();
+        const int itemPointSize = m_ui->sizeComboBox->itemData(i).toInt();
         const int absError = qAbs(desiredPointSize - itemPointSize);
         if (absError < closestAbsError) {
             closestIndex  = i;
@@ -352,4 +355,12 @@ int GeneralSettingsPage::closestPointSizeIndex(int desiredPointSize) const
 bool GeneralSettingsPage::matches(const QString &s) const
 {
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+}
+
+void GeneralSettingsPage::finish()
+{
+    if (!m_ui) // page was never shown
+        return;
+    delete m_ui;
+    m_ui = 0;
 }

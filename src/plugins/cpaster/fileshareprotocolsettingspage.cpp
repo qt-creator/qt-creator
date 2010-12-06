@@ -96,7 +96,7 @@ FileShareProtocolSettings FileShareProtocolSettingsWidget::settings() const
 // ----------FileShareProtocolSettingsPage
 FileShareProtocolSettingsPage::FileShareProtocolSettingsPage(const QSharedPointer<FileShareProtocolSettings> &s,
                                                              QObject *parent) :
-    Core::IOptionsPage(parent), m_settings(s)
+    Core::IOptionsPage(parent), m_settings(s), m_widget(0)
 {
 }
 
@@ -134,6 +134,8 @@ QWidget *FileShareProtocolSettingsPage::createPage(QWidget *parent)
 
 void FileShareProtocolSettingsPage::apply()
 {
+    if (!m_widget) // page was never shown
+        return;
     const FileShareProtocolSettings newSettings = m_widget->settings();
     if (newSettings != *m_settings) {
         *m_settings = newSettings;

@@ -40,7 +40,7 @@
 using namespace CppTools::Internal;
 
 CompletionSettingsPage::CompletionSettingsPage()
-    : m_page(new Ui_CompletionSettingsPage)
+    : m_page(0)
 {
 }
 
@@ -62,6 +62,7 @@ QString CompletionSettingsPage::displayName() const
 QWidget *CompletionSettingsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
+    m_page = new Ui_CompletionSettingsPage;
     m_page->setupUi(w);
 
     const TextEditor::CompletionSettings &settings =
@@ -113,6 +114,8 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
 
 void CompletionSettingsPage::apply()
 {
+    if (!m_page) // page was never shown
+        return;
     TextEditor::CompletionSettings settings;
     settings.m_caseSensitivity = caseSensitivity();
     settings.m_completionTrigger = completionTrigger();
@@ -150,4 +153,12 @@ TextEditor::CompletionTrigger CompletionSettingsPage::completionTrigger() const
     default:
         return TextEditor::AutomaticCompletion;
     }
+}
+
+void CompletionSettingsPage::finish()
+{
+    if (!m_page) // page was never shown
+        return;
+    delete m_page;
+    m_page = 0;
 }

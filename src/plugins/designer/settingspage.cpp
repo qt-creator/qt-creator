@@ -29,6 +29,7 @@
 
 #include "settingspage.h"
 #include "designerconstants.h"
+#include "formeditorw.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include "qt_private/abstractoptionspage_p.h"
@@ -37,7 +38,7 @@
 using namespace Designer::Internal;
 
 SettingsPage::SettingsPage(QDesignerOptionsPageInterface *designerPage) :
-    m_designerPage(designerPage)
+    m_designerPage(designerPage), m_initialized(false)
 {
 }
 
@@ -72,15 +73,52 @@ QIcon SettingsPage::categoryIcon() const
 
 QWidget *SettingsPage::createPage(QWidget *parent)
 {
+    m_initialized = true;
     return m_designerPage->createPage(parent);
 }
 
 void SettingsPage::apply()
 {
-    m_designerPage->apply();
+    if (m_initialized)
+        m_designerPage->apply();
 }
 
 void SettingsPage::finish()
 {
-    m_designerPage->finish();
+    if (m_initialized)
+        m_designerPage->finish();
+}
+
+SettingsPageProvider::SettingsPageProvider(QObject *parent)
+    : IOptionsPageProvider(parent), m_initialized(false)
+{
+}
+
+SettingsPageProvider::~SettingsPageProvider()
+{
+}
+
+QString SettingsPageProvider::category() const
+{
+    return QLatin1String(Designer::Constants::SETTINGS_CATEGORY);
+}
+
+QString SettingsPageProvider::displayCategory() const
+{
+    return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_TR_CATEGORY);
+}
+
+QIcon SettingsPageProvider::categoryIcon() const
+{
+    return QIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));
+}
+
+QList<Core::IOptionsPage *> SettingsPageProvider::pages() const
+{
+    if (!m_initialized) {
+        // get options pages from designer
+        m_initialized = true;
+        FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
+    }
+    return FormEditorW::instance()->optionsPages();
 }

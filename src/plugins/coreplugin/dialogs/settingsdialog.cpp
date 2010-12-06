@@ -72,7 +72,8 @@ public:
     QString id;
     QString displayName;
     QIcon icon;
-    QList<IOptionsPage*> pages;
+    QList<IOptionsPage *> pages;
+    QList<IOptionsPageProvider *> providers;
     int index;
     QTabWidget *tabWidget;
 };
@@ -86,7 +87,8 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    void setPages(const QList<IOptionsPage*> &pages);
+    void setPages(const QList<IOptionsPage*> &pages,
+                  const QList<IOptionsPageProvider *> &providers);
     const QList<Category*> &categories() const { return m_categories; }
 
 private:
@@ -130,7 +132,8 @@ QVariant CategoryModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void CategoryModel::setPages(const QList<IOptionsPage*> &pages)
+void CategoryModel::setPages(const QList<IOptionsPage*> &pages,
+                             const QList<IOptionsPageProvider *> &providers)
 {
     // Clear any previous categories
     qDeleteAll(m_categories);
@@ -143,13 +146,32 @@ void CategoryModel::setPages(const QList<IOptionsPage*> &pages)
         if (!category) {
             category = new Category;
             category->id = categoryId;
-            category->displayName = page->displayCategory();
-            category->icon = page->categoryIcon();
-            category->pages.append(page);
+            category->tabWidget = 0;
+            category->index = -1;
             m_categories.append(category);
-        } else {
-            category->pages.append(page);
         }
+        if (category->displayName.isEmpty())
+            category->displayName = page->displayCategory();
+        if (category->icon.isNull())
+            category->icon = page->categoryIcon();
+        category->pages.append(page);
+    }
+
+    foreach (IOptionsPageProvider *provider, providers) {
+        const QString &categoryId = provider->category();
+        Category *category = findCategoryById(categoryId);
+        if (!category) {
+            category = new Category;
+            category->id = categoryId;
+            category->tabWidget = 0;
+            category->index = -1;
+            m_categories.append(category);
+        }
+        if (category->displayName.isEmpty())
+            category->displayName = provider->displayCategory();
+        if (category->icon.isNull())
+            category->icon = provider->categoryIcon();
+        category->providers.append(provider);
     }
 
     reset();
@@ -277,26 +299,8 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     setWindowTitle(tr("Options"));
 #endif
 
-    m_model->setPages(m_pages);
-
-    // Create the tab widgets with the pages in each category
-    const QList<Category*> &categories = m_model->categories();
-    for (int i = 0; i < categories.size(); ++i) {
-        Category *category = categories.at(i);
-
-        QTabWidget *tabWidget = new QTabWidget;
-        for (int j = 0; j < category->pages.size(); ++j) {
-            IOptionsPage *page = category->pages.at(j);
-            QWidget *widget = page->createPage(0);
-            tabWidget->addTab(widget, page->displayName());
-        }
-
-        connect(tabWidget, SIGNAL(currentChanged(int)),
-                this, SLOT(currentTabChanged(int)));
-
-        category->tabWidget = tabWidget;
-        category->index = m_stackedLayout->addWidget(tabWidget);
-    }
+    m_model->setPages(m_pages,
+        ExtensionSystem::PluginManager::instance()->getObjects<IOptionsPageProvider>());
 
     m_proxyModel->setSourceModel(m_model);
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -383,6 +387,7 @@ void SettingsDialog::createGui()
     mainGridLayout->addWidget(buttonBox,        2, 0, 1, 2);
     mainGridLayout->setColumnStretch(1, 4);
     setLayout(mainGridLayout);
+    setMinimumSize(1070, 680);
 }
 
 SettingsDialog::~SettingsDialog()
@@ -392,7 +397,7 @@ SettingsDialog::~SettingsDialog()
 void SettingsDialog::showCategory(int index)
 {
     Category *category = m_model->categories().at(index);
-
+    ensureCategoryWidget(category);
     // Update current category and page
     m_currentCategory = category->id;
     const int currentTabIndex = category->tabWidget->currentIndex();
@@ -406,6 +411,29 @@ void SettingsDialog::showCategory(int index)
     m_headerLabel->setText(category->displayName);
 
     updateEnabledTabs(category, m_filterLineEdit->text());
+}
+
+void SettingsDialog::ensureCategoryWidget(Category *category)
+{
+    if (category->tabWidget != 0)
+        return;
+    foreach (const IOptionsPageProvider *provider, category->providers) {
+        category->pages += provider->pages();
+    }
+    qStableSort(category->pages.begin(), category->pages.end(), optionsPageLessThan);
+
+    QTabWidget *tabWidget = new QTabWidget;
+    for (int j = 0; j < category->pages.size(); ++j) {
+        IOptionsPage *page = category->pages.at(j);
+        QWidget *widget = page->createPage(0);
+        tabWidget->addTab(widget, page->displayName());
+    }
+
+    connect(tabWidget, SIGNAL(currentChanged(int)),
+            this, SLOT(currentTabChanged(int)));
+
+    category->tabWidget = tabWidget;
+    category->index = m_stackedLayout->addWidget(tabWidget);
 }
 
 void SettingsDialog::updateEnabledTabs(Category *category, const QString &searchText)
