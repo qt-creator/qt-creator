@@ -111,9 +111,10 @@ bool GenericMakeStep::init()
     pp->setCommand(makeCommand());
     pp->setArguments(allArguments());
 
-    setOutputParser(new ProjectExplorer::GnuMakeParser(pp->effectiveWorkingDirectory()));
+    setOutputParser(new ProjectExplorer::GnuMakeParser());
     if (bc->genericTarget()->genericProject()->toolChain())
         appendOutputParser(bc->genericTarget()->genericProject()->toolChain()->outputParser());
+    outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
     return AbstractProcessStep::init();
 }

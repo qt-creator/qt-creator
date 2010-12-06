@@ -63,6 +63,11 @@ public:
     /// Called once for each line if standard error to parse.
     virtual void stdError(const QString &line);
 
+    // This is mainly a symbian specific quirk
+    virtual bool hasFatalErrors() const;
+    // For GnuMakeParser
+    virtual void setWorkingDirectory(const QString &workingDirectory);
+
 signals:
     /// Should be emitted whenever some additional information should be
     /// added to the output.

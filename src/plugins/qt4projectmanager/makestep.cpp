@@ -183,24 +183,14 @@ bool MakeStep::init()
     setEnabled(true);
     pp->setArguments(args);
 
-    m_gnuMakeParser = 0;
-
-    if (bc->qtVersion()->supportsTargetId(Qt4ProjectManager::Constants::S60_DEVICE_TARGET_ID) ||
-        bc->qtVersion()->supportsTargetId(Qt4ProjectManager::Constants::S60_EMULATOR_TARGET_ID)) {
-        if (bc->qtVersion()->isBuildWithSymbianSbsV2()) {
-            setOutputParser(new SbsV2Parser);
-        } else {
-            setOutputParser(new AbldParser);
-            m_gnuMakeParser = new ProjectExplorer::GnuMakeParser(workingDirectory);
-            appendOutputParser(m_gnuMakeParser);
-        }
-    } else {
-        setOutputParser(new ProjectExplorer::GnuMakeParser(workingDirectory));
-    }
-    appendOutputParser(new QtParser);
-
+    m_makeParser = bc->qtVersion()->createOutputParser();
+    m_makeParser->appendOutputParser(new QtParser);
     if (toolchain)
-        appendOutputParser(toolchain->outputParser());
+        m_makeParser->appendOutputParser(toolchain->outputParser());
+
+    m_makeParser->setWorkingDirectory(workingDirectory);
+
+    setOutputParser(m_makeParser);
 
     return AbstractProcessStep::init();
 }
@@ -218,8 +208,8 @@ void MakeStep::run(QFutureInterface<bool> & fi)
 bool MakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
 {
     // Symbian does retun 0, even on failed makes! So we check for fatal make errors here.
-    if (m_gnuMakeParser)
-        return m_gnuMakeParser->fatalErrors() == 0;
+    if (m_makeParser && m_makeParser->hasFatalErrors())
+        return false;
 
     return AbstractProcessStep::processSucceeded(exitCode, status);
 }

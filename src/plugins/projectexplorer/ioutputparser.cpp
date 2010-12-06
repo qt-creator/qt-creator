@@ -103,4 +103,15 @@ void IOutputParser::taskAdded(const ProjectExplorer::Task &task)
     emit addTask(task);
 }
 
+bool IOutputParser::hasFatalErrors() const
+{
+    return false || (m_parser && m_parser->hasFatalErrors());
+}
+
+void IOutputParser::setWorkingDirectory(const QString &workingDirectory)
+{
+    if (m_parser)
+        m_parser->setWorkingDirectory(workingDirectory);
+}
+
 }

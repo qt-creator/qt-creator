@@ -42,7 +42,7 @@ namespace {
     const char * const MAKE_PATTERN("^(([A-Za-z]:)?[/\\\\][^:]*[/\\\\])?(mingw(32|64)-|g)?make(.exe)?(\\[\\d+\\])?:\\s");
 }
 
-GnuMakeParser::GnuMakeParser(const QString &dir) :
+GnuMakeParser::GnuMakeParser() :
     m_suppressIssues(false),
     m_fatalErrorCount(0)
 {
@@ -54,12 +54,17 @@ GnuMakeParser::GnuMakeParser(const QString &dir) :
     m_makeLine.setMinimal(true);
     m_makefileError.setPattern(QLatin1String("^(.*):(\\d+):\\s\\*\\*\\*\\s(.*)$"));
     m_makefileError.setMinimal(true);
-    addDirectory(dir);
 }
 
-int GnuMakeParser::fatalErrors() const
+void GnuMakeParser::setWorkingDirectory(const QString &workingDirectory)
 {
-    return m_fatalErrorCount;
+    addDirectory(workingDirectory);
+    IOutputParser::setWorkingDirectory(workingDirectory);
+}
+
+bool GnuMakeParser::hasFatalErrors() const
+{
+    return (m_fatalErrorCount > 0) || IOutputParser::hasFatalErrors();
 }
 
 void GnuMakeParser::stdOutput(const QString &line)

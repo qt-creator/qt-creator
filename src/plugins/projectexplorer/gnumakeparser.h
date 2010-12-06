@@ -42,14 +42,16 @@ class PROJECTEXPLORER_EXPORT GnuMakeParser : public ProjectExplorer::IOutputPars
     Q_OBJECT
 
 public:
-    explicit GnuMakeParser(const QString &dir = QString());
+    explicit GnuMakeParser();
 
     virtual void stdOutput(const QString &line);
     virtual void stdError(const QString &line);
 
+    virtual void setWorkingDirectory(const QString &workingDirectory);
+
     QStringList searchDirectories() const;
 
-    int fatalErrors() const;
+    bool hasFatalErrors() const;
 
 public slots:
     virtual void taskAdded(const ProjectExplorer::Task &task);

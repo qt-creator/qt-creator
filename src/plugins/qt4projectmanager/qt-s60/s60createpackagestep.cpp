@@ -409,11 +409,12 @@ bool S60CreatePackageStep::createOnePackage()
         m_outputParserChain = new Qt4ProjectManager::AbldParser;
         m_outputParserChain->appendOutputParser(new ProjectExplorer::GnuMakeParser);
     } else {
-        m_outputParserChain = new ProjectExplorer::GnuMakeParser(wd.absolutePath());
+        m_outputParserChain = new ProjectExplorer::GnuMakeParser();
     }
     Q_ASSERT(!m_parser);
     m_parser = new S60CreatePackageParser(wd.absolutePath());
     m_outputParserChain->appendOutputParser(m_parser);
+    m_outputParserChain->setWorkingDirectory(wd.absolutePath());
 
     connect(m_outputParserChain, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
             this, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)));

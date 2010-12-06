@@ -110,7 +110,7 @@ private:
     bool m_clean;
     QString m_userArgs;
     QString m_makeCmd;
-    ProjectExplorer::GnuMakeParser * m_gnuMakeParser;
+    ProjectExplorer::IOutputParser *m_makeParser;
 };
 
 class MakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget

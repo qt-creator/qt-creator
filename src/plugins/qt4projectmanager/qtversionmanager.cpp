@@ -36,10 +36,13 @@
 #include "qt-maemo/maemomanager.h"
 #include "qt-s60/s60manager.h"
 #include "qt-s60/s60projectchecker.h"
+#include "qt-s60/abldparser.h"
+#include "qt-s60/sbsv2parser.h"
 
 #include "qmlobservertool.h"
 #include "qmldumptool.h"
 #include <projectexplorer/debugginghelper.h>
+#include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/cesdkhandler.h>
@@ -667,6 +670,21 @@ bool QtVersion::supportsShadowBuilds() const
         return false;
     }
     return true;
+}
+
+ProjectExplorer::IOutputParser *QtVersion::createOutputParser() const
+{
+    if (supportsTargetId(Qt4ProjectManager::Constants::S60_DEVICE_TARGET_ID) ||
+        supportsTargetId(Qt4ProjectManager::Constants::S60_EMULATOR_TARGET_ID)) {
+        if (isBuildWithSymbianSbsV2()) {
+            return new SbsV2Parser;
+        } else {
+            ProjectExplorer::IOutputParser *parser = new AbldParser;
+            parser->appendOutputParser(new ProjectExplorer::GnuMakeParser);
+            return parser;
+        }
+    }
+    return new ProjectExplorer::GnuMakeParser;
 }
 
 QList<ProjectExplorer::Task>

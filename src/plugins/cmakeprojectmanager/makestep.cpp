@@ -142,9 +142,10 @@ bool MakeStep::init()
     pp->setCommand(bc->toolChain()->makeCommand());
     pp->setArguments(arguments);
 
-    setOutputParser(new ProjectExplorer::GnuMakeParser(pp->effectiveWorkingDirectory()));
+    setOutputParser(new ProjectExplorer::GnuMakeParser());
     if (bc->toolChain())
         appendOutputParser(bc->toolChain()->outputParser());
+    outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
     return AbstractProcessStep::init();
 }
