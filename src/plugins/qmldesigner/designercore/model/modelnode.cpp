@@ -171,7 +171,7 @@ static bool idIsQmlKeyWord(const QString& id)
 
 static bool idContainsWrongLetter(const QString& id)
 {
-    static QRegExp idExpr(QLatin1String("[a-z][a-zA-Z0-9_]*"));
+    static QRegExp idExpr(QLatin1String("[a-z_][a-zA-Z0-9_]*"));
     return !idExpr.exactMatch(id);
 }
 
