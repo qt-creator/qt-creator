@@ -52,6 +52,7 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QTreeWidget>
 
+using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 namespace {

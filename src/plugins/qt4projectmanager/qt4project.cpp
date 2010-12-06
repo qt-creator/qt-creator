@@ -372,11 +372,11 @@ void Qt4Project::onAddedTarget(ProjectExplorer::Target *t)
     Q_ASSERT(qt4target);
     connect(qt4target, SIGNAL(buildDirectoryInitialized()),
             this, SIGNAL(buildDirectoryInitialized()));
-    connect(qt4target, SIGNAL(proFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4Target*)),
-            this, SLOT(proFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4Target*)));
+    connect(qt4target, SIGNAL(proFileEvaluateNeeded(Qt4ProjectManager::Qt4Target*)),
+            this, SLOT(proFileEvaluateNeeded(Qt4ProjectManager::Qt4Target*)));
 }
 
-void Qt4Project::proFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4Target *target)
+void Qt4Project::proFileEvaluateNeeded(Qt4ProjectManager::Qt4Target *target)
 {
     if (activeTarget() == target)
         scheduleAsyncUpdate();

@@ -45,13 +45,13 @@ QT_FORWARD_DECLARE_CLASS(QWidget)
 
 namespace Qt4ProjectManager {
 
+class Qt4BuildConfiguration;
 class Qt4Project;
+class Qt4Target;
 
 namespace Internal {
 
-class Qt4BuildConfiguration;
 class Qt4ProFileNode;
-class Qt4Target;
 
 class MaemoDeviceConfigListModel;
 class MaemoDeployStep;

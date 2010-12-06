@@ -40,10 +40,10 @@ class RunConfiguration;
 
 namespace Qt4ProjectManager {
 class QtVersion;
+class Qt4Target;
 
 namespace Internal {
 class Qt4ProFileNode;
-class Qt4Target;
 class S60DeployConfigurationFactory;
 class S60DeviceRunConfiguration;
 

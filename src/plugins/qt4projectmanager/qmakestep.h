@@ -44,9 +44,9 @@ class Project;
 
 namespace Qt4ProjectManager {
 class Qt4Project;
+class Qt4BuildConfiguration;
 
 namespace Internal {
-class Qt4BuildConfiguration;
 
 class QMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {
@@ -77,7 +77,7 @@ public:
     explicit QMakeStep(ProjectExplorer::BuildStepList *parent);
     virtual ~QMakeStep();
 
-    Internal::Qt4BuildConfiguration *qt4BuildConfiguration() const;
+    Qt4BuildConfiguration *qt4BuildConfiguration() const;
     virtual bool init();
     virtual void run(QFutureInterface<bool> &);
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();

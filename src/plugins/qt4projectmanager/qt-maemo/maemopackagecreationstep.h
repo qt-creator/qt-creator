@@ -51,13 +51,13 @@ class QProcess;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
-namespace Internal {
+class Qt4BuildConfiguration;
 
-class MaemoDeployableListModel;
+namespace Internal {
 class MaemoDeployStep;
+class MaemoDeployableListModel;
 class MaemoToolChain;
 class MaemoProFileWrapper;
-class Qt4BuildConfiguration;
 
 class MaemoPackageCreationStep : public ProjectExplorer::BuildStep
 {

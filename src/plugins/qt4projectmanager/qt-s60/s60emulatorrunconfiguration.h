@@ -47,10 +47,10 @@ class DetailsWidget;
 
 namespace Qt4ProjectManager {
 class Qt4Project;
+class Qt4Target;
 
 namespace Internal {
 class Qt4ProFileNode;
-class Qt4Target;
 class S60EmulatorRunConfigurationFactory;
 
 class S60EmulatorRunConfiguration : public ProjectExplorer::RunConfiguration
@@ -59,7 +59,7 @@ class S60EmulatorRunConfiguration : public ProjectExplorer::RunConfiguration
     friend class S60EmulatorRunConfigurationFactory;
 
 public:
-    S60EmulatorRunConfiguration(Qt4ProjectManager::Internal::Qt4Target *parent, const QString &proFilePath);
+    S60EmulatorRunConfiguration(Qt4ProjectManager::Qt4Target *parent, const QString &proFilePath);
     virtual ~S60EmulatorRunConfiguration();
 
     Qt4Target *qt4Target() const;
@@ -82,7 +82,7 @@ private slots:
     void proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
 
 protected:
-    S60EmulatorRunConfiguration(Qt4ProjectManager::Internal::Qt4Target *parent, S60EmulatorRunConfiguration *source);
+    S60EmulatorRunConfiguration(Qt4ProjectManager::Qt4Target *parent, S60EmulatorRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
 private:

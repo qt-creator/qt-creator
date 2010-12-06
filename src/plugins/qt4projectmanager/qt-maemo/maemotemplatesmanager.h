@@ -46,10 +46,10 @@ class Target;
 
 namespace Qt4ProjectManager {
 class Qt4Project;
+class Qt4Target;
 
 namespace Internal {
 class Qt4ProFileNode;
-class Qt4Target;
 
 class MaemoTemplatesManager : public QObject
 {

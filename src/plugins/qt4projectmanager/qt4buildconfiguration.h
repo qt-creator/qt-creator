@@ -43,16 +43,17 @@ namespace Qt4ProjectManager {
 
 class QMakeStep;
 class MakeStep;
+class Qt4Target;
 
 namespace Internal {
 class Qt4ProFileNode;
 class Qt4BuildConfigurationFactory;
-class Qt4Target;
+}
 
 class Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
-    friend class Qt4BuildConfigurationFactory;
+    friend class Internal::Qt4BuildConfigurationFactory;
 
 public:
     explicit Qt4BuildConfiguration(Qt4Target *target);
@@ -133,7 +134,7 @@ signals:
 
     /// emitted if the build configuration changed in a way that
     /// should trigger a reevaluation of all .pro files
-    void proFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4BuildConfiguration *);
+    void proFileEvaluateNeeded(Qt4ProjectManager::Qt4BuildConfiguration *);
 
     void buildDirectoryInitialized();
 
@@ -160,6 +161,7 @@ private:
     Qt4ProjectManager::Internal::Qt4ProFileNode *m_subNodeBuild;
 };
 
+namespace Internal {
 class Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
 {
     Q_OBJECT
@@ -196,7 +198,7 @@ private:
     QMap<QString, VersionInfo> m_versions;
 };
 
-} // namespace Qt4ProjectManager
 } // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // QT4BUILDCONFIGURATION_H

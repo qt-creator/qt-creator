@@ -54,9 +54,9 @@ QT_FORWARD_DECLARE_CLASS(QTimer);
 namespace ProjectExplorer { class BuildStep; }
 
 namespace Qt4ProjectManager {
-namespace Internal {
-
 class Qt4BuildConfiguration;
+
+namespace Internal {
 class Qt4ProFileNode;
 
 class MaemoDeployables : public QAbstractListModel

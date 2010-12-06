@@ -39,8 +39,8 @@ class Project;
 }
 
 namespace Qt4ProjectManager {
-namespace Internal {
 class Qt4BuildConfiguration;
+namespace Internal {
 
 class MaemoPublisherFremantleFree : public QObject
 {

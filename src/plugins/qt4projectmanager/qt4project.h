@@ -153,7 +153,7 @@ public:
 
     Internal::Qt4TargetFactory *targetFactory() const;
 
-    Internal::Qt4Target *activeTarget() const;
+    Qt4Target *activeTarget() const;
 
     QList<Core::IFile *> dependencies();     //NBS remove
     QList<ProjectExplorer::Project *>dependsOn();
@@ -208,7 +208,7 @@ protected:
     virtual bool fromMap(const QVariantMap &map);
 
 private slots:
-    void proFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4Target *target);
+    void proFileEvaluateNeeded(Qt4ProjectManager::Qt4Target *target);
 
     void asyncUpdate();
 

@@ -41,9 +41,10 @@ QT_END_NAMESPACE
 namespace ProjectExplorer { class Project; }
 
 namespace Qt4ProjectManager {
+class Qt4BuildConfiguration;
+
 namespace Internal {
 class MaemoPublisherFremantleFree;
-class Qt4BuildConfiguration;
 
 class MaemoPublishingBuildSettingsPageFremantleFree : public QWizardPage
 {

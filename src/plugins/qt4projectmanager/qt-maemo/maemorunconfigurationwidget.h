@@ -60,11 +60,11 @@ class EnvironmentWidget;
 namespace Utils { class DetailsWidget; }
 
 namespace Qt4ProjectManager {
-namespace Internal {
+class Qt4BuildConfiguration;
 
+namespace Internal {
 class MaemoDeviceEnvReader;
 class MaemoRunConfiguration;
-class Qt4BuildConfiguration;
 
 class MaemoRunConfigurationWidget : public QWidget
 {

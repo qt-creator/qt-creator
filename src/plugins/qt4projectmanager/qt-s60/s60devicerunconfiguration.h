@@ -53,10 +53,10 @@ class Launcher;
 
 namespace Qt4ProjectManager {
 class QtVersion;
+class Qt4Target;
 
 namespace Internal {
 class Qt4ProFileNode;
-class Qt4Target;
 class S60DeviceRunConfigurationFactory;
 
 class S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration
@@ -65,7 +65,7 @@ class S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration
     friend class S60DeviceRunConfigurationFactory;
 
 public:
-    S60DeviceRunConfiguration(Qt4ProjectManager::Internal::Qt4Target *parent, const QString &proFilePath);
+    S60DeviceRunConfiguration(Qt4ProjectManager::Qt4Target *parent, const QString &proFilePath);
     virtual ~S60DeviceRunConfiguration();
 
     Qt4Target *qt4Target() const;
@@ -97,7 +97,7 @@ signals:
     void targetInformationChanged();
 
 protected:
-    S60DeviceRunConfiguration(Qt4ProjectManager::Internal::Qt4Target *parent, S60DeviceRunConfiguration *source);
+    S60DeviceRunConfiguration(Qt4ProjectManager::Qt4Target *parent, S60DeviceRunConfiguration *source);
     QString defaultDisplayName() const;
     virtual bool fromMap(const QVariantMap &map);
 private slots:

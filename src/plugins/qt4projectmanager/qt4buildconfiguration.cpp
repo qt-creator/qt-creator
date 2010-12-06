@@ -726,7 +726,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
     QtVersion *version = QtVersionManager::instance()->version(info.versionId);
     Q_ASSERT(version);
 
-    Qt4Target *qt4Target(static_cast<Qt4Target *>(parent));
+    Qt4Target *qt4Target = static_cast<Qt4Target *>(parent);
 
     bool ok;
     QString buildConfigurationName = QInputDialog::getText(0,

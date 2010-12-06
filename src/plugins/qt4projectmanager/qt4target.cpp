@@ -444,8 +444,8 @@ void Qt4Target::onAddedBuildConfiguration(ProjectExplorer::BuildConfiguration *b
     Q_ASSERT(qt4bc);
     connect(qt4bc, SIGNAL(buildDirectoryInitialized()),
             this, SIGNAL(buildDirectoryInitialized()));
-    connect(qt4bc, SIGNAL(proFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4BuildConfiguration *)),
-            this, SLOT(onProFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4BuildConfiguration *)));
+    connect(qt4bc, SIGNAL(proFileEvaluateNeeded(Qt4ProjectManager::Qt4BuildConfiguration *)),
+            this, SLOT(onProFileEvaluateNeeded(Qt4ProjectManager::Qt4BuildConfiguration *)));
 }
 
 void Qt4Target::onAddedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc)
@@ -466,7 +466,7 @@ void Qt4Target::slotUpdateDeviceInformation()
     }
 }
 
-void Qt4Target::onProFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4BuildConfiguration *bc)
+void Qt4Target::onProFileEvaluateNeeded(Qt4ProjectManager::Qt4BuildConfiguration *bc)
 {
     if (bc && bc == activeBuildConfiguration())
         emit proFileEvaluateNeeded(this);
