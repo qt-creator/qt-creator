@@ -105,8 +105,8 @@ private slots:
 
 private:
     void addCommonColumns() const;
-    void testMatch(const Rule &rule) const;
-    void testMatch(const Rule &rule, ProgressData *progress) const;
+    void testMatch(Rule *rule);
+    void testMatch(Rule *rule, ProgressData *progress);
 
     void noMatchForInt() const;
     void noMatchForFloat() const;
@@ -138,17 +138,17 @@ void tst_SpecificRules::addCommonColumns() const
     QTest::addColumn<bool>("will continue");
 }
 
-void tst_SpecificRules::testMatch(const Rule &rule) const
+void tst_SpecificRules::testMatch(Rule *rule)
 {
     ProgressData progress;
     testMatch(rule, &progress);
 }
 
-void tst_SpecificRules::testMatch(const Rule &rule, ProgressData *progress) const
+void tst_SpecificRules::testMatch(Rule *rule, ProgressData *progress)
 {    
     QFETCH(QString, s);
 
-    QTEST(rule.matchSucceed(s, s.length(), progress), "match");
+    QTEST(rule->matchSucceed(s, s.length(), progress), "match");
     QTEST(progress->offset(), "offset");
     QTEST(progress->isOnlySpacesSoFar(), "only spaces");
     QTEST(progress->isWillContinueLine(), "will continue");
@@ -160,7 +160,7 @@ void tst_SpecificRules::testDetectChar()
     DetectCharRule rule;
     rule.setChar(c);
 
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testDetectChar_data()
@@ -186,7 +186,7 @@ void tst_SpecificRules::testDetect2Char()
     rule.setChar(c);
     rule.setChar1(c1);
 
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testDetect2Char_data()
@@ -214,7 +214,7 @@ void tst_SpecificRules::testAnyChar()
     AnyCharRule rule;
     rule.setCharacterSet(chars);
 
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testAnyChar_data()
@@ -245,7 +245,7 @@ void tst_SpecificRules::testStringDetect()
     rule.setString(referenceString);
     rule.setInsensitive(insensitive);
 
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testStringDetect_data()
@@ -277,7 +277,7 @@ void tst_SpecificRules::testRegExpr()
     rule.setInsensitive(insensitive);
     rule.setMinimal(minimal);
 
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testRegExpr_data()
@@ -322,7 +322,7 @@ void tst_SpecificRules::testRegExprOffsetIncremented()
     ProgressData progress;
     progress.setOffset(1);
 
-    testMatch(rule, &progress);
+    testMatch(&rule, &progress);
 }
 
 void tst_SpecificRules::testRegExprOffsetIncremented_data()
@@ -388,7 +388,7 @@ void tst_SpecificRules::testKeywordGlobalSensitiveLocalSensitive()
     rule.setInsensitive("false");
     rule.setList("keywords");
 
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testKeywordGlobalSensitiveLocalSensitive_data()
@@ -410,7 +410,7 @@ void tst_SpecificRules::testKeywordGlobalSensitiveLocalInsensitive()
     rule.setInsensitive("true");
     rule.setList("keywords");
 
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testKeywordGlobalSensitiveLocalInsensitive_data()
@@ -432,7 +432,7 @@ void tst_SpecificRules::testKeywordGlobalInsensitiveLocalInsensitive()
     rule.setInsensitive("true");
     rule.setList("keywords");
 
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testKeywordGlobalInsensitiveLocalInsensitive_data()
@@ -447,7 +447,7 @@ void tst_SpecificRules::testKeywordGlobalInsensitiveLocalSensitive()
     rule.setInsensitive("false");
     rule.setList("keywords");
 
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testKeywordGlobalInsensitiveLocalSensitive_data()
@@ -510,7 +510,7 @@ void tst_SpecificRules::noMatchForNumber() const
 void tst_SpecificRules::testInt()
 {
     IntRule rule;
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testInt_data()
@@ -534,7 +534,7 @@ void tst_SpecificRules::testInt_data()
 void tst_SpecificRules::testFloat()
 {
     FloatRule rule;
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testFloat_data()
@@ -568,7 +568,7 @@ void tst_SpecificRules::testFloat_data()
 void tst_SpecificRules::testCOctal()
 {
     HlCOctRule rule;
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testCOctal_data()
@@ -589,7 +589,7 @@ void tst_SpecificRules::testCOctal_data()
 void tst_SpecificRules::testCHex()
 {
     HlCHexRule rule;
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testCHex_data()
@@ -609,7 +609,7 @@ void tst_SpecificRules::testCHex_data()
 void tst_SpecificRules::testCString()
 {
     HlCStringCharRule rule;
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testCString_data()
@@ -656,7 +656,7 @@ void tst_SpecificRules::testCString_data()
 void tst_SpecificRules::testCChar()
 {
     HlCCharRule rule;
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testCChar_data()
@@ -692,7 +692,7 @@ void tst_SpecificRules::testRangeDetect()
     rule.setChar(c);
     rule.setChar1(c1);
 
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testRangeDetect_data()
@@ -719,7 +719,7 @@ void tst_SpecificRules::testRangeDetect_data()
 void tst_SpecificRules::testLineContinue()
 {
     LineContinueRule rule;
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testLineContinue_data()
@@ -737,7 +737,7 @@ void tst_SpecificRules::testLineContinue_data()
 void tst_SpecificRules::testDetectSpaces()
 {
     DetectSpacesRule rule;
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testDetectSpaces_data()
@@ -754,7 +754,7 @@ void tst_SpecificRules::testDetectSpaces_data()
 void tst_SpecificRules::testDetectIdentifier()
 {
     DetectIdentifierRule rule;
-    testMatch(rule);
+    testMatch(&rule);
 }
 
 void tst_SpecificRules::testDetectIdentifier_data()

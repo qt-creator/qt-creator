@@ -74,9 +74,11 @@ public:
     void setDefinition(const QSharedPointer<HighlightDefinition> &definition);
     const QSharedPointer<HighlightDefinition> &definition() const;
 
-    bool matchSucceed(const QString &text, const int length, ProgressData *progress) const;
+    bool matchSucceed(const QString &text, const int length, ProgressData *progress);
 
     Rule *clone() const;
+
+    void progressFinished();
 
 protected:
     bool charPredicateMatchSucceed(const QString &text,
@@ -128,11 +130,11 @@ protected:
     static const QLatin1Char kClosingBrace;
 
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress) const = 0;
+    virtual bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) = 0;
 
     virtual Rule *doClone() const = 0;
+
+    virtual void doProgressFinished() {}
 
     template <class predicate_t>
     bool predicateMatchSucceed(const QString &text,

@@ -84,7 +84,7 @@ void DetectCharRule::doReplaceExpressions(const QStringList &captures)
 
 bool DetectCharRule::doMatchSucceed(const QString &text,
                                     const int length,
-                                    ProgressData *progress) const
+                                    ProgressData *progress)
 {
     if (matchCharacter(text, length, progress, m_char)) {
         // This is to make code folding have a control flow style look in the case of braces.
@@ -115,7 +115,7 @@ void Detect2CharsRule::doReplaceExpressions(const QStringList &captures)
 
 bool Detect2CharsRule::doMatchSucceed(const QString &text,
                                       const int length,
-                                      ProgressData *progress) const
+                                      ProgressData *progress)
 {
     if (matchCharacter(text, length, progress, m_char)) {
         if (progress->offset() < length && matchCharacter(text, length, progress, m_char1, false))
@@ -133,7 +133,7 @@ void AnyCharRule::setCharacterSet(const QString &s)
 
 bool AnyCharRule::doMatchSucceed(const QString &text,
                                  const int length,
-                                 ProgressData *progress) const
+                                 ProgressData *progress)
 {
     Q_UNUSED(length)
 
@@ -163,7 +163,7 @@ void StringDetectRule::doReplaceExpressions(const QStringList &captures)
 
 bool StringDetectRule::doMatchSucceed(const QString &text,
                                       const int length,
-                                      ProgressData *progress) const
+                                      ProgressData *progress)
 {
     if (length - progress->offset() >= m_length) {
         QString candidate = text.fromRawData(text.unicode() + progress->offset(), m_length);
@@ -178,7 +178,11 @@ bool StringDetectRule::doMatchSucceed(const QString &text,
 
 // RegExpr
 void RegExprRule::setPattern(const QString &pattern)
-{ m_expression.setPattern(pattern); }
+{
+    if (pattern.startsWith(QLatin1Char('^')))
+        m_onlyBegin = true;
+    m_expression.setPattern(pattern);
+}
 
 void RegExprRule::setInsensitive(const QString &insensitive)
 { m_expression.setCaseSensitivity(toCaseSensitivity(!toBool(insensitive))); }
@@ -193,22 +197,49 @@ void RegExprRule::doReplaceExpressions(const QStringList &captures)
     m_expression.setPattern(s);
 }
 
+void RegExprRule::doProgressFinished()
+{
+    m_isCached = false;
+}
+
+bool RegExprRule::isExactMatch(ProgressData *progress)
+{
+    if (progress->offset() == m_offset && m_length > 0) {
+        progress->incrementOffset(m_length);
+        progress->setCaptures(m_captures);
+        return true;
+    }
+    return false;
+}
+
 bool RegExprRule::doMatchSucceed(const QString &text,
                                  const int length,
-                                 ProgressData *progress) const
+                                 ProgressData *progress)
 {
     Q_UNUSED(length)
 
-    // This is not documented but a regular expression match is considered valid if it starts
-    // at the current position and if the match length is not zero.
+    // A regular expression match is considered valid if it happens at the current position
+    // and if the match length is not zero.
     const int offset = progress->offset();
-    if (m_expression.indexIn(text, offset, QRegExp::CaretAtZero) == offset) {
-        if (m_expression.matchedLength() == 0)
+    if (offset > 0 && m_onlyBegin)
+        return false;
+
+    if (m_isCached) {
+        if (offset < m_offset || m_offset == -1 || m_length == 0)
             return false;
-        progress->incrementOffset(m_expression.matchedLength());
-        progress->setCaptures(m_expression.capturedTexts());
-        return true;
+        if (isExactMatch(progress))
+            return true;
     }
+
+    m_offset = m_expression.indexIn(text, offset, QRegExp::CaretAtOffset);
+    m_length = m_expression.matchedLength();
+    m_captures = m_expression.capturedTexts();
+
+    if (isExactMatch(progress))
+        return true;
+
+    m_isCached = true;
+    progress->trackRule(this);
 
     return false;
 }
@@ -237,7 +268,7 @@ void KeywordRule::setList(const QString &listName)
 
 bool KeywordRule::doMatchSucceed(const QString &text,
                                  const int length,
-                                 ProgressData *progress) const
+                                 ProgressData *progress)
 {
     int current = progress->offset();
 
@@ -263,7 +294,7 @@ bool KeywordRule::doMatchSucceed(const QString &text,
 // Int
 bool IntRule::doMatchSucceed(const QString &text,
                              const int length,
-                             ProgressData *progress) const
+                             ProgressData *progress)
 {
     const int offset = progress->offset();
 
@@ -281,7 +312,7 @@ bool IntRule::doMatchSucceed(const QString &text,
 }
 
 // Float
-bool FloatRule::doMatchSucceed(const QString &text, const int length, ProgressData *progress) const
+bool FloatRule::doMatchSucceed(const QString &text, const int length, ProgressData *progress)
 {
     progress->saveOffset();
 
@@ -322,7 +353,7 @@ bool FloatRule::doMatchSucceed(const QString &text, const int length, ProgressDa
 // COctal
 bool HlCOctRule::doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const
+                                ProgressData *progress)
 {
     if (matchCharacter(text, length, progress, kZero)) {
         // In the definition files the number matching rules which are more restrictive should
@@ -345,7 +376,7 @@ bool HlCOctRule::doMatchSucceed(const QString &text,
 // CHex
 bool HlCHexRule::doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const
+                                ProgressData *progress)
 {
     if (matchCharacter(text, length, progress, kZero)) {
         const int offset = progress->offset();
@@ -367,7 +398,7 @@ bool HlCHexRule::doMatchSucceed(const QString &text,
 // CString
 bool HlCStringCharRule::doMatchSucceed(const QString &text,
                                        const int length,
-                                       ProgressData *progress) const
+                                       ProgressData *progress)
 {
     if (matchEscapeSequence(text, length, progress))
         return true;
@@ -384,7 +415,7 @@ bool HlCStringCharRule::doMatchSucceed(const QString &text,
 // CChar
 bool HlCCharRule::doMatchSucceed(const QString &text,
                                  const int length,
-                                 ProgressData *progress) const
+                                 ProgressData *progress)
 {
     if (matchCharacter(text, length, progress, kSingleQuote)) {
         if (progress->offset() < length) {
@@ -419,7 +450,7 @@ void RangeDetectRule::setChar1(const QString &character)
 
 bool RangeDetectRule::doMatchSucceed(const QString &text,
                                      const int length,
-                                     ProgressData *progress) const
+                                     ProgressData *progress)
 {
     if (matchCharacter(text, length, progress, m_char)) {
         while (progress->offset() < length) {
@@ -436,7 +467,7 @@ bool RangeDetectRule::doMatchSucceed(const QString &text,
 // LineContinue
 bool LineContinueRule::doMatchSucceed(const QString &text,
                                       const int length,
-                                      ProgressData *progress) const
+                                      ProgressData *progress)
 {
     if (progress->offset() != length - 1)
         return false;
@@ -456,7 +487,7 @@ DetectSpacesRule::DetectSpacesRule() : Rule(false)
 
 bool DetectSpacesRule::doMatchSucceed(const QString &text,
                                       const int length,
-                                      ProgressData *progress) const
+                                      ProgressData *progress)
 {
     return charPredicateMatchSucceed(text, length, progress, &QChar::isSpace);
 }
@@ -464,7 +495,7 @@ bool DetectSpacesRule::doMatchSucceed(const QString &text,
 // DetectIdentifier
 bool DetectIdentifierRule::doMatchSucceed(const QString &text,
                                           const int length,
-                                          ProgressData *progress) const
+                                          ProgressData *progress)
 {
     // Identifiers are characterized by a letter or underscore as the first character and then
     // zero or more word characters (\w*).

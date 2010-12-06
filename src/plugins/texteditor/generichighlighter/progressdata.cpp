@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "progressdata.h"
+#include "rule.h"
 
 #include <QtCore/QtGlobal>
 
@@ -42,6 +43,12 @@ ProgressData::ProgressData() :
     m_closingBraceMatchAtNonEnd(false),
     m_willContinueLine(false)
 {}
+
+ProgressData::~ProgressData()
+{
+    foreach (Rule *rule, m_trackedRules)
+        rule->progressFinished();
+}
 
 void ProgressData::setOffset(const int offset)
 { m_offset = offset; }
@@ -102,3 +109,8 @@ void ProgressData::setCaptures(const QStringList &captures)
 
 const QStringList &ProgressData::captures() const
 { return m_captures; }
+
+void ProgressData::trackRule(Rule *rule)
+{
+    m_trackedRules.append(rule);
+}

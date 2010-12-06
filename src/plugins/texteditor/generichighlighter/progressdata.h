@@ -35,10 +35,13 @@
 namespace TextEditor {
 namespace Internal {
 
+class Rule;
+
 class ProgressData
 {
 public:
     ProgressData();
+    ~ProgressData();
 
     void setOffset(const int offset);
     int offset() const;
@@ -66,6 +69,8 @@ public:
     void setCaptures(const QStringList &captures);
     const QStringList &captures() const;
 
+    void trackRule(Rule *rule);
+
 private:
     int m_offset;
     int m_savedOffset;
@@ -74,6 +79,7 @@ private:
     bool m_closingBraceMatchAtNonEnd;
     bool m_willContinueLine;
     QStringList m_captures;
+    QList<Rule *> m_trackedRules;
 };
 
 } // namespace Internal

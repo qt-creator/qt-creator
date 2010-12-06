@@ -162,7 +162,7 @@ bool Rule::charPredicateMatchSucceed(const QString &text,
     return predicateMatchSucceed(text, length, progress, std::ptr_fun(predicate));
 }
 
-bool Rule::matchSucceed(const QString &text, const int length, ProgressData *progress) const
+bool Rule::matchSucceed(const QString &text, const int length, ProgressData *progress)
 { 
     if (m_firstNonSpace && !progress->isOnlySpacesSoFar())
         return false;
@@ -186,6 +186,9 @@ bool Rule::matchSucceed(const QString &text, const int length, ProgressData *pro
 
 Rule *Rule::clone() const
 { return doClone(); }
+
+void Rule::progressFinished()
+{ doProgressFinished(); }
 
 bool Rule::matchCharacter(const QString &text,
                           const int length,

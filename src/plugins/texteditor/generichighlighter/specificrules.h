@@ -34,7 +34,7 @@
 #include "dynamicrule.h"
 
 #include <QtCore/QChar>
-#include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtCore/QRegExp>
 #include <QtCore/QSharedPointer>
 
@@ -54,7 +54,7 @@ public:
 private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const;
+                                ProgressData *progress);
     virtual DetectCharRule *doClone() const { return new DetectCharRule(*this); }
     virtual void doReplaceExpressions(const QStringList &captures);
 
@@ -72,7 +72,7 @@ public:
 private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const;
+                                ProgressData *progress);
     virtual Detect2CharsRule *doClone() const { return new Detect2CharsRule(*this); }
     virtual void doReplaceExpressions(const QStringList &captures);
 
@@ -90,7 +90,7 @@ public:
 private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const;
+                                ProgressData *progress);
     virtual AnyCharRule *doClone() const { return new AnyCharRule(*this); }
 
     QString m_characterSet;
@@ -107,7 +107,7 @@ public:
 private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const;
+                                ProgressData *progress);
     virtual StringDetectRule *doClone() const { return new StringDetectRule(*this); }
     virtual void doReplaceExpressions(const QStringList &captures);
 
@@ -119,6 +119,7 @@ private:
 class RegExprRule : public DynamicRule
 {
 public:
+    RegExprRule() : m_onlyBegin(false), m_isCached(false) {}
     virtual ~RegExprRule() {}
 
     void setPattern(const QString &pattern);
@@ -128,10 +129,18 @@ public:
 private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const;
+                                ProgressData *progress);
     virtual RegExprRule *doClone() const { return new RegExprRule(*this); }
     virtual void doReplaceExpressions(const QStringList &captures);
+    virtual void doProgressFinished();
 
+    bool isExactMatch(ProgressData *progress);
+
+    bool m_onlyBegin;
+    bool m_isCached;
+    int m_offset;
+    int m_length;
+    QStringList m_captures;
     QRegExp m_expression;
 };
 
@@ -147,7 +156,7 @@ public:
 private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const;
+                                ProgressData *progress);
     virtual KeywordRule *doClone() const { return new KeywordRule(*this); }
 
     bool m_overrideGlobal;
@@ -163,7 +172,7 @@ public:
 private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const;
+                                ProgressData *progress);
     virtual IntRule *doClone() const { return new IntRule(*this); }
 };
 
@@ -175,7 +184,7 @@ public:
 private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const;
+                                ProgressData *progress);
     virtual FloatRule *doClone() const { return new FloatRule(*this); }
 };
 
@@ -187,7 +196,7 @@ public:
 private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const;
+                                ProgressData *progress);
     virtual HlCOctRule *doClone() const { return new HlCOctRule(*this); }
 };
 
@@ -199,7 +208,7 @@ public:
 private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const;
+                                ProgressData *progress);
     virtual HlCHexRule *doClone() const { return new HlCHexRule(*this); }
 };
 
@@ -211,7 +220,7 @@ public:
 private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const;
+                                ProgressData *progress);
     virtual HlCStringCharRule *doClone() const { return new HlCStringCharRule(*this); }
 };
 
@@ -223,7 +232,7 @@ public:
 private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const;
+                                ProgressData *progress);
     virtual HlCCharRule *doClone() const { return new HlCCharRule(*this); }
 };
 
@@ -238,7 +247,7 @@ public:
 private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const;
+                                ProgressData *progress);
     virtual RangeDetectRule *doClone() const { return new RangeDetectRule(*this); }
 
     QChar m_char;
@@ -253,7 +262,7 @@ public:
 private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const;
+                                ProgressData *progress);
     virtual LineContinueRule *doClone() const { return new LineContinueRule(*this); }
 };
 
@@ -266,7 +275,7 @@ public:
 private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const;
+                                ProgressData *progress);
     virtual DetectSpacesRule *doClone() const { return new DetectSpacesRule(*this); }
 };
 
@@ -278,7 +287,7 @@ public:
 private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
-                                ProgressData *progress) const;
+                                ProgressData *progress);
     virtual DetectIdentifierRule *doClone() const { return new DetectIdentifierRule(*this); }
 };
 
