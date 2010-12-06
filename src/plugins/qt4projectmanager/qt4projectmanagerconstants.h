@@ -108,11 +108,11 @@ const char * const PROFILE_EVALUATE = "Qt4ProjectManager.ProFileEvaluate";
 const char * const QT4PROJECT_ID("Qt4ProjectManager.Qt4Project");
 
 // Targets
-const char * const DESKTOP_TARGET_ID("Qt4ProjectManager.Target.DesktopTarget");
-const char * const S60_EMULATOR_TARGET_ID("Qt4ProjectManager.Target.S60EmulatorTarget");
-const char * const S60_DEVICE_TARGET_ID("Qt4ProjectManager.Target.S60DeviceTarget");
-const char * const MAEMO_DEVICE_TARGET_ID("Qt4ProjectManager.Target.MaemoDeviceTarget");
-const char * const QT_SIMULATOR_TARGET_ID("Qt4ProjectManager.Target.QtSimulatorTarget");
+const char * const DESKTOP_TARGET_ID      = "Qt4ProjectManager.Target.DesktopTarget";
+const char * const S60_EMULATOR_TARGET_ID = "Qt4ProjectManager.Target.S60EmulatorTarget";
+const char * const S60_DEVICE_TARGET_ID   = "Qt4ProjectManager.Target.S60DeviceTarget";
+const char * const MAEMO_DEVICE_TARGET_ID = "Qt4ProjectManager.Target.MaemoDeviceTarget";
+const char * const QT_SIMULATOR_TARGET_ID = "Qt4ProjectManager.Target.QtSimulatorTarget";
 
 // ICONS
 const char * const ICON_QT_PROJECT = ":/qt4projectmanager/images/qt_project.png";
