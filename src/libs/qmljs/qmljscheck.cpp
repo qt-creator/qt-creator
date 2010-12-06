@@ -191,14 +191,8 @@ class FunctionBodyCheck : protected Visitor
 public:
     QList<DiagnosticMessage> operator()(FunctionExpression *function, Check::Options options)
     {
+        clear();
         _options = options;
-        _messages.clear();
-        _declaredFunctions.clear();
-        _declaredVariables.clear();
-        _possiblyUndeclaredUses.clear();
-        _seenNonDeclarationStatement = false;
-
-        _formalParameterNames.clear();
         for (FormalParameterList *plist = function->formals; plist; plist = plist->next) {
             if (plist->name)
                 _formalParameterNames += plist->name->asString();
@@ -208,7 +202,25 @@ public:
         return _messages;
     }
 
+    QList<DiagnosticMessage> operator()(StatementList *statements, Check::Options options)
+    {
+        clear();
+        _options = options;
+        Node::accept(statements, this);
+        return _messages;
+    }
+
 protected:
+    void clear()
+    {
+        _messages.clear();
+        _declaredFunctions.clear();
+        _declaredVariables.clear();
+        _possiblyUndeclaredUses.clear();
+        _seenNonDeclarationStatement = false;
+        _formalParameterNames.clear();
+    }
+
     void postVisit(Node *ast)
     {
         if (!_seenNonDeclarationStatement && ast->statementCast()
@@ -468,6 +480,11 @@ bool Check::visit(UiScriptBinding *ast)
                 _messages += message;
         }
 
+    }
+
+    if (Block *block = cast<Block *>(ast->statement)) {
+        FunctionBodyCheck bodyCheck;
+        _messages.append(bodyCheck(block->statements, _options));
     }
 
     return true;
