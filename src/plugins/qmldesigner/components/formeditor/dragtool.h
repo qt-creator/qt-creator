@@ -36,10 +36,29 @@
 #include "resizeindicator.h"
 
 #include <QHash>
+#include <QObject>
+#include <QScopedPointer>
 
 
 namespace QmlDesigner {
 
+class DragTool;
+
+namespace Internal {
+
+class TimerHandler : public QObject
+{
+    Q_OBJECT
+
+public:
+    TimerHandler(DragTool *tool) : QObject(), m_dragTool(tool) {}
+public slots:
+    void clearMoveDelay();
+
+private:
+    DragTool *m_dragTool;
+};
+};
 
 class DragTool : public AbstractFormEditorTool
 {
@@ -81,6 +100,8 @@ public:
 
     void formEditorItemsChanged(const QList<FormEditorItem*> &itemList);
 
+    void clearMoveDelay();
+
 protected:
 
 
@@ -99,7 +120,10 @@ private:
     QWeakPointer<FormEditorItem> m_movingItem;
     RewriterTransaction m_rewriterTransaction;
     QmlItemNode m_dragNode;
+    QScopedPointer<Internal::TimerHandler> m_timerHandler;
+    bool m_blockMove;
 };
+
 
 }
 #endif // DRAGTOOL_H

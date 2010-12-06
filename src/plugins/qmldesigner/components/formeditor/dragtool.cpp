@@ -42,13 +42,24 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QtDebug>
 #include <QMessageBox>
+#include <QTimer>
 
 namespace QmlDesigner {
+
+namespace Internal {
+void TimerHandler::clearMoveDelay()
+{
+    m_dragTool->clearMoveDelay();
+}
+
+}
 
 DragTool::DragTool(FormEditorView *editorView)
     : AbstractFormEditorTool(editorView),
     m_moveManipulator(editorView->scene()->manipulatorLayerItem(), editorView),
-    m_selectionIndicator(editorView->scene()->manipulatorLayerItem())
+    m_selectionIndicator(editorView->scene()->manipulatorLayerItem()),
+    m_timerHandler(new Internal::TimerHandler(this)),
+    m_blockMove(false)
 {
 //    view()->setCursor(Qt::SizeAllCursor);
 }
@@ -197,6 +208,12 @@ void DragTool::formEditorItemsChanged(const QList<FormEditorItem*> & itemList)
     }
 }
 
+void DragTool::clearMoveDelay()
+{
+    m_blockMove = false;
+    if  (m_dragNode.isValid())
+        beginWithPoint(m_dragNode.instanceBoundingRect().topLeft());
+}
 
 void DragTool::dropEvent(QGraphicsSceneDragDropEvent * event)
 {
@@ -260,6 +277,8 @@ static ItemLibraryEntry itemLibraryEntryFromData(const QByteArray &data)
 
 void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
 {
+    if (m_blockMove)
+        return;
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
        event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
         event->accept();
@@ -283,7 +302,7 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
             FormEditorItem *parentItem = calculateContainer(event->scenePos());
             if (!parentItem)
                 return;
-            QmlItemNode parentNode; //get possible container parentNode
+            QmlItemNode parentNode;
             if (parentItem)
                 parentNode = parentItem->qmlItemNode();
 
@@ -296,8 +315,9 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
                 QString imageName = QString::fromLatin1((event->mimeData()->data("application/vnd.bauhaus.libraryresource")));
                 createQmlItemNodeFromImage(imageName, parentNode, event->scenePos());
             } else Q_ASSERT(false);
-            if  (m_dragNode.isValid())
-                beginWithPoint(event->scenePos());
+            m_blockMove = true;
+            QTimer::singleShot(50, m_timerHandler.data(), SLOT(clearMoveDelay()));
+
         }
     }
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
