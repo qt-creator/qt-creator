@@ -436,6 +436,12 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
     category->index = m_stackedLayout->addWidget(tabWidget);
 }
 
+void SettingsDialog::ensureAllCategoryWidgets()
+{
+    foreach (Category *category, m_model->categories())
+        ensureCategoryWidget(category);
+}
+
 void SettingsDialog::updateEnabledTabs(Category *category, const QString &searchText)
 {
     for (int i = 0; i < category->pages.size(); ++i) {
@@ -472,6 +478,7 @@ void SettingsDialog::currentTabChanged(int index)
 
 void SettingsDialog::filter(const QString &text)
 {
+    ensureAllCategoryWidgets();
     // When there is no current index, select the first one when possible
     if (!m_categoryList->currentIndex().isValid() && m_model->rowCount() > 0)
         m_categoryList->setCurrentIndex(m_proxyModel->index(0, 0));
