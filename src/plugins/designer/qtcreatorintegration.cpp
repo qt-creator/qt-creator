@@ -354,6 +354,51 @@ static Document::Ptr addDefinition(const CPlusPlus::Snapshot &docTable,
     return Document::Ptr();
 }
 
+static QString addConstRefIfNeeded(const QString &argument)
+{
+    if (argument.startsWith(QLatin1String("const "))
+            || argument.endsWith(QLatin1Char('&'))
+            || argument.endsWith(QLatin1Char('*')))
+        return argument;
+
+    // for those types we don't want to add "const &"
+    static const QStringList nonConstRefs = QStringList()
+            << QLatin1String("bool")
+            << QLatin1String("int")
+            << QLatin1String("uint")
+            << QLatin1String("float")
+            << QLatin1String("double")
+            << QLatin1String("long")
+            << QLatin1String("short")
+            << QLatin1String("char")
+            << QLatin1String("signed")
+            << QLatin1String("unsigned")
+            << QLatin1String("qint64")
+            << QLatin1String("quint64");
+
+    for (int i = 0; i < nonConstRefs.count(); i++) {
+        const QString nonConstRef = nonConstRefs.at(i);
+        if (argument == nonConstRef || argument.startsWith(nonConstRef + QLatin1Char(' ')))
+            return argument;
+    }
+    return QLatin1String("const ") + argument + QLatin1Char('&');
+}
+
+static QString formatArgument(const QString &argument)
+{
+    QString formattedArgument = argument;
+    int i = argument.count();
+    while (i > 0) { // from the end of the "argument" string
+        i--;
+        const QChar c = argument.at(i); // take the char
+        if (c != QLatin1Char('*') && c != QLatin1Char('&')) { // if it's not the * or &
+            formattedArgument.insert(i + 1, QLatin1Char(' ')); // insert space after that char or just append space (to separate it from the parameter name)
+            break;
+        }
+    }
+    return formattedArgument;
+}
+
 // Insert the parameter names into a signature, "void foo(bool)" ->
 // "void foo(bool checked)"
 static QString addParameterNames(const QString &functionSignature, const QStringList &parameterNames)
@@ -370,7 +415,8 @@ static QString addParameterNames(const QString &functionSignature, const QString
     for (int i = 0; i < aCount; ++i) {
         if (i > 0)
             functionName += QLatin1String(", ");
-        functionName += arguments.at(i);
+        const QString argument = addConstRefIfNeeded(arguments.at(i));
+        functionName += formatArgument(argument);
         if (i < pCount) {
             // prepare parameterName
             QString parameterName = parameterNames.at(i);
@@ -380,10 +426,8 @@ static QString addParameterNames(const QString &functionSignature, const QString
                     parameterName = generatedName;
             }
             // add parameterName if not empty
-            if (!parameterName.isEmpty()) {
-                functionName += QLatin1Char(' ');
+            if (!parameterName.isEmpty())
                 functionName += parameterName;
-            }
         }
     }
     functionName += QLatin1Char(')');
