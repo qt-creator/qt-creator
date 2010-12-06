@@ -274,12 +274,14 @@ void MaemoDeviceConfigurationsSettingsWidget::configNameEditingFinished()
 
 void MaemoDeviceConfigurationsSettingsWidget::deviceTypeChanged()
 {
-    const QString name = currentConfig().name;
     const MaemoDeviceConfig::DeviceType devType =
         m_ui->deviceButton->isChecked()
             ? MaemoDeviceConfig::Physical
             : MaemoDeviceConfig::Simulator;
+    if (currentConfig().type == devType)
+        return;
 
+    const QString name = currentConfig().name;
     if (devType == MaemoDeviceConfig::Simulator) {
         m_lastConfigHW = currentConfig();
         currentConfig() = m_lastConfigSim;
