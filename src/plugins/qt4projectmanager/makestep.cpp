@@ -35,12 +35,9 @@
 #include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
 #include "qtparser.h"
-#include "qt-s60/abldparser.h"
-#include "qt-s60/sbsv2parser.h"
 
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/projectexplorer.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcprocess.h>
