@@ -839,6 +839,9 @@ AddImportCommand NodeInstanceView::createImportCommand(const Import &import)
 
 void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)
 {
+    if (!model())
+        return;
+
     QList<QPair<ModelNode, QString> > valuePropertyChangeList;
 
     foreach(const PropertyValueContainer &container, command.valueChanges()) {
@@ -856,7 +859,10 @@ void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)
 }
 
 void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
-{            
+{
+      if (!model())
+        return;
+
     QSet<ModelNode> renderImageChangeSet;
 
     foreach (const ImageContainer &container, command.images()) {
@@ -875,6 +881,9 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
 
 void NodeInstanceView::informationChanged(const InformationChangedCommand &command)
 {
+    if (!model())
+        return;
+
     QList<ModelNode> informationChangedList;
 
     foreach(const InformationContainer &container, command.informations()) {
@@ -898,6 +907,9 @@ void NodeInstanceView::statePreviewImagesChanged(const StatePreviewImageChangedC
 
 void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
 {
+     if (!model())
+        return;
+
     QList<ModelNode> childNodeList;
 
     foreach(qint32 instanceId, command.childrenInstances()) {
