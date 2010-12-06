@@ -20,7 +20,14 @@ GroupBox {
                     backendValue: backendValues.visible;
                     baseStateFlag: isBaseState;
                     checkable: true;
-                }                
+                }
+                CheckBox {
+                    id: smoothCheckBox;
+                    text: qsTr("Smooth")
+                    backendValue: backendValues.smooth;
+                    baseStateFlag: isBaseState;
+                    checkable: true;
+                }
             }
         }
         QWidget {
