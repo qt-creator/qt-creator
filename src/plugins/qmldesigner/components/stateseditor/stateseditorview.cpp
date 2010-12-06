@@ -243,8 +243,8 @@ void StatesEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
     if (debug)
         qDebug() << __FUNCTION__;
 
-    removeModelState(removedNode);
-
+    if (QmlModelState(removedNode).isValid())
+        removeModelState(removedNode);
 
     QmlModelView::nodeAboutToBeRemoved(removedNode);
 }
