@@ -32,7 +32,6 @@
 
 #include "qmljsprivateapi.h"
 
-#include <coreplugin/basemode.h>
 #include <debugger/debuggerconstants.h>
 #include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 #include <utils/fileinprojectfinder.h>

@@ -78,10 +78,10 @@
 #include "publishing/ipublishingwizardfactory.h"
 #include "publishing/publishingwizardselectiondialog.h"
 
-#include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/filemanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/imode.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -201,7 +201,7 @@ struct ProjectExplorerPluginPrivate {
     Internal::ProjectExplorerSettings m_projectExplorerSettings;
     Internal::ProjectWelcomePage *m_welcomePage;
 
-    Core::BaseMode * m_projectsMode;
+    Core::IMode *m_projectsMode;
 };
 
 ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
@@ -211,6 +211,25 @@ ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
     m_projectsMode(0)
 {
 }
+
+class ProjectsMode : public Core::IMode
+{
+public:
+    ProjectsMode(QWidget *proWindow) : m_widget(proWindow) {}
+
+    QString displayName() const { return tr("Projects"); }
+    QIcon icon() const { return QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")); }
+    int priority() const { return Constants::P_MODE_SESSION; }
+    QWidget *widget() { return m_widget; }
+    QString id() const { return QLatin1String(Constants::MODE_SESSION); }
+    QString type() const { return QString(); }
+    Core::Context context() const { return Core::Context(Constants::C_PROJECTEXPLORER); }
+    QString contextHelpId() const { return QLatin1String("Managing Projects"); }
+
+private:
+    QWidget *m_widget;
+    QIcon m_icon;
+};
 
 }  // namespace ProjectExplorer
 
@@ -280,18 +299,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_proWindow = new ProjectWindow;
 
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
-    Core::Context pecontext(Constants::C_PROJECTEXPLORER);
     Core::Context projecTreeContext(Constants::C_PROJECT_TREE);
 
-    d->m_projectsMode = new Core::BaseMode;
-    d->m_projectsMode->setDisplayName(tr("Projects"));
-    d->m_projectsMode->setId(QLatin1String(Constants::MODE_SESSION));
-    d->m_projectsMode->setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")));
-    d->m_projectsMode->setPriority(Constants::P_MODE_SESSION);
-    d->m_projectsMode->setWidget(d->m_proWindow);
-    d->m_projectsMode->setContext(pecontext);
+    d->m_projectsMode = new ProjectsMode(d->m_proWindow);
     d->m_projectsMode->setEnabled(session()->startupProject());
-    d->m_projectsMode->setContextHelpId(QLatin1String("Managing Projects"));
     addAutoReleasedObject(d->m_projectsMode);
     d->m_proWindow->layout()->addWidget(new Core::FindToolBarPlaceHolder(d->m_proWindow));
 

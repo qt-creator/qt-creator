@@ -43,6 +43,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/imode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
 

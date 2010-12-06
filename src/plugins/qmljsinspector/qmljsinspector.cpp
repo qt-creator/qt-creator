@@ -50,7 +50,6 @@
 #include <utils/styledbar.h>
 
 #include <coreplugin/icontext.h>
-#include <coreplugin/basemode.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/outputpane.h>

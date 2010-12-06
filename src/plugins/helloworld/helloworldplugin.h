@@ -50,8 +50,6 @@ public:
 
 private slots:
     void sayHelloWorld();
-
-private:
 };
 
 } // namespace Internal

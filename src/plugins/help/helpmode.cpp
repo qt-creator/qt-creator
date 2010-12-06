@@ -30,20 +30,16 @@
 #include "helpmode.h"
 #include "helpconstants.h"
 
+#include <QtGui/QIcon>
 #include <QtGui/QWidget>
 
 using namespace Help;
 using namespace Help::Internal;
 
-HelpMode::HelpMode(QWidget *widget, QObject *parent)
-    : BaseMode(parent)
+HelpMode::HelpMode(QObject *parent)
+  : Core::IMode(parent),
+    m_widget(0),
+    m_icon(QLatin1String(":/fancyactionbar/images/mode_Reference.png"))
 {
     setObjectName(QLatin1String("HelpMode"));
-    setDisplayName(tr("Help"));
-    setId(QLatin1String(Constants::ID_MODE_HELP));
-    setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Reference.png")));
-    setPriority(Constants::P_MODE_HELP);
-    setWidget(widget);
 }
-
-

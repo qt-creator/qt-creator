@@ -56,7 +56,6 @@ SOURCES += mainwindow.cpp \
     progressmanager/progressbar.cpp \
     progressmanager/futureprogress.cpp \
     scriptmanager/scriptmanager.cpp \
-    basemode.cpp \
     statusbarwidget.cpp \
     coreplugin.cpp \
     variablemanager.cpp \
@@ -167,7 +166,6 @@ HEADERS += mainwindow.h \
     scriptmanager/scriptmanager.h \
     scriptmanager/scriptmanager_p.h \
     core_global.h \
-    basemode.h \
     statusbarwidget.h \
     coreplugin.h \
     variablemanager.h \

@@ -342,18 +342,18 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         Core::IMode*)), this, SLOT(modeChanged(Core::IMode*, Core::IMode*)));
 
     m_externalWindow = new ExternalHelpWindow;
+    m_mode = new HelpMode;
     if (contextHelpOption() == Help::Constants::ExternalHelpAlways) {
-        m_mode = new HelpMode(new QWidget);
+        m_mode->setWidget(new QWidget);
         m_mode->setEnabled(false);
         m_externalHelpBar->setVisible(true);
         m_externalWindow->setCentralWidget(m_splitter);
         QTimer::singleShot(0, this, SLOT(showExternalWindow()));
     } else {
-        m_mode = new HelpMode(m_splitter);
+        m_mode->setWidget(m_splitter);
         m_internalHelpBar->setVisible(true);
     }
     addAutoReleasedObject(m_mode);
-    m_mode->setContext(modecontext);
 
     return true;
 }

@@ -43,7 +43,6 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/basemode.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>

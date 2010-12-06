@@ -30,19 +30,35 @@
 #ifndef HELPMODE_H
 #define HELPMODE_H
 
-#include <coreplugin/basemode.h>
+#include "helpmode.h"
+#include "helpconstants.h"
 
-QT_FORWARD_DECLARE_CLASS(QWidget)
+#include <coreplugin/imode.h>
+
+#include <QtCore/QString>
+#include <QtGui/QIcon>
 
 namespace Help {
 namespace Internal {
 
-class HelpMode : public Core::BaseMode
+class HelpMode : public Core::IMode
 {
-    Q_OBJECT
-
 public:
-    explicit HelpMode(QWidget *widget, QObject *parent = 0);
+    HelpMode(QObject *parent = 0);
+
+    QString displayName() const { return tr("Help"); }
+    QIcon icon() const { return m_icon; }
+    int priority() const { return Constants::P_MODE_HELP; }
+    QWidget *widget() { return m_widget; }
+    QString id() const { return QLatin1String(Constants::ID_MODE_HELP); }
+    QString type() const { return QString(); }
+    Core::Context context() const { return Core::Context(Constants::C_MODE_HELP); }
+    QString contextHelpId() const { return QString(); }
+    void setWidget(QWidget *widget) { m_widget = widget; }
+
+private:
+    QWidget *m_widget;
+    QIcon m_icon;
 };
 
 } // namespace Internal

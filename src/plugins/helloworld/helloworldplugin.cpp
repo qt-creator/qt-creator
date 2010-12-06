@@ -31,9 +31,9 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
 
@@ -44,7 +44,29 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
 
-using namespace HelloWorld::Internal;
+namespace HelloWorld {
+namespace Internal {
+
+/*!  A mode with a push button based on BaseMode.  */
+
+class HelloMode : public Core::IMode
+{
+public:
+    HelloMode() : m_widget(new QPushButton(tr("Hello World PushButton!"))) {}
+
+    QString displayName() const { return tr("Hello world!"); }
+    QIcon icon() const { return QIcon(); }
+    int priority() const { return 0; }
+    QWidget *widget() { return m_widget; }
+    QString id() const { return QLatin1String("HelloWorld.HelloWorldMode"); }
+    QString type() const { return QLatin1String("HelloWorld.HelloWorldMode"); }
+    Core::Context context() const { return Core::Context("HelloWorld.MainView"); };
+    QString contextHelpId() const { return QString(); }
+
+private:
+    QWidget *m_widget;
+};
+
 
 /*! Constructs the Hello World plugin. Normally plugins don't do anything in
     their constructor except for initializing their member variables. The
@@ -76,7 +98,7 @@ bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *error_m
     // Get the primary access point to the workbench.
     Core::ICore *core = Core::ICore::instance();
 
-    // Create a unique context id for our own view, that will be used for the
+    // Create a unique context for our own view, that will be used for the
     // menu entry later.
     Core::Context context("HelloWorld.MainView");
 
@@ -107,15 +129,8 @@ bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *error_m
 
     // Add a mode with a push button based on BaseMode. Like the BaseView,
     // it will unregister itself from the plugin manager when it is deleted.
-    Core::BaseMode *baseMode = new Core::BaseMode;
-    baseMode->setId(QLatin1String("HelloWorld.HelloWorldMode"));
-    baseMode->setType(QLatin1String("HelloWorld.HelloWorldMode"));
-    baseMode->setDisplayName(tr("Hello world!"));
-    baseMode->setIcon(QIcon());
-    baseMode->setPriority(0);
-    baseMode->setWidget(new QPushButton(tr("Hello World PushButton!")));
-    baseMode->setContext(context);
-    addAutoReleasedObject(baseMode);
+    Core::IMode *helloMode = new HelloMode;
+    addAutoReleasedObject(helloMode);
 
     // Add the Hello World action command to the mode manager (with 0 priority)
     Core::ModeManager *modeManager = core->modeManager();
@@ -147,4 +162,7 @@ void HelloWorldPlugin::sayHelloWorld()
             0, tr("Hello World!"), tr("Hello World! Beautiful day today, isn't it?"));
 }
 
-Q_EXPORT_PLUGIN(HelloWorldPlugin)
+} // namespace Internal
+} // namespace HelloWorld
+
+Q_EXPORT_PLUGIN(HelloWorld::Internal::HelloWorldPlugin)
