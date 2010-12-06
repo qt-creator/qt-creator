@@ -113,13 +113,13 @@
        \endlist
        \o \l{Building and Running Applications}
             \list
-                \o \l{Building for and Running on Multiple Targets}
+                \o \l{Building Applications for Multiple Targets}
+                \o \l{Running Applications on Multiple Targets}
                 \o \l{Specifying Build Settings}
                 \o \l{Specifying Run Settings}
                 \o \l{Specifying Editor Settings}
                 \o \l{Specifying Dependencies}
             \endlist
-
        \o \l{Debugging}
             \list
                 \o \l{Debugging the Example Application}
@@ -130,6 +130,13 @@
                 \o \l{Debugging Qt Quick Projects}
             \endlist
        \o \l{Using the Maemo Emulator}
+       \o \l{Deploying Applications to Mobile Devices}
+            \list
+                \o \l{Deploying Applications to Symbian Devices}
+                \o \l{Deploying Applications to Maemo Devices}
+                \o \l{Publishing Applications to Ovi Store}
+                \o \l{Building with Remote Compiler}
+            \endlist
        \o \l{Using Version Control Systems}
        \o \l{Creating Task List Files}
        \o \l{Using Command Line Options}
@@ -2871,12 +2878,42 @@
 
     \title Building and Running Applications
 
-    Qt Creator provides support for building and running Qt applications for
-    desktop environment and mobile devices. When you install the \QSDK,
-    the build and run settings for the Maemo and Symbian targets are
-    set up automatically.
+    Qt Creator provides support for building, running, and deploying Qt
+    applications for desktop environment and mobile devices.
 
-    You can add a target if the necessary tool chain is installed on the
+    You can set up the following configurations:
+
+    \list
+
+        \o \e {Build configuration}, which contains everything you need to
+        compile the sources into binaries.
+
+        \o \e {Deploy configuration}, which handles the packaging and copying
+        of the necessary files to a location you want to run the executable at.
+        The files can be copied to a location in the file system of the development
+        PC or a mobile device.
+
+        \o \e {Run configuration}, which starts the application in the location
+        where it was stored by the deploy configuration.
+
+    \endlist
+
+    By default, when you select the \gui Run function, Qt Creator builds, deploys,
+    and runs the project. For more information about how to change the default
+    behavior, see \l{Customizing the Build Process}.
+
+     \section1 Setting Up a Project
+
+    When you install the \QSDK, the build and run settings for the toolchains
+    delivered with the \QSDK are set up automatically.
+
+    To view and modify the settings for currently open projects, switch to the
+    \gui Projects mode by pressing \key Ctrl+5.
+
+    \image qtcreator-projectpane.png
+
+    You can add a target if the development environment for the target
+    platform is installed on the
     development PC and the Qt version is configured. Click
     \inlineimage qtcreator-qt4-addbutton.png "Add Target button"
     and select from a list of available
@@ -2884,22 +2921,16 @@
     \inlineimage qtcreator-target-remove.png "Remove Target button"
     .
 
-    You can select the targets and click the \gui Run button to build and
-    run the applications on the targets. You can click the \gui {Build All}
-    button to build all open projects, one after another.
-
-     \section1 Setting Up a Project
-
-    To view and modify the settings for currently open projects, switch to the
-    \gui Projects mode by pressing \key Ctrl+5.
-
-    \image qtcreator-projectpane.png
+    You can select the targets and use the \gui Build menu commands to
+    build, deploy, and run projects.
 
     The project pane consists of the following tabs:
     \list
-       \o \l{Building for and Running on Multiple Targets}{Targets}
-       \note If you have installed only one tool chain, the \gui Targets
-       tab is replaced by a \gui {Build and Run} tab.
+       \o \l{Running Applications on Multiple Targets}{Targets}
+       (If you have installed the development environment for only one target, the \gui Targets
+       tab is replaced by a \gui Build tab and a \gui Run tab.)
+       \o \l{Specifying Build Settings}{Build Settings}
+       \o \l{Specifying Run Settings}{Run Settings}
        \o \l{Specifying Editor Settings}{Editor Settings}
        \o \l{Specifying Dependencies}{Dependencies}
     \endlist
@@ -2907,9 +2938,18 @@
     Use the \gui Build and \gui Run buttons to switch between
     the build and run settings for the active project.
 
-    If you have multiple projects open in Qt Creator, use
-    \gui{Select a Project} option at the top to navigate between different
-    project edits.
+    If you have multiple projects open in Qt Creator, use the tabs at the
+    top of the window to navigate between their settings.
+
+    \section1 Customizing the Build Process
+
+    To specify the relationship between the release, build, and deploy configurations, select
+    \gui {Tools > Options... > Project}. By default, the \gui {Always build project
+    before deploying it} and the \gui {Always deploy project before running it}
+    options are enabled. Therefore, when you select the \gui Run function,
+    Qt Creator builds, deploys, and runs the project.
+
+    \image qtcreator-project-options-deploy.png "Project General Options"
 
 */
 
@@ -2918,28 +2958,84 @@
     \contentspage index.html
     \previouspage creator-building-running.html
     \page creator-building-targets.html
+    \nextpage creator-running-targets.html
+
+    \title Building Applications for Multiple Targets
+
+    You can build applications for multiple targets. By default, when
+    you run the application on a target, you also build and deploy it to the
+    target, first. However, you can also perform each operation separately.
+
+    To check that the application code can be compiled and linked for a target,
+    you can build the project. The build errors and warnings are displayed in
+    the \gui {Build Issues} output pane. More detailed information is displayed in
+    the \gui {Compile Output} pane.
+
+    \list 1
+
+        \o Select a target for the project.
+
+        \image qtcreator-target-selector.png "Target selector"
+
+        \o Choose \gui {Build > Build Project} or press \key {Ctrl+B}.
+
+    \endlist
+
+    For more information on the options you have, see \l{Specifying Build Settings}.
+
+    \section1 Troubleshooting Build Issues
+
+    If you cannot build the application for a Symbian device, check that:
+
+     \list
+
+        \o You selected the Symbian Device target to build the application.
+
+        \o You selected the correct Qt version to build the application.
+
+     \endlist
+
+     \section1 Building for Symbian Emulator
+
+     Qt Creator does not create release configurations for the
+     \gui {Symbian Emulator} target, because Symbian Emulator supports only debug
+     builds.
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-building-targets.html
+    \page creator-running-targets.html
     \nextpage creator-build-settings.html
 
-    \title Building for and Running on Multiple Targets
+    \title Running Applications on Multiple Targets
 
-    You can build your application for multiple targets and run and debug it
-    on the desktop and mobile devices. When you run the application on the
-    \gui{Maemo} or \gui {Symbian Devices} target, Qt Creator copies the necessary
-    files to the device that is connected to the deveopment PC. In addition, Qt
-    Creator generates an installation package in the build directory. You can
-    specify settings for deploying the files and creating the installation package.
+    By default, running an application also builds it and deploys it to a
+    location from where it can be run on the desktop, in Qt Simulator, or
+    on a mobile device that is connected to the development PC.
 
-    \section1 Building for and Running on Desktop
+    To run executable files without deploying them first, deselect the \gui {Tools >
+    Options... > Project > Always deploy project before running it} option.
+    This allows you to test SIS files that you receive from Ovi Publishing or
+    Symbian Signed after you have them signed, for example.
+
+    For more information on the options you have, see \l{Specifying Run Settings}.
+
+    \section1 Running on Desktop
 
     \list 1
 
         \o Select \gui Desktop as the target.
 
+        \image qtcreator-target-selector.png "Target selector"
+
         \o Click the \gui Run button.
 
     \endlist
 
-    \section1 Building for and Running on Qt Simulator
+    \section1 Running on Qt Simulator
 
     You can use the Qt Simulator to test Qt applications that are intended
     for mobile devices in an environment similar to that of the device. You
@@ -2957,11 +3053,11 @@
     For more information about using the Qt Simulator, see the
     \l{http://doc.qt.nokia.com/qt-simulator-beta/index.html}{Qt Simulator Manual}.
 
-    \section1 Building for and Running on Maemo
+    \section1 Running on Maemo
 
     \list 1
 
-        \o Build and run the application for \l{Building for and Running on Qt Simulator}{Qt Simulator}.
+        \o Build and run the application for \l{Running on Qt Simulator}{Qt Simulator}.
 
         \o Build and run the application for \l{Using the Maemo Emulator}{Maemo Emulator}.
 
@@ -2996,11 +3092,11 @@
 
         Debugging also works transparently.
 
-    \section1 Building for and Running on Symbian
+    \section1 Running on Symbian
 
     \list 1
 
-        \o Build and run the application for \l{Building for and Running on Qt Simulator}{Qt Simulator}.
+        \o Build and run the application for \l{Running on Qt Simulator}{Qt Simulator}.
 
         \o If no problems are found, build and run the application for a device.
 
@@ -3009,12 +3105,7 @@
 
     \endlist
 
-    The build configuration for the \gui{Symbian Device} target
-    uses the GCCE tool chain by default. If you want to build
-    for the device using RVCT, select it in the \gui {Tool chain} field
-    in the \gui{General} section.
-
-    \section2 Building and Running for a Device
+    \section2 Running on a Device
 
     \list 1
 
@@ -3040,42 +3131,33 @@
     In the details of the run configuration for the \gui{Symbian Device} target,
     select the device to run your application on.
 
-    When you run the application for the \gui{Symbian Device} target, Qt
-    Creator automatically generates a Symbian installation system (SIS) file
-    in the project folder. You can deliver the installation file to users for
-    installation on Symbian devices.
-
     When your application is ready for delivery to users, specify run settings
     for creating the final SIS installation packages. For more information,
-    see \l{Creating SIS Installation Packages}.
+    see \l{Creating SIS Files}.
 
-    \section2 Building and Running for Symbian Emulator
+    If you cannot run the application on a device, check that:
 
-    Select
-    the \gui{Symbian Emulator} target as the active one, and build and run your
-    project.
-
-    \section2 Troubleshooting
-
-    If you cannot build the application, check if:
      \list
-        \o You selected the Symbian Device target for building the application.
-        \o The settings for the Qt version you use to build your project are
-           correct. The path to the Symbian SDK must point to the Symbian SDK
-           installation directory.  Select \gui Tools > \gui Options...
-           > \gui Debugger > \gui{Symbian TRK} and check if it points to the
-           debugger toolchain.
-     \endlist
-    If you cannot run the application on a device, check if:
-     \list
-        \o The device is connected through the USB cable in \e{PC Suite} mode.
+        \o The Nokia USB drivers that come with \e{PC Suite} or \e{Ovi Suite}
+        have been installed on the development PC.
+        \o The device is connected through USB cable in \e{PC Suite} mode.
         \o \gui{App TRK} is running on the device, using the USB connection,
            with the status \e connected.
         \o The device is detected and selected in the run configuration
            details.
      \endlist
 
-    If you cannot run the application in the emulator, check if:
+    If this does not help to solve your problem, search the qt-creator@trolltech.com
+    mailing list archives or provide feedback to us via the methods described on the
+    \l{http://developer.qt.nokia.com/wiki/Category:Tools::QtCreator}{Qt Creator Development Wiki}.
+
+    \section2 Running on Symbian Emulator
+
+    Select
+    the \gui{Symbian Emulator} target as the active one, and build and run your
+    project.
+
+    If you cannot run the application in the emulator, check that:
      \list
         \o You selected the \gui{Symbian Emulator} target for your application.
 
@@ -3091,16 +3173,16 @@
 
      \endlist
 
-     \note Qt Creator does not create release configurations for the
-     \gui {Symbian Emulator} target, because Symbian Emulator supports only debug
-     builds.
-
-    If this does not help to solve your problem, search the qt-creator@trolltech.com
-    mailing list archives or provide feedback to us via the methods described on the
-    \l{http://qt.gitorious.org/qt-creator/pages/Home}{Qt Creator Development Wiki}.
+*/
 
 
-    \section1 Building with Remote Compiler
+/*!
+    \contentspage index.html
+    \previouspage creator-publish-ovi.html
+    \page creator-remote-compiler.html
+    \nextpage creator-version-control.html
+
+    \title Building with Remote Compiler
 
     The \gui {Remote Compiler} target is an interface to a compilation service at
     Forum Nokia. It provides a simple, standardized environment for building Qt
@@ -3114,8 +3196,11 @@
 
     \list 1
 
-        \o In the \QSDK installation directory, double-click
-        SDKMaintenanceTool.exe to install \gui {Experimental APIs}.
+        \o Select \gui {Start > \QSDK > Maintain \QSDK} to open the
+        \gui {Maintain \QSDK} tool.
+
+        \o In the \gui {Package Manager}, select \gui {Experimental >
+        Remote Compiler}.
 
         \o In Qt Creator, choose \gui {Tools > Options > Projects > Remote Compiler}
         to log on to Forum Nokia.
@@ -3140,15 +3225,15 @@
     the development PC.
 
     For more information about Remote Compiler, choose \gui {Help > Contents >
-    Remote Compiler}. The document is added during the installation of experimental
-    APIs.
+    Remote Compiler}. The document is added during the installation of
+    Remote Compiler.
 
 */
 
 
 /*!
     \contentspage index.html
-    \previouspage creator-building-targets.html
+    \previouspage creator-running-targets.html
     \page creator-build-settings.html
     \nextpage creator-run-settings.html
 
@@ -3156,7 +3241,11 @@
 
     Different build configurations allow you to quickly switch between
     different build settings. By default, Qt Creator creates \bold debug
-    and \bold release build configurations.
+    and \bold release build configurations. A debug build contains additional
+    debug symbols that you need for debugging the application but that you
+    can leave out from the release version. Generally, you use the debug
+    configuration for testing and the release configuration for creating
+    the final installation file.
 
     You specify build settings in the \gui Projects mode.
 
@@ -3180,6 +3269,9 @@
                build your project. For more information, see
                \l{Selecting the Qt version}.
             \o The tool chain required to build the project.
+
+               \note Only tool chains that are compatible with the selected Qt version
+               are available.
             \o By default, projects are built in a separate directory
                from the source directory, as \l{glossary-shadow-build}{shadow builds}.
                This keeps the files generated for each target platform separate.
@@ -3191,14 +3283,23 @@
         \endlist
     \endlist
 
+    \note The build configuration for the \gui{Symbian Device} target
+    uses the GCCE tool chain by default. If you want to build
+    for the device using RVCT, install the RVCT tool chain, and then
+    select it in the \gui {Tool chain} field.
+
     \section1 Build Steps
 
     The build system of Qt Creator is built on qmake and make. In
     \gui{Build Steps} you can change the settings for qmake and make. Qt
-    Creator runs the make command using the Qt version defined for the current
+   Creator runs the make command using the Qt version defined for the current
     build configuration.
 
     \image qtcreator-build-steps.png "Build steps"
+
+    You can use any environment variables as values in the fields. For a list
+    of variable names, click \gui {Build Environment > Details}. You can specify
+    variables as ${VARNAME} or %VARNAME%. For example, ${BUILDDIR} or %BUILDDIR%.
 
     \section2 Adding Custom Build Steps
 
@@ -3209,10 +3310,6 @@
     the \gui{Enable custom process step} check-box.
 
     \image qtcreator-build-steps-custom.png "Custom Process Step"
-
-    You can use any environment variables as values in the fields. For a list
-    of variable names, click \gui {Build Environment > Details}. You can specify
-    variables as ${VARNAME} or %VARNAME%. For example, ${BUILDDIR} or %BUILDDIR%.
 
     \note Qt Creator sets SOURCEDIR and BUILDDIR as part of the build environment.
     For more information, see \l{Build Environment}.
@@ -3250,6 +3347,14 @@
 
     \image qtcreator-build-environment.png "Build Environment"
 
+    \section2 Clearing the System Environment
+
+    To build with a clean system environment, select the \gui {Clear system
+    environment} check box. Qt Creator discards the current environment, and
+    populates a clean system environment with the environment variables that the
+    compilers and tools need. Therefore, the environment is never totally empty,
+    even after you clear it.
+
 */
 
 
@@ -3264,8 +3369,8 @@
     Qt Creator automatically creates run configurations for your project.
     To view and modify the settings, select \gui {Projects > Run}.
 
-    The settings to specify depend on the type of the project: qmake project
-    or Qt Quick project.
+    The settings to specify depend on the type of the project: Qt project
+    or Qt Quick project, and on the target for the project.
 
     Click \gui Add to add run settings for a project and \gui Remove to remove
     the current settings.
