@@ -11,6 +11,8 @@ PropertyEditorTransaction::PropertyEditorTransaction(QmlDesigner::PropertyEditor
 
 void PropertyEditorTransaction::start()
 {
+    if (!m_propertyEditor->model())
+        return;
     if (m_rewriterTransaction.isValid())
         m_rewriterTransaction.commit();
     m_rewriterTransaction = m_propertyEditor->beginRewriterTransaction();
