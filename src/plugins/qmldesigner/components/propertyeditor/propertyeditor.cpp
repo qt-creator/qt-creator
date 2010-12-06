@@ -268,7 +268,8 @@ PropertyEditor::PropertyEditor(QWidget *parent) :
         m_stackedWidget(new StackedWidget(parent)),
         m_currentType(0),
         m_locked(false),
-        m_setupCompleted(false)
+        m_setupCompleted(false),
+        m_singleShotTimer(new QTimer(this))
 {
     m_updateShortcut = new QShortcut(QKeySequence("F5"), m_stackedWidget);
     connect(m_updateShortcut, SIGNAL(activated()), this, SLOT(reloadQml()));
@@ -738,8 +739,12 @@ void PropertyEditor::modelAttached(Model *model)
     m_locked = true;
 
     resetView();
-    if (!m_setupCompleted)
-        QTimer::singleShot(1000, this, SLOT(setupPanes()));
+    if (!m_setupCompleted) {
+        m_singleShotTimer->setSingleShot(true);
+        m_singleShotTimer->setInterval(1000);
+        connect(m_singleShotTimer, SIGNAL(timeout()), this, SLOT(setupPanes()));
+        m_singleShotTimer->start();
+    }
 
     m_locked = false;
 }
