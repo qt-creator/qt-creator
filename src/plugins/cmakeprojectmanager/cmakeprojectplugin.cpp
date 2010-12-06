@@ -33,6 +33,7 @@
 #include "cmakeeditorfactory.h"
 #include "makestep.h"
 #include "cmakeprojectconstants.h"
+#include "cmaketarget.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
@@ -67,6 +68,7 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
            = new TextEditor::TextEditorActionHandler(CMakeProjectManager::Constants::C_CMAKEEDITOR);
 
     addAutoReleasedObject(new CMakeEditorFactory(manager, editorHandler));
+    addAutoReleasedObject(new CMakeTargetFactory);
 
     return true;
 }

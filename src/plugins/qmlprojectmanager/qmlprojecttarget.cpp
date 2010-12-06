@@ -132,13 +132,13 @@ QmlProjectTarget *QmlProjectTargetFactory::create(ProjectExplorer::Project *pare
     if (!canCreate(parent, id))
         return 0;
     QmlProject *qmlproject(static_cast<QmlProject *>(parent));
-    QmlProjectTarget *t(new QmlProjectTarget(qmlproject));
+    QmlProjectTarget *target = new QmlProjectTarget(qmlproject);
 
     // Add RunConfiguration (QML does not have BuildConfigurations)
-    QmlProjectRunConfiguration *runConf(new QmlProjectRunConfiguration(t));
-    t->addRunConfiguration(runConf);
+    QmlProjectRunConfiguration *runConf = new QmlProjectRunConfiguration(target);
+    target->addRunConfiguration(runConf);
 
-    return t;
+    return target;
 }
 
 bool QmlProjectTargetFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const

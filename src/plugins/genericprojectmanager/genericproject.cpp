@@ -64,7 +64,6 @@ const char * const TOOLCHAIN_KEY("GenericProjectManager.GenericProject.Toolchain
 GenericProject::GenericProject(Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName),
-      m_targetFactory(new GenericTargetFactory(this)),
       m_toolChain(0)
 {
     QFileInfo fileInfo(m_fileName);
@@ -88,11 +87,6 @@ GenericProject::~GenericProject()
 
     delete m_rootNode;
     delete m_toolChain;
-}
-
-GenericTargetFactory *GenericProject::targetFactory() const
-{
-    return m_targetFactory;
 }
 
 GenericTarget *GenericProject::activeTarget() const
@@ -444,8 +438,11 @@ bool GenericProject::fromMap(const QVariantMap &map)
     }
 
     // Add default setup:
-    if (targets().isEmpty())
-        addTarget(targetFactory()->create(this, QLatin1String(GENERIC_DESKTOP_TARGET_ID)));
+    if (targets().isEmpty()) {
+        GenericTargetFactory *factory =
+                ExtensionSystem::PluginManager::instance()->getObject<GenericTargetFactory>();
+        addTarget(factory->create(this, QLatin1String(GENERIC_DESKTOP_TARGET_ID)));
+    }
 
     ToolChainType type =
             static_cast<ProjectExplorer::ToolChainType>

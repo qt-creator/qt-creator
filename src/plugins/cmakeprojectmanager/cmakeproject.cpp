@@ -80,7 +80,6 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
       m_fileName(fileName),
       m_rootNode(new CMakeProjectNode(m_fileName)),
       m_insideFileChanged(false),
-      m_targetFactory(new CMakeTargetFactory(this)),
       m_lastEditor(0)
 {
     m_file = new CMakeFile(this, fileName);
@@ -454,11 +453,6 @@ Core::IFile *CMakeProject::file() const
     return m_file;
 }
 
-CMakeTargetFactory *CMakeProject::targetFactory() const
-{
-    return m_targetFactory;
-}
-
 CMakeManager *CMakeProject::projectManager() const
 {
     return m_manager;
@@ -500,7 +494,10 @@ bool CMakeProject::fromMap(const QVariantMap &map)
 
     bool hasUserFile = activeTarget();
     if (!hasUserFile) {
-        CMakeTarget *t = targetFactory()->create(this, QLatin1String(DEFAULT_CMAKE_TARGET_ID));
+        CMakeTargetFactory *factory =
+                ExtensionSystem::PluginManager::instance()->getObject<CMakeTargetFactory>();
+        CMakeTarget *t = factory->create(this, QLatin1String(DEFAULT_CMAKE_TARGET_ID));
+
         Q_ASSERT(t);
         Q_ASSERT(t->activeBuildConfiguration());
 

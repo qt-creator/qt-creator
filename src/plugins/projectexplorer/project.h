@@ -94,8 +94,6 @@ public:
     void setActiveTarget(Target *target);
     Target *target(const QString &id) const;
 
-    virtual ITargetFactory *targetFactory() const = 0;
-
     void saveSettings();
     bool restoreSettings();
 

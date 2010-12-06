@@ -57,7 +57,6 @@ namespace Internal {
 class GenericBuildConfiguration;
 class GenericProject;
 class GenericTarget;
-class GenericTargetFactory;
 class GenericMakeStep;
 class GenericProjectFile;
 
@@ -76,7 +75,6 @@ public:
     QString displayName() const;
     QString id() const;
     Core::IFile *file() const;
-    GenericTargetFactory *targetFactory() const;
     ProjectExplorer::IProjectManager *projectManager() const;
     GenericTarget *activeTarget() const;
 
@@ -130,7 +128,6 @@ private:
     QString m_configFileName;
     GenericProjectFile *m_file;
     QString m_projectName;
-    GenericTargetFactory *m_targetFactory;
 
     QStringList m_rawFileList;
     QStringList m_files;

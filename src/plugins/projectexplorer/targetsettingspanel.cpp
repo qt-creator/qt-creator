@@ -200,7 +200,17 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
 void TargetSettingsPanelWidget::addTarget(QAction *action)
 {
     QString id = action->data().toString();
-    Target *target(m_project->targetFactory()->create(m_project, id));
+    QList<ITargetFactory *> factories =
+            ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>();
+
+    Target *target = 0;
+    foreach (ITargetFactory *fac, factories) {
+        if (fac->canCreate(m_project, id)) {
+            target = fac->create(m_project, id);
+            break;
+        }
+    }
+
     if (!target)
         return;
     m_project->addTarget(target);
@@ -267,8 +277,20 @@ void TargetSettingsPanelWidget::updateTargetAddAndRemoveButtons()
 
     m_addMenu->clear();
 
+    QList<ITargetFactory *> factories =
+            ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>();
+
     foreach (const QString &id, m_project->possibleTargetIds()) {
-        QString displayName = m_project->targetFactory()->displayNameForId(id);
+        QString displayName;
+        foreach (ITargetFactory *fac, factories) {
+            if (fac->supportsTargetId(id)) {
+                displayName = fac->displayNameForId(id);
+                break;
+            }
+        }
+        if (displayName.isEmpty())
+            continue;
+
         QAction *action = new QAction(displayName, m_addMenu);
         action->setData(QVariant(id));
         bool added = false;

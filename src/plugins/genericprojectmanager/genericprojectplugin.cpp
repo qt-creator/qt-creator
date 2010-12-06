@@ -33,6 +33,7 @@
 #include "genericprojectconstants.h"
 #include "genericprojectfileseditor.h"
 #include "genericmakestep.h"
+#include "generictarget.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
@@ -78,6 +79,7 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
     addAutoReleasedObject(manager);
     addAutoReleasedObject(new GenericMakeStepFactory);
     addAutoReleasedObject(new GenericProjectWizard);
+    addAutoReleasedObject(new GenericTargetFactory);
 
     return true;
 }

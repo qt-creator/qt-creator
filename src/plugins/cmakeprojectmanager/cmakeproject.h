@@ -78,7 +78,6 @@ public:
     QString displayName() const;
     QString id() const;
     Core::IFile *file() const;
-    CMakeTargetFactory *targetFactory() const;
     CMakeManager *projectManager() const;
 
     CMakeTarget *activeTarget() const;
@@ -142,7 +141,6 @@ private:
     ProjectExplorer::FileWatcher *m_watcher;
     bool m_insideFileChanged;
     QSet<QString> m_watchedFiles;
-    CMakeTargetFactory *m_targetFactory;
     QFuture<void> m_codeModelFuture;
 
     QMap<QString, CMakeUiCodeModelSupport *> m_uiCodeModelSupport;

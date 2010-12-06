@@ -249,7 +249,6 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_manager(manager),
     m_rootProjectNode(0),
     m_nodesWatcher(new Internal::Qt4NodesWatcher(this)),
-    m_targetFactory(new Qt4TargetFactory(this)),
     m_fileInfo(new Qt4ProjectFile(this, fileName, this)),
     m_projectFiles(new Qt4ProjectFiles),
     m_proFileOption(0),
@@ -353,11 +352,6 @@ bool Qt4Project::fromMap(const QVariantMap &map)
             this, SLOT(activeTargetWasChanged()));
 
     return true;
-}
-
-Qt4TargetFactory *Qt4Project::targetFactory() const
-{
-    return m_targetFactory;
 }
 
 Qt4Target *Qt4Project::activeTarget() const

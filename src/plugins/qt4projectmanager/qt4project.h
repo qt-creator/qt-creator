@@ -151,8 +151,6 @@ public:
     ProjectExplorer::IProjectManager *projectManager() const;
     Qt4Manager *qt4ProjectManager() const;
 
-    Internal::Qt4TargetFactory *targetFactory() const;
-
     Qt4Target *activeTarget() const;
 
     QList<Core::IFile *> dependencies();     //NBS remove
@@ -239,7 +237,6 @@ private:
     Qt4Manager *m_manager;
     Internal::Qt4ProFileNode *m_rootProjectNode;
     Internal::Qt4NodesWatcher *m_nodesWatcher;
-    Internal::Qt4TargetFactory *m_targetFactory;
 
     Qt4ProjectFile *m_fileInfo;
 

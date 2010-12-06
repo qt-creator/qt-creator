@@ -276,7 +276,19 @@ bool Project::fromMap(const QVariantMap &map)
             qWarning() << key << "was not found in data.";
             return false;
         }
-        Target *t(targetFactory()->restore(this, map.value(key).toMap()));
+       QVariantMap targetMap = map.value(key).toMap();
+
+        QList<ITargetFactory *> factories =
+                ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>();
+
+        Target *t = 0;
+        foreach (ITargetFactory *factory, factories) {
+            if (factory->canRestore(this, targetMap)) {
+                t = factory->restore(this, targetMap);
+                break;
+            }
+        }
+
         if (!t) {
             qWarning() << "Restoration of a target failed! (Continuing)";
             continue;

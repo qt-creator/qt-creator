@@ -32,6 +32,7 @@
 #include "qmlprojectmanagerconstants.h"
 #include "fileformat/qmlprojectitem.h"
 #include "qmlprojectrunconfiguration.h"
+#include "qmlprojecttarget.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -51,8 +52,7 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName),
       m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>()),
-      m_fileWatcher(new ProjectExplorer::FileWatcher(this)),
-      m_targetFactory(new Internal::QmlProjectTargetFactory(this))
+      m_fileWatcher(new ProjectExplorer::FileWatcher(this))
 {
     setSupportedTargetIds(QSet<QString>() << QLatin1String(Constants::QML_VIEWER_TARGET_ID));
     QFileInfo fileInfo(m_fileName);
@@ -238,11 +238,6 @@ QList<ProjectExplorer::BuildConfigWidget*> QmlProject::subConfigWidgets()
     return QList<ProjectExplorer::BuildConfigWidget*>();
 }
 
-Internal::QmlProjectTargetFactory *QmlProject::targetFactory() const
-{
-    return m_targetFactory;
-}
-
 Internal::QmlProjectTarget *QmlProject::activeTarget() const
 {
     return static_cast<Internal::QmlProjectTarget *>(Project::activeTarget());
@@ -264,7 +259,9 @@ bool QmlProject::fromMap(const QVariantMap &map)
         return false;
 
     if (targets().isEmpty()) {
-        Internal::QmlProjectTarget *target(targetFactory()->create(this, QLatin1String(Constants::QML_VIEWER_TARGET_ID)));
+        Internal::QmlProjectTargetFactory *factory
+                = ExtensionSystem::PluginManager::instance()->getObject<Internal::QmlProjectTargetFactory>();
+        Internal::QmlProjectTarget *target = factory->create(this, QLatin1String(Constants::QML_VIEWER_TARGET_ID));
         addTarget(target);
     }
 
