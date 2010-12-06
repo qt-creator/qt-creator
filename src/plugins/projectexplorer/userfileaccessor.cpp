@@ -431,6 +431,7 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
             return QVariantMap();
         }
         fileName = newestFileName;
+        fileVersion = newestFileVersion;
         if (!reader.load(fileName))
             return QVariantMap();
         map = reader.restoreValues();
