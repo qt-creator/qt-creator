@@ -495,6 +495,20 @@ void Action::addOverrideAction(QAction *action, const Core::Context &context)
     }
 }
 
+void Action::removeOverrideAction(QAction *action)
+{
+    QMutableMapIterator<int, QPointer<QAction> > it(m_contextActionMap);
+    while (it.hasNext()) {
+        it.next();
+        if (it.value() == 0) {
+            it.remove();
+        } else if (it.value() == action) {
+            it.remove();
+        }
+    }
+    setCurrentContext(m_context);
+}
+
 void Action::actionChanged()
 {
     if (hasAttribute(CA_UpdateIcon)) {
@@ -533,5 +547,10 @@ void Action::setActive(bool state)
         m_active = state;
         emit activeStateChanged();
     }
+}
+
+bool Action::isEmpty() const
+{
+    return m_contextActionMap.isEmpty();
 }
 

@@ -91,6 +91,7 @@ private:
     Utils::FilterLineEdit *m_fileLineEdit;
     QTimer *m_showPopupTimer;
     QFutureWatcher<FilterEntry> *m_entriesWatcher;
+    QMap<QString, QAction *> m_filterActionMap;
 };
 
 } // namespace Internal

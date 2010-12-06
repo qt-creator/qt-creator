@@ -35,6 +35,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
@@ -198,6 +199,17 @@ namespace {
     \sa ActionManager::createMenu()
     \sa ActionManager::createMenuBar()
 */
+
+/*!
+    \fn Command *ActionManager::unregisterAction(QAction *action, const QString &id)
+    \brief Removes the knowledge about an \a action under the specified string \a id.
+
+    Usually you do not need to unregister actions. The only valid use case for unregistering
+    actions, is for actions that represent user definable actions, like for the custom Locator
+    filters. If the user removes such an action, it also has to be unregistered from the action manager,
+    to make it disappear from shortcut settings etc.
+*/
+
 /*!
     \fn ActionManager::ActionManager(QObject *parent)
     \internal
@@ -332,6 +344,7 @@ Command *ActionManagerPrivate::registerAction(QAction *action, const Id &id, con
     a = static_cast<Action *>(c);
     if (a)
         a->addOverrideAction(action, context);
+    emit commandListChanged();
     return a;
 }
 
@@ -375,8 +388,29 @@ Command *ActionManagerPrivate::registerOverridableAction(QAction *action, const 
     } else  if (checkUnique) {
         qWarning() << "registerOverridableAction: id" << id << "is already registered.";
     }
-
     return a;
+}
+
+void ActionManagerPrivate::unregisterAction(QAction *action, const Id &id)
+{
+    Action *a = 0;
+    const int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
+    CommandPrivate *c = m_idCmdMap.value(uid, 0);
+    QTC_ASSERT(c, return);
+    a = qobject_cast<Action *>(c);
+    if (!a) {
+        qWarning() << "registerAction: id" << id << "is registered with a different command type.";
+        return;
+    }
+    a->removeOverrideAction(action);
+    if (a->isEmpty()) {
+        // clean up
+        m_mainWnd->removeAction(a->action());
+        delete a->action();
+        m_idCmdMap.remove(uid);
+        delete a;
+    }
+    emit commandListChanged();
 }
 
 Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const Id &id, const Context &context)
@@ -410,6 +444,7 @@ Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const Id &i
     else
         sc->setContext(context);
 
+    emit commandListChanged();
     return sc;
 }
 

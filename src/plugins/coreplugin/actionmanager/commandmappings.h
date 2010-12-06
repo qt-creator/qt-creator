@@ -80,6 +80,7 @@ protected:
     void setImportExportEnabled(bool enabled);
     QTreeWidget *commandList() const;
     QLineEdit *targetEdit() const;
+    QString filterText() const;
     void setPageTitle(const QString &s);
     void setTargetLabelText(const QString &s);
     void setTargetEditTitle(const QString &s);

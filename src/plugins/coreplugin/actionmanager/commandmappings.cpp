@@ -158,6 +158,8 @@ void CommandMappings::commandChanged(QTreeWidgetItem *current)
 
 void CommandMappings::filterChanged(const QString &f)
 {
+    if (!m_page)
+        return;
     for (int i=0; i<m_page->commandList->topLevelItemCount(); ++i) {
         QTreeWidgetItem *item = m_page->commandList->topLevelItem(i);
         item->setHidden(filter(f, item));
@@ -202,4 +204,11 @@ void CommandMappings::setModified(QTreeWidgetItem *item , bool modified)
     item->setFont(1, f);
     f.setBold(modified);
     item->setFont(2, f);
+}
+
+QString CommandMappings::filterText() const
+{
+    if (!m_page)
+        return QString();
+    return m_page->filterEdit->text();
 }

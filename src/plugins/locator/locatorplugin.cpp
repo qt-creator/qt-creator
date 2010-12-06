@@ -36,11 +36,6 @@
 #include "filesystemfilter.h"
 #include "settingspage.h"
 
-#include <QtCore/QSettings>
-#include <QtCore/QtPlugin>
-#include <QtCore/QFuture>
-#include <QtCore/QFutureWatcher>
-
 #include <coreplugin/statusbarwidget.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/settingsdatabase.h>
@@ -53,6 +48,12 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qtconcurrent/QtConcurrentTools>
+
+#include <QtCore/QSettings>
+#include <QtCore/QtPlugin>
+#include <QtCore/QFuture>
+#include <QtCore/QFutureWatcher>
+#include <QtGui/QAction>
 
 /*!
     \namespace Locator
@@ -142,6 +143,7 @@ void LocatorPlugin::extensionsInitialized()
 {
     m_filters = ExtensionSystem::PluginManager::instance()->getObjects<ILocatorFilter>();
     qSort(m_filters.begin(), m_filters.end(), filterLessThan);
+    setFilters(m_filters);
 }
 
 void LocatorPlugin::startSettingsLoad()

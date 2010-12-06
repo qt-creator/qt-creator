@@ -91,6 +91,7 @@ public:
 
     Core::Command *command(const Id &id) const;
     Core::ActionContainer *actionContainer(const Id &id) const;
+    void unregisterAction(QAction *action, const Id &id);
 
 private:
     bool hasContext(const Context &context) const;

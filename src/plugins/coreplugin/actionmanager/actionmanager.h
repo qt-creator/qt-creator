@@ -32,6 +32,7 @@
 
 #include "coreplugin/core_global.h"
 #include "coreplugin/uniqueidmanager.h"
+#include "coreplugin/icontext.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
@@ -46,7 +47,6 @@ namespace Core {
 
 class ActionContainer;
 class Command;
-class Context;
 
 class CORE_EXPORT ActionManager : public QObject
 {
@@ -65,6 +65,11 @@ public:
     virtual ActionContainer *actionContainer(const Id &id) const = 0;
 
     virtual QList<Command *> commands() const = 0;
+
+    virtual void unregisterAction(QAction *action, const Id &id) = 0;
+
+signals:
+    void commandListChanged();
 };
 
 } // namespace Core

@@ -130,6 +130,8 @@ public:
     bool setCurrentContext(const Context &context);
     bool isActive() const;
     void addOverrideAction(QAction *action, const Context &context);
+    void removeOverrideAction(QAction *action);
+    bool isEmpty() const;
 
 protected:
     void updateToolTipWithKeySequence();

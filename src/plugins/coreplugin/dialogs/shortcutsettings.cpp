@@ -56,8 +56,10 @@ using namespace Core;
 using namespace Core::Internal;
 
 ShortcutSettings::ShortcutSettings(QObject *parent)
-    : CommandMappings(parent)
+    : CommandMappings(parent), m_initialized(false)
 {
+    Core::Internal::ActionManagerPrivate *am = ActionManagerPrivate::instance();
+    connect(am, SIGNAL(commandListChanged()), this, SLOT(initialize()));
 }
 
 ShortcutSettings::~ShortcutSettings()
@@ -94,6 +96,7 @@ QIcon ShortcutSettings::categoryIcon() const
 
 QWidget *ShortcutSettings::createPage(QWidget *parent)
 {
+    m_initialized = true;
     m_keyNum = m_key[0] = m_key[1] = m_key[2] = m_key[3] = 0;
 
     QWidget *w = CommandMappings::createPage(parent);
@@ -128,6 +131,7 @@ void ShortcutSettings::finish()
     m_scitems.clear();
 
     CommandMappings::finish();
+    m_initialized = false;
 }
 
 bool ShortcutSettings::matches(const QString &s) const
@@ -271,8 +275,21 @@ void ShortcutSettings::exportAction()
     }
 }
 
+void ShortcutSettings::clear()
+{
+    QTreeWidget *tree = commandList();
+    for (int i = tree->topLevelItemCount()-1; i >= 0 ; --i) {
+        delete tree->takeTopLevelItem(i);
+    }
+    qDeleteAll(m_scitems);
+    m_scitems.clear();
+}
+
 void ShortcutSettings::initialize()
 {
+    if (!m_initialized)
+        return;
+    clear();
     Core::Internal::ActionManagerPrivate *am = ActionManagerPrivate::instance();
     UniqueIDManager *uidm = UniqueIDManager::instance();
 
@@ -325,6 +342,7 @@ void ShortcutSettings::initialize()
 
         markPossibleCollisions(s);
     }
+    filterChanged(filterText());
 }
 
 void ShortcutSettings::handleKeyEvent(QKeyEvent *e)

@@ -86,10 +86,11 @@ private slots:
     void importAction();
     void exportAction();
     void defaultAction();
+    void initialize();
 
 private:
     void setKeySequence(const QKeySequence &key);
-    void initialize();
+    void clear();
 
     void handleKeyEvent(QKeyEvent *e);
     int translateModifiers(Qt::KeyboardModifiers state, const QString &text);
@@ -101,6 +102,7 @@ private:
     int m_key[4], m_keyNum;
 
     QString m_searchKeywords;
+    bool m_initialized;
 };
 
 } // namespace Internal
