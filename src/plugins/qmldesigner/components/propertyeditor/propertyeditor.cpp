@@ -588,7 +588,7 @@ QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlO
             if (typeName == QLatin1String("alias") && objectNode.isValid())
                 typeName = objectNode.instanceType(name);
 
-        if (!superType.hasProperty(name)) {
+        if (!superType.hasProperty(name) && type.propertyIsWritable(name)) {
             if (typeName == "int") {
                 qmlTemplate +=  QString(QLatin1String(
                 "IntEditor { backendValue: backendValues.%2\n caption: \"%1\"\nbaseStateFlag: isBaseState\nslider: false\n}"
