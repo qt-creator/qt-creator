@@ -57,13 +57,17 @@ void TcfTrkCommandError::clear()
     alternativeOrganization.clear();
 }
 
+QDateTime TcfTrkCommandResult::tcfTimeToQDateTime(quint64 tcfTimeMS)
+{
+    const QDateTime time(QDate(1970, 1, 1));
+    return time.addMSecs(tcfTimeMS);
+}
+
 void TcfTrkCommandError::write(QTextStream &str) const
 {
     if (isError()) {
-        if (timeMS) {
-            const QDateTime time(QDate(1970, 1, 1));
-            str << time.addMSecs(timeMS).toString(Qt::ISODate) << ": ";
-        }
+        if (timeMS)
+            str << TcfTrkCommandResult::tcfTimeToQDateTime(timeMS).toString(Qt::ISODate) << ": ";
         str << "Error code: " << code
                 << " '" << format << '\'';
         if (!alternativeOrganization.isEmpty())
@@ -95,9 +99,16 @@ bool TcfTrkCommandError::parse(const QVector<JsonValue> &values)
     unsigned errorKeyCount = 0;
     clear();
     do {
-        if (values.isEmpty() || values.back().type() != JsonValue::Object)
+        if (values.isEmpty())
             break;
-        foreach (const JsonValue &c, values.back().children()) {
+        // Errors are mostly appended, except for FileSystem::open, in which case
+        // a string "null" file handle (sic!) follows the error.
+        const int last = values.size() - 1;
+        const int checkIndex = last == 1 && values.at(last).data() == "null" ?
+                    last - 1 : last;
+        if (values.at(checkIndex).type() != JsonValue::Object)
+            break;
+        foreach (const JsonValue &c, values.at(checkIndex).children()) {
             if (c.name() == "Time") {
                 timeMS = c.data().toULongLong();
                 errorKeyCount++;
@@ -211,6 +222,10 @@ QString TcfTrkCommandResult::toString() const
     if (type == CommandErrorReply)
         str << "Error: " << errorString();
     return rc;
+}
+
+TcfTrkStatResponse::TcfTrkStatResponse() : size(0)
+{
 }
 
 // Entry for send queue.
@@ -953,6 +968,25 @@ QVector<QByteArray> TcfTrkDevice::parseRegisterGetChildren(const TcfTrkCommandRe
     return rc;
 }
 
+TcfTrkStatResponse TcfTrkDevice::parseStat(const TcfTrkCommandResult &r)
+{
+    TcfTrkStatResponse rc;
+    if (!r || r.values.size() < 1 || r.values.front().type() != JsonValue::Object)
+        return rc;
+    foreach(const JsonValue &v, r.values.front().children()) {
+        if (v.name() == "Size") {
+            rc.size = v.data().toULongLong();
+        } else if (v.name() == "ATime") {
+            if (const quint64 atime = v.data().toULongLong())
+                rc.accessTime = TcfTrkCommandResult::tcfTimeToQDateTime(atime);
+        } else if (v.name() == "MTime") {
+            if (const quint64 mtime = v.data().toULongLong())
+                rc.modTime = TcfTrkCommandResult::tcfTimeToQDateTime(mtime);
+        }
+    }
+    return rc;
+}
+
 void TcfTrkDevice::sendRegistersGetChildrenCommand(const TcfTrkCallback &callBack,
                                      const QByteArray &contextId,
                                      const QVariant &cookie)
@@ -1094,4 +1128,67 @@ void TcfTrkDevice::sendLoggingAddListenerCommand(const TcfTrkCallback &callBack,
     sendTcfTrkMessage(MessageWithReply, LoggingService, "addListener", data, callBack, cookie);
 }
 
+void tcftrk::TcfTrkDevice::sendFileSystemOpenCommand(const tcftrk::TcfTrkCallback &callBack,
+                                                     const QByteArray &name,
+                                                     unsigned flags,
+                                                     const QVariant &cookie)
+{
+    QByteArray data;
+    JsonInputStream str(data);
+    str << name << '\0' << flags << '\0' << '{' << '}';
+    sendTcfTrkMessage(MessageWithReply, FileSystemService, "open", data, callBack, cookie);
+}
+
+void tcftrk::TcfTrkDevice::sendFileSystemFstatCommand(const TcfTrkCallback &callBack,
+                                                      const QByteArray &handle,
+                                                      const QVariant &cookie)
+{
+    QByteArray data;
+    JsonInputStream str(data);
+    str << handle;
+    sendTcfTrkMessage(MessageWithReply, FileSystemService, "fstat", data, callBack, cookie);
+}
+
+void tcftrk::TcfTrkDevice::sendFileSystemWriteCommand(const tcftrk::TcfTrkCallback &callBack,
+                                                      const QByteArray &handle,
+                                                      const QByteArray &dataIn,
+                                                      unsigned offset,
+                                                      const QVariant &cookie)
+{
+    QByteArray data;
+    JsonInputStream str(data);
+    str << handle << '\0' << offset << '\0' << dataIn.toBase64();
+    sendTcfTrkMessage(MessageWithReply, FileSystemService, "write", data, callBack, cookie);
+}
+
+void tcftrk::TcfTrkDevice::sendFileSystemCloseCommand(const tcftrk::TcfTrkCallback &callBack,
+                                                      const QByteArray &handle,
+                                                      const QVariant &cookie)
+{
+    QByteArray data;
+    JsonInputStream str(data);
+    str << handle;
+    sendTcfTrkMessage(MessageWithReply, FileSystemService, "close", data, callBack, cookie);
+}
+
+void tcftrk::TcfTrkDevice::sendSymbianInstallSilentInstallCommand(const tcftrk::TcfTrkCallback &callBack,
+                                                                  const QByteArray &file,
+                                                                  const QByteArray &targetDrive,
+                                                                  const QVariant &cookie)
+{
+    QByteArray data;
+    JsonInputStream str(data);
+    str << file << '\0' << targetDrive;
+    sendTcfTrkMessage(MessageWithReply, SymbianInstallService, "install", data, callBack, cookie);
+}
+
+void tcftrk::TcfTrkDevice::sendSymbianInstallUIInstallCommand(const tcftrk::TcfTrkCallback &callBack,
+                                                              const QByteArray &file,
+                                                              const QVariant &cookie)
+{
+    QByteArray data;
+    JsonInputStream str(data);
+    str << file;
+    sendTcfTrkMessage(MessageWithReply, SymbianInstallService, "installWithUI", data, callBack, cookie);
+}
 } // namespace tcftrk

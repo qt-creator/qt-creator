@@ -44,7 +44,7 @@ class CodaClientApplication : public QCoreApplication
 {
     Q_OBJECT
 public:
-    enum Mode { Invalid, Launch, Copy, Install };
+    enum Mode { Invalid, Launch, Put, Stat, Install };
 
     explicit CodaClientApplication(int &argc, char **argv);
     ~CodaClientApplication();
@@ -64,6 +64,11 @@ private slots:
 private:
     bool parseArgument(const QString &a, int argNumber, QString *errorMessage);
     void handleCreateProcess(const tcftrk::TcfTrkCommandResult &result);
+    void handleFileSystemOpen(const tcftrk::TcfTrkCommandResult &result);
+    void handleFileSystemWrite(const tcftrk::TcfTrkCommandResult &result);
+    void handleFileSystemClose(const tcftrk::TcfTrkCommandResult &result);
+    void handleFileSystemFStat(const tcftrk::TcfTrkCommandResult &result);
+    void handleSymbianInstall(const tcftrk::TcfTrkCommandResult &result);
     void doExit(int ex);
 
     Mode m_mode;
@@ -75,8 +80,13 @@ private:
     bool m_launchDebug;
     QString m_installSisFile;
     QString m_installTargetDrive;
-    QString m_copyLocalFile;
-    QString m_copyRemoteFile;
+    bool m_installSilently;
+    QString m_putLocalFile;
+    QString m_putRemoteFile;
+    bool m_putWriteOk;
+    bool m_statFstatOk;
+    QString m_statRemoteFile;
+    QByteArray m_remoteFileHandle;
     unsigned m_verbose;
     QScopedPointer<tcftrk::TcfTrkDevice> m_trkDevice;
 };

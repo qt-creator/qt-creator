@@ -40,6 +40,7 @@
 #include <QtCore/QVector>
 #include <QtCore/QVariant>
 #include <QtCore/QStringList>
+#include <QtCore/QDateTime>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;
@@ -79,7 +80,8 @@ struct SYMBIANUTILS_EXPORT TcfTrkCommandError {
 
 /* Answer to a Tcf command passed to the callback. */
 struct SYMBIANUTILS_EXPORT TcfTrkCommandResult {
-    enum Type {
+    enum Type
+    {
         SuccessReply,       // 'R' and no error -> all happy.
         CommandErrorReply,  // 'R' with TcfTrkCommandError received
         ProgressReply,      // 'P', progress indicator
@@ -96,12 +98,24 @@ struct SYMBIANUTILS_EXPORT TcfTrkCommandResult {
     QString errorString() const;
     operator bool() const { return type == SuccessReply || type == ProgressReply; }
 
+    static QDateTime tcfTimeToQDateTime(quint64 tcfTimeMS);
+
     Type type;
     Services service;
     QByteArray request;
     TcfTrkCommandError commandError;
     QVector<JsonValue> values;
     QVariant cookie;
+};
+
+// Response to stat/fstat
+struct SYMBIANUTILS_EXPORT TcfTrkStatResponse
+{
+    TcfTrkStatResponse();
+
+    quint64 size;
+    QDateTime modTime;
+    QDateTime accessTime;
 };
 
 typedef trk::Callback<const TcfTrkCommandResult &> TcfTrkCallback;
@@ -125,9 +139,23 @@ class SYMBIANUTILS_EXPORT TcfTrkDevice : public QObject
     Q_PROPERTY(unsigned verbose READ verbose WRITE setVerbose)
     Q_OBJECT
 public:
-    enum MessageType { MessageWithReply,
-                       MessageWithoutReply, /* Non-standard: "Settings:set" command does not reply */
-                       NoopMessage };
+    // Flags for FileSystem:open
+    enum FileSystemOpenFlags
+    {
+        FileSystem_TCF_O_READ = 0x00000001,
+        FileSystem_TCF_O_WRITE = 0x00000002,
+        FileSystem_TCF_O_APPEND = 0x00000004,
+        FileSystem_TCF_O_CREAT = 0x00000008,
+        FileSystem_TCF_O_TRUNC = 0x00000010,
+        FileSystem_TCF_O_EXCL = 0x00000020
+    };
+
+    enum MessageType
+    {
+        MessageWithReply,
+        MessageWithoutReply, /* Non-standard: "Settings:set" command does not reply */
+        NoopMessage
+    };
 
     typedef QSharedPointer<QIODevice> IODevicePtr;
 
@@ -270,11 +298,42 @@ public:
                                  const QByteArray &value, // binary value
                                  const QVariant &cookie = QVariant());
 
+    // File System
+    void sendFileSystemOpenCommand(const TcfTrkCallback &callBack,
+                                   const QByteArray &name,
+                                   unsigned flags = FileSystem_TCF_O_READ,
+                                   const QVariant &cookie = QVariant());
+
+    void sendFileSystemFstatCommand(const TcfTrkCallback &callBack,
+                                   const QByteArray &handle,
+                                   const QVariant &cookie = QVariant());
+
+    void sendFileSystemWriteCommand(const TcfTrkCallback &callBack,
+                                    const QByteArray &handle,
+                                    const QByteArray &data,
+                                    unsigned offset = 0,
+                                    const QVariant &cookie = QVariant());
+
+    void sendFileSystemCloseCommand(const TcfTrkCallback &callBack,
+                                   const QByteArray &handle,
+                                   const QVariant &cookie = QVariant());
+
+    // Symbian Install
+    void sendSymbianInstallSilentInstallCommand(const TcfTrkCallback &callBack,
+                                                const QByteArray &file,
+                                                const QByteArray &targetDrive,
+                                                const QVariant &cookie = QVariant());
+
+    void sendSymbianInstallUIInstallCommand(const TcfTrkCallback &callBack,
+                                            const QByteArray &file,
+                                            const QVariant &cookie = QVariant());
+
     void sendLoggingAddListenerCommand(const TcfTrkCallback &callBack,
                                        const QVariant &cookie = QVariant());
 
     static QByteArray parseMemoryGet(const TcfTrkCommandResult &r);
     static QVector<QByteArray> parseRegisterGetChildren(const TcfTrkCommandResult &r);
+    static TcfTrkStatResponse parseStat(const TcfTrkCommandResult &r);
 
 signals:
     void genericTcfEvent(int service, const QByteArray &name, const QVector<tcftrk::JsonValue> &value);

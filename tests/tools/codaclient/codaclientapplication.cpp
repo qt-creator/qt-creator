@@ -31,6 +31,8 @@
 
 #include "tcftrkdevice.h"
 #include <QtNetwork/QTcpSocket>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 
 #include <cstdio>
 
@@ -39,10 +41,12 @@ static const char usageC[] =
 "Test client for Symbian CODA\n\n"
 "Usage:\n"
 "%1 launch [-d] address:port binary uid [--] [arguments]\n"
-"%1 install     address:port sis-file targetdrive\n"
-"%1 copy        address:port local-file remote-file\n"
+"%1 install[-s] address:port sis-file [targetdrive]\n"
+"%1 put         address:port local-file remote-file\n"
+"%1 stat        address:port remote-file\n"
 "\nOptions:\n"
-"-d            Launch under Debug control\n";
+"-d            Launch: Launch under Debug control (wait for termination)\n"
+"-s            Install: Silent installation\n";
 
 static const unsigned short defaultPort = 65029;
 
@@ -59,6 +63,9 @@ CodaClientApplication::CodaClientApplication(int &argc, char **argv) :
     m_launchUID(0),
     m_launchDebug(false),
     m_installTargetDrive(QLatin1String("C:")),
+    m_installSilently(false),
+    m_putWriteOk(false),
+    m_statFstatOk(false),
     m_verbose(0)
 {
     setApplicationName(QLatin1String("codaclient"));
@@ -80,8 +87,10 @@ static inline CodaClientApplication::Mode modeArg(const QString &a)
         return CodaClientApplication::Launch;
     if (a == QLatin1String("install"))
         return CodaClientApplication::Install;
-    if (a == QLatin1String("copy"))
-        return CodaClientApplication::Copy;
+    if (a == QLatin1String("put"))
+        return CodaClientApplication::Put;
+    if (a == QLatin1String("stat"))
+        return CodaClientApplication::Stat;
     return CodaClientApplication::Invalid;
 }
 
@@ -112,8 +121,11 @@ bool CodaClientApplication::parseArgument(const QString &a, int argNumber, QStri
         case Install:
             m_installSisFile = a;
             break;
-        case Copy:
-            m_copyLocalFile = a;
+        case Put:
+            m_putLocalFile = a;
+            break;
+        case Stat:
+            m_statRemoteFile = fixSlashes(a);
             break;
         default:
             break;
@@ -131,8 +143,8 @@ bool CodaClientApplication::parseArgument(const QString &a, int argNumber, QStri
         case Install:
             m_installTargetDrive = a;
             break;
-        case Copy:
-            m_copyRemoteFile = fixSlashes(a);
+        case Put:
+            m_putRemoteFile = fixSlashes(a);
             break;
         default:
             break;
@@ -167,6 +179,9 @@ CodaClientApplication::ParseArgsResult CodaClientApplication::parseArguments(QSt
             case 'd':
                 m_launchDebug = true;
                 break;
+            case 's':
+                m_installSilently = true;
+                break;
             default:
                 *errorMessage = QString::fromLatin1("Invalid option %1").arg(*it);
                 return ParseArgsError;
@@ -192,11 +207,17 @@ CodaClientApplication::ParseArgsResult CodaClientApplication::parseArguments(QSt
             return ParseInitError;
         }
         break;
-    case Copy:
-        if (m_address.isEmpty() || m_copyLocalFile.isEmpty() || m_copyRemoteFile.isEmpty()) {
-            *errorMessage = QString::fromLatin1("Not enough parameters for copy.");
+    case Put: {
+        if (m_address.isEmpty() || m_putLocalFile.isEmpty() || m_putRemoteFile.isEmpty()) {
+            *errorMessage = QString::fromLatin1("Not enough parameters for put.");
             return ParseInitError;
         }
+        const QFileInfo fi(m_putLocalFile);
+        if (!fi.isFile() || !fi.isReadable()) {
+            *errorMessage = QString::fromLatin1("Local file '%1' not readable.").arg(m_putLocalFile);
+            return ParseInitError;
+        }
+    }
         break;
     default:
         break;
@@ -220,10 +241,14 @@ bool CodaClientApplication::start()
                     qPrintable(m_installSisFile), qPrintable(m_installTargetDrive),
                     qPrintable(m_address), m_port);
         break;
-    case Copy:
+    case Put:
         std::printf("Copying '%s' to '%s' on %s:%hu\n",
-                    qPrintable(m_copyLocalFile), qPrintable(m_copyRemoteFile),
+                    qPrintable(m_putLocalFile), qPrintable(m_putRemoteFile),
                     qPrintable(m_address), m_port);
+        break;
+    case Stat:
+        std::printf("Retrieving attributes of '%s' from %s:%hu\n",
+                    qPrintable(m_statRemoteFile), qPrintable(m_address), m_port);
         break;
     case Invalid:
         break;
@@ -268,6 +293,91 @@ void CodaClientApplication::handleCreateProcess(const tcftrk::TcfTrkCommandResul
     }
 }
 
+void CodaClientApplication::handleFileSystemOpen(const tcftrk::TcfTrkCommandResult &result)
+{
+    if (result.type != tcftrk::TcfTrkCommandResult::SuccessReply) {
+        std::fprintf(stderr, "Open remote file failed: %s\n", qPrintable(result.toString()));
+        doExit(-1);
+        return;
+    }
+
+    if (result.values.size() < 1 || result.values.at(0).data().isEmpty()) {
+        std::fprintf(stderr, "Internal error: No filehandle obtained\n");
+        doExit(-1);
+        return;
+    }
+
+    m_remoteFileHandle = result.values.at(0).data();
+
+    if (m_mode == Stat) {
+        m_trkDevice->sendFileSystemFstatCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleFileSystemFStat),
+                                               m_remoteFileHandle);
+        return;
+    }
+    // Put.
+    QFile localFile(m_putLocalFile);
+    if (!localFile.open(QIODevice::ReadOnly)) { // Should not fail, was checked before
+        std::fprintf(stderr, "Open local file failed: %s\n", qPrintable(localFile.errorString()));
+        doExit(-1);
+        return;
+    }
+    const QByteArray data = localFile.readAll();
+    localFile.close();
+    std::printf("Writing %d bytes to remote file '%s'\n", data.size(), m_remoteFileHandle.constData());
+    m_trkDevice->sendFileSystemWriteCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleFileSystemWrite),
+                                           m_remoteFileHandle, data);
+}
+
+void CodaClientApplication::handleFileSystemWrite(const tcftrk::TcfTrkCommandResult &result)
+{
+    // Close remote file even if copy fails
+    m_putWriteOk = result.type == tcftrk::TcfTrkCommandResult::SuccessReply;
+    if (!m_putWriteOk)
+        std::fprintf(stderr, "Writing data failed: %s\n", qPrintable(result.toString()));
+    m_trkDevice->sendFileSystemCloseCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleFileSystemClose),
+                                           m_remoteFileHandle);
+}
+
+void CodaClientApplication::handleFileSystemFStat(const tcftrk::TcfTrkCommandResult &result)
+{
+    m_statFstatOk = result.type == tcftrk::TcfTrkCommandResult::SuccessReply;
+    // Close remote file even if copy fails
+    if (m_statFstatOk) {
+        const tcftrk::TcfTrkStatResponse statr = tcftrk::TcfTrkDevice::parseStat(result);
+        std::printf("File: %s\nSize: %llu bytes\nAccessed: %s\nModified: %s\n",
+                    qPrintable(m_statRemoteFile), statr.size,
+                    qPrintable(statr.accessTime.toString(Qt::LocalDate)),
+                    qPrintable(statr.modTime.toString(Qt::LocalDate)));
+    } else {
+        std::fprintf(stderr, "FStat failed: %s\n", qPrintable(result.toString()));
+    }
+    m_trkDevice->sendFileSystemCloseCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleFileSystemClose),
+                                           m_remoteFileHandle);
+}
+
+void CodaClientApplication::handleFileSystemClose(const tcftrk::TcfTrkCommandResult &result)
+{
+    if (result.type == tcftrk::TcfTrkCommandResult::SuccessReply) {
+        std::printf("File closed.\n.");
+        const bool ok = m_mode == Put ? m_putWriteOk : m_statFstatOk;
+        doExit(ok ? 0 : -1);
+    } else {
+        std::fprintf(stderr, "File close failed: %s\n", qPrintable(result.toString()));
+        doExit(-1);
+    }
+}
+
+void CodaClientApplication::handleSymbianInstall(const tcftrk::TcfTrkCommandResult &result)
+{
+    if (result.type == tcftrk::TcfTrkCommandResult::SuccessReply) {
+        std::printf("Installation succeeded\n.");
+        doExit(0);
+    } else {
+        std::fprintf(stderr, "Installation failed: %s\n", qPrintable(result.toString()));
+        doExit(-1);
+    }
+}
+
 void CodaClientApplication::slotTcftrkEvent (const tcftrk::TcfTrkEvent &ev)
 {
     std::printf("Event: %s\n", qPrintable(ev.toString()));
@@ -279,8 +389,30 @@ void CodaClientApplication::slotTcftrkEvent (const tcftrk::TcfTrkEvent &ev)
                                                  m_launchBinary, m_launchUID, m_launchArgs, QString(), m_launchDebug);
             break;
         case Install:
+            if (m_installSilently) {
+                m_trkDevice->sendSymbianInstallSilentInstallCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleSymbianInstall),
+                                                                    m_installSisFile.toAscii(), m_installTargetDrive.toAscii());
+            } else {
+                m_trkDevice->sendSymbianInstallUIInstallCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleSymbianInstall),
+                                                                m_installSisFile.toAscii());
+            }
             break;
-        case Copy:
+        case Put: {
+            const unsigned flags =
+                    tcftrk::TcfTrkDevice::FileSystem_TCF_O_WRITE
+                    |tcftrk::TcfTrkDevice::FileSystem_TCF_O_CREAT
+                    |tcftrk::TcfTrkDevice::FileSystem_TCF_O_TRUNC;
+            m_putWriteOk = false;
+            m_trkDevice->sendFileSystemOpenCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleFileSystemOpen),
+                                                   m_putRemoteFile.toAscii(), flags);
+}
+            break;
+        case Stat: {
+            const unsigned flags = tcftrk::TcfTrkDevice::FileSystem_TCF_O_READ;
+            m_statFstatOk = false;
+            m_trkDevice->sendFileSystemOpenCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleFileSystemOpen),
+                                                   m_statRemoteFile.toAscii(), flags);
+}
             break;
         case Invalid:
             break;

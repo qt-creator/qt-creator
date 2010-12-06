@@ -53,6 +53,8 @@ enum Services {
     BreakpointsService,
     RegistersService,
     LoggingService,    // non-standard, trk specific
+    FileSystemService,
+    SymbianInstallService,    // non-standard, trk specific
     UnknownService
 }; // Note: Check string array 'serviceNamesC' of same size when modifying this.
 
