@@ -816,9 +816,10 @@ void S60CreatePackageStepConfigWidget::signatureChanged(QString certFile)
         files = directory.entryList(QStringList(keys),
                                     QDir::Files | QDir::NoSymLinks);
 
-        m_ui.keyFilePath->setPath(files.isEmpty()?
-                                      QString():
-                                      directory.filePath(files[0]));
+        if (files.isEmpty())
+            m_ui.keyFilePath->setInitialBrowsePathBackup(certFileInfo.path());
+        else
+            m_ui.keyFilePath->setPath(directory.filePath(files[0]));
     }
     updateFromUi();
 }
