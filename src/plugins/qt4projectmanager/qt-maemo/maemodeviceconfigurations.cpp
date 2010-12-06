@@ -64,6 +64,7 @@ namespace {
     const QLatin1String PasswordKey("Password");
     const QLatin1String TimeoutKey("Timeout");
     const QLatin1String InternalIdKey("InternalId");
+    const QLatin1String DefaultKeyFilePathKey("DefaultKeyFile");
 
     const QString DefaultKeyFile =
         QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
@@ -185,7 +186,8 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QString &name, MaemoDeviceConfig::Dev
     server.port = defaultSshPort(type);
     server.uname = DefaultUserName;
     server.authType = DefaultAuthType;
-    server.privateKeyFile = DefaultKeyFile;
+    server.privateKeyFile
+        = MaemoDeviceConfigurations::instance().defaultSshKeyFilePath();
     server.timeout = DefaultTimeout;
 }
 
@@ -283,6 +285,7 @@ void MaemoDeviceConfigurations::save()
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(SettingsGroup);
     settings->setValue(IdCounterKey, m_nextId);
+    settings->setValue(DefaultKeyFilePathKey, m_defaultSshKeyFilePath);
     settings->beginWriteArray(ConfigListKey, m_devConfigs.count());
     for (int i = 0; i < m_devConfigs.count(); ++i) {
         settings->setArrayIndex(i);
@@ -303,6 +306,8 @@ void MaemoDeviceConfigurations::load()
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(SettingsGroup);
     m_nextId = settings->value(IdCounterKey, 1).toULongLong();
+    m_defaultSshKeyFilePath
+        = settings->value(DefaultKeyFilePathKey, DefaultKeyFile).toString();
     int count = settings->beginReadArray(ConfigListKey);
     for (int i = 0; i < count; ++i) {
         settings->setArrayIndex(i);

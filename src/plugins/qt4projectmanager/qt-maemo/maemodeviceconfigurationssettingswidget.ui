@@ -67,9 +67,6 @@
            </sizepolicy>
           </property>
           <layout class="QFormLayout" name="formLayout_2">
-           <property name="fieldGrowthPolicy">
-            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-           </property>
            <item row="0" column="0">
             <widget class="QLabel" name="deviceNameLabel">
              <property name="text">
@@ -333,7 +330,18 @@
             </widget>
            </item>
            <item row="9" column="1">
-            <widget class="Utils::PathChooser" name="keyFileLineEdit" native="true"/>
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <item>
+              <widget class="Utils::PathChooser" name="keyFileLineEdit" native="true"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="makeKeyFileDefaultButton">
+               <property name="text">
+                <string>Set as Default</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>

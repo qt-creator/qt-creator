@@ -157,6 +157,8 @@ void MaemoDeviceConfigurationsSettingsWidget::initGui()
     QRegExpValidator * const portsValidator
         = new QRegExpValidator(QRegExp(MaemoDeviceConfig::portsRegExpr()), this);
     m_ui->portsLineEdit->setValidator(portsValidator);
+    connect(m_ui->makeKeyFileDefaultButton, SIGNAL(clicked()),
+        SLOT(setDefaultKeyFilePath()));
     foreach (const MaemoDeviceConfig &devConf, m_devConfs)
         m_ui->configurationComboBox->addItem(devConf.name);
     connect(m_ui->configurationComboBox, SIGNAL(currentIndexChanged(int)),
@@ -302,6 +304,7 @@ void MaemoDeviceConfigurationsSettingsWidget::authenticationTypeChanged()
     m_ui->passwordLabel->setEnabled(usePassword);
     m_ui->keyFileLineEdit->setEnabled(!usePassword);
     m_ui->keyLabel->setEnabled(!usePassword);
+    m_ui->makeKeyFileDefaultButton->setEnabled(!usePassword);
 }
 
 void MaemoDeviceConfigurationsSettingsWidget::hostNameEditingFinished()
@@ -362,6 +365,12 @@ void MaemoDeviceConfigurationsSettingsWidget::showRemoteProcesses()
 {
     MaemoRemoteProcessesDialog dlg(currentConfig().server, this);
     dlg.exec();
+}
+
+void MaemoDeviceConfigurationsSettingsWidget::setDefaultKeyFilePath()
+{
+    MaemoDeviceConfigurations::instance()
+        .setDefaultSshKeyFilePath(m_ui->keyFileLineEdit->path());
 }
 
 void MaemoDeviceConfigurationsSettingsWidget::setPrivateKey(const QString &path)

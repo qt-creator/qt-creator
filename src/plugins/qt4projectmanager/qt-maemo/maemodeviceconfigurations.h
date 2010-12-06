@@ -137,10 +137,15 @@ class MaemoDeviceConfigurations : public QObject
 public:
 
     static MaemoDeviceConfigurations &instance(QObject *parent = 0);
+
     QList<MaemoDeviceConfig> devConfigs() const { return m_devConfigs; }
     void setDevConfigs(const QList<MaemoDeviceConfig> &devConfigs);
+
     MaemoDeviceConfig find(const QString &name) const;
     MaemoDeviceConfig find(quint64 id) const;
+
+    void setDefaultSshKeyFilePath(const QString &path) { m_defaultSshKeyFilePath = path; }
+    QString defaultSshKeyFilePath() const { return m_defaultSshKeyFilePath; }
 
 signals:
     void updated();
@@ -153,6 +158,7 @@ private:
     static MaemoDeviceConfigurations *m_instance;
     QList<MaemoDeviceConfig> m_devConfigs;
     quint64 m_nextId;
+    QString m_defaultSshKeyFilePath;
     friend class MaemoDeviceConfig;
 };
 

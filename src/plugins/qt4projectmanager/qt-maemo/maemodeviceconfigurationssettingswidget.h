@@ -83,6 +83,7 @@ private slots:
     void showPassword(bool showClearText);
     void handleFreePortsChanged();
     void showRemoteProcesses();
+    void setDefaultKeyFilePath();
 
     // For configuration testing.
     void testConfig();
