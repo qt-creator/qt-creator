@@ -572,7 +572,8 @@ QStringList NavigatorTreeModel::visibleProperties(const ModelNode &node) const
     QStringList propertyList;
 
     foreach (const QString &propertyName, node.metaInfo().propertyNames()) {
-        if (node.metaInfo().propertyIsWritable(propertyName) && !m_hiddenProperties.contains(propertyName) &&
+        if (!propertyName.contains('.') && //do not show any dot properties, since they are tricky and unlikely to make sense
+            node.metaInfo().propertyIsWritable(propertyName) && !m_hiddenProperties.contains(propertyName) &&
             propertyName != node.metaInfo().defaultPropertyName()) { // TODO: ask the node instances
 
             QString qmlType = qmlTypeInQtContainer(node.metaInfo().propertyTypeName(propertyName));
