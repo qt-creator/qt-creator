@@ -80,8 +80,6 @@
 #include <QtGui/QSplitter>
 #include <QtGui/QStackedLayout>
 
-Q_DECLARE_METATYPE(Core::IEditor*)
-
 enum { debugEditorManager=0 };
 
 static inline ExtensionSystem::PluginManager *pluginManager()

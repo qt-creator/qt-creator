@@ -32,6 +32,7 @@
 
 #include <coreplugin/core_global.h>
 #include <coreplugin/icontext.h>
+#include <QtCore/QMetaType>
 
 namespace Core {
 
@@ -73,5 +74,7 @@ signals:
 };
 
 } // namespace Core
+
+Q_DECLARE_METATYPE(Core::IEditor*)
 
 #endif // IEDITOR_H

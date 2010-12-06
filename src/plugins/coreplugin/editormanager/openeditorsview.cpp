@@ -34,6 +34,7 @@
 #include "icore.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/filemanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -49,8 +50,6 @@
 #ifdef Q_WS_MAC
 #include <qmacstyle_mac.h>
 #endif
-
-Q_DECLARE_METATYPE(Core::IEditor*)
 
 using namespace Core;
 using namespace Core::Internal;

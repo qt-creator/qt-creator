@@ -63,8 +63,6 @@
 #include <QtGui/QLabel>
 #include <QtGui/QToolBar>
 
-Q_DECLARE_METATYPE(Core::IEditor*)
-
 enum {
     debug = false
 };

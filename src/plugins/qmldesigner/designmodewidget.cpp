@@ -72,8 +72,6 @@ using Core::EditorManager;
 
 using namespace QmlDesigner;
 
-Q_DECLARE_METATYPE(Core::IEditor*)
-
 enum {
     debug = false
 };

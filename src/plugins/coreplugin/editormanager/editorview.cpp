@@ -66,8 +66,6 @@
 #include <qmacstyle_mac.h>
 #endif
 
-Q_DECLARE_METATYPE(Core::IEditor *)
-
 using namespace Core;
 using namespace Core::Internal;
 

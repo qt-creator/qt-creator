@@ -34,8 +34,6 @@
 #include <QtCore/QDir>
 #include <QtGui/QIcon>
 
-Q_DECLARE_METATYPE(Core::IEditor*)
-
 namespace Core {
 
 struct OpenEditorsModelPrivate {
