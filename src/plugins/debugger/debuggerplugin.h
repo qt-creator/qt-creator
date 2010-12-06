@@ -45,11 +45,10 @@ namespace Debugger {
 
 class DebuggerRunControl;
 class DebuggerStartParameters;
-class DebuggerMainWindow;
 
-// This is the "external" interface of the debugger plugin that's
-// visible from Creator core. The internal interfact to global
-// functionality to be used by debugger views and debugger engines
+// This is the "external" interface of the debugger plugin that's visible
+// from Qt Creator core. The internal interface to global debugger
+// functionality that is used by debugger views and debugger engines
 // is DebuggerCore, implemented in DebuggerPluginPrivate.
 
 class DEBUGGER_EXPORT DebuggerPlugin : public ExtensionSystem::IPlugin
@@ -65,7 +64,6 @@ public:
     static void startDebugger(ProjectExplorer::RunControl *runControl);
     static void displayDebugger(ProjectExplorer::RunControl *runControl);
     static bool isActiveDebugLanguage(int language);
-    static DebuggerMainWindow *mainWindow();
 
 private:
     // IPlugin implementation.
@@ -73,9 +71,6 @@ private:
     void remoteCommand(const QStringList &options, const QStringList &arguments);
     ShutdownFlag aboutToShutdown();
     void extensionsInitialized();
-
-    void runControlStarted(DebuggerRunControl *runControl);
-    void runControlFinished(DebuggerRunControl *runControl);
 };
 
 } // namespace Debugger

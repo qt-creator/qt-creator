@@ -2628,6 +2628,7 @@ QString DebuggerPluginPrivate::gdbBinaryForToolChain(int toolChain) const
 
 DebuggerLanguages DebuggerPluginPrivate::activeLanguages() const
 {
+    QTC_ASSERT(m_mainWindow, return AnyLanguage);
     return m_mainWindow->activeDebugLanguages();
 }
 
@@ -2851,8 +2852,9 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_mainWindow->createDockWidget(CppLanguage, localsAndWatchers);
     m_mainWindow->createDockWidget(QmlLanguage, m_scriptConsoleWindow);
 
-    m_debuggerSettings->readSettings();
     m_mainWindow->readSettings();
+
+    m_debuggerSettings->readSettings();
     GdbOptionsPage::readGdbBinarySettings();
 
     // Register factory of DebuggerRunControl.
@@ -3328,16 +3330,6 @@ void DebuggerPlugin::displayDebugger(RunControl *runControl)
     theDebuggerCore->displayDebugger(rc->engine());
 }
 
-void DebuggerPlugin::runControlStarted(DebuggerRunControl *runControl)
-{
-    theDebuggerCore->runControlStarted(runControl);
-}
-
-void DebuggerPlugin::runControlFinished(DebuggerRunControl *runControl)
-{
-    theDebuggerCore->runControlFinished(runControl);
-}
-
 void DebuggerPlugin::extensionsInitialized()
 {
     theDebuggerCore->extensionsInitialized();
@@ -3346,11 +3338,6 @@ void DebuggerPlugin::extensionsInitialized()
 bool DebuggerPlugin::isActiveDebugLanguage(int language)
 {
     return theDebuggerCore->isActiveDebugLanguage(language);
-}
-
-DebuggerMainWindow *DebuggerPlugin::mainWindow()
-{
-    return theDebuggerCore->m_mainWindow;
 }
 
 QWidget *DebugMode::widget()
