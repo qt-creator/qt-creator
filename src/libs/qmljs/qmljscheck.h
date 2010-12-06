@@ -88,6 +88,7 @@ protected:
     virtual bool visit(AST::ExpressionStatement *ast);
     virtual bool visit(AST::IfStatement *ast);
     virtual bool visit(AST::ForStatement *ast);
+    virtual bool visit(AST::LocalForStatement *ast);
     virtual bool visit(AST::WhileStatement *ast);
     virtual bool visit(AST::DoWhileStatement *ast);
     virtual bool visit(AST::CaseClause *ast);

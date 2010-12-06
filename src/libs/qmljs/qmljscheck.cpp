@@ -587,6 +587,8 @@ bool Check::visit(Block *ast)
                 && !cast<Finally *>(p)
                 && !cast<ForStatement *>(p)
                 && !cast<ForEachStatement *>(p)
+                && !cast<LocalForStatement *>(p)
+                && !cast<LocalForEachStatement *>(p)
                 && !cast<DoWhileStatement *>(p)
                 && !cast<WhileStatement *>(p)
                 && !cast<IfStatement *>(p)
@@ -615,8 +617,11 @@ bool Check::visit(VoidExpression *ast)
 bool Check::visit(Expression *ast)
 {
     if (_options & WarnCommaExpression && ast->left && ast->right) {
-        if (!cast<ForStatement *>(parent()))
+        Node *p = parent();
+        if (!cast<ForStatement *>(p)
+                && !cast<LocalForStatement *>(p)) {
             warning(ast->commaToken, tr("avoid comma expressions"));
+        }
     }
     return true;
 }
@@ -675,6 +680,13 @@ bool Check::visit(IfStatement *ast)
 }
 
 bool Check::visit(ForStatement *ast)
+{
+    if (ast->condition)
+        checkAssignInCondition(ast->condition);
+    return true;
+}
+
+bool Check::visit(LocalForStatement *ast)
 {
     if (ast->condition)
         checkAssignInCondition(ast->condition);
