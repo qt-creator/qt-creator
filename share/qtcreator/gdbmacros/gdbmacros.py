@@ -651,7 +651,11 @@ def extractCString(table, offset):
 def qdump__QObject(d, item):
     #warn("OBJECT: %s " % item.value)
     try:
+        privateType = lookupType(d.ns + "QObjectPrivate")
         staticMetaObject = item.value["staticMetaObject"]
+        d_ptr = item.value["d_ptr"]["d"].cast(privateType.pointer()).dereference()
+        #warn("D_PTR: %s " % d_ptr)
+        objectName = d_ptr["objectName"]
     except:
         d.putPlainChildren(item)
         return
@@ -663,7 +667,6 @@ def qdump__QObject(d, item):
     #    superData = superData.dereference()["d"]["superdata"]
     #    warn("SUPERDATA: %s" % superData)
 
-    privateType = lookupType(d.ns + "QObjectPrivate")
     if privateType is None:
         d.putNumChild(4)
         #d.putValue(cleanAddress(item.value.address))
@@ -671,9 +674,6 @@ def qdump__QObject(d, item):
             with Children(d):
                 d.putFields(item)
         return
-    d_ptr = item.value["d_ptr"]["d"].cast(privateType.pointer()).dereference()
-    #warn("D_PTR: %s " % d_ptr)
-    objectName = d_ptr["objectName"]
     #warn("OBJECTNAME: %s " % objectName)
     #warn("D_PTR: %s " % d_ptr)
     mo = d_ptr["metaObject"]
