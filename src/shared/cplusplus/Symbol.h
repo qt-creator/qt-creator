@@ -205,6 +205,9 @@ public:
     /// Returns true if this Symbol is a QtPropertyDeclaration.
     bool isQtPropertyDeclaration() const;
 
+    /// Returns true if this Symbol is a QtEnum.
+    bool isQtEnum() const;
+
     bool isObjCBaseClass() const;
     bool isObjCBaseProtocol() const;
 
@@ -242,6 +245,7 @@ public:
     virtual const BaseClass *asBaseClass() const { return 0; }
     virtual const ForwardClassDeclaration *asForwardClassDeclaration() const { return 0; }
     virtual const QtPropertyDeclaration *asQtPropertyDeclaration() const { return 0; }
+    virtual const QtEnum *asQtEnum() const { return 0; }
     virtual const ObjCBaseClass *asObjCBaseClass() const { return 0; }
     virtual const ObjCBaseProtocol *asObjCBaseProtocol() const { return 0; }
     virtual const ObjCClass *asObjCClass() const { return 0; }
@@ -267,6 +271,7 @@ public:
     virtual BaseClass *asBaseClass() { return 0; }
     virtual ForwardClassDeclaration *asForwardClassDeclaration() { return 0; }
     virtual QtPropertyDeclaration *asQtPropertyDeclaration() { return 0; }
+    virtual QtEnum *asQtEnum() { return 0; }
     virtual ObjCBaseClass *asObjCBaseClass() { return 0; }
     virtual ObjCBaseProtocol *asObjCBaseProtocol() { return 0; }
     virtual ObjCClass *asObjCClass() { return 0; }

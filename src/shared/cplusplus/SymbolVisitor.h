@@ -89,6 +89,7 @@ public:
 
     // Qt
     virtual bool visit(QtPropertyDeclaration *) { return true; }
+    virtual bool visit(QtEnum *) { return true; }
 
     // Objective-C
     virtual bool visit(ObjCBaseClass *) { return true; }

@@ -687,6 +687,7 @@ void Class::visitSymbol0(SymbolVisitor *visitor)
 
 QtPropertyDeclaration::QtPropertyDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
+    , _flags(NoFlags)
 { }
 
 QtPropertyDeclaration::~QtPropertyDeclaration()
@@ -705,6 +706,20 @@ FullySpecifiedType QtPropertyDeclaration::type() const
 { return _type; }
 
 void QtPropertyDeclaration::visitSymbol0(SymbolVisitor *visitor)
+{ visitor->visit(this); }
+
+
+QtEnum::QtEnum(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
+    : Symbol(translationUnit, sourceLocation, name)
+{ }
+
+QtEnum::~QtEnum()
+{ }
+
+FullySpecifiedType QtEnum::type() const
+{ return FullySpecifiedType(); }
+
+void QtEnum::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
 

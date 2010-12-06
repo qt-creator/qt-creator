@@ -1931,8 +1931,13 @@ bool Bind::visit(QtEnumDeclarationAST *ast)
     // unsigned enum_specifier_token = ast->enum_specifier_token;
     // unsigned lparen_token = ast->lparen_token;
     for (NameListAST *it = ast->enumerator_list; it; it = it->next) {
-        /*const Name *value =*/ this->name(it->value);
+        const Name *value = this->name(it->value);
+        if (!value)
+            continue;
+        QtEnum *qtEnum = control()->newQtEnum(it->value->firstToken(), value);
+        _scope->addMember(qtEnum);
     }
+
     // unsigned rparen_token = ast->rparen_token;
     return false;
 }
@@ -2833,6 +2838,7 @@ bool Bind::visit(EnumSpecifierAST *ast)
 {
     unsigned sourceLocation = location(ast->name, ast->firstToken());
     const Name *enumName = this->name(ast->name);
+
     Enum *e = control()->newEnum(sourceLocation, enumName);
     e->setStartOffset(tokenAt(sourceLocation).end()); // at the end of the enum or identifier token.
     e->setEndOffset(tokenAt(ast->lastToken() - 1).end());

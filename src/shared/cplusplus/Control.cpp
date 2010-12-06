@@ -410,6 +410,13 @@ public:
         return d;
     }
 
+    QtEnum *newQtEnum(unsigned sourceLocation, const Name *name)
+    {
+        QtEnum *d = new QtEnum(translationUnit, sourceLocation, name);
+        symbols.push_back(d);
+        return d;
+    }
+
     ObjCBaseClass *newObjCBaseClass(unsigned sourceLocation, const Name *name)
     {
         ObjCBaseClass *c = new ObjCBaseClass(translationUnit, sourceLocation, name);
@@ -719,6 +726,9 @@ ForwardClassDeclaration *Control::newForwardClassDeclaration(unsigned sourceLoca
 QtPropertyDeclaration *Control::newQtPropertyDeclaration(unsigned sourceLocation,
                                                          const Name *name)
 { return d->newQtPropertyDeclaration(sourceLocation, name); }
+
+QtEnum *Control::newQtEnum(unsigned sourceLocation, const Name *name)
+{ return d->newQtEnum(sourceLocation, name); }
 
 ObjCBaseClass *Control::newObjCBaseClass(unsigned sourceLocation, const Name *name)
 { return d->newObjCBaseClass(sourceLocation, name); }

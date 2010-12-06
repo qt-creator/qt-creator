@@ -524,6 +524,7 @@ class CPLUSPLUS_EXPORT QtPropertyDeclaration: public Symbol
 {
 public:
     enum Flag {
+        NoFlags = 0,
         ReadFunction = 1 << 0,
         WriteFunction = 1 << 1,
         ResetFunction = 1 << 2,
@@ -564,6 +565,25 @@ protected:
 private:
     FullySpecifiedType _type;
     int _flags;
+};
+
+class CPLUSPLUS_EXPORT QtEnum: public Symbol
+{
+public:
+    QtEnum(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    virtual ~QtEnum();
+
+    // Symbol's interface
+    virtual FullySpecifiedType type() const;
+
+    virtual const QtEnum *asQtEnum() const
+    { return this; }
+
+    virtual QtEnum *asQtEnum()
+    { return this; }
+
+protected:
+    virtual void visitSymbol0(SymbolVisitor *visitor);
 };
 
 class CPLUSPLUS_EXPORT ObjCBaseClass: public Symbol

@@ -133,6 +133,7 @@ class Token;
 
 // Qt symbols
 class QtPropertyDeclaration;
+class QtEnum;
 
 // Objective-C symbols
 class ObjCBaseClass;
