@@ -131,6 +131,9 @@ class ForwardClassDeclaration;
 
 class Token;
 
+// Qt symbols
+class QtPropertyDeclaration;
+
 // Objective-C symbols
 class ObjCBaseClass;
 class ObjCBaseProtocol;

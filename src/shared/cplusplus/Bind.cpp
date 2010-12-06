@@ -379,15 +379,6 @@ bool Bind::visit(QtPropertyDeclarationItemAST *ast)
     return false;
 }
 
-void Bind::qtPropertyDeclarationItem(QtPropertyDeclarationItemAST *ast)
-{
-    if (! ast)
-        return;
-
-    // unsigned item_name_token = ast->item_name_token;
-    ExpressionTy expression = this->expression(ast->expression);
-}
-
 bool Bind::visit(QtInterfaceNameAST *ast)
 {
     (void) ast;
@@ -1865,15 +1856,72 @@ bool Bind::visit(QtPrivateSlotAST *ast)
     return false;
 }
 
+static void qtPropertyAttribute(TranslationUnit *unit, ExpressionAST *expression,
+                                int *flags,
+                                QtPropertyDeclaration::Flag flag,
+                                QtPropertyDeclaration::Flag function)
+{
+    if (!expression)
+        return;
+    *flags &= ~function & ~flag;
+    if (BoolLiteralAST *boollit = expression->asBoolLiteral()) {
+        const int kind = unit->tokenAt(boollit->literal_token).kind();
+        if (kind == T_TRUE)
+            *flags |= flag;
+    } else {
+        *flags |= function;
+    }
+}
+
 bool Bind::visit(QtPropertyDeclarationAST *ast)
 {
     // unsigned property_specifier_token = ast->property_specifier_token;
     // unsigned lparen_token = ast->lparen_token;
     ExpressionTy type_id = this->expression(ast->type_id);
-    /*const Name *property_name =*/ this->name(ast->property_name);
+    const Name *property_name = this->name(ast->property_name);
+
+    unsigned sourceLocation = ast->firstToken();
+    if (ast->property_name)
+        sourceLocation = ast->property_name->firstToken();
+    QtPropertyDeclaration *propertyDeclaration = control()->newQtPropertyDeclaration(sourceLocation, property_name);
+    propertyDeclaration->setType(type_id);
+
+    int flags = QtPropertyDeclaration::DesignableFlag
+            | QtPropertyDeclaration::ScriptableFlag
+            | QtPropertyDeclaration::StoredFlag;
     for (QtPropertyDeclarationItemListAST *it = ast->property_declaration_item_list; it; it = it->next) {
-        this->qtPropertyDeclarationItem(it->value);
+        if (!it->value || !it->value->item_name_token)
+            continue;
+        std::string name = spell(it->value->item_name_token);
+
+        if (name == "CONSTANT") {
+            flags |= QtPropertyDeclaration::ConstantFlag;
+        } else if (name == "FINAL") {
+            flags |= QtPropertyDeclaration::FinalFlag;
+        } else if (name == "READ") {
+            flags |= QtPropertyDeclaration::ReadFunction;
+        } else if (name == "WRITE") {
+            flags |= QtPropertyDeclaration::WriteFunction;
+        } else if (name == "RESET") {
+            flags |= QtPropertyDeclaration::ResetFunction;
+        } else if (name == "NOTIFY") {
+            flags |= QtPropertyDeclaration::NotifyFunction;
+        } else if (name == "DESIGNABLE") {
+            qtPropertyAttribute(translationUnit(), it->value->expression, &flags,
+                                QtPropertyDeclaration::DesignableFlag, QtPropertyDeclaration::DesignableFunction);
+        } else if (name == "SCRIPTABLE") {
+            qtPropertyAttribute(translationUnit(), it->value->expression, &flags,
+                                QtPropertyDeclaration::ScriptableFlag, QtPropertyDeclaration::ScriptableFunction);
+        } else if (name == "STORED") {
+            qtPropertyAttribute(translationUnit(), it->value->expression, &flags,
+                                QtPropertyDeclaration::StoredFlag, QtPropertyDeclaration::StoredFunction);
+        } else if (name == "USER") {
+            qtPropertyAttribute(translationUnit(), it->value->expression, &flags,
+                                QtPropertyDeclaration::UserFlag, QtPropertyDeclaration::UserFunction);
+        }
     }
+    propertyDeclaration->setFlags(flags);
+    _scope->addMember(propertyDeclaration);
     // unsigned rparen_token = ast->rparen_token;
     return false;
 }

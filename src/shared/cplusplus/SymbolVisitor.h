@@ -87,6 +87,9 @@ public:
     virtual bool visit(Block *) { return true; }
     virtual bool visit(ForwardClassDeclaration *) { return true; }
 
+    // Qt
+    virtual bool visit(QtPropertyDeclaration *) { return true; }
+
     // Objective-C
     virtual bool visit(ObjCBaseClass *) { return true; }
     virtual bool visit(ObjCBaseProtocol *) { return true; }

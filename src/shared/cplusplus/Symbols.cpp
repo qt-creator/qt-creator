@@ -684,6 +684,30 @@ void Class::visitSymbol0(SymbolVisitor *visitor)
     }
 }
 
+
+QtPropertyDeclaration::QtPropertyDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
+    : Symbol(translationUnit, sourceLocation, name)
+{ }
+
+QtPropertyDeclaration::~QtPropertyDeclaration()
+{ }
+
+void QtPropertyDeclaration::setType(const FullySpecifiedType &type)
+{ _type = type; }
+
+void QtPropertyDeclaration::setFlags(int flags)
+{ _flags = flags; }
+
+int QtPropertyDeclaration::flags() const
+{ return _flags; }
+
+FullySpecifiedType QtPropertyDeclaration::type() const
+{ return _type; }
+
+void QtPropertyDeclaration::visitSymbol0(SymbolVisitor *visitor)
+{ visitor->visit(this); }
+
+
 ObjCBaseClass::ObjCBaseClass(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
 { }

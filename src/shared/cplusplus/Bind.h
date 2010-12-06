@@ -110,7 +110,6 @@ protected:
     const Name *objCSelectorArgument(ObjCSelectorArgumentAST *ast, bool *hasArg);
     void attribute(AttributeAST *ast);
     FullySpecifiedType declarator(DeclaratorAST *ast, const FullySpecifiedType &init, DeclaratorIdAST **declaratorId);
-    void qtPropertyDeclarationItem(QtPropertyDeclarationItemAST *ast);
     void qtInterfaceName(QtInterfaceNameAST *ast);
     void baseSpecifier(BaseSpecifierAST *ast, unsigned colon_token, Class *klass);
     void ctorInitializer(CtorInitializerAST *ast, Function *fun);

@@ -403,6 +403,13 @@ public:
         return c;
     }
 
+    QtPropertyDeclaration *newQtPropertyDeclaration(unsigned sourceLocation, const Name *name)
+    {
+        QtPropertyDeclaration *d = new QtPropertyDeclaration(translationUnit, sourceLocation, name);
+        symbols.push_back(d);
+        return d;
+    }
+
     ObjCBaseClass *newObjCBaseClass(unsigned sourceLocation, const Name *name)
     {
         ObjCBaseClass *c = new ObjCBaseClass(translationUnit, sourceLocation, name);
@@ -708,6 +715,10 @@ UsingDeclaration *Control::newUsingDeclaration(unsigned sourceLocation, const Na
 ForwardClassDeclaration *Control::newForwardClassDeclaration(unsigned sourceLocation,
                                                              const Name *name)
 { return d->newForwardClassDeclaration(sourceLocation, name); }
+
+QtPropertyDeclaration *Control::newQtPropertyDeclaration(unsigned sourceLocation,
+                                                         const Name *name)
+{ return d->newQtPropertyDeclaration(sourceLocation, name); }
 
 ObjCBaseClass *Control::newObjCBaseClass(unsigned sourceLocation, const Name *name)
 { return d->newObjCBaseClass(sourceLocation, name); }

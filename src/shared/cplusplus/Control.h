@@ -158,6 +158,9 @@ public:
     /// Creates a new ForwardClassDeclaration symbol.
     ForwardClassDeclaration *newForwardClassDeclaration(unsigned sourceLocation, const Name *name = 0);
 
+    /// Creates a new QtPropertyDeclaration symbol.
+    QtPropertyDeclaration *newQtPropertyDeclaration(unsigned sourceLocation, const Name *name = 0);
+
     ObjCBaseClass *newObjCBaseClass(unsigned sourceLocation, const Name *name);
     ObjCBaseProtocol *newObjCBaseProtocol(unsigned sourceLocation, const Name *name);
 
