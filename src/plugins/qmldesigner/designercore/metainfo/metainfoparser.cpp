@@ -109,10 +109,29 @@ void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader,
 {
     if (reader.isStartElement() && reader.name() == "itemlibraryentry")
     {
+        const QString versionNumber = reader.attributes().value("version").toString();
+
+        int major = 1;
+        int minor = 0;
+
+        if (!versionNumber.isEmpty()) {
+            int val;
+            bool ok;
+            if (versionNumber.contains('.')) {
+                val = versionNumber.split('.').first().toInt(&ok);
+                major = ok ? val : major;
+                val = versionNumber.split('.').last().toInt(&ok);
+                minor = ok ? val : minor;
+            } else {
+                val = versionNumber.toInt(&ok);
+                major = ok ? val : major;
+            }
+        }
+
         const QString name = reader.attributes().value("name").toString();
 
         ItemLibraryEntry entry;
-        entry.setType(className, 4, 7);
+        entry.setType(className, major, minor);
         entry.setName(name);
         entry.setIcon(icon);
 
