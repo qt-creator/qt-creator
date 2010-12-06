@@ -332,12 +332,13 @@ void LocatorWidget::updateFilterList()
     foreach (ILocatorFilter *filter, m_locatorPlugin->filters()) {
         if (filter->shortcutString().isEmpty() || filter->isHidden())
             continue;
+        QString locatorId=QLatin1String("Locator.") + filter->id();
         QAction *action = 0;
         Core::Command *cmd = 0;
         if (!actionCopy.contains(filter->id())) {
             // register new action
             action = new QAction(filter->displayName(), this);
-            cmd = am->registerAction(action, QLatin1String("Locator.") + filter->id(),
+            cmd = am->registerAction(action, locatorId,
                                Core::Context(Core::Constants::C_GLOBAL));
             cmd->setAttribute(Core::Command::CA_UpdateText);
             connect(action, SIGNAL(triggered()), this, SLOT(filterSelected()));
@@ -345,7 +346,7 @@ void LocatorWidget::updateFilterList()
         } else {
             action = actionCopy.take(filter->id());
             action->setText(filter->displayName());
-            cmd = am->command(QLatin1String("Locator.") + filter->id());
+            cmd = am->command(locatorId);
         }
         m_filterActionMap.insert(filter->id(), action);
         m_filterMenu->addAction(cmd->action());
@@ -353,7 +354,7 @@ void LocatorWidget::updateFilterList()
 
     // unregister actions that are deleted now
     foreach (const QString &id, actionCopy.keys()) {
-        am->unregisterAction(actionCopy.value(id), QLatin1String("Locator.") + id);
+        am->unregisterAction(actionCopy.value(id), QString(QLatin1String("Locator.") + id));
     }
     qDeleteAll(actionCopy);
 
