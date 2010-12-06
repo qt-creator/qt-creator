@@ -1707,9 +1707,9 @@ static QVariant version8EnvNodeTransform(const QVariant &var)
 {
     QString result = var.toString();
 
-    result.replace(QRegExp(QLatin1String("%SOURCEDIR%|\\$(SOURCEDIR\\b|{SOURCEDIR})")),
+    result.replace(QRegExp(QLatin1String("%SOURCEDIR%|\\$(SOURCEDIR\\b|\\{SOURCEDIR\\})")),
                    QLatin1String("%{sourceDir}"));
-    result.replace(QRegExp(QLatin1String("%BUILDDIR%|\\$(BUILDDIR\\b|{BUILDDIR})")),
+    result.replace(QRegExp(QLatin1String("%BUILDDIR%|\\$(BUILDDIR\\b|\\{BUILDDIR\\})")),
                    QLatin1String("%{buildDir}"));
 #ifdef Q_OS_UNIX
     for (int vStart = -1, i = 0; i < result.length(); ) {
