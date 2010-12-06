@@ -35,13 +35,6 @@
 
 #include <utils/fancymainwindow.h>
 
-#include <QtCore/QObject>
-
-QT_BEGIN_NAMESPACE
-class QDockWidget;
-class QMenu;
-QT_END_NAMESPACE
-
 namespace Core {
 class Context;
 class IMode;
@@ -59,7 +52,7 @@ public:
     DebuggerMainWindow();
     ~DebuggerMainWindow();
 
-    // Debugger toolbars are registered  with this function.
+    // Debugger toolbars are registered with this function.
     void setToolbar(const DebuggerLanguage &language, QWidget *widget);
 
     // Active languages to be debugged.
