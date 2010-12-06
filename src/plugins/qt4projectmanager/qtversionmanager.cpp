@@ -999,7 +999,7 @@ QStringList QtVersionManager::splitLine(const QString &line)
             currentWord += line.at(i);
             escape = false;
         } else if (line.at(i) == ' ') {
-            if (!currentWord.iSEmpty()) {
+            if (!currentWord.isEmpty()) {
                 results << currentWord;
                 currentWord.clear();
             }
