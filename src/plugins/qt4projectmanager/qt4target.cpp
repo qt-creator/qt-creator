@@ -107,6 +107,17 @@ Qt4TargetFactory::~Qt4TargetFactory()
 {
 }
 
+bool Qt4TargetFactory::supportsTargetId(const QString &id) const
+{
+    QSet<QString> ids;
+    ids << QLatin1String("Qt4ProjectManager.Target.DesktopTarget")
+        << QLatin1String("Qt4ProjectManager.Target.S60EmulatorTarget")
+        << QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")
+        << QLatin1String("Qt4ProjectManager.Target.MaemoDeviceTarget")
+        << QLatin1String("Qt4ProjectManager.Target.QtSimulatorTarget");
+    return ids.contains(id);
+}
+
 QStringList Qt4TargetFactory::availableCreationIds(ProjectExplorer::Project *parent) const
 {
     if (!qobject_cast<Qt4Project *>(parent))

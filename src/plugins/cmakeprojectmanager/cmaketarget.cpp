@@ -78,6 +78,11 @@ CMakeProject *CMakeTarget::cmakeProject() const
     return static_cast<CMakeProject *>(project());
 }
 
+bool CMakeTargetFactory::supportsTargetId(const QString &id) const
+{
+    return id == DEFAULT_CMAKE_TARGET_ID;
+}
+
 CMakeBuildConfiguration *CMakeTarget::activeBuildConfiguration() const
 {
     return static_cast<CMakeBuildConfiguration *>(Target::activeBuildConfiguration());

@@ -83,6 +83,8 @@ public:
     explicit GenericTargetFactory(QObject *parent = 0);
     ~GenericTargetFactory();
 
+    bool supportsTargetId(const QString &id) const;
+
     QStringList availableCreationIds(ProjectExplorer::Project *parent) const;
     QString displayNameForId(const QString &id) const;
 

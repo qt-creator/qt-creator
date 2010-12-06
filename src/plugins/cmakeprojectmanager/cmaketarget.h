@@ -81,6 +81,8 @@ public:
     CMakeTargetFactory(QObject *parent = 0);
     ~CMakeTargetFactory();
 
+    bool supportsTargetId(const QString &id) const;
+
     QStringList availableCreationIds(ProjectExplorer::Project *parent) const;
     QString displayNameForId(const QString &id) const;
 
