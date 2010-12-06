@@ -55,8 +55,6 @@ class DebuggerMainWindowPrivate;
 
 class DEBUGGER_EXPORT DebuggerMainWindow : public Utils::FancyMainWindow
 {
-    Q_OBJECT
-
 public:
     DebuggerMainWindow();
     ~DebuggerMainWindow();
@@ -80,15 +78,6 @@ public:
     QWidget *createContents(Core::IMode *mode);
     QMenu *createPopupMenu();
 
-signals:
-    // Emit when user changes active languages from the menu.
-    // Both UI and debugger startup are affected.
-    void activeLanguagesChanged(Debugger::DebuggerLanguages activeLanguages);
-    void memoryEditorRequested();
-
-public slots:
-    void updateActiveLanguages();
-    void updateDockWidgetSettings();
     void readSettings();
     void writeSettings() const;
 

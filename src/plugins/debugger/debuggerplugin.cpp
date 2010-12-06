@@ -1024,7 +1024,7 @@ public slots:
     void attachRemoteTcf();
 
     void enableReverseDebuggingTriggered(const QVariant &value);
-    void languagesChanged(const Debugger::DebuggerLanguages &languages);
+    void languagesChanged();
     void showStatusMessage(const QString &msg, int timeout = -1);
     void openMemoryEditor();
 
@@ -1495,11 +1495,11 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     core->updateAdditionalContexts(m_anyContext, Context());
 }
 
-void DebuggerPluginPrivate::languagesChanged(const DebuggerLanguages &languages)
+void DebuggerPluginPrivate::languagesChanged()
 {
-    const bool debuggerIsCPP = (languages & CppLanguage);
+    const bool debuggerIsCPP =
+        m_mainWindow->activeDebugLanguages() & CppLanguage;
     //qDebug() << "DEBUGGER IS CPP: " << debuggerIsCPP;
-
     m_startExternalAction->setVisible(debuggerIsCPP);
     m_attachExternalAction->setVisible(debuggerIsCPP);
     m_attachCoreAction->setVisible(debuggerIsCPP);
@@ -2568,17 +2568,12 @@ void DebuggerPluginPrivate::createNewDock(QWidget *widget)
         m_mainWindow->createDockWidget(CppLanguage, widget);
     dockWidget->setWindowTitle(widget->windowTitle());
     dockWidget->setFeatures(QDockWidget::DockWidgetClosable);
-    //dockWidget->setWidget(widget);
-    //mainWindow()->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
     dockWidget->show();
 }
 
 void DebuggerPluginPrivate::runControlStarted(DebuggerRunControl *runControl)
 {
     activateDebugMode();
-    if (!hasSnapshots())
-        m_mainWindow->updateActiveLanguages();
-
     const QString message = runControl->idString();
     showMessage(message, StatusBar);
     showMessage(m_debuggerSettings->dump(), LogDebug);
@@ -2854,8 +2849,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     dock = m_mainWindow->createDockWidget(CppLanguage, localsAndWatchers);
     dock->setProperty(DOCKWIDGET_DEFAULT_AREA, Qt::RightDockWidgetArea);
-
-    //m_mainWindow->readSettings();
 
     m_debuggerSettings->readSettings();
     GdbOptionsPage::readGdbBinarySettings();
@@ -3188,11 +3181,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
         SIGNAL(valueChanged(QVariant)),
         SLOT(enableReverseDebuggingTriggered(QVariant)));
 
-    // UI Switcher
-    connect(m_mainWindow,
-        SIGNAL(activeLanguagesChanged(Debugger::DebuggerLanguages)),
-        SLOT(languagesChanged(Debugger::DebuggerLanguages)));
-
     setInitialState();
     connectEngine(0);
 
@@ -3207,8 +3195,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     QTC_ASSERT(m_coreSettings, /**/);
     m_watchersWindow->setVisible(false);
     m_returnWindow->setVisible(false);
-    connect(m_mainWindow, SIGNAL(memoryEditorRequested()),
-        SLOT(openMemoryEditor()));
 
     // time gdb -i mi -ex 'debuggerplugin.cpp:800' -ex r -ex q bin/qtcreator.bin
     const QByteArray env = qgetenv("QTC_DEBUGGER_TEST");

@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "debuggermainwindow.h"
-#include "debuggerplugin.h"
+#include "debuggercore.h"
 
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
@@ -76,30 +76,12 @@ namespace Internal {
 
 class DockWidgetEventFilter : public QObject
 {
-    Q_OBJECT
-
 public:
-    explicit DockWidgetEventFilter(QObject *parent = 0) : QObject(parent) {}
-
-signals:
-    void widgetResized();
-
-protected:
+    DockWidgetEventFilter(DebuggerMainWindowPrivate *mw) : m_mw(mw) {}
+private:
     virtual bool eventFilter(QObject *obj, QEvent *event);
+    DebuggerMainWindowPrivate *m_mw;
 };
-
-bool DockWidgetEventFilter::eventFilter(QObject *obj, QEvent *event)
-{
-    switch (event->type()) {
-    case QEvent::Resize:
-    case QEvent::ZOrderChange:
-        emit widgetResized();
-        break;
-    default:
-        break;
-    }
-    return QObject::eventFilter(obj, event);
-}
 
 class DebuggerMainWindowPrivate : public QObject
 {
@@ -110,24 +92,24 @@ public:
 
     void activateQmlCppLayout();
     void activateCppLayout();
-    void hideInactiveWidgets();
     void createViewsMenuItems();
     bool isQmlCppActive() const;
     bool isQmlActive() const;
     void setSimpleDockWidgetArrangement();
-    void updateUi();
     // Debuggable languages are registered with this function.
     void addLanguage(const DebuggerLanguage &language, const Core::Context &context);
 
 
 public slots:
     void resetDebuggerLayout();
-
     void updateUiForProject(ProjectExplorer::Project *project);
     void updateUiForTarget(ProjectExplorer::Target *target);
     void updateUiForRunConfiguration(ProjectExplorer::RunConfiguration *rc);
     void updateUiForCurrentRunConfiguration();
+    void updateActiveLanguages();
     void updateUiOnFileListChange();
+    void updateDockWidgetSettings();
+    void openMemoryEditor() { debuggerCore()->openMemoryEditor(); }
 
 public:
     DebuggerMainWindow *q;
@@ -135,12 +117,11 @@ public:
 
     QHash<QString, QVariant> m_dockWidgetActiveStateCpp;
     QHash<QString, QVariant> m_dockWidgetActiveStateQmlCpp;
-    Internal::DockWidgetEventFilter *m_resizeEventFilter;
+    DockWidgetEventFilter m_resizeEventFilter;
 
     QMap<DebuggerLanguage, QWidget *> m_toolBars;
 
     DebuggerLanguages m_supportedLanguages;
-    int m_languageCount;
 
     QStackedWidget *m_toolbarStack;
 
@@ -161,16 +142,19 @@ public:
 
 DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
     : q(mw)
-    , m_resizeEventFilter(new Internal::DockWidgetEventFilter(mw))
+    , m_resizeEventFilter(this)
     , m_supportedLanguages(AnyLanguage)
-    , m_languageCount(0)
     , m_toolbarStack(new QStackedWidget)
     , m_inDebugMode(false)
     , m_changingUI(false)
     , m_previousDebugLanguages(AnyLanguage)
     , m_activeDebugLanguages(AnyLanguage)
     , m_viewsMenu(0)
-{}
+{
+    createViewsMenuItems();
+    addLanguage(CppLanguage, Context(C_CPPDEBUGGER));
+    addLanguage(QmlLanguage, Context(C_QMLDEBUGGER));
+}
 
 void DebuggerMainWindowPrivate::updateUiOnFileListChange()
 {
@@ -229,7 +213,38 @@ void DebuggerMainWindowPrivate::updateUiForRunConfiguration(RunConfiguration *rc
 
 void DebuggerMainWindowPrivate::updateUiForCurrentRunConfiguration()
 {
-    q->updateActiveLanguages();
+    updateActiveLanguages();
+}
+
+void DebuggerMainWindowPrivate::updateActiveLanguages()
+{
+    DebuggerLanguages newLanguages = AnyLanguage;
+
+    if (m_previousRunConfiguration) {
+        if (m_previousRunConfiguration.data()->useCppDebugger())
+            newLanguages = CppLanguage;
+        if (m_previousRunConfiguration.data()->useQmlDebugger())
+            newLanguages |= QmlLanguage;
+    }
+
+    if (newLanguages != m_activeDebugLanguages) {
+        m_activeDebugLanguages = newLanguages;
+        debuggerCore()->languagesChanged();
+    }
+
+    if (m_changingUI || !m_inDebugMode)
+        return;
+
+    m_changingUI = true;
+
+    if (isQmlActive())
+        activateQmlCppLayout();
+    else
+        activateCppLayout();
+
+    m_previousDebugLanguages = m_activeDebugLanguages;
+
+    m_changingUI = false;
 }
 
 } // namespace Internal
@@ -239,33 +254,11 @@ using namespace Internal;
 DebuggerMainWindow::DebuggerMainWindow()
 {
     d = new DebuggerMainWindowPrivate(this);
-    d->createViewsMenuItems();
-    d->addLanguage(CppLanguage, Context(C_CPPDEBUGGER));
-    d->addLanguage(QmlLanguage, Context(C_QMLDEBUGGER));
 }
 
 DebuggerMainWindow::~DebuggerMainWindow()
 {
     delete d;
-}
-
-void DebuggerMainWindow::updateActiveLanguages()
-{
-    DebuggerLanguages newLanguages = AnyLanguage;
-
-    if (d->m_previousRunConfiguration) {
-        if (d->m_previousRunConfiguration.data()->useCppDebugger())
-            newLanguages = CppLanguage;
-        if (d->m_previousRunConfiguration.data()->useQmlDebugger())
-            newLanguages |= QmlLanguage;
-    }
-
-    if (newLanguages != d->m_activeDebugLanguages) {
-        d->m_activeDebugLanguages = newLanguages;
-        emit activeLanguagesChanged(d->m_activeDebugLanguages);
-    }
-
-    d->updateUi();
 }
 
 DebuggerLanguages DebuggerMainWindow::activeDebugLanguages() const
@@ -277,24 +270,17 @@ void DebuggerMainWindow::onModeChanged(IMode *mode)
 {
     d->m_inDebugMode = (mode->id() == Constants::MODE_DEBUG);
     setDockActionsVisible(d->m_inDebugMode);
-    d->hideInactiveWidgets();
 
-    if (mode->id() != Constants::MODE_DEBUG)
-       return;
-
-    readSettings();
-    updateActiveLanguages();
-}
-
-void DebuggerMainWindowPrivate::hideInactiveWidgets()
-{
     // Hide all the debugger windows if mode is different.
-    if (m_inDebugMode)
-        return;
-    // Hide dock widgets manually in case they are floating.
-    foreach (QDockWidget *dockWidget, m_dockWidgets) {
-        if (dockWidget->isFloating())
-            dockWidget->hide();
+    if (mode->id() == Constants::MODE_DEBUG) {
+        readSettings();
+        d->updateActiveLanguages();
+    } else {
+        // Hide dock widgets manually in case they are floating.
+        foreach (QDockWidget *dockWidget, d->m_dockWidgets) {
+            if (dockWidget->isFloating())
+                dockWidget->hide();
+        }
     }
 }
 
@@ -309,7 +295,7 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
     QAction *openMemoryEditorAction = new QAction(this);
     openMemoryEditorAction->setText(tr("Memory..."));
     connect(openMemoryEditorAction, SIGNAL(triggered()),
-       q, SIGNAL(memoryEditorRequested()));
+       SLOT(openMemoryEditor()));
 
     // Add menu items
     Command *cmd = 0;
@@ -335,27 +321,8 @@ void DebuggerMainWindowPrivate::addLanguage(const DebuggerLanguage &languageId,
     const Context &context)
 {
     m_supportedLanguages = m_supportedLanguages | languageId;
-    m_languageCount++;
-
     m_toolBars.insert(languageId, 0);
     m_contextsForLanguage.insert(languageId, context);
-}
-
-void DebuggerMainWindowPrivate::updateUi()
-{
-    if (m_changingUI || !m_inDebugMode)
-        return;
-
-    m_changingUI = true;
-
-    if (isQmlActive())
-        activateQmlCppLayout();
-    else
-        activateCppLayout();
-
-    m_previousDebugLanguages = m_activeDebugLanguages;
-
-    m_changingUI = false;
 }
 
 void DebuggerMainWindowPrivate::activateQmlCppLayout()
@@ -449,14 +416,14 @@ QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &langua
     cmd->setAttribute(Command::CA_Hide);
     d->m_viewsMenu->addAction(cmd);
 
-    dockWidget->installEventFilter(d->m_resizeEventFilter);
+    dockWidget->installEventFilter(&d->m_resizeEventFilter);
 
     connect(dockWidget->toggleViewAction(), SIGNAL(triggered(bool)),
-        SLOT(updateDockWidgetSettings()));
+        d, SLOT(updateDockWidgetSettings()));
     connect(dockWidget, SIGNAL(topLevelChanged(bool)),
-        SLOT(updateDockWidgetSettings()));
+        d, SLOT(updateDockWidgetSettings()));
     connect(dockWidget, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)),
-        SLOT(updateDockWidgetSettings()));
+        d, SLOT(updateDockWidgetSettings()));
 
     return dockWidget;
 }
@@ -468,8 +435,6 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     connect(pe->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
         d, SLOT(updateUiForProject(ProjectExplorer::Project*)));
-    connect(d->m_resizeEventFilter, SIGNAL(widgetResized()),
-        SLOT(updateDockWidgetSettings()));
 
     d->m_viewsMenu = am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(d->m_viewsMenu, return 0)
@@ -480,7 +445,7 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     connect(this, SIGNAL(resetLayout()),
         d, SLOT(resetDebuggerLayout()));
     connect(toggleLockedAction(), SIGNAL(triggered()),
-        SLOT(updateDockWidgetSettings()));
+        d, SLOT(updateDockWidgetSettings()));
 
     QBoxLayout *editorHolderLayout = new QVBoxLayout;
     editorHolderLayout->setMargin(0);
@@ -615,18 +580,18 @@ void DebuggerMainWindowPrivate::resetDebuggerLayout()
     else
         m_dockWidgetActiveStateCpp = q->saveSettings();
 
-    q->updateActiveLanguages();
+    updateActiveLanguages();
 }
 
-void DebuggerMainWindow::updateDockWidgetSettings()
+void DebuggerMainWindowPrivate::updateDockWidgetSettings()
 {
-    if (!d->m_inDebugMode || d->m_changingUI)
+    if (!m_inDebugMode || m_changingUI)
         return;
 
-    if (d->isQmlActive())
-        d->m_dockWidgetActiveStateQmlCpp = saveSettings();
+    if (isQmlActive())
+        m_dockWidgetActiveStateQmlCpp = q->saveSettings();
     else
-        d->m_dockWidgetActiveStateCpp = saveSettings();
+        m_dockWidgetActiveStateCpp = q->saveSettings();
 }
 
 bool DebuggerMainWindowPrivate::isQmlCppActive() const
@@ -746,6 +711,19 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
 
     q->setTrackingEnabled(true);
     q->update();
+}
+
+bool DockWidgetEventFilter::eventFilter(QObject *obj, QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::Resize:
+    case QEvent::ZOrderChange:
+        m_mw->updateDockWidgetSettings();
+        break;
+    default:
+        break;
+    }
+    return QObject::eventFilter(obj, event);
 }
 
 } // namespace Debugger
