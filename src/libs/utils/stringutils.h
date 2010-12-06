@@ -57,6 +57,7 @@ QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path);
 
 class QTCREATOR_UTILS_EXPORT AbstractMacroExpander {
 public:
+    virtual ~AbstractMacroExpander() {}
     // Not const, as it may change the state of the expander.
     //! Find an expando to replace and provide a replacement string.
     //! \param str The string to scan
