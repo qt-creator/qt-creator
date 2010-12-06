@@ -235,8 +235,6 @@ void LldbEngineGuest::executeStepOut()
     if (!m_currentThread.IsValid())
         return;
     m_currentThread.StepOut();
-    notifyInferiorRunRequested();
-    notifyInferiorRunOk();
 }
 
 void LldbEngineGuest::executeNext()
@@ -246,8 +244,6 @@ void LldbEngineGuest::executeNext()
     if (!m_currentThread.IsValid())
         return;
     m_currentThread.StepOver();
-    notifyInferiorRunRequested();
-    notifyInferiorRunOk();
 }
 
 void LldbEngineGuest::executeStepI()
@@ -266,8 +262,6 @@ void LldbEngineGuest::executeNextI()
     if (!m_currentThread.IsValid())
         return;
     m_currentThread.StepInstruction(true);
-    notifyInferiorRunRequested();
-    notifyInferiorRunOk();
 }
 
 void LldbEngineGuest::continueInferior()
