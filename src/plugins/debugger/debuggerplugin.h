@@ -43,6 +43,7 @@ class RunControl;
 
 namespace Debugger {
 
+class DebuggerMainWindow;
 class DebuggerRunControl;
 class DebuggerStartParameters;
 
@@ -59,11 +60,15 @@ public:
     DebuggerPlugin();
     ~DebuggerPlugin();
 
+    // Used by Maemo debugging support.
     static DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp,
         ProjectExplorer::RunConfiguration *rc = 0);
     static void startDebugger(ProjectExplorer::RunControl *runControl);
     static void displayDebugger(ProjectExplorer::RunControl *runControl);
+
+    // Used by QmlJSInspector.
     static bool isActiveDebugLanguage(int language);
+    static DebuggerMainWindow *mainWindow();
 
 private:
     // IPlugin implementation.

@@ -54,7 +54,6 @@
 
 using namespace Core;
 using namespace Debugger;
-using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 
 namespace Qt4ProjectManager {
