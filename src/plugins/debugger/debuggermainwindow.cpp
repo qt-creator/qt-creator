@@ -651,6 +651,7 @@ QMenu *DebuggerMainWindow::createPopupMenu()
 
 void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
 {
+    using namespace Constants;
     QTC_ASSERT(q, return);
     q->setTrackingEnabled(false);
 
@@ -659,32 +660,32 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
         q->removeDockWidget(dockWidget);
     }
 
-    // FIXME: Temporary.
-    QDockWidget *m_breakDock =
-        q->dockWidget(Constants::DOCKWIDGET_BREAK);
-    QDockWidget *m_stackDock =
-        q->dockWidget(Constants::DOCKWIDGET_STACK);
-    QDockWidget *m_watchDock =
-        q->dockWidget(Constants::DOCKWIDGET_WATCHERS);
-    QDockWidget *m_snapshotsDock =
-        q->dockWidget(Constants::DOCKWIDGET_SNAPSHOTS);
-    QDockWidget *m_threadsDock =
-        q->dockWidget(Constants::DOCKWIDGET_THREADS);
-    QDockWidget *m_outputDock =
-        q->dockWidget(Constants::DOCKWIDGET_OUTPUT);
-    QDockWidget *m_qmlInspectorDock =
-        q->dockWidget(Constants::DOCKWIDGET_QML_INSPECTOR);
-    QDockWidget *m_scriptConsoleDock =
-        q->dockWidget(Constants::DOCKWIDGET_QML_SCRIPTCONSOLE);
-    QDockWidget *m_modulesDock =
-        q->dockWidget(Constants::DOCKWIDGET_MODULES);
-    QDockWidget *m_registerDock =
-        q->dockWidget(Constants::DOCKWIDGET_REGISTER);
-    QDockWidget *m_sourceFilesDock =
-        q->dockWidget(Constants::DOCKWIDGET_SOURCE_FILES);
+    QDockWidget *breakDock = q->dockWidget(DOCKWIDGET_BREAK);
+    QDockWidget *stackDock = q->dockWidget(DOCKWIDGET_STACK);
+    QDockWidget *watchDock = q->dockWidget(DOCKWIDGET_WATCHERS);
+    QDockWidget *snapshotsDock = q->dockWidget(DOCKWIDGET_SNAPSHOTS);
+    QDockWidget *threadsDock = q->dockWidget(DOCKWIDGET_THREADS);
+    QDockWidget *outputDock = q->dockWidget(DOCKWIDGET_OUTPUT);
+    QDockWidget *qmlInspectorDock = q->dockWidget(DOCKWIDGET_QML_INSPECTOR);
+    QDockWidget *scriptConsoleDock = q->dockWidget(DOCKWIDGET_QML_SCRIPTCONSOLE);
+    QDockWidget *modulesDock = q->dockWidget(DOCKWIDGET_MODULES);
+    QDockWidget *registerDock = q->dockWidget(DOCKWIDGET_REGISTER);
+    QDockWidget *sourceFilesDock = q->dockWidget(DOCKWIDGET_SOURCE_FILES);
+
+    QTC_ASSERT(breakDock, return);
+    QTC_ASSERT(stackDock, return);
+    QTC_ASSERT(watchDock, return);
+    QTC_ASSERT(snapshotsDock, return);
+    QTC_ASSERT(threadsDock, return);
+    QTC_ASSERT(outputDock, return);
+    //QTC_ASSERT(qmlInspectorDock, return); // This is really optional.
+    QTC_ASSERT(scriptConsoleDock, return);
+    QTC_ASSERT(modulesDock, return);
+    QTC_ASSERT(registerDock, return);
+    QTC_ASSERT(sourceFilesDock, return);
 
     foreach (QDockWidget *dockWidget, m_dockWidgets) {
-        if (dockWidget == m_outputDock /*|| dockWidget == m_consoleDock*/)
+        if (dockWidget == outputDock /*|| dockWidget == m_consoleDock*/)
             q->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
         else
             q->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
@@ -695,58 +696,58 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
             && m_activeDebugLanguages.testFlag(Debugger::QmlLanguage)) {
         // cpp + qml
         foreach (QDockWidget *dockWidget, m_dockWidgets) {
-            if (dockWidget == m_outputDock)
+            if (dockWidget == outputDock)
                 q->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
             else
                 q->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
 
-            if (dockWidget == m_qmlInspectorDock)
+            if (dockWidget == qmlInspectorDock)
                 dockWidget->show();
             else
                 dockWidget->hide();
         }
 
-        m_stackDock->show();
-        m_watchDock->show();
-        m_breakDock->show();
-        m_threadsDock->show();
-        m_snapshotsDock->show();
-        m_qmlInspectorDock->show();
+        stackDock->show();
+        watchDock->show();
+        breakDock->show();
+        threadsDock->show();
+        snapshotsDock->show();
+        qmlInspectorDock->show();
 
-        q->splitDockWidget(q->toolBarDockWidget(), m_stackDock, Qt::Vertical);
-        q->splitDockWidget(m_stackDock, m_watchDock, Qt::Horizontal);
-        q->tabifyDockWidget(m_watchDock, m_breakDock);
-        q->tabifyDockWidget(m_watchDock, m_qmlInspectorDock);
+        q->splitDockWidget(q->toolBarDockWidget(), stackDock, Qt::Vertical);
+        q->splitDockWidget(stackDock, watchDock, Qt::Horizontal);
+        q->tabifyDockWidget(watchDock, breakDock);
+        q->tabifyDockWidget(watchDock, qmlInspectorDock);
 
     } else {
 
         if ((m_activeDebugLanguages.testFlag(CppLanguage)
                 && !m_activeDebugLanguages.testFlag(QmlLanguage))
             || m_activeDebugLanguages == AnyLanguage) {
-            m_stackDock->show();
-            m_breakDock->show();
-            m_watchDock->show();
-            m_threadsDock->show();
-            m_snapshotsDock->show();
+            stackDock->show();
+            breakDock->show();
+            watchDock->show();
+            threadsDock->show();
+            snapshotsDock->show();
         } else {
-            m_stackDock->show();
-            m_breakDock->show();
-            m_watchDock->show();
-            m_scriptConsoleDock->show();
-            if (m_qmlInspectorDock)
-                m_qmlInspectorDock->show();
+            stackDock->show();
+            breakDock->show();
+            watchDock->show();
+            scriptConsoleDock->show();
+            if (qmlInspectorDock)
+                qmlInspectorDock->show();
         }
-        q->splitDockWidget(q->toolBarDockWidget(), m_stackDock, Qt::Vertical);
-        q->splitDockWidget(m_stackDock, m_watchDock, Qt::Horizontal);
-        q->tabifyDockWidget(m_watchDock, m_breakDock);
-        q->tabifyDockWidget(m_watchDock, m_modulesDock);
-        q->tabifyDockWidget(m_watchDock, m_registerDock);
-        q->tabifyDockWidget(m_watchDock, m_threadsDock);
-        q->tabifyDockWidget(m_watchDock, m_sourceFilesDock);
-        q->tabifyDockWidget(m_watchDock, m_snapshotsDock);
-        q->tabifyDockWidget(m_watchDock, m_scriptConsoleDock);
-        if (m_qmlInspectorDock)
-            q->tabifyDockWidget(m_watchDock, m_qmlInspectorDock);
+        q->splitDockWidget(q->toolBarDockWidget(), stackDock, Qt::Vertical);
+        q->splitDockWidget(stackDock, watchDock, Qt::Horizontal);
+        q->tabifyDockWidget(watchDock, breakDock);
+        q->tabifyDockWidget(watchDock, modulesDock);
+        q->tabifyDockWidget(watchDock, registerDock);
+        q->tabifyDockWidget(watchDock, threadsDock);
+        q->tabifyDockWidget(watchDock, sourceFilesDock);
+        q->tabifyDockWidget(watchDock, snapshotsDock);
+        q->tabifyDockWidget(watchDock, scriptConsoleDock);
+        if (qmlInspectorDock)
+            q->tabifyDockWidget(watchDock, qmlInspectorDock);
     }
 
     q->setTrackingEnabled(true);

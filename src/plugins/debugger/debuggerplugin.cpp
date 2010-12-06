@@ -1316,7 +1316,6 @@ public:
     QAction *m_attachCoreAction;
     QAction *m_attachTcfAction;
     QAction *m_detachAction;
-    QComboBox *m_langBox;
     QToolButton *m_reverseToolButton;
 
     QIcon m_startIcon;
@@ -1403,6 +1402,17 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
 
     m_gdbBinariesChanged = true;
     m_cmdLineEnabledEngines = AllEngineTypes;
+
+    m_reverseToolButton = 0;
+    m_debugAction = 0;
+    m_startExternalAction = 0;
+    m_startRemoteAction = 0;
+    m_startRemoteCdbAction = 0;
+    m_startRemoteLldbAction = 0;
+    m_attachExternalAction = 0;
+    m_attachCoreAction = 0;
+    m_attachTcfAction = 0;
+    m_detachAction = 0;
 }
 
 DebuggerPluginPrivate::~DebuggerPluginPrivate()
@@ -2824,8 +2834,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     ActionContainer *debugMenu =
         am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
 
-    readSettings();
-
     // Dock widgets
     QDockWidget *dock = 0;
     dock = m_mainWindow->createDockWidget(CppLanguage, m_modulesWindow);
@@ -2860,14 +2868,14 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_mainWindow->createDockWidget(CppLanguage, localsAndWatchers);
     m_mainWindow->createDockWidget(QmlLanguage, m_scriptConsoleWindow);
 
+    readSettings();
+
     // Register factory of DebuggerRunControl.
     m_debuggerRunControlFactory = new DebuggerRunControlFactory
         (m_plugin, DebuggerEngineType(m_cmdLineEnabledEngines));
     m_plugin->addAutoReleasedObject(m_debuggerRunControlFactory);
 
-    m_reverseToolButton = 0;
-
-    // debug action
+    // The main "Start Debugging" action.
     act = m_debugAction = new QAction(this);
     QIcon debuggerIcon(":/projectexplorer/images/debugger_start_small.png");
     debuggerIcon.addFile(":/projectexplorer/images/debugger_start.png");
