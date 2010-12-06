@@ -30,6 +30,7 @@
 #include "texteditoroverlay.h"
 #include "basetexteditor.h"
 
+#include <QtCore/QDebug>
 #include <QtCore/QMap>
 #include <QtGui/QPainter>
 #include <QtGui/QTextBlock>
