@@ -902,6 +902,9 @@ public:
     ~DebuggerPluginPrivate();
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
+    void extensionsInitialized();
+    void aboutToShutdown();
+
     void connectEngine(DebuggerEngine *engine);
     void disconnectEngine() { connectEngine(0); }
     DebuggerEngine *currentEngine() const { return m_currentEngine; }
@@ -1025,9 +1028,6 @@ public slots:
     void showStatusMessage(const QString &msg, int timeout = -1);
     void openMemoryEditor();
 
-    void readSettings();
-    void writeSettings() const;
-
     const CPlusPlus::Snapshot &cppCodeModelSnapshot() const;
 
     void showQtDumperLibraryWarning(const QString &details);
@@ -1045,7 +1045,6 @@ public slots:
     void remoteCommand(const QStringList &options, const QStringList &);
 
     bool isReverseDebugging() const;
-    void extensionsInitialized();
 
     BreakHandler *breakHandler() const { return m_breakHandler; }
     SnapshotHandler *snapshotHandler() const { return m_snapshotHandler; }
@@ -2439,22 +2438,6 @@ void DebuggerPluginPrivate::coreShutdown()
     m_shuttingDown = true;
 }
 
-void DebuggerPluginPrivate::writeSettings() const
-{
-    m_debuggerSettings->writeSettings();
-    m_mainWindow->writeSettings();
-    if (GdbOptionsPage::gdbBinariesChanged)
-        GdbOptionsPage::writeGdbBinarySettings();
-}
-
-void DebuggerPluginPrivate::readSettings()
-{
-    //qDebug() << "PLUGIN READ SETTINGS";
-    m_debuggerSettings->readSettings();
-    m_mainWindow->readSettings();
-    GdbOptionsPage::readGdbBinarySettings();
-}
-
 const CPlusPlus::Snapshot &DebuggerPluginPrivate::cppCodeModelSnapshot() const
 {
     using namespace CppTools;
@@ -2868,7 +2851,9 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_mainWindow->createDockWidget(CppLanguage, localsAndWatchers);
     m_mainWindow->createDockWidget(QmlLanguage, m_scriptConsoleWindow);
 
-    readSettings();
+    m_debuggerSettings->readSettings();
+    m_mainWindow->readSettings();
+    GdbOptionsPage::readGdbBinarySettings();
 
     // Register factory of DebuggerRunControl.
     m_debuggerRunControlFactory = new DebuggerRunControlFactory
@@ -3274,6 +3259,17 @@ void DebuggerPluginPrivate::showModuleSymbols(const QString &moduleName,
     createNewDock(w);
 }
 
+void DebuggerPluginPrivate::aboutToShutdown()
+{
+    disconnect(sessionManager(),
+        SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+        this, 0);
+    m_debuggerSettings->writeSettings();
+    m_mainWindow->writeSettings();
+    if (GdbOptionsPage::gdbBinariesChanged)
+        GdbOptionsPage::writeGdbBinarySettings();
+}
+
 } // namespace Internal
 
 
@@ -3301,22 +3297,9 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     return theDebuggerCore->initialize(arguments, errorMessage);
 }
 
-void DebuggerPlugin::readSettings()
-{
-    theDebuggerCore->readSettings();
-}
-
-void DebuggerPlugin::writeSettings() const
-{
-    theDebuggerCore->writeSettings();
-}
-
 ExtensionSystem::IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 {
-    disconnect(sessionManager(),
-        SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-        theDebuggerCore, 0);
-    writeSettings();
+    theDebuggerCore->aboutToShutdown();
     return SynchronousShutdown;
 }
 

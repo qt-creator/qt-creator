@@ -73,8 +73,7 @@ private:
     void remoteCommand(const QStringList &options, const QStringList &arguments);
     ShutdownFlag aboutToShutdown();
     void extensionsInitialized();
-    void readSettings();
-    void writeSettings() const;
+
     void runControlStarted(DebuggerRunControl *runControl);
     void runControlFinished(DebuggerRunControl *runControl);
 };

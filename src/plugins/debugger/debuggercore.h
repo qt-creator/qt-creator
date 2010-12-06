@@ -100,9 +100,6 @@ public:
     virtual void resetLocation() = 0;
     virtual void removeLocationMark() = 0;
 
-    virtual void readSettings() = 0;
-    virtual void writeSettings() const = 0;
-
     virtual bool isReverseDebugging() const = 0;
     virtual void runControlStarted(DebuggerRunControl *runControl) = 0;
     virtual void runControlFinished(DebuggerRunControl *runControl) = 0;
