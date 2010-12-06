@@ -33,6 +33,7 @@
 #include "ui_mobileappwizardsymbianoptionspage.h"
 #include <coreplugin/coreconstants.h>
 
+#include <QtCore/QTemporaryFile>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QFileDialog>
 #include <QtGui/QFileDialog>
@@ -183,16 +184,37 @@ void MobileAppWizardMaemoOptionsPage::setPngIcon(const QString &icon)
 {
     QString error;
     QPixmap iconPixmap(icon);
-    if (iconPixmap.isNull())
-        error = tr("The file is not a valid image.");
-    else if (iconPixmap.size() != QSize(64, 64))
-        error = tr("The icon has an invalid size.");
-    if (!error.isEmpty()) {
-        QMessageBox::warning(this, tr("Icon unusable"), error);
-    } else {
-        m_d->ui.pngIconButton->setIcon(iconPixmap);
-        m_d->pngIcon = icon;
+    if (iconPixmap.isNull()) {
+        QMessageBox::critical(this, tr("Invalid Icon"),
+            tr("The file is not a valid image."));
+        return;
     }
+
+    const QSize iconSize(64, 64);
+    QString actualIconPath;
+    if (iconPixmap.size() == iconSize) {
+        actualIconPath = icon;
+    } else {
+        const QMessageBox::StandardButton button = QMessageBox::warning(this,
+            tr("Wrong Icon Size"), tr("The icon needs to be 64x64 pixels big, "
+                "but is not. Do you want Creator to scale it?"),
+            QMessageBox::Ok | QMessageBox::Cancel);
+        if (button != QMessageBox::Ok)
+            return;
+        iconPixmap = iconPixmap.scaled(iconSize);
+        QTemporaryFile tmpFile;
+        tmpFile.setAutoRemove(false);
+        const char * const format = QFileInfo(icon).suffix().toAscii().data();
+        if (!tmpFile.open() || !iconPixmap.save(&tmpFile, format)) {
+            QMessageBox::critical(this, tr("File Error"),
+                tr("Could not copy icon file."));
+            return;
+        }
+        actualIconPath = tmpFile.fileName();
+    }
+
+    m_d->ui.pngIconButton->setIcon(iconPixmap);
+    m_d->pngIcon = actualIconPath;
 }
 
 void MobileAppWizardMaemoOptionsPage::openPngIcon()
