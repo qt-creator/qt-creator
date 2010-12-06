@@ -35,6 +35,7 @@
 #include <QHash>
 #include <QDeclarativePropertyMap>
 #include <QStackedWidget>
+#include <QTimer>
 
 #include "qmlanchorbindingproxy.h"
 #include "designerpropertymap.h"
@@ -44,6 +45,7 @@
 QT_BEGIN_NAMESPACE
 class QShortcut;
 class QStackedWidget;
+class QTimer;
 QT_END_NAMESPACE
 
 class PropertyEditorValue;
@@ -141,6 +143,7 @@ private: //variables
     NodeType *m_currentType;
     bool m_locked;
     bool m_setupCompleted;
+    QTimer *m_singleShotTimer;
 };
 
 

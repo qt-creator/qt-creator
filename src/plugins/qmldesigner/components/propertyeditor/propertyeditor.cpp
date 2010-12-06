@@ -883,6 +883,8 @@ void PropertyEditor::reloadQml()
 
 QString PropertyEditor::qmlFileName(const NodeMetaInfo &nodeInfo) const
 {
+    if (nodeInfo.typeName().split('/').last() == "QDeclarativeItem")
+        return "Qt/ItemPane.qml";
     return nodeInfo.typeName() + QLatin1String("Pane.qml");
 }
 
