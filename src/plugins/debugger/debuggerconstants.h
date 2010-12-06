@@ -76,6 +76,7 @@ const char * const DOCKWIDGET_WATCHERS   = "Debugger.Docks.LocalsAndWatchers";
 
 const char * const DOCKWIDGET_QML_INSPECTOR = "Debugger.Docks.QmlInspector";
 const char * const DOCKWIDGET_QML_SCRIPTCONSOLE = "Debugger.Docks.ScriptConsole";
+const char * const DOCKWIDGET_DEFAULT_AREA = "Debugger.Docks.DefaultArea";
 
 namespace Internal {
     enum { debug = 0 };

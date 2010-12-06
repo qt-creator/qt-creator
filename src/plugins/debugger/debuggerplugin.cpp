@@ -2832,12 +2832,15 @@ void DebuggerPluginPrivate::extensionsInitialized()
     connect(dock->toggleViewAction(), SIGNAL(toggled(bool)),
         SLOT(sourceFilesDockToggled(bool)), Qt::QueuedConnection);
 
+    dock = m_mainWindow->createDockWidget(AnyLanguage, m_logWindow);
+    dock->setProperty(DOCKWIDGET_DEFAULT_AREA, Qt::TopDockWidgetArea);
+
     m_mainWindow->createDockWidget(CppLanguage, m_breakWindow);
     //m_mainWindow->createDockWidget(CppLanguage, m_consoleWindow);
-    m_mainWindow->createDockWidget(AnyLanguage, m_logWindow);
     m_mainWindow->createDockWidget(CppLanguage, m_snapshotWindow);
     m_mainWindow->createDockWidget(CppLanguage, m_stackWindow);
     m_mainWindow->createDockWidget(CppLanguage, m_threadsWindow);
+    m_mainWindow->createDockWidget(QmlLanguage, m_scriptConsoleWindow);
 
     QSplitter *localsAndWatchers = new Core::MiniSplitter(Qt::Vertical);
     localsAndWatchers->setObjectName(DOCKWIDGET_WATCHERS);
@@ -2849,10 +2852,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     localsAndWatchers->setStretchFactor(1, 1);
     localsAndWatchers->setStretchFactor(2, 1);
 
-    m_mainWindow->createDockWidget(CppLanguage, localsAndWatchers);
-    m_mainWindow->createDockWidget(QmlLanguage, m_scriptConsoleWindow);
+    dock = m_mainWindow->createDockWidget(CppLanguage, localsAndWatchers);
+    dock->setProperty(DOCKWIDGET_DEFAULT_AREA, Qt::RightDockWidgetArea);
 
-    m_mainWindow->readSettings();
+    //m_mainWindow->readSettings();
 
     m_debuggerSettings->readSettings();
     GdbOptionsPage::readGdbBinarySettings();

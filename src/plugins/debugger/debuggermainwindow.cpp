@@ -280,9 +280,9 @@ void DebuggerMainWindow::onModeChanged(IMode *mode)
     d->hideInactiveWidgets();
 
     if (mode->id() != Constants::MODE_DEBUG)
-        //|| DebuggerPlugin::instance()->hasSnapshots())
        return;
 
+    readSettings();
     updateActiveLanguages();
 }
 
@@ -434,7 +434,7 @@ QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &langua
 //             << "VISIBLE BY DEFAULT" << ((d->m_activeDebugLanguages & language) ? "true" : "false");
     QDockWidget *dockWidget = addDockForWidget(widget);
     dockWidget->setObjectName(widget->objectName());
-    addDockWidget(Qt::TopDockWidgetArea, dockWidget);
+    addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
     d->m_dockWidgets.append(dockWidget);
 
     if (!(d->m_activeDebugLanguages & language))
@@ -589,17 +589,21 @@ void DebuggerMainWindow::readSettings()
         d->m_dockWidgetActiveStateQmlCpp.insert(key, settings->value(key));
     settings->endGroup();
 
-    // reset initial settings when there are none yet
-    DebuggerLanguages langs = d->m_activeDebugLanguages;
-    if (d->m_dockWidgetActiveStateCpp.isEmpty()) {
-        d->m_activeDebugLanguages = CppLanguage;
-        d->resetDebuggerLayout();
+    // Reset initial settings when there are none yet.
+    if (d->isQmlActive()) {
+        if (d->m_dockWidgetActiveStateQmlCpp.isEmpty()) {
+            d->m_activeDebugLanguages = DebuggerLanguage(QmlLanguage|CppLanguage);
+            d->setSimpleDockWidgetArrangement();
+            d->m_dockWidgetActiveStateCpp = saveSettings();
+        }
+    } else {
+        if (d->m_dockWidgetActiveStateCpp.isEmpty()) {
+            d->m_activeDebugLanguages = CppLanguage;
+            d->setSimpleDockWidgetArrangement();
+            d->m_dockWidgetActiveStateCpp = saveSettings();
+        }
     }
-    if (d->m_dockWidgetActiveStateQmlCpp.isEmpty()) {
-        d->m_activeDebugLanguages = QmlLanguage;
-        d->resetDebuggerLayout();
-    }
-    d->m_activeDebugLanguages = langs;
+    writeSettings();
 }
 
 void DebuggerMainWindowPrivate::resetDebuggerLayout()
@@ -660,6 +664,15 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
         q->removeDockWidget(dockWidget);
     }
 
+    foreach (QDockWidget *dockWidget, m_dockWidgets) {
+        int area = Qt::BottomDockWidgetArea;
+        QVariant p = dockWidget->property(DOCKWIDGET_DEFAULT_AREA);
+        if (p.isValid())
+            area = Qt::DockWidgetArea(p.toInt());
+        q->addDockWidget(Qt::DockWidgetArea(area), dockWidget);
+        dockWidget->hide();
+    }
+
     QDockWidget *breakDock = q->dockWidget(DOCKWIDGET_BREAK);
     QDockWidget *stackDock = q->dockWidget(DOCKWIDGET_STACK);
     QDockWidget *watchDock = q->dockWidget(DOCKWIDGET_WATCHERS);
@@ -684,73 +697,55 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
     QTC_ASSERT(registerDock, return);
     QTC_ASSERT(sourceFilesDock, return);
 
-    foreach (QDockWidget *dockWidget, m_dockWidgets) {
-        if (dockWidget == outputDock /*|| dockWidget == m_consoleDock*/)
-            q->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
-        else
-            q->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
-        dockWidget->hide();
-    }
-
     if (m_activeDebugLanguages.testFlag(Debugger::CppLanguage)
             && m_activeDebugLanguages.testFlag(Debugger::QmlLanguage)) {
+
         // cpp + qml
-        foreach (QDockWidget *dockWidget, m_dockWidgets) {
-            if (dockWidget == outputDock)
-                q->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
-            else
-                q->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
-
-            if (dockWidget == qmlInspectorDock)
-                dockWidget->show();
-            else
-                dockWidget->hide();
-        }
-
         stackDock->show();
         watchDock->show();
         breakDock->show();
-        threadsDock->show();
-        snapshotsDock->show();
-        qmlInspectorDock->show();
+        if (qmlInspectorDock)
+            qmlInspectorDock->show();
 
         q->splitDockWidget(q->toolBarDockWidget(), stackDock, Qt::Vertical);
-        q->splitDockWidget(stackDock, watchDock, Qt::Horizontal);
-        q->tabifyDockWidget(watchDock, breakDock);
-        q->tabifyDockWidget(watchDock, qmlInspectorDock);
+        q->splitDockWidget(stackDock, breakDock, Qt::Horizontal);
+        q->tabifyDockWidget(stackDock, snapshotsDock);
+        q->tabifyDockWidget(stackDock, threadsDock);
+        if (qmlInspectorDock)
+            q->splitDockWidget(stackDock, qmlInspectorDock, Qt::Horizontal);
 
     } else {
+
+        stackDock->show();
+        breakDock->show();
+        watchDock->show();
+        threadsDock->show();
+        snapshotsDock->show();
 
         if ((m_activeDebugLanguages.testFlag(CppLanguage)
                 && !m_activeDebugLanguages.testFlag(QmlLanguage))
             || m_activeDebugLanguages == AnyLanguage) {
-            stackDock->show();
-            breakDock->show();
-            watchDock->show();
             threadsDock->show();
             snapshotsDock->show();
         } else {
-            stackDock->show();
-            breakDock->show();
-            watchDock->show();
             scriptConsoleDock->show();
-            if (qmlInspectorDock)
-                qmlInspectorDock->show();
+            //if (qmlInspectorDock)
+            //    qmlInspectorDock->show();
         }
         q->splitDockWidget(q->toolBarDockWidget(), stackDock, Qt::Vertical);
-        q->splitDockWidget(stackDock, watchDock, Qt::Horizontal);
-        q->tabifyDockWidget(watchDock, breakDock);
-        q->tabifyDockWidget(watchDock, modulesDock);
-        q->tabifyDockWidget(watchDock, registerDock);
-        q->tabifyDockWidget(watchDock, threadsDock);
-        q->tabifyDockWidget(watchDock, sourceFilesDock);
-        q->tabifyDockWidget(watchDock, snapshotsDock);
-        q->tabifyDockWidget(watchDock, scriptConsoleDock);
-        if (qmlInspectorDock)
-            q->tabifyDockWidget(watchDock, qmlInspectorDock);
+        q->splitDockWidget(stackDock, breakDock, Qt::Horizontal);
+        q->tabifyDockWidget(breakDock, modulesDock);
+        q->tabifyDockWidget(breakDock, registerDock);
+        q->tabifyDockWidget(breakDock, threadsDock);
+        q->tabifyDockWidget(breakDock, sourceFilesDock);
+        q->tabifyDockWidget(breakDock, snapshotsDock);
+        q->tabifyDockWidget(breakDock, scriptConsoleDock);
+        //if (qmlInspectorDock)
+        //    q->splitDockWidget(breakDock, qmlInspectorDock, Qt::Horizontal);
     }
 
     q->setTrackingEnabled(true);
+    q->update();
 }
 
 } // namespace Debugger
