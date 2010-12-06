@@ -303,6 +303,7 @@ public:
 
     QString propertyType(const QString &propertyName) const;
 
+    void setupPrototypes();
     QList<TypeDescription> prototypes() const;
 
     bool isPropertyWritable(const QString &propertyName) const;
@@ -331,7 +332,12 @@ public:
     QString componentSource() const;
     QString componentFileName() const;
 
-    static Pointer create(Model *model, QString type, int maj = -1, int min = -1);
+    static Pointer create(Model *model, const QString &type, int maj = -1, int min = -1);
+
+     QSet<QString> prototypeCache()
+     {
+         return m_prototypeCache;
+     }
 
 private:
     NodeMetaInfoPrivate(Model *model, QString type, int maj = -1, int min = -1);
@@ -353,31 +359,39 @@ private:
     QStringList m_propertyTypes;
     QStringList m_localProperties;
     QString m_defaultPropertyName;
+    QList<TypeDescription> m_prototypes;
+    QSet<QString> m_prototypeCache;
 
     //storing the pointer would not be save
     QmlJS::LookupContext *lookupContext() const;
     QmlJS::Document *document() const;
 
     QPointer<Model> m_model;
-    static QList<Pointer> m_nodeMetaInfoCache;
+    static QHash<QString, Pointer> m_nodeMetaInfoCache;
 };
 
-QList<NodeMetaInfoPrivate::Pointer> NodeMetaInfoPrivate::m_nodeMetaInfoCache;
+QHash<QString, NodeMetaInfoPrivate::Pointer> NodeMetaInfoPrivate::m_nodeMetaInfoCache;
 
-NodeMetaInfoPrivate::Pointer NodeMetaInfoPrivate::create(Model *model, QString type, int maj, int min)
+
+static inline QString stringIdentifier( const QString &type, int maj, int min)
 {
-    if (!m_nodeMetaInfoCache.isEmpty()) {
-        if (m_nodeMetaInfoCache.first()->model() != model) {
-            m_nodeMetaInfoCache.clear();
+    return type + QString::number(maj) + "_" + QString::number(min);
+}
+
+NodeMetaInfoPrivate::Pointer NodeMetaInfoPrivate::create(Model *model, const QString &type, int maj, int min)
+{
+    if (m_nodeMetaInfoCache.contains(stringIdentifier(type, maj, min))) {
+        const Pointer &info = m_nodeMetaInfoCache.value(stringIdentifier(type, maj, min));
+        if (info->model() == model) {
+            return info;
         } else {
-            foreach (const Pointer &info, m_nodeMetaInfoCache)
-                if (info->m_qualfiedTypeName == type && info->m_majorVersion == maj && info->m_minorVersion == min)
-                    return info;
+            m_nodeMetaInfoCache.clear();
         }
     }
+
     Pointer newData(new NodeMetaInfoPrivate(model, type, maj, min));
     if (newData->isValid())
-        m_nodeMetaInfoCache.append(newData);
+        m_nodeMetaInfoCache.insert(stringIdentifier(type, maj, min), newData);
     return newData;
 }
 
@@ -398,8 +412,9 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
 
     if (const Interpreter::QmlObjectValue *objectValue = getQmlObjectValue()) {
         setupPropertyInfo(getTypes(objectValue, lookupContext()));
-        setupLocalPropertyInfo(getTypes(objectValue, lookupContext(), true));
+        setupLocalPropertyInfo(getTypes(objectValue, lookupContext(), true));        
         m_defaultPropertyName = objectValue->defaultPropertyName();
+        setupPrototypes();
         return;
     }
     m_qualfiedTypeName = m_qualfiedTypeName.split('/').last();
@@ -414,6 +429,7 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
         setupPropertyInfo(getTypes(objectValue, lookupContext()));
         setupLocalPropertyInfo(getTypes(objectValue, lookupContext(), true));
         m_defaultPropertyName = lookupContext()->context()->defaultPropertyName(objectValue);
+        setupPrototypes();
         return;
     }
     m_isValid = false;
@@ -742,9 +758,8 @@ QString NodeMetaInfoPrivate::propertyType(const QString &propertyName) const
     return m_propertyTypes.at(m_properties.indexOf(propertyName));
 }
 
-QList<TypeDescription> NodeMetaInfoPrivate::prototypes() const
+void NodeMetaInfoPrivate::setupPrototypes()
 {
-    QList<TypeDescription> list;
     QList<const Interpreter::ObjectValue *> objects;
     if (m_isComponent)
         objects = Interpreter::PrototypeIterator(getObjectValue(), lookupContext()->context()).all();
@@ -761,9 +776,14 @@ QList<TypeDescription> NodeMetaInfoPrivate::prototypes() const
             if (!qmlValue->packageName().isEmpty())
                 description.className = qmlValue->packageName() + "/" + description.className;
         }
-        list.append(description);
+        m_prototypes.append(description);
     }
-    return list;
+}
+
+
+QList<TypeDescription> NodeMetaInfoPrivate::prototypes() const
+{
+    return m_prototypes;
 }
 
 const QmlJS::Interpreter::QmlObjectValue *NodeMetaInfoPrivate::getNearestQmlObjectValue() const
@@ -962,10 +982,15 @@ bool NodeMetaInfo::isSubclassOf(const QString &type, int majorVersion, int minor
         && availableInVersion(majorVersion, minorVersion))
         return true;
 
+    if (m_privateData->prototypeCache().contains(Internal::stringIdentifier(type, majorVersion, minorVersion)))
+        return true; //take a shortcut - optimization
+
     foreach (const NodeMetaInfo &superClass, superClasses()) {
         if (superClass.m_privateData->cleverCheckType(type)
-            && superClass.availableInVersion(majorVersion, minorVersion))
+            && superClass.availableInVersion(majorVersion, minorVersion)) {
+                m_privateData->prototypeCache().insert(Internal::stringIdentifier(type, majorVersion, minorVersion));
             return true;
+        }
     }
     return false;
 }
