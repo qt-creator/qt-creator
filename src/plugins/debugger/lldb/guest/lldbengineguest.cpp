@@ -533,6 +533,8 @@ void LldbEngineGuest::selectThread(qint64 token)
                             firstResolvableFrame = j;
                     }
                 }
+                sourceFilePath = QFileInfo(sourceFilePath).canonicalFilePath();
+
                 QString functionName;
                 if (func.IsValid())
                     functionName = QString::fromLocal8Bit(func.GetName());
