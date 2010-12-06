@@ -77,7 +77,6 @@ public:
 
     QList<ProjectExplorer::Project *> dependsOn();
 
-    ProjectExplorer::BuildConfigWidget *createConfigWidget();
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
     Internal::QmlProjectNode *rootProjectNode() const;

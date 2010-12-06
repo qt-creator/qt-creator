@@ -44,6 +44,7 @@
 #include "qt-s60/s60emulatorrunconfiguration.h"
 #include "qt-s60/s60createpackagestep.h"
 #include "qt-s60/s60deploystep.h"
+#include "qt4projectconfigwidget.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
@@ -272,13 +273,15 @@ Qt4Target::Qt4Target(Qt4Project *parent, const QString &id) :
             this, SLOT(onAddedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
     connect(this, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
             this, SLOT(updateToolTipAndIcon()));
-
-    setDefaultDisplayName(displayNameForId(id));
-    setIcon(iconForId(id));
 }
 
 Qt4Target::~Qt4Target()
 {
+}
+
+ProjectExplorer::BuildConfigWidget *Qt4Target::createConfigWidget()
+{
+    return new Qt4ProjectConfigWidget(this);
 }
 
 Qt4BuildConfiguration *Qt4Target::activeBuildConfiguration() const

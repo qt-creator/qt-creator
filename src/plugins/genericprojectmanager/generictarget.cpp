@@ -66,6 +66,11 @@ GenericTarget::~GenericTarget()
 {
 }
 
+ProjectExplorer::BuildConfigWidget *GenericTarget::createConfigWidget()
+{
+    return new GenericBuildSettingsWidget(this);
+}
+
 GenericProject *GenericTarget::genericProject() const
 {
     return static_cast<GenericProject *>(project());

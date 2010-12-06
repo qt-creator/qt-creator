@@ -54,6 +54,8 @@ public:
     CMakeTarget(CMakeProject *parent);
     ~CMakeTarget();
 
+    ProjectExplorer::BuildConfigWidget *createConfigWidget();
+
     CMakeProject *cmakeProject() const;
     CMakeBuildConfiguration *activeBuildConfiguration() const;
 

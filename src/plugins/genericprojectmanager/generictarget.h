@@ -61,6 +61,8 @@ public:
     explicit GenericTarget(GenericProject *parent);
     ~GenericTarget();
 
+    ProjectExplorer::BuildConfigWidget *createConfigWidget();
+
     GenericProject *genericProject() const;
 
     GenericBuildConfigurationFactory *buildConfigurationFactory() const;

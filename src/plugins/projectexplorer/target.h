@@ -47,6 +47,7 @@ class IBuildConfigurationFactory;
 class DeployConfigurationFactory;
 class IRunConfigurationFactory;
 class Project;
+class BuildConfigWidget;
 
 class TargetPrivate;
 
@@ -56,6 +57,8 @@ class PROJECTEXPLORER_EXPORT Target : public ProjectConfiguration
 
 public:
     virtual ~Target();
+
+    virtual BuildConfigWidget *createConfigWidget() = 0;
 
     virtual Project *project() const;
 

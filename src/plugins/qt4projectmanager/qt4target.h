@@ -65,6 +65,8 @@ public:
     explicit Qt4Target(Qt4Project *parent, const QString &id);
     virtual ~Qt4Target();
 
+    ProjectExplorer::BuildConfigWidget *createConfigWidget();
+
     Qt4BuildConfiguration *activeBuildConfiguration() const;
     Qt4ProjectManager::Qt4Project *qt4Project() const;
 

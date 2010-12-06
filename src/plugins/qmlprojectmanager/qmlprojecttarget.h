@@ -52,6 +52,8 @@ public:
     explicit QmlProjectTarget(QmlProject *parent);
     ~QmlProjectTarget();
 
+    ProjectExplorer::BuildConfigWidget *createConfigWidget();
+
     QmlProject *qmlProject() const;
 
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;

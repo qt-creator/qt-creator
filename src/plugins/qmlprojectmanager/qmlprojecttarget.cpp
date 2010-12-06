@@ -53,6 +53,11 @@ QmlProjectTarget::~QmlProjectTarget()
 {
 }
 
+ProjectExplorer::BuildConfigWidget *QmlProjectTarget::createConfigWidget()
+{
+    return 0;
+}
+
 QmlProject *QmlProjectTarget::qmlProject() const
 {
     return static_cast<QmlProject *>(project());

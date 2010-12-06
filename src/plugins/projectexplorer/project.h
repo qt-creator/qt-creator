@@ -99,7 +99,6 @@ public:
     void saveSettings();
     bool restoreSettings();
 
-    virtual BuildConfigWidget *createConfigWidget() = 0;
     virtual QList<BuildConfigWidget*> subConfigWidgets();
 
     virtual ProjectNode *rootProjectNode() const = 0;

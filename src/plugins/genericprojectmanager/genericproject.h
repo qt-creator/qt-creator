@@ -82,7 +82,6 @@ public:
 
     QList<ProjectExplorer::Project *> dependsOn();
 
-    ProjectExplorer::BuildConfigWidget *createConfigWidget();
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
     GenericProjectNode *rootProjectNode() const;
@@ -180,7 +179,7 @@ class GenericBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
     Q_OBJECT
 
 public:
-    GenericBuildSettingsWidget(GenericProject *project);
+    GenericBuildSettingsWidget(GenericTarget *target);
     virtual ~GenericBuildSettingsWidget();
 
     virtual QString displayName() const;
@@ -192,7 +191,7 @@ private Q_SLOTS:
     void toolChainSelected(int index);
 
 private:
-    GenericProject *m_project;
+    GenericTarget *m_target;
     Utils::PathChooser *m_pathChooser;
     GenericBuildConfiguration *m_buildConfiguration;
 };

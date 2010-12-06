@@ -967,11 +967,6 @@ bool Qt4Project::validParse(const QString &proFilePath) const
     return node && node->validParse();
 }
 
-BuildConfigWidget *Qt4Project::createConfigWidget()
-{
-    return new Qt4ProjectConfigWidget(this);
-}
-
 QList<BuildConfigWidget*> Qt4Project::subConfigWidgets()
 {
     QList<BuildConfigWidget*> subWidgets;

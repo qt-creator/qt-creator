@@ -233,11 +233,6 @@ QList<ProjectExplorer::Project *> QmlProject::dependsOn()
     return QList<Project *>();
 }
 
-ProjectExplorer::BuildConfigWidget *QmlProject::createConfigWidget()
-{
-    return 0;
-}
-
 QList<ProjectExplorer::BuildConfigWidget*> QmlProject::subConfigWidgets()
 {
     return QList<ProjectExplorer::BuildConfigWidget*>();

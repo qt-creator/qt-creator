@@ -46,6 +46,7 @@ class Qt4Project;
 
 namespace Internal {
 class Qt4BuildConfiguration;
+class Qt4Target;
 
 namespace Ui {
 class Qt4ProjectConfigWidget;
@@ -55,7 +56,7 @@ class Qt4ProjectConfigWidget : public ProjectExplorer::BuildConfigWidget
 {
     Q_OBJECT
 public:
-    explicit Qt4ProjectConfigWidget(Qt4Project *project);
+    explicit Qt4ProjectConfigWidget(Qt4Target *target);
     ~Qt4ProjectConfigWidget();
 
     QString displayName() const;

@@ -164,7 +164,6 @@ public:
     virtual QStringList files(FilesMode fileMode) const;
     virtual QString generatedUiHeader(const QString &formFile) const;
 
-    ProjectExplorer::BuildConfigWidget *createConfigWidget();
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
     QList<Internal::Qt4ProFileNode *> leafProFiles() const;

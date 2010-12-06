@@ -258,7 +258,7 @@ void BuildSettingsWidget::updateBuildSettings()
     m_removeButton->setEnabled(m_target->buildConfigurations().size() > 1);
 
     // Add pages
-    BuildConfigWidget *generalConfigWidget = m_target->project()->createConfigWidget();
+    BuildConfigWidget *generalConfigWidget = m_target->createConfigWidget();
     addSubWidget(generalConfigWidget);
 
     addSubWidget(new BuildStepsPage(m_target, QLatin1String(Constants::BUILDSTEPS_BUILD)));

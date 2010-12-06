@@ -32,6 +32,7 @@
 #include "makestep.h"
 #include "qmakestep.h"
 #include "qt4project.h"
+#include "qt4target.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4projectmanager.h"
 #include "qt4buildconfiguration.h"
@@ -58,12 +59,11 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using ProjectExplorer::ToolChain;
 
-Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
+Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Target *target)
     : BuildConfigWidget(),
       m_buildConfiguration(0),
       m_ignoreChange(false)
 {
-    Q_UNUSED(project);
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
     m_detailsContainer = new Utils::DetailsWidget(this);
@@ -79,7 +79,7 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
 
     m_ui->shadowBuildDirEdit->setPromptDialogTitle(tr("Shadow Build Directory"));
     m_ui->shadowBuildDirEdit->setExpectedKind(Utils::PathChooser::Directory);
-    m_ui->shadowBuildDirEdit->setBaseDirectory(project->projectDirectory());
+    m_ui->shadowBuildDirEdit->setBaseDirectory(target->qt4Project()->projectDirectory());
 
     connect(m_ui->shadowBuildCheckBox, SIGNAL(clicked(bool)),
             this, SLOT(shadowBuildClicked(bool)));
@@ -102,10 +102,10 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     connect(m_ui->manageQtVersionPushButtons, SIGNAL(clicked()),
             this, SLOT(manageQtVersions()));
 
-    connect(project, SIGNAL(environmentChanged()),
+    connect(target->qt4Project(), SIGNAL(environmentChanged()),
             this, SLOT(environmentChanged()));
 
-    connect(project, SIGNAL(buildDirectoryInitialized()),
+    connect(target->qt4Project(), SIGNAL(buildDirectoryInitialized()),
             this, SLOT(updateImportLabel()));
 }
 

@@ -474,11 +474,6 @@ QList<ProjectExplorer::Project *> CMakeProject::dependsOn()
     return QList<Project *>();
 }
 
-ProjectExplorer::BuildConfigWidget *CMakeProject::createConfigWidget()
-{
-    return new CMakeBuildSettingsWidget(this);
-}
-
 QList<ProjectExplorer::BuildConfigWidget*> CMakeProject::subConfigWidgets()
 {
     QList<ProjectExplorer::BuildConfigWidget*> list;
@@ -795,8 +790,8 @@ void CMakeFile::reload(ReloadFlag flag, ChangeType type)
     Q_UNUSED(type)
 }
 
-CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeProject *project)
-    : m_project(project), m_buildConfiguration(0)
+CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeTarget *target)
+    : m_target(target), m_buildConfiguration(0)
 {
     QFormLayout *fl = new QFormLayout(this);
     fl->setContentsMargins(20, -1, 0, -1);
@@ -832,7 +827,7 @@ void CMakeBuildSettingsWidget::init(BuildConfiguration *bc)
 {
     m_buildConfiguration = static_cast<CMakeBuildConfiguration *>(bc);
     m_pathLineEdit->setText(m_buildConfiguration->buildDirectory());
-    if (m_buildConfiguration->buildDirectory() == m_project->projectDirectory())
+    if (m_buildConfiguration->buildDirectory() == m_target->cmakeProject()->projectDirectory())
         m_changeButton->setEnabled(false);
     else
         m_changeButton->setEnabled(true);
@@ -840,12 +835,13 @@ void CMakeBuildSettingsWidget::init(BuildConfiguration *bc)
 
 void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
 {
-    CMakeOpenProjectWizard copw(m_project->projectManager(),
-                                m_project->projectDirectory(),
+    CMakeProject *project = m_target->cmakeProject();
+    CMakeOpenProjectWizard copw(project->projectManager(),
+                                project->projectDirectory(),
                                 m_buildConfiguration->buildDirectory(),
                                 m_buildConfiguration->environment());
     if (copw.exec() == QDialog::Accepted) {
-        m_project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
+        project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
         m_pathLineEdit->setText(m_buildConfiguration->buildDirectory());
     }
 }
@@ -853,13 +849,14 @@ void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
 void CMakeBuildSettingsWidget::runCMake()
 {
     // TODO skip build directory
-    CMakeOpenProjectWizard copw(m_project->projectManager(),
-                                m_project->projectDirectory(),
+    CMakeProject *project = m_target->cmakeProject();
+    CMakeOpenProjectWizard copw(project->projectManager(),
+                                project->projectDirectory(),
                                 m_buildConfiguration->buildDirectory(),
                                 CMakeOpenProjectWizard::WantToUpdate,
                                 m_buildConfiguration->environment());
     if (copw.exec() == QDialog::Accepted) {
-        m_project->parseCMakeLists();
+        project->parseCMakeLists();
     }
 }
 
