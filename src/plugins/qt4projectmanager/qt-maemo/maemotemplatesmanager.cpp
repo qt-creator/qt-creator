@@ -62,6 +62,7 @@ namespace Internal {
 
 namespace {
 const QByteArray IconFieldName("XB-Maemo-Icon-26:");
+const QByteArray DescriptionFieldName("XB-Maemo-Display-Name");
 const QLatin1String PackagingDirName("qtc_packaging");
 const QLatin1String DebianDirNameFremantle("debian_fremantle");
 } // anonymous namespace
@@ -260,6 +261,8 @@ bool MaemoTemplatesManager::adaptControlFile(const Project *project)
 
     adaptControlFileField(controlContents, "Section", "user/hidden");
     adaptControlFileField(controlContents, "Priority", "optional");
+    adaptControlFileField(controlContents, DescriptionFieldName,
+        project->displayName().toUtf8());
     const int buildDependsOffset = controlContents.indexOf("Build-Depends:");
     if (buildDependsOffset == -1) {
         qDebug("Unexpected: no Build-Depends field in debian control file.");
@@ -566,6 +569,24 @@ bool MaemoTemplatesManager::setPackageManagerIcon(const Project *project,
     return true;
 }
 
+QString MaemoTemplatesManager::name(const Project *project) const
+{
+    return controlFileFieldValue(project, DescriptionFieldName);
+}
+
+bool MaemoTemplatesManager::setName(const Project *project,
+    const QString &description)
+{
+    QFile controlFile(controlFilePath(project));
+    if (!controlFile.open(QIODevice::ReadWrite))
+        return false;
+    QByteArray contents = controlFile.readAll();
+    adaptControlFileField(contents, DescriptionFieldName, description.toUtf8());
+    controlFile.resize(0);
+    controlFile.write(contents);
+    return true;
+}
+
 QStringList MaemoTemplatesManager::debianFiles(const Project *project) const
 {
     return QDir(debianDirPath(project))
@@ -603,7 +624,7 @@ QString MaemoTemplatesManager::controlFileFieldValue(const Project *project,
     if (valueEndPos == -1)
         valueEndPos = contents.count();
     return QString::fromUtf8(contents.mid(valueStartPos,
-        valueEndPos - valueStartPos));
+        valueEndPos - valueStartPos)).trimmed();
 }
 
 void MaemoTemplatesManager::raiseError(const QString &reason)

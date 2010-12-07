@@ -57,6 +57,8 @@
 #include <QtGui/QImageReader>
 #include <QtGui/QMessageBox>
 
+using namespace ProjectExplorer;
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -82,11 +84,9 @@ void MaemoPackageCreationWidget::init()
 
 void MaemoPackageCreationWidget::initGui()
 {
-    const ProjectExplorer::Project * const project
-        = m_step->buildConfiguration()->target()->project();
-    updateDebianFileList(project);
-    updateVersionInfo(project);
-    updatePackageManagerIcon(project);
+    updateDebianFileList(thisProject());
+    updateVersionInfo(thisProject());
+    handleControlFileUpdate(thisProject());
     connect(m_step, SIGNAL(packageFilePathChanged()), this,
         SIGNAL(updateSummary()));
     connect(m_step, SIGNAL(qtVersionChanged()), this,
@@ -101,14 +101,13 @@ void MaemoPackageCreationWidget::initGui()
         SLOT(updateVersionInfo(const ProjectExplorer::Project*)));
     connect(MaemoTemplatesManager::instance(),
         SIGNAL(controlChanged(const ProjectExplorer::Project*)), this,
-        SLOT(updatePackageManagerIcon(const ProjectExplorer::Project*)));
+        SLOT(handleControlFileUpdate(const ProjectExplorer::Project*)));
+    connect(m_ui->nameLineEdit, SIGNAL(editingFinished()), SLOT(setName()));
 }
 
 void MaemoPackageCreationWidget::updateDebianFileList(const ProjectExplorer::Project *project)
 {
-    const ProjectExplorer::Project * const ourProject
-        = m_step->buildConfiguration()->target()->project();
-    if (ourProject == project)
+    if (thisProject() == project)
         m_ui->debianFilesComboBox->clear();
         const QStringList &debianFiles = MaemoTemplatesManager::instance()
             ->debianFiles(project);
@@ -120,7 +119,7 @@ void MaemoPackageCreationWidget::updateDebianFileList(const ProjectExplorer::Pro
 
 void MaemoPackageCreationWidget::updateVersionInfo(const ProjectExplorer::Project *project)
 {
-    if (project != m_step->buildConfiguration()->target()->project())
+    if (project != thisProject())
         return;
 
     QString error;
@@ -136,11 +135,17 @@ void MaemoPackageCreationWidget::updateVersionInfo(const ProjectExplorer::Projec
     m_ui->patch->setValue(list.value(2, QLatin1String("0")).toInt());
 }
 
-void MaemoPackageCreationWidget::updatePackageManagerIcon(const ProjectExplorer::Project *project)
+void MaemoPackageCreationWidget::handleControlFileUpdate(const Project *project)
 {
-    if (project != m_step->buildConfiguration()->target()->project())
+    if (project != thisProject())
         return;
+    updatePackageManagerIcon(project);
+    updateName(project);
+    updateShortDescription(project);
+}
 
+void MaemoPackageCreationWidget::updatePackageManagerIcon(const Project *project)
+{
     QString error;
     const QIcon &icon
         = MaemoTemplatesManager::instance()->packageManagerIcon(project, &error);
@@ -150,6 +155,17 @@ void MaemoPackageCreationWidget::updatePackageManagerIcon(const ProjectExplorer:
         m_ui->packageManagerIconButton->setIcon(icon);
         m_ui->packageManagerIconButton->setIconSize(m_ui->packageManagerIconButton->size());
     }
+}
+
+void MaemoPackageCreationWidget::updateName(const Project *project)
+{
+    m_ui->nameLineEdit->setText(MaemoTemplatesManager::instance()->name(project));
+}
+
+void MaemoPackageCreationWidget::updateShortDescription(const Project *project)
+{
+    // TODO: Implment
+    Q_UNUSED(project);
 }
 
 void MaemoPackageCreationWidget::setPackageManagerIcon()
@@ -164,10 +180,24 @@ void MaemoPackageCreationWidget::setPackageManagerIcon()
         QString(), imageFilter);
     if (!iconFileName.isEmpty()) {
         QString error;
-        if (!MaemoTemplatesManager::instance()->setPackageManagerIcon(m_step->
-            buildConfiguration()->target()->project(), iconFileName, &error))
+        if (!MaemoTemplatesManager::instance()->setPackageManagerIcon(thisProject(),
+                iconFileName, &error))
             QMessageBox::critical(this, tr("Could Not Set New Icon"), error);
     }
+}
+
+void MaemoPackageCreationWidget::setName()
+{
+    if (!MaemoTemplatesManager::instance()->setName(thisProject(),
+            m_ui->nameLineEdit->text())) {
+        QMessageBox::critical(this, tr("File Error"),
+            tr("Could not set project name."));
+    }
+}
+
+void MaemoPackageCreationWidget::setShortDescription()
+{
+
 }
 
 void MaemoPackageCreationWidget::handleToolchainChanged()
@@ -217,12 +247,17 @@ void MaemoPackageCreationWidget::versionInfoChanged()
 
 void MaemoPackageCreationWidget::editDebianFile()
 {
-    const QString debianFilePath = MaemoTemplatesManager::instance()
-        ->debianDirPath(m_step->buildConfiguration()->target()->project())
-        + QLatin1Char('/') + m_ui->debianFilesComboBox->currentText();
+    const QString debianFilePath
+        = MaemoTemplatesManager::instance()->debianDirPath(thisProject())
+              + QLatin1Char('/') + m_ui->debianFilesComboBox->currentText();
     Core::EditorManager::instance()->openEditor(debianFilePath,
                                                 QString(),
                                                 Core::EditorManager::ModeSwitch);
+}
+
+Project *MaemoPackageCreationWidget::thisProject() const
+{
+    return m_step->buildConfiguration()->target()->project();
 }
 
 } // namespace Internal

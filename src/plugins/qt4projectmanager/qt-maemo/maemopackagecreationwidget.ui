@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>505</width>
-    <height>162</height>
+    <height>189</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -157,26 +157,19 @@
       </layout>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="editDebianFileLabel">
+      <widget class="QLabel" name="nameLabel">
        <property name="text">
-        <string>&lt;b&gt;Adapt Debian file:&lt;/b&gt;</string>
+        <string>&lt;b&gt;Name for Package Manager:&lt;/b&gt;</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
-        <widget class="QComboBox" name="debianFilesComboBox"/>
+        <widget class="QLineEdit" name="nameLineEdit"/>
        </item>
        <item>
-        <widget class="QPushButton" name="editDebianFileButton">
-         <property name="text">
-          <string>Edit</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer">
+        <spacer name="horizontalSpacer_4">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -229,6 +222,40 @@
        </item>
        <item>
         <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="editDebianFileLabel">
+       <property name="text">
+        <string>&lt;b&gt;Adapt Debian file:&lt;/b&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QComboBox" name="debianFilesComboBox"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="editDebianFileButton">
+         <property name="text">
+          <string>Edit</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>

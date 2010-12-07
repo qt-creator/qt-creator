@@ -71,6 +71,10 @@ public:
     bool setPackageManagerIcon(const ProjectExplorer::Project *project,
         const QString &iconFilePath, QString *error) const;
 
+    QString name(const ProjectExplorer::Project *project) const;
+    bool setName(const ProjectExplorer::Project *project,
+        const QString &description);
+
     QString controlFileFieldValue(const ProjectExplorer::Project *project,
         const QString &key) const;
 
