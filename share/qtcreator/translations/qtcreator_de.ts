@@ -4840,7 +4840,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Replace &amp;&amp; Find</source>
-        <translation></translation>
+        <translation>Ersetzen und weitersuchen</translation>
     </message>
     <message>
         <source>Ctrl+=</source>
@@ -9877,6 +9877,10 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <message>
         <source>Debugging helpers:</source>
         <translation>Ausgabe-Hilfsbibliotheken:</translation>
+    </message>
+    <message>
+        <source>SBS v2 directory:</source>
+        <translation>SBS-v2-Ordner:</translation>
     </message>
 </context>
 <context>
@@ -14978,6 +14982,10 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Das übergeordnete Verzeichnis &quot;%1&quot; der Datei %2&quot; existiert nicht.</translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation>Fehler</translation>
+    </message>
+    <message>
         <source>Cannot write file: &quot;%1&quot;.</source>
         <translation>Die Datei &quot;%1&quot; kann nicht geschrieben werden.</translation>
     </message>
@@ -16813,6 +16821,14 @@ Haben Sie Qemu gestartet?</translation>
     <message>
         <source>Anchors</source>
         <translation>Anker</translation>
+    </message>
+    <message>
+        <source>Set anchors</source>
+        <translation>Anker setzen</translation>
+    </message>
+    <message>
+        <source>Setting anchors in states is not supported.</source>
+        <translation>Anker koennen nicht innerhalb von States gesetzt werden.</translation>
     </message>
     <message>
         <source>Target</source>
@@ -19185,6 +19201,10 @@ Server: %2.</translation>
         <translation>Der Funktionsaufruf &quot;%1()&quot; schlug fehl: %2</translation>
     </message>
     <message>
+        <source>An instance of the CDB engine is still running; cannot create an a new instance.</source>
+        <translation>Der CDB-Debugger kann nicht gestartet werden, da noch ein anderer läuft (mehrere Instanzen sind nicht zulässig).</translation>
+    </message>
+    <message>
         <source>Version: %1</source>
         <translation>Version: %1</translation>
     </message>
@@ -20637,6 +20657,10 @@ Fehlerausgabe: %1</translation>
     <message>
         <source>No device configuration set for run configuration.</source>
         <translation>Für Ausführungskonfiguration ist keine Gerätekonfiguration eingestellt.</translation>
+    </message>
+    <message>
+        <source>Run configuration no longer available.</source>
+        <translation>Die Ausführungskonfiguration ist nicht mehr verfügbar.</translation>
     </message>
     <message>
         <source>Starting remote process ...</source>
