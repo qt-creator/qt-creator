@@ -717,7 +717,7 @@ static const Interpreter::Value *getPropertyValue(
     const QStringList &propertyNames,
     const Interpreter::Context *context)
 {
-    if (propertyNames.isEmpty())
+    if (propertyNames.isEmpty() || !object)
         return 0;
 
     const Interpreter::Value *value = object;
