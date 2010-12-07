@@ -147,6 +147,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new QMakeStepFactory);
     addAutoReleasedObject(new MakeStepFactory);
 
+    addAutoReleasedObject(new Qt4TargetFactory);
     addAutoReleasedObject(new Qt4RunConfigurationFactory);
 
 #ifdef Q_OS_MAC
