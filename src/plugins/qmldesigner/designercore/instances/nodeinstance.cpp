@@ -82,7 +82,7 @@ NodeInstance &NodeInstance::operator=(const NodeInstance &other)
 
 ModelNode NodeInstance::modelNode() const
 {
-    if (isValid()) {
+    if (d) {
         return  d->modelNode;
     } else {
         return ModelNode();
@@ -100,7 +100,7 @@ qint32 NodeInstance::instanceId() const
 
 bool NodeInstance::isValid() const
 {
-    return instanceId() >= 0;
+    return instanceId() >= 0 && modelNode().isValid();
 }
 
 void NodeInstance::makeInvalid()
