@@ -40,11 +40,14 @@ using namespace TextEditor;
 using namespace Internal;
 
 HighlightDefinition::HighlightDefinition() :
-    m_delimiters(QLatin1String(".():!+,-<=>%&/;?[]^{|}~\\*, \t")),
     m_singleLineCommentAfterWhiteSpaces(false),
     m_keywordCaseSensitivity(Qt::CaseSensitive),
     m_indentationBasedFolding(false)
-{}
+{
+    QString s(QLatin1String(".():!+,-<=>%&/;?[]^{|}~\\*, \t"));
+    foreach (const QChar &c, s)
+        m_delimiters.insert(c);
+}
 
 HighlightDefinition::~HighlightDefinition()
 {}
@@ -147,7 +150,7 @@ void HighlightDefinition::addDelimiters(const QString &characters)
 {
     for (int i = 0; i < characters.length(); ++i) {
         if (!m_delimiters.contains(characters.at(i)))
-            m_delimiters.append(characters.at(i));
+            m_delimiters.insert(characters.at(i));
     }
 }
 

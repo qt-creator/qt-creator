@@ -32,6 +32,7 @@
 
 #include <QtCore/QString>
 #include <QtCore/QHash>
+#include <QtCore/QSet>
 #include <QtCore/QSharedPointer>
 
 namespace TextEditor {
@@ -102,8 +103,6 @@ private:
 
     QString m_initialContext;
 
-    QString m_delimiters;
-
     QString m_singleLineComment;
     bool m_singleLineCommentAfterWhiteSpaces;
 
@@ -114,6 +113,8 @@ private:
     Qt::CaseSensitivity m_keywordCaseSensitivity;
 
     bool m_indentationBasedFolding;
+
+    QSet<QChar> m_delimiters;
 };
 
 } // namespace Internal
