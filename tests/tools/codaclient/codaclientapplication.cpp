@@ -251,6 +251,7 @@ CodaClientApplication::ParseArgsResult CodaClientApplication::parseArguments(QSt
 
 bool CodaClientApplication::start()
 {
+    m_startTime.start();
     switch (m_mode) {
     case Launch: {
         const QString args = m_launchArgs.join(QString(QLatin1Char(' ')));
@@ -405,7 +406,7 @@ void CodaClientApplication::handleFileSystemFStat(const tcftrk::TcfTrkCommandRes
 void CodaClientApplication::handleFileSystemClose(const tcftrk::TcfTrkCommandResult &result)
 {
     if (result.type == tcftrk::TcfTrkCommandResult::SuccessReply) {
-        std::printf("File closed.\n.");
+        std::printf("File closed.\n");
         const bool ok = m_mode == Put ? m_putWriteOk : m_statFstatOk;
         doExit(ok ? 0 : -1);
     } else {
@@ -485,6 +486,8 @@ void CodaClientApplication::slotTcftrkEvent (const tcftrk::TcfTrkEvent &ev)
 
 void CodaClientApplication::doExit(int ex)
 {
+    std::printf("Operation took %4.2f second(s)\n", m_startTime.elapsed()/1000.);
+
     if (!m_trkDevice.isNull()) {
         const QSharedPointer<QIODevice> dev = m_trkDevice->device();
         if (QAbstractSocket *socket = qobject_cast<QAbstractSocket *>(dev.data())) {

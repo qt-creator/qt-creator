@@ -33,6 +33,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QTime>
 
 QT_FORWARD_DECLARE_CLASS(QFile)
 
@@ -95,6 +96,7 @@ private:
     QByteArray m_remoteFileHandle;
     quint64 m_putChunkSize;
     unsigned m_verbose;
+    QTime m_startTime;
     QScopedPointer<tcftrk::TcfTrkDevice> m_trkDevice;
 };
 
