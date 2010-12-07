@@ -99,6 +99,7 @@ private:
     bool updateDesktopFiles(QString *error = 0) const;
     bool addOrReplaceDesktopFileValue(QByteArray &fileContent,
         const QByteArray &key, const QByteArray &newValue) const;
+    QStringList findProblems() const;
 
     const ProjectExplorer::Project * const m_project;
     bool m_doUpload;

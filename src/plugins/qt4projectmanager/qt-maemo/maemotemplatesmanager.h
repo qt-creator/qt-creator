@@ -71,6 +71,9 @@ public:
     bool setPackageManagerIcon(const ProjectExplorer::Project *project,
         const QString &iconFilePath, QString *error) const;
 
+    QString controlFileFieldValue(const ProjectExplorer::Project *project,
+        const QString &key) const;
+
 signals:
     void debianDirContentsChanged(const ProjectExplorer::Project *project);
     void changeLogChanged(const ProjectExplorer::Project *project);

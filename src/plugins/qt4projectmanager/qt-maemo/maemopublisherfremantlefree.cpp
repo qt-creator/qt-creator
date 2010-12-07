@@ -33,6 +33,7 @@
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemopublishingfileselectiondialog.h"
+#include "maemotemplatesmanager.h"
 #include "maemotoolchain.h"
 
 #include <coreplugin/ifile.h>
@@ -102,8 +103,17 @@ void MaemoPublisherFremantleFree::cancel()
 
 void MaemoPublisherFremantleFree::createPackage()
 {
-    // Step 1: Copy project directory.
     setState(CopyingProjectDir);
+
+    const QStringList &problems = findProblems();
+    if (!problems.isEmpty()) {
+        const QLatin1String separator("\n- ");
+        finishWithFailure(tr("The project is missing some information "
+            "important to publishing:") + separator + problems.join(separator),
+            tr("Publishing failed: Missing project information."));
+        return;
+    }
+
     m_tmpProjectDir = tmpDirContainer() + QLatin1Char('/')
         + m_project->displayName();
     if (QFileInfo(tmpDirContainer()).exists()) {
@@ -542,6 +552,25 @@ bool MaemoPublisherFremantleFree::addOrReplaceDesktopFileValue(QByteArray &fileC
         return false;
     fileContent.replace(replacePos, replaceCount, newValue);
     return true;
+}
+
+QStringList MaemoPublisherFremantleFree::findProblems() const
+{
+    QStringList problems;
+    const MaemoTemplatesManager * const templatesManager
+        = MaemoTemplatesManager::instance();
+    const QString &description = templatesManager
+        ->controlFileFieldValue(m_project, QLatin1String("Description"));
+    if (description.trimmed().isEmpty()) {
+        problems << tr("The package description is empty.");
+    } else if (description.contains(QLatin1String("insert up to"))) {
+        problems << tr("The package description is '%1', which is probably "
+                       "not what you want.").arg(description);
+    }
+    if (templatesManager->controlFileFieldValue(m_project,
+            QLatin1String("XB-Maemo-Icon-26")).trimmed().isEmpty())
+        problems << tr("You have not set an icon for the package manager.");
+    return problems;
 }
 
 void MaemoPublisherFremantleFree::setState(State newState)

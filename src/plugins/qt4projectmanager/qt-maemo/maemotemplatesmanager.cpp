@@ -588,6 +588,24 @@ QString MaemoTemplatesManager::controlFilePath(const Project *project) const
     return debianDirPath(project) + QLatin1String("/control");
 }
 
+QString MaemoTemplatesManager::controlFileFieldValue(const Project *project,
+    const QString &key) const
+{
+    QFile controlFile(controlFilePath(project));
+    if (!controlFile.open(QIODevice::ReadOnly))
+        return QString();
+    const QByteArray &contents = controlFile.readAll();
+    const int keyPos = contents.indexOf(key.toUtf8() + ':');
+    if (keyPos == -1)
+        return QString();
+    const int valueStartPos = keyPos + key.length() + 1;
+    int valueEndPos = contents.indexOf('\n', keyPos);
+    if (valueEndPos == -1)
+        valueEndPos = contents.count();
+    return QString::fromUtf8(contents.mid(valueStartPos,
+        valueEndPos - valueStartPos));
+}
+
 void MaemoTemplatesManager::raiseError(const QString &reason)
 {
     QMessageBox::critical(0, tr("Error creating Maemo templates"), reason);
