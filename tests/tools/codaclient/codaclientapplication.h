@@ -34,6 +34,8 @@
 #include <QtCore/QStringList>
 #include <QtCore/QSharedPointer>
 
+QT_FORWARD_DECLARE_CLASS(QFile)
+
 namespace tcftrk {
     struct TcfTrkCommandResult;
     class TcfTrkDevice;
@@ -70,6 +72,8 @@ private:
     void handleFileSystemFStat(const tcftrk::TcfTrkCommandResult &result);
     void handleSymbianInstall(const tcftrk::TcfTrkCommandResult &result);
     void doExit(int ex);
+    void putSendNextChunk();
+    void closeRemoteFile();
 
     Mode m_mode;
     QString m_address;
@@ -85,8 +89,11 @@ private:
     QString m_putRemoteFile;
     bool m_putWriteOk;
     bool m_statFstatOk;
+    QScopedPointer<QFile> m_putFile;
+    quint64 m_putLastChunkSize;
     QString m_statRemoteFile;
     QByteArray m_remoteFileHandle;
+    quint64 m_putChunkSize;
     unsigned m_verbose;
     QScopedPointer<tcftrk::TcfTrkDevice> m_trkDevice;
 };

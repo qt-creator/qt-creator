@@ -40,15 +40,25 @@ static const char usageC[] =
 "\n%1 v0.1 built "__DATE__"\n\n"
 "Test client for Symbian CODA\n\n"
 "Usage:\n"
-"%1 launch [-d] address:port binary uid [--] [arguments]\n"
-"%1 install[-s] address:port sis-file [targetdrive]\n"
-"%1 put         address:port local-file remote-file\n"
-"%1 stat        address:port remote-file\n"
+"%1 launch [-d]     address[:port] binary uid [--] [arguments]\n"
+"%1 install[-s]     address[:port] remote-sis-file [targetdrive]\n"
+"%1 put    [c size] address[:port] local-file remote-file\n"
+"%1 stat            address[:port] remote-file\n"
 "\nOptions:\n"
 "-d            Launch: Launch under Debug control (wait for termination)\n"
-"-s            Install: Silent installation\n";
+"-c [size]     Put: Chunk size in KB (default %2KB)\n"
+"-s            Install: Silent installation\n\n"
+"Notes:\n"
+"UIDs take the form '0xfdaa278'. The target directory for sis-files on a\n"
+"device typically is 'c:\\data'. CODA's default port is %3.\n\n"
+"Example session:\n"
+"%1 put     192.168.0.42 test.sis c:\\data\\test.sis\n"
+"%1 stat    192.168.0.42 c:\\data\\test.sis\n"
+"%1 install 192.168.0.42 c:\\data\\test.sis c:\n"
+"%1 launch  192.168.0.42 c:\\sys\\bin\\test.exe  0x34f2b\n";
 
 static const unsigned short defaultPort = 65029;
+static const quint64  defaultChunkSize = 10240;
 
 static inline QString fixSlashes(QString s)
 {
@@ -66,6 +76,8 @@ CodaClientApplication::CodaClientApplication(int &argc, char **argv) :
     m_installSilently(false),
     m_putWriteOk(false),
     m_statFstatOk(false),
+    m_putLastChunkSize(0),
+    m_putChunkSize(defaultChunkSize),
     m_verbose(0)
 {
     setApplicationName(QLatin1String("codaclient"));
@@ -78,7 +90,8 @@ CodaClientApplication::~CodaClientApplication()
 QString CodaClientApplication::usage()
 {
     return QString::fromLatin1(usageC)
-            .arg(QCoreApplication::applicationName());
+            .arg(QCoreApplication::applicationName())
+            .arg(defaultChunkSize / 1024).arg(defaultPort);
 }
 
 static inline CodaClientApplication::Mode modeArg(const QString &a)
@@ -182,6 +195,17 @@ CodaClientApplication::ParseArgsResult CodaClientApplication::parseArguments(QSt
             case 's':
                 m_installSilently = true;
                 break;
+            case 'c':
+                if (++it == cend) {
+                    *errorMessage = QString::fromLatin1("Parameter missing for -c");
+                    return ParseArgsError;
+                }
+                m_putChunkSize = it->toULongLong() * 1024;
+                if (!m_putChunkSize) {
+                    *errorMessage = QString::fromLatin1("Invalid chunk size.");
+                    return ParseArgsError;
+                }
+                break;
             default:
                 *errorMessage = QString::fromLatin1("Invalid option %1").arg(*it);
                 return ParseArgsError;
@@ -242,9 +266,9 @@ bool CodaClientApplication::start()
                     qPrintable(m_address), m_port);
         break;
     case Put:
-        std::printf("Copying '%s' to '%s' on %s:%hu\n",
+        std::printf("Copying '%s' to '%s' on %s:%hu in chunks of %lluKB\n",
                     qPrintable(m_putLocalFile), qPrintable(m_putRemoteFile),
-                    qPrintable(m_address), m_port);
+                    qPrintable(m_address), m_port, m_putChunkSize / 1024);
         break;
     case Stat:
         std::printf("Retrieving attributes of '%s' from %s:%hu\n",
@@ -315,27 +339,50 @@ void CodaClientApplication::handleFileSystemOpen(const tcftrk::TcfTrkCommandResu
         return;
     }
     // Put.
-    QFile localFile(m_putLocalFile);
-    if (!localFile.open(QIODevice::ReadOnly)) { // Should not fail, was checked before
-        std::fprintf(stderr, "Open local file failed: %s\n", qPrintable(localFile.errorString()));
+    m_putFile.reset(new QFile(m_putLocalFile));
+    if (!m_putFile->open(QIODevice::ReadOnly)) { // Should not fail, was checked before
+        std::fprintf(stderr, "Open local file failed: %s\n", qPrintable(m_putFile->errorString()));
         doExit(-1);
         return;
     }
-    const QByteArray data = localFile.readAll();
-    localFile.close();
-    std::printf("Writing %d bytes to remote file '%s'\n", data.size(), m_remoteFileHandle.constData());
-    m_trkDevice->sendFileSystemWriteCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleFileSystemWrite),
-                                           m_remoteFileHandle, data);
+    putSendNextChunk();
+}
+
+void CodaClientApplication::putSendNextChunk()
+{
+    // Read and send off next chunk
+    const quint64 pos = m_putFile->pos();
+    const QByteArray data = m_putFile->read(m_putChunkSize);
+    if (data.isEmpty()) {
+        m_putWriteOk = true;
+        closeRemoteFile();
+    } else {
+        m_putLastChunkSize = data.size();
+        std::printf("Writing %llu bytes to remote file '%s' at %llu\n",
+                    m_putLastChunkSize,
+                    m_remoteFileHandle.constData(), pos);
+        m_trkDevice->sendFileSystemWriteCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleFileSystemWrite),
+                                                m_remoteFileHandle, data, unsigned(pos));
+    }
+}
+
+void CodaClientApplication::closeRemoteFile()
+{
+    m_trkDevice->sendFileSystemCloseCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleFileSystemClose),
+                                            m_remoteFileHandle);
 }
 
 void CodaClientApplication::handleFileSystemWrite(const tcftrk::TcfTrkCommandResult &result)
 {
     // Close remote file even if copy fails
-    m_putWriteOk = result.type == tcftrk::TcfTrkCommandResult::SuccessReply;
+    m_putWriteOk = result;
     if (!m_putWriteOk)
         std::fprintf(stderr, "Writing data failed: %s\n", qPrintable(result.toString()));
-    m_trkDevice->sendFileSystemCloseCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleFileSystemClose),
-                                           m_remoteFileHandle);
+    if (!m_putWriteOk || m_putLastChunkSize < m_putChunkSize) {
+        closeRemoteFile();
+    } else {
+        putSendNextChunk();
+    }
 }
 
 void CodaClientApplication::handleFileSystemFStat(const tcftrk::TcfTrkCommandResult &result)
