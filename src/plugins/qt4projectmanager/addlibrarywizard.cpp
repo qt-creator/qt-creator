@@ -58,29 +58,18 @@ AddLibraryWizard::AddLibraryWizard(const QString &fileName, QWidget *parent) :
     Utils::Wizard(parent), m_proFile(fileName)
 {
     setWindowTitle(tr("Add Library"));
-    setAutomaticProgressCreationEnabled(false);
     m_libraryTypePage = new LibraryTypePage(this);
     m_detailsPage = new DetailsPage(this);
     m_summaryPage = new SummaryPage(this);
-    setPage(LibraryTypePageId, m_libraryTypePage);
-    setPage(DetailsPageId, m_detailsPage);
-    setPage(SummaryPageId, m_summaryPage);
+    const int libraryTypePageId = addPage(m_libraryTypePage);
+    const int detailsPageId = addPage(m_detailsPage);
+    const int summaryPageId = addPage(m_summaryPage);
 
     Utils::WizardProgress *progress = wizardProgress();
 
-    Utils::WizardProgressItem *kindItem = progress->addItem(tr("Type"));
-
-    Utils::WizardProgressItem *detailsItem = progress->addItem(tr("Details"));
-    Utils::WizardProgressItem *summaryItem = progress->addItem(tr("Summary"));
-
-    kindItem->addPage(LibraryTypePageId);
-    detailsItem->addPage(DetailsPageId);
-    summaryItem->addPage(SummaryPageId);
-
-    kindItem->setNextItems(QList<Utils::WizardProgressItem *>() << detailsItem);
-    detailsItem->setNextItems(QList<Utils::WizardProgressItem *>() << summaryItem);
-
-    setStartId(LibraryTypePageId);
+    progress->item(libraryTypePageId)->setTitle(tr("Type"));
+    progress->item(detailsPageId)->setTitle(tr("Details"));
+    progress->item(summaryPageId)->setTitle(tr("Summary"));
 }
 
 AddLibraryWizard::~AddLibraryWizard()
@@ -177,11 +166,6 @@ AddLibraryWizard::LibraryKind LibraryTypePage::libraryKind() const
     return AddLibraryWizard::PackageLibrary;
 }
 
-int LibraryTypePage::nextId() const
-{
-    return AddLibraryWizard::DetailsPageId;
-}
-
 /////////////
 
 DetailsPage::DetailsPage(AddLibraryWizard *parent)
@@ -196,11 +180,6 @@ bool DetailsPage::isComplete() const
     if (m_libraryDetailsController)
         return m_libraryDetailsController->isComplete();
     return false;
-}
-
-int DetailsPage::nextId() const
-{
-    return AddLibraryWizard::SummaryPageId;
 }
 
 QString DetailsPage::snippet() const

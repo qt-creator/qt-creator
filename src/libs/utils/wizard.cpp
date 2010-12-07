@@ -89,6 +89,7 @@ private slots:
     void slotItemRemoved(WizardProgressItem *item);
     void slotItemChanged(WizardProgressItem *item);
     void slotNextItemsChanged(WizardProgressItem *item, const QList<WizardProgressItem *> &nextItems);
+    void slotNextShownItemChanged(WizardProgressItem *item, WizardProgressItem *nextItem);
     void slotStartItemChanged(WizardProgressItem *item);
     void slotCurrentItemChanged(WizardProgressItem *item);
 
@@ -135,6 +136,8 @@ LinearProgressWidget::LinearProgressWidget(WizardProgress *progress, QWidget *pa
             this, SLOT(slotItemChanged(WizardProgressItem *)));
     connect(m_wizardProgress, SIGNAL(nextItemsChanged(WizardProgressItem *, const QList<WizardProgressItem *> &)),
             this, SLOT(slotNextItemsChanged(WizardProgressItem *, const QList<WizardProgressItem *> &)));
+    connect(m_wizardProgress, SIGNAL(nextShownItemChanged(WizardProgressItem *, WizardProgressItem *)),
+            this, SLOT(slotNextShownItemChanged(WizardProgressItem *, WizardProgressItem *)));
     connect(m_wizardProgress, SIGNAL(startItemChanged(WizardProgressItem *)),
             this, SLOT(slotStartItemChanged(WizardProgressItem *)));
     connect(m_wizardProgress, SIGNAL(currentItemChanged(WizardProgressItem *)),
@@ -184,6 +187,13 @@ void LinearProgressWidget::slotItemChanged(WizardProgressItem *item)
 void LinearProgressWidget::slotNextItemsChanged(WizardProgressItem *item, const QList<WizardProgressItem *> &nextItems)
 {
     Q_UNUSED(nextItems)
+    if (m_visibleItems.contains(item))
+        recreateLayout();
+}
+
+void LinearProgressWidget::slotNextShownItemChanged(WizardProgressItem *item, WizardProgressItem *nextItem)
+{
+    Q_UNUSED(nextItem)
     if (m_visibleItems.contains(item))
         recreateLayout();
 }
@@ -471,6 +481,7 @@ public:
     QList<int> m_pages;
     QList<WizardProgressItem *> m_nextItems;
     QList<WizardProgressItem *> m_prevItems;
+    WizardProgressItem *m_nextShownItem;
 };
 
 bool WizardProgressPrivate::isNextItem(WizardProgressItem *item, WizardProgressItem *nextItem) const
@@ -553,8 +564,8 @@ void WizardProgressPrivate::updateReachableItems()
     }
     if (!item)
         return;
-    while (item->nextItems().count() == 1) {
-        item = item->nextItems().first();
+    while (item->nextShownItem()) {
+        item = item->nextShownItem();
         m_reachableItems.append(item);
     }
 }
@@ -774,6 +785,7 @@ WizardProgressItem::WizardProgressItem(WizardProgress *progress, const QString &
     d_ptr->m_title = title;
     d_ptr->m_titleWordWrap = false;
     d_ptr->m_wizardProgress = progress;
+    d_ptr->m_nextShownItem = 0;
 }
 
 WizardProgressItem::~WizardProgressItem()
@@ -816,6 +828,9 @@ void WizardProgressItem::setNextItems(const QList<WizardProgressItem *> &items)
     if (d->m_nextItems == items) // nothing changes
         return;
 
+    if (!items.contains(d->m_nextShownItem))
+        setNextShownItem(0);
+
     // update prev items (remove this item from the old next items)
     for (int i = 0; i < d->m_nextItems.count(); i++) {
         WizardProgressItem *nextItem = d->m_nextItems.at(i);
@@ -829,9 +844,13 @@ void WizardProgressItem::setNextItems(const QList<WizardProgressItem *> &items)
         WizardProgressItem *nextItem = d->m_nextItems.at(i);
         nextItem->d_ptr->m_prevItems.append(this);
     }
+
     d->m_wizardProgress->d_ptr->updateReachableItems();
 
     emit d->m_wizardProgress->nextItemsChanged(this, items);
+
+    if (items.count() == 1)
+        setNextShownItem(items.first());
 }
 
 QList<WizardProgressItem *> WizardProgressItem::nextItems() const
@@ -839,6 +858,30 @@ QList<WizardProgressItem *> WizardProgressItem::nextItems() const
     Q_D(const WizardProgressItem);
 
     return d->m_nextItems;
+}
+
+void WizardProgressItem::setNextShownItem(WizardProgressItem *item)
+{
+    Q_D(WizardProgressItem);
+
+    if (d->m_nextShownItem == item) // nothing changes
+        return;
+
+    if (item && !d->m_nextItems.contains(item)) // the "item" is not a one of next items
+        return;
+
+    d->m_nextShownItem = item;
+
+    d->m_wizardProgress->d_ptr->updateReachableItems();
+
+    emit d->m_wizardProgress->nextShownItemChanged(this, item);
+}
+
+WizardProgressItem *WizardProgressItem::nextShownItem() const
+{
+    Q_D(const WizardProgressItem);
+
+    return d->m_nextShownItem;
 }
 
 bool WizardProgressItem::isFinalItem() const

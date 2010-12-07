@@ -27,12 +27,6 @@ class AddLibraryWizard : public Utils::Wizard
 {
     Q_OBJECT
 public:
-    enum PageId {
-        LibraryTypePageId,
-        DetailsPageId,
-        SummaryPageId
-    };
-
     enum LibraryKind {
         InternalLibrary,
         ExternalLibrary,
@@ -85,7 +79,6 @@ class LibraryTypePage : public QWizardPage
 public:
     LibraryTypePage(AddLibraryWizard *parent);
     AddLibraryWizard::LibraryKind libraryKind() const;
-    virtual int nextId() const;
 
 private:
     QRadioButton *m_internalRadio;
@@ -100,7 +93,6 @@ class DetailsPage : public QWizardPage
 public:
     DetailsPage(AddLibraryWizard *parent);
     virtual void initializePage();
-    virtual int nextId() const;
     virtual bool isComplete() const;
     QString snippet() const;
 

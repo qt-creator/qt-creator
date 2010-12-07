@@ -49,16 +49,25 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent)
     m_targetsPage = new TargetSetupPage;
     resize(900, 450);
     m_targetsPage->setImportDirectoryBrowsingEnabled(false);
-    addPageWithTitle(m_targetsPage, tr("Qt Versions"));
+    m_targetsPageId = addPageWithTitle(m_targetsPage, tr("Qt Versions"));
     m_genericOptionsPage = new MobileAppWizardGenericOptionsPage;
     m_genericOptionsPageId = addPageWithTitle(m_genericOptionsPage,
-        tr("Generic Mobile Application Options"));
+        tr("Mobile Options"));
     m_symbianOptionsPage = new MobileAppWizardSymbianOptionsPage;
     m_symbianOptionsPageId = addPageWithTitle(m_symbianOptionsPage,
-        tr("Symbian-specific Options"));
+        QLatin1String("    ") + tr("Symbian Specific"));
     m_maemoOptionsPage = new MobileAppWizardMaemoOptionsPage;
     m_maemoOptionsPageId = addPageWithTitle(m_maemoOptionsPage,
-        tr("Maemo-specific Options"));
+        QLatin1String("    ") + tr("Maemo Specific"));
+
+    m_targetItem = wizardProgress()->item(m_targetsPageId);
+    m_genericItem = wizardProgress()->item(m_genericOptionsPageId);
+    m_symbianItem = wizardProgress()->item(m_symbianOptionsPageId);
+    m_maemoItem = wizardProgress()->item(m_maemoOptionsPageId);
+
+    m_targetItem->setNextShownItem(0);
+    m_genericItem->setNextShownItem(0);
+    m_symbianItem->setNextShownItem(0);
 }
 
 int AbstractMobileAppWizardDialog::addPageWithTitle(QWizardPage *page, const QString &title)
@@ -96,9 +105,50 @@ int AbstractMobileAppWizardDialog::nextId() const
     }
 }
 
+void AbstractMobileAppWizardDialog::initializePage(int id)
+{
+    if (id == startId()) {
+        m_targetItem->setNextItems(QList<Utils::WizardProgressItem *>() << m_genericItem << itemOfNextGenericPage());
+        m_genericItem->setNextItems(QList<Utils::WizardProgressItem *>() << m_symbianItem << m_maemoItem);
+        m_symbianItem->setNextItems(QList<Utils::WizardProgressItem *>() << m_maemoItem << itemOfNextGenericPage());
+    } else if (id == m_genericOptionsPageId) {
+        const bool symbianTargetSelected =
+            m_targetsPage->isTargetSelected(QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
+            || m_targetsPage->isTargetSelected(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
+        const bool maemoTargetSelected =
+            m_targetsPage->isTargetSelected(QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID));
+
+        QList<Utils::WizardProgressItem *> order;
+        order << m_genericItem;
+        if (symbianTargetSelected)
+            order << m_symbianItem;
+        if (maemoTargetSelected)
+            order << m_maemoItem;
+        order << itemOfNextGenericPage();
+
+        for (int i = 0; i < order.count() - 1; i++)
+            order.at(i)->setNextShownItem(order.at(i + 1));
+    }
+    BaseProjectWizardDialog::initializePage(id);
+}
+
+void AbstractMobileAppWizardDialog::cleanupPage(int id)
+{
+    if (id == m_genericOptionsPageId) {
+        m_genericItem->setNextShownItem(0);
+        m_symbianItem->setNextShownItem(0);
+    }
+    BaseProjectWizardDialog::cleanupPage(id);
+}
+
 int AbstractMobileAppWizardDialog::idOfNextGenericPage() const
 {
     return pageIds().at(pageIds().indexOf(m_maemoOptionsPageId) + 1);
+}
+
+Utils::WizardProgressItem *AbstractMobileAppWizardDialog::itemOfNextGenericPage() const
+{
+    return wizardProgress()->item(idOfNextGenericPage());
 }
 
 AbstractMobileAppWizard::AbstractMobileAppWizard(const Core::BaseFileWizardParameters &params,

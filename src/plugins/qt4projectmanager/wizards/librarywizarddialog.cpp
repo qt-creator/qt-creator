@@ -152,7 +152,18 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
     setIntroDescription(tr("This wizard generates a C++ library project."));
 
     m_targetPageId = addTargetSetupPage();
+    Utils::WizardProgressItem *targetItem = wizardProgress()->item(m_targetPageId);
+
+    m_mobilePageId = addPage(m_mobilePage);
+    Utils::WizardProgressItem *mobileItem = wizardProgress()->item(m_mobilePageId);
+    mobileItem->setTitle(QLatin1String("    ") + tr("Symbian Specific"));
+
     m_modulesPageId = addModulesPage();
+    Utils::WizardProgressItem *modulesItem = wizardProgress()->item(m_modulesPageId);
+
+    targetItem->setNextItems(QList<Utils::WizardProgressItem *>()
+                             << mobileItem << modulesItem);
+    targetItem->setNextShownItem(0);
 
     m_filesPage->setNamespacesEnabled(true);
     m_filesPage->setFormFileInputVisible(false);
@@ -160,9 +171,6 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
 
     m_filesPageId = addPage(m_filesPage);
     wizardProgress()->item(m_filesPageId)->setTitle(tr("Details"));
-
-    m_mobilePageId = addPage(m_mobilePage);
-    wizardProgress()->item(m_mobilePageId)->setTitle(tr("Symbian Specific"));
 
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 

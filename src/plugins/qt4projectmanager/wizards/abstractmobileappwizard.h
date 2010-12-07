@@ -55,15 +55,23 @@ public:
 
 protected:
     int addPageWithTitle(QWizardPage *page, const QString &title);
+    virtual void initializePage(int id);
+    virtual void cleanupPage(int id);
 
 private:
     virtual int nextId() const;
 
     int idOfNextGenericPage() const;
+    Utils::WizardProgressItem *itemOfNextGenericPage() const;
 
     int m_genericOptionsPageId;
     int m_symbianOptionsPageId;
     int m_maemoOptionsPageId;
+    int m_targetsPageId;
+    Utils::WizardProgressItem *m_targetItem;
+    Utils::WizardProgressItem *m_genericItem;
+    Utils::WizardProgressItem *m_symbianItem;
+    Utils::WizardProgressItem *m_maemoItem;
 };
 
 class AbstractMobileAppWizard : public Core::BaseFileWizard

@@ -112,6 +112,7 @@ Q_SIGNALS:
     void itemAdded(WizardProgressItem *item);
     void itemRemoved(WizardProgressItem *item);
     void nextItemsChanged(WizardProgressItem *item, const QList<WizardProgressItem *> &items);
+    void nextShownItemChanged(WizardProgressItem *item, WizardProgressItem *nextShownItem);
     void startItemChanged(WizardProgressItem *item);
 
 private:
@@ -138,6 +139,8 @@ public:
     QList<int> pages() const;
     void setNextItems(const QList<WizardProgressItem *> &items);
     QList<WizardProgressItem *> nextItems() const;
+    void setNextShownItem(WizardProgressItem *item);
+    WizardProgressItem *nextShownItem() const;
     bool isFinalItem() const; // return nextItems().isEmpty();
 
     void setTitle(const QString &title);
