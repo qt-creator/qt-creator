@@ -79,15 +79,15 @@ static inline QString msgAppNotFound(const QString &id)
 static const char * const linguistBinaryC = "Linguist";
 static const char * const designerBinaryC = "Designer";
 
-// Mac: Change the call 'Foo.app/Contents/MacOS/Foo <file>' to
-// 'open Foo.app <file>'. Do this ONLY if you do not want to have
-// command line arguments
+// Mac: Change the call 'Foo.app/Contents/MacOS/Foo <filelist>' to
+// 'open -a Foo.app <filelist>'. doesn't support generic command line arguments
 static void createMacOpenCommand(QString *binary, QStringList *arguments)
 {
     const int appFolderIndex = binary->lastIndexOf(QLatin1String("/Contents/MacOS/"));
     if (appFolderIndex != -1) {
         binary->truncate(appFolderIndex);
         arguments->push_front(*binary);
+        arguments->push_front(QLatin1String("-a"));
         *binary = QLatin1String("open");
     }
 }
