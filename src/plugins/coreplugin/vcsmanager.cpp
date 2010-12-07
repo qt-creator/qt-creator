@@ -86,6 +86,11 @@ void VCSManager::extensionsInitialized()
     }
 }
 
+static bool longerThanPath(QPair<QString, IVersionControl *> &pair1, QPair<QString, IVersionControl *> &pair2)
+{
+    return pair1.first.size() > pair2.first.size();
+}
+
 IVersionControl* VCSManager::findVersionControlForDirectory(const QString &directory,
                                                             QString *topLevelDirectory)
 {
@@ -143,17 +148,33 @@ IVersionControl* VCSManager::findVersionControlForDirectory(const QString &direc
 
     // Nothing: ask the IVersionControls directly, insert the toplevel into the cache.
     const VersionControlList versionControls = allVersionControls();
+    QList<QPair<QString, IVersionControl *> > allThatCanManage;
+
     foreach (IVersionControl * versionControl, versionControls) {
         QString topLevel;
         if (versionControl->managesDirectory(directory, &topLevel)) {
-            m_d->m_cachedMatches.insert(topLevel, versionControl);
-            if (topLevelDirectory)
-                *topLevelDirectory = topLevel;
             if (debug)
-                qDebug("<findVersionControlForDirectory: invocation of '%s' matches: %s",
-                       qPrintable(versionControl->displayName()), qPrintable(topLevel));
-            return versionControl;
+                qDebug("<findVersionControlForDirectory: %s manages %s",
+                       qPrintable(versionControl->displayName()),
+                       qPrintable(topLevel));
+            allThatCanManage.push_back(qMakePair(topLevel, versionControl));
         }
+    }
+
+    // To properly find a nested repository (say, git checkout inside SVN),
+    // we need to select the version control with the longest toplevel pathname.
+    qSort(allThatCanManage.begin(), allThatCanManage.end(), longerThanPath);
+
+    if (!allThatCanManage.isEmpty()) {
+        QString toplevel = allThatCanManage.first().first;
+        IVersionControl *versionControl = allThatCanManage.first().second;
+        m_d->m_cachedMatches.insert(toplevel, versionControl);
+        if (topLevelDirectory)
+            *topLevelDirectory = toplevel;
+        if (debug)
+            qDebug("<findVersionControlForDirectory: invocation of '%s' matches: %s",
+                   qPrintable(versionControl->displayName()), qPrintable(toplevel));
+        return versionControl;
     }
     if (debug)
         qDebug("<findVersionControlForDirectory: No match for %s", qPrintable(directory));
