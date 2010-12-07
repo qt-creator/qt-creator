@@ -36,6 +36,8 @@
 #include <qmljs/parser/qmljsastvisitor_p.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QSet>
+#include <QtCore/QStack>
 #include <QtGui/QColor>
 
 namespace QmlJS {
@@ -44,11 +46,17 @@ class QMLJS_EXPORT Check: protected AST::Visitor
 {
     Q_DECLARE_TR_FUNCTIONS(QmlJS::Check)
 
+    typedef QSet<QString> StringSet;
+
 public:
     Check(Document::Ptr doc, const Snapshot &snapshot, const Interpreter::Context *linkedContextNoScope);
     virtual ~Check();
 
     QList<DiagnosticMessage> operator()();
+
+
+    void setIgnoreTypeErrors(bool ignore)
+    { _ignoreTypeErrors = ignore; }
 
     enum Option {
         WarnDangerousNonStrictEqualityChecks = 1 << 0,
@@ -79,6 +87,7 @@ protected:
     virtual bool visit(AST::FieldMemberExpression *ast);
     virtual bool visit(AST::FunctionDeclaration *ast);
     virtual bool visit(AST::FunctionExpression *ast);
+    virtual bool visit(AST::UiObjectInitializer *);
 
     virtual bool visit(AST::BinaryExpression *ast);
     virtual bool visit(AST::Block *ast);
@@ -94,12 +103,15 @@ protected:
     virtual bool visit(AST::CaseClause *ast);
     virtual bool visit(AST::DefaultClause *ast);
 
+    virtual void endVisit(QmlJS::AST::UiObjectInitializer *);
+
 private:
     void visitQmlObject(AST::Node *ast, AST::UiQualifiedId *typeId,
                         AST::UiObjectInitializer *initializer);
     const Interpreter::Value *checkScopeObjectMember(const AST::UiQualifiedId *id);
     void checkAssignInCondition(AST::ExpressionNode *condition);
     void checkEndsWithControlFlow(AST::StatementList *statements, AST::SourceLocation errorLoc);
+    void checkProperty(QmlJS::AST::UiQualifiedId *);
 
     void warning(const AST::SourceLocation &loc, const QString &message);
     void error(const AST::SourceLocation &loc, const QString &message);
@@ -119,12 +131,17 @@ private:
 
     const Interpreter::Value *_lastValue;
     QList<AST::Node *> _chain;
+    QSet<QString> m_ids;
+    QStack<StringSet> m_propertyStack;
 };
 
 QMLJS_EXPORT QColor toQColor(const QString &qmlColorString);
 
 QMLJS_EXPORT AST::SourceLocation locationFromRange(const AST::SourceLocation &start,
                                                    const AST::SourceLocation &end);
+
+QMLJS_EXPORT AST::SourceLocation fullLocationForQualifiedId(AST::UiQualifiedId *);
+
 QMLJS_EXPORT DiagnosticMessage errorMessage(const AST::SourceLocation &loc,
                                             const QString &message);
 

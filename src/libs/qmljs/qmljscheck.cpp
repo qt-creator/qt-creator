@@ -72,6 +72,20 @@ SourceLocation QmlJS::locationFromRange(const SourceLocation &start,
                           start.startColumn);
 }
 
+SourceLocation QmlJS::fullLocationForQualifiedId(AST::UiQualifiedId *qualifiedId)
+{
+    SourceLocation start = qualifiedId->identifierToken;
+    SourceLocation end = qualifiedId->identifierToken;
+
+    for (UiQualifiedId *iter = qualifiedId; iter; iter = iter->next) {
+        if (iter->name)
+            end = iter->identifierToken;
+    }
+
+    return locationFromRange(start, end);
+}
+
+
 DiagnosticMessage QmlJS::errorMessage(const AST::SourceLocation &loc, const QString &message)
 {
     return DiagnosticMessage(DiagnosticMessage::Error, loc, message);
@@ -387,6 +401,29 @@ bool Check::visit(UiProgram *)
     return true;
 }
 
+bool Check::visit(UiObjectInitializer *)
+{
+     m_propertyStack.push(StringSet());
+     return true;
+}
+
+void Check::endVisit(UiObjectInitializer *)
+{
+    m_propertyStack.pop();
+}
+
+void Check::checkProperty(UiQualifiedId *qualifiedId)
+{
+    const QString id = Bind::toString(qualifiedId);
+    if (id.at(0).isLower()) {
+        if (m_propertyStack.top().contains(id)) {
+            error(fullLocationForQualifiedId(qualifiedId),
+                  Check::tr("properties can only be assigned once"));
+        }
+        m_propertyStack.top().insert(id);
+    }
+}
+
 bool Check::visit(UiObjectDefinition *ast)
 {
     visitQmlObject(ast, ast->qualifiedTypeNameId, ast->initializer);
@@ -396,6 +433,7 @@ bool Check::visit(UiObjectDefinition *ast)
 bool Check::visit(UiObjectBinding *ast)
 {
     checkScopeObjectMember(ast->qualifiedId);
+    checkProperty(ast->qualifiedId);
 
     visitQmlObject(ast, ast->qualifiedTypeNameId, ast->initializer);
     return false;
@@ -457,11 +495,19 @@ bool Check::visit(UiScriptBinding *ast)
             return false;
         }
 
-        if (id.isEmpty() || ! id[0].isLower()) {
-            error(loc, Check::tr("ids must be lower case"));
+        if (id.isEmpty() || (!id[0].isLower() && id[0] != '_')) {
+            error(loc, Check::tr("ids must be lower case or start with underscore"));
             return false;
         }
+
+        if (m_ids.contains(id)) {
+            error(loc, Check::tr("ids must be unique"));
+            return false;
+        }
+        m_ids.insert(id);
     }
+
+    checkProperty(ast->qualifiedId);
 
     const Value *lhsValue = checkScopeObjectMember(ast->qualifiedId);
     if (lhsValue) {
@@ -493,6 +539,7 @@ bool Check::visit(UiScriptBinding *ast)
 bool Check::visit(UiArrayBinding *ast)
 {
     checkScopeObjectMember(ast->qualifiedId);
+    checkProperty(ast->qualifiedId);
 
     return true;
 }
