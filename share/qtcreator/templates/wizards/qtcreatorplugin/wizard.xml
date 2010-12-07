@@ -43,10 +43,11 @@ leave room for the Qt 4 target page.
     <displaycategory>Other Project</displaycategory>
     <files>
         <file source="myplugin.pro" target="%PluginName:l%.pro" openproject="true"/>
-        <file source="MyPlugin.pluginspec" target="%PluginName%.pluginspec" openeditor="true"/>
-        <file source="myplugin.h" target="%PluginName:l%.%CppHeaderSuffix%" openeditor="true"/>
-        <file source="myplugin.cpp" target="%PluginName:l%.%CppSourceSuffix%" openeditor="true"/>
+        <file source="MyPlugin.pluginspec.in" target="%PluginName%.pluginspec.in" openeditor="true"/>
         <file source="myplugin_global.h" target="%PluginName:l%_global.%CppHeaderSuffix%" openeditor="true"/>
+        <file source="mypluginconstants.h" target="%PluginName:l%constants.%CppHeaderSuffix%" openeditor="true"/>
+        <file source="myplugin.h" target="%PluginName:l%plugin.%CppHeaderSuffix%" openeditor="true"/>
+        <file source="myplugin.cpp" target="%PluginName:l%plugin.%CppSourceSuffix%" openeditor="true"/>
     </files>
     <!-- Create a 2nd wizard page with parameters -->
     <fieldpagetitle>Plugin Information</fieldpagetitle>

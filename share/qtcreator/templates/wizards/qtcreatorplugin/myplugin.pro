@@ -5,10 +5,11 @@ DEFINES += %PluginName:u%_LIBRARY
 
 # %PluginName% files
 
-SOURCES += %PluginName:l%.cpp
+SOURCES += %PluginName:l%plugin.cpp
 
-HEADERS += %PluginName:l%.h\
-        %PluginName:l%_global.h
+HEADERS += %PluginName:l%plugin.h\
+        %PluginName:l%_global.h\
+        %PluginName:l%constants.h
 
 OTHER_FILES = %PluginName%.pluginspec
 

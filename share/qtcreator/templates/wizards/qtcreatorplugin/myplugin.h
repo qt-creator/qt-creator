@@ -8,13 +8,13 @@
 namespace %PluginName% {
 namespace Internal {
 
-class %PluginName%Impl : public ExtensionSystem::IPlugin
+class %PluginName%Plugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
 
 public:
-    %PluginName%Impl();
-    ~%PluginName%Impl();
+    %PluginName%Plugin();
+    ~%PluginName%Plugin();
 
     bool initialize(const QStringList &arguments, QString *errorString);
     void extensionsInitialized();
