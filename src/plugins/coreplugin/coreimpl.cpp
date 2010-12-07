@@ -129,7 +129,7 @@ VariableManager *CoreImpl::variableManager() const
     return m_mainwindow->variableManager();
 }
 
-VCSManager *CoreImpl::vcsManager() const
+VcsManager *CoreImpl::vcsManager() const
 {
     return m_mainwindow->vcsManager();
 }

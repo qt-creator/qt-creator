@@ -64,7 +64,7 @@ public:
     ProgressManager *progressManager() const;
     ScriptManager *scriptManager() const;
     VariableManager *variableManager() const;
-    VCSManager *vcsManager() const;
+    VcsManager *vcsManager() const;
     ModeManager *modeManager() const;
     MimeDatabase *mimeDatabase() const;
     HelpManager *helpManager() const;

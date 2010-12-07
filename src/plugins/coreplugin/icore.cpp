@@ -160,7 +160,7 @@
 */
 
 /*!
-    \fn VCSManager *ICore::vcsManager() const
+    \fn VcsManager *ICore::vcsManager() const
     \brief Returns the application's vcs manager.
 
     The vcs manager can be used to e.g. retrieve information about

@@ -131,7 +131,7 @@ MainWindow::MainWindow() :
     m_progressManager(new ProgressManagerPrivate()),
     m_scriptManager(new ScriptManagerPrivate(this)),
     m_variableManager(new VariableManager),
-    m_vcsManager(new VCSManager),
+    m_vcsManager(new VcsManager),
     m_statusBarManager(0),
     m_modeManager(0),
     m_mimeDatabase(new MimeDatabase),
@@ -1000,7 +1000,7 @@ MessageManager *MainWindow::messageManager() const
     return m_messageManager;
 }
 
-VCSManager *MainWindow::vcsManager() const
+VcsManager *MainWindow::vcsManager() const
 {
     return m_vcsManager;
 }

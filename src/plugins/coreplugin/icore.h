@@ -59,7 +59,7 @@ class ScriptManager;
 class SettingsDatabase;
 class UniqueIDManager;
 class VariableManager;
-class VCSManager;
+class VcsManager;
 
 class CORE_EXPORT ICore : public QObject
 {
@@ -93,7 +93,7 @@ public:
     virtual ProgressManager *progressManager() const = 0;
     virtual ScriptManager *scriptManager() const = 0;
     virtual VariableManager *variableManager() const = 0;
-    virtual VCSManager *vcsManager() const = 0;
+    virtual VcsManager *vcsManager() const = 0;
     virtual ModeManager *modeManager() const = 0;
     virtual MimeDatabase *mimeDatabase() const = 0;
     virtual HelpManager *helpManager() const = 0;

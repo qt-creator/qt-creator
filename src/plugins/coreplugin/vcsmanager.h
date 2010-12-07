@@ -41,12 +41,12 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-struct VCSManagerPrivate;
+class VcsManagerPrivate;
 class IVersionControl;
 
-/* VCSManager:
+/* VcsManager:
  * 1) Provides functionality for finding the IVersionControl * for a given
- *    filename (findVersionControlForDirectory). Note that the VCSManager assumes
+ *    filename (findVersionControlForDirectory). Note that the VcsManager assumes
  *    that if a IVersionControl * manages a directory, then it also manages
  *    all the files and all the subdirectories.
  *    It works by asking all IVersionControl * if they manage the file, and ask
@@ -56,13 +56,12 @@ class IVersionControl;
  *    branching repositories and routes them to its signals (repositoryChanged,
  *    filesChanged). */
 
-class CORE_EXPORT VCSManager : public QObject
+class CORE_EXPORT VcsManager : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(VCSManager)
 public:
-    explicit VCSManager(QObject *parent = 0);
-    virtual ~VCSManager();
+    explicit VcsManager(QObject *parent = 0);
+    virtual ~VcsManager();
 
     void extensionsInitialized();
 
@@ -82,16 +81,16 @@ public:
     bool promptToDelete(const QString &fileName);
     bool promptToDelete(IVersionControl *versionControl, const QString &fileName);
 
-    friend CORE_EXPORT QDebug operator<<(QDebug in, const VCSManager &);
+    friend CORE_EXPORT QDebug operator<<(QDebug in, const VcsManager &);
 
 signals:
     void repositoryChanged(const QString &repository);
 
 private:
-    VCSManagerPrivate *m_d;
+    VcsManagerPrivate *m_d;
 };
 
-CORE_EXPORT QDebug operator<<(QDebug in, const VCSManager &);
+CORE_EXPORT QDebug operator<<(QDebug in, const VcsManager &);
 
 } // namespace Core
 

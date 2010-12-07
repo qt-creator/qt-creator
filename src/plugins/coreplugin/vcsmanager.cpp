@@ -59,22 +59,24 @@ static inline VersionControlList allVersionControls()
 // ---- VCSManagerPrivate:
 // Maintains a cache of top-level directory->version control.
 
-struct VCSManagerPrivate {
+class VcsManagerPrivate
+{
+public:
     VersionControlCache m_cachedMatches;
 };
 
-VCSManager::VCSManager(QObject *parent) :
+VcsManager::VcsManager(QObject *parent) :
    QObject(parent),
-   m_d(new VCSManagerPrivate)
+   m_d(new VcsManagerPrivate)
 {
 }
 
-VCSManager::~VCSManager()
+VcsManager::~VcsManager()
 {
     delete m_d;
 }
 
-void VCSManager::extensionsInitialized()
+void VcsManager::extensionsInitialized()
 {
     // Change signal connections
     FileManager *fileManager = ICore::instance()->fileManager();
@@ -91,7 +93,7 @@ static bool longerThanPath(QPair<QString, IVersionControl *> &pair1, QPair<QStri
     return pair1.first.size() > pair2.first.size();
 }
 
-IVersionControl* VCSManager::findVersionControlForDirectory(const QString &directory,
+IVersionControl* VcsManager::findVersionControlForDirectory(const QString &directory,
                                                             QString *topLevelDirectory)
 {
     typedef VersionControlCache::const_iterator VersionControlCacheConstIterator;
@@ -181,14 +183,14 @@ IVersionControl* VCSManager::findVersionControlForDirectory(const QString &direc
     return 0;
 }
 
-bool VCSManager::promptToDelete(const QString &fileName)
+bool VcsManager::promptToDelete(const QString &fileName)
 {
     if (IVersionControl *vc = findVersionControlForDirectory(QFileInfo(fileName).absolutePath()))
         return promptToDelete(vc, fileName);
     return true;
 }
 
-IVersionControl *VCSManager::checkout(const QString &versionControlType,
+IVersionControl *VcsManager::checkout(const QString &versionControlType,
                                       const QString &directory,
                                       const QByteArray &url)
 {
@@ -205,7 +207,7 @@ IVersionControl *VCSManager::checkout(const QString &versionControlType,
     return 0;
 }
 
-bool VCSManager::findVersionControl(const QString &versionControlType)
+bool VcsManager::findVersionControl(const QString &versionControlType)
 {
     foreach (IVersionControl * versionControl, allVersionControls()) {
         if (versionControl->displayName() == versionControlType)
@@ -214,7 +216,7 @@ bool VCSManager::findVersionControl(const QString &versionControlType)
     return false;
 }
 
-QString VCSManager::repositoryUrl(const QString &directory)
+QString VcsManager::repositoryUrl(const QString &directory)
 {
     IVersionControl *vc = findVersionControlForDirectory(directory);
 
@@ -223,15 +225,14 @@ QString VCSManager::repositoryUrl(const QString &directory)
     return QString();
 }
 
-bool VCSManager::promptToDelete(IVersionControl *vc, const QString &fileName)
+bool VcsManager::promptToDelete(IVersionControl *vc, const QString &fileName)
 {
     QTC_ASSERT(vc, return true)
     if (!vc->supportsOperation(IVersionControl::DeleteOperation))
         return true;
-    const QString title = QCoreApplication::translate("VCSManager", "Version Control");
-    const QString msg = QCoreApplication::translate("VCSManager",
-                                                    "Would you like to remove this file from the version control system (%1)?\n"
-                                                    "Note: This might remove the local file.").arg(vc->displayName());
+    const QString title = tr("Version Control");
+    const QString msg = tr("Would you like to remove this file from the version control system (%1)?\n"
+                           "Note: This might remove the local file.").arg(vc->displayName());
     const QMessageBox::StandardButton button =
         QMessageBox::question(0, title, msg, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
     if (button != QMessageBox::Yes)
@@ -239,7 +240,7 @@ bool VCSManager::promptToDelete(IVersionControl *vc, const QString &fileName)
     return vc->vcsDelete(fileName);
 }
 
-CORE_EXPORT QDebug operator<<(QDebug in, const VCSManager &v)
+CORE_EXPORT QDebug operator<<(QDebug in, const VcsManager &v)
 {
     QDebug nospace = in.nospace();
     const VersionControlCache::const_iterator cend = v.m_d->m_cachedMatches.constEnd();

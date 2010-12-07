@@ -66,7 +66,7 @@ public:
      * Returns whether files in this directory should be managed with this
      * version control.
      * If \a topLevel is non-null, it should return the topmost directory,
-     * for which this IVersionControl should be used. The VCSManager assumes
+     * for which this IVersionControl should be used. The VcsManager assumes
      * that all files in the returned directory are managed by the same IVersionControl.
      */
 

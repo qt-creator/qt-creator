@@ -62,7 +62,7 @@ class ScriptManager;
 class SettingsDatabase;
 class UniqueIDManager;
 class VariableManager;
-class VCSManager;
+class VcsManager;
 
 namespace Internal {
 
@@ -107,7 +107,7 @@ public:
     Core::MimeDatabase *mimeDatabase() const;
     Core::HelpManager *helpManager() const;
 
-    VCSManager *vcsManager() const;
+    VcsManager *vcsManager() const;
     QSettings *settings(QSettings::Scope scope) const;
     inline SettingsDatabase *settingsDatabase() const { return m_settingsDatabase; }
     virtual QPrinter *printer() const;
@@ -186,7 +186,7 @@ private:
     ProgressManagerPrivate *m_progressManager;
     ScriptManager *m_scriptManager;
     QScopedPointer<VariableManager> m_variableManager;
-    VCSManager *m_vcsManager;
+    VcsManager *m_vcsManager;
     StatusBarManager *m_statusBarManager;
     ModeManager *m_modeManager;
     MimeDatabase *m_mimeDatabase;

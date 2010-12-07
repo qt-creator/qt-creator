@@ -102,7 +102,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 
     // Objects
     m_modelManager = new CppModelManager(this);
-    Core::VCSManager *vcsManager = core->vcsManager();
+    Core::VcsManager *vcsManager = core->vcsManager();
     Core::FileManager *fileManager = core->fileManager();
     connect(vcsManager, SIGNAL(repositoryChanged(QString)),
             m_modelManager, SLOT(updateModifiedSourceFiles()));

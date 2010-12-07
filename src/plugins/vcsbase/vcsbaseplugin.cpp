@@ -202,7 +202,7 @@ void StateListener::slotStateChanged()
 {
     const ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
     const Core::ICore *core = Core::ICore::instance();
-    Core::VCSManager *vcsManager = core->vcsManager();
+    Core::VcsManager *vcsManager = core->vcsManager();
 
     // Get the current file. Are we on a temporary submit editor indicated by
     // temporary path prefix or does the file contains a hash, indicating a project
