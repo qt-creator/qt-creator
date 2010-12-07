@@ -834,7 +834,7 @@ QDebug operator<<(QDebug debug, const ModelNode &modelNode)
 {
     if (modelNode.isValid()) {
         debug.nospace() << "ModelNode("
-                << modelNode.internalNode().data() << ", "
+                << modelNode.internalId() << ", "
                 << modelNode.type() << ", "
                 << modelNode.id() << ')';
     } else {
