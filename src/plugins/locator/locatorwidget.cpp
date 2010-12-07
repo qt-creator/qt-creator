@@ -332,7 +332,7 @@ void LocatorWidget::updateFilterList()
     foreach (ILocatorFilter *filter, m_locatorPlugin->filters()) {
         if (filter->shortcutString().isEmpty() || filter->isHidden())
             continue;
-        QString locatorId=QLatin1String("Locator.") + filter->id();
+        QString locatorId = QLatin1String("Locator.") + filter->id();
         QAction *action = 0;
         Core::Command *cmd = 0;
         if (!actionCopy.contains(filter->id())) {
