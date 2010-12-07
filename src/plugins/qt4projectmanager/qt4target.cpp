@@ -273,6 +273,9 @@ Qt4Target::Qt4Target(Qt4Project *parent, const QString &id) :
             this, SLOT(onAddedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
     connect(this, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
             this, SLOT(updateToolTipAndIcon()));
+
+    setDefaultDisplayName(displayNameForId(id));
+    setIcon(iconForId(id));
 }
 
 Qt4Target::~Qt4Target()
