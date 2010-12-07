@@ -73,9 +73,16 @@ void CppQtStyleIndenter::indentBlock(QTextDocument *doc,
     int padding;
     codeFormatter.indentFor(block, &indent, &padding);
 
-    // only reindent the current line when typing electric characters if the
-    // indent is the same it would be if the line were empty
     if (isElectricCharacter(typedChar)) {
+        // : is only electric if the line has a 'case' or 'default'
+        if (typedChar == QLatin1Char(':')
+                && !(block.text().contains(QLatin1String("case"))
+                     || block.text().contains(QLatin1String("default")))) {
+            return;
+        }
+
+        // only reindent the current line when typing electric characters if the
+        // indent is the same it would be if the line were empty
         int newlineIndent;
         int newlinePadding;
         codeFormatter.indentForNewLineAfter(block.previous(), &newlineIndent, &newlinePadding);
