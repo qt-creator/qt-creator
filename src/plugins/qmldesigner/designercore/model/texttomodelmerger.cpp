@@ -45,6 +45,7 @@
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/qmljscheck.h>
 
 #include <QtCore/QSet>
 #include <QtGui/QMessageBox>
@@ -584,11 +585,23 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             setActive(false);
             return false;
         }
-
         snapshot.insert(doc);
         ReadingContext ctxt(snapshot, doc, importPaths);
         m_lookupContext = ctxt.lookupContext();
         m_document = doc;
+
+        QList<RewriterView::Error> errors;
+        Check check(doc, snapshot, m_lookupContext->context());
+        check.setIgnoreTypeErrors(true);
+        foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, check())
+            if (diagnosticMessage.isError())
+            errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
+
+        if (!errors.isEmpty()) {
+            m_rewriterView->setErrors(errors);
+            setActive(false);
+            return false;
+        }
 
         setupImports(doc, differenceHandler);
 
