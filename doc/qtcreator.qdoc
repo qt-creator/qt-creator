@@ -4295,8 +4295,9 @@
 
     \list 1
 
-        \o On the \gui Welcome page, select \gui {Choose an Example... >
-        Animation Framework > Animated Tiles}.
+        \o On the \gui Welcome page, select \gui {Choose an Example...}
+        in the \gui {Explore Qt Quick Examples} field, and then select
+        \gui {Toys > Clocks}.
 
         \image qtcreator-gs-build-example-open.png "Selecting an example"
 
@@ -4326,18 +4327,18 @@
         \image {qt-simulator.png} "Qt Simulator"
 
         \o Change the settings in the
-        \gui View pane, for example, to toggle the orientation by clicking
-        \gui {Rotate Device}, or choose from the various Symbian and Maemo
-        configurations by clicking \gui {Device}. You can also simulate various
+        \gui View pane. For example, rotate the device by clicking the
+        \gui {Orientation} buttons or choose from the various Symbian and Maemo
+        configurations in the \gui {Device} field. You can also simulate various
         mobile functions and create your own scripts.
 
-        \o To test the application on a Symbian device install Qt libraries
+        \o To test the application on a Symbian device, install Qt libraries
         and the TRK debugging application on the device. For more information,
         see \l{Setting Up Development Environment for Symbian}.
 
         \o Click the \gui {Target Selector} and select \gui {Symbian Device}.
 
-        \o Click \gui Run to build the application for the Symbian device.
+        \o Click \gui Run to build the application and run it on the Symbian device.
 
     \endlist
 
