@@ -76,6 +76,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     addAutoReleasedObject(new Internal::QmlProjectRunConfigurationFactory);
     addAutoReleasedObject(new Internal::QmlRunControlFactory);
     addAutoReleasedObject(new QmlProjectApplicationWizard);
+    addAutoReleasedObject(new QmlProjectTargetFactory);
 
     QmlProjectFileFormat::registerDeclarativeTypes();
 
