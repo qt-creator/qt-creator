@@ -71,8 +71,10 @@ public:
     IVersionControl *checkout(const QString &versionControlType,
                               const QString &directory,
                               const QByteArray &url);
+    // Used only by Trac plugin.
     bool findVersionControl(const QString &versionControl);
-    QString getRepositoryURL(const QString &directory);
+    // Used only by Trac plugin.
+    QString repositoryUrl(const QString &directory);
 
     // Shows a confirmation dialog, whether the file should also be deleted
     // from revision control Calls sccDelete on the file. Returns false

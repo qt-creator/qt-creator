@@ -214,7 +214,7 @@ bool VCSManager::findVersionControl(const QString &versionControlType)
     return false;
 }
 
-QString VCSManager::getRepositoryURL(const QString &directory)
+QString VCSManager::repositoryUrl(const QString &directory)
 {
     IVersionControl *vc = findVersionControlForDirectory(directory);
 
