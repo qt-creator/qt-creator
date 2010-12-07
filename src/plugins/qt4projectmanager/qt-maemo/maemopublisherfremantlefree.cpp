@@ -28,6 +28,8 @@
 **************************************************************************/
 #include "maemopublisherfremantlefree.h"
 
+#include "maemodeployablelistmodel.h"
+#include "maemodeploystep.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemopublishingfileselectiondialog.h"
@@ -35,6 +37,7 @@
 
 #include <coreplugin/ifile.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
 #include <qt4projectmanager/qmakestep.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 
@@ -125,8 +128,14 @@ void MaemoPublisherFremantleFree::createPackage()
         return;
     }
 
-    emit progressReport(tr("Cleaning up temporary directory ..."));
     QString error;
+    if (!updateDesktopFiles(&error)) {
+        finishWithFailure(error,
+            tr("Publishing failed: Could not create package."));
+        return;
+    }
+
+    emit progressReport(tr("Cleaning up temporary directory ..."));
     if (!MaemoPackageCreationStep::preparePackagingProcess(m_process,
             m_buildConfig, m_tmpProjectDir, &error)) {
         finishWithFailure(tr("Error preparing packaging process: %1").arg(error),
@@ -472,6 +481,67 @@ void MaemoPublisherFremantleFree::finishWithFailure(const QString &progressMsg,
         emit progressReport(progressMsg, ErrorOutput);
     m_resultString = resultMsg;
     setState(Inactive);
+}
+
+bool MaemoPublisherFremantleFree::updateDesktopFiles(QString *error) const
+{
+    bool success = true;
+    MaemoDeployStep * const deployStep
+        = MaemoGlobal::buildStep<MaemoDeployStep>(m_buildConfig->target()
+              ->activeDeployConfiguration());
+    for (int i = 0; i < deployStep->deployables()->modelCount(); ++i) {
+        const MaemoDeployableListModel * const model
+            = deployStep->deployables()->modelAt(i);
+        QString desktopFilePath = model->localDesktopFilePath();
+        if (desktopFilePath.isEmpty())
+            continue;
+        desktopFilePath.replace(model->projectDir(), m_tmpProjectDir);
+        QFile desktopFile(desktopFilePath);
+        const QString executableFilePath = model->remoteExecutableFilePath();
+        if (executableFilePath.isEmpty()) {
+            qDebug("%s: Skipping subproject %s with missing deployment information.",
+                Q_FUNC_INFO, qPrintable(model->proFilePath()));
+            continue;
+        }
+        if (!desktopFile.exists() || !desktopFile.open(QIODevice::ReadWrite)) {
+            success = false;
+            if (error) {
+                *error = tr("Failed to adapt desktop file '%1'.")
+                    .arg(desktopFilePath);
+            }
+            continue;
+        }
+        QByteArray desktopFileContents = desktopFile.readAll();
+        bool fileNeedsUpdate = addOrReplaceDesktopFileValue(desktopFileContents,
+            "Exec", executableFilePath.toUtf8());
+        if (fileNeedsUpdate) {
+            desktopFile.resize(0);
+            desktopFile.write(desktopFileContents);
+        }
+    }
+    return success;
+}
+
+bool MaemoPublisherFremantleFree::addOrReplaceDesktopFileValue(QByteArray &fileContent,
+    const QByteArray &key, const QByteArray &newValue) const
+{
+    const int keyPos = fileContent.indexOf(key + '=');
+    if (keyPos == -1) {
+        if (!fileContent.endsWith('\n'))
+            fileContent += '\n';
+        fileContent += key + '=' + newValue + '\n';
+        return true;
+    }
+    int nextNewlinePos = fileContent.indexOf('\n', keyPos);
+    if (nextNewlinePos == -1)
+        nextNewlinePos = fileContent.count();
+    const int replacePos = keyPos + key.count() + 1;
+    const int replaceCount = nextNewlinePos - replacePos;
+    const QByteArray &oldValue = fileContent.mid(replacePos, replaceCount);
+    if (oldValue == newValue)
+        return false;
+    fileContent.replace(replacePos, replaceCount, newValue);
+    return true;
 }
 
 void MaemoPublisherFremantleFree::setState(State newState)

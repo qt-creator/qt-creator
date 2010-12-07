@@ -70,7 +70,8 @@ public:
     QString applicationName() const { return m_targetInfo.target; }
     bool hasTargetPath() const { return m_hasTargetPath; }
     bool canAddDesktopFile() const { return isApplicationProject() && !hasDesktopFile(); }
-    bool hasDesktopFile() const;
+    QString localDesktopFilePath() const;
+    bool hasDesktopFile() const { return !localDesktopFilePath().isEmpty(); }
     bool addDesktopFile(QString &error);
     bool canAddIcon() const { return isApplicationProject() && remoteIconFilePath().isEmpty(); }
     bool addIcon(const QString &fileName, QString &error);

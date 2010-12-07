@@ -209,15 +209,15 @@ bool MaemoDeployableListModel::isEditable(const QModelIndex &index) const
         && m_deployables.first().remoteDir.isEmpty();
 }
 
-bool MaemoDeployableListModel::hasDesktopFile() const
+QString MaemoDeployableListModel::localDesktopFilePath() const
 {
     if (m_projectType == LibraryTemplate)
-        return false;
+        return QString();
     foreach (const MaemoDeployable &d, m_deployables) {
         if (QFileInfo(d.localFilePath).fileName() == m_projectName + QLatin1String(".desktop"))
-            return true;
+            return d.localFilePath;
     }
-    return false;
+    return QString();
 }
 
 bool MaemoDeployableListModel::addDesktopFile(QString &error)
