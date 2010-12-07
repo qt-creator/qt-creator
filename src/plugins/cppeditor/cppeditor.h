@@ -237,7 +237,7 @@ private:
 
     void markSymbols(const QTextCursor &tc, const SemanticInfo &info);
     bool sortedOutline() const;
-    CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot);
+    CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot) const;
 
     TextEditor::ITextEditor *openCppEditorAt(const QString &fileName, int line,
                                              int column = 0);
@@ -254,6 +254,9 @@ private:
     void finishRename();
     void abortRename();
 
+    Link attemptFuncDeclDef(const QTextCursor &cursor,
+                            const CPlusPlus::Document::Ptr &doc,
+                            CPlusPlus::Snapshot snapshot) const;
     Link findLinkAt(const QTextCursor &, bool resolveTarget = true);
     bool openCppEditorAt(const Link &);
 

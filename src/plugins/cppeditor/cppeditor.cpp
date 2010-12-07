@@ -49,6 +49,7 @@
 #include <ASTVisitor.h>
 #include <SymbolVisitor.h>
 #include <TranslationUnit.h>
+#include <cplusplus/ASTPath.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/Overview.h>
@@ -1172,6 +1173,139 @@ static inline LookupItem skipForwardDeclarations(const QList<LookupItem> &resolv
     return result;
 }
 
+namespace {
+
+QList<Declaration *> findMatchingDeclaration(const LookupContext &context,
+                                             Function *functionType)
+{
+    QList<Declaration *> result;
+
+    Scope *enclosingScope = functionType->enclosingScope();
+    while (! (enclosingScope->isNamespace() || enclosingScope->isClass()))
+        enclosingScope = enclosingScope->enclosingScope();
+    Q_ASSERT(enclosingScope != 0);
+
+    const Name *functionName = functionType->name();
+    if (! functionName)
+        return result; // anonymous function names are not valid c++
+
+    ClassOrNamespace *binding = 0;
+    const QualifiedNameId *qName = functionName->asQualifiedNameId();
+    if (qName) {
+        if (qName->base())
+            binding = context.lookupType(qName->base(), enclosingScope);
+        functionName = qName->name();
+    }
+
+    if (!binding) { // declaration for a global function
+        binding = context.lookupType(enclosingScope);
+
+        if (!binding)
+            return result;
+    }
+
+    const Identifier *funcId = functionName->identifier();
+    if (!funcId) // E.g. operator, which we might be able to handle in the future...
+        return result;
+
+    QList<Declaration *> good, better, best;
+
+    foreach (Symbol *s, binding->symbols()) {
+        Class *matchingClass = s->asClass();
+        if (!matchingClass)
+            continue;
+
+        for (Symbol *s = matchingClass->find(funcId); s; s = s->next()) {
+            if (! s->name())
+                continue;
+            else if (! funcId->isEqualTo(s->identifier()))
+                continue;
+            else if (! s->type()->isFunctionType())
+                continue;
+            else if (Declaration *decl = s->asDeclaration()) {
+                if (Function *declFunTy = decl->type()->asFunctionType()) {
+                    if (functionType->isEqualTo(declFunTy))
+                        best.prepend(decl);
+                    else if (functionType->argumentCount() == declFunTy->argumentCount() && result.isEmpty())
+                        better.prepend(decl);
+                    else
+                        good.append(decl);
+                }
+            }
+        }
+    }
+
+    result.append(best);
+    result.append(better);
+    result.append(good);
+
+    return result;
+}
+
+} // end of anonymous namespace
+
+CPPEditor::Link CPPEditor::attemptFuncDeclDef(const QTextCursor &cursor, const Document::Ptr &doc, Snapshot snapshot) const
+{
+    snapshot.insert(doc);
+
+    Link result;
+
+    QList<AST *> path = ASTPath(doc)(cursor);
+
+    if (path.size() < 5)
+        return result;
+
+    NameAST *name = path.last()->asName();
+    if (!name)
+        return result;
+
+    if (QualifiedNameAST *qName = path.at(path.size() - 2)->asQualifiedName()) {
+        // TODO: check which part of the qualified name we're on
+        if (qName->unqualified_name != name)
+            return result;
+    }
+
+    AST *declParent = 0;
+    DeclaratorAST *decl = 0;
+    for (int i = path.size() - 2; i > 0; --i) {
+        if ((decl = path.at(i)->asDeclarator()) != 0) {
+            declParent = path.at(i - 1);
+            break;
+        }
+    }
+    if (!decl || !declParent)
+        return result;
+    if (!decl->postfix_declarator_list || !decl->postfix_declarator_list->value)
+        return result;
+    FunctionDeclaratorAST *funcDecl = decl->postfix_declarator_list->value->asFunctionDeclarator();
+    if (!funcDecl)
+        return result;
+
+    Symbol *target = 0;
+    if (FunctionDefinitionAST *funDef = declParent->asFunctionDefinition()) {
+        QList<Declaration *> candidates = findMatchingDeclaration(LookupContext(doc, snapshot),
+                                                                  funDef->symbol);
+        if (!candidates.isEmpty()) // TODO: improve disambiguation
+            target = candidates.first();
+    } else if (declParent->asSimpleDeclaration()) {
+        target = snapshot.findMatchingDefinition(funcDecl->symbol);
+    }
+
+    if (target) {
+        result = linkToSymbol(target);
+
+        unsigned startLine, startColumn, endLine, endColumn;
+        doc->translationUnit()->getTokenStartPosition(name->firstToken(), &startLine, &startColumn);
+        doc->translationUnit()->getTokenEndPosition(name->lastToken() - 1, &endLine, &endColumn);
+
+        QTextDocument *textDocument = cursor.document();
+        result.begin = textDocument->findBlockByNumber(startLine - 1).position() + startColumn - 1;
+        result.end = textDocument->findBlockByNumber(endLine - 1).position() + endColumn - 1;
+    }
+
+    return result;
+}
+
 CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
                                       bool resolveTarget)
 {
@@ -1181,6 +1315,14 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
         return link;
 
     const Snapshot snapshot = m_modelManager->snapshot();
+
+    if (m_lastSemanticInfo.doc){
+        Link l = attemptFuncDeclDef(cursor, m_lastSemanticInfo.doc, snapshot);
+        if (l.isValid()) {
+            return l;
+        }
+    }
+
     int lineNumber = 0, positionInBlock = 0;
     convertPosition(cursor.position(), &lineNumber, &positionInBlock);
     Document::Ptr doc = snapshot.document(file()->fileName());
@@ -1363,7 +1505,7 @@ void CPPEditor::jumpToDefinition()
     openLink(findLinkAt(textCursor()));
 }
 
-Symbol *CPPEditor::findDefinition(Symbol *symbol, const Snapshot &snapshot)
+Symbol *CPPEditor::findDefinition(Symbol *symbol, const Snapshot &snapshot) const
 {
     if (symbol->isFunction())
         return 0; // symbol is a function definition.
