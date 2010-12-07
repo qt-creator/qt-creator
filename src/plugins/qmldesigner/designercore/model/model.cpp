@@ -105,6 +105,16 @@ void ModelPrivate::detachAllViews()
         detachView(view.data(), true);
 
     m_viewList.clear();
+
+    if (m_rewriterView) {
+        m_rewriterView->modelAboutToBeDetached(m_q);
+        m_rewriterView.clear();
+    }
+
+    if (m_nodeInstanceView) {
+        m_nodeInstanceView->modelAboutToBeDetached(m_q);
+        m_nodeInstanceView.clear();
+    }
 }
 
 Model *ModelPrivate::create(QString type, int major, int minor)
