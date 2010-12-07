@@ -60,7 +60,7 @@ struct BuildConfigurationInfo {
 class Qt4Target : public ProjectExplorer::Target
 {
     Q_OBJECT
-    friend class Qt4TargetFactory;
+    friend class Internal::Qt4TargetFactory;
 
 public:
     explicit Qt4Target(Qt4Project *parent, const QString &id);
