@@ -100,6 +100,8 @@ void StatesEditorView::removeState(int nodeId)
 
 void StatesEditorView::synchonizeCurrentStateFromWidget()
 {
+    if (!model())
+        return;
     int internalId = m_statesEditorWidget->currentStateInternalId();
 
     if (internalId > 0 && hasModelNodeForInternalId(internalId)) {
