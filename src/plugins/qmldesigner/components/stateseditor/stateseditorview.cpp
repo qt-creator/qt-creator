@@ -242,7 +242,7 @@ void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> 
 }
 
 
-void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags propertyChange)
+void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags /*propertyChange*/)
 {
     foreach (const VariantProperty &property, propertyList) {
         if (property.name() == "name" && property.parentModelNode().hasParentProperty()) {
@@ -265,7 +265,7 @@ void StatesEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
     }
 }
 
-void StatesEditorView::nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags /*propertyChange*/)
+void StatesEditorView::nodeRemoved(const ModelNode & /*removedNode*/, const NodeAbstractProperty &parentProperty, PropertyChangeFlags /*propertyChange*/)
 {
     if (parentProperty.isValid() && parentProperty.parentModelNode().isRootNode() && parentProperty.name() == "states") {
         m_statesEditorModel->removeState(m_lastIndex);
@@ -293,7 +293,7 @@ void StatesEditorView::nodeReparented(const ModelNode &node, const NodeAbstractP
     }
 }
 
-void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex)
+void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode & /*movedNode*/, int /*oldIndex*/)
 {
     if (listProperty.isValid() && listProperty.parentModelNode().isRootNode() && listProperty.name() == "states")
         resetModel();
