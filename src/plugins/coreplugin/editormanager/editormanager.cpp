@@ -440,8 +440,6 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     advancedMenu->addAction(cmd, Constants::G_EDIT_EDITOR);
     connect(m_d->m_openInExternalEditorAction, SIGNAL(triggered()), this, SLOT(openInExternalEditor()));
 
-    // Connect to VariableManager for CURRENT_DOCUMENT variable setting
-    VariableManager::initEditorManagerConnections();
     // other setup
     m_d->m_splitter = new SplitterOrView(m_d->m_editorModel);
     m_d->m_view = m_d->m_splitter->view();

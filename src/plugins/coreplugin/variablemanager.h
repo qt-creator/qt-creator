@@ -36,6 +36,7 @@
 
 #include "core_global.h"
 
+#include <QtCore/QObject>
 #include <QtCore/QScopedPointer>
 #include <QtCore/QString>
 
@@ -50,23 +51,24 @@ class AbstractMacroExpander;
 namespace Core {
 class VariableManagerPrivate;
 
-class CORE_EXPORT VariableManager
+class CORE_EXPORT VariableManager : public QObject
 {
+    Q_OBJECT
     Q_DISABLE_COPY(VariableManager)
 public:
     VariableManager();
     ~VariableManager();
 
     static VariableManager* instance();
-    static void initEditorManagerConnections();
 
     void insert(const QString &variable, const QString &value);
-    void insertFileInfo(const QString &tag, const QFileInfo &file);
-    void removeFileInfo(const QString &tag);
-    QString value(const QString &variable) const;
-    QString value(const QString &variable, const QString &defaultValue) const;
     bool remove(const QString &variable);
+    QString value(const QString &variable, bool *found = 0);
+    QString value(const QString &variable, const QString &defaultValue);
     Utils::AbstractMacroExpander *macroExpander();
+
+signals:
+    void variableUpdateRequested(const QString &variable);
 
 private:
     QScopedPointer<VariableManagerPrivate> d;

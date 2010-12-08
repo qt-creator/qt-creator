@@ -100,6 +100,7 @@
 #include <coreplugin/basefilewizard.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/iversioncontrol.h>
+#include <coreplugin/variablemanager.h>
 #include <welcome/welcomemode.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/searchresultwindow.h>
@@ -898,6 +899,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     updateWelcomePage();
 
+    connect(Core::VariableManager::instance(), SIGNAL(variableUpdateRequested(QString)),
+            this, SLOT(updateVariable(QString)));
+
     return true;
 }
 
@@ -992,6 +996,27 @@ void ProjectExplorerPlugin::loadCustomWizards()
         firstTime = false;
         foreach(Core::IWizard *cpw, ProjectExplorer::CustomWizard::createWizards())
             addAutoReleasedObject(cpw);
+    }
+}
+
+void ProjectExplorerPlugin::updateVariable(const QString &variable)
+{
+    static const char * const currentProjectPathVar = "CurrentProjectPath";
+    static const char * const currentProjectFilePathVar = "CurrentProjectFilePath";
+    if (variable == QLatin1String(currentProjectFilePathVar)) {
+        if (currentProject() && currentProject()->file()) {
+            Core::VariableManager::instance()->insert(variable,
+                                                      currentProject()->file()->fileName());
+        } else {
+            Core::VariableManager::instance()->remove(variable);
+        }
+    } else if (variable == QLatin1String(currentProjectPathVar)) {
+        if (currentProject() && currentProject()->file()) {
+            Core::VariableManager::instance()->insert(variable,
+                                                      QFileInfo(currentProject()->file()->fileName()).filePath());
+        } else {
+            Core::VariableManager::instance()->remove(variable);
+        }
     }
 }
 

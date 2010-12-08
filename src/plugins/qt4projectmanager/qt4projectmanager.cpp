@@ -50,6 +50,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/variablemanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/session.h>
@@ -132,6 +133,9 @@ void Qt4Manager::init()
 
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(editorChanged(Core::IEditor*)));
+
+    connect(Core::VariableManager::instance(), SIGNAL(variableUpdateRequested(QString)),
+            this, SLOT(updateVariable(QString)));
 }
 
 void Qt4Manager::editorChanged(Core::IEditor *editor)
@@ -170,6 +174,21 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
             }
         }
         m_lastEditor = 0;
+    }
+}
+
+void Qt4Manager::updateVariable(const QString &variable)
+{
+    static const char * const installBinsVar = "QT_INSTALL_BINS";
+    if (variable == QLatin1String(installBinsVar)) {
+        Qt4Project *qt4pro = qobject_cast<Qt4Project *>(projectExplorer()->currentProject());
+        if (!qt4pro) {
+            Core::VariableManager::instance()->remove(QLatin1String(installBinsVar));
+            return;
+        }
+        QString value = qt4pro->activeTarget()->activeBuildConfiguration()
+                ->qtVersion()->versionInfo().value(QLatin1String(installBinsVar));
+        Core::VariableManager::instance()->insert(QLatin1String(installBinsVar), value);
     }
 }
 
@@ -371,3 +390,4 @@ QString Qt4Manager::fileTypeId(ProjectExplorer::FileType type)
     }
     return QString();
 }
+

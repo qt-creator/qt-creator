@@ -213,6 +213,7 @@ private slots:
     void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode);
     void updateActions();
     void loadCustomWizards();
+    void updateVariable(const QString &variable);
 
     void publishProject();
 
