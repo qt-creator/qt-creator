@@ -702,6 +702,7 @@ bool CodeFormatter::tryDeclaration()
     switch (kind) {
     case T_Q_ENUMS:
     case T_Q_PROPERTY:
+    case T_Q_PRIVATE_PROPERTY:
     case T_Q_FLAGS:
     case T_Q_GADGET:
     case T_Q_OBJECT:

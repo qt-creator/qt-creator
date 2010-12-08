@@ -244,6 +244,7 @@ enum Kind {
     T_Q_Q,
     T_Q_INVOKABLE,
     T_Q_PROPERTY,
+    T_Q_PRIVATE_PROPERTY,
     T_Q_INTERFACES,
     T_Q_ENUMS,
     T_Q_FLAGS,

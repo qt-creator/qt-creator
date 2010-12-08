@@ -773,6 +773,8 @@ class CPLUSPLUS_EXPORT QtPropertyDeclarationAST: public DeclarationAST
 public:
     unsigned property_specifier_token;
     unsigned lparen_token;
+    ExpressionAST *expression; // for Q_PRIVATE_PROPERTY(expression, ...)
+    unsigned comma_token;
     ExpressionAST *type_id;
     NameAST *property_name;
     QtPropertyDeclarationItemListAST *property_declaration_item_list;
@@ -782,6 +784,8 @@ public:
     QtPropertyDeclarationAST()
         : property_specifier_token(0)
         , lparen_token(0)
+        , expression(0)
+        , comma_token(0)
         , type_id(0)
         , property_name(0)
         , property_declaration_item_list(0)

@@ -301,6 +301,13 @@ bool ASTMatcher::match(QtPropertyDeclarationAST *node, QtPropertyDeclarationAST 
 
     pattern->lparen_token = node->lparen_token;
 
+    if (! pattern->expression)
+        pattern->expression = node->expression;
+    else if (! AST::match(node->expression, pattern->expression, this))
+        return false;
+
+    pattern->comma_token = node->comma_token;
+
     if (! pattern->type_id)
         pattern->type_id = node->type_id;
     else if (! AST::match(node->type_id, pattern->type_id, this))

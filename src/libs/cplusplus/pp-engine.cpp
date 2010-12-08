@@ -1432,6 +1432,8 @@ bool Preprocessor::isQtReservedWord(const QByteArray &macroId) const
         return true;
     else if (size == 10 && macroId.at(0) == 'Q' && macroId == "Q_PROPERTY")
         return true;
+    else if (size == 18 && macroId.at(0) == 'Q' && macroId == "Q_PRIVATE_PROPERTY")
+        return true;
     else if (size == 7 && macroId.at(0) == 'Q' && macroId == "Q_ENUMS")
         return true;
     else if (size == 7 && macroId.at(0) == 'Q' && macroId == "Q_FLAGS")

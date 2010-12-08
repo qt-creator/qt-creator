@@ -1442,6 +1442,47 @@ static inline int classify14(const char *s, bool q, bool) {
   return T_IDENTIFIER;
 }
 
+static inline int classify18(const char *s, bool q, bool) {
+  if (q && s[0] == 'Q') {
+    if (s[1] == '_') {
+      if (s[2] == 'P') {
+        if (s[3] == 'R') {
+          if (s[4] == 'I') {
+            if (s[5] == 'V') {
+              if (s[6] == 'A') {
+                if (s[7] == 'T') {
+                  if (s[8] == 'E') {
+                    if (s[9] == '_') {
+                      if (s[10] == 'P') {
+                        if (s[11] == 'R') {
+                          if (s[12] == 'O') {
+                            if (s[13] == 'P') {
+                              if (s[14] == 'E') {
+                                if (s[15] == 'R') {
+                                  if (s[16] == 'T') {
+                                    if (s[17] == 'Y') {
+                                      return T_Q_PRIVATE_PROPERTY;
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return T_IDENTIFIER;
+}
+
 static inline int classify19(const char *s, bool q, bool) {
   if (q && s[0] == 'Q') {
     if (s[1] == '_') {
@@ -1502,6 +1543,7 @@ int Lexer::classify(const char *s, int n, bool q, bool x) {
     case 13: return classify13(s, q, x);
     case 14: return classify14(s, q, x);
     case 16: return classify16(s, q, x);
+    case 18: return classify18(s, q, x);
     case 19: return classify19(s, q, x);
     default: return T_IDENTIFIER;
   } // switch

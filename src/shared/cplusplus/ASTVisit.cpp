@@ -154,6 +154,7 @@ void QtPropertyDeclarationItemAST::accept0(ASTVisitor *visitor)
 void QtPropertyDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        accept(expression, visitor);
         accept(type_id, visitor);
         accept(property_name, visitor);
         accept(property_declaration_item_list, visitor);
