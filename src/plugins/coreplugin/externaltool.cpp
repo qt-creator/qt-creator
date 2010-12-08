@@ -218,6 +218,10 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
                         break;
                     }
                     tool->m_workingDirectory = reader.readElementText();
+                } else {
+                    reader.raiseError(QString::fromLatin1("Unknown element <%1> as subelement of <%2>").arg(
+                                          reader.qualifiedName().toString(), QLatin1String(kExecutable)));
+                    break;
                 }
             }
         } else {
