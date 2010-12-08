@@ -112,7 +112,7 @@ static inline QString getSymbolString(IDebugSymbolGroup2 *sg,
     ULONG nameLength;
     const HRESULT hr = (sg->*wsf)(index, nameBuffer, BufSize, &nameLength);
     if (SUCCEEDED(hr)) {
-        nameBuffer[nameLength] = 0;
+        nameBuffer[qMin(nameLength, ULONG(BufSize))] = 0;
         return QString::fromUtf16(reinterpret_cast<const ushort *>(nameBuffer));
     }
     return QString();

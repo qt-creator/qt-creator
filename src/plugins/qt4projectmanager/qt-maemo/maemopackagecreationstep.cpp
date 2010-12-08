@@ -556,6 +556,7 @@ QString MaemoPackageCreationStep::packageFileName(const ProjectExplorer::Project
 void MaemoPackageCreationStep::updateDesktopFiles(const QString &rulesFilePath)
 {
     QFile rulesFile(rulesFilePath);
+    rulesFile.setPermissions(rulesFile.permissions() | QFile::ExeUser);
     if (!rulesFile.open(QIODevice::ReadWrite)) {
         qWarning("Cannot open rules file for Maemo6 icon path adaptation.");
         return;

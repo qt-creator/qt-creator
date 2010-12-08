@@ -65,17 +65,17 @@ GroupBox {
                 SliderWidget {
                     id: opacitySlider
                     minimum: 0
-                    maximum: 100
+                    maximum: 10
                     property variant pureValue: backendValues.opacity.value;
                     onPureValueChanged: {
-                        if (value != pureValue * 100)
-                            value = pureValue * 100;
+                        if (value != pureValue * 10)
+                            value = pureValue * 10;
                     }
                     singleStep: 5;
                     backendValue: backendValues.opacity
                     onValueChanged: {
-                    if ((value >= 0) && (value < 100))
-                        backendValues.opacity.value = value / 100;
+                    if ((value >= 0) && (value <= 10))
+                        backendValues.opacity.value = value / 10;
                     }
                 }
             }

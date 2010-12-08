@@ -56,6 +56,7 @@ namespace {
 const char * const QMAKE_BS_ID("QtProjectManager.QMakeBuildStep");
 
 const char * const QMAKE_ARGUMENTS_KEY("QtProjectManager.QMakeBuildStep.QMakeArguments");
+const char * const QMAKE_FORCED_KEY("QtProjectManager.QMakeBuildStep.QMakeForced");
 }
 
 QMakeStep::QMakeStep(BuildStepList *bsl) :
@@ -74,7 +75,7 @@ QMakeStep::QMakeStep(BuildStepList *bsl, const QString &id) :
 
 QMakeStep::QMakeStep(BuildStepList *bsl, QMakeStep *bs) :
     AbstractProcessStep(bsl, bs),
-    m_forced(false),
+    m_forced(bs->m_forced),
     m_userArgs(bs->m_userArgs)
 {
     ctor();
@@ -335,13 +336,14 @@ QVariantMap QMakeStep::toMap() const
 {
     QVariantMap map(AbstractProcessStep::toMap());
     map.insert(QLatin1String(QMAKE_ARGUMENTS_KEY), m_userArgs);
+    map.insert(QLatin1String(QMAKE_FORCED_KEY), m_forced);
     return map;
 }
 
 bool QMakeStep::fromMap(const QVariantMap &map)
 {
     m_userArgs = map.value(QLatin1String(QMAKE_ARGUMENTS_KEY)).toString();
-
+    m_forced = map.value(QLatin1String(QMAKE_FORCED_KEY), false).toBool();
     return BuildStep::fromMap(map);
 }
 

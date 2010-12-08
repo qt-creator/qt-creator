@@ -2023,10 +2023,6 @@ Sollen sie überschrieben werden?</translation>
         <source>The header and source file names will be derived from the class name</source>
         <translation>Die Dateinamen werden aus dem Klassennamen generiert</translation>
     </message>
-    <message>
-        <source>Configure...</source>
-        <translation type="obsolete">Einstellungen...</translation>
-    </message>
 </context>
 <context>
     <name>CppEditor::Internal::CppClassWizard</name>
@@ -4100,10 +4096,6 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>Klasse</translation>
     </message>
     <message>
-        <source>Configure...</source>
-        <translation type="obsolete">Einstellungen...</translation>
-    </message>
-    <message>
         <source>Choose a Class Name</source>
         <translation>Name der Klasse</translation>
     </message>
@@ -4378,7 +4370,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Error message:</source>
-        <translation></translation>
+        <translation>Fehlermeldung:</translation>
     </message>
 </context>
 <context>
@@ -4693,7 +4685,7 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Keyword characters:</source>
-        <translation></translation>
+        <translation>Wortbildende Zeichen:</translation>
     </message>
     <message>
         <source>Copy Text Editor Settings</source>
@@ -4766,7 +4758,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>No user defined filters available or no filter selected.</source>
-        <translation></translation>
+        <translation>Es sind keine benutzerdefinierten Filter vorhanden beziehungsweise ausgewählt.</translation>
     </message>
 </context>
 <context>
@@ -4840,7 +4832,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Replace &amp;&amp; Find</source>
-        <translation></translation>
+        <translation>Ersetzen und weitersuchen</translation>
     </message>
     <message>
         <source>Ctrl+=</source>
@@ -5801,10 +5793,6 @@ rückgängig machen?</translation>
         <translation>Status</translation>
     </message>
     <message>
-        <source>Reset...</source>
-        <translation type="obsolete">Repository Zurücksetzen...</translation>
-    </message>
-    <message>
         <source>Clean...</source>
         <translation>Repository bereinigen</translation>
     </message>
@@ -5839,15 +5827,6 @@ rückgängig machen?</translation>
     <message>
         <source>&amp;Redo</source>
         <translation>&amp;Wiederholen</translation>
-    </message>
-    <message>
-        <source>Revert all pending changes to the repository
-%1?</source>
-        <translation type="obsolete">Möchten Sie alle ausstehenden Änderungen des Repositories %1 rückgängig machen?</translation>
-    </message>
-    <message>
-        <source>Revert</source>
-        <translation type="obsolete">Rückgängig machen</translation>
     </message>
     <message>
         <source>Another submit is currently being executed.</source>
@@ -5974,10 +5953,6 @@ rückgängig machen?</translation>
         <translation>Beachten Sie, dass eine hohe Anzahl lange Wartezeiten hervorrufen kann.</translation>
     </message>
     <message>
-        <source>Omit date from annotation output</source>
-        <translation type="obsolete">Datum in Annotation weglassen</translation>
-    </message>
-    <message>
         <source>Miscellaneous</source>
         <translation>Sonstige Einstellungen</translation>
     </message>
@@ -6020,10 +5995,6 @@ rückgängig machen?</translation>
     <message>
         <source>Arguments:</source>
         <translation>Argumente:</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace changes in annotation and diff</source>
-        <translation type="obsolete">Änderungen der Leerzeichen bei Annotation und Diff weglassen</translation>
     </message>
     <message>
         <source>Omit date from blame output</source>
@@ -6491,65 +6462,6 @@ rückgängig machen?</translation>
     </message>
 </context>
 <context>
-    <name>MainWindow</name>
-    <message>
-        <source>Ctrl+Q</source>
-        <translation type="obsolete">Ctrl+Q</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation type="obsolete">&amp;Datei</translation>
-    </message>
-    <message>
-        <source>&amp;Open...</source>
-        <translation type="obsolete">&amp;Öffnen...</translation>
-    </message>
-    <message>
-        <source>&amp;Save</source>
-        <translation type="obsolete">&amp;Speichern</translation>
-    </message>
-    <message>
-        <source>Save &amp;As...</source>
-        <translation type="obsolete">Speichern &amp;unter...</translation>
-    </message>
-    <message>
-        <source>Ctrl+R</source>
-        <translation type="obsolete">Ctrl+R</translation>
-    </message>
-    <message>
-        <source>&amp;Quit</source>
-        <translation type="obsolete">&amp;Beenden</translation>
-    </message>
-    <message>
-        <source>&amp;Edit</source>
-        <translation type="obsolete">&amp;Bearbeiten</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="obsolete">&amp;Kopieren</translation>
-    </message>
-    <message>
-        <source>&amp;Paste</source>
-        <translation type="obsolete">&amp;Einfügen</translation>
-    </message>
-    <message>
-        <source>&amp;Delete</source>
-        <translation type="obsolete">&amp;Löschen</translation>
-    </message>
-    <message>
-        <source>&amp;View</source>
-        <translation type="obsolete">&amp;Ansicht</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation type="obsolete">&amp;Hilfe</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation type="obsolete">Eigenschaften</translation>
-    </message>
-</context>
-<context>
     <name>MakeStep</name>
     <message>
         <source>Override %1:</source>
@@ -6747,131 +6659,131 @@ rückgängig machen?</translation>
     <name>NameDemanglerPrivate</name>
     <message>
         <source>Premature end of input</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid encoding</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid name</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid nested-name</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid template args</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid template-param</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid qualifiers: unexpected &apos;volatile&apos;</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid qualifiers: &apos;const&apos; appears twice</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid non-negative number</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid template-arg</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid expression</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid primary expression</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid expr-primary</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid type</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid built-in type</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid builtin-type</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid function type</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid unqualified-name</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid operator-name &apos;%s&apos;</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid array-type</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid pointer-to-member-type</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid substitution</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid substitution: element %1 was requested, but there are only %2</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid substitution: There are no elements</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid special-name</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid local-name</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid discriminator</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid ctor-dtor-name</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid call-offset</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid v-offset</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid digit</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>At position %1: </source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7885,15 +7797,6 @@ Fehler: %2</translation>
         <source>Build Environment</source>
         <translation>Build-Umgebung</translation>
     </message>
-    <message>
-        <source>No Executable specified.</source>
-        <translation type="obsolete">Es wurde keine ausführbaren Datei angegeben.
-</translation>
-    </message>
-    <message>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
-        <translation type="obsolete">Führe aus: &lt;b&gt;%1&lt;/b&gt; %2</translation>
-    </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
@@ -8501,10 +8404,6 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
         <translation>Debuggen</translation>
     </message>
     <message>
-        <source>F5</source>
-        <translation type="obsolete">F5</translation>
-    </message>
-    <message>
         <source>Add New...</source>
         <translation>Hinzufügen</translation>
     </message>
@@ -8802,80 +8701,6 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <source>Debug and release</source>
         <translation>Debug und Release</translation>
-    </message>
-</context>
-<context>
-    <name>QObject</name>
-    <message>
-        <source>Pass</source>
-        <translation type="obsolete">Bestanden</translation>
-    </message>
-    <message>
-        <source>Expected Failure</source>
-        <translation type="obsolete">Erwarteter Fehler</translation>
-    </message>
-    <message>
-        <source>Failure</source>
-        <translation type="obsolete">Fehler</translation>
-    </message>
-    <message>
-        <source>Expected Pass</source>
-        <translatorcomment>buggy source string</translatorcomment>
-        <translation type="obsolete">Unerwartet bestanden</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">Warnung</translation>
-    </message>
-    <message>
-        <source>Qt Warning</source>
-        <translation type="obsolete">Qt-Warnung</translation>
-    </message>
-    <message>
-        <source>Qt Debug</source>
-        <translation type="obsolete">Qt-Debug</translation>
-    </message>
-    <message>
-        <source>Critical</source>
-        <translation type="obsolete">Kritisch</translation>
-    </message>
-    <message>
-        <source>Fatal</source>
-        <translation type="obsolete">Fatal</translation>
-    </message>
-    <message>
-        <source>Skipped</source>
-        <translation type="obsolete">Übersprungen</translation>
-    </message>
-    <message>
-        <source>Info</source>
-        <translation type="obsolete">Info</translation>
-    </message>
-</context>
-<context>
-    <name>QTestLib::Internal::QTestOutputPane</name>
-    <message>
-        <source>Test Results</source>
-        <translation type="obsolete">Testergebnisse</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation type="obsolete">Ergebniss</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation type="obsolete">Bezeichnung</translation>
-    </message>
-</context>
-<context>
-    <name>QTestLib::Internal::QTestOutputWidget</name>
-    <message>
-        <source>All Incidents</source>
-        <translation type="obsolete">Alle Vorfälle</translation>
-    </message>
-    <message>
-        <source>Show Only:</source>
-        <translation type="obsolete">Beschränken auf:</translation>
     </message>
 </context>
 <context>
@@ -9367,10 +9192,6 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <message>
         <source>Explore Qt Quick examples:</source>
         <translation>Qt-Quick-Beispiele erkunden:</translation>
-    </message>
-    <message>
-        <source>Explore Qt C++ mobile examples:</source>
-        <translation type="obsolete">Mobile Qt C++-Beispiele erkunden:</translation>
     </message>
     <message>
         <source>Featured</source>
@@ -9877,6 +9698,10 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <message>
         <source>Debugging helpers:</source>
         <translation>Ausgabe-Hilfsbibliotheken:</translation>
+    </message>
+    <message>
+        <source>SBS v2 directory:</source>
+        <translation>SBS-v2-Ordner:</translation>
     </message>
 </context>
 <context>
@@ -10608,20 +10433,6 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     </message>
 </context>
 <context>
-    <name>Snippets::Internal::SnippetsPlugin</name>
-    <message>
-        <source>Snippets</source>
-        <translation type="obsolete">Snippets</translation>
-    </message>
-</context>
-<context>
-    <name>Snippets::Internal::SnippetsWindow</name>
-    <message>
-        <source>Snippets</source>
-        <translation type="obsolete">Snippets</translation>
-    </message>
-</context>
-<context>
     <name>StartExternalDialog</name>
     <message>
         <source>Start Debugger</source>
@@ -10863,7 +10674,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     </message>
     <message>
         <source>Update Repository</source>
-        <translation></translation>
+        <translation>Repository auf den aktuellen Stand bringen</translation>
     </message>
     <message>
         <source>Commit</source>
@@ -12844,23 +12655,23 @@ p, li { white-space: pre-wrap; }
     <name>mainClass</name>
     <message>
         <source>main</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Text1:</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>N/A</source>
-        <translation></translation>
+        <translation>N/A</translation>
     </message>
     <message>
         <source>Text2:</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Text3:</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13465,11 +13276,11 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <source>Gradient Stops Editor</source>
-        <translation></translation>
+        <translation>Bezugspunkte</translation>
     </message>
     <message>
         <source>This area allows you to edit gradient stops. Double click on the existing stop handle to duplicate it. Double click outside of the existing stop handles to create a new stop. Drag &amp; drop the handle to reposition it. Use right mouse button to popup context menu with extra actions.</source>
-        <translation></translation>
+        <translation>Diese Fläche dient zum Bearbeiten der Bezugspunkte. Doppelklicken Sie auf einen Bezugspunkt, um ihn zu duplizieren. Doppelklicken Sie auf die Fläche, um einen neuen Bezugspunkt zu erzeugen. Benutzen Sie Drag &amp; Drop um einen Punkt zu verschieben. Die rechte Maustaste aktiviert ein Menü mit weiteren Optionen.</translation>
     </message>
     <message>
         <source>Zoom</source>
@@ -13481,7 +13292,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <source>Position</source>
-        <translation></translation>
+        <translation>Position</translation>
     </message>
     <message>
         <source>Hue</source>
@@ -14978,6 +14789,10 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Das übergeordnete Verzeichnis &quot;%1&quot; der Datei %2&quot; existiert nicht.</translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation>Fehler</translation>
+    </message>
+    <message>
         <source>Cannot write file: &quot;%1&quot;.</source>
         <translation>Die Datei &quot;%1&quot; kann nicht geschrieben werden.</translation>
     </message>
@@ -15212,7 +15027,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <source>Cut &quot;%1&quot;</source>
-        <translation></translation>
+        <translation>&quot;%1&quot; ausschneiden</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
@@ -15730,14 +15545,6 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
 </context>
 <context>
-    <name>AboutDialog</name>
-    <message>
-        <source>About Bauhaus</source>
-        <comment>AboutDialog</comment>
-        <translation type="obsolete">Über Bauhaus</translation>
-    </message>
-</context>
-<context>
     <name>QmlJS::Check</name>
     <message>
         <source>&apos;%1&apos; is not a valid property name</source>
@@ -16140,7 +15947,7 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
     </message>
     <message>
         <source>Target Identifier</source>
-        <translation></translation>
+        <translation>Ziel</translation>
     </message>
     <message>
         <source>Target:</source>
@@ -16813,6 +16620,14 @@ Haben Sie Qemu gestartet?</translation>
     <message>
         <source>Anchors</source>
         <translation>Anker</translation>
+    </message>
+    <message>
+        <source>Set anchors</source>
+        <translation>Anker setzen</translation>
+    </message>
+    <message>
+        <source>Setting anchors in states is not supported.</source>
+        <translation>Anker koennen nicht innerhalb von States gesetzt werden.</translation>
     </message>
     <message>
         <source>Target</source>
@@ -17933,10 +17748,6 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
         <translation>Bearbeiten</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Package Manager Icon:&lt;/b&gt;</source>
-        <translation type="obsolete">&lt;b&gt;Paketverwaltungs-Icon:&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Package Manager icon:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Paketverwaltungs-Icon:&lt;/b&gt;</translation>
     </message>
@@ -18101,10 +17912,6 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     <message>
         <source>Warning: Cannot build QMLObserver; Qt version must be 4.7.1 or higher.</source>
         <translation>Warnung: Der QML-Beobachter kann nicht erstellt werden, da er Qt-Version 4.7.1 oder höher erfordert.</translation>
-    </message>
-    <message>
-        <source>Warning: Cannot build qmldump; Qt version must be 4.7.1 or higher.</source>
-        <translation type="obsolete">Warnung: Das Werkzeug qmldump kann nicht erstellt werden, da es Qt-Version 4.7.1 oder höher erfordert.</translation>
     </message>
 </context>
 <context>
@@ -18428,7 +18235,7 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>10 x 10</source>
-        <translation></translation>
+        <translation>10 x 10</translation>
     </message>
 </context>
 <context>
@@ -18478,7 +18285,7 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source> ms</source>
-        <translation></translation>
+        <translation> ms</translation>
     </message>
     <message>
         <source>Amplitude</source>
@@ -18712,21 +18519,6 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
 </context>
 <context>
-    <name>MaemoDeployableListWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Form</translation>
-    </message>
-    <message>
-        <source>Add File to Package</source>
-        <translation type="obsolete">Datei zu Paket hinzufügen</translation>
-    </message>
-    <message>
-        <source>Remove File from Package</source>
-        <translation type="obsolete">Datei aus Paket entfernen</translation>
-    </message>
-</context>
-<context>
     <name>MaemoDeployStepWidget</name>
     <message>
         <source>Form</source>
@@ -18743,10 +18535,6 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>These show the INSTALLS settings from the project file(s).</source>
         <translation>Zeigt die INSTALLS-Einstellungen aus den Projektdateien.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Files to install:&lt;/b&gt;</source>
-        <translation type="obsolete">&lt;b&gt;Zu installierende Dateien:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Files to install for subproject:&lt;/b&gt;</source>
@@ -19185,6 +18973,10 @@ Server: %2.</translation>
         <translation>Der Funktionsaufruf &quot;%1()&quot; schlug fehl: %2</translation>
     </message>
     <message>
+        <source>An instance of the CDB engine is still running; cannot create an a new instance.</source>
+        <translation>Der CDB-Debugger kann nicht gestartet werden, da noch ein anderer läuft (mehrere Instanzen sind nicht zulässig).</translation>
+    </message>
+    <message>
         <source>Version: %1</source>
         <translation>Version: %1</translation>
     </message>
@@ -19198,15 +18990,15 @@ Server: %2.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Server&lt;/a&gt;. This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Note:&lt;/i&gt; A fast internet connection is required for this to work smoothly. Also, a delay might occur when connecting for the first time.&lt;/p&gt;&lt;p&gt;Would you like to set it up?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Der Debugger ist nicht zur Benutzung des öffentlichen &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Servers&lt;/a&gt; eingerichtet. Dies wird zur Anzeige der Symbole der Betriebssystem-Bibliotheken empfohlen.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Hinweis:&lt;/i&gt; Eine schnelle Internetverbindung ist erforderlich. Beim ersten Start können Verzögerungen auftreten.&lt;/p&gt;&lt;p&gt;Möchten Sie den Symbol Server einrichten?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Symbol Server</source>
-        <translation></translation>
+        <translation>Symbol-Server</translation>
     </message>
     <message>
         <source>Do not ask again</source>
-        <translation></translation>
+        <translation>Nicht noch einmal nachfragen</translation>
     </message>
     <message>
         <source>The dumper library was not found at %1.</source>
@@ -19320,7 +19112,7 @@ Server: %2.</translation>
     </message>
     <message>
         <source>stopped</source>
-        <translation></translation>
+        <translation>Angehalten</translation>
     </message>
     <message>
         <source>Stopped at %1:%2 in thread %3.</source>
@@ -19344,7 +19136,7 @@ Server: %2.</translation>
     </message>
     <message>
         <source>Watchpoint: %1</source>
-        <translation></translation>
+        <translation>Watchpoint: %1</translation>
     </message>
     <message>
         <source>The CDB debug engine does not support the %1 toolchain.</source>
@@ -20352,21 +20144,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDeployableListWidget</name>
-    <message>
-        <source>Choose a local file</source>
-        <translation type="obsolete">Lokale Datei</translation>
-    </message>
-    <message>
-        <source>Error adding file</source>
-        <translation type="obsolete">Fehler beim Hinzufügen der Datei</translation>
-    </message>
-    <message>
-        <source>Error removing file</source>
-        <translation type="obsolete">Fehler beim Entfernen der Datei</translation>
-    </message>
-</context>
-<context>
     <name>Qt4ProjectManager::Internal::MaemoDeployStep</name>
     <message>
         <source>Deploy to Maemo device</source>
@@ -20637,6 +20414,10 @@ Fehlerausgabe: %1</translation>
     <message>
         <source>No device configuration set for run configuration.</source>
         <translation>Für Ausführungskonfiguration ist keine Gerätekonfiguration eingestellt.</translation>
+    </message>
+    <message>
+        <source>Run configuration no longer available.</source>
+        <translation>Die Ausführungskonfiguration ist nicht mehr verfügbar.</translation>
     </message>
     <message>
         <source>Starting remote process ...</source>
@@ -21927,15 +21708,6 @@ Reason: %2</source>
 - %1
 
 Fehler: %2</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::TextToModelMerger</name>
-    <message>
-        <source>Unsupported import:
-import QtQuick 1.0 use import Qt 4.7 instead</source>
-        <translation type="obsolete">Nicht unterstützte Import-Spezifikation:
-import Qt 4.7 import sollte an Stelle von import Qt 4.7 verwendet werden</translation>
     </message>
 </context>
 <context>
