@@ -1424,7 +1424,6 @@ DebuggerPluginPrivate::~DebuggerPluginPrivate()
     delete m_debuggerSettings;
     m_debuggerSettings = 0;
 
-    m_plugin->removeObject(m_mainWindow);
     delete m_mainWindow;
     m_mainWindow = 0;
 
@@ -1455,7 +1454,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     // Cpp/Qml ui setup
     m_mainWindow = new DebuggerMainWindow;
-    m_plugin->addObject(m_mainWindow);
 
     return true;
 }
