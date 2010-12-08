@@ -29,6 +29,7 @@
 
 #include "tcftrkdevice.h"
 #include "json.h"
+#include "trkutils.h"
 
 #include <QtNetwork/QAbstractSocket>
 #include <QtCore/QDebug>
@@ -40,7 +41,62 @@
 
 enum { debug = 0 };
 
-static const char messageTerminatorC[] = "\003\001";
+static const char wlanMessageTerminatorC[] = "\003\001";
+
+// Serial Ping: 0xfc,0x1f
+static const char serialPingC[] = "\xfc\x1f";
+// Serial Pong: 0xfc,0xf1, followed by version info
+static const char serialPongC[] = "\xfc\xf1";
+
+static const char locatorAnswerC[] = "E\0Locator\0Hello\0[\"Locator\"]";
+
+static const unsigned serialChunkLength = 0x400;  // 1K max USB router
+static const int maxSerialMessageLength = 0x10000; // give chunking scheme
+
+// Create USB router frame
+static inline void encodeSerialFrame(const QByteArray &data, QByteArray *target)
+{
+    target->append(char(0x01));
+    target->append(char(0x92)); // CODA serial message ID
+    appendShort(target, ushort(data.size()), trk::BigEndian);
+    target->append(data);
+}
+
+// Split in chunks of 1K according to CODA protocol chunking
+static inline QByteArray encodeUsbSerialMessage(const QByteArray &dataIn)
+{
+    static const int chunkSize = serialChunkLength -  2; // 2 Header bytes
+    const int size = dataIn.size();
+    QByteArray frame;
+    // Do we need to split?
+    if (size < chunkSize) {  // Nope, all happy.
+        frame.reserve(size + 4);
+        encodeSerialFrame(dataIn, &frame);
+        return frame;
+    }
+    // Split.
+    unsigned chunkCount = size / chunkSize;
+    if (size % chunkSize)
+        chunkCount++;
+    if (debug)
+        qDebug("Serial: Splitting message of %d bytes into %u chunks of %d", size, chunkCount, chunkSize);
+
+    frame.reserve((4 + serialChunkLength) * chunkCount);
+    int pos = 0;
+    for (unsigned c = chunkCount - 1; pos < size ; c--) {
+        QByteArray chunk; // chunk with long message start/continuation code
+        chunk.reserve(serialChunkLength);
+        chunk.append(pos ? char(0) : char(0xfe));
+        chunk.append(char(static_cast<unsigned char>(c))); // Avoid any signedness issues.
+        const int chunkEnd = qMin(pos + chunkSize, size);
+        chunk.append(dataIn.mid(pos, chunkEnd - pos));
+        encodeSerialFrame(chunk, &frame);
+        pos = chunkEnd;
+    }
+    if (debug > 1)
+        qDebug("Serial chunked:\n%s", qPrintable(tcftrk::formatData(frame)));
+    return frame;
+}
 
 namespace tcftrk {
 // ------------- TcfTrkCommandError
@@ -272,11 +328,12 @@ struct TcfTrkDevicePrivate {
     TokenWrittenMessageMap m_writtenMessages;
     QVector<QByteArray> m_registerNames;
     QVector<QByteArray> m_fakeGetMRegisterValues;
+    bool m_serialFrame;
 };
 
 TcfTrkDevicePrivate::TcfTrkDevicePrivate() :
-    m_messageTerminator(messageTerminatorC),
-    m_verbose(0), m_token(0)
+    m_messageTerminator(wlanMessageTerminatorC),
+    m_verbose(0), m_token(0), m_serialFrame(false)
 {
 }
 
@@ -380,7 +437,12 @@ void TcfTrkDevice::slotDeviceSocketStateChanged()
 
 static inline QString debugMessage(QByteArray  message, const char *prefix = 0)
 {
-    message.replace('\0', '|');
+    const bool isBinary = !message.isEmpty() && message.at(0) < 0;
+    if (isBinary) {
+        message = message.toHex(); // Some serial special message
+    } else {
+        message.replace('\0', '|');
+    }
     const QString messageS = QString::fromLatin1(message);
     return prefix ?
             (QLatin1String(prefix) + messageS) :  messageS;
@@ -388,30 +450,101 @@ static inline QString debugMessage(QByteArray  message, const char *prefix = 0)
 
 void TcfTrkDevice::slotDeviceReadyRead()
 {
-    d->m_readBuffer += d->m_device->readAll();
+    const QByteArray newData = d->m_device->readAll();
+    d->m_readBuffer += newData;
+    if (debug)
+        qDebug("ReadBuffer: %s", qPrintable(trk::stringFromArray(newData)));
+    if (d->m_serialFrame) {
+        deviceReadyReadSerial();
+    } else {
+        deviceReadyReadWLAN();
+    }
+}
+
+// Find a serial header in input stream '0x1', '0x92', 'lenH', 'lenL'
+// and return message position and size.
+static inline QPair<int, int> findSerialHeader(const QByteArray &in)
+{
+    const int size = in.size();
+    const char header1 = 0x1;
+    const char header2 = char(0x92);
+    // Header should in theory always be at beginning of
+    // buffer. Warn if  there are bogus data in-between.
+    for (int pos = 0; pos < size; ) {
+        if (pos + 4 < size && in.at(pos) == header1 &&  in.at(pos + 1) == header2) {
+            const int length = trk::extractShort(in.constData() + 2);
+            return QPair<int, int>(pos + 4, length);
+        }
+        // Find next
+        pos = in.indexOf(header1, pos + 1);
+        qWarning("Bogus data received on serial line: %s\n"
+                 "Frame Header at: %d", qPrintable(trk::stringFromArray(in)), pos);
+        if (pos < 0)
+           break;
+    }
+    return QPair<int, int>(-1, -1);
+}
+
+void TcfTrkDevice::deviceReadyReadSerial()
+{
+    do {
+        // Extract message (pos,len)
+        const QPair<int, int> messagePos = findSerialHeader(d->m_readBuffer);
+        if (messagePos.first < 0)
+            break;
+        // Do we have the complete message?
+        const int messageEnd = messagePos.first + messagePos.second;
+        if (messageEnd > d->m_readBuffer.size())
+            break;
+        const QByteArray message = d->m_readBuffer.mid(messagePos.first, messagePos.second);
+        // Is thing a ping/pong response
+        if (debug > 1)
+            qDebug("Serial message: at %d (%d bytes) of %d: %s",
+                   messagePos.first, messagePos.second, d->m_readBuffer.size(),
+                   qPrintable(trk::stringFromArray(message)));
+        if (message.startsWith(serialPongC)) {
+            const QString version = QString::fromLatin1(message.mid(sizeof(serialPongC) -  1));
+            emitLogMessage(QString::fromLatin1("Serial connection from '%1'").arg(version));
+            emit serialPong(version);
+            // Answer with locator.
+            writeMessage(QByteArray(locatorAnswerC, sizeof(locatorAnswerC)));
+        } else {
+            processMessage(message);
+        }
+        d->m_readBuffer.remove(0, messageEnd);
+    } while (d->m_readBuffer.isEmpty());
+    checkSendQueue(); // Send off further messages
+}
+
+void TcfTrkDevice::deviceReadyReadWLAN()
+{
     // Take complete message off front of readbuffer.
     do {
-        const int messageEndPos = d->m_readBuffer.indexOf(d->m_messageTerminator);        
+        const int messageEndPos = d->m_readBuffer.indexOf(d->m_messageTerminator);
         if (messageEndPos == -1)
             break;
         if (messageEndPos == 0) {
             // TCF TRK 4.0.5 emits empty messages on errors.
             emitLogMessage(QString::fromLatin1("An empty TCF TRK message has been received."));
         } else {
-            const QByteArray message = d->m_readBuffer.left(messageEndPos);
-            if (debug)
-                qDebug("Read %d bytes:\n%s", message.size(), qPrintable(formatData(message)));
-            if (const int errorCode = parseMessage(message)) {
-                emitLogMessage(QString::fromLatin1("Parse error %1 : %2").
-                               arg(errorCode).arg(debugMessage(message)));
-                if (debug)
-                    qDebug("Parse error %d for %d bytes:\n%s", errorCode,
-                           message.size(), qPrintable(formatData(message)));
-            }
+            processMessage(d->m_readBuffer.left(messageEndPos));
         }
         d->m_readBuffer.remove(0, messageEndPos + d->m_messageTerminator.size());
     } while (!d->m_readBuffer.isEmpty());
-    checkSendQueue(); // Send off further message
+    checkSendQueue(); // Send off further messages
+}
+
+void TcfTrkDevice::processMessage(const QByteArray &message)
+{
+    if (debug)
+        qDebug("Read %d bytes:\n%s", message.size(), qPrintable(formatData(message)));
+    if (const int errorCode = parseMessage(message)) {
+        emitLogMessage(QString::fromLatin1("Parse error %1 : %2").
+                       arg(errorCode).arg(debugMessage(message)));
+        if (debug)
+            qDebug("Parse error %d for %d bytes:\n%s", errorCode,
+                   message.size(), qPrintable(formatData(message)));
+    }
 }
 
 // Split \0-terminated message into tokens, skipping the initial type character
@@ -551,8 +684,6 @@ int TcfTrkDevice::parseTcfCommandReply(char type, const QVector<QByteArray> &tok
     return 0;
 }
 
-static const char locatorAnswerC[] = "E\0Locator\0Hello\0[\"Locator\"]";
-
 int TcfTrkDevice::parseTcfEvent(const QVector<QByteArray> &tokens)
 {
     // Event: Ignore the periodical heartbeat event, answer 'Hello',
@@ -572,9 +703,10 @@ int TcfTrkDevice::parseTcfEvent(const QVector<QByteArray> &tokens)
     // Parse known events, emit signals
     QScopedPointer<TcfTrkEvent> knownEvent(TcfTrkEvent::parseEvent(service, tokens.at(1), values));
     if (!knownEvent.isNull()) {
-        // Answer hello event.
+        // Answer hello event (WLAN)
         if (knownEvent->type() == TcfTrkEvent::LocatorHello)
-            writeMessage(QByteArray(locatorAnswerC, sizeof(locatorAnswerC)));
+            if (!d->m_serialFrame)
+                writeMessage(QByteArray(locatorAnswerC, sizeof(locatorAnswerC)));
         emit tcfEvent(*knownEvent);
     }
     emit genericTcfEvent(service, tokens.at(1), values);
@@ -600,6 +732,16 @@ unsigned TcfTrkDevice::verbose() const
     return d->m_verbose;
 }
 
+bool TcfTrkDevice::serialFrame() const
+{
+    return d->m_serialFrame;
+}
+
+void TcfTrkDevice::setSerialFrame(bool s)
+{
+    d->m_serialFrame = s;
+}
+
 void TcfTrkDevice::setVerbose(unsigned v)
 {
     d->m_verbose = v;
@@ -623,6 +765,17 @@ bool TcfTrkDevice::checkOpen()
         return false;
     }
     return true;
+}
+
+void TcfTrkDevice::sendSerialPing()
+{
+    if (!checkOpen())
+        return;
+
+    setSerialFrame(true);
+    writeMessage(QByteArray(serialPingC, qstrlen(serialPingC)), false);
+    if (d->m_verbose)
+        emitLogMessage(QLatin1String("Ping..."));
 }
 
 void TcfTrkDevice::sendTcfTrkMessage(MessageType mt, Services service, const char *command,
@@ -673,18 +826,29 @@ void TcfTrkDevice::sendTcfTrkMessage(MessageType mt, Services service, const cha
 }
 
 // Enclose in message frame and write.
-void TcfTrkDevice::writeMessage(QByteArray data)
+void TcfTrkDevice::writeMessage(QByteArray data, bool ensureTerminating0)
 {
     if (!checkOpen())
         return;
+
+    if (d->m_serialFrame && data.size() > maxSerialMessageLength) {
+        qCritical("Attempt to send large message (%d bytes) exceeding the "
+                  "limit of %d bytes over serial channel. Skipping.",
+                  data.size(), maxSerialMessageLength);
+        return;
+    }
 
     if (d->m_verbose)
         emitLogMessage(debugMessage(data, "TCF <-"));
 
     // Ensure \0-termination which easily gets lost in QByteArray CT.
-    if (!data.endsWith('\0'))
+    if (ensureTerminating0 && !data.endsWith('\0'))
         data.append('\0');
-    data += d->m_messageTerminator;
+    if (d->m_serialFrame) {
+        data = encodeUsbSerialMessage(data);
+    } else {
+        data += d->m_messageTerminator;
+    }
 
     if (debug > 1)
         qDebug("Writing:\n%s", qPrintable(formatData(data)));

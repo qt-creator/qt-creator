@@ -29,6 +29,10 @@
 
 #include "codaclientapplication.h"
 
+#ifdef HAS_SERIALPORT
+#    include <qextserialport/qextserialport.h>
+#endif
+
 #include "tcftrkdevice.h"
 #include <QtNetwork/QTcpSocket>
 #include <QtCore/QFile>
@@ -255,31 +259,27 @@ bool CodaClientApplication::start()
     switch (m_mode) {
     case Launch: {
         const QString args = m_launchArgs.join(QString(QLatin1Char(' ')));
-        std::printf("Launching 0x%x '%s '%s' on %s:%hu (debug: %d)\n",
+        std::printf("Launching 0x%x '%s '%s' (debug: %d)\n",
                     m_launchUID, qPrintable(m_launchBinary),
-                    qPrintable(args), qPrintable(m_address), m_port,
-                    m_launchDebug);
+                    qPrintable(args), m_launchDebug);
     }
         break;
     case Install:
-        std::printf("Installing '%s' to '%s' on %s:%hu\n",
-                    qPrintable(m_installSisFile), qPrintable(m_installTargetDrive),
-                    qPrintable(m_address), m_port);
+        std::printf("Installing '%s' to '%s'\n",
+                    qPrintable(m_installSisFile), qPrintable(m_installTargetDrive));
         break;
     case Put:
-        std::printf("Copying '%s' to '%s' on %s:%hu in chunks of %lluKB\n",
+        std::printf("Copying '%s' to '%s' in chunks of %lluKB\n",
                     qPrintable(m_putLocalFile), qPrintable(m_putRemoteFile),
-                    qPrintable(m_address), m_port, m_putChunkSize / 1024);
+                    m_putChunkSize / 1024);
         break;
     case Stat:
-        std::printf("Retrieving attributes of '%s' from %s:%hu\n",
-                    qPrintable(m_statRemoteFile), qPrintable(m_address), m_port);
+        std::printf("Retrieving attributes of '%s'\n", qPrintable(m_statRemoteFile));
         break;
     case Invalid:
         break;
     }
     // Start connection
-    const QSharedPointer<QTcpSocket> tcfTrkSocket(new QTcpSocket);
     m_trkDevice.reset(new tcftrk::TcfTrkDevice);
     m_trkDevice->setVerbose(m_verbose);
     connect(m_trkDevice.data(), SIGNAL(error(QString)),
@@ -288,9 +288,48 @@ bool CodaClientApplication::start()
         this, SLOT(slotTrkLogMessage(QString)));
     connect(m_trkDevice.data(), SIGNAL(tcfEvent(tcftrk::TcfTrkEvent)),
         this, SLOT(slotTcftrkEvent(tcftrk::TcfTrkEvent)));
-    m_trkDevice->setDevice(tcfTrkSocket);
-    tcfTrkSocket->connectToHost(m_address, m_port);
-    std::printf("Connecting...\n");
+    if (m_address.startsWith(QLatin1String("/dev"))
+            || m_address.startsWith(QLatin1String("com"), Qt::CaseInsensitive)
+            || m_address.startsWith(QLatin1Char('\\'))) {
+#ifdef HAS_SERIALPORT
+        // Serial
+#ifdef Q_OS_WIN
+        const QString fullPort = QextSerialPort::fullPortNameWin(m_address);
+#else
+        const QString fullPort = m_address;
+#endif
+        const QSharedPointer<QextSerialPort>
+                serialPort(new QextSerialPort(fullPort, QextSerialPort::EventDriven));
+        std::printf("Opening port %s...\n", qPrintable(fullPort));
+
+        // Magic USB serial parameters
+        serialPort->setTimeout(2000);
+        serialPort->setBaudRate(BAUD115200);
+        serialPort->setFlowControl(FLOW_OFF);
+        serialPort->setParity(PAR_NONE);
+        serialPort->setDataBits(DATA_8);
+        serialPort->setStopBits(STOP_1);
+
+        m_trkDevice->setSerialFrame(true);
+        m_trkDevice->setDevice(serialPort); // Grab all data from start
+        if (!serialPort->open(QIODevice::ReadWrite|QIODevice::Unbuffered)) {
+            std::fprintf(stderr, "Cannot open port: %s", qPrintable(serialPort->errorString()));
+            return false;
+        }
+        // Initiate communication
+        m_trkDevice->sendSerialPing();
+        serialPort->flush();
+#else
+        std::fprintf(stderr, "Not implemented\n");
+        return false;
+#endif
+    } else {
+        // TCP/IP
+        const QSharedPointer<QTcpSocket> tcfTrkSocket(new QTcpSocket);
+        m_trkDevice->setDevice(tcfTrkSocket);
+        tcfTrkSocket->connectToHost(m_address, m_port);
+        std::printf("Connecting to %s:%hu...\n", qPrintable(m_address), m_port);
+    }
     return true;
 }
 
@@ -399,8 +438,7 @@ void CodaClientApplication::handleFileSystemFStat(const tcftrk::TcfTrkCommandRes
     } else {
         std::fprintf(stderr, "FStat failed: %s\n", qPrintable(result.toString()));
     }
-    m_trkDevice->sendFileSystemCloseCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleFileSystemClose),
-                                           m_remoteFileHandle);
+    closeRemoteFile();
 }
 
 void CodaClientApplication::handleFileSystemClose(const tcftrk::TcfTrkCommandResult &result)
@@ -490,12 +528,14 @@ void CodaClientApplication::doExit(int ex)
 
     if (!m_trkDevice.isNull()) {
         const QSharedPointer<QIODevice> dev = m_trkDevice->device();
-        if (QAbstractSocket *socket = qobject_cast<QAbstractSocket *>(dev.data())) {
-            if (socket->state() == QAbstractSocket::ConnectedState)
-                socket->disconnectFromHost();
-        } else {
-            if (dev->isOpen())
-                dev->close();
+        if (!dev.isNull()) {
+            if (QAbstractSocket *socket = qobject_cast<QAbstractSocket *>(dev.data())) {
+                if (socket->state() == QAbstractSocket::ConnectedState)
+                    socket->disconnectFromHost();
+            } else {
+                if (dev->isOpen())
+                    dev->close();
+            }
         }
     }
     std::printf("Exiting (%d)\n", ex);

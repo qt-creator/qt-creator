@@ -132,11 +132,20 @@ http://dev.eclipse.org/svnroot/dsdp/org.eclipse.tm.tcf/trunk/docs/TCF%20Services
  * single commands. As soon as 'Registers::getm' is natively supported, all code
  * related to 'FakeRegisterGetm' should be removed. The workaround requires that
  * the register name is known.
-*/
+ * CODA notes:
+ * - Commands are accepted only after receiving the Locator Hello event
+ * - Serial communication initiation sequence:
+ *     Send serial ping from host sendSerialPing() -> receive pong response with
+ *     version information -> Send Locator Hello Event -> Receive Locator Hello Event
+ *     -> Commands are accepted.
+ * - WLAN communication initiation sequence:
+ *     Receive Locator Hello Event from CODA -> Commands are accepted.
+ */
 
 class SYMBIANUTILS_EXPORT TcfTrkDevice : public QObject
 {
     Q_PROPERTY(unsigned verbose READ verbose WRITE setVerbose)
+    Q_PROPERTY(bool serialFrame READ serialFrame WRITE setSerialFrame)
     Q_OBJECT
 public:
     // Flags for FileSystem:open
@@ -163,6 +172,8 @@ public:
     virtual ~TcfTrkDevice();
 
     unsigned verbose() const;
+    bool serialFrame() const;
+    void setSerialFrame(bool);
 
     // Mapping of register names to indices for multi-requests.
     // Register names can be retrieved via 'Registers:getChildren' (requires
@@ -173,6 +184,9 @@ public:
     IODevicePtr device() const;
     IODevicePtr takeDevice();
     void setDevice(const IODevicePtr &dp);
+
+    // Serial Only: Initiate communication. Will emit serialPong() signal with version.
+    void sendSerialPing();
 
     // Send with parameters from string (which may contain '\0').
     void sendTcfTrkMessage(MessageType mt, Services service,
@@ -338,6 +352,7 @@ public:
 signals:
     void genericTcfEvent(int service, const QByteArray &name, const QVector<tcftrk::JsonValue> &value);
     void tcfEvent(const tcftrk::TcfTrkEvent &knownEvent);
+    void serialPong(const QString &codaVersion);
 
     void logMessage(const QString &);
     void error(const QString &);
@@ -351,11 +366,15 @@ private slots:
     void slotDeviceReadyRead();
 
 private:
+    void deviceReadyReadSerial();
+    void deviceReadyReadWLAN();
+
     bool checkOpen();
     void checkSendQueue();
-    void writeMessage(QByteArray data);
+    void writeMessage(QByteArray data, bool ensureTerminating0 = true);
     void emitLogMessage(const QString &);
-    int parseMessage(const QByteArray &);
+    inline int parseMessage(const QByteArray &);
+    void processMessage(const QByteArray &message);
     int parseTcfCommandReply(char type, const QVector<QByteArray> &tokens);
     int parseTcfEvent(const QVector<QByteArray> &tokens);
     // Send with parameters from string (which may contain '\0').
