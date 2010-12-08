@@ -144,7 +144,7 @@ Internal::ObjectNodeInstance::Pointer NodeInstance::createInstance(const NodeMet
     else if (metaInfo.isSubclassOf("Qt/QDeclarativeView", 4, 7))
         instance = Internal::QDeclarativeViewNodeInstance::create(metaInfo, context, objectToBeWrapped);
     else if (metaInfo.isSubclassOf("Qt/QGraphicsWidget", 4, 7))
-        instance = Internal::GraphicsWidgetNodeInstance::create(metaInfo, context, objectToBeWrapped);
+        instance = Internal::DummyNodeInstance::create();
     else if (metaInfo.isSubclassOf("QDeclarativeBasePositioner", 4, 7))
         instance = Internal::PositionerNodeInstance::create(metaInfo, context, objectToBeWrapped);
     else if (metaInfo.isSubclassOf("Qt/Item", 4, 7))
