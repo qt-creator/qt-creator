@@ -157,8 +157,7 @@ void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, QmlIt
     Q_ASSERT(m_dragNode.modelNode().isValid());
 
     QList<QmlItemNode> nodeList;
-    nodeList.append(m_dragNode);
-    view()->setSelectedQmlItemNodes(nodeList);
+    nodeList.append(m_dragNode);    
     m_selectionIndicator.setItems(scene()->itemsForQmlItemNodes(nodeList));
 
     QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::hide();
@@ -178,7 +177,6 @@ void DragTool::createQmlItemNodeFromImage(const QString &imageName, QmlItemNode 
 
     QList<QmlItemNode> nodeList;
     nodeList.append(m_dragNode);
-    view()->setSelectedQmlItemNodes(nodeList);
     m_selectionIndicator.setItems(scene()->itemsForQmlItemNodes(nodeList));
 
     QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::hide();
@@ -212,7 +210,7 @@ void DragTool::clearMoveDelay()
 {
     m_blockMove = false;
     if  (m_dragNode.isValid())
-        beginWithPoint(m_dragNode.instanceBoundingRect().topLeft());
+        beginWithPoint(m_startPoint);
 }
 
 void DragTool::dropEvent(QGraphicsSceneDragDropEvent * event)
@@ -227,6 +225,9 @@ void DragTool::dropEvent(QGraphicsSceneDragDropEvent * event)
         } catch (RewritingException &e) {
             QMessageBox::warning(0, "Error", e.description());
         }
+        QList<QmlItemNode> nodeList;
+        nodeList.append(m_dragNode);
+        view()->setSelectedQmlItemNodes(nodeList);
         m_dragNode = ModelNode();
         view()->changeToSelectionTool();
     }
@@ -316,8 +317,8 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
                 createQmlItemNodeFromImage(imageName, parentNode, event->scenePos());
             } else Q_ASSERT(false);
             m_blockMove = true;
-            QTimer::singleShot(50, m_timerHandler.data(), SLOT(clearMoveDelay()));
-
+            m_startPoint = event->scenePos();
+            QTimer::singleShot(100, m_timerHandler.data(), SLOT(clearMoveDelay()));
         }
     }
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {

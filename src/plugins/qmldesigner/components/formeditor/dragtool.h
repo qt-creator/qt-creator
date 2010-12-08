@@ -64,7 +64,7 @@ class DragTool : public AbstractFormEditorTool
 {
 public:
     DragTool(FormEditorView* editorView);
-    ~DragTool();
+    virtual ~DragTool();
 
     void mousePressEvent(const QList<QGraphicsItem*> &itemList,
                          QGraphicsSceneMouseEvent *event);
@@ -122,6 +122,7 @@ private:
     QmlItemNode m_dragNode;
     QScopedPointer<Internal::TimerHandler> m_timerHandler;
     bool m_blockMove;
+    QPointF m_startPoint;
 };
 
 
