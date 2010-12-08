@@ -1299,7 +1299,6 @@ public slots:
 public:
     DebuggerState m_state;
     DebuggerMainWindow *m_mainWindow;
-    DebugMode *m_debugMode;
     DebuggerRunControlFactory *m_debuggerRunControlFactory;
 
     QString m_previousMode;
@@ -1397,7 +1396,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
     m_finishedContext = Context(0);
     m_anyContext = Context(0);
 
-    m_debugMode = 0;
     m_mainWindow = 0;
     m_state = DebuggerNotReady;
     m_snapshotHandler = 0;
@@ -1429,10 +1427,6 @@ DebuggerPluginPrivate::~DebuggerPluginPrivate()
 
     delete m_snapshotHandler;
     m_snapshotHandler = 0;
-
-    m_plugin->removeObject(theDebuggerCore->m_debugMode);
-    delete m_debugMode;
-    m_debugMode = 0;
 }
 
 DebuggerCore *debuggerCore()
@@ -2323,7 +2317,7 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
 
     m_mainWindow->onModeChanged(mode);
 
-    if (mode != m_debugMode)
+    if (mode->id() != Constants::MODE_DEBUG)
         return;
 
     EditorManager *editorManager = EditorManager::instance();
@@ -3126,9 +3120,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
 
     // Debug mode setup
-    m_debugMode = new DebugMode;
-    m_plugin->addObject(m_debugMode);
-
+    m_plugin->addAutoReleasedObject(new DebugMode);
 
     //
     //  Connections
