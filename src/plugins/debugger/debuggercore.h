@@ -114,6 +114,7 @@ public:
     virtual void showModuleSymbols(const QString &moduleName,
         const QVector<Symbol> &symbols) = 0;
     virtual void openMemoryEditor() = 0;
+    virtual void updateMemoryEditors() = 0;
     virtual void languagesChanged() = 0;
 
     virtual Utils::SavedAction *action(int code) const = 0;

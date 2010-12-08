@@ -87,6 +87,8 @@ void MemoryViewAgent::createBinEditor(quint64 addr)
         Core::Constants::K_DEFAULT_BINARY_EDITOR_ID,
         &titlePattern);
     if (editor) {
+        editor->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
+        editor->setProperty(Debugger::Constants::OPENED_WITH_MEMORY, true);
         connect(editor->widget(),
             SIGNAL(lazyDataRequested(Core::IEditor *, quint64,bool)),
             SLOT(fetchLazyData(Core::IEditor *, quint64,bool)));
@@ -103,7 +105,6 @@ void MemoryViewAgent::createBinEditor(quint64 addr)
             SIGNAL(endOfFileRequested(Core::IEditor *)),
             SLOT(handleEndOfFileRequested(Core::IEditor*)));
         m_editors << editor;
-        editorManager->activateEditor(editor);
         QMetaObject::invokeMethod(editor->widget(), "setNewWindowRequestAllowed");
         QMetaObject::invokeMethod(editor->widget(), "setLazyData",
             Q_ARG(quint64, addr), Q_ARG(int, DataRange), Q_ARG(int, BinBlockSize));

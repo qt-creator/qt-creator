@@ -84,6 +84,7 @@ namespace Internal {
 
 const char * const OPENED_BY_DEBUGGER         = "OpenedByDebugger";
 const char * const OPENED_WITH_DISASSEMBLY    = "DisassemblerView";
+const char * const OPENED_WITH_MEMORY         = "MemoryView";
 
 const char * const DEBUGMODE            = "Debugger.DebugMode";
 const char * const DEBUG                = "Debugger.Debug";

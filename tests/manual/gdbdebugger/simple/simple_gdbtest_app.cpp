@@ -1859,6 +1859,13 @@ public:
     Foo *f;
 };
 
+void testMemoryView()
+{
+    int a[20];
+    for (int i = 0; i != 20; ++i)
+        a[i] = i;
+}
+
 void testUninitialized()
 {
     QString s;
@@ -2111,6 +2118,7 @@ void testQSettings()
 
 int main(int argc, char *argv[])
 {
+    testMemoryView();
     //testQSettings();
     //testWCout0();
     //testWCout();
