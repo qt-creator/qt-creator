@@ -103,6 +103,9 @@ void MaemoPackageCreationWidget::initGui()
         SIGNAL(controlChanged(const ProjectExplorer::Project*)), this,
         SLOT(handleControlFileUpdate(const ProjectExplorer::Project*)));
     connect(m_ui->nameLineEdit, SIGNAL(editingFinished()), SLOT(setName()));
+    m_ui->shortDescriptionLineEdit->setMaxLength(60);
+    connect(m_ui->shortDescriptionLineEdit, SIGNAL(editingFinished()),
+        SLOT(setShortDescription()));
 }
 
 void MaemoPackageCreationWidget::updateDebianFileList(const ProjectExplorer::Project *project)
@@ -164,8 +167,8 @@ void MaemoPackageCreationWidget::updateName(const Project *project)
 
 void MaemoPackageCreationWidget::updateShortDescription(const Project *project)
 {
-    // TODO: Implment
-    Q_UNUSED(project);
+    m_ui->shortDescriptionLineEdit
+        ->setText(MaemoTemplatesManager::instance()->shortDescription(project));
 }
 
 void MaemoPackageCreationWidget::setPackageManagerIcon()
@@ -197,7 +200,11 @@ void MaemoPackageCreationWidget::setName()
 
 void MaemoPackageCreationWidget::setShortDescription()
 {
-
+    if (!MaemoTemplatesManager::instance()->setShortDescription(thisProject(),
+            m_ui->shortDescriptionLineEdit->text())) {
+        QMessageBox::critical(this, tr("File Error"),
+            tr("Could not set project description."));
+    }
 }
 
 void MaemoPackageCreationWidget::handleToolchainChanged()

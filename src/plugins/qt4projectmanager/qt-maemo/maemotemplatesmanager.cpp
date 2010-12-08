@@ -62,7 +62,8 @@ namespace Internal {
 
 namespace {
 const QByteArray IconFieldName("XB-Maemo-Icon-26:");
-const QByteArray DescriptionFieldName("XB-Maemo-Display-Name");
+const QByteArray NameFieldName("XB-Maemo-Display-Name");
+const QByteArray ShortDescriptionFieldName("Description");
 const QLatin1String PackagingDirName("qtc_packaging");
 const QLatin1String DebianDirNameFremantle("debian_fremantle");
 } // anonymous namespace
@@ -261,7 +262,7 @@ bool MaemoTemplatesManager::adaptControlFile(const Project *project)
 
     adaptControlFileField(controlContents, "Section", "user/hidden");
     adaptControlFileField(controlContents, "Priority", "optional");
-    adaptControlFileField(controlContents, DescriptionFieldName,
+    adaptControlFileField(controlContents, NameFieldName,
         project->displayName().toUtf8());
     const int buildDependsOffset = controlContents.indexOf("Build-Depends:");
     if (buildDependsOffset == -1) {
@@ -288,21 +289,29 @@ bool MaemoTemplatesManager::adaptControlFile(const Project *project)
     return true;
 }
 
-void MaemoTemplatesManager::adaptControlFileField(QByteArray &document,
+bool MaemoTemplatesManager::adaptControlFileField(QByteArray &document,
     const QByteArray &fieldName, const QByteArray &newFieldValue)
 {
     QByteArray adaptedLine = fieldName + ": " + newFieldValue;
     const int lineOffset = document.indexOf(fieldName + ":");
     if (lineOffset == -1) {
         document.append(adaptedLine).append('\n');
-    } else {
-        int newlineOffset = document.indexOf('\n', lineOffset);
-        if (newlineOffset == -1) {
-            newlineOffset = document.length();
-            adaptedLine += '\n';
-        }
-        document.replace(lineOffset, newlineOffset - lineOffset, adaptedLine);
+        return true;
     }
+
+    int newlineOffset = document.indexOf('\n', lineOffset);
+    bool updated = false;
+    if (newlineOffset == -1) {
+        newlineOffset = document.length();
+        adaptedLine += '\n';
+        updated = true;
+    }
+    const int replaceCount = newlineOffset - lineOffset;
+    if (!updated && document.mid(lineOffset, replaceCount) != adaptedLine)
+        updated = true;
+    if (updated)
+        document.replace(lineOffset, replaceCount, adaptedLine);
+    return updated;
 }
 
 bool MaemoTemplatesManager::updateDesktopFiles(const Qt4Target *target)
@@ -571,19 +580,37 @@ bool MaemoTemplatesManager::setPackageManagerIcon(const Project *project,
 
 QString MaemoTemplatesManager::name(const Project *project) const
 {
-    return controlFileFieldValue(project, DescriptionFieldName);
+    return controlFileFieldValue(project, NameFieldName);
 }
 
-bool MaemoTemplatesManager::setName(const Project *project,
+bool MaemoTemplatesManager::setName(const Project *project, const QString &name)
+{
+    return setFieldValue(project, NameFieldName, name.toUtf8());
+}
+
+QString MaemoTemplatesManager::shortDescription(const Project *project) const
+{
+    return controlFileFieldValue(project, ShortDescriptionFieldName);
+}
+
+bool MaemoTemplatesManager::setShortDescription(const Project *project,
     const QString &description)
+{
+    return setFieldValue(project, ShortDescriptionFieldName,
+        description.toUtf8());
+}
+
+bool MaemoTemplatesManager::setFieldValue(const Project *project,
+    const QByteArray &fieldName, const QByteArray &fieldValue)
 {
     QFile controlFile(controlFilePath(project));
     if (!controlFile.open(QIODevice::ReadWrite))
         return false;
     QByteArray contents = controlFile.readAll();
-    adaptControlFileField(contents, DescriptionFieldName, description.toUtf8());
-    controlFile.resize(0);
-    controlFile.write(contents);
+    if (adaptControlFileField(contents, fieldName, fieldValue)) {
+        controlFile.resize(0);
+        controlFile.write(contents);
+    }
     return true;
 }
 
