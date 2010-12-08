@@ -795,19 +795,19 @@ static bool parseArgument(QStringList::const_iterator &it,
     }
     // Engine disabling.
     if (option == _("-disable-cdb")) {
-        *enabledEngines &= ~Debugger::CdbEngineType;
+        *enabledEngines &= ~CdbEngineType;
         return true;
     }
     if (option == _("-disable-gdb")) {
-        *enabledEngines &= ~Debugger::GdbEngineType;
+        *enabledEngines &= ~GdbEngineType;
         return true;
     }
     if (option == _("-disable-qmldb")) {
-        *enabledEngines &= ~Debugger::QmlEngineType;
+        *enabledEngines &= ~QmlEngineType;
         return true;
     }
     if (option == _("-disable-sdb")) {
-        *enabledEngines &= ~Debugger::ScriptEngineType;
+        *enabledEngines &= ~ScriptEngineType;
         return true;
     }
     if (option == _("-disable-tcf")) {
@@ -832,7 +832,7 @@ static bool parseArguments(const QStringList &args,
     for (QStringList::const_iterator it = args.constBegin(); it != cend; ++it)
         if (!parseArgument(it, cend, attachRemoteParameters, enabledEngines, errorMessage))
             return false;
-    if (Debugger::Constants::Internal::debug)
+    if (Constants::Internal::debug)
         qDebug().nospace() << args << "engines=0x"
             << QString::number(*enabledEngines, 16)
             << " pid" << attachRemoteParameters->attachPid
@@ -2312,7 +2312,7 @@ void DebuggerPluginPrivate::gotoLocation(const QString &file, int line, bool set
     if (!editor)
         return;
     if (newEditor)
-        editor->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
+        editor->setProperty(Constants::OPENED_BY_DEBUGGER, true);
     if (setMarker)
         m_locationMark.reset(new LocationMark(file, line));
 }
