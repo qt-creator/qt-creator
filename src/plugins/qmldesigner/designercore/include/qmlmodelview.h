@@ -54,6 +54,7 @@ public:
     QmlModelState currentState() const;
 
     QmlModelState baseState() const;
+    QmlModelStateGroup rootStateGroup() const;
 
     QmlObjectNode createQmlObjectNode(const QString &typeString,
                                       int majorVersion,
@@ -93,6 +94,7 @@ public:
 
     void nodeCreated(const ModelNode &createdNode);
     void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange);
+    void nodeAboutToBeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
     void propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList);
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);

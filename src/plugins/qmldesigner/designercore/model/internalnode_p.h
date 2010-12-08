@@ -145,7 +145,6 @@ private:
 
 uint qHash(const InternalNodePointer& node);
 bool operator <(const InternalNodePointer &firstNode, const InternalNodePointer &secondNode);
-
 } // Internal
 } // QtQmlDesigner
 

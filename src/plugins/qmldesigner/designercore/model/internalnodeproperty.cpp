@@ -53,6 +53,22 @@ bool InternalNodeProperty::isEmpty() const
     return m_node.isNull();
 }
 
+int InternalNodeProperty::count() const
+{
+    if (isEmpty())
+        return 0;
+
+    return 1;
+}
+
+int InternalNodeProperty::indexOf(const InternalNode::Pointer &node) const
+{
+    if (!node.isNull() && node == m_node)
+        return 0;
+
+    return -1;
+}
+
 bool InternalNodeProperty::isValid() const
 {
     return InternalProperty::isValid() && isNodeProperty();

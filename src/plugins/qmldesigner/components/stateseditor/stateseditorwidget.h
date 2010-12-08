@@ -33,31 +33,34 @@
 #include <QtGui/QWidget>
 #include <QtGui/QListWidgetItem>
 
+QT_BEGIN_NAMESPACE
+class QDeclarativeView;
+QT_END_NAMESPACE
+
 namespace QmlDesigner {
 
-class FormWindow;
 class Model;
 class ModelState;
+class StatesEditorModel;
+class StatesEditorView;
 
-namespace Internal {
-class StatesEditorWidgetPrivate;
-}
 
 class StatesEditorWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    StatesEditorWidget(QWidget *parent = 0);
+    StatesEditorWidget(StatesEditorView *m_statesEditorView, StatesEditorModel *statesEditorModel);
     virtual ~StatesEditorWidget();
-
-    void setup(Model *model);
 
     QSize sizeHint() const;
 
+    int currentStateInternalId() const;
+    void setCurrentStateInternalId(int internalId);
+
 private:
-    friend class Internal::StatesEditorWidgetPrivate;
-    class Internal::StatesEditorWidgetPrivate *m_d;
+    QWeakPointer<QDeclarativeView> m_declarativeView;
+    QWeakPointer<StatesEditorView> m_statesEditorView;
 };
 
 }

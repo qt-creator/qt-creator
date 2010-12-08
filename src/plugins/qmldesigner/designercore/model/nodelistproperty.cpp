@@ -115,12 +115,17 @@ void NodeListProperty::reparentHere(const ModelNode &modelNode)
     NodeAbstractProperty::reparentHere(modelNode, true);
 }
 
-bool NodeListProperty::isEmpty() const
+ModelNode NodeListProperty::at(int index) const
 {
     if (!isValid())
         throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "<invalid node list property>");
-    return toModelNodeList().empty();
-}
 
+    Internal::InternalNodeListProperty::Pointer internalProperty = internalNode()->nodeListProperty(name());
+    if (internalProperty)
+        return ModelNode(internalProperty->at(index), model(), view());
+
+
+    return ModelNode();
+}
 
 } // namespace QmlDesigner

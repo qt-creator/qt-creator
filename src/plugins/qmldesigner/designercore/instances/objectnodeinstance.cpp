@@ -575,9 +575,11 @@ QStringList allPropertyNames(QObject *object, const QString &baseName = QString(
         QMetaProperty metaProperty = metaObject->property(index);
         QDeclarativeProperty declarativeProperty(object, QLatin1String(metaProperty.name()));
         if (declarativeProperty.isValid() && declarativeProperty.propertyTypeCategory() == QDeclarativeProperty::Object) {
-            QObject *childObject = QDeclarativeMetaType::toQObject(declarativeProperty.read());
-            if (childObject)
-                propertyNameList.append(allPropertyNames(childObject, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
+            if (declarativeProperty.name() != "parent") {
+                QObject *childObject = QDeclarativeMetaType::toQObject(declarativeProperty.read());
+                if (childObject)
+                    propertyNameList.append(allPropertyNames(childObject, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
+            }
         } else if (QDeclarativeValueTypeFactory::valueType(metaProperty.userType())) {
             QDeclarativeValueType *valueType = QDeclarativeValueTypeFactory::valueType(metaProperty.userType());
             valueType->setValue(metaProperty.read(object));
@@ -668,8 +670,10 @@ void allSubObject(QObject *object, QObjectList &objectList)
         if (metaProperty.isReadable()
                 && metaProperty.isWritable()
                 && QDeclarativeMetaType::isQObject(metaProperty.userType())) {
-            QObject *propertyObject = QDeclarativeMetaType::toQObject(metaProperty.read(object));
-            allSubObject(propertyObject, objectList);
+            if (metaProperty.name() != QLatin1String("parent")) {
+                QObject *propertyObject = QDeclarativeMetaType::toQObject(metaProperty.read(object));
+                allSubObject(propertyObject, objectList);
+            }
 
         }
 
@@ -848,9 +852,11 @@ QStringList propertyNameForWritableProperties(QObject *object, const QString &ba
         QMetaProperty metaProperty = metaObject->property(index);
         QDeclarativeProperty declarativeProperty(object, QLatin1String(metaProperty.name()));
         if (declarativeProperty.isValid() && declarativeProperty.isWritable() && declarativeProperty.propertyTypeCategory() == QDeclarativeProperty::Object) {
-            QObject *childObject = QDeclarativeMetaType::toQObject(declarativeProperty.read());
-            if (childObject)
-                propertyNameList.append(propertyNameForWritableProperties(childObject, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
+            if (declarativeProperty.name() != "parent") {
+                QObject *childObject = QDeclarativeMetaType::toQObject(declarativeProperty.read());
+                if (childObject)
+                    propertyNameList.append(propertyNameForWritableProperties(childObject, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
+            }
         } else if (QDeclarativeValueTypeFactory::valueType(metaProperty.userType())) {
             QDeclarativeValueType *valueType = QDeclarativeValueTypeFactory::valueType(metaProperty.userType());
             valueType->setValue(metaProperty.read(object));

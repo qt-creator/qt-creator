@@ -37,7 +37,7 @@
 #include <allpropertiesbox.h>
 #include <itemlibrary.h>
 #include <navigatorview.h>
-#include <stateseditorwidget.h>
+#include <stateseditorview.h>
 #include <formeditorview.h>
 #include <formeditorwidget.h>
 #include <basetexteditmodifier.h>
@@ -87,7 +87,7 @@ public:
     QWeakPointer<ItemLibrary> itemLibrary;
     QWeakPointer<NavigatorView> navigator;
     QWeakPointer<AllPropertiesBox> allPropertiesBox;
-    QWeakPointer<StatesEditorWidget> statesEditorWidget;
+    QWeakPointer<StatesEditorView> statesEditorView;
     QWeakPointer<QStackedWidget> stackedWidget;
     QWeakPointer<NodeInstanceView> nodeInstanceView;
 
@@ -205,9 +205,9 @@ void DesignDocumentController::setAllPropertiesBox(AllPropertiesBox* allProperti
     m_d->allPropertiesBox = allPropertiesBox;
 }
 
-void DesignDocumentController::setStatesEditorWidget(StatesEditorWidget* statesEditorWidget)
+void DesignDocumentController::setStatesEditorView(StatesEditorView* statesEditorView)
 {
-    m_d->statesEditorWidget = statesEditorWidget;
+    m_d->statesEditorView = statesEditorView;
 }
 
 void DesignDocumentController::setFormEditorView(FormEditorView *formEditorView)
@@ -375,7 +375,7 @@ void DesignDocumentController::loadCurrentModel()
         m_d->stackedWidget->addWidget(m_d->textEdit.data());
 
     // Will call setCurrentState (formEditorView etc has to be constructed first)
-    m_d->statesEditorWidget->setup(m_d->model.data());
+    m_d->model->attachView(m_d->statesEditorView.data());
 
     m_d->allPropertiesBox->setModel(m_d->model.data());
 

@@ -33,107 +33,143 @@
 #include <QtCore/QDebug>
 #include <QMessageBox>
 
+#include <nodelistproperty.h>
+#include <modelnode.h>
+#include <variantproperty.h>
+
 enum {
     debug = false
 };
 
 
 namespace QmlDesigner {
-namespace Internal {
 
-StatesEditorModel::StatesEditorModel(QObject *parent) :
-        QAbstractListModel(parent),
-        m_updateCounter(0)
+StatesEditorModel::StatesEditorModel(StatesEditorView *view)
+    : QAbstractListModel(view),
+      m_statesEditorView(view),
+      m_updateCounter(0)
 {
     QHash<int, QByteArray> roleNames;
     roleNames.insert(StateNameRole, "stateName");
     roleNames.insert(StateImageSourceRole, "stateImageSource");
+    roleNames.insert(NodeId, "nodeId");
     setRoleNames(roleNames);
 }
 
 
 int StatesEditorModel::count() const
 {
-    return m_stateNames.count();
+    return rowCount();
+}
+
+QModelIndex StatesEditorModel::index(int row, int column, const QModelIndex &parent) const
+{
+    if (m_statesEditorView.isNull())
+        return QModelIndex();
+
+
+    int internalId = 0;
+    if (row > 0)
+        internalId = m_statesEditorView->rootModelNode().nodeListProperty("states").at(row - 1).internalId();
+
+    return hasIndex(row, column, parent) ? createIndex(row, column,  internalId) : QModelIndex();
 }
 
 int StatesEditorModel::rowCount(const QModelIndex &parent) const
 {
-    if (parent.isValid())
+    if (parent.isValid() || m_statesEditorView.isNull() || !m_statesEditorView->model())
         return 0;
-    return m_stateNames.count();
+
+    if (!m_statesEditorView->rootModelNode().hasNodeListProperty("states"))
+        return 1;
+
+    return m_statesEditorView->rootModelNode().nodeListProperty("states").count() + 1;
+}
+
+void StatesEditorModel::reset()
+{
+    QAbstractListModel::reset();
 }
 
 QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
 {
-    if (index.parent().isValid() || index.column() != 0)
+    if (index.parent().isValid() || index.column() != 0 || m_statesEditorView.isNull() || !m_statesEditorView->hasModelNodeForInternalId(index.internalId()))
         return QVariant();
 
-    QVariant result;
+    ModelNode stateNode;
+
+    if (index.internalId() > 0)
+        stateNode = m_statesEditorView->modelNodeForInternalId(index.internalId());
+
     switch (role) {
     case StateNameRole: {
-            if (index.row()==0)
-                result = QString(tr("base state", "Implicit default state"));
-            else
-                result = m_stateNames.at(index.row());
-            break;
+            if (index.row() == 0) {
+                return QString(tr("base state", "Implicit default state"));
+            } else {
+                if (stateNode.hasVariantProperty("name")) {
+                    return stateNode.variantProperty("name").value();
+                } else {
+                    return QVariant();
+                }
+            }
+
         }
-    case StateImageSourceRole: {
-            if (!m_statesView.isNull())
-                return QString("image://qmldesigner_stateseditor/%1-%2").arg(index.row()).arg(m_updateCounter);
-            break;
-        }
+    case StateImageSourceRole: return QString("image://qmldesigner_stateseditor/%1").arg(index.internalId());
+    case NodeId : return index.internalId();
     }
 
-    return result;
+
+    return QVariant();
 }
 
-void StatesEditorModel::insertState(int i, const QString &name)
+void StatesEditorModel::insertState(int stateIndex)
 {
-    beginInsertRows(QModelIndex(), i, i);
+    if (stateIndex >= 0) {
 
-    m_stateNames.insert(i, name);
+        const int index = stateIndex + 1;
+        beginInsertRows(QModelIndex(), index, index);
 
-    endInsertRows();
+        endInsertRows();
 
-    emit dataChanged(createIndex(i, 0), createIndex(i, 0));
-    emit countChanged();
-}
-
-void StatesEditorModel::removeState(int i)
-{
-    beginRemoveRows(QModelIndex(), i, i);
-
-    m_stateNames.removeAt(i);
-
-    endRemoveRows();
-
-    emit dataChanged(createIndex(i, 0), createIndex(i, 0));
-    emit countChanged();
-}
-
-void StatesEditorModel::renameState(int i, const QString &newName)
-{
-    Q_ASSERT(i > 0 && i < m_stateNames.count());
-
-    if (m_stateNames[i] != newName) {
-        if (m_stateNames.contains(newName) || newName.isEmpty()) {
-            QMessageBox::warning(0, tr("Invalid state name"),
-                                 newName.isEmpty() ?
-                                     tr("The empty string as a name is reserved for the base state.") :
-                                     tr("Name already used in another state"));
-        } else {
-            m_stateNames.replace(i, newName);
-            m_statesView->renameState(i,newName);
-
-            emit dataChanged(createIndex(i, 0), createIndex(i, 0));
-        }
+        emit dataChanged(createIndex(index, 0), createIndex(index, 0));
+        emit countChanged();
     }
 }
 
-void StatesEditorModel::setStatesEditorView(StatesEditorView *statesView)
+void StatesEditorModel::updateState(int stateIndex)
 {
-    m_statesView = statesView;
+    if (stateIndex >= 0) {
+        const int index = stateIndex + 1;
+
+        emit dataChanged(createIndex(index, 0), createIndex(index, 0));
+    }
+}
+
+void StatesEditorModel::removeState(int stateIndex)
+{
+    if (stateIndex >= 0) {
+        const int index = stateIndex + 1;
+        beginRemoveRows(QModelIndex(), index, index);
+
+
+        endRemoveRows();
+
+        emit dataChanged(createIndex(index, 0), createIndex(index, 0));
+        emit countChanged();
+    }
+}
+
+void StatesEditorModel::renameState(int nodeId, const QString &newName)
+{    
+    if (newName.isEmpty() ||! m_statesEditorView->validStateName(newName)) {
+        QMessageBox::warning(0, tr("Invalid state name"),
+                             newName.isEmpty() ?
+                                 tr("The empty string as a name is reserved for the base state.") :
+                                 tr("Name already used in another state"));
+    } else {
+        m_statesEditorView->renameState(nodeId, newName);
+    }
+
 }
 
 void StatesEditorModel::emitChangedToState(int n)
@@ -141,5 +177,4 @@ void StatesEditorModel::emitChangedToState(int n)
     emit changedToState(n);
 }
 
-} // namespace Internal
 } // namespace QmlDesigner

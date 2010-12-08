@@ -33,11 +33,10 @@
 #include <QAbstractListModel>
 #include <QWeakPointer>
 
-#include <stateseditorview.h>
 
 namespace QmlDesigner {
 
-namespace Internal {
+class StatesEditorView;
 
 class StatesEditorModel : public QAbstractListModel
 {
@@ -48,32 +47,34 @@ class StatesEditorModel : public QAbstractListModel
     enum {
         StateNameRole = Qt::DisplayRole,
         StateImageSourceRole = Qt::UserRole,
+        NodeId
     };
 
 public:
-    StatesEditorModel(QObject *parent);
+    StatesEditorModel(StatesEditorView *view);
 
     int count() const;
+    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    void insertState(int i, const QString &name);
-    void removeState(int i);
-    Q_INVOKABLE void renameState(int i, const QString &newName);
-    void setStatesEditorView(StatesEditorView *statesView);
+    void insertState(int stateIndex);
+    void removeState(int stateIndex);
+    void updateState(int stateIndex);
+    Q_INVOKABLE void renameState(int nodeId, const QString &newName);
     void emitChangedToState(int n);
+
+    void reset();
 
 signals:
     void countChanged();
     void changedToState(int n);
 
 private:
-    QList<QString> m_stateNames;
-    QWeakPointer<StatesEditorView> m_statesView;
+    QWeakPointer<StatesEditorView> m_statesEditorView;
     int m_updateCounter;
 };
 
-} // namespace Itnernal
 } // namespace QmlDesigner
 
 #endif // STATESEDITORMODEL_H

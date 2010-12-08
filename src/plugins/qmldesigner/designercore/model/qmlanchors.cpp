@@ -326,7 +326,7 @@ AnchorLine QmlAnchors::instanceAnchor(AnchorLine::Type sourceAnchorLine) const
     if (targetAnchorLine == AnchorLine::Invalid )
         return AnchorLine();
 
-    if (!targetAnchorLinePair.second >= 0) //there might be no node instance for the parent
+    if (targetAnchorLinePair.second < 0) //there might be no node instance for the parent
         return AnchorLine();
 
     return AnchorLine(QmlItemNode(qmlItemNode().nodeForInstance(qmlItemNode().qmlModelView()->nodeInstanceView()->instanceForId(targetAnchorLinePair.second))), targetAnchorLine);

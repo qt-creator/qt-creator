@@ -130,6 +130,10 @@ void NavigatorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
         m_treeModel->removeSubTree(removedNode);
 }
 
+void NavigatorView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+}
+
 void NavigatorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty & /*newPropertyParent*/, const NodeAbstractProperty & /*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
     bool blocked = blockSelectionChangedSignal(true);

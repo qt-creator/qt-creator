@@ -3,28 +3,18 @@ import Qt 4.7
 Rectangle {
     id: root
 
-    property int currentStateIndex : 0
+    property int currentStateInternalId : 0
     signal createNewState
-    signal deleteState(int index)
+    signal deleteState(int nodeId)
     signal duplicateCurrentState
     signal startRenaming
 
     color: "#4f4f4f";
     property color colorAlpha: "#994f4f4f";
 
-    function adjustCurrentStateIndex() {
-        if (currentStateIndex >= statesEditorModel.count)
-        currentStateIndex = statesEditorModel.count-1;
-    }
-
     Connections {
         target: statesEditorModel
-        onCountChanged: adjustCurrentStateIndex()
-    }
-
-    Connections {
-        target: statesEditorModel
-        onChangedToState: root.currentStateIndex = n;
+        onChangedToState: root.currentStateInternalId = n;
     }
 
     signal unFocus
@@ -33,9 +23,9 @@ Rectangle {
         hoverEnabled:true
         onExited: root.unFocus();
     }
-    onCurrentStateIndexChanged: {
-        if (currentStateIndex <= 0)
-        currentStateIndex = 0;
+    onCurrentStateInternalIdChanged: {
+        if (currentStateInternalId <= 0)
+        currentStateInternalId = 0;
         else
         unFocus();
 
@@ -97,7 +87,7 @@ Rectangle {
             height: img.height + txt.height + 29 //(index==0?29:25)
             //y:(index==0?0:4)
 
-            property bool isCurrentState: root.currentStateIndex == index;
+            property bool isCurrentState: root.currentStateInternalId == nodeId;
             onXChanged: scrollBarAdjuster.adjustScrollBar();
             onIsCurrentStateChanged: scrollBarAdjuster.adjustScrollBar();
 
@@ -115,7 +105,7 @@ Rectangle {
 
             Connections {
                 target: root
-                onStartRenaming: if (root.currentStateIndex == index) startRenaming();
+                onStartRenaming: if (root.currentStateInternalId == index) startRenaming();
             }
 
             function startRenaming() {
@@ -160,7 +150,7 @@ Rectangle {
                 anchors.fill: container
                 onClicked: {
                     root.unFocus();
-                    root.currentStateIndex = index;
+                    root.currentStateInternalId = nodeId;
                 }
             }
 
@@ -184,7 +174,7 @@ Rectangle {
                     anchors.topMargin: 2
                     anchors.horizontalCenter: textLimits.horizontalCenter
                     id: txt
-                    color: root.currentStateIndex==index ? "white" : "#E1E1E1";
+                    color: root.currentStateInternalId==nodeId ? "white" : "#E1E1E1";
                     text: stateName
                     width:parent.width
                     elide:Qt.ElideMiddle
@@ -205,9 +195,9 @@ Rectangle {
                     id: txtRegion
                     anchors.fill:parent
                     onClicked: {
-                        if (root.currentStateIndex != index)
+                        if (root.currentStateInternalId != nodeId)
                         root.unFocus();
-                        root.currentStateIndex = index;
+                        root.currentStateInternalId = nodeId;
                     }
                     onDoubleClicked: if (index!=0) {
                         startRenaming();
@@ -233,7 +223,7 @@ Rectangle {
                     function unFocus() {
                         if (visible) {
                             visible=false;
-                            statesEditorModel.renameState(index, stateNameInput.text);
+                            statesEditorModel.renameState(nodeId, stateNameInput.text);
                         }
                     }
 
@@ -273,7 +263,7 @@ Rectangle {
                             onAccepted: {
                                 if (stateNameEditor.visible) {
                                     stateNameEditor.visible = false;
-                                    statesEditorModel.renameState(index,text);
+                                    statesEditorModel.renameState(nodeId,text);
                                 }
                             }
                         }
@@ -285,7 +275,7 @@ Rectangle {
             Item {
                 id: removeState
 
-                visible: (index != 0 && root.currentStateIndex==index)
+                visible: (index != 0 && root.currentStateInternalId==nodeId)
 
                 anchors.right: parent.right
                 anchors.top: parent.top
@@ -372,7 +362,7 @@ Rectangle {
                     onClicked: {
                         root.unFocus();
 
-                        root.deleteState(index);
+                        root.deleteState(nodeId);
                         horizontalScrollbar.contentSizeDecreased();
                     }
                     onPressed: {parent.state="Pressed"}
@@ -569,12 +559,10 @@ Rectangle {
                 onClicked: {
                     // force close textinput
                     root.unFocus();
-                    if (root.currentStateIndex == 0)
                     root.createNewState(); //create new state
-                    else
-                    root.duplicateCurrentState(); //duplicate current state
+
                     // select the new state
-                    root.currentStateIndex = statesEditorModel.count - 1;
+                   // root.currentStateInternalId = statesEditorModel.count - 1;
 
                     // this should happen automatically
                     if (floatingNewStateBox.visible)

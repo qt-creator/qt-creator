@@ -106,6 +106,24 @@ bool NodeAbstractProperty::isEmpty() const
         return property->isEmpty();
 }
 
+int NodeAbstractProperty::indexOf(const ModelNode &node) const
+{
+    Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(name());
+    if (property.isNull())
+        return 0;
+
+    return property->indexOf(node.internalNode());
+}
+
+int NodeAbstractProperty::count() const
+{
+    Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(name());
+    if (property.isNull())
+        return 0;
+    else
+        return property->count();
+}
+
 QList<ModelNode> NodeAbstractProperty::allSubNodes()
 {
     if (!internalNode()

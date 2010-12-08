@@ -110,6 +110,12 @@ void ViewLogger::nodeRemoved(const ModelNode &removedNode, const NodeAbstractPro
     m_output << time() << indent("nodeRemoved:") << removedNode << parentProperty << serialize(propertyChange) << endl;
 }
 
+void ViewLogger::nodeAboutToBeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)
+{
+    m_output << time() << indent("nodeAboutToBeReparented:") << node << "\t" << newPropertyParent << "\t" << oldPropertyParent << "\t" << serialize(propertyChange) << endl;
+}
+
+
 void ViewLogger::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)
 {
     m_output << time() << indent("nodeReparented:") << node << "\t" << newPropertyParent << "\t" << oldPropertyParent << "\t" << serialize(propertyChange) << endl;

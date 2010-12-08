@@ -59,6 +59,25 @@ bool InternalNodeListProperty::isEmpty() const
     return m_nodeList.isEmpty();
 }
 
+int InternalNodeListProperty::count() const
+{
+    return m_nodeList.count();
+}
+
+int InternalNodeListProperty::indexOf(const InternalNode::Pointer &node) const
+{
+    if (node.isNull())
+        return -1;
+
+    return m_nodeList.indexOf(node);
+}
+
+InternalNode::Pointer InternalNodeListProperty::at(int index) const
+{
+    Q_ASSERT(index >=0 || index < m_nodeList.count());
+    return InternalNode::Pointer(m_nodeList.at(index));
+}
+
 bool InternalNodeListProperty::isNodeListProperty() const
 {
     return true;

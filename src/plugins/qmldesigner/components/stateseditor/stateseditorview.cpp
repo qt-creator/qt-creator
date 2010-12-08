@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "stateseditorview.h"
+#include "stateseditorwidget.h"
 #include "stateseditormodel.h"
 #include <customnotifications.h>
 #include <rewritingexception.h>
@@ -38,6 +39,8 @@
 #include <QDebug>
 #include <math.h>
 
+#include <nodemetainfo.h>
+
 #include <variantproperty.h>
 #include <nodelistproperty.h>
 
@@ -46,108 +49,124 @@ enum {
 };
 
 namespace QmlDesigner {
-namespace Internal {
 
 /**
   We always have 'one' current state, where we get updates from (see sceneChanged()). In case
   the current state is the base state, we render the base state + all other states.
   */
-StatesEditorView::StatesEditorView(StatesEditorModel *editorModel, QObject *parent) :
+StatesEditorView::StatesEditorView(QObject *parent) :
         QmlModelView(parent),
-        m_editorModel(editorModel)
+        m_statesEditorModel(new StatesEditorModel(this)),
+        m_lastIndex(-1)
 {
-    Q_ASSERT(m_editorModel);
+    Q_ASSERT(m_statesEditorModel);
     // base state
 }
 
-void StatesEditorView::setCurrentState(int index)
+StatesEditorWidget *StatesEditorView::widget()
 {
-    if (debug)
-        qDebug() << __FUNCTION__ << index;
+    if (m_statesEditorWidget.isNull())
+        m_statesEditorWidget = new StatesEditorWidget(this, m_statesEditorModel.data());
 
-    // happens to be the case for an invalid document / no base state
-    if (m_modelStates.isEmpty())
-        return;
-
-    Q_ASSERT(index < m_modelStates.count());
-    if (index == -1)
-        return;
-
-    if (m_modelStates.indexOf(currentState()) == index)
-        return;
-
-    QmlModelState state(m_modelStates.at(index));
-    Q_ASSERT(state.isValid());
-    QmlModelView::setCurrentState(state);
+    return m_statesEditorWidget.data();
 }
 
-void StatesEditorView::createState(const QString &name)
+void StatesEditorView::removeState(int nodeId)
 {
-    if (debug)
-        qDebug() << __FUNCTION__ << name;
-
     try {
-        model()->addImport(Import::createLibraryImport("QtQuick", "1.0"));
-        stateRootNode().states().addState(name);
-    }  catch (RewritingException &e) {
-        QMessageBox::warning(0, "Error", e.description());
-    }
-}
+        if (nodeId > 0 && hasModelNodeForInternalId(nodeId)) {
+            ModelNode stateNode(modelNodeForInternalId(nodeId));
+            Q_ASSERT(stateNode.metaInfo().isSubclassOf("QtQuick/State", 4, 7));
+            NodeListProperty parentProperty = stateNode.parentProperty().toNodeListProperty();
 
-void StatesEditorView::removeState(int index)
-{
-    if (debug)
-        qDebug() << __FUNCTION__ << index;
+            if (parentProperty.count() <= 1) {
+                setCurrentState(baseState());
+            } else if (parentProperty.isValid()){
+                int index = parentProperty.indexOf(stateNode);
+                if (index == 0) {
+                    setCurrentState(parentProperty.at(1));
+                } else {
+                    setCurrentState(parentProperty.at(index - 1));
+                }
+            }
 
-    Q_ASSERT(index > 0 && index < m_modelStates.size());
-    QmlModelState state = m_modelStates.at(index);
-    Q_ASSERT(state.isValid());
 
-    setCurrentState(0);
-
-    try {
-        m_modelStates.removeAll(state);
-        state.destroy();
-
-        m_editorModel->removeState(index);
-
-        int newIndex = (index < m_modelStates.count()) ? index : m_modelStates.count() - 1;
-        setCurrentState(newIndex);
-    }  catch (RewritingException &e) {
-        QMessageBox::warning(0, "Error", e.description());
-    }
-}
-
-void StatesEditorView::renameState(int index, const QString &newName)
-{
-    if (debug)
-        qDebug() << __FUNCTION__ << index << newName;
-
-    Q_ASSERT(index > 0 && index < m_modelStates.size());
-    QmlModelState state = m_modelStates.at(index);
-    Q_ASSERT(state.isValid());
-
-    try {
-        if (state.name() != newName) {
-            // Jump to base state for the change
-            QmlModelState oldState = currentState();
-            state.setName(newName);
-            setCurrentState(m_modelStates.indexOf(oldState));
+            stateNode.destroy();
         }
     }  catch (RewritingException &e) {
         QMessageBox::warning(0, "Error", e.description());
     }
 }
 
-void StatesEditorView::duplicateCurrentState(int index)
+void StatesEditorView::synchonizeCurrentStateFromWidget()
 {
-    if (debug)
-        qDebug() << __FUNCTION__ << index;
+    int internalId = m_statesEditorWidget->currentStateInternalId();
 
-    Q_ASSERT(index > 0 && index < m_modelStates.size());
+    if (internalId > 0 && hasModelNodeForInternalId(internalId)) {
+        ModelNode node = modelNodeForInternalId(internalId);
+        QmlModelState modelState(node);
+        if (modelState.isValid() && modelState != currentState())
+            setCurrentState(modelState);
+    } else {
+        setCurrentState(baseState());
+    }
+}
 
-    QmlModelState state = m_modelStates.at(index);
-    Q_ASSERT(state.isValid());
+void StatesEditorView::createNewState()
+{
+    if (currentState().isBaseState()) {
+        addState();
+    } else {
+        duplicateCurrentState();
+    }
+}
+
+void StatesEditorView::addState()
+{
+    // can happen when root node is e.g. a ListModel
+    if (!rootQmlItemNode().isValid())
+        return;
+
+    QStringList modelStateNames = rootStateGroup().names();
+
+    QString newStateName;
+    int index = 1;
+    while (true) {
+        newStateName = tr("State%1", "Default name for newly created states").arg(index++);
+        if (!modelStateNames.contains(newStateName))
+            break;
+    }
+
+    try {
+        if (rootStateGroup().allStates().count() < 1)
+            model()->addImport(Import::createLibraryImport("QtQuick", "1.0"));
+        ModelNode newState = rootStateGroup().addState(newStateName);
+        setCurrentState(newState);
+    }  catch (RewritingException &e) {
+        QMessageBox::warning(0, "Error", e.description());
+    }
+}
+
+void StatesEditorView::resetModel()
+{
+    if (m_statesEditorModel)
+        m_statesEditorModel->reset();
+
+    if (m_statesEditorWidget) {
+        if (currentState().isBaseState()) {
+            m_statesEditorWidget->setCurrentStateInternalId(currentState().modelNode().internalId());
+        } else {
+            m_statesEditorWidget->setCurrentStateInternalId(0);
+        }
+    }
+}
+
+void StatesEditorView::duplicateCurrentState()
+{
+    QmlModelState state = currentState();
+
+    Q_ASSERT(!state.isBaseState());
+
     QString newName = state.name();
 
     // Strip out numbers at the end of the string
@@ -157,153 +176,125 @@ void StatesEditorView::duplicateCurrentState(int index)
         newName = newName.left(numberIndex);
 
     int i = 1;
-    QStringList stateNames = state.stateGroup().names();
+    QStringList stateNames = rootStateGroup().names();
     while (stateNames.contains(newName + QString::number(i)))
         i++;
-    state.duplicate(newName + QString::number(i));
+
+    QmlModelState newState = state.duplicate(newName + QString::number(i));
+    setCurrentState(newState);
+}
+
+bool StatesEditorView::validStateName(const QString &name) const
+{
+    if (name == tr("base state"))
+        return false;
+    QList<QmlModelState> modelStates = rootStateGroup().allStates();
+    foreach (const QmlModelState &state, modelStates) {
+        if (state.name() == name)
+            return false;
+    }
+    return true;
+}
+
+void StatesEditorView::renameState(int nodeId, const QString &newName)
+{
+    if (hasModelNodeForInternalId(nodeId)) {
+        QmlModelState state(modelNodeForInternalId(nodeId));
+        try {
+            if (state.isValid() && state.name() != newName) {
+                // Jump to base state for the change
+                QmlModelState oldState = currentState();
+                setCurrentState(baseState());
+                state.setName(newName);
+                setCurrentState(oldState);
+            }
+        }  catch (RewritingException &e) {
+            QMessageBox::warning(0, "Error", e.description());
+        }
+    }
 }
 
 void StatesEditorView::modelAttached(Model *model)
 {
-    if (debug)
-        qDebug() << __FUNCTION__;
-
     if (model == QmlModelView::model())
         return;
 
     Q_ASSERT(model);
     QmlModelView::modelAttached(model);
-    clearModelStates();
 
-    // Add base state
-    if (!baseState().isValid())
-        return;
-
-    m_modelStates.insert(0, baseState());
-    m_editorModel->insertState(0, baseState().name());
-
-    // Add custom states
-    m_stateRootNode = QmlItemNode(rootModelNode());
-    if (!m_stateRootNode.isValid())
-        return;    
-
-    for (int i = 0; i < m_stateRootNode.states().allStates().size(); ++i) {
-        QmlModelState state = QmlItemNode(rootModelNode()).states().allStates().at(i);
-        insertModelState(i, state);
-    }
+    resetModel();
 }
 
 void StatesEditorView::modelAboutToBeDetached(Model *model)
 {
-    if (debug)
-        qDebug() << __FUNCTION__;
-
-    clearModelStates();
-
     QmlModelView::modelAboutToBeDetached(model);
+    resetModel();
 }
 
 void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
 {
-    if (debug)
-        qDebug() << __FUNCTION__;
-
     foreach (const AbstractProperty &property, propertyList) {
-        // remove all states except base state
-        if ((property.name()=="states") && (property.parentModelNode().isRootNode())) {
-            foreach (const QmlModelState &state, m_modelStates) {
-                if (!state.isBaseState())
-                    removeModelState(state);
-            }
-        }
+        if (property.name() == "states" && property.parentModelNode().isRootNode())
+            m_statesEditorModel->reset();
     }
-
-    QmlModelView::propertiesAboutToBeRemoved(propertyList);
 }
 
 
 void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags propertyChange)
 {
-    if (debug)
-        qDebug() << __FUNCTION__;
-
-    QmlModelView::variantPropertiesChanged(propertyList, propertyChange);
     foreach (const VariantProperty &property, propertyList) {
-        ModelNode node (property.parentModelNode());
-        if (QmlModelState(node).isValid() && (property.name() == QLatin1String("name"))) {
-            int index = m_modelStates.indexOf(node);
-            if (index != -1)
-                m_editorModel->renameState(index, property.value().toString());
+        if (property.name() == "name" && property.parentModelNode().hasParentProperty()) {
+            NodeAbstractProperty parentProperty = property.parentModelNode().parentProperty();
+            if (parentProperty.name() == "states" && parentProperty.parentModelNode().isRootNode()) {
+                m_statesEditorModel->updateState(parentProperty.indexOf(property.parentModelNode()));
+            }
         }
     }
 }
 
+
 void StatesEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
-    if (debug)
-        qDebug() << __FUNCTION__;
+    if (removedNode.hasParentProperty()) {
+        const NodeAbstractProperty propertyParent = removedNode.parentProperty();
+        if (propertyParent.parentModelNode().isRootNode() && propertyParent.name() == "states") {
+            m_lastIndex = propertyParent.indexOf(removedNode);
+        }
+    }
+}
 
-    if (QmlModelState(removedNode).isValid())
-        removeModelState(removedNode);
+void StatesEditorView::nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags /*propertyChange*/)
+{
+    if (parentProperty.isValid() && parentProperty.parentModelNode().isRootNode() && parentProperty.name() == "states") {
+        m_statesEditorModel->removeState(m_lastIndex);
+        m_lastIndex = -1;
+    }
+}
 
-    QmlModelView::nodeAboutToBeRemoved(removedNode);
+void StatesEditorView::nodeAboutToBeReparented(const ModelNode &node, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+    if (oldPropertyParent.isValid() && oldPropertyParent.parentModelNode().isRootNode() && oldPropertyParent.name() == "states")
+        m_lastIndex = oldPropertyParent.indexOf(node);
 }
 
 
-void StatesEditorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)
+void StatesEditorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
-    if (debug)
-        qDebug() << __FUNCTION__;
+    if (oldPropertyParent.isValid() && oldPropertyParent.parentModelNode().isRootNode() && oldPropertyParent.name() == "states")
+        m_statesEditorModel->removeState(m_lastIndex);
 
-    QmlModelView::nodeReparented(node, newPropertyParent, oldPropertyParent, propertyChange);
+    m_lastIndex = -1;
 
-    // this would be sliding
-    Q_ASSERT(newPropertyParent != oldPropertyParent);
-
-    if (QmlModelState(node).isValid()) {
-        if (oldPropertyParent.parentModelNode() == m_stateRootNode) {
-            if (oldPropertyParent.isNodeListProperty()
-                && oldPropertyParent.name() == "states") {
-                removeModelState(node);
-            } else {
-                qWarning() << "States Editor: Reparented model state was not in states property list";
-            }
-        }
-
-        if (newPropertyParent.parentModelNode() == m_stateRootNode) {
-            if (newPropertyParent.isNodeListProperty()
-                && newPropertyParent.name() == "states") {
-                NodeListProperty statesProperty = newPropertyParent.toNodeListProperty();
-                int index = statesProperty.toModelNodeList().indexOf(node);
-                Q_ASSERT(index >= 0);
-                insertModelState(index, node);
-            } else {
-                qWarning() << "States Editor: Reparented model state is not in the states property list";
-            }
-        }
+    if (newPropertyParent.isValid() && newPropertyParent.parentModelNode().isRootNode() && newPropertyParent.name() == "states") {
+        int index = newPropertyParent.indexOf(node);
+        m_statesEditorModel->insertState(index);
     }
 }
 
 void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex)
 {
-    if (debug)
-        qDebug() << __FUNCTION__;
-
-    QmlModelView::nodeOrderChanged(listProperty, movedNode, oldIndex);
-    if (listProperty.parentModelNode() == m_stateRootNode
-        && listProperty.name() == "states") {
-
-        int newIndex = listProperty.toModelNodeList().indexOf(movedNode);
-        Q_ASSERT(newIndex >= 0);
-
-        QmlModelState state = QmlModelState(movedNode);
-        if (state.isValid()) {
-            Q_ASSERT(oldIndex == modelStateIndex(state));
-            removeModelState(state);
-            insertModelState(newIndex, state);
-            Q_ASSERT(newIndex == modelStateIndex(state));
-        }
-    }
+    if (listProperty.isValid() && listProperty.parentModelNode().isRootNode() && listProperty.name() == "states")
+        resetModel();
 }
 
 void StatesEditorView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)
@@ -314,40 +305,26 @@ void StatesEditorView::nodeInstancePropertyChanged(const ModelNode &node, const 
 
 void StatesEditorView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState)
 {
-    if (debug)
-        qDebug() << __FUNCTION__;
-
-    QmlModelView::stateChanged(newQmlModelState, oldQmlModelState);
-
-    if (!m_settingSilentState) {
-        if (newQmlModelState.isBaseState())
-            m_editorModel->emitChangedToState(0);
-        else
-            m_editorModel->emitChangedToState(m_modelStates.indexOf(newQmlModelState));
+    if (newQmlModelState.isBaseState()) {
+        m_statesEditorWidget->setCurrentStateInternalId(0);
+    } else {
+        m_statesEditorWidget->setCurrentStateInternalId(newQmlModelState.modelNode().internalId());
     }
+    QmlModelView::stateChanged(newQmlModelState, oldQmlModelState);
 }
 
 void StatesEditorView::transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName)
 {
-    if (debug)
-        qDebug() << __FUNCTION__;
-
     QmlModelView::transformChanged(qmlObjectNode, propertyName);
 }
 
 void StatesEditorView::parentChanged(const QmlObjectNode &qmlObjectNode)
 {
-    if (debug)
-        qDebug() << __FUNCTION__;
-
     QmlModelView::parentChanged(qmlObjectNode);
 }
 
 void StatesEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName)
 {
-    if (debug)
-        qDebug() << __FUNCTION__;
-
     QmlModelView::otherPropertyChanged(qmlObjectNode, propertyName);
 }
 
@@ -398,54 +375,4 @@ void StatesEditorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNo
 
 }
 
-
-// index without base state
-void StatesEditorView::insertModelState(int i, const QmlModelState &state)
-{
-    if (debug)
-        qDebug() << __FUNCTION__ << i << state.name();
-
-    Q_ASSERT(state.isValid());
-    Q_ASSERT(!state.isBaseState());
-    // For m_modelStates / m_editorModel, i=0 is base state
-    m_modelStates.insert(i+1, state);
-    m_editorModel->insertState(i+1, state.name());
-}
-
-void StatesEditorView::removeModelState(const QmlModelState &state)
-{
-    if (debug)
-        qDebug() << __FUNCTION__ << state.name();
-
-    Q_ASSERT(state.isValid());
-    Q_ASSERT(!state.isBaseState());
-    int index = m_modelStates.indexOf(state);
-    if (index != -1) {
-        m_modelStates.removeOne(state);
-        m_editorModel->removeState(index);
-    }
-}
-
-void StatesEditorView::clearModelStates()
-{
-    if (debug)
-        qDebug() << __FUNCTION__;
-
-
-    // Remove all states
-    const int modelStateCount = m_modelStates.size();
-    for (int i=modelStateCount-1; i>=0; --i) {
-        m_modelStates.removeAt(i);
-        m_editorModel->removeState(i);
-    }
-}
-
-// index without base state
-int StatesEditorView::modelStateIndex(const QmlModelState &state)
-{
-    return m_modelStates.indexOf(state) - 1;
-}
-
-
-} // namespace Internal
 } // namespace QmlDesigner

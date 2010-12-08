@@ -35,6 +35,7 @@
 #include <model.h>
 #include <rewriterview.h>
 #include <formeditorwidget.h>
+#include <stateseditorwidget.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
@@ -211,8 +212,8 @@ void DesignModeWidget::toggleSidebars()
         m_leftSideBar->setVisible(m_showSidebars);
     if (m_rightSideBar)
         m_rightSideBar->setVisible(m_showSidebars);
-    if (!m_statesEditorWidget.isNull())
-        m_statesEditorWidget->setVisible(m_showSidebars);
+    if (!m_statesEditorView.isNull())
+        m_statesEditorView->widget()->setVisible(m_showSidebars);
 
 }
 
@@ -261,7 +262,7 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
             newDocument->setNodeInstanceView(m_nodeInstanceView.data());
             newDocument->setAllPropertiesBox(m_allPropertiesBox.data());
             newDocument->setNavigator(m_navigator.data());
-            newDocument->setStatesEditorWidget(m_statesEditorWidget.data());
+            newDocument->setStatesEditorView(m_statesEditorView.data());
             newDocument->setItemLibrary(m_itemLibrary.data());
             newDocument->setFormEditorView(m_formEditorView.data());
 
@@ -448,7 +449,7 @@ void DesignModeWidget::enable()
         qDebug() << Q_FUNC_INFO;
     m_warningWidget->setVisible(false);
     m_formEditorView->widget()->setEnabled(true);
-    m_statesEditorWidget->setEnabled(true);
+    m_statesEditorView->widget()->setEnabled(true);
     m_leftSideBar->setEnabled(true);
     m_rightSideBar->setEnabled(true);
     m_isDisabled = false;
@@ -463,7 +464,7 @@ void DesignModeWidget::disable(const QList<RewriterView::Error> &errors)
     m_warningWidget->setVisible(true);
     m_warningWidget->move(width() / 2, height() / 2);
     m_formEditorView->widget()->setEnabled(false);
-    m_statesEditorWidget->setEnabled(false);
+    m_statesEditorView->widget()->setEnabled(false);
     m_leftSideBar->setEnabled(false);
     m_rightSideBar->setEnabled(false);
     m_isDisabled = true;
@@ -627,7 +628,7 @@ void DesignModeWidget::setup()
     m_allPropertiesBox = new AllPropertiesBox;
     m_itemLibrary = new ItemLibrary;
 
-    m_statesEditorWidget = new StatesEditorWidget(this);
+    m_statesEditorView = new StatesEditorView(this);
     
     m_formEditorView = new FormEditorView(this);
 
@@ -685,7 +686,7 @@ void DesignModeWidget::setup()
         rightLayout->setSpacing(0);
         rightLayout->addWidget(m_fakeToolBar);
         //### we now own these here
-        rightLayout->addWidget(m_statesEditorWidget.data());
+        rightLayout->addWidget(m_statesEditorView->widget());
 
         FormEditorContext *context = new FormEditorContext(m_formEditorView->widget());
         Core::ICore::instance()->addContextObject(context);
@@ -715,7 +716,7 @@ void DesignModeWidget::setup()
     mainLayout->addWidget(m_mainSplitter);
 
     m_warningWidget->setVisible(false);
-    m_statesEditorWidget->setEnabled(true);
+    m_statesEditorView->widget()->setEnabled(true);
     m_leftSideBar->setEnabled(true);
     m_rightSideBar->setEnabled(true);
     m_leftSideBar->setCloseWhenEmpty(true);

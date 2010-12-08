@@ -40,10 +40,6 @@
 #include "nodeabstractproperty.h"
 #include "variantproperty.h"
 
-enum {
-    debug = false
-};
-
 
 namespace QmlDesigner {
 
@@ -68,6 +64,11 @@ QmlModelState QmlModelView::currentState() const
 QmlModelState QmlModelView::baseState() const
 {
     return QmlModelState::createBaseState(this);
+}
+
+QmlModelStateGroup QmlModelView::rootStateGroup() const
+{
+    return QmlModelStateGroup(rootModelNode());
 }
 
 QmlObjectNode QmlModelView::createQmlObjectNode(const QString &typeString,
@@ -278,16 +279,19 @@ QmlObjectNode QmlModelView::fxObjectNodeForId(const QString &id)
 
 void QmlModelView::customNotification(const AbstractView * /* view */, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> & /* data */)
 {
-    if (debug)
-        qDebug() << this << __FUNCTION__ << identifier << nodeList;
-
     if (identifier == "__state changed__") {
-        QmlModelState state(nodeList.first());
-        if (state.isValid()) {
-            activateState(state);
-        } else {
-            activateState(baseState());
-        }
+        QmlModelState newState(nodeList.first());
+        QmlModelState oldState = currentState();
+
+        if (!newState.isValid())
+            newState = baseState();
+
+        activateState(newState);
+
+        m_state = newState;
+
+        if (newState != oldState)
+            stateChanged(newState, oldState);
     }
 }
 
@@ -340,6 +344,7 @@ void QmlModelView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, co
 void QmlModelView::nodeCreated(const ModelNode &/*createdNode*/) {}
 void QmlModelView::nodeAboutToBeRemoved(const ModelNode &/*removedNode*/) {}
 void QmlModelView::nodeRemoved(const ModelNode &/*removedNode*/, const NodeAbstractProperty &/*parentProperty*/, PropertyChangeFlags /*propertyChange*/) {}
+void QmlModelView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/) {}
 void QmlModelView::nodeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/) {}
 void QmlModelView::nodeIdChanged(const ModelNode& /*node*/, const QString& /*newId*/, const QString& /*oldId*/) {}
 void QmlModelView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& /*propertyList*/) {}
@@ -360,9 +365,6 @@ void QmlModelView::instancePropertyChange(const QList<QPair<ModelNode, QString> 
 
 void QmlModelView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)
 {
-    if (debug)
-        qDebug() << this << __FUNCTION__ << node << propertyName;
-
     QmlObjectNode qmlObjectNode(node);
 
     if (!qmlObjectNode.isValid())
@@ -372,17 +374,12 @@ void QmlModelView::nodeInstancePropertyChanged(const ModelNode &node, const QStr
         transformChanged(qmlObjectNode, propertyName);
     else if (propertyName == "parent")
         parentChanged(qmlObjectNode);
-    else if (propertyName == "state")
-        changeToState(node, qmlObjectNode.instanceValue(propertyName).toString());
     else
         otherPropertyChanged(qmlObjectNode, propertyName);
 }
 
 void QmlModelView::activateState(const QmlModelState &state)
 {
-    if (debug)
-        qDebug() << this << __FUNCTION__ << state;
-
     if (!state.isValid())
         return;
 
@@ -405,9 +402,6 @@ void QmlModelView::activateState(const QmlModelState &state)
 
 void QmlModelView::changeToState(const ModelNode &node, const QString &stateName)
 {
-    if (debug)
-        qDebug() << this << __FUNCTION__ << node << stateName;
-
     QmlItemNode itemNode(node);
 
     QmlModelState newState;
@@ -439,8 +433,6 @@ void QmlModelView::otherPropertyChanged(const QmlObjectNode &/*qmlObjectNode*/, 
 
 void  QmlModelView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState)
 {
-    if (debug)
-        qDebug() << this << __FUNCTION__ << oldQmlModelState << "to" << newQmlModelState;
 }
 
 } //QmlDesigner

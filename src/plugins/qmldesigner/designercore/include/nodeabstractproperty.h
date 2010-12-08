@@ -49,6 +49,8 @@ public:
     NodeAbstractProperty(const NodeAbstractProperty &property, AbstractView *view);
     void reparentHere(const ModelNode &modelNode);
     bool isEmpty() const;
+    int count() const;
+    int indexOf(const ModelNode &node) const;
 
     QList<ModelNode> allSubNodes();
 

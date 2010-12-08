@@ -44,6 +44,8 @@ public:
 
     bool isValid() const;
     bool isEmpty() const;
+    int count() const;
+    int indexOf(const InternalNodePointer &node) const;
     bool isNodeProperty() const;
 
     QList<InternalNodePointer> allSubNodes() const;

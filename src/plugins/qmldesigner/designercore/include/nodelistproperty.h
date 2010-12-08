@@ -59,8 +59,7 @@ public:
     const QList<QmlObjectNode> toQmlObjectNodeList() const;
     void slide(int, int) const;
     void reparentHere(const ModelNode &modelNode);
-
-    bool isEmpty() const;
+    ModelNode at(int index) const;
 
 protected:
     NodeListProperty(const QString &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);

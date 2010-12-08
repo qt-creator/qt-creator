@@ -50,6 +50,8 @@ public:
     virtual QList<InternalNodePointer> allDirectSubNodes() const = 0;
 
     virtual bool isEmpty() const = 0;
+    virtual int count() const = 0;
+    virtual int indexOf(const InternalNodePointer &node) const = 0;
 
     virtual bool isValid() const;
 protected:

@@ -836,6 +836,64 @@ void ModelPrivate::notifyVariantPropertiesChanged(const InternalNodePointer &int
     }
 }
 
+void ModelPrivate::notifyNodeAboutToBeReparent(const InternalNodePointer &internalNodePointer, const InternalNodeAbstractPropertyPointer &newPropertyParent, const InternalNodePointer &oldParent, const QString &oldPropertyName, AbstractView::PropertyChangeFlags propertyChange)
+{
+    bool resetModel = false;
+    QString description;
+
+    try {
+        if (rewriterView()) {
+            NodeAbstractProperty newProperty;
+            NodeAbstractProperty oldProperty;
+
+            if (!oldPropertyName.isEmpty() && oldParent->isValid())
+                oldProperty = NodeAbstractProperty(oldPropertyName, oldParent, model(), rewriterView());
+
+            if (!newPropertyParent.isNull())
+                newProperty = NodeAbstractProperty(newPropertyParent, model(), rewriterView());
+            ModelNode node(internalNodePointer, model(), rewriterView());
+            rewriterView()->nodeAboutToBeReparented(node, newProperty, oldProperty, propertyChange);
+        }
+    } catch (RewritingException &e) {
+        description = e.description();
+        resetModel = true;
+    }
+
+    foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
+        NodeAbstractProperty newProperty;
+        NodeAbstractProperty oldProperty;
+
+        Q_ASSERT(!view.isNull());
+        if (!oldPropertyName.isEmpty() && oldParent->isValid())
+            oldProperty = NodeAbstractProperty(oldPropertyName, oldParent, model(), view.data());
+
+        if (!newPropertyParent.isNull())
+            newProperty = NodeAbstractProperty(newPropertyParent, model(), view.data());
+        ModelNode node(internalNodePointer, model(), view.data());
+
+        view->nodeAboutToBeReparented(node, newProperty, oldProperty, propertyChange);
+
+    }
+
+    if (nodeInstanceView()) {
+        NodeAbstractProperty newProperty;
+        NodeAbstractProperty oldProperty;
+
+        if (!oldPropertyName.isEmpty() && oldParent->isValid())
+            oldProperty = NodeAbstractProperty(oldPropertyName, oldParent, model(), nodeInstanceView());
+
+        if (!newPropertyParent.isNull())
+            newProperty = NodeAbstractProperty(newPropertyParent, model(), nodeInstanceView());
+        ModelNode node(internalNodePointer, model(), nodeInstanceView());
+        nodeInstanceView()->nodeAboutToBeReparented(node, newProperty, oldProperty, propertyChange);
+    }
+
+    if (resetModel) {
+        resetModelByRewriter(description);
+    }
+}
+
+
 void ModelPrivate::notifyNodeReparent(const InternalNode::Pointer &internalNodePointer, const InternalNodeAbstractProperty::Pointer &newPropertyParent, const InternalNodePointer &oldParent, const QString &oldPropertyName, AbstractView::PropertyChangeFlags propertyChange)
 {
     bool resetModel = false;
@@ -1121,6 +1179,9 @@ void ModelPrivate::reparentNode(const InternalNode::Pointer &newParentNode, cons
 
     InternalNodeAbstractProperty::Pointer newParentProperty(newParentNode->nodeAbstractProperty(name));
     Q_ASSERT(!newParentProperty.isNull());
+
+    notifyNodeAboutToBeReparent(node, newParentProperty, oldParentNode, oldParentPropertyName, propertyChange);
+
     if (newParentProperty)
         node->setParentProperty(newParentProperty);
 

@@ -41,7 +41,7 @@
 #include <itemlibrary.h>
 #include <navigatorwidget.h>
 #include <navigatorview.h>
-#include <stateseditorwidget.h>
+#include <stateseditorview.h>
 #include <modelnode.h>
 #include <formeditorview.h>
 
@@ -177,7 +177,7 @@ private:
     QWeakPointer<ItemLibrary> m_itemLibrary;
     QWeakPointer<NavigatorView> m_navigator;
     QWeakPointer<AllPropertiesBox> m_allPropertiesBox;
-    QWeakPointer<StatesEditorWidget> m_statesEditorWidget;
+    QWeakPointer<StatesEditorView> m_statesEditorView;
     QWeakPointer<FormEditorView> m_formEditorView;
     QWeakPointer<NodeInstanceView> m_nodeInstanceView;
 

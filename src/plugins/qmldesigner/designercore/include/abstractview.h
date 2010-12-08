@@ -114,6 +114,7 @@ public:
     virtual void nodeCreated(const ModelNode &createdNode) = 0;
     virtual void nodeAboutToBeRemoved(const ModelNode &removedNode) = 0;
     virtual void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange) = 0;
+    virtual void nodeAboutToBeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange) = 0;
     virtual void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange) = 0;
     virtual void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) = 0;
     virtual void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList) = 0;

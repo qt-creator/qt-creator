@@ -359,6 +359,11 @@ void NodeInstanceView::nodeReparented(const ModelNode &node, const NodeAbstractP
 //    nodeInstance.reparent(oldParentInstance, oldPropertyParent.name(), newParentInstance, newPropertyParent.name());
 }
 
+void NodeInstanceView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+}
+
+
 void NodeInstanceView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &newUrl)
 {
     // TODO: We have to probably reload everything, so that images etc are updated!!!

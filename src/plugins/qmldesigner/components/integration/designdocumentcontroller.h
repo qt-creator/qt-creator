@@ -54,7 +54,7 @@ class RewriterView;
 class ItemLibrary;
 class NavigatorView;
 class AllPropertiesBox;
-class StatesEditorWidget;
+class StatesEditorView;
 class FormEditorView;
 
 class DesignDocumentController: public QObject
@@ -92,7 +92,7 @@ public:
     void setItemLibrary(ItemLibrary* itemLibrary);
     void setNavigator(NavigatorView* navigatorView);
     void setAllPropertiesBox(AllPropertiesBox* allPropertiesBox);
-    void setStatesEditorWidget(StatesEditorWidget* statesEditorWidget);
+    void setStatesEditorView(StatesEditorView* statesEditorView);
     void setFormEditorView(FormEditorView *formEditorView);
     void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
 
