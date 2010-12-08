@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "snippetssettingspage.h"
-#include "snippetsmanager.h"
 #include "snippeteditor.h"
 #include "isnippetprovider.h"
 #include "snippet.h"
@@ -40,7 +39,6 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/QSharedPointer>
 #include <QtCore/QModelIndex>
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QList>
@@ -85,26 +83,22 @@ private:
     void replaceSnippet(const Snippet &snippet, const QModelIndex &modelIndex);
     static bool isValidTrigger(const QString &s);
 
-    QSharedPointer<SnippetsCollection> m_collection;
+    SnippetsCollection* m_collection;
     QString m_activeGroupId;
 };
 
 SnippetsTableModel::SnippetsTableModel(QObject *parent) :
     QAbstractTableModel(parent),
-    m_collection(SnippetsManager::instance()->snippetsCollection())
+    m_collection(SnippetsCollection::instance())
 {}
 
 int SnippetsTableModel::rowCount(const QModelIndex &) const
 {
-    if (m_collection.isNull())
-        return 0;
     return m_collection->totalActiveSnippets(m_activeGroupId);
 }
 
 int SnippetsTableModel::columnCount(const QModelIndex &) const
 {
-    if (m_collection.isNull())
-        return 0;
     return 2;
 }
 
@@ -390,7 +384,7 @@ void SnippetsSettingsPagePrivate::apply()
         writeSettings();
 
     if (m_snippetsCollectionChanged) {
-        SnippetsManager::instance()->snippetsCollection()->synchronize();
+        SnippetsCollection::instance()->synchronize();
         m_snippetsCollectionChanged = false;
     }
 }
@@ -398,7 +392,7 @@ void SnippetsSettingsPagePrivate::apply()
 void SnippetsSettingsPagePrivate::finish()
 {
     if (m_snippetsCollectionChanged) {
-        SnippetsManager::instance()->snippetsCollection()->reload();
+        SnippetsCollection::instance()->reload();
         m_snippetsCollectionChanged = false;
     }
 }

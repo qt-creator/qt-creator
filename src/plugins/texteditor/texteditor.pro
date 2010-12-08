@@ -75,7 +75,6 @@ SOURCES += texteditorplugin.cpp \
     autocompleter.cpp \
     snippets/snippetssettingspage.cpp \
     snippets/snippet.cpp \
-    snippets/snippetsmanager.cpp \
     snippets/snippeteditor.cpp \
     snippets/snippetscollection.cpp \
     snippets/snippetssettings.cpp \
@@ -158,7 +157,6 @@ HEADERS += texteditorplugin.h \
     autocompleter.h \
     snippets/snippetssettingspage.h \
     snippets/snippet.h \
-    snippets/snippetsmanager.h \
     snippets/snippeteditor.h \
     snippets/snippetscollection.h \
     snippets/reuse.h \

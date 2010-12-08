@@ -54,8 +54,9 @@ class SnippetsCollection : public QObject
 {
     Q_OBJECT
 public:
-    SnippetsCollection();
-    ~SnippetsCollection();
+    virtual ~SnippetsCollection();
+
+    static SnippetsCollection *instance();
 
     class Hint
     {
@@ -100,6 +101,9 @@ private slots:
     void identifyGroups();
 
 private:
+    SnippetsCollection();
+    Q_DISABLE_COPY(SnippetsCollection)
+
     int groupIndex(const QString &groupId) const;
     bool isGroupKnown(const QString &groupId) const;
 
@@ -123,7 +127,8 @@ private:
     static const QLatin1String kModified;
 
     // Built-in snippets are specified in XMLs distributed in a system's folder. Snippets
-    // created or modified/removed (if they are built-ins) by the user are stored in another
+    // created or modified/removed (if they are built-ins) by the user are stored in user's
+    // folder.
     QString m_userSnippetsPath;
     QString m_userSnippetsFile;
     QStringList m_builtInSnippetsFiles;

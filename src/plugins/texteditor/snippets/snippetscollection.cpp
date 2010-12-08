@@ -98,6 +98,12 @@ int SnippetsCollection::Hint::index() const
     return m_index;
 }
 
+SnippetsCollection *SnippetsCollection::instance()
+{
+    static SnippetsCollection collection;
+    return &collection;
+}
+
 // SnippetsCollection
 SnippetsCollection::SnippetsCollection() :
     m_userSnippetsPath(Core::ICore::instance()->userResourcePath() + QLatin1String("/snippets/")),

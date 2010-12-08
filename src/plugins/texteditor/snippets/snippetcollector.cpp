@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "snippetcollector.h"
-#include "snippetsmanager.h"
 #include "snippetscollection.h"
 
 #include <texteditor/texteditorconstants.h>
@@ -44,8 +43,7 @@ void appendSnippets(ICompletionCollector *collector,
                     const QIcon &icon,
                     int order)
 {
-    QSharedPointer<SnippetsCollection> collection =
-        SnippetsManager::instance()->snippetsCollection();
+    SnippetsCollection *collection = SnippetsCollection::instance();
     const int size = collection->totalActiveSnippets(groupId);
     for (int i = 0; i < size; ++i) {
         const Snippet &snippet = collection->snippet(i, groupId);
