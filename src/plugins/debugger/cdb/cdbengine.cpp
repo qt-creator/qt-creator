@@ -42,8 +42,8 @@
 #include "cdbsymbolpathlisteditor.h"
 #include "dbgwinutils.h"
 #include "debuggercore.h"
-#include "disassemblerviewagent.h"
-#include "memoryviewagent.h"
+#include "disassembleragent.h"
+#include "memoryagent.h"
 
 #include "debuggeractions.h"
 #include "breakhandler.h"
