@@ -3317,13 +3317,6 @@ void DebuggerPlugin::startDebugger(RunControl *runControl)
     theDebuggerCore->startDebugger(runControl);
 }
 
-void DebuggerPlugin::displayDebugger(RunControl *runControl)
-{
-    DebuggerRunControl *rc = qobject_cast<DebuggerRunControl *>(runControl);
-    QTC_ASSERT(rc, return);
-    theDebuggerCore->displayDebugger(rc->engine());
-}
-
 void DebuggerPlugin::extensionsInitialized()
 {
     theDebuggerCore->extensionsInitialized();

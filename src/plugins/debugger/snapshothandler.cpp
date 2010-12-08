@@ -30,9 +30,9 @@
 #include "snapshothandler.h"
 
 #include "debuggerconstants.h"
+#include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerrunner.h"
-#include "debuggerplugin.h"
 
 #include <utils/qtcassert.h>
 
@@ -213,7 +213,7 @@ void SnapshotHandler::activateSnapshot(int index)
 {
     m_currentIndex = index;
     //qDebug() << "ACTIVATING INDEX: " << m_currentIndex << " OF " << size();
-    DebuggerPlugin::displayDebugger(m_snapshots.at(index));
+    debuggerCore()->displayDebugger(engineAt(index), true);
     reset();
 }
 
