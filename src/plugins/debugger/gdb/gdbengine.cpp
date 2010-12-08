@@ -31,11 +31,6 @@
 
 #include "gdbengine.h"
 
-#include "gdboptionspage.h"
-#include "debuggercore.h"
-#include "debuggerplugin.h"
-#include "debuggerrunner.h"
-
 #include "attachgdbadapter.h"
 #include "coregdbadapter.h"
 #include "localplaingdbadapter.h"
@@ -45,13 +40,18 @@
 #include "trkgdbadapter.h"
 #include "tcftrkgdbadapter.h"
 
-#include "watchutils.h"
 #include "debuggeractions.h"
-#include "debuggeragents.h"
 #include "debuggerconstants.h"
-#include "debuggertooltip.h"
+#include "debuggercore.h"
+#include "debuggerplugin.h"
+#include "debuggerrunner.h"
 #include "debuggerstringutils.h"
+#include "debuggertooltip.h"
+#include "disassembleragent.h"
 #include "gdbmi.h"
+#include "gdboptionspage.h"
+#include "memoryagent.h"
+#include "watchutils.h"
 
 #include "breakhandler.h"
 #include "moduleshandler.h"
@@ -62,16 +62,12 @@
 #include "threadshandler.h"
 #include "watchhandler.h"
 
-#include "sourcefileswindow.h"
-
-#include "debuggerdialogs.h"
 #include "logwindow.h"
 
-#include <utils/qtcassert.h>
-#include <utils/fancymainwindow.h>
-#include <texteditor/itexteditor.h>
-#include <projectexplorer/toolchain.h>
 #include <coreplugin/icore.h>
+#include <projectexplorer/toolchain.h>
+#include <texteditor/itexteditor.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>

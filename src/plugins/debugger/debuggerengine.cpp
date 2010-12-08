@@ -30,13 +30,14 @@
 #include "debuggerengine.h"
 
 #include "debuggeractions.h"
-#include "debuggeragents.h"
 #include "debuggercore.h"
 #include "debuggerplugin.h"
 #include "debuggerrunner.h"
 #include "debuggerstringutils.h"
 #include "debuggertooltip.h"
 
+#include "memoryagent.h"
+#include "disassembleragent.h"
 #include "breakhandler.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
@@ -1416,6 +1417,17 @@ bool DebuggerEngine::isCppBreakpoint(const BreakpointParameters &p)
         return true;
     return !p.fileName.endsWith(QLatin1String(".qml"), Qt::CaseInsensitive)
             && !p.fileName.endsWith(QLatin1String(".js"), Qt::CaseInsensitive);
+}
+
+void DebuggerEngine::openMemoryView(quint64 address)
+{
+    (void) new MemoryViewAgent(this, address);
+}
+
+void DebuggerEngine::openDisassemblerView(const StackFrame &frame)
+{
+    DisassemblerViewAgent *agent = new DisassemblerViewAgent(this);
+    agent->setFrame(frame, true, false);
 }
 
 } // namespace Debugger

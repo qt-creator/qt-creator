@@ -31,7 +31,6 @@
 #include "stackhandler.h"
 
 #include "debuggeractions.h"
-#include "debuggeragents.h"
 #include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
@@ -159,11 +158,9 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == actAlwaysAdjust)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == actShowMemory)
-        (void) new MemoryViewAgent(currentEngine(), address);
-    else if (act == actShowDisassembler) {
-        DisassemblerViewAgent *agent = new DisassemblerViewAgent(engine);
-        agent->setFrame(frame, true, false);
-    }
+        engine->openMemoryView(address);
+    else if (act == actShowDisassembler)
+        engine->openDisassemblerView(frame);
 }
 
 void StackWindow::copyContentsToClipboard()

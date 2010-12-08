@@ -27,15 +27,13 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_AGENTS_H
-#define DEBUGGER_AGENTS_H
-
-#include <QtCore/QObject>
-#include <QtCore/QHash>
-#include <QtCore/QPointer>
-#include <QtCore/QVector>
+#ifndef DEBUGGER_DISASSEMBLERAGENT_H
+#define DEBUGGER_DISASSEMBLERAGENT_H
 
 #include "disassemblerlines.h"
+
+#include <QtCore/QObject>
+#include <QtCore/QPointer>
 
 namespace Core {
 class IEditor;
@@ -51,40 +49,13 @@ class StackFrame;
 class DisassemblerViewAgent;
 class DisassemblerViewAgentPrivate;
 
-class MemoryViewAgent : public QObject
-{
-    Q_OBJECT
-
-public:
-    // Called from Gui
-    explicit MemoryViewAgent(Debugger::DebuggerEngine *engine, quint64 startaddr);
-    explicit MemoryViewAgent(Debugger::DebuggerEngine *engine, const QString &startaddr);
-    ~MemoryViewAgent();
-
-    enum { BinBlockSize = 1024 };
-
-public slots:
-    // Called from Engine
-    void addLazyData(QObject *editorToken, quint64 addr, const QByteArray &data);
-
-private:
-    Q_SLOT void createBinEditor(quint64 startAddr);
-    Q_SLOT void fetchLazyData(Core::IEditor *, quint64 block, bool sync);
-    Q_SLOT void provideNewRange(Core::IEditor *editor, quint64 address);
-    Q_SLOT void handleStartOfFileRequested(Core::IEditor *editor);
-    Q_SLOT void handleEndOfFileRequested(Core::IEditor *editor);
-
-    QList<QPointer<Core::IEditor> > m_editors;
-    QPointer<Debugger::DebuggerEngine> m_engine;
-};
-
 class DisassemblerViewAgent : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString mimeType READ mimeType WRITE setMimeType)
 public:
     // Called from Gui
-    explicit DisassemblerViewAgent(Debugger::DebuggerEngine *engine);
+    explicit DisassemblerViewAgent(DebuggerEngine *engine);
     ~DisassemblerViewAgent();
 
     void setFrame(const StackFrame &frame, bool tryMixed, bool setMarker);
@@ -105,6 +76,7 @@ public:
 
     // Return address of an assembly line "0x0dfd  bla"
     static quint64 addressFromDisassemblyLine(const QString &data);
+
 private:
     DisassemblerViewAgentPrivate *d;
 };
@@ -113,4 +85,4 @@ private:
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_WATCHWINDOW_H
+#endif // DEBUGGER_DISASSEMBLERAGENT_H

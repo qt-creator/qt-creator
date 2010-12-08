@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "ipcenginehost.h"
+
 #include "ipcengineguest.h"
 #include "breakhandler.h"
 #include "breakpoint.h"
@@ -38,15 +39,17 @@
 #include "watchhandler.h"
 #include "watchutils.h"
 #include "threadshandler.h"
-#include "debuggeragents.h"
+#include "disassembleragent.h"
+#include "memoryagent.h"
 #include "debuggerstreamops.h"
 #include "debuggercore.h"
+
+#include <utils/qtcassert.h>
 
 #include <QSysInfo>
 #include <QDebug>
 #include <QFileInfo>
 #include <QTimer>
-#include <utils/qtcassert.h>
 #include <QLocalSocket>
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN

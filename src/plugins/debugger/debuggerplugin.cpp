@@ -30,7 +30,6 @@
 #include "debuggerplugin.h"
 
 #include "debuggeractions.h"
-#include "debuggeragents.h"
 #include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerdialogs.h"
@@ -44,6 +43,7 @@
 #include "breakhandler.h"
 #include "breakwindow.h"
 #include "consolewindow.h"
+#include "disassembleragent.h"
 #include "logwindow.h"
 #include "moduleswindow.h"
 #include "registerwindow.h"
@@ -2430,7 +2430,7 @@ void DebuggerPluginPrivate::openMemoryEditor()
 {
     AddressDialog dialog;
     if (dialog.exec() == QDialog::Accepted)
-        (void) new MemoryViewAgent(currentEngine(), dialog.address());
+        currentEngine()->openMemoryView(dialog.address());
 }
 
 void DebuggerPluginPrivate::coreShutdown()

@@ -36,7 +36,6 @@
 #include "debuggerdialogs.h"
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
-#include "coreplugin/icore.h"
 
 #include "breakhandler.h"
 #include "breakpoint.h"
@@ -46,9 +45,12 @@
 #include "watchhandler.h"
 #include "watchutils.h"
 #include "threadshandler.h"
-#include "debuggeragents.h"
+#include "disassembleragent.h"
+#include "memoryagent.h"
 
+#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
 #include <QtCore/QFileInfo>

@@ -30,7 +30,6 @@
 #include "registerwindow.h"
 
 #include "debuggeractions.h"
-#include "debuggeragents.h"
 #include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
@@ -237,7 +236,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == actReload)
         engine->reloadRegisters();
     else if (act == actShowMemory)
-        (void) new MemoryViewAgent(engine, address);
+        engine->openMemoryView(address.toULongLong(0, 0));
     else if (act == act16)
         handler->setNumberBase(16);
     else if (act == act10)

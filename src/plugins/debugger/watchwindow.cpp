@@ -30,7 +30,6 @@
 #include "watchwindow.h"
 
 #include "breakhandler.h"
-#include "debuggeragents.h"
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "debuggercore.h"
@@ -456,13 +455,13 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actInsertNewWatchItem) {
         watchExpression(QString());
     } else if (act == actOpenMemoryEditAtVariableAddress) {
-        (void) new MemoryViewAgent(currentEngine(), address);
+        currentEngine()->openMemoryView(address);
     } else if (act == actOpenMemoryEditAtPointerValue) {
-        (void) new MemoryViewAgent(currentEngine(), pointerValue);
+        currentEngine()->openMemoryView(pointerValue);
     } else if (act == actOpenMemoryEditor) {
         AddressDialog dialog;
         if (dialog.exec() == QDialog::Accepted)
-            (void) new MemoryViewAgent(currentEngine(), dialog.address());
+            currentEngine()->openMemoryView(dialog.address());
     } else if (act == actSetWatchpointAtVariableAddress) {
         setWatchpoint(address);
     } else if (act == actSetWatchpointAtPointerValue) {
