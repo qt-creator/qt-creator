@@ -32,6 +32,12 @@
 #include "actioncontainer.h"
 #include "command.h"
 #include "coreconstants.h"
+#include "variablemanager.h"
+
+#include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
+#include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QDir>
@@ -69,6 +75,11 @@ ExternalTool::ExternalTool() :
     m_order(-1),
     m_outputHandling(ShowInPane)
 {
+}
+
+ExternalTool::~ExternalTool()
+{
+    // TODO kill running process
 }
 
 QString ExternalTool::id() const
@@ -237,6 +248,103 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
     return tool;
 }
 
+// #pragma mark -- ExternalToolRunner
+
+ExternalToolRunner::ExternalToolRunner(const ExternalTool *tool)
+    : m_tool(tool),
+      m_process(0),
+      m_outputCodec(QTextCodec::codecForLocale())
+{
+    run();
+}
+
+bool ExternalToolRunner::resolve()
+{
+    if (!m_tool)
+        return false;
+    m_resolvedExecutable = QString::null;
+    m_resolvedArguments.clear();
+    m_resolvedWorkingDirectory = QString::null;
+    { // executable
+        foreach (const QString &executable, m_tool->executables()) {
+            QString resolved = Utils::expandMacros(executable,
+                                                   Core::VariableManager::instance()->macroExpander());
+            QFileInfo info(resolved);
+            // TODO search in path
+            if (info.exists() && info.isExecutable()) {
+                m_resolvedExecutable = resolved;
+                break;
+            }
+        }
+        if (m_resolvedExecutable.isNull())
+            return false;
+    }
+    { // arguments
+        QString resolved = Utils::expandMacros(m_tool->arguments(),
+                                               Core::VariableManager::instance()->macroExpander());
+        // TODO stupid, do it right
+        m_resolvedArguments = resolved.split(QLatin1Char(' '), QString::SkipEmptyParts);
+    }
+    { // working directory
+        m_resolvedWorkingDirectory = Utils::expandMacros(m_tool->workingDirectory(),
+                                               Core::VariableManager::instance()->macroExpander());
+    }
+    return true;
+}
+
+void ExternalToolRunner::run()
+{
+    if (!resolve()) {
+        deleteLater();
+        return;
+    }
+    m_process = new QProcess;
+    // TODO error handling, finish reporting, reading output, etc
+    connect(m_process, SIGNAL(finished(int)), this, SLOT(finished()));
+    connect(m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(error(QProcess::ProcessError)));
+    connect(m_process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStandardOutput()));
+    connect(m_process, SIGNAL(readyReadStandardError()), this, SLOT(readStandardError()));
+    if (!m_resolvedWorkingDirectory.isEmpty())
+        m_process->setWorkingDirectory(m_resolvedWorkingDirectory);
+    m_process->start(m_resolvedExecutable, m_resolvedArguments, QIODevice::ReadOnly);
+}
+
+void ExternalToolRunner::finished()
+{
+    // TODO handle the ReplaceSelection and ReloadDocument flags
+    delete m_process;
+    m_process = 0;
+    deleteLater();
+}
+
+void ExternalToolRunner::error(QProcess::ProcessError error)
+{
+    // TODO inform about errors
+    delete m_process;
+    m_process = 0;
+    deleteLater();
+}
+
+void ExternalToolRunner::readStandardOutput()
+{
+    QByteArray data = m_process->readAllStandardOutput();
+    QString output = m_outputCodec->toUnicode(data.constData(), data.length(), &m_outputCodecState);
+    // TODO handle the ReplaceSelection flag
+    if (m_tool->outputHandling() == ExternalTool::ShowInPane) {
+        ICore::instance()->messageManager()->printToOutputPane(output, true);
+    }
+}
+
+void ExternalToolRunner::readStandardError()
+{
+    QByteArray data = m_process->readAllStandardError();
+    QString output = m_outputCodec->toUnicode(data.constData(), data.length(), &m_errorCodecState);
+    // TODO handle the ReplaceSelection flag
+    if (m_tool->outputHandling() == ExternalTool::ShowInPane) {
+        ICore::instance()->messageManager()->printToOutputPane(output, true);
+    }
+}
+
 // #pragma mark -- ExternalToolManager
 
 ExternalToolManager::ExternalToolManager(Core::ICore *core)
@@ -288,6 +396,7 @@ void ExternalToolManager::initialize()
             m_tools.insert(tool->id(), tool);
 
             // category menus
+            // TODO sort alphabetically
             ActionContainer *container;
             if (tool->displayCategory().isEmpty())
                 container = mexternaltools;
@@ -306,10 +415,16 @@ void ExternalToolManager::initialize()
             action->setData(tool->id());
             cmd = am->registerAction(action, Id("Tools.External." + tool->id()), Context(Constants::C_GLOBAL));
             container->addAction(cmd, Constants::G_DEFAULT_TWO);
+            connect(action, SIGNAL(triggered()), this, SLOT(menuActivated()));
         }
     }
 }
 
 void ExternalToolManager::menuActivated()
 {
+    QAction *action = qobject_cast<QAction *>(sender());
+    QTC_ASSERT(action, return);
+    ExternalTool *tool = m_tools.value(action->data().toString());
+    QTC_ASSERT(tool, return);
+    new ExternalToolRunner(tool);
 }

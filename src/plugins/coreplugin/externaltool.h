@@ -35,12 +35,16 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtCore/QProcess>
+#include <QtCore/QTextCodec>
 
 namespace Core {
 namespace Internal {
 
-class ExternalTool
+class ExternalTool : public QObject
 {
+    Q_OBJECT
+
 public:
     enum OutputHandling {
         ShowInPane,
@@ -49,6 +53,7 @@ public:
     };
 
     ExternalTool();
+    ~ExternalTool();
 
     QString id() const;
     QString description() const;
@@ -73,6 +78,32 @@ private:
     QString m_arguments;
     QString m_workingDirectory;
     OutputHandling m_outputHandling;
+};
+
+class ExternalToolRunner : public QObject
+{
+    Q_OBJECT
+public:
+    ExternalToolRunner(const ExternalTool *tool);
+
+private slots:
+    void finished();
+    void error(QProcess::ProcessError error);
+    void readStandardOutput();
+    void readStandardError();
+
+private:
+    void run();
+    bool resolve();
+
+    const ExternalTool *m_tool;
+    QString m_resolvedExecutable;
+    QStringList m_resolvedArguments;
+    QString m_resolvedWorkingDirectory;
+    QProcess *m_process;
+    QTextCodec *m_outputCodec;
+    QTextCodec::ConverterState m_outputCodecState;
+    QTextCodec::ConverterState m_errorCodecState;
 };
 
 class ExternalToolManager : public QObject
