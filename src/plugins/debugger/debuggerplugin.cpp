@@ -507,10 +507,14 @@ static DebuggerEngine *dummyEngine()
 class DebugMode : public IMode
 {
 public:
-    DebugMode() : m_widget(0) {  setObjectName(QLatin1String("DebugMode"));  }
+    DebugMode() : m_widget(0) { setObjectName(QLatin1String("DebugMode")); }
 
-    // Make sure the editor manager does not get deleted.
-    ~DebugMode() { EditorManager::instance()->setParent(0); }
+    ~DebugMode()
+    {
+        // Make sure the editor manager does not get deleted.
+        //EditorManager::instance()->setParent(0);
+        delete m_widget;
+    }
 
     // IMode
     QString displayName() const { return DebuggerPlugin::tr("Debug"); }
@@ -1420,16 +1424,16 @@ DebuggerPluginPrivate::~DebuggerPluginPrivate()
     delete m_debuggerSettings;
     m_debuggerSettings = 0;
 
-    m_plugin->removeObject(theDebuggerCore->m_debugMode);
-    delete m_debugMode;
-    m_debugMode = 0;
-
     m_plugin->removeObject(m_mainWindow);
     delete m_mainWindow;
     m_mainWindow = 0;
 
     delete m_snapshotHandler;
     m_snapshotHandler = 0;
+
+    m_plugin->removeObject(theDebuggerCore->m_debugMode);
+    delete m_debugMode;
+    m_debugMode = 0;
 }
 
 DebuggerCore *debuggerCore()
@@ -1451,7 +1455,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     // Cpp/Qml ui setup
     m_mainWindow = new DebuggerMainWindow;
-    ExtensionSystem::PluginManager::instance()->addObject(m_mainWindow);
+    m_plugin->addObject(m_mainWindow);
 
     return true;
 }
