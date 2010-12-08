@@ -73,6 +73,7 @@ public:
     inline int lazyDataBlockSize() const { return m_blockSize; }
     Q_INVOKABLE void addLazyData(quint64 block, const QByteArray &data);
     Q_INVOKABLE void setNewWindowRequestAllowed();
+    Q_INVOKABLE void updateContents();
     bool save(const QString &oldFileName, const QString &newFileName);
 
     void zoomIn(int range = 1);

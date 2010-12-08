@@ -1264,7 +1264,10 @@ void BinEditor::changeData(int position, uchar character, bool highNibble)
     cmd.character = (uchar) dataAt(position);
     cmd.highNibble = highNibble;
 
-    if (!highNibble && !m_undoStack.isEmpty() && m_undoStack.top().position == position && m_undoStack.top().highNibble) {
+    if (!highNibble
+            && !m_undoStack.isEmpty()
+            && m_undoStack.top().position == position
+            && m_undoStack.top().highNibble) {
         // compress
         cmd.character = m_undoStack.top().character;
         m_undoStack.pop();
@@ -1398,6 +1401,11 @@ void BinEditor::jumpToAddress(quint64 address)
 void BinEditor::setNewWindowRequestAllowed()
 {
     m_canRequestNewWindow = true;
+}
+
+void BinEditor::updateContents()
+{
+    setLazyData(baseAddress() + cursorPosition(), dataSize(), m_blockSize);
 }
 
 QPoint BinEditor::offsetToPos(int offset)
