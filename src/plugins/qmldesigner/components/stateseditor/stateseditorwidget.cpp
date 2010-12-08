@@ -124,5 +124,3 @@ QSize StatesEditorWidget::sizeHint() const
 }
 
 }
-
-#include "stateseditorwidget.moc"
