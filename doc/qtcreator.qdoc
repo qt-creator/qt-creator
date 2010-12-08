@@ -105,6 +105,8 @@
                     \o \l {Creating Qt Quick Projects}
                     \o \l {Using Qt Quick Designer}
                     \o \l {Creating Components}
+                    \o \l {Creating Buttons}
+                    \o \l {Creating Scalable Buttons and Borders}
                     \o \l {Creating Screens}
                     \o \l {Animating Screens}
                     \o \l {Adding User Interaction Methods}
@@ -780,7 +782,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-task-lists.html
+    \previouspage creator-cli.html
     \page creator-help.html
     \nextpage creator-tips.html
 
@@ -7038,6 +7040,8 @@
         \o \l {Creating Qt Quick Projects}
         \o \l {Using Qt Quick Designer}
         \o \l {Creating Components}
+        \o \l {Creating Buttons}
+        \o \l {Creating Scalable Buttons and Borders}
         \o \l {Creating Screens}
         \o \l {Animating Screens}
         \o \l {Adding User Interaction Methods}
@@ -7558,7 +7562,7 @@
 /*!
 
     \contentspage index.html
-    \previouspage quick-components.html
+    \previouspage quick-scalable-image.html
     \page quick-screens.html
     \nextpage quick-animations.html
 
