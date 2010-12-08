@@ -28,9 +28,9 @@
 **************************************************************************/
 
 #include "externaltool.h"
-#include "actionmanager.h"
-#include "actioncontainer.h"
-#include "command.h"
+#include "actionmanager/actionmanager.h"
+#include "actionmanager/actioncontainer.h"
+#include "actionmanager/command.h"
 #include "coreconstants.h"
 #include "variablemanager.h"
 
@@ -64,16 +64,19 @@ namespace {
 
     const char * const kXmlLang = "xml:lang";
     const char * const kOutput = "output";
+    const char * const kError = "error";
     const char * const kOutputShowInPane = "showinpane";
     const char * const kOutputReplaceSelection = "replaceselection";
     const char * const kOutputReloadDocument = "reloaddocument";
+    const char * const kOutputIgnore = "ignore";
 }
 
 // #pragma mark -- ExternalTool
 
 ExternalTool::ExternalTool() :
     m_order(-1),
-    m_outputHandling(ShowInPane)
+    m_outputHandling(ShowInPane),
+    m_errorHandling(ShowInPane)
 {
 }
 
@@ -127,6 +130,11 @@ ExternalTool::OutputHandling ExternalTool::outputHandling() const
     return m_outputHandling;
 }
 
+ExternalTool::OutputHandling ExternalTool::errorHandling() const
+{
+    return m_errorHandling;
+}
+
 static QStringList splitLocale(const QString &locale)
 {
     QString value = locale;
@@ -170,6 +178,24 @@ static void localizedText(const QStringList &locales, QXmlStreamReader *reader, 
     }
 }
 
+static bool parseOutputAttribute(const QString &attribute, QXmlStreamReader *reader, ExternalTool::OutputHandling *value)
+{
+    const QString output = reader->attributes().value(attribute).toString();
+    if (output == QLatin1String(kOutputShowInPane)) {
+        *value = ExternalTool::ShowInPane;
+    } else if (output == QLatin1String(kOutputReplaceSelection)) {
+        *value = ExternalTool::ReplaceSelection;
+    } else if (output == QLatin1String(kOutputReloadDocument)) {
+        *value = ExternalTool::ReloadDocument;
+    } else if (output == QLatin1String(kOutputIgnore)) {
+        *value = ExternalTool::Ignore;
+    } else {
+        reader->raiseError(QLatin1String("Allowed values for output attribute are 'showinpane','replaceselection','reloaddocument'"));
+        return false;
+    }
+    return true;
+}
+
 ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *errorMessage, const QString &locale)
 {
     int descriptionLocale = -1;
@@ -202,17 +228,12 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
                 reader.raiseError(QLatin1String("<order> element requires non-negative integer value"));
         } else if (reader.name() == QLatin1String(kExecutable)) {
             if (reader.attributes().hasAttribute(QLatin1String(kOutput))) {
-                const QString output = reader.attributes().value(QLatin1String(kOutput)).toString();
-                if (output == QLatin1String(kOutputShowInPane)) {
-                    tool->m_outputHandling = ExternalTool::ShowInPane;
-                } else if (output == QLatin1String(kOutputReplaceSelection)) {
-                    tool->m_outputHandling = ExternalTool::ReplaceSelection;
-                } else if (output == QLatin1String(kOutputReloadDocument)) {
-                    tool->m_outputHandling = ExternalTool::ReloadDocument;
-                } else {
-                    reader.raiseError(QLatin1String("Allowed values for output attribute are 'showinpane','replaceselection','reloaddocument'"));
+                if (!parseOutputAttribute(QLatin1String(kOutput), &reader, &tool->m_outputHandling))
                     break;
-                }
+            }
+            if (reader.attributes().hasAttribute(QLatin1String(kError))) {
+                if (!parseOutputAttribute(QLatin1String(kError), &reader, &tool->m_errorHandling))
+                    break;
             }
             while (reader.readNextStartElement()) {
                 if (reader.name() == QLatin1String(kPath)) {
@@ -312,21 +333,21 @@ void ExternalToolRunner::run()
 void ExternalToolRunner::finished()
 {
     // TODO handle the ReplaceSelection and ReloadDocument flags
-    delete m_process;
-    m_process = 0;
+    m_process->deleteLater();
     deleteLater();
 }
 
 void ExternalToolRunner::error(QProcess::ProcessError error)
 {
     // TODO inform about errors
-    delete m_process;
-    m_process = 0;
+    m_process->deleteLater();
     deleteLater();
 }
 
 void ExternalToolRunner::readStandardOutput()
 {
+    if (m_tool->outputHandling() == ExternalTool::Ignore)
+        return;
     QByteArray data = m_process->readAllStandardOutput();
     QString output = m_outputCodec->toUnicode(data.constData(), data.length(), &m_outputCodecState);
     // TODO handle the ReplaceSelection flag
@@ -337,10 +358,12 @@ void ExternalToolRunner::readStandardOutput()
 
 void ExternalToolRunner::readStandardError()
 {
+    if (m_tool->errorHandling() == ExternalTool::Ignore)
+        return;
     QByteArray data = m_process->readAllStandardError();
     QString output = m_outputCodec->toUnicode(data.constData(), data.length(), &m_errorCodecState);
     // TODO handle the ReplaceSelection flag
-    if (m_tool->outputHandling() == ExternalTool::ShowInPane) {
+    if (m_tool->errorHandling() == ExternalTool::ShowInPane) {
         ICore::instance()->messageManager()->printToOutputPane(output, true);
     }
 }

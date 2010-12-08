@@ -15,7 +15,7 @@ static const char * const TEST_XML1 =
 "    <category>Linguist</category>"
 "    <category xml:lang=\"de\">Linguist</category>"
 "    <order>1</order>"
-"    <executable>"
+"    <executable error=\"ignore\">"
 "        <path>%{QT_INSTALL_BINS}/lupdate</path>"
 "        <path>lupdate</path>"
 "        <arguments>%{CurrentProjectFilePath}</arguments>"
@@ -101,6 +101,7 @@ void ExternaltoolTest::testRead1()
     QCOMPARE(tool->arguments(), QString::fromLatin1("%{CurrentProjectFilePath}"));
     QCOMPARE(tool->workingDirectory(), QString::fromLatin1("%{CurrentProjectPath}"));
     QCOMPARE(tool->outputHandling(), ExternalTool::ShowInPane);
+    QCOMPARE(tool->errorHandling(), ExternalTool::Ignore);
     delete tool;
 }
 
@@ -120,6 +121,7 @@ void ExternaltoolTest::testRead2()
     QCOMPARE(tool->arguments(), QString::fromLatin1("%{CurrentSelectionFilePath}"));
     QCOMPARE(tool->workingDirectory(), QString::fromLatin1("%{CurrentPath}"));
     QCOMPARE(tool->outputHandling(), ExternalTool::ReplaceSelection);
+    QCOMPARE(tool->errorHandling(), ExternalTool::ShowInPane);
     delete tool;
 }
 
@@ -139,6 +141,7 @@ void ExternaltoolTest::testRead3()
     QVERIFY(tool->arguments().startsWith(QLatin1String("-geom %{")));
     QCOMPARE(tool->workingDirectory(), QString::fromLatin1("%{CurrentPath}"));
     QCOMPARE(tool->outputHandling(), ExternalTool::ReloadDocument);
+    QCOMPARE(tool->errorHandling(), ExternalTool::ShowInPane);
     delete tool;
 }
 

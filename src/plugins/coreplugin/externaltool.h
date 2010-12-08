@@ -47,6 +47,7 @@ class ExternalTool : public QObject
 
 public:
     enum OutputHandling {
+        Ignore,
         ShowInPane,
         ReplaceSelection,
         ReloadDocument
@@ -61,6 +62,7 @@ public:
     QString displayCategory() const;
     int order() const;
     OutputHandling outputHandling() const;
+    OutputHandling errorHandling() const;
 
     QStringList executables() const;
     QString arguments() const;
@@ -78,6 +80,7 @@ private:
     QString m_arguments;
     QString m_workingDirectory;
     OutputHandling m_outputHandling;
+    OutputHandling m_errorHandling;
 };
 
 class ExternalToolRunner : public QObject
