@@ -133,18 +133,18 @@ public:
     QList<IEditor *> editorsForFile(IFile *file) const;
 
     IEditor *currentEditor() const;
+    QList<IEditor *> visibleEditors() const;
+    QList<IEditor*> openedEditors() const;
+
     IEditor *activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
     IEditor *activateEditor(const QModelIndex &index, Internal::EditorView *view = 0, OpenEditorFlags = 0);
     IEditor *activateEditor(Core::Internal::EditorView *view, Core::IFile*file, OpenEditorFlags flags = 0);
-
-    QList<IEditor*> openedEditors() const;
 
     OpenEditorsModel *openedEditorsModel() const;
     void closeEditor(const QModelIndex &index);
     void closeOtherEditors(IEditor *editor);
 
     QList<IEditor*> editorsForFiles(QList<IFile*> files) const;
-    //QList<EditorGroup *> editorGroups() const;
     void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
     void cutForwardNavigationHistory();
 

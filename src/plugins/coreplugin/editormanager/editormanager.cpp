@@ -1616,6 +1616,27 @@ bool EditorManager::hasSplitter() const
     return m_d->m_splitter->isSplitter();
 }
 
+QList<IEditor*> EditorManager::visibleEditors() const
+{
+    QList<IEditor *> editors;
+    if (m_d->m_splitter->isSplitter()) {
+        SplitterOrView *firstView = m_d->m_splitter->findFirstView();
+        SplitterOrView *view = firstView;
+        if (view) {
+            do {
+                if (view->editor())
+                    editors.append(view->editor());
+                view = m_d->m_splitter->findNextView(view);
+            } while (view && view != firstView);
+        }
+    } else {
+        if (m_d->m_splitter->editor()) {
+            editors.append(m_d->m_splitter->editor());
+        }
+    }
+    return editors;
+}
+
 QList<IEditor*> EditorManager::openedEditors() const
 {
     return m_d->m_editorModel->editors();
