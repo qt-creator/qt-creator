@@ -776,15 +776,14 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
             m_changedPropertyList.clear();
             resetAllItems();
 
-            if (!parentChangedSet.isEmpty())
-                sendChildrenChangedCommand(parentChangedSet.toList());
-
             if (!informationChangedInstanceSet.isEmpty())
                 nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(informationChangedInstanceSet.toList()));
 
-
             if (!propertyChangedList.isEmpty())
                 nodeInstanceClient()->valuesChanged(createValuesChangedCommand(propertyChangedList));
+
+            if (!parentChangedSet.isEmpty())
+                sendChildrenChangedCommand(parentChangedSet.toList());
 
             if (!dirtyInstanceSet.isEmpty())
                 nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(dirtyInstanceSet.toList()));
