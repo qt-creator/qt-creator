@@ -57,13 +57,13 @@
     </itemlibraryentry>
   </node>
   <node name="Qt/Flickable" icon=":/qtquickplugin/images/flickable-icon16.png">
-    <itemlibraryentry name="Flickable" category="Qt - Widgets" libraryIcon=":/qtquickplugin/images/flickable-icon.png" version="4.7">
+    <itemlibraryentry name="Flickable" category="Qt - Basic" libraryIcon=":/qtquickplugin/images/flickable-icon.png" version="4.7">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
     </itemlibraryentry>
   </node>
   <node name="Qt/Flipable" icon=":/qtquickplugin/images/flipable-icon16.png">
-    <itemlibraryentry name="Flipable" category="Qt - Widgets" libraryIcon=":/qtquickplugin/images/flipable-icon.png" version="4.7">
+    <itemlibraryentry name="Flipable" category="Qt - Basic" libraryIcon=":/qtquickplugin/images/flipable-icon.png" version="4.7">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
     </itemlibraryentry>
@@ -96,7 +96,7 @@
     </itemlibraryentry>
   </node>
   <node name="QtWebKit/WebView" icon=":/qtquickplugin/images/webview-icon16.png">
-    <itemlibraryentry name="Web View" category="Qt - Widgets" libraryIcon=":/qtquickplugin/images/webview-icon.png" version="1.0">
+    <itemlibraryentry name="Web View" category="Qt - Basic" libraryIcon=":/qtquickplugin/images/webview-icon.png" version="1.0">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
       <property name="url" type="QString" value="http://qt.nokia.com"/>
