@@ -58,6 +58,26 @@ bool CppQtStyleIndenter::isElectricCharacter(const QChar &ch) const
     return false;
 }
 
+static bool colonIsElectric(const QString &text)
+{
+    // switch cases and access declarations should be reindented
+    if (text.contains(QLatin1String("case"))
+            || text.contains(QLatin1String("default"))
+            || text.contains(QLatin1String("public"))
+            || text.contains(QLatin1String("private"))
+            || text.contains(QLatin1String("protected"))
+            || text.contains(QLatin1String("signals"))) {
+        return true;
+    }
+
+    // lines that start with : might have a constructor initializer list
+    const QString trimmedtext = text.trimmed();
+    if (!trimmedtext.isEmpty() && trimmedtext.at(0) == QLatin1Char(':'))
+        return true;
+
+    return false;
+}
+
 void CppQtStyleIndenter::indentBlock(QTextDocument *doc,
                                      const QTextBlock &block,
                                      const QChar &typedChar,
@@ -74,12 +94,9 @@ void CppQtStyleIndenter::indentBlock(QTextDocument *doc,
     codeFormatter.indentFor(block, &indent, &padding);
 
     if (isElectricCharacter(typedChar)) {
-        // : is only electric if the line has a 'case' or 'default'
-        if (typedChar == QLatin1Char(':')
-                && !(block.text().contains(QLatin1String("case"))
-                     || block.text().contains(QLatin1String("default")))) {
+        // : should not be electric for labels
+        if (typedChar == QLatin1Char(':') && !colonIsElectric(block.text()))
             return;
-        }
 
         // only reindent the current line when typing electric characters if the
         // indent is the same it would be if the line were empty
