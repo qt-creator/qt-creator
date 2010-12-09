@@ -235,10 +235,36 @@ void DragTool::dropEvent(QGraphicsSceneDragDropEvent * event)
     }
 }
 
+static ItemLibraryEntry itemLibraryEntryFromData(const QByteArray &data)
+{
+    QDataStream stream(data);
+
+    ItemLibraryEntry itemLibraryEntry;
+    stream >> itemLibraryEntry;
+
+    return itemLibraryEntry;
+}
+
 void DragTool::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
 {
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
         event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
+
+        if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo")) {
+            Q_ASSERT(!event->mimeData()->data("application/vnd.bauhaus.itemlibraryinfo").isEmpty());
+            ItemLibraryEntry itemLibraryEntry = itemLibraryEntryFromData(event->mimeData()->data("application/vnd.bauhaus.itemlibraryinfo"));
+            if (!itemLibraryEntry.requiredImport().isEmpty()) {
+                const QString newImportUrl = itemLibraryEntry.requiredImport();
+                const QString newImportVersion = QString("%1.%2").arg(QString::number(itemLibraryEntry.majorVersion()), QString::number(itemLibraryEntry.minorVersion()));
+                Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
+
+                if (!view()->model()->imports().contains(newImport)) {
+                    view()->model()->addImport(newImport);
+                }
+
+            }
+        }
+
         if (!m_rewriterTransaction.isValid()) {
             view()->clearSelectedModelNodes();
             m_rewriterTransaction = view()->beginRewriterTransaction();
@@ -266,16 +292,6 @@ void DragTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * event)
         view()->setSelectedQmlItemNodes(nodeList);
         view()->changeToSelectionTool();
     }
-}
-
-static ItemLibraryEntry itemLibraryEntryFromData(const QByteArray &data)
-{
-    QDataStream stream(data);
-
-    ItemLibraryEntry itemLibraryEntry;
-    stream >> itemLibraryEntry;
-
-    return itemLibraryEntry;
 }
 
 void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
