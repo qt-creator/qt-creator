@@ -693,6 +693,8 @@ bool CodeFormatter::tryStatement()
     case List:
     case Property:
     case Function:
+    case Number:
+    case String:
         enter(expression);
         // look at the token again
         m_tokenIndex -= 1;

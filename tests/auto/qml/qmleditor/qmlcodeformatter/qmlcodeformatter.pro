@@ -12,11 +12,11 @@ include($$SRCDIR/libs/utils/utils-lib.pri)
 
 SOURCES += \
     tst_qmlcodeformatter.cpp \
-    $$SRCDIR/plugins/qmljseditor/qmljseditorcodeformatter.cpp \
+    $$SRCDIR/plugins/qmljstools/qmljsqtstylecodeformatter.cpp \
     $$SRCDIR/plugins/texteditor/basetextdocumentlayout.cpp
 
 HEADERS += \
-    $$SRCDIR/plugins/qmljseditor/qmljseditorcodeformatter.h \
-    $$SRCDIR/plugins/texteditor/basetextdocumentlayout.h \
+    $$SRCDIR/plugins/qmljstools/qmljseditorcodeformatter.h \
+    $$SRCDIR/plugins/texteditor/basetextdocumentlayout.h
 
 INCLUDEPATH += $$SRCDIR/plugins $$SRCDIR/libs

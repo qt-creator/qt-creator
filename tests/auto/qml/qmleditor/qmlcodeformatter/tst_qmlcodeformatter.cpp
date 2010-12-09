@@ -4,9 +4,9 @@
 #include <QTextDocument>
 #include <QTextBlock>
 
-#include <qmljseditor/qmljseditorcodeformatter.h>
+#include <qmljstools/qmljsqtstylecodeformatter.h>
 
-using namespace QmlJSEditor;
+using namespace QmlJSTools;
 
 class tst_QMLCodeFormatter: public QObject
 {
@@ -27,6 +27,7 @@ private Q_SLOTS:
     void signalDeclarations();
     void ifBinding1();
     void ifBinding2();
+    void ifBinding3();
     void ifStatementWithoutBraces1();
     void ifStatementWithoutBraces2();
     void ifStatementWithBraces1();
@@ -426,6 +427,36 @@ void tst_QMLCodeFormatter::ifBinding2()
          << Line("           b")
          << Line("               + 5")
          << Line("               + 5")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::ifBinding3()
+{
+    QList<Line> data;
+    data << Line("A.Rectangle {")
+         << Line("    foo: bar")
+         << Line("    x: if (a) 1")
+         << Line("    x: if (a)")
+         << Line("           1")
+         << Line("    x: if (a) 1;")
+         << Line("    x: if (a)")
+         << Line("           1;")
+         << Line("    x: if (a) 1; else 2")
+         << Line("    x: if (a) 1")
+         << Line("       else 2")
+         << Line("    x: if (a) 1;")
+         << Line("       else 2")
+         << Line("    x: if (a) 1;")
+         << Line("       else")
+         << Line("           2")
+         << Line("    x: if (a)")
+         << Line("           1")
+         << Line("       else")
+         << Line("           2")
+         << Line("    x: if (a) 1; else 2;")
+         << Line("    x: 1")
          << Line("}")
          ;
     checkIndent(data);
