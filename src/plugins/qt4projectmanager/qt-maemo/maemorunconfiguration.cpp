@@ -143,7 +143,6 @@ void MaemoRunConfiguration::handleParseState(bool success)
     bool enabled = isEnabled();
     m_validParse = success;
     if (enabled != isEnabled()) {
-        qDebug()<<"Emitting isEnabledChanged()"<<!enabled;
         emit isEnabledChanged(!enabled);
     }
 }

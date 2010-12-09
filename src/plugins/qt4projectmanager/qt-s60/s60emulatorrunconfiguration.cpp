@@ -109,7 +109,6 @@ void S60EmulatorRunConfiguration::handleParserState(bool success)
     bool enabled = isEnabled();
     m_validParse = success;
     if (enabled != isEnabled()) {
-        qDebug()<<"Emitting isEnabledChanged()"<<!enabled;
         emit isEnabledChanged(!enabled);
     }
 }
