@@ -225,9 +225,11 @@ void DragTool::dropEvent(QGraphicsSceneDragDropEvent * event)
         } catch (RewritingException &e) {
             QMessageBox::warning(0, "Error", e.description());
         }
-        QList<QmlItemNode> nodeList;
-        nodeList.append(m_dragNode);
-        view()->setSelectedQmlItemNodes(nodeList);
+        if (m_dragNode.isValid()) {
+            QList<QmlItemNode> nodeList;
+            nodeList.append(m_dragNode);
+            view()->setSelectedQmlItemNodes(nodeList);
+        }
         m_dragNode = ModelNode();
         view()->changeToSelectionTool();
     }
