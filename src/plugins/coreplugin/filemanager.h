@@ -34,6 +34,8 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
+#include <QtCore/QPair>
+#include <QtCore/QVariant>
 
 QT_BEGIN_NAMESPACE
 class QMainWindow;
@@ -59,6 +61,8 @@ public:
         KeepLinks
     };
 
+    typedef QPair<QString, QString> RecentFile;
+
     explicit FileManager(QMainWindow *ew);
     virtual ~FileManager();
 
@@ -79,8 +83,8 @@ public:
     void unexpectFileChange(const QString &fileName);
 
     // recent files
-    void addToRecentFiles(const QString &fileName);
-    QStringList recentFiles() const;
+    void addToRecentFiles(const QString &fileName, const QString &editorId = QString());
+    QList<RecentFile> recentFiles() const;
     void saveSettings();
 
     // current file
@@ -182,5 +186,7 @@ private:
 };
 
 } // namespace Core
+
+Q_DECLARE_METATYPE(Core::FileManager::RecentFile)
 
 #endif // FILEMANAGER_H

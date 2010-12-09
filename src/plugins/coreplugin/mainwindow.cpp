@@ -1278,11 +1278,11 @@ void MainWindow::aboutToShowRecentFiles()
     aci->menu()->clear();
 
     bool hasRecentFiles = false;
-    foreach (const QString &fileName, m_fileManager->recentFiles()) {
+    foreach (const FileManager::RecentFile &file, m_fileManager->recentFiles()) {
         hasRecentFiles = true;
         QAction *action = aci->menu()->addAction(
-                    QDir::toNativeSeparators(Utils::withTildeHomePath(fileName)));
-        action->setData(fileName);
+                    QDir::toNativeSeparators(Utils::withTildeHomePath(file.first)));
+        action->setData(qVariantFromValue(file));
         connect(action, SIGNAL(triggered()), this, SLOT(openRecentFile()));
     }
     aci->menu()->setEnabled(hasRecentFiles);
@@ -1291,9 +1291,8 @@ void MainWindow::aboutToShowRecentFiles()
 void MainWindow::openRecentFile()
 {
     if (const QAction *action = qobject_cast<const QAction*>(sender())) {
-        const QString fileName = action->data().toString();
-        if (!fileName.isEmpty())
-            editorManager()->openEditor(fileName, QString(), Core::EditorManager::ModeSwitch);
+        const FileManager::RecentFile file = action->data().value<FileManager::RecentFile>();
+        editorManager()->openEditor(file.first, file.second, Core::EditorManager::ModeSwitch);
     }
 }
 

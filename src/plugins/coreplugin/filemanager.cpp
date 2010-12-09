@@ -84,12 +84,13 @@
   (see addToRecentFiles() and recentFiles()).
  */
 
-static const char settingsGroupC[] = "RecentFiles";
-static const char filesKeyC[] = "Files";
+static const char * const settingsGroupC = "RecentFiles";
+static const char * const filesKeyC = "Files";
+static const char * const editorsKeyC = "EditorIds";
 
-static const char directoryGroupC[] = "Directories";
-static const char projectDirectoryKeyC[] = "Projects";
-static const char useProjectDirectoryKeyC[] = "UseProjectsDirectory";
+static const char * const directoryGroupC = "Directories";
+static const char * const projectDirectoryKeyC = "Projects";
+static const char * const useProjectDirectoryKeyC = "UseProjectsDirectory";
 
 namespace Core {
 namespace Internal {
@@ -116,7 +117,7 @@ struct FileManagerPrivate {
     QList<IFile *> m_filesWithoutWatch;
     QMap<IFile *, QStringList> m_filesWithWatch;
 
-    QStringList m_recentFiles;
+    QList<FileManager::RecentFile> m_recentFiles;
     static const int m_maxRecentFiles = 7;
 
     QString m_currentFile;
@@ -1016,24 +1017,28 @@ void FileManager::syncWithEditor(Core::IContext *context)
 }
 
 /*!
-    \fn void FileManager::addToRecentFiles(const QString &fileName)
+    \fn void FileManager::addToRecentFiles(const QString &fileName, , const QString &editorId)
 
-    Adds the \a fileName to the list of recent files.
+    Adds the \a fileName to the list of recent files. Associates the file to
+    be reopened with an editor of the given \a editorId, if possible.
+    \a editorId defaults to the empty id, which means to let the system figure out
+    the best editor itself.
 */
-void FileManager::addToRecentFiles(const QString &fileName)
+void FileManager::addToRecentFiles(const QString &fileName, const QString &editorId)
 {
     if (fileName.isEmpty())
         return;
     QString unifiedForm(fixFileName(fileName, KeepLinks));
-    QMutableStringListIterator it(d->m_recentFiles);
+    QMutableListIterator<RecentFile > it(d->m_recentFiles);
     while (it.hasNext()) {
-        QString recentUnifiedForm(fixFileName(it.next(), KeepLinks));
+        RecentFile file = it.next();
+        QString recentUnifiedForm(fixFileName(file.first, KeepLinks));
         if (unifiedForm == recentUnifiedForm)
             it.remove();
     }
     if (d->m_recentFiles.count() > d->m_maxRecentFiles)
         d->m_recentFiles.removeLast();
-    d->m_recentFiles.prepend(fileName);
+    d->m_recentFiles.prepend(RecentFile(fileName, editorId));
 }
 
 /*!
@@ -1041,16 +1046,24 @@ void FileManager::addToRecentFiles(const QString &fileName)
 
     Returns the list of recent files.
 */
-QStringList FileManager::recentFiles() const
+QList<FileManager::RecentFile> FileManager::recentFiles() const
 {
     return d->m_recentFiles;
 }
 
 void FileManager::saveSettings()
 {
+    QStringList recentFiles;
+    QStringList recentEditorIds;
+    foreach (const RecentFile &file, d->m_recentFiles) {
+        recentFiles.append(file.first);
+        recentEditorIds.append(file.second);
+    }
+
     QSettings *s = Core::ICore::instance()->settings();
     s->beginGroup(QLatin1String(settingsGroupC));
-    s->setValue(QLatin1String(filesKeyC), d->m_recentFiles);
+    s->setValue(QLatin1String(filesKeyC), recentFiles);
+    s->setValue(QLatin1String(editorsKeyC), recentEditorIds);
     s->endGroup();
     s->beginGroup(QLatin1String(directoryGroupC));
     s->setValue(QLatin1String(projectDirectoryKeyC), d->m_projectsDirectory);
@@ -1060,25 +1073,34 @@ void FileManager::saveSettings()
 
 void FileManager::readSettings()
 {
-    const QSettings *s = Core::ICore::instance()->settings();
+    QSettings *s = Core::ICore::instance()->settings();
     d->m_recentFiles.clear();
-    QStringList recentFiles = s->value(QLatin1String(settingsGroupC) + QLatin1Char('/') + QLatin1String(filesKeyC), QStringList()).toStringList();
+    s->beginGroup(QLatin1String(settingsGroupC));
+    QStringList recentFiles = s->value(QLatin1String(filesKeyC)).toStringList();
+    QStringList recentEditorIds = s->value(QLatin1String(editorsKeyC)).toStringList();
+    s->endGroup();
     // clean non-existing files
-    foreach (const QString &file, recentFiles) {
-        if (QFileInfo(file).isFile())
-            d->m_recentFiles.append(QDir::fromNativeSeparators(file)); // from native to guard against old settings
+    QStringListIterator ids(recentEditorIds);
+    foreach (const QString &fileName, recentFiles) {
+        QString editorId;
+        if (ids.hasNext()) // guard against old or weird settings
+            editorId = ids.next();
+        if (QFileInfo(fileName).isFile())
+            d->m_recentFiles.append(RecentFile(QDir::fromNativeSeparators(fileName), // from native to guard against old settings
+                                               editorId));
     }
 
-    const QString directoryGroup = QLatin1String(directoryGroupC) + QLatin1Char('/');
-    const QString settingsProjectDir = s->value(directoryGroup + QLatin1String(projectDirectoryKeyC),
-                                       QString()).toString();
+    s->beginGroup(QLatin1String(directoryGroupC));
+    const QString settingsProjectDir = s->value(QLatin1String(projectDirectoryKeyC),
+                                                QString()).toString();
     if (!settingsProjectDir.isEmpty() && QFileInfo(settingsProjectDir).isDir()) {
         d->m_projectsDirectory = settingsProjectDir;
     } else {
         d->m_projectsDirectory = Utils::PathChooser::homePath();
     }
-    d->m_useProjectsDirectory = s->value(directoryGroup + QLatin1String(useProjectDirectoryKeyC),
+    d->m_useProjectsDirectory = s->value(QLatin1String(useProjectDirectoryKeyC),
                                          d->m_useProjectsDirectory).toBool();
+    s->endGroup();
 }
 
 /*!

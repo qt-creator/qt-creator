@@ -1111,7 +1111,8 @@ void EditorManager::addEditor(IEditor *editor, bool isDuplicate)
         const bool addWatcher = !isTemporary;
         m_d->m_core->fileManager()->addFile(editor->file(), addWatcher);
         if (!isTemporary)
-            m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());
+            m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName(),
+                                                         editor->id());
     }
     emit editorOpened(editor);
 }
@@ -1473,15 +1474,17 @@ bool EditorManager::saveFileAs(IFile *fileParam)
 void EditorManager::addFileToRecentFiles(IFile *file)
 {
     bool isTemporary = true;
+    QString editorId;
     QList<IEditor *> editors = editorsForFile(file);
     foreach (IEditor *editor, editors) {
         if (!editor->isTemporary()) {
+            editorId = editor->id();
             isTemporary = false;
             break;
         }
     }
     if (!isTemporary)
-        m_d->m_core->fileManager()->addToRecentFiles(file->fileName());
+        m_d->m_core->fileManager()->addToRecentFiles(file->fileName(), editorId);
 }
 
 void EditorManager::gotoNextDocHistory()
