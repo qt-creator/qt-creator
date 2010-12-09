@@ -541,10 +541,6 @@ void GitClient::diff(const QString &workingDirectory,
                      const QStringList &diffArgs,
                      const QString &fileName)
 {
-    // if (Git::Constants::debug)
-        qDebug() << "diff" << workingDirectory << fileName << diffArgs;
-
-
     const QString editorId = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_ID);
     const QString title = tr("Git Diff %1").arg(fileName);
     const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, fileName);
