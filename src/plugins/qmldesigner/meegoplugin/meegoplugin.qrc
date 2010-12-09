@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/meegoplugin">
+        <file>meego.metainfo</file>
+        <file>images/item-icon16.png</file>
+	<file>images/item-icon.png</file>
+    </qresource>
+</RCC>
