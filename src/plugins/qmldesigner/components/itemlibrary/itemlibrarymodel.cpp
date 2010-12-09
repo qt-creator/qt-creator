@@ -301,15 +301,12 @@ void ItemLibrarySectionModel::updateItemIconSize(const QSize &itemIconSize)
     }
 }
 
-
 bool ItemLibrarySectionModel::operator<(const ItemLibrarySectionModel &other) const
 {
+    if (sectionName() == QLatin1String("QML Components")) //Qml Components always come first
+        return true;
     return sectionName() < other.sectionName();
 }
-
-
-
-
 
 ItemLibraryModel::ItemLibraryModel(QScriptEngine *scriptEngine, QObject *parent)
     : ItemLibrarySortedModel<ItemLibrarySectionModel>(parent),
