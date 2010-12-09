@@ -225,7 +225,7 @@ public:
     static const char *noColorOption;
 
 public slots:
-    void show(const QString &source, const QString &id);
+    void show(const QString &source, const QString &id, const QStringList &args = QStringList());
 
 private slots:
     void slotBlameRevisionRequested(const QString &source, QString change, int lineNumber);

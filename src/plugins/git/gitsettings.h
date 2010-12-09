@@ -63,6 +63,7 @@ struct GitSettings
     bool ignoreSpaceChangesInBlame;
     bool diffPatience;
     bool winSetHomeEnvironment;
+    int showPrettyFormat;
     QString gitkOptions;
 };
 

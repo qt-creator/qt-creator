@@ -49,6 +49,7 @@ static const char ignoreSpaceChangesDiffKeyC[] = "SpaceIgnorantDiff";
 static const char diffPatienceKeyC[] = "DiffPatience";
 static const char winSetHomeEnvironmentKeyC[] = "WinSetHomeEnvironment";
 static const char gitkOptionsKeyC[] = "GitKOptions";
+static const char showPrettyFormatC[] = "DiffPrettyFormat";
 
 enum {
     defaultPullRebase = 0,
@@ -73,7 +74,8 @@ GitSettings::GitSettings() :
     ignoreSpaceChangesInDiff(false),
     ignoreSpaceChangesInBlame(true),
     diffPatience(true),
-    winSetHomeEnvironment(false)
+    winSetHomeEnvironment(false),
+    showPrettyFormat(5)
 {
 }
 
@@ -92,6 +94,7 @@ void GitSettings::fromSettings(QSettings *settings)
     diffPatience = settings->value(QLatin1String(diffPatienceKeyC), true).toBool();
     winSetHomeEnvironment = settings->value(QLatin1String(winSetHomeEnvironmentKeyC), false).toBool();
     gitkOptions = settings->value(QLatin1String(gitkOptionsKeyC)).toString();
+    showPrettyFormat = settings->value(QLatin1String(showPrettyFormatC), 5).toInt();
     settings->endGroup();
 }
 
@@ -110,6 +113,7 @@ void GitSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(diffPatienceKeyC), diffPatience);
     settings->setValue(QLatin1String(winSetHomeEnvironmentKeyC), winSetHomeEnvironment);
     settings->setValue(QLatin1String(gitkOptionsKeyC), gitkOptions);
+    settings->setValue(QLatin1String(showPrettyFormatC), showPrettyFormat);
     settings->endGroup();
 }
 
@@ -122,7 +126,7 @@ bool GitSettings::equals(const GitSettings &s) const
            && ignoreSpaceChangesInBlame == s.ignoreSpaceChangesInBlame
            && ignoreSpaceChangesInDiff == s.ignoreSpaceChangesInDiff
            && diffPatience == s.diffPatience && winSetHomeEnvironment == s.winSetHomeEnvironment
-           && gitkOptions == s.gitkOptions;
+           && gitkOptions == s.gitkOptions && showPrettyFormat == s.showPrettyFormat;
 }
 
 QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const
