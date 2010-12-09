@@ -51,6 +51,7 @@ public:
     QIcon dragIcon;
     QList<PropertyContainer> properties;
     QString qml;
+    QString requiredImport;
 };
 
 class ItemLibraryInfoPrivate
@@ -129,6 +130,11 @@ QString ItemLibraryEntry::qml() const
     return m_data->qml;
 }
 
+QString ItemLibraryEntry::requiredImport() const
+{
+    return m_data->requiredImport;
+}
+
 int ItemLibraryEntry::majorVersion() const
 {
     return m_data->majorVersion;
@@ -181,6 +187,11 @@ void ItemLibraryEntry::setQml(const QString &qml)
     m_data->qml = qml;
 }
 
+void ItemLibraryEntry::setRequiredImport(const QString &requiredImport)
+{
+    m_data->requiredImport = requiredImport;
+}
+
 void ItemLibraryEntry::addProperty(QString &name, QString &type, QString &value)
 {
     Property property;
@@ -198,6 +209,8 @@ QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibrary
     stream << itemLibraryEntry.iconPath();
     stream << itemLibraryEntry.category();
     stream << itemLibraryEntry.dragIcon();
+    stream << itemLibraryEntry.requiredImport();
+
     stream << itemLibraryEntry.m_data->properties;
 
     return stream;
@@ -213,6 +226,8 @@ QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry)
     stream >> itemLibraryEntry.m_data->iconPath;
     stream >> itemLibraryEntry.m_data->category;
     stream >> itemLibraryEntry.m_data->dragIcon;
+    stream >> itemLibraryEntry.m_data->requiredImport;
+
     stream >> itemLibraryEntry.m_data->properties;
 
     return stream;
