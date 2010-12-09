@@ -209,6 +209,8 @@ void NodeInstanceServer::reparentInstances(const ReparentInstancesCommand &comma
 void NodeInstanceServer::changeState(const ChangeStateCommand &command)
 {
     if (hasInstanceForId(command.stateInstanceId())) {
+        if (activeStateInstance().isValid())
+            activeStateInstance().deactivateState();
         ServerNodeInstance instance = instanceForId(command.stateInstanceId());
         instance.activateState();
     } else {
