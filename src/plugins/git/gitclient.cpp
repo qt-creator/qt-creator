@@ -431,7 +431,8 @@ VCSBase::VCSBaseEditor *GitClient::findExistingVCSEditor(const char *registerDyn
     if (!outputEditor)
         return 0;
 
-     // Exists already
+    // Exists already
+    Core::EditorManager::instance()->activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
     outputEditor->createNew(m_msgWait);
     rc = VCSBase::VCSBaseEditor::getVcsBaseEditor(outputEditor);
 
