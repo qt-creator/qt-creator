@@ -35,7 +35,7 @@ static const char * const TEST_XML2 =
 "    <category xml:lang=\"de\">Text</category>"
 "    <executable output=\"replaceselection\">"
 "        <path>sort</path>"
-"        <arguments>%{CurrentSelectionFilePath}</arguments>"
+"        <input>%{CurrentSelection}</input>"
 "        <workingdirectory>%{CurrentPath}</workingdirectory>"
 "    </executable>"
 "</externaltool>";
@@ -99,6 +99,7 @@ void ExternaltoolTest::testRead1()
     QCOMPARE(tool->executables().at(0), QString::fromLatin1("%{QT_INSTALL_BINS}/lupdate"));
     QCOMPARE(tool->executables().at(1), QString::fromLatin1("lupdate"));
     QCOMPARE(tool->arguments(), QString::fromLatin1("%{CurrentProjectFilePath}"));
+    QCOMPARE(tool->input(), QString());
     QCOMPARE(tool->workingDirectory(), QString::fromLatin1("%{CurrentProjectPath}"));
     QCOMPARE(tool->outputHandling(), ExternalTool::ShowInPane);
     QCOMPARE(tool->errorHandling(), ExternalTool::Ignore);
@@ -118,7 +119,8 @@ void ExternaltoolTest::testRead2()
     QCOMPARE(tool->order(), -1);
     QCOMPARE(tool->executables().size(), 1);
     QCOMPARE(tool->executables().at(0), QString::fromLatin1("sort"));
-    QCOMPARE(tool->arguments(), QString::fromLatin1("%{CurrentSelectionFilePath}"));
+    QCOMPARE(tool->arguments(), QString());
+    QCOMPARE(tool->input(), QString::fromLatin1("%{CurrentSelection}"));
     QCOMPARE(tool->workingDirectory(), QString::fromLatin1("%{CurrentPath}"));
     QCOMPARE(tool->outputHandling(), ExternalTool::ReplaceSelection);
     QCOMPARE(tool->errorHandling(), ExternalTool::ShowInPane);
@@ -139,6 +141,7 @@ void ExternaltoolTest::testRead3()
     QCOMPARE(tool->executables().size(), 1);
     QCOMPARE(tool->executables().at(0), QString::fromLatin1("xterm"));
     QVERIFY(tool->arguments().startsWith(QLatin1String("-geom %{")));
+    QCOMPARE(tool->input(), QString());
     QCOMPARE(tool->workingDirectory(), QString::fromLatin1("%{CurrentPath}"));
     QCOMPARE(tool->outputHandling(), ExternalTool::ReloadDocument);
     QCOMPARE(tool->errorHandling(), ExternalTool::ShowInPane);

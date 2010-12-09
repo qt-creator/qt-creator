@@ -66,6 +66,7 @@ public:
 
     QStringList executables() const;
     QString arguments() const;
+    QString input() const;
     QString workingDirectory() const;
 
     static ExternalTool *createFromXml(const QByteArray &xml, QString *errorMessage = 0, const QString &locale = QString());
@@ -78,6 +79,7 @@ private:
     int m_order;
     QStringList m_executables;
     QString m_arguments;
+    QString m_input;
     QString m_workingDirectory;
     OutputHandling m_outputHandling;
     OutputHandling m_errorHandling;
@@ -90,6 +92,7 @@ public:
     ExternalToolRunner(const ExternalTool *tool);
 
 private slots:
+    void started();
     void finished();
     void error(QProcess::ProcessError error);
     void readStandardOutput();
@@ -102,6 +105,7 @@ private:
     const ExternalTool *m_tool;
     QString m_resolvedExecutable;
     QStringList m_resolvedArguments;
+    QString m_resolvedInput;
     QString m_resolvedWorkingDirectory;
     QProcess *m_process;
     QTextCodec *m_outputCodec;

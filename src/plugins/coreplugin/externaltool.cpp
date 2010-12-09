@@ -38,6 +38,7 @@
 #include <coreplugin/messagemanager.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/environment.h>
 
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QDir>
@@ -60,6 +61,7 @@ namespace {
     const char * const kExecutable = "executable";
     const char * const kPath = "path";
     const char * const kArguments = "arguments";
+    const char * const kInput = "input";
     const char * const kWorkingDirectory = "workingdirectory";
 
     const char * const kXmlLang = "xml:lang";
@@ -118,6 +120,11 @@ QStringList ExternalTool::executables() const
 QString ExternalTool::arguments() const
 {
     return m_arguments;
+}
+
+QString ExternalTool::input() const
+{
+    return m_input;
 }
 
 QString ExternalTool::workingDirectory() const
@@ -244,6 +251,12 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
                         break;
                     }
                     tool->m_arguments = reader.readElementText();
+                } else if (reader.name() == QLatin1String(kInput)) {
+                    if (!tool->m_input.isEmpty()) {
+                        reader.raiseError(QLatin1String("only one <input> element allowed"));
+                        break;
+                    }
+                    tool->m_input = reader.readElementText();
                 } else if (reader.name() == QLatin1String(kWorkingDirectory)) {
                     if (!tool->m_workingDirectory.isEmpty()) {
                         reader.raiseError(QLatin1String("only one <workingdirectory> element allowed"));
@@ -290,14 +303,10 @@ bool ExternalToolRunner::resolve()
         foreach (const QString &executable, m_tool->executables()) {
             QString resolved = Utils::expandMacros(executable,
                                                    Core::VariableManager::instance()->macroExpander());
-            QFileInfo info(resolved);
-            // TODO search in path
-            if (info.exists() && info.isExecutable()) {
-                m_resolvedExecutable = resolved;
-                break;
-            }
+            m_resolvedExecutable =
+                    Utils::Environment::systemEnvironment().searchInPath(resolved);
         }
-        if (m_resolvedExecutable.isNull())
+        if (m_resolvedExecutable.isEmpty())
             return false;
     }
     { // arguments
@@ -305,6 +314,10 @@ bool ExternalToolRunner::resolve()
                                                Core::VariableManager::instance()->macroExpander());
         // TODO stupid, do it right
         m_resolvedArguments = resolved.split(QLatin1Char(' '), QString::SkipEmptyParts);
+    }
+    { // input
+        m_resolvedInput = Utils::expandMacros(m_tool->input(),
+                                              Core::VariableManager::instance()->macroExpander());
     }
     { // working directory
         m_resolvedWorkingDirectory = Utils::expandMacros(m_tool->workingDirectory(),
@@ -321,17 +334,30 @@ void ExternalToolRunner::run()
     }
     m_process = new QProcess;
     // TODO error handling, finish reporting, reading output, etc
+    connect(m_process, SIGNAL(started()), this, SLOT(started()));
     connect(m_process, SIGNAL(finished(int)), this, SLOT(finished()));
     connect(m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(error(QProcess::ProcessError)));
     connect(m_process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStandardOutput()));
     connect(m_process, SIGNAL(readyReadStandardError()), this, SLOT(readStandardError()));
     if (!m_resolvedWorkingDirectory.isEmpty())
         m_process->setWorkingDirectory(m_resolvedWorkingDirectory);
-    m_process->start(m_resolvedExecutable, m_resolvedArguments, QIODevice::ReadOnly);
+    ICore::instance()->messageManager()->printToOutputPane(
+                tr("Starting external tool '%1'").arg(m_resolvedExecutable), false);
+    m_process->start(m_resolvedExecutable, m_resolvedArguments, QIODevice::ReadWrite);
+}
+
+void ExternalToolRunner::started()
+{
+    if (!m_resolvedInput.isEmpty()) {
+        m_process->write(m_resolvedInput.toLocal8Bit());
+    }
+    m_process->closeWriteChannel();
 }
 
 void ExternalToolRunner::finished()
 {
+    ICore::instance()->messageManager()->printToOutputPane(
+                tr("'%1' finished").arg(m_resolvedExecutable), false);
     // TODO handle the ReplaceSelection and ReloadDocument flags
     m_process->deleteLater();
     deleteLater();

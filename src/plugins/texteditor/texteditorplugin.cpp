@@ -50,6 +50,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/mimedatabase.h>
+#include <coreplugin/variablemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -175,6 +176,9 @@ void TextEditorPlugin::extensionsInitialized()
 
     addAutoReleasedObject(new FindInFiles(Find::SearchResultWindow::instance()));
     addAutoReleasedObject(new FindInCurrentFile(Find::SearchResultWindow::instance()));
+    connect(Core::VariableManager::instance(), SIGNAL(variableUpdateRequested(QString)),
+            this, SLOT(updateVariable(QString)));
+
 }
 
 void TextEditorPlugin::initializeEditor(PlainTextEditor *editor)
@@ -206,6 +210,21 @@ void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
     if (m_searchResultWindow)
         m_searchResultWindow->setTextEditorFont(QFont(settings.family(),
                                                       settings.fontSize() * settings.fontZoom() / 100));
+}
+
+void TextEditorPlugin::updateVariable(const QString &variable)
+{
+    static const char * const kCurrentSelectionVar = "CurrentSelection";
+    if (variable == QLatin1String(kCurrentSelectionVar)) {
+        QString selectedText;
+        Core::IEditor *iface = Core::EditorManager::instance()->currentEditor();
+        ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
+        if (editor) {
+            selectedText = editor->selectedText();
+            selectedText.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
+        }
+        Core::VariableManager::instance()->insert(variable, selectedText);
+    }
 }
 
 Q_EXPORT_PLUGIN(TextEditorPlugin)
