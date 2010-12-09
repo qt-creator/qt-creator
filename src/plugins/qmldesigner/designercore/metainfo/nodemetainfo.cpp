@@ -498,6 +498,8 @@ bool NodeMetaInfoPrivate::isPropertyWritable(const QString &propertyName) const
     }
 
     const QmlJS::Interpreter::QmlObjectValue *qmlObjectValue = getNearestQmlObjectValue();
+    if (!qmlObjectValue)
+        return true;
     if (qmlObjectValue->hasProperty(propertyName))
         return qmlObjectValue->isWritable(propertyName);
     else
@@ -526,7 +528,10 @@ bool NodeMetaInfoPrivate::isPropertyList(const QString &propertyName) const
             return true;
     }
 
-    return getNearestQmlObjectValue()->isListProperty(propertyName);
+    const QmlJS::Interpreter::QmlObjectValue *qmlObjectValue = getNearestQmlObjectValue();
+    if (!qmlObjectValue)
+        return false;
+    return qmlObjectValue->isListProperty(propertyName);
 }
 
 bool NodeMetaInfoPrivate::isPropertyPointer(const QString &propertyName) const
@@ -550,7 +555,10 @@ bool NodeMetaInfoPrivate::isPropertyPointer(const QString &propertyName) const
             return true;
     }
 
-    return getNearestQmlObjectValue()->isPointer(propertyName);
+    const QmlJS::Interpreter::QmlObjectValue *qmlObjectValue = getNearestQmlObjectValue();
+    if (!qmlObjectValue)
+        return false;
+    return qmlObjectValue->isPointer(propertyName);
 }
 
 bool NodeMetaInfoPrivate::isPropertyEnum(const QString &propertyName) const
