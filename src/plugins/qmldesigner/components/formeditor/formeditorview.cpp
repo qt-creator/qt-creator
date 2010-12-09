@@ -435,6 +435,11 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const QString &
     }
 }
 
+void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeList)
+{
+}
+
+
 void FormEditorView::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
     if (identifier == "__start rewriter transaction__") {

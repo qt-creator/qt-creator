@@ -16,6 +16,7 @@
 #include "reparentinstancescommand.h"
 #include "changeidscommand.h"
 #include "changestatecommand.h"
+#include "completecomponentcommand.h"
 
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
@@ -24,6 +25,7 @@
 #include "childrenchangedcommand.h"
 #include "imagecontainer.h"
 #include "statepreviewimagechangedcommand.h"
+#include "componentcompletedcommand.h"
 
 
 namespace QmlDesigner {
@@ -117,6 +119,12 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<StatePreviewImageChangedCommand>("StatePreviewImageChangedCommand");
     qRegisterMetaTypeStreamOperators<StatePreviewImageChangedCommand>("StatePreviewImageChangedCommand");
+
+    qRegisterMetaType<CompleteComponentCommand>("CompleteComponentCommand");
+    qRegisterMetaTypeStreamOperators<CompleteComponentCommand>("CompleteComponentCommand");
+
+    qRegisterMetaType<ComponentCompletedCommand>("ComponentCompletedCommand");
+    qRegisterMetaTypeStreamOperators<ComponentCompletedCommand>("ComponentCompletedCommand");
 }
 
 }

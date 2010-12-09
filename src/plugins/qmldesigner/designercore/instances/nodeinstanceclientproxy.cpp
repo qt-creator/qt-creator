@@ -23,6 +23,7 @@
 #include "changeidscommand.h"
 #include "changestatecommand.h"
 #include "addimportcommand.h"
+#include "completecomponentcommand.h"
 
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
@@ -30,6 +31,7 @@
 #include "childrenchangedcommand.h"
 #include "imagecontainer.h"
 #include "statepreviewimagechangedcommand.h"
+#include "componentcompletedcommand.h"
 
 namespace QmlDesigner {
 
@@ -79,6 +81,11 @@ void NodeInstanceClientProxy::childrenChanged(const ChildrenChangedCommand &comm
 }
 
 void NodeInstanceClientProxy::statePreviewImagesChanged(const StatePreviewImageChangedCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceClientProxy::componentCompleted(const ComponentCompletedCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }
@@ -142,6 +149,7 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int changeIdsCommandType = QMetaType::type("ChangeIdsCommand");
     static const int changeStateCommandType = QMetaType::type("ChangeStateCommand");
     static const int addImportCommandType = QMetaType::type("AddImportCommand");
+    static const int completeComponentCommandType = QMetaType::type("CompleteComponentCommand");
 
     if (command.userType() ==  createInstancesCommandType)
         nodeInstanceServer()->createInstances(command.value<CreateInstancesCommand>());
@@ -167,6 +175,8 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
         nodeInstanceServer()->changeState(command.value<ChangeStateCommand>());
     else if (command.userType() ==  addImportCommandType)
         nodeInstanceServer()->addImport(command.value<AddImportCommand>());
+    else if (command.userType() ==  completeComponentCommandType)
+        nodeInstanceServer()->completeComponent(command.value<CompleteComponentCommand>());
     else
         Q_ASSERT(false);
 }

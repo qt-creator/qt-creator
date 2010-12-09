@@ -144,7 +144,7 @@ public:
 
     void notifyCustomNotification(const AbstractView *senderView, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
     void notifyInstancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
-
+    void notifyInstancesCompleted(const QVector<ModelNode> &nodeList);
 
 
     void setSelectedNodes(const QList<InternalNodePointer> &selectedNodeList);
@@ -207,6 +207,8 @@ private: //functions
     void removeNodeFromModel(const InternalNodePointer &node);
     QList<InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList) const;
     QList<ModelNode> toModelNodeList(const QList<InternalNodePointer> &nodeList, AbstractView *view) const;
+    QVector<ModelNode> toModelNodeVector(const QVector<InternalNodePointer> &nodeVector, AbstractView *view) const;
+    QVector<InternalNodePointer> toInternalNodeVector(const QVector<ModelNode> &nodeVector) const;
 
 private:
     Model *m_q;

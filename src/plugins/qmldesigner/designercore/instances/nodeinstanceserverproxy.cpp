@@ -22,6 +22,7 @@
 #include "changeidscommand.h"
 #include "changestatecommand.h"
 #include "addimportcommand.h"
+#include "completecomponentcommand.h"
 
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
@@ -29,6 +30,7 @@
 #include "childrenchangedcommand.h"
 #include "imagecontainer.h"
 #include "statepreviewimagechangedcommand.h"
+#include "componentcompletedcommand.h"
 
 #include "nodeinstanceview.h"
 #include "nodeinstanceclientproxy.h"
@@ -78,6 +80,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
     static const int pixmapChangedCommandType = QMetaType::type("PixmapChangedCommand");
     static const int childrenChangedCommandType = QMetaType::type("ChildrenChangedCommand");
     static const int statePreviewImageChangedCommandType = QMetaType::type("StatePreviewImageChangedCommand");
+    static const int componentCompletedCommandType = QMetaType::type("ComponentCompletedCommand");
 
     if (command.userType() ==  informationChangedCommandType)
         nodeInstanceClient()->informationChanged(command.value<InformationChangedCommand>());
@@ -89,6 +92,8 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
         nodeInstanceClient()->childrenChanged(command.value<ChildrenChangedCommand>());
     else if (command.userType() == statePreviewImageChangedCommandType)
         nodeInstanceClient()->statePreviewImagesChanged(command.value<StatePreviewImageChangedCommand>());
+    else if (command.userType() == componentCompletedCommandType)
+        nodeInstanceClient()->componentCompleted(command.value<ComponentCompletedCommand>());
     else
         Q_ASSERT(false);
 }
@@ -210,6 +215,11 @@ void NodeInstanceServerProxy::changeState(const ChangeStateCommand &command)
 }
 
 void NodeInstanceServerProxy::addImport(const AddImportCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceServerProxy::completeComponent(const CompleteComponentCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }

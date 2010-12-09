@@ -161,6 +161,7 @@ void ComponentView::bindingPropertiesChanged(const QList<BindingProperty>& /*pro
 void ComponentView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/) {}
 void ComponentView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/) {}
 void ComponentView::instancePropertyChange(const QList<QPair<ModelNode, QString> > &/*propertyList*/) {};
+void ComponentView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/) {}
 
 
 void ComponentView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/,
@@ -170,7 +171,6 @@ void ComponentView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &/*newUrl*
 
 void ComponentView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode & /*movedNode*/, int /*oldIndex*/) {}
 
-void ComponentView::importsChanged() {}
 
 void ComponentView::auxiliaryDataChanged(const ModelNode &/*node*/, const QString &/*name*/, const QVariant &/*data*/) {}
 

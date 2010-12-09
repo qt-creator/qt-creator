@@ -107,6 +107,7 @@ public:
     void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 
     void emitInstancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
+    void emitInstancesCompleted(const QVector<ModelNode> &nodeList);
 
     virtual void modelAttached(Model *model);
     virtual void modelAboutToBeDetached(Model *model);
@@ -124,6 +125,8 @@ public:
     virtual void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) = 0;
 
     virtual void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList) = 0;
+    virtual void instancesCompleted(const QVector<ModelNode> &completedNodeList) = 0;
+
 
     virtual void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                       const QList<ModelNode> &lastSelectedNodeList) = 0;

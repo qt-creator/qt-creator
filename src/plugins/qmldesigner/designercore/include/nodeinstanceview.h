@@ -63,6 +63,7 @@ class ChangeIdsCommand;
 class RemoveInstancesCommand;
 class RemovePropertiesCommand;
 class AddImportCommand;
+class CompleteComponentCommand;
 
 class CORESHARED_EXPORT NodeInstanceView : public AbstractView, public NodeInstanceClientInterface
 {
@@ -94,6 +95,7 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList);
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
     void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
+    void instancesCompleted(const QVector<ModelNode> &completedNodeList);
     void importAdded(const Import &import);
     void importRemoved(const Import &import);
 
@@ -118,6 +120,7 @@ public:
     void informationChanged(const InformationChangedCommand &command);
     void childrenChanged(const ChildrenChangedCommand &command);
     void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command);
+    void componentCompleted(const ComponentCompletedCommand &command);
 
 private: // functions
     NodeInstance rootNodeInstance() const;
@@ -143,6 +146,8 @@ private: // functions
     CreateSceneCommand createCreateSceneCommand() const;
     ClearSceneCommand createClearSceneCommand() const;
     CreateInstancesCommand createCreateInstancesCommand(const QList<NodeInstance> &instanceList) const;
+    CompleteComponentCommand createComponentCompleteCommand(const QList<NodeInstance> &instanceList) const;
+    ComponentCompletedCommand createComponentCompletedCommand(const QList<NodeInstance> &instanceList) const;
     ReparentInstancesCommand createReparentInstancesCommand(const QList<NodeInstance> &instanceList) const;
     ReparentInstancesCommand createReparentInstancesCommand(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent) const;
     ChangeFileUrlCommand createChangeFileUrlCommand(const QUrl &fileUrl) const;

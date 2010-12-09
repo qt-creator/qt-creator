@@ -3,6 +3,8 @@ INCLUDEPATH += $$PWD/../include
 
 
 HEADERS += $$PWD/behaviornodeinstance.h
+HEADERS += $$PWD/componentcompletedcommand.h
+HEADERS += $$PWD//completecomponentcommand.h
 HEADERS += $$PWDstatepreviewimagechangedcommand.h
 HEADERS += $$PWD//imagecontainer.h
 HEADERS += $$PWD/childrenchangedcommand.h
@@ -45,6 +47,8 @@ HEADERS += $$PWD/../include/nodeinstanceserverinterface.h
 
 
 SOURCES +=  $$PWD/behaviornodeinstance.cpp
+SOURCES +=  $$PWD/componentcompletedcommand.cpp
+SOURCES +=  $$PWD/completecomponentcommand.cpp
 SOURCES +=  $$PWD/statepreviewimagechangedcommand.cpp
 SOURCES +=  $$PWD/imagecontainer.cpp
 SOURCES +=  $$PWD/childrenchangedcommand.cpp

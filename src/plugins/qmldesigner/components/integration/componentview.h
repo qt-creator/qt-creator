@@ -69,6 +69,7 @@ public:
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
     void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
+    void instancesCompleted(const QVector<ModelNode> &completedNodeList);
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                       const QList<ModelNode> &lastSelectedNodeList);
@@ -76,8 +77,6 @@ public:
     void fileUrlChanged(const QUrl &oldUrl, const QUrl &newUrl);
 
     void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
-
-    void importsChanged();
 
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
 

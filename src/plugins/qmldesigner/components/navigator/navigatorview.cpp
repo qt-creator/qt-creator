@@ -198,6 +198,10 @@ void NavigatorView::instancePropertyChange(const QList<QPair<ModelNode, QString>
 {
 }
 
+void NavigatorView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/)
+{
+}
+
 void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int oldIndex)
 {
     if (m_treeModel->isInTree(node))

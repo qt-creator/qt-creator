@@ -212,6 +212,14 @@ void ViewLogger::instancePropertyChange(const QList<QPair<ModelNode, QString> > 
         m_output << time() << indent("property: ") << propertyPair.first << propertyPair.second << endl;
 }
 
+void ViewLogger::instancesCompleted(const QVector<ModelNode> &completedNodeList)
+{
+     m_output << time() << indent("instancesCompleted:") << endl;
+
+     foreach(const ModelNode &node, completedNodeList)
+         m_output << time() << indent("node: ") << node << endl;
+
+}
 
 } // namespace Internal
 } // namespace QmlDesigner

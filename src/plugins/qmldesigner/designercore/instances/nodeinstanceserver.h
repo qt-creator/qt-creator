@@ -49,6 +49,7 @@ public:
     void reparentInstances(const ReparentInstancesCommand &command);
     void changeState(const ChangeStateCommand &command);
     void addImport(const AddImportCommand &command);
+    void completeComponent(const CompleteComponentCommand &command);
 
     ServerNodeInstance instanceForId(qint32 id) const;
     bool hasInstanceForId(qint32 id) const;
@@ -127,6 +128,7 @@ private:
     int m_timer;
     bool m_slowRenderTimer;
     QVector<InstancePropertyPair> m_changedPropertyList;
+    QVector<qint32> m_componentCompletedVector;
     QStringList m_importList;
 };
 

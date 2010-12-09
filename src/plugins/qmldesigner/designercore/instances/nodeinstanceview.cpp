@@ -73,6 +73,8 @@
 #include "childrenchangedcommand.h"
 #include "imagecontainer.h"
 #include "statepreviewimagechangedcommand.h"
+#include "completecomponentcommand.h"
+#include "componentcompletedcommand.h"
 
 #include "nodeinstanceserverproxy.h"
 
@@ -144,6 +146,7 @@ void NodeInstanceView::modelAttached(Model *model)
         nodeInstanceServer()->addImport(createImportCommand(import));
 
     loadNodes(allModelNodes());
+
     setBlockUpdates(false);
 }
 
@@ -176,6 +179,7 @@ void NodeInstanceView::nodeCreated(const ModelNode &createdNode)
     NodeInstance instance = loadNode(createdNode);
     nodeInstanceServer()->createInstances(createCreateInstancesCommand(QList<NodeInstance>() << instance));
     nodeInstanceServer()->changePropertyValues(createChangeValueCommand(createdNode.variantProperties()));
+    nodeInstanceServer()->completeComponent(createComponentCompleteCommand(QList<NodeInstance>() << instance));
 }
 
 /*! \brief Notifing the view that a node was created.
@@ -427,6 +431,10 @@ void NodeInstanceView::instancePropertyChange(const QList<QPair<ModelNode, QStri
 
 }
 
+void NodeInstanceView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/)
+{
+}
+
 void NodeInstanceView::importAdded(const Import &import)
 {
     nodeInstanceServer()->addImport(createImportCommand(import));
@@ -456,17 +464,12 @@ void NodeInstanceView::loadNodes(const QList<ModelNode> &nodeList)
         bindingPropertyList.append(node.bindingProperties());
     }
 
-//    QListIterator<ModelNode> listIterator(nodeList);
-//    listIterator.toBack();
-
-//    while (listIterator.hasPrevious())
-//        instanceForNode(listIterator.previous()).doComponentComplete();
-
     nodeInstanceServer()->createInstances(createCreateInstancesCommand(instanceList));
     nodeInstanceServer()->reparentInstances(createReparentInstancesCommand(instanceList));
     nodeInstanceServer()->changeIds(createChangeIdsCommand(instanceList));
     nodeInstanceServer()->changePropertyValues(createChangeValueCommand(variantPropertyList));
     nodeInstanceServer()->changePropertyBindings(createChangeBindingCommand(bindingPropertyList));
+    nodeInstanceServer()->completeComponent(createComponentCompleteCommand(instanceList));
 }
 
 void NodeInstanceView::removeAllInstanceNodeRelationships()
@@ -692,6 +695,28 @@ ClearSceneCommand NodeInstanceView::createClearSceneCommand() const
     return ClearSceneCommand();
 }
 
+CompleteComponentCommand NodeInstanceView::createComponentCompleteCommand(const QList<NodeInstance> &instanceList) const
+{
+    QVector<qint32> containerList;
+    foreach(const NodeInstance &instance, instanceList) {
+        if (instance.instanceId() >= 0)
+            containerList.append(instance.instanceId());
+    }
+
+    return CompleteComponentCommand(containerList);
+}
+
+ComponentCompletedCommand NodeInstanceView::createComponentCompletedCommand(const QList<NodeInstance> &instanceList) const
+{
+    QVector<qint32> containerList;
+    foreach(const NodeInstance &instance, instanceList) {
+        if (instance.instanceId() >= 0)
+            containerList.append(instance.instanceId());
+    }
+
+    return ComponentCompletedCommand(containerList);
+}
+
 CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QList<NodeInstance> &instanceList) const
 {
     QVector<InstanceContainer> containerList;
@@ -908,6 +933,23 @@ void NodeInstanceView::informationChanged(const InformationChangedCommand &comma
 void NodeInstanceView::statePreviewImagesChanged(const StatePreviewImageChangedCommand &/*command*/)
 {
 
+}
+
+void NodeInstanceView::componentCompleted(const ComponentCompletedCommand &command)
+{
+    if (!model())
+        return;
+
+    QVector<ModelNode> nodeVector;
+
+    foreach(const qint32 &instanceId, command.instances()) {
+        if (hasModelNodeForInternalId(instanceId)) {
+            nodeVector.append(modelNodeForInternalId(instanceId));
+        }
+    }
+
+    if (!nodeVector.isEmpty())
+        emitInstancesCompleted(nodeVector);
 }
 
 void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)

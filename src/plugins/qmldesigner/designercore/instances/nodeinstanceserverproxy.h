@@ -37,6 +37,7 @@ public:
     void changeIds(const ChangeIdsCommand &command);
     void changeState(const ChangeStateCommand &command);
     void addImport(const AddImportCommand &command);
+    void completeComponent(const CompleteComponentCommand &command);
 
     void setBlockUpdates(bool block);
 

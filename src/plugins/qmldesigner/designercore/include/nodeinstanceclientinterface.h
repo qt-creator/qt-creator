@@ -10,6 +10,7 @@ class PixmapChangedCommand;
 class InformationChangedCommand;
 class ChildrenChangedCommand;
 class StatePreviewImageChangedCommand;
+class ComponentCompletedCommand;
 
 class NodeInstanceClientInterface
 {
@@ -19,6 +20,7 @@ public:
     virtual void pixmapChanged(const PixmapChangedCommand &command) = 0;
     virtual void childrenChanged(const ChildrenChangedCommand &command) = 0;
     virtual void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command) = 0;
+    virtual void componentCompleted(const ComponentCompletedCommand &command) = 0;
 
     virtual void flush() {};
     virtual qint64 bytesToWrite() const {return 0;}

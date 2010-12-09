@@ -362,6 +362,9 @@ void QmlModelView::instancePropertyChange(const QList<QPair<ModelNode, QString> 
         nodeInstancePropertyChanged(propertyPair.first, propertyPair.second);
     }
 }
+void QmlModelView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/)
+{
+}
 
 void QmlModelView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)
 {
@@ -431,7 +434,7 @@ void QmlModelView::otherPropertyChanged(const QmlObjectNode &/*qmlObjectNode*/, 
 {
 }
 
-void  QmlModelView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState)
+void  QmlModelView::stateChanged(const QmlModelState &/*newQmlModelState*/, const QmlModelState &/*oldQmlModelState*/)
 {
 }
 

@@ -414,6 +414,35 @@ void ModelPrivate::notifyInstancePropertyChange(const QList<QPair<ModelNode, QSt
     }
 }
 
+void ModelPrivate::notifyInstancesCompleted(const QVector<ModelNode> &nodeVector)
+{
+    bool resetModel = false;
+    QString description;
+
+    QVector<Internal::InternalNode::Pointer> internalVector(toInternalNodeVector(nodeVector));
+
+    try {
+        if (rewriterView())
+            rewriterView()->instancesCompleted(toModelNodeVector(internalVector, rewriterView()));
+    } catch (RewritingException &e) {
+        description = e.description();
+        resetModel = true;
+    }
+
+    foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
+        Q_ASSERT(view != 0);
+        view->instancesCompleted(toModelNodeVector(internalVector, view.data()));
+    }
+
+    if (nodeInstanceView()) {
+        nodeInstanceView()->instancesCompleted(toModelNodeVector(internalVector, nodeInstanceView()));
+    }
+
+    if (resetModel) {
+        resetModelByRewriter(description);
+    }
+}
+
 void ModelPrivate::notifyCustomNotification(const AbstractView *senderView, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
     bool resetModel = false;
@@ -1026,6 +1055,15 @@ QList<ModelNode> ModelPrivate::toModelNodeList(const QList<InternalNode::Pointer
     return newNodeList;
 }
 
+QVector<ModelNode> ModelPrivate::toModelNodeVector(const QVector<InternalNode::Pointer> &nodeVector, AbstractView *view) const
+{
+    QVector<ModelNode> newNodeVector;
+    foreach (const Internal::InternalNode::Pointer &node, nodeVector)
+        newNodeVector.append(ModelNode(node, model(), view));
+
+    return newNodeVector;
+}
+
 QList<Internal::InternalNode::Pointer> ModelPrivate::toInternalNodeList(const QList<ModelNode> &nodeList) const
 {
     QList<Internal::InternalNode::Pointer> newNodeList;
@@ -1033,6 +1071,15 @@ QList<Internal::InternalNode::Pointer> ModelPrivate::toInternalNodeList(const QL
         newNodeList.append(node.internalNode());
 
     return newNodeList;
+}
+
+QVector<Internal::InternalNode::Pointer> ModelPrivate::toInternalNodeVector(const QVector<ModelNode> &nodeVector) const
+{
+    QVector<Internal::InternalNode::Pointer> newNodeVector;
+    foreach (const ModelNode &node, nodeVector)
+        newNodeVector.append(node.internalNode());
+
+    return newNodeVector;
 }
 
 void ModelPrivate::changeSelectedNodes(const QList<InternalNode::Pointer> &newSelectedNodeList,

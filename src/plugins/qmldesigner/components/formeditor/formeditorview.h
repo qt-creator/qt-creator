@@ -101,6 +101,8 @@ public:
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 
+    void instancesCompleted(const QVector<ModelNode> &completedNodeList);
+
     double margins() const;
     double spacing() const;
     void deActivateItemCreator();

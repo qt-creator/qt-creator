@@ -25,6 +25,8 @@ public:
     void pixmapChanged(const PixmapChangedCommand &command);
     void childrenChanged(const ChildrenChangedCommand &command);
     void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command);
+    void componentCompleted(const ComponentCompletedCommand &command);
+
     void flush();
     qint64 bytesToWrite() const;
 

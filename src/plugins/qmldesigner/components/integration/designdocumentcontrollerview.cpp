@@ -65,6 +65,11 @@ void DesignDocumentControllerView::instancePropertyChange(const QList<QPair<Mode
 {
 }
 
+void DesignDocumentControllerView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/)
+{
+
+}
+
 static QStringList arrayToStringList(const QByteArray &byteArray)
 {
     QString str(QString::fromLatin1(byteArray));

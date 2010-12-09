@@ -393,6 +393,12 @@ void AbstractView::emitInstancePropertyChange(const QList<QPair<ModelNode, QStri
         model()->m_d->notifyInstancePropertyChange(propertyList);
 }
 
+void AbstractView::emitInstancesCompleted(const QVector<ModelNode> &nodeVector)
+{
+    if (model() && nodeInstanceView() == this)
+        model()->m_d->notifyInstancesCompleted(nodeVector);
+}
+
 void AbstractView::changeRootNodeType(const QString &type, int majorVersion, int minorVersion)
 {
     Internal::WriteLocker locker(m_model.data());

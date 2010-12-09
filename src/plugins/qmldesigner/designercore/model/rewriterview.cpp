@@ -385,6 +385,10 @@ void RewriterView::instancePropertyChange(const QList<QPair<ModelNode, QString> 
 {
 }
 
+void RewriterView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/)
+{
+}
+
 
 void RewriterView::selectedNodesChanged(const QList<ModelNode> & /* selectedNodeList, */, const QList<ModelNode> & /*lastSelectedNodeList */)
 {

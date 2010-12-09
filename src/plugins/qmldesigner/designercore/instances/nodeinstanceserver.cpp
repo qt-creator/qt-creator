@@ -36,6 +36,8 @@
 #include "changestatecommand.h"
 #include "addimportcommand.h"
 #include "childrenchangedcommand.h"
+#include "completecomponentcommand.h"
+#include "componentcompletedcommand.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -76,8 +78,6 @@ void NodeInstanceServer::createInstances(const CreateInstancesCommand &command)
             }
 
         }
-
-        instance.doComponentComplete();
     }
 
     nodeInstanceClient()->valuesChanged(createValuesChangedCommand(instanceList));
@@ -219,6 +219,17 @@ void NodeInstanceServer::changeState(const ChangeStateCommand &command)
     }
 
     startRenderTimer();
+}
+
+void NodeInstanceServer::completeComponent(const CompleteComponentCommand &command)
+{
+    foreach(qint32 instanceId, command.instances()) {
+        if (hasInstanceForId(instanceId)) {
+            ServerNodeInstance instance = instanceForId(instanceId);
+            instance.doComponentComplete();
+            m_componentCompletedVector.append(instanceId);
+        }
+    }
 }
 
 void NodeInstanceServer::addImport(const AddImportCommand &command)
@@ -786,6 +797,10 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
 
             if (!parentChangedSet.isEmpty())
                 sendChildrenChangedCommand(parentChangedSet.toList());
+
+            if (!m_componentCompletedVector.isEmpty())
+                nodeInstanceClient()->componentCompleted(ComponentCompletedCommand(m_componentCompletedVector));
+            m_componentCompletedVector.clear();
 
             if (!dirtyInstanceSet.isEmpty())
                 nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(dirtyInstanceSet.toList()));
