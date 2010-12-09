@@ -1092,7 +1092,7 @@
     \image qmldesigner-set-expression.png "Element properties context menu"
 
     For more information on the JavaScript environment provided by QML, see
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qdeclarativejavascript.html}{Integrating JavaScript}.
+    \l{http://doc.qt.nokia.com/4.7/qdeclarativejavascript.html}{Integrating JavaScript}.
 
     \section2 Setting Anchors and Margins
 
@@ -3118,7 +3118,7 @@
     \endlist
 
     For more information about using the Qt Simulator, see the
-    \l{http://doc.qt.nokia.com/qt-simulator-beta/index.html}{Qt Simulator Manual}.
+    \l{http://doc.qt.nokia.com/qtsimulator/index.html}{Qt Simulator Manual}.
 
     \section1 Running on Maemo
 
@@ -3898,6 +3898,7 @@
     \endlist
 
     Qt Creator automatically generates a wrapper package in the project folder.
+
     \note Ensure that your application complies with the requirements before submitting
     the file to Ovi Store.
 
@@ -3905,7 +3906,7 @@
     \l{http://doc.qt.nokia.com/4.7/qmake-variable-reference.html#deployment}{qmake Variable Reference}.
 
     For more information about the Nokia Smart Installer, see the
-    \l{http://doc.qt.nokia.com/smart-installer-1.0/index.html}{Nokia Smart Installer for Symbian Manual}.
+    \l{http://doc.qt.nokia.com/smart-installer/index.html}{Nokia Smart Installer for Symbian Manual}.
 
     Note: Nokia Smart Installer for Symbian is only available on Windows.
 
@@ -4228,7 +4229,7 @@
     Each Mobility API has its corresponding value that you have to add
     as a value of MOBILITY to use the API. For a list of the APIs and the
     corresponding values that you can assign to MOBILITY, see the
-    \l {http://doc.qt.nokia.com/qtmobility-1.0/quickstart.html}{Quickstart Example}.
+    \l {http://doc.qt.nokia.com/qtmobility/quickstart.html}{Quickstart Example}.
 
     \section1 Designing the User Interface
 
@@ -4426,7 +4427,7 @@
     \l {http://doc.qt.nokia.com/4.7/qtquick.html}{Qt Quick}.
 
     This tutorial describes how to use the Qt Creator to implement the
-    \l{http://doc.qt.nokia.com/4.7-snapshot/declarative-animation-states.html}
+    \l{http://doc.qt.nokia.com/4.7/declarative-animation-states.html}
     {states and transitions example application}. The example application displays a
     Qt logo that moves between three rectangles on the page when you click them.
 
@@ -7799,7 +7800,7 @@
     To test the application UI, user interaction with the application, and
     functionality that uses the mobility APIs, use the Qt Simulator,
     instead. For more information, see the
-    \l{http://doc.qt.nokia.com/qt-simulator-beta/index.html}{Qt Simulator Manual}.
+    \l{http://doc.qt.nokia.com/qtsimulator/index.html}{Qt Simulator Manual}.
 
     The Maemo emulator is installed and configured as part of the \QSDK
     package. You can also install and configure the MADDE environment and
