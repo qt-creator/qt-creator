@@ -185,6 +185,55 @@ std::wstring stringToWString(const std::string &w)
     return rc;
 }
 
+// Convert an ASCII hex digit to its value 'A'->10
+inline unsigned hexDigit(char c)
+{
+    if (c <= '9')
+        return c - '0';
+    if (c <= 'F')
+        return c - 'A' + 10;
+    return c - 'a' + 10;
+}
+
+// Convert an ASCII hex digit to its value 'A'->10
+inline char toHexDigit(unsigned v)
+{
+    if (v < 10)
+        return char(v) + '0';
+    return char(v - 10) + 'a';
+}
+
+// String from hex "414A" -> "AJ".
+std::string stringFromHex(const char *p, const char *end)
+{
+    if (p == end)
+        return std::string();
+
+    std::string rc;
+    rc.reserve((end - p) / 2);
+    for ( ; p < end; p++) {
+        unsigned c = 16 * hexDigit(*p);
+        c += hexDigit(*++p);
+        rc.push_back(char(c));
+    }
+    return rc;
+}
+
+std::wstring dataToHexW(const unsigned char *p, const unsigned char *end)
+{
+    if (p == end)
+        return std::wstring();
+
+    std::wstring rc;
+    rc.reserve(2 * (end - p));
+    for ( ; p < end ; p++) {
+        const unsigned c = *p;
+        rc.push_back(toHexDigit(c / 16));
+        rc.push_back(toHexDigit(c &0xF));
+    }
+    return rc;
+}
+
 // Format a map as a GDBMI hash {key="value",..}
 void formatGdbmiHash(std::ostream &os, const std::map<std::string, std::string> &m)
 {

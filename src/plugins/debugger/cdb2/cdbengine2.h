@@ -45,6 +45,7 @@ class DisassemblerViewAgent;
 struct CdbBuiltinCommand;
 struct CdbExtensionCommand;
 struct CdbOptions;
+class ByteArrayInputStream;
 
 class CdbEngine : public Debugger::DebuggerEngine
 {
@@ -174,6 +175,7 @@ private:
     QString normalizeFileName(const QString &f);
     void updateLocalVariable(const QByteArray &iname);
     int elapsedLogTime() const;
+    void addLocalsOptions(ByteArrayInputStream &s) const;
 
     const QByteArray m_creatorExtPrefix;
     const QByteArray m_tokenPrefix;

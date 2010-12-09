@@ -86,6 +86,18 @@ bool integerFromString(const std::string &s, Integer *v)
     return !str.fail();
 }
 
+// Read an integer from a wstring as '10' or '0xA'
+template <class Integer>
+bool integerFromWString(const std::wstring &s, Integer *v)
+{
+    const bool isHex = s.compare(0, 2, L"0x") == 0;
+    std::wistringstream str(isHex ? s.substr(2, s.size() - 2) : s);
+    if (isHex)
+        str >> std::hex;
+    str >> *v;
+    return !str.fail();
+}
+
 void replace(std::wstring &s, wchar_t before, wchar_t after);
 
 // Stream  a string onto a char stream doing backslash & octal escaping
@@ -127,6 +139,10 @@ inline std::ostream &operator<<(std::ostream &str, const gdbmiWStringFormat &wsf
 std::string wStringToGdbmiString(const std::wstring &w);
 std::string wStringToString(const std::wstring &w);
 std::wstring stringToWString(const std::string &w);
+
+// String from hex "414A" -> "AJ".
+std::string stringFromHex(const char *begin, const char *end);
+std::wstring dataToHexW(const unsigned char *begin, const unsigned char *end);
 
 // Format a map as a GDBMI hash {key="value",..}
 void formatGdbmiHash(std::ostream &os, const std::map<std::string, std::string> &);

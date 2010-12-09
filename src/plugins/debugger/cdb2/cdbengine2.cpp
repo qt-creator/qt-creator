@@ -653,13 +653,26 @@ void CdbEngine::updateWatchData(const Debugger::Internal::WatchData &dataIn,
     updateLocalVariable(dataIn.iname);
 }
 
+void CdbEngine::addLocalsOptions(ByteArrayInputStream &str) const
+{
+    if (debuggerCore()->boolSetting(UseDebuggingHelpers))
+        str << blankSeparator << "-c";
+    const QByteArray typeFormats = watchHandler()->typeFormatRequests();
+    if (!typeFormats.isEmpty())
+        str << blankSeparator << "-T " << typeFormats;
+    const QByteArray individualFormats = watchHandler()->individualFormatRequests();
+    if (!individualFormats.isEmpty())
+        str << blankSeparator << "-I " << individualFormats;
+}
+
 void CdbEngine::updateLocalVariable(const QByteArray &iname)
 {
     const int stackFrame = stackHandler()->currentIndex();
     if (stackFrame >= 0) {
         QByteArray localsArguments;
         ByteArrayInputStream str(localsArguments);
-        str << stackFrame <<  ' ' << iname;
+        addLocalsOptions(str);
+        str << blankSeparator << stackFrame <<  ' ' << iname;
         postExtensionCommand("locals", localsArguments, 0, &CdbEngine::handleLocals);
     } else {
         qWarning("Internal error; no stack frame in updateLocalVariable");
@@ -973,6 +986,7 @@ void CdbEngine::activateFrame(int index)
             str << e;
         }
     }
+    addLocalsOptions(str);
     // Uninitialized variables if desired
     if (debuggerCore()->boolSetting(UseCodeModel)) {
         QStringList uninitializedVariables;
@@ -1299,8 +1313,10 @@ void CdbEngine::handleSessionIdle(const QByteArray &message)
         notifyInferiorSpontaneousStop();
     }
     // Start sequence to get all relevant data. Hack: Avoid module reload?
-    unsigned sequence = CommandListStack|CommandListRegisters|CommandListThreads;
-    if (modulesHandler()->modules().size() == 0)
+    unsigned sequence = CommandListStack;
+    if (debuggerCore()->isDockVisible(QLatin1String(Constants::DOCKWIDGET_REGISTER)))
+        sequence |= CommandListRegisters;
+    if (debuggerCore()->isDockVisible(QLatin1String(Constants::DOCKWIDGET_MODULES)))
         sequence |= CommandListModules;
     postCommandSequence(sequence);
     // Report stop reason (GDBMI)

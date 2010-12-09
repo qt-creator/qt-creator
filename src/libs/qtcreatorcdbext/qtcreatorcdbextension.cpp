@@ -104,11 +104,14 @@ static const CommandDescription commandDescriptions[] = {
  "iname1-list: Comma-separated list of inames"},
 {"locals",
  "Prints local variables of symbol group in GDBMI or debug format",
- "[-t token] [-h] [-d] [-e expand-list] [-u uninitialized-list]\n<frame-number> [iname]\n"
+ "[-t token] [T formats] [-I formats] [-c] [-h] [-d] [-e expand-list] [-u uninitialized-list]\n<frame-number> [iname]\n"
  "-h human-readable ouput\n"
  "-d debug output\n"
+ "-c complex dumpers\n"
  "-e expand-list        Comma-separated list of inames to be expanded beforehand\n"
- "-u uninitialized-list Comma-separated list of uninitialized inames"},
+ "-u uninitialized-list Comma-separated list of uninitialized inames\n"
+ "-I formatmap          map of 'hex-encoded-iname=typecode'\n"
+ "-T formatmap          map of 'hex-encoded-type-name=typecode'"},
 {"dumplocal", "Dumps local variable using simple dumpers (testing command).",
  "[-t token] <frame-number> <iname>"},
 {"typecast","Performs a type cast on an unexpanded iname of symbol group.",
@@ -270,12 +273,11 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
 {
     // Parse the command
     unsigned debugOutput = 0;
-    bool humanReadableGdbmi = false;
     std::string iname;
-
     StringList tokens = commandTokens<StringList>(args, token);
     StringVector expandedInames;
     StringVector uninitializedInames;
+    DumpParameters parameters;
     // Parse away options
     while (!tokens.empty() && tokens.front().size() == 2 && tokens.front().at(0) == '-') {
         const char option = tokens.front().at(1);
@@ -285,7 +287,10 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
             debugOutput++;
             break;
         case 'h':
-            humanReadableGdbmi = true;
+            parameters.dumpFlags |= DumpParameters::DumpHumanReadable;
+            break;
+        case 'c':
+            parameters.dumpFlags |= DumpParameters::DumpComplexDumpers;
             break;
         case 'u':
             if (tokens.empty()) {
@@ -303,8 +308,25 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
             split(tokens.front(), ',', std::back_inserter(expandedInames));
             tokens.pop_front();
             break;
-        }
-    }
+        case 'T': // typeformats: 'hex'ed name = formatnumber,...'
+            if (tokens.empty()) {
+                *errorMessage = singleLineUsage(commandDescriptions[CmdLocals]);
+                return std::string();
+            }
+            parameters.typeFormats = DumpParameters::decodeFormatArgument(tokens.front());
+            tokens.pop_front();
+            break;
+        case 'I': // individual formats: 'hex'ed name = formatnumber,...'
+            if (tokens.empty()) {
+                *errorMessage = singleLineUsage(commandDescriptions[CmdLocals]);
+                return std::string();
+            }
+            parameters.individualFormats = DumpParameters::decodeFormatArgument(tokens.front());
+            tokens.pop_front();
+            break;
+        } // case option
+    }  // for options
+
     // Frame and iname
     unsigned frame;
     if (tokens.empty() || !integerFromString(tokens.front(), &frame)) {
@@ -329,8 +351,8 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
 
     const SymbolGroupValueContext dumpContext(exc.dataSpaces());
     return iname.empty() ?
-           symGroup->dump(dumpContext, humanReadableGdbmi) :
-           symGroup->dump(iname, dumpContext, humanReadableGdbmi, errorMessage);
+           symGroup->dump(dumpContext, parameters) :
+           symGroup->dump(iname, dumpContext, parameters, errorMessage);
 }
 
 extern "C" HRESULT CALLBACK locals(CIDebugClient *client, PCSTR args)

@@ -34,6 +34,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <iosfwd>
 
 std::ostream &operator<<(std::ostream &, const DEBUG_SYMBOL_PARAMETERS&p);
@@ -41,6 +42,31 @@ std::ostream &operator<<(std::ostream &, const DEBUG_SYMBOL_PARAMETERS&p);
 class SymbolGroupNodeVisitor;
 class SymbolGroup;
 struct SymbolGroupValueContext;
+
+// All parameters for dumping in one struct.
+struct DumpParameters
+{
+    typedef std::map<std::string, int> FormatMap; // type or iname to format
+    enum DumpFlags
+    {
+        DumpHumanReadable = 0x1,
+        DumpComplexDumpers = 0x2
+    };
+
+    DumpParameters();
+    bool humanReadable() const {  return dumpFlags & DumpHumanReadable; }
+    // Helper to decode format option arguments.
+    static FormatMap decodeFormatArgument(const std::string &f);
+
+    bool recode(const std::string &type, const std::string &iname,
+                const SymbolGroupValueContext &ctx,
+                std::wstring *value, int *encoding) const;
+    int format(const std::string &type, const std::string &iname) const;
+
+    unsigned dumpFlags;
+    FormatMap typeFormats;
+    FormatMap individualFormats;
+};
 
 // Thin wrapper around a symbol group entry. Provides accessors for fixed-up
 // symbol group value and a dumping facility triggered by dump()/displayValue()
@@ -70,6 +96,7 @@ public:
         ExpandedByDumper = 0x10,
         AdditionalSymbol = 0x20 // Introduced by addSymbol, should not be visible
     };
+
     typedef std::vector<DEBUG_SYMBOL_PARAMETERS> SymbolParameterVector;
     typedef std::vector<SymbolGroupNode *> SymbolGroupNodePtrVector;
     typedef SymbolGroupNodePtrVector::iterator SymbolGroupNodePtrVectorIterator;
@@ -102,7 +129,7 @@ public:
     SymbolGroup *symbolGroup() const { return m_symbolGroup; }
 
     // I/O: Gdbmi dump for Visitors
-    void dump(std::ostream &str, const SymbolGroupValueContext &ctx);
+    void dump(std::ostream &str, const DumpParameters &p, const SymbolGroupValueContext &ctx);
     // I/O: debug for Visitors
     void debug(std::ostream &os, unsigned verbosity, unsigned depth) const;
 
@@ -202,10 +229,11 @@ public:
     ~SymbolGroup();
 
     // Dump all
-    std::string dump(const SymbolGroupValueContext &ctx, bool humanReadable = false) const;
+    std::string dump(const SymbolGroupValueContext &ctx,
+                     const DumpParameters &p = DumpParameters()) const;
     // Expand node and dump
     std::string dump(const std::string &iname, const SymbolGroupValueContext &ctx,
-                     bool humanReadable, std::string *errorMessage);
+                     const DumpParameters &p, std::string *errorMessage);
     std::string debug(const std::string &iname = std::string(), unsigned verbosity = 0) const;
 
     unsigned frame() const { return m_frame; }
@@ -274,15 +302,15 @@ class DumpSymbolGroupNodeVisitor : public SymbolGroupNodeVisitor {
 public:
     explicit DumpSymbolGroupNodeVisitor(std::ostream &os,
                                         const SymbolGroupValueContext &context,
-                                        bool humanReadable);
+                                        const DumpParameters &parameters = DumpParameters());
 
 private:
     virtual VisitResult visit(SymbolGroupNode *node, unsigned child, unsigned depth);
     virtual void childrenVisited(const SymbolGroupNode *  node, unsigned depth);
 
     std::ostream &m_os;
-    const bool m_humanReadable;
     const SymbolGroupValueContext &m_context;
+    const DumpParameters &m_parameters;
     bool m_visitChildren;
 };
 

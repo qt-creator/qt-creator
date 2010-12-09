@@ -76,6 +76,128 @@ std::ostream &operator<<(std::ostream &str, const DEBUG_SYMBOL_PARAMETERS &param
     return str;
 }
 
+// --------------- DumpParameters
+DumpParameters::DumpParameters() : dumpFlags(0)
+{
+}
+
+// typeformats: decode hex-encoded name, value pairs:
+// '414A=2,...' -> map of "AB:2".
+DumpParameters::FormatMap DumpParameters::decodeFormatArgument(const std::string &f)
+{
+    FormatMap rc;
+    const std::string::size_type size = f.size();
+    // Split 'hexname=4,'
+    for (std::string::size_type pos = 0; pos < size ; ) {
+        // Cut out key
+        const std::string::size_type equalsPos = f.find('=', pos);
+        if (equalsPos == std::string::npos)
+            return rc;
+        const std::string name = stringFromHex(f.c_str() + pos, f.c_str() + equalsPos);
+        // Search for number
+        const std::string::size_type numberPos = equalsPos + 1;
+        std::string::size_type nextPos = f.find(',', numberPos);
+        if (nextPos == std::string::npos)
+            nextPos = size;
+        int format;
+        if (!integerFromString(f.substr(numberPos, nextPos - numberPos), &format))
+            return rc;
+        rc.insert(FormatMap::value_type(name, format));
+        pos = nextPos + 1;
+    }
+    return rc;
+}
+
+int DumpParameters::format(const std::string &type, const std::string &iname) const
+{
+    if (!individualFormats.empty()) {
+        const FormatMap::const_iterator iit = individualFormats.find(iname);
+        if (iit != individualFormats.end())
+            return iit->second;
+    }
+    if (!typeFormats.empty()) {
+        const FormatMap::const_iterator tit = typeFormats.find(type);
+        if (tit != typeFormats.end())
+            return tit->second;
+    }
+    return -1;
+}
+
+enum PointerFormats // Watch data pointer format requests
+{
+    FormatRawPointer = 0,
+    FormatLatin1String = 1,
+    FormatUtf8String = 2,
+    FormatUtf16String = 3,
+    FormatUcs4String = 4
+};
+
+enum DumpEncoding // WatchData encoding of GDBMI values
+{
+    DumpEncodingAscii = 0,
+    DumpEncodingBase64 = 1,
+    DumpEncodingBase64_Utf16 = 2,
+    DumpEncodingBase64_Ucs4 = 3,
+    DumpEncodingHex_Latin1 = 6,
+    DumpEncodingHex_Utf161 = 7,
+    DumpEncodingHex_Ucs4_LittleEndian = 8,
+    DumpEncodingHex_Utf8_LittleEndian = 9,
+    DumpEncodingHex_Ucs4_BigEndian = 10,
+    DumpEncodingHex_Utf16_BigEndian = 11,
+    DumpEncodingHex_Utf16_LittleEndian = 12
+};
+
+bool DumpParameters::recode(const std::string &type,
+                            const std::string &iname,
+                            const SymbolGroupValueContext &ctx,
+                            std::wstring *value, int *encoding) const
+{
+    // We basically handle char formats for 'char *', '0x834478 "hallo.."'
+    // Determine address and length from the pointer value output,
+    // read the raw memory and recode if that is possible.
+    const int newFormat = format(type, iname);
+    if (newFormat < 2)
+        return false;
+    if (value->compare(0, 2, L"0x"))
+        return false;
+    const std::wstring::size_type quote1 = value->find(L'"', 2);
+    if (quote1 == std::wstring::npos)
+        return false;
+    const std::wstring::size_type quote2 = value->find(L'"', quote1 + 1);
+    if (quote2 == std::wstring::npos)
+        return false;
+    const std::wstring::size_type length = quote2 - quote1 - 1;
+    if (!length)
+        return false;
+    ULONG64 address = 0;
+    if (!integerFromWString(value->substr(0, quote1 - 1), &address) || !address)
+        return false;
+    // Allocate real length + 4 bytes ('\0') for largest format.
+    // '\0' is not listed in the CDB output.
+    const std::wstring::size_type allocLength = length + 4;
+    unsigned char *buffer = new unsigned char[allocLength];
+    std::fill(buffer, buffer + allocLength, 0);
+    ULONG obtained = 0;
+    if (FAILED(ctx.dataspaces->ReadVirtual(address, buffer, ULONG(length), &obtained))) {
+        delete [] buffer;
+        return false;
+    }
+    // Recode raw memory
+    switch (newFormat) {
+    case FormatUtf8String:
+        *value = dataToHexW(buffer, buffer + length + 1); // UTF8 + 0
+        *encoding = DumpEncodingHex_Utf8_LittleEndian;
+        break;
+    case FormatUtf16String:
+        break;
+    case FormatUcs4String:
+        break;
+    }
+    delete [] buffer;
+    return true;
+}
+
+// ------------- SymbolGroup
 SymbolGroup::SymbolGroup(IDebugSymbolGroup2 *sg,
                          const SymbolParameterVector &vec,
                          ULONG threadId,
@@ -579,7 +701,9 @@ static inline void indentStream(std::ostream &str, unsigned depth)
         str << "  ";
 }
 
-void SymbolGroupNode::dump(std::ostream &str, const SymbolGroupValueContext &ctx)
+void SymbolGroupNode::dump(std::ostream &str,
+                           const DumpParameters &p,
+                           const SymbolGroupValueContext &ctx)
 {
     const std::string iname = fullIName();
     const std::string t = type();
@@ -595,16 +719,22 @@ void SymbolGroupNode::dump(std::ostream &str, const SymbolGroupValueContext &ctx
     bool valueEditable = !uninitialized;
     bool valueEnabled = !uninitialized;
 
-    const std::wstring value = displayValue(ctx);
-    // ASCII or base64?
-    if (isSevenBitClean(value.c_str(), value.size())) {
-        str << ",valueencoded=\"0\",value=\"" << gdbmiWStringFormat(value) << '"';
-    } else {
-        str << ",valueencoded=\"2\",value=\"";
-        base64Encode(str, reinterpret_cast<const unsigned char *>(value.c_str()), value.size() * sizeof(wchar_t));
-        str << '"';
+    // Shall it be recoded?
+    std::wstring value = displayValue(ctx);
+    int encoding = 0;
+    if (p.recode(t, iname, ctx, &value, &encoding)) {
+        str << ",valueencoded=\"" << encoding
+            << "\",value=\"" << gdbmiWStringFormat(value) <<'"';
+    } else { // As is: ASCII or base64?
+        if (isSevenBitClean(value.c_str(), value.size())) {
+            str << ",valueencoded=\"" << DumpEncodingAscii << "\",value=\""
+                << gdbmiWStringFormat(value) << '"';
+        } else {
+            str << ",valueencoded=\"" << DumpEncodingBase64_Utf16 << "\",value=\"";
+            base64Encode(str, reinterpret_cast<const unsigned char *>(value.c_str()), value.size() * sizeof(wchar_t));
+            str << '"';
+        }
     }
-
     // Children: Dump all known or subelements (guess).
     const VectorIndexType childCountGuess = uninitialized ? 0 :
              (m_children.empty() ? m_parameters.SubElements : m_children.size());
@@ -792,11 +922,12 @@ static inline std::string msgNotFound(const std::string &nodeName)
     return str.str();
 }
 
-std::string SymbolGroup::dump(const SymbolGroupValueContext &ctx, bool humanReadable) const
+std::string SymbolGroup::dump(const SymbolGroupValueContext &ctx,
+                              const DumpParameters &p) const
 {
     std::ostringstream str;
-    DumpSymbolGroupNodeVisitor visitor(str, ctx, humanReadable);
-    if (humanReadable)
+    DumpSymbolGroupNodeVisitor visitor(str, ctx, p);
+    if (p.humanReadable())
         str << '\n';
     str << '[';
     accept(visitor);
@@ -805,7 +936,10 @@ std::string SymbolGroup::dump(const SymbolGroupValueContext &ctx, bool humanRead
 }
 
 // Dump a node, potentially expand
-std::string SymbolGroup::dump(const std::string &iname, const SymbolGroupValueContext &ctx, bool humanReadable, std::string *errorMessage)
+std::string SymbolGroup::dump(const std::string &iname,
+                              const SymbolGroupValueContext &ctx,
+                              const DumpParameters &p,
+                              std::string *errorMessage)
 {
     SymbolGroupNode *const node = find(iname);
     if (node == 0) {
@@ -819,9 +953,9 @@ std::string SymbolGroup::dump(const std::string &iname, const SymbolGroupValueCo
             return false;
     }
     std::ostringstream str;
-    if (humanReadable)
+    if (p.humanReadable())
         str << '\n';
-    DumpSymbolGroupNodeVisitor visitor(str, ctx, humanReadable);
+    DumpSymbolGroupNodeVisitor visitor(str, ctx, p);
     str << '[';
     node->accept(visitor, 0, 0);
     str << ']';
@@ -1056,8 +1190,9 @@ SymbolGroupNodeVisitor::VisitResult
 // --------------------- DumpSymbolGroupNodeVisitor
 DumpSymbolGroupNodeVisitor::DumpSymbolGroupNodeVisitor(std::ostream &os,
                                                        const SymbolGroupValueContext &context,
-                                                       bool humanReadable) :
-    m_os(os), m_humanReadable(humanReadable),m_context(context), m_visitChildren(false)
+                                                       const DumpParameters &parameters) :
+    m_os(os), m_context(context), m_parameters(parameters),
+    m_visitChildren(false)
 {
 }
 
@@ -1073,18 +1208,18 @@ SymbolGroupNodeVisitor::VisitResult
     // Do not recurse into children unless the node was expanded by the watch model
     if (child)
         m_os << ','; // Separator in parents list
-    if (m_humanReadable) {
+    if (m_parameters.humanReadable()) {
         m_os << '\n';
         indentStream(m_os, depth * 2);
     }
     m_os << '{';
-    node->dump(m_os, m_context);
+    node->dump(m_os, m_parameters, m_context);
     if (m_visitChildren) { // open children array
         m_os << ",children=[";
     } else {               // No children, close array.
         m_os << '}';
     }
-    if (m_humanReadable)
+    if (m_parameters.humanReadable())
         m_os << '\n';
     return m_visitChildren ? VisitContinue : VisitSkipChildren;
 }
@@ -1092,6 +1227,6 @@ SymbolGroupNodeVisitor::VisitResult
 void DumpSymbolGroupNodeVisitor::childrenVisited(const SymbolGroupNode *, unsigned)
 {
     m_os << "]}"; // Close children array and self
-    if (m_humanReadable)
+    if (m_parameters.humanReadable())
         m_os << '\n';
 }
