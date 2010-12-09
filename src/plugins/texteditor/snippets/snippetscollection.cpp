@@ -40,7 +40,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 #include <QtCore/QXmlStreamReader>
-#include <QtCore/QXmlStreamWriter>
 #include <QtAlgorithms>
 
 #include <iterator>

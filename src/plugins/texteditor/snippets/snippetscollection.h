@@ -35,8 +35,7 @@
 #include <QtCore/QVector>
 #include <QtCore/QStringList>
 #include <QtCore/QHash>
-
-QT_FORWARD_DECLARE_CLASS(QXmlStreamWriter)
+#include <QtCore/QXmlStreamWriter>
 
 namespace TextEditor {
 namespace Internal {
