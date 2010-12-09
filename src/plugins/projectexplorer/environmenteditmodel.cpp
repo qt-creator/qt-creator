@@ -291,14 +291,13 @@ QModelIndex EnvironmentModel::addVariable()
 
 QModelIndex EnvironmentModel::addVariable(const Utils::EnvironmentItem &item)
 {
-    int insertPos = findInResultInsertPosition(item.name);
 
     // Return existing index if the name is already in the result set:
-    if (insertPos < m_resultEnvironment.size()
-        && m_resultEnvironment.key(m_resultEnvironment.constBegin() + insertPos) == item.name) {
-        return index(insertPos, 0, QModelIndex());
-    }
+    int pos = findInResult(item.name);
+    if (pos < m_resultEnvironment.size())
+        return index(pos, 0, QModelIndex());
 
+    int insertPos = findInResultInsertPosition(item.name);
     int changePos = findInChanges(item.name);
     if (m_baseEnvironment.hasKey(item.name)) {
         // We previously unset this!
