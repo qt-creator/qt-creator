@@ -44,11 +44,13 @@ static const char usageC[] =
 "\n%1 v0.1 built "__DATE__"\n\n"
 "Test client for Symbian CODA\n\n"
 "Usage:\n"
-"%1 launch [-d]     address[:port] binary uid [--] [arguments]\n"
-"%1 install[-s]     address[:port] remote-sis-file [targetdrive]\n"
-"%1 put    [c size] address[:port] local-file remote-file\n"
-"%1 stat            address[:port] remote-file\n"
-"\nOptions:\n"
+"%1 ping            connection   Note: For serial connections ONLY.\n"
+"%1 launch [-d]     connection binary uid [--] [arguments]\n"
+"%1 install[-s]     connection remote-sis-file [targetdrive]\n"
+"%1 put    [c size] connection local-file remote-file\n"
+"%1 stat            connection remote-file\n\n"
+"'connection': address[:port] or serial-port\n\n"
+"Options:\n"
 "-d            Launch: Launch under Debug control (wait for termination)\n"
 "-c [size]     Put: Chunk size in KB (default %2KB)\n"
 "-s            Install: Silent installation\n\n"
@@ -59,10 +61,19 @@ static const char usageC[] =
 "%1 put     192.168.0.42 test.sis c:\\data\\test.sis\n"
 "%1 stat    192.168.0.42 c:\\data\\test.sis\n"
 "%1 install 192.168.0.42 c:\\data\\test.sis c:\n"
-"%1 launch  192.168.0.42 c:\\sys\\bin\\test.exe  0x34f2b\n";
+"%1 launch  192.168.0.42 c:\\sys\\bin\\test.exe  0x34f2b\n"
+"%1 ping    /dev/ttyUSB1\n";
 
 static const unsigned short defaultPort = 65029;
 static const quint64  defaultChunkSize = 10240;
+
+static inline bool isSerialPort(const QString &address)
+{
+    return address.startsWith(QLatin1String("/dev"))
+        || address.startsWith(QLatin1String("com"), Qt::CaseInsensitive)
+        || address.startsWith(QLatin1String("tty"), Qt::CaseInsensitive)
+        || address.startsWith(QLatin1Char('\\'));
+}
 
 static inline QString fixSlashes(QString s)
 {
@@ -102,6 +113,8 @@ static inline CodaClientApplication::Mode modeArg(const QString &a)
 {
     if (a == QLatin1String("launch"))
         return CodaClientApplication::Launch;
+    if (a == QLatin1String("ping"))
+        return CodaClientApplication::Ping;
     if (a == QLatin1String("install"))
         return CodaClientApplication::Install;
     if (a == QLatin1String("put"))
@@ -229,6 +242,16 @@ CodaClientApplication::ParseArgsResult CodaClientApplication::parseArguments(QSt
             return ParseInitError;
         }
         break;
+    case Ping:
+        if (m_address.isEmpty()) {
+            *errorMessage = QString::fromLatin1("Not enough parameters for ping.");
+            return ParseInitError;
+        }
+        if (!isSerialPort(m_address)) {
+            *errorMessage = QString::fromLatin1("'ping' not supported for TCP/IP.");
+            return ParseInitError;
+        }
+        break;
     case Install:
         if (m_address.isEmpty() || m_installSisFile.isEmpty()) {
             *errorMessage = QString::fromLatin1("Not enough parameters for install.");
@@ -257,6 +280,8 @@ bool CodaClientApplication::start()
 {
     m_startTime.start();
     switch (m_mode) {
+    case Ping:
+        break;
     case Launch: {
         const QString args = m_launchArgs.join(QString(QLatin1Char(' ')));
         std::printf("Launching 0x%x '%s '%s' (debug: %d)\n",
@@ -288,9 +313,9 @@ bool CodaClientApplication::start()
         this, SLOT(slotTrkLogMessage(QString)));
     connect(m_trkDevice.data(), SIGNAL(tcfEvent(tcftrk::TcfTrkEvent)),
         this, SLOT(slotTcftrkEvent(tcftrk::TcfTrkEvent)));
-    if (m_address.startsWith(QLatin1String("/dev"))
-            || m_address.startsWith(QLatin1String("com"), Qt::CaseInsensitive)
-            || m_address.startsWith(QLatin1Char('\\'))) {
+    connect(m_trkDevice.data(), SIGNAL(serialPong(QString)),
+            this, SLOT(slotSerialPong(QString)));
+    if (isSerialPort(m_address)) {
 #ifdef HAS_SERIALPORT
         // Serial
 #ifdef Q_OS_WIN
@@ -317,7 +342,7 @@ bool CodaClientApplication::start()
             return false;
         }
         // Initiate communication
-        m_trkDevice->sendSerialPing();
+        m_trkDevice->sendSerialPing(m_mode == Ping);
         serialPort->flush();
 #else
         std::fprintf(stderr, "Not implemented\n");
@@ -341,6 +366,7 @@ void CodaClientApplication::slotError(const QString &e)
 
 void CodaClientApplication::slotTrkLogMessage(const QString &m)
 {
+    printTimeStamp();
     std::printf("%s\n", qPrintable(m));
 }
 
@@ -348,6 +374,7 @@ void CodaClientApplication::handleCreateProcess(const tcftrk::TcfTrkCommandResul
 {
     const bool ok = result.type == tcftrk::TcfTrkCommandResult::SuccessReply;
     if (ok) {
+        printTimeStamp();
         std::printf("Launch succeeded: %s\n", qPrintable(result.toString()));
         if (!m_launchDebug)
             doExit(0);
@@ -398,6 +425,7 @@ void CodaClientApplication::putSendNextChunk()
         closeRemoteFile();
     } else {
         m_putLastChunkSize = data.size();
+        printTimeStamp();
         std::printf("Writing %llu bytes to remote file '%s' at %llu\n",
                     m_putLastChunkSize,
                     m_remoteFileHandle.constData(), pos);
@@ -431,6 +459,7 @@ void CodaClientApplication::handleFileSystemFStat(const tcftrk::TcfTrkCommandRes
     // Close remote file even if copy fails
     if (m_statFstatOk) {
         const tcftrk::TcfTrkStatResponse statr = tcftrk::TcfTrkDevice::parseStat(result);
+        printTimeStamp();
         std::printf("File: %s\nSize: %llu bytes\nAccessed: %s\nModified: %s\n",
                     qPrintable(m_statRemoteFile), statr.size,
                     qPrintable(statr.accessTime.toString(Qt::LocalDate)),
@@ -444,6 +473,7 @@ void CodaClientApplication::handleFileSystemFStat(const tcftrk::TcfTrkCommandRes
 void CodaClientApplication::handleFileSystemClose(const tcftrk::TcfTrkCommandResult &result)
 {
     if (result.type == tcftrk::TcfTrkCommandResult::SuccessReply) {
+        printTimeStamp();
         std::printf("File closed.\n");
         const bool ok = m_mode == Put ? m_putWriteOk : m_statFstatOk;
         doExit(ok ? 0 : -1);
@@ -456,6 +486,7 @@ void CodaClientApplication::handleFileSystemClose(const tcftrk::TcfTrkCommandRes
 void CodaClientApplication::handleSymbianInstall(const tcftrk::TcfTrkCommandResult &result)
 {
     if (result.type == tcftrk::TcfTrkCommandResult::SuccessReply) {
+        printTimeStamp();
         std::printf("Installation succeeded\n.");
         doExit(0);
     } else {
@@ -466,10 +497,13 @@ void CodaClientApplication::handleSymbianInstall(const tcftrk::TcfTrkCommandResu
 
 void CodaClientApplication::slotTcftrkEvent (const tcftrk::TcfTrkEvent &ev)
 {
+    printTimeStamp();
     std::printf("Event: %s\n", qPrintable(ev.toString()));
     switch (ev.type()) {
     case tcftrk::TcfTrkEvent::LocatorHello: // Commands accepted now
         switch (m_mode) {
+        case Ping:
+            break;
         case Launch:
             m_trkDevice->sendProcessStartCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleCreateProcess),
                                                  m_launchBinary, m_launchUID, m_launchArgs, QString(), m_launchDebug);
@@ -509,6 +543,7 @@ void CodaClientApplication::slotTcftrkEvent (const tcftrk::TcfTrkEvent &ev)
         const tcftrk::TcfTrkRunControlModuleLoadContextSuspendedEvent &me =
                 static_cast<const tcftrk::TcfTrkRunControlModuleLoadContextSuspendedEvent &>(ev);
         if (me.info().requireResume) {
+            printTimeStamp();
             std::printf("Continuing...\n");
             m_trkDevice->sendRunControlResumeCommand(tcftrk::TcfTrkCallback(), me.id());
         }
@@ -522,10 +557,16 @@ void CodaClientApplication::slotTcftrkEvent (const tcftrk::TcfTrkEvent &ev)
     }
 }
 
+void CodaClientApplication::slotSerialPong(const QString &v)
+{
+    printTimeStamp();
+    std::printf("Pong from '%s'\n", qPrintable(v));
+    if (m_mode == Ping)
+        doExit(0);
+}
+
 void CodaClientApplication::doExit(int ex)
 {
-    std::printf("Operation took %4.2f second(s)\n", m_startTime.elapsed()/1000.);
-
     if (!m_trkDevice.isNull()) {
         const QSharedPointer<QIODevice> dev = m_trkDevice->device();
         if (!dev.isNull()) {
@@ -538,6 +579,15 @@ void CodaClientApplication::doExit(int ex)
             }
         }
     }
+    printTimeStamp();
     std::printf("Exiting (%d)\n", ex);
     exit(ex);
+}
+
+void CodaClientApplication::printTimeStamp()
+{
+    const int elapsedMS = m_startTime.elapsed();
+    const int secs = elapsedMS / 1000;
+    const int msecs = elapsedMS % 1000;
+    std::printf("%4d.%03ds: ", secs, msecs);
 }

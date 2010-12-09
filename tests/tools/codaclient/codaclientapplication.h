@@ -47,7 +47,7 @@ class CodaClientApplication : public QCoreApplication
 {
     Q_OBJECT
 public:
-    enum Mode { Invalid, Launch, Put, Stat, Install };
+    enum Mode { Invalid, Ping, Launch, Put, Stat, Install };
 
     explicit CodaClientApplication(int &argc, char **argv);
     ~CodaClientApplication();
@@ -63,8 +63,10 @@ private slots:
     void slotError(const QString &);
     void slotTrkLogMessage(const QString &);
     void slotTcftrkEvent(const tcftrk::TcfTrkEvent &);
+    void slotSerialPong(const QString &);
 
 private:
+    void printTimeStamp();
     bool parseArgument(const QString &a, int argNumber, QString *errorMessage);
     void handleCreateProcess(const tcftrk::TcfTrkCommandResult &result);
     void handleFileSystemOpen(const tcftrk::TcfTrkCommandResult &result);

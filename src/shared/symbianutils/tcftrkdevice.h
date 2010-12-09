@@ -186,7 +186,7 @@ public:
     void setDevice(const IODevicePtr &dp);
 
     // Serial Only: Initiate communication. Will emit serialPong() signal with version.
-    void sendSerialPing();
+    void sendSerialPing(bool pingOnly = false);
 
     // Send with parameters from string (which may contain '\0').
     void sendTcfTrkMessage(MessageType mt, Services service,
@@ -367,7 +367,7 @@ private slots:
 
 private:
     void deviceReadyReadSerial();
-    void deviceReadyReadWLAN();
+    void deviceReadyReadTcp();
 
     bool checkOpen();
     void checkSendQueue();
@@ -375,6 +375,7 @@ private:
     void emitLogMessage(const QString &);
     inline int parseMessage(const QByteArray &);
     void processMessage(const QByteArray &message);
+    inline void processSerialMessage(const QByteArray &message);
     int parseTcfCommandReply(char type, const QVector<QByteArray> &tokens);
     int parseTcfEvent(const QVector<QByteArray> &tokens);
     // Send with parameters from string (which may contain '\0').

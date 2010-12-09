@@ -41,7 +41,7 @@
 
 enum { debug = 0 };
 
-static const char wlanMessageTerminatorC[] = "\003\001";
+static const char tcpMessageTerminatorC[] = "\003\001";
 
 // Serial Ping: 0xfc,0x1f
 static const char serialPingC[] = "\xfc\x1f";
@@ -50,8 +50,15 @@ static const char serialPongC[] = "\xfc\xf1";
 
 static const char locatorAnswerC[] = "E\0Locator\0Hello\0[\"Locator\"]";
 
+/* Serial messages > (1K - 2) have to chunked in order to pass the USB
+ * router as '0xfe char(chunkCount - 1) data' ... '0x0 char(chunkCount - 2) data'
+ * ... '0x0 0x0 last-data' */
 static const unsigned serialChunkLength = 0x400;  // 1K max USB router
-static const int maxSerialMessageLength = 0x10000; // give chunking scheme
+static const int maxSerialMessageLength = 0x10000; // given chunking scheme
+
+static const unsigned char serialChunkingStart = 0xfe;
+static const unsigned char serialChunkingContinuation = 0x0;
+enum { SerialChunkHeaderSize = 2 };
 
 // Create USB router frame
 static inline void encodeSerialFrame(const QByteArray &data, QByteArray *target)
@@ -65,7 +72,8 @@ static inline void encodeSerialFrame(const QByteArray &data, QByteArray *target)
 // Split in chunks of 1K according to CODA protocol chunking
 static inline QByteArray encodeUsbSerialMessage(const QByteArray &dataIn)
 {
-    static const int chunkSize = serialChunkLength -  2; // 2 Header bytes
+     // Reserve 2 header bytes
+    static const int chunkSize = serialChunkLength - SerialChunkHeaderSize;
     const int size = dataIn.size();
     QByteArray frame;
     // Do we need to split?
@@ -86,7 +94,7 @@ static inline QByteArray encodeUsbSerialMessage(const QByteArray &dataIn)
     for (unsigned c = chunkCount - 1; pos < size ; c--) {
         QByteArray chunk; // chunk with long message start/continuation code
         chunk.reserve(serialChunkLength);
-        chunk.append(pos ? char(0) : char(0xfe));
+        chunk.append(pos ? serialChunkingContinuation : serialChunkingStart);
         chunk.append(char(static_cast<unsigned char>(c))); // Avoid any signedness issues.
         const int chunkEnd = qMin(pos + chunkSize, size);
         chunk.append(dataIn.mid(pos, chunkEnd - pos));
@@ -318,22 +326,24 @@ struct TcfTrkDevicePrivate {
 
     TcfTrkDevicePrivate();
 
-    const QByteArray m_messageTerminator;
+    const QByteArray m_tcpMessageTerminator;
 
     IODevicePtr m_device;
     unsigned m_verbose;
     QByteArray m_readBuffer;
+    QByteArray m_serialBuffer; // for chunked messages
     int m_token;
     QQueue<TcfTrkSendQueueEntry> m_sendQueue;
     TokenWrittenMessageMap m_writtenMessages;
     QVector<QByteArray> m_registerNames;
     QVector<QByteArray> m_fakeGetMRegisterValues;
     bool m_serialFrame;
+    bool m_serialPingOnly;
 };
 
 TcfTrkDevicePrivate::TcfTrkDevicePrivate() :
-    m_messageTerminator(wlanMessageTerminatorC),
-    m_verbose(0), m_token(0), m_serialFrame(false)
+    m_tcpMessageTerminator(tcpMessageTerminatorC),
+    m_verbose(0), m_token(0), m_serialFrame(false), m_serialPingOnly(false)
 {
 }
 
@@ -457,7 +467,7 @@ void TcfTrkDevice::slotDeviceReadyRead()
     if (d->m_serialFrame) {
         deviceReadyReadSerial();
     } else {
-        deviceReadyReadWLAN();
+        deviceReadyReadTcp();
     }
 }
 
@@ -496,31 +506,59 @@ void TcfTrkDevice::deviceReadyReadSerial()
         const int messageEnd = messagePos.first + messagePos.second;
         if (messageEnd > d->m_readBuffer.size())
             break;
-        const QByteArray message = d->m_readBuffer.mid(messagePos.first, messagePos.second);
-        // Is thing a ping/pong response
-        if (debug > 1)
-            qDebug("Serial message: at %d (%d bytes) of %d: %s",
-                   messagePos.first, messagePos.second, d->m_readBuffer.size(),
-                   qPrintable(trk::stringFromArray(message)));
-        if (message.startsWith(serialPongC)) {
-            const QString version = QString::fromLatin1(message.mid(sizeof(serialPongC) -  1));
-            emitLogMessage(QString::fromLatin1("Serial connection from '%1'").arg(version));
-            emit serialPong(version);
-            // Answer with locator.
-            writeMessage(QByteArray(locatorAnswerC, sizeof(locatorAnswerC)));
-        } else {
-            processMessage(message);
-        }
+        processSerialMessage(d->m_readBuffer.mid(messagePos.first, messagePos.second));
         d->m_readBuffer.remove(0, messageEnd);
     } while (d->m_readBuffer.isEmpty());
     checkSendQueue(); // Send off further messages
 }
 
-void TcfTrkDevice::deviceReadyReadWLAN()
+void TcfTrkDevice::processSerialMessage(const QByteArray &message)
+{
+    if (debug > 1)
+        qDebug("Serial message: %s",qPrintable(trk::stringFromArray(message)));
+    if (message.isEmpty())
+        return;
+    // Is thing a ping/pong response
+    const int size = message.size();
+    if (message.startsWith(serialPongC)) {
+        const QString version = QString::fromLatin1(message.mid(sizeof(serialPongC) -  1));
+        emitLogMessage(QString::fromLatin1("Serial connection from '%1'").arg(version));
+        emit serialPong(version);
+        // Answer with locator.
+        if (!d->m_serialPingOnly)
+            writeMessage(QByteArray(locatorAnswerC, sizeof(locatorAnswerC)));
+        return;
+    }
+    // Check for long message (see top, '0xfe #number, data' or '0x0 #number, data')
+    // TODO: This is currently untested.
+    const unsigned char *dataU = reinterpret_cast<const unsigned char *>(message.constData());
+    const bool isLongMessageStart        = size > SerialChunkHeaderSize
+                                           && *dataU == serialChunkingStart;
+    const bool isLongMessageContinuation = size > SerialChunkHeaderSize
+                                           && *dataU == serialChunkingContinuation;
+    if (isLongMessageStart || isLongMessageContinuation) {
+        const unsigned chunkNumber = *++dataU;
+        if (isLongMessageStart) { // Start new buffer
+            d->m_serialBuffer.clear();
+            d->m_serialBuffer.reserve( (chunkNumber + 1) * serialChunkLength);
+        }
+        d->m_serialBuffer.append(message.mid(SerialChunkHeaderSize, size - SerialChunkHeaderSize));
+        // Last chunk? -  Process
+        if (!chunkNumber) {
+            processMessage(d->m_serialBuffer);
+            d->m_serialBuffer.clear();
+            d->m_serialBuffer.squeeze();
+        }
+    } else {
+        processMessage(message); // Normal, unchunked message
+    }
+}
+
+void TcfTrkDevice::deviceReadyReadTcp()
 {
     // Take complete message off front of readbuffer.
     do {
-        const int messageEndPos = d->m_readBuffer.indexOf(d->m_messageTerminator);
+        const int messageEndPos = d->m_readBuffer.indexOf(d->m_tcpMessageTerminator);
         if (messageEndPos == -1)
             break;
         if (messageEndPos == 0) {
@@ -529,7 +567,7 @@ void TcfTrkDevice::deviceReadyReadWLAN()
         } else {
             processMessage(d->m_readBuffer.left(messageEndPos));
         }
-        d->m_readBuffer.remove(0, messageEndPos + d->m_messageTerminator.size());
+        d->m_readBuffer.remove(0, messageEndPos + d->m_tcpMessageTerminator.size());
     } while (!d->m_readBuffer.isEmpty());
     checkSendQueue(); // Send off further messages
 }
@@ -767,11 +805,12 @@ bool TcfTrkDevice::checkOpen()
     return true;
 }
 
-void TcfTrkDevice::sendSerialPing()
+void TcfTrkDevice::sendSerialPing(bool pingOnly)
 {
     if (!checkOpen())
         return;
 
+    d->m_serialPingOnly = pingOnly;
     setSerialFrame(true);
     writeMessage(QByteArray(serialPingC, qstrlen(serialPingC)), false);
     if (d->m_verbose)
@@ -847,7 +886,7 @@ void TcfTrkDevice::writeMessage(QByteArray data, bool ensureTerminating0)
     if (d->m_serialFrame) {
         data = encodeUsbSerialMessage(data);
     } else {
-        data += d->m_messageTerminator;
+        data += d->m_tcpMessageTerminator;
     }
 
     if (debug > 1)
