@@ -33,52 +33,34 @@
 #include <QFileInfo>
 #include <QCoreApplication>
 
-#include <botan/x509cert.h>
+#include "s60symbiancertificate.h"
 
 S60CertificateInfo::CertificateState S60CertificateInfo::validateCertificate(const QString &certFilePath, QString *errorString)
 {
-    bool certFileCorrupted = false;
     CertificateState result = CertificateValid;
-    Botan::X509_Certificate *certificate = 0;
-    try {
-        certificate = new Botan::X509_Certificate(certFilePath.toStdString());
-        if (certificate) {
-            const char * const CERTIFICATE_DATE_FORMAT = "yyyy/M/d h:mm:ss UTC";
-
-            QDateTime startTime = QDateTime::fromString(QString::fromStdString(certificate->start_time()),
-                                                        QLatin1String(CERTIFICATE_DATE_FORMAT));
-            QDateTime startTimeUTC(startTime.date(), startTime.time(), Qt::UTC);
-
-            QDateTime endTime = QDateTime::fromString(QString::fromStdString(certificate->end_time()),
-                                                      QLatin1String(CERTIFICATE_DATE_FORMAT));
-            QDateTime endTimeUTC(endTime.date(), endTime.time(), Qt::UTC);
-
-            QDateTime currentTime(QDateTime::currentDateTimeUtc());
-            if (currentTime > endTimeUTC) {
-                if (errorString)
-                    *errorString = QCoreApplication::translate(
-                            "S60Utils::validateCertificate",
-                            "The \"%1\" certificate has already expired and cannot be used.\nExpiration date: %2.")
-                        .arg(QFileInfo(certFilePath).fileName())
-                        .arg(endTimeUTC.toLocalTime().toString());
-                result = CertificateError;
-            } else if (currentTime < startTimeUTC) {
-                if (errorString)
-                    *errorString = QCoreApplication::translate(
-                            "S60Utils::validateCertificate",
-                            "The \"%1\" certificate is not yet valid.\nValid from: %2.")
-                        .arg(QFileInfo(certFilePath).fileName())
-                        .arg(startTimeUTC.toLocalTime().toString());
-                result = CertificateWarning; //This certificate may be valid in the near future
-            }
-        } else
-            certFileCorrupted = true;
-    } catch (Botan::Exception &e) {
-        Q_UNUSED(e)
-        certFileCorrupted = true;
-    }
-    delete certificate;
-    if (certFileCorrupted) {
+    S60SymbianCertificate *certificate = new S60SymbianCertificate(certFilePath);
+    if (certificate->isValid()) {
+        QDateTime currentTime(QDateTime::currentDateTimeUtc());
+        QDateTime endTime(certificate->endTime());
+        QDateTime startTime(certificate->startTime());
+        if (currentTime > endTime) {
+            if (errorString)
+                *errorString = QCoreApplication::translate(
+                        "S60Utils::validateCertificate",
+                        "The \"%1\" certificate has already expired and cannot be used.\nExpiration date: %2.")
+                    .arg(QFileInfo(certFilePath).fileName())
+                    .arg(endTime.toLocalTime().toString());
+            result = CertificateError;
+        } else if (currentTime < startTime) {
+            if (errorString)
+                *errorString = QCoreApplication::translate(
+                        "S60Utils::validateCertificate",
+                        "The \"%1\" certificate is not yet valid.\nValid from: %2.")
+                    .arg(QFileInfo(certFilePath).fileName())
+                    .arg(startTime.toLocalTime().toString());
+            result = CertificateWarning; //This certificate may be valid in the near future
+        }
+    } else {
         if (errorString)
             *errorString = QCoreApplication::translate(
                     "S60Utils::validateCertificate",
@@ -86,5 +68,6 @@ S60CertificateInfo::CertificateState S60CertificateInfo::validateCertificate(con
                 .arg(QFileInfo(certFilePath).baseName());
         result = CertificateError;
     }
+    delete certificate;
     return result;
 }
