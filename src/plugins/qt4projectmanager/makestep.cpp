@@ -180,14 +180,15 @@ bool MakeStep::init()
     setEnabled(true);
     pp->setArguments(args);
 
-    m_makeParser = bc->qtVersion()->createOutputParser();
-    m_makeParser->appendOutputParser(new QtParser);
+    ProjectExplorer::IOutputParser *parser = bc->qtVersion()->createOutputParser();
+    Q_ASSERT(parser);
+    parser->appendOutputParser(new QtParser);
     if (toolchain)
-        m_makeParser->appendOutputParser(toolchain->outputParser());
+        parser->appendOutputParser(toolchain->outputParser());
 
-    m_makeParser->setWorkingDirectory(workingDirectory);
+    parser->setWorkingDirectory(workingDirectory);
 
-    setOutputParser(m_makeParser);
+    setOutputParser(parser);
 
     return AbstractProcessStep::init();
 }
@@ -205,7 +206,7 @@ void MakeStep::run(QFutureInterface<bool> & fi)
 bool MakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
 {
     // Symbian does retun 0, even on failed makes! So we check for fatal make errors here.
-    if (m_makeParser && m_makeParser->hasFatalErrors())
+    if (outputParser() && outputParser()->hasFatalErrors())
         return false;
 
     return AbstractProcessStep::processSucceeded(exitCode, status);
