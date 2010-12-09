@@ -78,7 +78,7 @@ bool sortNodes(Node *n1, Node *n2)
 
             int result = fileNameCompare(fileName1, fileName2);
             if (result != 0)
-                return result;
+                return result < 0;
             else
                 return file1 < file2;
         } else {
@@ -98,7 +98,7 @@ bool sortNodes(Node *n1, Node *n2)
 
             int result = fileNameCompare(project1->displayName(), project2->displayName());
             if (result != 0)
-                return result;
+                return result < 0;
             else
                 return project1 < project2; // sort by pointer value
         } else {
@@ -115,7 +115,7 @@ bool sortNodes(Node *n1, Node *n2)
 
             int result = fileNameCompare(folder1->path(), folder2->path());
             if (result != 0)
-                return result;
+                return result < 0;
             else
                 return folder1 < folder2;
         } else {
@@ -135,11 +135,11 @@ bool sortNodes(Node *n1, Node *n2)
 
         int result = fileNameCompare(fileName1, fileName2);
         if (result != 0) {
-            return result; // sort by filename
+            return result < 0; // sort by filename
         } else {
             result = fileNameCompare(filePath1, filePath2);
             if (result != 0) {
-                return result; // sort by filepath
+                return result < 0; // sort by filepath
             } else {
                 return n1 < n2; // sort by pointer value
             }
