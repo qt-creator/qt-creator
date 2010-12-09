@@ -841,6 +841,8 @@ void SessionManager::updateWindowTitle()
     if (isDefaultSession(m_sessionName)) {
         if (Project *currentProject = ProjectExplorerPlugin::instance()->currentProject())
             m_core->editorManager()->setWindowTitleAddition(currentProject->displayName());
+        else
+            m_core->editorManager()->setWindowTitleAddition("");
     } else {
         QString sessionName = m_sessionName;
         if (sessionName.isEmpty())
