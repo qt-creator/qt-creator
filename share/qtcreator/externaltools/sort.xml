@@ -36,7 +36,7 @@
     <displayname xml:lang="de">Selektion Sortieren</displayname>
     <category>Text</category>
     <category xml:lang="de">Text</category>
-    <executable output="showinpane" error="ignore">
+    <executable output="replaceselection" error="ignore">
         <path>sort</path>
         <input>%{CurrentSelection}</input>
         <workingdirectory>%{CurrentPath}</workingdirectory>

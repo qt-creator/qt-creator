@@ -31,6 +31,7 @@
 #define EXTERNALTOOL_H
 
 #include "icore.h"
+#include "core_global.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
@@ -111,27 +112,38 @@ private:
     QTextCodec *m_outputCodec;
     QTextCodec::ConverterState m_outputCodecState;
     QTextCodec::ConverterState m_errorCodecState;
+    QString m_processOutput;
 };
 
-class ExternalToolManager : public QObject
+} // Internal
+
+class CORE_EXPORT ExternalToolManager : public QObject
 {
     Q_OBJECT
 
 public:
+    static ExternalToolManager *instance() { return m_instance; }
+
     ExternalToolManager(Core::ICore *core);
     ~ExternalToolManager();
 
-    void initialize();
+signals:
+    void replaceSelectionRequested(const QString &text);
 
 private slots:
     void menuActivated();
 
 private:
+    void initialize();
+
+    static ExternalToolManager *m_instance;
     Core::ICore *m_core;
-    QMap<QString, ExternalTool *> m_tools;
+    QMap<QString, Internal::ExternalTool *> m_tools;
+
+    // for sending the replaceSelectionRequested signal
+    friend class Core::Internal::ExternalToolRunner;
 };
 
-} // Internal
 } // Core
 
 #endif // EXTERNALTOOL_H

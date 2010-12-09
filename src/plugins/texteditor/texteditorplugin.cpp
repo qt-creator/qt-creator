@@ -55,6 +55,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/externaltool.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <find/searchresultwindow.h>
@@ -178,7 +179,8 @@ void TextEditorPlugin::extensionsInitialized()
     addAutoReleasedObject(new FindInCurrentFile(Find::SearchResultWindow::instance()));
     connect(Core::VariableManager::instance(), SIGNAL(variableUpdateRequested(QString)),
             this, SLOT(updateVariable(QString)));
-
+    connect(Core::ExternalToolManager::instance(), SIGNAL(replaceSelectionRequested(QString)),
+            this, SLOT(updateCurrentSelection(QString)));
 }
 
 void TextEditorPlugin::initializeEditor(PlainTextEditor *editor)
@@ -224,6 +226,24 @@ void TextEditorPlugin::updateVariable(const QString &variable)
             selectedText.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
         }
         Core::VariableManager::instance()->insert(variable, selectedText);
+    }
+}
+
+void TextEditorPlugin::updateCurrentSelection(const QString &text)
+{
+    Core::IEditor *iface = Core::EditorManager::instance()->currentEditor();
+    ITextEditable *editor = qobject_cast<ITextEditable *>(iface);
+    if (editor) {
+        int pos = editor->position();
+        int anchor = editor->position(ITextEditor::Anchor);
+        int selectionLength = anchor-pos;
+        if (selectionLength < 0)
+            selectionLength = -selectionLength;
+        if (selectionLength == 0)
+            return;
+        int start = qMin(pos, anchor);
+        editor->setCurPos(start);
+        editor->replace(selectionLength, text);
     }
 }
 

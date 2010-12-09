@@ -356,6 +356,10 @@ void ExternalToolRunner::started()
 
 void ExternalToolRunner::finished()
 {
+    if (m_tool->outputHandling() == ExternalTool::ReplaceSelection
+            || m_tool->errorHandling() == ExternalTool::ReplaceSelection) {
+        emit ExternalToolManager::instance()->replaceSelectionRequested(m_processOutput);
+    }
     ICore::instance()->messageManager()->printToOutputPane(
                 tr("'%1' finished").arg(m_resolvedExecutable), false);
     // TODO handle the ReplaceSelection and ReloadDocument flags
@@ -379,6 +383,8 @@ void ExternalToolRunner::readStandardOutput()
     // TODO handle the ReplaceSelection flag
     if (m_tool->outputHandling() == ExternalTool::ShowInPane) {
         ICore::instance()->messageManager()->printToOutputPane(output, true);
+    } else if (m_tool->outputHandling() == ExternalTool::ReplaceSelection) {
+        m_processOutput.append(output);
     }
 }
 
@@ -391,14 +397,19 @@ void ExternalToolRunner::readStandardError()
     // TODO handle the ReplaceSelection flag
     if (m_tool->errorHandling() == ExternalTool::ShowInPane) {
         ICore::instance()->messageManager()->printToOutputPane(output, true);
+    } else if (m_tool->errorHandling() == ExternalTool::ReplaceSelection) {
+        m_processOutput.append(output);
     }
 }
 
 // #pragma mark -- ExternalToolManager
 
+ExternalToolManager *ExternalToolManager::m_instance = 0;
+
 ExternalToolManager::ExternalToolManager(Core::ICore *core)
     : QObject(core), m_core(core)
 {
+    m_instance = this;
     initialize();
 }
 
