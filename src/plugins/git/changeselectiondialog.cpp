@@ -57,6 +57,9 @@ QString ChangeSelectionDialog::repository() const
 void ChangeSelectionDialog::setRepository(const QString &s)
 {
     m_ui.repositoryEdit->setText(QDir::toNativeSeparators(s));
+    m_ui.changeNumberEdit->setFocus(Qt::ActiveWindowFocusReason);
+    m_ui.changeNumberEdit->setText(QLatin1String("HEAD"));
+    m_ui.changeNumberEdit->selectAll();
 }
 
 void ChangeSelectionDialog::selectWorkingDirectory()
