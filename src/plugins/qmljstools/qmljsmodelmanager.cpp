@@ -74,7 +74,7 @@ ModelManager::ModelManager(QObject *parent):
     loadQmlTypeDescriptions();
 
     m_defaultImportPaths << environmentImportPaths();
-    m_defaultImportPaths << QLibraryInfo::location(QLibraryInfo::ImportsPath);
+    updateImportPaths();
 }
 
 void ModelManager::loadQmlTypeDescriptions()
