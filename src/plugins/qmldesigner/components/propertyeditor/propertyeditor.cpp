@@ -504,13 +504,7 @@ void PropertyEditor::setupPanes()
 {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     setupPane("Qt/Rectangle");
-    QApplication::processEvents();
-    setupPane("Qt/Text");
-    QApplication::processEvents();
-    setupPane("Qt/TextInput");
-    QApplication::processEvents();
-    setupPane("Qt/TextEdit");
-    QApplication::processEvents();
+    setupPane("Qt/Text");  
     resetView();
     m_setupCompleted = true;
     QApplication::restoreOverrideCursor();
