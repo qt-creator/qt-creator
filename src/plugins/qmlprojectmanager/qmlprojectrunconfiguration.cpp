@@ -227,7 +227,8 @@ QString QmlProjectRunConfiguration::mainScript() const
 void QmlProjectRunConfiguration::setScriptSource(MainScriptSource source,
                                                  const QString &settingsPath)
 {
-    if (source == FileInEditor) { m_scriptFile.clear();
+    if (source == FileInEditor) {
+        m_scriptFile = M_CURRENT_FILE;
         m_mainScriptFilename.clear();
         m_usingCurrentFile = true;
     } else if (source == FileInProjectFile) {
