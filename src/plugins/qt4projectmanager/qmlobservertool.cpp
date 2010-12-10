@@ -142,7 +142,6 @@ QString QmlObserverTool::copy(const QString &qtInstallData, QString *errorMessag
             errorMessage->clear();
         }
 
-        qDebug() << observerFiles;
         if (copyFiles(sourcePath, observerFiles, directory, errorMessage)
                 && copyFiles(libSourcePath, qmljsDebuggerFiles,
                              directory + QLatin1String("/qmljsdebugger/"), errorMessage))
