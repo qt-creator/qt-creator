@@ -151,7 +151,6 @@ void MaemoRunConfiguration::proFileInvalidated(Qt4ProjectManager::Internal::Qt4P
 {
     if (m_proFilePath != pro->path())
         return;
-    qDebug()<<"proFileInvalidated";
     handleParseState(false);
 }
 
