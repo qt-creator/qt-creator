@@ -333,9 +333,9 @@ protected:
     virtual void shutdownInferior() = 0;
     virtual void shutdownEngine() = 0;
 
-protected:
-    DebuggerRunControl *runControl() const;
+    DebuggerRunControl *runControl() const; // FIXME: Protect.
 
+protected:
     static QString msgWatchpointTriggered(BreakpointId id,
         int number, quint64 address);
     static QString msgWatchpointTriggered(BreakpointId id,

@@ -54,7 +54,6 @@ class SavedAction;
 namespace Debugger {
 
 class DebuggerEngine;
-class DebuggerRunControl;
 class DebuggerStartParameters;
 
 namespace Internal {
@@ -101,8 +100,8 @@ public:
     virtual void removeLocationMark() = 0;
 
     virtual bool isReverseDebugging() const = 0;
-    virtual void runControlStarted(DebuggerRunControl *runControl) = 0;
-    virtual void runControlFinished(DebuggerRunControl *runControl) = 0;
+    virtual void runControlStarted(DebuggerEngine *engine) = 0;
+    virtual void runControlFinished(DebuggerEngine *engine) = 0;
     virtual void displayDebugger(DebuggerEngine *engine, bool updateEngine) = 0;
     virtual DebuggerLanguages activeLanguages() const = 0;
     virtual void synchronizeBreakpoints() = 0;

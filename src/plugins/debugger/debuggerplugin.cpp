@@ -980,20 +980,16 @@ public slots:
     {
         showMessage("ATTEMPT SYNC", LogDebug);
         for (int i = 0, n = m_snapshotHandler->size(); i != n; ++i) {
-            if (DebuggerRunControl *runControl = m_snapshotHandler->at(i)) {
-                DebuggerEngine *engine = runControl->engine();
+            if (DebuggerEngine *engine = m_snapshotHandler->at(i))
                 engine->attemptBreakpointSynchronization();
-            }
         }
     }
 
     void synchronizeWatchers()
     {
         for (int i = 0, n = m_snapshotHandler->size(); i != n; ++i) {
-            if (DebuggerRunControl *runControl = m_snapshotHandler->at(i)) {
-                DebuggerEngine *engine = runControl->engine();
+            if (DebuggerEngine *engine = m_snapshotHandler->at(i))
                 engine->watchHandler()->updateWatchers();
-            }
         }
     }
 
@@ -1043,8 +1039,8 @@ public slots:
     bool hasSnapshots() const { return m_snapshotHandler->size(); }
     void createNewDock(QWidget *widget);
 
-    void runControlStarted(DebuggerRunControl *runControl);
-    void runControlFinished(DebuggerRunControl *runControl);
+    void runControlStarted(DebuggerEngine *engine);
+    void runControlFinished(DebuggerEngine *engine);
     DebuggerLanguages activeLanguages() const;
     QString gdbBinaryForToolChain(int toolChain) const;
     void remoteCommand(const QStringList &options, const QStringList &);
@@ -1477,11 +1473,11 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     }
     for (int i = 0, n = m_snapshotHandler->size(); i != n; ++i) {
         // Run controls might be deleted during exit.
-        if (DebuggerRunControl *runControl = m_snapshotHandler->at(i)) {
+        if (DebuggerEngine *engine = m_snapshotHandler->at(i)) {
+            DebuggerRunControl *runControl = engine->runControl();
             RunConfiguration *rc = runControl->runConfiguration();
             if (rc == activeRc) {
                 m_snapshotHandler->setCurrentIndex(i);
-                DebuggerEngine *engine = runControl->engine();
                 updateState(engine);
                 return;
             }
@@ -2387,7 +2383,7 @@ void DebuggerPluginPrivate::aboutToUnloadSession()
     // with command-line debugging startup.
     // FIXME ABC: Still wanted? Iterate?
     //if (d->m_engine && state() != DebuggerNotReady
-    //    && runControl()->sp().startMode == StartInternal)
+    //    && engine()->sp().startMode == StartInternal)
     //        d->m_engine->shutdown();
 }
 
@@ -2578,22 +2574,21 @@ void DebuggerPluginPrivate::createNewDock(QWidget *widget)
     dockWidget->show();
 }
 
-void DebuggerPluginPrivate::runControlStarted(DebuggerRunControl *runControl)
+void DebuggerPluginPrivate::runControlStarted(DebuggerEngine *engine)
 {
     activateDebugMode();
-    DebuggerEngine *engine = runControl->engine();
     const QString message = tr("Starting debugger '%1' for tool chain '%2'...")
             .arg(engine->objectName())
             .arg(engine->startParameters().toolChainName());
     showMessage(message, StatusBar);
     showMessage(m_debuggerSettings->dump(), LogDebug);
-    m_snapshotHandler->appendSnapshot(runControl);
+    m_snapshotHandler->appendSnapshot(engine);
     connectEngine(engine);
 }
 
-void DebuggerPluginPrivate::runControlFinished(DebuggerRunControl *runControl)
+void DebuggerPluginPrivate::runControlFinished(DebuggerEngine *engine)
 {
-    m_snapshotHandler->removeSnapshot(runControl);
+    m_snapshotHandler->removeSnapshot(engine);
     if (m_snapshotHandler->size() == 0) {
         // Last engine quits.
         disconnectEngine();

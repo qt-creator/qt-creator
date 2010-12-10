@@ -656,7 +656,7 @@ void DebuggerRunControl::start()
         return;
     }
 
-    debuggerCore()->runControlStarted(this);
+    debuggerCore()->runControlStarted(engine());
 
     // We might get a synchronous startFailed() notification on Windows,
     // when launching the process fails. Emit a proper finished() sequence.
@@ -684,7 +684,7 @@ void DebuggerRunControl::handleFinished()
     emit addToOutputWindowInline(this, tr("Debugging has finished"), false);
     if (engine())
         engine()->handleFinished();
-    debuggerCore()->runControlFinished(this);
+    debuggerCore()->runControlFinished(engine());
 }
 
 void DebuggerRunControl::showMessage(const QString &msg, int channel)

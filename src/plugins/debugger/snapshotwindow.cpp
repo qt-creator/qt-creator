@@ -32,7 +32,7 @@
 
 #include "debuggeractions.h"
 #include "debuggercore.h"
-#include "debuggerrunner.h"
+#include "debuggerengine.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -136,7 +136,7 @@ void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
 
 void SnapshotWindow::removeSnapshot(int i)
 {
-    m_snapshotHandler->at(i)->stop();
+    m_snapshotHandler->at(i)->quitDebugger();
 }
 
 void SnapshotWindow::resizeColumnsToContents()

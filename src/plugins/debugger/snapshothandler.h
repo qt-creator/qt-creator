@@ -35,7 +35,6 @@
 
 namespace Debugger {
 
-class DebuggerRunControl;
 class DebuggerEngine;
 
 namespace Internal {
@@ -59,12 +58,11 @@ public:
     void removeAll();
     QAbstractItemModel *model() { return this; }
     int currentIndex() const { return m_currentIndex; }
-    void appendSnapshot(DebuggerRunControl *rc);
-    void removeSnapshot(DebuggerRunControl *rc);
+    void appendSnapshot(DebuggerEngine *engine);
+    void removeSnapshot(DebuggerEngine *engine);
     void setCurrentIndex(int index);
     int size() const { return m_snapshots.size(); }
-    DebuggerRunControl *at(int index) const;
-    QList<DebuggerRunControl *> runControls() const;
+    DebuggerEngine *at(int index) const;
 
     void createSnapshot(int index);
     void activateSnapshot(int index);
@@ -78,10 +76,9 @@ private:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     Q_SLOT void resetModel() { reset(); }
-    DebuggerEngine *engineAt(int i) const;
 
     int m_currentIndex;
-    QList< QPointer<DebuggerRunControl> > m_snapshots;
+    QList< QPointer<DebuggerEngine> > m_snapshots;
     const QVariant m_positionIcon;
     const QVariant m_emptyIcon;
 };

@@ -123,19 +123,12 @@ SnapshotHandler::SnapshotHandler()
 SnapshotHandler::~SnapshotHandler()
 {
     for (int i = m_snapshots.size(); --i >= 0; ) {
-        if (DebuggerEngine *engine = engineAt(i)) {
-            const DebuggerStartParameters & sp = engine->startParameters();
+        if (DebuggerEngine *engine = at(i)) {
+            const DebuggerStartParameters &sp = engine->startParameters();
             if (sp.isSnapshot && !sp.coreFile.isEmpty())
                 QFile::remove(sp.coreFile);
         }
     }
-}
-
-DebuggerEngine *SnapshotHandler::engineAt(int i) const
-{
-    DebuggerEngine *engine = m_snapshots.at(i)->engine();
-    QTC_ASSERT(engine, qDebug() << "ENGINE AT " << i << "DELETED");
-    return engine;
 }
 
 int SnapshotHandler::rowCount(const QModelIndex &parent) const
@@ -154,7 +147,7 @@ QVariant SnapshotHandler::data(const QModelIndex &index, int role) const
     if (!index.isValid() || index.row() >= m_snapshots.size())
         return QVariant();
 
-    const DebuggerEngine *engine = engineAt(index.row());
+    const DebuggerEngine *engine = at(index.row());
 
     if (role == SnapshotCapabilityRole)
         return engine && (engine->debuggerCapabilities() & SnapshotCapability);
@@ -213,20 +206,20 @@ void SnapshotHandler::activateSnapshot(int index)
 {
     m_currentIndex = index;
     //qDebug() << "ACTIVATING INDEX: " << m_currentIndex << " OF " << size();
-    debuggerCore()->displayDebugger(engineAt(index), true);
+    debuggerCore()->displayDebugger(at(index), true);
     reset();
 }
 
 void SnapshotHandler::createSnapshot(int index)
 {
-    DebuggerEngine *engine = engineAt(index);
+    DebuggerEngine *engine = at(index);
     QTC_ASSERT(engine, return);
     engine->createSnapshot();
 }
 
 void SnapshotHandler::removeSnapshot(int index)
 {
-    DebuggerEngine *engine = engineAt(index);
+    DebuggerEngine *engine = at(index);
     //qDebug() << "REMOVING " << engine;
     QTC_ASSERT(engine, return);
 #if 0
@@ -254,17 +247,17 @@ void SnapshotHandler::removeAll()
     reset();
 }
 
-void SnapshotHandler::appendSnapshot(DebuggerRunControl *rc)
+void SnapshotHandler::appendSnapshot(DebuggerEngine *engine)
 {
-    m_snapshots.append(rc);
+    m_snapshots.append(engine);
     m_currentIndex = size() - 1;
     reset();
 }
 
-void SnapshotHandler::removeSnapshot(DebuggerRunControl *rc)
+void SnapshotHandler::removeSnapshot(DebuggerEngine *engine)
 {
     // Could be that the run controls died before it was appended.
-    int index = m_snapshots.indexOf(rc);
+    int index = m_snapshots.indexOf(engine);
     if (index != -1)
         removeSnapshot(index);
 }
@@ -275,21 +268,9 @@ void SnapshotHandler::setCurrentIndex(int index)
     reset();
 }
 
-DebuggerRunControl *SnapshotHandler::at(int i) const
+DebuggerEngine *SnapshotHandler::at(int i) const
 {
     return m_snapshots.at(i).data();
-}
-
-QList<DebuggerRunControl*> SnapshotHandler::runControls() const
-{
-    // Return unique list of run controls
-    QList<DebuggerRunControl*> rc;
-    rc.reserve(m_snapshots.size());
-    foreach(const QPointer<DebuggerRunControl> &runControlPtr, m_snapshots)
-        if (DebuggerRunControl *runControl = runControlPtr)
-            if (!rc.contains(runControl))
-                rc.push_back(runControl);
-    return rc;
 }
 
 } // namespace Internal
