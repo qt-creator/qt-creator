@@ -63,6 +63,9 @@ public:
     virtual Orientation orientation() const = 0;
     virtual void setOrientation(Orientation) = 0;
 
+    virtual void pauseListening() = 0;
+    virtual void resumeListening() = 0;
+
     static DeviceOrientation *instance();
 
 signals:

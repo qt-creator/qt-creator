@@ -14,5 +14,36 @@
 	<string>@TYPEINFO@</string>
 	<key>CFBundleExecutable</key>
 	<string>@EXECUTABLE@</string>
+        <key>UTExportedTypeDeclarations</key>
+          <array>
+            <dict>
+              <key>UTTypeIdentifier</key>
+              <string>com.nokia.qt.qml</string>
+              <key>UTTypeDescription</key>
+              <string>Qt Markup Language</string>
+              <key>UTTypeConformsTo</key>
+              <array>
+                <string>public.plain-text</string>
+              </array>
+              <key>UTTypeTagSpecification</key>
+              <dict>
+                <key>public.filename-extension</key>
+                <array>
+                  <string>qml</string>
+                </array>
+              </dict>
+            </dict>
+          </array>
+        <key>CFBundleDocumentTypes</key>
+          <array>
+            <dict>
+              <key>LSItemContentTypes</key>
+                <array>
+                  <string>com.nokia.qt.qml</string>
+                </array>
+              <key>CFBundleTypeRole</key>
+              <string>Viewer</string>
+            </dict>
+          </array>
 </dict>
 </plist>

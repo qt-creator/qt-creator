@@ -67,7 +67,6 @@ class NetworkAccessManagerFactory;
 class QTranslator;
 class QActionGroup;
 class QMenuBar;
-class QSplitter;
 
 class QDeclarativeViewer
     : public QMainWindow
@@ -75,7 +74,7 @@ class QDeclarativeViewer
     Q_OBJECT
 
 public:
-    explicit QDeclarativeViewer(QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    QDeclarativeViewer(QWidget *parent = 0, Qt::WindowFlags flags = 0);
     ~QDeclarativeViewer();
 
     static void registerTypes();
@@ -88,7 +87,8 @@ public:
         SaveOnExit = 0x00000010,
         ExitOnComplete = 0x00000020,
         ExitOnFailure = 0x00000040,
-        Snapshot = 0x00000080
+        Snapshot = 0x00000080,
+        TestSkipProperty = 0x00000100
     };
     Q_DECLARE_FLAGS(ScriptOptions, ScriptOption)
     void setScript(const QString &s) { m_script = s; }
@@ -111,6 +111,7 @@ public:
 
     QDeclarativeView *view() const;
     LoggerWidget *warningsWidget() const;
+    QString currentFile() const { return currentFileOrUrl; }
 
     void enableExperimentalGestures();
 
@@ -119,6 +120,7 @@ public slots:
     void sceneResized(QSize size);
     bool open(const QString&);
     void openFile();
+    void openUrl();
     void reload();
     void takeSnapShot();
     void toggleRecording();
@@ -163,7 +165,6 @@ private:
     QString getVideoFileName();
 
     LoggerWidget *loggerWindow;
-
     QDeclarativeView *canvas;
     QmlJSDebugger::QDeclarativeViewObserver *observer;
     QSize initialSize;
@@ -183,8 +184,6 @@ private:
     int record_autotime;
     bool devicemode;
     QAction *recordAction;
-    QString currentSkin;
-    bool scaleSkin;
     RecordingDialog *recdlg;
 
     void senseImageMagick();
@@ -199,6 +198,7 @@ private:
     QAction *animationStepAction;
     QAction *animationSetStepAction;
 
+    QAction *rotateAction;
     QActionGroup *orientation;
     QAction *showWarningsWindow;
     QAction *designModeBehaviorAction;
@@ -213,8 +213,6 @@ private:
     NetworkAccessManagerFactory *namFactory;
 
     bool useQmlFileBrowser;
-
-    QWidget *m_centralWidget;
 
     QTranslator *translator;
     void loadTranslationFile(const QString& directory);

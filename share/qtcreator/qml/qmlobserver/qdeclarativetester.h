@@ -122,7 +122,7 @@ public:
 
     int type() const { return m_type; }
     void setType(int t) { m_type = t; }
-    
+
     int button() const { return m_button; }
     void setButton(int b) { m_button = b; }
 
@@ -228,6 +228,7 @@ private:
 
     void imagefailure();
     void complete();
+    void testSkip();
 
     enum Destination { View, ViewPort };
     void addKeyEvent(Destination, QKeyEvent *);
@@ -236,7 +237,7 @@ private:
 
     struct MouseEvent {
         MouseEvent(QMouseEvent *e)
-            : type(e->type()), button(e->button()), buttons(e->buttons()), 
+            : type(e->type()), button(e->button()), buttons(e->buttons()),
               pos(e->pos()), modifiers(e->modifiers()), destination(View) {}
 
         QEvent::Type type;

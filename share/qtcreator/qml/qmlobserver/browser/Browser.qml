@@ -39,12 +39,12 @@
 **
 ****************************************************************************/
 
-import Qt 4.7
+import QtQuick 1.0
 import Qt.labs.folderlistmodel 1.0
 
 Rectangle {
     id: root
-    property bool keyPressed: false
+    property bool showFocusHighlight: false
     property variant folders: folders1
     property variant view: view1
     width: 320
@@ -95,6 +95,19 @@ Rectangle {
         view.focus = true;
         folders.folder = path;
     }
+    function keyPressed(key) {
+        switch (key) {
+            case Qt.Key_Up:
+            case Qt.Key_Down:
+            case Qt.Key_Left:
+            case Qt.Key_Right:
+                root.showFocusHighlight = true;
+            break;
+            default:
+                // do nothing
+            break;
+        }
+    }
 
     Component {
         id: folderDelegate
@@ -113,6 +126,7 @@ Rectangle {
             Rectangle {
                 id: highlight; visible: false
                 anchors.fill: parent
+                color: palette.highlight
                 gradient: Gradient {
                     GradientStop { id: t1; position: 0.0; color: palette.highlight }
                     GradientStop { id: t2; position: 1.0; color: Qt.lighter(palette.highlight) }
@@ -128,12 +142,16 @@ Rectangle {
                 text: fileName
                 anchors.leftMargin: 54
                 font.pixelSize: 32
-                color: (wrapper.ListView.isCurrentItem && root.keyPressed) ? palette.highlightedText : palette.windowText
+                color: (wrapper.ListView.isCurrentItem && root.showFocusHighlight) ? palette.highlightedText : palette.windowText
                 elide: Text.ElideRight
             }
             MouseArea {
                 id: mouseRegion
                 anchors.fill: parent
+                onPressed: {
+                    root.showFocusHighlight = false;
+                    wrapper.ListView.view.currentIndex = index;
+                }
                 onClicked: { if (folders == wrapper.ListView.view.model) launch() }
             }
             states: [
@@ -155,7 +173,15 @@ Rectangle {
         width: parent.width
         model: folders1
         delegate: folderDelegate
-        highlight: Rectangle { color: palette.highlight; visible: root.keyPressed && view1.count != 0 }
+        highlight: Rectangle {
+            color: palette.highlight
+            visible: root.showFocusHighlight && view1.count != 0
+            gradient: Gradient {
+                GradientStop { id: t1; position: 0.0; color: palette.highlight }
+                GradientStop { id: t2; position: 1.0; color: Qt.lighter(palette.highlight) }
+            }
+            width: view1.currentItem == null ? 0 : view1.currentItem.width
+        }
         highlightMoveSpeed: 1000
         pressDelay: 100
         focus: true
@@ -186,7 +212,7 @@ Rectangle {
                 NumberAnimation { properties: "x"; duration: 250 }
             }
         ]
-        Keys.onPressed: { root.keyPressed = true; }
+        Keys.onPressed: root.keyPressed(event.key)
     }
 
     ListView {
@@ -197,7 +223,15 @@ Rectangle {
         width: parent.width
         model: folders2
         delegate: folderDelegate
-        highlight: Rectangle { color: palette.highlight; visible: root.keyPressed && view2.count != 0 }
+        highlight: Rectangle {
+            color: palette.highlight
+            visible: root.showFocusHighlight && view2.count != 0
+            gradient: Gradient {
+                GradientStop { id: t1; position: 0.0; color: palette.highlight }
+                GradientStop { id: t2; position: 1.0; color: Qt.lighter(palette.highlight) }
+            }
+            width: view1.currentItem == null ? 0 : view1.currentItem.width
+        }
         highlightMoveSpeed: 1000
         pressDelay: 100
         states: [
@@ -225,11 +259,11 @@ Rectangle {
                 NumberAnimation { properties: "x"; duration: 250 }
             }
         ]
-        Keys.onPressed: { root.keyPressed = true; }
+        Keys.onPressed: root.keyPressed(event.key)
     }
 
     Keys.onPressed: {
-        root.keyPressed = true;
+        root.keyPressed(event.key);
         if (event.key == Qt.Key_Return || event.key == Qt.Key_Select || event.key == Qt.Key_Right) {
             view.currentItem.launch();
             event.accepted = true;

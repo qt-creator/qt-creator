@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/startup">
+        <file>Logo.qml</file>
+        <file>qt-back.png</file>
+        <file>qt-blue.jpg</file>
+        <file>qt-front.png</file>
+        <file>qt-sketch.jpg</file>
+        <file>qt-text.png</file>
+        <file>quick-blur.png</file>
+        <file>quick-regular.png</file>
+        <file>shadow.png</file>
+        <file>startup.qml</file>
+        <file>startup.qrc</file>
+        <file>white-star.png</file>
+    </qresource>
+</RCC>

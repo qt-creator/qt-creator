@@ -41,31 +41,49 @@
 
 #include "deviceorientation.h"
 #include <QtDBus>
+#include <QDebug>
 
-#include <mce/mode-names.h>
-#include <mce/dbus-names.h>
+#define ORIENTATION_SERVICE "com.nokia.SensorService"
+#define ORIENTATION_PATH "/org/maemo/contextkit/Screen/TopEdge"
+#define CONTEXT_INTERFACE "org.maemo.contextkit.Property"
+#define CONTEXT_CHANGED "ValueChanged"
+#define CONTEXT_SUBSCRIBE "Subscribe"
+#define CONTEXT_UNSUBSCRIBE "Unsubscribe"
+#define CONTEXT_GET "Get"
 
-class MaemoOrientation : public DeviceOrientation
+
+class HarmattanOrientation : public DeviceOrientation
 {
     Q_OBJECT
 public:
-    MaemoOrientation()
+    HarmattanOrientation()
         : o(UnknownOrientation), sensorEnabled(false)
     {
         resumeListening();
         // connect to the orientation change signal
-        QDBusConnection::systemBus().connect(QString(), MCE_SIGNAL_PATH, MCE_SIGNAL_IF,
-                MCE_DEVICE_ORIENTATION_SIG,
+        bool ok = QDBusConnection::systemBus().connect(ORIENTATION_SERVICE, ORIENTATION_PATH,
+                CONTEXT_INTERFACE,
+                CONTEXT_CHANGED,
                 this,
-                SLOT(deviceOrientationChanged(QString)));
+                SLOT(deviceOrientationChanged(QList<QVariant>,quint64)));
+//        qDebug() << "connection OK" << ok;
+        QDBusMessage reply = QDBusConnection::systemBus().call(
+                QDBusMessage::createMethodCall(ORIENTATION_SERVICE, ORIENTATION_PATH,
+                                               CONTEXT_INTERFACE, CONTEXT_GET));
+        if (reply.type() != QDBusMessage::ErrorMessage) {
+            QList<QVariant> args;
+            qvariant_cast<QDBusArgument>(reply.arguments().at(0)) >> args;
+            deviceOrientationChanged(args, 0);
+        }
     }
 
-    ~MaemoOrientation()
+    ~HarmattanOrientation()
     {
-        // disable the orientation sensor
-        QDBusConnection::systemBus().call(
-                QDBusMessage::createMethodCall(MCE_SERVICE, MCE_REQUEST_PATH,
-                                               MCE_REQUEST_IF, MCE_ACCELEROMETER_DISABLE_REQ));
+        // unsubscribe from the orientation sensor
+        if (sensorEnabled)
+            QDBusConnection::systemBus().call(
+                QDBusMessage::createMethodCall(ORIENTATION_SERVICE, ORIENTATION_PATH,
+                                               CONTEXT_INTERFACE, CONTEXT_UNSUBSCRIBE));
     }
 
     inline Orientation orientation() const
@@ -73,63 +91,58 @@ public:
         return o;
     }
 
-    void setOrientation(Orientation o)
+    void setOrientation(Orientation)
     {
     }
 
     void pauseListening() {
         if (sensorEnabled) {
-            // disable the orientation sensor
+            // unsubscribe from the orientation sensor
             QDBusConnection::systemBus().call(
-                    QDBusMessage::createMethodCall(MCE_SERVICE, MCE_REQUEST_PATH,
-                                                   MCE_REQUEST_IF, MCE_ACCELEROMETER_DISABLE_REQ));
+                    QDBusMessage::createMethodCall(ORIENTATION_SERVICE, ORIENTATION_PATH,
+                                                   CONTEXT_INTERFACE, CONTEXT_UNSUBSCRIBE));
             sensorEnabled = false;
         }
     }
 
     void resumeListening() {
         if (!sensorEnabled) {
-            // enable the orientation sensor
-            QDBusConnection::systemBus().call(
-                    QDBusMessage::createMethodCall(MCE_SERVICE, MCE_REQUEST_PATH,
-                                                   MCE_REQUEST_IF, MCE_ACCELEROMETER_ENABLE_REQ));
-
+            // subscribe to the orientation sensor
             QDBusMessage reply = QDBusConnection::systemBus().call(
-                    QDBusMessage::createMethodCall(MCE_SERVICE, MCE_REQUEST_PATH,
-                                                   MCE_REQUEST_IF, MCE_DEVICE_ORIENTATION_GET));
+                    QDBusMessage::createMethodCall(ORIENTATION_SERVICE, ORIENTATION_PATH,
+                                                   CONTEXT_INTERFACE, CONTEXT_SUBSCRIBE));
 
             if (reply.type() == QDBusMessage::ErrorMessage) {
                 qWarning("Unable to retrieve device orientation: %s", qPrintable(reply.errorMessage()));
             } else {
-                Orientation orientation = toOrientation(reply.arguments().value(0).toString());
-                if (o != orientation) {
-                    o = orientation;
-                    emit orientationChanged();
-                }
                 sensorEnabled = true;
             }
         }
     }
 
 private Q_SLOTS:
-    void deviceOrientationChanged(const QString &newOrientation)
+    void deviceOrientationChanged(QList<QVariant> args,quint64)
     {
-        o = toOrientation(newOrientation);
-
-        emit orientationChanged();
-//        printf("%d\n", o);
+        if (args.count() == 0)
+            return;
+        Orientation newOrientation = toOrientation(args.at(0).toString());
+        if (newOrientation != o) {
+            o = newOrientation;
+            emit orientationChanged();
+        }
+//        qDebug() << "orientation" << args.at(0).toString();
     }
 
 private:
     static Orientation toOrientation(const QString &nativeOrientation)
     {
-        if (nativeOrientation == MCE_ORIENTATION_LANDSCAPE)
+        if (nativeOrientation == "top")
             return Landscape;
-        else if (nativeOrientation == MCE_ORIENTATION_LANDSCAPE_INVERTED)
-            return LandscapeInverted;
-        else if (nativeOrientation == MCE_ORIENTATION_PORTRAIT)
+        else if (nativeOrientation == "left")
             return Portrait;
-        else if (nativeOrientation == MCE_ORIENTATION_PORTRAIT_INVERTED)
+        else if (nativeOrientation == "bottom")
+            return LandscapeInverted;
+        else if (nativeOrientation == "right")
             return PortraitInverted;
         return UnknownOrientation;
     }
@@ -141,8 +154,8 @@ private:
 
 DeviceOrientation* DeviceOrientation::instance()
 {
-    static MaemoOrientation *o = new MaemoOrientation;
+    static HarmattanOrientation *o = new HarmattanOrientation;
     return o;
 }
 
-#include "deviceorientation_maemo5.moc"
+#include "deviceorientation_harmattan.moc"

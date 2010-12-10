@@ -53,6 +53,11 @@ public:
         return m_orientation;
     }
 
+    void pauseListening() {
+    }
+    void resumeListening() {
+    }
+
     void setOrientation(Orientation o) {
         if (o != m_orientation) {
             m_orientation = o;

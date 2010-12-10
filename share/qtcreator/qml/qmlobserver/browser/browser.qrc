@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/browser">
+        <file>Browser.qml</file>
+        <file>images/up.png</file>
+        <file>images/folder.png</file>
+        <file>images/titlebar.sci</file>
+        <file>images/titlebar.png</file>
+    </qresource>
+</RCC>
