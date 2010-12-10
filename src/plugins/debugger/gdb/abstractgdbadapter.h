@@ -90,6 +90,9 @@ public:
     virtual void trkReloadRegisters() {}
     virtual void trkReloadThreads() {}
 
+    virtual void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
+    virtual void handleRemoteSetupFailed(const QString &reason);
+
 protected:
     DebuggerState state() const;
     const DebuggerStartParameters &startParameters() const;

@@ -71,6 +71,8 @@ public:
     QAbstractItemModel *sourceFilesModel() const;
 
     DebuggerEngine *cppEngine() const;
+    virtual void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
+    virtual void handleRemoteSetupFailed(const QString &message);
 
 protected:
     virtual void detachDebugger();

@@ -121,7 +121,7 @@ MaemoDebugSupport::MaemoDebugSupport(MaemoRunConfiguration *runConfig,
       m_dumperLib(runConfig->dumperLib()),
       m_state(Inactive), m_gdbServerPort(-1), m_qmlPort(-1)
 {
-    connect(m_runControl, SIGNAL(engineRequestSetup()), this,
+    connect(m_runControl->engine(), SIGNAL(requestRemoteSetup()), this,
         SLOT(handleAdapterSetupRequested()));
     connect(m_runControl, SIGNAL(finished()), this,
         SLOT(handleDebuggingFinished()));
@@ -320,13 +320,13 @@ void MaemoDebugSupport::handleProgressReport(const QString &progressOutput)
 void MaemoDebugSupport::handleAdapterSetupFailed(const QString &error)
 {
     setState(Inactive);
-    m_runControl->handleRemoteSetupFailed(tr("Initial setup failed: %1").arg(error));
+    m_runControl->engine()->handleRemoteSetupFailed(tr("Initial setup failed: %1").arg(error));
 }
 
 void MaemoDebugSupport::handleAdapterSetupDone()
 {
     setState(Debugging);
-    m_runControl->handleRemoteSetupDone(m_gdbServerPort, m_qmlPort);
+    m_runControl->engine()->handleRemoteSetupDone(m_gdbServerPort, m_qmlPort);
 }
 
 void MaemoDebugSupport::setState(State newState)

@@ -35,7 +35,7 @@
 #include "moduleshandler.h" // For 'Symbols'
 #include "breakpoint.h" // For 'BreakpointId'
 
-#include <coreplugin/ssh/sshconnection.h> 
+#include <coreplugin/ssh/sshconnection.h>
 
 #include <utils/environment.h>
 
@@ -203,6 +203,9 @@ public:
     virtual void removeTooltip();
     virtual void selectThread(int index);
 
+    virtual void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
+    virtual void handleRemoteSetupFailed(const QString &message);
+
 protected:
     friend class Internal::DebuggerPluginPrivate;
     virtual void detachDebugger();
@@ -255,7 +258,7 @@ public:
 
     void breakByFunction(const QString &functionName);
     void breakByFunctionMain();
-    
+
     DebuggerState state() const;
     DebuggerState lastGoodState() const;
     DebuggerState targetState() const;
@@ -289,6 +292,15 @@ public:
 signals:
     void stateChanged(const DebuggerState &state);
     void updateViewsRequested();
+    /*
+     * For "external" clients of a debugger run control that need to do
+     * further setup before the debugger is started (e.g. Maemo).
+     * Afterwards, handleSetupDone() or handleSetupFailed() must be called
+     * to continue or abort debugging, respectively.
+     * This signal is only emitted if the start parameters indicate that
+     * a server start script should be used, but none is given.
+     */
+    void requestRemoteSetup();
 
 protected:
     // The base notify*() function implementation should be sufficient

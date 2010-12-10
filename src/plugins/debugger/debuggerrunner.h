@@ -106,9 +106,6 @@ public:
 
     void showMessage(const QString &msg, int channel);
 
-    void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
-    void handleRemoteSetupFailed(const QString &message);
-
     static bool checkDebugConfiguration(int toolChain,
                                  QString *errorMessage,
                                  QString *settingsCategory = 0,

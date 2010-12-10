@@ -200,7 +200,7 @@ void QmlEngine::setupInferior()
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
     if (startParameters().startMode == AttachToRemote) {
-        emit remoteStartupRequested();
+        requestRemoteSetup();
     } else {
         connect(&d->m_applicationLauncher, SIGNAL(processExited(int)),
                 SLOT(disconnected()));

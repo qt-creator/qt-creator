@@ -96,7 +96,7 @@ void RemoteGdbServerAdapter::startAdapter()
     }
     if (startParameters().serverStartScript.isEmpty()) {
         showMessage(_("No server start script given. "), StatusBar);
-        emit requestSetup();
+        m_engine->requestRemoteSetup();
     } else {
         m_uploadProc.start(_("/bin/sh ") + startParameters().serverStartScript);
         m_uploadProc.waitForStarted();

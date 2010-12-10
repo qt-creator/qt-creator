@@ -50,8 +50,7 @@ void RemotePlainGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(QLatin1String("TRYING TO START ADAPTER"));
-
-    emit requestSetup();
+    m_engine->requestRemoteSetup();
 }
 
 void RemotePlainGdbAdapter::setupInferior()
@@ -101,8 +100,9 @@ void RemotePlainGdbAdapter::shutdownAdapter()
     m_engine->notifyAdapterShutdownOk();
 }
 
-void RemotePlainGdbAdapter::handleSetupDone(int qmlPort)
+void RemotePlainGdbAdapter::handleSetupDone(int gdbServerPort, int qmlPort)
 {
+    Q_UNUSED(gdbServerPort);
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
     if (qmlPort != -1)

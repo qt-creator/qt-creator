@@ -127,6 +127,8 @@ private: ////////// Gdb Process Management //////////
                   const QString &settingsIdHint = QString());
     void handleInferiorShutdown(const GdbResponse &response);
     void handleGdbExit(const GdbResponse &response);
+    void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
+    void handleRemoteSetupFailed(const QString &message);
 
     void handleAdapterStarted();
     void defaultInferiorShutdown(const char *cmd);

@@ -145,5 +145,16 @@ void AbstractGdbAdapter::showMessage(const QString &msg, int channel, int timeou
     m_engine->showMessage(msg, channel, timeout);
 }
 
+void AbstractGdbAdapter::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
+{
+    Q_UNUSED(gdbServerPort);
+    Q_UNUSED(qmlPort);
+}
+
+void AbstractGdbAdapter::handleRemoteSetupFailed(const QString &reason)
+{
+    Q_UNUSED(reason);
+}
+
 } // namespace Internal
 } // namespace Debugger

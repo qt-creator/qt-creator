@@ -1430,6 +1430,17 @@ void DebuggerEngine::openDisassemblerView(const StackFrame &frame)
     agent->setFrame(frame, true, false);
 }
 
+void DebuggerEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
+{
+    Q_UNUSED(gdbServerPort);
+    Q_UNUSED(qmlPort);
+}
+
+void DebuggerEngine::handleRemoteSetupFailed(const QString &message)
+{
+    Q_UNUSED(message);
+}
+
 } // namespace Debugger
 
 #include "debuggerengine.moc"

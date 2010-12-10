@@ -634,6 +634,18 @@ void QmlCppEngine::engineStateChanged(const DebuggerState &newState)
     }
 }
 
+void QmlCppEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
+{
+    d->m_qmlEngine->handleRemoteSetupDone(gdbServerPort, qmlPort);
+    d->m_cppEngine->handleRemoteSetupDone(gdbServerPort, qmlPort);
+}
+
+void QmlCppEngine::handleRemoteSetupFailed(const QString &message)
+{
+    d->m_qmlEngine->handleRemoteSetupFailed(message);
+    d->m_cppEngine->handleRemoteSetupFailed(message);
+}
+
 DebuggerEngine *QmlCppEngine::cppEngine() const
 {
     return d->m_cppEngine;

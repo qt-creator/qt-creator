@@ -4398,6 +4398,16 @@ void GdbEngine::removeTooltip()
     DebuggerEngine::removeTooltip();
 }
 
+void GdbEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
+{
+    m_gdbAdapter->handleRemoteSetupDone(gdbServerPort, qmlPort);
+}
+
+void GdbEngine::handleRemoteSetupFailed(const QString &message)
+{
+    m_gdbAdapter->handleRemoteSetupFailed(message);
+}
+
 //
 // Factory
 //

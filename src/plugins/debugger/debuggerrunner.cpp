@@ -35,12 +35,7 @@
 #include "debuggermainwindow.h"
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
-#include "gdb/gdbengine.h"
-#include "gdb/remotegdbserveradapter.h"
-#include "gdb/remoteplaingdbadapter.h"
 #include "gdb/gdboptionspage.h"
-#include "qml/qmlengine.h"
-#include "qml/qmlcppengine.h"
 #include "lldb/lldbenginehost.h"
 
 #ifdef Q_OS_WIN
@@ -269,10 +264,6 @@ public:
     DebuggerEngineType engineForMode(unsigned enabledEngineTypes,
         DebuggerStartMode mode);
 
-    void initGdbEngine(GdbEngine *engine);
-    GdbEngine *gdbEngine() const;
-    AbstractGdbAdapter *gdbAdapter() const;
-
 public:
     DebuggerRunControl *q;
     DebuggerEngine *m_engine;
@@ -383,38 +374,6 @@ DebuggerEngineType DebuggerRunControlPrivate::engineForMode
 #endif
 }
 
-void DebuggerRunControlPrivate::initGdbEngine(GdbEngine *engine)
-{
-    QTC_ASSERT(engine, return)
-
-    // Forward adapter signals.
-    AbstractGdbAdapter *adapter = engine->gdbAdapter();
-    RemotePlainGdbAdapter *rpga = qobject_cast<RemotePlainGdbAdapter *>(adapter);
-    RemoteGdbServerAdapter *rgsa = qobject_cast<RemoteGdbServerAdapter *>(adapter);
-    if (rpga)
-        q->connect(rpga, SIGNAL(requestSetup()), SIGNAL(engineRequestSetup()));
-    else if (rgsa)
-        q->connect(rgsa, SIGNAL(requestSetup()), SIGNAL(engineRequestSetup()));
-}
-
-GdbEngine *DebuggerRunControlPrivate::gdbEngine() const
-{
-    QTC_ASSERT(m_engine, return 0);
-    if (GdbEngine *gdbEngine = qobject_cast<GdbEngine *>(m_engine))
-        return gdbEngine;
-    if (QmlCppEngine *qmlEngine = qobject_cast<QmlCppEngine *>(m_engine))
-        if (GdbEngine *embeddedGdbEngine = qobject_cast<GdbEngine *>(qmlEngine->cppEngine()))
-            return embeddedGdbEngine;
-    return 0;
-}
-
-AbstractGdbAdapter *DebuggerRunControlPrivate::gdbAdapter() const
-{
-    GdbEngine *engine = gdbEngine();
-    QTC_ASSERT(engine, return 0)
-    return engine->gdbAdapter();
-}
-
 } // namespace Internal
 
 
@@ -514,7 +473,6 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
     switch (engineType) {
         case GdbEngineType:
             d->m_engine = createGdbEngine(sp);
-            d->initGdbEngine(qobject_cast<GdbEngine *>(d->m_engine));
             break;
         case ScriptEngineType:
             d->m_engine = createScriptEngine(sp);
@@ -534,14 +492,9 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
             break;
         case QmlEngineType:
             d->m_engine = createQmlEngine(sp);
-            connect(qobject_cast<QmlEngine *>(d->m_engine),
-                SIGNAL(remoteStartupRequested()),
-                SIGNAL(engineRequestSetup()));
             break;
         case QmlCppEngineType:
             d->m_engine = createQmlCppEngine(sp);
-            if (GdbEngine *embeddedGdbEngine = d->gdbEngine())
-                d->initGdbEngine(embeddedGdbEngine);
             break;
         case LldbEngineType:
             d->m_engine = createLldbEngine(sp);
@@ -740,56 +693,6 @@ DebuggerEngine *DebuggerRunControl::engine()
 {
     QTC_ASSERT(d->m_engine, /**/);
     return d->m_engine;
-}
-
-void DebuggerRunControl::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
-{
-    // FIXME: Use virtual functions?
-    if (QmlEngine *qmlEngine = qobject_cast<QmlEngine *>(d->m_engine)) {
-        qmlEngine->handleRemoteSetupDone(qmlPort);
-        return;
-    }
-
-    AbstractGdbAdapter *adapter = d->gdbAdapter();
-    QTC_ASSERT(adapter, return);
-
-    RemotePlainGdbAdapter *rpga = qobject_cast<RemotePlainGdbAdapter *>(adapter);
-    if (rpga) {
-        rpga->handleSetupDone(qmlPort);
-        return;
-    }
-
-    RemoteGdbServerAdapter *rgsa = qobject_cast<RemoteGdbServerAdapter *>(adapter);
-    if (rgsa) {
-        rgsa->handleSetupDone(gdbServerPort, qmlPort);
-        return;
-    }
-    QTC_ASSERT(false, /**/);
-}
-
-void DebuggerRunControl::handleRemoteSetupFailed(const QString &message)
-{
-    // FIXME: Use virtual functions?
-    if (QmlEngine *qmlEngine = qobject_cast<QmlEngine *>(d->m_engine)) {
-        qmlEngine->handleRemoteSetupFailed(message);
-        return;
-    }
-
-    AbstractGdbAdapter *adapter = d->gdbAdapter();
-    QTC_ASSERT(adapter, return);
-
-    RemotePlainGdbAdapter *rpga = qobject_cast<RemotePlainGdbAdapter *>(adapter);
-    if (rpga) {
-        rpga->handleSetupFailed(message);
-        return;
-    }
-
-    RemoteGdbServerAdapter *rgsa = qobject_cast<RemoteGdbServerAdapter *>(adapter);
-    if (rgsa) {
-        rgsa->handleSetupFailed(message);
-        return;
-    }
-    QTC_ASSERT(false, /**/);
 }
 
 RunConfiguration *DebuggerRunControl::runConfiguration() const

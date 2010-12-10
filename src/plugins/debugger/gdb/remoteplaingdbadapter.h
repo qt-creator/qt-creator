@@ -43,11 +43,8 @@ class RemotePlainGdbAdapter : public AbstractPlainGdbAdapter
 public:
     friend class RemoteGdbProcess;
     explicit RemotePlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
-    void handleSetupDone(int qmlPort);
+    void handleSetupDone(int gdbServerPort, int qmlPort);
     void handleSetupFailed(const QString &reason);
-
-signals:
-    void requestSetup();
 
 private slots:
     void handleGdbStarted();
