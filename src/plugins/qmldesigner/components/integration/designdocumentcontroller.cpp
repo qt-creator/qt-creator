@@ -355,7 +355,6 @@ void DesignDocumentController::loadCurrentModel()
 
     m_d->model->attachView(m_d->nodeInstanceView.data());
     m_d->model->attachView(m_d->navigator.data());
-    m_d->itemLibraryView->widget()->setItemLibraryInfo(m_d->model->metaInfo().itemLibraryInfo());
     m_d->itemLibraryView->widget()->setResourcePath(QFileInfo(m_d->fileName).absolutePath());
 
     if (!m_d->componentAction) {

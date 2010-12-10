@@ -34,6 +34,8 @@
 #include "itemlibrarymodel.h"
 #include "itemlibraryimageprovider.h"
 #include "customdraganddrop.h"
+#include <model.h>
+#include <metainfo.h>
 
 #include <QFileInfo>
 #include <QFileIconProvider>
@@ -107,6 +109,7 @@ public:
 
     QSize m_itemIconSize, m_resIconSize;
     MyFileIconProvider m_iconProvider;
+    Model *model;
 };
 
 ItemLibraryWidgetPrivate::ItemLibraryWidgetPrivate(QObject *object) :
@@ -279,9 +282,16 @@ void ItemLibraryWidget::setSearchFilter(const QString &searchFilter)
     }
 }
 
+void ItemLibraryWidget::setModel(Model *model)
+{
+    m_d->model = model;
+    setItemLibraryInfo(model->metaInfo().itemLibraryInfo());
+    updateModel();
+}
+
 void ItemLibraryWidget::updateModel()
 {
-    m_d->m_itemLibraryModel->update(m_d->m_itemLibraryInfo.data());
+    m_d->m_itemLibraryModel->update(m_d->m_itemLibraryInfo.data(), m_d->model);
     updateSearch();
 }
 

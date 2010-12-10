@@ -42,6 +42,7 @@ namespace QmlDesigner {
 
 class ItemLibraryInfo;
 class ItemLibraryEntry;
+class Model;
 
 namespace Internal {
 
@@ -131,7 +132,7 @@ public:
 
     QString searchText() const;
 
-    void update(ItemLibraryInfo *itemLibraryInfo);
+    void update(ItemLibraryInfo *itemLibraryInfo, Model *model);
 
     QString getTypeName(int libId);
     QMimeData *getMimeData(int libId);

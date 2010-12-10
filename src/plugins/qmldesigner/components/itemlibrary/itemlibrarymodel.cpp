@@ -29,6 +29,8 @@
 
 #include "itemlibrarymodel.h"
 #include "itemlibraryinfo.h"
+#include <model.h>
+#include <nodemetainfo.h>
 
 #include <QVariant>
 #include <QMimeData>
@@ -378,7 +380,12 @@ bool ItemLibraryModel::isItemVisible(int itemLibId)
     return elementModel(sectionLibId)->isItemVisible(itemLibId);
 }
 
-void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo)
+QString entryToImport(const ItemLibraryEntry &entry)
+{
+    return entry.requiredImport() + " " + QString::number(entry.majorVersion()) + "." + QString::number(entry.minorVersion());
+}
+
+void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 {
     QMap<QString, int> sections;
 
@@ -387,36 +394,46 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo)
     m_sections.clear();
     m_nextLibId = 0;
 
+    QStringList imports;
+    foreach (const Import &import, model->imports())
+        if (import.isLibraryImport())
+            imports << import.url() + " " + import.version();
+
     foreach (ItemLibraryEntry entry, itemLibraryInfo->entries()) {
-        QString itemSectionName = entry.category();
-        ItemLibrarySectionModel *sectionModel;
-        ItemLibraryItemModel *itemModel;
-        int itemId = m_nextLibId++, sectionId;
 
-        if (sections.contains(itemSectionName)) {
-            sectionId = sections.value(itemSectionName);
-            sectionModel = elementModel(sectionId);
-        } else {
-            sectionId = m_nextLibId++;
-            sectionModel = new ItemLibrarySectionModel(m_scriptEngine.data(), sectionId, itemSectionName, this);
-            addElement(sectionModel, sectionId);
-            sections.insert(itemSectionName, sectionId);
+         bool valid = model->metaInfo(entry.typeName(), entry.majorVersion(), entry.minorVersion()).isValid();
+
+        if (valid && entry.requiredImport().isEmpty() || imports.contains(entryToImport(entry))) {
+            QString itemSectionName = entry.category();
+            ItemLibrarySectionModel *sectionModel;
+            ItemLibraryItemModel *itemModel;
+            int itemId = m_nextLibId++, sectionId;
+
+            if (sections.contains(itemSectionName)) {
+                sectionId = sections.value(itemSectionName);
+                sectionModel = elementModel(sectionId);
+            } else {
+                sectionId = m_nextLibId++;
+                sectionModel = new ItemLibrarySectionModel(m_scriptEngine.data(), sectionId, itemSectionName, this);
+                addElement(sectionModel, sectionId);
+                sections.insert(itemSectionName, sectionId);
+            }
+
+            m_itemInfos.insert(itemId, entry);
+
+            itemModel = new ItemLibraryItemModel(m_scriptEngine.data(), itemId, entry.name());
+
+            // delayed creation of (default) icons
+            if (entry.iconPath().isEmpty())
+                entry.setIconPath(QLatin1String(":/ItemLibrary/images/item-default-icon.png"));
+            if (entry.dragIcon().isNull())
+                entry.setDragIcon(createDragPixmap(getWidth(entry), getHeight(entry)));
+
+            itemModel->setItemIconPath(entry.iconPath());
+            itemModel->setItemIconSize(m_itemIconSize);
+            sectionModel->addSectionEntry(itemModel);
+            m_sections.insert(itemId, sectionId);
         }
-
-        m_itemInfos.insert(itemId, entry);
-
-        itemModel = new ItemLibraryItemModel(m_scriptEngine.data(), itemId, entry.name());
-
-        // delayed creation of (default) icons
-        if (entry.iconPath().isEmpty())
-            entry.setIconPath(QLatin1String(":/ItemLibrary/images/item-default-icon.png"));
-        if (entry.dragIcon().isNull())
-            entry.setDragIcon(createDragPixmap(getWidth(entry), getHeight(entry)));
-
-        itemModel->setItemIconPath(entry.iconPath());
-        itemModel->setItemIconSize(m_itemIconSize);
-        sectionModel->addSectionEntry(itemModel);
-        m_sections.insert(itemId, sectionId);
     }
 
     updateVisibility();

@@ -38,6 +38,7 @@ namespace QmlDesigner {
 class ItemLibraryWidgetPrivate;
 class MetaInfo;
 class ItemLibraryEntry;
+class Model;
 
 class ItemLibraryWidget : public QFrame
 {
@@ -59,6 +60,8 @@ public Q_SLOTS:
 
     void startDragAndDrop(int itemLibId);
     void showItemInfo(int itemLibId);
+
+    void setModel(Model *model);
 
 protected:
     void wheelEvent(QWheelEvent *event);

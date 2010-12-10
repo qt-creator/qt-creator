@@ -79,6 +79,9 @@ public:
     void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
     void instancesCompleted(const QVector<ModelNode> &completedNodeList);
 
+protected:
+    void updateImports();
+
 private:
     QWeakPointer<ItemLibraryWidget> m_widget;
 };

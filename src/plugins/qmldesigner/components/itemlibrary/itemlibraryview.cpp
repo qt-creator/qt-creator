@@ -1,5 +1,6 @@
 #include "itemlibraryview.h"
 #include "itemlibrarywidget.h"
+#include <import.h>
 
 namespace QmlDesigner {
 
@@ -21,19 +22,24 @@ ItemLibraryWidget *ItemLibraryView::widget()
 void ItemLibraryView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
+    m_widget->setModel(model);
+    updateImports();
 }
 
 void ItemLibraryView::modelAboutToBeDetached(Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
+    m_widget->setModel(0);
 }
 
-void ItemLibraryView::importAdded(const Import &import)
+void ItemLibraryView::importAdded(const Import &)
 {
+    updateImports();
 }
 
-void ItemLibraryView::importRemoved(const Import &import)
+void ItemLibraryView::importRemoved(const Import &)
 {
+    updateImports();
 }
 
 void ItemLibraryView::nodeCreated(const ModelNode &)
@@ -120,6 +126,11 @@ void ItemLibraryView::instancePropertyChange(const QList<QPair<ModelNode, QStrin
 void ItemLibraryView::instancesCompleted(const QVector<ModelNode> &)
 {
 
+}
+
+void ItemLibraryView::updateImports()
+{
+    m_widget->updateModel();
 }
 
 } //QmlDesigner
