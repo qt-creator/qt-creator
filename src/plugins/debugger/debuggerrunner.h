@@ -47,11 +47,9 @@ class DebuggerRunControl;
 class DebuggerRunControlPrivate;
 class DebuggerStartParameters;
 
-class DEBUGGER_EXPORT DebuggerRunControlFactory
+class DebuggerRunControlFactory
     : public ProjectExplorer::IRunControlFactory
 {
-    Q_OBJECT
-
 public:
     DebuggerRunControlFactory(QObject *parent, unsigned enabledEngines);
 
