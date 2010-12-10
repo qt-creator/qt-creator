@@ -1323,6 +1323,55 @@ CPPEditor::Link CPPEditor::attemptFuncDeclDef(const QTextCursor &cursor, const D
     return result;
 }
 
+CPPEditor::Link CPPEditor::findMacroLink(const QByteArray &name) const
+{
+    if (! name.isEmpty()) {
+        if (Document::Ptr doc = m_lastSemanticInfo.doc) {
+            const Snapshot snapshot = m_modelManager->snapshot();
+            QSet<QString> processed;
+            return findMacroLink(name, doc, snapshot, &processed);
+        }
+    }
+
+    return Link();
+}
+
+CPPEditor::Link CPPEditor::findMacroLink(const QByteArray &name,
+                                         Document::Ptr doc,
+                                         const Snapshot &snapshot,
+                                         QSet<QString> *processed) const
+{
+    if (doc && ! name.startsWith('<') && ! processed->contains(doc->fileName())) {
+        processed->insert(doc->fileName());
+
+        foreach (const Macro &macro, doc->definedMacros()) {
+            if (macro.name() == name) {
+                Link link;
+                link.fileName = macro.fileName();
+                link.line = macro.line();
+                return link;
+            }
+        }
+
+        const QList<Document::Include> includes = doc->includes();
+        for (int index = includes.size() - 1; index != -1; --index) {
+            const Document::Include &i = includes.at(index);
+            Link link = findMacroLink(name, snapshot.document(i.fileName()), snapshot, processed);
+            if (! link.fileName.isEmpty())
+                return link;
+        }
+    }
+
+    return Link();
+}
+
+QString CPPEditor::identifierUnderCursor(QTextCursor *macroCursor) const
+{
+    macroCursor->movePosition(QTextCursor::StartOfWord);
+    macroCursor->movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+    return macroCursor->selectedText();
+}
+
 CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
                                       bool resolveTarget)
 {
@@ -1507,20 +1556,19 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
             link.end = endOfToken;
             return link;
         }
-    } else {
-        // Handle macro uses
-        const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1);
-        if (use && use->macro().fileName() != QLatin1String("<configuration>")) {
-            const Macro &macro = use->macro();
-            link.fileName = macro.fileName();
-            link.line = macro.line();
-            link.begin = use->begin();
-            link.end = use->end();
-            return link;
-        }
     }
 
-    return link;
+    // Handle macro uses
+    QTextCursor macroCursor = cursor;
+    const QByteArray name = identifierUnderCursor(&macroCursor).toLatin1();
+    link = findMacroLink(name);
+    if (! link.fileName.isEmpty()) {
+        link.begin = macroCursor.selectionStart();
+        link.end = macroCursor.selectionEnd();
+        return link;
+    }
+
+    return Link();
 }
 
 void CPPEditor::jumpToDefinition()

@@ -261,6 +261,10 @@ private:
                             const CPlusPlus::Document::Ptr &doc,
                             CPlusPlus::Snapshot snapshot) const;
     Link findLinkAt(const QTextCursor &, bool resolveTarget = true);
+    Link findMacroLink(const QByteArray &name) const;
+    Link findMacroLink(const QByteArray &name, CPlusPlus::Document::Ptr doc, const CPlusPlus::Snapshot &snapshot,
+                       QSet<QString> *processed) const;
+    QString identifierUnderCursor(QTextCursor *macroCursor) const;
     bool openCppEditorAt(const Link &);
 
     QModelIndex indexForPosition(int line, int column, const QModelIndex &rootIndex = QModelIndex()) const;
