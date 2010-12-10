@@ -33,6 +33,7 @@
 #include "common.h"
 
 #include <string>
+#include <vector>
 
 class SymbolGroupNode;
 
@@ -67,6 +68,7 @@ public:
     SymbolGroupValue pointerTypeCast(const char *type) const;
 
     std::string type() const;
+    std::vector<std::string>  innerTypes() const { return innerTypesOf(type()); }
     std::wstring value() const;
     unsigned size() const;
 
@@ -83,6 +85,9 @@ public:
 
     static inline unsigned sizeOf(const char *type) { return GetTypeSize(type); }
     static std::string stripPointerType(const std::string &);
+    static std::string stripArrayType(const std::string &);
+    // get the inner types: "QMap<int, double>" -> "int", "double"
+    static std::vector<std::string> innerTypesOf(const std::string &t);
 
 private:
     bool ensureExpanded() const;
@@ -143,7 +148,10 @@ KnownType knownType(const std::string &type);
 
 // Dump builtin simple types using SymbolGroupValue expressions,
 // returning SymbolGroupNode dumper flags.
-unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx, std::wstring *s);
+unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
+                        std::wstring *s,
+                        int *knownType = 0,
+                        int *containerSizeIn = 0);
 
 // Return size of container or -1
 int containerSize(KnownType ct, const SymbolGroupValue &v);

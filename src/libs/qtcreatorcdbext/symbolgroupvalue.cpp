@@ -220,6 +220,62 @@ std::string SymbolGroupValue::stripPointerType(const std::string &t)
     return endsWith(t, " *") ? t.substr(0, t.size() - 2) : t;
 }
 
+std::string SymbolGroupValue::stripArrayType(const std::string &t)
+{
+    const std::string::size_type bracket = t.rfind('[');
+    if (bracket != std::string::npos) {
+        std::string rc = t.substr(0, bracket);
+        trimBack(rc);
+        return rc;
+    }
+    return t;
+}
+
+// get the inner types: "QMap<int, double>" -> "int", "double"
+std::vector<std::string> SymbolGroupValue::innerTypesOf(const std::string &t)
+{
+    std::vector<std::string> rc;
+
+    std::string::size_type pos = t.find('<');
+    if (pos == std::string::npos)
+        return rc;
+
+    rc.reserve(5);
+    const std::string::size_type size = t.size();
+    // Record all elements of level 1 to work correctly for
+    // 'std::map<std::basic_string< .. > >'
+    unsigned level = 0;
+    std::string::size_type start = 0;
+    for ( ; pos < size ; pos++) {
+        const char c = t.at(pos);
+        switch (c) {
+        case '<':
+            if (++level == 1)
+                start = pos + 1;
+            break;
+        case '>':
+            if (--level == 0) { // last element
+                std::string innerType = t.substr(start, pos - start);
+                trimFront(innerType);
+                trimBack(innerType);
+                rc.push_back(innerType);
+                return rc;
+            }
+            break;
+        case ',':
+            if (level == 1) { // std::map<a, b>: start anew at ','.
+                std::string innerType = t.substr(start, pos - start);
+                trimFront(innerType);
+                trimBack(innerType);
+                rc.push_back(innerType);
+                start = pos + 1;
+            }
+            break;
+        }
+    }
+    return rc;
+}
+
 // -------------------- Simple dumping helpers
 
 // Courtesy of qdatetime.cpp
@@ -893,89 +949,98 @@ static inline std::wstring msgContainerSize(int s)
 }
 
 // Dump builtin simple types using SymbolGroupValue expressions.
-unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx, std::wstring *s)
+unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
+                        std::wstring *s, int *knownTypeIn /* = 0 */,
+                        int *containerSizeIn /* = 0 */)
 {
+    if (containerSizeIn)
+        *containerSizeIn = -1;
     // Check for class types and strip pointer types (references appear as pointers as well)
     s->clear();
     const KnownType kt  = knownType(n->type());
+    if (knownTypeIn)
+        *knownTypeIn = kt;
+
     if (kt == KT_Unknown)
-        return SymbolGroupNode::DumperNotApplicable;
+        return SymbolGroupNode::SimpleDumperNotApplicable;
 
     const SymbolGroupValue v(n, ctx);
     // Simple dump of size for containers
     if (kt & KT_ContainerType) {
         const int size = containerSize(kt, v);
+        if (containerSizeIn)
+            *containerSizeIn = size;
         if (size >= 0) {
             *s = msgContainerSize(size);
-            return SymbolGroupNode::DumperOk;
+            return SymbolGroupNode::SimpleDumperOk;
         }
-        return SymbolGroupNode::DumperFailed;
+        return SymbolGroupNode::SimpleDumperFailed;
     }
     std::wostringstream str;
-    unsigned rc = SymbolGroupNode::DumperNotApplicable;
+    unsigned rc = SymbolGroupNode::SimpleDumperNotApplicable;
     switch (kt) {
     case KT_QChar:
-        rc = dumpQChar(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQChar(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QByteArray:
-        rc = dumpQByteArray(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQByteArray(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QString:
-        rc = dumpQString(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQString(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QColor:
-        rc = dumpQColor(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQColor(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QFlags:
-        rc = dumpQFlags(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQFlags(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QDate:
-        rc = dumpQDate(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQDate(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QTime:
-        rc = dumpQTime(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQTime(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QPoint:
     case KT_QPointF:
-        rc = dumpQPoint_F(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQPoint_F(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QSize:
     case KT_QSizeF:
-        rc = dumpQSize_F(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQSize_F(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QLine:
     case KT_QLineF:
-        rc = dumpQLine_F(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQLine_F(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QRect:
-        rc = dumpQRect(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQRect(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QRectF:
-        rc = dumpQRectF(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQRectF(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QVariant:
-        rc = dumpQVariant(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQVariant(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QAtomicInt:
-        rc = dumpQAtomicInt(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQAtomicInt(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QBasicAtomicInt:
-        rc = dumpQBasicAtomicInt(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQBasicAtomicInt(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QObject:
-        rc = dumpQObject(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQObject(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QWidget:
-        rc = dumpQObject(v[unsigned(0)], str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpQObject(v[unsigned(0)], str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_StdString:
     case KT_StdWString:
-        rc = dumpStd_W_String(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        rc = dumpStd_W_String(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     default:
         break;
     }
-    if (rc == SymbolGroupNode::DumperOk)
+    if (rc == SymbolGroupNode::SimpleDumperOk)
         *s = str.str();
     return rc;
 }

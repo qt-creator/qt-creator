@@ -31,6 +31,7 @@
 #include "symbolgroupvalue.h"
 #include "stringutils.h"
 #include "base64.h"
+#include "containers.h"
 
 #include <algorithm>
 #include <sstream>
@@ -383,8 +384,10 @@ SymbolGroupNode::SymbolGroupNode(SymbolGroup *symbolGroup,
                                  const std::string &name,
                                  const std::string &iname,
                                  SymbolGroupNode *parent) :
-    m_symbolGroup(symbolGroup), m_parent(parent), m_index(index),
-    m_name(name), m_iname(iname), m_flags(0)
+    m_symbolGroup(symbolGroup), m_parent(parent),
+    m_index(index), m_referencedBy(0),
+    m_name(name), m_iname(iname), m_flags(0), m_dumperType(-1),
+    m_dumperContainerSize(-1)
 {
     memset(&m_parameters, 0, sizeof(DEBUG_SYMBOL_PARAMETERS));
     m_parameters.ParentSymbol = DEBUG_ANY_ID;
@@ -394,10 +397,21 @@ void SymbolGroupNode::removeChildren()
 {
     if (!m_children.empty()) {
         const SymbolGroupNodePtrVectorIterator end = m_children.end();
-        for (SymbolGroupNodePtrVectorIterator it = m_children.begin(); it != end; ++it)
-            delete *it;
+        for (SymbolGroupNodePtrVectorIterator it = m_children.begin(); it != end; ++it) {
+            SymbolGroupNode *child = *it;
+            if (child->parent() == this) // Do not delete references
+                delete child;
+        }
         m_children.clear();
     }
+}
+
+void SymbolGroupNode::setReferencedBy(SymbolGroupNode *n)
+{
+    if (m_referencedBy)
+        dprintf("Internal error: Node %s Clearing reference by %s",
+                name().c_str(), m_referencedBy->name().c_str());
+    m_referencedBy = n;
 }
 
 bool SymbolGroupNode::isArrayElement() const
@@ -415,9 +429,12 @@ bool SymbolGroupNode::notifyExpanded(ULONG index, ULONG insertedCount)
     // Looping backwards over the children. If a subtree has no modifications,
     // (meaning all other indexes are smaller) we can stop.
     const ReverseIt rend = m_children.rend();
-    for (ReverseIt it = m_children.rbegin(); it != rend; ++it)
-        if (!(*it)->notifyExpanded(index, insertedCount))
-            return false;
+    for (ReverseIt it = m_children.rbegin(); it != rend; ++it) {
+        SymbolGroupNode *c = *it;
+        if (c->parent() == this) // Skip fake children that are referenced only
+            if (!(*it)->notifyExpanded(index, insertedCount))
+                return false;
+    }
 
     // Correct our own + parent index if applicable.
     if (m_index == DEBUG_ANY_ID || m_index < index)
@@ -433,7 +450,7 @@ bool SymbolGroupNode::notifyExpanded(ULONG index, ULONG insertedCount)
 std::string SymbolGroupNode::fullIName() const
 {
     std::string rc = iName();
-    for (const SymbolGroupNode *p = parent(); p; p = p->parent()) {
+    for (const SymbolGroupNode *p = referencedParent(); p; p = p->referencedParent()) {
         rc.insert(0, 1, '.');
         rc.insert(0, p->iName());
     }
@@ -706,15 +723,45 @@ std::wstring SymbolGroupNode::symbolGroupFixedValue() const
     return value;
 }
 
-// Value to be reported to debugger
-std::wstring SymbolGroupNode::displayValue(const SymbolGroupValueContext &ctx)
+// Complex dumpers: Get container/fake children
+void SymbolGroupNode::runComplexDumpers(const SymbolGroupValueContext &ctx)
+{
+    if (m_dumperContainerSize <= 0 || (m_flags & ComplexDumperOk) || !(m_flags & SimpleDumperOk))
+        return;
+    m_flags |= ComplexDumperOk;
+    const SymbolGroupNodePtrVector children =
+            containerChildren(this, m_dumperType, m_dumperContainerSize, ctx);
+    m_dumperContainerSize = int(children.size()); // Just in case...
+    if (children.empty())
+        return;
+
+    clearFlags(ExpandedByDumper);
+    // Mark current children as obscured. We cannot show both currently
+    // as this would upset the numerical sorting of the watch model
+    SymbolGroupNodePtrVectorConstIterator cend = m_children.end();
+    for (SymbolGroupNodePtrVectorConstIterator it = m_children.begin(); it != cend; ++it)
+        (*it)->addFlags(Obscured);
+    // Add children and mark them as referenced by us.
+    cend = children.end();
+    for (SymbolGroupNodePtrVectorConstIterator it = children.begin(); it != cend; ++it) {
+        SymbolGroupNode *c = *it;
+        c->setReferencedBy(this);
+        m_children.push_back(c);
+    }
+}
+
+// Run dumpers, format simple in-line dumper value and retrieve fake children
+std::wstring SymbolGroupNode::simpleDumpValue(const SymbolGroupValueContext &ctx,
+                                        const DumpParameters &)
 {
     if (m_flags & Uninitialized)
         return L"<not in scope>";
-    if ((m_flags & DumperMask) == 0)
-        m_flags |= dumpSimpleType(this , ctx, &m_dumperValue);
-    if (m_flags & DumperOk)
-        return m_dumperValue;
+    if ((m_flags & SimpleDumperMask) == 0) {
+        m_flags |= dumpSimpleType(this , ctx, &m_dumperValue,
+                                  &m_dumperType, &m_dumperContainerSize);
+        if (m_flags & SimpleDumperOk)
+            return m_dumperValue;
+    }
     return symbolGroupFixedValue();
 }
 
@@ -765,7 +812,7 @@ void SymbolGroupNode::dump(std::ostream &str,
     bool valueEnabled = !uninitialized;
 
     // Shall it be recoded?
-    std::wstring value = displayValue(ctx);
+    std::wstring value = simpleDumpValue(ctx, p);
     int encoding = 0;
     if (p.recode(t, iname, ctx, &value, &encoding)) {
         str << ",valueencoded=\"" << encoding
@@ -780,9 +827,19 @@ void SymbolGroupNode::dump(std::ostream &str,
             str << '"';
         }
     }
-    // Children: Dump all known or subelements (guess).
-    const VectorIndexType childCountGuess = uninitialized ? 0 :
-             (m_children.empty() ? m_parameters.SubElements : m_children.size());
+    // Children: Dump all known non-obscured or subelements
+    unsigned childCountGuess = 0;
+    if (!uninitialized) {
+        if (m_dumperContainerSize > 0) {
+            childCountGuess = m_dumperContainerSize; // See Obscured handling
+        } else {
+            if (m_children.empty()) {
+                childCountGuess = m_parameters.SubElements; // Guess
+            } else {
+                childCountGuess = unsigned(m_children.size());
+            }
+        }
+    }
     // No children..suppose we are editable and enabled
     if (childCountGuess != 0)
         valueEditable = false;
@@ -822,6 +879,8 @@ void SymbolGroupNode::debug(std::ostream &str, unsigned verbosity, unsigned dept
 {
     indentStream(str, depth);
     str << '"' << fullIName() << "\",index=" << m_index;
+    if (m_referencedBy)
+        str << ",referenced by \"" << m_referencedBy->fullIName() << '"';
     if (const VectorIndexType childCount = m_children.size())
         str << ", Children=" << childCount;
     str << ' ' << m_parameters;
@@ -829,23 +888,36 @@ void SymbolGroupNode::debug(std::ostream &str, unsigned verbosity, unsigned dept
         str << " node-flags=" << m_flags;
         if (m_flags & Uninitialized)
             str << " UNINITIALIZED";
-        if (m_flags & DumperNotApplicable)
+        if (m_flags & SimpleDumperNotApplicable)
             str << " DumperNotApplicable";
-        if (m_flags & DumperOk)
+        if (m_flags & SimpleDumperOk)
             str << " DumperOk";
-        if (m_flags & DumperFailed)
+        if (m_flags & SimpleDumperFailed)
             str << " DumperFailed";
         if (m_flags & ExpandedByDumper)
             str << " ExpandedByDumper";
         if (m_flags & AdditionalSymbol)
             str << " AdditionalSymbol";
+        if (m_flags & Obscured)
+            str << " Obscured";
+        if (m_flags & ComplexDumperOk)
+            str << " ComplexDumperOk";
         str << ' ';
     }
     if (verbosity) {
         str << ",name=\"" << m_name << "\", Address=0x" << std::hex << address() << std::dec
             << " Type=\"" << type() << '"';
+        if (m_dumperType >= 0) {
+            str << " ,dumperType=" << m_dumperType;
+            if (m_dumperType & KT_Qt_Type)
+                str << " qt";
+            if (m_dumperType & KT_STL_Type)
+                str << " STL";
+            if (m_dumperType & KT_ContainerType)
+                str << " container(" << m_dumperContainerSize << ')';
+        }
         if (!(m_flags & Uninitialized))
-            str << "\" Value=\"" << gdbmiWStringFormat(symbolGroupRawValue()) << '"';
+            str << " Value=\"" << gdbmiWStringFormat(symbolGroupRawValue()) << '"';
     }
     str << '\n';
 }
@@ -997,6 +1069,9 @@ std::string SymbolGroup::dump(const std::string &iname,
         if (node->canExpand() && !node->expand(errorMessage))
             return false;
     }
+    // After expansion, run the complex dumpers
+    if (p.dumpFlags & DumpParameters::DumpComplexDumpers)
+        node->runComplexDumpers(ctx);
     std::ostringstream str;
     if (p.humanReadable())
         str << '\n';
@@ -1237,22 +1312,28 @@ DumpSymbolGroupNodeVisitor::DumpSymbolGroupNodeVisitor(std::ostream &os,
                                                        const SymbolGroupValueContext &context,
                                                        const DumpParameters &parameters) :
     m_os(os), m_context(context), m_parameters(parameters),
-    m_visitChildren(false)
+    m_visitChildren(false),m_lastDepth(unsigned(-1))
 {
 }
 
 SymbolGroupNodeVisitor::VisitResult
-    DumpSymbolGroupNodeVisitor::visit(SymbolGroupNode *node, unsigned child, unsigned depth)
+    DumpSymbolGroupNodeVisitor::visit(SymbolGroupNode *node, unsigned /* child */, unsigned depth)
 {
-    // Recurse to children if expanded by explicit watchmodel request
+    // Show container children only
+    if (node->flags() & SymbolGroupNode::Obscured)
+        return VisitSkipChildren;
+    // Recurse to children only if expanded by explicit watchmodel request
     // and initialized.
     const unsigned flags = node->flags();
     m_visitChildren = node->isExpanded()
             && (flags & (SymbolGroupNode::Uninitialized|SymbolGroupNode::ExpandedByDumper)) == 0;
 
-    // Do not recurse into children unless the node was expanded by the watch model
-    if (child)
-        m_os << ','; // Separator in parents list
+    // Comma between same level children given obscured children
+    if (depth == m_lastDepth) {
+        m_os << ',';
+    } else {
+        m_lastDepth = depth;
+    }
     if (m_parameters.humanReadable()) {
         m_os << '\n';
         indentStream(m_os, depth * 2);
@@ -1269,9 +1350,9 @@ SymbolGroupNodeVisitor::VisitResult
     return m_visitChildren ? VisitContinue : VisitSkipChildren;
 }
 
-void DumpSymbolGroupNodeVisitor::childrenVisited(const SymbolGroupNode *, unsigned)
+void DumpSymbolGroupNodeVisitor::childrenVisited(const SymbolGroupNode *n, unsigned)
 {
     m_os << "]}"; // Close children array and self
     if (m_parameters.humanReadable())
-        m_os << '\n';
+        m_os << "   /* end of '" << n->fullIName() << "' */\n";
 }

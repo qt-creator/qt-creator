@@ -68,13 +68,21 @@ struct DumpParameters
     FormatMap individualFormats;
 };
 
-// Thin wrapper around a symbol group entry. Provides accessors for fixed-up
-// symbol group value and a dumping facility triggered by dump()/displayValue()
-// calling dumpSimpleType() based on SymbolGroupValue expressions. These values
-// values should be displayed, still allowing for expansion of the structure
-// in the debugger. Evaluating the dumpers might expand symbol nodes, which are
-// then marked as 'ExpandedByDumper'. This stops the dump recursion to prevent
-// outputting data that were not explicitly expanded by the watch handler.
+/* Thin wrapper around a symbol group entry. Provides accessors for fixed-up
+ * symbol group value and a dumping facility consisting of:
+ * - 'Simple' dumping done when running the DumpVisitor. This produces one
+ *   line of formatted output shown for the class. These values
+ *   values should are displayed, while still allowing for expansion of the structure
+ *   in the debugger.
+ *   It also pre-determines some information for complex dumping (type, container).
+ * - 'Complex' dumping: Obscures the symbol group children by fake children, for
+ *   example container children, run when calling SymbolGroup::dump with an iname.
+ *   The fake children are appended to the child list (other children are just marked as
+ *   obscured for GDBMI dumping so that SymbolGroupValue expressions still work as before).
+ * The dumping is mostly based on SymbolGroupValue expressions.
+ * in the debugger. Evaluating those dumpers might expand symbol nodes, which are
+ * then marked as 'ExpandedByDumper'. This stops the dump recursion to prevent
+ * outputting data that were not explicitly expanded by the watch handler. */
 
 class SymbolGroupNode {
     SymbolGroupNode(const SymbolGroupNode&);
@@ -89,12 +97,14 @@ class SymbolGroupNode {
 public:
     enum Flags {
         Uninitialized = 0x1,
-        DumperNotApplicable = 0x2, // No dumper available for type
-        DumperOk = 0x4,     // Internal dumper ran, value set
-        DumperFailed = 0x8, // Internal dumper failed
-        DumperMask = DumperNotApplicable|DumperOk|DumperFailed,
+        SimpleDumperNotApplicable = 0x2, // No dumper available for type
+        SimpleDumperOk = 0x4,     // Internal dumper ran, value set
+        SimpleDumperFailed = 0x8, // Internal dumper failed
+        SimpleDumperMask = SimpleDumperNotApplicable|SimpleDumperOk|SimpleDumperFailed,
         ExpandedByDumper = 0x10,
-        AdditionalSymbol = 0x20 // Introduced by addSymbol, should not be visible
+        AdditionalSymbol = 0x20, // Introduced by addSymbol, should not be visible
+        Obscured = 0x40,    // Symbol is obscured by (for example) fake container children
+        ComplexDumperOk = 0x80
     };
 
     typedef std::vector<DEBUG_SYMBOL_PARAMETERS> SymbolParameterVector;
@@ -103,6 +113,9 @@ public:
     typedef SymbolGroupNodePtrVector::const_iterator SymbolGroupNodePtrVectorConstIterator;
 
     ~SymbolGroupNode() { removeChildren(); }
+
+    // Indicate reference
+    void setReferencedBy(SymbolGroupNode *n);
 
     void removeChildren();
     void parseParameters(SymbolParameterVector::size_type index,
@@ -126,6 +139,7 @@ public:
     SymbolGroupNode *childByIName(const char *) const;
 
     const SymbolGroupNode *parent() const { return m_parent; }
+    const SymbolGroupNode *referencedParent() const { return m_referencedBy ? m_referencedBy : m_parent; }
     SymbolGroup *symbolGroup() const { return m_symbolGroup; }
 
     // I/O: Gdbmi dump for Visitors
@@ -135,9 +149,10 @@ public:
 
     std::wstring symbolGroupRawValue() const;
     std::wstring symbolGroupFixedValue() const;
-    std::wstring displayValue(const SymbolGroupValueContext &ctx);
 
     std::string type() const;
+    int dumperType() const { return m_dumperType; } // Valid after dumper run
+    int dumperContainerSize() { return m_dumperContainerSize; } // Valid after dumper run
     unsigned size() const; // Size of value
     ULONG64 address() const;
 
@@ -146,6 +161,7 @@ public:
     bool expand(std::string *errorMessage);
     bool isExpanded() const { return !m_children.empty(); }
     bool canExpand() const { return m_parameters.SubElements > 0; }
+    void runComplexDumpers(const SymbolGroupValueContext &ctx);
     // Cast to a different type. Works only on unexpanded nodes
     bool typeCast(const std::string &desiredType, std::string *errorMessage);
 
@@ -161,9 +177,13 @@ private:
     bool isArrayElement() const;
     // Notify about expansion of a node, shift indexes
     bool notifyExpanded(ULONG index, ULONG insertedCount);
+    std::wstring simpleDumpValue(const SymbolGroupValueContext &ctx,
+                                 const DumpParameters &p);
 
     SymbolGroup *const m_symbolGroup;
     SymbolGroupNode *m_parent;
+    // Indicates a fake child (container value). Used for the full iname
+    SymbolGroupNode *m_referencedBy;
     ULONG m_index;
     DEBUG_SYMBOL_PARAMETERS m_parameters; // Careful when using ParentSymbol. It might not be correct.
     SymbolGroupNodePtrVector m_children;
@@ -171,6 +191,8 @@ private:
     const std::string m_iname;
     unsigned m_flags;
     std::wstring m_dumperValue;
+    int m_dumperType;
+    int m_dumperContainerSize;
 };
 
 /* Visitor that takes care of iterating over the nodes
@@ -312,6 +334,7 @@ private:
     const SymbolGroupValueContext &m_context;
     const DumpParameters &m_parameters;
     bool m_visitChildren;
+    unsigned m_lastDepth;
 };
 
 #endif // SYMBOLGROUP_H
