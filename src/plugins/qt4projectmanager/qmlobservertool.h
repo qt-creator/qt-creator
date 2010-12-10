@@ -33,6 +33,8 @@
 #include <utils/buildablehelperlibrary.h>
 #include "qt4projectmanager_global.h"
 
+QT_FORWARD_DECLARE_CLASS(QDir);
+
 namespace Utils {
     class Environment;
 }
@@ -63,6 +65,7 @@ public:
     static QString copy(const QString &qtInstallData, QString *errorMessage);
 
 private:
+    static QStringList recursiveFileList(const QDir &dir, const QString &prefix = QString());
     static QStringList installDirectories(const QString &qtInstallData);
 
 };

@@ -168,6 +168,10 @@ bool BuildableHelperLibrary::copyFiles(const QString &sourcePath,
                 return false;
             }
         }
+        if (!destInfo.dir().exists()) {
+            QDir().mkpath(destInfo.dir().absolutePath());
+        }
+
         if (!QFile::copy(source, dest)) {
             *errorMessage = QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary", "The file %1 could not be copied to %2.").arg(source, dest);
             return false;

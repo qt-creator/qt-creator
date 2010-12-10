@@ -124,83 +124,24 @@ QString QmlObserverTool::copy(const QString &qtInstallData, QString *errorMessag
 {
     const QStringList directories = QmlObserverTool::installDirectories(qtInstallData);
 
-    QStringList files;
-    files << QLatin1String("main.cpp") << QLatin1String("qmlobserver.pro")
-          << QLatin1String("deviceorientation.cpp") << QLatin1String("deviceorientation.h")
-          << QLatin1String("deviceorientation_maemo5.cpp") << QLatin1String("Info_mac.plist")
-          << QLatin1String("loggerwidget.cpp") << QLatin1String("loggerwidget.h")
-          << QLatin1String("proxysettings.cpp") << QLatin1String("proxysettings.h")
-          << QLatin1String("proxysettings.ui") << QLatin1String("proxysettings_maemo5.ui")
-          << QLatin1String("qdeclarativetester.cpp") << QLatin1String("qdeclarativetester.h")
-          << QLatin1String("qml.icns") << QLatin1String("qml.pri")
-          << QLatin1String("qmlruntime.cpp") << QLatin1String("qmlruntime.h")
-          << QLatin1String("qmlruntime.qrc") << QLatin1String("recopts.ui")
-          << QLatin1String("recopts_maemo5.ui")
-          << QLatin1String("texteditautoresizer_maemo5.h")
-          << QLatin1String("content/Browser.qml") << QLatin1String("content/images/folder.png")
-          << QLatin1String("content/images/titlebar.png") << QLatin1String("content/images/titlebar.sci")
-          << QLatin1String("content/images/up.png")
-          << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT");
-
-    QStringList debuggerLibFiles;
-    debuggerLibFiles << QLatin1String("jsdebuggeragent.cpp")
-          << QLatin1String("qdeclarativeobserverservice.cpp") << QLatin1String("qdeclarativeviewobserver.cpp")
-          << QLatin1String("qdeclarativeviewobserver_p.h") << QLatin1String("qmljsdebugger.pri")
-          << QLatin1String("qmljsdebugger.pro") << QLatin1String("qmljsdebugger-lib.pri")
-          << QLatin1String("include/jsdebuggeragent.h") << QLatin1String("include/qdeclarativeobserverservice.h")
-          << QLatin1String("include/qdeclarativeviewobserver.h") << QLatin1String("include/qmljsdebugger_global.h")
-          << QLatin1String("include/qmlobserverconstants.h")
-          << QLatin1String("include/qt_private/qdeclarativedebughelper_p.h")
-          << QLatin1String("include/qt_private/qdeclarativedebugservice_p.h");
-
-    QStringList debuggerLibEditorFiles;
-    debuggerLibEditorFiles << QLatin1String("abstractformeditortool.cpp") << QLatin1String("abstractformeditortool.h")
-          << QLatin1String("boundingrecthighlighter.cpp") << QLatin1String("boundingrecthighlighter.h")
-          << QLatin1String("colorpickertool.cpp") << QLatin1String("colorpickertool.h")
-          << QLatin1String("editor.qrc")
-          << QLatin1String("layeritem.cpp") << QLatin1String("layeritem.h")
-          << QLatin1String("qmltoolbar.cpp") << QLatin1String("qmltoolbar.h")
-          << QLatin1String("rubberbandselectionmanipulator.cpp")
-          << QLatin1String("rubberbandselectionmanipulator.h") << QLatin1String("selectionindicator.cpp")
-          << QLatin1String("selectionindicator.h") << QLatin1String("selectionrectangle.cpp")
-          << QLatin1String("selectionrectangle.h") << QLatin1String("selectiontool.cpp")
-          << QLatin1String("selectiontool.h") << QLatin1String("singleselectionmanipulator.cpp")
-          << QLatin1String("singleselectionmanipulator.h") << QLatin1String("subcomponenteditortool.cpp")
-          << QLatin1String("subcomponenteditortool.h") << QLatin1String("subcomponentmasklayeritem.cpp")
-          << QLatin1String("subcomponentmasklayeritem.h") << QLatin1String("toolbarcolorbox.cpp")
-          << QLatin1String("toolbarcolorbox.h") << QLatin1String("zoomtool.cpp")
-          << QLatin1String("zoomtool.h") << QLatin1String("images/color-picker.png")
-          << QLatin1String("images/color-picker-24.png") << QLatin1String("images/color-picker-hicontrast.png")
-          << QLatin1String("images/from-qml.png") << QLatin1String("images/from-qml-24.png")
-          << QLatin1String("images/observermode.png") << QLatin1String("images/observermode-24.png")
-          << QLatin1String("images/pause.png") << QLatin1String("images/pause-24.png")
-          << QLatin1String("images/play.png") << QLatin1String("images/play-24.png")
-          << QLatin1String("images/reload.png") << QLatin1String("images/resize_handle.png")
-          << QLatin1String("images/select.png") << QLatin1String("images/select-24.png")
-          << QLatin1String("images/select-marquee.png") << QLatin1String("images/select-marquee-24.png")
-          << QLatin1String("images/to-qml.png") << QLatin1String("images/to-qml-24.png")
-          << QLatin1String("images/zoom.png") << QLatin1String("images/zoom-24.png");
-
     QString sourcePath = Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmlobserver/");
     QString libSourcePath = Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmljsdebugger/");
-    QString libEditorSourcePath = Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmljsdebugger/editor/");
+
+    QStringList observerFiles = recursiveFileList(QDir(sourcePath));
+    QStringList qmljsDebuggerFiles = recursiveFileList(QDir(libSourcePath));
 
     // Try to find a writeable directory.
     foreach(const QString &directory, directories) {
-        if (!mkpath(directory + QLatin1String("/content/images"), errorMessage)
-            || !mkpath(directory + QLatin1String("/images"), errorMessage)
-            || !mkpath(directory + QLatin1String("/qmljsdebugger/editor/images"), errorMessage)
-            || !mkpath(directory + QLatin1String("/qmljsdebugger/include"), errorMessage)
-            || !mkpath(directory + QLatin1String("/qmljsdebugger/include/qt_private"), errorMessage))
-        {
+        if (!mkpath(directory, errorMessage)) {
             continue;
         } else {
             errorMessage->clear();
         }
 
-        if (copyFiles(sourcePath, files, directory, errorMessage)
-         && copyFiles(libSourcePath, debuggerLibFiles, directory + QLatin1String("/qmljsdebugger/"), errorMessage)
-         && copyFiles(libEditorSourcePath, debuggerLibEditorFiles, directory + QLatin1String("/qmljsdebugger/editor/"), errorMessage))
+        qDebug() << observerFiles;
+        if (copyFiles(sourcePath, observerFiles, directory, errorMessage)
+                && copyFiles(libSourcePath, qmljsDebuggerFiles,
+                             directory + QLatin1String("/qmljsdebugger/"), errorMessage))
         {
             errorMessage->clear();
             return directory;
@@ -210,6 +151,24 @@ QString QmlObserverTool::copy(const QString &qtInstallData, QString *errorMessag
                                                 "QMLObserver could not be built in any of the directories:\n- %1\n\nReason: %2")
                     .arg(directories.join(QLatin1String("\n- ")), *errorMessage);
     return QString();
+}
+
+QStringList QmlObserverTool::recursiveFileList(const QDir &dir, const QString &prefix)
+{
+    QStringList files;
+
+    QString _prefix = prefix;
+    if (!_prefix.isEmpty() && !_prefix.endsWith('/')) {
+        _prefix = _prefix + '/';
+    }
+    foreach (const QString &fileName, dir.entryList(QDir::Files)) {
+        files << _prefix + fileName;
+    }
+
+    foreach (const QString &subDir, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        files += recursiveFileList(QDir(dir.absoluteFilePath(subDir)), _prefix + subDir);
+    }
+    return files;
 }
 
 QStringList QmlObserverTool::installDirectories(const QString &qtInstallData)
