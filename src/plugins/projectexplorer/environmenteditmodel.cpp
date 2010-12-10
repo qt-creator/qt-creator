@@ -294,7 +294,7 @@ QModelIndex EnvironmentModel::addVariable(const Utils::EnvironmentItem &item)
 
     // Return existing index if the name is already in the result set:
     int pos = findInResult(item.name);
-    if (pos < m_resultEnvironment.size())
+    if (pos >= 0 && pos < m_resultEnvironment.size())
         return index(pos, 0, QModelIndex());
 
     int insertPos = findInResultInsertPosition(item.name);
