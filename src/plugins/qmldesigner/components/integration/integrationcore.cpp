@@ -29,7 +29,7 @@
 
 #include "integrationcore.h"
 #include "pluginmanager.h"
-#include "itemlibrary.h"
+#include "itemlibraryview.h"
 #include "navigatorwidget.h"
 #include "metainfo.h"
 
