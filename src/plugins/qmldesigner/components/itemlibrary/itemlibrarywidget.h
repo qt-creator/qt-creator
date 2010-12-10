@@ -27,26 +27,26 @@
 **
 **************************************************************************/
 
-#ifndef ITEMLIBRARY_H
-#define ITEMLIBRARY_H
+#ifndef ITEMLIBRARYWIDGET_H
+#define ITEMLIBRARYWIDGET_H
 
 #include "itemlibraryinfo.h"
 #include <QtGui/QFrame>
 
 namespace QmlDesigner {
 
-class ItemLibraryPrivate;
+class ItemLibraryWidgetPrivate;
 class MetaInfo;
 class ItemLibraryEntry;
 
-class ItemLibrary : public QFrame
+class ItemLibraryWidget : public QFrame
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ItemLibrary)
+    Q_DISABLE_COPY(ItemLibraryWidget)
 
 public:
-    ItemLibrary(QWidget *parent = 0);
-    virtual ~ItemLibrary();
+    ItemLibraryWidget(QWidget *parent = 0);
+    virtual ~ItemLibraryWidget();
 
     void setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo);
 
@@ -69,10 +69,10 @@ signals:
     void resetItemsView();
 
 private:
-    ItemLibraryPrivate *m_d;
+    ItemLibraryWidgetPrivate *m_d;
 };
 
 }
 
-#endif // ITEMLIBRARY_H
+#endif // ITEMLIBRARYWIDGET_H
 

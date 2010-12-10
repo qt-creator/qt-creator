@@ -39,7 +39,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class ItemLibrary;
+class ItemLibraryWidget;
 class FormWindowManager;
 class PluginManager;
 class CorePrivate;

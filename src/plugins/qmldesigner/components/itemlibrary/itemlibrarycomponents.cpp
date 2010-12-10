@@ -27,8 +27,7 @@
 **
 **************************************************************************/
 
-#include "itemlibrarywidgets.h"
-#include "itemlibrary.h"
+#include "itemlibrarycomponents.h"
 #include "customdraganddrop.h"
 
 #include <QtCore/QMimeData>

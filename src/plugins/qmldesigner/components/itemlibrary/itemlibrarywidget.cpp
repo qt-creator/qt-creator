@@ -27,10 +27,10 @@
 **
 **************************************************************************/
 
-#include "itemlibrary.h"
+#include "itemlibrarywidget.h"
 
 #include <utils/filterlineedit.h>
-#include "itemlibrarywidgets.h"
+#include "itemlibrarycomponents.h"
 #include "itemlibrarymodel.h"
 #include "itemlibraryimageprovider.h"
 #include "customdraganddrop.h"
@@ -92,9 +92,9 @@ private:
 
 
 // ---------- ItemLibraryPrivate
-class ItemLibraryPrivate {
+class ItemLibraryWidgetPrivate {
 public:
-    ItemLibraryPrivate(QObject *object);
+    ItemLibraryWidgetPrivate(QObject *object);
 
     Internal::ItemLibraryModel *m_itemLibraryModel;
     QDirModel *m_resourcesDirModel;
@@ -109,7 +109,7 @@ public:
     MyFileIconProvider m_iconProvider;
 };
 
-ItemLibraryPrivate::ItemLibraryPrivate(QObject *object) :
+ItemLibraryWidgetPrivate::ItemLibraryWidgetPrivate(QObject *object) :
     m_itemLibraryModel(0),
     m_resourcesDirModel(0),
     m_stackedWidget(0),
@@ -123,9 +123,9 @@ ItemLibraryPrivate::ItemLibraryPrivate(QObject *object) :
     Q_UNUSED(object);
 }
 
-ItemLibrary::ItemLibrary(QWidget *parent) :
+ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     QFrame(parent),
-    m_d(new ItemLibraryPrivate(this))
+    m_d(new ItemLibraryWidgetPrivate(this))
 {
     setWindowTitle(tr("Library", "Title of library view"));
 
@@ -230,7 +230,7 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
     }
 }
 
-ItemLibrary::~ItemLibrary()
+ItemLibraryWidget::~ItemLibraryWidget()
 {
     /* workaround: delete the items view before the model is deleted.
        This prevents qml warnings when the item library is destructed. */
@@ -239,7 +239,7 @@ ItemLibrary::~ItemLibrary()
     delete m_d;
 }
 
-void ItemLibrary::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
+void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
 {
     if (m_d->m_itemLibraryInfo.data() == itemLibraryInfo)
         return;
@@ -256,7 +256,7 @@ void ItemLibrary::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
     updateSearch();
 }
 
-void ItemLibrary::setSearchFilter(const QString &searchFilter)
+void ItemLibraryWidget::setSearchFilter(const QString &searchFilter)
 {
     if (m_d->m_stackedWidget->currentIndex() == 0) {
         m_d->m_itemLibraryModel->setSearchText(searchFilter);
@@ -279,25 +279,25 @@ void ItemLibrary::setSearchFilter(const QString &searchFilter)
     }
 }
 
-void ItemLibrary::updateModel()
+void ItemLibraryWidget::updateModel()
 {
     m_d->m_itemLibraryModel->update(m_d->m_itemLibraryInfo.data());
     updateSearch();
 }
 
-void ItemLibrary::updateSearch()
+void ItemLibraryWidget::updateSearch()
 {
     setSearchFilter(m_d->m_lineEdit->text());
 }
 
-void ItemLibrary::setResourcePath(const QString &resourcePath)
+void ItemLibraryWidget::setResourcePath(const QString &resourcePath)
 {
     if (m_d->m_resourcesView->model() == m_d->m_resourcesDirModel)
         m_d->m_resourcesView->setRootIndex(m_d->m_resourcesDirModel->index(resourcePath));
     updateSearch();
 }
 
-void ItemLibrary::startDragAndDrop(int itemLibId)
+void ItemLibraryWidget::startDragAndDrop(int itemLibId)
 {
     QMimeData *mimeData = m_d->m_itemLibraryModel->getMimeData(itemLibId);
     CustomItemLibraryDrag *drag = new CustomItemLibraryDrag(this);
@@ -313,12 +313,12 @@ void ItemLibrary::startDragAndDrop(int itemLibId)
     drag->exec();
 }
 
-void ItemLibrary::showItemInfo(int /*itemLibId*/)
+void ItemLibraryWidget::showItemInfo(int /*itemLibId*/)
 {
 //    qDebug() << "showing item info about id" << itemLibId;
 }
 
-void ItemLibrary::wheelEvent(QWheelEvent *event)
+void ItemLibraryWidget::wheelEvent(QWheelEvent *event)
 {
     if (m_d->m_stackedWidget->currentIndex() == 0 &&
         m_d->m_itemsView->rect().contains(event->pos())) {

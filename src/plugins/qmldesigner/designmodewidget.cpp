@@ -36,6 +36,8 @@
 #include <rewriterview.h>
 #include <formeditorwidget.h>
 #include <stateseditorwidget.h>
+#include <itemlibrarywidget.h>
+
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
@@ -263,7 +265,7 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
             newDocument->setAllPropertiesBox(m_allPropertiesBox.data());
             newDocument->setNavigator(m_navigator.data());
             newDocument->setStatesEditorView(m_statesEditorView.data());
-            newDocument->setItemLibrary(m_itemLibrary.data());
+            newDocument->setItemLibraryView(m_itemLibraryView.data());
             newDocument->setFormEditorView(m_formEditorView.data());
 
 
@@ -626,7 +628,7 @@ void DesignModeWidget::setup()
      // Sidebar takes ownership
     m_navigator = new NavigatorView;
     m_allPropertiesBox = new AllPropertiesBox;
-    m_itemLibrary = new ItemLibrary;
+    m_itemLibraryView = new ItemLibraryView(this);
 
     m_statesEditorView = new StatesEditorView(this);
     
@@ -642,7 +644,7 @@ void DesignModeWidget::setup()
     m_warningWidget->setVisible(false);
 
     Core::SideBarItem *navigatorItem = new Core::SideBarItem(m_navigator->widget(), QLatin1String(SB_NAVIGATOR));
-    Core::SideBarItem *libraryItem = new Core::SideBarItem(m_itemLibrary.data(), QLatin1String(SB_LIBRARY));
+    Core::SideBarItem *libraryItem = new Core::SideBarItem(m_itemLibraryView->widget(), QLatin1String(SB_LIBRARY));
     Core::SideBarItem *propertiesItem = new Core::SideBarItem(m_allPropertiesBox.data(), QLatin1String(SB_PROPERTIES));
 
     // default items

@@ -35,7 +35,8 @@
 #include "model/viewlogger.h"
 
 #include <allpropertiesbox.h>
-#include <itemlibrary.h>
+#include <itemlibraryview.h>
+#include <itemlibrarywidget.h>
 #include <navigatorview.h>
 #include <stateseditorview.h>
 #include <formeditorview.h>
@@ -84,7 +85,7 @@ class DesignDocumentControllerPrivate {
 public:
     QWeakPointer<FormEditorView> formEditorView;
 
-    QWeakPointer<ItemLibrary> itemLibrary;
+    QWeakPointer<ItemLibraryView> itemLibraryView;
     QWeakPointer<NavigatorView> navigator;
     QWeakPointer<AllPropertiesBox> allPropertiesBox;
     QWeakPointer<StatesEditorView> statesEditorView;
@@ -190,9 +191,9 @@ QList<RewriterView::Error> DesignDocumentController::qmlErrors() const
     return m_d->rewriterView->errors();
 }
 
-void DesignDocumentController::setItemLibrary(ItemLibrary* itemLibrary)
+void DesignDocumentController::setItemLibraryView(ItemLibraryView* itemLibraryView)
 {
-    m_d->itemLibrary = itemLibrary;
+    m_d->itemLibraryView = itemLibraryView;
 }
 
 void DesignDocumentController::setNavigator(NavigatorView* navigatorView)
@@ -246,8 +247,8 @@ void DesignDocumentController::setFileName(const QString &fileName)
     if (m_d->model)
         m_d->model->setFileUrl(m_d->searchPath);
 
-    if (m_d->itemLibrary)
-        m_d->itemLibrary->setResourcePath(QFileInfo(fileName).absolutePath());
+    if (m_d->itemLibraryView)
+        m_d->itemLibraryView->widget()->setResourcePath(QFileInfo(fileName).absolutePath());
     emit displayNameChanged(displayName());
 }
 
@@ -354,8 +355,8 @@ void DesignDocumentController::loadCurrentModel()
 
     m_d->model->attachView(m_d->nodeInstanceView.data());
     m_d->model->attachView(m_d->navigator.data());
-    m_d->itemLibrary->setItemLibraryInfo(m_d->model->metaInfo().itemLibraryInfo());
-    m_d->itemLibrary->setResourcePath(QFileInfo(m_d->fileName).absolutePath());
+    m_d->itemLibraryView->widget()->setItemLibraryInfo(m_d->model->metaInfo().itemLibraryInfo());
+    m_d->itemLibraryView->widget()->setResourcePath(QFileInfo(m_d->fileName).absolutePath());
 
     if (!m_d->componentAction) {
         m_d->componentAction = new ComponentAction(m_d->formEditorView->widget());
@@ -366,9 +367,10 @@ void DesignDocumentController::loadCurrentModel()
     // Disable switching between in file components for the time being
     m_d->componentAction->setVisible(false);
 
-    connect(m_d->itemLibrary.data(), SIGNAL(itemActivated(const QString&)), m_d->formEditorView.data(), SLOT(activateItemCreator(const QString&)));
+    connect(m_d->itemLibraryView->widget(), SIGNAL(itemActivated(const QString&)), m_d->formEditorView.data(), SLOT(activateItemCreator(const QString&)));
 
     m_d->model->attachView(m_d->formEditorView.data());
+    m_d->model->attachView(m_d->itemLibraryView.data());
 
 
     if (!m_d->textEdit->parent()) // hack to prevent changing owner of external text edit

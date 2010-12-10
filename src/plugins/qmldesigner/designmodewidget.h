@@ -38,7 +38,7 @@
 
 #include <allpropertiesbox.h>
 #include <designdocumentcontroller.h>
-#include <itemlibrary.h>
+#include <itemlibraryview.h>
 #include <navigatorwidget.h>
 #include <navigatorview.h>
 #include <stateseditorview.h>
@@ -174,7 +174,7 @@ private:
     QAction *m_toggleLeftSidebarAction;
     QAction *m_toggleRightSidebarAction;
 
-    QWeakPointer<ItemLibrary> m_itemLibrary;
+    QWeakPointer<ItemLibraryView> m_itemLibraryView;
     QWeakPointer<NavigatorView> m_navigator;
     QWeakPointer<AllPropertiesBox> m_allPropertiesBox;
     QWeakPointer<StatesEditorView> m_statesEditorView;
