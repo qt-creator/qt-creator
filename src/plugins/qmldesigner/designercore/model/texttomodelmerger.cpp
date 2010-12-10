@@ -549,8 +549,14 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
             if (!existingImports.removeOne(newImport))
                 differenceHandler.modelMissesImport(newImport);
         } else {
+            QString importUri = flatten(import->importUri);
+            if (importUri == QLatin1String("QtQuick") && version == QLatin1String("1.0")) {
+                importUri = QLatin1String("Qt");
+                version = QLatin1String("4.7");
+            }
+
             const Import newImport =
-                    Import::createLibraryImport(flatten(import->importUri), version, as, m_rewriterView->textModifier()->importPaths());
+                    Import::createLibraryImport(importUri, version, as, m_rewriterView->textModifier()->importPaths());
 
             if (!existingImports.removeOne(newImport))
                 differenceHandler.modelMissesImport(newImport);
