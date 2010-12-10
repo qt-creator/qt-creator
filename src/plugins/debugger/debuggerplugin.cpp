@@ -2581,11 +2581,14 @@ void DebuggerPluginPrivate::createNewDock(QWidget *widget)
 void DebuggerPluginPrivate::runControlStarted(DebuggerRunControl *runControl)
 {
     activateDebugMode();
-    const QString message = runControl->idString();
+    DebuggerEngine *engine = runControl->engine();
+    const QString message = tr("Starting debugger '%1' for tool chain '%2'...")
+            .arg(engine->objectName())
+            .arg(engine->startParameters().toolChainName());
     showMessage(message, StatusBar);
     showMessage(m_debuggerSettings->dump(), LogDebug);
     m_snapshotHandler->appendSnapshot(runControl);
-    connectEngine(runControl->engine());
+    connectEngine(engine);
 }
 
 void DebuggerPluginPrivate::runControlFinished(DebuggerRunControl *runControl)

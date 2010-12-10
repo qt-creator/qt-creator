@@ -52,6 +52,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchaintype.h>
 
 #include <texteditor/itexteditor.h>
@@ -67,7 +68,6 @@
 #include <QtGui/QMessageBox>
 
 using namespace Core;
-using namespace Debugger;
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace TextEditor;
@@ -103,9 +103,9 @@ DebuggerStartParameters::DebuggerStartParameters() :
     executableUid(0)
 {}
 
-void DebuggerStartParameters::clear()
+QString DebuggerStartParameters::toolChainName() const
 {
-    *this = DebuggerStartParameters();
+    return ToolChain::toolChainName(ProjectExplorer::ToolChainType(toolChainType));
 }
 
 QDebug operator<<(QDebug d, DebuggerState state)

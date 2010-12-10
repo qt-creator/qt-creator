@@ -44,8 +44,11 @@ class Environment;
 namespace Debugger {
 class DebuggerEngine;
 class DebuggerRunControl;
-class DebuggerRunControlPrivate;
 class DebuggerStartParameters;
+
+namespace Internal {
+
+class DebuggerRunControlPrivate;
 
 class DebuggerRunControlFactory
     : public ProjectExplorer::IRunControlFactory
@@ -71,6 +74,8 @@ private:
 
     unsigned m_enabledEngines;
 };
+
+} // namespace Internal
 
 
 // This is a job description containing all data "local" to the jobs, including
@@ -108,8 +113,6 @@ public:
                                  QString *errorMessage,
                                  QString *settingsCategory = 0,
                                  QString *settingsPage = 0);
-    QString idString() const;
-
 signals:
     void engineRequestSetup();
 
@@ -120,7 +123,7 @@ protected:
     const DebuggerStartParameters &startParameters() const;
 
 private:
-    QScopedPointer<DebuggerRunControlPrivate> d;
+    QScopedPointer<Internal::DebuggerRunControlPrivate> d;
 };
 
 } // namespace Debugger

@@ -65,7 +65,7 @@ class DEBUGGER_EXPORT DebuggerStartParameters
 {
 public:
     DebuggerStartParameters();
-    void clear();
+    QString toolChainName() const;
 
     QString executable;
     QString displayName;
@@ -77,17 +77,20 @@ public:
     qint64 attachPID;
     bool useTerminal;
     bool breakAtMain;
-    QString crashParameter; // for AttachCrashedExternal
 
-    // for qml debugging
+    // Used by AttachCrashedExternal.
+    QString crashParameter;
+
+    // Used by Qml debugging.
     QString qmlServerAddress;
     quint16 qmlServerPort;
     QString projectBuildDir;
     QString projectDir;
-    // for cpp+qml debugging
+
+    // Used by combined cpp+qml debugging.
     DebuggerEngineType cppEngineType;
 
-    // for remote debugging
+    // Used by remote debugging.
     QString remoteChannel;
     QString remoteArchitecture;
     QString gnuTarget;

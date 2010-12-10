@@ -67,6 +67,20 @@ using namespace ProjectExplorer;
 using namespace Debugger::Internal;
 
 namespace Debugger {
+
+namespace Cdb {
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *error);
+bool isCdbEngineEnabled(); // Check the configuration page
+}
+
+/*
+static QString toolChainName(int toolChainType)
+{
+    return ToolChain::toolChainName(ProjectExplorer::ToolChainType(toolChainType));
+}
+*/
+
+
 namespace Internal {
 
 DebuggerEngine *createGdbEngine(const DebuggerStartParameters &);
@@ -104,20 +118,6 @@ bool checkCdbConfiguration(int, QString *, QString *)
 }
 
 #endif
-
-} // namespace Internal
-
-
-namespace Cdb {
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *error);
-bool isCdbEngineEnabled(); // Check the configuration page
-}
-
-static QString toolChainName(int toolChainType)
-{
-    return ToolChain::toolChainName(ProjectExplorer::ToolChainType(toolChainType));
-}
-
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -250,7 +250,6 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget
     Q_UNUSED(runConfiguration)
     return 0;
 }
-
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -416,6 +415,9 @@ AbstractGdbAdapter *DebuggerRunControlPrivate::gdbAdapter() const
     return engine->gdbAdapter();
 }
 
+} // namespace Internal
+
+
 ////////////////////////////////////////////////////////////////////////
 //
 // DebuggerRunControl
@@ -553,7 +555,7 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
         debuggingFinished();
         // Create Message box with possibility to go to settings.
         const QString msg = tr("Cannot debug '%1' (tool chain: '%2'): %3")
-            .arg(sp.executable, toolChainName(sp.toolChainType), d->m_errorMessage);
+            .arg(sp.executable, sp.toolChainName(), d->m_errorMessage);
         Core::ICore::instance()->showWarningWithOptions(tr("Warning"),
             msg, QString(), QLatin1String(Constants::DEBUGGER_SETTINGS_CATEGORY),
             d->m_settingsIdHint);
@@ -667,13 +669,6 @@ void DebuggerRunControl::start()
         emit addToOutputWindowInline(this, tr("Debugging starts"), false);
         emit addToOutputWindowInline(this, "\n", false);
     }
-}
-
-QString DebuggerRunControl::idString() const
-{
-    return tr("Starting debugger '%1' for tool chain '%2'...")
-        .arg(d->m_engine->objectName())
-        .arg(toolChainName(d->m_engine->startParameters().toolChainType));
 }
 
 void DebuggerRunControl::startFailed()
