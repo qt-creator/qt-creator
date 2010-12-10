@@ -155,7 +155,8 @@ void Qt4RunConfiguration::proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFile
 
 void Qt4RunConfiguration::proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
 {
-    Q_UNUSED(pro);
+    if (pro->path() != m_proFilePath)
+        return;
     handleParseState(false);
 }
 
