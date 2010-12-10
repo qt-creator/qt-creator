@@ -401,7 +401,7 @@ static bool isDesktopFileManagerDrop(const QMimeData *d, QStringList *files = 0)
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (isDesktopFileManagerDrop(event->mimeData())) {
+    if (isDesktopFileManagerDrop(event->mimeData()) && m_filesToOpenDelayed.isEmpty()) {
         event->accept();
     } else {
         event->ignore();
@@ -413,10 +413,21 @@ void MainWindow::dropEvent(QDropEvent *event)
     QStringList files;
     if (isDesktopFileManagerDrop(event->mimeData(), &files)) {
         event->accept();
-        openFiles(files, ICore::SwitchMode);
+        m_filesToOpenDelayed.append(files);
+        QTimer::singleShot(50, this, SLOT(openDelayedFiles()));
     } else {
         event->ignore();
     }
+}
+
+void MainWindow::openDelayedFiles()
+{
+    if (m_filesToOpenDelayed.isEmpty())
+        return;
+    activateWindow();
+    raise();
+    openFiles(m_filesToOpenDelayed, ICore::SwitchMode);
+    m_filesToOpenDelayed.clear();
 }
 
 IContext *MainWindow::currentContextObject() const

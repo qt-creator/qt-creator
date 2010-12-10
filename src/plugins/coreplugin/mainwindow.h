@@ -161,6 +161,7 @@ private slots:
     void updateFocusWidget(QWidget *old, QWidget *now);
     void setSidebarVisible(bool visible);
     void destroyVersionDialog();
+    void openDelayedFiles();
 
 private:
     void updateContextObject(IContext *context);
@@ -222,6 +223,8 @@ private:
 
     QToolButton *m_toggleSideBarButton;
     QColor m_overrideColor;
+
+    QStringList m_filesToOpenDelayed;
 };
 
 } // namespace Internal
