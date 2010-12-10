@@ -212,6 +212,9 @@ public:
     const NumericLiteral *numericLiteral(const char *chars, unsigned size);
     const NumericLiteral *numericLiteral(const char *chars);
 
+    Symbol **firstSymbol() const;
+    Symbol **lastSymbol() const;
+
     bool hasSymbol(Symbol *symbol) const;
 
     void squeeze();

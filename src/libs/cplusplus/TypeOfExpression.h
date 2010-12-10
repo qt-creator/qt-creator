@@ -98,6 +98,14 @@ public:
                                  Document::Ptr document,
                                  Scope *scope);
 
+    QList<LookupItem> reference(const QString &expression,
+                                Scope *scope,
+                                PreprocessMode mode = NoPreprocess);
+
+    QList<LookupItem> reference(ExpressionAST *expression,
+                                Document::Ptr document,
+                                Scope *scope);
+
     QString preprocess(const QString &expression) const;
 
     /**

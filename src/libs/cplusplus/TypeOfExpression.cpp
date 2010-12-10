@@ -84,6 +84,20 @@ QList<LookupItem> TypeOfExpression::operator()(const QString &expression,
                              scope);
 }
 
+QList<LookupItem> TypeOfExpression::reference(const QString &expression,
+                                              Scope *scope,
+                                              PreprocessMode mode)
+{
+    QString code = expression;
+
+    if (mode == Preprocess)
+        code = preprocessedExpression(expression);
+
+    Document::Ptr expressionDoc = documentForExpression(code);
+    expressionDoc->check();
+    return reference(extractExpressionAST(expressionDoc), expressionDoc, scope);
+}
+
 QList<LookupItem> TypeOfExpression::operator()(ExpressionAST *expression,
                                                Document::Ptr document,
                                                Scope *scope)
@@ -97,6 +111,26 @@ QList<LookupItem> TypeOfExpression::operator()(ExpressionAST *expression,
 
     ResolveExpression resolve(m_lookupContext);
     const QList<LookupItem> items = resolve(m_ast, scope);
+
+    if (! m_bindings)
+        m_lookupContext = resolve.context();
+
+    return items;
+}
+
+QList<LookupItem> TypeOfExpression::reference(ExpressionAST *expression,
+                                              Document::Ptr document,
+                                              Scope *scope)
+{
+    m_ast = expression;
+
+    m_scope = scope;
+
+    m_lookupContext = LookupContext(document, m_thisDocument, m_snapshot);
+    m_lookupContext.setBindings(m_bindings);
+
+    ResolveExpression resolve(m_lookupContext);
+    const QList<LookupItem> items = resolve.reference(m_ast, scope);
 
     if (! m_bindings)
         m_lookupContext = resolve.context();
@@ -179,3 +213,4 @@ QString TypeOfExpression::preprocessedExpression(const QString &expression) cons
     const QByteArray preprocessedCode = preproc("<expression>", code);
     return QString::fromUtf8(preprocessedCode.constData(), preprocessedCode.size());
 }
+

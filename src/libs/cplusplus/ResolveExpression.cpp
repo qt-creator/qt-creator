@@ -75,7 +75,8 @@ ResolveExpression::ResolveExpression(const LookupContext &context)
     : ASTVisitor(context.expressionDocument()->translationUnit()),
       _scope(0),
       _context(context),
-      bind(context.expressionDocument()->translationUnit())
+      bind(context.expressionDocument()->translationUnit()),
+      _reference(false)
 { }
 
 ResolveExpression::~ResolveExpression()
@@ -84,19 +85,26 @@ ResolveExpression::~ResolveExpression()
 QList<LookupItem> ResolveExpression::operator()(ExpressionAST *ast, Scope *scope)
 { return resolve(ast, scope); }
 
-QList<LookupItem> ResolveExpression::resolve(ExpressionAST *ast, Scope *scope)
+QList<LookupItem> ResolveExpression::reference(ExpressionAST *ast, Scope *scope)
+{ return resolve(ast, scope, true); }
+
+QList<LookupItem> ResolveExpression::resolve(ExpressionAST *ast, Scope *scope, bool ref)
 {
     if (! scope)
         return QList<LookupItem>();
 
-    Scope *previousVisibleSymbol = _scope;
-    _scope = scope;
-    const QList<LookupItem> result = resolve(ast);
-    _scope = previousVisibleSymbol;
+    std::swap(_scope, scope);
+    std::swap(_reference, ref);
+
+    const QList<LookupItem> result = expression(ast);
+
+    std::swap(_reference, ref);
+    std::swap(_scope, scope);
+
     return result;
 }
 
-QList<LookupItem> ResolveExpression::resolve(ExpressionAST *ast)
+QList<LookupItem> ResolveExpression::expression(ExpressionAST *ast)
 {
     const QList<LookupItem> previousResults = switchResults(QList<LookupItem>());
     accept(ast);
@@ -441,27 +449,18 @@ bool ResolveExpression::visit(ConversionFunctionIdAST *)
     return false;
 }
 
-bool ResolveExpression::maybeValidPrototype(Function *funTy, unsigned actualArgumentCount) const
+bool ResolveExpression::maybeValidPrototype(Function *funTy, unsigned actualArgumentCount)
 {
-    unsigned minNumberArguments = 0;
+    return funTy->maybeValidPrototype(actualArgumentCount);
+}
 
-    for (; minNumberArguments < funTy->argumentCount(); ++minNumberArguments) {
-        Argument *arg = funTy->argumentAt(minNumberArguments)->asArgument();
-
-        if (arg->hasInitializer())
-            break;
-    }
-
-    if (actualArgumentCount < minNumberArguments) {
-        // not enough arguments.
-        return false;
-
-    } else if (! funTy->isVariadic() && actualArgumentCount > funTy->argumentCount()) {
-        // too many arguments.
-        return false;
-    }
-
-    return true;
+bool ResolveExpression::implicitConversion(const FullySpecifiedType &sourceTy, const FullySpecifiedType &targetTy) const
+{
+    if (sourceTy.isEqualTo(targetTy))
+        return true;
+    else if (sourceTy.simplified().isEqualTo(targetTy.simplified()))
+        return true;
+    return false;
 }
 
 bool ResolveExpression::visit(CallAST *ast)
@@ -469,12 +468,53 @@ bool ResolveExpression::visit(CallAST *ast)
     const QList<LookupItem> baseResults = resolve(ast->base_expression, _scope);
 
     // Compute the types of the actual arguments.
-    int actualArgumentCount = 0;
+    unsigned actualArgumentCount = 0;
 
-    //QList< QList<Result> > arguments;
+    QList< QList<LookupItem> > arguments;
     for (ExpressionListAST *exprIt = ast->expression_list; exprIt; exprIt = exprIt->next) {
-        //arguments.append(resolve(exprIt->expression));
+        if (_reference)
+            arguments.append(resolve(exprIt->value, _scope));
+
         ++actualArgumentCount;
+    }
+
+    if (_reference) {
+        _results.clear();
+        foreach (const LookupItem &base, baseResults) {
+            if (Function *funTy = base.type()->asFunctionType()) {
+                if (! maybeValidPrototype(funTy, actualArgumentCount))
+                    continue;
+
+                int score = 0;
+
+                for (unsigned i = 0; i < funTy->argumentCount(); ++i) {
+                    const FullySpecifiedType formalTy = funTy->argumentAt(i)->type();
+
+                    FullySpecifiedType actualTy;
+                    if (i < unsigned(arguments.size())) {
+                        const QList<LookupItem> actual = arguments.at(i);
+                        if (actual.isEmpty())
+                            continue;
+
+                        actualTy = actual.first().type();
+                    } else
+                        actualTy = formalTy;
+
+                    if (implicitConversion(actualTy, formalTy))
+                        ++score;
+                }
+
+                if (score)
+                    _results.prepend(base);
+                else
+                    _results.append(base);
+            }
+        }
+
+        if (_results.isEmpty())
+            _results = baseResults;
+
+        return false;
     }
 
     const Name *functionCallOp = control()->operatorNameId(OperatorNameId::FunctionCallOp);
@@ -513,7 +553,7 @@ bool ResolveExpression::visit(CallAST *ast)
 bool ResolveExpression::visit(ArrayAccessAST *ast)
 {
     const QList<LookupItem> baseResults = resolve(ast->base_expression, _scope);
-    const QList<LookupItem> indexResults = resolve(ast->expression);
+    const QList<LookupItem> indexResults = resolve(ast->expression, _scope);
 
     const Name *arrayAccessOp = control()->operatorNameId(OperatorNameId::ArrayAccessOp);
 
@@ -709,7 +749,7 @@ bool ResolveExpression::visit(PostIncrDecrAST *ast)
 
 bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
 {
-    const QList<LookupItem> receiverResults = resolve(ast->receiver_expression);
+    const QList<LookupItem> receiverResults = resolve(ast->receiver_expression, _scope);
 
     foreach (const LookupItem &result, receiverResults) {
         FullySpecifiedType ty = result.type().simplified();

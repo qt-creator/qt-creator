@@ -350,6 +350,8 @@ public:
     bool isAmbiguous() const; // internal
     void setAmbiguous(bool isAmbiguous); // internal
 
+    bool maybeValidPrototype(unsigned actualArgumentCount) const;
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);

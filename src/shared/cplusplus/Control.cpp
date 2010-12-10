@@ -759,6 +759,22 @@ const Identifier *Control::objcCopyId() const
 const Identifier *Control::objcNonatomicId() const
 { return d->objcNonatomicId; }
 
+Symbol **Control::firstSymbol() const
+{
+    if (d->symbols.empty())
+        return 0;
+
+    return &*d->symbols.begin();
+}
+
+Symbol **Control::lastSymbol() const
+{
+    if (d->symbols.empty())
+        return 0;
+
+    return &*d->symbols.begin() + d->symbols.size();
+}
+
 bool Control::hasSymbol(Symbol *symbol) const
 {
     return std::find(d->symbols.begin(), d->symbols.end(), symbol) != d->symbols.end();

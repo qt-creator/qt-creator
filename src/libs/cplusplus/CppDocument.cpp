@@ -42,6 +42,9 @@
 #include <AST.h>
 #include <Scope.h>
 #include <SymbolVisitor.h>
+#include <NameVisitor.h>
+#include <TypeVisitor.h>
+#include <CoreTypes.h>
 
 #include <QtCore/QByteArray>
 #include <QtCore/QBitArray>
@@ -789,9 +792,8 @@ Symbol *Snapshot::findMatchingDefinition(Symbol *declaration) const
             Function *best = 0;
 
             foreach (Function *fun, viableFunctions) {
-                if (fun->unqualifiedName()->isEqualTo(declaration->unqualifiedName()))
+                if (! (fun->unqualifiedName() && fun->unqualifiedName()->isEqualTo(declaration->unqualifiedName())))
                     continue;
-
                 else if (fun->argumentCount() == declarationTy->argumentCount()) {
                     if (! best)
                         best = fun;

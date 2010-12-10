@@ -76,6 +76,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <texteditor/basetextdocument.h>
+#include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorconstants.h>
@@ -1265,6 +1266,13 @@ CPPEditor::Link CPPEditor::attemptFuncDeclDef(const QTextCursor &cursor, const D
             return result;
     }
 
+    for (int i = path.size() - 1; i != -1; --i) {
+        AST *node = path.at(i);
+
+        if (node->asParameterDeclaration() != 0)
+            return result;
+    }
+
     AST *declParent = 0;
     DeclaratorAST *decl = 0;
     for (int i = path.size() - 2; i > 0; --i) {
@@ -1431,11 +1439,27 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
 
     // Evaluate the type of the expression under the cursor
     ExpressionUnderCursor expressionUnderCursor;
-    const QString expression = expressionUnderCursor(tc);
+    QString expression = expressionUnderCursor(tc);
+
+    for (int pos = tc.position();; ++pos) {
+        const QChar ch = characterAt(pos);
+        if (ch.isSpace())
+            continue;
+        else {
+            if (ch == QLatin1Char('(') && ! expression.isEmpty()) {
+                tc.setPosition(pos);
+                if (TextEditor::TextBlockUserData::findNextClosingParenthesis(&tc, true)) {
+                    expression.append(tc.selectedText());
+                }
+            }
+
+            break;
+        }
+    }
 
     TypeOfExpression typeOfExpression;
     typeOfExpression.init(doc, snapshot);
-    const QList<LookupItem> resolvedSymbols = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
+    const QList<LookupItem> resolvedSymbols = typeOfExpression.reference(expression, scope, TypeOfExpression::Preprocess);
 
     if (!resolvedSymbols.isEmpty()) {
         LookupItem result = skipForwardDeclarations(resolvedSymbols);
@@ -1473,16 +1497,6 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
             link.begin = beginOfToken;
             link.end = endOfToken;
             return link;
-
-        // This would jump to the type of a name
-#if 0
-        } else if (NamedType *namedType = firstType->asNamedType()) {
-            QList<Symbol *> candidates = context.resolve(namedType->name());
-            if (!candidates.isEmpty()) {
-                Symbol *s = candidates.takeFirst();
-                openCppEditorAt(s->fileName(), s->line(), s->column());
-            }
-#endif
         }
     } else {
         // Handle macro uses

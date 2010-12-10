@@ -362,6 +362,30 @@ void Function::visitSymbol0(SymbolVisitor *visitor)
     }
 }
 
+bool Function::maybeValidPrototype(unsigned actualArgumentCount) const
+{
+    unsigned minNumberArguments = 0;
+
+    for (; minNumberArguments < this->argumentCount(); ++minNumberArguments) {
+        Argument *arg = this->argumentAt(minNumberArguments)->asArgument();
+
+        if (arg->hasInitializer())
+            break;
+    }
+
+    if (actualArgumentCount < minNumberArguments) {
+        // not enough arguments.
+        return false;
+
+    } else if (! this->isVariadic() && actualArgumentCount > this->argumentCount()) {
+        // too many arguments.
+        return false;
+    }
+
+    return true;
+}
+
+
 Block::Block(TranslationUnit *translationUnit, unsigned sourceLocation)
     : Scope(translationUnit, sourceLocation, /*name = */ 0)
 { }

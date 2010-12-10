@@ -45,7 +45,8 @@ public:
     virtual ~ResolveExpression();
 
     QList<LookupItem> operator()(ExpressionAST *ast, Scope *scope);
-    QList<LookupItem> resolve(ExpressionAST *ast, Scope *scope);
+    QList<LookupItem> resolve(ExpressionAST *ast, Scope *scope, bool ref = false);
+    QList<LookupItem> reference(ExpressionAST *ast, Scope *scope);
 
     ClassOrNamespace *baseExpression(const QList<LookupItem> &baseResults,
                                      int accessOp,
@@ -56,7 +57,7 @@ public:
 protected:
     ClassOrNamespace *findClass(const FullySpecifiedType &ty, Scope *scope) const;
 
-    QList<LookupItem> resolve(ExpressionAST *ast);
+    QList<LookupItem> expression(ExpressionAST *ast);
 
     QList<LookupItem> switchResults(const QList<LookupItem> &symbols);
     FullySpecifiedType instantiate(const Name *className, Symbol *candidate) const;
@@ -69,7 +70,8 @@ protected:
     void addResults(const QList<Symbol *> &symbols);
     void addResults(const QList<LookupItem> &items);
 
-    bool maybeValidPrototype(Function *funTy, unsigned actualArgumentCount) const;
+    static bool maybeValidPrototype(Function *funTy, unsigned actualArgumentCount);
+    bool implicitConversion(const FullySpecifiedType &sourceTy, const FullySpecifiedType &targetTy) const;
 
     using ASTVisitor::visit;
 
@@ -119,6 +121,7 @@ private:
     LookupContext _context;
     Bind bind;
     QList<LookupItem> _results;
+    bool _reference;
 };
 
 } // end of namespace CPlusPlus
