@@ -31,6 +31,7 @@
 #include "cppeditor.h"
 #include "cppquickfix.h"
 #include "cppinsertdecldef.h"
+#include "cppinsertqtpropertymembers.h"
 #include "cppquickfixcollector.h"
 
 #include <ASTVisitor.h>
@@ -53,6 +54,7 @@
 #include <cplusplus/CppRewriter.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpprefactoringchanges.h>
+#include <cpptools/insertionpointlocator.h>
 #include <extensionsystem/iplugin.h>
 
 #include <QtGui/QApplication>
@@ -1588,6 +1590,7 @@ void CppQuickFixCollector::registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new FixForwardDeclarationOp);
     plugIn->addAutoReleasedObject(new AddLocalDeclarationOp);
     plugIn->addAutoReleasedObject(new ToCamelCaseConverter);
+    plugIn->addAutoReleasedObject(new Internal::InsertQtPropertyMembers);
     plugIn->addAutoReleasedObject(new Internal::DeclFromDef);
     plugIn->addAutoReleasedObject(new Internal::DefFromDecl);
 }
