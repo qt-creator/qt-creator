@@ -38,7 +38,7 @@
     <category xml:lang="de">Text</category>
     <executable output="replaceselection" error="ignore">
         <path>sort</path>
-        <input>%{CurrentSelection}</input>
-        <workingdirectory>%{CurrentPath}</workingdirectory>
+        <input>%{CurrentDocument:Selection}</input>
+        <workingdirectory>%{CurrentDocument:Path}</workingdirectory>
     </executable>
 </externaltool>

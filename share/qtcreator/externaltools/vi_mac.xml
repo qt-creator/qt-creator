@@ -29,18 +29,22 @@
 **
 **************************************************************************/
 -->
-<externaltool id="lupdate">
-    <description>Synchronizes translator's ts files with the program code</description>
-    <description xml:lang="de">Synchronisiert die ts-Übersetzungsdateien mit dem Programmcode</description>
-    <displayname>Update translations (lupdate)</displayname>
-    <displayname xml:lang="de">Übersetzungen aktualisieren (lupdate)</displayname>
-    <category>Linguist</category>
-    <category xml:lang="de">Linguist</category>
-    <order>1</order>
-    <executable>
-        <path>%{QT_INSTALL_BINS}/lupdate</path>
-        <path>lupdate</path>
-        <arguments>%{CurrentProject:FilePath}</arguments>
-        <workingdirectory>%{CurrentProject:Path}</workingdirectory>
+<externaltool id="vi">
+    <description>Opens the current file in vi</description>
+    <description xml:lang="de">Öffnet die aktuelle Datei in vi</description>
+    <displayname>Edit with vi</displayname>
+    <displayname xml:lang="de">In vi öffnen</displayname>
+    <category>Text</category>
+    <category xml:lang="de">Text</category>
+    <executable output="reloaddocument">
+        <path>osascript</path>
+        <input>
+        tell application "Terminal"
+            do script "vi \"%{CurrentDocument:FilePath}\"; exit"
+            set currentTab to the result
+            activate
+        end tell
+        </input>
+        <workingdirectory>%{CurrentDocument:Path}</workingdirectory>
     </executable>
 </externaltool>

@@ -1001,16 +1001,16 @@ void ProjectExplorerPlugin::loadCustomWizards()
 
 void ProjectExplorerPlugin::updateVariable(const QString &variable)
 {
-    static const char * const currentProjectPathVar = "CurrentProjectPath";
-    static const char * const currentProjectFilePathVar = "CurrentProjectFilePath";
-    if (variable == QLatin1String(currentProjectFilePathVar)) {
+    static const char * const kCurrentProjectPath= "CurrentProject:Path";
+    static const char * const kCurrentProjectFilePath= "CurrentProject:FilePath";
+    if (variable == QLatin1String(kCurrentProjectFilePath)) {
         if (currentProject() && currentProject()->file()) {
             Core::VariableManager::instance()->insert(variable,
                                                       currentProject()->file()->fileName());
         } else {
             Core::VariableManager::instance()->remove(variable);
         }
-    } else if (variable == QLatin1String(currentProjectPathVar)) {
+    } else if (variable == QLatin1String(kCurrentProjectPath)) {
         if (currentProject() && currentProject()->file()) {
             Core::VariableManager::instance()->insert(variable,
                                                       QFileInfo(currentProject()->file()->fileName()).filePath());

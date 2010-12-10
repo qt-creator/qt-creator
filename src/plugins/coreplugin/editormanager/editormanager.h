@@ -228,6 +228,7 @@ private slots:
     void makeCurrentEditorWritable();
     void updateWindowTitle();
     void handleEditorStateChange();
+    void updateVariable(const QString &variable);
 
 public slots:
     void goBackInNavigationHistory();

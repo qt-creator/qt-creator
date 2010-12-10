@@ -179,16 +179,16 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
 
 void Qt4Manager::updateVariable(const QString &variable)
 {
-    static const char * const installBinsVar = "QT_INSTALL_BINS";
-    if (variable == QLatin1String(installBinsVar)) {
+    static const char * const kInstallBins = "QT_INSTALL_BINS";
+    if (variable == QLatin1String(kInstallBins)) {
         Qt4Project *qt4pro = qobject_cast<Qt4Project *>(projectExplorer()->currentProject());
         if (!qt4pro) {
-            Core::VariableManager::instance()->remove(QLatin1String(installBinsVar));
+            Core::VariableManager::instance()->remove(QLatin1String(kInstallBins));
             return;
         }
         QString value = qt4pro->activeTarget()->activeBuildConfiguration()
-                ->qtVersion()->versionInfo().value(QLatin1String(installBinsVar));
-        Core::VariableManager::instance()->insert(QLatin1String(installBinsVar), value);
+                ->qtVersion()->versionInfo().value(QLatin1String(kInstallBins));
+        Core::VariableManager::instance()->insert(QLatin1String(kInstallBins), value);
     }
 }
 

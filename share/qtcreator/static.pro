@@ -44,7 +44,8 @@ DATA_FILES = \
     externaltools/lupdate.xml
 unix:DATA_FILES += externaltools/sort.xml
 linux-*:DATA_FILES += externaltools/vi.xml
-macx:DATA_FILES += runInTerminal.command
+macx:DATA_FILES += externaltools/vi_mac.xml
+#macx:DATA_FILES += runInTerminal.command
 win32:DATA_FILES ~= s|\\\\|/|g
 
 OTHER_FILES += $$DATA_FILES

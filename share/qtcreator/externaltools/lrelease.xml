@@ -40,7 +40,7 @@
     <executable>
         <path>%{QT_INSTALL_BINS}/lrelease</path>
         <path>lrelease</path>
-        <arguments>%{CurrentProjectFilePath}</arguments>
-        <workingdirectory>%{CurrentProjectPath}</workingdirectory>
+        <arguments>%{CurrentProject:FilePath}</arguments>
+        <workingdirectory>%{CurrentProject:Path}</workingdirectory>
     </executable>
 </externaltool>

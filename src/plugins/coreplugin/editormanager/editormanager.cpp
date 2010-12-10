@@ -477,6 +477,9 @@ void EditorManager::init()
 
     m_d->m_openEditorsFactory = new OpenEditorsViewFactory();
     pluginManager()->addObject(m_d->m_openEditorsFactory);
+
+    connect(VariableManager::instance(), SIGNAL(variableUpdateRequested(QString)),
+            this, SLOT(updateVariable(QString)));
 }
 
 
@@ -2134,3 +2137,23 @@ QString EditorManager::windowTitleAddition() const
     return m_d->m_titleAddition;
 }
 
+void EditorManager::updateVariable(const QString &variable)
+{
+    static const char * const kCurrentDocumentFilePath = "CurrentDocument:FilePath";
+    static const char * const kCurrentDocumentPath = "CurrentDocument:Path";
+    if (variable == QLatin1String(kCurrentDocumentFilePath)
+            || variable == QLatin1String(kCurrentDocumentPath)) {
+        QString value;
+        IEditor *curEditor = currentEditor();
+        if (curEditor) {
+            QString fileName = curEditor->file()->fileName();
+            if (!fileName.isEmpty()) {
+                if (variable == QLatin1String(kCurrentDocumentFilePath))
+                    value = QFileInfo(fileName).filePath();
+                else if (variable == QLatin1String(kCurrentDocumentPath))
+                    value = QFileInfo(fileName).path();
+            }
+        }
+        VariableManager::instance()->insert(variable, value);
+    }
+}

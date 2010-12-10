@@ -216,8 +216,8 @@ void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
 
 void TextEditorPlugin::updateVariable(const QString &variable)
 {
-    static const char * const kCurrentSelectionVar = "CurrentSelection";
-    if (variable == QLatin1String(kCurrentSelectionVar)) {
+    static const char * const kCurrentDocumentSelection= "CurrentDocument:Selection";
+    if (variable == QLatin1String(kCurrentDocumentSelection)) {
         QString selectedText;
         Core::IEditor *iface = Core::EditorManager::instance()->currentEditor();
         ITextEditor *editor = qobject_cast<ITextEditor *>(iface);

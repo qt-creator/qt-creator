@@ -38,7 +38,7 @@
     <category xml:lang="de">Text</category>
     <executable output="reloaddocument">
         <path>xterm</path>
-        <arguments>-geom %{EditorCharWidth}x%{EditorCharHeight}+%{EditorXPos}+%{EditorYPos} -e vi %{CurrentFilePath} +%{EditorLine} +"normal %{EditorColumn}|"</arguments>
-        <workingdirectory>%{CurrentPath}</workingdirectory>
+        <arguments>-geom %{CurrentDocument:Width}x%{CurrentDocument:Height}+%{CurrentDocument:XPos}+%{CurrentDocument:YPos} -e vi %{CurrentDocument:FilePath} +%{CurrentDocument:Line} +"normal %{CurrentDocument:Column}|"</arguments>
+        <workingdirectory>%{CurrentDocument:Path}</workingdirectory>
     </executable>
 </externaltool>
