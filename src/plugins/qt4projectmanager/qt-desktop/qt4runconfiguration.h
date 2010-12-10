@@ -59,10 +59,12 @@ namespace ProjectExplorer {
 }
 
 namespace Qt4ProjectManager {
+
 class Qt4Project;
-class Qt4Target;
+class Qt4BaseTarget;
 
 namespace Internal {
+class Qt4DesktopTarget;
 class Qt4PriFileNode;
 class Qt4ProFileNode;
 class Qt4RunConfigurationFactory;
@@ -75,10 +77,10 @@ class Qt4RunConfiguration : public ProjectExplorer::LocalApplicationRunConfigura
     friend class Qt4RunConfigurationFactory;
 
 public:
-    Qt4RunConfiguration(Qt4Target *parent, const QString &proFilePath);
+    Qt4RunConfiguration(Qt4BaseTarget *parent, const QString &proFilePath);
     virtual ~Qt4RunConfiguration();
 
-    Qt4Target *qt4Target() const;
+    Qt4DesktopTarget *qt4Target() const;
 
     virtual bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     using ProjectExplorer::LocalApplicationRunConfiguration::isEnabled;
@@ -119,7 +121,7 @@ private slots:
     void proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
 
 protected:
-    Qt4RunConfiguration(Qt4Target *parent, Qt4RunConfiguration *source);
+    Qt4RunConfiguration(Qt4BaseTarget *parent, Qt4RunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
 private:

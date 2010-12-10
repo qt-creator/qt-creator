@@ -42,6 +42,7 @@
 #include "s60devicerunconfiguration.h"
 #include "s60createpackagestep.h"
 #include "s60deploystep.h"
+#include "qt4symbiantargetfactory.h"
 
 #include <symbianutils/symbiandevicemanager.h>
 
@@ -130,6 +131,8 @@ S60Manager::S60Manager(QObject *parent)
                                             S60DeviceRunConfiguration>
                                             (QLatin1String(Debugger::Constants::DEBUGMODE),
                                              tr("Debug on Device"), parent));
+    addAutoReleasedObject(new Qt4SymbianTargetFactory);
+
     updateQtVersions();
     connect(m_devices, SIGNAL(qtVersionsChanged()),
             this, SLOT(updateQtVersions()));

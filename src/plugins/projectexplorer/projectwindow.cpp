@@ -42,6 +42,7 @@
 #include "projecttreewidget.h"
 #include "iprojectproperties.h"
 #include "targetsettingspanel.h"
+#include "target.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
@@ -261,11 +262,48 @@ ProjectWindow::~ProjectWindow()
 {
 }
 
+void ProjectWindow::extensionsInitialized()
+{
+    foreach (ITargetFactory *fac, ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>())
+        connect(fac, SIGNAL(supportedTargetIdsChanged()),
+                this, SLOT(targetFactoriesChanged()));
+
+}
+
 void ProjectWindow::aboutToShutdown()
 {
     showProperties(-1, -1); // TODO that's a bit stupid, but otherwise stuff is still
                              // connected to the session
     disconnect(ProjectExplorerPlugin::instance()->session(), 0, this, 0);
+}
+
+void ProjectWindow::targetFactoriesChanged()
+{
+    bool changed = false;
+    int index = m_tabWidget->currentIndex();
+    QList<Project *> projects = m_tabIndexToProject;
+    foreach (ProjectExplorer::Project *project, projects) {
+        if (m_usesTargetPage.value(project) != useTargetPage(project)) {
+            changed = true;
+            deregisterProject(project);
+            registerProject(project);
+        }
+    }
+    if (changed)
+        m_tabWidget->setCurrentIndex(index);
+}
+
+bool ProjectWindow::useTargetPage(ProjectExplorer::Project *project)
+{
+    if (project->targets().size() > 1)
+        return true;
+    QStringList tmp;
+    foreach (ITargetFactory *fac, ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>()) {
+        tmp.append(fac->supportedTargetIds(project));
+        if (tmp.size() > 1)
+            return true;
+    }
+    return false;
 }
 
 void ProjectWindow::registerProject(ProjectExplorer::Project *project)
@@ -284,7 +322,11 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
     }
 
     QStringList subtabs;
-    if (project->supportedTargetIds().count() <= 1) {
+
+    bool usesTargetPage = useTargetPage(project);
+    m_usesTargetPage.insert(project, usesTargetPage);
+
+    if (!usesTargetPage){
         // Show the target specific pages directly
         QList<ITargetPanelFactory *> factories =
                 ExtensionSystem::PluginManager::instance()->getObjects<ITargetPanelFactory>();
@@ -308,9 +350,6 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
 
     m_tabIndexToProject.insert(index, project);
     m_tabWidget->insertTab(index, project->displayName(), subtabs);
-
-    connect(project, SIGNAL(supportedTargetIdsChanged()),
-            this, SLOT(refreshProject()));
 }
 
 void ProjectWindow::deregisterProject(ProjectExplorer::Project *project)
@@ -318,9 +357,6 @@ void ProjectWindow::deregisterProject(ProjectExplorer::Project *project)
     int index = m_tabIndexToProject.indexOf(project);
     if (index < 0)
         return;
-
-    disconnect(project, SIGNAL(supportedTargetIdsChanged()),
-               this, SLOT(refreshProject()));
 
     m_tabIndexToProject.removeAt(index);
     m_tabWidget->removeTab(index);
@@ -334,19 +370,6 @@ void ProjectWindow::restoreStatus()
 void ProjectWindow::saveStatus()
 {
     // TODO
-}
-
-void ProjectWindow::refreshProject()
-{
-    Project *project = qobject_cast<ProjectExplorer::Project *>(sender());
-    if (!m_tabIndexToProject.contains(project))
-        return;
-
-    // TODO this changes the subindex
-    int index = m_tabWidget->currentIndex();
-    deregisterProject(project);
-    registerProject(project);
-    m_tabWidget->setCurrentIndex(index);
 }
 
 void ProjectWindow::startupProjectChanged(ProjectExplorer::Project *p)
@@ -373,7 +396,8 @@ void ProjectWindow::showProperties(int index, int subIndex)
             = qobject_cast<TargetSettingsPanelWidget*>(m_currentWidget)) {
         m_previousTargetSubIndex = previousPanelWidget->currentSubIndex();
     }
-    if (project->supportedTargetIds().count() > 1) {
+
+    if (m_usesTargetPage.value(project)) {
         if (subIndex == 0) {
             // Targets page
             removeCurrentWidget();

@@ -51,9 +51,10 @@ class DetailsWidget;
 
 namespace Qt4ProjectManager {
 class Qt4Project;
-class Qt4Target;
+class Qt4BaseTarget;
 
 namespace Internal {
+class Qt4SymbianTarget;
 class Qt4ProFileNode;
 class S60EmulatorRunConfigurationFactory;
 
@@ -63,10 +64,10 @@ class S60EmulatorRunConfiguration : public ProjectExplorer::RunConfiguration
     friend class S60EmulatorRunConfigurationFactory;
 
 public:
-    S60EmulatorRunConfiguration(Qt4ProjectManager::Qt4Target *parent, const QString &proFilePath);
+    S60EmulatorRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent, const QString &proFilePath);
     virtual ~S60EmulatorRunConfiguration();
 
-    Qt4Target *qt4Target() const;
+    Qt4SymbianTarget *qt4Target() const;
 
     using ProjectExplorer::RunConfiguration::isEnabled;
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
@@ -78,6 +79,8 @@ public:
 
     QVariantMap toMap() const;
 
+    QString proFilePath() const;
+
 signals:
     void targetInformationChanged();
 
@@ -86,7 +89,7 @@ private slots:
     void proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
 
 protected:
-    S60EmulatorRunConfiguration(Qt4ProjectManager::Qt4Target *parent, S60EmulatorRunConfiguration *source);
+    S60EmulatorRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent, S60EmulatorRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
 private:

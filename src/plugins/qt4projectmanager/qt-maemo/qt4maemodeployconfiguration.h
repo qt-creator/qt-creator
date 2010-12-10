@@ -6,12 +6,12 @@
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-** No Commercial Usage
+** Commercial Usage
 **
-** This file contains pre-release code and may not be distributed.
-** You may use this file in accordance with the terms and conditions
-** contained in the Technology Preview License Agreement accompanying
-** this package.
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
 **
 ** GNU Lesser General Public License Usage
 **
@@ -22,12 +22,8 @@
 ** ensure the GNU Lesser General Public License version 2.1 requirements
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights.  These rights are described in the Nokia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** If you have questions regarding the use of this file, please contact
-** Nokia at qt-info@nokia.com.
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 
@@ -40,24 +36,15 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 class Target;
-class S60DeployConfigurationFactory;
 
-class Qt4DeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
+class Qt4MaemoDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
     Q_OBJECT
 
 public:
-    explicit Qt4DeployConfigurationFactory(QObject *parent = 0);
+    explicit Qt4MaemoDeployConfigurationFactory(QObject *parent = 0);
 
     ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *product) const;
-    ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *product);
-
-private:
-    S60DeployConfigurationFactory *m_s60DeployConfigurationFactory;
-
 };
 
 } // namespace Internal

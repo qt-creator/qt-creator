@@ -36,6 +36,7 @@
 #include "qt4project.h"
 #include "qt4target.h"
 #include "s60manager.h"
+#include "qt4symbiantarget.h"
 #include "qt4projectmanagerconstants.h"
 #include "qtoutputformatter.h"
 
@@ -72,7 +73,7 @@ QString pathToId(const QString &path)
 
 // ======== S60EmulatorRunConfiguration
 
-S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Qt4Target *parent, const QString &proFilePath) :
+S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Qt4BaseTarget *parent, const QString &proFilePath) :
     RunConfiguration(parent, QLatin1String(S60_EMULATOR_RC_ID)),
     m_proFilePath(proFilePath),
     m_validParse(parent->qt4Project()->validParse(proFilePath))
@@ -80,7 +81,7 @@ S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Qt4Target *parent, cons
     ctor();
 }
 
-S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Qt4Target *parent, S60EmulatorRunConfiguration *source) :
+S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Qt4BaseTarget *parent, S60EmulatorRunConfiguration *source) :
     RunConfiguration(parent, source),
     m_proFilePath(source->m_proFilePath),
     m_validParse(source->m_validParse)
@@ -132,9 +133,9 @@ void S60EmulatorRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4
     emit targetInformationChanged();
 }
 
-Qt4Target *S60EmulatorRunConfiguration::qt4Target() const
+Qt4SymbianTarget *S60EmulatorRunConfiguration::qt4Target() const
 {
-    return static_cast<Qt4Target *>(target());
+    return static_cast<Qt4SymbianTarget *>(target());
 }
 
 bool S60EmulatorRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
@@ -200,6 +201,11 @@ QString S60EmulatorRunConfiguration::executable() const
     return executable;
 }
 
+QString S60EmulatorRunConfiguration::proFilePath() const
+{
+    return m_proFilePath;
+}
+
 // ======== S60EmulatorRunConfigurationWidget
 
 S60EmulatorRunConfigurationWidget::S60EmulatorRunConfigurationWidget(S60EmulatorRunConfiguration *runConfiguration,
@@ -255,7 +261,7 @@ S60EmulatorRunConfigurationFactory::~S60EmulatorRunConfigurationFactory()
 
 bool S60EmulatorRunConfigurationFactory::canCreate(Target *parent, const QString &id) const
 {
-    Qt4Target * t(qobject_cast<Qt4Target *>(parent));
+    Qt4SymbianTarget *t = qobject_cast<Qt4SymbianTarget *>(parent);
     if (!t ||
         t->id() != QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
         return false;
@@ -266,13 +272,13 @@ RunConfiguration *S60EmulatorRunConfigurationFactory::create(Target *parent, con
 {
     if (!canCreate(parent, id))
         return 0;
-    Qt4Target *t(static_cast<Qt4Target *>(parent));
+    Qt4SymbianTarget *t = static_cast<Qt4SymbianTarget *>(parent);
     return new S60EmulatorRunConfiguration(t, pathFromId(id));
 }
 
 bool S60EmulatorRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
-    Qt4Target * t(qobject_cast<Qt4Target *>(parent));
+    Qt4SymbianTarget *t = qobject_cast<Qt4SymbianTarget *>(parent);
     if (!t ||
         t->id() != QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
         return false;
@@ -284,8 +290,8 @@ RunConfiguration *S60EmulatorRunConfigurationFactory::restore(Target *parent, co
 {
     if (!canRestore(parent, map))
         return 0;
-    Qt4Target *t(static_cast<Qt4Target *>(parent));
-    S60EmulatorRunConfiguration *rc(new S60EmulatorRunConfiguration(t, QString()));
+    Qt4SymbianTarget *t = static_cast<Qt4SymbianTarget *>(parent);
+    S60EmulatorRunConfiguration *rc = new S60EmulatorRunConfiguration(t, QString());
     if (rc->fromMap(map))
         return rc;
     delete rc;
@@ -301,13 +307,13 @@ RunConfiguration *S60EmulatorRunConfigurationFactory::clone(Target *parent, RunC
 {
     if (!canClone(parent, source))
         return 0;
-    Qt4Target *t(static_cast<Qt4Target *>(parent));
+    Qt4SymbianTarget *t = static_cast<Qt4SymbianTarget *>(parent);
     return new S60EmulatorRunConfiguration(t, QString());
 }
 
 QStringList S60EmulatorRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    Qt4Target * t(qobject_cast<Qt4Target *>(parent));
+    Qt4SymbianTarget *t = qobject_cast<Qt4SymbianTarget *>(parent);
     if (!t ||
         t->id() != QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
         return QStringList();

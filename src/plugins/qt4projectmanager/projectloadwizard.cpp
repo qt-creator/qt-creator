@@ -32,16 +32,8 @@
 **************************************************************************/
 
 #include "projectloadwizard.h"
-
-#include "qt4project.h"
-#include "qmakestep.h"
-#include "qt4target.h"
-#include "makestep.h"
-#include "qt4buildconfiguration.h"
-#include "qt4projectmanagerconstants.h"
-#include "qtversionmanager.h"
-
 #include "wizards/targetsetuppage.h"
+#include "qt4project.h"
 
 #include <QtGui/QCheckBox>
 #include <QtGui/QHeaderView>
@@ -98,7 +90,7 @@ void ProjectLoadWizard::setupTargetPage()
         return;
 
     QList<TargetSetupPage::ImportInfo> importVersions = TargetSetupPage::scanDefaultProjectDirectories(m_project);
-    importVersions.append(TargetSetupPage::importInfosForKnownQtVersions());
+    importVersions.append(TargetSetupPage::importInfosForKnownQtVersions(m_project->file()->fileName()));
 
     m_targetSetupPage = new TargetSetupPage(this);
     m_targetSetupPage->setProFilePath(m_project->file()->fileName());

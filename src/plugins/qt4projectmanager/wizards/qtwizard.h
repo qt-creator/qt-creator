@@ -159,6 +159,7 @@ private:
     TargetSetupPage *m_targetSetupPage;
     QString m_selectedModules;
     QString m_deselectedModules;
+    QSet<QString> m_targets;
 };
 
 } // namespace Internal

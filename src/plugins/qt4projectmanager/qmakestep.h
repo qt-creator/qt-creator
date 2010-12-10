@@ -47,8 +47,8 @@ class Project;
 }
 
 namespace Qt4ProjectManager {
-class Qt4Project;
 class Qt4BuildConfiguration;
+class Qt4Project;
 
 namespace Internal {
 

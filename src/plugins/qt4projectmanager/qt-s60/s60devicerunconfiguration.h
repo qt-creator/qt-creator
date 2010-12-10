@@ -66,9 +66,10 @@ class TcfTrkEvent;
 
 namespace Qt4ProjectManager {
 class QtVersion;
-class Qt4Target;
+class Qt4BaseTarget;
 
 namespace Internal {
+class Qt4SymbianTarget;
 class Qt4ProFileNode;
 class S60DeviceRunConfigurationFactory;
 
@@ -78,10 +79,10 @@ class S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration
     friend class S60DeviceRunConfigurationFactory;
 
 public:
-    S60DeviceRunConfiguration(Qt4ProjectManager::Qt4Target *parent, const QString &proFilePath);
+    S60DeviceRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent, const QString &proFilePath);
     virtual ~S60DeviceRunConfiguration();
 
-    Qt4Target *qt4Target() const;
+    Qt4SymbianTarget *qt4Target() const;
     const QtVersion *qtVersion() const;
 
     using ProjectExplorer::RunConfiguration::isEnabled;
@@ -106,11 +107,12 @@ public:
 
     QVariantMap toMap() const;
 
+    QString proFilePath() const;
 signals:
     void targetInformationChanged();
 
 protected:
-    S60DeviceRunConfiguration(Qt4ProjectManager::Qt4Target *parent, S60DeviceRunConfiguration *source);
+    S60DeviceRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent, S60DeviceRunConfiguration *source);
     QString defaultDisplayName() const;
     virtual bool fromMap(const QVariantMap &map);
 private slots:

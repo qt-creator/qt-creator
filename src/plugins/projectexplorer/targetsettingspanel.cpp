@@ -79,8 +79,14 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
 
     connect(m_project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetChanged(ProjectExplorer::Target*)));
-    connect(m_project, SIGNAL(supportedTargetIdsChanged()),
-            this, SLOT(updateTargetAddAndRemoveButtons()));
+
+    QList<ITargetFactory *> factories =
+            ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>();
+
+    foreach (ITargetFactory *fac, factories) {
+        connect(fac, SIGNAL(supportedTargetIdsChanged()),
+                this, SLOT(updateTargetAddAndRemoveButtons()));
+    }
 }
 
 TargetSettingsPanelWidget::~TargetSettingsPanelWidget()
@@ -204,6 +210,7 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
 void TargetSettingsPanelWidget::addTarget(QAction *action)
 {
     QString id = action->data().toString();
+    Q_ASSERT(!m_project->target(id));
     QList<ITargetFactory *> factories =
             ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>();
 
@@ -284,30 +291,26 @@ void TargetSettingsPanelWidget::updateTargetAddAndRemoveButtons()
     QList<ITargetFactory *> factories =
             ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>();
 
-    foreach (const QString &id, m_project->possibleTargetIds()) {
-        QString displayName;
-        foreach (ITargetFactory *fac, factories) {
-            if (fac->supportsTargetId(id)) {
-                displayName = fac->displayNameForId(id);
-                break;
+    foreach (ITargetFactory *fac, factories) {
+        foreach (const QString &id, fac->supportedTargetIds(m_project)) {
+            if (m_project->target(id))
+                continue;
+            QString displayName = fac->displayNameForId(id);
+            QAction *action = new QAction(displayName, m_addMenu);
+            action->setData(QVariant(id));
+            bool added = false;
+            foreach(QAction *existing, m_addMenu->actions()) {
+                if (existing->text() > action->text()) {
+                    m_addMenu->insertAction(existing, action);
+                    added = true;
+                }
             }
-        }
-        if (displayName.isEmpty())
-            continue;
 
-        QAction *action = new QAction(displayName, m_addMenu);
-        action->setData(QVariant(id));
-        bool added = false;
-        foreach(QAction *existing, m_addMenu->actions()) {
-            if (existing->text() > action->text()) {
-                m_addMenu->insertAction(existing, action);
-                added = true;
-            }
+            if (!added)
+                m_addMenu->addAction(action);
         }
-
-        if (!added)
-            m_addMenu->addAction(action);
     }
+
     m_selector->setAddButtonEnabled(!m_addMenu->actions().isEmpty());
     m_selector->setRemoveButtonEnabled(m_project->targets().count() > 1);
 }

@@ -91,7 +91,7 @@ public:
 
     bool supportsTargetId(const QString &id) const;
 
-    QStringList availableCreationIds(ProjectExplorer::Project *parent) const;
+    QStringList supportedTargetIds(ProjectExplorer::Project *parent) const;
     QString displayNameForId(const QString &id) const;
 
     bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;

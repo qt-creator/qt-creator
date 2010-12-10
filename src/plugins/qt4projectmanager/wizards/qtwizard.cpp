@@ -237,12 +237,13 @@ int BaseQt4ProjectWizardDialog::addModulesPage(int id)
 int BaseQt4ProjectWizardDialog::addTargetSetupPage(QSet<QString> targets, bool mobile, int id)
 {
     m_targetSetupPage = new TargetSetupPage;
+    m_targets = targets;
     resize(900, 450);
 
     connect(this, SIGNAL(projectLocationChanged(QString)),
             m_targetSetupPage, SLOT(setProFilePath(QString)));
 
-    QList<TargetSetupPage::ImportInfo> infos = TargetSetupPage::importInfosForKnownQtVersions();
+    QList<TargetSetupPage::ImportInfo> infos = TargetSetupPage::importInfosForKnownQtVersions(path());
     if (!targets.isEmpty())
         infos = TargetSetupPage::filterImportInfos(targets, infos);
     m_targetSetupPage->setImportDirectoryBrowsingEnabled(false);
@@ -323,6 +324,10 @@ bool BaseQt4ProjectWizardDialog::isTargetSelected(const QString &targetid) const
 void BaseQt4ProjectWizardDialog::generateProfileName(const QString &name, const QString &path)
 {
     const QString proFile = QDir::fromNativeSeparators(path) + QChar('/') + name + QChar('/') + name + QLatin1String(".pro");
+    QList<TargetSetupPage::ImportInfo> infos = TargetSetupPage::importInfosForKnownQtVersions(proFile);
+    if (!m_targets.isEmpty())
+        infos = TargetSetupPage::filterImportInfos(m_targets, infos);
+    m_targetSetupPage->setImportInfos(infos);
     emit projectLocationChanged(proFile);
 }
 

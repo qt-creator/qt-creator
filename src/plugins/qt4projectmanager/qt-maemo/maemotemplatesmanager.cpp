@@ -38,6 +38,7 @@
 #include "maemodeploystep.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
+#include "qt4maemotarget.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -119,7 +120,7 @@ bool MaemoTemplatesManager::handleTarget(ProjectExplorer::Target *target)
     if (!createDebianTemplatesIfNecessary(target))
         return false;
 
-    const Qt4Target * const qt4Target = qobject_cast<Qt4Target *>(target);
+    const Qt4MaemoTarget * const qt4Target = qobject_cast<Qt4MaemoTarget *>(target);
     const MaemoDeployStep * const deployStep
         = MaemoGlobal::buildStep<MaemoDeployStep>(qt4Target->activeDeployConfiguration());
     connect(deployStep->deployables().data(), SIGNAL(modelReset()), this,
@@ -186,7 +187,7 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
 
     QProcess dh_makeProc;
     QString error;
-    const Qt4Target * const qt4Target = qobject_cast<const Qt4Target *>(target);
+    const Qt4MaemoTarget * const qt4Target = qobject_cast<const Qt4MaemoTarget *>(target);
     Q_ASSERT_X(qt4Target, Q_FUNC_INFO, "Target ID does not match actual type.");
     const Qt4BuildConfiguration * const bc
         = qt4Target->activeBuildConfiguration();
@@ -339,9 +340,9 @@ bool MaemoTemplatesManager::adaptControlFileField(QByteArray &document,
     return updated;
 }
 
-bool MaemoTemplatesManager::updateDesktopFiles(const Qt4Target *target)
+bool MaemoTemplatesManager::updateDesktopFiles(const Qt4MaemoTarget *target)
 {
-    const Qt4Target * const qt4Target = qobject_cast<const Qt4Target *>(target);
+    const Qt4MaemoTarget * const qt4Target = qobject_cast<const Qt4MaemoTarget *>(target);
     Q_ASSERT_X(qt4Target, Q_FUNC_INFO,
         "Impossible: Target has Maemo id, but could not be cast to Qt4Target.");
     const QList<Qt4ProFileNode *> &applicationProjects
@@ -352,7 +353,7 @@ bool MaemoTemplatesManager::updateDesktopFiles(const Qt4Target *target)
     return success;
 }
 
-bool MaemoTemplatesManager::updateDesktopFile(const Qt4Target *target,
+bool MaemoTemplatesManager::updateDesktopFile(const Qt4MaemoTarget *target,
     Qt4ProFileNode *proFileNode)
 {
     const QString appName = proFileNode->targetInformation().target;

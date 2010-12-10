@@ -63,7 +63,7 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using ProjectExplorer::ToolChain;
 
-Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Target *target)
+Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BaseTarget *target)
     : BuildConfigWidget(),
       m_buildConfiguration(0),
       m_ignoreChange(false)

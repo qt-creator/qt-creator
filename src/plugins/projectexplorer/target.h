@@ -159,10 +159,9 @@ public:
     explicit ITargetFactory(QObject *parent = 0);
     virtual ~ITargetFactory();
 
+    virtual QStringList supportedTargetIds(ProjectExplorer::Project *project) const = 0;
     virtual bool supportsTargetId(const QString &id) const = 0;
 
-    // used to show the list of possible additons to a target, returns a list of types
-    virtual QStringList availableCreationIds(Project *parent) const = 0;
     // used to translate the types to names to display to the user
     virtual QString displayNameForId(const QString &id) const = 0;
 
@@ -172,7 +171,7 @@ public:
     virtual Target *restore(Project *parent, const QVariantMap &map) = 0;
 
 signals:
-    void availableCreationIdsChanged();
+    void supportedTargetIdsChanged();
 };
 
 } // namespace ProjectExplorer

@@ -85,8 +85,6 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
             this, SLOT(addShadowBuildLocation()));
     connect(m_ui->uncheckButton, SIGNAL(clicked()),
             this, SLOT(checkAllButtonClicked()));
-    connect(m_ui->versionTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
-            this, SLOT(handleDoubleClicks(QTreeWidgetItem*,int)));
     connect(m_ui->versionTree, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(contextMenuRequested(QPoint)));
 
@@ -128,7 +126,7 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
     m_infos.clear();
 
     // Find possible targets:
-    QStringList targets;
+    QStringList targetIds;
     foreach (const ImportInfo &i, infos) {
         // Make sure we have no duplicate directories:
         bool skip = false;
@@ -148,28 +146,42 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
 
         QSet<QString> versionTargets = i.version->supportedTargetIds();
         foreach (const QString &t, versionTargets) {
-            if (!targets.contains(t))
-                targets.append(t);
+            if (!targetIds.contains(t))
+                targetIds.append(t);
         }
     }
-    qSort(targets.begin(), targets.end());
+    qSort(targetIds.begin(), targetIds.end());
 
     m_ui->versionTree->clear();
-    Qt4TargetFactory factory;
-    foreach (const QString &t, targets) {
+
+    foreach (const QString &targetId, targetIds) {
         QTreeWidgetItem *targetItem = new QTreeWidgetItem(m_ui->versionTree);
-        const QString targetName = factory.displayNameForId(t);
-        targetItem->setText(NAME_COLUMN, targetName);
-        targetItem->setToolTip(NAME_COLUMN, targetName);
+
+        Qt4BaseTargetFactory *factory = 0;
+        QList<Qt4BaseTargetFactory *> factories =
+                ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
+        foreach (Qt4BaseTargetFactory *fac, factories) {
+            if (fac->supportsTargetId(targetId)) {
+                factory = fac;
+                break;
+            }
+        }
+        if (!factory)
+            continue;
+
+        QString displayName = factory->displayNameForId(targetId);
+
+        targetItem->setText(0, displayName);
+        targetItem->setToolTip(0, displayName);
         targetItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-        targetItem->setData(NAME_COLUMN, Qt::UserRole, t);
+        targetItem->setData(NAME_COLUMN, Qt::UserRole, targetId);
         targetItem->setExpanded(true);
 
         int pos = -1;
         foreach (const ImportInfo &i, m_infos) {
             ++pos;
 
-            if (!i.version->supportsTargetId(t))
+            if (!i.version->supportsTargetId(targetId))
                 continue;
             QTreeWidgetItem *versionItem = new QTreeWidgetItem(targetItem);
             updateVersionItem(versionItem, pos);
@@ -236,58 +248,70 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
 {
     Q_ASSERT(project->targets().isEmpty());
     QtVersionManager *vm = QtVersionManager::instance();
-
-    // TODO remove again
-    Qt4TargetFactory *factory =
-            ExtensionSystem::PluginManager::instance()->getObject<Qt4TargetFactory>();
-
     for (int i = 0; i < m_ui->versionTree->topLevelItemCount(); ++i) {
         QTreeWidgetItem *current = m_ui->versionTree->topLevelItem(i);
         QString targetId = current->data(NAME_COLUMN, Qt::UserRole).toString();
 
-        QList<BuildConfigurationInfo> targetInfos;
-        for (int j = 0; j < current->childCount(); ++j) {
-            QTreeWidgetItem *child = current->child(j);
-            if (child->checkState(0) != Qt::Checked)
-                continue;
+        Qt4BaseTargetFactory *qt4TargetFactory = Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(targetId);
+        if (qt4TargetFactory && qt4TargetFactory->canCreate(project, targetId)) {
+            QList<BuildConfigurationInfo> targetInfos;
+            for (int j = 0; j < current->childCount(); ++j) {
+                QTreeWidgetItem *child = current->child(j);
+                if (child->checkState(0) != Qt::Checked)
+                    continue;
+                ImportInfo &info = m_infos[child->data(0, Qt::UserRole).toInt()];
 
-            ImportInfo &info = m_infos[child->data(NAME_COLUMN, Qt::UserRole).toInt()];
+                // Register temporary Qt version
+                if (info.isTemporary) {
+                    vm->addVersion(info.version);
+                    info.isTemporary = false;
+                }
 
-            // Register temporary Qt version
-            if (info.isTemporary) {
-                vm->addVersion(info.version);
-                info.isTemporary = false;
+                targetInfos.append(BuildConfigurationInfo(info.version, info.buildConfig,
+                                                          info.additionalArguments, info.directory));
             }
 
-            QString directory = info.directory;
-            if (!info.isShadowBuild)
-                directory = project->projectDirectory();
+            // create the target:
+            Qt4BaseTarget *target = 0;
+            if (!targetInfos.isEmpty()) {
+                target = qt4TargetFactory->create(project, targetId, targetInfos);
+            }
 
-            // we want to havbe two BCs set up, one to build debug, the other to build release.
-            targetInfos.append(BuildConfigurationInfo(info.version, info.buildConfig,
-                                                      info.additionalArguments, directory));
-            targetInfos.append(BuildConfigurationInfo(info.version, info.buildConfig ^ QtVersion::DebugBuild,
-                                                      info.additionalArguments, directory));
-        }
-
-        // create the target:
-        Qt4Target *target = 0;
-        if (!targetInfos.isEmpty())
-            target = factory->create(project, targetId, targetInfos);
-
-        if (target) {
-            project->addTarget(target);
-            if (target->id() == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
-                project->setActiveTarget(target);
+            if (target) {
+                project->addTarget(target);
+                if (target->id() == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
+                    project->setActiveTarget(target);
+            }
         }
     }
 
-    // Create the default target if nothing else was set up:
+
+    // Create a desktop target if nothing else was set up:
     if (project->targets().isEmpty()) {
-        Qt4Target *target = factory->create(project, Constants::DESKTOP_TARGET_ID);
-        if (target)
-            project->addTarget(target);
+        Qt4BaseTargetFactory *tf = Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(Constants::DESKTOP_TARGET_ID);
+        if (tf) {
+            Qt4BaseTarget *target = tf->create(project, Constants::DESKTOP_TARGET_ID);
+            if (target)
+                project->addTarget(target);
+        }
     }
+
+    // Select active target
+    // a) Simulator target
+    // b) Desktop target
+    // c) the first target
+    ProjectExplorer::Target *activeTarget = 0;
+    QList<ProjectExplorer::Target *> targets = project->targets();
+    foreach (ProjectExplorer::Target *t, targets) {
+        if (t->id() == Constants::QT_SIMULATOR_TARGET_ID)
+            activeTarget = t;
+        else if (!activeTarget && t->id() == Constants::DESKTOP_TARGET_ID)
+            activeTarget = t;
+    }
+    if (!activeTarget && !targets.isEmpty())
+        activeTarget = targets.first();
+    if (activeTarget)
+        project->setActiveTarget(activeTarget);
 
     return !project->targets().isEmpty();
 }
@@ -330,24 +354,31 @@ void TargetSetupPage::setProFilePath(const QString &path)
     setImportInfos(tmp);
 }
 
-QList<TargetSetupPage::ImportInfo> TargetSetupPage::importInfosForKnownQtVersions()
+QList<TargetSetupPage::ImportInfo> TargetSetupPage::importInfosForKnownQtVersions(const QString &proFilePath)
 {
-    QList<ImportInfo> results;
-    QtVersionManager * vm = QtVersionManager::instance();
-    QList<QtVersion *> validVersions = vm->validVersions();
-    // Fallback in case no valid versions are found:
-    if (validVersions.isEmpty())
-        validVersions.append(vm->versions().at(0)); // there is always one!
-    foreach (QtVersion *v, validVersions) {
+    QList<Qt4BaseTargetFactory *> factories =
+            ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
+
+    QList<BuildConfigurationInfo> bcinfos;
+
+    foreach(Qt4BaseTargetFactory *fac, factories)
+        bcinfos.append(fac->availableBuildConfigurations(proFilePath));
+
+    QList<ImportInfo> infos;
+    foreach (const BuildConfigurationInfo &info, bcinfos) {
+        infos.append(ImportInfo(info));
+    }
+
+    if (infos.isEmpty()) {
+        // Fallback to the Qt in Path version
         ImportInfo info;
         info.isExistingBuild = false;
         info.isTemporary = false;
-        info.isShadowBuild = v->supportsShadowBuilds();
-        info.version = v;
-        info.buildConfig = v->defaultBuildConfig();
-        results.append(info);
+        info.version = QtVersionManager::instance()->versions().at(0);
+        info.buildConfig = info.version->defaultBuildConfig();
+        infos.append(info);
     }
-    return results;
+    return infos;
 }
 
 QList<TargetSetupPage::ImportInfo> TargetSetupPage::filterImportInfos(const QSet<QString> &validTargets,
@@ -372,7 +403,8 @@ TargetSetupPage::scanDefaultProjectDirectories(Qt4ProjectManager::Qt4Project *pr
                                                                                           project->file()->fileName());
     QtVersionManager *vm = QtVersionManager::instance();
     foreach(const QString &id, vm->supportedTargetIds()) {
-        QString location = Qt4Target::defaultShadowBuildDirectory(project->defaultTopLevelBuildDirectory(), id);
+        Qt4BaseTargetFactory *qt4Factory = Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(id);
+        QString location = qt4Factory->defaultShadowBuildDirectory(project->defaultTopLevelBuildDirectory(), id);
         importVersions.append(TargetSetupPage::recursivelyCheckDirectoryForBuild(location,
                                                                                  project->file()->fileName()));
     }
@@ -404,7 +436,6 @@ TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, con
     QtVersionManager * vm = QtVersionManager::instance();
     TargetSetupPage::ImportInfo info;
     info.directory = dir.absolutePath();
-    info.isShadowBuild = (info.directory != QFileInfo(proFile).absolutePath());
 
     // This also means we have a build in there
     // First get the qt version
@@ -513,17 +544,6 @@ void TargetSetupPage::checkOneTriggered()
     checkOne(true, item);
 }
 
-void TargetSetupPage::handleDoubleClicks(QTreeWidgetItem *item, int column)
-{
-    int idx = item->data(NAME_COLUMN, Qt::UserRole).toInt();
-    if (column == DIRECTORY_COLUMN && item->parent()) {
-        if (m_infos[idx].isExistingBuild || !m_infos[idx].version->supportsShadowBuilds())
-            return;
-        m_infos[idx].isShadowBuild = !m_infos[idx].isShadowBuild;
-        updateVersionItem(item, idx);
-    }
-}
-
 void TargetSetupPage::contextMenuRequested(const QPoint &position)
 {
     m_contextMenu->clear();
@@ -596,18 +616,7 @@ QPair<QIcon, QString> TargetSetupPage::reportIssues(Qt4ProjectManager::QtVersion
 void TargetSetupPage::updateVersionItem(QTreeWidgetItem *versionItem, int index)
 {
     ImportInfo &info = m_infos[index];
-    const QString target = versionItem->parent()->data(NAME_COLUMN, Qt::UserRole).toString();
-    QString dir;
-    if (info.directory.isEmpty()) {
-        Q_ASSERT(!info.isTemporary && !info.isExistingBuild);
-        if (info.isShadowBuild)
-            dir = Qt4Target::defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(m_proFilePath), target);
-        else
-            dir = Qt4Project::projectDirectory(m_proFilePath);
-    } else {
-        dir = info.directory;
-    }
-    QPair<QIcon, QString> issues = reportIssues(info.version, dir);
+    QPair<QIcon, QString> issues = reportIssues(info.version, info.directory);
 
     //: We are going to build debug and release
     QString buildType = tr("debug and release");
@@ -631,7 +640,7 @@ void TargetSetupPage::updateVersionItem(QTreeWidgetItem *versionItem, int index)
     // Column 0:
     versionItem->setToolTip(NAME_COLUMN, toolTip);
     versionItem->setIcon(NAME_COLUMN, issues.first);
-    versionItem->setText(NAME_COLUMN, info.version->displayName());
+    versionItem->setText(NAME_COLUMN, info.version->displayName() + " " + buildType);
     versionItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     versionItem->setData(NAME_COLUMN, Qt::UserRole, index);
 
@@ -646,6 +655,6 @@ void TargetSetupPage::updateVersionItem(QTreeWidgetItem *versionItem, int index)
 
     // Column 2 (directory):
     Q_ASSERT(versionItem->parent());
-    versionItem->setText(DIRECTORY_COLUMN, QDir::toNativeSeparators(dir));
-    versionItem->setToolTip(DIRECTORY_COLUMN, QDir::toNativeSeparators(dir));
+    versionItem->setText(DIRECTORY_COLUMN, QDir::toNativeSeparators(info.directory));
+    versionItem->setToolTip(DIRECTORY_COLUMN, QDir::toNativeSeparators(info.directory));
 }

@@ -117,8 +117,13 @@ Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters()
 AbstractMobileAppWizardDialog *QmlStandaloneAppWizard::createWizardDialogInternal(QWidget *parent) const
 {
     m_d->wizardDialog = new QmlStandaloneAppWizardDialog(parent);
+    return m_d->wizardDialog;
+}
+
+void QmlStandaloneAppWizard::projectPathChanged(const QString &path) const
+{
     const QList<TargetSetupPage::ImportInfo> &qtVersions
-        = TargetSetupPage::importInfosForKnownQtVersions();
+        = TargetSetupPage::importInfosForKnownQtVersions(path);
     QList<TargetSetupPage::ImportInfo> qmlQtVersions;
     foreach (const TargetSetupPage::ImportInfo &qtVersion, qtVersions) {
         const QString versionString = qtVersion.version->qtVersionString();
@@ -132,8 +137,6 @@ AbstractMobileAppWizardDialog *QmlStandaloneAppWizard::createWizardDialogInterna
         qmlQtVersions << qtVersion;
     }
     m_d->wizardDialog->m_targetsPage->setImportInfos(qmlQtVersions);
-
-    return m_d->wizardDialog;
 }
 
 void QmlStandaloneAppWizard::prepareGenerateFiles(const QWizard *w,

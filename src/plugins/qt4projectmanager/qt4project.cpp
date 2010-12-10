@@ -37,7 +37,6 @@
 #include "qt4projectmanager.h"
 #include "makestep.h"
 #include "qmakestep.h"
-#include "qt4runconfiguration.h"
 #include "qt4nodes.h"
 #include "qt4projectconfigwidget.h"
 #include "qt4projectmanagerconstants.h"
@@ -264,8 +263,6 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_asyncUpdateTimer.setSingleShot(true);
     m_asyncUpdateTimer.setInterval(3000);
     connect(&m_asyncUpdateTimer, SIGNAL(timeout()), this, SLOT(asyncUpdate()));
-
-    setSupportedTargetIds(QtVersionManager::instance()->supportedTargetIds());
 }
 
 Qt4Project::~Qt4Project()
@@ -327,13 +324,11 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     // This might be incorrect, need a full update
     updateCodeModels();
 
-    createApplicationProjects();
+    foreach (Target *t, targets())
+        static_cast<Qt4BaseTarget *>(t)->createApplicationProFiles();
 
     foreach (Target *t, targets())
         onAddedTarget(t);
-
-    setSupportedTargetIds(QtVersionManager::instance()->supportedTargetIds());
-
 
     connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
             this, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *,bool)));
@@ -349,32 +344,29 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
             this, SLOT(onAddedTarget(ProjectExplorer::Target*)));
 
-    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
-            this, SLOT(qtVersionsChanged()));
-
     connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetWasChanged()));
 
     return true;
 }
 
-Qt4Target *Qt4Project::activeTarget() const
+Qt4BaseTarget *Qt4Project::activeTarget() const
 {
-    return static_cast<Qt4Target *>(Project::activeTarget());
+    return static_cast<Qt4BaseTarget *>(Project::activeTarget());
 }
 
 void Qt4Project::onAddedTarget(ProjectExplorer::Target *t)
 {
     Q_ASSERT(t);
-    Qt4Target *qt4target = qobject_cast<Qt4Target *>(t);
+    Qt4BaseTarget *qt4target = qobject_cast<Qt4BaseTarget *>(t);
     Q_ASSERT(qt4target);
     connect(qt4target, SIGNAL(buildDirectoryInitialized()),
             this, SIGNAL(buildDirectoryInitialized()));
-    connect(qt4target, SIGNAL(proFileEvaluateNeeded(Qt4ProjectManager::Qt4Target*)),
-            this, SLOT(proFileEvaluateNeeded(Qt4ProjectManager::Qt4Target*)));
+    connect(qt4target, SIGNAL(proFileEvaluateNeeded(Qt4ProjectManager::Qt4BaseTarget*)),
+            this, SLOT(proFileEvaluateNeeded(Qt4ProjectManager::Qt4BaseTarget*)));
 }
 
-void Qt4Project::proFileEvaluateNeeded(Qt4ProjectManager::Qt4Target *target)
+void Qt4Project::proFileEvaluateNeeded(Qt4ProjectManager::Qt4BaseTarget *target)
 {
     if (activeTarget() == target)
         scheduleAsyncUpdate();
@@ -606,11 +598,6 @@ void Qt4Project::updateQmlJSCodeModel()
     modelManager->updateProjectInfo(projectInfo);
 }
 
-void Qt4Project::qtVersionsChanged()
-{
-    setSupportedTargetIds(QtVersionManager::instance()->supportedTargetIds());
-}
-
 ///*!
 //  Updates complete project
 //  */
@@ -763,6 +750,8 @@ void Qt4Project::decrementPendingEvaluateFutures()
             m_asyncUpdateTimer.start();
         } else  if (m_asyncUpdateState != ShuttingDown){
             // After being done, we need to call:
+            foreach (Target *t, targets())
+                static_cast<Qt4BaseTarget *>(t)->createApplicationProFiles();
             updateFileList();
             updateCodeModels();
             if (debug)
@@ -997,51 +986,6 @@ void Qt4Project::collectApplicationProFiles(QList<Qt4ProFileNode *> &list, Qt4Pr
         Qt4ProFileNode *qt4ProFileNode = qobject_cast<Qt4ProFileNode *>(n);
         if (qt4ProFileNode)
             collectApplicationProFiles(list, qt4ProFileNode);
-    }
-}
-
-void Qt4Project::createApplicationProjects()
-{
-    foreach (Target *target, targets()) {
-        if (target->runConfigurations().count()) {
-            // Remove all run configurations which the new project wizard created
-            QList<RunConfiguration*> toRemove;
-            foreach (RunConfiguration * rc, target->runConfigurations()) {
-                CustomExecutableRunConfiguration *cerc = qobject_cast<CustomExecutableRunConfiguration *>(rc);
-                if (cerc && !cerc->isConfigured())
-                    toRemove.append(rc);
-            }
-            foreach (RunConfiguration *rc, toRemove)
-                target->removeRunConfiguration(rc);
-        }
-
-        // We use the list twice
-        QList<Qt4ProFileNode *> profiles = applicationProFiles();
-        QStringList paths;
-        foreach (Qt4ProFileNode *pro, profiles)
-            paths << pro->path();
-
-        foreach (RunConfiguration *rc, target->runConfigurations()) {
-            if (Qt4RunConfiguration *qt4rc = qobject_cast<Qt4RunConfiguration *>(rc)) {
-                if (!paths.contains(qt4rc->proFilePath())) {
-                    // A deleted .pro file? or a change template
-                    // We do remove those though
-                    target->removeRunConfiguration(rc);
-                }
-            }
-        }
-
-        // Only add new runconfigurations if there are none.
-        if (target->runConfigurations().isEmpty()) {
-            Qt4Target *qt4Target = static_cast<Qt4Target *>(target);
-            foreach (Qt4ProFileNode *qt4proFile, profiles) {
-                qt4Target->addRunConfigurationForPath(qt4proFile->path());
-            }
-        }
-        // Oh still none? Add a custom executable runconfiguration
-        if (target->runConfigurations().isEmpty()) {
-            target->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(target));
-        }
     }
 }
 

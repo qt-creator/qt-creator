@@ -34,7 +34,6 @@
 #include "externaleditors.h"
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
-#include "qt4target.h"
 #include "qtversionmanager.h"
 #include "qt4buildconfiguration.h"
 

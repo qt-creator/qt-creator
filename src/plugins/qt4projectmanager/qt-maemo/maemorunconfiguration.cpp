@@ -40,6 +40,7 @@
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfigurationwidget.h"
 #include "maemotoolchain.h"
+#include "qt4maemotarget.h"
 #include "qtoutputformatter.h"
 
 #include <coreplugin/icore.h>
@@ -65,7 +66,7 @@ const bool DefaultUseRemoteGdbValue = false;
 
 using namespace ProjectExplorer;
 
-MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
+MaemoRunConfiguration::MaemoRunConfiguration(Qt4BaseTarget *parent,
         const QString &proFilePath)
     : RunConfiguration(parent, QLatin1String(MAEMO_RC_ID))
     , m_proFilePath(proFilePath)
@@ -76,7 +77,7 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
     init();
 }
 
-MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
+MaemoRunConfiguration::MaemoRunConfiguration(Qt4BaseTarget *parent,
         MaemoRunConfiguration *source)
     : RunConfiguration(parent, source)
     , m_proFilePath(source->m_proFilePath)
@@ -114,9 +115,9 @@ MaemoRunConfiguration::~MaemoRunConfiguration()
 {
 }
 
-Qt4Target *MaemoRunConfiguration::qt4Target() const
+Qt4MaemoTarget *MaemoRunConfiguration::qt4Target() const
 {
-    return static_cast<Qt4Target *>(target());
+    return static_cast<Qt4MaemoTarget *>(target());
 }
 
 Qt4BuildConfiguration *MaemoRunConfiguration::activeQt4BuildConfiguration() const
@@ -441,6 +442,11 @@ void MaemoRunConfiguration::setSystemEnvironment(const Utils::Environment &envir
         m_systemEnvironment = environment;
         emit systemEnvironmentChanged();
     }
+}
+
+QString MaemoRunConfiguration::proFilePath() const
+{
+    return m_proFilePath;
 }
 
 } // namespace Internal

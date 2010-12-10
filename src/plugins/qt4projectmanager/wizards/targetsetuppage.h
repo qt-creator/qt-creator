@@ -34,6 +34,7 @@
 #ifndef TARGETSETUPPAGE_H
 #define TARGETSETUPPAGE_H
 
+#include "qt4target.h"
 #include "qtversionmanager.h"
 
 #include <QtCore/QList>
@@ -71,12 +72,20 @@ public:
             version(0),
             isTemporary(false),
             buildConfig(QtVersion::QmakeBuildConfig(0)),
-            isExistingBuild(false),
-            isShadowBuild(false)
+            isExistingBuild(false)
         {
             if (version && version->isValid())
                 buildConfig = version->defaultBuildConfig();
         }
+
+        ImportInfo(const BuildConfigurationInfo &source)
+            : version(source.version),
+              isTemporary(false),
+              buildConfig(source.buildConfig),
+              additionalArguments(source.additionalArguments),
+              directory(source.directory),
+              isExistingBuild(false)
+        {}
 
         ImportInfo(const ImportInfo &other) :
             version(other.version),
@@ -84,8 +93,7 @@ public:
             buildConfig(other.buildConfig),
             additionalArguments(other.additionalArguments),
             directory(other.directory),
-            isExistingBuild(other.isExistingBuild),
-            isShadowBuild(other.isShadowBuild)
+            isExistingBuild(other.isExistingBuild)
         { }
 
         QtVersion *version;
@@ -94,7 +102,6 @@ public:
         QString additionalArguments;
         QString directory;
         bool isExistingBuild;
-        bool isShadowBuild;
     };
 
     explicit TargetSetupPage(QWidget* parent = 0);
@@ -109,7 +116,7 @@ public:
     void setImportDirectoryBrowsingLocation(const QString &directory);
     void setPreferMobile(bool mobile);
 
-    static QList<ImportInfo> importInfosForKnownQtVersions();
+    static QList<ImportInfo> importInfosForKnownQtVersions(const QString &proFilePath);
     static QList<ImportInfo> filterImportInfos(const QSet<QString> &validTargets,
                                                const QList<ImportInfo> &infos);
 
@@ -135,7 +142,6 @@ private slots:
     void uncheckAllTriggered();
     void checkOneTriggered();
     void addShadowBuildLocation();
-    void handleDoubleClicks(QTreeWidgetItem *, int);
     void contextMenuRequested(const QPoint & pos);
 
 private:

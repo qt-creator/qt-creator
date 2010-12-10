@@ -108,7 +108,7 @@ bool QmlProjectTargetFactory::supportsTargetId(const QString &id) const
     return id == QLatin1String(Constants::QML_VIEWER_TARGET_ID);
 }
 
-QStringList QmlProjectTargetFactory::availableCreationIds(ProjectExplorer::Project *parent) const
+QStringList QmlProjectTargetFactory::supportedTargetIds(ProjectExplorer::Project *parent) const
 {
     if (!qobject_cast<QmlProject *>(parent))
         return QStringList();

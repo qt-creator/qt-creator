@@ -51,11 +51,12 @@ namespace Qt4ProjectManager {
 
 class Qt4BuildConfiguration;
 class Qt4Project;
-class Qt4Target;
+class Qt4BaseTarget;
 
 namespace Internal {
 
 class Qt4ProFileNode;
+class Qt4MaemoTarget;
 
 class MaemoDeviceConfigListModel;
 class MaemoDeployStep;
@@ -77,14 +78,14 @@ public:
 
     enum DebuggingType { DebugCppOnly, DebugQmlOnly, DebugCppAndQml };
 
-    MaemoRunConfiguration(Qt4Target *parent, const QString &proFilePath);
+    MaemoRunConfiguration(Qt4BaseTarget *parent, const QString &proFilePath);
     virtual ~MaemoRunConfiguration();
 
     using ProjectExplorer::RunConfiguration::isEnabled;
     bool isEnabled(ProjectExplorer::BuildConfiguration *config) const;
     QWidget *createConfigurationWidget();
     ProjectExplorer::OutputFormatter *createOutputFormatter() const;
-    Qt4Target *qt4Target() const;
+    Qt4MaemoTarget *qt4Target() const;
     Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
     MaemoDeployStep *deployStep() const;
@@ -126,6 +127,8 @@ public:
 
     int portsUsedByDebuggers() const;
 
+    QString proFilePath() const;
+
 signals:
     void deviceConfigurationChanged(ProjectExplorer::Target *target);
     void targetInformationChanged() const;
@@ -135,7 +138,7 @@ signals:
     void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
 
 protected:
-    MaemoRunConfiguration(Qt4Target *parent, MaemoRunConfiguration *source);
+    MaemoRunConfiguration(Qt4BaseTarget *parent, MaemoRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
     QString defaultDisplayName();
 

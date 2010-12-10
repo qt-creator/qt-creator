@@ -42,6 +42,7 @@
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
 #include "maemosettingspages.h"
+#include "qt4maemotarget.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>

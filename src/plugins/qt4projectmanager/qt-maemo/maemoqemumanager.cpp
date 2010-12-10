@@ -41,6 +41,7 @@
 #include "qtversionmanager.h"
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
+#include "qt4maemotarget.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -506,7 +507,7 @@ void MaemoQemuManager::toggleStarterButton(Target *target)
 {
     int uniqueId = -1;
     if (target) {
-        if (Qt4Target *qt4Target = qobject_cast<Qt4Target*>(target)) {
+        if (Qt4MaemoTarget *qt4Target = qobject_cast<Qt4MaemoTarget*>(target)) {
             if (Qt4BuildConfiguration *bc = qt4Target->activeBuildConfiguration()) {
                 if (QtVersion *version = bc->qtVersion())
                     uniqueId = version->uniqueId();

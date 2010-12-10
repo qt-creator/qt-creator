@@ -37,11 +37,14 @@
 #include "qt4target.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4buildconfiguration.h"
+#include "qt4symbiantarget.h"
 #include "s60createpackagestep.h"
+#include "s60deploystep.h"
 
 #include <utils/qtcassert.h>
 #include <symbianutils/symbiandevicemanager.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/project.h>
 
@@ -278,9 +281,8 @@ QString S60DeployConfiguration::symbianTarget() const
 
 const QtVersion *S60DeployConfiguration::qtVersion() const
 {
-    if (const BuildConfiguration *bc = target()->activeBuildConfiguration())
-        if (const Qt4BuildConfiguration *qt4bc = qobject_cast<const Qt4BuildConfiguration *>(bc))
-            return qt4bc->qtVersion();
+    if (const Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration())
+        return qt4bc->qtVersion();
     return 0;
 }
 
@@ -342,9 +344,9 @@ bool S60DeployConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
-Qt4Target *S60DeployConfiguration::qt4Target() const
+Qt4SymbianTarget *S60DeployConfiguration::qt4Target() const
 {
-    return static_cast<Qt4Target *>(target());
+    return static_cast<Qt4SymbianTarget *>(target());
 }
 
 QString S60DeployConfiguration::serialPortName() const
@@ -436,7 +438,7 @@ S60DeployConfigurationFactory::~S60DeployConfigurationFactory()
 
 QStringList S60DeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    Qt4Target *target = qobject_cast<Qt4Target *>(parent);
+    Qt4SymbianTarget *target = qobject_cast<Qt4SymbianTarget *>(parent);
     if (!target ||
         target->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return QStringList();
@@ -456,13 +458,18 @@ DeployConfiguration *S60DeployConfigurationFactory::create(Target *parent, const
     if (!canCreate(parent, id))
         return 0;
 
-    Qt4Target *t(static_cast<Qt4Target *>(parent));
-    return new S60DeployConfiguration(t);
+    Qt4SymbianTarget *t = static_cast<Qt4SymbianTarget *>(parent);
+    S60DeployConfiguration *dc = new S60DeployConfiguration(t);
+
+    dc->setDefaultDisplayName(tr("Deploy to Symbian device"));
+    dc->stepList()->insertStep(0, new S60CreatePackageStep(dc->stepList()));
+    dc->stepList()->insertStep(1, new S60DeployStep(dc->stepList()));
+    return dc;
 }
 
 bool S60DeployConfigurationFactory::canCreate(Target *parent, const QString& /*id*/) const
 {
-    Qt4Target *t = qobject_cast<Qt4Target *>(parent);
+    Qt4SymbianTarget * t = qobject_cast<Qt4SymbianTarget *>(parent);
     if (!t || t->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return false;
     return true;
@@ -470,7 +477,7 @@ bool S60DeployConfigurationFactory::canCreate(Target *parent, const QString& /*i
 
 bool S60DeployConfigurationFactory::canRestore(Target *parent, const QVariantMap& /*map*/) const
 {
-    Qt4Target *t = qobject_cast<Qt4Target *>(parent);
+    Qt4SymbianTarget * t = qobject_cast<Qt4SymbianTarget *>(parent);
     return t && t->id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID);
 }
 
@@ -478,8 +485,8 @@ DeployConfiguration *S60DeployConfigurationFactory::restore(Target *parent, cons
 {
     if (!canRestore(parent, map))
         return 0;
-    Qt4Target *t(static_cast<Qt4Target *>(parent));
-    S60DeployConfiguration *dc(new S60DeployConfiguration(t));
+    Qt4SymbianTarget *t = static_cast<Qt4SymbianTarget *>(parent);
+    S60DeployConfiguration *dc = new S60DeployConfiguration(t);
     if (dc->fromMap(map))
         return dc;
 
@@ -489,7 +496,7 @@ DeployConfiguration *S60DeployConfigurationFactory::restore(Target *parent, cons
 
 bool S60DeployConfigurationFactory::canClone(Target *parent, DeployConfiguration *source) const
 {
-    if (!qobject_cast<Qt4Target *>(parent))
+    if (!qobject_cast<Qt4SymbianTarget *>(parent))
         return false;
     return source->id() == QLatin1String(S60_DC_ID);
 }
@@ -498,7 +505,7 @@ DeployConfiguration *S60DeployConfigurationFactory::clone(Target *parent, Deploy
 {
     if (!canClone(parent, source))
         return 0;
-    Qt4Target *t = static_cast<Qt4Target *>(parent);
-    S60DeployConfiguration *old = static_cast<S60DeployConfiguration *>(source);
+    Qt4SymbianTarget *t = static_cast<Qt4SymbianTarget *>(parent);
+    S60DeployConfiguration * old = static_cast<S60DeployConfiguration *>(source);
     return new S60DeployConfiguration(t, old);
 }

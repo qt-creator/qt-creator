@@ -44,9 +44,9 @@ class RunConfiguration;
 
 namespace Qt4ProjectManager {
 class QtVersion;
-class Qt4Target;
 
 namespace Internal {
+class Qt4SymbianTarget;
 class Qt4ProFileNode;
 class S60DeployConfigurationFactory;
 class S60DeviceRunConfiguration;
@@ -70,7 +70,7 @@ public:
     ProjectExplorer::DeployConfigurationWidget *configurationWidget() const;
 
     const QtVersion *qtVersion() const;
-    Qt4Target *qt4Target() const;
+    Qt4SymbianTarget *qt4Target() const;
     ProjectExplorer::ToolChainType toolChainType() const;
 
     QString serialPortName() const;

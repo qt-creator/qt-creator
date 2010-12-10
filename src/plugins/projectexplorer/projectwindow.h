@@ -34,6 +34,7 @@
 #ifndef PROJECTWINDOW_H
 #define PROJECTWINDOW_H
 
+#include <QtCore/QMap>
 #include <QtGui/QScrollArea>
 
 QT_BEGIN_NAMESPACE
@@ -81,7 +82,9 @@ public:
     ~ProjectWindow();
 
     void aboutToShutdown();
+    void extensionsInitialized();
 private slots:
+    void targetFactoriesChanged();
     void showProperties(int index, int subIndex);
     void restoreStatus();
     void saveStatus();
@@ -89,15 +92,15 @@ private slots:
     void deregisterProject(ProjectExplorer::Project*);
     void startupProjectChanged(ProjectExplorer::Project *);
 
-    void refreshProject();
-
 private:
+    bool useTargetPage(ProjectExplorer::Project *project);
     void removeCurrentWidget();
 
     DoubleTabWidget *m_tabWidget;
     QStackedWidget *m_centralWidget;
     QWidget *m_currentWidget;
     QList<ProjectExplorer::Project *> m_tabIndexToProject;
+    QMap<ProjectExplorer::Project *, bool> m_usesTargetPage;
     int m_previousTargetSubIndex;
 };
 

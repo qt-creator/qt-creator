@@ -44,6 +44,7 @@
 #include "maemosettingspages.h"
 #include "maemotemplatesmanager.h"
 #include "maemotoolchain.h"
+#include "qt4maemotargetfactory.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <qt4projectmanager/qtversionmanager.h>
@@ -69,6 +70,7 @@ MaemoManager::MaemoManager()
     , m_deviceConfigurationsSettingsPage(new MaemoDeviceConfigurationsSettingsPage(this))
     , m_qemuSettingsPage(new MaemoQemuSettingsPage(this))
     , m_publishingFactoryFremantleFree(new MaemoPublishingWizardFactoryFremantleFree(this))
+    , m_maemoTargetFactory(new Qt4MaemoTargetFactory(this))
 {
     Q_ASSERT(!m_instance);
 
@@ -85,6 +87,7 @@ MaemoManager::MaemoManager()
     pluginManager->addObject(m_deviceConfigurationsSettingsPage);
     pluginManager->addObject(m_qemuSettingsPage);
     pluginManager->addObject(m_publishingFactoryFremantleFree);
+    pluginManager->addObject(m_maemoTargetFactory);
 }
 
 MaemoManager::~MaemoManager()
@@ -98,6 +101,7 @@ MaemoManager::~MaemoManager()
     pluginManager->removeObject(m_deviceConfigurationsSettingsPage);
     pluginManager->removeObject(m_qemuSettingsPage);
     pluginManager->removeObject(m_publishingFactoryFremantleFree);
+    pluginManager->removeObject(m_maemoTargetFactory);
 
     m_instance = 0;
 }

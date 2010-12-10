@@ -59,7 +59,6 @@ namespace Internal {
     class FileItem;
     class Qt4ProFileNode;
     class Qt4PriFileNode;
-    class Qt4RunConfiguration;
     class GCCPreprocessor;
     struct Qt4ProjectFiles;
     class Qt4ProjectConfigWidget;
@@ -155,7 +154,7 @@ public:
     ProjectExplorer::IProjectManager *projectManager() const;
     Qt4Manager *qt4ProjectManager() const;
 
-    Qt4Target *activeTarget() const;
+    Qt4BaseTarget *activeTarget() const;
 
     QList<Core::IFile *> dependencies();     //NBS remove
     QList<ProjectExplorer::Project *>dependsOn();
@@ -210,18 +209,16 @@ protected:
     virtual bool fromMap(const QVariantMap &map);
 
 private slots:
-    void proFileEvaluateNeeded(Qt4ProjectManager::Qt4Target *target);
+    void proFileEvaluateNeeded(Qt4ProjectManager::Qt4BaseTarget *target);
 
     void asyncUpdate();
 
-    void qtVersionsChanged();
     void onAddedTarget(ProjectExplorer::Target *t);
     void activeTargetWasChanged();
 
 private:
     void scheduleAsyncUpdate();
 
-    void createApplicationProjects();
     void updateCodeModels();
     void updateCppCodeModel();
     void updateQmlJSCodeModel();
@@ -272,5 +269,6 @@ private:
 };
 
 } // namespace Qt4ProjectManager
+
 
 #endif // QT4PROJECT_H

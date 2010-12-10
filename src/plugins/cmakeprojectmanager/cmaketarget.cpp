@@ -186,7 +186,7 @@ CMakeTargetFactory::~CMakeTargetFactory()
 {
 }
 
-QStringList CMakeTargetFactory::availableCreationIds(ProjectExplorer::Project *parent) const
+QStringList CMakeTargetFactory::supportedTargetIds(ProjectExplorer::Project *parent) const
 {
     if (!qobject_cast<CMakeProject *>(parent))
         return QStringList();

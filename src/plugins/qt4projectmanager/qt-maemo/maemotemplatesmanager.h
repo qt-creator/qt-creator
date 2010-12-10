@@ -50,10 +50,10 @@ class Target;
 
 namespace Qt4ProjectManager {
 class Qt4Project;
-class Qt4Target;
 
 namespace Internal {
 class Qt4ProFileNode;
+class Qt4MaemoTarget;
 
 class MaemoTemplatesManager : public QObject
 {
@@ -103,8 +103,8 @@ private:
     QString changeLogFilePath(const ProjectExplorer::Project *project) const;
     QString controlFilePath(const ProjectExplorer::Project *project) const;
     bool createDebianTemplatesIfNecessary(const ProjectExplorer::Target *target);
-    bool updateDesktopFiles(const Qt4Target *target);
-    bool updateDesktopFile(const Qt4Target *target,
+    bool updateDesktopFiles(const Qt4MaemoTarget *target);
+    bool updateDesktopFile(const Qt4MaemoTarget *target,
         Qt4ProFileNode *proFileNode);
     ProjectExplorer::Project *findProject(const QFileSystemWatcher *fsWatcher) const;
     void findLine(const QByteArray &string, QByteArray &document,

@@ -41,6 +41,7 @@
 #include "maemorunconfiguration.h"
 #include "maemotoolchain.h"
 #include "maemousedportsgatherer.h"
+#include "qt4maemotarget.h"
 
 #include <coreplugin/ssh/sftpchannel.h>
 #include <coreplugin/ssh/sshconnection.h>
@@ -96,7 +97,7 @@ void MaemoDeployStep::ctor()
     const QList<DeployConfiguration *> &deployConfigs
         = target()->deployConfigurations();
     if (deployConfigs.isEmpty()) {
-        const Qt4Target * const qt4Target = qobject_cast<Qt4Target *>(target());
+        const Qt4MaemoTarget * const qt4Target = qobject_cast<Qt4MaemoTarget *>(target());
         Q_ASSERT(qt4Target);
         m_deployables = QSharedPointer<MaemoDeployables>(new MaemoDeployables(qt4Target));
     } else {

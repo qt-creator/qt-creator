@@ -82,13 +82,6 @@ public:
     EditorConfiguration *editorConfiguration() const;
 
     // Target:
-
-    // Note: You can only add a specific kind of target (identified by id)
-    //       once.
-    QSet<QString> supportedTargetIds() const;
-    QSet<QString> possibleTargetIds() const;
-    bool canAddTarget(const QString &id) const;
-
     void addTarget(Target *target);
     void removeTarget(Target *target);
 
@@ -136,8 +129,6 @@ signals:
     void removedTarget(ProjectExplorer::Target *target);
     void addedTarget(ProjectExplorer::Target *target);
 
-    void supportedTargetIdsChanged();
-
     /// convenience signal emitted if the activeBuildConfiguration emits environmentChanged
     /// or if the activeBuildConfiguration changes
     /// (which theoretically might happen due to the active target changing).
@@ -148,8 +139,6 @@ protected:
     //
     // Note: Do not forget to call your base class' fromMap method!
     virtual bool fromMap(const QVariantMap &map);
-
-    void setSupportedTargetIds(const QSet<QString> &ids);
 
 private slots:
     void changeEnvironment();

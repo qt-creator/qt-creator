@@ -48,7 +48,6 @@
 #include "profileeditorfactory.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4project.h"
-#include "qt4runconfiguration.h"
 #include "profileeditor.h"
 #include "profilereader.h"
 #include "qtversionmanager.h"
@@ -59,6 +58,9 @@
 
 #include "qt-maemo/maemomanager.h"
 #include "qt-s60/s60manager.h"
+#include "qt-desktop/qt4desktoptargetfactory.h"
+#include "qt-desktop/qt4simulatortargetfactory.h"
+#include "qt-desktop/qt4runconfiguration.h"
 
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/icore.h>
@@ -151,7 +153,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new QMakeStepFactory);
     addAutoReleasedObject(new MakeStepFactory);
 
-    addAutoReleasedObject(new Qt4TargetFactory);
     addAutoReleasedObject(new Qt4RunConfigurationFactory);
 
 #ifdef Q_OS_MAC
@@ -163,6 +164,9 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     addAutoReleasedObject(new S60Manager);
     addAutoReleasedObject(new MaemoManager);
+
+    addAutoReleasedObject(new Qt4DesktopTargetFactory);
+    addAutoReleasedObject(new Qt4SimulatorTargetFactory);
 
     ProFileCompletion *completion = new ProFileCompletion;
     addAutoReleasedObject(completion);

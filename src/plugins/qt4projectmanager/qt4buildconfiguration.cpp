@@ -67,7 +67,7 @@ const char * const QT_VERSION_ID_KEY("Qt4ProjectManager.Qt4BuildConfiguration.Qt
 enum { debug = 0 };
 }
 
-Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Target *target) :
+Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BaseTarget *target) :
     BuildConfiguration(target, QLatin1String(QT4_BC_ID)),
     m_shadowBuild(true),
     m_qtVersionId(-1),
@@ -78,7 +78,7 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Target *target) :
     ctor();
 }
 
-Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Target *target, const QString &id) :
+Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BaseTarget *target, const QString &id) :
     BuildConfiguration(target, id),
     m_shadowBuild(true),
     m_qtVersionId(-1),
@@ -89,7 +89,7 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Target *target, const QString &i
     ctor();
 }
 
-Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Target *target, Qt4BuildConfiguration *source) :
+Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BaseTarget *target, Qt4BuildConfiguration *source) :
     BuildConfiguration(target, source),
     m_shadowBuild(source->m_shadowBuild),
     m_buildDirectory(source->m_buildDirectory),
@@ -205,9 +205,9 @@ void Qt4BuildConfiguration::pickValidQtVersion()
         setQtVersion(QtVersionManager::instance()->emptyVersion());
 }
 
-Qt4Target *Qt4BuildConfiguration::qt4Target() const
+Qt4BaseTarget *Qt4BuildConfiguration::qt4Target() const
 {
-    return static_cast<Qt4Target *>(target());
+    return static_cast<Qt4BaseTarget *>(target());
 }
 
 Utils::Environment Qt4BuildConfiguration::baseEnvironment() const
@@ -687,7 +687,7 @@ void Qt4BuildConfigurationFactory::update()
 
 QStringList Qt4BuildConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
 {
-    if (!qobject_cast<Qt4Target *>(parent))
+    if (!qobject_cast<Qt4BaseTarget *>(parent))
         return QStringList();
 
     QStringList results;
@@ -709,7 +709,7 @@ QString Qt4BuildConfigurationFactory::displayNameForId(const QString &id) const
 
 bool Qt4BuildConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const QString &id) const
 {
-    if (!qobject_cast<Qt4Target *>(parent))
+    if (!qobject_cast<Qt4BaseTarget *>(parent))
         return false;
     if (!m_versions.contains(id))
         return false;
@@ -730,7 +730,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
     QtVersion *version = QtVersionManager::instance()->version(info.versionId);
     Q_ASSERT(version);
 
-    Qt4Target *qt4Target = static_cast<Qt4Target *>(parent);
+    Qt4BaseTarget *qt4Target = static_cast<Qt4BaseTarget *>(parent);
 
     bool ok;
     QString buildConfigurationName = QInputDialog::getText(0,
@@ -757,7 +757,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
 
 bool Qt4BuildConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const
 {
-    if (!qobject_cast<Qt4Target *>(parent))
+    if (!qobject_cast<Qt4BaseTarget *>(parent))
         return false;
     Qt4BuildConfiguration *qt4bc(qobject_cast<Qt4BuildConfiguration *>(source));
     if (!qt4bc)
@@ -774,15 +774,15 @@ BuildConfiguration *Qt4BuildConfigurationFactory::clone(Target *parent, BuildCon
 {
     if (!canClone(parent, source))
         return 0;
-    Qt4Target *target(static_cast<Qt4Target *>(parent));
+    Qt4BaseTarget *target = static_cast<Qt4BaseTarget *>(parent);
     Qt4BuildConfiguration *oldbc(static_cast<Qt4BuildConfiguration *>(source));
     return new Qt4BuildConfiguration(target, oldbc);
 }
 
 bool Qt4BuildConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
-    QString id(ProjectExplorer::idFromMap(map));
-    if (!qobject_cast<Qt4Target *>(parent))
+    QString id = ProjectExplorer::idFromMap(map);
+    if (!qobject_cast<Qt4BaseTarget *>(parent))
         return false;
     return id.startsWith(QLatin1String(QT4_BC_ID_PREFIX)) ||
            id == QLatin1String(QT4_BC_ID);
@@ -792,8 +792,8 @@ BuildConfiguration *Qt4BuildConfigurationFactory::restore(Target *parent, const 
 {
     if (!canRestore(parent, map))
         return 0;
-    Qt4Target *target(static_cast<Qt4Target *>(parent));
-    Qt4BuildConfiguration *bc(new Qt4BuildConfiguration(target));
+    Qt4BaseTarget *target = static_cast<Qt4BaseTarget *>(parent);
+    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(target);
     if (bc->fromMap(map))
         return bc;
     delete bc;

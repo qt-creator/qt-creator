@@ -215,6 +215,7 @@ void AbstractMobileAppWizard::useProjectPath(const QString &projectName,
     app()->setProjectName(projectName);
     app()->setProjectPath(projectPath);
     wizardDialog()->m_targetsPage->setProFilePath(app()->path(AbstractMobileApp::AppPro));
+    projectPathChanged(app()->path(AbstractMobileApp::AppPro));
 }
 
 } // end of namespace Internal

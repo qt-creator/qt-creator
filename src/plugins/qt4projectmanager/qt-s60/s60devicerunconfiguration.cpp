@@ -41,6 +41,7 @@
 #include "s60runconfigbluetoothstarter.h"
 #include "qt4projectmanagerconstants.h"
 #include "qtoutputformatter.h"
+#include "qt4symbiantarget.h"
 
 #include "tcftrkdevice.h"
 #include "tcftrkmessage.h"
@@ -126,7 +127,7 @@ bool isProcessRunning(const TcfTrkCommandResult &result, const QString &processN
 
 // ======== S60DeviceRunConfiguration
 
-S60DeviceRunConfiguration::S60DeviceRunConfiguration(Qt4Target *parent, const QString &proFilePath) :
+S60DeviceRunConfiguration::S60DeviceRunConfiguration(Qt4BaseTarget *parent, const QString &proFilePath) :
     RunConfiguration(parent,  QLatin1String(S60_DEVICE_RC_ID)),
     m_proFilePath(proFilePath),
     m_validParse(parent->qt4Project()->validParse(proFilePath))
@@ -134,7 +135,7 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Qt4Target *parent, const QS
     ctor();
 }
 
-S60DeviceRunConfiguration::S60DeviceRunConfiguration(Qt4Target *target, S60DeviceRunConfiguration *source) :
+S60DeviceRunConfiguration::S60DeviceRunConfiguration(Qt4BaseTarget *target, S60DeviceRunConfiguration *source) :
     RunConfiguration(target, source),
     m_proFilePath(source->m_proFilePath),
     m_commandLineArguments(source->m_commandLineArguments),
@@ -186,9 +187,9 @@ S60DeviceRunConfiguration::~S60DeviceRunConfiguration()
 {
 }
 
-Qt4Target *S60DeviceRunConfiguration::qt4Target() const
+Qt4SymbianTarget *S60DeviceRunConfiguration::qt4Target() const
 {
-    return static_cast<Qt4Target *>(target());
+    return static_cast<Qt4SymbianTarget *>(target());
 }
 
 ProjectExplorer::ToolChainType S60DeviceRunConfiguration::toolChainType(
@@ -428,6 +429,11 @@ void S60DeviceRunConfiguration::setCommandLineArguments(const QString &args)
     m_commandLineArguments = args;
 }
 
+QString S60DeviceRunConfiguration::proFilePath() const
+{
+    return m_proFilePath;
+}
+
 // ======== S60DeviceRunConfigurationFactory
 
 S60DeviceRunConfigurationFactory::S60DeviceRunConfigurationFactory(QObject *parent) :
@@ -441,7 +447,7 @@ S60DeviceRunConfigurationFactory::~S60DeviceRunConfigurationFactory()
 
 QStringList S60DeviceRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    Qt4Target *target = qobject_cast<Qt4Target *>(parent);
+    Qt4SymbianTarget *target = qobject_cast<Qt4SymbianTarget *>(parent);
     if (!target || target->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return QStringList();
 
@@ -457,7 +463,7 @@ QString S60DeviceRunConfigurationFactory::displayNameForId(const QString &id) co
 
 bool S60DeviceRunConfigurationFactory::canCreate(Target *parent, const QString &id) const
 {
-    Qt4Target *t = qobject_cast<Qt4Target *>(parent);
+    Qt4SymbianTarget *t = qobject_cast<Qt4SymbianTarget *>(parent);
     if (!t || t->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return false;
     return t->qt4Project()->hasApplicationProFile(pathFromId(id));
@@ -468,13 +474,13 @@ RunConfiguration *S60DeviceRunConfigurationFactory::create(Target *parent, const
     if (!canCreate(parent, id))
         return 0;
 
-    Qt4Target *t = static_cast<Qt4Target *>(parent);
+    Qt4SymbianTarget *t = static_cast<Qt4SymbianTarget *>(parent);
     return new S60DeviceRunConfiguration(t, pathFromId(id));
 }
 
 bool S60DeviceRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
-    Qt4Target *t = qobject_cast<Qt4Target *>(parent);
+    Qt4SymbianTarget *t = qobject_cast<Qt4SymbianTarget *>(parent);
     if (!t || t->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return false;
     QString id = ProjectExplorer::idFromMap(map);
@@ -485,8 +491,8 @@ RunConfiguration *S60DeviceRunConfigurationFactory::restore(Target *parent, cons
 {
     if (!canRestore(parent, map))
         return 0;
-    Qt4Target *t = static_cast<Qt4Target *>(parent);
-    S60DeviceRunConfiguration *rc(new S60DeviceRunConfiguration(t, QString()));
+    Qt4SymbianTarget *t = static_cast<Qt4SymbianTarget *>(parent);
+    S60DeviceRunConfiguration *rc = new S60DeviceRunConfiguration(t, QString());
     if (rc->fromMap(map))
         return rc;
 
@@ -496,7 +502,7 @@ RunConfiguration *S60DeviceRunConfigurationFactory::restore(Target *parent, cons
 
 bool S60DeviceRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
 {
-    if (!qobject_cast<Qt4Target *>(parent))
+    if (!qobject_cast<Qt4SymbianTarget *>(parent))
         return false;
     return source->id() == QLatin1String(S60_DEVICE_RC_ID);
 }
@@ -505,7 +511,7 @@ RunConfiguration *S60DeviceRunConfigurationFactory::clone(Target *parent, RunCon
 {
     if (!canClone(parent, source))
         return 0;
-    Qt4Target *t = static_cast<Qt4Target *>(parent);
+    Qt4SymbianTarget *t = static_cast<Qt4SymbianTarget *>(parent);
     S60DeviceRunConfiguration *old = static_cast<S60DeviceRunConfiguration *>(source);
     return new S60DeviceRunConfiguration(t, old);
 }

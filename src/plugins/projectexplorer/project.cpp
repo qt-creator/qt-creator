@@ -63,7 +63,6 @@ namespace ProjectExplorer {
 class ProjectPrivate {
 public:
     ProjectPrivate();
-    QSet<QString> m_supportedTargetIds;
     QList<Target *> m_targets;
     Target *m_activeTarget;
     EditorConfiguration *m_editorConfiguration;
@@ -100,34 +99,6 @@ QString Project::makeUnique(const QString &preferredName, const QStringList &use
     while (usedNames.contains(tryName))
         tryName = preferredName + QString::number(++i);
     return tryName;
-}
-
-QSet<QString> Project::supportedTargetIds() const
-{
-    return d->m_supportedTargetIds;
-}
-
-QSet<QString> Project::possibleTargetIds() const
-{
-    QSet<QString> result(d->m_supportedTargetIds);
-    foreach (ProjectExplorer::Target *t, targets())
-        result.remove(t->id());
-
-    return result;
-}
-
-bool Project::canAddTarget(const QString &id) const
-{
-    return possibleTargetIds().contains(id);
-}
-
-void Project::setSupportedTargetIds(const QSet<QString> &ids)
-{
-    if (ids == d->m_supportedTargetIds)
-        return;
-
-    d->m_supportedTargetIds = ids;
-    emit supportedTargetIdsChanged();
 }
 
 void Project::changeEnvironment()
@@ -280,26 +251,31 @@ bool Project::fromMap(const QVariantMap &map)
             qWarning() << key << "was not found in data.";
             return false;
         }
-       QVariantMap targetMap = map.value(key).toMap();
+        QVariantMap targetMap = map.value(key).toMap();
 
         QList<ITargetFactory *> factories =
                 ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>();
 
         Target *t = 0;
-        foreach (ITargetFactory *factory, factories) {
-            if (factory->canRestore(this, targetMap)) {
-                t = factory->restore(this, targetMap);
-                break;
-            }
-        }
 
-        if (!t) {
-            qWarning() << "Restoration of a target failed! (Continuing)";
-            continue;
+        if(target(idFromMap(targetMap))) {
+            qWarning() << "Duplicated target id found, not restoring second target with id"<<idFromMap(targetMap)<<"(Continuing)";
+        } else {
+            foreach (ITargetFactory *factory, factories) {
+                if (factory->canRestore(this, targetMap)) {
+                    t = factory->restore(this, targetMap);
+                    break;
+                }
+            }
+
+            if (!t) {
+                qWarning() << "Restoration of a target failed! (Continuing)";
+                continue;
+            }
+            addTarget(t);
+            if (i == active)
+                setActiveTarget(t);
         }
-        addTarget(t);
-        if (i == active)
-            setActiveTarget(t);
     }
     return true;
 }

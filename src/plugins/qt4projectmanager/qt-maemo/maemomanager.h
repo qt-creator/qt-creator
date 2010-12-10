@@ -53,6 +53,7 @@ class MaemoRunConfigurationFactory;
 class MaemoDeviceConfigurationsSettingsPage;
 class MaemoQemuManager;
 class MaemoQemuSettingsPage;
+class Qt4MaemoTargetFactory;
 
 class MaemoManager : public QObject
 {
@@ -80,6 +81,7 @@ private:
     MaemoQemuSettingsPage *m_qemuSettingsPage;
     MaemoQemuManager *m_qemuRuntimeManager;
     MaemoPublishingWizardFactoryFremantleFree *m_publishingFactoryFremantleFree;
+    Qt4MaemoTargetFactory *m_maemoTargetFactory;
 };
 
     } // namespace Internal

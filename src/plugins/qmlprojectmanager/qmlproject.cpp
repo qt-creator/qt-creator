@@ -58,7 +58,6 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
       m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>()),
       m_fileWatcher(new ProjectExplorer::FileWatcher(this))
 {
-    setSupportedTargetIds(QSet<QString>() << QLatin1String(Constants::QML_VIEWER_TARGET_ID));
     QFileInfo fileInfo(m_fileName);
     m_projectName = fileInfo.completeBaseName();
 

@@ -961,6 +961,7 @@ void ProjectExplorerPlugin::clearSession()
 
 void ProjectExplorerPlugin::extensionsInitialized()
 {
+    d->m_proWindow->extensionsInitialized();
     d->m_fileFactories = ProjectFileFactory::createFactories(&d->m_projectFilterString);
     foreach (ProjectFileFactory *pf, d->m_fileFactories) {
         d->m_profileMimeTypes += pf->mimeTypes();
