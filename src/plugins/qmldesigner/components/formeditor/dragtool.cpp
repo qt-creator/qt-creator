@@ -206,6 +206,10 @@ void DragTool::formEditorItemsChanged(const QList<FormEditorItem*> & itemList)
     }
 }
 
+void DragTool::instancesCompleted(const QList<FormEditorItem*> &itemList)
+{
+}
+
 void DragTool::clearMoveDelay()
 {
     m_blockMove = false;

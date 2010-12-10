@@ -233,6 +233,10 @@ void MoveTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
     updateMoveManipulator();
 }
 
+void MoveTool::instancesCompleted(const QList<FormEditorItem*> &itemList)
+{
+}
+
 bool MoveTool::haveSameParent(const QList<FormEditorItem*> &itemList)
 {
     if (itemList.isEmpty())

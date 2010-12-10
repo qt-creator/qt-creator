@@ -65,6 +65,8 @@ public:
 
     void formEditorItemsChanged(const QList<FormEditorItem*> &itemList);
 
+    void instancesCompleted(const QList<FormEditorItem*> &itemList);
+
 private:
     SelectionIndicator m_selectionIndicator;
     ResizeIndicator m_resizeIndicator;

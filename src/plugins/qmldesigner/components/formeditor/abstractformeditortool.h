@@ -77,6 +77,8 @@ public:
 
     virtual void formEditorItemsChanged(const QList<FormEditorItem*> &itemList) = 0;
 
+    virtual void instancesCompleted(const QList<FormEditorItem*> &itemList) = 0;
+
     void setItems(const QList<FormEditorItem*> &itemList);
     QList<FormEditorItem*> items() const;
 

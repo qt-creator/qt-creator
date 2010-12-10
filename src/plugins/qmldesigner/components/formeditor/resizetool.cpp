@@ -180,4 +180,8 @@ void ResizeTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemList)
     m_resizeIndicator.updateItems(itemList);
 }
 
+ void ResizeTool::instancesCompleted(const QList<FormEditorItem*> &/*itemList*/)
+ {
+ }
+
 }

@@ -261,6 +261,10 @@ void SelectionTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemLis
     m_resizeIndicator.updateItems(itemList);
 }
 
+void SelectionTool::instancesCompleted(const QList<FormEditorItem*> &/*itemList*/)
+{
+}
+
 void SelectionTool::selectUnderPoint(QGraphicsSceneMouseEvent *event)
 {
     m_singleSelectionManipulator.begin(event->scenePos());

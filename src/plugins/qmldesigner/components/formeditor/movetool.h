@@ -64,9 +64,9 @@ public:
 
     void selectedItemsChanged(const QList<FormEditorItem*> &itemList);
 
+    void instancesCompleted(const QList<FormEditorItem*> &/*itemList*/);
+
     void updateMoveManipulator();
-
-
 
     void beginWithPoint(const QPointF &beginPoint);
 

@@ -70,6 +70,8 @@ public:
 
     void formEditorItemsChanged(const QList<FormEditorItem*> &itemList);
 
+    void instancesCompleted(const QList<FormEditorItem*> &itemList);
+
     static AnchorLineHandleItem* topAnchorLineHandleItem(const QList<QGraphicsItem*> & itemList);
 
 private slots:

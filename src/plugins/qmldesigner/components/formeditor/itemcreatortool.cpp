@@ -32,7 +32,7 @@
 #include "formeditorview.h"
 
 #include <metainfo.h>
-#include <itemlibrary.h>
+#include <itemlibrarywidget.h>
 
 #include <QApplication>
 #include <QGraphicsSceneMouseEvent>
@@ -136,6 +136,10 @@ void ItemCreatorTool::selectedItemsChanged(const QList<FormEditorItem*> &/*itemL
 }
 
 void ItemCreatorTool::formEditorItemsChanged(const QList<FormEditorItem*> &/*itemList*/)
+{
+}
+
+void ItemCreatorTool::instancesCompleted(const QList<FormEditorItem*> &/*itemList*/)
 {
 }
 
