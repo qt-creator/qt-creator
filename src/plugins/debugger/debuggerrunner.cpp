@@ -68,14 +68,6 @@ DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *error)
 bool isCdbEngineEnabled(); // Check the configuration page
 }
 
-/*
-static QString toolChainName(int toolChainType)
-{
-    return ToolChain::toolChainName(ProjectExplorer::ToolChainType(toolChainType));
-}
-*/
-
-
 namespace Internal {
 
 DebuggerEngine *createGdbEngine(const DebuggerStartParameters &);
@@ -299,12 +291,6 @@ DebuggerRunControlPrivate::DebuggerRunControlPrivate(DebuggerRunControl *parent,
 DebuggerEngineType DebuggerRunControlPrivate::engineForExecutable
     (unsigned enabledEngineTypes, const QString &executable)
 {
-    /*if (executable.endsWith(_("qmlviewer"))) {
-        if (enabledEngineTypes & QmlEngineType)
-            return QmlEngineType;
-        d->m_errorMessage = msgEngineNotAvailable("Qml Engine");
-    }*/
-
     if (executable.endsWith(_(".js"))) {
         if (enabledEngineTypes & ScriptEngineType)
             return ScriptEngineType;
