@@ -1584,7 +1584,7 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     Core::ActionContainer *mcontext = am->actionContainer(Constants::M_CONTEXT);
     QMenu *contextMenu = mcontext->menu();
 
-    QMenu *quickFixMenu = new QMenu("&Refactor", menu);
+    QMenu *quickFixMenu = new QMenu(tr("&Refactor"), menu);
     quickFixMenu->addAction(am->command(Constants::RENAME_SYMBOL_UNDER_CURSOR)->action());
 
     CppQuickFixCollector *quickFixCollector = CppPlugin::instance()->quickFixCollector();
