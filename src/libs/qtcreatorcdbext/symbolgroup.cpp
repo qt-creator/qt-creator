@@ -125,7 +125,7 @@ int DumpParameters::format(const std::string &type, const std::string &iname) co
 
 enum PointerFormats // Watch data pointer format requests
 {
-    FormatRawPointer = 0,
+    FormatAuto = 0,
     FormatLatin1String = 1,
     FormatUtf8String = 2,
     FormatUtf16String = 3,
@@ -139,7 +139,7 @@ enum DumpEncoding // WatchData encoding of GDBMI values
     DumpEncodingBase64_Utf16 = 2,
     DumpEncodingBase64_Ucs4 = 3,
     DumpEncodingHex_Latin1 = 6,
-    DumpEncodingHex_Utf161 = 7,
+    DumpEncodingHex_Utf16 = 7,
     DumpEncodingHex_Ucs4_LittleEndian = 8,
     DumpEncodingHex_Utf8_LittleEndian = 9,
     DumpEncodingHex_Ucs4_BigEndian = 10,
@@ -147,34 +147,57 @@ enum DumpEncoding // WatchData encoding of GDBMI values
     DumpEncodingHex_Utf16_LittleEndian = 12
 };
 
+/* Recode arrays/pointers of char*, wchar_t according to users
+ * sepcification. Handles char formats for 'char *', '0x834478 "hallo.."'
+ * and 'wchar_t *', '0x834478 "hallo.."'.
+ * This is done by retrieving the address and the length (in characters)
+ * of the CDB output, converting it to memory size, fetching the data
+ * from memory, zero-terminating and recoding it using the encoding
+ * defined in watchutils.cpp.
+ * As a special case, if there is no user-defined format and the
+ * CDB output contains '?' indicating non-printable characters,
+ * append a hex dump of the memory (auto-format). */
+
 bool DumpParameters::recode(const std::string &type,
                             const std::string &iname,
                             const SymbolGroupValueContext &ctx,
                             std::wstring *value, int *encoding) const
 {
     // We basically handle char formats for 'char *', '0x834478 "hallo.."'
+    // and 'wchar_t *', '0x834478 "hallo.."'
     // Determine address and length from the pointer value output,
     // read the raw memory and recode if that is possible.
-    const int newFormat = format(type, iname);
-    if (newFormat < 2)
+    if (type.empty() || type.at(type.size() - 1) != '*')
         return false;
+    const int newFormat = format(type, iname);
     if (value->compare(0, 2, L"0x"))
         return false;
     const std::wstring::size_type quote1 = value->find(L'"', 2);
     if (quote1 == std::wstring::npos)
         return false;
+    // The user did not specify any format, still, there are '?'
+    // (indicating non-printable) in what the debugger prints. In that case,
+    // append a hex dump to the normal output. If there are no '?'-> all happy.
+    if (newFormat < FormatLatin1String && value->find(L'?', quote1 + 1) == std::wstring::npos)
+        return false;
     const std::wstring::size_type quote2 = value->find(L'"', quote1 + 1);
     if (quote2 == std::wstring::npos)
         return false;
-    const std::wstring::size_type length = quote2 - quote1 - 1;
+    std::wstring::size_type length = quote2 - quote1 - 1;
     if (!length)
         return false;
+    // Get address from value
     ULONG64 address = 0;
     if (!integerFromWString(value->substr(0, quote1 - 1), &address) || !address)
         return false;
-    // Allocate real length + 4 bytes ('\0') for largest format.
+    // Get real size if this is for example a wchar_t *.
+    const unsigned elementSize = SymbolGroupValue::sizeOf(SymbolGroupValue::stripPointerType(type).c_str());
+    if (!elementSize)
+        return false;
+    length *= elementSize;
+    // Allocate real length + 8 bytes ('\0') for largest format (Ucs4).
     // '\0' is not listed in the CDB output.
-    const std::wstring::size_type allocLength = length + 4;
+    const std::wstring::size_type allocLength = length + 8;
     unsigned char *buffer = new unsigned char[allocLength];
     std::fill(buffer, buffer + allocLength, 0);
     ULONG obtained = 0;
@@ -184,13 +207,35 @@ bool DumpParameters::recode(const std::string &type,
     }
     // Recode raw memory
     switch (newFormat) {
+    case FormatLatin1String:
+        *value = dataToHexW(buffer, buffer + length + 1); // Latin1 + 0
+        *encoding = DumpEncodingHex_Latin1;
+        break;
     case FormatUtf8String:
         *value = dataToHexW(buffer, buffer + length + 1); // UTF8 + 0
         *encoding = DumpEncodingHex_Utf8_LittleEndian;
         break;
-    case FormatUtf16String:
+    case FormatUtf16String: // Paranoia: make sure buffer is terminated at 2 byte borders
+        if (length % 2) {
+            length &= ~1;
+            buffer[length] = '\0';
+            buffer[length + 1] = '\0';
+        }
+        *value = base64EncodeToWString(buffer, length + 2);
+        *encoding = DumpEncodingBase64_Utf16;
         break;
-    case FormatUcs4String:
+    case FormatUcs4String: // Paranoia: make sure buffer is terminated at 4 byte borders
+        if (length % 4) {
+            length &= ~3;
+            std::fill(buffer + length, buffer + length + 4, 0);
+        }
+        *value = dataToHexW(buffer, buffer + length + 2); // UTF16 + 0
+        *encoding = DumpEncodingHex_Ucs4_LittleEndian;
+        break;
+    default:  // See above, append hex dump
+        value->push_back(' ');
+        value->append(dataToReadableHexW(buffer, buffer + length));
+        *encoding = DumpEncodingAscii;
         break;
     }
     delete [] buffer;

@@ -29,9 +29,10 @@
 
 #include "base64.h"
 
-#include <ostream>
+#include <sstream>
 
-static void base64EncodeTriple(std::ostream &str, const unsigned char triple[3], size_t length = 3)
+template <class OStream>
+static void base64EncodeTriple(OStream &str, const unsigned char triple[3], size_t length = 3)
 {
     static const char base64Encoding[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -57,7 +58,8 @@ static void base64EncodeTriple(std::ostream &str, const unsigned char triple[3],
         str << '=';
 }
 
-void base64Encode(std::ostream &str, const unsigned char *source, size_t sourcelen)
+template <class OStream>
+void base64EncodeHelper(OStream &str, const unsigned char *source, size_t sourcelen)
 {
     if (!sourcelen) {
         str << "====";
@@ -77,4 +79,28 @@ void base64Encode(std::ostream &str, const unsigned char *source, size_t sourcel
             break;
         }
     }
+}
+
+void base64Encode(std::ostream &str, const unsigned char *source, size_t sourcelen)
+{
+    base64EncodeHelper(str, source, sourcelen);
+}
+
+std::string base64EncodeToString(const unsigned char *source, size_t sourcelen)
+{
+    std::ostringstream str;
+    base64Encode(str, source, sourcelen);
+    return str.str();
+}
+
+void base64EncodeW(std::wostream &str, const unsigned char *source, size_t sourcelen)
+{
+    base64EncodeHelper(str, source, sourcelen);
+}
+
+std::wstring base64EncodeToWString(const unsigned char *source, size_t sourcelen)
+{
+    std::wostringstream str;
+    base64EncodeW(str, source, sourcelen);
+    return str.str();
 }

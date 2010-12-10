@@ -143,6 +143,8 @@ std::wstring stringToWString(const std::string &w);
 // String from hex "414A" -> "AJ".
 std::string stringFromHex(const char *begin, const char *end);
 std::wstring dataToHexW(const unsigned char *begin, const unsigned char *end);
+// Create readable hex: '0xAA 0xBB'..
+std::wstring dataToReadableHexW(const unsigned char *begin, const unsigned char *end);
 
 // Format a map as a GDBMI hash {key="value",..}
 void formatGdbmiHash(std::ostream &os, const std::map<std::string, std::string> &);
