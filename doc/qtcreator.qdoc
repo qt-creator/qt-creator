@@ -3739,10 +3739,29 @@
     For more information on how to define capabilities for a project, see
     \l{http://doc.qt.nokia.com/4.7/qmake-platform-notes.html#capabilities}{Capabilities}.
 
-    \note If you select a signing option that does not allow the application to access
-    the defined capabilities, qmake disables the capabilities in the .pro file.
-    This allows you to run the application on devices, even though any functionality that
-    requires the capabilities is disabled.
+    \note In Qt 4.7.1 and later, if you select the \gui {Self-signed certificate}
+    option, the SIS generation process checks that the package can be self-signed.
+    If problems are found, it attempts to fix the package. If fixes cannot be made,
+    a message appears in the \gui {Compile Output} view.
+
+    The following modifications can be made:
+
+    \list
+
+        \o Package UID is changed to an UID from the unprotected range (if it was
+        from the protected range).
+
+        \o Vendor ID is set to zero on all binaries included in the package file.
+
+        \o All restricted and device manufacturer capabilities are removed from all
+        libraries included in the package file.
+
+    \endlist
+
+    The application UID or capabilities used in executables (.exe) cannot be changed,
+    because that would break the application. If the executables use protected UIDs
+    or restricted or device manufacturer capabilities, signing fails and an error
+    message appears in the \gui {Compile Output} view.
 
     \section1 Creating Smart Installer for Symbian Packages
 
@@ -3759,6 +3778,11 @@
     \note If you use Ovi Signed, you can just submit an unsigned SIS file to Ovi Publishing.
     Ovi signs the file for you and packages it with Nokia Smart Installer for Symbian.
     For more information, see \l{Publishing Applications to Ovi Store}.
+
+    You can either install the Nokia Smart Installer for Symbian as part of
+    the \QSDK, or download and install it from the
+    \l{http://wiki.forum.nokia.com/index.php/Nokia_Smart_Installer_for_Symbian}{Nokia Smart Installer for Symbian}
+    wiki.
 
     To package Nokia Smart Installer with the application, select the \gui {Create Smart Installer
     package} check box. This ensures that up-to-date and appropriate versions of Qt and its
@@ -3796,6 +3820,12 @@
         \o Open the \gui {Run Settings}.
 
         \o In the \gui {Create SIS Package} step, select \gui {Self-signed certificate}.
+
+        \o In the \gui {Deploy SIS Package} step, click \gui {Remove Item} to
+        skip the step of copying the SIS file to a device. The SIS file is created
+        in the project folder.
+
+        \image qtcreator-remove-deploy-step.png "Removing deploy steps"
 
         \o To package Nokia Smart Installer for Symbian with the application, select
         the \gui {Create Smart Installer package} check box.
@@ -3848,6 +3878,10 @@
         \o In the \gui {Create SIS Package} step, specify the developer certificate
         and key in the \gui {Custom certificate} and \gui {Key file} fields.
 
+        \o In the \gui {Deploy SIS Package} step, click \gui {Remove Item} to
+        skip the step of copying the SIS file to a device. The SIS file is created
+        in the project folder.
+
         \o Edit the project .pro file to use the correct UIDs and vendor information
         for the application, as illustrated by the following code snippet:
 
@@ -3876,6 +3910,8 @@
 
         \o After receiving the .sis file from Symbian Signed, copy it over the old
         application.sis.
+
+        \note The instructions below assume that you have installed \QSDK.
 
         \o To package Nokia Smart Installer for Symbian with the application, choose
         \gui {Start > Nokia Qt SDK > Symbian > Qt for Symbian Command Prompt}
@@ -3962,6 +3998,8 @@
 
     For an up-to-date list, see
     \l{http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml}{Packaging and Signing}.
+    New devices are added to the list periodically. The final authority
+    on the supported devices is the Ovi Publish tool itself.
 
     \section1 Publishing Qt Content for Symbian Devices
 
