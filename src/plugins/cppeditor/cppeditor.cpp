@@ -1108,21 +1108,30 @@ void CPPEditor::switchDeclarationDefinition()
         if (! lastVisibleSymbol)
             return;
 
-        Function *functionScope = lastVisibleSymbol->asFunction();
-        if (! functionScope)
-            functionScope = lastVisibleSymbol->enclosingFunction();
+        Function *function = lastVisibleSymbol->asFunction();
+        if (! function)
+            function = lastVisibleSymbol->enclosingFunction();
 
-        if (functionScope) {
+        if (function) {
             LookupContext context(thisDocument, snapshot);
 
-            Function *functionDefinition = functionScope->asFunction();
+            Function *functionDefinition = function->asFunction();
+            ClassOrNamespace *binding = context.lookupType(functionDefinition);
+
             const QList<LookupItem> declarations = context.lookup(functionDefinition->name(), functionDefinition->enclosingScope());
+            QList<Symbol *> best;
             foreach (const LookupItem &r, declarations) {
-                Symbol *decl = r.declaration();
-                // TODO: check decl.
-                openCppEditorAt(linkToSymbol(decl));
-                break;
+                if (Symbol *decl = r.declaration()) {
+                    if (Function *funTy = decl->type()->asFunctionType()) {
+                        if (funTy->isEqualTo(function) && decl != function && binding == r.binding())
+                            best.prepend(decl);
+                        else
+                            best.append(decl);
+                    }
+                }
             }
+            if (! best.isEmpty())
+                openCppEditorAt(linkToSymbol(best.first()));
 
         } else if (lastVisibleSymbol && lastVisibleSymbol->isDeclaration() && lastVisibleSymbol->type()->isFunctionType()) {
             if (Symbol *def = snapshot.findMatchingDefinition(lastVisibleSymbol))
