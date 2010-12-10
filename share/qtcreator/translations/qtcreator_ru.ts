@@ -20186,7 +20186,7 @@ Please check the directory&apos;s access rights.</source>
     </message>
     <message>
         <source>Comment</source>
-        <translation>Примечание</translation>
+        <translation>Комментарий</translation>
     </message>
     <message>
         <source>Doxygen Comment</source>

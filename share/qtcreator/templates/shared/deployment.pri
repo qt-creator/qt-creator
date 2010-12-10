@@ -24,14 +24,20 @@ symbian {
     contains(DEFINES, ORIENTATIONLOCK):LIBS += -lavkon -leikcore -lcone
     contains(DEFINES, NETWORKACCESS):TARGET.CAPABILITY += NetworkServices
 } else:win32 {
-    !isEqual(PWD,$$OUT_PWD) {
-        copyCommand = @echo Copying application data...
-        for(deploymentfolder, DEPLOYMENTFOLDERS) {
-            source = $$eval($${deploymentfolder}.source)
-            pathSegments = $$split(source, /)
-            sourceAndTarget = $$MAINPROFILEPWD/$$source $$OUT_PWD/$$eval($${deploymentfolder}.target)/$$last(pathSegments)
-            copyCommand += && $(COPY_DIR) $$replace(sourceAndTarget, /, \\)
+    copyCommand =
+    for(deploymentfolder, DEPLOYMENTFOLDERS) {
+        source = $$MAINPROFILEPWD/$$eval($${deploymentfolder}.source)
+        source = $$replace(source, /, \\)
+        sourcePathSegments = $$split(source, \\)
+        target = $$OUT_PWD/$$eval($${deploymentfolder}.target)/$$last(sourcePathSegments)
+        target = $$replace(target, /, \\)
+        !isEqual(source,$$target) {
+            !isEmpty(copyCommand):copyCommand += &&
+            copyCommand += $(COPY_DIR) \"$$source\" \"$$target\"
         }
+    }
+    !isEmpty(copyCommand) {
+        copyCommand = @echo Copying application data... && $$copyCommand
         copydeploymentfolders.commands = $$copyCommand
         first.depends = $(first) copydeploymentfolders
         export(first.depends)
@@ -41,21 +47,30 @@ symbian {
 } else:unix {
     maemo5 {
         installPrefix = /opt/usr
-        desktopfile.path = /usr/share/applications/hildon       
+        desktopfile.path = /usr/share/applications/hildon
     } else {
         installPrefix = /usr
         desktopfile.path = /usr/share/applications
-        !isEqual(PWD,$$OUT_PWD) {
-            copyCommand = @echo Copying application data...
-            for(deploymentfolder, DEPLOYMENTFOLDERS) {
-                macx {
-                    target = $$OUT_PWD/$${TARGET}.app/Contents/Resources/$$eval($${deploymentfolder}.target)
-                } else {
-                    target = $$OUT_PWD/$$eval($${deploymentfolder}.target)
-                }
-                copyCommand += && $(MKDIR) $$target
-                copyCommand += && $(COPY_DIR) $$MAINPROFILEPWD/$$eval($${deploymentfolder}.source) $$target
+        copyCommand =
+        for(deploymentfolder, DEPLOYMENTFOLDERS) {
+            source = $$MAINPROFILEPWD/$$eval($${deploymentfolder}.source)
+            source = $$replace(source, \\, /)
+            macx {
+                target = $$OUT_PWD/$${TARGET}.app/Contents/Resources/$$eval($${deploymentfolder}.target)
+            } else {
+                target = $$OUT_PWD/$$eval($${deploymentfolder}.target)
             }
+            target = $$replace(target, \\, /)
+            sourcePathSegments = $$split(source, /)
+            targetFullPath = $$target/$$last(sourcePathSegments)
+            !isEqual(source,$$targetFullPath) {
+                !isEmpty(copyCommand):copyCommand += &&
+                copyCommand += $(MKDIR) \"$$target\"
+                copyCommand += && $(COPY_DIR) \"$$source\" \"$$target\"
+            }
+        }
+        !isEmpty(copyCommand) {
+            copyCommand = @echo Copying application data... && $$copyCommand
             copydeploymentfolders.commands = $$copyCommand
             first.depends = $(first) copydeploymentfolders
             export(first.depends)

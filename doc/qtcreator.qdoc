@@ -73,6 +73,7 @@
        \o \l{Managing Projects}
             \list
                 \o \l{Creating a Project}
+                \o \l{Opening a Project}
                 \o \l{Setting Up a qmake Project}
                 \o \l{Adding Libraries to qmake Projects}
                 \o \l{Setting Up a CMake Project}
@@ -104,6 +105,8 @@
                     \o \l {Creating Qt Quick Projects}
                     \o \l {Using Qt Quick Designer}
                     \o \l {Creating Components}
+                    \o \l {Creating Buttons}
+                    \o \l {Creating Scalable Buttons and Borders}
                     \o \l {Creating Screens}
                     \o \l {Animating Screens}
                     \o \l {Adding User Interaction Methods}
@@ -779,7 +782,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-task-lists.html
+    \previouspage creator-cli.html
     \page creator-help.html
     \nextpage creator-tips.html
 
@@ -1968,6 +1971,7 @@
 
     \list
         \o \l{Creating a Project}
+        \o \l{Opening a Project}
         \o \l{Setting Up a qmake Project}
         \o \l{Adding Libraries to qmake Projects}
         \o \l{Setting Up a CMake Project}
@@ -1985,7 +1989,7 @@
     \contentspage index.html
     \previouspage creator-project-managing.html
     \page creator-project-creating.html
-    \nextpage creator-project-qmake.html
+    \nextpage creator-project-opening.html
 
     \title Creating a Project
 
@@ -2127,6 +2131,69 @@
 
     To specify dependencies, use the \gui{Add Library} wizard. For more information,
     see \l{Adding Libraries to qmake Projects}.
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-project-creating.html
+    \page creator-project-opening.html
+    \nextpage creator-project-qmake.html
+
+    \title Opening a Project
+
+    Qt Creator stores information that it needs to build projects in a .user file.
+    If Qt Creator cannot find the file when you open an existing project, it prompts you
+    to enter the information. If you created the project by using another Qt Creator
+    instance, Qt Creator asks whether you want to use the old settings. The settings
+    are specific to the development environment, and should not be copied from one
+    environment to another. Therefore, we recommend that you click \gui No and enter
+    the information again in the \gui {Project Setup} dialog.
+
+    The \gui {Project Setup} dialog displays a list of development environments for
+    target platforms (such as desktop, Maemo devices, and Symbian devices) that are
+    installed on the development PC. Select the Qt versions that you want to use to build
+    the project for each target.
+
+    \image qtcreator-open-project-targets.png "Qt Versions dialog"
+
+    The status \gui New indicates that Qt Creator did not find an existing build
+    for a particular development environment (Qt version) and target. Therefore,
+    Qt Creator starts out from a clean slate, and creates a new build in the directory
+    listed in the \gui {Build Directory} field.
+    By default, Qt Creator does a \l{glossary-shadow-build}{shadow build} and also
+    creates the directory. However, shadow building is not supported for the Symbian
+    target.
+
+    If you have built the project before, Qt Creator can use the existing build
+    configuration to make the exact same build as found in the directory available to
+    Qt Creator. The \gui Status column displays the status \gui Import if Qt creator
+    found an existing build of the project. The status is displayed for each
+    available development environment.
+
+    If you know you have a build, but it is not listed, click \gui {Import Existing
+    Shadow Build} to locate it. Select a directory, and Qt Creator scans it (including
+    subdirectories) for additional builds of the project. Qt Creator adds the found
+    builds to the target list with \gui Import status.
+
+    You can edit the build configuration later. For more information, see
+    \l{Editing Build Configurations}.
+
+    To open a project:
+
+    \list 1
+
+        \o Select \gui File > \gui{Open File or Project} and select the project
+        to open.
+
+        \o In the \gui {Project Setup} dialog, select the Qt versions to use as
+        build targets for your project, and click \gui{Next}.
+
+        \note If you have only one development environment installed, this dialog
+        is skipped.
+
+    \endlist
 
 */
 
@@ -2593,7 +2660,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-creating.html
+    \previouspage creator-project-opening.html
     \page creator-project-qmake.html
     \nextpage creator-project-qmake-libraries.html
 
@@ -4293,8 +4360,9 @@
 
     \list 1
 
-        \o On the \gui Welcome page, select \gui {Choose an Example... >
-        Animation Framework > Animated Tiles}.
+        \o On the \gui Welcome page, select \gui {Choose an Example...}
+        in the \gui {Explore Qt Quick Examples} field, and then select
+        \gui {Toys > Clocks}.
 
         \image qtcreator-gs-build-example-open.png "Selecting an example"
 
@@ -4324,18 +4392,18 @@
         \image {qt-simulator.png} "Qt Simulator"
 
         \o Change the settings in the
-        \gui View pane, for example, to toggle the orientation by clicking
-        \gui {Rotate Device}, or choose from the various Symbian and Maemo
-        configurations by clicking \gui {Device}. You can also simulate various
+        \gui View pane. For example, rotate the device by clicking the
+        \gui {Orientation} buttons or choose from the various Symbian and Maemo
+        configurations in the \gui {Device} field. You can also simulate various
         mobile functions and create your own scripts.
 
-        \o To test the application on a Symbian device install Qt libraries
+        \o To test the application on a Symbian device, install Qt libraries
         and the TRK debugging application on the device. For more information,
         see \l{Setting Up Development Environment for Symbian}.
 
         \o Click the \gui {Target Selector} and select \gui {Symbian Device}.
 
-        \o Click \gui Run to build the application for the Symbian device.
+        \o Click \gui Run to build the application and run it on the Symbian device.
 
     \endlist
 
@@ -6604,7 +6672,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-qmake.html
+    \previouspage creator-project-qmake-libraries.html
     \page creator-project-cmake.html
     \nextpage creator-project-generic.html
 
@@ -6970,6 +7038,8 @@
         \o \l {Creating Qt Quick Projects}
         \o \l {Using Qt Quick Designer}
         \o \l {Creating Components}
+        \o \l {Creating Buttons}
+        \o \l {Creating Scalable Buttons and Borders}
         \o \l {Creating Screens}
         \o \l {Animating Screens}
         \o \l {Adding User Interaction Methods}
@@ -7490,7 +7560,7 @@
 /*!
 
     \contentspage index.html
-    \previouspage quick-components.html
+    \previouspage quick-scalable-image.html
     \page quick-screens.html
     \nextpage quick-animations.html
 

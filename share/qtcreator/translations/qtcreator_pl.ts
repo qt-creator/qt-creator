@@ -2550,6 +2550,10 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
         <source>Debugging helpers:</source>
         <translation>Asystenci debuggera:</translation>
     </message>
+    <message>
+        <source>SBS v2 directory:</source>
+        <translation>Katalog SBS v2:</translation>
+    </message>
 </context>
 <context>
     <name>ShowBuildLog</name>
@@ -3628,7 +3632,7 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>Choose File</source>
-        <translation></translation>
+        <translation>Wybierz plik</translation>
     </message>
     <message>
         <source>&lt;not valid&gt;</source>
@@ -5196,7 +5200,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Commit &quot;%1&quot;</source>
-        <translation>Commit &quot;%1&quot;</translation>
+        <translation type="unfinished">Commit &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Alt+C,Alt+C</source>
@@ -10907,7 +10911,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Desktop</source>
         <comment>Qt Version is meant for the desktop</comment>
-        <translation></translation>
+        <translation>Desktop</translation>
     </message>
     <message>
         <source>Symbian</source>
@@ -17264,11 +17268,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Set anchors</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustaw kotwice</translation>
     </message>
     <message>
         <source>Setting anchors in states is not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawianie kotwic w stanach nie jest obsługiwane.</translation>
     </message>
     <message>
         <source>Target</source>
@@ -17376,10 +17380,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Smooth</source>
         <translation>Gładki</translation>
-    </message>
-    <message>
-        <source></source>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -19235,7 +19235,7 @@ Lista serwera: %2.</translation>
     </message>
     <message>
         <source>An instance of the CDB engine is still running; cannot create an a new instance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Silnik CDB jest wciąż uruchomiony, nie można uruchomić kolejnego.</translation>
     </message>
     <message>
         <source>Version: %1</source>
@@ -19564,7 +19564,7 @@ Lista serwera: %2.</translation>
     </message>
     <message>
         <source>Taking notice of pid %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Odnotowano pid %1</translation>
     </message>
 </context>
 <context>
@@ -20806,7 +20806,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
     <message>
         <source>Installation to sysroot failed, continuing anyway.</source>
-        <translation type="unfinished">Instalacja w sysroot nieudana, </translation>
+        <translation>Instalacja w sysroot nieudana, proces jest kontynuowany.</translation>
     </message>
     <message>
         <source>Copying files to sysroot ...</source>
@@ -20814,7 +20814,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
     <message>
         <source>Sysroot installation failed: Could not copy &apos;%1&apos; to &apos;%2&apos;. Continuing anyway.</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalacja w sysroot nieudana. Nie można skopiować &quot;%1&quot; do &quot;%2&quot;. Proces jest kontynuowany.</translation>
     </message>
     <message>
         <source>Connecting to device...</source>
@@ -20974,7 +20974,7 @@ stderr was: &apos;%1&apos;</source>
     </message>
     <message>
         <source>Could not upload UTFS client (%1), continuing anyway.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można przesłać klienta UTFS (%1). Proces jest kontynuowany.</translation>
     </message>
     <message>
         <source>Starting remote UTFS clients...</source>
@@ -21023,6 +21023,10 @@ stderr był: %1</translation>
     <message>
         <source>No device configuration set for run configuration.</source>
         <translation>Brak konfiguracji urządzenia dla konfiguracji uruchamiania.</translation>
+    </message>
+    <message>
+        <source>Run configuration no longer available.</source>
+        <translation>Konfiguracja budowania nie jest już dostępna.</translation>
     </message>
     <message>
         <source>Starting remote process ...</source>
@@ -21077,11 +21081,11 @@ stderr był: %1</translation>
     </message>
     <message>
         <source>Unmounting left-over host directory mounts...</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuwanie pozostałości po zamontowanym katalogu hosta...</translation>
     </message>
     <message>
         <source>Potentially unmounting left-over host directory mounts...</source>
-        <translation type="unfinished"></translation>
+        <translation>Potencjalne usuwanie pozostałości po zamontowanym katalogu hosta...</translation>
     </message>
     <message>
         <source>Unmounting host directories...</source>

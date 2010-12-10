@@ -49,3 +49,9 @@ QMAKE_EXTRA_TARGETS += html_docs html_docs_online qch_docs docs docs_online
 OTHER_FILES = $$HELP_DEP_FILES \
               $$PWD/api/qtcreator-api.qdoc \
               $$PWD/api/qtcreator-api.qdocconf
+
+fixnavi.commands = \
+    cd $$targetPath($$PWD) && \
+    perl fixnavi.pl -Dqcmanual -Dqtquick \
+        qtcreator.qdoc maemodev.qdoc symbiandev.qdoc
+QMAKE_EXTRA_TARGETS += fixnavi
