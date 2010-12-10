@@ -8,6 +8,7 @@
         <file>qml/Selector.qml</file>
 
         <file>images/item-default-icon.png</file>
+        <file>images/item-invalid-icon.png</file>
     </qresource>
 </RCC>
 

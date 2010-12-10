@@ -189,6 +189,10 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
     idItem->setDropEnabled(dropEnabled);
     idItem->setEditable(true);
     idItem->setData(hash, NavigatorRole);
+    if (node.metaInfo().isValid())
+        idItem->setToolTip(node.type());
+    else
+        idItem->setToolTip(tr("unkown item: ") + node.type());
 
 #    ifdef _LOCK_ITEMS_
     QStandardItem *lockItem = new QStandardItem;
@@ -233,6 +237,10 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &node, ItemRow items)
 
     items.idItem->setText(node.id());
     items.visibilityItem->setCheckState(node.auxiliaryData("invisible").toBool() ? Qt::Unchecked : Qt::Checked);
+    if (node.metaInfo().isValid())
+        items.idItem->setToolTip(node.type());
+    else
+        items.idItem->setToolTip(tr("unkown item: ") + node.type());
 
     blockItemChangedSignal(blockSignal);
 }
