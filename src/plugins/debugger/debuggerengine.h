@@ -166,6 +166,7 @@ public:
     virtual void openMemoryView(quint64 addr);
     virtual void fetchMemory(Internal::MemoryViewAgent *, QObject *,
                              quint64 addr, quint64 length);
+    virtual void updateMemoryViews();
     virtual void openDisassemblerView(const Internal::StackFrame &frame);
     virtual void fetchDisassembler(Internal::DisassemblerViewAgent *);
     virtual void activateFrame(int index);

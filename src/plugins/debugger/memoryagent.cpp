@@ -62,21 +62,19 @@ namespace Internal {
 
 namespace { const int DataRange = 1024 * 1024; }
 
-MemoryViewAgent::MemoryViewAgent(Debugger::DebuggerEngine *engine, quint64 addr)
+MemoryViewAgent::MemoryViewAgent(Debugger::DebuggerEngine *engine)
     : QObject(engine), m_engine(engine)
 {
     QTC_ASSERT(engine, /**/);
-    createBinEditor(addr);
 }
 
 MemoryViewAgent::~MemoryViewAgent()
 {
-    EditorManager *editorManager = EditorManager::instance();
     QList<IEditor *> editors;
     foreach (QPointer<IEditor> editor, m_editors)
         if (editor)
             editors.append(editor.data());
-    editorManager->closeEditors(editors);
+    EditorManager::instance()->closeEditors(editors);
 }
 
 void MemoryViewAgent::createBinEditor(quint64 addr)
@@ -154,6 +152,13 @@ void MemoryViewAgent::handleEndOfFileRequested(IEditor *editor)
 {
     QMetaObject::invokeMethod(editor->widget(),
         "setCursorPosition", Q_ARG(int, DataRange - 1));
+}
+
+void MemoryViewAgent::updateContents()
+{
+    foreach (QPointer<IEditor> editor, m_editors)
+        if (editor)
+            QMetaObject::invokeMethod(editor->widget(), "updateContents");
 }
 
 } // namespace Internal

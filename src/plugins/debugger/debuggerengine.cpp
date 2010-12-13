@@ -189,8 +189,9 @@ public:
         m_stackHandler(),
         m_threadsHandler(),
         m_watchHandler(engine),
+        m_isSlaveEngine(false),
         m_disassemblerViewAgent(engine),
-        m_isSlaveEngine(false)
+        m_memoryViewAgent(engine)
     {}
 
     ~DebuggerEnginePrivate() {}
@@ -264,10 +265,11 @@ public:
     StackHandler m_stackHandler;
     ThreadsHandler m_threadsHandler;
     WatchHandler m_watchHandler;
-    DisassemblerViewAgent m_disassemblerViewAgent;
     QFutureInterface<void> m_progress;
 
     bool m_isSlaveEngine;
+    DisassemblerViewAgent m_disassemblerViewAgent;
+    MemoryViewAgent m_memoryViewAgent;
 };
 
 
@@ -1421,7 +1423,12 @@ bool DebuggerEngine::isCppBreakpoint(const BreakpointParameters &p)
 
 void DebuggerEngine::openMemoryView(quint64 address)
 {
-    (void) new MemoryViewAgent(this, address);
+    d->m_memoryViewAgent.createBinEditor(address);
+}
+
+void DebuggerEngine::updateMemoryViews()
+{
+    d->m_memoryViewAgent.updateContents();
 }
 
 void DebuggerEngine::openDisassemblerView(const StackFrame &frame)

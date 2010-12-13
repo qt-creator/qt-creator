@@ -1027,7 +1027,6 @@ public slots:
     void languagesChanged();
     void showStatusMessage(const QString &msg, int timeout = -1);
     void openMemoryEditor();
-    void updateMemoryEditors();
 
     const CPlusPlus::Snapshot &cppCodeModelSnapshot() const;
 
@@ -2424,16 +2423,6 @@ void DebuggerPluginPrivate::openMemoryEditor()
     AddressDialog dialog;
     if (dialog.exec() == QDialog::Accepted)
         currentEngine()->openMemoryView(dialog.address());
-}
-
-void DebuggerPluginPrivate::updateMemoryEditors()
-{
-    EditorManager *editorManager = EditorManager::instance();
-    QTC_ASSERT(editorManager, return);
-    foreach (IEditor *editor, editorManager->openedEditors()) {
-        if (editor->property(Constants::OPENED_WITH_MEMORY).toBool())
-            QMetaObject::invokeMethod(editor->widget(), "updateContents");
-    }
 }
 
 void DebuggerPluginPrivate::coreShutdown()

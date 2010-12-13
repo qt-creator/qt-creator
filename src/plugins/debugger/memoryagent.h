@@ -48,18 +48,20 @@ class MemoryViewAgent : public QObject
     Q_OBJECT
 
 public:
-    // Called from Gui
-    explicit MemoryViewAgent(DebuggerEngine *engine, quint64 startaddr);
+    explicit MemoryViewAgent(DebuggerEngine *engine);
     ~MemoryViewAgent();
 
     enum { BinBlockSize = 1024 };
 
 public slots:
-    // Called from Engine
+    // Called by engine to create a new view.
+    void createBinEditor(quint64 startAddr);
+    // Called by engine to trigger update of contents.
+    void updateContents();
+    // Called by enine to pass updated contents.
     void addLazyData(QObject *editorToken, quint64 addr, const QByteArray &data);
 
 private:
-    Q_SLOT void createBinEditor(quint64 startAddr);
     Q_SLOT void fetchLazyData(Core::IEditor *, quint64 block, bool sync);
     Q_SLOT void provideNewRange(Core::IEditor *editor, quint64 address);
     Q_SLOT void handleStartOfFileRequested(Core::IEditor *editor);

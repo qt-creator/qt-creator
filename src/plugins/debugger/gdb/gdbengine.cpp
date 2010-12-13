@@ -3530,7 +3530,7 @@ void GdbEngine::updateLocals(const QVariant &cookie)
         updateLocalsPython(false, QByteArray());
     else
         updateLocalsClassic(cookie);
-    debuggerCore()->updateMemoryEditors();
+    updateMemoryViews();
 }
 
 
