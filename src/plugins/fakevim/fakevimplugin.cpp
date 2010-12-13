@@ -548,6 +548,9 @@ private:
     void readSettings(QSettings *settings);
     void writeSettings(QSettings *settings);
 
+    typedef int (*DistFunction)(const QRect &cursor, const QRect &other);
+    void moveSomewhere(DistFunction f);
+
     CommandMap &exCommandMap() { return m_exCommandMap; }
     CommandMap &defaultExCommandMap() { return m_exCommandMap; }
     CommandMap m_exCommandMap;
@@ -725,7 +728,7 @@ void FakeVimPluginPrivate::triggerAction(const QString &code)
     Core::ActionManager *am = actionManager();
     QTC_ASSERT(am, return);
     Core::Command *cmd = am->command(code);
-    QTC_ASSERT(cmd, qDebug() << "UNKNOW CODE: " << code; return);
+    QTC_ASSERT(cmd, qDebug() << "UNKNOWN CODE: " << code; return);
     QAction *action = cmd->action();
     QTC_ASSERT(action, return);
     action->trigger();
@@ -744,38 +747,136 @@ void FakeVimPluginPrivate::setActionChecked(const QString &code, bool check)
     action->trigger();
 }
 
+static int moveRightWeight(const QRect &cursor, const QRect &other)
+{
+    int dx = other.left() - cursor.right();
+    if (dx < 0)
+        return -1;
+    int w = 10000 * dx;
+    int dy1 = cursor.top() - other.bottom(); 
+    int dy2 = cursor.bottom() - other.top(); 
+    w += dy1 * (dy1 > 0);
+    w += dy2 * (dy2 > 0);
+    qDebug() << "      DX: " << dx << dy1 << dy2 << w;
+    return w;
+}
+
+static int moveLeftWeight(const QRect &cursor, const QRect &other)
+{
+    int dx = other.right() - cursor.left();
+    if (dx < 0)
+        return -1;
+    int w = 10000 * dx;
+    int dy1 = cursor.top() - other.bottom(); 
+    int dy2 = cursor.bottom() - other.top(); 
+    w += dy1 * (dy1 > 0);
+    w += dy2 * (dy2 > 0);
+    return w;
+}
+
+static int moveUpWeight(const QRect &cursor, const QRect &other)
+{
+    int dy = other.bottom() - cursor.top();
+    if (dy < 0)
+        return -1;
+    int w = 10000 * dy;
+    int dx1 = cursor.left() - other.right(); 
+    int dx2 = cursor.right() - other.left(); 
+    w += dx1 * (dx1 > 0);
+    w += dx2 * (dx2 > 0);
+    return w;
+}
+
+static int moveDownWeight(const QRect &cursor, const QRect &other)
+{
+    int dy = other.top() - cursor.bottom();
+    if (dy < 0)
+        return -1;
+    int w = 10000 * dy;
+    int dx1 = cursor.left() - other.right(); 
+    int dx2 = cursor.right() - other.left(); 
+    w += dx1 * (dx1 > 0);
+    w += dx2 * (dx2 > 0);
+    return w;
+}
+
 void FakeVimPluginPrivate::windowCommand(int key)
 {
 #    define control(n) (256 + n)
-    QString code;
     switch (key) {
         case 'c': case 'C': case control('c'):
-            code = Core::Constants::CLOSE;
+            triggerAction(Core::Constants::CLOSE);
             break;
         case 'n': case 'N': case control('n'):
-            code = Core::Constants::GOTONEXT;
+            triggerAction(Core::Constants::GOTONEXT);
             break;
         case 'o': case 'O': case control('o'):
-            code = Core::Constants::REMOVE_ALL_SPLITS;
-            code = Core::Constants::REMOVE_CURRENT_SPLIT;
+            //triggerAction(Core::Constants::REMOVE_ALL_SPLITS);
+            triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
             break;
         case 'p': case 'P': case control('p'):
-            code = Core::Constants::GOTOPREV;
+            triggerAction(Core::Constants::GOTOPREV);
             break;
         case 's': case 'S': case control('s'):
-            code = Core::Constants::SPLIT;
+            triggerAction(Core::Constants::SPLIT);
             break;
         case 'w': case 'W': case control('w'):
-            code = Core::Constants::GOTO_OTHER_SPLIT;
+            triggerAction(Core::Constants::GOTO_OTHER_SPLIT);
+            break;
+        case Qt::Key_Right:
+            moveSomewhere(&moveRightWeight);
+            break;
+        case Qt::Key_Left:
+            moveSomewhere(&moveLeftWeight);
+            break;
+        case Qt::Key_Up:
+            moveSomewhere(&moveUpWeight);
+            break;
+        case Qt::Key_Down:
+            moveSomewhere(&moveDownWeight);
+            break;
+        default:
+            qDebug() << "UNKNOWN WINDOWS COMMAND: " << key;
             break;
     }
 #    undef control
-    //qDebug() << "RUNNING WINDOW COMMAND: " << key << code;
-    if (code.isEmpty()) {
-        //qDebug() << "UNKNOWN WINDOWS COMMAND: " << key;
-        return;
+}
+
+void FakeVimPluginPrivate::moveSomewhere(DistFunction f)
+{
+    IEditor *editor = editorManager()->currentEditor();
+    QWidget *w = editor->widget();
+    QPlainTextEdit *pe =
+        qobject_cast<QPlainTextEdit *>(editor->widget());
+    QTC_ASSERT(pe, return);
+    QRect rc = pe->cursorRect();
+    QRect cursorRect(w->mapToGlobal(rc.topLeft()),
+            w->mapToGlobal(rc.bottomRight()));
+    //qDebug() << "\nCURSOR: " << cursorRect;
+
+    IEditor *bestEditor = 0;
+    int bestValue = 1 << 30;
+
+    QList<IEditor*> editors = editorManager()->visibleEditors();
+    foreach (IEditor *editor, editors) {
+        QWidget *w = editor->widget();
+        QRect editorRect(w->mapToGlobal(w->geometry().topLeft()),
+                w->mapToGlobal(w->geometry().bottomRight()));
+        //qDebug() << "   EDITOR: " << editorRect << editor;
+  
+        int value = f(cursorRect, editorRect);
+        if (value != -1 && value < bestValue) {
+            bestValue = value;
+            bestEditor = editor;
+            //qDebug() << "          BEST SO FAR: " << bestValue << bestEditor;
+        }
     }
-    triggerAction(code);
+    //qDebug() << "     BEST: " << bestValue << bestEditor;
+
+    // FIME: This is know to fail as the EditorManager will fall back to
+    // the current editor's view. Needs additional public API there.
+    if (bestEditor)
+        editorManager()->activateEditor(bestEditor);
 }
 
 void FakeVimPluginPrivate::find(bool reverse)
@@ -1176,8 +1277,8 @@ void FakeVimPluginPrivate::changeSelection
 int FakeVimPluginPrivate::currentFile() const
 {
     Core::OpenEditorsModel *model = editorManager()->openedEditorsModel();
-    IEditor *cur = Core::EditorManager::instance()->currentEditor();
-    return model->indexOf(cur).row();
+    IEditor *editor = editorManager()->currentEditor();
+    return model->indexOf(editor).row();
 }
 
 void FakeVimPluginPrivate::switchToFile(int n)
