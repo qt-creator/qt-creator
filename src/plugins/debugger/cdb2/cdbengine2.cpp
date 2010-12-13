@@ -815,7 +815,8 @@ void CdbEngine::handleJumpToLineAddressResolution(const CdbBuiltinCommandPtr &cm
 
     QByteArray registerCmd;
     ByteArrayInputStream str(registerCmd);
-    str << "r rip=0x" << answer;
+    // PC-register depending on 64/32bit.
+    str << "r " << (m_options->is64bit ? "rip" : "eip") << "=0x" << answer;
     postCommand(registerCmd, 0);
     gotoLocation(cookie.fileName, cookie.lineNumber, true);
 }

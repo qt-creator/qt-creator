@@ -1035,12 +1035,18 @@ void CdbEngine::executeJumpToLine(const QString &fileName, int lineNumber)
 
         if (!setRegisterValueU64(m_d->interfaces().debugControl,
                                  m_d->interfaces().debugRegisters,
-                                 QLatin1String("rip"), address, &errorMessage))
+#ifdef Q_OS_WIN64
+                                 QLatin1String("rip"),
+#else
+                                 QLatin1String("eip"),
+#endif
+                                 address, &errorMessage))
             break;
         showMessage(QString::fromLatin1("Jumping to %1:%2 (0x%3)...").
                     arg(QDir::toNativeSeparators(fileName)).arg(lineNumber).arg(address, 0, 16));
 
         StackFrame frame;
+        frame.usable = true;
         frame.file = fileName;
         frame.line = lineNumber;
         gotoLocation(frame, true);
