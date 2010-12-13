@@ -337,9 +337,14 @@ void ExternalToolRunner::run()
     }
     if (m_tool->outputHandling() == ExternalTool::ReloadDocument
                || m_tool->errorHandling() == ExternalTool::ReloadDocument) {
-        // TODO ask modified file to save
         if (IEditor *editor = EditorManager::instance()->currentEditor()) {
             m_expectedFileName = editor->file()->fileName();
+            bool cancelled = false;
+            FileManager::instance()->saveModifiedFiles(QList<IFile *>() << editor->file(), &cancelled);
+            if (cancelled) {
+                deleteLater();
+                return;
+            }
             FileManager::instance()->expectFileChange(m_expectedFileName);
         }
     }
