@@ -120,6 +120,7 @@ struct FileManagerPrivate {
     QStringList m_changedFiles;
     QList<IFile *> m_filesWithoutWatch;
     QMap<IFile *, QStringList> m_filesWithWatch;
+    QSet<QString> m_expectedFileNames;
 
     QList<FileManager::RecentFile> m_recentFiles;
     static const int m_maxRecentFiles = 7;
@@ -514,8 +515,9 @@ void FileManager::unblockFileChange(IFile *file)
 */
 void FileManager::expectFileChange(const QString &fileName)
 {
-    // Nothing to do
-    Q_UNUSED(fileName);
+    if (fileName.isEmpty())
+        return;
+    d->m_expectedFileNames.insert(fileName);
 }
 
 /*!
@@ -534,6 +536,7 @@ void FileManager::unexpectFileChange(const QString &fileName)
 
     if (fileName.isEmpty())
         return;
+    d->m_expectedFileNames.remove(fileName);
     const QString fixedName = fixFileName(fileName, KeepLinks);
     updateExpectedState(fixedName);
     const QString fixedResolvedName = fixFileName(fileName, ResolveLinks);
@@ -864,6 +867,19 @@ void FileManager::checkForReload()
             changedIFiles.insert(file);
     }
 
+    // collect information about "expected" file names
+    // we can't do the "resolving" already in expectFileChange, because
+    // if the resolved names are different when unexpectFileChange is called
+    // we would end up with never-unexpected file names
+    QSet<QString> expectedFileNames;
+    foreach (const QString &fileName, d->m_expectedFileNames) {
+        const QString fixedName = fixFileName(fileName, KeepLinks);
+        expectedFileNames.insert(fixedName);
+        const QString fixedResolvedName = fixFileName(fileName, ResolveLinks);
+        if (fixedName != fixedResolvedName)
+            expectedFileNames.insert(fixedResolvedName);
+    }
+
     // handle the IFiles
     foreach (IFile *file, changedIFiles) {
         IFile::ChangeTrigger behavior = IFile::TriggerInternal;
@@ -890,7 +906,8 @@ void FileManager::checkForReload()
                 continue;
 
             // was the change unexpected?
-            if (currentState.modified != expectedState.modified || currentState.permissions != expectedState.permissions) {
+            if ((currentState.modified != expectedState.modified || currentState.permissions != expectedState.permissions)
+                    && !expectedFileNames.contains(fileName)) {
                 behavior = IFile::TriggerExternal;
             }
 

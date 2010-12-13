@@ -94,7 +94,7 @@ public:
 
 private slots:
     void started();
-    void finished();
+    void finished(int exitCode, QProcess::ExitStatus status);
     void error(QProcess::ProcessError error);
     void readStandardOutput();
     void readStandardError();
@@ -113,6 +113,7 @@ private:
     QTextCodec::ConverterState m_outputCodecState;
     QTextCodec::ConverterState m_errorCodecState;
     QString m_processOutput;
+    QString m_expectedFileName;
 };
 
 } // Internal

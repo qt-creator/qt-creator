@@ -36,6 +36,9 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/filemanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/environment.h>
@@ -334,12 +337,16 @@ void ExternalToolRunner::run()
     }
     if (m_tool->outputHandling() == ExternalTool::ReloadDocument
                || m_tool->errorHandling() == ExternalTool::ReloadDocument) {
-        // TODO ask modified file to save, block modification notifications
+        // TODO ask modified file to save
+        if (IEditor *editor = EditorManager::instance()->currentEditor()) {
+            m_expectedFileName = editor->file()->fileName();
+            FileManager::instance()->expectFileChange(m_expectedFileName);
+        }
     }
     m_process = new QProcess;
     // TODO error handling, finish reporting, reading output, etc
     connect(m_process, SIGNAL(started()), this, SLOT(started()));
-    connect(m_process, SIGNAL(finished(int)), this, SLOT(finished()));
+    connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished(int,QProcess::ExitStatus)));
     connect(m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(error(QProcess::ProcessError)));
     connect(m_process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStandardOutput()));
     connect(m_process, SIGNAL(readyReadStandardError()), this, SLOT(readStandardError()));
@@ -358,24 +365,29 @@ void ExternalToolRunner::started()
     m_process->closeWriteChannel();
 }
 
-void ExternalToolRunner::finished()
+void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
 {
-    if (m_tool->outputHandling() == ExternalTool::ReplaceSelection
-            || m_tool->errorHandling() == ExternalTool::ReplaceSelection) {
-        emit ExternalToolManager::instance()->replaceSelectionRequested(m_processOutput);
-    } else if (m_tool->outputHandling() == ExternalTool::ReloadDocument
-               || m_tool->errorHandling() == ExternalTool::ReloadDocument) {
-        // TODO reload document without popup
+    if (status == QProcess::NormalExit && exitCode == 0) {
+        if (m_tool->outputHandling() == ExternalTool::ReplaceSelection
+                || m_tool->errorHandling() == ExternalTool::ReplaceSelection) {
+            emit ExternalToolManager::instance()->replaceSelectionRequested(m_processOutput);
+        } else if (m_tool->outputHandling() == ExternalTool::ReloadDocument
+                || m_tool->errorHandling() == ExternalTool::ReloadDocument) {
+            FileManager::instance()->unexpectFileChange(m_expectedFileName);
+        }
     }
     ICore::instance()->messageManager()->printToOutputPane(
                 tr("'%1' finished").arg(m_resolvedExecutable), false);
-    // TODO handle the ReplaceSelection and ReloadDocument flags
     m_process->deleteLater();
     deleteLater();
 }
 
 void ExternalToolRunner::error(QProcess::ProcessError error)
 {
+    if (m_tool->outputHandling() == ExternalTool::ReloadDocument
+            || m_tool->errorHandling() == ExternalTool::ReloadDocument) {
+        FileManager::instance()->unexpectFileChange(m_expectedFileName);
+    }
     // TODO inform about errors
     m_process->deleteLater();
     deleteLater();
