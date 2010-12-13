@@ -87,7 +87,6 @@ ExternalTool::ExternalTool() :
 
 ExternalTool::~ExternalTool()
 {
-    // TODO kill running process
 }
 
 QString ExternalTool::id() const
@@ -349,7 +348,6 @@ void ExternalToolRunner::run()
         }
     }
     m_process = new QProcess;
-    // TODO error handling, finish reporting, reading output, etc
     connect(m_process, SIGNAL(started()), this, SLOT(started()));
     connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished(int,QProcess::ExitStatus)));
     connect(m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(error(QProcess::ProcessError)));
@@ -404,7 +402,6 @@ void ExternalToolRunner::readStandardOutput()
         return;
     QByteArray data = m_process->readAllStandardOutput();
     QString output = m_outputCodec->toUnicode(data.constData(), data.length(), &m_outputCodecState);
-    // TODO handle the ReplaceSelection flag
     if (m_tool->outputHandling() == ExternalTool::ShowInPane) {
         ICore::instance()->messageManager()->printToOutputPane(output, true);
     } else if (m_tool->outputHandling() == ExternalTool::ReplaceSelection) {
@@ -418,7 +415,6 @@ void ExternalToolRunner::readStandardError()
         return;
     QByteArray data = m_process->readAllStandardError();
     QString output = m_outputCodec->toUnicode(data.constData(), data.length(), &m_errorCodecState);
-    // TODO handle the ReplaceSelection flag
     if (m_tool->errorHandling() == ExternalTool::ShowInPane) {
         ICore::instance()->messageManager()->printToOutputPane(output, true);
     } else if (m_tool->errorHandling() == ExternalTool::ReplaceSelection) {
@@ -439,6 +435,7 @@ ExternalToolManager::ExternalToolManager(Core::ICore *core)
 
 ExternalToolManager::~ExternalToolManager()
 {
+    // TODO kill running tools
     qDeleteAll(m_tools);
 }
 
