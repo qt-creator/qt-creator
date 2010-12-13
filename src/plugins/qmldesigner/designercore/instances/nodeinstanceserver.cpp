@@ -532,7 +532,8 @@ void NodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstan
     foreach (const ServerNodeInstance &child, childList) {
         if (!child.hasParent())
             noParentList.append(child);
-        parentSet.insert(child.parent());
+        else
+            parentSet.insert(child.parent());
     }
 
 
