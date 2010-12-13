@@ -1,26 +1,26 @@
 <metainfo>
   <node name="Label" icon=":/mxplugin/images/item-icon16.png">
-    <itemlibraryentry name="Label (MeeGo)"  category="Components MeeGo" libraryIcon=":/meegoplugin/images/item-icon.png">
+    <itemlibraryentry name="Label (MeeGo)"  category="Components MeeGo" libraryIcon=":/meegoplugin/images/item-icon.png" requiredImport="com.Meego">
     </itemlibraryentry>
   </node>
   <node name="Button" icon=":/meegoplugin/images/item-icon16.png">
-    <itemlibraryentry name="Button (MeeGo)"  category="Components MeeGo" libraryIcon=":/meegoplugin/images/item-icon.png">
+    <itemlibraryentry name="Button (MeeGo)"  category="Components MeeGo" libraryIcon=":/meegoplugin/images/item-icon.png" requiredImport="com.Meego">
     </itemlibraryentry>
   </node>
   <node name="Slider" icon=":/meegoplugin/images/item-icon16.png">
-    <itemlibraryentry name="Slider (MeeGo)"  category="Components MeeGo" libraryIcon=":/meegoplugin/images/item-icon.png">
+    <itemlibraryentry name="Slider (MeeGo)"  category="Components MeeGo" libraryIcon=":/meegoplugin/images/item-icon.png" requiredImport="com.Meego">
     </itemlibraryentry>
   </node>
   <node name="CheckBox" icon=":/meegoplugin/images/item-icon16.png">
-    <itemlibraryentry name="CheckBox (MeeGo)" category="Components MeeGo" libraryIcon=":/meegoplugin/images/item-icon.png">
+    <itemlibraryentry name="CheckBox (MeeGo)" category="Components MeeGo" libraryIcon=":/meegoplugin/images/item-icon.png" requiredImport="com.Meego">
     </itemlibraryentry>
   </node>
   <node name="Spinner" icon=":/meegoplugin/images/item-icon16.png">
-    <itemlibraryentry name="Spinner (MeeGo)"  category="Components MeeGo" libraryIcon=":/meegoplugin/images/item-icon.png">
+    <itemlibraryentry name="Spinner (MeeGo)"  category="Components MeeGo" libraryIcon=":/meegoplugin/images/item-icon.png" requiredImport="com.Meego">
     </itemlibraryentry>
   </node>
   <node name="LineEdit" icon=":/meegoplugin/images/item-icon16.png">
-    <itemlibraryentry name="LineEdit (MeeGo)"  category="Components MeeGo" libraryIcon=":/meegoplugin/images/item-icon.png">
+    <itemlibraryentry name="LineEdit (MeeGo)"  category="Components MeeGo" libraryIcon=":/meegoplugin/images/item-icon.png" requiredImport="com.Meego">
     </itemlibraryentry>
   </node>
 </metainfo>
