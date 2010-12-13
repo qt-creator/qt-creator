@@ -42,6 +42,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/environment.h>
+#include <utils/qtcprocess.h>
 
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QDir>
@@ -314,8 +315,13 @@ bool ExternalToolRunner::resolve()
     { // arguments
         QString resolved = Utils::expandMacros(m_tool->arguments(),
                                                Core::VariableManager::instance()->macroExpander());
-        // TODO stupid, do it right
-        m_resolvedArguments = resolved.split(QLatin1Char(' '), QString::SkipEmptyParts);
+        // handle quoting in the command line arguments etc
+        QString cmd;
+        Utils::QtcProcess::prepareCommand(m_resolvedExecutable, resolved,
+                                          &cmd, &m_resolvedArguments);
+        if (cmd.isEmpty())
+            return false;
+        m_resolvedExecutable = cmd;
     }
     { // input
         m_resolvedInput = Utils::expandMacros(m_tool->input(),
@@ -357,6 +363,8 @@ void ExternalToolRunner::run()
         m_process->setWorkingDirectory(m_resolvedWorkingDirectory);
     ICore::instance()->messageManager()->printToOutputPane(
                 tr("Starting external tool '%1'").arg(m_resolvedExecutable), false);
+    ICore::instance()->messageManager()->printToOutputPane(
+                tr("with arguments (%1)").arg(m_resolvedArguments.join(QLatin1String(", "))), false);
     m_process->start(m_resolvedExecutable, m_resolvedArguments, QIODevice::ReadWrite);
 }
 
