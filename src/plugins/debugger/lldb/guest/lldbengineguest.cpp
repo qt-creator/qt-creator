@@ -45,7 +45,6 @@
 #include "watchhandler.h"
 #include "watchutils.h"
 #include "threadshandler.h"
-#include "debuggeragents.h"
 
 #include <utils/qtcassert.h>
 #include <QtCore/QDebug>
