@@ -30,6 +30,7 @@
 #include "symbolgroupvalue.h"
 #include "symbolgroup.h"
 #include "stringutils.h"
+#include "containers.h"
 
 #include <iomanip>
 
@@ -215,9 +216,32 @@ std::string SymbolGroupValue::error() const
     return m_errorMessage;
 }
 
+bool SymbolGroupValue::isPointerType(const std::string &t)
+{
+    return endsWith(t, " *");
+}
+
+unsigned SymbolGroupValue::pointerSize()
+{
+    static unsigned ps = 0;
+    if (!ps)
+        ps = SymbolGroupValue::sizeOf("char *");
+    return ps;
+}
+
 std::string SymbolGroupValue::stripPointerType(const std::string &t)
 {
-    return endsWith(t, " *") ? t.substr(0, t.size() - 2) : t;
+    return isPointerType(t) ? t.substr(0, t.size() - 2) : t;
+}
+
+std::string SymbolGroupValue::addPointerType(const std::string &t)
+{
+    // 'char' -> 'char *' -> 'char **'
+    std::string rc = t;
+    if (!endsWith(rc, '*'))
+        rc.push_back(' ');
+    rc.push_back('*');
+    return rc;
 }
 
 std::string SymbolGroupValue::stripArrayType(const std::string &t)
@@ -344,63 +368,61 @@ static inline void formatMilliSeconds(std::wostream &str, int milliSecs)
         << '.' << std::setw(3) << milliSecs;
 }
 
+static const char stdStringTypeC[] = "std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
+static const char stdWStringTypeC[] = "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
 
-static const char stdStringTypeC[] = "class std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
-static const char stdWStringTypeC[] = "class std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
-
-// Dump a QString.
-
-KnownType knownType(const std::string &type)
+// Determine type starting from a position (with/without 'class '/'struct ' prefix).
+static KnownType knownTypeHelper(const std::string &type, std::string::size_type pos)
 {
-    // Make sure this is 'class X' or 'struct X'. Strip that and pointer
-    if (type.empty() || (type.at(0) != 'c' && type.at(0) != 's'))
-        return KT_Unknown;
-    const bool isClass = type.compare(0, 6, "class ") != 0;
-    const bool isStruct = isClass ? false : type.compare(0, 7, "struct ") != 0;
-    if (!isClass && !isStruct)
-        return KT_Unknown;
     // Strip pointer types.
     const std::wstring::size_type compareLen =
             endsWith(type, " *") ? type.size() -2 : type.size();
     // STL ?
-    const std::wstring::size_type templatePos = type.find('<');
-    static const std::wstring::size_type stlClassPos = 11;
-    if (!type.compare(0, stlClassPos, "class std::")) {
+    const std::wstring::size_type templatePos = type.find('<', pos);
+    static const std::wstring::size_type stlClassLen = 5;
+    if (!type.compare(pos, stlClassLen, "std::")) {
         // STL containers
+        const std::wstring::size_type hPos = pos + stlClassLen;
         if (templatePos != std::string::npos) {
-            switch (templatePos - stlClassPos) {
+            switch (templatePos - stlClassLen - pos) {
             case 3:
-                if (!type.compare(stlClassPos, 3, "set"))
+                if (!type.compare(hPos, 3, "set"))
                     return KT_StdSet;
-                if (!type.compare(stlClassPos, 3, "map"))
+                if (!type.compare(hPos, 3, "map"))
                     return KT_StdMap;
                 break;
             case 4:
-                if (!type.compare(stlClassPos, 4, "list"))
+                if (!type.compare(hPos, 4, "list"))
                     return KT_StdList;
                 break;
+            case 5:
+                if (!type.compare(hPos, 5, "stack"))
+                    return KT_StdStack;
+                if (!type.compare(hPos, 5, "deque"))
+                    return KT_StdDeque;
+                break;
             case 6:
-                if (!type.compare(stlClassPos, 6, "vector"))
+                if (!type.compare(hPos, 6, "vector"))
                     return KT_StdVector;
                 break;
             case 8:
-                if (!type.compare(stlClassPos, 8, "multimap"))
+                if (!type.compare(hPos, 8, "multimap"))
                     return KT_StdMultiMap;
                 break;
             }
         }
         // STL strings
-        if (!type.compare(0, compareLen, stdStringTypeC))
+        if (!type.compare(pos, compareLen - pos, stdStringTypeC))
             return KT_StdString;
-        if (!type.compare(0, compareLen, stdWStringTypeC))
+        if (!type.compare(pos, compareLen - pos, stdWStringTypeC))
             return KT_StdWString;
         return KT_Unknown;
     } // std::sth
     // Check for a 'Q' past the last namespace (beware of namespaced Qt:
     // 'nsp::QString').
-    const std::wstring::size_type lastNameSpacePos = type.rfind(':');
+    const std::wstring::size_type lastNameSpacePos = type.rfind(':', templatePos);
     const std::wstring::size_type qPos =
-            lastNameSpacePos == std::string::npos ? type.find('Q') : lastNameSpacePos + 1;
+            lastNameSpacePos == std::string::npos ? type.find('Q', pos) : lastNameSpacePos + 1;
     if (qPos == std::string::npos || qPos >= type.size() || type.at(qPos) != 'Q')
         return KT_Unknown;
     // Qt types (templates)
@@ -421,6 +443,10 @@ KnownType knownType(const std::string &type)
         case 6:
             if (!type.compare(qPos, 6, "QFlags"))
                 return KT_QFlags;
+            if (!type.compare(qPos, 6, "QStack"))
+                return KT_QStack;
+            if (!type.compare(qPos, 6, "QQueue"))
+                return KT_QQueue;
             break;
         case 7:
             if (!type.compare(qPos, 7, "QVector"))
@@ -430,10 +456,21 @@ KnownType knownType(const std::string &type)
             if (!type.compare(qPos, 9, "QMultiMap"))
                 return KT_QMultiMap;
             break;
+        case 11:
+            if (!type.compare(qPos, 11, "QLinkedList"))
+                return KT_QLinkedList;
+            break;
         }
     }
     // Remaining non-template types
     switch (compareLen - qPos) {
+
+    case 4:
+        if (!type.compare(qPos, 4, "QPen"))
+            return KT_QPen;
+        if (!type.compare(qPos, 4, "QUrl"))
+            return KT_QUrl;
+        break;
     case 5:
         if (!type.compare(qPos, 5, "QChar"))
             return KT_QChar;
@@ -447,6 +484,8 @@ KnownType knownType(const std::string &type)
             return KT_QLine;
         if (!type.compare(qPos, 5, "QRect"))
             return KT_QRect;
+        if (!type.compare(qPos, 5, "QIcon"))
+            return KT_QIcon;
         break;
     case 6:
         if (!type.compare(qPos, 6, "QColor"))
@@ -459,6 +498,12 @@ KnownType knownType(const std::string &type)
             return KT_QLineF;
         if (!type.compare(qPos, 6, "QRectF"))
             return KT_QRectF;
+        if (!type.compare(qPos, 6, "QBrush"))
+            return KT_QBrush;
+        if (!type.compare(qPos, 6, "QImage"))
+            return KT_QImage;
+        if (!type.compare(qPos, 6, "QFixed"))
+            return KT_QFixed;
         break;
     case 7:
         if (!type.compare(qPos, 7, "QString"))
@@ -469,25 +514,207 @@ KnownType knownType(const std::string &type)
             return KT_QObject;
         if (!type.compare(qPos, 7, "QWidget"))
             return KT_QWidget;
+        if (!type.compare(qPos, 7, "QLocale"))
+            return KT_QLocale;
+        if (!type.compare(qPos, 7, "QMatrix"))
+            return KT_QMatrix;
+        if (!type.compare(qPos, 7, "QRegExp"))
+            return KT_QRegExp;
         break;
     case 8:
         if (!type.compare(qPos, 8, "QVariant"))
             return KT_QVariant;
+        if (!type.compare(qPos, 8, "QMargins"))
+            return KT_QMargins;
+        if (!type.compare(qPos, 8, "QXmlItem"))
+            return KT_QXmltem;
+        if (!type.compare(qPos, 8, "QXmlName"))
+            return KT_QXmlName;
+        break;
+    case 9:
+        if (!type.compare(qPos, 9, "QBitArray"))
+            return KT_QBitArray;
+        if (!type.compare(qPos, 9, "QDateTime"))
+            return KT_QDateTime;
+        if (!type.compare(qPos, 9, "QFileInfo"))
+            return KT_QFileInfo;
+        if (!type.compare(qPos, 9, "QMetaEnum"))
+            return KT_QMetaEnum;
+        if (!type.compare(qPos, 9, "QTextItem"))
+            return KT_QTextItem;
+        if (!type.compare(qPos, 9, "QVector2D"))
+            return KT_QVector2D;
+        if (!type.compare(qPos, 9, "QVector3D"))
+            return KT_QVector3D;
+        if (!type.compare(qPos, 9, "QVector4D"))
+            return KT_QVector4D;
         break;
     case 10:
         if (!type.compare(qPos, 10, "QAtomicInt"))
             return KT_QAtomicInt;
         if (!type.compare(qPos, 10, "QByteArray"))
             return KT_QByteArray;
+        if (!type.compare(qPos, 10, "QMatrix4x4"))
+            return KT_QMatrix4x4;
+        if (!type.compare(qPos, 10, "QTextBlock"))
+            return KT_QTextBlock;
+        if (!type.compare(qPos, 10, "QTransform"))
+            return KT_QTransform;
+        if (!type.compare(qPos, 10, "QFixedSize"))
+            return KT_QFixedSize;
         break;
     case 11:
         if (!type.compare(qPos, 11, "QStringList"))
             return KT_QStringList;
+        if (!type.compare(qPos, 11, "QBasicTimer"))
+            return KT_QBasicTimer;
+        if (!type.compare(qPos, 11, "QMetaMethod"))
+            return KT_QMetaMethod;
+        if (!type.compare(qPos, 11, "QModelIndex"))
+            return KT_QModelIndex;
+        if (!type.compare(qPos, 11, "QQuaternion"))
+            return KT_QQuaternion;
+        if (!type.compare(qPos, 11, "QScriptItem"))
+            return KT_QScriptItem;
+        if (!type.compare(qPos, 11, "QFixedPoint"))
+            return KT_QFixedPoint;
+        if (!type.compare(qPos, 11, "QScriptLine"))
+            return KT_QScriptLine;
+        break;
+    case 12:
+        if (!type.compare(qPos, 12, "QKeySequence"))
+            return KT_QKeySequence;
+        break;
+    case 13:
+        if (!type.compare(qPos, 13, "QTextFragment"))
+            return KT_QTextFragment;
+        if (!type.compare(qPos, 13, "QTreeViewItem"))
+            return KT_QTreeViewItem;
+        break;
+    case 14:
+        if (!type.compare(qPos, 14, "QMetaClassInfo"))
+            return KT_QMetaClassInfo;
+        if (!type.compare(qPos, 14, "QNetworkCookie"))
+            return KT_QNetworkCookie;
         break;
     case 15:
         if (!type.compare(qPos, 15, "QBasicAtomicInt"))
             return KT_QBasicAtomicInt;
+        if (!type.compare(qPos, 15, "QHashDummyValue"))
+            return KT_QHashDummyValue;
+        if (!type.compare(qPos, 15, "QSourceLocation"))
+            return KT_QSourceLocation;
+        if (!type.compare(qPos, 15, "QScriptAnalysis"))
+            return KT_QScriptAnalysis;
         break;
+    case 16:
+        if (!type.compare(qPos, 16, "QTextUndoCommand"))
+            return KT_QTextUndoCommand;
+        break;
+    case 18:
+        if (!type.compare(qPos, 18, "QNetworkProxyQuery"))
+            return KT_QNetworkProxyQuery;
+        if (!type.compare(qPos, 18, "QXmlNodeModelIndex"))
+            return KT_QXmlNodeModelIndex;
+        break;
+    case 19:
+        if (!type.compare(qPos, 19, "QItemSelectionRange"))
+            return KT_QItemSelectionRange;
+        if (!type.compare(qPos, 19, "QPaintBufferCommand"))
+            return KT_QPaintBufferCommand;
+        if (!type.compare(qPos, 19, "QTextHtmlParserNode"))
+            return KT_QTextHtmlParserNode;
+        if (!type.compare(qPos, 19, "QXmlStreamAttribute"))
+            return KT_QXmlStreamAttribute;
+        if (!type.compare(qPos, 19, "QGlyphJustification"))
+            return KT_QGlyphJustification;
+        break;
+    case 20:
+        if (!type.compare(qPos, 20, "QTextBlock::iterator"))
+            return KT_QTextBlock_iterator;
+        if (!type.compare(qPos, 20, "QTextFrame::iterator"))
+            return KT_QTextFrame_iterator;
+        break;
+    case 21:
+        if (!type.compare(qPos, 21, "QPersistentModelIndex"))
+            return KT_QPersistentModelIndex;
+        if (!type.compare(qPos, 21, "QPainterPath::Element"))
+            return KT_QPainterPath_Element;
+        break;
+    case 22:
+        if (!type.compare(qPos, 22, "QObjectPrivate::Sender"))
+            return KT_QObjectPrivate_Sender;
+        break;
+    case 24:
+        if (!type.compare(qPos, 24, "QPatternist::AtomicValue"))
+            return KT_QPatternist_AtomicValue;
+        if (!type.compare(qPos, 24, "QPatternist::Cardinality"))
+            return KT_QPatternist_Cardinality;
+        break;
+    case 26:
+        if (!type.compare(qPos, 26, "QObjectPrivate::Connection"))
+            return KT_QObjectPrivate_Connection;
+        if (!type.compare(qPos, 26, "QPatternist::ItemCacheCell"))
+            return KT_QPatternist_ItemCacheCell;
+        if (!type.compare(qPos, 26, "QPatternist::ItemType::Ptr"))
+            return KT_QPatternist_ItemType_Ptr;
+        if (!type.compare(qPos, 26, "QPatternist::NamePool::Ptr"))
+            return KT_QPatternist_NamePool_Ptr;
+        break;
+    case 27:
+        if (!type.compare(qPos, 27, "QXmlStreamEntityDeclaration"))
+            return KT_QXmlStreamEntityDeclaration;
+        break;
+    case 28:
+        if (!type.compare(qPos, 28, "QPatternist::Expression::Ptr"))
+            return KT_QPatternist_Expression_Ptr;
+        break;
+    case 29:
+        if (!type.compare(qPos, 29, "QXmlStreamNotationDeclaration"))
+            return KT_QXmlStreamNotationDeclaration;
+    case 30:
+        if (!type.compare(qPos, 30, "QPatternist::SequenceType::Ptr"))
+            return KT_QPatternist_SequenceType_Ptr;
+        if (!type.compare(qPos, 30, "QXmlStreamNamespaceDeclaration"))
+            return KT_QXmlStreamNamespaceDeclaration;
+        break;
+    case 32:
+        break;
+        if (!type.compare(qPos, 32, "QPatternist::Item::Iterator::Ptr"))
+            return KT_QPatternist_Item_Iterator_Ptr;
+    case 34:
+        break;
+        if (!type.compare(qPos, 34, "QPatternist::ItemSequenceCacheCell"))
+            return KT_QPatternist_ItemSequenceCacheCell;
+    case 37:
+        break;
+        if (!type.compare(qPos, 37, "QNetworkHeadersPrivate::RawHeaderPair"))
+            return KT_QNetworkHeadersPrivate_RawHeaderPair;
+        if (!type.compare(qPos, 37, "QPatternist::AccelTree::BasicNodeData"))
+            return KT_QPatternist_AccelTree_BasicNodeData;
+        break;
+    }
+    return KT_Unknown;
+}
+
+KnownType knownType(const std::string &type, bool hasClassPrefix)
+{
+    if (type.empty())
+        return KT_Unknown;
+    if (hasClassPrefix) {
+        switch (type.at(0)) { // Check 'class X' or 'struct X'
+        case 'c':
+            if (!type.compare(0, 6, "class "))
+                return knownTypeHelper(type, 6);
+            break;
+        case 's':
+            if (!type.compare(0, 7, "struct "))
+                return knownTypeHelper(type, 7);
+            break;
+        }
+    } else {
+        // No prefix, full check
+        return knownTypeHelper(type, 0);
     }
     return KT_Unknown;
 }
@@ -845,100 +1072,6 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str)
         break;
     }
     return true;
-}
-
-// Return size of container or -1
-
-int containerSize(KnownType kt, SymbolGroupNode *n, const SymbolGroupValueContext &ctx)
-{
-    if ((kt & KT_ContainerType) == 0)
-        return -1;
-    return containerSize(kt, SymbolGroupValue(n, ctx));
-}
-
-// Return size from an STL vector (last/first iterators).
-static inline int msvcStdVectorSize(const SymbolGroupValue &v)
-{
-    if (const SymbolGroupValue myFirstPtrV = v["_Myfirst"]) {
-        if (const SymbolGroupValue myLastPtrV = v["_Mylast"]) {
-            const ULONG64 firstPtr = myFirstPtrV.pointerValue();
-            const ULONG64 lastPtr = myLastPtrV.pointerValue();
-            if (!firstPtr || lastPtr < firstPtr)
-                return -1;
-            if (lastPtr == firstPtr)
-                return 0;
-            // Subtract the pointers: We need to do the pointer arithmetics ourselves
-            // as we get char *pointers.
-            const std::string innerType = SymbolGroupValue::stripPointerType(myFirstPtrV.type());
-            const size_t size = SymbolGroupValue::sizeOf(innerType.c_str());
-            if (size == 0)
-                return -1;
-            return static_cast<int>((lastPtr - firstPtr) / size);
-        }
-    }
-    return -1;
-}
-
-int containerSize(KnownType kt, const SymbolGroupValue &v)
-{
-    switch (kt) {
-    case KT_QStringList:
-        if (const SymbolGroupValue base = v[unsigned(0)])
-            return containerSize(KT_QList, base);
-        break;
-    case KT_QList:
-        if (const SymbolGroupValue dV = v["d"]) {
-            if (const SymbolGroupValue beginV = dV["begin"]) {
-                const int begin = beginV.intValue();
-                const int end = dV["end"].intValue();
-                if (begin >= 0 && end >= begin)
-                    return end - begin;
-            }
-        }
-        break;
-    case KT_QHash:
-    case KT_QMap:
-    case KT_QVector:
-        if (const SymbolGroupValue sizeV = v["d"]["size"])
-            return sizeV.intValue();
-        break;
-    case KT_QSet:
-        if (const SymbolGroupValue base = v[unsigned(0)])
-            return containerSize(KT_QHash, base);
-        break;
-    case KT_QMultiMap:
-        if (const SymbolGroupValue base = v[unsigned(0)])
-            return containerSize(KT_QMap, base);
-        break;
-    case KT_StdVector: {
-        if (const SymbolGroupValue base = v[unsigned(0)]) {
-            const int msvc10Size = msvcStdVectorSize(base);
-            if (msvc10Size >= 0)
-                return msvc10Size;
-        }
-        const int msvc8Size = msvcStdVectorSize(v);
-        if (msvc8Size >= 0)
-            return msvc8Size;
-    }
-        break;
-    case KT_StdList:
-        if (const SymbolGroupValue sizeV =  v["_Mysize"]) // VS 8
-            return sizeV.intValue();
-        if (const SymbolGroupValue sizeV = v[unsigned(0)][unsigned(0)]["_Mysize"]) // VS10
-            return sizeV.intValue();
-        break;
-    case KT_StdSet:
-    case KT_StdMap:
-    case KT_StdMultiMap:
-        if (const SymbolGroupValue baseV = v[unsigned(0)]) {
-            if (const SymbolGroupValue sizeV = baseV["_Mysize"]) // VS 8
-                return sizeV.intValue();
-            if (const SymbolGroupValue sizeV = baseV[unsigned(0)][unsigned(0)]["_Mysize"]) // VS 10
-                return sizeV.intValue();
-        }
-        break;
-    }
-    return -1;
 }
 
 static inline std::wstring msgContainerSize(int s)

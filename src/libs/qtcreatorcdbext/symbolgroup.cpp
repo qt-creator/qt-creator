@@ -756,6 +756,8 @@ std::wstring SymbolGroupNode::simpleDumpValue(const SymbolGroupValueContext &ctx
 {
     if (m_flags & Uninitialized)
         return L"<not in scope>";
+    if (m_flags & SimpleDumperOk)
+        return m_dumperValue;
     if ((m_flags & SimpleDumperMask) == 0) {
         m_flags |= dumpSimpleType(this , ctx, &m_dumperValue,
                                   &m_dumperType, &m_dumperContainerSize);

@@ -67,4 +67,5 @@ HEADERS += extensioncontext.h \
     outputcallback.h \
     base64.h \
     symbolgroupvalue.h \
-    containers.h
+    containers.h \
+    knowntype.h

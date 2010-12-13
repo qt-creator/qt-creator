@@ -32,10 +32,16 @@
 
 struct SymbolGroupValueContext;
 class SymbolGroupNode;
+class SymbolGroupValue;
 
 #include "common.h"
+#include "knowntype.h"
 
 #include <vector>
+
+// Determine size of containers
+int containerSize(KnownType kt, const SymbolGroupValue &v);
+int containerSize(KnownType kt, SymbolGroupNode *n, const SymbolGroupValueContext &ctx);
 
 /* Create a list of children of containers. */
 std::vector<SymbolGroupNode *> containerChildren(SymbolGroupNode *node,

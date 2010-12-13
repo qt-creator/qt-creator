@@ -73,6 +73,8 @@ std::wstring toWString(const Streamable s)
 }
 
 bool endsWith(const std::string &haystack, const char *needle);
+inline bool endsWith(const std::string &haystack, char needle)
+    { return !haystack.empty() && haystack.at(haystack.size() - 1) == needle; }
 
 // Read an integer from a string as '10' or '0xA'
 template <class Integer>
