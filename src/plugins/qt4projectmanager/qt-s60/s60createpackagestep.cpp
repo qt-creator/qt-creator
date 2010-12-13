@@ -38,6 +38,7 @@
 #include "sbsv2parser.h"
 #include "passphraseforkeydialog.h"
 #include "s60certificateinfo.h"
+#include "s60certificatedetailsdialog.h"
 
 #include <coreplugin/coreconstants.h>
 
@@ -784,6 +785,11 @@ S60CreatePackageStepConfigWidget::S60CreatePackageStepConfigWidget(S60CreatePack
     m_ui.signaturePath->setPromptDialogFilter(QLatin1String("*.cer *.crt *.der *.pem"));
     m_ui.keyFilePath->setExpectedKind(Utils::PathChooser::File);
     updateUi();
+
+    m_ui.certificateDetails->setEnabled(m_ui.signaturePath->isValid());
+
+    connect(m_ui.certificateDetails, SIGNAL(clicked()),
+            this, SLOT(displayCertificateDetails()));
     connect(m_ui.customCertificateButton, SIGNAL(clicked()),
             this, SLOT(updateFromUi()));
     connect(m_ui.selfSignedButton, SIGNAL(clicked()),
@@ -802,6 +808,8 @@ S60CreatePackageStepConfigWidget::S60CreatePackageStepConfigWidget(S60CreatePack
 
 void S60CreatePackageStepConfigWidget::signatureChanged(QString certFile)
 {
+    m_ui.certificateDetails->setEnabled(m_ui.signaturePath->isValid());
+
     if (!certFile.isEmpty() && m_ui.keyFilePath->path().isEmpty()) {
         /*  If a cert file is selected and there is not key file inserted,
             then we check if there is a .key or .pem file in the folder with
@@ -828,7 +836,6 @@ void S60CreatePackageStepConfigWidget::signatureChanged(QString certFile)
 
 void S60CreatePackageStepConfigWidget::updateUi()
 {
-
     switch(m_signStep->signingMode()) {
     case S60CreatePackageStep::SignCustom:
         m_ui.selfSignedButton->setChecked(false);
@@ -870,6 +877,17 @@ void S60CreatePackageStepConfigWidget::updateFromUi()
     m_signStep->setCustomKeyPath(m_ui.keyFilePath->path());
     m_signStep->setCreatesSmartInstaller(m_ui.smartInstaller->isChecked());
     updateUi();
+}
+
+void S60CreatePackageStepConfigWidget::displayCertificateDetails()
+{
+    S60CertificateInfo *certificateInformation = new S60CertificateInfo(m_ui.signaturePath->path());
+    certificateInformation->devicesSupported().sort();
+
+    S60CertificateDetailsDialog dialog;
+    dialog.setText(certificateInformation->toHtml(false));
+    dialog.exec();
+    delete certificateInformation;
 }
 
 void S60CreatePackageStepConfigWidget::resetPassphrases()

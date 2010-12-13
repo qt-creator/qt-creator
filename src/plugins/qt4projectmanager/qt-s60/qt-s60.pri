@@ -24,7 +24,8 @@ SOURCES += $$PWD/s60devices.cpp \
     $$PWD/s60deployconfigurationwidget.cpp \
     $$PWD/s60certificateinfo.cpp \
     $$PWD/certificatepathchooser.cpp \
-    $$PWD/s60symbiancertificate.cpp
+    $$PWD/s60symbiancertificate.cpp \
+    $$PWD/s60certificatedetailsdialog.cpp
 HEADERS += $$PWD/s60devices.h \
     $$PWD/s60devicespreferencepane.h \
     $$PWD/s60manager.h \
@@ -48,6 +49,8 @@ HEADERS += $$PWD/s60devices.h \
     $$PWD/s60deployconfigurationwidget.h \
     $$PWD/s60certificateinfo.h \
     $$PWD/certificatepathchooser.h \
-    $$PWD/s60symbiancertificate.h
+    $$PWD/s60symbiancertificate.h \
+    $$PWD/s60certificatedetailsdialog.h
 FORMS += $$PWD/s60devicespreferencepane.ui \
-    $$PWD/s60createpackagestep.ui
+    $$PWD/s60createpackagestep.ui \
+    $$PWD/s60certificatedetailsdialog.ui

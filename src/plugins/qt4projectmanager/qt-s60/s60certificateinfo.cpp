@@ -36,6 +36,9 @@
 
 #include "s60symbiancertificate.h"
 
+using namespace Qt4ProjectManager;
+using namespace Qt4ProjectManager::Internal;
+
 namespace {
     const char * const SIMPLE_DATE_FORMAT = "dd.MM.yyyy";
 }
@@ -84,6 +87,13 @@ S60CertificateInfo::S60CertificateInfo(const QString &filePath, QObject* parent)
       m_certificate(new S60SymbianCertificate(filePath)),
       m_filePath(filePath)
 {
+    m_imeiList = m_certificate->subjectInfo(QLatin1String("1.2.826.0.1.1796587.1.1.1.1"));
+
+    const QStringList capabilityList(m_certificate->subjectInfo(QLatin1String("1.2.826.0.1.1796587.1.1.1.6")));
+    if (capabilityList.isEmpty())
+        m_capabilities = 0;
+    else
+        m_capabilities = capabilityList.at(0).toLong();
 }
 
 S60CertificateInfo::~S60CertificateInfo()
@@ -123,21 +133,29 @@ QString S60CertificateInfo::errorString() const
     return m_errorString.isEmpty()?m_certificate->errorString():m_errorString;
 }
 
-quint32 S60CertificateInfo::capabilitiesSupported()
+QStringList S60CertificateInfo::devicesSupported() const
 {
-    return NoInformation;
+    return m_imeiList;
 }
 
-QString S60CertificateInfo::toHtml()
+quint32 S60CertificateInfo::capabilitiesSupported() const
 {
-    const QStringList capabilityList(m_certificate->subjectInfo(QLatin1String("1.2.826.0.1.1796587.1.1.1.6")));
+    return m_capabilities;
+}
 
+bool S60CertificateInfo::isDeveloperCertificate() const
+{
+    return !devicesSupported().isEmpty() || capabilitiesSupported();
+}
+
+QString S60CertificateInfo::toHtml(bool keepShort)
+{
     QString htmlString;
     QTextStream str(&htmlString);
     str << "<html><body><table>"
         << "<tr><td><b>" << tr("Type: ") << "</b></td>";
 
-    if (!capabilityList.isEmpty())
+    if (isDeveloperCertificate())
         str << "<td>" << tr("Developer certificate") << "</td>";
     if (m_certificate->isSelfSigned())
         str << "<td>" << tr("Self signed certificate") << "</td>";
@@ -165,21 +183,17 @@ QString S60CertificateInfo::toHtml()
         << "<tr><td><b>" << tr("Valid to: ")
         << "</b></td><td>" << endDate.toString(QLatin1String(SIMPLE_DATE_FORMAT)) << "</td></tr>";
 
-    if (!capabilityList.isEmpty()) {
-        bool isOk(false);
-        quint32 capabilities = capabilityList.at(0).toLong(&isOk);
-        if (isOk) {
+    if (capabilitiesSupported()) {
             str << "<tr><td><b>" << tr("Capabilities: ")
-                << "</b></td><td>" << createCapabilityList(capabilities).join(" ") << "</td></tr>";
-        }
+                << "</b></td><td>" << createCapabilityList(capabilitiesSupported()).join(" ") << "</td></tr>";
     }
 
-    const QStringList imeiList(m_certificate->subjectInfo(QLatin1String("1.2.826.0.1.1796587.1.1.1.1")));
+    const QStringList &imeiList(devicesSupported());
     if (!imeiList.isEmpty()) {
         QString imeiListString;
         QString space(" ");
         int MAX_DISPLAYED_IMEI_COUNT = 30;
-        if (imeiList.count() > MAX_DISPLAYED_IMEI_COUNT) {//1000 items would be too much :)
+        if (imeiList.count() > MAX_DISPLAYED_IMEI_COUNT && keepShort) {//1000 items would be too much :)
             for (int i = 0; i < MAX_DISPLAYED_IMEI_COUNT; ++i)
                 imeiListString += imeiList.at(i) + space;
             imeiListString.replace(imeiListString.length()-1, 1, QString("..."));

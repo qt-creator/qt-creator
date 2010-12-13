@@ -194,6 +194,7 @@ private slots:
     void updateFromUi();
     void resetPassphrases();
     void signatureChanged(QString certFile);
+    void displayCertificateDetails();
 
 private:
     S60CreatePackageStep *m_signStep;

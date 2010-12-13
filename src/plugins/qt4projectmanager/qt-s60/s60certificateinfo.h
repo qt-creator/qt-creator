@@ -36,6 +36,9 @@
 QT_FORWARD_DECLARE_CLASS(QString)
 QT_FORWARD_DECLARE_CLASS(S60SymbianCertificate)
 
+namespace Qt4ProjectManager {
+namespace Internal {
+
 class S60CertificateInfo : public QObject
 {
     Q_OBJECT
@@ -76,14 +79,21 @@ public:
     ~S60CertificateInfo();
 
     CertificateState validateCertificate();
-    quint32 capabilitiesSupported();
-    QString toHtml();
+    QStringList devicesSupported() const;
+    quint32 capabilitiesSupported() const;
+    QString toHtml(bool keepShort = true);
     QString errorString() const;
+    bool isDeveloperCertificate() const;
 
 private:
     S60SymbianCertificate *m_certificate;
     QString m_filePath;
     QString m_errorString;
+    QStringList m_imeiList;
+    quint32 m_capabilities;
 };
+
+} // namespace Internal
+} // namespace Qt4ProjectExplorer
 
 #endif // S60CERTIFICATEINFO_H
