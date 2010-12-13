@@ -433,7 +433,8 @@ bool Check::visit(UiObjectDefinition *ast)
 bool Check::visit(UiObjectBinding *ast)
 {
     checkScopeObjectMember(ast->qualifiedId);
-    checkProperty(ast->qualifiedId);
+    if (!ast->hasOnToken)
+        checkProperty(ast->qualifiedId);
 
     visitQmlObject(ast, ast->qualifiedTypeNameId, ast->initializer);
     return false;
