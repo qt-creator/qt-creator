@@ -1205,7 +1205,7 @@ public slots:
         int lineNumber;
         quint64 address;
         if (positionFromActionData(sender(), &fileName, &lineNumber, &address))
-            handleExecRunToLine();
+            currentEngine()->executeRunToLine(fileName, lineNumber);
     }
 
     void slotJumpToLine()
