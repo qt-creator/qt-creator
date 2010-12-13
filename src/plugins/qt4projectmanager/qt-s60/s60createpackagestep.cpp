@@ -469,20 +469,20 @@ bool S60CreatePackageStep::validateCustomSigningResources()
                                            ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         return false;
     }
-
-    S60CertificateInfo::CertificateState certState = S60CertificateInfo::validateCertificate(customSignaturePath(), &errorString);
+    QScopedPointer<S60CertificateInfo> certInfoPtr(new S60CertificateInfo(customSignaturePath()));
+    S60CertificateInfo::CertificateState certState = certInfoPtr.data()->validateCertificate();
     switch (certState) {
     case S60CertificateInfo::CertificateError:
-        emit addOutput(errorString, BuildStep::ErrorMessageOutput);
+        emit addOutput(certInfoPtr.data()->errorString(), BuildStep::ErrorMessageOutput);
         emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                           errorString,
+                                           certInfoPtr.data()->errorString(),
                                            QString(), -1,
                                            ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         return false;
     case S60CertificateInfo::CertificateWarning:
-        emit addOutput(errorString, BuildStep::MessageOutput);
+        emit addOutput(certInfoPtr.data()->errorString(), BuildStep::MessageOutput);
         emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Warning,
-                                           errorString,
+                                           certInfoPtr.data()->errorString(),
                                            QString(), -1,
                                            ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         break;

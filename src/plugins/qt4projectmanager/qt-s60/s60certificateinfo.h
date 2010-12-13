@@ -30,19 +30,60 @@
 #ifndef S60CERTIFICATEINFO_H
 #define S60CERTIFICATEINFO_H
 
+#include <QtCore/QObject>
 #include <QtCore/QtGlobal>
 
 QT_FORWARD_DECLARE_CLASS(QString)
+QT_FORWARD_DECLARE_CLASS(S60SymbianCertificate)
 
-class S60CertificateInfo
+class S60CertificateInfo : public QObject
 {
+    Q_OBJECT
+
 public:
     enum CertificateState {
         CertificateValid,
         CertificateWarning,
         CertificateError
     };
-    static CertificateState validateCertificate(const QString &certFilePath, QString *errorString = 0);
+
+    enum S60Capability {
+        TCB                 = 1 << (31-0),
+        CommDD              = 1 << (31-1),
+        PowerMgmt           = 1 << (31-2),
+        MultimediaDD        = 1 << (31-3),
+        ReadDeviceData      = 1 << (31-4),
+        WriteDeviceData     = 1 << (31-5),
+        DRM                 = 1 << (31-6),
+        TrustedUI           = 1 << (31-7),
+        ProtServ            = 1 << (31-8),
+        DiskAdmin           = 1 << (31-9),
+        NetworkControl      = 1 << (31-10),
+        AllFiles            = 1 << (31-11),
+        SwEvent             = 1 << (31-12),
+        NetworkServices     = 1 << (31-13),
+        LocalServices       = 1 << (31-14),
+        ReadUserData        = 1 << (31-15),
+        WriteUserData       = 1 << (31-16),
+        Location            = 1 << (31-17),
+        SurroundingsDD      = 1 << (31-18),
+        UserEnvironment     = 1 << (31-19),
+
+        NoInformation       = 0
+    };
+
+    explicit S60CertificateInfo(const QString &filePath, QObject* parent = 0);
+    ~S60CertificateInfo();
+
+    CertificateState validateCertificate();
+    quint32 capabilitiesSupported();
+    QString toHtml();
+    QString errorString() const;
+
+private:
+    S60SymbianCertificate *m_certificate;
+    QString m_filePath;
+    QString m_errorString;
 };
 
 #endif // S60CERTIFICATEINFO_H

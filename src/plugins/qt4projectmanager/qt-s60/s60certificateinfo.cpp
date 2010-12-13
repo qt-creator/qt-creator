@@ -32,42 +32,161 @@
 #include <QDateTime>
 #include <QFileInfo>
 #include <QCoreApplication>
+#include <QTextStream>
 
 #include "s60symbiancertificate.h"
 
-S60CertificateInfo::CertificateState S60CertificateInfo::validateCertificate(const QString &certFilePath, QString *errorString)
+namespace {
+    const char * const SIMPLE_DATE_FORMAT = "dd.MM.yyyy";
+}
+
+struct Capability {
+    const char *name;
+    const int value;
+};
+
+static const Capability capability[] =
+{
+    { "LocalServices", S60CertificateInfo::LocalServices },
+    { "Location", S60CertificateInfo::Location },
+    { "NetworkServices", S60CertificateInfo::NetworkServices },
+    { "ReadUserData", S60CertificateInfo::ReadUserData },
+    { "UserEnvironment", S60CertificateInfo::UserEnvironment },
+    { "WriteUserData", S60CertificateInfo::WriteUserData },
+    { "PowerMgmt", S60CertificateInfo::PowerMgmt },
+    { "ProtServ", S60CertificateInfo::ProtServ },
+    { "ReadDeviceData", S60CertificateInfo::ReadDeviceData },
+    { "SurroundingsDD", S60CertificateInfo::SurroundingsDD },
+    { "SwEvent", S60CertificateInfo::SwEvent },
+    { "TrustedUI", S60CertificateInfo::TrustedUI },
+    { "WriteDeviceData", S60CertificateInfo::WriteDeviceData },
+    { "CommDD", S60CertificateInfo::CommDD },
+    { "DiskAdmin", S60CertificateInfo::DiskAdmin },
+    { "NetworkControl", S60CertificateInfo::NetworkControl },
+    { "MultimediaDD", S60CertificateInfo::MultimediaDD },
+    { "AllFiles", S60CertificateInfo::AllFiles },
+    { "DRM", S60CertificateInfo::DRM },
+    { "TCB", S60CertificateInfo::TCB }
+};
+
+QStringList createCapabilityList(uint capabilities)
+{
+    const int capabilityCount = sizeof(capability)/sizeof(capability[0]);
+    QStringList capabilityList;
+    for(int i = 0; i < capabilityCount; ++i)
+        if (capabilities&capability[i].value)
+            capabilityList << QLatin1String(capability[i].name);
+    return capabilityList;
+}
+
+S60CertificateInfo::S60CertificateInfo(const QString &filePath, QObject* parent)
+    : QObject(parent),
+      m_certificate(new S60SymbianCertificate(filePath)),
+      m_filePath(filePath)
+{
+}
+
+S60CertificateInfo::~S60CertificateInfo()
+{
+    delete m_certificate;
+}
+
+S60CertificateInfo::CertificateState S60CertificateInfo::validateCertificate()
 {
     CertificateState result = CertificateValid;
-    S60SymbianCertificate *certificate = new S60SymbianCertificate(certFilePath);
-    if (certificate->isValid()) {
+    if (m_certificate->isValid()) {
         QDateTime currentTime(QDateTime::currentDateTimeUtc());
-        QDateTime endTime(certificate->endTime());
-        QDateTime startTime(certificate->startTime());
+        QDateTime endTime(m_certificate->endTime());
+        QDateTime startTime(m_certificate->startTime());
         if (currentTime > endTime) {
-            if (errorString)
-                *errorString = QCoreApplication::translate(
-                        "S60Utils::validateCertificate",
-                        "The \"%1\" certificate has already expired and cannot be used.\nExpiration date: %2.")
-                    .arg(QFileInfo(certFilePath).fileName())
-                    .arg(endTime.toLocalTime().toString());
+            m_errorString = tr("The \"%1\" certificate has already expired and cannot be used."
+                               "\nExpiration date: %2.")
+                    .arg(QFileInfo(m_filePath).fileName())
+                    .arg(endTime.toLocalTime().toString(QLatin1String(SIMPLE_DATE_FORMAT)));
             result = CertificateError;
         } else if (currentTime < startTime) {
-            if (errorString)
-                *errorString = QCoreApplication::translate(
-                        "S60Utils::validateCertificate",
-                        "The \"%1\" certificate is not yet valid.\nValid from: %2.")
-                    .arg(QFileInfo(certFilePath).fileName())
-                    .arg(startTime.toLocalTime().toString());
+            m_errorString = tr("The \"%1\" certificate is not yet valid.\nValid from: %2.")
+                    .arg(QFileInfo(m_filePath).fileName())
+                    .arg(startTime.toLocalTime().toString(QLatin1String(SIMPLE_DATE_FORMAT)));
             result = CertificateWarning; //This certificate may be valid in the near future
         }
     } else {
-        if (errorString)
-            *errorString = QCoreApplication::translate(
-                    "S60Utils::validateCertificate",
-                    "The \"%1\" certificate is not a valid X.509 certificate.")
-                .arg(QFileInfo(certFilePath).baseName());
+        m_errorString = tr("The \"%1\" certificate is not a valid X.509 certificate.")
+                .arg(QFileInfo(m_filePath).baseName());
         result = CertificateError;
     }
-    delete certificate;
     return result;
+}
+
+QString S60CertificateInfo::errorString() const
+{
+    return m_errorString.isEmpty()?m_certificate->errorString():m_errorString;
+}
+
+quint32 S60CertificateInfo::capabilitiesSupported()
+{
+    return NoInformation;
+}
+
+QString S60CertificateInfo::toHtml()
+{
+    const QStringList capabilityList(m_certificate->subjectInfo(QLatin1String("1.2.826.0.1.1796587.1.1.1.6")));
+
+    QString htmlString;
+    QTextStream str(&htmlString);
+    str << "<html><body><table>"
+        << "<tr><td><b>" << tr("Type: ") << "</b></td>";
+
+    if (!capabilityList.isEmpty())
+        str << "<td>" << tr("Developer certificate") << "</td>";
+    if (m_certificate->isSelfSigned())
+        str << "<td>" << tr("Self signed certificate") << "</td>";
+    str << "</tr>";
+
+    QString issuer;
+    QStringList issuerOrganizationList(m_certificate->issuerInfo("X520.Organization"));
+    if (!issuerOrganizationList.isEmpty())
+        issuer = issuerOrganizationList.join(QString(" "));
+
+    QString subject;
+    QStringList subjectOrganizationList(m_certificate->subjectInfo("X520.Organization"));
+    if (!subjectOrganizationList.isEmpty())
+        subject = subjectOrganizationList.join(QString(" "));
+
+    QDateTime startDate(m_certificate->startTime().toLocalTime());
+    QDateTime endDate(m_certificate->endTime().toLocalTime());
+
+    str << "<tr><td><b>" << tr("Issued by: ")
+        << "</b></td><td>" << issuer << "</td></tr>"
+        << "<tr><td><b>" << tr("Issued to: ")
+        << "</b></td><td>" << subject << "</td></tr>"
+        << "<tr><td><b>" << tr("Valid from: ")
+        << "</b></td><td>" << startDate.toString(QLatin1String(SIMPLE_DATE_FORMAT)) << "</td></tr>"
+        << "<tr><td><b>" << tr("Valid to: ")
+        << "</b></td><td>" << endDate.toString(QLatin1String(SIMPLE_DATE_FORMAT)) << "</td></tr>";
+
+    if (!capabilityList.isEmpty()) {
+        bool isOk(false);
+        quint32 capabilities = capabilityList.at(0).toLong(&isOk);
+        if (isOk) {
+            str << "<tr><td><b>" << tr("Capabilities: ")
+                << "</b></td><td>" << createCapabilityList(capabilities).join(" ") << "</td></tr>";
+        }
+    }
+
+    const QStringList imeiList(m_certificate->subjectInfo(QLatin1String("1.2.826.0.1.1796587.1.1.1.1")));
+    if (!imeiList.isEmpty()) {
+        QString imeiListString;
+        QString space(" ");
+        int MAX_DISPLAYED_IMEI_COUNT = 30;
+        if (imeiList.count() > MAX_DISPLAYED_IMEI_COUNT) {//1000 items would be too much :)
+            for (int i = 0; i < MAX_DISPLAYED_IMEI_COUNT; ++i)
+                imeiListString += imeiList.at(i) + space;
+            imeiListString.replace(imeiListString.length()-1, 1, QString("..."));
+        } else
+            imeiListString = imeiList.join(space);
+        str << "<tr><td><b>" << tr("Supporting %n device(s): ", "", imeiList.count())
+            << "</b></td><td>" << imeiListString << "</td></tr>";
+    }
+    return htmlString;
 }

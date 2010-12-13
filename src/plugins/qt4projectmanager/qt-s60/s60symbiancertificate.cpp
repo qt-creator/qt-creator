@@ -38,9 +38,274 @@
 #include <botan/bigint.h>
 #include <botan/oids.h>
 #include <botan/pem.h>
+#include <botan/sha160.h>
+#include <botan/oids.h>
+#include <botan/libstate.h>
+#include <botan/bit_ops.h>
 #include <algorithm>
+#include <memory>
 
 using namespace Botan;
+
+namespace {
+    const char * const CERT_IMEI_FIELD_NAME = "1.2.826.0.1.1796587.1.1.1.1";
+    const char * const CERT_CAPABILITY_FIELD_NAME = "1.2.826.0.1.1796587.1.1.1.6";
+}
+
+// ======== S60CertificateExtension
+
+/*
+* X.509 S60 Certificate Extension
+*/
+class S60CertificateExtension : Certificate_Extension
+{
+public:
+    OID oid_of() const;
+
+    virtual S60CertificateExtension* copy() const = 0;
+    virtual ~S60CertificateExtension() {}
+protected:
+    friend class S60Extensions;
+    virtual bool should_encode() const { return false; }
+    virtual MemoryVector<byte> encode_inner() const = 0;
+    virtual void decode_inner(const MemoryRegion<byte>&) = 0;
+};
+
+// ======== S60DeviceIdListConstraint
+
+class S60DeviceIdListConstraint : public S60CertificateExtension
+{
+public:
+    S60CertificateExtension* copy() const { return new S60DeviceIdListConstraint(imei_list); }
+
+    S60DeviceIdListConstraint() {}
+    S60DeviceIdListConstraint(const std::vector<ASN1_String>& o) : imei_list(o) {}
+
+    std::vector<ASN1_String> get_imei_list() const { return imei_list; }
+private:
+    std::string config_id() const { return "deviceid_list_constraint"; }
+    std::string oid_name() const { return CERT_IMEI_FIELD_NAME; }
+
+    MemoryVector<byte> encode_inner() const;
+    void decode_inner(const MemoryRegion<byte>&);
+    void contents_to(Data_Store&, Data_Store&) const;
+
+    std::vector<ASN1_String> imei_list;
+};
+
+/*
+* Encode the extension
+*/
+MemoryVector<byte> S60DeviceIdListConstraint::encode_inner() const
+{
+    qFatal("Encoding S60 extensions is not supported.");
+    return MemoryVector<byte>();
+}
+
+/*
+* Decode the extension
+*/
+#include "botan/hex.h"
+void S60DeviceIdListConstraint::decode_inner(const MemoryRegion<byte>& in)
+{
+    BER_Decoder(in)
+            .start_cons(SEQUENCE)
+            .decode_list(imei_list)
+            .end_cons();
+}
+
+/*
+* Return a textual representation
+*/
+void S60DeviceIdListConstraint::contents_to(Data_Store& subject, Data_Store&) const
+{
+    for(u32bit j = 0; j != imei_list.size(); ++j)
+        subject.add(CERT_IMEI_FIELD_NAME, imei_list[j].value());
+}
+
+// ======== S60CapabilityConstraint
+
+class S60CapabilityConstraint : public S60CertificateExtension
+{
+public:
+    S60CertificateExtension* copy() const { return new S60CapabilityConstraint(capabilities); }
+
+    S60CapabilityConstraint() {}
+    S60CapabilityConstraint(const SecureVector<byte>& o) : capabilities(o) {}
+
+    SecureVector<byte> get_capability_list() const { return capabilities; }
+private:
+    std::string config_id() const { return "capability_constraint"; }
+    std::string oid_name() const { return "CERT_CAPABILITY_FIELD_NAME"; }
+
+    MemoryVector<byte> encode_inner() const;
+    void decode_inner(const MemoryRegion<byte>&);
+    void contents_to(Data_Store&, Data_Store&) const;
+
+    SecureVector<byte> capabilities;
+};
+
+/*
+* Encode the extension
+*/
+MemoryVector<byte> S60CapabilityConstraint::encode_inner() const
+{
+    qFatal("Encoding S60 extensions is not supported.");
+    return MemoryVector<byte>();
+}
+
+/*
+* Decode the extension
+*/
+void S60CapabilityConstraint::decode_inner(const MemoryRegion<byte>& in)
+{
+    BER_Decoder(in)
+            .decode(capabilities, BIT_STRING)
+            .verify_end();
+}
+
+/*
+* Return a textual representation
+*/
+void S60CapabilityConstraint::contents_to(Data_Store& subject, Data_Store&) const
+{
+    quint32 capabilitiesValue = 0;
+    for(u32bit j = 0; j != sizeof(quint32); ++j) {
+        quint32 capabilitie(capabilities[sizeof(quint32)-1-j]);
+        capabilitiesValue |= capabilitie << 8*j;
+    }
+    subject.add(CERT_CAPABILITY_FIELD_NAME, capabilitiesValue);
+}
+
+// ======== S60Extensions
+
+class S60Extensions : public ASN1_Object
+{
+public:
+    void encode_into(class DER_Encoder&) const;
+    void decode_from(class BER_Decoder&);
+
+    void contents_to(Data_Store&, Data_Store&) const;
+
+    void add(Certificate_Extension* extn)
+    { extensions.push_back(extn); }
+
+    S60Extensions& operator=(const S60Extensions&);
+
+    S60Extensions(const S60Extensions&);
+    S60Extensions(bool st = true) : should_throw(st) {}
+    ~S60Extensions();
+private:
+    static Certificate_Extension* get_extension(const OID&);
+
+    std::vector<Certificate_Extension*> extensions;
+    bool should_throw;
+};
+
+/*
+* S60Extensions Copy Constructor
+*/
+S60Extensions::S60Extensions(const S60Extensions& extensions) : ASN1_Object()
+{
+    *this = extensions;
+}
+
+/*
+* Extensions Assignment Operator
+*/
+S60Extensions& S60Extensions::operator=(const S60Extensions& other)
+{
+    for(u32bit j = 0; j != extensions.size(); ++j)
+        delete extensions[j];
+    extensions.clear();
+
+    for(u32bit j = 0; j != other.extensions.size(); ++j)
+        extensions.push_back(other.extensions[j]->copy());
+
+    return (*this);
+}
+
+/*
+* Return the OID of this extension
+*/
+OID Certificate_Extension::oid_of() const
+{
+    return OIDS::lookup(oid_name());
+}
+
+/*
+* Encode an Extensions list
+*/
+void S60Extensions::encode_into(DER_Encoder& to_object) const
+{
+    Q_UNUSED(to_object);
+    qFatal("Encoding S60 extensions is not supported.");
+}
+
+/*
+* Decode a list of Extensions
+*/
+void S60Extensions::decode_from(BER_Decoder& from_source)
+{
+    for(u32bit j = 0; j != extensions.size(); ++j)
+        delete extensions[j];
+    extensions.clear();
+
+    BER_Decoder sequence = from_source.start_cons(SEQUENCE);
+    while(sequence.more_items())
+    {
+        OID oid;
+        MemoryVector<byte> value;
+        bool critical;
+
+        sequence.start_cons(SEQUENCE)
+                .decode(oid)
+                .decode_optional(critical, BOOLEAN, UNIVERSAL, false)
+                .decode(value, OCTET_STRING)
+                .verify_end()
+                .end_cons();
+
+        S60CertificateExtension* ext = 0;
+        if (OIDS::name_of(oid, CERT_IMEI_FIELD_NAME))
+            ext = new S60DeviceIdListConstraint();
+
+        if (OIDS::name_of(oid, CERT_CAPABILITY_FIELD_NAME))
+            ext = new S60CapabilityConstraint();
+
+        if(!ext)
+        {
+            if(!critical || !should_throw)
+                continue;
+
+            throw Decoding_Error("Encountered unknown X.509 extension marked "
+                                 "as critical; OID = " + oid.as_string());
+        }
+        ext->decode_inner(value);
+        extensions.push_back(ext);
+    }
+    sequence.verify_end();
+}
+
+/*
+* Write the extensions to an info store
+*/
+void S60Extensions::contents_to(Data_Store& subject_info,
+                                Data_Store& issuer_info) const
+{
+    for(u32bit j = 0; j != extensions.size(); ++j)
+        extensions[j]->contents_to(subject_info, issuer_info);
+}
+
+/*
+* Delete an Extensions list
+*/
+S60Extensions::~S60Extensions()
+{
+    for(u32bit j = 0; j != extensions.size(); ++j)
+        delete extensions[j];
+}
+
+
 
 // ======== S60SymbianCertificatePrivate
 
@@ -242,6 +507,12 @@ void S60SymbianCertificatePrivate::force_decode()
     if(v3_exts_data.type_tag == 3 &&
             v3_exts_data.class_tag == ASN1_Tag(CONSTRUCTED | CONTEXT_SPECIFIC))
     {
+        S60Extensions s60extensions(false);
+
+        BER_Decoder(v3_exts_data.value).decode(s60extensions).verify_end();
+
+        s60extensions.contents_to(m_subject, m_issuer);
+
         Extensions extensions(false);
 
         BER_Decoder(v3_exts_data.value).decode(extensions).verify_end();
@@ -458,7 +729,6 @@ AlternativeName create_alt_name(const Data_Store& info)
 }
 
 // ======== S60SymbianCertificate
-#include <QDebug>
 
 S60SymbianCertificate::S60SymbianCertificate(const QString &filename) : m_d(0)
 {
@@ -498,7 +768,7 @@ QStringList S60SymbianCertificate::subjectInfo(const QString &name)
         for(i = subjectInfo.begin(); i != subjectInfo.end(); ++i)
             result << QString::fromStdString(*i);
     } catch (Botan::Exception &e) {
-            m_errorString = QString::fromLatin1(e.what());
+        m_errorString = QString::fromLatin1(e.what());
     }
     return result;
 }
@@ -514,7 +784,7 @@ QStringList S60SymbianCertificate::issuerInfo(const QString &name)
         for(i = issuerInfo.begin(); i != issuerInfo.end(); ++i)
             result << QString::fromStdString(*i);
     } catch (Botan::Exception &e) {
-            m_errorString = QString::fromLatin1(e.what());
+        m_errorString = QString::fromLatin1(e.what());
     }
     return result;
 }

@@ -40,7 +40,16 @@ CertificatePathChooser::CertificatePathChooser(QWidget *parent) :
 
 bool CertificatePathChooser::validatePath(const QString &path, QString *errorMessage)
 {
-    if (Utils::PathChooser::validatePath(path, errorMessage))
-        return S60CertificateInfo::validateCertificate(path, errorMessage) == S60CertificateInfo::CertificateValid;
+    if (Utils::PathChooser::validatePath(path, errorMessage)) {
+        QScopedPointer<S60CertificateInfo> certInfoPtr(new S60CertificateInfo(path));
+        if (certInfoPtr.data()->validateCertificate() == S60CertificateInfo::CertificateValid) {
+            if (errorMessage)
+                *errorMessage = certInfoPtr.data()->toHtml();
+            return true;
+        } else {
+            if (errorMessage)
+                *errorMessage = certInfoPtr.data()->errorString();
+        }
+    }
     return false;
 }
