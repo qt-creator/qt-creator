@@ -163,8 +163,7 @@ QString ModelNode::validId()
 static bool idIsQmlKeyWord(const QString& id)
 {
     QStringList keywords;
-    keywords << "import" << "property" << "signal"
-             << "as" << "on" << "list";
+    keywords << "import" << "as";
 
     return keywords.contains(id);
 }
