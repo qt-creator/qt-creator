@@ -403,7 +403,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
          bool valid = model->metaInfo(entry.typeName(), entry.majorVersion(), entry.minorVersion()).isValid();
 
-        if (valid && entry.requiredImport().isEmpty() || imports.contains(entryToImport(entry))) {
+        if (valid && (entry.requiredImport().isEmpty() || imports.contains(entryToImport(entry)))) {
             QString itemSectionName = entry.category();
             ItemLibrarySectionModel *sectionModel;
             ItemLibraryItemModel *itemModel;
