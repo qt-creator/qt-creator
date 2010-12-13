@@ -403,13 +403,27 @@ bool Check::visit(UiProgram *)
 
 bool Check::visit(UiObjectInitializer *)
 {
-     m_propertyStack.push(StringSet());
-     return true;
+    m_propertyStack.push(StringSet());
+    UiObjectDefinition *objectDefinition = cast<UiObjectDefinition *>(parent());
+    if (objectDefinition && objectDefinition->qualifiedTypeNameId->name->asString() == "Component")
+        m_idStack.push(StringSet());
+    UiObjectBinding *objectBinding = cast<UiObjectBinding *>(parent());
+    if (objectBinding && objectBinding->qualifiedTypeNameId->name->asString() == "Component")
+        m_idStack.push(StringSet());
+    if (m_idStack.isEmpty())
+        m_idStack.push(StringSet());
+    return true;
 }
 
 void Check::endVisit(UiObjectInitializer *)
 {
     m_propertyStack.pop();
+    UiObjectDefinition *objectDenition = cast<UiObjectDefinition *>(parent());
+    if (objectDenition && objectDenition->qualifiedTypeNameId->name->asString() == "Component")
+        m_idStack.pop();
+    UiObjectBinding *objectBinding = cast<UiObjectBinding *>(parent());
+    if (objectBinding && objectBinding->qualifiedTypeNameId->name->asString() == "Component")
+        m_idStack.pop();
 }
 
 void Check::checkProperty(UiQualifiedId *qualifiedId)
@@ -501,11 +515,11 @@ bool Check::visit(UiScriptBinding *ast)
             return false;
         }
 
-        if (m_ids.contains(id)) {
+        if (m_idStack.top().contains(id)) {
             error(loc, Check::tr("ids must be unique"));
             return false;
         }
-        m_ids.insert(id);
+        m_idStack.top().insert(id);
     }
 
     checkProperty(ast->qualifiedId);

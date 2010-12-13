@@ -131,7 +131,7 @@ private:
 
     const Interpreter::Value *_lastValue;
     QList<AST::Node *> _chain;
-    QSet<QString> m_ids;
+    QStack<StringSet> m_idStack;
     QStack<StringSet> m_propertyStack;
 };
 
