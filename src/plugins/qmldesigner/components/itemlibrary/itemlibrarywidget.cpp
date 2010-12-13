@@ -285,6 +285,8 @@ void ItemLibraryWidget::setSearchFilter(const QString &searchFilter)
 void ItemLibraryWidget::setModel(Model *model)
 {
     m_d->model = model;
+    if (!model)
+        return;
     setItemLibraryInfo(model->metaInfo().itemLibraryInfo());
     updateModel();
 }
