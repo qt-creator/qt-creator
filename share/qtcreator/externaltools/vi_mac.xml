@@ -39,10 +39,51 @@
     <executable output="reloaddocument">
         <path>osascript</path>
         <input>
+        --Terminal opens a window by default when it is not running, so check
+        on applicationIsRunning(applicationName)
+                tell application "System Events" to count (every process whose name is applicationName)
+                return result is greater than 0
+        end applicationIsRunning
+        set terminalWasRunning to applicationIsRunning("Terminal")
+
+        set editorScript to "vi \"%{CurrentDocument:FilePath}\" +%{CurrentDocument:Row} +\"normal %{CurrentDocument:Column}|\"; exit"
         tell application "Terminal"
-            do script "vi \"%{CurrentDocument:FilePath}\"; exit"
+            --do script will open a new window if none given, but terminal already opens one if not running
+            if terminalWasRunning then
+                do script editorScript
+            else
+                do script editorScript in first window
+            end if
             set currentTab to the result
+            set currentWindow to first window whose tabs contains currentTab
+            --set the geometry
+            set font size of current settings of currentTab to %{CurrentDocument:FontSize}
+            set number of columns of currentTab to %{CurrentDocument:ColumnCount}
+            set number of rows of currentTab to %{CurrentDocument:RowCount}
+            set position of currentWindow to {%{CurrentDocument:XPos}, %{CurrentDocument:YPos}}
             activate
+            --make sure that the command has been called before waiting for it to end
+            try --window might have closed
+                repeat until currentTab's history contains editorScript
+                    delay 0.2
+                end repeat
+            on error
+                return
+            end try
+            --wait for the command to end and close the window
+            repeat
+                delay 0.2
+                try --window might have closed
+                    if busy of currentTab is false then
+                        exit repeat
+                    end if
+                on error
+                    return
+                end try
+            end repeat
+            try --window might have closed
+                close currentWindow
+            end try
         end tell
         </input>
         <workingdirectory>%{CurrentDocument:Path}</workingdirectory>

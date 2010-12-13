@@ -2141,6 +2141,8 @@ void EditorManager::updateVariable(const QString &variable)
 {
     static const char * const kCurrentDocumentFilePath = "CurrentDocument:FilePath";
     static const char * const kCurrentDocumentPath = "CurrentDocument:Path";
+    static const char * const kCurrentDocumentXPos = "CurrentDocument:XPos";
+    static const char * const kCurrentDocumentYPos = "CurrentDocument:YPos";
     if (variable == QLatin1String(kCurrentDocumentFilePath)
             || variable == QLatin1String(kCurrentDocumentPath)) {
         QString value;
@@ -2153,6 +2155,20 @@ void EditorManager::updateVariable(const QString &variable)
                 else if (variable == QLatin1String(kCurrentDocumentPath))
                     value = QFileInfo(fileName).path();
             }
+        }
+        VariableManager::instance()->insert(variable, value);
+    } else if (variable == QLatin1String(kCurrentDocumentXPos)) {
+        QString value;
+        IEditor *curEditor = currentEditor();
+        if (curEditor) {
+            value = QString::number(curEditor->widget()->mapToGlobal(QPoint(0,0)).x());
+        }
+        VariableManager::instance()->insert(variable, value);
+    } else if (variable == QLatin1String(kCurrentDocumentYPos)) {
+        QString value;
+        IEditor *curEditor = currentEditor();
+        if (curEditor) {
+            value = QString::number(curEditor->widget()->mapToGlobal(QPoint(0,0)).y());
         }
         VariableManager::instance()->insert(variable, value);
     }

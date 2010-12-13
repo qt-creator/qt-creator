@@ -216,16 +216,40 @@ void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
 
 void TextEditorPlugin::updateVariable(const QString &variable)
 {
-    static const char * const kCurrentDocumentSelection= "CurrentDocument:Selection";
-    if (variable == QLatin1String(kCurrentDocumentSelection)) {
-        QString selectedText;
+    static const char * const kCurrentDocumentSelection = "CurrentDocument:Selection";
+    static const char * const kCurrentDocumentRow = "CurrentDocument:Row";
+    static const char * const kCurrentDocumentColumn = "CurrentDocument:Column";
+    static const char * const kCurrentDocumentRowCount = "CurrentDocument:RowCount";
+    static const char * const kCurrentDocumentColumnCount = "CurrentDocument:ColumnCount";
+    static const char * const kCurrentDocumentFontSize = "CurrentDocument:FontSize";
+    static QSet<QString> variables = QSet<QString>()
+            << QString::fromLatin1(kCurrentDocumentSelection)
+            << QString::fromLatin1(kCurrentDocumentRow)
+            << QString::fromLatin1(kCurrentDocumentColumn)
+            << QString::fromLatin1(kCurrentDocumentRowCount)
+            << QString::fromLatin1(kCurrentDocumentColumnCount)
+            << QString::fromLatin1(kCurrentDocumentFontSize);
+    if (variables.contains(variable)) {
+        QString value;
         Core::IEditor *iface = Core::EditorManager::instance()->currentEditor();
         ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
         if (editor) {
-            selectedText = editor->selectedText();
-            selectedText.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
+            if (variable == QLatin1String(kCurrentDocumentSelection)) {
+                value = editor->selectedText();
+                value.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
+            } else if (variable == QLatin1String(kCurrentDocumentRow)) {
+                value = QString::number(editor->currentLine());
+            } else if (variable == QLatin1String(kCurrentDocumentColumn)) {
+                value = QString::number(editor->currentColumn());
+            } else if (variable == QLatin1String(kCurrentDocumentRowCount)) {
+                value = QString::number(editor->rowCount());
+            } else if (variable == QLatin1String(kCurrentDocumentColumnCount)) {
+                value = QString::number(editor->columnCount());
+            } else if (variable == QLatin1String(kCurrentDocumentFontSize)) {
+                value = QString::number(editor->widget()->font().pointSize());
+            }
         }
-        Core::VariableManager::instance()->insert(variable, selectedText);
+        Core::VariableManager::instance()->insert(variable, value);
     }
 }
 

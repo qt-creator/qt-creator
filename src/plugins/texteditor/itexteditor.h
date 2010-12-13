@@ -106,6 +106,8 @@ public:
     virtual int position(PositionOperation posOp = Current, int at = -1) const = 0;
     virtual void convertPosition(int pos, int *line, int *column) const = 0;
     virtual QRect cursorRect(int pos = -1) const = 0;
+    virtual int columnCount() const = 0;
+    virtual int rowCount() const = 0;
 
     virtual QString contents() const = 0;
     virtual QString selectedText() const = 0;

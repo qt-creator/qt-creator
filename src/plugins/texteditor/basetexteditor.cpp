@@ -5799,6 +5799,16 @@ int BaseTextEditorEditable::currentColumn() const
     return cursor.position() - cursor.block().position() + 1;
 }
 
+int BaseTextEditorEditable::columnCount() const
+{
+    return e->columnCount();
+}
+
+int BaseTextEditorEditable::rowCount() const
+{
+    return e->rowCount();
+}
+
 QRect BaseTextEditorEditable::cursorRect(int pos) const
 {
     QTextCursor tc = e->textCursor();
@@ -6044,11 +6054,23 @@ void BaseTextEditor::handleBlockSelection(int diff_row, int diff_col)
 
     viewport()->update();
 
-    // ### TODO ensure horizontal visibility
+// ### TODO ensure horizontal visibility
 //    const bool rtl = q->isRightToLeft();
 //    if (cr.left() < visible.left() || cr.right() > visible.right()) {
 //        int x = cr.center().x() + horizontalOffset() - visible.width()/2;
 //        hbar->setValue(rtl ? hbar->maximum() - x : x);
 //    }
 
+}
+
+int BaseTextEditor::columnCount() const
+{
+    QFontMetricsF fm(font());
+    return viewport()->rect().width() / fm.width(QLatin1Char('x'));
+}
+
+int BaseTextEditor::rowCount() const
+{
+    QFontMetricsF fm(font());
+    return viewport()->rect().height() / fm.lineSpacing();
 }

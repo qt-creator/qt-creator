@@ -332,6 +332,10 @@ void ExternalToolRunner::run()
         deleteLater();
         return;
     }
+    if (m_tool->outputHandling() == ExternalTool::ReloadDocument
+               || m_tool->errorHandling() == ExternalTool::ReloadDocument) {
+        // TODO ask modified file to save, block modification notifications
+    }
     m_process = new QProcess;
     // TODO error handling, finish reporting, reading output, etc
     connect(m_process, SIGNAL(started()), this, SLOT(started()));
@@ -359,6 +363,9 @@ void ExternalToolRunner::finished()
     if (m_tool->outputHandling() == ExternalTool::ReplaceSelection
             || m_tool->errorHandling() == ExternalTool::ReplaceSelection) {
         emit ExternalToolManager::instance()->replaceSelectionRequested(m_processOutput);
+    } else if (m_tool->outputHandling() == ExternalTool::ReloadDocument
+               || m_tool->errorHandling() == ExternalTool::ReloadDocument) {
+        // TODO reload document without popup
     }
     ICore::instance()->messageManager()->printToOutputPane(
                 tr("'%1' finished").arg(m_resolvedExecutable), false);

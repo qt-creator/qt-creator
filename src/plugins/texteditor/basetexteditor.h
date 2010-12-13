@@ -205,6 +205,9 @@ public:
     void setVisibleWrapColumn(int column);
     int visibleWrapColumn() const;
 
+    int columnCount() const;
+    int rowCount() const;
+
     void setActionHack(QObject *);
     QObject *actionHack() const;
 
@@ -568,6 +571,8 @@ public:
     int currentLine() const;
     int currentColumn() const;
     void gotoLine(int line, int column = 0) { e->gotoLine(line, column); }
+    int columnCount() const;
+    int rowCount() const;
 
     inline int position(
         ITextEditor::PositionOperation posOp = ITextEditor::Current
