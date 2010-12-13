@@ -169,16 +169,6 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
         foreach (const ImportInfo &i, m_infos) {
             ++pos;
 
-            QString buildDir;
-            if (i.directory.isEmpty()) {
-                if (i.version->supportsShadowBuilds())
-                    buildDir = Qt4Target::defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(m_proFilePath), t);
-                else
-                    buildDir = Qt4Project::projectDirectory(m_proFilePath);
-            } else {
-                buildDir = i.directory;
-            }
-
             if (!i.version->supportsTargetId(t))
                 continue;
             QTreeWidgetItem *versionItem = new QTreeWidgetItem(targetItem);
