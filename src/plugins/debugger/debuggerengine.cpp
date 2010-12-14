@@ -95,7 +95,6 @@ DebuggerStartParameters::DebuggerStartParameters() :
     isSnapshot(false),
     attachPID(-1),
     useTerminal(false),
-    breakAtMain(false),
     qmlServerAddress("127.0.0.1"),
     qmlServerPort(0),
     useServerStartScript(false),
@@ -493,9 +492,6 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     if (!d->m_startParameters.environment.size())
         d->m_startParameters.environment = Utils::Environment();
 
-    if (d->m_startParameters.breakAtMain)
-        breakByFunctionMain();
-
     const unsigned engineCapabilities = debuggerCapabilities();
     debuggerCore()->action(OperateByInstruction)
         ->setEnabled(engineCapabilities & DisassemblerCapability);
@@ -508,21 +504,6 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 
     d->m_progress.setProgressValue(200);
     setupEngine();
-}
-
-void DebuggerEngine::breakByFunctionMain()
-{
-#ifdef Q_OS_WIN
-    // FIXME: wrong on non-Qt based binaries
-    emit breakByFunction("qMain");
-#else
-    emit breakByFunction("main");
-#endif
-}
-
-void DebuggerEngine::breakByFunction(const QString &functionName)
-{
-    breakHandler()->breakByFunction(functionName);
 }
 
 void DebuggerEngine::resetLocation()

@@ -1499,13 +1499,20 @@ void DebuggerPluginPrivate::startExternalApplication()
     sp.executable = dlg.executableFile();
     sp.startMode = StartExternal;
     sp.workingDirectory = dlg.workingDirectory();
-    sp.breakAtMain = dlg.breakAtMain();
     if (!dlg.executableArguments().isEmpty())
         sp.processArgs = dlg.executableArguments();
     // Fixme: 1 of 3 testing hacks.
     if (sp.processArgs.startsWith(__("@tcf@ ")) || sp.processArgs.startsWith(__("@sym@ ")))
         sp.toolChainType = ToolChain_RVCT2_ARMV5;
 
+    if (dlg.breakAtMain()) {
+#ifdef Q_OS_WIN
+        // FIXME: wrong on non-Qt based binaries
+        breakHandler()->breakByFunction("qMain");
+#else
+        breakHandler()->breakByFunction("main");
+#endif
+    }
 
     if (RunControl *rc = m_debuggerRunControlFactory->create(sp))
         startDebugger(rc);

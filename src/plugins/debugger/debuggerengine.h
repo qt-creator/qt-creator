@@ -76,7 +76,6 @@ public:
     QString workingDirectory;
     qint64 attachPID;
     bool useTerminal;
-    bool breakAtMain;
 
     // Used by AttachCrashedExternal.
     QString crashParameter;
@@ -256,9 +255,6 @@ public:
     void handleStartFailed();
     bool debuggerActionsEnabled() const;
     static bool debuggerActionsEnabled(DebuggerState state);
-
-    void breakByFunction(const QString &functionName);
-    void breakByFunctionMain();
 
     DebuggerState state() const;
     DebuggerState lastGoodState() const;
