@@ -1,6 +1,7 @@
 <metainfo>
   <node name="Label" icon=":/meegoplugin/images/label16.png">
     <itemlibraryentry name="Label (MeeGo)"  category="Components MeeGo" libraryIcon=":/meegoplugin/images/label.png" requiredImport="com.Meego">
+        <property name="text" type="QString" value="Label"/>
     </itemlibraryentry>
   </node>
   <node name="Button" icon=":/meegoplugin/images/button16.png">
