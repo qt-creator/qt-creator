@@ -43,7 +43,7 @@ namespace Internal {
 
 BreakpointParameters::BreakpointParameters(BreakpointType t)
   : type(t), enabled(true), useFullPath(false),
-    ignoreCount(0), lineNumber(0), address(0), threadSpec(0)
+    ignoreCount(0), lineNumber(0), address(0), threadSpec(-1)
 {}
 
 bool BreakpointParameters::equals(const BreakpointParameters &rhs) const

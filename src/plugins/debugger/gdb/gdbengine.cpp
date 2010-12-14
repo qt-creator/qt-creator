@@ -2486,7 +2486,7 @@ void GdbEngine::insertBreakpoint(BreakpointId id)
     } else if (m_gdbVersion >= 70000) {
         int spec = handler->threadSpec(id);
         cmd = "-break-insert ";
-        if (spec)
+        if (spec >= 0)
             cmd += "-p " + QByteArray::number(spec);
         cmd += " -f ";
     } else if (m_gdbVersion >= 60800) {

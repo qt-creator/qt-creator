@@ -375,9 +375,16 @@ Qt::ItemFlags BreakHandler::flags(const QModelIndex &index) const
 //    }
 }
 
-static QString threadString(int spec)
+QString BreakHandler::displayFromThreadSpec(int spec)
 {
-    return spec == 0 ? BreakHandler::tr("(all)") : QString::number(spec);
+    return spec == -1 ? BreakHandler::tr("(all)") : QString::number(spec);
+}
+
+int BreakHandler::threadSpecFromDisplay(const QString &str)
+{
+    bool ok = false;
+    int result = str.toInt(&ok);
+    return ok ? result : -1;
 }
 
 QVariant BreakHandler::data(const QModelIndex &mi, int role) const
@@ -494,11 +501,11 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             break;
         case 7:
             if (role == Qt::DisplayRole)
-                return threadString(orig ? data.threadSpec : response.threadSpec);
+                return displayFromThreadSpec(orig ? data.threadSpec : response.threadSpec);
             if (role == Qt::ToolTipRole)
                 return tr("Breakpoint will only be hit in the specified thread(s).");
             if (role == Qt::UserRole + 1)
-                return data.threadSpec;
+                return displayFromThreadSpec(data.threadSpec);
             break;
     }
     if (role == Qt::ToolTipRole)

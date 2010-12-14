@@ -149,6 +149,9 @@ public:
     void notifyBreakpointAdjusted(BreakpointId id,
             const BreakpointParameters &data);
 
+    static QString displayFromThreadSpec(int spec);
+    static int threadSpecFromDisplay(const QString &str);
+
 private:
     // QAbstractItemModel implementation.
     int columnCount(const QModelIndex &parent) const;

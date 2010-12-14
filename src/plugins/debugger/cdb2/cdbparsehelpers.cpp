@@ -61,7 +61,7 @@ QByteArray cdbAddBreakpointCommand(const Debugger::Internal::BreakpointParameter
     QByteArray rc;
     ByteArrayInputStream str(rc);
 
-    if (bp.threadSpec > 0)
+    if (bp.threadSpec >= 0)
         str << '~' << bp.threadSpec << ' ';
 
     str << (bp.type == Debugger::Internal::Watchpoint ? "ba" : "bp");

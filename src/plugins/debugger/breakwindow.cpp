@@ -141,7 +141,8 @@ void BreakpointDialog::setParameters(const BreakpointParameters &data)
     setParts(AllParts, data);
     m_ui.lineEditCondition->setText(QString::fromUtf8(data.condition));
     m_ui.lineEditIgnoreCount->setText(QString::number(data.ignoreCount));
-    m_ui.lineEditThreadSpec->setText(QString::number(data.threadSpec));
+    m_ui.lineEditThreadSpec->
+        setText(BreakHandler::displayFromThreadSpec(data.threadSpec));
 }
 
 BreakpointParameters BreakpointDialog::parameters() const
@@ -150,7 +151,8 @@ BreakpointParameters BreakpointDialog::parameters() const
     getParts(AllParts, &data);
     data.condition = m_ui.lineEditCondition->text().toUtf8();
     data.ignoreCount = m_ui.lineEditIgnoreCount->text().toInt();
-    data.threadSpec = m_ui.lineEditThreadSpec->text().toInt();
+    data.threadSpec =
+        BreakHandler::threadSpecFromDisplay(m_ui.lineEditThreadSpec->text());
     return data;
 }
 
@@ -564,7 +566,8 @@ void BreakWindow::editBreakpoints(const BreakpointIds &ids)
     BreakHandler *handler = breakHandler();
     const QString oldCondition = QString::fromLatin1(handler->condition(id));
     const QString oldIgnoreCount = QString::number(handler->ignoreCount(id));
-    const QString oldThreadSpec = QString::number(handler->threadSpec(id));
+    const QString oldThreadSpec =
+        BreakHandler::displayFromThreadSpec(handler->threadSpec(id));
 
     ui.lineEditCondition->setText(oldCondition);
     ui.lineEditIgnoreCount->setText(oldIgnoreCount);
@@ -584,7 +587,8 @@ void BreakWindow::editBreakpoints(const BreakpointIds &ids)
     foreach (const BreakpointId id, ids) {
         handler->setCondition(id, newCondition.toLatin1());
         handler->setIgnoreCount(id, newIgnoreCount.toInt());
-        handler->setThreadSpec(id, newThreadSpec.toInt());
+        handler->setThreadSpec(id,
+            BreakHandler::threadSpecFromDisplay(newThreadSpec));
     }
 }
 
