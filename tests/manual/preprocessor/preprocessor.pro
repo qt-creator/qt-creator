@@ -2,6 +2,7 @@ QT = core
 macx:CONFIG -= app_bundle
 TARGET = pp
 
+include(../../../qtcreator.pri)
 include(../../../src/libs/cplusplus/cplusplus.pri)
 
 # Input
