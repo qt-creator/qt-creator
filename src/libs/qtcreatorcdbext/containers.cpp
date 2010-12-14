@@ -169,7 +169,8 @@ SymbolGroupNodePtrVector linkedListChildList(SymbolGroupValue headNode,
 }
 
 // Helper function for linkedListChildList that returns a member by name
-class MemberByName : public std::unary_function<const SymbolGroupValue &, SymbolGroupValue> {
+class MemberByName : public std::unary_function<const SymbolGroupValue &, SymbolGroupValue>
+{
 public:
     explicit MemberByName(const char *name) : m_name(name) {}
     SymbolGroupValue operator()(const SymbolGroupValue &v) { return v[m_name]; }
@@ -199,23 +200,23 @@ static inline SymbolGroupNodePtrVector qLinkedListChildList(SymbolGroupNode *n, 
 }
 
 /* Helper for array-type containers:
- * Add a series of "*(innertype *)0x (address + n * size)" fake child symbols. */
-static SymbolGroupNodePtrVector arrayChildList(SymbolGroup *sg, ULONG64 address,
-                                               const std::string &innerType,
-                                               ULONG64 innerTypeSize,
-                                               int count)
+ * Add a series of "*(innertype *)0x (address + n * size)" fake child symbols.
+ * for a function generating a sequence of addresses. */
+template <class AddressFunc>
+SymbolGroupNodePtrVector arrayChildList(SymbolGroup *sg, AddressFunc addressFunc,
+                                        const std::string &innerType, int count)
 {
     SymbolGroupNodePtrVector rc;
-    if (!count || !address || !innerTypeSize)
+    if (!count)
         return rc;
     std::string errorMessage;
     rc.reserve(count);
-    for (int i = 0; i < count; i++, address += innerTypeSize) {
+    for (int i = 0; i < count; i++) {
         std::ostringstream str;
         str << "*(" << innerType;
         if (!endsWith(innerType, '*'))
             str << ' ';
-        str << "*)" << std::showbase << std::hex << address;
+        str << "*)" << std::showbase << std::hex << addressFunc();
         if (SymbolGroupNode *child = sg->addSymbol(str.str(), toString(i), &errorMessage)) {
             rc.push_back(child);
         } else {
@@ -225,13 +226,30 @@ static SymbolGroupNodePtrVector arrayChildList(SymbolGroup *sg, ULONG64 address,
     return rc;
 }
 
-// Convenience overload that determines the inner size
+// Helper function for arrayChildList() taking a reference to an address and simply generating
+// a sequence of address, address + delta, address + 2 * delta...
+class AddressSequence
+{
+public:
+    explicit inline AddressSequence(ULONG64 &address, ULONG delta) : m_address(address), m_delta(delta) {}
+    inline ULONG64 operator()()
+    {
+        const ULONG64 rc = m_address;
+        m_address += m_delta;
+        return rc;
+    }
+
+private:
+    ULONG64 &m_address;
+    const ULONG m_delta;
+};
+
 static inline SymbolGroupNodePtrVector arrayChildList(SymbolGroup *sg, ULONG64 address,
-                                                      const std::string &innerType,
-                                                      int count)
+                                               const std::string &innerType, int count)
 {
     if (const unsigned innerTypeSize = SymbolGroupValue::sizeOf(innerType.c_str()))
-        return arrayChildList(sg, address, innerType, innerTypeSize, count);
+        return arrayChildList(sg, AddressSequence(address, innerTypeSize),
+                              innerType, count);
     return SymbolGroupNodePtrVector();
 }
 
@@ -249,8 +267,7 @@ static inline SymbolGroupNodePtrVector
         if (myFirst)
             if (const ULONG64 address = myFirst.pointerValue())
                 return arrayChildList(n->symbolGroup(), address,
-                                      SymbolGroupValue::stripPointerType(myFirst.type()),
-                                      count);
+                                      SymbolGroupValue::stripPointerType(myFirst.type()), count);
     }
     return SymbolGroupNodePtrVector();
 }
@@ -265,13 +282,25 @@ static inline SymbolGroupNodePtrVector
         const SymbolGroupValue vec(n, ctx);
         if (const SymbolGroupValue firstElementV = vec["p"]["array"][unsigned(0)])
             if (const ULONG64 arrayAddress = firstElementV.address())
-                return arrayChildList(n->symbolGroup(), arrayAddress,
-                                      firstElementV.type(), count);
+                    return arrayChildList(n->symbolGroup(), arrayAddress, firstElementV.type(), count);
     }
     return SymbolGroupNodePtrVector();
 }
 
-// QList<> of type array: Applicable for POD/pointer types and movable Qt types.
+// Helper function for arrayChildList() for use with QLists of large types that are an
+// array of pointers to allocated elements: Generate a pointer sequence by reading out the array.
+template <class AddressType>
+class AddressArraySequence
+{
+public:
+    explicit inline AddressArraySequence(const AddressType *array) : m_array(array) {}
+    inline ULONG64 operator()() { return *m_array++; }
+
+private:
+    const AddressType *m_array;
+};
+
+// QList<>.
 static inline SymbolGroupNodePtrVector
     qListChildList(const SymbolGroupValue &v, int count)
 {
@@ -288,7 +317,7 @@ static inline SymbolGroupNodePtrVector
     const SymbolGroupValue firstElementV = dV["array"][unsigned(0)];
     if (!firstElementV)
         return SymbolGroupNodePtrVector();
-     const ULONG64 arrayAddress = firstElementV.address();
+     ULONG64 arrayAddress = firstElementV.address();
      if (!arrayAddress)
          return SymbolGroupNodePtrVector();
      const std::vector<std::string> innerTypes = v.innerTypes();
@@ -298,29 +327,46 @@ static inline SymbolGroupNodePtrVector
      const unsigned innerTypeSize = SymbolGroupValue::sizeOf(innerType.c_str());
      if (!innerTypeSize)
          return SymbolGroupNodePtrVector();
-     // QList<> is:
-     // 1) An array of 'T[]' for POD/pointer types and small, movable or primitive Qt types.
-     // 2) An array of 'T *[]' for anything else (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic)
-     // isStatic depends on QTypeInfo specializations and hardcoded flags for types.
+     /* QList<> is:
+      * 1) An array of 'void *[]' where T values are coerced into the elements for
+      *    POD/pointer types and small, movable or primitive Qt types. That is, smaller
+      *    elements are also aligned at 'void *' boundaries.
+      * 2) An array of 'T *[]' (pointer to allocated instances) for anything else
+      *    (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic)
+      *    isStatic depends on QTypeInfo specializations and hardcoded flags for types. */
+     const unsigned pointerSize = SymbolGroupValue::pointerSize();
+     arrayAddress += begin * pointerSize;
      if (SymbolGroupValue::isPointerType(innerType)) // Quick check: Any pointer is T[]
          return arrayChildList(v.node()->symbolGroup(),
-                               arrayAddress + begin * innerTypeSize,
-                               innerType, innerTypeSize, count);
+                               AddressSequence(arrayAddress, pointerSize),
+                               innerType, count);
      // Check condition for large||static.
-     bool isLargeOrStatic = innerTypeSize > SymbolGroupValue::pointerSize();
+     bool isLargeOrStatic = innerTypeSize > pointerSize;
      if (!isLargeOrStatic) {
          const KnownType kt = knownType(innerType, false); // inner type, no 'class ' prefix.
          if (kt != KT_Unknown && !(knownType(innerType, false) & (KT_Qt_PrimitiveType|KT_Qt_MovableType)))
              isLargeOrStatic = true;
      }
-     if (isLargeOrStatic)
-         return arrayChildList(v.node()->symbolGroup(),
-                               arrayAddress + begin * SymbolGroupValue::pointerSize(),
-                               SymbolGroupValue::addPointerType(innerType),
-                               SymbolGroupValue::pointerSize(), count);
+     if (isLargeOrStatic) {
+         // Retrieve the pointer array ourselves to avoid having to evaluate '*(class foo**)'
+         const ULONG allocSize = pointerSize * count;
+         ULONG bytesRead = 0;
+         void *data = new unsigned char[pointerSize * count];
+         const HRESULT hr = v.context().dataspaces->ReadVirtual(arrayAddress + begin * pointerSize, data, allocSize, &bytesRead);
+         if (FAILED(hr) || bytesRead != allocSize) {
+             delete [] data;
+             return SymbolGroupNodePtrVector();
+         }
+         // Generate sequence of addresses from pointer array
+         const SymbolGroupNodePtrVector rc = pointerSize == 8 ?
+                     arrayChildList(v.node()->symbolGroup(), AddressArraySequence<ULONG64>(reinterpret_cast<const ULONG64 *>(data)), innerType, count) :
+                     arrayChildList(v.node()->symbolGroup(), AddressArraySequence<ULONG32>(reinterpret_cast<const ULONG32 *>(data)), innerType, count);
+         delete [] data;
+         return rc;
+     }
      return arrayChildList(v.node()->symbolGroup(),
-                           arrayAddress + begin * innerTypeSize,
-                           innerType, innerTypeSize, count);
+                           AddressSequence(arrayAddress, pointerSize),
+                           innerType, count);
 }
 
 SymbolGroupNodePtrVector containerChildren(SymbolGroupNode *node, int type,

@@ -74,6 +74,7 @@ public:
     unsigned size() const;
 
     SymbolGroupNode *node() const { return m_node; }
+    SymbolGroupValueContext context() const { return m_context; }
 
     int intValue(int defaultValue = -1) const;
     double floatValue(double defaultValue = -999) const;

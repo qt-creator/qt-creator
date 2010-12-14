@@ -223,9 +223,7 @@ bool SymbolGroupValue::isPointerType(const std::string &t)
 
 unsigned SymbolGroupValue::pointerSize()
 {
-    static unsigned ps = 0;
-    if (!ps)
-        ps = SymbolGroupValue::sizeOf("char *");
+    static const unsigned ps = SymbolGroupValue::sizeOf("char *");
     return ps;
 }
 
