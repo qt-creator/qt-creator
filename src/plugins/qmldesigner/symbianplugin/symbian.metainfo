@@ -1,29 +1,29 @@
 <metainfo>
-  <node name="Label" icon=":/mxplugin/images/item-icon16.png">
-    <itemlibraryentry name="Label (Symbian)" category="Components Symbian" libraryIcon=":/symbianplugin/images/item-icon.png"  version="1.0" requiredImport="Qt.labs.Symbian">
+  <node name="Label" icon=":/symbianplugin/images/label16.png">
+    <itemlibraryentry name="Label (Symbian)" category="Components Symbian" libraryIcon=":/symbianplugin/images/label.png"  version="1.0" requiredImport="Qt.labs.Symbian">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="30"/>
       <property name="text" type="QString" value="Label"/>
     </itemlibraryentry>
   </node>
-  <node name="Button" icon=":/symbianplugin/images/item-icon16.png">
-    <itemlibraryentry name="Button (Symbian)"  category="Components Symbian" libraryIcon=":/symbianplugin/images/item-icon.png"  version="1.0" requiredImport="Qt.labs.Symbian">
+  <node name="Button" icon=":/symbianplugin/images/button16.png">
+    <itemlibraryentry name="Button (Symbian)"  category="Components Symbian" libraryIcon=":/symbianplugin/images/button.png"  version="1.0" requiredImport="Qt.labs.Symbian">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="30"/>
       <property name="text" type="QString" value="Button"/>
     </itemlibraryentry>
   </node>
-  <node name="Slider" icon=":/symbianplugin/images/item-icon16.png">
+  <node name="Slider" icon=":/symbianplugin/images/slider16.png">
   </node>
-  <node name="CheckBox" icon=":/symbianplugin/images/item-icon16.png">
-    <itemlibraryentry name="CheckBox (Symbian)" category="Components Symbian" libraryIcon=":/symbianplugin/images/item-icon.png"  version="1.0" requiredImport="Qt.labs.Symbian">
+  <node name="CheckBox" icon=":/symbianplugin/images/checkbox16.png">
+    <itemlibraryentry name="CheckBox (Symbian)" category="Components Symbian" libraryIcon=":/symbianplugin/images/checkbox.png"  version="1.0" requiredImport="Qt.labs.Symbian">
       <property name="width" type="int" value="180"/>
       <property name="height" type="int" value="30"/>
       <property name="text" type="QString" value="CheckBox"/>
     </itemlibraryentry>
   </node>
-  <node name="RadioButton" icon=":/symbianplugin/images/item-icon16.png">
-    <itemlibraryentry name="RadioButton (Symbian)" category="Components Symbian" libraryIcon=":/symbianplugin/images/item-icon.png"  version="1.0" requiredImport="Qt.labs.Symbian">
+  <node name="RadioButton" icon=":/symbianplugin/images/radiobutton16.png">
+    <itemlibraryentry name="RadioButton (Symbian)" category="Components Symbian" libraryIcon=":/symbianplugin/images/radiobutton.png"  version="1.0" requiredImport="Qt.labs.Symbian">
       <property name="width" type="int" value="180"/>
       <property name="height" type="int" value="30"/>
       <property name="text" type="QString" value="RadioButton"/>
@@ -33,15 +33,15 @@
   </node>
   <node name="Switch" icon=":/symbianplugin/images/item-icon16.png">
   </node>
-  <node name="LineEdit" icon=":/symbianplugin/images/item-icon16.png">
-    <itemlibraryentry name="LineEdit (Symbian)"  category="Components Symbian" libraryIcon=":/symbianplugin/images/item-icon.png"  version="1.0" requiredImport="Qt.labs.Symbian">
+  <node name="LineEdit" icon=":/symbianplugin/images/lineedit16.png">
+    <itemlibraryentry name="LineEdit (Symbian)"  category="Components Symbian" libraryIcon=":/symbianplugin/images/lineedit.png"  version="1.0" requiredImport="Qt.labs.Symbian">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="30"/>
       <property name="text" type="QString" value="LineEdit"/>
     </itemlibraryentry>
   </node>
-  <node name="ProgressBar" icon=":/symbianplugin/images/item-icon16.png">
-    <itemlibraryentry name="ProgressBar (Symbian)"  category="Components Symbian" libraryIcon=":/symbianplugin/images/item-icon.png"  version="1.0" requiredImport="Qt.labs.Symbian">
+  <node name="ProgressBar" icon=":/symbianplugin/images/progressbar16.png">
+    <itemlibraryentry name="ProgressBar (Symbian)"  category="Components Symbian" libraryIcon=":/symbianplugin/images/progressbar.png"  version="1.0" requiredImport="Qt.labs.Symbian">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="30"/>
     </itemlibraryentry>

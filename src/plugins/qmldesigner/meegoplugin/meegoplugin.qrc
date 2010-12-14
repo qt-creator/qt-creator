@@ -1,7 +1,20 @@
 <RCC>
     <qresource prefix="/meegoplugin">
-        <file>meego.metainfo</file>
-        <file>images/item-icon16.png</file>
+     <file>meego.metainfo</file>
+    <file>images/item-icon16.png</file>
 	<file>images/item-icon.png</file>
+	<file>images/button.png</file>
+	<file>images/button16.png</file>
+	<file>images/checkbox.png</file>
+	<file>images/label.png</file>
+	<file>images/label16.png</file>
+	<file>images/lineedit.png</file>
+	<file>images/lineedit16.png</file>
+	<file>images/progressbar.png</file>
+	<file>images/progressbar16.png</file>
+	<file>images/radiobutton.png</file>
+	<file>images/radiobutton16.png</file>
+	<file>images/slider.png</file>
+	<file>images/slider16.png</file>     
     </qresource>
 </RCC>
