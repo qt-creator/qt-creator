@@ -1256,6 +1256,41 @@ QString Qt4ProFileNode::makefile() const
     return m_varValues[Makefile].first();
 }
 
+QStringList Qt4ProFileNode::symbianCapabilities() const
+{
+    QStringList lowerCasedResult;
+
+    QStringList all;
+    all << "LocalServices" << "UserEnvironment" << "NetworkServices"
+        << "ReadUserData" << "WriteUserData" << "Location" << "SwEvent"
+        << "SurroundingsDD" << "ProtServ" << "PowerMgmt" << "ReadDeviceData"
+        << "WriteDeviceData" << "TrustedUI" << "NetworkControl"
+        << "MultimediaDD"<< "CommDD" << "DiskAdmin" << "AllFiles" << "DRM" << "TCB";
+
+    foreach (const QString &cap, m_varValues[SymbianCapabilities]) {
+        QString capability = cap.toLower();
+        if (capability.startsWith("-")) {
+            lowerCasedResult.removeAll(capability.mid(1));
+        } else if (capability == "all") {
+            foreach (const QString &a, all)
+                if (!lowerCasedResult.contains(a, Qt::CaseInsensitive))
+                    lowerCasedResult << a.toLower();
+        } else {
+            lowerCasedResult << cap;
+        }
+    }
+    QStringList result; //let's make the result pretty
+    int index;
+    foreach (QString lowerCase, lowerCasedResult) {
+        index = all.indexOf(lowerCase);
+        if (index != -1)
+            result << all.at(index);
+        else
+            result << lowerCase; //strange capability!
+    }
+    return result;
+}
+
 /*!
   \class Qt4ProFileNode
   Implements abstract ProjectNode class
@@ -1706,9 +1741,15 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
     newVarValues[QmlImportPathVar] = m_readerExact->absolutePathValues(
                 QLatin1String("QML_IMPORT_PATH"), m_projectDir);
     newVarValues[Makefile] = m_readerExact->values("MAKEFILE");
+    // We use the cumulative parse so that we get the capabilities for symbian even if
+    // a different target is selected and the capabilities are set in a symbian scope
+
+    newVarValues[SymbianCapabilities] = m_readerCumulative->values("TARGET.CAPABILITY");
+
 
     if (m_varValues != newVarValues) {
         m_varValues = newVarValues;
+
         foreach (NodesWatcher *watcher, watchers())
             if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
                 emit qt4Watcher->variablesChanged(this, m_varValues, newVarValues);

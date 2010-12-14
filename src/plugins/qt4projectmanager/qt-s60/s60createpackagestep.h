@@ -136,9 +136,10 @@ private:
     void stdOutput(const QString &line);
     void stdError(const QString &line);
 
+    void reportPackageStepIssue(const QString &message, bool isError );
     void setupProcess();
     bool createOnePackage();
-    bool validateCustomSigningResources();
+    bool validateCustomSigningResources(const QStringList &capabilitiesInPro);
 
     QString generateKeyId(const QString &keyPath) const;
     QString loadPassphraseForKey(const QString &keyId);

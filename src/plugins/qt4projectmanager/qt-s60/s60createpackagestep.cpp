@@ -180,8 +180,12 @@ bool S60CreatePackageStep::init()
     QList<Qt4ProFileNode *> nodes = pro->leafProFiles();
 
     m_workingDirectories.clear();
-    foreach (Qt4ProFileNode *node, nodes)
+    QStringList projectCapabilities;
+    foreach (Qt4ProFileNode *node, nodes) {
+        projectCapabilities += node->symbianCapabilities();
         m_workingDirectories << node->buildDir();
+    }
+    projectCapabilities.removeDuplicates();
 
     m_makeCmd = qt4BuildConfiguration()->makeCommand();
     if (!QFileInfo(m_makeCmd).isAbsolute()) {
@@ -194,7 +198,7 @@ bool S60CreatePackageStep::init()
         m_makeCmd = tmp;
     }
 
-    if (signingMode() == SignCustom && !validateCustomSigningResources())
+    if (signingMode() == SignCustom && !validateCustomSigningResources(projectCapabilities))
         return false;
 
     m_environment = qt4BuildConfiguration()->environment();
@@ -443,7 +447,7 @@ bool S60CreatePackageStep::createOnePackage()
     return true;
 }
 
-bool S60CreatePackageStep::validateCustomSigningResources()
+bool S60CreatePackageStep::validateCustomSigningResources(const QStringList &capabilitiesInPro)
 {
     Q_ASSERT(signingMode() == SignCustom);
 
@@ -463,37 +467,50 @@ bool S60CreatePackageStep::validateCustomSigningResources()
                          "Please define certificate file in the project's options.").arg(customKeyPath());
 
     if (!errorString.isEmpty()) {
-        emit addOutput(errorString, BuildStep::ErrorMessageOutput);
-        emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                           errorString,
-                                           QString(), -1,
-                                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        reportPackageStepIssue(errorString, true);
         return false;
     }
     QScopedPointer<S60CertificateInfo> certInfoPtr(new S60CertificateInfo(customSignaturePath()));
     S60CertificateInfo::CertificateState certState = certInfoPtr.data()->validateCertificate();
     switch (certState) {
     case S60CertificateInfo::CertificateError:
-        emit addOutput(certInfoPtr.data()->errorString(), BuildStep::ErrorMessageOutput);
-        emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                           certInfoPtr.data()->errorString(),
-                                           QString(), -1,
-                                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        reportPackageStepIssue(certInfoPtr.data()->errorString(), true);
         return false;
     case S60CertificateInfo::CertificateWarning:
-        emit addOutput(certInfoPtr.data()->errorString(), BuildStep::MessageOutput);
-        emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Warning,
-                                           certInfoPtr.data()->errorString(),
-                                           QString(), -1,
-                                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        reportPackageStepIssue(certInfoPtr.data()->errorString(), false);
         break;
     default:
         break;
     }
+
+    QStringList unsupportedCaps;
+    if (certInfoPtr.data()->compareCapabilities(capabilitiesInPro, unsupportedCaps)) {
+        if (!unsupportedCaps.isEmpty()) {
+            QString message = tr("The created package will not install on a "
+                                 "device as some of the defined capabilities "
+                                 "are not supported by the certificate: %1")
+                    .arg(unsupportedCaps.join(" "));
+            reportPackageStepIssue(message, true);
+            return false;
+        }
+
+    } else
+        reportPackageStepIssue(certInfoPtr.data()->errorString(), false);
     return true;
 }
 
-
+void S60CreatePackageStep::reportPackageStepIssue(const QString &message, bool isError )
+{
+    emit addOutput(message, isError?
+                       BuildStep::ErrorMessageOutput:
+                       BuildStep::MessageOutput);
+    emit addTask(ProjectExplorer::Task(isError?
+                                           ProjectExplorer::Task::Error:
+                                           ProjectExplorer::Task::Warning,
+                                       message,
+                                       QString(), -1,
+                                       ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+}
 
 void S60CreatePackageStep::packageWarningDialogDone()
 {

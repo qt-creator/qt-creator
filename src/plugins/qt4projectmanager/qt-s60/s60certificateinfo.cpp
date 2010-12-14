@@ -132,6 +132,22 @@ S60CertificateInfo::CertificateState S60CertificateInfo::validateCertificate()
     return result;
 }
 
+bool S60CertificateInfo::compareCapabilities(const QStringList &givenCaps, QStringList &unsupportedCaps) const
+{
+    if (!m_certificate->isValid())
+        return false;
+    unsupportedCaps.clear();
+    if (capabilitiesSupported() == NoInformation)
+        return true;
+
+    QStringList capabilities(createCapabilityList(capabilitiesSupported()));
+    foreach (QString capability, givenCaps) {
+        if (!capabilities.contains(capability, Qt::CaseInsensitive))
+            unsupportedCaps << capability;
+    }
+    return true;
+}
+
 QString S60CertificateInfo::errorString() const
 {
     return m_errorString.isEmpty()?m_certificate->errorString():m_errorString;

@@ -96,7 +96,8 @@ enum Qt4Variable {
     LibDirectoriesVar,
     ConfigVar,
     QmlImportPathVar,
-    Makefile
+    Makefile,
+    SymbianCapabilities
 };
 
 class Qt4PriFileNode;
@@ -294,6 +295,7 @@ public:
     InstallsList installsList() const;
 
     QString makefile() const;
+    QStringList symbianCapabilities() const;
 
     void update();
     void scheduleUpdate();

@@ -85,6 +85,8 @@ public:
     QString errorString() const;
     bool isDeveloperCertificate() const;
 
+    bool compareCapabilities(const QStringList &givenCaps, QStringList &unsupportedCaps) const;
+
 private:
     S60SymbianCertificate *m_certificate;
     QString m_filePath;
