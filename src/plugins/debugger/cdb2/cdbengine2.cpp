@@ -1314,7 +1314,7 @@ void CdbEngine::handleSessionIdle(const QByteArray &message)
         notifyInferiorSpontaneousStop();
     }
     // Start sequence to get all relevant data. Hack: Avoid module reload?
-    unsigned sequence = CommandListStack;
+    unsigned sequence = CommandListStack|CommandListThreads;
     if (debuggerCore()->isDockVisible(QLatin1String(Constants::DOCKWIDGET_REGISTER)))
         sequence |= CommandListRegisters;
     if (debuggerCore()->isDockVisible(QLatin1String(Constants::DOCKWIDGET_MODULES)))
