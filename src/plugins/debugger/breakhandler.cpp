@@ -534,8 +534,10 @@ void BreakHandler::setter(BreakpointId id, const type &value) \
     if (it->data.getter == value) \
         return; \
     it->data.getter = value; \
-    it->state = BreakpointChangeRequested; \
-    scheduleSynchronization(); \
+    if (it->state != BreakpointNew) { \
+        it->state = BreakpointChangeRequested; \
+        scheduleSynchronization(); \
+    } \
 }
 
 #define PROPERTY(type, getter, setter) \
@@ -956,7 +958,7 @@ void BreakHandler::setBreakpointData(BreakpointId id, const BreakpointParameters
     if (data == it->data)
         return;
     it->data = data;
-    if (it->needsChange()) {
+    if (it->needsChange() && it->state != BreakpointNew) {
         setState(id, BreakpointChangeRequested);
         scheduleSynchronization();
     } else {
