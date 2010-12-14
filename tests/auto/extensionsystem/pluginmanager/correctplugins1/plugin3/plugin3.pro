@@ -15,10 +15,12 @@ include(../../../copy.pri)
 
 TARGET = $$qtLibraryName(plugin3)
 
-LIBS += -L$${OUT_PWD}/../plugin2 -l$$qtLibraryName(plugin2)
+DESTDIR = $$OUT_PWD/../lib
+LIBS += -L$$OUT_PWD/../lib
+LIBS += -l$$qtLibraryName(plugin2)
 
 macx {
     QMAKE_LFLAGS_SONAME = -Wl,-install_name,$${OUT_PWD}/
 } else:unix {
-    QMAKE_RPATHDIR += $${OUT_PWD}/../plugin2
+    QMAKE_RPATHDIR += $OUT_PWD/../lib
 }

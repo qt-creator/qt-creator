@@ -2,7 +2,7 @@ QT = core
 macx:CONFIG -= app_bundle
 TARGET = pp
 
-include(../../../src/libs/cplusplus/cplusplus-lib.pri)
+include(../../../src/libs/cplusplus/cplusplus.pri)
 
 # Input
 SOURCES += main.cpp

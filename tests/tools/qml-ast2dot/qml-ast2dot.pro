@@ -1,11 +1,10 @@
+include(../../../qtcreator.pri)
 QT = core gui
 macx:CONFIG -= app_bundle
 TARGET = qml-ast2dot
 
-include(../../../src/libs/qmljs/qmljs-lib.pri)
-
-SOURCES += ../../../src/libs/utils/changeset.cpp
-HEADERS += ../../../src/libs/utils/changeset.h
+include($$IDE_SOURCE_TREE/src/libs/qmljs/qmljs-lib.pri)
+include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
 
 # Input
 SOURCES += main.cpp

@@ -113,7 +113,7 @@ protected:
         QByteArray t;
         t.append(id);
         t.append(" [label = \"");
-        t.append(spell(token));
+        t.append(spell(token).toUtf8());
         t.append("\" shape=rect]");
         _terminalShapes.append(t);
     }

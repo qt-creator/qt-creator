@@ -3,7 +3,7 @@ include(../qttest.pri)
 # Defines import symbol as empty
 DEFINES+=QTCREATOR_UTILS_STATIC_LIB
 
-include(../../../src/libs/utils/utils-lib.pri)
+include(../../../src/libs/utils/utils.pri)
 
 FAKEVIMDIR = ../../../src/plugins/fakevim
 UTILSDIR = ../../../src/libs

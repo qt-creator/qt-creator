@@ -1,24 +1,17 @@
-FAKEVIMHOME = ../../../src/plugins/fakevim
-LIBSDIR = ../../../src/libs
+include(../../../qtcreator.pri)
+include(../../../src/libs/utils/utils.pri)
 
-SOURCES += \
-	main.cpp \
-	$$FAKEVIMHOME/fakevimhandler.cpp \
-	$$FAKEVIMHOME/fakevimactions.cpp \
-        $$FAKEVIMHOME/fakevimsyntax.cpp \
-        $$LIBSDIR/utils/basevalidatinglineedit.cpp \
-        $$LIBSDIR/utils/environment.cpp \
-        $$LIBSDIR/utils/pathchooser.cpp \
-        $$LIBSDIR/utils/savedaction.cpp
+FAKEVIMDIR = $$IDE_SOURCE_TREE/src/plugins/fakevim
+LIBSDIR = $$IDE_SOURCE_TREE/src/libs
 
-HEADERS += \
-	$$FAKEVIMHOME/fakevimhandler.h \
-	$$FAKEVIMHOME/fakevimactions.h \
-        $$FAKEVIMHOME/fakevimsyntax.h \
-        $$LIBSDIR/utils/basevalidatinglineedit.h \
-        $$LIBSDIR/utils/environment.h \
-        $$LIBSDIR/utils/pathchooser.h \
-        $$LIBSDIR/utils/savedaction.h
+SOURCES += main.cpp \
+            $$FAKEVIMDIR/fakevimhandler.cpp \
+            $$FAKEVIMDIR/fakevimactions.cpp \
+            $$FAKEVIMDIR/fakevimsyntax.cpp \
 
-INCLUDEPATH += $$FAKEVIMHOME $$LIBSDIR
+HEADERS += $$FAKEVIMDIR/fakevimhandler.h \
+            $$FAKEVIMDIR/fakevimactions.h \
+            $$FAKEVIMDIR/fakevimsyntax.h \
+
+INCLUDEPATH += $$FAKEVIMDIR $$LIBSDIR
 
