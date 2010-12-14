@@ -56,6 +56,8 @@
 #include <projectexplorer/toolchaintype.h>
 
 #include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
+#include <texteditor/basetextmark.h>
 
 #include <utils/environment.h>
 #include <utils/savedaction.h>
@@ -165,6 +167,28 @@ const char *DebuggerEngine::stateName(int s)
 }
 
 
+///////////////////////////////////////////////////////////////////////
+//
+// LocationMark
+//
+///////////////////////////////////////////////////////////////////////
+
+// Used in "real" editors
+class LocationMark : public TextEditor::BaseTextMark
+{
+public:
+    LocationMark(const QString &fileName, int linenumber)
+        : BaseTextMark(fileName, linenumber)
+    {}
+
+    QIcon icon() const { return debuggerCore()->locationMarkIcon(); }
+    void updateLineNumber(int /*lineNumber*/) {}
+    void updateBlock(const QTextBlock & /*block*/) {}
+    void removedFromEditor() {}
+};
+
+
+
 //////////////////////////////////////////////////////////////////////
 //
 // DebuggerEnginePrivate
@@ -192,7 +216,9 @@ public:
         m_isSlaveEngine(false),
         m_disassemblerViewAgent(engine),
         m_memoryViewAgent(engine)
-    {}
+    {
+        connect(&m_locationTimer, SIGNAL(timeout()), SLOT(doRemoveLocationMark()));
+    }
 
     ~DebuggerEnginePrivate() {}
 
@@ -240,6 +266,18 @@ public slots:
         m_runControl->bringApplicationToForeground(m_inferiorPid);
     }
 
+    void removeLocationMark()
+    {
+        m_locationTimer.setSingleShot(true);
+        m_locationTimer.start(80);
+    }
+
+    void doRemoveLocationMark()
+    {
+        m_locationTimer.stop();
+        m_locationMark.reset();
+    }
+
 public:
     DebuggerState state() const { return m_state; }
 
@@ -270,6 +308,8 @@ public:
     bool m_isSlaveEngine;
     DisassemblerViewAgent m_disassemblerViewAgent;
     MemoryViewAgent m_memoryViewAgent;
+    QScopedPointer<TextEditor::BaseTextMark> m_locationMark;
+    QTimer m_locationTimer;
 };
 
 
@@ -493,12 +533,27 @@ void DebuggerEngine::breakByFunction(const QString &functionName)
 void DebuggerEngine::resetLocation()
 {
     d->m_disassemblerViewAgent.resetLocation();
-    debuggerCore()->removeLocationMark();
+    d->removeLocationMark();
 }
 
-void DebuggerEngine::gotoLocation(const QString &fileName, int lineNumber, bool setMarker)
+void DebuggerEngine::gotoLocation(const QString &file, int line, bool setMarker)
 {
-    debuggerCore()->gotoLocation(fileName, lineNumber, setMarker);
+    // CDB might hit on breakpoints while shutting down.
+    //if (m_shuttingDown)
+    //    return;
+
+    d->doRemoveLocationMark();
+
+    bool newEditor = false;
+    ITextEditor *editor =
+        BaseTextEditor::openEditorAt(file, line, 0, QString(),
+            EditorManager::IgnoreNavigationHistory, &newEditor);
+    if (!editor)
+        return;
+    if (newEditor)
+        editor->setProperty(Constants::OPENED_BY_DEBUGGER, true);
+    if (setMarker)
+        d->m_locationMark.reset(new LocationMark(file, line));
 }
 
 void DebuggerEngine::gotoLocation(const StackFrame &frame, bool setMarker)
@@ -506,7 +561,7 @@ void DebuggerEngine::gotoLocation(const StackFrame &frame, bool setMarker)
     if (debuggerCore()->boolSetting(OperateByInstruction) || !frame.isUsable())
         d->m_disassemblerViewAgent.setFrame(frame, true, setMarker);
     else
-        debuggerCore()->gotoLocation(frame.file, frame.line, setMarker);
+        gotoLocation(frame.file, frame.line, setMarker);
 }
 
 // Called from RunControl.

@@ -81,15 +81,19 @@ SourceFilesWindow::SourceFilesWindow(QWidget *parent)
 
 void SourceFilesWindow::sourceFileActivated(const QModelIndex &index)
 {
-    debuggerCore()->gotoLocation(index.data().toString());
+    DebuggerEngine *engine = currentEngine();
+    QTC_ASSERT(engine, return);
+    engine->gotoLocation(index.data().toString());
 }
 
 void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
+    DebuggerEngine *engine = currentEngine();
+    QTC_ASSERT(engine, return);
     QModelIndex index = indexAt(ev->pos());
     index = index.sibling(index.row(), 0);
     QString name = index.data().toString();
-    bool engineActionsEnabled = currentEngine()->debuggerActionsEnabled();
+    bool engineActionsEnabled = engine->debuggerActionsEnabled();
 
     QMenu menu;
     QAction *act1 = new QAction(tr("Reload Data"), &menu);
@@ -113,9 +117,9 @@ void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act = menu.exec(ev->globalPos());
 
     if (act == act1)
-        currentEngine()->reloadSourceFiles();
+        engine->reloadSourceFiles();
     else if (act == act2)
-        debuggerCore()->gotoLocation(name);
+        engine->gotoLocation(name);
 }
 
 } // namespace Internal

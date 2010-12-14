@@ -72,7 +72,9 @@ ModulesWindow::ModulesWindow(QWidget *parent)
 
 void ModulesWindow::moduleActivated(const QModelIndex &index)
 {
-    debuggerCore()->gotoLocation(index.data().toString());
+    DebuggerEngine *engine = debuggerCore()->currentEngine();
+    QTC_ASSERT(engine, return);
+    engine->gotoLocation(index.data().toString());
 }
 
 void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
@@ -85,6 +87,7 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
         name = index.data().toString();
 
     DebuggerEngine *engine = debuggerCore()->currentEngine();
+    QTC_ASSERT(engine, return);
     const bool enabled = engine->debuggerActionsEnabled();
     const unsigned capabilities = engine->debuggerCapabilities();
 
@@ -167,7 +170,7 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == actLoadSymbolsForModule)
       engine->loadSymbols(name);
     else if (act == actEditFile)
-      debuggerCore()->gotoLocation(name);
+      engine->gotoLocation(name);
     else if (act == actShowModuleSymbols)
       engine->requestModuleSymbols(name);
 }

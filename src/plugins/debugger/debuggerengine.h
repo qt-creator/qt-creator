@@ -279,11 +279,13 @@ public:
     void handleCommand(int role, const QVariant &value);
 
     // Convenience
-    Q_SLOT void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1) const;
+    Q_SLOT void showMessage(const QString &msg, int channel = LogDebug,
+        int timeout = -1) const;
     Q_SLOT void showStatusMessage(const QString &msg, int timeout = -1) const;
 
     void resetLocation();
-    virtual void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
+    virtual void gotoLocation(const QString &fileName, int lineNumber = -1,
+        bool setMarker = false);
     virtual void gotoLocation(const Internal::StackFrame &frame, bool setMarker);
     virtual void quitDebugger(); // called by DebuggerRunControl
 

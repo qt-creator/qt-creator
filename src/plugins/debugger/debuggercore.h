@@ -93,11 +93,6 @@ public:
 
     // void runTest(const QString &fileName);
     virtual void showMessage(const QString &msg, int channel, int timeout = -1) = 0;
-    virtual void gotoLocation(const QString &fileName, int lineNumber = -1,
-        bool setMarker = false) = 0;
-
-    virtual void resetLocation() = 0;
-    virtual void removeLocationMark() = 0;
 
     virtual bool isReverseDebugging() const = 0;
     virtual void runControlStarted(DebuggerEngine *engine) = 0;
