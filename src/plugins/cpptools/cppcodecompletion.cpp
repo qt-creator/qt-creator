@@ -1947,6 +1947,11 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item, QChar t
                     }
 #endif
                 } else if (! function->isAmbiguous()) {
+                    // When the user typed the opening parenthesis, he'll likely also type the closing one,
+                    // in which case it would be annoying if we put the cursor after the already automatically
+                    // inserted closing parenthesis.
+                    const bool skipClosingParenthesis = typedChar != QLatin1Char('(');
+
                     if (completionSettings().m_spaceAfterFunctionName)
                         extraChars += QLatin1Char(' ');
                     extraChars += QLatin1Char('(');
@@ -1966,7 +1971,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item, QChar t
                     }
 
                     // If the function takes no arguments, automatically place the closing parenthesis
-                    if (item.duplicateCount == 0 && ! function->hasArguments()) {
+                    if (item.duplicateCount == 0 && ! function->hasArguments() && skipClosingParenthesis) {
                         extraChars += QLatin1Char(')');
                         if (endWithSemicolon) {
                             extraChars += semicolon;
