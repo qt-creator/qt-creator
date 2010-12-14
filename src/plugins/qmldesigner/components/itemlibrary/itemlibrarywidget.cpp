@@ -30,6 +30,7 @@
 #include "itemlibrarywidget.h"
 
 #include <utils/filterlineedit.h>
+#include <coreplugin/coreconstants.h>
 #include "itemlibrarycomponents.h"
 #include "itemlibrarymodel.h"
 #include "itemlibraryimageprovider.h"
@@ -46,6 +47,7 @@
 #include <QImageReader>
 #include <QMimeData>
 #include <QWheelEvent>
+#include <QMenu>
 
 #include <QDeclarativeView>
 #include <QDeclarativeItem>
@@ -121,14 +123,16 @@ ItemLibraryWidgetPrivate::ItemLibraryWidgetPrivate(QObject *object) :
     m_resourcesView(0),
     m_itemIconSize(24, 24),
     m_resIconSize(24, 24),
-    m_iconProvider(m_resIconSize)
+    m_iconProvider(m_resIconSize),
+    model(0)
 {
     Q_UNUSED(object);
 }
 
 ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     QFrame(parent),
-    m_d(new ItemLibraryWidgetPrivate(this))
+    m_d(new ItemLibraryWidgetPrivate(this)),
+    m_filterFlag(QtBasic)
 {
     setWindowTitle(tr("Library", "Title of library view"));
 
@@ -259,6 +263,61 @@ void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
     updateSearch();
 }
 
+void ItemLibraryWidget::updateImports()
+{
+    FilterChangeFlag filter;
+    filter = QtBasic;
+    if (m_d->model) {
+        QStringList imports;
+        foreach (const Import &import, m_d->model->imports())
+            if (import.isLibraryImport())
+                imports << import.url();
+        if (imports.contains("Qt.labs.Symbian", Qt::CaseInsensitive))
+            filter = Symbian;
+        if (imports.contains("com.Meego", Qt::CaseInsensitive))
+            filter = Meego;
+    }
+
+    setImportFilter(filter);
+}
+
+QList<QToolButton *> ItemLibraryWidget::createToolBarWidgets()
+{
+    QList<QToolButton *> buttons;
+    buttons << new QToolButton();
+    buttons.first()->setText("I ");
+    buttons.first()->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    buttons.first()->setToolTip("Manage imports for components");
+    buttons.first()->setPopupMode(QToolButton::InstantPopup);
+    QMenu * menu = new QMenu;
+    QAction * basicQtAction = new QAction(menu);
+    basicQtAction->setCheckable(true);
+    basicQtAction->setText("Basic Qt Quick only");
+    QAction * symbianAction = new QAction(menu);
+    symbianAction->setCheckable(true);
+    symbianAction->setText("Symbian Components");
+    QAction * meegoAction= new QAction(menu);
+    meegoAction->setCheckable(true);
+    meegoAction->setText("Meego Components");
+    menu->addAction(basicQtAction);
+    menu->addAction(meegoAction);
+    menu->addAction(symbianAction);
+    buttons.first()->setMenu(menu);
+
+    connect(basicQtAction, SIGNAL(toggled(bool)), this, SLOT(onQtBasicOnlyChecked(bool)));
+    connect(this, SIGNAL(qtBasicOnlyChecked(bool)), basicQtAction, SLOT(setChecked(bool)));
+
+    connect(symbianAction, SIGNAL(toggled(bool)), this, SLOT(onSymbianChecked(bool)));
+    connect(this, SIGNAL(symbianChecked(bool)), symbianAction, SLOT(setChecked(bool)));
+
+    connect(meegoAction, SIGNAL(toggled(bool)), this, SLOT(onMeegoChecked(bool)));
+    connect(this, SIGNAL(meegoChecked(bool)), meegoAction, SLOT(setChecked(bool)));
+
+    updateImports();
+
+    return buttons;
+}
+
 void ItemLibraryWidget::setSearchFilter(const QString &searchFilter)
 {
     if (m_d->m_stackedWidget->currentIndex() == 0) {
@@ -277,7 +336,7 @@ void ItemLibraryWidget::setSearchFilter(const QString &searchFilter)
 
         m_d->m_resourcesDirModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
         m_d->m_resourcesDirModel->setNameFilters(nameFilterList);
-       m_d->m_resourcesView->expandToDepth(1);
+        m_d->m_resourcesView->expandToDepth(1);
         m_d->m_resourcesView->scrollToTop();
     }
 }
@@ -291,9 +350,61 @@ void ItemLibraryWidget::setModel(Model *model)
     updateModel();
 }
 
+
+void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
+{
+    if (!m_d->model)
+        return;
+    if (flag == m_filterFlag)
+        return;
+
+    m_filterFlag = flag;
+    if (flag == QtBasic) {
+        removeImport(QLatin1String("com.Meego"));
+        removeImport(QLatin1String("Qt.labs.Symbian"));
+        emit qtBasicOnlyChecked(true);
+        emit meegoChecked(false);
+        emit symbianChecked(false);
+    } else  if (flag == Symbian) {
+        addImport(QLatin1String("Qt.labs.Symbian"), QLatin1String("1.0"));
+        removeImport(QLatin1String("com.Meego"));
+        emit qtBasicOnlyChecked(false);
+        emit meegoChecked(false);
+        emit symbianChecked(true);
+    }  else  if (flag == Meego) {
+        addImport(QLatin1String("com.Meego"), QLatin1String("1.0"));
+        removeImport(QLatin1String("Qt.labs.Symbian"));
+        emit qtBasicOnlyChecked(false);
+        emit meegoChecked(true);
+        emit symbianChecked(false);
+    }
+}
+
+void ItemLibraryWidget::onQtBasicOnlyChecked(bool b)
+{
+    if (b)
+        setImportFilter(QtBasic);
+
+}
+
+void ItemLibraryWidget::onMeegoChecked(bool b)
+{
+    if (b)
+        setImportFilter(Meego);
+}
+
+void ItemLibraryWidget::onSymbianChecked(bool b)
+{
+    if (b)
+        setImportFilter(Symbian);
+}
+
+
+
 void ItemLibraryWidget::updateModel()
 {
     m_d->m_itemLibraryModel->update(m_d->m_itemLibraryInfo.data(), m_d->model);
+    updateImports();
     updateSearch();
 }
 
@@ -339,5 +450,23 @@ void ItemLibraryWidget::wheelEvent(QWheelEvent *event)
     } else
         QFrame::wheelEvent(event);
 }
+
+ void ItemLibraryWidget::removeImport(const QString &name)
+ {
+     if (!m_d->model)
+         return;
+     foreach (const Import &import, m_d->model->imports())
+         if (import.isLibraryImport() && import.url().compare(name, Qt::CaseInsensitive) == 0)
+             m_d->model->removeImport(import);
+ }
+
+ void ItemLibraryWidget::addImport(const QString &name, const QString &version)
+ {
+     if (!m_d->model)
+         return;
+
+     m_d->model->addImport(Import::createLibraryImport(name, version));
+
+ }
 
 }

@@ -45,7 +45,6 @@
 #include <modelnode.h>
 #include <formeditorview.h>
 
-
 #include <QWeakPointer>
 #include <QDeclarativeError>
 #include <QtCore/QHash>
@@ -70,6 +69,8 @@ namespace Core {
 }
 
 namespace QmlDesigner {
+
+class ItemLibraryWidget;
 
 namespace Internal {
 

@@ -32,6 +32,7 @@
 
 #include "itemlibraryinfo.h"
 #include <QtGui/QFrame>
+#include <QtGui/QToolButton>
 
 namespace QmlDesigner {
 
@@ -45,11 +46,20 @@ class ItemLibraryWidget : public QFrame
     Q_OBJECT
     Q_DISABLE_COPY(ItemLibraryWidget)
 
+    enum FilterChangeFlag {
+      QtBasic = 0x0,
+      Meego = 0x1,
+      Symbian = 0x2,
+    };
+
 public:
     ItemLibraryWidget(QWidget *parent = 0);
     virtual ~ItemLibraryWidget();
 
     void setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo);
+    QList<QToolButton *> createToolBarWidgets();
+
+    void updateImports();
 
 public Q_SLOTS:
     void setSearchFilter(const QString &searchFilter);
@@ -63,16 +73,28 @@ public Q_SLOTS:
 
     void setModel(Model *model);
 
+    void setImportFilter(FilterChangeFlag flag);
+
+    void onQtBasicOnlyChecked(bool b);
+    void onMeegoChecked(bool b);
+    void onSymbianChecked(bool b);
+
 protected:
     void wheelEvent(QWheelEvent *event);
+    void removeImport(const QString &name);
+    void addImport(const QString &name, const QString &version);
 
 signals:
     void itemActivated(const QString& itemName);
     void scrollItemsView(QVariant delta);
     void resetItemsView();
+    void qtBasicOnlyChecked(bool b);
+    void meegoChecked(bool b);
+    void symbianChecked(bool b);
 
 private:
     ItemLibraryWidgetPrivate *m_d;
+    FilterChangeFlag m_filterFlag;
 };
 
 }

@@ -129,6 +129,27 @@ void DocumentWarningWidget::setError(const RewriterView::Error &error)
     resize(layout()->totalSizeHint());
 }
 
+class ItemLibrarySideBarItem : public Core::SideBarItem
+{
+public:
+    explicit ItemLibrarySideBarItem(ItemLibraryWidget *widget, const QString &id);
+    virtual ~ItemLibrarySideBarItem();
+
+    virtual QList<QToolButton *> createToolBarWidgets();
+};
+
+ItemLibrarySideBarItem::ItemLibrarySideBarItem(ItemLibraryWidget *widget, const QString &id) : Core::SideBarItem(widget, id) {}
+
+ItemLibrarySideBarItem::~ItemLibrarySideBarItem()
+{
+
+}
+
+QList<QToolButton *> ItemLibrarySideBarItem::createToolBarWidgets()
+{
+    return qobject_cast<ItemLibraryWidget*>(widget())->createToolBarWidgets();
+}
+
 void DocumentWarningWidget::goToError()
 {
     m_designModeWidget->textEditor()->gotoLine(m_error.line(), m_error.column());
@@ -644,7 +665,7 @@ void DesignModeWidget::setup()
     m_warningWidget->setVisible(false);
 
     Core::SideBarItem *navigatorItem = new Core::SideBarItem(m_navigator->widget(), QLatin1String(SB_NAVIGATOR));
-    Core::SideBarItem *libraryItem = new Core::SideBarItem(m_itemLibraryView->widget(), QLatin1String(SB_LIBRARY));
+    Core::SideBarItem *libraryItem = new ItemLibrarySideBarItem(m_itemLibraryView->widget(), QLatin1String(SB_LIBRARY));
     Core::SideBarItem *propertiesItem = new Core::SideBarItem(m_allPropertiesBox.data(), QLatin1String(SB_PROPERTIES));
 
     // default items
