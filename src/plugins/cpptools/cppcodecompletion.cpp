@@ -715,6 +715,31 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
     int index = startCompletionHelper(editor);
     if (index != -1) {
+        if (m_automaticCompletion) {
+            const int pos = editor->position();
+            const QChar ch = editor->characterAt(pos);
+            if (! (ch.isLetterOrNumber() || ch == QLatin1Char('_'))) {
+                for (int i = pos - 1;; --i) {
+                    const QChar ch = editor->characterAt(i);
+                    if (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
+                        const QString wordUnderCursor = editor->textAt(i, pos - i);
+                        if (wordUnderCursor.at(0).isLetter() || wordUnderCursor.at(0) == QLatin1Char('_')) {
+                            foreach (const TextEditor::CompletionItem &i, m_completions) {
+                                if (i.text == wordUnderCursor) {
+                                    cleanup();
+                                    return -1;
+                                }
+                            }
+                        } else {
+                            cleanup();
+                            return -1;
+                        }
+                    } else
+                        break;
+                }
+            }
+        }
+
         if (m_completionOperator != T_EOF_SYMBOL)
             qSort(m_completions.begin(), m_completions.end(), completionItemLessThan);
 
