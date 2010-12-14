@@ -378,11 +378,6 @@ WatchHandler *DebuggerEngine::watchHandler() const
     return &d->m_watchHandler;
 }
 
-//SnapshotHandler *DebuggerEngine::snapshotHandler() const
-//{
-//    return &d->m_snapshotHandler;
-//}
-
 SourceFilesHandler *DebuggerEngine::sourceFilesHandler() const
 {
     return &d->m_sourceFilesHandler;
