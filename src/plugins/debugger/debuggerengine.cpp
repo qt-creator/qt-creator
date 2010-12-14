@@ -49,6 +49,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 
@@ -56,7 +57,6 @@
 #include <projectexplorer/toolchaintype.h>
 
 #include <texteditor/itexteditor.h>
-#include <texteditor/basetexteditor.h>
 #include <texteditor/basetextmark.h>
 
 #include <utils/environment.h>
