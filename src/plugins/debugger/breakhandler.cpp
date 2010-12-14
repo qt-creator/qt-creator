@@ -444,7 +444,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 //if (data.multiple && str.isEmpty() && !response.fileName.isEmpty())
                 //    str = response.fileName;
                 if (!str.isEmpty())
-                    return str;
+                    return QDir::toNativeSeparators(str);
                 return empty;
             }
             break;
