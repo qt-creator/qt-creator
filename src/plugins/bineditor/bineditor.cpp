@@ -33,6 +33,7 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <QtCore/QByteArrayMatcher>
+#include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QTemporaryFile>
 
@@ -181,27 +182,34 @@ bool BinEditor::requestDataAt(int pos, bool synchronous) const
     if (it != m_modifiedData.constEnd())
         return true;
     it = m_lazyData.find(block);
-    if (it == m_lazyData.end()) {
-        if (!m_lazyRequests.contains(block)) {
-            m_lazyRequests.insert(block);
-            emit const_cast<BinEditor*>(this)->
-                lazyDataRequested(editorInterface(), m_baseAddr / m_blockSize + block,
-                                  synchronous);
-            if (!m_lazyRequests.contains(block))
-                return true; // synchronous data source
-        }
-        return false;
+    if (it != m_lazyData.end())
+        return true;
+    if (!m_lazyRequests.contains(block)) {
+        m_lazyRequests.insert(block);
+        emit const_cast<BinEditor*>(this)->
+            lazyDataRequested(editorInterface(), m_baseAddr / m_blockSize + block,
+                              synchronous);
+        if (!m_lazyRequests.contains(block))
+            return true; // synchronous data source
     }
-
-    return true;
+    return false;
 }
 
-char BinEditor::dataAt(int pos) const
+bool BinEditor::requestOldDataAt(int pos) const
+{
+    if (!m_inLazyMode)
+        return false;
+    int block = pos / m_blockSize;
+    QMap<int, QByteArray>::const_iterator it = m_oldLazyData.find(block);
+    return it != m_oldLazyData.end();
+}
+
+char BinEditor::dataAt(int pos, bool old) const
 {
     if (!m_inLazyMode)
         return m_data.at(pos);
     int block = pos / m_blockSize;
-    return blockData(block).at(pos - (block*m_blockSize));
+    return blockData(block, old).at(pos - (block*m_blockSize));
 }
 
 void BinEditor::changeDataAt(int pos, char c)
@@ -241,8 +249,13 @@ QByteArray BinEditor::dataMid(int from, int length) const
     return data.mid(from - ((from / m_blockSize) * m_blockSize), length);
 }
 
-QByteArray BinEditor::blockData(int block) const
+QByteArray BinEditor::blockData(int block, bool old) const
 {
+    if (old) {
+        QMap<int, QByteArray>::const_iterator it = m_modifiedData.find(block);
+        return it != m_modifiedData.constEnd()
+                ? it.value() : m_oldLazyData.value(block, m_emptyBlock);
+    }
     if (!m_inLazyMode) {
         QByteArray data = m_data.mid(block * m_blockSize, m_blockSize);
         if (data.size() < m_blockSize)
@@ -253,7 +266,6 @@ QByteArray BinEditor::blockData(int block) const
     return it != m_modifiedData.constEnd()
             ? it.value() : m_lazyData.value(block, m_emptyBlock);
 }
-
 
 void BinEditor::setFontSettings(const TextEditor::FontSettings &fs)
 {
@@ -344,6 +356,7 @@ void BinEditor::setData(const QByteArray &data)
     m_inLazyMode = false;
     m_baseAddr = 0;
     m_lazyData.clear();
+    m_oldLazyData.clear();
     m_modifiedData.clear();
     m_lazyRequests.clear();
     m_data = data;
@@ -419,7 +432,6 @@ void BinEditor::setLazyData(quint64 startAddr, int range, int blockSize)
     Q_ASSERT((blockSize/16) * 16 == blockSize);
     m_emptyBlock = QByteArray(blockSize, '\0');
     m_data.clear();
-    m_lazyData.clear();
     m_modifiedData.clear();
     m_lazyRequests.clear();
 
@@ -776,15 +788,17 @@ void BinEditor::paintEvent(QPaintEvent *e)
             cursor = m_cursorPosition - line * 16;
 
         bool hasData = requestDataAt(line * 16);
+        bool hasOldData = requestOldDataAt(line * 16);
+        bool isOld = hasOldData && !hasData;
 
         QString printable;
 
-        if (hasData) {
+        if (hasData || hasOldData) {
             for (int c = 0; c < 16; ++c) {
                 int pos = line * 16 + c;
                 if (pos >= m_size)
                     break;
-                QChar qc(QLatin1Char(dataAt(pos)));
+                QChar qc(QLatin1Char(dataAt(pos, isOld)));
                 if (qc.unicode() >= 127 || !qc.isPrint())
                     qc = 0xB7;
                 printable += qc;
@@ -798,7 +812,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
 
         bool isFullySelected = (selStart < selEnd && selStart <= line*16 && (line+1)*16 <= selEnd);
 
-        if (hasData) {
+        if (hasData || hasOldData) {
             for (int c = 0; c < 16; ++c) {
                 int pos = line * 16 + c;
                 if (pos >= m_size) {
@@ -813,7 +827,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
                     foundPatternAt = findPattern(patternData, patternDataHex, foundPatternAt + matchLength, patternOffset, &matchLength);
 
 
-                uchar value = (uchar)dataAt(pos);
+                uchar value = (uchar)dataAt(pos, isOld);
                 itemStringData[c*3] = hex[value >> 4];
                 itemStringData[c*3+1] = hex[value & 0xf];
 
@@ -1405,6 +1419,8 @@ void BinEditor::setNewWindowRequestAllowed()
 
 void BinEditor::updateContents()
 {
+    m_oldLazyData = m_lazyData;
+    m_lazyData.clear();
     setLazyData(baseAddress() + cursorPosition(), dataSize(), m_blockSize);
 }
 

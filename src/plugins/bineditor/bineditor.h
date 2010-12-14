@@ -156,6 +156,7 @@ private:
     bool m_inLazyMode;
     QByteArray m_data;
     QMap <int, QByteArray> m_lazyData;
+    QMap <int, QByteArray> m_oldLazyData;
     int m_blockSize;
     QMap <int, QByteArray> m_modifiedData;
     mutable QSet<int> m_lazyRequests;
@@ -167,10 +168,12 @@ private:
     int dataLastIndexOf(const QByteArray &pattern, int from, bool caseSensitive = true) const;
 
     bool requestDataAt(int pos, bool synchronous = false) const;
-    char dataAt(int pos) const;
+    bool requestOldDataAt(int pos) const;
+    char dataAt(int pos, bool old = false) const;
+    char oldDataAt(int pos) const;
     void changeDataAt(int pos, char c);
     QByteArray dataMid(int from, int length) const;
-    QByteArray blockData(int block) const;
+    QByteArray blockData(int block, bool old = false) const;
 
     QPoint offsetToPos(int offset);
     void asIntegers(int offset, int count, quint64 &beValue, quint64 &leValue);
