@@ -84,6 +84,7 @@ void MemoryAgent::createBinEditor(quint64 addr)
     IEditor *editor = editorManager->openEditorWithContents(
         Core::Constants::K_DEFAULT_BINARY_EDITOR_ID,
         &titlePattern);
+    editorManager->activateEditor(editor);
     if (editor) {
         editor->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
         editor->setProperty(Debugger::Constants::OPENED_WITH_MEMORY, true);
@@ -126,7 +127,6 @@ void MemoryAgent::addLazyData(QObject *editorToken, quint64 addr,
 {
     IEditor *editor = qobject_cast<IEditor *>(editorToken);
     if (editor && editor->widget()) {
-        Core::EditorManager::instance()->activateEditor(editor);
         QMetaObject::invokeMethod(editor->widget(), "addLazyData",
             Q_ARG(quint64, addr / BinBlockSize), Q_ARG(QByteArray, ba));
     }

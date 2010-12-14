@@ -520,14 +520,17 @@ void DebuggerEngine::gotoLocation(const QString &file, int line, bool setMarker)
 
     d->doRemoveLocationMark();
 
-    bool newEditor = false;
-    ITextEditor *editor =
-        BaseTextEditor::openEditorAt(file, line, 0, QString(),
-            EditorManager::IgnoreNavigationHistory, &newEditor);
-    if (!editor)
-        return;
-    if (newEditor)
-        editor->setProperty(Constants::OPENED_BY_DEBUGGER, true);
+    EditorManager *editorManager = EditorManager::instance();
+    QList<IEditor *> editors = editorManager->editorsForFileName(file);
+    if (editors.isEmpty()) {
+        editors.append(editorManager->openEditor(file, QString(),
+            EditorManager::IgnoreNavigationHistory));
+        editors.back()->setProperty(Constants::OPENED_BY_DEBUGGER, true);
+    }
+    ITextEditor *texteditor = qobject_cast<ITextEditor *>(editors.back());
+    if (texteditor)
+        texteditor->gotoLine(line, 0);
+
     if (setMarker)
         d->m_locationMark.reset(new LocationMark(file, line));
 }
