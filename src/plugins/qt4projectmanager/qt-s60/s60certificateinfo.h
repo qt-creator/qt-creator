@@ -31,6 +31,7 @@
 #define S60CERTIFICATEINFO_H
 
 #include <QtCore/QObject>
+#include <QtCore/QStringList>
 #include <QtCore/QtGlobal>
 
 QT_FORWARD_DECLARE_CLASS(QString)
