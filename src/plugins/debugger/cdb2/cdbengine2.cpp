@@ -71,8 +71,8 @@
 
 #include <cctype>
 
-Q_DECLARE_METATYPE(Debugger::Internal::DisassemblerViewAgent*)
-Q_DECLARE_METATYPE(Debugger::Internal::MemoryViewAgent*)
+Q_DECLARE_METATYPE(Debugger::Internal::DisassemblerAgent*)
+Q_DECLARE_METATYPE(Debugger::Internal::MemoryAgent*)
 
 enum { debug = 0 };
 enum { debugLocals = 0 };
@@ -115,11 +115,11 @@ static const char localsPrefixC[] = "local.";
 using namespace Debugger::Internal;
 
 struct MemoryViewCookie {
-    explicit MemoryViewCookie(MemoryViewAgent *a = 0, QObject *e = 0,
+    explicit MemoryViewCookie(MemoryAgent *a = 0, QObject *e = 0,
                               quint64 addr = 0, quint64 l = 0) :
         agent(a), editorToken(e), address(addr), length(l) {}
 
-    MemoryViewAgent *agent;
+    MemoryAgent *agent;
     QObject *editorToken;
     quint64 address;
     quint64 length;
@@ -1022,28 +1022,28 @@ void CdbEngine::selectThread(int index)
     postBuiltinCommand(cmd, 0, &CdbEngine::dummyHandler, CommandListStack);
 }
 
-void CdbEngine::fetchDisassembler(Debugger::Internal::DisassemblerViewAgent *agent)
+void CdbEngine::fetchDisassembler(Debugger::Internal::DisassemblerAgent *agent)
 {
     QTC_ASSERT(m_accessible, return;)
     QByteArray cmd;
     ByteArrayInputStream str(cmd);
     str <<  "u " << hex << hexPrefixOn << agent->address() << " L40";
-    const QVariant cookie = qVariantFromValue<Debugger::Internal::DisassemblerViewAgent*>(agent);
+    const QVariant cookie = qVariantFromValue<Debugger::Internal::DisassemblerAgent*>(agent);
     postBuiltinCommand(cmd, 0, &CdbEngine::handleDisassembler, 0, cookie);
 }
 
 // Parse: "00000000`77606060 cc              int     3"
 void CdbEngine::handleDisassembler(const CdbBuiltinCommandPtr &command)
 {
-    QTC_ASSERT(qVariantCanConvert<Debugger::Internal::DisassemblerViewAgent*>(command->cookie), return;)
-    Debugger::Internal::DisassemblerViewAgent *agent = qvariant_cast<Debugger::Internal::DisassemblerViewAgent*>(command->cookie);
+    QTC_ASSERT(qVariantCanConvert<Debugger::Internal::DisassemblerAgent*>(command->cookie), return;)
+    Debugger::Internal::DisassemblerAgent *agent = qvariant_cast<Debugger::Internal::DisassemblerAgent*>(command->cookie);
     DisassemblerLines disassemblerLines;
     foreach(const QByteArray &line, command->reply)
         disassemblerLines.appendLine(DisassemblerLine(QString::fromLatin1(line)));
     agent->setContents(disassemblerLines);
 }
 
-void CdbEngine::fetchMemory(Debugger::Internal::MemoryViewAgent *agent, QObject *editor, quint64 addr, quint64 length)
+void CdbEngine::fetchMemory(Debugger::Internal::MemoryAgent *agent, QObject *editor, quint64 addr, quint64 length)
 {
     QTC_ASSERT(m_accessible, return;)
     if (debug)

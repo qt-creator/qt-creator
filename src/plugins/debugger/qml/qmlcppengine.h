@@ -30,9 +30,9 @@ public:
         const WatchUpdateFlags &flags);
 
     virtual void watchPoint(const QPoint &);
-    virtual void fetchMemory(MemoryViewAgent *, QObject *,
+    virtual void fetchMemory(MemoryAgent *, QObject *,
             quint64 addr, quint64 length);
-    virtual void fetchDisassembler(DisassemblerViewAgent *);
+    virtual void fetchDisassembler(DisassemblerAgent *);
     virtual void activateFrame(int index);
 
     virtual void reloadModules();

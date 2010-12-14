@@ -234,7 +234,7 @@ void IPCEngineHost::selectThread(int index)
     rpcCall(SelectThread, p);
 }
 
-void IPCEngineHost::fetchDisassembler(DisassemblerViewAgent *v)
+void IPCEngineHost::fetchDisassembler(DisassemblerAgent *v)
 {
     quint64 address = v->frame().address;
     m_frameToDisassemblerAgent.insert(address, v);
@@ -468,7 +468,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 DisassemblerLines lines;
                 s >> pc;
                 s >> lines;
-                DisassemblerViewAgent *view = m_frameToDisassemblerAgent.take(pc);
+                DisassemblerAgent *view = m_frameToDisassemblerAgent.take(pc);
                 if (view)
                     view->setContents(lines);
             }

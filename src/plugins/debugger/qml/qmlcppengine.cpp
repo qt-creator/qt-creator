@@ -146,15 +146,15 @@ void QmlCppEngine::watchPoint(const QPoint &point)
     d->m_cppEngine->watchPoint(point);
 }
 
-void QmlCppEngine::fetchMemory(MemoryViewAgent *mva, QObject *obj,
+void QmlCppEngine::fetchMemory(MemoryAgent *ma, QObject *obj,
         quint64 addr, quint64 length)
 {
-    d->m_cppEngine->fetchMemory(mva, obj, addr, length);
+    d->m_cppEngine->fetchMemory(ma, obj, addr, length);
 }
 
-void QmlCppEngine::fetchDisassembler(DisassemblerViewAgent *dva)
+void QmlCppEngine::fetchDisassembler(DisassemblerAgent *da)
 {
-    d->m_cppEngine->fetchDisassembler(dva);
+    d->m_cppEngine->fetchDisassembler(da);
 }
 
 void QmlCppEngine::activateFrame(int index)

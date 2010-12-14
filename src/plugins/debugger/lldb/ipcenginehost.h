@@ -105,7 +105,7 @@ public:
     void executeJumpToLine(const QString &fileName, int lineNumber);
     void activateFrame(int index);
     void selectThread(int index);
-    void fetchDisassembler(DisassemblerViewAgent *);
+    void fetchDisassembler(DisassemblerAgent *);
     bool acceptsBreakpoint(BreakpointId) const { return true; } // FIXME
     void insertBreakpoint(BreakpointId id);
     void removeBreakpoint(BreakpointId id);
@@ -129,7 +129,7 @@ private:
     quint64 m_nextMessagePayloadSize;
     quint64 m_cookie;
     QIODevice *m_device;
-    QHash<quint64, DisassemblerViewAgent *> m_frameToDisassemblerAgent;
+    QHash<quint64, DisassemblerAgent *> m_frameToDisassemblerAgent;
     QHash<QString, SourceAgent *> m_sourceAgents;
 };
 

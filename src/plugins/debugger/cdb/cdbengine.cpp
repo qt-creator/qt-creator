@@ -1361,7 +1361,7 @@ bool CdbEngine::attemptBreakpointSynchronizationI(QString *errorMessage)
     return true;
 }
 
-void CdbEngine::fetchDisassembler(DisassemblerViewAgent *agent)
+void CdbEngine::fetchDisassembler(DisassemblerAgent *agent)
 {
     enum { ContextLines = 40 };
     QString errorMessage;
@@ -1387,7 +1387,7 @@ void CdbEngine::fetchDisassembler(DisassemblerViewAgent *agent)
     agent->setContents(lines);
 }
 
-void CdbEngine::fetchMemory(MemoryViewAgent *agent, QObject *token, quint64 addr, quint64 length)
+void CdbEngine::fetchMemory(MemoryAgent *agent, QObject *token, quint64 addr, quint64 length)
 {
     if (!m_d->m_hDebuggeeProcess && !length)
         return;

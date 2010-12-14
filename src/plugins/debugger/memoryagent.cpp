@@ -48,12 +48,12 @@ namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// MemoryViewAgent
+// MemoryAgent
 //
 ///////////////////////////////////////////////////////////////////////
 
 /*!
-    \class MemoryViewAgent
+    \class MemoryAgent
 
     Objects form this class are created in response to user actions in
     the Gui for showing raw memory from the inferior. After creation
@@ -62,13 +62,13 @@ namespace Internal {
 
 namespace { const int DataRange = 1024 * 1024; }
 
-MemoryViewAgent::MemoryViewAgent(Debugger::DebuggerEngine *engine)
+MemoryAgent::MemoryAgent(Debugger::DebuggerEngine *engine)
     : QObject(engine), m_engine(engine)
 {
     QTC_ASSERT(engine, /**/);
 }
 
-MemoryViewAgent::~MemoryViewAgent()
+MemoryAgent::~MemoryAgent()
 {
     QList<IEditor *> editors;
     foreach (QPointer<IEditor> editor, m_editors)
@@ -77,7 +77,7 @@ MemoryViewAgent::~MemoryViewAgent()
     EditorManager::instance()->closeEditors(editors);
 }
 
-void MemoryViewAgent::createBinEditor(quint64 addr)
+void MemoryAgent::createBinEditor(quint64 addr)
 {
     EditorManager *editorManager = EditorManager::instance();
     QString titlePattern = tr("Memory $");
@@ -115,13 +115,13 @@ void MemoryViewAgent::createBinEditor(quint64 addr)
     }
 }
 
-void MemoryViewAgent::fetchLazyData(IEditor *editor, quint64 block, bool sync)
+void MemoryAgent::fetchLazyData(IEditor *editor, quint64 block, bool sync)
 {
     Q_UNUSED(sync); // FIXME: needed support for incremental searching
     m_engine->fetchMemory(this, editor, BinBlockSize * block, BinBlockSize);
 }
 
-void MemoryViewAgent::addLazyData(QObject *editorToken, quint64 addr,
+void MemoryAgent::addLazyData(QObject *editorToken, quint64 addr,
                                   const QByteArray &ba)
 {
     IEditor *editor = qobject_cast<IEditor *>(editorToken);
@@ -132,7 +132,7 @@ void MemoryViewAgent::addLazyData(QObject *editorToken, quint64 addr,
     }
 }
 
-void MemoryViewAgent::provideNewRange(IEditor *editor, quint64 address)
+void MemoryAgent::provideNewRange(IEditor *editor, quint64 address)
 {
     QMetaObject::invokeMethod(editor->widget(), "setLazyData",
         Q_ARG(quint64, address), Q_ARG(int, DataRange),
@@ -142,19 +142,19 @@ void MemoryViewAgent::provideNewRange(IEditor *editor, quint64 address)
 // Since we are not dealing with files, we take these signals to mean
 // "move to start/end of range". This seems to make more sense than
 // jumping to the start or end of the address space, respectively.
-void MemoryViewAgent::handleStartOfFileRequested(IEditor *editor)
+void MemoryAgent::handleStartOfFileRequested(IEditor *editor)
 {
     QMetaObject::invokeMethod(editor->widget(),
         "setCursorPosition", Q_ARG(int, 0));
 }
 
-void MemoryViewAgent::handleEndOfFileRequested(IEditor *editor)
+void MemoryAgent::handleEndOfFileRequested(IEditor *editor)
 {
     QMetaObject::invokeMethod(editor->widget(),
         "setCursorPosition", Q_ARG(int, DataRange - 1));
 }
 
-void MemoryViewAgent::updateContents()
+void MemoryAgent::updateContents()
 {
     foreach (QPointer<IEditor> editor, m_editors)
         if (editor)

@@ -41,7 +41,7 @@
 namespace Debugger {
 namespace Cdb {
 
-class DisassemblerViewAgent;
+class DisassemblerAgent;
 struct CdbBuiltinCommand;
 struct CdbExtensionCommand;
 struct CdbOptions;
@@ -106,8 +106,8 @@ public:
     virtual bool acceptsBreakpoint(BreakpointId id) const;
     virtual void attemptBreakpointSynchronization();
 
-    virtual void fetchDisassembler(Debugger::Internal::DisassemblerViewAgent *agent);
-    virtual void fetchMemory(Debugger::Internal::MemoryViewAgent *, QObject *, quint64 addr, quint64 length);
+    virtual void fetchDisassembler(Debugger::Internal::DisassemblerAgent *agent);
+    virtual void fetchMemory(Debugger::Internal::MemoryAgent *, QObject *, quint64 addr, quint64 length);
 
     virtual void reloadModules();
     virtual void loadSymbols(const QString &moduleName);

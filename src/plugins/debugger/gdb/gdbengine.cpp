@@ -3661,15 +3661,15 @@ void GdbEngine::handleWatchPoint(const GdbResponse &response)
 struct MemoryAgentCookie
 {
     MemoryAgentCookie() : agent(0), token(0), address(0) {}
-    MemoryAgentCookie(MemoryViewAgent *agent_, QObject *token_, quint64 address_)
+    MemoryAgentCookie(MemoryAgent *agent_, QObject *token_, quint64 address_)
         : agent(agent_), token(token_), address(address_)
     {}
-    QPointer<MemoryViewAgent> agent;
+    QPointer<MemoryAgent> agent;
     QPointer<QObject> token;
     quint64 address;
 };
 
-void GdbEngine::fetchMemory(MemoryViewAgent *agent, QObject *token, quint64 addr,
+void GdbEngine::fetchMemory(MemoryAgent *agent, QObject *token, quint64 addr,
                             quint64 length)
 {
     //qDebug() << "GDB MEMORY FETCH" << agent << addr << length;
@@ -3708,17 +3708,17 @@ class DisassemblerAgentCookie
 {
 public:
     DisassemblerAgentCookie() : agent(0), attempts(0) {}
-    DisassemblerAgentCookie(DisassemblerViewAgent *agent_)
+    DisassemblerAgentCookie(DisassemblerAgent *agent_)
         : agent(agent_), attempts(0)
     {}
 
 public:
-    QPointer<DisassemblerViewAgent> agent;
+    QPointer<DisassemblerAgent> agent;
     int attempts;
 };
 
 // FIXME: add agent->frame() accessor and use that
-void GdbEngine::fetchDisassembler(DisassemblerViewAgent *agent)
+void GdbEngine::fetchDisassembler(DisassemblerAgent *agent)
 {
     fetchDisassemblerByCli(agent, agent->isMixed());
 /*

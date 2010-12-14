@@ -37,7 +37,7 @@
 namespace Debugger {
 namespace Internal {
 
-class DisassemblerViewAgent;
+class DisassemblerAgent;
 class CdbDebugEventCallback;
 class CdbDebugOutput;
 class CdbEnginePrivate;
@@ -88,8 +88,8 @@ public:
     virtual void attemptBreakpointSynchronization();
 
     virtual void setRegisterValue(int regnr, const QString &value);
-    virtual void fetchDisassembler(DisassemblerViewAgent *agent);
-    virtual void fetchMemory(MemoryViewAgent *, QObject *, quint64 addr, quint64 length);
+    virtual void fetchDisassembler(DisassemblerAgent *agent);
+    virtual void fetchMemory(MemoryAgent *, QObject *, quint64 addr, quint64 length);
 
     virtual void reloadModules();
     virtual void loadSymbols(const QString &moduleName);

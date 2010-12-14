@@ -122,8 +122,8 @@ DEBUGGER_EXPORT QDebug operator<<(QDebug str, DebuggerState state);
 namespace Internal {
 
 class DebuggerPluginPrivate;
-class DisassemblerViewAgent;
-class MemoryViewAgent;
+class DisassemblerAgent;
+class MemoryAgent;
 class WatchData;
 class BreakHandler;
 class ModulesHandler;
@@ -164,11 +164,11 @@ public:
 
     virtual void watchPoint(const QPoint &);
     virtual void openMemoryView(quint64 addr);
-    virtual void fetchMemory(Internal::MemoryViewAgent *, QObject *,
+    virtual void fetchMemory(Internal::MemoryAgent *, QObject *,
                              quint64 addr, quint64 length);
     virtual void updateMemoryViews();
     virtual void openDisassemblerView(const Internal::StackFrame &frame);
-    virtual void fetchDisassembler(Internal::DisassemblerViewAgent *);
+    virtual void fetchDisassembler(Internal::DisassemblerAgent *);
     virtual void activateFrame(int index);
 
     virtual void reloadModules();

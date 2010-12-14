@@ -397,7 +397,7 @@ private: ////////// View & Data Stuff //////////
     //
     // Disassembler specific stuff
     //
-    void fetchDisassembler(DisassemblerViewAgent *agent);
+    void fetchDisassembler(DisassemblerAgent *agent);
     void fetchDisassemblerByAddress(const DisassemblerAgentCookie &ac,
         bool useMixedMode);
     void fetchDisassemblerByCli(const DisassemblerAgentCookie &ac,
@@ -455,7 +455,7 @@ private: ////////// View & Data Stuff //////////
     virtual void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);
 
-    virtual void fetchMemory(MemoryViewAgent *agent, QObject *token,
+    virtual void fetchMemory(MemoryAgent *agent, QObject *token,
         quint64 addr, quint64 length);
     void handleFetchMemory(const GdbResponse &response);
 

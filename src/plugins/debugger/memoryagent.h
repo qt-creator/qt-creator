@@ -43,13 +43,13 @@ class DebuggerEngine;
 
 namespace Internal {
 
-class MemoryViewAgent : public QObject
+class MemoryAgent : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit MemoryViewAgent(DebuggerEngine *engine);
-    ~MemoryViewAgent();
+    explicit MemoryAgent(DebuggerEngine *engine);
+    ~MemoryAgent();
 
     enum { BinBlockSize = 1024 };
 

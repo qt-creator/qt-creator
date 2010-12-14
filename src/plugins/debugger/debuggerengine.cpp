@@ -214,8 +214,8 @@ public:
         m_threadsHandler(),
         m_watchHandler(engine),
         m_isSlaveEngine(false),
-        m_disassemblerViewAgent(engine),
-        m_memoryViewAgent(engine)
+        m_disassemblerAgent(engine),
+        m_memoryAgent(engine)
     {
         connect(&m_locationTimer, SIGNAL(timeout()), SLOT(doRemoveLocationMark()));
     }
@@ -306,8 +306,8 @@ public:
     QFutureInterface<void> m_progress;
 
     bool m_isSlaveEngine;
-    DisassemblerViewAgent m_disassemblerViewAgent;
-    MemoryViewAgent m_memoryViewAgent;
+    DisassemblerAgent m_disassemblerAgent;
+    MemoryAgent m_memoryAgent;
     QScopedPointer<TextEditor::BaseTextMark> m_locationMark;
     QTimer m_locationTimer;
 };
@@ -452,7 +452,7 @@ QAbstractItemModel *DebuggerEngine::sourceFilesModel() const
     return model;
 }
 
-void DebuggerEngine::fetchMemory(MemoryViewAgent *, QObject *,
+void DebuggerEngine::fetchMemory(MemoryAgent *, QObject *,
         quint64 addr, quint64 length)
 {
     Q_UNUSED(addr);
@@ -532,7 +532,7 @@ void DebuggerEngine::breakByFunction(const QString &functionName)
 
 void DebuggerEngine::resetLocation()
 {
-    d->m_disassemblerViewAgent.resetLocation();
+    d->m_disassemblerAgent.resetLocation();
     d->removeLocationMark();
 }
 
@@ -559,7 +559,7 @@ void DebuggerEngine::gotoLocation(const QString &file, int line, bool setMarker)
 void DebuggerEngine::gotoLocation(const StackFrame &frame, bool setMarker)
 {
     if (debuggerCore()->boolSetting(OperateByInstruction) || !frame.isUsable())
-        d->m_disassemblerViewAgent.setFrame(frame, true, setMarker);
+        d->m_disassemblerAgent.setFrame(frame, true, setMarker);
     else
         gotoLocation(frame.file, frame.line, setMarker);
 }
@@ -1154,8 +1154,7 @@ void DebuggerEngine::setToolTipExpression
 {
 }
 
-void DebuggerEngine::updateWatchData
-    (const Internal::WatchData &, const Internal::WatchUpdateFlags &)
+void DebuggerEngine::updateWatchData(const WatchData &, const WatchUpdateFlags &)
 {
 }
 
@@ -1163,7 +1162,7 @@ void DebuggerEngine::watchPoint(const QPoint &)
 {
 }
 
-void DebuggerEngine::fetchDisassembler(Internal::DisassemblerViewAgent *)
+void DebuggerEngine::fetchDisassembler(DisassemblerAgent *)
 {
 }
 
@@ -1292,7 +1291,7 @@ void DebuggerEngine::attemptBreakpointSynchronization()
     }
 
     if (done)
-        d->m_disassemblerViewAgent.updateBreakpointMarkers();
+        d->m_disassemblerAgent.updateBreakpointMarkers();
 }
 
 void DebuggerEngine::insertBreakpoint(BreakpointId id)
@@ -1320,8 +1319,8 @@ void DebuggerEngine::selectThread(int)
 {
 }
 
-void DebuggerEngine::assignValueInDebugger
-    (const Internal::WatchData *, const QString &, const QVariant &)
+void DebuggerEngine::assignValueInDebugger(const WatchData *,
+    const QString &, const QVariant &)
 {
 }
 
@@ -1383,7 +1382,7 @@ void DebuggerEngine::executeDebuggerCommand(const QString &)
 {
 }
 
-Internal::BreakHandler *DebuggerEngine::breakHandler() const
+BreakHandler *DebuggerEngine::breakHandler() const
 {
     return debuggerCore()->breakHandler();
 }
@@ -1478,17 +1477,17 @@ bool DebuggerEngine::isCppBreakpoint(const BreakpointParameters &p)
 
 void DebuggerEngine::openMemoryView(quint64 address)
 {
-    d->m_memoryViewAgent.createBinEditor(address);
+    d->m_memoryAgent.createBinEditor(address);
 }
 
 void DebuggerEngine::updateMemoryViews()
 {
-    d->m_memoryViewAgent.updateContents();
+    d->m_memoryAgent.updateContents();
 }
 
 void DebuggerEngine::openDisassemblerView(const StackFrame &frame)
 {
-    DisassemblerViewAgent *agent = new DisassemblerViewAgent(this);
+    DisassemblerAgent *agent = new DisassemblerAgent(this);
     agent->setFrame(frame, true, false);
 }
 

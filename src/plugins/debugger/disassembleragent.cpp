@@ -59,7 +59,7 @@ namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// DisassemblerViewAgent
+// DisassemblerAgent
 //
 ///////////////////////////////////////////////////////////////////////
 
@@ -91,11 +91,11 @@ private:
 };
 
 
-class DisassemblerViewAgentPrivate
+class DisassemblerAgentPrivate
 {
 public:
-    DisassemblerViewAgentPrivate();
-    ~DisassemblerViewAgentPrivate();
+    DisassemblerAgentPrivate();
+    ~DisassemblerAgentPrivate();
     void configureMimeType();
 
 public:
@@ -111,7 +111,7 @@ public:
     QString mimeType;
 };
 
-DisassemblerViewAgentPrivate::DisassemblerViewAgentPrivate()
+DisassemblerAgentPrivate::DisassemblerAgentPrivate()
   : editor(0),
     tryMixed(true),
     setMarker(true),
@@ -120,7 +120,7 @@ DisassemblerViewAgentPrivate::DisassemblerViewAgentPrivate()
 {
 }
 
-DisassemblerViewAgentPrivate::~DisassemblerViewAgentPrivate()
+DisassemblerAgentPrivate::~DisassemblerAgentPrivate()
 {
     if (editor) {
         EditorManager *editorManager = EditorManager::instance();
@@ -131,31 +131,31 @@ DisassemblerViewAgentPrivate::~DisassemblerViewAgentPrivate()
 }
 
 /*!
-    \class DisassemblerViewAgent
+    \class DisassemblerAgent
 
      Objects from this class are created in response to user actions in
      the Gui for showing disassembled memory from the inferior. After creation
      it handles communication between the engine and the editor.
 */
 
-DisassemblerViewAgent::DisassemblerViewAgent(DebuggerEngine *engine)
-    : QObject(0), d(new DisassemblerViewAgentPrivate)
+DisassemblerAgent::DisassemblerAgent(DebuggerEngine *engine)
+    : QObject(0), d(new DisassemblerAgentPrivate)
 {
     d->engine = engine;
 }
 
-DisassemblerViewAgent::~DisassemblerViewAgent()
+DisassemblerAgent::~DisassemblerAgent()
 {
     delete d;
     d = 0;
 }
 
-void DisassemblerViewAgent::cleanup()
+void DisassemblerAgent::cleanup()
 {
     d->cache.clear();
 }
 
-void DisassemblerViewAgent::resetLocation()
+void DisassemblerAgent::resetLocation()
 {
     if (!d->editor)
         return;
@@ -167,12 +167,12 @@ QString frameKey(const StackFrame &frame)
     return _("%1:%2:%3").arg(frame.function).arg(frame.file).arg(frame.from);
 }
 
-const StackFrame &DisassemblerViewAgent::frame() const
+const StackFrame &DisassemblerAgent::frame() const
 {
     return d->frame;
 }
 
-bool DisassemblerViewAgent::isMixed() const
+bool DisassemblerAgent::isMixed() const
 {
     return d->tryMixed
         && d->frame.line > 0
@@ -180,7 +180,7 @@ bool DisassemblerViewAgent::isMixed() const
         && d->frame.function != _("??");
 }
 
-void DisassemblerViewAgent::setFrame(const StackFrame &frame,
+void DisassemblerAgent::setFrame(const StackFrame &frame,
     bool tryMixed, bool setMarker)
 {
     d->frame = frame;
@@ -202,7 +202,7 @@ void DisassemblerViewAgent::setFrame(const StackFrame &frame,
     d->engine->fetchDisassembler(this);
 }
 
-void DisassemblerViewAgentPrivate::configureMimeType()
+void DisassemblerAgentPrivate::configureMimeType()
 {
     QTC_ASSERT(editor, return);
 
@@ -222,12 +222,12 @@ void DisassemblerViewAgentPrivate::configureMimeType()
         qWarning("Assembler mimetype '%s' not found.", qPrintable(mimeType));
 }
 
-QString DisassemblerViewAgent::mimeType() const
+QString DisassemblerAgent::mimeType() const
 {
     return d->mimeType;
 }
 
-void DisassemblerViewAgent::setMimeType(const QString &mt)
+void DisassemblerAgent::setMimeType(const QString &mt)
 {
     if (mt == d->mimeType)
         return;
@@ -236,7 +236,7 @@ void DisassemblerViewAgent::setMimeType(const QString &mt)
        d->configureMimeType();
 }
 
-void DisassemblerViewAgent::setContents(const DisassemblerLines &contents)
+void DisassemblerAgent::setContents(const DisassemblerLines &contents)
 {
     QTC_ASSERT(d, return);
     using namespace Core;
@@ -287,7 +287,7 @@ void DisassemblerViewAgent::setContents(const DisassemblerLines &contents)
     updateLocationMarker();
 }
 
-void DisassemblerViewAgent::updateLocationMarker()
+void DisassemblerAgent::updateLocationMarker()
 {
     QTC_ASSERT(d->editor, return);
 
@@ -309,7 +309,7 @@ void DisassemblerViewAgent::updateLocationMarker()
     plainTextEdit->setTextCursor(tc);
 }
 
-void DisassemblerViewAgent::updateBreakpointMarkers()
+void DisassemblerAgent::updateBreakpointMarkers()
 {
     if (!d->editor)
         return;
@@ -337,13 +337,13 @@ void DisassemblerViewAgent::updateBreakpointMarkers()
     }
 }
 
-quint64 DisassemblerViewAgent::address() const
+quint64 DisassemblerAgent::address() const
 {
     return d->frame.address;
 }
 
 // Return address of an assembly line "0x0dfd  bla"
-quint64 DisassemblerViewAgent::addressFromDisassemblyLine(const QString &line)
+quint64 DisassemblerAgent::addressFromDisassemblyLine(const QString &line)
 {
     return DisassemblerLine(line).address;
 }

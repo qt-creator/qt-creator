@@ -46,17 +46,17 @@ class DebuggerEngine;
 namespace Internal {
 
 class StackFrame;
-class DisassemblerViewAgent;
-class DisassemblerViewAgentPrivate;
+class DisassemblerAgent;
+class DisassemblerAgentPrivate;
 
-class DisassemblerViewAgent : public QObject
+class DisassemblerAgent : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString mimeType READ mimeType WRITE setMimeType)
 public:
     // Called from Gui
-    explicit DisassemblerViewAgent(DebuggerEngine *engine);
-    ~DisassemblerViewAgent();
+    explicit DisassemblerAgent(DebuggerEngine *engine);
+    ~DisassemblerAgent();
 
     void setFrame(const StackFrame &frame, bool tryMixed, bool setMarker);
     const StackFrame &frame() const;
@@ -78,7 +78,7 @@ public:
     static quint64 addressFromDisassemblyLine(const QString &data);
 
 private:
-    DisassemblerViewAgentPrivate *d;
+    DisassemblerAgentPrivate *d;
 };
 
 
