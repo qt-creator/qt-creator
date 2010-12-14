@@ -121,7 +121,7 @@ Qt4BuildConfiguration *MaemoRunConfiguration::activeQt4BuildConfiguration() cons
     return static_cast<Qt4BuildConfiguration *>(activeBuildConfiguration());
 }
 
-bool MaemoRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *config) const
+bool MaemoRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration * /* config */) const
 {
     if (!m_validParse)
         return false;
