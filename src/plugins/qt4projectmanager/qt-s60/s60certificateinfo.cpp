@@ -85,8 +85,12 @@ QStringList createCapabilityList(uint capabilities)
 S60CertificateInfo::S60CertificateInfo(const QString &filePath, QObject* parent)
     : QObject(parent),
       m_certificate(new S60SymbianCertificate(filePath)),
-      m_filePath(filePath)
+      m_filePath(filePath),
+      m_capabilities(NoInformation)
 {
+    if (!m_certificate->isValid())
+        return;
+
     m_imeiList = m_certificate->subjectInfo(QLatin1String("1.2.826.0.1.1796587.1.1.1.1"));
 
     const QStringList capabilityList(m_certificate->subjectInfo(QLatin1String("1.2.826.0.1.1796587.1.1.1.6")));
@@ -150,6 +154,9 @@ bool S60CertificateInfo::isDeveloperCertificate() const
 
 QString S60CertificateInfo::toHtml(bool keepShort)
 {
+    if (!m_certificate->isValid())
+        return errorString();
+
     QString htmlString;
     QTextStream str(&htmlString);
     str << "<html><body><table>"
@@ -184,8 +191,10 @@ QString S60CertificateInfo::toHtml(bool keepShort)
         << "</b></td><td>" << endDate.toString(QLatin1String(SIMPLE_DATE_FORMAT)) << "</td></tr>";
 
     if (capabilitiesSupported()) {
-            str << "<tr><td><b>" << tr("Capabilities: ")
-                << "</b></td><td>" << createCapabilityList(capabilitiesSupported()).join(" ") << "</td></tr>";
+        QStringList capabilities(createCapabilityList(capabilitiesSupported()));
+        capabilities.sort();
+        str << "<tr><td><b>" << tr("Capabilities: ")
+            << "</b></td><td><i>" << capabilities.join(" ") << "</i></td></tr>";
     }
 
     const QStringList &imeiList(devicesSupported());
