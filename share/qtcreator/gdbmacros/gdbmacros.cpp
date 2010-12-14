@@ -1196,26 +1196,30 @@ static void qDumpQByteArray(QDumper &d)
     qCheckAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
     const QByteArray &ba = *reinterpret_cast<const QByteArray *>(d.data);
 
+    const int size = ba.size();
+    if (size < 0)
+        return;
+
     if (!ba.isEmpty()) {
         qCheckAccess(ba.constData());
-        qCheckAccess(ba.constData() + ba.size());
+        qCheckAccess(ba.constData() + size);
     }
 
     d.beginItem("value");
-    if (ba.size() <= 100)
+    if (size <= 100)
         d.put(ba);
     else
-        d.put(ba.left(100)).put(" <size: ").put(ba.size()).put(", cut...>");
+        d.put(ba.left(100)).put(" <size: ").put(size).put(", cut...>");
     d.endItem();
     d.putItem("valueencoded", "1");
     d.putItem("type", NS"QByteArray");
-    d.putItem("numchild", ba.size());
+    d.putItem("numchild", size);
     if (d.dumpChildren) {
         d.putItem("childtype", "char");
         d.putItem("childnumchild", "0");
         d.beginChildren();
         char buf[20];
-        for (int i = 0; i != ba.size(); ++i) {
+        for (int i = 0; i != size; ++i) {
             unsigned char c = ba.at(i);
             unsigned char u = (isprint(c) && c != '\'' && c != '"') ? c : '?';
             sprintf(buf, "%02x  (%u '%c')", c, c, u);
