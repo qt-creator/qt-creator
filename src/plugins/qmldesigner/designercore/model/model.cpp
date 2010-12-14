@@ -159,6 +159,8 @@ void ModelPrivate::notifyImportAdded(const Import &import)
         resetModel = true;
     }
 
+    NodeMetaInfo::clearCache();
+
     foreach (const QWeakPointer<AbstractView> &view, m_viewList)
         view->importAdded(import);
 
@@ -183,6 +185,8 @@ void ModelPrivate::notifyImportRemoved(const Import &import)
         description = e.description();
         resetModel = true;
     }
+
+    NodeMetaInfo::clearCache();
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList)
         view->importRemoved(import);

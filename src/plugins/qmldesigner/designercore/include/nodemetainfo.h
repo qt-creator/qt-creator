@@ -95,6 +95,8 @@ public:
     bool availableInVersion(int majorVersion, int minorVersion) const;
     bool isSubclassOf(const QString& type, int majorVersion, int minorVersio) const;
 
+    static void clearCache();
+
 private:
     QSharedPointer<Internal::NodeMetaInfoPrivate> m_privateData;
 };

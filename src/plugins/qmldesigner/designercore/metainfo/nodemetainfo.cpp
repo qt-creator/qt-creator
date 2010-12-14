@@ -339,6 +339,11 @@ public:
          return m_prototypeCache;
      }
 
+     static void clearCache()
+     {
+         m_nodeMetaInfoCache.clear();
+     }
+
 private:
     NodeMetaInfoPrivate(Model *model, QString type, int maj = -1, int min = -1);
 
@@ -1001,6 +1006,11 @@ bool NodeMetaInfo::isSubclassOf(const QString &type, int majorVersion, int minor
         }
     }
     return false;
+}
+
+void NodeMetaInfo::clearCache()
+{
+    Internal::NodeMetaInfoPrivate::clearCache();
 }
 
 } // namespace QmlDesigner
