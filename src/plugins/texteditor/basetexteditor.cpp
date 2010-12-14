@@ -1837,9 +1837,13 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 void BaseTextEditor::maybeRequestAutoCompletion(const QChar &ch)
 {
     if (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
-        d->m_requestAutoCompletionRevision = document()->revision();
-        d->m_requestAutoCompletionPosition = position();
-        d->m_requestAutoCompletionTimer->start();
+        if (CompletionSupport::instance()->isActive())
+            d->m_requestAutoCompletionTimer->stop();
+        else {
+            d->m_requestAutoCompletionRevision = document()->revision();
+            d->m_requestAutoCompletionPosition = position();
+            d->m_requestAutoCompletionTimer->start();
+        }
     } else {
         d->m_requestAutoCompletionTimer->stop();
         emit requestAutoCompletion(editableInterface(), false);
