@@ -550,7 +550,8 @@ QtVersion::QtVersion(const QString &name, const QString &qmakeCommand, int id,
     m_defaultConfigIsDebugAndRelease(true),
     m_hasExamples(false),
     m_hasDemos(false),
-    m_hasDocumentation(false)
+    m_hasDocumentation(false),
+    m_isBuildUsingSbsV2(false)
 {
     if (id == -1)
         m_id = getUniqueId();
@@ -574,7 +575,8 @@ QtVersion::QtVersion(const QString &name, const QString &qmakeCommand,
     m_defaultConfigIsDebugAndRelease(true),
     m_hasExamples(false),
     m_hasDemos(false),
-    m_hasDocumentation(false)
+    m_hasDocumentation(false),
+    m_isBuildUsingSbsV2(false)
 {
     m_id = getUniqueId();
     setQMakeCommand(qmakeCommand);
@@ -594,7 +596,8 @@ QtVersion::QtVersion(const QString &qmakeCommand, bool isAutodetected, const QSt
     m_defaultConfigIsDebugAndRelease(true),
     m_hasExamples(false),
     m_hasDemos(false),
-    m_hasDocumentation(false)
+    m_hasDocumentation(false),
+    m_isBuildUsingSbsV2(false)
 {
     m_id = getUniqueId();
     setQMakeCommand(qmakeCommand);
@@ -614,7 +617,8 @@ QtVersion::QtVersion()
     m_defaultConfigIsDebugAndRelease(true),
     m_hasExamples(false),
     m_hasDemos(false),
-    m_hasDocumentation(false)
+    m_hasDocumentation(false),
+    m_isBuildUsingSbsV2(false)
 {
     setQMakeCommand(QString());
 }
