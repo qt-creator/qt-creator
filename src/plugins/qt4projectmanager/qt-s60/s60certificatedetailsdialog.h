@@ -3,9 +3,10 @@
 
 #include <QDialog>
 
-namespace Ui {
-    class S60CertificateDetailsDialog;
-}
+struct S60CertificateDetailsDialogPrivate;
+
+namespace Qt4ProjectManager {
+namespace Internal {
 
 class S60CertificateDetailsDialog : public QDialog
 {
@@ -18,7 +19,10 @@ public:
     void setText(const QString &text);
 
 private:
-    Ui::S60CertificateDetailsDialog *ui;
+    S60CertificateDetailsDialogPrivate *m_d;
 };
+
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // S60CERTIFICATEDETAILSDIALOG_H

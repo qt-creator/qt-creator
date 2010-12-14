@@ -786,7 +786,9 @@ S60CreatePackageStepConfigWidget::S60CreatePackageStepConfigWidget(S60CreatePack
     m_ui.keyFilePath->setExpectedKind(Utils::PathChooser::File);
     updateUi();
 
-    m_ui.certificateDetails->setEnabled(m_ui.signaturePath->isValid());
+    bool enableCertDetails = m_signStep->signingMode() == S60CreatePackageStep::SignCustom
+            && m_ui.signaturePath->isValid();
+    m_ui.certificateDetails->setEnabled(enableCertDetails);
 
     connect(m_ui.certificateDetails, SIGNAL(clicked()),
             this, SLOT(displayCertificateDetails()));
@@ -841,16 +843,19 @@ void S60CreatePackageStepConfigWidget::updateUi()
         m_ui.selfSignedButton->setChecked(false);
         m_ui.customCertificateButton->setChecked(true);
         m_ui.notSignedButton->setChecked(false);
+        m_ui.certificateDetails->setEnabled(m_ui.signaturePath->isValid());
         break;
     case S60CreatePackageStep::NotSigned:
         m_ui.selfSignedButton->setChecked(false);
         m_ui.customCertificateButton->setChecked(false);
         m_ui.notSignedButton->setChecked(true);
+        m_ui.certificateDetails->setEnabled(false);
         break;
     default:
         m_ui.selfSignedButton->setChecked(true);
         m_ui.customCertificateButton->setChecked(false);
         m_ui.notSignedButton->setChecked(false);
+        m_ui.certificateDetails->setEnabled(false);
         break;
     }
     bool customSigned = m_signStep->signingMode() == S60CreatePackageStep::SignCustom;

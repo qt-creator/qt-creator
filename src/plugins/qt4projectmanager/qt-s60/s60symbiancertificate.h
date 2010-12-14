@@ -35,6 +35,9 @@
 
 class S60SymbianCertificatePrivate;
 
+namespace Qt4ProjectManager {
+namespace Internal {
+
 class S60SymbianCertificate
 {
 public:
@@ -62,5 +65,8 @@ protected:
     S60SymbianCertificatePrivate const *m_d;
     QString m_errorString;
 };
+
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // S60SYMBIANCERTIFICATE_H

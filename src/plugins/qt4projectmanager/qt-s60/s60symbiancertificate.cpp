@@ -46,6 +46,8 @@
 #include <memory>
 
 using namespace Botan;
+using namespace Qt4ProjectManager;
+using namespace Qt4ProjectManager::Internal;
 
 namespace {
     const char * const CERT_IMEI_FIELD_NAME = "1.2.826.0.1.1796587.1.1.1.1";

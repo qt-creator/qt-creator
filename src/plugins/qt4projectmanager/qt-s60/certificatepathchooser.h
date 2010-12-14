@@ -32,6 +32,9 @@
 
 #include "utils/pathchooser.h"
 
+namespace Qt4ProjectManager {
+namespace Internal {
+
 class CertificatePathChooser : public Utils::PathChooser
 {
     Q_DISABLE_COPY(CertificatePathChooser)
@@ -41,5 +44,8 @@ public:
 
     virtual bool validatePath(const QString &path, QString *errorMessage = 0);
 };
+
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // CERTIFICATEPATHCHOOSER_H

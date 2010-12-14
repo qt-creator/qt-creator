@@ -34,11 +34,10 @@
 #include <QtCore/QStringList>
 #include <QtCore/QtGlobal>
 
-QT_FORWARD_DECLARE_CLASS(QString)
-QT_FORWARD_DECLARE_CLASS(S60SymbianCertificate)
-
 namespace Qt4ProjectManager {
 namespace Internal {
+
+class S60SymbianCertificate;
 
 class S60CertificateInfo : public QObject
 {

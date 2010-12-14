@@ -33,6 +33,9 @@
 
 #include "s60certificateinfo.h"
 
+using namespace Qt4ProjectManager;
+using namespace Qt4ProjectManager::Internal;
+
 CertificatePathChooser::CertificatePathChooser(QWidget *parent) :
     Utils::PathChooser(parent)
 {
