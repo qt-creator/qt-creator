@@ -158,6 +158,7 @@ public:
     static QVector<QString> highlighterFormatCategories();
 
 public slots:
+    void forceSemanticRehighlight();
     void followSymbolUnderCursor();
     void findUsages();
     void showContextPane();
@@ -187,7 +188,6 @@ private slots:
     void renameIdUnderCursor();
 
     void semanticRehighlight();
-    void forceSemanticRehighlight();
     void updateSemanticInfo(const QmlJSEditor::SemanticInfo &semanticInfo);
     void onCursorPositionChanged();
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);

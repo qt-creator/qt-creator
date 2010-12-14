@@ -803,9 +803,6 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
 {
     if (file()->fileName() != doc->fileName()
             || doc->editorRevision() != document()->revision()) {
-        // didn't get the currently open, or an up to date document.
-        // trigger a semantic rehighlight anyway, after a time
-        m_semanticRehighlightTimer->start();
         return;
     }
 

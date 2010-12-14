@@ -45,6 +45,7 @@ namespace Core {
 class Command;
 class ActionContainer;
 class ActionManager;
+class IEditor;
 }
 
 namespace TextEditor {
@@ -95,6 +96,7 @@ public Q_SLOTS:
 private Q_SLOTS:
     void quickFix(TextEditor::ITextEditable *editable);
     void quickFixNow();
+    void currentEditorChanged(Core::IEditor *editor);
 
 private:
     Core::Command *addToolAction(QAction *a, Core::ActionManager *am, Core::Context &context, const QString &name,

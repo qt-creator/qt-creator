@@ -241,6 +241,8 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     addAutoReleasedObject(new QuickToolBar);
     addAutoReleasedObject(new Internal::QuickToolBarSettingsPage);
 
+    connect(core->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(currentEditorChanged(Core::IEditor*)));
+
     return true;
 }
 
@@ -337,6 +339,16 @@ void QmlJSEditorPlugin::quickFixNow()
                 TextEditor::CompletionSupport::instance()->quickFix(m_currentTextEditable);
             }
         }
+    }
+}
+
+void QmlJSEditorPlugin::currentEditorChanged(Core::IEditor *editor)
+{
+    if (! editor)
+        return;
+
+    else if (QmlJSTextEditor *textEditor = qobject_cast<QmlJSTextEditor *>(editor->widget())) {
+        textEditor->forceSemanticRehighlight();
     }
 }
 
