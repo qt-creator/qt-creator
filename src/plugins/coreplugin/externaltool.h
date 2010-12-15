@@ -33,6 +33,8 @@
 #include "icore.h"
 #include "core_global.h"
 
+#include <utils/qtcprocess.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
@@ -105,10 +107,10 @@ private:
 
     const ExternalTool *m_tool;
     QString m_resolvedExecutable;
-    QStringList m_resolvedArguments;
+    QString m_resolvedArguments;
     QString m_resolvedInput;
     QString m_resolvedWorkingDirectory;
-    QProcess *m_process;
+    Utils::QtcProcess *m_process;
     QTextCodec *m_outputCodec;
     QTextCodec::ConverterState m_outputCodecState;
     QTextCodec::ConverterState m_errorCodecState;

@@ -42,7 +42,6 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/environment.h>
-#include <utils/qtcprocess.h>
 
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QDir>
@@ -300,7 +299,7 @@ bool ExternalToolRunner::resolve()
     if (!m_tool)
         return false;
     m_resolvedExecutable = QString::null;
-    m_resolvedArguments.clear();
+    m_resolvedArguments = QString::null;
     m_resolvedWorkingDirectory = QString::null;
     { // executable
         foreach (const QString &executable, m_tool->executables()) {
@@ -313,15 +312,8 @@ bool ExternalToolRunner::resolve()
             return false;
     }
     { // arguments
-        QString resolved = Utils::expandMacros(m_tool->arguments(),
+        m_resolvedArguments = Utils::expandMacros(m_tool->arguments(),
                                                Core::VariableManager::instance()->macroExpander());
-        // handle quoting in the command line arguments etc
-        QString cmd;
-        Utils::QtcProcess::prepareCommand(m_resolvedExecutable, resolved,
-                                          &cmd, &m_resolvedArguments);
-        if (cmd.isEmpty())
-            return false;
-        m_resolvedExecutable = cmd;
     }
     { // input
         m_resolvedInput = Utils::expandMacros(m_tool->input(),
@@ -353,7 +345,7 @@ void ExternalToolRunner::run()
             FileManager::instance()->expectFileChange(m_expectedFileName);
         }
     }
-    m_process = new QProcess;
+    m_process = new Utils::QtcProcess(this);
     connect(m_process, SIGNAL(started()), this, SLOT(started()));
     connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished(int,QProcess::ExitStatus)));
     connect(m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(error(QProcess::ProcessError)));
@@ -361,11 +353,14 @@ void ExternalToolRunner::run()
     connect(m_process, SIGNAL(readyReadStandardError()), this, SLOT(readStandardError()));
     if (!m_resolvedWorkingDirectory.isEmpty())
         m_process->setWorkingDirectory(m_resolvedWorkingDirectory);
+    m_process->setCommand(m_resolvedExecutable, m_resolvedArguments);
     ICore::instance()->messageManager()->printToOutputPane(
                 tr("Starting external tool '%1'").arg(m_resolvedExecutable), false);
-    ICore::instance()->messageManager()->printToOutputPane(
-                tr("with arguments (%1)").arg(m_resolvedArguments.join(QLatin1String(", "))), false);
-    m_process->start(m_resolvedExecutable, m_resolvedArguments, QIODevice::ReadWrite);
+    if (!m_resolvedArguments.isEmpty()) {
+        ICore::instance()->messageManager()->printToOutputPane(
+                tr("with arguments '%1'").arg(m_resolvedArguments), false);
+    }
+    m_process->start();
 }
 
 void ExternalToolRunner::started()
@@ -389,7 +384,6 @@ void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
     }
     ICore::instance()->messageManager()->printToOutputPane(
                 tr("'%1' finished").arg(m_resolvedExecutable), false);
-    m_process->deleteLater();
     deleteLater();
 }
 
@@ -400,7 +394,6 @@ void ExternalToolRunner::error(QProcess::ProcessError error)
         FileManager::instance()->unexpectFileChange(m_expectedFileName);
     }
     // TODO inform about errors
-    m_process->deleteLater();
     deleteLater();
 }
 
