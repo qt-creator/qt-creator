@@ -100,7 +100,7 @@ void RemotePlainGdbAdapter::shutdownAdapter()
     m_engine->notifyAdapterShutdownOk();
 }
 
-void RemotePlainGdbAdapter::handleSetupDone(int gdbServerPort, int qmlPort)
+void RemotePlainGdbAdapter::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
     Q_UNUSED(gdbServerPort);
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
@@ -128,7 +128,7 @@ void RemotePlainGdbAdapter::handleGdbStartFailed()
     m_engine->handleAdapterStartFailed(m_gdbProc.errorString());
 }
 
-void RemotePlainGdbAdapter::handleSetupFailed(const QString &reason)
+void RemotePlainGdbAdapter::handleRemoteSetupFailed(const QString &reason)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 

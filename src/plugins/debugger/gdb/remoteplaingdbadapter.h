@@ -43,8 +43,6 @@ class RemotePlainGdbAdapter : public AbstractPlainGdbAdapter
 public:
     friend class RemoteGdbProcess;
     explicit RemotePlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
-    void handleSetupDone(int gdbServerPort, int qmlPort);
-    void handleSetupFailed(const QString &reason);
 
 private slots:
     void handleGdbStarted();
@@ -56,6 +54,8 @@ private:
     void interruptInferior();
     void shutdownInferior();
     void shutdownAdapter();
+    void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
+    void handleRemoteSetupFailed(const QString &reason);
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
     DumperHandling dumperHandling() const { return DumperLoadedByGdbPreload; }
 

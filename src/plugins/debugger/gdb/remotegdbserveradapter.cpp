@@ -159,7 +159,7 @@ void RemoteGdbServerAdapter::uploadProcFinished()
         && m_uploadProc.exitCode() == 0)
         handleSetupDone();
     else
-        handleSetupFailed(m_uploadProc.errorString());
+        handleRemoteSetupFailed(m_uploadProc.errorString());
 }
 
 void RemoteGdbServerAdapter::setupInferior()
@@ -300,7 +300,7 @@ void RemoteGdbServerAdapter::shutdownAdapter()
     m_engine->notifyAdapterShutdownOk();
 }
 
-void RemoteGdbServerAdapter::handleSetupDone(int gdbServerPort, int qmlPort)
+void RemoteGdbServerAdapter::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
@@ -323,7 +323,7 @@ void RemoteGdbServerAdapter::handleSetupDone()
         m_engine->handleAdapterStarted();
 }
 
-void RemoteGdbServerAdapter::handleSetupFailed(const QString &reason)
+void RemoteGdbServerAdapter::handleRemoteSetupFailed(const QString &reason)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 

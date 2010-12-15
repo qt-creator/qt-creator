@@ -48,8 +48,6 @@ class RemoteGdbServerAdapter : public AbstractGdbAdapter
 
 public:
     RemoteGdbServerAdapter(GdbEngine *engine, int toolChainType, QObject *parent = 0);
-    void handleSetupDone(int gdbServerPort, int qmlPort);
-    void handleSetupFailed(const QString &reason);
 
 private:
     DumperHandling dumperHandling() const;
@@ -81,6 +79,9 @@ private:
     Q_SLOT void readUploadStandardError();
     Q_SLOT void uploadProcError(QProcess::ProcessError error);
     Q_SLOT void uploadProcFinished();
+
+    virtual void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
+    virtual void handleRemoteSetupFailed(const QString &reason);
 
     void handleSetTargetAsync(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);
