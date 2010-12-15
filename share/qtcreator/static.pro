@@ -56,6 +56,7 @@ DATA_FILES_SRC = \
 unix:DATA_FILES_SRC += externaltools/sort.xml
 linux-*:DATA_FILES_SRC += externaltools/vi.xml
 macx:DATA_FILES_SRC += externaltools/vi_mac.xml
+win32:DATA_FILES_SRC += externaltools/notepad_win.xml
 win32:DATA_FILES_SRC ~= s|\\\\|/|g
 for(file, DATA_FILES_SRC):DATA_FILES += $$IDE_SOURCE_TREE/src/share/qtcreator/$$file
 macx:OTHER_FILES += $$DATA_FILES
