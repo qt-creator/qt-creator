@@ -353,12 +353,17 @@ void ItemLibraryWidget::setModel(Model *model)
 
 void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
 {
+
+    static bool block = false;
     if (!m_d->model)
         return;
     if (flag == m_filterFlag)
         return;
 
-    m_filterFlag = flag;
+    if (block == true)
+        return;
+
+    block = true;
     if (flag == QtBasic) {
         removeImport(QLatin1String("com.meego"));
         removeImport(QLatin1String("Qt.labs.Symbian"));
@@ -378,6 +383,8 @@ void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
         emit meegoChecked(true);
         emit symbianChecked(false);
     }
+    block = false;
+    m_filterFlag = flag;
 }
 
 void ItemLibraryWidget::onQtBasicOnlyChecked(bool b)
