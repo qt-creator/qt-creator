@@ -584,7 +584,7 @@ void QmlJSLiveTextPreview::showSyncWarning(UnsyncronizableChangeType unsyncroniz
 
     errorMessage.append(tr("You can continue debugging, but behavior can be unexpected."));
 
-    em->showEditorInfoBar(Constants::INFO_OUT_OF_SYNC, errorMessage, tr("Reload"), this, SLOT(reloadQmlViewer()));
+    em->showEditorInfoBar(Constants::INFO_OUT_OF_SYNC, errorMessage);
 }
 
 void QmlJSLiveTextPreview::reloadQmlViewer()

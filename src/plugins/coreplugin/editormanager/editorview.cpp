@@ -176,6 +176,12 @@ void EditorView::showEditorInfoBar(const QString &id,
     m_infoWidgetLabel->setText(infoText);
     m_infoWidgetButton->setText(buttonText);
 
+    if (object && !buttonText.isEmpty()) {
+        m_infoWidgetButton->show();
+    } else {
+        m_infoWidgetButton->hide();
+    }
+
     m_infoWidgetButton->disconnect();
     if (object && buttonPressMember)
         connect(m_infoWidgetButton, SIGNAL(clicked()), object, buttonPressMember);
