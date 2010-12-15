@@ -301,12 +301,12 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
         }
     }
 
-    // Fixme: unclean ipc override. Someone please have a better idea
+    // FIXME: Unclean ipc override. Someone please have a better idea.
     if (sp.startMode == StartRemoteEngine)
-        // for now thats the only supported ipc engine
+        // For now thats the only supported IPC engine.
         engineType = LldbEngineType;
 
-    // Fixme: 1 of 3 testing hacks.
+    // FIXME: 1 of 3 testing hacks.
     if (sp.processArgs.startsWith(__("@tcf@ ")))
         engineType = GdbEngineType;
 
