@@ -102,7 +102,7 @@ public:
     void startFailed();
     void debuggingFinished();
     RunConfiguration *runConfiguration() const;
-    DebuggerEngine *engine();
+    DebuggerEngine *engine(); // FIXME: Remove. Only used by Maemo support.
 
     void showMessage(const QString &msg, int channel);
 
@@ -120,6 +120,7 @@ protected:
     const DebuggerStartParameters &startParameters() const;
 
 private:
+    friend class Internal::DebuggerRunControlFactory;
     QScopedPointer<Internal::DebuggerRunControlPrivate> d;
 };
 
