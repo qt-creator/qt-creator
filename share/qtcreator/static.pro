@@ -39,17 +39,36 @@ DATA_DIRS = \
     generic-highlighter \
     glsl
 
-DATA_FILES = \
+# files that are to be unconditionally "deployed" to the build dir from src/share to share
+defineReplace(stripSrcResourceDir) {
+    win32 {
+        !contains(1, ^.:.*):1 = $$OUT_PWD/$$1
+    } else {
+        !contains(1, ^/.*):1 = $$OUT_PWD/$$1
+    }
+    out = $$cleanPath($$1)
+    out ~= s|^$$re_escape($$IDE_SOURCE_TREE/src/share/qtcreator/)||$$i_flag
+    return($$out)
+}
+DATA_FILES_SRC = \
     externaltools/lrelease.xml \
     externaltools/lupdate.xml
-unix:DATA_FILES += externaltools/sort.xml
-linux-*:DATA_FILES += externaltools/vi.xml
-macx:DATA_FILES += externaltools/vi_mac.xml
-#macx:DATA_FILES += runInTerminal.command
-win32:DATA_FILES ~= s|\\\\|/|g
+unix:DATA_FILES_SRC += externaltools/sort.xml
+linux-*:DATA_FILES_SRC += externaltools/vi.xml
+macx:DATA_FILES_SRC += externaltools/vi_mac.xml
+win32:DATA_FILES_SRC ~= s|\\\\|/|g
+for(file, DATA_FILES_SRC):DATA_FILES += $$IDE_SOURCE_TREE/src/share/qtcreator/$$file
+macx:OTHER_FILES += $$DATA_FILES
+unconditionalCopy2build.input = DATA_FILES
+unconditionalCopy2build.output = $$IDE_DATA_PATH/${QMAKE_FUNC_FILE_IN_stripSrcResourceDir}
+isEmpty(vcproj):unconditionalCopy2build.variable_out = PRE_TARGETDEPS
+win32:unconditionalCopy2build.commands = $$QMAKE_COPY \"${QMAKE_FILE_IN}\" \"${QMAKE_FILE_OUT}\"
+unix:unconditionalCopy2build.commands = $$QMAKE_COPY ${QMAKE_FILE_IN} ${QMAKE_FILE_OUT}
+unconditionalCopy2build.name = COPY ${QMAKE_FILE_IN}
+unconditionalCopy2build.CONFIG += no_link
+QMAKE_EXTRA_COMPILERS += unconditionalCopy2build
 
-OTHER_FILES += $$DATA_FILES
-
+# conditionally deployed data
 !isEmpty(copydata) {
 
     for(data_dir, DATA_DIRS) {
@@ -57,7 +76,6 @@ OTHER_FILES += $$DATA_FILES
         win32:files ~= s|\\\\|/|g
         for(file, files):!exists($$file/*):FILES += $$file
     }
-    for(file, DATA_FILES):FILES += $$PWD/$$file
 
     macx:OTHER_FILES += $$FILES
     copy2build.input = FILES
@@ -76,7 +94,4 @@ OTHER_FILES += $$DATA_FILES
         eval($${data_dir}.path = /share/qtcreator)
         INSTALLS += $$data_dir
     }
-    data_files.files = $$DATA_FILES
-    data_files.path = /share/qtcreator
-    INSTALLS += $$data_files
 }

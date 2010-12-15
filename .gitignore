@@ -33,6 +33,7 @@ Thumbs.db
 *.pluginspec
 src/app/Info.plist
 src/plugins/coreplugin/ide_version.h
+share/qtcreator/externaltools
 
 # xemacs temporary files
 *.flc
