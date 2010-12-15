@@ -455,21 +455,6 @@ bool DebuggerRunControl::checkDebugConfiguration(int toolChain,
 void DebuggerRunControl::start()
 {
     QTC_ASSERT(d->m_engine, return);
-    const DebuggerStartParameters &sp = d->m_engine->startParameters();
-
-    QString errorMessage;
-    QString settingsCategory;
-    QString settingsPage;
-
-    if (!checkDebugConfiguration(sp.toolChainType,
-            &errorMessage, &settingsCategory, &settingsPage)) {
-        emit appendMessage(this, errorMessage, true);
-        emit finished();
-        Core::ICore::instance()->showWarningWithOptions(tr("Debugger"),
-            errorMessage, QString(), settingsCategory, settingsPage);
-        return;
-    }
-
     debuggerCore()->runControlStarted(d->m_engine);
 
     // We might get a synchronous startFailed() notification on Windows,
@@ -679,6 +664,18 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget
 DebuggerRunControl *DebuggerRunControlFactory::create
     (const DebuggerStartParameters &sp, RunConfiguration *runConfiguration)
 {
+    QString errorMessage;
+    QString settingsCategory;
+    QString settingsPage;
+
+    if (!DebuggerRunControl::checkDebugConfiguration(sp.toolChainType,
+            &errorMessage, &settingsCategory, &settingsPage)) {
+        //emit appendMessage(this, errorMessage, true);
+        Core::ICore::instance()->showWarningWithOptions(tr("Debugger"),
+            errorMessage, QString(), settingsCategory, settingsPage);
+        return 0;
+    }
+
     DebuggerRunControl *runControl =
         new DebuggerRunControl(runConfiguration, m_enabledEngines, sp);
     if (runControl->d->m_engine)
