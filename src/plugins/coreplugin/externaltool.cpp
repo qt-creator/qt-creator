@@ -480,9 +480,8 @@ void ExternalToolManager::initialize()
             }
             m_tools.insert(tool->id(), tool);
 
-            // category menus
-            // TODO sort alphabetically
-            ActionContainer *container;
+            // category menu
+            ActionContainer *container = 0;
             if (tool->displayCategory().isEmpty())
                 container = mexternaltools;
             else
@@ -490,9 +489,10 @@ void ExternalToolManager::initialize()
             if (!container) {
                 container = am->createMenu(Id("Tools.External.Category." + tool->displayCategory()));
                 container->menu()->setTitle(tool->displayCategory());
-                mexternaltools->addMenu(container, Constants::G_DEFAULT_ONE);
+                categoryMenus.insert(tool->displayCategory(), container);
             }
 
+            // TODO sort tool actions by order
             // tool action
             QAction *action = new QAction(tool->displayName(), this);
             action->setToolTip(tool->description());
@@ -503,6 +503,10 @@ void ExternalToolManager::initialize()
             connect(action, SIGNAL(triggered()), this, SLOT(menuActivated()));
         }
     }
+
+    // add all the category menus, QMap is nicely sorted
+    foreach (ActionContainer *container, categoryMenus)
+        mexternaltools->addMenu(container, Constants::G_DEFAULT_ONE);
 }
 
 void ExternalToolManager::menuActivated()
