@@ -4079,6 +4079,43 @@
     applied when UIDs from the trusted range 0x2xxxxxxx are used. For more
     information, see \l{http://wiki.forum.nokia.com/index.php/UID}{UID}.
 
+    \section1 Publishing Qt Content for Maemo Devices
+
+    The applications that you publish on Ovi Store, must meet the testing criteria
+    listed in
+    \l{http://www.forum.nokia.com/info/sw.nokia.com/id/9cd1eb18-821b-4228-a0a3-36b049c5d608/Maemo_5_Application_OVI_Store_Entry_Requirements.pdf.html}
+    {Maemo 5 Applications: Ovi Store Entry Requirements}.
+
+    Make sure that your application passes the following most commonly
+    failed test cases:
+
+    \list
+
+        \o Package filename must include the application name and version
+        number using three digits. For example: myapplication_1_0_1.deb
+
+        \o Application files must be installed to the opt folder on the ext3
+        partition.
+
+        \o Debian packages must be given the category user/hidden.
+
+        \o Application cannot crash or hang during use.
+
+        \o The application must handle different memory situations correctly.
+
+    \endlist
+
+    You set the application name and installation folder in the
+    \gui {Run Settings} for the project. For more information, see
+    \l{Deploying Applications to Maemo Devices}. Qt Creator specifies the correct
+    category settings by default when it creates the Debian directory and
+    the necessary files.
+
+    You can test the application on Qt Simulator and Maemo Emulator to make
+    sure that it does not crash or hang and to check how it handles different
+    memory situations. Before you submit the application to Ovi Publishing, you
+    must also fully test it on a Maemo device.
+
 */
 
 /*!
