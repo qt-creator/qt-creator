@@ -180,7 +180,7 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
 {
     Q_ASSERT(node.isValid());
 
-    uint hash = qHash(node);
+    uint hash = node.internalId();
 
     const bool dropEnabled = node.metaInfo().isValid();
 
@@ -300,7 +300,7 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
         return;
 
     uint nodeHash = item->data(NavigatorRole).toUInt();
-    Q_ASSERT(nodeHash && containsNodeHash(nodeHash));
+    Q_ASSERT(nodeHash >= 0 && containsNodeHash(nodeHash));
     ModelNode node = nodeForHash(nodeHash);
 
     ItemRow itemRow = itemRowForNode(node);
@@ -399,7 +399,7 @@ ModelNode NavigatorTreeModel::nodeForIndex(const QModelIndex &index) const
 
 bool NavigatorTreeModel::isInTree(const ModelNode &node) const
 {
-    return m_nodeHash.keys().contains(qHash(node));
+    return m_nodeHash.keys().contains(node.internalId());
 }
 
 bool NavigatorTreeModel::isNodeInvisible(const QModelIndex &index) const
@@ -423,7 +423,7 @@ bool NavigatorTreeModel::isNodeInvisible(const ModelNode &node) const
 void NavigatorTreeModel::addSubTree(const ModelNode &node)
 {
     Q_ASSERT(node.isValid());
-    Q_ASSERT(!containsNodeHash(qHash(node)));
+    Q_ASSERT(!containsNodeHash(node.internalId()));
 
     //updateItemRow(node, newRow);
 
@@ -434,7 +434,7 @@ void NavigatorTreeModel::addSubTree(const ModelNode &node)
     }
 
     ItemRow newRow = createItemRow(node);
-    m_nodeHash.insert(qHash(node), node);
+    m_nodeHash.insert(node.internalId(), node);
     m_nodeItemHash.insert(node, newRow);
 
     updateItemRow(node, newRow);
@@ -481,7 +481,7 @@ void NavigatorTreeModel::removeSubTree(const ModelNode &node)
 
     qDeleteAll(rowList);
 
-    m_nodeHash.remove(qHash(node));
+    m_nodeHash.remove(node.internalId());
     m_nodeItemHash.remove(node);
 }
 
