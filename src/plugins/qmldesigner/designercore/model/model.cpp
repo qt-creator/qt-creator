@@ -161,11 +161,11 @@ void ModelPrivate::notifyImportAdded(const Import &import)
 
     NodeMetaInfo::clearCache();
 
-    foreach (const QWeakPointer<AbstractView> &view, m_viewList)
-        view->importAdded(import);
-
     if (nodeInstanceView())
         nodeInstanceView()->importAdded(import);
+
+    foreach (const QWeakPointer<AbstractView> &view, m_viewList)
+        view->importAdded(import);
 
     if (resetModel) {
         resetModelByRewriter(description);
@@ -188,11 +188,11 @@ void ModelPrivate::notifyImportRemoved(const Import &import)
 
     NodeMetaInfo::clearCache();
 
-    foreach (const QWeakPointer<AbstractView> &view, m_viewList)
-        view->importRemoved(import);
-
     if (nodeInstanceView())
         nodeInstanceView()->importRemoved(import);
+
+    foreach (const QWeakPointer<AbstractView> &view, m_viewList)
+        view->importRemoved(import);
 
     if (resetModel) {
         resetModelByRewriter(description);
