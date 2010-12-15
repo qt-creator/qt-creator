@@ -279,7 +279,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *clearTypeFormatAction = 0;
     if (idx.isValid()) {
         typeFormatMenu.setTitle(
-            tr("Change Format for Type \"%1\"").arg(type));
+            tr("Change Display for Type \"%1\"").arg(type));
         if (alternativeFormats.isEmpty()) {
             typeFormatMenu.setEnabled(false);
         } else {
@@ -299,7 +299,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
             }
         }
     } else {
-        typeFormatMenu.setTitle(tr("Change Format for Type"));
+        typeFormatMenu.setTitle(tr("Change Display for Type"));
         typeFormatMenu.setEnabled(false);
     }
 
@@ -308,7 +308,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *clearIndividualFormatAction = 0;
     if (idx.isValid()) {
         individualFormatMenu.setTitle(
-            tr("Change Format for Object Named \"%1\"").arg(mi0.data().toString()));
+            tr("Change Display for Object Named \"%1\"").arg(mi0.data().toString()));
         if (alternativeFormats.isEmpty()) {
             individualFormatMenu.setEnabled(false);
         } else {
@@ -329,7 +329,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
             }
         }
     } else {
-        individualFormatMenu.setTitle(tr("Change Format for Object"));
+        individualFormatMenu.setTitle(tr("Change Display for Object"));
         individualFormatMenu.setEnabled(false);
     }
 
