@@ -108,6 +108,11 @@ void MaemoSshRunner::stop()
     if (m_state == PostRunCleaning || m_state == StopRequested
         || m_state == Inactive)
         return;
+    if (m_state == Connecting) {
+        setState(Inactive);
+        emit remoteProcessFinished(InvalidExitCode);
+        return;
+    }
 
     setState(StopRequested);
     cleanup();
