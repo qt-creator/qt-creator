@@ -144,7 +144,7 @@ void RemoteGdbProcess::handleAppOutputReaderStarted()
 
     connect(m_appOutputReader.data(), SIGNAL(outputAvailable(QByteArray)),
         this, SLOT(handleAppOutput(QByteArray)));
-    QByteArray cmdLine = "DISPLAY=:0.0 " + Utils::QtcProcess::quoteArgUnix(m_command).toUtf8() + ' '
+    QByteArray cmdLine = "DISPLAY=:0.0 " + m_command.toUtf8() + ' '
         + Utils::QtcProcess::joinArgsUnix(m_cmdArgs).toUtf8()
         + " -tty=" + m_appOutputFileName;
     if (!m_wd.isEmpty())
