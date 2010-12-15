@@ -54,7 +54,8 @@ SymbolGroupValue SymbolGroupValue::operator[](unsigned index) const
 {
     if (ensureExpanded())
         if (index < m_node->children().size())
-            return SymbolGroupValue(m_node->children().at(index), m_context);
+            if (SymbolGroupNode *n = m_node->childAt(index)->asSymbolGroupNode())
+                return SymbolGroupValue(n, m_context);
     return SymbolGroupValue();
 }
 
@@ -78,8 +79,9 @@ bool SymbolGroupValue::ensureExpanded() const
 SymbolGroupValue SymbolGroupValue::operator[](const char *name) const
 {
     if (ensureExpanded())
-        if (SymbolGroupNode *child = m_node->childByIName(name))
-            return SymbolGroupValue(child, m_context);
+        if (AbstractSymbolGroupNode *child = m_node->childByIName(name))
+            if (SymbolGroupNode *n = child->asSymbolGroupNode())
+                return SymbolGroupValue(n, m_context);
     return SymbolGroupValue();
 }
 

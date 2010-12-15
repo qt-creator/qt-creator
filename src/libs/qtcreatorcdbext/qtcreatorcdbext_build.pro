@@ -48,6 +48,7 @@ QT -= core
 SOURCES += qtcreatorcdbextension.cpp \
     extensioncontext.cpp \
     eventcallback.cpp \
+    symbolgroupnode.cpp \
     symbolgroup.cpp \
     common.cpp \
     stringutils.cpp \
@@ -68,4 +69,5 @@ HEADERS += extensioncontext.h \
     base64.h \
     symbolgroupvalue.h \
     containers.h \
-    knowntype.h
+    knowntype.h \
+    symbolgroupnode.h

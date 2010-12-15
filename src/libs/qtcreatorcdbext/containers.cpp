@@ -34,7 +34,7 @@
 
 #include <functional>
 
-typedef SymbolGroupNode::SymbolGroupNodePtrVector SymbolGroupNodePtrVector;
+typedef AbstractSymbolGroupNode::AbstractSymbolGroupNodePtrVector AbstractSymbolGroupNodePtrVector;
 
 // Return size of container or -1
 int containerSize(KnownType kt, SymbolGroupNode *n, const SymbolGroupValueContext &ctx)
@@ -150,16 +150,16 @@ int containerSize(KnownType kt, const SymbolGroupValue &v)
 /* Generate a list of children by invoking the functions to obtain the value
  * and the next link */
 template <class ValueFunction, class NextFunction>
-SymbolGroupNodePtrVector linkedListChildList(SymbolGroupValue headNode,
-                                             int count,
-                                             ValueFunction valueFunc,
-                                             NextFunction nextFunc)
+AbstractSymbolGroupNodePtrVector linkedListChildList(SymbolGroupValue headNode,
+                                                     int count,
+                                                     ValueFunction valueFunc,
+                                                     NextFunction nextFunc)
 {
-    SymbolGroupNodePtrVector rc;
+    AbstractSymbolGroupNodePtrVector rc;
     rc.reserve(count);
     for (int i =0; i < count && headNode; i++) {
         if (const SymbolGroupValue value = valueFunc(headNode)) {
-            rc.push_back(value.node());
+            rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, value.node()));
             headNode = nextFunc(headNode);
         } else {
             break;
@@ -180,33 +180,33 @@ private:
 };
 
 // std::list<T>: Dummy head node and then a linked list of "_Next", "_Myval".
-static inline SymbolGroupNodePtrVector stdListChildList(SymbolGroupNode *n, int count,
+static inline AbstractSymbolGroupNodePtrVector stdListChildList(SymbolGroupNode *n, int count,
                                                         const SymbolGroupValueContext &ctx)
 {
     if (count)
         if (const SymbolGroupValue head = SymbolGroupValue(n, ctx)[unsigned(0)][unsigned(0)]["_Myhead"]["_Next"])
             return linkedListChildList(head, count, MemberByName("_Myval"), MemberByName("_Next"));
-    return SymbolGroupNodePtrVector();
+    return AbstractSymbolGroupNodePtrVector();
 }
 
 // QLinkedList<T>: Dummy head node and then a linked list of "n", "t".
-static inline SymbolGroupNodePtrVector qLinkedListChildList(SymbolGroupNode *n, int count,
+static inline AbstractSymbolGroupNodePtrVector qLinkedListChildList(SymbolGroupNode *n, int count,
                                                         const SymbolGroupValueContext &ctx)
 {
     if (count)
         if (const SymbolGroupValue head = SymbolGroupValue(n, ctx)["e"]["n"])
             return linkedListChildList(head, count, MemberByName("t"), MemberByName("n"));
-    return SymbolGroupNodePtrVector();
+    return AbstractSymbolGroupNodePtrVector();
 }
 
 /* Helper for array-type containers:
  * Add a series of "*(innertype *)0x (address + n * size)" fake child symbols.
  * for a function generating a sequence of addresses. */
 template <class AddressFunc>
-SymbolGroupNodePtrVector arrayChildList(SymbolGroup *sg, AddressFunc addressFunc,
+AbstractSymbolGroupNodePtrVector arrayChildList(SymbolGroup *sg, AddressFunc addressFunc,
                                         const std::string &innerType, int count)
 {
-    SymbolGroupNodePtrVector rc;
+    AbstractSymbolGroupNodePtrVector rc;
     if (!count)
         return rc;
     std::string errorMessage;
@@ -217,8 +217,8 @@ SymbolGroupNodePtrVector arrayChildList(SymbolGroup *sg, AddressFunc addressFunc
         if (!endsWith(innerType, '*'))
             str << ' ';
         str << "*)" << std::showbase << std::hex << addressFunc();
-        if (SymbolGroupNode *child = sg->addSymbol(str.str(), toString(i), &errorMessage)) {
-            rc.push_back(child);
+        if (SymbolGroupNode *child = sg->addSymbol(str.str(), std::string(), &errorMessage)) {
+            rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, child));
         } else {
             break;
         }
@@ -244,17 +244,17 @@ private:
     const ULONG m_delta;
 };
 
-static inline SymbolGroupNodePtrVector arrayChildList(SymbolGroup *sg, ULONG64 address,
+static inline AbstractSymbolGroupNodePtrVector arrayChildList(SymbolGroup *sg, ULONG64 address,
                                                const std::string &innerType, int count)
 {
     if (const unsigned innerTypeSize = SymbolGroupValue::sizeOf(innerType.c_str()))
         return arrayChildList(sg, AddressSequence(address, innerTypeSize),
                               innerType, count);
-    return SymbolGroupNodePtrVector();
+    return AbstractSymbolGroupNodePtrVector();
 }
 
 // std::vector<T>
-static inline SymbolGroupNodePtrVector
+static inline AbstractSymbolGroupNodePtrVector
     stdVectorChildList(SymbolGroupNode *n, int count, const SymbolGroupValueContext &ctx)
 {
     if (count) {
@@ -269,11 +269,11 @@ static inline SymbolGroupNodePtrVector
                 return arrayChildList(n->symbolGroup(), address,
                                       SymbolGroupValue::stripPointerType(myFirst.type()), count);
     }
-    return SymbolGroupNodePtrVector();
+    return AbstractSymbolGroupNodePtrVector();
 }
 
 // QVector<T>
-static inline SymbolGroupNodePtrVector
+static inline AbstractSymbolGroupNodePtrVector
     qVectorChildList(SymbolGroupNode *n, int count, const SymbolGroupValueContext &ctx)
 {
     if (count) {
@@ -284,7 +284,7 @@ static inline SymbolGroupNodePtrVector
             if (const ULONG64 arrayAddress = firstElementV.address())
                     return arrayChildList(n->symbolGroup(), arrayAddress, firstElementV.type(), count);
     }
-    return SymbolGroupNodePtrVector();
+    return AbstractSymbolGroupNodePtrVector();
 }
 
 // Helper function for arrayChildList() for use with QLists of large types that are an
@@ -301,32 +301,32 @@ private:
 };
 
 // QList<>.
-static inline SymbolGroupNodePtrVector
+static inline AbstractSymbolGroupNodePtrVector
     qListChildList(const SymbolGroupValue &v, int count)
 {
     // QList<T>: d/array is declared as array of void *[]. Dereference first
     // element to obtain address.
     if (!count)
-        return SymbolGroupNodePtrVector();
+        return AbstractSymbolGroupNodePtrVector();
     const SymbolGroupValue dV = v["d"];
     if (!dV)
-        return SymbolGroupNodePtrVector();
+        return AbstractSymbolGroupNodePtrVector();
     const int begin = dV["begin"].intValue();
     if (begin < 0)
-        return SymbolGroupNodePtrVector();
+        return AbstractSymbolGroupNodePtrVector();
     const SymbolGroupValue firstElementV = dV["array"][unsigned(0)];
     if (!firstElementV)
-        return SymbolGroupNodePtrVector();
+        return AbstractSymbolGroupNodePtrVector();
      ULONG64 arrayAddress = firstElementV.address();
      if (!arrayAddress)
-         return SymbolGroupNodePtrVector();
+         return AbstractSymbolGroupNodePtrVector();
      const std::vector<std::string> innerTypes = v.innerTypes();
      if (innerTypes.size() != 1)
-         return SymbolGroupNodePtrVector();
+         return AbstractSymbolGroupNodePtrVector();
      const std::string &innerType = innerTypes.front();
      const unsigned innerTypeSize = SymbolGroupValue::sizeOf(innerType.c_str());
      if (!innerTypeSize)
-         return SymbolGroupNodePtrVector();
+         return AbstractSymbolGroupNodePtrVector();
      /* QList<> is:
       * 1) An array of 'void *[]' where T values are coerced into the elements for
       *    POD/pointer types and small, movable or primitive Qt types. That is, smaller
@@ -355,10 +355,10 @@ static inline SymbolGroupNodePtrVector
          const HRESULT hr = v.context().dataspaces->ReadVirtual(arrayAddress + begin * pointerSize, data, allocSize, &bytesRead);
          if (FAILED(hr) || bytesRead != allocSize) {
              delete [] data;
-             return SymbolGroupNodePtrVector();
+             return AbstractSymbolGroupNodePtrVector();
          }
          // Generate sequence of addresses from pointer array
-         const SymbolGroupNodePtrVector rc = pointerSize == 8 ?
+         const AbstractSymbolGroupNodePtrVector rc = pointerSize == 8 ?
                      arrayChildList(v.node()->symbolGroup(), AddressArraySequence<ULONG64>(reinterpret_cast<const ULONG64 *>(data)), innerType, count) :
                      arrayChildList(v.node()->symbolGroup(), AddressArraySequence<ULONG32>(reinterpret_cast<const ULONG32 *>(data)), innerType, count);
          delete [] data;
@@ -369,11 +369,11 @@ static inline SymbolGroupNodePtrVector
                            innerType, count);
 }
 
-SymbolGroupNodePtrVector containerChildren(SymbolGroupNode *node, int type,
-                                           int size, const SymbolGroupValueContext &ctx)
+AbstractSymbolGroupNodePtrVector containerChildren(SymbolGroupNode *node, int type,
+                                                   int size, const SymbolGroupValueContext &ctx)
 {
     if (!size)
-        return SymbolGroupNodePtrVector();
+        return AbstractSymbolGroupNodePtrVector();
     if (size > 100)
         size = 100;
     switch (type) {
@@ -400,5 +400,5 @@ SymbolGroupNodePtrVector containerChildren(SymbolGroupNode *node, int type,
     case KT_StdList:
         return stdListChildList(node, size , ctx);
     }
-    return SymbolGroupNodePtrVector();
+    return AbstractSymbolGroupNodePtrVector();
 }

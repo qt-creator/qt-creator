@@ -31,6 +31,7 @@
 #define CONTAINERS_H
 
 struct SymbolGroupValueContext;
+class AbstractSymbolGroupNode;
 class SymbolGroupNode;
 class SymbolGroupValue;
 
@@ -44,9 +45,9 @@ int containerSize(KnownType kt, const SymbolGroupValue &v);
 int containerSize(KnownType kt, SymbolGroupNode *n, const SymbolGroupValueContext &ctx);
 
 /* Create a list of children of containers. */
-std::vector<SymbolGroupNode *> containerChildren(SymbolGroupNode *node,
-                                                 int type,
-                                                 int size,
-                                                 const SymbolGroupValueContext &ctx);
+std::vector<AbstractSymbolGroupNode *> containerChildren(SymbolGroupNode *node,
+                                                         int type,
+                                                         int size,
+                                                         const SymbolGroupValueContext &ctx);
 
 #endif // CONTAINERS_H
