@@ -37,6 +37,8 @@ HEADERS += \
     $$PWD/LookupContext.h \
     $$PWD/ASTParent.h \
     $$PWD/ASTPath.h \
+    $$PWD/SnapshotSymbolVisitor.h \
+    $$PWD/SymbolNameVisitor.h \
     $$PWD/DeprecatedGenTemplateInstance.h \
     $$PWD/FindUsages.h \
     $$PWD/DependencyTable.h \
@@ -63,6 +65,8 @@ SOURCES += \
     $$PWD/LookupContext.cpp \
     $$PWD/ASTParent.cpp \
     $$PWD/ASTPath.cpp \
+    $$PWD/SnapshotSymbolVisitor.cpp \
+    $$PWD/SymbolNameVisitor.cpp \
     $$PWD/DeprecatedGenTemplateInstance.cpp \
     $$PWD/FindUsages.cpp \
     $$PWD/DependencyTable.cpp \
