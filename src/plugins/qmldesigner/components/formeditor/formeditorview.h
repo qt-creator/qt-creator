@@ -66,6 +66,9 @@ public:
     void modelAttached(Model *model);
     void modelAboutToBeDetached(Model *model);
 
+    void importAdded(const Import &import);
+    void importRemoved(const Import &import);
+
     void nodeCreated(const ModelNode &createdNode);
     void nodeAboutToBeRemoved(const ModelNode &removedNode);
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
@@ -116,8 +119,10 @@ signals:
 protected:
     void otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
     void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
+    void reset();
 
 protected slots:
+    void delayedReset();
     QList<ModelNode> adjustStatesForModelNodes(const QList<ModelNode> &nodeList) const;
     void updateGraphicsIndicators();
     void setSelectOnlyContentItemsAction(bool selectOnlyContentItems);

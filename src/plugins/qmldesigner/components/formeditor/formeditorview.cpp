@@ -49,6 +49,7 @@
 #include <QString>
 #include <QDir>
 #include <QAction>
+#include <QTimer>
 #include <zoomaction.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
@@ -141,6 +142,16 @@ void FormEditorView::modelAboutToBeDetached(Model *model)
     m_scene->clearFormEditorItems();
 
     QmlModelView::modelAboutToBeDetached(model);
+}
+
+void FormEditorView::importAdded(const Import &)
+{
+    reset();
+}
+
+void FormEditorView::importRemoved(const Import &)
+{
+    reset();
 }
 
 void FormEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
@@ -599,6 +610,23 @@ void FormEditorView::stateChanged(const QmlModelState &newQmlModelState, const Q
 //    FormEditorItem *item = m_scene->itemForQmlItemNode(fxObjectNode);
 //
 //    m_currentTool->formEditorItemsChanged(itemList);
+}
+
+void FormEditorView::reset()
+{
+   QTimer::singleShot(200, this, SLOT(delayedReset()));
+}
+
+void FormEditorView::delayedReset()
+{
+    m_selectionTool->clear();
+    m_moveTool->clear();
+    m_resizeTool->clear();
+    m_anchorTool->clear();
+    m_dragTool->clear();
+    m_scene->clearFormEditorItems();
+    if (rootQmlObjectNode().toQmlItemNode().isValid())
+        setupFormEditorItemTree(rootQmlObjectNode().toQmlItemNode());
 }
 
 
