@@ -456,6 +456,10 @@ static KnownType knownTypeHelper(const std::string &type, std::string::size_type
             if (!type.compare(qPos, 9, "QMultiMap"))
                 return KT_QMultiMap;
             break;
+        case 10:
+            if (!type.compare(qPos, 10, "QMultiHash"))
+                return KT_QMultiHash;
+            break;
         case 11:
             if (!type.compare(qPos, 11, "QLinkedList"))
                 return KT_QLinkedList;

@@ -138,8 +138,9 @@ enum KnownType
     KT_QQueue = KT_Qt_Type + KT_ContainerType + 6,
     KT_QSet = KT_Qt_Type + KT_ContainerType + 7,
     KT_QHash = KT_Qt_Type + KT_ContainerType + 8,
-    KT_QMap = KT_Qt_Type + KT_ContainerType + 9,
-    KT_QMultiMap = KT_Qt_Type + KT_ContainerType + 10,
+    KT_QMultiHash = KT_Qt_Type + KT_ContainerType + 9,
+    KT_QMap = KT_Qt_Type + KT_ContainerType + 10,
+    KT_QMultiMap = KT_Qt_Type + KT_ContainerType + 11,
     // STL
     KT_StdString = KT_STL_Type + 1,
     KT_StdWString = KT_STL_Type + 2,

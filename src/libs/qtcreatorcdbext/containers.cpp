@@ -36,15 +36,19 @@
 
 typedef AbstractSymbolGroupNode::AbstractSymbolGroupNodePtrVector AbstractSymbolGroupNodePtrVector;
 
-// Return size of container or -1
-int containerSize(KnownType kt, SymbolGroupNode *n, const SymbolGroupValueContext &ctx)
+// Read a pointer array from debuggee memory (ULONG64/32 according pointer size)
+static void *readPointerArray(ULONG64 address, unsigned count, const SymbolGroupValueContext &ctx)
 {
-    QTC_TRACE_IN
-    if ((kt & KT_ContainerType) == 0)
-        return -1;
-    const int ct = containerSize(kt, SymbolGroupValue(n, ctx));
-    QTC_TRACE_OUT
-    return ct;
+    const unsigned pointerSize = SymbolGroupValue::pointerSize();
+    const ULONG allocSize = pointerSize * count;
+    ULONG bytesRead = 0;
+    void *data = new unsigned char[allocSize];
+    const HRESULT hr = ctx.dataspaces->ReadVirtual(address, data, allocSize, &bytesRead);
+    if (FAILED(hr) || bytesRead != allocSize) {
+        delete [] data;
+        return 0;
+    }
+    return data;
 }
 
 // Return size from an STL vector (last/first iterators).
@@ -68,6 +72,17 @@ static inline int msvcStdVectorSize(const SymbolGroupValue &v)
         }
     }
     return -1;
+}
+
+// Return size of container or -1
+int containerSize(KnownType kt, SymbolGroupNode *n, const SymbolGroupValueContext &ctx)
+{
+    QTC_TRACE_IN
+    if ((kt & KT_ContainerType) == 0)
+        return -1;
+    const int ct = containerSize(kt, SymbolGroupValue(n, ctx));
+    QTC_TRACE_OUT
+    return ct;
 }
 
 // Determine size of containers
@@ -94,6 +109,10 @@ int containerSize(KnownType kt, const SymbolGroupValue &v)
     case KT_QVector:
         if (const SymbolGroupValue sizeV = v["d"]["size"])
             return sizeV.intValue();
+        break;
+    case KT_QMultiHash:
+        if (const SymbolGroupValue qHash = v[unsigned(0)])
+            return containerSize(KT_QHash, qHash);
         break;
     case KT_QQueue:
         if (const SymbolGroupValue qList= v[unsigned(0)])
@@ -202,9 +221,21 @@ static inline AbstractSymbolGroupNodePtrVector qLinkedListChildList(SymbolGroupN
     return AbstractSymbolGroupNodePtrVector();
 }
 
+// Symbol Name/(Expression) of a pointed-to instance ('Foo' at 0x10') ==> '*(Foo *)0x10'
+static inline std::string pointedToSymbolName(ULONG64 address, const std::string &type)
+{
+    std::ostringstream str;
+    str << "*(" << type;
+    if (!endsWith(type, '*'))
+        str << ' ';
+    str << "*)" << std::showbase << std::hex << address;
+    return str.str();
+}
+
 /* Helper for array-type containers:
  * Add a series of "*(innertype *)0x (address + n * size)" fake child symbols.
  * for a function generating a sequence of addresses. */
+
 template <class AddressFunc>
 AbstractSymbolGroupNodePtrVector arrayChildList(SymbolGroup *sg, AddressFunc addressFunc,
                                         const std::string &innerType, int count)
@@ -215,12 +246,8 @@ AbstractSymbolGroupNodePtrVector arrayChildList(SymbolGroup *sg, AddressFunc add
     std::string errorMessage;
     rc.reserve(count);
     for (int i = 0; i < count; i++) {
-        std::ostringstream str;
-        str << "*(" << innerType;
-        if (!endsWith(innerType, '*'))
-            str << ' ';
-        str << "*)" << std::showbase << std::hex << addressFunc();
-        if (SymbolGroupNode *child = sg->addSymbol(str.str(), std::string(), &errorMessage)) {
+        const std::string name = pointedToSymbolName(addressFunc(), innerType);
+        if (SymbolGroupNode *child = sg->addSymbol(name, std::string(), &errorMessage)) {
             rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, child));
         } else {
             break;
@@ -352,24 +379,28 @@ static inline AbstractSymbolGroupNodePtrVector
      }
      if (isLargeOrStatic) {
          // Retrieve the pointer array ourselves to avoid having to evaluate '*(class foo**)'
-         const ULONG allocSize = pointerSize * count;
-         ULONG bytesRead = 0;
-         void *data = new unsigned char[pointerSize * count];
-         const HRESULT hr = v.context().dataspaces->ReadVirtual(arrayAddress + begin * pointerSize, data, allocSize, &bytesRead);
-         if (FAILED(hr) || bytesRead != allocSize) {
+         if (void *data = readPointerArray(arrayAddress, count, v.context()))  {
+             // Generate sequence of addresses from pointer array
+             const AbstractSymbolGroupNodePtrVector rc = pointerSize == 8 ?
+                         arrayChildList(v.node()->symbolGroup(), AddressArraySequence<ULONG64>(reinterpret_cast<const ULONG64 *>(data)), innerType, count) :
+                         arrayChildList(v.node()->symbolGroup(), AddressArraySequence<ULONG32>(reinterpret_cast<const ULONG32 *>(data)), innerType, count);
              delete [] data;
-             return AbstractSymbolGroupNodePtrVector();
+             return rc;
          }
-         // Generate sequence of addresses from pointer array
-         const AbstractSymbolGroupNodePtrVector rc = pointerSize == 8 ?
-                     arrayChildList(v.node()->symbolGroup(), AddressArraySequence<ULONG64>(reinterpret_cast<const ULONG64 *>(data)), innerType, count) :
-                     arrayChildList(v.node()->symbolGroup(), AddressArraySequence<ULONG32>(reinterpret_cast<const ULONG32 *>(data)), innerType, count);
-         delete [] data;
-         return rc;
+         return AbstractSymbolGroupNodePtrVector();
      }
      return arrayChildList(v.node()->symbolGroup(),
                            AddressSequence(arrayAddress, pointerSize),
                            innerType, count);
+}
+
+static inline AbstractSymbolGroupNodePtrVector
+    qHashChildList(const SymbolGroupValue &, int count)
+{
+    AbstractSymbolGroupNodePtrVector rc;
+    if (!count)
+        return rc;
+    return rc;
 }
 
 AbstractSymbolGroupNodePtrVector containerChildren(SymbolGroupNode *node, int type,
@@ -395,6 +426,16 @@ AbstractSymbolGroupNodePtrVector containerChildren(SymbolGroupNode *node, int ty
     case KT_QStack:
         if (const SymbolGroupValue qVector = SymbolGroupValue(node, ctx)[unsigned(0)])
             return qVectorChildList(qVector.node(), size, ctx);
+        break;
+    case KT_QHash:
+        return qHashChildList(SymbolGroupValue(node, ctx), size);
+    case KT_QMultiMap:
+        if (const SymbolGroupValue hash = SymbolGroupValue(node, ctx)[unsigned(0)])
+            return qHashChildList(hash, size);
+        break;
+    case KT_QSet:
+        if (const SymbolGroupValue qHash = SymbolGroupValue(node, ctx)["q_hash"])
+            return qHashChildList(qHash, size);
         break;
     case KT_QStringList:
         if (const SymbolGroupValue qList = SymbolGroupValue(node, ctx)[unsigned(0)])
