@@ -283,25 +283,25 @@ QList<ItemLibraryEntry> ItemLibraryInfo::entries() const
     return list;
 }
 
+static inline QString keyForEntry(const ItemLibraryEntry &entry)
+{
+    return entry.name() + entry.category();
+}
+
 void ItemLibraryInfo::addEntry(const ItemLibraryEntry &entry)
 {
-    if (m_d->nameToEntryHash.contains(entry.name()))
+    const QString key = keyForEntry(entry);
+    if (m_d->nameToEntryHash.contains(key))
         throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
-    m_d->nameToEntryHash.insert(entry.name(), entry);
+    m_d->nameToEntryHash.insert(key, entry);
 
     emit entriesChanged();
 }
 
-bool ItemLibraryInfo::removeEntry(const QString &name)
+bool ItemLibraryInfo::containsEntry(const ItemLibraryEntry &entry)
 {
-    if (m_d->nameToEntryHash.remove(name)) {
-        emit entriesChanged();
-        return true;
-    }
-    if (m_d->baseInfo)
-        return m_d->baseInfo->removeEntry(name);
-
-    return false;
+    const QString key = keyForEntry(entry);
+    return m_d->nameToEntryHash.contains(key);
 }
 
 void ItemLibraryInfo::clearEntries()

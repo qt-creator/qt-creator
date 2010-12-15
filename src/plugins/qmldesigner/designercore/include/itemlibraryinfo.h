@@ -104,7 +104,7 @@ public:
     ItemLibraryEntry entry(const QString &name) const;
 
     void addEntry(const ItemLibraryEntry &entry);
-    bool removeEntry(const QString &name);
+    bool containsEntry(const ItemLibraryEntry &entry);
     void clearEntries();
 
 signals:

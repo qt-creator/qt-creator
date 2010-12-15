@@ -347,7 +347,7 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
         itemLibraryEntry.setName(componentName);
         itemLibraryEntry.setCategory("QML Components");
 
-        if (m_metaInfo.itemLibraryInfo()->entry(componentName).name() != componentName)
+        if (!m_metaInfo.itemLibraryInfo()->containsEntry(itemLibraryEntry))
             m_metaInfo.itemLibraryInfo()->addEntry(itemLibraryEntry);
     }
 }
