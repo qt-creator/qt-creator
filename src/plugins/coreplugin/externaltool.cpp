@@ -455,10 +455,6 @@ void ExternalToolManager::initialize()
     ActionContainer *mtools = am->actionContainer(Constants::M_TOOLS);
     Command *cmd;
 
-    QAction *sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = am->registerAction(sep, Id("Tools.Separator"), Context(Constants::C_GLOBAL));
-    mtools->addAction(cmd, Constants::G_DEFAULT_THREE);
     mtools->addMenu(mexternaltools, Constants::G_DEFAULT_THREE);
 
     QMap<QString, ActionContainer *> categoryMenus;

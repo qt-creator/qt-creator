@@ -203,6 +203,8 @@ const char * const G_EDIT_BLOCKS         = "QtCreator.Group.Edit.Blocks";
 const char * const G_EDIT_FONT           = "QtCreator.Group.Edit.Font";
 const char * const G_EDIT_EDITOR         = "QtCreator.Group.Edit.Editor";
 
+const char * const G_TOOLS_OPTIONS       = "QtCreator.Group.Tools.Options";
+
 // window menu groups
 const char * const G_WINDOW_SIZE         = "QtCreator.Group.Window.Size";
 const char * const G_WINDOW_PANES        = "QtCreator.Group.Window.Panes";
