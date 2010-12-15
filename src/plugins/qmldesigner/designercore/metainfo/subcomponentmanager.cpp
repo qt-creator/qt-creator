@@ -115,7 +115,6 @@ SubComponentManagerPrivate::SubComponentManagerPrivate(MetaInfo metaInfo, SubCom
         m_metaInfo(metaInfo)
 {
     connect(&m_watcher, SIGNAL(directoryChanged(QString)), this, SLOT(parseDirectory(QString)));
-    connect(&m_watcher, SIGNAL(fileChanged(QString)), this, SLOT(parseFile(QString)));
 }
 
 void SubComponentManagerPrivate::addImport(int pos, const QDeclarativeDomImport &import)
@@ -165,7 +164,6 @@ void SubComponentManagerPrivate::removeImport(int pos)
 
         foreach (const QFileInfo &monitoredFile, watchedFiles(canonicalDirPath)) {
             if (!m_dirToQualifier.contains(canonicalDirPath))
-                m_watcher.removePath(monitoredFile.filePath());
             unregisterQmlFile(monitoredFile, import.qualifier());
         }
     } else {
@@ -252,14 +250,12 @@ void SubComponentManagerPrivate::parseDirectory(const QString &canonicalDirPath,
         }
         // oldFileInfo > newFileInfo
         parseFile(newFileInfo.filePath(), addToLibrary, qualification);
-        m_watcher.addPath(oldFileInfo.filePath());
         ++newIter;
     }
 
     while (oldIter != monitoredList.constEnd()) {
         foreach (const QString &qualifier, m_dirToQualifier.value(canonicalDirPath))
             unregisterQmlFile(*oldIter, qualifier);
-        m_watcher.removePath(oldIter->filePath());
         ++oldIter;
     }
 
@@ -267,7 +263,6 @@ void SubComponentManagerPrivate::parseDirectory(const QString &canonicalDirPath,
         parseFile(newIter->filePath(), addToLibrary, qualification);
         if (debug)
             qDebug() << "m_watcher.addPath(" << newIter->filePath() << ')';
-        m_watcher.addPath(newIter->filePath());
         ++newIter;
     }
 }
@@ -436,7 +431,6 @@ void SubComponentManager::update(const QUrl &filePath, const QList<QDeclarativeD
         }
 
         if (!newDir.filePath().isEmpty()) {
-            m_d->m_watcher.addPath(newDir.filePath());
             m_d->m_dirToQualifier.insertMulti(newDir.canonicalFilePath(), QString());
         }
     }
