@@ -172,11 +172,12 @@ private:
     char dataAt(int pos, bool old = false) const;
     char oldDataAt(int pos) const;
     void changeDataAt(int pos, char c);
-    QByteArray dataMid(int from, int length) const;
+    QByteArray dataMid(int from, int length, bool old = false) const;
     QByteArray blockData(int block, bool old = false) const;
 
     QPoint offsetToPos(int offset);
-    void asIntegers(int offset, int count, quint64 &beValue, quint64 &leValue);
+    void asIntegers(int offset, int count, quint64 &beValue, quint64 &leValue,
+        bool old = false);
 
     int m_unmodifiedState;
     int m_readOnly;
@@ -219,6 +220,7 @@ private:
 
     int findPattern(const QByteArray &data, const QByteArray &dataHex, int from, int offset, int *match);
     void drawItems(QPainter *painter, int x, int y, const QString &itemString);
+    void drawChanges(QPainter *painter, int x, int y, const char *changes);
 
     void setupJumpToMenuAction(QMenu *menu, QAction *actionHere, QAction *actionNew,
                                quint64 addr);

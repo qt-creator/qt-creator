@@ -232,7 +232,7 @@ void BinEditor::changeDataAt(int pos, char c)
     }
 }
 
-QByteArray BinEditor::dataMid(int from, int length) const
+QByteArray BinEditor::dataMid(int from, int length, bool old) const
 {
     if (!m_inLazyMode)
         return m_data.mid(from, length);
@@ -243,7 +243,7 @@ QByteArray BinEditor::dataMid(int from, int length) const
     QByteArray data;
     data.reserve(length);
     do {
-        data += blockData(block++);
+        data += blockData(block++, old);
     } while (block * m_blockSize < end);
 
     return data.mid(from - ((from / m_blockSize) * m_blockSize), length);
@@ -707,6 +707,17 @@ void BinEditor::drawItems(QPainter *painter, int x, int y, const QString &itemSt
     }
 }
 
+void BinEditor::drawChanges(QPainter *painter, int x, int y, const char *changes)
+{
+    const QBrush red(QColor(250, 150, 150));
+    for (int i = 0; i < 16; ++i) {
+        if (changes[i]) {
+            painter->fillRect(x + i*m_columnWidth, y - m_ascent,
+                2*m_charWidth, m_lineHeight, red);
+        }
+    }
+}
+
 QString BinEditor::addressString(quint64 address)
 {
     QChar *addressStringData = m_addressString.data();
@@ -764,6 +775,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
 
     QString itemString(16*3, QLatin1Char(' '));
     QChar *itemStringData = itemString.data();
+    char changedString[16] = { false };
     const char *hex = "0123456789abcdef";
 
     painter.setPen(palette().text().color());
@@ -811,6 +823,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
         QRect printableSelectionRect;
 
         bool isFullySelected = (selStart < selEnd && selStart <= line*16 && (line+1)*16 <= selEnd);
+        bool somethingChanged = false;
 
         if (hasData || hasOldData) {
             for (int c = 0; c < 16; ++c) {
@@ -827,9 +840,13 @@ void BinEditor::paintEvent(QPaintEvent *e)
                     foundPatternAt = findPattern(patternData, patternDataHex, foundPatternAt + matchLength, patternOffset, &matchLength);
 
 
-                uchar value = (uchar)dataAt(pos, isOld);
+                const uchar value = uchar(dataAt(pos, isOld));
                 itemStringData[c*3] = hex[value >> 4];
                 itemStringData[c*3+1] = hex[value & 0xf];
+                if (hasOldData && !isOld && value != uchar(dataAt(pos, true))) {
+                    changedString[c] = true;
+                    somethingChanged = true;
+                }
 
                 int item_x = -xoffset +  m_margin + c * m_columnWidth + m_labelWidth;
 
@@ -862,6 +879,8 @@ void BinEditor::paintEvent(QPaintEvent *e)
             drawItems(&painter, x, y, itemString);
             painter.restore();
         } else {
+            if (somethingChanged)
+                drawChanges(&painter, x, y, changedString);
             drawItems(&painter, x, y, itemString);
             if (!selectionRect.isEmpty()) {
                 painter.save();
@@ -902,7 +921,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
                 painter.setPen(palette().highlightedText().color());
                 painter.drawText(text_x, y, printable);
                 painter.restore();
-        }else {
+        } else {
             painter.drawText(text_x, y, printable);
             if (!printableSelectionRect.isEmpty()) {
                 painter.save();
@@ -1047,12 +1066,14 @@ bool BinEditor::event(QEvent *e) {
         default:;
         }
     } else if (e->type() == QEvent::ToolTip) {
+        const QHelpEvent * const helpEvent = static_cast<QHelpEvent *>(e);
         bool hide = true;
         int selStart = selectionStart();
         int selEnd = selectionEnd();
         int byteCount = selEnd - selStart;
         if (byteCount <= 0) {
             selStart = m_cursorPosition;
+            selStart = posAt(helpEvent->pos());
             selEnd = selStart + 1;
             byteCount = 1;
         }
@@ -1062,40 +1083,68 @@ bool BinEditor::event(QEvent *e) {
             const QPoint expandedEndPoint
                 = QPoint(endPoint.x(), endPoint.y() + m_lineHeight);
             const QRect selRect(startPoint, expandedEndPoint);
-            const QHelpEvent * const helpEvent = static_cast<QHelpEvent *>(e);
             const QPoint &mousePos = helpEvent->pos();
             if (selRect.contains(mousePos)) {
                 quint64 beValue, leValue;
+                quint64 beValueOld, leValueOld;
                 asIntegers(selStart, byteCount, beValue, leValue);
+                asIntegers(selStart, byteCount, beValueOld, leValueOld, true);
                 QString leSigned;
                 QString beSigned;
+                QString leSignedOld;
+                QString beSignedOld;
                 switch (byteCount) {
                 case 8: case 7: case 6: case 5:
                     leSigned = QString::number(static_cast<qint64>(leValue));
                     beSigned = QString::number(static_cast<qint64>(beValue));
+                    leSignedOld = QString::number(static_cast<qint64>(leValueOld));
+                    beSignedOld = QString::number(static_cast<qint64>(beValueOld));
                     break;
                 case 4: case 3:
                     leSigned = QString::number(static_cast<qint32>(leValue));
                     beSigned = QString::number(static_cast<qint32>(beValue));
+                    leSignedOld = QString::number(static_cast<qint32>(leValueOld));
+                    beSignedOld = QString::number(static_cast<qint32>(beValueOld));
                     break;
                 case 2:
                     leSigned = QString::number(static_cast<qint16>(leValue));
                     beSigned = QString::number(static_cast<qint16>(beValue));
+                    leSignedOld = QString::number(static_cast<qint16>(leValueOld));
+                    beSignedOld = QString::number(static_cast<qint16>(beValueOld));
                     break;
                 case 1:
                     leSigned = QString::number(static_cast<qint8>(leValue));
                     beSigned = QString::number(static_cast<qint8>(beValue));
+                    leSignedOld = QString::number(static_cast<qint8>(leValueOld));
+                    beSignedOld = QString::number(static_cast<qint8>(beValueOld));
                     break;
                 }
                 hide = false;
-                QToolTip::showText(helpEvent->globalPos(),
+                //int pos = posAt(mousePos);
+                //uchar old = dataAt(pos, true);
+                //uchar current = dataAt(pos, false);
+
+                QString msg = 
                     tr("Decimal unsigned value (little endian): %1\n"
                        "Decimal unsigned value (big endian): %2\n"
                        "Decimal signed value (little endian): %3\n"
                        "Decimal signed value (big endian): %4")
                        .arg(QString::number(leValue))
                        .arg(QString::number(beValue))
-                       .arg(leSigned).arg(beSigned));
+                       .arg(leSigned)
+                       .arg(beSigned);
+                if (beValue != beValueOld) {
+                    msg += QLatin1Char('\n');
+                    msg += tr("Previous decimal unsigned value (little endian): %1\n"
+                       "Previous decimal unsigned value (big endian): %2\n"
+                       "Previous decimal signed value (little endian): %3\n"
+                       "Previous decimal signed value (big endian): %4")
+                       .arg(QString::number(leValueOld))
+                       .arg(QString::number(beValueOld))
+                       .arg(leSignedOld)
+                       .arg(beSignedOld);
+                }
+                QToolTip::showText(helpEvent->globalPos(), msg, this);
             }
         }
         if (hide)
@@ -1432,13 +1481,14 @@ QPoint BinEditor::offsetToPos(int offset)
 }
 
 void BinEditor::asIntegers(int offset, int count, quint64 &beValue,
-    quint64 &leValue)
+    quint64 &leValue, bool old)
 {
     beValue = leValue = 0;
-    const QByteArray &data = dataMid(offset, count);
+    const QByteArray &data = dataMid(offset, count, old);
     for (int pos = 0; pos < count; ++pos) {
         const quint64 val = static_cast<quint64>(data.at(pos)) & 0xff;
         beValue += val << (pos * 8);
         leValue += val << ((count - pos - 1) * 8);
     }
 }
+
