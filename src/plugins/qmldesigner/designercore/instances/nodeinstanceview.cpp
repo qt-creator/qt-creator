@@ -437,7 +437,7 @@ void NodeInstanceView::instancesCompleted(const QVector<ModelNode> &/*completedN
 
 void NodeInstanceView::importAdded(const Import &import)
 {
-    nodeInstanceServer()->addImport(createImportCommand(import));
+    restartProcess();
 }
 
 void NodeInstanceView::importRemoved(const Import &/*import*/)
