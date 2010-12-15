@@ -871,6 +871,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
         }
 
         int x = -xoffset +  m_margin + m_labelWidth;
+        bool cursorWanted = m_cursorPosition == m_anchorPosition;
 
         if (isFullySelected) {
             painter.save();
@@ -893,7 +894,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
         }
 
 
-        if (cursor >= 0) {
+        if (cursor >= 0 && cursorWanted) {
             int w = fm.boundingRect(itemString.mid(cursor*3, 2)).width();
             QRect cursorRect(x + cursor * m_columnWidth, y - m_ascent, w + 1, m_lineHeight);
             painter.save();
@@ -933,7 +934,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
             }
         }
 
-        if (cursor >= 0 && !printable.isEmpty()) {
+        if (cursor >= 0 && !printable.isEmpty() && cursorWanted) {
             QRect cursorRect(text_x + fm.width(printable.left(cursor)),
                              y-m_ascent,
                              fm.width(printable.at(cursor)),
