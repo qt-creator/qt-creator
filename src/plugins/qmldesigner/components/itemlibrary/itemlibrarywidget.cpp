@@ -360,19 +360,19 @@ void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
 
     m_filterFlag = flag;
     if (flag == QtBasic) {
-        removeImport(QLatin1String("com.Meego"));
+        removeImport(QLatin1String("com.meego"));
         removeImport(QLatin1String("Qt.labs.Symbian"));
         emit qtBasicOnlyChecked(true);
         emit meegoChecked(false);
         emit symbianChecked(false);
     } else  if (flag == Symbian) {
         addImport(QLatin1String("Qt.labs.Symbian"), QLatin1String("1.0"));
-        removeImport(QLatin1String("com.Meego"));
+        removeImport(QLatin1String("com.meego"));
         emit qtBasicOnlyChecked(false);
         emit meegoChecked(false);
         emit symbianChecked(true);
     }  else  if (flag == Meego) {
-        addImport(QLatin1String("com.Meego"), QLatin1String("1.0"));
+        addImport(QLatin1String("com.meego"), QLatin1String("1.0"));
         removeImport(QLatin1String("Qt.labs.Symbian"));
         emit qtBasicOnlyChecked(false);
         emit meegoChecked(true);
