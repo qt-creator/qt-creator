@@ -300,7 +300,7 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
         return;
 
     uint nodeHash = item->data(NavigatorRole).toUInt();
-    Q_ASSERT(nodeHash >= 0 && containsNodeHash(nodeHash));
+    Q_ASSERT(containsNodeHash(nodeHash));
     ModelNode node = nodeForHash(nodeHash);
 
     ItemRow itemRow = itemRowForNode(node);
