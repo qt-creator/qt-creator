@@ -770,8 +770,14 @@ void BinEditor::paintEvent(QPaintEvent *e)
 
     int foundPatternAt = findPattern(patternData, patternDataHex, patternOffset, patternOffset, &matchLength);
 
-    int selStart = qMin(m_cursorPosition, m_anchorPosition);
-    int selEnd = qMax(m_cursorPosition, m_anchorPosition);
+    int selStart, selEnd;
+    if (m_cursorPosition >= m_anchorPosition) {
+        selStart = m_anchorPosition;
+        selEnd = m_cursorPosition;
+    } else {
+        selStart = m_cursorPosition;
+        selEnd = m_anchorPosition + 1;
+    }
 
     QString itemString(16*3, QLatin1Char(' '));
     QChar *itemStringData = itemString.data();
