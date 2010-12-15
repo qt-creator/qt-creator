@@ -53,6 +53,7 @@
 #include <utils/synchronousprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
+#include <utils/qtcprocess.h>
 #include <coreplugin/icore.h>
 
 #include <QtCore/QDir>
@@ -628,8 +629,8 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
             sp.projectBuildDir = runConfiguration->target()
                 ->activeBuildConfiguration()->buildDirectory();
 
-        sp.processArgs.append(QLatin1String("-qmljsdebugger=port:")
-            + QString::number(sp.qmlServerPort));
+        Utils::QtcProcess::addArg(&sp.processArgs, QLatin1String("-qmljsdebugger=port:")
+                                  + QString::number(sp.qmlServerPort));
     }
 
     // FIXME: If it's not yet build this will be empty and not filled
