@@ -39,9 +39,12 @@ typedef AbstractSymbolGroupNode::AbstractSymbolGroupNodePtrVector AbstractSymbol
 // Return size of container or -1
 int containerSize(KnownType kt, SymbolGroupNode *n, const SymbolGroupValueContext &ctx)
 {
+    QTC_TRACE_IN
     if ((kt & KT_ContainerType) == 0)
         return -1;
-    return containerSize(kt, SymbolGroupValue(n, ctx));
+    const int ct = containerSize(kt, SymbolGroupValue(n, ctx));
+    QTC_TRACE_OUT
+    return ct;
 }
 
 // Return size from an STL vector (last/first iterators).

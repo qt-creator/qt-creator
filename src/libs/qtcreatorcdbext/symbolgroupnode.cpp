@@ -36,8 +36,6 @@
 
 #include <algorithm>
 
-enum { debug = 0 };
-
 typedef std::vector<int>::size_type VectorIndexType;
 typedef std::vector<std::string> StringVector;
 
@@ -47,6 +45,43 @@ static inline void indentStream(std::ostream &str, unsigned depth)
 {
     for (unsigned d = 0; d < depth; d++)
         str << "  ";
+}
+
+static inline void debugNodeFlags(std::ostream &str, unsigned f)
+{
+    if (!f)
+        return;
+    str << " node-flags=" << f;
+    if (f & SymbolGroupNode::Uninitialized)
+        str << " UNINITIALIZED";
+    if (f & SymbolGroupNode::SimpleDumperNotApplicable)
+        str << " DumperNotApplicable";
+    if (f & SymbolGroupNode::SimpleDumperOk)
+        str << " DumperOk";
+    if (f & SymbolGroupNode::SimpleDumperFailed)
+        str << " DumperFailed";
+    if (f & SymbolGroupNode::ExpandedByDumper)
+        str << " ExpandedByDumper";
+    if (f & SymbolGroupNode::AdditionalSymbol)
+        str << " AdditionalSymbol";
+    if (f & SymbolGroupNode::Obscured)
+        str << " Obscured";
+    if (f & SymbolGroupNode::ComplexDumperOk)
+        str << " ComplexDumperOk";
+    str << ' ';
+}
+
+// Some helper to conveniently dump flags to a stream
+struct DebugNodeFlags
+{
+    DebugNodeFlags(unsigned f) : m_f(f) {}
+    const unsigned m_f;
+};
+
+inline std::ostream &operator<<(std::ostream &str, const DebugNodeFlags &f)
+{
+    debugNodeFlags(str, f.m_f);
+    return str;
 }
 
 // -------------- AbstractSymbolGroupNode
@@ -704,9 +739,13 @@ std::wstring SymbolGroupNode::symbolGroupFixedValue() const
 // Complex dumpers: Get container/fake children
 void SymbolGroupNode::runComplexDumpers(const SymbolGroupValueContext &ctx)
 {
+    if (symbolGroupDebug)
+        DebugPrint() << "SymbolGroupNode::runComplexDumpers "  << name() << '/'
+                        << absoluteFullIName() << ' ' << m_index << DebugNodeFlags(flags());
+
     if (m_dumperContainerSize <= 0 || (testFlags(ComplexDumperOk) || !testFlags(SimpleDumperOk)))
         return;
-    setFlags(ComplexDumperOk);
+    addFlags(ComplexDumperOk);
     const AbstractSymbolGroupNodePtrVector ctChildren =
             containerChildren(this, m_dumperType, m_dumperContainerSize, ctx);
     m_dumperContainerSize = int(ctChildren.size()); // Just in case...
@@ -726,19 +765,31 @@ void SymbolGroupNode::runComplexDumpers(const SymbolGroupValueContext &ctx)
 }
 
 // Run dumpers, format simple in-line dumper value and retrieve fake children
+bool SymbolGroupNode::runSimpleDumpers(const SymbolGroupValueContext &ctx)
+{
+    if (symbolGroupDebug)
+        DebugPrint() << "SymbolGroupNode::runSimpleDumpers "  << name() << '/'
+                        << absoluteFullIName() << ' ' << m_index << DebugNodeFlags(flags());
+    if (testFlags(Uninitialized))
+        return false;
+    if (testFlags(SimpleDumperOk))
+        return true;
+    if (testFlags(SimpleDumperMask))
+        return false;
+    addFlags(dumpSimpleType(this , ctx, &m_dumperValue,
+                            &m_dumperType, &m_dumperContainerSize));
+    if (symbolGroupDebug)
+        DebugPrint() << "-> '" << wStringToString(m_dumperValue) << "' Type="
+                     << m_dumperType << ' ' << DebugNodeFlags(flags());
+    return testFlags(SimpleDumperOk);
+}
+
 std::wstring SymbolGroupNode::simpleDumpValue(const SymbolGroupValueContext &ctx)
 {
     if (testFlags(Uninitialized))
         return L"<not in scope>";
-    if (testFlags(SimpleDumperOk))
+    if (runSimpleDumpers(ctx))
         return m_dumperValue;
-    if ((flags() & SimpleDumperMask) == 0) {
-        const unsigned dumperFlags = dumpSimpleType(this , ctx, &m_dumperValue,
-                                                    &m_dumperType, &m_dumperContainerSize);
-        setFlags(dumperFlags);
-        if (testFlags(SimpleDumperOk))
-            return m_dumperValue;
-    }
     return symbolGroupFixedValue();
 }
 
@@ -814,28 +865,7 @@ void SymbolGroupNode::debug(std::ostream &str,
     str << "\",index=" << m_index;
     if (const VectorIndexType childCount = children().size())
         str << ", Children=" << childCount;
-    str << ' ' << m_parameters;
-    const unsigned f = flags();
-    if (f) {
-        str << " node-flags=" << f;
-        if (f & Uninitialized)
-            str << " UNINITIALIZED";
-        if (f & SimpleDumperNotApplicable)
-            str << " DumperNotApplicable";
-        if (f & SimpleDumperOk)
-            str << " DumperOk";
-        if (f & SimpleDumperFailed)
-            str << " DumperFailed";
-        if (f & ExpandedByDumper)
-            str << " ExpandedByDumper";
-        if (f & AdditionalSymbol)
-            str << " AdditionalSymbol";
-        if (f & Obscured)
-            str << " Obscured";
-        if (f & ComplexDumperOk)
-            str << " ComplexDumperOk";
-        str << ' ';
-    }
+    str << ' ' << m_parameters << DebugNodeFlags(flags());
     if (verbosity) {
         str << ",name=\"" << name() << "\", Address=0x" << std::hex << address() << std::dec
             << " Type=\"" << type() << '"';
@@ -848,7 +878,7 @@ void SymbolGroupNode::debug(std::ostream &str,
             if (m_dumperType & KT_ContainerType)
                 str << " container(" << m_dumperContainerSize << ')';
         }
-        if (!(f & Uninitialized))
+        if (!testFlags(Uninitialized))
             str << " Value=\"" << gdbmiWStringFormat(symbolGroupRawValue()) << '"';
         str << '\n'; // Potentially multiline
     }
@@ -869,8 +899,10 @@ static inline std::string msgCannotCast(const std::string &nodeName,
 // Expand!
 bool SymbolGroupNode::expand(std::string *errorMessage)
 {
-    if (::debug > 1)
-        DebugPrint() << "SymbolGroupNode::expand "  << name() << ' ' << m_index;
+    if (symbolGroupDebug)
+        DebugPrint() << "SymbolGroupNode::expand "  << name()
+                     <<'/' << absoluteFullIName() << ' '
+                    << m_index << DebugNodeFlags(flags());
     if (isExpanded()) {
         // Clear the flag indication dumper expansion on a second, explicit request
         clearFlags(ExpandedByDumper);
@@ -912,8 +944,8 @@ bool SymbolGroupNode::expandRunComplexDumpers(const SymbolGroupValueContext &ctx
         return true;
     if (!expand(errorMessage))
         return false;
-    simpleDumpValue(ctx); // Run simple dumpers to obtain type and run complex dumpers
-    if (testFlags(SimpleDumperOk))
+    // Run simple dumpers to obtain type and run complex dumpers
+    if (runSimpleDumpers(ctx) && testFlags(SimpleDumperOk))
         runComplexDumpers(ctx);
     return true;
 }

@@ -37,6 +37,8 @@
 #include <map>
 #include <iosfwd>
 
+enum { symbolGroupDebug = 0 };
+
 std::ostream &operator<<(std::ostream &, const DEBUG_SYMBOL_PARAMETERS&p);
 
 class SymbolGroupNodeVisitor;
@@ -100,7 +102,6 @@ public:
 
     unsigned flags() const           { return m_flags; }
     bool testFlags(unsigned f) const { return (m_flags & f) != 0; }
-    void setFlags(unsigned f)        { m_flags = f; }
     void addFlags(unsigned f)        { m_flags |= f; }
     void clearFlags(unsigned f)      { m_flags &= ~f; }
 
@@ -249,6 +250,7 @@ private:
     bool isArrayElement() const;
     // Notify about expansion of a node, shift indexes
     bool notifyExpanded(ULONG index, ULONG insertedCount);
+    bool runSimpleDumpers(const SymbolGroupValueContext &ctx);
     std::wstring simpleDumpValue(const SymbolGroupValueContext &ctx);
 
     SymbolGroup *const m_symbolGroup;

@@ -1086,6 +1086,7 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
                         std::wstring *s, int *knownTypeIn /* = 0 */,
                         int *containerSizeIn /* = 0 */)
 {
+    QTC_TRACE_IN
     if (containerSizeIn)
         *containerSizeIn = -1;
     // Check for class types and strip pointer types (references appear as pointers as well)
@@ -1094,8 +1095,10 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
     if (knownTypeIn)
         *knownTypeIn = kt;
 
-    if (kt == KT_Unknown)
+    if (kt == KT_Unknown) {
+        QTC_TRACE_OUT
         return SymbolGroupNode::SimpleDumperNotApplicable;
+    }
 
     const SymbolGroupValue v(n, ctx);
     // Simple dump of size for containers
@@ -1175,5 +1178,6 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
     }
     if (rc == SymbolGroupNode::SimpleDumperOk)
         *s = str.str();
+    QTC_TRACE_OUT
     return rc;
 }

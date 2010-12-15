@@ -1189,20 +1189,26 @@ void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
 {
     if (reply->success) {
         QList<Debugger::Internal::WatchData> watchData;
-        if (Debugger::Internal::QtDumperHelper::parseValue(reply->reply.constData(), &watchData)) {
-            for (int i = 0; i < watchData.size(); i++)
-                watchData[i].setAllUnneeded();
-            if (debug > 1) {
-                QDebug nsp = qDebug().nospace();
-                nsp << "Obtained " << watchData.size() << " items:\n";
-                foreach (const Debugger::Internal::WatchData &wd, watchData)
-                    nsp << wd.toString() <<'\n';
-            }
-            watchHandler()->insertBulkData(watchData);
-            watchHandler()->endCycle();
-        } else {
-            showMessage(QString::fromLatin1("Parse error in locals response."), LogError);
-            qWarning("Parse error in locals response:\n%s", reply->reply.constData());
+        GdbMi root;
+        root.fromString(reply->reply);
+        QTC_ASSERT(root.isList(), return ; )
+        if (debugLocals) {
+            qDebug() << root.toString(true, 4);
+        }
+        // Courtesy of GDB engine
+        foreach (const GdbMi &child, root.children()) {
+            WatchData dummy;
+            dummy.iname = child.findChild("iname").data();
+            dummy.name = QLatin1String(child.findChild("name").data());
+            parseWatchData(watchHandler()->expandedINames(), dummy, child, &watchData);
+        }
+        watchHandler()->insertBulkData(watchData);
+        watchHandler()->endCycle();
+        if (debugLocals) {
+            QDebug nsp = qDebug().nospace();
+            nsp << "Obtained " << watchData.size() << " items:\n";
+            foreach (const Debugger::Internal::WatchData &wd, watchData)
+                nsp << wd.toString() <<'\n';
         }
     } else {
         showMessage(QString::fromLatin1(reply->errorMessage), LogError);

@@ -185,6 +185,9 @@ static inline std::string msgNotFound(const std::string &nodeName)
 std::string SymbolGroup::dump(const SymbolGroupValueContext &ctx,
                               const DumpParameters &p) const
 {
+    QTC_TRACE_IN
+    if (symbolGroupDebug)
+        DebugPrint() << "<SymbolGroup::dump()";
     std::ostringstream str;
     DumpSymbolGroupNodeVisitor visitor(str, ctx, p);
     if (p.humanReadable())
@@ -192,6 +195,9 @@ std::string SymbolGroup::dump(const SymbolGroupValueContext &ctx,
     str << '[';
     accept(visitor);
     str << ']';
+    QTC_TRACE_OUT
+    if (symbolGroupDebug)
+        DebugPrint() << "<SymbolGroup::dump()";
     return str.str();
 }
 
@@ -201,6 +207,9 @@ std::string SymbolGroup::dump(const std::string &iname,
                               const DumpParameters &p,
                               std::string *errorMessage)
 {
+    if (symbolGroupDebug)
+        DebugPrint() << ">SymbolGroup::dump(" << iname << ")";
+    QTC_TRACE_IN
     AbstractSymbolGroupNode *const aNode = find(iname);
     if (!aNode) {
         *errorMessage = msgNotFound(iname);
@@ -208,7 +217,7 @@ std::string SymbolGroup::dump(const std::string &iname,
     }
 
     // Real nodes: Expand and complex dumpers
-    if (SymbolGroupNode *node = aNode->asSymbolGroupNode()) {
+    if (SymbolGroupNode *node = aNode->resolveReference()->asSymbolGroupNode()) {
         if (node->isExpanded()) { // Mark expand request by watch model
             node->clearFlags(SymbolGroupNode::ExpandedByDumper);
         } else {
@@ -227,6 +236,9 @@ std::string SymbolGroup::dump(const std::string &iname,
     str << '[';
     aNode->accept(visitor, SymbolGroupNodeVisitor::parentIname(iname), 0, 0);
     str << ']';
+    QTC_TRACE_OUT
+    if (symbolGroupDebug)
+        DebugPrint() << "<SymbolGroup::dump(" << iname << ")";
     return str.str();
 }
 
@@ -291,6 +303,8 @@ static inline InamePathEntrySet expandEntrySet(const std::vector<std::string> &n
 // Expand a node list "locals.i1,locals.i2"
 unsigned SymbolGroup::expandList(const std::vector<std::string> &nodes, std::string *errorMessage)
 {
+    if (symbolGroupDebug)
+        DebugPrint() << ">SymbolGroup::expandList" << nodes.size();
     if (nodes.empty())
         return 0;
     // Create a set with a key <level, name>. Also required for 1 node (see above).
@@ -307,6 +321,8 @@ unsigned SymbolGroup::expandList(const std::vector<std::string> &nodes, std::str
                 errorMessage->append(", ");
             errorMessage->append(nodeError);
         }
+    if (symbolGroupDebug)
+        DebugPrint() << "<SymbolGroup::expandList returns " << succeeded;
     return succeeded;
 }
 
@@ -314,6 +330,9 @@ unsigned SymbolGroup::expandListRunComplexDumpers(const std::vector<std::string>
                                      const SymbolGroupValueContext &ctx,
                                      std::string *errorMessage)
 {
+    if (symbolGroupDebug)
+        DebugPrint() << ">SymbolGroup::expandListRunComplexDumpers" << nodes.size();
+    QTC_TRACE_IN
     if (nodes.empty())
         return 0;
     // Create a set with a key <level, name>. Also required for 1 node (see above).
@@ -330,6 +349,9 @@ unsigned SymbolGroup::expandListRunComplexDumpers(const std::vector<std::string>
                 errorMessage->append(", ");
             errorMessage->append(nodeError);
         }
+    QTC_TRACE_OUT
+    if (symbolGroupDebug)
+            DebugPrint() << "<SymbolGroup::expandListRunComplexDumpers returns " << succeeded;
     return succeeded;
 }
 

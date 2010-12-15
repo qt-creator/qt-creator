@@ -73,4 +73,12 @@ ULONG currentThreadId(CIDebugClient *client);
 ULONG currentProcessId(IDebugSystemObjects *sysObjects);
 ULONG currentProcessId(CIDebugClient *client);
 
+#ifdef QTC_TRACE
+#  define QTC_TRACE_IN dprintf(">%s\n", __FUNCTION__);
+#  define QTC_TRACE_OUT dprintf("<%s\n", __FUNCTION__);
+#else
+#  define QTC_TRACE_IN
+#  define QTC_TRACE_OUT
+#endif
+
 #endif // COMMON_H
