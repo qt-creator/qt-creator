@@ -52,6 +52,7 @@ public:
     ~MemoryAgent();
 
     enum { BinBlockSize = 1024 };
+    bool hasVisibleEditor() const;
 
 public slots:
     // Called by engine to create a new view.

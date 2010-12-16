@@ -533,6 +533,11 @@ void DebuggerEngine::gotoLocation(const QString &file, int line, bool setMarker)
 
     if (setMarker)
         d->m_locationMark.reset(new LocationMark(file, line));
+
+    // FIXME: Breaks with split views.
+    if (!d->m_memoryAgent.hasVisibleEditor())
+        editorManager->activateEditor(editors.back());
+    //qDebug() << "MEMORY: " << d->m_memoryAgent.hasVisibleEditor();
 }
 
 void DebuggerEngine::gotoLocation(const StackFrame &frame, bool setMarker)

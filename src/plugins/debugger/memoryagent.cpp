@@ -161,5 +161,14 @@ void MemoryAgent::updateContents()
             QMetaObject::invokeMethod(editor->widget(), "updateContents");
 }
 
+bool MemoryAgent::hasVisibleEditor() const
+{
+    QList<IEditor *> visible = EditorManager::instance()->visibleEditors();
+    foreach (QPointer<IEditor> editor, m_editors)
+        if (visible.contains(editor.data()))
+            return true;
+    return false;
+}
+
 } // namespace Internal
 } // namespace Debugger
