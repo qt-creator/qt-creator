@@ -45,10 +45,6 @@
 
 #include <QColor>
 
-enum {
-    debug = true
-};
-
 namespace QmlJSInspector {
 namespace Internal {
 
@@ -75,6 +71,9 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
         int objectCount;
         ds >> objectCount;
 
+        log(LogReceive, QString("%1 %2 [list of debug ids]").arg(QString(type),
+                                                                 QString::number(objectCount)));
+
         m_currentDebugIds.clear();
 
         for(int i = 0; i < objectCount; ++i) {
@@ -90,6 +89,8 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
         int toolId;
         ds >> toolId;
 
+        log(LogReceive, QString("%1 %2").arg(QString(type), QString::number(toolId)));
+
         if (toolId == Constants::ColorPickerMode) {
             emit colorPickerActivated();
         } else if (toolId == Constants::ZoomMode) {
@@ -102,24 +103,42 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
     } else if (type == "ANIMATION_SPEED_CHANGED") {
         qreal slowdownFactor;
         ds >> slowdownFactor;
+
+        log(LogReceive, QString("%1 %2").arg(QString(type), QString::number(slowdownFactor)));
+
         emit animationSpeedChanged(slowdownFactor);
     } else if (type == "SET_DESIGN_MODE") {
         bool inDesignMode;
         ds >> inDesignMode;
+
+        log(LogReceive, QString("%1 %2").arg(QString(type), inDesignMode ? "true" : "false"));
+
         emit designModeBehaviorChanged(inDesignMode);
     } else if (type == "SHOW_APP_ON_TOP") {
         bool showAppOnTop;
         ds >> showAppOnTop;
+
+        log(LogReceive, QString("%1 %2").arg(QString(type), showAppOnTop ? "true" : "false"));
+
         emit showAppOnTopChanged(showAppOnTop);
     } else if (type == "RELOADED") {
+
+        log(LogReceive, type);
+
         emit reloaded();
     } else if (type == "COLOR_CHANGED") {
         QColor col;
         ds >> col;
+
+        log(LogReceive, QString("%1 %2").arg(QString(type), col.name()));
+
         emit selectedColorChanged(col);
     } else if (type == "CONTEXT_PATH_UPDATED") {
         QStringList contextPath;
         ds >> contextPath;
+
+        log(LogReceive, QString("%1 %2").arg(QString(type), contextPath.join(", ")));
+
         emit contextPathUpdated(contextPath);
     }
 }
@@ -141,15 +160,16 @@ void QmlJSObserverClient::setCurrentObjects(const QList<int> &debugIds) {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("SET_CURRENT_OBJECTS")
+    QByteArray cmd = "SET_CURRENT_OBJECTS";
+    ds << cmd
        << debugIds.length();
 
     foreach (int id, debugIds) {
         ds << id;
     }
 
-    if (debug)
-        qDebug() << "QmlJSObserverClient: Sending" <<"SET_CURRENT_OBJECTS" << debugIds.length() << "[list of ids]";
+    log(LogSend, QString("%1 %2 [list of ids]").arg(QString(cmd),
+                                                    QString::number(debugIds.length())));
 
     sendMessage(message);
 }
@@ -175,7 +195,8 @@ void QmlJSObserverClient::setObjectIdList(const QList<QDeclarativeDebugObjectRef
         recurseObjectIdList(ref, debugIds, objectIds);
     }
 
-    ds << QByteArray("OBJECT_ID_LIST")
+    QByteArray cmd = "OBJECT_ID_LIST";
+    ds << cmd
        << debugIds.length();
 
     Q_ASSERT(debugIds.length() == objectIds.length());
@@ -184,8 +205,8 @@ void QmlJSObserverClient::setObjectIdList(const QList<QDeclarativeDebugObjectRef
         ds << debugIds[i] << objectIds[i];
     }
 
-    if (debug)
-        qDebug() << "QmlJSObserverClient: Sending" <<"OBJECT_ID_LIST" << debugIds.length() << "[list of debug / object ids]";
+    log(LogSend, QString("%1 %2 [list of debug / object ids]").arg(QString(cmd),
+                                                                   QString::number(debugIds.length())));
 
     sendMessage(message);
 }
@@ -198,11 +219,11 @@ void QmlJSObserverClient::setContextPathIndex(int contextPathIndex)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("SET_CONTEXT_PATH_IDX")
+    QByteArray cmd = "SET_CONTEXT_PATH_IDX";
+    ds << cmd
        << contextPathIndex;
 
-    if (debug)
-        qDebug() << "QmlJSObserverClient: Sending" <<"SET_CONTEXT_PATH_IDX" << contextPathIndex;
+    log(LogSend, QString("%1 %2").arg(QString(cmd), contextPathIndex));
 
     sendMessage(message);
 }
@@ -215,10 +236,10 @@ void QmlJSObserverClient::clearComponentCache()
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("CLEAR_COMPONENT_CACHE");
+    QByteArray cmd = "CLEAR_COMPONENT_CACHE";
+    ds << cmd;
 
-    if (debug)
-        qDebug() << "QmlJSObserverClient: Sending" <<"CLEAR_COMPONENT_CACHE";
+    log(LogSend, cmd);
 
     sendMessage(message);
 }
@@ -231,10 +252,10 @@ void QmlJSObserverClient::reloadViewer()
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("RELOAD");
+    QByteArray cmd = "RELOAD";
+    ds << cmd;
 
-    if (debug)
-        qDebug() << "QmlJSObserverClient: Sending" <<"RELOAD";
+    log(LogSend, cmd);
 
     sendMessage(message);
 }
@@ -247,11 +268,11 @@ void QmlJSObserverClient::setDesignModeBehavior(bool inDesignMode)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("SET_DESIGN_MODE")
+    QByteArray cmd = "SET_DESIGN_MODE";
+    ds << cmd
        << inDesignMode;
 
-    if (debug)
-        qDebug() << "QmlJSObserverClient: Sending" <<"SET_DESIGN_MODE" << inDesignMode;
+    log(LogSend, QString("%1 %2").arg(QString(cmd), inDesignMode ? "true" : "false"));
 
     sendMessage(message);
 }
@@ -264,11 +285,12 @@ void QmlJSObserverClient::setAnimationSpeed(qreal slowdownFactor)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("SET_ANIMATION_SPEED")
+    QByteArray cmd = "SET_ANIMATION_SPEED";
+    ds << cmd
        << slowdownFactor;
 
-    if (debug)
-        qDebug() << "QmlJSObserverClient: Sending" <<"SET_ANIMATION_SPEED" << slowdownFactor;
+
+    log(LogSend, QString("%1 %2").arg(QString(cmd),  QString::number(slowdownFactor)));
 
     sendMessage(message);
 }
@@ -281,11 +303,12 @@ void QmlJSObserverClient::changeToColorPickerTool()
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("CHANGE_TOOL")
-       << QByteArray("COLOR_PICKER");
+    QByteArray cmd = "CHANGE_TOOL";
+    QByteArray tool = "COLOR_PICKER";
+    ds << cmd
+       << tool;
 
-    if (debug)
-        qDebug() << "QmlJSObserverClient: Sending" <<"CHANGE_TOOL" << "COLOR_PICKER";
+    log(LogSend, QString("%1 %2").arg(QString(cmd), QString(tool)));
 
     sendMessage(message);
 }
@@ -298,11 +321,12 @@ void QmlJSObserverClient::changeToSelectTool()
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("CHANGE_TOOL")
-       << QByteArray("SELECT");
+    QByteArray cmd = "CHANGE_TOOL";
+    QByteArray tool = "SELECT";
+    ds << cmd
+       << tool;
 
-    if (debug)
-        qDebug() << "QmlJSObserverClient: Sending" <<"CHANGE_TOOL" << "SELECT";
+    log(LogSend, QString("%1 %2").arg(QString(cmd), QString(tool)));
 
     sendMessage(message);
 }
@@ -315,11 +339,12 @@ void QmlJSObserverClient::changeToSelectMarqueeTool()
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("CHANGE_TOOL")
-       << QByteArray("SELECT_MARQUEE");
+    QByteArray cmd = "CHANGE_TOOL";
+    QByteArray tool = "SELECT_MARQUEE";
+    ds << cmd
+       << tool;
 
-    if (debug)
-        qDebug() << "QmlJSObserverClient: Sending" <<"CHANGE_TOOL" << "SELECT_MARQUEE";
+    log(LogSend, QString("%1 %2").arg(QString(cmd), QString(tool)));
 
     sendMessage(message);
 }
@@ -332,11 +357,12 @@ void QmlJSObserverClient::changeToZoomTool()
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("CHANGE_TOOL")
-       << QByteArray("ZOOM");
+    QByteArray cmd = "CHANGE_TOOL";
+    QByteArray tool = "ZOOM";
+    ds << cmd
+       << tool;
 
-    if (debug)
-        qDebug() << "QmlJSObserverClient: Sending" <<"CHANGE_TOOL" << "ZOOM";
+    log(LogSend, QString("%1 %2").arg(QString(cmd), QString(tool)));
 
     sendMessage(message);
 }
@@ -349,11 +375,10 @@ void QmlJSObserverClient::showAppOnTop(bool showOnTop)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("SHOW_APP_ON_TOP")
-       << showOnTop;
+    QByteArray cmd = "SHOW_APP_ON_TOP";
+    ds << showOnTop;
 
-    if (debug)
-        qDebug() << "QmlJSObserverClient: Sending" <<"SHOWONTOP" << showOnTop;
+    log(LogSend, QString("%1 %2").arg(QString(cmd), showOnTop ? "true" : "false");
 
     sendMessage(message);
 }
@@ -367,14 +392,15 @@ void QmlJSObserverClient::createQmlObject(const QString &qmlText, int parentDebu
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("CREATE_OBJECT")
+    QByteArray cmd = "CREATE_OBJECT";
+    ds << cmd
        << qmlText
        << parentDebugId
        << imports
        << filename;
 
-    if (debug)
-        qDebug() << "QmlJSObserverClient: Sending" << "CREATE_OBJECT" << qmlText << parentDebugId << imports << filename;
+    log(LogSend, QString("%1 %2 %3 [%4] %5").arg(QString(cmd), qmlText, QString::number(parentDebugId),
+                                               imports.join(","), filename));
 
     sendMessage(message);
 }
@@ -386,10 +412,10 @@ void QmlJSObserverClient::destroyQmlObject(int debugId)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("DESTROY_OBJECT")  << debugId;
+    QByteArray cmd = "DESTROY_OBJECT";
+    ds << cmd << debugId;
 
-    if (debug)
-        qDebug() << "QmlJSObserverClient: Sending" << "DESTROY_OBJECT" << debugId;
+    log(LogSend, QString("%1 %2").arg(QString(cmd), debugId));
 
     sendMessage(message);
 }
@@ -401,12 +427,13 @@ void QmlJSObserverClient::reparentQmlObject(int debugId, int newParent)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("MOVE_OBJECT")
+    QByteArray cmd = "MOVE_OBJECT";
+    ds << cmd
        << debugId
        << newParent;
 
-    if (debug)
-        qDebug() << "QmlJSObserverClient: Sending" << "MOVE_OBJECT" << debugId << newParent;
+    log(LogSend, QString("%1 %2 %3").arg(QString(cmd), QString::number(debugId),
+                                         QString::number(newParent)));
 
     sendMessage(message);
 }
@@ -428,6 +455,17 @@ void QmlJSObserverClient::applyChangesFromQmlFile()
     // TODO
 }
 
+void QmlJSObserverClient::log(LogDirection direction, const QString &message)
+{
+    QString msg;
+    if (direction == LogSend) {
+        msg += " sending ";
+    } else {
+        msg += " receiving ";
+    }
+    msg += message;
+    emit logActivity(name(), msg);
+}
 
 } // namespace Internal
 } // namespace QmlJSInspector

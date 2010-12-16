@@ -285,6 +285,11 @@ void QmlAdapter::logServiceStatusChange(const QString &service, QDeclarativeDebu
     }
 }
 
+void QmlAdapter::logServiceActivity(const QString &service, const QString &logMessage)
+{
+    showConnectionStatusMessage(QString("%1 %2").arg(service, logMessage));
+}
+
 void QmlAdapter::flushSendBuffer()
 {
     QTC_ASSERT(d->m_qmlClient->status() == QDeclarativeDebugClient::Enabled, return);

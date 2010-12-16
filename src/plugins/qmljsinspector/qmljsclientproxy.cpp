@@ -94,6 +94,8 @@ void ClientProxy::connectToServer()
         SIGNAL(selectedColorChanged(QColor)));
     connect(m_observerClient, SIGNAL(contextPathUpdated(QStringList)),
         SIGNAL(contextPathUpdated(QStringList)));
+    connect(m_observerClient, SIGNAL(logActivity(QString,QString)),
+            m_adapter, SLOT(logServiceActivity(QString,QString)));
 
     updateConnected();
 }
@@ -133,6 +135,8 @@ void ClientProxy::disconnectFromServer()
             this, SIGNAL(selectedColorChanged(QColor)));
         disconnect(m_observerClient, SIGNAL(contextPathUpdated(QStringList)),
             this, SIGNAL(contextPathUpdated(QStringList)));
+        disconnect(m_observerClient, SIGNAL(logActivity(QString,QString)),
+                   m_adapter, SLOT(logServiceActivity(QString,QString)));
 
         delete m_observerClient;
         m_observerClient = 0;

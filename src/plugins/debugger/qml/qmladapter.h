@@ -73,7 +73,9 @@ public:
     void setMaxConnectionAttempts(int maxAttempts);
     void setConnectionAttemptInterval(int interval);
 
-    void logServiceStatusChange(const QString &service, QDeclarativeDebugClient::Status newStatus);
+public slots:
+    void logServiceStatusChange(const QString &service, QDeclarativeDebugClient::Status newStatus);    
+    void logServiceActivity(const QString &service, const QString &logMessage);
 
 signals:
     void connected();

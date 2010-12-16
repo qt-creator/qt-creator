@@ -92,14 +92,23 @@ signals:
     void animationSpeedChanged(qreal slowdownFactor);
     void designModeBehaviorChanged(bool inDesignMode);
     void showAppOnTopChanged(bool showAppOnTop);
-    void reloaded(); // the server has reloaded the document
+    void reloaded(); // the server has reloadetd he document
     void contextPathUpdated(const QStringList &path);
+
+    void logActivity(QString client, QString message);
 
 protected:
     virtual void statusChanged(Status);
     virtual void messageReceived(const QByteArray &);
 
 private:
+    enum LogDirection {
+        LogSend,
+        LogReceive
+    };
+
+    void log(LogDirection direction, const QString &str);
+
     QList<int> m_currentDebugIds;
     QDeclarativeDebugConnection *m_connection;
 };
