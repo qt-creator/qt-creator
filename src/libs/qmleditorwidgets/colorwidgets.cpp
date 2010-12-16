@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "colorwidget.h"
+#include "colorwidgets.h"
 #include <qdeclarative.h>
 
 #include "colorbox.h"
@@ -37,7 +37,7 @@
 
 namespace QmlEditorWidgets {
 
-void ColorWidget::registerDeclarativeTypes() {
+void ColorWidgets::registerDeclarativeTypes() {
     qmlRegisterType<QmlEditorWidgets::ColorButton>("Bauhaus",1,0,"ColorButton");
     qmlRegisterType<QmlEditorWidgets::HueControl>("Bauhaus",1,0,"HueControl");
     qmlRegisterType<QmlEditorWidgets::ColorBox>("Bauhaus",1,0,"ColorBox");

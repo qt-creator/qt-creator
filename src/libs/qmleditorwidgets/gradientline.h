@@ -56,9 +56,6 @@ public:
     QLinearGradient gradient() const { return m_gradient; }
     void setGradient(const QLinearGradient &);
 
-public slots:
-    void setupGradient();
-
 signals:
     void activeColorChanged();
     void itemNodeChanged();
@@ -76,6 +73,7 @@ protected:
 
 private:
     void setup();
+    void readGradient();
     void updateGradient();
     int currentColorIndex() const { return m_colorIndex; }
     void setCurrentIndex(int i);

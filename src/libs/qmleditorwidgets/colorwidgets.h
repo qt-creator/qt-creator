@@ -44,7 +44,7 @@ QT_END_NAMESPACE
 
 namespace QmlEditorWidgets {
 
-class ColorWidget {
+class QMLEDITORWIDGETS_EXPORT ColorWidgets {
 
 public:
     static void registerDeclarativeTypes();

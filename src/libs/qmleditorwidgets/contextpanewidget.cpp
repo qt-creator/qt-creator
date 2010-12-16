@@ -39,7 +39,6 @@
 #include <QGridLayout>
 #include <QToolButton>
 #include <QAction>
-#include "colorwidget.h"
 #include "contextpanetextwidget.h"
 #include "easingcontextpane.h"
 #include "contextpanewidgetimage.h"

@@ -7,7 +7,6 @@ SOURCES += propertyeditor.cpp \
     qlayoutobject.cpp \
     basiclayouts.cpp \
     basicwidgets.cpp \
-    colorwidget.cpp \
     behaviordialog.cpp \
     qproxylayoutitem.cpp \
     layoutwidget.cpp \
@@ -18,7 +17,8 @@ SOURCES += propertyeditor.cpp \
     siblingcombobox.cpp \
     propertyeditortransaction.cpp \
     propertyeditorcontextobject.cpp \
-    declarativewidgetview.cpp
+    declarativewidgetview.cpp \
+    gradientlineqmladaptor.cpp
 
 HEADERS += propertyeditor.h \
     qmlanchorbindingproxy.h \
@@ -27,7 +27,6 @@ HEADERS += propertyeditor.h \
     qlayoutobject.h \
     basiclayouts.h \
     basicwidgets.h \
-    colorwidget.h \
     behaviordialog.h \
     qproxylayoutitem.h \
     layoutwidget.h \
@@ -39,7 +38,8 @@ HEADERS += propertyeditor.h \
     propertyeditortransaction.h \
     designerpropertymap.h \
     propertyeditorcontextobject.h \
-    declarativewidgetview.h
+    declarativewidgetview.h \
+    gradientlineqmladaptor.h
     
 QT += declarative
 RESOURCES += propertyeditor.qrc

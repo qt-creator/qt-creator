@@ -49,7 +49,7 @@ void GradientLine::setGradient(const QLinearGradient &gradient)
 {
     m_gradient = gradient;
     m_useGradient = true;
-    setupGradient();
+    readGradient();
     emit gradientChanged();
 
 }
@@ -105,7 +105,7 @@ void GradientLine::setActiveColor(const QColor &newColor)
     update();
 }
 
-void GradientLine::setupGradient()
+void GradientLine::readGradient()
 {
     if (m_useGradient) {
         m_colorList.clear();
