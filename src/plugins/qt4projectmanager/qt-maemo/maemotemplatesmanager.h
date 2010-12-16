@@ -79,9 +79,6 @@ public:
     bool setShortDescription(const ProjectExplorer::Project *project,
         const QString &description);
 
-    QString controlFileFieldValue(const ProjectExplorer::Project *project,
-        const QString &key) const;
-
 signals:
     void debianDirContentsChanged(const ProjectExplorer::Project *project);
     void changeLogChanged(const ProjectExplorer::Project *project);
@@ -115,6 +112,8 @@ private:
         QIODevice::OpenMode mode, QString *error) const;
     bool setFieldValue(const ProjectExplorer::Project *project,
         const QByteArray &fieldName, const QByteArray &fieldValue);
+    QByteArray controlFileFieldValue(const ProjectExplorer::Project *project,
+        const QString &key, bool multiLine) const;
 
     static MaemoTemplatesManager *m_instance;
 

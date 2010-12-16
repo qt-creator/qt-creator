@@ -46,6 +46,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QStringList>
+#include <QtGui/QIcon>
 
 #define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
@@ -559,16 +560,15 @@ QStringList MaemoPublisherFremantleFree::findProblems() const
     QStringList problems;
     const MaemoTemplatesManager * const templatesManager
         = MaemoTemplatesManager::instance();
-    const QString &description = templatesManager
-        ->controlFileFieldValue(m_project, QLatin1String("Description"));
+    const QString &description = templatesManager->shortDescription(m_project);
     if (description.trimmed().isEmpty()) {
         problems << tr("The package description is empty.");
     } else if (description.contains(QLatin1String("insert up to"))) {
         problems << tr("The package description is '%1', which is probably "
                        "not what you want.").arg(description);
     }
-    if (templatesManager->controlFileFieldValue(m_project,
-            QLatin1String("XB-Maemo-Icon-26")).trimmed().isEmpty())
+    QString dummy;
+    if (templatesManager->packageManagerIcon(m_project, &dummy).isNull())
         problems << tr("You have not set an icon for the package manager.");
     return problems;
 }
