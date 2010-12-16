@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>496</width>
-    <height>123</height>
+    <width>636</width>
+    <height>128</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,7 +32,17 @@
      <item>
       <widget class="QLabel" name="getAccountLabel">
        <property name="text">
-        <string>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Click here to get an account&lt;/a&gt;</string>
+        <string>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Get an account&lt;/a&gt;</string>
+       </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;Request upload rights&lt;/a&gt;</string>
        </property>
        <property name="openExternalLinks">
         <bool>true</bool>
@@ -49,7 +59,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="Utils::PathChooser" name="privateKeyPathChooser"/>
+    <widget class="Utils::PathChooser" name="privateKeyPathChooser" native="true"/>
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="serverAddressLabel">
