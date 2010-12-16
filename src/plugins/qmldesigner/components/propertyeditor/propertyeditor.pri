@@ -1,6 +1,5 @@
 VPATH += $$PWD
 INCLUDEPATH += $$PWD
-include($$PWD/qtgradienteditor/qtgradienteditor.pri)
 SOURCES += propertyeditor.cpp \
     qmlanchorbindingproxy.cpp \
     allpropertiesbox.cpp \
