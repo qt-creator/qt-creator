@@ -274,63 +274,55 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     const int effectiveIndividualFormat =
         individualFormat == -1 ? typeFormat : individualFormat;
 
-    QMenu typeFormatMenu;
+    QMenu formatMenu;
     QList<QAction *> typeFormatActions;
-    QAction *clearTypeFormatAction = 0;
-    if (idx.isValid()) {
-        typeFormatMenu.setTitle(
-            tr("Change Display for Type \"%1\"").arg(type));
-        if (alternativeFormats.isEmpty()) {
-            typeFormatMenu.setEnabled(false);
-        } else {
-            clearTypeFormatAction = typeFormatMenu.addAction(tr("Automatic"));
-            clearTypeFormatAction->setEnabled(typeFormat != -1);
-            clearTypeFormatAction->setCheckable(true);
-            clearTypeFormatAction->setChecked(typeFormat == -1);
-            typeFormatMenu.addSeparator();
-            for (int i = 0; i != alternativeFormats.size(); ++i) {
-                const QString format = alternativeFormats.at(i);
-                QAction *act = new QAction(format, &typeFormatMenu);
-                act->setCheckable(true);
-                if (i == typeFormat)
-                    act->setChecked(true);
-                typeFormatMenu.addAction(act);
-                typeFormatActions.append(act);
-            }
-        }
-    } else {
-        typeFormatMenu.setTitle(tr("Change Display for Type"));
-        typeFormatMenu.setEnabled(false);
-    }
-
-    QMenu individualFormatMenu;
     QList<QAction *> individualFormatActions;
+    QAction *clearTypeFormatAction = 0;
     QAction *clearIndividualFormatAction = 0;
-    if (idx.isValid()) {
-        individualFormatMenu.setTitle(
+    formatMenu.setTitle(tr("Change Display Format..."));
+    if (idx.isValid() && !alternativeFormats.isEmpty()) {
+        QAction *dummy = formatMenu.addAction(
+            tr("Change Display for Type \"%1\"").arg(type));
+        dummy->setEnabled(false);
+        formatMenu.addSeparator();
+        clearTypeFormatAction = formatMenu.addAction(tr("Automatic"));
+        //clearTypeFormatAction->setEnabled(typeFormat != -1);
+        //clearTypeFormatAction->setEnabled(individualFormat != -1);
+        clearTypeFormatAction->setCheckable(true);
+        clearTypeFormatAction->setChecked(typeFormat == -1);
+        formatMenu.addSeparator();
+        for (int i = 0; i != alternativeFormats.size(); ++i) {
+            const QString format = alternativeFormats.at(i);
+            QAction *act = new QAction(format, &formatMenu);
+            act->setCheckable(true);
+            //act->setEnabled(individualFormat != -1);
+            if (i == typeFormat)
+                act->setChecked(true);
+            formatMenu.addAction(act);
+            typeFormatActions.append(act);
+        }
+        formatMenu.addSeparator();
+        dummy = formatMenu.addAction(
             tr("Change Display for Object Named \"%1\"").arg(mi0.data().toString()));
-        if (alternativeFormats.isEmpty()) {
-            individualFormatMenu.setEnabled(false);
-        } else {
-            clearIndividualFormatAction
-                = individualFormatMenu.addAction(tr("Automatic"));
-            clearIndividualFormatAction->setEnabled(individualFormat != -1);
-            clearIndividualFormatAction->setCheckable(true);
-            clearIndividualFormatAction->setChecked(individualFormat == -1);
-            individualFormatMenu.addSeparator();
-            for (int i = 0; i != alternativeFormats.size(); ++i) {
-                const QString format = alternativeFormats.at(i);
-                QAction *act = new QAction(format, &individualFormatMenu);
-                act->setCheckable(true);
-                if (i == effectiveIndividualFormat)
-                    act->setChecked(true);
-                individualFormatMenu.addAction(act);
-                individualFormatActions.append(act);
-            }
+        dummy->setEnabled(false);
+        formatMenu.addSeparator();
+        clearIndividualFormatAction
+            = formatMenu.addAction(tr("Use Display Format Based on Type"));
+        //clearIndividualFormatAction->setEnabled(individualFormat != -1);
+        clearIndividualFormatAction->setCheckable(true);
+        clearIndividualFormatAction->setChecked(effectiveIndividualFormat == -1);
+        formatMenu.addSeparator();
+        for (int i = 0; i != alternativeFormats.size(); ++i) {
+            const QString format = alternativeFormats.at(i);
+            QAction *act = new QAction(format, &formatMenu);
+            act->setCheckable(true);
+            if (i == effectiveIndividualFormat)
+                act->setChecked(true);
+            formatMenu.addAction(act);
+            individualFormatActions.append(act);
         }
     } else {
-        individualFormatMenu.setTitle(tr("Change Display for Object"));
-        individualFormatMenu.setEnabled(false);
+        formatMenu.setEnabled(false);
     }
 
     const bool actionsEnabled = engine->debuggerActionsEnabled();
@@ -406,8 +398,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addAction(actInsertNewWatchItem);
     menu.addAction(actSelectWidgetToWatch);
-    menu.addMenu(&typeFormatMenu);
-    menu.addMenu(&individualFormatMenu);
+    menu.addMenu(&formatMenu);
     if (actOpenMemoryEditAtVariableAddress)
         menu.addAction(actOpenMemoryEditAtVariableAddress);
     if (actOpenMemoryEditAtPointerValue)
