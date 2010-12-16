@@ -111,6 +111,9 @@ d too.
 NodeInstanceView::NodeInstanceView(QObject *parent)
         : AbstractView(parent)
 {
+    m_resetTimer.setInterval(200);
+    m_resetTimer.setSingleShot(true);
+    connect(&m_resetTimer, SIGNAL(timeout()), this, SLOT(restartProcessDelayed()));
 }
 
 
@@ -168,6 +171,11 @@ void NodeInstanceView::restartProcess()
         oldModel->attachView(this);
     }
     setBlockUpdates(false);
+}
+
+void NodeInstanceView::restartProcessDelayed()
+{
+    m_resetTimer.start();
 }
 
 /*! \brief Notifing the view that a node was created.
@@ -437,12 +445,12 @@ void NodeInstanceView::instancesCompleted(const QVector<ModelNode> &/*completedN
 
 void NodeInstanceView::importAdded(const Import &import)
 {
-    restartProcess();
+    restartProcessDelayed();
 }
 
 void NodeInstanceView::importRemoved(const Import &/*import*/)
 {
-    restartProcess();
+    restartProcessDelayed();
 }
 
 //\}
