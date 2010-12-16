@@ -141,7 +141,7 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     Core::ActionManager *am =  core->actionManager();
     Core::ActionContainer *contextMenu = am->createMenu(GLSLEditor::Constants::M_CONTEXT);
     Core::ActionContainer *glslToolsMenu = am->createMenu(Core::Id(Constants::M_TOOLS_GLSL));
-    glslToolsMenu->setEmptyAction(Core::ActionContainer::EA_Hide);
+    glslToolsMenu->setOnAllDisabledBehavior(Core::ActionContainer::Hide);
     QMenu *menu = glslToolsMenu->menu();
     //: GLSL sub-menu in the Tools menu
     menu->setTitle(tr("GLSL"));

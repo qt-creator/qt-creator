@@ -46,8 +46,8 @@ public:
     ActionContainerPrivate(int id);
     virtual ~ActionContainerPrivate() {}
 
-    void setEmptyAction(EmptyAction ea);
-    bool hasEmptyAction(EmptyAction ea) const;
+    void setOnAllDisabledBehavior(OnAllDisabledBehavior behavior);
+    ActionContainer::OnAllDisabledBehavior onAllDisabledBehavior() const;
 
     QAction *insertLocation(const QString &group) const;
     void appendGroup(const QString &group);
@@ -84,7 +84,7 @@ private:
     int calcPosition(int pos, int prevKey) const;
 
     QList<int> m_groups;
-    int m_data;
+    OnAllDisabledBehavior m_onAllDisabledBehavior;
     int m_id;
     QMap<int, int> m_posmap;
     QList<ActionContainer *> m_subContainers;

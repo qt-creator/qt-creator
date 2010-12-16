@@ -435,7 +435,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // "open with" submenu
     Core::ActionContainer * const openWith =
             am->createMenu(ProjectExplorer::Constants::M_OPENFILEWITHCONTEXT);
-    openWith->setEmptyAction(Core::ActionContainer::EA_None);
+    openWith->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     d->m_openWithMenu = openWith->menu();
     d->m_openWithMenu->setTitle(tr("Open With"));
 
@@ -540,7 +540,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     Core::ActionContainer *mrecent =
         am->createMenu(Constants::M_RECENTPROJECTS);
     mrecent->menu()->setTitle(tr("Recent P&rojects"));
-    mrecent->setEmptyAction(Core::ActionContainer::EA_None);
+    mrecent->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     mfile->addMenu(mrecent, Core::Constants::G_FILE_OPEN);
     connect(mfile->menu(), SIGNAL(aboutToShow()),
         this, SLOT(updateRecentProjectMenu()));
@@ -563,7 +563,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // session menu
     Core::ActionContainer *msession = am->createMenu(Constants::M_SESSION);
     msession->menu()->setTitle(tr("Session"));
-    msession->setEmptyAction(Core::ActionContainer::EA_None);
+    msession->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     mfile->addMenu(msession, Core::Constants::G_FILE_PROJECT);
     d->m_sessionMenu = msession->menu();
     connect(mfile->menu(), SIGNAL(aboutToShow()),

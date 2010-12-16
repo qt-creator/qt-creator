@@ -65,26 +65,37 @@ using namespace Core::Internal;
 
     You can define if the menu represented by this action container should automatically disable
     or hide whenever it only contains disabled items and submenus by setting the corresponding
-    \l{ActionContainer::setEmptyAction()}{EmptyAction}.
+    \l{ActionContainer::setOnAllDisabledBehavior()}{OnAllDisabledBehavior}. The default is
+    ActionContainer::Disable for menus, and ActionContainer::Show for menu bars.
 */
 
 /*!
-    \enum ActionContainer::EmptyAction
+    \enum ActionContainer::OnAllDisabledBehavior
     Defines what happens when the represented menu is empty or contains only disabled/invisible items.
-    \omitvalue EA_Mask
-    \value EA_None
-        The menu will still be visible and active.
-    \value EA_Disable
+    \value Disable
         The menu will be visible but disabled.
-    \value EA_Hide
+    \value Hide
         The menu will not be visible until the state of the subitems change.
+    \value Show
+        The menu will still be visible and active.
 */
 
 /*!
-    \fn ActionContainer::setEmptyAction(EmptyAction disableOrHide)
-    Defines if the menu represented by this action container should automatically \a disableOrHide
+    \fn ActionContainer::setOnAllDisabledBehavior(OnAllDisabledBehavior behavior)
+    Defines the \a behavior of the menu represented by this action container for the case
     whenever it only contains disabled items and submenus.
-    \sa ActionContainer::EmptyAction
+    The default is ActionContainer::Disable for menus, and ActionContainer::Show for menu bars.
+    \sa ActionContainer::OnAllDisabledBehavior
+    \sa ActionContainer::onAllDisabledBehavior()
+*/
+
+/*!
+    \fn ActionContainer::onAllDisabledBehavior() const
+    Returns the \a behavior of the menu represented by this action container for the case
+    whenever it only contains disabled items and submenus.
+    The default is ActionContainer::Disable for menus, and ActionContainer::Show for menu bars.
+    \sa ActionContainer::OnAllDisabledBehavior
+    \sa ActionContainer::setOnAllDisabledBehavior()
 */
 
 /*!
@@ -148,19 +159,19 @@ using namespace Core::Internal;
 */
 
 ActionContainerPrivate::ActionContainerPrivate(int id)
-    : m_data(0), m_id(id), m_updateRequested(false)
+    : m_onAllDisabledBehavior(Disable), m_id(id), m_updateRequested(false)
 {
     scheduleUpdate();
 }
 
-void ActionContainerPrivate::setEmptyAction(EmptyAction ea)
+void ActionContainerPrivate::setOnAllDisabledBehavior(OnAllDisabledBehavior behavior)
 {
-    m_data = ((m_data & ~EA_Mask) | ea);
+    m_onAllDisabledBehavior = behavior;
 }
 
-bool ActionContainerPrivate::hasEmptyAction(EmptyAction ea) const
+ActionContainer::OnAllDisabledBehavior ActionContainerPrivate::onAllDisabledBehavior() const
 {
-    return (m_data & EA_Mask) == ea;
+    return m_onAllDisabledBehavior;
 }
 
 void ActionContainerPrivate::appendGroup(const QString &group)
@@ -343,7 +354,7 @@ void ActionContainerPrivate::update()
 MenuActionContainer::MenuActionContainer(int id)
     : ActionContainerPrivate(id), m_menu(0)
 {
-    setEmptyAction(EA_Disable);
+    setOnAllDisabledBehavior(Disable);
 }
 
 void MenuActionContainer::setMenu(QMenu *menu)
@@ -383,7 +394,7 @@ CommandLocation MenuActionContainer::location() const
 
 bool MenuActionContainer::updateInternal()
 {
-    if (hasEmptyAction(EA_None))
+    if (onAllDisabledBehavior() == Show)
         return true;
 
     bool hasitems = false;
@@ -419,9 +430,9 @@ bool MenuActionContainer::updateInternal()
         }
     }
 
-    if (hasEmptyAction(EA_Hide))
+    if (onAllDisabledBehavior() == Hide)
         m_menu->menuAction()->setVisible(hasitems);
-    else if (hasEmptyAction(EA_Disable))
+    else if (onAllDisabledBehavior() == Disable)
         m_menu->menuAction()->setEnabled(hasitems);
 
     return hasitems;
@@ -443,7 +454,7 @@ bool MenuActionContainer::canBeAddedToMenu() const
 MenuBarActionContainer::MenuBarActionContainer(int id)
     : ActionContainerPrivate(id), m_menuBar(0)
 {
-    setEmptyAction(EA_None);
+    setOnAllDisabledBehavior(Show);
 }
 
 void MenuBarActionContainer::setMenuBar(QMenuBar *menuBar)
@@ -468,7 +479,7 @@ void MenuBarActionContainer::insertMenu(QAction *before, QMenu *menu)
 
 bool MenuBarActionContainer::updateInternal()
 {
-    if (hasEmptyAction(EA_None))
+    if (onAllDisabledBehavior() == Show)
         return true;
 
     bool hasitems = false;
@@ -480,9 +491,9 @@ bool MenuBarActionContainer::updateInternal()
         }
     }
 
-    if (hasEmptyAction(EA_Hide))
+    if (onAllDisabledBehavior() == Hide)
         m_menuBar->setVisible(hasitems);
-    else if (hasEmptyAction(EA_Disable))
+    else if (onAllDisabledBehavior() == Disable)
         m_menuBar->setEnabled(hasitems);
 
     return hasitems;

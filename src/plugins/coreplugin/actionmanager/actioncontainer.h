@@ -47,14 +47,14 @@ class ActionContainer : public QObject
     Q_OBJECT
 
 public:
-    enum EmptyAction {
-        EA_Mask             = 0xFF00,
-        EA_None             = 0x0100,
-        EA_Hide             = 0x0200,
-        EA_Disable          = 0x0300
+    enum OnAllDisabledBehavior {
+        Disable,
+        Hide,
+        Show
     };
 
-    virtual void setEmptyAction(EmptyAction ea) = 0;
+    virtual void setOnAllDisabledBehavior(OnAllDisabledBehavior behavior) = 0;
+    virtual ActionContainer::OnAllDisabledBehavior onAllDisabledBehavior() const = 0;
 
     virtual int id() const = 0;
 
