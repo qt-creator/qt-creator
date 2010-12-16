@@ -83,6 +83,12 @@ QIcon BreakHandler::watchpointIcon()
     return icon;
 }
 
+QIcon BreakHandler::tracepointIcon()
+{
+    static QIcon icon(_(":/debugger/images/tracepoint.png"));
+    return icon;
+}
+
 QIcon BreakHandler::emptyIcon()
 {
     static QIcon icon(_(":/debugger/images/breakpoint_pending_16.png"));
@@ -1064,6 +1070,8 @@ QIcon BreakHandler::BreakpointItem::icon() const
 {
     // FIXME: This seems to be called on each cursor blink as soon as the
     // cursor is near a line with a breakpoint marker (+/- 2 lines or so).
+    if (data.isTracepoint())
+        return BreakHandler::tracepointIcon();
     if (data.type == Watchpoint)
         return BreakHandler::watchpointIcon();
     if (!data.enabled)

@@ -43,7 +43,8 @@ namespace Internal {
 
 BreakpointParameters::BreakpointParameters(BreakpointType t)
   : type(t), enabled(true), useFullPath(false),
-    ignoreCount(0), lineNumber(0), address(0), threadSpec(-1)
+    ignoreCount(0), lineNumber(0), address(0), threadSpec(-1),
+    tracepoint(false)
 {}
 
 bool BreakpointParameters::equals(const BreakpointParameters &rhs) const
@@ -57,7 +58,8 @@ bool BreakpointParameters::equals(const BreakpointParameters &rhs) const
         && lineNumber == rhs.lineNumber
         && address == rhs.address
         && threadSpec == rhs.threadSpec
-        && functionName == rhs.functionName;
+        && functionName == rhs.functionName
+        && tracepoint == rhs.tracepoint;
 }
 
 bool BreakpointParameters::conditionsMatch(const QByteArray &other) const
@@ -81,6 +83,7 @@ QString BreakpointParameters::toString() const
     ts << " Address: " << address;
     ts << " FunctionName: " << functionName;
     ts << " UseFullPath: " << useFullPath;
+    ts << " Tracepoint: " << tracepoint;
     return result;
 }
 

@@ -124,6 +124,20 @@
      <item row="9" column="1">
       <widget class="QLineEdit" name="lineEditThreadSpec"/>
      </item>
+     <item row="10" column="1">
+      <widget class="QCheckBox" name="checkBoxTracepoint">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="0">
+      <widget class="QLabel" name="labelTracepoint">
+       <property name="text">
+        <string>Tracepoint only:</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>

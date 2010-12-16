@@ -77,7 +77,9 @@ public:
     bool equals(const BreakpointParameters &rhs) const;
     bool conditionsMatch(const QByteArray &other) const;
     bool isWatchpoint() const { return type == Watchpoint; }
-    bool isBreakpoint() const { return type != Watchpoint; } // Enough for now.
+    // Enough for now.
+    bool isBreakpoint() const { return type != Watchpoint && !tracepoint; }
+    bool isTracepoint() const { return tracepoint; }
     QString toString() const;
 
     bool operator==(const BreakpointParameters &p) const { return equals(p); }
@@ -93,6 +95,7 @@ public:
     quint64 address;         // Address for watchpoints.
     int threadSpec;          // Thread specification.
     QString functionName;
+    bool tracepoint;
 };
 
 
