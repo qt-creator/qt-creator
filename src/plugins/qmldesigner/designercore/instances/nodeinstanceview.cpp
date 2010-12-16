@@ -443,7 +443,7 @@ void NodeInstanceView::instancesCompleted(const QVector<ModelNode> &/*completedN
 {
 }
 
-void NodeInstanceView::importAdded(const Import &import)
+void NodeInstanceView::importAdded(const Import & /*import*/)
 {
     restartProcessDelayed();
 }

@@ -233,7 +233,7 @@ void MoveTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
     updateMoveManipulator();
 }
 
-void MoveTool::instancesCompleted(const QList<FormEditorItem*> &itemList)
+void MoveTool::instancesCompleted(const QList<FormEditorItem*> & /*itemList*/)
 {
 }
 

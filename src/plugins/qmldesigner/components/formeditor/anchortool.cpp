@@ -213,7 +213,7 @@ void AnchorTool::formEditorItemsChanged(const QList<FormEditorItem*> &)
     m_anchorIndicator.updateItems(view()->scene()->allFormEditorItems());
 }
 
-void AnchorTool::instancesCompleted(const QList<FormEditorItem*> &itemList)
+void AnchorTool::instancesCompleted(const QList<FormEditorItem*> &/*itemList*/)
 {
 }
 
