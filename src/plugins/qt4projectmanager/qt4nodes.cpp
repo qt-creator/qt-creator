@@ -2092,11 +2092,12 @@ void Qt4ProFileNode::setupInstallsList(const ProFileReader *reader)
             m_installsList.targetPath = itemPath;
         } else {
             if (itemFiles.isEmpty()) {
-                if (!reader->values(item + QLatin1String(".CONFIG"))
-                    .contains(QLatin1String("no_check_exist"))) {
-                    qDebug("%s: Ignoring INSTALLS item '%s', because it has no files.",
-                        qPrintable(m_projectFilePath), qPrintable(item));
-                }
+                // TODO: Fix QMAKE_SUBSTITUTES handling in pro file reader, then uncomment again
+//                if (!reader->values(item + QLatin1String(".CONFIG"))
+//                    .contains(QLatin1String("no_check_exist"))) {
+//                    qDebug("%s: Ignoring INSTALLS item '%s', because it has no files.",
+//                        qPrintable(m_projectFilePath), qPrintable(item));
+//                }
                 continue;
             }
             m_installsList.items << InstallsItem(itemPath, itemFiles);
