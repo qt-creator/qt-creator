@@ -140,12 +140,12 @@ private: //variables
     bool m_isInModel;
     bool m_isBound;
     bool m_isValid; // if the property value belongs to a non-existing complexProperty it is invalid
-    PropertyEditorNodeWrapper *m_complexNode;    
+    PropertyEditorNodeWrapper *m_complexNode;
 };
 
-QML_DECLARE_TYPE(PropertyEditorValue);
-QML_DECLARE_TYPE(PropertyEditorNodeWrapper);
-QML_DECLARE_TYPE(QDeclarativePropertyMap);
+QML_DECLARE_TYPE(PropertyEditorValue)
+QML_DECLARE_TYPE(PropertyEditorNodeWrapper)
+QML_DECLARE_TYPE(QDeclarativePropertyMap)
 
 
 #endif // PROPERTYEDITORVALUE_H

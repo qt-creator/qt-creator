@@ -92,8 +92,8 @@ private:
 
 QT_END_NAMESPACE
 
-QML_DECLARE_TYPE(QProxyLayout);
-QML_DECLARE_TYPE(QProxyLayoutItem);
+QML_DECLARE_TYPE(QProxyLayout)
+QML_DECLARE_TYPE(QProxyLayoutItem)
 
 QT_END_HEADER
 

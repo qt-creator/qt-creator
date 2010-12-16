@@ -36,7 +36,7 @@
 using namespace Locator;
 using namespace Locator::Internal;
 
-Q_DECLARE_METATYPE(ILocatorFilter*);
+Q_DECLARE_METATYPE(ILocatorFilter*)
 
 LocatorFiltersFilter::LocatorFiltersFilter(LocatorPlugin *plugin,
                                                LocatorWidget *locatorWidget):

@@ -34,6 +34,6 @@ QDataStream &operator>>(QDataStream &in, AddImportCommand &command);
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::AddImportCommand);
+Q_DECLARE_METATYPE(QmlDesigner::AddImportCommand)
 
 #endif // ADDIMPORTCOMMAND_H

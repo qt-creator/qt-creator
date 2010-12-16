@@ -27,6 +27,6 @@ QDataStream &operator>>(QDataStream &in, CreateInstancesCommand &command);
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::CreateInstancesCommand);
+Q_DECLARE_METATYPE(QmlDesigner::CreateInstancesCommand)
 
 #endif // CREATEINSTANCESCOMMAND_H

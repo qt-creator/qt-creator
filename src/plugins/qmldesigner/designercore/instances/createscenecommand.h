@@ -18,6 +18,6 @@ QDataStream &operator>>(QDataStream &in, CreateSceneCommand &command);
 
 }
 
-Q_DECLARE_METATYPE(QmlDesigner::CreateSceneCommand);
+Q_DECLARE_METATYPE(QmlDesigner::CreateSceneCommand)
 
 #endif // CREATESCENECOMMAND_H

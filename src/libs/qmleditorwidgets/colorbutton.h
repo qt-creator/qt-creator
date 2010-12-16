@@ -69,6 +69,6 @@ private:
 
 } //QmlEditorWidgets
 
-QML_DECLARE_TYPE(QmlEditorWidgets::ColorButton);
+QML_DECLARE_TYPE(QmlEditorWidgets::ColorButton)
 
 #endif //COLORBUTTON_H

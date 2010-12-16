@@ -27,6 +27,6 @@ QDataStream &operator>>(QDataStream &in, ChangeIdsCommand &command);
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::ChangeIdsCommand);
+Q_DECLARE_METATYPE(QmlDesigner::ChangeIdsCommand)
 
 #endif // CHANGEIDSCOMMAND_H

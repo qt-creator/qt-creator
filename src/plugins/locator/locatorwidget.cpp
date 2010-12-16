@@ -65,8 +65,8 @@
 #include <QtGui/QScrollBar>
 #include <QtGui/QTreeView>
 
-Q_DECLARE_METATYPE(Locator::ILocatorFilter*);
-Q_DECLARE_METATYPE(Locator::FilterEntry);
+Q_DECLARE_METATYPE(Locator::ILocatorFilter*)
+Q_DECLARE_METATYPE(Locator::FilterEntry)
 
 namespace Locator {
 namespace Internal {

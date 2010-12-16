@@ -42,6 +42,6 @@ QDataStream &operator>>(QDataStream &in, InformationContainer &container);
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::InformationContainer);
+Q_DECLARE_METATYPE(QmlDesigner::InformationContainer)
 
 #endif // INFORMATIONCONTAINER_H

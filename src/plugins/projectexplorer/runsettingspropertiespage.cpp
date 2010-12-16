@@ -60,7 +60,7 @@ struct FactoryAndId
 } // namespace Internal
 } // namespace ProjectExplorer
 
-Q_DECLARE_METATYPE(ProjectExplorer::Internal::FactoryAndId);
+Q_DECLARE_METATYPE(ProjectExplorer::Internal::FactoryAndId)
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

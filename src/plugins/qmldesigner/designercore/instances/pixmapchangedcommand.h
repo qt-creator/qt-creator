@@ -24,6 +24,6 @@ QDataStream &operator>>(QDataStream &in, PixmapChangedCommand &command);
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::PixmapChangedCommand);
+Q_DECLARE_METATYPE(QmlDesigner::PixmapChangedCommand)
 
 #endif // PIXMAPCHANGEDCOMMAND_H

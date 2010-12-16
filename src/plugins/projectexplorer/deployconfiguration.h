@@ -114,6 +114,6 @@ public:
 
 } // namespace ProjectExplorer
 
-Q_DECLARE_METATYPE(ProjectExplorer::DeployConfiguration *);
+Q_DECLARE_METATYPE(ProjectExplorer::DeployConfiguration *)
 
 #endif // PROJECTEXPLORER_DEPLOYCONFIGURATION_H

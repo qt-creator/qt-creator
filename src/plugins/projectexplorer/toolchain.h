@@ -238,6 +238,6 @@ private:
 
 }
 
-Q_DECLARE_METATYPE(ProjectExplorer::ToolChainType);
+Q_DECLARE_METATYPE(ProjectExplorer::ToolChainType)
 
 #endif // TOOLCHAIN_H

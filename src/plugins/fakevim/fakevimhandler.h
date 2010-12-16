@@ -137,7 +137,7 @@ private:
 } // namespace Internal
 } // namespace FakeVim
 
-Q_DECLARE_METATYPE(FakeVim::Internal::ExCommand);
+Q_DECLARE_METATYPE(FakeVim::Internal::ExCommand)
 
 
 #endif // FAKEVIM_HANDLER_H

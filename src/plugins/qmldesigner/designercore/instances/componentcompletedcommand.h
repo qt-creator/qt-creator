@@ -24,6 +24,6 @@ QDataStream &operator>>(QDataStream &in, ComponentCompletedCommand &command);
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::ComponentCompletedCommand);
+Q_DECLARE_METATYPE(QmlDesigner::ComponentCompletedCommand)
 
 #endif // COMPONENTCOMPLETEDCOMMAND_H

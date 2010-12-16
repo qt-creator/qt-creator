@@ -25,6 +25,6 @@ QDataStream &operator>>(QDataStream &in, StatePreviewImageChangedCommand &comman
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::StatePreviewImageChangedCommand);
+Q_DECLARE_METATYPE(QmlDesigner::StatePreviewImageChangedCommand)
 
 #endif // STATEPREVIEWIMAGECHANGEDCOMMAND_H

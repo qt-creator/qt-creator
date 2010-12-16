@@ -36,5 +36,5 @@ private:
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::PropertyAbstractContainer);
+Q_DECLARE_METATYPE(QmlDesigner::PropertyAbstractContainer)
 #endif // PROPERTYABSTRACTCONTAINER_H

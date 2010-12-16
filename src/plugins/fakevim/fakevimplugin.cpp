@@ -283,7 +283,7 @@ struct CommandItem
     QTreeWidgetItem *m_item;
 };
 
-Q_DECLARE_METATYPE(CommandItem *);
+Q_DECLARE_METATYPE(CommandItem *)
 
 namespace FakeVim {
 namespace Internal {
@@ -753,8 +753,8 @@ static int moveRightWeight(const QRect &cursor, const QRect &other)
     if (dx < 0)
         return -1;
     int w = 10000 * dx;
-    int dy1 = cursor.top() - other.bottom(); 
-    int dy2 = cursor.bottom() - other.top(); 
+    int dy1 = cursor.top() - other.bottom();
+    int dy2 = cursor.bottom() - other.top();
     w += dy1 * (dy1 > 0);
     w += dy2 * (dy2 > 0);
     qDebug() << "      DX: " << dx << dy1 << dy2 << w;
@@ -767,8 +767,8 @@ static int moveLeftWeight(const QRect &cursor, const QRect &other)
     if (dx < 0)
         return -1;
     int w = 10000 * dx;
-    int dy1 = cursor.top() - other.bottom(); 
-    int dy2 = cursor.bottom() - other.top(); 
+    int dy1 = cursor.top() - other.bottom();
+    int dy2 = cursor.bottom() - other.top();
     w += dy1 * (dy1 > 0);
     w += dy2 * (dy2 > 0);
     return w;
@@ -780,8 +780,8 @@ static int moveUpWeight(const QRect &cursor, const QRect &other)
     if (dy < 0)
         return -1;
     int w = 10000 * dy;
-    int dx1 = cursor.left() - other.right(); 
-    int dx2 = cursor.right() - other.left(); 
+    int dx1 = cursor.left() - other.right();
+    int dx2 = cursor.right() - other.left();
     w += dx1 * (dx1 > 0);
     w += dx2 * (dx2 > 0);
     return w;
@@ -793,8 +793,8 @@ static int moveDownWeight(const QRect &cursor, const QRect &other)
     if (dy < 0)
         return -1;
     int w = 10000 * dy;
-    int dx1 = cursor.left() - other.right(); 
-    int dx2 = cursor.right() - other.left(); 
+    int dx1 = cursor.left() - other.right();
+    int dx2 = cursor.right() - other.left();
     w += dx1 * (dx1 > 0);
     w += dx2 * (dx2 > 0);
     return w;
@@ -863,7 +863,7 @@ void FakeVimPluginPrivate::moveSomewhere(DistFunction f)
         QRect editorRect(w->mapToGlobal(w->geometry().topLeft()),
                 w->mapToGlobal(w->geometry().bottomRight()));
         //qDebug() << "   EDITOR: " << editorRect << editor;
-  
+
         int value = f(cursorRect, editorRect);
         if (value != -1 && value < bestValue) {
             bestValue = value;

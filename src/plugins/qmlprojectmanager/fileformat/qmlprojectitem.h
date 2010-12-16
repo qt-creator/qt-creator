@@ -60,8 +60,8 @@ protected:
 
 } // namespace QmlProjectManager
 
-QML_DECLARE_TYPE(QmlProjectManager::QmlProjectItem);
-QML_DECLARE_TYPE(QmlProjectManager::QmlProjectContentItem);
-Q_DECLARE_METATYPE(QList<QmlProjectManager::QmlProjectContentItem *>);
+QML_DECLARE_TYPE(QmlProjectManager::QmlProjectItem)
+QML_DECLARE_TYPE(QmlProjectManager::QmlProjectContentItem)
+Q_DECLARE_METATYPE(QList<QmlProjectManager::QmlProjectContentItem *>)
 
 #endif // QMLPROJECTITEM_H

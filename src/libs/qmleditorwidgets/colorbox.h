@@ -93,6 +93,6 @@ private:
 
 } //QmlEditorWidgets
 
-QML_DECLARE_TYPE(QmlEditorWidgets::ColorBox);
+QML_DECLARE_TYPE(QmlEditorWidgets::ColorBox)
 
 #endif //COLORBOX_H

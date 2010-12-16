@@ -40,7 +40,7 @@
 #include <QDebug>
 #include <QApplication>
 
-QML_DECLARE_TYPE(QmlDesigner::ResetWidget);
+QML_DECLARE_TYPE(QmlDesigner::ResetWidget)
 
 namespace QmlDesigner {
 

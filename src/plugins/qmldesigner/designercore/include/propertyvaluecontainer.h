@@ -37,6 +37,6 @@ QDataStream &operator>>(QDataStream &in, PropertyValueContainer &container);
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::PropertyValueContainer);
+Q_DECLARE_METATYPE(QmlDesigner::PropertyValueContainer)
 
 #endif // PROPERTYVALUECONTAINER_H

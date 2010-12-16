@@ -67,8 +67,8 @@
 
 using namespace ExtensionSystem;
 
-Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec*);
-Q_DECLARE_METATYPE(ExtensionSystem::PluginCollection*);
+Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec*)
+Q_DECLARE_METATYPE(ExtensionSystem::PluginCollection*)
 
 /*!
     \fn PluginView::PluginView(PluginManager *manager, QWidget *parent)

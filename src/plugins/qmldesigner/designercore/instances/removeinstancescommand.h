@@ -27,6 +27,6 @@ QDataStream &operator>>(QDataStream &in, RemoveInstancesCommand &command);
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::RemoveInstancesCommand);
+Q_DECLARE_METATYPE(QmlDesigner::RemoveInstancesCommand)
 
 #endif // REMOVEINSTANCESCOMMAND_H

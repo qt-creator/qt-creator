@@ -94,6 +94,6 @@ private:
 
 };
 
-QML_DECLARE_TYPE(QmlDesigner::BehaviorWidget);
+QML_DECLARE_TYPE(QmlDesigner::BehaviorWidget)
 
 #endif// BEHAVIORDIALOG_H

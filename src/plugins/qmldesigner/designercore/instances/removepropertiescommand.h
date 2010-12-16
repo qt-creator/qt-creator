@@ -26,6 +26,6 @@ QDataStream &operator>>(QDataStream &in, RemovePropertiesCommand &command);
 
 }
 
-Q_DECLARE_METATYPE(QmlDesigner::RemovePropertiesCommand);
+Q_DECLARE_METATYPE(QmlDesigner::RemovePropertiesCommand)
 
 #endif // REMOVEPROPERTIESCOMMAND_H

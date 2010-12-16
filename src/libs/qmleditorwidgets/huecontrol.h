@@ -70,6 +70,6 @@ private:
 
 } //QmlEditorWidgets
 
-QML_DECLARE_TYPE(QmlEditorWidgets::HueControl);
+QML_DECLARE_TYPE(QmlEditorWidgets::HueControl)
 
 #endif //HUECONTROL_H

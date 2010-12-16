@@ -174,6 +174,6 @@ void extractGdbVersion(const QString &msg,
 } // namespace Internal
 } // namespace Debugger
 
-//Q_DECLARE_METATYPE(GdbDebugger::Internal::GdbMi);
+//Q_DECLARE_METATYPE(GdbDebugger::Internal::GdbMi)
 
 #endif // DEBUGGER_GDBMI_H

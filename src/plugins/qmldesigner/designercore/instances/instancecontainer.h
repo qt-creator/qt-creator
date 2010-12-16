@@ -35,5 +35,5 @@ private:
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::InstanceContainer);
+Q_DECLARE_METATYPE(QmlDesigner::InstanceContainer)
 #endif // INSTANCECONTAINER_H

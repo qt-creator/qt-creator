@@ -27,6 +27,6 @@ QDataStream &operator>>(QDataStream &in, ReparentInstancesCommand &command);
 
 } //
 
-Q_DECLARE_METATYPE(QmlDesigner::ReparentInstancesCommand);
+Q_DECLARE_METATYPE(QmlDesigner::ReparentInstancesCommand)
 
 #endif // REPARENTINSTANCESCOMMAND_H

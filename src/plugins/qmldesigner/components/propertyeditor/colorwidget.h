@@ -67,7 +67,7 @@ public:
     bool noColor() const { return m_noColor; }
     void setNoColor(bool f) { m_noColor = f; update(); }
     bool showArrow() const { return m_showArrow; }
-    void setShowArrow(bool b) { m_showArrow = b; }      
+    void setShowArrow(bool b) { m_showArrow = b; }
 
 signals:
     void colorChanged();
@@ -213,7 +213,7 @@ private:
     void setup();
     void updateGradient();
     int currentColorIndex() const { return m_colorIndex; }
-    void setCurrentIndex(int i);    
+    void setCurrentIndex(int i);
 
     QColor m_activeColor;
     QmlItemNode m_itemNode;
@@ -311,8 +311,8 @@ public:
 
 } //QmlDesigner
 
-QML_DECLARE_TYPE(QmlDesigner::ColorButton);
-QML_DECLARE_TYPE(QmlDesigner::HueControl);
-QML_DECLARE_TYPE(QmlDesigner::ColorBox);
+QML_DECLARE_TYPE(QmlDesigner::ColorButton)
+QML_DECLARE_TYPE(QmlDesigner::HueControl)
+QML_DECLARE_TYPE(QmlDesigner::ColorBox)
 
 #endif //COLORWIDGET_H

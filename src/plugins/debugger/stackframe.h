@@ -71,6 +71,6 @@ typedef QList<StackFrame> StackFrames;
 } // namespace Internal
 } // namespace Debugger
 
-Q_DECLARE_METATYPE(Debugger::Internal::StackFrame);
+Q_DECLARE_METATYPE(Debugger::Internal::StackFrame)
 
 #endif // DEBUGGER_STACKFRAME_H

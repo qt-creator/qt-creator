@@ -144,7 +144,7 @@ public:
 } // namespace Internal
 } // namespace Debugger
 
-Q_DECLARE_METATYPE(Debugger::Internal::WatchData);
+Q_DECLARE_METATYPE(Debugger::Internal::WatchData)
 
 
 #endif // DEBUGGER_WATCHDATA_H

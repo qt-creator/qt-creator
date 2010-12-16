@@ -188,6 +188,6 @@ CORESHARED_EXPORT bool operator==(const ServerNodeInstance &first, const ServerN
 CORESHARED_EXPORT QDebug operator<<(QDebug debug, const ServerNodeInstance &instance);
 }
 
-Q_DECLARE_METATYPE(QmlDesigner::ServerNodeInstance);
+Q_DECLARE_METATYPE(QmlDesigner::ServerNodeInstance)
 
 #endif // SERVERNODEINSTANCE_H

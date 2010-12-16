@@ -219,6 +219,6 @@ QPair<quint64, unsigned> parseGdbSetBreakpointRequest(const QByteArray &cmd);
 } // namespace Internal
 } // namespace Debugger
 
-Q_DECLARE_METATYPE(Debugger::Internal::MemoryRange);
+Q_DECLARE_METATYPE(Debugger::Internal::MemoryRange)
 
 #endif // SYMBIANUTILS_H

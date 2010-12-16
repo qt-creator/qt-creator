@@ -648,7 +648,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event)
-    {        
+    {
         QFontMetrics fm(font());
         if (fm.width(text()) > (contentsRect().width() - 6) && text().length() > 4) {
             QPainter p(this);
@@ -1390,11 +1390,11 @@ public:
 
 QT_END_NAMESPACE
 
-QML_DECLARE_TYPE(QTabObject);
-QML_DECLARE_TYPE(MyGroupBox);
-QML_DECLARE_TYPE(WidgetLoader);
-QML_DECLARE_TYPE(WidgetFrame);
-QML_DECLARE_TYPE(AnimatedToolButton);
+QML_DECLARE_TYPE(QTabObject)
+QML_DECLARE_TYPE(MyGroupBox)
+QML_DECLARE_TYPE(WidgetLoader)
+QML_DECLARE_TYPE(WidgetFrame)
+QML_DECLARE_TYPE(AnimatedToolButton)
 
 void BasicWidgets::registerDeclarativeTypes()
 {

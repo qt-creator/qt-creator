@@ -98,6 +98,6 @@ private: //variables
 
 } // namespace QmlDesigner
 
-QML_DECLARE_TYPE(QmlDesigner::FontWidget);
+QML_DECLARE_TYPE(QmlDesigner::FontWidget)
 
 #endif // FONTWIDGET_H

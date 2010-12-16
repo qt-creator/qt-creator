@@ -26,6 +26,6 @@ QDataStream &operator>>(QDataStream &in, ImageContainer &container);
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::ImageContainer);
+Q_DECLARE_METATYPE(QmlDesigner::ImageContainer)
 
 #endif // IMAGECONTAINER_H

@@ -168,9 +168,9 @@ public:
 
 QT_END_NAMESPACE
 
-QML_DECLARE_TYPE(QBoxLayoutObject);
-QML_DECLARE_TYPE(QHBoxLayoutObject);
-QML_DECLARE_TYPE(QVBoxLayoutObject);
+QML_DECLARE_TYPE(QBoxLayoutObject)
+QML_DECLARE_TYPE(QHBoxLayoutObject)
+QML_DECLARE_TYPE(QVBoxLayoutObject)
 
 
 class BasicLayouts {

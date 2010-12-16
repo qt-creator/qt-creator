@@ -95,6 +95,6 @@ private:
 } // namespace Internal
 } // namespace Debugger
 
-//Q_DECLARE_METATYPE(GdbDebugger::Internal::JsonValue);
+//Q_DECLARE_METATYPE(GdbDebugger::Internal::JsonValue)
 
 #endif // DEBUGGER_JSON_H

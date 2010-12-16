@@ -34,5 +34,5 @@ QDataStream &operator>>(QDataStream &in, PropertyBindingContainer &container);
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::PropertyBindingContainer);
+Q_DECLARE_METATYPE(QmlDesigner::PropertyBindingContainer)
 #endif // PROPERTYBINDINGCONTAINER_H

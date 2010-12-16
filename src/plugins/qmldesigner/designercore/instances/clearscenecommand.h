@@ -16,6 +16,6 @@ QDataStream &operator>>(QDataStream &in, ClearSceneCommand &command);
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::ClearSceneCommand);
+Q_DECLARE_METATYPE(QmlDesigner::ClearSceneCommand)
 
 #endif // CLEARSCENECOMMAND_H

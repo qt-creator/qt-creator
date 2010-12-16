@@ -83,6 +83,6 @@ private:
 
 } // namespace ProjectExplorer
 
-Q_DECLARE_METATYPE(ProjectExplorer::BuildStepList *);
+Q_DECLARE_METATYPE(ProjectExplorer::BuildStepList *)
 
 #endif // PROJECTEXPLORER_BUILDSTEPLIST_H

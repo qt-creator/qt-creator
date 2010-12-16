@@ -42,7 +42,7 @@ using namespace Locator;
 using namespace Help;
 using namespace Help::Internal;
 
-Q_DECLARE_METATYPE(ILocatorFilter*);
+Q_DECLARE_METATYPE(ILocatorFilter*)
 
 HelpIndexFilter::HelpIndexFilter()
 {

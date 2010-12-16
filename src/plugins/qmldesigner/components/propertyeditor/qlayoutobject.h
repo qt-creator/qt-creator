@@ -53,7 +53,7 @@ public:
 
 QT_END_NAMESPACE
 
-QML_DECLARE_TYPE(QLayoutObject);
+QML_DECLARE_TYPE(QLayoutObject)
 
 QT_END_HEADER
 

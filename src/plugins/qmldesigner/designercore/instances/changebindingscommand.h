@@ -27,6 +27,6 @@ QDataStream &operator>>(QDataStream &in, ChangeBindingsCommand &command);
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::ChangeBindingsCommand);
+Q_DECLARE_METATYPE(QmlDesigner::ChangeBindingsCommand)
 
 #endif // CHANGEBINDINGSCOMMAND_H

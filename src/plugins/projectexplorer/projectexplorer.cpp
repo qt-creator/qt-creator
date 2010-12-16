@@ -117,8 +117,8 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QWizard>
 
-Q_DECLARE_METATYPE(Core::IEditorFactory*);
-Q_DECLARE_METATYPE(Core::IExternalEditor*);
+Q_DECLARE_METATYPE(Core::IEditorFactory*)
+Q_DECLARE_METATYPE(Core::IExternalEditor*)
 
 namespace {
 bool debug = false;

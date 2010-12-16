@@ -37,7 +37,7 @@
 
 using namespace QmlJSTools::Internal;
 
-Q_DECLARE_METATYPE(LocatorData::Entry);
+Q_DECLARE_METATYPE(LocatorData::Entry)
 
 FunctionFilter::FunctionFilter(LocatorData *data, QObject *parent)
     : Locator::ILocatorFilter(parent)

@@ -2609,9 +2609,9 @@ void GdbEngine::handleShowModuleSymbols(const GdbResponse &response)
         Symbols rc;
         QFile file(fileName);
         file.open(QIODevice::ReadOnly);
-        // Object file /opt/dev/qt/lib/libQtNetworkMyns.so.4: 
+        // Object file /opt/dev/qt/lib/libQtNetworkMyns.so.4:
         // [ 0] A 0x16bd64 _DYNAMIC  moc_qudpsocket.cpp
-        // [12] S 0xe94680 _ZN4myns5QFileC1Ev section .plt  myns::QFile::QFile()  
+        // [12] S 0xe94680 _ZN4myns5QFileC1Ev section .plt  myns::QFile::QFile()
         foreach (const QByteArray &line, file.readAll().split('\n')) {
             if (line.isEmpty())
                 continue;
@@ -4425,6 +4425,6 @@ void addGdbOptionPages(QList<Core::IOptionsPage *> *opts)
 } // namespace Internal
 } // namespace Debugger
 
-Q_DECLARE_METATYPE(Debugger::Internal::MemoryAgentCookie);
-Q_DECLARE_METATYPE(Debugger::Internal::DisassemblerAgentCookie);
-Q_DECLARE_METATYPE(Debugger::Internal::GdbMi);
+Q_DECLARE_METATYPE(Debugger::Internal::MemoryAgentCookie)
+Q_DECLARE_METATYPE(Debugger::Internal::DisassemblerAgentCookie)
+Q_DECLARE_METATYPE(Debugger::Internal::GdbMi)

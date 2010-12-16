@@ -40,7 +40,7 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QCheckBox>
 
-Q_DECLARE_METATYPE(Core::IFile*);
+Q_DECLARE_METATYPE(Core::IFile*)
 
 using namespace Core;
 using namespace Core::Internal;

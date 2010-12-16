@@ -25,6 +25,6 @@ QDataStream &operator>>(QDataStream &in, ChangeFileUrlCommand &command);
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::ChangeFileUrlCommand);
+Q_DECLARE_METATYPE(QmlDesigner::ChangeFileUrlCommand)
 
 #endif // CHANGEFILEURLCOMMAND_H

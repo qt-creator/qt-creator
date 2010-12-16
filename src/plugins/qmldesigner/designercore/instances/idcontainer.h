@@ -29,6 +29,6 @@ QDataStream &operator>>(QDataStream &in, IdContainer &container);
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::IdContainer);
+Q_DECLARE_METATYPE(QmlDesigner::IdContainer)
 
 #endif // IDCONTAINER_H
