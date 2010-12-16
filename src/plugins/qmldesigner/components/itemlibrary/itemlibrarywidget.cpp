@@ -48,6 +48,7 @@
 #include <QMimeData>
 #include <QWheelEvent>
 #include <QMenu>
+#include <QApplication>
 
 #include <QDeclarativeView>
 #include <QDeclarativeItem>
