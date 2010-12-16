@@ -779,6 +779,43 @@ private:
     QUrl _url;
 };
 
+class AnimatedToolButton : public QToolButton
+{
+
+Q_OBJECT
+
+    Q_PROPERTY(QUrl hoverIconFromFile READ hoverIconFromFile WRITE setHoverIconFromFile)
+
+public:
+    AnimatedToolButton( QWidget * parent = 0 ) : QToolButton(parent)
+    {}
+
+private:
+    QUrl hoverIconFromFile() const
+    { return m_hoverIconUrl; }
+
+    void setHoverIconFromFile(const QUrl &url)
+    {  m_hoverIconUrl= url;
+       m_hoverIcon = QIcon(m_hoverIconUrl.toLocalFile());
+    }
+
+    void leaveEvent(QEvent *)
+    {
+        setIcon(m_icon);
+    }
+
+    void enterEvent(QEvent *)
+    {
+        m_icon = icon();
+        setIcon(m_hoverIcon);
+    }
+
+    QUrl m_hoverIconUrl;
+    QIcon m_hoverIcon;
+    QIcon m_icon;
+
+};
+
 class QComboBoxDeclarativeUI : public QObject
 {
      Q_OBJECT
@@ -1357,6 +1394,7 @@ QML_DECLARE_TYPE(QTabObject);
 QML_DECLARE_TYPE(MyGroupBox);
 QML_DECLARE_TYPE(WidgetLoader);
 QML_DECLARE_TYPE(WidgetFrame);
+QML_DECLARE_TYPE(AnimatedToolButton);
 
 void BasicWidgets::registerDeclarativeTypes()
 {
@@ -1399,6 +1437,7 @@ void BasicWidgets::registerDeclarativeTypes()
     qmlRegisterType<QFrame>("Bauhaus",1,0,"QFrame");
     qmlRegisterType<WidgetFrame>("Bauhaus",1,0,"WidgetFrame");
     qmlRegisterType<WidgetLoader>("Bauhaus",1,0,"WidgetLoader");
+    qmlRegisterType<AnimatedToolButton>("Bauhaus",1,0,"AnimatedToolButton");
     qmlRegisterExtendedType<MyGroupBox,QGroupBoxDeclarativeUI>("Bauhaus",1,0,"QExtGroupBox");
     qmlRegisterExtendedType<QTabWidget,QTabWidgetDeclarativeUI>("Bauhaus",1,0,"QTabWidget");
     qmlRegisterExtendedType<QScrollArea,QScrollAreaDeclarativeUI>("Bauhaus",1,0,"QScrollArea");

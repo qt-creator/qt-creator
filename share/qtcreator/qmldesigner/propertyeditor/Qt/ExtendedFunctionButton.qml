@@ -1,10 +1,12 @@
 import Qt 4.7
 import Bauhaus 1.0
 
-QToolButton {
+AnimatedToolButton {
     id: extendedFunctionButton
 
     property variant backendValue
+
+    hoverIconFromFile: "images/submenu.png";
 
     function setIcon() {
         if (backendValue == null)
@@ -39,15 +41,6 @@ QToolButton {
     focusPolicy: "Qt::NoFocus";
 
     styleSheet: "*::down-arrow, *::menu-indicator { image: none; width: 0; height: 0; }";
-
-
-    onMouseOverChanged: {
-        if (mouseOver) {
-            iconFromFile = "images/submenu.png";
-        } else {
-            setIcon();
-        }
-    }
 
     onActiveChanged: {
         if (active) {
