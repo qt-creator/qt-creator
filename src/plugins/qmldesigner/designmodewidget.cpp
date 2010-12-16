@@ -90,13 +90,12 @@ namespace QmlDesigner {
 namespace Internal {
 
 DocumentWarningWidget::DocumentWarningWidget(DesignModeWidget *parent) :
-        QFrame(parent),
+        Utils::FakeToolTip(parent),
         m_errorMessage(new QLabel("Placeholder", this)),
         m_goToError(new QLabel(this)),
         m_designModeWidget(parent)
 {
-    setFrameStyle(QFrame::Panel | QFrame::Raised);
-    setLineWidth(1);
+    setWindowFlags(Qt::Widget); //We only want the visual style from a ToolTip
     setForegroundRole(QPalette::ToolTipText);
     setBackgroundRole(QPalette::ToolTipBase);
     setAutoFillBackground(true);

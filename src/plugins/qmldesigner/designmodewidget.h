@@ -32,6 +32,7 @@
 
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <utils/faketooltip.h>
 #include <texteditor/itexteditor.h>
 
 #include <integrationcore.h>
@@ -78,7 +79,7 @@ class DesignMode;
 class DocumentWidget;
 class DesignModeWidget;
 
-class DocumentWarningWidget : public QFrame
+class DocumentWarningWidget : public  Utils::FakeToolTip
 {
     Q_OBJECT
     Q_DISABLE_COPY(DocumentWarningWidget)
