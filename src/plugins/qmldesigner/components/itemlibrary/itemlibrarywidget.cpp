@@ -363,6 +363,7 @@ void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
     if (block == true)
         return;
 
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     block = true;
     if (flag == QtBasic) {
         removeImport(QLatin1String("com.meego"));
@@ -383,6 +384,7 @@ void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
         emit meegoChecked(true);
         emit symbianChecked(false);
     }
+    QApplication::restoreOverrideCursor();
     block = false;
     m_filterFlag = flag;
 }
