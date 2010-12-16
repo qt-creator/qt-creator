@@ -33,10 +33,13 @@
 #include "common.h"
 #include "symbolgroupnode.h"
 
-// Thin wrapper around a symbol group storing a tree of expanded symbols rooted on
-// a fake "locals" root element.
-// Provides a find() method based on inames ("locals.this.i1.data") that retrieves
-// that index based on the current expansion state.
+/* A symbol group storing a tree of expanded symbols rooted on
+ * a fake "locals" root element.
+ * Provides a find() method based on inames ("locals.this.i1.data") and
+ * dump() methods used for GDBMI-format dumping and debug helpers.
+ * Qt Creator's WatchModel is fed from this class. It basically represents the
+ * symbol group tree with some additional node types (Reference and Map Node
+ * types. */
 
 class SymbolGroup {
 public:

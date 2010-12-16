@@ -189,15 +189,28 @@ SymbolGroupValue SymbolGroupValue::pointerTypeCast(const char *type) const
 
 SymbolGroupValue SymbolGroupValue::typeCastedValue(ULONG64 address, const char *type) const
 {
-    if (address) {
-        SymbolGroup *sg = m_node->symbolGroup();
-        std::ostringstream str;
-        str << '(' << type << ")(" << std::showbase << std::hex << address << ')';
-        if (SymbolGroupNode *node = sg->addSymbol(str.str(),
-                                                  additionalSymbolIname(sg),
-                                                  &m_errorMessage))
-            return SymbolGroupValue(node, m_context);
-    }
+    if (!address)
+        return SymbolGroupValue();
+    const size_t len = strlen(type);
+    if (!len)
+        return SymbolGroupValue();
+    const bool nonPointer = type[len - 1] != '*';
+    SymbolGroup *sg = m_node->symbolGroup();
+    // A bit of magic: For desired pointer types, we can do
+    //     'Foo *' -> '(Foo *)(address)'.
+    // For non-pointers, we need to de-reference:
+    //      'Foo' -> '*(Foo *)(address)'
+    std::ostringstream str;
+    if (nonPointer)
+        str << '*';
+    str << '(' << type;
+    if (nonPointer)
+        str << " *";
+    str << ")(" << std::showbase << std::hex << address << ')';
+    if (SymbolGroupNode *node = sg->addSymbol(str.str(),
+                                              additionalSymbolIname(sg),
+                                              &m_errorMessage))
+        return SymbolGroupValue(node, m_context);
     return SymbolGroupValue();
 }
 

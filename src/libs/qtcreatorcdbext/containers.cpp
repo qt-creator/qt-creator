@@ -35,6 +35,8 @@
 #include <functional>
 
 typedef AbstractSymbolGroupNode::AbstractSymbolGroupNodePtrVector AbstractSymbolGroupNodePtrVector;
+typedef std::vector<SymbolGroupValue> SymbolGroupValueVector;
+typedef std::vector<int>::size_type VectorIndexType;
 
 // Read a pointer array from debuggee memory (ULONG64/32 according pointer size)
 static void *readPointerArray(ULONG64 address, unsigned count, const SymbolGroupValueContext &ctx)
@@ -394,12 +396,152 @@ static inline AbstractSymbolGroupNodePtrVector
                            innerType, count);
 }
 
+// Return the list of buckets of a 'QHash<>' as 'QHashData::Node *' values from
+// the list of addresses passed in
+template<class AddressType>
+SymbolGroupValueVector hashBuckets(SymbolGroup *sg, const std::string hashNodeType,
+                                   const AddressType *pointerArray,
+                                   int numBuckets,
+                                   AddressType ePtr,
+                                   const SymbolGroupValueContext &ctx)
+{
+    SymbolGroupValueVector rc;
+    rc.reserve(numBuckets);
+    const AddressType *end = pointerArray + numBuckets;
+    std::string errorMessage;
+    // Skip 'e' special values as they are used as placeholder for reserve(d)
+    // empty array elements.
+    for (const AddressType *p = pointerArray; p < end; p++) {
+        if (*p != ePtr) {
+            const std::string name = pointedToSymbolName(*p, hashNodeType);
+            if (SymbolGroupNode *child = sg->addSymbol(name, std::string(), &errorMessage)) {
+                rc.push_back(SymbolGroupValue(child, ctx));
+            } else {
+                return std::vector<SymbolGroupValue>();
+                break;
+            }
+        }
+    }
+    return rc;
+}
+
+// Return real node type of a QHash: "class QHash<K,V>" -> [struct] "QHashNode<K,V>";
+static inline std::string qHashNodeType(std::string qHashType)
+{
+    qHashType.erase(0, 6); // Strip "class ";
+    const std::string::size_type pos = qHashType.find('<');
+    if (pos != std::string::npos)
+        qHashType.insert(pos, "Node");
+    return qHashType;
+}
+
+// Return up to count nodes of type "QHashNode<K,V>" of a "class QHash<K,V>".
+SymbolGroupValueVector qHashNodes(const SymbolGroupValue &v,
+                                  VectorIndexType count)
+{
+    if (!count)
+        return SymbolGroupValueVector();
+    const SymbolGroupValue hashData = v["d"];
+    // 'e' is used as a special value to indicate empty hash buckets in the array.
+    const ULONG64 ePtr = v["e"].pointerValue();
+    if (!hashData || !ePtr)
+        return SymbolGroupValueVector();
+    // Retrieve the array of buckets of 'd'
+    const int numBuckets = hashData["numBuckets"].intValue();
+    const ULONG64 bucketArray = hashData["buckets"].pointerValue();
+    if (numBuckets <= 0 || !bucketArray)
+        return SymbolGroupValueVector();
+    void *bucketPointers = readPointerArray(bucketArray, numBuckets, v.context());
+    if (!bucketPointers)
+        return SymbolGroupValueVector();
+    // Get list of buckets (starting elements of 'QHashData::Node')
+    const std::string dummyNodeType = "QHashData::Node";
+    const SymbolGroupValueVector buckets = SymbolGroupValue::pointerSize() == 8 ?
+        hashBuckets(v.node()->symbolGroup(), dummyNodeType,
+                    reinterpret_cast<const ULONG64 *>(bucketPointers), numBuckets,
+                    ePtr, v.context()) :
+        hashBuckets(v.node()->symbolGroup(), dummyNodeType,
+                    reinterpret_cast<const ULONG32 *>(bucketPointers), numBuckets,
+                    ULONG32(ePtr), v.context());
+    delete [] bucketPointers ;
+    // Generate the list 'QHashData::Node *' by iterating over the linked list of
+    // nodes starting at each bucket. Using the 'QHashData::Node *' instead of
+    // the 'QHashNode<K,T>' is much faster. Each list has a trailing, unused
+    // dummy element.
+    SymbolGroupValueVector dummyNodeList;
+    dummyNodeList.reserve(count);
+    bool notEnough = true;
+    const SymbolGroupValueVector::const_iterator ncend = buckets.end();
+    for (SymbolGroupValueVector::const_iterator it = buckets.begin(); notEnough && it != ncend; ++it) {
+        for (SymbolGroupValue l = *it; notEnough && l ; ) {
+            const SymbolGroupValue next = l["next"];
+            if (next && next.pointerValue()) { // Stop at trailing dummy element
+                dummyNodeList.push_back(l);
+                if (dummyNodeList.size() >= count) // Stop at maximum count
+                    notEnough = false;
+            } else {
+                break;
+            }
+        }
+    }
+    // Finally convert them into real nodes 'QHashNode<K,V> (potentially expensive)
+    const std::string nodeType = qHashNodeType(v.type());
+    SymbolGroupValueVector nodeList;
+    nodeList.reserve(count);
+    const SymbolGroupValueVector::const_iterator dcend = dummyNodeList.end();
+    for (SymbolGroupValueVector::const_iterator it = dummyNodeList.begin(); it != dcend; ++it) {
+        if (const SymbolGroupValue n = (*it).typeCast(nodeType.c_str())) {
+            nodeList.push_back(n);
+        }  else {
+            return SymbolGroupValueVector();
+        }
+    }
+    return nodeList;
+}
+
+// QSet<>: Contains a 'QHash<key, QHashDummyValue>' as member 'q_hash'.
+// Just dump the keys as an array.
 static inline AbstractSymbolGroupNodePtrVector
-    qHashChildList(const SymbolGroupValue &, int count)
+    qSetChildList(const SymbolGroupValue &v, VectorIndexType count)
+{
+    const SymbolGroupValue qHash = v["q_hash"];
+    AbstractSymbolGroupNodePtrVector rc;
+    if (!count || !qHash)
+        return rc;
+    const SymbolGroupValueVector nodes = qHashNodes(qHash, count);
+    if (nodes.size() != VectorIndexType(count))
+        return rc;
+    rc.reserve(count);
+    for (int i = 0; i < count; i++) {
+        if (const SymbolGroupValue key = nodes.at(i)["key"]) {
+            rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, key.node()));
+        } else {
+            return AbstractSymbolGroupNodePtrVector();
+        }
+    }
+    return rc;
+}
+
+// QHash<>: Add with fake map nodes.
+static inline AbstractSymbolGroupNodePtrVector
+    qHashChildList(const SymbolGroupValue &v, VectorIndexType count)
 {
     AbstractSymbolGroupNodePtrVector rc;
     if (!count)
         return rc;
+    const SymbolGroupValueVector nodes = qHashNodes(v, count);
+    if (nodes.size() != count)
+        return rc;
+    rc.reserve(count);
+    for (int i = 0; i < count; i++) {
+        const SymbolGroupValue &mapNode = nodes.at(i);
+        const SymbolGroupValue key = mapNode["key"];
+        const SymbolGroupValue value = mapNode["value"];
+        if (!key || !value)
+            return AbstractSymbolGroupNodePtrVector();
+        rc.push_back(MapNodeSymbolGroupNode::create(i, mapNode.address(),
+                                                    mapNode.type(), key.node(), value.node()));
+    }
     return rc;
 }
 
@@ -429,14 +571,12 @@ AbstractSymbolGroupNodePtrVector containerChildren(SymbolGroupNode *node, int ty
         break;
     case KT_QHash:
         return qHashChildList(SymbolGroupValue(node, ctx), size);
-    case KT_QMultiMap:
+    case KT_QMultiHash:
         if (const SymbolGroupValue hash = SymbolGroupValue(node, ctx)[unsigned(0)])
             return qHashChildList(hash, size);
         break;
     case KT_QSet:
-        if (const SymbolGroupValue qHash = SymbolGroupValue(node, ctx)["q_hash"])
-            return qHashChildList(qHash, size);
-        break;
+        return qSetChildList(SymbolGroupValue(node, ctx), size);
     case KT_QStringList:
         if (const SymbolGroupValue qList = SymbolGroupValue(node, ctx)[unsigned(0)])
             return qListChildList(qList, size);

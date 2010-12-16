@@ -1023,6 +1023,20 @@ SymbolGroupNode *SymbolGroupNode::addSymbolByName(const std::string &name,
 }
 
 // --------- ReferenceSymbolGroupNode
+
+// Utility returning a pair ('[42]','42') as name/iname pair
+// for a node representing an array index
+typedef std::pair<std::string, std::string> StringStringPair;
+
+static inline StringStringPair arrayIndexNameIname(int index)
+{
+    StringStringPair rc(std::string(), toString(index));
+    rc.first = std::string(1, '[');
+    rc.first += rc.second;
+    rc.first.push_back(']');
+    return rc;
+}
+
 ReferenceSymbolGroupNode::ReferenceSymbolGroupNode(const std::string &name,
                                                    const std::string &iname,
                                                    SymbolGroupNode *referencedNode) :
@@ -1034,11 +1048,8 @@ ReferenceSymbolGroupNode::ReferenceSymbolGroupNode(const std::string &name,
 ReferenceSymbolGroupNode *ReferenceSymbolGroupNode::createArrayNode(int index,
                                                                     SymbolGroupNode *referencedNode)
 {
-    const std::string iname = toString(index);
-    std::string name = std::string(1, '[');
-    name += iname;
-    name.push_back(']');
-    return new ReferenceSymbolGroupNode(name, iname, referencedNode);
+    const StringStringPair nameIname = arrayIndexNameIname(index);
+    return new ReferenceSymbolGroupNode(nameIname.first, nameIname.second, referencedNode);
 }
 
 void ReferenceSymbolGroupNode::dump(std::ostream &str, const std::string &visitingFullIname,
@@ -1054,6 +1065,49 @@ void ReferenceSymbolGroupNode::debug(std::ostream &str, const std::string &visit
     indentStream(str, 2 * depth);
     str << "Node " << name() << '/' << visitingFullIname << " referencing\n";
     m_referencedNode->debug(str, visitingFullIname, verbosity, depth);
+}
+
+// ---------------- MapNodeSymbolGroupNode
+MapNodeSymbolGroupNode::MapNodeSymbolGroupNode(const std::string &name,
+                                               const std::string &iname,
+                                               ULONG64 address,
+                                               const std::string &type,
+                                               AbstractSymbolGroupNode *key,
+                                               AbstractSymbolGroupNode *value) :
+    BaseSymbolGroupNode(name, iname), m_address(address), m_type(type)
+{
+    addChild(key);
+    addChild(value);
+}
+
+MapNodeSymbolGroupNode
+    *MapNodeSymbolGroupNode::create(int index, ULONG64 address,
+                                    const std::string &type,
+                                    SymbolGroupNode *key, SymbolGroupNode *value)
+{
+    const StringStringPair nameIname = arrayIndexNameIname(index);
+    const std::string keyName = "key";
+    ReferenceSymbolGroupNode *keyRN = new ReferenceSymbolGroupNode(keyName, keyName, key);
+    const std::string valueName = "value";
+    ReferenceSymbolGroupNode *valueRN = new ReferenceSymbolGroupNode(valueName, valueName, value);
+    return new MapNodeSymbolGroupNode(nameIname.first, nameIname.second, address, type, keyRN, valueRN);
+}
+
+void MapNodeSymbolGroupNode::dump(std::ostream &str, const std::string &visitingFullIname,
+                                  const DumpParameters &, const SymbolGroupValueContext &)
+{
+    SymbolGroupNode::dumpBasicData(str, name(), visitingFullIname);
+    if (m_address)
+        str << ",address=\"0x" << std::hex << m_address << '"';
+    str << ",type=\"" << m_type << "\",valueencoded=\"0\",value=\"\",valueenabled=\"false\""
+           ",valueeditable=\"false\",numchild=\"2\"";
+}
+
+void MapNodeSymbolGroupNode::debug(std::ostream &os, const std::string &visitingFullIname,
+                                   unsigned /* verbosity */, unsigned depth) const
+{
+    indentStream(os, 2 * depth);
+    os << "MapNode " << name() << '/' << visitingFullIname << '\n';
 }
 
 // --------- DebugSymbolGroupNodeVisitor

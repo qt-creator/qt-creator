@@ -159,7 +159,8 @@ private:
     void removeChildren();
 };
 
-/* SymbolGroupNode: 'Real' node within a symbol group, identified by its index.
+/* SymbolGroupNode: 'Real' node within a symbol group, identified by its index
+ * in IDebugSymbolGroup.
  * Provides accessors for fixed-up symbol group value and a dumping facility
  * consisting of:
  * - 'Simple' dumping done when running the DumpVisitor. This produces one
@@ -265,7 +266,7 @@ private:
 
 // Artificial node referencing another (real) SymbolGroupNode (added symbol or
 // symbol from within a linked list structure. Forwards dumping to referenced node
-// using its own name/iname.
+// using its own name.
 class ReferenceSymbolGroupNode  : public AbstractSymbolGroupNode
 {
 public:
@@ -288,6 +289,32 @@ public:
 
 private:
     SymbolGroupNode * const m_referencedNode;
+};
+
+// Base class for a [fake] map node with a fake array index and key/value entries.
+class MapNodeSymbolGroupNode : public BaseSymbolGroupNode
+{
+private:
+    explicit MapNodeSymbolGroupNode(const std::string &name,
+                                    const std::string &iname,
+                                    ULONG64 address /* = 0 */,
+                                    const std::string &type,
+                                    AbstractSymbolGroupNode *key,
+                                    AbstractSymbolGroupNode *value);
+
+public:
+    static MapNodeSymbolGroupNode *
+        create(int i, ULONG64 address /* = 0 */, const std::string &type,
+               SymbolGroupNode *key, SymbolGroupNode *value);
+
+    virtual void dump(std::ostream &str, const std::string &visitingFullIname,
+                      const DumpParameters &p, const SymbolGroupValueContext &ctx);
+    virtual void debug(std::ostream &os, const std::string &visitingFullIname,
+                       unsigned verbosity, unsigned depth) const;
+
+private:
+    const ULONG64 m_address;
+    const std::string m_type;
 };
 
 /* Visitor that takes care of iterating over the nodes and
