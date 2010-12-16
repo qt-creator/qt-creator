@@ -1796,7 +1796,13 @@ bool Bind::visit(SimpleDeclarationAST *ast)
 bool Bind::visit(EmptyDeclarationAST *ast)
 {
     (void) ast;
-    // unsigned semicolon_token = ast->semicolon_token;
+    unsigned semicolon_token = ast->semicolon_token;
+    if (_scope && (_scope->isClass() || _scope->isNamespace())) {
+        const Token &tk = tokenAt(semicolon_token);
+
+        if (! tk.generated())
+            translationUnit()->warning(semicolon_token, "extra `;'");
+    }
     return false;
 }
 
@@ -2770,6 +2776,14 @@ bool Bind::visit(EnumSpecifierAST *ast)
     for (EnumeratorListAST *it = ast->enumerator_list; it; it = it->next) {
         this->enumerator(it->value, e);
     }
+
+    if (ast->stray_comma_token /* && ! translationUnit()->cxx0xEnabled()*/) {
+        const Token &tk = tokenAt(ast->stray_comma_token);
+        if (! tk.generated())
+            translationUnit()->warning(ast->stray_comma_token,
+                                       "commas at the end of enumerator lists are a C++0x-specific feature");
+    }
+
     (void) switchScope(previousScope);
     return false;
 }

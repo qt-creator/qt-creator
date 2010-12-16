@@ -1546,6 +1546,9 @@ bool Parser::parseEnumSpecifier(SpecifierListAST *&node)
                     enumerator_ptr = &(*enumerator_ptr)->next;
                 }
 
+                if (LA() == T_COMMA && LA(2) == T_RBRACE)
+                    ast->stray_comma_token = consumeToken();
+
                 if (LA() != T_RBRACE)
                     match(T_COMMA, &comma_token);
             }

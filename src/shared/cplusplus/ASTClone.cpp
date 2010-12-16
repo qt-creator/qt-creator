@@ -557,6 +557,7 @@ EnumSpecifierAST *EnumSpecifierAST::clone(MemoryPool *pool) const
     for (EnumeratorListAST *iter = enumerator_list, **ast_iter = &ast->enumerator_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) EnumeratorListAST((iter->value) ? iter->value->clone(pool) : 0);
+    ast->stray_comma_token = stray_comma_token;
     ast->rbrace_token = rbrace_token;
     return ast;
 }

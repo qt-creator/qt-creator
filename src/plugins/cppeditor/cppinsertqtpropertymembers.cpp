@@ -70,7 +70,7 @@ QList<CppQuickFixOperation::Ptr> InsertQtPropertyMembers::match(const CppQuickFi
     QString getterName;
     QString setterName;
     QString signalName;
-    int generateFlags;
+    int generateFlags = 0;
     for (QtPropertyDeclarationItemListAST *it = qtPropertyDeclaration->property_declaration_item_list;
          it; it = it->next) {
         const QString tokenString = file.tokenAt(it->value->item_name_token).spell();

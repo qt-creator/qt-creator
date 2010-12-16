@@ -1621,6 +1621,7 @@ public:
     NameAST *name;
     unsigned lbrace_token;
     EnumeratorListAST *enumerator_list;
+    unsigned stray_comma_token;
     unsigned rbrace_token;
 
 public: // annotations
@@ -1632,6 +1633,7 @@ public:
         , name(0)
         , lbrace_token(0)
         , enumerator_list(0)
+        , stray_comma_token(0)
         , rbrace_token(0)
         , symbol(0)
     {}

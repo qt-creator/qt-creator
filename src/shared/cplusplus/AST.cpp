@@ -1107,6 +1107,8 @@ unsigned EnumSpecifierAST::firstToken() const
     if (enumerator_list)
         if (unsigned candidate = enumerator_list->firstToken())
             return candidate;
+    if (stray_comma_token)
+        return stray_comma_token;
     if (rbrace_token)
         return rbrace_token;
     return 0;
@@ -1117,6 +1119,8 @@ unsigned EnumSpecifierAST::lastToken() const
 {
     if (rbrace_token)
         return rbrace_token + 1;
+    if (stray_comma_token)
+        return stray_comma_token + 1;
     if (enumerator_list)
         if (unsigned candidate = enumerator_list->lastToken())
             return candidate;

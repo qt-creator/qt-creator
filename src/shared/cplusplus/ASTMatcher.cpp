@@ -926,6 +926,8 @@ bool ASTMatcher::match(EnumSpecifierAST *node, EnumSpecifierAST *pattern)
     else if (! AST::match(node->enumerator_list, pattern->enumerator_list, this))
         return false;
 
+    pattern->stray_comma_token = node->stray_comma_token;
+
     pattern->rbrace_token = node->rbrace_token;
 
     return true;

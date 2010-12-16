@@ -543,6 +543,8 @@ virtual bool visit(EnumSpecifierAST *ast)
         terminal(ast->lbrace_token, ast);
     for (EnumeratorListAST *iter = ast->enumerator_list; iter; iter = iter->next)
         nonterminal(iter->value);
+    if (ast->stray_comma_token)
+        terminal(ast->stray_comma_token, ast);
     if (ast->rbrace_token)
         terminal(ast->rbrace_token, ast);
     return false;
