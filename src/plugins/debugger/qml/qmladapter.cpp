@@ -148,7 +148,7 @@ void QmlAdapter::sendMessage(const QByteArray &msg)
 
 void QmlAdapter::connectionErrorOccurred(QAbstractSocket::SocketError socketError)
 {
-    showConnectionErrorMessage(tr("Error: (%1) %2", "%1=error code, %2=error message")
+    showConnectionStatusMessage(tr("Error: (%1) %2", "%1=error code, %2=error message")
                                 .arg(d->m_conn->error()).arg(d->m_conn->errorString()));
 
     // this is only an error if we are already connected and something goes wrong.
