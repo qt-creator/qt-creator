@@ -191,7 +191,6 @@ void QmlAdapter::connectionStateChanged()
 
             if (!d->m_mainClient) {
                 d->m_mainClient = new QDeclarativeEngineDebug(d->m_conn, this);
-                logServiceStatusChange(QLatin1String("QmlObserver"), static_cast<QDeclarativeDebugClient::Status>(d->m_mainClient->status()));
             }
 
             createDebuggerClient();
@@ -218,8 +217,6 @@ void QmlAdapter::createDebuggerClient()
             this, SLOT(sendMessage(QByteArray)));
     connect(d->m_qmlClient, SIGNAL(messageWasReceived(QByteArray)),
             d->m_engine.data(), SLOT(messageReceived(QByteArray)));
-
-    logServiceStatusChange(d->m_qmlClient->name(), d->m_qmlClient->status());
 
     //engine->startSuccessful();  // FIXME: AAA: port to new debugger states
 }

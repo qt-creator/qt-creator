@@ -70,9 +70,6 @@ void ClientProxy::connectToServer()
 {
     m_observerClient = new QmlJSObserverClient(m_adapter->connection(), this);
 
-
-    m_adapter->logServiceStatusChange(m_observerClient->name(), m_observerClient->status());
-
     connect(m_observerClient, SIGNAL(connectedStatusChanged(QDeclarativeDebugClient::Status)),
              this, SLOT(clientStatusChanged(QDeclarativeDebugClient::Status)));
     connect(m_observerClient, SIGNAL(currentObjectsChanged(QList<int>)),
