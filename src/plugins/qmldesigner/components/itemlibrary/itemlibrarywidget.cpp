@@ -364,6 +364,7 @@ void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
         return;
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
     block = true;
     if (flag == QtBasic) {
         removeImport(QLatin1String("com.meego"));
@@ -372,14 +373,14 @@ void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
         emit meegoChecked(false);
         emit symbianChecked(false);
     } else  if (flag == Symbian) {
-        addImport(QLatin1String("Qt.labs.Symbian"), QLatin1String("1.0"));
         removeImport(QLatin1String("com.meego"));
+        addImport(QLatin1String("Qt.labs.Symbian"), QLatin1String("1.0"));
         emit qtBasicOnlyChecked(false);
         emit meegoChecked(false);
         emit symbianChecked(true);
     }  else  if (flag == Meego) {
-        addImport(QLatin1String("com.meego"), QLatin1String("1.0"));
         removeImport(QLatin1String("Qt.labs.Symbian"));
+        addImport(QLatin1String("com.meego"), QLatin1String("1.0"));
         emit qtBasicOnlyChecked(false);
         emit meegoChecked(true);
         emit symbianChecked(false);
