@@ -160,8 +160,11 @@ void MaemoPublisherFremantleFree::createPackage()
     }
 
     setState(RunningQmake);
+    ProjectExplorer::AbstractProcessStep * const qmakeStep
+        = m_buildConfig->qmakeStep();
+    qmakeStep->init();
     const ProjectExplorer::ProcessParameters * const pp
-        = m_buildConfig->qmakeStep()->processParameters();
+        = qmakeStep->processParameters();
     m_process->start(pp->effectiveCommand() + QLatin1String(" ")
         + pp->effectiveArguments());
 }
