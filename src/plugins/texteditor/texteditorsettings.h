@@ -86,8 +86,8 @@ signals:
 
 private:
     Internal::TextEditorSettingsPrivate *m_d;
-    Q_PRIVATE_SLOT(m_d, void fontZoomRequested(int pointSize));
-    Q_PRIVATE_SLOT(m_d, void zoomResetRequested());
+    Q_PRIVATE_SLOT(m_d, void fontZoomRequested(int pointSize))
+    Q_PRIVATE_SLOT(m_d, void zoomResetRequested())
 
     static TextEditorSettings *m_instance;
 };

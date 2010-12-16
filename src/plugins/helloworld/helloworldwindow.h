@@ -32,7 +32,7 @@
 
 #include <QtGui/QWidget>
 
-QT_FORWARD_DECLARE_CLASS(QLabel);
+QT_FORWARD_DECLARE_CLASS(QLabel)
 
 namespace HelloWorld {
 namespace Internal {

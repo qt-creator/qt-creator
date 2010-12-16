@@ -82,7 +82,7 @@ bool Settings::equals(const Settings &rhs) const
             && p4Client == rhs.p4Client && p4User == rhs.p4User
             && timeOutS == rhs.timeOutS && promptToSubmit == rhs.promptToSubmit
             && autoOpen == rhs.autoOpen;
-};
+}
 
 QStringList Settings::commonP4Arguments() const
 {

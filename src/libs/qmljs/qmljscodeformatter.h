@@ -169,7 +169,7 @@ public: // must be public to make Q_GADGET introspection work
 
         switch_statement, // After 'switch' token
         case_start, // after a 'case' or 'default' token
-        case_cont, // after the colon in a case/default
+        case_cont // after the colon in a case/default
     };
     Q_ENUMS(StateType)
 
@@ -233,7 +233,7 @@ protected:
 
         Question,
         PlusPlus,
-        MinusMinus,
+        MinusMinus
     };
 
     TokenKind extendedTokenKind(const QmlJS::Token &token) const;

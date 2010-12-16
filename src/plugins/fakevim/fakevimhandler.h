@@ -44,7 +44,7 @@ enum RangeMode
     RangeLineMode,         // V
     RangeLineModeExclusive,
     RangeBlockMode,        // Ctrl-v
-    RangeBlockAndTailMode, // Ctrl-v for D and X
+    RangeBlockAndTailMode // Ctrl-v for D and X
 };
 
 struct Range

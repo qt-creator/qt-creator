@@ -1036,7 +1036,7 @@ static QString stateToString(BreakpointState state)
         case BreakpointDead: return "Dead";
         default: return "<invalid state>";
     }
-};
+}
 
 bool BreakHandler::BreakpointItem::needsChange() const
 {

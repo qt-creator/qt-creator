@@ -49,7 +49,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QList>
 
-QT_FORWARD_DECLARE_CLASS(QTimer);
+QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace ProjectExplorer { class BuildStep; }
 

@@ -173,4 +173,4 @@ void BehaviorDialog::reject()
     QDialog::reject();
 }
 
-};
+}

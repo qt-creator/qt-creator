@@ -36,7 +36,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtGui/QIcon>
 
-QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher);
+QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher)
 
 namespace ProjectExplorer {
 class Project;

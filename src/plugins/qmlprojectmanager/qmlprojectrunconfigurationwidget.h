@@ -32,8 +32,8 @@
 
 #include <QWidget>
 
-QT_FORWARD_DECLARE_CLASS(QComboBox);
-QT_FORWARD_DECLARE_CLASS(QStandardItemModel);
+QT_FORWARD_DECLARE_CLASS(QComboBox)
+QT_FORWARD_DECLARE_CLASS(QStandardItemModel)
 
 namespace ProjectExplorer {
 

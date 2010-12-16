@@ -72,7 +72,7 @@ enum DebuggingHelperState
     DebuggingHelperUninitialized,
     DebuggingHelperLoadTried,
     DebuggingHelperAvailable,
-    DebuggingHelperUnavailable,
+    DebuggingHelperUnavailable
 };
 
 
@@ -182,7 +182,7 @@ private: ////////// Gdb Command Management //////////
     enum GdbCommandFlag {
         NoFlags = 0,
         // The command needs a stopped inferior.
-        NeedsStop = 1, 
+        NeedsStop = 1,
         // No need to wait for the reply before continuing inferior.
         Discardable = 2,
         // Trigger watch model rebuild when no such commands are pending anymore.
@@ -201,7 +201,7 @@ private: ////////// Gdb Command Management //////////
         // This command needs to be send immediately.
         Immediate = 256,
         // This is a command that needs to be wrapped into -interpreter-exec console
-        ConsoleCommand = 512,
+        ConsoleCommand = 512
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
     private:
@@ -524,7 +524,7 @@ private: ////////// View & Data Stuff //////////
     QtDumperHelper m_dumperHelper;
     QString m_gdb;
 
-    // 
+    //
     // Convenience Functions
     //
     QString errorMessage(QProcess::ProcessError error);

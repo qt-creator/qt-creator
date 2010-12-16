@@ -59,7 +59,7 @@ protected:
     HistoryCompleterPrivate *d_ptr;
 
 private:
-    Q_DECLARE_PRIVATE(HistoryCompleter);
+    Q_DECLARE_PRIVATE(HistoryCompleter)
 };
 
 } // namespace Utils

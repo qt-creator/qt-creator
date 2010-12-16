@@ -47,7 +47,7 @@ public:
 
     enum EntryType
     {
-        Function,
+        Function
     };
 
     class Entry

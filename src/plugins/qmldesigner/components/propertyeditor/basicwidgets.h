@@ -101,8 +101,8 @@ public:
     Action(QObject *parent = 0) : QAction(parent) {}
 };
 
-QML_DECLARE_TYPE(QMenu);
-QML_DECLARE_TYPE(Action);
+QML_DECLARE_TYPE(QMenu)
+QML_DECLARE_TYPE(Action)
 
 //QML_DECLARE_TYPE(QToolBox)
 

@@ -36,7 +36,7 @@
 #include <coreplugin/basefilewizard.h>
 #endif // CREATORLESSTEST
 
-QT_FORWARD_DECLARE_CLASS(QTextStream);
+QT_FORWARD_DECLARE_CLASS(QTextStream)
 
 namespace Qt4ProjectManager {
 namespace Internal {

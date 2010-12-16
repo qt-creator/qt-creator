@@ -35,7 +35,7 @@
 
 namespace Core {
 class GeneratedFile;
-};
+}
 
 namespace ProjectExplorer {
 namespace Internal {

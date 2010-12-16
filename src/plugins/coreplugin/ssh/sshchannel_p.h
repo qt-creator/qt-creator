@@ -34,7 +34,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 
-QT_FORWARD_DECLARE_CLASS(QTimer);
+QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace Core {
 namespace Internal {

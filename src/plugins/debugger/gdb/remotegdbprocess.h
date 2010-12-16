@@ -91,7 +91,7 @@ private slots:
 private:
     enum State {
         Inactive, Connecting, CreatingFifo, StartingFifoReader,
-        StartingGdb, RunningGdb,
+        StartingGdb, RunningGdb
     };
 
     static QByteArray readerCmdLine(const QByteArray &file);

@@ -299,7 +299,7 @@ void ProMaker::createContents()
 {
     for (int i = 0; i != m_projects.size(); ++i)
         m_projects[i]->createFileLists();
-};
+}
 
 void ProMaker::writeOutput()
 {

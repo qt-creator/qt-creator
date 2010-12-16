@@ -33,8 +33,8 @@
 #include <QColor>
 #include <QPoint>
 
-QT_FORWARD_DECLARE_CLASS(QContextMenuEvent);
-QT_FORWARD_DECLARE_CLASS(QAction);
+QT_FORWARD_DECLARE_CLASS(QContextMenuEvent)
+QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace QmlJSInspector {
 

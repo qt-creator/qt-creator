@@ -94,7 +94,7 @@ public:
 
         PublicSlot    = Public    | SlotBit,
         ProtectedSlot = Protected | SlotBit,
-        PrivateSlot   = Private   | SlotBit,
+        PrivateSlot   = Private   | SlotBit
     };
 
 public:

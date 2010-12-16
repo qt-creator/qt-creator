@@ -32,9 +32,9 @@
 
 #include <QtGui/QDialog>
 
-QT_FORWARD_DECLARE_CLASS(QCheckBox);
-QT_FORWARD_DECLARE_CLASS(QDialogButtonBox);
-QT_FORWARD_DECLARE_CLASS(QLineEdit);
+QT_FORWARD_DECLARE_CLASS(QCheckBox)
+QT_FORWARD_DECLARE_CLASS(QDialogButtonBox)
+QT_FORWARD_DECLARE_CLASS(QLineEdit)
 
 namespace Qt4ProjectManager {
 

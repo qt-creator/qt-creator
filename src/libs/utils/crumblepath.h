@@ -34,7 +34,7 @@
 
 #include <QtGui/QWidget>
 
-QT_FORWARD_DECLARE_CLASS(QResizeEvent);
+QT_FORWARD_DECLARE_CLASS(QResizeEvent)
 
 namespace Utils {
 

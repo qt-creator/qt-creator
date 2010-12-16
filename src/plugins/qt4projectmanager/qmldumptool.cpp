@@ -52,7 +52,7 @@ using namespace Qt4ProjectManager;
 class QmlDumpBuildTask;
 
 typedef QHash<int, QmlDumpBuildTask *> QmlDumpByVersion;
-Q_GLOBAL_STATIC(QmlDumpByVersion, qmlDumpBuilds);
+Q_GLOBAL_STATIC(QmlDumpByVersion, qmlDumpBuilds)
 
 // A task suitable to be run by QtConcurrent to build qmldump.
 class QmlDumpBuildTask : public QObject {

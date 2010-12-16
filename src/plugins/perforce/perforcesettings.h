@@ -82,7 +82,7 @@ inline bool operator!=(const Settings &s1, const Settings &s2) { return !s1.equa
  * "-d" option, so that running p4 in "/depot/dev/foo" results in "-d $HOME/dev/foo". */
 
 class PerforceSettings {
-    Q_DISABLE_COPY(PerforceSettings);
+    Q_DISABLE_COPY(PerforceSettings)
 public:
     PerforceSettings();
     ~PerforceSettings();

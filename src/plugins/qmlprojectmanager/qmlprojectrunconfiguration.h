@@ -36,7 +36,7 @@
 #include <QComboBox>
 #include <QLabel>
 
-QT_FORWARD_DECLARE_CLASS(QStringListModel);
+QT_FORWARD_DECLARE_CLASS(QStringListModel)
 
 namespace Core {
     class IEditor;

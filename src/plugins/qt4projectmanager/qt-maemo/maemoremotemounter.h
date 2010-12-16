@@ -41,7 +41,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 
-QT_FORWARD_DECLARE_CLASS(QTimer);
+QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace Core {
 class SftpChannel;

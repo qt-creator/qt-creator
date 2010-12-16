@@ -277,5 +277,5 @@ private:
 
 } // namespace Core
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Core::EditorManager::OpenEditorFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS(Core::EditorManager::OpenEditorFlags)
 #endif // EDITORMANAGER_H

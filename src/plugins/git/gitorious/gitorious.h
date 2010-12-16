@@ -53,7 +53,7 @@ struct GitoriousRepository
         CloneRepository,
         BaselineRepository, // Nokia extension
         SharedRepository,   // Nokia extension
-        PersonalRepository, // Nokia extension
+        PersonalRepository // Nokia extension
     };
 
     GitoriousRepository();

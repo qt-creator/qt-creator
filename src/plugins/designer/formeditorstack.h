@@ -57,7 +57,7 @@ namespace Internal {
 class FormEditorStack : public QStackedWidget
 {
     Q_OBJECT
-    Q_DISABLE_COPY(FormEditorStack);
+    Q_DISABLE_COPY(FormEditorStack)
 public:
     explicit FormEditorStack(QWidget *parent = 0);
 

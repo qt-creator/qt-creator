@@ -87,7 +87,7 @@
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 100,
     UPDATE_USES_DEFAULT_INTERVAL = 150,
-    UPDATE_OUTLINE_INTERVAL = 500, // msecs after new semantic info has been arrived / cursor has moved
+    UPDATE_OUTLINE_INTERVAL = 500 // msecs after new semantic info has been arrived / cursor has moved
 };
 
 using namespace QmlJS;

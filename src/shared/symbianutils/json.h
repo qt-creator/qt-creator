@@ -55,7 +55,7 @@ public:
         Boolean,
         Object,
         NullObject,
-        Array,
+        Array
     };
 
     Type m_type;

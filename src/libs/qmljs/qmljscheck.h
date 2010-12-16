@@ -70,9 +70,9 @@ public:
         WarnUseBeforeDeclaration             = 1 << 8,
         WarnDuplicateDeclaration             = 1 << 9,
         WarnDeclarationsNotStartOfFunction   = 1 << 10,
-        WarnCaseWithoutFlowControlEnd        = 1 << 11,
+        WarnCaseWithoutFlowControlEnd        = 1 << 11
     };
-    Q_DECLARE_FLAGS(Options, Option);
+    Q_DECLARE_FLAGS(Options, Option)
 
 protected:
     virtual bool preVisit(AST::Node *ast);

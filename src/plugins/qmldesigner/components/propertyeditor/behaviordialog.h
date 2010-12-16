@@ -92,7 +92,7 @@ private:
 };
 
 
-};
+}
 
 QML_DECLARE_TYPE(QmlDesigner::BehaviorWidget)
 

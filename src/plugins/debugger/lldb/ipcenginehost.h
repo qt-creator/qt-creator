@@ -85,7 +85,7 @@ public:
         RequestUpdateWatchData = 25,
         FetchFrameSource       = 26
     };
-    Q_ENUMS(Function);
+    Q_ENUMS(Function)
 
     void setupEngine();
     void setupInferior();

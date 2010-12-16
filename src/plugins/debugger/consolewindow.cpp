@@ -151,7 +151,7 @@ public:
     History() : m_index(0) {}
     void append(const QString &item) {
         m_items.removeAll(item);
-        m_items.append(item); m_index = m_items.size() - 1; 
+        m_items.append(item); m_index = m_items.size() - 1;
     }
     void down() { m_index = qMin(m_index + 1, m_items.size()); }
     void up() { m_index = qMax(m_index - 1, 0); }
@@ -289,7 +289,7 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
 
     //connect(m_console, SIGNAL(statusMessageRequested(QString,int)),
     //   this, SIGNAL(statusMessageRequested(QString,int)));
-};
+}
 
 void ConsoleWindow::showOutput(int channel, const QString &output)
 {

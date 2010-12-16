@@ -32,7 +32,7 @@
 #include <QtCore/QList>
 #include <QtGui/QDialog>
 
-QT_FORWARD_DECLARE_CLASS(QWizard);
+QT_FORWARD_DECLARE_CLASS(QWizard)
 
 namespace ProjectExplorer {
 class IPublishingWizardFactory;

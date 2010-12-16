@@ -36,7 +36,7 @@
 
 namespace Utils {
 class AbstractMacroExpander;
-};
+}
 
 namespace ProjectExplorer {
 

@@ -162,7 +162,7 @@ enum DebuggerCapabilities
     CreateFullBacktraceCapability = 0x800,
     AddWatcherCapability = 0x1000,
     WatchpointCapability = 0x2000,
-    ShowModuleSymbolsCapability = 0x4000,
+    ShowModuleSymbolsCapability = 0x4000
 };
 
 enum LogChannel
@@ -209,7 +209,7 @@ enum ModelRoles
     LocalsIsWatchpointAtPointerValueRole,
 
     // Snapshots
-    SnapshotCapabilityRole,
+    SnapshotCapabilityRole
 };
 
 enum DebuggerEngineType

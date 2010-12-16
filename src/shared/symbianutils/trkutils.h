@@ -133,7 +133,7 @@ enum DSOSItemTypes {
     kDSOSProcAttachItem = 0x0005,
     kDSOSThreadAttachItem = 0x0006,
     kDSOSProcAttach2Item = 0x0007,
-    kDSOSProcRunItem = 0x0008,
+    kDSOSProcRunItem = 0x0008
     /* 0x0009 - 0x00ff reserved for general expansion */
     /* 0x0100 - 0xffff available for target-specific use */
 };
@@ -158,7 +158,7 @@ enum Endianness
 {
     LittleEndian,
     BigEndian,
-    TargetByteOrder = BigEndian,
+    TargetByteOrder = BigEndian
 };
 
 SYMBIANUTILS_EXPORT void appendShort(QByteArray *ba, ushort s, Endianness = TargetByteOrder);

@@ -57,7 +57,7 @@ class OutputFormatter;
  * That is the lifetime of the RunConfiguration might exceed the life of the target.
  * The user might still have a RunControl running (or output tab of that RunControl open)
  * and yet unloaded the target.
- * Also a RunConfiguration might be already removed from the list of RunConfigurations 
+ * Also a RunConfiguration might be already removed from the list of RunConfigurations
  * for a target, but stil be runnable via the output tab.
  */
 class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
@@ -180,7 +180,7 @@ class PROJECTEXPLORER_EXPORT RunControl : public QObject
 public:
     enum StopResult {
         StoppedSynchronously, // Stopped.
-        AsynchronousStop,     // Stop sequence has been started
+        AsynchronousStop     // Stop sequence has been started
     };
 
     explicit RunControl(RunConfiguration *runConfiguration, QString mode);

@@ -84,7 +84,7 @@ namespace Symbian {
 enum CodeMode
 {
     ArmMode = 0,
-    ThumbMode,
+    ThumbMode
 };
 
 enum TargetConstants

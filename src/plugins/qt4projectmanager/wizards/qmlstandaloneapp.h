@@ -79,7 +79,7 @@ struct QmlAppGeneratedFileInfo : public AbstractGeneratedFileInfo
         MainQmlFile = ExtendedFile,
         AppViewerPriFile,
         AppViewerCppFile,
-        AppViewerHFile,
+        AppViewerHFile
     };
 
     QmlAppGeneratedFileInfo() : AbstractGeneratedFileInfo() {}

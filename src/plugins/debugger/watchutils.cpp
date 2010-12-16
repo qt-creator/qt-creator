@@ -691,7 +691,7 @@ bool currentTextEditorPosition(QString *fileNameIn /* = 0 */,
                                int *lineNumberIn /* = 0 */)
 {
     QString fileName;
-    int  lineNumber;
+    int  lineNumber = 0;
     if (TextEditor::ITextEditor *textEditor = currentTextEditor()) {
         if (const Core::IFile *file = textEditor->file()) {
             fileName = file->fileName();

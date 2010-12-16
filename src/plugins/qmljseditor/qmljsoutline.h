@@ -13,7 +13,7 @@ class IEditor;
 
 namespace QmlJS {
 class Editor;
-};
+}
 
 namespace QmlJSEditor {
 namespace Internal {

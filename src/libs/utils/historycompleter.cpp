@@ -65,7 +65,7 @@ public:
     HistoryCompleterPrivate(HistoryCompleter *parent);
     HistoryCompleter *q_ptr;
     HistoryListModel *model;
-    Q_DECLARE_PUBLIC(HistoryCompleter);
+    Q_DECLARE_PUBLIC(HistoryCompleter)
 };
 
 class HistoryLineDelegate : public QItemDelegate

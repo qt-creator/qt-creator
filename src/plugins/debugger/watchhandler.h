@@ -59,7 +59,7 @@ enum IntegerFormat
     DecimalFormat = 0, // Keep that at 0 as default.
     HexadecimalFormat,
     BinaryFormat,
-    OctalFormat,
+    OctalFormat
 };
 
 class WatchModel : public QAbstractItemModel

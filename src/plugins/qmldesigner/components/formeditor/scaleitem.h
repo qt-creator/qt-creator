@@ -48,6 +48,6 @@ private:
     ScaleIndicator* m_indicator;
 };
 
-};
+}
 
 #endif // SCALEITEM_H

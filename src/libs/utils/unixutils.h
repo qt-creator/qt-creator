@@ -51,6 +51,6 @@ public:
                                                    const QString &file);
 };
 
-};
+}
 
 #endif // UNIXUTILS_H

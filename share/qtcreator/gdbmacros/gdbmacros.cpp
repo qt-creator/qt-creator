@@ -2461,7 +2461,7 @@ static const char *qConnectionType(uint type)
 #endif
         };
     return output;
-};
+}
 
 #if QT_VERSION >= 0x040400
 static const ConnectionList &qConnectionList(const QObject *ob, int signalNumber)

@@ -146,7 +146,7 @@ Q_GLOBAL_STATIC_WITH_INITIALIZER(Qt4NodeStaticData, qt4NodeStaticData, {
     x->projectIcon.addPixmap(projectPixmap);
 
     qAddPostRoutine(clearQt4NodeStaticData);
-});
+})
 
 static void clearQt4NodeStaticData()
 {

@@ -174,7 +174,7 @@ NavigatorTreeView::NavigatorTreeView(QWidget *parent)
     TreeViewStyle *style = new TreeViewStyle;
     setStyle(style);
     style->setParent(this);
-};
+}
 
 QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                                          const QModelIndex &index) const
@@ -224,7 +224,7 @@ void NameItemDelegate::paint(QPainter *painter,
 
     painter->save();
     QFontMetrics fm(option.font);
-    int width;
+    int width = 0;
     if (index.data(Qt::UserRole).isValid()) {
 
         int pixmapSide = 16;

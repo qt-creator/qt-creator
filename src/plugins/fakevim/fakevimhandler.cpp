@@ -139,7 +139,7 @@ enum Mode
     InsertMode,
     ReplaceMode,
     CommandMode,
-    ExMode,
+    ExMode
 };
 
 /*! A \e SubMode is used for things that require one more data item
@@ -162,7 +162,7 @@ enum SubMode
     CapitalZSubMode,     // Used for Z
     ReplaceSubMode,      // Used for r
     OpenSquareSubMode,   // Used for [
-    CloseSquareSubMode,  // Used for ]
+    CloseSquareSubMode  // Used for ]
 };
 
 /*! A \e SubSubMode is used for things that require one more data item
@@ -179,7 +179,7 @@ enum SubSubMode
     DownCaseSubSubMode,   // Used for gu.
     UpCaseSubSubMode,     // Used for gU.
     TextObjectSubSubMode, // Used for thing like iw, aW, as etc.
-    SearchSubSubMode,
+    SearchSubSubMode
 };
 
 enum VisualMode
@@ -187,14 +187,14 @@ enum VisualMode
     NoVisualMode,
     VisualCharMode,
     VisualLineMode,
-    VisualBlockMode,
+    VisualBlockMode
 };
 
 enum MoveType
 {
     MoveExclusive,
     MoveInclusive,
-    MoveLineWise,
+    MoveLineWise
 };
 
 /*!
@@ -1948,7 +1948,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             m_findPending = true;
             m_findStartPosition = position();
             m_movetype = MoveExclusive;
-            setAnchor(); // clear selection: otherwise, search is restricted to selection 
+            setAnchor(); // clear selection: otherwise, search is restricted to selection
             emit q->findRequested(!m_lastSearchForward);
         } else {
             // FIXME: make core find dialog sufficiently flexible to

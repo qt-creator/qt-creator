@@ -75,12 +75,12 @@ public:
     enum SymbolReadState {
         UnknownReadState,  // Not tried.
         ReadFailed,        // Tried to read, but failed.
-        ReadOk,            // Dwarf index available.
+        ReadOk            // Dwarf index available.
     };
     enum SymbolType {
         UnknownType,       // Unknown.
         PlainSymbols,      // Ordinary symbols available.
-        FastSymbols,       // Dwarf index available.
+        FastSymbols       // Dwarf index available.
     };
     QString moduleName;
     QString modulePath;

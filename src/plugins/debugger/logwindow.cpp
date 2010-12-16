@@ -382,7 +382,7 @@ LogWindow::LogWindow(QWidget *parent)
        this, SIGNAL(statusMessageRequested(QString,int)));
     connect(m_inputText, SIGNAL(commandSelected(int)),
        m_combinedText, SLOT(gotoResult(int)));
-};
+}
 
 void LogWindow::showOutput(int channel, const QString &output)
 {

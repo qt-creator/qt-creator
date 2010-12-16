@@ -386,7 +386,7 @@ QByteArray GdbResponse::stringFromResultClass(GdbResultClass resultClass)
         case GdbResultExit: return "exit";
         default: return "unknown";
     }
-};
+}
 
 QByteArray GdbResponse::toString() const
 {

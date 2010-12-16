@@ -124,7 +124,7 @@ public:
         UpdateWatchData                  = 47,
         FrameSourceFetched               = 48
     };
-    Q_ENUMS(Function);
+    Q_ENUMS(Function)
 
     DebuggerState state() const;
     void notifyEngineSetupOk();

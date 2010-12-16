@@ -144,7 +144,7 @@ private:
     QDeclarativeDebugObjectReference objectReferenceForId(int debugId, const QDeclarativeDebugObjectReference &ref) const;
 
 private:
-    Q_DISABLE_COPY(ClientProxy);
+    Q_DISABLE_COPY(ClientProxy)
     void buildDebugIdHashRecursive(const QDeclarativeDebugObjectReference &ref);
 
     Debugger::QmlAdapter *m_adapter;

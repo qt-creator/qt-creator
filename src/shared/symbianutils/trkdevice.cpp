@@ -179,7 +179,7 @@ public:
     enum WriteResult {
         WriteOk,
         WriteFailedDiscard, // Discard failed message
-        WriteFailedKeep,    // Keep failed message
+        WriteFailedKeep    // Keep failed message
     };
     void notifyWriteResult(WriteResult ok);
 

@@ -54,7 +54,7 @@ enum BreakpointType
     BreakpointAtThrow,
     BreakpointAtCatch,
     BreakpointAtMain,
-    Watchpoint,
+    Watchpoint
 };
 
 enum BreakpointState
@@ -67,7 +67,7 @@ enum BreakpointState
     BreakpointInserted,
     BreakpointRemoveRequested,
     BreakpointRemoveProceeding,
-    BreakpointDead,
+    BreakpointDead
 };
 
 class BreakpointParameters

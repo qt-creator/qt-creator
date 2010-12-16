@@ -125,19 +125,19 @@ const itemVectorType itemVector()
 
 Q_GLOBAL_STATIC_WITH_INITIALIZER(itemVectorType, staticItemVector, {
     *x = itemVector();
-});
+})
 
 Q_GLOBAL_STATIC_WITH_INITIALIZER(QStringList, staticModulesList, {
     const itemVectorType * const itemVector = staticItemVector();
     for (int i = 0; i < itemVector->count(); i++)
         x->append(QString::fromLatin1(itemVector->at(i)->config));
-});
+})
 
 Q_GLOBAL_STATIC_WITH_INITIALIZER(itemHashType, staticItemHash, {
     const itemVectorType * const itemVector = staticItemVector();
     for (int i = 0; i < itemVector->count(); i++)
         x->insert(QString::fromLatin1(itemVector->at(i)->config), itemVector->at(i));
-});
+})
 
 QStringList QtModulesInfo::modules()
 {

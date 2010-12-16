@@ -113,7 +113,7 @@ namespace Internal {
 // and read while checking).
 
 class FileMatchContext {
-    Q_DISABLE_COPY(FileMatchContext);
+    Q_DISABLE_COPY(FileMatchContext)
 public:
     // Max data to be read from a file
     enum { MaxData = 2048 };
@@ -164,7 +164,7 @@ QByteArray FileMatchContext::data()
 
 // The binary fallback matcher for "application/octet-stream".
 class BinaryMatcher : public IMagicMatcher {
-    Q_DISABLE_COPY(BinaryMatcher);
+    Q_DISABLE_COPY(BinaryMatcher)
 public:
     BinaryMatcher() {}
     virtual bool matches(const QByteArray & /*data*/) const { return true; }
@@ -174,7 +174,7 @@ public:
 // A heuristic text file matcher: If the data do not contain any character
 // below tab (9), detect as text.
 class HeuristicTextMagicMatcher : public IMagicMatcher {
-    Q_DISABLE_COPY(HeuristicTextMagicMatcher);
+    Q_DISABLE_COPY(HeuristicTextMagicMatcher)
 public:
     HeuristicTextMagicMatcher() {}
     virtual bool matches(const QByteArray &data) const;
@@ -646,7 +646,7 @@ namespace Internal {
 //  MimeDatabase helpers: Generic parser for a sequence of <mime-type>.
 //  Calls abstract handler function process for MimeType it finds.
 class BaseMimeTypeParser {
-    Q_DISABLE_COPY(BaseMimeTypeParser);
+    Q_DISABLE_COPY(BaseMimeTypeParser)
 public:
     BaseMimeTypeParser();
     virtual ~BaseMimeTypeParser() {}

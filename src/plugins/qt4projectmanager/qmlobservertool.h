@@ -33,7 +33,7 @@
 #include <utils/buildablehelperlibrary.h>
 #include "qt4projectmanager_global.h"
 
-QT_FORWARD_DECLARE_CLASS(QDir);
+QT_FORWARD_DECLARE_CLASS(QDir)
 
 namespace Utils {
     class Environment;

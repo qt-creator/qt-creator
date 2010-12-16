@@ -50,7 +50,7 @@ class QmlAnchorBindingProxy : public QObject
     Q_PROPERTY(bool bottomAnchored READ bottomAnchored WRITE setBottomAnchor NOTIFY bottomAnchorChanged)
     Q_PROPERTY(bool leftAnchored READ leftAnchored WRITE setLeftAnchor NOTIFY leftAnchorChanged)
     Q_PROPERTY(bool rightAnchored READ rightAnchored WRITE setRightAnchor NOTIFY rightAnchorChanged)
-    Q_PROPERTY(bool hasParent READ hasParent NOTIFY parentChanged);
+    Q_PROPERTY(bool hasParent READ hasParent NOTIFY parentChanged)
 
     Q_PROPERTY(QVariant topTarget READ topTarget WRITE setTopTarget NOTIFY topTargetChanged)
     Q_PROPERTY(QVariant bottomTarget READ bottomTarget WRITE setBottomTarget NOTIFY bottomTargetChanged)

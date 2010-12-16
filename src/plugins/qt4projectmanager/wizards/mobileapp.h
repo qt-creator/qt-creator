@@ -40,7 +40,7 @@ struct MobileAppGeneratedFileInfo : AbstractGeneratedFileInfo
     enum ExtendedFileType {
         MainWindowCppFile = ExtendedFile,
         MainWindowHFile,
-        MainWindowUiFile,
+        MainWindowUiFile
     };
 
     MobileAppGeneratedFileInfo() : AbstractGeneratedFileInfo() {}
@@ -56,7 +56,7 @@ public:
         MainWindowH,
         MainWindowHOrigin,
         MainWindowUi,
-        MainWindowUiOrigin,
+        MainWindowUiOrigin
     };
 
     MobileApp();

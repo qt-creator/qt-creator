@@ -58,7 +58,7 @@ public slots:
 private:
     DragTool *m_dragTool;
 };
-};
+}
 
 class DragTool : public AbstractFormEditorTool
 {

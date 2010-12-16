@@ -27,7 +27,7 @@ class QmlProjectItem : public QObject {
     Q_PROPERTY(QStringList importPaths READ importPaths WRITE setImportPaths NOTIFY importPathsChanged)
     Q_PROPERTY(QString mainFile READ mainFile WRITE setMainFile NOTIFY mainFileChanged)
 
-    Q_CLASSINFO("DefaultProperty", "content");
+    Q_CLASSINFO("DefaultProperty", "content")
 
 public:
     QmlProjectItem(QObject *parent = 0);

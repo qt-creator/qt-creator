@@ -36,7 +36,7 @@
 #include <QScriptEngine>
 #include <private/qdeclarativelistmodel_p.h>
 
-QT_FORWARD_DECLARE_CLASS(QMimeData);
+QT_FORWARD_DECLARE_CLASS(QMimeData)
 
 namespace QmlDesigner {
 

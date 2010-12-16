@@ -50,7 +50,7 @@ namespace TextEditor {
     class TabSettings;
 }
 
-namespace CppTools {    
+namespace CppTools {
 namespace Internal {
 class CppCodeFormatterData;
 }
@@ -170,7 +170,7 @@ public: // must be public to make Q_GADGET introspection work
         assign_open, // after an assignment token
 
         expression, // after a '=' in a declaration_start once we're sure it's not '= {'
-        initializer, // after a '=' in a declaration start
+        initializer // after a '=' in a declaration start
     };
     Q_ENUMS(StateType)
 

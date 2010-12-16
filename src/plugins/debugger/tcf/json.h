@@ -51,7 +51,7 @@ public:
         String,
         Number,
         Object,
-        Array,
+        Array
     };
 
     Type m_type;

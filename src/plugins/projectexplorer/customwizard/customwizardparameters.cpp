@@ -388,7 +388,7 @@ static ParseState nextOpeningState(ParseState in, const QStringRef &name)
         break;
     }
     return ParseError;
-};
+}
 
 // Switch parser state depending on closing element name.
 static ParseState nextClosingState(ParseState in, const QStringRef &name)
@@ -454,7 +454,7 @@ static ParseState nextClosingState(ParseState in, const QStringRef &name)
         break;
     }
     return ParseError;
-};
+}
 
 // Parse kind attribute
 static inline Core::IWizard::WizardKind kindAttribute(const QXmlStreamReader &r)

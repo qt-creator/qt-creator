@@ -78,7 +78,7 @@ Core::IVersionControl::SettingsFlags PerforceVersionControl::settingsFlags() con
     if (m_plugin->settings().autoOpen())
         rc|= AutoOpen;
     return rc;
-};
+}
 
 bool PerforceVersionControl::vcsAdd(const QString &fileName)
 {

@@ -61,15 +61,15 @@ class CORESHARED_EXPORT AbstractView : public QObject
 {
     Q_OBJECT
 public:
-    Q_FLAGS(PropertyChangeFlag PropertyChangeFlags);
+    Q_FLAGS(PropertyChangeFlag PropertyChangeFlags)
     typedef QWeakPointer<AbstractView> Pointer;
 
     enum PropertyChangeFlag {
       NoAdditionalChanges = 0x0,
       PropertiesAdded = 0x1,
-      EmptyPropertiesRemoved = 0x2,
+      EmptyPropertiesRemoved = 0x2
     };
-    Q_DECLARE_FLAGS(PropertyChangeFlags, PropertyChangeFlag);
+    Q_DECLARE_FLAGS(PropertyChangeFlags, PropertyChangeFlag)
     AbstractView(QObject *parent = 0)
             : QObject(parent) {}
 

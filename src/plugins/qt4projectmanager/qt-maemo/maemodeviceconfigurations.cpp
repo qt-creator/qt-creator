@@ -79,7 +79,7 @@ namespace {
     const AuthType DefaultAuthType(Core::SshConnectionParameters::AuthByKey);
     const int DefaultTimeout(30);
     const MaemoDeviceConfig::DeviceType DefaultDeviceType(MaemoDeviceConfig::Physical);
-};
+}
 
 class DevConfIdMatcher
 {

@@ -49,7 +49,7 @@ class ItemLibraryWidget : public QFrame
     enum FilterChangeFlag {
       QtBasic = 0x0,
       Meego = 0x1,
-      Symbian = 0x2,
+      Symbian = 0x2
     };
 
 public:

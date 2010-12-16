@@ -39,9 +39,9 @@
 
 #include <QtGui/QIcon>
 
-QT_FORWARD_DECLARE_CLASS(QAction);
+QT_FORWARD_DECLARE_CLASS(QAction)
 QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher)
-QT_FORWARD_DECLARE_CLASS(QStringList);
+QT_FORWARD_DECLARE_CLASS(QStringList)
 
 namespace ProjectExplorer {
     class BuildConfiguration;

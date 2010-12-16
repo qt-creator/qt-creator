@@ -100,7 +100,7 @@ public:
         Invalid,
         Const,
         Tuple,
-        List,
+        List
     };
 
     Type m_type;
@@ -152,7 +152,7 @@ enum GdbResultClass
     GdbResultRunning,
     GdbResultConnected,
     GdbResultError,
-    GdbResultExit,
+    GdbResultExit
 };
 
 class GdbResponse
