@@ -827,7 +827,7 @@ def qdump__QObject(d, item):
             connectionListCount = 0
             if not isNull(connections):
                 connectionListCount = connections["d"]["size"]
-            d.putItemCount(connectionListCount)
+            d.putItemCount(connectionListCount, 0)
             d.putNumChild(connectionListCount)
             if d.isExpandedIName(item.iname + ".connections"):
                 with Children(d):
