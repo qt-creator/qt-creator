@@ -45,8 +45,7 @@ class DebuggerEngine;
 
 namespace Internal {
 
-class StackFrame;
-class DisassemblerAgent;
+class Location;
 class DisassemblerAgentPrivate;
 
 class DisassemblerAgent : public QObject
@@ -58,8 +57,9 @@ public:
     explicit DisassemblerAgent(DebuggerEngine *engine);
     ~DisassemblerAgent();
 
-    void setFrame(const StackFrame &frame, bool tryMixed, bool setMarker);
-    const StackFrame &frame() const;
+    void setTryMixed(bool on);
+    void setLocation(const Location &location);
+    const Location &location() const;
     void resetLocation();
     void setContents(const DisassemblerLines &contents);
     void updateLocationMarker();

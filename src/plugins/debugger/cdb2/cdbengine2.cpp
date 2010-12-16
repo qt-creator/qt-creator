@@ -831,7 +831,7 @@ void CdbEngine::handleJumpToLineAddressResolution(const CdbBuiltinCommandPtr &cm
     // PC-register depending on 64/32bit.
     str << "r " << (m_options->is64bit ? "rip" : "eip") << "=0x" << answer;
     postCommand(registerCmd, 0);
-    gotoLocation(cookie.fileName, cookie.lineNumber, true);
+    gotoLocation(Location(cookie.fileName, cookie.lineNumber));
 }
 
 void CdbEngine::assignValueInDebugger(const Debugger::Internal::WatchData *w, const QString &expr, const QVariant &value)
@@ -979,13 +979,13 @@ void CdbEngine::activateFrame(int index)
         watchHandler()->endCycle();
         QAction *assemblerAction = theAssemblerAction();
         if (assemblerAction->isChecked()) {
-            gotoLocation(frame, true);
+            gotoLocation(frame);
         } else {
             assemblerAction->trigger(); // Seems to trigger update
         }
         return;
     }
-    gotoLocation(frame, true);
+    gotoLocation(frame);
     // Watchers: Initial expand, get uninitialized and query
     QByteArray arguments;
     ByteArrayInputStream str(arguments);

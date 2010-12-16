@@ -894,15 +894,12 @@ void BreakHandler::gotoLocation(BreakpointId id) const
     QTC_ASSERT(it != m_storage.end(), return);
     DebuggerEngine *engine = debuggerCore()->currentEngine();
     if (it->data.type == BreakpointByAddress) {
-        StackFrame frame;
-        frame.address = it->data.address;
         if (engine)
-            engine->gotoLocation(frame, false);
+            engine->gotoLocation(it->data.address);
     } else {
-        const QString fileName = it->markerFileName();
-        const int lineNumber = it->markerLineNumber();
         if (engine)
-            engine->gotoLocation(fileName, lineNumber, false);
+            engine->gotoLocation(
+                Location(it->markerFileName(), it->markerLineNumber()));
     }
 }
 

@@ -512,14 +512,21 @@ void DebuggerEngine::resetLocation()
     d->removeLocationMark();
 }
 
-void DebuggerEngine::gotoLocation(const QString &file, int line, bool setMarker)
+void DebuggerEngine::gotoLocation(const Location &loc)
 {
+    if (debuggerCore()->boolSetting(OperateByInstruction) || !loc.hasDebugInfo()) {
+        d->m_disassemblerAgent.setTryMixed(true);
+        d->m_disassemblerAgent.setLocation(loc);
+        return;
+    }
     // CDB might hit on breakpoints while shutting down.
     //if (m_shuttingDown)
     //    return;
 
     d->doRemoveLocationMark();
 
+    const QString file = loc.fileName();
+    const int line = loc.lineNumber();
     EditorManager *editorManager = EditorManager::instance();
     QList<IEditor *> editors = editorManager->editorsForFileName(file);
     if (editors.isEmpty()) {
@@ -531,21 +538,13 @@ void DebuggerEngine::gotoLocation(const QString &file, int line, bool setMarker)
     if (texteditor)
         texteditor->gotoLine(line, 0);
 
-    if (setMarker)
+    if (loc.needsMarker())
         d->m_locationMark.reset(new LocationMark(file, line));
 
     // FIXME: Breaks with split views.
-    if (!d->m_memoryAgent.hasVisibleEditor())
+    if (!d->m_memoryAgent.hasVisibleEditor() || loc.needsRaise())
         editorManager->activateEditor(editors.back());
     //qDebug() << "MEMORY: " << d->m_memoryAgent.hasVisibleEditor();
-}
-
-void DebuggerEngine::gotoLocation(const StackFrame &frame, bool setMarker)
-{
-    if (debuggerCore()->boolSetting(OperateByInstruction) || !frame.isUsable())
-        d->m_disassemblerAgent.setFrame(frame, true, setMarker);
-    else
-        gotoLocation(frame.file, frame.line, setMarker);
 }
 
 // Called from RunControl.
@@ -1469,10 +1468,11 @@ void DebuggerEngine::updateMemoryViews()
     d->m_memoryAgent.updateContents();
 }
 
-void DebuggerEngine::openDisassemblerView(const StackFrame &frame)
+void DebuggerEngine::openDisassemblerView(const Location &location)
 {
     DisassemblerAgent *agent = new DisassemblerAgent(this);
-    agent->setFrame(frame, true, false);
+    agent->setTryMixed(true);
+    agent->setLocation(location);
 }
 
 void DebuggerEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)

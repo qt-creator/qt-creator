@@ -176,23 +176,12 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
 QmlEngine::~QmlEngine()
 {}
 
-void QmlEngine::gotoLocation(const QString &fileName, int lineNumber, bool setMarker)
+void QmlEngine::gotoLocation(const Location &loc0)
 {
-    QString processedFilename = fileName;
-
+    Location loc = loc0;
     if (isShadowBuildProject())
-        processedFilename = fromShadowBuildFilename(fileName);
-
-    DebuggerEngine::gotoLocation(processedFilename, lineNumber, setMarker);
-}
-
-void QmlEngine::gotoLocation(const StackFrame &frame, bool setMarker)
-{
-    StackFrame adjustedFrame = frame;
-    if (isShadowBuildProject())
-        adjustedFrame.file = fromShadowBuildFilename(frame.file);
-
-    DebuggerEngine::gotoLocation(adjustedFrame, setMarker);
+        loc.setFileName(fromShadowBuildFilename(loc0.fileName()));
+    DebuggerEngine::gotoLocation(loc);
 }
 
 void QmlEngine::setupInferior()
@@ -469,7 +458,7 @@ void QmlEngine::activateFrame(int index)
        << index;
     logMessage(LogSend, QString("%1 %2").arg(QString(cmd), QString::number(index)));
     sendMessage(reply);
-    gotoLocation(stackHandler()->frames().value(index), true);
+    gotoLocation(stackHandler()->frames().value(index));
 }
 
 void QmlEngine::selectThread(int index)
@@ -703,7 +692,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
         for (int i = 0; i != stackFrames.size(); ++i)
             stackFrames[i].level = i + 1;
 
-        gotoLocation(stackFrames.value(0), true);
+        gotoLocation(stackFrames.value(0));
         stackHandler()->setFrames(stackFrames);
 
         watchHandler()->beginCycle();

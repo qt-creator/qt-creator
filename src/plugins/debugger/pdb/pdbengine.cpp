@@ -318,7 +318,7 @@ void PdbEngine::activateFrame(int frameIndex)
         //postCommand("-stack-select-frame " + QByteArray::number(frameIndex),
         //    CB(handleStackSelectFrame));
     }
-    gotoLocation(handler->currentFrame(), true);
+    gotoLocation(handler->currentFrame());
 }
 
 void PdbEngine::selectThread(int index)
@@ -683,7 +683,7 @@ void PdbEngine::handleResponse(const QByteArray &response0)
             frame.file = _(fileName);
             frame.line = lineNumber;
             if (frame.line > 0 && QFileInfo(frame.file).exists()) {
-                gotoLocation(frame, true);
+                gotoLocation(frame);
                 notifyInferiorSpontaneousStop();
                 return;
             }
@@ -797,7 +797,7 @@ void PdbEngine::handleBacktrace(const PdbResponse &response)
     if (currentIndex != -1) {
         currentIndex = frameCount - currentIndex - 1;
         stackHandler()->setCurrentIndex(currentIndex);
-        gotoLocation(stackFrames.at(currentIndex), true);
+        gotoLocation(stackFrames.at(currentIndex));
     }
 
     updateLocals();

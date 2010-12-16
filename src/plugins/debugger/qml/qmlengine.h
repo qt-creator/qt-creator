@@ -51,9 +51,7 @@ public:
     void handleRemoteSetupDone(int port);
     void handleRemoteSetupFailed(const QString &message);
 
-    void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
-    void gotoLocation(const StackFrame &frame, bool setMarker);
-
+    void gotoLocation(const Location &location);
     void pauseConnection();
 
 public slots:

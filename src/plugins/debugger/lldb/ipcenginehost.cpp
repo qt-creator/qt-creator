@@ -236,7 +236,7 @@ void IPCEngineHost::selectThread(int index)
 
 void IPCEngineHost::fetchDisassembler(DisassemblerAgent *v)
 {
-    quint64 address = v->frame().address;
+    quint64 address = v->location().address();
     m_frameToDisassemblerAgent.insert(address, v);
     QByteArray p;
     {
@@ -426,7 +426,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 StackHandler *sh = stackHandler();
                 sh->setCurrentIndex(token);
                 if (!sh->currentFrame().isUsable() || QFileInfo(sh->currentFrame().file).exists())
-                    gotoLocation(sh->currentFrame(), true);
+                    gotoLocation(Location(sh->currentFrame(), true));
                 else if (!m_sourceAgents.contains(sh->currentFrame().file))
                     fetchFrameSource(token);
                 foreach(SourceAgent *agent, m_sourceAgents.values())

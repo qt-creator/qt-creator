@@ -642,11 +642,7 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
     notifyInferiorSpontaneousStop();
     SDEBUG("Stopped at " << lineNumber << fileName);
     showStatusMessage(tr("Stopped at %1:%2.").arg(fileName).arg(lineNumber), 5000);
-
-    StackFrame frame;
-    frame.file = fileName;
-    frame.line = lineNumber;
-    gotoLocation(frame, true);
+    gotoLocation(Location(fileName, lineNumber));
     updateLocals();
     return true;
 }

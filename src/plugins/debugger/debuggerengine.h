@@ -34,6 +34,7 @@
 #include "debuggerconstants.h"
 #include "moduleshandler.h" // For 'Symbols'
 #include "breakpoint.h" // For 'BreakpointId'
+#include "stackframe.h"
 
 #include <coreplugin/ssh/sshconnection.h>
 
@@ -141,6 +142,42 @@ struct WatchUpdateFlags
     bool tryIncremental;
 };
 
+class Location
+{
+public:
+    Location() { init(); }
+    Location(quint64 address) { init(); m_address = address; }
+    Location(const QString &file) { init(); m_fileName = file; }
+    Location(const QString &file, int line, bool marker = true)
+        { init(); m_lineNumber = line; m_fileName = file; m_needsMarker = marker; }
+    Location(const StackFrame &frame, bool marker = true) //: m_frame(frame)
+        { init(); m_fileName = frame.file; m_lineNumber = frame.line;
+          m_needsMarker = marker; m_functionName = frame.function;
+          m_hasDebugInfo = frame.isUsable(); m_address = frame.address; }
+    QString fileName() const { return m_fileName; }
+    QString functionName() const { return m_functionName; }
+    int lineNumber() const { return m_lineNumber; }
+    void setNeedsRaise(bool on) { m_needsRaise = on; }
+    void setNeedsMarker(bool on) { m_needsMarker = on; }
+    void setFileName(const QString &fileName) { m_fileName = fileName; }
+    bool needsRaise() const { return m_needsRaise; }
+    bool needsMarker() const { return m_needsMarker; }
+    bool hasDebugInfo() const { return m_hasDebugInfo; }
+    quint64 address() const { return m_address; }
+
+private:
+    void init() { m_needsMarker = false; m_needsRaise = true; m_lineNumber = -1;
+        m_address = 0; m_hasDebugInfo = true; }
+    bool m_needsMarker;
+    bool m_needsRaise;
+    bool m_hasDebugInfo;
+    int m_lineNumber;
+    QString m_fileName;
+    QString m_functionName;
+    quint64 m_address;
+};
+
+
 } // namespace Internal
 
 
@@ -166,7 +203,7 @@ public:
     virtual void fetchMemory(Internal::MemoryAgent *, QObject *,
                              quint64 addr, quint64 length);
     virtual void updateMemoryViews();
-    virtual void openDisassemblerView(const Internal::StackFrame &frame);
+    virtual void openDisassemblerView(const Internal::Location &location);
     virtual void fetchDisassembler(Internal::DisassemblerAgent *);
     virtual void activateFrame(int index);
 
@@ -280,9 +317,7 @@ public:
     Q_SLOT void showStatusMessage(const QString &msg, int timeout = -1) const;
 
     void resetLocation();
-    virtual void gotoLocation(const QString &fileName, int lineNumber = -1,
-        bool setMarker = false);
-    virtual void gotoLocation(const Internal::StackFrame &frame, bool setMarker);
+    virtual void gotoLocation(const Internal::Location &location);
     virtual void quitDebugger(); // called by DebuggerRunControl
 
     virtual void updateViews();
@@ -292,7 +327,7 @@ signals:
     void stateChanged(const DebuggerState &state);
     void updateViewsRequested();
     /*
-     * For "external" clients of a debugger run control that need to do
+     * For "external" clients of a debugger run control that needs to do
      * further setup before the debugger is started (e.g. Maemo).
      * Afterwards, handleSetupDone() or handleSetupFailed() must be called
      * to continue or abort debugging, respectively.

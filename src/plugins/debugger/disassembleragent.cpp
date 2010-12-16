@@ -100,9 +100,8 @@ public:
 
 public:
     QPointer<TextEditor::ITextEditor> editor;
-    StackFrame frame;
+    Location location;
     bool tryMixed;
-    bool setMarker;
     QPointer<DebuggerEngine> engine;
     TextEditor::ITextMark *locationMark;
     QList<TextEditor::ITextMark *> breakpointMarks;
@@ -114,7 +113,6 @@ public:
 DisassemblerAgentPrivate::DisassemblerAgentPrivate()
   : editor(0),
     tryMixed(true),
-    setMarker(true),
     locationMark(new LocationMark2),
     mimeType(_("text/x-qtcreator-generic-asm"))
 {
@@ -162,36 +160,34 @@ void DisassemblerAgent::resetLocation()
     d->editor->markableInterface()->removeMark(d->locationMark);
 }
 
-QString frameKey(const StackFrame &frame)
+static QString frameKey(const Location &loc)
 {
-    return _("%1:%2:%3").arg(frame.function).arg(frame.file).arg(frame.from);
+    return _("%1:%2:%3").arg(loc.functionName())
+        .arg(loc.fileName()).arg(loc.address());
 }
 
-const StackFrame &DisassemblerAgent::frame() const
+const Location &DisassemblerAgent::location() const
 {
-    return d->frame;
+    return d->location;
 }
 
 bool DisassemblerAgent::isMixed() const
 {
     return d->tryMixed
-        && d->frame.line > 0
-        && !d->frame.function.isEmpty()
-        && d->frame.function != _("??");
+        && d->location.lineNumber() > 0
+        && !d->location.functionName().isEmpty()
+        && d->location.functionName() != _("??");
 }
 
-void DisassemblerAgent::setFrame(const StackFrame &frame,
-    bool tryMixed, bool setMarker)
+void DisassemblerAgent::setLocation(const Location &loc)
 {
-    d->frame = frame;
-    d->tryMixed = tryMixed;
-    d->setMarker = setMarker;
+    d->location = loc;
     if (isMixed()) {
         QHash<QString, DisassemblerLines>::ConstIterator it =
-            d->cache.find(frameKey(frame));
+            d->cache.find(frameKey(loc));
         if (it != d->cache.end()) {
             QString msg = _("Use cache disassembler for '%1' in '%2'")
-                .arg(frame.function).arg(frame.file);
+                .arg(loc.functionName()).arg(loc.fileName());
             d->engine->showMessage(msg);
             setContents(*it);
             updateBreakpointMarkers();
@@ -280,8 +276,9 @@ void DisassemblerAgent::setContents(const DisassemblerLines &contents)
     plainTextEdit->setPlainText(str);
     plainTextEdit->setReadOnly(true);
 
-    d->cache.insert(frameKey(d->frame), contents);
-    d->editor->setDisplayName(_("Disassembler (%1)").arg(d->frame.function));
+    d->cache.insert(frameKey(d->location), contents);
+    d->editor->setDisplayName(_("Disassembler (%1)")
+        .arg(d->location.functionName()));
 
     updateBreakpointMarkers();
     updateLocationMarker();
@@ -291,10 +288,10 @@ void DisassemblerAgent::updateLocationMarker()
 {
     QTC_ASSERT(d->editor, return);
 
-    const DisassemblerLines &contents = d->cache.value(frameKey(d->frame));
-    int lineNumber = contents.lineForAddress(d->frame.address);
+    const DisassemblerLines &contents = d->cache.value(frameKey(d->location));
+    int lineNumber = contents.lineForAddress(d->location.address());
 
-    if (d->setMarker) {
+    if (d->location.needsMarker()) {
         d->editor->markableInterface()->removeMark(d->locationMark);
         if (lineNumber)
             d->editor->markableInterface()->addMark(d->locationMark, lineNumber);
@@ -319,7 +316,7 @@ void DisassemblerAgent::updateBreakpointMarkers()
     if (ids.isEmpty())
         return;
 
-    const DisassemblerLines &contents = d->cache.value(frameKey(d->frame));
+    const DisassemblerLines &contents = d->cache.value(frameKey(d->location));
 
     foreach (TextEditor::ITextMark *marker, d->breakpointMarks)
         d->editor->markableInterface()->removeMark(marker);
@@ -339,13 +336,18 @@ void DisassemblerAgent::updateBreakpointMarkers()
 
 quint64 DisassemblerAgent::address() const
 {
-    return d->frame.address;
+    return d->location.address();
 }
 
 // Return address of an assembly line "0x0dfd  bla"
 quint64 DisassemblerAgent::addressFromDisassemblyLine(const QString &line)
 {
     return DisassemblerLine(line).address;
+}
+
+void DisassemblerAgent::setTryMixed(bool on)
+{
+    d->tryMixed = on;
 }
 
 } // namespace Internal

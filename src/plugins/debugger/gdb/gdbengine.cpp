@@ -1058,7 +1058,7 @@ void GdbEngine::handleExecuteRunToLine(const GdbResponse &response)
         //>~"testArray () at ../simple/app.cpp:241\n"
         //>~"241\t    s[1] = \"b\";\n"
         //>122^done
-        gotoLocation(m_targetFrame, true);
+        gotoLocation(m_targetFrame);
         showStatusMessage(tr("Target line hit. Stopped"));
         notifyInferiorSpontaneousStop();
         handleStop1(response);
@@ -1173,7 +1173,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     // Quickly set the location marker.
     if (lineNumber && !debuggerCore()->boolSetting(OperateByInstruction)
             && QFileInfo(fullName).exists())
-        gotoLocation(fullName, lineNumber, true);
+        gotoLocation(Location(fullName, lineNumber));
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
         QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state())
@@ -1955,11 +1955,11 @@ void GdbEngine::executeJumpToLine(const QString &fileName, int lineNumber)
     //  ~"run1 (argc=1, argv=0x7fffbf1f5538) at test1.cpp:242"
     //  ~"242\t x *= 2;"
     //  23^done"
-    gotoLocation(frame, true);
+    gotoLocation(frame);
     //setBreakpoint();
     //postCommand("jump " + loc);
 #else
-    gotoLocation(frame, true);
+    gotoLocation(frame);
     setBreakpoint(fileName, lineNumber);
     notifyInferiorRunRequested();
     postCommand("jump " + loc, RunRequest);
@@ -2969,7 +2969,7 @@ void GdbEngine::activateFrame(int frameIndex)
     handler->setCurrentIndex(frameIndex);
     postCommand("-stack-select-frame " + QByteArray::number(frameIndex),
         Discardable, CB(handleStackSelectFrame));
-    gotoLocation(stackHandler()->currentFrame(), true);
+    gotoLocation(stackHandler()->currentFrame());
     updateLocals();
     reloadRegisters();
 }

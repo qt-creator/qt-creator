@@ -1049,7 +1049,7 @@ void CdbEngine::executeJumpToLine(const QString &fileName, int lineNumber)
         frame.usable = true;
         frame.file = fileName;
         frame.line = lineNumber;
-        gotoLocation(frame, true);
+        gotoLocation(frame);
         success = true;
     } while (false);
     if (!success)
@@ -1166,7 +1166,7 @@ void CdbEngine::activateFrame(int frameIndex)
             break;
         }
 
-        gotoLocation(frame, true);
+        gotoLocation(frame);
 
         if (oldIndex != frameIndex || m_d->m_firstActivatedFrame) {
             watchHandler()->beginCycle();
