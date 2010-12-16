@@ -4036,31 +4036,31 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
 
     const QString winPythonVersion = QLatin1String(winPythonVersionC);
     const QDir dir = fi.absoluteDir();
-    if (!dir.exists(winPythonVersion)) {
-        showMessage(_("GDB %1 CANNOT FIND PYTHON INSTALLATION.").arg(m_gdb));
-        showStatusMessage(_("Gdb at %1 cannot find python").arg(m_gdb));
-        const QString msg = tr("The gdb installed at %1 cannot "
-            "find a valid python installation in its %2 subdirectory.\n"
-            "You may set the PYTHONPATH to your installation.")
-                .arg(m_gdb).arg(winPythonVersion);
-        handleAdapterStartFailed(msg, settingsIdHint);
-        return false;
-    }
 
     QProcessEnvironment environment = gdbProc()->processEnvironment();
     const QString pythonPathVariable = QLatin1String("PYTHONPATH");
-    // Check for existing values.
-    if (environment.contains(pythonPathVariable)) {
-        const QString oldPythonPath = environment.value(pythonPathVariable);
-        showMessage(_("Using existing python path: %1")
-            .arg(oldPythonPath), LogMisc);
+    QString pythonPath;
+
+    if (dir.exists(winPythonVersion)) {
+        pythonPath = QDir::toNativeSeparators(dir.absoluteFilePath(winPythonVersion));
+    } else if (dir.exists(QLatin1String("lib"))) { // Needed for our gdb 7.2 packages
+        pythonPath = QDir::toNativeSeparators(dir.absoluteFilePath(QLatin1String("lib")));
     } else {
-        const QString pythonPath =
-            QDir::toNativeSeparators(dir.absoluteFilePath(winPythonVersion));
-        environment.insert(pythonPathVariable, pythonPath);
-        showMessage(_("Python path: %1").arg(pythonPath), LogMisc);
-        gdbProc()->setProcessEnvironment(environment);
+        if (environment.contains(pythonPathVariable)) {
+            pythonPath = environment.value(pythonPathVariable);
+        } else {
+            showMessage(_("GDB %1 CANNOT FIND PYTHON INSTALLATION.").arg(m_gdb));
+            showStatusMessage(_("Gdb at %1 cannot find python").arg(m_gdb));
+            const QString msg = tr("The gdb installed at %1 cannot "
+                "find a valid python installation in its %2 subdirectory.\n"
+                "You may set the PYTHONPATH to your installation.")
+                    .arg(m_gdb).arg(winPythonVersion);
+            handleAdapterStartFailed(msg, settingsIdHint);
+            return false;
+        }
     }
+    environment.insert(pythonPathVariable, pythonPath);
+    showMessage(_("Python path: %1").arg(pythonPath), LogMisc);
 #endif
 
     connect(gdbProc(), SIGNAL(error(QProcess::ProcessError)),
