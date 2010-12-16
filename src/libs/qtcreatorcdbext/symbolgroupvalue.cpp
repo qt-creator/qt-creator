@@ -38,6 +38,8 @@ SymbolGroupValue::SymbolGroupValue(SymbolGroupNode *node,
                                    const SymbolGroupValueContext &ctx) :
     m_node(node), m_context(ctx)
 {
+    if (m_node && !m_node->isMemoryAccessible()) // Invalid if no value
+        m_node = 0;
 }
 
 SymbolGroupValue::SymbolGroupValue() :
@@ -88,6 +90,11 @@ SymbolGroupValue SymbolGroupValue::operator[](const char *name) const
 std::string SymbolGroupValue::type() const
 {
     return isValid() ? m_node->type() : std::string();
+}
+
+std::string SymbolGroupValue::name() const
+{
+    return isValid() ? m_node->name() : std::string();
 }
 
 unsigned SymbolGroupValue::size() const
@@ -298,6 +305,17 @@ std::vector<std::string> SymbolGroupValue::innerTypesOf(const std::string &t)
         }
     }
     return rc;
+}
+
+std::ostream &operator<<(std::ostream &str, const SymbolGroupValue &v)
+{
+    if (v) {
+        str << '\'' << v.name() << "' 0x" << std::showbase << std::hex << v.address() <<
+               std::dec << ' ' << v.type() << ": '" << wStringToString(v.value()) << '\'';
+    } else {
+        str << "Invalid value '" << v.error() << '\'';
+    }
+    return str;
 }
 
 // -------------------- Simple dumping helpers
@@ -1099,7 +1117,7 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
     if (knownTypeIn)
         *knownTypeIn = kt;
 
-    if (kt == KT_Unknown) {
+    if (kt == KT_Unknown || !(kt & KT_HasSimpleDumper)) {
         QTC_TRACE_OUT
         return SymbolGroupNode::SimpleDumperNotApplicable;
     }

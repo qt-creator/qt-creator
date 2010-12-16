@@ -736,6 +736,19 @@ std::wstring SymbolGroupNode::symbolGroupFixedValue() const
     return value;
 }
 
+// A quick check if symbol is valid by checking for inaccessible value
+bool SymbolGroupNode::isMemoryAccessible() const
+{
+    static const char notAccessibleValueC[] = "<Memory access error>";
+    char buffer[sizeof(notAccessibleValueC)];
+    ULONG obtained = 0;
+    if (FAILED(symbolGroup()->debugSymbolGroup()->GetSymbolValueText(m_index, buffer, sizeof(notAccessibleValueC), &obtained)))
+            return false;
+    if (obtained < sizeof(notAccessibleValueC))
+        return true;
+    return strcmp(buffer, notAccessibleValueC) != 0;
+}
+
 // Complex dumpers: Get container/fake children
 void SymbolGroupNode::runComplexDumpers(const SymbolGroupValueContext &ctx)
 {

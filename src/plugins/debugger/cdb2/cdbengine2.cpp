@@ -523,6 +523,11 @@ void CdbEngine::runEngine()
     postCommand("g", 0);
 }
 
+bool CdbEngine::commandsPending() const
+{
+    return !m_builtinCommandQueue.isEmpty() || !m_extensionCommandQueue.isEmpty();
+}
+
 void CdbEngine::shutdownInferior()
 {
     if (debug)
@@ -535,7 +540,7 @@ void CdbEngine::shutdownInferior()
         notifyInferiorShutdownOk();
         return;
     }
-    if (!canInterruptInferior()) {
+    if (!canInterruptInferior() || commandsPending()) {
         notifyInferiorShutdownFailed();
         return;
     }
@@ -562,8 +567,10 @@ void CdbEngine::shutdownInferior()
 void CdbEngine::shutdownEngine()
 {
     if (debug)
-        qDebug("CdbEngine::shutdownEngine in state '%s', process running %d",
-               stateName(state()), isCdbProcessRunning());
+        qDebug("CdbEngine::shutdownEngine in state '%s', process running %d,"
+               "accessible=%d,commands pending=%d",
+               stateName(state()), isCdbProcessRunning(), m_accessible,
+               commandsPending());
 
     if (!isCdbProcessRunning()) { // Direct launch: Terminated with process.
         if (debug)
@@ -572,8 +579,12 @@ void CdbEngine::shutdownEngine()
         return;
     }
 
-    // detach: Wait for debugger to finish.
-    if (m_accessible) {
+    // No longer trigger anything from messages
+    disconnect(&m_process, SIGNAL(readyReadStandardOutput()), this, 0);
+    disconnect(&m_process, SIGNAL(readyReadStandardError()), this, 0);
+    // Go for kill if there are commands pending.
+    if (m_accessible && !commandsPending()) {
+        // detach: Wait for debugger to finish.
         if (startParameters().startMode == AttachExternal)
             detachDebugger();
         // Remote requires a bit more force to quit.
@@ -1351,6 +1362,10 @@ void CdbEngine::handleSessionIdle(const QByteArray &message)
         WinException exception;
         exception.fromGdbMI(stopReason);
 #ifdef Q_OS_WIN
+        // It is possible to hit on a startup trap while stepping (if something
+        // pulls DLLs. Avoid showing a 'stopped' Message box.
+        if (exception.exceptionCode == winExceptionStartupCompleteTrap)
+            return;
         if (Debugger::Internal::isDebuggerWinException(exception.exceptionCode)) {
             showStatusMessage(msgInterrupted());
             return;
@@ -1845,7 +1860,7 @@ void CdbEngine::handleStackTrace(const CdbExtensionCommandPtr &command)
         for (int i = 0; i < count; i++) {
             if (!frames.at(i).file.isEmpty()) {
                 frames[i].file = QDir::cleanPath(normalizeFileName(frames.at(i).file));
-                if (current == -1)
+                if (current == -1 && frames[i].usable)
                     current = i;
             }
         }

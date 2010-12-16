@@ -68,6 +68,7 @@ public:
     // take pointer value and cast to desired (pointer) type
     SymbolGroupValue pointerTypeCast(const char *type) const;
 
+    std::string name() const;
     std::string type() const;
     std::vector<std::string>  innerTypes() const { return innerTypesOf(type()); }
     std::wstring value() const;
@@ -106,6 +107,9 @@ private:
     SymbolGroupValueContext m_context;
     mutable std::string m_errorMessage;
 };
+
+// For debugging purposes
+std::ostream &operator<<(std::ostream &, const SymbolGroupValue &v);
 
 /* Helpers for detecting types reported from IDebugSymbolGroup
  * 1) Class prefix==true is applicable to outer types obtained from

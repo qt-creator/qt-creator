@@ -224,6 +224,8 @@ public:
 
     std::wstring symbolGroupRawValue() const;
     std::wstring symbolGroupFixedValue() const;
+    // A quick check if symbol is valid by checking for inaccessible value
+    bool isMemoryAccessible() const;
 
     std::string type() const;
     int dumperType() const { return m_dumperType; } // Valid after dumper run
