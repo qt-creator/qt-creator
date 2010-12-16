@@ -337,24 +337,9 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actSelectWidgetToWatch = menu.addAction(tr("Select Widget to Watch"));
     actSelectWidgetToWatch->setEnabled(canHandleWatches);
 
-    QAction *actOpenMemoryEditAtVariableAddress = 0;
-    QAction *actOpenMemoryEditAtPointerValue = 0;
-    QAction *actOpenMemoryEditor =
-        new QAction(tr("Open Memory Editor..."), &menu);
-    const bool canShowMemory = engineCapabilities & ShowMemoryCapability;
-    actOpenMemoryEditor->setEnabled(actionsEnabled && canShowMemory);
-
     // Offer to open address pointed to or variable address.
     const bool createPointerActions = pointerValue && pointerValue != address;
 
-    if (canShowMemory && address)
-        actOpenMemoryEditAtVariableAddress =
-            new QAction(tr("Open Memory Editor at Object's Address (0x%1)")
-                .arg(address, 0, 16), &menu);
-    if (createPointerActions)
-        actOpenMemoryEditAtPointerValue =
-            new QAction(tr("Open Memory Editor at Referenced Address (0x%1)")
-                .arg(pointerValue, 0, 16), &menu);
     menu.addSeparator();
 
     QAction *actSetWatchpointAtVariableAddress = 0;
@@ -396,14 +381,42 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     else
         menu.addAction(actRemoveWatchExpression);
 
+    QMenu memoryMenu;
+    memoryMenu.setTitle(tr("Open Memory Editor..."));
+    QAction *actOpenMemoryEditAtVariableAddress = new QAction(&memoryMenu);
+    QAction *actOpenMemoryEditAtPointerValue = new QAction(&memoryMenu);
+    QAction *actOpenMemoryEditor = new QAction(&memoryMenu);
+    if (engineCapabilities & ShowMemoryCapability) {
+        actOpenMemoryEditor->setText(tr("Open Memory Editor..."));
+        if (address) {
+            actOpenMemoryEditAtVariableAddress->setText(
+                tr("Open Memory Editor at Object's Address (0x%1)")
+                    .arg(address, 0, 16));
+        } else {
+            actOpenMemoryEditAtVariableAddress->setText(
+                tr("Open Memory Editor at Object's Address"));
+            actOpenMemoryEditAtVariableAddress->setEnabled(false);
+        }
+        if (createPointerActions) {
+            actOpenMemoryEditAtPointerValue->setText(
+                tr("Open Memory Editor at Referenced Address (0x%1)")
+                    .arg(pointerValue, 0, 16));
+        } else {
+            actOpenMemoryEditAtPointerValue->setText(
+                tr("Open Memory Editor at Referenced Address"));
+            actOpenMemoryEditAtPointerValue->setEnabled(false);
+        }
+        memoryMenu.addAction(actOpenMemoryEditAtVariableAddress);
+        memoryMenu.addAction(actOpenMemoryEditAtPointerValue);
+        memoryMenu.addAction(actOpenMemoryEditor);
+    } else {
+        memoryMenu.setEnabled(false);
+    }
+
     menu.addAction(actInsertNewWatchItem);
     menu.addAction(actSelectWidgetToWatch);
     menu.addMenu(&formatMenu);
-    if (actOpenMemoryEditAtVariableAddress)
-        menu.addAction(actOpenMemoryEditAtVariableAddress);
-    if (actOpenMemoryEditAtPointerValue)
-        menu.addAction(actOpenMemoryEditAtPointerValue);
-    menu.addAction(actOpenMemoryEditor);
+    menu.addMenu(&memoryMenu);
     menu.addAction(actSetWatchpointAtVariableAddress);
     if (actSetWatchpointAtPointerValue)
         menu.addAction(actSetWatchpointAtPointerValue);
