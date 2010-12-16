@@ -47,6 +47,7 @@ DATA_DIRS = \
         for(file, files):!exists($$file/*):FILES += $$file
     }
 
+    macx:OTHER_FILES += $$FILES
     copy2build.input = FILES
     copy2build.output = $$IDE_DATA_PATH/${QMAKE_FUNC_FILE_IN_stripSrcDir}
     isEmpty(vcproj):copy2build.variable_out = PRE_TARGETDEPS
