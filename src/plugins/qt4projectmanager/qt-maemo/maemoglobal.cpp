@@ -121,6 +121,7 @@ bool MaemoGlobal::removeRecursively(const QString &filePath, QString &error)
     QFileInfo fileInfo(filePath);
     if (!fileInfo.exists())
         return true;
+    QFile::setPermissions(filePath, fileInfo.permissions() | QFile::WriteUser);
     if (fileInfo.isDir()) {
         QDir dir(filePath);
         QStringList fileNames = dir.entryList(QDir::Files | QDir::Hidden
