@@ -1744,7 +1744,8 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
     // We use the cumulative parse so that we get the capabilities for symbian even if
     // a different target is selected and the capabilities are set in a symbian scope
 
-    newVarValues[SymbianCapabilities] = m_readerCumulative->values("TARGET.CAPABILITY");
+    if (m_readerCumulative)
+        newVarValues[SymbianCapabilities] = m_readerCumulative->values("TARGET.CAPABILITY");
 
 
     if (m_varValues != newVarValues) {
