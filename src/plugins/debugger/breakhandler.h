@@ -127,6 +127,8 @@ public:
     void updateLineNumberFromMarker(BreakpointId id, int lineNumber);
     void setMarkerFileAndLine(BreakpointId id,
         const QString &fileName, int lineNumber);
+    bool isTracepoint(BreakpointId id) const;
+    void setTracepoint(BreakpointId, bool on);
     DebuggerEngine *engine(BreakpointId id) const;
     void setEngine(BreakpointId id, DebuggerEngine *engine);
     const BreakpointResponse &response(BreakpointId id) const;

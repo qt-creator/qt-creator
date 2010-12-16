@@ -2068,7 +2068,10 @@ void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkp
         } else if (child.hasName("thread")) {
             response.threadSpec = child.data().toInt();
         } else if (child.hasName("type")) {
-            if (!child.data().contains("reakpoint")) // "breakpoint", "hw breakpoint"
+            // "breakpoint", "hw breakpoint", "tracepoint"
+            if (child.data().contains("tracepoint"))
+                response.tracepoint = true;
+            else if (!child.data().contains("reakpoint"))
                 response.type = Watchpoint;
         }
         // This field is not present.  Contents needs to be parsed from
@@ -2179,12 +2182,12 @@ void GdbEngine::attemptAdjustBreakpointLocation(BreakpointId id)
 
 void GdbEngine::handleBreakInsert1(const GdbResponse &response)
 {
+    BreakHandler *handler = breakHandler();
     BreakpointId id(response.cookie.toInt());
     if (response.resultClass == GdbResultDone) {
         // Interesting only on Mac?
         GdbMi bkpt = response.data.findChild("bkpt");
         updateBreakpointDataFromOutput(id, bkpt);
-        BreakHandler *handler = breakHandler();
         if (handler->needsChange(id)) {
             handler->notifyBreakpointChangeAfterInsertNeeded(id);
             changeBreakpoint(id);
@@ -2192,6 +2195,16 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
             handler->notifyBreakpointInsertOk(id);
             attemptAdjustBreakpointLocation(id);
         }
+    } else if (response.data.findChild("msg").data().contains("Unknown option")) {
+        // Older version of gdb don't know the -a option to set tracepoints
+        // ^error,msg="mi_cmd_break_insert: Unknown option ``a''"
+        const QString fileName = handler->fileName(id);
+        const int lineNumber = handler->lineNumber(id);
+        QByteArray cmd = "trace "
+            "\"" + GdbMi::escapeCString(fileName).toLocal8Bit() + "\":"
+            + QByteArray::number(lineNumber);
+        postCommand(cmd, NeedsStop | RebuildBreakpointModel,
+            CB(handleTraceInsert2), id);
     } else {
         // Some versions of gdb like "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4)"
         // know how to do pending breakpoints using CLI but not MI. So try
@@ -2214,6 +2227,12 @@ void GdbEngine::handleBreakInsert2(const GdbResponse &response)
             QTC_ASSERT(false, /**/);
         }
     }
+}
+
+void GdbEngine::handleTraceInsert2(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone)
+        reloadBreakListInternal();
 }
 
 void GdbEngine::reloadBreakListInternal()
@@ -2479,7 +2498,9 @@ void GdbEngine::insertBreakpoint(BreakpointId id)
     }
 
     QByteArray cmd;
-    if (m_isMacGdb) {
+    if (handler->isTracepoint(id)) {
+        cmd = "-break-insert -a -f ";
+    } else if (m_isMacGdb) {
         cmd = "-break-insert -l -1 -f ";
     } else if (m_gdbAdapter->isTrkAdapter()) {
         cmd = "-break-insert -h -f ";

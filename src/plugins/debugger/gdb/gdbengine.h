@@ -354,6 +354,7 @@ private: ////////// View & Data Stuff //////////
     void handleBreakEnable(const GdbResponse &response);
     void handleBreakInsert1(const GdbResponse &response);
     void handleBreakInsert2(const GdbResponse &response);
+    void handleTraceInsert2(const GdbResponse &response);
     void handleBreakCondition(const GdbResponse &response);
     void handleBreakInfo(const GdbResponse &response);
     void handleBreakThreadSpec(const GdbResponse &response);

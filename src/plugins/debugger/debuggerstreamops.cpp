@@ -175,6 +175,7 @@ QDataStream &operator<<(QDataStream &stream, const BreakpointParameters &s)
     stream << quint64(s.address);
     stream << s.functionName;
     stream << s.useFullPath;
+    stream << s.tracepoint;
     return stream;
 }
 
@@ -191,6 +192,7 @@ QDataStream &operator>>(QDataStream &stream, BreakpointParameters &s)
     stream >> t; s.address = t;
     stream >> str; s.functionName = str;
     stream >> b; s.useFullPath = b;
+    stream >> b; s.tracepoint = b;
     return stream;
 }
 

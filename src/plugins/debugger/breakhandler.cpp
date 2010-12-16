@@ -267,6 +267,8 @@ void BreakHandler::saveBreakpoints()
             map.insert(_("disabled"), _("1"));
         if (data.useFullPath)
             map.insert(_("usefullpath"), _("1"));
+        if (data.tracepoint)
+            map.insert(_("tracepoint"), _("1"));
         list.append(map);
     }
     debuggerCore()->setSessionValue("Breakpoints", list);
@@ -310,6 +312,9 @@ void BreakHandler::loadBreakpoints()
         v = map.value(_("usefullpath"));
         if (v.isValid())
             data.useFullPath = bool(v.toInt());
+        v = map.value(_("tracepoint"));
+        if (v.isValid())
+            data.tracepoint = bool(v.toInt());
         v = map.value(_("type"));
         if (v.isValid() && v.toInt() != UnknownType)
             data.type = BreakpointType(v.toInt());
@@ -576,6 +581,26 @@ void BreakHandler::setEnabled(BreakpointId id, bool on)
     if (it->data.enabled == on)
         return;
     it->data.enabled = on;
+    it->destroyMarker();
+    it->state = BreakpointChangeRequested;
+    updateMarker(id);
+    scheduleSynchronization();
+}
+
+bool BreakHandler::isTracepoint(BreakpointId id) const
+{
+    ConstIterator it = m_storage.find(id);
+    QTC_ASSERT(it != m_storage.end(), return false);
+    return it->data.tracepoint;
+}
+
+void BreakHandler::setTracepoint(BreakpointId id, bool on)
+{
+    Iterator it = m_storage.find(id);
+    QTC_ASSERT(it != m_storage.end(), return);
+    if (it->data.tracepoint == on)
+        return;
+    it->data.tracepoint = on;
     it->destroyMarker();
     it->state = BreakpointChangeRequested;
     updateMarker(id);
