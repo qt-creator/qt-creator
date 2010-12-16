@@ -928,6 +928,9 @@ def extractFields(type):
     # This seems to work.
     #warn("TYPE 0: %s" % type)
     type = stripTypedefs(type)
+    fields = type.fields()
+    if len(fields):
+        return fields
     #warn("TYPE 1: %s" % type)
     # This fails for arrays. See comment in lookupType.
     type0 = lookupType(str(type))
