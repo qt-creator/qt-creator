@@ -253,8 +253,8 @@ QList<ItemLibraryEntry> ItemLibraryInfo::entriesForType(const QString &typeName,
 
     foreach (const ItemLibraryEntry &entry, m_d->nameToEntryHash.values()) {
         if (entry.typeName() == typeName
-            && entry.majorVersion() == majorVersion
-            && entry.minorVersion() == minorVersion)
+            && entry.majorVersion() >= majorVersion
+            && entry.minorVersion() >= minorVersion)
             entries += entry;
     }
 
