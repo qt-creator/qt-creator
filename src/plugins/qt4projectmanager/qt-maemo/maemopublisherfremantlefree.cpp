@@ -138,6 +138,11 @@ void MaemoPublisherFremantleFree::createPackage()
             tr("Publishing failed: Could not create source package."));
         return;
     }
+    if (!fixNewlines()) {
+        finishWithFailure(tr("Error: Could not fix newlines"),
+            tr("Publishing failed: Could not create source package."));
+        return;
+    }
 
     QString error;
     if (!updateDesktopFiles(&error)) {
@@ -219,6 +224,25 @@ bool MaemoPublisherFremantleFree::copyRecursively(const QString &srcFilePath,
             rulesFile.resize(0);
             rulesFile.write(rulesContents);
         }
+    }
+    return true;
+}
+
+bool MaemoPublisherFremantleFree::fixNewlines()
+{
+    QDir debianDir(m_tmpProjectDir + QLatin1String("/debian"));
+    const QStringList &fileNames = debianDir.entryList(QDir::Files);
+    foreach (const QString &fileName, fileNames) {
+        QFile file(debianDir.filePath(fileName));
+        if (!file.open(QIODevice::ReadWrite))
+            return false;
+        QByteArray contents = file.readAll();
+        const QByteArray crlf("\r\n");
+        if (!contents.contains(crlf))
+            continue;
+        contents.replace(crlf, "\n");
+        file.resize(0);
+        file.write(contents);
     }
     return true;
 }

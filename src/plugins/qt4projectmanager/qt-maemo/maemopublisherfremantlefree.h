@@ -90,6 +90,7 @@ private:
     void uploadPackage();
     bool copyRecursively(const QString &srcFilePath,
         const QString &tgtFilePath);
+    bool fixNewlines();
     void handleProcessFinished(bool failedToStart);
     void runDpkgBuildPackage();
     QString tmpDirContainer() const;
