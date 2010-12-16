@@ -526,6 +526,7 @@ AST::Node *QmlOutlineModel::nodeForIndex(const QModelIndex &index) const
     QTC_ASSERT(index.isValid() && (index.model() == this), return 0);
     if (index.isValid()) {
         QmlOutlineItem *item = static_cast<QmlOutlineItem*>(itemFromIndex(index));
+        QTC_ASSERT(item, return 0);
         QTC_ASSERT(m_itemToNode.contains(item), return 0);
         return m_itemToNode.value(item);
     }
