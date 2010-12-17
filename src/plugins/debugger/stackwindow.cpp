@@ -68,8 +68,6 @@ StackWindow::StackWindow(QWidget *parent)
     setIconSize(QSize(10, 10));
 
     header()->setDefaultAlignment(Qt::AlignLeft);
-    header()->resizeSection(0, 60);
-    header()->resizeSection(3, 60);
 
     connect(this, SIGNAL(activated(QModelIndex)),
         SLOT(rowActivated(QModelIndex)));
@@ -81,6 +79,7 @@ StackWindow::StackWindow(QWidget *parent)
         SLOT(reloadFullStack()));
     connect(debuggerCore()->action(MaximalStackDepth), SIGNAL(triggered()),
         SLOT(reloadFullStack()));
+    showAddressColumn(false);
 }
 
 void StackWindow::showAddressColumn(bool on)
@@ -91,6 +90,14 @@ void StackWindow::showAddressColumn(bool on)
 void StackWindow::rowActivated(const QModelIndex &index)
 {
     currentEngine()->activateFrame(index.row());
+}
+
+void StackWindow::setModel(QAbstractItemModel *model)
+{
+    QTreeView::setModel(model);
+    //resizeColumnsToContents();
+    resizeColumnToContents(0);
+    resizeColumnToContents(3);
 }
 
 void StackWindow::contextMenuEvent(QContextMenuEvent *ev)

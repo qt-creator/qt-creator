@@ -53,6 +53,7 @@ private slots:
     void reloadFullStack();
 
 private:
+    void setModel(QAbstractItemModel *model);
     void contextMenuEvent(QContextMenuEvent *ev);
     void copyContentsToClipboard();
 

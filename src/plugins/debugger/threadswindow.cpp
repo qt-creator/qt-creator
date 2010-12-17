@@ -37,6 +37,7 @@
 
 #include <utils/savedaction.h>
 
+#include <QtCore/QDebug>
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QHeaderView>
 #include <QtGui/QMenu>
@@ -67,6 +68,15 @@ ThreadsWindow::ThreadsWindow(QWidget *parent)
 void ThreadsWindow::rowActivated(const QModelIndex &index)
 {
     debuggerCore()->currentEngine()->selectThread(index.row());
+}
+
+void ThreadsWindow::setModel(QAbstractItemModel *model)
+{
+    qDebug() << "SET MODEL";
+    QTreeView::setModel(model);
+    resizeColumnToContents(0); // Id
+    resizeColumnToContents(4); // Line
+    resizeColumnToContents(6); // Name
 }
 
 void ThreadsWindow::contextMenuEvent(QContextMenuEvent *ev)

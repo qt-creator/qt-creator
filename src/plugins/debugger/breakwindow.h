@@ -45,6 +45,7 @@ public:
     explicit BreakWindow(QWidget *parent = 0);
 
     static void editBreakpoint(BreakpointId id, QWidget *parent);
+    void setModel(QAbstractItemModel *model);
 
 private slots:
     void resizeColumnsToContents();

@@ -51,6 +51,7 @@ private slots:
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
 
 private:
+    void setModel(QAbstractItemModel *model);
     void contextMenuEvent(QContextMenuEvent *ev);
 
     bool m_alwaysResizeColumnsToContents;

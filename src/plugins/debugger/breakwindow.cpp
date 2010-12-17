@@ -310,6 +310,7 @@ bool BreakpointDialog::showDialog(BreakpointParameters *data)
     return true;
 }
 
+
 ///////////////////////////////////////////////////////////////////////
 //
 // BreakWindow
@@ -374,6 +375,14 @@ void BreakWindow::mouseDoubleClickEvent(QMouseEvent *ev)
         editBreakpoints(BreakpointIds() << id);
     }
     QTreeView::mouseDoubleClickEvent(ev);
+}
+
+void BreakWindow::setModel(QAbstractItemModel *model)
+{
+    QTreeView::setModel(model);
+    resizeColumnToContents(0); // Number
+    resizeColumnToContents(3); // Line
+    resizeColumnToContents(6); // Ignore count
 }
 
 void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
