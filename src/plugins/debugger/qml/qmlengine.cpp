@@ -689,9 +689,9 @@ void QmlEngine::messageReceived(const QByteArray &message)
         QList<WatchData> locals;
         stream >> stackFrames >> watches >> locals;
 
-        logString += " (" % QString::number(stackFrames.size()) % " stack frames)";
-        logString += " (" % QString::number(watches.size()) % " watches)";
-        logString += " (" % QString::number(locals.size()) % " locals)";
+        logString += QLatin1String(" (") + QString::number(stackFrames.size()) + QLatin1String(" stack frames)");
+        logString += QLatin1String(" (") + QString::number(watches.size()) + QLatin1String(" watches)");
+        logString += QLatin1String(" (") + QString::number(locals.size()) + QLatin1String(" locals)");
 
         for (int i = 0; i != stackFrames.size(); ++i)
             stackFrames[i].level = i + 1;
@@ -736,7 +736,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
             QString error;
             stream >> error;
 
-            logString += " " % error;
+            logString += QLatin1String(" ") + error;
             logMessage(LogReceive, logString);
 
             QString msg =
