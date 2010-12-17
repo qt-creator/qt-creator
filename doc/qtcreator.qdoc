@@ -288,7 +288,8 @@
 
     Qt Creator provides two integrated visual editors, \QD and \QMLD.
 
-    \QD is a tool for designing and building graphical user interfaces (GUIs) from
+    \l{Using Qt Designer}{\QD} is a tool for designing and building graphical user
+    interfaces (GUIs) from
     Qt widgets. You can compose and customize your widgets or dialogs and test
     them using different styles and resolutions.
 
@@ -304,7 +305,8 @@
     graphics power that are becoming common in portable consumer devices, such as mobile
     phones, media players, set-top boxes, and netbooks.
 
-    \QMLD allows you to easily develop animations by using a declarative programming
+    \l{Using Qt Quick Designer}{\QMLD} allows you to easily develop animations by using a
+    declarative programming
     language called \l {http://doc.qt.nokia.com/4.7/qtquick.html}{QML}.
     In QML, a user interface is specified as a tree of objects with properties.
 
@@ -1026,7 +1028,7 @@
 
     \title Using Qt Quick Designer
 
-    You can edit .qml files in the visual \QMLD editor or in the
+    You can edit .qml files in the \QMLD visual editor or in the
     code editor.
 
     In \gui Projects, double-click a .qml file to open it in the code
@@ -1039,10 +1041,8 @@
 
     \list
 
-    \o \gui {Navigator} pane displays the QML elements in the current QML file.
-    You can show and hide items to focus on specific parts of the application.
-    To view lists of files or projects, instead, select \gui {File System},
-    \gui {Open Documents}, or \gui Projects in the menu.
+    \o \gui {Navigator} pane displays the QML elements in the current QML file
+    as tree structure.
 
     \o \gui {Library} pane displays the building blocks that you can use to design
     applications: predefined QML elements, your own QML components, and other
@@ -1051,12 +1051,64 @@
     \o \gui {Properties} pane organizes the properties of the selected QML element
     or QML component. You can also change the properties in the code editor.
 
-    \o \gui {State} pane displays the different states of the component. To add
-    states, click the empty slot. Then modify the new state in the editor.
-    In the code editor, you can see the changes recorded as changes to
-    the base state.
+    \o \gui {State} pane displays the different states of the component. QML
+    states typically describe user interface configurations, such as the UI
+    elements, their properties and behavior and the available actions.
 
     \endlist
+
+    \section1 Managing Element Hierarchy
+
+    The \gui Navigator pane displays the
+    \l{http://doc.qt.nokia.com/4.7/qdeclarativeelements.html}{QML elements}
+    in the current QML file and their relationships.
+    Elements are listed in a tree structure, below their parent.
+
+    \image qmldesigner-navigator.png "Navigator pane"
+
+    You can select elements in the \gui Navigator to edit their properties
+    in the \gui Properties pane. Elements can access the properties of their
+    parent element.
+
+    Typically, child elements are located within the parent element on the
+    canvas. However, they do not necessarily have to fit inside the parent element.
+    For example, you might want to make a mouse area larger than the rectangle
+    or image beneath it.
+
+    \image qmldesigner-element-size.png "Mouse area for a button"
+
+    When you copy an element, all its child elements are also copied. When
+    you remove an element, the child elements are also removed.
+
+    You can show and hide items to focus on specific parts of the application.
+    Click the
+    \inlineimage qmldesigner-show-hide-icon.png
+    icon to change the visibility of an element on the canvas. To change the
+    visibility of an element in the application, use the \gui Visibility
+    check box or the \gui Opacity field in the \gui Properties pane. If you set
+    \gui Opacity to 0, elements are hidden, but you can still apply animation
+    to them.
+
+    As all properties, visibility and opacity are inherited from the parent
+    element. To hide or show child elements, edit the properties of the
+    parent element.
+
+    To view lists of files or projects, instead, select \gui {File System},
+    \gui {Open Documents}, or \gui Projects in the menu.
+
+    \section2 Switching Parent Elements
+
+    When you drag and drop QML elements to the canvas, Qt Quick Designer
+    adds the new element as a child of the element beneath it.
+    When you move elements on the canvas, Qt Quick Designer cannot determine
+    whether you want to adjust their position or attach them to a new
+    parent element. Therefore, the parent element is not automatically
+    changed. To change the parent of the element, press down the \key Shift
+    key before you drag and drop the element into a new position. The topmost
+    element under the cursor becomes the new parent of the element.
+
+    You can change the parent of an element also in the \gui Navigator pane.
+    Drag and drop the element to another position in the tree.
 
     \section1 Element Library
 
@@ -1082,25 +1134,85 @@
 
     \image qmldesigner-element-properties.png
 
+    The default values of properties are displayed in white color, while the values
+    that you specify explicitly are highlighted with blue color. In addition, property
+    changes in states are highlighted with blue.
+
     For more information on the properties available for an element, press \key {F1}.
 
     \section2 Setting Expressions
 
-    You can set JavaScript expressions as values of some properties. Click the circle
+    \l{http://doc.qt.nokia.com/4.7/propertybinding.html}{Property binding}
+    is a declarative way of specifying the value of a property.
+    Binding allows a property value to be expressed as an JavaScript expression
+    that defines the value relative to other property values or data accessible
+    in the application. The property value is automatically kept up to date if
+    the other properties or data values change.
+
+    Property bindings are created implicitly in QML whenever a property is assigned
+    an JavaScript expression. To set JavaScript expressions as values of properties
+    in Qt Quick Designer, click the circle
     icon next to a property to open a context menu, and select \gui {Set Expression}.
 
     \image qmldesigner-set-expression.png "Element properties context menu"
 
+    To remove expressions, select \gui Reset in the context menu.
+
     For more information on the JavaScript environment provided by QML, see
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qdeclarativejavascript.html}{Integrating JavaScript}.
+    \l{http://doc.qt.nokia.com/4.7/qdeclarativejavascript.html}{Integrating JavaScript}.
 
     \section2 Setting Anchors and Margins
 
-    The \gui Layout pane allows you to set anchors and margins for elements. To set
-    the anchors of an item, click the anchor buttons. You can combine the top/bottom
-    and left/right anchors to anchor objects in the corners of the parent element.
+    In addition to arranging elements in a grid, row, or column, you can use
+    \l{http://doc.qt.nokia.com/4.7/qml-anchor-layout.html}{anchors} to lay out screens.
+    In an anchor-based layout, each item can be thought of as having a set of
+    invisible \e anchor lines: top, bottom, left, right, fill, horizontal center,
+    vertical center, and baseline.
 
-    \inlineimage qmldesigner-anchor-buttons.png "Anchor buttons"
+    In the \gui Layout pane you can set anchors and margins for elements. To set
+    the anchors of an item, click the anchor buttons. You can combine the top/bottom,
+    left/right, and horizontal/vertical anchors to anchor objects in the corners of
+    the parent element or center them horizontally or vertically within the parent
+    element.
+
+    \image qmldesigner-anchor-buttons.png "Anchor buttons"
+
+    In version 2.1, specifying the baseline anchor in Qt Quick Designer is
+    not supported. You can specify it using the code editor.
+
+    For performance reasons, you can only anchor an element to its siblings and
+    direct parent. By default, an element is anchored to its parent when you
+    use the anchor buttons. Select a sibling of the element in the \gui Target
+    field to anchor to it, instead.
+
+    Arbitrary anchoring is not supported. For example, you cannot specify:
+    \c {anchor.left: parent.right}. You have to specify: \c {anchor.left: parent.left}.
+    When you use the anchor buttons, anchors to the parent element are always
+    specified to the same side. However, anchors to sibling elements are specified
+    to the opposite side: \c {anchor.left: sibling.right}. This allows you to keep
+    sibling elements together.
+
+    In the following image, \gui{Rectangle 2} is anchored to its siblings on its
+    right and left and to the bottom of its parent.
+
+    \image qmldesigner-anchors.png "Anchoring sibling elements"
+
+    The anchors for \gui{Rectangle 2} are specified as follows in code:
+
+    \code
+    Rectangle {
+        id: rectangle2
+        anchors.right: rectangle3.left
+        anchors.rightMargin: 15
+        anchors.left: rectangle1.right
+        anchors.leftMargin: 15
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 15
+    \endcode
+
+    Margins specify the amount of empty space to leave to the outside of an item.
+    Margins only have meaning for anchors. They do not take any effect when using
+    other layouts or absolute positioning.
 
     \section2 Building Transformations on Items
 
@@ -1110,6 +1222,105 @@
 
     For more information on Transform elements, see
     \l {http://doc.qt.nokia.com/4.7/qml-transform.html}{QML Transform Element}.
+
+    \section1 Adding States
+
+    User interfaces are designed to present different interface configurations
+    in different scenarios, or to modify their appearances in response to user
+    interaction. Often, there are a set of changes that are made concurrently,
+    such that the interface could be seen to be internally changing from one
+    \e state to another.
+
+    This applies generally to interface elements regardless of their complexity.
+    A photo viewer may initially present images in a grid, and when an image is
+    clicked, change to a detailed state where the individual image is expanded
+    and the interface is changed to present new options for image editing.
+    On the other end of the scale, when a simple button is pressed, it may change
+    to a \e pressed state in which its color and position is modified to give a
+    pressed appearance.
+
+    In QML, any object can change between different states to apply sets of changes
+    that modify the properties of relevant items. Each state can present a
+    different configuration that can, for example:
+
+    \list
+
+        \o Show some UI elements and hide others.
+
+        \o Present different available actions to the user.
+
+        \o Start, stop or pause animations.
+
+        \o Execute some script required in the new state.
+
+        \o Change a property value for a particular item.
+
+        \o Show a different view or screen.
+
+    \endlist
+
+    The \gui State pane displays the different
+    \l{http://doc.qt.nokia.com/4.7/qdeclarativestates.html}{states}
+    of the component in the Qt Quick Designer.
+
+    \image qmldesigner-transitions.png "State pane"
+
+    To add states, click the empty slot. Then modify the new state in the editor.
+    For example, to change the appearance of a button, you can hide the button
+    image and show another image in its place. Or, to add movement to the screen,
+    you can change the position of an object on the canvas and then add animation
+    to the change between the states.
+
+    You can preview the states in the \gui State pane and click them to switch
+    between states on the canvas.
+
+    For more information on using states, see \l{Creating Screens}.
+
+    If you add animation to the states, you can run the application to test the
+    animation.
+
+    For more information on adding animation, see \l{Animating Screens}.
+
+    \section1 Aligning and Positioning Elements
+
+    The position of an element on the canvas can be either absolute or relative
+    to other elements. In the element properties, you can set the x and y
+    coordinates of an element, or \l{Setting Anchors and Margins}{anchor} it to its
+    parent and sibling elements.
+
+    \section2 Snap to Margins
+
+    When you are working on a design, you can use snap and guides to align
+    elements on the canvas. Click the
+    \inlineimage qmldesigner-snap-to-guides-button.png
+    button to have the elements snap to the guides.
+
+    Choose \gui {Tools > Options... > Qt Quick} to specify settings for snap to
+    margins. In the \gui {Snap margin} field, specify the position of the guides
+    as pixels  from the edge of the canvas. In the \gui {Item spacing} field,
+    specify the space in pixels to leave between elements on the screen.
+
+    The following image shows the position of the guides when \gui {Snap margin}
+    is set to 5 pixels.
+
+    \image qmldesigner-snap-margins.png "Snap margins on canvas"
+
+    \section2 Hiding Element Boundaries
+
+    Qt Quick Designer displays the boundaries of elements on the canvas. To hide
+    the element boundaries, click the
+    \inlineimage qmldesigner-show-bounding-rectangles-button.png
+    button.
+
+    \section2 Selecting Elements
+
+    When you point the mouse to overlapping elements, the frontmost element is
+    selected by default. However, elements that do not have any content, such as
+    the mouse area, are typically located in front of elements that do have
+    content, such as rectangles or border images. To select elements with content
+    by default, click the
+    \inlineimage qmldesigner-only-select-items-with-content.png
+    button.
 
 */
 
@@ -3118,7 +3329,7 @@
     \endlist
 
     For more information about using the Qt Simulator, see the
-    \l{http://doc.qt.nokia.com/qt-simulator-beta/index.html}{Qt Simulator Manual}.
+    \l{http://doc.qt.nokia.com/qtsimulator/index.html}{Qt Simulator Manual}.
 
     \section1 Running on Maemo
 
@@ -3737,10 +3948,29 @@
     For more information on how to define capabilities for a project, see
     \l{http://doc.qt.nokia.com/4.7/qmake-platform-notes.html#capabilities}{Capabilities}.
 
-    \note If you select a signing option that does not allow the application to access
-    the defined capabilities, qmake disables the capabilities in the .pro file.
-    This allows you to run the application on devices, even though any functionality that
-    requires the capabilities is disabled.
+    \note In Qt 4.7.1 and later, if you select the \gui {Self-signed certificate}
+    option, the SIS generation process checks that the package can be self-signed.
+    If problems are found, it attempts to fix the package. If fixes cannot be made,
+    a message appears in the \gui {Compile Output} view.
+
+    The following modifications can be made:
+
+    \list
+
+        \o Package UID is changed to an UID from the unprotected range (if it was
+        from the protected range).
+
+        \o Vendor ID is set to zero on all binaries included in the package file.
+
+        \o All restricted and device manufacturer capabilities are removed from all
+        libraries included in the package file.
+
+    \endlist
+
+    The application UID or capabilities used in executables (.exe) cannot be changed,
+    because that would break the application. If the executables use protected UIDs
+    or restricted or device manufacturer capabilities, signing fails and an error
+    message appears in the \gui {Compile Output} view.
 
     \section1 Creating Smart Installer for Symbian Packages
 
@@ -3757,6 +3987,11 @@
     \note If you use Ovi Signed, you can just submit an unsigned SIS file to Ovi Publishing.
     Ovi signs the file for you and packages it with Nokia Smart Installer for Symbian.
     For more information, see \l{Publishing Applications to Ovi Store}.
+
+    You can either install the Nokia Smart Installer for Symbian as part of
+    the \QSDK, or download and install it from the
+    \l{http://wiki.forum.nokia.com/index.php/Nokia_Smart_Installer_for_Symbian}{Nokia Smart Installer for Symbian}
+    wiki.
 
     To package Nokia Smart Installer with the application, select the \gui {Create Smart Installer
     package} check box. This ensures that up-to-date and appropriate versions of Qt and its
@@ -3794,6 +4029,12 @@
         \o Open the \gui {Run Settings}.
 
         \o In the \gui {Create SIS Package} step, select \gui {Self-signed certificate}.
+
+        \o In the \gui {Deploy SIS Package} step, click \gui {Remove Item} to
+        skip the step of copying the SIS file to a device. The SIS file is created
+        in the project folder.
+
+        \image qtcreator-remove-deploy-step.png "Removing deploy steps"
 
         \o To package Nokia Smart Installer for Symbian with the application, select
         the \gui {Create Smart Installer package} check box.
@@ -3846,6 +4087,10 @@
         \o In the \gui {Create SIS Package} step, specify the developer certificate
         and key in the \gui {Custom certificate} and \gui {Key file} fields.
 
+        \o In the \gui {Deploy SIS Package} step, click \gui {Remove Item} to
+        skip the step of copying the SIS file to a device. The SIS file is created
+        in the project folder.
+
         \o Edit the project .pro file to use the correct UIDs and vendor information
         for the application, as illustrated by the following code snippet:
 
@@ -3875,6 +4120,8 @@
         \o After receiving the .sis file from Symbian Signed, copy it over the old
         application.sis.
 
+        \note The instructions below assume that you have installed \QSDK.
+
         \o To package Nokia Smart Installer for Symbian with the application, choose
         \gui {Start > Nokia Qt SDK > Symbian > Qt for Symbian Command Prompt}
         to open the Qt command line environment.
@@ -3896,6 +4143,7 @@
     \endlist
 
     Qt Creator automatically generates a wrapper package in the project folder.
+
     \note Ensure that your application complies with the requirements before submitting
     the file to Ovi Store.
 
@@ -3903,7 +4151,7 @@
     \l{http://doc.qt.nokia.com/4.7/qmake-variable-reference.html#deployment}{qmake Variable Reference}.
 
     For more information about the Nokia Smart Installer, see the
-    \l{http://doc.qt.nokia.com/smart-installer-1.0/index.html}{Nokia Smart Installer for Symbian Manual}.
+    \l{http://doc.qt.nokia.com/smart-installer/index.html}{Nokia Smart Installer for Symbian Manual}.
 
     Note: Nokia Smart Installer for Symbian is only available on Windows.
 
@@ -3959,6 +4207,8 @@
 
     For an up-to-date list, see
     \l{http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml}{Packaging and Signing}.
+    New devices are added to the list periodically. The final authority
+    on the supported devices is the Ovi Publish tool itself.
 
     \section1 Publishing Qt Content for Symbian Devices
 
@@ -4037,6 +4287,43 @@
     the application on devices. Self-signing cannot be
     applied when UIDs from the trusted range 0x2xxxxxxx are used. For more
     information, see \l{http://wiki.forum.nokia.com/index.php/UID}{UID}.
+
+    \section1 Publishing Qt Content for Maemo Devices
+
+    The applications that you publish on Ovi Store, must meet the testing criteria
+    listed in
+    \l{http://www.forum.nokia.com/info/sw.nokia.com/id/9cd1eb18-821b-4228-a0a3-36b049c5d608/Maemo_5_Application_OVI_Store_Entry_Requirements.pdf.html}
+    {Maemo 5 Applications: Ovi Store Entry Requirements}.
+
+    Make sure that your application passes the following most commonly
+    failed test cases:
+
+    \list
+
+        \o Package filename must include the application name and version
+        number using three digits. For example: myapplication_1_0_1.deb
+
+        \o Application files must be installed to the opt folder on the ext3
+        partition.
+
+        \o Debian packages must be given the category user/hidden.
+
+        \o Application cannot crash or hang during use.
+
+        \o The application must handle different memory situations correctly.
+
+    \endlist
+
+    You set the application name and installation folder in the
+    \gui {Run Settings} for the project. For more information, see
+    \l{Deploying Applications to Maemo Devices}. Qt Creator specifies the correct
+    category settings by default when it creates the Debian directory and
+    the necessary files.
+
+    You can test the application on Qt Simulator and Maemo Emulator to make
+    sure that it does not crash or hang and to check how it handles different
+    memory situations. Before you submit the application to Ovi Publishing, you
+    must also fully test it on a Maemo device.
 
 */
 
@@ -4226,7 +4513,7 @@
     Each Mobility API has its corresponding value that you have to add
     as a value of MOBILITY to use the API. For a list of the APIs and the
     corresponding values that you can assign to MOBILITY, see the
-    \l {http://doc.qt.nokia.com/qtmobility-1.0/quickstart.html}{Quickstart Example}.
+    \l {http://doc.qt.nokia.com/qtmobility/quickstart.html}{Quickstart Example}.
 
     \section1 Designing the User Interface
 
@@ -4424,7 +4711,7 @@
     \l {http://doc.qt.nokia.com/4.7/qtquick.html}{Qt Quick}.
 
     This tutorial describes how to use the Qt Creator to implement the
-    \l{http://doc.qt.nokia.com/4.7-snapshot/declarative-animation-states.html}
+    \l{http://doc.qt.nokia.com/4.7/declarative-animation-states.html}
     {states and transitions example application}. The example application displays a
     Qt logo that moves between three rectangles on the page when you click them.
 
@@ -7617,6 +7904,65 @@
 
     The properties that you change in a state are highlighted with blue color.
     In the code editor, you can see the changes recorded as changes to the base state.
+
+    To keep the QML code clean, you should create a base state that contains all the
+    elements you will need in the application. You can then create states, in
+    which you hide and show a set of items and modify their properties.
+    This allows you to:
+
+    \list
+
+        \o Align items on different screens with each other.
+
+        \o Avoid excessive property changes. If an item is invisible in the base
+        state, you must define all changes to its child elements as property changes,
+        which leads to complicated QML code.
+
+        \o Minimize the differences between the base state and the other states
+        to keep the QML code short and readable and to improve performance.
+
+        \o Avoid problems when using transitions and animation when changing
+        states.
+
+    \endlist
+
+    To create screens for an application by using states:
+
+    \list 1
+
+        \o In the base state, add all elements you will need in the application.
+        While you work on one screen, you can click the
+        \inlineimage qmldesigner-show-hide-icon.png
+        icon to hide elements on the canvas that are not part of a screen.
+
+        \o In the \gui States pane, click the empty slot to create a new state
+        and give it a name. For example, \c Normal.
+
+        \o In the \gui Properties pane, deselect the \gui Visibility check box
+        or set \gui Opacity to 0 for each element that is not needed in this view.
+        If you specify the setting for the parent element, all child elements
+        inherit it and are also hidden.
+
+        \image qmldesigner-screen-design.png "Designing screens"
+
+        \o Create additional states for each screen and set the visibility or
+        opacity of the elements in the screen.
+
+        \o To determine which view opens when the application starts, use the code
+        editor to set the state of the root item of the .qml file, as specified by the
+        following code snippet:
+
+        \code
+
+        Item {
+            state: "Normal"
+        }
+
+        \endcode
+
+    \endlist
+
+
 */
 
 
@@ -7797,7 +8143,7 @@
     To test the application UI, user interaction with the application, and
     functionality that uses the mobility APIs, use the Qt Simulator,
     instead. For more information, see the
-    \l{http://doc.qt.nokia.com/qt-simulator-beta/index.html}{Qt Simulator Manual}.
+    \l{http://doc.qt.nokia.com/qtsimulator/index.html}{Qt Simulator Manual}.
 
     The Maemo emulator is installed and configured as part of the \QSDK
     package. You can also install and configure the MADDE environment and

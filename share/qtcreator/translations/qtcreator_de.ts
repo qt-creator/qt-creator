@@ -15374,11 +15374,11 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <source>Stop Deploying</source>
-        <translation>Deployement beenden</translation>
+        <translation>Deployment beenden</translation>
     </message>
     <message>
         <source>Could not connect to host: %1</source>
-        <translation>Es konnte keine Verbindung zum Host %1 hergestellt werden</translation>
+        <translation>Es konnte keine Verbindung zum Host hergestellt werden: %1</translation>
     </message>
     <message>
         <source>Key was successfully deployed.</source>
@@ -16057,7 +16057,7 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
     </message>
     <message>
         <source>Free ports:</source>
-        <translation>Freien Ports:</translation>
+        <translation>Freie Ports:</translation>
     </message>
     <message>
         <source>You can enter lists and ranges like this: 1024,1026-1028,1030</source>
@@ -16323,7 +16323,7 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
     </message>
     <message>
         <source>Could not connect to host: %1</source>
-        <translation>Es konnte keine Verbindung zum Host %1 hergestellt werden</translation>
+        <translation>Es konnte keine Verbindung zum Host hergestellt werden: %1</translation>
     </message>
     <message>
         <source>
@@ -20164,7 +20164,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Could not connect to host: %1</source>
-        <translation>Es konnte keine Verbindung zum Host %1 hergestellt werden</translation>
+        <translation>Es konnte keine Verbindung zum Host hergestellt werden: %1</translation>
     </message>
     <message>
         <source>Upload failed: Could not open file &apos;%1&apos;</source>
@@ -20268,7 +20268,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     <name>Qt4ProjectManager::Internal::MaemoDeviceEnvReader</name>
     <message>
         <source>Could not connect to host: %1</source>
-        <translation>Es konnte keine Verbindung zum Host %1 hergestellt werden</translation>
+        <translation>Es konnte keine Verbindung zum Host hergestellt werden: %1</translation>
     </message>
     <message>
         <source>Error running remote process: %1</source>
@@ -20440,7 +20440,7 @@ Fehlerausgabe: %1</translation>
     </message>
     <message>
         <source>Could not connect to host: %1</source>
-        <translation>Es konnte keine Verbindung zum Host %1 hergestellt werden</translation>
+        <translation>Es konnte keine Verbindung zum Host hergestellt werden: %1</translation>
     </message>
     <message>
         <source>Connection failed: %1</source>
