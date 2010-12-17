@@ -228,7 +228,7 @@ def parseAndEvaluate(exp):
 
 def catchCliOutput(command):
     try:
-        return gdb.execute(command, to_string=True)
+        return gdb.execute(command, to_string=True).split("\n")
     except:
         pass
     filename, file = createTempFile()
