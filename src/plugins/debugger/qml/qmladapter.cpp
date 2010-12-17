@@ -287,7 +287,8 @@ void QmlAdapter::logServiceStatusChange(const QString &service, QDeclarativeDebu
 
 void QmlAdapter::logServiceActivity(const QString &service, const QString &logMessage)
 {
-    showConnectionStatusMessage(QString("%1 %2").arg(service, logMessage));
+    if (!d->m_engine.isNull())
+        d->m_engine.data()->showMessage(QString("%1 %2").arg(service, logMessage), LogDebug);
 }
 
 void QmlAdapter::flushSendBuffer()

@@ -292,7 +292,6 @@ void QmlEngine::runEngine()
     }
 
     d->m_adapter->beginConnection();
-    showMessage(tr("QML Debugger connecting..."), StatusBar);
 }
 
 void QmlEngine::startApplicationLauncher()
@@ -368,7 +367,9 @@ void QmlEngine::continueInferior()
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
-    rs << QByteArray("CONTINUE");
+    QByteArray cmd = "CONTINUE";
+    rs << cmd;
+    logMessage(LogSend, cmd);
     sendMessage(reply);
     resetLocation();
     notifyInferiorRunRequested();
@@ -379,7 +380,9 @@ void QmlEngine::interruptInferior()
 {
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
-    rs << QByteArray("INTERRUPT");
+    QByteArray cmd = "INTERRUPT";
+    rs << cmd;
+    logMessage(LogSend, cmd);
     sendMessage(reply);
     notifyInferiorStopOk();
 }
@@ -388,7 +391,9 @@ void QmlEngine::executeStep()
 {
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
-    rs << QByteArray("STEPINTO");
+    QByteArray cmd = "STEPINTO";
+    rs << cmd;
+    logMessage(LogSend, cmd);
     sendMessage(reply);
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -398,7 +403,9 @@ void QmlEngine::executeStepI()
 {
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
-    rs << QByteArray("STEPINTO");
+    QByteArray cmd = "STEPINTO";
+    rs << cmd;
+    logMessage(LogSend, cmd);
     sendMessage(reply);
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -408,7 +415,9 @@ void QmlEngine::executeStepOut()
 {
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
-    rs << QByteArray("STEPOUT");
+    QByteArray cmd = "STEPOUT";
+    rs << cmd;
+    logMessage(LogSend, cmd);
     sendMessage(reply);
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -418,7 +427,9 @@ void QmlEngine::executeNext()
 {
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
-    rs << QByteArray("STEPOVER");
+    QByteArray cmd = "STEPOVER";
+    rs << cmd;
+    logMessage(LogSend, cmd);
     sendMessage(reply);
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -453,8 +464,10 @@ void QmlEngine::activateFrame(int index)
 {
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
-    rs << QByteArray("ACTIVATE_FRAME");
-    rs << index;
+    QByteArray cmd = "ACTIVATE_FRAME";
+    rs << cmd
+       << index;
+    logMessage(LogSend, QString("%1 %2").arg(QString(cmd), QString::number(index)));
     sendMessage(reply);
     gotoLocation(stackHandler()->frames().value(index), true);
 }
@@ -505,9 +518,17 @@ void QmlEngine::attemptBreakpointSynchronization()
 
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
-    rs << QByteArray("BREAKPOINTS");
-    rs << breakpoints;
-    //qDebug() << Q_FUNC_INFO << breakpoints;
+    QByteArray cmd = "BREAKPOINTS";
+    rs << cmd
+       << breakpoints;
+
+    QStringList breakPointsStr;
+    foreach (const JSAgentBreakpointData &bp, breakpoints) {
+        breakPointsStr << QString("('%1' '%2' %3)").arg(QString(bp.functionName),
+                                  QString(bp.fileName), QString::number(bp.lineNumber));
+    }
+    logMessage(LogSend, QString("%1 [%2]").arg(QString(cmd), breakPointsStr.join(", ")));
+
     sendMessage(reply);
 }
 
@@ -565,8 +586,12 @@ void QmlEngine::assignValueInDebugger(const WatchData *,
         if (ok && objectId > 0 && !property.isEmpty()) {
             QByteArray reply;
             QDataStream rs(&reply, QIODevice::WriteOnly);
-            rs << QByteArray("SET_PROPERTY");
+            QByteArray cmd = "SET_PROPERTY";
+            rs << cmd;
             rs << expression.toUtf8() << objectId << property << valueV.toString();
+            logMessage(LogSend, QString("%1 %2 %3 %4 %5").arg(
+                                 QString(cmd), QString::number(objectId), QString(property),
+                                 valueV.toString()));
             sendMessage(reply);
         }
     }
@@ -582,8 +607,11 @@ void QmlEngine::updateWatchData(const WatchData &data,
     if (!data.name.isEmpty() && data.isValueNeeded()) {
         QByteArray reply;
         QDataStream rs(&reply, QIODevice::WriteOnly);
-        rs << QByteArray("EXEC");
+        QByteArray cmd = "EXEC";
+        rs << cmd;
         rs << data.iname << data.name;
+        logMessage(LogSend, QString("%1 %2 %3").arg(QString(cmd), QString(data.iname),
+                                                          QString(data.name)));
         sendMessage(reply);
     }
 
@@ -594,8 +622,11 @@ void QmlEngine::updateWatchData(const WatchData &data,
     {
         QByteArray reply;
         QDataStream rs(&reply, QIODevice::WriteOnly);
-        rs << QByteArray("WATCH_EXPRESSIONS");
+        QByteArray cmd = "WATCH_EXPRESSIONS";
+        rs << cmd;
         rs << watchHandler()->watchedExpressions();
+        logMessage(LogSend, QString("%1 %2").arg(
+                             QString(cmd), watchHandler()->watchedExpressions().join(", ")));
         sendMessage(reply);
     }
 
@@ -603,12 +634,15 @@ void QmlEngine::updateWatchData(const WatchData &data,
         watchHandler()->insertData(data);
 }
 
-void QmlEngine::expandObject(const QByteArray& iname, quint64 objectId)
+void QmlEngine::expandObject(const QByteArray &iname, quint64 objectId)
 {
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
-    rs << QByteArray("EXPAND");
+    QByteArray cmd = "EXPAND";
+    rs << cmd;
     rs << iname << objectId;
+    logMessage(LogSend, QString("%1 %2 %3").arg(QString(cmd), QString(iname),
+                                                      QString::number(objectId)));
     sendMessage(reply);
 }
 
@@ -617,8 +651,10 @@ void QmlEngine::sendPing()
     d->m_ping++;
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
-    rs << QByteArray("PING");
+    QByteArray cmd = "PING";
+    rs << cmd;
     rs << d->m_ping;
+    logMessage(LogSend, QString("%1 %2").arg(QString(cmd), QString::number(d->m_ping)));
     sendMessage(reply);
 }
 
@@ -649,17 +685,20 @@ void QmlEngine::messageReceived(const QByteArray &message)
     QByteArray command;
     stream >> command;
 
-    showMessage(QLatin1String("RECEIVED RESPONSE: ")
-        + quoteUnprintableLatin1(message));
-
     if (command == "STOPPED") {
         if (state() == InferiorRunOk)
             notifyInferiorSpontaneousStop();
+
+        QString logString = QString(command);
 
         StackFrames stackFrames;
         QList<WatchData> watches;
         QList<WatchData> locals;
         stream >> stackFrames >> watches >> locals;
+
+        logString += " (" % QString::number(stackFrames.size()) % " stack frames)";
+        logString += " (" % QString::number(watches.size()) % " watches)";
+        logString += " (" % QString::number(locals.size()) % " locals)";
 
         for (int i = 0; i != stackFrames.size(); ++i)
             stackFrames[i].level = i + 1;
@@ -697,9 +736,15 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
         bool becauseOfException;
         stream >> becauseOfException;
+
+        logString += becauseOfException ? " exception" : " no_exception";
+
         if (becauseOfException) {
             QString error;
             stream >> error;
+
+            logString += " " % error;
+            logMessage(LogReceive, logString);
 
             QString msg =
                 tr("<p>An Uncaught Exception occured in <i>%1</i>:</p><p>%2</p>")
@@ -735,11 +780,16 @@ void QmlEngine::messageReceived(const QByteArray &message)
                     handler->setResponse(id, br);
                 }
             }
+
+            logMessage(LogReceive, logString);
         }
     } else if (command == "RESULT") {
         WatchData data;
         QByteArray iname;
         stream >> iname >> data;
+
+        logMessage(LogReceive, QString("%1 %2 %3").arg(QString(command),
+                                                             QString(iname), QString(data.value)));
         data.iname = iname;
         if (iname.startsWith("watch.")) {
             watchHandler()->insertData(data);
@@ -752,6 +802,9 @@ void QmlEngine::messageReceived(const QByteArray &message)
         QList<WatchData> result;
         QByteArray iname;
         stream >> iname >> result;
+
+        logMessage(LogReceive, QString("%1 %2 (%3 x watchdata)").arg(
+                             QString(command), QString(iname), QString::number(result.size())));
         bool needPing = false;
         foreach (WatchData data, result) {
             data.iname = iname + '.' + data.exp;
@@ -768,6 +821,10 @@ void QmlEngine::messageReceived(const QByteArray &message)
         QList<WatchData> locals;
         int frameId;
         stream >> frameId >> locals;
+
+        logMessage(LogReceive, QString("%1 %2 (%3 x locals)").arg(
+                             QString(command), QString::number(frameId),
+                             QString::number(locals.size())));
         watchHandler()->beginCycle();
         bool needPing = false;
         foreach (WatchData data, locals) {
@@ -786,10 +843,14 @@ void QmlEngine::messageReceived(const QByteArray &message)
     } else if (command == "PONG") {
         int ping;
         stream >> ping;
+
+        logMessage(LogReceive, QString("%1 %2").arg(QString(command), QString::number(ping)));
+
         if (ping == d->m_ping)
             watchHandler()->endCycle();
     } else {
         qDebug() << Q_FUNC_INFO << "Unknown command: " << command;
+        logMessage(LogReceive, QString("%1 UNKNOWN COMMAND!!").arg(QString(command)));
     }
 }
 
@@ -803,8 +864,11 @@ void QmlEngine::executeDebuggerCommand(const QString& command)
 {
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
-    rs << QByteArray("EXEC");
-    rs << QByteArray("console") << command;
+    QByteArray cmd = "EXEC";
+    QByteArray console = "console";
+    rs << cmd << console << command;
+    logMessage(LogSend, QString("%1 %2 %3").arg(QString(cmd), QString(console),
+                                                      QString(command)));
     sendMessage(reply);
 }
 
@@ -869,6 +933,18 @@ QString QmlEngine::fromShadowBuildFilename(const QString &filename) const
     }
 
     return newFilename;
+}
+
+void QmlEngine::logMessage(LogDirection direction, const QString &message)
+{
+    QString msg = "JSDebugger";
+    if (direction == LogSend) {
+        msg += " sending ";
+    } else {
+        msg += " receiving ";
+    }
+    msg += message;
+    showMessage(msg, LogDebug);
 }
 
 } // namespace Internal

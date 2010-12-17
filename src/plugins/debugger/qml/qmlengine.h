@@ -139,6 +139,12 @@ private:
     QString toShadowBuildFilename(const QString &filename) const;
     QString qmlImportPath() const;
 
+    enum LogDirection {
+        LogSend,
+        LogReceive
+    };
+    void logMessage(LogDirection direction, const QString &str);
+
 private:
     friend class QmlCppEngine;
 
