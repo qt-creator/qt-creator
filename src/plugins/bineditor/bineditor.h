@@ -57,8 +57,8 @@ class BinEditor : public QAbstractScrollArea
     Q_OBJECT
     Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly DESIGNABLE false)
-public:
 
+public:
     BinEditor(QWidget *parent = 0);
     ~BinEditor();
 
@@ -121,7 +121,8 @@ public:
 
 public Q_SLOTS:
     void setFontSettings(const TextEditor::FontSettings &fs);
-    void highlightSearchResults(const QByteArray &pattern, QTextDocument::FindFlags findFlags = 0);
+    void highlightSearchResults(const QByteArray &pattern,
+        QTextDocument::FindFlags findFlags = 0);
     void copy(bool raw = false);
 
 Q_SIGNALS:
@@ -155,10 +156,10 @@ protected:
 private:
     bool m_inLazyMode;
     QByteArray m_data;
-    QMap <int, QByteArray> m_lazyData;
-    QMap <int, QByteArray> m_oldLazyData;
+    QMap<int, QByteArray> m_lazyData;
+    QMap<int, QByteArray> m_oldLazyData;
     int m_blockSize;
-    QMap <int, QByteArray> m_modifiedData;
+    QMap<int, QByteArray> m_modifiedData;
     mutable QSet<int> m_lazyRequests;
     QByteArray m_emptyBlock;
     QByteArray m_lowerBlock;
@@ -218,7 +219,8 @@ private:
 
     void changeData(int position, uchar character, bool highNibble = false);
 
-    int findPattern(const QByteArray &data, const QByteArray &dataHex, int from, int offset, int *match);
+    int findPattern(const QByteArray &data, const QByteArray &dataHex,
+        int from, int offset, int *match);
     void drawItems(QPainter *painter, int x, int y, const QString &itemString);
     void drawChanges(QPainter *painter, int x, int y, const char *changes);
 

@@ -49,8 +49,6 @@
 #include <QtGui/QToolTip>
 #include <QtGui/QWheelEvent>
 
-using namespace BINEditor;
-
 // QByteArray::toLower() is broken, it stops at the first \0
 static void lower(QByteArray &ba)
 {
@@ -80,6 +78,8 @@ static QByteArray calculateHexPattern(const QByteArray &pattern)
     }
     return result;
 }
+
+namespace BINEditor {
 
 BinEditor::BinEditor(QWidget *parent)
     : QAbstractScrollArea(parent)
@@ -299,10 +299,13 @@ void BinEditor::timerEvent(QTimerEvent *e)
         QPoint pos;
         const QPoint globalPos = QCursor::pos();
         pos = viewport()->mapFromGlobal(globalPos);
-        QMouseEvent ev(QEvent::MouseMove, pos, globalPos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QMouseEvent ev(QEvent::MouseMove, pos, globalPos,
+            Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
         mouseMoveEvent(&ev);
-        int deltaY = qMax(pos.y() - visible.top(), visible.bottom() - pos.y()) - visible.height();
-        int deltaX = qMax(pos.x() - visible.left(), visible.right() - pos.x()) - visible.width();
+        int deltaY = qMax(pos.y() - visible.top(),
+                          visible.bottom() - pos.y()) - visible.height();
+        int deltaX = qMax(pos.x() - visible.left(),
+                          visible.right() - pos.x()) - visible.width();
         int delta = qMax(deltaX, deltaY);
         if (delta >= 0) {
             if (delta < 7)
@@ -509,9 +512,10 @@ QRect BinEditor::cursorRect() const
     int y = (line - topLine) * m_lineHeight;
     int xoffset = horizontalScrollBar()->value();
     int column = m_cursorPosition % 16;
-    int x = m_hexCursor ?
-            (-xoffset + m_margin + m_labelWidth + column * m_columnWidth)
-            : (-xoffset + m_margin + m_labelWidth + 16 * m_columnWidth + m_charWidth + column * m_charWidth);
+    int x = m_hexCursor
+            ? (-xoffset + m_margin + m_labelWidth + column * m_columnWidth)
+            : (-xoffset + m_margin + m_labelWidth + 16 * m_columnWidth
+               + m_charWidth + column * m_charWidth);
     int w = m_hexCursor ? m_columnWidth : m_charWidth;
     return QRect(x, y, w, m_lineHeight);
 }
@@ -675,12 +679,15 @@ int BinEditor::find(const QByteArray &pattern_arg, int from,
     return pos;
 }
 
-int BinEditor::findPattern(const QByteArray &data, const QByteArray &dataHex, int from, int offset, int *match)
+int BinEditor::findPattern(const QByteArray &data, const QByteArray &dataHex,
+    int from, int offset, int *match)
 {
     if (m_searchPattern.isEmpty())
         return -1;
-    int normal = m_searchPattern.isEmpty()? -1 : data.indexOf(m_searchPattern, from - offset);
-    int hex = m_searchPatternHex.isEmpty()? -1 : dataHex.indexOf(m_searchPatternHex, from - offset);
+    int normal = m_searchPattern.isEmpty()
+        ? -1 : data.indexOf(m_searchPattern, from - offset);
+    int hex = m_searchPatternHex.isEmpty()
+        ? -1 : dataHex.indexOf(m_searchPatternHex, from - offset);
 
     if (normal >= 0 && (hex < 0 || normal < hex)) {
         if (match)
@@ -799,7 +806,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
 
 
         painter.drawText(-xoffset, i * m_lineHeight + m_ascent,
-                         addressString(m_baseAddr + ((uint) line) * 16));
+                         addressString(m_baseAddr + uint(line) * 16));
 
         int cursor = -1;
         if (line * 16 <= m_cursorPosition && m_cursorPosition < line * 16 + 16)
@@ -1499,3 +1506,4 @@ void BinEditor::asIntegers(int offset, int count, quint64 &beValue,
     }
 }
 
+} // namespace BINEditor
