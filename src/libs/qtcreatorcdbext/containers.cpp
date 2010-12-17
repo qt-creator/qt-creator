@@ -168,9 +168,14 @@ int containerSize(KnownType kt, const SymbolGroupValue &v)
         if (const SymbolGroupValue sizeV = v[unsigned(0)][unsigned(0)]["_Mysize"]) // VS10
             return sizeV.intValue();
         break;
-    case KT_StdDeque:
-        if (const SymbolGroupValue sizeV =  v[unsigned(0)]["_Mysize"])
-            return sizeV.intValue();
+    case KT_StdDeque: {
+        const SymbolGroupValue msvc10sizeV =  v[unsigned(0)]["_Mysize"]; // VS10
+        if (msvc10sizeV)
+            return msvc10sizeV.intValue();
+        const SymbolGroupValue msvc8sizeV =  v["_Mysize"]; // VS8
+        if (msvc8sizeV)
+            return msvc8sizeV.intValue();
+    }
         break;
     case KT_StdStack:
         if (const SymbolGroupValue deque =  v[unsigned(0)])
@@ -355,19 +360,17 @@ AbstractSymbolGroupNodePtrVector
 
 // std::deque<>
 static inline AbstractSymbolGroupNodePtrVector
-    stdDequeChildList(const SymbolGroupValue &v, int count)
+    stdDequeDirectChildList(const SymbolGroupValue &deque, int count)
 {
     if (!count)
         return AbstractSymbolGroupNodePtrVector();
-    const SymbolGroupValue base = v[unsigned(0)];
-    if (!base)
-        return AbstractSymbolGroupNodePtrVector();
-    const ULONG64 arrayAddress = base["_Map"].pointerValue();
-    const int startOffset = base["_Myoff"].intValue();
-    const int mapSize  = base["_Mapsize"].intValue();
+    // From MSVC10 on, there is an additional base class
+    const ULONG64 arrayAddress = deque["_Map"].pointerValue();
+    const int startOffset = deque["_Myoff"].intValue();
+    const int mapSize  = deque["_Mapsize"].intValue();
     if (!arrayAddress || startOffset < 0 || mapSize <= 0)
         return AbstractSymbolGroupNodePtrVector();
-    const std::vector<std::string> innerTypes = v.innerTypes();
+    const std::vector<std::string> innerTypes = deque.innerTypes();
     if (innerTypes.empty())
         return AbstractSymbolGroupNodePtrVector();
     // Get the deque size (block size) which is an unavailable static member
@@ -378,18 +381,27 @@ static inline AbstractSymbolGroupNodePtrVector
     const int dequeSize = innerTypeSize <= 1 ? 16 : innerTypeSize <= 2 ?
                                8 : innerTypeSize <= 4 ? 4 : innerTypeSize <= 8 ? 2 : 1;
     // Read out map array (pointing to the blocks)
-    void *mapArray = readPointerArray(arrayAddress, mapSize, v.context());
+    void *mapArray = readPointerArray(arrayAddress, mapSize, deque.context());
     if (!mapArray)
         return AbstractSymbolGroupNodePtrVector();
     const AbstractSymbolGroupNodePtrVector rc = SymbolGroupValue::pointerSize() == 8 ?
-        stdDequeChildrenHelper(v.node()->symbolGroup(),
+        stdDequeChildrenHelper(deque.node()->symbolGroup(),
                                reinterpret_cast<const ULONG64 *>(mapArray), mapSize,
                                innerTypes.front(), innerTypeSize, startOffset, dequeSize, count) :
-        stdDequeChildrenHelper(v.node()->symbolGroup(),
+        stdDequeChildrenHelper(deque.node()->symbolGroup(),
                                reinterpret_cast<const ULONG32 *>(mapArray), mapSize,
                                innerTypes.front(), innerTypeSize, startOffset, dequeSize, count);
     delete [] mapArray;
     return rc;
+}
+
+// std::deque<>
+static inline AbstractSymbolGroupNodePtrVector
+    stdDequeChildList(const SymbolGroupValue &v, int count)
+{
+    // MSVC10 has a base class. If that fails, try direct (MSVC2008)
+    const AbstractSymbolGroupNodePtrVector msvc10rc = stdDequeDirectChildList(v[unsigned(0)], count);
+    return msvc10rc.empty() ? stdDequeDirectChildList(v, count) : msvc10rc;
 }
 
 // QVector<T>
