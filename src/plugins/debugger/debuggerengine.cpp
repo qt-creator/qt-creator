@@ -216,7 +216,7 @@ public:
         m_disassemblerAgent(engine),
         m_memoryAgent(engine)
     {
-        connect(&m_locationTimer, SIGNAL(timeout()), SLOT(doRemoveLocationMark()));
+        connect(&m_locationTimer, SIGNAL(timeout()), SLOT(resetLocation()));
     }
 
     ~DebuggerEnginePrivate() {}
@@ -265,16 +265,19 @@ public slots:
         m_runControl->bringApplicationToForeground(m_inferiorPid);
     }
 
-    void removeLocationMark()
+    void scheduleResetLocation()
     {
+        m_stackHandler.scheduleResetLocation();
         m_locationTimer.setSingleShot(true);
         m_locationTimer.start(80);
     }
 
-    void doRemoveLocationMark()
+    void resetLocation()
     {
         m_locationTimer.stop();
         m_locationMark.reset();
+        m_stackHandler.resetLocation();
+        m_disassemblerAgent.resetLocation();
     }
 
 public:
@@ -508,8 +511,8 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 
 void DebuggerEngine::resetLocation()
 {
-    d->m_disassemblerAgent.resetLocation();
-    d->removeLocationMark();
+    // Do it after some delay to avoid flicker.
+    d->scheduleResetLocation();
 }
 
 void DebuggerEngine::gotoLocation(const Location &loc)
@@ -523,7 +526,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
     //if (m_shuttingDown)
     //    return;
 
-    d->doRemoveLocationMark();
+    d->resetLocation();
 
     const QString file = loc.fileName();
     const int line = loc.lineNumber();
@@ -865,7 +868,7 @@ void DebuggerEnginePrivate::doInterruptInferior()
 void DebuggerEnginePrivate::doShutdownInferior()
 {
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
-    m_engine->resetLocation();
+    resetLocation();
     m_targetState = DebuggerFinished;
     m_engine->showMessage(_("CALL: SHUTDOWN INFERIOR"));
     m_engine->shutdownInferior();
@@ -933,7 +936,7 @@ void DebuggerEnginePrivate::doFinishDebugger()
 {
     m_engine->showMessage(_("NOTE: FINISH DEBUGGER"));
     QTC_ASSERT(state() == DebuggerFinished, qDebug() << state());
-    m_engine->resetLocation();
+    resetLocation();
     if (!m_engine->isSlaveEngine()) {
         QTC_ASSERT(m_runControl, return);
         m_runControl->debuggingFinished();
@@ -977,7 +980,7 @@ void DebuggerEngine::notifyEngineSpontaneousShutdown()
 void DebuggerEngine::notifyInferiorExited()
 {
     showMessage(_("NOTE: INFERIOR EXITED"));
-    resetLocation();
+    d->resetLocation();
 
     // This can be issued in almost any state. We assume, though,
     // that at this point of time the inferior is not running anymore,

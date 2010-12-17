@@ -52,6 +52,8 @@ StackHandler::StackHandler()
   : m_positionIcon(QIcon(QLatin1String(":/debugger/images/location_16.png"))),
     m_emptyIcon(QIcon(QLatin1String(":/debugger/images/debugger_empty_14.png")))
 {
+    m_resetLocationScheduled = false;
+    m_contentsValid = false;
     m_currentIndex = 0;
     m_canExpand = false;
     connect(debuggerCore()->action(OperateByInstruction), SIGNAL(triggered()),
@@ -110,7 +112,8 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DecorationRole && index.column() == 0) {
         // Return icon that indicates whether this is the active stack frame
-        return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
+        return (m_contentsValid && index.row() == m_currentIndex)
+            ? m_positionIcon : m_emptyIcon;
     }
 
     if (role == Qt::ToolTipRole)
@@ -143,7 +146,8 @@ Qt::ItemFlags StackHandler::flags(const QModelIndex &index) const
     const StackFrame &frame = m_stackFrames.at(index.row());
     const bool isValid = (frame.isUsable() && !frame.function.isEmpty())
         || debuggerCore()->boolSetting(OperateByInstruction);
-    return isValid ? QAbstractTableModel::flags(index) : Qt::ItemFlags(0);
+    return isValid && m_contentsValid
+        ? QAbstractTableModel::flags(index) : Qt::ItemFlags(0);
 }
 
 StackFrame StackHandler::currentFrame() const
@@ -178,6 +182,8 @@ void StackHandler::removeAll()
 
 void StackHandler::setFrames(const StackFrames &frames, bool canExpand)
 {
+    m_resetLocationScheduled = false;
+    m_contentsValid = true;
     m_canExpand = canExpand;
     m_stackFrames = frames;
     if (m_currentIndex >= m_stackFrames.size())
@@ -190,12 +196,18 @@ const StackFrames &StackHandler::frames() const
     return m_stackFrames;
 }
 
-bool StackHandler::isDebuggingDebuggingHelpers() const
+void StackHandler::scheduleResetLocation()
 {
-    for (int i = m_stackFrames.size(); --i >= 0; )
-        if (m_stackFrames.at(i).function.startsWith(QLatin1String("qDumpObjectData")))
-            return true;
-    return false;
+    m_resetLocationScheduled = true;
+    m_contentsValid = false;
+}
+
+void StackHandler::resetLocation()
+{
+    if (m_resetLocationScheduled) {
+        m_resetLocationScheduled = false;
+        reset();
+    }
 }
 
 } // namespace Internal

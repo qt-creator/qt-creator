@@ -79,7 +79,9 @@ public:
     // Called from StackHandler after a new stack list has been received
     void removeAll();
     QAbstractItemModel *model() { return this; }
-    bool isDebuggingDebuggingHelpers() const;
+    bool isContentsValid() const { return m_contentsValid; }
+    void scheduleResetLocation();
+    void resetLocation();
 
 private:
     // QAbstractTableModel
@@ -95,6 +97,8 @@ private:
     const QVariant m_positionIcon;
     const QVariant m_emptyIcon;
     bool m_canExpand;
+    bool m_resetLocationScheduled;
+    bool m_contentsValid;
 };
 
 } // namespace Internal
