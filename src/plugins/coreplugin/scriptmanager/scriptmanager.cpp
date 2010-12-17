@@ -246,8 +246,6 @@ ScriptManager::QScriptEnginePtr ScriptManagerPrivate::ensureEngineInitialized()
 
     qScriptRegisterSequenceMetaType<QList<Core::IEditor *> >(m_engine.data());
 
-    qScriptRegisterSequenceMetaType<QList<Core::EditorGroup *> >(m_engine.data());
-
     // CLASSIC:  registerInterfaceWithDefaultPrototype<Core::MessageManager, MessageManagerPrototype>(m_engine);
 
     // Message box conveniences

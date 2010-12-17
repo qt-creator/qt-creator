@@ -67,10 +67,7 @@ QList<FilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locator::Fil
         QString fileName = editorEntry.fileName();
         QString displayName = editorEntry.displayName();
         if (regexp.exactMatch(displayName)) {
-            if (fileName.isEmpty()) {
-                if (editorEntry.editor)
-                    value.append(FilterEntry(this, displayName, qVariantFromValue(editorEntry.editor)));
-            } else {
+            if (!fileName.isEmpty()) {
                 QFileInfo fi(fileName);
                 FilterEntry fiEntry(this, fi.fileName(), fileName);
                 fiEntry.extraInfo = QDir::toNativeSeparators(fi.path());
@@ -87,7 +84,9 @@ void OpenDocumentsFilter::refreshInternally()
     m_editors.clear();
     foreach (IEditor *editor, m_editorManager->openedEditors()) {
         OpenEditorsModel::Entry entry;
-        entry.editor = editor;
+        // don't work on IEditor directly, since that will be useless with split windows
+        entry.m_displayName = editor->displayName();
+        entry.m_fileName = editor->file()->fileName();
         m_editors.append(entry);
     }
     m_editors += m_editorManager->openedEditorsModel()->restoredEditors();
@@ -101,10 +100,5 @@ void OpenDocumentsFilter::refresh(QFutureInterface<void> &future)
 
 void OpenDocumentsFilter::accept(FilterEntry selection) const
 {
-    IEditor *editor = selection.internalData.value<IEditor *>();
-    if (editor) {
-        m_editorManager->activateEditor(editor, Core::EditorManager::ModeSwitch);
-        return;
-    }
     m_editorManager->openEditor(selection.internalData.toString(), QString(), Core::EditorManager::ModeSwitch);
 }

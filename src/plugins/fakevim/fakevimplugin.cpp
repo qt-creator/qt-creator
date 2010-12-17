@@ -1386,7 +1386,7 @@ void FakeVimPluginPrivate::switchToFile(int n)
     n = n % size;
     if (n < 0)
         n += size;
-    editorManager()->activateEditor(model->index(n, 0), 0);
+    editorManager()->activateEditorForIndex(model->index(n, 0));
 }
 
 CommandMap &FakeVimExCommandsPage::exCommandMap()

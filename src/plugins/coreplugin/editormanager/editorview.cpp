@@ -279,13 +279,8 @@ IEditor *EditorView::currentEditor() const
 
 void EditorView::listSelectionActivated(int index)
 {
-    EditorManager *em = CoreImpl::instance()->editorManager();
     QAbstractItemModel *model = EditorManager::instance()->openedEditorsModel();
-    if (IEditor *editor = model->data(model->index(index, 0), Qt::UserRole).value<IEditor*>()) {
-        em->activateEditor(this, editor, Core::EditorManager::ModeSwitch);
-    } else {
-        em->activateEditor(model->index(index, 0), this, Core::EditorManager::ModeSwitch);
-    }
+    EditorManager::instance()->activateEditorForIndex(this, model->index(index, 0), Core::EditorManager::ModeSwitch);
 }
 
 void EditorView::setCurrentEditor(IEditor *editor)
@@ -451,7 +446,7 @@ void EditorView::goBackInNavigationHistory()
         EditLocation location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
         IEditor *editor;
         if (location.file) {
-            editor = em->activateEditor(this, location.file,
+            editor = em->activateEditorForFile(this, location.file,
                                         EditorManager::IgnoreNavigationHistory | EditorManager::ModeSwitch);
         } else {
             editor = em->openEditor(this, location.fileName, location.id,
@@ -477,7 +472,7 @@ void EditorView::goForwardInNavigationHistory()
     EditLocation location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
     IEditor *editor;
     if (location.file) {
-        editor = em->activateEditor(this, location.file,
+        editor = em->activateEditorForFile(this, location.file,
                                     EditorManager::IgnoreNavigationHistory | EditorManager::ModeSwitch);
     } else {
         editor = em->openEditor(this, location.fileName, location.id, EditorManager::IgnoreNavigationHistory);
@@ -861,7 +856,7 @@ void SplitterOrView::restoreState(const QByteArray &state)
         if (!e) {
             QModelIndex idx = em->openedEditorsModel()->firstRestoredEditor();
             if (idx.isValid())
-                em->activateEditor(idx, view(), Core::EditorManager::IgnoreNavigationHistory
+                em->activateEditorForIndex(view(), idx, Core::EditorManager::IgnoreNavigationHistory
                                     | Core::EditorManager::NoActivate);
         }
 

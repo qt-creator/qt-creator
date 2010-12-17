@@ -47,7 +47,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class EditorGroup;
 class IContext;
 class ICore;
 class IEditor;
@@ -131,7 +130,6 @@ public:
     QStringList getOpenFileNames() const;
     QString getOpenWithEditorId(const QString &fileName, bool *isExternalEditor = 0) const;
 
-    void switchToPreferedMode();
     bool hasEditor(const QString &fileName) const;
     QList<IEditor *> editorsForFileName(const QString &filename) const;
     QList<IEditor *> editorsForFile(IFile *file) const;
@@ -140,9 +138,9 @@ public:
     QList<IEditor *> visibleEditors() const;
     QList<IEditor*> openedEditors() const;
 
-    IEditor *activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
-    IEditor *activateEditor(const QModelIndex &index, Internal::EditorView *view = 0, OpenEditorFlags = 0);
-    IEditor *activateEditor(Core::Internal::EditorView *view, Core::IFile*file, OpenEditorFlags flags = 0);
+    void activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
+    void activateEditorForIndex(const QModelIndex &index, OpenEditorFlags = 0);
+    IEditor *activateEditorForFile(Core::Internal::EditorView *view, Core::IFile*file, OpenEditorFlags flags = 0);
 
     OpenEditorsModel *openedEditorsModel() const;
     void closeEditor(const QModelIndex &index);
@@ -161,8 +159,6 @@ public:
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     bool hasSplitter() const;
-
-    IEditor *restoreEditor(QString fileName, QString editorId, EditorGroup *group);
 
     void saveSettings();
     void readSettings();
@@ -257,6 +253,7 @@ private:
     void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     void setCurrentView(Core::Internal::SplitterOrView *view);
     IEditor *activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags = 0);
+    void activateEditorForIndex(Internal::EditorView *view, const QModelIndex &index, OpenEditorFlags = 0);
     IEditor *openEditor(Core::Internal::EditorView *view, const QString &fileName,
                         const QString &editorId = QString(),
                         OpenEditorFlags flags = 0,
@@ -270,6 +267,7 @@ private:
     Core::Internal::EditorView *currentEditorView() const;
     IEditor *pickUnusedEditor() const;
     void addFileToRecentFiles(IFile *file);
+    void switchToPreferedMode();
 
     static EditorManager *m_instance;
     EditorManagerPrivate *m_d;

@@ -344,10 +344,9 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     tempFile = TemporaryFilePtr();
     m_fetchedSnippets.push_back(fileName);
     // Open editor with title.
-    Core::IEditor* editor = EditorManager::instance()->openEditor(fileName);
+    Core::IEditor* editor = EditorManager::instance()->openEditor(fileName, QString(), EditorManager::ModeSwitch);
     QTC_ASSERT(editor, return)
     editor->setDisplayName(titleDescription);
-    EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
 }
 
 Q_EXPORT_PLUGIN(CodepasterPlugin)

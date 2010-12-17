@@ -280,21 +280,7 @@ void EditorToolBar::changeActiveEditor(int row)
 {
     EditorManager *em = ICore::instance()->editorManager();
     QAbstractItemModel *model = d->m_editorList->model();
-    const QModelIndex modelIndex = model->index(row, 0);
-    IEditor *editor = model->data(modelIndex, Qt::UserRole).value<IEditor*>();
-
-    if (editor) {
-        if (editor != em->currentEditor())
-            em->activateEditor(editor);
-    } else {
-        //em->activateEditor(model->index(index, 0), this);
-        QString fileName = model->data(modelIndex, Qt::UserRole + 1).toString();
-        QByteArray kind = model->data(modelIndex, Qt::UserRole + 2).toByteArray();
-        editor = em->openEditor(fileName, kind);
-    }
-    if (editor) {
-        d->m_editorList->setCurrentIndex(d->m_editorsListModel->indexOf(editor).row());
-    }
+    em->activateEditorForIndex(model->index(row, 0), EditorManager::ModeSwitch);
 }
 
 void EditorToolBar::listContextMenu(QPoint pos)

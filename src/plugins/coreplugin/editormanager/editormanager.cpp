@@ -832,7 +832,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         } else {
             QModelIndex idx = m_d->m_editorModel->firstRestoredEditor();
             if (idx.isValid())
-                activateEditor(idx, view, NoActivate);
+                activateEditorForIndex(view, idx, NoActivate);
         }
     }
 
@@ -889,7 +889,7 @@ void EditorManager::closeDuplicate(Core::IEditor *editor)
         } else {
             QModelIndex idx = m_d->m_editorModel->firstRestoredEditor();
             if (idx.isValid())
-                activateEditor(idx, view, NoActivate);
+                activateEditorForIndex(view, idx, NoActivate);
         }
     }
 
@@ -911,16 +911,23 @@ Core::IEditor *EditorManager::pickUnusedEditor() const
     return 0;
 }
 
-Core::IEditor *EditorManager::activateEditor(const QModelIndex &index, Internal::EditorView *view, OpenEditorFlags flags)
+void EditorManager::activateEditorForIndex(const QModelIndex &index, OpenEditorFlags flags)
 {
+    activateEditorForIndex(currentEditorView(), index, flags);
+}
+
+void EditorManager::activateEditorForIndex(Internal::EditorView *view, const QModelIndex &index, OpenEditorFlags flags)
+{
+    Q_ASSERT(view);
     IEditor *editor = index.data(Qt::UserRole).value<IEditor*>();
     if (editor)  {
-        return activateEditor(view, editor, flags);
+        activateEditor(view, editor, flags);
+        return;
     }
 
     QString fileName = index.data(Qt::UserRole + 1).toString();
     QString id = index.data(Qt::UserRole + 2).toString();
-    return openEditor(view, fileName, id, flags);
+    openEditor(view, fileName, id, flags);
 }
 
 Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core::IEditor *editor)
@@ -954,16 +961,17 @@ Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core
     return editor;
 }
 
-Core::IEditor *EditorManager::activateEditor(Core::IEditor *editor, OpenEditorFlags flags)
+void EditorManager::activateEditor(Core::IEditor *editor, OpenEditorFlags flags)
 {
-    return activateEditor(0, editor, flags);
+    EditorView *view = m_d->m_splitter->findView(editor)->view();
+    // TODO an IEditor doesn't have to belong to a view, which makes this method a bit funny
+    if (!view)
+        view = currentEditorView();
+    activateEditor(view, editor, flags);
 }
 
 Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags)
 {
-    if (!view)
-        view = currentEditorView();
-
     Q_ASSERT(view);
 
     if (!editor) {
@@ -985,13 +993,15 @@ Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, C
     return editor;
 }
 
-Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IFile *file, OpenEditorFlags flags)
+Core::IEditor *EditorManager::activateEditorForFile(Core::Internal::EditorView *view, Core::IFile *file, OpenEditorFlags flags)
 {
+    Q_ASSERT(view);
     const QList<IEditor*> editors = editorsForFile(file);
     if (editors.isEmpty())
         return 0;
 
-    return activateEditor(view, editors.first(), flags);
+    activateEditor(view, editors.first(), flags);
+    return editors.first();
 }
 
 /* For something that has a 'QStringList mimeTypes' (IEditorFactory
@@ -1162,7 +1172,7 @@ QString EditorManager::getOpenWithEditorId(const QString &fileName,
 IEditor *EditorManager::openEditor(const QString &fileName, const QString &editorId,
                                    OpenEditorFlags flags, bool *newEditor)
 {
-    return openEditor(0, fileName, editorId, flags, newEditor);
+    return openEditor(currentEditorView(), fileName, editorId, flags, newEditor);
 }
 
 int extractLineNumber(QString *fileName)

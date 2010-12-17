@@ -55,8 +55,6 @@ Q_DECLARE_METATYPE(Core::FileManager*)
 Q_DECLARE_METATYPE(Core::IFile*)
 Q_DECLARE_METATYPE(QList<Core::IFile*>)
 Q_DECLARE_METATYPE(QList<Core::IEditor*>)
-Q_DECLARE_METATYPE(Core::EditorGroup*)
-Q_DECLARE_METATYPE(QList<Core::EditorGroup*>)
 Q_DECLARE_METATYPE(Core::EditorManager*)
 Q_DECLARE_METATYPE(Core::ICore*)
 
