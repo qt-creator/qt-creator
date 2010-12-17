@@ -2893,6 +2893,10 @@ Would you like to overwrite them?</source>
         <translation>Да, я знаю что делаю.</translation>
     </message>
     <message>
+        <source>&amp;Refactor</source>
+        <translation>&amp;Рефакторинг</translation>
+    </message>
+    <message>
         <source>Unused variable</source>
         <translation>Неиспользуемая переменная</translation>
     </message>
