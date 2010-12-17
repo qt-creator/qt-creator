@@ -63,6 +63,8 @@ public:
     QString executable;
     QStringList symbolPaths;
     QStringList sourcePaths;
+    // Events to break on (Command 'sxe' with abbreviation and optional parameter)
+    QStringList breakEvents;
 };
 
 inline bool operator==(const CdbOptions &s1, const CdbOptions &s2)

@@ -39,10 +39,32 @@
 #include <QtCore/QPointer>
 #include <QtCore/QSharedPointer>
 
-QT_FORWARD_DECLARE_CLASS(QTimer)
+QT_BEGIN_NAMESPACE
+class QTimer;
+QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Cdb {
+
+// Widget displaying a list of break events for the 'sxe' command
+// with a checkbox to enable 'break' and optionally a QLineEdit for
+// events with parameters (like 'out:Needle').
+class CdbBreakEventWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit CdbBreakEventWidget(QWidget *parent = 0);
+
+    void setBreakEvents(const QStringList &l);
+    QStringList breakEvents() const;
+
+private:
+    QString filterText(int i) const;
+    void clear();
+
+    QList<QCheckBox*> m_checkBoxes;
+    QList<QLineEdit*> m_lineEdits;
+};
 
 class CdbOptionsPageWidget : public QWidget
 {
@@ -73,6 +95,7 @@ private:
                                   QString *message);
 
     Ui::CdbOptionsPageWidget2 m_ui;
+    CdbBreakEventWidget *m_breakEventWidget;
     QTimer *m_reportTimer;
 };
 

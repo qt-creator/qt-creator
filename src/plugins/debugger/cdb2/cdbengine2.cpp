@@ -520,6 +520,8 @@ void CdbEngine::runEngine()
 {
     if (debug)
         qDebug("runEngine");
+    foreach (const QString &breakEvent, m_options->breakEvents)
+            postCommand(QByteArray("sxe ") + breakEvent.toAscii(), 0);
     postCommand("g", 0);
 }
 

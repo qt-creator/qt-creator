@@ -48,6 +48,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QProcess>
 #include <QtGui/QMessageBox>
+#include <QtGui/QLineEdit>
 #include <QtGui/QDesktopServices>
 
 static const char *dgbToolsDownloadLink32C = "http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx";
@@ -55,6 +56,118 @@ static const char *dgbToolsDownloadLink64C = "http://www.microsoft.com/whdc/devt
 
 namespace Debugger {
 namespace Cdb {
+
+struct EventsDescription {
+    const char *abbreviation;
+    bool hasParameter;
+    const char *description;
+};
+
+// Parameters of the "sxe" command
+const EventsDescription eventDescriptions[] =
+{
+    {"eh", false, QT_TRANSLATE_NOOP("Debugger::Cdb::CdbBreakEventWidget",
+                                    "C++ exception")},
+    {"ct", false, QT_TRANSLATE_NOOP("Debugger::Cdb::CdbBreakEventWidget",
+                                    "Thread creation")},
+    {"et", false, QT_TRANSLATE_NOOP("Debugger::Cdb::CdbBreakEventWidget",
+                                    "Thread exit")},
+    {"ld", true,  QT_TRANSLATE_NOOP("Debugger::Cdb::CdbBreakEventWidget",
+                                    "Load Module:")},
+    {"ud", true,  QT_TRANSLATE_NOOP("Debugger::Cdb::CdbBreakEventWidget",
+                                    "Unload Module:")},
+    {"out", true, QT_TRANSLATE_NOOP("Debugger::Cdb::CdbBreakEventWidget",
+                                    "Output:")}
+};
+
+static inline int indexOfEvent(const QString &abbrev)
+{
+    const size_t eventCount = sizeof(eventDescriptions) / sizeof(EventsDescription);
+    for (size_t e = 0; e < eventCount; e++)
+        if (abbrev == QLatin1String(eventDescriptions[e].abbreviation))
+                return int(e);
+    return -1;
+}
+
+CdbBreakEventWidget::CdbBreakEventWidget(QWidget *parent) : QWidget(parent)
+{
+    // 1 column with checkboxes only,
+    // further columns with checkbox + parameter
+    QHBoxLayout *mainLayout = new QHBoxLayout;
+    QVBoxLayout *leftLayout = new QVBoxLayout;
+    QFormLayout *parameterLayout = 0;
+    mainLayout->addLayout(leftLayout);
+    const size_t eventCount = sizeof(eventDescriptions) / sizeof(EventsDescription);
+    for (size_t e = 0; e < eventCount; e++) {
+        QCheckBox *cb = new QCheckBox(tr(eventDescriptions[e].description));
+        QLineEdit *le = 0;
+        if (eventDescriptions[e].hasParameter) {
+            if (!parameterLayout) {
+                parameterLayout = new QFormLayout;
+                mainLayout->addSpacerItem(new QSpacerItem(20, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));
+                mainLayout->addLayout(parameterLayout);
+            }
+            le = new QLineEdit;
+            parameterLayout->addRow(cb, le);
+            if (parameterLayout->count() >= 4) // New column
+                parameterLayout = 0;
+        } else {
+            leftLayout->addWidget(cb);
+        }
+        m_checkBoxes.push_back(cb);
+        m_lineEdits.push_back(le);
+    }
+    setLayout(mainLayout);
+}
+
+void CdbBreakEventWidget::clear()
+{
+    foreach (QLineEdit *l, m_lineEdits) {
+        if (l)
+            l->clear();
+    }
+    foreach (QCheckBox *c, m_checkBoxes)
+        c->setChecked(false);
+}
+
+void CdbBreakEventWidget::setBreakEvents(const QStringList &l)
+{
+    clear();
+    // Split the list of ("eh", "out:MyOutput")
+    foreach (const QString &evt, l) {
+        const int colonPos = evt.indexOf(QLatin1Char(':'));
+        const QString abbrev = colonPos != -1 ? evt.mid(0, colonPos) : evt;
+        const int index = indexOfEvent(abbrev);
+        if (index != -1)
+            m_checkBoxes.at(index)->setChecked(true);
+        if (colonPos != -1 && m_lineEdits.at(index))
+            m_lineEdits.at(index)->setText(evt.mid(colonPos + 1));
+    }
+}
+
+QString CdbBreakEventWidget::filterText(int i) const
+{
+    return m_lineEdits.at(i) ? m_lineEdits.at(i)->text() : QString();
+}
+
+QStringList CdbBreakEventWidget::breakEvents() const
+{
+    // Compile a list of ("eh", "out:MyOutput")
+    QStringList rc;
+    const int eventCount = sizeof(eventDescriptions) / sizeof(EventsDescription);
+    for (int e = 0; e < eventCount; e++) {
+        if (m_checkBoxes.at(e)->isChecked()) {
+            const QString filter = filterText(e);
+            QString s = QLatin1String(eventDescriptions[e].abbreviation);
+            if (!filter.isEmpty()) {
+                s += QLatin1Char(':');
+                s += filter;
+            }
+            rc.push_back(s);
+        }
+    }
+    return rc;
+}
 
 static inline QString msgPathConfigNote()
 {
@@ -74,7 +187,8 @@ static inline QString msgPathConfigNote()
 }
 
 CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
-    QWidget(parent), m_reportTimer(0)
+    QWidget(parent), m_breakEventWidget(new CdbBreakEventWidget),
+    m_reportTimer(0)
 {
     m_ui.setupUi(this);
     m_ui.noteLabel->setText(msgPathConfigNote());
@@ -84,6 +198,9 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
     m_ui.pathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui.pathChooser->addButton(tr("Autodetect"), this, SLOT(autoDetect()));
     m_ui.cdbPathGroupBox->installEventFilter(this);
+    QVBoxLayout *eventLayout = new QVBoxLayout;
+    eventLayout->addWidget(m_breakEventWidget);
+    m_ui.eventGroupBox->setLayout(eventLayout);
 }
 
 void CdbOptionsPageWidget::setOptions(CdbOptions &o)
@@ -93,6 +210,7 @@ void CdbOptionsPageWidget::setOptions(CdbOptions &o)
     m_ui.cdbPathGroupBox->setChecked(o.enabled);
     setSymbolPaths(o.symbolPaths);
     m_ui.sourcePathListEditor->setPathList(o.sourcePaths);
+    m_breakEventWidget->setBreakEvents(o.breakEvents);
 }
 
 bool CdbOptionsPageWidget::is64Bit() const
@@ -113,6 +231,7 @@ CdbOptions CdbOptionsPageWidget::options() const
     rc.is64bit = is64Bit();
     rc.symbolPaths = symbolPaths();
     rc.sourcePaths = m_ui.sourcePathListEditor->pathList();
+    rc.breakEvents = m_breakEventWidget->breakEvents();
     return rc;
 }
 
