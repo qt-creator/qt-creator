@@ -72,7 +72,6 @@ void ThreadsWindow::rowActivated(const QModelIndex &index)
 
 void ThreadsWindow::setModel(QAbstractItemModel *model)
 {
-    qDebug() << "SET MODEL";
     QTreeView::setModel(model);
     resizeColumnToContents(0); // Id
     resizeColumnToContents(4); // Line
