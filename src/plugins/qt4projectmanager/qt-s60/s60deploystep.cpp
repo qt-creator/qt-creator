@@ -213,7 +213,7 @@ void S60DeployStep::start()
 {
     QString errorMessage;
 
-    if (m_serialPortName.isEmpty()) {
+    if (m_serialPortName.isEmpty() || !m_launcher) {
         errorMessage = tr("No device is connected. Please connect a device and try again.");
         appendMessage(errorMessage, true);
         emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
