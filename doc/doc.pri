@@ -21,15 +21,19 @@ QCH_FILE = $$IDE_DOC_PATH/qtcreator.qch
 
 HELP_DEP_FILES = $$PWD/qtcreator.qdoc \
                  $$PWD/addressbook-sdk.qdoc \
-                 $$PWD/qt-defines.qdocconf \
-                 $$PWD/qt-html-templates.qdocconf \
+                 $$PWD/config/compat.qdocconf \
+                 $$PWD/config/macros.qdocconf \
+                 $$PWD/config/qt-cpp-ignore.qdocconf \
+                 $$PWD/config/qt-defines.qdocconf \
+                 $$PWD/config/qt-html-templates.qdocconf \
+                 $$PWD/config/qt-html-default-styles.qdocconf \
                  $$PWD/qtcreator.qdocconf
 
-html_docs.commands = $$QDOC -creator $$PWD/qtcreator.qdocconf
+html_docs.commands = $$QDOC $$PWD/qtcreator.qdocconf
 html_docs.depends += $$HELP_DEP_FILES
 html_docs.files = $$QHP_FILE
 
-html_docs_online.commands = $$QDOC -online $$PWD/qtcreator.qdocconf
+html_docs_online.commands = $$QDOC $$PWD/qtcreator-online.qdocconf
 html_docs_online.depends += $$HELP_DEP_FILES
 
 qch_docs.commands = $$HELPGENERATOR -o \"$$QCH_FILE\" $$QHP_FILE

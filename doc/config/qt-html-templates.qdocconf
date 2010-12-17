@@ -1,0 +1,56 @@
+include(qt-html-default-styles.qdocconf)
+
+HTML.postheader = \
+    "<div class=\"header\" id=\"qtdocheader\">\n" \
+    "  <div class=\"content\"> \n" \
+    "    <a href=\"index.html\" class=\"qtref\"><span>Qt Creator Documentation</span></a>\n" \
+    "  </div>\n" \
+    "  <div class=\"breadcrumb\">\n" \
+    "    <ul>\n" \
+    "      <li class=\"first\"><a href=\"index.html\">Home</a></li>\n" \
+    "      <!--  Breadcrumbs go here -->\n"
+
+HTML.postpostheader = \
+    "\n" \
+    "    </ul>\n" \
+    "  </div>\n" \
+    "</div>\n" \
+    "<div class=\"content mainContent\">\n"
+
+HTML.footer = \
+    "  <div class=\"ft\">\n" \
+    "    <span></span>\n" \
+    "  </div>\n" \
+    "</div> \n" \
+    "<div class=\"footer\">\n" \
+    "  <p>\n" \
+    "     <acronym title=\"Copyright\">&copy;</acronym> 2008-2011 Nokia Corporation and/or its\n" \
+    "     subsidiaries. Nokia, Qt and their respective logos are trademarks of Nokia Corporation \n" \
+    "     in Finland and/or other countries worldwide.</p>\n" \
+    "  <p>\n" \
+    "     All other trademarks are property of their respective owners. <a title=\"Privacy Policy\"\n" \
+    "     href=\"http://qt.nokia.com/about/privacy-policy\">Privacy Policy</a></p>\n" \
+    "  <br />\n" \
+    "  <p>\n" \
+    "    Licensees holding valid Qt Commercial licenses may use this document in accordance with the" \
+    "    Qt Commercial License Agreement provided with the Software or, alternatively, in accordance" \
+    "    with the terms contained in a written agreement between you and Nokia.</p>\n" \
+    "  <p>\n" \
+    "    Alternatively, this document may be used under the terms of the <a href=\"http://www.gnu.org/licenses/fdl.html\">GNU\n" \
+    "    Free Documentation License version 1.3</a>\n" \
+    "    as published by the Free Software Foundation.</p>\n" \
+    "</div>\n" \
+
+# Files not referenced in any qdoc file.
+# See also extraimages.HTML
+qhp.QtCreator.extraFiles = index.html \
+                           images/arrow_down.png \
+                           images/breadcrumb.png \
+                           images/bullet_gt.png \
+                           images/bullet_dn.png \
+                           images/bullet_sq.png \
+                           images/bullet_up.png \
+                           images/horBar.png \
+                           images/sprites-combined.png \
+                           images/qtcreator-screenshots.png \
+                           style/offline.css

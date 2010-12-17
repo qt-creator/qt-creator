@@ -1232,7 +1232,7 @@
 
     The anchors for \gui{Rectangle 2} are specified as follows in code:
 
-    \code
+    \qml
     Rectangle {
         id: rectangle2
         anchors.right: rectangle3.left
@@ -1241,7 +1241,9 @@
         anchors.leftMargin: 15
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 15
-    \endcode
+        // ...
+    }
+    \endqml
 
     Margins specify the amount of empty space to leave to the outside of an item.
     Margins only have meaning for anchors. They do not take any effect when using
@@ -5388,14 +5390,12 @@
             \o In the code editor, edit the pointer to the clicked expression in the mouse
             area element, as illustrated by the following code snippet:
 
-            \code
-
+            \qml
             MouseArea {
                 anchors.fill: parent
                 onClicked: page.state = ''
             }
-
-            \endcode
+            \endqml
 
             The expression sets the state to the base state and returns the image to
             its initial position.
@@ -5478,28 +5478,7 @@
         is scaled on different sizes of screens. Set expressions for the x and y
         properties, as illustrated by the following code snippet:
 
-        \code
-        states: [
-            State {
-                name: "State1"
-
-                PropertyChanges {
-                    target: icon
-                    x: middleRightRect.x
-                    y: middleRightRect.y
-                }
-            },
-            State {
-                name: "State2"
-
-                PropertyChanges {
-                    target: icon
-                    x: bottomLeftRect.x
-                    y: bottomLeftRect.y
-                }
-            }
-        ]
-        \endcode
+        \snippet snippets/qml/states-properties.qml states
 
         \image qmldesigner-tutorial-state1.png "States"
 
@@ -5525,18 +5504,7 @@
         State1, the x and y coordinates of the Qt logo change linearly over a duration
         of 1 second:
 
-        \code
-
-        transitions: [
-            Transition {
-                from: "*"; to: "State1"
-                NumberAnimation {
-                    properties: "x,y";
-                    duration: 1000
-                }
-            },
-
-        \endcode
+        \snippet snippets/qml/list-of-transitions.qml first transition
 
         \o You can use the Qt Quick toolbar for animation to change the easing curve
         type from linear to OutBounce:
@@ -5559,34 +5527,13 @@
         coordinates of the Qt logo change over a duration of 2 seconds,
         and an InOutQuad easing function is used:
 
-        \code
-
-        Transition {
-            from: "*"; to: "State2"
-            NumberAnimation {
-                properties: "x,y";
-                easing.type: Easing.InOutQuad;
-                duration: 2000
-            }
-        },
-
-        \endcode
+        \snippet snippets/qml/list-of-transitions.qml second transition
 
         \o Add the following code to specify that for any other state changes, the x
         and y coordinates of the Qt logo change linearly over a duration of 200
         milliseconds:
 
-        \code
-
-        Transition {
-            NumberAnimation {
-                properties: "x,y";
-                duration: 200
-            }
-        }
-        ]
-
-        \endcode
+        \snippet snippets/qml/list-of-transitions.qml default transition
 
         \o Press \key {Ctrl+R} to run the application in the QML Viewer.
 
@@ -8366,25 +8313,16 @@
         \o Replace the \gui Rectangle with an \gui Item, as illustrated by the
         following code snippet:
 
-        \code
-
+        \qml
         Item {
 
         }
-
-        \endcode
+        \endqml
 
         \o Specify properties and set expressions for the \gui Item, as
         illustrated by the following code snippet:
 
-        \code
-
-        property string text: ""
-        property int fontSize: 44
-
-        signal clicked
-
-        \endcode
+        \snippet snippets/qml/quick-scalable-image.qml properties and signal definitions
 
         You will point to the properties and expression later.
 
@@ -8593,13 +8531,11 @@
         editor to set the state of the root item of the .qml file, as specified by the
         following code snippet:
 
-        \code
-
+        \qml
         Item {
             state: "Normal"
         }
-
-        \endcode
+        \endqml
 
     \endlist
 

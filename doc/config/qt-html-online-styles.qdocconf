@@ -1,0 +1,72 @@
+# Define the location of the templates to use. Style sheets and scripts are
+# specified relative to the template directory and will be copied into
+# subdirectories of the output directory.
+
+HTML.templatedir = $QT_SOURCE_TREE/doc/src/template
+
+HTML.stylesheets = style/narrow.css \
+                   style/style.css \
+                   style/style_ie6.css \
+                   style/style_ie7.css \
+                   style/style_ie8.css \
+                   style/superfish.css
+
+# Adding jquery and functions - providing online tools and search features
+HTML.scripts     = scripts/functions.js \
+                   scripts/narrow.js \
+                   scripts/superfish.js \
+                   scripts/jquery.js
+
+
+# Files not referenced in any qdoc file.
+# See also qhp.Qt.extraFiles
+extraimages.HTML        = qt-logo.png \
+                          bg_l.png \
+                          bg_l_blank.png \
+                          bg_ll_blank.png \
+                          bg_ul_blank.png \
+                          header_bg.png \
+                          bg_r.png \
+                          box_bg.png \
+                          breadcrumb.png \
+                          bullet_gt.png \
+                          bullet_dn.png \
+                          bullet_sq.png \
+                          bullet_up.png \
+                          arrow_down.png \
+                          feedbackground.png \
+                          horBar.png \
+                          page.png \
+                          page_bg.png \
+                          sprites-combined.png \
+                          spinner.gif
+    
+# Include the style sheets and scripts used.
+
+HTML.headerstyles = \
+    "  <link rel=\"stylesheet\" type=\"text/css\" href=\"style/style.css\" />\n" \
+    "  <script src=\"scripts/jquery.js\" type=\"text/javascript\"></script>\n" \
+    "  <script src=\"scripts/functions.js\" type=\"text/javascript\"></script>\n" \
+    "  <link rel=\"stylesheet\" type=\"text/css\" href=\"style/superfish.css\" />\n" \
+    "  <link rel=\"stylesheet\" type=\"text/css\" href=\"style/narrow.css\" />\n" \
+    "  <!--[if IE]>\n" \
+    "<meta name=\"MSSmartTagsPreventParsing\" content=\"true\">\n" \
+    "<meta http-equiv=\"imagetoolbar\" content=\"no\">\n" \
+    "<![endif]-->\n" \
+    "<!--[if lt IE 7]>\n" \
+    "<link rel=\"stylesheet\" type=\"text/css\" href=\"style/style_ie6.css\">\n" \
+    "<![endif]-->\n" \
+    "<!--[if IE 7]>\n" \
+    "<link rel=\"stylesheet\" type=\"text/css\" href=\"style/style_ie7.css\">\n" \
+    "<![endif]-->\n" \
+    "<!--[if IE 8]>\n" \
+    "<link rel=\"stylesheet\" type=\"text/css\" href=\"style/style_ie8.css\">\n" \
+    "<![endif]-->\n\n"
+
+HTML.headerscripts = \
+    "<script src=\"scripts/superfish.js\" type=\"text/javascript\"></script>\n" \
+    "<script src=\"scripts/narrow.js\" type=\"text/javascript\"></script>\n\n"
+
+HTML.endheader = \
+    "</head>\n" \
+    "<body class=\"\" onload=\"CheckEmptyAndLoadList();\">\n"

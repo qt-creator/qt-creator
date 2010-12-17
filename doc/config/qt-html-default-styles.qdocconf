@@ -1,0 +1,33 @@
+# Define the location of the templates to use. Style sheets and scripts are
+# specified relative to the template directory and will be copied into
+# subdirectories of the output directory.
+
+HTML.templatedir = $SRCDIR/templates
+
+HTML.stylesheets = style/offline.css
+
+HTML.scripts     =
+
+# Files not referenced in any qdoc file (last four needed by qtdemo)
+# See also qhp.Qt.extraFiles
+extraimages.HTML        = qt-logo.png \
+                          arrow_down.png \
+                          breadcrumb.png \
+                          bullet_gt.png \
+                          bullet_dn.png \
+                          bullet_sq.png \
+                          bullet_up.png \
+                          horBar.png \
+                          sprites-combined.png \
+                          qtcreator-screenshots.png
+
+# Include the style sheets and scripts used.
+
+HTML.headerstyles = \
+    "  <link rel=\"stylesheet\" type=\"text/css\" href=\"style/offline.css\" />\n"
+
+HTML.headerscripts = 
+
+HTML.endheader = \
+    "</head>\n" \
+    "<body>\n"

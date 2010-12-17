@@ -1,0 +1,37 @@
+project     = "Qt Creator"
+description = "Qt Creator Manual"
+
+headerdirs = 
+sourcedirs = $SRCDIR
+imagedirs = $SRCDIR/images $SRCDIR/templates/images
+outputdir = $OUTDIR
+exampledirs = $SRCDIR
+indexes                 = qt.index
+
+include(compat.qdocconf)
+include(macros.qdocconf)
+include(qt-cpp-ignore.qdocconf)
+include(qt-defines.qdocconf)
+
+sources.fileextensions  = "qtcreator.qdoc maemodev.qdoc symbiandev.qdoc addressbook-sdk.qdoc"
+
+
+qhp.projects            = QtCreator
+qhp.QtCreator.file             = qtcreator.qhp
+qhp.QtCreator.namespace        = com.nokia.qtcreator.2095
+qhp.QtCreator.virtualFolder    = doc
+qhp.QtCreator.indexTitle       = Qt Creator
+qhp.QtCreator.filterAttributes = qtcreator 2.0.95
+qhp.QtCreator.customFilters.QtCreator.name = Qt Creator 2.0.95
+qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator 2.0.95
+qhp.QtCreator.indexRoot        =
+
+qhp.QtCreator.subprojects = manual
+qhp.QtCreator.subprojects.manual.title = Qt Creator Manual
+qhp.QtCreator.subprojects.manual.indexTitle = Qt Creator Manual
+qhp.QtCreator.subprojects.manual.type = manual
+
+# Doxygen compatibility commands
+
+macro.see                       = "\\sa"
+macro.function                  = "\\fn"
