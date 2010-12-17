@@ -1282,7 +1282,14 @@ QStringList Qt4ProFileNode::symbianCapabilities() const
     QStringList result; //let's make the result pretty
     int index;
     foreach (QString lowerCase, lowerCasedResult) {
-        index = all.indexOf(lowerCase);
+        for (int i = 0; i < all.count(); ++i) {
+            index = -1;
+            if (QString::compare(lowerCase, all.at(i),
+                                 Qt::CaseInsensitive) == 0) {
+                index = i;
+                break;
+            }
+        }
         if (index != -1)
             result << all.at(index);
         else
