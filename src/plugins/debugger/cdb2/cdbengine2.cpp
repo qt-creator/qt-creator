@@ -1058,7 +1058,10 @@ void CdbEngine::handleDisassembler(const CdbBuiltinCommandPtr &command)
 
 void CdbEngine::fetchMemory(Debugger::Internal::MemoryAgent *agent, QObject *editor, quint64 addr, quint64 length)
 {
-    QTC_ASSERT(m_accessible, return;)
+    if (!m_accessible) {
+        qWarning("Internal error: Attempt to read memory from inaccessible session: %s", Q_FUNC_INFO);
+        return;
+    }
     if (debug)
         qDebug("CdbEngine::fetchMemory %llu bytes from 0x%llx", length, addr);
 

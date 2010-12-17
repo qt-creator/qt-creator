@@ -33,6 +33,7 @@
 #include "stringutils.h"
 
 #include <functional>
+#include <iterator>
 
 typedef AbstractSymbolGroupNode::AbstractSymbolGroupNodePtrVector AbstractSymbolGroupNodePtrVector;
 typedef std::vector<SymbolGroupValue> SymbolGroupValueVector;
@@ -51,6 +52,24 @@ static void *readPointerArray(ULONG64 address, unsigned count, const SymbolGroup
         return 0;
     }
     return data;
+}
+
+template <class UInt>
+inline void dumpHexArray(std::ostream &os, const UInt *a, int count)
+{
+    os << std::showbase << std::hex;
+    std::copy(a, a + count, std::ostream_iterator<UInt>(os, ", "));
+    os << std::noshowbase << std::dec;
+}
+
+static inline void dump32bitPointerArray(std::ostream &os, const void *a, int count)
+{
+    dumpHexArray(os, reinterpret_cast<const ULONG32 *>(a), count);
+}
+
+static inline void dump64bitPointerArray(std::ostream &os, const void *a, int count)
+{
+    dumpHexArray(os, reinterpret_cast<const ULONG64 *>(a), count);
 }
 
 // Return size from an STL vector (last/first iterators).
@@ -302,6 +321,75 @@ static inline AbstractSymbolGroupNodePtrVector
                                       SymbolGroupValue::stripPointerType(myFirst.type()), count);
     }
     return AbstractSymbolGroupNodePtrVector();
+}
+
+// Helper for std::deque<>: From the array of deque blocks, read out the values.
+template<class AddressType>
+AbstractSymbolGroupNodePtrVector
+    stdDequeChildrenHelper(SymbolGroup *sg,
+                           const AddressType *blockArray, ULONG64 blockArraySize,
+                           const std::string &innerType, ULONG64 innerTypeSize,
+                           ULONG64 startOffset, ULONG64 dequeSize, int count)
+{
+    AbstractSymbolGroupNodePtrVector rc;
+    rc.reserve(count);
+    std::string errorMessage;
+    // Determine block number and offset in the block array T[][dequeSize]
+    // and create symbol by address.
+    for (int i = 0; i < count; i++) {
+        // see <deque>-header: std::deque<T>::iterator::operator*
+        const ULONG64 offset = startOffset + i;
+        ULONG64 block = offset / dequeSize;
+        if (block >= blockArraySize)
+            block -= blockArraySize;
+        const ULONG64 blockOffset = offset % dequeSize;
+        const ULONG64 address = blockArray[block] + innerTypeSize * blockOffset;
+        if (SymbolGroupNode *n = sg->addSymbol(pointedToSymbolName(address, innerType), std::string(), &errorMessage)) {
+            rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, n));
+        } else {
+            return AbstractSymbolGroupNodePtrVector();
+        }
+    }
+    return rc;
+}
+
+// std::deque<>
+static inline AbstractSymbolGroupNodePtrVector
+    stdDequeChildList(const SymbolGroupValue &v, int count)
+{
+    if (!count)
+        return AbstractSymbolGroupNodePtrVector();
+    const SymbolGroupValue base = v[unsigned(0)];
+    if (!base)
+        return AbstractSymbolGroupNodePtrVector();
+    const ULONG64 arrayAddress = base["_Map"].pointerValue();
+    const int startOffset = base["_Myoff"].intValue();
+    const int mapSize  = base["_Mapsize"].intValue();
+    if (!arrayAddress || startOffset < 0 || mapSize <= 0)
+        return AbstractSymbolGroupNodePtrVector();
+    const std::vector<std::string> innerTypes = v.innerTypes();
+    if (innerTypes.empty())
+        return AbstractSymbolGroupNodePtrVector();
+    // Get the deque size (block size) which is an unavailable static member
+    // (cf <deque> for the actual expression).
+    const unsigned innerTypeSize = SymbolGroupValue::sizeOf(innerTypes.front().c_str());
+    if (!innerTypeSize)
+        return AbstractSymbolGroupNodePtrVector();
+    const int dequeSize = innerTypeSize <= 1 ? 16 : innerTypeSize <= 2 ?
+                               8 : innerTypeSize <= 4 ? 4 : innerTypeSize <= 8 ? 2 : 1;
+    // Read out map array (pointing to the blocks)
+    void *mapArray = readPointerArray(arrayAddress, mapSize, v.context());
+    if (!mapArray)
+        return AbstractSymbolGroupNodePtrVector();
+    const AbstractSymbolGroupNodePtrVector rc = SymbolGroupValue::pointerSize() == 8 ?
+        stdDequeChildrenHelper(v.node()->symbolGroup(),
+                               reinterpret_cast<const ULONG64 *>(mapArray), mapSize,
+                               innerTypes.front(), innerTypeSize, startOffset, dequeSize, count) :
+        stdDequeChildrenHelper(v.node()->symbolGroup(),
+                               reinterpret_cast<const ULONG32 *>(mapArray), mapSize,
+                               innerTypes.front(), innerTypeSize, startOffset, dequeSize, count);
+    delete [] mapArray;
+    return rc;
 }
 
 // QVector<T>
@@ -583,6 +671,12 @@ AbstractSymbolGroupNodePtrVector containerChildren(SymbolGroupNode *node, int ty
         break;
     case KT_StdList:
         return stdListChildList(node, size , ctx);
+    case KT_StdDeque:
+        return stdDequeChildList(SymbolGroupValue(node, ctx), size);
+    case KT_StdStack:
+        if (const SymbolGroupValue deque = SymbolGroupValue(node, ctx)[unsigned(0)])
+            return stdDequeChildList(deque, size);
+        break;
     }
     return AbstractSymbolGroupNodePtrVector();
 }
