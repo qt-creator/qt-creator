@@ -54,8 +54,10 @@ MaemoPublishingFileSelectionDialog::MaemoPublishingFileSelectionDialog(const QSt
     ui->setupUi(this);
     m_projectModel = new MaemoPublishedProjectModel(this);
     const QModelIndex rootIndex = m_projectModel->setRootPath(projectPath);
+    m_projectModel->initFilesToExclude();
     ui->projectView->setModel(m_projectModel);
     ui->projectView->setRootIndex(rootIndex);
+    ui->projectView->header()->setResizeMode(0, QHeaderView::ResizeToContents);
 }
 
 MaemoPublishingFileSelectionDialog::~MaemoPublishingFileSelectionDialog()

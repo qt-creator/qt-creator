@@ -53,6 +53,7 @@ class MaemoPublishedProjectModel : public QFileSystemModel
     Q_OBJECT
 public:
     explicit MaemoPublishedProjectModel(QObject *parent = 0);
+    void initFilesToExclude();
     QStringList filesToExclude() const { return m_filesToExclude.toList(); }
 
 private:
@@ -64,6 +65,8 @@ private:
     virtual bool setData(const QModelIndex &index, const QVariant &value,
         int role);
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+
+    void initFilesToExclude(const QString &filePath);
 
     QSet<QString> m_filesToExclude;
 };

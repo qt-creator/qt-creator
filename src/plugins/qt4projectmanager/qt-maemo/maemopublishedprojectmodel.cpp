@@ -40,6 +40,8 @@
 ****************************************************************************/
 #include "maemopublishedprojectmodel.h"
 
+#include <QtCore/QFileInfo>
+
 namespace Qt4ProjectManager {
 namespace Internal {
 namespace {
@@ -49,6 +51,32 @@ const int IncludeColumn = 2;
 MaemoPublishedProjectModel::MaemoPublishedProjectModel(QObject *parent)
     : QFileSystemModel(parent)
 {
+    setFilter(filter() | QDir::Hidden | QDir::System);
+}
+
+void MaemoPublishedProjectModel::initFilesToExclude()
+{
+    initFilesToExclude(rootPath());
+}
+
+void MaemoPublishedProjectModel::initFilesToExclude(const QString &filePath)
+{
+    QFileInfo fi(filePath);
+    if (fi.isDir()) {
+        const QStringList fileNames = QDir(filePath).entryList(QDir::Files
+            | QDir::Dirs | QDir::NoDotAndDotDot | QDir::System | QDir::Hidden);
+        foreach (const QString &fileName, fileNames)
+            initFilesToExclude(filePath + QLatin1Char('/') + fileName);
+    } else {
+        const QString &fileName = fi.fileName();
+        if (fi.isHidden() || fileName.endsWith(QLatin1String(".o"))
+                || fileName == QLatin1String("Makefile")
+                || fileName.contains(QLatin1String(".pro.user"))
+                || fileName.contains(QLatin1String(".so"))
+                || fileName.endsWith(QLatin1String(".a"))) {
+            m_filesToExclude.insert(filePath);
+        }
+    }
 }
 
 int MaemoPublishedProjectModel::columnCount(const QModelIndex &parent) const
