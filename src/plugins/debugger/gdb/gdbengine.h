@@ -284,6 +284,7 @@ private: ////////// Gdb Output, State & Capability Handling //////////
     void handleStop0(const GdbMi &data);
     void handleStop1(const GdbResponse &response);
     void handleStop1(const GdbMi &data);
+    Q_SLOT void handleStop2();
     StackFrame parseStackFrame(const GdbMi &mi, int level);
     void resetCommandQueue();
 
@@ -536,6 +537,10 @@ private: ////////// View & Data Stuff //////////
     static QByteArray tooltipIName(const QString &exp);
     QString m_toolTipExpression;
     QPoint m_toolTipPos;
+
+    // For short-circuiting stack and thread list evaluation.
+    bool m_stackNeeded;
+    int m_currentThreadId;
 
     // HACK:
     StackFrame m_targetFrame;

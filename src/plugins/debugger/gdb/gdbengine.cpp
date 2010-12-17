@@ -191,6 +191,7 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
     m_pendingWatchRequests = 0;
     m_pendingBreakpointRequests = 0;
     m_commandsDoneCallback = 0;
+    m_stackNeeded = false;
     invalidateSourcesList();
 
     m_gdbAdapter = createAdapter();
@@ -1432,24 +1433,33 @@ void GdbEngine::handleStop1(const GdbMi &data)
             showStatusMessage(reasontr);
     }
 
-    //
-    // Stack
-    //
+    // Let the event loop run before deciding whether to update the stack.
+    m_stackNeeded = true; // setTokenBarrier() might reset this.
+    m_currentThreadId = data.findChild("thread-id").data().toInt();
+    QTimer::singleShot(0, this, SLOT(handleStop2()));
+}
+
+void GdbEngine::handleStop2()
+{
+    // We are already continuing.
+    if (!m_stackNeeded)
+        return;
+
     reloadStack(false); // Will trigger register reload.
 
     if (supportsThreads()) {
-        int currentId = data.findChild("thread-id").data().toInt();
         if (m_gdbAdapter->isTrkAdapter()) {
             m_gdbAdapter->trkReloadThreads();
         } else if (m_isMacGdb) {
             postCommand("-thread-list-ids", Discardable,
-                CB(handleThreadListIds), currentId);
+                CB(handleThreadListIds), m_currentThreadId);
         } else {
             // This is only available in gdb 7.1+.
             postCommand("-thread-info", Discardable,
-                CB(handleThreadInfo), currentId);
+                CB(handleThreadInfo), m_currentThreadId);
         }
     }
+
 }
 
 void GdbEngine::handleInfoProc(const GdbResponse &response)
@@ -2012,6 +2022,7 @@ void GdbEngine::setTokenBarrier()
     if (debuggerCore()->boolSetting(LogTimeStamps))
         showMessage(LogWindow::logTimeStamp(), LogMiscInput);
     m_oldestAcceptableToken = currentToken();
+    m_stackNeeded = false;
 }
 
 
