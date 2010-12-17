@@ -227,6 +227,10 @@ def parseAndEvaluate(exp):
 
 
 def catchCliOutput(command):
+    try:
+        return gdb.execute(command, to_string=True)
+    except:
+        pass
     filename, file = createTempFile()
     gdb.execute("set logging off")
     gdb.execute("set logging redirect off")
