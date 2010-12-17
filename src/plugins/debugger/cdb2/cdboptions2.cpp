@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "cdboptions2.h"
+#include "cdbengine2.h"
 
 #ifdef Q_OS_WIN
 #    include <utils/winutils.h>
@@ -36,6 +37,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QCoreApplication>
 
 static const char settingsGroupC[] = "CDB2";
 static const char enabledKeyC[] = "Enabled";
@@ -57,26 +59,87 @@ QString CdbOptions::settingsGroup()
     return QLatin1String(settingsGroupC);
 }
 
-void CdbOptions::clear()
+void CdbOptions::clearExecutable()
 {
     is64bit = enabled = false;
     executable.clear();
+}
+
+void CdbOptions::clear()
+{
+    clearExecutable();
     symbolPaths.clear();
     sourcePaths.clear();
 }
 
-void CdbOptions::fromSettings(const QSettings *s)
+static inline QString msgAutoDetectFail(bool is64Bit, const QString &executable,
+                                        const QString &extLib)
+{
+    return QCoreApplication::translate("Debugger::Cdb::CdbOptions",
+        "Auto-detection of the new CDB debugging engine (%1bit) failed:\n"
+        "Debugger executable: %2\n"
+        "Extension library  : %3 not present.\n").arg(is64Bit ? 64 : 32).
+         arg(QDir::toNativeSeparators(executable), QDir::toNativeSeparators(extLib));
+}
+
+static inline QString msgAutoDetect(bool is64Bit, const QString &executable,
+                                    const QString &extLib,
+                                    const QStringList &symbolPaths)
+{
+    return QCoreApplication::translate("Debugger::Cdb::CdbOptions",
+        "The new CDB debugging engine (%1bit) has been set up automatically:\n"
+        "Debugger executable: %2\n"
+        "Extension library  : %3\n"
+        "Symbol paths       : %4\n").arg(is64Bit ? 64 : 32).
+        arg(QDir::toNativeSeparators(executable), QDir::toNativeSeparators(extLib),
+        symbolPaths.join(QString(QLatin1Char(';'))));
+}
+
+QStringList CdbOptions::oldEngineSymbolPaths(const QSettings *s)
+{
+    return s->value(QLatin1String("CDB/SymbolPaths")).toStringList();
+}
+
+bool CdbOptions::autoDetect(const QSettings *s)
+{
+    QString autoExecutable;
+    bool auto64Bit;
+    // Check installation  and existence of the extension library
+    CdbOptions::autoDetectExecutable(&autoExecutable, &auto64Bit);
+    if (autoExecutable.isEmpty())
+        return false;
+    const QString extLib = CdbEngine::extensionLibraryName(auto64Bit);
+    if (!QFileInfo(extLib).isFile()) {
+        const QString failMsg = msgAutoDetectFail(auto64Bit, autoExecutable, extLib);
+        qWarning("%s", qPrintable(failMsg));
+          clearExecutable();
+        return false;
+    }
+    enabled = true;
+    is64bit = auto64Bit;
+    executable = autoExecutable;
+    // Is there a symbol path from an old install? Use that
+    if (symbolPaths.empty())
+        symbolPaths = CdbOptions::oldEngineSymbolPaths(s);
+    const QString msg = msgAutoDetect(is64bit, QDir::toNativeSeparators(executable),
+                                      QDir::toNativeSeparators(extLib), symbolPaths);
+    qWarning("%s", qPrintable(msg));
+    return true;
+}
+
+void CdbOptions::fromSettings(QSettings *s)
 {
     clear();
     // Is this the first time we are called ->
     // try to find automatically
     const QString keyRoot = QLatin1String(settingsGroupC) + QLatin1Char('/');
     const QString enabledKey = keyRoot + QLatin1String(enabledKeyC);
-#if 0 // TODO: Enable autodetection after deprecating the old CDB engine only.
+    // First-time autodetection: Write back parameters
     const bool firstTime = !s->contains(enabledKey);
-    if (firstTime)
-        CdbOptions::autoDetectExecutable(&executable, &is64bit);
-#endif
+    if (firstTime && autoDetect(s)) {
+        toSettings(s);
+        return;
+    }
     enabled = s->value(enabledKey, false).toBool();
     is64bit = s->value(keyRoot + QLatin1String(is64bitKeyC), is64bit).toBool();
     executable = s->value(keyRoot + QLatin1String(pathKeyC), executable).toString();

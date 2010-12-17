@@ -63,6 +63,8 @@ private slots:
     void hideReportLabel();
 
 private:
+    QStringList symbolPaths() const;
+    void setSymbolPaths(const QStringList &s);
     void setReport(const QString &, bool success);
     inline bool is64Bit() const;
     inline QString path() const;

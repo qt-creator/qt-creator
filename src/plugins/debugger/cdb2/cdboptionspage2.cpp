@@ -91,7 +91,7 @@ void CdbOptionsPageWidget::setOptions(CdbOptions &o)
     m_ui.pathChooser->setPath(o.executable);
     m_ui.is64BitCheckBox->setChecked(o.is64bit);
     m_ui.cdbPathGroupBox->setChecked(o.enabled);
-    m_ui.symbolPathListEditor->setPathList(o.symbolPaths);
+    setSymbolPaths(o.symbolPaths);
     m_ui.sourcePathListEditor->setPathList(o.sourcePaths);
 }
 
@@ -111,9 +111,19 @@ CdbOptions CdbOptionsPageWidget::options() const
     rc.executable = path();
     rc.enabled = m_ui.cdbPathGroupBox->isChecked();
     rc.is64bit = is64Bit();
-    rc.symbolPaths = m_ui.symbolPathListEditor->pathList();
+    rc.symbolPaths = symbolPaths();
     rc.sourcePaths = m_ui.sourcePathListEditor->pathList();
     return rc;
+}
+
+QStringList CdbOptionsPageWidget::symbolPaths() const
+{
+    return m_ui.symbolPathListEditor->pathList();
+}
+
+void CdbOptionsPageWidget::setSymbolPaths(const QStringList &s)
+{
+    m_ui.symbolPathListEditor->setPathList(s);
 }
 
 void CdbOptionsPageWidget::hideReportLabel()
@@ -136,6 +146,10 @@ void CdbOptionsPageWidget::autoDetect()
         // Now check for the extension library as well.
         const bool allOk = checkInstallation(executable, is64Bit(), &report);
         setReport(report, allOk);
+        // On this occasion, if no symbol paths are specified, check for an
+        // old CDB installation
+        if (symbolPaths().isEmpty())
+            setSymbolPaths(CdbOptions::oldEngineSymbolPaths(Core::ICore::instance()->settings()));
     } else {
         const QString msg = tr("\"Debugging Tools for Windows\" could not be found.");
         const QString details = tr("Checked:\n%1").arg(checkedDirectories.join(QString(QLatin1Char('\n'))));

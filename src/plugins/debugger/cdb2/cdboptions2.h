@@ -43,9 +43,11 @@ struct CdbOptions
 {
 public:
     CdbOptions();
+    void clearExecutable();
     void clear();
 
-    void fromSettings(const QSettings *s);
+    void fromSettings(QSettings *s); // Writes parameters on first-time autodetect
+    bool autoDetect(const QSettings *s);
     void toSettings(QSettings *s) const;
 
     bool equals(const CdbOptions &rhs) const;
@@ -54,6 +56,7 @@ public:
                                      QStringList *checkedDirectories = 0);
 
     static QString settingsGroup();
+    static QStringList oldEngineSymbolPaths(const QSettings *s);
 
     bool enabled;
     bool is64bit;
