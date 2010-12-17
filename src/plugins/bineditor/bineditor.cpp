@@ -1290,30 +1290,31 @@ void BinEditor::zoomOut(int range)
 
 void BinEditor::copy(bool raw)
 {
-    const int selStart = selectionStart();
-    const int selEnd = selectionEnd();
-    if (selStart < selEnd) {
-        const int selectionLength = selEnd - selStart;
-        if (selectionLength >> 22) {
-            QMessageBox::warning(this, tr("Copying Failed"),
-                                 tr("You cannot copy more than 4 MB of binary data."));
-            return;
-        }
-        const QByteArray &data = dataMid(selStart, selectionLength);
-        if (raw) {
-            QApplication::clipboard()->setText(data);
-            return;
-        }
-        QString hexString;
-        const char * const hex = "0123456789abcdef";
-        hexString.reserve(3 * data.size());
-        for (int i = 0; i < data.size(); ++i) {
-            const uchar val = static_cast<uchar>(data[i]);
-            hexString.append(hex[val >> 4]).append(hex[val & 0xf]).append(' ');
-        }
-        hexString.chop(1);
-        QApplication::clipboard()->setText(hexString);
+    int selStart = selectionStart();
+    int selEnd = selectionEnd();
+    if (selStart >= selEnd)
+        qSwap(selStart, selEnd);
+
+    const int selectionLength = selEnd - selStart;
+    if (selectionLength >> 22) {
+        QMessageBox::warning(this, tr("Copying Failed"),
+                             tr("You cannot copy more than 4 MB of binary data."));
+        return;
     }
+    const QByteArray &data = dataMid(selStart, selectionLength);
+    if (raw) {
+        QApplication::clipboard()->setText(data);
+        return;
+    }
+    QString hexString;
+    const char * const hex = "0123456789abcdef";
+    hexString.reserve(3 * data.size());
+    for (int i = 0; i < data.size(); ++i) {
+        const uchar val = static_cast<uchar>(data[i]);
+        hexString.append(hex[val >> 4]).append(hex[val & 0xf]).append(' ');
+    }
+    hexString.chop(1);
+    QApplication::clipboard()->setText(hexString);
 }
 
 void BinEditor::highlightSearchResults(const QByteArray &pattern, QTextDocument::FindFlags findFlags)
