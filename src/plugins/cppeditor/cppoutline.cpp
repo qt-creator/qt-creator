@@ -8,8 +8,9 @@
 #include <cplusplus/OverviewModel.h>
 
 #include <QtCore/QDebug>
-#include <QtGui/QVBoxLayout>
 #include <QtCore/QTimer>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QMenu>
 
 using namespace CppEditor::Internal;
 
@@ -23,6 +24,21 @@ CppOutlineTreeView::CppOutlineTreeView(QWidget *parent) :
     // see also QmlJSOutlineTreeView
     setFocusPolicy(Qt::NoFocus);
     setExpandsOnDoubleClick(false);
+}
+
+void CppOutlineTreeView::contextMenuEvent(QContextMenuEvent *event)
+{
+    if (!event)
+        return;
+
+    QMenu contextMenu;
+
+    contextMenu.addAction(tr("Expand All"), this, SLOT(expandAll()));
+    contextMenu.addAction(tr("Collapse All"), this, SLOT(collapseAll()));
+
+    contextMenu.exec(event->globalPos());
+
+    event->accept();
 }
 
 CppOutlineFilterModel::CppOutlineFilterModel(CPlusPlus::OverviewModel *sourceModel, QObject *parent) :

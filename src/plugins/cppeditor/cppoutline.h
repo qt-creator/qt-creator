@@ -17,6 +17,8 @@ class CppOutlineTreeView : public Utils::NavigationTreeView
     Q_OBJECT
 public:
     CppOutlineTreeView(QWidget *parent);
+
+    void contextMenuEvent(QContextMenuEvent *event);
 };
 
 class CppOutlineFilterModel : public QSortFilterProxyModel
