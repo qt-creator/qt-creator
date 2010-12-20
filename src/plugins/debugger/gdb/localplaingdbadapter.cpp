@@ -164,7 +164,9 @@ void LocalPlainGdbAdapter::interruptInferior()
         return;
     }
 
-    if (!interruptProcess(attachedPID)) {
+    if (interruptProcess(attachedPID)) {
+        showMessage(_("INTERRUPTED %1").arg(attachedPID));
+    } else {
         showMessage(_("CANNOT INTERRUPT %1").arg(attachedPID));
         m_engine->notifyInferiorStopFailed();
     }
