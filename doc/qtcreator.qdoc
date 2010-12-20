@@ -5643,8 +5643,17 @@
 
     When you start Qt Creator, it looks for the executable specified
     in the \gui{P4 command} field in \gui{Tools > Options... > Version
-    Control > Perforce}. If you do not use Perforce and want to turn
-    off the check, clear this field.
+    Control > Perforce}. If the file is not found, the following error
+    message is displayed in the \gui {Version Control} output pane:
+    \gui {Perforce: Unable to determine the repository: "p4.exe"
+    terminated with exit code 1}. If you use Perforce, check that the
+    path to the executable is specified correctly in the \gui{P4 command}
+    field.
+
+    If you do not use Perforce, you can disable the Perforce plugin to
+    get rid of the error message. Choose \gui {Help > About Plugins} and
+    deselect the \gui Load check box for the \gui Perforce plugin in the
+    \gui {Version Control} group.
 
     The \gui Perforce submenu contains the following additional items:
 
