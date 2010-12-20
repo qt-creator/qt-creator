@@ -54,6 +54,8 @@ public:
     bool isTemporary() const { return false; }
     virtual bool open(const QString & fileName);
     virtual QString preferredModeType() const;
+    void setTextCodec(QTextCodec *codec, TextCodecReason = TextCodecOtherReason);
+
 
 private:
     Core::Context m_context;

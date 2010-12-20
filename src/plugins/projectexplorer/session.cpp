@@ -831,7 +831,7 @@ void SessionManager::setEditorCodec(Core::IEditor *editor, const QString &fileNa
     if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor))
         if (Project *project = projectForFile(fileName)) {
             if (QTextCodec *codec = project->editorConfiguration()->defaultTextCodec())
-                textEditor->setTextCodec(codec);
+                textEditor->setTextCodec(codec, TextEditor::ITextEditor::TextCodecFromProjectSetting);
         }
 }
 

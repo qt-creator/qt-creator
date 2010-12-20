@@ -588,7 +588,7 @@ public:
     void setContextHelpId(const QString &id) { m_contextHelpId = id; }
     QString contextHelpId() const; // from IContext
 
-    inline void setTextCodec(QTextCodec *codec) { e->setTextCodec(codec); }
+    inline void setTextCodec(QTextCodec *codec, TextCodecReason = TextCodecOtherReason) { e->setTextCodec(codec); }
     inline QTextCodec *textCodec() const { return e->textCodec(); }
 
 

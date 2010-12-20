@@ -93,4 +93,11 @@ QString QmlJSEditorEditable::preferredModeType() const
     return QString();
 }
 
+void QmlJSEditorEditable::setTextCodec(QTextCodec *codec, TextCodecReason reason)
+{
+    if (reason != TextCodecOtherReason) // qml is defined to be utf8
+        return;
+    editor()->setTextCodec(codec);
+}
+
 } // namespace QmlJSEditor

@@ -119,7 +119,13 @@ public:
 
     virtual void setContextHelpId(const QString &) = 0;
 
-    virtual void setTextCodec(QTextCodec *) = 0;
+    enum TextCodecReason {
+        TextCodecOtherReason,
+        TextCodecFromSystemSetting,
+        TextCodecFromProjectSetting
+    };
+
+    virtual void setTextCodec(QTextCodec *, TextCodecReason reason = TextCodecOtherReason) = 0;
     virtual QTextCodec *textCodec() const = 0;
 
     static QMap<QString, QString> openedTextEditorsContents();
