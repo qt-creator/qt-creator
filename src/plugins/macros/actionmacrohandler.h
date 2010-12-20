@@ -36,10 +36,12 @@
 
 #include "imacrohandler.h"
 
-#include <QSet>
+#include <QtCore/QSet>
 
+QT_BEGIN_NAMESPACE
 class QAction;
 class QSignalMapper;
+QT_END_NAMESPACE
 
 namespace Macros {
 namespace Internal {

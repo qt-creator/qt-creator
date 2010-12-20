@@ -39,7 +39,9 @@
 #include <QMap>
 #include <QStringList>
 
+QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
+QT_END_NAMESPACE
 
 
 namespace Macros {

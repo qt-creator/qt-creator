@@ -34,12 +34,14 @@
 #ifndef MACROSPLUGIN_MACROMANAGER_H
 #define MACROSPLUGIN_MACROMANAGER_H
 
-#include <QObject>
-#include <QMap>
-
 #include "macros_global.h"
 
+#include <QtCore/QObject>
+#include <QtCore/QMap>
+
+QT_BEGIN_NAMESPACE
 class QAction;
+QT_END_NAMESPACE
 
 namespace Macros {
 

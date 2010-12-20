@@ -34,12 +34,14 @@
 #ifndef MACROSPLUGIN_MACROSETTINGS_H
 #define MACROSPLUGIN_MACROSETTINGS_H
 
-#include <QString>
-#include <QStringList>
-#include <QMap>
-#include <QVariant>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
+#include <QtCore/QMap>
+#include <QtCore/QVariant>
 
+QT_BEGIN_NAMESPACE
 class QSettings;
+QT_END_NAMESPACE
 
 namespace Macros {
 namespace Internal {
