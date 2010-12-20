@@ -694,6 +694,9 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
 
     m_group.insert(debuggerCore()->action(UseCodeModel),
         m_ui.checkBoxUseCodeModel);
+    m_group.insert(debuggerCore()->action(ShowThreadNames),
+        m_ui.checkBoxShowThreadNames);
+
 
 #ifndef QT_DEBUG
 #if 0
@@ -710,7 +713,8 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
                 << ' ' << m_ui.debuggingHelperGroupBox->title()
                 << ' ' << m_ui.customLocationGroupBox->title()
                 << ' ' << m_ui.dumperLocationLabel->text()
-                << ' ' << m_ui.checkBoxUseCodeModel->text();
+                << ' ' << m_ui.checkBoxUseCodeModel->text()
+                << ' ' << m_ui.checkBoxShowThreadNames->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
     return w;

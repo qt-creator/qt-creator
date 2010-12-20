@@ -91,6 +91,7 @@ enum DebuggerActionCode
     CustomDebuggingHelperLocation,
 
     UseCodeModel,
+    ShowThreadNames,
 
     UseToolTipsInMainEditor,
     UseToolTipsInLocalsView,

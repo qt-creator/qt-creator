@@ -204,6 +204,13 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item->setValue(true);
     insertItem(UseCodeModel, item);
 
+    item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("ShowThreadNames"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    item->setValue(false);
+    insertItem(ShowThreadNames, item);
+
 
     //
     // Breakpoints

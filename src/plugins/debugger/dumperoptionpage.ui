@@ -70,6 +70,16 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="checkBoxShowThreadNames">
+        <property name="toolTip">
+         <string>Displays names of QThread based threads.</string>
+        </property>
+        <property name="text">
+         <string>Display thread names</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

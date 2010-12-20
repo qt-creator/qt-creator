@@ -3011,7 +3011,7 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
         threadsHandler()->setThreads(threads);
         threadsHandler()->setCurrentThreadId(currentThreadId);
         updateViews(); // Adjust Threads combobox.
-        if (m_hasInferiorThreadList) {
+        if (m_hasInferiorThreadList && debuggerCore()->boolSetting(ShowThreadNames)) {
             postCommand("threadnames " +
                 debuggerCore()->action(MaximalStackDepth)->value().toByteArray(),
                 Discardable, CB(handleThreadNames), id);
