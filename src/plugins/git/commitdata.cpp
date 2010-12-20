@@ -156,39 +156,43 @@ bool CommitData::parseFilesFromStatus(const QString &output)
 
     const QStringList::const_iterator cend = lines.constEnd();
     for (QStringList::const_iterator it =  lines.constBegin(); it != cend; ++it) {
-        const QString line = *it;
+        QString line = *it;
         if (line.startsWith(branchIndicator)) {
             panelInfo.branch = line.mid(branchIndicator.size() + 1);
-        } else {
-            if (line.startsWith(commitIndicator)) {
-                s = CommitFiles;
-            } else {
-                if (line.startsWith(notUpdatedIndicator)) {
-                    s = NotUpdatedFiles;
-                } else {
-                    if (line.startsWith(untrackedIndicator)) {
-                        // Now match untracked: "#<tab>foo.cpp"
-                        s = UntrackedFiles;
-                        filesPattern = QRegExp(QLatin1String("#\\t.+"));
-                        QTC_ASSERT(filesPattern.isValid(), return false);
-                    } else {
-                        if (filesPattern.exactMatch(line)) {
-                            switch (s) {
-                            case CommitFiles:
-                                addStateFileSpecification(line, &stagedFiles);
-                            break;
-                            case NotUpdatedFiles:
-                                addStateFileSpecification(line, &unstagedFiles);
-                                break;
-                            case UntrackedFiles:
-                                untrackedFiles.push_back(line.mid(2).trimmed());
-                                break;
-                            case None:
-                                break;
-                            }
-                        }
-                    }
-                }
+            continue;
+        }
+        if (line.startsWith(commitIndicator)) {
+            s = CommitFiles;
+            continue;
+        }
+        if (line.startsWith(notUpdatedIndicator)) {
+            s = NotUpdatedFiles;
+            continue;
+        }
+        if (line.startsWith(untrackedIndicator)) {
+            // Now match untracked: "#<tab>foo.cpp"
+            s = UntrackedFiles;
+            filesPattern = QRegExp(QLatin1String("#\\t.+"));
+            QTC_ASSERT(filesPattern.isValid(), return false);
+            continue;
+        }
+        if (filesPattern.exactMatch(line)) {
+            switch (s) {
+            case CommitFiles:
+                addStateFileSpecification(line, &stagedFiles);
+                break;
+            case NotUpdatedFiles:
+                // skip submodules:
+                if (line.endsWith(QLatin1String(" (modified content)"))
+                        || line.endsWith(" (new commits)"))
+                    line = line.left(line.lastIndexOf(QLatin1Char('(')) - 1);
+                addStateFileSpecification(line, &unstagedFiles);
+                break;
+            case UntrackedFiles:
+                untrackedFiles.push_back(line.mid(2).trimmed());
+                break;
+            case None:
+                break;
             }
         }
     }

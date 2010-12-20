@@ -1801,6 +1801,8 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     //    #   (use "git add <file>..." to update what will be committed)
     //    #
     //    #       modified:   someother.cpp
+    //    #       modified:   submodule (modified content)
+    //    #       modified:   submodule2 (new commit)
     //    #
     //    # Untracked files:
     //    #   (use "git add <file>..." to include in what will be committed)
