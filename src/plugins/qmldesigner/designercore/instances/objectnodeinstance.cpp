@@ -598,7 +598,9 @@ QStringList allPropertyNames(QObject *object, const QString &baseName = QString(
 
 QStringList ObjectNodeInstance::propertyNames() const
 {
-    return allPropertyNames(object());
+    if (isValid())
+        return allPropertyNames(object());
+    return QStringList();
 }
 
 QString ObjectNodeInstance::instanceType(const QString &name) const
