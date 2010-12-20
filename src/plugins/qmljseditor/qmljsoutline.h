@@ -54,6 +54,7 @@ private slots:
     void modelUpdated();
     void updateSelectionInTree(const QModelIndex &index);
     void updateSelectionInText(const QItemSelection &selection);
+    void updateTextCursor(const QModelIndex &index);
     void setShowBindings(bool showBindings);
 
 private:

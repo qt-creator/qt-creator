@@ -89,6 +89,8 @@ CppOutlineWidget::CppOutlineWidget(CPPEditor *editor) :
             this, SLOT(updateSelectionInTree(QModelIndex)));
     connect(m_treeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(updateSelectionInText(QItemSelection)));
+    connect(m_treeView, SIGNAL(doubleClicked(QModelIndex)),
+            this, SLOT(updateTextCursor(QModelIndex)));
 }
 
 QList<QAction*> CppOutlineWidget::filterMenuActions() const
@@ -131,22 +133,27 @@ void CppOutlineWidget::updateSelectionInText(const QItemSelection &selection)
 
     if (!selection.indexes().isEmpty()) {
         QModelIndex proxyIndex = selection.indexes().first();
-        QModelIndex index = m_proxyModel->mapToSource(proxyIndex);
-        CPlusPlus::Symbol *symbol = m_model->symbolFromIndex(index);
-        if (symbol) {
-            m_blockCursorSync = true;
+        updateTextCursor(proxyIndex);
+    }
+}
 
-            if (debug)
-                qDebug() << "CppOutline - moving cursor to" << symbol->line() << symbol->column() - 1;
+void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
+{
+    QModelIndex index = m_proxyModel->mapToSource(proxyIndex);
+    CPlusPlus::Symbol *symbol = m_model->symbolFromIndex(index);
+    if (symbol) {
+        m_blockCursorSync = true;
 
-            Core::EditorManager *editorManager = Core::EditorManager::instance();
-            editorManager->cutForwardNavigationHistory();
-            editorManager->addCurrentPositionToNavigationHistory();
+        if (debug)
+            qDebug() << "CppOutline - moving cursor to" << symbol->line() << symbol->column() - 1;
 
-            // line has to be 1 based, column 0 based!
-            m_editor->gotoLine(symbol->line(), symbol->column() - 1);
-            m_blockCursorSync = false;
-        }
+        Core::EditorManager *editorManager = Core::EditorManager::instance();
+        editorManager->cutForwardNavigationHistory();
+        editorManager->addCurrentPositionToNavigationHistory();
+
+        // line has to be 1 based, column 0 based!
+        m_editor->gotoLine(symbol->line(), symbol->column() - 1);
+        m_blockCursorSync = false;
     }
 }
 
