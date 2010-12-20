@@ -745,7 +745,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         }
 
         if (m_completionOperator != T_EOF_SYMBOL)
-            qSort(m_completions.begin(), m_completions.end(), completionItemLessThan);
+            sortCompletion(m_completions);
 
         // always remove duplicates
         m_completions = removeDuplicates(m_completions);

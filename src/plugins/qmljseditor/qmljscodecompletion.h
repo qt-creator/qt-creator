@@ -77,6 +77,7 @@ public:
     virtual void complete(const TextEditor::CompletionItem &item, QChar typedChar);
     virtual bool partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems);
     virtual QList<TextEditor::CompletionItem> getCompletions();
+    virtual void sortCompletion(QList<TextEditor::CompletionItem> &completionItems);
 
     virtual void cleanup();
 

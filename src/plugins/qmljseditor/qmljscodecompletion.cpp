@@ -1074,13 +1074,18 @@ static bool qmlCompletionItemLessThan(const TextEditor::CompletionItem &l, const
     return l.text < r.text;
 }
 
+void CodeCompletion::sortCompletion(QList<TextEditor::CompletionItem> &completionItems)
+{
+    qStableSort(completionItems.begin(), completionItems.end(), qmlCompletionItemLessThan);
+}
+
 QList<TextEditor::CompletionItem> CodeCompletion::getCompletions()
 {
     QList<TextEditor::CompletionItem> completionItems;
 
     completions(&completionItems);
 
-    qStableSort(completionItems.begin(), completionItems.end(), qmlCompletionItemLessThan);
+    sortCompletion(completionItems);
 
     // Remove duplicates
     QString lastKey;

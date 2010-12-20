@@ -127,10 +127,15 @@ QList<CompletionItem> ICompletionCollector::getCompletions()
     return uniquelist;
 }
 
-bool ICompletionCollector::partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems)
+bool ICompletionCollector::partiallyComplete(const QList<TextEditor::CompletionItem> &items)
 {
     if (! m_d->m_completionSettings.m_partiallyComplete)
         return false;
+    if (items.size() >= 100)
+        return false;
+
+    QList<TextEditor::CompletionItem> completionItems = items;
+    sortCompletion(completionItems);
 
     // Compute common prefix
     QString firstKey = completionItems.first().text;
@@ -153,6 +158,11 @@ bool ICompletionCollector::partiallyComplete(const QList<TextEditor::CompletionI
     }
 
     return false;
+}
+
+void ICompletionCollector::sortCompletion(QList<TextEditor::CompletionItem> &completionItems)
+{
+    qStableSort(completionItems.begin(), completionItems.end(), &ICompletionCollector::completionItemLessThan);
 }
 
 void ICompletionCollector::filter(const QList<TextEditor::CompletionItem> &items,

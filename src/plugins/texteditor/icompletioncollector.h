@@ -139,6 +139,8 @@ public:
      */
     virtual bool partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems);
 
+    virtual void sortCompletion(QList<TextEditor::CompletionItem> &completionItems);
+
     /* Called when it's safe to clean up the completion items.
      */
     virtual void cleanup() = 0;
