@@ -45,7 +45,6 @@
 #include <QSet>
 #include <QWeakPointer>
 #include <QRectF>
-#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeEngine;
@@ -169,7 +168,6 @@ private: // functions
 
 private slots:
     void restartProcess();
-    void restartProcessDelayed();
 
 private: //variables
     NodeInstance m_rootNodeInstance;
@@ -180,7 +178,6 @@ private: //variables
 
     uint m_blockUpdates;
     QWeakPointer<NodeInstanceServerInterface> m_nodeInstanceServer;
-    QTimer m_resetTimer;
 };
 
 } // namespace ProxyNodeInstanceView
