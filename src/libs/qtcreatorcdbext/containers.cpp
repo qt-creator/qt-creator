@@ -408,6 +408,213 @@ static inline AbstractSymbolGroupNodePtrVector
     return msvc10rc.empty() ? stdDequeDirectChildList(v, count) : msvc10rc;
 }
 
+/* Helper class for std::map<>,std::set<> based on std::__Tree:
+ * We locally rebuild the structure in using instances of below class 'StdMapNode'
+ * with 'left' and 'right' pointers and the values. Reason being that while it is
+ * possible to write the iteration in terms of class SymbolGroupValue, it involves
+ * going back up the tree over the flat node->parent pointers. Doing that in the debugger
+ * sometimes ends up in nirvana, apparently due to it not being able to properly expand it.
+ * StdMapNode has a buildMap() to build a hierarchy from a __Tree value,
+ * begin() to return the first node and next() to iterate. The latter are modeled
+ * after the _Tree::iterator base classes. (_Tree::begin, _Tree::iterator::operator++() */
+
+class StdMapNode
+{
+private:
+    StdMapNode(const StdMapNode &);
+    StdMapNode &operator=(const StdMapNode &);
+
+public:
+    explicit StdMapNode(StdMapNode *p, const SymbolGroupValue &node, const SymbolGroupValue &value);
+    ~StdMapNode() { delete m_left; delete m_right; }
+
+    // Iterator helpers: Return first and move to next
+    const StdMapNode *begin() const { return StdMapNode::leftMost(this); }
+    static const StdMapNode *next(const StdMapNode *s);
+
+    const SymbolGroupValue &value() const { return m_value; }
+
+    // Build the hierarchy
+    static StdMapNode *buildMap(const SymbolGroupValue &n);
+
+    // Debug helpers
+    void debug(std::ostream &os, unsigned depth = 0) const;
+
+private:
+    static StdMapNode *buildMapRecursion(const SymbolGroupValue &n, ULONG64 headAddress, StdMapNode *parent);
+    static const StdMapNode *leftMost(const StdMapNode *n);
+
+    StdMapNode *const m_parent;
+    StdMapNode *m_left;
+    StdMapNode *m_right;
+    const SymbolGroupValue m_node;
+    const SymbolGroupValue m_value;
+};
+
+StdMapNode::StdMapNode(StdMapNode *p, const SymbolGroupValue &n, const SymbolGroupValue &v) :
+    m_parent(p), m_left(0), m_right(0), m_node(n), m_value(v)
+{
+}
+
+const StdMapNode *StdMapNode::leftMost(const StdMapNode *n)
+{
+    for ( ; n->m_left ; n = n->m_left ) ;
+    return n;
+}
+
+const StdMapNode *StdMapNode::next(const StdMapNode *s)
+{
+    if (s->m_right) // If we have a right node, return its left-most
+        return StdMapNode::leftMost(s->m_right);
+    do { // Climb looking for 'right' subtree, that is, we are left of it
+        StdMapNode *parent = s->m_parent;
+        if (!parent || parent->m_right != s)
+            return parent;
+        s = parent;
+    } while (true);
+    return 0;
+}
+
+StdMapNode *StdMapNode::buildMapRecursion(const SymbolGroupValue &n, ULONG64 headAddress, StdMapNode *parent)
+{
+    const SymbolGroupValue value = n["_Myval"];
+    if (!value)
+        return 0;
+    StdMapNode *node = new StdMapNode(parent, n, value);
+    // Get left and right nodes. A node pointing to head terminates the recursion
+    if (const SymbolGroupValue left = n["_Left"])
+        if (const ULONG64 leftAddr = left.pointerValue())
+            if (leftAddr != headAddress)
+                node->m_left = buildMapRecursion(left, headAddress, node);
+    if (const SymbolGroupValue right = n["_Right"])
+        if (const ULONG64 rightAddr = right.pointerValue())
+            if (rightAddr != headAddress)
+                node->m_right = buildMapRecursion(right, headAddress, node);
+    return node;
+}
+
+StdMapNode *StdMapNode::buildMap(const SymbolGroupValue &n)
+{
+    // Goto root of tree (see _Tree::_Root())
+    if (const SymbolGroupValue head = n["_Myhead"])
+        if (const ULONG64 headAddress = head.pointerValue())
+            return buildMapRecursion(head["_Parent"], headAddress, 0);
+    return 0;
+}
+
+static inline void indentStream(std::ostream &os, unsigned indent)
+{
+    for (unsigned i = 0; i < indent; i++)
+        os << ' ';
+}
+
+// Debugging helper for a SymbolGroupValue containing a __Tree::node of
+// a map (assuming a std::pair inside).
+static inline void debugMSVC2010MapNode(const SymbolGroupValue &n, std::ostream &os, unsigned indent = 0)
+{
+    indentStream(os, indent);
+    os << "Node at " << std::hex << std::showbase << n.address()
+       << std::dec << std::noshowbase
+       << " Value='" << wStringToString(n.value()) << "', Parent=" << wStringToString(n["_Parent"].value())
+       << ", Left=" << wStringToString(n["_Left"].value())
+       << ", Right=" << wStringToString(n["_Right"].value())
+       << ", nil='" <<  wStringToString(n["_Isnil"].value());
+    if (const SymbolGroupValue pairBase = n["_Myval"][unsigned(0)]) {
+        os << "', key='"  << wStringToString(pairBase["first"].value())
+           << "', value='"   << wStringToString(pairBase["second"].value())
+           << '\'';
+    } else {
+        os << "', key='"  << wStringToString(n["_Myval"].value()) << '\'';
+    }
+    os << '\n';
+}
+
+void StdMapNode::debug(std::ostream &os, unsigned depth) const
+{
+    indentStream(os, 2 * depth);
+    os << "StdNode=" << this << " Left=" << m_left  << " Right=" << m_right << '\n';
+    debugMSVC2010MapNode(m_node, os, 2 * depth);
+    if (m_left)
+        m_left->debug(os, depth + 1);
+    if (m_right)
+        m_right->debug(os, depth + 1);
+}
+
+// Helper for std::map<>,std::set<> based on std::__Tree:
+// Return the list of children (pair for maps, direct children for set)
+static inline SymbolGroupValueVector
+    stdTreeNodChildList(const SymbolGroupValue &treeNode, int count)
+{
+    const StdMapNode *nodeTree = StdMapNode::buildMap(treeNode);
+    if (!nodeTree)
+        return SymbolGroupValueVector();
+    SymbolGroupValueVector rc;
+    rc.reserve(count);
+    int i = 0;
+    for (const StdMapNode *n = nodeTree->begin() ; n && i < count; n = StdMapNode::next(n), i++)
+        rc.push_back(n->value());
+    delete nodeTree;
+    if (rc.size() != count)
+        return SymbolGroupValueVector();
+    return rc;
+}
+
+// Helper for std::map<>,std::set<> based on std::__Tree:
+// Wrapper to distinguish MSVC2008/MSVC2010
+static inline SymbolGroupValueVector stdTreeChildList(const SymbolGroupValue &tree, int count,
+                                                      bool *isMSVC2010 = 0)
+{
+    if (!count)
+        return SymbolGroupValueVector();
+    // MSVC2010: "class _Tree : public _Tree_val: public _Tree_nod".
+    // MSVC2008: No base classes.
+    const SymbolGroupValueVector msvc2010Children = stdTreeNodChildList(tree[unsigned(0)][unsigned(0)], count);
+    if (isMSVC2010)
+        *isMSVC2010 = !msvc2010Children.empty();
+    return msvc2010Children.empty() ? stdTreeNodChildList(tree, count) :  msvc2010Children;
+}
+
+// std::set<>: Children directly contained in list
+static inline AbstractSymbolGroupNodePtrVector
+    stdSetChildList(const SymbolGroupValue &set, int count)
+{
+    const SymbolGroupValueVector children = stdTreeChildList(set[unsigned(0)], count);
+    if (int(children.size()) != count)
+        return AbstractSymbolGroupNodePtrVector();
+    AbstractSymbolGroupNodePtrVector rc;
+    rc.reserve(count);
+    for (int i = 0; i < count; i++)
+        rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, children.at(i).node()));
+    return rc;
+}
+
+// std::map<K,V>: A list of std::pair<K,V> (derived from std::pair_base<K,V>)
+static inline AbstractSymbolGroupNodePtrVector
+    stdMapChildList(const SymbolGroupValue &map, int count)
+{
+    bool isMSVC2010 = true;
+    const SymbolGroupValueVector children = stdTreeChildList(map[unsigned(0)], count, &isMSVC2010);
+    if (int(children.size()) != count)
+        return AbstractSymbolGroupNodePtrVector();
+    AbstractSymbolGroupNodePtrVector rc;
+    rc.reserve(count);
+    for (int i = 0; i < count; i++) {
+        // MSVC2010 introduces a std::pair_base.
+        const SymbolGroupValue pairBase = isMSVC2010?
+                    children.at(i)[unsigned(0)] : children.at(i);
+        const SymbolGroupValue key = pairBase["first"];
+        const SymbolGroupValue value = pairBase["second"];
+        if (key && value) {
+            rc.push_back(MapNodeSymbolGroupNode::create(i, pairBase.address(),
+                                                        pairBase.type(),
+                                                        key.node(), value.node()));
+        } else {
+            return AbstractSymbolGroupNodePtrVector();
+        }
+    }
+    return rc;
+}
+
 // QVector<T>
 static inline AbstractSymbolGroupNodePtrVector
     qVectorChildList(SymbolGroupNode *n, int count, const SymbolGroupValueContext &ctx)
@@ -693,6 +900,11 @@ AbstractSymbolGroupNodePtrVector containerChildren(SymbolGroupNode *node, int ty
         if (const SymbolGroupValue deque = SymbolGroupValue(node, ctx)[unsigned(0)])
             return stdDequeChildList(deque, size);
         break;
+    case KT_StdSet:
+        return stdSetChildList(SymbolGroupValue(node, ctx), size);
+    case KT_StdMap:
+    case KT_StdMultiMap:
+        return stdMapChildList(SymbolGroupValue(node, ctx), size);
     }
     return AbstractSymbolGroupNodePtrVector();
 }

@@ -1102,7 +1102,7 @@ void MapNodeSymbolGroupNode::dump(std::ostream &str, const std::string &visiting
 {
     SymbolGroupNode::dumpBasicData(str, name(), visitingFullIname);
     if (m_address)
-        str << ",address=\"0x" << std::hex << m_address << '"';
+        str << ",addr=\"0x" << std::hex << m_address << '"';
     str << ",type=\"" << m_type << "\",valueencoded=\"0\",value=\"\",valueenabled=\"false\""
            ",valueeditable=\"false\",numchild=\"2\"";
 }
