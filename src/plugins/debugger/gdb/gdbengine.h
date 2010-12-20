@@ -548,6 +548,7 @@ private: ////////// View & Data Stuff //////////
 
     // HACK:
     StackFrame m_targetFrame;
+    QByteArray m_currentThread;
 };
 
 } // namespace Internal

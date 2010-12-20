@@ -1410,6 +1410,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
         const QByteArray threadId = data.findChild("thread-id").data();
         const BreakpointId id = breakHandler()->findBreakpointByNumber(bpNumber);
         showStatusMessage(msgBreakpointTriggered(id, bpNumber, _(threadId)));
+        m_currentThread = threadId;
     } else {
         QString reasontr = msgStopped(_(reason));
         if (reason == "signal-received"
@@ -2984,8 +2985,12 @@ void GdbEngine::activateFrame(int frameIndex)
     // Otherwise the lines below would need to get triggered
     // after a response to this -stack-select-frame here.
     handler->setCurrentIndex(frameIndex);
-    postCommand("-stack-select-frame " + QByteArray::number(frameIndex),
-        Discardable, CB(handleStackSelectFrame));
+    QByteArray cmd = "-stack-select-frame";
+    //if (!m_currentThread.isEmpty())
+    //    cmd += " --thread " + m_currentThread;
+    cmd += ' ';
+    cmd += QByteArray::number(frameIndex);
+    postCommand(cmd, Discardable, CB(handleStackSelectFrame));
     gotoLocation(stackHandler()->currentFrame());
     updateLocals();
     reloadRegisters();
