@@ -161,7 +161,7 @@ bool S60DeployStep::init()
         delete m_launcher;
         m_launcher = 0;
         appendMessage(message, true);
-        return true;
+        return false;
     }
     return true;
 }
