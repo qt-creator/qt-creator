@@ -192,6 +192,19 @@
 */
 
 /*!
+    \fn bool Command::isScriptable() const
+    Returns if the Command is scriptable. A scriptable command can be called
+    from a script without the need for the user to interact with it.
+*/
+
+/*!
+    \fn bool Command::isScriptable(const Context &) const
+    Returns if the Command is scriptable for the given context.
+    A scriptable command can be called from a script without the need for the user to
+    interact with it.
+*/
+
+/*!
     \fn Command::~Command()
     \internal
 */
@@ -285,7 +298,7 @@ QString CommandPrivate::stringWithAppendedShortcut(const QString &str) const
 */
 
 Shortcut::Shortcut(int id)
-    : CommandPrivate(id), m_shortcut(0)
+    : CommandPrivate(id), m_shortcut(0), m_scriptable(false)
 {
 
 }
@@ -361,6 +374,21 @@ bool Shortcut::setCurrentContext(const Core::Context &context)
 bool Shortcut::isActive() const
 {
     return m_shortcut->isEnabled();
+}
+
+bool Shortcut::isScriptable() const
+{
+    return m_scriptable;
+}
+
+bool Shortcut::isScriptable(const Core::Context &) const
+{
+    return m_scriptable;
+}
+
+void Shortcut::setScriptable(bool value)
+{
+    m_scriptable = value;
 }
 
 // ---------- Action ------------
@@ -485,7 +513,7 @@ static inline QString msgActionWarning(QAction *newAction, int k, QAction *oldAc
     return msg;
 }
 
-void Action::addOverrideAction(QAction *action, const Core::Context &context)
+void Action::addOverrideAction(QAction *action, const Core::Context &context, bool scriptable)
 {
     if (context.isEmpty()) {
         m_contextActionMap.insert(0, action);
@@ -497,6 +525,7 @@ void Action::addOverrideAction(QAction *action, const Core::Context &context)
             m_contextActionMap.insert(k, action);
         }
     }
+    m_scriptableMap[action] = scriptable;
 }
 
 void Action::removeOverrideAction(QAction *action)
@@ -558,3 +587,21 @@ bool Action::isEmpty() const
     return m_contextActionMap.isEmpty();
 }
 
+bool Action::isScriptable() const
+{
+    return m_scriptableMap.values().contains(true);
+}
+
+bool Action::isScriptable(const Core::Context &context) const
+{
+    if (context == m_context && m_scriptableMap.contains(m_currentAction))
+        return m_scriptableMap.value(m_currentAction);
+
+    for (int i = 0; i < context.size(); ++i) {
+        if (QAction *a = m_contextActionMap.value(context.at(i), 0)) {
+            if (m_scriptableMap.contains(a) && m_scriptableMap.value(a))
+                return true;
+        }
+    }
+    return false;
+}

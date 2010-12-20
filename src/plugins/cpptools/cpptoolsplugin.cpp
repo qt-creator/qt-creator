@@ -137,7 +137,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     Core::Context context(CppEditor::Constants::C_CPPEDITOR);
 
     QAction *switchAction = new QAction(tr("Switch Header/Source"), this);
-    Core::Command *command = am->registerAction(switchAction, Constants::SWITCH_HEADER_SOURCE, context);
+    Core::Command *command = am->registerAction(switchAction, Constants::SWITCH_HEADER_SOURCE, context, true);
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
     mcpptools->addAction(command);
     connect(switchAction, SIGNAL(triggered()), this, SLOT(switchHeaderSource()));

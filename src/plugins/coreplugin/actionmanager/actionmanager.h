@@ -62,8 +62,8 @@ public:
     virtual ActionContainer *createMenu(const Id &id) = 0;
     virtual ActionContainer *createMenuBar(const Id &id) = 0;
 
-    virtual Command *registerAction(QAction *action, const Id &id, const Context &context) = 0;
-    virtual Command *registerShortcut(QShortcut *shortcut, const Id &id, const Context &context) = 0;
+    virtual Command *registerAction(QAction *action, const Id &id, const Context &context, bool scriptable = false) = 0;
+    virtual Command *registerShortcut(QShortcut *shortcut, const Id &id, const Context &context, bool scriptable = false) = 0;
 
     virtual Command *command(const Id &id) const = 0;
     virtual ActionContainer *actionContainer(const Id &id) const = 0;
@@ -74,6 +74,7 @@ public:
 
 signals:
     void commandListChanged();
+    void commandAdded(const QString &id);
 };
 
 } // namespace Core

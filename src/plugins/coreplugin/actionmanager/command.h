@@ -85,6 +85,9 @@ public:
 
     virtual QString stringWithAppendedShortcut(const QString &str) const = 0;
 
+    virtual bool isScriptable() const = 0;
+    virtual bool isScriptable(const Context &) const = 0;
+
 signals:
     void keySequenceChanged();
     void activeStateChanged();

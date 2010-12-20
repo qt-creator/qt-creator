@@ -123,13 +123,13 @@ void TextEditorActionHandler::initializeActions()
 void TextEditorActionHandler::createActions()
 {
     m_undoAction      = registerNewAction(QLatin1String(Core::Constants::UNDO),      this, SLOT(undoAction()),
-                                          tr("&Undo"));
+                                          true, tr("&Undo"));
     m_redoAction      = registerNewAction(QLatin1String(Core::Constants::REDO),      this, SLOT(redoAction()),
-                                          tr("&Redo"));
-    m_copyAction      = registerNewAction(QLatin1String(Core::Constants::COPY),      this, SLOT(copyAction()));
-    m_cutAction       = registerNewAction(QLatin1String(Core::Constants::CUT),       this, SLOT(cutAction()));
-    m_pasteAction     = registerNewAction(QLatin1String(Core::Constants::PASTE),     this, SLOT(pasteAction()));
-    m_selectAllAction = registerNewAction(QLatin1String(Core::Constants::SELECTALL), this, SLOT(selectAllAction()));
+                                          true, tr("&Redo"));
+    m_copyAction      = registerNewAction(QLatin1String(Core::Constants::COPY),      this, SLOT(copyAction()), true);
+    m_cutAction       = registerNewAction(QLatin1String(Core::Constants::CUT),       this, SLOT(cutAction()), true);
+    m_pasteAction     = registerNewAction(QLatin1String(Core::Constants::PASTE),     this, SLOT(pasteAction()), true);
+    m_selectAllAction = registerNewAction(QLatin1String(Core::Constants::SELECTALL), this, SLOT(selectAllAction()), true);
     m_gotoAction      = registerNewAction(QLatin1String(Core::Constants::GOTO),      this, SLOT(gotoAction()));
     m_printAction     = registerNewAction(QLatin1String(Core::Constants::PRINT),     this, SLOT(printAction()));
 
@@ -145,7 +145,7 @@ void TextEditorActionHandler::createActions()
 
 
     m_formatAction = new QAction(tr("Auto-&indent Selection"), this);
-    command = am->registerAction(m_formatAction, TextEditor::Constants::AUTO_INDENT_SELECTION, m_contextId);
+    command = am->registerAction(m_formatAction, TextEditor::Constants::AUTO_INDENT_SELECTION, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+I")));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_formatAction, SIGNAL(triggered(bool)), this, SLOT(formatAction()));
@@ -157,7 +157,7 @@ void TextEditorActionHandler::createActions()
 #endif
 
     m_rewrapParagraphAction = new QAction(tr("&Rewrap Paragraph"), this);
-    command = am->registerAction(m_rewrapParagraphAction, TextEditor::Constants::REWRAP_PARAGRAPH, m_contextId);
+    command = am->registerAction(m_rewrapParagraphAction, TextEditor::Constants::REWRAP_PARAGRAPH, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("%1+E, R").arg(modifier)));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_rewrapParagraphAction, SIGNAL(triggered(bool)), this, SLOT(rewrapParagraphAction()));
@@ -173,7 +173,7 @@ void TextEditorActionHandler::createActions()
 
     m_cleanWhitespaceAction = new QAction(tr("Clean Whitespace"), this);
     command = am->registerAction(m_cleanWhitespaceAction,
-                                 TextEditor::Constants::CLEAN_WHITESPACE, m_contextId);
+                                 TextEditor::Constants::CLEAN_WHITESPACE, m_contextId, true);
 
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_cleanWhitespaceAction, SIGNAL(triggered()), this, SLOT(cleanWhitespace()));
@@ -187,34 +187,34 @@ void TextEditorActionHandler::createActions()
 
 
     m_unCommentSelectionAction = new QAction(tr("(Un)Comment &Selection"), this);
-    command = am->registerAction(m_unCommentSelectionAction, Constants::UN_COMMENT_SELECTION, m_contextId);
+    command = am->registerAction(m_unCommentSelectionAction, Constants::UN_COMMENT_SELECTION, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+/")));
     connect(m_unCommentSelectionAction, SIGNAL(triggered()), this, SLOT(unCommentSelection()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
 
     m_cutLineAction = new QAction(tr("Cut &Line"), this);
-    command = am->registerAction(m_cutLineAction, Constants::CUT_LINE, m_contextId);
+    command = am->registerAction(m_cutLineAction, Constants::CUT_LINE, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Shift+Del")));
     connect(m_cutLineAction, SIGNAL(triggered()), this, SLOT(cutLine()));
 
     m_deleteLineAction = new QAction(tr("Delete &Line"), this);
-    command = am->registerAction(m_deleteLineAction, Constants::DELETE_LINE, m_contextId);
+    command = am->registerAction(m_deleteLineAction, Constants::DELETE_LINE, m_contextId, true);
     connect(m_deleteLineAction, SIGNAL(triggered()), this, SLOT(deleteLine()));
 
     m_foldAction = new QAction(tr("Fold"), this);
-    command = am->registerAction(m_foldAction, Constants::FOLD, m_contextId);
+    command = am->registerAction(m_foldAction, Constants::FOLD, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+<")));
     connect(m_foldAction, SIGNAL(triggered()), this, SLOT(fold()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_COLLAPSING);
 
     m_unfoldAction = new QAction(tr("Unfold"), this);
-    command = am->registerAction(m_unfoldAction, Constants::UNFOLD, m_contextId);
+    command = am->registerAction(m_unfoldAction, Constants::UNFOLD, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+>")));
     connect(m_unfoldAction, SIGNAL(triggered()), this, SLOT(unfold()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_COLLAPSING);
 
     m_unfoldAllAction = new QAction(tr("(Un)&Fold All"), this);
-    command = am->registerAction(m_unfoldAllAction, Constants::UNFOLD_ALL, m_contextId);
+    command = am->registerAction(m_unfoldAllAction, Constants::UNFOLD_ALL, m_contextId, true);
     connect(m_unfoldAllAction, SIGNAL(triggered()), this, SLOT(unfoldAll()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_COLLAPSING);
 
@@ -239,97 +239,97 @@ void TextEditorActionHandler::createActions()
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FONT);
 
     m_gotoBlockStartAction = new QAction(tr("Go to Block Start"), this);
-    command = am->registerAction(m_gotoBlockStartAction, Constants::GOTO_BLOCK_START, m_contextId);
+    command = am->registerAction(m_gotoBlockStartAction, Constants::GOTO_BLOCK_START, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+[")));
     connect(m_gotoBlockStartAction, SIGNAL(triggered()), this, SLOT(gotoBlockStart()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
 
     m_gotoBlockEndAction = new QAction(tr("Go to Block End"), this);
-    command = am->registerAction(m_gotoBlockEndAction, Constants::GOTO_BLOCK_END, m_contextId);
+    command = am->registerAction(m_gotoBlockEndAction, Constants::GOTO_BLOCK_END, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+]")));
     connect(m_gotoBlockEndAction, SIGNAL(triggered()), this, SLOT(gotoBlockEnd()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
 
     m_gotoBlockStartWithSelectionAction = new QAction(tr("Go to Block Start With Selection"), this);
-    command = am->registerAction(m_gotoBlockStartWithSelectionAction, Constants::GOTO_BLOCK_START_WITH_SELECTION, m_contextId);
+    command = am->registerAction(m_gotoBlockStartWithSelectionAction, Constants::GOTO_BLOCK_START_WITH_SELECTION, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+{")));
     connect(m_gotoBlockStartWithSelectionAction, SIGNAL(triggered()), this, SLOT(gotoBlockStartWithSelection()));
 
     m_gotoBlockEndWithSelectionAction = new QAction(tr("Go to Block End With Selection"), this);
-    command = am->registerAction(m_gotoBlockEndWithSelectionAction, Constants::GOTO_BLOCK_END_WITH_SELECTION, m_contextId);
+    command = am->registerAction(m_gotoBlockEndWithSelectionAction, Constants::GOTO_BLOCK_END_WITH_SELECTION, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+}")));
     connect(m_gotoBlockEndWithSelectionAction, SIGNAL(triggered()), this, SLOT(gotoBlockEndWithSelection()));
 
     m_selectBlockUpAction = new QAction(tr("Select Block Up"), this);
-    command = am->registerAction(m_selectBlockUpAction, Constants::SELECT_BLOCK_UP, m_contextId);
+    command = am->registerAction(m_selectBlockUpAction, Constants::SELECT_BLOCK_UP, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+U")));
     connect(m_selectBlockUpAction, SIGNAL(triggered()), this, SLOT(selectBlockUp()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
 
     m_selectBlockDownAction = new QAction(tr("Select Block Down"), this);
-    command = am->registerAction(m_selectBlockDownAction, Constants::SELECT_BLOCK_DOWN, m_contextId);
+    command = am->registerAction(m_selectBlockDownAction, Constants::SELECT_BLOCK_DOWN, m_contextId, true);
     connect(m_selectBlockDownAction, SIGNAL(triggered()), this, SLOT(selectBlockDown()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
 
     m_moveLineUpAction = new QAction(tr("Move Line Up"), this);
-    command = am->registerAction(m_moveLineUpAction, Constants::MOVE_LINE_UP, m_contextId);
+    command = am->registerAction(m_moveLineUpAction, Constants::MOVE_LINE_UP, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Up")));
     connect(m_moveLineUpAction, SIGNAL(triggered()), this, SLOT(moveLineUp()));
 
     m_moveLineDownAction = new QAction(tr("Move Line Down"), this);
-    command = am->registerAction(m_moveLineDownAction, Constants::MOVE_LINE_DOWN, m_contextId);
+    command = am->registerAction(m_moveLineDownAction, Constants::MOVE_LINE_DOWN, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Down")));
     connect(m_moveLineDownAction, SIGNAL(triggered()), this, SLOT(moveLineDown()));
 
     m_copyLineUpAction = new QAction(tr("Copy Line Up"), this);
-    command = am->registerAction(m_copyLineUpAction, Constants::COPY_LINE_UP, m_contextId);
+    command = am->registerAction(m_copyLineUpAction, Constants::COPY_LINE_UP, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Up")));
     connect(m_copyLineUpAction, SIGNAL(triggered()), this, SLOT(copyLineUp()));
 
     m_copyLineDownAction = new QAction(tr("Copy Line Down"), this);
-    command = am->registerAction(m_copyLineDownAction, Constants::COPY_LINE_DOWN, m_contextId);
+    command = am->registerAction(m_copyLineDownAction, Constants::COPY_LINE_DOWN, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Down")));
     connect(m_copyLineDownAction, SIGNAL(triggered()), this, SLOT(copyLineDown()));
 
     m_joinLinesAction = new QAction(tr("Join Lines"), this);
-    command = am->registerAction(m_joinLinesAction, Constants::JOIN_LINES, m_contextId);
+    command = am->registerAction(m_joinLinesAction, Constants::JOIN_LINES, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+J")));
     connect(m_joinLinesAction, SIGNAL(triggered()), this, SLOT(joinLines()));
 
     m_insertLineAboveAction = new QAction(tr("Insert Line Above Current Line"), this);
-    command = am->registerAction(m_insertLineAboveAction, Constants::INSERT_LINE_ABOVE, m_contextId);
+    command = am->registerAction(m_insertLineAboveAction, Constants::INSERT_LINE_ABOVE, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Return")));
     connect(m_insertLineAboveAction, SIGNAL(triggered()), this, SLOT(insertLineAbove()));
 
     m_insertLineBelowAction = new QAction(tr("Insert Line Below Current Line"), this);
-    command = am->registerAction(m_insertLineBelowAction, Constants::INSERT_LINE_BELOW, m_contextId);
+    command = am->registerAction(m_insertLineBelowAction, Constants::INSERT_LINE_BELOW, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Return")));
     connect(m_insertLineBelowAction, SIGNAL(triggered()), this, SLOT(insertLineBelow()));
 
     QAction *a = 0;
     a = new QAction(tr("Goto Line Start"), this);
-    command = am->registerAction(a, Constants::GOTO_LINE_START, m_contextId);
+    command = am->registerAction(a, Constants::GOTO_LINE_START, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoLineStart()));
     a = new QAction(tr("Goto Line End"), this);
-    command = am->registerAction(a, Constants::GOTO_LINE_END, m_contextId);
+    command = am->registerAction(a, Constants::GOTO_LINE_END, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoLineEnd()));
     a = new QAction(tr("Goto Next Line"), this);
-    command = am->registerAction(a, Constants::GOTO_NEXT_LINE, m_contextId);
+    command = am->registerAction(a, Constants::GOTO_NEXT_LINE, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextLine()));
     a = new QAction(tr("Goto Previous Line"), this);
-    command = am->registerAction(a, Constants::GOTO_PREVIOUS_LINE, m_contextId);
+    command = am->registerAction(a, Constants::GOTO_PREVIOUS_LINE, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousLine()));
     a = new QAction(tr("Goto Previous Character"), this);
-    command = am->registerAction(a, Constants::GOTO_PREVIOUS_CHARACTER, m_contextId);
+    command = am->registerAction(a, Constants::GOTO_PREVIOUS_CHARACTER, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousCharacter()));
     a = new QAction(tr("Goto Next Character"), this);
-    command = am->registerAction(a, Constants::GOTO_NEXT_CHARACTER, m_contextId);
+    command = am->registerAction(a, Constants::GOTO_NEXT_CHARACTER, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextCharacter()));
     a = new QAction(tr("Goto Previous Word"), this);
-    command = am->registerAction(a, Constants::GOTO_PREVIOUS_WORD, m_contextId);
+    command = am->registerAction(a, Constants::GOTO_PREVIOUS_WORD, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousWord()));
     a = new QAction(tr("Goto Next Word"), this);
-    command = am->registerAction(a, Constants::GOTO_NEXT_WORD, m_contextId);
+    command = am->registerAction(a, Constants::GOTO_NEXT_WORD, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWord()));
     a = new QAction(tr("Goto Previous Word Camel Case"), this);
     command = am->registerAction(a, Constants::GOTO_PREVIOUS_WORD_CAMEL_CASE, m_contextId);
@@ -339,28 +339,28 @@ void TextEditorActionHandler::createActions()
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWordCamelCase()));
 
     a = new QAction(tr("Goto Line Start With Selection"), this);
-    command = am->registerAction(a, Constants::GOTO_LINE_START_WITH_SELECTION, m_contextId);
+    command = am->registerAction(a, Constants::GOTO_LINE_START_WITH_SELECTION, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoLineStartWithSelection()));
     a = new QAction(tr("Goto Line End With Selection"), this);
-    command = am->registerAction(a, Constants::GOTO_LINE_END_WITH_SELECTION, m_contextId);
+    command = am->registerAction(a, Constants::GOTO_LINE_END_WITH_SELECTION, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoLineEndWithSelection()));
     a = new QAction(tr("Goto Next Line With Selection"), this);
-    command = am->registerAction(a, Constants::GOTO_NEXT_LINE_WITH_SELECTION, m_contextId);
+    command = am->registerAction(a, Constants::GOTO_NEXT_LINE_WITH_SELECTION, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextLineWithSelection()));
     a = new QAction(tr("Goto Previous Line With Selection"), this);
-    command = am->registerAction(a, Constants::GOTO_PREVIOUS_LINE_WITH_SELECTION, m_contextId);
+    command = am->registerAction(a, Constants::GOTO_PREVIOUS_LINE_WITH_SELECTION, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousLineWithSelection()));
     a = new QAction(tr("Goto Previous Character With Selection"), this);
-    command = am->registerAction(a, Constants::GOTO_PREVIOUS_CHARACTER_WITH_SELECTION, m_contextId);
+    command = am->registerAction(a, Constants::GOTO_PREVIOUS_CHARACTER_WITH_SELECTION, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousCharacterWithSelection()));
     a = new QAction(tr("Goto Next Character With Selection"), this);
-    command = am->registerAction(a, Constants::GOTO_NEXT_CHARACTER_WITH_SELECTION, m_contextId);
+    command = am->registerAction(a, Constants::GOTO_NEXT_CHARACTER_WITH_SELECTION, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextCharacterWithSelection()));
     a = new QAction(tr("Goto Previous Word With Selection"), this);
-    command = am->registerAction(a, Constants::GOTO_PREVIOUS_WORD_WITH_SELECTION, m_contextId);
+    command = am->registerAction(a, Constants::GOTO_PREVIOUS_WORD_WITH_SELECTION, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousWordWithSelection()));
     a = new QAction(tr("Goto Next Word With Selection"), this);
-    command = am->registerAction(a, Constants::GOTO_NEXT_WORD_WITH_SELECTION, m_contextId);
+    command = am->registerAction(a, Constants::GOTO_NEXT_WORD_WITH_SELECTION, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWordWithSelection()));
     a = new QAction(tr("Goto Previous Word Camel Case With Selection"), this);
     command = am->registerAction(a, Constants::GOTO_PREVIOUS_WORD_CAMEL_CASE_WITH_SELECTION, m_contextId);
@@ -376,22 +376,23 @@ bool TextEditorActionHandler::supportsAction(const QString & /*id */) const
     return true;
 }
 
-QAction *TextEditorActionHandler::registerNewAction(const QString &id, const QString &title)
+QAction *TextEditorActionHandler::registerNewAction(const QString &id, bool scriptable, const QString &title)
 {
     if (!supportsAction(id))
         return 0;
 
     QAction *result = new QAction(title, this);
-    Core::ICore::instance()->actionManager()->registerAction(result, id, m_contextId);
+    Core::ICore::instance()->actionManager()->registerAction(result, id, m_contextId, scriptable);
     return result;
 }
 
 QAction *TextEditorActionHandler::registerNewAction(const QString &id,
                                                     QObject *receiver,
                                                     const char *slot,
+                                                    bool scriptable,
                                                     const QString &title)
 {
-    QAction *rc = registerNewAction(id, title);
+    QAction *rc = registerNewAction(id, scriptable, title);
     if (!rc)
         return 0;
 

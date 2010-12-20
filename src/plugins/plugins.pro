@@ -37,6 +37,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_classview \
             plugin_tasklist \
             plugin_qmljstools \
+            plugin_macros \
             debugger/dumper.pro
 
 include(../../qtcreator.pri)
@@ -239,3 +240,9 @@ plugin_qmljstools.subdir = qmljstools
 plugin_qmljstools.depends = plugin_projectexplorer
 plugin_qmljstools.depends += plugin_coreplugin
 plugin_qmljstools.depends += plugin_texteditor
+
+plugin_macros.subdir = macros
+plugin_macros.depends = plugin_texteditor
+plugin_macros.depends += plugin_find
+plugin_macros.depends += plugin_locator
+plugin_macros.depends += plugin_coreplugin

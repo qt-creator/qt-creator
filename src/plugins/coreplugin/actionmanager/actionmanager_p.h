@@ -89,9 +89,9 @@ public:
     ActionContainer *createMenuBar(const Id &id);
 
     Command *registerAction(QAction *action, const Id &id,
-        const Context &context);
+        const Context &context, bool scriptable=false);
     Command *registerShortcut(QShortcut *shortcut, const Id &id,
-        const Context &context);
+        const Context &context, bool scriptable=false);
 
     Core::Command *command(const Id &id) const;
     Core::ActionContainer *actionContainer(const Id &id) const;

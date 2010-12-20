@@ -74,8 +74,8 @@ public slots:
 
 protected:
     const QPointer<BaseTextEditor> &currentEditor() const;
-    QAction *registerNewAction(const QString &id, const QString &title = QString());
-    QAction *registerNewAction(const QString &id, QObject *receiver, const char *slot,
+    QAction *registerNewAction(const QString &id, bool scriptable=false, const QString &title = QString());
+    QAction *registerNewAction(const QString &id, QObject *receiver, const char *slot, bool scriptable = false,
                                const QString &title = QString());
 
     enum UpdateMode { ReadOnlyMode, WriteMode };

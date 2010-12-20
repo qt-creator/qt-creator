@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/macros">
+        <file>images/macro.png</file>
+    </qresource>
+</RCC>

@@ -40,6 +40,7 @@
 #include <QtCore/QList>
 #include <QtCore/QMultiMap>
 #include <QtCore/QPointer>
+#include <QtCore/QMap>
 #include <QtGui/QKeySequence>
 
 namespace Core {
@@ -109,9 +110,15 @@ public:
     bool setCurrentContext(const Context &context);
 
     bool isActive() const;
+
+    bool isScriptable() const;
+    bool isScriptable(const Context &) const;
+    void setScriptable(bool value);
+
 private:
     QShortcut *m_shortcut;
     QString m_defaultText;
+    bool m_scriptable;
 };
 
 class Action : public CommandPrivate
@@ -133,9 +140,12 @@ public:
 
     bool setCurrentContext(const Context &context);
     bool isActive() const;
-    void addOverrideAction(QAction *action, const Context &context);
+    void addOverrideAction(QAction *action, const Context &context, bool scriptable);
     void removeOverrideAction(QAction *action);
     bool isEmpty() const;
+
+    bool isScriptable() const;
+    bool isScriptable(const Context &context) const;
 
 protected:
     void updateToolTipWithKeySequence();
@@ -152,6 +162,7 @@ private:
 
     QPointer<QAction> m_currentAction;
     QMap<int, QPointer<QAction> > m_contextActionMap;
+    QMap<QAction*, bool> m_scriptableMap;
     bool m_active;
     bool m_contextInitialized;
 };

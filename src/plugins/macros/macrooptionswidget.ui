@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Macros::Internal::MacroOptionsWidget</class>
+ <widget class="QWidget" name="Macros::Internal::MacroOptionsWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>464</width>
+    <height>473</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <item>
+    <widget class="QGroupBox" name="directoryGroupBox">
+     <property name="title">
+      <string>Preferences</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Directory:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="Utils::PathChooser" name="directoryPathChooser" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="addButton">
+        <property name="text">
+         <string>Add</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="3">
+       <widget class="QTreeWidget" name="treeWidget">
+        <property name="textElideMode">
+         <enum>Qt::ElideLeft</enum>
+        </property>
+        <property name="uniformRowHeights">
+         <bool>true</bool>
+        </property>
+        <property name="sortingEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="columnCount">
+         <number>3</number>
+        </property>
+        <attribute name="headerShowSortIndicator" stdset="0">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="headerStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>Name</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Description</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Shortcut (Command)</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QPushButton" name="defaultButton">
+        <property name="text">
+         <string>Default Directory</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>213</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="3" column="2">
+       <widget class="QPushButton" name="removeButton">
+        <property name="text">
+         <string>Remove</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="3">
+       <widget class="QCheckBox" name="showSaveDialog">
+        <property name="text">
+         <string>Show the save dialog at the end of the macro</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="macroGroup">
+     <property name="title">
+      <string>Macro</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Description:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="description"/>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QCheckBox" name="assignShortcut">
+        <property name="toolTip">
+         <string>Add or remove a shortcut for this macro.
+You can change the default shortcut in the
+Environment:Keyboard page.</string>
+        </property>
+        <property name="text">
+         <string>Assign a shortcut</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

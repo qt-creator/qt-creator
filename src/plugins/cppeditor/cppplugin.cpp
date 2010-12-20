@@ -254,7 +254,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     QAction *jumpToDefinition = new QAction(tr("Follow Symbol Under Cursor"), this);
     cmd = am->registerAction(jumpToDefinition,
-        Constants::JUMP_TO_DEFINITION, context);
+        Constants::JUMP_TO_DEFINITION, context, true);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
     connect(jumpToDefinition, SIGNAL(triggered()),
             this, SLOT(jumpToDefinition()));
@@ -263,7 +263,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     QAction *switchDeclarationDefinition = new QAction(tr("Switch Between Method Declaration/Definition"), this);
     cmd = am->registerAction(switchDeclarationDefinition,
-        Constants::SWITCH_DECLARATION_DEFINITION, context);
+        Constants::SWITCH_DECLARATION_DEFINITION, context, true);
     cmd->setDefaultKeySequence(QKeySequence("Shift+F2"));
     connect(switchDeclarationDefinition, SIGNAL(triggered()),
             this, SLOT(switchDeclarationDefinition()));

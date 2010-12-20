@@ -166,7 +166,7 @@ namespace {
 */
 
 /*!
-    \fn Command *ActionManager::registerAction(QAction *action, const QString &id, const Context &context)
+    \fn Command *ActionManager::registerAction(QAction *action, const QString &id, const Context &context, bool scriptable)
     \brief Makes an \a action known to the system under the specified string \a id.
 
     Returns a command object that represents the action in the application and is
@@ -174,10 +174,12 @@ namespace {
     same \a id as long as the \a context is different. In this case
     a trigger of the actual action is forwarded to the registered QAction
     for the currently active context.
+    A scriptable action can be called from a script without the need for the user
+    to interact with it.
 */
 
 /*!
-    \fn Command *ActionManager::registerShortcut(QShortcut *shortcut, const QString &id, const Context &context)
+    \fn Command *ActionManager::registerShortcut(QShortcut *shortcut, const QString &id, const Context &context, bool scriptable)
     \brief Makes a \a shortcut known to the system under the specified string \a id.
 
     Returns a command object that represents the shortcut in the application and is
@@ -185,6 +187,8 @@ namespace {
     same \a id as long as the \a context is different. In this case
     a trigger of the actual shortcut is forwarded to the registered QShortcut
     for the currently active context.
+    A scriptable shortcut can be called from a script without the need for the user
+    to interact with it.
 */
 
 /*!
@@ -341,14 +345,15 @@ ActionContainer *ActionManagerPrivate::createMenuBar(const Id &id)
     return mbc;
 }
 
-Command *ActionManagerPrivate::registerAction(QAction *action, const Id &id, const Context &context)
+Command *ActionManagerPrivate::registerAction(QAction *action, const Id &id, const Context &context, bool scriptable)
 {
     Action *a = 0;
     Command *c = registerOverridableAction(action, id, false);
     a = static_cast<Action *>(c);
     if (a)
-        a->addOverrideAction(action, context);
+        a->addOverrideAction(action, context, scriptable);
     emit commandListChanged();
+    emit commandAdded(id);
     return a;
 }
 
@@ -417,7 +422,7 @@ void ActionManagerPrivate::unregisterAction(QAction *action, const Id &id)
     emit commandListChanged();
 }
 
-Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const Id &id, const Context &context)
+Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const Id &id, const Context &context, bool scriptable)
 {
     Shortcut *sc = 0;
     int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
@@ -442,6 +447,7 @@ Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const Id &i
     shortcut->setObjectName(id);
     shortcut->setParent(m_mainWnd);
     sc->setShortcut(shortcut);
+    sc->setScriptable(scriptable);
 
     if (context.isEmpty())
         sc->setContext(Context(0));
@@ -449,6 +455,7 @@ Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const Id &i
         sc->setContext(context);
 
     emit commandListChanged();
+    emit commandAdded(id);
     return sc;
 }
 
