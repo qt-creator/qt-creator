@@ -79,6 +79,15 @@ public:
         NoInformation       = 0
     };
 
+    enum S60CapabilitySet {
+        UserCapabilities       = LocalServices|Location|NetworkServices|ReadUserData
+                                  |UserEnvironment|WriteUserData,
+        SystemCapabilities     = PowerMgmt|ProtServ|ReadDeviceData|SurroundingsDD
+                                  |SwEvent|TrustedUI|WriteDeviceData,
+        RestrictedCapabilities = CommDD|DiskAdmin|NetworkControl|MultimediaDD,
+        ManufacturerCapabilities = AllFiles|DRM|TCB
+    };
+
     explicit S60CertificateInfo(const QString &filePath, QObject* parent = 0);
     ~S60CertificateInfo();
 

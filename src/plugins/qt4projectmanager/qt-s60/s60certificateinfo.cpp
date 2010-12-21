@@ -76,6 +76,19 @@ static const Capability capability[] =
     { "TCB", S60CertificateInfo::TCB }
 };
 
+struct CapabilitySet {
+    const char *color;
+    const int value;
+};
+
+static const CapabilitySet capabilitySet[] =
+{
+    { "green", S60CertificateInfo::UserCapabilities },
+    { "darkorange", S60CertificateInfo::SystemCapabilities },
+    { "orangered", S60CertificateInfo::RestrictedCapabilities },
+    { "red", S60CertificateInfo::ManufacturerCapabilities }
+};
+
 QStringList createCapabilityList(uint capabilities)
 {
     const int capabilityCount = sizeof(capability)/sizeof(capability[0]);
@@ -84,6 +97,30 @@ QStringList createCapabilityList(uint capabilities)
         if (capabilities&capability[i].value)
             capabilityList << QLatin1String(capability[i].name);
     return capabilityList;
+}
+
+QStringList createHtmlCapabilityList(uint capabilities)
+{
+    const int capabilityCount = sizeof(capability)/sizeof(capability[0]);
+    const int capabilitySetCount = sizeof(capabilitySet)/sizeof(capabilitySet[0]);
+
+    QHash<int, QStringList> capabilityMap; //to separate the groups of capabilities
+    for(int i = 0; i < capabilityCount; ++i)
+        if (capabilities&capability[i].value) {
+            for (int j = 0; j < capabilitySetCount; ++j)
+                if (capability[i].value&capabilitySet[j].value) {
+                    capabilityMap[capabilitySet[j].value]
+                            << QString("<font color=\"%1\">%2</font>")
+                                      .arg(QLatin1String(capabilitySet[j].color))
+                                      .arg(QLatin1String(capability[i].name));
+                    break;
+                }
+        }
+
+    return capabilityMap[S60CertificateInfo::UserCapabilities]
+            + capabilityMap[S60CertificateInfo::SystemCapabilities]
+            + capabilityMap[S60CertificateInfo::RestrictedCapabilities]
+            + capabilityMap[S60CertificateInfo::ManufacturerCapabilities];
 }
 
 S60CertificateInfo::S60CertificateInfo(const QString &filePath, QObject* parent)
@@ -211,8 +248,11 @@ QString S60CertificateInfo::toHtml(bool keepShort)
         << "</b></td><td>" << endDate.toString(QLatin1String(SIMPLE_DATE_FORMAT)) << "</td></tr>";
 
     if (capabilitiesSupported()) {
-        QStringList capabilities(createCapabilityList(capabilitiesSupported()));
-        capabilities.sort();
+        QStringList capabilities;
+        if (keepShort)
+            capabilities = createCapabilityList(capabilitiesSupported());
+        else
+            capabilities = createHtmlCapabilityList(capabilitiesSupported());
         str << "<tr><td><b>" << tr("Capabilities: ")
             << "</b></td><td><i>" << capabilities.join(" ") << "</i></td></tr>";
     }
