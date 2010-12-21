@@ -122,6 +122,7 @@ signals:
     void checkForElectricCharacter(bool *result, QChar c);
     void indentRegion(int beginLine, int endLine, QChar typedChar);
     void completionRequested();
+    void simpleCompletionRequested(const QString &needle, bool forward);
     void windowCommandRequested(int key);
     void findRequested(bool reverse);
     void findNextRequested(bool reverse);
