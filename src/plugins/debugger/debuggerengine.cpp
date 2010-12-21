@@ -536,12 +536,18 @@ void DebuggerEngine::gotoLocation(const Location &loc)
     const int line = loc.lineNumber();
     EditorManager *editorManager = EditorManager::instance();
     QList<IEditor *> editors = editorManager->editorsForFileName(file);
+    IEditor *editor = 0;
     if (editors.isEmpty()) {
-        editors.append(editorManager->openEditor(file, QString(),
-            EditorManager::IgnoreNavigationHistory));
-        editors.back()->setProperty(Constants::OPENED_BY_DEBUGGER, true);
+        editor = editorManager->openEditor(file, QString(),
+            EditorManager::IgnoreNavigationHistory);
+        if (editor) {
+            editors.append(editor);
+            editor->setProperty(Constants::OPENED_BY_DEBUGGER, true);
+        }
+    } else {
+        editor = editors.back();
     }
-    ITextEditor *texteditor = qobject_cast<ITextEditor *>(editors.back());
+    ITextEditor *texteditor = qobject_cast<ITextEditor *>(editor);
     if (texteditor)
         texteditor->gotoLine(line, 0);
 
@@ -550,7 +556,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
 
     // FIXME: Breaks with split views.
     if (!d->m_memoryAgent.hasVisibleEditor() || loc.needsRaise())
-        editorManager->activateEditor(editors.back());
+        editorManager->activateEditor(editor);
     //qDebug() << "MEMORY: " << d->m_memoryAgent.hasVisibleEditor();
 }
 
