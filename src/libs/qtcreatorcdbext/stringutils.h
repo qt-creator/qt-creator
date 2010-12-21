@@ -37,6 +37,7 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <functional>
 
 void trimFront(std::string &s);
 void trimBack(std::string &s);
@@ -57,6 +58,18 @@ void split(const std::string &s, char sep, Iterator it)
         pos = nextpos + 1;
     }
 }
+
+// A boolean predicate that can be used for grepping sequences
+// of strings for a 'needle' substring.
+class SubStringPredicate : public std::unary_function<const std::string &, bool>
+{
+public:
+    explicit SubStringPredicate(const std::string &needle) : m_needle(needle) {}
+    bool operator()(const std::string &s) { return s.find(m_needle) != std::string::npos; }
+
+private:
+    const std::string &m_needle;
+};
 
 // Format numbers, etc, as a string.
 template <class Streamable>

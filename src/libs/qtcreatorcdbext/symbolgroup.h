@@ -55,7 +55,8 @@ private:
 
     explicit SymbolGroup(CIDebugSymbolGroup *,
                          const SymbolParameterVector &vec,
-                         ULONG threadId, unsigned frame);
+                         ULONG threadId, unsigned frame,
+                         const std::string &function);
 
 public:
     typedef AbstractSymbolGroupNode::AbstractSymbolGroupNodePtrVector AbstractSymbolGroupNodePtrVector;
@@ -73,9 +74,13 @@ public:
     // Expand node and dump
     std::string dump(const std::string &iname, const SymbolGroupValueContext &ctx,
                      const DumpParameters &p, std::string *errorMessage);
-    std::string debug(const std::string &iname = std::string(), unsigned verbosity = 0) const;
+    std::string debug(const std::string &iname = std::string(),
+                      const std::string &filter = std::string(),
+                      unsigned verbosity = 0) const;
 
     unsigned frame() const { return m_frame; }
+    std::string function() const { return m_function; }
+    std::string module() const { return m_module; }
     ULONG threadId() const { return m_threadId; }
     SymbolGroupNode *root() { return m_root; }
     const SymbolGroupNode *root() const { return m_root; }
@@ -127,6 +132,8 @@ private:
     const unsigned m_frame;
     const ULONG m_threadId;
     SymbolGroupNode *m_root;
+    std::string m_function;
+    std::string m_module;
 };
 
 #endif // SYMBOLGROUP_H

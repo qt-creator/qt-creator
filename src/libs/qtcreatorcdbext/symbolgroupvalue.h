@@ -39,16 +39,18 @@
 
 #include <string>
 #include <vector>
+#include <list>
 
 class SymbolGroupNode;
 
 // Structure to pass all IDebug interfaces used for SymbolGroupValue
 struct SymbolGroupValueContext
 {
-    SymbolGroupValueContext(CIDebugDataSpaces *ds) : dataspaces(ds) {}
-    SymbolGroupValueContext::SymbolGroupValueContext() : dataspaces(0) {}
+    SymbolGroupValueContext(CIDebugDataSpaces *ds, CIDebugSymbols *s) : dataspaces(ds), symbols(s) {}
+    SymbolGroupValueContext::SymbolGroupValueContext() : dataspaces(0), symbols(0) {}
 
     CIDebugDataSpaces *dataspaces;
+    CIDebugSymbols *symbols;
 };
 
 /* SymbolGroupValue: Flyweight tied to a SymbolGroupNode
@@ -57,6 +59,8 @@ struct SymbolGroupValueContext
 
 class SymbolGroupValue
 {
+    explicit SymbolGroupValue(const std::string &parentError);
+
 public:
     explicit SymbolGroupValue(SymbolGroupNode *node, const SymbolGroupValueContext &c);
     SymbolGroupValue();
@@ -98,7 +102,11 @@ public:
     static std::string addPointerType(const std::string &);
     static std::string stripArrayType(const std::string &);
     static bool isPointerType(const std::string &);
+    static std::list<std::string> resolveSymbol(const char *pattern,
+                                                const SymbolGroupValueContext &c,
+                                                std::string *errorMessage = 0);
     static unsigned pointerSize();
+    static unsigned intSize();
 
     // get the inner types: "QMap<int, double>" -> "int", "double"
     static std::vector<std::string> innerTypesOf(const std::string &t);
@@ -114,6 +122,25 @@ private:
 
 // For debugging purposes
 std::ostream &operator<<(std::ostream &, const SymbolGroupValue &v);
+
+// Qt Information: Namespace and module.
+struct QtInfo
+{
+    static const QtInfo &get(const SymbolGroupValueContext &ctx);
+
+    // Prepend core module and Qt namespace. To be able to work with some
+    // 'complicated' types like QMapNode, specifying the module helps
+    std::string prependQtCoreModule(const std::string &type) const
+        { return QtInfo::prependModuleAndNameSpace(type, coreModule, nameSpace); }
+    // Prepend module and namespace if missing with some smartness
+    // ('Foo' or -> 'nsp::Foo') => 'QtCored4!nsp::Foo'
+    static std::string prependModuleAndNameSpace(const std::string &type,
+                                                 const std::string &module,
+                                                 const std::string &nameSpace);
+
+    std::string nameSpace;
+    std::string coreModule;
+};
 
 /* Helpers for detecting types reported from IDebugSymbolGroup
  * 1) Class prefix==true is applicable to outer types obtained from

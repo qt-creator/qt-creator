@@ -109,9 +109,10 @@ static const CommandDescription commandDescriptions[] = {
  "-c complex dumpers"},
 {"locals",
  "Prints local variables of symbol group in GDBMI or debug format",
- "[-t token] [T formats] [-I formats] [-c] [-h] [-d] [-e expand-list] [-u uninitialized-list]\n<frame-number> [iname]\n"
+ "[-t token] [T formats] [-I formats] [-f debugfilter] [-c] [-h] [-d] [-e expand-list] [-u uninitialized-list]\n<frame-number> [iname]\n"
  "-h human-readable ouput\n"
  "-d debug output\n"
+ "-f debug_filter\n"
  "-c complex dumpers\n"
  "-e expand-list        Comma-separated list of inames to be expanded beforehand\n"
  "-u uninitialized-list Comma-separated list of uninitialized inames\n"
@@ -281,7 +282,7 @@ extern "C" HRESULT CALLBACK expandlocals(CIDebugClient *client, PCSTR args)
     }
 
     const unsigned succeeded = runComplexDumpers ?
-        symGroup->expandListRunComplexDumpers(inames, SymbolGroupValueContext(exc.dataSpaces()), &errorMessage) :
+        symGroup->expandListRunComplexDumpers(inames, SymbolGroupValueContext(exc.dataSpaces(), exc.symbols()), &errorMessage) :
         symGroup->expandList(inames, &errorMessage);
 
     ExtensionContext::instance().report('R', token, "expandlocals", "%u/%u %s",
@@ -298,6 +299,7 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
     // Parse the command
     unsigned debugOutput = 0;
     std::string iname;
+    std::string debugFilter;
     StringList tokens = commandTokens<StringList>(args, token);
     StringVector expandedInames;
     StringVector uninitializedInames;
@@ -322,6 +324,14 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
                 return std::string();
             }
             split(tokens.front(), ',', std::back_inserter(uninitializedInames));
+            tokens.pop_front();
+            break;
+        case 'f':
+            if (tokens.empty()) {
+                *errorMessage = singleLineUsage(commandDescriptions[CmdLocals]);
+                return std::string();
+            }
+            debugFilter = tokens.front();
             tokens.pop_front();
             break;
         case 'e':
@@ -362,7 +372,7 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
     if (!tokens.empty())
         iname = tokens.front();
 
-    const SymbolGroupValueContext dumpContext(exc.dataSpaces());
+    const SymbolGroupValueContext dumpContext(exc.dataSpaces(), exc.symbols());
     SymbolGroup * const symGroup = ExtensionContext::instance().symbolGroup(exc.symbols(), exc.threadId(), frame, errorMessage);
     if (!symGroup)
         return std::string();
@@ -379,7 +389,7 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
     }
 
     if (debugOutput)
-        return symGroup->debug(iname, debugOutput - 1);
+        return symGroup->debug(iname, debugFilter, debugOutput - 1);
 
     return iname.empty() ?
            symGroup->dump(dumpContext, parameters) :
@@ -430,7 +440,7 @@ static std::string dumplocalHelper(ExtensionCommandContext &exc,PCSTR args, int 
         return std::string();
     }
     std::wstring value;
-    if (!dumpSimpleType(n->asSymbolGroupNode(), SymbolGroupValueContext(exc.dataSpaces()), &value)) {
+    if (!dumpSimpleType(n->asSymbolGroupNode(), SymbolGroupValueContext(exc.dataSpaces(), exc.symbols()), &value)) {
         *errorMessage = "Cannot dump " + iname;
         return std::string();
     }

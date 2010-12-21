@@ -33,10 +33,12 @@
 
 #include "symbolgroup.h"
 #include "stringutils.h"
+#include "gdbmihelpers.h"
 
 #include <set>
 #include <algorithm>
 #include <iterator>
+#include <memory>
 
 typedef std::vector<int>::size_type VectorIndexType;
 typedef std::vector<std::string> StringVector;
@@ -48,13 +50,21 @@ const char rootNameC[] = "local";
 SymbolGroup::SymbolGroup(IDebugSymbolGroup2 *sg,
                          const SymbolParameterVector &vec,
                          ULONG threadId,
-                         unsigned frame) :
+                         unsigned frame,
+                         const std::string &function) :
     m_symbolGroup(sg),
     m_threadId(threadId),
     m_frame(frame),
-    m_root(0)
+    m_root(0),
+    m_function(function)
 {
     m_root = SymbolGroupNode::create(this, rootNameC, vec);
+    // Split function 'Mod!foo'
+    const std::string::size_type exclPos = m_function.find('!');
+    if (exclPos != std::string::npos) {
+        m_module = m_function.substr(0, exclPos);
+        m_function.erase(0, exclPos + 1);
+    }
 }
 
 SymbolGroup::~SymbolGroup()
@@ -135,6 +145,7 @@ SymbolGroup *SymbolGroup::create(CIDebugControl *control, CIDebugSymbols *debugS
     IDebugSymbolGroup2 *idebugSymbols = 0;
     bool success = false;
     SymbolParameterVector parameters;
+    std::string func;
 
     // Obtain symbol group at stack frame.
     do {
@@ -149,6 +160,11 @@ SymbolGroup *SymbolGroup::create(CIDebugControl *control, CIDebugSymbols *debugS
             *errorMessage = str.str();
             break;
         }
+        StackFrame frameData;
+        if (!getFrame(frame, &frameData, errorMessage))
+            break;
+        func = wStringToString(frameData.function);
+
         hr = debugSymbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_LOCALS, NULL, &idebugSymbols);
         if (FAILED(hr)) {
             *errorMessage = msgDebugEngineComFailed("GetScopeSymbolGroup2", hr);
@@ -176,7 +192,7 @@ SymbolGroup *SymbolGroup::create(CIDebugControl *control, CIDebugSymbols *debugS
             idebugSymbols->Release();
         return 0;
     }
-    return new SymbolGroup(idebugSymbols, parameters, threadId, frame);
+    return new SymbolGroup(idebugSymbols, parameters, threadId, frame, func);
 }
 
 static inline std::string msgNotFound(const std::string &nodeName)
@@ -246,16 +262,21 @@ std::string SymbolGroup::dump(const std::string &iname,
     return str.str();
 }
 
-std::string SymbolGroup::debug(const std::string &iname, unsigned verbosity) const
+std::string SymbolGroup::debug(const std::string &iname,
+                               const std::string &filter,
+                               unsigned verbosity) const
 {
     std::ostringstream str;
     str << '\n';
-    DebugSymbolGroupNodeVisitor visitor(str, verbosity);
+    std::auto_ptr<DebugSymbolGroupNodeVisitor>
+            visitor(filter.empty() ?
+            new DebugSymbolGroupNodeVisitor(str, verbosity) :
+            new DebugFilterSymbolGroupNodeVisitor(str, filter, verbosity));
     if (iname.empty()) {
-        accept(visitor);
+        accept(*visitor);
     } else {
         if (AbstractSymbolGroupNode *const node = find(iname)) {
-            node->accept(visitor, SymbolGroupNodeVisitor::parentIname(iname), 0, 0);
+            node->accept(*visitor, SymbolGroupNodeVisitor::parentIname(iname), 0, 0);
         } else {
             str << msgNotFound(iname);
         }

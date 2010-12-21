@@ -37,6 +37,14 @@
 #include "containers.h"
 
 #include <iomanip>
+#include <algorithm>
+
+SymbolGroupValue::SymbolGroupValue(const std::string &parentError) :
+    m_node(0), m_errorMessage(parentError)
+{
+    if (m_errorMessage.empty())
+        m_errorMessage = "Invalid";
+}
 
 SymbolGroupValue::SymbolGroupValue(SymbolGroupNode *node,
                                    const SymbolGroupValueContext &ctx) :
@@ -62,7 +70,7 @@ SymbolGroupValue SymbolGroupValue::operator[](unsigned index) const
         if (index < m_node->children().size())
             if (SymbolGroupNode *n = m_node->childAt(index)->asSymbolGroupNode())
                 return SymbolGroupValue(n, m_context);
-    return SymbolGroupValue();
+    return SymbolGroupValue(m_errorMessage);
 }
 
 bool SymbolGroupValue::ensureExpanded() const
@@ -88,7 +96,7 @@ SymbolGroupValue SymbolGroupValue::operator[](const char *name) const
         if (AbstractSymbolGroupNode *child = m_node->childByIName(name))
             if (SymbolGroupNode *n = child->asSymbolGroupNode())
                 return SymbolGroupValue(n, m_context);
-    return SymbolGroupValue();
+    return SymbolGroupValue(m_errorMessage);
 }
 
 std::string SymbolGroupValue::type() const
@@ -253,6 +261,12 @@ unsigned SymbolGroupValue::pointerSize()
     return ps;
 }
 
+unsigned SymbolGroupValue::intSize()
+{
+    static const unsigned is = SymbolGroupValue::sizeOf("int");
+    return is;
+}
+
 std::string SymbolGroupValue::stripPointerType(const std::string &t)
 {
     return isPointerType(t) ? t.substr(0, t.size() - 2) : t;
@@ -277,6 +291,145 @@ std::string SymbolGroupValue::stripArrayType(const std::string &t)
         return rc;
     }
     return t;
+}
+
+/* QtInfo helper: Determine the full name of a Qt Symbol like 'qstrdup' in 'QtCored4'.
+ * as 'QtCored4![namespace::]qstrdup'. In the event someone really uses a different
+ * library prefix or namespaced Qt, this should be found.
+ * The crux is here that the underlying IDebugSymbols::StartSymbolMatch()
+ * does not accept module wildcards (as opposed to the 'x' command where 'x QtCo*!*qstrdup'
+ * would be acceptable and fast). OTOH, doing a wildcard search like '*qstrdup' is
+ * very slow and should be done only if there is really a different namespace or lib prefix.
+ * Parameter 'modulePatternC' is used to do a search on the modules returned (due to
+ * the amiguities and artifacts that appear like 'QGuid4!qstrdup'). */
+static inline std::string resolveQtSymbol(const char *symbolC,
+                                          const char *defaultModuleNameC,
+                                          const char *modulePatternC,
+                                          const SymbolGroupValueContext &ctx)
+{
+    typedef std::list<std::string> StringList;
+    typedef StringList::const_iterator StringListConstIt;
+
+    // First try a match with the default module name 'QtCored4!qstrdup' for speed reasons
+    std::string defaultPattern = defaultModuleNameC;
+    defaultPattern.push_back('!');
+    defaultPattern += symbolC;
+    const StringList defaultMatches = SymbolGroupValue::resolveSymbol(defaultPattern.c_str(), ctx);
+    const SubStringPredicate modulePattern(modulePatternC);
+    const StringListConstIt defaultIt = std::find_if(defaultMatches.begin(), defaultMatches.end(), modulePattern);
+    if (defaultIt !=  defaultMatches.end())
+        return *defaultIt;
+    // Fail, now try a search with '*qstrdup' in all modules. This might return several matches
+    // like 'QtCored4!qstrdup', 'QGuid4!qstrdup'
+    const std::string wildCardPattern = std::string(1, '*') + symbolC;
+    const StringList allMatches = SymbolGroupValue::resolveSymbol(wildCardPattern.c_str(), ctx);
+    const StringListConstIt allIt = std::find_if(allMatches.begin(), allMatches.end(), modulePattern);
+    return allIt != allMatches.end() ? *allIt : std::string();
+}
+
+const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
+{
+    static const char qtCoreDefaultModule[] = "QtCored4";
+    static QtInfo rc;
+    if (!rc.coreModule.empty())
+        return rc;
+
+    do {
+        // Lookup qstrdup() to hopefully get module and namespace
+        // Typically, this resolves to 'QtGuid4!qstrdup' and 'QtCored4!qstrdup'...
+        const std::string qualifiedSymbol = resolveQtSymbol("qstrdup", qtCoreDefaultModule, "Core", ctx);
+        if (qualifiedSymbol.empty()) {
+            rc.coreModule = qtCoreDefaultModule;
+            break;
+        }
+        // Should be 'QtCored4!qstrdup'
+        const std::string::size_type exclPos = qualifiedSymbol.find('!');
+        if (exclPos == std::string::npos) {
+            rc.coreModule = qtCoreDefaultModule;
+            break;
+        }
+        rc.coreModule = qualifiedSymbol.substr(0, exclPos);
+        // Any namespace? 'QtCored4!nsp::qstrdup'
+        const std::string::size_type nameSpaceStart = exclPos + 1;
+        const std::string::size_type colonPos = qualifiedSymbol.find(':', nameSpaceStart);
+        if (colonPos != std::string::npos)
+            rc.nameSpace = qualifiedSymbol.substr(nameSpaceStart, colonPos - nameSpaceStart);
+    } while (false);
+    return rc;
+}
+
+std::string QtInfo::prependModuleAndNameSpace(const std::string &type,
+                                              const std::string &module,
+                                              const std::string &aNameSpace)
+{
+    // Strip the prefixes "class ", "struct ".
+    std::string rc = type;
+    if (rc.compare(0, 6, "class ") == 0) {
+        rc.erase(0, 6);
+    } else {
+        if (rc.compare(0, 7, "struct ") == 0)
+            rc.erase(0, 7);
+    }
+    // Is the namespace 'nsp::' missing?
+    if (!aNameSpace.empty()) {
+        const bool nameSpaceMissing = rc.size() <= aNameSpace.size()
+                || rc.compare(0, aNameSpace.size(), aNameSpace) != 0
+                || rc.at(aNameSpace.size()) != ':';
+        if (nameSpaceMissing) {
+            rc.insert(0, "::");
+            rc.insert(0, aNameSpace);
+        }
+    }
+    // Is the module 'Foo!' missing?
+    if (!module.empty()) {
+        const bool moduleMissing = rc.size() <= module.size()
+                || rc.compare(0, module.size(), module) != 0
+                || rc.at(module.size()) != '!';
+        if (moduleMissing) {
+            rc.insert(0, 1, '!');
+            rc.insert(0, module);
+        }
+    }
+    return rc;
+}
+
+std::list<std::string>
+    SymbolGroupValue::resolveSymbol(const char *pattern,
+                                    const SymbolGroupValueContext &c,
+                                    std::string *errorMessage /* = 0 */)
+{
+    enum { bufSize = 2048 };
+    std::list<std::string> rc;
+    if (errorMessage)
+        errorMessage->clear();
+    // Is it an incomplete symbol?
+    if (!pattern[0])
+        return rc;
+
+    ULONG64 handle = 0;
+    // E_NOINTERFACE means "no match". Apparently, it does not always
+    // set handle.
+    HRESULT hr = c.symbols->StartSymbolMatch(pattern, &handle);
+    if (hr == E_NOINTERFACE) {
+        if (handle)
+            c.symbols->EndSymbolMatch(handle);
+        return rc;
+    }
+    if (FAILED(hr)) {
+        if (errorMessage)
+            *errorMessage= msgDebugEngineComFailed("StartSymbolMatch", hr);
+        return rc;
+    }
+    char buf[bufSize];
+    while (true) {
+        hr = c.symbols->GetNextSymbolMatch(handle, buf, bufSize - 1, 0, 0);
+        if (hr == E_NOINTERFACE)
+            break;
+        if (hr == S_OK)
+            rc.push_back(std::string(buf));
+    }
+    c.symbols->EndSymbolMatch(handle);
+    return rc;
 }
 
 // get the inner types: "QMap<int, double>" -> "int", "double"

@@ -352,7 +352,7 @@ protected:
         VisitStop
     };
 
-private:
+protected:
     virtual VisitResult visit(AbstractSymbolGroupNode *node,
                               const std::string &fullIname,
                               unsigned child, unsigned depth) = 0;
@@ -365,13 +365,30 @@ class DebugSymbolGroupNodeVisitor : public SymbolGroupNodeVisitor {
 public:
     explicit DebugSymbolGroupNodeVisitor(std::ostream &os, unsigned verbosity = 0);
 
-private:
+protected:
     virtual VisitResult visit(AbstractSymbolGroupNode *node,
                               const std::string &fullIname,
                               unsigned child, unsigned depth);
 
+private:
     std::ostream &m_os;
     const unsigned m_verbosity;
+};
+
+// Debug filtering output visitor.
+class DebugFilterSymbolGroupNodeVisitor : public DebugSymbolGroupNodeVisitor {
+public:
+    explicit DebugFilterSymbolGroupNodeVisitor(std::ostream &os,
+                                               const std::string &filter,
+                                               const unsigned verbosity = 0);
+
+protected:
+    virtual VisitResult visit(AbstractSymbolGroupNode *node,
+                              const std::string &fullIname,
+                              unsigned child, unsigned depth);
+
+private:
+    const std::string m_filter;
 };
 
 // GDBMI dump output visitor.
@@ -381,12 +398,13 @@ public:
                                         const SymbolGroupValueContext &context,
                                         const DumpParameters &parameters = DumpParameters());
 
-private:
+protected:
     virtual VisitResult visit(AbstractSymbolGroupNode *node,
                               const std::string &fullIname,
                               unsigned child, unsigned depth);
     virtual void childrenVisited(const AbstractSymbolGroupNode *  node, unsigned depth);
 
+private:
     std::ostream &m_os;
     const SymbolGroupValueContext &m_context;
     const DumpParameters &m_parameters;

@@ -37,6 +37,7 @@
 #include "stringutils.h"
 #include "base64.h"
 #include "containers.h"
+#include "extensioncontext.h"
 
 #include <algorithm>
 
@@ -913,6 +914,15 @@ static inline std::string msgCannotCast(const std::string &nodeName,
     return str.str();
 }
 
+static std::string msgExpandFailed(const std::string &name, const std::string &iname,
+                                   ULONG index, const std::string &why)
+{
+    std::ostringstream str;
+    str << "Expansion of '" << name << "'/'" << iname << " (index: " << index
+        << ") failed: " << why;
+    return str.str();
+}
+
 // Expand!
 bool SymbolGroupNode::expand(std::string *errorMessage)
 {
@@ -926,18 +936,21 @@ bool SymbolGroupNode::expand(std::string *errorMessage)
         return true;
     }
     if (!canExpand()) {
-        *errorMessage = "No subelements to expand in node: " + absoluteFullIName();
+        *errorMessage = msgExpandFailed(name(), absoluteFullIName(), m_index,
+                                        "No subelements to expand in node.");
         return false;
     }
     if (flags() & Uninitialized) {
-        *errorMessage = "Refusing to expand uninitialized node: " + absoluteFullIName();
+        *errorMessage = msgExpandFailed(name(), absoluteFullIName(), m_index,
+                                        "Refusing to expand uninitialized node.");
         return false;
     }
 
     const HRESULT hr = m_symbolGroup->debugSymbolGroup()->ExpandSymbol(m_index, TRUE);
 
     if (FAILED(hr)) {
-        *errorMessage = msgDebugEngineComFailed("ExpandSymbol", hr);
+        *errorMessage = msgExpandFailed(name(), absoluteFullIName(), m_index, msgDebugEngineComFailed("ExpandSymbol", hr));
+        ExtensionContext::instance().report('X', 0, "Error", "%s", errorMessage->c_str());
         return false;
     }
     SymbolGroup::SymbolParameterVector parameters;
@@ -945,8 +958,10 @@ bool SymbolGroupNode::expand(std::string *errorMessage)
     // and corrected SubElement count (might be estimate))
     if (!SymbolGroup::getSymbolParameters(m_symbolGroup->debugSymbolGroup(),
                                           m_index, m_parameters.SubElements + 1,
-                                          &parameters, errorMessage))
+                                          &parameters, errorMessage)) {
+        *errorMessage = msgExpandFailed(name(), absoluteFullIName(), m_index, *errorMessage);
         return false;
+    }
     // Before inserting children, correct indexes on whole group
     m_symbolGroup->root()->notifyExpanded(m_index + 1, parameters.at(0).SubElements);
     // Parse parameters, correct our own) and create child nodes.
@@ -1005,12 +1020,21 @@ SymbolGroupNode *SymbolGroupNode::addSymbolByName(const std::string &name,
     HRESULT hr = m_symbolGroup->debugSymbolGroup()->AddSymbol(name.c_str(), &index);
     if (FAILED(hr)) {
         *errorMessage = msgCannotAddSymbol(name, msgDebugEngineComFailed("AddSymbol", hr));
+        ExtensionContext::instance().report('X', 0, "Error", "%s", errorMessage->c_str());
+        return 0;
+    }
+    if (index == DEBUG_ANY_ID) { // Occasionally happens for unknown or 'complicated' types
+        *errorMessage = msgCannotAddSymbol(name, "DEBUG_ANY_ID was returned as symbol index by AddSymbol.");
+        ExtensionContext::instance().report('X', 0, "Error", "%s", errorMessage->c_str());
         return 0;
     }
     SymbolParameterVector parameters(1, DEBUG_SYMBOL_PARAMETERS());
     hr = m_symbolGroup->debugSymbolGroup()->GetSymbolParameters(index, 1, &(*parameters.begin()));
     if (FAILED(hr)) { // Should never fail
-        *errorMessage = msgCannotAddSymbol(name, msgDebugEngineComFailed("GetSymbolParameters", hr));
+        std::ostringstream str;
+        str << "Cannot retrieve 1 symbol parameter entry at " << index << ": "
+            << msgDebugEngineComFailed("GetSymbolParameters", hr);
+        *errorMessage = msgCannotAddSymbol(name, str.str());
         return 0;
     }
     // Paranoia: Check for cuckoo's eggs (which should not happen)
@@ -1137,6 +1161,24 @@ SymbolGroupNodeVisitor::VisitResult
     return VisitContinue;
 }
 
+DebugFilterSymbolGroupNodeVisitor::DebugFilterSymbolGroupNodeVisitor(std::ostream &os,
+                                                                     const std::string &filter,
+                                                                     const unsigned verbosity) :
+    DebugSymbolGroupNodeVisitor(os, verbosity), m_filter(filter)
+{
+}
+
+SymbolGroupNodeVisitor::VisitResult
+    DebugFilterSymbolGroupNodeVisitor::visit(AbstractSymbolGroupNode *node,
+                                             const std::string &fullIname,
+                                             unsigned child, unsigned depth)
+{
+    if (fullIname.find(m_filter) == std::string::npos
+        && node->name().find(m_filter) == std::string::npos)
+        return SymbolGroupNodeVisitor::VisitContinue;
+    return DebugSymbolGroupNodeVisitor::visit(node, fullIname, child, depth);
+}
+
 // --------------------- DumpSymbolGroupNodeVisitor
 DumpSymbolGroupNodeVisitor::DumpSymbolGroupNodeVisitor(std::ostream &os,
                                                        const SymbolGroupValueContext &context,
@@ -1158,9 +1200,10 @@ SymbolGroupNodeVisitor::VisitResult
     // Recurse to children only if expanded by explicit watchmodel request
     // and initialized.
     m_visitChildren = true;
-    // Visit children of a SymbolGroupNode only if not expanded by its dumpers
+    // Visit children of a SymbolGroupNode only if not expanded by its dumpers.
+    // Report only one level for Qt Creator.
     if (SymbolGroupNode *snode = node->asSymbolGroupNode())
-        m_visitChildren = snode->isExpanded()
+        m_visitChildren = depth < 1 && snode->isExpanded()
             && (flags & (SymbolGroupNode::Uninitialized|SymbolGroupNode::ExpandedByDumper)) == 0;
     // Comma between same level children given obscured children
     if (depth == m_lastDepth) {
