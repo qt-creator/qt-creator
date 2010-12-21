@@ -2407,6 +2407,18 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         updateMiniBuffer();
     } else if (input.isControl('r')) {
         redo();
+    } else if (input.is('s') && isVisualBlockMode()) {
+        Range range(position(), anchor(), RangeBlockMode);
+        int beginLine = lineForPosition(anchor());
+        int endLine = lineForPosition(position());
+        m_visualInsertCount = qAbs(endLine - beginLine);
+        setPosition(qMin(position(), anchor()));
+        yankText(range, m_register);
+        removeText(range);
+        setDotCommand("%1s", count());
+        setUndoPosition(position());
+        breakEditBlock();
+        enterInsertMode();
     } else if (input.is('s')) {
         leaveVisualMode();
         if (atEndOfLine())
