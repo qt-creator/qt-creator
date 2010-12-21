@@ -184,8 +184,8 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
     m_group.clear();
     m_group.insert(debuggerCore()->action(GdbScriptFile),
         m_ui->scriptFileChooser);
-    m_group.insert(debuggerCore()->action(GdbEnvironment),
-        m_ui->environmentEdit);
+    m_group.insert(debuggerCore()->action(LoadGdbInit),
+        m_ui->checkBoxLoadGdbInit);
     m_group.insert(debuggerCore()->action(AdjustBreakpointLocations),
         m_ui->checkBoxAdjustBreakpointLocations);
     m_group.insert(debuggerCore()->action(GdbWatchdogTimeout),
@@ -217,15 +217,11 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
     connect(m_ui->radioButtonSelectedPluginBreakpoints, SIGNAL(toggled(bool)),
         m_ui->lineEditSelectedPluginBreakpointsPattern, SLOT(setEnabled(bool)));
 
-    // FIXME
-    m_ui->environmentEdit->hide();
-    m_ui->labelEnvironment->hide();
-
     if (m_searchKeywords.isEmpty()) {
         QLatin1Char sep(' ');
         QTextStream(&m_searchKeywords)
                 << sep << m_ui->groupBoxLocations->title()
-                << sep << m_ui->labelEnvironment->text()
+                << sep << m_ui->checkBoxLoadGdbInit->text()
                 << sep << m_ui->labelGdbStartupScript->text()
                 << sep << m_ui->labelGdbWatchdogTimeout->text()
                 << sep << m_ui->checkBoxEnableReverseDebugging->text()

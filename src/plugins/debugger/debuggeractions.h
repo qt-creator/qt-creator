@@ -103,7 +103,7 @@ enum DebuggerActionCode
     RegisterForPostMortem,
 
     // Gdb
-    GdbEnvironment,
+    LoadGdbInit,
     GdbScriptFile,
     ExecuteCommand,
     GdbWatchdogTimeout,

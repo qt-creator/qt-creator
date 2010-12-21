@@ -25,19 +25,6 @@
        <widget class="Debugger::Internal::GdbChooserWidget" name="gdbChooserWidget" native="true"/>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="labelEnvironment">
-        <property name="text">
-         <string>Environment:</string>
-        </property>
-        <property name="buddy">
-         <cstring>environmentEdit</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="environmentEdit"/>
-      </item>
-      <item row="2" column="0">
        <widget class="QLabel" name="labelGdbStartupScript">
         <property name="toolTip">
          <string>This is either empty or points to a file containing gdb commands that will be executed immediately after gdb starts up.</string>
@@ -47,17 +34,17 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="1" column="1">
        <widget class="Utils::PathChooser" name="scriptFileChooser"/>
       </item>
-      <item row="3" column="0">
+      <item row="2" column="0">
        <widget class="QLabel" name="labelGdbWatchdogTimeout">
         <property name="text">
          <string>Gdb timeout:</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="2" column="1">
        <widget class="QSpinBox" name="spinBoxGdbWatchdogTimeout">
         <property name="toolTip">
          <string>This is the number of seconds Qt Creator will wait before
@@ -83,14 +70,14 @@ on slow machines. In this case, the value should be increased.</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="2">
+      <item row="3" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxEnableReverseDebugging">
         <property name="text">
          <string>Enable reverse debugging</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0" colspan="2">
+      <item row="4" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
         <property name="toolTip">
          <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic
@@ -101,17 +88,24 @@ on slow machines. In this case, the value should be increased.</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="0" colspan="2">
+      <item row="5" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxUseMessageBoxForSignals">
         <property name="text">
          <string>Show a message box when receiving a signal</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="0" colspan="2">
+      <item row="6" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxAdjustBreakpointLocations">
         <property name="text">
-         <string>Adjust Breakpoint Locations</string>
+         <string>Adjust breakpoint locations</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxLoadGdbInit">
+        <property name="text">
+         <string>Load .gdbinit file on startup</string>
         </property>
        </widget>
       </item>

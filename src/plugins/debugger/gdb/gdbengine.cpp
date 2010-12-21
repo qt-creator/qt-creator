@@ -4059,10 +4059,11 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
             GdbOptionsPage::settingsId());
         return false;
     }
-    showMessage(_("STARTING GDB ") + m_gdb);
     QStringList gdbArgs;
     gdbArgs << _("-i");
     gdbArgs << _("mi");
+    if (!debuggerCore()->boolSetting(LoadGdbInit))
+        gdbArgs << _("-n");
     gdbArgs += args;
 
 #ifdef Q_OS_WIN
@@ -4115,6 +4116,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     connect(gdbProc(), SIGNAL(readyReadStandardError()),
         SLOT(readGdbStandardError()));
 
+    showMessage(_("STARTING ") + m_gdb + _(" ") + gdbArgs.join(_(" ")));
     gdbProc()->start(m_gdb, gdbArgs);
 
     if (!gdbProc()->waitForStarted()) {
