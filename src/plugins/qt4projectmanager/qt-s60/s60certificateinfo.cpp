@@ -37,6 +37,7 @@
 #include <QFileInfo>
 #include <QCoreApplication>
 #include <QTextStream>
+#include <QHash>
 
 #include "s60symbiancertificate.h"
 
