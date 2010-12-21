@@ -2618,12 +2618,16 @@ void GdbEngine::loadSymbols(const QString &moduleName)
     // FIXME: gdb does not understand quoted names here (tested with 6.8)
     postCommand("sharedlibrary " + dotEscape(moduleName.toLocal8Bit()));
     reloadModulesInternal();
+    reloadStack(true);
+    updateLocals();
 }
 
 void GdbEngine::loadAllSymbols()
 {
     postCommand("sharedlibrary .*");
     reloadModulesInternal();
+    reloadStack(true);
+    updateLocals();
 }
 
 void GdbEngine::requestModuleSymbols(const QString &moduleName)
