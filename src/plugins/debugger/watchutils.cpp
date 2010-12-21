@@ -709,6 +709,16 @@ bool currentTextEditorPosition(QString *fileNameIn /* = 0 */,
     return !fileName.isEmpty();
 }
 
+static CppTools::CppModelManagerInterface *cppModelManager()
+{
+    using namespace CppTools;
+    static QPointer<CppModelManagerInterface> modelManager;
+    if (!modelManager.data())
+        modelManager = ExtensionSystem::PluginManager::instance()->
+                getObject<CppTools::CppModelManagerInterface>();
+    return modelManager.data();
+}
+
 // Return the Cpp expression, and, if desired, the function
 QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
                         int *line, int *column, QString *function /* = 0 */)
@@ -723,9 +733,7 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
         return QByteArray();
 
     QString expr = plaintext->textCursor().selectedText();
-    CppModelManagerInterface *modelManager =
-        ExtensionSystem::PluginManager::instance()->
-            getObject<CppTools::CppModelManagerInterface>();
+    CppModelManagerInterface *modelManager = cppModelManager();
     if (expr.isEmpty() && modelManager) {
         QTextCursor tc(plaintext->document());
         tc.setPosition(pos);
