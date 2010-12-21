@@ -75,7 +75,10 @@ void CoreGdbAdapter::startAdapter()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
 
-    if (!m_engine->startGdb())
+    QStringList args;
+    args.append(_("-ex"));
+    args.append(_("set auto-solib-add off"));
+    if (!m_engine->startGdb(args))
         return;
 
     //if (m_executable.isEmpty()) {
@@ -149,10 +152,11 @@ void CoreGdbAdapter::handleTemporaryTargetCore(const GdbResponse &response)
 void CoreGdbAdapter::handleTemporaryDetach(const GdbResponse &response)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    if (response.resultClass == GdbResultDone)
+    if (response.resultClass == GdbResultDone) {
         m_engine->notifyEngineSetupOk();
-    else
+    } else {
         m_engine->notifyEngineSetupFailed();
+    }
 }
 
 void CoreGdbAdapter::setupInferior()
@@ -193,12 +197,33 @@ void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
         m_engine->loadPythonDumpers();
         showMessage(tr("Attached to core."), StatusBar);
         m_engine->handleInferiorPrepared();
+        // Due to the auto-solib-add off setting, we don't have any
+        // symbols yet. Load them in order of importance.
+        m_engine->reloadStack(true);
+        m_engine->postCommand("info shared", CB(handleModulesList));
         return;
     }
     QString msg = tr("Attach to core \"%1\" failed:\n")
         .arg(startParameters().coreFile)
         + QString::fromLocal8Bit(response.data.findChild("msg").data());
     m_engine->notifyInferiorSetupFailed(msg);
+}
+
+void CoreGdbAdapter::handleModulesList(const GdbResponse &response)
+{
+    m_engine->handleModulesList(response);
+    loadSymbolsForStack();
+}
+
+void CoreGdbAdapter::loadSymbolsForStack()
+{
+    m_engine->loadSymbolsForStack();
+    QTimer::singleShot(1000, this, SLOT(loadAllSymbols()));
+}
+
+void CoreGdbAdapter::loadAllSymbols()
+{
+    m_engine->loadAllSymbols();
 }
 
 void CoreGdbAdapter::runEngine()

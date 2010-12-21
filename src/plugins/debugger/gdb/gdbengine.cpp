@@ -2636,7 +2636,7 @@ void GdbEngine::loadSymbolsForStack()
     const Modules &modules = modulesHandler()->modules();
     foreach (const StackFrame &frame, stackHandler()->frames()) {
         if (frame.function == _("??")) {
-            qDebug() << "LOAD FOR " << frame.address;
+            //qDebug() << "LOAD FOR " << frame.address;
             foreach (const Module &module, modules) {
                 if (module.startAddress <= frame.address
                         && frame.address < module.endAddress) {
@@ -4369,10 +4369,12 @@ void GdbEngine::handleInferiorPrepared()
 #endif
     }
 
-    // Initial attempt to set breakpoints
-    showStatusMessage(tr("Setting breakpoints..."));
-    showMessage(tr("Setting breakpoints..."));
-    attemptBreakpointSynchronization();
+    // Initial attempt to set breakpoints.
+    if (startParameters().startMode != AttachCore) {
+        showStatusMessage(tr("Setting breakpoints..."));
+        showMessage(tr("Setting breakpoints..."));
+        attemptBreakpointSynchronization();
+    }
 
     if (m_cookieForToken.isEmpty()) {
         finishInferiorSetup();

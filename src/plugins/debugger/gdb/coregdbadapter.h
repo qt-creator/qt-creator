@@ -63,12 +63,16 @@ private:
     void shutdownInferior();
     void shutdownAdapter();
 
+    Q_SLOT void loadSymbolsForStack();
+    Q_SLOT void loadAllSymbols();
+
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
     void handleTemporaryDetach(const GdbResponse &response);
     void handleTemporaryTargetCore(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);
     void handleTargetCore(const GdbResponse &response);
+    void handleModulesList(const GdbResponse &response);
 
     QString m_executable;
     const QByteArray m_coreName;
