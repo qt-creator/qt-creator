@@ -90,11 +90,12 @@ private:
         FileAndLinePart = 0x1,
         FunctionPart = 0x2,
         AddressPart = 0x4,
-        AllParts = FileAndLinePart|FunctionPart|AddressPart
+        ConditionPart = 0x8,
+        AllParts = FileAndLinePart|FunctionPart|AddressPart|ConditionPart
     };
 
-    void setPartsEnabled(unsigned partsMask, bool on);
-    void clearParts(unsigned partsMask);
+    void setPartsEnabled(unsigned partsMask);
+    void clearOtherParts(unsigned partsMask);
     void getParts(unsigned partsMask, BreakpointParameters *data) const;
     void setParts(unsigned partsMask, const BreakpointParameters &data);
 
@@ -143,47 +144,41 @@ void BreakpointDialog::setParameters(const BreakpointParameters &data)
     m_savedParameters = data;
     setType(data.type);
     setParts(AllParts, data);
-    m_ui.lineEditCondition->setText(QString::fromUtf8(data.condition));
-    m_ui.lineEditIgnoreCount->setText(QString::number(data.ignoreCount));
-    m_ui.lineEditThreadSpec->
-        setText(BreakHandler::displayFromThreadSpec(data.threadSpec));
 }
 
 BreakpointParameters BreakpointDialog::parameters() const
 {
     BreakpointParameters data(type());
     getParts(AllParts, &data);
-    data.condition = m_ui.lineEditCondition->text().toUtf8();
-    data.ignoreCount = m_ui.lineEditIgnoreCount->text().toInt();
-    data.threadSpec =
-        BreakHandler::threadSpecFromDisplay(m_ui.lineEditThreadSpec->text());
     return data;
 }
 
-void BreakpointDialog::setPartsEnabled(unsigned partsMask, bool e)
+void BreakpointDialog::setPartsEnabled(unsigned partsMask)
 {
-    if (partsMask & FileAndLinePart) {
-        m_ui.labelFileName->setEnabled(e);
-        m_ui.pathChooserFileName->setEnabled(e);
-        m_ui.labelLineNumber->setEnabled(e);
-        m_ui.lineEditLineNumber->setEnabled(e);
-        m_ui.labelUseFullPath->setEnabled(e);
-        m_ui.checkBoxUseFullPath->setEnabled(e);
-    }
+    m_ui.labelFileName->setEnabled(partsMask & FileAndLinePart);
+    m_ui.pathChooserFileName->setEnabled(partsMask & FileAndLinePart);
+    m_ui.labelLineNumber->setEnabled(partsMask & FileAndLinePart);
+    m_ui.lineEditLineNumber->setEnabled(partsMask & FileAndLinePart);
+    m_ui.labelUseFullPath->setEnabled(partsMask & FileAndLinePart);
+    m_ui.checkBoxUseFullPath->setEnabled(partsMask & FileAndLinePart);
 
-    if (partsMask & FunctionPart) {
-        m_ui.labelFunction->setEnabled(e);
-        m_ui.lineEditFunction->setEnabled(e);
-    }
+    m_ui.labelFunction->setEnabled(partsMask & FunctionPart);
+    m_ui.lineEditFunction->setEnabled(partsMask & FunctionPart);
 
-    if (partsMask & AddressPart) {
-        m_ui.labelAddress->setEnabled(e);
-        m_ui.lineEditAddress->setEnabled(e);
-    }
+    m_ui.labelAddress->setEnabled(partsMask & AddressPart);
+    m_ui.lineEditAddress->setEnabled(partsMask & AddressPart);
+
+    m_ui.labelCondition->setEnabled(partsMask & ConditionPart);
+    m_ui.labelIgnoreCount->setEnabled(partsMask & ConditionPart);
+    m_ui.labelThreadSpec->setEnabled(partsMask & ConditionPart);
+    m_ui.lineEditCondition->setEnabled(partsMask & ConditionPart);
+    m_ui.lineEditIgnoreCount->setEnabled(partsMask & ConditionPart);
+    m_ui.lineEditThreadSpec->setEnabled(partsMask & ConditionPart);
 }
 
-void BreakpointDialog::clearParts(unsigned partsMask)
+void BreakpointDialog::clearOtherParts(unsigned partsMask)
 {
+    partsMask = ~partsMask;
     if (partsMask & FileAndLinePart) {
         m_ui.pathChooserFileName->setPath(QString());
         m_ui.lineEditLineNumber->clear();
@@ -195,6 +190,12 @@ void BreakpointDialog::clearParts(unsigned partsMask)
 
     if (partsMask & AddressPart)
         m_ui.lineEditAddress->clear();
+
+    if (partsMask & ConditionPart) {
+        m_ui.lineEditCondition->setText(QString());
+        m_ui.lineEditIgnoreCount->setText(QString());
+        m_ui.lineEditThreadSpec->setText(QString());
+    }
 }
 
 void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) const
@@ -212,6 +213,13 @@ void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) 
 
     if (partsMask & AddressPart)
         data->address = m_ui.lineEditAddress->text().toULongLong(0, 0);
+
+    if (partsMask & ConditionPart) {
+        data->condition = m_ui.lineEditCondition->text().toUtf8();
+        data->ignoreCount = m_ui.lineEditIgnoreCount->text().toInt();
+        data->threadSpec =
+            BreakHandler::threadSpecFromDisplay(m_ui.lineEditThreadSpec->text());
+    }
 }
 
 void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
@@ -235,6 +243,13 @@ void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
         } else {
             m_ui.lineEditAddress->clear();
         }
+    }
+
+    if (mask & ConditionPart) {
+        m_ui.lineEditCondition->setText(QString::fromUtf8(data.condition));
+        m_ui.lineEditIgnoreCount->setText(QString::number(data.ignoreCount));
+        m_ui.lineEditThreadSpec->
+            setText(BreakHandler::displayFromThreadSpec(data.threadSpec));
     }
 }
 
@@ -268,33 +283,30 @@ void BreakpointDialog::typeChanged(int)
     case UnknownType:
         break;
     case BreakpointByFileAndLine:
-        setParts(FileAndLinePart, m_savedParameters);
-        setPartsEnabled(FileAndLinePart, true);
-        clearParts(FunctionPart|AddressPart);
-        setPartsEnabled(FunctionPart|AddressPart, false);
+        setParts(FileAndLinePart|ConditionPart, m_savedParameters);
+        setPartsEnabled(FileAndLinePart|ConditionPart);
+        clearOtherParts(FileAndLinePart|ConditionPart);
         break;
     case BreakpointByFunction:
-        setParts(FunctionPart, m_savedParameters);
-        setPartsEnabled(FunctionPart, true);
-        clearParts(FileAndLinePart|AddressPart);
-        setPartsEnabled(FileAndLinePart|AddressPart, false);
+        setParts(FunctionPart|ConditionPart, m_savedParameters);
+        setPartsEnabled(FunctionPart|ConditionPart);
+        clearOtherParts(FunctionPart|ConditionPart);
         break;
     case BreakpointAtThrow:
     case BreakpointAtCatch:
-        clearParts(AllParts);
-        setPartsEnabled(AllParts, false);
+        clearOtherParts(ConditionPart);
+        setPartsEnabled(ConditionPart);
         break;
     case BreakpointAtMain:
         m_ui.lineEditFunction->setText(QLatin1String("main")); // Just for display
-        clearParts(FileAndLinePart|AddressPart);
-        setPartsEnabled(AllParts, false);
+        clearOtherParts(0);
+        setPartsEnabled(0);
         break;
     case BreakpointByAddress:
     case Watchpoint:
-        setParts(AddressPart, m_savedParameters);
-        setPartsEnabled(AddressPart, true);
-        clearParts(FileAndLinePart|FunctionPart);
-        setPartsEnabled(FileAndLinePart|FunctionPart, false);
+        setParts(AddressPart|ConditionPart, m_savedParameters);
+        setPartsEnabled(AddressPart|ConditionPart);
+        clearOtherParts(AddressPart|ConditionPart);
         break;
     }
 }
