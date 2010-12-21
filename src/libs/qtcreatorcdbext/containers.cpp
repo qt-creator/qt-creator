@@ -543,8 +543,19 @@ void StdMapNode::debug(std::ostream &os, unsigned depth) const
 // Helper for std::map<>,std::set<> based on std::__Tree:
 // Return the list of children (pair for maps, direct children for set)
 static inline SymbolGroupValueVector
-    stdTreeNodChildList(const SymbolGroupValue &treeNode, int count)
+    stdTreeChildList(const SymbolGroupValue &tree, int count, bool *isMSVC2010In = 0)
 {
+    if (!count)
+        return SymbolGroupValueVector();
+    // MSVC2010: "class _Tree : public _Tree_val: public _Tree_nod".
+    // MSVC2008: Direct class
+    const bool isMSVC2010 = tree[unsigned(0)][unsigned(0)]["_Mysize"].intValue() == count;
+    if (isMSVC2010In)
+        *isMSVC2010In = isMSVC2010;
+    const SymbolGroupValue treeNode = isMSVC2010 ? tree[unsigned(0)][unsigned(0)] : tree;
+    if (!treeNode)
+        return SymbolGroupValueVector();
+    // Build the tree and iterate it.
     const StdMapNode *nodeTree = StdMapNode::buildMap(treeNode);
     if (!nodeTree)
         return SymbolGroupValueVector();
@@ -557,21 +568,6 @@ static inline SymbolGroupValueVector
     if (rc.size() != count)
         return SymbolGroupValueVector();
     return rc;
-}
-
-// Helper for std::map<>,std::set<> based on std::__Tree:
-// Wrapper to distinguish MSVC2008/MSVC2010
-static inline SymbolGroupValueVector stdTreeChildList(const SymbolGroupValue &tree, int count,
-                                                      bool *isMSVC2010 = 0)
-{
-    if (!count)
-        return SymbolGroupValueVector();
-    // MSVC2010: "class _Tree : public _Tree_val: public _Tree_nod".
-    // MSVC2008: No base classes.
-    const SymbolGroupValueVector msvc2010Children = stdTreeNodChildList(tree[unsigned(0)][unsigned(0)], count);
-    if (isMSVC2010)
-        *isMSVC2010 = !msvc2010Children.empty();
-    return msvc2010Children.empty() ? stdTreeNodChildList(tree, count) :  msvc2010Children;
 }
 
 // std::set<>: Children directly contained in list
