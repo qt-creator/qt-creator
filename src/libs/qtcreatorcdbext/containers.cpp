@@ -773,7 +773,7 @@ SymbolGroupValueVector qHashNodes(const SymbolGroupValue &v,
     if (!bucketPointers)
         return SymbolGroupValueVector();
     // Get list of buckets (starting elements of 'QHashData::Node')
-    const std::string dummyNodeType =     ntext()).prependQtCoreModule("QHashData::Node");
+    const std::string dummyNodeType = QtInfo::get(v.context()).prependQtCoreModule("QHashData::Node");
     const SymbolGroupValueVector buckets = SymbolGroupValue::pointerSize() == 8 ?
         hashBuckets(v.node()->symbolGroup(), dummyNodeType,
                     reinterpret_cast<const ULONG64 *>(bucketPointers), numBuckets,
