@@ -107,11 +107,17 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
             break;
         case 4:
             if (role == Qt::DisplayRole)
-                return module.startAddress;
+                return QString(QLatin1String("0x")
+                            + QString::number(module.startAddress, 16));
             break;
         case 5:
-            if (role == Qt::DisplayRole)
-                return module.endAddress;
+            if (role == Qt::DisplayRole) {
+                if (module.endAddress)
+                    return QString(QLatin1String("0x")
+                                + QString::number(module.endAddress, 16));
+                //: End address of loaded module
+                return tr("<unknown>", "address");
+            }
             break;
     }
     return QVariant();

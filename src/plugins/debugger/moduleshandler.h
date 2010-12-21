@@ -90,8 +90,8 @@ public:
     QString modulePath;
     SymbolReadState symbolsRead;
     SymbolType symbolsType;
-    QString startAddress;
-    QString endAddress;
+    quint64 startAddress;
+    quint64 endAddress;
 };
 
 typedef QVector<Module> Modules;

@@ -1164,8 +1164,8 @@ void CdbEngine::handleModules(const CdbExtensionCommandPtr &reply)
                 Debugger::Internal::Module module;
                 module.moduleName = QString::fromAscii(gdbmiModule.findChild("name").data());
                 module.modulePath = QString::fromAscii(gdbmiModule.findChild("image").data());
-                module.startAddress = QString::fromAscii(gdbmiModule.findChild("start").data());
-                module.endAddress = QString::fromAscii(gdbmiModule.findChild("end").data());
+                module.startAddress = gdbmiModule.findChild("start").data().toULongLong(0, 0);
+                module.endAddress = gdbmiModule.findChild("end").data().toULongLong(0, 0);
                 if (gdbmiModule.findChild("deferred").type() == Debugger::Internal::GdbMi::Invalid)
                     module.symbolsRead = Debugger::Internal::Module::ReadOk;
                 modules.push_back(module);

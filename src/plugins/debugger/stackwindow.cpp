@@ -143,6 +143,10 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
         actShowDisassembler->setEnabled(engineCapabilities & DisassemblerCapability);
     }
 
+    QAction *actLoadSymbols = 0;
+    if (engineCapabilities & ShowModuleSymbolsCapability)
+        actLoadSymbols = menu.addAction(tr("Try to Load Unknown Symbols"));
+
     menu.addSeparator();
 #if 0 // @TODO: not implemented
     menu.addAction(debuggerCore()->action(UseToolTipsInStackView));
@@ -162,7 +166,9 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *act = menu.exec(ev->globalPos());
 
-    if (act == actCopyContents)
+    if (!act)
+        ;
+    else if (act == actCopyContents)
         copyContentsToClipboard();
     else if (act == actAdjust)
         resizeColumnsToContents();
@@ -172,6 +178,8 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
         engine->openMemoryView(address);
     else if (act == actShowDisassembler)
         engine->openDisassemblerView(frame);
+    else if (act == actLoadSymbols)
+        engine->loadSymbolsForStack();
 }
 
 void StackWindow::copyContentsToClipboard()

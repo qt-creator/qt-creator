@@ -1182,6 +1182,10 @@ void DebuggerEngine::loadAllSymbols()
 {
 }
 
+void DebuggerEngine::loadSymbolsForStack()
+{
+}
+
 void DebuggerEngine::requestModuleSymbols(const QString &)
 {
 }

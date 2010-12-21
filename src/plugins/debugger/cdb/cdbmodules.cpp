@@ -74,13 +74,12 @@ bool getModuleNameList(CIDebugSymbols *syms, QStringList *modules, QString *erro
 static inline void getBasicModuleParameters(const DEBUG_MODULE_PARAMETERS &p,
                                             Module *module)
 {
-    const QString hexPrefix = QLatin1String("0x");
     if ((p.Flags & DEBUG_MODULE_USER_MODE) && (p.SymbolType != DEBUG_SYMTYPE_NONE))
         module->symbolsRead = Module::ReadOk;
     else
         module->symbolsRead = Module::ReadFailed;
-    module->startAddress = hexPrefix + QString::number(p.Base, 16);
-    module->endAddress = hexPrefix + QString::number((p.Base + p.Size), 16);
+    module->startAddress = p.Base;
+    module->endAddress = p.Base + p.Size;
 }
 
 // Get module name by index

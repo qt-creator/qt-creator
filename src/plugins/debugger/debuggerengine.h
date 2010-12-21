@@ -214,6 +214,7 @@ public:
     virtual void reloadModules();
     virtual void examineModules();
     virtual void loadSymbols(const QString &moduleName);
+    virtual void loadSymbolsForStack();
     virtual void loadAllSymbols();
     virtual void requestModuleSymbols(const QString &moduleName);
 

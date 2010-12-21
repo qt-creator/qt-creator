@@ -2630,6 +2630,30 @@ void GdbEngine::loadAllSymbols()
     updateLocals();
 }
 
+void GdbEngine::loadSymbolsForStack()
+{
+    bool needUpdate = false;
+    const Modules &modules = modulesHandler()->modules();
+    foreach (const StackFrame &frame, stackHandler()->frames()) {
+        if (frame.function == _("??")) {
+            qDebug() << "LOAD FOR " << frame.address;
+            foreach (const Module &module, modules) {
+                if (module.startAddress <= frame.address
+                        && frame.address < module.endAddress) {
+                    postCommand("sharedlibrary "
+                        + dotEscape(module.moduleName.toLocal8Bit()));
+                    needUpdate = true;
+                }
+            }
+        }
+    }
+    if (needUpdate) {
+        reloadModulesInternal();
+        reloadStack(true);
+        updateLocals();
+    }
+}
+
 void GdbEngine::requestModuleSymbols(const QString &moduleName)
 {
     QTemporaryFile tf(QDir::tempPath() + _("/gdbsymbols"));
@@ -2756,12 +2780,13 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
             // shlib-info={...}...
             foreach (const GdbMi &item, response.data.children()) {
                 Module module;
-                module.moduleName = QString::fromLocal8Bit(item.findChild("path").data());
+                module.moduleName =
+                    QString::fromLocal8Bit(item.findChild("path").data());
                 module.symbolsRead = (item.findChild("state").data() == "Y")
                         ? Module::ReadOk : Module::ReadFailed;
-                module.startAddress = _(item.findChild("loaded_addr").data());
-                //: End address of loaded module
-                module.endAddress = tr("<unknown>", "address");
+                module.startAddress =
+                    item.findChild("loaded_addr").data().toULongLong(0, 0);
+                module.endAddress = 0; // FIXME: End address not easily available.
                 modules.append(module);
             }
         }
