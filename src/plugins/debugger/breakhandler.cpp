@@ -903,7 +903,7 @@ void BreakHandler::gotoLocation(BreakpointId id) const
     } else {
         if (engine)
             engine->gotoLocation(
-                Location(it->markerFileName(), it->markerLineNumber()));
+                Location(it->markerFileName(), it->markerLineNumber(), false));
     }
 }
 
