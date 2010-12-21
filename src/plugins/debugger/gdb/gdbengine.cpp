@@ -4129,7 +4129,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     postCommand("show version", CB(handleShowVersion));
 
     //postCommand("-enable-timings");
-    postCommand("set print static-members off"); // Seemingly doesn't work.
+    //postCommand("set print static-members off"); // Seemingly doesn't work.
     //postCommand("set debug infrun 1");
     //postCommand("define hook-stop\n-thread-list-ids\n-stack-list-frames\nend");
     //postCommand("define hook-stop\nprint 4\nend");
