@@ -120,6 +120,8 @@ private:
     void ctor();
     static bool isValidVersion(Qt4ProjectManager::QtVersion *version);
     void setQtVersionId(int id);
+    
+    static QString canonicalCapsPath(const QString &filePath);
 
     Utils::Environment baseEnvironment() const;
     void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);

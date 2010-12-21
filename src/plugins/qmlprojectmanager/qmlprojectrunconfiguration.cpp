@@ -45,6 +45,10 @@
 #include <qt4projectmanager/qtoutputformatter.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
+#ifdef Q_OS_WIN32
+#include <Windows.h>
+#endif
+
 using Core::EditorManager;
 using Core::ICore;
 using Core::IEditor;
@@ -144,16 +148,18 @@ QString QmlProjectRunConfiguration::viewerArguments() const
         Utils::QtcProcess::addArg(&args, importPath);
     }
 
-    const QString &s = mainScript();
-    if (!s.isEmpty())
+    QString s = mainScript();
+    if (!s.isEmpty()) {
+        s = canonicalCapsPath(s);
         Utils::QtcProcess::addArg(&args, s);
+    }
     return args;
 }
 
 QString QmlProjectRunConfiguration::workingDirectory() const
 {
     QFileInfo projectFile(qmlTarget()->qmlProject()->file()->fileName());
-    return projectFile.absolutePath();
+    return canonicalCapsPath(projectFile.absolutePath());
 }
 
 int QmlProjectRunConfiguration::qtVersionId() const
@@ -171,6 +177,32 @@ void QmlProjectRunConfiguration::setQtVersionId(int id)
     if (m_configurationWidget)
         m_configurationWidget.data()->updateQtVersionComboBox();
 }
+
+/* QtDeclarative checks explicitly that the capitalization for any URL / path
+   is exactly like the capitalization on disk. This method is uses the same
+   native Windows API's to get the exact canonical path. */
+QString QmlProjectRunConfiguration::canonicalCapsPath(const QString &fileName)
+{
+    QString canonicalPath = QFileInfo(fileName).canonicalFilePath();
+
+#if defined(Q_OS_WIN32)
+    wchar_t *buffer = 0;
+    do {
+        long length = ::GetLongPathName((wchar_t*)fileName.utf16(), NULL, 0);
+        if (!length)
+            break;
+        buffer = new wchar_t[length];
+        DWORD rv = ::GetLongPathName((wchar_t*)fileName.utf16(), buffer, length);
+        if (!rv)
+            break;
+        canonicalPath = QString((QChar*)buffer);
+    } while (false);
+    delete buffer;
+#endif
+    
+    return canonicalPath;
+}
+
 
 Qt4ProjectManager::QtVersion *QmlProjectRunConfiguration::qtVersion() const
 {
