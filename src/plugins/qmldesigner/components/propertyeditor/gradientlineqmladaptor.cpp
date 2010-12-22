@@ -61,8 +61,8 @@ void GradientLineQmlAdaptor::setupGradient()
         foreach (const ModelNode &stopNode, stopList) {
             QmlObjectNode stopObjectNode = stopNode;
             if (stopObjectNode.isValid()) {
-                qreal position = stopObjectNode.instanceValue("position").toReal();
-                QColor color = stopObjectNode.instanceValue("color").value<QColor>();
+                qreal position = stopNode.variantProperty("position").value().toReal();
+                QColor color = stopNode.variantProperty("color").value().value<QColor>();
                 stops.append( QPair<qreal, QColor>(position, color));
             }
         }
