@@ -110,9 +110,7 @@ public slots:
 
     void triggerSelectionChanged()
     {
-        setSelectionChanged(false);
-        setSelectionChanged(true);
-        setSelectionChanged(false);
+        setSelectionChanged(!m_selectionChanged);
     }
 
 private:
