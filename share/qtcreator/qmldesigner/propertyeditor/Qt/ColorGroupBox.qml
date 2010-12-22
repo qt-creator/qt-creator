@@ -42,6 +42,14 @@ QExtGroupBox {
             color = singleColor;
     }
 
+    onGradientButtonCheckedChanged: {
+        if (buttons.gradient == true)
+            color = gradientColor;
+        if (!buttons.gradient == true && color != singleColor)
+            color = singleColor;
+        colorChanged();
+    }
+
     onFinishedChanged: {
         oldMaximumHeight = maximumHeight;
         //visible = false;
