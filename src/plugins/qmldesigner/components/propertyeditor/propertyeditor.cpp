@@ -680,7 +680,6 @@ void PropertyEditor::resetView()
             fxObjectNode = QmlObjectNode(m_selectedNode);
         }
         QDeclarativeContext *ctxt = type->m_view->rootContext();
-        type->m_contextObject->triggerSelectionChanged();
         
         ctxt->setContextProperty("finishedNotify", QVariant(false));
         if (specificQmlData.isEmpty())
