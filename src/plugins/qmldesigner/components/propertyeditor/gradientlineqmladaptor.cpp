@@ -15,6 +15,7 @@ namespace QmlDesigner {
 GradientLineQmlAdaptor::GradientLineQmlAdaptor(QWidget *parent) :
     QmlEditorWidgets::GradientLine(parent)
 {
+    setActive(false);
     connect(this, SIGNAL(gradientChanged()), this, SLOT(writeGradient()));
 }
 
@@ -24,7 +25,6 @@ void GradientLineQmlAdaptor::setItemNode(const QVariant &itemNode)
     if (!itemNode.value<ModelNode>().isValid())
         return;
     m_itemNode = itemNode.value<ModelNode>();
-    setupGradient();
     emit itemNodeChanged();
 }
 
@@ -43,6 +43,9 @@ static inline qreal roundReal(qreal real)
 
 void GradientLineQmlAdaptor::setupGradient()
 {
+    if (!active())
+        return;
+
     ModelNode modelNode = m_itemNode.modelNode();
     QLinearGradient newGradient;
     QVector<QGradientStop> stops;
