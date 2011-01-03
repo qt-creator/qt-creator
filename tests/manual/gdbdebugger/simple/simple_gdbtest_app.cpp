@@ -92,7 +92,7 @@
 #undef max
 #endif
 
-#ifdef Q_OS_LINUX
+#ifdef __SSE__
 #include <xmmintrin.h>
 #include <stddef.h>
 #endif
@@ -2095,7 +2095,7 @@ void testWCout0()
 
 void testSSE()
 {
-#ifdef Q_OS_LINUX
+#ifdef __SSE__
     float a[4];
     float b[4];
     int i;

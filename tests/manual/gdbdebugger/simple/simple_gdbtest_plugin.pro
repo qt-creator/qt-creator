@@ -14,3 +14,8 @@ macx {
     QMAKE_LFLAGS += -Wl,-z,origin \'-Wl,-rpath,$${IDE_PLUGIN_RPATH}\'
     QMAKE_RPATHDIR =
 }
+
+maemo5 {
+    target.path = /opt/usr/lib
+    INSTALLS += target
+}

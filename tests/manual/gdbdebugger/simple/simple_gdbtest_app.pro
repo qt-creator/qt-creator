@@ -6,6 +6,11 @@ DESTDIR = .
 SOURCES +=  simple_gdbtest_app.cpp
 
 QT += network
-unix: QMAKE_CXXFLAGS += -msse2
+#unix: QMAKE_CXXFLAGS += -msse2
 
 message("this says <foo & bar>")
+
+maemo5 {
+    target.path = /opt/usr/bin
+    INSTALLS += target
+}
