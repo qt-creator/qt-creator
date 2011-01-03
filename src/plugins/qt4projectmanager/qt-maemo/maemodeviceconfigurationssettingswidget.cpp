@@ -470,6 +470,7 @@ void MaemoDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
         m_ui->testConfigButton->setEnabled(false);
         m_ui->generateKeyButton->setEnabled(false);
         m_ui->deployKeyButton->setEnabled(false);
+        m_ui->remoteProcessesButton->setEnabled(false);
         clearDetails();
         m_ui->detailsWidget->setEnabled(false);
     } else {
@@ -477,6 +478,7 @@ void MaemoDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
         m_ui->testConfigButton->setEnabled(true);
         m_ui->generateKeyButton->setEnabled(true);
         m_ui->deployKeyButton->setEnabled(true);
+        m_ui->remoteProcessesButton->setEnabled(true);
         m_ui->configurationComboBox->setCurrentIndex(index);
         display(currentConfig());
     }

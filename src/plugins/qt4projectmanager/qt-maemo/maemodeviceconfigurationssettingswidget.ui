@@ -325,7 +325,7 @@
            <item row="9" column="0">
             <widget class="QLabel" name="keyLabel">
              <property name="text">
-              <string>Private key &amp;file:</string>
+              <string>Private key file:</string>
              </property>
             </widget>
            </item>
@@ -402,6 +402,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="remoteProcessesButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Remote Processes ...</string>
        </property>
@@ -557,8 +560,8 @@
    <slot>authenticationTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>231</x>
-     <y>122</y>
+     <x>228</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
      <x>513</x>
@@ -573,8 +576,8 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>430</x>
-     <y>323</y>
+     <x>149</x>
+     <y>334</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -589,8 +592,8 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>430</x>
-     <y>323</y>
+     <x>149</x>
+     <y>334</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -637,8 +640,8 @@
    <slot>authenticationTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>335</x>
-     <y>122</y>
+     <x>280</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
      <x>525</x>
