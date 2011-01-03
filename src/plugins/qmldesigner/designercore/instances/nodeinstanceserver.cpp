@@ -80,10 +80,6 @@ void NodeInstanceServer::createInstances(const CreateInstancesCommand &command)
         }
     }
 
-    nodeInstanceClient()->valuesChanged(createValuesChangedCommand(instanceList));
-    nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(instanceList, true));
-    nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instanceList));
-
     startRenderTimer();
 }
 
@@ -223,13 +219,21 @@ void NodeInstanceServer::changeState(const ChangeStateCommand &command)
 
 void NodeInstanceServer::completeComponent(const CompleteComponentCommand &command)
 {
+    QList<ServerNodeInstance> instanceList;
+
     foreach(qint32 instanceId, command.instances()) {
         if (hasInstanceForId(instanceId)) {
             ServerNodeInstance instance = instanceForId(instanceId);
             instance.doComponentComplete();
+            instanceList.append(instance);
             m_componentCompletedVector.append(instanceId);
         }
     }
+
+    nodeInstanceClient()->valuesChanged(createValuesChangedCommand(instanceList));
+    nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(instanceList, true));
+    nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instanceList));
+
 }
 
 void NodeInstanceServer::addImport(const AddImportCommand &command)
