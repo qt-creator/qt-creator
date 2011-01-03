@@ -2299,7 +2299,7 @@
 
     Qt Creator determines whether to display files from the project folder
     in the \gui Projects pane depending on the file type (.pro, .pri, .cpp,
-    .h, .ui, .qrc, and so on). To display other types of files, edit the the
+    .h, .ui, .qrc, and so on). To display other types of files, edit the
     project file. Add filenames as values of the \c {OTHER_FILES} variable.
     You can also use wildcards.
 
@@ -6162,7 +6162,7 @@
             \o Remote
     \endtable
 
-    For more information on the the debugger modes, see \l{Debugger Modes of Operation}.
+    For more information on the debugger modes, see \l{Debugger Modes of Operation}.
 
     \omit
 
@@ -7798,7 +7798,7 @@
         \list a
 
             \o Set the following epression for \gui Visibility, to specify that
-            the the image is visible when the mouse is pressed down:
+            the image is visible when the mouse is pressed down:
             \c {mouse_area1.pressed}.
 
             \o In the \gui Source field, select the image file for the
