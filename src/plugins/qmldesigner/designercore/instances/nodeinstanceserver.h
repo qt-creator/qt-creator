@@ -3,6 +3,7 @@
 
 #include <QUrl>
 #include <QVector>
+#include <QSet>
 #include <QStringList>
 
 #include <nodeinstanceserverinterface.h>
@@ -130,6 +131,7 @@ private:
     QVector<InstancePropertyPair> m_changedPropertyList;
     QVector<qint32> m_componentCompletedVector;
     QStringList m_importList;
+    QSet<ServerNodeInstance> m_dirtyInstanceSet;
 };
 
 }

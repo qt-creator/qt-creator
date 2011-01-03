@@ -699,8 +699,10 @@ PixmapChangedCommand NodeInstanceServer::createPixmapChangedCommand(const QList<
 {
     QVector<ImageContainer> imageVector;
 
-    foreach (const ServerNodeInstance &instance, instanceList)
-        imageVector.append(ImageContainer(instance.instanceId(), instance.renderImage()));
+    foreach (const ServerNodeInstance &instance, instanceList) {
+        if (instance.isValid())
+            imageVector.append(ImageContainer(instance.instanceId(), instance.renderImage()));
+    }
 
     return PixmapChangedCommand(imageVector);
 }
@@ -736,10 +738,9 @@ void NodeInstanceServer::resetAllItems()
 void NodeInstanceServer::findItemChangesAndSendChangeCommands()
 {
     static bool inFunction = false;
-    if (!inFunction && nodeInstanceClient()->bytesToWrite() < 100000) {
+    if (!inFunction) {
         inFunction = true;
 
-        QSet<ServerNodeInstance> dirtyInstanceSet;
         QSet<ServerNodeInstance> informationChangedInstanceSet;
         QVector<InstancePropertyPair> propertyChangedList;
         QSet<ServerNodeInstance> parentChangedSet;
@@ -756,7 +757,7 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
                         informationChangedInstanceSet.insert(instance);
 
                     if((d->dirty && d->notifyBoundingRectChanged)|| (d->dirty && !d->dirtySceneTransform) || nonInstanceChildIsDirty(graphicsObject))
-                        dirtyInstanceSet.insert(instance);
+                        m_dirtyInstanceSet.insert(instance);
 
                     if (d->geometryChanged) {
                         if (instance.isRootNodeInstance())
@@ -777,7 +778,7 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
                     informationChangedInstanceSet.insert(instance);
 
                 if (propertyName == "width" || propertyName == "height")
-                    dirtyInstanceSet.insert(instance);
+                    m_dirtyInstanceSet.insert(instance);
 
                 if (propertyName == "parent") {
                     informationChangedInstanceSet.insert(instance);
@@ -803,8 +804,10 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
                 nodeInstanceClient()->componentCompleted(ComponentCompletedCommand(m_componentCompletedVector));
             m_componentCompletedVector.clear();
 
-            if (!dirtyInstanceSet.isEmpty())
-                nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(dirtyInstanceSet.toList()));
+            if (!m_dirtyInstanceSet.isEmpty() && nodeInstanceClient()->bytesToWrite() < 100000) {
+                nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(m_dirtyInstanceSet.toList()));
+                m_dirtyInstanceSet.clear();
+            }
 
             if (adjustSceneRect) {
                 QRectF boundingRect = m_rootNodeInstance.boundingRect();

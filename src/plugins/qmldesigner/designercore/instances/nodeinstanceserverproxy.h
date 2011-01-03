@@ -51,14 +51,17 @@ signals:
 
 private slots:
     void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void readDataStream();
+    void readFastDataStream();
+    void readSlowDataStream();
 
 private:
     QWeakPointer<QLocalServer> m_localServer;
-    QWeakPointer<QLocalSocket> m_socket;
+    QWeakPointer<QLocalSocket> m_slowSocket;
+    QWeakPointer<QLocalSocket> m_fastSocket;
     QWeakPointer<NodeInstanceView> m_nodeInstanceView;
     QWeakPointer<QProcess> m_qmlPuppetProcess;
-    quint32 m_blockSize;
+    quint32 m_slowBlockSize;
+    quint32 m_fastBlockSize;
 };
 
 } // namespace QmlDesigner

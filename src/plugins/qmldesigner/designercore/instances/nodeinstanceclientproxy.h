@@ -31,7 +31,8 @@ public:
     qint64 bytesToWrite() const;
 
 protected:
-    void writeCommand(const QVariant &command);
+    void writeSlowCommand(const QVariant &command);
+    void writeFastCommand(const QVariant &command);
     void dispatchCommand(const QVariant &command);
     NodeInstanceServerInterface *nodeInstanceServer() const;
 
@@ -39,7 +40,8 @@ private slots:
     void readDataStream();
 
 private:
-    QLocalSocket *m_socket;
+    QLocalSocket *m_slowSocket;
+    QLocalSocket *m_fastSocket;
     NodeInstanceServerInterface *m_nodeinstanceServer;
     quint32 m_blockSize;
 };
