@@ -53,7 +53,8 @@ Indenter::~Indenter()
 
 bool Indenter::isElectricCharacter(const QChar &ch) const
 {
-    if (ch == QLatin1Char('}')
+    if (ch == QLatin1Char('{')
+            || ch == QLatin1Char('}')
             || ch == QLatin1Char(']')
             || ch == QLatin1Char(':'))
         return true;
