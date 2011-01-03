@@ -66,7 +66,6 @@ void Indenter::indentBlock(QTextDocument *doc,
                            TextEditor::BaseTextEditor *editor)
 {
     Q_UNUSED(doc)
-    Q_UNUSED(typedChar)
     Q_UNUSED(editor)
 
     const TextEditor::TabSettings &ts = editor->tabSettings();
@@ -74,5 +73,14 @@ void Indenter::indentBlock(QTextDocument *doc,
 
     codeFormatter.updateStateUntil(block);
     const int depth = codeFormatter.indentFor(block);
+
+    if (isElectricCharacter(typedChar)) {
+        // only reindent the current line when typing electric characters if the
+        // indent is the same it would be if the line were empty
+        const int newlineIndent = codeFormatter.indentForNewLineAfter(block.previous());
+        if (ts.indentationColumn(block.text()) != newlineIndent)
+            return;
+    }
+
     ts.indentLine(block, depth);
 }
