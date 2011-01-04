@@ -76,7 +76,7 @@ void FakeMetaMethod::addParameter(const QString &name, const QString &type)
 int FakeMetaMethod::methodType() const
 { return m_methodTy; }
 
-void FakeMetaMethod::FakeMetaMethod::setMethodType(int methodType)
+void FakeMetaMethod::setMethodType(int methodType)
 { m_methodTy = methodType; }
 
 int FakeMetaMethod::access() const
