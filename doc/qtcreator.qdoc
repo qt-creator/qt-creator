@@ -7094,23 +7094,40 @@
     The process of setting up debugging for Qt Quick projects depends on the type of
     the project: Qt Quick UI or Qt Quick Application.
 
-    To debug Qt Quick UI projects, you must compile the debugging helpers. For more
-    information, see \l{Debugging Helpers for QML}.
+    To debug Qt Quick UI projects:
 
-    To debug Qt Quick Applications, you must modify the project file to comment in the
-    following line:
+    \list 1
+
+        \o Select \gui Projects, and then select the \gui QML check box in the
+        \gui {Run Settings}, to enable QML debugging.
+
+        \o Compile the debugging helpers. For more information, see
+        \l{Debugging Helpers for QML}.
+
+    \endlist
+
+    To debug Qt Quick Applications:
+
+        \list 1
+
+        \o Modify the project file to comment in the following line:
 
     \c {DEFINES += QMLJSDEBUGGER}.
 
-    Then you must rebuild the project in debug mode. Select a debug configuration for
-    the target in the \gui {Target selector}.
+        \o Select \gui Projects, and then select the \gui QML check box in the
+        \gui {Run Settings}, to enable QML debugging.
 
-    \image qtcreator-target-selector-debug.png "Target selector"
+        \o In the \gui {Target selector}, select a debug configuration for
+        the target.
+
+        \image qtcreator-target-selector-debug.png "Target selector"
+
+        \o Select \gui {Build > Rebuild Project} to clean and rebuild the project
+        in debug mode.
+
+    \endlist
 
     You can create debug configurations for project targets in the \gui Projects mode.
-
-    To enable QML debugging for  both types of projects, select \gui Projects, and
-    then select the \gui QML check box in the run settings.
 
     \section1 Starting QML Debugging
 
