@@ -107,8 +107,8 @@ public:
     NodeInstance instanceForNode(const ModelNode &node) const ;
     bool hasInstanceForNode(const ModelNode &node) const;
 
-    NodeInstance instanceForId(qint32 id) const;
-    bool hasInstanceForId(qint32 id) const;
+    NodeInstance instanceForId(qint32 id);
+    bool hasInstanceForId(qint32 id);
 
     QRectF sceneRect() const;
 
@@ -131,8 +131,6 @@ private: // functions
 
     NodeInstance loadNode(const ModelNode &node);
 
-    void loadNodes(const QList<ModelNode> &nodeList);
-
     void removeAllInstanceNodeRelationships();
 
     void removeRecursiveChildRelationship(const ModelNode &removedNode);
@@ -147,7 +145,7 @@ private: // functions
 
     NodeInstanceServerInterface *nodeInstanceServer() const;
 
-    CreateSceneCommand createCreateSceneCommand() const;
+    CreateSceneCommand createCreateSceneCommand();
     ClearSceneCommand createClearSceneCommand() const;
     CreateInstancesCommand createCreateInstancesCommand(const QList<NodeInstance> &instanceList) const;
     CompleteComponentCommand createComponentCompleteCommand(const QList<NodeInstance> &instanceList) const;
@@ -174,7 +172,6 @@ private: //variables
     NodeInstance m_activeStateInstance;
 
     QHash<ModelNode, NodeInstance> m_nodeInstanceHash;
-    QHash<qint32, NodeInstance> m_idInstanceHash; // This is purely internal. Might contain dangling pointers!
 
     uint m_blockUpdates;
     QWeakPointer<NodeInstanceServerInterface> m_nodeInstanceServer;

@@ -23,6 +23,8 @@ class ValuesChangedCommand;
 class PixmapChangedCommand;
 class InformationChangedCommand;
 class ChildrenChangedCommand;
+class ReparentContainer;
+class ComponentCompletedCommand;
 
 namespace Internal {
     class ChildrenChangeEventFilter;
@@ -84,6 +86,9 @@ public slots:
     void emitParentChanged(QObject *child);
 
 protected:
+    QList<ServerNodeInstance> createInstances(const QVector<InstanceContainer> &container);
+    void reparentInstances(const QVector<ReparentContainer> &container);
+
     Internal::ChildrenChangeEventFilter *childrenChangeEventFilter();
     void resetInstanceProperty(const PropertyAbstractContainer &propertyContainer);
     void setInstancePropertyBinding(const PropertyBindingContainer &bindingContainer);
@@ -106,7 +111,7 @@ protected:
     PixmapChangedCommand createPixmapChangedCommand(const QList<ServerNodeInstance> &instanceList) const;
     InformationChangedCommand createAllInformationChangedCommand(const QList<ServerNodeInstance> &instanceList, bool initial = false) const;
     ChildrenChangedCommand createChildrenChangedCommand(const ServerNodeInstance &parentInstance, const QList<ServerNodeInstance> &instanceList) const;
-
+    ComponentCompletedCommand createComponentCompletedCommand(const QList<ServerNodeInstance> &instanceList);
     void sendChildrenChangedCommand(const QList<ServerNodeInstance> childList);
 
     void addChangedProperty(const InstancePropertyPair &property);
@@ -129,7 +134,6 @@ private:
     int m_timer;
     bool m_slowRenderTimer;
     QVector<InstancePropertyPair> m_changedPropertyList;
-    QVector<qint32> m_componentCompletedVector;
     QStringList m_importList;
     QSet<ServerNodeInstance> m_dirtyInstanceSet;
 };

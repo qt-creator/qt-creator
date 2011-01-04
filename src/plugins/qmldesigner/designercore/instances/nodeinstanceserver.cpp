@@ -38,6 +38,7 @@
 #include "childrenchangedcommand.h"
 #include "completecomponentcommand.h"
 #include "componentcompletedcommand.h"
+#include "createscenecommand.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -53,6 +54,11 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
     m_slowRenderTimer(false)
 {
     connect(m_childrenChangeEventFilter.data(), SIGNAL(childrenChanged(QObject*)), this, SLOT(emitParentChanged(QObject*)));
+
+    m_declarativeView = new QDeclarativeView;
+    m_declarativeView->setAttribute(Qt::WA_DontShowOnScreen, true);
+    m_declarativeView->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
+    m_declarativeView->show();
 }
 
 NodeInstanceServer::~NodeInstanceServer()
@@ -60,11 +66,11 @@ NodeInstanceServer::~NodeInstanceServer()
     delete m_declarativeView.data();
 }
 
-void NodeInstanceServer::createInstances(const CreateInstancesCommand &command)
+QList<ServerNodeInstance>  NodeInstanceServer::createInstances(const QVector<InstanceContainer> &containerVector)
 {
     Q_ASSERT(m_declarativeView);
     QList<ServerNodeInstance> instanceList;
-    foreach(const InstanceContainer &instanceContainer, command.instances()) {
+    foreach(const InstanceContainer &instanceContainer, containerVector) {
         ServerNodeInstance instance = ServerNodeInstance::create(this, instanceContainer);
         insertInstanceRelationship(instance);
         instanceList.append(instance);
@@ -79,6 +85,13 @@ void NodeInstanceServer::createInstances(const CreateInstancesCommand &command)
 
         }
     }
+
+    return instanceList;
+}
+
+void NodeInstanceServer::createInstances(const CreateInstancesCommand &command)
+{
+    createInstances(command.instances());
 
     startRenderTimer();
 }
@@ -144,18 +157,35 @@ void NodeInstanceServer::stopRenderTimer()
     }
 }
 
-void NodeInstanceServer::createScene(const CreateSceneCommand &/*command*/)
+void NodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
-    Q_ASSERT(!m_declarativeView);
-    m_declarativeView = new QDeclarativeView;
-    m_declarativeView->setAttribute(Qt::WA_DontShowOnScreen, true);
-    m_declarativeView->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
-    m_declarativeView->show();
-
-    if (!m_fileUrl.isEmpty())
-        engine()->setBaseUrl(m_fileUrl);
+    if (!command.fileUrl().isEmpty())
+        engine()->setBaseUrl(command.fileUrl());
 
     static_cast<QGraphicsScenePrivate*>(QObjectPrivate::get(m_declarativeView->scene()))->processDirtyItemsEmitted = true;
+
+    QList<ServerNodeInstance> instanceList = createInstances(command.instances());
+    reparentInstances(command.reparentInstances());
+
+    foreach(const IdContainer &container, command.ids()) {
+        if (hasInstanceForId(container.instanceId()))
+            instanceForId(container.instanceId()).setId(container.id());
+    }
+
+    foreach(const PropertyValueContainer &container, command.valueChanges())
+        setInstancePropertyVariant(container);
+
+    foreach(const PropertyBindingContainer &container, command.bindingChanges())
+        setInstancePropertyBinding(container);
+
+    foreach(ServerNodeInstance instance, instanceList)
+        instance.doComponentComplete();
+
+    nodeInstanceClient()->valuesChanged(createValuesChangedCommand(instanceList));
+    nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(instanceList, true));
+    sendChildrenChangedCommand(instanceList);
+    nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instanceList));
+    nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(instanceList));
 
     startRenderTimer();
 }
@@ -190,14 +220,19 @@ void NodeInstanceServer::removeProperties(const RemovePropertiesCommand &command
     startRenderTimer();
 }
 
-void NodeInstanceServer::reparentInstances(const ReparentInstancesCommand &command)
+void NodeInstanceServer::reparentInstances(const QVector<ReparentContainer> &containerVector)
 {
-    foreach(const ReparentContainer &container, command.reparentInstances()) {
+    foreach(const ReparentContainer &container, containerVector) {
         ServerNodeInstance instance = instanceForId(container.instanceId());
         if (instance.isValid()) {
             instance.reparent(instanceForId(container.oldParentInstanceId()), container.oldParentProperty(), instanceForId(container.newParentInstanceId()), container.newParentProperty());
         }
     }
+}
+
+void NodeInstanceServer::reparentInstances(const ReparentInstancesCommand &command)
+{
+    reparentInstances(command.reparentInstances());
 
     startRenderTimer();
 }
@@ -226,14 +261,13 @@ void NodeInstanceServer::completeComponent(const CompleteComponentCommand &comma
             ServerNodeInstance instance = instanceForId(instanceId);
             instance.doComponentComplete();
             instanceList.append(instance);
-            m_componentCompletedVector.append(instanceId);
         }
     }
 
     nodeInstanceClient()->valuesChanged(createValuesChangedCommand(instanceList));
     nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(instanceList, true));
     nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instanceList));
-
+    nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(instanceList));
 }
 
 void NodeInstanceServer::addImport(const AddImportCommand &command)
@@ -260,8 +294,6 @@ void NodeInstanceServer::addImport(const AddImportCommand &command)
         engine()->addImportPath(importPath);
         engine()->addPluginPath(importPath);
     }
-
-    qDebug() << __FUNCTION__ << fileUrl().resolved(QUrl("content/samegame.js")) << componentString;
 
     importComponent.setData(componentString.toUtf8(), QUrl());
 
@@ -649,6 +681,17 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QList<
     return ValuesChangedCommand(valueVector);
 }
 
+ComponentCompletedCommand NodeInstanceServer::createComponentCompletedCommand(const QList<ServerNodeInstance> &instanceList)
+{
+    QVector<qint32> idVector;
+    foreach (const ServerNodeInstance &instance, instanceList) {
+        if (instance.instanceId() >= 0)
+            idVector.append(instance.instanceId());
+    }
+
+    return ComponentCompletedCommand(idVector);
+}
+
 ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVector<InstancePropertyPair> &propertyList) const
 {
     QVector<PropertyValueContainer> valueVector;
@@ -803,10 +846,6 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
 
             if (!parentChangedSet.isEmpty())
                 sendChildrenChangedCommand(parentChangedSet.toList());
-
-            if (!m_componentCompletedVector.isEmpty())
-                nodeInstanceClient()->componentCompleted(ComponentCompletedCommand(m_componentCompletedVector));
-            m_componentCompletedVector.clear();
 
             if (!m_dirtyInstanceSet.isEmpty() && nodeInstanceClient()->bytesToWrite() < 100000) {
                 nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(m_dirtyInstanceSet.toList()));
