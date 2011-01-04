@@ -68,6 +68,10 @@ public:
 
     virtual int nextId() const;
 
+protected:
+    void initializePage(int id);
+    void cleanupPage(int id);
+
 private slots:
     void slotCurrentIdChanged(int);
 
@@ -75,6 +79,8 @@ private:
     QtProjectParameters::Type type() const;
     void setupFilesPage();
     void setupMobilePage();
+    bool isModulesPageSkipped() const;
+    int skipModulesPageIfNeeded() const;
 
     FilesPage *m_filesPage;
     MobileLibraryWizardOptionPage *m_mobilePage;
