@@ -52,12 +52,12 @@
        </property>
        <property name="font">
         <font>
-         <weight>75</weight>
-         <bold>true</bold>
+         <weight>50</weight>
+         <bold>false</bold>
         </font>
        </property>
        <property name="text">
-        <string>&lt;b&gt;Version number:&lt;/b&gt;</string>
+        <string>Version number:</string>
        </property>
       </widget>
      </item>
@@ -159,7 +159,7 @@
      <item row="3" column="0">
       <widget class="QLabel" name="nameLabel">
        <property name="text">
-        <string>&lt;b&gt;Name for Package Manager:&lt;/b&gt;</string>
+        <string>Name for Package Manager:</string>
        </property>
       </widget>
      </item>
@@ -168,25 +168,12 @@
        <item>
         <widget class="QLineEdit" name="nameLineEdit"/>
        </item>
-       <item>
-        <spacer name="horizontalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
       </layout>
      </item>
      <item row="4" column="0">
       <widget class="QLabel" name="shortDescriptionLabel">
        <property name="text">
-        <string>&lt;b&gt;Short description for Package Manager:&lt;/b&gt;</string>
+        <string>Short description for Package Manager:</string>
        </property>
       </widget>
      </item>
@@ -194,19 +181,6 @@
       <layout class="QHBoxLayout" name="horizontalLayout_5">
        <item>
         <widget class="QLineEdit" name="shortDescriptionLineEdit"/>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_5">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </item>
@@ -219,7 +193,7 @@
         </size>
        </property>
        <property name="text">
-        <string>&lt;b&gt;Package Manager icon:&lt;/b&gt;</string>
+        <string>Package Manager icon:</string>
        </property>
       </widget>
      </item>
@@ -265,7 +239,7 @@
      <item row="6" column="0">
       <widget class="QLabel" name="editDebianFileLabel">
        <property name="text">
-        <string>&lt;b&gt;Adapt Debian file:&lt;/b&gt;</string>
+        <string>Adapt Debian file:</string>
        </property>
       </widget>
      </item>
@@ -304,7 +278,7 @@
  <connections>
   <connection>
    <sender>skipCheckBox</sender>
-   <signal>clicked(bool)</signal>
+   <signal>toggled(bool)</signal>
    <receiver>MaemoPackageCreationWidget</receiver>
    <slot>handleSkipButtonToggled(bool)</slot>
    <hints>
@@ -325,8 +299,8 @@
    <slot>versionInfoChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>241</x>
-     <y>70</y>
+     <x>332</x>
+     <y>67</y>
     </hint>
     <hint type="destinationlabel">
      <x>461</x>
@@ -341,8 +315,8 @@
    <slot>versionInfoChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>338</x>
-     <y>70</y>
+     <x>429</x>
+     <y>67</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -357,8 +331,8 @@
    <slot>versionInfoChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>435</x>
-     <y>70</y>
+     <x>526</x>
+     <y>67</y>
     </hint>
     <hint type="destinationlabel">
      <x>466</x>
@@ -373,8 +347,8 @@
    <slot>editDebianFile()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>293</x>
-     <y>94</y>
+     <x>398</x>
+     <y>218</y>
     </hint>
     <hint type="destinationlabel">
      <x>8</x>
@@ -389,8 +363,8 @@
    <slot>setPackageManagerIcon()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>196</x>
-     <y>136</y>
+     <x>289</x>
+     <y>186</y>
     </hint>
     <hint type="destinationlabel">
      <x>2</x>

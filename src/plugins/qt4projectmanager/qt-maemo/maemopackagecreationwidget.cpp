@@ -239,6 +239,9 @@ void MaemoPackageCreationWidget::handleSkipButtonToggled(bool checked)
     m_ui->patch->setEnabled(!checked);
     m_ui->debianFilesComboBox->setEnabled(!checked);
     m_ui->editDebianFileButton->setEnabled(!checked);
+    m_ui->packageManagerIconButton->setEnabled(!checked);
+    m_ui->nameLineEdit->setEnabled(!checked);
+    m_ui->shortDescriptionLineEdit->setEnabled(!checked);
     m_step->setPackagingEnabled(!checked);
     emit updateSummary();
 }
