@@ -299,7 +299,11 @@ FutureProgress *ProgressManagerPrivate::addTask(const QFuture<void> &future, con
     m_runningTasks.insert(watcher, type);
     connect(watcher, SIGNAL(finished()), this, SLOT(taskFinished()));
     if (flags & ShowInApplicationIcon) {
+        if (m_applicationTask)
+            disconnectApplicationTask();
         m_applicationTask = watcher;
+        setApplicationProgressRange(future.progressMinimum(), future.progressMaximum());
+        setApplicationProgressValue(future.progressValue());
         connect(m_applicationTask, SIGNAL(progressRangeChanged(int,int)),
                 this, SLOT(setApplicationProgressRange(int,int)));
         connect(m_applicationTask, SIGNAL(progressValueChanged(int)),
