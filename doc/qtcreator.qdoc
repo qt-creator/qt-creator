@@ -7205,9 +7205,11 @@
     You can also right-click an element in the running application to view the element
     hierarchy as a context menu. Select an element to jump to its definition in code.
 
+    \image qml-observer-context-menu.png "QML Observer"
+
     To zoom in and out of the application, click the \gui Zoom button.
 
-    To inspect colors, click the \gui {Color Picker} button. You can also the click
+    To inspect colors, click the \gui {Color Picker} button. You can also click
     \inlineimage qml-observer-bar-copy-color.png "Copy Color button"
     to copy the color definition to the clipboard.
 
