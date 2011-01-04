@@ -1585,23 +1585,31 @@ void CdbEngine::parseOutputLine(QByteArray line)
     // can mix things up.
     while (isCdbPrompt(line))
         line.remove(0, CdbPromptLength);
-    // An extension notification
+    // An extension notification (potentially consisting of several chunks)
     if (line.startsWith(m_creatorExtPrefix)) {
-        // "<qtcreatorcdbext>|type_char|token|serviceName|message"
+        // "<qtcreatorcdbext>|type_char|token|remainingChunks|serviceName|message"
         const char type = line.at(m_creatorExtPrefix.size());
         // integer token
         const int tokenPos = m_creatorExtPrefix.size() + 2;
         const int tokenEndPos = line.indexOf('|', tokenPos);
         QTC_ASSERT(tokenEndPos != -1, return)
         const int token = line.mid(tokenPos, tokenEndPos - tokenPos).toInt();
+        // remainingChunks
+        const int remainingChunksPos = tokenEndPos + 1;
+        const int remainingChunksEndPos = line.indexOf('|', remainingChunksPos);
+        QTC_ASSERT(remainingChunksEndPos != -1, return)
+        const int remainingChunks = line.mid(remainingChunksPos, remainingChunksEndPos - remainingChunksPos).toInt();
         // const char 'serviceName'
-        const int whatPos = tokenEndPos + 1;
+        const int whatPos = remainingChunksEndPos + 1;
         const int whatEndPos = line.indexOf('|', whatPos);
         QTC_ASSERT(whatEndPos != -1, return)
         const QByteArray what = line.mid(whatPos, whatEndPos - whatPos);
-        // Message
-        const QByteArray message = line.mid(whatEndPos + 1);
-        handleExtensionMessage(type, token, what, message);
+        // Build up buffer, call handler once last chunk was encountered
+        m_extensionMessageBuffer += line.mid(whatEndPos + 1);
+        if (remainingChunks == 0) {
+            handleExtensionMessage(type, token, what, m_extensionMessageBuffer);
+            m_extensionMessageBuffer.clear();
+        }
         return;
     }
     // Check for command start/end tokens within which the builtin command

@@ -68,11 +68,17 @@ public:
     // Undo hooking.
     void unhookCallbacks();
 
-    // Report output in standardized format understood by Qt Creator.
-    // '<qtcreatorcdbext>|R|<token>|<serviceName>|<one-line-output>'.
-    // Char code is 'R' command reply, 'N' command fail, 'E' event notification
-    bool report(char code, int token, const char *serviceName, PCSTR Format, ...);
-
+     // CDB has a limitation on output, so, long messages need to be split (empirically ca 10KB)
+    static const size_t outputChunkSize = 10240;
+    /* Report output in standardized format understood by Qt Creator.
+     * '<qtcreatorcdbext>|R|<token>|remainingChunks|<serviceName>|<one-line-output>'.
+     * Char code is 'R' command reply, 'N' command fail, 'E' event notification,
+     * 'X' exception, error. If the message is larger than outputChunkSize,
+     * it needs to be split up in chunks, remainingChunks needs to indicate the number
+     * of the following chunks (0 for just one chunk). */
+    bool report(char code, int remainingChunks, int token, const char *serviceName, PCSTR Format, ...);
+    // Convenience for reporting potentially long messages in chunks
+    bool reportLong(char code, int token, const char *serviceName, const std::string &message);
     ULONG executionStatus() const;
     // Call from notify handler, tell engine about state.
     void notifyState(ULONG Notify);

@@ -37,6 +37,8 @@
 #include "outputcallback.h"
 #include "stringutils.h"
 
+#include <algorithm>
+
 // wdbgexts.h declares 'extern WINDBG_EXTENSION_APIS ExtensionApis;'
 // and it's inline functions rely on its existence.
 WINDBG_EXTENSION_APIS   ExtensionApis = {sizeof(WINDBG_EXTENSION_APIS), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -167,7 +169,7 @@ void ExtensionContext::notifyIdle()
     // Format
     std::ostringstream str;
     formatGdbmiHash(str, stopReasons);
-    report('E', 0, "session_idle", "%s", str.str().c_str());
+    reportLong('E', 0, "session_idle", str.str());
     m_stopReason.clear();
 }
 
@@ -176,16 +178,16 @@ void ExtensionContext::notifyState(ULONG Notify)
     const ULONG ex = executionStatus();
     switch (Notify) {
     case DEBUG_NOTIFY_SESSION_ACTIVE:
-        report('E', 0, "session_active", "%u", ex);
+        report('E', 0, 0, "session_active", "%u", ex);
         break;
     case DEBUG_NOTIFY_SESSION_ACCESSIBLE: // Meaning, commands accepted
-        report('E', 0, "session_accessible", "%u", ex);
+        report('E', 0, 0, "session_accessible", "%u", ex);
         break;
     case DEBUG_NOTIFY_SESSION_INACCESSIBLE:
-        report('E', 0, "session_inaccessible", "%u", ex);
+        report('E', 0, 0, "session_inaccessible", "%u", ex);
         break;
     case DEBUG_NOTIFY_SESSION_INACTIVE:
-        report('E', 0, "session_inactive", "%u", ex);
+        report('E', 0, 0, "session_inactive", "%u", ex);
         discardSymbolGroup();
         // We lost the debuggee, at this point restore output.
         if (ex & DEBUG_STATUS_NO_DEBUGGEE)
@@ -218,17 +220,38 @@ void ExtensionContext::discardSymbolGroup()
         m_symbolGroup.reset();
 }
 
-bool ExtensionContext::report(char code, int token, const char *serviceName, PCSTR Format, ...)
+bool ExtensionContext::report(char code, int token, int remainingChunks, const char *serviceName, PCSTR Format, ...)
 {
     if (!isInitialized())
         return false;
     // '<qtcreatorcdbext>|R|<token>|<serviceName>|<one-line-output>'.
-    m_control->Output(DEBUG_OUTPUT_NORMAL, "<qtcreatorcdbext>|%c|%d|%s|", code, token, serviceName);
+    m_control->Output(DEBUG_OUTPUT_NORMAL, "<qtcreatorcdbext>|%c|%d|%d|%s|",
+                      code, token, remainingChunks, serviceName);
     va_list Args;
     va_start(Args, Format);
     m_control->OutputVaList(DEBUG_OUTPUT_NORMAL, Format, Args);
     va_end(Args);
     m_control->Output(DEBUG_OUTPUT_NORMAL, "\n");
+    return true;
+}
+
+bool ExtensionContext::reportLong(char code, int token, const char *serviceName, const std::string &message)
+{
+    const std::string::size_type size = message.size();
+    if (size < outputChunkSize)
+        return report(code, token, 0, serviceName, "%s", message.c_str());
+    // Split up
+    std::string::size_type chunkCount = size / outputChunkSize;
+    if (size % outputChunkSize)
+        chunkCount++;
+    std::string::size_type pos = 0;
+    for (int remaining = int(chunkCount) -  1; remaining >= 0 ; remaining--) {
+        std::string::size_type nextPos = pos + outputChunkSize; // No consistent std::min/std::max in VS8/10
+        if (nextPos > size)
+            nextPos = size;
+        report(code, token, remaining, serviceName, "%s", message.substr(pos, nextPos - pos).c_str());
+        pos = nextPos;
+    }
     return true;
 }
 

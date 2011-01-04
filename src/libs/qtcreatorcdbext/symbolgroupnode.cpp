@@ -950,7 +950,7 @@ bool SymbolGroupNode::expand(std::string *errorMessage)
 
     if (FAILED(hr)) {
         *errorMessage = msgExpandFailed(name(), absoluteFullIName(), m_index, msgDebugEngineComFailed("ExpandSymbol", hr));
-        ExtensionContext::instance().report('X', 0, "Error", "%s", errorMessage->c_str());
+        ExtensionContext::instance().report('X', 0, 0, "Error", "%s", errorMessage->c_str());
         return false;
     }
     SymbolGroup::SymbolParameterVector parameters;
@@ -1020,12 +1020,12 @@ SymbolGroupNode *SymbolGroupNode::addSymbolByName(const std::string &name,
     HRESULT hr = m_symbolGroup->debugSymbolGroup()->AddSymbol(name.c_str(), &index);
     if (FAILED(hr)) {
         *errorMessage = msgCannotAddSymbol(name, msgDebugEngineComFailed("AddSymbol", hr));
-        ExtensionContext::instance().report('X', 0, "Error", "%s", errorMessage->c_str());
+        ExtensionContext::instance().report('X', 0, 0, "Error", "%s", errorMessage->c_str());
         return 0;
     }
     if (index == DEBUG_ANY_ID) { // Occasionally happens for unknown or 'complicated' types
         *errorMessage = msgCannotAddSymbol(name, "DEBUG_ANY_ID was returned as symbol index by AddSymbol.");
-        ExtensionContext::instance().report('X', 0, "Error", "%s", errorMessage->c_str());
+        ExtensionContext::instance().report('X', 0, 0, "Error", "%s", errorMessage->c_str());
         return 0;
     }
     SymbolParameterVector parameters(1, DEBUG_SYMBOL_PARAMETERS());

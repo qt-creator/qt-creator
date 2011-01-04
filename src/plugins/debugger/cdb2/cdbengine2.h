@@ -205,6 +205,7 @@ private:
     bool m_hasDebuggee;
     QTime m_logTime;
     mutable int m_elapsedLogTime;
+    QByteArray m_extensionMessageBuffer;
 };
 
 } // namespace Cdb
