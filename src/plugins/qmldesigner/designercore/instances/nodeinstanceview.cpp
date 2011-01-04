@@ -440,9 +440,9 @@ void NodeInstanceView::instancesCompleted(const QVector<ModelNode> &/*completedN
 {
 }
 
-void NodeInstanceView::importAdded(const Import & /*import*/)
+void NodeInstanceView::importAdded(const Import & import)
 {
-    restartProcess();
+    nodeInstanceServer()->addImport(createImportCommand(import));
 }
 
 void NodeInstanceView::importRemoved(const Import &/*import*/)
