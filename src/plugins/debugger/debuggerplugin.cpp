@@ -1049,7 +1049,6 @@ public slots:
     void setInitialState();
 
     void fontSettingsChanged(const TextEditor::FontSettings &settings);
-    DebuggerState state() const { return m_state; }
 
     void updateState(DebuggerEngine *engine);
     void updateWatchersWindow();
@@ -1272,7 +1271,6 @@ public slots:
     void showModuleSymbols(const QString &moduleName, const Symbols &symbols);
 
 public:
-    DebuggerState m_state;
     DebuggerMainWindow *m_mainWindow;
     DebuggerRunControlFactory *m_debuggerRunControlFactory;
 
@@ -1373,7 +1371,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
     m_anyContext = Context(0);
 
     m_mainWindow = 0;
-    m_state = DebuggerNotReady;
     m_snapshotHandler = 0;
     m_currentEngine = 0;
     m_debuggerSettings = 0;
@@ -1841,7 +1838,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
         menu->addAction(act);
     }
     // Run to, jump to line below in stopped state.
-    if (state() == InferiorStopOk) {
+    if (currentEngine() && currentEngine()->state() == InferiorStopOk) {
         menu->addSeparator();
         const QString runText =
             DebuggerEngine::tr("Run to Line %1").arg(lineNumber);
@@ -1930,7 +1927,9 @@ void DebuggerPluginPrivate::showToolTip(ITextEditor *editor,
         return;
     if (!boolSetting(UseToolTipsInMainEditor))
         return;
-    if (state() != InferiorStopOk)
+    if (!currentEngine())
+        return;
+    if (currentEngine()->state() != InferiorStopOk)
         return;
     QTC_ASSERT(handled, return);
     *handled = true;
@@ -2097,11 +2096,9 @@ void DebuggerPluginPrivate::setInitialState()
 
     action(AutoDerefPointers)->setEnabled(true);
     action(ExpandStack)->setEnabled(false);
-    action(ExecuteCommand)->setEnabled(m_state == InferiorStopOk);
+    action(ExecuteCommand)->setEnabled(false);
 
     m_scriptConsoleWindow->setEnabled(false);
-
-    //emit m_plugin->stateChanged(m_state);
 }
 
 void DebuggerPluginPrivate::updateWatchersWindow()
@@ -2123,19 +2120,20 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
     updateWatchersWindow();
 
-    //m_plugin->showMessage(QString("PLUGIN SET STATE: ")
-    //    + DebuggerEngine::stateName(engine->state()), LogStatus);
-    //qDebug() << "PLUGIN SET STATE: " << engine->state();
+    const DebuggerState state = engine->state();
+    //showMessage(QString("PLUGIN SET STATE: ")
+    //    + DebuggerEngine::stateName(state), LogStatus);
+    //qDebug() << "PLUGIN SET STATE: " << state;
 
-    if (m_state == engine->state())
+    static DebuggerState previousState = DebuggerNotReady;
+    if (state == previousState)
         return;
 
-    m_state = engine->state();
-    bool actionsEnabled = DebuggerEngine::debuggerActionsEnabled(m_state);
+    bool actionsEnabled = DebuggerEngine::debuggerActionsEnabled(state);
 
     ICore *core = ICore::instance();
     ActionManager *am = core->actionManager();
-    if (m_state == DebuggerNotReady) {
+    if (state == DebuggerNotReady) {
         QTC_ASSERT(false, /* We use the Core m_debugAction here */);
         // F5 starts debugging. It is "startable".
         m_actions.interruptAction->setEnabled(false);
@@ -2144,7 +2142,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         am->command(Constants::STOP)->setKeySequence(QKeySequence());
         am->command(Constants::DEBUG)->setKeySequence(QKeySequence(DEBUG_KEY));
         core->updateAdditionalContexts(m_anyContext, Context());
-    } else if (m_state == InferiorStopOk) {
+    } else if (state == InferiorStopOk) {
         // F5 continues, Shift-F5 kills. It is "continuable".
         m_actions.interruptAction->setEnabled(false);
         m_actions.continueAction->setEnabled(true);
@@ -2152,7 +2150,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         am->command(Constants::STOP)->setKeySequence(QKeySequence(STOP_KEY));
         am->command(Constants::DEBUG)->setKeySequence(QKeySequence(DEBUG_KEY));
         core->updateAdditionalContexts(m_anyContext, m_continuableContext);
-    } else if (m_state == InferiorRunOk) {
+    } else if (state == InferiorRunOk) {
         // Shift-F5 interrupts. It is also "interruptible".
         m_actions.interruptAction->setEnabled(true);
         m_actions.continueAction->setEnabled(false);
@@ -2160,7 +2158,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         am->command(Constants::STOP)->setKeySequence(QKeySequence());
         am->command(Constants::DEBUG)->setKeySequence(QKeySequence(STOP_KEY));
         core->updateAdditionalContexts(m_anyContext, m_interruptibleContext);
-    } else if (m_state == DebuggerFinished) {
+    } else if (state == DebuggerFinished) {
         // We don't want to do anything anymore.
         m_actions.interruptAction->setEnabled(false);
         m_actions.continueAction->setEnabled(false);
@@ -2172,7 +2170,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         core->updateAdditionalContexts(m_anyContext, Context());
         setBusyCursor(false);
         cleanupViews();
-    } else if (m_state == InferiorUnrunnable) {
+    } else if (state == InferiorUnrunnable) {
         // We don't want to do anything anymore.
         m_actions.interruptAction->setEnabled(false);
         m_actions.continueAction->setEnabled(false);
@@ -2200,7 +2198,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_startRemoteAction->setEnabled(true);
 
     const bool isCore = engine->startParameters().startMode == AttachCore;
-    const bool stopped = m_state == InferiorStopOk;
+    const bool stopped = state == InferiorStopOk;
     const bool detachable = stopped && !isCore;
     m_detachAction->setEnabled(detachable);
 
@@ -2219,8 +2217,8 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
     action(OperateByInstruction)->setEnabled(stopped || isCore);
 
-    m_actions.resetAction->setEnabled(m_state != DebuggerNotReady
-                                      && m_state != DebuggerFinished);
+    m_actions.resetAction->setEnabled(state != DebuggerNotReady
+                                      && state != DebuggerFinished);
 
     m_actions.stepAction->setEnabled(stopped);
     m_actions.stepOutAction->setEnabled(stopped);
@@ -2238,12 +2236,12 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     action(AutoDerefPointers)->setEnabled(canDeref);
     action(AutoDerefPointers)->setEnabled(true);
     action(ExpandStack)->setEnabled(actionsEnabled);
-    action(ExecuteCommand)->setEnabled(m_state == InferiorStopOk);
+    action(ExecuteCommand)->setEnabled(state == InferiorStopOk);
 
-    const bool notbusy = m_state == InferiorStopOk
-        || m_state == DebuggerNotReady
-        || m_state == DebuggerFinished
-        || m_state == InferiorUnrunnable;
+    const bool notbusy = state == InferiorStopOk
+        || state == DebuggerNotReady
+        || state == DebuggerFinished
+        || state == InferiorUnrunnable;
     setBusyCursor(!notbusy);
 
     m_scriptConsoleWindow->setEnabled(stopped);
