@@ -171,8 +171,6 @@ void NodeInstanceView::restartProcess()
         m_nodeInstanceServer = new NodeInstanceServerProxy(this);
         connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(restartProcess()));
 
-        setBlockUpdates(true);
-
         foreach(const Import &import, model()->imports())
             nodeInstanceServer()->addImport(createImportCommand(import));
 
