@@ -549,7 +549,8 @@ static inline SymbolGroupValueVector
         return SymbolGroupValueVector();
     // MSVC2010: "class _Tree : public _Tree_val: public _Tree_nod".
     // MSVC2008: Direct class
-    const bool isMSVC2010 = tree[unsigned(0)][unsigned(0)]["_Mysize"].intValue() == count;
+    const int size = tree[unsigned(0)][unsigned(0)]["_Mysize"].intValue();
+    const bool isMSVC2010 = size >= 0 && size <= count; // Count may be limited
     if (isMSVC2010In)
         *isMSVC2010In = isMSVC2010;
     const SymbolGroupValue treeNode = isMSVC2010 ? tree[unsigned(0)][unsigned(0)] : tree;
@@ -904,17 +905,15 @@ static inline AbstractSymbolGroupNodePtrVector
     const std::string mapNodeType = qHashNodeType(v, "Node");
     const std::string mapPayloadNodeType = qHashNodeType(v, "PayloadNode");
     // Calculate the offset needed (see QMap::concrete() used by the iterator).
-    const unsigned mapNodeSize = SymbolGroupValue::sizeOf(mapPayloadNodeType.c_str());
     const unsigned payloadNodeSize = SymbolGroupValue::sizeOf(mapPayloadNodeType.c_str());
-    const unsigned pointerSize = SymbolGroupValue::pointerSize();
     if (debugMap) {
         DebugPrint() << v.type() << "," << mapNodeType << ':'
-                     << mapNodeSize << ',' << mapPayloadNodeType << ':' << payloadNodeSize
-                     << ", pointerSize=" << pointerSize;
+                     << mapPayloadNodeType << ':' << payloadNodeSize
+                     << ", pointerSize=" << SymbolGroupValue::pointerSize();
     }
-    if (!payloadNodeSize || !mapNodeSize)
+    if (!payloadNodeSize)
         return AbstractSymbolGroupNodePtrVector();
-    const ULONG64 payLoad  = payloadNodeSize - pointerSize;
+    const ULONG64 payLoad  = payloadNodeSize - SymbolGroupValue::pointerSize();
     // Get the value offset. Manually determine the alignment to be able
     // to retrieve key/value without having to deal with QMapNode<> (see below).
     // Subtract the 2 trailing pointers of the node.
@@ -922,7 +921,7 @@ static inline AbstractSymbolGroupNodePtrVector
     if (innerTypes.size() != 2u)
         return AbstractSymbolGroupNodePtrVector();
     const unsigned valueSize = SymbolGroupValue::sizeOf(innerTypes.at(1).c_str());
-    const unsigned valueOffset = mapNodeSize - valueSize - pointerSize;
+    const unsigned valueOffset = SymbolGroupValue::fieldOffset(mapNodeType.c_str(), "value");
     if (debugMap)
         DebugPrint() << "Payload=" << payLoad << ",valueOffset=" << valueOffset << ','
                      << innerTypes.front() << ',' << innerTypes.back() << ':' << valueSize;

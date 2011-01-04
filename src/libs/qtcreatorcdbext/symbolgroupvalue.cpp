@@ -267,6 +267,14 @@ unsigned SymbolGroupValue::intSize()
     return is;
 }
 
+unsigned SymbolGroupValue::fieldOffset(const char *type, const char *field)
+{
+    ULONG rc = 0;
+    if (GetFieldOffset(type, field, &rc))
+        return 0;
+    return rc;
+}
+
 std::string SymbolGroupValue::stripPointerType(const std::string &t)
 {
     return isPointerType(t) ? t.substr(0, t.size() - 2) : t;

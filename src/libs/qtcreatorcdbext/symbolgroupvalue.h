@@ -98,6 +98,8 @@ public:
 
     // Some helpers for manipulating types.
     static inline unsigned sizeOf(const char *type) { return GetTypeSize(type); }
+    // Offset of structure field: "!moduleQMapNode<K,T>", "value".
+    static unsigned fieldOffset(const char *type, const char *field);
     static std::string stripPointerType(const std::string &);
     static std::string addPointerType(const std::string &);
     static std::string stripArrayType(const std::string &);
