@@ -1838,7 +1838,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
         menu->addAction(act);
     }
     // Run to, jump to line below in stopped state.
-    if (currentEngine() && currentEngine()->state() == InferiorStopOk) {
+    if (currentEngine()->state() == InferiorStopOk) {
         menu->addSeparator();
         const QString runText =
             DebuggerEngine::tr("Run to Line %1").arg(lineNumber);
