@@ -116,6 +116,9 @@
          <height>150</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Edit the project file to add or remove entries.</string>
+       </property>
        <property name="textElideMode">
         <enum>Qt::ElideMiddle</enum>
        </property>
