@@ -498,11 +498,11 @@ QString MaemoPackageCreationStep::packagingCommand(const Qt4BuildConfiguration *
     const QString &commandName)
 {
     QString perl;
+    const QString maddeRoot = MaemoGlobal::maddeRoot(bc->qtVersion());
 #ifdef Q_OS_WIN
-    perl = tc->maddeRoot() + QLatin1String("/bin/perl.exe ");
+    perl = maddeRoot + QLatin1String("/bin/perl.exe ");
 #endif
-    return perl + MaemoGlobal::maddeRoot(bc->qtVersion())
-        % QLatin1String("/madbin/") % commandName;
+    return perl + maddeRoot % QLatin1String("/madbin/") % commandName;
 }
 
 void MaemoPackageCreationStep::checkProjectName()
