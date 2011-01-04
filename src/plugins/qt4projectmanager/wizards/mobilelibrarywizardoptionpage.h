@@ -52,6 +52,8 @@ public:
     QString symbianUid() const;
     void setNetworkEnabled(bool enableIt);
     bool networkEnabled() const;
+    QString qtPluginDirectory() const;
+    void setQtPluginDirectory(const QString &directory);
     void setLibraryType(int type);
 
 private:

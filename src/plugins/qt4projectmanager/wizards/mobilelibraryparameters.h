@@ -84,6 +84,7 @@ public:
     QString fileName;
 
     QString symbianUid;
+    QString qtPluginDirectory;
     uint symbianCapabilities;
 };
 

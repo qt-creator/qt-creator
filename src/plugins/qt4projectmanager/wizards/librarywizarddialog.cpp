@@ -43,6 +43,7 @@
 #include <utils/projectintropage.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
 
 #include <QtGui/QComboBox>
 #include <QtGui/QLabel>
@@ -244,7 +245,9 @@ int LibraryWizardDialog::nextId() const
 
             // If there was no Symbian target defined we omit "Symbian specific" step
             // We also omit this step if the library type is not dll
-            if (symbianTargetEnabled && type() == QtProjectParameters::SharedLibrary)
+            if (symbianTargetEnabled
+                    && (type() == QtProjectParameters::SharedLibrary
+                        || type() == QtProjectParameters::Qt4Plugin))
                 next = m_mobilePageId;
 
             if (next == m_modulesPageId)
@@ -353,6 +356,9 @@ void LibraryWizardDialog::setupFilesPage()
 void LibraryWizardDialog::setupMobilePage()
 {
     m_mobilePage->setSymbianUid(AbstractMobileApp::symbianUidForPath(path()+projectName()));
+
+    if (type() == QtProjectParameters::Qt4Plugin)
+        m_mobilePage->setQtPluginDirectory(projectName());
     m_mobilePage->setLibraryType(type());
 }
 
@@ -381,6 +387,7 @@ MobileLibraryParameters LibraryWizardDialog::mobileLibraryParameters() const
 
     if (mlp.type & MobileLibraryParameters::Symbian) {
         mlp.symbianUid = m_mobilePage->symbianUid();
+        mlp.qtPluginDirectory = m_mobilePage->qtPluginDirectory();
         mlp.symbianCapabilities |= m_mobilePage->networkEnabled()?MobileLibraryParameters::NetworkServices:0;
     }
 

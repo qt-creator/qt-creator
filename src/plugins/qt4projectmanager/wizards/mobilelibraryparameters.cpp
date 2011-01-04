@@ -35,6 +35,7 @@
 #include "qtprojectparameters.h"
 
 #include <QtCore/QTextStream>
+#include <QtCore/QDir>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -94,19 +95,31 @@ void MobileLibraryParameters::writeProFile(QTextStream &str) const
 
 void MobileLibraryParameters::writeSymbianProFile(QTextStream &str) const
 {
-    if (libraryType != QtProjectParameters::SharedLibrary)
-        return; //nothing to do when the library is not a shared library
-
-    str << "\n"
-           "symbian {\n"
-           "    MMP_RULES += EXPORTUNFROZEN\n"
-           "    TARGET.UID3 = " + symbianUid + "\n"
-           "    TARGET.CAPABILITY = " + generateCapabilitySet(symbianCapabilities).toAscii() + "\n"
-           "    TARGET.EPOCALLOWDLLDATA = 1\n"
-           "    addFiles.sources = " + fileName + ".dll\n"
-           "    addFiles.path = !:/sys/bin\n"
-           "    DEPLOYMENT += addFiles\n"
-           "}\n";
+    if (libraryType == QtProjectParameters::SharedLibrary) {
+        str << "\n"
+               "symbian {\n"
+               "    MMP_RULES += EXPORTUNFROZEN\n"
+               "    TARGET.UID3 = " + symbianUid + "\n"
+               "    TARGET.CAPABILITY = " + generateCapabilitySet(symbianCapabilities).toAscii() + "\n"
+               "    TARGET.EPOCALLOWDLLDATA = 1\n"
+               "    addFiles.sources = " + fileName + ".dll\n"
+               "    addFiles.path = !:/sys/bin\n"
+               "    DEPLOYMENT += addFiles\n"
+               "}\n";
+    } else if (libraryType == QtProjectParameters::Qt4Plugin) {
+        str << "\n"
+               "symbian {\n"
+               "# Load predefined include paths (e.g. QT_PLUGINS_BASE_DIR) to be used in the pro-files\n"
+               "    load(data_caging_paths)\n"
+               "    MMP_RULES += EXPORTUNFROZEN\n"
+               "    TARGET.UID3 = " + symbianUid + "\n"
+               "    TARGET.CAPABILITY = " + generateCapabilitySet(symbianCapabilities).toAscii() + "\n"
+               "    TARGET.EPOCALLOWDLLDATA = 1\n"
+               "    pluginDeploy.sources = " + fileName + ".dll\n"
+               "    pluginDeploy.path = $$QT_PLUGINS_BASE_DIR/" + QDir::fromNativeSeparators(qtPluginDirectory) + "\n"
+               "    DEPLOYMENT += pluginDeploy\n"
+               "}\n";
+    }
 }
 
 void MobileLibraryParameters::writeMaemoProFile(QTextStream &str) const

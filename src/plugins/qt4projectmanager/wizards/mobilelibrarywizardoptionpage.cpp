@@ -84,9 +84,27 @@ bool MobileLibraryWizardOptionPage::networkEnabled() const
     return m_d->ui.symbianEnableNetworkCheckBox->isChecked();
 }
 
+QString MobileLibraryWizardOptionPage::qtPluginDirectory() const
+{
+    return m_d->ui.qtPluginLocationLineEdit->text();
+}
+
+void MobileLibraryWizardOptionPage::setQtPluginDirectory(const QString &directory)
+{
+    m_d->ui.qtPluginLocationLineEdit->setText(directory);
+}
+
 void MobileLibraryWizardOptionPage::setLibraryType(int type)
 {
     m_d->libraryType = static_cast<QtProjectParameters::Type>(type);
+
+    if (type != QtProjectParameters::Qt4Plugin) {
+        m_d->ui.qtPluginLocationLineEdit->setVisible(false);
+        m_d->ui.qtPluginLocationLabel->setVisible(false);
+        m_d->ui.formLayout_2->removeItem(m_d->ui.horizontalLayout_2);
+        delete m_d->ui.horizontalLayout_2;
+        m_d->ui.horizontalLayout_2 = 0;
+    }
 }
 
 } // namespace Internal
