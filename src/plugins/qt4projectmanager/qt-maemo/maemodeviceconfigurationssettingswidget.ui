@@ -375,6 +375,9 @@
        <property name="enabled">
         <bool>false</bool>
        </property>
+       <property name="toolTip">
+        <string>Click here to check whether this device is properly set up to run Maemo projects.</string>
+       </property>
        <property name="text">
         <string>&amp;Test</string>
        </property>
@@ -384,6 +387,9 @@
       <widget class="QPushButton" name="generateKeyButton">
        <property name="enabled">
         <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Click here if you don't have an SSH key yet.</string>
        </property>
        <property name="text">
         <string>&amp;Generate SSH Key ...</string>
@@ -395,6 +401,9 @@
        <property name="enabled">
         <bool>false</bool>
        </property>
+       <property name="toolTip">
+        <string>This will enable you to log into the device without a password.</string>
+       </property>
        <property name="text">
         <string>&amp;Deploy Public Key ...</string>
        </property>
@@ -404,6 +413,9 @@
       <widget class="QPushButton" name="remoteProcessesButton">
        <property name="enabled">
         <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Click here to see which processes are running on the device.</string>
        </property>
        <property name="text">
         <string>Remote Processes ...</string>
