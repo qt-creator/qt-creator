@@ -136,6 +136,7 @@ signals:
     void contentsChangedBecauseOfUndo();
     void markRequested(TextEditor::ITextEditor *editor, int line);
     void markContextMenuRequested(TextEditor::ITextEditor *editor, int line, QMenu *menu);
+    void tooltipOverrideRequested(TextEditor::ITextEditor *editor, const QPoint &globalPos, int position, bool *handled);
     void tooltipRequested(TextEditor::ITextEditor *editor, const QPoint &globalPos, int position);
     void contextHelpIdRequested(TextEditor::ITextEditor *editor, int position);
 };

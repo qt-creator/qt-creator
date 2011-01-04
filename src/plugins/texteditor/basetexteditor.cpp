@@ -2533,7 +2533,11 @@ bool BaseTextEditor::viewportEvent(QEvent *event)
         QPoint cursorPos = mapToGlobal(cursorRect(c).bottomRight() + QPoint(1,1));
         cursorPos.setX(cursorPos.x() + d->m_extraArea->width());
 
-        emit editableInterface()->tooltipRequested(editableInterface(), cursorPos, c.position());
+        bool handled = false;
+        BaseTextEditorEditable *editable = editableInterface();
+        emit editable->tooltipOverrideRequested(editable, cursorPos, c.position(), &handled);
+        if (!handled)
+            emit editable->tooltipRequested(editable, cursorPos, c.position());
         return true;
     }
     return QPlainTextEdit::viewportEvent(event);

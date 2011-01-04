@@ -983,7 +983,8 @@ public slots:
     void editorAboutToClose(Core::IEditor *editor);
     void setBusyCursor(bool busy);
     void requestMark(TextEditor::ITextEditor *editor, int lineNumber);
-    void showToolTip(TextEditor::ITextEditor *editor, const QPoint &pnt, int pos);
+    void showToolTip(TextEditor::ITextEditor *editor,
+        const QPoint &pnt, int pos, bool *handled);
     void requestContextMenu(TextEditor::ITextEditor *editor,
         int lineNumber, QMenu *menu);
 
@@ -1764,8 +1765,8 @@ void DebuggerPluginPrivate::editorOpened(Core::IEditor *editor)
         SIGNAL(markRequested(TextEditor::ITextEditor*,int)),
         SLOT(requestMark(TextEditor::ITextEditor*,int)));
     connect(editor,
-        SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
-        SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int)));
+        SIGNAL(tooltipOverrideRequested(TextEditor::ITextEditor*,QPoint,int,bool*)),
+        SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int,bool*)));
     connect(textEditor,
         SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
         SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
@@ -1782,8 +1783,8 @@ void DebuggerPluginPrivate::editorAboutToClose(Core::IEditor *editor)
         SIGNAL(markRequested(TextEditor::ITextEditor*,int)),
         this, SLOT(requestMark(TextEditor::ITextEditor*,int)));
     disconnect(editor,
-        SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
-        this, SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int)));
+        SIGNAL(tooltipOverrideRequested(TextEditor::ITextEditor*,QPoint,int,bool*)),
+        this, SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int,bool*)));
     disconnect(textEditor,
         SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
         this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
@@ -1943,7 +1944,7 @@ void DebuggerPluginPrivate::requestMark(ITextEditor *editor, int lineNumber)
 }
 
 void DebuggerPluginPrivate::showToolTip(ITextEditor *editor,
-    const QPoint &point, int pos)
+    const QPoint &point, int pos, bool *handled)
 {
     if (!isDebuggable(editor))
         return;
@@ -1951,6 +1952,8 @@ void DebuggerPluginPrivate::showToolTip(ITextEditor *editor,
         return;
     if (state() != InferiorStopOk)
         return;
+    QTC_ASSERT(handled, return);
+    *handled = true;
     currentEngine()->setToolTipExpression(point, editor, pos);
 }
 

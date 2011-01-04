@@ -81,12 +81,6 @@ void BaseHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint
 
     editor->setContextHelpId(QString());
 
-    ICore *core = ICore::instance();
-    const int dbgContext =
-        core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_DEBUGMODE);
-    if (core->hasContext(dbgContext))
-        return;
-
     process(editor, pos);
 
     const QPoint &actualPoint = point - QPoint(0,
