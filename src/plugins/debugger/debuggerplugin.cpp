@@ -980,7 +980,6 @@ public slots:
     }
 
     void editorOpened(Core::IEditor *editor);
-    void editorAboutToClose(Core::IEditor *editor);
     void setBusyCursor(bool busy);
     void requestMark(TextEditor::ITextEditor *editor, int lineNumber);
     void showToolTip(TextEditor::ITextEditor *editor,
@@ -1754,7 +1753,7 @@ bool DebuggerPluginPrivate::attachCmdLine()
     return true;
 }
 
-void DebuggerPluginPrivate::editorOpened(Core::IEditor *editor)
+void DebuggerPluginPrivate::editorOpened(IEditor *editor)
 {
     if (!isDebuggable(editor))
         return;
@@ -1772,25 +1771,7 @@ void DebuggerPluginPrivate::editorOpened(Core::IEditor *editor)
         SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
 }
 
-void DebuggerPluginPrivate::editorAboutToClose(Core::IEditor *editor)
-{
-    if (!isDebuggable(editor))
-        return;
-    ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
-    if (!textEditor)
-        return;
-    disconnect(textEditor,
-        SIGNAL(markRequested(TextEditor::ITextEditor*,int)),
-        this, SLOT(requestMark(TextEditor::ITextEditor*,int)));
-    disconnect(editor,
-        SIGNAL(tooltipOverrideRequested(TextEditor::ITextEditor*,QPoint,int,bool*)),
-        this, SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int,bool*)));
-    disconnect(textEditor,
-        SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
-        this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
-}
-
-void DebuggerPluginPrivate::requestContextMenu(TextEditor::ITextEditor *editor,
+void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     int lineNumber, QMenu *menu)
 {
     if (!isDebuggable(editor))
@@ -3084,8 +3065,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     // EditorManager
     QObject *editorManager = core->editorManager();
-    connect(editorManager, SIGNAL(editorAboutToClose(Core::IEditor*)),
-        SLOT(editorAboutToClose(Core::IEditor*)));
     connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),
         SLOT(editorOpened(Core::IEditor*)));
 
