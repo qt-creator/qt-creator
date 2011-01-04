@@ -11,6 +11,6 @@ QT += network
 message("this says <foo & bar>")
 
 maemo5 {
-    target.path = /opt/usr/bin
+    target.path = /opt/usr/lib
     INSTALLS += target
 }

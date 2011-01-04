@@ -83,7 +83,7 @@
 #if defined(__GNUC__) && !defined(__llvm__) && !defined(Q_OS_MAC)
 #    define USE_GCC_EXT 1
 #    undef __DEPRECATED
-#    include <hash_set>
+#    include <ext/hash_set>
 #endif
 
 #ifdef Q_OS_WIN
