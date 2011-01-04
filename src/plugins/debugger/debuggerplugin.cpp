@@ -437,21 +437,6 @@ static QToolButton *toolButton(QAction *action)
     return button;
 }
 
-// Retrieve file name and line and optionally address
-// from the data set on the text editor context menu action.
-static bool positionFromActionData(const QObject *sender,
-    QString *fileName, int *lineNumber, quint64 *address)
-{
-    const QAction *action = qobject_cast<const QAction *>(sender);
-    QTC_ASSERT(action, return false);
-    const QVariantList data = action->data().toList();
-    QTC_ASSERT(data.size() == 3, return false);
-    *fileName = data.front().toString();
-    *lineNumber = data.at(1).toInt();
-    *address = data.at(2).toULongLong();
-    return true;
-}
-
 struct AttachRemoteParameters
 {
     AttachRemoteParameters() : attachPid(0), winCrashEvent(0) {}
@@ -843,12 +828,30 @@ static bool isDebuggable(IEditor *editor)
     return editor;
 }
 
+class ContextData
+{
+public:
+    ContextData() : lineNumber(0), address(0) {}
+
+public:
+    QString fileName;
+    int lineNumber;
+    quint64 address;
+};
+
+} // namespace Internal
+} // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::ContextData)
 
 ///////////////////////////////////////////////////////////////////////
 //
 // Debugger Actions
 //
 ///////////////////////////////////////////////////////////////////////
+
+namespace Debugger {
+namespace Internal {
 
 struct DebuggerActions
 {
@@ -907,15 +910,13 @@ public slots:
 
     void breakpointSetMarginActionTriggered()
     {
-        QString fileName;
-        int lineNumber;
-        quint64 address;
-        if (positionFromActionData(sender(), &fileName, &lineNumber, &address)) {
-            if (address)
-                toggleBreakpointByAddress(address);
-            else
-                toggleBreakpointByFileAndLine(fileName, lineNumber);
-        }
+        const QAction *action = qobject_cast<const QAction *>(sender());
+        QTC_ASSERT(action, return);
+        const ContextData data = action->data().value<ContextData>();
+        if (data.address)
+            toggleBreakpointByAddress(data.address);
+        else
+            toggleBreakpointByFileAndLine(data.fileName, data.lineNumber);
     }
 
     void breakpointRemoveMarginActionTriggered()
@@ -1183,21 +1184,18 @@ public slots:
 
     void slotRunToLine()
     {
-        // Run to line, file name and line number set as list.
-        QString fileName;
-        int lineNumber;
-        quint64 address;
-        if (positionFromActionData(sender(), &fileName, &lineNumber, &address))
-            currentEngine()->executeRunToLine(fileName, lineNumber);
+        const QAction *action = qobject_cast<const QAction *>(sender());
+        QTC_ASSERT(action, return);
+        const ContextData data = action->data().value<ContextData>();
+        currentEngine()->executeRunToLine(data.fileName, data.lineNumber);
     }
 
     void slotJumpToLine()
     {
-        QString fileName;
-        int lineNumber;
-        quint64 address;
-        if (positionFromActionData(sender(), &fileName, &lineNumber, &address))
-            currentEngine()->executeJumpToLine(fileName, lineNumber);
+        const QAction *action = qobject_cast<const QAction *>(sender());
+        QTC_ASSERT(action, return);
+        const ContextData data = action->data().value<ContextData>();
+        currentEngine()->executeJumpToLine(data.fileName, data.lineNumber);
     }
 
     void handleAddToWatchWindow()
@@ -1341,6 +1339,9 @@ public:
 
 DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
 {
+    qRegisterMetaType<WatchData>("WatchData");
+    qRegisterMetaType<ContextData>("ContextData");
+
     QTC_ASSERT(!theDebuggerCore, /**/);
     theDebuggerCore = this;
 
@@ -1781,25 +1782,23 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     QString fileName;
     quint64 address = 0;
 
+    ContextData args;
+    args.lineNumber = lineNumber;
+
     if (editor->property("DisassemblerView").toBool()) {
-        fileName = editor->file()->fileName();
+        args.fileName = editor->file()->fileName();
         QString line = editor->contents()
             .section('\n', lineNumber - 1, lineNumber - 1);
         BreakpointResponse needle;
         needle.type = BreakpointByAddress;
         needle.address = DisassemblerAgent::addressFromDisassemblyLine(line);
-        address = needle.address;
+        args.address = needle.address;
         needle.lineNumber = -1;
         id = breakHandler()->findSimilarBreakpoint(needle);
     } else {
-        fileName = editor->file()->fileName();
+        args.fileName = editor->file()->fileName();
         id = breakHandler()->findBreakpointByFileAndLine(fileName, lineNumber);
     }
-
-    QList<QVariant> args;
-    args.append(fileName);
-    args.append(lineNumber);
-    args.append(address);
 
     if (id) {
         // Remove existing breakpoint.
@@ -1836,7 +1835,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
                     tr("Set Breakpoint at 0x%1").arg(address, 0, 16) :
                     tr("Set Breakpoint at line %1").arg(lineNumber);
         QAction *act = new QAction(text, menu);
-        act->setData(args);
+        act->setData(QVariant::fromValue(args));
         connect(act, SIGNAL(triggered()),
             SLOT(breakpointSetMarginActionTriggered()));
         menu->addAction(act);
@@ -1847,7 +1846,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
         const QString runText =
             DebuggerEngine::tr("Run to Line %1").arg(lineNumber);
         QAction *runToLineAction  = new QAction(runText, menu);
-        runToLineAction->setData(args);
+        runToLineAction->setData(QVariant::fromValue(args));
         connect(runToLineAction, SIGNAL(triggered()), SLOT(slotRunToLine()));
         menu->addAction(runToLineAction);
         if (currentEngine()->debuggerCapabilities() & JumpToLineCapability) {
@@ -1855,7 +1854,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
                 DebuggerEngine::tr("Jump to Line %1").arg(lineNumber);
             QAction *jumpToLineAction  = new QAction(jumpText, menu);
             menu->addAction(runToLineAction);
-            jumpToLineAction->setData(args);
+            jumpToLineAction->setData(QVariant::fromValue(args));
             connect(jumpToLineAction, SIGNAL(triggered()), SLOT(slotJumpToLine()));
             menu->addAction(jumpToLineAction);
         }

@@ -178,7 +178,6 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
   : DebuggerEngine(startParameters)
 {
     setObjectName(QLatin1String("GdbEngine"));
-    qRegisterMetaType<WatchData>("WatchData");
 
     m_busy = false;
     m_gdbAdapter = 0;
