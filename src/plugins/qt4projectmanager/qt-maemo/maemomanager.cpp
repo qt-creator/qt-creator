@@ -110,26 +110,18 @@ MaemoManager &MaemoManager::instance()
 
 bool MaemoManager::isValidMaemoQtVersion(const QtVersion *version) const
 {
-    QString path = QDir::cleanPath(version->qmakeCommand());
-    path.remove(QLatin1String("/bin/qmake" EXEC_SUFFIX));
-    QDir dir(path);
-    const QByteArray target = dir.dirName().toAscii();
-    dir.cdUp(); dir.cdUp();
-    const QString madAdminCommand(dir.absolutePath() + QLatin1String("/bin/mad-admin"));
-    if (!QFileInfo(madAdminCommand).exists())
-        return false;
-
     QProcess madAdminProc;
     const QStringList arguments(QLatin1String("list"));
-    MaemoGlobal::callMaddeShellScript(madAdminProc, dir.absolutePath(),
-        madAdminCommand, arguments);
+    if (!MaemoGlobal::callMadAdmin(madAdminProc, arguments, version))
+        return false;
     if (!madAdminProc.waitForStarted() || !madAdminProc.waitForFinished())
         return false;
 
     madAdminProc.setReadChannel(QProcess::StandardOutput);
+    const QByteArray targetName = MaemoGlobal::targetName(version).toAscii();
     while (madAdminProc.canReadLine()) {
         const QByteArray &line = madAdminProc.readLine();
-        if (line.contains(target)
+        if (line.contains(targetName)
             && (line.contains("(installed)") || line.contains("(default)")))
             return true;
     }
@@ -138,9 +130,7 @@ bool MaemoManager::isValidMaemoQtVersion(const QtVersion *version) const
 
 ToolChain* MaemoManager::maemoToolChain(const QtVersion *version) const
 {
-    QString targetRoot = QDir::cleanPath(version->qmakeCommand());
-    targetRoot.remove(QLatin1String("/bin/qmake" EXEC_SUFFIX));
-    return new MaemoToolChain(targetRoot);
+    return new MaemoToolChain(version);
 }
 
     } // namespace Internal

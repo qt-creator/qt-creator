@@ -38,7 +38,6 @@
 #include "maemoqemuruntimeparser.h"
 #include "maemosettingspages.h"
 #include "maemorunconfiguration.h"
-#include "maemotoolchain.h"
 #include "qtversionmanager.h"
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"

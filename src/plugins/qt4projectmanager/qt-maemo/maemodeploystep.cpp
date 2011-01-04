@@ -455,12 +455,15 @@ void MaemoDeployStep::handleUnmounted()
         m_mounter->resetMountSpecifications();
         setState(Inactive);
         break;
-    case UnmountingOldDirs:
-        if (toolChain()->allowsRemoteMounts())
+    case UnmountingOldDirs: {
+        const Qt4BuildConfiguration * const bc
+            = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
+        if (MaemoGlobal::allowsRemoteMounts(bc->qtVersion()))
             setupMount();
         else
             prepareSftpConnection();
         break;
+    }
     case UnmountingCurrentDirs:
         setState(GatheringPorts);
         m_portsGatherer->start(m_connection, deviceConfig().freePorts());
@@ -519,7 +522,7 @@ void MaemoDeployStep::setupMount()
 
     Q_ASSERT(m_needsInstall || !m_filesToCopy.isEmpty());
     m_mounter->resetMountSpecifications();
-    m_mounter->setToolchain(toolChain());
+    m_mounter->setBuildConfiguration(static_cast<Qt4BuildConfiguration *>(buildConfiguration()));
     if (m_needsInstall) {
         const QString localDir
             = QFileInfo(packagingStep()->packageFilePath()).absolutePath();
@@ -579,11 +582,13 @@ void MaemoDeployStep::installToSysroot()
 
     if (m_needsInstall) {
         writeOutput(tr("Installing package to sysroot ..."));
-        const MaemoToolChain * const tc = toolChain();
+        const Qt4BuildConfiguration * const bc
+            = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
+        const QtVersion * const qtVersion = bc->qtVersion();
         const QStringList args = QStringList() << QLatin1String("-t")
-            << tc->targetName() << QLatin1String("xdpkg") << QLatin1String("-i")
-            << packagingStep()->packageFilePath();
-        m_sysrootInstaller->start(tc->madAdminCommand(), args);
+            << MaemoGlobal::targetName(qtVersion) << QLatin1String("xdpkg")
+            << QLatin1String("-i") << packagingStep()->packageFilePath();
+        MaemoGlobal::callMadAdmin(*m_sysrootInstaller, args, qtVersion);
         if (!m_sysrootInstaller->waitForStarted()) {
             writeOutput(tr("Installation to sysroot failed, continuing anyway."),
                 ErrorMessageOutput);

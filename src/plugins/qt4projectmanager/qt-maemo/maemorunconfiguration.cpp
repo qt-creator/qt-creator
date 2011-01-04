@@ -227,9 +227,7 @@ const MaemoToolChain *MaemoRunConfiguration::toolchain() const
 
 const QString MaemoRunConfiguration::gdbCmd() const
 {
-    if (const MaemoToolChain *tc = toolchain())
-        return QDir::toNativeSeparators(tc->targetRoot() + QLatin1String("/bin/gdb"));
-    return QString();
+    return QDir::toNativeSeparators(targetRoot() + QLatin1String("/bin/gdb"));
 }
 
 MaemoDeployStep *MaemoRunConfiguration::deployStep() const
@@ -241,13 +239,6 @@ MaemoDeployStep *MaemoRunConfiguration::deployStep() const
     return step;
 }
 
-QString MaemoRunConfiguration::maddeRoot() const
-{
-    if (const MaemoToolChain *tc = toolchain())
-        return tc->maddeRoot();
-    return QString();
-}
-
 const QString MaemoRunConfiguration::sysRoot() const
 {
     if (const MaemoToolChain *tc = toolchain())
@@ -257,9 +248,8 @@ const QString MaemoRunConfiguration::sysRoot() const
 
 const QString MaemoRunConfiguration::targetRoot() const
 {
-    if (const MaemoToolChain *tc = toolchain())
-        return tc->targetRoot();
-    return QString();
+    QTC_ASSERT(activeQt4BuildConfiguration(), return QString());
+    return MaemoGlobal::targetRoot(activeQt4BuildConfiguration()->qtVersion());
 }
 
 const QString MaemoRunConfiguration::arguments() const
@@ -331,7 +321,8 @@ MaemoPortList MaemoRunConfiguration::freePorts() const
 
 bool MaemoRunConfiguration::useRemoteGdb() const
 {
-    return m_useRemoteGdb && toolchain()->allowsRemoteMounts();
+    return m_useRemoteGdb
+        && MaemoGlobal::allowsRemoteMounts(activeQt4BuildConfiguration()->qtVersion());
 }
 
 void MaemoRunConfiguration::setArguments(const QString &args)
@@ -341,7 +332,7 @@ void MaemoRunConfiguration::setArguments(const QString &args)
 
 MaemoRunConfiguration::DebuggingType MaemoRunConfiguration::debuggingType() const
 {
-    if (!toolchain() || !toolchain()->allowsQmlDebugging())
+    if (!MaemoGlobal::allowsQmlDebugging(activeQt4BuildConfiguration()->qtVersion()))
         return DebugCppOnly;
     if (useCppDebugger()) {
         if (useQmlDebugger())

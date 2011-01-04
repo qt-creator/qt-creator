@@ -91,7 +91,6 @@ public:
     MaemoRemoteMountsModel *remoteMounts() const { return m_remoteMounts; }
 
     const MaemoToolChain *toolchain() const;
-    QString maddeRoot() const;
     QString localExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
     const QString sysRoot() const;

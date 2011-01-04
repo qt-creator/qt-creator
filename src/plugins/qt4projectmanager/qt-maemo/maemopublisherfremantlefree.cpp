@@ -38,7 +38,6 @@
 #include "maemopackagecreationstep.h"
 #include "maemopublishingfileselectiondialog.h"
 #include "maemotemplatesmanager.h"
-#include "maemotoolchain.h"
 
 #include <coreplugin/ifile.h>
 #include <projectexplorer/project.h>
@@ -364,13 +363,11 @@ void MaemoPublisherFremantleFree::runDpkgBuildPackage()
         return;
     setState(BuildingPackage);
     emit progressReport(tr("Building source package..."));
-    const MaemoToolChain * const tc
-        = dynamic_cast<MaemoToolChain *>(m_buildConfig->toolChain());
     const QStringList args = QStringList() << QLatin1String("-t")
-        << tc->targetName() << QLatin1String("dpkg-buildpackage")
-        << QLatin1String("-S") << QLatin1String("-us") << QLatin1String("-uc");
-    const QString madCommand = tc->maddeRoot() + QLatin1String("/bin/mad");
-    MaemoGlobal::callMaddeShellScript(*m_process, tc->maddeRoot(), madCommand, args);
+        << MaemoGlobal::targetName(m_buildConfig->qtVersion())
+        << QLatin1String("dpkg-buildpackage") << QLatin1String("-S")
+        << QLatin1String("-us") << QLatin1String("-uc");
+    MaemoGlobal::callMad(*m_process, args, m_buildConfig->qtVersion());
 }
 
 // We have to implement the SCP protocol, because the maemo.org

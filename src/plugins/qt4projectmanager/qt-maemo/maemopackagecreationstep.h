@@ -56,8 +56,6 @@ class Qt4BuildConfiguration;
 namespace Internal {
 class MaemoDeployStep;
 class MaemoDeployableListModel;
-class MaemoToolChain;
-class MaemoProFileWrapper;
 
 class MaemoPackageCreationStep : public ProjectExplorer::BuildStep
 {
@@ -74,18 +72,17 @@ public:
     QString versionString(QString *error) const;
     bool setVersionString(const QString &version, QString *error);
 
-    const MaemoToolChain *maemoToolChain() const;
-
     static bool preparePackagingProcess(QProcess *proc,
         const Qt4BuildConfiguration *bc, const QString &workingDir,
         QString *error);
-    static QString packagingCommand(const MaemoToolChain *tc,
+    static QString packagingCommand(const Qt4BuildConfiguration *bc,
         const QString &commandName);
     static QString packageName(const ProjectExplorer::Project *project);
     static QString packageFileName(const ProjectExplorer::Project *project,
         const QString &version);
 
     QString projectName() const;
+    const Qt4BuildConfiguration *qt4BuildConfiguration() const;
 
     static const QLatin1String DefaultVersionNumber;
 
@@ -111,8 +108,6 @@ private:
 
     bool createPackage(QProcess *buildProc);
     bool copyDebianFiles(bool inSourceBuild);
-    QString maddeRoot() const;
-    QString targetRoot() const;
     static QString nativePath(const QFile &file);
     bool packagingNeeded() const;
     bool isFileNewerThan(const QString &filePath,
@@ -120,7 +115,6 @@ private:
     void raiseError(const QString &shortMsg,
                     const QString &detailedMsg = QString());
     QString buildDirectory() const;
-    const Qt4BuildConfiguration *qt4BuildConfiguration() const;
     MaemoDeployStep * deployStep() const;
     void checkProjectName();
     void updateDesktopFiles(const QString &rulesFilePath);

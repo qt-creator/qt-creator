@@ -45,8 +45,8 @@
 #include <QtCore/QString>
 
 namespace Qt4ProjectManager {
+class QtVersion;
 namespace Internal {
-class MaemoToolChain;
 
 class MaemoDeployableListModel : public QAbstractTableModel
 {
@@ -98,7 +98,7 @@ private:
     bool isEditable(const QModelIndex &index) const;
     bool buildModel();
     bool addLinesToProFile(const QStringList &lines);
-    const MaemoToolChain *maemoToolchain() const;
+    const QtVersion *qtVersion() const;
     QString proFileScope() const;
     QString installPrefix() const;
 

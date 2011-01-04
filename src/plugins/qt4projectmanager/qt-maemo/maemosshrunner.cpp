@@ -70,7 +70,7 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent,
       m_state(Inactive)
 {
     m_connection = runConfig->deployStep()->sshConnection();
-    m_mounter->setToolchain(runConfig->toolchain());
+    m_mounter->setBuildConfiguration(runConfig->activeQt4BuildConfiguration());
     if (debugging && runConfig->useRemoteGdb()) {
         m_mountSpecs << MaemoMountSpecification(runConfig->localDirToMountForRemoteGdb(),
             runConfig->remoteProjectSourcesMountPoint());

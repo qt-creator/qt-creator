@@ -54,12 +54,15 @@ QT_END_NAMESPACE
 namespace Core { class SshConnection; }
 
 namespace Qt4ProjectManager {
+class QtVersion;
 namespace Internal {
 class MaemoDeviceConfig;
 
 class MaemoGlobal
 {
 public:
+    enum MaemoVersion { Maemo5, Maemo6 };
+
     static QString homeDirOnDevice(const QString &uname);
     static QString remoteSudo();
     static QString remoteCommandPrefix(const QString &commandFilePath);
@@ -67,12 +70,22 @@ public:
     static QString remoteSourceProfilesCommand();
     static QString failedToConnectToServerMessage(const QSharedPointer<Core::SshConnection> &connection,
         const MaemoDeviceConfig &deviceConfig);
-    static QString maddeRoot(const QString &qmakePath);
-    static QString targetName(const QString &qmakePath);
+
+    static QString maddeRoot(const QtVersion *qtVersion);
+    static QString targetRoot(const QtVersion *qtVersion);
+    static QString targetName(const QtVersion *qtVersion);
+    static QString madCommand(const QtVersion *qtVersion);
+    static MaemoVersion version(const QtVersion *qtVersion);
+    static bool allowsRemoteMounts(const QtVersion *qtVersion) { return version(qtVersion) == Maemo5; }
+    static bool allowsPackagingDisabling(const QtVersion *qtVersion) { return version(qtVersion) == Maemo5; }
+    static bool allowsQmlDebugging(const QtVersion *qtVersion) { return version(qtVersion) == Maemo6; }
+
+    static bool callMad(QProcess &proc, const QStringList &args,
+        const QtVersion *qtVersion);
+    static bool callMadAdmin(QProcess &proc, const QStringList &args,
+        const QtVersion *qtVersion);
 
     static bool removeRecursively(const QString &filePath, QString &error);
-    static void callMaddeShellScript(QProcess &proc, const QString &maddeRoot,
-        const QString &command, const QStringList &args);
 
     template<class T> static T *buildStep(const ProjectExplorer::DeployConfiguration *dc)
     {
@@ -101,6 +114,11 @@ public:
                 actual, func);
         }
     }
+
+private:
+    static QString madAdminCommand(const QtVersion *qtVersion);
+    static bool callMaddeShellScript(QProcess &proc, const QString &maddeRoot,
+        const QString &command, const QStringList &args);
 };
 
 } // namespace Internal

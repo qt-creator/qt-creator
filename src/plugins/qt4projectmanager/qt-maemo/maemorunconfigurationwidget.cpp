@@ -39,10 +39,10 @@
 #include "maemodeviceconfiglistmodel.h"
 #include "maemodeviceenvreader.h"
 #include "maemomanager.h"
+#include "maemoglobal.h"
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
 #include "maemosettingspages.h"
-#include "maemotoolchain.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -322,12 +322,16 @@ void MaemoRunConfigurationWidget::handleBuildConfigChanged()
 
 void MaemoRunConfigurationWidget::handleToolchainChanged()
 {
-    const MaemoToolChain * const toolChain = m_runConfiguration->toolchain();
-    if (toolChain) {
-        const bool remoteMountsAvailable = toolChain->allowsRemoteMounts();
+    const Qt4BuildConfiguration * const bc
+        = m_runConfiguration->activeQt4BuildConfiguration();
+    if (bc) {
+        const QtVersion * const qtVersion = bc->qtVersion();
+        const bool remoteMountsAvailable
+            = MaemoGlobal::allowsRemoteMounts(qtVersion);
         m_debugDetailsContainer->setVisible(remoteMountsAvailable);
         m_mountDetailsContainer->setVisible(remoteMountsAvailable);
-        const bool qmlDebuggingAvailable = toolChain->allowsQmlDebugging();
+        const bool qmlDebuggingAvailable
+            = MaemoGlobal::allowsQmlDebugging(qtVersion);
         m_debuggingLanguagesLabel->setVisible(qmlDebuggingAvailable);
         m_debugCppOnlyButton->setVisible(qmlDebuggingAvailable);
         m_debugQmlOnlyButton->setVisible(qmlDebuggingAvailable);

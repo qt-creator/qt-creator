@@ -33,7 +33,7 @@
 
 #include "maemodeployablelistmodel.h"
 
-#include "maemotoolchain.h"
+#include "maemoglobal.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -255,10 +255,10 @@ bool MaemoDeployableListModel::addDesktopFile(QString &error)
             return false;
     }
 
-    const MaemoToolChain *const tc = maemoToolchain();
-    QTC_ASSERT(tc, return false);
+    const QtVersion * const version = qtVersion();
+    QTC_ASSERT(version, return false);
     QString remoteDir = QLatin1String("/usr/share/applications");
-    if (tc->version() == MaemoToolChain::Maemo5)
+    if (MaemoGlobal::version(version) == MaemoGlobal::Maemo5)
         remoteDir += QLatin1String("/hildon");
     const QLatin1String filesLine("desktopfile.files = $${TARGET}.desktop");
     const QString pathLine = QLatin1String("desktopfile.path = ") + remoteDir;
@@ -333,7 +333,7 @@ bool MaemoDeployableListModel::addLinesToProFile(const QStringList &lines)
     return true;
 }
 
-const MaemoToolChain *MaemoDeployableListModel::maemoToolchain() const
+const QtVersion *MaemoDeployableListModel::qtVersion() const
 {
     const ProjectExplorer::Project *const activeProject
         = ProjectExplorer::ProjectExplorerPlugin::instance()->session()->startupProject();
@@ -344,25 +344,22 @@ const MaemoToolChain *MaemoDeployableListModel::maemoToolchain() const
     const Qt4BuildConfiguration *const bc
         = activeTarget->activeBuildConfiguration();
     QTC_ASSERT(bc, return 0);
-    const MaemoToolChain *const tc
-        = dynamic_cast<MaemoToolChain *>(bc->toolChain());
-    QTC_ASSERT(tc, return 0);
-    return tc;
+    return bc->qtVersion();
 }
 
 QString MaemoDeployableListModel::proFileScope() const
 {
-    const MaemoToolChain *const tc = maemoToolchain();
-    QTC_ASSERT(tc, return QString());
-    return QLatin1String(tc->version() == MaemoToolChain::Maemo5
+    const QtVersion *const qv = qtVersion();
+    QTC_ASSERT(qv, return QString());
+    return QLatin1String(MaemoGlobal::version(qv) == MaemoGlobal::Maemo5
         ? "maemo5" : "unix:!symbian:!maemo5");
 }
 
 QString MaemoDeployableListModel::installPrefix() const
 {
-    const MaemoToolChain *const tc = maemoToolchain();
-    QTC_ASSERT(tc, return QString());
-    return QLatin1String(tc->version() == MaemoToolChain::Maemo5
+    const QtVersion *const qv = qtVersion();
+    QTC_ASSERT(qv, return QString());
+    return QLatin1String(MaemoGlobal::version(qv) == MaemoGlobal::Maemo5
         ? "/opt/usr" : "/usr");
 }
 

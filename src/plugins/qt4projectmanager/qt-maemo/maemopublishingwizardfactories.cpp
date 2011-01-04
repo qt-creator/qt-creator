@@ -32,8 +32,8 @@
 **************************************************************************/
 #include "maemopublishingwizardfactories.h"
 
+#include "maemoglobal.h"
 #include "maemopublishingwizardfremantlefree.h"
-#include "maemotoolchain.h"
 
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qmakestep.h>
@@ -77,11 +77,7 @@ bool MaemoPublishingWizardFactoryFremantleFree::canCreateWizard(const Project *p
                 = qobject_cast<const Qt4BuildConfiguration *>(bc);
             if (!qt4Bc)
                 continue;
-            const MaemoToolChain * const tc
-                = dynamic_cast<MaemoToolChain *>(qt4Bc->toolChain());
-            if (!tc)
-                continue;
-            if (tc->version() == MaemoToolChain::Maemo5)
+            if (MaemoGlobal::version(qt4Bc->qtVersion()) == MaemoGlobal::Maemo5)
                 return true;
         }
         break;

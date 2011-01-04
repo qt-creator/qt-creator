@@ -33,8 +33,8 @@
 #include "maemopublishingbuildsettingspagefremantlefree.h"
 #include "ui_maemopublishingbuildsettingspagefremantlefree.h"
 
+#include "maemoglobal.h"
 #include "maemopublisherfremantlefree.h"
-#include "maemotoolchain.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -80,11 +80,7 @@ void MaemoPublishingBuildSettingsPageFremantleFree::collectBuildConfigurations(c
                 = qobject_cast<Qt4BuildConfiguration *>(bc);
             if (!qt4Bc)
                 continue;
-            const MaemoToolChain * const tc
-                = dynamic_cast<MaemoToolChain *>(qt4Bc->toolChain());
-            if (!tc)
-                continue;
-            if (tc->version() == MaemoToolChain::Maemo5)
+            if (MaemoGlobal::version(qt4Bc->qtVersion()) == MaemoGlobal::Maemo5)
                 m_buildConfigs << qt4Bc;
         }
         break;

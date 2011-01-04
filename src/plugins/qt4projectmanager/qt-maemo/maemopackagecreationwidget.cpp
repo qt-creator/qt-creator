@@ -42,9 +42,9 @@
 #include "maemopackagecreationwidget.h"
 #include "ui_maemopackagecreationwidget.h"
 
+#include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemotemplatesmanager.h"
-#include "maemotoolchain.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
@@ -209,10 +209,11 @@ void MaemoPackageCreationWidget::setShortDescription()
 
 void MaemoPackageCreationWidget::handleToolchainChanged()
 {
-    if (!m_step->maemoToolChain())
+    const Qt4BuildConfiguration * const bc = m_step->qt4BuildConfiguration();
+    if (!bc)
         return;
-    m_ui->skipCheckBox
-        ->setVisible(m_step->maemoToolChain()->allowsPackagingDisabling());
+    m_ui->skipCheckBox->setVisible(MaemoGlobal::allowsPackagingDisabling(
+        bc->qtVersion()));
     m_ui->skipCheckBox->setChecked(!m_step->isPackagingEnabled());
     emit updateSummary();
 }
