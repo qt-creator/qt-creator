@@ -39,15 +39,13 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 
+#include <languageutils/fakemetaobject.h>
+
 #include "parser/qmldirparser_p.h"
 #include "parser/qmljsengine_p.h"
 #include "qmljs_global.h"
 
 QT_QML_BEGIN_NAMESPACE
-
-namespace LanguageUtils {
-    class FakeMetaObject;
-}
 
 namespace QmlJS {
 
@@ -134,7 +132,7 @@ private:
     bool _valid;
     QList<QmlDirParser::Component> _components;
     QList<QmlDirParser::Plugin> _plugins;
-    typedef QList<const LanguageUtils::FakeMetaObject *> FakeMetaObjectList;
+    typedef QList<LanguageUtils::FakeMetaObject::ConstPtr> FakeMetaObjectList;
     FakeMetaObjectList _metaObjects;
 
     DumpStatus _dumpStatus;

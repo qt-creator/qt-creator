@@ -1459,8 +1459,8 @@ static Class *lookupClass(const QString &expression, Scope *scope, TypeOfExpress
     return 0;
 }
 
-static void populate(LanguageUtils::FakeMetaObject *fmo, Class *klass,
-                     QHash<Class *, LanguageUtils::FakeMetaObject *> *classes,
+static void populate(LanguageUtils::FakeMetaObject::Ptr fmo, Class *klass,
+                     QHash<Class *, LanguageUtils::FakeMetaObject::Ptr> *classes,
                      TypeOfExpression &typeOf)
 {
     using namespace LanguageUtils;
@@ -1539,27 +1539,27 @@ static void populate(LanguageUtils::FakeMetaObject *fmo, Class *klass,
         if (!baseClass)
             return;
 
-        FakeMetaObject *baseFmo = classes->value(baseClass);
+        FakeMetaObject::Ptr baseFmo = classes->value(baseClass);
         if (!baseFmo) {
-            baseFmo = new FakeMetaObject;
+            baseFmo = FakeMetaObject::Ptr(new FakeMetaObject);
             populate(baseFmo, baseClass, classes, typeOf);
         }
         fmo->setSuperclass(baseFmo);
     }
 }
 
-QList<LanguageUtils::FakeMetaObject *> CppModelManager::exportedQmlObjects() const
+QList<LanguageUtils::FakeMetaObject::ConstPtr> CppModelManager::exportedQmlObjects() const
 {
     using namespace LanguageUtils;
-    QList<FakeMetaObject *> exportedObjects;
-    QHash<Class *, FakeMetaObject *> classes;
+    QList<FakeMetaObject::ConstPtr> exportedObjects;
+    QHash<Class *, FakeMetaObject::Ptr> classes;
 
     const Snapshot currentSnapshot = snapshot();
     foreach (Document::Ptr doc, currentSnapshot) {
         TypeOfExpression typeOf;
         typeOf.init(doc, currentSnapshot);
         foreach (const Document::ExportedQmlType &exportedType, doc->exportedQmlTypes()) {
-            FakeMetaObject *fmo = new FakeMetaObject;
+            FakeMetaObject::Ptr fmo(new FakeMetaObject);
             fmo->addExport(exportedType.typeName, exportedType.packageName,
                            ComponentVersion(exportedType.majorVersion, exportedType.minorVersion));
             exportedObjects += fmo;

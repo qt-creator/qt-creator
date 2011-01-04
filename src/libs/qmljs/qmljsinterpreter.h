@@ -35,6 +35,7 @@
 #define QMLJS_INTERPRETER_H
 
 #include <languageutils/componentversion.h>
+#include <languageutils/fakemetaobject.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljs_global.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
@@ -45,13 +46,6 @@
 #include <QtCore/QHash>
 #include <QtCore/QSet>
 #include <QtCore/QMutex>
-
-namespace LanguageUtils {
-class FakeMetaObject;
-class FakeMetaMethod;
-class FakeMetaProperty;
-class FakeMetaEnum;
-}
 
 namespace QmlJS {
 
@@ -452,7 +446,7 @@ private:
 class QMLJS_EXPORT QmlObjectValue: public ObjectValue
 {
 public:
-    QmlObjectValue(const LanguageUtils::FakeMetaObject *metaObject, const QString &className,
+    QmlObjectValue(LanguageUtils::FakeMetaObject::ConstPtr metaObject, const QString &className,
                    const QString &packageName, const LanguageUtils::ComponentVersion version,
                    Engine *engine);
     virtual ~QmlObjectValue();
@@ -478,10 +472,10 @@ public:
 protected:
     const Value *findOrCreateSignature(int index, const LanguageUtils::FakeMetaMethod &method,
                                        QString *methodName) const;
-    bool isDerivedFrom(const LanguageUtils::FakeMetaObject *base) const;
+    bool isDerivedFrom(LanguageUtils::FakeMetaObject::ConstPtr base) const;
 
 private:
-    const LanguageUtils::FakeMetaObject *_metaObject;
+    LanguageUtils::FakeMetaObject::ConstPtr _metaObject;
     const QString _packageName;
     const LanguageUtils::ComponentVersion _componentVersion;
     mutable QHash<int, const Value *> _metaSignature;
@@ -592,20 +586,20 @@ class QMLJS_EXPORT CppQmlTypesLoader
 public:
     /** \return an empty list when successful, error messages otherwise. */
     static QStringList load(const QFileInfoList &xmlFiles);
-    static QList<const LanguageUtils::FakeMetaObject *> builtinObjects;
-    static QList<const LanguageUtils::FakeMetaObject *> cppObjects;
+    static QList<LanguageUtils::FakeMetaObject::ConstPtr> builtinObjects;
+    static QList<LanguageUtils::FakeMetaObject::ConstPtr> cppObjects;
 
     // parses the xml string and fills the newObjects map
     static QString parseQmlTypeXml(const QByteArray &xml,
-                                   QMap<QString, LanguageUtils::FakeMetaObject *> *newObjects);
+                                   QMap<QString, LanguageUtils::FakeMetaObject::Ptr> *newObjects);
 private:
-    static void setSuperClasses(QMap<QString, LanguageUtils::FakeMetaObject *> *newObjects);
+    static void setSuperClasses(QMap<QString, LanguageUtils::FakeMetaObject::Ptr> *newObjects);
 };
 
 class QMLJS_EXPORT CppQmlTypes
 {
 public:
-    void load(Interpreter::Engine *interpreter, const QList<const LanguageUtils::FakeMetaObject *> &objects);
+    void load(Interpreter::Engine *interpreter, const QList<LanguageUtils::FakeMetaObject::ConstPtr> &objects);
 
     QList<Interpreter::QmlObjectValue *> typesForImport(const QString &prefix, LanguageUtils::ComponentVersion version) const;
     Interpreter::QmlObjectValue *typeForImport(const QString &qualifiedName,
@@ -623,7 +617,7 @@ public:
 
 private:
     QmlObjectValue *getOrCreate(const QString &package, const QString &cppName,
-                                const LanguageUtils::FakeMetaObject *metaObject,
+                                LanguageUtils::FakeMetaObject::ConstPtr metaObject,
                                 Engine *engine, bool *created);
 
 

@@ -562,8 +562,5 @@ void ModelManager::updateCppQmlTypes()
     if (!cppModelManager)
         return;
 
-    QList<const LanguageUtils::FakeMetaObject *> constFMOs;
-    foreach (LanguageUtils::FakeMetaObject *fmo, cppModelManager->exportedQmlObjects())
-        constFMOs.append(fmo);
-    Interpreter::CppQmlTypesLoader::cppObjects = constFMOs;
+    Interpreter::CppQmlTypesLoader::cppObjects = cppModelManager->exportedQmlObjects();
 }

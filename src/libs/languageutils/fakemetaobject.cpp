@@ -128,9 +128,9 @@ void FakeMetaObject::setSuperclassName(const QString &superclass)
 QString FakeMetaObject::superclassName() const
 { return m_superName; }
 
-void FakeMetaObject::setSuperclass(FakeMetaObject *superClass)
+void FakeMetaObject::setSuperclass(ConstPtr superClass)
 { m_super = superClass; }
-const FakeMetaObject *FakeMetaObject::superClass() const
+FakeMetaObject::ConstPtr FakeMetaObject::superClass() const
 { return m_super; }
 
 void FakeMetaObject::addEnum(const FakeMetaEnum &fakeEnum)

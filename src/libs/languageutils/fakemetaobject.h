@@ -41,6 +41,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QList>
 #include <QtCore/QHash>
+#include <QtCore/QSharedPointer>
 
 namespace LanguageUtils {
 
@@ -118,6 +119,9 @@ class LANGUAGEUTILS_EXPORT FakeMetaObject {
     Q_DISABLE_COPY(FakeMetaObject);
 
 public:
+    typedef QSharedPointer<FakeMetaObject> Ptr;
+    typedef QSharedPointer<const FakeMetaObject> ConstPtr;
+
     class Export {
     public:
         QString package;
@@ -128,7 +132,7 @@ public:
 
 private:
     QList<Export> m_exports;
-    const FakeMetaObject *m_super;
+    ConstPtr m_super;
     QString m_superName;
     QList<FakeMetaEnum> m_enums;
     QHash<QString, int> m_enumNameToIndex;
@@ -145,8 +149,8 @@ public:
 
     void setSuperclassName(const QString &superclass);
     QString superclassName() const;
-    void setSuperclass(FakeMetaObject *superClass);
-    const FakeMetaObject *superClass() const;
+    void setSuperclass(ConstPtr superClass);
+    ConstPtr superClass() const;
 
     void addEnum(const FakeMetaEnum &fakeEnum);
     int enumeratorCount() const;
