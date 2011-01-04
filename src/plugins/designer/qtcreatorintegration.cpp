@@ -89,12 +89,6 @@ static QString msgClassNotFound(const QString &uiClassName, const QList<Document
     return QtCreatorIntegration::tr("The class definition of '%1' could not be found in %2.").arg(uiClassName, files);
 }
 
-static inline CppModelManagerInterface *cppModelManagerInstance()
-{
-    return ExtensionSystem::PluginManager::instance()
-        ->getObject<CppModelManagerInterface>();
-}
-
 QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent) :
     qdesigner_internal::QDesignerIntegration(core, ::qobject_cast<QObject*>(parent)),
     m_few(parent)
@@ -259,7 +253,7 @@ static Function *findDeclaration(const Class *cl, const QString &functionName)
 // TODO: remove me, this is taken from cppeditor.cpp. Find some common place for this method
 static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
 {
-    if (CppModelManagerInterface *cppModelManager = cppModelManagerInstance()) {
+    if (CppModelManagerInterface *cppModelManager = CppModelManagerInterface::instance()) {
         const Snapshot snapshot = cppModelManager->snapshot();
 
         if (Symbol *def = snapshot.findMatchingDefinition(functionDeclaration)) {
@@ -537,7 +531,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         *errorMessage = tr("Internal error: No project could be found for %1.").arg(currentUiFile);
         return false;
     }
-    CPlusPlus::Snapshot docTable = cppModelManagerInstance()->snapshot();
+    CPlusPlus::Snapshot docTable = CppModelManagerInterface::instance()->snapshot();
     CPlusPlus::Snapshot newDocTable;
 
     for  (CPlusPlus::Snapshot::iterator it = docTable.begin(); it != docTable.end(); ++it) {
@@ -606,7 +600,8 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         }
     } else {
         // add function declaration to cl
-        CppModelManagerInterface::WorkingCopy workingCopy = cppModelManagerInstance()->workingCopy();
+        CppModelManagerInterface::WorkingCopy workingCopy =
+            CppModelManagerInterface::instance()->workingCopy();
         const QString fileName = doc->fileName();
         getParsedDocument(fileName, workingCopy, docTable);
         addDeclaration(docTable, fileName, cl, functionNameWithParameterNames);

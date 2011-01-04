@@ -96,7 +96,7 @@ CMakeProject::~CMakeProject()
 {
     // Remove CodeModel support
     CPlusPlus::CppModelManagerInterface *modelManager
-            = ExtensionSystem::PluginManager::instance()->getObject<CPlusPlus::CppModelManagerInterface>();
+            = CPlusPlus::CppModelManagerInterface::instance();
     QMap<QString, CMakeUiCodeModelSupport *>::const_iterator it, end;
     it = m_uiCodeModelSupport.constBegin();
     end = m_uiCodeModelSupport.constEnd();
@@ -283,7 +283,7 @@ bool CMakeProject::parseCMakeLists()
 
     allIncludePaths.append(cbpparser.includeFiles());
     CPlusPlus::CppModelManagerInterface *modelmanager =
-            ExtensionSystem::PluginManager::instance()->getObject<CPlusPlus::CppModelManagerInterface>();
+            CPlusPlus::CppModelManagerInterface::instance();
     if (modelmanager) {
         CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
         if (pinfo.includePaths != allIncludePaths
@@ -609,7 +609,7 @@ void CMakeProject::createUiCodeModelSupport()
 {
 //    qDebug()<<"creatUiCodeModelSupport()";
     CPlusPlus::CppModelManagerInterface *modelManager
-            = ExtensionSystem::PluginManager::instance()->getObject<CPlusPlus::CppModelManagerInterface>();
+            = CPlusPlus::CppModelManagerInterface::instance();
 
     // First move all to
     QMap<QString, CMakeUiCodeModelSupport *> oldCodeModelSupport;

@@ -204,7 +204,7 @@ void GenericProject::refresh(RefreshOptions options)
         m_rootNode->refresh();
 
     CPlusPlus::CppModelManagerInterface *modelManager =
-        ExtensionSystem::PluginManager::instance()->getObject<CPlusPlus::CppModelManagerInterface>();
+        CPlusPlus::CppModelManagerInterface::instance();
 
     if (m_toolChain && modelManager) {
         const QByteArray predefinedMacros = m_toolChain->predefinedMacros();

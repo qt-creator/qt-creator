@@ -1329,7 +1329,7 @@ Qt4ProFileNode::Qt4ProFileNode(Qt4Project *project,
 Qt4ProFileNode::~Qt4ProFileNode()
 {
     CPlusPlus::CppModelManagerInterface *modelManager
-            = ExtensionSystem::PluginManager::instance()->getObject<CPlusPlus::CppModelManagerInterface>();
+            = CPlusPlus::CppModelManagerInterface::instance();
     QMap<QString, Qt4UiCodeModelSupport *>::const_iterator it, end;
     end = m_uiCodeModelSupport.constEnd();
     for (it = m_uiCodeModelSupport.constBegin(); it != end; ++it) {
@@ -1891,7 +1891,7 @@ QStringList Qt4ProFileNode::updateUiFiles()
     }
 
     CPlusPlus::CppModelManagerInterface *modelManager =
-        ExtensionSystem::PluginManager::instance()->getObject<CPlusPlus::CppModelManagerInterface>();
+        CPlusPlus::CppModelManagerInterface::instance();
 
     if (!toAdd.isEmpty()) {
         foreach (FileNode *file, toAdd) {
@@ -2193,7 +2193,7 @@ void Qt4ProFileNode::createUiCodeModelSupport()
 {
 //    qDebug()<<"creatUiCodeModelSupport()";
     CPlusPlus::CppModelManagerInterface *modelManager
-            = ExtensionSystem::PluginManager::instance()->getObject<CPlusPlus::CppModelManagerInterface>();
+            = CPlusPlus::CppModelManagerInterface::instance();
 
     // First move all to
     QMap<QString, Qt4UiCodeModelSupport *> oldCodeModelSupport;

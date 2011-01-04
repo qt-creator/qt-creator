@@ -422,8 +422,7 @@ void Qt4Project::updateCppCodeModel()
     Qt4BuildConfiguration *activeBC = activeTarget()->activeBuildConfiguration();
 
     CPlusPlus::CppModelManagerInterface *modelmanager =
-        ExtensionSystem::PluginManager::instance()
-            ->getObject<CPlusPlus::CppModelManagerInterface>();
+        CPlusPlus::CppModelManagerInterface::instance();
 
     if (!modelmanager)
         return;
