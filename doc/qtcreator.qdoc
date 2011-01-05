@@ -602,7 +602,7 @@
            .qml).
         \o \gui{\l{Debugging}{Debug}} mode for inspecting the state of your program while
            debugging.
-        \o \gui{\l{Managing Projects}{Projects}} mode for configuring project building and
+        \o \gui{\l{Specifying Build Settings}{Projects}} mode for configuring project building and
            execution. This mode is available when a project is open.
         \o \gui{\l{Getting Help}{Help}} mode for viewing Qt documentation.
     \endlist
