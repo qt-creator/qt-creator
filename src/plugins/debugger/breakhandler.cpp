@@ -1175,6 +1175,9 @@ QString BreakHandler::BreakpointItem::toToolTip() const
         << "<tr><td>" << tr("Line Number:")
         << "</td><td>" << data.lineNumber
         << "</td><td>" << response.lineNumber << "</td></tr>"
+        << "<tr><td>" << tr("Corrected Line Number:")
+        << "</td><td>-"
+        << "</td><td>" << response.correctedLineNumber << "</td></tr>"
         << "<tr><td>" << tr("Breakpoint Address:")
         << "</td><td>";
     formatAddress(str, data.address);

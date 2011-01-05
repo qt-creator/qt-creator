@@ -2066,7 +2066,10 @@ void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkp
         } else if (child.hasName("fullname")) {
             fullName = child.data();
         } else if (child.hasName("line")) {
-            response.lineNumber = child.data().toInt();
+            // The line numbers here are the uncorrected ones. So don't
+            // change it if we know better already.
+            if (response.correctedLineNumber == 0)
+                response.lineNumber = child.data().toInt();
         } else if (child.hasName("cond")) {
             // gdb 6.3 likes to "rewrite" conditions. Just accept that fact.
             response.condition = child.data();
@@ -2475,6 +2478,7 @@ void GdbEngine::handleInfoLine(const GdbResponse &response)
             const int line = ba.mid(5, pos - 5).toInt();
             BreakpointResponse br = breakHandler()->response(id);
             br.lineNumber = line;
+            br.correctedLineNumber = line;
             breakHandler()->setResponse(id, br);
         }
     }
