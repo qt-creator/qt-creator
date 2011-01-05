@@ -68,7 +68,7 @@ static const char copyrightHeader[] =
 "**\n"
 "** Contact: Nokia Corporation (qt-info@nokia.com)\n"
 "**\n"
-"** No Commercial Usage
+"** No Commercial Usage\n"
 "**\n"
 "** This file contains pre-release code and may not be distributed.\n"
 "** You may use this file in accordance with the terms and conditions\n"
