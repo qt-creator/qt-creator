@@ -38,12 +38,19 @@
 enum KnownType
 {
     KT_Unknown =0,
-    KT_Qt_Type = 0x10000,
-    KT_Qt_PrimitiveType = 0x20000,
-    KT_Qt_MovableType = 0x40000,
-    KT_STL_Type = 0x80000,
-    KT_ContainerType = 0x100000,
-    KT_HasSimpleDumper = 0x200000,
+    KT_POD_Type = 0x10000,
+    KT_Qt_Type = 0x20000,
+    KT_Qt_PrimitiveType = 0x40000,
+    KT_Qt_MovableType = 0x80000,
+    KT_STL_Type = 0x100000,
+    KT_ContainerType = 0x200000,
+    KT_HasSimpleDumper = 0x400000,
+    // PODs
+    KT_Char = KT_POD_Type + 1,
+    KT_UnsignedChar = KT_POD_Type + 2,
+    KT_IntType = KT_POD_Type + 3,         // any signed short, long, int
+    KT_UnsignedIntType = KT_POD_Type + 4, // any unsigned int
+    KT_FloatType = KT_POD_Type + 5,       // float, double
     // Qt Basic
     KT_QChar = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 1,
     KT_QByteArray = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 2,
@@ -156,7 +163,7 @@ enum KnownType
     KT_StdDeque =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 4,
     KT_StdSet =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 5,
     KT_StdMap =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 6,
-    KT_StdMultiMap =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 7,
+    KT_StdMultiMap =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 7
 };
 
 #endif // KNOWNTYPE_H

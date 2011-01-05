@@ -252,7 +252,7 @@ std::string SymbolGroupValue::error() const
 
 bool SymbolGroupValue::isPointerType(const std::string &t)
 {
-    return endsWith(t, " *");
+    return endsWith(t, '*');
 }
 
 unsigned SymbolGroupValue::pointerSize()
@@ -277,7 +277,25 @@ unsigned SymbolGroupValue::fieldOffset(const char *type, const char *field)
 
 std::string SymbolGroupValue::stripPointerType(const std::string &t)
 {
-    return isPointerType(t) ? t.substr(0, t.size() - 2) : t;
+    // 'Foo *' -> 'Foo', 'Bar **' -> 'Bar *'.
+    if (endsWith(t, "**"))
+        return t.substr(0, t.size() - 1);
+    if (endsWith(t, " *"))
+        return t.substr(0, t.size() - 2);
+    return t;
+}
+
+// Strip "class Foo", "struct Bar"-> "Foo", "Bar "
+std::string SymbolGroupValue::stripClassPrefixes(const std::string &type)
+{
+    std::string rc = type;
+    if (rc.compare(0, 6, "class ") == 0) {
+        rc.erase(0, 6);
+    } else {
+        if (rc.compare(0, 7, "struct ") == 0)
+            rc.erase(0, 7);
+    }
+    return rc;
 }
 
 std::string SymbolGroupValue::addPointerType(const std::string &t)
@@ -371,13 +389,7 @@ std::string QtInfo::prependModuleAndNameSpace(const std::string &type,
                                               const std::string &aNameSpace)
 {
     // Strip the prefixes "class ", "struct ".
-    std::string rc = type;
-    if (rc.compare(0, 6, "class ") == 0) {
-        rc.erase(0, 6);
-    } else {
-        if (rc.compare(0, 7, "struct ") == 0)
-            rc.erase(0, 7);
-    }
+    std::string rc = SymbolGroupValue::stripClassPrefixes(type);
     // Is the namespace 'nsp::' missing?
     if (!aNameSpace.empty()) {
         const bool nameSpaceMissing = rc.size() <= aNameSpace.size()
@@ -437,6 +449,42 @@ std::list<std::string>
             rc.push_back(std::string(buf));
     }
     c.symbols->EndSymbolMatch(handle);
+    return rc;
+}
+
+// Resolve a type, that is, obtain its module name ('QString'->'QtCored4!QString')
+std::string SymbolGroupValue::resolveType(const std::string &type, const SymbolGroupValueContext &ctx)
+{
+    enum { BufSize = 512 };
+
+    if (type.empty() || type.find('!') != std::string::npos)
+        return type;
+
+    const std::string stripped = SymbolGroupValue::stripClassPrefixes(type);
+
+    // Obtain the base address of the module using an obscure ioctl() call.
+    // See inline implementation of GetTypeSize() and docs.
+    SYM_DUMP_PARAM symParameters = { sizeof (SYM_DUMP_PARAM), (PUCHAR)stripped.c_str(), DBG_DUMP_NO_PRINT, 0,
+                                     NULL, NULL, NULL, 0, NULL };
+    const ULONG typeSize = Ioctl(IG_GET_TYPE_SIZE, &symParameters, symParameters.size);
+    if (!typeSize || !symParameters.ModBase) // Failed?
+        return type;
+    ULONG index = 0;
+    ULONG64 base = 0;
+    // Convert module base address to module index
+    HRESULT hr = ctx.symbols->GetModuleByOffset(symParameters.ModBase, 0, &index, &base);
+    if (FAILED(hr))
+        return type;
+    // Obtain module name
+    char buf[BufSize];
+    buf[0] = '\0';
+    hr = ctx.symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, index, base, buf, BufSize, 0);
+    if (FAILED(hr))
+        return type;
+
+    std::string rc = buf;
+    rc.push_back('!');
+    rc += type;
     return rc;
 }
 
@@ -567,8 +615,45 @@ static inline void formatMilliSeconds(std::wostream &str, int milliSecs)
 static const char stdStringTypeC[] = "std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
 static const char stdWStringTypeC[] = "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
 
+static KnownType knownPODTypeHelper(const std::string &type)
+{
+    if (type.empty())
+        return KT_Unknown;
+    switch (type.at(0)) {
+    case 'c':
+        if (type == "char")
+            return KT_Char;
+        break;
+    case 'd':
+        if (type == "double")
+            return KT_FloatType;
+        break;
+    case 'f':
+        if (type == "float")
+            return KT_FloatType;
+        break;
+    case 'l':
+        if (!type.compare(0, 4, "long"))
+            return KT_IntType;
+        break;
+    case 'i':
+        if (!type.compare(0, 3, "int"))
+            return KT_IntType;
+        break;
+    case 's':
+        if (!type.compare(0, 5, "short"))
+            return KT_IntType;
+        break;
+    case 'u':
+        if (!type.compare(0, 8, "unsigned"))
+            return type == "unsigned char" ? KT_UnsignedChar : KT_UnsignedIntType;
+        break;
+    }
+    return KT_Unknown;
+}
+
 // Determine type starting from a position (with/without 'class '/'struct ' prefix).
-static KnownType knownTypeHelper(const std::string &type, std::string::size_type pos)
+static KnownType knownClassTypeHelper(const std::string &type, std::string::size_type pos)
 {
     // Strip pointer types.
     const std::wstring::size_type compareLen =
@@ -901,20 +986,23 @@ KnownType knownType(const std::string &type, bool hasClassPrefix)
 {
     if (type.empty())
         return KT_Unknown;
+    const KnownType podType = knownPODTypeHelper(type);
+    if (podType != KT_Unknown)
+        return podType;
     if (hasClassPrefix) {
         switch (type.at(0)) { // Check 'class X' or 'struct X'
         case 'c':
             if (!type.compare(0, 6, "class "))
-                return knownTypeHelper(type, 6);
+                return knownClassTypeHelper(type, 6);
             break;
         case 's':
             if (!type.compare(0, 7, "struct "))
-                return knownTypeHelper(type, 7);
+                return knownClassTypeHelper(type, 7);
             break;
         }
     } else {
         // No prefix, full check
-        return knownTypeHelper(type, 0);
+        return knownClassTypeHelper(type, 0);
     }
     return KT_Unknown;
 }

@@ -101,9 +101,15 @@ public:
     // Offset of structure field: "!moduleQMapNode<K,T>", "value".
     static unsigned fieldOffset(const char *type, const char *field);
     static std::string stripPointerType(const std::string &);
+    // Strip "class ", "struct "
+    static std::string stripClassPrefixes(const std::string &);
     static std::string addPointerType(const std::string &);
     static std::string stripArrayType(const std::string &);
     static bool isPointerType(const std::string &);
+    // Resolve a type, that is, obtain its module name ('QString'->'QtCored4!QString')
+    // Some operations on types (like adding symbols may fail non-deterministically
+    // or be slow when the module specification is omitted).
+    static std::string resolveType(const std::string &type, const SymbolGroupValueContext &ctx);
     static std::list<std::string> resolveSymbol(const char *pattern,
                                                 const SymbolGroupValueContext &c,
                                                 std::string *errorMessage = 0);

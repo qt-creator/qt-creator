@@ -43,6 +43,8 @@ typedef AbstractSymbolGroupNode::AbstractSymbolGroupNodePtrVector AbstractSymbol
 typedef std::vector<SymbolGroupValue> SymbolGroupValueVector;
 typedef std::vector<int>::size_type VectorIndexType;
 
+enum { debugVector  = 0 };
+
 // Read a pointer array from debuggee memory (ULONG64/32 according pointer size)
 static void *readPointerArray(ULONG64 address, unsigned count, const SymbolGroupValueContext &ctx)
 {
@@ -76,6 +78,18 @@ static inline void dump64bitPointerArray(std::ostream &os, const void *a, int co
     dumpHexArray(os, reinterpret_cast<const ULONG64 *>(a), count);
 }
 
+// Fix the inner type of containers (that is, make it work smoothly with AddSymbol)
+// by prefixing it with the module except for well-known types like STL/Qt types
+static inline std::string fixInnerType(std::string type, const SymbolGroupValueContext &ctx)
+{
+    const std::string stripped = SymbolGroupValue::stripClassPrefixes(type);
+    const KnownType kt = knownType(stripped, false);
+    // Simple types and STL/Q-types (inexplicably) are fast.
+    if (kt & (KT_POD_Type|KT_Qt_Type|KT_STL_Type))
+        return stripped;
+    return SymbolGroupValue::resolveType(stripped, ctx);
+}
+
 // Return size from an STL vector (last/first iterators).
 static inline int msvcStdVectorSize(const SymbolGroupValue &v)
 {
@@ -89,7 +103,7 @@ static inline int msvcStdVectorSize(const SymbolGroupValue &v)
                 return 0;
             // Subtract the pointers: We need to do the pointer arithmetics ourselves
             // as we get char *pointers.
-            const std::string innerType = SymbolGroupValue::stripPointerType(myFirstPtrV.type());
+            const std::string innerType = fixInnerType(SymbolGroupValue::stripPointerType(myFirstPtrV.type()), v.context());
             const size_t size = SymbolGroupValue::sizeOf(innerType.c_str());
             if (size == 0)
                 return -1;
@@ -324,10 +338,15 @@ static inline AbstractSymbolGroupNodePtrVector
         SymbolGroupValue myFirst = vec[unsigned(0)]["_Myfirst"]; // MSVC2010
         if (!myFirst)
             myFirst = vec["_Myfirst"]; // MSVC2008
-        if (myFirst)
-            if (const ULONG64 address = myFirst.pointerValue())
-                return arrayChildList(n->symbolGroup(), address,
-                                      SymbolGroupValue::stripPointerType(myFirst.type()), count);
+        if (myFirst) {
+            if (const ULONG64 address = myFirst.pointerValue()) {
+                const std::string firstType = myFirst.type();
+                const std::string innerType = fixInnerType(SymbolGroupValue::stripPointerType(firstType), ctx);
+                if (debugVector)
+                    DebugPrint() << n->name() << " inner type: '" << innerType << "' from '" << firstType << '\'';
+                return arrayChildList(n->symbolGroup(), address, innerType, count);
+            }
+        }
     }
     return AbstractSymbolGroupNodePtrVector();
 }
@@ -620,9 +639,12 @@ static inline AbstractSymbolGroupNodePtrVector
         // QVector<T>: p/array is declared as array of T. Dereference first
         // element to obtain address.
         const SymbolGroupValue vec(n, ctx);
-        if (const SymbolGroupValue firstElementV = vec["p"]["array"][unsigned(0)])
-            if (const ULONG64 arrayAddress = firstElementV.address())
-                    return arrayChildList(n->symbolGroup(), arrayAddress, firstElementV.type(), count);
+        if (const SymbolGroupValue firstElementV = vec["p"]["array"][unsigned(0)]) {
+            if (const ULONG64 arrayAddress = firstElementV.address()) {
+                const std::string fixedInnerType = fixInnerType(firstElementV.type(), ctx);
+                return arrayChildList(n->symbolGroup(), arrayAddress, fixedInnerType, count);
+            }
+        }
     }
     return AbstractSymbolGroupNodePtrVector();
 }
@@ -663,7 +685,7 @@ static inline AbstractSymbolGroupNodePtrVector
      const std::vector<std::string> innerTypes = v.innerTypes();
      if (innerTypes.size() != 1)
          return AbstractSymbolGroupNodePtrVector();
-     const std::string &innerType = innerTypes.front();
+     const std::string innerType = fixInnerType(innerTypes.front(), v.context());
      const unsigned innerTypeSize = SymbolGroupValue::sizeOf(innerType.c_str());
      if (!innerTypeSize)
          return AbstractSymbolGroupNodePtrVector();
