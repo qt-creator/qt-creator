@@ -25,12 +25,6 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/propertycontainer.cpp \
     $$PWD/pluginmanager/widgetpluginmanager.cpp \
     $$PWD/pluginmanager/widgetpluginpath.cpp \
-    $$PWD/instances/servernodeinstance.cpp \
-    $$PWD/instances/objectnodeinstance.cpp \
-    $$PWD/instances/qmlgraphicsitemnodeinstance.cpp \
-    $$PWD/instances/dummynodeinstance.cpp \
-    $$PWD/instances/qmlpropertychangesnodeinstance.cpp \
-    $$PWD/instances/qmlstatenodeinstance.cpp \
     $$PWD/exceptions/exception.cpp \
     $$PWD/exceptions/invalidnodeinstanceexception.cpp \
     $$PWD/exceptions/invalidpropertyexception.cpp \
@@ -47,9 +41,7 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/exceptions/invalididexception.cpp \
     $$PWD/model/propertynode.cpp \
     $$PWD/exceptions/invalidslideindexexception.cpp \
-    $$PWD/instances/graphicsobjectnodeinstance.cpp \
     $$PWD/model/import.cpp \
-    $$PWD/instances/componentnodeinstance.cpp \
     $$PWD/exceptions/invalidqmlsourceexception.cpp \
     $$PWD/model/viewlogger.cpp \
     $$PWD/model/internalvariantproperty.cpp \
@@ -82,13 +74,7 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/rewriteactioncompressor.cpp \
     $$PWD/model/qmltextgenerator.cpp \
     $$PWD/model/modelmerger.cpp \
-    $$PWD/instances/qmltransitionnodeinstance.cpp \
     $$PWD/exceptions/rewritingexception.cpp \
-    $$PWD/instances/nodeinstancemetaobject.cpp \
-    $$PWD/instances/behaviornodeinstance.cpp \
-    $$PWD/instances/nodeinstancesignalspy.cpp \
-    $$PWD/instances/positionernodeinstance.cpp \
-    $$PWD/instances/nodeinstanceserver.cpp \
     $$PWD/instances/declarativedesignercommunicationinterface.cpp \
     $$PWD/instances/createinstancescommand.cpp \
     $$PWD/instances/nodeinstanceserverinterface.cpp \
@@ -115,13 +101,13 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/instances/informationcontainer.cpp \
     $$PWD/instances/changestatecommand.cpp \
     $$PWD/instances/nodeinstanceserverproxy.cpp \
-    $$PWD/instances/nodeinstanceclientproxy.cpp \
     $$PWD/instances/addimportcommand.cpp \
     $$PWD/instances/childrenchangedcommand.cpp \
     $$PWD/instances/statepreviewimagechangedcommand.cpp \
     $$PWD/instances/imagecontainer.cpp \
     $$PWD/instances/completecomponentcommand.cpp \
     $$PWD/instances/componentcompletedcommand.cpp
+
 HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/abstractview.h \
     $$PWD/include/nodeinstanceview.h \
@@ -142,12 +128,6 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/model/propertyparser.h \
     $$PWD/pluginmanager/widgetpluginmanager.h \
     $$PWD/pluginmanager/widgetpluginpath.h \
-    $$PWD/instances/servernodeinstance.h \
-    $$PWD/instances/objectnodeinstance.h \
-    $$PWD/instances/qmlgraphicsitemnodeinstance.h \
-    $$PWD/instances/dummynodeinstance.h \
-    $$PWD/instances/qmlpropertychangesnodeinstance.h \
-    $$PWD/instances/qmlstatenodeinstance.h \
     $$PWD/include/exception.h \
     $$PWD/include/invalidnodeinstanceexception.h \
     $$PWD/include/invalidmodelnodeexception.h \
@@ -162,9 +142,7 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/model/variantparser.h \
     $$PWD/include/propertynode.h \
     $$PWD/include/invalidslideindexexception.h \
-    $$PWD/instances/graphicsobjectnodeinstance.h \
     $$PWD/include/import.h \
-    $$PWD/instances/componentnodeinstance.h \
     $$PWD/include/invalidqmlsourceexception.h \
     $$PWD/model/viewlogger.h \
     $$PWD/model/internalvariantproperty.h \
@@ -199,14 +177,8 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/model/qmltextgenerator.h \
     $$PWD/include/modelmerger.h \
     $$PWD/include/mathutils.h \
-    $$PWD/instances/qmltransitionnodeinstance.h \
     $$PWD/include/customnotifications.h \
     $$PWD/include/rewritingexception.h \
-    $$PWD/instances/nodeinstancemetaobject.h \
-    $$PWD/instances/behaviornodeinstance.h \
-    $$PWD/instances/nodeinstancesignalspy.h \
-    $$PWD/instances/positionernodeinstance.h \
-    $$PWD/instances/nodeinstanceserver.h \
     $$PWD/instances/declarativedesignercommunicationinterface.h \
     $$PWD/instances/createinstancescommand.h \
     $$PWD/include/nodeinstanceserverinterface.h \
@@ -235,7 +207,6 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/commondefines.h \
     $$PWD/instances/changestatecommand.h \
     $$PWD/instances/nodeinstanceserverproxy.h \
-    $$PWD/instances/nodeinstanceclientproxy.h \
     $$PWD/instances/addimportcommand.h \
     $$PWD/instances/childrenchangedcommand.h \
     $$PWD/instances/statepreviewimagechangedcommand.h \
