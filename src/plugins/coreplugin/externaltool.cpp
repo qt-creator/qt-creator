@@ -450,7 +450,7 @@ void ExternalToolManager::initialize()
 
     mtools->addMenu(mexternaltools, Constants::G_DEFAULT_THREE);
 
-    QMap<QString, ActionContainer *> categoryMenus;
+    QMap<QString, QMultiMap<int, Command*> > categoryMenus;
     QDir dir(m_core->resourcePath() + QLatin1String("/externaltools"),
              QLatin1String("*.xml"), QDir::Unsorted, QDir::Files | QDir::Readable);
     foreach (const QFileInfo &info, dir.entryInfoList()) {
@@ -473,33 +473,33 @@ void ExternalToolManager::initialize()
             }
             m_tools.insert(tool->id(), tool);
 
-            // category menu
-            ActionContainer *container = 0;
-            if (tool->displayCategory().isEmpty())
-                container = mexternaltools;
-            else
-                container = categoryMenus.value(tool->displayCategory());
-            if (!container) {
-                container = am->createMenu(Id("Tools.External.Category." + tool->displayCategory()));
-                container->menu()->setTitle(tool->displayCategory());
-                categoryMenus.insert(tool->displayCategory(), container);
-            }
-
-            // TODO sort tool actions by order
-            // tool action
+            // tool action and command
             QAction *action = new QAction(tool->displayName(), this);
             action->setToolTip(tool->description());
             action->setWhatsThis(tool->description());
             action->setData(tool->id());
             cmd = am->registerAction(action, Id("Tools.External." + tool->id()), Context(Constants::C_GLOBAL));
-            container->addAction(cmd, Constants::G_DEFAULT_TWO);
             connect(action, SIGNAL(triggered()), this, SLOT(menuActivated()));
+            categoryMenus[tool->displayCategory()].insert(tool->order(), cmd);
         }
     }
 
     // add all the category menus, QMap is nicely sorted
-    foreach (ActionContainer *container, categoryMenus)
-        mexternaltools->addMenu(container, Constants::G_DEFAULT_ONE);
+    QMapIterator<QString, QMultiMap<int, Command*> > it(categoryMenus);
+    while (it.hasNext()) {
+        it.next();
+        ActionContainer *container = 0;
+        if (it.key() == QString()) { // no displayCategory, so put into external tools menu directly
+            container = mexternaltools;
+        } else {
+            container = am->createMenu(Id("Tools.External.Category." + it.key()));
+            mexternaltools->addMenu(container, Constants::G_DEFAULT_ONE);
+            container->menu()->setTitle(it.key());
+        }
+        foreach (Command *cmd, it.value().values()) {
+            container->addAction(cmd, Constants::G_DEFAULT_TWO);
+        }
+    }
 }
 
 void ExternalToolManager::menuActivated()
