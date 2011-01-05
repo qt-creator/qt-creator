@@ -173,6 +173,7 @@ struct ProFileOption
     QString qmakespec;
     QString cachefile;
     QHash<QString, QString> properties;
+    QString sysroot;
 
     enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE, TARG_QNX6_MODE };
     TARG_MODE target_mode;

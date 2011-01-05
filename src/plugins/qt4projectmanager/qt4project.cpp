@@ -921,8 +921,11 @@ ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode)
         if (activeTarget() &&
             activeTarget()->activeBuildConfiguration()) {
             QtVersion *version = activeTarget()->activeBuildConfiguration()->qtVersion();
-            if (version->isValid())
+            if (version->isValid()) {
                 m_proFileOption->properties = version->versionInfo();
+                m_proFileOption->sysroot
+                    = activeTarget()->activeBuildConfiguration()->toolChain()->sysroot();
+            }
         }
 
         ProFileCacheManager::instance()->incRefCount();

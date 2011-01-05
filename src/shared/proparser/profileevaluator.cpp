@@ -216,6 +216,8 @@ public:
     QStringList qmakeMkspecPaths() const;
     QStringList qmakeFeaturePaths() const;
 
+    QString sysrootify(const QString &path, const QString &baseDir) const;
+
     int m_skipLevel;
     int m_loopLevel; // To report unexpected break() and next()s
     bool m_cumulative;
@@ -1466,6 +1468,13 @@ QString ProFileEvaluator::Private::currentDirectory() const
 {
     ProFile *cur = m_profileStack.top();
     return cur->directoryName();
+}
+
+QString ProFileEvaluator::Private::sysrootify(const QString &path, const QString &baseDir) const
+{
+    const bool isHostSystemPath = m_option->sysroot.isEmpty() || path.startsWith(m_option->sysroot)
+        || path.startsWith(baseDir) || path.startsWith(m_outputDir);
+    return isHostSystemPath ? path : m_option->sysroot + path;
 }
 
 // The (QChar*)current->constData() constructs below avoid pointless detach() calls
@@ -3147,7 +3156,8 @@ QStringList ProFileEvaluator::absolutePathValues(
 {
     QStringList result;
     foreach (const QString &el, values(variable)) {
-        QString absEl = IoUtils::resolvePath(baseDirectory, el);
+        QString absEl = IoUtils::isAbsolutePath(el)
+            ? d->sysrootify(el, baseDirectory) : IoUtils::resolvePath(baseDirectory, el);
         if (IoUtils::fileType(absEl) == IoUtils::FileIsDir)
             result << QDir::cleanPath(absEl);
     }
@@ -3162,11 +3172,12 @@ QStringList ProFileEvaluator::absoluteFileValues(
     foreach (const QString &el, pro ? values(variable, pro) : values(variable)) {
         QString absEl;
         if (IoUtils::isAbsolutePath(el)) {
-            if (IoUtils::exists(el)) {
-                result << QDir::cleanPath(el);
+            const QString elWithSysroot = d->sysrootify(el, baseDirectory);
+            if (IoUtils::exists(elWithSysroot)) {
+                result << QDir::cleanPath(elWithSysroot);
                 goto next;
             }
-            absEl = el;
+            absEl = elWithSysroot;
         } else {
             foreach (const QString &dir, searchDirs) {
                 QString fn = dir + QLatin1Char('/') + el;
