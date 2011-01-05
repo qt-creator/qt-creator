@@ -274,10 +274,13 @@ void NodeInstanceServer::completeComponent(const CompleteComponentCommand &comma
         }
     }
 
+    m_completedComponentList.append(instanceList);
+
     nodeInstanceClient()->valuesChanged(createValuesChangedCommand(instanceList));
     nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(instanceList, true));
     nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instanceList));
-    nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(instanceList));
+
+    startRenderTimer();
 }
 
 void NodeInstanceServer::addImports(const QVector<AddImportContainer> &containerVector)
@@ -879,6 +882,11 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
                 if (boundingRect.isValid()) {
                     m_declarativeView->setSceneRect(boundingRect);
                 }
+            }
+
+            if (!m_completedComponentList.isEmpty()) {
+                nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(m_completedComponentList));
+                m_completedComponentList.clear();
             }
 
             slowDownRenderTimer();

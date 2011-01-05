@@ -138,6 +138,7 @@ private:
     QVector<InstancePropertyPair> m_changedPropertyList;
     QStringList m_importList;
     QSet<ServerNodeInstance> m_dirtyInstanceSet;
+    QList<ServerNodeInstance> m_completedComponentList;
 };
 
 }
