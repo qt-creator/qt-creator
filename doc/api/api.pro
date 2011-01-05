@@ -36,6 +36,7 @@ equals(QMAKE_DIR_SEP, /) {   # unix, mingw+msys
 
 HELP_FILES     = $$PWD/qtcreator-api.qdocconf
 HELP_DEP_FILES = $$PWD/qtcreator-api.qdoc \
+                 $$PWD/coding-style.qdoc \
                  $$PWD/../qt-defines.qdocconf \
                  $$PWD/../qt-html-templates.qdocconf \
                  $$PWD/qtcreator-api.qdocconf

@@ -27,7 +27,7 @@
 
 /*!
 
-\contentpage{index.html}{Qt Creator}
+\contentspage{index.html}{Qt Creator}
 \page coding-style.html
 
 \title Qt Creator Coding Rules
@@ -58,6 +58,7 @@ that you:
 \o Adapt the code to the structures already existing in Qt Creator, or in
    the case that you have better ideas, discuss them with other developers
    before writing the code.
+\o Follow the \l{Patterns and practices} that we use in Qt Creator.
 \o Take advantage of Qt. Don't re-invent the wheel. Think about what parts
    of your code are generic enough that they might be incorporated into
    Qt proper.
@@ -484,5 +485,47 @@ Line breaks
   In the .cpp files you document the implementation if the implementation
   in non-obvious.
 
+\section1 Patterns and practices
+
+\section2 Passing file names
+
+Qt Creator API expects file names in "portable" format, i.e. with '/'
+instead of '\\' even on Windows. If you want to pass a file name to
+the API that comes from the user, you need to convert it with
+QDir::fromNativeSeparators first. Whenever you present a file name to the user,
+you need to convert it back to native format with QDir::toNativeSeparators.
+
+In most places, file names should be cleaned absolute paths.
+When comparing file names consider using FileManager::fixFileName which makes
+sure that paths are clean and absolute and also takes Windows' case-insensitivity
+into account (but is an expensive operation).
+
+\section2 Plugin extension points
+
+A plugin extension point is an interface that is provided by a plugin to
+be implemented by others. The plugin then retrieves all implementations of the interface
+and uses them, they "extend" the functionality of the plugin. A common pattern is
+that the implementations of the interface are put into the global object pool
+during plugin initialization, and the plugin retrieves them from the object pool at
+the end of plugin initialization.
+
+For example: The Find plugin provides the FindFilter interface for others to implement.
+With the FindFilter interface, additional search scopes can be added, that appear in
+the Advanced Search dialog. The Find plugin retrieves all FindFilter implementations
+(from the global object pool, see below) 
+and presents them in the dialog, forwarding the actual search request to the correct
+FindFilter implementation, which then performs the search.
+
+\section2 Using the global object pool
+
+You can add objects to the global object pool via PluginManager::addObject,
+and retrieve objects of a specific type again via PluginManager::objects.
+This should mostly be used for implementations of \l{Plugin extension points}.
+
+Cases where you should not use it are:
+\list
+\o Singletons. Don't put a singleton into the pool, and don't retrieve it from there.
+   Use the singleton pattern instead.
+\endlist
 
 */

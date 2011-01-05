@@ -36,7 +36,8 @@
     simple means for plugin cooperation that allow plugins to provide
     hooks for other plugin's extensions.
 
-    To get an overview of what parts of QtCreator are extensible, have a look at the \l{Common Extension Tasks} page.
+    To get an overview of what parts of Qt Creator are extensible, have a look at the \l{Common Extension Tasks} page.
+    Also read and follow the Qt Creator \l{Qt Creator Coding Rules}{coding style and best practice patterns}.
 
     \section1 Core Libraries
 
