@@ -597,10 +597,10 @@ void MaemoDeployStep::installToSysroot()
     } else {
         writeOutput(tr("Copying files to sysroot ..."));
         Q_ASSERT(!m_filesToCopy.isEmpty());
-        QDir sysRootDir(toolChain()->sysrootRoot());
+        QDir sysRootDir(toolChain()->sysroot());
         foreach (const MaemoDeployable &d, m_filesToCopy) {
             const QLatin1Char sep('/');
-            const QString targetFilePath = toolChain()->sysrootRoot() + sep
+            const QString targetFilePath = toolChain()->sysroot() + sep
                 + d.remoteDir + sep + QFileInfo(d.localFilePath).fileName();
             sysRootDir.mkpath(d.remoteDir.mid(1));
             QFile::remove(targetFilePath);

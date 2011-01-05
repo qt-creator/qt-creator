@@ -242,7 +242,7 @@ MaemoDeployStep *MaemoRunConfiguration::deployStep() const
 const QString MaemoRunConfiguration::sysRoot() const
 {
     if (const MaemoToolChain *tc = toolchain())
-        return tc->sysrootRoot();
+        return tc->sysroot();
     return QString();
 }
 

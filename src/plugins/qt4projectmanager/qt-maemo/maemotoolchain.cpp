@@ -70,7 +70,7 @@ void MaemoToolChain::addToEnvironment(Utils::Environment &env)
         .arg(MaemoGlobal::targetRoot(m_qtVersion))));
 
     // put this into environment to make pkg-config stuff work
-    env.prependOrSet(QLatin1String("SYSROOT_DIR"), sysrootRoot());
+    env.prependOrSet(QLatin1String("SYSROOT_DIR"), sysroot());
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/madbin")
         .arg(maddeRoot)));
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/madlib")
@@ -90,7 +90,7 @@ bool MaemoToolChain::equals(const ToolChain *other) const
     return other->type() == type() && toolChain->m_qtVersion == m_qtVersion;
 }
 
-QString MaemoToolChain::sysrootRoot() const
+QString MaemoToolChain::sysroot() const
 {
     if (!m_sysrootInitialized)
         setSysroot();

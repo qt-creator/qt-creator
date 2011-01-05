@@ -49,8 +49,7 @@ public:
     void addToEnvironment(Utils::Environment &env);
     ProjectExplorer::ToolChainType type() const;
     QString makeCommand() const;
-
-    QString sysrootRoot() const;
+    QString sysroot() const;
 
 protected:
     bool equals(const ToolChain *other) const;

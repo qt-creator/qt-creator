@@ -84,6 +84,7 @@ public:
     virtual ToolChainType type() const = 0;
     virtual QString makeCommand() const = 0;
     virtual IOutputParser *outputParser() const = 0;
+    virtual QString sysroot() const { return QString(); }
 
     ToolChain();
     virtual ~ToolChain();
