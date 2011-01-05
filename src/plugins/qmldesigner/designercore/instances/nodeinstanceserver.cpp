@@ -186,6 +186,11 @@ void NodeInstanceServer::createScene(const CreateSceneCommand &command)
     foreach(ServerNodeInstance instance, instanceList)
         instance.doComponentComplete();
 
+
+
+    m_declarativeView->scene()->setSceneRect(rootNodeInstance().boundingRect());
+
+
     nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(instanceList, true));
     nodeInstanceClient()->valuesChanged(createValuesChangedCommand(instanceList));
     sendChildrenChangedCommand(instanceList);
