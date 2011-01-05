@@ -782,10 +782,6 @@ Decimal signed value (big endian): %4</source>
         <translation>История текущего файла</translation>
     </message>
     <message>
-        <source>Cannot find repository for &apos;%1&apos;</source>
-        <translation>Не удалось найти хранилище для &quot;%1&quot;</translation>
-    </message>
-    <message>
         <source>Filelog &quot;%1&quot;</source>
         <translation>История &apos;%1&apos;</translation>
     </message>
@@ -1074,6 +1070,13 @@ Decimal signed value (big endian): %4</source>
     </message>
 </context>
 <context>
+    <name>CVSPlugin</name>
+    <message>
+        <source>Cannot find repository for &apos;%1&apos;</source>
+        <translation>Не удалось найти хранилище для &quot;%1&quot;</translation>
+    </message>
+</context>
+<context>
     <name>CdbCore::CoreEngine</name>
     <message>
         <source>Unable to set the image path to %1: %2</source>
@@ -1130,6 +1133,19 @@ Decimal signed value (big endian): %4</source>
     <message>
         <source>Break on exception</source>
         <translation>Остановиться при исключении</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Restarting Qt Creator is required for these settings to take effect.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
+        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Укажите путь к &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Замечание:&lt;/b&gt; Для вступления изменений в силу необходим перезапуск Qt Creator.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>64-bit version</source>
+        <translation>64-х битная версия</translation>
+    </message>
+    <message>
+        <source>32-bit version</source>
+        <translation>32-х битная версия</translation>
     </message>
 </context>
 <context>
@@ -4245,19 +4261,6 @@ Qt Creator не может подключиться к нему.</translation>
 <context>
     <name>Debugger::Internal::CdbOptionsPageWidget</name>
     <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Restarting Qt Creator is required for these settings to take effect.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Укажите путь к &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Замечание:&lt;/b&gt; Для вступления изменений в силу необходим перезапуск Qt Creator.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>64-bit version</source>
-        <translation>64-х битная версия</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation>32-х битная версия</translation>
-    </message>
-    <message>
         <source>Autodetect</source>
         <translation>Автоопределение</translation>
     </message>
@@ -4589,10 +4592,6 @@ Qt Creator не может подключиться к нему.</translation>
 </context>
 <context>
     <name>Debugger::Internal::GdbChooserWidget</name>
-    <message>
-        <source>Unable to run &apos;%1&apos;: %2</source>
-        <translation>Не удалось запустить &quot;%1&quot;: %2</translation>
-    </message>
     <message>
         <source>Binary</source>
         <translation>Программа</translation>
@@ -5610,10 +5609,6 @@ Setting breakpoints by file name and line number may fail.</source>
 </context>
 <context>
     <name>Debugger::Internal::TcfTrkGdbAdapter</name>
-    <message>
-        <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation>Процесс запущен, PID: 0x%1, ID потока: 0x%2, сегмент кода: 0x%3, сегмент данных: 0x%4.</translation>
-    </message>
     <message>
         <source>The reported code segment address (0x%1) might be invalid. Symbol resolution or setting breakoints may not work.</source>
         <translation>Сообщённый адрес сегмента кода (0x%1) может быть неверным. Разрешение имён и установка точек останова может не работать.</translation>
@@ -7377,6 +7372,13 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
+    <name>GdbChooserWidget</name>
+    <message>
+        <source>Unable to run &apos;%1&apos;: %2</source>
+        <translation>Не удалось запустить &quot;%1&quot;: %2</translation>
+    </message>
+</context>
+<context>
     <name>GdbOptionsPage</name>
     <message>
         <source>Environment:</source>
@@ -7819,10 +7821,6 @@ on slow machines. In this case, the value should be increased.</source>
 </context>
 <context>
     <name>Git::Internal::GitClient</name>
-    <message>
-        <source>Unable to determine the repository for %1.</source>
-        <translation>Не удалось определить хранилище для %1.</translation>
-    </message>
     <message>
         <source>Unable to parse the file output.</source>
         <translation>Не удалось разобрать файловый вывод.</translation>
@@ -8663,6 +8661,13 @@ You can choose between stashing the changes or discarding them.</source>
     <message>
         <source>Error restoring %1</source>
         <translation>Ошибка восстановления %1</translation>
+    </message>
+</context>
+<context>
+    <name>GitClient</name>
+    <message>
+        <source>Unable to determine the repository for %1.</source>
+        <translation>Не удалось определить хранилище для %1.</translation>
     </message>
 </context>
 <context>
@@ -19054,6 +19059,13 @@ Server list was %2.</source>
         <source>My Tasks</source>
         <extracomment>Category under which tasklist tasks are listed in build issues view</extracomment>
         <translation>Мои задачи</translation>
+    </message>
+</context>
+<context>
+    <name>TcfTrkGdbAdapter</name>
+    <message>
+        <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
+        <translation>Процесс запущен, PID: 0x%1, ID потока: 0x%2, сегмент кода: 0x%3, сегмент данных: 0x%4.</translation>
     </message>
 </context>
 <context>
