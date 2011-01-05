@@ -768,7 +768,7 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
 int GdbEngine::commandTimeoutTime() const
 {
     int time = debuggerCore()->action(GdbWatchdogTimeout)->value().toInt();
-    return 1000 * qMax(20, time);
+    return 1000 * qMax(40, time);
 }
 
 void GdbEngine::commandTimeout()
