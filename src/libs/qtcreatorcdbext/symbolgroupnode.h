@@ -118,9 +118,9 @@ public:
                 const std::string &visitingParentIname,
                 unsigned child, unsigned depth);
 
-    // I/O: GDBMI dump for Visitors
-    virtual void dump(std::ostream &str, const std::string &visitingFullIname,
-                      const DumpParameters &p, const SymbolGroupValueContext &ctx) = 0;
+    // I/O: GDBMI dump for Visitors, return child count
+    virtual int dump(std::ostream &str, const std::string &visitingFullIname,
+                     const DumpParameters &p, const SymbolGroupValueContext &ctx) = 0;
     // I/O: debug output for Visitors
     virtual void debug(std::ostream &os, const std::string &visitingFullIname,
                        unsigned verbosity, unsigned depth) const;
@@ -217,10 +217,10 @@ public:
     SymbolGroup *symbolGroup() const { return m_symbolGroup; }
 
     // I/O: Gdbmi dump for Visitors
-    virtual void dump(std::ostream &str, const std::string &fullIname,
+    virtual int dump(std::ostream &str, const std::string &fullIname,
                       const DumpParameters &p, const SymbolGroupValueContext &ctx);
-    // Dumper functionality for reference nodes.
-    void dumpNode(std::ostream &str, const std::string &aName, const std::string &aFullIName,
+    // Dumper functionality for reference nodes, returns child count guess
+    int dumpNode(std::ostream &str, const std::string &aName, const std::string &aFullIName,
                   const DumpParameters &p, const SymbolGroupValueContext &ctx);
 
     // I/O: debug for Visitors
@@ -281,7 +281,7 @@ public:
     static ReferenceSymbolGroupNode *createArrayNode(int index,
                                                      SymbolGroupNode *referencedNode);
 
-    virtual void dump(std::ostream &str, const std::string &visitingFullIname,
+    virtual int dump(std::ostream &str, const std::string &visitingFullIname,
                       const DumpParameters &p, const SymbolGroupValueContext &ctx);
     virtual void debug(std::ostream &os, const std::string &visitingFullIname,
                        unsigned verbosity, unsigned depth) const;
@@ -311,7 +311,7 @@ public:
         create(int i, ULONG64 address /* = 0 */, const std::string &type,
                SymbolGroupNode *key, SymbolGroupNode *value);
 
-    virtual void dump(std::ostream &str, const std::string &visitingFullIname,
+    virtual int dump(std::ostream &str, const std::string &visitingFullIname,
                       const DumpParameters &p, const SymbolGroupValueContext &ctx);
     virtual void debug(std::ostream &os, const std::string &visitingFullIname,
                        unsigned verbosity, unsigned depth) const;

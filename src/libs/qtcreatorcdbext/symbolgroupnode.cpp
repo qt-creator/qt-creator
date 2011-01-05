@@ -811,17 +811,17 @@ std::wstring SymbolGroupNode::simpleDumpValue(const SymbolGroupValueContext &ctx
     return symbolGroupFixedValue();
 }
 
-void SymbolGroupNode::dump(std::ostream &str, const std::string &visitingFullIname,
+int SymbolGroupNode::dump(std::ostream &str, const std::string &visitingFullIname,
                            const DumpParameters &p, const SymbolGroupValueContext &ctx)
 {
-    dumpNode(str, name(), visitingFullIname, p, ctx);
+    return dumpNode(str, name(), visitingFullIname, p, ctx);
 }
 
-void SymbolGroupNode::dumpNode(std::ostream &str,
-                               const std::string &aName,
-                               const std::string &aFullIName,
-                               const DumpParameters &dumpParameters,
-                               const SymbolGroupValueContext &ctx)
+int SymbolGroupNode::dumpNode(std::ostream &str,
+                              const std::string &aName,
+                              const std::string &aFullIName,
+                              const DumpParameters &dumpParameters,
+                              const SymbolGroupValueContext &ctx)
 {
     const std::string t = type();
     SymbolGroupNode::dumpBasicData(str, aName, aFullIName, t, aFullIName);
@@ -867,8 +867,8 @@ void SymbolGroupNode::dumpNode(std::ostream &str,
     if (childCountGuess != 0)
         valueEditable = false;
     str << ",valueenabled=\"" << (valueEnabled ? "true" : "false") << '"'
-        << ",valueeditable=\"" << (valueEditable ? "true" : "false") << '"'
-        << ",numchild=\"" << childCountGuess << '"';
+        << ",valueeditable=\"" << (valueEditable ? "true" : "false") << '"';
+    return childCountGuess;
 }
 
 void SymbolGroupNode::debug(std::ostream &str,
@@ -1080,11 +1080,11 @@ ReferenceSymbolGroupNode *ReferenceSymbolGroupNode::createArrayNode(int index,
     return new ReferenceSymbolGroupNode(nameIname.first, nameIname.second, referencedNode);
 }
 
-void ReferenceSymbolGroupNode::dump(std::ostream &str, const std::string &visitingFullIname,
+int ReferenceSymbolGroupNode::dump(std::ostream &str, const std::string &visitingFullIname,
                                     const DumpParameters &p, const SymbolGroupValueContext &ctx)
 {
     // Let the referenced node dump with our iname/name
-    m_referencedNode->dumpNode(str, name(), visitingFullIname, p, ctx);
+    return m_referencedNode->dumpNode(str, name(), visitingFullIname, p, ctx);
 }
 
 void ReferenceSymbolGroupNode::debug(std::ostream &str, const std::string &visitingFullIname,
@@ -1121,14 +1121,15 @@ MapNodeSymbolGroupNode
     return new MapNodeSymbolGroupNode(nameIname.first, nameIname.second, address, type, keyRN, valueRN);
 }
 
-void MapNodeSymbolGroupNode::dump(std::ostream &str, const std::string &visitingFullIname,
+int MapNodeSymbolGroupNode::dump(std::ostream &str, const std::string &visitingFullIname,
                                   const DumpParameters &, const SymbolGroupValueContext &)
 {
     SymbolGroupNode::dumpBasicData(str, name(), visitingFullIname);
     if (m_address)
         str << ",addr=\"0x" << std::hex << m_address << '"';
     str << ",type=\"" << m_type << "\",valueencoded=\"0\",value=\"\",valueenabled=\"false\""
-           ",valueeditable=\"false\",numchild=\"2\"";
+           ",valueeditable=\"false\"";
+    return 2;
 }
 
 void MapNodeSymbolGroupNode::debug(std::ostream &os, const std::string &visitingFullIname,
@@ -1216,7 +1217,10 @@ SymbolGroupNodeVisitor::VisitResult
         indentStream(m_os, depth * 2);
     }
     m_os << '{';
-    node->dump(m_os, fullIname, m_parameters, m_context);
+    const int childCount = node->dump(m_os, fullIname, m_parameters, m_context);
+    m_os << ",numchild=\"" << childCount << '"';
+    if (!childCount)
+        m_visitChildren = false;
     if (m_visitChildren) { // open children array
         m_os << ",children=[";
     } else {               // No children, close array.

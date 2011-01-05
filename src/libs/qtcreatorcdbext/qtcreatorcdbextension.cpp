@@ -109,8 +109,9 @@ static const CommandDescription commandDescriptions[] = {
  "-c complex dumpers"},
 {"locals",
  "Prints local variables of symbol group in GDBMI or debug format",
- "[-t token] [T formats] [-I formats] [-f debugfilter] [-c] [-h] [-d] [-e expand-list] [-u uninitialized-list]\n<frame-number> [iname]\n"
+ "[-t token] [-v] [T formats] [-I formats] [-f debugfilter] [-c] [-h] [-d] [-e expand-list] [-u uninitialized-list]\n<frame-number> [iname]\n"
  "-h human-readable ouput\n"
+ "-v increase verboseness of dumping\n"
  "-d debug output\n"
  "-f debug_filter\n"
  "-c complex dumpers\n"
@@ -304,6 +305,7 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
     StringVector expandedInames;
     StringVector uninitializedInames;
     DumpParameters parameters;
+    SymbolGroupValue::verbose = 0;
     // Parse away options
     while (!tokens.empty() && tokens.front().size() == 2 && tokens.front().at(0) == '-') {
         const char option = tokens.front().at(1);
@@ -332,6 +334,10 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
                 return std::string();
             }
             debugFilter = tokens.front();
+            tokens.pop_front();
+            break;
+        case 'v':
+            SymbolGroupValue::verbose++;
             tokens.pop_front();
             break;
         case 'e':

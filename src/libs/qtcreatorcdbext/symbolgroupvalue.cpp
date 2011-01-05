@@ -39,6 +39,8 @@
 #include <iomanip>
 #include <algorithm>
 
+unsigned SymbolGroupValue::verbose = 0;
+
 SymbolGroupValue::SymbolGroupValue(const std::string &parentError) :
     m_node(0), m_errorMessage(parentError)
 {
@@ -50,8 +52,11 @@ SymbolGroupValue::SymbolGroupValue(SymbolGroupNode *node,
                                    const SymbolGroupValueContext &ctx) :
     m_node(node), m_context(ctx)
 {
-    if (m_node && !m_node->isMemoryAccessible()) // Invalid if no value
+    if (m_node && !m_node->isMemoryAccessible()) { // Invalid if no value
         m_node = 0;
+        if (SymbolGroupValue::verbose)
+            DebugPrint() << name() << " memory access error";
+    }
 }
 
 SymbolGroupValue::SymbolGroupValue() :
@@ -70,6 +75,8 @@ SymbolGroupValue SymbolGroupValue::operator[](unsigned index) const
         if (index < m_node->children().size())
             if (SymbolGroupNode *n = m_node->childAt(index)->asSymbolGroupNode())
                 return SymbolGroupValue(n, m_context);
+    if (SymbolGroupValue::verbose)
+        DebugPrint() << this->name() << "::operator[" << index << "](const char*) fails";
     return SymbolGroupValue(m_errorMessage);
 }
 
@@ -87,6 +94,8 @@ bool SymbolGroupValue::ensureExpanded() const
         m_node->addFlags(SymbolGroupNode::ExpandedByDumper);
         return true;
     }
+    if (SymbolGroupValue::verbose)
+        DebugPrint() << "Expand failure of '" << name() << "': " << m_errorMessage;
     return false;
 }
 
@@ -96,6 +105,8 @@ SymbolGroupValue SymbolGroupValue::operator[](const char *name) const
         if (AbstractSymbolGroupNode *child = m_node->childByIName(name))
             if (SymbolGroupNode *n = child->asSymbolGroupNode())
                 return SymbolGroupValue(n, m_context);
+    if (SymbolGroupValue::verbose)
+        DebugPrint() << this->name() << "::operator[](" << name << ") fails for " << name;
     return SymbolGroupValue(m_errorMessage);
 }
 
@@ -143,6 +154,8 @@ int SymbolGroupValue::intValue(int defaultValue) const
         if (integerFromString(wStringToString(v), &rc))
             return rc;
     }
+    if (SymbolGroupValue::verbose)
+        DebugPrint() << name() << "::intValue() fails";
     return defaultValue;
 }
 
@@ -153,6 +166,8 @@ ULONG64 SymbolGroupValue::pointerValue(ULONG64 defaultValue) const
         if (integerFromString(wStringToString(value()), &rc))
             return rc;
     }
+    if (SymbolGroupValue::verbose)
+        DebugPrint() << name() << "::pointerValue() fails";
     return defaultValue;
 }
 

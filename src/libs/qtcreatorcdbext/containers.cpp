@@ -687,6 +687,8 @@ static inline AbstractSymbolGroupNodePtrVector
          return AbstractSymbolGroupNodePtrVector();
      const std::string innerType = fixInnerType(innerTypes.front(), v.context());
      const unsigned innerTypeSize = SymbolGroupValue::sizeOf(innerType.c_str());
+     if (debugVector)
+         DebugPrint() << "QList " << v.name() << " inner type " << innerType << ' ' << innerTypeSize;
      if (!innerTypeSize)
          return AbstractSymbolGroupNodePtrVector();
      /* QList<> is:
@@ -704,11 +706,13 @@ static inline AbstractSymbolGroupNodePtrVector
                                innerType, count);
      // Check condition for large||static.
      bool isLargeOrStatic = innerTypeSize > pointerSize;
-     if (!isLargeOrStatic) {
+     if (!isLargeOrStatic && !SymbolGroupValue::isPointerType(innerType)) {
          const KnownType kt = knownType(innerType, false); // inner type, no 'class ' prefix.
-         if (kt != KT_Unknown && !(knownType(innerType, false) & (KT_Qt_PrimitiveType|KT_Qt_MovableType)))
+         if (kt != KT_Unknown && !(kt & (KT_POD_Type|KT_Qt_PrimitiveType|KT_Qt_MovableType)))
              isLargeOrStatic = true;
      }
+     if (debugVector)
+         DebugPrint() << "isLargeOrStatic " << isLargeOrStatic;
      if (isLargeOrStatic) {
          // Retrieve the pointer array ourselves to avoid having to evaluate '*(class foo**)'
          if (void *data = readPointerArray(arrayAddress, count, v.context()))  {

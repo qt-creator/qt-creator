@@ -119,6 +119,8 @@ public:
     // get the inner types: "QMap<int, double>" -> "int", "double"
     static std::vector<std::string> innerTypesOf(const std::string &t);
 
+    static unsigned verbose;
+
 private:
     bool ensureExpanded() const;
     SymbolGroupValue typeCastedValue(ULONG64 address, const char *type) const;
