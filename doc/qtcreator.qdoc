@@ -162,8 +162,11 @@
   \title Introducing Qt Creator
 
     Qt Creator is an integrated development environment (IDE) that provides you with
-    tools to design and develop complex applications for multiple desktop and mobile
-    platforms.
+    tools to design and develop applications with the Qt application framework. Qt is designed for
+    developing applications and user interfaces once and deploying them across several
+    desktop and mobile operating systems. Qt Creator provides you with tools for
+    accomplishing your tasks throughout the whole application development life-cycle,
+    from creating a project to deploying the application on the target platforms.
 
     \image qtcreator-overview.png "Qt Creator overview"
 
@@ -189,41 +192,11 @@
     \l{http://qt.nokia.com/doc/4.7/qmake-tutorial.html#adding-platform-specific-source-files}{scopes}
     to select the file to process depending on which platform qmake is run on.
 
-    Items such as open files, breakpoints, and watches are stored in
+    Items such as open files, breakpoints, and watchers are stored in
     sessions. They are not considered to be part of the
     information shared across platforms.
 
-    Qt Creator is integrated with cross-platform systems for build automation:
-    qmake and CMake. In addition, you can import generic projects that do not use qmake
-    or CMake, and specify that Qt Creator ignores your build system.
-
-    In addition to Qt libraries, you can link your application to other
-    libraries, such as system libraries or your own libraries. Further, your
-    own libraries might link to other libraries. To be able to compile your
-    project, you must add the libraries to your project. This also enables
-    code completion and syntax highlighting for the libraries.
-    The procedure of adding a library to a project depends on the the build
-    system that you use.
-
-    Qt Creator provides support for building and running Qt applications for
-    desktop environment and mobile devices. When you install the \QSDK,
-    the build and run settings for the Maemo and Symbian targets are set up
-    automatically. However, you need to install and configure some additional software
-    on the devices.
-
-    \note The only supported build system for mobile applications in Qt
-    Creator is qmake.
-
-    Once your mobile application is ready, you can test it in the Qt Simulator.
-    You can also connect Maemo and Symbian devices to your development PC and
-    debug applications on the devices. After you have tested the application,
-    you can deploy it on mobile devices.
-
-    Developing applications for mobile devices is different from developing
-    desktop applications. For more information, see
-    \l{Optimizing Applications for Mobile Devices}.
-
-    \section1 Projects
+    \section1 Creating Projects
 
     But why do you need projects? To be able to build and run applications,
     Qt Creator needs the same information as a compiler would need. This information
@@ -243,114 +216,29 @@
 
         \endlist
 
-    You can either create a project from scratch or import an existing
-    project. Qt Creator generates all the necessary files, depending on the type of
-    project you create. For example, if you choose to create a graphical user
-    interface (GUI) application, Qt Creator generates an empty .ui file
-    that you can modify with the integrated \QD.
+    Setting up a new project in Qt Creator is aided by a wizard that guides
+    you step-by-step through the project creation process. In the first step, you
+    select the type of the project from the categories: Qt C++ project, Qt Quick
+    Project, or other project. Next, you select a location for the project and
+    specify settings for it.
 
-    Qt Creator is integrated with cross-platform systems for build automation: qmake and
-    CMake. In addition, you can import generic projects that do not use qmake or CMake,
-    and specify that Qt Creator ignores your build system.
+    \image qtcreator-new-qt-quick-project-wizard.png
 
-    \section1 Editors
+    When you have completed the steps, Qt Creator automatically generates the
+    project with required headers, source files, user interface descriptions
+    and project files, as defined by the wizard.
+    For example, if you choose to create a Qt Quick application, Qt Creator
+    generates a QML file that you can modify with the integrated \QMLD.
 
-    Qt Creator comes with a code editor and two integrated visual editors for designing
-    and building
-    graphical user interfaces (GUIs) from Qt widgets.
+    \section2 Adding Libraries
 
-    \section2 Code Editor
-
-    As an IDE, Qt Creator differs from a text editor in that it knows how to build and run
-    applications. It understands the C++ and QML languages as code, not just as plain text. This allows
-    it to:
-
-    \list
-
-        \o Enable you to write well formatted code
-
-        \o Anticipate what you are going to write and complete the code
-
-        \o Display inline error and warning messages
-
-        \o Enable you to semantically navigate to classes, functions, and symbols
-
-        \o Provide you with context-sensitive help on classes, functions, and symbols
-
-        \o Rename symbols in an intelligent way, so that other symbols with the same name
-         that belong to other scopes are not renamed
-
-        \o Show you the locations in code where a function is declared or called
-
-    \endlist
-
-    \section2 UI Designer
-
-    Qt Creator provides two integrated visual editors, \QD and \QMLD.
-
-    \l{Using Qt Designer}{\QD} is a tool for designing and building graphical user
-    interfaces (GUIs) from
-    Qt widgets. You can compose and customize your widgets or dialogs and test
-    them using different styles and resolutions.
-
-    Widgets and forms created with \QD are integrated seamlessly with programmed code,
-    using the Qt signals and slots mechanism, that lets you easily assign behavior to
-    graphical elements. All properties set in \QD can be changed dynamically within the code.
-    Furthermore, features like widget promotion and custom plugins allow you to use your
-    own widgets with \QD.
-
-    UIs that use widgets are clearly structured and enforce a platform look and feel,
-    which makes them useful for traditional applications. However, they are static, and
-    do not fully make use of the large high-resolution screens, touch input, and significant
-    graphics power that are becoming common in portable consumer devices, such as mobile
-    phones, media players, set-top boxes, and netbooks.
-
-    \l{Using Qt Quick Designer}{\QMLD} allows you to easily develop animations by using a
-    declarative programming
-    language called \l {http://doc.qt.nokia.com/4.7/qtquick.html}{QML}.
-    In QML, a user interface is specified as a tree of objects with properties.
-
-    You use a visual editor to create items, screens, and applications, as well as define changes
-    in their state, transitions from one state to another, and user actions that change the
-    states. \QMLD generates the necessary code for you.
-
-    You can use Qt or JavaScript to implement the application logic.
-
-      \section1 Languages
-
-    You can use the code editor to write code in Qt C++ or in the
-    \l {http://doc.qt.nokia.com/4.7/qtquick.html}{QML} declarative
-    programming language.
-
-    \section2 QML
-
-    You can use QML to build highly dynamic, custom user interfaces from a rich set
-    of QML elements. Qt Quick helps programmers and designers collaborate to build the
-    fluid user interfaces that are becoming common in portable consumer devices, such as
-    mobile phones, media players, set-top boxes and netbooks.
-
-    QML is an extension to JavaScript, that provides a mechanism to declaratively build
-    an object tree of QML elements. QML improves the integration between JavaScript and
-    Qt's existing QObject based type system, adds support for automatic property bindings
-    and provides network transparency at the language level.
-
-    \section1 Targets
-
-    Qt Creator provides support for building and running Qt applications for
-    desktop environment (Windows, Linux, and Mac OS) and mobile devices (Symbian, Maemo,
-    and MeeGo). Build settings allow you to quickly switch between build targets.
-
-    When you run an application for a mobile device target with a device
-    connected to the development PC, Qt Creator generates an installation package,
-    installs in on the device, and executes it.
-
-    You can publish the installation packages on the \l{https://publish.ovi.com/info/}{Ovi Store}.
-    For Symbian devices, the packages must be signed.
-
-    \section1 Tools
-
-    Qt Creator is integrated with a set of helpful tools, such as version control
-    systems and Qt Simulator.
+    In addition to Qt libraries, you can link your application to other
+    libraries, such as system libraries or your own libraries. Further, your
+    own libraries might link to other libraries. To be able to compile your
+    project, you must add the libraries to your project. This also enables
+    code completion and syntax highlighting for the libraries.
+    The procedure of adding a library to a project depends on the build
+    system that you use.
 
     \section2 Version Control Systems
 
@@ -377,17 +265,95 @@
     differences, viewing versioning history and change details, annotating files,
     and committing and reverting changes.
 
-    \section2 Qt Simulator
+    \section1 Designing User Interfaces
 
-    You can use the Qt Simulator to test Qt applications that are intended
-    for mobile devices in an environment similar to that of the device. You
-    can change the information that the device has about its configuration
-    and environment.
+    Qt Creator provides two integrated visual editors, \QMLD and \QD.
 
-    The Qt Simulator is installed as part of the \QSDK. After it is
-    installed, you can select it as a build target in Qt Creator.
+    \image qtcreator-ui-designers.png "Qt Quick Designer and Qt Designer"
 
-    \section1 Debuggers
+    Large high-resolution screens, touch input, and significant graphics power
+    are becoming common in portable consumer devices, such as mobile
+    phones, media players, set-top boxes, and netbooks. To fully benefit from
+    these features and to create intuitive, modern-looking, fluid user interfaces,
+    you can use \l {http://doc.qt.nokia.com/4.7/qtquick.html}{Qt Quick}.
+
+    Qt Quick consists of a rich set of user interface elements, a declarative
+    language for describing user interfaces, and a language runtime. A
+    collection of C++ APIs is used to integrate these high level features with
+    classic Qt applications.
+
+    You can edit QML code in the code editor or in the integrated \QMLD.
+    The integration includes project management and code completion.
+
+    If you need a traditional user interface that is clearly structured and
+    enforces a platform look and feel, you can use the integrated \QD. You can
+    compose and customize your widgets or dialogs and test them using different
+    styles and resolutions.
+
+    \section1 Coding
+
+    As an IDE, Qt Creator differs from a text editor in that it knows how to build and run
+    applications. It understands the C++ and QML languages as code, not just as plain text. This allows
+    it to:
+
+    \list
+
+        \o Enable you to write well formatted code
+
+        \o Anticipate what you are going to write and complete the code
+
+        \o Display inline error and warning messages
+
+        \o Enable you to semantically navigate to classes, functions, and symbols
+
+        \o Provide you with context-sensitive help on classes, functions, and symbols
+
+        \o Rename symbols in an intelligent way, so that other symbols with the same name
+         that belong to other scopes are not renamed
+
+        \o Show you the locations in code where a function is declared or called
+
+    \endlist
+
+    You can use the code editor to write code in Qt C++ or in the
+    QML declarative programming language.
+    QML is an extension to JavaScript, that provides a mechanism to declaratively build
+    an object tree of QML elements. QML improves the integration between JavaScript and
+    Qt's existing QObject based type system, adds support for automatic property bindings
+    and provides network transparency at the language level.
+
+    \section1 Building
+
+    Qt Creator is integrated with cross-platform systems for build automation:
+    qmake and CMake. In addition, you can import generic projects that do not use qmake
+    or CMake, and specify that Qt Creator ignores your build system.
+
+    Qt Creator provides support for building and running Qt applications for
+    desktop environment (Windows, Linux, and Mac OS) and mobile devices (Symbian and Maemo).
+    Build settings allow you to quickly switch between build targets.
+
+    When you install the \QSDK, the build and run settings for the Maemo and Symbian
+    targets are set up automatically. However, you need to install and configure some
+    additional software on the devices to be able to connect to them from the
+    development PC.
+
+    \note The only supported build system for mobile applications in Qt
+    Creator is qmake.
+
+    \section1 Testing
+
+    If you install Qt Creator as part of \QSDK, the GNU Symbolic Debugger
+    is installed automatically and you should be ready to start debugging after
+    you create a new project. However, you can change the setup to use debugging
+    tools for Windows, for example.
+    You can connect mobile devices to your development PC and debug processes
+    running on the devices.
+
+    You can test applications that are intended for mobile devices in the Qt
+    Simulator and Maemo Emulator, but you also need to test the applications
+    on real devices.
+
+    \section2 Debuggers
 
     Qt Creator does not include a debugger. It provides a debugger plugin that acts
     as an interface between the Qt Creator core and external native debuggers:
@@ -434,13 +400,57 @@
     deeper understanding is used to present objects of such classes in
     a useful way.
 
-    If you install Qt Creator as part of a \QSDK, the GNU Symbolic Debugger
-    is installed automatically and you should be ready to start debugging after
-    you create a new project. However, you can change the setup to use debugging
-    tools for Windows, for example.
+    \section3 QML Script Console
 
-    You can connect mobile devices to your development PC and debug processes
-    running on the devices.
+    You can use the Qt Creator \gui Debug mode to inspect the state of
+    the application while debugging JavaScript functions. You can set breakpoints,
+    view call stack trace, and examine locals and watchers.
+
+    When the application is interrupted by a breakpoint, you can use the \gui {QML
+    Script Console} to execute JavaScript expressions in the current context. You can
+    type JavaScript expressions and use them to get information about the state of the
+    application, such as property values.
+
+    If you change property values or add properties in the code editor, the
+    changes are updated in the running application when they are saved.
+
+    \section3 QML Observer
+
+    While the application is running, you can use the \gui {QML Observer} view to
+    explore the object structure, debug animations, and inspect colors. When debugging
+    complex applications, you can use the observe mode to jump to the position in code
+    where an element is defined.
+
+    \section2 Qt Simulator
+
+    You can use the Qt Simulator to test Qt applications that are intended
+    for mobile devices in an environment similar to that of the device. You
+    can change the information that the device has about its configuration
+    and environment.
+
+    The Qt Simulator is installed as part of the \QSDK. After it is
+    installed, you can select it as a build target in Qt Creator.
+
+    \section2 Maemo Emulator
+
+    The Maemo emulator emulates the Nokia N900 device environment. You can test
+    applications in conditions practically identical to running the application
+    on a Nokia N900 device with the software update release 1.2 (V10.2010.19-1).
+    However, it is faster to test on a real device connected to the development
+    PC.
+
+    The Maemo Emulator is installed as part of the \QSDK. After it is
+    installed and configured, you can start it from Qt Creator.
+
+    \section1 Deploying
+
+    Qt Creator deploy configurations handle the packaging of the application as an
+    executable and copying it to a location developers want to run the executable at.
+    The files can be copied to a location in the file system of the development PC
+    or to a mobile device.
+
+    Qt Creator allows you to create installation packages for Symbian and Maemo
+    devices that are suitable for publishing on Ovi Store and other channels.
 
 */
 
