@@ -370,8 +370,7 @@ void NavigatorTreeModel::setView(AbstractView *view)
     m_view = view;
     m_hiddenProperties.clear();
     if (view) {
-        ModelNode sampleItemNode(m_view->createModelNode("Qt/Item", 4, 7));
-        m_hiddenProperties << visibleProperties(sampleItemNode);
+        m_hiddenProperties.append("parent");
         addSubTree(view->rootModelNode());
     }
 }
