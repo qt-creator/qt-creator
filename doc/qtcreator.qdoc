@@ -575,6 +575,10 @@
     \endlist
 
     You can use the mode selector to change to another Qt Creator mode.
+    The following image displays an example application in \gui Edit mode
+    and \gui Design mode.
+
+    \image qtcreator-qt-quick-editors.png "Edit mode and Design mode"
 
     Qt Creator has been localized into several languages. If the system language
     is one of the supported languages, it is automatically selected. To change
