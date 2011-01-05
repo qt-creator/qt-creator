@@ -17,6 +17,7 @@
 #include "changeidscommand.h"
 #include "changestatecommand.h"
 #include "completecomponentcommand.h"
+#include "addimportcontainer.h"
 
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
@@ -125,6 +126,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<ComponentCompletedCommand>("ComponentCompletedCommand");
     qRegisterMetaTypeStreamOperators<ComponentCompletedCommand>("ComponentCompletedCommand");
+
+    qRegisterMetaType<AddImportContainer>("AddImportContainer");
+    qRegisterMetaTypeStreamOperators<AddImportContainer>("AddImportContainer");
 }
 
 }

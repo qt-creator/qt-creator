@@ -106,7 +106,8 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/instances/statepreviewimagechangedcommand.cpp \
     $$PWD/instances/imagecontainer.cpp \
     $$PWD/instances/completecomponentcommand.cpp \
-    $$PWD/instances/componentcompletedcommand.cpp
+    $$PWD/instances/componentcompletedcommand.cpp \
+    $$PWD/instances/addimportcontainer.cpp
 
 HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/abstractview.h \
@@ -212,7 +213,8 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/instances/statepreviewimagechangedcommand.h \
     $$PWD/instances/imagecontainer.h \
     $$PWD/instances/completecomponentcommand.h \
-    $$PWD/instances/componentcompletedcommand.h
+    $$PWD/instances/componentcompletedcommand.h \
+    $$PWD/instances/addimportcontainer.h
 contains(CONFIG, plugin) {
   # If core.pri has been included in the qmldesigner plugin
   SOURCES += $$PWD/model/basetexteditmodifier.cpp

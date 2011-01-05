@@ -6,6 +6,7 @@
 #include <QStringList>
 
 #include "nodeinstanceserver.h"
+#include "previewnodeinstanceserver.h"
 
 #include "propertyabstractcontainer.h"
 #include "propertyvaluecontainer.h"
@@ -37,7 +38,8 @@ namespace QmlDesigner {
 
 NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
     : QObject(parent),
-      m_nodeinstanceServer(new NodeInstanceServer(this)),
+      m_nodeInstanceServer(new NodeInstanceServer(this)),
+      m_baseStateNodeInstancePreview(new PreviewNodeInstanceServer(this)),
       m_blockSize(0)
 {
     m_slowSocket = new QLocalSocket(this);
@@ -148,7 +150,72 @@ void NodeInstanceClientProxy::readDataStream()
 
 NodeInstanceServerInterface *NodeInstanceClientProxy::nodeInstanceServer() const
 {
-    return m_nodeinstanceServer;
+    return m_nodeInstanceServer;
+}
+
+void NodeInstanceClientProxy::createInstances(const CreateInstancesCommand &command)
+{
+    nodeInstanceServer()->createInstances(command);
+}
+
+void NodeInstanceClientProxy::changeFileUrl(const ChangeFileUrlCommand &command)
+{
+    nodeInstanceServer()->changeFileUrl(command);
+}
+
+void NodeInstanceClientProxy::createScene(const CreateSceneCommand &command)
+{
+    nodeInstanceServer()->createScene(command);
+}
+
+void NodeInstanceClientProxy::clearScene(const ClearSceneCommand &command)
+{
+    nodeInstanceServer()->clearScene(command);
+}
+
+void NodeInstanceClientProxy::removeInstances(const RemoveInstancesCommand &command)
+{
+    nodeInstanceServer()->removeInstances(command);
+}
+
+void NodeInstanceClientProxy::removeProperties(const RemovePropertiesCommand &command)
+{
+    nodeInstanceServer()->removeProperties(command);
+}
+
+void NodeInstanceClientProxy::changePropertyBindings(const ChangeBindingsCommand &command)
+{
+    nodeInstanceServer()->changePropertyBindings(command);
+}
+
+void NodeInstanceClientProxy::changePropertyValues(const ChangeValuesCommand &command)
+{
+    nodeInstanceServer()->changePropertyValues(command);
+}
+
+void NodeInstanceClientProxy::reparentInstances(const ReparentInstancesCommand &command)
+{
+    nodeInstanceServer()->reparentInstances(command);
+}
+
+void NodeInstanceClientProxy::changeIds(const ChangeIdsCommand &command)
+{
+    nodeInstanceServer()->changeIds(command);
+}
+
+void NodeInstanceClientProxy::changeState(const ChangeStateCommand &command)
+{
+    nodeInstanceServer()->changeState(command);
+}
+
+void NodeInstanceClientProxy::addImport(const AddImportCommand &command)
+{
+    nodeInstanceServer()->addImport(command);
+}
+
+void NodeInstanceClientProxy::completeComponent(const CompleteComponentCommand &command)
+{
+    nodeInstanceServer()->completeComponent(command);
 }
 
 void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
@@ -167,32 +234,32 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int addImportCommandType = QMetaType::type("AddImportCommand");
     static const int completeComponentCommandType = QMetaType::type("CompleteComponentCommand");
 
-    if (command.userType() ==  createInstancesCommandType)
-        nodeInstanceServer()->createInstances(command.value<CreateInstancesCommand>());
-    else if (command.userType() ==  changeFileUrlCommandType)
-        nodeInstanceServer()->changeFileUrl(command.value<ChangeFileUrlCommand>());
+    if (command.userType() ==  createInstancesCommandType) {
+        createInstances(command.value<CreateInstancesCommand>());
+    } else if (command.userType() ==  changeFileUrlCommandType)
+        changeFileUrl(command.value<ChangeFileUrlCommand>());
     else if (command.userType() ==  createSceneCommandType)
-        nodeInstanceServer()->createScene(command.value<CreateSceneCommand>());
+        createScene(command.value<CreateSceneCommand>());
     else if (command.userType() ==  clearSceneCommandType)
-        nodeInstanceServer()->clearScene(command.value<ClearSceneCommand>());
+        clearScene(command.value<ClearSceneCommand>());
     else if (command.userType() ==  removeInstancesCommandType)
-        nodeInstanceServer()->removeInstances(command.value<RemoveInstancesCommand>());
+        removeInstances(command.value<RemoveInstancesCommand>());
     else if (command.userType() ==  removePropertiesCommandType)
-        nodeInstanceServer()->removeProperties(command.value<RemovePropertiesCommand>());
+        removeProperties(command.value<RemovePropertiesCommand>());
     else if (command.userType() ==  changeBindingsCommandType)
-        nodeInstanceServer()->changePropertyBindings(command.value<ChangeBindingsCommand>());
+        changePropertyBindings(command.value<ChangeBindingsCommand>());
     else if (command.userType() ==  changeValuesCommandType)
-        nodeInstanceServer()->changePropertyValues(command.value<ChangeValuesCommand>());
+        changePropertyValues(command.value<ChangeValuesCommand>());
     else if (command.userType() ==  reparentInstancesCommandType)
-        nodeInstanceServer()->reparentInstances(command.value<ReparentInstancesCommand>());
+        reparentInstances(command.value<ReparentInstancesCommand>());
     else if (command.userType() ==  changeIdsCommandType)
-        nodeInstanceServer()->changeIds(command.value<ChangeIdsCommand>());
+        changeIds(command.value<ChangeIdsCommand>());
     else if (command.userType() ==  changeStateCommandType)
-        nodeInstanceServer()->changeState(command.value<ChangeStateCommand>());
+        changeState(command.value<ChangeStateCommand>());
     else if (command.userType() ==  addImportCommandType)
-        nodeInstanceServer()->addImport(command.value<AddImportCommand>());
+        addImport(command.value<AddImportCommand>());
     else if (command.userType() ==  completeComponentCommandType)
-        nodeInstanceServer()->completeComponent(command.value<CompleteComponentCommand>());
+        completeComponent(command.value<CompleteComponentCommand>());
     else
         Q_ASSERT(false);
 }

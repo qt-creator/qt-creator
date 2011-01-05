@@ -53,12 +53,8 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
     m_timer(0),
     m_slowRenderTimer(false)
 {
+    m_importList.append("import Qt 4.7");
     connect(m_childrenChangeEventFilter.data(), SIGNAL(childrenChanged(QObject*)), this, SLOT(emitParentChanged(QObject*)));
-
-    m_declarativeView = new QDeclarativeView;
-    m_declarativeView->setAttribute(Qt::WA_DontShowOnScreen, true);
-    m_declarativeView->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
-    m_declarativeView->show();
 }
 
 NodeInstanceServer::~NodeInstanceServer()
@@ -159,8 +155,17 @@ void NodeInstanceServer::stopRenderTimer()
 
 void NodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
+    Q_ASSERT(!m_declarativeView.data());
+
+    m_declarativeView = new QDeclarativeView;
+    m_declarativeView->setAttribute(Qt::WA_DontShowOnScreen, true);
+    m_declarativeView->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
+    m_declarativeView->show();
+
     if (!command.fileUrl().isEmpty())
         engine()->setBaseUrl(command.fileUrl());
+
+    addImports(command.imports());
 
     static_cast<QGraphicsScenePrivate*>(QObjectPrivate::get(m_declarativeView->scene()))->processDirtyItemsEmitted = true;
 
@@ -270,35 +275,47 @@ void NodeInstanceServer::completeComponent(const CompleteComponentCommand &comma
     nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(instanceList));
 }
 
-void NodeInstanceServer::addImport(const AddImportCommand &command)
+void NodeInstanceServer::addImports(const QVector<AddImportContainer> &containerVector)
 {
-    QString importStatement = QString("import ");
+    foreach (const AddImportContainer &container, containerVector) {
+        QString importStatement = QString("import ");
 
-    if (!command.fileName().isEmpty())
-        importStatement += '"' + command.fileName() + '"';
-    else if (!command.url().isEmpty())
-        importStatement += command.url().toString();
+        if (!container.fileName().isEmpty())
+            importStatement += '"' + container.fileName() + '"';
+        else if (!container.url().isEmpty())
+            importStatement += container.url().toString();
 
-    if (!command.version().isEmpty())
-        importStatement += " " + command.version();
+        if (!container.version().isEmpty())
+            importStatement += " " + container.version();
 
-    if (!command.alias().isEmpty())
-        importStatement += " as " + command.alias();
+        if (!container.alias().isEmpty())
+            importStatement += " as " + container.alias();
 
-    m_importList.append(importStatement);
+        if (!m_importList.contains(importStatement))
+            m_importList.append(importStatement);
+
+        foreach(const QString &importPath, container.importPaths()) { // this is simply ugly
+            engine()->addImportPath(importPath);
+            engine()->addPluginPath(importPath);
+        }
+    }
 
     QDeclarativeComponent importComponent(engine(), 0);
-    QString componentString = QString("import Qt 4.7\n%1\n Item{}\n").arg(importStatement);
+    QString componentString;
+    foreach(const QString &importStatement, m_importList)
+        componentString += QString("%1\n").arg(importStatement);
 
-    foreach(const QString &importPath, command.importPaths()) {
-        engine()->addImportPath(importPath);
-        engine()->addPluginPath(importPath);
-    }
+    componentString += QString("Item {}\n");
 
     importComponent.setData(componentString.toUtf8(), QUrl());
 
     if (!importComponent.errorString().isEmpty())
         qDebug() << "QmlDesigner.NodeInstances: import wrong: " << importComponent.errorString();
+}
+
+void NodeInstanceServer::addImport(const AddImportCommand &command)
+{
+    addImports(QVector<AddImportContainer>() << command.import());
 }
 
 void NodeInstanceServer::changeFileUrl(const ChangeFileUrlCommand &command)

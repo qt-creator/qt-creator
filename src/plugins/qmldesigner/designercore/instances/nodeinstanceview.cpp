@@ -144,9 +144,6 @@ void NodeInstanceView::modelAttached(Model *model)
 
     setBlockUpdates(true);
 
-    foreach(const Import &import, model->imports())
-        nodeInstanceServer()->addImport(createImportCommand(import));
-
     nodeInstanceServer()->createScene(createCreateSceneCommand());
 
     setBlockUpdates(false);
@@ -704,11 +701,16 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         }
     }
 
+    QVector<AddImportContainer> importVector;
+    foreach(const Import &import, model()->imports())
+        importVector.append(AddImportContainer(import.url(), import.file(), import.version(), import.alias(), import.importPaths()));
+
     return CreateSceneCommand(instanceContainerList,
                               reparentContainerList,
                               idContainerList,
                               valueContainerList,
                               bindingContainerList,
+                              importVector,
                               model()->fileUrl());
 }
 
@@ -886,7 +888,7 @@ RemovePropertiesCommand NodeInstanceView::createRemovePropertiesCommand(const QL
 
 AddImportCommand NodeInstanceView::createImportCommand(const Import &import)
 {
-    return AddImportCommand(import.url(), import.file(), import.version(), import.alias(), import.importPaths());
+    return AddImportCommand(AddImportContainer(import.url(), import.file(), import.version(), import.alias(), import.importPaths()));
 }
 
 void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)

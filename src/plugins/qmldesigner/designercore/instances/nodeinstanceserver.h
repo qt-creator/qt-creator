@@ -25,6 +25,7 @@ class InformationChangedCommand;
 class ChildrenChangedCommand;
 class ReparentContainer;
 class ComponentCompletedCommand;
+class AddImportContainer;
 
 namespace Internal {
     class ChildrenChangeEventFilter;
@@ -87,7 +88,8 @@ public slots:
 
 protected:
     QList<ServerNodeInstance> createInstances(const QVector<InstanceContainer> &container);
-    void reparentInstances(const QVector<ReparentContainer> &container);
+    void reparentInstances(const QVector<ReparentContainer> &containerVector);
+    void addImports(const QVector<AddImportContainer> &container);
 
     Internal::ChildrenChangeEventFilter *childrenChangeEventFilter();
     void resetInstanceProperty(const PropertyAbstractContainer &propertyContainer);

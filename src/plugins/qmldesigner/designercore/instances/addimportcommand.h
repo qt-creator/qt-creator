@@ -1,10 +1,7 @@
 #ifndef ADDIMPORTCOMMAND_H
 #define ADDIMPORTCOMMAND_H
 
-#include <QMetaType>
-#include <QUrl>
-#include <QString>
-#include <QStringList>
+#include "addimportcontainer.h"
 
 namespace QmlDesigner {
 
@@ -13,20 +10,12 @@ class AddImportCommand
     friend QDataStream &operator>>(QDataStream &in, AddImportCommand &command);
 public:
     AddImportCommand();
-    AddImportCommand(const QUrl &url, const QString &fileName, const QString &version, const QString &alias, const QStringList &mportPathList);
+    AddImportCommand(const AddImportContainer &container);
 
-    QUrl url() const;
-    QString fileName() const;
-    QString version() const;
-    QString alias() const;
-    QStringList importPaths() const;
+    AddImportContainer import() const;
 
 private:
-    QUrl m_url;
-    QString m_fileName;
-    QString m_version;
-    QString m_alias;
-    QStringList m_importPathList;
+    AddImportContainer m_importContainer;
 };
 
 QDataStream &operator<<(QDataStream &out, const AddImportCommand &command);
