@@ -1469,21 +1469,18 @@ bool BaseTextEditor::cursorMoveKeyEvent(QKeyEvent *e)
 
     bool visualNavigation = cursor.visualNavigation();
     cursor.setVisualNavigation(true);
-    bool moved = false;
 
     if (op == QTextCursor::WordRight) {
-        moved = camelCaseRight(cursor, mode);
+        camelCaseRight(cursor, mode);
     } else if (op == QTextCursor::WordLeft) {
-            moved = camelCaseLeft(cursor, mode);
+        camelCaseLeft(cursor, mode);
     } else {
-        moved = cursor.movePosition(op, mode);
+        cursor.movePosition(op, mode);
     }
     cursor.setVisualNavigation(visualNavigation);
 
-    if (moved) {
-        setTextCursor(cursor);
-        ensureCursorVisible();
-    }
+    setTextCursor(cursor);
+    ensureCursorVisible();
     return true;
 }
 
