@@ -265,7 +265,7 @@ void BreakHandler::saveBreakpoints()
             map.insert(_("condition"), data.condition);
         if (data.ignoreCount)
             map.insert(_("ignorecount"), data.ignoreCount);
-        if (data.threadSpec)
+        if (data.threadSpec >= 0)
             map.insert(_("threadspec"), data.threadSpec);
         if (!data.enabled)
             map.insert(_("disabled"), _("1"));
