@@ -1447,10 +1447,11 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
             << "public:" << endl
             << "    ASTPatternBuilder() {}" << endl
             << endl
-            << "    void reset() { pool.reset(); };" << endl
+            << "    void reset() { pool.reset(); }" << endl
             << endl;
 
     Control *control = AST_h_document->control();
+    QSet<QString> listClasses;
 
     foreach (ClassSpecifierAST *classNode, astNodes.deriveds) {
         Class *klass = classNode->symbol;
@@ -1490,8 +1491,8 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
 
             const QString tyName = oo(ptrTy->elementType());
             if (tyName.endsWith("ListAST"))
-                continue;
-            else if (tyName.endsWith("AST")) {
+                listClasses.insert(tyName);
+            if (tyName.endsWith("AST")) {
                 if (! first)
                     out << ", ";
 
@@ -1517,6 +1518,21 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
 
         out
                 << "        return __ast;" << endl
+                << "    }" << endl
+                << endl;
+    }
+
+    foreach (const QString &className, listClasses) {
+        const QString methodName = className.left(className.length() - 3);
+        const QString elementName = className.left(className.length() - 7) + QLatin1String("AST");
+        out
+                << "    " << className << " *" << methodName << "("
+                << elementName << " *value, " << className << " *next = 0)" << endl
+                << "    {" << endl
+                << "        " << className << " *__list = new (&pool) " << className << ";" << endl
+                << "        __list->next = next;" << endl
+                << "        __list->value = value;" << endl
+                << "        return __list;" << endl
                 << "    }" << endl
                 << endl;
     }
@@ -1557,5 +1573,5 @@ int main(int argc, char *argv[])
     astDerivedClasses.sort();
     generateASTFwd_h(snapshot, cplusplusDir, astDerivedClasses);
 
-    //generateASTPatternBuilder_h(cplusplusDir);
+    generateASTPatternBuilder_h(cplusplusDir);
 }
