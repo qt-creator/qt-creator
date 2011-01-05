@@ -963,7 +963,8 @@ Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core
 
 void EditorManager::activateEditor(Core::IEditor *editor, OpenEditorFlags flags)
 {
-    EditorView *view = m_d->m_splitter->findView(editor)->view();
+    SplitterOrView *splitterOrView = m_d->m_splitter->findView(editor);
+    EditorView *view = (splitterOrView ? splitterOrView->view() : 0);
     // TODO an IEditor doesn't have to belong to a view, which makes this method a bit funny
     if (!view)
         view = currentEditorView();
