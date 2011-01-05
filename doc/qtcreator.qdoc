@@ -96,10 +96,6 @@
             \endlist
        \o \l{Developing Application UI}
        \list
-           \o \l{Optimizing Applications for Mobile Devices}
-           \o \l{Using Qt Designer}
-           \o \l{Adding Qt Designer Plugins}
-           \if defined(qtquick)
            \o \l{Developing Qt Quick Applications}
                 \list
                     \o \l {Creating Qt Quick Projects}
@@ -112,7 +108,11 @@
                     \o \l {Adding User Interaction Methods}
                     \o \l {Implementing Application Logic}
                 \endlist
-           \endif
+           \o \l{Developing Widget Based Applications}
+               \list
+                   \o \l{Adding Qt Designer Plugins}
+               \endlist
+           \o \l{Optimizing Applications for Mobile Devices}
        \endlist
        \o \l{Building and Running Applications}
             \list
@@ -3156,7 +3156,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage quick-application-logic.html
+    \previouspage creator-usability.html
     \page creator-building-running.html
     \nextpage creator-building-targets.html
 
@@ -5873,7 +5873,6 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-developing-symbian.html
     \page creator-project-managing-sessions.html
     \nextpage creator-project-wizards.html
 
@@ -7235,7 +7234,6 @@
     \contentspage index.html
     \previouspage creator-project-cmake.html
     \page creator-project-generic.html
-    \nextpage creator-developing-maemo.html
 
     \title Setting Up a Generic Project
 
@@ -8060,7 +8058,7 @@
     \contentspage index.html
     \previouspage quick-user-interaction.html
     \page quick-application-logic.html
-    \nextpage creator-building-running.html
+    \nextpage creator-using-qt-designer.html
 
     \title Implementing Application Logic
 
@@ -8303,7 +8301,7 @@
     \contentspage index.html
     \previouspage creator-using-qt-designer.html
     \page adding-plugins.html
-    \nextpage creator-visual-editor.html
+    \nextpage creator-usability.html
 
     \title Adding Qt Designer Plugins
 
@@ -8415,9 +8413,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-design-mode.html
+    \previouspage adding-plugins.html
     \page creator-usability.html
-    \nextpage creator-using-qt-designer.html
+    \nextpage creator-building-running.html
 
     \title Optimizing Applications for Mobile Devices
 
