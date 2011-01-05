@@ -495,7 +495,6 @@ the API that comes from the user, you need to convert it with
 QDir::fromNativeSeparators first. Whenever you present a file name to the user,
 you need to convert it back to native format with QDir::toNativeSeparators.
 
-In most places, file names should be cleaned absolute paths.
 When comparing file names consider using FileManager::fixFileName which makes
 sure that paths are clean and absolute and also takes Windows' case-insensitivity
 into account (but is an expensive operation).
@@ -518,8 +517,8 @@ FindFilter implementation, which then performs the search.
 
 \section2 Using the global object pool
 
-You can add objects to the global object pool via PluginManager::addObject,
-and retrieve objects of a specific type again via PluginManager::objects.
+You can add objects to the global object pool via \l{ExtensionSystem::PluginManager::addObject()},
+and retrieve objects of a specific type again via \l{ExtensionSystem::PluginManager::getObjects()}.
 This should mostly be used for implementations of \l{Plugin extension points}.
 
 Cases where you should not use it are:
