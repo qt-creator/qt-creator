@@ -291,7 +291,8 @@ public:
     void operator()()
     {
         _doc->check(_mode);
-        _doc->findExposedQmlTypes();
+        // temporarily disabled because it's too expensive
+        //_doc->findExposedQmlTypes();
         _doc->releaseSource();
         _doc->releaseTranslationUnit();
 
