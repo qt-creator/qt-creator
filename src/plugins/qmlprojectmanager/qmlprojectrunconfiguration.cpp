@@ -46,7 +46,7 @@
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #ifdef Q_OS_WIN32
-#include <Windows.h>
+#include <utils/winutils.h>
 #endif
 
 using Core::EditorManager;
@@ -69,7 +69,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent)
 {
     ctor();
     updateQtVersions();
-}
+} 
 
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent,
                                                        QmlProjectRunConfiguration *source) :
@@ -186,18 +186,14 @@ QString QmlProjectRunConfiguration::canonicalCapsPath(const QString &fileName)
     QString canonicalPath = QFileInfo(fileName).canonicalFilePath();
 
 #if defined(Q_OS_WIN32)
-    wchar_t *buffer = 0;
-    do {
-        long length = ::GetLongPathName((wchar_t*)fileName.utf16(), NULL, 0);
-        if (!length)
-            break;
-        buffer = new wchar_t[length];
-        DWORD rv = ::GetLongPathName((wchar_t*)fileName.utf16(), buffer, length);
-        if (!rv)
-            break;
-        canonicalPath = QString((QChar*)buffer);
-    } while (false);
-    delete buffer;
+    QString error;
+    // don't know whether the shortpath step is really needed,
+    // but we do this in QtDeclarative too.
+    QString path = Utils::getShortPathName(canonicalPath, &error);
+    if (!path.isEmpty())
+        path = Utils::getLongPathName(canonicalPath, &error);
+    if (!path.isEmpty())
+        canonicalPath = path;
 #endif
     
     return canonicalPath;

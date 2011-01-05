@@ -165,6 +165,39 @@ QTCREATOR_UTILS_EXPORT QString getShortPathName(const QString &name, QString *er
     return rc;
 }
 
+QTCREATOR_UTILS_EXPORT QString getLongPathName(const QString &name, QString *errorMessage)
+{
+    typedef DWORD (APIENTRY *GetLongPathNameProtoType)(LPCTSTR, LPTSTR, DWORD);
+
+    if (name.isEmpty())
+        return name;
+
+    const char *kernel32DLLC = "kernel32.dll";
+
+    QLibrary kernel32Lib(kernel32DLLC, 0);
+    if (!kernel32Lib.isLoaded() && !kernel32Lib.load()) {
+        *errorMessage = msgCannotLoad(kernel32DLLC, kernel32Lib.errorString());
+        return QString();
+    }
+
+    // MinGW requires old-style casts
+    GetLongPathNameProtoType getLongPathNameW = (GetLongPathNameProtoType)(kernel32Lib.resolve("GetLongPathNameW"));
+    if (!getLongPathNameW) {
+        *errorMessage = msgCannotResolve(kernel32DLLC);
+        return QString();
+    }
+    // Determine length, then convert.
+    const LPCTSTR nameC = reinterpret_cast<LPCTSTR>(name.utf16()); // MinGW
+    const DWORD length = (*getLongPathNameW)(nameC, NULL, 0);
+    if (length == 0)
+        return name;
+    TCHAR *buffer = new TCHAR[length];
+    (*getLongPathNameW)(nameC, buffer, length);
+    const QString rc = QString::fromUtf16(reinterpret_cast<const ushort *>(buffer), length);
+    delete [] buffer;
+    return rc;
+}
+
 QTCREATOR_UTILS_EXPORT unsigned long winQPidToPid(const Q_PID qpid)
 {
     const PROCESS_INFORMATION *processInfo = reinterpret_cast<const PROCESS_INFORMATION*>(qpid);
