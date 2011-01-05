@@ -10,6 +10,7 @@ DEFINES += IDE_TEST_DIR=\\\"$$IDE_SOURCE_TREE\\\"
 
 HEADERS += pluginerrorview.h \
     plugindetailsview.h \
+    invoker.h \
     iplugin.h \
     iplugin_p.h \
     extensionsystem_global.h \
@@ -23,6 +24,7 @@ HEADERS += pluginerrorview.h \
     plugincollection.h
 SOURCES += pluginerrorview.cpp \
     plugindetailsview.cpp \
+    invoker.cpp \
     iplugin.cpp \
     pluginmanager.cpp \
     pluginspec.cpp \

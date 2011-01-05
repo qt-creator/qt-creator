@@ -39,14 +39,15 @@
 #include "iplugin.h"
 #include "plugincollection.h"
 
-#include <QtCore/QMetaProperty>
-#include <QtCore/QDir>
-#include <QtCore/QTextStream>
-#include <QtCore/QWriteLocker>
-#include <QtCore/QTime>
 #include <QtCore/QDateTime>
+#include <QtCore/QDir>
+#include <QtCore/QMetaProperty>
 #include <QtCore/QSettings>
-#include <QtDebug>
+#include <QtCore/QTextStream>
+#include <QtCore/QTime>
+#include <QtCore/QWriteLocker>
+#include <QtCore/QtDebug>
+
 #ifdef WITH_TESTS
 #include <QTest>
 #endif
@@ -60,9 +61,10 @@ enum { debugLeaks = 0 };
 
 /*!
     \namespace ExtensionSystem
-    \brief The ExtensionSystem namespace provides classes that belong to the core plugin system.
+    \brief The ExtensionSystem namespace provides classes that belong to the
+           core plugin system.
 
-    The basic extension system contains of the plugin manager and its supporting classes,
+    The basic extension system contains the plugin manager and its supporting classes,
     and the IPlugin interface that must be implemented by plugin providers.
 */
 
@@ -114,14 +116,82 @@ enum { debugLeaks = 0 };
     be implemented and added to the object pool. The plugin that provides the
     extension point looks for implementations of the class / interface in the object pool.
     \code
-        // plugin A provides a "MimeTypeHandler" extension point
+        // Plugin A provides a "MimeTypeHandler" extension point
         // in plugin B:
         MyMimeTypeHandler *handler = new MyMimeTypeHandler();
         ExtensionSystem::PluginManager::instance()->addObject(handler);
-        // in plugin A:
+        // In plugin A:
         QList<MimeTypeHandler *> mimeHandlers =
             ExtensionSystem::PluginManager::instance()->getObjects<MimeTypeHandler>();
     \endcode
+
+
+    The \c{ExtensionSystem::Invoker} class template provides "syntactic sugar"
+    for using "soft" extension points that may or may not be provided by an
+    object in the pool. This approach does neither require the "user" plugin being
+    linked against the "provider" plugin nor a common shared
+    header file. The exposed interface is implicitly given by the
+    invokable methods of the "provider" object in the object pool.
+
+    The \c{ExtensionSystem::invoke} function template encapsulates
+    {ExtensionSystem::Invoker} construction for the common case where 
+    the success of the call is not checked.
+
+    \code
+        // In the "provide" plugin A:
+        namespace PluginA {
+        class SomeProvider : public QObject
+        {
+            Q_OBJECT
+
+        public:
+            Q_INVOKABLE QString doit(const QString &msg, int n) {
+            {
+                qDebug() << "I AM DOING IT " << msg;
+                return QString::number(n);
+            }
+        };
+        } // namespace PluginA
+
+
+        // In the "user" plugin B:
+        int someFuntionUsingPluginA()
+        {
+            using namespace ExtensionSystem;
+
+            QObject *target = PluginManager::instance()
+                ->getObjectByClassName("PluginA::SomeProvider");
+
+            if (target) {
+                // Some random argument.
+                QString msg = "REALLY.";
+
+                // Plain function call, no return value.
+                invoke<void>(target, "doit", msg, 2);
+
+                // Plain function with no return value.
+                qDebug() << "Result: " << invoke<QString>(target, "doit", msg, 21);
+
+                // Record success of function call with return value.
+                Invoker<QString> in1(target, "doit", msg, 21);
+                qDebug() << "Success: (expected)" << in1.wasSuccessful();
+
+                // Try to invoke a non-existing function.
+                Invoker<QString> in2(target, "doitWrong", msg, 22);
+                qDebug() << "Success (not expected):" << in2.wasSuccessful();
+
+            } else {
+
+                // We have to cope with plugin A's absence.
+            }
+        };
+    \endcode
+
+    \bold Note: The type of the parameters passed to the \c{invoke()} calls
+    is deduced from the parameters themselves and must match the type of
+    the arguments of the called functions \e{exactly}. No conversion or even
+    integer promotions are applicable, so to invoke a function with a \c{long}
+    parameter explicitly use \c{long(43)} or such.
 
     \bold Note: The object pool manipulating functions are thread-safe.
 */
@@ -1094,4 +1164,39 @@ void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *s
             qDebug("%-45s %8dms (%8dms)", what, absoluteElapsedMS, elapsedMS);
         }
     }
+}
+
+/*!
+    \fn void PluginManager::getObjectByName()
+    Retrieves one object with a given name from the object pool.
+    \sa addObject()
+*/
+
+QObject *PluginManager::getObjectByName(const QString &name) const
+{
+    QReadLocker lock(&m_lock);
+    QList<QObject *> all = allObjects();
+    foreach (QObject *obj, all) {
+        if (obj->objectName() == name)
+            return obj;
+    }
+    return 0;
+}
+
+/*!
+    \fn void PluginManager::getObjectByClassName()
+    Retrieves one object inheriting a class with a given name from the object pool.
+    \sa addObject()
+*/
+
+QObject *PluginManager::getObjectByClassName(const QString &className) const
+{
+    const QByteArray ba = className.toUtf8();
+    QReadLocker lock(&m_lock);
+    QList<QObject *> all = allObjects();
+    foreach (QObject *obj, all) {
+        if (obj->inherits(ba.constData()))
+            return obj;
+    }
+    return 0;
 }

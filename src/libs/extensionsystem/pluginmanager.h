@@ -38,8 +38,8 @@
 #include <aggregation/aggregate.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QStringList>
 #include <QtCore/QReadWriteLock>
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 class QTextStream;
@@ -94,6 +94,9 @@ public:
         }
         return result;
     }
+
+    QObject *getObjectByName(const QString &name) const;
+    QObject *getObjectByClassName(const QString &className) const;
 
     // Plugin operations
     QList<PluginSpec *> loadQueue();
