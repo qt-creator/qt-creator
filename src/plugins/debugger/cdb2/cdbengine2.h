@@ -206,6 +206,7 @@ private:
     QTime m_logTime;
     mutable int m_elapsedLogTime;
     QByteArray m_extensionMessageBuffer;
+    bool m_sourceStepInto;
 };
 
 } // namespace Cdb

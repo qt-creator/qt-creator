@@ -300,7 +300,8 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp, const OptionsPtr &option
     m_operateByInstruction(true), // Default CDB setting
     m_notifyEngineShutdownOnTermination(false),
     m_hasDebuggee(false),
-    m_elapsedLogTime(0)
+    m_elapsedLogTime(0),
+    m_sourceStepInto(false)
 {
     Utils::SavedAction *assemblerAction = theAssemblerAction();
     m_operateByInstructionPending = assemblerAction->isChecked();
@@ -706,6 +707,8 @@ unsigned CdbEngine::debuggerCapabilities() const
 void CdbEngine::executeStep()
 {
     postCommand(QByteArray("t"), 0); // Step into-> t (trace)
+    if (!m_operateByInstruction)
+        m_sourceStepInto = true; // See explanation at handleStackTrace().
     notifyInferiorRunRequested();
 }
 
@@ -1869,13 +1872,26 @@ static StackFrames parseFrames(const QByteArray &data)
 
 void CdbEngine::handleStackTrace(const CdbExtensionCommandPtr &command)
 {
-    // Parse frames, find current.
+    // Parse frames, find current. Special handling for step into:
+    // When stepping into on an actual function (source mode) by executing 't', an assembler
+    // frame pointing at the jmp instruction is hit (noticeable by top function being
+    // 'ILT+'). If that is the case, execute another 't' to step into the actual function.    .
+    // Note that executing 't 2' does not work since it steps 2 instructions on a non-call code line.
+    const bool sourceStepInto = m_sourceStepInto;
+    m_sourceStepInto = false;
     if (command->success) {
         int current = -1;
         StackFrames frames = parseFrames(command->reply);
         const int count = frames.size();
         for (int i = 0; i < count; i++) {
-            if (!frames.at(i).file.isEmpty()) {
+            const bool hasFile = !frames.at(i).file.isEmpty();
+            // jmp-frame hit by step into, do another 't' and abort sequence.
+            if (!hasFile && i == 0 && sourceStepInto && frames.at(i).function.contains(QLatin1String("ILT+"))) {
+                showMessage(QString::fromAscii("Step into: Call instruction hit, performing additional step..."), LogMisc);
+                executeStep();
+                return;
+            }
+            if (hasFile) {
                 frames[i].file = QDir::cleanPath(normalizeFileName(frames.at(i).file));
                 if (current == -1 && frames[i].usable)
                     current = i;
