@@ -168,9 +168,6 @@ void NodeInstanceView::restartProcess()
         m_nodeInstanceServer = new NodeInstanceServerProxy(this);
         connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(restartProcess()));
 
-        foreach(const Import &import, model()->imports())
-            nodeInstanceServer()->addImport(createImportCommand(import));
-
         nodeInstanceServer()->createScene(createCreateSceneCommand());
     }
 
