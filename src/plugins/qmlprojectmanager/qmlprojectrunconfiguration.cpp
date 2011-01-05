@@ -69,7 +69,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent)
 {
     ctor();
     updateQtVersions();
-} 
+}
 
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent,
                                                        QmlProjectRunConfiguration *source) :
@@ -195,7 +195,7 @@ QString QmlProjectRunConfiguration::canonicalCapsPath(const QString &fileName)
     if (!path.isEmpty())
         canonicalPath = path;
 #endif
-    
+
     return canonicalPath;
 }
 
@@ -335,14 +335,14 @@ void QmlProjectRunConfiguration::updateEnabled()
                 qmlFileFound = true;
         }
         if (!editor
-            || db->findByFile(mainScript()).type() == QLatin1String("application/x-qmlproject")) {
+                || db->findByFile(mainScript()).type() == QLatin1String("application/x-qmlproject")) {
             // find a qml file with lowercase filename. This is slow, but only done
             // in initialization/other border cases.
             foreach(const QString &filename, m_projectTarget->qmlProject()->files()) {
                 const QFileInfo fi(filename);
 
                 if (!filename.isEmpty() && fi.baseName()[0].isLower()
-                    && db->findByFile(fi).type() == QLatin1String("application/x-qml"))
+                        && db->findByFile(fi).type() == QLatin1String("application/x-qml"))
                 {
                     m_currentFileFilename = filename;
                     qmlFileFound = true;
@@ -356,7 +356,7 @@ void QmlProjectRunConfiguration::updateEnabled()
     }
 
     bool newValue = (QFileInfo(viewerPath()).exists()
-                    || QFileInfo(observerPath()).exists()) && qmlFileFound;
+                     || QFileInfo(observerPath()).exists()) && qmlFileFound;
 
 
     // Always emit change signal to force reevaluation of run/debug buttons
@@ -419,6 +419,5 @@ QList<Utils::EnvironmentItem> QmlProjectRunConfiguration::userEnvironmentChanges
 {
     return m_userEnvironmentChanges;
 }
-
 
 } // namespace QmlProjectManager
