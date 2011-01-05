@@ -186,8 +186,8 @@ void NodeInstanceServer::createScene(const CreateSceneCommand &command)
     foreach(ServerNodeInstance instance, instanceList)
         instance.doComponentComplete();
 
-    nodeInstanceClient()->valuesChanged(createValuesChangedCommand(instanceList));
     nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(instanceList, true));
+    nodeInstanceClient()->valuesChanged(createValuesChangedCommand(instanceList));
     sendChildrenChangedCommand(instanceList);
     nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instanceList));
     nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(instanceList));
