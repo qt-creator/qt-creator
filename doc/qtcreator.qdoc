@@ -951,42 +951,39 @@
     \contentspage index.html
     \previouspage creator-editor-external.html
     \page creator-design-mode.html
-    \nextpage creator-usability.html
+    \nextpage creator-visual-editor.html
 
     \title Developing Application UI
 
-    You can use the integrated \QD to design and build graphical user interfaces (GUIs) from
-    Qt widgets. You can compose and customize your widgets or dialogs and test
-    them using different styles and resolutions.
+    Large high-resolution screens, touch input, and significant graphics power
+    are becoming common in portable consumer devices, such as mobile
+    phones, media players, set-top boxes, and netbooks. To fully benefit from
+    these features and to create intuitive, modern-looking, fluid user interfaces,
+    you can use \l {http://doc.qt.nokia.com/4.7/qtquick.html}{Qt Quick}.
 
-    Widgets and forms created with \QD are integrated seamlessly with programmed code,
-    using the Qt signals and slots mechanism, that lets you easily assign behavior to
-    graphical elements. All properties set in \QD can be changed dynamically within the code.
-    Furthermore, features like widget promotion and custom plugins allow you to use your
-    own widgets with \QD.
+    Qt Quick consists of a rich set of user interface elements, a declarative
+    language for describing user interfaces, and a language runtime. A
+    collection of C++ APIs is used to integrate these high level features with
+    classic Qt applications.
 
-    UIs that use widgets are clearly structured and enforce a platform look and feel,
-    which makes them useful for traditional applications. However, they are static, and
-    do not fully make use of the large high-resolution screens, touch input, and significant
-    graphics power that are becoming common in portable consumer devices, such as mobile
-    phones, media players, set-top boxes, and netbooks.
+    You can edit QML code in the code editor or in the integrated \QMLD.
 
-    You can easily develop animations by using a declarative programming
-    language called \l {http://doc.qt.nokia.com/4.7/qtquick.html}{QML}.
-    In QML, a user interface is specified as a tree of objects with properties.
-    You can edit QML code in the code editor or in the integrated \QMLD. You
-    can use Qt or JavaScript to implement the application logic.
+    \image qtcreator-design-mode.png "Design mode"
 
     The integration includes project management and code completion.
+
+    If you need a traditional user interface that is clearly structured and
+    enforces a platform look and feel, you can use the integrated \QD. You can
+    compose and customize your widgets or dialogs and test them using different
+    styles and resolutions.
 
     The following sections describe how to develop application UI:
 
        \list
 
-           \o \l{Optimizing Applications for Mobile Devices}
-           \o \l{Using Qt Designer}
-           \o \l{Adding Qt Designer Plugins}
            \o \l{Developing Qt Quick Applications}
+           \o \l{Developing Widget Based Applications}
+           \o \l{Optimizing Applications for Mobile Devices}
 
        \endlist
 
@@ -995,11 +992,17 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-usability.html
+    \previouspage quick-application-logic.html
     \page creator-using-qt-designer.html
     \nextpage adding-plugins.html
 
-    \title Using Qt Designer
+    \title Developing Widget Based Applications
+
+    Widgets and forms created with \QD are integrated seamlessly with programmed code,
+    using the Qt signals and slots mechanism, that lets you easily assign behavior to
+    graphical elements. All properties set in \QD can be changed dynamically within the code.
+    Furthermore, features like widget promotion and custom plugins allow you to use your
+    own widgets with \QD.
 
     Qt Creator automatically opens all .ui files in \QD.
 
@@ -1358,6 +1361,8 @@
     navigating code.  Qt Creator's code editor is fully equipped with syntax
     checking, code completion, context sensitive help and in-line error
     indicators while you are typing.
+
+    \image qtcreator-edit-mode.png "Edit mode"
 
     \section1 Using the Editor Toolbar
 
@@ -3717,7 +3722,13 @@
     \image qtcreator-symbian-run-settings.png "Run settings for Symbian devices"
 
     When you deploy the application for the \gui{Symbian Device} target, Qt
-    Creator generates a Symbian installation system (SIS) file in the project folder.
+    Creator generates a Symbian installation system (SIS) file in the project folder
+    and copies it to the device that is connected to the development PC.
+    If no device is connected, you must remove the \gui {Deploy SIS Package} step,
+    to create the package. Click \gui {Remove Item} to skip the step.
+
+    \image qtcreator-remove-deploy-step.png "Removing deploy steps"
+
     When you are ready to publish the application on Ovi Store or some other
     channel, you must make sure that the SIS file meets the requirements for
     publishing and installing applications on Symbian devices. For more information,
@@ -7362,7 +7373,7 @@
 /*!
 
     \contentspage index.html
-    \previouspage adding-plugins.html
+    \previouspage creator-design-mode.html
     \page creator-visual-editor.html
     \nextpage quick-projects.html
 
@@ -7373,6 +7384,9 @@
 
     You can use the code editor (\l{Using the Editor}{Edit mode}) or the visual editor
     (\l{Using Qt Quick Designer}{Design mode}) to develop Qt Quick applications.
+
+    \image qtcreator-qt-quick-editors.png "Edit mode and Design mode"
+
     The following sections describe typical tasks you can do with Qt Creator.
 
     \list
