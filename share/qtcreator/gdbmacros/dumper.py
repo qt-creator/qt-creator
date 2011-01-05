@@ -94,6 +94,7 @@ def isGoodGdb():
     return 'parse_and_eval' in __builtin__.dir(gdb)
 
 def hasInferiorThreadList():
+    return False
     try:
         a= gdb.inferiors()[0].threads()
         return True
