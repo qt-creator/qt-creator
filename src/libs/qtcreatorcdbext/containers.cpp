@@ -707,7 +707,7 @@ static inline AbstractSymbolGroupNodePtrVector
 // Return the list of buckets of a 'QHash<>' as 'QHashData::Node *' values from
 // the list of addresses passed in
 template<class AddressType>
-SymbolGroupValueVector hashBuckets(SymbolGroup *sg, const std::string hashNodeType,
+SymbolGroupValueVector hashBuckets(SymbolGroup *sg, const std::string &hashNodeType,
                                    const AddressType *pointerArray,
                                    int numBuckets,
                                    AddressType ePtr,
@@ -786,7 +786,8 @@ SymbolGroupValueVector qHashNodes(const SymbolGroupValue &v,
     // Generate the list 'QHashData::Node *' by iterating over the linked list of
     // nodes starting at each bucket. Using the 'QHashData::Node *' instead of
     // the 'QHashNode<K,T>' is much faster. Each list has a trailing, unused
-    // dummy element.
+    // dummy element. The initial element as such is skipped due to the pointer/value
+    // duality (since its 'next' element is identical to it when using typecast<> later on).
     SymbolGroupValueVector dummyNodeList;
     dummyNodeList.reserve(count);
     bool notEnough = true;
@@ -795,11 +796,11 @@ SymbolGroupValueVector qHashNodes(const SymbolGroupValue &v,
         for (SymbolGroupValue l = *it; notEnough && l ; ) {
             const SymbolGroupValue next = l["next"];
             if (next && next.pointerValue()) { // Stop at trailing dummy element
-                dummyNodeList.push_back(l);
+                dummyNodeList.push_back(next);
                 if (dummyNodeList.size() >= count) // Stop at maximum count
                     notEnough = false;
                 if (debugMap)
-                    DebugPrint() << '#' << (dummyNodeList.size() - 1) << "l=" << l << ",next=" << next;
+                    DebugPrint() << '#' << (dummyNodeList.size() - 1) << " l=" << l << ",next=" << next;
                 l = next;
             } else {
                 break;

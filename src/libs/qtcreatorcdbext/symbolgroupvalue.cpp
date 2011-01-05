@@ -488,7 +488,7 @@ std::vector<std::string> SymbolGroupValue::innerTypesOf(const std::string &t)
 std::ostream &operator<<(std::ostream &str, const SymbolGroupValue &v)
 {
     if (v) {
-        str << '\'' << v.name() << "' 0x" << std::showbase << std::hex << v.address() <<
+        str << '\'' << v.name() << "' 0x" << std::hex << v.address() <<
                std::dec << ' ' << v.type() << ": '" << wStringToString(v.value()) << '\'';
     } else {
         str << "Invalid value '" << v.error() << '\'';
