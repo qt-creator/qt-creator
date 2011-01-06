@@ -51,6 +51,8 @@ enum KnownType
     KT_IntType = KT_POD_Type + 3,         // any signed short, long, int
     KT_UnsignedIntType = KT_POD_Type + 4, // any unsigned int
     KT_FloatType = KT_POD_Type + 5,       // float, double
+    KT_POD_PointerType = KT_POD_Type + 6,     // pointer to some POD
+    KT_PointerType = KT_POD_Type + 7,     // pointer to class or complex type
     // Qt Basic
     KT_QChar = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 1,
     KT_QByteArray = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 2,

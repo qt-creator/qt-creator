@@ -55,7 +55,7 @@ SymbolGroupValue::SymbolGroupValue(SymbolGroupNode *node,
     if (m_node && !m_node->isMemoryAccessible()) { // Invalid if no value
         m_node = 0;
         if (SymbolGroupValue::verbose)
-            DebugPrint() << name() << " memory access error";
+            DebugPrint() << node->name() << '/' << node->iName() << " memory access error";
     }
 }
 
@@ -265,9 +265,14 @@ std::string SymbolGroupValue::error() const
     return m_errorMessage;
 }
 
-bool SymbolGroupValue::isPointerType(const std::string &t)
+// Return number of characters to strip for pointer type
+unsigned SymbolGroupValue::isPointerType(const std::string &t)
 {
-    return endsWith(t, '*');
+    if (endsWith(t, "**"))
+        return 1;
+    if (endsWith(t, " *"))
+        return 2;
+    return 0;
 }
 
 unsigned SymbolGroupValue::pointerSize()
@@ -282,21 +287,30 @@ unsigned SymbolGroupValue::intSize()
     return is;
 }
 
+unsigned SymbolGroupValue::sizeOf(const char *type)
+{
+    const unsigned rc = GetTypeSize(type);
+    if (!rc && SymbolGroupValue::verbose)
+        DebugPrint() << "GetTypeSize fails for '" << type << '\'';
+    return rc;
+}
+
 unsigned SymbolGroupValue::fieldOffset(const char *type, const char *field)
 {
     ULONG rc = 0;
-    if (GetFieldOffset(type, field, &rc))
+    if (GetFieldOffset(type, field, &rc)) {
+        if (SymbolGroupValue::verbose)
+            DebugPrint() << "GetFieldOffset fails for '" << type << "' '" << field << '\'';
         return 0;
+    }
     return rc;
 }
 
 std::string SymbolGroupValue::stripPointerType(const std::string &t)
 {
     // 'Foo *' -> 'Foo', 'Bar **' -> 'Bar *'.
-    if (endsWith(t, "**"))
-        return t.substr(0, t.size() - 1);
-    if (endsWith(t, " *"))
-        return t.substr(0, t.size() - 2);
+    if (const unsigned stripLength = isPointerType(t))
+        return t.substr(0, t.size() - stripLength);
     return t;
 }
 
@@ -468,38 +482,49 @@ std::list<std::string>
 }
 
 // Resolve a type, that is, obtain its module name ('QString'->'QtCored4!QString')
-std::string SymbolGroupValue::resolveType(const std::string &type, const SymbolGroupValueContext &ctx)
+std::string SymbolGroupValue::resolveType(const std::string &typeIn,
+                                          const SymbolGroupValueContext &ctx,
+                                          const SymbolGroup *current /* = 0 */)
 {
     enum { BufSize = 512 };
 
-    if (type.empty() || type.find('!') != std::string::npos)
-        return type;
+    if (typeIn.empty() || typeIn.find('!') != std::string::npos)
+        return typeIn;
 
-    const std::string stripped = SymbolGroupValue::stripClassPrefixes(type);
+    const std::string stripped = SymbolGroupValue::stripClassPrefixes(typeIn);
 
+    // Use the module of the current symbol group for templates.
+    // This is because resolving some template types (std::list<> has been
+    // observed to result in 'QtGui4d!std::list', which subseqently fails.
+    if (current && stripped.find('<') != std::string::npos) {
+        std::string trc = current->module();
+        trc.push_back('!');
+        trc += stripped;
+        return trc;
+    }
     // Obtain the base address of the module using an obscure ioctl() call.
     // See inline implementation of GetTypeSize() and docs.
     SYM_DUMP_PARAM symParameters = { sizeof (SYM_DUMP_PARAM), (PUCHAR)stripped.c_str(), DBG_DUMP_NO_PRINT, 0,
                                      NULL, NULL, NULL, 0, NULL };
     const ULONG typeSize = Ioctl(IG_GET_TYPE_SIZE, &symParameters, symParameters.size);
     if (!typeSize || !symParameters.ModBase) // Failed?
-        return type;
+        return stripped;
     ULONG index = 0;
     ULONG64 base = 0;
     // Convert module base address to module index
     HRESULT hr = ctx.symbols->GetModuleByOffset(symParameters.ModBase, 0, &index, &base);
     if (FAILED(hr))
-        return type;
+        return stripped;
     // Obtain module name
     char buf[BufSize];
     buf[0] = '\0';
     hr = ctx.symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, index, base, buf, BufSize, 0);
     if (FAILED(hr))
-        return type;
+        return stripped;
 
     std::string rc = buf;
     rc.push_back('!');
-    rc += type;
+    rc += stripped;
     return rc;
 }
 
@@ -630,49 +655,52 @@ static inline void formatMilliSeconds(std::wostream &str, int milliSecs)
 static const char stdStringTypeC[] = "std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
 static const char stdWStringTypeC[] = "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
 
-static KnownType knownPODTypeHelper(const std::string &type)
+static KnownType knownPODTypeHelper(const std::string &type, std::string::size_type endPos)
 {
-    if (type.empty())
+    if (type.empty() || !endPos)
         return KT_Unknown;
+    const bool isPointer = type.at(endPos - 1) == '*';
     switch (type.at(0)) {
     case 'c':
-        if (type == "char")
-            return KT_Char;
+        if (!type.compare(0, endPos, "char"))
+            return isPointer ? KT_POD_PointerType : KT_Char;
         break;
     case 'd':
-        if (type == "double")
-            return KT_FloatType;
+        if (!type.compare(0, endPos, "double"))
+            return isPointer ? KT_POD_PointerType : KT_FloatType;
         break;
     case 'f':
-        if (type == "float")
-            return KT_FloatType;
+        if (!type.compare(0, endPos, "float"))
+            return isPointer ? KT_POD_PointerType : KT_FloatType;
         break;
     case 'l':
         if (!type.compare(0, 4, "long"))
-            return KT_IntType;
+            return isPointer ? KT_POD_PointerType : KT_IntType;
         break;
     case 'i':
         if (!type.compare(0, 3, "int"))
-            return KT_IntType;
+            return isPointer ? KT_POD_PointerType : KT_IntType;
         break;
     case 's':
         if (!type.compare(0, 5, "short"))
-            return KT_IntType;
+            return isPointer ? KT_POD_PointerType : KT_IntType;
         break;
     case 'u':
-        if (!type.compare(0, 8, "unsigned"))
+        if (!type.compare(0, 8, "unsigned")) {
+            if (isPointer)
+                return KT_POD_PointerType;
             return type == "unsigned char" ? KT_UnsignedChar : KT_UnsignedIntType;
+        }
         break;
     }
-    return KT_Unknown;
+    return isPointer ? KT_PointerType : KT_Unknown;
 }
 
 // Determine type starting from a position (with/without 'class '/'struct ' prefix).
-static KnownType knownClassTypeHelper(const std::string &type, std::string::size_type pos)
+static KnownType knownClassTypeHelper(const std::string &type,
+                                      std::string::size_type pos,
+                                      std::string::size_type endPos)
 {
-    // Strip pointer types.
-    const std::wstring::size_type compareLen =
-            endsWith(type, " *") ? type.size() -2 : type.size();
     // STL ?
     const std::wstring::size_type templatePos = type.find('<', pos);
     static const std::wstring::size_type stlClassLen = 5;
@@ -708,9 +736,9 @@ static KnownType knownClassTypeHelper(const std::string &type, std::string::size
             }
         }
         // STL strings
-        if (!type.compare(pos, compareLen - pos, stdStringTypeC))
+        if (!type.compare(pos, endPos - pos, stdStringTypeC))
             return KT_StdString;
-        if (!type.compare(pos, compareLen - pos, stdWStringTypeC))
+        if (!type.compare(pos, endPos - pos, stdWStringTypeC))
             return KT_StdWString;
         return KT_Unknown;
     } // std::sth
@@ -763,8 +791,7 @@ static KnownType knownClassTypeHelper(const std::string &type, std::string::size
         }
     }
     // Remaining non-template types
-    switch (compareLen - qPos) {
-
+    switch (endPos - qPos) {
     case 4:
         if (!type.compare(qPos, 4, "QPen"))
             return KT_QPen;
@@ -997,29 +1024,67 @@ static KnownType knownClassTypeHelper(const std::string &type, std::string::size
     return KT_Unknown;
 }
 
-KnownType knownType(const std::string &type, bool hasClassPrefix)
+KnownType knownType(const std::string &type, unsigned flags)
 {
     if (type.empty())
         return KT_Unknown;
-    const KnownType podType = knownPODTypeHelper(type);
+    // Autostrip one pointer if desired
+    const std::string::size_type endPos = (flags & KnownTypeAutoStripPointer) ?
+                type.size() - SymbolGroupValue::isPointerType(type) :
+                type.size();
+
+    // PODs first
+    const KnownType podType = knownPODTypeHelper(type, endPos);
     if (podType != KT_Unknown)
         return podType;
-    if (hasClassPrefix) {
+
+    if (flags & KnownTypeHasClassPrefix) {
         switch (type.at(0)) { // Check 'class X' or 'struct X'
         case 'c':
             if (!type.compare(0, 6, "class "))
-                return knownClassTypeHelper(type, 6);
+                return knownClassTypeHelper(type, 6, endPos);
             break;
         case 's':
             if (!type.compare(0, 7, "struct "))
-                return knownClassTypeHelper(type, 7);
+                return knownClassTypeHelper(type, 7, endPos);
             break;
         }
     } else {
         // No prefix, full check
-        return knownClassTypeHelper(type, 0);
+        return knownClassTypeHelper(type, 0, endPos);
     }
     return KT_Unknown;
+}
+
+void formatKnownTypeFlags(std::ostream &os, KnownType kt)
+{
+    switch (kt) {
+    case KT_Unknown:
+        os << "<unknown>";
+        return;
+    case KT_POD_PointerType:
+        os << " pod_pointer";
+        break;
+    case KT_PointerType:
+        os << " pointer";
+        break;
+    default:
+        break;
+    }
+    if (kt & KT_POD_Type)
+        os << " pod";
+    if (kt & KT_Qt_Type)
+        os << " qt";
+    if (kt & KT_Qt_PrimitiveType)
+        os << " qt_primitive";
+    if (kt & KT_Qt_MovableType)
+        os << " qt_movable";
+    if (kt & KT_ContainerType)
+        os << " container";
+    if (kt & KT_STL_Type)
+        os << " stl";
+    if (kt & KT_HasSimpleDumper)
+        os << " simple_dumper";
 }
 
 static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str)
@@ -1394,11 +1459,13 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
         *containerSizeIn = -1;
     // Check for class types and strip pointer types (references appear as pointers as well)
     s->clear();
-    const KnownType kt  = knownType(n->type());
+    const KnownType kt = knownType(n->type(), KnownTypeHasClassPrefix|KnownTypeAutoStripPointer);
     if (knownTypeIn)
         *knownTypeIn = kt;
 
     if (kt == KT_Unknown || !(kt & KT_HasSimpleDumper)) {
+        if (SymbolGroupValue::verbose > 1)
+            DebugPrint() << "dumpSimpleType N/A " << n->name() << '/' << n->type();
         QTC_TRACE_OUT
         return SymbolGroupNode::SimpleDumperNotApplicable;
     }
@@ -1407,6 +1474,8 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
     // Simple dump of size for containers
     if (kt & KT_ContainerType) {
         const int size = containerSize(kt, v);
+        if (SymbolGroupValue::verbose > 1)
+            DebugPrint() << "dumpSimpleType Container " << n->name() << '/' << n->type() << " size=" << size;
         if (containerSizeIn)
             *containerSizeIn = size;
         if (size >= 0) {
@@ -1482,5 +1551,12 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
     if (rc == SymbolGroupNode::SimpleDumperOk)
         *s = str.str();
     QTC_TRACE_OUT
+
+    if (SymbolGroupValue::verbose > 1) {
+        DebugPrint dp;
+        dp << "dumpSimpleType " << n->name() << '/' << n->type() << " knowntype= " << kt << " [";
+        formatKnownTypeFlags(dp, kt);
+        dp << "] returns " << rc;
+    }
     return rc;
 }

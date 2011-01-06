@@ -42,6 +42,7 @@
 #include <list>
 
 class SymbolGroupNode;
+class SymbolGroup;
 
 // Structure to pass all IDebug interfaces used for SymbolGroupValue
 struct SymbolGroupValueContext
@@ -97,7 +98,7 @@ public:
     std::string error() const;
 
     // Some helpers for manipulating types.
-    static inline unsigned sizeOf(const char *type) { return GetTypeSize(type); }
+    static inline unsigned sizeOf(const char *type);
     // Offset of structure field: "!moduleQMapNode<K,T>", "value".
     static unsigned fieldOffset(const char *type, const char *field);
     static std::string stripPointerType(const std::string &);
@@ -105,11 +106,16 @@ public:
     static std::string stripClassPrefixes(const std::string &);
     static std::string addPointerType(const std::string &);
     static std::string stripArrayType(const std::string &);
-    static bool isPointerType(const std::string &);
+    // pointer type, return number of characters to strip
+    static unsigned isPointerType(const std::string &);
     // Resolve a type, that is, obtain its module name ('QString'->'QtCored4!QString')
     // Some operations on types (like adding symbols may fail non-deterministically
     // or be slow when the module specification is omitted).
-    static std::string resolveType(const std::string &type, const SymbolGroupValueContext &ctx);
+    // If a current SymbolGroup is passed on, its module will be used for templates.
+    static std::string resolveType(const std::string &type,
+                                   const SymbolGroupValueContext &ctx,
+                                   const SymbolGroup *current = 0);
+
     static std::list<std::string> resolveSymbol(const char *pattern,
                                                 const SymbolGroupValueContext &c,
                                                 std::string *errorMessage = 0);
@@ -157,7 +163,17 @@ struct QtInfo
  *    from IDebugSymbolGroup: 'class foo' or 'struct foo'.
  * 2) Class prefix==false is for inner types of templates, etc, doing
  *    a more expensive check:  'foo' */
-KnownType knownType(const std::string &type, bool hasClassPrefix = true);
+enum
+{
+    KnownTypeHasClassPrefix = 0x1,   // Strip "class Foo" -> "Foo"
+    KnownTypeAutoStripPointer = 0x2  // Strip "class Foo *" -> "Foo" for conveniently
+                                     // handling the pointer/value duality of symbol group entries
+};
+
+KnownType knownType(const std::string &type, unsigned flags);
+
+// Debug helper
+void formatKnownTypeFlags(std::ostream &os, KnownType kt);
 
 // Dump builtin simple types using SymbolGroupValue expressions,
 // returning SymbolGroupNode dumper flags.

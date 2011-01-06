@@ -673,6 +673,8 @@ void CdbEngine::updateWatchData(const Debugger::Internal::WatchData &dataIn,
 
 void CdbEngine::addLocalsOptions(ByteArrayInputStream &str) const
 {
+    if (debuggerCore()->boolSetting(VerboseLog))
+        str << blankSeparator << "-v";
     if (debuggerCore()->boolSetting(UseDebuggingHelpers))
         str << blankSeparator << "-c";
     const QByteArray typeFormats = watchHandler()->typeFormatRequests();

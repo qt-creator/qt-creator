@@ -338,7 +338,6 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
             break;
         case 'v':
             SymbolGroupValue::verbose++;
-            tokens.pop_front();
             break;
         case 'e':
             if (tokens.empty()) {

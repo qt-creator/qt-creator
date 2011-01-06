@@ -238,6 +238,10 @@ std::string SymbolGroup::dump(const std::string &iname,
 
     // Real nodes: Expand and complex dumpers
     if (SymbolGroupNode *node = aNode->resolveReference()->asSymbolGroupNode()) {
+        if (symbolGroupDebug)
+            DebugPrint() << "SymbolGroup::dump(" << iname << '/'
+                         << aNode->absoluteFullIName() <<" resolves to " << node->absoluteFullIName()
+                         << " expanded=" << node->isExpanded();
         if (node->isExpanded()) { // Mark expand request by watch model
             node->clearFlags(SymbolGroupNode::ExpandedByDumper);
         } else {
