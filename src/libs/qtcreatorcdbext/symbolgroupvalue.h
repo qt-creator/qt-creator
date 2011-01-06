@@ -98,7 +98,7 @@ public:
     std::string error() const;
 
     // Some helpers for manipulating types.
-    static inline unsigned sizeOf(const char *type);
+    static unsigned sizeOf(const char *type);
     // Offset of structure field: "!moduleQMapNode<K,T>", "value".
     static unsigned fieldOffset(const char *type, const char *field);
     static std::string stripPointerType(const std::string &);
