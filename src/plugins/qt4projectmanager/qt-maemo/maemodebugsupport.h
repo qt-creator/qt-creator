@@ -47,7 +47,7 @@
 namespace Core { class SftpChannel; }
 
 namespace Debugger {
-class DebuggerRunControl;
+class DebuggerEngine;
 }
 
 namespace ProjectExplorer { class RunControl; }
@@ -65,7 +65,7 @@ public:
     static ProjectExplorer::RunControl *createDebugRunControl(MaemoRunConfiguration *runConfig);
 
     MaemoDebugSupport(MaemoRunConfiguration *runConfig,
-        Debugger::DebuggerRunControl *runControl);
+        Debugger::DebuggerEngine *engine);
     ~MaemoDebugSupport();
 
     static QString uploadDir(const MaemoDeviceConfig &devConf);
@@ -99,7 +99,7 @@ private:
     bool setPort(int &port);
 
     void showMessage(const QString &msg, int channel);
-    const QPointer<Debugger::DebuggerRunControl> m_runControl;
+    const QPointer<Debugger::DebuggerEngine> m_engine;
     const QPointer<MaemoRunConfiguration> m_runConfig;
     MaemoSshRunner * const m_runner;
     const MaemoRunConfiguration::DebuggingType m_debuggingType;
