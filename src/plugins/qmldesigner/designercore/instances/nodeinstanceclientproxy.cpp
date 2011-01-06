@@ -42,19 +42,15 @@ NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
       m_baseStateNodeInstancePreview(new PreviewNodeInstanceServer(this)),
       m_blockSize(0)
 {
-    m_slowSocket = new QLocalSocket(this);
-    m_slowSocket->connectToServer(QCoreApplication::arguments().at(1), QIODevice::ReadWrite | QIODevice::Unbuffered);
-    m_slowSocket->waitForConnected(-1);
-
-    m_fastSocket = new QLocalSocket(this);
-    connect(m_fastSocket, SIGNAL(readyRead()), this, SLOT(readDataStream()));
-    connect(m_fastSocket, SIGNAL(error(QLocalSocket::LocalSocketError)), QCoreApplication::instance(), SLOT(quit()));
-    connect(m_fastSocket, SIGNAL(disconnected()), QCoreApplication::instance(), SLOT(quit()));
-    m_fastSocket->connectToServer(QCoreApplication::arguments().at(1), QIODevice::ReadWrite | QIODevice::Unbuffered);
-    m_fastSocket->waitForConnected(-1);
+    m_socket = new QLocalSocket(this);
+    connect(m_socket, SIGNAL(readyRead()), this, SLOT(readDataStream()));
+    connect(m_socket, SIGNAL(error(QLocalSocket::LocalSocketError)), QCoreApplication::instance(), SLOT(quit()));
+    connect(m_socket, SIGNAL(disconnected()), QCoreApplication::instance(), SLOT(quit()));
+    m_socket->connectToServer(QCoreApplication::arguments().at(1), QIODevice::ReadWrite | QIODevice::Unbuffered);
+    m_socket->waitForConnected(-1);
 }
 
-void NodeInstanceClientProxy::writeSlowCommand(const QVariant &command)
+void NodeInstanceClientProxy::writeCommand(const QVariant &command)
 {
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
@@ -63,49 +59,37 @@ void NodeInstanceClientProxy::writeSlowCommand(const QVariant &command)
     out.device()->seek(0);
     out << quint32(block.size() - sizeof(quint32));
 
-    m_slowSocket->write(block);
-}
-
-void NodeInstanceClientProxy::writeFastCommand(const QVariant &command)
-{
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out << quint32(0);
-    out << command;
-    out.device()->seek(0);
-    out << quint32(block.size() - sizeof(quint32));
-
-    m_fastSocket->write(block);
+    m_socket->write(block);
 }
 
 void NodeInstanceClientProxy::informationChanged(const InformationChangedCommand &command)
 {
-    writeFastCommand(QVariant::fromValue(command));
+    writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceClientProxy::valuesChanged(const ValuesChangedCommand &command)
 {
-    writeFastCommand(QVariant::fromValue(command));
+    writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceClientProxy::pixmapChanged(const PixmapChangedCommand &command)
 {
-    writeSlowCommand(QVariant::fromValue(command));
+    writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceClientProxy::childrenChanged(const ChildrenChangedCommand &command)
 {
-    writeFastCommand(QVariant::fromValue(command));
+    writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceClientProxy::statePreviewImagesChanged(const StatePreviewImageChangedCommand &command)
 {
-    writeSlowCommand(QVariant::fromValue(command));
+    writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceClientProxy::componentCompleted(const ComponentCompletedCommand &command)
 {
-    writeFastCommand(QVariant::fromValue(command));
+    writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceClientProxy::flush()
@@ -114,24 +98,24 @@ void NodeInstanceClientProxy::flush()
 
 qint64 NodeInstanceClientProxy::bytesToWrite() const
 {
-    return m_slowSocket->bytesToWrite();
+    return m_socket->bytesToWrite();
 }
 
 void NodeInstanceClientProxy::readDataStream()
 {
     QList<QVariant> commandList;
 
-    while (!m_fastSocket->atEnd()) {
-        if (m_fastSocket->bytesAvailable() < int(sizeof(quint32)))
+    while (!m_socket->atEnd()) {
+        if (m_socket->bytesAvailable() < int(sizeof(quint32)))
             break;
 
-        QDataStream in(m_fastSocket);
+        QDataStream in(m_socket);
 
         if (m_blockSize == 0) {
             in >> m_blockSize;
         }
 
-        if (m_fastSocket->bytesAvailable() < m_blockSize)
+        if (m_socket->bytesAvailable() < m_blockSize)
             break;
 
         QVariant command;

@@ -46,10 +46,10 @@ public:
     qint64 bytesToWrite() const;
 
 protected:
-    void writeSlowCommand(const QVariant &command);
-    void writeFastCommand(const QVariant &command);
+    void writeCommand(const QVariant &command);
     void dispatchCommand(const QVariant &command);
     NodeInstanceServerInterface *nodeInstanceServer() const;
+    NodeInstanceServerInterface *baseStateNodeInstancePreview() const;
 
     void createInstances(const CreateInstancesCommand &command);
     void changeFileUrl(const ChangeFileUrlCommand &command);
@@ -69,8 +69,7 @@ private slots:
     void readDataStream();
 
 private:
-    QLocalSocket *m_slowSocket;
-    QLocalSocket *m_fastSocket;
+    QLocalSocket *m_socket;
     NodeInstanceServerInterface *m_nodeInstanceServer;
     NodeInstanceServerInterface *m_baseStateNodeInstancePreview;
     QHash<qint32, QWeakPointer<NodeInstanceServerInterface> > m_nodeInstancePreviewVector;

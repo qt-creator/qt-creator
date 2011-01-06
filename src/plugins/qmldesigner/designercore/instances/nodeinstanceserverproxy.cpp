@@ -41,8 +41,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
     : NodeInstanceServerInterface(nodeInstanceView),
       m_localServer(new QLocalServer(this)),
       m_nodeInstanceView(nodeInstanceView),
-      m_slowBlockSize(0),
-      m_fastBlockSize(0)
+      m_blockSize(0)
 {
    QString socketToken(QUuid::createUuid().toString());
 
@@ -60,16 +59,9 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    if (!m_localServer->hasPendingConnections())
        m_localServer->waitForNewConnection(-1);
 
-   m_slowSocket = m_localServer->nextPendingConnection();
-   Q_ASSERT(m_slowSocket);
-   connect(m_slowSocket.data(), SIGNAL(readyRead()), this, SLOT(readSlowDataStream()));
-
-   if (!m_localServer->hasPendingConnections())
-       m_localServer->waitForNewConnection(-1);
-
-   m_fastSocket = m_localServer->nextPendingConnection();
-   Q_ASSERT(m_fastSocket);
-   connect(m_fastSocket.data(), SIGNAL(readyRead()), this, SLOT(readFastDataStream()));
+   m_socket = m_localServer->nextPendingConnection();
+   Q_ASSERT(m_socket);
+   connect(m_socket.data(), SIGNAL(readyRead()), this, SLOT(readDataStream()));
    m_localServer->close();
 }
 
@@ -113,12 +105,12 @@ NodeInstanceClientInterface *NodeInstanceServerProxy::nodeInstanceClient() const
 
 void NodeInstanceServerProxy::setBlockUpdates(bool block)
 {
-    m_slowSocket->blockSignals(block);
+    m_socket->blockSignals(block);
 }
 
 void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 {
-    Q_ASSERT(m_fastSocket.data());
+    Q_ASSERT(m_socket.data());
 
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
@@ -127,67 +119,36 @@ void NodeInstanceServerProxy::writeCommand(const QVariant &command)
     out.device()->seek(0);
     out << quint32(block.size() - sizeof(quint32));
 
-    m_fastSocket->write(block);
+    m_socket->write(block);
 }
 
 void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitStatus /* exitStatus */)
 {
-    m_slowSocket->close();
+    m_socket->close();
     emit processCrashed();
 }
 
 
-void NodeInstanceServerProxy::readFastDataStream()
+void NodeInstanceServerProxy::readDataStream()
 {
     QList<QVariant> commandList;
 
-    while (!m_fastSocket->atEnd()) {
-        if (m_fastSocket->bytesAvailable() < int(sizeof(quint32)))
+    while (!m_socket->atEnd()) {
+        if (m_socket->bytesAvailable() < int(sizeof(quint32)))
             break;
 
-        QDataStream in(m_fastSocket.data());
+        QDataStream in(m_socket.data());
 
-        if (m_fastBlockSize == 0) {
-            in >> m_fastBlockSize;
+        if (m_blockSize == 0) {
+            in >> m_blockSize;
         }
 
-        if (m_fastSocket->bytesAvailable() < m_fastBlockSize)
+        if (m_socket->bytesAvailable() < m_blockSize)
             break;
 
         QVariant command;
         in >> command;
-        m_fastBlockSize = 0;
-
-        Q_ASSERT(in.status() == QDataStream::Ok);
-
-        commandList.append(command);
-    }
-
-    foreach (const QVariant &command, commandList) {
-        dispatchCommand(command);
-    }
-}
-
-void NodeInstanceServerProxy::readSlowDataStream()
-{
-    QList<QVariant> commandList;
-
-    while (!m_slowSocket->atEnd()) {
-        if (m_slowSocket->bytesAvailable() < int(sizeof(quint32)))
-            break;
-
-        QDataStream in(m_slowSocket.data());
-
-        if (m_slowBlockSize == 0) {
-            in >> m_slowBlockSize;
-        }
-
-        if (m_slowSocket->bytesAvailable() < m_slowBlockSize)
-            break;
-
-        QVariant command;
-        in >> command;
-        m_slowBlockSize = 0;
+        m_blockSize = 0;
 
         Q_ASSERT(in.status() == QDataStream::Ok);
 
