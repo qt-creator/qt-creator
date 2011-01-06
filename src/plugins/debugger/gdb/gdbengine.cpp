@@ -2767,6 +2767,8 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
                 // gdb 6.4 symbianelf
                 ts >> symbolsRead;
                 QTC_ASSERT(symbolsRead == __("No"), continue);
+                module.startAddress = 0;
+                module.endAddress = 0;
                 module.moduleName = ts.readLine().trimmed();
                 modules.append(module);
             }
