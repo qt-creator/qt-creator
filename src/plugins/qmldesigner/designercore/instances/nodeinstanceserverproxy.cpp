@@ -46,7 +46,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    QString socketToken(QUuid::createUuid().toString());
 
    m_localServer->listen(socketToken);
-   m_localServer->setMaxPendingConnections(2);
+   m_localServer->setMaxPendingConnections(1);
 
    m_qmlPuppetProcess = new QProcess(QCoreApplication::instance());
    connect(m_qmlPuppetProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
