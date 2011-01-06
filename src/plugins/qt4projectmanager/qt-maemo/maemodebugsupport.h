@@ -65,7 +65,7 @@ public:
     static ProjectExplorer::RunControl *createDebugRunControl(MaemoRunConfiguration *runConfig);
 
     MaemoDebugSupport(MaemoRunConfiguration *runConfig,
-        Debugger::DebuggerEngine *engine);
+        Debugger::DebuggerEngine *engine, bool useGdb);
     ~MaemoDebugSupport();
 
     static QString uploadDir(const MaemoDeviceConfig &devConf);
@@ -111,6 +111,7 @@ private:
     State m_state;
     int m_gdbServerPort;
     int m_qmlPort;
+    bool m_useGdb;
 };
 
 } // namespace Internal

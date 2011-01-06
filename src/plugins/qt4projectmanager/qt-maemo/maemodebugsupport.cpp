@@ -82,7 +82,7 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
             params.executable = runConfig->remoteExecutableFilePath();
             params.debuggerCommand
                 = MaemoGlobal::remoteCommandPrefix(runConfig->remoteExecutableFilePath())
-                    + environment(runConfig->debuggingType(), runConfig->userEnvironmentChanges())
+                    + environment(debuggingType, runConfig->userEnvironmentChanges())
                     + QLatin1String(" /usr/bin/gdb");
             params.connParams = devConf.server;
             params.localMountDir = runConfig->localDirToMountForRemoteGdb();
@@ -109,20 +109,23 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
 
     DebuggerRunControl * const runControl =
         DebuggerPlugin::createDebugger(params, runConfig);
+    bool useGdb = params.startMode == StartRemoteGdb
+        && debuggingType != MaemoRunConfiguration::DebugQmlOnly;
     MaemoDebugSupport *debugSupport =
-        new MaemoDebugSupport(runConfig, runControl->engine());
+        new MaemoDebugSupport(runConfig, runControl->engine(), useGdb);
     connect(runControl, SIGNAL(finished()),
         debugSupport, SLOT(handleDebuggingFinished()));
     return runControl;
 }
 
 MaemoDebugSupport::MaemoDebugSupport(MaemoRunConfiguration *runConfig,
-    DebuggerEngine *engine)
+    DebuggerEngine *engine, bool useGdb)
     : QObject(engine), m_engine(engine), m_runConfig(runConfig),
       m_runner(new MaemoSshRunner(this, runConfig, true)),
       m_debuggingType(runConfig->debuggingType()),
       m_dumperLib(runConfig->dumperLib()),
-      m_state(Inactive), m_gdbServerPort(-1), m_qmlPort(-1)
+      m_state(Inactive), m_gdbServerPort(-1), m_qmlPort(-1),
+      m_useGdb(useGdb)
 {
     connect(m_engine, SIGNAL(requestRemoteSetup()), this,
         SLOT(handleAdapterSetupRequested()));
@@ -366,8 +369,7 @@ QString MaemoDebugSupport::uploadDir(const MaemoDeviceConfig &devConf)
 
 bool MaemoDebugSupport::useGdb() const
 {
-    return m_engine->startParameters().startMode == StartRemoteGdb
-        && m_debuggingType != MaemoRunConfiguration::DebugQmlOnly;
+    return m_useGdb;
 }
 
 bool MaemoDebugSupport::setPort(int &port)
