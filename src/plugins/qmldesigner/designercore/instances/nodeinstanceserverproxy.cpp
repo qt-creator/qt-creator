@@ -51,7 +51,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    m_qmlPuppetProcess = new QProcess(QCoreApplication::instance());
    connect(m_qmlPuppetProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
    m_qmlPuppetProcess->setProcessChannelMode(QProcess::ForwardedChannels);
-   m_qmlPuppetProcess->start(QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("qmlpuppet"), QStringList() << socketToken);
+   m_qmlPuppetProcess->start(QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("qmlpuppet"), QStringList() << socketToken << "-graphicssystem raster");
    connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
    m_qmlPuppetProcess->waitForStarted();
    Q_ASSERT(m_qmlPuppetProcess->state() == QProcess::Running);

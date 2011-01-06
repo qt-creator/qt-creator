@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 {
     QApplication application(argc, argv);
 
-    if (application.arguments().count() != 2)
+    if (application.arguments().count() != 3)
         return -1;
 
     QCoreApplication::setOrganizationName("Nokia");
