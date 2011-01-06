@@ -117,6 +117,9 @@
     Install Mad Developer on a device and configure
     a connection between the development PC and the device.
 
+    \note The following instructions describe Mad Developer 2.1. The process and
+    text labels might differ on other Mad Developer versions.
+
     To install and configure Mad Developer:
 
      \list 1
