@@ -98,6 +98,7 @@ private:
     void setState(State newState);
     bool setPort(int &port);
 
+    void showMessage(const QString &msg, int channel);
     const QPointer<Debugger::DebuggerRunControl> m_runControl;
     const QPointer<MaemoRunConfiguration> m_runConfig;
     MaemoSshRunner * const m_runner;
