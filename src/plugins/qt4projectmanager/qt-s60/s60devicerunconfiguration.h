@@ -203,11 +203,7 @@ class S60DeviceDebugRunControl : public Debugger::DebuggerRunControl
 public:
     explicit S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration,
                                       const QString &mode);
-    virtual ~S60DeviceDebugRunControl();
     virtual void start();
-
-private:
-    static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceRunConfiguration *rc);
 };
 
 } // namespace Internal

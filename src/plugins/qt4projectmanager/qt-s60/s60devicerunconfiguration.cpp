@@ -777,12 +777,13 @@ static inline QString symbolFileFromExecutable(const QString &executable)
 }
 
 // Create start parameters from run configuration
-Debugger::DebuggerStartParameters S60DeviceDebugRunControl::s60DebuggerStartParams(const S60DeviceRunConfiguration *rc)
+static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceRunConfiguration *rc)
 {
     Debugger::DebuggerStartParameters sp;
     QTC_ASSERT(rc, return sp);
 
-    const S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(rc->qt4Target()->activeDeployConfiguration());
+    const S60DeployConfiguration *activeDeployConf =
+        qobject_cast<S60DeployConfiguration *>(rc->qt4Target()->activeDeployConfiguration());
 
     const QString debugFileName = QString::fromLatin1("%1:\\sys\\bin\\%2.exe")
             .arg(activeDeployConf->installationDrive()).arg(rc->targetName());
@@ -804,8 +805,7 @@ Debugger::DebuggerStartParameters S60DeviceDebugRunControl::s60DebuggerStartPara
 
 S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc,
                                                    const QString &) :
-    Debugger::DebuggerRunControl(rc, Debugger::GdbEngineType,
-                                 S60DeviceDebugRunControl::s60DebuggerStartParams(rc))
+    Debugger::DebuggerRunControl(rc, Debugger::GdbEngineType, s60DebuggerStartParams(rc))
 {
     if (startParameters().symbolFileName.isEmpty()) {
         const QString msg = tr("Warning: Cannot locate the symbol file belonging to %1.").
@@ -831,8 +831,4 @@ void S60DeviceDebugRunControl::start()
 
     emit appendMessage(this, tr("Launching debugger..."), false);
     Debugger::DebuggerRunControl::start();
-}
-
-S60DeviceDebugRunControl::~S60DeviceDebugRunControl()
-{
 }
