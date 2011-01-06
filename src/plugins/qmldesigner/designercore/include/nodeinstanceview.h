@@ -112,8 +112,6 @@ public:
 
     QRectF sceneRect() const;
 
-    void setBlockUpdates(bool block);
-
     NodeInstance activeStateInstance() const;
 
     void activateState(const NodeInstance &instance);

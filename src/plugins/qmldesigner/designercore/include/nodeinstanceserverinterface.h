@@ -43,8 +43,6 @@ public:
     virtual void addImport(const AddImportCommand &command) = 0;
     virtual void completeComponent(const CompleteComponentCommand &command) = 0;
 
-    virtual void setBlockUpdates(bool /*block*/) {}
-
     static void registerCommands();
 };
 

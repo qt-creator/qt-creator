@@ -39,8 +39,6 @@ public:
     void addImport(const AddImportCommand &command);
     void completeComponent(const CompleteComponentCommand &command);
 
-    void setBlockUpdates(bool block);
-
 protected:
     void writeCommand(const QVariant &command);
     void dispatchCommand(const QVariant &command);

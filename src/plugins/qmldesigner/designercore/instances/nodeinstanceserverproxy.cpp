@@ -103,11 +103,6 @@ NodeInstanceClientInterface *NodeInstanceServerProxy::nodeInstanceClient() const
     return m_nodeInstanceView.data();
 }
 
-void NodeInstanceServerProxy::setBlockUpdates(bool block)
-{
-    m_socket->blockSignals(block);
-}
-
 void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 {
     Q_ASSERT(m_socket.data());

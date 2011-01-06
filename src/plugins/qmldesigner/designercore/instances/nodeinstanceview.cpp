@@ -142,11 +142,7 @@ void NodeInstanceView::modelAttached(Model *model)
     m_nodeInstanceServer = new NodeInstanceServerProxy(this);
     connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(restartProcess()));
 
-    setBlockUpdates(true);
-
     nodeInstanceServer()->createScene(createCreateSceneCommand());
-
-    setBlockUpdates(false);
 }
 
 void NodeInstanceView::modelAboutToBeDetached(Model * model)
@@ -160,8 +156,6 @@ void NodeInstanceView::modelAboutToBeDetached(Model * model)
 
 void NodeInstanceView::restartProcess()
 {
-    setBlockUpdates(true);
-
     if (model()) {
         delete nodeInstanceServer();
 
@@ -170,8 +164,6 @@ void NodeInstanceView::restartProcess()
 
         nodeInstanceServer()->createScene(createCreateSceneCommand());
     }
-
-    setBlockUpdates(false);
 }
 
 /*! \brief Notifing the view that a node was created.
@@ -554,18 +546,6 @@ void NodeInstanceView::removeInstanceNodeRelationship(const ModelNode &node)
     NodeInstance instance = instanceForNode(node);
     m_nodeInstanceHash.remove(node);
     instance.makeInvalid();
-}
-
-void NodeInstanceView::setBlockUpdates(bool block)
-{
-    if (m_blockUpdates == 0 && block == true)
-        m_nodeInstanceServer->setBlockUpdates(true);
-
-    if (block) {
-        m_blockUpdates++;
-    } else if (m_blockUpdates > 0) {
-        m_blockUpdates--;
-    }
 }
 
 void NodeInstanceView::setStateInstance(const NodeInstance &stateInstance)
