@@ -88,7 +88,9 @@ SOURCES += mainwindow.cpp \
     navigationsubwidget.cpp \
     sidebarwidget.cpp \
     rssfetcher.cpp \
-    externaltool.cpp
+    externaltool.cpp \
+    dialogs/externaltoolconfig.cpp \
+    toolsettings.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -174,14 +176,17 @@ HEADERS += mainwindow.h \
     navigationsubwidget.h \
     sidebarwidget.h \
     rssfetcher.h \
-    externaltool.h
+    externaltool.h \
+    dialogs/externaltoolconfig.h \
+    toolsettings.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \
     dialogs/saveitemsdialog.ui \
     dialogs/openwithdialog.ui \
     editormanager/openeditorsview.ui \
-    generalsettings.ui
+    generalsettings.ui \
+    dialogs/externaltoolconfig.ui
 RESOURCES += core.qrc \
     fancyactionbar.qrc
 

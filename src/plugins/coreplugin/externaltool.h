@@ -58,6 +58,7 @@ public:
     };
 
     ExternalTool();
+    ExternalTool(const ExternalTool *other);
     ~ExternalTool();
 
     QString id() const;
@@ -131,6 +132,8 @@ public:
     ExternalToolManager(Core::ICore *core);
     ~ExternalToolManager();
 
+    QMap<QString, QList<Internal::ExternalTool *> > tools() const;
+
 signals:
     void replaceSelectionRequested(const QString &text);
 
@@ -139,17 +142,20 @@ private slots:
 
 private:
     void initialize();
-    void parseDirectory(const QString &directory, QMap<QString, QMultiMap<int, Command*> > *categoryMenus,
+    void parseDirectory(const QString &directory, QMap<QString, QMultiMap<int, Internal::ExternalTool*> > *categoryMenus,
                         bool ignoreDuplicates = false);
 
     static ExternalToolManager *m_instance;
     Core::ICore *m_core;
     QMap<QString, Internal::ExternalTool *> m_tools;
+    QMap<QString, QList<Internal::ExternalTool *> > m_categoryMap;
 
     // for sending the replaceSelectionRequested signal
     friend class Core::Internal::ExternalToolRunner;
 };
 
 } // Core
+
+Q_DECLARE_METATYPE(Core::Internal::ExternalTool *)
 
 #endif // EXTERNALTOOL_H

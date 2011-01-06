@@ -99,6 +99,7 @@ private:
     void updateEnabledTabs(Category *category, const QString &searchText);
     void ensureCategoryWidget(Category *category);
     void ensureAllCategoryWidgets();
+    void disconnectTabWidgets();
 
     const QList<Core::IOptionsPage*> m_pages;
 

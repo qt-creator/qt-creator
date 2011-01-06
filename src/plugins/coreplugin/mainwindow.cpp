@@ -39,6 +39,7 @@
 #include "coreconstants.h"
 #include "editormanager.h"
 #include "externaltool.h"
+#include "toolsettings.h"
 #include "fancytabwidget.h"
 #include "filemanager.h"
 #include "generalsettings.h"
@@ -148,6 +149,7 @@ MainWindow::MainWindow() :
     m_activeContext(0),
     m_generalSettings(new GeneralSettings),
     m_shortcutSettings(new ShortcutSettings),
+    m_toolSettings(new ToolSettings),
     m_systemEditor(new SystemEditor),
     m_focusToEditor(0),
     m_newAction(0),
@@ -251,6 +253,7 @@ MainWindow::~MainWindow()
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     pm->removeObject(m_shortcutSettings);
     pm->removeObject(m_generalSettings);
+    pm->removeObject(m_toolSettings);
     pm->removeObject(m_systemEditor);
     delete m_messageManager;
     m_messageManager = 0;
@@ -258,6 +261,8 @@ MainWindow::~MainWindow()
     m_shortcutSettings = 0;
     delete m_generalSettings;
     m_generalSettings = 0;
+    delete m_toolSettings;
+    m_toolSettings = 0;
     delete m_systemEditor;
     m_systemEditor = 0;
     delete m_settings;
@@ -315,6 +320,7 @@ bool MainWindow::init(QString *errorMessage)
 
     pm->addObject(m_generalSettings);
     pm->addObject(m_shortcutSettings);
+    pm->addObject(m_toolSettings);
     pm->addObject(m_systemEditor);
 
 

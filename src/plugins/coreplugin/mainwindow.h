@@ -76,6 +76,7 @@ class FancyTabWidget;
 class GeneralSettings;
 class ProgressManagerPrivate;
 class ShortcutSettings;
+class ToolSettings;
 class StatusBarManager;
 class VersionDialog;
 class SystemEditor;
@@ -210,6 +211,7 @@ private:
 
     GeneralSettings *m_generalSettings;
     ShortcutSettings *m_shortcutSettings;
+    ToolSettings *m_toolSettings;
     SystemEditor *m_systemEditor;
 
     // actions

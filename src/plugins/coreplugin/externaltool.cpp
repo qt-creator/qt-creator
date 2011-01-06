@@ -84,6 +84,21 @@ ExternalTool::ExternalTool() :
 {
 }
 
+ExternalTool::ExternalTool(const ExternalTool *other)
+    : m_id(other->m_id),
+      m_description(other->m_description),
+      m_displayName(other->m_displayName),
+      m_displayCategory(other->m_displayCategory),
+      m_order(other->m_order),
+      m_executables(other->m_executables),
+      m_arguments(other->m_arguments),
+      m_input(other->m_input),
+      m_workingDirectory(other->m_workingDirectory),
+      m_outputHandling(other->m_outputHandling),
+      m_errorHandling(other->m_errorHandling)
+{
+}
+
 ExternalTool::~ExternalTool()
 {
 }
@@ -448,14 +463,20 @@ void ExternalToolManager::initialize()
 
     mtools->addMenu(mexternaltools, Constants::G_DEFAULT_THREE);
 
-    QMap<QString, QMultiMap<int, Command*> > categoryMenus;
+    QMap<QString, QMultiMap<int, ExternalTool*> > categoryMap;
     parseDirectory(m_core->userResourcePath() + QLatin1String("/externaltools"),
-                   &categoryMenus);
+                   &categoryMap);
     parseDirectory(m_core->resourcePath() + QLatin1String("/externaltools"),
-                   &categoryMenus, true);
+                   &categoryMap, true);
+
+    QMapIterator<QString, QMultiMap<int, ExternalTool*> > it(categoryMap);
+    while (it.hasNext()) {
+        it.next();
+        m_categoryMap.insert(it.key(), it.value().values());
+    }
 
     // add all the category menus, QMap is nicely sorted
-    QMapIterator<QString, QMultiMap<int, Command*> > it(categoryMenus);
+    it.toFront();
     while (it.hasNext()) {
         it.next();
         ActionContainer *container = 0;
@@ -466,18 +487,23 @@ void ExternalToolManager::initialize()
             mexternaltools->addMenu(container, Constants::G_DEFAULT_ONE);
             container->menu()->setTitle(it.key());
         }
-        foreach (Command *cmd, it.value().values()) {
+        foreach (ExternalTool *tool, it.value().values()) {
+            // tool action and command
+            QAction *action = new QAction(tool->displayName(), this);
+            action->setToolTip(tool->description());
+            action->setWhatsThis(tool->description());
+            action->setData(tool->id());
+            Command *cmd = am->registerAction(action, Id("Tools.External." + tool->id()), Context(Constants::C_GLOBAL));
+            connect(action, SIGNAL(triggered()), this, SLOT(menuActivated()));
             container->addAction(cmd, Constants::G_DEFAULT_TWO);
         }
     }
 }
 
-void ExternalToolManager::parseDirectory(const QString &directory, QMap<QString, QMultiMap<int, Command*> > *categoryMenus,
+void ExternalToolManager::parseDirectory(const QString &directory, QMap<QString, QMultiMap<int, ExternalTool*> > *categoryMenus,
                                          bool ignoreDuplicates)
 {
     QTC_ASSERT(categoryMenus, return);
-    ActionManager *am = m_core->actionManager();
-    Command *cmd;
     QDir dir(directory, QLatin1String("*.xml"), QDir::Unsorted, QDir::Files | QDir::Readable);
     foreach (const QFileInfo &info, dir.entryInfoList()) {
         QFile file(info.absoluteFilePath());
@@ -499,15 +525,7 @@ void ExternalToolManager::parseDirectory(const QString &directory, QMap<QString,
                 continue;
             }
             m_tools.insert(tool->id(), tool);
-
-            // tool action and command
-            QAction *action = new QAction(tool->displayName(), this);
-            action->setToolTip(tool->description());
-            action->setWhatsThis(tool->description());
-            action->setData(tool->id());
-            cmd = am->registerAction(action, Id("Tools.External." + tool->id()), Context(Constants::C_GLOBAL));
-            connect(action, SIGNAL(triggered()), this, SLOT(menuActivated()));
-            (*categoryMenus)[tool->displayCategory()].insert(tool->order(), cmd);
+            (*categoryMenus)[tool->displayCategory()].insert(tool->order(), tool);
         }
     }
 }
@@ -520,3 +538,9 @@ void ExternalToolManager::menuActivated()
     QTC_ASSERT(tool, return);
     new ExternalToolRunner(tool);
 }
+
+QMap<QString, QList<Internal::ExternalTool *> > ExternalToolManager::tools() const
+{
+    return m_categoryMap;
+}
+

@@ -446,6 +446,15 @@ void SettingsDialog::ensureAllCategoryWidgets()
         ensureCategoryWidget(category);
 }
 
+void SettingsDialog::disconnectTabWidgets()
+{
+    foreach (Category *category, m_model->categories()) {
+        if (category->tabWidget)
+            disconnect(category->tabWidget, SIGNAL(currentChanged(int)),
+                    this, SLOT(currentTabChanged(int)));
+    }
+}
+
 void SettingsDialog::updateEnabledTabs(Category *category, const QString &searchText)
 {
     for (int i = 0; i < category->pages.size(); ++i) {
@@ -497,6 +506,7 @@ void SettingsDialog::filter(const QString &text)
 
 void SettingsDialog::accept()
 {
+    disconnectTabWidgets();
     m_applied = true;
     foreach (IOptionsPage *page, m_visitedPages)
         page->apply();
@@ -507,6 +517,7 @@ void SettingsDialog::accept()
 
 void SettingsDialog::reject()
 {
+    disconnectTabWidgets();
     foreach (IOptionsPage *page, m_pages)
         page->finish();
     done(QDialog::Rejected);
