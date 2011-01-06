@@ -67,9 +67,12 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
 NodeInstanceServerProxy::~NodeInstanceServerProxy()
 {
+    if (m_socket)
+        m_socket->close();
+
     if (m_qmlPuppetProcess) {
         m_qmlPuppetProcess->blockSignals(true);
-        m_qmlPuppetProcess->terminate();
+        m_qmlPuppetProcess->kill();
     }
 }
 
