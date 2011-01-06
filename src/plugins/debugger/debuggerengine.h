@@ -116,7 +116,7 @@ public:
     QStringList dumperLibraryLocations;
     DebuggerStartMode startMode;
 
-    // for SymbianOS debugging
+    // For Symbian debugging.
     quint32 executableUid;
 };
 
