@@ -285,7 +285,7 @@ bool MaemoPackageCreationStep::copyDebianFiles(bool inSourceBuild)
         }
 
         if (fileName == QLatin1String("rules"))
-            updateDesktopFiles(destFile);
+            adaptRulesFile(destFile);
     }
 
     QFile magicFile(magicFilePath);
@@ -536,7 +536,19 @@ QString MaemoPackageCreationStep::packageFileName(const ProjectExplorer::Project
         % QLatin1String("_armel.deb");
 }
 
-void MaemoPackageCreationStep::updateDesktopFiles(const QString &rulesFilePath)
+void MaemoPackageCreationStep::ensureShlibdeps(QByteArray &rulesContent)
+{
+    QString contentAsString = QString::fromLocal8Bit(rulesContent);
+    const QString whiteSpace(QLatin1String("[ \\t]*"));
+    const QString pattern = QLatin1String("\\n") + whiteSpace
+        + QLatin1Char('#') + whiteSpace + QLatin1String("dh_shlibdeps")
+        + QLatin1String("[^\\n]*\\n");
+    contentAsString.replace(QRegExp(pattern),
+        QLatin1String("\n\tdh_shlibdeps\n"));
+    rulesContent = contentAsString.toLocal8Bit();
+}
+
+void MaemoPackageCreationStep::adaptRulesFile(const QString &rulesFilePath)
 {
     QFile rulesFile(rulesFilePath);
     rulesFile.setPermissions(rulesFile.permissions() | QFile::ExeUser);
@@ -554,8 +566,9 @@ void MaemoPackageCreationStep::updateDesktopFiles(const QString &rulesFilePath)
     QString desktopFileDir = QFileInfo(rulesFile).dir().path()
         + QLatin1Char('/') + projectName()
         + QLatin1String("/usr/share/applications/");
+    const Qt4BuildConfiguration * const bc = qt4BuildConfiguration();
     const MaemoGlobal::MaemoVersion version
-        = MaemoGlobal::version(qt4BuildConfiguration()->qtVersion());
+        = MaemoGlobal::version(bc->qtVersion());
     if (version == MaemoGlobal::Maemo5)
         desktopFileDir += QLatin1String("hildon/");
 #ifdef Q_OS_WIN
@@ -585,6 +598,11 @@ void MaemoPackageCreationStep::updateDesktopFiles(const QString &rulesFilePath)
         addSedCmdToRulesFile(content, insertPos, desktopFilePath, lineBefore,
             lineAfter);
     }
+
+    // Always check for dependencies in release builds.
+    if (!(bc->qmakeBuildConfiguration() & QtVersion::DebugBuild))
+        ensureShlibdeps(content);
+
     rulesFile.resize(0);
     rulesFile.write(content);
 }

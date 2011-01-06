@@ -227,6 +227,7 @@ bool MaemoPublisherFremantleFree::copyRecursively(const QString &srcFilePath,
             rulesContents.replace("$(MAKE) clean", "# $(MAKE) clean");
             rulesContents.replace("# Add here commands to configure the package.",
                 "qmake " + QFileInfo(m_project->file()->fileName()).fileName().toLocal8Bit());
+            MaemoPackageCreationStep::ensureShlibdeps(rulesContents);
             rulesFile.resize(0);
             rulesFile.write(rulesContents);
         }

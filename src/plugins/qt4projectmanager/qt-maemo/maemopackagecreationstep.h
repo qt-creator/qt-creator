@@ -80,6 +80,7 @@ public:
     static QString packageName(const ProjectExplorer::Project *project);
     static QString packageFileName(const ProjectExplorer::Project *project,
         const QString &version);
+    static void ensureShlibdeps(QByteArray &rulesContent);
 
     QString projectName() const;
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
@@ -117,7 +118,7 @@ private:
     QString buildDirectory() const;
     MaemoDeployStep * deployStep() const;
     void checkProjectName();
-    void updateDesktopFiles(const QString &rulesFilePath);
+    void adaptRulesFile(const QString &rulesFilePath);
     void addWorkaroundForHarmattanBug(QByteArray &rulesFileContent,
         int &insertPos, const MaemoDeployableListModel *model,
         const QString &desktopFileDir);
