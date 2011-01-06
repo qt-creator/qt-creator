@@ -4877,7 +4877,7 @@ void Parser::parseExpressionWithOperatorPrecedence(ExpressionAST *&lhs, int minP
         if (operPrecedence == Prec::Conditional) {
             condExpr = new (_pool) ConditionalExpressionAST;
             condExpr->question_token = oper;
-            if (oper == T_COLON) {
+            if (tok().kind() == T_COLON) {
                 // GNU extension:
                 //   logical-or-expression '?' ':' conditional-expression
                 condExpr->left_expression = 0;
