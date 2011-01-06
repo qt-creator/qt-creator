@@ -30,7 +30,6 @@
 #include "externaltool.h"
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/actioncontainer.h"
-#include "actionmanager/command.h"
 #include "coreconstants.h"
 #include "variablemanager.h"
 
@@ -446,43 +445,14 @@ void ExternalToolManager::initialize()
     ActionContainer *mexternaltools = am->createMenu(Id(Constants::M_TOOLS_EXTERNAL));
     mexternaltools->menu()->setTitle(tr("External"));
     ActionContainer *mtools = am->actionContainer(Constants::M_TOOLS);
-    Command *cmd;
 
     mtools->addMenu(mexternaltools, Constants::G_DEFAULT_THREE);
 
     QMap<QString, QMultiMap<int, Command*> > categoryMenus;
-    QDir dir(m_core->resourcePath() + QLatin1String("/externaltools"),
-             QLatin1String("*.xml"), QDir::Unsorted, QDir::Files | QDir::Readable);
-    foreach (const QFileInfo &info, dir.entryInfoList()) {
-        QFile file(info.absoluteFilePath());
-        if (file.open(QIODevice::ReadOnly)) {
-            const QByteArray &bytes = file.readAll();
-            file.close();
-            QString error;
-            ExternalTool *tool = ExternalTool::createFromXml(bytes, &error, m_core->userInterfaceLanguage());
-            if (!tool) {
-                // TODO error handling
-                qDebug() << tr("Error while parsing external tool %1: %2").arg(file.fileName(), error);
-                continue;
-            }
-            if (m_tools.contains(tool->id())) {
-                // TODO error handling
-                qDebug() << tr("Error: External tool in %1 has duplicate id").arg(file.fileName());
-                delete tool;
-                continue;
-            }
-            m_tools.insert(tool->id(), tool);
-
-            // tool action and command
-            QAction *action = new QAction(tool->displayName(), this);
-            action->setToolTip(tool->description());
-            action->setWhatsThis(tool->description());
-            action->setData(tool->id());
-            cmd = am->registerAction(action, Id("Tools.External." + tool->id()), Context(Constants::C_GLOBAL));
-            connect(action, SIGNAL(triggered()), this, SLOT(menuActivated()));
-            categoryMenus[tool->displayCategory()].insert(tool->order(), cmd);
-        }
-    }
+    parseDirectory(m_core->userResourcePath() + QLatin1String("/externaltools"),
+                   &categoryMenus);
+    parseDirectory(m_core->resourcePath() + QLatin1String("/externaltools"),
+                   &categoryMenus, true);
 
     // add all the category menus, QMap is nicely sorted
     QMapIterator<QString, QMultiMap<int, Command*> > it(categoryMenus);
@@ -498,6 +468,46 @@ void ExternalToolManager::initialize()
         }
         foreach (Command *cmd, it.value().values()) {
             container->addAction(cmd, Constants::G_DEFAULT_TWO);
+        }
+    }
+}
+
+void ExternalToolManager::parseDirectory(const QString &directory, QMap<QString, QMultiMap<int, Command*> > *categoryMenus,
+                                         bool ignoreDuplicates)
+{
+    QTC_ASSERT(categoryMenus, return);
+    ActionManager *am = m_core->actionManager();
+    Command *cmd;
+    QDir dir(directory, QLatin1String("*.xml"), QDir::Unsorted, QDir::Files | QDir::Readable);
+    foreach (const QFileInfo &info, dir.entryInfoList()) {
+        QFile file(info.absoluteFilePath());
+        if (file.open(QIODevice::ReadOnly)) {
+            const QByteArray &bytes = file.readAll();
+            file.close();
+            QString error;
+            ExternalTool *tool = ExternalTool::createFromXml(bytes, &error, m_core->userInterfaceLanguage());
+            if (!tool) {
+                // TODO error handling
+                qDebug() << tr("Error while parsing external tool %1: %2").arg(file.fileName(), error);
+                continue;
+            }
+            if (m_tools.contains(tool->id())) {
+                // TODO error handling
+                if (!ignoreDuplicates)
+                    qDebug() << tr("Error: External tool in %1 has duplicate id").arg(file.fileName());
+                delete tool;
+                continue;
+            }
+            m_tools.insert(tool->id(), tool);
+
+            // tool action and command
+            QAction *action = new QAction(tool->displayName(), this);
+            action->setToolTip(tool->description());
+            action->setWhatsThis(tool->description());
+            action->setData(tool->id());
+            cmd = am->registerAction(action, Id("Tools.External." + tool->id()), Context(Constants::C_GLOBAL));
+            connect(action, SIGNAL(triggered()), this, SLOT(menuActivated()));
+            (*categoryMenus)[tool->displayCategory()].insert(tool->order(), cmd);
         }
     }
 }

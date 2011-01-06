@@ -32,6 +32,7 @@
 
 #include "icore.h"
 #include "core_global.h"
+#include "actionmanager/command.h"
 
 #include <utils/qtcprocess.h>
 
@@ -138,6 +139,8 @@ private slots:
 
 private:
     void initialize();
+    void parseDirectory(const QString &directory, QMap<QString, QMultiMap<int, Command*> > *categoryMenus,
+                        bool ignoreDuplicates = false);
 
     static ExternalToolManager *m_instance;
     Core::ICore *m_core;
