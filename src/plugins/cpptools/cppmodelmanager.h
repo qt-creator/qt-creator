@@ -131,7 +131,7 @@ public:
 
     virtual void findMacroUsages(const CPlusPlus::Macro &macro);
 
-    virtual QList<LanguageUtils::FakeMetaObject::ConstPtr> exportedQmlObjects() const;
+    virtual QList<LanguageUtils::FakeMetaObject::ConstPtr> exportedQmlObjects(const CPlusPlus::Document::Ptr &doc) const;
 
     void setHeaderSuffixes(const QStringList &suffixes)
     { m_headerSuffixes = suffixes; }

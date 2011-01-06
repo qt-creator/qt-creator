@@ -1944,7 +1944,6 @@ const Value *Function::invoke(const Activation *activation) const
 ////////////////////////////////////////////////////////////////////////////////
 
 QList<FakeMetaObject::ConstPtr> CppQmlTypesLoader::builtinObjects;
-QList<FakeMetaObject::ConstPtr> CppQmlTypesLoader::cppObjects;
 
 QStringList CppQmlTypesLoader::load(const QFileInfoList &xmlFiles)
 {
@@ -2438,7 +2437,6 @@ Engine::Engine()
     initializePrototypes();
 
     _cppQmlTypes.load(this, CppQmlTypesLoader::builtinObjects);
-    _cppQmlTypes.load(this, CppQmlTypesLoader::cppObjects);
 
     // the 'Qt' object is dumped even though it is not exported
     // it contains useful information, in particular on enums - add the

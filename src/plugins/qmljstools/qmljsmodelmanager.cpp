@@ -40,6 +40,9 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <cplusplus/ModelManagerInterface.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/TypeOfExpression.h>
+#include <cplusplus/Overview.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/parser/qmldirparser_p.h>
@@ -77,7 +80,7 @@ ModelManager::ModelManager(QObject *parent):
     m_updateCppQmlTypesTimer = new QTimer(this);
     m_updateCppQmlTypesTimer->setInterval(1000);
     m_updateCppQmlTypesTimer->setSingleShot(true);
-    connect(m_updateCppQmlTypesTimer, SIGNAL(timeout()), SLOT(updateCppQmlTypes()));
+    connect(m_updateCppQmlTypesTimer, SIGNAL(timeout()), SLOT(startCppQmlTypeUpdate()));
 
     qRegisterMetaType<QmlJS::Document::Ptr>("QmlJS::Document::Ptr");
     qRegisterMetaType<QmlJS::LibraryInfo>("QmlJS::LibraryInfo");
@@ -94,7 +97,7 @@ void ModelManager::delayedInitialization()
             CPlusPlus::CppModelManagerInterface::instance();
     if (cppModelManager) {
         connect(cppModelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
-                m_updateCppQmlTypesTimer, SLOT(start()));
+                this, SLOT(queueCppQmlTypeUpdate(CPlusPlus::Document::Ptr)));
     }
 }
 
@@ -555,12 +558,46 @@ void ModelManager::loadPluginTypes(const QString &libraryPath, const QString &im
     m_pluginDumper->loadPluginTypes(libraryPath, importPath, importUri);
 }
 
-void ModelManager::updateCppQmlTypes()
+void ModelManager::queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc)
+{
+    m_queuedCppDocuments.insert(doc->fileName());
+    m_updateCppQmlTypesTimer->start();
+}
+
+void ModelManager::startCppQmlTypeUpdate()
 {
     CPlusPlus::CppModelManagerInterface *cppModelManager =
             CPlusPlus::CppModelManagerInterface::instance();
     if (!cppModelManager)
         return;
 
-    Interpreter::CppQmlTypesLoader::cppObjects = cppModelManager->exportedQmlObjects();
+    QtConcurrent::run(&ModelManager::updateCppQmlTypes,
+                      this, cppModelManager, m_queuedCppDocuments);
+    m_queuedCppDocuments.clear();
+}
+
+void ModelManager::updateCppQmlTypes(ModelManager *qmlModelManager, CPlusPlus::CppModelManagerInterface *cppModelManager, QSet<QString> files)
+{
+    CppQmlTypeHash newCppTypes = qmlModelManager->cppQmlTypes();
+    CPlusPlus::Snapshot snapshot = cppModelManager->snapshot();
+
+    foreach (const QString &fileName, files) {
+        CPlusPlus::Document::Ptr doc = snapshot.document(fileName);
+        QList<LanguageUtils::FakeMetaObject::ConstPtr> exported;
+        if (doc)
+            exported = cppModelManager->exportedQmlObjects(doc);
+        if (!exported.isEmpty())
+            newCppTypes[fileName] = exported;
+        else
+            newCppTypes.remove(fileName);
+    }
+
+    QMutexLocker locker(&qmlModelManager->m_cppTypesMutex);
+    qmlModelManager->m_cppTypes = newCppTypes;
+}
+
+ModelManagerInterface::CppQmlTypeHash ModelManager::cppQmlTypes() const
+{
+    QMutexLocker locker(&m_cppTypesMutex);
+    return m_cppTypes;
 }

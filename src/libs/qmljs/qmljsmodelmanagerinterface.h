@@ -110,6 +110,8 @@ public:
         Table _elements;
     };
 
+    typedef QHash<QString, QList<LanguageUtils::FakeMetaObject::ConstPtr> > CppQmlTypeHash;
+
 public:
     ModelManagerInterface(QObject *parent = 0);
     virtual ~ModelManagerInterface();
@@ -131,6 +133,8 @@ public:
     virtual QStringList importPaths() const = 0;
 
     virtual void loadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri) = 0;
+
+    virtual CppQmlTypeHash cppQmlTypes() const = 0;
 
 signals:
     void documentUpdated(QmlJS::Document::Ptr doc);

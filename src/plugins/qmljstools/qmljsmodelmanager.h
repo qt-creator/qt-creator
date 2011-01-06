@@ -38,6 +38,8 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsdocument.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/ModelManagerInterface.h>
 
 #include <QFuture>
 #include <QFutureSynchronizer>
@@ -85,6 +87,8 @@ public:
 
     virtual void loadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri);
 
+    virtual CppQmlTypeHash cppQmlTypes() const;
+
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
 
@@ -104,10 +108,12 @@ protected:
     void updateImportPaths();
 
 private slots:
-    void updateCppQmlTypes();
+    void queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc);
+    void startCppQmlTypeUpdate();
 
 private:
     static bool matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType);
+    static void updateCppQmlTypes(ModelManager *qmlModelManager, CPlusPlus::CppModelManagerInterface *cppModelManager, QSet<QString> files);
 
     mutable QMutex m_mutex;
     Core::ICore *m_core;
@@ -116,7 +122,11 @@ private:
     QStringList m_defaultImportPaths;
 
     QFutureSynchronizer<void> m_synchronizer;
+
     QTimer *m_updateCppQmlTypesTimer;
+    QSet<QString> m_queuedCppDocuments;
+    CppQmlTypeHash m_cppTypes;
+    mutable QMutex m_cppTypesMutex;
 
     // project integration
     QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;

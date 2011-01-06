@@ -587,7 +587,6 @@ public:
     /** \return an empty list when successful, error messages otherwise. */
     static QStringList load(const QFileInfoList &xmlFiles);
     static QList<LanguageUtils::FakeMetaObject::ConstPtr> builtinObjects;
-    static QList<LanguageUtils::FakeMetaObject::ConstPtr> cppObjects;
 
     // parses the xml string and fills the newObjects map
     static QString parseQmlTypeXml(const QByteArray &xml,

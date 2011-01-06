@@ -120,6 +120,14 @@ Link::Link(Context *context, const Document::Ptr &doc, const Snapshot &snapshot,
     d->snapshot = snapshot;
     d->importPaths = importPaths;
 
+    // populate engine with types from C++
+    ModelManagerInterface *modelManager = ModelManagerInterface::instance();
+    if (modelManager) {
+        foreach (const QList<FakeMetaObject::ConstPtr> &cppTypes, modelManager->cppQmlTypes()) {
+            engine()->cppQmlTypes().load(engine(), cppTypes);
+        }
+    }
+
     linkImports();
 }
 

@@ -291,8 +291,7 @@ public:
     void operator()()
     {
         _doc->check(_mode);
-        // temporarily disabled because it's too expensive
-        //_doc->findExposedQmlTypes();
+        _doc->findExposedQmlTypes();
         _doc->releaseSource();
         _doc->releaseTranslationUnit();
 
@@ -1548,32 +1547,34 @@ static void populate(LanguageUtils::FakeMetaObject::Ptr fmo, Class *klass,
     }
 }
 
-QList<LanguageUtils::FakeMetaObject::ConstPtr> CppModelManager::exportedQmlObjects() const
+QList<LanguageUtils::FakeMetaObject::ConstPtr> CppModelManager::exportedQmlObjects(const Document::Ptr &doc) const
 {
     using namespace LanguageUtils;
     QList<FakeMetaObject::ConstPtr> exportedObjects;
     QHash<Class *, FakeMetaObject::Ptr> classes;
 
+    const QList<CPlusPlus::Document::ExportedQmlType> exported = doc->exportedQmlTypes();
+    if (exported.isEmpty())
+        return exportedObjects;
+
+    TypeOfExpression typeOf;
     const Snapshot currentSnapshot = snapshot();
-    foreach (Document::Ptr doc, currentSnapshot) {
-        TypeOfExpression typeOf;
-        typeOf.init(doc, currentSnapshot);
-        foreach (const Document::ExportedQmlType &exportedType, doc->exportedQmlTypes()) {
-            FakeMetaObject::Ptr fmo(new FakeMetaObject);
-            fmo->addExport(exportedType.typeName, exportedType.packageName,
-                           ComponentVersion(exportedType.majorVersion, exportedType.minorVersion));
-            exportedObjects += fmo;
+    typeOf.init(doc, currentSnapshot);
+    foreach (const Document::ExportedQmlType &exportedType, exported) {
+        FakeMetaObject::Ptr fmo(new FakeMetaObject);
+        fmo->addExport(exportedType.typeName, exportedType.packageName,
+                       ComponentVersion(exportedType.majorVersion, exportedType.minorVersion));
+        exportedObjects += fmo;
 
-            Class *klass = lookupClass(exportedType.typeExpression, exportedType.scope, typeOf);
-            if (!klass)
-                continue;
+        Class *klass = lookupClass(exportedType.typeExpression, exportedType.scope, typeOf);
+        if (!klass)
+            continue;
 
-            // add the no-package export, so the cpp name can be used in properties
-            Overview overview;
-            fmo->addExport(overview(klass->name()), QString(), ComponentVersion());
+        // add the no-package export, so the cpp name can be used in properties
+        Overview overview;
+        fmo->addExport(overview(klass->name()), QString(), ComponentVersion());
 
-            populate(fmo, klass, &classes, typeOf);
-        }
+        populate(fmo, klass, &classes, typeOf);
     }
 
     return exportedObjects;
