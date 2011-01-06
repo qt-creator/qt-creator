@@ -2995,20 +2995,21 @@ void DebuggerPluginPrivate::extensionsInitialized()
     //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+W")));
     debugMenu->addAction(cmd);
 
+    // If the CppEditor plugin is there, we want to add something to
+    // the editor context menu.
+    if (ActionContainer *editorContextMenu =
+            am->actionContainer(CppEditor::Constants::M_CONTEXT)) {
+        cmd = am->registerAction(sep, _("Debugger.Sep.Views"),
+            cppDebuggercontext);
+        editorContextMenu->addAction(cmd);
+        cmd->setAttribute(Command::CA_Hide);
 
-    // Editor context menu
-    ActionContainer *editorContextMenu =
-        am->actionContainer(CppEditor::Constants::M_CONTEXT);
-    cmd = am->registerAction(sep, _("Debugger.Sep.Views"),
-        cppDebuggercontext);
-    editorContextMenu->addAction(cmd);
-    cmd->setAttribute(Command::CA_Hide);
-
-    cmd = am->registerAction(m_actions.watchAction2,
-        Constants::ADD_TO_WATCH2, cppDebuggercontext);
-    cmd->action()->setEnabled(true);
-    editorContextMenu->addAction(cmd);
-    cmd->setAttribute(Command::CA_Hide);
+        cmd = am->registerAction(m_actions.watchAction2,
+            Constants::ADD_TO_WATCH2, cppDebuggercontext);
+        cmd->action()->setEnabled(true);
+        editorContextMenu->addAction(cmd);
+        cmd->setAttribute(Command::CA_Hide);
+    }
 
     m_plugin->addAutoReleasedObject(new CommonOptionsPage);
     QList<Core::IOptionsPage *> engineOptionPages;
