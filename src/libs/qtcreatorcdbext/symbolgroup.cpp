@@ -251,6 +251,8 @@ std::string SymbolGroup::dump(const std::string &iname,
         // After expansion, run the complex dumpers
         if (p.dumpFlags & DumpParameters::DumpComplexDumpers)
             node->runComplexDumpers(ctx);
+        if (symbolGroupDebug)
+            DebugPrint() << "SymbolGroup::dump(" << iname << ") ran complex dumpers 0x" << std::hex << node->flags();
     }
 
     std::ostringstream str;
@@ -262,7 +264,7 @@ std::string SymbolGroup::dump(const std::string &iname,
     str << ']';
     QTC_TRACE_OUT
     if (symbolGroupDebug)
-        DebugPrint() << "<SymbolGroup::dump(" << iname << ")";
+            DebugPrint() << "<SymbolGroup::dump(" << iname << ')';
     return str.str();
 }
 

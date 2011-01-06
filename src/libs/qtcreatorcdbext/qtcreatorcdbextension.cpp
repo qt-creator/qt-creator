@@ -96,7 +96,8 @@ enum Command {
     CmdHelp,
     CmdMemory,
     CmdStack,
-    CmdShutdownex
+    CmdShutdownex,
+    CmdTest
 };
 
 static const CommandDescription commandDescriptions[] = {
@@ -136,7 +137,8 @@ static const CommandDescription commandDescriptions[] = {
 {"help","Prints help.",""},
 {"memory","Prints memory contents in Base64 encoding.","[-t token] <address> <length>"},
 {"stack","Prints stack in GDBMI format.","[-t token] [max-frames]"},
-{"shutdownex","Unhooks output callbacks.\nNeeds to be called explicitly only in case of remote debugging.",""}
+{"shutdownex","Unhooks output callbacks.\nNeeds to be called explicitly only in case of remote debugging.",""},
+{"test","Testing command","-T type"}
 };
 
 typedef std::vector<std::string> StringVector;
@@ -724,6 +726,45 @@ extern "C" HRESULT CALLBACK shutdownex(CIDebugClient *, PCSTR)
     ExtensionContext::instance().unhookCallbacks();
     return S_OK;
 }
+
+extern "C" HRESULT CALLBACK test(CIDebugClient *client, PCSTR argsIn)
+{
+    enum Mode { Invalid, TestType };
+    ExtensionCommandContext exc(client);
+
+    std::string testType;
+    Mode mode = Invalid;
+    int token = 0;
+    StringList tokens = commandTokens<StringList>(argsIn, &token);
+    // Parse away options
+    while (!tokens.empty() && tokens.front().size() == 2 && tokens.front().at(0) == '-') {
+        const char option = tokens.front().at(1);
+        tokens.pop_front();
+        switch (option) {
+        case 'T':
+            mode = TestType;
+            if (!tokens.empty()) {
+                testType = tokens.front();
+                tokens.pop_front();
+            }
+            break;
+        } // case option
+    }  // for options
+
+    // Frame and iname
+    if (mode == Invalid || testType.empty()) {
+        ExtensionContext::instance().report('N', token, 0, "test", singleLineUsage(commandDescriptions[CmdTest]).c_str());
+    } else {
+        const KnownType kt = knownType(testType, 0);
+        std::ostringstream str;
+        str << testType << ' ' << kt << " [";
+        formatKnownTypeFlags(str, kt);
+        str << ']';
+        ExtensionContext::instance().reportLong('R', token, "test", str.str());
+    }
+    return S_OK;
+}
+
 
 // Hook for dumping Known Structs. Not currently used.
 // Shows up in 'dv' as well as IDebugSymbolGroup::GetValueText.

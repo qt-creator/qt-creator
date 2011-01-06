@@ -759,7 +759,7 @@ void SymbolGroupNode::runComplexDumpers(const SymbolGroupValueContext &ctx)
 {
     if (symbolGroupDebug)
         DebugPrint() << "SymbolGroupNode::runComplexDumpers "  << name() << '/'
-                        << absoluteFullIName() << ' ' << m_index << DebugNodeFlags(flags());
+                        << absoluteFullIName() << ' ' << m_index << ' ' << DebugNodeFlags(flags());
 
     if (m_dumperContainerSize <= 0 || (testFlags(ComplexDumperOk) || !testFlags(SimpleDumperOk)))
         return;
@@ -786,7 +786,7 @@ void SymbolGroupNode::runComplexDumpers(const SymbolGroupValueContext &ctx)
 bool SymbolGroupNode::runSimpleDumpers(const SymbolGroupValueContext &ctx)
 {
     if (symbolGroupDebug)
-        DebugPrint() << "SymbolGroupNode::runSimpleDumpers "  << name() << '/'
+        DebugPrint() << ">SymbolGroupNode::runSimpleDumpers "  << name() << '/'
                         << absoluteFullIName() << ' ' << m_index << DebugNodeFlags(flags());
     if (testFlags(Uninitialized))
         return false;
@@ -797,7 +797,8 @@ bool SymbolGroupNode::runSimpleDumpers(const SymbolGroupValueContext &ctx)
     addFlags(dumpSimpleType(this , ctx, &m_dumperValue,
                             &m_dumperType, &m_dumperContainerSize));
     if (symbolGroupDebug)
-        DebugPrint() << "-> '" << wStringToString(m_dumperValue) << "' Type="
+        DebugPrint() << "<SymbolGroupNode::runSimpleDumpers " << name() << " '"
+                     << wStringToString(m_dumperValue) << "' Type="
                      << m_dumperType << ' ' << DebugNodeFlags(flags());
     return testFlags(SimpleDumperOk);
 }
@@ -1194,9 +1195,9 @@ SymbolGroupNodeVisitor::VisitResult
                                       const std::string &fullIname,
                                       unsigned /* child */, unsigned depth)
 {
-    // Show container children only, no additional symbol below root.
+    // Show container children only, no additional symbol below root. Also, skip expanded by dumper
     const unsigned flags = node->flags();
-    if (flags & (SymbolGroupNode::Obscured|SymbolGroupNode::AdditionalSymbol))
+    if (flags & (SymbolGroupNode::Obscured|SymbolGroupNode::AdditionalSymbol|SymbolGroupNode::ExpandedByDumper))
         return VisitSkipChildren;
     // Recurse to children only if expanded by explicit watchmodel request
     // and initialized.

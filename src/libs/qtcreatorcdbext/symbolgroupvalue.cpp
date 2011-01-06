@@ -659,37 +659,53 @@ static KnownType knownPODTypeHelper(const std::string &type, std::string::size_t
 {
     if (type.empty() || !endPos)
         return KT_Unknown;
+    // Strip pointer types.
     const bool isPointer = type.at(endPos - 1) == '*';
+    if (isPointer) {
+        endPos--;
+        if (endPos > 0 && type.at(endPos - 1) == ' ')
+            endPos--;
+    }
     switch (type.at(0)) {
     case 'c':
-        if (!type.compare(0, endPos, "char"))
+        if (endPos == 4 && !type.compare(0, endPos, "char"))
             return isPointer ? KT_POD_PointerType : KT_Char;
         break;
     case 'd':
-        if (!type.compare(0, endPos, "double"))
+        if (endPos == 6 && !type.compare(0, endPos, "double"))
             return isPointer ? KT_POD_PointerType : KT_FloatType;
         break;
     case 'f':
-        if (!type.compare(0, endPos, "float"))
+        if (endPos == 5 && !type.compare(0, endPos, "float"))
             return isPointer ? KT_POD_PointerType : KT_FloatType;
         break;
     case 'l':
-        if (!type.compare(0, 4, "long"))
-            return isPointer ? KT_POD_PointerType : KT_IntType;
+        if (endPos >= 4 && !type.compare(0, 4, "long"))
+            if (endPos == 4 || type.at(4) == ' ')
+                return isPointer ? KT_POD_PointerType : KT_IntType;
         break;
     case 'i':
-        if (!type.compare(0, 3, "int"))
-            return isPointer ? KT_POD_PointerType : KT_IntType;
+        // 'int' 'int64'
+        if (endPos >= 3 && !type.compare(0, 3, "int"))
+            if (endPos == 3 || type.at(3) == ' ' || type.at(3) == '6')
+                return isPointer ? KT_POD_PointerType : KT_IntType;
         break;
     case 's':
-        if (!type.compare(0, 5, "short"))
+        if (endPos == 5 && !type.compare(0, 5, "short"))
             return isPointer ? KT_POD_PointerType : KT_IntType;
+        if (endPos >= 6 && !type.compare(0, 6, "signed"))
+            if (endPos == 6 || type.at(6) == ' ')
+                return isPointer ? KT_POD_PointerType : KT_IntType;
         break;
     case 'u':
-        if (!type.compare(0, 8, "unsigned")) {
-            if (isPointer)
-                return KT_POD_PointerType;
-            return type == "unsigned char" ? KT_UnsignedChar : KT_UnsignedIntType;
+        if (endPos >= 8 && !type.compare(0, 8, "unsigned")) {
+            if (endPos == 8 || type.at(8) == ' ') {
+                if (isPointer)
+                    return KT_POD_PointerType;
+                return type.compare(0, 13, "unsigned char") ?
+                            KT_UnsignedIntType :
+                            KT_UnsignedChar;
+            }
         }
         break;
     }
