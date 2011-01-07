@@ -87,6 +87,7 @@ HEADERS += projectexplorer.h \
     buildenvironmentwidget.h \
     ldparser.h \
     linuxiccparser.h \
+    outputformat.h \
     outputformatter.h \
     runconfigurationmodel.h \
     buildconfigurationmodel.h \

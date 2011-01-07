@@ -31,49 +31,20 @@
 **
 **************************************************************************/
 
-#ifndef OUTPUTFORMATTER_H
-#define OUTPUTFORMATTER_H
-
-#include "projectexplorer_export.h"
-#include "outputformat.h"
-
-#include <QtCore/QObject>
-
-QT_BEGIN_NAMESPACE
-class QMouseEvent;
-class QPlainTextEdit;
-class QTextCharFormat;
-class QColor;
-QT_END_NAMESPACE
+#ifndef OUTPUTFORMAT_H
+#define OUTPUTFORMAT_H
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT OutputFormatter : public QObject
+enum OutputFormat
 {
-    Q_OBJECT
-
-public:
-    OutputFormatter();
-    virtual ~OutputFormatter();
-
-    QPlainTextEdit *plainTextEdit() const;
-    void setPlainTextEdit(QPlainTextEdit *plainText);
-
-    virtual void appendMessage(const QString &text, OutputFormat format);
-    virtual void handleLink(const QString &href);
-
-protected:
-    void initFormats();
-    void clearLastLine();
-    QTextCharFormat charFormat(OutputFormat format) const;
-
-    static QColor mixColors(const QColor &a, const QColor &b);
-
-private:
-    QPlainTextEdit *m_plainTextEdit;
-    QTextCharFormat *m_formats;
+    NormalMessageFormat,
+    ErrorMessageFormat,
+    StdOutFormat,
+    StdErrFormat,
+    NumberOfFormats // Keep this entry last.
 };
 
 } // namespace ProjectExplorer
 
-#endif // OUTPUTFORMATTER_H
+#endif // OUTPUTFORMATR_H
