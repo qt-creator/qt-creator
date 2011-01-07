@@ -198,10 +198,8 @@ void QmlEngine::setupInferior()
     } else {
         connect(&d->m_applicationLauncher, SIGNAL(processExited(int)),
                 SLOT(disconnected()));
-        connect(&d->m_applicationLauncher, SIGNAL(appendMessage(QString,bool)),
-                SLOT(appendMessage(QString,bool)));
-        connect(&d->m_applicationLauncher, SIGNAL(appendOutput(QString,bool)),
-                SLOT(appendOutput(QString,bool)));
+        connect(&d->m_applicationLauncher, SIGNAL(appendMessage(QString,ProjectExplorer::OutputFormat)),
+                SLOT(appendMessage(QString,ProjectExplorer::OutputFormat)));
         connect(&d->m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
                 runControl(), SLOT(bringApplicationToForeground(qint64)));
 
@@ -212,14 +210,9 @@ void QmlEngine::setupInferior()
     }
 }
 
-void QmlEngine::appendMessage(const QString &msg, bool)
+void QmlEngine::appendMessage(const QString &msg, ProjectExplorer::OutputFormat format)
 {
-    showMessage(msg, AppStuff);
-}
-
-void QmlEngine::appendOutput(const QString &msg, bool)
-{
-    showMessage(msg, AppOutput);
+    showMessage(msg, AppStuff); // FIXME: Redirect to RunControl
 }
 
 void QmlEngine::connectionEstablished()

@@ -36,6 +36,8 @@
 
 #include "debuggerengine.h"
 
+#include <projectexplorer/outputformat.h>
+
 #include <QtCore/QScopedPointer>
 #include <QtNetwork/QAbstractSocket>
 
@@ -123,8 +125,7 @@ private slots:
     void connectionStartupFailed();
     void connectionError(QAbstractSocket::SocketError error);
     void serviceConnectionError(const QString &service);
-    void appendMessage(const QString &msg, bool);
-    void appendOutput(const QString &msg, bool);
+    void appendMessage(const QString &msg, ProjectExplorer::OutputFormat);
 
 private:
     void expandObject(const QByteArray &iname, quint64 objectId);
