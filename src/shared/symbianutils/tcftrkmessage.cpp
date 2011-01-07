@@ -40,7 +40,7 @@
 // Names matching the enum
 static const char *serviceNamesC[] =
 { "Locator", "RunControl", "Processes", "Memory", "Settings", "Breakpoints",
-  "Registers", "Logging", "FileSystem", "SymbianInstall",
+  "Registers", "Logging", "FileSystem", "SymbianInstall", "SymbianOSData",
   "UnknownService"};
 
 namespace tcftrk {
@@ -554,8 +554,8 @@ TcfTrkRunControlContextSuspendedEvent::Reason TcfTrkRunControlContextSuspendedEv
     if (m_reason == "Breakpoint")
         return BreakPoint;
     // 'Data abort exception'/'Thread has panicked' ... unfortunately somewhat unspecific.
-    if (m_reason.contains("exception") || m_reason.contains("panick"))
-        return Crash;
+    if (m_reason.contains("Exception") || m_reason.contains("panick"))
+        return Crash;   
     return Other;
 }
 

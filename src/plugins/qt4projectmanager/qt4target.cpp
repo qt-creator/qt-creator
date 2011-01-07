@@ -463,6 +463,12 @@ void Qt4Target::onAddedDeployConfiguration(ProjectExplorer::DeployConfiguration 
         return;
     connect(deployConf, SIGNAL(serialPortNameChanged()),
             this, SLOT(slotUpdateDeviceInformation()));
+    connect(deployConf, SIGNAL(communicationChannelChanged()),
+            this, SLOT(slotUpdateDeviceInformation()));
+    connect(deployConf, SIGNAL(deviceAddressChanged()),
+            this, SLOT(slotUpdateDeviceInformation()));
+    connect(deployConf, SIGNAL(devicePortChanged()),
+            this, SLOT(slotUpdateDeviceInformation()));
 }
 
 void Qt4Target::slotUpdateDeviceInformation()
@@ -487,22 +493,16 @@ void Qt4Target::emitProFileEvaluateNeeded()
 void Qt4Target::updateToolTipAndIcon()
 {
     static const int TARGET_OVERLAY_ORIGINAL_SIZE = 32;
-    if (const S60DeployConfiguration *s60DeployConf = qobject_cast<S60DeployConfiguration *>(activeDeployConfiguration()))  {
-        const SymbianUtils::SymbianDeviceManager *sdm = SymbianUtils::SymbianDeviceManager::instance();
-        const int deviceIndex = sdm->findByPortName(s60DeployConf->serialPortName());
+
+    if (qobject_cast<S60DeployConfiguration *>(activeDeployConfiguration()))  {
         QPixmap overlay;
-        if (deviceIndex == -1) {
-            setToolTip(tr("<b>Device:</b> Not connected"));
-            overlay = m_disconnectedPixmap;
-        } else {
-            // device connected
-            const SymbianUtils::SymbianDevice device = sdm->devices().at(deviceIndex);
-            const QString tooltip = device.additionalInformation().isEmpty() ?
-                                    tr("<b>Device:</b> %1").arg(device.friendlyName()) :
-                                    tr("<b>Device:</b> %1, %2").arg(device.friendlyName(), device.additionalInformation());
-            setToolTip(tooltip);
+        QString tooltip;
+        if (isSymbianConnectionAvailable(tooltip))
             overlay = m_connectedPixmap;
-        }
+        else
+            overlay = m_disconnectedPixmap;
+        setToolTip(tooltip);
+
         double factor = Core::Constants::TARGET_ICON_SIZE / (double)TARGET_OVERLAY_ORIGINAL_SIZE;
         QSize overlaySize(overlay.size().width()*factor, overlay.size().height()*factor);
         QPixmap pixmap(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE);
@@ -518,3 +518,40 @@ void Qt4Target::updateToolTipAndIcon()
         setOverlayIcon(QIcon());
     }
 }
+
+bool Qt4Target::isSymbianConnectionAvailable(QString &tooltipText)
+{
+    const S60DeployConfiguration *s60DeployConf = qobject_cast<S60DeployConfiguration *>(activeDeployConfiguration());
+    if (!s60DeployConf)
+        return false;
+    switch (s60DeployConf->communicationChannel()) {
+    case S60DeployConfiguration::CommunicationSerialConnection: {
+        const SymbianUtils::SymbianDeviceManager *sdm = SymbianUtils::SymbianDeviceManager::instance();
+        const int deviceIndex = sdm->findByPortName(s60DeployConf->serialPortName());
+        if (deviceIndex == -1) {
+            tooltipText = tr("<b>Device:</b> Not connected");
+            return false;
+        } else {
+            // device connected
+            const SymbianUtils::SymbianDevice device = sdm->devices().at(deviceIndex);
+            tooltipText = device.additionalInformation().isEmpty() ?
+                                    tr("<b>Device:</b> %1").arg(device.friendlyName()) :
+                                    tr("<b>Device:</b> %1, %2").arg(device.friendlyName(), device.additionalInformation());
+            return true;
+        }
+    }
+    break;
+    case S60DeployConfiguration::CommunicationTcpConnection: {
+        if(!s60DeployConf->deviceAddress().isEmpty() && !s60DeployConf->devicePort().isEmpty()) {
+            tooltipText = tr("<b>IP address:</b> %1:%2").arg(s60DeployConf->deviceAddress(), s60DeployConf->devicePort());
+            return true;
+        }
+        return false;
+    }
+    break;
+    default:
+        break;
+    }
+    return false;
+}
+

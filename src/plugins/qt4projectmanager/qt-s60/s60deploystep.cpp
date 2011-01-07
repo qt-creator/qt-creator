@@ -37,6 +37,7 @@
 #include "s60deployconfiguration.h"
 #include "s60devicerunconfiguration.h"
 #include "s60runconfigbluetoothstarter.h"
+#include "tcftrkdevice.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildsteplist.h>
@@ -47,6 +48,8 @@
 #include <symbianutils/launcher.h>
 #include <symbianutils/symbiandevicemanager.h>
 
+#include <utils/qtcassert.h>
+
 #include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
 
@@ -54,12 +57,20 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QDir>
 #include <QtCore/QEventLoop>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+
+#include <QtNetwork/QTcpSocket>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
+enum {debug = 0};
+
+static const quint64  DEFAULT_CHUNK_SIZE = 10240;
+
 namespace {
-    const char * const S60_DEPLOY_STEP_ID = "Qt4ProjectManager.S60DeployStep";
+const char * const S60_DEPLOY_STEP_ID = "Qt4ProjectManager.S60DeployStep";
 }
 
 static inline bool ensureDeleteFile(const QString &fileName, QString *errorMessage)
@@ -82,7 +93,7 @@ static inline bool renameFile(const QString &sourceName, const QString &targetNa
     QFile source(sourceName);
     if (!source.rename(targetName)) {
         *errorMessage = S60DeployStep::tr("Unable to rename file '%1' to '%2': %3")
-                        .arg(sourceName, targetName, source.errorString());
+                .arg(sourceName, targetName, source.errorString());
         return false;
     }
     return true;
@@ -92,18 +103,37 @@ static inline bool renameFile(const QString &sourceName, const QString &targetNa
 
 S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc,
                              S60DeployStep *bs):
-        BuildStep(bc, bs), m_timer(0),
-        m_releaseDeviceAfterLauncherFinish(bs->m_releaseDeviceAfterLauncherFinish),
-        m_handleDeviceRemoval(bs->m_handleDeviceRemoval),
-        m_launcher(0), m_eventLoop(0)
+    BuildStep(bc, bs), m_timer(0),
+    m_releaseDeviceAfterLauncherFinish(bs->m_releaseDeviceAfterLauncherFinish),
+    m_handleDeviceRemoval(bs->m_handleDeviceRemoval),
+    m_launcher(0),
+    m_trkDevice(0),
+    m_eventLoop(0),
+    m_state(StateUninit),
+    m_putWriteOk(false),
+    m_putChunkSize(DEFAULT_CHUNK_SIZE),
+    m_putLastChunkSize(0),
+    m_currentFileIndex(0),
+    m_channel(bs->m_channel),
+    m_deployCanceled(false)
 {
     ctor();
 }
 
 S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc):
-        BuildStep(bc, QLatin1String(S60_DEPLOY_STEP_ID)), m_timer(0),
-        m_releaseDeviceAfterLauncherFinish(true),
-        m_handleDeviceRemoval(true), m_launcher(0), m_eventLoop(0)
+    BuildStep(bc, QLatin1String(S60_DEPLOY_STEP_ID)), m_timer(0),
+    m_releaseDeviceAfterLauncherFinish(true),
+    m_handleDeviceRemoval(true),
+    m_launcher(0),
+    m_trkDevice(0),
+    m_eventLoop(0),
+    m_state(StateUninit),
+    m_putWriteOk(false),
+    m_putChunkSize(DEFAULT_CHUNK_SIZE),
+    m_putLastChunkSize(0),
+    m_currentFileIndex(0),
+    m_channel(S60DeployConfiguration::CommunicationSerialConnection),
+    m_deployCanceled(false)
 {
     ctor();
 }
@@ -118,6 +148,7 @@ S60DeployStep::~S60DeployStep()
 {
     delete m_timer;
     delete m_launcher;
+    delete m_trkDevice;
     delete m_eventLoop;
 }
 
@@ -125,8 +156,8 @@ S60DeployStep::~S60DeployStep()
 bool S60DeployStep::init()
 {
     Qt4BuildConfiguration *bc = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
-    S60DeployConfiguration* deployConfiguration = static_cast<S60DeployConfiguration *>(bc->target()->activeDeployConfiguration());
-    if(!deployConfiguration)
+    S60DeployConfiguration *deployConfiguration = static_cast<S60DeployConfiguration *>(bc->target()->activeDeployConfiguration());
+    if (!deployConfiguration)
         return false;
     m_serialPortName = deployConfiguration->serialPortName();
     m_serialPortFriendlyName = SymbianUtils::SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
@@ -135,33 +166,44 @@ bool S60DeployStep::init()
     m_installationDrive = deployConfiguration->installationDrive();
     m_silentInstall = deployConfiguration->silentInstall();
 
-    QString message;
-    if (m_launcher) {
-        trk::Launcher::releaseToDeviceManager(m_launcher);
-        delete m_launcher;
-        m_launcher = 0;
+    switch (deployConfiguration->communicationChannel()) {
+    case S60DeployConfiguration::CommunicationSerialConnection:
+        break;
+    case S60DeployConfiguration::CommunicationTcpConnection:
+        m_address = deployConfiguration->deviceAddress();
+        m_port = deployConfiguration->devicePort().toInt();
     }
+    m_channel = deployConfiguration->communicationChannel();
 
-    m_launcher = trk::Launcher::acquireFromDeviceManager(m_serialPortName, this, &message);
-    if (!message.isEmpty() || !m_launcher) {
-        if (m_launcher)
+    if (m_channel == S60DeployConfiguration::CommunicationSerialConnection) {
+        QString message;
+        if (m_launcher) {
             trk::Launcher::releaseToDeviceManager(m_launcher);
-        delete m_launcher;
-        m_launcher = 0;
-        appendMessage(message, true);
-        return true;
-    }
-    // Prompt the user to start up the Blue tooth connection
-    const trk::PromptStartCommunicationResult src =
-            S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
-                                                             0, &message);
-    if (src != trk::PromptStartCommunicationConnected) {
-        if (!message.isEmpty())
-            trk::Launcher::releaseToDeviceManager(m_launcher);
-        delete m_launcher;
-        m_launcher = 0;
-        appendMessage(message, true);
-        return false;
+            delete m_launcher;
+            m_launcher = 0;
+        }
+
+        m_launcher = trk::Launcher::acquireFromDeviceManager(m_serialPortName, this, &message);
+        if (!message.isEmpty() || !m_launcher) {
+            if (m_launcher)
+                trk::Launcher::releaseToDeviceManager(m_launcher);
+            delete m_launcher;
+            m_launcher = 0;
+            appendMessage(message, true);
+            return true;
+        }
+        // Prompt the user to start up the Bluetooth connection
+        const trk::PromptStartCommunicationResult src =
+                S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
+                                                                 0, &message);
+        if (src != trk::PromptStartCommunicationConnected) {
+            if (!message.isEmpty())
+                trk::Launcher::releaseToDeviceManager(m_launcher);
+            delete m_launcher;
+            m_launcher = 0;
+            appendMessage(message, true);
+            return false;
+        }
     }
     return true;
 }
@@ -180,6 +222,16 @@ void S60DeployStep::appendMessage(const QString &error, bool isError)
 {
     emit addOutput(error, isError?ProjectExplorer::BuildStep::ErrorMessageOutput:
                                   ProjectExplorer::BuildStep::MessageOutput);
+}
+
+void S60DeployStep::reportError(const QString &error)
+{
+    emit addOutput(error, ProjectExplorer::BuildStep::ErrorMessageOutput);
+    emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
+                                       error,
+                                       QString(), -1,
+                                       ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+    emit finished(false);
 }
 
 bool S60DeployStep::processPackageName(QString &errorMessage)
@@ -217,15 +269,20 @@ void S60DeployStep::start()
 {
     QString errorMessage;
 
-    if (m_serialPortName.isEmpty() || !m_launcher) {
-        errorMessage = tr("No device is connected. Please connect a device and try again.");
-        appendMessage(errorMessage, true);
-        emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                           errorMessage,
-                                           QString(), -1,
-                                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-        emit finished();
-        return;
+    if (m_channel == S60DeployConfiguration::CommunicationSerialConnection) {
+        if (m_serialPortName.isEmpty() || !m_launcher) {
+            errorMessage = tr("No device is connected. Please connect a device and try again.");
+            reportError(errorMessage);
+            return;
+        }
+    } else {
+        QTC_ASSERT(!m_trkDevice, return);
+        m_trkDevice = new tcftrk::TcfTrkDevice;
+        if (m_address.isEmpty() || !m_trkDevice) {
+            errorMessage = tr("No address for a device has been defined. Please define an address and try again.");
+            reportError(errorMessage);
+            return;
+        }
     }
 
     // make sure we have the right name of the sis package
@@ -233,67 +290,89 @@ void S60DeployStep::start()
         startDeployment();
     } else {
         errorMessage = tr("Failed to find package %1").arg(errorMessage);
-        appendMessage(errorMessage, true);
-        emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                           errorMessage,
-                                           QString(), -1,
-                                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        reportError(errorMessage);
         stop();
-        emit finished();
     }
 }
 
 void S60DeployStep::stop()
 {
-    if (m_launcher)
-        m_launcher->terminate();
-    emit finished();
+    if (m_channel == S60DeployConfiguration::CommunicationSerialConnection) {
+        if (m_launcher)
+            m_launcher->terminate();
+    } else {
+        if (m_trkDevice) {
+            delete m_trkDevice;
+            m_trkDevice = 0;
+        }
+    }
+    emit finished(false);
 }
 
 void S60DeployStep::setupConnections()
 {
-    connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(SymbianUtils::SymbianDevice)),
-            this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
-    connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
+    if (m_channel == S60DeployConfiguration::CommunicationSerialConnection) {
+        connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(SymbianUtils::SymbianDevice)),
+                this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
+        connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
 
-    connect(m_launcher, SIGNAL(canNotConnect(QString)), this, SLOT(connectFailed(QString)));
-    connect(m_launcher, SIGNAL(copyingStarted(QString)), this, SLOT(printCopyingNotice(QString)));
-    connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(createFileFailed(QString,QString)));
-    connect(m_launcher, SIGNAL(canNotWriteFile(QString,QString)), this, SLOT(writeFileFailed(QString,QString)));
-    connect(m_launcher, SIGNAL(canNotCloseFile(QString,QString)), this, SLOT(closeFileFailed(QString,QString)));
-    connect(m_launcher, SIGNAL(installingStarted(QString)), this, SLOT(printInstallingNotice(QString)));
-    connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(installFailed(QString,QString)));
-    connect(m_launcher, SIGNAL(installingFinished()), this, SLOT(printInstallingFinished()));
-    connect(m_launcher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
+        connect(m_launcher, SIGNAL(canNotConnect(QString)), this, SLOT(connectFailed(QString)));
+        connect(m_launcher, SIGNAL(copyingStarted(QString)), this, SLOT(printCopyingNotice(QString)));
+        connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(createFileFailed(QString,QString)));
+        connect(m_launcher, SIGNAL(canNotWriteFile(QString,QString)), this, SLOT(writeFileFailed(QString,QString)));
+        connect(m_launcher, SIGNAL(canNotCloseFile(QString,QString)), this, SLOT(closeFileFailed(QString,QString)));
+        connect(m_launcher, SIGNAL(installingStarted(QString)), this, SLOT(printInstallingNotice(QString)));
+        connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(installFailed(QString,QString)));
+        connect(m_launcher, SIGNAL(installingFinished()), this, SLOT(printInstallingFinished()));
+        connect(m_launcher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
+    } else {
+        connect(m_trkDevice, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
+        connect(m_trkDevice, SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
+        connect(m_trkDevice, SIGNAL(tcfEvent(tcftrk::TcfTrkEvent)), this, SLOT(slotTcftrkEvent(tcftrk::TcfTrkEvent)), Qt::DirectConnection);
+        connect(m_trkDevice, SIGNAL(serialPong(QString)), this, SLOT(slotSerialPong(QString)));
+        connect(this, SIGNAL(manualInstallation()), this, SLOT(showManualInstallationInfo()));
+    }
 }
 
 void S60DeployStep::startDeployment()
 {
-    Q_ASSERT(m_launcher);
+    if (m_channel == S60DeployConfiguration::CommunicationSerialConnection) {
+        QTC_ASSERT(m_launcher, return);
+    } else {
+        QTC_ASSERT(m_trkDevice, return);
+    }
 
     setupConnections();
 
-    QStringList copyDst;
-    foreach (const QString &signedPackage, m_signedPackages)
-        copyDst << QString::fromLatin1("%1:\\Data\\%2").arg(m_installationDrive).arg(QFileInfo(signedPackage).fileName());
+    if (m_channel == S60DeployConfiguration::CommunicationSerialConnection) {
+        QStringList copyDst;
+        foreach (const QString &signedPackage, m_signedPackages)
+            copyDst << QString::fromLatin1("%1:\\Data\\%2").arg(m_installationDrive).arg(QFileInfo(signedPackage).fileName());
 
-    m_launcher->setCopyFileNames(m_signedPackages, copyDst);
-    m_launcher->setInstallFileNames(copyDst);
-    m_launcher->setInstallationDrive(m_installationDrive);
-    m_launcher->setInstallationMode(m_silentInstall?trk::Launcher::InstallationModeSilentAndUser:
-                                                    trk::Launcher::InstallationModeUser);
-    m_launcher->addStartupActions(trk::Launcher::ActionCopyInstall);
+        m_launcher->setCopyFileNames(m_signedPackages, copyDst);
+        m_launcher->setInstallFileNames(copyDst);
+        m_launcher->setInstallationDrive(m_installationDrive);
+        m_launcher->setInstallationMode(m_silentInstall?trk::Launcher::InstallationModeSilentAndUser:
+                                                        trk::Launcher::InstallationModeUser);
+        m_launcher->addStartupActions(trk::Launcher::ActionCopyInstall);
 
-    // TODO readd information about packages? msgListFile(m_signedPackage)
-    appendMessage(tr("Deploying application to '%2'...").arg(m_serialPortFriendlyName), false);
+        // TODO readd information about packages? msgListFile(m_signedPackage)
+        appendMessage(tr("Deploying application to '%2'...").arg(m_serialPortFriendlyName), false);
 
-    QString errorMessage;
-    if (!m_launcher->startServer(&errorMessage)) {
-        errorMessage = tr("Could not connect to phone on port '%1': %2\n"
-                          "Check if the phone is connected and App TRK is running.").arg(m_serialPortName, errorMessage);
-        appendMessage(errorMessage, true);
-        stop();
-        emit finished();
+        QString errorMessage;
+        if (!m_launcher->startServer(&errorMessage)) {
+            errorMessage = tr("Could not connect to phone on port '%1': %2\n"
+                              "Check if the phone is connected and App TRK is running.").arg(m_serialPortName, errorMessage);
+            reportError(errorMessage);
+            stop();
+        }
+    } else {
+        const QSharedPointer<QTcpSocket> tcfTrkSocket(new QTcpSocket);
+        m_trkDevice->setDevice(tcfTrkSocket);
+        tcfTrkSocket->connectToHost(m_address, m_port);
+        m_state = StateConnecting;
+        appendMessage(tr("Connecting to %1:%2...").arg(m_address).arg(m_port), false);
+        QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
     }
 }
 
@@ -301,10 +380,18 @@ void S60DeployStep::run(QFutureInterface<bool> &fi)
 {
     m_futureInterface = &fi;
     m_deployResult = true;
-    connect(this, SIGNAL(finished()),
-            this, SLOT(launcherFinished()));
-    connect(this, SIGNAL(finishNow()),
-            this, SLOT(launcherFinished()), Qt::DirectConnection);
+    m_deployCanceled = false;
+    disconnect(this);
+
+    if (m_channel == S60DeployConfiguration::CommunicationSerialConnection) {
+        connect(this, SIGNAL(finished(bool)), this, SLOT(launcherFinished(bool)));
+        connect(this, SIGNAL(finishNow(bool)), this, SLOT(launcherFinished(bool)), Qt::DirectConnection);
+    } else {
+        connect(this, SIGNAL(finished(bool)), this, SLOT(deploymentFinished(bool)));
+        connect(this, SIGNAL(finishNow(bool)), this, SLOT(deploymentFinished(bool)), Qt::DirectConnection);
+        connect(this, SIGNAL(allFilesSent()), this, SLOT(startInstalling()), Qt::DirectConnection);
+        connect(this, SIGNAL(allFilesInstalled()), this, SIGNAL(finished()), Qt::DirectConnection);
+    }
 
     start();
     m_timer = new QTimer();
@@ -316,10 +403,227 @@ void S60DeployStep::run(QFutureInterface<bool> &fi)
     delete m_timer;
     m_timer = 0;
 
+    delete m_trkDevice;
+    m_trkDevice = 0;
+
     delete m_eventLoop;
     m_eventLoop = 0;
     fi.reportResult(m_deployResult);
     m_futureInterface = 0;
+}
+
+void S60DeployStep::slotError(const QString &error)
+{
+    reportError(tr("Error: %1").arg(error));
+}
+
+void S60DeployStep::slotTrkLogMessage(const QString &log)
+{
+    if (debug)
+        qDebug() << "CODA log:" << log;
+}
+
+void S60DeployStep::slotSerialPong(const QString &message)
+{
+    if (debug)
+        qDebug() << "CODA serial pong:" << message;
+}
+
+void S60DeployStep::slotTcftrkEvent (const tcftrk::TcfTrkEvent &event)
+{
+    if (debug)
+        qDebug() << "CODA event:" << "Type:" << event.type() << "Message:" << event.toString();
+
+    switch (event.type()) {
+    case tcftrk::TcfTrkEvent::LocatorHello: {// Commands accepted now
+        m_state = StateConnected;
+        emit tcpConnected();
+        startTransferring();
+        break;
+    }
+    default:
+        if (debug)
+            qDebug() << "Unhandled event:" << "Type:" << event.type() << "Message:" << event.toString();
+        break;
+    }
+}
+
+void S60DeployStep::initFileSending()
+{
+    QTC_ASSERT(m_currentFileIndex < m_signedPackages.count(), return);
+    QTC_ASSERT(m_currentFileIndex >= 0, return);
+
+    const unsigned flags =
+            tcftrk::TcfTrkDevice::FileSystem_TCF_O_WRITE
+            |tcftrk::TcfTrkDevice::FileSystem_TCF_O_CREAT
+            |tcftrk::TcfTrkDevice::FileSystem_TCF_O_TRUNC;
+    m_putWriteOk = false;
+
+    QString packageName(QFileInfo(m_signedPackages.at(m_currentFileIndex)).fileName());
+    QString remoteFileLocation = QString::fromLatin1("%1:\\Data\\%2").arg(m_installationDrive).arg(packageName);
+    m_trkDevice->sendFileSystemOpenCommand(tcftrk::TcfTrkCallback(this, &S60DeployStep::handleFileSystemOpen),
+                                           remoteFileLocation.toAscii(), flags);
+    appendMessage(tr("Copying \"%1\"...").arg(packageName), false);
+}
+
+void S60DeployStep::initFileInstallation()
+{
+    QTC_ASSERT(m_currentFileIndex < m_signedPackages.count(), return);
+    QTC_ASSERT(m_currentFileIndex >= 0, return);
+
+    QString packageName(QFileInfo(m_signedPackages.at(m_currentFileIndex)).fileName());
+    QString remoteFileLocation = QString::fromLatin1("%1:\\Data\\%2").arg(m_installationDrive).arg(packageName);
+    if (m_silentInstall) {
+        m_trkDevice->sendSymbianInstallSilentInstallCommand(tcftrk::TcfTrkCallback(this, &S60DeployStep::handleSymbianInstall),
+                                                            remoteFileLocation.toAscii(), QString::fromLatin1("%1:").arg(m_installationDrive).toAscii());
+        appendMessage(tr("Installing package \"%1\" on drive %2:...").arg(packageName).arg(m_installationDrive), false);
+    } else {
+        m_trkDevice->sendSymbianInstallUIInstallCommand(tcftrk::TcfTrkCallback(this, &S60DeployStep::handleSymbianInstall),
+                                                        remoteFileLocation.toAscii());
+        appendMessage(tr("Please continue the installation on your device."), false);
+        emit manualInstallation();
+    }
+}
+
+void S60DeployStep::startTransferring()
+{
+    m_currentFileIndex = 0;
+    initFileSending();
+    m_state = StateSendingData;
+}
+
+void S60DeployStep::startInstalling()
+{
+    m_currentFileIndex = 0;
+    initFileInstallation();
+    m_state = StateInstalling;
+}
+
+void S60DeployStep::handleFileSystemOpen(const tcftrk::TcfTrkCommandResult &result)
+{
+    if (result.type != tcftrk::TcfTrkCommandResult::SuccessReply) {
+        reportError(tr("Open remote file failed: %1").arg(result.errorString()));
+        return;
+    }
+
+    if (result.values.size() < 1 || result.values.at(0).data().isEmpty()) {
+        reportError(tr("Internal error: No filehandle obtained"));
+        return;
+    }
+
+    m_remoteFileHandle = result.values.at(0).data();
+
+    m_putFile.reset(new QFile(m_signedPackages.at(m_currentFileIndex)));
+    if (!m_putFile->open(QIODevice::ReadOnly)) { // Should not fail, was checked before
+        reportError(tr("Open local file failed: %1").arg(m_putFile->errorString()));
+        return;
+    }
+    putSendNextChunk();
+}
+
+void S60DeployStep::handleSymbianInstall(const tcftrk::TcfTrkCommandResult &result)
+{
+    if (result.type == tcftrk::TcfTrkCommandResult::SuccessReply) {
+        appendMessage(tr("Installation has finished"), false);
+        if (++m_currentFileIndex >= m_signedPackages.count())
+            emit allFilesInstalled();
+        else
+            initFileInstallation();
+    } else {
+        reportError(tr("Installation failed: %1").arg(result.errorString()));
+    }
+}
+
+void S60DeployStep::putSendNextChunk()
+{
+    // Read and send off next chunk
+    const quint64 pos = m_putFile->pos();
+    const QByteArray data = m_putFile->read(m_putChunkSize);
+    if (data.isEmpty()) {
+        m_putWriteOk = true;
+        closeRemoteFile();
+    } else {
+        m_putLastChunkSize = data.size();
+        if (debug)
+            qDebug("Writing %llu bytes to remote file '%s' at %llu\n",
+                   m_putLastChunkSize,
+                   m_remoteFileHandle.constData(), pos);
+        m_trkDevice->sendFileSystemWriteCommand(tcftrk::TcfTrkCallback(this, &S60DeployStep::handleFileSystemWrite),
+                                                m_remoteFileHandle, data, unsigned(pos));
+    }
+}
+
+void S60DeployStep::closeRemoteFile()
+{
+    m_trkDevice->sendFileSystemCloseCommand(tcftrk::TcfTrkCallback(this, &S60DeployStep::handleFileSystemClose),
+                                            m_remoteFileHandle);
+}
+
+void S60DeployStep::handleFileSystemWrite(const tcftrk::TcfTrkCommandResult &result)
+{
+    // Close remote file even if copy fails
+    m_putWriteOk = result;
+    if (!m_putWriteOk) {
+        QString packageName(QFileInfo(m_signedPackages.at(m_currentFileIndex)).fileName());
+        reportError(tr("Could not write to file %1 on device: %2").arg(packageName).arg(result.errorString()));
+    }
+
+    if (!m_putWriteOk || m_putLastChunkSize < m_putChunkSize) {
+        closeRemoteFile();
+    } else {
+        putSendNextChunk();
+    }
+}
+
+void S60DeployStep::handleFileSystemClose(const tcftrk::TcfTrkCommandResult &result)
+{
+    if (result.type == tcftrk::TcfTrkCommandResult::SuccessReply) {
+        if (debug)
+            qDebug("File closed.\n");
+        if (++m_currentFileIndex >= m_signedPackages.count())
+            emit allFilesSent();
+        else
+            initFileSending();
+    } else {
+        reportError(tr("File close failed: %1").arg(result.toString()));
+    }
+}
+
+void S60DeployStep::checkForTimeout()
+{
+    if (m_state >= StateConnected)
+        return;
+
+    const QString title  = tr("Waiting for CODA");
+    const QString text = tr("Qt Creator is waiting for the CODA application to connect. "
+                            "Please make sure the application is running on "
+                            "your mobile phone and the right ip address and port are "
+                            "configured in the project settings.");
+    QMessageBox *mb = new QMessageBox(QMessageBox::Information, title, text,
+                                      QMessageBox::Cancel, Core::ICore::instance()->mainWindow());
+    connect(this, SIGNAL(tcpConnected()), mb, SLOT(close()));
+    connect(this, SIGNAL(finished()), mb, SLOT(close()));
+    connect(this, SIGNAL(finishNow()), mb, SLOT(close()));
+    connect(mb, SIGNAL(finished(int)), this, SLOT(slotWaitingForTckTrkClosed(int)));
+    mb->open();
+}
+
+void S60DeployStep::showManualInstallationInfo()
+{
+    const QString title  = tr("Installation");
+    const QString text = tr("Please continue the installation on your device.");
+    QMessageBox *mb = new QMessageBox(QMessageBox::Information, title, text,
+                                      QMessageBox::Ok, Core::ICore::instance()->mainWindow());
+    connect(this, SIGNAL(allFilesInstalled()), mb, SLOT(close()));
+    connect(this, SIGNAL(finished()), mb, SLOT(close()));
+    connect(this, SIGNAL(finishNow()), mb, SLOT(close()));
+    mb->open();
+}
+
+void S60DeployStep::slotWaitingForTckTrkClosed(int result)
+{
+    if (result == QMessageBox::Cancel)
+        m_deployCanceled = true;
 }
 
 void S60DeployStep::setReleaseDeviceAfterLauncherFinish(bool v)
@@ -331,9 +635,9 @@ void S60DeployStep::slotLauncherStateChanged(int s)
 {
     if (s == trk::Launcher::WaitingForTrk) {
         QMessageBox *mb = S60DeviceRunControl::createTrkWaitingMessageBox(m_launcher->trkServerName(),
-                                                                              Core::ICore::instance()->mainWindow());
+                                                                          Core::ICore::instance()->mainWindow());
         connect(m_launcher, SIGNAL(stateChanged(int)), mb, SLOT(close()));
-        connect(mb, SIGNAL(finished(int)), this, SLOT(slotWaitingForTrkClosed()));
+        connect(mb, SIGNAL(finished(int)), this, SIGNAL(finished()));
         mb->open();
     }
 }
@@ -342,34 +646,29 @@ void S60DeployStep::slotWaitingForTrkClosed()
 {
     if (m_launcher && m_launcher->state() == trk::Launcher::WaitingForTrk) {
         stop();
-        appendMessage(tr("Canceled."), true);
-        emit finished();
+        reportError(tr("Canceled."));
     }
 }
 
 void S60DeployStep::createFileFailed(const QString &filename, const QString &errorMessage)
 {
-    appendMessage(tr("Could not create file %1 on device: %2").arg(filename, errorMessage), true);
-    m_deployResult = false;
+    reportError(tr("Could not create file %1 on device: %2").arg(filename, errorMessage));
 }
 
 void S60DeployStep::writeFileFailed(const QString &filename, const QString &errorMessage)
 {
-    appendMessage(tr("Could not write to file %1 on device: %2").arg(filename, errorMessage), true);
-    m_deployResult = false;
+    reportError(tr("Could not write to file %1 on device: %2").arg(filename, errorMessage));
 }
 
 void S60DeployStep::closeFileFailed(const QString &filename, const QString &errorMessage)
 {
     const QString msg = tr("Could not close file %1 on device: %2. It will be closed when App TRK is closed.");
-    appendMessage( msg.arg(filename, errorMessage), true);
-    m_deployResult = false;
+    reportError( msg.arg(filename, errorMessage));
 }
 
 void S60DeployStep::connectFailed(const QString &errorMessage)
 {
-    appendMessage(tr("Could not connect to App TRK on device: %1. Restarting App TRK might help.").arg(errorMessage), true);
-    m_deployResult = false;
+    reportError(tr("Could not connect to App TRK on device: %1. Restarting App TRK might help.").arg(errorMessage));
 }
 
 void S60DeployStep::printCopyingNotice(const QString &fileName)
@@ -389,39 +688,52 @@ void S60DeployStep::printInstallingFinished()
 
 void S60DeployStep::installFailed(const QString &filename, const QString &errorMessage)
 {
-    appendMessage(tr("Could not install from package %1 on device: %2").arg(filename, errorMessage), true);
-    m_deployResult = false;
+    reportError(tr("Could not install from package %1 on device: %2").arg(filename, errorMessage));
 }
 
 void S60DeployStep::checkForCancel()
 {
-    if (m_futureInterface->isCanceled() && m_timer->isActive()) {
+    if ((m_futureInterface->isCanceled() || m_deployCanceled) && m_timer->isActive()) {
         m_timer->stop();
         stop();
-        appendMessage(tr("Canceled."), true);
-        emit finishNow();
+        QString canceledText(tr("Deployment has been cancelled."));
+        appendMessage(canceledText, true);
+        emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
+                                           canceledText,
+                                           QString(), -1,
+                                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        emit finishNow(false);
     }
 }
 
-void S60DeployStep::launcherFinished()
+void S60DeployStep::launcherFinished(bool success)
 {
+    m_deployResult = success;
     if (m_releaseDeviceAfterLauncherFinish && m_launcher) {
         m_handleDeviceRemoval = false;
         trk::Launcher::releaseToDeviceManager(m_launcher);
     }
-    if(m_launcher)
+    if (m_launcher)
         m_launcher->deleteLater();
     m_launcher = 0;
-    if(m_eventLoop)
+    if (m_eventLoop)
+        m_eventLoop->exit();
+}
+
+void S60DeployStep::deploymentFinished(bool success)
+{
+    m_deployResult = success;
+    if (m_trkDevice)
+        m_trkDevice->deleteLater();
+    m_trkDevice = 0;
+    if (m_eventLoop)
         m_eventLoop->exit();
 }
 
 void S60DeployStep::deviceRemoved(const SymbianUtils::SymbianDevice &d)
 {
-    if (m_handleDeviceRemoval && d.portName() == m_serialPortName) {
-        appendMessage(tr("The device '%1' has been disconnected").arg(d.friendlyName()), true);
-        emit finished();
-    }
+    if (m_handleDeviceRemoval && d.portName() == m_serialPortName)
+        reportError(tr("The device '%1' has been disconnected").arg(d.friendlyName()));
 }
 
 // #pragma mark -- S60DeployStepWidget
@@ -452,7 +764,7 @@ QString S60DeployStepWidget::displayName() const
 // #pragma mark -- S60DeployStepFactory
 
 S60DeployStepFactory::S60DeployStepFactory(QObject *parent) :
-        ProjectExplorer::IBuildStepFactory(parent)
+    ProjectExplorer::IBuildStepFactory(parent)
 {
 }
 
@@ -512,7 +824,7 @@ ProjectExplorer::BuildStep *S60DeployStepFactory::restore(ProjectExplorer::Build
 QStringList S60DeployStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
     if (parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-        && parent->target()->id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
+            && parent->target()->id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return QStringList() << QLatin1String(S60_DEPLOY_STEP_ID);
     return QStringList();
 }

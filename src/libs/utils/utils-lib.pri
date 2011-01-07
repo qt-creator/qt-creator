@@ -54,7 +54,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/historycompleter.cpp \
     $$PWD/buildablehelperlibrary.cpp \
     $$PWD/annotateditemdelegate.cpp \
-    $$PWD/fileinprojectfinder.cpp
+    $$PWD/fileinprojectfinder.cpp \
+    $$PWD/ipaddresslineedit.cpp
 
 win32 {
     SOURCES += $$PWD/abstractprocess_win.cpp \
@@ -119,7 +120,8 @@ HEADERS += $$PWD/environment.h \
     $$PWD/historycompleter.h \
     $$PWD/buildablehelperlibrary.h \
     $$PWD/annotateditemdelegate.h \
-    $$PWD/fileinprojectfinder.h
+    $$PWD/fileinprojectfinder.h \
+    $$PWD/ipaddresslineedit.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

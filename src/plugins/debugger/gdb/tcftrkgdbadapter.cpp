@@ -997,7 +997,6 @@ void TcfTrkGdbAdapter::interruptInferior()
 
 void TcfTrkGdbAdapter::startAdapter()
 {
-
     m_snapshot.fullReset();
     m_session.reset();
     m_firstResumableExeLoadedEvent = true;
@@ -1019,17 +1018,10 @@ void TcfTrkGdbAdapter::startAdapter()
 
     if (debug)
         qDebug() << parameters.processArgs;
-    // Fixme: 1 of 3 testing hacks.
-    if (m_remoteArguments.size() < 5 || m_remoteArguments.at(0) != __("@tcf@")) {
-        m_engine->handleAdapterStartFailed(_("Parameter error"), QString());
-        return;
-    }
 
-    m_remoteExecutable = m_remoteArguments.at(1);
-    m_uid = m_remoteArguments.at(2).toUInt(0, 16);
-    m_symbolFile = m_remoteArguments.at(3);
-    tcfTrkAddress = splitIpAddressSpec(m_remoteArguments.at(4), 1534);
-    m_remoteArguments.clear();
+    m_uid = parameters.executableUid;
+    tcfTrkAddress = QPair<QString, unsigned short>(parameters.serverAddress, parameters.serverPort);
+//    m_remoteArguments.clear(); FIXME: Should this be here?
 
     // Unixish gdbs accept only forward slashes
     m_symbolFile.replace(QLatin1Char('\\'), QLatin1Char('/'));

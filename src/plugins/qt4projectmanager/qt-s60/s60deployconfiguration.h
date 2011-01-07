@@ -57,6 +57,11 @@ class S60DeployConfiguration : public ProjectExplorer::DeployConfiguration
     friend class S60DeployConfigurationFactory;
 
 public:
+    enum CommunicationChannel {
+        CommunicationSerialConnection,
+        CommunicationTcpConnection
+    };
+
     explicit S60DeployConfiguration(ProjectExplorer::Target *parent);
     virtual ~S60DeployConfiguration();
 
@@ -77,6 +82,15 @@ public:
     bool silentInstall() const;
     void setSilentInstall(bool silent);
 
+    QString deviceAddress() const;
+    void setDeviceAddress(const QString &address);
+
+    void setDevicePort(const QString &port);
+    QString devicePort() const;
+
+    void setCommunicationChannel(CommunicationChannel channel);
+    S60DeployConfiguration::CommunicationChannel communicationChannel() const;
+
     QStringList signedPackages() const;
     QStringList packageFileNamesWithTargetInfo() const;
     QStringList packageTemplateFileNames() const;
@@ -87,6 +101,9 @@ public:
 signals:
     void targetInformationChanged();
     void serialPortNameChanged();
+    void communicationChannelChanged();
+    void deviceAddressChanged();
+    void devicePortChanged();
 
 private slots:
     void updateActiveBuildConfiguration(ProjectExplorer::BuildConfiguration *buildConfiguration);
@@ -113,6 +130,9 @@ private:
 
     char m_installationDrive;
     bool m_silentInstall;
+    QString m_deviceAddress;
+    QString m_devicePort;
+    CommunicationChannel m_communicationChannel;
 };
 
 class S60DeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory

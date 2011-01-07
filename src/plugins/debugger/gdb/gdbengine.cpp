@@ -1717,33 +1717,34 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
 {
     const DebuggerStartParameters &sp = startParameters();
     switch (sp.toolChainType) {
-        case ProjectExplorer::ToolChain_WINSCW: // S60
-        case ProjectExplorer::ToolChain_GCCE:
-        case ProjectExplorer::ToolChain_RVCT2_ARMV5:
-        case ProjectExplorer::ToolChain_RVCT2_ARMV6:
-        case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
-        case ProjectExplorer::ToolChain_GCCE_GNUPOC:
-            // FIXME: 1 of 3 testing hacks.
-            if (sp.processArgs.startsWith(__("@tcf@ ")))
-                return new TcfTrkGdbAdapter(this);
+    case ProjectExplorer::ToolChain_WINSCW: // S60
+    case ProjectExplorer::ToolChain_GCCE:
+    case ProjectExplorer::ToolChain_RVCT2_ARMV5:
+    case ProjectExplorer::ToolChain_RVCT2_ARMV6:
+    case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
+    case ProjectExplorer::ToolChain_GCCE_GNUPOC:
+        // FIXME: 1 of 3 testing hacks.
+        if (sp.communicationChannel == DebuggerStartParameters::CommunicationChannelTcpIp)
+            return new TcfTrkGdbAdapter(this);
+        else
             return new TrkGdbAdapter(this);
-        default:
-            break;
+    default:
+        break;
     }
 
     switch (sp.startMode) {
-        case AttachCore:
-            return new CoreGdbAdapter(this);
-        case AttachToRemote:
-            return new RemoteGdbServerAdapter(this, sp.toolChainType);
-        case StartRemoteGdb:
-            return new RemotePlainGdbAdapter(this);
-        case AttachExternal:
-            return new AttachGdbAdapter(this);
-        default:
-            if (sp.useTerminal)
-                return new TermGdbAdapter(this);
-            return new LocalPlainGdbAdapter(this);
+    case AttachCore:
+        return new CoreGdbAdapter(this);
+    case AttachToRemote:
+        return new RemoteGdbServerAdapter(this, sp.toolChainType);
+    case StartRemoteGdb:
+        return new RemotePlainGdbAdapter(this);
+    case AttachExternal:
+        return new AttachGdbAdapter(this);
+    default:
+        if (sp.useTerminal)
+            return new TermGdbAdapter(this);
+        return new LocalPlainGdbAdapter(this);
     }
 }
 

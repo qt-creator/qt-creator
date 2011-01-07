@@ -42,6 +42,8 @@
 #include <QtCore/QScopedPointer>
 #include <QtCore/QStringList>
 
+#include <QTime> //TODO: remove
+
 QT_BEGIN_NAMESPACE
 class QMessageBox;
 class QWidget;
@@ -53,6 +55,13 @@ class SymbianDevice;
 
 namespace trk {
 class Launcher;
+}
+
+
+namespace tcftrk {
+struct TcfTrkCommandResult;
+class TcfTrkDevice;
+class TcfTrkEvent;
 }
 
 namespace Qt4ProjectManager {
@@ -154,7 +163,7 @@ public:
 
 protected:
     virtual void initLauncher(const QString &executable, trk::Launcher *);
-    virtual void handleLauncherFinished();
+    virtual void handleRunFinished();
     virtual bool checkConfiguration(QString *errorMessage,
                                     QString *settingsCategory,
                                     QString *settingsPage) const;
@@ -166,7 +175,9 @@ protected slots:
     void applicationRunNotice(uint pid);
     void applicationRunFailedNotice(const QString &errorMessage);
     void deviceRemoved(const SymbianUtils::SymbianDevice &);
-    void reportDeployFinished();
+    void reportLaunchFinished();
+
+     void finishRunControl();
 
 private slots:
     void processStopped(uint pc, uint pid, uint tid, const QString& reason);
@@ -175,23 +186,58 @@ private slots:
     void slotLauncherStateChanged(int);
     void slotWaitingForTrkClosed();
 
+private slots:
+    void slotError(const QString &error);
+    void slotTrkLogMessage(const QString &log);
+    void slotTcftrkEvent(const tcftrk::TcfTrkEvent &event);
+    void slotSerialPong(const QString &message);
+
 protected:
     QFutureInterface<void> *m_launchProgress;
 
 private:
+    void initCommunication();
     void startLaunching();
     bool setupLauncher(QString &errorMessage);
+    void doStop();
+
+    void handleModuleLoadSuspended(const tcftrk::TcfTrkEvent &event);
+    void handleContextSuspended(const tcftrk::TcfTrkEvent &event);
+    void handleContextAdded(const tcftrk::TcfTrkEvent &event);
+    void handleContextRemoved(const tcftrk::TcfTrkEvent &event);
+
+private:
+    void handleCreateProcess(const tcftrk::TcfTrkCommandResult &result);
+    void handleAddListener(const tcftrk::TcfTrkCommandResult &result);
+    void handleGetThreads(const tcftrk::TcfTrkCommandResult &result);
+
+    enum State {
+        StateUninit,
+        StateConnecting,
+        StateConnected,
+        StateProcessRunning
+    };
 
     ProjectExplorer::ToolChainType m_toolChain;
     QString m_serialPortName;
     QString m_serialPortFriendlyName;
+    QString m_address;
+    unsigned short m_port;
+    quint32 m_executableUid;
     QString m_targetName;
     QString m_commandLineArguments;
     QString m_executableFileName;
     QString m_qtDir;
     QString m_qtBinPath;
+
+    tcftrk::TcfTrkDevice *m_tcfTrkDevice;
     trk::Launcher *m_launcher;
     char m_installationDrive;
+
+    QString m_runningProcessId;
+    State m_state;
+
+    bool m_useOldTrk; //FIXME: remove old TRK
 };
 
 // S60DeviceDebugRunControl starts debugging

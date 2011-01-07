@@ -109,6 +109,9 @@ private slots:
     void updateToolTipAndIcon();
 
 private:
+     bool isSymbianConnectionAvailable(QString &tooltipText);
+
+private:
     const QPixmap m_connectedPixmap;
     const QPixmap m_disconnectedPixmap;
 

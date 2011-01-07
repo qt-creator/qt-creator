@@ -952,11 +952,9 @@ void TcfTrkDevice::sendProcessStartCommand(const TcfTrkCallback &callBack,
         slashPos = binaryIn.lastIndexOf(backSlash);
     const QString sysBin = QLatin1String("c:/sys/bin");
     const QString binaryFileName  = slashPos == -1 ? binaryIn : binaryIn.mid(slashPos + 1);
-    const QString binaryDirectory = slashPos == -1 ? sysBin : binaryIn.left(slashPos);
-    const QString binary = fixFileName(binaryDirectory + QLatin1Char('/') + binaryFileName);
 
     // Fixup: Does argv[0] convention exist on Symbian?
-    arguments.push_front(binary);
+    arguments.push_front(binaryFileName);
     if (workingDirectory.isEmpty())
         workingDirectory = sysBin;
 
@@ -964,11 +962,11 @@ void TcfTrkDevice::sendProcessStartCommand(const TcfTrkCallback &callBack,
     QByteArray setData;
     JsonInputStream setStr(setData);
     setStr << "" << '\0'
-            << '[' << "exeToLaunch" << ',' << "addExecutables" << ',' << "addLibraries" << ']'
+            << '[' << "exeToLaunch" << ',' << "addExecutables" << ',' << "addLibraries" << ',' << "logUserTraces" << ']'
             << '\0' << '['
-                << binary << ','
+                << binaryFileName << ','
                 << '{' << binaryFileName << ':' << QString::number(uid, 16) << '}' << ','
-                << additionalLibraries
+                << additionalLibraries << ',' << true
             << ']';
     sendTcfTrkMessage(
 #if 1
@@ -980,11 +978,30 @@ void TcfTrkDevice::sendProcessStartCommand(const TcfTrkCallback &callBack,
 
     QByteArray startData;
     JsonInputStream startStr(startData);
-    startStr << fixFileName(workingDirectory)
-            << '\0' << binary << '\0' << arguments << '\0'
+    startStr << "" //We dont really know the drive of the working dir
+            << '\0' << binaryFileName << '\0' << arguments << '\0'
             << QStringList() << '\0' // Env is an array ["PATH=value"] (non-standard)
             << debugControl;
     sendTcfTrkMessage(MessageWithReply, ProcessesService, "start", startData, callBack, cookie);
+}
+
+void TcfTrkDevice::sendSettingsEnableLogCommand()
+{
+
+    QByteArray setData;
+    JsonInputStream setStr(setData);
+    setStr << "" << '\0'
+            << '[' << "logUserTraces" << ']'
+            << '\0' << '['
+            << true
+            << ']';
+    sendTcfTrkMessage(
+#if 1
+                MessageWithReply,    // TCF TRK 4.0.5 onwards
+#else
+                MessageWithoutReply, // TCF TRK 4.0.2
+#endif
+                SettingsService, "set", setData);
 }
 
 void TcfTrkDevice::sendProcessTerminateCommand(const TcfTrkCallback &callBack,
@@ -1324,7 +1341,8 @@ void TcfTrkDevice::sendRegistersSetCommand(const TcfTrkCallback &callBack,
                             value, cookie);
 }
 
-static const char outputListenerIDC[] = "org.eclipse.cdt.debug.edc.ui.ProgramOutputConsoleLogger";
+//static const char outputListenerIDC[] = "org.eclipse.cdt.debug.edc.ui.ProgramOutputConsoleLogger";
+static const char outputListenerIDC[] = "ProgramOutputConsoleLogger"; //TODO: this one might be the correct one
 
 void TcfTrkDevice::sendLoggingAddListenerCommand(const TcfTrkCallback &callBack,
                                                  const QVariant &cookie)
@@ -1334,6 +1352,14 @@ void TcfTrkDevice::sendLoggingAddListenerCommand(const TcfTrkCallback &callBack,
     str << outputListenerIDC;
     sendTcfTrkMessage(MessageWithReply, LoggingService, "addListener", data, callBack, cookie);
 }
+
+void TcfTrkDevice::sendSymbianOsDataGetThreadsCommand(const TcfTrkCallback &callBack,
+                                                 const QVariant &cookie)
+{
+    QByteArray data;
+    sendTcfTrkMessage(MessageWithReply, SymbianOSData, "getThreads", data, callBack, cookie);
+}
+
 
 void tcftrk::TcfTrkDevice::sendFileSystemOpenCommand(const tcftrk::TcfTrkCallback &callBack,
                                                      const QByteArray &name,

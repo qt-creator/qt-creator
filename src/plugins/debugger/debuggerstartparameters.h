@@ -51,6 +51,11 @@ namespace Debugger {
 class DEBUGGER_EXPORT DebuggerStartParameters
 {
 public:
+    enum CommunicationChannel {
+        CommunicationChannelTcpIp,
+        CommunicationChannelUsb
+    };
+
     DebuggerStartParameters()
       : isSnapshot(false),
         attachPID(-1),
@@ -62,7 +67,9 @@ public:
         connParams(Core::SshConnectionParameters::NoProxy),
         toolChainType(ProjectExplorer::ToolChain_UNKNOWN),
         startMode(NoStartMode),
-        executableUid(0)
+        executableUid(0),
+        communicationChannel(CommunicationChannelTcpIp),
+        serverPort(0)
     {}
 
     QString executable;
@@ -112,6 +119,9 @@ public:
 
     // For Symbian debugging.
     quint32 executableUid;
+    CommunicationChannel communicationChannel;
+    QString serverAddress;
+    quint16 serverPort;
 };
 
 } // namespace Debugger

@@ -45,10 +45,12 @@ class QLineEdit;
 class QComboBox;
 class QToolButton;
 class QCheckBox;
+class QRadioButton;
 QT_END_NAMESPACE
 
 namespace Utils {
     class DetailsWidget;
+    class IpAddressLineEdit;
 }
 
 namespace trk {
@@ -87,12 +89,17 @@ private slots:
     void slotLauncherStateChanged(int);
     void slotWaitingForTrkClosed();
     void silentInstallChanged(int);
+    void updateCommunicationChannel();
+    void updateWlanAddress(const QString &address);
+    void cleanWlanAddress();
 
 private:
     inline SymbianUtils::SymbianDevice device(int i) const;
     inline SymbianUtils::SymbianDevice currentDevice() const;
 
     void setDeviceInfoLabel(const QString &message, bool isError = false);
+
+    QWidget * createCommunicationChannel();
 
     S60DeployConfiguration *m_deployConfiguration;
     Utils::DetailsWidget *m_detailsWidget;
@@ -104,6 +111,9 @@ private:
     QPointer<trk::Launcher> m_infoLauncher;
     QComboBox *m_installationDriveCombo;
     QCheckBox *m_silentInstallCheckBox;
+    QRadioButton *m_serialRadioButton;
+    QRadioButton *m_wlanRadioButton;
+    Utils::IpAddressLineEdit *m_ipAddress;
 };
 
 } // namespace Internal

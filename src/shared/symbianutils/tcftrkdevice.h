@@ -349,6 +349,13 @@ public:
     void sendLoggingAddListenerCommand(const TcfTrkCallback &callBack,
                                        const QVariant &cookie = QVariant());
 
+    // SymbianOs Data
+    void sendSymbianOsDataGetThreadsCommand(const TcfTrkCallback &callBack,
+                                            const QVariant &cookie = QVariant());
+
+    // Settings
+    void sendSettingsEnableLogCommand();
+
     static QByteArray parseMemoryGet(const TcfTrkCommandResult &r);
     static QVector<QByteArray> parseRegisterGetChildren(const TcfTrkCommandResult &r);
     static TcfTrkStatResponse parseStat(const TcfTrkCommandResult &r);

@@ -39,12 +39,20 @@
 #include <QtCore/QString>
 
 QT_FORWARD_DECLARE_CLASS(QEventLoop)
+QT_FORWARD_DECLARE_CLASS(QFile)
 
 namespace SymbianUtils {
 class SymbianDevice;
 }
+
 namespace trk{
 class Launcher;
+}
+
+namespace tcftrk {
+    struct TcfTrkCommandResult;
+    class TcfTrkDevice;
+    class TcfTrkEvent;
 }
 
 namespace ProjectExplorer {
@@ -56,6 +64,7 @@ namespace Internal {
 
 class BuildConfiguration;
 class S60DeviceRunConfiguration;
+struct CommunicationChannel;
 
 class S60DeployStepFactory : public ProjectExplorer::IBuildStepFactory
 {
@@ -111,14 +120,34 @@ private slots:
     void printInstallingNotice(const QString &packageName);
     void installFailed(const QString &filename, const QString &errorMessage);
     void printInstallingFinished();
-    void launcherFinished();
+    void launcherFinished(bool success = true);
     void slotLauncherStateChanged(int);
     void slotWaitingForTrkClosed();
     void checkForCancel();
+    void checkForTimeout();
+
+    void slotError(const QString &error);
+    void slotTrkLogMessage(const QString &log);
+    void slotSerialPong(const QString &message);
+    void slotTcftrkEvent(const tcftrk::TcfTrkEvent &event);
+
+    void startInstalling();
+    void startTransferring();
+
+    void deploymentFinished(bool success);
+    void slotWaitingForTckTrkClosed(int result);
+    void showManualInstallationInfo();
 
 signals:
-    void finished();
-    void finishNow();
+    void finished(bool success = true);
+    void finishNow(bool success = true);
+
+    void allFilesSent();
+    void allFilesInstalled();
+
+    void tcpConnected();
+
+    void manualInstallation();
 
 private:
     S60DeployStep(ProjectExplorer::BuildStepList *parent,
@@ -131,11 +160,32 @@ private:
     bool processPackageName(QString &errorMessage);
     void setupConnections();
     void appendMessage(const QString &error, bool isError);
+    void reportError(const QString &error);
+
+    void handleSymbianInstall(const tcftrk::TcfTrkCommandResult &result);
+    void handleFileSystemOpen(const tcftrk::TcfTrkCommandResult &result);
+    void handleFileSystemWrite(const tcftrk::TcfTrkCommandResult &result);
+    void closeRemoteFile();
+    void putSendNextChunk();
+    void handleFileSystemClose(const tcftrk::TcfTrkCommandResult &result);
+
+    void initFileSending();
+    void initFileInstallation();
+
+    enum State {
+        StateUninit,
+        StateConnecting,
+        StateConnected,
+        StateSendingData,
+        StateInstalling
+    };
 
     QString m_serialPortName;
     QString m_serialPortFriendlyName;
     QStringList m_packageFileNamesWithTarget; // Support for 4.6.1
     QStringList m_signedPackages;
+    QString m_address;
+    unsigned short m_port;
 
     QTimer *m_timer;
 
@@ -145,11 +195,22 @@ private:
     QFutureInterface<bool> *m_futureInterface; //not owned
 
     trk::Launcher *m_launcher;
+    tcftrk::TcfTrkDevice *m_trkDevice;
 
     QEventLoop *m_eventLoop;
     bool m_deployResult;
     char m_installationDrive;
     bool m_silentInstall;
+
+    State m_state;
+    bool m_putWriteOk;
+    QScopedPointer<QFile> m_putFile;
+    quint64 m_putLastChunkSize;
+    QByteArray m_remoteFileHandle;
+    quint64 m_putChunkSize;
+    int m_currentFileIndex;
+    int m_channel;
+    volatile bool m_deployCanceled;
 };
 
 class S60DeployStepWidget : public ProjectExplorer::BuildStepConfigWidget

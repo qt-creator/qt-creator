@@ -932,8 +932,8 @@ void Launcher::installRemotePackage()
 void Launcher::handleInstallPackageFinished(const TrkResult &result)
 {
     if (result.errorCode()) {
-        if( installationMode() == InstallationModeSilentAndUser
-            && d->m_currentInstallationStep & InstallationModeSilent ) {
+        if (installationMode() == InstallationModeSilentAndUser
+            && d->m_currentInstallationStep & InstallationModeSilent) {
             installRemotePackageByUser();
             return;
         }
