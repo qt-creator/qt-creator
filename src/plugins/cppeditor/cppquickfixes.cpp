@@ -79,6 +79,8 @@ namespace {
     a op b -> !(a invop b)
     (a op b) -> !(a invop b)
     !(a op b) -> (a invob b)
+
+    Activates on: <= < > >= == !=
 */
 class UseInverseOp: public CppQuickFixFactory
 {
@@ -183,6 +185,8 @@ private:
 
     As
     b flipop a
+
+    Activates on: <= < > >= == != && ||
 */
 class FlipBinaryOp: public CppQuickFixFactory
 {
@@ -278,6 +282,8 @@ private:
 
     As
     !(a || b)
+
+    Activates on: &&
 */
 class RewriteLogicalAndOp: public CppQuickFixFactory
 {
@@ -361,6 +367,8 @@ private:
     As
     int *a;
     int b;
+
+    Activates on: the type or the variable names.
 */
 class SplitSimpleDeclarationOp: public CppQuickFixFactory
 {
@@ -489,6 +497,8 @@ private:
     if (a) {
         b;
     }
+
+    Activates on: the if
 */
 class AddBracesToIfOp: public CppQuickFixFactory
 {
@@ -560,6 +570,8 @@ private:
     With
     Type name = foo;
     if (name) {...}
+
+    Activates on: the name of the introduced variable
 */
 class MoveDeclarationOutOfIfOp: public CppQuickFixFactory
 {
@@ -635,6 +647,8 @@ private:
     With
     Type name;
     while ((name = foo()) != 0) {...}
+
+    Activates on: the name of the introduced variable
 */
 class MoveDeclarationOutOfWhileOp: public CppQuickFixFactory
 {
@@ -733,6 +747,8 @@ private:
       x;
     else if (something_else)
       x;
+
+    Activates on: && or ||
 */
 class SplitIfStatementOp: public CppQuickFixFactory
 {
@@ -860,10 +876,13 @@ private:
 /*
   Replace
     "abcd" -> QLatin1String("abcd")
+    @"abcd" -> QLatin1String("abcd")
     'a' -> QLatin1Char('a')
   Except if they are already enclosed in
     QLatin1Char, QT_TRANSLATE_NOOP, tr,
     trUtf8, QLatin1Literal, QLatin1String
+
+    Activates on: the string literal
 */
 class WrapStringLiteral: public CppQuickFixFactory
 {
@@ -969,6 +988,8 @@ private:
     QCoreApplication::translate("CONTEXT", "abcd") or
     QT_TRANSLATE_NOOP("GLOBAL", "abcd")
   depending on what is available.
+
+    Activates on: the string literal
 */
 class TranslateStringLiteral: public CppQuickFixFactory
 {
@@ -1086,6 +1107,16 @@ private:
     };
 };
 
+/**
+ * Replace
+ *    "abcd"
+ *    QLatin1String("abcd")
+ *    QLatin1Literal("abcd")
+ * With
+ *    @"abcd"
+ *
+ * Activates on: the string literal, if the file type is a Objective-C(++) file.
+ */
 class CStringToNSString: public CppQuickFixFactory
 {
 public:
@@ -1177,6 +1208,8 @@ private:
     -017;
     0783; // invalid octal
     0; // border case, allow only hex<->decimal
+
+    Activates on: numeric literals
 */
 class ConvertNumericLiteral: public CppQuickFixFactory
 {
@@ -1306,6 +1339,8 @@ private:
 
 /*
     Can be triggered on a class forward declaration to add the matching #include.
+
+    Activates on: the name of a forward-declared class or struct
 */
 class FixForwardDeclarationOp: public CppQuickFixFactory
 {
@@ -1438,6 +1473,8 @@ private:
   As
     Type a = foo();
   Where Type is the return type of foo()
+
+    Activates on: the assignee, if the type of the right-hand side of the assignment is known.
 */
 class AddLocalDeclarationOp: public CppQuickFixFactory
 {
@@ -1527,9 +1564,11 @@ private:
     };
 };
 
-/*
+/**
  * Turns "an_example_symbol" into "anExampleSymbol" and
  * "AN_EXAMPLE_SYMBOL" into "AnExampleSymbol".
+ *
+ * Activates on: identifiers
  */
 class ToCamelCaseConverter : public CppQuickFixFactory
 {
