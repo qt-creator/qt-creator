@@ -65,6 +65,7 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 namespace {
+
 const char * const S60_DEVICE_RC_ID("Qt4ProjectManager.S60DeviceRunConfiguration");
 const char * const S60_DEVICE_RC_PREFIX("Qt4ProjectManager.S60DeviceRunConfiguration.");
 
@@ -82,11 +83,10 @@ static inline QString msgListFile(const QString &f)
     QString rc;
     const QFileInfo fi(f);
     QTextStream str(&rc);
-    if (fi.exists()) {
+    if (fi.exists())
         str << fi.size() << ' ' << fi.lastModified().toString(Qt::ISODate) << ' ' << QDir::toNativeSeparators(fi.absoluteFilePath());
-    } else {
+    else
         str << "<non-existent> " << QDir::toNativeSeparators(fi.absoluteFilePath());
-    }
     return rc;
 }
 
@@ -102,7 +102,7 @@ QString pathToId(const QString &path)
     return QString::fromLatin1(S60_DEVICE_RC_PREFIX) + path;
 }
 
-}
+} // anon namespace
 
 // ======== S60DeviceRunConfiguration
 
@@ -218,7 +218,7 @@ ProjectExplorer::OutputFormatter *S60DeviceRunConfiguration::createOutputFormatt
 
 QVariantMap S60DeviceRunConfiguration::toMap() const
 {
-    QVariantMap map(ProjectExplorer::RunConfiguration::toMap());
+    QVariantMap map = ProjectExplorer::RunConfiguration::toMap();
     const QDir projectDir = QDir(target()->project()->projectDirectory());
 
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
@@ -375,7 +375,7 @@ QString S60DeviceRunConfiguration::localExecutableFileName() const
 quint32 S60DeviceRunConfiguration::executableUid() const
 {
     quint32 uid = 0;
-    QString executablePath(localExecutableFileName());
+    QString executablePath = localExecutableFileName();
     if (!executablePath.isEmpty()) {
         QFile file(executablePath);
         if (file.open(QIODevice::ReadOnly)) {
@@ -422,8 +422,7 @@ S60DeviceRunConfigurationFactory::~S60DeviceRunConfigurationFactory()
 QStringList S60DeviceRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
     Qt4Target *target = qobject_cast<Qt4Target *>(parent);
-    if (!target ||
-        target->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
+    if (!target || target->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return QStringList();
 
     return target->qt4Project()->applicationProFilePathes(QLatin1String(S60_DEVICE_RC_PREFIX));
@@ -438,9 +437,8 @@ QString S60DeviceRunConfigurationFactory::displayNameForId(const QString &id) co
 
 bool S60DeviceRunConfigurationFactory::canCreate(Target *parent, const QString &id) const
 {
-    Qt4Target * t(qobject_cast<Qt4Target *>(parent));
-    if (!t ||
-        t->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
+    Qt4Target *t = qobject_cast<Qt4Target *>(parent);
+    if (!t || t->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return false;
     return t->qt4Project()->hasApplicationProFile(pathFromId(id));
 }
@@ -450,17 +448,16 @@ RunConfiguration *S60DeviceRunConfigurationFactory::create(Target *parent, const
     if (!canCreate(parent, id))
         return 0;
 
-    Qt4Target *t(static_cast<Qt4Target *>(parent));
+    Qt4Target *t = static_cast<Qt4Target *>(parent);
     return new S60DeviceRunConfiguration(t, pathFromId(id));
 }
 
 bool S60DeviceRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
-    Qt4Target * t(qobject_cast<Qt4Target *>(parent));
-    if (!t ||
-        t->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
+    Qt4Target *t = qobject_cast<Qt4Target *>(parent);
+    if (!t || t->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return false;
-    QString id(ProjectExplorer::idFromMap(map));
+    QString id = ProjectExplorer::idFromMap(map);
     return id == QLatin1String(S60_DEVICE_RC_ID);
 }
 
@@ -468,7 +465,7 @@ RunConfiguration *S60DeviceRunConfigurationFactory::restore(Target *parent, cons
 {
     if (!canRestore(parent, map))
         return 0;
-    Qt4Target *t(static_cast<Qt4Target *>(parent));
+    Qt4Target *t = static_cast<Qt4Target *>(parent);
     S60DeviceRunConfiguration *rc(new S60DeviceRunConfiguration(t, QString()));
     if (rc->fromMap(map))
         return rc;
@@ -489,7 +486,7 @@ RunConfiguration *S60DeviceRunConfigurationFactory::clone(Target *parent, RunCon
     if (!canClone(parent, source))
         return 0;
     Qt4Target *t = static_cast<Qt4Target *>(parent);
-    S60DeviceRunConfiguration * old(static_cast<S60DeviceRunConfiguration *>(source));
+    S60DeviceRunConfiguration *old = static_cast<S60DeviceRunConfiguration *>(source);
     return new S60DeviceRunConfiguration(t, old);
 }
 
