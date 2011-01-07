@@ -41,6 +41,7 @@
 #include <vector>
 #include <list>
 
+class AbstractSymbolGroupNode;
 class SymbolGroupNode;
 class SymbolGroup;
 
@@ -106,6 +107,7 @@ public:
     static std::string stripClassPrefixes(const std::string &);
     static std::string addPointerType(const std::string &);
     static std::string stripArrayType(const std::string &);
+    static std::string stripModuleFromType(const std::string &type);
     // pointer type, return number of characters to strip
     static unsigned isPointerType(const std::string &);
     // Resolve a type, that is, obtain its module name ('QString'->'QtCored4!QString')
@@ -148,6 +150,8 @@ struct QtInfo
     // 'complicated' types like QMapNode, specifying the module helps
     std::string prependQtCoreModule(const std::string &type) const
         { return QtInfo::prependModuleAndNameSpace(type, coreModule, nameSpace); }
+    std::string prependQtGuiModule(const std::string &type) const
+        { return QtInfo::prependModuleAndNameSpace(type, guiModule, nameSpace); }
     // Prepend module and namespace if missing with some smartness
     // ('Foo' or -> 'nsp::Foo') => 'QtCored4!nsp::Foo'
     static std::string prependModuleAndNameSpace(const std::string &type,
@@ -156,7 +160,14 @@ struct QtInfo
 
     std::string nameSpace;
     std::string coreModule;
+    std::string guiModule;
+    // Fully qualified types with module and namespace
+    std::string qObjectType;
+    std::string qObjectPrivateType;
+    std::string qWidgetPrivateType;
 };
+
+std::ostream &operator<<(std::ostream &os, const QtInfo &);
 
 /* Helpers for detecting types reported from IDebugSymbolGroup
  * 1) Class prefix==true is applicable to outer types obtained from
@@ -176,10 +187,17 @@ KnownType knownType(const std::string &type, unsigned flags);
 void formatKnownTypeFlags(std::ostream &os, KnownType kt);
 
 // Dump builtin simple types using SymbolGroupValue expressions,
-// returning SymbolGroupNode dumper flags.
+// returning SymbolGroupNode dumper flags. Might return special info
+// (for example, a cached additional node) for some types to be used in
+// complex dumpers
 unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
                         std::wstring *s,
                         int *knownType = 0,
-                        int *containerSizeIn = 0);
+                        int *containerSizeIn = 0,
+                        void **specialInfoIn = 0);
+
+std::vector<AbstractSymbolGroupNode *>
+    dumpComplexType(SymbolGroupNode *node, int type, void *specialInfo,
+                    const SymbolGroupValueContext &ctx);
 
 #endif // SYMBOLGROUPVALUE_H

@@ -45,6 +45,7 @@ enum KnownType
     KT_STL_Type = 0x100000,
     KT_ContainerType = 0x200000,
     KT_HasSimpleDumper = 0x400000,
+    KT_HasComplexDumper = 0x800000, // Non-container complex dumper
     // PODs
     KT_Char = KT_POD_Type + 1,
     KT_UnsignedChar = KT_POD_Type + 2,
@@ -69,11 +70,11 @@ enum KnownType
     KT_QLineF = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 14,
     KT_QRect = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 15,
     KT_QRectF = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 16,
-    KT_QVariant = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 17,
+    KT_QVariant = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + KT_HasComplexDumper + 17,
     KT_QBasicAtomicInt = KT_Qt_Type + KT_HasSimpleDumper + 18,
     KT_QAtomicInt = KT_Qt_Type + KT_HasSimpleDumper + 19,
-    KT_QObject = KT_Qt_Type + KT_HasSimpleDumper + 20,
-    KT_QWidget = KT_Qt_Type + KT_HasSimpleDumper + 21,
+    KT_QObject = KT_Qt_Type + KT_HasSimpleDumper + KT_HasComplexDumper + 20,
+    KT_QWidget = KT_Qt_Type + KT_HasSimpleDumper + KT_HasComplexDumper + 21,
     // Various QT movable types
     KT_QPen = KT_Qt_Type + KT_Qt_MovableType + 30,
     KT_QUrl = KT_Qt_Type + KT_Qt_MovableType + 31,

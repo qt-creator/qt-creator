@@ -429,7 +429,7 @@ SymbolGroupNode::SymbolGroupNode(SymbolGroup *symbolGroup,
                                  const std::string &iname) :
     BaseSymbolGroupNode(name, iname),
     m_symbolGroup(symbolGroup),
-    m_index(index), m_dumperType(-1), m_dumperContainerSize(-1)
+    m_index(index), m_dumperType(-1), m_dumperContainerSize(-1), m_dumperSpecialInfo(0)
 {
     memset(&m_parameters, 0, sizeof(DEBUG_SYMBOL_PARAMETERS));
     m_parameters.ParentSymbol = DEBUG_ANY_ID;
@@ -757,15 +757,30 @@ bool SymbolGroupNode::isMemoryAccessible() const
 // Complex dumpers: Get container/fake children
 void SymbolGroupNode::runComplexDumpers(const SymbolGroupValueContext &ctx)
 {
-    if (symbolGroupDebug)
-        DebugPrint() << "SymbolGroupNode::runComplexDumpers "  << name() << '/'
-                        << absoluteFullIName() << ' ' << m_index << ' ' << DebugNodeFlags(flags());
+    if (symbolGroupDebug) {
+        DebugPrint dp;
+        dp << "SymbolGroupNode::runComplexDumpers "  << name() << '/'
+           << absoluteFullIName() << ' ' << m_index << ' ' << DebugNodeFlags(flags())
+           << " type: ";
+        formatKnownTypeFlags(dp, static_cast<KnownType>(m_dumperType));
+        if (m_dumperSpecialInfo)
+            dp << std::hex << std::showbase << " Special " << m_dumperSpecialInfo;
+    }
 
-    if (m_dumperContainerSize <= 0 || (testFlags(ComplexDumperOk) || !testFlags(SimpleDumperOk)))
+    if ((testFlags(ComplexDumperOk) || !testFlags(SimpleDumperOk)))
         return;
+
+    const bool isContainer = (m_dumperType & KT_ContainerType) != 0;
+    const bool otherDumper = (m_dumperType & KT_HasComplexDumper) != 0;
+    if (!isContainer && !otherDumper)
+        return;
+    if (isContainer && m_dumperContainerSize <= 0)
+        return;
+
     addFlags(ComplexDumperOk);
-    const AbstractSymbolGroupNodePtrVector ctChildren =
-            containerChildren(this, m_dumperType, m_dumperContainerSize, ctx);
+    const AbstractSymbolGroupNodePtrVector ctChildren = otherDumper ?
+             dumpComplexType(this, m_dumperType, m_dumperSpecialInfo, ctx) :
+             containerChildren(this, m_dumperType, m_dumperContainerSize, ctx);
     m_dumperContainerSize = int(ctChildren.size()); // Just in case...
     if (ctChildren.empty())
         return;
@@ -795,7 +810,7 @@ bool SymbolGroupNode::runSimpleDumpers(const SymbolGroupValueContext &ctx)
     if (testFlags(SimpleDumperMask))
         return false;
     addFlags(dumpSimpleType(this , ctx, &m_dumperValue,
-                            &m_dumperType, &m_dumperContainerSize));
+                            &m_dumperType, &m_dumperContainerSize, &m_dumperSpecialInfo));
     if (symbolGroupDebug)
         DebugPrint() << "<SymbolGroupNode::runSimpleDumpers " << name() << " '"
                      << wStringToString(m_dumperValue) << "' Type="

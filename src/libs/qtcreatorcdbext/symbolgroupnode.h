@@ -266,6 +266,7 @@ private:
     std::wstring m_dumperValue;
     int m_dumperType;
     int m_dumperContainerSize;
+    void *m_dumperSpecialInfo; // Opaque information passed from simple to complex dumpers
 };
 
 // Artificial node referencing another (real) SymbolGroupNode (added symbol or
