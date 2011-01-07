@@ -778,11 +778,11 @@ SymbolGroupValueVector hashBuckets(SymbolGroup *sg, const std::string &hashNodeT
 }
 
 // Return the node type of a QHash/QMap:
-// "class QHash<K,V>" -> [struct] "QtCored4!QHashNode<K,V>";
+// "class QHash<K,V>[ *]" -> [struct] "QtCored4!QHashNode<K,V>";
 static inline std::string qHashNodeType(const SymbolGroupValue &v,
                                         const char *nodeType)
 {
-    std::string qHashType = v.type();
+    std::string qHashType = SymbolGroupValue::stripPointerType(v.type());
     const std::string::size_type pos = qHashType.find('<');
     if (pos != std::string::npos)
         qHashType.insert(pos, nodeType);

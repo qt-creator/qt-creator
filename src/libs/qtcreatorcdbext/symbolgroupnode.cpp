@@ -1201,7 +1201,7 @@ DumpSymbolGroupNodeVisitor::DumpSymbolGroupNodeVisitor(std::ostream &os,
                                                        const SymbolGroupValueContext &context,
                                                        const DumpParameters &parameters) :
     m_os(os), m_context(context), m_parameters(parameters),
-    m_visitChildren(false),m_lastDepth(unsigned(-1))
+    m_lastDepth(unsigned(-1))
 {
 }
 
@@ -1210,18 +1210,17 @@ SymbolGroupNodeVisitor::VisitResult
                                       const std::string &fullIname,
                                       unsigned /* child */, unsigned depth)
 {
-    // Show container children only, no additional symbol below root. Also, skip expanded by dumper
-    const unsigned flags = node->flags();
-    if (flags & (SymbolGroupNode::Obscured|SymbolGroupNode::AdditionalSymbol|SymbolGroupNode::ExpandedByDumper))
+    // Show container children only, no additional symbol below root.
+    if (node->testFlags(SymbolGroupNode::Obscured|SymbolGroupNode::AdditionalSymbol))
         return VisitSkipChildren;
     // Recurse to children only if expanded by explicit watchmodel request
     // and initialized.
-    m_visitChildren = true;
+    bool visitChildren = depth < 1; // Report only one level for Qt Creator.
     // Visit children of a SymbolGroupNode only if not expanded by its dumpers.
-    // Report only one level for Qt Creator.
-    if (SymbolGroupNode *snode = node->asSymbolGroupNode())
-        m_visitChildren = depth < 1 && snode->isExpanded()
-            && (flags & (SymbolGroupNode::Uninitialized|SymbolGroupNode::ExpandedByDumper)) == 0;
+    if (visitChildren)
+        if (const SymbolGroupNode *realNode = node->resolveReference()->asSymbolGroupNode())
+            if (!realNode->isExpanded() || realNode->testFlags(SymbolGroupNode::Uninitialized|SymbolGroupNode::ExpandedByDumper))
+                    visitChildren = false;
     // Comma between same level children given obscured children
     if (depth == m_lastDepth) {
         m_os << ',';
@@ -1236,15 +1235,15 @@ SymbolGroupNodeVisitor::VisitResult
     const int childCount = node->dump(m_os, fullIname, m_parameters, m_context);
     m_os << ",numchild=\"" << childCount << '"';
     if (!childCount)
-        m_visitChildren = false;
-    if (m_visitChildren) { // open children array
+        visitChildren = false;
+    if (visitChildren) { // open children array
         m_os << ",children=[";
     } else {               // No children, close array.
         m_os << '}';
     }
     if (m_parameters.humanReadable())
         m_os << '\n';
-    return m_visitChildren ? VisitContinue : VisitSkipChildren;
+    return visitChildren ? VisitContinue : VisitSkipChildren;
 }
 
 void DumpSymbolGroupNodeVisitor::childrenVisited(const AbstractSymbolGroupNode *n, unsigned)

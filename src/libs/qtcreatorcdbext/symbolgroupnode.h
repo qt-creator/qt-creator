@@ -409,7 +409,6 @@ private:
     std::ostream &m_os;
     const SymbolGroupValueContext &m_context;
     const DumpParameters &m_parameters;
-    bool m_visitChildren;
     unsigned m_lastDepth;
 };
 
