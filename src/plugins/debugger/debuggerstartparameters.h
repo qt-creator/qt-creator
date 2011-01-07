@@ -101,7 +101,7 @@ public:
     Core::SshConnectionParameters connParams;
 
     QString debuggerCommand;
-    int toolChainType;
+    ProjectExplorer::ToolChainType toolChainType;
     QString qtInstallPath;
 
     QString dumperLibrary;

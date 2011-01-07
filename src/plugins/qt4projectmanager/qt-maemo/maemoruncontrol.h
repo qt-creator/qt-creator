@@ -41,6 +41,7 @@
 
 namespace Qt4ProjectManager {
 namespace Internal {
+
 class MaemoRunConfiguration;
 class MaemoSshRunner;
 

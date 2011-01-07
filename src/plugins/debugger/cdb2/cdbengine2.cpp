@@ -49,6 +49,7 @@
 #include "registerhandler.h"
 #include "disassembleragent.h"
 #include "memoryagent.h"
+#include "debuggerrunner.h"
 #include "debuggertooltip.h"
 #include "cdbparsehelpers.h"
 #include "watchutils.h"
@@ -115,12 +116,13 @@ enum { debugBreakpoints = 0 };
  * postExtensionCommand: Run a command provided by the extension producing
  * one-line output and invoke a callback with a CdbExtensionCommand structure. */
 
+using namespace ProjectExplorer;
+using namespace Debugger::Internal;
+
 namespace Debugger {
 namespace Cdb {
 
 static const char localsPrefixC[] = "local.";
-
-using namespace Debugger::Internal;
 
 struct MemoryViewCookie {
     explicit MemoryViewCookie(MemoryAgent *a = 0, QObject *e = 0,
@@ -252,10 +254,10 @@ static inline bool validMode(DebuggerStartMode sm)
     return true;
 }
 
-static inline QString msgCdbDisabled(ProjectExplorer::ToolChainType tc)
+static inline QString msgCdbDisabled(ToolChainType tc)
 {
     return CdbEngine::tr("The CDB debug engine required for %1 is currently disabled.").
-                      arg(ProjectExplorer::ToolChain::toolChainName(tc));
+                      arg(ToolChain::toolChainName(tc));
 }
 
 // Accessed by RunControlFactory
@@ -264,7 +266,7 @@ DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *erro
 #ifdef Q_OS_WIN
     CdbOptionsPage *op = CdbOptionsPage::instance();
     if (!op || !op->options()->isValid()) {
-        *errorMessage = msgCdbDisabled(static_cast<ProjectExplorer::ToolChainType>(sp.toolChainType));
+        *errorMessage = msgCdbDisabled(sp.toolChainType);
         return 0;
     }
     if (!validMode(sp.startMode)) {
@@ -288,30 +290,28 @@ bool isCdbEngineEnabled()
 #endif
 }
 
-bool checkCdbConfiguration(int toolChainI, QString *errorMsg, QString *settingsPage)
+ConfigurationCheck checkCdbConfiguration(ToolChainType toolChain)
 {
-    const ProjectExplorer::ToolChainType toolChain = static_cast<ProjectExplorer::ToolChainType>(toolChainI);
+    ConfigurationCheck check;
     switch (toolChain) {
-    case ProjectExplorer::ToolChain_MinGW: // Do our best
-    case ProjectExplorer::ToolChain_MSVC:
-    case ProjectExplorer::ToolChain_WINCE:
-    case ProjectExplorer::ToolChain_OTHER:
-    case ProjectExplorer::ToolChain_UNKNOWN:
-    case ProjectExplorer::ToolChain_INVALID:
+    case ToolChain_MinGW: // Do our best
+    case ToolChain_MSVC:
+    case ToolChain_WINCE:
+    case ToolChain_OTHER:
+    case ToolChain_UNKNOWN:
+    case ToolChain_INVALID:
         if (!isCdbEngineEnabled()) {
-            *errorMsg = msgCdbDisabled(toolChain);
-            *settingsPage = CdbOptionsPage::settingsId();
-            return false;
+            check.errorMessage = msgCdbDisabled(toolChain);
+            check.settingsPage = CdbOptionsPage::settingsId();
         }
         break;
     default:
         //: %1 is something like "GCCE" or "Intel C++ Compiler (Linux)" (see ToolChain context)
-        *errorMsg = CdbEngine::tr("The CDB debug engine does not support the %1 toolchain.").
-                    arg(ProjectExplorer::ToolChain::toolChainName(toolChain));
-        *settingsPage = CdbOptionsPage::settingsId();
-        return false;
+        check.errorMessage = CdbEngine::tr("The CDB debug engine does not support the %1 toolchain.").
+                    arg(ToolChain::toolChainName(toolChain));
+        check.settingsPage = CdbOptionsPage::settingsId();
     }
-    return true;
+    return check;
 }
 
 void addCdb2OptionPages(QList<Core::IOptionsPage *> *opts)

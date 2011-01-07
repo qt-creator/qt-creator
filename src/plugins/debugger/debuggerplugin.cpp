@@ -2499,8 +2499,8 @@ void DebuggerPluginPrivate::createNewDock(QWidget *widget)
 void DebuggerPluginPrivate::runControlStarted(DebuggerEngine *engine)
 {
     activateDebugMode();
-    QString toolChainName = ToolChain::toolChainName(
-        ProjectExplorer::ToolChainType((engine->startParameters().toolChainType)));
+    QString toolChainName =
+        ToolChain::toolChainName(engine->startParameters().toolChainType);
     const QString message = tr("Starting debugger '%1' for tool chain '%2'...")
             .arg(engine->objectName()).arg(toolChainName);
     showMessage(message, StatusBar);

@@ -37,6 +37,7 @@
 #include "debugger_global.h"
 
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/toolchaintype.h>
 
 #include <QtCore/QScopedPointer>
 
@@ -81,6 +82,20 @@ private:
 } // namespace Internal
 
 
+class ConfigurationCheck
+{
+public:
+    ConfigurationCheck() {}
+    operator bool() const { return errorMessage.isEmpty(); }
+
+public:
+    QString errorMessage;
+    QString settingsCategory;
+    QString settingsPage;
+};
+
+ConfigurationCheck checkDebugConfiguration(ProjectExplorer::ToolChainType toolChain);
+
 // This is a job description containing all data "local" to the jobs, including
 // the models of the individual debugger views.
 class DEBUGGER_EXPORT DebuggerRunControl
@@ -109,10 +124,6 @@ public:
 
     void showMessage(const QString &msg, int channel);
 
-    static bool checkDebugConfiguration(int toolChain,
-                                 QString *errorMessage,
-                                 QString *settingsCategory = 0,
-                                 QString *settingsPage = 0);
 signals:
     void engineRequestSetup();
 

@@ -818,16 +818,14 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc
 
 void S60DeviceDebugRunControl::start()
 {
-    QString errorMessage;
-    QString settingsCategory;
-    QString settingsPage;
-    if (!Debugger::DebuggerRunControl::checkDebugConfiguration(startParameters().toolChainType,
-                                                               &errorMessage, &settingsCategory, &settingsPage)) {
-        appendMessage(errorMessage, ErrorMessageFormat);
+    Debugger::ConfigurationCheck check =
+        Debugger::checkDebugConfiguration(startParameters().toolChainType);
+
+    if (!check) {
+        appendMessage(check.errorMessage, ErrorMessageFormat);
         emit finished();
         Core::ICore::instance()->showWarningWithOptions(tr("Debugger for Symbian Platform"),
-                                                        errorMessage, QString(),
-                                                        settingsCategory, settingsPage);
+            check.errorMessage, QString(), check.settingsCategory, check.settingsPage);
         return;
     }
 
