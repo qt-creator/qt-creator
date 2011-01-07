@@ -374,7 +374,7 @@ void S60EmulatorRunControl::slotAddToOutputWindow(const QString &line, bool onSt
     static int prefixLength = prefix.length();
     int index = line.indexOf(prefix);
     if (index != -1) {
-        emit addToOutputWindowInline(this, line.mid(index + prefixLength + 1), onStdErr);
+        emit addToOutputWindow(this, line.mid(index + prefixLength + 1), onStdErr, true);
     }
 }
 

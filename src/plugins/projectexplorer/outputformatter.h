@@ -71,7 +71,7 @@ public:
 protected:
     void initFormats();
     void clearLastLine();
-    QTextCharFormat format(OutputFormat format) const;
+    QTextCharFormat charFormat(OutputFormat format) const;
 
     static QColor mixColors(const QColor &a, const QColor &b);
 

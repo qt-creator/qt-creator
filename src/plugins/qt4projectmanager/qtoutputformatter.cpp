@@ -86,7 +86,7 @@ LinkResult QtOutputFormatter::matchLine(const QString &line) const
     return lr;
 }
 
-void QtOutputFormatter::appendApplicationOutput(const QString &txt, bool onStdErr)
+void QtOutputFormatter::appendMessage(const QString &txt, OutputFormat format)
 {
     QTextCursor cursor(plainTextEdit()->document());
     cursor.movePosition(QTextCursor::End);
@@ -108,10 +108,10 @@ void QtOutputFormatter::appendApplicationOutput(const QString &txt, bool onStdEr
             LinkResult lr = matchLine(line);
             if (!lr.href.isEmpty()) {
                 // Found something && line continuation
-                cursor.insertText(deferedText, format(onStdErr ? StdErrFormat : StdOutFormat));
+                cursor.insertText(deferedText, charFormat(format));
                 deferedText.clear();
                 clearLastLine();
-                appendLine(cursor, lr, line, onStdErr);
+                appendLine(cursor, lr, line, format);
             } else {
                 // Found nothing, just emit the new part
                 deferedText += newPart;
@@ -122,9 +122,9 @@ void QtOutputFormatter::appendApplicationOutput(const QString &txt, bool onStdEr
             const QString line = txt.mid(start, pos - start + 1);
             LinkResult lr = matchLine(line);
             if (!lr.href.isEmpty()) {
-                cursor.insertText(deferedText, format(onStdErr ? StdErrFormat : StdOutFormat));
+                cursor.insertText(deferedText, charFormat(format));
                 deferedText.clear();
-                appendLine(cursor, lr, line, onStdErr);
+                appendLine(cursor, lr, line, format);
             } else {
                 deferedText += line;
             }
@@ -142,10 +142,10 @@ void QtOutputFormatter::appendApplicationOutput(const QString &txt, bool onStdEr
             LinkResult lr = matchLine(m_lastLine);
             if (!lr.href.isEmpty()) {
                 // Found something && line continuation
-                cursor.insertText(deferedText, format(onStdErr ? StdErrFormat : StdOutFormat));
+                cursor.insertText(deferedText, charFormat(format));
                 deferedText.clear();
                 clearLastLine();
-                appendLine(cursor, lr, m_lastLine, onStdErr);
+                appendLine(cursor, lr, m_lastLine, format);
             } else {
                 // Found nothing, just emit the new part
                 deferedText += newPart;
@@ -154,22 +154,23 @@ void QtOutputFormatter::appendApplicationOutput(const QString &txt, bool onStdEr
             m_lastLine = txt.mid(start);
             LinkResult lr = matchLine(m_lastLine);
             if (!lr.href.isEmpty()) {
-                cursor.insertText(deferedText, format(onStdErr ? StdErrFormat : StdOutFormat));
+                cursor.insertText(deferedText, charFormat(format));
                 deferedText.clear();
-                appendLine(cursor, lr, m_lastLine, onStdErr);
+                appendLine(cursor, lr, m_lastLine, format);
             } else {
                 deferedText += m_lastLine;
             }
         }
     }
-    cursor.insertText(deferedText, format(onStdErr ? StdErrFormat : StdOutFormat));
+    cursor.insertText(deferedText, charFormat(format));
     // deferedText.clear();
     cursor.endEditBlock();
 }
 
-void QtOutputFormatter::appendLine(QTextCursor &cursor, LinkResult lr, const QString &line, bool onStdErr)
+void QtOutputFormatter::appendLine(QTextCursor &cursor, LinkResult lr,
+    const QString &line, ProjectExplorer::OutputFormat format)
 {
-    const QTextCharFormat normalFormat = format(onStdErr ? StdErrFormat : StdOutFormat);
+    const QTextCharFormat normalFormat = charFormat(format);
     cursor.insertText(line.left(lr.start), normalFormat);
 
     QTextCharFormat linkFormat = normalFormat;
@@ -179,7 +180,6 @@ void QtOutputFormatter::appendLine(QTextCursor &cursor, LinkResult lr, const QSt
     linkFormat.setAnchor(true);
     linkFormat.setAnchorHref(lr.href);
     cursor.insertText(line.mid(lr.start, lr.end - lr.start), linkFormat);
-
     cursor.insertText(line.mid(lr.end), normalFormat);
 }
 

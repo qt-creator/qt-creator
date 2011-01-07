@@ -649,9 +649,9 @@ void S60DeviceRunControl::reportDeployFinished()
     }
 }
 
-void S60DeviceRunControl::processStopped(uint pc, uint pid, uint tid, const QString& reason)
+void S60DeviceRunControl::processStopped(uint pc, uint pid, uint tid, const QString &reason)
 {
-    emit addToOutputWindow(this, trk::Launcher::msgStopped(pid, tid, pc, reason), false);
+    emit addToOutputWindow(this, trk::Launcher::msgStopped(pid, tid, pc, reason), false, false);
     m_launcher->terminate();
 }
 
@@ -694,7 +694,7 @@ void S60DeviceRunControl::printApplicationOutput(const QString &output)
 
 void S60DeviceRunControl::printApplicationOutput(const QString &output, bool onStdErr)
 {
-    emit addToOutputWindowInline(this, output, onStdErr);
+    emit addToOutputWindow(this, output, onStdErr, true);
 }
 
 void S60DeviceRunControl::deviceRemoved(const SymbianUtils::SymbianDevice &d)

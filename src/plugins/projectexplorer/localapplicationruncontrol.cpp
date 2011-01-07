@@ -132,7 +132,7 @@ void LocalApplicationRunControl::slotAppendMessage(const QString &err,
 void LocalApplicationRunControl::slotAddToOutputWindow(const QString &line,
                                                        bool isError)
 {
-    emit addToOutputWindowInline(this, line, isError);
+    emit addToOutputWindow(this, line, isError, true);
 }
 
 void LocalApplicationRunControl::processExited(int exitCode)

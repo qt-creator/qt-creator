@@ -74,7 +74,7 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
     cursor.insertText(text, m_formats[format]);
 }
 
-QTextCharFormat OutputFormatter::format(OutputFormat format) const
+QTextCharFormat OutputFormatter::charFormat(OutputFormat format) const
 {
     return m_formats[format];
 }

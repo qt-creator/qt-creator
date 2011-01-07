@@ -1387,10 +1387,8 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QStrin
         d->m_outputPane->popup(false);
     d->m_outputPane->showTabFor(runControl);
 
-    connect(runControl, SIGNAL(addToOutputWindow(ProjectExplorer::RunControl*,QString,bool)),
-            d->m_outputPane, SLOT(appendApplicationOutput(ProjectExplorer::RunControl*,QString, bool)));
-    connect(runControl, SIGNAL(addToOutputWindowInline(ProjectExplorer::RunControl*,QString,bool)),
-            d->m_outputPane, SLOT(appendApplicationOutputInline(ProjectExplorer::RunControl*,QString,bool)));
+    connect(runControl, SIGNAL(addToOutputWindow(ProjectExplorer::RunControl*,QString,bool,bool)),
+            d->m_outputPane, SLOT(appendApplicationOutput(ProjectExplorer::RunControl*,QString, bool,bool)));
     connect(runControl, SIGNAL(appendMessage(ProjectExplorer::RunControl*,QString,bool)),
             d->m_outputPane, SLOT(appendMessage(ProjectExplorer::RunControl*,QString,bool)));
 

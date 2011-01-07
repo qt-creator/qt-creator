@@ -48,8 +48,7 @@ namespace ProjectExplorer {
 class Project;
 } // namespace ProjectExplorer
 
-namespace Qt4ProjectManager
-{
+namespace Qt4ProjectManager {
 
 struct LinkResult
 {
@@ -58,18 +57,20 @@ struct LinkResult
     QString href;
 };
 
-class QT4PROJECTMANAGER_EXPORT QtOutputFormatter: public ProjectExplorer::OutputFormatter
+class QT4PROJECTMANAGER_EXPORT QtOutputFormatter
+    : public ProjectExplorer::OutputFormatter
 {
 public:
     QtOutputFormatter(ProjectExplorer::Project *project);
 
-    virtual void appendApplicationOutput(const QString &text, bool onStdErr);
-
+    virtual void appendMessage(const QString &text,
+        ProjectExplorer::OutputFormat format);
     virtual void handleLink(const QString &href);
 
 private:
     LinkResult matchLine(const QString &line) const;
-    void appendLine(QTextCursor & cursor, LinkResult lr, const QString &line, bool onStdError);
+    void appendLine(QTextCursor & cursor, LinkResult lr,
+        const QString &line, ProjectExplorer::OutputFormat);
 
     QRegExp m_qmlError;
     QRegExp m_qtError;

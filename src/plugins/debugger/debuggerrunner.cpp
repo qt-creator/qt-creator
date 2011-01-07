@@ -442,15 +442,13 @@ void DebuggerRunControl::start()
 
     d->m_engine->startDebugger(this);
 
-    if (d->m_running) {
-        emit addToOutputWindowInline(this, tr("Debugging starts"), false);
-        emit addToOutputWindowInline(this, "\n", false);
-    }
+    if (d->m_running)
+        emit addToOutputWindow(this, tr("Debugging starts"), false, false);
 }
 
 void DebuggerRunControl::startFailed()
 {
-    emit addToOutputWindowInline(this, tr("Debugging has failed"), false);
+    emit addToOutputWindow(this, tr("Debugging has failed"), false, false);
     d->m_running = false;
     emit finished();
     d->m_engine->handleStartFailed();
@@ -458,7 +456,7 @@ void DebuggerRunControl::startFailed()
 
 void DebuggerRunControl::handleFinished()
 {
-    emit addToOutputWindowInline(this, tr("Debugging has finished"), false);
+    emit addToOutputWindow(this, tr("Debugging has finished"), false, false);
     if (d->m_engine)
         d->m_engine->handleFinished();
     debuggerCore()->runControlFinished(d->m_engine);
@@ -468,10 +466,10 @@ void DebuggerRunControl::showMessage(const QString &msg, int channel)
 {
     switch (channel) {
         case AppOutput:
-            emit addToOutputWindowInline(this, msg, false);
+            emit addToOutputWindow(this, msg, false, true);
             break;
         case AppError:
-            emit addToOutputWindowInline(this, msg, true);
+            emit addToOutputWindow(this, msg, true, true);
             break;
         case AppStuff:
             emit appendMessage(this, msg, true);

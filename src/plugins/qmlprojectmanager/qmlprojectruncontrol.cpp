@@ -126,7 +126,7 @@ void QmlRunControl::slotError(const QString &err, bool isError)
 
 void QmlRunControl::slotAddToOutputWindow(const QString &line, bool onStdErr)
 {
-    emit addToOutputWindowInline(this, line, onStdErr);
+    emit addToOutputWindow(this, line, onStdErr, true);
 }
 
 void QmlRunControl::processExited(int exitCode)

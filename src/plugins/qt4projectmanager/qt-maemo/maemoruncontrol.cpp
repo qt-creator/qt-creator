@@ -119,12 +119,12 @@ void MaemoRunControl::handleRemoteProcessFinished(qint64 exitCode)
 
 void MaemoRunControl::handleRemoteOutput(const QByteArray &output)
 {
-    emit addToOutputWindowInline(this, QString::fromUtf8(output), false);
+    emit addToOutputWindow(this, QString::fromUtf8(output), false, true);
 }
 
 void MaemoRunControl::handleRemoteErrorOutput(const QByteArray &output)
 {
-    emit addToOutputWindowInline(this, QString::fromUtf8(output), true);
+    emit addToOutputWindow(this, QString::fromUtf8(output), true, true);
 }
 
 void MaemoRunControl::handleProgressReport(const QString &progressString)
@@ -134,7 +134,7 @@ void MaemoRunControl::handleProgressReport(const QString &progressString)
 
 void MaemoRunControl::handleMountDebugOutput(const QString &output)
 {
-    emit addToOutputWindowInline(this, output, true);
+    emit addToOutputWindow(this, output, true, true);
 }
 
 bool MaemoRunControl::isRunning() const
