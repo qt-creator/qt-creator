@@ -1339,6 +1339,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
 {
     qRegisterMetaType<WatchData>("WatchData");
     qRegisterMetaType<ContextData>("ContextData");
+    qRegisterMetaType<DebuggerStartParameters>("DebuggerStartParameters");
 
     QTC_ASSERT(!theDebuggerCore, /**/);
     theDebuggerCore = this;
@@ -2500,7 +2501,7 @@ void DebuggerPluginPrivate::runControlStarted(DebuggerEngine *engine)
     activateDebugMode();
     const QString message = tr("Starting debugger '%1' for tool chain '%2'...")
             .arg(engine->objectName())
-            .arg(engine->startParameters().toolChainName());
+            .arg(toolChainName(engine->startParameters()));
     showMessage(message, StatusBar);
     showMessage(m_debuggerSettings->dump(), LogDebug);
     m_snapshotHandler->appendSnapshot(engine);

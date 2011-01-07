@@ -36,12 +36,12 @@
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
+#include "debuggerstartparameters.h"
 #include "moduleshandler.h" // For 'Symbols'
 #include "breakpoint.h" // For 'BreakpointId'
 #include "stackframe.h"
 
 #include <coreplugin/ssh/sshconnection.h>
-
 #include <utils/environment.h>
 
 #include <QtCore/QObject>
@@ -66,59 +66,6 @@ namespace Debugger {
 class DebuggerEnginePrivate;
 class DebuggerRunControl;
 
-class DEBUGGER_EXPORT DebuggerStartParameters
-{
-public:
-    DebuggerStartParameters();
-    QString toolChainName() const;
-
-    QString executable;
-    QString displayName;
-    QString coreFile;
-    bool isSnapshot; // set if created internally
-    QString processArgs;
-    Utils::Environment environment;
-    QString workingDirectory;
-    qint64 attachPID;
-    bool useTerminal;
-
-    // Used by AttachCrashedExternal.
-    QString crashParameter;
-
-    // Used by Qml debugging.
-    QString qmlServerAddress;
-    quint16 qmlServerPort;
-    QString projectBuildDir;
-    QString projectDir;
-
-    // Used by combined cpp+qml debugging.
-    DebuggerEngineType cppEngineType;
-
-    // Used by remote debugging.
-    QString remoteChannel;
-    QString remoteArchitecture;
-    QString gnuTarget;
-    QString symbolFileName;
-    bool useServerStartScript;
-    QString serverStartScript;
-    QString sysRoot;
-    QByteArray remoteDumperLib;
-    QByteArray remoteSourcesDir;
-    QString remoteMountPoint;
-    QString localMountDir;
-    Core::SshConnectionParameters connParams;
-
-    QString debuggerCommand;
-    int toolChainType;
-    QString qtInstallPath;
-
-    QString dumperLibrary;
-    QStringList dumperLibraryLocations;
-    DebuggerStartMode startMode;
-
-    // For Symbian debugging.
-    quint32 executableUid;
-};
 
 DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &);
 DEBUGGER_EXPORT QDebug operator<<(QDebug str, DebuggerState state);
@@ -181,6 +128,7 @@ private:
     quint64 m_address;
 };
 
+QString toolChainName(const DebuggerStartParameters &sp);
 
 } // namespace Internal
 

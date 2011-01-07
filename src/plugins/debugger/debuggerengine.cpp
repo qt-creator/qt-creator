@@ -95,22 +95,9 @@ using namespace TextEditor;
 
 namespace Debugger {
 
-DebuggerStartParameters::DebuggerStartParameters() :
-    isSnapshot(false),
-    attachPID(-1),
-    useTerminal(false),
-    qmlServerAddress("127.0.0.1"),
-    qmlServerPort(0),
-    useServerStartScript(false),
-    connParams(SshConnectionParameters::NoProxy),
-    toolChainType(ToolChain_UNKNOWN),
-    startMode(NoStartMode),
-    executableUid(0)
-{}
-
-QString DebuggerStartParameters::toolChainName() const
+QString toolChainName(const DebuggerStartParameters &sp)
 {
-    return ToolChain::toolChainName(ProjectExplorer::ToolChainType(toolChainType));
+    return ToolChain::toolChainName(ProjectExplorer::ToolChainType(sp.toolChainType));
 }
 
 QDebug operator<<(QDebug d, DebuggerState state)
@@ -136,37 +123,6 @@ QDebug operator<<(QDebug str, const DebuggerStartParameters &sp)
             << " serverStartScript=" << sp.serverStartScript
             << " toolchain=" << sp.toolChainType << '\n';
     return str;
-}
-
-const char *DebuggerEngine::stateName(int s)
-{
-#    define SN(x) case x: return #x;
-    switch (s) {
-        SN(DebuggerNotReady)
-        SN(EngineSetupRequested)
-        SN(EngineSetupOk)
-        SN(EngineSetupFailed)
-        SN(EngineRunFailed)
-        SN(InferiorSetupRequested)
-        SN(InferiorSetupFailed)
-        SN(EngineRunRequested)
-        SN(InferiorRunRequested)
-        SN(InferiorRunOk)
-        SN(InferiorRunFailed)
-        SN(InferiorUnrunnable)
-        SN(InferiorStopRequested)
-        SN(InferiorStopOk)
-        SN(InferiorStopFailed)
-        SN(InferiorShutdownRequested)
-        SN(InferiorShutdownOk)
-        SN(InferiorShutdownFailed)
-        SN(EngineShutdownRequested)
-        SN(EngineShutdownOk)
-        SN(EngineShutdownFailed)
-        SN(DebuggerFinished)
-    }
-    return "<unknown>";
-#    undef SN
 }
 
 
@@ -334,6 +290,37 @@ DebuggerEngine::~DebuggerEngine()
 {
     disconnect();
     delete d;
+}
+
+const char *DebuggerEngine::stateName(int s)
+{
+#    define SN(x) case x: return #x;
+    switch (s) {
+        SN(DebuggerNotReady)
+        SN(EngineSetupRequested)
+        SN(EngineSetupOk)
+        SN(EngineSetupFailed)
+        SN(EngineRunFailed)
+        SN(InferiorSetupRequested)
+        SN(InferiorSetupFailed)
+        SN(EngineRunRequested)
+        SN(InferiorRunRequested)
+        SN(InferiorRunOk)
+        SN(InferiorRunFailed)
+        SN(InferiorUnrunnable)
+        SN(InferiorStopRequested)
+        SN(InferiorStopOk)
+        SN(InferiorStopFailed)
+        SN(InferiorShutdownRequested)
+        SN(InferiorShutdownOk)
+        SN(InferiorShutdownFailed)
+        SN(EngineShutdownRequested)
+        SN(EngineShutdownOk)
+        SN(EngineShutdownFailed)
+        SN(DebuggerFinished)
+    }
+    return "<unknown>";
+#    undef SN
 }
 
 void DebuggerEngine::showStatusMessage(const QString &msg, int timeout) const

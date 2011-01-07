@@ -373,7 +373,7 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
         debuggingFinished();
         // Create Message box with possibility to go to settings.
         const QString msg = tr("Cannot debug '%1' (tool chain: '%2'): %3")
-            .arg(sp.executable, sp.toolChainName(), d->m_errorMessage);
+            .arg(sp.executable, toolChainName(sp), d->m_errorMessage);
         Core::ICore::instance()->showWarningWithOptions(tr("Warning"),
             msg, QString(), QLatin1String(Constants::DEBUGGER_SETTINGS_CATEGORY),
             d->m_settingsIdHint);

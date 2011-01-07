@@ -30,6 +30,7 @@ HEADERS += breakhandler.h \
     debuggermainwindow.h \
     debuggerplugin.h \
     debuggerrunner.h \
+    debuggerstartparameters.h \
     debuggerstreamops.h \
     debuggerstringutils.h \
     debuggertooltip.h \

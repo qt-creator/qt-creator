@@ -32,6 +32,7 @@
 **************************************************************************/
 
 #include "debuggerdialogs.h"
+
 #include "debuggerconstants.h"
 #include "cdb2/cdbengine2.h"
 
