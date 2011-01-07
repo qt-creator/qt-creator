@@ -106,7 +106,7 @@ class DEBUGGER_EXPORT DebuggerRunControl
 public:
     typedef ProjectExplorer::RunConfiguration RunConfiguration;
     DebuggerRunControl(RunConfiguration *runConfiguration,
-        unsigned enabledEngines, const DebuggerStartParameters &sp);
+        const DebuggerStartParameters &sp);
     ~DebuggerRunControl();
 
     // ProjectExplorer::RunControl

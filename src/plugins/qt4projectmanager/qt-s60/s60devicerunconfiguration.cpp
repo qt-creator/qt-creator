@@ -796,6 +796,7 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
     sp.toolChainType = rc->toolChainType();
     sp.executable = debugFileName;
     sp.executableUid = rc->executableUid();
+    sp.enabledEngines = Debugger::GdbEngineType;
 
     QTC_ASSERT(sp.executableUid, return sp);
 
@@ -807,7 +808,7 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
 
 S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc,
                                                    const QString &) :
-    Debugger::DebuggerRunControl(rc, Debugger::GdbEngineType, s60DebuggerStartParams(rc))
+    Debugger::DebuggerRunControl(rc, s60DebuggerStartParams(rc))
 {
     if (startParameters().symbolFileName.isEmpty()) {
         const QString msg = tr("Warning: Cannot locate the symbol file belonging to %1.").

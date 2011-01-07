@@ -104,8 +104,7 @@ class DebuggerRunControlPrivate
 {
 public:
     DebuggerRunControlPrivate(DebuggerRunControl *parent,
-        RunConfiguration *runConfiguration, unsigned enabledEngines);
-    unsigned enabledEngines() const;
+        RunConfiguration *runConfiguration);
 
     DebuggerEngineType engineForExecutable(unsigned enabledEngineTypes,
         const QString &executable);
@@ -117,28 +116,16 @@ public:
     DebuggerEngine *m_engine;
     const QWeakPointer<RunConfiguration> m_myRunConfiguration;
     bool m_running;
-    const unsigned m_cmdLineEnabledEngines;
     QString m_errorMessage;
     QString m_settingsIdHint;
 };
 
-unsigned DebuggerRunControlPrivate::enabledEngines() const
-{
-    unsigned rc = m_cmdLineEnabledEngines;
-#ifdef CDB_ENABLED
-    if (!isCdbEngineEnabled() && !Cdb::isCdbEngineEnabled())
-        rc &= ~CdbEngineType;
-#endif
-    return rc;
-}
-
 DebuggerRunControlPrivate::DebuggerRunControlPrivate(DebuggerRunControl *parent,
-        RunConfiguration *runConfiguration, unsigned enabledEngines)
+        RunConfiguration *runConfiguration)
     : q(parent)
     , m_engine(0)
     , m_myRunConfiguration(runConfiguration)
     , m_running(false)
-    , m_cmdLineEnabledEngines(enabledEngines)
 {
 }
 
@@ -261,10 +248,20 @@ static DebuggerEngineType engineForToolChain(ToolChainType toolChainType)
     return NoEngineType;
 }
 
+
+unsigned filterEngines(unsigned enabledEngineTypes)
+{
+#ifdef CDB_ENABLED
+    if (!isCdbEngineEnabled() && !Cdb::isCdbEngineEnabled())
+       enabledEngineTypes &= ~CdbEngineType;
+#endif
+    return enabledEngineTypes;
+}
+
 DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
-        unsigned enabledEngines, const DebuggerStartParameters &startParams)
+        const DebuggerStartParameters &startParams)
     : RunControl(runConfiguration, Constants::DEBUGMODE),
-      d(new DebuggerRunControlPrivate(this, runConfiguration, enabledEngines))
+      d(new DebuggerRunControlPrivate(this, runConfiguration))
 {
     connect(this, SIGNAL(finished()), SLOT(handleFinished()));
 
@@ -272,7 +269,8 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
     DebuggerEngineType engineType = NoEngineType;
     DebuggerLanguages activeLangs = debuggerCore()->activeLanguages();
     DebuggerStartParameters sp = startParams;
-    const unsigned enabledEngineTypes = d->enabledEngines();
+    unsigned enabledEngineTypes = filterEngines(sp.enabledEngines);
+
     if (sp.executable.endsWith(_(".js")))
         engineType = ScriptEngineType;
     else if (sp.executable.endsWith(_(".py")))
@@ -629,8 +627,10 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget
 }
 
 DebuggerRunControl *DebuggerRunControlFactory::create
-    (const DebuggerStartParameters &sp, RunConfiguration *runConfiguration)
+    (const DebuggerStartParameters &sp0, RunConfiguration *runConfiguration)
 {
+    DebuggerStartParameters sp = sp0;
+    sp.enabledEngines = m_enabledEngines;
     ConfigurationCheck check = checkDebugConfiguration(sp.toolChainType);
 
     if (!check) {
@@ -641,7 +641,7 @@ DebuggerRunControl *DebuggerRunControlFactory::create
     }
 
     DebuggerRunControl *runControl =
-        new DebuggerRunControl(runConfiguration, m_enabledEngines, sp);
+        new DebuggerRunControl(runConfiguration, sp);
     if (runControl->d->m_engine)
         return runControl;
     delete runControl;
