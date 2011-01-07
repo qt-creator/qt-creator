@@ -60,12 +60,13 @@ namespace Internal {
 
 /*!
    \struct ManagerPrivate
+   \internal
    \brief Private class data for \a Manager
    \sa Manager
  */
 struct ManagerPrivate
 {
-    ManagerPrivate() : state(false) {}
+    ManagerPrivate() : state(false), disableCodeParser(false) {}
 
     //! instance
     static Manager *instance;
@@ -76,14 +77,14 @@ struct ManagerPrivate
     //! State mutex
     QMutex mutexState;
 
-    //! Internal manager state. \sa Manager::state
-    bool state;
-
     //! code state/changes parser
     Parser parser;
 
     //! separate thread for the parser
     QThread parserThread;
+
+    //! Internal manager state. \sa Manager::state
+    bool state;
 
     //! there is some massive operation ongoing so temporary we should wait
     bool disableCodeParser;
