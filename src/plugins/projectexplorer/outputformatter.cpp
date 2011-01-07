@@ -53,8 +53,7 @@ OutputFormatter::OutputFormatter()
 
 OutputFormatter::~OutputFormatter()
 {
-    if (m_formats)
-        delete[] m_formats;
+    delete[] m_formats;
 }
 
 QPlainTextEdit *OutputFormatter::plainTextEdit() const
@@ -68,21 +67,14 @@ void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
     initFormats();
 }
 
-void OutputFormatter::appendApplicationOutput(const QString &text, bool onStdErr)
+void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
 {
     QTextCursor cursor(m_plainTextEdit->document());
     cursor.movePosition(QTextCursor::End);
-    cursor.insertText(text, format(onStdErr ? StdErrFormat : StdOutFormat));
+    cursor.insertText(text, m_formats[format]);
 }
 
-void OutputFormatter::appendMessage(const QString &text, bool isError)
-{
-    QTextCursor cursor(m_plainTextEdit->document());
-    cursor.movePosition(QTextCursor::End);
-    cursor.insertText(text, format(isError ? ErrorMessageFormat : NormalMessageFormat));
-}
-
-QTextCharFormat OutputFormatter::format(Format format)
+QTextCharFormat OutputFormatter::format(OutputFormat format) const
 {
     return m_formats[format];
 }

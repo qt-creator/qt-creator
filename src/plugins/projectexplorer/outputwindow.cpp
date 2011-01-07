@@ -631,7 +631,7 @@ void OutputWindow::appendApplicationOutput(const QString &output, bool onStdErr)
     out.remove(QLatin1Char('\r'));
     setMaximumBlockCount(MaxBlockCount);
     const bool atBottom = isScrollbarAtBottom();
-    m_formatter->appendApplicationOutput(doNewlineEnfocement(out), onStdErr);
+    m_formatter->appendMessage(doNewlineEnfocement(out), onStdErr ? StdErrFormat : StdOutFormat);
     if (atBottom)
         scrollToBottom();
     enableUndoRedo();
@@ -653,7 +653,7 @@ void OutputWindow::appendApplicationOutputInline(const QString &output, bool onS
         newline = out.indexOf(QLatin1Char('\n'));
         moveCursor(QTextCursor::End);
         if (newline != -1)
-            m_formatter->appendApplicationOutput(out.left(newline), onStdErr); // doesn't enforce new paragraph like appendPlainText
+            m_formatter->appendMessage(out.left(newline), onStdErr ? StdErrFormat : StdOutFormat); // doesn't enforce new paragraph like appendPlainText
     }
 
     QString s = out.mid(newline+1);
@@ -664,7 +664,7 @@ void OutputWindow::appendApplicationOutputInline(const QString &output, bool onS
             m_enforceNewline = true;
             s.chop(1);
         }
-        m_formatter->appendApplicationOutput(QLatin1Char('\n') + s, onStdErr);
+        m_formatter->appendMessage(QLatin1Char('\n') + s, onStdErr ? StdErrFormat : StdOutFormat);
     }
 
     if (atBottom)
@@ -678,7 +678,7 @@ void OutputWindow::appendMessage(const QString &output, bool isError)
     out.remove(QLatin1Char('\r'));
     setMaximumBlockCount(MaxBlockCount);
     const bool atBottom = isScrollbarAtBottom();
-    m_formatter->appendMessage(doNewlineEnfocement(out), isError);
+    m_formatter->appendMessage(doNewlineEnfocement(out), isError ? ErrorMessageFormat : NormalMessageFormat);
     if (atBottom)
         scrollToBottom();
     enableUndoRedo();

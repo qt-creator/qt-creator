@@ -45,6 +45,15 @@ QT_FORWARD_DECLARE_CLASS(QColor)
 
 namespace ProjectExplorer {
 
+enum OutputFormat
+{
+    NormalMessageFormat,
+    ErrorMessageFormat,
+    StdOutFormat,
+    StdErrFormat,
+    NumberOfFormats // Keep this entry last.
+};
+
 class PROJECTEXPLORER_EXPORT OutputFormatter: public QObject
 {
     Q_OBJECT
@@ -56,24 +65,13 @@ public:
     QPlainTextEdit *plainTextEdit() const;
     void setPlainTextEdit(QPlainTextEdit *plainText);
 
-    virtual void appendApplicationOutput(const QString &text, bool onStdErr);
-    virtual void appendMessage(const QString &text, bool isError);
-
+    virtual void appendMessage(const QString &text, OutputFormat format);
     virtual void handleLink(const QString &href);
 
 protected:
-    enum Format {
-        NormalMessageFormat = 0,
-        ErrorMessageFormat = 1,
-        StdOutFormat = 2,
-        StdErrFormat = 3,
-
-        NumberOfFormats = 4
-    };
-
     void initFormats();
     void clearLastLine();
-    QTextCharFormat format(Format format);
+    QTextCharFormat format(OutputFormat format) const;
 
     static QColor mixColors(const QColor &a, const QColor &b);
 
