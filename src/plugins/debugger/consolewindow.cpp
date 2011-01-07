@@ -70,7 +70,7 @@ static QChar charForChannel(int channel)
     }
 }
 
-static LogChannel channelForChar(QChar c)
+static int channelForChar(QChar c)
 {
     switch (c.unicode()) {
         case 'd': return LogDebug;
