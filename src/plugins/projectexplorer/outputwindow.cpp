@@ -246,6 +246,8 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
             this, SLOT(runControlStarted()));
     connect(rc, SIGNAL(finished()),
             this, SLOT(runControlFinished()));
+    connect(rc, SIGNAL(appendMessage(ProjectExplorer::RunControl*,QString,ProjectExplorer::OutputFormat)),
+            this, SLOT(appendMessage(ProjectExplorer::RunControl*,QString,ProjectExplorer::OutputFormat)));
 
     // First look if we can reuse a tab
     const int size = m_runControlTabs.size();

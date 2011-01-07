@@ -1386,13 +1386,7 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QStrin
     if (runMode == ProjectExplorer::Constants::RUNMODE)
         d->m_outputPane->popup(false);
     d->m_outputPane->showTabFor(runControl);
-
-    connect(runControl, SIGNAL(appendMessage(ProjectExplorer::RunControl*,QString,ProjectExplorer::OutputFormat)),
-            d->m_outputPane, SLOT(appendMessage(ProjectExplorer::RunControl*,QString,ProjectExplorer::OutputFormat)));
-
-    connect(runControl, SIGNAL(finished()),
-            this, SLOT(runControlFinished()));
-
+    connect(runControl, SIGNAL(finished()), this, SLOT(runControlFinished()));
     runControl->start();
     emit updateRunActions();
 }

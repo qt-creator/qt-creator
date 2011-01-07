@@ -89,6 +89,7 @@ public:
     void goToPrev();
     bool canNavigate();
 
+    void createNewOutputWindow(RunControl *rc);
     void showTabFor(RunControl *rc);
 
     bool aboutToClose() const;
@@ -99,7 +100,6 @@ signals:
 
 public slots:
     // ApplicationOutput specifics
-    void createNewOutputWindow(RunControl *rc);
     void projectRemoved();
 
     void appendMessage(ProjectExplorer::RunControl *rc, const QString &out,
