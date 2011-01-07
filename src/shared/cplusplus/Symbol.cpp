@@ -373,6 +373,12 @@ bool Symbol::isClass() const
 bool Symbol::isForwardClassDeclaration() const
 { return asForwardClassDeclaration() != 0; }
 
+bool Symbol::isQtPropertyDeclaration() const
+{ return asQtPropertyDeclaration() != 0; }
+
+bool Symbol::isQtEnum() const
+{ return asQtEnum() != 0; }
+
 bool Symbol::isBlock() const
 { return asBlock() != 0; }
 

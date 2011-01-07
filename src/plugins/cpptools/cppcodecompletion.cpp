@@ -1675,12 +1675,15 @@ void CppCodeCompletion::completeClass(ClassOrNamespace *b, bool staticLookup)
 
             for (Scope::iterator it = scope->firstMember(); it != scope->lastMember(); ++it) {
                 Symbol *member = *it;
-                if (member->isFriend())
+                if (member->isFriend()
+                        || member->isQtPropertyDeclaration()
+                        || member->isQtEnum()) {
                     continue;
-                else if (! staticLookup && (member->isTypedef() ||
+                } else if (! staticLookup && (member->isTypedef() ||
                                             member->isEnum()    ||
-                                            member->isClass()))
+                                            member->isClass())) {
                     continue;
+                }
 
                 addCompletionItem(member);
             }
