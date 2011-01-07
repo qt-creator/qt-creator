@@ -36,6 +36,7 @@
 
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
+#include "outputformat.h"
 
 #include <QtCore/QMetaType>
 #include <QtCore/QWeakPointer>
@@ -201,8 +202,8 @@ public:
     QString runMode() const;
 
 signals:
-    void addToOutputWindow(ProjectExplorer::RunControl *, const QString &line, bool onStdErr, bool sameLine);
-    void appendMessage(ProjectExplorer::RunControl *, const QString &error, bool isError);
+    void appendMessage(ProjectExplorer::RunControl *, const QString &error,
+        ProjectExplorer::OutputFormat);
     void started();
     void finished();
 

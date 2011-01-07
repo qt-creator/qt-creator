@@ -58,8 +58,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-using ProjectExplorer::RunConfiguration;
-using ProjectExplorer::RunControl;
+using namespace ProjectExplorer;
 
 namespace QmlProjectManager {
 namespace Internal {
@@ -77,10 +76,8 @@ QmlRunControl::QmlRunControl(QmlProjectRunConfiguration *runConfiguration, QStri
     }
     m_commandLineArguments = runConfiguration->viewerArguments();
 
-    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,bool)),
-            this, SLOT(slotError(QString, bool)));
-    connect(&m_applicationLauncher, SIGNAL(appendOutput(QString, bool)),
-            this, SLOT(slotAddToOutputWindow(QString, bool)));
+    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,ProjectExplorer::OutputFormat)),
+            this, SLOT(slotAppendMessage(QString, ProjectExplorer::OutputFormat)));
     connect(&m_applicationLauncher, SIGNAL(processExited(int)),
             this, SLOT(processExited(int)));
     connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
@@ -94,12 +91,13 @@ QmlRunControl::~QmlRunControl()
 
 void QmlRunControl::start()
 {
-    m_applicationLauncher.start(ProjectExplorer::ApplicationLauncher::Gui, m_executable,
+    m_applicationLauncher.start(ApplicationLauncher::Gui, m_executable,
                                 m_commandLineArguments);
 
     emit started();
-    emit appendMessage(this, tr("Starting %1 %2").arg(QDir::toNativeSeparators(m_executable),
-                                                      m_commandLineArguments), false);
+    QString msg = tr("Starting %1 %2")
+        .arg(QDir::toNativeSeparators(m_executable), m_commandLineArguments);
+    appendMessage(this, msg, NormalMessageFormat);
 }
 
 RunControl::StopResult QmlRunControl::stop()
@@ -118,20 +116,16 @@ void QmlRunControl::slotBringApplicationToForeground(qint64 pid)
     bringApplicationToForeground(pid);
 }
 
-void QmlRunControl::slotError(const QString &err, bool isError)
+void QmlRunControl::slotAppendMessage(const QString &line, OutputFormat format)
 {
-    emit appendMessage(this, err, isError);
-    emit finished();
-}
-
-void QmlRunControl::slotAddToOutputWindow(const QString &line, bool onStdErr)
-{
-    emit addToOutputWindow(this, line, onStdErr, true);
+    emit appendMessage(this, line, format);
 }
 
 void QmlRunControl::processExited(int exitCode)
 {
-    emit appendMessage(this, tr("%1 exited with code %2").arg(QDir::toNativeSeparators(m_executable)).arg(exitCode), exitCode != 0);
+    QString msg = tr("%1 exited with code %2")
+        .arg(QDir::toNativeSeparators(m_executable)).arg(exitCode);
+    emit appendMessage(this, msg, exitCode ? ErrorMessageFormat : NormalMessageFormat);
     emit finished();
 }
 
@@ -195,7 +189,7 @@ QWidget *QmlRunControlFactory::createConfigurationWidget(RunConfiguration *runCo
     return new QLabel("TODO add Configuration widget");
 }
 
-ProjectExplorer::RunControl *QmlRunControlFactory::createDebugRunControl(QmlProjectRunConfiguration *runConfig)
+RunControl *QmlRunControlFactory::createDebugRunControl(QmlProjectRunConfiguration *runConfig)
 {
     Debugger::DebuggerStartParameters params;
     params.startMode = Debugger::StartInternal;

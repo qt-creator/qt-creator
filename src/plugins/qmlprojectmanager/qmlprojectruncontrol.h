@@ -58,8 +58,7 @@ public:
 private slots:
     void processExited(int exitCode);
     void slotBringApplicationToForeground(qint64 pid);
-    void slotAddToOutputWindow(const QString &line, bool onStdErr);
-    void slotError(const QString &error, bool isError);
+    void slotAppendMessage(const QString &line, ProjectExplorer::OutputFormat);
 
 private:
     ProjectExplorer::ApplicationLauncher m_applicationLauncher;

@@ -51,12 +51,12 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
     : QObject(parent), d(new ApplicationLauncherPrivate)
 {
     connect(&d->m_consoleProcess, SIGNAL(processMessage(QString,bool)),
-            this, SIGNAL(appendMessage(QString,bool)));
+            this, SIGNAL(appendWinMessage(QString,bool)));
     connect(&d->m_consoleProcess, SIGNAL(processStopped()),
             this, SLOT(processStopped()));
 
     connect(&d->m_winGuiProcess, SIGNAL(processMessage(QString, bool)),
-        this, SIGNAL(appendMessage(QString,bool)));
+        this, SIGNAL(appendWinMessage(QString,bool)));
     connect(&d->m_winGuiProcess, SIGNAL(receivedDebugOutput(QString, bool)),
         this, SLOT(readWinDebugOutput(QString, bool)));
     connect(&d->m_winGuiProcess, SIGNAL(processFinished(int)),
@@ -123,10 +123,16 @@ qint64 ApplicationLauncher::applicationPID() const
     return result;
 }
 
+void ApplicationLauncher::appendWinMessage(const QString &output,
+                                           bool onStdErr)
+{
+    emit appendMessage(output, onStdErr ? ErrorMessageFormat : NormalMessageFormat);
+}
+
 void ApplicationLauncher::readWinDebugOutput(const QString &output,
                                              bool onStdErr)
 {
-    emit appendOutput(output, onStdErr);
+    emit appendMessage(output, onStdErr ? StdErrFormat : StdOutFormat);
 }
 
 void ApplicationLauncher::processStopped()

@@ -45,6 +45,7 @@
 #include <QtGui/QMessageBox>
 
 using namespace Core;
+using namespace ProjectExplorer;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -85,7 +86,7 @@ void MaemoRunControl::start()
     m_runner->start();
 }
 
-ProjectExplorer::RunControl::StopResult MaemoRunControl::stop()
+RunControl::StopResult MaemoRunControl::stop()
 {
     m_runner->stop();
     return StoppedSynchronously;
@@ -99,7 +100,7 @@ void MaemoRunControl::handleSshError(const QString &error)
 
 void MaemoRunControl::startExecution()
 {
-    emit appendMessage(this, tr("Starting remote process ..."), false);
+    emit appendMessage(this, tr("Starting remote process ..."), NormalMessageFormat);
     m_runner->startExecution(QString::fromLocal8Bit("%1 %2 %3 %4")
         .arg(MaemoGlobal::remoteCommandPrefix(m_runner->remoteExecutable()))
         .arg(MaemoGlobal::remoteEnvironment(m_runner->userEnvChanges()))
@@ -112,29 +113,29 @@ void MaemoRunControl::handleRemoteProcessFinished(qint64 exitCode)
     if (exitCode != MaemoSshRunner::InvalidExitCode) {
         emit appendMessage(this,
             tr("Finished running remote process. Exit code was %1.")
-            .arg(exitCode), false);
+            .arg(exitCode), NormalMessageFormat);
     }
     setFinished();
 }
 
 void MaemoRunControl::handleRemoteOutput(const QByteArray &output)
 {
-    emit addToOutputWindow(this, QString::fromUtf8(output), false, true);
+    emit appendMessage(this, QString::fromUtf8(output), StdOutFormatSameLine);
 }
 
 void MaemoRunControl::handleRemoteErrorOutput(const QByteArray &output)
 {
-    emit addToOutputWindow(this, QString::fromUtf8(output), true, true);
+    emit appendMessage(this, QString::fromUtf8(output), StdErrFormatSameLine);
 }
 
 void MaemoRunControl::handleProgressReport(const QString &progressString)
 {
-    emit appendMessage(this, progressString, false);
+    emit appendMessage(this, progressString, NormalMessageFormat);
 }
 
 void MaemoRunControl::handleMountDebugOutput(const QString &output)
 {
-    emit addToOutputWindow(this, output, true, true);
+    emit appendMessage(this, output, StdErrFormatSameLine);
 }
 
 bool MaemoRunControl::isRunning() const
@@ -145,7 +146,7 @@ bool MaemoRunControl::isRunning() const
 void MaemoRunControl::handleError(const QString &errString)
 {
     stop();
-    emit appendMessage(this, errString, true);
+    emit appendMessage(this, errString, ErrorMessageFormat);
     QMessageBox::critical(0, tr("Remote Execution Failure"), errString);
 }
 

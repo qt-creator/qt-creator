@@ -35,6 +35,7 @@
 #define APPLICATIONLAUNCHER_H
 
 #include "projectexplorer_export.h"
+#include "outputformat.h"
 
 #include <QtCore/QProcess>
 
@@ -68,8 +69,7 @@ public:
     qint64 applicationPID() const;
 
 signals:
-    void appendMessage(const QString &message, bool isError);
-    void appendOutput(const QString &line, bool onStdErr);
+    void appendMessage(const QString &message, ProjectExplorer::OutputFormat format);
     void processExited(int exitCode);
     void bringToForegroundRequested(qint64 pid);
 
@@ -77,6 +77,7 @@ private slots:
     void processStopped();
 #ifdef Q_OS_WIN
     void readWinDebugOutput(const QString &output, bool onStdErr);
+    void appendWinMessage(const QString &output, bool onStdErr);
     void processFinished(int exitCode);
 #else
     void guiProcessError();

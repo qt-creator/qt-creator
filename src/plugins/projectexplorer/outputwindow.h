@@ -34,6 +34,7 @@
 #ifndef OUTPUTWINDOW_H
 #define OUTPUTWINDOW_H
 
+#include "outputformat.h"
 #include <coreplugin/ioutputpane.h>
 
 #include <QtGui/QPlainTextEdit>
@@ -101,9 +102,8 @@ public slots:
     void createNewOutputWindow(RunControl *rc);
     void projectRemoved();
 
-    void appendApplicationOutput(ProjectExplorer::RunControl *rc, const QString &out,
-                                 bool onStdErr, bool sameLine);
-    void appendMessage(ProjectExplorer::RunControl *rc, const QString &out, bool isError);
+    void appendMessage(ProjectExplorer::RunControl *rc, const QString &out,
+                       ProjectExplorer::OutputFormat format);
 
 private slots:
     void reRunRunControl();
@@ -155,8 +155,7 @@ public:
     OutputFormatter* formatter() const;
     void setFormatter(OutputFormatter *formatter);
 
-    void appendApplicationOutput(const QString &out, bool onStdErr, bool sameLine);
-    void appendMessage(const QString &out, bool isError);
+    void appendMessage(const QString &out, OutputFormat format);
     /// appends a \p text using \p format without using formater
     void appendText(const QString &text, const QTextCharFormat &format, int maxLineCount);
 

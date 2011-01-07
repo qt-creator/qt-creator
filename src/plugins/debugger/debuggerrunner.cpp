@@ -52,6 +52,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/outputformat.h>
 #include <projectexplorer/applicationrunconfiguration.h> // For LocalApplication*
 
 #include <utils/synchronousprocess.h>
@@ -443,12 +444,12 @@ void DebuggerRunControl::start()
     d->m_engine->startDebugger(this);
 
     if (d->m_running)
-        emit addToOutputWindow(this, tr("Debugging starts"), false, false);
+        emit appendMessage(this, tr("Debugging starts"), NormalMessageFormat);
 }
 
 void DebuggerRunControl::startFailed()
 {
-    emit addToOutputWindow(this, tr("Debugging has failed"), false, false);
+    emit appendMessage(this, tr("Debugging has failed"), NormalMessageFormat);
     d->m_running = false;
     emit finished();
     d->m_engine->handleStartFailed();
@@ -456,7 +457,7 @@ void DebuggerRunControl::startFailed()
 
 void DebuggerRunControl::handleFinished()
 {
-    emit addToOutputWindow(this, tr("Debugging has finished"), false, false);
+    emit appendMessage(this, tr("Debugging has finished"), NormalMessageFormat);
     if (d->m_engine)
         d->m_engine->handleFinished();
     debuggerCore()->runControlFinished(d->m_engine);
@@ -466,13 +467,13 @@ void DebuggerRunControl::showMessage(const QString &msg, int channel)
 {
     switch (channel) {
         case AppOutput:
-            emit addToOutputWindow(this, msg, false, true);
+            emit appendMessage(this, msg, StdOutFormatSameLine);
             break;
         case AppError:
-            emit addToOutputWindow(this, msg, true, true);
+            emit appendMessage(this, msg, StdErrFormatSameLine);
             break;
         case AppStuff:
-            emit appendMessage(this, msg, true);
+            emit appendMessage(this, msg, NormalMessageFormat);
             break;
     }
 }

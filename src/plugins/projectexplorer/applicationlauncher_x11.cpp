@@ -161,23 +161,24 @@ void ApplicationLauncher::guiProcessError()
     default:
         error = tr("Some error has occurred while running the program.");
     }
-    emit appendMessage(error, true);
+    emit appendMessage(error, ErrorMessageFormat);
+    emit processExited(d->m_guiProcess.exitCode());
 }
 
 void ApplicationLauncher::readStandardOutput()
 {
     QByteArray data = d->m_guiProcess.readAllStandardOutput();
-    emit appendOutput(d->m_outputCodec->toUnicode(
-            data.constData(), data.length(), &d->m_outputCodecState),
-                      false);
+    QString msg = d->m_outputCodec->toUnicode(
+            data.constData(), data.length(), &d->m_outputCodecState);
+    emit appendMessage(msg, StdOutFormatSameLine);
 }
 
 void ApplicationLauncher::readStandardError()
 {
     QByteArray data = d->m_guiProcess.readAllStandardError();
-    emit appendOutput(d->m_outputCodec->toUnicode(
-            data.constData(), data.length(), &d->m_errorCodecState),
-                      true);
+    QString msg = d->m_outputCodec->toUnicode(
+            data.constData(), data.length(), &d->m_outputCodecState);
+    emit appendMessage(msg, StdErrFormatSameLine);
 }
 
 void ApplicationLauncher::processStopped()
