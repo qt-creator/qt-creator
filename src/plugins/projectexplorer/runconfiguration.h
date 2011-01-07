@@ -209,6 +209,7 @@ signals:
 
 public slots:
     void bringApplicationToForeground(qint64 pid);
+    void appendMessage(const QString &error, ProjectExplorer::OutputFormat);
 
 private slots:
     void bringApplicationToForegroundInternal();

@@ -78,13 +78,18 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
 
     d->m_consoleProcess.setSettings(Core::ICore::instance()->settings());
     connect(&d->m_consoleProcess, SIGNAL(processMessage(QString,bool)),
-            this, SIGNAL(appendMessage(QString,bool)));
+            this, SLOT(appendProcessMessage(QString,bool)));
     connect(&d->m_consoleProcess, SIGNAL(processStopped()),
             this, SLOT(processStopped()));
 }
 
 ApplicationLauncher::~ApplicationLauncher()
 {
+}
+
+void ApplicationLauncher::appendProcessMessage(const QString &output, bool onStdErr)
+{
+    emit appendMessage(output, onStdErr ? ErrorMessageFormat : NormalMessageFormat);
 }
 
 void ApplicationLauncher::setWorkingDirectory(const QString &dir)
