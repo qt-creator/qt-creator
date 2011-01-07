@@ -542,12 +542,12 @@ void S60DeviceRunControl::start()
     if (m_serialPortName.isEmpty()) {
         m_launchProgress->reportCanceled();
         QString msg = tr("No device is connected. Please connect a device and try again.");
-        appendMessage(this, msg, NormalMessageFormat);
+        appendMessage(msg, NormalMessageFormat);
         emit finished();
         return;
     }
 
-    emit appendMessage(this, tr("Executable file: %1").arg(msgListFile(m_executableFileName)),
+    appendMessage(tr("Executable file: %1").arg(msgListFile(m_executableFileName)),
         NormalMessageFormat);
 
     QString errorMessage;
@@ -555,7 +555,7 @@ void S60DeviceRunControl::start()
     QString settingsPage;
     if (!checkConfiguration(&errorMessage, &settingsCategory, &settingsPage)) {
         m_launchProgress->reportCanceled();
-        appendMessage(this, errorMessage, ErrorMessageFormat);
+        appendMessage(errorMessage, ErrorMessageFormat);
         emit finished();
         Core::ICore::instance()->showWarningWithOptions(tr("Debugger for Symbian Platform"),
                                                         errorMessage, QString(),
@@ -588,7 +588,7 @@ void S60DeviceRunControl::startLaunching()
                     m_launchProgress->setProgressValue(PROGRESS_MAX/2);
     } else {
         if (!errorMessage.isEmpty())
-            appendMessage(this, errorMessage, ErrorMessageFormat);
+            appendMessage(errorMessage, ErrorMessageFormat);
         stop();
         emit finished();
     }
@@ -629,7 +629,7 @@ bool S60DeviceRunControl::setupLauncher(QString &errorMessage)
 
 void S60DeviceRunControl::printConnectFailed(const QString &errorMessage)
 {
-    emit appendMessage(this, tr("Could not connect to App TRK on device: %1. Restarting App TRK might help.").arg(errorMessage),
+    appendMessage(tr("Could not connect to App TRK on device: %1. Restarting App TRK might help.").arg(errorMessage),
         ErrorMessageFormat);
 }
 
@@ -652,7 +652,7 @@ void S60DeviceRunControl::reportDeployFinished()
 
 void S60DeviceRunControl::processStopped(uint pc, uint pid, uint tid, const QString &reason)
 {
-    appendMessage(this, trk::Launcher::msgStopped(pid, tid, pc, reason), StdOutFormat);
+    appendMessage(trk::Launcher::msgStopped(pid, tid, pc, reason), StdOutFormat);
     m_launcher->terminate();
 }
 
@@ -683,7 +683,7 @@ void S60DeviceRunControl::slotWaitingForTrkClosed()
 {
     if (m_launcher && m_launcher->state() == trk::Launcher::WaitingForTrk) {
         stop();
-        appendMessage(this, tr("Canceled."), ErrorMessageFormat);
+        appendMessage(tr("Canceled."), ErrorMessageFormat);
         emit finished();
     }
 }
@@ -695,7 +695,7 @@ void S60DeviceRunControl::printApplicationOutput(const QString &output)
 
 void S60DeviceRunControl::printApplicationOutput(const QString &output, bool onStdErr)
 {
-    appendMessage(this, output, onStdErr ? StdErrFormat : StdOutFormat);
+    appendMessage(output, onStdErr ? StdErrFormat : StdOutFormat);
 }
 
 void S60DeviceRunControl::deviceRemoved(const SymbianUtils::SymbianDevice &d)
@@ -705,7 +705,7 @@ void S60DeviceRunControl::deviceRemoved(const SymbianUtils::SymbianDevice &d)
         m_launcher->deleteLater();
         m_launcher = 0;
         QString msg = tr("The device '%1' has been disconnected").arg(d.friendlyName());
-        appendMessage(this, msg, ErrorMessageFormat);
+        appendMessage(msg, ErrorMessageFormat);
         emit finished();
     }
 }
@@ -730,24 +730,24 @@ void S60DeviceRunControl::initLauncher(const QString &executable, trk::Launcher 
 void S60DeviceRunControl::handleLauncherFinished()
 {
      emit finished();
-     emit appendMessage(this, tr("Finished."), NormalMessageFormat);
+     appendMessage(tr("Finished."), NormalMessageFormat);
  }
 
 void S60DeviceRunControl::printStartingNotice()
 {
-    emit appendMessage(this, tr("Starting application..."), NormalMessageFormat);
+    appendMessage(tr("Starting application..."), NormalMessageFormat);
 }
 
 void S60DeviceRunControl::applicationRunNotice(uint pid)
 {
-    emit appendMessage(this, tr("Application running with pid %1.").arg(pid), NormalMessageFormat);
+    appendMessage(tr("Application running with pid %1.").arg(pid), NormalMessageFormat);
     if (m_launchProgress)
         m_launchProgress->setProgressValue(PROGRESS_MAX);
 }
 
 void S60DeviceRunControl::applicationRunFailedNotice(const QString &errorMessage)
 {
-    emit appendMessage(this, tr("Could not start application: %1").arg(errorMessage), NormalMessageFormat);
+    appendMessage(tr("Could not start application: %1").arg(errorMessage), NormalMessageFormat);
 }
 
 // ======== S60DeviceDebugRunControl
@@ -812,7 +812,7 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc
     if (startParameters().symbolFileName.isEmpty()) {
         const QString msg = tr("Warning: Cannot locate the symbol file belonging to %1.").
                                arg(localExecutable(rc));
-        emit appendMessage(this, msg, ErrorMessageFormat);
+        appendMessage(msg, ErrorMessageFormat);
     }
 }
 
@@ -823,7 +823,7 @@ void S60DeviceDebugRunControl::start()
     QString settingsPage;
     if (!Debugger::DebuggerRunControl::checkDebugConfiguration(startParameters().toolChainType,
                                                                &errorMessage, &settingsCategory, &settingsPage)) {
-        appendMessage(this, errorMessage, ErrorMessageFormat);
+        appendMessage(errorMessage, ErrorMessageFormat);
         emit finished();
         Core::ICore::instance()->showWarningWithOptions(tr("Debugger for Symbian Platform"),
                                                         errorMessage, QString(),
@@ -831,6 +831,6 @@ void S60DeviceDebugRunControl::start()
         return;
     }
 
-    emit appendMessage(this, tr("Launching debugger..."), NormalMessageFormat);
+    appendMessage(tr("Launching debugger..."), NormalMessageFormat);
     Debugger::DebuggerRunControl::start();
 }

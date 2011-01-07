@@ -445,12 +445,12 @@ void DebuggerRunControl::start()
     d->m_engine->startDebugger(this);
 
     if (d->m_running)
-        emit appendMessage(this, tr("Debugging starts"), NormalMessageFormat);
+        appendMessage(tr("Debugging starts"), NormalMessageFormat);
 }
 
 void DebuggerRunControl::startFailed()
 {
-    emit appendMessage(this, tr("Debugging has failed"), NormalMessageFormat);
+    appendMessage(tr("Debugging has failed"), NormalMessageFormat);
     d->m_running = false;
     emit finished();
     d->m_engine->handleStartFailed();
@@ -458,7 +458,7 @@ void DebuggerRunControl::startFailed()
 
 void DebuggerRunControl::handleFinished()
 {
-    emit appendMessage(this, tr("Debugging has finished"), NormalMessageFormat);
+    appendMessage(tr("Debugging has finished"), NormalMessageFormat);
     if (d->m_engine)
         d->m_engine->handleFinished();
     debuggerCore()->runControlFinished(d->m_engine);
@@ -468,13 +468,13 @@ void DebuggerRunControl::showMessage(const QString &msg, int channel)
 {
     switch (channel) {
         case AppOutput:
-            emit appendMessage(this, msg, StdOutFormatSameLine);
+            appendMessage(msg, StdOutFormatSameLine);
             break;
         case AppError:
-            emit appendMessage(this, msg, StdErrFormatSameLine);
+            appendMessage(msg, StdErrFormatSameLine);
             break;
         case AppStuff:
-            emit appendMessage(this, msg, NormalMessageFormat);
+            appendMessage(msg, NormalMessageFormat);
             break;
     }
 }
@@ -648,7 +648,7 @@ DebuggerRunControl *DebuggerRunControlFactory::create
 
     if (!DebuggerRunControl::checkDebugConfiguration(sp.toolChainType,
             &errorMessage, &settingsCategory, &settingsPage)) {
-        //emit appendMessage(this, errorMessage, true);
+        //appendMessage(errorMessage, true);
         Core::ICore::instance()->showWarningWithOptions(tr("Debugger"),
             errorMessage, QString(), settingsCategory, settingsPage);
         return 0;

@@ -108,7 +108,7 @@ void LocalApplicationRunControl::start()
     emit started();
 
     QString msg = tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable));
-    emit appendMessage(this, msg, NormalMessageFormat);
+    appendMessage(msg, NormalMessageFormat);
 }
 
 LocalApplicationRunControl::StopResult LocalApplicationRunControl::stop()
@@ -125,14 +125,14 @@ bool LocalApplicationRunControl::isRunning() const
 void LocalApplicationRunControl::slotAppendMessage(const QString &err,
                                                    OutputFormat format)
 {
-    emit appendMessage(this, err, format);
+    appendMessage(err, format);
 }
 
 void LocalApplicationRunControl::processExited(int exitCode)
 {
     QString msg = tr("%1 exited with code %2")
         .arg(QDir::toNativeSeparators(m_executable)).arg(exitCode);
-    emit appendMessage(this, msg, ErrorMessageFormat);
+    appendMessage(msg, ErrorMessageFormat);
     emit finished();
 }
 

@@ -201,15 +201,15 @@ public:
     OutputFormatter *outputFormatter();
     QString runMode() const;
 
-signals:
-    void appendMessage(ProjectExplorer::RunControl *, const QString &error,
-        ProjectExplorer::OutputFormat);
-    void started();
-    void finished();
-
 public slots:
     void bringApplicationToForeground(qint64 pid);
-    void appendMessage(const QString &error, ProjectExplorer::OutputFormat);
+    void appendMessage(const QString &msg, ProjectExplorer::OutputFormat format);
+
+signals:
+    void appendMessage(ProjectExplorer::RunControl *runControl,
+        const QString &msg, ProjectExplorer::OutputFormat format);
+    void started();
+    void finished();
 
 private slots:
     void bringApplicationToForegroundInternal();

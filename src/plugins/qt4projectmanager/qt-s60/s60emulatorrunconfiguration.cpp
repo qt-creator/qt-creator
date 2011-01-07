@@ -349,7 +349,7 @@ void S60EmulatorRunControl::start()
     emit started();
 
     QString msg = tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable));
-    emit appendMessage(this, msg, NormalMessageFormat);
+    appendMessage(msg, NormalMessageFormat);
 }
 
 RunControl::StopResult S60EmulatorRunControl::stop()
@@ -365,7 +365,7 @@ bool S60EmulatorRunControl::isRunning() const
 
 void S60EmulatorRunControl::slotError(const QString & err)
 {
-    emit appendMessage(this, err, ErrorMessageFormat);
+    appendMessage(err, ErrorMessageFormat);
     emit finished();
 }
 
@@ -375,12 +375,12 @@ void S60EmulatorRunControl::slotAppendMessage(const QString &line, OutputFormat 
     static int prefixLength = prefix.length();
     int index = line.indexOf(prefix);
     if (index != -1)
-        emit appendMessage(this, line.mid(index + prefixLength + 1), format);
+        appendMessage(line.mid(index + prefixLength + 1), format);
 }
 
 void S60EmulatorRunControl::processExited(int exitCode)
 {
     QString msg = tr("%1 exited with code %2");
-    emit appendMessage(this, msg, exitCode ? ErrorMessageFormat : NormalMessageFormat);
+    appendMessage(msg, exitCode ? ErrorMessageFormat : NormalMessageFormat);
     emit finished();
 }

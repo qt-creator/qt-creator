@@ -367,3 +367,8 @@ void RunControl::bringApplicationToForegroundInternal()
     }
 #endif
 }
+
+void RunControl::appendMessage(const QString &msg, OutputFormat format)
+{
+    emit appendMessage(this, msg, format);
+}

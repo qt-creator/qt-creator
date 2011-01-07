@@ -100,7 +100,7 @@ void MaemoRunControl::handleSshError(const QString &error)
 
 void MaemoRunControl::startExecution()
 {
-    emit appendMessage(this, tr("Starting remote process ..."), NormalMessageFormat);
+    appendMessage(tr("Starting remote process ..."), NormalMessageFormat);
     m_runner->startExecution(QString::fromLocal8Bit("%1 %2 %3 %4")
         .arg(MaemoGlobal::remoteCommandPrefix(m_runner->remoteExecutable()))
         .arg(MaemoGlobal::remoteEnvironment(m_runner->userEnvChanges()))
@@ -111,8 +111,7 @@ void MaemoRunControl::startExecution()
 void MaemoRunControl::handleRemoteProcessFinished(qint64 exitCode)
 {
     if (exitCode != MaemoSshRunner::InvalidExitCode) {
-        emit appendMessage(this,
-            tr("Finished running remote process. Exit code was %1.")
+        appendMessage(tr("Finished running remote process. Exit code was %1.")
             .arg(exitCode), NormalMessageFormat);
     }
     setFinished();
@@ -120,22 +119,22 @@ void MaemoRunControl::handleRemoteProcessFinished(qint64 exitCode)
 
 void MaemoRunControl::handleRemoteOutput(const QByteArray &output)
 {
-    emit appendMessage(this, QString::fromUtf8(output), StdOutFormatSameLine);
+    appendMessage(QString::fromUtf8(output), StdOutFormatSameLine);
 }
 
 void MaemoRunControl::handleRemoteErrorOutput(const QByteArray &output)
 {
-    emit appendMessage(this, QString::fromUtf8(output), StdErrFormatSameLine);
+    appendMessage(QString::fromUtf8(output), StdErrFormatSameLine);
 }
 
 void MaemoRunControl::handleProgressReport(const QString &progressString)
 {
-    emit appendMessage(this, progressString, NormalMessageFormat);
+    appendMessage(progressString, NormalMessageFormat);
 }
 
 void MaemoRunControl::handleMountDebugOutput(const QString &output)
 {
-    emit appendMessage(this, output, StdErrFormatSameLine);
+    appendMessage(output, StdErrFormatSameLine);
 }
 
 bool MaemoRunControl::isRunning() const
@@ -146,7 +145,7 @@ bool MaemoRunControl::isRunning() const
 void MaemoRunControl::handleError(const QString &errString)
 {
     stop();
-    emit appendMessage(this, errString, ErrorMessageFormat);
+    appendMessage(errString, ErrorMessageFormat);
     QMessageBox::critical(0, tr("Remote Execution Failure"), errString);
 }
 

@@ -98,7 +98,7 @@ void QmlRunControl::start()
     emit started();
     QString msg = tr("Starting %1 %2")
         .arg(QDir::toNativeSeparators(m_executable), m_commandLineArguments);
-    appendMessage(this, msg, NormalMessageFormat);
+    appendMessage(msg, NormalMessageFormat);
 }
 
 RunControl::StopResult QmlRunControl::stop()
@@ -119,14 +119,14 @@ void QmlRunControl::slotBringApplicationToForeground(qint64 pid)
 
 void QmlRunControl::slotAppendMessage(const QString &line, OutputFormat format)
 {
-    emit appendMessage(this, line, format);
+    appendMessage(line, format);
 }
 
 void QmlRunControl::processExited(int exitCode)
 {
     QString msg = tr("%1 exited with code %2")
         .arg(QDir::toNativeSeparators(m_executable)).arg(exitCode);
-    emit appendMessage(this, msg, exitCode ? ErrorMessageFormat : NormalMessageFormat);
+    appendMessage(msg, exitCode ? ErrorMessageFormat : NormalMessageFormat);
     emit finished();
 }
 
