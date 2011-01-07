@@ -71,6 +71,7 @@ namespace Debugger {
 namespace Cdb {
 DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *error);
 bool isCdbEngineEnabled(); // Check the configuration page
+bool checkCdbConfiguration(int toolChainI, QString *errorMsg, QString *settingsPage);
 }
 
 namespace Internal {
@@ -84,32 +85,6 @@ DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &);
 DebuggerEngine *createLldbEngine(const DebuggerStartParameters &);
 
 extern QString msgNoBinaryForToolChain(int tc);
-
-// FIXME: Outdated?
-// The createCdbEngine function takes a list of options pages it can add to.
-// This allows for having a "enabled" toggle on the page independently
-// of the engine. That's good for not enabling the related ActiveX control
-// unnecessarily.
-
-#ifdef CDB_ENABLED
-
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *error);
-bool checkCdbConfiguration(int toolChain, QString *errorMsg, QString *settingsPage);
-bool isCdbEngineEnabled(); // Check the configuration page
-
-#else
-
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *)
-{
-    return 0;
-}
-
-bool checkCdbConfiguration(int, QString *, QString *)
-{
-    return false;
-}
-
-#endif
 
 static QString msgEngineNotAvailable(const char *engine)
 {
@@ -343,11 +318,7 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
             d->m_engine = createScriptEngine(sp);
             break;
         case CdbEngineType:
-            // Try new engine, fall back to old.
-            if (Cdb::isCdbEngineEnabled())
-                d->m_engine = Cdb::createCdbEngine(sp, &d->m_errorMessage);
-            else
-                d->m_engine = Internal::createCdbEngine(sp, &d->m_errorMessage);
+            d->m_engine = Cdb::createCdbEngine(sp, &d->m_errorMessage);
             break;
         case PdbEngineType:
             d->m_engine = createPdbEngine(sp);
@@ -445,7 +416,7 @@ bool DebuggerRunControl::checkDebugConfiguration(int toolChain,
         }
         break;
     case ProjectExplorer::ToolChain_MSVC:
-        success = checkCdbConfiguration(toolChain, errorMessage, settingsPage);
+        success = Cdb::checkCdbConfiguration(toolChain, errorMessage, settingsPage);
         if (!success) {
             *errorMessage += msgEngineNotAvailable("Cdb");
             if (settingsPage)

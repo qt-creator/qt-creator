@@ -418,9 +418,6 @@ namespace Internal {
 void addGdbOptionPages(QList<IOptionsPage*> *opts);
 void addScriptOptionPages(QList<IOptionsPage*> *opts);
 void addTcfOptionPages(QList<IOptionsPage*> *opts);
-#ifdef CDB_ENABLED
-void addCdbOptionPages(QList<IOptionsPage*> *opts);
-#endif
 
 #ifdef WITH_LLDB
 void addLldbOptionPages(QList<IOptionsPage*> *opts);
@@ -3018,10 +3015,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     QList<Core::IOptionsPage *> engineOptionPages;
     if (m_cmdLineEnabledEngines & GdbEngineType)
         addGdbOptionPages(&engineOptionPages);
-#ifdef CDB_ENABLED
-    if (m_cmdLineEnabledEngines & CdbEngineType)
-        addCdbOptionPages(&engineOptionPages);
-#endif
 #ifdef Q_OS_WIN
     Debugger::Cdb::addCdb2OptionPages(&engineOptionPages);
 #endif

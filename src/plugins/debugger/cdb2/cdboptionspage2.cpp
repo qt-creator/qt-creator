@@ -394,7 +394,7 @@ QString CdbOptionsPage::settingsId()
 
 QString CdbOptionsPage::displayName() const
 {
-    return tr("CDB (new, experimental)");
+    return tr("CDB");
 }
 
 QString CdbOptionsPage::category() const

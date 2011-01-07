@@ -47,6 +47,9 @@ struct CdbOptions
 {
 public:
     CdbOptions();
+
+    bool isValid() const { return enabled && !executable.isEmpty(); }
+
     void clearExecutable();
     void clear();
 

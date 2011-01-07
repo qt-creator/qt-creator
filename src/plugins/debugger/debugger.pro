@@ -126,7 +126,6 @@ SOURCES += registerpostmortemaction.cpp
 LIBS  *= -lole32 \
     -lshell32
 }
-include(cdb/cdb.pri)
 include(cdb2/cdb2.pri)
 include(gdb/gdb.pri)
 include(script/script.pri)

@@ -10,11 +10,13 @@
 #include <QtCore/QTimer>
 
 namespace Debugger {
+namespace Cdb {
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *);
+}
 namespace Internal {
 
 const int ConnectionWaitTimeMs = 5000;
 
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *);
 DebuggerEngine *createGdbEngine(const DebuggerStartParameters &);
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &);
 
@@ -58,7 +60,7 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
         d->m_cppEngine = createGdbEngine(sp);
     } else {
         QString errorMessage;
-        d->m_cppEngine = createCdbEngine(sp, &errorMessage);
+        d->m_cppEngine = Debugger::Cdb::createCdbEngine(sp, &errorMessage);
         if (!d->m_cppEngine) {
             qWarning("%s", qPrintable(errorMessage));
             return;
