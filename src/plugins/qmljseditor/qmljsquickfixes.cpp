@@ -52,6 +52,16 @@ using TextEditor::RefactoringChanges;
 
 namespace {
 
+/*
+  Reformats a one-line object into a multi-line one, i.e.
+    Item { x: 10; y: 20; width: 10 }
+  into
+    Item {
+        x: 10;
+        y: 20;
+        width: 10
+    }
+*/
 class SplitInitializerOp: public QmlJSQuickFixFactory
 {
 public:

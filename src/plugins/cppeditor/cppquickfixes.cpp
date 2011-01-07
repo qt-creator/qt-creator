@@ -354,6 +354,14 @@ private:
     ASTMatcher matcher;
 };
 
+/*
+    Rewrite
+    int *a, b;
+
+    As
+    int *a;
+    int b;
+*/
 class SplitSimpleDeclarationOp: public CppQuickFixFactory
 {
     static bool checkDeclaration(SimpleDeclarationAST *declaration)
@@ -473,7 +481,14 @@ private:
 
 /*
     Add curly braces to a if statement that doesn't already contain a
-    compound statement.
+    compound statement. I.e.
+
+    if (a)
+        b;
+    becomes
+    if (a) {
+        b;
+    }
 */
 class AddBracesToIfOp: public CppQuickFixFactory
 {
@@ -844,9 +859,11 @@ private:
 
 /*
   Replace
-    "abcd"
-  With
-    QLatin1String("abcd")
+    "abcd" -> QLatin1String("abcd")
+    'a' -> QLatin1Char('a')
+  Except if they are already enclosed in
+    QLatin1Char, QT_TRANSLATE_NOOP, tr,
+    trUtf8, QLatin1Literal, QLatin1String
 */
 class WrapStringLiteral: public CppQuickFixFactory
 {
@@ -951,6 +968,7 @@ private:
     tr("abcd") or
     QCoreApplication::translate("CONTEXT", "abcd") or
     QT_TRANSLATE_NOOP("GLOBAL", "abcd")
+  depending on what is available.
 */
 class TranslateStringLiteral: public CppQuickFixFactory
 {
@@ -1286,6 +1304,9 @@ private:
     };
 };
 
+/*
+    Can be triggered on a class forward declaration to add the matching #include.
+*/
 class FixForwardDeclarationOp: public CppQuickFixFactory
 {
 public:
@@ -1411,6 +1432,13 @@ private:
     };
 };
 
+/*
+  Rewrites
+    a = foo();
+  As
+    Type a = foo();
+  Where Type is the return type of foo()
+*/
 class AddLocalDeclarationOp: public CppQuickFixFactory
 {
 public:
