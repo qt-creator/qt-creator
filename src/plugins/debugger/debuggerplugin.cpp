@@ -94,6 +94,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchaintype.h>
 
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
@@ -2499,9 +2500,10 @@ void DebuggerPluginPrivate::createNewDock(QWidget *widget)
 void DebuggerPluginPrivate::runControlStarted(DebuggerEngine *engine)
 {
     activateDebugMode();
+    QString toolChainName = ToolChain::toolChainName(
+        ProjectExplorer::ToolChainType((engine->startParameters().toolChainType)));
     const QString message = tr("Starting debugger '%1' for tool chain '%2'...")
-            .arg(engine->objectName())
-            .arg(toolChainName(engine->startParameters()));
+            .arg(engine->objectName()).arg(toolChainName);
     showMessage(message, StatusBar);
     showMessage(m_debuggerSettings->dump(), LogDebug);
     m_snapshotHandler->appendSnapshot(engine);

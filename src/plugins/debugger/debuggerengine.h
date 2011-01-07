@@ -128,8 +128,6 @@ private:
     quint64 m_address;
 };
 
-QString toolChainName(const DebuggerStartParameters &sp);
-
 } // namespace Internal
 
 

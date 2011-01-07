@@ -95,11 +95,6 @@ using namespace TextEditor;
 
 namespace Debugger {
 
-QString toolChainName(const DebuggerStartParameters &sp)
-{
-    return ToolChain::toolChainName(ProjectExplorer::ToolChainType(sp.toolChainType));
-}
-
 QDebug operator<<(QDebug d, DebuggerState state)
 {
     //return d << DebuggerEngine::stateName(state) << '(' << int(state) << ')';
