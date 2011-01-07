@@ -752,13 +752,6 @@ void S60DeviceRunControl::applicationRunFailedNotice(const QString &errorMessage
 
 // ======== S60DeviceDebugRunControl
 
-static inline QString localExecutable(const S60DeviceRunConfiguration *rc)
-{
-    if (const S60DeviceRunConfiguration *s60runConfig = qobject_cast<const S60DeviceRunConfiguration *>(rc))
-        return s60runConfig->localExecutableFileName();
-    return QString();
-}
-
 // Return symbol file which should co-exist with the executable.
 // location in debug builds. This can be 'foo.sym' (ABLD) or 'foo.exe.sym' (Raptor)
 static inline QString symbolFileFromExecutable(const QString &executable)
@@ -802,7 +795,7 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
 
     // Prefer the '*.sym' file over the '.exe', which should exist at the same
     // location in debug builds. This can be 'foo.exe' (ABLD) or 'foo.exe.sym' (Raptor)
-    sp.symbolFileName = symbolFileFromExecutable(localExecutable(rc));
+    sp.symbolFileName = symbolFileFromExecutable(rc->localExecutableFileName());
     return sp;
 }
 
@@ -812,7 +805,7 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc
 {
     if (startParameters().symbolFileName.isEmpty()) {
         const QString msg = tr("Warning: Cannot locate the symbol file belonging to %1.").
-                               arg(localExecutable(rc));
+                               arg(rc->localExecutableFileName());
         appendMessage(msg, ErrorMessageFormat);
     }
 }
