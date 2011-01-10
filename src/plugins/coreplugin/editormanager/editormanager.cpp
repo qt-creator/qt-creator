@@ -1187,8 +1187,10 @@ int extractLineNumber(QString *fileName)
         return -1;
     if (fileName->at(i) == ':' || fileName->at(i) == '+') {
         int result = fileName->mid(i+1).toInt();
-        *fileName = fileName->left(i);
-        return result;
+        if (result) {
+            *fileName = fileName->left(i);
+            return result;
+        }
     }
     return -1;
 }
