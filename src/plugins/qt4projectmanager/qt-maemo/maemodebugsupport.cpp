@@ -83,7 +83,7 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
             params.executable = runConfig->remoteExecutableFilePath();
             params.debuggerCommand
                 = MaemoGlobal::remoteCommandPrefix(runConfig->remoteExecutableFilePath())
-                    + environment(debuggingType, runConfig->userEnvironmentChanges())
+                    + MaemoGlobal::remoteEnvironment(runConfig->userEnvironmentChanges())
                     + QLatin1String(" /usr/bin/gdb");
             params.connParams = devConf.server;
             params.localMountDir = runConfig->localDirToMountForRemoteGdb();
@@ -125,6 +125,7 @@ MaemoDebugSupport::MaemoDebugSupport(MaemoRunConfiguration *runConfig,
       m_runner(new MaemoSshRunner(this, runConfig, true)),
       m_debuggingType(runConfig->debuggingType()),
       m_dumperLib(runConfig->dumperLib()),
+      m_userEnvChanges(runConfig->userEnvironmentChanges()),
       m_state(Inactive), m_gdbServerPort(-1), m_qmlPort(-1),
       m_useGdb(useGdb)
 {
@@ -278,9 +279,12 @@ void MaemoDebugSupport::startDebugging()
             SLOT(handleRemoteOutput(QByteArray)));
         const QString &remoteExe = m_runner->remoteExecutable();
         const QString cmdPrefix = MaemoGlobal::remoteCommandPrefix(remoteExe);
-        const QString env
-            = environment(m_debuggingType, m_runner->userEnvChanges());
-        const QString args = m_runner->arguments();
+        const QString env = MaemoGlobal::remoteEnvironment(m_userEnvChanges);
+        QString args = m_runner->arguments();
+        if (m_debuggingType != MaemoRunConfiguration::DebugCppOnly) {
+            args += QString(QLatin1String(" -qmljsdebugger=port:%1,block"))
+                .arg(m_qmlPort);
+        }
         const QString remoteCommandLine
             = m_debuggingType == MaemoRunConfiguration::DebugQmlOnly
                 ? QString::fromLocal8Bit("%1 %2 %3 %4").arg(cmdPrefix).arg(env)
@@ -350,17 +354,6 @@ void MaemoDebugSupport::setState(State newState)
         }
         m_runner->stop();
     }
-}
-
-QString MaemoDebugSupport::environment(MaemoRunConfiguration::DebuggingType debuggingType,
-    const QList<Utils::EnvironmentItem> &userEnvChanges)
-{
-    // FIXME: this must use command line argument instead: -qmljsdebugger=port:1234.
-    if (debuggingType != MaemoRunConfiguration::DebugCppOnly) {
-//        env << Utils::EnvironmentItem(QLatin1String(Debugger::Constants::E_QML_DEBUG_SERVER_PORT),
-//            QString::number(qmlServerPort(rc)));
-    }
-    return MaemoGlobal::remoteEnvironment(userEnvChanges);
 }
 
 QString MaemoDebugSupport::uploadDir(const MaemoDeviceConfig &devConf)

@@ -88,9 +88,6 @@ private:
         DumpersUploaded, StartingRemoteProcess, Debugging
     };
 
-    static QString environment(MaemoRunConfiguration::DebuggingType debuggingType,
-        const QList<Utils::EnvironmentItem> &userEnvChanges);
-
     void handleAdapterSetupFailed(const QString &error);
     void handleAdapterSetupDone();
     void startDebugging();
@@ -104,6 +101,7 @@ private:
     MaemoSshRunner * const m_runner;
     const MaemoRunConfiguration::DebuggingType m_debuggingType;
     const QString m_dumperLib;
+    const QList<Utils::EnvironmentItem> m_userEnvChanges;
 
     QSharedPointer<Core::SftpChannel> m_uploader;
     Core::SftpJobId m_uploadJob;
