@@ -2012,6 +2012,7 @@ void CppQmlTypesLoader::setSuperClasses(QMap<QString, FakeMetaObject::Ptr> *newO
 void CppQmlTypes::load(Engine *engine, const QList<FakeMetaObject::ConstPtr> &objects)
 {
     // load
+    QList<FakeMetaObject::ConstPtr> newObjects;
     foreach (FakeMetaObject::ConstPtr metaObject, objects) {
         for (int i = 0; i < metaObject->exports().size(); ++i) {
             const FakeMetaObject::Export &exp = metaObject->exports().at(i);
@@ -2019,6 +2020,7 @@ void CppQmlTypes::load(Engine *engine, const QList<FakeMetaObject::ConstPtr> &ob
             if (_typesByFullyQualifiedName.contains(exp.packageNameVersion))
                 continue;
 
+            newObjects.append(metaObject);
             QmlObjectValue *objectValue = new QmlObjectValue(
                         metaObject, exp.type, exp.package, exp.version, engine);
             _typesByPackage[exp.package].append(objectValue);
@@ -2027,7 +2029,7 @@ void CppQmlTypes::load(Engine *engine, const QList<FakeMetaObject::ConstPtr> &ob
     }
 
     // set prototypes
-    foreach (FakeMetaObject::ConstPtr metaObject, objects) {
+    foreach (FakeMetaObject::ConstPtr metaObject, newObjects) {
         foreach (const FakeMetaObject::Export &exp, metaObject->exports()) {
             QmlObjectValue *objectValue = _typesByFullyQualifiedName.value(exp.packageNameVersion);
             if (!objectValue || !metaObject->superClass())
@@ -3328,11 +3330,12 @@ TypeEnvironment::TypeEnvironment(Engine *engine)
 const Value *TypeEnvironment::lookupMember(const QString &name, const Context *context,
                                            const ObjectValue **foundInObject, bool) const
 {
-    QHashIterator<const ObjectValue *, ImportInfo> it(_imports);
-    while (it.hasNext()) {
-        it.next();
-        const ObjectValue *import = it.key();
-        const ImportInfo &info = it.value();
+    QListIterator<Import> it(_imports);
+    it.toBack();
+    while (it.hasPrevious()) {
+        const Import &i = it.previous();
+        const ObjectValue *import = i.object;
+        const ImportInfo &info = i.info;
 
         if (!info.id().isEmpty()) {
             if (info.id() == name) {
@@ -3361,11 +3364,12 @@ const Value *TypeEnvironment::lookupMember(const QString &name, const Context *c
 
 void TypeEnvironment::processMembers(MemberProcessor *processor) const
 {
-    QHashIterator<const ObjectValue *, ImportInfo> it(_imports);
-    while (it.hasNext()) {
-        it.next();
-        const ObjectValue *import = it.key();
-        const ImportInfo &info = it.value();
+    QListIterator<Import> it(_imports);
+    it.toBack();
+    while (it.hasPrevious()) {
+        const Import &i = it.previous();
+        const ObjectValue *import = i.object;
+        const ImportInfo &info = i.info;
 
         if (!info.id().isEmpty()) {
             processor->processProperty(info.id(), import);
@@ -3380,7 +3384,10 @@ void TypeEnvironment::processMembers(MemberProcessor *processor) const
 
 void TypeEnvironment::addImport(const ObjectValue *import, const ImportInfo &info)
 {
-    _imports.insert(import, info);
+    Import i;
+    i.object = import;
+    i.info = info;
+    _imports.append(i);
 }
 
 ImportInfo TypeEnvironment::importInfo(const QString &name, const Context *context) const
@@ -3390,11 +3397,12 @@ ImportInfo TypeEnvironment::importInfo(const QString &name, const Context *conte
     if (dotIdx != -1)
         firstId = firstId.left(dotIdx);
 
-    QHashIterator<const ObjectValue *, ImportInfo> it(_imports);
-    while (it.hasNext()) {
-        it.next();
-        const ObjectValue *import = it.key();
-        const ImportInfo &info = it.value();
+    QListIterator<Import> it(_imports);
+    it.toBack();
+    while (it.hasPrevious()) {
+        const Import &i = it.previous();
+        const ObjectValue *import = i.object;
+        const ImportInfo &info = i.info;
 
         if (!info.id().isEmpty()) {
             if (info.id() == firstId)

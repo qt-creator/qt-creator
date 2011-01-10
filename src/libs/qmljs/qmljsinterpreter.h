@@ -996,7 +996,15 @@ private:
 
 class QMLJS_EXPORT TypeEnvironment: public ObjectValue
 {
-    QHash<const ObjectValue *, ImportInfo> _imports;
+    class Import {
+    public:
+        const ObjectValue *object;
+        ImportInfo info;
+    };
+
+    // holds imports in the order they appeared,
+    // lookup order is back to front
+    QList<Import> _imports;
 
 public:
     TypeEnvironment(Engine *engine);

@@ -701,8 +701,8 @@ protected:
             exportedType.minorVersion = QString::fromUtf8(minorLit->chars(), minorLit->size()).toInt();
         } else {
             translationUnit()->warning(ast->base_expression->firstToken(),
-                                       "The package will only be available in Qt Creator's QML editors when the package name is a string literal and\n"
-                                       "the versions are integer literals. The type will be available globally.");
+                                       "The module will not be available in Qt Creator's QML editors because the uri and version numbers\n"
+                                       "cannot be determined by static analysis. The type will still be available globally.");
             exportedType.packageName = QLatin1String("<default>");
         }
 
