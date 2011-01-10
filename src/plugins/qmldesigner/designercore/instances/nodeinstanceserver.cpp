@@ -158,9 +158,9 @@ void NodeInstanceServer::createScene(const CreateSceneCommand &command)
     Q_ASSERT(!m_declarativeView.data());
 
     m_declarativeView = new QDeclarativeView;
-    m_declarativeView->setAttribute(Qt::WA_DontShowOnScreen, true);
     m_declarativeView->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
     m_declarativeView->show();
+    m_declarativeView->setAttribute(Qt::WA_DontShowOnScreen, true);
 
     if (!command.fileUrl().isEmpty())
         engine()->setBaseUrl(command.fileUrl());
