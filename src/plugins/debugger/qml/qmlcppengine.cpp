@@ -1,4 +1,5 @@
 #include "qmlcppengine.h"
+#include "debuggerstartparameters.h"
 #include "qmlengine.h"
 #include "debuggermainwindow.h"
 #include "debuggercore.h"

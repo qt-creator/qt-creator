@@ -33,6 +33,7 @@
 
 #include "remoteplaingdbadapter.h"
 #include "gdbengine.h"
+#include "debuggerstartparameters.h"
 
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggerstringutils.h>

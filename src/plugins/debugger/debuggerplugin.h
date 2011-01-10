@@ -38,8 +38,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QObject>
-
 namespace ProjectExplorer {
 class RunConfiguration;
 class RunControl;

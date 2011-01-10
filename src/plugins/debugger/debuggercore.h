@@ -34,12 +34,9 @@
 #ifndef DEBUGGERCORE_H
 #define DEBUGGERCORE_H
 
-#include "debugger_global.h"
 #include "debuggerconstants.h"
 
 #include <QtCore/QObject>
-#include <QtCore/QMultiMap>
-#include <QtCore/QVector>
 
 QT_BEGIN_NAMESPACE
 class QIcon;
@@ -58,7 +55,6 @@ class SavedAction;
 namespace Debugger {
 
 class DebuggerEngine;
-class DebuggerStartParameters;
 
 namespace Internal {
 

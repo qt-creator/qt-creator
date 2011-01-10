@@ -43,7 +43,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
 
 #include <texteditor/basetextdocument.h>
@@ -59,6 +58,8 @@
 #include <QtCore/QDebug>
 #include <QtCore/QMetaObject>
 #include <QtCore/QTimer>
+#include <QtCore/QPointer>
+#include <QtCore/QFileInfo>
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>

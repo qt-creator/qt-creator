@@ -52,6 +52,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <debugger/debuggerengine.h>
+#include <debugger/debuggerstartparameters.h>
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>

@@ -37,6 +37,7 @@
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerrunner.h"
+#include "debuggerstartparameters.h"
 
 #include <utils/qtcassert.h>
 

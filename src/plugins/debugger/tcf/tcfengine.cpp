@@ -33,6 +33,7 @@
 
 #include "tcfengine.h"
 
+#include "debuggerstartparameters.h"
 #include "debuggerconstants.h"
 #include "debuggerdialogs.h"
 #include "debuggerstringutils.h"

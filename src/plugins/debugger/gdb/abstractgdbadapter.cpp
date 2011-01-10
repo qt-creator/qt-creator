@@ -33,6 +33,7 @@
 
 #include "abstractgdbadapter.h"
 #include "gdbengine.h"
+#include "debuggerstartparameters.h"
 #include "abstractgdbprocess.h"
 
 #include <utils/qtcassert.h>

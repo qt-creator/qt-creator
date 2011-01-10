@@ -35,7 +35,6 @@
 #define DEBUGGERRUNNER_H
 
 #include "debugger_global.h"
-#include "debuggerconstants.h"
 
 #include <projectexplorer/runconfiguration.h>
 

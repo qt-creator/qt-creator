@@ -33,6 +33,7 @@
 
 #include "debuggerplugin.h"
 
+#include "debuggerstartparameters.h"
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "debuggercore.h"
@@ -50,6 +51,7 @@
 #include "disassembleragent.h"
 #include "logwindow.h"
 #include "moduleswindow.h"
+#include "moduleshandler.h"
 #include "registerwindow.h"
 #include "snapshotwindow.h"
 #include "stackhandler.h"

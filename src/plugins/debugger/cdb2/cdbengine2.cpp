@@ -32,6 +32,8 @@
 **************************************************************************/
 
 #include "cdbengine2.h"
+#include "debuggerstartparameters.h"
+#include "disassemblerlines.h"
 #include "cdboptions2.h"
 #include "cdboptionspage2.h"
 #include "bytearrayinputstream.h"
@@ -41,6 +43,7 @@
 #include "stackhandler.h"
 #include "watchhandler.h"
 #include "threadshandler.h"
+#include "moduleshandler.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "registerhandler.h"

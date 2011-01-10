@@ -39,6 +39,7 @@
 #include "debuggerrunner.h"
 #include "debuggerstringutils.h"
 #include "debuggertooltip.h"
+#include "debuggerstartparameters.h"
 
 #include "memoryagent.h"
 #include "disassembleragent.h"
@@ -63,7 +64,6 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetextmark.h>
 
-#include <utils/environment.h>
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
 
@@ -94,6 +94,17 @@ using namespace TextEditor;
 ///////////////////////////////////////////////////////////////////////
 
 namespace Debugger {
+
+Internal::Location::Location(const StackFrame &frame, bool marker)
+{
+    init();
+    m_fileName = frame.file;
+    m_lineNumber = frame.line;
+    m_needsMarker = marker;
+    m_functionName = frame.function;
+    m_hasDebugInfo = frame.isUsable();
+    m_address = frame.address;
+}
 
 QDebug operator<<(QDebug d, DebuggerState state)
 {

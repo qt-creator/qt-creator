@@ -35,6 +35,7 @@
 
 #include "scriptengine.h"
 
+#include "debuggerstartparameters.h"
 #include "breakhandler.h"
 #include "debuggerconstants.h"
 #include "debuggercore.h"

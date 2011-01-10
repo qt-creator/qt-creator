@@ -35,12 +35,7 @@
 #include "breakhandler.h"
 #include "debuggercore.h"
 
-#include <texteditor/basetextmark.h>
-#include <utils/qtcassert.h>
-
-#include <QtCore/QByteArray>
-#include <QtCore/QDebug>
-
+#include <QtGui/QIcon>
 
 //////////////////////////////////////////////////////////////////
 //

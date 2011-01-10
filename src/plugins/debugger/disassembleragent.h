@@ -34,21 +34,14 @@
 #ifndef DEBUGGER_DISASSEMBLERAGENT_H
 #define DEBUGGER_DISASSEMBLERAGENT_H
 
-#include "disassemblerlines.h"
-
 #include <QtCore/QObject>
-#include <QtCore/QPointer>
-
-namespace Core {
-class IEditor;
-}
 
 namespace Debugger {
 
 class DebuggerEngine;
 
 namespace Internal {
-
+class DisassemblerLines;
 class Location;
 class DisassemblerAgentPrivate;
 
@@ -84,7 +77,6 @@ public:
 private:
     DisassemblerAgentPrivate *d;
 };
-
 
 } // namespace Internal
 } // namespace Debugger

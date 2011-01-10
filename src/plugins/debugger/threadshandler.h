@@ -35,8 +35,6 @@
 #define THREADSHANDLER_H
 
 #include <QtCore/QAbstractTableModel>
-#include <QtCore/QList>
-
 #include <QtGui/QIcon>
 
 #include "threaddata.h"

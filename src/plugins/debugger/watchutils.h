@@ -175,7 +175,6 @@ public:
 
     // Complete parse of "query" (protocol 1) response from debuggee buffer.
     // 'data' excludes the leading indicator character.
-    bool parseQuery(const char *data);
     bool parseQuery(const GdbMi &data);
     // Sizes can be added as the debugger determines them
     void addSize(const QByteArray &type, int size);
@@ -183,13 +182,8 @@ public:
     // Determine the parameters required for an "evaluate" (protocol 2) call
     void evaluationParameters(const WatchData &data,
                               const TypeData &td,
-                              Debugger debugger,
                               QByteArray *inBuffer,
                               QList<QByteArray> *extraParameters) const;
-
-    // Parse the value response (protocol 2) from debuggee buffer.
-    // 'data' excludes the leading indicator character.
-    static bool parseValue(const char *data, QList<WatchData> *l);
 
     QString toString(bool debug = false) const;
 
@@ -200,12 +194,7 @@ private:
     typedef QMap<QByteArray, int> SizeCache;
 
     // Look up a simple (namespace) type
-    QByteArray evaluationSizeofTypeExpression(const QByteArray &typeName, Debugger d) const;
-    QByteArray qMapNodeValueOffsetExpression(const QByteArray &type,
-        const QByteArray &addressIn, Debugger debugger) const;
-
-    QByteArray lookupCdbDummyAddressExpression
-        (const QByteArray &expr, const QByteArray &address) const;
+    QByteArray evaluationSizeofTypeExpression(const QByteArray &typeName) const;
 
     NameTypeMap m_nameTypeMap;
     SizeCache m_sizeCache;

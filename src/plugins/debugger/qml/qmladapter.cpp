@@ -32,6 +32,8 @@
 **************************************************************************/
 
 #include "qmladapter.h"
+
+#include "debuggerstartparameters.h"
 #include "qmldebuggerclient.h"
 #include "qmljsprivateapi.h"
 

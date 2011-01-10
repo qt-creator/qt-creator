@@ -33,6 +33,7 @@
 
 #include "remotegdbserveradapter.h"
 
+#include "debuggerstartparameters.h"
 #include "debuggercore.h"
 #include "debuggerstringutils.h"
 #include "gdbengine.h"

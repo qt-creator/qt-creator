@@ -33,6 +33,7 @@
 
 #include "disassembleragent.h"
 
+#include "disassemblerlines.h"
 #include "breakhandler.h"
 #include "debuggerengine.h"
 #include "debuggercore.h"
@@ -54,7 +55,7 @@
 
 #include <QtGui/QTextBlock>
 #include <QtGui/QIcon>
-
+#include <QtCore/QPointer>
 
 using namespace Core;
 

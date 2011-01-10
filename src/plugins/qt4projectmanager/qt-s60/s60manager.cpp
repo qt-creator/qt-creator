@@ -48,6 +48,7 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <debugger/debuggerconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QMainWindow>

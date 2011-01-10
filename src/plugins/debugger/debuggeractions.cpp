@@ -36,8 +36,6 @@
 #include "registerpostmortemaction.h"
 #endif
 
-#include <projectexplorer/toolchain.h>
-
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
@@ -45,13 +43,6 @@
 #include <QtCore/QDebug>
 #include <QtCore/QVariant>
 #include <QtCore/QSettings>
-#include <QtCore/QFileInfo>
-
-#include <QtGui/QAction>
-#include <QtGui/QAbstractButton>
-#include <QtGui/QRadioButton>
-#include <QtGui/QCheckBox>
-#include <QtGui/QLineEdit>
 
 using namespace Utils;
 

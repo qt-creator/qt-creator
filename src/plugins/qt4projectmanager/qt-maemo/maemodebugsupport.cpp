@@ -42,6 +42,7 @@
 
 #include <coreplugin/ssh/sftpchannel.h>
 #include <debugger/debuggerplugin.h>
+#include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerengine.h>
 

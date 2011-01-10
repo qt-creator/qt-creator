@@ -34,6 +34,7 @@
 #include "ipcenginehost.h"
 
 #include "ipcengineguest.h"
+#include "debuggerstartparameters.h"
 #include "breakhandler.h"
 #include "breakpoint.h"
 #include "disassemblerlines.h"

@@ -33,6 +33,12 @@
 
 #include "debuggerstreamops.h"
 
+#include "breakpoint.h"
+#include "watchdata.h"
+#include "disassemblerlines.h"
+
+#include <QtCore/QDataStream>
+
 namespace Debugger {
 namespace Internal {
 

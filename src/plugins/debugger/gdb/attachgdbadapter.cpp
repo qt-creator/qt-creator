@@ -33,6 +33,7 @@
 
 #include "attachgdbadapter.h"
 #include "gdbmi.h"
+#include "debuggerstartparameters.h"
 
 #include "gdbengine.h"
 #include "procinterrupt.h"

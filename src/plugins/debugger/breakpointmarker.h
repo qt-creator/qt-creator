@@ -34,11 +34,8 @@
 #ifndef DEBUGGER_BREAKPOINTMARKER_H
 #define DEBUGGER_BREAKPOINTMARKER_H
 
-#include <QtCore/QString>
-#include <QtGui/QIcon>
-
 #include "breakpoint.h"
-#include "breakhandler.h"
+
 #include <texteditor/basetextmark.h>
 
 namespace Debugger {

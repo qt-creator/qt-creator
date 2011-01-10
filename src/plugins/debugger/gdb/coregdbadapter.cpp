@@ -33,6 +33,7 @@
 
 #include "coregdbadapter.h"
 
+#include "debuggerstartparameters.h"
 #include "debuggercore.h"
 #include "debuggeractions.h"
 #include "debuggerstringutils.h"

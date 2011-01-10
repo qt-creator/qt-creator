@@ -36,13 +36,7 @@
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
-#include "debuggerstartparameters.h"
-#include "moduleshandler.h" // For 'Symbols'
 #include "breakpoint.h" // For 'BreakpointId'
-#include "stackframe.h"
-
-#include <coreplugin/ssh/sshconnection.h>
-#include <utils/environment.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
@@ -51,6 +45,7 @@ QT_BEGIN_NAMESPACE
 class QDebug;
 class QPoint;
 class QMessageBox;
+class QAbstractItemModel;
 QT_END_NAMESPACE
 
 namespace TextEditor {
@@ -65,7 +60,7 @@ namespace Debugger {
 
 class DebuggerEnginePrivate;
 class DebuggerRunControl;
-
+class DebuggerStartParameters;
 
 DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &);
 DEBUGGER_EXPORT QDebug operator<<(QDebug str, DebuggerState state);
@@ -101,10 +96,7 @@ public:
     Location(const QString &file) { init(); m_fileName = file; }
     Location(const QString &file, int line, bool marker = true)
         { init(); m_lineNumber = line; m_fileName = file; m_needsMarker = marker; }
-    Location(const StackFrame &frame, bool marker = true) //: m_frame(frame)
-        { init(); m_fileName = frame.file; m_lineNumber = frame.line;
-          m_needsMarker = marker; m_functionName = frame.function;
-          m_hasDebugInfo = frame.isUsable(); m_address = frame.address; }
+    Location(const StackFrame &frame, bool marker = true);
     QString fileName() const { return m_fileName; }
     QString functionName() const { return m_functionName; }
     int lineNumber() const { return m_lineNumber; }

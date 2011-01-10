@@ -541,11 +541,11 @@ bool isSymbianIntType(const QByteArray &type)
     return type == "TInt" || type == "TBool";
 }
 
-QByteArray sizeofTypeExpression(const QByteArray &type, QtDumperHelper::Debugger debugger)
+QByteArray sizeofTypeExpression(const QByteArray &type)
 {
     if (type.endsWith('*'))
         return "sizeof(void*)";
-    if (debugger != QtDumperHelper::GdbDebugger || type.endsWith('>'))
+    if (type.endsWith('>'))
         return "sizeof(" + type + ')';
     return "sizeof(" + gdbQuoteTypes(type) + ')';
 }
@@ -1009,16 +1009,6 @@ bool QtDumperHelper::parseQuery(const GdbMi &contents)
     return true;
 }
 
-// parse a query
-bool QtDumperHelper::parseQuery(const char *data)
-{
-    GdbMi root;
-    root.fromStringMultiple(QByteArray(data));
-    if (!root.isValid())
-        return false;
-    return parseQuery(root);
-}
-
 void QtDumperHelper::addSize(const QByteArray &name, int size)
 {
     // Special interest cases
@@ -1074,8 +1064,7 @@ QtDumperHelper::TypeData QtDumperHelper::typeData(const QByteArray &typeName) co
 
 // Format an expression to have the debugger query the
 // size. Use size cache if possible
-QByteArray QtDumperHelper::evaluationSizeofTypeExpression(const QByteArray &typeName,
-                                                       Debugger debugger) const
+QByteArray QtDumperHelper::evaluationSizeofTypeExpression(const QByteArray &typeName) const
 {
     // Look up special size types
     const SpecialSizeType st = specialSizeType(typeName);
@@ -1088,7 +1077,7 @@ QByteArray QtDumperHelper::evaluationSizeofTypeExpression(const QByteArray &type
     if (sit != m_sizeCache.constEnd())
         return QByteArray::number(sit.value());
     // Finally have the debugger evaluate
-    return sizeofTypeExpression(typeName, debugger);
+    return sizeofTypeExpression(typeName);
 }
 
 QtDumperHelper::SpecialSizeType QtDumperHelper::specialSizeType(const QByteArray &typeName) const
@@ -1129,9 +1118,14 @@ static inline bool isInteger(const QString &n)
     return true;
 }
 
+// Return debugger expression to get the offset of a map node.
+static inline QByteArray qMapNodeValueOffsetExpression(const QByteArray &type)
+{
+        return "(size_t)&(('" + type + "'*)0)->value";
+}
+
 void QtDumperHelper::evaluationParameters(const WatchData &data,
-    const TypeData &td, Debugger debugger,
-    QByteArray *inBuffer, QByteArrayList *extraArgsIn) const
+    const TypeData &td, QByteArray *inBuffer, QByteArrayList *extraArgsIn) const
 {
     enum { maxExtraArgCount = 4 };
 
@@ -1159,7 +1153,7 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
         // gives already most information the dumpers need
         const int count = qMin(int(maxExtraArgCount), inners.size());
         for (int i = 0; i < count; i++)
-            extraArgs.push_back(evaluationSizeofTypeExpression(inners.at(i), debugger));
+            extraArgs.push_back(evaluationSizeofTypeExpression(inners.at(i)));
     }
 
     // Pad with zeros
@@ -1197,13 +1191,13 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
             }
             //qDebug() << "OUTERTYPE: " << outertype << " NODETYPE: " << nodetype
             //    << "QT VERSION" << m_qtVersion << ((4 << 16) + (5 << 8) + 0);
-            extraArgs[2] = evaluationSizeofTypeExpression(nodetype, debugger);
-            extraArgs[3] = qMapNodeValueOffsetExpression(nodetype, data.hexAddress(), debugger);
+            extraArgs[2] = evaluationSizeofTypeExpression(nodetype);
+            extraArgs[3] = qMapNodeValueOffsetExpression(nodetype);
         }
         break;
     case QMapNodeType:
-        extraArgs[2] = evaluationSizeofTypeExpression(data.type, debugger);
-        extraArgs[3] = qMapNodeValueOffsetExpression(data.type, data.hexAddress(), debugger);
+        extraArgs[2] = evaluationSizeofTypeExpression(data.type);
+        extraArgs[3] = qMapNodeValueOffsetExpression(data.type);
         break;
     case StdVectorType:
         //qDebug() << "EXTRACT TEMPLATE: " << outertype << inners;
@@ -1243,23 +1237,10 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
                 bracketPos = pairType.lastIndexOf(closingBracket, bracketPos - pairType.size() - 1);
             if (bracketPos != -1)
                 pairType.truncate(bracketPos + 1);
-            if (debugger == GdbDebugger) {
-                extraArgs[2] = "(size_t)&(('";
-                extraArgs[2] += pairType;
-                extraArgs[2] += "'*)0)->second";
-            } else {
-                // Cdb: The std::pair is usually in scope. Still, this expression
-                // occasionally fails for complex types (std::string).
-                // We need an address as CDB cannot do the 0-trick.
-                // Use data address or try at least cache if missing.
-                const QByteArray address = data.address ?
-                                           data.hexAddress() :
-                                           "DUMMY_ADDRESS";
-                QByteArray offsetExpr = "(size_t)&(((" + pairType + " *)" + address
-                        + ")->second)" + '-' + address;
-                extraArgs[2] = lookupCdbDummyAddressExpression(offsetExpr, address);
-            }
-        }
+            extraArgs[2] = "(size_t)&(('";
+            extraArgs[2] += pairType;
+            extraArgs[2] += "'*)0)->second";
+    }
         break;
     case StdStringType:
         //qDebug() << "EXTRACT TEMPLATE: " << outertype << inners;
@@ -1310,255 +1291,6 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
         qDebug() << '\n' << Q_FUNC_INFO << '\n' << data.toString() << "\n-->" << outertype << td.type << extraArgs;
 }
 
-// Return debugger expression to get the offset of a map node.
-QByteArray QtDumperHelper::qMapNodeValueOffsetExpression
-    (const QByteArray &type, const QByteArray &addressIn, Debugger debugger) const
-{
-    switch (debugger) {
-    case GdbDebugger:
-        return "(size_t)&(('" + type + "'*)0)->value";
-    case CdbDebugger: {
-            // Cdb: This will only work if a QMapNode is in scope.
-            // We need an address as CDB cannot do the 0-trick.
-            // Use data address or try at least cache if missing.
-            const QByteArray address = addressIn.isEmpty() ? "DUMMY_ADDRESS" : addressIn;
-            QByteArray offsetExpression = "(size_t)&(((" + type
-                    + " *)" + address + ")->value)-" + address;
-            return lookupCdbDummyAddressExpression(offsetExpression, address);
-        }
-    }
-    return QByteArray();
-}
-
-/* Cdb cannot do tricks like ( "&(std::pair<int,int>*)(0)->second)",
- * that is, use a null pointer to determine the offset of a member.
- * It tries to dereference the address at some point and fails with
- * "memory access error". As a trick, use the address of the watch item
- * to do this. However, in the expression cache, 0 is still used, so,
- * for cache lookups,  use '0' as address. */
-QByteArray QtDumperHelper::lookupCdbDummyAddressExpression
-    (const QByteArray &expr, const QByteArray &address) const
-{
-    QByteArray nullExpr = expr;
-    nullExpr.replace(address, "0");
-    const QByteArray rc = m_expressionCache.value(nullExpr, expr);
-    if (debug)
-        qDebug() << "lookupCdbDummyAddressExpression" << expr << rc;
-    return rc;
-}
-
-// GdbMi parsing helpers for parsing dumper value results
-
-static bool gdbMiGetIntValue(int *target, const GdbMi &node, const char *child)
-{
-    *target = -1;
-    const GdbMi childNode = node.findChild(child);
-    if (!childNode.isValid())
-        return false;
-    bool ok;
-    *target = childNode.data().toInt(&ok);
-    return ok;
-}
-
-// Find a string child node and assign value if it exists.
-// Optionally decode.
-static bool gdbMiGetStringValue(QString *target,
-                             const GdbMi &node,
-                             const char *child,
-                             const char *encodingChild = 0)
-{
-    target->clear();
-    const GdbMi childNode = node.findChild(child);
-    if (!childNode.isValid())
-        return false;
-    // Encoded data
-    if (encodingChild) {
-        int encoding;
-        if (!gdbMiGetIntValue(&encoding, node, encodingChild))
-            encoding = 0;
-        *target = decodeData(childNode.data(), encoding);
-        return true;
-    }
-    // Plain data
-    *target = QLatin1String(childNode.data());
-    return true;
-}
-
-static bool gdbMiGetByteArrayValue(QByteArray *target,
-                             const GdbMi &node,
-                             const char *child,
-                             const char *encodingChild = 0)
-{
-    QString str;
-    const bool success = gdbMiGetStringValue(&str, node, child, encodingChild);
-    *target = str.toLatin1();
-    return success;
-}
-
-static bool gdbMiGetBoolValue(bool *target,
-                             const GdbMi &node,
-                             const char *child)
-{
-    *target = false;
-    const GdbMi childNode = node.findChild(child);
-    if (!childNode.isValid())
-        return false;
-    *target = childNode.data() == "true";
-    return true;
-}
-
-/* Context to store parameters that influence the next level children.
- *  (next level only, it is not further inherited). For example, the root item
- * can provide a "childtype" node that specifies the type of the children. */
-
-struct GdbMiRecursionContext
-{
-    enum Type
-    {
-        Debugger,    // Debugger symbol dump, recursive/symmetrical
-        GdbMacrosCpp // old gdbmacros.cpp format, unsymmetrical
-    };
-
-    GdbMiRecursionContext(Type t, int recursionLevelIn = 0) :
-            type(t), recursionLevel(recursionLevelIn), childNumChild(-1), childIndex(0) {}
-
-    const Type type;
-    int recursionLevel;
-    int childNumChild;
-    int childIndex;
-    QString childType;
-    QByteArray parentIName;
-};
-
-static void gbdMiToWatchData(const GdbMi &root,
-                             const GdbMiRecursionContext &ctx,
-                             QList<WatchData> *wl)
-{
-    if (debug > 1)
-        qDebug() << Q_FUNC_INFO << '\n' << root.toString(false, 0);
-    WatchData w;
-    QString v;
-    QByteArray b;
-    // Check for name/iname and use as expression default
-    w.sortId = ctx.childIndex;
-    // Fully symmetrical
-    if (ctx.type == GdbMiRecursionContext::Debugger) {
-        gdbMiGetByteArrayValue(&w.iname, root, "iname");
-        gdbMiGetStringValue(&w.name, root, "name");
-        gdbMiGetByteArrayValue(&w.exp, root, "exp");
-    } else {
-        // gdbmacros.cpp: iname/name present according to recursion level
-        // Check for name/iname and use as expression default
-        if (ctx.recursionLevel == 0) {
-            // parents have only iname, from which name is derived
-            QString iname;
-            if (!gdbMiGetStringValue(&iname, root, "iname"))
-                qWarning("Internal error: iname missing");
-            w.iname = iname.toLatin1();
-            w.name = iname;
-            const int lastDotPos = w.name.lastIndexOf(QLatin1Char('.'));
-            if (lastDotPos != -1)
-                w.name.remove(0, lastDotPos + 1);
-            w.exp = w.name.toLatin1();
-        } else {
-            // Children can have a 'name' attribute. If missing, assume array index
-            // For display purposes, it can be overridden by "key"
-            if (!gdbMiGetStringValue(&w.name, root, "name")) {
-                w.name = QString::number(ctx.childIndex);
-            }
-            // Set iname
-            w.iname = ctx.parentIName;
-            w.iname += '.';
-            w.iname += w.name.toLatin1();
-            // Key?
-            QString key;
-            if (gdbMiGetStringValue(&key, root, "key", "keyencoded")) {
-                w.name = key.size() > 13 ? key.mid(0, 13) + QLatin1String("...") : key;
-            }
-        }
-    }
-    if (w.name.isEmpty()) {
-        const QString msg = QString::fromLatin1(
-            "Internal error: Unable to determine name at level %1/%2 for %3")
-            .arg(ctx.recursionLevel).arg(w.iname, QLatin1String(root.toString(true, 2)));
-        qWarning("%s\n", qPrintable(msg));
-    }
-    gdbMiGetStringValue(&w.displayedType, root, "displayedtype");
-    if (gdbMiGetByteArrayValue(&b, root, "editvalue"))
-        w.editvalue = b;
-    if (gdbMiGetByteArrayValue(&b, root, "exp"))
-        w.exp = b;
-    QByteArray addressBA;
-    gdbMiGetByteArrayValue(&addressBA, root, "addr");
-    if (addressBA.startsWith("0x")) { // Item model dumper pulls tricks
-        w.setHexAddress(addressBA);
-    } else {
-        w.dumperFlags = addressBA;
-    }
-    gdbMiGetBoolValue(&w.valueEnabled, root, "valueenabled");
-    gdbMiGetBoolValue(&w.valueEditable, root, "valueeditable");
-    if (gdbMiGetStringValue(&v, root, "valuetooltip", "valuetooltipencoded"))
-        w.setValue(v);
-    if (gdbMiGetStringValue(&v, root, "value", "valueencoded"))
-        w.setValue(v);
-    // Type from context or self
-    if (ctx.childType.isEmpty()) {
-        if (gdbMiGetStringValue(&v, root, "type"))
-            w.setType(v.toUtf8());
-    } else {
-        w.setType(ctx.childType.toUtf8());
-    }
-    // child count?
-    int numChild = -1;
-    if (ctx.childNumChild >= 0) {
-        numChild = ctx.childNumChild;
-    } else {
-        gdbMiGetIntValue(&numChild, root, "numchild");
-    }
-    if (numChild >= 0)
-        w.setHasChildren(numChild > 0);
-    wl->push_back(w);
-    // Parse children with a new context
-    if (numChild == 0)
-        return;
-    const GdbMi childrenNode = root.findChild("children");
-    if (!childrenNode.isValid())
-        return;
-    const QList<GdbMi> children =childrenNode.children();
-    if (children.empty())
-        return;
-    wl->back().setChildrenUnneeded();
-    GdbMiRecursionContext nextLevelContext(ctx.type, ctx.recursionLevel + 1);
-    nextLevelContext.parentIName = w.iname;
-    gdbMiGetStringValue(&nextLevelContext.childType, root, "childtype");
-    if (!gdbMiGetIntValue(&nextLevelContext.childNumChild, root, "childnumchild"))
-        nextLevelContext.childNumChild = -1;
-    foreach (const GdbMi &child, children) {
-        gbdMiToWatchData(child, nextLevelContext, wl);
-        nextLevelContext.childIndex++;
-    }
-}
-
-bool QtDumperHelper::parseValue(const char *data, QList<WatchData> *l)
-{
-    l->clear();
-    GdbMi root;
-    // Array (CDB2)
-    if (*data == '[') {
-        root.fromString(data);
-        if (!root.isValid())
-            return false;
-        foreach(const GdbMi &child, root.children())
-            gbdMiToWatchData(child, GdbMiRecursionContext(GdbMiRecursionContext::Debugger), l);
-    } else {
-        root.fromStringMultiple(QByteArray(data));
-        if (!root.isValid())
-            return false;
-        gbdMiToWatchData(root, GdbMiRecursionContext(GdbMiRecursionContext::GdbMacrosCpp), l);
-    }
-    return true;
-}
-
 QDebug operator<<(QDebug in, const QtDumperHelper::TypeData &d)
 {
     QDebug nsp = in.nospace();
@@ -1567,7 +1299,6 @@ QDebug operator<<(QDebug in, const QtDumperHelper::TypeData &d)
         nsp << d.tmplate << '<' << d.inner << '>';
     return in;
 }
-
 
 //////////////////////////////////////////////////////////////////////
 //

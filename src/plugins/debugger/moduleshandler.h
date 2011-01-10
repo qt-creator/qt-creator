@@ -36,8 +36,9 @@
 
 #include <QtCore/QVector>
 #include <QtCore/QObject>
-#include <QtGui/QSortFilterProxyModel>
+#include <QtCore/QAbstractItemModel>
 
+QT_FORWARD_DECLARE_CLASS(QSortFilterProxyModel)
 
 namespace Debugger {
 namespace Internal {

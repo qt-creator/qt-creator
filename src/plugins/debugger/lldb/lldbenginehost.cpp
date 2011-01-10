@@ -35,6 +35,7 @@
 
 #include "lldbenginehost.h"
 
+#include "debuggerstartparameters.h"
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "debuggerdialogs.h"

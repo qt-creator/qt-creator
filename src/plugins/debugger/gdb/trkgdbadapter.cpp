@@ -33,6 +33,7 @@
 
 #include "trkgdbadapter.h"
 
+#include "debuggerstartparameters.h"
 #include "gdbmi.h"
 #include "launcher.h"
 #include "symbiandevicemanager.h"

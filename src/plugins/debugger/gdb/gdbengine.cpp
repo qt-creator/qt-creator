@@ -35,6 +35,8 @@
 
 #include "gdbengine.h"
 
+#include "debuggerstartparameters.h"
+#include "disassemblerlines.h"
 #include "attachgdbadapter.h"
 #include "coregdbadapter.h"
 #include "localplaingdbadapter.h"

@@ -35,6 +35,7 @@
 #define DEBUGGER_DEBUGGERSTARTPARAMETERS_H
 
 #include "debugger_global.h"
+#include "debuggerconstants.h"
 
 #include <coreplugin/ssh/sshconnection.h>
 #include <utils/environment.h>

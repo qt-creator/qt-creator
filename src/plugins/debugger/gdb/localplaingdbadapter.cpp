@@ -34,6 +34,7 @@
 #include "localplaingdbadapter.h"
 
 #include "gdbengine.h"
+#include "debuggerstartparameters.h"
 #include "procinterrupt.h"
 #include "debuggercore.h"
 #include "debuggerstringutils.h"

@@ -35,6 +35,7 @@
 
 #include "pdbengine.h"
 
+#include "debuggerstartparameters.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerdialogs.h"

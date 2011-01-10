@@ -46,15 +46,9 @@
 #include <QtCore/QDebug>
 
 #include <QtGui/QAction>
-#include <QtGui/QHeaderView>
 #include <QtGui/QIntValidator>
-#include <QtGui/QItemSelectionModel>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMenu>
-#include <QtGui/QResizeEvent>
-#include <QtGui/QToolButton>
-#include <QtGui/QTreeView>
-
 
 namespace Debugger {
 namespace Internal {

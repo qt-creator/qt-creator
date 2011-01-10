@@ -32,6 +32,8 @@
 **************************************************************************/
 
 #include "termgdbadapter.h"
+
+#include "debuggerstartparameters.h"
 #include "gdbmi.h"
 #include "gdbengine.h"
 #include "procinterrupt.h"

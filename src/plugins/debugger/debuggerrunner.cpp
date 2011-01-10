@@ -39,6 +39,7 @@
 #include "debuggermainwindow.h"
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
+#include "debuggerstartparameters.h"
 #include "gdb/gdboptionspage.h"
 #include "lldb/lldbenginehost.h"
 

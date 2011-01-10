@@ -34,6 +34,7 @@
 #include "qmlengine.h"
 #include "qmladapter.h"
 
+#include "debuggerstartparameters.h"
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "debuggercore.h"

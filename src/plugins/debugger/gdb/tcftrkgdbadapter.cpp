@@ -32,6 +32,8 @@
 **************************************************************************/
 
 #include "tcftrkgdbadapter.h"
+
+#include "debuggerstartparameters.h"
 #include "tcftrkdevice.h"
 #include "trkutils.h"
 #include "gdbmi.h"

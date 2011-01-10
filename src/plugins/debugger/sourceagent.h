@@ -35,9 +35,6 @@
 #define DEBUGGER_SOURCE_AGENT_H
 
 #include <QtCore/QObject>
-#include <QtCore/QHash>
-#include <QtCore/QPointer>
-#include <QtCore/QVector>
 
 namespace Debugger {
 
@@ -58,7 +55,6 @@ public:
 private:
     SourceAgentPrivate *d;
 };
-
 
 } // namespace Internal
 } // namespace Debugger
