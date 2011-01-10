@@ -83,6 +83,7 @@ NavigationWidget::NavigationWidget(QWidget *parent) :
 
     // tree model
     d_ptr->treeModel = new TreeItemModel(this);
+    d_ptr->ui->treeView->header()->setStretchLastSection(true);
     d_ptr->ui->treeView->setModel(d_ptr->treeModel);
 
     // connect signal/slots

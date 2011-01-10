@@ -116,6 +116,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
             this, SLOT(filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &)));
 
     m_view = new ProjectTreeView;
+    m_view->header()->setStretchLastSection(true);
     m_view->setModel(m_model);
     setFocusProxy(m_view);
     initView();
