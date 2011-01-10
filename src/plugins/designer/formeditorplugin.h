@@ -35,19 +35,9 @@
 #define FORMEDITORPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
-#include <QtCore/QPointer>
-
-namespace Core {
-    class DesignMode;
-    class IMode;
-    class IEditor;
-}
 
 namespace Designer {
-class FormWindowEditor;
 namespace Internal {
-class FormEditorStack;
-
 
 class FormEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -62,10 +52,7 @@ public:
     void extensionsInitialized();
 
 private:
-
     void initializeTemplates();
-
-    //Core::IMode *m_prevMode;
 };
 
 } // namespace Internal

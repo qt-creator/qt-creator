@@ -131,7 +131,6 @@ plugin_qt4projectmanager.subdir = qt4projectmanager
 plugin_qt4projectmanager.depends = plugin_texteditor
 plugin_qt4projectmanager.depends += plugin_projectexplorer
 plugin_qt4projectmanager.depends += plugin_cpptools
-plugin_qt4projectmanager.depends += plugin_designer
 plugin_qt4projectmanager.depends += plugin_debugger
 plugin_qt4projectmanager.depends += plugin_qmljseditor
 
@@ -183,7 +182,6 @@ plugin_cmakeprojectmanager.subdir = cmakeprojectmanager
 plugin_cmakeprojectmanager.depends = plugin_texteditor
 plugin_cmakeprojectmanager.depends += plugin_projectexplorer
 plugin_cmakeprojectmanager.depends += plugin_cpptools
-plugin_cmakeprojectmanager.depends += plugin_designer
 
 plugin_genericprojectmanager.subdir = genericprojectmanager
 plugin_genericprojectmanager.depends = plugin_texteditor

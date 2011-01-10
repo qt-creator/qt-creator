@@ -112,11 +112,11 @@ void FormClassWizardPage::setPath(const QString &p)
 
 void FormClassWizardPage::getParameters(FormClassWizardParameters *p) const
 {
-    p->setClassName(m_ui->newClassWidget->className());
-    p->setPath(path());
-    p->setSourceFile(m_ui->newClassWidget->sourceFileName());
-    p->setHeaderFile(m_ui->newClassWidget->headerFileName());
-    p->setUiFile(m_ui->newClassWidget-> formFileName());
+    p->className = m_ui->newClassWidget->className();
+    p->path = path();
+    p->sourceFile = m_ui->newClassWidget->sourceFileName();
+    p->headerFile = m_ui->newClassWidget->headerFileName();
+    p->uiFile = m_ui->newClassWidget-> formFileName();
 }
 
 void FormClassWizardPage::slotValidChanged()

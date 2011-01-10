@@ -52,38 +52,38 @@ CppSettingsPageWidget::CppSettingsPageWidget(QWidget *parent) :
 FormClassWizardGenerationParameters CppSettingsPageWidget::parameters() const
 {
     FormClassWizardGenerationParameters rc;
-    rc.setEmbedding(static_cast<FormClassWizardGenerationParameters::UiClassEmbedding>(uiEmbedding()));
-    rc.setRetranslationSupport(m_ui.retranslateCheckBox->isChecked());
-    rc.setIncludeQtModule(m_ui.includeQtModuleCheckBox->isChecked());
+    rc.embedding = static_cast<UiClassEmbedding>(uiEmbedding());
+    rc.retranslationSupport =m_ui.retranslateCheckBox->isChecked();
+    rc.includeQtModule = m_ui.includeQtModuleCheckBox->isChecked();
     return rc;
 }
 
 void CppSettingsPageWidget::setParameters(const FormClassWizardGenerationParameters &p)
 {
-    m_ui.retranslateCheckBox->setChecked(p.retranslationSupport());
-    m_ui.includeQtModuleCheckBox->setChecked(p.includeQtModule());
-    setUiEmbedding(p.embedding());
+    m_ui.retranslateCheckBox->setChecked(p.retranslationSupport);
+    m_ui.includeQtModuleCheckBox->setChecked(p.includeQtModule);
+    setUiEmbedding(p.embedding);
 }
 
 int CppSettingsPageWidget::uiEmbedding() const
 {
     if (m_ui.ptrAggregationRadioButton->isChecked())
-        return FormClassWizardGenerationParameters::PointerAggregatedUiClass;
+        return PointerAggregatedUiClass;
     if (m_ui.aggregationButton->isChecked())
-        return FormClassWizardGenerationParameters::AggregatedUiClass;
-    return FormClassWizardGenerationParameters::InheritedUiClass;
+        return AggregatedUiClass;
+    return InheritedUiClass;
 }
 
 void CppSettingsPageWidget::setUiEmbedding(int v)
 {
     switch (v) {
-    case FormClassWizardGenerationParameters::PointerAggregatedUiClass:
+    case PointerAggregatedUiClass:
         m_ui.ptrAggregationRadioButton->setChecked(true);
         break;
-    case FormClassWizardGenerationParameters::AggregatedUiClass:
+    case AggregatedUiClass:
         m_ui.aggregationButton->setChecked(true);
         break;
-    case FormClassWizardGenerationParameters::InheritedUiClass:
+    case InheritedUiClass:
         m_ui.multipleInheritanceButton->setChecked(true);
         break;
     }

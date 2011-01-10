@@ -40,7 +40,8 @@ HEADERS += formeditorplugin.h \
     designercontext.h \
     formeditorstack.h \
     editordata.h \
-    resourcehandler.h
+    resourcehandler.h \
+    qtdesignerformclasscodegenerator.h
 
 SOURCES += formeditorplugin.cpp \
         formeditorfactory.cpp \
@@ -58,7 +59,8 @@ SOURCES += formeditorplugin.cpp \
     designerxmleditor.cpp \
     designercontext.cpp \
     formeditorstack.cpp \
-    resourcehandler.cpp
+    resourcehandler.cpp \
+    qtdesignerformclasscodegenerator.cpp
 
 RESOURCES += designer.qrc
 

@@ -43,7 +43,7 @@
 
 namespace ExtensionSystem {
 
-class InvokerBase
+class EXTENSIONSYSTEM_EXPORT InvokerBase
 {
 public:
     InvokerBase();

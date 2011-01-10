@@ -39,6 +39,8 @@
 #include <cpptools/abstracteditorsupport.h>
 #include <designer/cpp/formclasswizardparameters.h>
 #include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/invoker.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -132,20 +134,30 @@ static inline bool generateFormClass(const GuiAppParameters &params,
                                      QString *errorMessage)
 {
     // Retrieve parameters from settings
-    Designer::FormClassWizardGenerationParameters fgp;
-    fgp.fromSettings(Core::ICore::instance()->settings());
     Designer::FormClassWizardParameters fp;
-    fp.setUiTemplate(uiFile.contents());
-    fp.setUiFile(uiFile.path());
-    fp.setClassName(params.className);
-    fp.setSourceFile(params.sourceFileName);
-    fp.setHeaderFile(params.headerFileName);
+    fp.uiTemplate = uiFile.contents();
+    fp.uiFile = uiFile.path();
+    fp.className = params.className;
+    fp.sourceFile = params.sourceFileName;
+    fp.headerFile = params.headerFileName;
     QString headerContents;
     QString sourceContents;
-    if (!fp.generateCpp(fgp, &headerContents, &sourceContents, 4)) {
-        *errorMessage = QLatin1String("Internal error: Unable to generate the form classes.");
+    // Invoke code generation service of Qt Designer plugin.
+    if (QObject *codeGenerator = ExtensionSystem::PluginManager::instance()->getObjectByClassName("Designer::QtDesignerFormClassCodeGenerator")) {
+        const QVariant code =  ExtensionSystem::invoke<QVariant>(codeGenerator, "generateFormClassCode", fp);
+        if (code.type() == QVariant::List) {
+            const QVariantList vl = code.toList();
+            if (vl.size() == 2) {
+                headerContents = vl.front().toString();
+                sourceContents = vl.back().toString();
+            }
+        }
+    }
+    if (headerContents.isEmpty() || sourceContents.isEmpty()) {
+        *errorMessage = QString::fromAscii("Failed to obtain Designer plugin code generation service.");
         return false;
     }
+
     formHeader->setContents(headerContents);
     formSource->setContents(sourceContents);
     return true;

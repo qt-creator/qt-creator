@@ -103,7 +103,7 @@ FormClassWizardParameters FormClassWizardDialog::parameters() const
     FormClassWizardParameters rc;
     m_classPage->getParameters(&rc);
     // Name the ui class in the Ui namespace after the class specified
-    rc.setUiTemplate(FormTemplateWizardPage::changeUiClassName(m_rawFormTemplate, rc.className()));
+    rc.uiTemplate = FormTemplateWizardPage::changeUiClassName(m_rawFormTemplate, rc.className);
     return rc;
 }
 

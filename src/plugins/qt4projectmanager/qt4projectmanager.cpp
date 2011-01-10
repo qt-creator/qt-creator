@@ -48,13 +48,13 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
-#include <designer/formwindoweditor.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -81,6 +81,20 @@ static const char* qt4FileTypes[] = {
     "Qt4FormFiles",
     "Qt4ResourceFiles"
 };
+
+// Test for form editor (loosely coupled)
+static inline bool isFormWindowEditor(const QObject *o)
+{
+    return o && !qstrcmp(o->metaObject()->className(), "Designer::FormWindowEditor");
+}
+
+// Return contents of form editor (loosely coupled)
+static inline QString formWindowEditorContents(const QObject *editor)
+{
+    const QVariant contentV = editor->property("contents");
+    QTC_ASSERT(contentV.isValid(), return QString(); )
+    return contentV.toString();
+}
 
 Qt4Manager::Qt4Manager(Qt4ProjectManagerPlugin *plugin)
   : m_plugin(plugin),
@@ -122,14 +136,13 @@ void Qt4Manager::init()
 void Qt4Manager::editorChanged(Core::IEditor *editor)
 {
     // Handle old editor
-    Designer::FormWindowEditor *lastFormEditor = qobject_cast<Designer::FormWindowEditor *>(m_lastEditor);
-    if (lastFormEditor) {
-        disconnect(lastFormEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
+    if (isFormWindowEditor(m_lastEditor)) {
+        disconnect(m_lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
 
         if (m_dirty) {
-            const QString contents = lastFormEditor->contents();
+            const QString contents = formWindowEditorContents(m_lastEditor);
             foreach(Qt4Project *project, m_projects)
-                project->rootProjectNode()->updateCodeModelSupportFromEditor(lastFormEditor->file()->fileName(), contents);
+                project->rootProjectNode()->updateCodeModelSupportFromEditor(m_lastEditor->file()->fileName(), contents);
             m_dirty = false;
         }
     }
@@ -137,8 +150,8 @@ void Qt4Manager::editorChanged(Core::IEditor *editor)
     m_lastEditor = editor;
 
     // Handle new editor
-    if (Designer::FormWindowEditor *fw = qobject_cast<Designer::FormWindowEditor *>(editor))
-        connect(fw, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
+    if (isFormWindowEditor(m_lastEditor))
+        connect(m_lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
 }
 
 void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
@@ -146,13 +159,12 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
     if (m_lastEditor == editor) {
         // Oh no our editor is going to be closed
         // get the content first
-        Designer::FormWindowEditor *lastEditor = qobject_cast<Designer::FormWindowEditor *>(m_lastEditor);
-        if (lastEditor) {
-            disconnect(lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
+        if (isFormWindowEditor(m_lastEditor)) {
+            disconnect(m_lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
             if (m_dirty) {
-                const QString contents = lastEditor->contents();
+                const QString contents = formWindowEditorContents(m_lastEditor);
                 foreach(Qt4Project *project, m_projects)
-                    project->rootProjectNode()->updateCodeModelSupportFromEditor(lastEditor->file()->fileName(), contents);
+                    project->rootProjectNode()->updateCodeModelSupportFromEditor(m_lastEditor->file()->fileName(), contents);
                 m_dirty = false;
             }
         }
@@ -163,12 +175,8 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
 void Qt4Manager::uiEditorContentsChanged()
 {
     // cast sender, get filename
-    if (m_dirty)
-        return;
-    Designer::FormWindowEditor *fw = qobject_cast<Designer::FormWindowEditor *>(sender());
-    if (!fw)
-        return;
-    m_dirty = true;
+    if (!m_dirty && isFormWindowEditor(sender()))
+        m_dirty = true;
 }
 
 Core::Context Qt4Manager::projectContext() const

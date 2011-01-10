@@ -34,99 +34,27 @@
 #ifndef FORMCLASSWIZARDPARAMETERS_H
 #define FORMCLASSWIZARDPARAMETERS_H
 
-#include "../designer_export.h"
 #include <QtCore/QString>
-#include <QtCore/QSharedDataPointer>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <QtCore/QMetaType>
 
 namespace Designer {
+/* Parameters passed to generate the code part of a form class.
+ * Code generation using the parameters is provided as an invokable
+ * service by QtDesignerFormClassCodeGenerator.
+ * Thus, the parameters class must not have linkage. */
 
-class FormClassWizardGenerationParametersPrivate;
-class FormClassWizardParametersPrivate;
-
-// Parameters influencing the code generation.
-class DESIGNER_EXPORT FormClassWizardGenerationParameters {
+class FormClassWizardParameters
+{
 public:
-    // How to embed the Ui::Form class.
-    enum UiClassEmbedding {
-        PointerAggregatedUiClass, // "Ui::Form *m_ui";
-        AggregatedUiClass,        // "Ui::Form m_ui";
-        InheritedUiClass          // "...private Ui::Form..."
-    };
-
-    FormClassWizardGenerationParameters();
-    ~FormClassWizardGenerationParameters();
-    FormClassWizardGenerationParameters(const FormClassWizardGenerationParameters&);
-    FormClassWizardGenerationParameters &operator=(const FormClassWizardGenerationParameters &);
-
-    void fromSettings(const QSettings *);
-    void toSettings(QSettings *) const;
-
-    UiClassEmbedding embedding() const;
-    void setEmbedding(UiClassEmbedding e);
-
-    bool retranslationSupport() const; // Add handling for language change events
-    void setRetranslationSupport(bool v);
-
-    bool includeQtModule() const;      // Include "<QtGui/[Class]>" or just "<[Class]>"
-    void setIncludeQtModule(bool v);
-
-    bool indentNamespace() const;
-    void setIndentNamespace(bool v);
-
-    bool equals(const FormClassWizardGenerationParameters &rhs) const;
-
-private:
-    QSharedDataPointer<FormClassWizardGenerationParametersPrivate> m_d;
+    QString uiTemplate;
+    QString className;
+    QString path;
+    QString sourceFile;
+    QString headerFile;
+    QString uiFile;
 };
-
-inline bool operator==(const FormClassWizardGenerationParameters &p1, const FormClassWizardGenerationParameters &p2) { return p1.equals(p2); }
-inline bool operator!=(const FormClassWizardGenerationParameters &p1, const FormClassWizardGenerationParameters &p2) { return !p1.equals(p2); }
-
-// Parameters required to generate the code part of a form class with
-// helpers for XML-processing ui templates.
-class DESIGNER_EXPORT FormClassWizardParameters {
-public:
-    FormClassWizardParameters();
-    ~FormClassWizardParameters();
-    FormClassWizardParameters(const FormClassWizardParameters &);
-    FormClassWizardParameters &operator=(const FormClassWizardParameters &);
-
-    bool generateCpp(const FormClassWizardGenerationParameters &fgp,
-                     QString *header, QString *source, int indentation = 4) const;
-
-    // Helper to parse UI XML forms to determine:
-    // 1) The ui class name from "<class>Designer::Internal::FormClassWizardPage</class>"
-    // 2) the base class from: widget class="QWizardPage"...
-    static bool getUIXmlData(const QString &uiXml, QString *formBaseClass, QString *uiClassName);
-    // Helper to change the class name in a UI XML form
-    static QString changeUiClassName(const QString &uiXml, const QString &newUiClassName);
-
-    QString uiTemplate() const;
-    void setUiTemplate(const QString &);
-
-    QString className() const;
-    void setClassName(const QString &);
-
-    QString path() const;
-    void setPath(const QString &);
-
-    QString sourceFile() const;
-    void setSourceFile(const QString &);
-
-    QString headerFile() const;
-    void setHeaderFile(const QString &);
-
-    QString uiFile() const;
-    void setUiFile(const QString &);
-
-private:
-    QSharedDataPointer<FormClassWizardParametersPrivate> m_d;
-};
-
 } // namespace Designer
+
+Q_DECLARE_METATYPE(Designer::FormClassWizardParameters)
 
 #endif // FORMCLASSWIZARDPARAMETERS_H
