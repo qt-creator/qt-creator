@@ -1585,13 +1585,6 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, void **s
     return true;
 }
 
-static inline std::wstring msgContainerSize(int s)
-{
-    std::wostringstream str;
-    str << L'<' << s << L" items>";
-    return str.str();
-}
-
 // Dump builtin simple types using SymbolGroupValue expressions.
 unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
                         std::wstring *s, int *knownTypeIn /* = 0 */,
@@ -1616,7 +1609,14 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
         return SymbolGroupNode::SimpleDumperNotApplicable;
     }
 
+    std::wostringstream str;
+
+    // Prefix by pointer value
     const SymbolGroupValue v(n, ctx);
+    if (SymbolGroupValue::isPointerType(v.type()))
+        if (const ULONG64 pointerValue = v.pointerValue())
+            str << std::showbase << std::hex << pointerValue << std::dec << std::noshowbase << ' ';
+
     // Simple dump of size for containers
     if (kt & KT_ContainerType) {
         const int size = containerSize(kt, v);
@@ -1625,12 +1625,12 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
         if (containerSizeIn)
             *containerSizeIn = size;
         if (size >= 0) {
-            *s = msgContainerSize(size);
+            str << L'<' << size << L" items>";
+            *s = str.str();
             return SymbolGroupNode::SimpleDumperOk;
         }
         return SymbolGroupNode::SimpleDumperFailed;
     }
-    std::wostringstream str;
     unsigned rc = SymbolGroupNode::SimpleDumperNotApplicable;
     switch (kt) {
     case KT_QChar:
