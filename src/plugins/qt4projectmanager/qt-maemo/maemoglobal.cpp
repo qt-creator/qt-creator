@@ -36,6 +36,7 @@
 #include "maemoconstants.h"
 #include "maemodeviceconfigurations.h"
 
+#include <coreplugin/filemanager.h>
 #include <coreplugin/ssh/sshconnection.h>
 #include <qt4projectmanager/qtversionmanager.h>
 #include <utils/environment.h>
@@ -210,6 +211,17 @@ bool MaemoGlobal::callMaddeShellScript(QProcess &proc, const QString &maddeRoot,
 #endif
     proc.start(actualCommand, actualArgs);
     return true;
+}
+
+MaemoGlobal::FileUpdate::FileUpdate(const QString &fileName)
+    : m_fileName(fileName)
+{
+    Core::FileManager::instance()->expectFileChange(fileName);
+}
+
+MaemoGlobal::FileUpdate::~FileUpdate()
+{
+    Core::FileManager::instance()->unexpectFileChange(m_fileName);
 }
 
 } // namespace Internal

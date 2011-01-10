@@ -458,8 +458,10 @@ QString MaemoTemplatesManager::version(const Project *project,
 bool MaemoTemplatesManager::setVersion(const Project *project,
     const QString &version, QString *error) const
 {
+    const QString filePath = changeLogFilePath(project);
+    MaemoGlobal::FileUpdate update(filePath);
     QSharedPointer<QFile> changeLog
-        = openFile(changeLogFilePath(project), QIODevice::ReadWrite, error);
+        = openFile(filePath, QIODevice::ReadWrite, error);
     if (!changeLog)
         return false;
 
@@ -496,8 +498,10 @@ QIcon MaemoTemplatesManager::packageManagerIcon(const Project *project,
 bool MaemoTemplatesManager::setPackageManagerIcon(const Project *project,
     const QString &iconFilePath, QString *error) const
 {
+    const QString filePath = controlFilePath(project);
+    MaemoGlobal::FileUpdate update(filePath);
     const QSharedPointer<QFile> controlFile
-        = openFile(controlFilePath(project), QIODevice::ReadWrite, error);
+        = openFile(filePath, QIODevice::ReadWrite, error);
     if (!controlFile)
         return false;
     const QPixmap pixmap(iconFilePath);
@@ -577,6 +581,7 @@ bool MaemoTemplatesManager::setFieldValue(const Project *project,
     const QByteArray &fieldName, const QByteArray &fieldValue)
 {
     QFile controlFile(controlFilePath(project));
+    MaemoGlobal::FileUpdate update(controlFile.fileName());
     if (!controlFile.open(QIODevice::ReadWrite))
         return false;
     QByteArray contents = controlFile.readAll();

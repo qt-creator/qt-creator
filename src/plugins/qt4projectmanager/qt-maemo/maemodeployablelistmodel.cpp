@@ -230,6 +230,7 @@ bool MaemoDeployableListModel::addDesktopFile(QString &error)
         return true;
     const QString desktopFilePath = QFileInfo(m_proFilePath).path()
         + QLatin1Char('/') + m_projectName + QLatin1String(".desktop");
+    MaemoGlobal::FileUpdate update(desktopFilePath);
     QFile desktopFile(desktopFilePath);
     const bool existsAlready = desktopFile.exists();
     if (!desktopFile.open(QIODevice::ReadWrite)) {
@@ -316,6 +317,7 @@ QString MaemoDeployableListModel::remoteIconFilePath() const
 bool MaemoDeployableListModel::addLinesToProFile(const QStringList &lines)
 {
     QFile projectFile(m_proFilePath);
+    MaemoGlobal::FileUpdate update(m_proFilePath);
     if (!projectFile.open(QIODevice::WriteOnly | QIODevice::Append)) {
         qWarning("Error opening .pro file for writing.");
         return false;

@@ -63,6 +63,14 @@ class MaemoGlobal
 public:
     enum MaemoVersion { Maemo5, Maemo6 };
 
+    class FileUpdate {
+    public:
+        FileUpdate(const QString &fileName);
+        ~FileUpdate();
+    private:
+        const QString m_fileName;
+    };
+
     static QString homeDirOnDevice(const QString &uname);
     static QString remoteSudo();
     static QString remoteCommandPrefix(const QString &commandFilePath);
