@@ -90,8 +90,8 @@ LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfig
     m_runMode = static_cast<ApplicationLauncher::Mode>(rc->runMode());
     m_commandLineArguments = rc->commandLineArguments();
 
-    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,ProcessExplorer::OutputFormat)),
-            this, SLOT(slotAppendMessage(QString,ProcessExplorer::OutputFormat)));
+    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,ProjectExplorer::OutputFormat)),
+            this, SLOT(slotAppendMessage(QString,ProjectExplorer::OutputFormat)));
     connect(&m_applicationLauncher, SIGNAL(processExited(int)),
             this, SLOT(processExited(int)));
     connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),

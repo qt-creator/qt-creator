@@ -51,7 +51,7 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
     : QObject(parent), d(new ApplicationLauncherPrivate)
 {
     connect(&d->m_consoleProcess, SIGNAL(processMessage(QString,bool)),
-            this, SIGNAL(appendProcessMessage(QString,bool)));
+            this, SLOT(appendProcessMessage(QString,bool)));
     connect(&d->m_consoleProcess, SIGNAL(processStopped()),
             this, SLOT(processStopped()));
 
