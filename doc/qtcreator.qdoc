@@ -356,8 +356,7 @@
 
     \section2 Debuggers
 
-    Qt Creator does not include a debugger. It provides a debugger plugin that acts
-    as an interface between the Qt Creator core and external native debuggers:
+    Qt Creator is integrated to several external native debuggers:
 
     \list
 
@@ -5956,7 +5955,7 @@
 
     \title Debugging
 
-    Qt Creator does not include a debugger. It provides a debugger plugin that acts
+    Qt Creator provides a debugger plugin that acts
     as an interface between the Qt Creator core and external native debuggers
     such as the GNU Symbolic Debugger (gdb), the Microsoft Console Debugger (CDB),
     and a QML/JavaScript debugger.
