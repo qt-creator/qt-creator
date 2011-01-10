@@ -59,7 +59,8 @@ HEADERS += breakhandler.h \
     watchwindow.h \
     threaddata.h \
     threadshandler.h \
-    watchdelegatewidgets.h
+    watchdelegatewidgets.h \
+    debuggerruncontrolfactory.h
 
 SOURCES += breakhandler.cpp \
     breakpoint.cpp \

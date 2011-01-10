@@ -51,38 +51,12 @@ class DebuggerRunControl;
 class DebuggerStartParameters;
 
 namespace Internal {
-
 class DebuggerRunControlPrivate;
-
-class DebuggerRunControlFactory
-    : public ProjectExplorer::IRunControlFactory
-{
-public:
-    DebuggerRunControlFactory(QObject *parent, unsigned enabledEngines);
-
-    // This is used by the "Non-Standard" scenarios, e.g. Attach to Core.
-    // FIXME: What to do in case of a 0 runConfiguration?
-    typedef ProjectExplorer::RunConfiguration RunConfiguration;
-    typedef ProjectExplorer::RunControl RunControl;
-    DebuggerRunControl *create(const DebuggerStartParameters &sp,
-        RunConfiguration *runConfiguration = 0);
-
-    // ProjectExplorer::IRunControlFactory
-    // FIXME: Used by qmljsinspector.cpp:469
-    RunControl *create(RunConfiguration *runConfiguration, const QString &mode);
-    bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
-
-private:
-    QString displayName() const;
-    QWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
-
-    unsigned m_enabledEngines;
-};
-
+class DebuggerRunControlFactory;
 } // namespace Internal
 
 
-class ConfigurationCheck
+class DEBUGGER_EXPORT ConfigurationCheck
 {
 public:
     ConfigurationCheck() {}
@@ -94,7 +68,7 @@ public:
     QString settingsPage;
 };
 
-ConfigurationCheck checkDebugConfiguration(ProjectExplorer::ToolChainType toolChain);
+DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(ProjectExplorer::ToolChainType toolChain);
 
 // This is a job description containing all data "local" to the jobs, including
 // the models of the individual debugger views.

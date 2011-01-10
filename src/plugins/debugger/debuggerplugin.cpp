@@ -41,6 +41,7 @@
 #include "debuggerengine.h"
 #include "debuggermainwindow.h"
 #include "debuggerrunner.h"
+#include "debuggerruncontrolfactory.h"
 #include "debuggerstringutils.h"
 #include "debuggertooltip.h"
 

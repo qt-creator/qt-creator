@@ -32,6 +32,7 @@
 **************************************************************************/
 
 #include "debuggerrunner.h"
+#include "debuggerruncontrolfactory.h"
 
 #include "debuggeractions.h"
 #include "debuggercore.h"
@@ -382,7 +383,7 @@ void DebuggerRunControl::setCustomEnvironment(Utils::Environment env)
     d->m_engine->startParameters().environment = env;
 }
 
-ConfigurationCheck checkDebugConfiguration(ToolChainType toolChain)
+DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(ToolChainType toolChain)
 {
     ConfigurationCheck result;
 
@@ -410,6 +411,8 @@ ConfigurationCheck checkDebugConfiguration(ToolChainType toolChain)
             result.errorMessage += msgEngineNotAvailable("Cdb");
             result.settingsPage = QLatin1String("Cdb");
         }
+        break;
+    default:
         break;
     }
 
