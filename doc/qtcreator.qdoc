@@ -67,7 +67,7 @@
            \list
                \o \l{Building and Running an Example Application}
                \o \l{Creating a Qt C++ Application}
-               \o \l{Creating a Mobile Application with Nokia Qt SDK}
+               \o \l{Creating a Mobile Application with Qt SDK}
                \o \l{Creating a Qt Quick Application}
            \endlist
        \o \l{Managing Projects}
@@ -2950,7 +2950,7 @@
     \section3 Troubleshooting MinGW Compilation Errors
 
     If error messages displayed in the \gui {Compile Output} pane contain
-    paths where slashes are missing (for example, C:NokiaQtSDK),
+    paths where slashes are missing (for example, C:QtSDK),
     check your PATH variable. At the command line, enter the following commands:
 
     \code
@@ -4163,7 +4163,7 @@
         \note The instructions below assume that you have installed \QSDK.
 
         \o To package Nokia Smart Installer for Symbian with the application, choose
-        \gui {Start > Nokia Qt SDK > Symbian > Qt for Symbian Command Prompt}
+        \gui {Start > Qt SDK > Symbian > Qt for Symbian Command Prompt}
         to open the Qt command line environment.
 
         \o Change to the project directory. For example:
@@ -4435,7 +4435,7 @@
     \list
         \o \l{Building and Running an Example Application}
         \o \l{Creating a Qt C++ Application}
-        \o \l{Creating a Mobile Application with Nokia Qt SDK}
+        \o \l{Creating a Mobile Application with Qt SDK}
         \o \l{Creating a Qt Quick Application}
     \endlist
 
@@ -4448,7 +4448,7 @@
     \page creator-mobile-example.html
     \nextpage creator-qml-application.html
 
-    \title Creating a Mobile Application with Nokia Qt SDK
+    \title Creating a Mobile Application with Qt SDK
 
     \note To complete this tutorial, you must install \QSDK.
     The installation program installs and configures the necessary tool chains
@@ -4783,7 +4783,7 @@
     To use the states.png image in your application, you must copy it to the project
     directory from the examples directory in the
     Qt installation directory. For example:
-    \c {C:\NokiaQtSDK\Examples\4.7\declarative\animation\states}. The image appears
+    \c {C:\QtSDK\Examples\4.7\declarative\animation\states}. The image appears
     in the \gui Resources pane. You can also use any other image or a QML element, instead.
 
     \list 1
@@ -9499,7 +9499,7 @@
         you installed \QSDK, Qt Creator, and MADDE.
 
         \o If error messages displayed in the \gui {Compile Output} pane contain
-        paths where slashes are missing (for example, C:NokiaQtSDK),
+        paths where slashes are missing (for example, C:QtSDK),
         check your PATH variable. For more information, see
         \l{Troubleshooting MinGW Compilation Errors}.
 
