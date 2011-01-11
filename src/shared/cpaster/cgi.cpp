@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -166,13 +166,13 @@ inline const char *unicodeToHTML(ushort unicode_char)
     case 0x00BD: return "frac12";  // (189 ) vulgar fraction one half = fraction one half
     case 0x00BE: return "frac34";  // (190 ) vulgar fraction three quarters = fraction three quarters
     case 0x00BF: return "iquest";  // (191 ) inverted question mark = turned question mark
-    case 0x00C0: return "Agrave";  // (192 ) capital letter A with grave = capital letter À
+    case 0x00C0: return "Agrave";  // (192 ) capital letter A with grave = capital letter 
     case 0x00C1: return "Aacute";  // (193 ) capital letter A with acute
     case 0x00C2: return "Acirc";   // (194 ) capital letter A with circumflex
     case 0x00C3: return "Atilde";  // (195 ) capital letter A with tilde
     case 0x00C4: return "Auml";    // (196 ) capital letter A with diaeresis
-    case 0x00C5: return "Aring";   // (197 ) capital letter A with ring above = capital letter Å
-    case 0x00C6: return "AElig";   // (198 ) capital letter AE =  capital ligature Æ
+    case 0x00C5: return "Aring";   // (197 ) capital letter A with ring above = capital letter 
+    case 0x00C6: return "AElig";   // (198 ) capital letter AE =  capital ligature 
     case 0x00C7: return "Ccedil";  // (199 ) capital letter C with cedilla
     case 0x00C8: return "Egrave";  // (200 ) capital letter E with grave
     case 0x00C9: return "Eacute";  // (201 ) capital letter E with acute
@@ -190,7 +190,7 @@ inline const char *unicodeToHTML(ushort unicode_char)
     case 0x00D5: return "Otilde";  // (213 ) capital letter O with tilde
     case 0x00D6: return "Ouml";    // (214 ) capital letter O with diaeresis
     case 0x00D7: return "times";   // (215 ) multiplication sign
-    case 0x00D8: return "Oslash";  // (216 ) capital letter O with stroke = capital letter Ø
+    case 0x00D8: return "Oslash";  // (216 ) capital letter O with stroke = capital letter 
     case 0x00D9: return "Ugrave";  // (217 ) capital letter U with grave
     case 0x00DA: return "Uacute";  // (218 ) capital letter U with acute
     case 0x00DB: return "Ucirc";   // (219 ) capital letter U with circumflex
@@ -198,13 +198,13 @@ inline const char *unicodeToHTML(ushort unicode_char)
     case 0x00DD: return "Yacute";  // (221 ) capital letter Y with acute
     case 0x00DE: return "THORN";   // (222 ) capital letter THORN
     case 0x00DF: return "szlig";   // (223 ) small letter sharp s = ess-zed
-    case 0x00E0: return "agrave";  // (224 ) small letter a with grave = small letter à
+    case 0x00E0: return "agrave";  // (224 ) small letter a with grave = small letter 
     case 0x00E1: return "aacute";  // (225 ) small letter a with acute
     case 0x00E2: return "acirc";   // (226 ) small letter a with circumflex
     case 0x00E3: return "atilde";  // (227 ) small letter a with tilde
     case 0x00E4: return "auml";    // (228 ) small letter a with diaeresis
-    case 0x00E5: return "aring";   // (229 ) small letter a with ring above = small letter å
-    case 0x00E6: return "aelig";   // (230 ) small letter ae = small letter æ
+    case 0x00E5: return "aring";   // (229 ) small letter a with ring above = small letter 
+    case 0x00E6: return "aelig";   // (230 ) small letter ae = small letter 
     case 0x00E7: return "ccedil";  // (231 ) small letter c with cedilla
     case 0x00E8: return "egrave";  // (232 ) small letter e with grave
     case 0x00E9: return "eacute";  // (233 ) small letter e with acute
@@ -222,7 +222,7 @@ inline const char *unicodeToHTML(ushort unicode_char)
     case 0x00F5: return "otilde";  // (245 ) small letter o with tilde
     case 0x00F6: return "ouml";    // (246 ) small letter o with diaeresis
     case 0x00F7: return "divide";  // (247 ) division sign
-    case 0x00F8: return "oslash";  // (248 ) small letter o with stroke = small letter ø
+    case 0x00F8: return "oslash";  // (248 ) small letter o with stroke = small letter 
     case 0x00F9: return "ugrave";  // (249 ) small letter u with grave
     case 0x00FA: return "uacute";  // (250 ) small letter u with acute
     case 0x00FB: return "ucirc";   // (251 ) small letter u with circumflex

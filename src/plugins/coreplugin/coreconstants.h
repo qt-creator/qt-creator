@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -50,7 +50,7 @@ namespace Constants {
 
 const char * const IDE_VERSION_LONG      = IDE_VERSION;
 const char * const IDE_AUTHOR            = "Nokia Corporation";
-const char * const IDE_YEAR              = "2010";
+const char * const IDE_YEAR              = "2011";
 
 #ifdef IDE_VERSION_DESCRIPTION
 const char * const IDE_VERSION_DESCRIPTION_STR = STRINGIFY(IDE_VERSION_DESCRIPTION);

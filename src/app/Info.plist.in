@@ -200,7 +200,7 @@
 		</dict>
 	</array>
         <key>NSHumanReadableCopyright</key>
-        <string>(C) 2008-2010 Nokia Corporation</string>
+        <string>(C) 2008-2011 Nokia Corporation</string>
 	<key>CFBundleIconFile</key>
 	<string>$$ICON</string>
 	<key>CFBundlePackageType</key>

@@ -97,6 +97,8 @@ HEADERS += projectexplorer.h \
     localapplicationruncontrol.h \
     customexecutableconfigurationwidget.h \
     sessionnodeimpl.h \
+    metatypedeclarations.h \
+    toolchaintype.h \
     publishing/publishingwizardselectiondialog.h \
     publishing/ipublishingwizardfactory.h
 
