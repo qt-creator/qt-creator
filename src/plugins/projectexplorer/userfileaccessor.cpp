@@ -1808,7 +1808,7 @@ static const char * const varExpandedKeys[] = {
 };
 
 // Translate old-style ${} var expansions into new-style %{} ones
-static QVariant version8VarNodeHandler(const QVariant &var)
+static QVariant version8VarNodeTransform(const QVariant &var)
 {
     static const char * const vars[] = {
         "absoluteFilePath",
@@ -1843,6 +1843,17 @@ static QVariant version8VarNodeHandler(const QVariant &var)
         pos = closePos + 1;
     }
     return QVariant(str);
+}
+
+static QVariant version8VarNodeHandler(const QVariant &var)
+{
+    if (var.type() != QVariant::List)
+        return version8VarNodeTransform(var);
+
+    QVariantList vl;
+    foreach (const QVariant &svar, var.toList())
+        vl << version8VarNodeTransform(svar);
+    return vl;
 }
 
 QVariantMap Version8Handler::update(Project *, const QVariantMap &map)
