@@ -38,6 +38,7 @@
 
 #include <QtCore/QString>
 #include <QtCore/QList>
+#include <QtCore/QHash>
 
 QT_BEGIN_NAMESPACE
 class QStringList;
@@ -54,10 +55,18 @@ class IPlugin;
 
 struct EXTENSIONSYSTEM_EXPORT PluginDependency
 {
+    enum Type {
+        Required,
+        Optional
+    };
+
     QString name;
     QString version;
-    bool operator==(const PluginDependency &other);
+    Type type;
+    bool operator==(const PluginDependency &other) const;
 };
+
+uint qHash(const ExtensionSystem::PluginDependency &value);
 
 struct EXTENSIONSYSTEM_EXPORT PluginArgumentDescription
 {
@@ -105,10 +114,7 @@ public:
     bool provides(const QString &pluginName, const QString &version) const;
 
     // dependency specs, valid after 'Resolved' state is reached
-    QList<PluginSpec *> dependencySpecs() const;
-
-    // list of plugins that depend on this - e.g. this plugins provides for them
-    QList<PluginSpec *> providesForSpecs() const;
+    QHash<PluginDependency, PluginSpec *> dependencySpecs() const;
 
     // linked plugin instance, valid after 'Loaded' state is reached
     IPlugin *plugin() const;

@@ -88,6 +88,23 @@
 */
 
 /*!
+    \variable ExtensionSystem::PluginDependency::type
+    Defines whether the dependency is required or optional.
+    \sa ExtensionSystem::PluginDependency::Type
+*/
+
+/*!
+    \enum ExtensionSystem::PluginDependency::Type
+    Whether the dependency is required or optional.
+    \value Required
+           Dependency needs to be there.
+    \value Optional
+           Dependency is not necessarily needed. You need to make sure that
+           the plugin is able to load without this dependency installed, so
+           for example you may not link to the dependency's library.
+*/
+
+/*!
     \class ExtensionSystem::PluginSpec
     \brief Contains the information of the plugins xml description file and
     information about the plugin's current state.
@@ -127,16 +144,26 @@
     \value Deleted
             The plugin instance has been deleted.
 */
+
 using namespace ExtensionSystem;
 using namespace ExtensionSystem::Internal;
+
+/*!
+    \fn uint qHash(const ExtensionSystem::PluginDependency &value)
+    \internal
+*/
+uint ExtensionSystem::qHash(const ExtensionSystem::PluginDependency &value)
+{
+    return qHash(value.name);
+}
 
 /*!
     \fn bool PluginDependency::operator==(const PluginDependency &other)
     \internal
 */
-bool PluginDependency::operator==(const PluginDependency &other)
+bool PluginDependency::operator==(const PluginDependency &other) const
 {
-    return name == other.name && version == other.version;
+    return name == other.name && version == other.version && type == other.type;
 }
 
 /*!
@@ -395,20 +422,9 @@ IPlugin *PluginSpec::plugin() const
 
     \sa PluginSpec::dependencies()
 */
-QList<PluginSpec *> PluginSpec::dependencySpecs() const
+QHash<PluginDependency, PluginSpec *> PluginSpec::dependencySpecs() const
 {
     return d->dependencySpecs;
-}
-
-/*!
-    \fn QList<PluginSpec *> PluginSpec::providesForSpecs() const
-    Returns the list of plugins that depend on this one.
-
-    \sa PluginSpec::dependencySpecs()
-*/
-QList<PluginSpec *> PluginSpec::providesForSpecs() const
-{
-    return d->providesSpecs;
 }
 
 //==========PluginSpecPrivate==================
@@ -429,6 +445,9 @@ namespace {
     const char * const DEPENDENCY = "dependency";
     const char * const DEPENDENCY_NAME = "name";
     const char * const DEPENDENCY_VERSION = "version";
+    const char * const DEPENDENCY_TYPE = "type";
+    const char * const DEPENDENCY_TYPE_SOFT = "optional";
+    const char * const DEPENDENCY_TYPE_HARD = "required";
     const char * const ARGUMENTLIST = "argumentList";
     const char * const ARGUMENT = "argument";
     const char * const ARGUMENT_NAME = "name";
@@ -726,6 +745,18 @@ void PluginSpecPrivate::readDependencyEntry(QXmlStreamReader &reader)
         reader.raiseError(msgInvalidFormat(DEPENDENCY_VERSION));
         return;
     }
+    dep.type = PluginDependency::Required;
+    if (reader.attributes().hasAttribute(DEPENDENCY_TYPE)) {
+        QString typeValue = reader.attributes().value(DEPENDENCY_TYPE).toString();
+        if (typeValue == QLatin1String(DEPENDENCY_TYPE_HARD)) {
+            dep.type = PluginDependency::Required;
+        } else if (typeValue == QLatin1String(DEPENDENCY_TYPE_SOFT)) {
+            dep.type = PluginDependency::Optional;
+        } else {
+            reader.raiseError(msgInvalidFormat(DEPENDENCY_TYPE));
+            return;
+        }
+    }
     dependencies.append(dep);
     reader.readNext();
     if (reader.tokenType() != QXmlStreamReader::EndElement)
@@ -801,26 +832,27 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
         hasError = true;
         return false;
     }
-    QList<PluginSpec *> resolvedDependencies;
+    QHash<PluginDependency, PluginSpec *> resolvedDependencies;
     foreach (const PluginDependency &dependency, dependencies) {
         PluginSpec *found = 0;
 
         foreach (PluginSpec *spec, specs) {
             if (spec->provides(dependency.name, dependency.version)) {
                 found = spec;
-                spec->d->addProvidesForPlugin(q);
                 break;
             }
         }
         if (!found) {
-            hasError = true;
-            if (!errorString.isEmpty())
-                errorString.append(QLatin1Char('\n'));
-            errorString.append(QCoreApplication::translate("PluginSpec", "Could not resolve dependency '%1(%2)'")
-                .arg(dependency.name).arg(dependency.version));
+            if (dependency.type == PluginDependency::Required) {
+                hasError = true;
+                if (!errorString.isEmpty())
+                    errorString.append(QLatin1Char('\n'));
+                errorString.append(QCoreApplication::translate("PluginSpec", "Could not resolve dependency '%1(%2)'")
+                    .arg(dependency.name).arg(dependency.version));
+            }
             continue;
         }
-        resolvedDependencies.append(found);
+        resolvedDependencies.insert(dependency, found);
     }
     if (hasError)
         return false;
@@ -840,7 +872,12 @@ void PluginSpecPrivate::disableIndirectlyIfDependencyDisabled()
     if (disabledIndirectly)
         return;
 
-    foreach (PluginSpec *dependencySpec, dependencySpecs) {
+    QHashIterator<PluginDependency, PluginSpec *> it(dependencySpecs);
+    while (it.hasNext()) {
+        it.next();
+        if (it.key().type == PluginDependency::Optional)
+            continue;
+        PluginSpec *dependencySpec = it.value();
         if (dependencySpec->isDisabledIndirectly() || !dependencySpec->isEnabled()) {
             disabledIndirectly = true;
             break;
@@ -983,18 +1020,4 @@ void PluginSpecPrivate::kill()
     delete plugin;
     plugin = 0;
     state = PluginSpec::Deleted;
-}
-
-/*!
-    \fn void PluginSpecPrivate::addProvidesForPlugin(PluginSpec *dependent)
-    \internal
-*/
-void PluginSpecPrivate::addProvidesForPlugin(PluginSpec *dependent)
-{
-    providesSpecs.append(dependent);
-}
-
-void PluginSpecPrivate::removeProvidesForPlugin(PluginSpec *dependent)
-{
-    providesSpecs.removeOne(dependent);
 }

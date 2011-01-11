@@ -996,7 +996,13 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
     default:
         break;
     }
-    foreach (const PluginSpec *depSpec, spec->dependencySpecs()) {
+    // check if dependencies have loaded without error
+    QHashIterator<PluginDependency, PluginSpec *> it(spec->dependencySpecs());
+    while (it.hasNext()) {
+        it.next();
+        if (it.key().type == PluginDependency::Optional)
+            continue;
+        PluginSpec *depSpec = it.value();
         if (depSpec->state() != destState) {
             spec->d->hasError = true;
             spec->d->errorString =

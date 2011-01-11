@@ -95,6 +95,8 @@ void PluginDetailsView::update(PluginSpec *spec)
         QString depString = dep.name;
         depString += QLatin1String(" (");
         depString += dep.version;
+        if (dep.type == PluginDependency::Optional)
+            depString += QLatin1String(", optional");
         depString += QLatin1Char(')');
         depStrings.append(depString);
     }

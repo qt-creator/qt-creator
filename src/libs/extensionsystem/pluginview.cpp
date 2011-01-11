@@ -351,7 +351,12 @@ void PluginView::updatePluginDependencies()
         if (m_whitelist.contains(spec->name()))
             continue;
 
-        foreach(const PluginSpec *depSpec, spec->dependencySpecs()) {
+        QHashIterator<PluginDependency, PluginSpec *> it(spec->dependencySpecs());
+        while (it.hasNext()) {
+            it.next();
+            if (it.key().type == PluginDependency::Optional)
+                continue;
+            PluginSpec *depSpec = it.value();
             if (!depSpec->isEnabled() || depSpec->isDisabledIndirectly()) {
                 disableIndirectly = true;
                 break;
