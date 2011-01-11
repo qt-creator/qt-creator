@@ -239,7 +239,10 @@ HelpViewer::HelpViewer(qreal zoom, QWidget *parent)
     settings()->setAttribute(QWebSettings::PluginsEnabled, false);
 
     setPage(new HelpPage(this));
-    page()->setNetworkAccessManager(new HelpNetworkAccessManager(this));
+    HelpNetworkAccessManager *manager = new HelpNetworkAccessManager(this);
+    page()->setNetworkAccessManager(manager);
+    connect(manager, SIGNAL(finished(QNetworkReply*)), this,
+        SLOT(slotNetworkReplyFinished(QNetworkReply*)));
 
     QAction* action = pageAction(QWebPage::OpenLinkInNewWindow);
     action->setText(tr("Open Link as New Page"));
@@ -431,6 +434,15 @@ void HelpViewer::actionChanged()
         emit backwardAvailable(a->isEnabled());
     else if (a == pageAction(QWebPage::Forward))
         emit forwardAvailable(a->isEnabled());
+}
+
+void HelpViewer::slotNetworkReplyFinished(QNetworkReply *reply)
+{
+    if (reply && reply->error() != QNetworkReply::NoError) {
+        setSource(QUrl(Help::Constants::AboutBlank));
+        setHtml(HelpViewer::PageNotFoundMessage.arg(reply->url().toString()
+            + QString::fromLatin1("<br><br>Error: %1").arg(reply->errorString())));
+    }
 }
 
 // -- private

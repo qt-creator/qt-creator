@@ -129,6 +129,9 @@ private slots:
     void actionChanged();
     void slotLoadStarted();
     void slotLoadFinished(bool ok);
+#if !defined(QT_NO_WEBKIT)
+    void slotNetworkReplyFinished(QNetworkReply *reply);
+#endif
 
 private:
     bool eventFilter(QObject *obj, QEvent *event);

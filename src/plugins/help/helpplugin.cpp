@@ -868,10 +868,10 @@ void HelpPlugin::activateContext()
     if (HelpViewer* viewer = viewerForContextMode()) {
         if (links.isEmpty()) {
             // No link found or no context object
+            viewer->setSource(QUrl(Help::Constants::AboutBlank));
             viewer->setHtml(tr("<html><head><title>No Documentation</title>"
                 "</head><body><br/><center><b>%1</b><br/>No documentation "
                 "available.</center></body></html>").arg(m_idFromContext));
-            viewer->setSource(QUrl());
         } else {
             int version = 0;
             const QRegExp exp("(\\d+)");
