@@ -152,9 +152,13 @@ struct CustomWizardContext {
 
     // Replace field values delimited by '%' with special modifiers:
     // %Field% -> simple replacement
-    // %Field:l% -> lower case replacement, 'u' upper case,
-    // 'c' capitalize first letter. Return value indicates whether non-empty
-    // replacements where encountered
+    // %Field:l% -> replace with everything changed to lower case
+    // %Field:u% -> replace with everything changed to upper case
+    // %Field:c% -> replace with first character capitalized
+    // %Field:h% -> replace with something usable as header guard
+    // %Field:s% -> replace with something usable as structure or class name
+    // The return value indicates whether non-empty
+    // replacements were encountered.
     static bool replaceFields(const FieldReplacementMap &fm, QString *s);
 
     // Special replaceFields() overload used for the arguments of a generator

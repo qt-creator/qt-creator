@@ -1,9 +1,9 @@
-#ifndef %ProjectName:u%_PLUGIN_H
-#define %ProjectName:u%_PLUGIN_H
+#ifndef %ProjectName:h%_PLUGIN_H
+#define %ProjectName:h%_PLUGIN_H
 
 #include <QtDeclarative/QDeclarativeExtensionPlugin>
 
-class %ProjectName%Plugin : public QDeclarativeExtensionPlugin
+class %ProjectName:s%Plugin : public QDeclarativeExtensionPlugin
 {
     Q_OBJECT
 
@@ -11,4 +11,4 @@ public:
     void registerTypes(const char *uri);
 };
 
-#endif // %ProjectName:u%_PLUGIN_H
+#endif // %ProjectName:h%_PLUGIN_H

@@ -747,6 +747,38 @@ QString CustomWizardParameters::toString() const
 
 static inline QString passThrough(const QString &in) { return in; }
 
+static inline QString headerGuard(const QString &in)
+{
+    QString result;
+    foreach (const QChar c, in) {
+        if (c.isLetterOrNumber())
+            result.append(c.toUpper());
+        else
+            result.append(QLatin1Char('_'));
+    }
+    return result;
+}
+
+static inline QString structName(const QString &in)
+{
+    bool capNeeded = true;
+    QString result;
+    foreach (const QChar c, in) {
+        if (c.isLetterOrNumber()) {
+            if (capNeeded) {
+                result.append(c.toUpper());
+                capNeeded = false;
+            } else {
+                result.append(c);
+            }
+        } else {
+            result.append(QLatin1Char('_'));
+            capNeeded = true;
+        }
+    }
+    return result;
+}
+
 // Do field replacements applying modifiers and string transformation
 // for the value
 template <class ValueStringTransformation>
@@ -797,7 +829,13 @@ bool replaceFieldHelper(ValueStringTransformation transform,
         case 'u':
             replacement = it.value().toUpper();
             break;
-        case 'c': // Capitalize first letter
+        case 'h': // Create a header guard.
+            replacement = headerGuard(it.value());
+            break;
+        case 's': // Create a struct or class name.
+            replacement = structName(it.value());
+            break;
+        case 'c': // Capitalize first letter.
             replacement = it.value();
             if (!replacement.isEmpty())
                 replacement[0] = replacement.at(0).toUpper();
