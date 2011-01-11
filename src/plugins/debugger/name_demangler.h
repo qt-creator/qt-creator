@@ -34,6 +34,8 @@
 #ifndef NAME_DEMANGLER_H
 #define NAME_DEMANGLER_H
 
+#include <QtCore/QtGlobal>
+
 QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
