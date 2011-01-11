@@ -132,7 +132,7 @@ void LocalApplicationRunControl::processExited(int exitCode)
 {
     QString msg = tr("%1 exited with code %2")
         .arg(QDir::toNativeSeparators(m_executable)).arg(exitCode);
-    appendMessage(msg, ErrorMessageFormat);
+    appendMessage(msg, NormalMessageFormat);
     emit finished();
 }
 
