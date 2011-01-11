@@ -210,7 +210,7 @@ void QmlEngine::setupInferior()
     }
 }
 
-void QmlEngine::appendMessage(const QString &msg, ProjectExplorer::OutputFormat format)
+void QmlEngine::appendMessage(const QString &msg, ProjectExplorer::OutputFormat /* format */)
 {
     showMessage(msg, AppStuff); // FIXME: Redirect to RunControl
 }
