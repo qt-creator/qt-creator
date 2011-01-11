@@ -164,6 +164,18 @@ void HelpViewer::home()
     setSource(homepage);
 }
 
+void HelpViewer::slotLoadStarted()
+{
+    qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
+}
+
+void HelpViewer::slotLoadFinished(bool ok)
+{
+    Q_UNUSED(ok)
+    emit sourceChanged(source());
+    qApp->restoreOverrideCursor();
+}
+
 bool HelpViewer::handleForwardBackwardMouseButtons(QMouseEvent *event)
 {
     if (event->button() == Qt::XButton1) {

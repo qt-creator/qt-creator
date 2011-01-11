@@ -72,7 +72,7 @@ HelpViewer::HelpViewer(qreal zoom, QWidget *parent)
     setViewerFont(font);
 
     connect(this, SIGNAL(sourceChanged(QUrl)), this, SIGNAL(titleChanged()));
-    connect(this, SIGNAL(loadFinished(bool)), this, SLOT(setLoadFinished(bool)));
+    connect(this, SIGNAL(loadFinished(bool)), this, SLOT(slotLoadFinished(bool)));
 }
 
 HelpViewer::~HelpViewer()
@@ -310,12 +310,6 @@ void HelpViewer::mouseReleaseEvent(QMouseEvent *e)
 void HelpViewer::actionChanged()
 {
     // stub
-}
-
-void HelpViewer::setLoadFinished(bool ok)
-{
-    Q_UNUSED(ok)
-    emit sourceChanged(source());
 }
 
 // -- private

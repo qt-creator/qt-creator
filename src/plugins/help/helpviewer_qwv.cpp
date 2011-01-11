@@ -258,7 +258,8 @@ HelpViewer::HelpViewer(qreal zoom, QWidget *parent)
     connect(pageAction(QWebPage::Forward), SIGNAL(changed()), this,
         SLOT(actionChanged()));
     connect(this, SIGNAL(urlChanged(QUrl)), this, SIGNAL(sourceChanged(QUrl)));
-    connect(this, SIGNAL(loadFinished(bool)), this, SLOT(setLoadFinished(bool)));
+    connect(this, SIGNAL(loadStarted()), this, SLOT(slotLoadStarted()));
+    connect(this, SIGNAL(loadFinished(bool)), this, SLOT(slotLoadFinished(bool)));
     connect(this, SIGNAL(titleChanged(QString)), this, SIGNAL(titleChanged()));
     connect(page(), SIGNAL(printRequested(QWebFrame*)), this, SIGNAL(printRequested()));
 
@@ -433,12 +434,6 @@ void HelpViewer::actionChanged()
         emit backwardAvailable(a->isEnabled());
     else if (a == pageAction(QWebPage::Forward))
         emit forwardAvailable(a->isEnabled());
-}
-
-void HelpViewer::setLoadFinished(bool ok)
-{
-    Q_UNUSED(ok)
-    emit sourceChanged(source());
 }
 
 // -- private

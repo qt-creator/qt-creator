@@ -127,7 +127,8 @@ protected:
 
 private slots:
     void actionChanged();
-    void setLoadFinished(bool ok);
+    void slotLoadStarted();
+    void slotLoadFinished(bool ok);
 
 private:
     bool eventFilter(QObject *obj, QEvent *event);
