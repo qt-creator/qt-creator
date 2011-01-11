@@ -104,6 +104,8 @@ void MaemoTemplatesManager::handleActiveProjectChanged(ProjectExplorer::Project 
         this, SLOT(handleTarget(ProjectExplorer::Target*)));
     connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
         this, SLOT(handleTarget(ProjectExplorer::Target*)));
+    connect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
+        SLOT(handleTargetRemoved(ProjectExplorer::Target*)));
     const QList<Target *> &targets = project->targets();
     foreach (Target * const target, targets)
         handleTarget(target);
@@ -141,6 +143,32 @@ bool MaemoTemplatesManager::handleTarget(ProjectExplorer::Target *target)
     m_maemoProjects.insert(project, fsWatcher);
 
     return true;
+}
+
+void MaemoTemplatesManager::handleTargetRemoved(ProjectExplorer::Target *target)
+{
+    if (target->id() != QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
+        return;
+    const QString debianPath = debianDirPath(target->project());
+    if (!QFileInfo(debianPath).exists())
+        return;
+    const int answer = QMessageBox::warning(0, tr("Qt Creator"),
+        tr("Do you want to remove the packaging directory\n"
+           "associated with the target?"),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if (answer == QMessageBox::No)
+        return;
+    QString error;
+    if (!MaemoGlobal::removeRecursively(debianPath, error))
+        qDebug("%s", qPrintable(error));
+    const QString packagingPath = target->project()->projectDirectory()
+        + QLatin1Char('/') + PackagingDirName;
+    const QStringList otherContents = QDir(packagingPath).entryList(QDir::Dirs
+        | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot);
+    if (otherContents.isEmpty()) {
+        if (!MaemoGlobal::removeRecursively(packagingPath, error))
+            qDebug("%s", qPrintable(error));
+    }
 }
 
 bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplorer::Target *target)

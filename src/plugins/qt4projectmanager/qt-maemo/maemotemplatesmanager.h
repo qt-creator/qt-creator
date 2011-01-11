@@ -95,6 +95,7 @@ private slots:
     void handleDebianFileChanged(const QString &filePath);
     void handleProjectToBeRemoved(ProjectExplorer::Project *project);
     void handleProFileUpdated();
+    void handleTargetRemoved(ProjectExplorer::Target *target);
 
 private:
     explicit MaemoTemplatesManager(QObject *parent);

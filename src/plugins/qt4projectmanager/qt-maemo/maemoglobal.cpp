@@ -149,6 +149,7 @@ MaemoGlobal::MaemoVersion MaemoGlobal::version(const QtVersion *qtVersion)
 
 bool MaemoGlobal::removeRecursively(const QString &filePath, QString &error)
 {
+    error.clear();
     QFileInfo fileInfo(filePath);
     if (!fileInfo.exists())
         return true;
