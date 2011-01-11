@@ -62,7 +62,6 @@
 //
 
 #include "fakevimhandler.h"
-#include "fakevimsyntax.h"
 
 #include <utils/qtcassert.h>
 
