@@ -71,17 +71,9 @@ QString ProjectFileFactory::displayName() const
 
 Core::IFile *ProjectFileFactory::open(const QString &fileName)
 {
-    Core::IFile *fIFace = 0;
-
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    if (!pe->openProject(fileName)) {
-        Core::ICore::instance()->messageManager()->printToOutputPane(tr("Could not open the following project: '%1'").arg(fileName));
-    } else if (pe->session()) {
-        SessionManager *session = pe->session();
-        if (session->projects().count() == 1)
-            fIFace = session->projects().first()->file();
-    }
-    return fIFace;
+    pe->openProject(fileName);
+    return 0;
 }
 
 QList<ProjectFileFactory *> ProjectFileFactory::createFactories(QString *filterString)

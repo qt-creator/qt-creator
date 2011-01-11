@@ -205,7 +205,7 @@ private slots:
     void updateDeployActions();
     void slotUpdateRunActions();
 
-    void loadProject(const QString &project) { openProject(project); }
+    void loadProject(const QString &project);
     void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode);
     void updateActions();
     void loadCustomWizards();
@@ -245,7 +245,6 @@ private:
 
     void addToRecentProjects(const QString &fileName, const QString &displayName);
     void updateWelcomePage();
-    Internal::ProjectFileFactory *findProjectFileFactory(const QString &filename) const;
 
     static ProjectExplorerPlugin *m_instance;
     ProjectExplorerPluginPrivate *d;

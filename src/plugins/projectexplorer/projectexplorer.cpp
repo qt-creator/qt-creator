@@ -887,19 +887,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     return true;
 }
 
-ProjectFileFactory *ProjectExplorerPlugin::findProjectFileFactory(const QString &filename) const
-{
-    // Find factory
-    if (const Core::MimeType mt = Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(filename))) {
-        const QString mimeType = mt.type();
-        foreach (ProjectFileFactory *f, d->m_fileFactories)
-            if (f->mimeTypes().contains(mimeType))
-                return f;
-    }
-    qWarning("Unable to find project file factory for '%s'", filename.toUtf8().constData());
-    return 0;
-}
-
 void ProjectExplorerPlugin::loadAction()
 {
     if (debug)
@@ -923,8 +910,7 @@ void ProjectExplorerPlugin::loadAction()
                                                     d->m_projectFilterString);
     if (filename.isEmpty())
         return;
-    if (ProjectFileFactory *pf = findProjectFileFactory(filename))
-        pf->open(filename);
+    loadProject(filename);
     updateActions();
 }
 
@@ -1110,6 +1096,18 @@ void ProjectExplorerPlugin::savePersistentSettings()
     }
 }
 
+void ProjectExplorerPlugin::loadProject(const QString &project)
+{
+    if (!openProject(project)) {
+        QMessageBox box(QMessageBox::Warning,
+                        tr("Failed to open project"),
+                        tr("Failed to open project:\n%1").arg(project),
+                        QMessageBox::Ok,
+                        Core::ICore::instance()->mainWindow());
+        box.exec();
+    }
+}
+
 bool ProjectExplorerPlugin::openProject(const QString &fileName)
 {
     if (debug)
@@ -1161,11 +1159,8 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
     }
     updateActions();
 
-    if (openedPro.isEmpty()) {
-        qDebug() << "ProjectExplorerPlugin - Could not open any projects!";
-    } else {
+    if (!openedPro.isEmpty())
         Core::ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
-    }
 
     return openedPro;
 }
@@ -1984,8 +1979,16 @@ void ProjectExplorerPlugin::openRecentProject()
     if (!a)
         return;
     QString fileName = a->data().toString();
-    if (!fileName.isEmpty())
-        openProject(fileName);
+    if (!fileName.isEmpty()) {
+        if (!openProject(fileName)) {
+            QMessageBox box(QMessageBox::Warning,
+                            tr("Failed to open project"),
+                            tr("Failed to open project:\n%1").arg(fileName),
+                            QMessageBox::Ok,
+                            Core::ICore::instance()->mainWindow());
+            box.exec();
+        }
+    }
 }
 
 void ProjectExplorerPlugin::invalidateProject(Project *project)
