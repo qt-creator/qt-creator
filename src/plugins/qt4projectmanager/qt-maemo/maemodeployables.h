@@ -51,10 +51,9 @@
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
-namespace ProjectExplorer { class BuildStep; }
-
 namespace Qt4ProjectManager {
 class Qt4BuildConfiguration;
+class Qt4Target;
 
 namespace Internal {
 class Qt4ProFileNode;
@@ -63,7 +62,7 @@ class MaemoDeployables : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    MaemoDeployables(const ProjectExplorer::BuildStep *buildStep);
+    MaemoDeployables(const Qt4Target *target);
     ~MaemoDeployables();
     void setUnmodified();
     bool isModified() const;
@@ -72,7 +71,6 @@ public:
     QString remoteExecutableFilePath(const QString &localExecutableFilePath) const;
     int modelCount() const { return m_listModels.count(); }
     MaemoDeployableListModel *modelAt(int i) const { return m_listModels.at(i); }
-    const ProjectExplorer::BuildStep *buildStep() const { return m_buildStep; }
 
 private:
     typedef QHash<QString, MaemoDeployableListModel::ProFileUpdateSetting> UpdateSettingsMap;
@@ -83,11 +81,10 @@ private:
     Q_SLOT void createModels();
     Q_SLOT void init();
     void createModels(const Qt4ProFileNode *proFileNode);
-    const Qt4BuildConfiguration *qt4BuildConfiguration() const;
 
     QList<MaemoDeployableListModel *> m_listModels;
     UpdateSettingsMap m_updateSettings;
-    const ProjectExplorer::BuildStep * const m_buildStep;
+    const Qt4Target * const m_target;
     QTimer *const m_updateTimer;
 };
 

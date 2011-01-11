@@ -55,8 +55,8 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoDeployables::MaemoDeployables(const ProjectExplorer::BuildStep *buildStep)
-    : m_buildStep(buildStep), m_updateTimer(new QTimer(this))
+MaemoDeployables::MaemoDeployables(const Qt4Target *target)
+    : m_target(target), m_updateTimer(new QTimer(this))
 {
     QTimer::singleShot(0, this, SLOT(init()));
     m_updateTimer->setInterval(1500);
@@ -67,7 +67,7 @@ MaemoDeployables::~MaemoDeployables() {}
 
 void MaemoDeployables::init()
 {
-    Qt4Project *pro = qt4BuildConfiguration()->qt4Target()->qt4Project();
+    Qt4Project * const pro = m_target->qt4Project();
     connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
             m_updateTimer, SLOT(start()));
 
@@ -78,16 +78,14 @@ void MaemoDeployables::init()
 
 void MaemoDeployables::createModels()
 {
-    if (!qt4BuildConfiguration() || !qt4BuildConfiguration()->qt4Target()
-        || qt4BuildConfiguration()->qt4Target()->project()->activeTarget()->id()
-            != QLatin1String(Qt4ProjectManager::Constants::MAEMO_DEVICE_TARGET_ID))
+    if (m_target->project()->activeTarget() != m_target)
         return;
     const Qt4ProFileNode *const rootNode
-        = qt4BuildConfiguration()->qt4Target()->qt4Project()->rootProjectNode();
+        = m_target->qt4Project()->rootProjectNode();
     if (!rootNode) // Happens on project creation by wizard.
         return;
     m_updateTimer->stop();
-    disconnect(qt4BuildConfiguration()->qt4Target()->qt4Project(),
+    disconnect(m_target->qt4Project(),
         SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
         m_updateTimer, SLOT(start()));
     beginResetModel();
@@ -119,7 +117,7 @@ void MaemoDeployables::createModels()
     }
 
     endResetModel();
-    connect(qt4BuildConfiguration()->qt4Target()->qt4Project(),
+    connect(m_target->qt4Project(),
             SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
             m_updateTimer, SLOT(start()));
 }
@@ -199,13 +197,6 @@ QString MaemoDeployables::remoteExecutableFilePath(const QString &localExecutabl
             return model->remoteExecutableFilePath();
     }
     return QString();
-}
-
-const Qt4BuildConfiguration *MaemoDeployables::qt4BuildConfiguration() const
-{
-    const Qt4BuildConfiguration * const bc
-        = qobject_cast<Qt4BuildConfiguration *>(m_buildStep->target()->activeBuildConfiguration());
-    return bc;
 }
 
 int MaemoDeployables::rowCount(const QModelIndex &parent) const

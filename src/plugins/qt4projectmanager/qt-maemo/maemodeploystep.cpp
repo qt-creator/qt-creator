@@ -52,6 +52,7 @@
 #include <projectexplorer/target.h>
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qt4projectmanager/qt4target.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -96,7 +97,9 @@ void MaemoDeployStep::ctor()
     const QList<DeployConfiguration *> &deployConfigs
         = target()->deployConfigurations();
     if (deployConfigs.isEmpty()) {
-        m_deployables = QSharedPointer<MaemoDeployables>(new MaemoDeployables(this));
+        const Qt4Target * const qt4Target = qobject_cast<Qt4Target *>(target());
+        Q_ASSERT(qt4Target);
+        m_deployables = QSharedPointer<MaemoDeployables>(new MaemoDeployables(qt4Target));
     } else {
         const MaemoDeployStep *const other
             = MaemoGlobal::buildStep<MaemoDeployStep>(deployConfigs.first());

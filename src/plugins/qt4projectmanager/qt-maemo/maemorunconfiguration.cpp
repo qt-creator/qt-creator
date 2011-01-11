@@ -213,7 +213,8 @@ QString MaemoRunConfiguration::defaultDisplayName()
 
 MaemoDeviceConfig MaemoRunConfiguration::deviceConfig() const
 {
-    return deployStep()->deviceConfigModel()->current();
+    const MaemoDeployStep * const step = deployStep();
+    return step ? step->deviceConfigModel()->current() : MaemoDeviceConfig();
 }
 
 const MaemoToolChain *MaemoRunConfiguration::toolchain() const
@@ -232,11 +233,7 @@ const QString MaemoRunConfiguration::gdbCmd() const
 
 MaemoDeployStep *MaemoRunConfiguration::deployStep() const
 {
-    MaemoDeployStep * const step
-        = MaemoGlobal::buildStep<MaemoDeployStep>(target()->activeDeployConfiguration());
-    Q_ASSERT_X(step, Q_FUNC_INFO,
-        "Impossible: Maemo build configuration without deploy step.");
-    return step;
+    return MaemoGlobal::buildStep<MaemoDeployStep>(target()->activeDeployConfiguration());
 }
 
 const QString MaemoRunConfiguration::sysRoot() const
@@ -302,8 +299,10 @@ QString MaemoRunConfiguration::localExecutableFilePath() const
 
 QString MaemoRunConfiguration::remoteExecutableFilePath() const
 {
-    return deployStep()->deployables()
-        ->remoteExecutableFilePath(localExecutableFilePath());
+    const MaemoDeployStep * const step = deployStep();
+    return step
+        ? step->deployables()->remoteExecutableFilePath(localExecutableFilePath())
+        : QString();
 }
 
 MaemoPortList MaemoRunConfiguration::freePorts() const
@@ -381,6 +380,7 @@ void MaemoRunConfiguration::handleDeployConfigChanged()
         }
     }
     updateDeviceConfigurations();
+    updateFactoryState();
 }
 
 QString MaemoRunConfiguration::baseEnvironmentText() const

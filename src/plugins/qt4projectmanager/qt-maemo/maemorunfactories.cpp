@@ -163,7 +163,8 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
 {
     const MaemoRunConfiguration * const maemoRunConfig
         = qobject_cast<MaemoRunConfiguration *>(runConfiguration);
-    if (!maemoRunConfig || !maemoRunConfig->deviceConfig().isValid()
+    if (!maemoRunConfig
+        || !maemoRunConfig->deviceConfig().isValid()
         || !maemoRunConfig->toolchain()
         || maemoRunConfig->remoteExecutableFilePath().isEmpty())
         return false;

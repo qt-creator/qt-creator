@@ -79,7 +79,8 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     : QWidget(parent),
     m_runConfiguration(runConfiguration),
     m_ignoreChange(false),
-    m_deviceEnvReader(new MaemoDeviceEnvReader(this, runConfiguration))
+    m_deviceEnvReader(new MaemoDeviceEnvReader(this, runConfiguration)),
+    m_deployablesConnected(false)
 {
     m_lastActiveBuildConfig = m_runConfiguration->activeQt4BuildConfiguration();
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -172,9 +173,10 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
         SLOT(handleDebuggingTypeChanged()));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
         SLOT(updateTargetInformation()));
-    connect(m_runConfiguration->deployStep()->deployables().data(),
-        SIGNAL(modelReset()), this, SLOT(handleDeploySpecsChanged()));
-    handleDeploySpecsChanged();
+    connect(m_runConfiguration->target(),
+        SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
+        SLOT(handleActiveDeployConfigurationChanged()));
+    handleActiveDeployConfigurationChanged();
 }
 
 void MaemoRunConfigurationWidget::addDebuggingWidgets(QVBoxLayout *mainLayout)
@@ -300,6 +302,24 @@ void MaemoRunConfigurationWidget::updateTargetInformation()
 {
     m_localExecutableLabel
         ->setText(QDir::toNativeSeparators(m_runConfiguration->localExecutableFilePath()));
+}
+
+void MaemoRunConfigurationWidget::handleActiveDeployConfigurationChanged()
+{
+    if (m_deployablesConnected)
+        return;
+    MaemoDeployStep * const deployStep = m_runConfiguration->deployStep();
+    if (!deployStep)
+        return;
+    connect(deployStep->deployables().data(), SIGNAL(modelReset()),
+        SLOT(handleDeploySpecsChanged()));
+   handleDeploySpecsChanged();
+   m_deployablesConnected = true;
+   disconnect(m_runConfiguration->target(),
+       SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
+       this,
+       SLOT(handleActiveDeployConfigurationChanged()));
+
 }
 
 void MaemoRunConfigurationWidget::handleDeploySpecsChanged()

@@ -98,6 +98,7 @@ private slots:
     void handleDeploySpecsChanged();
     void handleBuildConfigChanged();
     void handleToolchainChanged();
+    void handleActiveDeployConfigurationChanged();
 
 private:
     void addGenericWidgets(QVBoxLayout *mainLayout);
@@ -127,6 +128,7 @@ private:
     MaemoDeviceEnvReader *m_deviceEnvReader;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
     Qt4BuildConfiguration *m_lastActiveBuildConfig;
+    bool m_deployablesConnected;
 };
 
 } // namespace Internal
