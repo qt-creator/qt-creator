@@ -35,12 +35,12 @@
 #include "helpconstants.h"
 #include "localhelpmanager.h"
 
-#include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>
 #include <QtCore/QStringBuilder>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QUrl>
 
+#include <QtGui/QApplication>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QMouseEvent>
 
