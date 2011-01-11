@@ -44,7 +44,8 @@ struct ProjectExplorerSettings
     ProjectExplorerSettings() :
         buildBeforeDeploy(true), deployBeforeRun(true),
         saveBeforeBuild(false), showCompilerOutput(false),
-        cleanOldAppOutput(false), wrapAppOutput(true), useJom(true),
+        showRunOutput(true), cleanOldAppOutput(false),
+        wrapAppOutput(true), useJom(true),
         autorestoreLastSession(false)
     { }
 
@@ -52,6 +53,7 @@ struct ProjectExplorerSettings
     bool deployBeforeRun;
     bool saveBeforeBuild;
     bool showCompilerOutput;
+    bool showRunOutput;
     bool cleanOldAppOutput;
     bool wrapAppOutput;
     bool useJom;
@@ -69,6 +71,7 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.deployBeforeRun == p2.deployBeforeRun
             && p1.saveBeforeBuild == p2.saveBeforeBuild
             && p1.showCompilerOutput == p2.showCompilerOutput
+            && p1.showRunOutput == p2.showRunOutput
             && p1.cleanOldAppOutput == p2.cleanOldAppOutput
             && p1.wrapAppOutput == p2.wrapAppOutput
             && p1.useJom == p2.useJom
