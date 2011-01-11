@@ -46,8 +46,6 @@
 #include <wdbgexts.h>
 #include <dbgeng.h>
 
-static const char creatorOutputPrefixC[] = "QtCreatorExt: ";
-
 typedef IDebugControl CIDebugControl;
 typedef IDebugSymbols3 CIDebugSymbols;
 typedef IDebugSymbolGroup2 CIDebugSymbolGroup;

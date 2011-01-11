@@ -44,7 +44,8 @@
 #include <list>
 #include <iterator>
 
-/* QtCreatorCDB ext is an extension loaded into CDB.exe (see cdbengine2.cpp):
+/* QtCreatorCDB ext is an extension loaded into CDB.exe (see cdbengine.cpp)
+ * providing:
  * - Notification about the state of the debugging session:
  *   + idle: (hooked with .idle_cmd) debuggee stopped
  *   + accessible: Debuggee stopped, cdb.exe accepts commands

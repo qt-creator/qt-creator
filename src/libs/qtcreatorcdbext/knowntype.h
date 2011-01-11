@@ -34,10 +34,11 @@
 #ifndef KNOWNTYPE_H
 #define KNOWNTYPE_H
 
-// Helpers for detecting types
+// Enumeration describing a type.
 enum KnownType
 {
     KT_Unknown =0,
+    // Flags to be used in type values.
     KT_POD_Type = 0x10000,
     KT_Qt_Type = 0x20000,
     KT_Qt_PrimitiveType = 0x40000,
@@ -46,7 +47,7 @@ enum KnownType
     KT_ContainerType = 0x200000,
     KT_HasSimpleDumper = 0x400000,
     KT_HasComplexDumper = 0x800000, // Non-container complex dumper
-    // PODs
+    // Types: PODs
     KT_Char = KT_POD_Type + 1,
     KT_UnsignedChar = KT_POD_Type + 2,
     KT_IntType = KT_POD_Type + 3,         // any signed short, long, int
@@ -54,7 +55,7 @@ enum KnownType
     KT_FloatType = KT_POD_Type + 5,       // float, double
     KT_POD_PointerType = KT_POD_Type + 6,     // pointer to some POD
     KT_PointerType = KT_POD_Type + 7,     // pointer to class or complex type
-    // Qt Basic
+    // Types: Qt Basic
     KT_QChar = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 1,
     KT_QByteArray = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 2,
     KT_QString = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 3,
@@ -75,7 +76,7 @@ enum KnownType
     KT_QAtomicInt = KT_Qt_Type + KT_HasSimpleDumper + 19,
     KT_QObject = KT_Qt_Type + KT_HasSimpleDumper + KT_HasComplexDumper + 20,
     KT_QWidget = KT_Qt_Type + KT_HasSimpleDumper + KT_HasComplexDumper + 21,
-    // Various QT movable types
+    // Types: Various QT movable types
     KT_QPen = KT_Qt_Type + KT_Qt_MovableType + 30,
     KT_QUrl = KT_Qt_Type + KT_Qt_MovableType + 31,
     KT_QIcon = KT_Qt_Type + KT_Qt_MovableType + 32,
@@ -134,7 +135,7 @@ enum KnownType
     KT_QPatternist_ItemSequenceCacheCell = KT_Qt_Type + KT_Qt_MovableType + 86,
     KT_QNetworkHeadersPrivate_RawHeaderPair = KT_Qt_Type + KT_Qt_MovableType + 87,
     KT_QPatternist_AccelTree_BasicNodeData = KT_Qt_Type + KT_Qt_MovableType + 88,
-    // Qt primitive types
+    // Types: Qt primitive types
     KT_QFixed = KT_Qt_Type + KT_Qt_PrimitiveType + 90,
     KT_QTextItem = KT_Qt_Type + KT_Qt_PrimitiveType + 91,
     KT_QFixedSize = KT_Qt_Type + KT_Qt_PrimitiveType + 92,
@@ -144,7 +145,7 @@ enum KnownType
     KT_QTextUndoCommand = KT_Qt_Type + KT_Qt_PrimitiveType + 96,
     KT_QGlyphJustification = KT_Qt_Type + KT_Qt_PrimitiveType + 97,
     KT_QPainterPath_Element = KT_Qt_Type + KT_Qt_PrimitiveType + 98,
-    // Qt Containers
+    // Types: Qt Containers
     KT_QStringList = KT_Qt_Type + KT_ContainerType + KT_HasSimpleDumper + 1,
     KT_QList = KT_Qt_Type + KT_ContainerType + KT_HasSimpleDumper + 2,
     KT_QLinkedList = KT_Qt_Type + KT_ContainerType + KT_HasSimpleDumper + 3,
@@ -156,10 +157,10 @@ enum KnownType
     KT_QMultiHash = KT_Qt_Type + KT_ContainerType + KT_HasSimpleDumper + 9,
     KT_QMap = KT_Qt_Type + KT_ContainerType + KT_HasSimpleDumper + 10,
     KT_QMultiMap = KT_Qt_Type + KT_ContainerType + KT_HasSimpleDumper + 11,
-    // STL
+    // Types: STL
     KT_StdString = KT_STL_Type + KT_HasSimpleDumper + 1,
     KT_StdWString = KT_STL_Type + KT_HasSimpleDumper + 2,
-    // STL containers
+    // Types: STL containers
     KT_StdVector =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 1,
     KT_StdList =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 2,
     KT_StdStack =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 3,

@@ -179,6 +179,7 @@ private:
 
     QString normalizeFileName(const QString &f);
     void updateLocalVariable(const QByteArray &iname);
+    void updateLocals();
     int elapsedLogTime() const;
     void addLocalsOptions(ByteArrayInputStream &s) const;
 

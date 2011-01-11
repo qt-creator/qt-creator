@@ -36,6 +36,8 @@
 
 #include "common.h"
 
+/* OutputCallback catches DEBUG_OUTPUT_DEBUGGEE and reports it
+ * base64-encoded back to Qt Creator. */
 class OutputCallback : public IDebugOutputCallbacksWide
 {
 public:

@@ -85,11 +85,11 @@ public:
     // register as '.idle_cmd' to notify creator about stop
     void notifyIdle();
 
-    // Return symbol group for frame (cache as long as frame does not change).
+    // Return symbol group for frame (cached as long as frame/thread do not change).
     SymbolGroup *symbolGroup(CIDebugSymbols *symbols, ULONG threadId, int frame, std::string *errorMessage);
     int symbolGroupFrame() const;
 
-    // Stop reason is reported with the next idle notification
+    // Set a stop reason to be reported with the next idle notification (exception).
     void setStopReason(const StopReasonMap &, const std::string &reason = std::string());
 
 private:
@@ -109,6 +109,7 @@ private:
 };
 
 // Context for extension commands to be instantiated on stack in a command handler.
+// Provides the IDebug objects on demand.
 class ExtensionCommandContext
 {
     ExtensionCommandContext(const ExtensionCommandContext&);

@@ -39,11 +39,12 @@
 #include <map>
 #include <functional>
 
-void trimFront(std::string &s);
-void trimBack(std::string &s);
+void trimFront(std::string &s); // Strip blanks off front
+void trimBack(std::string &s);  // Strip blanks off back
+// Simplify blanks, that is " A \tB " -> "A B".
 void simplify(std::string &s);
 
-// Split by character separator.
+// Split a token sequence in a string by character separator.
 template <class Iterator>
 void split(const std::string &s, char sep, Iterator it)
 {

@@ -45,7 +45,7 @@ class AbstractSymbolGroupNode;
 class SymbolGroupNode;
 class SymbolGroup;
 
-// Structure to pass all IDebug interfaces used for SymbolGroupValue
+// Structure to pass all IDebug interfaces required for SymbolGroupValue
 struct SymbolGroupValueContext
 {
     SymbolGroupValueContext(CIDebugDataSpaces *ds, CIDebugSymbols *s) : dataspaces(ds), symbols(s) {}
@@ -56,8 +56,14 @@ struct SymbolGroupValueContext
 };
 
 /* SymbolGroupValue: Flyweight tied to a SymbolGroupNode
- * providing a convenient operator[] + value getters for notation of dumpers.
- * Inaccesible members return a SymbolGroupValue in state 'invalid'. */
+ * providing a convenient operator[] (name, index) and value
+ * getters for notation of dumpers.
+ * Inaccessible members return a SymbolGroupValue in state 'invalid'.
+ * Example:
+ *   SymbolGroupValue container(symbolGroupNode, symbolGroupValueContext);
+ *   if (SymbolGroupValue sizeV = container["d"]["size"])
+ *     int size = sizeV.intValue()
+ * etc. */
 
 class SymbolGroupValue
 {
@@ -141,7 +147,8 @@ private:
 // For debugging purposes
 std::ostream &operator<<(std::ostream &, const SymbolGroupValue &v);
 
-// Qt Information: Namespace and module.
+// Qt Information determined on demand: Namespace, modules and basic class
+// names containing the module for fast lookup.
 struct QtInfo
 {
     static const QtInfo &get(const SymbolGroupValueContext &ctx);
@@ -196,6 +203,7 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
                         int *containerSizeIn = 0,
                         void **specialInfoIn = 0);
 
+// Non-container complex dumpers (QObjects/QVariants).
 std::vector<AbstractSymbolGroupNode *>
     dumpComplexType(SymbolGroupNode *node, int type, void *specialInfo,
                     const SymbolGroupValueContext &ctx);

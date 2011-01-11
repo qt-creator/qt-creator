@@ -95,29 +95,30 @@ enum { debugBreakpoints = 0 };
 
 /* CdbEngine version 2: Run the CDB process on pipes and parse its output.
  * The engine relies on a CDB extension Qt Creator provides as an extension
- * library (32/64bit). It serves to:
+ * library (32/64bit), which is loaded into cdb.exe. It serves to:
  * - Notify the engine about the state of the debugging session:
- *   + idle: (hooked with .idle_cmd) debuggee stopped
+ *   + idle: (hooked up with .idle_cmd) debuggee stopped
  *   + accessible: Debuggee stopped, cdb.exe accepts commands
  *   + inaccessible: Debuggee runs, no way to post commands
  *   + session active/inactive: Lost debuggee, terminating.
- * - Hook up with output/event callbacks and produce formatted output
+ * - Hook up with output/event callbacks and produce formatted output to be able
+ *   to catch application output and exceptions.
  * - Provide some extension commands that produce output in a standardized (GDBMI)
  *   format that ends up in handleExtensionMessage().
  *   + pid     Return debuggee pid for interrupting.
  *   + locals  Print locals from SymbolGroup
  *   + expandLocals Expand locals in symbol group
  *   + registers, modules, threads
- * Commands can be posted:
- * postCommand: Does not expect a reply
- * postBuiltinCommand: Run a builtin-command producing free-format, multiline output
- * that is captured by enclosing it in special tokens using the 'echo' command and
- * then invokes a callback with a CdbBuiltinCommand structure.
- * postExtensionCommand: Run a command provided by the extension producing
- * one-line output and invoke a callback with a CdbExtensionCommand structure. */
+ * Commands can be posted by calling:
+ * 1) postCommand(): Does not expect a reply
+ * 2) postBuiltinCommand(): Run a builtin-command producing free-format, multiline output
+ *    that is captured by enclosing it in special tokens using the 'echo' command and
+ *    then invokes a callback with a CdbBuiltinCommand structure.
+ * 3) postExtensionCommand(): Run a command provided by the extension producing
+ *    one-line output and invoke a callback with a CdbExtensionCommand structure
+ *    (output is potentially split up in chunks). */
 
 using namespace ProjectExplorer;
-using namespace Debugger::Internal;
 
 namespace Debugger {
 namespace Internal {
@@ -899,7 +900,9 @@ void CdbEngine::assignValueInDebugger(const WatchData *w, const QString &expr, c
     ByteArrayInputStream str(cmd);
     str << m_extensionCommandPrefixBA << "assign " << w->iname << '=' << value.toString();
     postCommand(cmd, 0);
-    updateLocalVariable(w->iname);
+    // Update all locals in case we change a union or something pointed to
+    // that affects other variables, too.
+    updateLocals();
 }
 
 void CdbEngine::handleThreads(const CdbExtensionCommandPtr &reply)
@@ -1034,9 +1037,26 @@ void CdbEngine::activateFrame(int index)
         } else {
             assemblerAction->trigger(); // Seems to trigger update
         }
+    } else {
+        gotoLocation(frame);
+        updateLocals();
+    }
+}
+
+void CdbEngine::updateLocals()
+{
+    const int frameIndex = stackHandler()->currentIndex();
+    if (frameIndex < 0) {
+        watchHandler()->beginCycle();
+        watchHandler()->endCycle();
         return;
     }
-    gotoLocation(frame);
+    const StackFrame frame = stackHandler()->currentFrame();
+    if (!frame.isUsable()) {
+        watchHandler()->beginCycle();
+        watchHandler()->endCycle();
+        return;
+    }
     // Watchers: Initial expand, get uninitialized and query
     QByteArray arguments;
     ByteArrayInputStream str(arguments);
@@ -1068,7 +1088,7 @@ void CdbEngine::activateFrame(int index)
         }
     }
     // Required arguments: frame
-    str << blankSeparator << index;
+    str << blankSeparator << frameIndex;
     watchHandler()->beginCycle();
     postExtensionCommand("locals", arguments, 0, &CdbEngine::handleLocals);
 }
