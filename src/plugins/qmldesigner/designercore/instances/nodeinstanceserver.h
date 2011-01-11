@@ -121,6 +121,8 @@ protected:
     void startRenderTimer();
     void slowDownRenderTimer();
     void stopRenderTimer();
+    void initializeDeclarativeView();
+    QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command);
 
 private:
     ServerNodeInstance m_rootNodeInstance;

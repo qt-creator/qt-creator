@@ -155,41 +155,8 @@ void NodeInstanceServer::stopRenderTimer()
 
 void NodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
-    Q_ASSERT(!m_declarativeView.data());
-
-    m_declarativeView = new QDeclarativeView;
-    m_declarativeView->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
-    m_declarativeView->show();
-    m_declarativeView->setAttribute(Qt::WA_DontShowOnScreen, true);
-
-    if (!command.fileUrl().isEmpty())
-        engine()->setBaseUrl(command.fileUrl());
-
-    addImports(command.imports());
-
-    static_cast<QGraphicsScenePrivate*>(QObjectPrivate::get(m_declarativeView->scene()))->processDirtyItemsEmitted = true;
-
-    QList<ServerNodeInstance> instanceList = createInstances(command.instances());
-    reparentInstances(command.reparentInstances());
-
-    foreach(const IdContainer &container, command.ids()) {
-        if (hasInstanceForId(container.instanceId()))
-            instanceForId(container.instanceId()).setId(container.id());
-    }
-
-    foreach(const PropertyValueContainer &container, command.valueChanges())
-        setInstancePropertyVariant(container);
-
-    foreach(const PropertyBindingContainer &container, command.bindingChanges())
-        setInstancePropertyBinding(container);
-
-    foreach(ServerNodeInstance instance, instanceList)
-        instance.doComponentComplete();
-
-
-
-    m_declarativeView->scene()->setSceneRect(rootNodeInstance().boundingRect());
-
+    initializeDeclarativeView();
+    QList<ServerNodeInstance> instanceList = setupScene(command);
 
     nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(instanceList, true));
     nodeInstanceClient()->valuesChanged(createValuesChangedCommand(instanceList));
@@ -805,6 +772,52 @@ void NodeInstanceServer::resetAllItems()
 
     foreach (QGraphicsItem *item, m_declarativeView->items())
          static_cast<QGraphicsScenePrivate*>(QObjectPrivate::get(m_declarativeView->scene()))->resetDirtyItem(item);
+}
+
+void NodeInstanceServer::initializeDeclarativeView()
+{
+    Q_ASSERT(!m_declarativeView.data());
+
+    m_declarativeView = new QDeclarativeView;
+#ifndef Q_WS_MAC
+    m_declarativeView->setAttribute(Qt::WA_DontShowOnScreen, true);
+#endif
+    m_declarativeView->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
+    m_declarativeView->show();
+#ifdef Q_WS_MAC
+    m_declarativeView->setAttribute(Qt::WA_DontShowOnScreen, true);
+#endif
+}
+
+QList<ServerNodeInstance> NodeInstanceServer::setupScene(const CreateSceneCommand &command)
+{
+    if (!command.fileUrl().isEmpty())
+        engine()->setBaseUrl(command.fileUrl());
+
+    addImports(command.imports());
+
+    static_cast<QGraphicsScenePrivate*>(QObjectPrivate::get(m_declarativeView->scene()))->processDirtyItemsEmitted = true;
+
+    QList<ServerNodeInstance> instanceList = createInstances(command.instances());
+    reparentInstances(command.reparentInstances());
+
+    foreach(const IdContainer &container, command.ids()) {
+        if (hasInstanceForId(container.instanceId()))
+            instanceForId(container.instanceId()).setId(container.id());
+    }
+
+    foreach(const PropertyValueContainer &container, command.valueChanges())
+        setInstancePropertyVariant(container);
+
+    foreach(const PropertyBindingContainer &container, command.bindingChanges())
+        setInstancePropertyBinding(container);
+
+    foreach(ServerNodeInstance instance, instanceList)
+        instance.doComponentComplete();
+
+    m_declarativeView->scene()->setSceneRect(rootNodeInstance().boundingRect());
+
+    return instanceList;
 }
 
 void NodeInstanceServer::findItemChangesAndSendChangeCommands()
