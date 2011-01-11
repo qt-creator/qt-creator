@@ -66,7 +66,7 @@ public:
     HelpNetworkReply(const QNetworkRequest &request, const QByteArray &fileData,
         const QString &mimeType);
 
-    virtual void abort();
+    virtual void abort() {}
 
     virtual qint64 bytesAvailable() const
         { return data.length() + QNetworkReply::bytesAvailable(); }
@@ -76,24 +76,21 @@ protected:
 
 private:
     QByteArray data;
-    qint64 origLen;
+    qint64 dataLength;
 };
 
 HelpNetworkReply::HelpNetworkReply(const QNetworkRequest &request,
         const QByteArray &fileData, const QString& mimeType)
-    : data(fileData), origLen(fileData.length())
+    : data(fileData)
+    , dataLength(fileData.length())
 {
     setRequest(request);
     setOpenMode(QIODevice::ReadOnly);
 
     setHeader(QNetworkRequest::ContentTypeHeader, mimeType);
-    setHeader(QNetworkRequest::ContentLengthHeader, QByteArray::number(origLen));
+    setHeader(QNetworkRequest::ContentLengthHeader, QByteArray::number(dataLength));
     QTimer::singleShot(0, this, SIGNAL(metaDataChanged()));
     QTimer::singleShot(0, this, SIGNAL(readyRead()));
-}
-
-void HelpNetworkReply::abort()
-{
 }
 
 qint64 HelpNetworkReply::readData(char *buffer, qint64 maxlen)
