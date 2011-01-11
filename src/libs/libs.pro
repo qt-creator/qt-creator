@@ -16,4 +16,8 @@ SUBDIRS   = \
     symbianutils \
     3rdparty
 
-win32:SUBDIRS += qtcreatorcdbext
+# Windows: Compile Qt Creator CDB extension if Debugging tools can be detected.    
+win32 {
+    include(qtcreatorcdbext/cdb_detect.pri)
+    !isEmpty(CDB_PATH):SUBDIRS += qtcreatorcdbext
+}
