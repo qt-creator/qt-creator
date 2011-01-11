@@ -34,10 +34,10 @@
 #ifndef CDBSETTINGSPAGE_H
 #define CDBSETTINGSPAGE_H
 
-#include "cdboptions2.h"
+#include "cdboptions.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include "ui_cdboptionspagewidget2.h"
+#include "ui_cdboptionspagewidget.h"
 
 #include <QtGui/QWidget>
 #include <QtCore/QPointer>
@@ -98,7 +98,7 @@ private:
     static bool checkInstallation(const QString &executable, bool is64Bit,
                                   QString *message);
 
-    Ui::CdbOptionsPageWidget2 m_ui;
+    Ui::CdbOptionsPageWidget m_ui;
     CdbBreakEventWidget *m_breakEventWidget;
     QTimer *m_reportTimer;
 };

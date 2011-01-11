@@ -31,8 +31,8 @@
 **
 **************************************************************************/
 
-#include "cdboptions2.h"
-#include "cdbengine2.h"
+#include "cdboptions.h"
+#include "cdbengine.h"
 
 #ifdef Q_OS_WIN
 #    include <utils/winutils.h>

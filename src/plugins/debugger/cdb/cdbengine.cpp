@@ -31,11 +31,11 @@
 **
 **************************************************************************/
 
-#include "cdbengine2.h"
+#include "cdbengine.h"
 #include "debuggerstartparameters.h"
 #include "disassemblerlines.h"
-#include "cdboptions2.h"
-#include "cdboptionspage2.h"
+#include "cdboptions.h"
+#include "cdboptionspage.h"
 #include "bytearrayinputstream.h"
 #include "breakpoint.h"
 #include "breakhandler.h"

@@ -31,10 +31,10 @@
 **
 **************************************************************************/
 
-#include "cdboptionspage2.h"
-#include "cdboptions2.h"
+#include "cdboptionspage.h"
+#include "cdboptions.h"
 #include "debuggerconstants.h"
-#include "cdbengine2.h"
+#include "cdbengine.h"
 
 #ifdef Q_OS_WIN
 #    include <utils/winutils.h>

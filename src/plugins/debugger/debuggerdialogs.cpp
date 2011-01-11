@@ -34,7 +34,7 @@
 #include "debuggerdialogs.h"
 
 #include "debuggerconstants.h"
-#include "cdb2/cdbengine2.h"
+#include "cdb/cdbengine.h"
 
 #include "ui_attachcoredialog.h"
 #include "ui_attachexternaldialog.h"

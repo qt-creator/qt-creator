@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Debugger::Internal::CdbOptionsPageWidget2</class>
- <widget class="QWidget" name="Debugger::Cdb::CdbOptionsPageWidget2">
+ <class>Debugger::Internal::CdbOptionsPageWidget</class>
+ <widget class="QWidget" name="Debugger::Cdb::CdbOptionsPageWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
