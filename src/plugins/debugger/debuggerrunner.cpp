@@ -71,7 +71,7 @@ using namespace Debugger::Internal;
 
 namespace Debugger {
 
-namespace Cdb {
+namespace Internal {
 bool isCdbEngineEnabled(); // Check the configuration page
 ConfigurationCheck checkCdbConfiguration(ToolChainType toolChain);
 DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *error);
@@ -321,7 +321,7 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
             d->m_engine = createScriptEngine(sp);
             break;
         case CdbEngineType:
-            d->m_engine = Cdb::createCdbEngine(sp, &d->m_errorMessage);
+            d->m_engine = Internal::createCdbEngine(sp, &d->m_errorMessage);
             break;
         case PdbEngineType:
             d->m_engine = createPdbEngine(sp);
@@ -406,7 +406,7 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(ToolChainType toolCha
         }
         break;
     case ToolChain_MSVC:
-        result = Cdb::checkCdbConfiguration(toolChain);
+        result = Internal::checkCdbConfiguration(toolChain);
         if (!result) {
             result.errorMessage += msgEngineNotAvailable("Cdb");
             result.settingsPage = QLatin1String("Cdb");

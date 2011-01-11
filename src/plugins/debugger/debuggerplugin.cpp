@@ -405,7 +405,7 @@ const char * const SNAPSHOT_KEY             = "Ctrl+D,Ctrl+S";
 } // namespace Constants
 
 
-namespace Cdb {
+namespace Internal {
 void addCdb2OptionPages(QList<Core::IOptionsPage*> *);
 } // namespace Cdb
 
@@ -3019,7 +3019,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     if (m_cmdLineEnabledEngines & GdbEngineType)
         addGdbOptionPages(&engineOptionPages);
 #ifdef Q_OS_WIN
-    Debugger::Cdb::addCdb2OptionPages(&engineOptionPages);
+   addCdb2OptionPages(&engineOptionPages);
 #endif
 #ifdef WITH_LLDB
     if (m_cmdLineEnabledEngines & LldbEngineType)

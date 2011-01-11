@@ -41,7 +41,7 @@ class QSettings;
 QT_END_NAMESPACE
 
 namespace Debugger {
-namespace Cdb {
+namespace Internal {
 
 struct CdbOptions
 {

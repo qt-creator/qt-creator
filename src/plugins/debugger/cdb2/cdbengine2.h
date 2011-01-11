@@ -43,7 +43,7 @@
 #include <QtCore/QTime>
 
 namespace Debugger {
-namespace Cdb {
+namespace Internal {
 
 class DisassemblerAgent;
 struct CdbBuiltinCommand;
@@ -83,8 +83,8 @@ public:
     virtual void shutdownInferior();
     virtual void shutdownEngine();
     virtual void detachDebugger();
-    virtual void updateWatchData(const Debugger::Internal::WatchData &data,
-                                 const Debugger::Internal::WatchUpdateFlags & flags = Debugger::Internal::WatchUpdateFlags());
+    virtual void updateWatchData(const WatchData &data,
+                                 const WatchUpdateFlags & flags = WatchUpdateFlags());
     virtual unsigned debuggerCapabilities() const;
     virtual void setRegisterValue(int regnr, const QString &value);
 
@@ -100,7 +100,7 @@ public:
     virtual void executeRunToLine(const QString &fileName, int lineNumber);
     virtual void executeRunToFunction(const QString &functionName);
     virtual void executeJumpToLine(const QString &fileName, int lineNumber);
-    virtual void assignValueInDebugger(const Debugger::Internal::WatchData *w, const QString &expr, const QVariant &value);
+    virtual void assignValueInDebugger(const WatchData *w, const QString &expr, const QVariant &value);
     virtual void executeDebuggerCommand(const QString &command);
 
     virtual void activateFrame(int index);
@@ -110,8 +110,8 @@ public:
     virtual bool acceptsBreakpoint(BreakpointId id) const;
     virtual void attemptBreakpointSynchronization();
 
-    virtual void fetchDisassembler(Debugger::Internal::DisassemblerAgent *agent);
-    virtual void fetchMemory(Debugger::Internal::MemoryAgent *, QObject *, quint64 addr, quint64 length);
+    virtual void fetchDisassembler(DisassemblerAgent *agent);
+    virtual void fetchMemory(MemoryAgent *, QObject *, quint64 addr, quint64 length);
 
     virtual void reloadModules();
     virtual void loadSymbols(const QString &moduleName);
@@ -209,7 +209,7 @@ private:
     bool m_sourceStepInto;
 };
 
-} // namespace Cdb
+} // namespace Internal
 } // namespace Debugger
 
 #endif // DEBUGGER_CDBENGINE_H

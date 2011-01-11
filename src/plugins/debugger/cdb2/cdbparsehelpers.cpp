@@ -51,15 +51,15 @@
 #include <cctype>
 
 namespace Debugger {
-namespace Cdb {
+namespace Internal {
 
 // Convert breakpoint in CDB syntax.
-QByteArray cdbAddBreakpointCommand(const Debugger::Internal::BreakpointParameters &bpIn, bool oneshot, int id)
+QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn, bool oneshot, int id)
 {
 #ifdef Q_OS_WIN
-    const Debugger::Internal::BreakpointParameters bp = Debugger::Internal::fixWinMSVCBreakpoint(bpIn);
+    const BreakpointParameters bp = fixWinMSVCBreakpoint(bpIn);
 #else
-    const Debugger::Internal::BreakpointParameters bp = bpIn;
+    const BreakpointParameters bp = bpIn;
 #endif
 
     QByteArray rc;
@@ -68,29 +68,29 @@ QByteArray cdbAddBreakpointCommand(const Debugger::Internal::BreakpointParameter
     if (bp.threadSpec >= 0)
         str << '~' << bp.threadSpec << ' ';
 
-    str << (bp.type == Debugger::Internal::Watchpoint ? "ba" : "bp");
+    str << (bp.type == Watchpoint ? "ba" : "bp");
     if (id >= 0)
         str << id;
     str << ' ';
     if (oneshot)
         str << "/1 ";
     switch (bp.type) {
-    case Debugger::Internal::UnknownType:
-    case Debugger::Internal::BreakpointAtCatch:
-    case Debugger::Internal::BreakpointAtThrow:
-    case Debugger::Internal::BreakpointAtMain:
+    case UnknownType:
+    case BreakpointAtCatch:
+    case BreakpointAtThrow:
+    case BreakpointAtMain:
         QTC_ASSERT(false, return QByteArray(); )
         break;
-    case Debugger::Internal::BreakpointByAddress:
+    case BreakpointByAddress:
         str << hex << hexPrefixOn << bp.address << hexPrefixOff << dec;
         break;
-    case Debugger::Internal::BreakpointByFunction:
+    case BreakpointByFunction:
         str << bp.functionName;
         break;
-    case Debugger::Internal::BreakpointByFileAndLine:
+    case BreakpointByFileAndLine:
         str << '`' << QDir::toNativeSeparators(bp.fileName) << ':' << bp.lineNumber << '`';
         break;
-    case Debugger::Internal::Watchpoint:
+    case Watchpoint:
         str << "rw 1 " << hex << hexPrefixOn << bp.address << hexPrefixOff << dec;
         break;
     }
@@ -147,7 +147,7 @@ QVariant cdbIntegerValue(const QByteArray &t)
    3  Id: 133c.38c Suspend: 1 Teb: 000007ff`fffd7000 Unfrozen "QThread"
 \endcode */
 
-static inline bool parseThread(QByteArray line, Debugger::Internal::ThreadData *thread, bool *current)
+static inline bool parseThread(QByteArray line, ThreadData *thread, bool *current)
 {
     *current = false;
     if (line.size() < 5)
@@ -223,20 +223,20 @@ WinException::WinException() :
 {
 }
 
-void WinException::fromGdbMI(const Debugger::Internal::GdbMi &gdbmi)
+void WinException::fromGdbMI(const GdbMi &gdbmi)
 {
     exceptionCode = gdbmi.findChild("exceptionCode").data().toUInt();
     exceptionFlags = gdbmi.findChild("exceptionFlags").data().toUInt();
     exceptionAddress = gdbmi.findChild("exceptionAddress").data().toULongLong();
     firstChance = gdbmi.findChild("firstChance").data() != "0";
-    const Debugger::Internal::GdbMi ginfo1 = gdbmi.findChild("exceptionInformation0");
+    const GdbMi ginfo1 = gdbmi.findChild("exceptionInformation0");
     if (ginfo1.isValid()) {
         info1 = ginfo1.data().toULongLong();
-        const Debugger::Internal::GdbMi ginfo2  = gdbmi.findChild("exceptionInformation1");
+        const GdbMi ginfo2  = gdbmi.findChild("exceptionInformation1");
         if (ginfo2.isValid())
             info2 = ginfo1.data().toULongLong();
     }
-    const Debugger::Internal::GdbMi gLineNumber = gdbmi.findChild("exceptionLine");
+    const GdbMi gLineNumber = gdbmi.findChild("exceptionLine");
     if (gLineNumber.isValid()) {
         lineNumber = gLineNumber.data().toInt();
         file = gdbmi.findChild("exceptionFile").data();
@@ -249,8 +249,8 @@ QString WinException::toString(bool includeLocation) const
     QString rc;
     QTextStream str(&rc);
 #ifdef Q_OS_WIN
-    Debugger::Internal::formatWindowsException(exceptionCode, exceptionAddress,
-                                               exceptionFlags, info1, info2, str);
+    formatWindowsException(exceptionCode, exceptionAddress,
+                           exceptionFlags, info1, info2, str);
 #endif
     if (includeLocation) {
         if (lineNumber) {
@@ -272,5 +272,5 @@ QDebug operator<<(QDebug s, const WinException &e)
     return s;
 }
 
-} // namespace Cdb
+} // namespace Internal
 } // namespace Debugger

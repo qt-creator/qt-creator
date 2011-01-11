@@ -34,7 +34,7 @@
 #include "bytearrayinputstream.h"
 
 namespace Debugger {
-namespace Cdb {
+namespace Internal {
 
 ByteArrayInputStream::ByteArrayInputStream(QByteArray &ba) :
     m_target(ba), m_integerBase(10), m_hexPrefix(false), m_width(0)
@@ -122,5 +122,5 @@ QByteArray simplify(const QByteArray &inIn)
     return in;
 }
 
-} // namespace Cdb
+} // namespace Internal
 } // namespace Debugger

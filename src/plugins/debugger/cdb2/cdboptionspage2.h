@@ -48,7 +48,7 @@ class QTimer;
 QT_END_NAMESPACE
 
 namespace Debugger {
-namespace Cdb {
+namespace Internal {
 
 // Widget displaying a list of break events for the 'sxe' command
 // with a checkbox to enable 'break' and optionally a QLineEdit for

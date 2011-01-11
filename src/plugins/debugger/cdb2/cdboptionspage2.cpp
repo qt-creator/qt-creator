@@ -59,7 +59,7 @@ static const char *dgbToolsDownloadLink32C = "http://www.microsoft.com/whdc/devt
 static const char *dgbToolsDownloadLink64C = "http://www.microsoft.com/whdc/devtools/debugging/install64bit.Mspx";
 
 namespace Debugger {
-namespace Cdb {
+namespace Internal {
 
 struct EventsDescription {
     const char *abbreviation;

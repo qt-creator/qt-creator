@@ -51,12 +51,9 @@ class BreakpointParameters;
 struct ThreadData;
 class Register;
 class GdbMi;
-} // namespace Internal
-
-namespace Cdb {
 
 // Convert breakpoint in CDB syntax.
-QByteArray cdbAddBreakpointCommand(const Debugger::Internal::BreakpointParameters &d, bool oneshot = false, int id = -1);
+QByteArray cdbAddBreakpointCommand(const BreakpointParameters &d, bool oneshot = false, int id = -1);
 
 // Convert a CDB integer value: '00000000`0012a290' -> '12a290', '0n10' ->'10'
 QByteArray fixCdbIntegerValue(QByteArray t, bool stripLeadingZeros = false, int *basePtr = 0);
@@ -70,7 +67,7 @@ QString StringFromBase64EncodedUtf16(const QByteArray &a);
 struct WinException
 {
     WinException();
-    void fromGdbMI(const Debugger::Internal::GdbMi &);
+    void fromGdbMI(const GdbMi &);
     QString toString(bool includeLocation = false) const;
 
     unsigned exceptionCode;
@@ -86,7 +83,7 @@ struct WinException
 
 QDebug operator<<(QDebug s, const WinException &e);
 
-} // namespace Cdb
+} // namespace Internal
 } // namespace Debugger
 
 #endif // CDBPARSEHELPERS_H

@@ -767,8 +767,8 @@ static inline QString cdbRemoteHelp()
             "ssl:proto=Protocol,{certuser=Cert|machuser=Cert},server=Server,port=Socket[,password=Password]\n"
             "ssl:proto=Protocol,{certuser=Cert|machuser=Cert},clicon=Server,port=Socket[,password=Password]";
 
-    const QString ext32 = QDir::toNativeSeparators(Debugger::Cdb::CdbEngine::extensionLibraryName(false));
-    const QString ext64 = QDir::toNativeSeparators(Debugger::Cdb::CdbEngine::extensionLibraryName(true));
+    const QString ext32 = QDir::toNativeSeparators(CdbEngine::extensionLibraryName(false));
+    const QString ext64 = QDir::toNativeSeparators(CdbEngine::extensionLibraryName(true));
     return  StartRemoteCdbDialog::tr(
                 "<html><body><p>The remote CDB needs to load the matching Qt Creator CDB extension "
                 "(<code>%1</code> or <code>%2</code>, respectively).</p><p>Copy it onto the remote machine and set the "

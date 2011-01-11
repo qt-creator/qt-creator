@@ -120,7 +120,7 @@ using namespace ProjectExplorer;
 using namespace Debugger::Internal;
 
 namespace Debugger {
-namespace Cdb {
+namespace Internal {
 
 static const char localsPrefixC[] = "local.";
 
@@ -143,14 +143,14 @@ struct SourceLocationCookie {
     int lineNumber;
 };
 
-} // namespace Cdb
+} // namespace Internal
 } // namespace Debugger
 
-Q_DECLARE_METATYPE(Debugger::Cdb::MemoryViewCookie)
-Q_DECLARE_METATYPE(Debugger::Cdb::SourceLocationCookie)
+Q_DECLARE_METATYPE(Debugger::Internal::MemoryViewCookie)
+Q_DECLARE_METATYPE(Debugger::Internal::SourceLocationCookie)
 
 namespace Debugger {
-namespace Cdb {
+namespace Internal {
 
 // Base data structure for command queue entries with callback
 struct CdbCommandBase
@@ -408,8 +408,8 @@ void CdbEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEd
 void CdbEngine::setupEngine()
 {
     // Nag to add symbol server
-    if (Debugger::Internal::CdbSymbolPathListEditor::promptToAddSymbolServer(CdbOptions::settingsGroup(),
-                                                                             &(m_options->symbolPaths)))
+    if (CdbSymbolPathListEditor::promptToAddSymbolServer(CdbOptions::settingsGroup(),
+                                                         &(m_options->symbolPaths)))
         m_options->toSettings(Core::ICore::instance()->settings());
 
     QString errorMessage;
@@ -695,8 +695,8 @@ void CdbEngine::detachDebugger()
     postCommand(".detach", 0);
 }
 
-void CdbEngine::updateWatchData(const Debugger::Internal::WatchData &dataIn,
-                                const Debugger::Internal::WatchUpdateFlags & flags)
+void CdbEngine::updateWatchData(const WatchData &dataIn,
+                                const WatchUpdateFlags & flags)
 {
     if (debug)
         qDebug("CdbEngine::updateWatchData() %dms %s incr=%d: %s",
@@ -705,7 +705,7 @@ void CdbEngine::updateWatchData(const Debugger::Internal::WatchData &dataIn,
                qPrintable(dataIn.toString()));
 
     if (!dataIn.hasChildren) {
-        Debugger::Internal::WatchData data = dataIn;
+        WatchData data = dataIn;
         data.setAllUnneeded();
         watchHandler()->insertData(data);
         return;
@@ -812,7 +812,7 @@ void CdbEngine::doInterruptInferior(SpecialStopMode sm)
     const SpecialStopMode oldSpecialMode = m_specialStopMode;
     m_specialStopMode = sm;
     QString errorMessage;
-    if (!Debugger::Internal::winDebugBreakProcess(m_inferiorPid, &errorMessage)) {
+    if (!winDebugBreakProcess(m_inferiorPid, &errorMessage)) {
         m_specialStopMode = oldSpecialMode;
         showMessage(errorMessage, LogError);
     }
@@ -824,7 +824,7 @@ void CdbEngine::doInterruptInferior(SpecialStopMode sm)
 void CdbEngine::executeRunToLine(const QString &fileName, int lineNumber)
 {
     // Add one-shot breakpoint
-    Debugger::Internal::BreakpointParameters bp(Debugger::Internal::BreakpointByFileAndLine);
+    BreakpointParameters bp(BreakpointByFileAndLine);
     bp.fileName = fileName;
     bp.lineNumber = lineNumber;
     postCommand(cdbAddBreakpointCommand(bp, true), 0);
@@ -834,7 +834,7 @@ void CdbEngine::executeRunToLine(const QString &fileName, int lineNumber)
 void CdbEngine::executeRunToFunction(const QString &functionName)
 {
     // Add one-shot breakpoint
-    Debugger::Internal::BreakpointParameters bp(Debugger::Internal::BreakpointByFunction);
+    BreakpointParameters bp(BreakpointByFunction);
     bp.functionName = functionName;
 
     postCommand(cdbAddBreakpointCommand(bp, true), 0);
@@ -843,7 +843,7 @@ void CdbEngine::executeRunToFunction(const QString &functionName)
 
 void CdbEngine::setRegisterValue(int regnr, const QString &value)
 {
-    const Debugger::Internal::Registers registers = registerHandler()->registers();
+    const Registers registers = registerHandler()->registers();
     QTC_ASSERT(regnr < registers.size(), return)
     // Value is decimal or 0x-hex-prefixed
     QByteArray cmd;
@@ -885,7 +885,7 @@ void CdbEngine::handleJumpToLineAddressResolution(const CdbBuiltinCommandPtr &cm
     gotoLocation(Location(cookie.fileName, cookie.lineNumber));
 }
 
-void CdbEngine::assignValueInDebugger(const Debugger::Internal::WatchData *w, const QString &expr, const QVariant &value)
+void CdbEngine::assignValueInDebugger(const WatchData *w, const QString &expr, const QVariant &value)
 {
     if (debug)
         qDebug() << "CdbEngine::assignValueInDebugger" << w->iname << expr << value;
@@ -907,10 +907,10 @@ void CdbEngine::handleThreads(const CdbExtensionCommandPtr &reply)
     if (debug)
         qDebug("CdbEngine::handleThreads success=%d", reply->success);
     if (reply->success) {
-        Debugger::Internal::GdbMi data;
+        GdbMi data;
         data.fromString(reply->reply);
         int currentThreadId;
-        Debugger::Internal::Threads threads = Debugger::Internal::ThreadsHandler::parseGdbmiThreads(data, &currentThreadId);
+        Threads threads = ThreadsHandler::parseGdbmiThreads(data, &currentThreadId);
         threadsHandler()->setThreads(threads);
         threadsHandler()->setCurrentThreadId(currentThreadId);
         // Continue sequence
@@ -1016,7 +1016,7 @@ void CdbEngine::activateFrame(int index)
     // TODO: assembler,etc
     if (index < 0)
         return;
-    const Debugger::Internal::StackFrames &frames = stackHandler()->frames();
+    const StackFrames &frames = stackHandler()->frames();
     QTC_ASSERT(index < frames.size(), return; )
 
     const StackFrame frame = frames.at(index);
@@ -1086,28 +1086,28 @@ void CdbEngine::selectThread(int index)
     postBuiltinCommand(cmd, 0, &CdbEngine::dummyHandler, CommandListStack);
 }
 
-void CdbEngine::fetchDisassembler(Debugger::Internal::DisassemblerAgent *agent)
+void CdbEngine::fetchDisassembler(DisassemblerAgent *agent)
 {
     QTC_ASSERT(m_accessible, return;)
     QByteArray cmd;
     ByteArrayInputStream str(cmd);
     str <<  "u " << hex << hexPrefixOn << agent->address() << " L40";
-    const QVariant cookie = qVariantFromValue<Debugger::Internal::DisassemblerAgent*>(agent);
+    const QVariant cookie = qVariantFromValue<DisassemblerAgent*>(agent);
     postBuiltinCommand(cmd, 0, &CdbEngine::handleDisassembler, 0, cookie);
 }
 
 // Parse: "00000000`77606060 cc              int     3"
 void CdbEngine::handleDisassembler(const CdbBuiltinCommandPtr &command)
 {
-    QTC_ASSERT(qVariantCanConvert<Debugger::Internal::DisassemblerAgent*>(command->cookie), return;)
-    Debugger::Internal::DisassemblerAgent *agent = qvariant_cast<Debugger::Internal::DisassemblerAgent*>(command->cookie);
+    QTC_ASSERT(qVariantCanConvert<DisassemblerAgent*>(command->cookie), return;)
+    DisassemblerAgent *agent = qvariant_cast<DisassemblerAgent*>(command->cookie);
     DisassemblerLines disassemblerLines;
     foreach(const QByteArray &line, command->reply)
         disassemblerLines.appendLine(DisassemblerLine(QString::fromLatin1(line)));
     agent->setContents(disassemblerLines);
 }
 
-void CdbEngine::fetchMemory(Debugger::Internal::MemoryAgent *agent, QObject *editor, quint64 addr, quint64 length)
+void CdbEngine::fetchMemory(MemoryAgent *agent, QObject *editor, quint64 addr, quint64 length)
 {
     if (!m_accessible) {
         qWarning("Internal error: Attempt to read memory from inaccessible session: %s", Q_FUNC_INFO);
@@ -1185,12 +1185,12 @@ void CdbEngine::handlePid(const CdbExtensionCommandPtr &reply)
 }
 
 // Parse CDB gdbmi register syntax
-static inline Debugger::Internal::Register parseRegister(const Debugger::Internal::GdbMi &gdbmiReg)
+static inline Register parseRegister(const GdbMi &gdbmiReg)
 {
-    Debugger::Internal::Register reg;
+    Register reg;
     reg.name = gdbmiReg.findChild("name").data();
-    const Debugger::Internal::GdbMi description = gdbmiReg.findChild("description");
-    if (description.type() != Debugger::Internal::GdbMi::Invalid) {
+    const GdbMi description = gdbmiReg.findChild("description");
+    if (description.type() != GdbMi::Invalid) {
         reg.name += " (";
         reg.name += description.data();
         reg.name += ')';
@@ -1202,19 +1202,19 @@ static inline Debugger::Internal::Register parseRegister(const Debugger::Interna
 void CdbEngine::handleModules(const CdbExtensionCommandPtr &reply)
 {
     if (reply->success) {
-        Debugger::Internal::GdbMi value;
+        GdbMi value;
         value.fromString(reply->reply);
-        if (value.type() == Debugger::Internal::GdbMi::List) {
-            Debugger::Internal::Modules modules;
+        if (value.type() == GdbMi::List) {
+            Modules modules;
             modules.reserve(value.childCount());
-            foreach (const Debugger::Internal::GdbMi &gdbmiModule, value.children()) {
-                Debugger::Internal::Module module;
+            foreach (const GdbMi &gdbmiModule, value.children()) {
+                Module module;
                 module.moduleName = QString::fromAscii(gdbmiModule.findChild("name").data());
                 module.modulePath = QString::fromAscii(gdbmiModule.findChild("image").data());
                 module.startAddress = gdbmiModule.findChild("start").data().toULongLong(0, 0);
                 module.endAddress = gdbmiModule.findChild("end").data().toULongLong(0, 0);
-                if (gdbmiModule.findChild("deferred").type() == Debugger::Internal::GdbMi::Invalid)
-                    module.symbolsRead = Debugger::Internal::Module::ReadOk;
+                if (gdbmiModule.findChild("deferred").type() == GdbMi::Invalid)
+                    module.symbolsRead = Module::ReadOk;
                 modules.push_back(module);
             }
             modulesHandler()->setModules(modules);
@@ -1233,12 +1233,12 @@ void CdbEngine::handleModules(const CdbExtensionCommandPtr &reply)
 void CdbEngine::handleRegisters(const CdbExtensionCommandPtr &reply)
 {
     if (reply->success) {
-        Debugger::Internal::GdbMi value;
+        GdbMi value;
         value.fromString(reply->reply);
-        if (value.type() == Debugger::Internal::GdbMi::List) {
-            Debugger::Internal::Registers registers;
+        if (value.type() == GdbMi::List) {
+            Registers registers;
             registers.reserve(value.childCount());
-            foreach (const Debugger::Internal::GdbMi &gdbmiReg, value.children())
+            foreach (const GdbMi &gdbmiReg, value.children())
                 registers.push_back(parseRegister(gdbmiReg));
             registerHandler()->setRegisters(registers);
         } else {
@@ -1255,7 +1255,7 @@ void CdbEngine::handleRegisters(const CdbExtensionCommandPtr &reply)
 void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
 {
     if (reply->success) {
-        QList<Debugger::Internal::WatchData> watchData;
+        QList<WatchData> watchData;
         GdbMi root;
         root.fromString(reply->reply);
         QTC_ASSERT(root.isList(), return ; )
@@ -1274,7 +1274,7 @@ void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
         if (debugLocals) {
             QDebug nsp = qDebug().nospace();
             nsp << "Obtained " << watchData.size() << " items:\n";
-            foreach (const Debugger::Internal::WatchData &wd, watchData)
+            foreach (const WatchData &wd, watchData)
                 nsp << wd.toString() <<'\n';
         }
     } else {
@@ -1394,7 +1394,7 @@ void CdbEngine::handleSessionIdle(const QByteArray &message)
         sequence |= CommandListModules;
     postCommandSequence(sequence);
     // Report stop reason (GDBMI)
-    Debugger::Internal::GdbMi stopReason;
+    GdbMi stopReason;
     stopReason.fromString(message);
     if (debug)
         qDebug("%s", stopReason.toString(true, 4).constData());
@@ -1407,7 +1407,7 @@ void CdbEngine::handleSessionIdle(const QByteArray &message)
     if (reason == "breakpoint") {
         const int number = stopReason.findChild("breakpointId").data().toInt();
         const BreakpointId id = breakHandler()->findBreakpointByNumber(number);
-        if (id && breakHandler()->type(id) == Debugger::Internal::Watchpoint) {
+        if (id && breakHandler()->type(id) == Watchpoint) {
             showStatusMessage(msgWatchpointTriggered(id, number, breakHandler()->address(id), QString::number(threadId)));
         } else {
             showStatusMessage(msgBreakpointTriggered(id, number, QString::number(threadId)));
@@ -1422,7 +1422,7 @@ void CdbEngine::handleSessionIdle(const QByteArray &message)
         // pulls DLLs. Avoid showing a 'stopped' Message box.
         if (exception.exceptionCode == winExceptionStartupCompleteTrap)
             return;
-        if (Debugger::Internal::isDebuggerWinException(exception.exceptionCode)) {
+        if (isDebuggerWinException(exception.exceptionCode)) {
             showStatusMessage(msgInterrupted());
             return;
         }
@@ -1572,13 +1572,13 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
 
     if (what == "exception") {
         WinException exception;
-        Debugger::Internal::GdbMi gdbmi;
+        GdbMi gdbmi;
         gdbmi.fromString(message);
         exception.fromGdbMI(gdbmi);
         const QString message = exception.toString(true);
         showStatusMessage(message);
 #ifdef Q_OS_WIN // Report C++ exception in application output as well.
-        if (exception.exceptionCode == Debugger::Internal::winExceptionCppException)
+        if (exception.exceptionCode == winExceptionCppException)
             showMessage(message + QLatin1Char('\n'), AppOutput);
 #endif
         return;
@@ -1735,11 +1735,11 @@ void CdbEngine::processError()
 
 #if 0
 // Join breakpoint ids for a multi-breakpoint id commands like 'bc', 'be', 'bd'
-static QByteArray multiBreakpointCommand(const char *cmdC, const Debugger::Internal::Breakpoints &bps)
+static QByteArray multiBreakpointCommand(const char *cmdC, const Breakpoints &bps)
 {
     QByteArray cmd(cmdC);
     ByteArrayInputStream str(cmd);
-    foreach(const Debugger::Internal::BreakpointData *bp, bps)
+    foreach(const BreakpointData *bp, bps)
         str << ' ' << bp->bpNumber;
     return cmd;
 }
@@ -1984,5 +1984,5 @@ void CdbEngine::postCommandSequence(unsigned mask)
     }
 }
 
-} // namespace Cdb
+} // namespace Internal
 } // namespace Debugger

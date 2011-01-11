@@ -38,7 +38,7 @@
 #include <QtCore/QString>
 
 namespace Debugger {
-namespace Cdb {
+namespace Internal {
 
 class ByteArrayInputStream
 {
@@ -106,7 +106,7 @@ QByteArray trimFront(QByteArray in);
 QByteArray trimBack(QByteArray in);
 QByteArray simplify(const QByteArray &inIn);
 
-} // namespace Cdb
+} // namespace Internal
 } // namespace Debugger
 
 #endif // BYTEARRAYINPUTSTREAM_H

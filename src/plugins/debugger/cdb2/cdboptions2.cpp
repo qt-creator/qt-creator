@@ -52,7 +52,7 @@ static const char breakEventKeyC[] = "BreakEvent";
 static const char is64bitKeyC[] = "64bit";
 
 namespace Debugger {
-namespace Cdb {
+namespace Internal {
 
 CdbOptions::CdbOptions() :
     enabled(false), is64bit(false)
