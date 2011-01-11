@@ -1211,6 +1211,13 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
 
     future.setProgressRange(0, paths.size());
 
+    static const int MAX_DEPTH = 3;
+    QList<int> pathDepths;
+    pathDepths.reserve(paths.size());
+    for (int i = 0; i < paths.size(); ++i) {
+        pathDepths.append(0);
+    }
+
     // Add framework header directories to path list
     QStringList frameworkFilter;
     frameworkFilter << QLatin1String("*.framework");
@@ -1223,6 +1230,7 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
         while (fwIt.hasNext()) {
             QString framework = fwIt.next();
             paths.append(fwPath + QLatin1Char('/') + framework + QLatin1String("/Headers"));
+            pathDepths.append(0);
             framework.chop(10); // remove the ".framework"
             entriesInFrameworkPath.append(framework + QLatin1Char('/'));
         }
@@ -1237,9 +1245,7 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
             return;
 
         const QString path = paths.takeFirst();
-
-        if (path == QLatin1String("/"))
-            continue;
+        const int depth = pathDepths.takeFirst();
 
         // Skip non-existing paths
         if (!QFile::exists(path))
@@ -1256,7 +1262,7 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
             const QString fileName = i.next();
             const QFileInfo fileInfo = i.fileInfo();
             QString text = fileInfo.fileName();
-            if (fileInfo.isDir()) {
+            if (depth < MAX_DEPTH && fileInfo.isDir()) {
                 text += QLatin1Char('/');
 
                 // Also scan subdirectory, but avoid endless recursion with symbolic links
@@ -1272,10 +1278,12 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
                         entriesInPaths.insert(fileName, result.value());
                     } else {
                         paths.append(target);
+                        pathDepths.append(depth + 1);
                         symlinks.append(SymLink(fileName, target));
                     }
                 } else {
                     paths.append(fileName);
+                    pathDepths.append(depth + 1);
                 }
                 entries.append(text);
             } else {
