@@ -70,7 +70,8 @@ public:
                             const QString &directory, const QString &makeCommand,
                             const QString &qmakeCommand, const QString &mkspec,
                             const Utils::Environment &env, const QString &targetMode,
-                            QString *output, QString *errorMessage);
+                            const QStringList &qmakeArguments, QString *output,
+                            QString *errorMessage);
 
     static bool getHelperFileInfoFor(const QStringList &validBinaryFilenames,
                                      const QString &directory, QFileInfo* info);

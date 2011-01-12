@@ -563,7 +563,7 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &makefile)
 void Qt4BuildConfiguration::removeQMLInspectorFromArguments(QString *args)
 {
     for (Utils::QtcProcess::ArgIterator ait(args); ait.next(); )
-        if (ait.value().startsWith(QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH)))
+        if (ait.value().contains(QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH)))
             ait.deleteArg();
 }
 

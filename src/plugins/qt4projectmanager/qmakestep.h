@@ -95,11 +95,15 @@ public:
     QStringList parserArguments();
     QString userArguments();
     void setUserArguments(const QString &arguments);
+    bool linkQmlDebuggingLibrary() const;
+    void setLinkQmlDebuggingLibrary(bool enable);
+    bool isQmlDebuggingLibrarySupported(QString *reason = 0) const;
 
     QVariantMap toMap() const;
 
 signals:
     void userArgumentsChanged();
+    void linkQmlDebuggingLibraryChanged();
 
 protected:
     QMakeStep(ProjectExplorer::BuildStepList *parent, QMakeStep *source);
@@ -117,6 +121,7 @@ private:
     bool m_forced;
     bool m_needToRunQMake; // set in init(), read in run()
     QString m_userArgs;
+    bool m_linkQmlDebuggingLibrary;
     bool m_scriptTemplate;
     QList<ProjectExplorer::Task> m_tasks;
 };
@@ -135,12 +140,20 @@ private slots:
     void qtVersionChanged();
     void qmakeBuildConfigChanged();
     void userArgumentsChanged();
+    void linkQmlDebuggingLibraryChanged();
 
     // slots for dealing with user changes in our UI
     void qmakeArgumentsLineEdited();
     void buildConfigurationSelected();
+    void linkQmlDebuggingLibraryChecked(bool checked);
+
+    // other
+    void buildQmlDebuggingHelper();
+    void debuggingHelperBuildFinished();
+
 private:
     void updateSummaryLabel();
+    void updateQmlDebuggingWarningsLabel();
     void updateEffectiveQMakeCall();
     Ui::QMakeStep m_ui;
     QMakeStep *m_step;

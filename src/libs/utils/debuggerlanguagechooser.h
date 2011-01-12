@@ -73,6 +73,7 @@ private:
     QCheckBox *m_useQmlDebugger;
     QSpinBox *m_debugServerPort;
     QLabel *m_debugServerPortLabel;
+    QLabel *m_qmlDebuggerInfoLabel;
 };
 
 } // namespace Utils

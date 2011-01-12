@@ -58,6 +58,8 @@ DebuggerLanguageChooser::DebuggerLanguageChooser(QWidget *parent) :
 
     m_debugServerPortLabel->setBuddy(m_debugServerPort);
 
+    m_qmlDebuggerInfoLabel = new QLabel(tr("<a href=\"qthelp://com.nokia.qtcreator/doc/creator-qml-debugging.html\">What are the prerequisites?</a>"));
+
     connect(m_useQmlDebugger, SIGNAL(toggled(bool)), m_debugServerPort, SLOT(setEnabled(bool)));
     connect(m_useQmlDebugger, SIGNAL(toggled(bool)), m_debugServerPortLabel, SLOT(setEnabled(bool)));
     connect(m_debugServerPort, SIGNAL(valueChanged(int)), this, SLOT(onDebugServerPortChanged(int)));
@@ -67,6 +69,7 @@ DebuggerLanguageChooser::DebuggerLanguageChooser(QWidget *parent) :
     qmlLayout->addWidget(m_useQmlDebugger);
     qmlLayout->addWidget(m_debugServerPortLabel);
     qmlLayout->addWidget(m_debugServerPort);
+    qmlLayout->addWidget(m_qmlDebuggerInfoLabel);
     qmlLayout->addStretch();
 
     QVBoxLayout *layout = new QVBoxLayout;

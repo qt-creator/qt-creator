@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -31,37 +31,44 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGINGHELPER_H
-#define DEBUGGINGHELPER_H
-
-#include "projectexplorer_export.h"
+#ifndef QMLDEBUGGINGLIBRARY_H
+#define QMLDEBUGGINGLIBRARY_H
 
 #include <utils/buildablehelperlibrary.h>
+#include "qt4projectmanager_global.h"
 
-#include <QtCore/QString>
+QT_FORWARD_DECLARE_CLASS(QDir)
 
-QT_FORWARD_DECLARE_CLASS(QStringList)
+namespace Utils {
+    class Environment;
+}
 
 namespace ProjectExplorer {
+    class Project;
+}
 
-class PROJECTEXPLORER_EXPORT DebuggingHelperLibrary : public Utils::BuildableHelperLibrary
+namespace Qt4ProjectManager {
+
+class QtVersion;
+
+class QmlDebuggingLibrary : public Utils::BuildableHelperLibrary
 {
 public:
-    static QString debuggingHelperLibraryByInstallData(const QString &qtInstallData);
-    static QStringList locationsByInstallData(const QString &qtInstallData);
+    static QString libraryByInstallData(const QString &qtInstallData, bool debugBuild);
 
-    // Build the helpers and return the output log/errormessage.
+    static bool canBuild(const QtVersion *qtVersion);
     static bool build(const QString &directory, const QString &makeCommand,
-                      const QString &qmakeCommand, const QString &mkspec,
-                      const Utils::Environment &env, const QString &targetMode,
-                      const QStringList &qmakeArguments, QString *output, QString *errorMessage);
-
-    // Copy the source files to a target location and return the chosen target location.
+                       const QString &qmakeCommand, const QString &mkspec,
+                       const Utils::Environment &env, const QString &targetMode,
+                       const QStringList &qmakeArguments, QString *output,  QString *errorMessage);
     static QString copy(const QString &qtInstallData, QString *errorMessage);
 
 private:
-    static QStringList debuggingHelperLibraryDirectories(const QString &qtInstallData);
-};
-} // namespace ProjectExplorer
+    static QStringList recursiveFileList(const QDir &dir, const QString &prefix = QString());
+    static QStringList installDirectories(const QString &qtInstallData);
 
-#endif // DEBUGGINGHELPER_H
+};
+
+} // namespace
+
+#endif // QMLDEBUGGINGLIBRARY_H

@@ -42,15 +42,19 @@
 #include "qt4projectmanager.h"
 #include "qt4target.h"
 #include "qtversionmanager.h"
+#include "debugginghelperbuildtask.h"
 
 #include <projectexplorer/buildsteplist.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
+#include <qtconcurrent/runextensions.h>
+#include <QtCore/QtConcurrentRun>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -61,18 +65,21 @@ const char * const QMAKE_BS_ID("QtProjectManager.QMakeBuildStep");
 
 const char * const QMAKE_ARGUMENTS_KEY("QtProjectManager.QMakeBuildStep.QMakeArguments");
 const char * const QMAKE_FORCED_KEY("QtProjectManager.QMakeBuildStep.QMakeForced");
+const char * const QMAKE_QMLDEBUGLIB_KEY("QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibrary");
 }
 
 QMakeStep::QMakeStep(BuildStepList *bsl) :
     AbstractProcessStep(bsl, QLatin1String(QMAKE_BS_ID)),
-    m_forced(false)
+    m_forced(false),
+    m_linkQmlDebuggingLibrary(false)
 {
     ctor();
 }
 
 QMakeStep::QMakeStep(BuildStepList *bsl, const QString &id) :
     AbstractProcessStep(bsl, id),
-    m_forced(false)
+    m_forced(false),
+    m_linkQmlDebuggingLibrary(false)
 {
     ctor();
 }
@@ -80,7 +87,8 @@ QMakeStep::QMakeStep(BuildStepList *bsl, const QString &id) :
 QMakeStep::QMakeStep(BuildStepList *bsl, QMakeStep *bs) :
     AbstractProcessStep(bsl, bs),
     m_forced(bs->m_forced),
-    m_userArgs(bs->m_userArgs)
+    m_userArgs(bs->m_userArgs),
+    m_linkQmlDebuggingLibrary(bs->m_linkQmlDebuggingLibrary)
 {
     ctor();
 }
@@ -166,9 +174,15 @@ QStringList QMakeStep::moreArguments()
                   << QLatin1String("RCC_DIR=rcc");
     }
 
-    // Do not turn debugger path into native path separators: Qmake does not like that!
-    arguments << QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH) + QLatin1Char('=') +
-            Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmljsdebugger");
+    if (m_linkQmlDebuggingLibrary
+            && !bc->qtVersion()->qmlDebuggingHelperLibrary(true).isEmpty()) {
+        // Do not turn debugger path into native path separators: Qmake does not like that!
+        const QString debuggingHelperPath
+                = QFileInfo(bc->qtVersion()->qmlDebuggingHelperLibrary(true)).dir().path();
+
+        arguments << QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH)
+                     + QLatin1Char('=') + debuggingHelperPath;
+    }
     return arguments;
 }
 
@@ -313,6 +327,57 @@ void QMakeStep::setUserArguments(const QString &arguments)
     qt4BuildConfiguration()->emitProFileEvaluteNeeded();
 }
 
+bool QMakeStep::isQmlDebuggingLibrarySupported(QString *reason) const
+{
+    if (qt4BuildConfiguration()->qtVersion()->hasQmlDebuggingLibrary())
+        return true;
+
+    int major, minor, patch;
+    if (!qt4BuildConfiguration()->qtVersion()->versionNumbers(&major, &minor, &patch)) {
+        if (reason)
+            *reason = tr("Invalid Qt version.");
+        return false;
+    }
+
+    // only support 4.7.1 onwards
+    bool compatibleQt = false;
+    if (major == 4) {
+        if (minor == 7) {
+            if (patch >= 1)
+                compatibleQt = true;
+        } else if (minor > 7)
+            compatibleQt = true;
+    }
+
+    if (!compatibleQt) {
+        if (reason)
+            *reason = tr("Requires Qt 4.7.1 or newer.");
+        return false;
+    }
+
+    if (reason)
+        *reason = tr("Library not available. <a href='compile'>Compile...</a>.");
+
+    return false;
+}
+
+bool QMakeStep::linkQmlDebuggingLibrary() const
+{
+    return m_linkQmlDebuggingLibrary;
+}
+
+void QMakeStep::setLinkQmlDebuggingLibrary(bool enable)
+{
+    if (m_linkQmlDebuggingLibrary == enable)
+        return;
+    m_linkQmlDebuggingLibrary = enable;
+
+    emit linkQmlDebuggingLibraryChanged();
+
+    qt4BuildConfiguration()->emitQMakeBuildConfigurationChanged();
+    qt4BuildConfiguration()->emitProFileEvaluteNeeded();
+}
+
 QStringList QMakeStep::parserArguments()
 {
     QStringList result;
@@ -342,6 +407,7 @@ QVariantMap QMakeStep::toMap() const
 {
     QVariantMap map(AbstractProcessStep::toMap());
     map.insert(QLatin1String(QMAKE_ARGUMENTS_KEY), m_userArgs);
+    map.insert(QLatin1String(QMAKE_QMLDEBUGLIB_KEY), m_linkQmlDebuggingLibrary);
     map.insert(QLatin1String(QMAKE_FORCED_KEY), m_forced);
     return map;
 }
@@ -350,6 +416,7 @@ bool QMakeStep::fromMap(const QVariantMap &map)
 {
     m_userArgs = map.value(QLatin1String(QMAKE_ARGUMENTS_KEY)).toString();
     m_forced = map.value(QLatin1String(QMAKE_FORCED_KEY), false).toBool();
+    m_linkQmlDebuggingLibrary = map.value(QLatin1String(QMAKE_QMLDEBUGLIB_KEY), false).toBool();
     return BuildStep::fromMap(map);
 }
 
@@ -365,8 +432,14 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
             this, SLOT(qmakeArgumentsLineEdited()));
     connect(m_ui.buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(buildConfigurationSelected()));
+    connect(m_ui.qmlDebuggingLibraryCheckBox, SIGNAL(toggled(bool)),
+            this, SLOT(linkQmlDebuggingLibraryChecked(bool)));
+    connect(m_ui.qmlDebuggingWarningText, SIGNAL(linkActivated(QString)),
+            this, SLOT(buildQmlDebuggingHelper()));
     connect(step, SIGNAL(userArgumentsChanged()),
             this, SLOT(userArgumentsChanged()));
+    connect(step, SIGNAL(linkQmlDebuggingLibraryChanged()),
+            this, SLOT(linkQmlDebuggingLibraryChanged()));
     connect(step->qt4BuildConfiguration(), SIGNAL(qtVersionChanged()),
             this, SLOT(qtVersionChanged()));
     connect(step->qt4BuildConfiguration(), SIGNAL(qmakeBuildConfigurationChanged()),
@@ -376,11 +449,14 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
 void QMakeStepConfigWidget::init()
 {
     m_ui.qmakeAdditonalArgumentsLineEdit->setText(m_step->userArguments());
+    m_ui.qmlDebuggingLibraryCheckBox->setEnabled(m_step->isQmlDebuggingLibrarySupported());
+    m_ui.qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
 
     qmakeBuildConfigChanged();
 
     updateSummaryLabel();
     updateEffectiveQMakeCall();
+    updateQmlDebuggingWarningsLabel();
 }
 
 QString QMakeStepConfigWidget::summaryText() const
@@ -423,6 +499,18 @@ void QMakeStepConfigWidget::userArgumentsChanged()
     updateEffectiveQMakeCall();
 }
 
+void QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged()
+{
+    if (m_ignoreChange)
+        return;
+    m_ui.qmlDebuggingLibraryCheckBox->setEnabled(m_step->isQmlDebuggingLibrarySupported());
+    m_ui.qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
+
+    updateSummaryLabel();
+    updateEffectiveQMakeCall();
+    updateQmlDebuggingWarningsLabel();
+}
+
 void QMakeStepConfigWidget::qmakeArgumentsLineEdited()
 {
     m_ignoreChange = true;
@@ -459,6 +547,46 @@ void QMakeStepConfigWidget::buildConfigurationSelected()
     updateEffectiveQMakeCall();
 }
 
+void QMakeStepConfigWidget::linkQmlDebuggingLibraryChecked(bool checked)
+{
+    if (m_ignoreChange)
+        return;
+
+    m_ignoreChange = true;
+    m_step->setLinkQmlDebuggingLibrary(checked);
+    m_ignoreChange = false;
+
+    updateSummaryLabel();
+    updateEffectiveQMakeCall();
+    updateQmlDebuggingWarningsLabel();
+}
+
+void QMakeStepConfigWidget::buildQmlDebuggingHelper()
+{
+    QtVersion *version = m_step->qt4BuildConfiguration()->qtVersion();
+    DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(version,
+                                                                       DebuggingHelperBuildTask::QmlDebugging);
+
+    connect(buildTask, SIGNAL(finished(int,DebuggingHelperBuildTask::Tools,QString)),
+            this, SLOT(debuggingHelperBuildFinished()),
+            Qt::QueuedConnection);
+
+    QFuture<void> task = QtConcurrent::run(&DebuggingHelperBuildTask::run, buildTask);
+    const QString taskName = tr("Building helpers");
+    Core::ICore::instance()->progressManager()->addTask(task, taskName,
+                                                        QLatin1String("Qt4ProjectManager::BuildHelpers"));
+}
+
+void QMakeStepConfigWidget::debuggingHelperBuildFinished()
+{
+    m_step->qt4BuildConfiguration()->qtVersion()->invalidateCache();
+    m_ui.qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
+    m_ui.qmlDebuggingLibraryCheckBox->setEnabled(m_step->isQmlDebuggingLibrarySupported());
+    updateSummaryLabel();
+    updateEffectiveQMakeCall();
+    updateQmlDebuggingWarningsLabel();
+}
+
 void QMakeStepConfigWidget::updateSummaryLabel()
 {
     Qt4BuildConfiguration *qt4bc = m_step->qt4BuildConfiguration();
@@ -476,6 +604,23 @@ void QMakeStepConfigWidget::updateSummaryLabel()
     m_summaryText = tr("<b>qmake:</b> %1 %2").arg(program, args);
     emit updateSummary();
 
+}
+
+void QMakeStepConfigWidget::updateQmlDebuggingWarningsLabel()
+{
+    QString reason;
+    m_ui.qmlDebuggingWarningText->clear();
+    if (!m_step->isQmlDebuggingLibrarySupported(&reason)) {
+        m_ui.qmlDebuggingWarningText->setText(reason);
+    }
+
+    if (m_step->linkQmlDebuggingLibrary()) {
+        if (m_step->isQmlDebuggingLibrarySupported()) {
+            m_ui.qmlDebuggingWarningText->setText("Might make your application vulnerable. Only use in a safe environment!");
+        }
+    }
+
+    m_ui.qmlDebuggingWarningIcon->setVisible(!m_ui.qmlDebuggingWarningText->text().isEmpty());
 }
 
 void QMakeStepConfigWidget::updateEffectiveQMakeCall()

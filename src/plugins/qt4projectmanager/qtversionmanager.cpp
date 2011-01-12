@@ -46,6 +46,8 @@
 
 #include "qmlobservertool.h"
 #include "qmldumptool.h"
+#include "qmldebugginglibrary.h"
+
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/projectexplorer.h>
@@ -547,6 +549,7 @@ QtVersion::QtVersion(const QString &name, const QString &qmakeCommand, int id,
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
     m_hasQmlDump(false),
+    m_hasQmlDebuggingLibrary(false),
     m_hasQmlObserver(false),
     m_toolChainUpToDate(false),
     m_versionInfoUpToDate(false),
@@ -572,6 +575,7 @@ QtVersion::QtVersion(const QString &name, const QString &qmakeCommand,
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
     m_hasQmlDump(false),
+    m_hasQmlDebuggingLibrary(false),
     m_hasQmlObserver(false),
     m_toolChainUpToDate(false),
     m_versionInfoUpToDate(false),
@@ -593,6 +597,7 @@ QtVersion::QtVersion(const QString &qmakeCommand, bool isAutodetected, const QSt
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
     m_hasQmlDump(false),
+    m_hasQmlDebuggingLibrary(false),
     m_hasQmlObserver(false),
     m_toolChainUpToDate(false),
     m_versionInfoUpToDate(false),
@@ -614,6 +619,7 @@ QtVersion::QtVersion()
     m_isAutodetected(false),
     m_hasDebuggingHelper(false),
     m_hasQmlDump(false),
+    m_hasQmlDebuggingLibrary(false),
     m_hasQmlObserver(false),
     m_toolChainUpToDate(false),
     m_versionInfoUpToDate(false),
@@ -789,6 +795,28 @@ QString QtVersion::qtVersionString() const
         }
     }
     return m_qtVersionString;
+}
+
+bool QtVersion::versionNumbers(int *majorNumber, int *minorNumber, int *patchNumber) const
+{
+    const QString versionString = qtVersionString();
+    if (versionString.isEmpty())
+        return false;
+
+    // check format
+    static QRegExp qtVersionRegex(QLatin1String("^\\d+\\.\\d+\\.\\d+$"));
+    if (!qtVersionRegex.exactMatch(versionString))
+        return false;
+
+    QStringList parts = versionString.split(QLatin1Char('.'));
+    if (majorNumber)
+        *majorNumber = parts.at(0).toInt();
+    if (minorNumber)
+        *minorNumber = parts.at(1).toInt();
+    if (patchNumber)
+        *patchNumber = parts.at(2).toInt();
+
+    return true;
 }
 
 QHash<QString,QString> QtVersion::versionInfo() const
@@ -1148,6 +1176,7 @@ void QtVersion::updateVersionInfo() const
     m_hasDocumentation = false;
     m_hasDebuggingHelper = false;
     m_hasQmlDump = false;
+    m_hasQmlDebuggingLibrary = false;
     m_hasQmlObserver = false;
 
     if (!queryQMakeVariables(qmakeCommand(), &m_versionInfo))
@@ -1160,6 +1189,9 @@ void QtVersion::updateVersionInfo() const
         if (!qtInstallData.isEmpty()) {
             m_hasDebuggingHelper = !DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
             m_hasQmlDump = !QmlDumpTool::toolByInstallData(qtInstallData, false).isEmpty() || !QmlDumpTool::toolByInstallData(qtInstallData, true).isEmpty();
+            m_hasQmlDebuggingLibrary
+                    = !QmlDebuggingLibrary::libraryByInstallData(qtInstallData, false).isEmpty()
+                || !QmlDebuggingLibrary::libraryByInstallData(qtInstallData, true).isEmpty();
             m_hasQmlObserver = !QmlObserverTool::toolByInstallData(qtInstallData).isEmpty();
         }
     }
@@ -1648,7 +1680,7 @@ QString QtVersion::invalidReason() const
         return QCoreApplication::translate("QtVersion", "Qt version is not properly installed, please run make install");
     if (!m_versionInfo.contains("QT_INSTALL_BINS"))
         return QCoreApplication::translate("QtVersion",
-					   "Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?");
+                                           "Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?");
     if (m_toolChainUpToDate && m_mkspecFullPath.isEmpty())
         return QCoreApplication::translate("QtVersion", "The default mkspec symlink is broken.");
     return QString();
@@ -1699,10 +1731,17 @@ bool QtVersion::hasDebuggingHelper() const
     return m_hasDebuggingHelper;
 }
 
+
 bool QtVersion::hasQmlDump() const
 {
     updateVersionInfo();
     return m_hasQmlDump;
+}
+
+bool QtVersion::hasQmlDebuggingLibrary() const
+{
+    updateVersionInfo();
+    return m_hasQmlDebuggingLibrary;
 }
 
 bool QtVersion::hasQmlObserver() const
@@ -1738,6 +1777,14 @@ QString QtVersion::qmlDumpTool(bool debugVersion) const
     if (qtInstallData.isEmpty())
         return QString();
     return QmlDumpTool::toolByInstallData(qtInstallData, debugVersion);
+}
+
+QString QtVersion::qmlDebuggingHelperLibrary(bool debugVersion) const
+{
+    QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
+    if (qtInstallData.isEmpty())
+        return QString();
+    return QmlDebuggingLibrary::libraryByInstallData(qtInstallData, debugVersion);
 }
 
 QString QtVersion::qmlObserverTool() const

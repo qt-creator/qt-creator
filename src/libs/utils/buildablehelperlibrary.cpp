@@ -255,7 +255,8 @@ bool BuildableHelperLibrary::buildHelper(const QString &helperName, const QStrin
                                          const QString &directory, const QString &makeCommand,
                                          const QString &qmakeCommand, const QString &mkspec,
                                          const Utils::Environment &env, const QString &targetMode,
-                                         QString *output, QString *errorMessage)
+                                         const QStringList &qmakeArguments, QString *output,
+                                         QString *errorMessage)
 {
     const QChar newline = QLatin1Char('\n');
     // Setup process
@@ -284,13 +285,14 @@ bool BuildableHelperLibrary::buildHelper(const QString &helperName, const QStrin
     output->append(newline);
     output->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary", "Running %1 ...\n").arg(qmakeCommand));
 
-    QStringList qMakeArgs;
+    QStringList qmakeArgs;
     if (!targetMode.isEmpty())
-        qMakeArgs << targetMode;
+        qmakeArgs << targetMode;
     if (!mkspec.isEmpty())
-        qMakeArgs << QLatin1String("-spec") << mkspec;
-    qMakeArgs << proFilename;
-    if (!runBuildProcess(proc, qmakeCommand, qMakeArgs, 30000, false, output, errorMessage))
+        qmakeArgs << QLatin1String("-spec") << mkspec;
+    qmakeArgs << proFilename;
+    qmakeArgs << qmakeArguments;
+    if (!runBuildProcess(proc, qmakeCommand, qmakeArgs, 30000, false, output, errorMessage))
         return false;
     output->append(newline);
     if (makeFullPath.isEmpty()) {

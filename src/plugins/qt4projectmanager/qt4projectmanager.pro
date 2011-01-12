@@ -68,6 +68,7 @@ HEADERS += \
     qt4projectmanager_global.h \
     qmldumptool.h \
     qmlobservertool.h \
+    qmldebugginglibrary.h \
     profilecompletion.h \
     profilekeywords.h \
     debugginghelperbuildtask.h
@@ -132,6 +133,7 @@ SOURCES += qt4projectmanagerplugin.cpp \
     findqt4profiles.cpp \
     qmldumptool.cpp \
     qmlobservertool.cpp \
+    qmldebugginglibrary.cpp \
     profilecompletion.cpp \
     profilekeywords.cpp \
     debugginghelperbuildtask.cpp

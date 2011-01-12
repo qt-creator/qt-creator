@@ -112,6 +112,7 @@ private slots:
                               = DebuggingHelperBuildTask::AllTools);
     void buildGdbHelper();
     void buildQmlDump();
+    void buildQmlDebuggingLibrary();
     void buildQmlObserver();
     void slotShowDebuggingBuildLog();
     void debuggingHelperBuildFinished(int qtVersionId, DebuggingHelperBuildTask::Tools tools, const QString &output);

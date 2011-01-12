@@ -109,6 +109,8 @@ public:
     void setQMakeCommand(const QString &path);
 
     QString qtVersionString() const;
+    bool versionNumbers(int *majorNumber, int *minorNumber, int *patchNumber) const;
+
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
     QHash<QString,QString> versionInfo() const;
 
@@ -129,12 +131,14 @@ public:
 
     bool hasDebuggingHelper() const;
     QString debuggingHelperLibrary() const;
+    QString qmlDebuggingHelperLibrary(bool debugVersion) const;
     QString qmlDumpTool(bool debugVersion) const;
     QString qmlObserverTool() const;
     QStringList debuggingHelperLibraryLocations() const;
     bool supportsBinaryDebuggingHelper() const;
 
     bool hasQmlDump() const;
+    bool hasQmlDebuggingLibrary() const;
     bool hasQmlObserver() const;
     Utils::Environment qmlToolsEnvironment() const;
 
@@ -196,6 +200,7 @@ private:
     QString m_autodetectionSource;
     mutable bool m_hasDebuggingHelper; // controlled by m_versionInfoUpToDate
     mutable bool m_hasQmlDump;         // controlled by m_versionInfoUpToDate
+    mutable bool m_hasQmlDebuggingLibrary; // controlled by m_versionInfoUpdate
     mutable bool m_hasQmlObserver;     // controlled by m_versionInfoUpToDate
 
     QString m_mwcDirectory;

@@ -42,6 +42,7 @@
 #include "qt4projectmanagerconstants.h"
 #include "qtoutputformatter.h"
 #include "qt4desktoptarget.h"
+#include "qmakestep.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>

@@ -2,20 +2,17 @@ TEMPLATE = app
 
 CONFIG += qt uic
 
-### FIXME: only debug plugins are now supported.
-CONFIG -= release
-CONFIG += debug
-
 include(qml.pri)
 
 SOURCES += main.cpp
 
-exists($$PWD/qmljsdebugger/qmljsdebugger-lib.pri) {
-# for building helpers within QT_INSTALL_DATA, we deploy the lib inside the observer directory.
-    include($$PWD/qmljsdebugger/qmljsdebugger-lib.pri)
-} else {
-    include($$PWD/../qmljsdebugger/qmljsdebugger-lib.pri)
+# INCLUDEPATH and library path has to be extended by qmake call
+
+DEBUGLIB=qmljsdebugger
+CONFIG(debug, debug|release) {
+    windows:DEBUGLIB = qmljsdebuggerd
 }
+LIBS+=-l$$DEBUGLIB
 
 #INCLUDEPATH += ../../include/QtDeclarative
 #INCLUDEPATH += ../../src/declarative/util
