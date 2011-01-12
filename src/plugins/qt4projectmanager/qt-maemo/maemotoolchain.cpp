@@ -35,6 +35,7 @@
 
 #include "maemoconstants.h"
 #include "maemoglobal.h"
+#include "qtversionmanager.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QStringBuilder>
@@ -48,7 +49,7 @@ namespace Internal {
 MaemoToolChain::MaemoToolChain(const QtVersion *qtVersion)
     : GccToolChain(MaemoGlobal::targetRoot(qtVersion) % QLatin1String("/bin/gcc"))
     , m_sysrootInitialized(false)
-    , m_qtVersion(qtVersion)
+    , m_qtVersionId(qtVersion->uniqueId())
 {
 }
 
@@ -63,11 +64,12 @@ ProjectExplorer::ToolChainType MaemoToolChain::type() const
 
 void MaemoToolChain::addToEnvironment(Utils::Environment &env)
 {
-    const QString maddeRoot = MaemoGlobal::maddeRoot(m_qtVersion);
+    QtVersion *version = QtVersionManager::instance()->version(m_qtVersionId);
+    const QString maddeRoot = MaemoGlobal::maddeRoot(version);
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
         .arg(maddeRoot)));
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
-        .arg(MaemoGlobal::targetRoot(m_qtVersion))));
+        .arg(MaemoGlobal::targetRoot(version))));
 
     // put this into environment to make pkg-config stuff work
     env.prependOrSet(QLatin1String("SYSROOT_DIR"), sysroot());
@@ -87,7 +89,7 @@ QString MaemoToolChain::makeCommand() const
 bool MaemoToolChain::equals(const ToolChain *other) const
 {
     const MaemoToolChain *toolChain = static_cast<const MaemoToolChain*> (other);
-    return other->type() == type() && toolChain->m_qtVersion == m_qtVersion;
+    return other->type() == type() && toolChain->m_qtVersionId == m_qtVersionId;
 }
 
 QString MaemoToolChain::sysroot() const
@@ -99,7 +101,8 @@ QString MaemoToolChain::sysroot() const
 
 void MaemoToolChain::setSysroot() const
 {
-    QFile file(QDir::cleanPath(MaemoGlobal::targetRoot(m_qtVersion))
+    QtVersion *version = QtVersionManager::instance()->version(m_qtVersionId);
+    QFile file(QDir::cleanPath(MaemoGlobal::targetRoot(version))
         + QLatin1String("/information"));
     if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream stream(&file);
@@ -109,7 +112,7 @@ void MaemoToolChain::setSysroot() const
             if (list.count() <= 1)
                 continue;
             if (list.at(0) == QLatin1String("sysroot")) {
-                m_sysrootRoot = MaemoGlobal::maddeRoot(m_qtVersion)
+                m_sysrootRoot = MaemoGlobal::maddeRoot(version)
                     + QLatin1String("/sysroots/") + list.at(1);
             }
         }

@@ -60,7 +60,7 @@ private:
 private:
     mutable QString m_sysrootRoot;
     mutable bool m_sysrootInitialized;
-    const QtVersion * const m_qtVersion;
+    int m_qtVersionId;
 };
 
 } // namespace Internal
