@@ -54,10 +54,10 @@ class QmlToolbar;
 class CrumblePath;
 class AbstractLiveEditTool;
 
-class QDeclarativeViewObserverPrivate
+class QDeclarativeViewObserverPrivate : public QObject
 {
+    Q_OBJECT
 public:
-
     enum ContextFlags {
         IgnoreContext,
         ContextSensitive
@@ -123,6 +123,7 @@ public:
 
     void enterContext(QGraphicsItem *itemToEnter);
 
+public slots:
     void _q_reloadView();
     void _q_onStatusChanged(QDeclarativeView::Status status);
     void _q_onCurrentObjectsChanged(QList<QObject*> objects);
@@ -139,6 +140,7 @@ public:
     void _q_clearComponentCache();
     void _q_removeFromSelection(QObject *);
 
+public:
     static QDeclarativeViewObserverPrivate *get(QDeclarativeViewObserver *v) { return v->d_func(); }
 };
 

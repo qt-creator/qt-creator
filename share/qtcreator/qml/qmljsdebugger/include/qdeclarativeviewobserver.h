@@ -113,19 +113,6 @@ protected:
 
 private:
     Q_DISABLE_COPY(QDeclarativeViewObserver)
-    Q_PRIVATE_SLOT(d_func(), void _q_reloadView())
-    Q_PRIVATE_SLOT(d_func(), void _q_onStatusChanged(QDeclarativeView::Status))
-    Q_PRIVATE_SLOT(d_func(), void _q_onCurrentObjectsChanged(QList<QObject*>))
-    Q_PRIVATE_SLOT(d_func(), void _q_applyChangesFromClient())
-    Q_PRIVATE_SLOT(d_func(), void _q_createQmlObject(const QString &, QObject *, const QStringList &, const QString &))
-    Q_PRIVATE_SLOT(d_func(), void _q_reparentQmlObject(QObject *, QObject *))
-    Q_PRIVATE_SLOT(d_func(), void _q_changeToSingleSelectTool())
-    Q_PRIVATE_SLOT(d_func(), void _q_changeToMarqueeSelectTool())
-    Q_PRIVATE_SLOT(d_func(), void _q_changeToZoomTool())
-    Q_PRIVATE_SLOT(d_func(), void _q_changeToColorPickerTool())
-    Q_PRIVATE_SLOT(d_func(), void _q_changeContextPathIndex(int index))
-    Q_PRIVATE_SLOT(d_func(), void _q_clearComponentCache())
-    Q_PRIVATE_SLOT(d_func(), void _q_removeFromSelection(QObject *))
 
     inline QDeclarativeViewObserverPrivate *d_func() { return data.data(); }
     QScopedPointer<QDeclarativeViewObserverPrivate> data;
