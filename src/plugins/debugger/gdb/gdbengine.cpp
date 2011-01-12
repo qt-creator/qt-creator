@@ -4122,26 +4122,31 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     const QString pythonPathVariable = QLatin1String("PYTHONPATH");
     QString pythonPath;
 
+    const QString environmentPythonPath = environment.value(pythonPathVariable);
     if (dir.exists(winPythonVersion)) {
         pythonPath = QDir::toNativeSeparators(dir.absoluteFilePath(winPythonVersion));
     } else if (dir.exists(QLatin1String("lib"))) { // Needed for our gdb 7.2 packages
         pythonPath = QDir::toNativeSeparators(dir.absoluteFilePath(QLatin1String("lib")));
     } else {
-        if (environment.contains(pythonPathVariable)) {
-            pythonPath = environment.value(pythonPathVariable);
-        } else {
-            showMessage(_("GDB %1 CANNOT FIND PYTHON INSTALLATION.").arg(m_gdb));
-            showStatusMessage(_("Gdb at %1 cannot find python").arg(m_gdb));
-            const QString msg = tr("The gdb installed at %1 cannot "
-                "find a valid python installation in its %2 subdirectory.\n"
-                "You may set the PYTHONPATH to your installation.")
-                    .arg(m_gdb).arg(winPythonVersion);
-            handleAdapterStartFailed(msg, settingsIdHint);
-            return false;
-        }
+        pythonPath = environmentPythonPath;
     }
-    environment.insert(pythonPathVariable, pythonPath);
+    if (pythonPath.isEmpty()) {
+        const QString nativeGdb = QDir::toNativeSeparators(m_gdb);
+        showMessage(_("GDB %1 CANNOT FIND THE PYTHON INSTALLATION.").arg(nativeGdb));
+        showStatusMessage(_("%1 cannot find python").arg(nativeGdb));
+        const QString msg = tr("The gdb installed at %1 cannot "
+                               "find a valid python installation in its %2 subdirectory.\n"
+                               "You may set the PYTHONPATH to your installation.")
+                .arg(nativeGdb).arg(winPythonVersion);
+        handleAdapterStartFailed(msg, settingsIdHint);
+        return false;
+    }
     showMessage(_("Python path: %1").arg(pythonPath), LogMisc);
+    // Apply to process
+    if (pythonPath != environmentPythonPath) {
+        environment.insert(pythonPathVariable, pythonPath);
+        gdbProc()->setProcessEnvironment(environment);
+    }
 #endif
 
     connect(gdbProc(), SIGNAL(error(QProcess::ProcessError)),
