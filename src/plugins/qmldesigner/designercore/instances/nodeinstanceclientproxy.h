@@ -49,7 +49,6 @@ protected:
     void writeCommand(const QVariant &command);
     void dispatchCommand(const QVariant &command);
     NodeInstanceServerInterface *nodeInstanceServer() const;
-    NodeInstanceServerInterface *stateNodeInstancePreview() const;
 
     void createInstances(const CreateInstancesCommand &command);
     void changeFileUrl(const ChangeFileUrlCommand &command);
@@ -71,7 +70,6 @@ private slots:
 private:
     QLocalSocket *m_socket;
     NodeInstanceServerInterface *m_nodeInstanceServer;
-    NodeInstanceServerInterface *m_stateNodeInstancePreview;
     quint32 m_blockSize;
 };
 

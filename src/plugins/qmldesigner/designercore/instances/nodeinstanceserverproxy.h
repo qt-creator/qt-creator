@@ -49,14 +49,18 @@ signals:
 
 private slots:
     void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void readDataStream();
+    void readFirstDataStream();
+    void readSecondDataStream();
 
 private:
     QWeakPointer<QLocalServer> m_localServer;
-    QWeakPointer<QLocalSocket> m_socket;
+    QWeakPointer<QLocalSocket> m_firstSocket;
+    QWeakPointer<QLocalSocket> m_secondSocket;
     QWeakPointer<NodeInstanceView> m_nodeInstanceView;
-    QWeakPointer<QProcess> m_qmlPuppetProcess;
-    quint32 m_blockSize;
+    QWeakPointer<QProcess> m_qmlPuppetEditorProcess;
+    QWeakPointer<QProcess> m_qmlPuppetPreviewProcess;
+    quint32 m_firstBlockSize;
+    quint32 m_secondBlockSize;
 };
 
 } // namespace QmlDesigner

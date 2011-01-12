@@ -41,38 +41,65 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
     : NodeInstanceServerInterface(nodeInstanceView),
       m_localServer(new QLocalServer(this)),
       m_nodeInstanceView(nodeInstanceView),
-      m_blockSize(0)
+      m_firstBlockSize(0),
+      m_secondBlockSize(0)
 {
    QString socketToken(QUuid::createUuid().toString());
 
    m_localServer->listen(socketToken);
-   m_localServer->setMaxPendingConnections(1);
+   m_localServer->setMaxPendingConnections(2);
 
-   m_qmlPuppetProcess = new QProcess(QCoreApplication::instance());
-   connect(m_qmlPuppetProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
-   m_qmlPuppetProcess->setProcessChannelMode(QProcess::ForwardedChannels);
-   m_qmlPuppetProcess->start(QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("qmlpuppet"), QStringList() << socketToken << "-graphicssystem raster");
+   m_qmlPuppetEditorProcess = new QProcess(QCoreApplication::instance());
+   connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
+   m_qmlPuppetEditorProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+   m_qmlPuppetEditorProcess->start(QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("qmlpuppet"), QStringList() << socketToken << "editormode" << "-graphicssystem raster");
+
+   m_qmlPuppetPreviewProcess = new QProcess(QCoreApplication::instance());
+   connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
+   m_qmlPuppetPreviewProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+   m_qmlPuppetPreviewProcess->start(QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("qmlpuppet"), QStringList() << socketToken << "previewmode" << "-graphicssystem raster");
+
    connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
-   m_qmlPuppetProcess->waitForStarted();
-   Q_ASSERT(m_qmlPuppetProcess->state() == QProcess::Running);
+
+   m_qmlPuppetPreviewProcess->waitForStarted();
+   m_qmlPuppetEditorProcess->waitForStarted();
+   Q_ASSERT(m_qmlPuppetEditorProcess->state() == QProcess::Running);
+   Q_ASSERT(m_qmlPuppetPreviewProcess->state() == QProcess::Running);
 
    if (!m_localServer->hasPendingConnections())
        m_localServer->waitForNewConnection(-1);
 
-   m_socket = m_localServer->nextPendingConnection();
-   Q_ASSERT(m_socket);
-   connect(m_socket.data(), SIGNAL(readyRead()), this, SLOT(readDataStream()));
+   m_firstSocket = m_localServer->nextPendingConnection();
+   Q_ASSERT(m_firstSocket);
+   connect(m_firstSocket.data(), SIGNAL(readyRead()), this, SLOT(readFirstDataStream()));
+
+   if (!m_localServer->hasPendingConnections())
+       m_localServer->waitForNewConnection(-1);
+
+   m_secondSocket = m_localServer->nextPendingConnection();
+   Q_ASSERT(m_secondSocket);
+   connect(m_secondSocket.data(), SIGNAL(readyRead()), this, SLOT(readSecondDataStream()));
+
    m_localServer->close();
 }
 
 NodeInstanceServerProxy::~NodeInstanceServerProxy()
 {
-    if (m_socket)
-        m_socket->close();
+    if (m_firstSocket)
+        m_firstSocket->close();
 
-    if (m_qmlPuppetProcess) {
-        m_qmlPuppetProcess->blockSignals(true);
-        m_qmlPuppetProcess->kill();
+    if (m_secondSocket)
+        m_secondSocket->close();
+
+
+    if (m_qmlPuppetEditorProcess) {
+        m_qmlPuppetEditorProcess->blockSignals(true);
+        m_qmlPuppetEditorProcess->kill();
+    }
+
+    if (m_qmlPuppetPreviewProcess) {
+        m_qmlPuppetPreviewProcess->blockSignals(true);
+        m_qmlPuppetPreviewProcess->kill();
     }
 }
 
@@ -106,9 +133,9 @@ NodeInstanceClientInterface *NodeInstanceServerProxy::nodeInstanceClient() const
     return m_nodeInstanceView.data();
 }
 
-void NodeInstanceServerProxy::writeCommand(const QVariant &command)
+static void writeCommandToSocket(const QVariant &command, QLocalSocket *socket)
 {
-    Q_ASSERT(m_socket.data());
+    Q_ASSERT(socket);
 
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
@@ -117,36 +144,74 @@ void NodeInstanceServerProxy::writeCommand(const QVariant &command)
     out.device()->seek(0);
     out << quint32(block.size() - sizeof(quint32));
 
-    m_socket->write(block);
+    socket->write(block);
+}
+
+void NodeInstanceServerProxy::writeCommand(const QVariant &command)
+{
+    writeCommandToSocket(command, m_firstSocket.data());
+    writeCommandToSocket(command, m_secondSocket.data());
 }
 
 void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitStatus /* exitStatus */)
 {
-    m_socket->close();
+    m_firstSocket->close();
+    m_secondSocket->close();
     emit processCrashed();
 }
 
 
-void NodeInstanceServerProxy::readDataStream()
+void NodeInstanceServerProxy::readFirstDataStream()
 {
     QList<QVariant> commandList;
 
-    while (!m_socket->atEnd()) {
-        if (m_socket->bytesAvailable() < int(sizeof(quint32)))
+    while (!m_firstSocket->atEnd()) {
+        if (m_firstSocket->bytesAvailable() < int(sizeof(quint32)))
             break;
 
-        QDataStream in(m_socket.data());
+        QDataStream in(m_firstSocket.data());
 
-        if (m_blockSize == 0) {
-            in >> m_blockSize;
+        if (m_firstBlockSize == 0) {
+            in >> m_firstBlockSize;
         }
 
-        if (m_socket->bytesAvailable() < m_blockSize)
+        if (m_firstSocket->bytesAvailable() < m_firstBlockSize)
             break;
 
         QVariant command;
         in >> command;
-        m_blockSize = 0;
+        m_firstBlockSize = 0;
+
+        Q_ASSERT(in.status() == QDataStream::Ok);
+
+        commandList.append(command);
+    }
+
+    foreach (const QVariant &command, commandList) {
+        dispatchCommand(command);
+    }
+}
+
+void NodeInstanceServerProxy::readSecondDataStream()
+{
+    QList<QVariant> commandList;
+
+    while (!m_secondSocket->atEnd()) {
+        if (m_secondSocket->bytesAvailable() < int(sizeof(quint32)))
+            break;
+
+        QDataStream in(m_secondSocket.data());
+
+        if (m_secondBlockSize == 0) {
+            in >> m_secondBlockSize;
+        }
+
+        if (m_secondSocket->bytesAvailable() < m_secondBlockSize)
+            break;
+
+        QVariant command;
+        in >> command;
+        m_secondBlockSize = 0;
 
         Q_ASSERT(in.status() == QDataStream::Ok);
 

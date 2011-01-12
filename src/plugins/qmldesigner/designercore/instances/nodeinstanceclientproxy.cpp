@@ -38,10 +38,15 @@ namespace QmlDesigner {
 
 NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
     : QObject(parent),
-      m_nodeInstanceServer(new NodeInstanceServer(this)),
-      m_stateNodeInstancePreview(new PreviewNodeInstanceServer(this)),
+      m_nodeInstanceServer(0),
       m_blockSize(0)
 {
+    if (QCoreApplication::arguments().at(2) == QLatin1String("previewmode")) {
+        m_nodeInstanceServer = new PreviewNodeInstanceServer(this);
+    } else if (QCoreApplication::arguments().at(2) == QLatin1String("editormode")) {
+        m_nodeInstanceServer = new NodeInstanceServer(this);
+    }
+
     m_socket = new QLocalSocket(this);
     connect(m_socket, SIGNAL(readyRead()), this, SLOT(readDataStream()));
     connect(m_socket, SIGNAL(error(QLocalSocket::LocalSocketError)), QCoreApplication::instance(), SLOT(quit()));
@@ -132,11 +137,6 @@ void NodeInstanceClientProxy::readDataStream()
     }
 }
 
-NodeInstanceServerInterface *NodeInstanceClientProxy::stateNodeInstancePreview() const
-{
-    return m_stateNodeInstancePreview;
-}
-
 NodeInstanceServerInterface *NodeInstanceClientProxy::nodeInstanceServer() const
 {
     return m_nodeInstanceServer;
@@ -145,61 +145,51 @@ NodeInstanceServerInterface *NodeInstanceClientProxy::nodeInstanceServer() const
 void NodeInstanceClientProxy::createInstances(const CreateInstancesCommand &command)
 {
     nodeInstanceServer()->createInstances(command);
-    stateNodeInstancePreview()->createInstances(command);
 }
 
 void NodeInstanceClientProxy::changeFileUrl(const ChangeFileUrlCommand &command)
 {
     nodeInstanceServer()->changeFileUrl(command);
-    stateNodeInstancePreview()->changeFileUrl(command);
 }
 
 void NodeInstanceClientProxy::createScene(const CreateSceneCommand &command)
 {
     nodeInstanceServer()->createScene(command);
-    stateNodeInstancePreview()->createScene(command);
 }
 
 void NodeInstanceClientProxy::clearScene(const ClearSceneCommand &command)
 {
     nodeInstanceServer()->clearScene(command);
-    stateNodeInstancePreview()->clearScene(command);
 }
 
 void NodeInstanceClientProxy::removeInstances(const RemoveInstancesCommand &command)
 {
     nodeInstanceServer()->removeInstances(command);
-    stateNodeInstancePreview()->removeInstances(command);
 }
 
 void NodeInstanceClientProxy::removeProperties(const RemovePropertiesCommand &command)
 {
     nodeInstanceServer()->removeProperties(command);
-    stateNodeInstancePreview()->removeProperties(command);
 }
 
 void NodeInstanceClientProxy::changePropertyBindings(const ChangeBindingsCommand &command)
 {
     nodeInstanceServer()->changePropertyBindings(command);
-    stateNodeInstancePreview()->changePropertyBindings(command);
 }
 
 void NodeInstanceClientProxy::changePropertyValues(const ChangeValuesCommand &command)
 {
     nodeInstanceServer()->changePropertyValues(command);
-    stateNodeInstancePreview()->changePropertyValues(command);
 }
 
 void NodeInstanceClientProxy::reparentInstances(const ReparentInstancesCommand &command)
 {
     nodeInstanceServer()->reparentInstances(command);
-    stateNodeInstancePreview()->reparentInstances(command);
 }
 
 void NodeInstanceClientProxy::changeIds(const ChangeIdsCommand &command)
 {
     nodeInstanceServer()->changeIds(command);
-    stateNodeInstancePreview()->changeIds(command);
 }
 
 void NodeInstanceClientProxy::changeState(const ChangeStateCommand &command)
@@ -210,13 +200,11 @@ void NodeInstanceClientProxy::changeState(const ChangeStateCommand &command)
 void NodeInstanceClientProxy::addImport(const AddImportCommand &command)
 {
     nodeInstanceServer()->addImport(command);
-    stateNodeInstancePreview()->addImport(command);
 }
 
 void NodeInstanceClientProxy::completeComponent(const CompleteComponentCommand &command)
 {
     nodeInstanceServer()->completeComponent(command);
-    stateNodeInstancePreview()->completeComponent(command);
 }
 
 void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
