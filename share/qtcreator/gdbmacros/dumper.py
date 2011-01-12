@@ -792,10 +792,10 @@ def makeExpression(value):
 qqNs = None
 
 def qtNamespace():
+    global qqNs
     if not qqNs is None:
         return qqNs
     try:
-        global qqNs
         str = catchCliOutput("ptype QString::Null")[0]
         # The result looks like:
         # "type = const struct myns::QString::Null {"
