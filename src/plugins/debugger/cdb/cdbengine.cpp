@@ -1402,12 +1402,13 @@ unsigned CdbEngine::examineStopReason(const QByteArray &messageIn,
     if (reason == "exception") {
         WinException exception;
         exception.fromGdbMI(stopReason);
+        QString description;
 #ifdef Q_OS_WIN
         // It is possible to hit on a startup trap while stepping (if something
         // pulls DLLs. Avoid showing a 'stopped' Message box.
         if (exception.exceptionCode == winExceptionStartupCompleteTrap)
             return StopNotifyStop;
-        const QString description = exception.toString();
+        description = exception.toString();
         // WOW 64 breakpoint: just report in log and continue
         if (exception.exceptionCode == winExceptionWX86Breakpoint) {
             *message = description;
