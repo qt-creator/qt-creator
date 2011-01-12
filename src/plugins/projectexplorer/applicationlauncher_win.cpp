@@ -56,7 +56,7 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
             this, SLOT(processStopped()));
 
     connect(&d->m_winGuiProcess, SIGNAL(processMessage(QString, bool)),
-        this, SIGNAL(appendProcessMessage(QString,bool)));
+        this, SLOT(appendProcessMessage(QString,bool)));
     connect(&d->m_winGuiProcess, SIGNAL(receivedDebugOutput(QString, bool)),
         this, SLOT(readWinDebugOutput(QString, bool)));
     connect(&d->m_winGuiProcess, SIGNAL(processFinished(int)),
