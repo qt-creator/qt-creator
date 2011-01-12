@@ -45,36 +45,38 @@
 #include <utils/qtcassert.h>
 
 namespace Debugger {
+namespace Internal {
 
-struct QmlAdapterPrivate {
-    explicit QmlAdapterPrivate(DebuggerEngine *engine, QmlAdapter *q);
+class QmlAdapterPrivate
+{
+public:
+    explicit QmlAdapterPrivate(DebuggerEngine *engine)
+        : m_engine(engine)
+        , m_qmlClient(0)
+        , m_mainClient(0)
+        , m_connectionAttempts(0)
+        , m_conn(0)
+    {
+        m_connectionTimer.setInterval(200);
+    }
 
     QWeakPointer<DebuggerEngine> m_engine;
     Internal::QmlDebuggerClient *m_qmlClient;
     QDeclarativeEngineDebug *m_mainClient;
 
-    QTimer *m_connectionTimer;
+    QTimer m_connectionTimer;
     int m_connectionAttempts;
     int m_maxConnectionAttempts;
     QDeclarativeDebugConnection *m_conn;
     QList<QByteArray> sendBuffer;
 };
 
-QmlAdapterPrivate::QmlAdapterPrivate(DebuggerEngine *engine, QmlAdapter *q) :
-  m_engine(engine)
-, m_qmlClient(0)
-, m_mainClient(0)
-, m_connectionTimer(new QTimer(q))
-, m_connectionAttempts(0)
-, m_conn(0)
-{
-}
+} // namespace Internal
 
 QmlAdapter::QmlAdapter(DebuggerEngine *engine, QObject *parent)
-    : QObject(parent), d(new QmlAdapterPrivate(engine, this))
+    : QObject(parent), d(new Internal::QmlAdapterPrivate(engine))
 {
-    d->m_connectionTimer->setInterval(200);
-    connect(d->m_connectionTimer, SIGNAL(timeout()), SLOT(pollInferior()));
+    connect(&d->m_connectionTimer, SIGNAL(timeout()), SLOT(pollInferior()));
 }
 
 QmlAdapter::~QmlAdapter()
@@ -84,18 +86,18 @@ QmlAdapter::~QmlAdapter()
 void QmlAdapter::beginConnection()
 {
     d->m_connectionAttempts = 0;
-    d->m_connectionTimer->start();
+    d->m_connectionTimer.start();
 }
 
 void QmlAdapter::pauseConnection()
 {
-    d->m_connectionTimer->stop();
+    d->m_connectionTimer.stop();
 }
 
 void QmlAdapter::closeConnection()
 {
-    if (d->m_connectionTimer->isActive()) {
-        d->m_connectionTimer->stop();
+    if (d->m_connectionTimer.isActive()) {
+        d->m_connectionTimer.stop();
     } else {
         if (d->m_conn) {
             d->m_conn->disconnectFromHost();
@@ -108,11 +110,11 @@ void QmlAdapter::pollInferior()
     ++d->m_connectionAttempts;
 
     if (connectToViewer()) {
-        d->m_connectionTimer->stop();
+        d->m_connectionTimer.stop();
         d->m_connectionAttempts = 0;
     } else if (d->m_connectionAttempts == d->m_maxConnectionAttempts) {
         emit connectionStartupFailed();
-        d->m_connectionTimer->stop();
+        d->m_connectionTimer.stop();
         d->m_connectionAttempts = 0;
     }
 }
@@ -268,7 +270,7 @@ void QmlAdapter::setMaxConnectionAttempts(int maxAttempts)
 }
 void QmlAdapter::setConnectionAttemptInterval(int interval)
 {
-    d->m_connectionTimer->setInterval(interval);
+    d->m_connectionTimer.setInterval(interval);
 }
 
 void QmlAdapter::logServiceStatusChange(const QString &service, QDeclarativeDebugClient::Status newStatus)

@@ -31,16 +31,15 @@
 **
 **************************************************************************/
 
-#ifndef QMLADAPTER_H
-#define QMLADAPTER_H
+#ifndef DEBGUGGER_QMLADAPTER_H
+#define DEBGUGGER_QMLADAPTER_H
+
+#include "debugger_global.h"
+#include "qmldebuggerclient.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QScopedPointer>
-
-#include "debugger_global.h"
-
 #include <QtNetwork/QAbstractSocket>
-#include "qmldebuggerclient.h"
 
 namespace QmlJsDebugClient {
 class QDeclarativeEngineDebug;
@@ -53,9 +52,9 @@ class DebuggerEngine;
 
 namespace Internal {
 class QmlDebuggerClient;
+class QmlAdapterPrivate;
 } // namespace Internal
 
-struct QmlAdapterPrivate;
 class DEBUGGER_EXPORT QmlAdapter : public QObject
 {
     Q_OBJECT
@@ -103,9 +102,9 @@ private:
     void flushSendBuffer();
 
 private:
-    QScopedPointer<QmlAdapterPrivate> d;
+    QScopedPointer<Internal::QmlAdapterPrivate> d;
 };
 
 } // namespace Debugger
 
-#endif // QMLADAPTER_H
+#endif // DEBGUGGER_QMLADAPTER_H
