@@ -71,9 +71,9 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
 
     d->m_activeEngine = d->m_cppEngine;
     connect(d->m_cppEngine, SIGNAL(stateChanged(DebuggerState)),
-        SLOT(masterEngineStateChanged(DebuggerState)));
+        SLOT(cppEngineStateChanged(DebuggerState)));
     connect(d->m_qmlEngine, SIGNAL(stateChanged(DebuggerState)),
-        SLOT(slaveEngineStateChanged(DebuggerState)));
+        SLOT(qmlEngineStateChanged(DebuggerState)));
 
     connect(Core::EditorManager::instance(),
         SIGNAL(currentEditorChanged(Core::IEditor*)),
@@ -528,22 +528,19 @@ void QmlCppEngine::setupSlaveEngine()
         d->m_qmlEngine->startDebugger(runControl());
 }
 
-void QmlCppEngine::masterEngineStateChanged(const DebuggerState &newState)
+void QmlCppEngine::cppEngineStateChanged(const DebuggerState &newState)
 {
-    if (newState == InferiorStopOk) {
+    if (newState == InferiorStopOk)
         setActiveEngine(CppLanguage);
-    }
     engineStateChanged(newState);
 }
 
-void QmlCppEngine::slaveEngineStateChanged(const DebuggerState &newState)
+void QmlCppEngine::qmlEngineStateChanged(const DebuggerState &newState)
 {
-    if (newState == InferiorStopOk) {
+    if (newState == InferiorStopOk)
         setActiveEngine(QmlLanguage);
-    }
     engineStateChanged(newState);
 }
-
 
 void QmlCppEngine::engineStateChanged(const DebuggerState &newState)
 {

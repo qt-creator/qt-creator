@@ -104,8 +104,8 @@ protected:
     virtual void shutdownEngine();
 
 private slots:
-    void masterEngineStateChanged(const DebuggerState &state);
-    void slaveEngineStateChanged(const DebuggerState &state);
+    void cppEngineStateChanged(const DebuggerState &state);
+    void qmlEngineStateChanged(const DebuggerState &state);
     void setupSlaveEngine();
     void editorChanged(Core::IEditor *editor);
 
