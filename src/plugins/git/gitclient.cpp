@@ -108,7 +108,7 @@ public:
         m_patience(new QToolButton),
         m_ignoreSpaces(new QToolButton)
     {
-        QHBoxLayout * layout = new QHBoxLayout(this);
+        QHBoxLayout *layout = new QHBoxLayout(this);
         layout->setContentsMargins(3, 0, 3, 0);
 
         m_patience->setToolTip(tr("Use the patience algorithmn for calculating the diff"));
@@ -301,7 +301,7 @@ public:
         m_revision(revision),
         m_fileName(fileName)
     {
-        QHBoxLayout * layout = new QHBoxLayout(this);
+        QHBoxLayout *layout = new QHBoxLayout(this);
         layout->setContentsMargins(3, 0, 3, 0);
 
         m_omitDate = new QToolButton;
@@ -709,7 +709,7 @@ void GitClient::show(const QString &source, const QString &id, const QStringList
     }
 
     QStringList userArgs = args;
-    const QString title =  tr("Git Show %1").arg(id);
+    const QString title = tr("Git Show %1").arg(id);
     const QString editorId = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_ID);
     VCSBase::VCSBaseEditor *editor = findExistingVCSEditor("show", id);
     if (!editor) {
@@ -1126,7 +1126,7 @@ bool GitClient::synchronousTopRevision(const QString &workingDirectory,
             arguments << QLatin1String("log") << QLatin1String(noColorOption)
                     <<  QLatin1String("--max-count=1") << QLatin1String("--pretty=format:%H");
             if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText)) {
-                errorMessage =  tr("Unable to retrieve top revision of %1: %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+                errorMessage = tr("Unable to retrieve top revision of %1: %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
                 break;
             }
             *revision = commandOutputFromLocal8Bit(outputTextData);
@@ -1233,7 +1233,7 @@ QString GitClient::synchronousStash(const QString &workingDirectory,
             do {
                 if ((flags & StashPromptDescription)) {
                     if (!inputText(Core::ICore::instance()->mainWindow(),
-                         tr("Stash Description"), tr("Description:"), &message))
+                                   tr("Stash Description"), tr("Description:"), &message))
                         break;
                 }
                 if (!executeSynchronousStash(workingDirectory, message))
