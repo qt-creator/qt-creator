@@ -133,7 +133,9 @@ public:
         DebuggerEngine *parentEngine = 0);
     virtual ~DebuggerEngine();
 
-    typedef Internal::BreakpointId BreakpointId;
+    const DebuggerStartParameters &startParameters() const;
+    DebuggerStartParameters &startParameters();
+
     virtual void setToolTipExpression(const QPoint & mousePos,
         TextEditor::ITextEditor *editor, int cursorPos);
 
@@ -171,7 +173,7 @@ public:
     virtual void createSnapshot();
     virtual void updateAll();
 
-
+    typedef Internal::BreakpointId BreakpointId;
     virtual bool stateAcceptsBreakpointChanges() const { return true; }
     virtual void attemptBreakpointSynchronization();
     virtual bool acceptsBreakpoint(BreakpointId id) const = 0;
@@ -186,33 +188,6 @@ public:
 
     virtual void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
     virtual void handleRemoteSetupFailed(const QString &message);
-
-protected:
-    friend class Internal::DebuggerPluginPrivate;
-    virtual void detachDebugger();
-    virtual void exitDebugger();
-    virtual void executeStep();
-    virtual void executeStepOut() ;
-    virtual void executeNext();
-    virtual void executeStepI();
-    virtual void executeNextI();
-    virtual void executeReturn();
-
-    virtual void continueInferior();
-    virtual void interruptInferior();
-    virtual void requestInterruptInferior();
-
-    virtual void executeRunToLine(const QString &fileName, int lineNumber);
-    virtual void executeRunToFunction(const QString &functionName);
-    virtual void executeJumpToLine(const QString &fileName, int lineNumber);
-    virtual void executeDebuggerCommand(const QString &command);
-
-    virtual void frameUp();
-    virtual void frameDown();
-
-public:
-    const DebuggerStartParameters &startParameters() const;
-    DebuggerStartParameters &startParameters();
 
     virtual Internal::ModulesHandler *modulesHandler() const;
     virtual Internal::RegisterHandler *registerHandler() const;
@@ -266,6 +241,7 @@ public:
 
     virtual void updateViews();
     bool isSlaveEngine() const;
+    DebuggerEngine *masterEngine() const;
 
 signals:
     void stateChanged(const DebuggerState &state);
@@ -323,9 +299,29 @@ protected:
     virtual void shutdownInferior() = 0;
     virtual void shutdownEngine() = 0;
 
+    virtual void detachDebugger();
+    virtual void exitDebugger();
+    virtual void executeStep();
+    virtual void executeStepOut() ;
+    virtual void executeNext();
+    virtual void executeStepI();
+    virtual void executeNextI();
+    virtual void executeReturn();
+
+    virtual void continueInferior();
+    virtual void interruptInferior();
+    virtual void requestInterruptInferior();
+
+    virtual void executeRunToLine(const QString &fileName, int lineNumber);
+    virtual void executeRunToFunction(const QString &functionName);
+    virtual void executeJumpToLine(const QString &fileName, int lineNumber);
+    virtual void executeDebuggerCommand(const QString &command);
+
+    virtual void frameUp();
+    virtual void frameDown();
+
     DebuggerRunControl *runControl() const; // FIXME: Protect.
 
-protected:
     static QString msgWatchpointTriggered(BreakpointId id,
         int number, quint64 address);
     static QString msgWatchpointTriggered(BreakpointId id,
@@ -345,8 +341,9 @@ protected:
 private:
     // Wrapper engine needs access to state of its subengines.
     friend class Internal::QmlCppEngine;
+    friend class Internal::DebuggerPluginPrivate;
+
     void setState(DebuggerState state, bool forced = false);
-    //void setSlaveEngine(bool value);
 
     friend class DebuggerEnginePrivate;
     DebuggerEnginePrivate *d;

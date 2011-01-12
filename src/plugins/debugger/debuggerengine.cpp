@@ -1057,6 +1057,11 @@ bool DebuggerEngine::isSlaveEngine() const
     return d->m_masterEngine != 0;
 }
 
+DebuggerEngine *DebuggerEngine::masterEngine() const
+{
+    return d->m_masterEngine;
+}
+
 bool DebuggerEngine::debuggerActionsEnabled() const
 {
     return debuggerActionsEnabled(d->m_state);
