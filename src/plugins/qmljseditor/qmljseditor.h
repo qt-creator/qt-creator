@@ -192,6 +192,7 @@ private slots:
     void renameIdUnderCursor();
 
     void semanticRehighlight();
+    void forceSemanticRehighlightIfCurrentEditor();
     void updateSemanticInfo(const QmlJSEditor::SemanticInfo &semanticInfo);
     void onCursorPositionChanged();
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);

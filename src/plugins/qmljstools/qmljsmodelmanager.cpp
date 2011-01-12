@@ -349,7 +349,7 @@ static void findNewFileImports(const Document::Ptr &doc, const Snapshot &snapsho
 
 static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snapshot,
                            ModelManager *modelManager,
-                           QStringList *importedFiles, QSet<QString> *scannedPaths)
+                           QStringList *importedFiles, QSet<QString> *scannedPaths, QSet<QString> *newLibraries)
 {
     // scan library imports
     const QStringList importPaths = modelManager->importPaths();
@@ -364,6 +364,8 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
             // if we know there is a library, done
             if (snapshot.libraryInfo(targetPath).isValid())
                 break;
+            if (newLibraries->contains(targetPath))
+                break;
 
             // if there is a qmldir file, we found a new library!
             if (dir.exists("qmldir")) {
@@ -375,8 +377,10 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
                 qmldirParser.setSource(qmldirData);
                 qmldirParser.parse();
 
-                modelManager->updateLibraryInfo(QFileInfo(qmldirFile).absolutePath(),
-                                                     LibraryInfo(qmldirParser));
+                const QString libraryPath = QFileInfo(qmldirFile).absolutePath();
+                newLibraries->insert(libraryPath);
+                modelManager->updateLibraryInfo(libraryPath,
+                                                LibraryInfo(qmldirParser));
 
                 // scan the qml files in the library
                 foreach (const QmlDirParser::Component &component, qmldirParser.components()) {
@@ -425,6 +429,8 @@ void ModelManager::parse(QFutureInterface<void> &future,
 
     // paths we have scanned for files and added to the files list
     QSet<QString> scannedPaths;
+    // libraries we've found while scanning imports
+    QSet<QString> newLibraries;
 
     for (int i = 0; i < files.size(); ++i) {
         future.setProgressValue(qreal(i) / files.size() * progressRange);
@@ -471,7 +477,7 @@ void ModelManager::parse(QFutureInterface<void> &future,
         QStringList importedFiles;
         findNewImplicitImports(doc, snapshot, &importedFiles, &scannedPaths);
         findNewFileImports(doc, snapshot, &importedFiles, &scannedPaths);
-        findNewLibraryImports(doc, snapshot, modelManager, &importedFiles, &scannedPaths);
+        findNewLibraryImports(doc, snapshot, modelManager, &importedFiles, &scannedPaths, &newLibraries);
 
         // add new files to parse list
         foreach (const QString &file, importedFiles) {
@@ -547,8 +553,9 @@ void ModelManager::updateImportPaths()
     Snapshot snapshot = _snapshot;
     QStringList importedFiles;
     QSet<QString> scannedPaths;
+    QSet<QString> newLibraries;
     foreach (const Document::Ptr &doc, snapshot)
-        findNewLibraryImports(doc, snapshot, this, &importedFiles, &scannedPaths);
+        findNewLibraryImports(doc, snapshot, this, &importedFiles, &scannedPaths, &newLibraries);
 
     updateSourceFiles(importedFiles, true);
 }
