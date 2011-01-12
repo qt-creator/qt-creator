@@ -1,6 +1,6 @@
 <plugin name="FakeVim" version="2.0.95" compatVersion="2.0.95">
     <vendor>Nokia Corporation</vendor>
-    <copyright>(C) 2010 Nokia Corporation</copyright>
+    <copyright>(C) 2011 Nokia Corporation</copyright>
     <license>
 Commercial Usage
 

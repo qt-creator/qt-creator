@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 ** Copyright (c) 2010 Denis Mingulov.
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)

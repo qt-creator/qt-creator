@@ -92,7 +92,8 @@ HEADERS += projectexplorer.h \
     runconfigurationmodel.h \
     buildconfigurationmodel.h \
     abstractprocessstep.h \
-    taskhub.h
+    taskhub.h \
+    metatypedeclarations.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \

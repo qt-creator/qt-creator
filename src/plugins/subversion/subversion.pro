@@ -16,7 +16,8 @@ HEADERS += annotationhighlighter.h \
     subversionsubmiteditor.h \
     subversionsettings.h \
     checkoutwizard.h \
-    checkoutwizardpage.h
+    checkoutwizardpage.h \
+    subversionconstants.h
 
 SOURCES += annotationhighlighter.cpp \
     subversionplugin.cpp \
