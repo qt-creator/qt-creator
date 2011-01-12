@@ -582,7 +582,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->addAction(cmd, Constants::G_BUILD_SESSION);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
     // Add to mode bar
-    modeManager->addAction(cmd, Constants::P_ACTION_BUILDSESSION);
+    modeManager->addAction(cmd->action(), Constants::P_ACTION_BUILDSESSION);
 
     // rebuild session action
     QIcon rebuildIcon(Constants::ICON_REBUILD);
@@ -705,7 +705,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+R")));
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
-    modeManager->addAction(cmd, Constants::P_ACTION_RUN);
+    modeManager->addAction(cmd->action(), Constants::P_ACTION_RUN);
 
     d->m_runActionContextMenu = new QAction(runIcon, tr("Run"), this);
     cmd = am->registerAction(d->m_runActionContextMenu, Constants::RUNCONTEXTMENU, projecTreeContext);

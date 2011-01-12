@@ -43,8 +43,8 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class Command;
 class IMode;
+
 namespace Internal {
     class MainWindow;
     class FancyTabWidget;
@@ -66,7 +66,7 @@ public:
     IMode* currentMode() const;
     IMode* mode(const QString &id) const;
 
-    void addAction(Command *command, int priority);
+    void addAction(QAction *action, int priority);
     void addProjectSelector(QAction *action);
     void addWidget(QWidget *widget);
 

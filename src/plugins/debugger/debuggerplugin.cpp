@@ -2836,7 +2836,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setDefaultText(tr("Start Debugging"));
     cmd->setDefaultKeySequence(QKeySequence(Constants::DEBUG_KEY));
     mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
-    Core::ICore::instance()->modeManager()->addAction(cmd, Constants::P_ACTION_DEBUG);
+    Core::ICore::instance()->modeManager()->addAction(cmd->action(), Constants::P_ACTION_DEBUG);
 
     cmd = am->registerAction(m_actions.continueAction,
         Constants::DEBUG, m_continuableContext);
