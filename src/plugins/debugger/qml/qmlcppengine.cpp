@@ -115,19 +115,8 @@ void QmlCppEngine::setActiveEngine(DebuggerLanguage language)
         d->m_activeEngine = d->m_qmlEngine;
         updateEngine = true;
     }
-    if (previousEngine != d->m_activeEngine) {
+    if (previousEngine != d->m_activeEngine)
         showStatusMessage(tr("%1 debugger activated").arg(engineName));
-        debuggerCore()->displayDebugger(d->m_activeEngine, updateEngine);
-    }
-}
-
-DebuggerLanguage QmlCppEngine::activeEngine() const
-{
-    if (d->m_activeEngine == d->m_cppEngine)
-        return CppLanguage;
-    if (d->m_activeEngine == d->m_qmlEngine)
-        return QmlLanguage;
-    return AnyLanguage;
 }
 
 void QmlCppEngine::setToolTipExpression(const QPoint & mousePos,
@@ -571,7 +560,7 @@ void QmlCppEngine::engineStateChanged(const DebuggerState &newState)
         break;
 
     case InferiorShutdownRequested:
-        if (activeEngine() == QmlLanguage) {
+        if (d->m_activeEngine == d->m_qmlEngine) {
             setActiveEngine(CppLanguage);
         }
         break;

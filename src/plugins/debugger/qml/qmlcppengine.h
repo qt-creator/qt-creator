@@ -21,7 +21,6 @@ public:
     explicit QmlCppEngine(const DebuggerStartParameters &sp);
     virtual ~QmlCppEngine();
 
-    DebuggerLanguage activeEngine() const;
     void setActiveEngine(DebuggerLanguage language);
 
     virtual void setToolTipExpression(const QPoint &mousePos,
