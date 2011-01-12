@@ -129,7 +129,8 @@ class DEBUGGER_EXPORT DebuggerEngine : public QObject
     Q_OBJECT
 
 public:
-    explicit DebuggerEngine(const DebuggerStartParameters &sp);
+    explicit DebuggerEngine(const DebuggerStartParameters &sp,
+        DebuggerEngine *parentEngine = 0);
     virtual ~DebuggerEngine();
 
     typedef Internal::BreakpointId BreakpointId;
@@ -138,7 +139,7 @@ public:
 
     virtual void updateWatchData(const Internal::WatchData &data,
         const Internal::WatchUpdateFlags & flags = Internal::WatchUpdateFlags());
-    void startDebugger(DebuggerRunControl *runControl);
+    virtual void startDebugger(DebuggerRunControl *runControl);
 
     virtual void watchPoint(const QPoint &);
     virtual void openMemoryView(quint64 addr);
@@ -213,13 +214,13 @@ public:
     const DebuggerStartParameters &startParameters() const;
     DebuggerStartParameters &startParameters();
 
-    Internal::ModulesHandler *modulesHandler() const;
-    Internal::RegisterHandler *registerHandler() const;
-    Internal::StackHandler *stackHandler() const;
-    Internal::ThreadsHandler *threadsHandler() const;
-    Internal::WatchHandler *watchHandler() const;
-    Internal::SourceFilesHandler *sourceFilesHandler() const;
-    Internal::BreakHandler *breakHandler() const;
+    virtual Internal::ModulesHandler *modulesHandler() const;
+    virtual Internal::RegisterHandler *registerHandler() const;
+    virtual Internal::StackHandler *stackHandler() const;
+    virtual Internal::ThreadsHandler *threadsHandler() const;
+    virtual Internal::WatchHandler *watchHandler() const;
+    virtual Internal::SourceFilesHandler *sourceFilesHandler() const;
+    virtual Internal::BreakHandler *breakHandler() const;
 
     virtual QAbstractItemModel *modulesModel() const;
     virtual QAbstractItemModel *registerModel() const;
@@ -345,7 +346,7 @@ private:
     // Wrapper engine needs access to state of its subengines.
     friend class Internal::QmlCppEngine;
     void setState(DebuggerState state, bool forced = false);
-    void setSlaveEngine(bool value);
+    //void setSlaveEngine(bool value);
 
     friend class DebuggerEnginePrivate;
     DebuggerEnginePrivate *d;

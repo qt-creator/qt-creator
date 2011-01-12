@@ -4,8 +4,6 @@
 #include "debuggermainwindow.h"
 #include "debuggercore.h"
 
-#include "gdb/gdbengine.h"
-
 #include <qmljseditor/qmljseditorconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -14,18 +12,18 @@
 
 namespace Debugger {
 namespace Internal {
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *);
-}
-namespace Internal {
 
 const int ConnectionWaitTimeMs = 5000;
 
-DebuggerEngine *createGdbEngine(const DebuggerStartParameters &);
-DebuggerEngine *createQmlEngine(const DebuggerStartParameters &);
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &,
+    DebuggerEngine *masterEngine, QString *);
+DebuggerEngine *createGdbEngine(const DebuggerStartParameters &,
+    DebuggerEngine *masterEngine);
+DebuggerEngine *createQmlEngine(const DebuggerStartParameters &,
+    DebuggerEngine *masterEngine);
 
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp)
 {
-    qDebug() << "CREATING QMLCPPENGINE";
     QmlCppEngine *newEngine = new QmlCppEngine(sp);
     if (newEngine->cppEngine())
         return newEngine;
@@ -58,21 +56,18 @@ QmlCppEnginePrivate::QmlCppEnginePrivate()
 QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
     : DebuggerEngine(sp), d(new QmlCppEnginePrivate)
 {
-    d->m_qmlEngine = createQmlEngine(sp);
+    d->m_qmlEngine = createQmlEngine(sp, this);
 
     if (startParameters().cppEngineType == GdbEngineType) {
-        d->m_cppEngine = createGdbEngine(sp);
+        d->m_cppEngine = createGdbEngine(sp, this);
     } else {
         QString errorMessage;
-        d->m_cppEngine = Debugger::Internal::createCdbEngine(sp, &errorMessage);
+        d->m_cppEngine = Debugger::Internal::createCdbEngine(sp, this, &errorMessage);
         if (!d->m_cppEngine) {
             qWarning("%s", qPrintable(errorMessage));
             return;
         }
     }
-
-    d->m_cppEngine->setSlaveEngine(true);
-    d->m_qmlEngine->setSlaveEngine(true);
 
     d->m_activeEngine = d->m_cppEngine;
     connect(d->m_cppEngine, SIGNAL(stateChanged(DebuggerState)),
@@ -122,7 +117,7 @@ void QmlCppEngine::setActiveEngine(DebuggerLanguage language)
     }
     if (previousEngine != d->m_activeEngine) {
         showStatusMessage(tr("%1 debugger activated").arg(engineName));
-        //debuggerCore()->displayDebugger(d->m_activeEngine, updateEngine);
+        debuggerCore()->displayDebugger(d->m_activeEngine, updateEngine);
     }
 }
 
@@ -310,18 +305,7 @@ void QmlCppEngine::detachDebugger()
 
 void QmlCppEngine::executeStep()
 {
-    qDebug() << "CPP ENGINE: " << d->m_cppEngine;
-    if (d->m_activeEngine == d->m_cppEngine) {
-        d->m_cppEngine->executeStep();
-    } else {
-        QByteArray ba =
-            "-break-insert -f 'myns::QScript::FunctionWrapper::proxyCall'";
-        GdbEngine *cppEngine = qobject_cast<GdbEngine *>(d->m_cppEngine);
-        qDebug() << "CPP ENGINE: " << cppEngine << d->m_cppEngine;
-        if (cppEngine)
-            cppEngine->postCommand(ba);
-        d->m_qmlEngine->executeStep();
-    }
+    d->m_activeEngine->executeStep();
 }
 
 void QmlCppEngine::executeStepOut()
@@ -331,14 +315,12 @@ void QmlCppEngine::executeStepOut()
 
 void QmlCppEngine::executeNext()
 {
-    qDebug() << "NEXT";
     d->m_activeEngine->executeNext();
 }
 
 void QmlCppEngine::executeStepI()
 {
-    qDebug() << "STEP I";
-    d->m_activeEngine->executeStep();
+    d->m_activeEngine->executeStepI();
 }
 
 void QmlCppEngine::executeNextI()

@@ -165,8 +165,11 @@ class DebuggerEnginePrivate : public QObject
     Q_OBJECT
 
 public:
-    DebuggerEnginePrivate(DebuggerEngine *engine, const DebuggerStartParameters &sp)
+    DebuggerEnginePrivate(DebuggerEngine *engine,
+            DebuggerEngine *masterEngine,
+            const DebuggerStartParameters &sp)
       : m_engine(engine),
+        m_masterEngine(masterEngine),
         m_runControl(0),
         m_startParameters(sp),
         m_state(DebuggerNotReady),
@@ -178,7 +181,6 @@ public:
         m_stackHandler(),
         m_threadsHandler(),
         m_watchHandler(engine),
-        m_isSlaveEngine(false),
         m_disassemblerAgent(engine),
         m_memoryAgent(engine)
     {
@@ -250,6 +252,7 @@ public:
     DebuggerState state() const { return m_state; }
 
     DebuggerEngine *m_engine; // Not owned.
+    DebuggerEngine *m_masterEngine; // Not owned
     DebuggerRunControl *m_runControl;  // Not owned.
 
     DebuggerStartParameters m_startParameters;
@@ -273,7 +276,6 @@ public:
     WatchHandler m_watchHandler;
     QFutureInterface<void> m_progress;
 
-    bool m_isSlaveEngine;
     DisassemblerAgent m_disassemblerAgent;
     MemoryAgent m_memoryAgent;
     QScopedPointer<TextEditor::BaseTextMark> m_locationMark;
@@ -287,8 +289,9 @@ public:
 //
 //////////////////////////////////////////////////////////////////////
 
-DebuggerEngine::DebuggerEngine(const DebuggerStartParameters &startParameters)
-  : d(new DebuggerEnginePrivate(this, startParameters))
+DebuggerEngine::DebuggerEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *parentEngine)
+  : d(new DebuggerEnginePrivate(this, parentEngine, startParameters))
 {
 }
 
@@ -354,37 +357,49 @@ void DebuggerEngine::frameDown()
 
 ModulesHandler *DebuggerEngine::modulesHandler() const
 {
-    return &d->m_modulesHandler;
+    return d->m_masterEngine
+        ? d->m_masterEngine->modulesHandler()
+        : &d->m_modulesHandler;
 }
 
 RegisterHandler *DebuggerEngine::registerHandler() const
 {
-    return &d->m_registerHandler;
+    return d->m_masterEngine
+        ? d->m_masterEngine->registerHandler()
+        : &d->m_registerHandler;
 }
 
 StackHandler *DebuggerEngine::stackHandler() const
 {
-    return &d->m_stackHandler;
+    return d->m_masterEngine
+        ? d->m_masterEngine->stackHandler()
+        : &d->m_stackHandler;
 }
 
 ThreadsHandler *DebuggerEngine::threadsHandler() const
 {
-    return &d->m_threadsHandler;
+    return d->m_masterEngine
+        ? d->m_masterEngine->threadsHandler()
+        : &d->m_threadsHandler;
 }
 
 WatchHandler *DebuggerEngine::watchHandler() const
 {
-    return &d->m_watchHandler;
+    return d->m_masterEngine
+        ? d->m_masterEngine->watchHandler()
+        : &d->m_watchHandler;
 }
 
 SourceFilesHandler *DebuggerEngine::sourceFilesHandler() const
 {
-    return &d->m_sourceFilesHandler;
+    return d->m_masterEngine
+        ? d->m_masterEngine->sourceFilesHandler()
+        : &d->m_sourceFilesHandler;
 }
 
 QAbstractItemModel *DebuggerEngine::modulesModel() const
 {
-    QAbstractItemModel *model = d->m_modulesHandler.model();
+    QAbstractItemModel *model = modulesHandler()->model();
     if (model->objectName().isEmpty()) // Make debugging easier.
         model->setObjectName(objectName() + QLatin1String("ModulesModel"));
     return model;
@@ -392,7 +407,7 @@ QAbstractItemModel *DebuggerEngine::modulesModel() const
 
 QAbstractItemModel *DebuggerEngine::registerModel() const
 {
-    QAbstractItemModel *model = d->m_registerHandler.model();
+    QAbstractItemModel *model = registerHandler()->model();
     if (model->objectName().isEmpty()) // Make debugging easier.
         model->setObjectName(objectName() + QLatin1String("RegisterModel"));
     return model;
@@ -400,7 +415,7 @@ QAbstractItemModel *DebuggerEngine::registerModel() const
 
 QAbstractItemModel *DebuggerEngine::stackModel() const
 {
-    QAbstractItemModel *model = d->m_stackHandler.model();
+    QAbstractItemModel *model = stackHandler()->model();
     if (model->objectName().isEmpty()) // Make debugging easier.
         model->setObjectName(objectName() + QLatin1String("StackModel"));
     return model;
@@ -408,7 +423,7 @@ QAbstractItemModel *DebuggerEngine::stackModel() const
 
 QAbstractItemModel *DebuggerEngine::threadsModel() const
 {
-    QAbstractItemModel *model = d->m_threadsHandler.model();
+    QAbstractItemModel *model = threadsHandler()->model();
     if (model->objectName().isEmpty()) // Make debugging easier.
         model->setObjectName(objectName() + QLatin1String("ThreadsModel"));
     return model;
@@ -416,7 +431,7 @@ QAbstractItemModel *DebuggerEngine::threadsModel() const
 
 QAbstractItemModel *DebuggerEngine::localsModel() const
 {
-    QAbstractItemModel *model = d->m_watchHandler.model(LocalsWatch);
+    QAbstractItemModel *model = watchHandler()->model(LocalsWatch);
     if (model->objectName().isEmpty()) // Make debugging easier.
         model->setObjectName(objectName() + QLatin1String("LocalsModel"));
     return model;
@@ -424,7 +439,7 @@ QAbstractItemModel *DebuggerEngine::localsModel() const
 
 QAbstractItemModel *DebuggerEngine::watchersModel() const
 {
-    QAbstractItemModel *model = d->m_watchHandler.model(WatchersWatch);
+    QAbstractItemModel *model = watchHandler()->model(WatchersWatch);
     if (model->objectName().isEmpty()) // Make debugging easier.
         model->setObjectName(objectName() + QLatin1String("WatchersModel"));
     return model;
@@ -432,7 +447,7 @@ QAbstractItemModel *DebuggerEngine::watchersModel() const
 
 QAbstractItemModel *DebuggerEngine::returnModel() const
 {
-    QAbstractItemModel *model = d->m_watchHandler.model(ReturnWatch);
+    QAbstractItemModel *model = watchHandler()->model(ReturnWatch);
     if (model->objectName().isEmpty()) // Make debugging easier.
         model->setObjectName(objectName() + QLatin1String("ReturnModel"));
     return model;
@@ -440,7 +455,7 @@ QAbstractItemModel *DebuggerEngine::returnModel() const
 
 QAbstractItemModel *DebuggerEngine::sourceFilesModel() const
 {
-    QAbstractItemModel *model = d->m_sourceFilesHandler.model();
+    QAbstractItemModel *model = sourceFilesHandler()->model();
     if (model->objectName().isEmpty()) // Make debugging easier.
         model->setObjectName(objectName() + QLatin1String("SourceFilesModel"));
     return model;
@@ -1039,12 +1054,7 @@ void DebuggerEngine::updateViews()
 
 bool DebuggerEngine::isSlaveEngine() const
 {
-    return d->m_isSlaveEngine;
-}
-
-void DebuggerEngine::setSlaveEngine(bool value)
-{
-    d->m_isSlaveEngine = value;
+    return d->m_masterEngine != 0;
 }
 
 bool DebuggerEngine::debuggerActionsEnabled() const

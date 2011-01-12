@@ -70,7 +70,6 @@ class CoreGdbAdapter;
 class LocalPlainGdbAdapter;
 class RemoteGdbServerAdapter;
 class TrkGdbAdapter;
-class  QmlCppEngine;
 
 enum DebuggingHelperState
 {
@@ -86,7 +85,8 @@ class GdbEngine : public Debugger::DebuggerEngine
     Q_OBJECT
 
 public:
-    explicit GdbEngine(const DebuggerStartParameters &startParameters);
+    GdbEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *masterEngine);
     ~GdbEngine();
     AbstractGdbAdapter *gdbAdapter() const { return m_gdbAdapter; }
 
@@ -101,7 +101,6 @@ private:
     friend class RemotePlainGdbAdapter;
     friend class TrkGdbAdapter;
     friend class TcfTrkGdbAdapter;
-    friend class  QmlCppEngine;
 
 private: ////////// General Interface //////////
 

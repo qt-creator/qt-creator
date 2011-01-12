@@ -176,8 +176,9 @@ static QByteArray parsePlainConsoleStream(const GdbResponse &response)
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
-  : DebuggerEngine(startParameters)
+GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *masterEngine)
+  : DebuggerEngine(startParameters, masterEngine)
 {
     setObjectName(QLatin1String("GdbEngine"));
 
@@ -4495,9 +4496,10 @@ void GdbEngine::handleRemoteSetupFailed(const QString &message)
 // Factory
 //
 
-DebuggerEngine *createGdbEngine(const DebuggerStartParameters &startParameters)
+DebuggerEngine *createGdbEngine(const DebuggerStartParameters &startParameters,
+    DebuggerEngine *masterEngine)
 {
-    return new GdbEngine(startParameters);
+    return new GdbEngine(startParameters, masterEngine);
 }
 
 void addGdbOptionPages(QList<Core::IOptionsPage *> *opts)

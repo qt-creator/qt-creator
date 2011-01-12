@@ -172,8 +172,10 @@ QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
 //
 ///////////////////////////////////////////////////////////////////////
 
-QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
-    : DebuggerEngine(startParameters), d(new QmlEnginePrivate(this))
+QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *masterEngine)
+  : DebuggerEngine(startParameters, masterEngine),
+    d(new QmlEnginePrivate(this))
 {
     setObjectName(QLatin1String("QmlEngine"));
 }
@@ -645,11 +647,6 @@ void QmlEngine::sendPing()
     sendMessage(reply);
 }
 
-DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp)
-{
-    return new QmlEngine(sp);
-}
-
 unsigned QmlEngine::debuggerCapabilities() const
 {
     return AddWatcherCapability;
@@ -932,6 +929,12 @@ void QmlEngine::logMessage(LogDirection direction, const QString &message)
     }
     msg += message;
     showMessage(msg, LogDebug);
+}
+
+DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp,
+    DebuggerEngine *masterEngine)
+{
+    return new QmlEngine(sp, masterEngine);
 }
 
 } // namespace Internal

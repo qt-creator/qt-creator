@@ -72,7 +72,10 @@ public:
     typedef void (CdbEngine::*BuiltinCommandHandler)(const CdbBuiltinCommandPtr &);
     typedef void (CdbEngine::*ExtensionCommandHandler)(const CdbExtensionCommandPtr &);
 
-    explicit CdbEngine(const DebuggerStartParameters &sp, const OptionsPtr &options);
+    explicit CdbEngine(const DebuggerStartParameters &sp,
+        DebuggerEngine *masterEngine,
+        const OptionsPtr &options);
+
     virtual ~CdbEngine();
     // Factory function that returns 0 if the debug engine library cannot be found.
 

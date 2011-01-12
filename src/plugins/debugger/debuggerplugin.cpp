@@ -406,11 +406,6 @@ const char * const SNAPSHOT_KEY             = "Ctrl+D,Ctrl+S";
 
 
 namespace Internal {
-void addCdb2OptionPages(QList<Core::IOptionsPage*> *);
-} // namespace Cdb
-
-
-namespace Internal {
 
 // FIXME: Outdated?
 // The createCdbEngine function takes a list of options pages it can add to.
@@ -418,6 +413,7 @@ namespace Internal {
 // of the engine. That's good for not enabling the related ActiveX control
 // unnecessarily.
 
+void addCdbOptionPages(QList<IOptionsPage*> *opts);
 void addGdbOptionPages(QList<IOptionsPage*> *opts);
 void addScriptOptionPages(QList<IOptionsPage*> *opts);
 void addTcfOptionPages(QList<IOptionsPage*> *opts);
@@ -1094,7 +1090,6 @@ public slots:
 
     void handleExecStep()
     {
-        qDebug() << "CURRENT: " << currentEngine();
         currentEngine()->resetLocation();
         if (boolSetting(OperateByInstruction))
             currentEngine()->executeStepI();
@@ -1965,7 +1960,6 @@ void DebuggerPluginPrivate::startDebugger(RunControl *rc)
 
 void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
 {
-    qDebug() << "CONNECT: " << engine;
     if (!engine)
         engine = dummyEngine();
 
@@ -3020,9 +3014,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     QList<Core::IOptionsPage *> engineOptionPages;
     if (m_cmdLineEnabledEngines & GdbEngineType)
         addGdbOptionPages(&engineOptionPages);
-#ifdef Q_OS_WIN
-   addCdb2OptionPages(&engineOptionPages);
-#endif
+   addCdbOptionPages(&engineOptionPages);
 #ifdef WITH_LLDB
     if (m_cmdLineEnabledEngines & LldbEngineType)
         addLldbOptionPages(&engineOptionPages);

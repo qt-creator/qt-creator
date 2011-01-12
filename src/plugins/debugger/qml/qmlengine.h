@@ -51,7 +51,8 @@ class QmlEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    explicit QmlEngine(const DebuggerStartParameters &startParameters);
+    QmlEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *masterEngine);
     ~QmlEngine();
 
     void handleRemoteSetupDone(int port);

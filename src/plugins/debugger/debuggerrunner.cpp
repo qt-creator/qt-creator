@@ -70,20 +70,20 @@ using namespace ProjectExplorer;
 using namespace Debugger::Internal;
 
 namespace Debugger {
-
 namespace Internal {
+
 bool isCdbEngineEnabled(); // Check the configuration page
 ConfigurationCheck checkCdbConfiguration(ToolChainType toolChain);
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *error);
-}
 
-namespace Internal {
-
-DebuggerEngine *createGdbEngine(const DebuggerStartParameters &);
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &,
+    DebuggerEngine *masterEngine, QString *error);
+DebuggerEngine *createGdbEngine(const DebuggerStartParameters &,
+    DebuggerEngine *masterEngine);
 DebuggerEngine *createScriptEngine(const DebuggerStartParameters &);
 DebuggerEngine *createPdbEngine(const DebuggerStartParameters &);
 DebuggerEngine *createTcfEngine(const DebuggerStartParameters &);
-DebuggerEngine *createQmlEngine(const DebuggerStartParameters &);
+DebuggerEngine *createQmlEngine(const DebuggerStartParameters &,
+    DebuggerEngine *masterEngine);
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &);
 DebuggerEngine *createLldbEngine(const DebuggerStartParameters &);
 
@@ -315,13 +315,13 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
 
     switch (engineType) {
         case GdbEngineType:
-            d->m_engine = createGdbEngine(sp);
+            d->m_engine = createGdbEngine(sp, 0);
             break;
         case ScriptEngineType:
             d->m_engine = createScriptEngine(sp);
             break;
         case CdbEngineType:
-            d->m_engine = Internal::createCdbEngine(sp, &d->m_errorMessage);
+            d->m_engine = createCdbEngine(sp, 0, &d->m_errorMessage);
             break;
         case PdbEngineType:
             d->m_engine = createPdbEngine(sp);
@@ -330,7 +330,7 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
             d->m_engine = createTcfEngine(sp);
             break;
         case QmlEngineType:
-            d->m_engine = createQmlEngine(sp);
+            d->m_engine = createQmlEngine(sp, 0);
             break;
         case QmlCppEngineType:
             d->m_engine = createQmlCppEngine(sp);
@@ -406,7 +406,7 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(ToolChainType toolCha
         }
         break;
     case ToolChain_MSVC:
-        result = Internal::checkCdbConfiguration(toolChain);
+        result = checkCdbConfiguration(toolChain);
         if (!result) {
             result.errorMessage += msgEngineNotAvailable("Cdb");
             result.settingsPage = QLatin1String("Cdb");

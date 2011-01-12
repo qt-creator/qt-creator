@@ -262,7 +262,8 @@ static inline QString msgCdbDisabled(ToolChainType tc)
 }
 
 // Accessed by RunControlFactory
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *errorMessage)
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp,
+    DebuggerEngine *masterEngine, QString *errorMessage)
 {
 #ifdef Q_OS_WIN
     CdbOptionsPage *op = CdbOptionsPage::instance();
@@ -274,11 +275,12 @@ DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *erro
         *errorMessage = CdbEngine::tr("The CDB debug engine does not support start mode %1.").arg(sp.startMode);
         return 0;
     }
-    return new CdbEngine(sp, op->options());
+    return new CdbEngine(sp, masterEngine, op->options());
 #else
+    Q_UNUSED(masterEngine)
     Q_UNUSED(sp)
 #endif
-    *errorMessage = QString::fromLatin1("Unsuppported debug mode");
+    *errorMessage = QString::fromLatin1("Unsupported debug mode");
     return 0;
 }
 
@@ -315,9 +317,13 @@ ConfigurationCheck checkCdbConfiguration(ToolChainType toolChain)
     return check;
 }
 
-void addCdb2OptionPages(QList<Core::IOptionsPage *> *opts)
+void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
 {
+#ifdef Q_OS_WIN
     opts->push_back(new CdbOptionsPage);
+#else
+    Q_UNUSED(opts);
+#endif
 }
 
 #define QT_CREATOR_CDB_EXT "qtcreatorcdbext"
@@ -327,8 +333,9 @@ static inline Utils::SavedAction *theAssemblerAction()
     return debuggerCore()->action(OperateByInstruction);
 }
 
-CdbEngine::CdbEngine(const DebuggerStartParameters &sp, const OptionsPtr &options) :
-    DebuggerEngine(sp),
+CdbEngine::CdbEngine(const DebuggerStartParameters &sp,
+        DebuggerEngine *masterEngine, const OptionsPtr &options) :
+    DebuggerEngine(sp, masterEngine),
     m_creatorExtPrefix("<qtcreatorcdbext>|"),
     m_tokenPrefix("<token>"),
     m_options(options),
