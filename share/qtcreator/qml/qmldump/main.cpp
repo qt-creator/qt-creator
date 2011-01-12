@@ -295,6 +295,7 @@ int main(int argc, char *argv[])
 
     if (argc != 1 && argc != 3) {
         qWarning() << "Usage: qmldump [plugin/import/path plugin.uri]";
+        qWarning() << "Example: ./qmldump /home/user/dev/qt-install/imports Qt.labs.particles";
         return 1;
     }
 
