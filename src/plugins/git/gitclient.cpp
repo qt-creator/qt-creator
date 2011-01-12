@@ -105,13 +105,12 @@ public:
                                const QString &directory,
                                const QStringList &args) :
         BaseGitArgumentsWidget(settings, client, directory, args),
-        m_patience(0),
-        m_ignoreSpaces(0)
+        m_patience(new QToolButton),
+        m_ignoreSpaces(new QToolButton)
     {
         QHBoxLayout * layout = new QHBoxLayout(this);
         layout->setContentsMargins(3, 0, 3, 0);
 
-        m_patience = new QToolButton;
         m_patience->setToolTip(tr("Use the patience algorithmn for calculating the diff"));
         m_patience->setText(tr("Patience"));
         layout->addWidget(m_patience);
@@ -119,27 +118,12 @@ public:
         m_patience->setChecked(m_settings->diffPatience);
         connect(m_patience, SIGNAL(toggled(bool)), this, SLOT(testForArgumentsChanged()));
 
-        m_ignoreSpaces = new QToolButton;
-        m_ignoreSpaces->setToolTip(tr("Ignore whitespaces only changes"));
+        m_ignoreSpaces->setToolTip(tr("Ignore whitespace only changes"));
         m_ignoreSpaces->setText(tr("Ignore Whitespace"));
         layout->addWidget(m_ignoreSpaces);
         m_ignoreSpaces->setCheckable(true);
         m_ignoreSpaces->setChecked(m_settings->ignoreSpaceChangesInDiff);
         connect(m_ignoreSpaces, SIGNAL(toggled(bool)), this, SLOT(testForArgumentsChanged()));
-
-        m_prettyFormat = new QComboBox;
-        m_prettyFormat->setToolTip(tr("Select the pretty printing format"));
-        m_prettyFormat->addItem(tr("oneline"), QLatin1String("oneline"));
-        m_prettyFormat->addItem(tr("short"), QLatin1String("short"));
-        m_prettyFormat->addItem(tr("medium"), QLatin1String("medium"));
-        m_prettyFormat->addItem(tr("full"), QLatin1String("full"));
-        m_prettyFormat->addItem(tr("fuller"), QLatin1String("fuller"));
-        m_prettyFormat->addItem(tr("email"), QLatin1String("email"));
-        m_prettyFormat->addItem(tr("raw"), QLatin1String("raw"));
-        layout->addWidget(m_prettyFormat);
-        m_prettyFormat->setCurrentIndex(m_settings->showPrettyFormat);
-        m_prettyFormat->setVisible(false);
-        connect(m_prettyFormat, SIGNAL(currentIndexChanged(int)), this, SLOT(testForArgumentsChanged()));
     }
 
     QStringList arguments() const
@@ -147,9 +131,7 @@ public:
         QStringList args;
         foreach (const QString &arg, m_diffArgs) {
             if (arg == QLatin1String("--patience")
-                    || arg == QLatin1String("--ignore-space-change")
-                    || arg.startsWith(QLatin1String("--pretty="))
-                    || arg.startsWith(QLatin1String("--format=")))
+                    || arg == QLatin1String("--ignore-space-change"))
                 continue;
             args.append(arg);
         }
@@ -158,10 +140,6 @@ public:
             args.prepend(QLatin1String("--patience"));
         if (m_ignoreSpaces->isChecked() && m_ignoreSpaces->isVisible())
             args.prepend(QLatin1String("--ignore-space-change"));
-        if (m_prettyFormat->isVisible()) {
-            args.prepend(QString::fromLatin1("--pretty=")
-                         + m_prettyFormat->itemData(m_prettyFormat->currentIndex()).toString());
-        }
 
         return args;
     }
@@ -169,7 +147,6 @@ public:
     void testForArgumentsChanged() {
         m_settings->diffPatience = m_patience->isChecked();
         m_settings->ignoreSpaceChangesInDiff = m_ignoreSpaces->isChecked();
-        m_settings->showPrettyFormat = m_prettyFormat->currentIndex();
 
         QStringList newArguments = arguments();
 
@@ -183,7 +160,6 @@ public:
 protected:
     QToolButton *m_patience;
     QToolButton *m_ignoreSpaces;
-    QComboBox *m_prettyFormat;
 };
 
 class GitCommitDiffArgumentsWidget : public BaseGitDiffArgumentsWidget
@@ -246,18 +222,59 @@ private:
     const QString m_branchName;
 };
 
-class GitShowArgumentsWidget : public BaseGitDiffArgumentsWidget
+class GitShowArgumentsWidget : public Git::Internal::BaseGitArgumentsWidget
 {
 public:
     GitShowArgumentsWidget(Git::Internal::GitSettings *settings,
-                           Git::Internal::GitClient *client, const QString &directory,
-                           const QStringList &args, const QString &id) :
-        BaseGitDiffArgumentsWidget(settings, client, directory, args),
+                           Git::Internal::GitClient *client,
+                           const QString &directory,
+                           const QStringList &args,
+                           const QString &id) :
+        BaseGitArgumentsWidget(settings, client, directory, args),
+        m_prettyFormat(new QComboBox),
         m_id(id)
     {
-        m_patience->setVisible(false);
-        m_ignoreSpaces->setVisible(false);
-        m_prettyFormat->setVisible(true);
+        QHBoxLayout *layout = new QHBoxLayout(this);
+        layout->setContentsMargins(3, 0, 3, 0);
+
+        m_prettyFormat->setToolTip(tr("Select the pretty printing format"));
+        m_prettyFormat->addItem(tr("oneline"), QLatin1String("oneline"));
+        m_prettyFormat->addItem(tr("short"), QLatin1String("short"));
+        m_prettyFormat->addItem(tr("medium"), QLatin1String("medium"));
+        m_prettyFormat->addItem(tr("full"), QLatin1String("full"));
+        m_prettyFormat->addItem(tr("fuller"), QLatin1String("fuller"));
+        m_prettyFormat->addItem(tr("email"), QLatin1String("email"));
+        m_prettyFormat->addItem(tr("raw"), QLatin1String("raw"));
+        layout->addWidget(m_prettyFormat);
+        m_prettyFormat->setCurrentIndex(m_settings->showPrettyFormat);
+        connect(m_prettyFormat, SIGNAL(currentIndexChanged(int)), this, SLOT(testForArgumentsChanged()));
+    }
+
+    QStringList arguments() const
+    {
+        QStringList args;
+        foreach (const QString &arg, m_diffArgs) {
+            if (arg.startsWith(QLatin1String("--pretty=")) || arg.startsWith(QLatin1String("--format=")))
+                continue;
+            args.append(arg);
+        }
+
+        args.prepend(QString::fromLatin1("--pretty=")
+                     + m_prettyFormat->itemData(m_prettyFormat->currentIndex()).toString());
+
+        return args;
+    }
+
+    void testForArgumentsChanged() {
+        m_settings->showPrettyFormat = m_prettyFormat->currentIndex();
+
+        QStringList newArguments = arguments();
+
+        if (newArguments == m_diffArgs)
+            return;
+
+        m_diffArgs = newArguments;
+        redoCommand();
     }
 
     void redoCommand()
@@ -266,9 +283,9 @@ public:
     }
 
 private:
-    const QString m_id;
+    QComboBox *m_prettyFormat;
+    QString m_id;
 };
-
 
 class GitBlameArgumentsWidget : public Git::Internal::BaseGitArgumentsWidget
 {
