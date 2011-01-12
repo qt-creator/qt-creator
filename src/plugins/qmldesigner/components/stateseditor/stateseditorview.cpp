@@ -48,10 +48,6 @@
 #include <variantproperty.h>
 #include <nodelistproperty.h>
 
-enum {
-    debug = false
-};
-
 namespace QmlDesigner {
 
 /**
@@ -228,6 +224,9 @@ void StatesEditorView::modelAttached(Model *model)
     Q_ASSERT(model);
     QmlModelView::modelAttached(model);
 
+    if (m_statesEditorWidget)
+        m_statesEditorWidget->setNodeInstanceView(nodeInstanceView());
+
     resetModel();
 }
 
@@ -252,7 +251,7 @@ void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &pr
         if (property.name() == "name" && property.parentModelNode().hasParentProperty()) {
             NodeAbstractProperty parentProperty = property.parentModelNode().parentProperty();
             if (parentProperty.name() == "states" && parentProperty.parentModelNode().isRootNode()) {
-                m_statesEditorModel->updateState(parentProperty.indexOf(property.parentModelNode()));
+                m_statesEditorModel->updateState(parentProperty.indexOf(property.parentModelNode()) + 1);
             }
         }
     }
@@ -337,22 +336,17 @@ void StatesEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode, 
 
 void StatesEditorView::customNotification(const AbstractView * view, const QString & identifier, const QList<ModelNode> & nodeList, const QList<QVariant> &imageList)
 {
-    if (debug)
-        qDebug() << __FUNCTION__;
 
-    if (identifier == "__state preview updated__")   {
-        if (nodeList.size() != imageList.size())
-            return;
-
-//        if (++m_updateCounter == INT_MAX)
-//            m_updateCounter = 0;
-
-        for (int i = 0; i < nodeList.size(); i++) {
-            QmlModelState modelState(nodeList.at(i));            
+    if (identifier == "__instance preview image changed__")   {
+        foreach(const ModelNode &node, nodeList) {
+            if (node.isRootNode()) {
+                m_statesEditorModel->updateState(0);
+            } else {
+                int index = rootStateGroup().allStates().indexOf(QmlModelState(node)) + 1;
+                if (index > 0)
+                    m_statesEditorModel->updateState(index);
+            }
         }
-
-     //   emit dataChanged(createIndex(i, 0), createIndex(i, 0));
-
     } else {
         QmlModelView::customNotification(view, identifier, nodeList, imageList);
     }
@@ -360,8 +354,6 @@ void StatesEditorView::customNotification(const AbstractView * view, const QStri
 
 void StatesEditorView::scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList)
 {
-    if (debug)
-        qDebug() << __FUNCTION__;
 
     QmlModelView::scriptFunctionsChanged(node, scriptFunctionList);
 }

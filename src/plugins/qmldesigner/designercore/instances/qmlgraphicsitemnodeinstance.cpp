@@ -46,6 +46,7 @@
 #include <private/qdeclarativeproperty_p.h>
 #include <private/qdeclarativerectangle_p.h>
 #include <private/qdeclarativepositioners_p.h>
+#include <private/qdeclarativestategroup_p.h>
 
 
 #include <cmath>
@@ -491,6 +492,19 @@ QPair<QString, ServerNodeInstance> QmlGraphicsItemNodeInstance::anchor(const QSt
     } else {
         return GraphicsObjectNodeInstance::anchor(name);
     }
+}
+
+QList<ServerNodeInstance> QmlGraphicsItemNodeInstance::stateInstances() const
+{
+    QList<ServerNodeInstance> instanceList;
+    QList<QDeclarativeState *> stateList = QDeclarativeItemPrivate::get(qmlGraphicsItem())->_states()->states();
+    foreach(QDeclarativeState *state, stateList)
+    {
+        if (state && nodeInstanceServer()->hasInstanceForObject(state))
+            instanceList.append(nodeInstanceServer()->instanceForObject(state));
+    }
+
+    return instanceList;
 }
 
 bool QmlGraphicsItemNodeInstance::hasAnchor(const QString &name) const

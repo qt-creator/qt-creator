@@ -32,6 +32,7 @@
 **************************************************************************/
 #include "stateseditorimageprovider.h"
 #include "stateseditorview.h"
+#include "nodeinstanceview.h"
 
 #include <QtDebug>
 
@@ -39,34 +40,45 @@ namespace QmlDesigner {
 
 namespace Internal {
 
-StatesEditorImageProvider::StatesEditorImageProvider() :
-        QDeclarativeImageProvider(QDeclarativeImageProvider::Image)
+StatesEditorImageProvider::StatesEditorImageProvider()
+    : QDeclarativeImageProvider(QDeclarativeImageProvider::Image)
 {
 }
 
 QImage StatesEditorImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
+    if (m_nodeInstanceView.isNull())
+        return QImage();
+
     QSize newSize = requestedSize;
 
     if (newSize.isEmpty())
         newSize = QSize (100, 100);
 
-    QImage image = m_imageHash.value(id, QImage(newSize, QImage::Format_ARGB32));
-    image.fill(0xFFFFFFFF);
+    QString imageId = id.split("-").first();
+    QImage image;
+
+    if (imageId == "baseState") {
+        image = m_nodeInstanceView->statePreviewImage(m_nodeInstanceView->rootModelNode());
+    } else {
+        bool canBeConverted;
+        int instanceId = imageId.toInt(&canBeConverted);
+        if (canBeConverted && m_nodeInstanceView->hasModelNodeForInternalId(instanceId)) {
+                image = m_nodeInstanceView->statePreviewImage(m_nodeInstanceView->modelNodeForInternalId(instanceId));
+        } else {
+            image = QImage(newSize, QImage::Format_ARGB32);
+            image.fill(0xFFFFFFFF);
+        }
+    }
 
     *size = image.size();
 
     return image;
 }
 
-void StatesEditorImageProvider::setImage(const QString &id, const QImage &image)
+void StatesEditorImageProvider::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
 {
-    m_imageHash.insert(id, image);
-}
-
-void StatesEditorImageProvider::removeImage(const QString &id)
-{
-    m_imageHash.remove(id);
+    m_nodeInstanceView = nodeInstanceView;
 }
 
 }

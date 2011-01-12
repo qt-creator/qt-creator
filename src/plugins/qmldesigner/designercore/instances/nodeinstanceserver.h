@@ -105,7 +105,7 @@ protected:
     void timerEvent(QTimerEvent *);
 
     bool nonInstanceChildIsDirty(QGraphicsObject *graphicsObject) const;
-    void findItemChangesAndSendChangeCommands();
+    virtual void findItemChangesAndSendChangeCommands();
     void resetAllItems();
 
     ValuesChangedCommand createValuesChangedCommand(const QList<ServerNodeInstance> &instanceList) const;
@@ -121,8 +121,13 @@ protected:
     void startRenderTimer();
     void slowDownRenderTimer();
     void stopRenderTimer();
+    void setRenderTimerInterval(int timerInterval);
+    void setSlowRenderTimerInterval(int timerInterval);
+
     void initializeDeclarativeView();
     QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command);
+
+    QImage renderPreviewImage();
 
 private:
     ServerNodeInstance m_rootNodeInstance;
@@ -136,7 +141,9 @@ private:
     QUrl m_fileUrl;
     NodeInstanceClientInterface *m_nodeInstanceClient;
     int m_timer;
+    int m_renderTimerInterval;
     bool m_slowRenderTimer;
+    int m_slowRenderTimerInterval;
     QVector<InstancePropertyPair> m_changedPropertyList;
     QStringList m_importList;
     QSet<ServerNodeInstance> m_dirtyInstanceSet;

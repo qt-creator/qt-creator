@@ -616,6 +616,11 @@ QList<ServerNodeInstance> ObjectNodeInstance::childItems() const
     return QList<ServerNodeInstance>();
 }
 
+QList<ServerNodeInstance>  ObjectNodeInstance::stateInstances() const
+{
+    return QList<ServerNodeInstance>();
+}
+
 void ObjectNodeInstance::setDeleteHeldInstance(bool deleteInstance)
 {
     m_deleteHeldInstance = deleteInstance;

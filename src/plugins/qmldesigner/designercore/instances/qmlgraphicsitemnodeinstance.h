@@ -77,6 +77,9 @@ public:
     bool isResizable() const;
     void setResizable(bool resizeable);
 
+
+    QList<ServerNodeInstance> stateInstances() const;
+
 protected:
     QmlGraphicsItemNodeInstance(QDeclarativeItem *item);
     QDeclarativeItem *qmlGraphicsItem() const;

@@ -53,6 +53,7 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 
 class NodeInstanceServer;
+class PreviewNodeInstanceServer;
 class InstanceContainer;
 
 namespace Internal {
@@ -66,6 +67,7 @@ namespace Internal {
 class CORESHARED_EXPORT ServerNodeInstance
 {
     friend CORESHARED_EXPORT class NodeInstanceServer;
+    friend CORESHARED_EXPORT class PreviewNodeInstanceServer;
     friend class QHash<qint32, ServerNodeInstance>;
     friend CORESHARED_EXPORT uint qHash(const ServerNodeInstance &instance);
     friend CORESHARED_EXPORT bool operator==(const ServerNodeInstance &first, const ServerNodeInstance &second);
@@ -144,6 +146,8 @@ public:
 
     QObject* testHandle() const;
     QSharedPointer<Internal::ObjectNodeInstance> internalInstance() const;
+
+    QList<ServerNodeInstance> stateInstances() const;
 
 private: // functions
     ServerNodeInstance(const QSharedPointer<Internal::ObjectNodeInstance> &abstractInstance);

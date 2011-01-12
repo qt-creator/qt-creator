@@ -592,6 +592,11 @@ QObject* ServerNodeInstance::testHandle() const
     return internalObject();
 }
 
+QList<ServerNodeInstance> ServerNodeInstance::stateInstances() const
+{
+    return m_nodeInstance->stateInstances();
+}
+
 Internal::ObjectNodeInstance::Pointer ServerNodeInstance::internalInstance() const
 {
     return m_nodeInstance;

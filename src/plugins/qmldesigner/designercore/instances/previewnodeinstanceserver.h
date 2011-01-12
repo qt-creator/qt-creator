@@ -10,10 +10,14 @@ class PreviewNodeInstanceServer : public NodeInstanceServer
     Q_OBJECT
 public:
     explicit PreviewNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
+    void createScene(const CreateSceneCommand &command);
+    void changeState(const ChangeStateCommand &command);
 
-signals:
+protected:
+    void findItemChangesAndSendChangeCommands();
 
-public slots:
+private:
+    ServerNodeInstance m_actualState;
 
 };
 

@@ -51,7 +51,9 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
     m_childrenChangeEventFilter(new Internal::ChildrenChangeEventFilter(this)),
     m_nodeInstanceClient(nodeInstanceClient),
     m_timer(0),
-    m_slowRenderTimer(false)
+    m_renderTimerInterval(16),
+    m_slowRenderTimer(false),
+    m_slowRenderTimerInterval(1000)
 {
     m_importList.append("import Qt 4.7");
     connect(m_childrenChangeEventFilter.data(), SIGNAL(childrenChanged(QObject*)), this, SLOT(emitParentChanged(QObject*)));
@@ -123,13 +125,23 @@ bool NodeInstanceServer::hasInstanceForObject(QObject *object) const
     return m_objectInstanceHash.contains(object);
 }
 
+void NodeInstanceServer::setRenderTimerInterval(int timerInterval)
+{
+    m_renderTimerInterval = timerInterval;
+}
+
+void NodeInstanceServer::setSlowRenderTimerInterval(int timerInterval)
+{
+    m_slowRenderTimerInterval = timerInterval;
+}
+
 void NodeInstanceServer::startRenderTimer()
 {
     if (m_slowRenderTimer)
         stopRenderTimer();
 
     if (m_timer == 0)
-        m_timer = startTimer(16);
+        m_timer = startTimer(m_renderTimerInterval);
 
     m_slowRenderTimer = false;
 }
@@ -140,7 +152,7 @@ void NodeInstanceServer::slowDownRenderTimer()
         stopRenderTimer();
 
     if (m_timer == 0)
-        m_timer = startTimer(1000);
+        m_timer = startTimer(m_slowRenderTimerInterval);
 
     m_slowRenderTimer = true;
 }
@@ -787,6 +799,28 @@ void NodeInstanceServer::initializeDeclarativeView()
 #ifdef Q_WS_MAC
     m_declarativeView->setAttribute(Qt::WA_DontShowOnScreen, true);
 #endif
+}
+
+QImage NodeInstanceServer::renderPreviewImage()
+{
+    QSize size = rootNodeInstance().boundingRect().size().toSize();
+    size.scale(100, 100, Qt::KeepAspectRatio);
+
+    QImage image(size, QImage::Format_ARGB32);
+    image.fill(0xFFFFFFFF);
+
+    if (m_declarativeView) {
+        QPainter painter(&image);
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.setRenderHint(QPainter::TextAntialiasing, true);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+        painter.setRenderHint(QPainter::HighQualityAntialiasing, true);
+        painter.setRenderHint(QPainter::NonCosmeticDefaultPen, true);
+
+        m_declarativeView->scene()->render(&painter, image.rect(), rootNodeInstance().boundingRect().toRect(), Qt::IgnoreAspectRatio);
+    }
+
+    return image;
 }
 
 QList<ServerNodeInstance> NodeInstanceServer::setupScene(const CreateSceneCommand &command)

@@ -113,8 +113,10 @@ d too.
 \see ~NodeInstanceView setRenderOffScreen
 */
 NodeInstanceView::NodeInstanceView(QObject *parent)
-        : AbstractView(parent)
+        : AbstractView(parent),
+          m_baseStatePreviewImage(QSize(100, 100), QImage::Format_ARGB32)
 {
+    m_baseStatePreviewImage.fill(0xFFFFFF);
 }
 
 
@@ -891,7 +893,7 @@ void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)
 
 void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
 {
-      if (!model())
+    if (!model())
         return;
 
     QSet<ModelNode> renderImageChangeSet;
@@ -907,7 +909,7 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
     }
 
     if (!renderImageChangeSet.isEmpty())
-         emitCustomNotification("__instance render pixmap changed__", renderImageChangeSet.toList());
+        emitCustomNotification("__instance render pixmap changed__", renderImageChangeSet.toList());
 }
 
 void NodeInstanceView::informationChanged(const InformationChangedCommand &command)
@@ -931,9 +933,34 @@ void NodeInstanceView::informationChanged(const InformationChangedCommand &comma
         emitCustomNotification("__instance information changed__", informationChangedList);
 }
 
-void NodeInstanceView::statePreviewImagesChanged(const StatePreviewImageChangedCommand &/*command*/)
+QImage NodeInstanceView::statePreviewImage(const ModelNode &stateNode) const
 {
+    if (stateNode == rootModelNode())
+        return m_baseStatePreviewImage;
 
+    return m_statePreviewImage.value(stateNode);
+}
+
+void NodeInstanceView::statePreviewImagesChanged(const StatePreviewImageChangedCommand &command)
+{
+    if (!model())
+      return;
+
+  QList<ModelNode> previewImageChangeList;
+
+  foreach (const ImageContainer &container, command.previews()) {
+      if (container.instanceId() == 0) {
+          m_baseStatePreviewImage = container.image();
+          previewImageChangeList.append(rootModelNode());
+      } else if (hasInstanceForId(container.instanceId())) {
+          ModelNode node = modelNodeForInternalId(container.instanceId());
+          m_statePreviewImage.insert(node, container.image());
+          previewImageChangeList.append(node);
+      }
+  }
+
+  if (!previewImageChangeList.isEmpty())
+       emitCustomNotification("__instance preview image changed__", previewImageChangeList);
 }
 
 void NodeInstanceView::componentCompleted(const ComponentCompletedCommand &command)

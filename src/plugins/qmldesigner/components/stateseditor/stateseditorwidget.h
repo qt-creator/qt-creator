@@ -47,7 +47,11 @@ class Model;
 class ModelState;
 class StatesEditorModel;
 class StatesEditorView;
+class NodeInstanceView;
 
+namespace Internal {
+class StatesEditorImageProvider;
+}
 
 class StatesEditorWidget : public QWidget
 {
@@ -61,10 +65,12 @@ public:
 
     int currentStateInternalId() const;
     void setCurrentStateInternalId(int internalId);
+    void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
 
 private:
     QWeakPointer<QDeclarativeView> m_declarativeView;
     QWeakPointer<StatesEditorView> m_statesEditorView;
+    Internal::StatesEditorImageProvider *m_imageProvider;
 };
 
 }

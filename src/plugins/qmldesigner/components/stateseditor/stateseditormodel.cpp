@@ -118,7 +118,15 @@ QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
             }
 
         }
-    case StateImageSourceRole: return QString("image://qmldesigner_stateseditor/%1").arg(index.internalId());
+    case StateImageSourceRole: {
+        static int randomNumber = 0;
+        randomNumber++;
+        if (index.row() == 0) {
+            return QString("image://qmldesigner_stateseditor/baseState-%1").arg(randomNumber);
+        } else {
+            return QString("image://qmldesigner_stateseditor/%1-%2").arg(index.internalId()).arg(randomNumber);
+        }
+    }
     case NodeId : return index.internalId();
     }
 
@@ -130,35 +138,34 @@ void StatesEditorModel::insertState(int stateIndex)
 {
     if (stateIndex >= 0) {
 
-        const int index = stateIndex + 1;
-        beginInsertRows(QModelIndex(), index, index);
+        const int updateIndex = stateIndex + 1;
+        beginInsertRows(QModelIndex(), updateIndex, updateIndex);
 
         endInsertRows();
 
-        emit dataChanged(createIndex(index, 0), createIndex(index, 0));
+        emit dataChanged(index(updateIndex, 0), index(updateIndex, 0));
         emit countChanged();
     }
 }
 
-void StatesEditorModel::updateState(int stateIndex)
+void StatesEditorModel::updateState(int updateIndex)
 {
-    if (stateIndex >= 0) {
-        const int index = stateIndex + 1;
-
-        emit dataChanged(createIndex(index, 0), createIndex(index, 0));
+    if (updateIndex >= 0) {
+        QModelIndex modelIndex = index(updateIndex, 0);
+        emit dataChanged(modelIndex, modelIndex);
     }
 }
 
 void StatesEditorModel::removeState(int stateIndex)
 {
     if (stateIndex >= 0) {
-        const int index = stateIndex + 1;
-        beginRemoveRows(QModelIndex(), index, index);
+        const int updateIndex = stateIndex + 1;
+        beginRemoveRows(QModelIndex(), updateIndex, updateIndex);
 
 
         endRemoveRows();
 
-        emit dataChanged(createIndex(index, 0), createIndex(index, 0));
+        emit dataChanged(index(updateIndex, 0), index(updateIndex, 0));
         emit countChanged();
     }
 }

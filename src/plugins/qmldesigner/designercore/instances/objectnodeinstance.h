@@ -174,6 +174,7 @@ public:
 
     virtual void doComponentComplete();
 
+    virtual QList<ServerNodeInstance> stateInstances() const;
 
 protected:
     void doResetProperty(const QString &propertyName);

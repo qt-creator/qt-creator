@@ -43,6 +43,7 @@
 
 #include <QHash>
 #include <QSet>
+#include <QImage>
 #include <QWeakPointer>
 #include <QRectF>
 
@@ -124,6 +125,8 @@ public:
     void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command);
     void componentCompleted(const ComponentCompletedCommand &command);
 
+    QImage statePreviewImage(const ModelNode &stateNode) const;
+
 private: // functions
     NodeInstance rootNodeInstance() const;
 
@@ -170,9 +173,11 @@ private: //variables
     NodeInstance m_activeStateInstance;
 
     QHash<ModelNode, NodeInstance> m_nodeInstanceHash;
+    QHash<ModelNode, QImage> m_statePreviewImage;
 
     uint m_blockUpdates;
     QWeakPointer<NodeInstanceServerInterface> m_nodeInstanceServer;
+    QImage m_baseStatePreviewImage;
 };
 
 } // namespace ProxyNodeInstanceView
