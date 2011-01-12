@@ -257,46 +257,6 @@ void QmlCppEngine::assignValueInDebugger(const WatchData *data,
     d->m_activeEngine->assignValueInDebugger(data, expr, value);
 }
 
-QAbstractItemModel *QmlCppEngine::modulesModel() const
-{
-    return d->m_cppEngine->modulesModel();
-}
-
-QAbstractItemModel *QmlCppEngine::registerModel() const
-{
-    return d->m_cppEngine->registerModel();
-}
-
-QAbstractItemModel *QmlCppEngine::stackModel() const
-{
-    return d->m_activeEngine->stackModel();
-}
-
-QAbstractItemModel *QmlCppEngine::threadsModel() const
-{
-    return d->m_cppEngine->threadsModel();
-}
-
-QAbstractItemModel *QmlCppEngine::localsModel() const
-{
-    return d->m_activeEngine->localsModel();
-}
-
-QAbstractItemModel *QmlCppEngine::watchersModel() const
-{
-    return d->m_activeEngine->watchersModel();
-}
-
-QAbstractItemModel *QmlCppEngine::returnModel() const
-{
-    return d->m_cppEngine->returnModel();
-}
-
-QAbstractItemModel *QmlCppEngine::sourceFilesModel() const
-{
-    return d->m_cppEngine->sourceFilesModel();
-}
-
 void QmlCppEngine::detachDebugger()
 {
     d->m_qmlEngine->detachDebugger();

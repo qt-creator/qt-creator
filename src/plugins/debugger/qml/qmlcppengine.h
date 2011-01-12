@@ -61,15 +61,6 @@ public:
     virtual void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);
 
-    QAbstractItemModel *modulesModel() const;
-    QAbstractItemModel *registerModel() const;
-    QAbstractItemModel *stackModel() const;
-    QAbstractItemModel *threadsModel() const;
-    QAbstractItemModel *localsModel() const;
-    QAbstractItemModel *watchersModel() const;
-    QAbstractItemModel *returnModel() const;
-    QAbstractItemModel *sourceFilesModel() const;
-
     DebuggerEngine *cppEngine() const;
     virtual void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
     virtual void handleRemoteSetupFailed(const QString &message);
