@@ -163,7 +163,7 @@ void StatesEditorModel::removeState(int stateIndex)
 
         endRemoveRows();
 
-        emit dataChanged(index(updateIndex, 0), index(updateIndex, 0));
+        emit dataChanged(createIndex(updateIndex, 0), createIndex(updateIndex, 0));
         emit countChanged();
     }
 }
