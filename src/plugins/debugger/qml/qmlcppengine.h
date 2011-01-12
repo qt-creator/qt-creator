@@ -5,10 +5,6 @@
 
 #include <QtCore/QScopedPointer>
 
-namespace Core {
-class IEditor;
-}
-
 namespace Debugger {
 namespace Internal {
 
@@ -17,11 +13,10 @@ class QmlCppEnginePrivate;
 class DEBUGGER_EXPORT QmlCppEngine : public DebuggerEngine
 {
     Q_OBJECT
+
 public:
     explicit QmlCppEngine(const DebuggerStartParameters &sp);
     virtual ~QmlCppEngine();
-
-    void setActiveEngine(DebuggerLanguage language);
 
     virtual void setToolTipExpression(const QPoint &mousePos,
         TextEditor::ITextEditor * editor, int cursorPos);
@@ -94,15 +89,13 @@ protected:
     virtual void shutdownEngine();
 
 private slots:
-    void cppEngineStateChanged(const DebuggerState &state);
-    void qmlEngineStateChanged(const DebuggerState &state);
+    void slaveEngineStateChanged(DebuggerState state);
     void setupSlaveEngine();
-    void editorChanged(Core::IEditor *editor);
 
 private:
     void initEngineShutdown();
-    bool checkErrorState(const DebuggerState stateToCheck);
-    void engineStateChanged(const DebuggerState &newState);
+    bool checkErrorState(DebuggerState stateToCheck);
+    void engineStateChanged(DebuggerState newState);
 
 private:
     QScopedPointer<QmlCppEnginePrivate> d;

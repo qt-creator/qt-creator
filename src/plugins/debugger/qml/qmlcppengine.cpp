@@ -71,52 +71,15 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
 
     d->m_activeEngine = d->m_cppEngine;
     connect(d->m_cppEngine, SIGNAL(stateChanged(DebuggerState)),
-        SLOT(cppEngineStateChanged(DebuggerState)));
+        SLOT(slaveEngineStateChanged(DebuggerState)));
     connect(d->m_qmlEngine, SIGNAL(stateChanged(DebuggerState)),
-        SLOT(qmlEngineStateChanged(DebuggerState)));
-
-    connect(Core::EditorManager::instance(),
-        SIGNAL(currentEditorChanged(Core::IEditor*)),
-        SLOT(editorChanged(Core::IEditor*)));
+        SLOT(slaveEngineStateChanged(DebuggerState)));
 }
 
 QmlCppEngine::~QmlCppEngine()
 {
     delete d->m_qmlEngine;
     delete d->m_cppEngine;
-}
-
-void QmlCppEngine::editorChanged(Core::IEditor *editor)
-{
-    // Change the engine based on editor, but only if we're not
-    // currently in stopped state.
-    if (state() != InferiorRunOk || !editor)
-        return;
-
-    if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
-        setActiveEngine(QmlLanguage);
-    else
-        setActiveEngine(CppLanguage);
-}
-
-void QmlCppEngine::setActiveEngine(DebuggerLanguage language)
-{
-    DebuggerEngine *previousEngine = d->m_activeEngine;
-    bool updateEngine = false;
-    QString engineName;
-
-    if (language == CppLanguage) {
-        engineName = QLatin1String("C++");
-        d->m_activeEngine = d->m_cppEngine;
-        // don't update cpp engine - at least gdb will stop temporarily,
-        // which is not nice when you're just switching files.
-    } else if (language == QmlLanguage) {
-        engineName = QLatin1String("QML");
-        d->m_activeEngine = d->m_qmlEngine;
-        updateEngine = true;
-    }
-    if (previousEngine != d->m_activeEngine)
-        showStatusMessage(tr("%1 debugger activated").arg(engineName));
 }
 
 void QmlCppEngine::setToolTipExpression(const QPoint & mousePos,
@@ -388,9 +351,6 @@ bool QmlCppEngine::checkErrorState(const DebuggerState stateToCheck)
 void QmlCppEngine::notifyInferiorRunOk()
 {
     DebuggerEngine::notifyInferiorRunOk();
-
-    Core::EditorManager *em = Core::EditorManager::instance();
-    editorChanged(em->currentEditor());
 }
 
 void QmlCppEngine::setupEngine()
@@ -477,22 +437,16 @@ void QmlCppEngine::setupSlaveEngine()
         d->m_qmlEngine->startDebugger(runControl());
 }
 
-void QmlCppEngine::cppEngineStateChanged(const DebuggerState &newState)
+void QmlCppEngine::slaveEngineStateChanged(const DebuggerState newState)
 {
-    if (newState == InferiorStopOk)
-        setActiveEngine(CppLanguage);
-    engineStateChanged(newState);
-}
+    DebuggerEngine *slaveEngine = qobject_cast<DebuggerEngine *>(sender());
+    if (newState == InferiorStopOk && slaveEngine != d->m_activeEngine) {
+        QString engineName = slaveEngine == d->m_cppEngine
+            ? QLatin1String("C++") : QLatin1String("QML");
+        showStatusMessage(tr("%1 debugger activated").arg(engineName));
+        d->m_activeEngine = d->m_qmlEngine;
+    }
 
-void QmlCppEngine::qmlEngineStateChanged(const DebuggerState &newState)
-{
-    if (newState == InferiorStopOk)
-        setActiveEngine(QmlLanguage);
-    engineStateChanged(newState);
-}
-
-void QmlCppEngine::engineStateChanged(const DebuggerState &newState)
-{
     switch (newState) {
     case InferiorRunOk:
         // startup?
@@ -560,9 +514,6 @@ void QmlCppEngine::engineStateChanged(const DebuggerState &newState)
         break;
 
     case InferiorShutdownRequested:
-        if (d->m_activeEngine == d->m_qmlEngine) {
-            setActiveEngine(CppLanguage);
-        }
         break;
 
     case EngineShutdownRequested:
