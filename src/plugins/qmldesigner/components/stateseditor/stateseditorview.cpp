@@ -247,14 +247,6 @@ void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> 
 
 void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags /*propertyChange*/)
 {
-    foreach (const VariantProperty &property, propertyList) {
-        if (property.name() == "name" && property.parentModelNode().hasParentProperty()) {
-            NodeAbstractProperty parentProperty = property.parentModelNode().parentProperty();
-            if (parentProperty.name() == "states" && parentProperty.parentModelNode().isRootNode()) {
-                m_statesEditorModel->updateState(parentProperty.indexOf(property.parentModelNode()) + 1);
-            }
-        }
-    }
 }
 
 
@@ -338,15 +330,24 @@ void StatesEditorView::customNotification(const AbstractView * view, const QStri
 {
 
     if (identifier == "__instance preview image changed__")   {
+        int minimumIndex = 10000;
+        int maximumIndex = -1;
         foreach(const ModelNode &node, nodeList) {
             if (node.isRootNode()) {
-                m_statesEditorModel->updateState(0);
+                minimumIndex = qMin(minimumIndex, 0);
+                maximumIndex = qMax(maximumIndex, 0);
             } else {
                 int index = rootStateGroup().allStates().indexOf(QmlModelState(node)) + 1;
-                if (index > 0)
-                    m_statesEditorModel->updateState(index);
+                if (index > 0) {
+                    minimumIndex = qMin(minimumIndex, index);
+                    maximumIndex = qMax(maximumIndex, index);
+                }
             }
         }
+
+        if (maximumIndex >= 0)
+            m_statesEditorModel->updateState(minimumIndex, maximumIndex);
+
     } else {
         QmlModelView::customNotification(view, identifier, nodeList, imageList);
     }

@@ -148,12 +148,10 @@ void StatesEditorModel::insertState(int stateIndex)
     }
 }
 
-void StatesEditorModel::updateState(int updateIndex)
+void StatesEditorModel::updateState(int beginIndex, int endIndex)
 {
-    if (updateIndex >= 0) {
-        QModelIndex modelIndex = index(updateIndex, 0);
-        emit dataChanged(modelIndex, modelIndex);
-    }
+    if (beginIndex >= 0 && endIndex >= 0)
+        emit dataChanged(index(beginIndex, 0), index(endIndex, 0));
 }
 
 void StatesEditorModel::removeState(int stateIndex)
