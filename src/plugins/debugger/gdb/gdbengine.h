@@ -70,6 +70,7 @@ class CoreGdbAdapter;
 class LocalPlainGdbAdapter;
 class RemoteGdbServerAdapter;
 class TrkGdbAdapter;
+class  QmlCppEngine;
 
 enum DebuggingHelperState
 {
@@ -100,6 +101,7 @@ private:
     friend class RemotePlainGdbAdapter;
     friend class TrkGdbAdapter;
     friend class TcfTrkGdbAdapter;
+    friend class  QmlCppEngine;
 
 private: ////////// General Interface //////////
 

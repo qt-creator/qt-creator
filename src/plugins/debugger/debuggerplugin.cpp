@@ -1094,6 +1094,7 @@ public slots:
 
     void handleExecStep()
     {
+        qDebug() << "CURRENT: " << currentEngine();
         currentEngine()->resetLocation();
         if (boolSetting(OperateByInstruction))
             currentEngine()->executeStepI();
@@ -1964,6 +1965,7 @@ void DebuggerPluginPrivate::startDebugger(RunControl *rc)
 
 void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
 {
+    qDebug() << "CONNECT: " << engine;
     if (!engine)
         engine = dummyEngine();
 

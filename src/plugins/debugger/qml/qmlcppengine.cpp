@@ -4,6 +4,8 @@
 #include "debuggermainwindow.h"
 #include "debuggercore.h"
 
+#include "gdb/gdbengine.h"
+
 #include <qmljseditor/qmljseditorconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -23,6 +25,7 @@ DebuggerEngine *createQmlEngine(const DebuggerStartParameters &);
 
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp)
 {
+    qDebug() << "CREATING QMLCPPENGINE";
     QmlCppEngine *newEngine = new QmlCppEngine(sp);
     if (newEngine->cppEngine())
         return newEngine;
@@ -119,7 +122,7 @@ void QmlCppEngine::setActiveEngine(DebuggerLanguage language)
     }
     if (previousEngine != d->m_activeEngine) {
         showStatusMessage(tr("%1 debugger activated").arg(engineName));
-        debuggerCore()->displayDebugger(d->m_activeEngine, updateEngine);
+        //debuggerCore()->displayDebugger(d->m_activeEngine, updateEngine);
     }
 }
 
@@ -307,7 +310,18 @@ void QmlCppEngine::detachDebugger()
 
 void QmlCppEngine::executeStep()
 {
-    d->m_activeEngine->executeStep();
+    qDebug() << "CPP ENGINE: " << d->m_cppEngine;
+    if (d->m_activeEngine == d->m_cppEngine) {
+        d->m_cppEngine->executeStep();
+    } else {
+        QByteArray ba =
+            "-break-insert -f 'myns::QScript::FunctionWrapper::proxyCall'";
+        GdbEngine *cppEngine = qobject_cast<GdbEngine *>(d->m_cppEngine);
+        qDebug() << "CPP ENGINE: " << cppEngine << d->m_cppEngine;
+        if (cppEngine)
+            cppEngine->postCommand(ba);
+        d->m_qmlEngine->executeStep();
+    }
 }
 
 void QmlCppEngine::executeStepOut()
@@ -317,12 +331,14 @@ void QmlCppEngine::executeStepOut()
 
 void QmlCppEngine::executeNext()
 {
+    qDebug() << "NEXT";
     d->m_activeEngine->executeNext();
 }
 
 void QmlCppEngine::executeStepI()
 {
-    d->m_activeEngine->executeStepI();
+    qDebug() << "STEP I";
+    d->m_activeEngine->executeStep();
 }
 
 void QmlCppEngine::executeNextI()

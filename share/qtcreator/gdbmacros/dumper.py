@@ -1928,3 +1928,35 @@ class ThreadNamesCommand(gdb.Command):
 ThreadNamesCommand()
 
 
+
+#######################################################################
+#
+# Mixed C++/Qml debugging
+#
+#######################################################################
+
+def qmlb():
+    # gdb.execute(command, to_string=True).split("\n")
+    warm("RUNNING: break -f QScript::FunctionWrapper::proxyCall")
+    output = catchCliOutput("rbreak -f QScript::FunctionWrapper::proxyCall")
+    warn("OUTPUT: %s " % output)
+    bp = output[0]
+    warn("BP: %s " % bp)
+    # BP: ['Breakpoint 3 at 0xf166e7: file .../qscriptfunction.cpp, line 75.\\n'] \n"
+    pos = bp.find(' ') + 1
+    warn("POS: %s " % pos)
+    nr = bp[bp.find(' ') + 1 : bp.find(' at ')]
+    warn("NR: %s " % nr)
+    return bp
+
+
+class SetQmlBreakpoint(gdb.Command):
+    """Set helper breakpoint Script::FunctionWrapper::proxyCall"""
+
+    def __init__(self):
+        super(SetQmlBreakpoint, self).__init__("qmlb", gdb.COMMAND_OBSCURE)
+
+    def invoke(self, arg, from_tty):
+        qmlb()
+
+SetQmlBreakpoint()

@@ -76,6 +76,10 @@ void AbstractPlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &respon
             if (m_engine->m_gdbVersion < 70000)
                 m_engine->postCommand("info target", CB(handleInfoTarget));
         }
+        //if (m_engine->isSlaveEngine())
+            //m_engine->postCommand("qmlb", GdbEngine::ConsoleCommand);
+            //m_engine->postCommand("rbreak QScript::FunctionWrapper::proxyCall");
+         //   m_engine->postCommand("-break-insert -f 'myns::QScript::FunctionWrapper::proxyCall'");
         m_engine->handleInferiorPrepared();
     } else {
         QByteArray ba = response.data.findChild("msg").data();
