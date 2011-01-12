@@ -347,17 +347,16 @@ ActionContainer *ActionManagerPrivate::createMenuBar(const Id &id)
 
 Command *ActionManagerPrivate::registerAction(QAction *action, const Id &id, const Context &context, bool scriptable)
 {
-    Action *a = 0;
-    Command *c = registerOverridableAction(action, id, false);
-    a = static_cast<Action *>(c);
-    if (a)
+    Action *a = overridableAction(id);
+    if (a) {
         a->addOverrideAction(action, context, scriptable);
-    emit commandListChanged();
-    emit commandAdded(id);
+        emit commandListChanged();
+        emit commandAdded(id);
+    }
     return a;
 }
 
-Command *ActionManagerPrivate::registerOverridableAction(QAction *action, const Id &id, bool checkUnique)
+Action *ActionManagerPrivate::overridableAction(const Id &id)
 {
     Action *a = 0;
     const int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
@@ -365,38 +364,16 @@ Command *ActionManagerPrivate::registerOverridableAction(QAction *action, const 
         a = qobject_cast<Action *>(c);
         if (!a) {
             qWarning() << "registerAction: id" << id << "is registered with a different command type.";
-            return c;
+            return 0;
         }
     } else {
         a = new Action(uid);
         m_idCmdMap.insert(uid, a);
+        m_mainWnd->addAction(a->action());
+        a->action()->setObjectName(id);
+        a->action()->setShortcutContext(Qt::ApplicationShortcut);
     }
 
-    if (!a->action()) {
-        QAction *baseAction = new QAction(m_mainWnd);
-        baseAction->setObjectName(id);
-        baseAction->setCheckable(action->isCheckable());
-        baseAction->setIcon(action->icon());
-        baseAction->setIconText(action->iconText());
-        baseAction->setText(action->text());
-        baseAction->setToolTip(action->toolTip());
-        baseAction->setStatusTip(action->statusTip());
-        baseAction->setWhatsThis(action->whatsThis());
-        baseAction->setChecked(action->isChecked());
-        baseAction->setSeparator(action->isSeparator());
-        baseAction->setShortcutContext(Qt::ApplicationShortcut);
-        baseAction->setEnabled(false);
-        baseAction->setParent(m_mainWnd);
-#ifdef Q_WS_MAC
-        baseAction->setIconVisibleInMenu(false);
-#else
-        baseAction->setIconVisibleInMenu(action->isIconVisibleInMenu());
-#endif
-        a->setAction(baseAction);
-        m_mainWnd->addAction(baseAction);
-    } else  if (checkUnique) {
-        qWarning() << "registerOverridableAction: id" << id << "is already registered.";
-    }
     return a;
 }
 

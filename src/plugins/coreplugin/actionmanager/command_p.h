@@ -35,13 +35,21 @@
 #define COMMAND_P_H
 
 #include "command.h"
-#include "actionmanager_p.h"
+
+#include <utils/proxyaction.h>
+#include <coreplugin/icontext.h>
 
 #include <QtCore/QList>
 #include <QtCore/QMultiMap>
 #include <QtCore/QPointer>
 #include <QtCore/QMap>
 #include <QtGui/QKeySequence>
+
+struct CommandLocation
+{
+    int m_container;
+    int m_position;
+};
 
 namespace Core {
 namespace Internal {
@@ -52,8 +60,6 @@ class CommandPrivate : public Core::Command
 public:
     CommandPrivate(int id);
     virtual ~CommandPrivate() {}
-
-    virtual QString name() const = 0;
 
     void setDefaultKeySequence(const QKeySequence &key);
     QKeySequence defaultKeySequence() const;
@@ -74,14 +80,13 @@ public:
     void removeAttribute(CommandAttribute attr);
     bool hasAttribute(CommandAttribute attr) const;
 
-    virtual bool setCurrentContext(const Context &context) = 0;
+    virtual void setCurrentContext(const Context &context) = 0;
 
     QString stringWithAppendedShortcut(const QString &str) const;
 
 protected:
     Context m_context;
-    QString m_category;
-    int m_attributes;
+    CommandAttributes m_attributes;
     int m_id;
     QKeySequence m_defaultKey;
     QString m_defaultText;
@@ -94,8 +99,6 @@ class Shortcut : public CommandPrivate
 public:
     Shortcut(int id);
 
-    QString name() const;
-
     void setKeySequence(const QKeySequence &key);
     QKeySequence keySequence() const;
 
@@ -107,7 +110,7 @@ public:
 
     void setContext(const Context &context);
     Context context() const;
-    bool setCurrentContext(const Context &context);
+    void setCurrentContext(const Context &context);
 
     bool isActive() const;
 
@@ -127,18 +130,15 @@ class Action : public CommandPrivate
 public:
     Action(int id);
 
-    QString name() const;
-
     void setKeySequence(const QKeySequence &key);
     QKeySequence keySequence() const;
 
-    virtual void setAction(QAction *action);
     QAction *action() const;
 
     void setLocations(const QList<CommandLocation> &locations);
     QList<CommandLocation> locations() const;
 
-    bool setCurrentContext(const Context &context);
+    void setCurrentContext(const Context &context);
     bool isActive() const;
     void addOverrideAction(QAction *action, const Context &context, bool scriptable);
     void removeOverrideAction(QAction *action);
@@ -147,20 +147,19 @@ public:
     bool isScriptable() const;
     bool isScriptable(const Context &context) const;
 
-protected:
-    void updateToolTipWithKeySequence();
+    void setAttribute(CommandAttribute attr);
+    void removeAttribute(CommandAttribute attr);
 
 private slots:
-    void actionChanged();
+    void updateActiveState();
 
 private:
     void setActive(bool state);
 
-    QAction *m_action;
+    Utils::ProxyAction *m_action;
     QList<CommandLocation> m_locations;
     QString m_toolTip;
 
-    QPointer<QAction> m_currentAction;
     QMap<int, QPointer<QAction> > m_contextActionMap;
     QMap<QAction*, bool> m_scriptableMap;
     bool m_active;

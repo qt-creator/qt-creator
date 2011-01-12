@@ -286,8 +286,7 @@ bool CommandPrivate::hasAttribute(CommandAttribute attr) const
 
 QString CommandPrivate::stringWithAppendedShortcut(const QString &str) const
 {
-    return QString("%1 <span style=\"color: gray; font-size: small\">%2</span>").arg(str).arg(
-            keySequence().toString(QKeySequence::NativeText));
+    return Utils::ProxyAction::stringWithAppendedShortcut(str, keySequence());
 }
 
 // ---------- Shortcut ------------
@@ -301,14 +300,6 @@ Shortcut::Shortcut(int id)
     : CommandPrivate(id), m_shortcut(0), m_scriptable(false)
 {
 
-}
-
-QString Shortcut::name() const
-{
-    if (!m_shortcut)
-        return QString();
-
-    return m_shortcut->whatsThis();
 }
 
 void Shortcut::setShortcut(QShortcut *shortcut)
@@ -353,7 +344,7 @@ QString Shortcut::defaultText() const
     return m_defaultText;
 }
 
-bool Shortcut::setCurrentContext(const Core::Context &context)
+void Shortcut::setCurrentContext(const Core::Context &context)
 {
     foreach (int ctxt, m_context) {
         if (context.contains(ctxt)) {
@@ -361,14 +352,14 @@ bool Shortcut::setCurrentContext(const Core::Context &context)
                 m_shortcut->setEnabled(true);
                 emit activeStateChanged();
             }
-            return true;
+            return;
         }
     }
     if (m_shortcut->isEnabled()) {
         m_shortcut->setEnabled(false);
         emit activeStateChanged();
     }
-    return false;
+    return;
 }
 
 bool Shortcut::isActive() const
@@ -399,29 +390,12 @@ void Shortcut::setScriptable(bool value)
 */
 Action::Action(int id)
     : CommandPrivate(id),
-    m_action(0),
-    m_currentAction(0),
+    m_action(new Utils::ProxyAction(this)),
     m_active(false),
     m_contextInitialized(false)
 {
-
-}
-
-QString Action::name() const
-{
-    if (!m_action)
-        return QString();
-
-    return m_action->text();
-}
-
-void Action::setAction(QAction *action)
-{
-    m_action = action;
-    if (m_action) {
-        m_action->setParent(this);
-        m_toolTip = m_action->toolTip();
-    }
+    m_action->setShortcutVisibleInToolTip(true);
+    connect(m_action, SIGNAL(changed()), this, SLOT(updateActiveState()));
 }
 
 QAction *Action::action() const
@@ -443,16 +417,7 @@ void Action::setKeySequence(const QKeySequence &key)
 {
     CommandPrivate::setKeySequence(key);
     m_action->setShortcut(key);
-    updateToolTipWithKeySequence();
     emit keySequenceChanged();
-}
-
-void Action::updateToolTipWithKeySequence()
-{
-    if (m_action->shortcut().isEmpty())
-        m_action->setToolTip(m_toolTip);
-    else
-        m_action->setToolTip(stringWithAppendedShortcut(m_toolTip));
 }
 
 QKeySequence Action::keySequence() const
@@ -460,43 +425,25 @@ QKeySequence Action::keySequence() const
     return m_action->shortcut();
 }
 
-bool Action::setCurrentContext(const Core::Context &context)
+void Action::setCurrentContext(const Core::Context &context)
 {
     m_context = context;
 
-    QAction *oldAction = m_currentAction;
-    m_currentAction = 0;
+    QAction *currentAction = 0;
     for (int i = 0; i < m_context.size(); ++i) {
         if (QAction *a = m_contextActionMap.value(m_context.at(i), 0)) {
-            m_currentAction = a;
+            currentAction = a;
             break;
         }
     }
 
-    if (m_currentAction == oldAction && m_contextInitialized)
-        return true;
-    m_contextInitialized = true;
+    m_action->setAction(currentAction);
+    updateActiveState();
+}
 
-    if (oldAction) {
-        disconnect(oldAction, SIGNAL(changed()), this, SLOT(actionChanged()));
-        disconnect(m_action, SIGNAL(triggered(bool)), oldAction, SIGNAL(triggered(bool)));
-        disconnect(m_action, SIGNAL(toggled(bool)), oldAction, SLOT(setChecked(bool)));
-    }
-    if (m_currentAction) {
-        connect(m_currentAction, SIGNAL(changed()), this, SLOT(actionChanged()));
-        // we want to avoid the toggling semantic on slot trigger(), so we just connect the signals
-        connect(m_action, SIGNAL(triggered(bool)), m_currentAction, SIGNAL(triggered(bool)));
-        // we need to update the checked state, so we connect to setChecked slot, which also fires a toggled signal
-        connect(m_action, SIGNAL(toggled(bool)), m_currentAction, SLOT(setChecked(bool)));
-        actionChanged();
-        return true;
-    }
-    // no active/delegate action, "visible" action is not enabled/visible
-    if (hasAttribute(CA_Hide))
-        m_action->setVisible(false);
-    m_action->setEnabled(false);
-    setActive(false);
-    return false;
+void Action::updateActiveState()
+{
+    setActive(m_action->isEnabled() && m_action->isVisible() && !m_action->isSeparator());
 }
 
 static inline QString msgActionWarning(QAction *newAction, int k, QAction *oldAction)
@@ -515,6 +462,11 @@ static inline QString msgActionWarning(QAction *newAction, int k, QAction *oldAc
 
 void Action::addOverrideAction(QAction *action, const Core::Context &context, bool scriptable)
 {
+#ifdef Q_WS_MAC
+    action->setIconVisibleInMenu(false);
+#endif
+    if (isEmpty())
+        m_action->initialize(action);
     if (context.isEmpty()) {
         m_contextActionMap.insert(0, action);
     } else {
@@ -542,33 +494,6 @@ void Action::removeOverrideAction(QAction *action)
     setCurrentContext(m_context);
 }
 
-void Action::actionChanged()
-{
-    if (hasAttribute(CA_UpdateIcon)) {
-        m_action->setIcon(m_currentAction->icon());
-        m_action->setIconText(m_currentAction->iconText());
-#ifndef Q_WS_MAC
-        m_action->setIconVisibleInMenu(m_currentAction->isIconVisibleInMenu());
-#endif
-    }
-    if (hasAttribute(CA_UpdateText)) {
-        m_action->setText(m_currentAction->text());
-        m_toolTip = m_currentAction->toolTip();
-        updateToolTipWithKeySequence();
-        m_action->setStatusTip(m_currentAction->statusTip());
-        m_action->setWhatsThis(m_currentAction->whatsThis());
-    }
-
-    m_action->setCheckable(m_currentAction->isCheckable());
-    bool block = m_action->blockSignals(true);
-    m_action->setChecked(m_currentAction->isChecked());
-    m_action->blockSignals(block);
-
-    m_action->setEnabled(m_currentAction->isEnabled());
-    m_action->setVisible(m_currentAction->isVisible());
-    setActive(m_action->isEnabled() && m_action->isVisible() && !m_action->isSeparator());
-}
-
 bool Action::isActive() const
 {
     return m_active;
@@ -594,8 +519,8 @@ bool Action::isScriptable() const
 
 bool Action::isScriptable(const Core::Context &context) const
 {
-    if (context == m_context && m_scriptableMap.contains(m_currentAction))
-        return m_scriptableMap.value(m_currentAction);
+    if (context == m_context && m_scriptableMap.contains(m_action->action()))
+        return m_scriptableMap.value(m_action->action());
 
     for (int i = 0; i < context.size(); ++i) {
         if (QAction *a = m_contextActionMap.value(context.at(i), 0)) {
@@ -604,4 +529,40 @@ bool Action::isScriptable(const Core::Context &context) const
         }
     }
     return false;
+}
+
+void Action::setAttribute(CommandAttribute attr)
+{
+    CommandPrivate::setAttribute(attr);
+    switch (attr) {
+    case Core::Command::CA_Hide:
+        m_action->setAttribute(Utils::ProxyAction::Hide);
+        break;
+    case Core::Command::CA_UpdateText:
+        m_action->setAttribute(Utils::ProxyAction::UpdateText);
+        break;
+    case Core::Command::CA_UpdateIcon:
+        m_action->setAttribute(Utils::ProxyAction::UpdateIcon);
+        break;
+    case Core::Command::CA_NonConfigureable:
+        break;
+    }
+}
+
+void Action::removeAttribute(CommandAttribute attr)
+{
+    CommandPrivate::removeAttribute(attr);
+    switch (attr) {
+    case Core::Command::CA_Hide:
+        m_action->removeAttribute(Utils::ProxyAction::Hide);
+        break;
+    case Core::Command::CA_UpdateText:
+        m_action->removeAttribute(Utils::ProxyAction::UpdateText);
+        break;
+    case Core::Command::CA_UpdateIcon:
+        m_action->removeAttribute(Utils::ProxyAction::UpdateIcon);
+        break;
+    case Core::Command::CA_NonConfigureable:
+        break;
+    }
 }

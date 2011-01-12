@@ -136,10 +136,6 @@ bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *error_m
     Core::IMode *helloMode = new HelloMode;
     addAutoReleasedObject(helloMode);
 
-    // Add the Hello World action command to the mode manager (with 0 priority)
-    Core::ModeManager *modeManager = core->modeManager();
-    modeManager->addAction(command, 0);
-
     return true;
 }
 

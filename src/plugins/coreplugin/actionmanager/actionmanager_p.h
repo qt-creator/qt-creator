@@ -35,6 +35,8 @@
 #define ACTIONMANAGERPRIVATE_H
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include "command_p.h"
+
 #include <coreplugin/icontext.h>
 
 #include <QtCore/QMap>
@@ -44,12 +46,6 @@
 QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
-
-struct CommandLocation
-{
-    int m_container;
-    int m_position;
-};
 
 namespace Core {
 
@@ -99,8 +95,7 @@ public:
 
 private:
     bool hasContext(const Context &context) const;
-    Command *registerOverridableAction(QAction *action, const Id &id,
-        bool checkUnique);
+    Action *overridableAction(const Id &id);
 
     static ActionManagerPrivate *m_instance;
     QList<int> m_defaultGroups;
