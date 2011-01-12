@@ -109,6 +109,7 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 #include <utils/styledbar.h>
+#include <utils/proxyaction.h>
 
 #include <qml/scriptconsole.h>
 
@@ -1272,13 +1273,9 @@ public:
     DebuggerRunControlFactory *m_debuggerRunControlFactory;
 
     QString m_previousMode;
-    Context m_continuableContext;
-    Context m_interruptibleContext;
-    Context m_undisturbableContext;
-    Context m_finishedContext;
-    Context m_anyContext;
     AttachRemoteParameters m_attachRemoteParameters;
 
+    Utils::ProxyAction *m_visibleDebugAction;
     QAction *m_debugAction;
     QAction *m_startExternalAction;
     QAction *m_startRemoteAction;
@@ -1361,12 +1358,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
     m_threadsWindow = 0;
     m_logWindow = 0;
     m_scriptConsoleWindow = 0;
-
-    m_continuableContext = Context(0);
-    m_interruptibleContext = Context(0);
-    m_undisturbableContext = Context(0);
-    m_finishedContext = Context(0);
-    m_anyContext = Context(0);
 
     m_mainWindow = 0;
     m_snapshotHandler = 0;
@@ -1460,7 +1451,12 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     }
     // No corresponding debugger found. So we are ready to start one.
     ICore *core = ICore::instance();
-    core->updateAdditionalContexts(m_anyContext, Context());
+    ActionManager *am = core->actionManager();
+    m_actions.interruptAction->setEnabled(false);
+    m_actions.continueAction->setEnabled(false);
+    m_actions.exitAction->setEnabled(false);
+    m_debugAction->setEnabled(true);
+    m_visibleDebugAction->setAction(am->command(Constants::DEBUG)->action());
 }
 
 void DebuggerPluginPrivate::languagesChanged()
@@ -2137,35 +2133,30 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_actions.interruptAction->setEnabled(false);
         m_actions.continueAction->setEnabled(false);
         m_actions.exitAction->setEnabled(false);
-        am->command(Constants::STOP)->setKeySequence(QKeySequence());
-        am->command(Constants::DEBUG)->setKeySequence(QKeySequence(DEBUG_KEY));
-        core->updateAdditionalContexts(m_anyContext, Context());
+        m_debugAction->setEnabled(true);
+        m_visibleDebugAction->setAction(am->command(Constants::DEBUG)->action());
     } else if (state == InferiorStopOk) {
         // F5 continues, Shift-F5 kills. It is "continuable".
         m_actions.interruptAction->setEnabled(false);
         m_actions.continueAction->setEnabled(true);
         m_actions.exitAction->setEnabled(true);
-        am->command(Constants::STOP)->setKeySequence(QKeySequence(STOP_KEY));
-        am->command(Constants::DEBUG)->setKeySequence(QKeySequence(DEBUG_KEY));
-        core->updateAdditionalContexts(m_anyContext, m_continuableContext);
+        m_debugAction->setEnabled(false);
+        m_visibleDebugAction->setAction(am->command(Constants::CONTINUE)->action());
     } else if (state == InferiorRunOk) {
         // Shift-F5 interrupts. It is also "interruptible".
         m_actions.interruptAction->setEnabled(true);
         m_actions.continueAction->setEnabled(false);
         m_actions.exitAction->setEnabled(false);
-        am->command(Constants::STOP)->setKeySequence(QKeySequence());
-        am->command(Constants::DEBUG)->setKeySequence(QKeySequence(STOP_KEY));
-        core->updateAdditionalContexts(m_anyContext, m_interruptibleContext);
+        m_debugAction->setEnabled(false);
+        m_visibleDebugAction->setAction(am->command(Constants::INTERRUPT)->action());
     } else if (state == DebuggerFinished) {
         // We don't want to do anything anymore.
         m_actions.interruptAction->setEnabled(false);
         m_actions.continueAction->setEnabled(false);
         m_actions.exitAction->setEnabled(false);
-        am->command(Constants::STOP)->setKeySequence(QKeySequence());
-        am->command(Constants::DEBUG)->setKeySequence(QKeySequence(DEBUG_KEY));
-        //core->updateAdditionalContexts(m_anyContext, m_finishedContext);
+        m_debugAction->setEnabled(true);
+        m_visibleDebugAction->setAction(am->command(Constants::DEBUG)->action());
         m_codeModelSnapshot = CPlusPlus::Snapshot();
-        core->updateAdditionalContexts(m_anyContext, Context());
         setBusyCursor(false);
         cleanupViews();
     } else if (state == InferiorUnrunnable) {
@@ -2173,17 +2164,15 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_actions.interruptAction->setEnabled(false);
         m_actions.continueAction->setEnabled(false);
         m_actions.exitAction->setEnabled(true);
-        am->command(Constants::STOP)->setKeySequence(QKeySequence(STOP_KEY));
-        am->command(Constants::DEBUG)->setKeySequence(QKeySequence(STOP_KEY));
-        core->updateAdditionalContexts(m_anyContext, m_finishedContext);
+        m_debugAction->setEnabled(false);
+        m_visibleDebugAction->setAction(am->command(Constants::DEBUG)->action());
     } else {
         // Everything else is "undisturbable".
         m_actions.interruptAction->setEnabled(false);
         m_actions.continueAction->setEnabled(false);
         m_actions.exitAction->setEnabled(false);
-        am->command(Constants::STOP)->setKeySequence(QKeySequence());
-        am->command(Constants::DEBUG)->setKeySequence(QKeySequence());
-        core->updateAdditionalContexts(m_anyContext, m_undisturbableContext);
+        m_debugAction->setEnabled(false);
+        m_visibleDebugAction->setAction(m_actions.undisturbableAction);
     }
 
     m_startExternalAction->setEnabled(true);
@@ -2575,15 +2564,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_coreSettings = core->settings();
     m_debuggerSettings = new DebuggerSettings(m_coreSettings);
 
-    m_continuableContext = Context("Gdb.Continuable");
-    m_interruptibleContext = Context("Gdb.Interruptible");
-    m_undisturbableContext = Context("Gdb.Undisturbable");
-    m_finishedContext = Context("Gdb.Finished");
-    m_anyContext.add(m_continuableContext);
-    m_anyContext.add(m_interruptibleContext);
-    m_anyContext.add(m_undisturbableContext);
-    m_anyContext.add(m_finishedContext);
-
     connect(core, SIGNAL(coreAboutToClose()), this, SLOT(coreShutdown()));
 
     Core::ActionManager *am = core->actionManager();
@@ -2831,16 +2811,16 @@ void DebuggerPluginPrivate::extensionsInitialized()
     ActionContainer *mstart = am->actionContainer(PE::M_DEBUG_STARTDEBUGGING);
 
     cmd = am->registerAction(m_debugAction, Constants::DEBUG, globalcontext);
-    cmd->setAttribute(Core::Command::CA_UpdateText);
-    cmd->setAttribute(Core::Command::CA_UpdateIcon);
     cmd->setDefaultText(tr("Start Debugging"));
     cmd->setDefaultKeySequence(QKeySequence(Constants::DEBUG_KEY));
     mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
-    Core::ICore::instance()->modeManager()->addAction(cmd->action(), Constants::P_ACTION_DEBUG);
 
-    cmd = am->registerAction(m_actions.continueAction,
-        Constants::DEBUG, m_continuableContext);
-    mstart->addAction(cmd, CC::G_DEFAULT_ONE);
+    m_visibleDebugAction = new Utils::ProxyAction(this);
+    m_visibleDebugAction->initialize(m_debugAction);
+    m_visibleDebugAction->setAttribute(Utils::ProxyAction::UpdateText);
+    m_visibleDebugAction->setAttribute(Utils::ProxyAction::UpdateIcon);
+    m_visibleDebugAction->setAction(cmd->action());
+    Core::ICore::instance()->modeManager()->addAction(m_visibleDebugAction, Constants::P_ACTION_DEBUG);
 
     cmd = am->registerAction(m_startExternalAction,
         Constants::STARTEXTERNAL, globalcontext);
@@ -2884,19 +2864,21 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
+    cmd = am->registerAction(m_actions.interruptAction,
+        Constants::INTERRUPT, globalcontext);
+    cmd->setDefaultText(tr("Interrupt Debugger"));
+    debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
+
+    cmd = am->registerAction(m_actions.continueAction,
+        Constants::CONTINUE, globalcontext);
+    cmd->setDefaultKeySequence(QKeySequence(Constants::DEBUG_KEY));
+    debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
+
     cmd = am->registerAction(m_actions.exitAction,
         Constants::STOP, globalcontext);
     //cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
     cmd->setDefaultText(tr("Stop Debugger"));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
-
-    cmd = am->registerAction(m_actions.interruptAction,
-        Constants::DEBUG, m_interruptibleContext);
-    cmd->setDefaultText(tr("Interrupt Debugger"));
-
-    cmd = am->registerAction(m_actions.undisturbableAction,
-        Constants::DEBUG, m_undisturbableContext);
-    cmd->setDefaultText(tr("Debugger is Busy"));
 
     cmd = am->registerAction(m_actions.resetAction,
         Constants::RESET, globalcontext);
@@ -3069,7 +3051,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     QHBoxLayout *hbox = new QHBoxLayout(toolbarContainer);
     hbox->setMargin(0);
     hbox->setSpacing(0);
-    hbox->addWidget(toolButton(am->command(Constants::DEBUG)->action()));
+    hbox->addWidget(toolButton(m_visibleDebugAction));
     hbox->addWidget(toolButton(am->command(STOP)->action()));
     hbox->addWidget(toolButton(am->command(NEXT)->action()));
     hbox->addWidget(toolButton(am->command(STEP)->action()));

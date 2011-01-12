@@ -44,7 +44,9 @@ const char * const MODE_DEBUG           = "Debugger.Mode.Debug";
 const int          P_MODE_DEBUG         = 85;
 
 // common actions
-const char * const STOP                 = "Debugger.Interrupt";
+const char * const INTERRUPT            = "Debugger.Interrupt";
+const char * const CONTINUE             = "Debugger.Continue";
+const char * const STOP                 = "Debugger.Stop";
 const char * const RESET                = "Debugger.Reset";
 const char * const STEP                 = "Debugger.StepLine";
 const char * const STEPOUT              = "Debugger.StepOut";
