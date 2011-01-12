@@ -1361,19 +1361,85 @@ static const char *cdbStatusName(unsigned long s)
     return "unknown";
 }
 
-void CdbEngine::handleSessionIdle(const QByteArray &message)
+/* Examine how to react to a stop. */
+enum StopActionFlags
+{
+    // Report options
+    StopReportLog = 0x1,
+    StopReportStatusMessage = 0x2,
+    StopReportParseError = 0x2,
+    StopShowExceptionMessageBox = 0x4,
+    // Notify stop or just continue
+    StopNotifyStop = 0x8,
+    StopIgnoreContinue = 0x10
+};
+
+unsigned CdbEngine::examineStopReason(const QByteArray &messageIn,
+                                      QString *message,
+                                      QString *exceptionBoxMessage) const
+{
+    // Report stop reason (GDBMI)
+    GdbMi stopReason;
+    stopReason.fromString(messageIn);
+    if (debug)
+        qDebug("%s", stopReason.toString(true, 4).constData());
+    const QByteArray reason = stopReason.findChild("reason").data();
+    if (reason.isEmpty()) {
+        *message = tr("Malformed stop response received.");
+        return StopReportParseError|StopNotifyStop;
+    }
+    const int threadId = stopReason.findChild("threadId").data().toInt();
+    if (reason == "breakpoint") {
+        const int number = stopReason.findChild("breakpointId").data().toInt();
+        const BreakpointId id = breakHandler()->findBreakpointByNumber(number);
+        if (id && breakHandler()->type(id) == Watchpoint) {
+            *message = msgWatchpointTriggered(id, number, breakHandler()->address(id), QString::number(threadId));
+        } else {
+            *message = msgBreakpointTriggered(id, number, QString::number(threadId));
+        }
+        return StopReportStatusMessage|StopNotifyStop;
+    }
+    if (reason == "exception") {
+        WinException exception;
+        exception.fromGdbMI(stopReason);
+#ifdef Q_OS_WIN
+        // It is possible to hit on a startup trap while stepping (if something
+        // pulls DLLs. Avoid showing a 'stopped' Message box.
+        if (exception.exceptionCode == winExceptionStartupCompleteTrap)
+            return StopNotifyStop;
+        const QString description = exception.toString();
+        // WOW 64 breakpoint: just report in log and continue
+        if (exception.exceptionCode == winExceptionWX86Breakpoint) {
+            *message = description;
+            return StopIgnoreContinue|StopReportLog;
+        }
+        if (isDebuggerWinException(exception.exceptionCode)) {
+            *message = msgInterrupted();
+            return StopReportStatusMessage|StopNotifyStop;
+        }
+#endif
+        *exceptionBoxMessage = msgStoppedByException(description, QString::number(threadId));
+        *message = description;
+        return StopShowExceptionMessageBox|StopReportStatusMessage|StopNotifyStop;
+    }
+    *message = msgStopped(QLatin1String(reason));
+    return StopReportStatusMessage|StopNotifyStop;
+}
+
+void CdbEngine::handleSessionIdle(const QByteArray &messageBA)
 {
     if (!m_hasDebuggee)
         return;
 
     if (debug)
         qDebug("CdbEngine::handleSessionIdle %dms '%s' in state '%s', special mode %d",
-               elapsedLogTime(), message.constData(),
+               elapsedLogTime(), messageBA.constData(),
                stateName(state()), m_specialStopMode);
 
     // Switch source level debugging
     syncOperateByInstruction(m_operateByInstructionPending);
 
+    // Engine-special stop reasons: Breakpoints and setup
     const SpecialStopMode specialStopMode =  m_specialStopMode;
     m_specialStopMode = NoSpecialStop;
 
@@ -1387,79 +1453,53 @@ void CdbEngine::handleSessionIdle(const QByteArray &message)
     case NoSpecialStop:
         break;
     }
-    switch(state()) { // Temporary stop at beginning
-    case EngineSetupRequested:
+
+    if (state() == EngineSetupRequested) { // Temporary stop at beginning
         if (debug)
             qDebug("notifyEngineSetupOk");
         notifyEngineSetupOk();
         return;
-    case InferiorSetupRequested:
-        return;
-    case InferiorStopRequested:
-    case InferiorRunOk:
-        break; // Proper stop of inferior handled below.
+    }
 
-    default:
-        qWarning("WARNING: CdbEngine::handleSessionAccessible called in state %s", stateName(state()));
+    // Further examine stop and report to user
+    QString message;
+    QString exceptionBoxMessage;
+    const unsigned stopFlags = examineStopReason(messageBA, &message, &exceptionBoxMessage);
+    // Do the non-blocking log reporting
+    if (stopFlags & StopReportLog)
+        showMessage(message, LogMisc);
+    if (stopFlags & StopReportStatusMessage)
+        showStatusMessage(message);
+    if (stopFlags & StopReportParseError)
+        showMessage(message, LogError);
+    // Ignore things like WOW64
+    if (stopFlags & StopIgnoreContinue) {
+        postCommand("g", 0);
         return;
     }
-    // Handle stop.
-    if (state() == InferiorStopRequested) {
-        if (debug)
-            qDebug("notifyInferiorStopOk");
-        notifyInferiorStopOk();
-    } else {
-        if (debug)
-            qDebug("notifyInferiorSpontaneousStop");
-        notifyInferiorSpontaneousStop();
-    }
-    // Start sequence to get all relevant data. Hack: Avoid module reload?
-    unsigned sequence = CommandListStack|CommandListThreads;
-    if (debuggerCore()->isDockVisible(QLatin1String(Constants::DOCKWIDGET_REGISTER)))
-        sequence |= CommandListRegisters;
-    if (debuggerCore()->isDockVisible(QLatin1String(Constants::DOCKWIDGET_MODULES)))
-        sequence |= CommandListModules;
-    postCommandSequence(sequence);
-    // Report stop reason (GDBMI)
-    GdbMi stopReason;
-    stopReason.fromString(message);
-    if (debug)
-        qDebug("%s", stopReason.toString(true, 4).constData());
-    const QByteArray reason = stopReason.findChild("reason").data();
-    if (reason.isEmpty()) {
-        showStatusMessage(tr("Malformed stop response received."), LogError);
-        return;
-    }
-    const int threadId = stopReason.findChild("threadId").data().toInt();
-    if (reason == "breakpoint") {
-        const int number = stopReason.findChild("breakpointId").data().toInt();
-        const BreakpointId id = breakHandler()->findBreakpointByNumber(number);
-        if (id && breakHandler()->type(id) == Watchpoint) {
-            showStatusMessage(msgWatchpointTriggered(id, number, breakHandler()->address(id), QString::number(threadId)));
+    // Notify about state and send off command sequence to get stack, etc.
+    if (stopFlags & StopNotifyStop) {
+        if (state() == InferiorStopRequested) {
+            if (debug)
+                qDebug("notifyInferiorStopOk");
+            notifyInferiorStopOk();
         } else {
-            showStatusMessage(msgBreakpointTriggered(id, number, QString::number(threadId)));
+            if (debug)
+                qDebug("notifyInferiorSpontaneousStop");
+            notifyInferiorSpontaneousStop();
         }
-        return;
+        // Start sequence to get all relevant data.
+        unsigned sequence = CommandListStack|CommandListThreads;
+        if (debuggerCore()->isDockVisible(QLatin1String(Constants::DOCKWIDGET_REGISTER)))
+            sequence |= CommandListRegisters;
+        if (debuggerCore()->isDockVisible(QLatin1String(Constants::DOCKWIDGET_MODULES)))
+            sequence |= CommandListModules;
+        postCommandSequence(sequence);
     }
-    if (reason == "exception") {
-        WinException exception;
-        exception.fromGdbMI(stopReason);
-#ifdef Q_OS_WIN
-        // It is possible to hit on a startup trap while stepping (if something
-        // pulls DLLs. Avoid showing a 'stopped' Message box.
-        if (exception.exceptionCode == winExceptionStartupCompleteTrap)
-            return;
-        if (isDebuggerWinException(exception.exceptionCode)) {
-            showStatusMessage(msgInterrupted());
-            return;
-        }
-#endif
-        const QString description = exception.toString();
-        showStatusMessage(msgStoppedByException(description, QString::number(threadId)));
-        showStoppedByExceptionMessageBox(description);
-        return;
-    }
-    showStatusMessage(msgStopped(QLatin1String(reason)));
+    // After the sequence has been sent off and CDB is pondering the commands,
+    // pop up a message box for exceptions.
+    if (stopFlags & StopShowExceptionMessageBox)
+        showStoppedByExceptionMessageBox(exceptionBoxMessage);
 }
 
 void CdbEngine::handleSessionAccessible(unsigned long cdbExState)

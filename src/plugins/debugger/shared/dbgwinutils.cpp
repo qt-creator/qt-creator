@@ -292,6 +292,9 @@ void formatWindowsException(unsigned long code, quint64 address,
     case winExceptionRpcServerInvalid:
         str << "Invalid RPC server";
         break;
+    case winExceptionWX86Breakpoint:
+        str << "Win32 x86 emulation subsystem breakpoint hit";
+        break;
     case EXCEPTION_ACCESS_VIOLATION: {
             const bool writeOperation = info1;
             str << (writeOperation ? "write" : "read")

@@ -174,6 +174,21 @@ bool CdbOptions::equals(const CdbOptions &rhs) const
             && breakEvents == rhs.breakEvents;
 }
 
+// Check the CDB executable and accumulate the list of checked paths
+// for reporting.
+static QString checkCdbExecutable(const QString &programDir, const QString &postfix,
+                               QStringList *checkedDirectories = 0)
+{
+    QString executable = programDir;
+    executable += QLatin1String("/Debugging Tools For Windows");
+    executable += postfix;
+    if (checkedDirectories)
+        checkedDirectories->push_back(QDir::toNativeSeparators(executable));
+    executable += QLatin1String("/cdb.exe");
+    const QFileInfo fi(executable);
+    return fi.isFile() && fi.isExecutable() ? fi.absoluteFilePath() : QString();
+}
+
 bool CdbOptions::autoDetectExecutable(QString *outPath, bool *is64bitIn  /* = 0 */,
                                       QStringList *checkedDirectories /* = 0 */)
 {
@@ -182,48 +197,54 @@ bool CdbOptions::autoDetectExecutable(QString *outPath, bool *is64bitIn  /* = 0 
     static const char *postFixes[] = {" (x64)", " 64-bit", " (x86)", " (x32)" };
     enum { first32bitIndex = 2 };
 
+    outPath->clear();
     if (checkedDirectories)
         checkedDirectories->clear();
 
-    outPath->clear();
-    const QByteArray programDirB = qgetenv("ProgramFiles");
-    if (programDirB.isEmpty())
+    const QString programDir = QString::fromLocal8Bit(qgetenv("ProgramFiles"));
+    if (programDir.isEmpty())
         return false;
 
-    const QString programDir = QString::fromLocal8Bit(programDirB) + QLatin1Char('/');
-    const QString installDir = QLatin1String("Debugging Tools For Windows");
-    const QString executable = QLatin1String("/cdb.exe");
-
-    QString path = programDir + installDir;
-    if (checkedDirectories)
-        checkedDirectories->push_back(path);
-    const QFileInfo fi(path + executable);
-    // Plain system installation
-    if (fi.isFile() && fi.isExecutable()) {
-        *outPath = fi.absoluteFilePath();
-        if (is64bitIn)
 #ifdef Q_OS_WIN
-            *is64bitIn = Utils::winIs64BitSystem();
+    const bool systemIs64Bit = Utils::winIs64BitSystem();
 #else
-            *is64bitIn = false;
+    const bool systemIs64Bit = false;
 #endif
+    // Plain system installation. 32/64 Bit matches the system.
+    *outPath = checkCdbExecutable(programDir, QString(), checkedDirectories);
+    if (!outPath->isEmpty()) {
+        if (is64bitIn)
+            *is64bitIn = systemIs64Bit;
         return true;
     }
     // Try the post fixes
-    const int rootLength = path.size();
     for (unsigned i = 0; i < sizeof(postFixes)/sizeof(const char*); i++) {
-        path.truncate(rootLength);
-        path += QLatin1String(postFixes[i]);
-        if (checkedDirectories)
-            checkedDirectories->push_back(path);
-        const QFileInfo fi2(path + executable);
-        if (fi2.isFile() && fi2.isExecutable()) {
+        *outPath = checkCdbExecutable(programDir, QLatin1String(postFixes[i]), checkedDirectories);
+        if (!outPath->isEmpty()) {
             if (is64bitIn)
                 *is64bitIn = i < first32bitIndex;
-            *outPath = fi2.absoluteFilePath();
             return true;
         }
     }
+    // A 32bit-compile running on a 64bit system sees the 64 bit installation
+    // as "$ProgramFiles (x64)/Debugging Tools..." and (untested), a 64 bit-
+    // compile running on a 64bit system sees the 32 bit installation as
+    // "$ProgramFiles (x86)/Debugging Tools..." (assuming this works at all)
+#ifdef Q_OS_WIN64
+    *outPath = checkCdbExecutable(programDir + QLatin1String(" (x32)"), QString(), checkedDirectories);
+    if (!outPath->isEmpty()) {
+        if (is64bitIn)
+            *is64bitIn = false;
+        return true;
+    }
+#else
+    *outPath = checkCdbExecutable(programDir + QLatin1String(" (x64)"), QString(), checkedDirectories);
+    if (!outPath->isEmpty()) {
+        if (is64bitIn)
+            *is64bitIn = true;
+        return true;
+    }
+#endif
     return false;
 }
 

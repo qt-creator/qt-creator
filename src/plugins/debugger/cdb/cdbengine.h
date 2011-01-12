@@ -152,6 +152,8 @@ private slots:
 private:
     enum SpecialStopMode { NoSpecialStop, SpecialStopSynchronizeBreakpoints };
 
+    unsigned examineStopReason(const QByteArray &messageIn, QString *message,
+                               QString *exceptionBoxMessage) const;
     bool commandsPending() const;
     void handleExtensionMessage(char t, int token, const QByteArray &what, const QByteArray &message);
     bool doSetupEngine(QString *errorMessage);
