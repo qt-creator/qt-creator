@@ -4962,13 +4962,40 @@
 
         \o Click the empty slot in the \gui States pane to create State1.
 
-        \o Drag and drop the Qt logo on top of middleRightRect.
-
-        \image qmldesigner-tutorial-state1.png "State 1"
-
         \o Click the empty slot in the \gui States pane to create State2.
 
-        \o Drag and drop the Qt logo on top of bottomLeftRect.
+        \o In the code editor, bind the position of the Qt logo to the rectangle
+        to make sure that the logo is displayed within the rectangle when the view
+        is scaled on different sizes of screens. Set expressions for the x and y
+        properties, as illustrated by the following code snippet:
+
+        \code
+        states: [
+            State {
+                name: "State1"
+
+                PropertyChanges {
+                    target: icon
+                    x: middleRightRect.x
+                    y: middleRightRect.y
+                }
+            },
+            State {
+                name: "State2"
+
+                PropertyChanges {
+                    target: icon
+                    x: bottomLeftRect.x
+                    y: bottomLeftRect.y
+                }
+            }
+        ]
+        \endcode
+
+        \image qmldesigner-tutorial-state1.png "States"
+
+        \note When you set the expressions, drag and drop is disabled for
+        the icon in \QMLD.
 
     \o Press \key {Ctrl+R} to run the application in the QML Viewer.
 
