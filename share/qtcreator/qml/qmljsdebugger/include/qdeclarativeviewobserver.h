@@ -37,9 +37,8 @@
 #include "qmljsdebugger_global.h"
 #include "qmlobserverconstants.h"
 
-#include <QtDeclarative/QDeclarativeView>
-
 #include <QtCore/QScopedPointer>
+#include <QtDeclarative/QDeclarativeView>
 
 QT_FORWARD_DECLARE_CLASS(QDeclarativeItem)
 QT_FORWARD_DECLARE_CLASS(QMouseEvent)
@@ -125,8 +124,8 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_changeToZoomTool())
     Q_PRIVATE_SLOT(d_func(), void _q_changeToColorPickerTool())
     Q_PRIVATE_SLOT(d_func(), void _q_changeContextPathIndex(int index))
-    Q_PRIVATE_SLOT(d_func(), void _q_clearComponentCache());
-    Q_PRIVATE_SLOT(d_func(), void _q_removeFromSelection(QObject *));
+    Q_PRIVATE_SLOT(d_func(), void _q_clearComponentCache())
+    Q_PRIVATE_SLOT(d_func(), void _q_removeFromSelection(QObject *))
 
     inline QDeclarativeViewObserverPrivate *d_func() { return data.data(); }
     QScopedPointer<QDeclarativeViewObserverPrivate> data;
