@@ -41,6 +41,7 @@
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljslookupcontext.h>
 #include <qmljs/qmljsscanner.h>
+#include <qmljs/qmljsbind.h>
 #include <qmljs/qmljscompletioncontextfinder.h>
 #include <qmljs/qmljsscopebuilder.h>
 
@@ -786,8 +787,20 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     CompletionContextFinder contextFinder(startPositionCursor);
 
     const Interpreter::ObjectValue *qmlScopeType = 0;
-    if (contextFinder.isInQmlContext())
-         qmlScopeType = context->lookupType(document.data(), contextFinder.qmlObjectTypeName());
+    if (contextFinder.isInQmlContext()) {
+        // ### this should use semanticInfo.declaringMember instead, but that may also return functions
+        for (int i = path.size() - 1; i >= 0; --i) {
+            AST::Node *node = path[i];
+            if (AST::cast<AST::UiObjectDefinition *>(node) || AST::cast<AST::UiObjectBinding *>(node)) {
+                qmlScopeType = document->bind()->findQmlObject(node);
+                if (qmlScopeType)
+                    break;
+            }
+        }
+        // fallback to getting the base type object
+        if (!qmlScopeType)
+            qmlScopeType = context->lookupType(document.data(), contextFinder.qmlObjectTypeName());
+    }
 
     if (contextFinder.isInStringLiteral()) {
         // get the text of the literal up to the cursor position
