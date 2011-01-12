@@ -337,7 +337,7 @@ bool FutureProgress::hasError() const
 void FutureProgress::fadeAway()
 {
     d->m_faderWidget->raise();
-    QSequentialAnimationGroup *group = new QSequentialAnimationGroup;
+    QSequentialAnimationGroup *group = new QSequentialAnimationGroup(this);
     QPropertyAnimation *animation = new QPropertyAnimation(d->m_faderWidget, "opacity");
     animation->setDuration(600);
     animation->setEndValue(1.0);
