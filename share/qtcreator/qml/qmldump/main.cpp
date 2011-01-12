@@ -17,9 +17,13 @@
 #ifdef QT_SIMULATOR
 #include <QtGui/private/qsimulatorconnection_p.h>
 #endif
+#ifdef Q_OS_UNIX
+#include <signal.h>
+#endif
 
 static QHash<QByteArray, QList<const QDeclarativeType *> > qmlTypesByCppName;
 static QHash<QByteArray, QByteArray> cppToId;
+QString currentProperty;
 
 QByteArray convertToId(const QByteArray &cppName)
 {
@@ -73,9 +77,11 @@ void processObject(QObject *object, QSet<const QMetaObject *> *metas)
         QMetaProperty prop = meta->property(index);
         if (QDeclarativeMetaType::isQObject(prop.userType())) {
             qDebug() << "  Processing property" << prop.name();
+            currentProperty = QString("%1::%2").arg(meta->className(), prop.name());
             QObject *oo = QDeclarativeMetaType::toQObject(prop.read(object));
             if (oo && !metas->contains(oo->metaObject()))
                 processObject(oo, metas);
+            currentProperty.clear();
         }
     }
 }
@@ -259,8 +265,29 @@ void writeEasingCurve(QXmlStreamWriter *xml)
     xml->writeEndElement();
 }
 
+#ifdef Q_OS_UNIX
+void sigSegvHandler(int) {
+    fprintf(stderr, "Error: qmldump SEGV\n");
+    if (!currentProperty.isEmpty())
+        fprintf(stderr, "While processing the property '%s', which probably has uninitialized data.\n", currentProperty.toLatin1().constData());
+    exit(EXIT_FAILURE);
+}
+#endif
+
 int main(int argc, char *argv[])
 {
+#ifdef Q_OS_UNIX
+    // qmldump may crash, but we don't want any crash handlers to pop up
+    // therefore we intercept the segfault and just exit() ourselves
+    struct sigaction action;
+
+    sigemptyset(&action.sa_mask);
+    action.sa_handler = &sigSegvHandler;
+    action.sa_flags   = 0;
+
+    sigaction(SIGSEGV, &action, 0);
+#endif
+
 #ifdef QT_SIMULATOR
     QtSimulatorPrivate::SimulatorConnection::createStubInstance();
 #endif
