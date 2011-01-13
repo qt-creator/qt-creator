@@ -49,7 +49,8 @@ using namespace Core;
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoConfigTestDialog::MaemoConfigTestDialog(const MaemoDeviceConfig &config, QWidget *parent)
+MaemoConfigTestDialog::MaemoConfigTestDialog(const MaemoDeviceConfig::ConstPtr &config,
+        QWidget *parent)
     : QDialog(parent)
     , m_ui(new Ui_MaemoConfigTestDialog)
     , m_config(config)
@@ -82,7 +83,7 @@ void MaemoConfigTestDialog::startConfigTest()
     m_currentTest = GeneralTest;
     m_ui->testResultEdit->setPlainText(tr("Testing configuration..."));
     m_closeButton->setText(tr("Stop Test"));
-    m_testProcessRunner = SshRemoteProcessRunner::create(m_config.server);
+    m_testProcessRunner = SshRemoteProcessRunner::create(m_config->sshParameters());
     connect(m_testProcessRunner.data(), SIGNAL(connectionError(Core::SshError)),
         this, SLOT(handleConnectionError()));
     connect(m_testProcessRunner.data(), SIGNAL(processClosed(int)), this,
@@ -103,7 +104,7 @@ void MaemoConfigTestDialog::handleConnectionError()
         return;
     QString output = tr("Could not connect to host: %1")
         .arg(m_testProcessRunner->connection()->errorString());
-    if (m_config.type == MaemoDeviceConfig::Simulator)
+    if (m_config->type() == MaemoDeviceConfig::Simulator)
         output += tr("\nDid you start Qemu?");
     m_ui->testResultEdit->setPlainText(output);
     stopConfigTest();
@@ -157,9 +158,9 @@ void MaemoConfigTestDialog::handleMadDeveloperTestResult(int exitStatus)
             + QLatin1String("<br>") + tr("Mad Developer is not installed.<br>"
                   "You will not be able to deploy to this device."));
     }
-    if (m_config.freePorts().hasMore())
+    if (m_config->freePorts().hasMore())
         m_portsGatherer->start(m_testProcessRunner->connection(),
-            m_config.freePorts());
+            m_config->freePorts());
     else
         finish();
 }

@@ -35,7 +35,6 @@
 
 #include "maemodeployables.h"
 #include "maemodeploystep.h"
-#include "maemodeviceconfiglistmodel.h"
 #include "maemoglobal.h"
 #include "maemoqemumanager.h"
 #include "maemoremotemountsmodel.h"
@@ -211,10 +210,10 @@ QString MaemoRunConfiguration::defaultDisplayName()
     return tr("Run on Maemo device");
 }
 
-MaemoDeviceConfig MaemoRunConfiguration::deviceConfig() const
+MaemoDeviceConfig::ConstPtr MaemoRunConfiguration::deviceConfig() const
 {
     const MaemoDeployStep * const step = deployStep();
-    return step ? step->deviceConfigModel()->current() : MaemoDeviceConfig();
+    return step ? step->deviceConfig() : MaemoDeviceConfig::ConstPtr();
 }
 
 const MaemoToolChain *MaemoRunConfiguration::toolchain() const
@@ -282,7 +281,7 @@ QString MaemoRunConfiguration::localDirToMountForRemoteGdb() const
 
 QString MaemoRunConfiguration::remoteProjectSourcesMountPoint() const
 {
-    return MaemoGlobal::homeDirOnDevice(deviceConfig().server.uname)
+    return MaemoGlobal::homeDirOnDevice(deviceConfig()->sshParameters().uname)
         + QLatin1String("/gdbSourcesDir_")
         + QFileInfo(localExecutableFilePath()).fileName();
 }
@@ -307,15 +306,16 @@ QString MaemoRunConfiguration::remoteExecutableFilePath() const
 
 MaemoPortList MaemoRunConfiguration::freePorts() const
 {
-    const MaemoDeviceConfig &devConfig = deviceConfig();
     const Qt4BuildConfiguration * const qt4bc = activeQt4BuildConfiguration();
-    if (devConfig.type == MaemoDeviceConfig::Simulator && qt4bc) {
+    if (!deviceConfig())
+        return MaemoPortList();
+    if (deviceConfig()->type() == MaemoDeviceConfig::Simulator && qt4bc) {
         MaemoQemuRuntime rt;
         const int id = qt4bc->qtVersion()->uniqueId();
         if (MaemoQemuManager::instance().runtimeForQtVersion(id, &rt))
             return rt.m_freePorts;
     }
-    return devConfig.freePorts();
+    return deviceConfig()->freePorts();
 }
 
 bool MaemoRunConfiguration::useRemoteGdb() const
@@ -367,15 +367,13 @@ void MaemoRunConfiguration::handleDeployConfigChanged()
     for (int i = 0; i < deployConfigs.count(); ++i) {
         MaemoDeployStep * const step
             = MaemoGlobal::buildStep<MaemoDeployStep>(deployConfigs.at(i));
-        MaemoDeviceConfigListModel * const devConfigModel
-            = step->deviceConfigModel();
+        if (!step)
+            continue;
         if (deployConfigs.at(i) == activeDeployConf) {
-            connect(devConfigModel, SIGNAL(currentChanged()), this,
-                SLOT(updateDeviceConfigurations()));
-            connect(devConfigModel, SIGNAL(modelReset()), this,
+            connect(step, SIGNAL(deviceConfigChanged()),
                 SLOT(updateDeviceConfigurations()));
         } else {
-            disconnect(devConfigModel, 0, this,
+            disconnect(step, 0, this,
                 SLOT(updateDeviceConfigurations()));
         }
     }

@@ -35,19 +35,19 @@
 #ifndef DEVICEENVREADER_H
 #define DEVICEENVREADER_H
 
-#include "maemodeviceconfigurations.h"
-
 #include <utils/environment.h>
 
 #include <QtCore/QObject>
+#include <QtCore/QSharedPointer>
 
 namespace Core {
     class SshRemoteProcessRunner;
 }
 
 namespace Qt4ProjectManager {
-    namespace Internal {
+namespace Internal {
 
+class MaemoDeviceConfig;
 class MaemoRunConfiguration;
 
 class MaemoDeviceEnvReader : public QObject
@@ -81,7 +81,7 @@ private:
     QString m_remoteOutput;
     QByteArray m_remoteErrorOutput;
     Utils::Environment m_env;
-    MaemoDeviceConfig m_devConfig;
+    QSharedPointer<const MaemoDeviceConfig> m_devConfig;
     MaemoRunConfiguration *m_runConfig;
     QSharedPointer<Core::SshRemoteProcessRunner> m_remoteProcessRunner;
 };

@@ -23,7 +23,6 @@ public:
 
 private:
     Q_SLOT void handleDeviceUpdate();
-    Q_SLOT void handleDeviceConfigModelChanged();
     Q_SLOT void setCurrentDeviceConfig(int index);
     Q_SLOT void setDeployToSysroot(bool doDeloy);
     Q_SLOT void setModel(int row);

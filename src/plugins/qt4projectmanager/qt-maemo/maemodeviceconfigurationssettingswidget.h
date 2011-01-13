@@ -35,9 +35,8 @@
 #ifndef MAEMODEVICECONFIGURATIONSSETTINGSWIDGET_H
 #define MAEMODEVICECONFIGURATIONSSETTINGSWIDGET_H
 
-#include "maemodeviceconfigurations.h"
-
 #include <QtCore/QList>
+#include <QtCore/QScopedPointer>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 #include <QtGui/QWidget>
@@ -56,6 +55,8 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 class NameValidator;
+class MaemoDeviceConfig;
+class MaemoDeviceConfigurations;
 
 class MaemoDeviceConfigurationsSettingsWidget : public QWidget
 {
@@ -99,19 +100,18 @@ private slots:
 
 private:
     void initGui();
-    void display(const MaemoDeviceConfig &devConfig);
-    MaemoDeviceConfig &currentConfig();
+    void displayCurrent();
+    QSharedPointer<const MaemoDeviceConfig> currentConfig() const;
+    int currentIndex() const;
     void clearDetails();
     QString parseTestOutput();
     void fillInValues();
     void updatePortsWarningLabel();
 
     Ui_MaemoDeviceConfigurationsSettingsWidget *m_ui;
-    QList<MaemoDeviceConfig> m_devConfs;
-    MaemoDeviceConfig m_lastConfigHW;
-    MaemoDeviceConfig m_lastConfigSim;
-    NameValidator * const m_nameValidator;
     QSharedPointer<Core::SshRemoteProcessRunner> m_keyDeployer;
+    const QScopedPointer<MaemoDeviceConfigurations> m_devConfigs;
+    NameValidator * const m_nameValidator;
     bool m_saveSettingsRequested;
 };
 

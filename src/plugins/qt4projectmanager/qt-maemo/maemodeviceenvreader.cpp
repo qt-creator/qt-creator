@@ -34,6 +34,7 @@
 
 #include "maemodeviceenvreader.h"
 
+#include "maemodeviceconfigurations.h"
 #include "maemoglobal.h"
 #include "maemorunconfiguration.h"
 
@@ -58,12 +59,14 @@ MaemoDeviceEnvReader::~MaemoDeviceEnvReader()
 
 void MaemoDeviceEnvReader::start()
 {
+    if (!m_devConfig)
+        return;
     m_stop = false;
     if (!m_remoteProcessRunner
         || m_remoteProcessRunner->connection()->state() != Core::SshConnection::Connected
-        || m_remoteProcessRunner->connection()->connectionParameters() != m_devConfig.server) {
+        || m_remoteProcessRunner->connection()->connectionParameters() != m_devConfig->sshParameters()) {
         m_remoteProcessRunner
-            = Core::SshRemoteProcessRunner::create(m_devConfig.server);
+            = Core::SshRemoteProcessRunner::create(m_devConfig->sshParameters());
     }
     connect(m_remoteProcessRunner.data(),
         SIGNAL(connectionError(Core::SshError)), this,

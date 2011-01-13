@@ -77,7 +77,8 @@ public:
     static QString remoteEnvironment(const QList<Utils::EnvironmentItem> &list);
     static QString remoteSourceProfilesCommand();
     static QString failedToConnectToServerMessage(const QSharedPointer<Core::SshConnection> &connection,
-        const MaemoDeviceConfig &deviceConfig);
+        const QSharedPointer<const MaemoDeviceConfig> &deviceConfig);
+    static QString deviceConfigurationName(const QSharedPointer<const MaemoDeviceConfig> &devConf);
 
     static QString maddeRoot(const QtVersion *qtVersion);
     static QString targetRoot(const QtVersion *qtVersion);

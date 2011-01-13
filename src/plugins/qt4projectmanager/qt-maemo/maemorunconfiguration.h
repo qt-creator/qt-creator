@@ -97,7 +97,7 @@ public:
     const QString targetRoot() const;
     const QString arguments() const;
     void setArguments(const QString &args);
-    MaemoDeviceConfig deviceConfig() const;
+    QSharedPointer<const MaemoDeviceConfig> deviceConfig() const;
     MaemoPortList freePorts() const;
     bool useRemoteGdb() const;
     void setUseRemoteGdb(bool useRemoteGdb) { m_useRemoteGdb = useRemoteGdb; }

@@ -63,12 +63,12 @@ namespace Internal {
 RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runConfig)
 {
     DebuggerStartParameters params;
-    const MaemoDeviceConfig &devConf = runConfig->deviceConfig();
+    const MaemoDeviceConfig::ConstPtr &devConf = runConfig->deviceConfig();
 
     const MaemoRunConfiguration::DebuggingType debuggingType
         = runConfig->debuggingType();
     if (debuggingType != MaemoRunConfiguration::DebugCppOnly) {
-        params.qmlServerAddress = runConfig->deviceConfig().server.host;
+        params.qmlServerAddress = runConfig->deviceConfig()->sshParameters().host;
         params.qmlServerPort = -1;
     }
     if (debuggingType != MaemoRunConfiguration::DebugQmlOnly) {
@@ -85,7 +85,7 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
                 = MaemoGlobal::remoteCommandPrefix(runConfig->remoteExecutableFilePath())
                     + MaemoGlobal::remoteEnvironment(runConfig->userEnvironmentChanges())
                     + QLatin1String(" /usr/bin/gdb");
-            params.connParams = devConf.server;
+            params.connParams = devConf->sshParameters();
             params.localMountDir = runConfig->localDirToMountForRemoteGdb();
             params.remoteMountPoint
                 = runConfig->remoteProjectSourcesMountPoint();
@@ -99,7 +99,8 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
             params.startMode = AttachToRemote;
             params.executable = runConfig->localExecutableFilePath();
             params.debuggerCommand = runConfig->gdbCmd();
-            params.remoteChannel = devConf.server.host + QLatin1String(":-1");
+            params.remoteChannel
+                = devConf->sshParameters().host + QLatin1String(":-1");
             params.useServerStartScript = true;
             params.remoteArchitecture = QLatin1String("arm");
             params.gnuTarget = QLatin1String("arm-none-linux-gnueabi");
@@ -122,6 +123,7 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
 MaemoDebugSupport::MaemoDebugSupport(MaemoRunConfiguration *runConfig,
     DebuggerEngine *engine, bool useGdb)
     : QObject(engine), m_engine(engine), m_runConfig(runConfig),
+      m_deviceConfig(m_runConfig->deviceConfig()),
       m_runner(new MaemoSshRunner(this, runConfig, true)),
       m_debuggingType(runConfig->debuggingType()),
       m_dumperLib(runConfig->dumperLib()),
@@ -189,8 +191,8 @@ void MaemoDebugSupport::startExecution()
     if (m_debuggingType != MaemoRunConfiguration::DebugQmlOnly
             && !m_dumperLib.isEmpty()
             && m_runConfig
-            && m_runConfig->deployStep()->currentlyNeedsDeployment(m_runner->deviceConfig().server.host,
-                   MaemoDeployable(m_dumperLib, uploadDir(m_runner->deviceConfig())))) {
+            && m_runConfig->deployStep()->currentlyNeedsDeployment(m_deviceConfig->sshParameters().host,
+                   MaemoDeployable(m_dumperLib, uploadDir(m_deviceConfig)))) {
         setState(InitializingUploader);
         m_uploader = m_runner->connection()->createSftpChannel();
         connect(m_uploader.data(), SIGNAL(initialized()), this,
@@ -214,8 +216,8 @@ void MaemoDebugSupport::handleSftpChannelInitialized()
     ASSERT_STATE(InitializingUploader);
 
     const QString fileName = QFileInfo(m_dumperLib).fileName();
-    const QString remoteFilePath
-        = uploadDir(m_runner->deviceConfig()) + '/' + fileName;
+    const QString remoteFilePath = uploadDir(m_deviceConfig)
+        + QLatin1Char('/') + fileName;
     m_uploadJob = m_uploader->uploadFile(m_dumperLib, remoteFilePath,
         SftpOverwriteExisting);
     if (m_uploadJob == SftpInvalidJob) {
@@ -255,8 +257,8 @@ void MaemoDebugSupport::handleSftpJobFinished(Core::SftpJobId job,
     } else {
         setState(DumpersUploaded);
         if (m_runConfig) {
-            m_runConfig->deployStep()->setDeployed(m_runner->deviceConfig().server.host,
-                MaemoDeployable(m_dumperLib, uploadDir(m_runner->deviceConfig())));
+            m_runConfig->deployStep()->setDeployed(m_deviceConfig->sshParameters().host,
+                MaemoDeployable(m_dumperLib, uploadDir(m_deviceConfig)));
         }
         showMessage(tr("Finished uploading debugging helpers."), AppStuff);
         startDebugging();
@@ -356,9 +358,9 @@ void MaemoDebugSupport::setState(State newState)
     }
 }
 
-QString MaemoDebugSupport::uploadDir(const MaemoDeviceConfig &devConf)
+QString MaemoDebugSupport::uploadDir(const MaemoDeviceConfig::ConstPtr &devConf)
 {
-    return MaemoGlobal::homeDirOnDevice(devConf.server.uname);
+    return MaemoGlobal::homeDirOnDevice(devConf->sshParameters().uname);
 }
 
 bool MaemoDebugSupport::useGdb() const

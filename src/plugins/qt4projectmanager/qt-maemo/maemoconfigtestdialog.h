@@ -60,7 +60,8 @@ class MaemoConfigTestDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit MaemoConfigTestDialog(const MaemoDeviceConfig &config, QWidget *parent = 0);
+    explicit MaemoConfigTestDialog(const QSharedPointer<const MaemoDeviceConfig> &config,
+        QWidget *parent = 0);
     ~MaemoConfigTestDialog();
 
 private slots:
@@ -81,7 +82,7 @@ private:
     Ui_MaemoConfigTestDialog *m_ui;
     QPushButton *m_closeButton;
 
-    const MaemoDeviceConfig &m_config;
+    const QSharedPointer<const MaemoDeviceConfig> m_config;
     QSharedPointer<Core::SshRemoteProcessRunner> m_testProcessRunner;
     QString m_deviceTestOutput;
     bool m_qtVersionOk;

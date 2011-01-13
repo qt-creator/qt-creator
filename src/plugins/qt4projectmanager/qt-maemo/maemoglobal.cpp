@@ -93,12 +93,12 @@ QString MaemoGlobal::remoteEnvironment(const QList<Utils::EnvironmentItem> &list
 }
 
 QString MaemoGlobal::failedToConnectToServerMessage(const Core::SshConnection::Ptr &connection,
-    const MaemoDeviceConfig &deviceConfig)
+    const MaemoDeviceConfig::ConstPtr &deviceConfig)
 {
     QString errorMsg = TR("Could not connect to host: %1")
         .arg(connection->errorString());
 
-    if (deviceConfig.type == MaemoDeviceConfig::Simulator) {
+    if (deviceConfig->type() == MaemoDeviceConfig::Simulator) {
         if (connection->errorState() == Core::SshTimeoutError
                 || connection->errorState() == Core::SshSocketError) {
             errorMsg += TR("\nDid you start Qemu?");
@@ -107,6 +107,11 @@ QString MaemoGlobal::failedToConnectToServerMessage(const Core::SshConnection::P
         errorMsg += TR("\nIs the device connected and set up for network access?");
     }
     return errorMsg;
+}
+
+QString MaemoGlobal::deviceConfigurationName(const MaemoDeviceConfig::ConstPtr &devConf)
+{
+    return devConf ? devConf->name() : TR("(No device)");
 }
 
 QString MaemoGlobal::maddeRoot(const QtVersion *qtVersion)

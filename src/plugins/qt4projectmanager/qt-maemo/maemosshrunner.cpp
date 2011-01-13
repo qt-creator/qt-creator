@@ -35,7 +35,6 @@
 #include "maemosshrunner.h"
 
 #include "maemodeploystep.h"
-#include "maemodeviceconfigurations.h"
 #include "maemoglobal.h"
 #include "maemoremotemounter.h"
 #include "maemoremotemountsmodel.h"
@@ -101,7 +100,7 @@ void MaemoSshRunner::start()
         emitError(tr("Cannot run: No remote executable set."));
         return;
     }
-    if (!m_devConfig.isValid()) {
+    if (!m_devConfig) {
         emitError(tr("Cannot run: No device configuration set."));
         return;
     }
@@ -122,7 +121,7 @@ void MaemoSshRunner::start()
         handleConnected();
     } else {
         emit reportProgress(tr("Connecting to device..."));
-        m_connection->connectToHost(m_devConfig.server);
+        m_connection->connectToHost(m_devConfig->sshParameters());
     }
 }
 
@@ -300,7 +299,7 @@ void MaemoSshRunner::handleRemoteProcessFinished(int exitStatus)
 bool MaemoSshRunner::isConnectionUsable() const
 {
     return m_connection && m_connection->state() == SshConnection::Connected
-        && m_connection->connectionParameters() == m_devConfig.server;
+        && m_connection->connectionParameters() == m_devConfig->sshParameters();
 }
 
 void MaemoSshRunner::setState(State newState)

@@ -69,10 +69,8 @@ public:
     void startExecution(const QByteArray &remoteCall);
 
     QSharedPointer<Core::SshConnection> connection() const { return m_connection; }
-
     const MaemoUsedPortsGatherer *usedPortsGatherer() const { return m_portsGatherer; }
     MaemoPortList *freePorts() { return &m_freePorts; }
-    MaemoDeviceConfig deviceConfig() const { return m_devConfig; }
     QString remoteExecutable() const { return m_remoteExecutable; }
     QString arguments() const { return m_appArguments; }
     QList<Utils::EnvironmentItem> userEnvChanges() const { return m_userEnvChanges; }
@@ -116,7 +114,7 @@ private:
 
     MaemoRemoteMounter * const m_mounter;
     MaemoUsedPortsGatherer * const m_portsGatherer;
-    const MaemoDeviceConfig m_devConfig;
+    const QSharedPointer<const MaemoDeviceConfig> m_devConfig;
     const QString m_remoteExecutable;
     const QString m_appArguments;
     const QList<Utils::EnvironmentItem> m_userEnvChanges;

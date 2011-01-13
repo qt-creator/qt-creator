@@ -35,7 +35,6 @@
 
 #include "maemoconstants.h"
 #include "maemodeploystepwidget.h"
-#include "maemodeviceconfiglistmodel.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemoremotemounter.h"
@@ -108,7 +107,6 @@ void MaemoDeployStep::ctor()
 
     m_state = Inactive;
     m_needsInstall = false;
-    m_deviceConfigModel = new MaemoDeviceConfigListModel(this);
     m_sysrootInstaller = new QProcess(this);
     connect(m_sysrootInstaller, SIGNAL(finished(int,QProcess::ExitStatus)),
         this, SLOT(handleSysrootInstallerFinished()));
@@ -130,6 +128,8 @@ void MaemoDeployStep::ctor()
         SLOT(handlePortsGathererError(QString)));
     connect(m_portsGatherer, SIGNAL(portListReady()), this,
         SLOT(handlePortListReady()));
+    connect(MaemoDeviceConfigurations::instance(), SIGNAL(updated()),
+        SLOT(handleDeviceConfigurationsUpdated()));
 }
 
 bool MaemoDeployStep::init()
@@ -155,7 +155,8 @@ QVariantMap MaemoDeployStep::toMap() const
     QVariantMap map(BuildStep::toMap());
     addDeployTimesToMap(map);
     map.insert(DeployToSysrootKey, m_deployToSysroot);
-    map.unite(m_deviceConfigModel->toMap());
+    map.insert(DeviceIdKey,
+        MaemoDeviceConfigurations::instance()->internalId(m_deviceConfig));
     return map;
 }
 
@@ -183,7 +184,7 @@ bool MaemoDeployStep::fromMap(const QVariantMap &map)
     if (!BuildStep::fromMap(map))
         return false;
     getDeployTimesFromMap(map);
-    m_deviceConfigModel->fromMap(map);
+    setDeviceConfig(map.value(DeviceIdKey, MaemoDeviceConfig::InvalidId).toULongLong());
     m_deployToSysroot = map.value(DeployToSysrootKey, true).toBool();
     return true;
 }
@@ -292,9 +293,23 @@ void MaemoDeployStep::setDeployed(const QString &host,
         QDateTime::currentDateTime());
 }
 
-MaemoDeviceConfig MaemoDeployStep::deviceConfig() const
+void MaemoDeployStep::handleDeviceConfigurationsUpdated()
 {
-    return deviceConfigModel()->current();
+    setDeviceConfig(MaemoDeviceConfigurations::instance()->internalId(m_deviceConfig));
+}
+
+void MaemoDeployStep::setDeviceConfig(MaemoDeviceConfig::Id internalId)
+{
+    m_deviceConfig = MaemoDeviceConfigurations::instance()->find(internalId);
+    if (!m_deviceConfig && MaemoDeviceConfigurations::instance()->rowCount() > 0)
+        m_deviceConfig = MaemoDeviceConfigurations::instance()->deviceAt(0);
+    emit deviceConfigChanged();
+}
+
+void MaemoDeployStep::setDeviceConfig(int i)
+{
+    m_deviceConfig = MaemoDeviceConfigurations::instance()->deviceAt(i);
+    emit deviceConfigChanged();
 }
 
 void MaemoDeployStep::start()
@@ -305,7 +320,8 @@ void MaemoDeployStep::start()
         return;
     }
 
-    if (!deviceConfig().isValid()) {
+    m_cachedDeviceConfig = m_deviceConfig;
+    if (!m_cachedDeviceConfig) {
         raiseError(tr("Deployment failed: No valid device set."));
         emit done();
         return;
@@ -315,7 +331,7 @@ void MaemoDeployStep::start()
     Q_ASSERT(!m_needsInstall);
     Q_ASSERT(m_filesToCopy.isEmpty());
     const MaemoPackageCreationStep * const pStep = packagingStep();
-    const QString hostName = deviceConfig().server.host;
+    const QString hostName = m_cachedDeviceConfig->sshParameters().host;
     if (pStep->isPackagingEnabled()) {
         const MaemoDeployable d(pStep->packageFilePath(), QString());
         if (currentlyNeedsDeployment(hostName, d))
@@ -346,7 +362,7 @@ void MaemoDeployStep::handleConnectionFailure()
         return;
 
     const QString errorMsg = m_state == Connecting
-        ? MaemoGlobal::failedToConnectToServerMessage(m_connection, deviceConfig())
+        ? MaemoGlobal::failedToConnectToServerMessage(m_connection, m_cachedDeviceConfig)
         : tr("Connection error: %1").arg(m_connection->errorString());
     raiseError(errorMsg);
     setState(Inactive);
@@ -469,7 +485,7 @@ void MaemoDeployStep::handleUnmounted()
     }
     case UnmountingCurrentDirs:
         setState(GatheringPorts);
-        m_portsGatherer->start(m_connection, deviceConfig().freePorts());
+        m_portsGatherer->start(m_connection, m_cachedDeviceConfig->freePorts());
         break;
     case UnmountingCurrentMounts:
         writeOutput(tr("Deployment finished."));
@@ -648,7 +664,7 @@ void MaemoDeployStep::connectToDevice()
 
     const bool canReUse = m_connection
         && m_connection->state() == SshConnection::Connected
-        && m_connection->connectionParameters() == deviceConfig().server;
+        && m_connection->connectionParameters() == m_cachedDeviceConfig->sshParameters();
     if (!canReUse)
         m_connection = SshConnection::create();
     connect(m_connection.data(), SIGNAL(connected()), this,
@@ -659,7 +675,7 @@ void MaemoDeployStep::connectToDevice()
         handleConnected();
     } else {
         writeOutput(tr("Connecting to device..."));
-        m_connection->connectToHost(deviceConfig().server);
+        m_connection->connectToHost(m_cachedDeviceConfig->sshParameters());
     }
 }
 
@@ -789,7 +805,7 @@ void MaemoDeployStep::handleCopyProcessFinished(int exitStatus)
 
 QString MaemoDeployStep::deployMountPoint() const
 {
-    return MaemoGlobal::homeDirOnDevice(deviceConfig().server.uname)
+    return MaemoGlobal::homeDirOnDevice(m_cachedDeviceConfig->sshParameters().uname)
         + QLatin1String("/deployMountPoint_") + packagingStep()->projectName();
 }
 
@@ -874,7 +890,7 @@ void MaemoDeployStep::handlePortListReady()
 
     if (m_state == GatheringPorts) {
         setState(Mounting);
-        m_freePorts = deviceConfig().freePorts();
+        m_freePorts = m_cachedDeviceConfig->freePorts();
         m_mounter->mount(&m_freePorts, m_portsGatherer);
     } else {
         setState(Inactive);

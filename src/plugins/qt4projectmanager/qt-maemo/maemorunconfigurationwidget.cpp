@@ -36,7 +36,6 @@
 
 #include "maemodeployables.h"
 #include "maemodeploystep.h"
-#include "maemodeviceconfiglistmodel.h"
 #include "maemodeviceenvreader.h"
 #include "maemomanager.h"
 #include "maemoglobal.h"
@@ -374,7 +373,7 @@ void MaemoRunConfigurationWidget::showDeviceConfigurationsDialog(const QString &
 
 void MaemoRunConfigurationWidget::handleCurrentDeviceConfigChanged()
 {
-    m_devConfLabel->setText(m_runConfiguration->deviceConfig().name);
+    m_devConfLabel->setText(MaemoGlobal::deviceConfigurationName(m_runConfiguration->deviceConfig()));
     updateMountWarning();
 }
 
@@ -534,25 +533,23 @@ void MaemoRunConfigurationWidget::updateMountWarning()
 {
     QString mountWarning;
     const MaemoPortList &portList = m_runConfiguration->freePorts();
-    if (portList.hasMore()) {
-        const int availablePortCount = portList.count();
-        const int mountDirCount
+    const int availablePortCount = portList.count();
+    const int mountDirCount
             = m_runConfiguration->remoteMounts()->validMountSpecificationCount();
-        if (mountDirCount > availablePortCount) {
-            mountWarning = tr("WARNING: You want to mount %1 directories, but "
-                "your device has only %n free ports.<br>You will not be able "
-                "to run this configuration.", 0, availablePortCount)
-            .arg(mountDirCount);
-        } else if (mountDirCount > 0) {
-            const int portsLeftByDebuggers = availablePortCount
+    if (mountDirCount > availablePortCount) {
+        mountWarning = tr("WARNING: You want to mount %1 directories, but "
+            "your device has only %n free ports.<br>You will not be able "
+            "to run this configuration.", 0, availablePortCount)
+                .arg(mountDirCount);
+    } else if (mountDirCount > 0) {
+        const int portsLeftByDebuggers = availablePortCount
                 - m_runConfiguration->portsUsedByDebuggers();
-            if (mountDirCount > portsLeftByDebuggers) {
-                mountWarning = tr("WARNING: You want to mount %1 directories, "
-                    "but only %n ports on the device will be available "
-                    "in debug mode. <br>You will not be able to debug your "
-                    "application with this configuration.", 0, portsLeftByDebuggers).
-                    arg(mountDirCount);
-            }
+        if (mountDirCount > portsLeftByDebuggers) {
+            mountWarning = tr("WARNING: You want to mount %1 directories, "
+                "but only %n ports on the device will be available "
+                "in debug mode. <br>You will not be able to debug your "
+                "application with this configuration.", 0, portsLeftByDebuggers)
+                    .arg(mountDirCount);
         }
     }
     if (mountWarning.isEmpty()) {

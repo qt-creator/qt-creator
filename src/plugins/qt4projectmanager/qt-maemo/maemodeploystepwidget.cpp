@@ -4,7 +4,7 @@
 #include "maemodeploystep.h"
 #include "maemodeployablelistmodel.h"
 #include "maemodeployables.h"
-#include "maemodeviceconfiglistmodel.h"
+#include "maemoglobal.h"
 #include "maemorunconfiguration.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -39,6 +39,7 @@ MaemoDeployStepWidget::MaemoDeployStepWidget(MaemoDeployStep *step) :
         SLOT(addDesktopFile()));
     connect(ui->addIconButton, SIGNAL(clicked()), SLOT(addIcon()));
     handleModelListReset();
+
 }
 
 MaemoDeployStepWidget::~MaemoDeployStepWidget()
@@ -48,43 +49,30 @@ MaemoDeployStepWidget::~MaemoDeployStepWidget()
 
 void MaemoDeployStepWidget::init()
 {
-    handleDeviceConfigModelChanged();
-    connect(m_step->buildConfiguration()->target(),
-        SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
-        this, SLOT(handleDeviceConfigModelChanged()));
+    ui->deviceConfigComboBox->setModel(MaemoDeviceConfigurations::instance());
+    connect(m_step, SIGNAL(deviceConfigChanged()), SLOT(handleDeviceUpdate()));
+    handleDeviceUpdate();
     connect(ui->deviceConfigComboBox, SIGNAL(activated(int)), this,
         SLOT(setCurrentDeviceConfig(int)));
     ui->deployToSysrootCheckBox->setChecked(m_step->isDeployToSysrootEnabled());
     connect(ui->deployToSysrootCheckBox, SIGNAL(toggled(bool)), this,
         SLOT(setDeployToSysroot(bool)));
-    handleDeviceConfigModelChanged();
-}
-
-void MaemoDeployStepWidget::handleDeviceConfigModelChanged()
-{
-    const MaemoDeviceConfigListModel * const oldModel
-        = qobject_cast<MaemoDeviceConfigListModel *>(ui->deviceConfigComboBox->model());
-    if (oldModel)
-        disconnect(oldModel, 0, this, 0);
-    MaemoDeviceConfigListModel * const devModel = m_step->deviceConfigModel();
-    ui->deviceConfigComboBox->setModel(devModel);
-    connect(devModel, SIGNAL(currentChanged()), this,
-        SLOT(handleDeviceUpdate()));
-    connect(devModel, SIGNAL(modelReset()), this,
-        SLOT(handleDeviceUpdate()));
-    handleDeviceUpdate();
 }
 
 void MaemoDeployStepWidget::handleDeviceUpdate()
 {
-    ui->deviceConfigComboBox->setCurrentIndex(m_step->deviceConfigModel()
-        ->currentIndex());
+    const MaemoDeviceConfig::ConstPtr &devConf = m_step->deviceConfig();
+    const MaemoDeviceConfigurations * const devConfigs
+        = MaemoDeviceConfigurations::instance();
+    ui->deviceConfigComboBox->setCurrentIndex(
+        devConfigs->indexForInternalId(devConfigs->internalId(devConf)));
     emit updateSummary();
 }
 
 QString MaemoDeployStepWidget::summaryText() const
 {
-    return tr("<b>Deploy to device</b>: %1").arg(m_step->deviceConfig().name);
+    return tr("<b>Deploy to device</b>: %1")
+        .arg(MaemoGlobal::deviceConfigurationName(m_step->deviceConfig()));
 }
 
 QString MaemoDeployStepWidget::displayName() const
@@ -94,7 +82,10 @@ QString MaemoDeployStepWidget::displayName() const
 
 void MaemoDeployStepWidget::setCurrentDeviceConfig(int index)
 {
-    m_step->deviceConfigModel()->setCurrentIndex(index);
+    disconnect(m_step, SIGNAL(deviceConfigChanged()), this,
+        SLOT(handleDeviceUpdate()));
+    m_step->setDeviceConfig(index);
+    connect(m_step, SIGNAL(deviceConfigChanged()), SLOT(handleDeviceUpdate()));
 }
 
 void MaemoDeployStepWidget::setDeployToSysroot(bool doDeploy)

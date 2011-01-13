@@ -55,6 +55,7 @@ namespace ProjectExplorer { class RunControl; }
 namespace Qt4ProjectManager {
 namespace Internal {
 
+class MaemoDeviceConfig;
 class MaemoRunConfiguration;
 class MaemoSshRunner;
 
@@ -68,7 +69,7 @@ public:
         Debugger::DebuggerEngine *engine, bool useGdb);
     ~MaemoDebugSupport();
 
-    static QString uploadDir(const MaemoDeviceConfig &devConf);
+    static QString uploadDir(const QSharedPointer<const MaemoDeviceConfig> &devConf);
 
 private slots:
     void handleAdapterSetupRequested();
@@ -98,6 +99,7 @@ private:
     void showMessage(const QString &msg, int channel);
     const QPointer<Debugger::DebuggerEngine> m_engine;
     const QPointer<MaemoRunConfiguration> m_runConfig;
+    const QSharedPointer<const MaemoDeviceConfig> m_deviceConfig;
     MaemoSshRunner * const m_runner;
     const MaemoRunConfiguration::DebuggingType m_debuggingType;
     const QString m_dumperLib;
