@@ -227,7 +227,6 @@ public:
     QString displayName() const;
 
     // This is called to set up the config widget before showing it
-    // buildConfiguration is QString::null for the non buildConfiguration specific page
     virtual void init(ProjectExplorer::BuildConfiguration *bc);
 private slots:
     void openChangeBuildDirectoryDialog();
