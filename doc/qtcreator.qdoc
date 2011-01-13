@@ -2156,7 +2156,7 @@
     In the context menu, select \gui {Refactoring} and then select a refactoring action.
 
     You can also press \gui {Alt+Enter} to open a context menu that contains refactoring
-    actions.
+    actions available in the current cursor position.
 
    \section2 Refactoring C++ Code
 
@@ -2166,17 +2166,309 @@
 
         \o Change binary operands
 
-        \o Simplify if and when conditions (for example, move declarations out of
+        \o Simplify if and while conditions (for example, move declarations out of
         if conditions)
 
         \o Modify strings (for example, set the encoding for a string to Latin-1, mark
-         strings translatable, and convert strings to camel case)
+         strings translatable, and convert symbol names to camel case)
 
         \o Create variable declarations
 
         \o Create method declarations and definitions
 
    \endlist
+
+    The following table summarizes the refactoring actions for C++ code. The
+    action is available when the cursor is in the position described in the
+    Activation column.
+
+    \table
+        \header
+            \i Refactoring Action
+            \i Description
+            \i Activation
+        \row
+            \i Add Curly Braces
+            \i Adds curly braces to an if statement that does not contain a
+            compound statement. For example, rewrites
+
+    \code
+    if (a)
+        b;
+    \endcode
+
+            as
+
+    \code
+    if (a) {
+        b;
+    }
+    \endcode
+            \i if
+        \row
+            \i Move Declaration out of Condition
+            \i Moves a declaration out of an if or while condition to simplify the
+            condition. For example, rewrites
+
+    \code
+    if (Type name = foo()) {...}
+    \endcode
+
+            as
+
+    \code
+    Type name = foo;
+    if (name) {...}
+    \endcode
+            \i Name of the introduced variable
+        \row
+            \i Rewrite Condition Using ||
+            \i Rewrites the expression according to De Morgan's laws. For example,
+             rewrites:
+    \code
+    !a && !b
+    \endcode
+
+            as
+
+    \code
+    !(a || b)
+    \endcode
+            \i &&
+        \row
+            \i Rewrite Using \e operator
+            \i Rewrites an expression negating it and using the inverse operator. For
+            example, rewrites:
+
+            \list
+
+    \o     \code
+    a op b
+    \endcode
+
+    as
+
+    \code
+    !(a invop b)
+    \endcode
+
+    \o     \code
+    (a op b)
+    \endcode
+
+    as
+
+    \code
+    !(a invop b)
+    \endcode
+
+    \o    \code
+    !(a op b)
+    \endcode
+
+    as
+
+    \code
+    (a invob b)
+    \endcode
+
+    \endlist
+
+            \i <= < > >= == !=
+        \row
+            \i Split Declaration
+            \i Splits a simple declaration into several declarations. For example,
+            rewrites:
+    \code
+    int *a, b;
+    \endcode
+
+    as
+
+    \code
+    int *a;
+    int b;
+    \endcode
+            \i Type name or variable name
+        \row
+            \i Split if Statement
+            \i Splits an if statement into several statements. For example, rewrites:
+    \code
+    if (something && something_else) {
+    }
+    \endcode
+
+    as
+
+    \code
+    if (something) {
+       if (something_else) {
+       }
+    }
+    \endcode
+
+    and
+
+    \code
+    if (something || something_else)
+        x;
+    \endcode
+
+    with
+
+    \code
+    if (something)
+        x;
+    else if (something_else)
+        x;
+    \endcode
+
+            \i && ||
+        \row
+            \i Swap Operands
+            \i Rewrites an expression in the inverse order using the inverse operator.
+            For example, rewrites:
+    \code
+    a op b
+    \endcode
+
+    as
+    \code
+    b flipop a
+    \endcode
+            \i <= < > >= == != && ||
+        \row
+            \i Convert to Decimal
+            \i Converts an integer literal to decimal representation
+            \i Numeric literal
+        \row
+            \i Convert to Hexadecimal
+            \i Converts an integer literal to hexadecimal representation
+            \i Numeric literal
+        \row
+            \i Convert to Octal
+            \i Converts an integer literal to octal representation
+            \i Numeric literal
+        \row
+            \i Convert to Objective-C String Literal
+            \i Converts a string literal to an Objective-C string literal
+            if the file type is Objective-C(++). For example, rewrites the following strings
+
+    \code
+    "abcd"
+    QLatin1String("abcd")
+    QLatin1Literal("abcd")
+    \endcode
+
+    as
+
+    \code
+    @"abcd"
+    \endcode
+            \i String literal
+        \row
+            \i Enclose in QLatin1Char(...)
+            \i Sets the encoding for a character to Latin-1, unless the character is
+            already enclosed in QLatin1Char, QT_TRANSLATE_NOOP, tr, trUtf8,
+            QLatin1Literal, or QLatin1String. For example, rewrites
+
+    \code
+    'a'
+    \endcode
+
+    as
+
+    \code
+    QLatin1Char('a')
+    \endcode
+            \i String literal
+        \row
+            \i Enclose in QLatin1String(...)
+            \i Sets the encoding for a string to Latin-1, unless the string is
+            already enclosed in QLatin1Char, QT_TRANSLATE_NOOP, tr, trUtf8,
+            QLatin1Literal, or QLatin1String. For example, rewrites
+    \code
+    "abcd"
+    \endcode
+
+    as
+
+    \code
+    QLatin1String("abcd")
+    \endcode
+
+            \i String literal
+
+        \row
+            \i Mark as Translatable
+            \i Marks a string translatable. For example, rewrites \c "abcd" with
+            one of the following options, depending on which of them is available:
+
+    \code
+    tr("abcd")
+    QCoreApplication::translate("CONTEXT", "abcd")
+    QT_TRANSLATE_NOOP("GLOBAL", "abcd")
+    \endcode
+
+            \i String literal
+
+        \row
+            \i #include Header File
+            \i Adds the matching #include statement for a forward-declared class or struct
+            \i Forward-declared class or struct
+        \row
+            \i Add Definition in 'filename'
+            \i Inserts a definition stub for a member function declaration in the
+            implementation file
+            \i Method name
+        \row
+            \i Add 'Function' Declaration
+            \i Inserts the member function declaration that matches the member function
+            definition into the class declaration. The function can be public,
+            protected, private, public slot, protected slot, or private slot.
+            \i Method name
+        \row
+            \i Add Local Declaration
+            \i
+            Adds the type of an assignee, if the type of the right-hand side of the assignment
+            is known. For example, rewrites
+
+    \code
+    a = foo();
+    \endcode
+
+    as
+
+    \code
+    Type a = foo();
+    \endcode
+
+    where Type is the return type of \c {foo()}
+
+            \i Assignee
+
+        \row
+            \i Convert to Camel Case...
+            \i Converts a symbol name to camel case, where elements of the name are joined
+            without delimiter characters and the initial character of each element is
+            capitalized. For example, rewrites \c an_example_symbol
+            as \c anExampleSymbol and \c AN_EXAMPLE_SYMBOL as \c AnExampleSymbol
+            \i Indentifier
+        \row
+            \i Complete Switch Statement
+            \i Adds all possible cases to a switch statement of the type \c enum
+            \i Switch
+        \row
+            \i Generate Missing Q_PROPERTY Members...
+            \i Adds missing members to a Q_PROPERTY:
+            \list
+                \o \c read method
+                \o \c write method, if there is a WRITE
+                \o \c {on...Changed} signal, if there is a NOTIFY
+                \o data member with the name \c {m_<propertyName>}
+            \endlist
+            \i Q_PROPERTY
+    \endtable
 
    \section2 Refactoring QML Code
 
@@ -2193,7 +2485,46 @@
 
    \endlist
 
-*/
+    The following table summarizes the refactoring actions for QML code. The
+    action is available when the cursor is in the position described in the
+    Activation column.
+
+    \table
+        \header
+            \i Refactoring Action
+            \i Description
+            \i Activation
+
+        \row
+            \i Move Component into 'filename.qml'
+            \i Moves a QML element into a separate file
+            \i Element name
+        \row
+            \i Rename id
+            \i Renames all instances of an element ID in the currently open file
+            \i Element ID
+        \row
+            \i Split Initializer
+            \i Reformats a one-line element into a multi-line element. For example,
+            rewrites
+
+    \code
+    Item { x: 10; y: 20; width: 10 }
+    \endcode
+
+    as
+
+    \code
+    Item {
+        x: 10;
+        y: 20;
+        width: 10
+    }
+    \endcode
+            \i Element property
+
+    \endtable
+   */
 
 /*!
     \contentspage index.html
