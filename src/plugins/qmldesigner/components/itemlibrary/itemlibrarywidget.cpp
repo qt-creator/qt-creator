@@ -277,7 +277,7 @@ void ItemLibraryWidget::updateImports()
         foreach (const Import &import, m_d->model->imports())
             if (import.isLibraryImport())
                 imports << import.url();
-        if (imports.contains("Qt.labs.Symbian", Qt::CaseInsensitive))
+        if (imports.contains("com.nokia.symbian", Qt::CaseInsensitive))
             filter = Symbian;
         if (imports.contains("com.Meego", Qt::CaseInsensitive))
             filter = Meego;
@@ -373,18 +373,18 @@ void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
     block = true;
     if (flag == QtBasic) {
         removeImport(QLatin1String("com.meego"));
-        removeImport(QLatin1String("Qt.labs.Symbian"));
+        removeImport(QLatin1String("com.nokia.symbian"));
         emit qtBasicOnlyChecked(true);
         emit meegoChecked(false);
         emit symbianChecked(false);
     } else  if (flag == Symbian) {
         removeImport(QLatin1String("com.meego"));
-        addImport(QLatin1String("Qt.labs.Symbian"), QLatin1String("1.0"));
+        addImport(QLatin1String("com.nokia.symbian"), QLatin1String("1.0"));
         emit qtBasicOnlyChecked(false);
         emit meegoChecked(false);
         emit symbianChecked(true);
     }  else  if (flag == Meego) {
-        removeImport(QLatin1String("Qt.labs.Symbian"));
+        removeImport(QLatin1String("com.nokia.symbian"));
         addImport(QLatin1String("com.meego"), QLatin1String("1.0"));
         emit qtBasicOnlyChecked(false);
         emit meegoChecked(true);
