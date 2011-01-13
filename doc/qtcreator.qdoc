@@ -629,7 +629,7 @@
             directory.
         \o \gui {Class View} shows the class hierarchy of the currently
             open projects.
-        \o \gui Outline shows the element hierarchy of a QML file.
+        \o \gui Outline shows the symbol hierachy of a C++ file and the element hierarchy of a QML file.
         \o \gui {Type Hierarchy} shows the base classes of a class. For
             more information, see \l{Viewing Type Hierarchy}.
 
