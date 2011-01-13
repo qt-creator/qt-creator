@@ -37,7 +37,7 @@
 #include "qmlproject.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/environmenteditmodel.h>
+#include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/projectexplorer.h>
 #include <utils/debuggerlanguagechooser.h>
 #include <utils/detailswidget.h>

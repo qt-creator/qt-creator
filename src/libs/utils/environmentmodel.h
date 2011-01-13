@@ -31,55 +31,60 @@
 **
 **************************************************************************/
 
-#ifndef ENVIRONMENTEDITMODEL_H
-#define ENVIRONMENTEDITMODEL_H
+#ifndef UTILS_ENVIRONMENTMODEL_H
+#define UTILS_ENVIRONMENTMODEL_H
 
-#include "projectexplorer_export.h"
+#include "utils_global.h"
 
-#include <QtGui/QWidget>
-
-QT_FORWARD_DECLARE_CLASS(QModelIndex)
+#include <QtCore/QAbstractTableModel>
 
 namespace Utils {
 class Environment;
 class EnvironmentItem;
-}
 
-namespace ProjectExplorer {
-struct EnvironmentWidgetPrivate;
+namespace Internal {
+class EnvironmentModelPrivate;
+} // namespace Internal
 
-class PROJECTEXPLORER_EXPORT EnvironmentWidget : public QWidget
+class QTCREATOR_UTILS_EXPORT EnvironmentModel : public QAbstractTableModel
 {
     Q_OBJECT
+
 public:
-    explicit EnvironmentWidget(QWidget *parent, QWidget *additionalDetailsWidget = 0);
-    virtual ~EnvironmentWidget();
+    explicit EnvironmentModel(QObject *parent = 0);
+    ~EnvironmentModel();
 
-    void setBaseEnvironmentText(const QString &text);
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+
+    QModelIndex addVariable();
+    QModelIndex addVariable(const Utils::EnvironmentItem &item);
+    void resetVariable(const QString &name);
+    void unsetVariable(const QString &name);
+    bool canUnset(const QString &name);
+    bool canReset(const QString &name);
+    QString indexToVariable(const QModelIndex &index) const;
+    QModelIndex variableToIndex(const QString &name) const;
+    bool changes(const QString &key) const;
     void setBaseEnvironment(const Utils::Environment &env);
-
     QList<Utils::EnvironmentItem> userChanges() const;
-    void setUserChanges(const QList<Utils::EnvironmentItem> &list);
+    void setUserChanges(QList<Utils::EnvironmentItem> list);
 
 signals:
     void userChangesChanged();
-    void detailsVisibleChanged(bool visible);
-
-private slots:
-    void editEnvironmentButtonClicked();
-    void addEnvironmentButtonClicked();
-    void removeEnvironmentButtonClicked();
-    void unsetEnvironmentButtonClicked();
-    void environmentCurrentIndexChanged(const QModelIndex &current);
-    void invalidateCurrentIndex();
-    void updateSummaryText();
+    /// Hint to the view where it should make sense to focus on next
+    // This is a hack since there is no way for a model to suggest
+    // the next interesting place to focus on to the view.
     void focusIndex(const QModelIndex &index);
-    void updateButtons();
 
 private:
-    QScopedPointer<EnvironmentWidgetPrivate> d;
+    Internal::EnvironmentModelPrivate *m_d;
 };
 
-} // namespace ProjectExplorer
+} // namespace Utils
 
-#endif // ENVIRONMENTEDITMODEL_H
+#endif // UTILS_ENVIRONMENTMODEL_H

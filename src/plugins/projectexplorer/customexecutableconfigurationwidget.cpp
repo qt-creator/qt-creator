@@ -35,7 +35,7 @@
 #include "customexecutablerunconfiguration.h"
 #include "target.h"
 #include "project.h"
-#include "environmenteditmodel.h"
+#include "environmentwidget.h"
 
 #include <utils/detailswidget.h>
 #include <utils/environment.h>

@@ -48,7 +48,7 @@
 #include <coreplugin/variablemanager.h>
 #include <coreplugin/ifile.h>
 #include <projectexplorer/buildstep.h>
-#include <projectexplorer/environmenteditmodel.h>
+#include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

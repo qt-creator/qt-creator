@@ -34,7 +34,7 @@
 #include "buildenvironmentwidget.h"
 
 #include "buildconfiguration.h"
-#include "environmenteditmodel.h"
+#include "environmentwidget.h"
 
 #include <utils/qtcassert.h>
 

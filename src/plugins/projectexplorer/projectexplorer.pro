@@ -49,7 +49,7 @@ HEADERS += projectexplorer.h \
     buildconfiguration.h \
     iprojectproperties.h \
     buildsettingspropertiespage.h \
-    environmenteditmodel.h \
+    environmentwidget.h \
     processstep.h \
     editorconfiguration.h \
     editorsettingspropertiespage.h \
@@ -135,7 +135,7 @@ SOURCES += projectexplorer.cpp \
     buildstep.cpp \
     buildconfiguration.cpp \
     buildsettingspropertiespage.cpp \
-    environmenteditmodel.cpp \
+    environmentwidget.cpp \
     processstep.cpp \
     abstractprocessstep.cpp \
     editorconfiguration.cpp \

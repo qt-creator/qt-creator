@@ -36,7 +36,7 @@
 
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/persistentsettings.h>
-#include <projectexplorer/environmenteditmodel.h>
+#include <projectexplorer/environmentwidget.h>
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <utils/detailswidget.h>
