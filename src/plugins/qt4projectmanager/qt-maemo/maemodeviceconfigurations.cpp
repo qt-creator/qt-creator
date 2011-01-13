@@ -438,7 +438,7 @@ void MaemoDeviceConfigurations::setDefaultDevice(int idx)
     if (m_devConfigs.at(idx)->m_isDefault)
         return;
     QModelIndex oldDefaultIndex;
-    for(int i = 0; i < m_devConfigs.count(); ++i) {
+    for (int i = 0; i < m_devConfigs.count(); ++i) {
         const MaemoDeviceConfig::Ptr &oldDefaultDev = m_devConfigs.at(i);
         if (oldDefaultDev->m_isDefault) {
             oldDefaultDev->m_isDefault = false;
