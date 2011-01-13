@@ -159,11 +159,12 @@ void NodeInstanceServerProxy::writeCommand(const QVariant &command)
     writeCommandToSocket(command, m_secondSocket.data());
 }
 
-void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitStatus /* exitStatus */)
+void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitStatus exitStatus)
 {
     m_firstSocket->close();
     m_secondSocket->close();
-    emit processCrashed();
+    if (exitStatus == QProcess::CrashExit)
+        emit processCrashed();
 }
 
 

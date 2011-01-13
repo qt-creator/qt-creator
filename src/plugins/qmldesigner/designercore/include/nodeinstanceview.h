@@ -46,6 +46,7 @@
 #include <QImage>
 #include <QWeakPointer>
 #include <QRectF>
+#include <QTime>
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeEngine;
@@ -165,8 +166,10 @@ private: // functions
     void resetHorizontalAnchors(const ModelNode &node);
     void resetVerticalAnchors(const ModelNode &node);
 
-private slots:
     void restartProcess();
+
+private slots:
+    void handleChrash();
 
 private: //variables
     NodeInstance m_rootNodeInstance;
@@ -178,6 +181,7 @@ private: //variables
     uint m_blockUpdates;
     QWeakPointer<NodeInstanceServerInterface> m_nodeInstanceServer;
     QImage m_baseStatePreviewImage;
+    QTime m_lastCrashTime;
 };
 
 } // namespace ProxyNodeInstanceView
