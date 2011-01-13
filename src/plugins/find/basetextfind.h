@@ -85,7 +85,8 @@ signals:
 private:
     bool find(const QString &txt,
               Find::FindFlags findFlags,
-              QTextCursor start);
+              QTextCursor start,
+              bool *wrapped);
     QTextCursor replaceInternal(const QString &before, const QString &after,
                                 Find::FindFlags findFlags);
 

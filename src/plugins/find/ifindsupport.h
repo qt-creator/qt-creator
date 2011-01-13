@@ -73,6 +73,8 @@ public:
     virtual void defineFindScope(){}
     virtual void clearFindScope(){}
 
+    static void showWrapIndicator(QWidget *parent);
+
 signals:
     void changed();
 };

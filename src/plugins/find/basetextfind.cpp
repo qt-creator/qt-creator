@@ -50,26 +50,32 @@ struct BaseTextFindPrivate {
 
     QPointer<QTextEdit> m_editor;
     QPointer<QPlainTextEdit> m_plaineditor;
+    QPointer<QWidget> m_widget;
     QTextCursor m_findScopeStart;
     QTextCursor m_findScopeEnd;
     int m_findScopeVerticalBlockSelectionFirstColumn;
     int m_findScopeVerticalBlockSelectionLastColumn;
     int m_incrementalStartPos;
+    bool m_incrementalWrappedState;
 };
 
 BaseTextFindPrivate::BaseTextFindPrivate(QTextEdit *editor)
     : m_editor(editor)
+    , m_widget(editor)
     , m_findScopeVerticalBlockSelectionFirstColumn(-1)
     , m_findScopeVerticalBlockSelectionLastColumn(-1)
     , m_incrementalStartPos(-1)
+    , m_incrementalWrappedState(false)
 {
 }
 
 BaseTextFindPrivate::BaseTextFindPrivate(QPlainTextEdit *editor)
     : m_plaineditor(editor)
+    , m_widget(editor)
     , m_findScopeVerticalBlockSelectionFirstColumn(-1)
     , m_findScopeVerticalBlockSelectionLastColumn(-1)
     , m_incrementalStartPos(-1)
+    , m_incrementalWrappedState(false)
 {
 }
 
@@ -127,6 +133,7 @@ Find::FindFlags BaseTextFind::supportedFindFlags() const
 void BaseTextFind::resetIncrementalSearch()
 {
     d->m_incrementalStartPos = -1;
+    d->m_incrementalWrappedState = false;
 }
 
 void BaseTextFind::clearResults()
@@ -174,7 +181,13 @@ IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, Find::Fin
     if (d->m_incrementalStartPos < 0)
         d->m_incrementalStartPos = cursor.selectionStart();
     cursor.setPosition(d->m_incrementalStartPos);
-    bool found =  find(txt, findFlags, cursor);
+    bool wrapped = false;
+    bool found =  find(txt, findFlags, cursor, &wrapped);
+    if (wrapped != d->m_incrementalWrappedState) {
+        d->m_incrementalWrappedState = wrapped;
+        if (found)
+                showWrapIndicator(d->m_widget);
+    }
     if (found)
         emit highlightAll(txt, findFlags);
     else
@@ -184,9 +197,14 @@ IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, Find::Fin
 
 IFindSupport::Result BaseTextFind::findStep(const QString &txt, Find::FindFlags findFlags)
 {
-    bool found = find(txt, findFlags, textCursor());
-    if (found)
+    bool wrapped = false;
+    bool found = find(txt, findFlags, textCursor(), &wrapped);
+    if (wrapped)
+        showWrapIndicator(d->m_widget);
+    if (found) {
         d->m_incrementalStartPos = textCursor().selectionStart();
+        d->m_incrementalWrappedState = false;
+    }
     return found ? Found : NotFound;
 }
 
@@ -220,7 +238,11 @@ bool BaseTextFind::replaceStep(const QString &before, const QString &after,
     Find::FindFlags findFlags)
 {
     QTextCursor cursor = replaceInternal(before, after, findFlags);
-    return find(before, findFlags, cursor);
+    bool wrapped = false;
+    bool found = find(before, findFlags, cursor, &wrapped);
+    if (wrapped)
+        showWrapIndicator(d->m_widget);
+    return found;
 }
 
 int BaseTextFind::replaceAll(const QString &before, const QString &after,
@@ -254,7 +276,7 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after,
 
 bool BaseTextFind::find(const QString &txt,
                                Find::FindFlags findFlags,
-                               QTextCursor start)
+                               QTextCursor start, bool *wrapped)
 {
     if (txt.isEmpty()) {
         setTextCursor(start);
@@ -264,11 +286,15 @@ bool BaseTextFind::find(const QString &txt,
     regexp.setPatternSyntax((findFlags&Find::FindRegularExpression) ? QRegExp::RegExp : QRegExp::FixedString);
     regexp.setCaseSensitivity((findFlags&Find::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
     QTextCursor found = findOne(regexp, start, Find::textDocumentFlagsForFindFlags(findFlags));
+    if (wrapped)
+        *wrapped = false;
 
     if (!d->m_findScopeStart.isNull()) {
 
         // scoped
         if (found.isNull() || !inScope(found.selectionStart(), found.selectionEnd())) {
+            if (wrapped)
+                *wrapped = true;
             if ((findFlags&Find::FindBackward) == 0)
                 start.setPosition(d->m_findScopeStart.position());
             else
@@ -281,6 +307,8 @@ bool BaseTextFind::find(const QString &txt,
 
         // entire document
         if (found.isNull()) {
+            if (wrapped)
+                *wrapped = true;
             if ((findFlags&Find::FindBackward) == 0)
                 start.movePosition(QTextCursor::Start);
             else

@@ -28,7 +28,8 @@ SOURCES += findtoolwindow.cpp \
     searchresulttreemodel.cpp \
     searchresulttreeview.cpp \
     searchresultwindow.cpp \
-    ifindfilter.cpp
+    ifindfilter.cpp \
+    ifindsupport.cpp
 FORMS += findwidget.ui \
     finddialog.ui
 RESOURCES += find.qrc
