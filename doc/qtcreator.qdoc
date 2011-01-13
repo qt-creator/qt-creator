@@ -2056,11 +2056,14 @@
 
     \section1 Finding Symbols
 
-    To find the use of a specific symbol in your project:
+    To find the use of a specific symbol in your Qt C++ or Qt Quick project:
     \list 1
-        \o In the editor place the cursor on the symbol and select \gui Tools
-           > \gui C++ > \gui{Find Usages} or press
-           \key Ctrl+Shift+U.
+        \o In the editor, place the cursor on the symbol, and select:
+        \list
+            \o \gui {Tools > C++ > Find Usages}
+            \o \gui {Tools > QML > Find Usages}
+            \o \key Ctrl+Shift+U
+        \endlist
 
            Qt Creator looks for the symbol in the following locations:
            \list
