@@ -60,6 +60,7 @@ MaemoDeployables::MaemoDeployables(const Qt4Target *target)
 {
     QTimer::singleShot(0, this, SLOT(init()));
     m_updateTimer->setInterval(1500);
+    m_updateTimer->setSingleShot(true);
     connect(m_updateTimer, SIGNAL(timeout()), this, SLOT(createModels()));
 }
 
