@@ -123,6 +123,9 @@ public:
 
     ProjectExplorer::IOutputParser *createOutputParser() const;
 
+public slots:
+    void importFromBuildDirectory();
+
 signals:
     /// emitted if the qt version changes (either directly, or because the default qt version changed
     /// or because the user changed the settings for the qt version

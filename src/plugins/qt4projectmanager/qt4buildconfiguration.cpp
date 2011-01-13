@@ -799,3 +799,73 @@ BuildConfiguration *Qt4BuildConfigurationFactory::restore(Target *parent, const 
     delete bc;
     return 0;
 }
+
+void Qt4BuildConfiguration::importFromBuildDirectory()
+{
+    QString directory = buildDirectory();
+    if (!directory.isEmpty()) {
+        QString mkfile = directory;
+        if (makefile().isEmpty())
+            mkfile.append("/Makefile");
+        else
+            mkfile.append(makefile());
+
+        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(mkfile);
+        if (!qmakePath.isEmpty()) {
+            QtVersionManager *vm = QtVersionManager::instance();
+            QtVersion *version = vm->qtVersionForQMakeBinary(qmakePath);
+            if (!version) {
+                version = new QtVersion(qmakePath);
+                vm->addVersion(version);
+            }
+
+            QPair<QtVersion::QmakeBuildConfigs, QString> result =
+                    QtVersionManager::scanMakeFile(directory, version->defaultBuildConfig());
+            QtVersion::QmakeBuildConfigs qmakeBuildConfig = result.first;
+
+            QString aa = result.second;
+            QString parsedSpec = Qt4BuildConfiguration::extractSpecFromArguments(&aa, directory, version);
+            QString versionSpec = version->mkspec();
+            QString additionalArguments;
+            if (parsedSpec.isEmpty() || parsedSpec == versionSpec || parsedSpec == "default") {
+                // using the default spec, don't modify additional arguments
+            } else {
+                additionalArguments = "-spec " + Utils::QtcProcess::quoteArg(parsedSpec);
+            }
+            Utils::QtcProcess::addArgs(&additionalArguments, aa);
+
+            Qt4BuildConfiguration::removeQMLInspectorFromArguments(&additionalArguments);
+
+            // So we got all the information now apply it...
+            setQtVersion(version);
+
+            qmakeStep()->setUserArguments(additionalArguments);
+
+            setQMakeBuildConfiguration(qmakeBuildConfig);
+            // Adjust command line arguments, this is ugly as hell
+            // If we are switching to BuildAll we want "release" in there and no "debug"
+            // or "debug" in there and no "release"
+            // If we are switching to not BuildAl we want neither "release" nor "debug" in there
+            bool debug = qmakeBuildConfig & QtVersion::DebugBuild;
+            bool haveTag = !(qmakeBuildConfig & QtVersion::BuildAll);
+            QString makeCmdArguments = makeStep()->userArguments();
+            Utils::QtcProcess::ArgIterator ait(&makeCmdArguments);
+            while (ait.next()) {
+                if (ait.value() == QLatin1String("debug")) {
+                    if (!haveTag && debug)
+                        haveTag = true;
+                    else
+                        ait.deleteArg();
+                } else if (ait.value() == QLatin1String("release")) {
+                    if (!haveTag && !debug)
+                        haveTag = true;
+                    else
+                        ait.deleteArg();
+                }
+            }
+            if (!haveTag)
+                ait.appendArg(QLatin1String(debug ? "debug" : "release"));
+            makeStep()->setUserArguments(makeCmdArguments);
+        }
+    }
+}
