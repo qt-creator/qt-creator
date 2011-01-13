@@ -148,7 +148,7 @@ public:
     static void replaceInstance(const MaemoDeviceConfigurations *other);
     static MaemoDeviceConfigurations *cloneInstance();
 
-    MaemoDeviceConfig::ConstPtr deviceAt(int i) const;
+    MaemoDeviceConfig::ConstPtr deviceAt(int index) const;
     MaemoDeviceConfig::ConstPtr find(MaemoDeviceConfig::Id id) const;
     MaemoDeviceConfig::ConstPtr defaultDeviceConfig() const;
     bool hasConfig(const QString &name) const;
@@ -160,7 +160,7 @@ public:
 
     void addConfiguration(const QString &name,
         MaemoDeviceConfig::DeviceType type);
-    void removeConfiguration(int i);
+    void removeConfiguration(int index);
     void setConfigurationName(int i, const QString &name);
     void setDeviceType(int i, const MaemoDeviceConfig::DeviceType type);
     void setSshParameters(int i, const Core::SshConnectionParameters &params);
@@ -181,7 +181,7 @@ private:
     void initShadowDevConfs();
     static void copy(const MaemoDeviceConfigurations *source,
         MaemoDeviceConfigurations *target, bool deep);
-    void setupShadowDevConf(int i);
+    void setupShadowDevConf(int index);
 
     static MaemoDeviceConfigurations *m_instance;
     MaemoDeviceConfig::Id m_nextId;

@@ -212,7 +212,7 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QString &name, DeviceType devType,
 }
 
 MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
-    Id &nextId)
+        Id &nextId)
     : m_sshParameters(Core::SshConnectionParameters::NoProxy),
       m_name(settings.value(NameKey).toString()),
       m_type(static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt())),
@@ -348,13 +348,13 @@ void MaemoDeviceConfigurations::initShadowDevConfs()
         m_shadowDevConfigs.push_back(MaemoDeviceConfig::Ptr());
 }
 
-void MaemoDeviceConfigurations::setupShadowDevConf(int i)
+void MaemoDeviceConfigurations::setupShadowDevConf(int idx)
 {
-    MaemoDeviceConfig::Ptr shadowConf = m_shadowDevConfigs.at(i);
+    MaemoDeviceConfig::Ptr shadowConf = m_shadowDevConfigs.at(idx);
     if (shadowConf)
         return;
 
-    const MaemoDeviceConfig::Ptr devConf = m_devConfigs.at(i);
+    const MaemoDeviceConfig::Ptr devConf = m_devConfigs.at(idx);
     const MaemoDeviceConfig::DeviceType shadowType
         = devConf->type() == MaemoDeviceConfig::Physical
             ? MaemoDeviceConfig::Simulator : MaemoDeviceConfig::Physical;
@@ -366,7 +366,7 @@ void MaemoDeviceConfigurations::setupShadowDevConf(int i)
         = devConf->m_sshParameters.privateKeyFile;
     shadowConf->m_isDefault = devConf->m_isDefault;
     shadowConf->m_internalId = devConf->m_internalId;
-    m_shadowDevConfigs[i] = shadowConf;
+    m_shadowDevConfigs[idx] = shadowConf;
 }
 
 void MaemoDeviceConfigurations::addConfiguration(const QString &name,
@@ -382,13 +382,13 @@ void MaemoDeviceConfigurations::addConfiguration(const QString &name,
     endInsertRows();
 }
 
-void MaemoDeviceConfigurations::removeConfiguration(int i)
+void MaemoDeviceConfigurations::removeConfiguration(int idx)
 {
-    Q_ASSERT(i >= 0 && i < rowCount());
-    beginRemoveRows(QModelIndex(), i, i);
-    const bool wasDefault = deviceAt(i)->m_isDefault;
-    m_devConfigs.removeAt(i);
-    m_shadowDevConfigs.removeAt(i);
+    Q_ASSERT(idx >= 0 && idx < rowCount());
+    beginRemoveRows(QModelIndex(), idx, idx);
+    const bool wasDefault = deviceAt(idx)->m_isDefault;
+    m_devConfigs.removeAt(idx);
+    m_shadowDevConfigs.removeAt(idx);
     endRemoveRows();
     if (wasDefault && !m_devConfigs.isEmpty()) {
         m_devConfigs.first()->m_isDefault = true;
@@ -481,10 +481,10 @@ void MaemoDeviceConfigurations::load()
         m_devConfigs.first()->m_isDefault = true;
 }
 
-MaemoDeviceConfig::ConstPtr MaemoDeviceConfigurations::deviceAt(int i) const
+MaemoDeviceConfig::ConstPtr MaemoDeviceConfigurations::deviceAt(int idx) const
 {
-    Q_ASSERT(i >= 0 && i < rowCount());
-    return m_devConfigs.at(i);
+    Q_ASSERT(idx >= 0 && idx < rowCount());
+    return m_devConfigs.at(idx);
 }
 
 bool MaemoDeviceConfigurations::hasConfig(const QString &name) const
