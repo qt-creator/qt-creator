@@ -114,12 +114,14 @@ private:
 
     MaemoDeviceConfig(const QString &name, DeviceType type, Id &nextId);
     MaemoDeviceConfig(const QSettings &settings, Id &nextId);
+    MaemoDeviceConfig(const ConstPtr &other);
 
     MaemoDeviceConfig(const MaemoDeviceConfig &);
     MaemoDeviceConfig &operator=(const MaemoDeviceConfig &);
 
     static Ptr create(const QString &name, DeviceType type, Id &nextId);
     static Ptr create(const QSettings &settings, Id &nextId);
+    static Ptr create(const ConstPtr &other);
 
     void save(QSettings &settings) const;
     int defaultSshPort(DeviceType type) const;
@@ -130,8 +132,8 @@ private:
     QString m_name;
     DeviceType m_type;
     QString m_portsSpec;
-    Id m_internalId;
     bool m_isDefault;
+    Id m_internalId;
 };
 
 
@@ -147,6 +149,7 @@ public:
 
     MaemoDeviceConfig::ConstPtr deviceAt(int i) const;
     MaemoDeviceConfig::ConstPtr find(MaemoDeviceConfig::Id id) const;
+    MaemoDeviceConfig::ConstPtr defaultDeviceConfig() const;
     bool hasConfig(const QString &name) const;
     int indexForInternalId(MaemoDeviceConfig::Id internalId) const;
     MaemoDeviceConfig::Id internalId(MaemoDeviceConfig::ConstPtr devConf) const;
@@ -175,7 +178,7 @@ private:
     void save();
     void initShadowDevConfs();
     static void copy(const MaemoDeviceConfigurations *source,
-        MaemoDeviceConfigurations *target);
+        MaemoDeviceConfigurations *target, bool deep);
     void setupShadowDevConf(int i);
 
     static MaemoDeviceConfigurations *m_instance;

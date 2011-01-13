@@ -300,9 +300,11 @@ void MaemoDeployStep::handleDeviceConfigurationsUpdated()
 
 void MaemoDeployStep::setDeviceConfig(MaemoDeviceConfig::Id internalId)
 {
-    m_deviceConfig = MaemoDeviceConfigurations::instance()->find(internalId);
-    if (!m_deviceConfig && MaemoDeviceConfigurations::instance()->rowCount() > 0)
-        m_deviceConfig = MaemoDeviceConfigurations::instance()->deviceAt(0);
+    const MaemoDeviceConfigurations * const devConfs
+        = MaemoDeviceConfigurations::instance();
+    m_deviceConfig = devConfs->find(internalId);
+    if (!m_deviceConfig)
+        m_deviceConfig = devConfs->defaultDeviceConfig();
     emit deviceConfigChanged();
 }
 
