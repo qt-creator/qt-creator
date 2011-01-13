@@ -135,6 +135,21 @@ void NodeInstanceServer::setSlowRenderTimerInterval(int timerInterval)
     m_slowRenderTimerInterval = timerInterval;
 }
 
+void NodeInstanceServer::setTimerId(int timerId)
+{
+    m_timer = timerId;
+}
+
+int NodeInstanceServer::timerId() const
+{
+    return m_timer;
+}
+
+int NodeInstanceServer::renderTimerInterval() const
+{
+    return m_renderTimerInterval;
+}
+
 void NodeInstanceServer::startRenderTimer()
 {
     if (m_slowRenderTimer)
@@ -150,6 +165,11 @@ void NodeInstanceServer::slowDownRenderTimer()
 {
     if (!m_slowRenderTimer)
         stopRenderTimer();
+
+    if (m_timer != 0) {
+        killTimer(m_timer);
+        m_timer = 0;
+    }
 
     if (m_timer == 0)
         m_timer = startTimer(m_slowRenderTimerInterval);

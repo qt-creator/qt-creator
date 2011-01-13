@@ -15,6 +15,7 @@ public:
 
 protected:
     void findItemChangesAndSendChangeCommands();
+    void startRenderTimer();
 
 private:
     ServerNodeInstance m_actualState;

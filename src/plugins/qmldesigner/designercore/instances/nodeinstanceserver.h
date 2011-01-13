@@ -118,16 +118,20 @@ protected:
 
     void addChangedProperty(const InstancePropertyPair &property);
 
-    void startRenderTimer();
+    virtual void startRenderTimer();
     void slowDownRenderTimer();
     void stopRenderTimer();
     void setRenderTimerInterval(int timerInterval);
+    int renderTimerInterval() const;
     void setSlowRenderTimerInterval(int timerInterval);
 
     void initializeDeclarativeView();
     QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command);
 
     QImage renderPreviewImage();
+
+    void setTimerId(int timerId);
+    int timerId() const;
 
 private:
     ServerNodeInstance m_rootNodeInstance;
