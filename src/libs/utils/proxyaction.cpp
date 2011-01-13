@@ -137,10 +137,12 @@ void ProxyAction::update(QAction *action, bool initialize)
     }
 
     setCheckable(action->isCheckable());
-    setChecked(action->isChecked());
 
-    setEnabled(action->isEnabled());
-    setVisible(action->isVisible());
+    if (!initialize) {
+        setChecked(action->isChecked());
+        setEnabled(action->isEnabled());
+        setVisible(action->isVisible());
+    }
     connectAction();
     connect(this, SIGNAL(changed()), this, SLOT(updateToolTipWithKeySequence()));
 }
