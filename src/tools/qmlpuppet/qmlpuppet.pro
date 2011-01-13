@@ -15,6 +15,7 @@ include (../../plugins/qmldesigner/designercore/instances/instances.pri)
 include (../../plugins/qmldesigner/designercore/exceptions/exceptions.pri)
 
 SOURCES += main.cpp
+RESOURCES += qmlpuppet.qrc
 
 OTHER_FILES += Info.plist
 macx:QMAKE_INFO_PLIST = Info.plist

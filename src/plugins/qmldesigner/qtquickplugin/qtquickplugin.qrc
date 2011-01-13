@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/qtquickplugin">
         <file>quick.metainfo</file>
-        <file>images/template_image.png</file>
         <file>images/item-icon.png</file>
         <file>images/rect-icon.png</file>
         <file>images/text-icon.png</file>
