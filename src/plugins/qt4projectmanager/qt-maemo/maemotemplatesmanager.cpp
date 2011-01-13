@@ -250,8 +250,7 @@ bool MaemoTemplatesManager::adaptRulesFile(const Project *project)
     }
     QByteArray rulesContents = rulesFile.readAll();
     rulesContents.replace("DESTDIR", "INSTALL_ROOT");
-    rulesContents.replace("dh_shlibdeps",
-        "# dh_shlibdeps                      # Uncomment this line for publishing!");
+    rulesContents.replace("dh_shlibdeps", "# dh_shlibdeps");
 //    rulesContents.replace("$(MAKE) clean", "# $(MAKE) clean");
 //    const Qt4Project * const qt4Project
 //        = static_cast<const Qt4Project *>(project);
