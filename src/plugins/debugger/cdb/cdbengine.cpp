@@ -1202,7 +1202,7 @@ void CdbEngine::handlePid(const CdbExtensionCommandPtr &reply)
 {
     if (reply->success) {
         m_inferiorPid = reply->reply.toUInt();
-        showMessage(QString::fromLatin1("Inferior pid: %1."), LogMisc);
+        showMessage(QString::fromLatin1("Inferior pid: %1.").arg(m_inferiorPid), LogMisc);
         notifyInferiorSetupOk();
     }  else {
         showMessage(QString::fromLatin1("Failed to determine inferior pid: %1").
