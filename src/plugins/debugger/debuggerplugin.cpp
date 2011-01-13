@@ -2867,6 +2867,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = am->registerAction(m_actions.interruptAction,
         Constants::INTERRUPT, globalcontext);
     cmd->setDefaultText(tr("Interrupt Debugger"));
+    cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_actions.continueAction,
@@ -2876,7 +2877,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_actions.exitAction,
         Constants::STOP, globalcontext);
-    //cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
+    cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
     cmd->setDefaultText(tr("Stop Debugger"));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
