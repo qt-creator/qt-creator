@@ -21,6 +21,10 @@ exists($$PWD/qmljsdebugger/qmljsdebugger-lib.pri) {
 #INCLUDEPATH += ../../src/declarative/util
 #INCLUDEPATH += ../../src/declarative/graphicsitems
 
+!exists($$[QT_INSTALL_HEADERS]/QtCore/private/qabstractanimation_p.h) {
+    DEFINES += NO_PRIVATE_HEADERS
+}
+
 target.path = $$[QT_INSTALL_BINS]
 INSTALLS += target
 
