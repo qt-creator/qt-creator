@@ -63,7 +63,7 @@ public:
     bool isCaCert();
 
 private:
-    QDateTime parseTime(const std::string &time);
+    QDateTime parseTime(const QByteArray &time);
 
 protected:
     S60SymbianCertificatePrivate const *m_d;

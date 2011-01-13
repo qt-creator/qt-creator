@@ -46,8 +46,10 @@
 #include <botan/oids.h>
 #include <botan/libstate.h>
 #include <botan/bit_ops.h>
+
 #include <algorithm>
 #include <memory>
+#include <string>
 
 using namespace Botan;
 using namespace Qt4ProjectManager;
@@ -421,7 +423,7 @@ public:
    * encoded certificate.
    * @param filename the name of the certificate file
    */
-    S60SymbianCertificatePrivate(const std::string& filename);
+    S60SymbianCertificatePrivate(const QByteArray &filename);
 
 private:
     Botan::X509_DN createDn(const Botan::Data_Store& info) const;
@@ -457,8 +459,8 @@ std::vector<std::string> lookup_oids(const std::vector<std::string>& in)
 /*
 * S60SymbianCertificate Constructor
 */
-S60SymbianCertificatePrivate::S60SymbianCertificatePrivate(const std::string& in) :
-    X509_Object(in, "CERTIFICATE/X509 CERTIFICATE")
+S60SymbianCertificatePrivate::S60SymbianCertificatePrivate(const QByteArray &in) :
+    X509_Object(in.constData(), "CERTIFICATE/X509 CERTIFICATE")
 {
     m_selfSigned = false;
 
@@ -740,7 +742,7 @@ S60SymbianCertificate::S60SymbianCertificate(const QString &filename) : m_d(0)
 {
     S60SymbianCertificatePrivate *certificate = 0;
     try {
-        certificate = new S60SymbianCertificatePrivate(filename.toStdString());
+        certificate = new S60SymbianCertificatePrivate(filename.toLatin1());
         m_d = certificate;
         certificate = 0;
     } catch (Botan::Exception &e) {
@@ -769,10 +771,11 @@ QStringList S60SymbianCertificate::subjectInfo(const QString &name)
     Q_ASSERT(m_d);
     QStringList result;
     try {
-        std::vector<std::string> subjectInfo(m_d->subjectInfo(name.toStdString()));
+        std::vector<std::string> subjectInfo =
+            m_d->subjectInfo(name.toLatin1().constData());
         std::vector<std::string>::const_iterator i;
-        for(i = subjectInfo.begin(); i != subjectInfo.end(); ++i)
-            result << QString::fromStdString(*i);
+        for (i = subjectInfo.begin(); i != subjectInfo.end(); ++i)
+            result << QString::fromLatin1(i->c_str());
     } catch (Botan::Exception &e) {
         m_errorString = QString::fromLatin1(e.what());
     }
@@ -784,23 +787,24 @@ QStringList S60SymbianCertificate::issuerInfo(const QString &name)
     Q_ASSERT(m_d);
     QStringList result;
     try {
-        std::vector<std::string> issuerInfo(m_d->issuerInfo(name.toStdString()));
+        std::vector<std::string> issuerInfo =
+            m_d->issuerInfo(name.toLatin1().constData());
 
         std::vector<std::string>::const_iterator i;
-        for(i = issuerInfo.begin(); i != issuerInfo.end(); ++i)
-            result << QString::fromStdString(*i);
+        for (i = issuerInfo.begin(); i != issuerInfo.end(); ++i)
+            result << QString::fromLatin1(i->c_str());
     } catch (Botan::Exception &e) {
         m_errorString = QString::fromLatin1(e.what());
     }
     return result;
 }
 
-QDateTime S60SymbianCertificate::parseTime(const std::string &time)
+QDateTime S60SymbianCertificate::parseTime(const QByteArray &time)
 {
     QDateTime result;
     try {
         const char * const CERTIFICATE_DATE_FORMAT = "yyyy/M/d h:mm:ss UTC";
-        QDateTime dateTime = QDateTime::fromString(QString::fromStdString(time),
+        QDateTime dateTime = QDateTime::fromString(QString::fromLatin1(time),
                                                    QLatin1String(CERTIFICATE_DATE_FORMAT));
         result = QDateTime(dateTime.date(), dateTime.time(), Qt::UTC);
     } catch (Botan::Exception &e) {
@@ -812,13 +816,13 @@ QDateTime S60SymbianCertificate::parseTime(const std::string &time)
 QDateTime S60SymbianCertificate::startTime()
 {
     Q_ASSERT(m_d);
-    return parseTime(m_d->startTime());
+    return parseTime(m_d->startTime().c_str());
 }
 
 QDateTime S60SymbianCertificate::endTime()
 {
     Q_ASSERT(m_d);
-    return parseTime(m_d->endTime());
+    return parseTime(m_d->endTime().c_str());
 }
 
 quint32 S60SymbianCertificate::certificateVersion()
