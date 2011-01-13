@@ -85,6 +85,7 @@ private slots:
     void handleFreePortsChanged();
     void showRemoteProcesses();
     void setDefaultKeyFilePath();
+    void setDefaultDevice();
 
     // For configuration testing.
     void testConfig();

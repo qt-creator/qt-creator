@@ -164,6 +164,8 @@ void MaemoDeviceConfigurationsSettingsWidget::initGui()
     connect(m_ui->configurationComboBox, SIGNAL(currentIndexChanged(int)),
         SLOT(currentConfigChanged(int)));
     currentConfigChanged(currentIndex());
+    connect(m_ui->defaultDeviceButton, SIGNAL(clicked()),
+        SLOT(setDefaultDevice()));
 }
 
 void MaemoDeviceConfigurationsSettingsWidget::addConfig()
@@ -194,6 +196,7 @@ void MaemoDeviceConfigurationsSettingsWidget::deleteConfig()
 void MaemoDeviceConfigurationsSettingsWidget::displayCurrent()
 {
     const MaemoDeviceConfig::ConstPtr &current = currentConfig();
+    m_ui->defaultDeviceButton->setEnabled(!current->isDefault());
     const SshConnectionParameters &sshParams = current->sshParameters();
     if (current->type() == MaemoDeviceConfig::Physical)
         m_ui->deviceButton->setChecked(true);
@@ -356,6 +359,12 @@ void MaemoDeviceConfigurationsSettingsWidget::setDefaultKeyFilePath()
     m_devConfigs->setDefaultSshKeyFilePath(m_ui->keyFileLineEdit->path());
 }
 
+void MaemoDeviceConfigurationsSettingsWidget::setDefaultDevice()
+{
+    m_devConfigs->setDefaultDevice(currentIndex());
+    m_ui->defaultDeviceButton->setEnabled(false);
+}
+
 void MaemoDeviceConfigurationsSettingsWidget::setPrivateKey(const QString &path)
 {
     m_ui->keyFileLineEdit->setPath(path);
@@ -456,6 +465,7 @@ void MaemoDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
         m_ui->remoteProcessesButton->setEnabled(false);
         clearDetails();
         m_ui->detailsWidget->setEnabled(false);
+        m_ui->defaultDeviceButton->setEnabled(false);
     } else {
         m_ui->removeConfigButton->setEnabled(true);
         m_ui->testConfigButton->setEnabled(true);

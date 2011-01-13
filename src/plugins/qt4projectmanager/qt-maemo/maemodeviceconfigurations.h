@@ -104,6 +104,7 @@ public:
     QString name() const { return m_name; }
     DeviceType type() const { return m_type; }
     QString portsSpec() const { return m_portsSpec; }
+    bool isDefault() const { return m_isDefault; }
     Id internalId() const { return m_internalId; }
     static QString portsRegExpr();
 
@@ -164,6 +165,7 @@ public:
     void setDeviceType(int i, const MaemoDeviceConfig::DeviceType type);
     void setSshParameters(int i, const Core::SshConnectionParameters &params);
     void setPortsSpec(int i, const QString &portsSpec);
+    void setDefaultDevice(int index);
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index,

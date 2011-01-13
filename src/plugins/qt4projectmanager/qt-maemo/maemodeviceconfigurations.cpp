@@ -432,6 +432,27 @@ void MaemoDeviceConfigurations::setPortsSpec(int i, const QString &portsSpec)
     m_devConfigs.at(i)->m_portsSpec = portsSpec;
 }
 
+void MaemoDeviceConfigurations::setDefaultDevice(int idx)
+{
+    Q_ASSERT(idx >= 0 && idx < rowCount());
+    if (m_devConfigs.at(idx)->m_isDefault)
+        return;
+    QModelIndex oldDefaultIndex;
+    for(int i = 0; i < m_devConfigs.count(); ++i) {
+        const MaemoDeviceConfig::Ptr &oldDefaultDev = m_devConfigs.at(i);
+        if (oldDefaultDev->m_isDefault) {
+            oldDefaultDev->m_isDefault = false;
+            oldDefaultIndex = index(i, 0);
+            break;
+        }
+    }
+    Q_ASSERT(oldDefaultIndex.isValid());
+    emit dataChanged(oldDefaultIndex, oldDefaultIndex);
+    m_devConfigs.at(idx)->m_isDefault = true;
+    const QModelIndex newDefaultIndex = index(idx, 0);
+    emit dataChanged(newDefaultIndex, newDefaultIndex);
+}
+
 MaemoDeviceConfigurations::MaemoDeviceConfigurations(QObject *parent)
     : QAbstractListModel(parent)
 {
