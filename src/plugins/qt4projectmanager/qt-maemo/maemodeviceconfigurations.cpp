@@ -176,6 +176,49 @@ private:
     const QString &m_portsSpec;
 };
 
+
+void MaemoPortList::addPort(int port) { addRange(port, port); }
+
+void MaemoPortList::addRange(int startPort, int endPort)
+{
+    m_ranges << Range(startPort, endPort);
+}
+
+bool MaemoPortList::hasMore() const { return !m_ranges.isEmpty(); }
+
+int MaemoPortList::count() const
+{
+    int n = 0;
+    foreach (const Range &r, m_ranges)
+        n += r.second - r.first + 1;
+    return n;
+}
+
+int MaemoPortList::getNext()
+{
+    Q_ASSERT(!m_ranges.isEmpty());
+    Range &firstRange = m_ranges.first();
+    const int next = firstRange.first++;
+    if (firstRange.first > firstRange.second)
+        m_ranges.removeFirst();
+    return next;
+}
+
+QString MaemoPortList::toString() const
+{
+    QString stringRep;
+    foreach (const Range &range, m_ranges) {
+        stringRep += QString::number(range.first);
+        if (range.second != range.first)
+            stringRep += QLatin1Char('-') + QString::number(range.second);
+        stringRep += QLatin1Char(',');
+    }
+    if (!stringRep.isEmpty())
+        stringRep.remove(stringRep.length() - 1, 1); // Trailing comma.
+    return stringRep;
+}
+
+
 MaemoDeviceConfig::Ptr MaemoDeviceConfig::create(const QString &name,
     DeviceType type, Id &nextId)
 {
@@ -285,6 +328,9 @@ void MaemoDeviceConfig::save(QSettings &settings) const
     settings.setValue(IsDefaultKey, m_isDefault);
     settings.setValue(InternalIdKey, m_internalId);
 }
+
+const MaemoDeviceConfig::Id MaemoDeviceConfig::InvalidId = 0;
+
 
 MaemoDeviceConfigurations *MaemoDeviceConfigurations::instance(QObject *parent)
 {
@@ -514,7 +560,7 @@ MaemoDeviceConfig::ConstPtr MaemoDeviceConfigurations::defaultDeviceConfig() con
 int MaemoDeviceConfigurations::indexForInternalId(MaemoDeviceConfig::Id internalId) const
 {
     for (int i = 0; i < m_devConfigs.count(); ++i) {
-        if (deviceAt(i)->internalId() == internalId)
+        if (deviceAt(i)->m_internalId == internalId)
             return i;
     }
     return -1;
@@ -522,7 +568,7 @@ int MaemoDeviceConfigurations::indexForInternalId(MaemoDeviceConfig::Id internal
 
 MaemoDeviceConfig::Id MaemoDeviceConfigurations::internalId(MaemoDeviceConfig::ConstPtr devConf) const
 {
-    return devConf ? devConf->internalId() : MaemoDeviceConfig::InvalidId;
+    return devConf ? devConf->m_internalId : MaemoDeviceConfig::InvalidId;
 }
 
 int MaemoDeviceConfigurations::rowCount(const QModelIndex &parent) const

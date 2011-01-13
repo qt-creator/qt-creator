@@ -52,44 +52,19 @@ namespace Internal {
 
 class MaemoPortList
 {
-    typedef QPair<int, int> Range;
 public:
-    void addPort(int port) { addRange(port, port); }
-    void addRange(int startPort, int endPort) {
-        m_ranges << Range(startPort, endPort);
-    }
-    bool hasMore() const { return !m_ranges.isEmpty(); }
-    int count() const {
-        int n = 0;
-        foreach (const Range &r, m_ranges)
-            n += r.second - r.first + 1;
-        return n;
-    }
-    int getNext() {
-        Q_ASSERT(!m_ranges.isEmpty());
-        Range &firstRange = m_ranges.first();
-        const int next = firstRange.first++;
-        if (firstRange.first > firstRange.second)
-            m_ranges.removeFirst();
-        return next;
-    }
-    QString toString() const
-    {
-        QString stringRep;
-        foreach (const Range &range, m_ranges) {
-            stringRep += QString::number(range.first);
-            if (range.second != range.first)
-                stringRep += QLatin1Char('-') + QString::number(range.second);
-            stringRep += QLatin1Char(',');
-        }
-        if (!stringRep.isEmpty())
-            stringRep.remove(stringRep.length() - 1, 1); // Trailing comma.
-        return stringRep;
-    }
+    void addPort(int port);
+    void addRange(int startPort, int endPort);
+    bool hasMore() const;
+    int count() const;
+    int getNext();
+    QString toString() const;
 
 private:
+    typedef QPair<int, int> Range;
     QList<Range> m_ranges;
 };
+
 
 class MaemoDeviceConfig
 {
@@ -105,10 +80,9 @@ public:
     DeviceType type() const { return m_type; }
     QString portsSpec() const { return m_portsSpec; }
     bool isDefault() const { return m_isDefault; }
-    Id internalId() const { return m_internalId; }
     static QString portsRegExpr();
 
-    static const Id InvalidId = 0;
+    static const Id InvalidId;
 
 private:
     typedef QSharedPointer<MaemoDeviceConfig> Ptr;
