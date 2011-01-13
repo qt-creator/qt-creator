@@ -14,6 +14,7 @@ include(../../rpath.pri)
 include (../../plugins/qmldesigner/designercore/instances/instances.pri)
 include (../../plugins/qmldesigner/designercore/exceptions/exceptions.pri)
 
-CONFIG -= app_bundle
-
 SOURCES += main.cpp
+
+OTHER_FILES += Info.plist
+macx:QMAKE_INFO_PLIST = Info.plist

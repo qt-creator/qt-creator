@@ -49,15 +49,21 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    m_localServer->listen(socketToken);
    m_localServer->setMaxPendingConnections(2);
 
+   QString applicationPath = QCoreApplication::applicationDirPath();
+#ifdef Q_OS_MACX
+   applicationPath += "/qmlpuppet.app/Contents/MacOS";
+#endif
+   applicationPath += "/qmlpuppet";
+
    m_qmlPuppetEditorProcess = new QProcess(QCoreApplication::instance());
    connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
    m_qmlPuppetEditorProcess->setProcessChannelMode(QProcess::ForwardedChannels);
-   m_qmlPuppetEditorProcess->start(QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("qmlpuppet"), QStringList() << socketToken << "editormode" << "-graphicssystem raster");
+   m_qmlPuppetEditorProcess->start(applicationPath, QStringList() << socketToken << "editormode" << "-graphicssystem raster");
 
    m_qmlPuppetPreviewProcess = new QProcess(QCoreApplication::instance());
    connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
    m_qmlPuppetPreviewProcess->setProcessChannelMode(QProcess::ForwardedChannels);
-   m_qmlPuppetPreviewProcess->start(QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("qmlpuppet"), QStringList() << socketToken << "previewmode" << "-graphicssystem raster");
+   m_qmlPuppetPreviewProcess->start(applicationPath, QStringList() << socketToken << "previewmode" << "-graphicssystem raster");
 
    connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 
