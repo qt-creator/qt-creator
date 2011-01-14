@@ -191,8 +191,10 @@ bool HelpViewer::isBackwardAvailable() const
 }
 
 bool HelpViewer::findText(const QString &text, Find::FindFlags flags,
-    bool incremental, bool fromSearch)
+    bool incremental, bool fromSearch, bool *wrapped)
 {
+    if (wrapped)
+        *wrapped = false;
     QTextDocument *doc = document();
     QTextCursor cursor = textCursor();
     if (!doc || cursor.isNull())
@@ -210,6 +212,8 @@ bool HelpViewer::findText(const QString &text, Find::FindFlags flags,
         else
             cursor.movePosition(QTextCursor::End);
         found = doc->find(text, cursor, f);
+        if (!found.isNull() && wrapped)
+            *wrapped = true;
     }
 
     if (fromSearch) {

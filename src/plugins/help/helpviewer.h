@@ -87,7 +87,7 @@ public:
     bool isBackwardAvailable() const;
 
     bool findText(const QString &text, Find::FindFlags flags,
-        bool incremental, bool fromSearch);
+        bool incremental, bool fromSearch, bool *wrapped = 0);
 
     static const QString NsNokia;
     static const QString NsTrolltech;

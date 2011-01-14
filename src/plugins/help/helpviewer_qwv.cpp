@@ -344,17 +344,25 @@ bool HelpViewer::isBackwardAvailable() const
 }
 
 bool HelpViewer::findText(const QString &text, Find::FindFlags flags,
-    bool incremental, bool fromSearch)
+    bool incremental, bool fromSearch, bool *wrapped)
 {
     Q_UNUSED(incremental);
     Q_UNUSED(fromSearch);
-    QWebPage::FindFlags options = QWebPage::FindWrapsAroundDocument;
+    if (wrapped)
+        *wrapped = false;
+    QWebPage::FindFlags options;
     if (flags & Find::FindBackward)
         options |= QWebPage::FindBackward;
     if (flags & Find::FindCaseSensitively)
         options |= QWebPage::FindCaseSensitively;
 
     bool found = QWebView::findText(text, options);
+    if (!found) {
+        options |= QWebPage::FindWrapsAroundDocument;
+        found = QWebView::findText(text, options);
+        if (found && wrapped)
+            *wrapped = true;
+    }
     options = QWebPage::HighlightAllOccurrences;
     QWebView::findText(QLatin1String(""), options); // clear first
     QWebView::findText(text, options); // force highlighting of all other matches

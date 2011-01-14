@@ -73,7 +73,7 @@ public:
     void setCurrentPage(HelpViewer *page);
 
     bool find(const QString &txt, Find::FindFlags findFlags,
-        bool incremental);
+        bool incremental, bool *wrapped = 0);
 
 public slots:
     void copy();

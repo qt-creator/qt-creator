@@ -167,9 +167,9 @@ void CentralWidget::setCurrentPage(HelpViewer *page)
 }
 
 bool CentralWidget::find(const QString &txt, Find::FindFlags flags,
-    bool incremental)
+    bool incremental, bool *wrapped)
 {
-    return currentHelpViewer()->findText(txt, flags, incremental, false);
+    return currentHelpViewer()->findText(txt, flags, incremental, false, wrapped);
 }
 
 // -- public slots
