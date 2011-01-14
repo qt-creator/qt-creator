@@ -183,7 +183,7 @@ IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, Find::Fin
     cursor.setPosition(d->m_incrementalStartPos);
     bool wrapped = false;
     bool found =  find(txt, findFlags, cursor, &wrapped);
-    if (wrapped != d->m_incrementalWrappedState) {
+    if (wrapped != d->m_incrementalWrappedState && found) {
         d->m_incrementalWrappedState = wrapped;
         showWrapIndicator(d->m_widget);
     }
@@ -292,8 +292,6 @@ bool BaseTextFind::find(const QString &txt,
 
         // scoped
         if (found.isNull() || !inScope(found.selectionStart(), found.selectionEnd())) {
-            if (wrapped)
-                *wrapped = true;
             if ((findFlags&Find::FindBackward) == 0)
                 start.setPosition(d->m_findScopeStart.position());
             else
@@ -301,21 +299,22 @@ bool BaseTextFind::find(const QString &txt,
             found = findOne(regexp, start, Find::textDocumentFlagsForFindFlags(findFlags));
             if (found.isNull() || !inScope(found.selectionStart(), found.selectionEnd()))
                 return false;
+            if (wrapped)
+                *wrapped = true;
         }
     } else {
 
         // entire document
         if (found.isNull()) {
-            if (wrapped)
-                *wrapped = true;
             if ((findFlags&Find::FindBackward) == 0)
                 start.movePosition(QTextCursor::Start);
             else
                 start.movePosition(QTextCursor::End);
             found = findOne(regexp, start, Find::textDocumentFlagsForFindFlags(findFlags));
-            if (found.isNull()) {
+            if (found.isNull())
                 return false;
-            }
+            if (wrapped)
+                *wrapped = true;
         }
     }
     if (!found.isNull()) {
