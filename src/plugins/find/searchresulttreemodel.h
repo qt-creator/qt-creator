@@ -66,13 +66,15 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
-    QModelIndex next(const QModelIndex &idx, bool includeGenerated = false) const;
-    QModelIndex prev(const QModelIndex &idx, bool includeGenerated = false) const;
+    QModelIndex next(const QModelIndex &idx, bool includeGenerated = false, bool *wrapped = 0) const;
+    QModelIndex prev(const QModelIndex &idx, bool includeGenerated = false, bool *wrapped = 0) const;
 
     QList<QModelIndex> addResults(const QList<SearchResultItem> &items, SearchResultWindow::AddMode mode);
 
-    QModelIndex find(const QRegExp &expr, const QModelIndex &index, QTextDocument::FindFlags flags);
-    QModelIndex find(const QString &term, const QModelIndex &index, QTextDocument::FindFlags flags);
+    QModelIndex find(const QRegExp &expr, const QModelIndex &index,
+                     QTextDocument::FindFlags flags, bool *wrapped = 0);
+    QModelIndex find(const QString &term, const QModelIndex &index,
+                     QTextDocument::FindFlags flags, bool *wrapped = 0);
 
 signals:
     void jumpToSearchResult(const QString &fileName, int lineNumber,
@@ -87,8 +89,8 @@ private:
     QSet<SearchResultTreeItem *> addPath(const QStringList &path);
     QVariant data(const SearchResultTreeItem *row, int role) const;
     bool setCheckState(const QModelIndex &idx, Qt::CheckState checkState, bool firstCall = true);
-    QModelIndex nextIndex(const QModelIndex &idx) const;
-    QModelIndex prevIndex(const QModelIndex &idx) const;
+    QModelIndex nextIndex(const QModelIndex &idx, bool *wrapped = 0) const;
+    QModelIndex prevIndex(const QModelIndex &idx, bool *wrapped = 0) const;
     SearchResultTreeItem *treeItemAtIndex(const QModelIndex &idx) const;
 
     SearchResultTreeItem *m_rootItem;

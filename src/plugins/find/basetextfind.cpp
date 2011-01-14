@@ -185,8 +185,7 @@ IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, Find::Fin
     bool found =  find(txt, findFlags, cursor, &wrapped);
     if (wrapped != d->m_incrementalWrappedState) {
         d->m_incrementalWrappedState = wrapped;
-        if (found)
-                showWrapIndicator(d->m_widget);
+        showWrapIndicator(d->m_widget);
     }
     if (found)
         emit highlightAll(txt, findFlags);
