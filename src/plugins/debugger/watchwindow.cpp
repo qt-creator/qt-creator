@@ -379,11 +379,15 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actRemoveWatchExpression = new QAction(removeWatchActionText(exp), &menu);
     actRemoveWatchExpression->setEnabled(
         (canHandleWatches || state == DebuggerNotReady) && !exp.isEmpty());
+    QAction *actRemoveWatches = new QAction(tr("Clear Watch Items"), &menu);
+    actRemoveWatches->setEnabled(!WatchHandler::watcherNames().isEmpty());
 
     if (m_type == LocalsType)
         menu.addAction(actWatchExpression);
-    else
+    else {
         menu.addAction(actRemoveWatchExpression);
+        menu.addAction(actRemoveWatches);
+    }
 
     QMenu memoryMenu;
     memoryMenu.setTitle(tr("Open Memory Editor..."));
@@ -481,6 +485,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         watchExpression(exp);
     } else if (act == actRemoveWatchExpression) {
         removeWatchExpression(exp);
+    } else if (act == actRemoveWatches) {
+        currentEngine()->watchHandler()->clearWatches();
     } else if (act == actClearCodeModelSnapshot) {
         debuggerCore()->clearCppCodeModelSnapshot();
     } else if (act == clearTypeFormatAction) {

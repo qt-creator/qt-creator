@@ -1326,6 +1326,19 @@ void WatchHandler::showEditValue(const WatchData &data)
     }
 }
 
+void WatchHandler::clearWatches()
+{
+    if (m_watcherNames.isEmpty())
+        return;
+    foreach (WatchItem *item, m_watchers->rootItem()->children)
+        m_watchers->destroyItem(item);
+    m_watcherNames.clear();
+    watcherCounter = 0;
+    updateWatchersWindow();
+    emitAllChanged();
+    saveWatchers();
+}
+
 void WatchHandler::removeWatchExpression(const QString &exp0)
 {
     QByteArray exp = exp0.toLatin1();

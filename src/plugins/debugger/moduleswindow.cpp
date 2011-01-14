@@ -42,6 +42,7 @@
 #include <utils/savedaction.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QProcess>
 
 #include <QtGui/QHeaderView>
 #include <QtGui/QMenu>
@@ -84,11 +85,14 @@ void ModulesWindow::moduleActivated(const QModelIndex &index)
 void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QString name;
+    QString fileName;
     QModelIndex index = indexAt(ev->pos());
     if (index.isValid())
         index = index.sibling(index.row(), 0);
-    if (index.isValid())
+    if (index.isValid()) {
         name = index.data().toString();
+        fileName = index.sibling(index.row(), 1).data().toString();
+    }
 
     DebuggerEngine *engine = debuggerCore()->currentEngine();
     QTC_ASSERT(engine, return);
@@ -120,6 +124,7 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actLoadSymbolsForModule = 0;
     QAction *actEditFile = 0;
     QAction *actShowModuleSymbols = 0;
+    QAction *actShowDependencies = 0; // Show dependencies by running 'depends.exe'
     if (name.isEmpty()) {
         actLoadSymbolsForModule = new QAction(tr("Load Symbols for Module"), &menu);
         actLoadSymbolsForModule->setEnabled(false);
@@ -127,6 +132,10 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
         actEditFile->setEnabled(false);
         actShowModuleSymbols = new QAction(tr("Show Symbols"), &menu);
         actShowModuleSymbols->setEnabled(false);
+#ifdef Q_OS_WIN
+        actShowDependencies = new QAction(tr("Show Dependencies"), &menu);
+        actShowDependencies->setEnabled(false);
+#endif
     } else {
         actLoadSymbolsForModule
             = new QAction(tr("Load Symbols for Module \"%1\"").arg(name), &menu);
@@ -138,10 +147,16 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
             = new QAction(tr("Show Symbols in File \"%1\"").arg(name), &menu);
         actShowModuleSymbols
             ->setEnabled(capabilities & ShowModuleSymbolsCapability);
+#ifdef Q_OS_WIN
+        actShowDependencies = new QAction(tr("Show Dependencies of \"%1\"").arg(name), &menu);
+        actShowDependencies->setEnabled(!fileName.isEmpty());
+#endif
     }
 
     menu.addAction(actUpdateModuleList);
     //menu.addAction(actShowModuleSources);  // FIXME
+    if (actShowDependencies)
+        menu.addAction(actShowDependencies);
     menu.addAction(actLoadSymbolsForAllModules);
     menu.addAction(actExamineAllModules);
     menu.addAction(actLoadSymbolsForModule);
@@ -177,6 +192,8 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
       engine->gotoLocation(name);
     else if (act == actShowModuleSymbols)
       engine->requestModuleSymbols(name);
+    else if (actShowDependencies && act == actShowDependencies)
+        QProcess::startDetached(QLatin1String("depends"), QStringList(fileName));
 }
 
 void ModulesWindow::resizeColumnsToContents()

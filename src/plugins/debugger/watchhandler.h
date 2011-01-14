@@ -144,6 +144,7 @@ public:
     void cleanup();
     void watchExpression(const QString &exp);
     void removeWatchExpression(const QString &exp);
+    Q_SLOT void clearWatches();
     Q_SLOT void emitAllChanged();
 
     void beginCycle(bool fullCycle = true); // Called at begin of updateLocals() cycle
