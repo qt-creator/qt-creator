@@ -4502,6 +4502,24 @@ void GdbEngine::handleRemoteSetupFailed(const QString &message)
     m_gdbAdapter->handleRemoteSetupFailed(message);
 }
 
+bool GdbEngine::prepareForQmlBreak()
+{
+    QTC_ASSERT(isSlaveEngine(), return false);
+    postCommand("-break-insert -t qscriptfunction.cpp:82",
+        NeedsStop, CB(handleQmlBreakpoint));
+    return true;
+}
+
+void GdbEngine::handleQmlBreakpoint(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        qDebug() << "RESPONSE: " << response.toString();
+    }
+    QTC_ASSERT(masterEngine(), return);
+    masterEngine()->handlePrepareForQmlBreak();
+}
+
+
 //
 // Factory
 //

@@ -244,6 +244,9 @@ public:
     bool isMasterEngine() const;
     DebuggerEngine *masterEngine() const;
 
+    virtual bool prepareForQmlBreak() { return false; }
+    virtual void handlePrepareForQmlBreak() {}
+
 signals:
     void stateChanged(const DebuggerState &state);
     void updateViewsRequested();

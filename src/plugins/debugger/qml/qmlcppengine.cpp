@@ -1,17 +1,11 @@
+
 #include "qmlcppengine.h"
-#include "debuggerstartparameters.h"
-#include "qmlengine.h"
-#include "debuggermainwindow.h"
+
 #include "debuggercore.h"
-
-#include <qmljseditor/qmljseditorconstants.h>
-
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
+#include "debuggerstartparameters.h"
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QTimer>
 
 namespace Debugger {
 namespace Internal {
@@ -63,7 +57,7 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
         d->m_cppEngine = createGdbEngine(sp, this);
     } else {
         QString errorMessage;
-        d->m_cppEngine = Debugger::Internal::createCdbEngine(sp, this, &errorMessage);
+        d->m_cppEngine = createCdbEngine(sp, this, &errorMessage);
         if (!d->m_cppEngine) {
             qWarning("%s", qPrintable(errorMessage));
             return;
@@ -219,6 +213,18 @@ void QmlCppEngine::detachDebugger()
 }
 
 void QmlCppEngine::executeStep()
+{
+    if (d->m_activeEngine == d->m_qmlEngine) {
+        QTC_ASSERT(d->m_cppEngine->state() == InferiorRunOk, /**/);
+        if (d->m_cppEngine->prepareForQmlBreak())
+            return; // Wait for call back.
+    }
+
+    notifyInferiorRunRequested();
+    d->m_activeEngine->executeStep();
+}
+
+void QmlCppEngine::handlePrepareForQmlBreak()
 {
     notifyInferiorRunRequested();
     d->m_activeEngine->executeStep();

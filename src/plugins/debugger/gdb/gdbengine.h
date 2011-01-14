@@ -517,6 +517,9 @@ private: ////////// View & Data Stuff //////////
     void setLocals(const QList<GdbMi> &locals);
     void handleStackListArgumentsClassic(const GdbResponse &response);
 
+    bool prepareForQmlBreak();
+    void handleQmlBreakpoint(const GdbResponse &response);
+
     QSet<QByteArray> m_processedNames;
 
     //
