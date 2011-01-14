@@ -86,6 +86,7 @@ void MaemoDeployStepWidget::setCurrentDeviceConfig(int index)
         SLOT(handleDeviceUpdate()));
     m_step->setDeviceConfig(index);
     connect(m_step, SIGNAL(deviceConfigChanged()), SLOT(handleDeviceUpdate()));
+    updateSummary();
 }
 
 void MaemoDeployStepWidget::setDeployToSysroot(bool doDeploy)
