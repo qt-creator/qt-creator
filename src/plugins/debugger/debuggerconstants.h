@@ -118,7 +118,6 @@ enum DebuggerState
 
     EngineRunRequested,
     EngineRunFailed,
-    EngineRunOk,
 
     InferiorUnrunnable,        // Used in the core dump adapter
 

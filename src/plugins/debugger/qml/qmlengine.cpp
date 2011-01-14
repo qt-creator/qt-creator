@@ -676,7 +676,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
     if (command == "STOPPED") {
         qDebug() << command << this << state();
-        if (state() == InferiorRunOk || state() == EngineRunOk)
+        if (state() == InferiorRunOk)
             notifyInferiorSpontaneousStop();
 
         QString logString = QString(command);

@@ -440,18 +440,6 @@ void QmlCppEngine::slaveEngineStateChanged
         notifyEngineRunFailed();
         break;
 
-    case EngineRunOk:
-        if (otherEngine->state() == EngineRunOk) {
-            // This is conditionalized on isMasterEngine() in the
-            // base class, so do it here manually.
-            slaveEngine->setSilentState(InferiorRunOk);
-            otherEngine->setSilentState(InferiorRunOk);
-            notifyEngineRunAndInferiorRunOk();
-        } else {
-            qDebug() << "... WAITING FOR OTHER ENGINE RUN...";
-        }
-        break;
-
 
     case InferiorRunRequested:
         break;
@@ -461,11 +449,21 @@ void QmlCppEngine::slaveEngineStateChanged
         break;
 
     case InferiorRunOk:
-        qDebug() << "PLANNED INFERIOR RUN";
-        if (otherEngine->state() == InferiorRunOk)
-            notifyInferiorRunOk();
-        else
-            qDebug() << " **** INFERIOR RUN NOT OK ****";
+        if (state() == EngineRunRequested) {
+            if (otherEngine->state() == InferiorRunOk)
+                notifyEngineRunAndInferiorRunOk();
+            else if (otherEngine->state() == InferiorRunOk)
+                notifyEngineRunAndInferiorStopOk();
+            else
+                qDebug() << "... WAITING FOR OTHER INFERIOR RUN";
+        } else {
+            if (otherEngine->state() == InferiorRunOk) {
+                qDebug() << "PLANNED INFERIOR RUN";
+                notifyInferiorRunOk();
+            } else {
+                qDebug() << " **** INFERIOR RUN NOT OK ****";
+            }
+        }
         break;
 
 

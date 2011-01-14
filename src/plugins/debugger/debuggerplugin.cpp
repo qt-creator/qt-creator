@@ -199,8 +199,6 @@
 //      Inferior-     Inferior-   Inferior-  EngineRun-                     +
 //     Unrunnable}     StopOk}     RunOk}     Failed}                       +
 //           +           +            +           +                         +
-//     EngineRunOk  EngineRunOk  EngineRunOk      +                         +
-//           +           +            +           +                         +
 //   InferiorUnrunnable  +     InferiorRunOk      +                         +
 //                       +                        +                         +
 //                InferiorStopOk            EngineRunFailed                 +

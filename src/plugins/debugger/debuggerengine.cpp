@@ -331,7 +331,6 @@ const char *DebuggerEngine::stateName(int s)
         SN(EngineSetupOk)
         SN(EngineSetupFailed)
         SN(EngineRunFailed)
-        SN(EngineRunOk)
         SN(InferiorSetupRequested)
         SN(InferiorSetupFailed)
         SN(InferiorSetupOk)
@@ -704,12 +703,12 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
         return to == EngineRunRequested;
 
     case EngineRunRequested:
-        return to == EngineRunOk || EngineRunFailed;
+        return to == EngineRunFailed
+            || to == InferiorRunOk
+            || to == InferiorStopOk
+            || to == InferiorUnrunnable;
     case EngineRunFailed:
         return to == EngineShutdownRequested;
-    case EngineRunOk:
-        return InferiorRunOk || to == InferiorStopOk
-            || to == InferiorUnrunnable;
 
     case InferiorRunRequested:
         return to == InferiorRunOk || to == InferiorRunFailed;
@@ -864,9 +863,7 @@ void DebuggerEngine::notifyEngineRunAndInferiorRunOk()
     d->m_progress.setProgressValue(1000);
     d->m_progress.reportFinished();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << this << state());
-    setState(EngineRunOk);
-    if (isMasterEngine())
-        setState(InferiorRunOk);
+    setState(InferiorRunOk);
 }
 
 void DebuggerEngine::notifyEngineRunAndInferiorStopOk()
@@ -875,9 +872,7 @@ void DebuggerEngine::notifyEngineRunAndInferiorStopOk()
     d->m_progress.setProgressValue(1000);
     d->m_progress.reportFinished();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << this << state());
-    setState(EngineRunOk);
-    if (isMasterEngine())
-        setState(InferiorStopOk);
+    setState(InferiorStopOk);
 }
 
 void DebuggerEngine::notifyInferiorRunRequested()
@@ -1193,7 +1188,6 @@ bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
     case EngineSetupFailed:
     case EngineRunRequested:
     case EngineRunFailed:
-    case EngineRunOk:
     case InferiorSetupFailed:
     case InferiorStopFailed:
     case InferiorStopSpontaneous:
