@@ -73,8 +73,10 @@ void SnippetEditor::setSyntaxHighlighter(TextEditor::SyntaxHighlighter *highligh
 
 void SnippetEditor::focusOutEvent(QFocusEvent *event)
 {
-    if (event->reason() != Qt::ActiveWindowFocusReason && document()->isModified())
+    if (event->reason() != Qt::ActiveWindowFocusReason && document()->isModified()) {
+        document()->setModified(false);
         emit snippetContentChanged();
+    }
 }
 
 BaseTextEditorEditable *SnippetEditor::createEditableInterface()

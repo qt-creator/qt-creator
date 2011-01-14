@@ -387,6 +387,9 @@ void SnippetsSettingsPagePrivate::apply()
     if (settingsChanged())
         writeSettings();
 
+    if (currentEditor()->document()->isModified())
+        setSnippetContent();
+
     if (m_snippetsCollectionChanged) {
         SnippetsCollection::instance()->synchronize();
         m_snippetsCollectionChanged = false;
