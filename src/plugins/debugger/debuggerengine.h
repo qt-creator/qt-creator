@@ -345,6 +345,11 @@ protected:
     bool isStateDebugging() const;
     void setStateDebugging(bool on);
 
+    virtual void setupSlaveInferior();
+    virtual void setupSlaveEngine();
+    virtual void runSlaveEngine();
+    virtual void shutdownSlaveEngine();
+
 private:
     // Wrapper engine needs access to state of its subengines.
     friend class Internal::QmlCppEngine;

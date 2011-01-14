@@ -191,12 +191,27 @@ public:
     ~DebuggerEnginePrivate() {}
 
 public slots:
+    void doSetupEngine();
     void doSetupInferior();
     void doRunEngine();
     void doShutdownEngine();
     void doShutdownInferior();
     void doInterruptInferior();
     void doFinishDebugger();
+
+    void queueSetupEngine()
+    {
+        m_engine->setState(EngineSetupRequested);
+        m_engine->showMessage(_("QUEUE: SETUP ENGINE"));
+        QTimer::singleShot(0, this, SLOT(doSetupEngine()));
+    }
+
+    void queueSetupInferior()
+    {
+        m_engine->setState(InferiorSetupRequested);
+        m_engine->showMessage(_("QUEUE: SETUP INFERIOR"));
+        QTimer::singleShot(0, this, SLOT(doSetupInferior()));
+    }
 
     void queueRunEngine()
     {
@@ -528,10 +543,8 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
          qDebug() << state());
     d->m_lastGoodState = DebuggerNotReady;
     d->m_targetState = DebuggerNotReady;
-    setState(EngineSetupRequested);
-
     d->m_progress.setProgressValue(200);
-    setupEngine();
+    d->queueSetupEngine();
 }
 
 void DebuggerEngine::resetLocation()
@@ -744,6 +757,19 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
     return false;
 }
 
+void DebuggerEngine::setupSlaveEngine()
+{
+    QTC_ASSERT(state() == DebuggerNotReady, /**/);
+    d->queueSetupEngine();
+}
+
+void DebuggerEnginePrivate::doSetupEngine()
+{
+    m_engine->showMessage(_("CALL: SETUP ENGINE"));
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << m_engine << state());
+    m_engine->setupEngine();
+}
+
 void DebuggerEngine::notifyEngineSetupFailed()
 {
     showMessage(_("NOTE: ENGINE SETUP FAILED"));
@@ -761,16 +787,20 @@ void DebuggerEngine::notifyEngineSetupOk()
     setState(EngineSetupOk);
     showMessage(_("QUEUE: SETUP INFERIOR"));
     if (isMasterEngine())
-        QTimer::singleShot(0, d, SLOT(doSetupInferior()));
+        d->queueSetupInferior();
+}
+
+void DebuggerEngine::setupSlaveInferior()
+{
+    QTC_ASSERT(state() == EngineSetupOk, /**/);
+    d->queueSetupInferior();
 }
 
 void DebuggerEnginePrivate::doSetupInferior()
 {
-    QTC_ASSERT(isMasterEngine(), return);
     m_engine->showMessage(_("CALL: SETUP INFERIOR"));
-    QTC_ASSERT(state() == EngineSetupOk, qDebug() << m_engine << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << m_engine << state());
     m_progress.setProgressValue(250);
-    m_engine->setState(InferiorSetupRequested);
     m_engine->setupInferior();
 }
 
@@ -792,9 +822,15 @@ void DebuggerEngine::notifyInferiorSetupOk()
         d->queueRunEngine();
 }
 
+void DebuggerEngine::runSlaveEngine()
+{
+    QTC_ASSERT(isSlaveEngine(), return);
+    QTC_ASSERT(state() == InferiorSetupOk, /**/);
+    d->queueRunEngine();
+}
+
 void DebuggerEnginePrivate::doRunEngine()
 {
-    QTC_ASSERT(isMasterEngine(), return);
     m_engine->showMessage(_("CALL: RUN ENGINE"));
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << m_engine << state());
     m_progress.setProgressValue(300);
@@ -962,6 +998,13 @@ void DebuggerEngine::notifyInferiorIll()
         setState(InferiorStopOk);
     }
     d->queueShutdownInferior();
+}
+
+void DebuggerEngine::shutdownSlaveEngine()
+{
+    QTC_ASSERT(state() == InferiorShutdownOk, /**/);
+    setState(EngineShutdownRequested);
+    shutdownEngine();
 }
 
 void DebuggerEnginePrivate::doShutdownEngine()

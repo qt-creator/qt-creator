@@ -323,12 +323,8 @@ void QmlCppEngine::frameDown()
 void QmlCppEngine::setupEngine()
 {
     qDebug() << "\nMASTER SETUP ENGINE";
-    QTC_ASSERT(d->m_cppEngine->state() == DebuggerNotReady, /**/);
-    QTC_ASSERT(d->m_qmlEngine->state() == DebuggerNotReady, /**/);
-    d->m_qmlEngine->setSilentState(EngineSetupRequested);
-    d->m_cppEngine->setSilentState(EngineSetupRequested);
-    d->m_qmlEngine->setupEngine(); // Always succeeds.
-    d->m_cppEngine->setupEngine(); // May fail.
+    d->m_qmlEngine->setupSlaveEngine();
+    d->m_cppEngine->setupSlaveEngine();
 }
 
 void QmlCppEngine::notifyEngineRunAndInferiorRunOk()
@@ -358,23 +354,15 @@ void QmlCppEngine::notifyInferiorShutdownOk()
 void QmlCppEngine::setupInferior()
 {
     qDebug() << "\nMASTER SETUP INFERIOR";
-    QTC_ASSERT(d->m_cppEngine->state() == EngineSetupOk, /**/);
-    QTC_ASSERT(d->m_qmlEngine->state() == EngineSetupOk, /**/);
-    d->m_qmlEngine->setSilentState(InferiorSetupRequested);
-    d->m_cppEngine->setSilentState(InferiorSetupRequested);
-    d->m_cppEngine->setupInferior();
-    d->m_qmlEngine->setupInferior();
+    d->m_qmlEngine->setupSlaveInferior();
+    d->m_cppEngine->setupSlaveInferior();
 }
 
 void QmlCppEngine::runEngine()
 {
     qDebug() << "\nMASTER RUN ENGINE";
-    QTC_ASSERT(d->m_cppEngine->state() == InferiorSetupOk, /**/);
-    QTC_ASSERT(d->m_qmlEngine->state() == InferiorSetupOk, /**/);
-    d->m_qmlEngine->setSilentState(EngineRunRequested);
-    d->m_cppEngine->setSilentState(EngineRunRequested);
-    d->m_cppEngine->runEngine();
-    d->m_qmlEngine->runEngine();
+    d->m_qmlEngine->runSlaveEngine();
+    d->m_cppEngine->runSlaveEngine();
 }
 
 void QmlCppEngine::shutdownInferior()
@@ -386,12 +374,8 @@ void QmlCppEngine::shutdownInferior()
 void QmlCppEngine::shutdownEngine()
 {
     qDebug() << "\nMASTER SHUTDOWN ENGINE";
-    QTC_ASSERT(d->m_cppEngine->state() == InferiorShutdownOk, /**/);
-    QTC_ASSERT(d->m_qmlEngine->state() == InferiorShutdownOk, /**/);
-    d->m_qmlEngine->setSilentState(EngineShutdownRequested);
-    d->m_cppEngine->setSilentState(EngineShutdownRequested);
-    d->m_qmlEngine->shutdownEngine();
-    d->m_cppEngine->shutdownEngine();
+    d->m_qmlEngine->shutdownSlaveEngine();
+    d->m_cppEngine->shutdownSlaveEngine();
 }
 
 void QmlCppEngine::setState(DebuggerState newState, bool forced)
