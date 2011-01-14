@@ -353,6 +353,7 @@ SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
     Core::Command *cmd = Core::ICore::instance()->actionManager()->registerAction(
             d->m_expandCollapseAction, "Find.ExpandAll",
             Core::Context(Core::Constants::C_GLOBAL));
+    cmd->setAttribute(Core::Command::CA_UpdateText);
     d->m_expandCollapseButton->setDefaultAction(cmd->action());
 
     d->m_replaceLabel = new QLabel(tr("Replace with:"), d->m_widget);
@@ -686,10 +687,13 @@ void SearchResultWindow::addResults(QList<SearchResultItem> &items, AddMode mode
 void SearchResultWindow::handleExpandCollapseToolButton(bool checked)
 {
     d->m_searchResultTreeView->setAutoExpandResults(checked);
-    if (checked)
+    if (checked) {
+        d->m_expandCollapseAction->setText(tr("Collapse All"));
         d->m_searchResultTreeView->expandAll();
-    else
+    } else {
+        d->m_expandCollapseAction->setText(tr("Expand All"));
         d->m_searchResultTreeView->collapseAll();
+    }
 }
 
 /*!
