@@ -389,9 +389,8 @@ void QmlCppEngine::setState(DebuggerState newState, bool forced)
 void QmlCppEngine::slaveEngineStateChanged
     (DebuggerEngine *slaveEngine, const DebuggerState newState)
 {
-    const bool isCpp = slaveEngine == d->m_cppEngine;
-    //const bool isQml = slaveEngine == d->m_qmlEngine;
-    DebuggerEngine *otherEngine = isCpp ? d->m_qmlEngine : d->m_cppEngine;
+    DebuggerEngine *otherEngine = slaveEngine == d->m_cppEngine
+         ? d->m_qmlEngine : d->m_cppEngine;
 
     qDebug() << "GOT SLAVE STATE: " << slaveEngine << newState;
     qDebug() << "  OTHER ENGINE: " << otherEngine << otherEngine->state();
@@ -498,14 +497,6 @@ void QmlCppEngine::slaveEngineStateChanged
 
 
     case InferiorExitOk:
-        slaveEngine->setSilentState(InferiorShutdownOk);
-        if (otherEngine->state() == InferiorShutdownOk) {
-            notifyInferiorExited();
-        } else  {
-            if (state() == InferiorRunOk)
-                notifyInferiorSpontaneousStop();
-            otherEngine->notifyInferiorExited();
-        }
         break;
 
     case InferiorShutdownRequested:
@@ -516,12 +507,16 @@ void QmlCppEngine::slaveEngineStateChanged
         break;
 
     case InferiorShutdownOk:
-        if (otherEngine->state() == InferiorShutdownOk)
-            notifyInferiorShutdownOk();
-        else if (otherEngine->state() == InferiorRunOk)
+        if (otherEngine->state() == InferiorShutdownOk) {
+            if (state() == InferiorRunOk)
+                notifyInferiorExited();
+            else
+                notifyInferiorShutdownOk();
+        } else if (otherEngine->state() == InferiorRunOk) {
             otherEngine->quitDebugger();
-        else if (otherEngine->state() == InferiorStopOk)
+        } else if (otherEngine->state() == InferiorStopOk) {
             otherEngine->quitDebugger();
+        }
         break;
 
 

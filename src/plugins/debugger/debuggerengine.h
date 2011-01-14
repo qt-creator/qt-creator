@@ -356,7 +356,6 @@ private:
     friend class Internal::DebuggerPluginPrivate;
 
     virtual void setState(DebuggerState state, bool forced = false);
-    virtual void setSilentState(DebuggerState state);
     virtual void slaveEngineStateChanged(DebuggerEngine *engine,
         DebuggerState state);
 

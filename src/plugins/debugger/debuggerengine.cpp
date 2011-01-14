@@ -1074,10 +1074,9 @@ void DebuggerEngine::notifyInferiorExited()
     showMessage(_("NOTE: INFERIOR EXITED"));
     d->resetLocation();
     setState(InferiorExitOk);
-    if (isMasterEngine()) {
-        setState(InferiorShutdownOk);
+    setState(InferiorShutdownOk);
+    if (isMasterEngine())
         d->queueShutdownEngine();
-    }
 }
 
 void DebuggerEngine::slaveEngineStateChanged(DebuggerEngine *slaveEngine,
@@ -1123,18 +1122,6 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
 
     if (isSlaveEngine())
         masterEngine()->slaveEngineStateChanged(this, state);
-}
-
-void DebuggerEngine::setSilentState(DebuggerState state)
-{
-    qDebug() << "SILENT STATUS CHANGE: " << this
-        << " FROM " << stateName(d->m_state) << " TO " << stateName(state)
-        << isMasterEngine();
-
-    DebuggerState oldState = d->m_state;
-    d->m_state = state;
-    if (!isAllowedTransition(oldState, state))
-        qDebug() << "*** SILENT UNEXPECTED STATE TRANSITION " << this;
 }
 
 void DebuggerEngine::updateViews()
