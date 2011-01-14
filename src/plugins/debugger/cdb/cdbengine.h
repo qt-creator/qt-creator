@@ -177,6 +177,7 @@ private:
     void handleThreads(const CdbExtensionCommandPtr &);
     void handlePid(const CdbExtensionCommandPtr &reply);
     void handleLocals(const CdbExtensionCommandPtr &reply);
+    void handleAddWatch(const CdbExtensionCommandPtr &reply);
     void handleExpandLocals(const CdbExtensionCommandPtr &reply);
     void handleRegisters(const CdbExtensionCommandPtr &reply);
     void handleModules(const CdbExtensionCommandPtr &reply);

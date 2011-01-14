@@ -37,6 +37,8 @@
 #include "common.h"
 #include "symbolgroupnode.h"
 
+#include <map>
+
 /* A symbol group storing a tree of expanded symbols rooted on
  * a fake "locals" root element.
  * Provides a find() method based on inames ("locals.this.i1.data") and
@@ -53,20 +55,16 @@ private:
     SymbolGroup(const SymbolGroup &);
     SymbolGroup &operator=(const SymbolGroup &);
 
+protected:
     explicit SymbolGroup(CIDebugSymbolGroup *,
                          const SymbolParameterVector &vec,
-                         ULONG threadId, unsigned frame,
-                         const std::string &function);
+                         const std::string &rootModule,
+                         const char *rootName);
 
 public:
     typedef AbstractSymbolGroupNode::AbstractSymbolGroupNodePtrVector AbstractSymbolGroupNodePtrVector;
 
-    static SymbolGroup *create(CIDebugControl *control,
-                               CIDebugSymbols *,
-                               ULONG threadId,
-                               unsigned frame,
-                               std::string *errorMessage);
-    ~SymbolGroup();
+    virtual ~SymbolGroup();
 
     // Dump all
     std::string dump(const SymbolGroupValueContext &ctx,
@@ -78,10 +76,6 @@ public:
                       const std::string &filter = std::string(),
                       unsigned verbosity = 0) const;
 
-    unsigned frame() const { return m_frame; }
-    std::string function() const { return m_function; }
-    std::string module() const { return m_module; }
-    ULONG threadId() const { return m_threadId; }
     SymbolGroupNode *root() { return m_root; }
     const SymbolGroupNode *root() const { return m_root; }
     AbstractSymbolGroupNode *find(const std::string &iname) const;
@@ -103,7 +97,8 @@ public:
     // Cast an (unexpanded) node
     bool typeCast(const std::string &iname, const std::string &desiredType, std::string *errorMessage);
     // Add a symbol by name expression
-    SymbolGroupNode *addSymbol(const std::string &name, // Expression like 'myarray[1]'
+    SymbolGroupNode *addSymbol(const std::string &module,
+                               const std::string &name, // Expression like 'myarray[1]'
                                const std::string &iname, // Desired iname, defaults to name
                                std::string *errorMessage);
 
@@ -122,18 +117,65 @@ public:
                                     SymbolParameterVector *vec,
                                     std::string *errorMessage);
 
-private:
-    inline AbstractSymbolGroupNode *findI(const std::string &iname) const;
+protected:
     static bool getSymbolParameters(CIDebugSymbolGroup *m_symbolGroup,
                                     SymbolParameterVector *vec,
                                     std::string *errorMessage);
+    bool removeSymbol(AbstractSymbolGroupNode *n, std::string *errorMessage);
+
+private:
+    inline AbstractSymbolGroupNode *findI(const std::string &iname) const;
 
     CIDebugSymbolGroup * const m_symbolGroup;
+    SymbolGroupNode *m_root;
+};
+
+/* Symbol group representing the Locals view. It is firmly associated
+ * with stack frame, function (module) and thread. */
+
+class LocalsSymbolGroup : public SymbolGroup {
+protected:
+    explicit LocalsSymbolGroup(CIDebugSymbolGroup *,
+                               const SymbolParameterVector &vec,
+                               ULONG threadId, unsigned frame,
+                               const std::string &function);
+public:
+    unsigned frame() const { return m_frame; }
+    std::string function() const { return m_function; }
+    std::string module() const;
+    ULONG threadId() const { return m_threadId; }
+
+    static LocalsSymbolGroup *create(CIDebugControl *control,
+                                     CIDebugSymbols *,
+                                     ULONG threadId,
+                                     unsigned frame,
+                                     std::string *errorMessage);
+
+private:
     const unsigned m_frame;
     const ULONG m_threadId;
-    SymbolGroupNode *m_root;
     std::string m_function;
-    std::string m_module;
+};
+
+// Watch symbol group. Contains watches as added by Qt Creator as iname='watch.0',
+// name='<expression>'. The IDebugSymbolGroup is created without scope.
+class WatchesSymbolGroup : public SymbolGroup {
+public:
+    typedef std::map<std::string, std::string> InameExpressionMap;
+
+    static const char *watchInamePrefix;
+
+    // Add a symbol as 'watch.0' or '0' with expression
+    bool addWatch(std::string iname, const std::string &expression, std::string *errorMessage);
+    // Synchronize watches passing on a map of '0' -> '*(int *)(0xA0)'
+    bool synchronize(const InameExpressionMap &m, std::string *errorMessage);
+
+    static WatchesSymbolGroup *create(CIDebugSymbols *, std::string *errorMessage);
+
+private:
+    explicit WatchesSymbolGroup(CIDebugSymbolGroup *);
+    InameExpressionMap currentInameExpressionMap() const;
+    inline SymbolGroupNode *rootChildByIname(const std::string &iname) const;
 };
 
 #endif // SYMBOLGROUP_H

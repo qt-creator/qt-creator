@@ -40,7 +40,8 @@
 #include <memory>
 #include <map>
 
-class SymbolGroup;
+class LocalsSymbolGroup;
+class WatchesSymbolGroup;
 
 // Global singleton with context.
 // Caches a symbolgroup per frame and thread as long as the session is accessible.
@@ -86,8 +87,12 @@ public:
     void notifyIdle();
 
     // Return symbol group for frame (cached as long as frame/thread do not change).
-    SymbolGroup *symbolGroup(CIDebugSymbols *symbols, ULONG threadId, int frame, std::string *errorMessage);
+    LocalsSymbolGroup *symbolGroup(CIDebugSymbols *symbols, ULONG threadId, int frame, std::string *errorMessage);
     int symbolGroupFrame() const;
+
+    WatchesSymbolGroup *watchesSymbolGroup(CIDebugSymbols *symbols, std::string *errorMessage);
+    WatchesSymbolGroup *watchesSymbolGroup() const; // Do not create.
+    void discardWatchesSymbolGroup();
 
     // Set a stop reason to be reported with the next idle notification (exception).
     void setStopReason(const StopReasonMap &, const std::string &reason = std::string());
@@ -97,7 +102,8 @@ private:
     void discardSymbolGroup();
 
     IInterfacePointer<CIDebugControl> m_control;
-    std::auto_ptr<SymbolGroup> m_symbolGroup;
+    std::auto_ptr<LocalsSymbolGroup> m_symbolGroup;
+    std::auto_ptr<WatchesSymbolGroup> m_watchesSymbolGroup;
 
     CIDebugClient *m_hookedClient;
     IDebugEventCallbacks *m_oldEventCallback;

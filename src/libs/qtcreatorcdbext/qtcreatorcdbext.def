@@ -4,6 +4,7 @@ DebugExtensionUninitialize
 DebugExtensionNotify
 pid
 expandlocals
+watches
 locals
 dumplocal
 typecast
@@ -18,4 +19,5 @@ memory
 shutdownex
 test
 stack
+addwatch
 KnownStructOutput

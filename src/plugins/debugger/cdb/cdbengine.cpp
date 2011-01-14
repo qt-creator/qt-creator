@@ -85,6 +85,7 @@ Q_DECLARE_METATYPE(Debugger::Internal::MemoryAgent*)
 
 enum { debug = 0 };
 enum { debugLocals = 0 };
+enum { debugWatches = 0 };
 enum { debugBreakpoints = 0 };
 
 #if 0
@@ -703,22 +704,57 @@ void CdbEngine::detachDebugger()
     postCommand(".detach", 0);
 }
 
+static inline bool isWatchIName(const QByteArray &iname)
+{
+    return iname.startsWith("watch");
+}
+
 void CdbEngine::updateWatchData(const WatchData &dataIn,
                                 const WatchUpdateFlags & flags)
 {
-    if (debug)
-        qDebug("CdbEngine::updateWatchData() %dms %s incr=%d: %s",
-               elapsedLogTime(), stateName(state()),
+    if (debug || debugLocals || debugWatches)
+        qDebug("CdbEngine::updateWatchData() %dms accessible=%d %s incr=%d: %s",
+               elapsedLogTime(), m_accessible, stateName(state()),
                flags.tryIncremental,
                qPrintable(dataIn.toString()));
 
-    if (!dataIn.hasChildren) {
+    if (!m_accessible) // Add watch data while running?
+        return;
+
+    // New watch item?
+    if (isWatchIName(dataIn.iname) && dataIn.isValueNeeded()) {
+        QByteArray args;
+        ByteArrayInputStream str(args);
+        str << dataIn.iname << " \"" << dataIn.exp << '"';
+        postExtensionCommand("addwatch", args, 0,
+                             &CdbEngine::handleAddWatch, 0,
+                             qVariantFromValue(dataIn));
+        return;
+    }
+
+    if (!dataIn.hasChildren && !dataIn.isValueNeeded()) {
         WatchData data = dataIn;
         data.setAllUnneeded();
         watchHandler()->insertData(data);
         return;
     }
     updateLocalVariable(dataIn.iname);
+}
+
+void CdbEngine::handleAddWatch(const CdbExtensionCommandPtr &reply)
+{
+    WatchData item = qvariant_cast<WatchData>(reply->cookie);
+    if (debugWatches)
+        qDebug() << "handleAddWatch ok="  << reply->success << item.iname;
+    if (reply->success) {
+        updateLocalVariable(item.iname);
+    } else {
+        item.setError(tr("Unable to add expression"));
+        watchHandler()->insertData(item);
+        showMessage(QString::fromLatin1("Unable to add watch item '%1'/'%2': %3").
+                    arg(QString::fromAscii(item.iname), QString::fromAscii(item.exp),
+                        reply->errorMessage), LogError);
+    }
 }
 
 void CdbEngine::addLocalsOptions(ByteArrayInputStream &str) const
@@ -737,22 +773,28 @@ void CdbEngine::addLocalsOptions(ByteArrayInputStream &str) const
 
 void CdbEngine::updateLocalVariable(const QByteArray &iname)
 {
-    const int stackFrame = stackHandler()->currentIndex();
-    if (stackFrame >= 0) {
-        QByteArray localsArguments;
-        ByteArrayInputStream str(localsArguments);
-        addLocalsOptions(str);
-        str << blankSeparator << stackFrame <<  ' ' << iname;
-        postExtensionCommand("locals", localsArguments, 0, &CdbEngine::handleLocals);
-    } else {
-        qWarning("Internal error; no stack frame in updateLocalVariable");
+    const bool isWatch = isWatchIName(iname);
+    if (debugWatches)
+        qDebug() << "updateLocalVariable watch=" << isWatch << iname;
+    QByteArray localsArguments;
+    ByteArrayInputStream str(localsArguments);
+    addLocalsOptions(str);
+    if (!isWatch) {
+        const int stackFrame = stackHandler()->currentIndex();
+        if (stackFrame < 0) {
+            qWarning("Internal error; no stack frame in updateLocalVariable");
+            return;
+        }
+        str << blankSeparator << stackFrame;
     }
+    str << blankSeparator << iname;
+    postExtensionCommand(isWatch ? "watches" : "locals", localsArguments, 0, &CdbEngine::handleLocals);
 }
 
 unsigned CdbEngine::debuggerCapabilities() const
 {
     return DisassemblerCapability | RegisterCapability | ShowMemoryCapability
-           |WatchpointCapability|JumpToLineCapability
+           |WatchpointCapability|JumpToLineCapability|AddWatcherCapability
            |BreakOnThrowAndCatchCapability; // Sort-of: Can break on throw().
 }
 
@@ -1052,6 +1094,8 @@ void CdbEngine::activateFrame(int index)
 
 void CdbEngine::updateLocals()
 {
+    typedef QHash<QByteArray, int> WatcherHash;
+
     const int frameIndex = stackHandler()->currentIndex();
     if (frameIndex < 0) {
         watchHandler()->beginCycle();
@@ -1094,6 +1138,16 @@ void CdbEngine::updateLocals()
             }
         }
     }
+    // Perform watches synchronization
+    str << blankSeparator << "-W";
+    const WatcherHash watcherHash = WatchHandler::watcherNames();
+    if (!watcherHash.isEmpty()) {
+        const WatcherHash::const_iterator cend = watcherHash.constEnd();
+        for (WatcherHash::const_iterator it = watcherHash.constBegin(); it != cend; ++it) {
+            str << blankSeparator << "-w " << it.value() << " \"" << it.key() << '"';
+        }
+    }
+
     // Required arguments: frame
     str << blankSeparator << frameIndex;
     watchHandler()->beginCycle();

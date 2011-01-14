@@ -86,6 +86,7 @@ enum Command {
     CmdPid,
     CmdExpandlocals,
     CmdLocals,
+    CmdWatches,
     CmdDumplocal,
     CmdTypecast,
     CmdAddsymbol,
@@ -98,6 +99,7 @@ enum Command {
     CmdMemory,
     CmdStack,
     CmdShutdownex,
+    CmdAddWatch,
     CmdTest
 };
 
@@ -111,7 +113,8 @@ static const CommandDescription commandDescriptions[] = {
  "-c complex dumpers"},
 {"locals",
  "Prints local variables of symbol group in GDBMI or debug format",
- "[-t token] [-v] [T formats] [-I formats] [-f debugfilter] [-c] [-h] [-d] [-e expand-list] [-u uninitialized-list]\n<frame-number> [iname]\n"
+ "[-t token] [-v] [T formats] [-I formats] [-f debugfilter] [-c] [-h] [-d]\n[-e expand-list] [-u uninitialized-list]\n"
+ "[-W] [-w watch-iname watch-expression] <frame-number> [iname]\n"
  "-h human-readable ouput\n"
  "-v increase verboseness of dumping\n"
  "-d debug output\n"
@@ -119,6 +122,18 @@ static const CommandDescription commandDescriptions[] = {
  "-c complex dumpers\n"
  "-e expand-list        Comma-separated list of inames to be expanded beforehand\n"
  "-u uninitialized-list Comma-separated list of uninitialized inames\n"
+ "-I formatmap          map of 'hex-encoded-iname=typecode'\n"
+ "-T formatmap          map of 'hex-encoded-type-name=typecode'\n"
+ "-W                    Synchronize watch items (-w)\n"
+ "-w iname expression   Watch item"},
+{"watches",
+ "Prints watches variables of symbol group in GDBMI or debug format",
+ "[-t token] [-v] [T formats] [-I formats] [-f debugfilter] [-c] [-h] [-d] <iname>\n"
+ "-h human-readable ouput\n"
+ "-v increase verboseness of dumping\n"
+ "-d debug output\n"
+ "-f debug_filter\n"
+ "-c complex dumpers\n"
  "-I formatmap          map of 'hex-encoded-iname=typecode'\n"
  "-T formatmap          map of 'hex-encoded-type-name=typecode'"},
 {"dumplocal", "Dumps local variable using simple dumpers (testing command).",
@@ -139,11 +154,17 @@ static const CommandDescription commandDescriptions[] = {
 {"memory","Prints memory contents in Base64 encoding.","[-t token] <address> <length>"},
 {"stack","Prints stack in GDBMI format.","[-t token] [max-frames]"},
 {"shutdownex","Unhooks output callbacks.\nNeeds to be called explicitly only in case of remote debugging.",""},
+{"addwatch","Add watch expression","<iname> <expression>"},
 {"test","Testing command","-T type"}
 };
 
 typedef std::vector<std::string> StringVector;
 typedef std::list<std::string> StringList;
+
+static inline bool isOption(const std::string &opt)
+{
+    return opt.size() == 2 && opt.at(0) == '-' && opt != "--";
+}
 
 // Helper for commandTokens() below:
 // Simple splitting of command lines allowing for '"'-quoted tokens
@@ -294,81 +315,143 @@ extern "C" HRESULT CALLBACK expandlocals(CIDebugClient *client, PCSTR args)
     return S_OK;
 }
 
+// Parameters to be shared between watch/locals dump commands
+struct DumpCommandParameters
+{
+    DumpCommandParameters() : debugOutput(0), verbose(0) {}
+
+    // Check option off front and remove if parsed
+    enum ParseOptionResult { Ok, Error, OtherOption, EndOfOptions };
+    ParseOptionResult parseOption(StringList *options);
+
+    unsigned debugOutput;
+    std::string debugFilter;
+    DumpParameters dumpParameters;
+    unsigned verbose;
+};
+
+DumpCommandParameters::ParseOptionResult DumpCommandParameters::parseOption(StringList *options)
+{
+    // Parse all options and erase valid ones from the list
+    if (options->empty())
+        return DumpCommandParameters::EndOfOptions;
+
+    const std::string &opt = options->front();
+    if (!isOption(opt))
+        return DumpCommandParameters::EndOfOptions;
+    const char option = opt.at(1);
+    bool knownOption = true;
+    switch (option) {
+    case 'd':
+        debugOutput++;
+        break;
+    case 'h':
+        dumpParameters.dumpFlags |= DumpParameters::DumpHumanReadable;
+        break;
+    case 'c':
+        dumpParameters.dumpFlags |= DumpParameters::DumpComplexDumpers;
+        break;
+    case 'f':
+        if (options->size() < 2)
+            return Error;
+        options->pop_front();
+        debugFilter = options->front();
+        break;
+    case 'v':
+        verbose++;
+        break;
+    case 'T': // typeformats: 'hex'ed name = formatnumber,...'
+        if (options->size() < 2)
+            return Error;
+        options->pop_front();
+        if (options->front().empty())
+            return Error;
+        dumpParameters.typeFormats = DumpParameters::decodeFormatArgument(options->front());
+        break;
+    case 'I': // individual formats: 'hex'ed name = formatnumber,...'
+        if (options->size() < 2)
+            return Error;
+        options->pop_front();
+        dumpParameters.individualFormats = DumpParameters::decodeFormatArgument(options->front());
+        break;
+    default:
+        knownOption = false;
+        break;
+    } // case option
+    if (knownOption)
+        options->pop_front();
+    return knownOption ? Ok : OtherOption;
+}
+
 // Extension command 'locals':
 // Display local variables of symbol group in GDBMI or debug output form.
 // Takes an optional iname which is expanded before displaying (for updateWatchData)
 
-static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *token, std::string *errorMessage)
+static std::string commmandLocals(ExtensionCommandContext &commandExtCtx,PCSTR args, int *token, std::string *errorMessage)
 {
+    typedef WatchesSymbolGroup::InameExpressionMap InameExpressionMap;
+    typedef InameExpressionMap::value_type InameExpressionMapEntry;
+
     // Parse the command
-    unsigned debugOutput = 0;
+    ExtensionContext &extCtx = ExtensionContext::instance();
+    DumpCommandParameters parameters;
     std::string iname;
-    std::string debugFilter;
     StringList tokens = commandTokens<StringList>(args, token);
     StringVector expandedInames;
     StringVector uninitializedInames;
-    DumpParameters parameters;
-    SymbolGroupValue::verbose = 0;
+    InameExpressionMap watcherInameExpressionMap;
+    bool watchSynchronization = false;
     // Parse away options
-    while (!tokens.empty() && tokens.front().size() == 2 && tokens.front().at(0) == '-') {
-        const char option = tokens.front().at(1);
-        tokens.pop_front();
-        switch (option) {
-        case 'd':
-            debugOutput++;
+    for (bool optionLeft = true;  optionLeft && !tokens.empty(); ) {
+        switch (parameters.parseOption(&tokens)) {
+        case DumpCommandParameters::Ok:
             break;
-        case 'h':
-            parameters.dumpFlags |= DumpParameters::DumpHumanReadable;
-            break;
-        case 'c':
-            parameters.dumpFlags |= DumpParameters::DumpComplexDumpers;
-            break;
-        case 'u':
-            if (tokens.empty()) {
-                *errorMessage = singleLineUsage(commandDescriptions[CmdLocals]);
-                return std::string();
-            }
-            split(tokens.front(), ',', std::back_inserter(uninitializedInames));
+        case DumpCommandParameters::Error:
+            *errorMessage = singleLineUsage(commandDescriptions[CmdLocals]);
+            return std::string();
+        case DumpCommandParameters::OtherOption: {
+            const char option = tokens.front().at(1);
             tokens.pop_front();
-            break;
-        case 'f':
-            if (tokens.empty()) {
-                *errorMessage = singleLineUsage(commandDescriptions[CmdLocals]);
-                return std::string();
+            switch (option) {
+            case 'u':
+                if (tokens.empty()) {
+                    *errorMessage = singleLineUsage(commandDescriptions[CmdLocals]);
+                    return std::string();
+                }
+                split(tokens.front(), ',', std::back_inserter(uninitializedInames));
+                tokens.pop_front();
+                break;
+            case 'e':
+                if (tokens.empty()) {
+                    *errorMessage = singleLineUsage(commandDescriptions[CmdLocals]);
+                    return std::string();
+                }
+                split(tokens.front(), ',', std::back_inserter(expandedInames));
+                tokens.pop_front();
+                break;
+            case 'w':  { // Watcher iname exp
+                if (tokens.size() < 2) {
+                    *errorMessage = singleLineUsage(commandDescriptions[CmdLocals]);
+                    return std::string();
+                }
+                const std::string iname = tokens.front();
+                tokens.pop_front();
+                const std::string expression = tokens.front();
+                tokens.pop_front();
+                watcherInameExpressionMap.insert(InameExpressionMapEntry(iname, expression));
             }
-            debugFilter = tokens.front();
-            tokens.pop_front();
             break;
-        case 'v':
-            SymbolGroupValue::verbose++;
+            case 'W':
+                watchSynchronization = true;
+                break;
+            } // case option
+        }
+        break;
+        case DumpCommandParameters::EndOfOptions:
+            optionLeft = false;
             break;
-        case 'e':
-            if (tokens.empty()) {
-                *errorMessage = singleLineUsage(commandDescriptions[CmdLocals]);
-                return std::string();
-            }
-            split(tokens.front(), ',', std::back_inserter(expandedInames));
-            tokens.pop_front();
-            break;
-        case 'T': // typeformats: 'hex'ed name = formatnumber,...'
-            if (tokens.empty()) {
-                *errorMessage = singleLineUsage(commandDescriptions[CmdLocals]);
-                return std::string();
-            }
-            parameters.typeFormats = DumpParameters::decodeFormatArgument(tokens.front());
-            tokens.pop_front();
-            break;
-        case 'I': // individual formats: 'hex'ed name = formatnumber,...'
-            if (tokens.empty()) {
-                *errorMessage = singleLineUsage(commandDescriptions[CmdLocals]);
-                return std::string();
-            }
-            parameters.individualFormats = DumpParameters::decodeFormatArgument(tokens.front());
-            tokens.pop_front();
-            break;
-        } // case option
-    }  // for options
-
+        }
+    }
     // Frame and iname
     unsigned frame;
     if (tokens.empty() || !integerFromString(tokens.front(), &frame)) {
@@ -380,28 +463,70 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
     if (!tokens.empty())
         iname = tokens.front();
 
-    const SymbolGroupValueContext dumpContext(exc.dataSpaces(), exc.symbols());
-    SymbolGroup * const symGroup = ExtensionContext::instance().symbolGroup(exc.symbols(), exc.threadId(), frame, errorMessage);
+    const SymbolGroupValueContext dumpContext(commandExtCtx.dataSpaces(), commandExtCtx.symbols());
+    SymbolGroup * const symGroup = extCtx.symbolGroup(commandExtCtx.symbols(), commandExtCtx.threadId(), frame, errorMessage);
     if (!symGroup)
         return std::string();
 
     if (!uninitializedInames.empty())
         symGroup->markUninitialized(uninitializedInames);
 
-    if (!expandedInames.empty()) {
-        if (parameters.dumpFlags & DumpParameters::DumpComplexDumpers) {
-            symGroup->expandListRunComplexDumpers(expandedInames, dumpContext, errorMessage);
+    SymbolGroupValue::verbose = parameters.verbose;
+
+    // Synchronize watches if desired.
+    WatchesSymbolGroup *watchesSymbolGroup = extCtx.watchesSymbolGroup();
+    if (watchSynchronization) {
+        if (watcherInameExpressionMap.empty()) { // No watches..kill group.
+            watchesSymbolGroup = 0;
+            extCtx.discardWatchesSymbolGroup();
+            if (SymbolGroupValue::verbose)
+                DebugPrint() << "Discarding watchers";
         } else {
-            symGroup->expandList(expandedInames, errorMessage);
+            // Force group into existence
+            watchesSymbolGroup = extCtx.watchesSymbolGroup(commandExtCtx.symbols(), errorMessage);
+            if (!watchesSymbolGroup || !watchesSymbolGroup->synchronize(watcherInameExpressionMap, errorMessage))
+                return std::string();
         }
     }
 
-    if (debugOutput)
-        return symGroup->debug(iname, debugFilter, debugOutput - 1);
+    // Pre-expand.
+    if (!expandedInames.empty()) {
+        if (parameters.dumpParameters.dumpFlags & DumpParameters::DumpComplexDumpers) {
+            symGroup->expandListRunComplexDumpers(expandedInames, dumpContext, errorMessage);
+            if (watchesSymbolGroup)
+                watchesSymbolGroup->expandListRunComplexDumpers(expandedInames, dumpContext, errorMessage);
+        } else {
+            symGroup->expandList(expandedInames, errorMessage);
+            if (watchesSymbolGroup)
+                watchesSymbolGroup->expandList(expandedInames, errorMessage);
+        }
+    }
 
-    return iname.empty() ?
-           symGroup->dump(dumpContext, parameters) :
-           symGroup->dump(iname, dumpContext, parameters, errorMessage);
+    // Debug output: Join the 2 symbol groups if no iname is given.
+    if (parameters.debugOutput) {
+        std::string debugRc = symGroup->debug(iname, parameters.debugFilter, parameters.debugOutput - 1);
+        if (iname.empty() && watchesSymbolGroup) {
+            debugRc.push_back('\n');
+            debugRc += watchesSymbolGroup->debug(iname, parameters.debugFilter, parameters.debugOutput - 1);
+        }
+        return debugRc;
+    }
+
+    // Dump all: Join the 2 symbol groups '[local.x][watch.0]'->'[local.x,watch.0]'
+    if (iname.empty()) {
+        std::string dumpRc = symGroup->dump(dumpContext, parameters.dumpParameters);
+        if (!dumpRc.empty() && watchesSymbolGroup) {
+            std::string watchesDump = watchesSymbolGroup->dump(dumpContext, parameters.dumpParameters);
+            if (!watchesDump.empty()) {
+                dumpRc.erase(dumpRc.size() - 1, 1); // Strip ']'
+                watchesDump[0] = ','; // '[' -> '.'
+                dumpRc += watchesDump;
+            }
+        }
+        return dumpRc;
+    }
+
+    return symGroup->dump(iname, dumpContext, parameters.dumpParameters, errorMessage);
 }
 
 extern "C" HRESULT CALLBACK locals(CIDebugClient *client, PCSTR args)
@@ -410,6 +535,62 @@ extern "C" HRESULT CALLBACK locals(CIDebugClient *client, PCSTR args)
     std::string errorMessage;
     int token;
     const std::string output = commmandLocals(exc, args, &token, &errorMessage);
+    SymbolGroupValue::verbose = 0;
+    if (output.empty()) {
+        ExtensionContext::instance().report('N', token, 0, "locals", errorMessage.c_str());
+    } else {
+        ExtensionContext::instance().reportLong('R', token, "locals", output);
+    }
+    return S_OK;
+}
+
+// Extension command 'locals':
+// Display local variables of symbol group in GDBMI or debug output form.
+// Takes an optional iname which is expanded before displaying (for updateWatchData)
+
+static std::string commmandWatches(ExtensionCommandContext &exc, PCSTR args, int *token, std::string *errorMessage)
+{
+    // Parse the command
+    DumpCommandParameters parameters;
+    StringList tokens = commandTokens<StringList>(args, token);
+    // Parse away options
+    for (bool optionLeft = true;  optionLeft && !tokens.empty(); ) {
+        switch (parameters.parseOption(&tokens)) {
+        case DumpCommandParameters::Ok:
+            break;
+        case DumpCommandParameters::Error:
+        case DumpCommandParameters::OtherOption:
+            *errorMessage = singleLineUsage(commandDescriptions[CmdWatches]);
+            return std::string();
+        case DumpCommandParameters::EndOfOptions:
+            optionLeft = false;
+            break;
+        }
+    }
+    const std::string iname = tokens.empty() ? std::string() : tokens.front();
+    if (iname.empty() && !parameters.debugOutput) {
+        *errorMessage = singleLineUsage(commandDescriptions[CmdWatches]);
+        return std::string();
+    }
+
+    const SymbolGroupValueContext dumpContext(exc.dataSpaces(), exc.symbols());
+    SymbolGroup * const symGroup = ExtensionContext::instance().watchesSymbolGroup(exc.symbols(), errorMessage);
+    if (!symGroup)
+        return std::string();
+    SymbolGroupValue::verbose = parameters.verbose;
+
+    if (parameters.debugOutput)
+        return symGroup->debug(iname, parameters.debugFilter, parameters.debugOutput - 1);
+    return symGroup->dump(iname, dumpContext, parameters.dumpParameters, errorMessage);
+}
+
+extern "C" HRESULT CALLBACK watches(CIDebugClient *client, PCSTR args)
+{
+    ExtensionCommandContext exc(client);
+    std::string errorMessage = "e";
+    int token = 0;
+    const std::string output = commmandWatches(exc, args, &token, &errorMessage);
+    SymbolGroupValue::verbose = 0;
     if (output.empty()) {
         ExtensionContext::instance().report('N', token, 0, "locals", errorMessage.c_str());
     } else {
@@ -520,10 +701,44 @@ extern "C" HRESULT CALLBACK addsymbol(CIDebugClient *client, PCSTR args)
     } else {
         errorMessage = singleLineUsage(commandDescriptions[CmdAddsymbol]);
     }
-    if (symGroup != 0 && symGroup->addSymbol(name, iname, &errorMessage)) {
+    if (symGroup != 0 && symGroup->addSymbol(std::string(), name, iname, &errorMessage)) {
         ExtensionContext::instance().report('R', token, 0, "addsymbol", "OK");
     } else {
         ExtensionContext::instance().report('N', token, 0, "addsymbol", errorMessage.c_str());
+    }
+    return S_OK;
+}
+
+extern "C" HRESULT CALLBACK addwatch(CIDebugClient *client, PCSTR argsIn)
+{
+    ExtensionCommandContext exc(client);
+
+    std::string errorMessage;
+    std::string watchExpression;
+    std::string iname;
+
+    int token = 0;
+    bool success = false;
+    do {
+        StringList tokens = commandTokens<StringList>(argsIn, &token);
+        if (tokens.size() != 2) {
+            errorMessage = singleLineUsage(commandDescriptions[CmdAddWatch]);
+            break;
+        }
+        iname = tokens.front();
+        tokens.pop_front();
+        watchExpression = tokens.front();
+
+        WatchesSymbolGroup *watchesSymGroup = ExtensionContext::instance().watchesSymbolGroup(exc.symbols(), &errorMessage);
+        if (!watchesSymGroup)
+            break;
+        success = watchesSymGroup->addWatch(iname, watchExpression, &errorMessage);
+    } while (false);
+
+    if (success) {
+        ExtensionContext::instance().report('R', token, 0, "addwatch", "Ok");
+    } else {
+        ExtensionContext::instance().report('N', token, 0, "addwatch", errorMessage.c_str());
     }
     return S_OK;
 }
@@ -765,7 +980,6 @@ extern "C" HRESULT CALLBACK test(CIDebugClient *client, PCSTR argsIn)
     }
     return S_OK;
 }
-
 
 // Hook for dumping Known Structs. Not currently used.
 // Shows up in 'dv' as well as IDebugSymbolGroup::GetValueText.

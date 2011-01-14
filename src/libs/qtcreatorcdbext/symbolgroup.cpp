@@ -32,6 +32,7 @@
 **************************************************************************/
 
 #include "symbolgroup.h"
+#include "symbolgroupvalue.h"
 #include "stringutils.h"
 #include "gdbmihelpers.h"
 
@@ -44,27 +45,16 @@ typedef std::vector<int>::size_type VectorIndexType;
 typedef std::vector<std::string> StringVector;
 
 enum { debug = 0 };
-const char rootNameC[] = "local";
 
 // ------------- SymbolGroup
 SymbolGroup::SymbolGroup(IDebugSymbolGroup2 *sg,
                          const SymbolParameterVector &vec,
-                         ULONG threadId,
-                         unsigned frame,
-                         const std::string &function) :
+                         const std::string &rootModule,
+                         const char *rootName) :
     m_symbolGroup(sg),
-    m_threadId(threadId),
-    m_frame(frame),
-    m_root(0),
-    m_function(function)
+    m_root(0)
 {
-    m_root = SymbolGroupNode::create(this, rootNameC, vec);
-    // Split function 'Mod!foo'
-    const std::string::size_type exclPos = m_function.find('!');
-    if (exclPos != std::string::npos) {
-        m_module = m_function.substr(0, exclPos);
-        m_function.erase(0, exclPos + 1);
-    }
+    m_root = SymbolGroupNode::create(this, rootModule, rootName, vec);
 }
 
 SymbolGroup::~SymbolGroup()
@@ -132,67 +122,26 @@ bool SymbolGroup::getSymbolParameters(CIDebugSymbolGroup *symbolGroup,
     return true;
 }
 
-SymbolGroup *SymbolGroup::create(CIDebugControl *control, CIDebugSymbols *debugSymbols,
-                                 ULONG threadId, unsigned frame,
-                                 std::string *errorMessage)
+bool SymbolGroup::removeSymbol(AbstractSymbolGroupNode *an, std::string *errorMessage)
 {
-    errorMessage->clear();
-
-    ULONG obtainedFrameCount = 0;
-    const ULONG frameCount = frame + 1;
-
-    DEBUG_STACK_FRAME *frames = new DEBUG_STACK_FRAME[frameCount];
-    IDebugSymbolGroup2 *idebugSymbols = 0;
-    bool success = false;
-    SymbolParameterVector parameters;
-    std::string func;
-
-    // Obtain symbol group at stack frame.
-    do {
-        HRESULT hr = control->GetStackTrace(0, 0, 0, frames, frameCount, &obtainedFrameCount);
-        if (FAILED(hr)) {
-            *errorMessage = msgDebugEngineComFailed("GetStackTrace", hr);
-            break;
+    bool ok = false;
+    // Remove a real SymbolGroupNode: Call its special remove method to correct indexes.
+    if (SymbolGroupNode *n = an->asSymbolGroupNode()) {
+        ok = n->removeSelf(root(), errorMessage);
+    } else {
+        // Normal removal, assuming parent is a base (needed for removing
+        // error nodes by the Watch group).
+        if (BaseSymbolGroupNode *bParent = dynamic_cast<BaseSymbolGroupNode *>(an->parent())) {
+            bParent->removeChildAt(bParent->indexOf(an));
+            ok = true;
         }
-        if (obtainedFrameCount < frameCount ) {
-            std::ostringstream str;
-            str << "Unable to obtain frame " << frame << " (" << obtainedFrameCount << ").";
-            *errorMessage = str.str();
-            break;
-        }
-        StackFrame frameData;
-        if (!getFrame(frame, &frameData, errorMessage))
-            break;
-        func = wStringToString(frameData.function);
-
-        hr = debugSymbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_LOCALS, NULL, &idebugSymbols);
-        if (FAILED(hr)) {
-            *errorMessage = msgDebugEngineComFailed("GetScopeSymbolGroup2", hr);
-            break;
-        }
-        hr = debugSymbols->SetScope(0, frames + frame, NULL, 0);
-        if (FAILED(hr)) {
-            *errorMessage = msgDebugEngineComFailed("SetScope", hr);
-            break;
-        }
-        // refresh with current frame
-        hr = debugSymbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_LOCALS, idebugSymbols, &idebugSymbols);
-        if (FAILED(hr)) {
-            *errorMessage = msgDebugEngineComFailed("GetScopeSymbolGroup2", hr);
-            break;
-        }
-        if (!SymbolGroup::getSymbolParameters(idebugSymbols, &parameters, errorMessage))
-            break;
-
-        success = true;
-    } while (false);
-    delete [] frames;
-    if (!success) {
-        if (idebugSymbols)
-            idebugSymbols->Release();
-        return 0;
     }
-    return new SymbolGroup(idebugSymbols, parameters, threadId, frame, func);
+    if (!ok && errorMessage->empty())
+        *errorMessage = "SymbolGroup::removeSymbol: Unimplemented removal operation for " + an->name();
+
+    if (!ok && SymbolGroupValue::verbose)
+        DebugPrint() << "SymbolGroup::removeSymbol failed: " << *errorMessage;
+    return ok;
 }
 
 static inline std::string msgNotFound(const std::string &nodeName)
@@ -246,7 +195,7 @@ std::string SymbolGroup::dump(const std::string &iname,
             node->clearFlags(SymbolGroupNode::ExpandedByDumper);
         } else {
             if (node->canExpand() && !node->expand(errorMessage))
-                return false;
+                return std::string();
         }
         // After expansion, run the complex dumpers
         if (p.dumpFlags & DumpParameters::DumpComplexDumpers)
@@ -312,21 +261,31 @@ struct InamePathEntryLessThan : public std::binary_function<InamePathEntry, Inam
 
 typedef std::set<InamePathEntry, InamePathEntryLessThan> InamePathEntrySet;
 
-static inline InamePathEntrySet expandEntrySet(const std::vector<std::string> &nodes)
+static inline InamePathEntrySet expandEntrySet(const std::vector<std::string> &nodes, const std::string &root)
 {
     InamePathEntrySet pathEntries;
+    const std::string::size_type rootSize = root.size();
     const VectorIndexType nodeCount = nodes.size();
     for (VectorIndexType i= 0; i < nodeCount; i++) {
-        const std::string &iname = nodes.at(i);
-        std::string::size_type pos = 0;
-        // Split a path 'local.foo' and insert (0,'local'), (1,'local.foo') (see above)
-        for (unsigned level = 0; pos < iname.size(); level++) {
-            std::string::size_type dotPos = iname.find(SymbolGroupNodeVisitor::iNamePathSeparator, pos);
-            if (dotPos == std::string::npos)
-                dotPos = iname.size();
-            pathEntries.insert(InamePathEntry(level, iname.substr(0, dotPos)));
-            pos = dotPos + 1;
+        const std::string &iname = nodes.at(i); // Silently skip items of another group
+        if (iname.size() >= rootSize && iname.compare(0, rootSize, root) == 0) {
+            std::string::size_type pos = 0;
+            // Split a path 'local.foo' and insert (0,'local'), (1,'local.foo') (see above)
+            for (unsigned level = 0; pos < iname.size(); level++) {
+                std::string::size_type dotPos = iname.find(SymbolGroupNodeVisitor::iNamePathSeparator, pos);
+                if (dotPos == std::string::npos)
+                    dotPos = iname.size();
+                pathEntries.insert(InamePathEntry(level, iname.substr(0, dotPos)));
+                pos = dotPos + 1;
+            }
         }
+    }
+    if (SymbolGroupValue::verbose) {
+        DebugPrint dp;
+        dp << "expandEntrySet ";
+        const InamePathEntrySet::const_iterator cend = pathEntries.end();
+        for (InamePathEntrySet::const_iterator it = pathEntries.begin(); it != cend; ++it)
+            dp << it->second << ' ';
     }
     return pathEntries;
 }
@@ -339,7 +298,7 @@ unsigned SymbolGroup::expandList(const std::vector<std::string> &nodes, std::str
     if (nodes.empty())
         return 0;
     // Create a set with a key <level, name>. Also required for 1 node (see above).
-    const InamePathEntrySet pathEntries = expandEntrySet(nodes);
+    const InamePathEntrySet pathEntries = expandEntrySet(nodes, root()->iName());
     // Now expand going by level.
     unsigned succeeded = 0;
     std::string nodeError;
@@ -367,7 +326,7 @@ unsigned SymbolGroup::expandListRunComplexDumpers(const std::vector<std::string>
     if (nodes.empty())
         return 0;
     // Create a set with a key <level, name>. Also required for 1 node (see above).
-    const InamePathEntrySet pathEntries = expandEntrySet(nodes);
+    const InamePathEntrySet pathEntries = expandEntrySet(nodes, root()->iName());
     // Now expand going by level.
     unsigned succeeded = 0;
     std::string nodeError;
@@ -440,9 +399,9 @@ bool SymbolGroup::typeCast(const std::string &iname, const std::string &desiredT
     return node->typeCast(desiredType, errorMessage);
 }
 
-SymbolGroupNode *SymbolGroup::addSymbol(const std::string &name, const std::string &iname, std::string *errorMessage)
+SymbolGroupNode *SymbolGroup::addSymbol(const std::string &module, const std::string &name, const std::string &iname, std::string *errorMessage)
 {
-    return m_root->addSymbolByName(name, iname, errorMessage);
+    return m_root->addSymbolByName(module, name, iname, errorMessage);
 }
 
 // Mark uninitialized (top level only)
@@ -553,4 +512,199 @@ AbstractSymbolGroupNode *SymbolGroup::find(const std::string &iname) const
     if (::debug > 1)
         DebugPrint() << "SymbolGroup::find " << iname << ' ' << rc;
     return rc;
+}
+
+// --------- LocalsSymbolGroup
+LocalsSymbolGroup::LocalsSymbolGroup(CIDebugSymbolGroup *sg,
+                                     const SymbolParameterVector &vec,
+                                     ULONG threadId, unsigned frame,
+                                     const std::string &function) :
+    SymbolGroup(sg, vec, SymbolGroupValue::moduleOfType(function), "local"),
+    m_threadId(threadId),
+    m_frame(frame),
+    m_function(function)
+{
+    // "module!function" -> "function"
+    if (const std::string::size_type moduleLengh = module().size())
+        m_function.erase(0, moduleLengh + 1);
+}
+
+LocalsSymbolGroup *LocalsSymbolGroup::create(CIDebugControl *control, CIDebugSymbols *debugSymbols,
+                                             ULONG threadId, unsigned frame,
+                                             std::string *errorMessage)
+{
+    errorMessage->clear();
+
+    ULONG obtainedFrameCount = 0;
+    const ULONG frameCount = frame + 1;
+
+    DEBUG_STACK_FRAME *frames = new DEBUG_STACK_FRAME[frameCount];
+    IDebugSymbolGroup2 *idebugSymbols = 0;
+    bool success = false;
+    SymbolParameterVector parameters;
+    std::string func;
+
+    // Obtain symbol group at stack frame.
+    do {
+        HRESULT hr = control->GetStackTrace(0, 0, 0, frames, frameCount, &obtainedFrameCount);
+        if (FAILED(hr)) {
+            *errorMessage = msgDebugEngineComFailed("GetStackTrace", hr);
+            break;
+        }
+        if (obtainedFrameCount < frameCount ) {
+            std::ostringstream str;
+            str << "Unable to obtain frame " << frame << " (" << obtainedFrameCount << ").";
+            *errorMessage = str.str();
+            break;
+        }
+        StackFrame frameData;
+        if (!getFrame(frame, &frameData, errorMessage))
+            break;
+        func = wStringToString(frameData.function);
+
+        hr = debugSymbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_LOCALS, NULL, &idebugSymbols);
+        if (FAILED(hr)) {
+            *errorMessage = msgDebugEngineComFailed("GetScopeSymbolGroup2", hr);
+            break;
+        }
+        hr = debugSymbols->SetScope(0, frames + frame, NULL, 0);
+        if (FAILED(hr)) {
+            *errorMessage = msgDebugEngineComFailed("SetScope", hr);
+            break;
+        }
+        // refresh with current frame
+        hr = debugSymbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_LOCALS, idebugSymbols, &idebugSymbols);
+        if (FAILED(hr)) {
+            *errorMessage = msgDebugEngineComFailed("GetScopeSymbolGroup2", hr);
+            break;
+        }
+        if (!SymbolGroup::getSymbolParameters(idebugSymbols, &parameters, errorMessage))
+            break;
+
+        success = true;
+    } while (false);
+    delete [] frames;
+    if (!success) {
+        if (idebugSymbols)
+            idebugSymbols->Release();
+        return 0;
+    }
+    return new LocalsSymbolGroup(idebugSymbols, parameters, threadId, frame, func);
+}
+
+std::string LocalsSymbolGroup::module() const
+{
+    return root()->module();
+}
+
+// ----------- WatchSymbolGroup
+
+const char *WatchesSymbolGroup::watchInamePrefix = "watch";
+
+WatchesSymbolGroup::WatchesSymbolGroup(CIDebugSymbolGroup *sg) :
+    SymbolGroup(sg, SymbolParameterVector(), std::string(), WatchesSymbolGroup::watchInamePrefix)
+{
+}
+
+bool WatchesSymbolGroup::addWatch(std::string iname, const std::string &expression, std::string *errorMessage)
+{
+    // "watch.0" -> "0"
+    const size_t prefLen = std::strlen(WatchesSymbolGroup::watchInamePrefix);
+    if (!iname.compare(0, prefLen, WatchesSymbolGroup::watchInamePrefix))
+        iname.erase(0, prefLen + 1);
+    // Already in?
+    if (root()->childByIName(iname.c_str()))
+        return true;
+    // TODO: Figure out module
+    SymbolGroupNode *node = addSymbol(std::string(), expression, iname, errorMessage);
+    if (!node)
+        return false;
+    node->addFlags(SymbolGroupNode::WatchNode);
+    return true;
+}
+
+// Compile map of current state root-iname->root-expression
+WatchesSymbolGroup::InameExpressionMap
+    WatchesSymbolGroup::currentInameExpressionMap() const
+{
+    InameExpressionMap rc;
+    if (unsigned size = unsigned(root()->children().size()))
+        for (unsigned i = 0; i < size; i++) {
+            const AbstractSymbolGroupNode *n = root()->childAt(i);
+            rc.insert(InameExpressionMap::value_type(n->iName(), n->name()));
+        }
+    return rc;
+}
+
+// Synchronize watches passing on a map of '0' -> '*(int *)(0xA0)'
+bool WatchesSymbolGroup::synchronize(const InameExpressionMap &newInameExpMap, std::string *errorMessage)
+{
+    typedef std::set<std::string> StringSet;
+    typedef InameExpressionMap::const_iterator InameExpressionMapConstIt;
+    InameExpressionMap oldInameExpMap = currentInameExpressionMap();
+    const bool changed = oldInameExpMap != newInameExpMap;
+    if (SymbolGroupValue::verbose)
+        DebugPrint() << "WatchesSymbolGroup::synchronize oldsize=" << oldInameExpMap.size()
+                     << " newsize=" << newInameExpMap.size() << " items, changed=" << changed;
+    if (!changed) // Quick check: All ok
+        return true;
+    // Check both maps against each other and determine elements to be deleted/added.
+    StringSet deletionSet;
+    InameExpressionMap addMap;
+    InameExpressionMapConstIt ocend = oldInameExpMap.end();
+    InameExpressionMapConstIt ncend = newInameExpMap.end();
+    // Check for new items or ones whose expression changed.
+    for (InameExpressionMapConstIt nit = newInameExpMap.begin(); nit != ncend; ++nit) {
+        const InameExpressionMapConstIt oit = oldInameExpMap.find(nit->first);
+        if (oit == ocend || oit->second != nit->second)
+            addMap.insert(InameExpressionMap::value_type(nit->first, nit->second));
+    }
+    for (InameExpressionMapConstIt oit = oldInameExpMap.begin(); oit != ocend; ++oit) {
+        const InameExpressionMapConstIt nit = newInameExpMap.find(oit->first);
+        if (nit == ncend || nit->second != oit->second)
+            deletionSet.insert(oit->first);
+    }
+    if (SymbolGroupValue::verbose)
+        DebugPrint() << "add=" << addMap.size() << " delete=" << deletionSet.size();
+    // Do insertion/deletion
+    if (!deletionSet.empty()) {
+        const StringSet::const_iterator dcend = deletionSet.end();
+        for (StringSet::const_iterator it = deletionSet.begin(); it != dcend; ++it) {
+            AbstractSymbolGroupNode *n = root()->childByIName(it->c_str());
+            if (!n)
+                return false;
+            if (SymbolGroupValue::verbose)
+                DebugPrint() << " Deleting " << n->name();
+            if (!removeSymbol(n, errorMessage))
+                return false;
+        }
+    }
+    // Insertion: We cannot possible fail here since this will trigger an
+    // endless loop of the watch model. Insert a dummy item.
+    if (!addMap.empty()) {
+        const InameExpressionMapConstIt acend = addMap.end();
+        for (InameExpressionMapConstIt it = addMap.begin(); it != acend; ++it) {
+            const bool success = addWatch(it->first, it->second, errorMessage);
+            if (SymbolGroupValue::verbose)
+                DebugPrint() << " Adding " << it->first << ',' << it->second << ",success=" << success;
+            if (!success)
+                root()->addChild(new ErrorSymbolGroupNode(it->second, it->first));
+        }
+    }
+    return true;
+}
+
+// Create scopeless group.
+WatchesSymbolGroup *WatchesSymbolGroup::create(CIDebugSymbols *symbols,
+                                               std::string *errorMessage)
+{
+    errorMessage->clear();
+
+    IDebugSymbolGroup2 *idebugSymbols = 0;
+    const HRESULT hr = symbols->CreateSymbolGroup2(&idebugSymbols);
+    if (FAILED(hr)) {
+        *errorMessage = msgDebugEngineComFailed("CreateSymbolGroup", hr);
+        return 0;
+    }
+    return new WatchesSymbolGroup(idebugSymbols);
 }

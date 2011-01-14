@@ -189,6 +189,7 @@ void ExtensionContext::notifyState(ULONG Notify)
     case DEBUG_NOTIFY_SESSION_INACTIVE:
         report('E', 0, 0, "session_inactive", "%u", ex);
         discardSymbolGroup();
+        discardWatchesSymbolGroup();
         // We lost the debuggee, at this point restore output.
         if (ex & DEBUG_STATUS_NO_DEBUGGEE)
             unhookCallbacks();
@@ -196,11 +197,11 @@ void ExtensionContext::notifyState(ULONG Notify)
     }
 }
 
-SymbolGroup *ExtensionContext::symbolGroup(CIDebugSymbols *symbols, ULONG threadId, int frame, std::string *errorMessage)
+LocalsSymbolGroup *ExtensionContext::symbolGroup(CIDebugSymbols *symbols, ULONG threadId, int frame, std::string *errorMessage)
 {
     if (m_symbolGroup.get() && m_symbolGroup->frame() == frame && m_symbolGroup->threadId() == threadId)
         return m_symbolGroup.get();
-    SymbolGroup *newSg = SymbolGroup::create(m_control.data(), symbols, threadId, frame, errorMessage);
+    LocalsSymbolGroup *newSg = LocalsSymbolGroup::create(m_control.data(), symbols, threadId, frame, errorMessage);
     if (!newSg)
         return 0;
     m_symbolGroup.reset(newSg);
@@ -214,10 +215,34 @@ int ExtensionContext::symbolGroupFrame() const
     return -1;
 }
 
+WatchesSymbolGroup *ExtensionContext::watchesSymbolGroup() const
+{
+    if (m_watchesSymbolGroup.get())
+        return m_watchesSymbolGroup.get();
+    return 0;
+}
+
+WatchesSymbolGroup *ExtensionContext::watchesSymbolGroup(CIDebugSymbols *symbols, std::string *errorMessage)
+{
+    if (m_watchesSymbolGroup.get())
+        return m_watchesSymbolGroup.get();
+    WatchesSymbolGroup *newSg = WatchesSymbolGroup::create(symbols, errorMessage);
+    if (!newSg)
+        return 0;
+    m_watchesSymbolGroup.reset(newSg);
+    return newSg;
+}
+
 void ExtensionContext::discardSymbolGroup()
 {
     if (m_symbolGroup.get())
         m_symbolGroup.reset();
+}
+
+void ExtensionContext::discardWatchesSymbolGroup()
+{
+    if (m_watchesSymbolGroup.get())
+        m_watchesSymbolGroup.reset();
 }
 
 bool ExtensionContext::report(char code, int token, int remainingChunks, const char *serviceName, PCSTR Format, ...)

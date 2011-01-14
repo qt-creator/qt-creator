@@ -198,6 +198,11 @@ ULONG64 SymbolGroupValue::address() const
     return 0;
 }
 
+std::string SymbolGroupValue::module() const
+{
+    return isValid() ? m_node->module() : std::string();
+}
+
 // Temporary iname
 static inline std::string additionalSymbolIname(const SymbolGroup *g)
 {
@@ -236,7 +241,7 @@ SymbolGroupValue SymbolGroupValue::typeCastedValue(ULONG64 address, const char *
     if (nonPointer)
         str << " *";
     str << ")(" << std::showbase << std::hex << address << ')';
-    if (SymbolGroupNode *node = sg->addSymbol(str.str(),
+    if (SymbolGroupNode *node = sg->addSymbol(module(), str.str(),
                                               additionalSymbolIname(sg),
                                               &m_errorMessage))
         return SymbolGroupValue(node, m_context);
@@ -275,6 +280,16 @@ unsigned SymbolGroupValue::isPointerType(const std::string &t)
     if (endsWith(t, " *"))
         return 2;
     return 0;
+}
+
+// add pointer type 'Foo' -> 'Foo *', 'Foo *' -> 'Foo **'
+std::string SymbolGroupValue::pointerType(const std::string &type)
+{
+    std::string rc = type;
+    if (!endsWith(type, '*'))
+        rc.push_back(' ');
+    rc.push_back('*');
+    return rc;
 }
 
 unsigned SymbolGroupValue::pointerSize()
@@ -354,6 +369,12 @@ std::string SymbolGroupValue::stripModuleFromType(const std::string &type)
 {
     const std::string::size_type exclPos = type.find('!');
     return exclPos != std::string::npos ? type.substr(exclPos + 1, type.size() - exclPos - 1) : type;
+}
+
+std::string SymbolGroupValue::moduleOfType(const std::string &type)
+{
+    const std::string::size_type exclPos = type.find('!');
+    return exclPos != std::string::npos ? type.substr(0, exclPos) : std::string();
 }
 
 /* QtInfo helper: Determine the full name of a Qt Symbol like 'qstrdup' in 'QtCored4'.
@@ -511,7 +532,7 @@ std::list<std::string>
 // Resolve a type, that is, obtain its module name ('QString'->'QtCored4!QString')
 std::string SymbolGroupValue::resolveType(const std::string &typeIn,
                                           const SymbolGroupValueContext &ctx,
-                                          const SymbolGroup *current /* = 0 */)
+                                          const std::string &currentModule /* = "" */)
 {
     enum { BufSize = 512 };
 
@@ -523,8 +544,8 @@ std::string SymbolGroupValue::resolveType(const std::string &typeIn,
     // Use the module of the current symbol group for templates.
     // This is because resolving some template types (std::list<> has been
     // observed to result in 'QtGui4d!std::list', which subseqently fails.
-    if (current && stripped.find('<') != std::string::npos) {
-        std::string trc = current->module();
+    if (!currentModule.empty() && stripped.find('<') != std::string::npos) {
+        std::string trc = currentModule;
         trc.push_back('!');
         trc += stripped;
         return trc;
@@ -1345,7 +1366,7 @@ static inline bool dumpQWidget(const SymbolGroupValue &v, std::wostream &str, vo
         str << '(' << qwPrivateType << "*)(" << std::showbase << std::hex << v.address() << ')';
         const std::string name = str.str();
         SymbolGroupNode *qwPrivateNode
-            = v.node()->symbolGroup()->addSymbol(name, std::string(), &errorMessage);
+            = v.node()->symbolGroup()->addSymbol(v.module(), name, std::string(), &errorMessage);
         qwPrivate = SymbolGroupValue(qwPrivateNode, v.context());
     }
     const SymbolGroupValue oName = qwPrivate[unsigned(0)]["objectName"]; // QWidgetPrivate inherits QObjectPrivate
@@ -1414,8 +1435,8 @@ static inline std::string
                          const QtInfo &qtInfo,
                          const SymbolGroupValue &contextHelper)
 {
-    const std::string module = contextHelper.node()->symbolGroup()->module();
-    std::string rc = QtInfo::prependModuleAndNameSpace(containerType, module, qtInfo.nameSpace);
+    std::string rc = QtInfo::prependModuleAndNameSpace(containerType, contextHelper.module(),
+                                                       qtInfo.nameSpace);
     rc.push_back('<');
     rc += QtInfo::prependModuleAndNameSpace(innerType1, std::string(), qtInfo.nameSpace);
     if (!innerType2.empty()) {

@@ -103,8 +103,10 @@ public:
 
     unsigned indexByIName(const char *) const; // (unsigned(-1) on failure
     AbstractSymbolGroupNode *childByIName(const char *) const;
+    unsigned indexOf(const AbstractSymbolGroupNode *) const;
 
     const AbstractSymbolGroupNode *parent() const { return m_parent; }
+    AbstractSymbolGroupNode *parent() { return m_parent; }
 
     unsigned flags() const           { return m_flags; }
     bool testFlags(unsigned f) const { return (m_flags & f) != 0; }
@@ -151,18 +153,30 @@ class BaseSymbolGroupNode : public AbstractSymbolGroupNode
 {
 public:
     virtual const AbstractSymbolGroupNodePtrVector &children() const { return m_children; }
+    void addChild(AbstractSymbolGroupNode *c); // for watches
+    void removeChildAt(unsigned);
 
 protected:
     explicit BaseSymbolGroupNode(const std::string &name, const std::string &iname);
     virtual ~BaseSymbolGroupNode();
 
     void reserveChildren(AbstractSymbolGroupNodePtrVector::size_type s) { m_children.reserve(s); }
-    void addChild(AbstractSymbolGroupNode *c);
 
 private:
     AbstractSymbolGroupNodePtrVector m_children;
-
     void removeChildren();
+};
+
+// Dummy fake node to satisfy the watch model for failed additions. Reports error.
+class ErrorSymbolGroupNode : public BaseSymbolGroupNode
+{
+public:
+    explicit ErrorSymbolGroupNode(const std::string &name, const std::string &iname);
+
+    virtual int dump(std::ostream &str, const std::string &fullIname,
+                     const DumpParameters &p, const SymbolGroupValueContext &ctx);
+    virtual void debug(std::ostream &os, const std::string &visitingFullIname,
+                       unsigned verbosity, unsigned depth) const;
 };
 
 /* SymbolGroupNode: 'Real' node within a symbol group, identified by its index
@@ -187,6 +201,7 @@ class SymbolGroupNode : public BaseSymbolGroupNode
 {
     explicit SymbolGroupNode(SymbolGroup *symbolGroup,
                              ULONG index,
+                             const std::string &module,
                              const std::string &name,
                              const std::string &iname);
 
@@ -201,7 +216,8 @@ public:
         ExpandedByDumper = 0x10,
         AdditionalSymbol = 0x20, // Introduced by addSymbol, should not be visible
         Obscured = 0x40,    // Symbol is obscured by (for example) fake container children
-        ComplexDumperOk = 0x80
+        ComplexDumperOk = 0x80,
+        WatchNode = 0x100
     };
 
     typedef std::vector<DEBUG_SYMBOL_PARAMETERS> SymbolParameterVector;
@@ -210,9 +226,10 @@ public:
                          SymbolParameterVector::size_type parameterOffset,
                          const SymbolParameterVector &vec);
 
-    static SymbolGroupNode *create(SymbolGroup *sg, const std::string &name, const SymbolParameterVector &vec);
+    static SymbolGroupNode *create(SymbolGroup *sg, const std::string &module, const std::string &name, const SymbolParameterVector &vec);
     // For root nodes, only: Add a new symbol by name
-    SymbolGroupNode *addSymbolByName(const std::string &name,  // Expression like 'myarray[1]'
+    SymbolGroupNode *addSymbolByName(const std::string &module,
+                                     const std::string &name,  // Expression like 'myarray[1]'
                                      const std::string &iname, // Desired iname, defaults to name
                                      std::string *errorMessage);
 
@@ -239,6 +256,7 @@ public:
     int dumperContainerSize() { return m_dumperContainerSize; } // Valid after dumper run
     unsigned size() const; // Size of value
     ULONG64 address() const;
+    std::string module() const { return m_module; }
 
     bool expand(std::string *errorMessage);
     bool expandRunComplexDumpers(const SymbolGroupValueContext &ctx, std::string *errorMessage);
@@ -254,15 +272,21 @@ public:
     virtual SymbolGroupNode *asSymbolGroupNode() { return this; }
     virtual const SymbolGroupNode *asSymbolGroupNode() const { return this; }
 
+    // Remove self off parent and return the indexes to be shifted or unsigned(-1).
+    bool removeSelf(SymbolGroupNode *root, std::string *errorMessage);
+
 private:
     const SymbolGroupNode *symbolGroupNodeParent() const;
+    SymbolGroupNode *symbolGroupNodeParent();
     bool isArrayElement() const;
-    // Notify about expansion of a node, shift indexes
-    bool notifyExpanded(ULONG index, ULONG insertedCount);
+    // Notify about expansion/collapsing of a node, shift indexes
+    bool notifyIndexesMoved(ULONG index, bool inserted, ULONG offset);
     bool runSimpleDumpers(const SymbolGroupValueContext &ctx);
     std::wstring simpleDumpValue(const SymbolGroupValueContext &ctx);
+    ULONG nextSymbolIndex() const;
 
     SymbolGroup *const m_symbolGroup;
+    const std::string m_module;
     ULONG m_index;
     DEBUG_SYMBOL_PARAMETERS m_parameters; // Careful when using ParentSymbol. It might not be correct.
     std::wstring m_dumperValue;

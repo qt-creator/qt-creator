@@ -73,6 +73,8 @@ static inline void debugNodeFlags(std::ostream &str, unsigned f)
         str << " Obscured";
     if (f & SymbolGroupNode::ComplexDumperOk)
         str << " ComplexDumperOk";
+    if (f & SymbolGroupNode::WatchNode)
+        str << " WatchNode";
     str << ' ';
 }
 
@@ -133,6 +135,12 @@ AbstractSymbolGroupNode *AbstractSymbolGroupNode::childByIName(const char *n) co
     if (index != unsigned(-1))
         return children().at(index);
     return 0;
+}
+
+unsigned AbstractSymbolGroupNode::indexOf(const AbstractSymbolGroupNode *n) const
+{
+    const AbstractSymbolGroupNodePtrVector::const_iterator it = std::find(children().begin(), children().end(), n);
+    return it != children().end() ? unsigned(it - children().begin()) : unsigned(-1);
 }
 
 bool AbstractSymbolGroupNode::accept(SymbolGroupNodeVisitor &visitor,
@@ -206,6 +214,15 @@ BaseSymbolGroupNode::BaseSymbolGroupNode(const std::string &name, const std::str
 BaseSymbolGroupNode::~BaseSymbolGroupNode()
 {
     removeChildren();
+}
+
+void BaseSymbolGroupNode::removeChildAt(unsigned n)
+{
+    if (VectorIndexType(n) >= m_children.size())
+        return;
+    const AbstractSymbolGroupNodePtrVector::iterator it = m_children.begin() + n;
+    delete *it;
+    m_children.erase(it, it + 1);
 }
 
 void BaseSymbolGroupNode::removeChildren()
@@ -421,15 +438,37 @@ bool DumpParameters::recode(const std::string &type,
     return true;
 }
 
+// --------- ErrorSymbolGroupNode
+ErrorSymbolGroupNode::ErrorSymbolGroupNode(const std::string &name, const std::string &iname) :
+    BaseSymbolGroupNode(name, iname)
+{
+}
+
+int ErrorSymbolGroupNode::dump(std::ostream &str, const std::string &fullIname,
+                               const DumpParameters &, const SymbolGroupValueContext &)
+{
+    dumpBasicData(str, name(), fullIname, "<unknown>", std::string());
+    str << ",valueencoded=\"0\",value=\"<Error>\",valueenabled=\"false\",valueeditable=\"false\"";
+    return 0;
+}
+
+void ErrorSymbolGroupNode::debug(std::ostream &os, const std::string &visitingFullIname,
+                                 unsigned , unsigned depth) const
+{
+    indentStream(os, 2 * depth);
+    os << "ErrorSymbolGroupNode '" << name() << "','" << iName() << "', '" << visitingFullIname << "'\n";
+}
+
 // ------- SymbolGroupNode
 
 SymbolGroupNode::SymbolGroupNode(SymbolGroup *symbolGroup,
                                  ULONG index,
+                                 const std::string &module,
                                  const std::string &name,
                                  const std::string &iname) :
     BaseSymbolGroupNode(name, iname),
     m_symbolGroup(symbolGroup),
-    m_index(index), m_dumperType(-1), m_dumperContainerSize(-1), m_dumperSpecialInfo(0)
+    m_module(module), m_index(index), m_dumperType(-1), m_dumperContainerSize(-1), m_dumperSpecialInfo(0)
 {
     memset(&m_parameters, 0, sizeof(DEBUG_SYMBOL_PARAMETERS));
     m_parameters.ParentSymbol = DEBUG_ANY_ID;
@@ -438,6 +477,13 @@ SymbolGroupNode::SymbolGroupNode(SymbolGroup *symbolGroup,
 const SymbolGroupNode *SymbolGroupNode::symbolGroupNodeParent() const
 {
     if (const AbstractSymbolGroupNode *p = parent())
+        return p->asSymbolGroupNode();
+    return 0;
+}
+
+SymbolGroupNode *SymbolGroupNode::symbolGroupNodeParent()
+{
+    if (AbstractSymbolGroupNode *p = parent())
         return p->asSymbolGroupNode();
     return 0;
 }
@@ -453,15 +499,20 @@ bool SymbolGroupNode::isArrayElement() const
 // Adapt our index and those of our children if we are behind it.
 // Return true if a modification was required to be able to terminate the
 // recursion.
-bool SymbolGroupNode::notifyExpanded(ULONG index, ULONG insertedCount)
+bool SymbolGroupNode::notifyIndexesMoved(ULONG index, bool inserted, ULONG offset)
 {
     typedef AbstractSymbolGroupNodePtrVector::const_reverse_iterator ReverseIt;
+
+    if (SymbolGroupValue::verbose > 2)
+        DebugPrint() << "notifyIndexesMoved: #" << this->index() << " '" << name()
+                     << "' index=" << index << " insert="
+                     << inserted << " offset=" << offset;
     // Looping backwards over the children. If a subtree has no modifications,
     // (meaning all other indexes are smaller) we can stop.
     const ReverseIt rend = children().rend();
     for (ReverseIt it = children().rbegin(); it != rend; ++it) {
         if (SymbolGroupNode *c = (*it)->asSymbolGroupNode())
-            if (!c->notifyExpanded(index, insertedCount))
+            if (!c->notifyIndexesMoved(index, inserted, offset))
                 return false;
     }
 
@@ -469,9 +520,18 @@ bool SymbolGroupNode::notifyExpanded(ULONG index, ULONG insertedCount)
     if (m_index == DEBUG_ANY_ID || m_index < index)
         return false;
 
-    m_index += insertedCount;
-    if (m_parameters.ParentSymbol != DEBUG_ANY_ID && m_parameters.ParentSymbol >= index)
-        m_parameters.ParentSymbol += insertedCount;
+    if (inserted) {
+        m_index += offset;
+    } else {
+        m_index -= offset;
+    }
+    if (m_parameters.ParentSymbol != DEBUG_ANY_ID && m_parameters.ParentSymbol >= index) {
+        if (inserted) {
+            m_parameters.ParentSymbol += offset;
+        } else {
+            m_parameters.ParentSymbol -= offset;
+        }
+    }
     return true;
 }
 
@@ -596,6 +656,7 @@ void SymbolGroupNode::parseParameters(VectorIndexType index,
             const VectorIndexType symbolGroupIndex = pos + parameterOffset;
             SymbolGroupNode *child = new SymbolGroupNode(m_symbolGroup,
                                                          ULONG(symbolGroupIndex),
+                                                         m_module,
                                                          names.at(nameIndex),
                                                          inames.at(nameIndex));
             child->parseParameters(symbolGroupIndex, parameterOffset, vec);
@@ -607,9 +668,10 @@ void SymbolGroupNode::parseParameters(VectorIndexType index,
         m_parameters.SubElements = ULONG(children().size());
 }
 
-SymbolGroupNode *SymbolGroupNode::create(SymbolGroup *sg, const std::string &name, const SymbolGroup::SymbolParameterVector &vec)
+SymbolGroupNode *SymbolGroupNode::create(SymbolGroup *sg, const std::string &module,
+                                         const std::string &name, const SymbolGroup::SymbolParameterVector &vec)
 {
-    SymbolGroupNode *rc = new SymbolGroupNode(sg, DEBUG_ANY_ID, name, name);
+    SymbolGroupNode *rc = new SymbolGroupNode(sg, DEBUG_ANY_ID, module, name, name);
     rc->parseParameters(DEBUG_ANY_ID, 0, vec);
     return rc;
 }
@@ -833,6 +895,24 @@ int SymbolGroupNode::dump(std::ostream &str, const std::string &visitingFullInam
     return dumpNode(str, name(), visitingFullIname, p, ctx);
 }
 
+// Return a watch expression basically as "*(type *)(address)"
+static inline std::string watchExpression(ULONG64 address,
+                                          const std::string &type,
+                                          int /* kType */,
+                                          const std::string &module)
+{
+    std::ostringstream str;
+    str << "*(";
+    // Try to make watch expressions faster by at least qualifying templates with
+    // the local module. We cannot do expensive type lookup here.
+    // We could insert a placeholder here for non-POD types indicating
+    // that a type lookup should be done when inserting watches?
+    if (!module.empty() && type.find('>') != std::string::npos)
+        str << module << '!';
+    str << SymbolGroupValue::pointerType(SymbolGroupValue::stripClassPrefixes(type)) << ')' << std::hex << std::showbase << address;
+    return str.str();
+}
+
 int SymbolGroupNode::dumpNode(std::ostream &str,
                               const std::string &aName,
                               const std::string &aFullIName,
@@ -840,11 +920,12 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
                               const SymbolGroupValueContext &ctx)
 {
     const std::string t = type();
-    SymbolGroupNode::dumpBasicData(str, aName, aFullIName, t, aFullIName);
+    const ULONG64 addr = address();
+    SymbolGroupNode::dumpBasicData(str, aName, aFullIName, t,
+                                   watchExpression(addr, t, m_dumperType, m_module));
 
-    if (const ULONG64 addr = address())
-        str << ",addr=\"" << std::hex << std::showbase << addr << std::noshowbase << std::dec
-               << '"';
+    if (addr)
+        str << ",addr=\"" << std::hex << std::showbase << addr << std::noshowbase << std::dec << '"';
 
     const bool uninitialized = flags() & Uninitialized;
     bool valueEditable = !uninitialized;
@@ -896,7 +977,7 @@ void SymbolGroupNode::debug(std::ostream &str,
     str << "AbsIname=" << fullIname << '"';
     if (fullIname != visitingFullIname)
         str << ",VisitIname=\"" <<visitingFullIname;
-    str << "\",index=" << m_index;
+    str << "\",module=\"" << m_module << "\",index=" << m_index;
     if (const VectorIndexType childCount = children().size())
         str << ", Children=" << childCount;
     str << ' ' << m_parameters << DebugNodeFlags(flags());
@@ -979,7 +1060,7 @@ bool SymbolGroupNode::expand(std::string *errorMessage)
         return false;
     }
     // Before inserting children, correct indexes on whole group
-    m_symbolGroup->root()->notifyExpanded(m_index + 1, parameters.at(0).SubElements);
+    m_symbolGroup->root()->notifyIndexesMoved(m_index + 1, true, parameters.at(0).SubElements);
     // Parse parameters, correct our own) and create child nodes.
     parseParameters(m_index, m_index, parameters);
     return true;
@@ -1020,6 +1101,59 @@ bool SymbolGroupNode::typeCast(const std::string &desiredType, std::string *erro
     return true;
 }
 
+// Find the index of the next symbol in the group, that is, right sibling.
+// Go up the tree if we are that last sibling. 0 indicates none found (last sibling)
+ULONG SymbolGroupNode::nextSymbolIndex() const
+{
+    const SymbolGroupNode *sParent = symbolGroupNodeParent();
+    if (!sParent)
+        return 0;
+    const unsigned myIndex = sParent->indexOf(this);
+    const AbstractSymbolGroupNodePtrVector &siblings = sParent->children();
+    // Find any 'real' SymbolGroupNode to our right.
+    const unsigned size = unsigned(siblings.size());
+    for (unsigned i = myIndex + 1; i < size; i++)
+        if (const SymbolGroupNode *s = siblings.at(i)->asSymbolGroupNode())
+            return s->index();
+    return sParent->nextSymbolIndex();
+}
+
+// Remove self off parent and return the indexes to be shifted or unsigned(-1).
+bool SymbolGroupNode::removeSelf(SymbolGroupNode *root, std::string *errorMessage)
+{
+    SymbolGroupNode *sParent = symbolGroupNodeParent();
+    if (m_index == DEBUG_ANY_ID || !sParent) {
+        *errorMessage = "SymbolGroupNode::removeSelf: Internal error 1.";
+        return false;
+    }
+    const unsigned parentPosition = sParent->indexOf(this);
+    if (parentPosition == unsigned(-1)) {
+        *errorMessage = "SymbolGroupNode::removeSelf: Internal error 2.";
+        return false;
+    }
+    // Determine the index for the following symbols to be subtracted by finding the next
+    // 'real' SymbolGroupNode child (right or up the tree-right) and taking its index
+    const ULONG oldIndex = index();
+    const ULONG nextSymbolIdx = nextSymbolIndex();
+    const ULONG offset = nextSymbolIdx >  oldIndex ? nextSymbolIdx - oldIndex : 0;
+    if (SymbolGroupValue::verbose)
+        DebugPrint() << "SymbolGroupNode::removeSelf #" << index() << " '" << name()
+                     << "' at pos=" << parentPosition<< " (" << sParent->children().size()
+                     << ") of parent '" << sParent->name()
+                     << "' nextIndex=" << nextSymbolIdx << " offset=" << offset << *errorMessage;
+    // Remove from symbol group
+    const HRESULT hr = symbolGroup()->debugSymbolGroup()->RemoveSymbolByIndex(oldIndex);
+    if (FAILED(hr)) {
+        *errorMessage = msgDebugEngineComFailed("RemoveSymbolByIndex", hr);
+        return false;
+    }
+    // Move the following symbol indexes: We no longer exist below here.
+    sParent ->removeChildAt(parentPosition);
+    if (offset)
+        root->notifyIndexesMoved(oldIndex + 1, false, offset);
+    return true;
+}
+
 static inline std::string msgCannotAddSymbol(const std::string &name, const std::string &why)
 {
     std::ostringstream str;
@@ -1028,7 +1162,8 @@ static inline std::string msgCannotAddSymbol(const std::string &name, const std:
 }
 
 // For root nodes, only: Add a new symbol by name
-SymbolGroupNode *SymbolGroupNode::addSymbolByName(const std::string &name,
+SymbolGroupNode *SymbolGroupNode::addSymbolByName(const std::string &module,
+                                                  const std::string &name,
                                                   const std::string &iname,
                                                   std::string *errorMessage)
 {
@@ -1059,7 +1194,7 @@ SymbolGroupNode *SymbolGroupNode::addSymbolByName(const std::string &name,
         return 0;
     }
     SymbolGroupNode *node = new SymbolGroupNode(m_symbolGroup, index,
-                                                name, iname.empty() ? name : iname);
+                                                module, name, iname.empty() ? name : iname);
     node->parseParameters(0, 0, parameters);
     node->addFlags(AdditionalSymbol);
     addChild(node);
@@ -1210,8 +1345,10 @@ SymbolGroupNodeVisitor::VisitResult
                                       const std::string &fullIname,
                                       unsigned /* child */, unsigned depth)
 {
-    // Show container children only, no additional symbol below root.
-    if (node->testFlags(SymbolGroupNode::Obscured|SymbolGroupNode::AdditionalSymbol))
+    // Show container children only, no additional symbol below root (unless it is a watch node).
+    if (node->testFlags(SymbolGroupNode::Obscured))
+        return VisitSkipChildren;
+    if (node->testFlags(SymbolGroupNode::AdditionalSymbol) && !node->testFlags(SymbolGroupNode::WatchNode))
         return VisitSkipChildren;
     // Recurse to children only if expanded by explicit watchmodel request
     // and initialized.
