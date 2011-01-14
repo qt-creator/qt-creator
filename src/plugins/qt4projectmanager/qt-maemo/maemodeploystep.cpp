@@ -106,6 +106,7 @@ void MaemoDeployStep::ctor()
     }
 
     m_state = Inactive;
+    m_deviceConfig = MaemoDeviceConfigurations::instance()->defaultDeviceConfig();
     m_needsInstall = false;
     m_sysrootInstaller = new QProcess(this);
     connect(m_sysrootInstaller, SIGNAL(finished(int,QProcess::ExitStatus)),
