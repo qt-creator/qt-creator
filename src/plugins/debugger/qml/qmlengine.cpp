@@ -208,7 +208,7 @@ void QmlEngine::setupInferior()
         connect(&d->m_applicationLauncher,
             SIGNAL(bringToForegroundRequested(qint64)),
             runControl(),
-        SLOT(bringApplicationToForeground(qint64)));
+            SLOT(bringApplicationToForeground(qint64)));
 
         d->m_applicationLauncher.setEnvironment(startParameters().environment);
         d->m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);
@@ -675,7 +675,8 @@ void QmlEngine::messageReceived(const QByteArray &message)
     stream >> command;
 
     if (command == "STOPPED") {
-        if (state() == InferiorRunOk)
+        qDebug() << command << this << state();
+        if (state() == InferiorRunOk || state() == EngineRunOk)
             notifyInferiorSpontaneousStop();
 
         QString logString = QString(command);

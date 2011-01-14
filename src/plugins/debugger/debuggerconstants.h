@@ -114,9 +114,12 @@ enum DebuggerState
 
     InferiorSetupRequested,
     InferiorSetupFailed,
+    InferiorSetupOk,
 
     EngineRunRequested,
     EngineRunFailed,
+    EngineRunOk,
+
     InferiorUnrunnable,        // Used in the core dump adapter
 
     InferiorRunRequested,      // Debuggee requested to run
@@ -124,16 +127,19 @@ enum DebuggerState
     InferiorRunFailed,         // Debuggee running
 
     InferiorStopRequested,     // Debuggee running, stop requested
+    InferiorStopSpontaneous,   // Debuggee stopped spontaneously
     InferiorStopOk,            // Debuggee stopped
     InferiorStopFailed,        // Debuggee not stopped, will kill debugger
 
+    InferiorExitOk,
+
     InferiorShutdownRequested,
-    InferiorShutdownOk,
     InferiorShutdownFailed,
+    InferiorShutdownOk,
 
     EngineShutdownRequested,
-    EngineShutdownOk,
     EngineShutdownFailed,
+    EngineShutdownOk,
 
     DebuggerFinished
 };

@@ -16,86 +16,83 @@ class DEBUGGER_EXPORT QmlCppEngine : public DebuggerEngine
 
 public:
     explicit QmlCppEngine(const DebuggerStartParameters &sp);
-    virtual ~QmlCppEngine();
+    ~QmlCppEngine();
 
-    virtual void setToolTipExpression(const QPoint &mousePos,
+    void setToolTipExpression(const QPoint &mousePos,
         TextEditor::ITextEditor * editor, int cursorPos);
-    virtual void updateWatchData(const WatchData &data,
+    void updateWatchData(const WatchData &data,
         const WatchUpdateFlags &flags);
 
-    virtual void watchPoint(const QPoint &);
-    virtual void fetchMemory(MemoryAgent *, QObject *,
-            quint64 addr, quint64 length);
-    virtual void fetchDisassembler(DisassemblerAgent *);
-    virtual void activateFrame(int index);
+    void watchPoint(const QPoint &);
+    void fetchMemory(MemoryAgent *, QObject *, quint64 addr, quint64 length);
+    void fetchDisassembler(DisassemblerAgent *);
+    void activateFrame(int index);
 
-    virtual void reloadModules();
-    virtual void examineModules();
-    virtual void loadSymbols(const QString &moduleName);
-    virtual void loadAllSymbols();
-    virtual void requestModuleSymbols(const QString &moduleName);
+    void reloadModules();
+    void examineModules();
+    void loadSymbols(const QString &moduleName);
+    void loadAllSymbols();
+    void requestModuleSymbols(const QString &moduleName);
 
-    virtual void reloadRegisters();
-    virtual void reloadSourceFiles();
-    virtual void reloadFullStack();
+    void reloadRegisters();
+    void reloadSourceFiles();
+    void reloadFullStack();
 
-    virtual void setRegisterValue(int regnr, const QString &value);
-    virtual unsigned debuggerCapabilities() const;
+    void setRegisterValue(int regnr, const QString &value);
+    unsigned debuggerCapabilities() const;
 
-    virtual bool isSynchronous() const;
-    virtual QByteArray qtNamespace() const;
+    bool isSynchronous() const;
+    QByteArray qtNamespace() const;
 
-    virtual void createSnapshot();
-    virtual void updateAll();
+    void createSnapshot();
+    void updateAll();
 
-    virtual void attemptBreakpointSynchronization();
-    virtual bool acceptsBreakpoint(BreakpointId id) const;
-    virtual void selectThread(int index);
+    void attemptBreakpointSynchronization();
+    bool acceptsBreakpoint(BreakpointId id) const;
+    void selectThread(int index);
 
-    virtual void assignValueInDebugger(const WatchData *data,
+    void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);
 
     DebuggerEngine *cppEngine() const;
-    virtual void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
-    virtual void handleRemoteSetupFailed(const QString &message);
+    void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
+    void handleRemoteSetupFailed(const QString &message);
 
 protected:
-    virtual void detachDebugger();
-    virtual void executeStep();
-    virtual void executeStepOut();
-    virtual void executeNext();
-    virtual void executeStepI();
-    virtual void executeNextI();
-    virtual void executeReturn();
-    virtual void continueInferior();
-    virtual void interruptInferior();
-    virtual void requestInterruptInferior();
+    void detachDebugger();
+    void executeStep();
+    void executeStepOut();
+    void executeNext();
+    void executeStepI();
+    void executeNextI();
+    void executeReturn();
+    void continueInferior();
+    void interruptInferior();
+    void requestInterruptInferior();
 
-    virtual void executeRunToLine(const QString &fileName, int lineNumber);
-    virtual void executeRunToFunction(const QString &functionName);
-    virtual void executeJumpToLine(const QString &fileName, int lineNumber);
-    virtual void executeDebuggerCommand(const QString &command);
+    void executeRunToLine(const QString &fileName, int lineNumber);
+    void executeRunToFunction(const QString &functionName);
+    void executeJumpToLine(const QString &fileName, int lineNumber);
+    void executeDebuggerCommand(const QString &command);
 
-    virtual void frameUp();
-    virtual void frameDown();
+    void frameUp();
+    void frameDown();
 
-    virtual void notifyInferiorRunOk();
+    void setupEngine();
+    void setupInferior();
+    void runEngine();
+    void shutdownInferior();
+    void shutdownEngine();
 
-protected:
-    virtual void setupEngine();
-    virtual void setupInferior();
-    virtual void runEngine();
-    virtual void shutdownInferior();
-    virtual void shutdownEngine();
-
-private slots:
-    void slaveEngineStateChanged(DebuggerState state);
-    void setupSlaveEngine();
+    void notifyInferiorRunOk();
+    void notifyInferiorSpontaneousStop();
+    void notifyEngineRunAndInferiorRunOk();
+    void notifyInferiorShutdownOk();
 
 private:
-    void initEngineShutdown();
-    bool checkErrorState(DebuggerState stateToCheck);
     void engineStateChanged(DebuggerState newState);
+    void setState(DebuggerState newState, bool forced = false);
+    void slaveEngineStateChanged(DebuggerEngine *slaveEngine, DebuggerState state);
 
 private:
     QScopedPointer<QmlCppEnginePrivate> d;
