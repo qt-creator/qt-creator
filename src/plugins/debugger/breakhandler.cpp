@@ -487,7 +487,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 const quint64 address = orig ? data.address : response.address;
                 if (address)
                     displayValue += QString::fromAscii("0x%1").arg(address, 0, 16);
-                if (!response.extra.isEmpty()) {
+                if (0 && !response.extra.isEmpty()) {
                     if (!displayValue.isEmpty())
                         displayValue += QLatin1Char(' ');
                     displayValue += QString::fromAscii(response.extra);
