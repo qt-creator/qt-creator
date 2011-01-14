@@ -89,11 +89,13 @@ void TargetSelector::setCurrentIndex(int index)
 void TargetSelector::setAddButtonEnabled(bool enabled)
 {
     m_addButtonEnabled = enabled;
+    update();
 }
 
 void TargetSelector::setRemoveButtonEnabled(bool enabled)
 {
     m_removeButtonEnabled = enabled;
+    update();
 }
 
 void TargetSelector::setAddButtonMenu(QMenu *menu)
