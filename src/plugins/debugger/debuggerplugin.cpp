@@ -186,6 +186,7 @@
 //                         +       +
 //                         +       ` +-+-> InferiorSetupFailed +-+-+-+-+-+->.
 //                         +                                                +
+//                  InferiorSetupOk                                         +
 //                         +                                                +
 //                  EngineRunRequested                                      +
 //                         +                                                +
@@ -197,6 +198,8 @@
 //      {notify-    {notifyER&- {notifyER&-  {notify-                       +
 //      Inferior-     Inferior-   Inferior-  EngineRun-                     +
 //     Unrunnable}     StopOk}     RunOk}     Failed}                       +
+//           +           +            +           +                         +
+//     EngineRunOk  EngineRunOk  EngineRunOk      +                         +
 //           +           +            +           +                         +
 //   InferiorUnrunnable  +     InferiorRunOk      +                         +
 //                       +                        +                         +
@@ -238,7 +241,7 @@
 //   {notifyInferior-      +        +                                       +
 //      Exited}            +        +                                       +
 //           +             +        +                                       +
-//            +            +        +                                       +
+//     InferiorExitOk      +        +                                       +
 //             +           +        +                                       +
 //            InferiorShutdownOk InferiorShutdownFailed                     +
 //                      *          *                                        +
