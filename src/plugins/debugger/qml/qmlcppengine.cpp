@@ -557,14 +557,18 @@ void QmlCppEngine::slaveEngineStateChanged
 
     case EngineShutdownOk:
         if (otherEngine->state() == EngineShutdownOk)
-            notifyEngineShutdownOk();
+            ; // Wait for DebuggerFinished.
         else
             qDebug() << "... WAITING FOR OTHER ENGINE SHUTDOWN...";
         break;
 
 
     case DebuggerFinished:
-         break;
+        if (otherEngine->state() == DebuggerFinished)
+            notifyEngineShutdownOk();
+        else
+            qDebug() << "... WAITING FOR OTHER DEBUGGER TO FINISH...";
+        break;
     }
 }
 

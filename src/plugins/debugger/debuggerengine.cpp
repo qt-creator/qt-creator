@@ -978,8 +978,7 @@ void DebuggerEngine::notifyEngineShutdownOk()
     showMessage(_("NOTE: ENGINE SHUTDOWN OK"));
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << this << state());
     setState(EngineShutdownOk);
-    if (isMasterEngine())
-        d->queueFinishDebugger();
+    d->queueFinishDebugger();
 }
 
 void DebuggerEngine::notifyEngineShutdownFailed()
@@ -987,13 +986,11 @@ void DebuggerEngine::notifyEngineShutdownFailed()
     showMessage(_("NOTE: ENGINE SHUTDOWN FAILED"));
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << this << state());
     setState(EngineShutdownFailed);
-    if (isMasterEngine())
-        d->queueFinishDebugger();
+    d->queueFinishDebugger();
 }
 
 void DebuggerEnginePrivate::doFinishDebugger()
 {
-    QTC_ASSERT(isMasterEngine(), return);
     m_engine->showMessage(_("NOTE: FINISH DEBUGGER"));
     QTC_ASSERT(state() == DebuggerFinished, qDebug() << m_engine << state());
     resetLocation();
@@ -1043,17 +1040,6 @@ void DebuggerEngine::notifyInferiorExited()
     qDebug() << "\nSPONTANEUOUS EXIT: " << this << d->m_state;
     showMessage(_("NOTE: INFERIOR EXITED"));
     d->resetLocation();
-/*
-    // This can be issued in almost any state. We assume, though,
-    // that at this point of time the inferior is not running anymore,
-    // even if stop notification were not issued or got lost.
-    if (state() == InferiorRunOk) {
-        setState(InferiorStopRequested);
-        setState(InferiorStopOk);
-    }
-    setState(InferiorShutdownRequested);
-    setState(InferiorShutdownOk);
-*/
     setState(InferiorExitOk);
     if (isMasterEngine()) {
         setState(InferiorShutdownOk);
