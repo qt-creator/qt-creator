@@ -33,6 +33,8 @@
 
 #include "bytearrayinputstream.h"
 
+#include <ctype.h>
+
 namespace Debugger {
 namespace Internal {
 
