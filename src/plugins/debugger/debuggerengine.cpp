@@ -339,7 +339,6 @@ const char *DebuggerEngine::stateName(int s)
         SN(InferiorRunOk)
         SN(InferiorRunFailed)
         SN(InferiorUnrunnable)
-        SN(InferiorStopSpontaneous)
         SN(InferiorStopRequested)
         SN(InferiorStopOk)
         SN(InferiorStopFailed)
@@ -715,14 +714,12 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
     case InferiorRunFailed:
         return to == InferiorStopOk;
     case InferiorRunOk:
-        return to == InferiorStopRequested || to == InferiorStopSpontaneous
-            || InferiorExitOk;
-            //|| to == InferiorStopOk;
+        return to == InferiorStopRequested
+            || to == InferiorStopOk // A spontaneous stop.
+            || to == InferiorExitOk;
 
     case InferiorStopRequested:
         return to == InferiorStopOk || to == InferiorStopFailed;
-    case InferiorStopSpontaneous:
-        return to == InferiorStopOk;
     case InferiorStopOk:
         return to == InferiorRunRequested || to == InferiorShutdownRequested
             || to == InferiorStopOk || InferiorExitOk;
@@ -926,9 +923,7 @@ void DebuggerEngine::notifyInferiorSpontaneousStop()
 {
     showMessage(_("NOTE: INFERIOR SPONTANEOUES STOP"));
     QTC_ASSERT(state() == InferiorRunOk, qDebug() << this << state());
-    setState(InferiorStopSpontaneous);
-    if (isMasterEngine())
-        setState(InferiorStopOk);
+    setState(InferiorStopOk);
 }
 
 void DebuggerEngine::notifyInferiorStopFailed()
@@ -1190,7 +1185,6 @@ bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
     case EngineRunFailed:
     case InferiorSetupFailed:
     case InferiorStopFailed:
-    case InferiorStopSpontaneous:
     case InferiorExitOk:
     case InferiorShutdownRequested:
     case InferiorShutdownOk:

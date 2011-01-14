@@ -126,7 +126,6 @@ enum DebuggerState
     InferiorRunFailed,         // Debuggee running
 
     InferiorStopRequested,     // Debuggee running, stop requested
-    InferiorStopSpontaneous,   // Debuggee stopped spontaneously
     InferiorStopOk,            // Debuggee stopped
     InferiorStopFailed,        // Debuggee not stopped, will kill debugger
 

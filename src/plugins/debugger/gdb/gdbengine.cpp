@@ -141,7 +141,6 @@ static bool stateAcceptsGdbCommands(DebuggerState state)
         return true;
     case DebuggerNotReady:
     case InferiorStopFailed:
-    case InferiorStopSpontaneous:
     case InferiorSetupOk:
     case EngineRunFailed:
     case InferiorExitOk:

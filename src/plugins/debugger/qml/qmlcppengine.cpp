@@ -467,17 +467,6 @@ void QmlCppEngine::slaveEngineStateChanged
         break;
 
 
-    case InferiorStopSpontaneous:
-        notifyInferiorSpontaneousStop();
-        slaveEngine->setSilentState(InferiorStopOk);
-        if (slaveEngine != d->m_activeEngine) {
-            QString engineName = slaveEngine == d->m_cppEngine
-                ? QLatin1String("C++") : QLatin1String("QML");
-            showStatusMessage(tr("%1 debugger activated").arg(engineName));
-            d->m_activeEngine = slaveEngine;
-        }
-        break;
-
     case InferiorStopRequested:
         break;
 
@@ -489,6 +478,12 @@ void QmlCppEngine::slaveEngineStateChanged
         if (isDying()) {
             qDebug() << "... AN INFERIOR STOPPED DURING SHUTDOWN ";
         } else {
+            if (slaveEngine != d->m_activeEngine) {
+                QString engineName = slaveEngine == d->m_cppEngine
+                    ? QLatin1String("C++") : QLatin1String("QML");
+                showStatusMessage(tr("%1 debugger activated").arg(engineName));
+                d->m_activeEngine = slaveEngine;
+            }
             if (otherEngine->state() == InferiorShutdownOk) {
                 qDebug() << "... STOPP ";
             } else if (state() == InferiorStopRequested) {
