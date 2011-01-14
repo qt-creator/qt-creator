@@ -84,20 +84,20 @@ bool IpAddressLineEdit::isValid() const
 
 void IpAddressLineEdit::validateAddress(const QString &string)
 {
-    QString copy(string);
-    int offset(0);
+    QString copy = string;
+    int offset = 0;
     bool isValid = m_d->m_ipAddressValidator->validate(copy, offset) == QValidator::Acceptable;
 
     if (isValid != m_d->m_addressIsValid) {
         if (isValid) {
-            QPalette palette(palette());
-            palette.setColor(QPalette::Text, m_d->m_validColor);
-            setPalette(palette);
+            QPalette pal(palette());
+            pal.setColor(QPalette::Text, m_d->m_validColor);
+            setPalette(pal);
             emit validAddressChanged(copy);
         } else {
-            QPalette palette(palette());
-            palette.setColor(QPalette::Text, Qt::red);
-            setPalette(palette);
+            QPalette pal(palette());
+            pal.setColor(QPalette::Text, Qt::red);
+            setPalette(pal);
             setToolTip(tr("The IP address is not valid."));
         }
         m_d->m_addressIsValid = isValid;

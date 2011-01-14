@@ -775,7 +775,8 @@ void S60DeviceRunControl::initCommunication()
 
 void S60DeviceRunControl::handleContextRemoved(const TcfTrkEvent &event)
 {
-    QVector<QByteArray> &removedItems( static_cast<const TcfTrkRunControlContextRemovedEvent &>(event).ids());
+    const QVector<QByteArray> removedItems
+        = static_cast<const TcfTrkRunControlContextRemovedEvent &>(event).ids();
     if (!m_runningProcessId.isEmpty()
             && removedItems.contains(m_runningProcessId.toAscii())) {
         appendMessage(tr("Process has finished."), NormalMessageFormat);
