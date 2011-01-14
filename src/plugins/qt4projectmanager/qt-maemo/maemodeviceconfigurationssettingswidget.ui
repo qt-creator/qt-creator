@@ -355,6 +355,9 @@
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QPushButton" name="addConfigButton">
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
        <property name="text">
         <string>&amp;Add</string>
        </property>
@@ -365,6 +368,9 @@
        <property name="enabled">
         <bool>false</bool>
        </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
        <property name="text">
         <string>&amp;Remove</string>
        </property>
@@ -374,6 +380,9 @@
       <widget class="QPushButton" name="testConfigButton">
        <property name="enabled">
         <bool>false</bool>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
        </property>
        <property name="toolTip">
         <string>Click here to check whether this device is properly set up to run Maemo projects.</string>
@@ -388,6 +397,9 @@
        <property name="enabled">
         <bool>false</bool>
        </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
        <property name="toolTip">
         <string>Click here if you don't have an SSH key yet.</string>
        </property>
@@ -400,6 +412,9 @@
       <widget class="QPushButton" name="deployKeyButton">
        <property name="enabled">
         <bool>false</bool>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
        </property>
        <property name="toolTip">
         <string>This will enable you to log into the device without a password.</string>
@@ -414,6 +429,9 @@
        <property name="enabled">
         <bool>false</bool>
        </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
        <property name="toolTip">
         <string>Click here to see which processes are running on the device.</string>
        </property>
@@ -426,6 +444,9 @@
       <widget class="QPushButton" name="defaultDeviceButton">
        <property name="enabled">
         <bool>false</bool>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
        </property>
        <property name="text">
         <string>Set As Default</string>
