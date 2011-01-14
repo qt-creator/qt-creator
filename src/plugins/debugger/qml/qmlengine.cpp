@@ -679,16 +679,16 @@ void QmlEngine::messageReceived(const QByteArray &message)
         if (state() == InferiorRunOk)
             notifyInferiorSpontaneousStop();
 
-        QString logString = QString(command);
+        QString logString = QString::fromLatin1(command);
 
         StackFrames stackFrames;
         QList<WatchData> watches;
         QList<WatchData> locals;
         stream >> stackFrames >> watches >> locals;
 
-        logString += QLatin1String(" (") + QString::number(stackFrames.size()) + QLatin1String(" stack frames)");
-        logString += QLatin1String(" (") + QString::number(watches.size()) + QLatin1String(" watches)");
-        logString += QLatin1String(" (") + QString::number(locals.size()) + QLatin1String(" locals)");
+        logString += tr(" (%1 stack frames)").arg(stackFrames.size());
+        logString += tr(" (%1 watches)").arg(watches.size());
+        logString += tr(" (%1 loacals)").arg(locals.size());
 
         for (int i = 0; i != stackFrames.size(); ++i)
             stackFrames[i].level = i + 1;
