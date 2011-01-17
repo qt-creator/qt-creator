@@ -261,6 +261,8 @@ void S60DeployConfigurationWidget::updateSerialDevices()
         const QString newPortName = device(newIndex).portName();
         m_deployConfiguration->setSerialPortName(newPortName);
     }
+    if (m_deployConfiguration->communicationChannel() != S60DeployConfiguration::CommunicationSerialConnection)
+        m_deviceInfoButton->setEnabled(false);
 }
 
 SymbianUtils::SymbianDevice S60DeployConfigurationWidget::device(int i) const
@@ -305,12 +307,14 @@ void S60DeployConfigurationWidget::updateCommunicationChannel()
         m_ipAddress->setDisabled(true);
         m_serialPortsCombo->setDisabled(false);
         m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationSerialConnection);
+        updateSerialDevices();
     } else if(m_wlanRadioButton->isChecked()) {
         QMessageBox::information(this, tr("CODA required"),
                                  tr("You need to have CODA v4.0.14 (or newer) installed on your device "
                                     "in order to use the WLAN functionality.")); //TODO: Remove this when CODA is stable and official
         m_ipAddress->setDisabled(false);
         m_serialPortsCombo->setDisabled(true);
+        m_deviceInfoButton->setEnabled(false);
         m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationTcpConnection);
     }
 }
@@ -382,46 +386,49 @@ void S60DeployConfigurationWidget::slotWaitingForTrkClosed()
 
 void S60DeployConfigurationWidget::updateDeviceInfo()
 {
-    QTC_ASSERT(!m_infoLauncher, return)
-    setDeviceInfoLabel(tr("Connecting..."));
-    // Do a launcher run with the ping protocol. Prompt to connect and
-    // go asynchronous afterwards to pop up launch trk box if a timeout occurs.
-    QString message;
-    const SymbianUtils::SymbianDevice commDev = currentDevice();
-    m_infoLauncher = trk::Launcher::acquireFromDeviceManager(commDev.portName(), this, &message);
-    if (!m_infoLauncher) {
-        setDeviceInfoLabel(message, true);
-        return;
-    }
-    connect(m_infoLauncher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
+    //TODO: No CODA device info! Implement it when it is available
+    if (m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationSerialConnection) {
+        QTC_ASSERT(!m_infoLauncher, return)
+                setDeviceInfoLabel(tr("Connecting..."));
+        // Do a launcher run with the ping protocol. Prompt to connect and
+        // go asynchronous afterwards to pop up launch trk box if a timeout occurs.
+        QString message;
+        const SymbianUtils::SymbianDevice commDev = currentDevice();
+        m_infoLauncher = trk::Launcher::acquireFromDeviceManager(commDev.portName(), this, &message);
+        if (!m_infoLauncher) {
+            setDeviceInfoLabel(message, true);
+            return;
+        }
+        connect(m_infoLauncher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
 
-    m_infoLauncher->setSerialFrame(commDev.type() == SymbianUtils::SerialPortCommunication);
-    m_infoLauncher->setTrkServerName(commDev.portName());
+        m_infoLauncher->setSerialFrame(commDev.type() == SymbianUtils::SerialPortCommunication);
+        m_infoLauncher->setTrkServerName(commDev.portName());
 
-    // Prompt user
-    const trk::PromptStartCommunicationResult src =
-            S60RunConfigBluetoothStarter::startCommunication(m_infoLauncher->trkDevice(),
-                                                             this, &message);
-    switch (src) {
-    case trk::PromptStartCommunicationConnected:
-        break;
-    case trk::PromptStartCommunicationCanceled:
-        clearDeviceInfo();
-        m_infoLauncher->deleteLater();
-        return;
-    case trk::PromptStartCommunicationError:
-        setDeviceInfoLabel(message, true);
-        m_infoLauncher->deleteLater();
-        return;
-    };
-    if (!m_infoLauncher->startServer(&message)) {
-        setDeviceInfoLabel(message, true);
-        m_infoLauncher->deleteLater();
-        return;
-    }
-    // Wait for either timeout or results
-    m_deviceInfoButton->setEnabled(false);
-    return;
+        // Prompt user
+        const trk::PromptStartCommunicationResult src =
+                S60RunConfigBluetoothStarter::startCommunication(m_infoLauncher->trkDevice(),
+                                                                 this, &message);
+        switch (src) {
+        case trk::PromptStartCommunicationConnected:
+            break;
+        case trk::PromptStartCommunicationCanceled:
+            clearDeviceInfo();
+            m_infoLauncher->deleteLater();
+            return;
+        case trk::PromptStartCommunicationError:
+            setDeviceInfoLabel(message, true);
+            m_infoLauncher->deleteLater();
+            return;
+        };
+        if (!m_infoLauncher->startServer(&message)) {
+            setDeviceInfoLabel(message, true);
+            m_infoLauncher->deleteLater();
+            return;
+        }
+        // Wait for either timeout or results
+        m_deviceInfoButton->setEnabled(false);
+    } else
+        setDeviceInfoLabel(tr("Currently there is no information about device for CODA connection type."), true);
 }
 
 } // namespace Internal
