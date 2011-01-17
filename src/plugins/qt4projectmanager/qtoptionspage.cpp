@@ -39,6 +39,7 @@
 #include "qtversionmanager.h"
 #include "qmldumptool.h"
 #include "qmlobservertool.h"
+#include "debugginghelperbuildtask.h"
 
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/toolchaintype.h>
@@ -64,33 +65,6 @@ enum ModelRoles { BuildLogRole = Qt::UserRole, BuildRunningRole = Qt::UserRole +
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-///
-// DebuggingHelperBuildTask
-///
-
-DebuggingHelperBuildTask::DebuggingHelperBuildTask(const QSharedPointerQtVersion &version) :
-    m_version(version)
-{
-}
-
-DebuggingHelperBuildTask::~DebuggingHelperBuildTask()
-{
-}
-
-void DebuggingHelperBuildTask::run(QFutureInterface<void> &future)
-{
-    future.setProgressRange(0, 5);
-    future.setProgressValue(1);
-    QString output;
-    QString errorMessage;
-    if (m_version->buildDebuggingHelperLibrary(future, false, &output, &errorMessage)) {
-        emit finished(m_version->displayName(), output);
-    } else {
-        qWarning("%s", qPrintable(errorMessage));
-        emit finished(m_version->displayName(), errorMessage);
-    }
-    deleteLater();
-}
 
 ///
 // QtOptionsPage

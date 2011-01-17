@@ -54,25 +54,6 @@ namespace Ui {
 class QtVersionManager;
 }
 
-// A task suitable to be run by QtConcurrent to build the helpers.
-// Note that it may outlive the settings page if someone quickly cancels it,
-// so, the versions are passed around by QSharedPointer.
-class DebuggingHelperBuildTask : public QObject {
-    Q_DISABLE_COPY(DebuggingHelperBuildTask)
-    Q_OBJECT
-public:
-    explicit DebuggingHelperBuildTask(const QSharedPointerQtVersion &version);
-    virtual ~DebuggingHelperBuildTask();
-
-    void run(QFutureInterface<void> &future);
-
-signals:
-    void finished(const QString &versionName, const QString &output);
-
-private:
-    QSharedPointerQtVersion m_version;
-};
-
 class QtOptionsPageWidget : public QWidget
 {
     Q_OBJECT
