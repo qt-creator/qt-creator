@@ -1070,7 +1070,6 @@ void DebuggerEngine::notifyEngineSpontaneousShutdown()
 
 void DebuggerEngine::notifyInferiorExited()
 {
-    qDebug() << "\nSPONTANEUOUS EXIT: " << this << d->m_state;
     showMessage(_("NOTE: INFERIOR EXITED"));
     d->resetLocation();
     setState(InferiorExitOk);
