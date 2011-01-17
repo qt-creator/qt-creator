@@ -45,13 +45,14 @@
 
 using namespace CPlusPlus;
 
-FindUsages::FindUsages(Document::Ptr doc, const Snapshot &snapshot)
+FindUsages::FindUsages(const QByteArray &originalSource, Document::Ptr doc, const Snapshot &snapshot)
     : ASTVisitor(doc->translationUnit()),
       _id(0),
       _declSymbol(0),
       _doc(doc),
       _snapshot(snapshot),
       _context(doc, snapshot),
+      _originalSource(originalSource),
       _source(_doc->source()),
       _currentScope(0)
 {
@@ -66,6 +67,7 @@ FindUsages::FindUsages(const LookupContext &context)
       _doc(context.thisDocument()),
       _snapshot(context.snapshot()),
       _context(context),
+      _originalSource(_doc->source()),
       _source(_doc->source()),
       _currentScope(0)
 {
@@ -99,27 +101,6 @@ void FindUsages::operator()(Symbol *symbol)
 
     if (AST *ast = _doc->translationUnit()->ast())
         translationUnit(ast->asTranslationUnit());
-}
-
-QString FindUsages::matchingLine(const Token &tk) const
-{
-    const char *beg = _source.constData();
-    const char *cp = beg + tk.offset;
-    for (; cp != beg - 1; --cp) {
-        if (*cp == '\n')
-            break;
-    }
-
-    ++cp;
-
-    const char *lineEnd = cp + 1;
-    for (; *lineEnd; ++lineEnd) {
-        if (*lineEnd == '\n')
-            break;
-    }
-
-    const QString matchingLine = QString::fromUtf8(cp, lineEnd - cp);
-    return matchingLine;
 }
 
 void FindUsages::reportResult(unsigned tokenIndex, const Name *name, Scope *scope)
@@ -163,10 +144,9 @@ void FindUsages::reportResult(unsigned tokenIndex)
 
     _processed.insert(tokenIndex);
 
-    const QString lineText = matchingLine(tk);
-
     unsigned line, col;
     getTokenStartPosition(tokenIndex, &line, &col);
+    const QString lineText = QString::fromUtf8(_originalSource.split('\n').at(line - 1));
 
     if (col)
         --col;  // adjust the column position.

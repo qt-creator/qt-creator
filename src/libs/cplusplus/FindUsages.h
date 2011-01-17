@@ -62,7 +62,7 @@ public:
 class CPLUSPLUS_EXPORT FindUsages: protected ASTVisitor
 {
 public:
-    FindUsages(Document::Ptr doc, const Snapshot &snapshot);
+    FindUsages(const QByteArray &originalSource, Document::Ptr doc, const Snapshot &snapshot);
     FindUsages(const LookupContext &context);
 
     void operator()(Symbol *symbol);
@@ -74,8 +74,6 @@ protected:
     using ASTVisitor::translationUnit;
 
     Scope *switchScope(Scope *scope);
-
-    QString matchingLine(const Token &tk) const;
 
     void reportResult(unsigned tokenIndex, const Name *name, Scope *scope = 0);
     void reportResult(unsigned tokenIndex, const Identifier *id, Scope *scope = 0);
@@ -295,6 +293,7 @@ private:
     Document::Ptr _doc;
     Snapshot _snapshot;
     LookupContext _context;
+    QByteArray _originalSource;
     QByteArray _source;
     QList<int> _references;
     QList<Usage> _usages;

@@ -115,11 +115,12 @@ public:
 
         Document::Ptr doc;
         QByteArray source;
+        const QString unpreprocessedSource = getSource(fileName, workingCopy);
 
         if (symbolDocument && fileName == symbolDocument->fileName())
             doc = symbolDocument;
         else {
-            source = snapshot.preprocessedCode(getSource(fileName, workingCopy), fileName);
+            source = snapshot.preprocessedCode(unpreprocessedSource, fileName);
             doc = snapshot.documentFromSource(source, fileName);
             doc->tokenize();
         }
@@ -129,7 +130,7 @@ public:
             if (doc != symbolDocument)
                 doc->check();
 
-            FindUsages process(doc, snapshot);
+            FindUsages process(unpreprocessedSource.toUtf8(), doc, snapshot);
             process(symbol);
 
             usages = process.usages();
