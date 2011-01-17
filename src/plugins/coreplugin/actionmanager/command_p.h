@@ -45,12 +45,6 @@
 #include <QtCore/QMap>
 #include <QtGui/QKeySequence>
 
-struct CommandLocation
-{
-    int m_container;
-    int m_position;
-};
-
 namespace Core {
 namespace Internal {
 
@@ -135,9 +129,6 @@ public:
 
     QAction *action() const;
 
-    void setLocations(const QList<CommandLocation> &locations);
-    QList<CommandLocation> locations() const;
-
     void setCurrentContext(const Context &context);
     bool isActive() const;
     void addOverrideAction(QAction *action, const Context &context, bool scriptable);
@@ -157,7 +148,6 @@ private:
     void setActive(bool state);
 
     Utils::ProxyAction *m_action;
-    QList<CommandLocation> m_locations;
     QString m_toolTip;
 
     QMap<int, QPointer<QAction> > m_contextActionMap;

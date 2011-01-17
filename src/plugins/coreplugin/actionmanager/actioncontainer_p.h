@@ -76,8 +76,8 @@ protected:
     bool canAddMenu(ActionContainer *menu) const;
     virtual bool canBeAddedToMenu() const = 0;
 
-    void addAction(Command *action, int pos, bool setpos);
-    void addMenu(ActionContainer *menu, int pos, bool setpos);
+    void addActionInternal(Command *action, int pos);
+    void addMenuInternal(ActionContainer *menu, int pos);
 
 private slots:
     void scheduleUpdate();
@@ -104,9 +104,6 @@ public:
     void setMenu(QMenu *menu);
     QMenu *menu() const;
 
-    void setLocation(const CommandLocation &location);
-    CommandLocation location() const;
-
     void insertAction(QAction *before, QAction *action);
     void insertMenu(QAction *before, QMenu *menu);
 
@@ -116,7 +113,6 @@ protected:
 
 private:
     QMenu *m_menu;
-    CommandLocation m_location;
 };
 
 class MenuBarActionContainer : public ActionContainerPrivate

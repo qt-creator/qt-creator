@@ -205,7 +205,7 @@ void ActionContainerPrivate::addAction(Command *action, const QString &group)
     if (!m_groups.contains(grpid) && !am->defaultGroups().contains(grpid))
         qWarning() << "*** addAction(): Unknown group: " << group;
     int pos = ((grpid << 16) | 0xFFFF);
-    addAction(action, pos, true);
+    addActionInternal(action, pos);
 }
 
 void ActionContainerPrivate::addMenu(ActionContainer *menu, const QString &group)
@@ -222,7 +222,7 @@ void ActionContainerPrivate::addMenu(ActionContainer *menu, const QString &group
     if (!m_groups.contains(grpid) && !am->defaultGroups().contains(grpid))
         qWarning() << "*** addMenu(): Unknown group: " << group;
     int pos = ((grpid << 16) | 0xFFFF);
-    addMenu(menu, pos, true);
+    addMenuInternal(menu, pos);
 }
 
 int ActionContainerPrivate::id() const
@@ -245,22 +245,13 @@ bool ActionContainerPrivate::canAddAction(Command *action) const
     return (action->action() != 0);
 }
 
-void ActionContainerPrivate::addAction(Command *action, int pos, bool setpos)
+void ActionContainerPrivate::addActionInternal(Command *action, int pos)
 {
     Action *a = static_cast<Action *>(action);
 
     int prevKey = 0;
     QAction *ba = beforeAction(pos, &prevKey);
-
-    if (setpos) {
-        pos = calcPosition(pos, prevKey);
-        CommandLocation loc;
-        loc.m_container = m_id;
-        loc.m_position = pos;
-        QList<CommandLocation> locs = a->locations();
-        locs.append(loc);
-        a->setLocations(locs);
-    }
+    pos = calcPosition(pos, prevKey);
 
     m_commands.append(action);
     m_posmap.insert(pos, action->id());
@@ -269,20 +260,13 @@ void ActionContainerPrivate::addAction(Command *action, int pos, bool setpos)
     scheduleUpdate();
 }
 
-void ActionContainerPrivate::addMenu(ActionContainer *menu, int pos, bool setpos)
+void ActionContainerPrivate::addMenuInternal(ActionContainer *menu, int pos)
 {
     MenuActionContainer *mc = static_cast<MenuActionContainer *>(menu);
 
     int prevKey = 0;
     QAction *ba = beforeAction(pos, &prevKey);
-
-    if (setpos) {
-        pos = calcPosition(pos, prevKey);
-        CommandLocation loc;
-        loc.m_container = m_id;
-        loc.m_position = pos;
-        mc->setLocation(loc);
-    }
+    pos = calcPosition(pos, prevKey);
 
     m_subContainers.append(menu);
     m_posmap.insert(pos, menu->id());
@@ -384,16 +368,6 @@ void MenuActionContainer::insertAction(QAction *before, QAction *action)
 void MenuActionContainer::insertMenu(QAction *before, QMenu *menu)
 {
     m_menu->insertMenu(before, menu);
-}
-
-void MenuActionContainer::setLocation(const CommandLocation &location)
-{
-    m_location = location;
-}
-
-CommandLocation MenuActionContainer::location() const
-{
-    return m_location;
 }
 
 bool MenuActionContainer::updateInternal()

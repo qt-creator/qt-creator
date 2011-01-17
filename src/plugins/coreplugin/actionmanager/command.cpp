@@ -403,16 +403,6 @@ QAction *Action::action() const
     return m_action;
 }
 
-void Action::setLocations(const QList<CommandLocation> &locations)
-{
-    m_locations = locations;
-}
-
-QList<CommandLocation> Action::locations() const
-{
-    return m_locations;
-}
-
 void Action::setKeySequence(const QKeySequence &key)
 {
     CommandPrivate::setKeySequence(key);
