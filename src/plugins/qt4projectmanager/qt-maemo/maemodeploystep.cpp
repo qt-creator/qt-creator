@@ -509,6 +509,7 @@ void MaemoDeployStep::handleMountError(const QString &errorMsg)
     case UnmountingOldDirs:
     case UnmountingCurrentDirs:
     case UnmountingCurrentMounts:
+    case Mounting:
     case StopRequested:
         raiseError(errorMsg);
         setState(Inactive);
@@ -528,6 +529,7 @@ void MaemoDeployStep::handleMountDebugOutput(const QString &output)
     case UnmountingOldDirs:
     case UnmountingCurrentDirs:
     case UnmountingCurrentMounts:
+    case Mounting:
     case StopRequested:
         writeOutput(output, ErrorOutput);
         break;
@@ -728,6 +730,7 @@ void MaemoDeployStep::handleProgressReport(const QString &progressMsg)
     case UnmountingOldDirs:
     case UnmountingCurrentDirs:
     case UnmountingCurrentMounts:
+    case Mounting:
     case StopRequested:
         writeOutput(progressMsg);
         break;

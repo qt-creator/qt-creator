@@ -57,6 +57,7 @@ MaemoRemoteMounter::MaemoRemoteMounter(QObject *parent)
 {
     connect(m_utfsServerTimer, SIGNAL(timeout()), this,
         SLOT(handleUtfsServerTimeout()));
+    m_utfsServerTimer->setSingleShot(true);
 }
 
 MaemoRemoteMounter::~MaemoRemoteMounter()
