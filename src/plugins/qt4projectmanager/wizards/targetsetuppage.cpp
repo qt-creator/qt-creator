@@ -361,7 +361,7 @@ QList<TargetSetupPage::ImportInfo> TargetSetupPage::importInfosForKnownQtVersion
 
     QList<BuildConfigurationInfo> bcinfos;
 
-    foreach(Qt4BaseTargetFactory *fac, factories)
+    foreach (Qt4BaseTargetFactory *fac, factories)
         bcinfos.append(fac->availableBuildConfigurations(proFilePath));
 
     QList<ImportInfo> infos;

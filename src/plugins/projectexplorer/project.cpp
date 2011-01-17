@@ -258,7 +258,7 @@ bool Project::fromMap(const QVariantMap &map)
 
         Target *t = 0;
 
-        if(target(idFromMap(targetMap))) {
+        if (target(idFromMap(targetMap))) {
             qWarning() << "Duplicated target id found, not restoring second target with id"<<idFromMap(targetMap)<<"(Continuing)";
         } else {
             foreach (ITargetFactory *factory, factories) {

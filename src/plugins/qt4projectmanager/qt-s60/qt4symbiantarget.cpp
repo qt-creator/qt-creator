@@ -180,7 +180,7 @@ bool Qt4SymbianTarget::isSymbianConnectionAvailable(QString &tooltipText)
     }
     break;
     case S60DeployConfiguration::CommunicationTcpConnection: {
-        if(!s60DeployConf->deviceAddress().isEmpty() && !s60DeployConf->devicePort().isEmpty()) {
+        if (!s60DeployConf->deviceAddress().isEmpty() && !s60DeployConf->devicePort().isEmpty()) {
             tooltipText = tr("<b>IP address:</b> %1:%2").arg(s60DeployConf->deviceAddress(), s60DeployConf->devicePort());
             return true;
         }

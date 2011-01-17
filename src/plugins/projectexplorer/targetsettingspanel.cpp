@@ -299,7 +299,7 @@ void TargetSettingsPanelWidget::updateTargetAddAndRemoveButtons()
             QAction *action = new QAction(displayName, m_addMenu);
             action->setData(QVariant(id));
             bool added = false;
-            foreach(QAction *existing, m_addMenu->actions()) {
+            foreach (QAction *existing, m_addMenu->actions()) {
                 if (existing->text() > action->text()) {
                     m_addMenu->insertAction(existing, action);
                     added = true;
