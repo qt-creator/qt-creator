@@ -34,6 +34,8 @@
 #include "qtoptionspage.h"
 #include "ui_showbuildlog.h"
 #include "ui_qtversionmanager.h"
+#include "ui_qtversioninfo.h"
+#include "ui_debugginghelper.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4target.h"
 #include "qtversionmanager.h"
@@ -46,6 +48,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <utils/detailsbutton.h>
 #include <utils/treewidgetcolumnstretcher.h>
 #include <utils/qtcassert.h>
 #include <qtconcurrent/runextensions.h>
@@ -59,8 +62,9 @@
 #include <QtCore/QDateTime>
 #include <QtGui/QHelpEvent>
 #include <QtGui/QToolTip>
+#include <QtGui/QMenu>
 
-enum ModelRoles { BuildLogRole = Qt::UserRole, BuildRunningRole = Qt::UserRole + 1 };
+enum ModelRoles { VersionIdRole = Qt::UserRole, BuildLogRole, BuildRunningRole};
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -132,31 +136,39 @@ bool QtOptionsPage::matches(const QString &s) const
 
 QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> versions)
     : QWidget(parent)
-    , m_debuggingHelperOkPixmap(QLatin1String(":/extensionsystem/images/ok.png"))
-    , m_debuggingHelperErrorPixmap(QLatin1String(":/extensionsystem/images/error.png"))
-    , m_debuggingHelperIntermediatePixmap(QLatin1String(":/extensionsystem/images/notloaded.png"))
-    , m_debuggingHelperOkIcon(m_debuggingHelperOkPixmap)
-    , m_debuggingHelperErrorIcon(m_debuggingHelperErrorPixmap)
-    , m_debuggingHelperIntermediateIcon(m_debuggingHelperIntermediatePixmap)
     , m_specifyNameString(tr("<specify a name>"))
     , m_specifyPathString(tr("<specify a qmake location>"))
     , m_ui(new Internal::Ui::QtVersionManager())
+    , m_versionUi(new Internal::Ui::QtVersionInfo())
+    , m_debuggingHelperUi(new Internal::Ui::DebuggingHelper())
 {
     // Initialize m_versions
     foreach(QtVersion *version, versions)
         m_versions.push_back(QSharedPointerQtVersion(new QtVersion(*version)));
 
+    QWidget *versionInfoWidget = new QWidget();
+    m_versionUi->setupUi(versionInfoWidget);
+    m_versionUi->qmakePath->setExpectedKind(Utils::PathChooser::File);
+    m_versionUi->qmakePath->setPromptDialogTitle(tr("Select qmake Executable"));
+    m_versionUi->mingwPath->setExpectedKind(Utils::PathChooser::Directory);
+    m_versionUi->mingwPath->setPromptDialogTitle(tr("Select the MinGW Directory"));
+    m_versionUi->mwcPath->setExpectedKind(Utils::PathChooser::Directory);
+    m_versionUi->mwcPath->setPromptDialogTitle(tr("Select Carbide Install Directory"));
+    m_versionUi->s60SDKPath->setExpectedKind(Utils::PathChooser::Directory);
+    m_versionUi->s60SDKPath->setPromptDialogTitle(tr("Select S60 SDK Root"));
+    m_versionUi->gccePath->setExpectedKind(Utils::PathChooser::Directory);
+    m_versionUi->gccePath->setPromptDialogTitle(tr("Select the CSL ARM Toolchain (GCCE) Directory"));
+
+
+    QWidget *debuggingHelperDetailsWidget = new QWidget();
+    m_debuggingHelperUi->setupUi(debuggingHelperDetailsWidget);
+
     m_ui->setupUi(this);
-    m_ui->qmakePath->setExpectedKind(Utils::PathChooser::File);
-    m_ui->qmakePath->setPromptDialogTitle(tr("Select qmake Executable"));
-    m_ui->mingwPath->setExpectedKind(Utils::PathChooser::Directory);
-    m_ui->mingwPath->setPromptDialogTitle(tr("Select the MinGW Directory"));
-    m_ui->mwcPath->setExpectedKind(Utils::PathChooser::Directory);
-    m_ui->mwcPath->setPromptDialogTitle(tr("Select Carbide Install Directory"));
-    m_ui->s60SDKPath->setExpectedKind(Utils::PathChooser::Directory);
-    m_ui->s60SDKPath->setPromptDialogTitle(tr("Select S60 SDK Root"));
-    m_ui->gccePath->setExpectedKind(Utils::PathChooser::Directory);
-    m_ui->gccePath->setPromptDialogTitle(tr("Select the CSL ARM Toolchain (GCCE) Directory"));
+
+    m_ui->versionInfoWidget->setWidget(versionInfoWidget);
+    m_ui->versionInfoWidget->setState(Utils::DetailsWidget::NoSummary);
+
+    m_ui->debuggingHelperWidget->setWidget(debuggingHelperDetailsWidget);
 
     m_ui->addButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
     m_ui->delButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
@@ -178,30 +190,25 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
         QTreeWidgetItem *item = new QTreeWidgetItem(version->isAutodetected()? autoItem : manualItem);
         item->setText(0, version->displayName());
         item->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
-        item->setData(0, Qt::UserRole, version->uniqueId());
-
-        if (version->isValid() && version->supportsBinaryDebuggingHelper())
-            item->setData(2, Qt::DecorationRole, debuggerHelperIconForQtVersion(version));
-        else
-            item->setData(2, Qt::DecorationRole, QIcon());
+        item->setData(0, VersionIdRole, version->uniqueId());
     }
     m_ui->qtdirList->expandAll();
 
-    connect(m_ui->nameEdit, SIGNAL(textEdited(const QString &)),
+    connect(m_versionUi->nameEdit, SIGNAL(textEdited(const QString &)),
             this, SLOT(updateCurrentQtName()));
 
 
-    connect(m_ui->qmakePath, SIGNAL(changed(QString)),
+    connect(m_versionUi->qmakePath, SIGNAL(changed(QString)),
             this, SLOT(updateCurrentQMakeLocation()));
-    connect(m_ui->mingwPath, SIGNAL(changed(QString)),
+    connect(m_versionUi->mingwPath, SIGNAL(changed(QString)),
             this, SLOT(updateCurrentMingwDirectory()));
-    connect(m_ui->mwcPath, SIGNAL(changed(QString)),
+    connect(m_versionUi->mwcPath, SIGNAL(changed(QString)),
             this, SLOT(updateCurrentMwcDirectory()));
-    connect(m_ui->s60SDKPath, SIGNAL(changed(QString)),
+    connect(m_versionUi->s60SDKPath, SIGNAL(changed(QString)),
             this, SLOT(updateCurrentS60SDKDirectory()));
-    connect(m_ui->gccePath, SIGNAL(changed(QString)),
+    connect(m_versionUi->gccePath, SIGNAL(changed(QString)),
             this, SLOT(updateCurrentGcceDirectory()));
-    connect(m_ui->sbsV2Path, SIGNAL(changed(QString)),
+    connect(m_versionUi->sbsV2Path, SIGNAL(changed(QString)),
             this, SLOT(updateCurrentSbsV2Directory()));
 
     connect(m_ui->addButton, SIGNAL(clicked()),
@@ -209,47 +216,30 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     connect(m_ui->delButton, SIGNAL(clicked()),
             this, SLOT(removeQtDir()));
 
-    connect(m_ui->qmakePath, SIGNAL(browsingFinished()),
+    connect(m_versionUi->qmakePath, SIGNAL(browsingFinished()),
             this, SLOT(onQtBrowsed()));
-    connect(m_ui->mingwPath, SIGNAL(browsingFinished()),
+    connect(m_versionUi->mingwPath, SIGNAL(browsingFinished()),
             this, SLOT(onMingwBrowsed()));
 
     connect(m_ui->qtdirList, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
             this, SLOT(versionChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
-    connect(m_ui->msvcComboBox, SIGNAL(currentIndexChanged(int)),
+    connect(m_versionUi->msvcComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(msvcVersionChanged()));
 
-    connect(m_ui->rebuildButton, SIGNAL(clicked()),
+    connect(m_debuggingHelperUi->rebuildButton, SIGNAL(clicked()),
             this, SLOT(buildDebuggingHelper()));
-    connect(m_ui->showLogButton, SIGNAL(clicked()),
+    connect(m_debuggingHelperUi->gdbHelperBuildButton, SIGNAL(clicked()),
+            this, SLOT(buildGdbHelper()));
+    connect(m_debuggingHelperUi->qmlDumpBuildButton, SIGNAL(clicked()),
+            this, SLOT(buildQmlDump()));
+    connect(m_debuggingHelperUi->qmlObserverBuildButton, SIGNAL(clicked()),
+            this, SLOT(buildQmlObserver()));
+
+    connect(m_debuggingHelperUi->showLogButton, SIGNAL(clicked()),
             this, SLOT(slotShowDebuggingBuildLog()));
 
     showEnvironmentPage(0);
     updateState();
-}
-
-QIcon QtOptionsPageWidget::debuggerHelperIconForQtVersion(const QtVersion *version)
-{
-    if (version->hasDebuggingHelper()
-            && (!QmlDumpTool::canBuild(version) || version->hasQmlDump())
-            && (!QmlObserverTool::canBuild(version) || version->hasQmlObserver())) {
-        return m_debuggingHelperOkIcon;
-    } else if (!version->hasDebuggingHelper() && !version->hasQmlDump() && !version->hasQmlObserver()) {
-        return m_debuggingHelperErrorIcon;
-    }
-    return m_debuggingHelperIntermediateIcon;
-}
-
-QPixmap QtOptionsPageWidget::debuggerHelperPixmapForQtVersion(const QtVersion *version)
-{
-    if (version->hasDebuggingHelper()
-            && (!QmlDumpTool::canBuild(version) || version->hasQmlDump())
-            && (!QmlObserverTool::canBuild(version) || version->hasQmlObserver())) {
-        return m_debuggingHelperOkPixmap;
-    } else if (!version->hasDebuggingHelper() && !version->hasQmlDump() && !version->hasQmlObserver()) {
-        return m_debuggingHelperErrorPixmap;
-    }
-    return m_debuggingHelperIntermediatePixmap;
 }
 
 bool QtOptionsPageWidget::eventFilter(QObject *o, QEvent *e)
@@ -308,26 +298,23 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, const QS
     // Update item view
     QTreeWidgetItem *item = treeItemForIndex(index);
     QTC_ASSERT(item, return)
-    item->setData(2, BuildRunningRole, QVariant(false));
-    item->setData(2, BuildLogRole, output);
+    item->setData(0, BuildRunningRole, QVariant(false));
+    item->setData(0, BuildLogRole, output);
 
     QSharedPointerQtVersion qtVersion = m_versions.at(index);
     const bool success = qtVersion->hasDebuggingHelper()
             && (!QmlDumpTool::canBuild(qtVersion.data()) || qtVersion->hasQmlDump())
             && (!QmlObserverTool::canBuild(qtVersion.data()) || qtVersion->hasQmlObserver());
-    item->setData(2, Qt::DecorationRole, debuggerHelperIconForQtVersion(qtVersion.data()));
 
     // Update bottom control if the selection is still the same
     if (index == currentIndex()) {
-        m_ui->showLogButton->setEnabled(true);
-        m_ui->rebuildButton->setEnabled(true);
-        updateDebuggingHelperStateLabel(m_versions.at(index).data());
+        updateDebuggingHelperInfo(m_versions.at(index).data());
     }
     if (!success)
         showDebuggingBuildLog(item);
 }
 
-void QtOptionsPageWidget::buildDebuggingHelper()
+void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools tools)
 {
     const int index = currentIndex();
     if (index < 0)
@@ -335,19 +322,38 @@ void QtOptionsPageWidget::buildDebuggingHelper()
 
     QTreeWidgetItem *item = treeItemForIndex(index);
     QTC_ASSERT(item, return);
-    m_ui->showLogButton->setEnabled(false);
-    m_ui->rebuildButton->setEnabled(false);
-    item->setData(2, BuildRunningRole, QVariant(true));
+
+    item->setData(0, BuildRunningRole, QVariant(true));
+
+    QtVersion *version = m_versions.at(index).data();
+    if (!version)
+        return;
+
+    updateDebuggingHelperInfo(version);
 
     // Run a debugging helper build task in the background.
-    DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(m_versions.at(index).data(),
-                                                                       DebuggingHelperBuildTask::AllTools);
+    DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(version, tools);
     connect(buildTask, SIGNAL(finished(int,QString)), this, SLOT(debuggingHelperBuildFinished(int,QString)),
             Qt::QueuedConnection);
     QFuture<void> task = QtConcurrent::run(&DebuggingHelperBuildTask::run, buildTask);
     const QString taskName = tr("Building helpers");
+
     Core::ICore::instance()->progressManager()->addTask(task, taskName,
                                                         QLatin1String("Qt4ProjectManager::BuildHelpers"));
+}
+void QtOptionsPageWidget::buildGdbHelper()
+{
+    buildDebuggingHelper(DebuggingHelperBuildTask::GdbDebugging);
+}
+
+void QtOptionsPageWidget::buildQmlDump()
+{
+    buildDebuggingHelper(DebuggingHelperBuildTask::QmlDump);
+}
+
+void QtOptionsPageWidget::buildQmlObserver()
+{
+    buildDebuggingHelper(DebuggingHelperBuildTask::QmlObserver);
 }
 
 // Non-modal dialog
@@ -386,7 +392,7 @@ void QtOptionsPageWidget::showDebuggingBuildLog(const QTreeWidgetItem *currentIt
         return;
     BuildLogDialog *dialog = new BuildLogDialog(this);
     dialog->setWindowTitle(tr("Debugging Helper Build Log for '%1'").arg(currentItem->text(0)));
-    dialog->setText(currentItem->data(2, BuildLogRole).toString());
+    dialog->setText(currentItem->data(0, BuildLogRole).toString());
     dialog->show();
 }
 
@@ -403,15 +409,14 @@ void QtOptionsPageWidget::addQtDir()
     QTreeWidgetItem *item = new QTreeWidgetItem(m_ui->qtdirList->topLevelItem(1));
     item->setText(0, newVersion->displayName());
     item->setText(1, QDir::toNativeSeparators(newVersion->qmakeCommand()));
-    item->setData(0, Qt::UserRole, newVersion->uniqueId());
-    item->setData(2, Qt::DecorationRole, QIcon());
+    item->setData(0, VersionIdRole, newVersion->uniqueId());
 
     m_ui->qtdirList->setCurrentItem(item);
 
-    m_ui->nameEdit->setText(newVersion->displayName());
-    m_ui->qmakePath->setPath(newVersion->qmakeCommand());
-    m_ui->nameEdit->setFocus();
-    m_ui->nameEdit->selectAll();
+    m_versionUi->nameEdit->setText(newVersion->displayName());
+    m_versionUi->qmakePath->setPath(newVersion->qmakeCommand());
+    m_versionUi->nameEdit->setFocus();
+    m_versionUi->nameEdit->selectAll();
 }
 
 void QtOptionsPageWidget::removeQtDir()
@@ -463,23 +468,77 @@ static inline QString msgHtmlHelperToolTip(const QString &gdbHelperPath, const Q
                       arg(qmlObserverFI.size());
 }
 
-// Update the state label with a pixmap and set a tooltip describing
-// the file on neighbouring controls.
-void QtOptionsPageWidget::updateDebuggingHelperStateLabel(const QtVersion *version)
+void QtOptionsPageWidget::updateDebuggingHelperInfo(const QtVersion *version)
 {
-    QString tooltip;
-    if (version && version->isValid()) {
-        m_ui->debuggingHelperStateLabel->setPixmap(debuggerHelperPixmapForQtVersion(version));
-        tooltip = msgHtmlHelperToolTip(version->debuggingHelperLibrary(),
-                                       version->qmlDumpTool(),
-                                       version->qmlObserverTool());
-    } else {
-        m_ui->debuggingHelperStateLabel->setPixmap(QPixmap());
+    if (!version) {
+        QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
+        int currentItemIndex = indexForTreeItem(currentItem);
+        if (currentItemIndex >= 0)
+            version = m_versions.at(currentItemIndex).data();
     }
-    m_ui->debuggingHelperStateLabel->setToolTip(tooltip);
-    m_ui->debuggingHelperLabel->setToolTip(tooltip);
-    m_ui->showLogButton->setToolTip(tooltip);
-    m_ui->rebuildButton->setToolTip(tooltip);
+
+    if (!version || !version->supportsBinaryDebuggingHelper()) {
+        m_ui->debuggingHelperWidget->setVisible(false);
+    } else {
+        bool canBuildQmlDumper = QmlDumpTool::canBuild(version);
+        bool canBuildQmlObserver = QmlObserverTool::canBuild(version);
+
+        bool hasGdbHelper = !version->debuggingHelperLibrary().isEmpty();
+        bool hasQmlDumper = !version->qmlDumpTool().isEmpty();
+        bool hasQmlObserver = !version->qmlObserverTool().isEmpty();
+
+        // get names of tools from labels
+        QStringList helperNames;
+        if (hasGdbHelper)
+            helperNames << m_debuggingHelperUi->gdbHelperLabel->text().remove(':');
+        if (hasQmlDumper)
+            helperNames << m_debuggingHelperUi->qmlDumpLabel->text().remove(':');
+        if (hasQmlObserver)
+            helperNames << m_debuggingHelperUi->qmlObserverLabel->text().remove(':');
+
+        QString status;
+        if (helperNames.isEmpty()) {
+            status = tr("Helper Tools: None available");
+        } else {
+            status = tr("Helper Tools: %1 are available.", "%1 is list of tool names").arg(
+                        helperNames.join(tr(", ", "Separator used to join names of helper tools.")));
+        }
+
+        m_ui->debuggingHelperWidget->setSummaryText(status);
+
+        // Set detailed labels
+        m_debuggingHelperUi->gdbHelperStatus->setText(hasGdbHelper
+                                                ? version->debuggingHelperLibrary()
+                                                : QLatin1String("-"));
+
+        if (canBuildQmlDumper) {
+            m_debuggingHelperUi->qmlDumpStatus->setText(hasQmlDumper
+                                                        ? version->qmlDumpTool()
+                                                         : QLatin1String("-"));
+            m_debuggingHelperUi->qmlDumpBuildButton->setEnabled(true);
+        } else {
+            m_debuggingHelperUi->qmlDumpStatus->setText(tr("<i>Cannot be compiled.</i>"));
+            m_debuggingHelperUi->qmlDumpBuildButton->setEnabled(false);
+        }
+
+        if (canBuildQmlObserver) {
+            m_debuggingHelperUi->qmlObserverStatus->setText(hasQmlObserver
+                                                    ? version->qmlObserverTool()
+                                                    : QLatin1String("-"));
+            m_debuggingHelperUi->qmlObserverBuildButton->setEnabled(true);
+        } else {
+            m_debuggingHelperUi->qmlDumpStatus->setText(tr("<i>Cannot be compiled.</i>"));
+            m_debuggingHelperUi->qmlObserverBuildButton->setEnabled(false);
+        }
+
+        const QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
+        const bool hasLog = currentItem && !currentItem->data(0, BuildLogRole).toString().isEmpty();
+
+        m_debuggingHelperUi->showLogButton->setEnabled(hasLog);
+
+        m_ui->debuggingHelperWidget->setVisible(true);
+    }
+
 }
 
 void QtOptionsPageWidget::updateState()
@@ -488,54 +547,41 @@ void QtOptionsPageWidget::updateState()
     const bool enabled = version != 0;
     const bool isAutodetected = enabled && version->isAutodetected();
     m_ui->delButton->setEnabled(enabled && !isAutodetected);
-    m_ui->nameEdit->setEnabled(enabled && !isAutodetected);
-    m_ui->qmakePath->setEnabled(enabled && !isAutodetected);
-    m_ui->mingwPath->setEnabled(enabled);
-    m_ui->mwcPath->setEnabled(enabled);
+    m_versionUi->nameEdit->setEnabled(enabled && !isAutodetected);
+    m_versionUi->qmakePath->setEnabled(enabled && !isAutodetected);
+    m_versionUi->mingwPath->setEnabled(enabled);
+    m_versionUi->mwcPath->setEnabled(enabled);
     bool s60SDKPathEnabled = enabled &&
                              (isAutodetected ? version->s60SDKDirectory().isEmpty() : true);
-    m_ui->s60SDKPath->setEnabled(s60SDKPathEnabled);
-    m_ui->gccePath->setEnabled(enabled);
+    m_versionUi->s60SDKPath->setEnabled(s60SDKPathEnabled);
+    m_versionUi->gccePath->setEnabled(enabled);
 
-    const QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
-    const bool buildRunning = currentItem && currentItem->data(2, BuildRunningRole).toBool();
-    const bool hasLog = enabled && currentItem && !currentItem->data(2, Qt::UserRole).toString().isEmpty();
-    m_ui->showLogButton->setEnabled(hasLog);
-    m_ui->rebuildButton->setEnabled(version && version->isValid() && !buildRunning);
-    updateDebuggingHelperStateLabel(version);
+    updateDebuggingHelperInfo(version);
 }
 
 void QtOptionsPageWidget::makeMingwVisible(bool visible)
 {
-    m_ui->mingwLabel->setVisible(visible);
-    m_ui->mingwPath->setVisible(visible);
+    m_versionUi->mingwLabel->setVisible(visible);
+    m_versionUi->mingwPath->setVisible(visible);
 }
 
 void QtOptionsPageWidget::makeMSVCVisible(bool visible)
 {
-    m_ui->msvcLabel->setVisible(visible);
-    m_ui->msvcComboBox->setVisible(visible);
-    m_ui->msvcNotFoundLabel->setVisible(false);
+    m_versionUi->msvcLabel->setVisible(visible);
+    m_versionUi->msvcComboBox->setVisible(visible);
+    m_versionUi->msvcNotFoundLabel->setVisible(false);
 }
 
 void QtOptionsPageWidget::makeS60Visible(bool visible)
 {
-    m_ui->mwcLabel->setVisible(visible);
-    m_ui->mwcPath->setVisible(visible);
-    m_ui->s60SDKLabel->setVisible(visible);
-    m_ui->s60SDKPath->setVisible(visible);
-    m_ui->gcceLabel->setVisible(visible);
-    m_ui->gccePath->setVisible(visible);
-    m_ui->sbsV2Label->setVisible(visible);
-    m_ui->sbsV2Path->setVisible(visible);
-}
-
-void QtOptionsPageWidget::makeDebuggingHelperVisible(bool visible)
-{
-    m_ui->debuggingHelperLabel->setVisible(visible);
-    m_ui->debuggingHelperStateLabel->setVisible(visible);
-    m_ui->showLogButton->setVisible(visible);
-    m_ui->rebuildButton->setVisible(visible);
+    m_versionUi->mwcLabel->setVisible(visible);
+    m_versionUi->mwcPath->setVisible(visible);
+    m_versionUi->s60SDKLabel->setVisible(visible);
+    m_versionUi->s60SDKPath->setVisible(visible);
+    m_versionUi->gcceLabel->setVisible(visible);
+    m_versionUi->gccePath->setVisible(visible);
+    m_versionUi->sbsV2Label->setVisible(visible);
+    m_versionUi->sbsV2Path->setVisible(visible);
 }
 
 void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
@@ -543,17 +589,15 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
     if (item) {
         int index = indexForTreeItem(item);
         if (index < 0) {
-            m_ui->errorLabel->setText("");
+            m_versionUi->errorLabel->setText("");
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeS60Visible(false);
-            makeDebuggingHelperVisible(false);
             return;
         }
         const QSharedPointerQtVersion qtVersion = m_versions.at(index);
         QList<ProjectExplorer::ToolChainType> types = qtVersion->possibleToolChainTypes();
         QSet<QString> targets = qtVersion->supportedTargetIds();
-        makeDebuggingHelperVisible(qtVersion->supportsBinaryDebuggingHelper());
         if (types.isEmpty()) {
             makeMSVCVisible(false);
             makeMingwVisible(false);
@@ -562,7 +606,7 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             makeMSVCVisible(false);
             makeMingwVisible(true);
             makeS60Visible(false);
-            m_ui->mingwPath->setPath(m_versions.at(index)->mingwDirectory());
+            m_versionUi->mingwPath->setPath(m_versions.at(index)->mingwDirectory());
         } else if (types.contains(ProjectExplorer::ToolChain_MSVC) ||
                    types.contains(ProjectExplorer::ToolChain_WINCE)) {
             makeMSVCVisible(false);
@@ -570,42 +614,41 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             makeS60Visible(false);
             const QStringList msvcEnvironments = ProjectExplorer::ToolChain::availableMSVCVersions(qtVersion->isQt64Bit());
             if (msvcEnvironments.count() == 0) {
-                m_ui->msvcLabel->setVisible(true);
-                m_ui->msvcNotFoundLabel->setVisible(true);
+                m_versionUi->msvcLabel->setVisible(true);
+                m_versionUi->msvcNotFoundLabel->setVisible(true);
             } else {
                  makeMSVCVisible(true);
-                 bool block = m_ui->msvcComboBox->blockSignals(true);
-                 m_ui->msvcComboBox->clear();
+                 bool block = m_versionUi->msvcComboBox->blockSignals(true);
+                 m_versionUi->msvcComboBox->clear();
                  foreach(const QString &msvcenv, msvcEnvironments) {
-                     m_ui->msvcComboBox->addItem(msvcenv);
+                     m_versionUi->msvcComboBox->addItem(msvcenv);
                      if (msvcenv == m_versions.at(index)->msvcVersion()) {
-                         m_ui->msvcComboBox->setCurrentIndex(m_ui->msvcComboBox->count() - 1);
+                         m_versionUi->msvcComboBox->setCurrentIndex(m_versionUi->msvcComboBox->count() - 1);
                      }
                  }
-                 m_ui->msvcComboBox->blockSignals(block);
+                 m_versionUi->msvcComboBox->blockSignals(block);
             }
         } else if (targets.contains(Constants::S60_DEVICE_TARGET_ID) ||
                    targets.contains(Constants::S60_EMULATOR_TARGET_ID)) {
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeS60Visible(true);
-            m_ui->mwcPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->mwcDirectory()));
-            m_ui->s60SDKPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->s60SDKDirectory()));
-            m_ui->gccePath->setPath(QDir::toNativeSeparators(m_versions.at(index)->gcceDirectory()));
-            m_ui->sbsV2Path->setPath(m_versions.at(index)->sbsV2Directory());
-            m_ui->sbsV2Path->setEnabled(m_versions.at(index)->isBuildWithSymbianSbsV2());
+            m_versionUi->mwcPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->mwcDirectory()));
+            m_versionUi->s60SDKPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->s60SDKDirectory()));
+            m_versionUi->gccePath->setPath(QDir::toNativeSeparators(m_versions.at(index)->gcceDirectory()));
+            m_versionUi->sbsV2Path->setPath(m_versions.at(index)->sbsV2Directory());
+            m_versionUi->sbsV2Path->setEnabled(m_versions.at(index)->isBuildWithSymbianSbsV2());
         } else { //ProjectExplorer::ToolChain::GCC
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeS60Visible(false);
         }
 
-        m_ui->errorLabel->setText(m_versions.at(index)->description());
+        m_versionUi->errorLabel->setText(m_versions.at(index)->description());
     } else {
         makeMSVCVisible(false);
         makeMingwVisible(false);
         makeS60Visible(false);
-        makeDebuggingHelperVisible(false);
     }
 }
 
@@ -613,7 +656,7 @@ int QtOptionsPageWidget::indexForTreeItem(const QTreeWidgetItem *item) const
 {
     if (!item || !item->parent())
         return -1;
-    const int uniqueId = item->data(0, Qt::UserRole).toInt();
+    const int uniqueId = item->data(0, VersionIdRole).toInt();
     for (int index = 0; index < m_versions.size(); ++index) {
         if (m_versions.at(index)->uniqueId() == uniqueId)
             return index;
@@ -628,7 +671,7 @@ QTreeWidgetItem *QtOptionsPageWidget::treeItemForIndex(int index) const
         QTreeWidgetItem *toplevelItem = m_ui->qtdirList->topLevelItem(i);
         for (int j = 0; j < toplevelItem->childCount(); ++j) {
             QTreeWidgetItem *item = toplevelItem->child(j);
-            if (item->data(0, Qt::UserRole).toInt() == uniqueId) {
+            if (item->data(0, VersionIdRole).toInt() == uniqueId) {
                 return item;
             }
         }
@@ -643,11 +686,11 @@ void QtOptionsPageWidget::versionChanged(QTreeWidgetItem *item, QTreeWidgetItem 
     }
     int itemIndex = indexForTreeItem(item);
     if (itemIndex >= 0) {
-        m_ui->nameEdit->setText(item->text(0));
-        m_ui->qmakePath->setPath(item->text(1));
+        m_versionUi->nameEdit->setText(item->text(0));
+        m_versionUi->qmakePath->setPath(item->text(1));
     } else {
-        m_ui->nameEdit->clear();
-        m_ui->qmakePath->setPath(QString()); // clear()
+        m_versionUi->nameEdit->clear();
+        m_versionUi->qmakePath->setPath(QString()); // clear()
 
     }
     showEnvironmentPage(item);
@@ -656,7 +699,7 @@ void QtOptionsPageWidget::versionChanged(QTreeWidgetItem *item, QTreeWidgetItem 
 
 void QtOptionsPageWidget::onQtBrowsed()
 {
-    const QString dir = m_ui->qmakePath->path();
+    const QString dir = m_versionUi->qmakePath->path();
     if (dir.isEmpty())
         return;
 
@@ -666,7 +709,7 @@ void QtOptionsPageWidget::onQtBrowsed()
 
 void QtOptionsPageWidget::onMingwBrowsed()
 {
-    const QString dir = m_ui->mingwPath->path();
+    const QString dir = m_versionUi->mingwPath->path();
     if (dir.isEmpty())
         return;
 
@@ -681,9 +724,9 @@ void QtOptionsPageWidget::updateCurrentQtName()
     int currentItemIndex = indexForTreeItem(currentItem);
     if (currentItemIndex < 0)
         return;
-    m_versions[currentItemIndex]->setDisplayName(m_ui->nameEdit->text());
+    m_versions[currentItemIndex]->setDisplayName(m_versionUi->nameEdit->text());
     currentItem->setText(0, m_versions[currentItemIndex]->displayName());
-    m_ui->errorLabel->setText(m_versions.at(currentItemIndex)->description());
+    m_versionUi->errorLabel->setText(m_versions.at(currentItemIndex)->description());
 }
 
 
@@ -736,28 +779,19 @@ void QtOptionsPageWidget::updateCurrentQMakeLocation()
     if (currentItemIndex < 0)
         return;
     QtVersion *version = m_versions.at(currentItemIndex).data();
-    QFileInfo fi(m_ui->qmakePath->path());
+    QFileInfo fi(m_versionUi->qmakePath->path());
     if (!fi.exists() || !fi.isFile() || version->qmakeCommand() == fi.absoluteFilePath())
         return;
     version->setQMakeCommand(fi.absoluteFilePath());
     currentItem->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
     showEnvironmentPage(currentItem);
 
-    if (version->isValid() && version->supportsBinaryDebuggingHelper()) {
-        const bool hasLog = !currentItem->data(2, Qt::UserRole).toString().isEmpty();
-        currentItem->setData(2, Qt::DecorationRole, debuggerHelperIconForQtVersion(version));
-        m_ui->showLogButton->setEnabled(hasLog);
-        m_ui->rebuildButton->setEnabled(true);
-    } else {
-        currentItem->setData(2, Qt::DecorationRole, QIcon());
-        m_ui->rebuildButton->setEnabled(false);
-    }
-    updateDebuggingHelperStateLabel(version);
+    updateDebuggingHelperInfo(version);
 
-    if (m_ui->nameEdit->text().isEmpty() || m_ui->nameEdit->text() == m_specifyNameString) {
+    if (m_versionUi->nameEdit->text().isEmpty() || m_versionUi->nameEdit->text() == m_specifyNameString) {
         QString name = ProjectExplorer::DebuggingHelperLibrary::qtVersionForQMake(version->qmakeCommand());
         if (!name.isEmpty())
-            m_ui->nameEdit->setText(name);
+            m_versionUi->nameEdit->setText(name);
         updateCurrentQtName();
     }
 }
@@ -769,12 +803,12 @@ void QtOptionsPageWidget::updateCurrentMingwDirectory()
     int currentItemIndex = indexForTreeItem(currentItem);
     if (currentItemIndex < 0)
         return;
-    m_versions[currentItemIndex]->setMingwDirectory(m_ui->mingwPath->path());
+    m_versions[currentItemIndex]->setMingwDirectory(m_versionUi->mingwPath->path());
 }
 
 void QtOptionsPageWidget::msvcVersionChanged()
 {
-    const QString &msvcVersion = m_ui->msvcComboBox->currentText();
+    const QString &msvcVersion = m_versionUi->msvcComboBox->currentText();
     QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
     Q_ASSERT(currentItem);
     int currentItemIndex = indexForTreeItem(currentItem);
@@ -791,7 +825,7 @@ void QtOptionsPageWidget::updateCurrentMwcDirectory()
     if (currentItemIndex < 0)
         return;
     m_versions[currentItemIndex]->setMwcDirectory(
-            QDir::fromNativeSeparators(m_ui->mwcPath->path()));
+            QDir::fromNativeSeparators(m_versionUi->mwcPath->path()));
 }
 void QtOptionsPageWidget::updateCurrentS60SDKDirectory()
 {
@@ -801,7 +835,7 @@ void QtOptionsPageWidget::updateCurrentS60SDKDirectory()
     if (currentItemIndex < 0)
         return;
     m_versions[currentItemIndex]->setS60SDKDirectory(
-            QDir::fromNativeSeparators(m_ui->s60SDKPath->path()));
+            QDir::fromNativeSeparators(m_versionUi->s60SDKPath->path()));
 }
 
 void QtOptionsPageWidget::updateCurrentGcceDirectory()
@@ -812,7 +846,7 @@ void QtOptionsPageWidget::updateCurrentGcceDirectory()
     if (currentItemIndex < 0)
         return;
     m_versions[currentItemIndex]->setGcceDirectory(
-            QDir::fromNativeSeparators(m_ui->gccePath->path()));
+            QDir::fromNativeSeparators(m_versionUi->gccePath->path()));
 }
 
 void QtOptionsPageWidget::updateCurrentSbsV2Directory()
@@ -823,7 +857,7 @@ void QtOptionsPageWidget::updateCurrentSbsV2Directory()
     if (currentItemIndex < 0)
         return;
     m_versions[currentItemIndex]->setSbsV2Directory(
-            QDir::fromNativeSeparators(m_ui->sbsV2Path->path()));
+            QDir::fromNativeSeparators(m_versionUi->sbsV2Path->path()));
 }
 
 QList<QSharedPointerQtVersion> QtOptionsPageWidget::versions() const
@@ -841,15 +875,17 @@ QString QtOptionsPageWidget::searchKeywords() const
     QString rc;
     QLatin1Char sep(' ');
     QTextStream(&rc)
-            << sep << m_ui->versionNameLabel->text()
-            << sep << m_ui->pathLabel->text()
-            << sep << m_ui->mingwLabel->text()
-            << sep << m_ui->msvcLabel->text()
-            << sep << m_ui->s60SDKLabel->text()
-            << sep << m_ui->gcceLabel->text()
-            << sep << m_ui->mwcLabel->text()
-            << sep << m_ui->sbsV2Label->text()
-            << sep << m_ui->debuggingHelperLabel->text();
+            << sep << m_versionUi->versionNameLabel->text()
+            << sep << m_versionUi->pathLabel->text()
+            << sep << m_versionUi->mingwLabel->text()
+            << sep << m_versionUi->msvcLabel->text()
+            << sep << m_versionUi->s60SDKLabel->text()
+            << sep << m_versionUi->gcceLabel->text()
+            << sep << m_versionUi->mwcLabel->text()
+            << sep << m_versionUi->sbsV2Label->text()
+            << sep << m_debuggingHelperUi->gdbHelperLabel->text()
+            << sep << m_debuggingHelperUi->qmlDumpLabel->text()
+            << sep << m_debuggingHelperUi->qmlObserverLabel->text();
     rc.remove(QLatin1Char('&'));
     return rc;
 }

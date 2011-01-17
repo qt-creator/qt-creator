@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Qt4ProjectManager::Internal::QtVersionInfo</class>
+ <widget class="QWidget" name="Qt4ProjectManager::Internal::QtVersionInfo">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>404</width>
+    <height>197</height>
+   </rect>
+  </property>
+  <layout class="QGridLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item row="1" column="0">
+    <widget class="QLabel" name="versionNameLabel">
+     <property name="text">
+      <string>Version name:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="nameEdit"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="pathLabel">
+     <property name="text">
+      <string>qmake location:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="Utils::PathChooser" name="qmakePath" native="true"/>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="mingwLabel">
+     <property name="text">
+      <string>MinGW directory:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="Utils::PathChooser" name="mingwPath" native="true"/>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="msvcLabel">
+     <property name="text">
+      <string>Toolchain:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="s60SDKLabel">
+     <property name="text">
+      <string>S60 SDK:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="Utils::PathChooser" name="s60SDKPath" native="true"/>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="gcceLabel">
+     <property name="text">
+      <string>CSL/GCCE directory:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="Utils::PathChooser" name="gccePath" native="true"/>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="mwcLabel">
+     <property name="text">
+      <string>Carbide directory:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="Utils::PathChooser" name="mwcPath" native="true"/>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="sbsV2Label">
+     <property name="text">
+      <string>SBS v2 directory:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="Utils::PathChooser" name="sbsV2Path" native="true"/>
+   </item>
+   <item row="10" column="0" colspan="2">
+    <widget class="QLabel" name="errorLabel">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <layout class="QHBoxLayout" name="msvcHorizontalLayout">
+     <item>
+      <widget class="QComboBox" name="msvcComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="msvcNotFoundLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Unable to detect MSVC version.</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

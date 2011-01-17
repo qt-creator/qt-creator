@@ -51,9 +51,9 @@ public:
         QmlDump = 0x04,
         AllTools = GdbDebugging | QmlObserver | QmlDump
     };
-    Q_DECLARE_FLAGS(DebuggingHelperTools, DebuggingHelper)
+    Q_DECLARE_FLAGS(Tools, DebuggingHelper)
 
-    explicit DebuggingHelperBuildTask(QtVersion *version, DebuggingHelperTools tools = AllTools);
+    explicit DebuggingHelperBuildTask(QtVersion *version, Tools tools = AllTools);
     virtual ~DebuggingHelperBuildTask();
 
     void run(QFutureInterface<void> &future);
@@ -64,7 +64,7 @@ signals:
 private:
     bool buildDebuggingHelper(QFutureInterface<void> &future, QString *output);
 
-    DebuggingHelperTools m_tools;
+    Tools m_tools;
 
     int m_qtId;
     QString m_qtInstallData;

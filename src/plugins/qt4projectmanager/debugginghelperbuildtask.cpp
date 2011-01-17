@@ -42,7 +42,7 @@ using namespace Qt4ProjectManager::Internal;
 using ProjectExplorer::DebuggingHelperLibrary;
 
 
-DebuggingHelperBuildTask::DebuggingHelperBuildTask(QtVersion *version, DebuggingHelperTools tools)
+DebuggingHelperBuildTask::DebuggingHelperBuildTask(QtVersion *version, Tools tools)
 {
     //
     // Extract all information we need from version, such that we don't depend on the existence

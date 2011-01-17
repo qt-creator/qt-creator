@@ -41,6 +41,8 @@
 
 #include <QtGui/QWidget>
 
+#include "debugginghelperbuildtask.h"
+
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
 QT_END_NAMESPACE
@@ -53,6 +55,8 @@ typedef QSharedPointer<QtVersion> QSharedPointerQtVersion;
 namespace Internal {
 namespace Ui {
 class QtVersionManager;
+class QtVersionInfo;
+class DebuggingHelper;
 }
 
 class QtOptionsPageWidget : public QWidget
@@ -75,20 +79,13 @@ private:
     QTreeWidgetItem *treeItemForIndex(int index) const;
     QtVersion *currentVersion() const;
     int currentIndex() const;
-    void updateDebuggingHelperStateLabel(const QtVersion *version = 0);
-    QIcon debuggerHelperIconForQtVersion(const QtVersion *version);
-    QPixmap debuggerHelperPixmapForQtVersion(const QtVersion *version);
 
-    const QPixmap m_debuggingHelperOkPixmap;
-    const QPixmap m_debuggingHelperErrorPixmap;
-    const QPixmap m_debuggingHelperIntermediatePixmap;
-    const QIcon m_debuggingHelperOkIcon;
-    const QIcon m_debuggingHelperErrorIcon;
-    const QIcon m_debuggingHelperIntermediateIcon;
     const QString m_specifyNameString;
     const QString m_specifyPathString;
 
     Internal::Ui::QtVersionManager *m_ui;
+    Internal::Ui::QtVersionInfo *m_versionUi;
+    Internal::Ui::DebuggingHelper *m_debuggingHelperUi;
     QList<QSharedPointerQtVersion> m_versions; // Passed on to the helper build task, so, use QSharedPointerQtVersion
     int m_defaultVersion;
 
@@ -100,7 +97,6 @@ private slots:
     void makeMingwVisible(bool visible);
     void makeMSVCVisible(bool visible);
     void makeS60Visible(bool visible);
-    void makeDebuggingHelperVisible(bool visible);
     void onQtBrowsed();
     void onMingwBrowsed();
     void updateCurrentQtName();
@@ -110,8 +106,13 @@ private slots:
     void updateCurrentS60SDKDirectory();
     void updateCurrentGcceDirectory();
     void updateCurrentSbsV2Directory();
+    void updateDebuggingHelperInfo(const QtVersion *version = 0);
     void msvcVersionChanged();
-    void buildDebuggingHelper();
+    void buildDebuggingHelper(DebuggingHelperBuildTask::Tools tools
+                              = DebuggingHelperBuildTask::AllTools);
+    void buildGdbHelper();
+    void buildQmlDump();
+    void buildQmlObserver();
     void slotShowDebuggingBuildLog();
     void debuggingHelperBuildFinished(int qtVersionId, const QString &output);
 

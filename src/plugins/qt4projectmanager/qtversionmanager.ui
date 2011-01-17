@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>427</width>
-    <height>424</height>
+    <width>446</width>
+    <height>450</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="2">
+   <item row="0" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QTreeWidget" name="qtdirList">
@@ -19,7 +19,7 @@
         <bool>true</bool>
        </property>
        <property name="columnCount">
-        <number>3</number>
+        <number>2</number>
        </property>
        <column>
         <property name="text">
@@ -29,11 +29,6 @@
        <column>
         <property name="text">
          <string>qmake Location</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Debugging Helper</string>
         </property>
        </column>
       </widget>
@@ -90,177 +85,25 @@
     </layout>
    </item>
    <item row="1" column="0">
-    <widget class="QLabel" name="versionNameLabel">
-     <property name="text">
-      <string>Version name:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="nameEdit"/>
+    <widget class="Utils::DetailsWidget" name="versionInfoWidget" native="true"/>
    </item>
    <item row="2" column="0">
-    <widget class="QLabel" name="pathLabel">
-     <property name="text">
-      <string>qmake location:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="Utils::PathChooser" name="qmakePath" native="true"/>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="mingwLabel">
-     <property name="text">
-      <string>MinGW directory:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="Utils::PathChooser" name="mingwPath" native="true"/>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="msvcLabel">
-     <property name="text">
-      <string>Toolchain:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <layout class="QHBoxLayout" name="msvcHorizontalLayout">
-     <item>
-      <widget class="QComboBox" name="msvcComboBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="msvcNotFoundLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Unable to detect MSVC version.</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="s60SDKLabel">
-     <property name="text">
-      <string>S60 SDK:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="1">
-    <widget class="Utils::PathChooser" name="s60SDKPath" native="true"/>
-   </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="gcceLabel">
-     <property name="text">
-      <string>CSL/GCCE directory:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="1">
-    <widget class="Utils::PathChooser" name="gccePath" native="true"/>
-   </item>
-   <item row="7" column="0">
-    <widget class="QLabel" name="mwcLabel">
-     <property name="text">
-      <string>Carbide directory:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="1">
-    <widget class="Utils::PathChooser" name="mwcPath" native="true"/>
-   </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="sbsV2Label">
-     <property name="text">
-      <string>SBS v2 directory:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="1">
-    <widget class="Utils::PathChooser" name="sbsV2Path" native="true"/>
-   </item>
-   <item row="9" column="0">
-    <widget class="QLabel" name="debuggingHelperLabel">
-     <property name="text">
-      <string>Debugging helpers:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="1">
-    <layout class="QHBoxLayout" name="debuggingHelperHorizontalLayout">
-     <item>
-      <widget class="QLabel" name="debuggingHelperStateLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="showLogButton">
-       <property name="text">
-        <string>Show &amp;Log</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="rebuildButton">
-       <property name="text">
-        <string>&amp;Rebuild</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="10" column="0" colspan="2">
-    <widget class="QLabel" name="errorLabel">
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
+    <widget class="Utils::DetailsWidget" name="debuggingHelperWidget" native="true"/>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Utils::PathChooser</class>
+   <class>Utils::DetailsWidget</class>
    <extends>QWidget</extends>
-   <header location="global">utils/pathchooser.h</header>
+   <header location="global">utils/detailswidget.h</header>
    <container>1</container>
-   <slots>
-    <signal>editingFinished()</signal>
-    <signal>browsingFinished()</signal>
-   </slots>
   </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>qtdirList</tabstop>
   <tabstop>addButton</tabstop>
   <tabstop>delButton</tabstop>
-  <tabstop>nameEdit</tabstop>
-  <tabstop>qmakePath</tabstop>
-  <tabstop>mingwPath</tabstop>
-  <tabstop>msvcComboBox</tabstop>
-  <tabstop>rebuildButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>
