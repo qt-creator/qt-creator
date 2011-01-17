@@ -70,11 +70,15 @@ public:
     void setTextCursor(const QTextCursor &tc);
     void setLookupBaseClasses(const bool lookup);
 
-    QSharedPointer<CppElement> identifyCppElement();
+    void execute();
+    bool identifiedCppElement() const;
+    const QSharedPointer<CppElement> &cppElement() const;
+    bool hasDiagnosis() const;
+    const QString &diagnosis() const;
 
 private:
-    void evaluate();
-    bool matchDiagnosticMessage(const CPlusPlus::Document::Ptr &document, unsigned line);
+    void clear();
+    void checkDiagnosticMessage(const CPlusPlus::Document::Ptr &document, unsigned line);
     bool matchIncludeFile(const CPlusPlus::Document::Ptr &document, unsigned line);
     bool matchMacroInUse(const CPlusPlus::Document::Ptr &document, unsigned pos);
     void handleLookupItemMatch(const CPlusPlus::Snapshot &snapshot,
@@ -86,6 +90,7 @@ private:
     QTextCursor m_tc;
     bool m_lookupBaseClasses;
     QSharedPointer<CppElement> m_element;
+    QString m_diagnosis;
 };
 
 class CppElement
@@ -127,18 +132,6 @@ public:
 
 private:
     QString m_type;
-};
-
-class CppDiagnosis : public CppElement
-{
-public:
-    CppDiagnosis(const CPlusPlus::Document::DiagnosticMessage &message);
-    virtual ~CppDiagnosis();
-
-    const QString &text() const;
-
-private:
-    QString m_text;
 };
 
 class CppInclude : public CppElement

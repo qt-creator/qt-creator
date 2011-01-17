@@ -49,7 +49,7 @@
 using namespace TextEditor;
 using namespace Core;
 
-BaseHoverHandler::BaseHoverHandler(QObject *parent) : QObject(parent)
+BaseHoverHandler::BaseHoverHandler(QObject *parent) : QObject(parent), m_diagnosticTooltip(false)
 {
     // Listen for editor opened events in order to connect to tooltip/helpid requests
     connect(ICore::instance()->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
@@ -127,6 +127,16 @@ void BaseHoverHandler::addF1ToToolTip()
                                       "</tr></table>")).arg(m_toolTip);
 }
 
+void BaseHoverHandler::setIsDiagnosticTooltip(bool isDiagnosticTooltip)
+{
+    m_diagnosticTooltip = isDiagnosticTooltip;
+}
+
+bool BaseHoverHandler::isDiagnosticTooltip() const
+{
+    return m_diagnosticTooltip;
+}
+
 void BaseHoverHandler::setLastHelpItemIdentified(const HelpItem &help)
 { m_lastHelpItemIdentified = help; }
 
@@ -135,6 +145,7 @@ const HelpItem &BaseHoverHandler::lastHelpItemIdentified() const
 
 void BaseHoverHandler::clear()
 {
+    m_diagnosticTooltip = false;
     m_toolTip.clear();
     m_lastHelpItemIdentified = HelpItem();
 }
@@ -151,7 +162,7 @@ void BaseHoverHandler::decorateToolTip()
     if (Qt::mightBeRichText(toolTip()))
         setToolTip(Qt::escape(toolTip()));
 
-    if (lastHelpItemIdentified().isValid()) {
+    if (!isDiagnosticTooltip() && lastHelpItemIdentified().isValid()) {
         const QString &contents = lastHelpItemIdentified().extractContent(false);
         if (!contents.isEmpty()) {
             setToolTip(Qt::escape(toolTip()));

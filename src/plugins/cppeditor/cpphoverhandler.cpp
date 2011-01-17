@@ -78,9 +78,15 @@ void CppHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
 
         CppElementEvaluator evaluator(cppEditor);
         evaluator.setTextCursor(tc);
-        QSharedPointer<CppElement> cppElement = evaluator.identifyCppElement();
-        if (!cppElement.isNull()) {
-            setToolTip(cppElement->tooltip());
+        evaluator.execute();
+        if (evaluator.hasDiagnosis()) {
+            setToolTip(evaluator.diagnosis());
+            setIsDiagnosticTooltip(true);
+        }
+        if (evaluator.identifiedCppElement()) {
+            const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
+            if (!isDiagnosticTooltip())
+                setToolTip(cppElement->tooltip());
             foreach (const QString &helpId, cppElement->helpIdCandidates()) {
                 if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty()) {
                     setLastHelpItemIdentified(TextEditor::HelpItem(helpId,
@@ -97,6 +103,9 @@ void CppHoverHandler::decorateToolTip()
 {
     if (Qt::mightBeRichText(toolTip()))
         setToolTip(Qt::escape(toolTip()));
+
+    if (isDiagnosticTooltip())
+        return;
 
     const TextEditor::HelpItem &help = lastHelpItemIdentified();
     if (help.isValid()) {

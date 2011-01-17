@@ -74,6 +74,9 @@ protected:
 
     void addF1ToToolTip();
 
+    void setIsDiagnosticTooltip(bool isDiagnosticTooltip);
+    bool isDiagnosticTooltip() const;
+
     void setLastHelpItemIdentified(const HelpItem &help);
     const HelpItem &lastHelpItemIdentified() const;
 
@@ -88,6 +91,7 @@ private:
     virtual void decorateToolTip();
     virtual void operateTooltip(ITextEditor *editor, const QPoint &point);
 
+    bool m_diagnosticTooltip;
     QString m_toolTip;
     HelpItem m_lastHelpItemIdentified;
 };

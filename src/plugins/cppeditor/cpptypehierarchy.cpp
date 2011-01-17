@@ -118,8 +118,9 @@ void CppTypeHierarchyWidget::perform()
 
     CppElementEvaluator evaluator(m_cppEditor);
     evaluator.setLookupBaseClasses(true);
-    QSharedPointer<CppElement> cppElement = evaluator.identifyCppElement();
-    if (!cppElement.isNull()) {
+    evaluator.execute();
+    if (evaluator.identifiedCppElement()) {
+        const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
         CppElement *element = cppElement.data();
         if (CppClass *cppClass = dynamic_cast<CppClass *>(element))
             buildModel(*cppClass, m_model->invisibleRootItem());

@@ -97,16 +97,11 @@ void CppElementEvaluator::setTextCursor(const QTextCursor &tc)
 void CppElementEvaluator::setLookupBaseClasses(const bool lookup)
 { m_lookupBaseClasses = lookup; }
 
-QSharedPointer<CppElement> CppElementEvaluator::identifyCppElement()
-{
-    m_element.clear();
-    evaluate();
-    return m_element;
-}
-
 // @todo: Consider refactoring code from CPPEditor::findLinkAt into here.
-void CppElementEvaluator::evaluate()
+void CppElementEvaluator::execute()
 {
+    clear();
+
     if (!m_modelManager)
         return;
 
@@ -120,37 +115,36 @@ void CppElementEvaluator::evaluate()
     const int pos = m_tc.position();
     m_editor->convertPosition(pos, &line, &column);
 
-    if (!matchDiagnosticMessage(doc, line)) {
-        if (!matchIncludeFile(doc, line) && !matchMacroInUse(doc, pos)) {
-            moveCursorToEndOfName(&m_tc);
+    checkDiagnosticMessage(doc, line);
 
-            // Fetch the expression's code
-            ExpressionUnderCursor expressionUnderCursor;
-            const QString &expression = expressionUnderCursor(m_tc);
-            Scope *scope = doc->scopeAt(line, column);
+    if (!matchIncludeFile(doc, line) && !matchMacroInUse(doc, pos)) {
+        moveCursorToEndOfName(&m_tc);
 
-            TypeOfExpression typeOfExpression;
-            typeOfExpression.init(doc, snapshot);
-            const QList<LookupItem> &lookupItems = typeOfExpression(expression, scope);
-            if (lookupItems.isEmpty())
-                return;
+        // Fetch the expression's code
+        ExpressionUnderCursor expressionUnderCursor;
+        const QString &expression = expressionUnderCursor(m_tc);
+        Scope *scope = doc->scopeAt(line, column);
 
-            const LookupItem &lookupItem = lookupItems.first(); // ### TODO: select best candidate.
-            handleLookupItemMatch(snapshot, lookupItem, typeOfExpression.context());
-        }
+        TypeOfExpression typeOfExpression;
+        typeOfExpression.init(doc, snapshot);
+        const QList<LookupItem> &lookupItems = typeOfExpression(expression, scope);
+        if (lookupItems.isEmpty())
+            return;
+
+        const LookupItem &lookupItem = lookupItems.first(); // ### TODO: select best candidate.
+        handleLookupItemMatch(snapshot, lookupItem, typeOfExpression.context());
     }
 }
 
-bool CppElementEvaluator::matchDiagnosticMessage(const CPlusPlus::Document::Ptr &document,
+void CppElementEvaluator::checkDiagnosticMessage(const CPlusPlus::Document::Ptr &document,
                                                  unsigned line)
 {
     foreach (const Document::DiagnosticMessage &m, document->diagnosticMessages()) {
         if (m.line() == line) {
-            m_element = QSharedPointer<CppElement>(new CppDiagnosis(m));
-            return true;
+            m_diagnosis = m.text();
+            break;
         }
     }
-    return false;
 }
 
 bool CppElementEvaluator::matchIncludeFile(const CPlusPlus::Document::Ptr &document, unsigned line)
@@ -216,6 +210,32 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
     }
 }
 
+bool CppElementEvaluator::identifiedCppElement() const
+{
+    return !m_element.isNull();
+}
+
+const QSharedPointer<CppElement> &CppElementEvaluator::cppElement() const
+{
+    return m_element;
+}
+
+bool CppElementEvaluator::hasDiagnosis() const
+{
+    return !m_diagnosis.isEmpty();
+}
+
+const QString &CppElementEvaluator::diagnosis() const
+{
+    return m_diagnosis;
+}
+
+void CppEditor::Internal::CppElementEvaluator::clear()
+{
+    m_element.clear();
+    m_diagnosis.clear();
+}
+
 // CppElement
 CppElement::CppElement() : m_helpCategory(TextEditor::HelpItem::Unknown)
 {}
@@ -268,19 +288,6 @@ Unknown::~Unknown()
 
 const QString &Unknown::type() const
 { return m_type; }
-
-// CppDiagnosis
-CppDiagnosis::CppDiagnosis(const Document::DiagnosticMessage &message) :
-    CppElement(), m_text(message.text())
-{
-    setTooltip(m_text);
-}
-
-CppDiagnosis::~CppDiagnosis()
-{}
-
-const QString &CppDiagnosis::text() const
-{ return m_text; }
 
 // CppInclude
 CppInclude::~CppInclude()
