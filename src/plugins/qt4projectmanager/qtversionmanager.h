@@ -189,6 +189,7 @@ private:
     void updateVersionInfo() const;
     QString findQtBinary(const QStringList &possibleName) const;
     void updateToolChainAndMkspec() const;
+    QString resolveLink(const QString &path) const;
     QString m_displayName;
     QString m_sourcePath;
     QString m_mingwDirectory;

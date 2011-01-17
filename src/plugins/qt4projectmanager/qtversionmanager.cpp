@@ -1381,11 +1381,7 @@ void QtVersion::updateToolChainAndMkspec() const
                         mkspecFullPath = baseMkspecDir + "/macx-g++";
                     }
                     //resolve mkspec link
-                    QFileInfo f3(mkspecFullPath);
-                    while (f3.isSymLink()) {
-                        mkspecFullPath = f3.symLinkTarget();
-                        f3.setFile(mkspecFullPath);
-                    }
+                    mkspecFullPath = resolveLink(mkspecFullPath);
                 }
                 break;
             }
@@ -1393,11 +1389,7 @@ void QtVersion::updateToolChainAndMkspec() const
         f2.close();
     }
 #else
-    QFileInfo f2(mkspecFullPath);
-    while (f2.isSymLink()) {
-        mkspecFullPath = f2.symLinkTarget();
-        f2.setFile(mkspecFullPath);
-    }
+    mkspecFullPath =resolveLink(mkspecFullPath);
 #endif
 
 #ifdef Q_OS_WIN
@@ -1526,6 +1518,17 @@ void QtVersion::updateToolChainAndMkspec() const
     m_toolChainUpToDate = true;
 }
 
+QString QtVersion::resolveLink(const QString &path) const
+{
+    QFileInfo f(path);
+    int links = 16;
+    while (links-- && f.isSymLink())
+        f.setFile(f.symLinkTarget());
+    if (links <= 0)
+        return QString();
+    return f.path();
+}
+
 QString QtVersion::mwcDirectory() const
 {
     return m_mwcDirectory;
@@ -1622,7 +1625,8 @@ bool QtVersion::isValid() const
             && !qmakeCommand().isEmpty()
             && !displayName().isEmpty()
             && !m_notInstalled
-            && m_versionInfo.contains("QT_INSTALL_BINS");
+            && m_versionInfo.contains("QT_INSTALL_BINS")
+            && !m_mkspecFullPath.isEmpty();
 }
 
 QString QtVersion::invalidReason() const
@@ -1638,6 +1642,8 @@ QString QtVersion::invalidReason() const
     if (!m_versionInfo.contains("QT_INSTALL_BINS"))
         return QCoreApplication::translate("QtVersion",
 					   "Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?");
+    if (m_mkspecFullPath.isEmpty())
+        return QCoreApplication::translate("QtVersion", "The default mkspec symlink is broken.");
     return QString();
 }
 
