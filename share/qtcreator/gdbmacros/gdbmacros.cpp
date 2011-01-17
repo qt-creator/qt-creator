@@ -232,15 +232,9 @@ static QByteArray stripPointerType(const QByteArray &_type)
 // This is used to abort evaluation of custom data dumpers in a "coordinated"
 // way. Abortion will happen at the latest when we try to access a non-initialized
 // non-trivial object, so there is no way to prevent this from occurring at all
-// conceptionally.  Ideally, if there is API to check memory access, it should
-// be used to terminate nicely, especially with CDB.
-// 1) Gdb will catch SIGSEGV and return to the calling frame.
-//    This is just fine provided we only _read_ memory in the custom handlers
-//    below.
-// 2) For MSVC/CDB, exceptions must be handled in the dumper, which is
-//    achieved using __try/__except. The exception will be reported in the
-//    debugger, which will then execute a 'gN' command, passing handling back
-//    to the __except clause.
+// conceptually. Gdb will catch SIGSEGV and return to the calling frame.
+// This is just fine provided we only _read_ memory in the custom handlers below.
+// We don't use this code for MSVC/CDB anymore.
 
 volatile int qProvokeSegFaultHelper;
 
@@ -1541,12 +1535,6 @@ int hashOffset(bool optimizedIntKey, bool forKey, unsigned keySize, unsigned val
     }
 }
 
-#ifdef Q_CC_MSVC
-#  define MAP_NODE_TYPE_END ">"
-#else
-#  define MAP_NODE_TYPE_END " >"
-#endif
-
 static void qDumpQHash(QDumper &d)
 {
     qCheckAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
@@ -1607,7 +1595,7 @@ static void qDumpQHash(QDumper &d)
                     d.putItem("addr", node);
                     d.beginItem("type");
                         d.put(NS"QHashNode<").put(keyType).put(",")
-                            .put(valueType).put(MAP_NODE_TYPE_END);
+                            .put(valueType).put(" >");
                     d.endItem();
                 }
             d.endHash();
@@ -1961,12 +1949,12 @@ static void qDumpQMap(QDumper &d)
                     // actually, any type (even 'char') will do...
                     d.beginItem("type");
                         d.put(NS"QMapNode<").put(keyType).put(",");
-                        d.put(valueType).put(MAP_NODE_TYPE_END);
+                        d.put(valueType).put(" >");
                     d.endItem();
 #else
                     d.beginItem("type");
                         d.put(NS"QMapData::Node<").put(keyType).put(",");
-                        d.put(valueType).put(MAP_NODE_TYPE_END);
+                        d.put(valueType).put(" >");
                     d.endItem();
                     d.beginItem("exp");
                         d.put("*('"NS"QMapData::Node<").put(keyType).put(",");
@@ -3124,32 +3112,9 @@ static void qDumpQWeakPointer(QDumper &d)
 #endif // QT_VERSION >= 0x040500
 #endif // QT_BOOTSTRAPPED
 
-#ifdef Q_CC_MSVC
-// A friendly list that grants access to its head.
-template <class T> class FriendlyList : public std::list<T> {
-public:
-    typedef _Node Node;
-    static const Node *head(const std::list<T> *list) {
-        return static_cast<const FriendlyList *>(list)->_Myhead;
-    }
-};
-#endif
-
 static void qDumpStdList(QDumper &d)
 {
     const std::list<int> &list = *reinterpret_cast<const std::list<int> *>(d.data);
-#ifdef Q_CC_MSVC
-    /* Extensive checks to avoid _HAS_ITERATOR_DEBUGGING asserts at all cost.
-     * Examine the head element which is present in empty lists as well.
-     * It could be even further checked if the type was known. */
-    const void *head = FriendlyList<int>::head(&list);
-    qCheckAccess(head);
-    const int size = static_cast<int>(list.size());
-    if (size < 0)
-        return;
-    if (size)
-        qCheckAccess(list.begin().operator ->());
-#else
     const void *p = d.data;
     qCheckAccess(p);
     p = deref(p);
@@ -3162,7 +3127,6 @@ static void qDumpStdList(QDumper &d)
     qCheckAccess(p);
     p = deref(addOffset(p, sizeof(void*)));
     qCheckAccess(p);
-#endif
     std::list<int>::size_type nn = 0;
     const std::list<int>::size_type maxItems = 100;
     std::list<int>::const_iterator it = list.begin();
@@ -3196,43 +3160,6 @@ static void qDumpStdList(QDumper &d)
     d.disarm();
 }
 
-#ifdef Q_CC_MSVC
-// A friendly red-black tree that is able to access the node type and head
-// pointer. The class _Tree is used for the std::map/std::set implementations in
-// MS VS CC. It has a head element pointer (with left and right) that exists
-// even if it is empty. Provides a check() function to perform extensive checks
-// to avoid _HAS_ITERATOR_DEBUGGING asserts at all cost.
-template <class RedBlackTreeTraits> class FriendlyRedBlackTree : public std::_Tree<RedBlackTreeTraits> {
-public:
-    static inline void check(const std::_Tree<RedBlackTreeTraits> *fs, bool *ok);
-};
-
-template <class RedBlackTreeTraits>
-void FriendlyRedBlackTree<RedBlackTreeTraits>::check(const std::_Tree<RedBlackTreeTraits> *fs, bool *ok)
-{
-    *ok = false;
-    const FriendlyRedBlackTree *friendlyTree =  static_cast<const FriendlyRedBlackTree*>(fs);
-    // Check the red/black tree
-    const _Node *head = friendlyTree->_Myhead;
-    qCheckAccess(head);
-    if (head->_Color != _Red && head->_Color != _Black)
-        return;
-    const _Node *left = head->_Left;
-    if (left && left != head) {
-        qCheckAccess(left);
-        if (left->_Color != _Red && left->_Color != _Black)
-            return;
-    }
-    const _Node *right= head->_Right;
-    if (right && right != left) {
-        qCheckAccess(right);
-        if (right->_Color != _Red && right->_Color != _Black)
-            return;
-    }
-    *ok = true;
-}
-#endif
-
 /* Dump out an arbitrary map. To iterate the map,
  * it is cast to a map of <KeyType,Value>. 'int' can be used for both
  * for all types if the implementation does not depend on the types
@@ -3252,16 +3179,6 @@ static void qDumpStdMapHelper(QDumper &d)
     const int nn = map.size();
     if (nn < 0)
         return;
-#ifdef Q_CC_MSVC
-    // Additional checks to avoid _HAS_ITERATOR_DEBUGGING asserts
-    typedef std::pair<const KeyType, ValueType> RedBlackTreeEntryType;
-    typedef std::_Tmap_traits<KeyType, ValueType, std::less<KeyType>, std::allocator<RedBlackTreeEntryType>, false>
-            MapRedBlackTreeTraits;
-    bool ok;
-    FriendlyRedBlackTree<MapRedBlackTreeTraits>::check(&map, &ok);
-    if (!ok)
-        return;
-#endif
     Q_TYPENAME DummyType::const_iterator it = map.begin();
     const Q_TYPENAME DummyType::const_iterator cend = map.end();
     for (int i = 0; i < nn && i < 10 && it != cend; ++i, ++it)
@@ -3320,33 +3237,7 @@ static void qDumpStdMapHelper(QDumper &d)
 
 static void qDumpStdMap(QDumper &d)
 {
-#ifdef Q_CC_MSVC
-    // As the map implementation inherits from a base class
-    // depending on the key, use something equivalent to iterate it.
-    const int keySize = d.extraInt[0];
-    const int valueSize = d.extraInt[1];
-    if (keySize == valueSize) {
-        if (keySize == sizeof(int)) {
-            qDumpStdMapHelper<int,int>(d);
-            return;
-        }
-        if (keySize == sizeof(std::string)) {
-            qDumpStdMapHelper<std::string,std::string>(d);
-            return;
-        }
-        return;
-    }
-    if (keySize == sizeof(int) && valueSize == sizeof(std::string)) {
-        qDumpStdMapHelper<int,std::string>(d);
-        return;
-    }
-    if (keySize == sizeof(std::string) && valueSize == sizeof(int)) {
-        qDumpStdMapHelper<std::string,int>(d);
-        return;
-    }
-#else
     qDumpStdMapHelper<int,int>(d);
-#endif
 }
 
 /* Dump out an arbitrary set. To iterate the set,
@@ -3366,15 +3257,6 @@ static void qDumpStdSetHelper(QDumper &d)
     const int nn = set.size();
     if (nn < 0)
         return;
-#ifdef Q_CC_MSVC
-    // Additional checks to avoid _HAS_ITERATOR_DEBUGGING asserts
-    typedef std::_Tset_traits<KeyType, std::less<KeyType> , std::allocator<KeyType>, false>
-            SetRedBlackTreeTraits;
-    bool ok;
-    FriendlyRedBlackTree<SetRedBlackTreeTraits>::check(&set, &ok);
-    if (!ok)
-        return;
-#endif
     Q_TYPENAME DummyType::const_iterator it = set.begin();
     const Q_TYPENAME DummyType::const_iterator cend = set.end();
     for (int i = 0; i < nn && i < 10 && it != cend; ++i, ++it)
@@ -3412,25 +3294,7 @@ static void qDumpStdSetHelper(QDumper &d)
 
 static void qDumpStdSet(QDumper &d)
 {
-#ifdef Q_CC_MSVC
-    // As the set implementation inherits from a base class
-    // depending on the key, use something equivalent to iterate it.
-    const size_t innerSize = d.extraInt[0];
-    if (innerSize == sizeof(int)) {
-        qDumpStdSetHelper<int>(d);
-        return;
-    }
-    if (innerSize == sizeof(std::string)) {
-        qDumpStdSetHelper<std::string>(d);
-        return;
-    }
-    if (innerSize == sizeof(std::wstring)) {
-        qDumpStdSetHelper<std::wstring>(d);
-        return;
-    }
-#else
     qDumpStdSetHelper<int>(d);
-#endif
 }
 
 static void qDumpStdString(QDumper &d)
@@ -3471,17 +3335,7 @@ static void qDumpStdVector(QDumper &d)
         char *finish;
         char *end_of_storage;
     };
-#ifdef Q_CC_MSVC
-    // Pointers are at end of the structure
-    const char * vcp = static_cast<const char *>(d.data);
-#    if _MSC_VER >= 1600 // VS2010 onwards: Beginning of structure + base class containing pointer
-    const VectorImpl *v = reinterpret_cast<const VectorImpl *>(vcp + sizeof(void*));
-#    else                // pre VS2010: End of structure
-    const VectorImpl *v = reinterpret_cast<const VectorImpl *>(vcp + sizeof(std::vector<int>) - sizeof(VectorImpl));
-#    endif // _MSC_VER
-#else
     const VectorImpl *v = static_cast<const VectorImpl *>(d.data);
-#endif
     // Try to provoke segfaults early to prevent the frontend
     // from asking for unavailable child details
     int nn = (v->finish - v->start) / d.extraInt[0];
@@ -3530,9 +3384,6 @@ static void handleProtocolVersion2and3(QDumper &d)
         qDumpUnknown(d);
         return;
     }
-#ifdef Q_CC_MSVC // Catch exceptions with MSVC/CDB
-    __try {
-#endif
 
     d.setupTemplateParameters();
     d.putItem("iname", d.iname);
@@ -3753,12 +3604,6 @@ static void handleProtocolVersion2and3(QDumper &d)
 
     if (!d.success)
         qDumpUnknown(d);
-#ifdef Q_CC_MSVC // Catch exceptions with MSVC/CDB
-    } __except(EXCEPTION_EXECUTE_HANDLER) {
-        qDumpUnknown(d, DUMPUNKNOWN_MESSAGE" <exception>");
-    }
-#endif
-
 }
 
 } // anonymous namespace
@@ -3771,124 +3616,6 @@ void *watchPoint(int x, int y)
     return QApplication::widgetAt(x, y);
 }
 #endif
-
-// Helpers to write out common expression values for CDB
-#ifdef Q_CC_MSVC
-// Offsets of a map node value which looks like
-// "(size_t)&(((QMapNode<int,int> *)0)->value)-0"
-#if QT_VERSION >= 0x040500
-template <class Key, class Value>
-        inline QDumper & putQMapNodeOffsetExpression(const char *keyType,
-                                                     const char *valueType,
-                                                     QDumper &d)
-{
-    QMapNode<Key, Value> *mn = 0;
-    const int valueOffset = (char *)&(mn->value) - (char*)mn;
-    d.put("[\"(size_t)&((("NS"QMapNode<");
-    d.put(keyType);
-    d.put(',');
-    d.put(valueType);
-    if (valueType[qstrlen(valueType) - 1] == '>')
-        d.put(' ');
-    d.put("> *)0)->value)-0\",\"");
-    d.put(valueOffset);
-    d.put("\"]");
-    return d;
-}
-#endif
-
-// Helper to write out common expression values for CDB:
-// Offsets of a std::pair for dumping std::map node value which look like
-// "(size_t)&(((std::pair<int const ,int> *)0)->second)-0"
-
-template <class Key, class Value>
-        inline QDumper & putStdPairValueOffsetExpression(const char *keyType,
-                                                         const char *valueType,
-                                                         QDumper &d)
-{
-    std::pair<Key, Value> *p = 0;
-    const int valueOffset = (char *)&(p->second) - (char*)p;
-    d.put("[\"(size_t)&(((std::pair<");
-    d.put(keyType);
-    d.put(" const ,");
-    d.put(valueType);
-    if (valueType[qstrlen(valueType) - 1] == '>')
-        d.put(' ');
-    d.put("> *)0)->second)-0\",\"");
-    d.put(valueOffset);
-    d.put("\"]");
-    return  d;
-}
-
-#endif // Q_CC_MSVC
-
-// Dump out sizes for CDB
-static inline void dumpSizes(QDumper &d)
-{
-    // Sort by sizes
-    typedef QMultiMap<size_t, const char *> SizeMap;
-    SizeMap sizeMap;
-
-    sizeMap.insert(sizeof(int), "int");
-    sizeMap.insert(sizeof(char*), "char*");
-    sizeMap.insert(sizeof(QString), NS"QString");
-    sizeMap.insert(sizeof(QStringList), NS"QStringList");
-#ifndef QT_BOOTSTRAPPED
-    sizeMap.insert(sizeof(QObject), NS"QObject");
-    sizeMap.insert(sizeof(QList<int>), NS"QList<int>");
-    sizeMap.insert(sizeof(QLinkedList<int>), NS"QLinkedList<int>");
-    sizeMap.insert(sizeof(QVector<int>), NS"QVector<int>");
-    sizeMap.insert(sizeof(QQueue<int>), NS"QQueue<int>");
-#endif
-#if USE_QT_GUI
-    sizeMap.insert(sizeof(QWidget), NS"QWidget");
-#endif
-#ifdef Q_OS_WIN
-    sizeMap.insert(sizeof(std::string), "string");
-    sizeMap.insert(sizeof(std::wstring), "wstring");
-#endif
-    sizeMap.insert(sizeof(std::string), "std::string");
-    sizeMap.insert(sizeof(std::wstring), "std::wstring");
-    sizeMap.insert(sizeof(std::allocator<int>), "std::allocator");
-    sizeMap.insert(sizeof(std::char_traits<char>), "std::char_traits<char>");
-    sizeMap.insert(sizeof(std::char_traits<unsigned short>), "std::char_traits<unsigned short>");
-#ifndef QT_BOOTSTRAPPED
-#if QT_VERSION >= 0x040500
-    sizeMap.insert(sizeof(QSharedPointer<int>), NS"QSharedPointer");
-    sizeMap.insert(sizeof(QSharedDataPointer<QSharedData>), NS"QSharedDataPointer");
-    sizeMap.insert(sizeof(QWeakPointer<int>), NS"QWeakPointer");
-#endif
-#endif // QT_BOOTSTRAPPED
-    sizeMap.insert(sizeof(QPointer<QObject>), "QPointer");
-    // Common map node types
-#if QT_VERSION >= 0x040500
-    sizeMap.insert(sizeof(QMapNode<int,int >), NS"QMapNode<int,int>");
-    sizeMap.insert(sizeof(QMapNode<int, QString>), NS"QMapNode<int,"NS"QString>");
-    sizeMap.insert(sizeof(QMapNode<int, QVariant>), NS"QMapNode<int,"NS"QVariant>");
-    sizeMap.insert(sizeof(QMapNode<QString, int>), NS"QMapNode<"NS"QString,int>");
-    sizeMap.insert(sizeof(QMapNode<QString, QString>), NS"QMapNode<"NS"QString,"NS"QString>");
-    sizeMap.insert(sizeof(QMapNode<QString, QVariant>), NS"QMapNode<"NS"QString,"NS"QVariant>");
-#endif
-    // Dump as lists of types preceded by size
-    size_t lastSize = 0;
-    d.put("sizes=[");
-    const SizeMap::const_iterator  cend = sizeMap.constEnd();
-    for (SizeMap::const_iterator it = sizeMap.constBegin(); it != cend; ++it) {
-        // new size list
-        if (it.key() != lastSize) {
-            if (lastSize)
-                d.put("],");
-            d.put("[\"");
-            d.put(it.key());
-            lastSize = it.key();
-            d.put('"');
-        }
-        d.put(",\"");
-        d.put(it.value());
-        d.put('"');
-    }
-    d.put("]]");
-}
 
 extern "C" Q_DECL_EXPORT
 void *qDumpObjectData440(
@@ -3988,32 +3715,6 @@ void *qDumpObjectData440(
             "\"").put(((QT_VERSION)       & 255)).put("\"]");
         d.put(",namespace=\""NS"\",");
         d.put("dumperversion=\"1.3\",");
-//      Dump out size information
-        dumpSizes(d);
-        // Write out common expression values for CDB
-#ifdef Q_CC_MSVC
-        d.put(",expressions=[");
-#if QT_VERSION >= 0x040500
-        putQMapNodeOffsetExpression<int,int>("int", "int", d).put(',');
-        putQMapNodeOffsetExpression<int,QString>("int", NS"QString", d).put(',');
-        putQMapNodeOffsetExpression<int,QVariant>("int", NS"QVariant", d).put(',');
-        putQMapNodeOffsetExpression<QString,int>(NS"QString", "int", d).put(',');
-        putQMapNodeOffsetExpression<QString,QString>(NS"QString", NS"QString", d).put(',');
-        putQMapNodeOffsetExpression<QString,QVariant>(NS"QString", NS"QVariant", d).put(',');
-#endif
-        // Std Pairs
-        putStdPairValueOffsetExpression<int,int>("int","int", d).put(',');
-        putStdPairValueOffsetExpression<QString,QString>(NS"QString",NS"QString", d).put(',');
-        putStdPairValueOffsetExpression<int,QString>("int",NS"QString", d).put(',');
-        putStdPairValueOffsetExpression<QString,int>(NS"QString", "int", d).put(',');
-        putStdPairValueOffsetExpression<std::string,std::string>(stdStringTypeC, stdStringTypeC, d).put(',');
-        putStdPairValueOffsetExpression<int,std::string>("int", stdStringTypeC, d).put(',');
-        putStdPairValueOffsetExpression<std::string,int>(stdStringTypeC, "int", d).put(',');
-        putStdPairValueOffsetExpression<std::wstring,std::wstring>(stdWideStringTypeUShortC, stdWideStringTypeUShortC, d).put(',');
-        putStdPairValueOffsetExpression<int,std::wstring>("int", stdWideStringTypeUShortC, d).put(',');
-        putStdPairValueOffsetExpression<std::wstring,int>(stdWideStringTypeUShortC, "int", d);
-        d.put(']');
-#endif // Q_CC_MSVC
         d.disarm();
     }
 
