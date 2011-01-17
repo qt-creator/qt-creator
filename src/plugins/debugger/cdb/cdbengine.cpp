@@ -352,7 +352,8 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp,
     m_notifyEngineShutdownOnTermination(false),
     m_hasDebuggee(false),
     m_elapsedLogTime(0),
-    m_sourceStepInto(false)
+    m_sourceStepInto(false),
+    m_wX86BreakpointCount(0)
 {
     Utils::SavedAction *assemblerAction = theAssemblerAction();
     m_operateByInstructionPending = assemblerAction->isChecked();
@@ -1430,7 +1431,7 @@ enum StopActionFlags
 
 unsigned CdbEngine::examineStopReason(const QByteArray &messageIn,
                                       QString *message,
-                                      QString *exceptionBoxMessage) const
+                                      QString *exceptionBoxMessage)
 {
     // Report stop reason (GDBMI)
     GdbMi stopReason;
@@ -1462,10 +1463,16 @@ unsigned CdbEngine::examineStopReason(const QByteArray &messageIn,
         // pulls DLLs. Avoid showing a 'stopped' Message box.
         if (exception.exceptionCode == winExceptionStartupCompleteTrap)
             return StopNotifyStop;
-        // WOW 64 breakpoint: just report in log and continue
+        // WOW 64 breakpoint: Report in log and continue the first one,
+        // subsequent ones are caused by interrupting the application.
         if (exception.exceptionCode == winExceptionWX86Breakpoint) {
-            *message = description;
-            return StopIgnoreContinue|StopReportLog;
+            if (m_wX86BreakpointCount++) {
+                *message = tr("Interrupted (%1)").arg(description);
+                return StopReportStatusMessage|StopNotifyStop;
+            } else {
+                *message = description;
+                return StopIgnoreContinue|StopReportLog;
+            }
         }
         if (isDebuggerWinException(exception.exceptionCode)) {
             *message = msgInterrupted();
