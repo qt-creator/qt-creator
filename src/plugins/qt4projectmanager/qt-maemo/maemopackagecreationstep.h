@@ -56,6 +56,7 @@ class Qt4BuildConfiguration;
 namespace Internal {
 class MaemoDeployStep;
 class MaemoDeployableListModel;
+class Qt4MaemoTarget;
 
 class MaemoPackageCreationStep : public ProjectExplorer::BuildStep
 {
@@ -84,6 +85,7 @@ public:
 
     QString projectName() const;
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
+    Qt4MaemoTarget *maemoTarget() const;
 
     static const QLatin1String DefaultVersionNumber;
 

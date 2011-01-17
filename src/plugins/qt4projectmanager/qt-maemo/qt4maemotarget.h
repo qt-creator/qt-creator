@@ -32,6 +32,13 @@
 
 #include "qt4target.h"
 
+#include <QtCore/QIODevice>
+#include <QtCore/QSharedPointer>
+#include <QtGui/QIcon>
+
+QT_FORWARD_DECLARE_CLASS(QFile)
+QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher)
+
 namespace Qt4ProjectManager {
 class Qt4Project;
 namespace Internal {
@@ -47,17 +54,58 @@ public:
 
     Internal::Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
     ProjectExplorer::DeployConfigurationFactory *deployConfigurationFactory() const;
-
     QString defaultBuildDirectory() const;
-
     void createApplicationProFiles();
+
+    QString debianDirPath() const;
+    QStringList debianFiles() const;
+
+    QString projectVersion(QString *error = 0) const;
+    bool setProjectVersion(const QString &version, QString *error = 0) const;
+
+    QIcon packageManagerIcon(QString *error = 0) const;
+    bool setPackageManagerIcon(const QString &iconFilePath,
+        QString *error = 0) const;
+
+    QString name() const;
+    bool setName(const QString &name);
+
+    QString shortDescription() const;
+    bool setShortDescription(const QString &description);
 
     static QString defaultDisplayName();
 
+signals:
+    void debianDirContentsChanged();
+    void changeLogChanged();
+    void controlChanged();
+
+private slots:
+    void handleTargetAdded(ProjectExplorer::Target *target);
+    void handleTargetToBeRemoved(ProjectExplorer::Target *target);
+    void handleDebianDirContentsChanged();
+    void handleDebianFileChanged(const QString &filePath);
+
 private:
-    Internal::Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
-    Internal::Qt4MaemoDeployConfigurationFactory *m_deployConfigurationFactory;
+    QString changeLogFilePath() const;
+    QString controlFilePath() const;
+    QByteArray controlFileFieldValue(const QString &key, bool multiLine) const;
+    bool setControlFieldValue(const QByteArray &fieldName,
+        const QByteArray &fieldValue);
+    bool adaptControlFileField(QByteArray &document, const QByteArray &fieldName,
+        const QByteArray &newFieldValue);
+    QSharedPointer<QFile> openFile(const QString &filePath,
+        QIODevice::OpenMode mode, QString *error) const;
+    bool createDebianTemplatesIfNecessary();
+    bool adaptRulesFile();
+    bool adaptControlFile();
+    void raiseError(const QString &reason);
+
+    Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
+    Qt4MaemoDeployConfigurationFactory *m_deployConfigurationFactory;
+    QFileSystemWatcher * const m_debianFilesWatcher;
 };
+
 }
 }
 

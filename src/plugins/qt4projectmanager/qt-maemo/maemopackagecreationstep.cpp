@@ -46,7 +46,7 @@
 #include "maemodeploystep.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationwidget.h"
-#include "maemotemplatesmanager.h"
+#include "qt4maemotarget.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -203,11 +203,11 @@ bool MaemoPackageCreationStep::createPackage(QProcess *buildProc)
 
     // Workaround for non-working dh_builddeb --destdir=.
     if (!QDir(buildDirectory()).isRoot()) {
-        const ProjectExplorer::Project * const project
-            = buildConfiguration()->target()->project();
+        const Qt4MaemoTarget * const target = maemoTarget();
+        const ProjectExplorer::Project * const project = target->project();
         QString error;
         const QString pkgFileName = packageFileName(project,
-            MaemoTemplatesManager::instance()->version(project, &error));
+            target->projectVersion(&error));
         if (!error.isEmpty())
             raiseError(tr("Packaging failed."), error);
         const QString changesFileName = QFileInfo(pkgFileName)
@@ -268,8 +268,7 @@ bool MaemoPackageCreationStep::copyDebianFiles(bool inSourceBuild)
                    .arg(debianDirPath));
         return false;
     }
-    const QString templatesDirPath = MaemoTemplatesManager::instance()
-        ->debianDirPath(buildConfiguration()->target()->project());
+    const QString templatesDirPath = maemoTarget()->debianDirPath();
     QDir templatesDir(templatesDirPath);
     const QStringList &files = templatesDir.entryList(QDir::Files);
     foreach (const QString &fileName, files) {
@@ -330,6 +329,11 @@ const Qt4BuildConfiguration *MaemoPackageCreationStep::qt4BuildConfiguration() c
     return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
 }
 
+Qt4MaemoTarget *MaemoPackageCreationStep::maemoTarget() const
+{
+    return qobject_cast<Qt4MaemoTarget *>(buildConfiguration()->target());
+}
+
 QString MaemoPackageCreationStep::buildDirectory() const
 {
     return qt4BuildConfiguration()->buildDirectory();
@@ -365,13 +369,10 @@ bool MaemoPackageCreationStep::packagingNeeded() const
             return true;
     }
 
-    const ProjectExplorer::Project * const project = target()->project();
-    const MaemoTemplatesManager * const templatesManager
-        = MaemoTemplatesManager::instance();
-    const QString debianPath = templatesManager->debianDirPath(project);
+    const QString debianPath = maemoTarget()->debianDirPath();
     if (packageInfo.lastModified() <= QFileInfo(debianPath).lastModified())
         return true;
-    const QStringList debianFiles = templatesManager->debianFiles(project);
+    const QStringList debianFiles = maemoTarget()->debianFiles();
     foreach (const QString &debianFile, debianFiles) {
         const QString absFilePath = debianPath + QLatin1Char('/') + debianFile;
         if (packageInfo.lastModified() <= QFileInfo(absFilePath).lastModified())
@@ -418,16 +419,13 @@ bool MaemoPackageCreationStep::isPackagingEnabled() const
 
 QString MaemoPackageCreationStep::versionString(QString *error) const
 {
-    return MaemoTemplatesManager::instance()
-        ->version(buildConfiguration()->target()->project(), error);
-
+    return maemoTarget()->projectVersion(error);
 }
 
 bool MaemoPackageCreationStep::setVersionString(const QString &version,
     QString *error)
 {
-    const bool success = MaemoTemplatesManager::instance()
-        ->setVersion(buildConfiguration()->target()->project(), version, error);
+    const bool success = maemoTarget()->setProjectVersion(version, error);
     if (success)
         emit packageFilePathChanged();
     return success;

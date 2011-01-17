@@ -26,7 +26,6 @@ HEADERS += \
     $$PWD/maemodebugsupport.h \
     $$PWD/maemoremotemountsmodel.h \
     $$PWD/maemodeviceenvreader.h \
-    $$PWD/maemotemplatesmanager.h \
     $$PWD/maemomountspecification.h \
     $$PWD/maemoremotemounter.h \
     $$PWD/maemoprofilesupdatedialog.h \
@@ -75,7 +74,6 @@ SOURCES += \
     $$PWD/maemodebugsupport.cpp \
     $$PWD/maemoremotemountsmodel.cpp \
     $$PWD/maemodeviceenvreader.cpp \
-    $$PWD/maemotemplatesmanager.cpp \
     $$PWD/maemomountspecification.cpp \
     $$PWD/maemoremotemounter.cpp \
     $$PWD/maemoprofilesupdatedialog.cpp \

@@ -68,19 +68,18 @@ private slots:
     void editDebianFile();
     void versionInfoChanged();
     void initGui();
-    void updateDebianFileList(const ProjectExplorer::Project *thisProject);
-    void updateVersionInfo(const ProjectExplorer::Project *thisProject);
-    void handleControlFileUpdate(const ProjectExplorer::Project *thisProject);
+    void updateDebianFileList();
+    void updateVersionInfo();
+    void handleControlFileUpdate();
     void setPackageManagerIcon();
     void setName();
     void setShortDescription();
     void handleToolchainChanged();
 
 private:
-    void updatePackageManagerIcon(const ProjectExplorer::Project *thisProject);
-    void updateName(const ProjectExplorer::Project *thisProject);
-    void updateShortDescription(const ProjectExplorer::Project *thisProject);
-    ProjectExplorer::Project *thisProject() const;
+    void updatePackageManagerIcon();
+    void updateName();
+    void updateShortDescription();
 
     MaemoPackageCreationStep * const m_step;
     Ui::MaemoPackageCreationWidget * const m_ui;

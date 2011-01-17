@@ -37,7 +37,7 @@
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemopublishingfileselectiondialog.h"
-#include "maemotemplatesmanager.h"
+#include "qt4maemotarget.h"
 
 #include <coreplugin/ifile.h>
 #include <projectexplorer/project.h>
@@ -587,9 +587,9 @@ bool MaemoPublisherFremantleFree::addOrReplaceDesktopFileValue(QByteArray &fileC
 QStringList MaemoPublisherFremantleFree::findProblems() const
 {
     QStringList problems;
-    const MaemoTemplatesManager * const templatesManager
-        = MaemoTemplatesManager::instance();
-    const QString &description = templatesManager->shortDescription(m_project);
+    const Qt4MaemoTarget * const target
+        = qobject_cast<Qt4MaemoTarget *>(m_buildConfig->target());
+    const QString &description = target->shortDescription();
     if (description.trimmed().isEmpty()) {
         problems << tr("The package description is empty.");
     } else if (description.contains(QLatin1String("insert up to"))) {
@@ -597,7 +597,7 @@ QStringList MaemoPublisherFremantleFree::findProblems() const
                        "not what you want.").arg(description);
     }
     QString dummy;
-    if (templatesManager->packageManagerIcon(m_project, &dummy).isNull())
+    if (target->packageManagerIcon(&dummy).isNull())
         problems << tr("You have not set an icon for the package manager.");
     return problems;
 }

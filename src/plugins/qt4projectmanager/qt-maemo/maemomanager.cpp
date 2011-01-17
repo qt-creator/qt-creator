@@ -42,7 +42,6 @@
 #include "maemoqemumanager.h"
 #include "maemorunfactories.h"
 #include "maemosettingspages.h"
-#include "maemotemplatesmanager.h"
 #include "maemotoolchain.h"
 #include "qt4maemotargetfactory.h"
 
@@ -77,7 +76,6 @@ MaemoManager::MaemoManager()
     m_instance = this;
     MaemoQemuManager::instance(this);
     MaemoDeviceConfigurations::instance(this);
-    MaemoTemplatesManager::instance(this);
 
     PluginManager *pluginManager = PluginManager::instance();
     pluginManager->addObject(m_runControlFactory);
