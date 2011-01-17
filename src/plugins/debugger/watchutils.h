@@ -130,11 +130,6 @@ bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
 class QtDumperHelper
 {
 public:
-    enum Debugger {
-        GdbDebugger,  // Can evalulate expressions in function calls
-        CdbDebugger   // Can only handle scalar, simple types in function calls
-    };
-
     enum Type {
         UnknownType,
         SupportedType, // A type that requires no special handling by the dumper
