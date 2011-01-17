@@ -792,6 +792,7 @@ def makeExpression(value):
 qqNs = None
 
 def qtNamespace():
+    # FIXME: This only works when call from inside a Qt function frame.
     global qqNs
     if not qqNs is None:
         return qqNs
@@ -803,8 +804,10 @@ def qtNamespace():
         # "}"
         pos1 = str.find("struct") + 7
         pos2 = str.find("QString::Null")
-        qqNs = str[pos1:pos2]
-        return qqNs
+        if pos1 > -1 and pos2 > -1:
+            qqNs = str[pos1:pos2]
+            return qqNs
+        return ""
     except:
         return ""
 
