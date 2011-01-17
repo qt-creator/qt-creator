@@ -422,7 +422,7 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
             } while (c == ' ' || c == '\t');
             forever {
                 if (c == '$') {
-                    if (*cur == '$') { // may be EOF, EOL, WS or '#' if past end
+                    if (*cur == '$') { // may be EOF, EOL, WS, '#' or '\\' if past end
                         cur++;
                         if (putSpace) {
                             putSpace = false;
@@ -541,7 +541,7 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                         xprPtr = ptr;
                         goto nextChr;
                     }
-                } else if (c == '\\') {
+                } else if (c == '\\' && cur != end) {
                     static const char symbols[] = "[]{}()$\\'\"";
                     ushort c2 = *cur;
                     if (!(c2 & 0xff00) && strchr(symbols, c2)) {
