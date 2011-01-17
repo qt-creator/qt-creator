@@ -229,8 +229,12 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
             }
 
             if (isLocalScope(_declSymbol->enclosingScope()) || isLocalScope(s->enclosingScope())) {
-                if (s->enclosingScope() != _declSymbol->enclosingScope())
+                if (s->enclosingScope()->isTemplate()) {
+                    if (s->enclosingScope()->enclosingScope() != _declSymbol->enclosingScope())
+                        return false;
+                } else if (s->enclosingScope() != _declSymbol->enclosingScope()) {
                     return false;
+                }
             }
 
             if (compareFullyQualifiedName(LookupContext::fullyQualifiedName(s), _declSymbolFullyQualifiedName))
