@@ -1330,8 +1330,9 @@ void WatchHandler::clearWatches()
 {
     if (m_watcherNames.isEmpty())
         return;
-    foreach (WatchItem *item, m_watchers->rootItem()->children)
-        m_watchers->destroyItem(item);
+    const QList<WatchItem *> watches = m_watchers->rootItem()->children;
+    for (int i = watches.size() - 1; i >= 0; i--)
+        m_watchers->destroyItem(watches.at(i));
     m_watcherNames.clear();
     watcherCounter = 0;
     updateWatchersWindow();

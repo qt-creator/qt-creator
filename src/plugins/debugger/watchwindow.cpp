@@ -379,7 +379,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actRemoveWatchExpression = new QAction(removeWatchActionText(exp), &menu);
     actRemoveWatchExpression->setEnabled(
         (canHandleWatches || state == DebuggerNotReady) && !exp.isEmpty());
-    QAction *actRemoveWatches = new QAction(tr("Clear Watch Items"), &menu);
+    QAction *actRemoveWatches = new QAction(tr("Remove All Watch Items"), &menu);
     actRemoveWatches->setEnabled(!WatchHandler::watcherNames().isEmpty());
 
     if (m_type == LocalsType)
