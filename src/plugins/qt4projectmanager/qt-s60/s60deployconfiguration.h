@@ -96,6 +96,8 @@ public:
     QStringList packageTemplateFileNames() const;
     QStringList appPackageTemplateFileNames() const;
 
+    bool runSmartInstaller() const;
+
     QVariantMap toMap() const;
 
 signals:
@@ -116,7 +118,6 @@ protected:
 
 private:
     void ctor();
-    bool runSmartInstaller() const;
     bool isSigned() const;
     QString symbianPlatform() const;
     QString symbianTarget() const;

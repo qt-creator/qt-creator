@@ -545,6 +545,7 @@ S60DeviceRunControl::S60DeviceRunControl(RunConfiguration *runConfiguration, QSt
         m_qtBinPath = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
     QTC_ASSERT(!m_qtBinPath.isEmpty(), return);
     m_executableFileName = s60runConfig->localExecutableFileName();
+    m_runSmartInstaller = activeDeployConf->runSmartInstaller();
 
     switch (activeDeployConf->communicationChannel()) {
     case S60DeployConfiguration::CommunicationSerialConnection:
@@ -582,6 +583,13 @@ void S60DeviceRunControl::start()
     m_launchProgress->setProgressValue(0);
     m_launchProgress->reportStarted();
     emit started();
+
+    if (m_runSmartInstaller) { //Smart Installer does the running by itself
+        appendMessage(tr("Please finalise the installation on your device."), NormalMessageFormat);
+        emit finished();
+        return;
+    }
+
     if (m_serialPortName.isEmpty() && m_address.isEmpty()) {
         m_launchProgress->reportCanceled();
         QString msg = tr("No device is connected. Please connect a device and try again.");

@@ -233,6 +233,7 @@ private:
     QString m_executableFileName;
     QString m_qtDir;
     QString m_qtBinPath;
+    bool m_runSmartInstaller;
 
     tcftrk::TcfTrkDevice *m_tcfTrkDevice;
     trk::Launcher *m_launcher;
