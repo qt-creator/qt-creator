@@ -41,23 +41,39 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-// A task suitable to be run by QtConcurrent to build the helpers.
-// Note that it may outlive the settings page if someone quickly cancels it,
-// so, the versions are passed around by QSharedPointer.
 class DebuggingHelperBuildTask : public QObject {
     Q_DISABLE_COPY(DebuggingHelperBuildTask)
     Q_OBJECT
 public:
-    explicit DebuggingHelperBuildTask(const QSharedPointer<QtVersion> &version);
+    enum DebuggingHelper {
+        GdbDebugging = 0x01,
+        QmlObserver = 0x02,
+        QmlDump = 0x04,
+        AllTools = GdbDebugging | QmlObserver | QmlDump
+    };
+    Q_DECLARE_FLAGS(DebuggingHelperTools, DebuggingHelper)
+
+    explicit DebuggingHelperBuildTask(QtVersion *version, DebuggingHelperTools tools = AllTools);
     virtual ~DebuggingHelperBuildTask();
 
     void run(QFutureInterface<void> &future);
 
 signals:
-    void finished(const QString &versionName, const QString &output);
+    void finished(int qtVersionId, const QString &output);
 
 private:
-    QSharedPointer<QtVersion> m_version;
+    bool buildDebuggingHelper(QFutureInterface<void> &future, QString *output);
+
+    DebuggingHelperTools m_tools;
+
+    int m_qtId;
+    QString m_qtInstallData;
+    QString m_target;
+    QString m_qmakeCommand;
+    QString m_makeCommand;
+    QString m_mkspec;
+    Utils::Environment m_environment;
+    QString m_errorMessage;
 };
 
 } //namespace Internal

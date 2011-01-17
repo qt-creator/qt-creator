@@ -138,10 +138,7 @@ public:
     bool hasQmlObserver() const;
     Utils::Environment qmlToolsEnvironment() const;
 
-    // Builds a debugging library
-    // returns the output of the commands
-    bool buildDebuggingHelperLibrary(QFutureInterface<void> &future, bool onlyQmlDump,
-                                     QString *output, QString *errorMessage);
+    void invalidateCache();
 
     bool hasExamples() const;
     QString examplesPath() const;

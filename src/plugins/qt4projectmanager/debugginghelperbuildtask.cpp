@@ -32,13 +32,73 @@
 **************************************************************************/
 
 #include "debugginghelperbuildtask.h"
+#include "qmldumptool.h"
+#include "qmlobservertool.h"
+#include <projectexplorer/debugginghelper.h>
+#include <QCoreApplication>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
+using ProjectExplorer::DebuggingHelperLibrary;
 
-DebuggingHelperBuildTask::DebuggingHelperBuildTask(const QSharedPointer<QtVersion> &version) :
-    m_version(version)
+
+DebuggingHelperBuildTask::DebuggingHelperBuildTask(QtVersion *version, DebuggingHelperTools tools)
 {
+    //
+    // Extract all information we need from version, such that we don't depend on the existence
+    // of the version pointer while compiling
+    //
+    m_qtId = version->uniqueId();
+    m_qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
+    if (m_qtInstallData.isEmpty()) {
+        m_errorMessage
+                = QCoreApplication::translate(
+                    "QtVersion",
+                    "Cannot determine the installation path for Qt version '%1'."
+                    ).arg(version->displayName());
+        return;
+    }
+
+    m_environment = Utils::Environment::systemEnvironment();
+    version->addToEnvironment(m_environment);
+
+    // TODO: the debugging helper doesn't comply to actual tool chain yet
+    ProjectExplorer::ToolChain *tc = 0;
+    foreach (ProjectExplorer::ToolChainType toolChainType, version->possibleToolChainTypes()) {
+        tc = version->toolChain(toolChainType);
+        if (tc)
+            break;
+    }
+
+    if (!tc) {
+        m_errorMessage =
+                QCoreApplication::translate(
+                    "QtVersion",
+                    "The Qt Version has no toolchain.");
+        return;
+    }
+
+    tc->addToEnvironment(m_environment);
+
+    m_target = (tc->type() == ProjectExplorer::ToolChain_GCC_MAEMO ? QLatin1String("-unix")
+                                                                   : QLatin1String(""));
+    m_qmakeCommand = version->qmakeCommand();
+    m_makeCommand = tc->makeCommand();
+    m_mkspec = version->mkspec();
+
+    m_tools = tools;
+
+    // Check the build requirements of the tools
+    if (m_tools & QmlDump) {
+        if (!QmlDumpTool::canBuild(version)) {
+            m_tools ^= QmlDump;
+        }
+    }
+    if (m_tools & QmlObserver) {
+        if (!QmlObserverTool::canBuild(version)) {
+            m_tools ^= QmlObserver;
+        }
+    }
 }
 
 DebuggingHelperBuildTask::~DebuggingHelperBuildTask()
@@ -49,13 +109,56 @@ void DebuggingHelperBuildTask::run(QFutureInterface<void> &future)
 {
     future.setProgressRange(0, 5);
     future.setProgressValue(1);
+
     QString output;
-    QString errorMessage;
-    if (m_version->buildDebuggingHelperLibrary(future, false, &output, &errorMessage)) {
-        emit finished(m_version->displayName(), output);
+
+    bool success = false;
+    if (m_errorMessage.isEmpty()) // might be already set in constructor
+        success = buildDebuggingHelper(future, &output);
+
+    if (success) {
+        emit finished(m_qtId, output);
     } else {
-        qWarning("%s", qPrintable(errorMessage));
-        emit finished(m_version->displayName(), errorMessage);
+        qWarning("%s", qPrintable(m_errorMessage));
+        emit finished(m_qtId, m_errorMessage);
     }
+
     deleteLater();
+}
+
+bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &future, QString *output)
+{
+    if (m_tools & GdbDebugging) {
+        const QString gdbHelperDirectory = DebuggingHelperLibrary::copy(m_qtInstallData,
+                                                                        &m_errorMessage);
+        if (gdbHelperDirectory.isEmpty())
+            return false;
+        if (!DebuggingHelperLibrary::build(gdbHelperDirectory, m_makeCommand,
+                                           m_qmakeCommand, m_mkspec, m_environment,
+                                           m_target, output, &m_errorMessage))
+            return false;
+    }
+    future.setProgressValue(2);
+
+    if (m_tools & QmlDump) {
+        const QString qmlDumpToolDirectory = QmlDumpTool::copy(m_qtInstallData, &m_errorMessage);
+        if (qmlDumpToolDirectory.isEmpty())
+            return false;
+        if (!QmlDumpTool::build(qmlDumpToolDirectory, m_makeCommand, m_qmakeCommand, m_mkspec,
+                                m_environment, m_target, output, &m_errorMessage))
+            return false;
+    }
+    future.setProgressValue(3);
+
+    if (m_tools & QmlObserver) {
+        const QString qmlObserverDirectory = QmlObserverTool::copy(m_qtInstallData,
+                                                                   &m_errorMessage);
+        if (qmlObserverDirectory.isEmpty())
+            return false;
+        if (!QmlObserverTool::build(qmlObserverDirectory, m_makeCommand, m_qmakeCommand, m_mkspec,
+                                    m_environment, m_target, output, &m_errorMessage))
+            return false;
+    }
+    future.setProgressValue(4);
+    return true;
 }

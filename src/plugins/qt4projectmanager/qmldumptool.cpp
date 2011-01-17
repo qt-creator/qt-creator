@@ -35,6 +35,7 @@
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 #include "qtversionmanager.h"
+#include "debugginghelperbuildtask.h"
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -51,7 +52,10 @@
 #include <QHash>
 
 namespace {
+
 using namespace Qt4ProjectManager;
+using Qt4ProjectManager::Internal::DebuggingHelperBuildTask;
+
 
 class QmlDumpBuildTask;
 
@@ -64,33 +68,18 @@ class QmlDumpBuildTask : public QObject {
     Q_OBJECT
 public:
     explicit QmlDumpBuildTask(QtVersion *version)
-        : m_version(*version)
+        : m_buildTask(new DebuggingHelperBuildTask(version, DebuggingHelperBuildTask::QmlDump))
         , m_failed(false)
     {
         qmlDumpBuilds()->insert(m_version.uniqueId(), this);
+
+        connect(m_buildTask, SIGNAL(finished(int,QString)), this, SLOT(finish(int,QString)),
+                Qt::QueuedConnection);
     }
 
     void run(QFutureInterface<void> &future)
     {
-        future.setProgressRange(0, 5);
-        future.setProgressValue(1);
-        QString output;
-        QString errorMessage;
-        QString path;
-        if (m_version.buildDebuggingHelperLibrary(future, true, &output, &errorMessage)) {
-            const QString qtInstallData = m_version.versionInfo().value("QT_INSTALL_DATA");
-            path = QmlDumpTool::toolByInstallData(qtInstallData);
-            if (path.isEmpty())
-                errorMessage = QString::fromLatin1("Could not build QML plugin dumping helper for %1\nOutput:\n%2").
-                               arg(m_version.displayName(), output);
-        }
-        m_failed = path.isEmpty();
-        if (m_failed) {
-            qWarning("%s", qPrintable(errorMessage));
-        } else {
-            // proceed in gui thread
-            metaObject()->invokeMethod(this, "finish", Qt::QueuedConnection, Q_ARG(QString, path));
-        }
+        m_buildTask->run(future);
     }
 
     void updateProjectWhenDone(ProjectExplorer::Project *project)
@@ -103,11 +92,29 @@ public:
         return m_failed;
     }
 
-public slots:
-    void finish(QString qmldumpPath)
+private slots:
+    void finish(int qtId, const QString &output)
     {
-        deleteLater();
-        qmlDumpBuilds()->remove(m_version.uniqueId());
+        QtVersion *version = QtVersionManager::instance()->version(qtId);
+
+        QString errorMessage;
+        if (!version) {
+            m_failed = true;
+            errorMessage = QString::fromLatin1("Qt version became invalid");
+        } else {
+            version->invalidateCache();
+
+            if (version->qmlDumpTool().isEmpty()) {
+                m_failed = true;
+                errorMessage = QString::fromLatin1("Could not build QML plugin dumping helper for %1\n"
+                                                   "Output:\n%2").
+                        arg(version->displayName(), output);
+            }
+        }
+
+        if (m_failed) {
+            qWarning("%s", qPrintable(errorMessage));
+        }
 
         // update qmldump path for all the project
         QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
@@ -116,14 +123,19 @@ public slots:
 
         foreach (ProjectExplorer::Project *project, m_projectsToUpdate) {
             QmlJS::ModelManagerInterface::ProjectInfo projectInfo = modelManager->projectInfo(project);
-            projectInfo.qmlDumpPath = qmldumpPath;
-            projectInfo.qmlDumpEnvironment = m_version.qmlToolsEnvironment();
+            projectInfo.qmlDumpPath = version->qmlDumpTool();
+            projectInfo.qmlDumpEnvironment = version->qmlToolsEnvironment();
             modelManager->updateProjectInfo(projectInfo);
         }
+
+        // clean up
+        qmlDumpBuilds()->remove(qtId);
+        deleteLater();
     }
 
 private:
     QSet<ProjectExplorer::Project *> m_projectsToUpdate;
+    Internal::DebuggingHelperBuildTask *m_buildTask; // deletes itself after run()
     QtVersion m_version;
     bool m_failed;
 };

@@ -65,7 +65,6 @@ enum ModelRoles { BuildLogRole = Qt::UserRole, BuildRunningRole = Qt::UserRole +
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-
 ///
 // QtOptionsPage
 ///
@@ -288,21 +287,24 @@ QtVersion *QtOptionsPageWidget::currentVersion() const
     return 0;
 }
 
-static inline int findVersionByName(const QList<QSharedPointerQtVersion> &l, const QString &name)
+static inline int findVersionById(const QList<QSharedPointerQtVersion> &l, int id)
 {
     const int size = l.size();
     for (int i = 0; i < size; i++)
-        if (l.at(i)->displayName() == name)
+        if (l.at(i)->uniqueId() == id)
             return i;
     return -1;
 }
 
 // Update with results of terminated helper build
-void QtOptionsPageWidget::debuggingHelperBuildFinished(const QString &name, const QString &output)
+void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, const QString &output)
 {
-    const int index = findVersionByName(m_versions, name);
+    const int index = findVersionById(m_versions, qtVersionId);
     if (index == -1)
         return; // Oops, somebody managed to delete the version
+
+    m_versions.at(index)->invalidateCache();
+
     // Update item view
     QTreeWidgetItem *item = treeItemForIndex(index);
     QTC_ASSERT(item, return)
@@ -338,8 +340,9 @@ void QtOptionsPageWidget::buildDebuggingHelper()
     item->setData(2, BuildRunningRole, QVariant(true));
 
     // Run a debugging helper build task in the background.
-    DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(m_versions.at(index));
-    connect(buildTask, SIGNAL(finished(QString,QString)), this, SLOT(debuggingHelperBuildFinished(QString,QString)),
+    DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(m_versions.at(index).data(),
+                                                                       DebuggingHelperBuildTask::AllTools);
+    connect(buildTask, SIGNAL(finished(int,QString)), this, SLOT(debuggingHelperBuildFinished(int,QString)),
             Qt::QueuedConnection);
     QFuture<void> task = QtConcurrent::run(&DebuggingHelperBuildTask::run, buildTask);
     const QString taskName = tr("Building helpers");

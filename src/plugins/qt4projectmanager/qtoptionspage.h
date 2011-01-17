@@ -34,6 +34,7 @@
 #define QTOPTIONSPAGE_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/environment.h>
 
 #include <QtCore/QSharedPointer>
 #include <QtCore/QFutureInterface>
@@ -112,7 +113,7 @@ private slots:
     void msvcVersionChanged();
     void buildDebuggingHelper();
     void slotShowDebuggingBuildLog();
-    void debuggingHelperBuildFinished(const QString &versionName, const QString &output);
+    void debuggingHelperBuildFinished(int qtVersionId, const QString &output);
 
 private:
     void showDebuggingBuildLog(const QTreeWidgetItem *currentItem);
