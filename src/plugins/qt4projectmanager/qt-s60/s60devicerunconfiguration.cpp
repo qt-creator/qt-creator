@@ -79,7 +79,7 @@ const char * const PRO_FILE_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.Pro
 const char * const COMMUNICATION_TYPE_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.CommunicationType");
 const char * const COMMAND_LINE_ARGUMENTS_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.CommandLineArguments");
 
-const int    PROGRESS_MAX = 200;
+const int PROGRESS_MAX = 200;
 
 enum { debug = 0 };
 
@@ -760,6 +760,9 @@ void S60DeviceRunControl::slotTcftrkEvent(const TcfTrkEvent &event)
     case TcfTrkEvent::RunControlModuleLoadSuspended:
         handleModuleLoadSuspended(event);
         break;
+    case TcfTrkEvent::LoggingWriteEvent:
+        handleLogging(event);
+        break;
     default:
         if (debug)
             qDebug() << __FUNCTION__ << "Event not handled" << event.type();
@@ -769,7 +772,6 @@ void S60DeviceRunControl::slotTcftrkEvent(const TcfTrkEvent &event)
 
 void S60DeviceRunControl::initCommunication()
 {
-    m_tcfTrkDevice->sendSettingsEnableLogCommand();
     m_tcfTrkDevice->sendLoggingAddListenerCommand(TcfTrkCallback(this, &S60DeviceRunControl::handleAddListener));
 }
 
@@ -821,6 +823,12 @@ void S60DeviceRunControl::handleModuleLoadSuspended(const TcfTrkEvent &event)
     const TcfModuleLoadSuspendedEvent &me = static_cast<const TcfModuleLoadSuspendedEvent &>(event);
     if (me.info().requireResume)
         m_tcfTrkDevice->sendRunControlResumeCommand(TcfTrkCallback(), me.id());
+}
+
+void S60DeviceRunControl::handleLogging(const TcfTrkEvent &event)
+{
+    const TcfTrkLoggingWriteEvent &me = static_cast<const TcfTrkLoggingWriteEvent &>(event);
+    appendMessage(me.message(), StdOutFormat);
 }
 
 void S60DeviceRunControl::handleAddListener(const TcfTrkCommandResult &result)

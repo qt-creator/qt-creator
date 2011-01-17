@@ -177,7 +177,7 @@ protected slots:
     void deviceRemoved(const SymbianUtils::SymbianDevice &);
     void reportLaunchFinished();
 
-     void finishRunControl();
+    void finishRunControl();
 
 private slots:
     void processStopped(uint pc, uint pid, uint tid, const QString& reason);
@@ -205,6 +205,7 @@ private:
     void handleContextSuspended(const tcftrk::TcfTrkEvent &event);
     void handleContextAdded(const tcftrk::TcfTrkEvent &event);
     void handleContextRemoved(const tcftrk::TcfTrkEvent &event);
+    void handleLogging(const tcftrk::TcfTrkEvent &event);
 
 private:
     void handleCreateProcess(const tcftrk::TcfTrkCommandResult &result);
