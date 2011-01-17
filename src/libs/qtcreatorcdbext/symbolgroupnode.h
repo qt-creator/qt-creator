@@ -230,6 +230,7 @@ public:
     // For root nodes, only: Add a new symbol by name
     SymbolGroupNode *addSymbolByName(const std::string &module,
                                      const std::string &name,  // Expression like 'myarray[1]'
+                                     const std::string &displayName,  // Name to be displayed, defaults to name
                                      const std::string &iname, // Desired iname, defaults to name
                                      std::string *errorMessage);
 

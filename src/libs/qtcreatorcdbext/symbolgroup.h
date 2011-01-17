@@ -98,8 +98,14 @@ public:
     bool typeCast(const std::string &iname, const std::string &desiredType, std::string *errorMessage);
     // Add a symbol by name expression
     SymbolGroupNode *addSymbol(const std::string &module,
-                               const std::string &name, // Expression like 'myarray[1]'
+                               const std::string &name,        // Expression like 'myarray[1]'
+                               const std::string &displayName, // Name to be displayed, defaults to name
                                const std::string &iname, // Desired iname, defaults to name
+                               std::string *errorMessage);
+    // Convenience overload for name==displayName
+    SymbolGroupNode *addSymbol(const std::string &module,
+                               const std::string &name, // Expression like 'myarray[1]'
+                               const std::string &iname,
                                std::string *errorMessage);
 
     bool accept(SymbolGroupNodeVisitor &visitor) const;
@@ -166,16 +172,19 @@ public:
     static const char *watchInamePrefix;
 
     // Add a symbol as 'watch.0' or '0' with expression
-    bool addWatch(std::string iname, const std::string &expression, std::string *errorMessage);
+    bool addWatch(CIDebugSymbols *s, std::string iname, const std::string &expression, std::string *errorMessage);
     // Synchronize watches passing on a map of '0' -> '*(int *)(0xA0)'
-    bool synchronize(const InameExpressionMap &m, std::string *errorMessage);
+    bool synchronize(CIDebugSymbols *s, const InameExpressionMap &m, std::string *errorMessage);
 
     static WatchesSymbolGroup *create(CIDebugSymbols *, std::string *errorMessage);
+
+    static inline std::string fixWatchExpression(CIDebugSymbols *s, const std::string &ex);
 
 private:
     explicit WatchesSymbolGroup(CIDebugSymbolGroup *);
     InameExpressionMap currentInameExpressionMap() const;
     inline SymbolGroupNode *rootChildByIname(const std::string &iname) const;
+    static inline std::string fixWatchExpressionI(CIDebugSymbols *s, const std::string &ex);
 };
 
 #endif // SYMBOLGROUP_H

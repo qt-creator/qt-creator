@@ -155,7 +155,7 @@ static const CommandDescription commandDescriptions[] = {
 {"stack","Prints stack in GDBMI format.","[-t token] [max-frames]"},
 {"shutdownex","Unhooks output callbacks.\nNeeds to be called explicitly only in case of remote debugging.",""},
 {"addwatch","Add watch expression","<iname> <expression>"},
-{"test","Testing command","-T type"}
+{"test","Testing command","-T type | -w watch-expression"}
 };
 
 typedef std::vector<std::string> StringVector;
@@ -484,7 +484,7 @@ static std::string commmandLocals(ExtensionCommandContext &commandExtCtx,PCSTR a
         } else {
             // Force group into existence
             watchesSymbolGroup = extCtx.watchesSymbolGroup(commandExtCtx.symbols(), errorMessage);
-            if (!watchesSymbolGroup || !watchesSymbolGroup->synchronize(watcherInameExpressionMap, errorMessage))
+            if (!watchesSymbolGroup || !watchesSymbolGroup->synchronize(commandExtCtx.symbols(), watcherInameExpressionMap, errorMessage))
                 return std::string();
         }
     }
@@ -732,7 +732,7 @@ extern "C" HRESULT CALLBACK addwatch(CIDebugClient *client, PCSTR argsIn)
         WatchesSymbolGroup *watchesSymGroup = ExtensionContext::instance().watchesSymbolGroup(exc.symbols(), &errorMessage);
         if (!watchesSymGroup)
             break;
-        success = watchesSymGroup->addWatch(iname, watchExpression, &errorMessage);
+        success = watchesSymGroup->addWatch(exc.symbols(), iname, watchExpression, &errorMessage);
     } while (false);
 
     if (success) {
@@ -945,7 +945,7 @@ extern "C" HRESULT CALLBACK shutdownex(CIDebugClient *, PCSTR)
 
 extern "C" HRESULT CALLBACK test(CIDebugClient *client, PCSTR argsIn)
 {
-    enum Mode { Invalid, TestType };
+    enum Mode { Invalid, TestType, TestFixWatchExpression };
     ExtensionCommandContext exc(client);
 
     std::string testType;
@@ -964,6 +964,13 @@ extern "C" HRESULT CALLBACK test(CIDebugClient *client, PCSTR argsIn)
                 tokens.pop_front();
             }
             break;
+        case 'w':
+            mode = TestFixWatchExpression;
+            if (!tokens.empty()) {
+                testType = tokens.front();
+                tokens.pop_front();
+            }
+            break;
         } // case option
     }  // for options
 
@@ -971,11 +978,21 @@ extern "C" HRESULT CALLBACK test(CIDebugClient *client, PCSTR argsIn)
     if (mode == Invalid || testType.empty()) {
         ExtensionContext::instance().report('N', token, 0, "test", singleLineUsage(commandDescriptions[CmdTest]).c_str());
     } else {
-        const KnownType kt = knownType(testType, 0);
         std::ostringstream str;
-        str << testType << ' ' << kt << " [";
-        formatKnownTypeFlags(str, kt);
-        str << ']';
+        switch (mode) {
+        case Invalid:
+            break;
+        case TestType: {
+            const KnownType kt = knownType(testType, 0);
+            str << testType << ' ' << kt << " [";
+            formatKnownTypeFlags(str, kt);
+            str << ']';
+        }
+            break;
+        case TestFixWatchExpression:
+            str << testType << " -> " << WatchesSymbolGroup::fixWatchExpression(exc.symbols(), testType);
+            break;
+        }
         ExtensionContext::instance().reportLong('R', token, "test", str.str());
     }
     return S_OK;

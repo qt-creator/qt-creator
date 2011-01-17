@@ -40,6 +40,7 @@
 #include <algorithm>
 #include <iterator>
 #include <memory>
+#include <cctype>
 
 typedef std::vector<int>::size_type VectorIndexType;
 typedef std::vector<std::string> StringVector;
@@ -399,9 +400,19 @@ bool SymbolGroup::typeCast(const std::string &iname, const std::string &desiredT
     return node->typeCast(desiredType, errorMessage);
 }
 
-SymbolGroupNode *SymbolGroup::addSymbol(const std::string &module, const std::string &name, const std::string &iname, std::string *errorMessage)
+SymbolGroupNode *SymbolGroup::addSymbol(const std::string &module,
+                                        const std::string &name,
+                                        const std::string &displayName,
+                                        const std::string &iname,
+                                        std::string *errorMessage)
 {
-    return m_root->addSymbolByName(module, name, iname, errorMessage);
+    return m_root->addSymbolByName(module, name, displayName, iname, errorMessage);
+}
+
+SymbolGroupNode *SymbolGroup::addSymbol(const std::string &module, const std::string &name,
+                                        const std::string &iname, std::string *errorMessage)
+{
+    return addSymbol(module, name, std::string(), iname, errorMessage);
 }
 
 // Mark uninitialized (top level only)
@@ -606,7 +617,138 @@ WatchesSymbolGroup::WatchesSymbolGroup(CIDebugSymbolGroup *sg) :
 {
 }
 
-bool WatchesSymbolGroup::addWatch(std::string iname, const std::string &expression, std::string *errorMessage)
+/* Helpers for parsing a watch expression of the form "*(<type>[ ]*[*])0xaddress"
+ * (like '*(Foo*)0x47b' that is created by our dumpers or for the case the users
+ * inputs something similar. The position of the data type is determined so that
+ * it can be qualified by the module to make the expressions faster ('*(MyModule!Foo*)0x47b').
+ * The checking should be somewhat strict since the user can input arbitrary stuff.
+ * Lacking regular expression support, use a small state machine. */
+
+enum WatchExpressionParseState
+{
+    WEPS_Error,
+    WEPS_WithinType,
+    WEPS_WithinBlanksAfterType,
+    WEPS_WithinAsterisksAfterType,
+    WEPS_AtParenthesisAfterType,
+    WEPS_WithinAddress
+};
+
+static inline WatchExpressionParseState
+    nextWatchExpressionParseState(WatchExpressionParseState s, char c, unsigned *templateLevel)
+{
+    switch (s) {
+    case WEPS_Error:
+        break;
+    case WEPS_WithinType:
+        switch (c) {
+        case '<':
+            (*templateLevel)++;
+            return WEPS_WithinType;
+        case '>':
+            (*templateLevel)--;
+            return WEPS_WithinType;
+        case ' ':
+            return *templateLevel ? WEPS_WithinType : WEPS_WithinBlanksAfterType;
+        case '*':
+            return WEPS_WithinAsterisksAfterType;
+        case ',':
+            return *templateLevel ? WEPS_WithinType : WEPS_Error;
+        case ':':
+        case '_':
+            return WEPS_WithinType;
+        default:
+            if (std::isalnum(c))
+                return WEPS_WithinType;
+            break;
+        }
+        break;
+    case WEPS_WithinBlanksAfterType:
+        if (c == ' ')
+            return WEPS_WithinBlanksAfterType;
+        if (c == '*')
+            return WEPS_WithinAsterisksAfterType;
+        break;
+    case WEPS_WithinAsterisksAfterType:
+        if (c == '*')
+            return WEPS_WithinAsterisksAfterType;
+        if (c == ')')
+            return WEPS_AtParenthesisAfterType;
+        break;
+    case WEPS_AtParenthesisAfterType:
+        if (c == '0')
+            return WEPS_WithinAddress;
+        break;
+    case WEPS_WithinAddress:
+        if (std::isdigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || c == 'x')
+            return WEPS_WithinAddress;
+        break;
+    }
+    return WEPS_Error;
+}
+
+static bool parseWatchExpression(const std::string &expression,
+                                 std::string::size_type *typeStart, std::string::size_type *typeEnd)
+{
+    *typeStart = *typeEnd = std::string::npos;
+    if (expression.size() < 3 || expression.compare(0, 2, "*(") || expression.find("*)0x") == std::string::npos)
+        return false;
+    unsigned templateLevel = 0;
+    const std::string::size_type size = expression.size();
+    WatchExpressionParseState state = WEPS_WithinType;
+    std::string::size_type pos = 2;
+    *typeStart = pos;
+    for ( ; pos < size ; pos++) {
+        const char c = expression.at(pos);
+        const WatchExpressionParseState nextState = nextWatchExpressionParseState(state, c, &templateLevel);
+        DebugPrint() <<         c << ' ' << pos << ' ' << state << ' ' << nextState <<  ' ' << templateLevel;
+        if (nextState == WEPS_Error)
+            return false;
+        if (nextState != state && state == WEPS_WithinType)
+            *typeEnd = pos;
+        state = nextState;
+    }
+    return state == WEPS_WithinAddress;
+}
+
+std::string WatchesSymbolGroup::fixWatchExpressionI(CIDebugSymbols *s, const std::string &expression)
+{
+    // Fix a symbol of the form "*(<type>[ ]*[*])0xaddress"
+    // to be qualified by the module "*(module!<type>[ ]*[*])0xaddress"
+    if (expression.find('!') != std::string::npos)
+        return expression;
+    // Check if it matches the form
+    std::string::size_type typeStartPos;
+    std::string::size_type typeEndPos;
+    if (!parseWatchExpression(expression, &typeStartPos, &typeEndPos))
+        return expression;
+    std::string type = expression.substr(typeStartPos, typeEndPos - typeStartPos);
+    trimFront(type);
+    trimBack(type);
+    // Do not qualify POD types
+    const KnownType kt = knownType(type, 0);
+    if (kt & KT_POD_Type)
+        return expression;
+    SymbolGroupValueContext ctx;
+    ctx.symbols = s;
+    const std::string resolved = SymbolGroupValue::resolveType(type, ctx);
+    if (resolved.empty() || resolved == type)
+        return expression;
+    std::string fixed = expression;
+    fixed.replace(typeStartPos, typeEndPos - typeStartPos, resolved);
+    return fixed;
+}
+
+// Wrapper with debug output.
+std::string WatchesSymbolGroup::fixWatchExpression(CIDebugSymbols *s, const std::string &expression)
+{
+    const std::string fixed = fixWatchExpressionI(s, expression);
+    if (SymbolGroupValue::verbose)
+        DebugPrint() << ">WatchesSymbolGroup::fixWatchExpression " << expression << " -> " << fixed;
+    return fixed;
+}
+
+bool WatchesSymbolGroup::addWatch(CIDebugSymbols *s, std::string iname, const std::string &expression, std::string *errorMessage)
 {
     // "watch.0" -> "0"
     const size_t prefLen = std::strlen(WatchesSymbolGroup::watchInamePrefix);
@@ -615,8 +757,10 @@ bool WatchesSymbolGroup::addWatch(std::string iname, const std::string &expressi
     // Already in?
     if (root()->childByIName(iname.c_str()))
         return true;
-    // TODO: Figure out module
-    SymbolGroupNode *node = addSymbol(std::string(), expression, iname, errorMessage);
+    // Resolve the expressions, but still display the original name obtained to
+    // avoid cycles re-adding symbols
+    SymbolGroupNode *node = addSymbol(std::string(), fixWatchExpression(s, expression),
+                                      expression, iname, errorMessage);
     if (!node)
         return false;
     node->addFlags(SymbolGroupNode::WatchNode);
@@ -637,7 +781,7 @@ WatchesSymbolGroup::InameExpressionMap
 }
 
 // Synchronize watches passing on a map of '0' -> '*(int *)(0xA0)'
-bool WatchesSymbolGroup::synchronize(const InameExpressionMap &newInameExpMap, std::string *errorMessage)
+bool WatchesSymbolGroup::synchronize(CIDebugSymbols *s, const InameExpressionMap &newInameExpMap, std::string *errorMessage)
 {
     typedef std::set<std::string> StringSet;
     typedef InameExpressionMap::const_iterator InameExpressionMapConstIt;
@@ -684,7 +828,7 @@ bool WatchesSymbolGroup::synchronize(const InameExpressionMap &newInameExpMap, s
     if (!addMap.empty()) {
         const InameExpressionMapConstIt acend = addMap.end();
         for (InameExpressionMapConstIt it = addMap.begin(); it != acend; ++it) {
-            const bool success = addWatch(it->first, it->second, errorMessage);
+            const bool success = addWatch(s, it->first, it->second, errorMessage);
             if (SymbolGroupValue::verbose)
                 DebugPrint() << " Adding " << it->first << ',' << it->second << ",success=" << success;
             if (!success)

@@ -961,7 +961,7 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
         }
     }
     // No children..suppose we are editable and enabled
-    if (childCountGuess != 0)
+    if (childCountGuess != 0 || (m_parameters.Flags & DEBUG_SYMBOL_READ_ONLY) != 0)
         valueEditable = false;
     str << ",valueenabled=\"" << (valueEnabled ? "true" : "false") << '"'
         << ",valueeditable=\"" << (valueEditable ? "true" : "false") << '"';
@@ -1164,6 +1164,7 @@ static inline std::string msgCannotAddSymbol(const std::string &name, const std:
 // For root nodes, only: Add a new symbol by name
 SymbolGroupNode *SymbolGroupNode::addSymbolByName(const std::string &module,
                                                   const std::string &name,
+                                                  const std::string &displayName,
                                                   const std::string &iname,
                                                   std::string *errorMessage)
 {
@@ -1194,7 +1195,9 @@ SymbolGroupNode *SymbolGroupNode::addSymbolByName(const std::string &module,
         return 0;
     }
     SymbolGroupNode *node = new SymbolGroupNode(m_symbolGroup, index,
-                                                module, name, iname.empty() ? name : iname);
+                                                module,
+                                                displayName.empty() ? name : displayName,
+                                                iname.empty() ? name : iname);
     node->parseParameters(0, 0, parameters);
     node->addFlags(AdditionalSymbol);
     addChild(node);
