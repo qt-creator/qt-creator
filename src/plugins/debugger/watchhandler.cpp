@@ -260,19 +260,36 @@ static QString niceTypeHelper(const QByteArray &typeIn)
     return simplified;
 }
 
+static QString removeNamespaces(QString str, const QByteArray &ns)
+{
+    if (!debuggerCore()->boolSetting(ShowStdNamespace))
+        str.remove(QLatin1String("std::"));
+    if (!debuggerCore()->boolSetting(ShowQtNamespace)) {
+        const QString qtNamespace = QString::fromLatin1(ns);
+        if (!qtNamespace.isEmpty())
+            str.remove(qtNamespace);
+    }
+    return str;
+}
+
+static QString removeInitialNamespace(QString str, const QByteArray &ns)
+{
+    if (str.startsWith(QLatin1String("std::"))
+            && debuggerCore()->boolSetting(ShowStdNamespace))
+        str = str.mid(5);
+    if (!debuggerCore()->boolSetting(ShowQtNamespace)) {
+        const QString qtNamespace = QString::fromLatin1(ns);
+        if (!qtNamespace.isEmpty() && str.startsWith(qtNamespace))
+            str = str.mid(qtNamespace.size());
+    }
+    return str;
+}
+
 QString WatchModel::displayType(const WatchData &data) const
 {
-    if (!data.displayedType.isEmpty())
-        return data.displayedType;
-    QString type = niceTypeHelper(data.type);
-    if (!debuggerCore()->boolSetting(ShowStdNamespace))
-        type.remove(QLatin1String("std::"));
-    if (!debuggerCore()->boolSetting(ShowQtNamespace)) {
-        const QString qtNamespace = QString::fromLatin1(engine()->qtNamespace());
-        if (!qtNamespace.isEmpty())
-            type.remove(qtNamespace);
-    }
-    return type;
+    return data.displayedType.isEmpty()
+        ? niceTypeHelper(data.type)
+        : data.displayedType;
 }
 
 static inline int formatToIntegerBase(int format)
@@ -600,25 +617,30 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             case 1:
                 return editValue(data);
             case 2:
-                if (!data.displayedType.isEmpty()) // To be tested: Can debuggers handle those?
+                // FIXME:: To be tested: Can debuggers handle those?
+                if (!data.displayedType.isEmpty())
                     return data.displayedType;
                 return QString::fromUtf8(data.type);
             default: break;
             } // switch editrole column
-        case Qt::DisplayRole:
+        case Qt::DisplayRole: {
+            const QByteArray ns = engine()->qtNamespace();
             switch (idx.column()) {
                 case 0:
                     if (data.name.isEmpty())
                         return tr("<Edit>");
                     if (data.name == QLatin1String("*") && item->parent)
                         return QVariant(QLatin1Char('*') + item->parent->name);
-                    return data.name;
+                    return removeInitialNamespace(data.name, ns);
                 case 1:
-                    return truncateValue(formattedValue(data, itemFormat(data)));
+                    return removeInitialNamespace(truncateValue(
+                            formattedValue(data, itemFormat(data))), ns);
                 case 2:
-                    return displayType(data);
-                default: break;
+                    return removeNamespaces(displayType(data), ns);
+                default:
+                    break;
             }  // switch editrole column
+        }
         case Qt::ToolTipRole:
             return debuggerCore()->boolSetting(UseToolTipsInLocalsView)
                 ? data.toToolTip() : QVariant();
