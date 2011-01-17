@@ -77,6 +77,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     pes.cleanOldAppOutput = m_ui.cleanOldAppOutputCheckBox->isChecked();
     pes.wrapAppOutput = m_ui.wrapAppOutputCheckBox->isChecked();
     pes.useJom = m_ui.jomCheckbox->isChecked();
+    pes.prompToStopRunControl = m_ui.promptToStopRunControlCheckBox->isChecked();
     return pes;
 }
 
@@ -90,6 +91,7 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.cleanOldAppOutputCheckBox->setChecked(pes.cleanOldAppOutput);
     m_ui.wrapAppOutputCheckBox->setChecked(pes.wrapAppOutput);
     m_ui.jomCheckbox->setChecked(pes.useJom);
+    m_ui.promptToStopRunControlCheckBox->setChecked(pes.prompToStopRunControl);
 }
 
 QString ProjectExplorerSettingsWidget::projectsDirectory() const

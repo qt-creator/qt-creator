@@ -124,6 +124,16 @@ void CheckableMessageBox::setCheckBoxText(const QString &t)
     m_d->ui.checkBox->setText(t);
 }
 
+bool CheckableMessageBox::isCheckBoxVisible() const
+{
+    return m_d->ui.checkBox->isVisible();
+}
+
+void CheckableMessageBox::setCheckBoxVisible(bool v)
+{
+    m_d->ui.checkBox->setVisible(v);
+}
+
 QDialogButtonBox::StandardButtons CheckableMessageBox::standardButtons() const
 {
     return m_d->ui.buttonBox->standardButtons();
@@ -132,6 +142,16 @@ QDialogButtonBox::StandardButtons CheckableMessageBox::standardButtons() const
 void CheckableMessageBox::setStandardButtons(QDialogButtonBox::StandardButtons s)
 {
     m_d->ui.buttonBox->setStandardButtons(s);
+}
+
+QPushButton *CheckableMessageBox::button(QDialogButtonBox::StandardButton b) const
+{
+    return m_d->ui.buttonBox->button(b);
+}
+
+QPushButton *CheckableMessageBox::addButton(const QString &text, QDialogButtonBox::ButtonRole role)
+{
+    return m_d->ui.buttonBox->addButton(text, role);
 }
 
 QDialogButtonBox::StandardButton CheckableMessageBox::defaultButton() const

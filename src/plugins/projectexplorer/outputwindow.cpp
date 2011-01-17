@@ -183,14 +183,14 @@ int OutputPane::tabWidgetIndexOf(int runControlIndex) const
 bool OutputPane::aboutToClose() const
 {
     foreach(const RunControlTab &rt, m_runControlTabs)
-        if (rt.runControl->isRunning() && !rt.runControl->aboutToStop())
+        if (rt.runControl->isRunning() && !rt.runControl->promptToStop())
             return false;
     return true;
 }
 
 void OutputPane::aboutToUnloadSession()
 {
-    closeTabs(true);
+    closeTabs(CloseTabWithPrompt);
 }
 
 QWidget *OutputPane::outputWidget(QWidget *)
@@ -309,18 +309,18 @@ void OutputPane::stopRunControl()
     QTC_ASSERT(index != -1 && m_runControlTabs.at(index).runControl->isRunning(), return;)
 
     RunControl *rc = m_runControlTabs.at(index).runControl;
-    if (rc->isRunning() && rc->aboutToStop())
+    if (rc->isRunning() && optionallyPromptToStop(rc))
         rc->stop();
 
     if (debug)
         qDebug() << "OutputPane::stopRunControl " << rc;
 }
 
-bool OutputPane::closeTabs(bool prompt)
+bool OutputPane::closeTabs(CloseTabMode mode)
 {
     bool allClosed = true;
     for (int t = m_tabWidget->count() - 1; t >= 0; t--)
-        if (!closeTab(t, prompt))
+        if (!closeTab(t, mode))
             allClosed = false;
     if (debug)
         qDebug() << "OutputPane::closeTabs() returns " << allClosed;
@@ -329,10 +329,10 @@ bool OutputPane::closeTabs(bool prompt)
 
 bool OutputPane::closeTab(int index)
 {
-    return closeTab(index, true);
+    return closeTab(index, CloseTabWithPrompt);
 }
 
-bool OutputPane::closeTab(int tabIndex, bool prompt)
+bool OutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
 {
     const int index = indexOf(m_tabWidget->widget(tabIndex));
     QTC_ASSERT(index != -1, return true;)
@@ -344,8 +344,14 @@ bool OutputPane::closeTab(int tabIndex, bool prompt)
                         << tab.window << tab.asyncClosing;
     // Prompt user to stop
     if (tab.runControl->isRunning()) {
-        if (prompt && !tab.runControl->aboutToStop())
-            return false;
+        switch (closeTabMode) {
+        case CloseTabNoPrompt:
+            break;
+        case CloseTabWithPrompt:
+            if (!tab.runControl->promptToStop())
+                return false;
+            break;
+        }
         if (tab.runControl->stop() == RunControl::AsynchronousStop) {
             tab.asyncClosing = true;
             return false;
@@ -360,6 +366,16 @@ bool OutputPane::closeTab(int tabIndex, bool prompt)
     }
     delete tab.window;
     m_runControlTabs.removeAt(index);
+    return true;
+}
+
+bool OutputPane::optionallyPromptToStop(RunControl *runControl)
+{
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+    ProjectExplorerSettings settings = pe->projectExplorerSettings();
+    if (!runControl->promptToStop(&settings.prompToStopRunControl))
+        return false;
+    pe->setProjectExplorerSettings(settings);
     return true;
 }
 
@@ -415,7 +431,7 @@ void OutputPane::runControlFinished()
     }
     // Check for asynchronous close. Close the tab.
     if (m_runControlTabs.at(senderIndex).asyncClosing)
-        closeTab(tabWidgetIndexOf(senderIndex), false);
+        closeTab(tabWidgetIndexOf(senderIndex), CloseTabNoPrompt);
 
     if (!isRunning())
         emit allRunControlsFinished();

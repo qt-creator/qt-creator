@@ -832,6 +832,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         d->m_projectExplorerSettings.wrapAppOutput = s->value("ProjectExplorer/Settings/WrapAppOutput", true).toBool();
         d->m_projectExplorerSettings.useJom = s->value("ProjectExplorer/Settings/UseJom", true).toBool();
         d->m_projectExplorerSettings.autorestoreLastSession = s->value("ProjectExplorer/Settings/AutoRestoreLastSession", false).toBool();
+        d->m_projectExplorerSettings.prompToStopRunControl = s->value("ProjectExplorer/Settings/PromptToStopRunControl", false).toBool();
         d->m_projectExplorerSettings.environmentId = QUuid(s->value("ProjectExplorer/Settings/EnvironmentId").toString());
         if (d->m_projectExplorerSettings.environmentId.isNull())
             d->m_projectExplorerSettings.environmentId = QUuid::createUuid();
@@ -988,7 +989,7 @@ ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     // Attempt to synchronously shutdown all run controls.
     // If that fails, fall back to asynchronous shutdown (Debugger run controls
     // might shutdown asynchronously).
-    if (d->m_outputPane->closeTabs(false /* No prompt any more */))
+    if (d->m_outputPane->closeTabs(OutputPane::CloseTabNoPrompt /* No prompt any more */))
         return SynchronousShutdown;
     connect(d->m_outputPane, SIGNAL(allRunControlsFinished()),
             this, SIGNAL(asynchronousShutdownFinished()));
@@ -1092,6 +1093,7 @@ void ProjectExplorerPlugin::savePersistentSettings()
         s->setValue("ProjectExplorer/Settings/WrapAppOutput", d->m_projectExplorerSettings.wrapAppOutput);
         s->setValue("ProjectExplorer/Settings/UseJom", d->m_projectExplorerSettings.useJom);
         s->setValue("ProjectExplorer/Settings/AutoRestoreLastSession", d->m_projectExplorerSettings.autorestoreLastSession);
+        s->setValue("ProjectExplorer/Settings/PromptToStopRunControl", d->m_projectExplorerSettings.prompToStopRunControl);
         s->setValue("ProjectExplorer/Settings/EnvironmentId", d->m_projectExplorerSettings.environmentId.toString());
     }
 }

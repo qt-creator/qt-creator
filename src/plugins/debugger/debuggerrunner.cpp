@@ -469,20 +469,19 @@ void DebuggerRunControl::showMessage(const QString &msg, int channel)
     }
 }
 
-bool DebuggerRunControl::aboutToStop() const
+bool DebuggerRunControl::promptToStop(bool *optionalPrompt) const
 {
     QTC_ASSERT(isRunning(), return true;)
+
+    if (optionalPrompt && !*optionalPrompt)
+        return true;
 
     const QString question = tr("A debugging session is still in progress. "
             "Terminating the session in the current"
             " state can leave the target in an inconsistent state."
             " Would you still like to terminate it?");
-
-    const QMessageBox::StandardButton answer =
-            QMessageBox::question(debuggerCore()->mainWindow(),
-                                  tr("Close Debugging Session"), question,
-                                  QMessageBox::Yes|QMessageBox::No);
-    return answer == QMessageBox::Yes;
+    return showPromptToStopDialog(tr("Close Debugging Session"), question,
+                                  QString(), QString(), optionalPrompt);
 }
 
 RunControl::StopResult DebuggerRunControl::stop()

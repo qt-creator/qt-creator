@@ -46,7 +46,7 @@ struct ProjectExplorerSettings
         saveBeforeBuild(false), showCompilerOutput(false),
         showRunOutput(true), cleanOldAppOutput(false),
         wrapAppOutput(true), useJom(true),
-        autorestoreLastSession(false)
+        autorestoreLastSession(false), prompToStopRunControl(false)
     { }
 
     bool buildBeforeDeploy;
@@ -58,6 +58,7 @@ struct ProjectExplorerSettings
     bool wrapAppOutput;
     bool useJom;
     bool autorestoreLastSession; // This option is set in the Session Manager!
+    bool prompToStopRunControl;
 
     // Add a UUid which is used to identify the development environment.
     // This is used to warn the user when he is trying to open a .user file that was created
@@ -75,9 +76,9 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.cleanOldAppOutput == p2.cleanOldAppOutput
             && p1.wrapAppOutput == p2.wrapAppOutput
             && p1.useJom == p2.useJom
-            && p1.autorestoreLastSession == p2.autorestoreLastSession;
+            && p1.autorestoreLastSession == p2.autorestoreLastSession
+            && p1.prompToStopRunControl == p2.prompToStopRunControl;
 }
-
 
 } // namespace ProjectExplorer
 } // namespace Internal

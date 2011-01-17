@@ -70,6 +70,11 @@ class OutputPane : public Core::IOutputPane
     Q_OBJECT
 
 public:
+    enum CloseTabMode {
+        CloseTabNoPrompt,
+        CloseTabWithPrompt
+    };
+
     OutputPane();
     virtual ~OutputPane();
 
@@ -93,7 +98,7 @@ public:
     void showTabFor(RunControl *rc);
 
     bool aboutToClose() const;
-    bool closeTabs(bool prompt);
+    bool closeTabs(CloseTabMode mode);
 
 signals:
      void allRunControlsFinished();
@@ -126,7 +131,8 @@ private:
     };
 
     bool isRunning() const;
-    bool closeTab(int index, bool prompt);
+    bool closeTab(int index, CloseTabMode cm);
+    bool optionallyPromptToStop(RunControl *runControl);
 
     int indexOf(const RunControl *) const;
     int indexOf(const QWidget *outputWindow) const;

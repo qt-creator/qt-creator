@@ -38,15 +38,18 @@
 #include "target.h"
 #include "buildconfiguration.h"
 #include "projectexplorerconstants.h"
-
 #include <extensionsystem/pluginmanager.h>
-#include <coreplugin/icore.h>
+
 #include <utils/qtcassert.h>
+#include <utils/checkablemessagebox.h>
+
+#include <coreplugin/icore.h>
 
 #include <QtCore/QTimer>
+#include <QtCore/QSettings>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
-#include <QtGui/QAbstractButton>
+#include <QtGui/QPushButton>
 
 #ifdef Q_OS_MAC
 #include <Carbon/Carbon.h>
@@ -320,20 +323,50 @@ QString RunControl::displayName() const
     return m_displayName;
 }
 
-bool RunControl::aboutToStop() const
+bool RunControl::promptToStop(bool *optionalPrompt) const
 {
     QTC_ASSERT(isRunning(), return true;)
 
-    QMessageBox messageBox(QMessageBox::Warning,
-                           tr("Application Still Running"),
-                           tr("%1 is still running.").arg(displayName()),
-                           QMessageBox::Cancel | QMessageBox::Yes,
-                           Core::ICore::instance()->mainWindow());
-    messageBox.setInformativeText(tr("Force it to quit?"));
-    messageBox.setDefaultButton(QMessageBox::Yes);
-    messageBox.button(QMessageBox::Yes)->setText(tr("Force Quit"));
-    messageBox.button(QMessageBox::Cancel)->setText(tr("Keep Running"));
-    return messageBox.exec() == QMessageBox::Yes;
+    if (optionalPrompt && !*optionalPrompt)
+        return true;
+
+    const QString msg = tr("<html><head/><body><center><i>%1</i> is still running.<center/>"
+                           "<center>Force it to quit?</center></body></html>").arg(displayName());
+    return showPromptToStopDialog(tr("Application Still Running"), msg,
+                                  tr("Force Quit"), tr("Keep Running"),
+                                  optionalPrompt);
+}
+
+// Utility to prompt to terminate application with checkable box.
+bool RunControl::showPromptToStopDialog(const QString &title,
+                                        const QString &text,
+                                        const QString &stopButtonText,
+                                        const QString &cancelButtonText,
+                                        bool *prompt) const
+{
+    QTC_ASSERT(isRunning(), return true;)
+    // Show a question message box where user can uncheck this
+    // question for this class.
+    Utils::CheckableMessageBox messageBox(Core::ICore::instance()->mainWindow());
+    messageBox.setWindowTitle(title);
+    messageBox.setText(text);
+    messageBox.setStandardButtons(QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+    if (!stopButtonText.isEmpty())
+        messageBox.button(QDialogButtonBox::Yes)->setText(stopButtonText);
+    if (!cancelButtonText.isEmpty())
+        messageBox.button(QDialogButtonBox::Cancel)->setText(cancelButtonText);
+    messageBox.setDefaultButton(QDialogButtonBox::Yes);
+    if (prompt) {
+        messageBox.setCheckBoxText(tr("Do not ask again"));
+        messageBox.setChecked(false);
+    } else {
+        messageBox.setCheckBoxVisible(false);
+    }
+    messageBox.exec();
+    const bool close = messageBox.clickedStandardButton() == QDialogButtonBox::Yes;
+    if (close && prompt && messageBox.isChecked())
+        *prompt = false;
+    return close;
 }
 
 bool RunControl::sameRunConfiguration(const RunControl *other) const

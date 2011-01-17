@@ -625,6 +625,18 @@ bool S60DeviceRunControl::isRunning() const
     }
 }
 
+bool S60DeviceRunControl::promptToStop(bool *) const
+{
+    // We override the settings prompt
+    QTC_ASSERT(isRunning(), return true;)
+
+    const QString question = tr("<html><head/><body><center><i>%1</i> is still running on the device.<center/>"
+                                "<center>Terminating it can leave the target in an inconsistent state.</center>"
+                                "<center>Would you still like to terminate it?</center></body></html>").arg(displayName());
+    return showPromptToStopDialog(tr("Application Still Running"), question,
+                                  tr("Force Quit"), tr("Keep Running"));
+}
+
 void S60DeviceRunControl::startLaunching()
 {
     QString errorMessage;
@@ -1084,4 +1096,10 @@ void S60DeviceDebugRunControl::start()
 
     appendMessage(tr("Launching debugger..."), NormalMessageFormat);
     Debugger::DebuggerRunControl::start();
+}
+
+bool S60DeviceDebugRunControl::promptToStop(bool *) const
+{
+    // We override the settings prompt
+    return Debugger::DebuggerRunControl::promptToStop(0);
 }

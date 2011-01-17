@@ -85,7 +85,7 @@ public:
 
     // ProjectExplorer::RunControl
     void start();
-    bool aboutToStop() const;
+    bool promptToStop(bool *prompt = 0) const;
     StopResult stop(); // Called from SnapshotWindow.
     bool isRunning() const;
     QString displayName() const;

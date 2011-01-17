@@ -158,6 +158,7 @@ public:
     virtual void start();
     virtual StopResult stop();
     virtual bool isRunning() const;
+    virtual bool promptToStop(bool *optionalPrompt = 0) const;
 
     static QMessageBox *createTrkWaitingMessageBox(const QString &port, QWidget *parent = 0);
 
@@ -251,6 +252,7 @@ public:
     explicit S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration,
                                       const QString &mode);
     virtual void start();
+    virtual bool promptToStop(bool *optionalPrompt = 0) const;
 };
 
 } // namespace Internal

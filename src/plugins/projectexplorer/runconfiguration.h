@@ -191,7 +191,10 @@ public:
     explicit RunControl(RunConfiguration *runConfiguration, QString mode);
     virtual ~RunControl();
     virtual void start() = 0;
-    virtual bool aboutToStop() const;
+
+    // Prompt to stop. If 'optionalPrompt' is passed, a "Do not ask again"-
+    // checkbox will show and the result will be returned in '*optionalPrompt'.
+    virtual bool promptToStop(bool *optionalPrompt = 0) const;
     virtual StopResult stop() = 0;
     virtual bool isRunning() const = 0;
     virtual QString displayName() const;
@@ -213,6 +216,13 @@ signals:
 
 private slots:
     void bringApplicationToForegroundInternal();
+
+protected:
+    // Utility to prompt to terminate application with checkable box.
+    bool showPromptToStopDialog(const QString &title, const QString &text,
+                                const QString &stopButtonText = QString(),
+                                const QString &cancelButtonText = QString(),
+                                bool *prompt = 0) const;
 
 private:
     QString m_displayName;
