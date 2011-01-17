@@ -350,14 +350,15 @@ protected:
     virtual void runSlaveEngine();
     virtual void shutdownSlaveEngine();
 
+    virtual void slaveEngineStateChanged(DebuggerEngine *engine,
+        DebuggerState state);
+
 private:
     // Wrapper engine needs access to state of its subengines.
     friend class Internal::QmlCppEngine;
     friend class Internal::DebuggerPluginPrivate;
 
     virtual void setState(DebuggerState state, bool forced = false);
-    virtual void slaveEngineStateChanged(DebuggerEngine *engine,
-        DebuggerState state);
 
     friend class DebuggerEnginePrivate;
     DebuggerEnginePrivate *d;
