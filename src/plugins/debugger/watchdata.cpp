@@ -12,8 +12,14 @@
 namespace Debugger {
 namespace Internal {
 
-enum GuessChildrenResult { HasChildren, HasNoChildren, HasPossiblyChildren };
-static QString qt_escape(const QString& plain)
+enum GuessChildrenResult
+{
+    HasChildren,
+    HasNoChildren,
+    HasPossiblyChildren
+};
+
+static QString htmlEscape(const QString &plain)
 {
     QString rich;
     rich.reserve(int(plain.length() * 1.1));
@@ -306,7 +312,7 @@ static void formatToolTipRow(QTextStream &str,
     const QString &category, const QString &value)
 {
     str << "<tr><td>" << category << "</td><td> : </td><td>"
-        << qt_escape(value) << "</td></tr>";
+        << htmlEscape(value) << "</td></tr>";
 }
 
 static QString typeToolTip(const WatchData &wd)
