@@ -1526,7 +1526,7 @@ QString QtVersion::resolveLink(const QString &path) const
         f.setFile(f.symLinkTarget());
     if (links <= 0)
         return QString();
-    return f.path();
+    return f.filePath();
 }
 
 QString QtVersion::mwcDirectory() const
@@ -1626,7 +1626,7 @@ bool QtVersion::isValid() const
             && !displayName().isEmpty()
             && !m_notInstalled
             && m_versionInfo.contains("QT_INSTALL_BINS")
-            && !m_mkspecFullPath.isEmpty();
+            && (!m_mkspecFullPath.isEmpty() || !m_toolChainUpToDate);
 }
 
 QString QtVersion::invalidReason() const
@@ -1642,7 +1642,7 @@ QString QtVersion::invalidReason() const
     if (!m_versionInfo.contains("QT_INSTALL_BINS"))
         return QCoreApplication::translate("QtVersion",
 					   "Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?");
-    if (m_mkspecFullPath.isEmpty())
+    if (m_toolChainUpToDate && m_mkspecFullPath.isEmpty())
         return QCoreApplication::translate("QtVersion", "The default mkspec symlink is broken.");
     return QString();
 }
