@@ -3717,25 +3717,31 @@ void GdbEngine::assignValueInDebugger(const WatchData *,
 
 void GdbEngine::watchPoint(const QPoint &pnt)
 {
-    //qDebug() << "WATCH " << pnt;
     QByteArray x = QByteArray::number(pnt.x());
     QByteArray y = QByteArray::number(pnt.y());
-    postCommand("call (void*)watchPoint(" + x + ',' + y + ')',
+    postCommand("print 'QApplication::widgetAt'(" + x + ',' + y + ')',
         NeedsStop, CB(handleWatchPoint));
 }
 
 void GdbEngine::handleWatchPoint(const GdbResponse &response)
 {
-    //qDebug() << "HANDLE WATCH POINT:" << response.toString();
     if (response.resultClass == GdbResultDone) {
         GdbMi contents = response.data.findChild("consolestreamoutput");
         // "$5 = (void *) 0xbfa7ebfc\n"
-        QString str = _(parsePlainConsoleStream(response));
-        // "(void *) 0xbfa7ebfc"
-        QString addr = str.mid(9);
-        QByteArray ns = m_dumperHelper.qtNamespace();
-        QByteArray type = ns.isEmpty() ? "QWidget*" : ("'" + ns + "QWidget'*");
-        QString exp = _("(*(%1)%2)").arg(_(type)).arg(addr);
+        QByteArray ba = parsePlainConsoleStream(response);
+        const int posWidget = ba.indexOf("QWidget");
+        if (posWidget == -1)
+            return;
+        const int posNs = ba.lastIndexOf(' ', posWidget) + 1;
+        if (posNs == 0)
+            return;
+        const int pos0x = ba.indexOf("0x", posWidget + 7);
+        if (pos0x == -1)
+            return;
+        const QByteArray addr = ba.mid(pos0x);
+        const QByteArray ns = ba.mid(posNs, posWidget - posNs);
+        const QByteArray type = ns.isEmpty() ? "QWidget*" : ("'" + ns + "QWidget'*");
+        const QString exp = _("(*(%1)%2)").arg(_(type)).arg(_(addr));
         watchHandler()->watchExpression(exp);
     }
 }
