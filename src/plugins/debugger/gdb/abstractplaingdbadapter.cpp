@@ -94,7 +94,22 @@ void AbstractPlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &respon
 void AbstractPlainGdbAdapter::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    m_engine->postCommand("print QString", CB(handleNamespaceExtraction));
     m_engine->postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
+}
+
+void AbstractPlainGdbAdapter::handleNamespaceExtraction(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        // $1 = {void (myns::QString * const, const char *)} 0x8058e2c <QString>"}
+        const QByteArray ba = response.data.findChild("consolestreamoutput").data();
+        const int posQString = ba.indexOf("QString");
+        const int posNs = ba.lastIndexOf('(', posQString) + 1;
+        const QByteArray ns = ba.mid(posNs, posQString - posNs);
+        //qDebug() << "BA: " << response.toString() << ba << posQString << posNs << ns;
+        if (!ns.isEmpty())
+            m_engine->setQtNamespace(ns);
+    }
 }
 
 void AbstractPlainGdbAdapter::handleExecRun(const GdbResponse &response)

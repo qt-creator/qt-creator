@@ -3719,30 +3719,32 @@ void GdbEngine::watchPoint(const QPoint &pnt)
 {
     QByteArray x = QByteArray::number(pnt.x());
     QByteArray y = QByteArray::number(pnt.y());
-    postCommand("print 'QApplication::widgetAt'(" + x + ',' + y + ')',
+    postCommand("print '" + qtNamespace() + "QApplication::widgetAt'("
+            + x + ',' + y + ')',
         NeedsStop, CB(handleWatchPoint));
 }
 
 void GdbEngine::handleWatchPoint(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
-        GdbMi contents = response.data.findChild("consolestreamoutput");
+        const GdbMi contents = response.data.findChild("consolestreamoutput");
         // "$5 = (void *) 0xbfa7ebfc\n"
-        QByteArray ba = parsePlainConsoleStream(response);
+        const QByteArray ba = parsePlainConsoleStream(response);
+        //qDebug() << "BA: " << ba;
         const int posWidget = ba.indexOf("QWidget");
-        if (posWidget == -1)
-            return;
         const int posNs = ba.lastIndexOf(' ', posWidget) + 1;
-        if (posNs == 0)
-            return;
         const int pos0x = ba.indexOf("0x", posWidget + 7);
-        if (pos0x == -1)
-            return;
-        const QByteArray addr = ba.mid(pos0x);
-        const QByteArray ns = ba.mid(posNs, posWidget - posNs);
-        const QByteArray type = ns.isEmpty() ? "QWidget*" : ("'" + ns + "QWidget'*");
-        const QString exp = _("(*(%1)%2)").arg(_(type)).arg(_(addr));
-        watchHandler()->watchExpression(exp);
+        if (posWidget == -1 || posNs == 0 || pos0x == -1) {
+            showStatusMessage(tr("Cannot read widget data: %1").arg(_(ba)));
+        } else {
+            const QByteArray addr = ba.mid(pos0x);
+            //const QByteArray ns = ba.mid(posNs, posWidget - posNs);
+            const QByteArray ns = qtNamespace();
+            const QByteArray type = ns.isEmpty() ? "QWidget*" : ("'" + ns + "QWidget'*");
+            const QString exp = _("(*(%1)%2)").arg(_(type)).arg(_(addr));
+            // qDebug() << posNs << posWidget << pos0x << addr << ns << type;
+            watchHandler()->watchExpression(exp);
+        }
     }
 }
 

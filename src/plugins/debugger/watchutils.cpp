@@ -970,7 +970,8 @@ bool QtDumperHelper::parseQuery(const GdbMi &contents)
         qDebug() << "parseQuery" << contents.toString(true, 2);
 
     // Common info, dumper version, etc
-    m_qtNamespace = contents.findChild("namespace").data();
+    QByteArray ns = contents.findChild("namespace").data();
+    setQtNamespace(ns);
     int qtv = 0;
     const GdbMi qtversion = contents.findChild("qtversion");
     if (qtversion.children().size() == 3) {

@@ -116,6 +116,8 @@ private: ////////// General Interface //////////
 
     virtual void executeDebuggerCommand(const QString &command);
     virtual QByteArray qtNamespace() const { return m_dumperHelper.qtNamespace(); }
+    virtual void setQtNamespace(const QByteArray &ns)
+        { return m_dumperHelper.setQtNamespace(ns); }
 
 private: ////////// General State //////////
 

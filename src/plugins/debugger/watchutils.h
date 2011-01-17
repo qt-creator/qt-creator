@@ -172,6 +172,8 @@ public:
     int qtVersion() const;
     QByteArray qtVersionString() const;
     QByteArray qtNamespace() const;
+    void setQtNamespace(const QByteArray &ba)
+        { if (!ba.isEmpty()) m_qtNamespace = ba; }
 
     // Complete parse of "query" (protocol 1) response from debuggee buffer.
     // 'data' excludes the leading indicator character.
