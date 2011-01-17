@@ -210,17 +210,16 @@ void HtmlDocExtractor::processOutput(QString *html) const
         // is cleared to avoid too much content.
         int index = html->indexOf(QLatin1String("<p>"));
         if (index != -1 && index < 400) {
-            index = html->indexOf(QLatin1String("</p>"), index + 2);
+            index = html->indexOf(QLatin1String("</p>"), index + 3);
             if (index != -1) {
-                if (html->at(index - 1) == QLatin1Char('.')) {
-                    html->truncate(index + 4);
+                // Most paragraphs end with a period, but there are cases without punctuation
+                // and cases like this: <p>This is a description. Example:</p>
+                const int period = html->lastIndexOf(QLatin1Char('.'), index);
+                if (period != -1) {
+                    html->truncate(period + 1);
+                    html->append(QLatin1String("</p>"));
                 } else {
-                    // <p>Paragraphs similar to this. Example:</p>
-                    index = html->lastIndexOf(QLatin1Char('.'), index);
-                    if (index != -1) {
-                        html->truncate(index);
-                        html->append(QLatin1String(".</p>"));
-                    }
+                    html->truncate(index + 4);
                 }
             } else {
                 html->clear();
