@@ -3916,7 +3916,8 @@
 
                \note Only tool chains that are compatible with the selected Qt version
                are available.
-            \o By default, projects are built in a separate directory
+            \o The build directory for the project.
+               By default, projects are built in a separate directory
                from the source directory, as \l{glossary-shadow-build}{shadow builds}.
                This keeps the files generated for each target platform separate.
 
@@ -3932,6 +3933,50 @@
     for the device using RVCT, install the RVCT tool chain, and then
     select it in the \gui {Tool chain} field.
 
+    \section1 Starting External Processes
+
+    Qt Creator executes external processes to accomplish tasks such as building
+    and running applications. To execute the processes, Qt Creator uses shell
+    commands that are native to the system. It constructs the commands from
+    an executable name and optional command line arguments.
+
+    The executable name is specified in the executable fields: \gui qmake,
+    \gui Make, \gui Command, or \gui Executable. It is either derived from the
+    project or specified manually. When you specify executables manually, you
+    can reference environment variables and macros. However, no quoting rules
+    apply.
+
+    You can specify command-line arguments in the arguments fields: \gui {Additional
+    arguments}, \gui {Command arguments}, \gui {Make arguments}, or \gui Arguments.
+    You can create shell command lines that can contain redirection and other
+    advanced constructs. However, some more complex use cases, such as piping
+    test data into the application being tested or grouping commands, are not
+    supported because the value of the \gui Executable field is always placed
+    first when constructing the command.
+
+    \section2 Using Environment Variables
+
+    You can use any environment variables as values in the fields. For a list
+    of variable names, click \gui {Build Environment > Details} in the
+    \gui {Build Settings}. Variables are referenced using the platform's native
+    syntax: $VARNAME or ${VARNAME} on Unix and %VARNAME% on Windows.
+
+    \section2 Using Macros
+
+    You can use macros in arguments, executable paths, and working directories.
+    The macros take care of quoting their expansions, so you do not need to
+    put them in quotes.
+
+    The following macros are available:
+
+    \list
+
+        \o %{buildDir}
+
+        \o %{sourceDir}
+
+    \endlist
+
     \section1 Build Steps
 
     The build system of Qt Creator is built on qmake and make. In
@@ -3941,10 +3986,9 @@
 
     \image qtcreator-build-steps.png "Build steps"
 
-    You can use any environment variables as values in the fields. For a list
-    of variable names, click \gui {Build Environment > Details}. Variables are
-    referenced using the platform's native syntax: $VARNAME or ${VARNAME} on
-    Unix and %VARNAME% on Windows.
+    To override the shell command that Qt Creator constructs by default, remove
+    the build step and add a custom build step that specifies another shell
+    command.
 
     \section2 Adding Custom Build Steps
 
@@ -4021,6 +4065,8 @@
 
     The run configurations for qmake projects derive their executable from the parsed .pro
     files.
+    For more information on how the commands are constructed, see
+    \l{Starting External Processes}.
 
     \section2 Specifying Run Settings for Desktop Targets
 
