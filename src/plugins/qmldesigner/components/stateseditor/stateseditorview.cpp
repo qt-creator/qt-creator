@@ -245,7 +245,7 @@ void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> 
 }
 
 
-void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags /*propertyChange*/)
+void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/)
 {
 }
 
