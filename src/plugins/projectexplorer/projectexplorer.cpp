@@ -1808,8 +1808,6 @@ void ProjectExplorerPlugin::startupProjectChanged()
     }
 
     activeTargetChanged();
-
-    emit updateRunActions();
 }
 
 void ProjectExplorerPlugin::activeTargetChanged()
