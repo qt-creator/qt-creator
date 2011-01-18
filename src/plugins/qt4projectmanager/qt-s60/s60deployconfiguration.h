@@ -58,8 +58,9 @@ class S60DeployConfiguration : public ProjectExplorer::DeployConfiguration
 
 public:
     enum CommunicationChannel {
-        CommunicationSerialConnection,
-        CommunicationTcpConnection
+        CommunicationTrkSerialConnection,
+        CommunicationCodaSerialConnection,
+        CommunicationCodaTcpConnection
     };
 
     explicit S60DeployConfiguration(ProjectExplorer::Target *parent);

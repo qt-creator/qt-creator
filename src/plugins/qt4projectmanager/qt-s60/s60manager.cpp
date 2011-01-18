@@ -42,6 +42,8 @@
 #include "s60devicerunconfiguration.h"
 #include "s60createpackagestep.h"
 #include "s60deploystep.h"
+#include "s60runcontrolfactory.h"
+
 #include "qt4symbiantargetfactory.h"
 
 #include <symbianutils/symbiandevicemanager.h>
@@ -120,9 +122,7 @@ S60Manager::S60Manager(QObject *parent)
                                                 (QLatin1String(ProjectExplorer::Constants::RUNMODE),
                                                  tr("Run in Emulator"), parent));
     addAutoReleasedObject(new S60DeviceRunConfigurationFactory);
-    addAutoReleasedObject(new RunControlFactory<S60DeviceRunControl,
-                                                S60DeviceRunConfiguration>
-                                                (QLatin1String(ProjectExplorer::Constants::RUNMODE),
+    addAutoReleasedObject(new S60RunControlFactory(QLatin1String(ProjectExplorer::Constants::RUNMODE),
                                                  tr("Run on Device"), parent));
     addAutoReleasedObject(new S60CreatePackageStepFactory);
     addAutoReleasedObject(new S60DeployStepFactory);

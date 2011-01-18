@@ -163,7 +163,7 @@ bool Qt4SymbianTarget::isSymbianConnectionAvailable(QString &tooltipText)
     if (!s60DeployConf)
         return false;
     switch (s60DeployConf->communicationChannel()) {
-    case S60DeployConfiguration::CommunicationSerialConnection: {
+    case S60DeployConfiguration::CommunicationTrkSerialConnection: {
         const SymbianUtils::SymbianDeviceManager *sdm = SymbianUtils::SymbianDeviceManager::instance();
         const int deviceIndex = sdm->findByPortName(s60DeployConf->serialPortName());
         if (deviceIndex == -1) {
@@ -179,7 +179,7 @@ bool Qt4SymbianTarget::isSymbianConnectionAvailable(QString &tooltipText)
         }
     }
     break;
-    case S60DeployConfiguration::CommunicationTcpConnection: {
+    case S60DeployConfiguration::CommunicationCodaTcpConnection: {
         if (!s60DeployConf->deviceAddress().isEmpty() && !s60DeployConf->devicePort().isEmpty()) {
             tooltipText = tr("<b>IP address:</b> %1:%2").arg(s60DeployConf->deviceAddress(), s60DeployConf->devicePort());
             return true;

@@ -27,7 +27,11 @@ SOURCES += $$PWD/s60devices.cpp \
     $$PWD/s60symbiancertificate.cpp \
     $$PWD/s60certificatedetailsdialog.cpp \
     $$PWD/qt4symbiantargetfactory.cpp \
-    $$PWD/qt4symbiantarget.cpp
+    $$PWD/qt4symbiantarget.cpp \
+    $$PWD/s60runcontrolfactory.cpp \
+    $$PWD/codaruncontrol.cpp \
+    $$PWD/trkruncontrol.cpp \
+    $$PWD/s60runcontrolbase.cpp
 
 HEADERS += $$PWD/s60devices.h \
     $$PWD/s60devicespreferencepane.h \
@@ -55,7 +59,11 @@ HEADERS += $$PWD/s60devices.h \
     $$PWD/s60symbiancertificate.h \
     $$PWD/s60certificatedetailsdialog.h \
     $$PWD/qt4symbiantargetfactory.h \
-    $$PWD/qt4symbiantarget.h
+    $$PWD/qt4symbiantarget.h \
+    $$PWD/s60runcontrolfactory.h \
+    $$PWD/codaruncontrol.h \
+    $$PWD/trkruncontrol.h \
+    $$PWD/s60runcontrolbase.h
 
 FORMS += $$PWD/s60devicespreferencepane.ui \
     $$PWD/s60createpackagestep.ui \

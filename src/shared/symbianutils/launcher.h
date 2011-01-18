@@ -156,7 +156,7 @@ signals:
     void applicationOutputReceived(const QString &output);
     void copyProgress(int percent);
     void stateChanged(int);
-    void processStopped(uint pc, uint pid, uint tid, const QString& reason);
+    void processStopped(uint pc, uint pid, uint tid, const QString &reason);
     void processResumed(uint pid, uint tid);
     void libraryLoaded(const trk::Library &lib);
     void libraryUnloaded(const trk::Library &lib);

@@ -38,6 +38,7 @@
 #include "s60devicerunconfiguration.h"
 #include "s60runconfigbluetoothstarter.h"
 #include "tcftrkdevice.h"
+#include "trkruncontrol.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildsteplist.h>
@@ -65,7 +66,7 @@
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
-enum {debug = 0};
+enum { debug = 0 };
 
 static const quint64  DEFAULT_CHUNK_SIZE = 10240;
 
@@ -132,7 +133,7 @@ S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc):
     m_putLastChunkSize(0),
     m_putChunkSize(DEFAULT_CHUNK_SIZE),
     m_currentFileIndex(0),
-    m_channel(S60DeployConfiguration::CommunicationSerialConnection),
+    m_channel(S60DeployConfiguration::CommunicationTrkSerialConnection),
     m_deployCanceled(false)
 {
     ctor();
@@ -167,15 +168,15 @@ bool S60DeployStep::init()
     m_silentInstall = deployConfiguration->silentInstall();
 
     switch (deployConfiguration->communicationChannel()) {
-    case S60DeployConfiguration::CommunicationSerialConnection:
+    case S60DeployConfiguration::CommunicationTrkSerialConnection:
         break;
-    case S60DeployConfiguration::CommunicationTcpConnection:
+    case S60DeployConfiguration::CommunicationCodaTcpConnection:
         m_address = deployConfiguration->deviceAddress();
         m_port = deployConfiguration->devicePort().toInt();
     }
     m_channel = deployConfiguration->communicationChannel();
 
-    if (m_channel == S60DeployConfiguration::CommunicationSerialConnection) {
+    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
         QString message;
         if (m_launcher) {
             trk::Launcher::releaseToDeviceManager(m_launcher);
@@ -269,7 +270,7 @@ void S60DeployStep::start()
 {
     QString errorMessage;
 
-    if (m_channel == S60DeployConfiguration::CommunicationSerialConnection) {
+    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
         if (m_serialPortName.isEmpty() || !m_launcher) {
             errorMessage = tr("No device is connected. Please connect a device and try again.");
             reportError(errorMessage);
@@ -297,7 +298,7 @@ void S60DeployStep::start()
 
 void S60DeployStep::stop()
 {
-    if (m_channel == S60DeployConfiguration::CommunicationSerialConnection) {
+    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
         if (m_launcher)
             m_launcher->terminate();
     } else {
@@ -311,7 +312,7 @@ void S60DeployStep::stop()
 
 void S60DeployStep::setupConnections()
 {
-    if (m_channel == S60DeployConfiguration::CommunicationSerialConnection) {
+    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
         connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(SymbianUtils::SymbianDevice)),
                 this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
         connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
@@ -336,7 +337,7 @@ void S60DeployStep::setupConnections()
 
 void S60DeployStep::startDeployment()
 {
-    if (m_channel == S60DeployConfiguration::CommunicationSerialConnection) {
+    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
         QTC_ASSERT(m_launcher, return);
     } else {
         QTC_ASSERT(m_trkDevice, return);
@@ -344,7 +345,7 @@ void S60DeployStep::startDeployment()
 
     setupConnections();
 
-    if (m_channel == S60DeployConfiguration::CommunicationSerialConnection) {
+    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
         QStringList copyDst;
         foreach (const QString &signedPackage, m_signedPackages)
             copyDst << QString::fromLatin1("%1:\\Data\\%2").arg(m_installationDrive).arg(QFileInfo(signedPackage).fileName());
@@ -383,7 +384,7 @@ void S60DeployStep::run(QFutureInterface<bool> &fi)
     m_deployCanceled = false;
     disconnect(this);
 
-    if (m_channel == S60DeployConfiguration::CommunicationSerialConnection) {
+    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
         connect(this, SIGNAL(finished(bool)), this, SLOT(launcherFinished(bool)));
         connect(this, SIGNAL(finishNow(bool)), this, SLOT(launcherFinished(bool)), Qt::DirectConnection);
     } else {
@@ -634,20 +635,18 @@ void S60DeployStep::setReleaseDeviceAfterLauncherFinish(bool v)
 void S60DeployStep::slotLauncherStateChanged(int s)
 {
     if (s == trk::Launcher::WaitingForTrk) {
-        QMessageBox *mb = S60DeviceRunControl::createTrkWaitingMessageBox(m_launcher->trkServerName(),
+        QMessageBox *mb = TrkRunControl::createTrkWaitingMessageBox(m_launcher->trkServerName(),
                                                                           Core::ICore::instance()->mainWindow());
         connect(m_launcher, SIGNAL(stateChanged(int)), mb, SLOT(close()));
-        connect(mb, SIGNAL(finished(int)), this, SIGNAL(finished()));
+        connect(mb, SIGNAL(finished(int)), this, SLOT(slotWaitingForTrkClosed()));
         mb->open();
     }
 }
 
 void S60DeployStep::slotWaitingForTrkClosed()
 {
-    if (m_launcher && m_launcher->state() == trk::Launcher::WaitingForTrk) {
-        stop();
-        reportError(tr("Canceled."));
-    }
+    if (m_launcher && m_launcher->state() == trk::Launcher::WaitingForTrk)
+        m_deployCanceled = true;
 }
 
 void S60DeployStep::createFileFailed(const QString &filename, const QString &errorMessage)

@@ -42,6 +42,8 @@
 #include <symbianutils/bluetoothlistener.h>
 #include <symbianutils/symbiandevicemanager.h>
 
+#include "trkruncontrol.h"
+
 #include <utils/detailswidget.h>
 #include <utils/ipaddresslineedit.h>
 #include <utils/qtcassert.h>
@@ -200,12 +202,12 @@ QWidget *S60DeployConfigurationWidget::createCommunicationChannel()
     communicationChannelFormLayout->setLayout(1, QFormLayout::FieldRole, wlanChannelLayout);
 
     switch (m_deployConfiguration->communicationChannel()) {
-    case S60DeployConfiguration::CommunicationSerialConnection:
+    case S60DeployConfiguration::CommunicationTrkSerialConnection:
         m_serialRadioButton->setChecked(true);
         m_ipAddress->setDisabled(true);
         m_serialPortsCombo->setDisabled(false);
         break;
-    case S60DeployConfiguration::CommunicationTcpConnection:
+    case S60DeployConfiguration::CommunicationCodaTcpConnection:
         m_wlanRadioButton->setChecked(true);
         m_ipAddress->setDisabled(false);
         m_serialPortsCombo->setDisabled(true);
@@ -261,7 +263,7 @@ void S60DeployConfigurationWidget::updateSerialDevices()
         const QString newPortName = device(newIndex).portName();
         m_deployConfiguration->setSerialPortName(newPortName);
     }
-    if (m_deployConfiguration->communicationChannel() != S60DeployConfiguration::CommunicationSerialConnection)
+    if (m_deployConfiguration->communicationChannel() != S60DeployConfiguration::CommunicationTrkSerialConnection)
         m_deviceInfoButton->setEnabled(false);
 }
 
@@ -306,7 +308,7 @@ void S60DeployConfigurationWidget::updateCommunicationChannel()
     if (m_serialRadioButton->isChecked()) {
         m_ipAddress->setDisabled(true);
         m_serialPortsCombo->setDisabled(false);
-        m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationSerialConnection);
+        m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationTrkSerialConnection);
         updateSerialDevices();
     } else if(m_wlanRadioButton->isChecked()) {
         QMessageBox::information(this, tr("CODA required"),
@@ -315,7 +317,7 @@ void S60DeployConfigurationWidget::updateCommunicationChannel()
         m_ipAddress->setDisabled(false);
         m_serialPortsCombo->setDisabled(true);
         m_deviceInfoButton->setEnabled(false);
-        m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationTcpConnection);
+        m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationCodaTcpConnection);
     }
 }
 
@@ -361,7 +363,7 @@ void S60DeployConfigurationWidget::slotLauncherStateChanged(int s)
     switch (s) {
     case trk::Launcher::WaitingForTrk: {
         // Entered trk wait state..open message box
-        QMessageBox *mb = S60DeviceRunControl::createTrkWaitingMessageBox(m_infoLauncher->trkServerName(), this);
+        QMessageBox *mb = TrkRunControl::createTrkWaitingMessageBox(m_infoLauncher->trkServerName(), this);
         connect(m_infoLauncher, SIGNAL(stateChanged(int)), mb, SLOT(close()));
         connect(mb, SIGNAL(finished(int)), this, SLOT(slotWaitingForTrkClosed()));
         mb->open();
@@ -387,7 +389,7 @@ void S60DeployConfigurationWidget::slotWaitingForTrkClosed()
 void S60DeployConfigurationWidget::updateDeviceInfo()
 {
     //TODO: No CODA device info! Implement it when it is available
-    if (m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationSerialConnection) {
+    if (m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationTrkSerialConnection) {
         QTC_ASSERT(!m_infoLauncher, return)
                 setDeviceInfoLabel(tr("Connecting..."));
         // Do a launcher run with the ping protocol. Prompt to connect and
