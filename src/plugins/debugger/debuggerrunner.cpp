@@ -403,7 +403,7 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(ToolChainType toolCha
     case ToolChain_RVCT2_ARMV6:
         if (debuggerCore()->gdbBinaryForToolChain(toolChain).isEmpty()) {
             result.errorMessage = msgNoBinaryForToolChain(toolChain);
-            result.errorMessage += msgEngineNotAvailable("Gdb");
+            result.errorMessage += QLatin1Char(' ') + msgEngineNotAvailable("Gdb");
             result.settingsPage = GdbOptionsPage::settingsId();
         }
         break;

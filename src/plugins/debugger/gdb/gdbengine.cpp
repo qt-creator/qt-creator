@@ -1783,7 +1783,7 @@ int GdbEngine::currentFrame() const
 QString msgNoBinaryForToolChain(int tc)
 {
     using namespace ProjectExplorer;
-    return GdbEngine::tr("There is no gdb binary available for '%1'")
+    return GdbEngine::tr("There is no gdb binary available for '%1'.")
         .arg(ToolChain::toolChainName(ToolChainType(tc)));
 }
 
