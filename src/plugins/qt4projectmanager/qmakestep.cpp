@@ -148,8 +148,10 @@ QStringList QMakeStep::moreArguments()
     QStringList arguments;
 #if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     const ProjectExplorer::ToolChainType type = bc->toolChainType();
-    if (type == ProjectExplorer::ToolChain_GCC_MAEMO)
+    if (type == ProjectExplorer::ToolChain_GCC_MAEMO5
+            || type == ProjectExplorer::ToolChain_GCC_HARMATTAN) {
         arguments << QLatin1String("-unix");
+    }
 #endif
     if (!bc->qtVersion()->supportsShadowBuilds()) {
         // We have a target which does not allow shadow building.

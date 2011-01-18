@@ -53,7 +53,8 @@ LibraryDetailsController::LibraryDetailsController(
     Qt4BuildConfiguration *qt4BuildConfiguration =
             qobject_cast<Qt4BuildConfiguration *>(project->activeTarget()->activeBuildConfiguration());
     // if its toolchain is maemo behave the same as we would be on linux
-    if (qt4BuildConfiguration && qt4BuildConfiguration->toolChainType() == ProjectExplorer::ToolChain_GCC_MAEMO)
+    if (qt4BuildConfiguration && (qt4BuildConfiguration->toolChainType() == ProjectExplorer::ToolChain_GCC_MAEMO5
+            || qt4BuildConfiguration->toolChainType() == ProjectExplorer::ToolChain_GCC_HARMATTAN))
         m_creatorPlatform = CreatorLinux;
 #endif
 
