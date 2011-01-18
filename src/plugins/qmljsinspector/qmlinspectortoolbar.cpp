@@ -43,13 +43,13 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/styledbar.h>
-#include <utils/filterlineedit.h>
 
 #include <QAction>
 #include <QActionGroup>
 #include <QHBoxLayout>
 #include <QMenu>
 #include <QToolButton>
+#include <QLineEdit>
 
 namespace QmlJSInspector {
 namespace Internal {
@@ -78,6 +78,7 @@ QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
     m_menuPauseAction(0),
     m_playIcon(QIcon(QLatin1String(":/qml/images/play-small.png"))),
     m_pauseIcon(QIcon(QLatin1String(":/qml/images/pause-small.png"))),
+    m_filterExp(0),
     m_colorBox(0),
     m_emitSignals(true),
     m_isRunning(false),
@@ -98,6 +99,7 @@ void QmlInspectorToolbar::setEnabled(bool value)
     m_zoomAction->setEnabled(value);
     m_colorPickerAction->setEnabled(value);
     m_colorBox->setEnabled(value);
+    m_filterExp->setEnabled(value);
 }
 
 void QmlInspectorToolbar::enable()
@@ -295,6 +297,10 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_colorBox->setInnerBorderColor(QColor(192,192,192));
     m_colorBox->setOuterBorderColor(QColor(58,58,58));
     configBarLayout->addWidget(m_colorBox);
+
+    m_filterExp = new QLineEdit(m_barWidget);
+    m_filterExp->setPlaceholderText("<filter property list>");
+    configBarLayout->addWidget(m_filterExp);
     configBarLayout->addStretch();
 
     setEnabled(false);
@@ -307,6 +313,7 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     connect(m_selectAction, SIGNAL(triggered()), SLOT(activateSelectToolOnClick()));
     connect(m_zoomAction, SIGNAL(triggered()), SLOT(activateZoomOnClick()));
     connect(m_colorPickerAction, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
+    connect(m_filterExp, SIGNAL(textChanged(QString)), SIGNAL(filterTextChanged(QString)));
 }
 
 QWidget *QmlInspectorToolbar::widget() const

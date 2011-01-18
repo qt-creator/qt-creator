@@ -1054,22 +1054,6 @@ protected:
         return 0;
     }
 
-    inline bool hasVisualPresentation(Node *ast)
-    {
-        Bind *bind = m_lookupContext->document()->bind();
-        const Interpreter::ObjectValue *objValue = bind->findQmlObject(ast);
-        if (!objValue)
-            return false;
-
-        QStringList prototypes;
-        foreach (const Interpreter::ObjectValue *value,
-                 Interpreter::PrototypeIterator(objValue, m_lookupContext->context()).all()) {
-            prototypes.append(value->className());
-        }
-
-        return prototypes.contains(QString("QGraphicsObject"));
-    }
-
     inline bool isIdBinding(UiObjectMember *member) const
     {
         if (UiScriptBinding *script = cast<UiScriptBinding *>(member)) {
@@ -1116,7 +1100,7 @@ protected:
             if ((isRangeSelected() && intersectsCursor(begin, end))
             || (!isRangeSelected() && containsCursor(begin, end)))
             {
-                if (initializer(member) && isSelectable(member) && hasVisualPresentation(member)) {
+                if (initializer(member) && isSelectable(member)) {
                     m_selectedMembers << member;
                     // move start towards end; this facilitates multiselection so that root is usually ignored.
                     m_cursorPositionStart = qMin(end, m_cursorPositionEnd);

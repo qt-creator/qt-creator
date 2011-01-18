@@ -42,7 +42,7 @@ ContextCrumblePath::ContextCrumblePath(QWidget *parent)
     : CrumblePath(parent), m_isEmpty(true)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    updateContextPath(QStringList());
+    updateContextPath(QStringList(),QList<int>());
 }
 
 ContextCrumblePath::~ContextCrumblePath()
@@ -50,11 +50,14 @@ ContextCrumblePath::~ContextCrumblePath()
 
 }
 
-void ContextCrumblePath::updateContextPath(const QStringList &path)
+void ContextCrumblePath::updateContextPath(const QStringList &path, const QList<int> &debugIds)
 {
+    Q_ASSERT(path.count() == debugIds.count());
+
     clear();
-    foreach(const QString &pathPart, path) {
-        pushElement(pathPart);
+
+    for (int i=0; i<path.count(); i++) {
+        pushElement(path[i],QVariant(debugIds[i]));
     }
 
     m_isEmpty = path.isEmpty();
@@ -63,9 +66,19 @@ void ContextCrumblePath::updateContextPath(const QStringList &path)
     }
 }
 
+void ContextCrumblePath::selectIndex(int index)
+{
+    CrumblePath::selectIndex(index);
+}
+
 bool ContextCrumblePath::isEmpty() const
 {
     return m_isEmpty;
+}
+
+int ContextCrumblePath::debugIdForIndex(int index) const
+{
+    return CrumblePath::dataForIndex(index).toInt();
 }
 
 } // namespace Internal

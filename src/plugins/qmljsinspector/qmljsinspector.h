@@ -67,7 +67,7 @@ namespace QmlJSInspector {
 namespace Internal {
 
 class QmlInspectorToolbar;
-class QmlJSObjectTree;
+class QmlJSPropertyInspector;
 class ClientProxy;
 class InspectorSettings;
 class ContextCrumblePath;
@@ -120,8 +120,11 @@ private slots:
     void enable();
     void disable();
     void gotoObjectReferenceDefinition(const QDeclarativeDebugObjectReference &obj);
-    void gotoObjectReferenceDefinition(QList<QDeclarativeDebugObjectReference> objectReferences);
+    void selectItems(const QList<QDeclarativeDebugObjectReference> &objectReferences);
+    void selectItems(const QList<int> &objectIds);
     void changeSelectedItems(const QList<QDeclarativeDebugObjectReference> &objects);
+    void changePropertyValue(int debugId,const QString &propertyName, const QString &valueExpression);
+    void objectTreeReady();
 
     void updateEngineList();
 
@@ -146,19 +149,20 @@ private:
     void setupToolbar(bool doConnect);
     void setupDockWidgets();
     QString filenameForShadowBuildFile(const QString &filename) const;
+    void populateCrumblePath(const QDeclarativeDebugObjectReference &objRef);
+    bool isRoot(const QDeclarativeDebugObjectReference &obj) const;
+    QDeclarativeDebugObjectReference objectReferenceForLocation(const QString &fileName, int cursorPosition=-1) const;
 
 private:
     bool m_listeningToEditorManager;
-
     QmlInspectorToolbar *m_toolbar;
     ContextCrumblePath *m_crumblePath;
-    QmlJSObjectTree *m_objectTreeWidget;
+    QmlJSPropertyInspector *m_propertyInspector;
 
     InspectorSettings *m_settings;
     ClientProxy *m_clientProxy;
     QObject *m_qmlEngine;
     QDeclarativeDebugExpressionQuery *m_debugQuery;
-    int m_lastSelectedDebugId;
 
     // Qml/JS integration
     QHash<QString, QmlJSLiveTextPreview *> m_textPreviews;
@@ -172,6 +176,7 @@ private:
     Utils::FileInProjectFinder m_projectFinder;
 
     static InspectorUi *m_instance;
+    bool m_selectionCallbackExpected;
 };
 
 } // Internal

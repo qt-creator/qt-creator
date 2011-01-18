@@ -40,6 +40,7 @@
 QT_FORWARD_DECLARE_CLASS(QAction)
 QT_FORWARD_DECLARE_CLASS(QColor)
 QT_FORWARD_DECLARE_CLASS(QToolButton)
+QT_FORWARD_DECLARE_CLASS(QLineEdit)
 
 namespace Core {
     class Context;
@@ -98,6 +99,7 @@ signals:
 
     void showAppOnTopSelected(bool isChecked);
     void animationSpeedChanged(qreal slowdownFactor = 1.0f);
+    void filterTextChanged(const QString &);
 
 private slots:
     void activateDesignModeOnClick();
@@ -139,6 +141,8 @@ private:
     QToolButton *m_playButton;
     QIcon m_playIcon;
     QIcon m_pauseIcon;
+
+    QLineEdit *m_filterExp;
 
     ToolBarColorBox *m_colorBox;
 

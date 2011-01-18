@@ -157,6 +157,8 @@ void ClientProxy::disconnectFromServer()
     qDeleteAll(m_objectTreeQuery);
     m_objectTreeQuery.clear();
 
+    removeAllObjectWatches();
+
     updateConnected();
 }
 
@@ -226,7 +228,7 @@ QDeclarativeDebugObjectReference ClientProxy::objectReferenceForId(int debugId,
     if (objectRef.debugId() == debugId)
         return objectRef;
 
-    foreach(const QDeclarativeDebugObjectReference &child, objectRef.children()) {
+    foreach (const QDeclarativeDebugObjectReference &child, objectRef.children()) {
         QDeclarativeDebugObjectReference result = objectReferenceForId(debugId, child);
         if (result.debugId() == debugId)
             return result;
@@ -261,7 +263,7 @@ QDeclarativeDebugObjectReference ClientProxy::objectReferenceForLocation(const i
 QList<QDeclarativeDebugObjectReference> ClientProxy::objectReferences() const
 {
     QList<QDeclarativeDebugObjectReference> result;
-    foreach(const QDeclarativeDebugObjectReference &it, m_rootObjects) {
+    foreach (const QDeclarativeDebugObjectReference &it, m_rootObjects) {
         result.append(objectReferences(it));
     }
     return result;
@@ -272,7 +274,7 @@ QList<QDeclarativeDebugObjectReference> ClientProxy::objectReferences(const QDec
     QList<QDeclarativeDebugObjectReference> result;
     result.append(objectRef);
 
-    foreach(const QDeclarativeDebugObjectReference &child, objectRef.children()) {
+    foreach (const QDeclarativeDebugObjectReference &child, objectRef.children()) {
         result.append(objectReferences(child));
     }
 
@@ -329,6 +331,64 @@ void ClientProxy::clearComponentCache()
 {
     if (isConnected())
         m_observerClient->clearComponentCache();
+}
+
+bool ClientProxy::addObjectWatch(int objectDebugId)
+{
+    if (debug)
+        qDebug() << "addObjectWatch():" << objectDebugId;
+    if (objectDebugId == -1)
+        return false;
+
+    // already set
+    if (m_objectWatches.keys().contains(objectDebugId))
+        return true;
+
+    QDeclarativeDebugObjectReference ref = objectReferenceForId(objectDebugId);
+    if (ref.debugId() != objectDebugId)
+        return false;
+
+    QDeclarativeDebugWatch *watch = m_engineClient->addWatch(ref, this);
+    m_objectWatches.insert(objectDebugId, watch);
+
+    connect(watch,SIGNAL(valueChanged(QByteArray,QVariant)),this,SLOT(objectWatchTriggered(QByteArray,QVariant)));
+
+    return false;
+}
+
+void ClientProxy::objectWatchTriggered(const QByteArray &propertyName, const QVariant &propertyValue)
+{
+    QDeclarativeDebugWatch *watch = dynamic_cast<QDeclarativeDebugWatch *>(QObject::sender());
+    if (watch)
+        emit propertyChanged(watch->objectDebugId(),propertyName, propertyValue);
+
+}
+
+bool ClientProxy::removeObjectWatch(int objectDebugId)
+{
+    if (debug)
+        qDebug() << "removeObjectWatch():" << objectDebugId;
+    if (objectDebugId == -1)
+        return false;
+
+    if (!m_objectWatches.keys().contains(objectDebugId))
+        return false;
+
+    QDeclarativeDebugWatch *watch = m_objectWatches.value(objectDebugId);
+    disconnect(watch,SIGNAL(valueChanged(QByteArray,QVariant)), this, SLOT(objectWatchTriggered(QByteArray,QVariant)));
+    m_engineClient->removeWatch(watch);
+    delete watch;
+    m_objectWatches.remove(objectDebugId);
+
+
+    return true;
+}
+
+void ClientProxy::removeAllObjectWatches()
+{
+    foreach (int watchedObject, m_objectWatches.keys())
+        removeObjectWatch(watchedObject);
+    Q_ASSERT(m_objectWatches.count() == 0);
 }
 
 void ClientProxy::queryEngineContext(int id)
@@ -403,7 +463,7 @@ void ClientProxy::objectTreeFetched(QDeclarativeDebugQuery::State state)
         int old_count = m_debugIdHash.count();
         m_debugIdHash.clear();
         m_debugIdHash.reserve(old_count + 1);
-        foreach(const QDeclarativeDebugObjectReference &it, m_rootObjects)
+        foreach (const QDeclarativeDebugObjectReference &it, m_rootObjects)
             buildDebugIdHashRecursive(it);
         emit objectTreeUpdated();
 
@@ -445,7 +505,7 @@ void ClientProxy::buildDebugIdHashRecursive(const QDeclarativeDebugObjectReferen
     // append the debug ids in the hash
     m_debugIdHash[qMakePair<QString, int>(filename, rev)][qMakePair<int, int>(lineNum, colNum)].append(ref.debugId());
 
-    foreach(const QDeclarativeDebugObjectReference &it, ref.children())
+    foreach (const QDeclarativeDebugObjectReference &it, ref.children())
         buildDebugIdHashRecursive(it);
 }
 

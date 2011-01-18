@@ -37,6 +37,7 @@
 #include "utils_global.h"
 
 #include <QtGui/QWidget>
+#include <QVariant>
 
 QT_FORWARD_DECLARE_CLASS(QResizeEvent)
 
@@ -50,9 +51,11 @@ class QTCREATOR_UTILS_EXPORT CrumblePath : public QWidget
 public:
     explicit CrumblePath(QWidget *parent = 0);
     ~CrumblePath();
+    void selectIndex(int index);
+    QVariant dataForIndex(int index) const;
 
 public slots:
-    void pushElement(const QString &title);
+    void pushElement(const QString &title, const QVariant data = QVariant());
     void popElement();
     void clear();
 

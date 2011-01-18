@@ -57,6 +57,9 @@ public:
 
     explicit CrumblePathButton(const QString &title, QWidget *parent = 0);
     void setSegmentType(int type);
+    void select(bool s);
+    void setData(QVariant data);
+    QVariant data() const;
 protected:
     void paintEvent(QPaintEvent *);
     void mouseMoveEvent(QMouseEvent *e);
@@ -70,6 +73,7 @@ private:
 private:
     bool m_isHovering;
     bool m_isPressed;
+    bool m_isSelected;
     bool m_isEnd;
     QColor m_baseColor;
     QImage m_segment;
@@ -79,10 +83,12 @@ private:
     QImage m_segmentHover;
     QImage m_segmentHoverEnd;
     QPoint m_textPos;
+
+    QVariant m_data;
 };
 
 CrumblePathButton::CrumblePathButton(const QString &title, QWidget *parent)
-    : QPushButton(title, parent), m_isHovering(false), m_isPressed(false), m_isEnd(true)
+    : QPushButton(title, parent), m_isHovering(false), m_isPressed(false), m_isSelected(false), m_isEnd(true)
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     setToolTip(title);
@@ -114,7 +120,7 @@ void CrumblePathButton::paintEvent(QPaintEvent *)
     }
 
     if (m_isEnd) {
-        if (m_isPressed) {
+        if (m_isPressed || m_isSelected) {
             Utils::StyleHelper::drawCornerImage(m_segmentSelectedEnd, &p, geom, 2, 0, 2, 0);
         } else if (m_isHovering) {
             Utils::StyleHelper::drawCornerImage(m_segmentHoverEnd, &p, geom, 2, 0, 2, 0);
@@ -122,7 +128,7 @@ void CrumblePathButton::paintEvent(QPaintEvent *)
             Utils::StyleHelper::drawCornerImage(m_segmentEnd, &p, geom, 2, 0, 2, 0);
         }
     } else {
-        if (m_isPressed) {
+        if (m_isPressed || m_isSelected) {
             Utils::StyleHelper::drawCornerImage(m_segmentSelected, &p, geom, 2, 0, 12, 0);
         } else if (m_isHovering) {
             Utils::StyleHelper::drawCornerImage(m_segmentHover, &p, geom, 2, 0, 12, 0);
@@ -175,11 +181,27 @@ void CrumblePathButton::mouseReleaseEvent(QMouseEvent *e)
     update();
 }
 
+void CrumblePathButton::select(bool s)
+{
+    m_isSelected = s;
+    update();
+}
+
 void CrumblePathButton::setSegmentType(int type)
 {
     bool useLeftPadding = !(type & FirstSegment);
     m_isEnd = (type & LastSegment);
     m_textPos.setX(useLeftPadding ? 18 : 4);
+}
+
+void CrumblePathButton::setData(QVariant data)
+{
+    m_data = data;
+}
+
+QVariant CrumblePathButton::data() const
+{
+    return m_data;
 }
 
 struct CrumblePathPrivate {
@@ -216,12 +238,25 @@ CrumblePath::~CrumblePath()
     d->m_buttons.clear();
 }
 
+void CrumblePath::selectIndex(int index)
+{
+    if ((index > -1) && (index < d->m_buttons.length()))
+        d->m_buttons[index]->select(true);
+}
+
+QVariant CrumblePath::dataForIndex(int index) const
+{
+    if ((index > -1) && (index < d->m_buttons.length()))
+        return d->m_buttons[index]->data();
+    return QVariant();
+}
+
 void CrumblePath::setBackgroundStyle()
 {
     d->m_background->setStyleSheet("QWidget { background-color:" + d->m_baseColor.name() + ";}");
 }
 
-void CrumblePath::pushElement(const QString &title)
+void CrumblePath::pushElement(const QString &title, const QVariant data)
 {
     CrumblePathButton *newButton = new CrumblePathButton(title, this);
     newButton->hide();
@@ -237,6 +272,7 @@ void CrumblePath::pushElement(const QString &title)
         segType = CrumblePathButton::FirstSegment | CrumblePathButton::LastSegment;
         newButton->setSegmentType(segType);
     }
+    newButton->setData(data);
     d->m_buttons.append(newButton);
 
     resizeButtons();
@@ -272,8 +308,6 @@ void CrumblePath::resizeEvent(QResizeEvent *)
 
 void CrumblePath::resizeButtons()
 {
-    int buttonMinWidth = 0;
-    int buttonMaxWidth = 0;
     int totalWidthLeft = width();
 
     if (d->m_buttons.length() >= 1) {
@@ -281,26 +315,34 @@ void CrumblePath::resizeButtons()
 
         d->m_buttons[0]->raise();
         // rearrange all items so that the first item is on top (added last).
+
+        // compute relative sizes
+        QList <int> sizes;
+        int totalSize = 0;
         for(int i = 0; i < d->m_buttons.length() ; ++i) {
             CrumblePathButton *button = d->m_buttons[i];
 
             QFontMetrics fm(button->font());
-            buttonMinWidth = ArrowBorderSize + fm.width(button->text()) + ArrowBorderSize * 2 ;
-            buttonMaxWidth = (totalWidthLeft + ArrowBorderSize * (d->m_buttons.length() - i)) / (d->m_buttons.length() - i);
+            int originalSize = ArrowBorderSize + fm.width(button->text()) + ArrowBorderSize + 12;
+            sizes << originalSize;
+            totalSize += originalSize - ArrowBorderSize;
+        }
 
-            if (buttonMinWidth > buttonMaxWidth && i < d->m_buttons.length() - 1) {
-                buttonMinWidth = buttonMaxWidth;
-            } else if (i > 3 && (i == d->m_buttons.length() - 1)) {
-                buttonMinWidth = width() - nextElementPosition.x();
-                buttonMaxWidth = buttonMinWidth;
-            }
+        for (int i = 0; i < d->m_buttons.length() ; ++i) {
+            CrumblePathButton *button = d->m_buttons[i];
 
-            button->setMinimumWidth(buttonMinWidth);
-            button->setMaximumWidth(buttonMaxWidth);
+            int candidateSize = (sizes[i]*totalWidthLeft)/totalSize;
+            if (candidateSize < ArrowBorderSize)
+                candidateSize = ArrowBorderSize;
+            if (candidateSize > sizes[i]*1.3)
+                candidateSize = sizes[i]*1.3;
+
+
+            button->setMinimumWidth(candidateSize);
+            button->setMaximumWidth(candidateSize);
             button->move(nextElementPosition);
 
             nextElementPosition.rx() += button->width() - ArrowBorderSize;
-            totalWidthLeft -= button->width();
 
             button->show();
             if (i > 0)

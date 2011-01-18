@@ -70,6 +70,10 @@ public:
     QDeclarativeDebugExpressionQuery *queryExpressionResult(int objectDebugId, const QString &expr, QObject *parent=0);
     void clearComponentCache();
 
+    bool addObjectWatch(int objectDebugId);
+    bool removeObjectWatch(int objectDebugId);
+    void removeAllObjectWatches();
+
     // returns the object references
     QList<QDeclarativeDebugObjectReference> objectReferences() const;
     QDeclarativeDebugObjectReference objectReferenceForId(int debugId) const;
@@ -108,6 +112,7 @@ signals:
     void serverReloaded();
     void selectedColorChanged(const QColor &color);
     void contextPathUpdated(const QStringList &contextPath);
+    void propertyChanged(int debugId, const QByteArray &propertyName, const QVariant &propertyValue);
 
 public slots:
     void refreshObjectTree();
@@ -139,6 +144,7 @@ private slots:
     void objectTreeFetched(QDeclarativeDebugQuery::State state = QDeclarativeDebugQuery::Completed);
     void fetchContextObjectRecursive(const QmlJsDebugClient::QDeclarativeDebugContextReference& context);
     void newObjects();
+    void objectWatchTriggered(const QByteArray &propertyName, const QVariant &propertyValue);
 
 private:
     void updateConnected();
@@ -163,6 +169,8 @@ private:
     QList<QDeclarativeDebugEngineReference> m_engines;
     QTimer m_requestObjectsTimer;
     DebugIdHash m_debugIdHash;
+
+    QHash<int, QDeclarativeDebugWatch *> m_objectWatches;
 
     bool m_isConnected;
 };

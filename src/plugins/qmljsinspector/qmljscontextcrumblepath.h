@@ -46,9 +46,11 @@ public:
     ContextCrumblePath(QWidget *parent = 0);
     virtual ~ContextCrumblePath();
     bool isEmpty() const;
+    int debugIdForIndex(int index) const;
 
 public slots:
-    void updateContextPath(const QStringList &path);
+    void updateContextPath(const QStringList &path, const QList<int> &debugIds);
+    void selectIndex(int index);
 private:
     bool m_isEmpty;
 };
