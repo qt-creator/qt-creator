@@ -468,6 +468,7 @@ void Action::addOverrideAction(QAction *action, const Core::Context &context, bo
         }
     }
     m_scriptableMap[action] = scriptable;
+    setCurrentContext(m_context);
 }
 
 void Action::removeOverrideAction(QAction *action)

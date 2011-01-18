@@ -372,6 +372,7 @@ Action *ActionManagerPrivate::overridableAction(const Id &id)
         m_mainWnd->addAction(a->action());
         a->action()->setObjectName(id);
         a->action()->setShortcutContext(Qt::ApplicationShortcut);
+        a->setCurrentContext(m_context);
     }
 
     return a;
