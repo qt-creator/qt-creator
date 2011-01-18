@@ -45,6 +45,8 @@
 #include <QtGui/QIcon>
 #include <QtGui/QMessageBox>
 
+#include <cctype>
+
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
