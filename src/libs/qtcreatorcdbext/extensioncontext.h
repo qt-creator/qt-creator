@@ -42,6 +42,7 @@
 
 class LocalsSymbolGroup;
 class WatchesSymbolGroup;
+class OutputCallback;
 
 // Global singleton with context.
 // Caches a symbolgroup per frame and thread as long as the session is accessible.
@@ -97,6 +98,11 @@ public:
     // Set a stop reason to be reported with the next idle notification (exception).
     void setStopReason(const StopReasonMap &, const std::string &reason = std::string());
 
+    void startRecordingOutput();
+    std::wstring stopRecordingOutput();
+    // Execute a function call and record the output.
+    bool call(const std::string &functionCall, std::wstring *output, std::string *errorMessage);
+
 private:
     bool isInitialized() const;
     void discardSymbolGroup();
@@ -109,9 +115,10 @@ private:
     IDebugEventCallbacks *m_oldEventCallback;
     IDebugOutputCallbacksWide *m_oldOutputCallback;
     IDebugEventCallbacks *m_creatorEventCallback;
-    IDebugOutputCallbacksWide *m_creatorOutputCallback;
+    OutputCallback *m_creatorOutputCallback;
 
     StopReasonMap m_stopReason;
+    bool m_stateNotification;
 };
 
 // Context for extension commands to be instantiated on stack in a command handler.

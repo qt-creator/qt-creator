@@ -70,6 +70,9 @@ class SymbolGroupValue
     explicit SymbolGroupValue(const std::string &parentError);
 
 public:
+    typedef std::pair<std::string, ULONG64> Symbol;
+    typedef std::list<Symbol> SymbolList;
+
     explicit SymbolGroupValue(SymbolGroupNode *node, const SymbolGroupValueContext &c);
     SymbolGroupValue();
 
@@ -129,9 +132,13 @@ public:
                                    const SymbolGroupValueContext &ctx,
                                    const std::string &currentModule = std::string());
 
-    static std::list<std::string> resolveSymbol(const char *pattern,
-                                                const SymbolGroupValueContext &c,
-                                                std::string *errorMessage = 0);
+    static std::list<std::string> resolveSymbolName(const char *pattern,
+                                                    const SymbolGroupValueContext &c,
+                                                    std::string *errorMessage = 0);
+    static SymbolList resolveSymbol(const char *pattern,
+                                    const SymbolGroupValueContext &c,
+                                    std::string *errorMessage = 0);
+
     static unsigned pointerSize();
     static unsigned intSize();
 

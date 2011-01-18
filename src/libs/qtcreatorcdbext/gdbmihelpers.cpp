@@ -35,6 +35,8 @@
 #include "stringutils.h"
 #include "iinterfacepointer.h"
 #include "base64.h"
+#include "symbolgroupvalue.h"
+#include "extensioncontext.h"
 
 #include <vector>
 
@@ -619,4 +621,52 @@ std::string gdbmiStack(CIDebugControl *debugControl,
     }
     str << ']';
     return str.str();
+}
+
+// Find the widget of the application by calling QApplication::widgetAt().
+// Return "Qualified_ClassName:Address"
+
+static inline std::string msgWidgetParseError(std::wstring wo)
+{
+    replace(wo, L'\n', L';');
+    return "Output parse error :" + wStringToString(wo);
+}
+
+std::string widgetAt(const SymbolGroupValueContext &ctx, int x, int y, std::string *errorMessage)
+{
+    typedef SymbolGroupValue::SymbolList SymbolList;
+    // First, resolve symbol since there are ambiguities. Take the first one which is the
+    // overload for (int,int) and call by address instead off name to overcome that.
+    const std::string func = QtInfo::get(ctx).prependQtGuiModule("QApplication::widgetAt");
+    const SymbolList symbols = SymbolGroupValue::resolveSymbol(func.c_str(), ctx, errorMessage);
+    if (symbols.empty())
+        return std::string(); // Not a gui application, likely
+    std::ostringstream callStr;
+    callStr << std::showbase << std::hex << symbols.front().second
+            << std::noshowbase << std::dec << '(' << x << ',' << y << ')';
+    std::wstring wOutput;
+    if (!ExtensionContext::instance().call(callStr.str(), &wOutput, errorMessage))
+        return std::string();
+    // Returns: ".call returns\nclass QWidget * 0x00000000`022bf100\nbla...".
+    // Chop lines in front and after 'class ...' and convert first line.
+    const std::wstring::size_type classPos = wOutput.find(L"class ");
+    if (classPos == std::wstring::npos) {
+        *errorMessage = msgWidgetParseError(wOutput);
+        return std::string();
+    }
+    wOutput.erase(0, classPos + 6);
+    const std::wstring::size_type nlPos = wOutput.find(L'\n');
+    if (nlPos != std::wstring::npos)
+        wOutput.erase(nlPos, wOutput.size() - nlPos);
+    const std::string::size_type addressPos = wOutput.find(L" * 0x");
+    if (addressPos == std::string::npos) {
+        *errorMessage = msgWidgetParseError(wOutput);
+        return std::string();
+    }
+    // "QWidget * 0x00000000`022bf100" -> "QWidget:0x00000000022bf100"
+    wOutput.replace(addressPos, 3, L":");
+    const std::string::size_type sepPos = wOutput.find(L'`');
+    if (sepPos != std::string::npos)
+        wOutput.erase(sepPos, 1);
+    return wStringToString(wOutput);
 }

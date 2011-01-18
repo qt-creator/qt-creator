@@ -63,8 +63,13 @@ public:
             IN PCWSTR text
             );
 
+    void startRecording();
+    std::wstring stopRecording();
+
 private:
     IDebugOutputCallbacksWide *m_wrapped;
+    bool m_recording;
+    std::wstring m_recorded;
 };
 
 #endif // DEBUGEVENTOUTPUT_H

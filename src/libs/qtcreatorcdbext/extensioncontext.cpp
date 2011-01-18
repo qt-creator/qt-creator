@@ -48,7 +48,7 @@ const char *ExtensionContext::stopReasonKeyC = "reason";
 ExtensionContext::ExtensionContext() :
     m_hookedClient(0),
     m_oldEventCallback(0), m_oldOutputCallback(0),
-    m_creatorEventCallback(0), m_creatorOutputCallback(0)
+    m_creatorEventCallback(0), m_creatorOutputCallback(0), m_stateNotification(true)
 {
 }
 
@@ -79,6 +79,20 @@ void ExtensionContext::hookCallbacks(CIDebugClient *client)
         m_creatorOutputCallback = new OutputCallback(m_oldOutputCallback);
         client->SetOutputCallbacksWide(m_creatorOutputCallback);
     }
+}
+
+void ExtensionContext::startRecordingOutput()
+{
+    if (m_creatorOutputCallback) {
+        m_creatorOutputCallback->startRecording();
+    } else {
+        report('X', 0, 0, "Error", "ExtensionContext::startRecordingOutput() called with no output hooked.\n");
+    }
+}
+
+std::wstring ExtensionContext::stopRecordingOutput()
+{
+    return m_creatorOutputCallback ? m_creatorOutputCallback->stopRecording() : std::wstring();
 }
 
 void ExtensionContext::setStopReason(const StopReasonMap &r, const std::string &reason)
@@ -163,37 +177,41 @@ static inline ExtensionContext::StopReasonMap
 void ExtensionContext::notifyIdle()
 {
     discardSymbolGroup();
-
-    const StopReasonMap stopReasons = completeStopReasons(m_stopReason, executionStatus());
-    m_stopReason.clear();
-    // Format
-    std::ostringstream str;
-    formatGdbmiHash(str, stopReasons);
-    reportLong('E', 0, "session_idle", str.str());
+    if (m_stateNotification) {
+        const StopReasonMap stopReasons = completeStopReasons(m_stopReason, executionStatus());
+        // Format
+        std::ostringstream str;
+        formatGdbmiHash(str, stopReasons);
+        reportLong('E', 0, "session_idle", str.str());
+    }
     m_stopReason.clear();
 }
 
 void ExtensionContext::notifyState(ULONG Notify)
 {
     const ULONG ex = executionStatus();
-    switch (Notify) {
-    case DEBUG_NOTIFY_SESSION_ACTIVE:
-        report('E', 0, 0, "session_active", "%u", ex);
-        break;
-    case DEBUG_NOTIFY_SESSION_ACCESSIBLE: // Meaning, commands accepted
-        report('E', 0, 0, "session_accessible", "%u", ex);
-        break;
-    case DEBUG_NOTIFY_SESSION_INACCESSIBLE:
-        report('E', 0, 0, "session_inaccessible", "%u", ex);
-        break;
-    case DEBUG_NOTIFY_SESSION_INACTIVE:
-        report('E', 0, 0, "session_inactive", "%u", ex);
+    if (m_stateNotification) {
+        switch (Notify) {
+        case DEBUG_NOTIFY_SESSION_ACTIVE:
+            report('E', 0, 0, "session_active", "%u", ex);
+            break;
+        case DEBUG_NOTIFY_SESSION_ACCESSIBLE: // Meaning, commands accepted
+            report('E', 0, 0, "session_accessible", "%u", ex);
+            break;
+        case DEBUG_NOTIFY_SESSION_INACCESSIBLE:
+            report('E', 0, 0, "session_inaccessible", "%u", ex);
+            break;
+        case DEBUG_NOTIFY_SESSION_INACTIVE:
+            report('E', 0, 0, "session_inactive", "%u", ex);
+            break;
+        }
+    }
+    if (Notify == DEBUG_NOTIFY_SESSION_INACTIVE) {
         discardSymbolGroup();
         discardWatchesSymbolGroup();
         // We lost the debuggee, at this point restore output.
         if (ex & DEBUG_STATUS_NO_DEBUGGEE)
             unhookCallbacks();
-        break;
     }
 }
 
@@ -276,6 +294,48 @@ bool ExtensionContext::reportLong(char code, int token, const char *serviceName,
             nextPos = size;
         report(code, token, remaining, serviceName, "%s", message.substr(pos, nextPos - pos).c_str());
         pos = nextPos;
+    }
+    return true;
+}
+
+bool ExtensionContext::call(const std::string &functionCall,
+                            std::wstring *output,
+                            std::string *errorMessage)
+{
+    if (!m_creatorOutputCallback) {
+        *errorMessage = "Attempt to issue a call with no output hooked.";
+        return false;
+    }
+    // Set up arguments
+    const std::string call = ".call " + functionCall;
+    HRESULT hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, call.c_str(), DEBUG_EXECUTE_ECHO);
+    if (FAILED(hr)) {
+        *errorMessage = msgDebugEngineComFailed("Execute", hr);
+        return 0;
+    }
+    // Execute in current thread. TODO: This must not crash, else we are in an inconsistent state
+    // (need to call 'gh', etc.)
+    hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, "~. g", DEBUG_EXECUTE_ECHO);
+    if (FAILED(hr)) {
+        *errorMessage = msgDebugEngineComFailed("Execute", hr);
+        return 0;
+    }
+    // Wait until finished
+    startRecordingOutput();
+    m_stateNotification = false;
+    m_control->WaitForEvent(0, INFINITE);
+    *output =  stopRecordingOutput();
+    m_stateNotification = true;
+    // Crude attempt at recovering from a crash: Issue 'gN' (go with exception not handled).
+    const bool crashed = output->find(L"This exception may be expected and handled.") != std::string::npos;
+    if (crashed) {
+        m_stopReason.clear();
+        m_stateNotification = false;
+        hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, "~. gN", DEBUG_EXECUTE_ECHO);
+        m_control->WaitForEvent(0, INFINITE);
+        m_stateNotification = true;
+        *errorMessage = "A crash occurred while calling: " + functionCall;
+        return false;
     }
     return true;
 }

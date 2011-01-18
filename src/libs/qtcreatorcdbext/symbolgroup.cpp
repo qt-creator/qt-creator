@@ -701,7 +701,6 @@ static bool parseWatchExpression(const std::string &expression,
     for ( ; pos < size ; pos++) {
         const char c = expression.at(pos);
         const WatchExpressionParseState nextState = nextWatchExpressionParseState(state, c, &templateLevel);
-        DebugPrint() <<         c << ' ' << pos << ' ' << state << ' ' << nextState <<  ' ' << templateLevel;
         if (nextState == WEPS_Error)
             return false;
         if (nextState != state && state == WEPS_WithinType)
@@ -767,16 +766,19 @@ bool WatchesSymbolGroup::addWatch(CIDebugSymbols *s, std::string iname, const st
     return true;
 }
 
-// Compile map of current state root-iname->root-expression
+// Compile map of current state root-iname->root-expression (top-level)
 WatchesSymbolGroup::InameExpressionMap
     WatchesSymbolGroup::currentInameExpressionMap() const
 {
+    // Skip additional, expanded nodes
     InameExpressionMap rc;
-    if (unsigned size = unsigned(root()->children().size()))
+    if (unsigned size = unsigned(root()->children().size())) {
         for (unsigned i = 0; i < size; i++) {
             const AbstractSymbolGroupNode *n = root()->childAt(i);
-            rc.insert(InameExpressionMap::value_type(n->iName(), n->name()));
+            if (n->testFlags(SymbolGroupNode::WatchNode))
+                rc.insert(InameExpressionMap::value_type(n->iName(), n->name()));
         }
+    }
     return rc;
 }
 

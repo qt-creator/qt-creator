@@ -100,6 +100,7 @@ enum Command {
     CmdStack,
     CmdShutdownex,
     CmdAddWatch,
+    CmdWidgetAt,
     CmdTest
 };
 
@@ -155,6 +156,7 @@ static const CommandDescription commandDescriptions[] = {
 {"stack","Prints stack in GDBMI format.","[-t token] [max-frames]"},
 {"shutdownex","Unhooks output callbacks.\nNeeds to be called explicitly only in case of remote debugging.",""},
 {"addwatch","Add watch expression","<iname> <expression>"},
+{"widgetat","Return address of widget at position","<x> <y>"},
 {"test","Testing command","-T type | -w watch-expression"}
 };
 
@@ -940,6 +942,38 @@ extern "C" HRESULT CALLBACK stack(CIDebugClient *Client, PCSTR argsIn)
 extern "C" HRESULT CALLBACK shutdownex(CIDebugClient *, PCSTR)
 {
     ExtensionContext::instance().unhookCallbacks();
+    return S_OK;
+}
+
+extern "C" HRESULT CALLBACK widgetat(CIDebugClient *client, PCSTR argsIn)
+{
+    ExtensionCommandContext exc(client);
+    int token = 0;
+    std::string widgetAddress;
+    std::string errorMessage;
+
+    do {
+        int x = -1;
+        int y = -1;
+
+        const StringVector tokens = commandTokens<StringVector>(argsIn, &token);
+        if (tokens.size() != 2) {
+            errorMessage = singleLineUsage(commandDescriptions[CmdWidgetAt]);
+            break;
+        }
+        if (!integerFromString(tokens.front(), &x) || !integerFromString(tokens.at(1), &y)) {
+            errorMessage = singleLineUsage(commandDescriptions[CmdWidgetAt]);
+            break;
+        }
+        widgetAddress = widgetAt(SymbolGroupValueContext(exc.dataSpaces(), exc.symbols()),
+                                 x, y, &errorMessage);
+    } while (false);
+
+    if (widgetAddress.empty()) {
+        ExtensionContext::instance().report('N', token, 0, "widgetat", errorMessage.c_str());
+    } else {
+        ExtensionContext::instance().reportLong('R', token, "widgetat", widgetAddress);
+    }
     return S_OK;
 }
 

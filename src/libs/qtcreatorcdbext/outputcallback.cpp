@@ -38,7 +38,8 @@
 
 #include <cstring>
 
-OutputCallback::OutputCallback(IDebugOutputCallbacksWide *wrapped) : m_wrapped(wrapped)
+OutputCallback::OutputCallback(IDebugOutputCallbacksWide *wrapped) :
+    m_wrapped(wrapped), m_recording(false)
 {
 }
 
@@ -85,6 +86,9 @@ STDMETHODIMP OutputCallback::Output(
         IN PCWSTR text
         )
 {
+
+    if (m_recording)
+        m_recorded.append(text);
     // Do not unconditionally output ourselves here, as this causes an endless
     // recursion. Suppress prompts (note that sequences of prompts may mess parsing up)
     if (!m_wrapped || mask == DEBUG_OUTPUT_PROMPT)
@@ -99,4 +103,18 @@ STDMETHODIMP OutputCallback::Output(
     base64Encode(str, reinterpret_cast<const unsigned char *>(text), sizeof(wchar_t) * std::wcslen(text));
     ExtensionContext::instance().reportLong('E', 0, "debuggee_output", str.str().c_str());
     return S_OK;
+}
+
+void OutputCallback::startRecording()
+{
+    m_recorded.clear();
+    m_recording = true;
+}
+
+std::wstring OutputCallback::stopRecording()
+{
+    const std::wstring rc = m_recorded;
+    m_recorded.clear();
+    m_recording = false;
+    return rc;
 }

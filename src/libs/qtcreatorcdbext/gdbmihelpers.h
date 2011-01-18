@@ -37,6 +37,8 @@
 #include "common.h"
 #include <vector>
 
+struct SymbolGroupValueContext;
+
 /* Various helpers to the extension commands to retrieve debuggee information
  * in suitable formats for the debugger engine. */
 
@@ -158,5 +160,10 @@ StackFrames getStackTrace(CIDebugControl *debugControl, CIDebugSymbols *debugSym
 std::string gdbmiStack(CIDebugControl *debugControl, CIDebugSymbols *debugSymbols,
                        unsigned maxFrames, bool humanReadable,
                        std::string *errorMessage);
+
+// Find the widget of the application at (x,y) by calling QApplication::widgetAt().
+// Return a string of "Qualified_ClassName:Address"
+std::string widgetAt(const SymbolGroupValueContext &ctx,
+                     int x, int y, std::string *errorMessage);
 
 #endif // THREADLIST_H

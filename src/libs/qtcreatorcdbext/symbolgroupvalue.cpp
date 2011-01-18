@@ -398,7 +398,7 @@ static inline std::string resolveQtSymbol(const char *symbolC,
     std::string defaultPattern = defaultModuleNameC;
     defaultPattern.push_back('!');
     defaultPattern += symbolC;
-    const StringList defaultMatches = SymbolGroupValue::resolveSymbol(defaultPattern.c_str(), ctx);
+    const StringList defaultMatches = SymbolGroupValue::resolveSymbolName(defaultPattern.c_str(), ctx);
     const SubStringPredicate modulePattern(modulePatternC);
     const StringListConstIt defaultIt = std::find_if(defaultMatches.begin(), defaultMatches.end(), modulePattern);
     if (defaultIt !=  defaultMatches.end())
@@ -406,7 +406,7 @@ static inline std::string resolveQtSymbol(const char *symbolC,
     // Fail, now try a search with '*qstrdup' in all modules. This might return several matches
     // like 'QtCored4!qstrdup', 'QGuid4!qstrdup'
     const std::string wildCardPattern = std::string(1, '*') + symbolC;
-    const StringList allMatches = SymbolGroupValue::resolveSymbol(wildCardPattern.c_str(), ctx);
+    const StringList allMatches = SymbolGroupValue::resolveSymbolName(wildCardPattern.c_str(), ctx);
     const StringListConstIt allIt = std::find_if(allMatches.begin(), allMatches.end(), modulePattern);
     return allIt != allMatches.end() ? *allIt : std::string();
 }
@@ -491,12 +491,29 @@ std::ostream &operator<<(std::ostream &os, const QtInfo &i)
 }
 
 std::list<std::string>
+    SymbolGroupValue::resolveSymbolName(const char *pattern,
+                                    const SymbolGroupValueContext &c,
+                                    std::string *errorMessage /* = 0 */)
+{
+    // Extract the names
+    const SymbolList symbols = resolveSymbol(pattern, c, errorMessage);
+    std::list<std::string> rc;
+    if (!symbols.empty()) {
+        const SymbolList::const_iterator cend = symbols.end();
+        for (SymbolList::const_iterator it = symbols.begin(); it != cend; ++it)
+            rc.push_back(it->first);
+    }
+    return rc;
+
+}
+
+SymbolGroupValue::SymbolList
     SymbolGroupValue::resolveSymbol(const char *pattern,
                                     const SymbolGroupValueContext &c,
                                     std::string *errorMessage /* = 0 */)
 {
     enum { bufSize = 2048 };
-    std::list<std::string> rc;
+    std::list<Symbol> rc;
     if (errorMessage)
         errorMessage->clear();
     // Is it an incomplete symbol?
@@ -518,12 +535,13 @@ std::list<std::string>
         return rc;
     }
     char buf[bufSize];
+    ULONG64 offset;
     while (true) {
-        hr = c.symbols->GetNextSymbolMatch(handle, buf, bufSize - 1, 0, 0);
+        hr = c.symbols->GetNextSymbolMatch(handle, buf, bufSize - 1, 0, &offset);
         if (hr == E_NOINTERFACE)
             break;
         if (hr == S_OK)
-            rc.push_back(std::string(buf));
+            rc.push_back(Symbol(std::string(buf), offset));
     }
     c.symbols->EndSymbolMatch(handle);
     return rc;

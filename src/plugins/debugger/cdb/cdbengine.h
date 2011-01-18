@@ -89,6 +89,7 @@ public:
     virtual void updateWatchData(const WatchData &data,
                                  const WatchUpdateFlags & flags = WatchUpdateFlags());
     virtual unsigned debuggerCapabilities() const;
+    virtual void watchPoint(const QPoint &);
     virtual void setRegisterValue(int regnr, const QString &value);
 
     virtual void executeStep();
@@ -150,7 +151,12 @@ private slots:
     void operateByInstructionTriggered(bool);
 
 private:
-    enum SpecialStopMode { NoSpecialStop, SpecialStopSynchronizeBreakpoints };
+    enum SpecialStopMode
+    {
+        NoSpecialStop,
+        SpecialStopSynchronizeBreakpoints,
+        SpecialStopGetWidgetAt
+    };
 
     unsigned examineStopReason(const QByteArray &messageIn, QString *message,
                                QString *exceptionBoxMessage);
@@ -166,6 +172,7 @@ private:
     inline bool isCdbProcessRunning() const { return m_process.state() != QProcess::NotRunning; }
     bool canInterruptInferior() const;
     void syncOperateByInstruction(bool operateByInstruction);
+    void postWidgetAtCommand();
 
     // Builtin commands
     void dummyHandler(const CdbBuiltinCommandPtr &);
@@ -182,6 +189,7 @@ private:
     void handleRegisters(const CdbExtensionCommandPtr &reply);
     void handleModules(const CdbExtensionCommandPtr &reply);
     void handleMemory(const CdbExtensionCommandPtr &);
+    void handleWidgetAt(const CdbExtensionCommandPtr &);
 
     QString normalizeFileName(const QString &f);
     void updateLocalVariable(const QByteArray &iname);
@@ -215,6 +223,8 @@ private:
     QByteArray m_extensionMessageBuffer;
     bool m_sourceStepInto;
     unsigned m_wX86BreakpointCount;
+    int m_watchPointX;
+    int m_watchPointY;
 };
 
 } // namespace Internal

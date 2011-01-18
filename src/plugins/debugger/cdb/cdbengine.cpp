@@ -353,7 +353,9 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp,
     m_hasDebuggee(false),
     m_elapsedLogTime(0),
     m_sourceStepInto(false),
-    m_wX86BreakpointCount(0)
+    m_wX86BreakpointCount(0),
+    m_watchPointX(0),
+    m_watchPointY(0)
 {
     Utils::SavedAction *assemblerAction = theAssemblerAction();
     m_operateByInstructionPending = assemblerAction->isChecked();
@@ -1443,6 +1445,12 @@ unsigned CdbEngine::examineStopReason(const QByteArray &messageIn,
         *message = tr("Malformed stop response received.");
         return StopReportParseError|StopNotifyStop;
     }
+    // Additional stop messages occurring for debuggee function calls (widgetAt, etc). Just log.
+    if (state() == InferiorStopOk) {
+        *message = QString::fromLatin1("Ignored stop notification from function call (%1).").
+                    arg(QString::fromAscii(reason));
+        return StopReportLog;
+    }
     const int threadId = stopReason.findChild("threadId").data().toInt();
     if (reason == "breakpoint") {
         const int number = stopReason.findChild("breakpointId").data().toInt();
@@ -1510,6 +1518,9 @@ void CdbEngine::handleSessionIdle(const QByteArray &messageBA)
             qDebug("attemptBreakpointSynchronization in special stop");
         attemptBreakpointSynchronization();
         doContinueInferior();
+        return;
+    case SpecialStopGetWidgetAt:
+        postWidgetAtCommand();
         return;
     case NoSpecialStop:
         break;
@@ -2110,6 +2121,68 @@ void CdbEngine::postCommandSequence(unsigned mask)
         postExtensionCommand("modules", QByteArray(), 0, &CdbEngine::handleModules, mask & ~CommandListModules);
         return;
     }
+}
+
+void CdbEngine::handleWidgetAt(const CdbExtensionCommandPtr &reply)
+{
+    bool success = false;
+    QString message;
+    do {
+        if (!reply->success) {
+            message = QString::fromAscii(reply->errorMessage);
+            break;
+        }
+        // Should be "namespace::QWidget:0x555"
+        QString watchExp = QString::fromAscii(reply->reply);
+        const int sepPos = watchExp.lastIndexOf(QLatin1Char(':'));
+        if (sepPos == -1) {
+            message = QString::fromAscii("Invalid output: %1").arg(watchExp);
+            break;
+        }
+        // 0x000 -> nothing found
+        if (!watchExp.mid(sepPos + 1).toULongLong(0, 0)) {
+            message = QString::fromAscii("No widget could be found at %1, %2.").arg(m_watchPointX).arg(m_watchPointY);
+            break;
+        }
+        // Turn into watch expression: "*(namespace::QWidget*)0x555"
+        watchExp.replace(sepPos, 1, QLatin1String("*)"));
+        watchExp.insert(0, QLatin1String("*("));
+        watchHandler()->watchExpression(watchExp);
+        success = true;
+    } while (false);
+    if (!success)
+        showMessage(message, LogWarning);
+    m_watchPointX = m_watchPointY = 0;
+}
+
+void CdbEngine::watchPoint(const QPoint &p)
+{
+    m_watchPointX = p.x();
+    m_watchPointY = p.y();
+    switch (state()) {
+    case InferiorStopOk:
+        postWidgetAtCommand();
+        break;
+    case InferiorRunOk:
+        // "Select Widget to Watch" from a running application is currently not
+        // supported. It could be implemented via SpecialStopGetWidgetAt-mode,
+        // but requires some work as not to confuse the engine by state-change notifications
+        // emitted by the debuggee function call.
+        showMessage(tr("\"Select Widget to Watch\": Please stop the application first."), LogWarning);
+        break;
+    default:
+        showMessage(tr("\"Select Widget to Watch\": Not supported in state '%1'.").
+                    arg(QString::fromAscii(stateName(state()))), LogWarning);
+        break;
+    }
+}
+
+void CdbEngine::postWidgetAtCommand()
+{
+    QByteArray arguments = QByteArray::number(m_watchPointX);
+    arguments.append(' ');
+    arguments.append(QByteArray::number(m_watchPointY));
+    postExtensionCommand("widgetat", arguments, 0, &CdbEngine::handleWidgetAt, 0);
 }
 
 } // namespace Internal
