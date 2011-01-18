@@ -84,7 +84,7 @@ public:
     SessionFile();
 
     bool load(const QString &fileName);
-    bool save(const QString &fileName = QString());
+    bool save();
 
     QString fileName() const;
     void setFileName(const QString &fileName);
@@ -221,11 +221,8 @@ bool SessionFile::load(const QString &fileName)
     return true;
 }
 
-bool SessionFile::save(const QString &fileName)
+bool SessionFile::save()
 {
-    if (!fileName.isEmpty())
-        m_fileName = fileName;
-
     Q_ASSERT(!m_fileName.isEmpty());
 
     if (debug)
