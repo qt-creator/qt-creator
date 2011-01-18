@@ -1111,9 +1111,13 @@ void CdbEngine::updateLocals()
         watchHandler()->endCycle();
         return;
     }
-    // Watchers: Initial expand, get uninitialized and query
+    /* Watchers: Forcibly discard old symbol group as switching from
+     * thread 0/frame 0 -> thread 1/assembly -> thread 0/frame 0 will otherwise re-use it
+     * and cause errors as it seems to go 'stale' when switching threads.
+     * Initial expand, get uninitialized and query */
     QByteArray arguments;
     ByteArrayInputStream str(arguments);
+    str << "-D";
     // Pre-expand
     const QSet<QByteArray> expanded = watchHandler()->expandedINames();
     if (!expanded.isEmpty()) {
@@ -1428,7 +1432,9 @@ enum StopActionFlags
     StopShowExceptionMessageBox = 0x4,
     // Notify stop or just continue
     StopNotifyStop = 0x8,
-    StopIgnoreContinue = 0x10
+    StopIgnoreContinue = 0x10,
+    // Hit on break in artificial stop thread (created by DebugBreak()).
+    StopInArtificialThread = 0x20
 };
 
 unsigned CdbEngine::examineStopReason(const QByteArray &messageIn,
@@ -1483,8 +1489,12 @@ unsigned CdbEngine::examineStopReason(const QByteArray &messageIn,
             }
         }
         if (isDebuggerWinException(exception.exceptionCode)) {
+            unsigned rc = StopReportStatusMessage|StopNotifyStop;
+            // Detect interruption by DebugBreak() and force a switch to thread 0.
+            if (exception.function == "ntdll!DbgBreakPoint")
+                rc |= StopInArtificialThread;
             *message = msgInterrupted();
-            return StopReportStatusMessage|StopNotifyStop;
+            return rc;
         }
 #endif
         *exceptionBoxMessage = msgStoppedByException(description, QString::number(threadId));
@@ -1561,6 +1571,10 @@ void CdbEngine::handleSessionIdle(const QByteArray &messageBA)
             notifyInferiorSpontaneousStop();
         }
         // Start sequence to get all relevant data.
+        if (stopFlags & StopInArtificialThread) {
+            showMessage(tr("Switching to main thread..."), LogMisc);
+            postCommand("~0 s", 0);
+        }
         unsigned sequence = CommandListStack|CommandListThreads;
         if (debuggerCore()->isDockVisible(QLatin1String(Constants::DOCKWIDGET_REGISTER)))
             sequence |= CommandListRegisters;

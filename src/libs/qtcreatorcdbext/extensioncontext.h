@@ -90,6 +90,7 @@ public:
     // Return symbol group for frame (cached as long as frame/thread do not change).
     LocalsSymbolGroup *symbolGroup(CIDebugSymbols *symbols, ULONG threadId, int frame, std::string *errorMessage);
     int symbolGroupFrame() const;
+    void discardSymbolGroup();
 
     WatchesSymbolGroup *watchesSymbolGroup(CIDebugSymbols *symbols, std::string *errorMessage);
     WatchesSymbolGroup *watchesSymbolGroup() const; // Do not create.
@@ -105,7 +106,6 @@ public:
 
 private:
     bool isInitialized() const;
-    void discardSymbolGroup();
 
     IInterfacePointer<CIDebugControl> m_control;
     std::auto_ptr<LocalsSymbolGroup> m_symbolGroup;

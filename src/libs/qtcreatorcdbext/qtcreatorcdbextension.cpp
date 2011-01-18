@@ -125,6 +125,7 @@ static const CommandDescription commandDescriptions[] = {
  "-u uninitialized-list Comma-separated list of uninitialized inames\n"
  "-I formatmap          map of 'hex-encoded-iname=typecode'\n"
  "-T formatmap          map of 'hex-encoded-type-name=typecode'\n"
+ "-D                    Discard existing symbol group\n"
  "-W                    Synchronize watch items (-w)\n"
  "-w iname expression   Watch item"},
 {"watches",
@@ -403,6 +404,7 @@ static std::string commmandLocals(ExtensionCommandContext &commandExtCtx,PCSTR a
     StringVector uninitializedInames;
     InameExpressionMap watcherInameExpressionMap;
     bool watchSynchronization = false;
+    bool discardSymbolGroup = false;
     // Parse away options
     for (bool optionLeft = true;  optionLeft && !tokens.empty(); ) {
         switch (parameters.parseOption(&tokens)) {
@@ -446,6 +448,9 @@ static std::string commmandLocals(ExtensionCommandContext &commandExtCtx,PCSTR a
             case 'W':
                 watchSynchronization = true;
                 break;
+            case 'D':
+                discardSymbolGroup = true;
+                break;
             } // case option
         }
         break;
@@ -466,6 +471,8 @@ static std::string commmandLocals(ExtensionCommandContext &commandExtCtx,PCSTR a
         iname = tokens.front();
 
     const SymbolGroupValueContext dumpContext(commandExtCtx.dataSpaces(), commandExtCtx.symbols());
+    if (discardSymbolGroup)
+        extCtx.discardSymbolGroup();
     SymbolGroup * const symGroup = extCtx.symbolGroup(commandExtCtx.symbols(), commandExtCtx.threadId(), frame, errorMessage);
     if (!symGroup)
         return std::string();
