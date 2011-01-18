@@ -1432,7 +1432,7 @@ void tst_TestCore::testBasicOperationsWithView()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data());
+    NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data(), NodeInstanceServerInterface::TestModus);
     model->attachView(nodeInstanceView);
 
     ModelNode rootModelNode = view->rootModelNode();
@@ -1661,7 +1661,7 @@ void tst_TestCore::testModelRemoveNode()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data());
+    NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data(), NodeInstanceServerInterface::TestModus);
     model->attachView(nodeInstanceView);
 
     QCOMPARE(view->rootModelNode().allDirectSubModelNodes().count(), 0);
@@ -1732,7 +1732,7 @@ void tst_TestCore::reparentingNode()
     QCOMPARE(rootModelNode.id(), QString("rootModelNode"));
 
 
-    NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data());
+    NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data(), NodeInstanceServerInterface::TestModus);
     model->attachView(nodeInstanceView);
 
     ModelNode childNode = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
@@ -1800,7 +1800,7 @@ void tst_TestCore::reparentingNodeLikeDragAndDrop()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data());
+    NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data(), NodeInstanceServerInterface::TestModus);
     model->attachView(nodeInstanceView);
     view->rootModelNode().setId("rootModelNode");
     QCOMPARE(view->rootModelNode().id(), QString("rootModelNode"));
@@ -1909,7 +1909,7 @@ void tst_TestCore::testModelReorderSiblings()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data());
+    NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data(), NodeInstanceServerInterface::TestModus);
     model->attachView(nodeInstanceView);
 
     ModelNode rootModelNode = view->rootModelNode();
@@ -2044,7 +2044,7 @@ void tst_TestCore::testModelAddAndRemoveProperty()
     ModelNode node = view->rootModelNode();
     QVERIFY(node.isValid());
 
-    NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data());
+    NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data(), NodeInstanceServerInterface::TestModus);
     model->attachView(nodeInstanceView);
 
     node.variantProperty("blah").setValue(-1);
@@ -6061,7 +6061,7 @@ void tst_TestCore::testModelBindings()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data());
+    NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data(), NodeInstanceServerInterface::TestModus);
     model->attachView(nodeInstanceView);
 
     ModelNode rootModelNode = nodeInstanceView->rootModelNode();

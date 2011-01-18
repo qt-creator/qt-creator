@@ -112,9 +112,10 @@ d too.
 
 \see ~NodeInstanceView setRenderOffScreen
 */
-NodeInstanceView::NodeInstanceView(QObject *parent)
+NodeInstanceView::NodeInstanceView(QObject *parent, NodeInstanceServerInterface::RunModus runModus)
         : AbstractView(parent),
-          m_baseStatePreviewImage(QSize(100, 100), QImage::Format_ARGB32)
+          m_baseStatePreviewImage(QSize(100, 100), QImage::Format_ARGB32),
+          m_runModus(runModus)
 {
     m_baseStatePreviewImage.fill(0xFFFFFF);
 }
@@ -141,7 +142,7 @@ NodeInstanceView::~NodeInstanceView()
 void NodeInstanceView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
-    m_nodeInstanceServer = new NodeInstanceServerProxy(this);
+    m_nodeInstanceServer = new NodeInstanceServerProxy(this, m_runModus);
     m_lastCrashTime.start();
     connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(handleChrash()));
 
@@ -169,7 +170,7 @@ void NodeInstanceView::restartProcess()
     if (model()) {
         delete nodeInstanceServer();
 
-        m_nodeInstanceServer = new NodeInstanceServerProxy(this);
+        m_nodeInstanceServer = new NodeInstanceServerProxy(this, m_runModus);
         connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(handleChrash()));
 
         nodeInstanceServer()->createScene(createCreateSceneCommand());

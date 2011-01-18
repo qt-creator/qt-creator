@@ -27,6 +27,11 @@ class NodeInstanceServerInterface : public QObject
 {
     Q_OBJECT
 public:
+    enum RunModus {
+        NormalModus,
+        TestModus // No preview images and synchronized
+    };
+
     explicit NodeInstanceServerInterface(QObject *parent = 0);
 
     virtual void createInstances(const CreateInstancesCommand &command) = 0;

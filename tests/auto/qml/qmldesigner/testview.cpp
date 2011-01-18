@@ -45,7 +45,7 @@
 TestView::TestView(QmlDesigner::Model *model)
     : QmlDesigner::QmlModelView(model)
 {
-    QmlDesigner::NodeInstanceView *nodeInstanceView = new QmlDesigner::NodeInstanceView(model);
+    QmlDesigner::NodeInstanceView *nodeInstanceView = new QmlDesigner::NodeInstanceView(model, QmlDesigner::NodeInstanceServerInterface::TestModus);
 
     model->attachView(nodeInstanceView);
 }

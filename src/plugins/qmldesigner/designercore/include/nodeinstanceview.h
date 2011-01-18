@@ -40,6 +40,7 @@
 #include <modelnode.h>
 #include <nodeinstance.h>
 #include <nodeinstanceclientinterface.h>
+#include <nodeinstanceserverinterface.h>
 
 #include <QHash>
 #include <QSet>
@@ -80,7 +81,7 @@ class CORESHARED_EXPORT NodeInstanceView : public AbstractView, public NodeInsta
 public:
     typedef QWeakPointer<NodeInstanceView> Pointer;
 
-    NodeInstanceView(QObject *parent = 0);
+    NodeInstanceView(QObject *parent = 0, NodeInstanceServerInterface::RunModus runModus = NodeInstanceServerInterface::NormalModus);
     ~NodeInstanceView();
 
     void modelAttached(Model *model);
@@ -182,6 +183,7 @@ private: //variables
     QWeakPointer<NodeInstanceServerInterface> m_nodeInstanceServer;
     QImage m_baseStatePreviewImage;
     QTime m_lastCrashTime;
+    NodeInstanceServerInterface::RunModus m_runModus;
 };
 
 } // namespace ProxyNodeInstanceView

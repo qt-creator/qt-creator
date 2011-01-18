@@ -23,12 +23,6 @@ class NodeInstanceServerProxy : public NodeInstanceServerInterface
 {
     Q_OBJECT
 public:
-
-    enum RunModus {
-        NormalModus,
-        TestModus // No preview images and synchronized
-    };
-
     explicit NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus = NormalModus);
     ~NodeInstanceServerProxy();
     void createInstances(const CreateInstancesCommand &command);
