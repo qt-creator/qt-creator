@@ -91,20 +91,28 @@ bool MacrosPlugin::initialize(const QStringList &arguments, QString *error_messa
 
     QAction *startMacro = new QAction(tr("Start Macro"),  this);
     Core::Command *command = am->registerAction(startMacro, Constants::START_MACRO, textContext);
+#ifdef Q_WS_MAC
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+(")));
+#else
     command->setDefaultKeySequence(QKeySequence(tr("Alt+(")));
+#endif
     mmacrotools->addAction(command);
     connect(startMacro, SIGNAL(triggered()), m_macroManager, SLOT(startMacro()));
 
     QAction *endMacro = new QAction(tr("End Macro"),  this);
     endMacro->setEnabled(false);
     command = am->registerAction(endMacro, Constants::END_MACRO, globalcontext);
+#ifdef Q_WS_MAC
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+)")));
+#else
     command->setDefaultKeySequence(QKeySequence(tr("Alt+)")));
+#endif
     mmacrotools->addAction(command);
     connect(endMacro, SIGNAL(triggered()), m_macroManager, SLOT(endMacro()));
 
     QAction *executeLastMacro = new QAction(tr("Execute Last Macro"),  this);
     command = am->registerAction(executeLastMacro, Constants::EXECUTE_LAST_MACRO, textContext);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+R,Alt+M")));
+    command->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+R")));
     mmacrotools->addAction(command);
     connect(executeLastMacro, SIGNAL(triggered()), m_macroManager, SLOT(executeLastMacro()));
 
