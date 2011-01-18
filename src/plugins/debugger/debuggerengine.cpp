@@ -1027,7 +1027,7 @@ void DebuggerEnginePrivate::doFinishDebugger()
     m_engine->showMessage(_("NOTE: FINISH DEBUGGER"));
     QTC_ASSERT(state() == DebuggerFinished, qDebug() << m_engine << state());
     resetLocation();
-    if (isMasterEngine())
+    if (isMasterEngine() && m_runControl)
         m_runControl->debuggingFinished();
 }
 
