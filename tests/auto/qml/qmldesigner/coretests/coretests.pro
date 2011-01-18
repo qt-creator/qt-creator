@@ -19,6 +19,7 @@ INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore
 include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/designercore.pri)
 include($$IDE_SOURCE_TREE/src/libs/utils/utils-lib.pri)
 include($$IDE_SOURCE_TREE/src/libs/qmljs/qmljs-lib.pri)
+include($$IDE_SOURCE_TREE/src/libs/languageutils/languageutils-lib.pri)
 
 CONFIG += console
 CONFIG -= app_bundle
