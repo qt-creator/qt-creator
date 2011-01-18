@@ -49,6 +49,7 @@ namespace Utils {
 QTCREATOR_UTILS_EXPORT QString fileNameToCppIdentifier(const QString &s);
 
 QTCREATOR_UTILS_EXPORT QString headerGuard(const QString &file);
+QTCREATOR_UTILS_EXPORT QString headerGuard(const QString &file, const QStringList &namespaceList);
 
 QTCREATOR_UTILS_EXPORT
 void writeIncludeFileDirective(const QString &file,

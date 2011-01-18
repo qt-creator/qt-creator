@@ -74,8 +74,15 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
 
     const QString indent = QString(indentation, QLatin1Char(' '));
 
+    // Do we have namespaces?
+    QStringList namespaceList = className.split(QLatin1String("::"));
+    if (namespaceList.empty()) // Paranoia!
+        return;
+
+    const QString unqualifiedClassName = namespaceList.takeLast();
+
     // 1) Header
-    const QString guard = Utils::headerGuard(headerFileName);
+    const QString guard = Utils::headerGuard(headerFileName, namespaceList);
     headerStr << "#ifndef " << guard
         << "\n#define " <<  guard << '\n' << '\n';
 
@@ -93,14 +100,6 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
         Utils::writeIncludeFileDirective(include, true, headerStr);
         headerStr  << '\n';
     }
-
-    // Do we have namespaces?
-    QStringList namespaceList = className.split(QLatin1String("::"));
-    if (namespaceList.empty()) // Paranoia!
-        return;
-
-    const QString unqualifiedClassName = namespaceList.back();
-    namespaceList.pop_back();
 
     const QString namespaceIndent = Utils::writeOpeningNameSpaces(namespaceList, indent, headerStr);
 

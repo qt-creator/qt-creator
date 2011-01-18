@@ -149,7 +149,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     const QString sourceLicense =
             CppTools::AbstractEditorSupport::licenseTemplate(parameters.sourceFile, parameters.className);
     // Include guards
-    const QString guard = Utils::headerGuard(parameters.headerFile);
+    const QString guard = Utils::headerGuard(parameters.headerFile, namespaceList);
 
     QString uiInclude = QLatin1String("ui_");
     uiInclude += QFileInfo(parameters.uiFile).completeBaseName();
