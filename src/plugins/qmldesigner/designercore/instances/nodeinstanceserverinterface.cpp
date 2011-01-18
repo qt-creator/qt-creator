@@ -27,6 +27,7 @@
 #include "imagecontainer.h"
 #include "statepreviewimagechangedcommand.h"
 #include "componentcompletedcommand.h"
+#include "synchronizecommand.h"
 
 
 namespace QmlDesigner {
@@ -129,6 +130,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<AddImportContainer>("AddImportContainer");
     qRegisterMetaTypeStreamOperators<AddImportContainer>("AddImportContainer");
+
+    qRegisterMetaType<SynchronizeCommand>("SynchronizeCommand");
+    qRegisterMetaTypeStreamOperators<SynchronizeCommand>("SynchronizeCommand");
 }
 
 }

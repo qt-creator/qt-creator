@@ -93,6 +93,7 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/instances/changebindingscommand.cpp \
     $$PWD/instances/changeidscommand.cpp \
     $$PWD/instances/idcontainer.cpp \
+    $$PWD/instances/synchronizecommand.cpp \
     $$PWD/instances/removeinstancescommand.cpp \
     $$PWD/instances/removepropertiescommand.cpp \
     $$PWD/instances/valueschangedcommand.cpp \
@@ -194,6 +195,7 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/instances/clearscenecommand.h \
     $$PWD/instances/reparentcontainer.h \
     $$PWD/instances/reparentinstancescommand.h \
+    $$PWD/instances/synchronizecommand.h \
     $$PWD/instances/changevaluescommand.h \
     $$PWD/instances/changebindingscommand.h \
     $$PWD/instances/changeidscommand.h \

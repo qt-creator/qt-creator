@@ -32,17 +32,21 @@
 #include "statepreviewimagechangedcommand.h"
 #include "componentcompletedcommand.h"
 
+#include "synchronizecommand.h"
+
 #include "nodeinstanceview.h"
 #include "nodeinstanceclientproxy.h"
 
 namespace QmlDesigner {
 
-NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView)
+NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus)
     : NodeInstanceServerInterface(nodeInstanceView),
       m_localServer(new QLocalServer(this)),
       m_nodeInstanceView(nodeInstanceView),
       m_firstBlockSize(0),
-      m_secondBlockSize(0)
+      m_secondBlockSize(0),
+      m_runModus(runModus),
+      m_synchronizeId(-1)
 {
    QString socketToken(QUuid::createUuid().toString());
 
@@ -60,17 +64,22 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    m_qmlPuppetEditorProcess->setProcessChannelMode(QProcess::ForwardedChannels);
    m_qmlPuppetEditorProcess->start(applicationPath, QStringList() << socketToken << "editormode" << "-graphicssystem raster");
 
-   m_qmlPuppetPreviewProcess = new QProcess(QCoreApplication::instance());
-   connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
-   m_qmlPuppetPreviewProcess->setProcessChannelMode(QProcess::ForwardedChannels);
-   m_qmlPuppetPreviewProcess->start(applicationPath, QStringList() << socketToken << "previewmode" << "-graphicssystem raster");
+   if (runModus == NormalModus) {
+       m_qmlPuppetPreviewProcess = new QProcess(QCoreApplication::instance());
+       connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
+       m_qmlPuppetPreviewProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+       m_qmlPuppetPreviewProcess->start(applicationPath, QStringList() << socketToken << "previewmode" << "-graphicssystem raster");
+   }
 
    connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 
-   m_qmlPuppetPreviewProcess->waitForStarted();
    m_qmlPuppetEditorProcess->waitForStarted();
    Q_ASSERT(m_qmlPuppetEditorProcess->state() == QProcess::Running);
-   Q_ASSERT(m_qmlPuppetPreviewProcess->state() == QProcess::Running);
+
+   if (runModus == NormalModus) {
+       m_qmlPuppetPreviewProcess->waitForStarted();
+       Q_ASSERT(m_qmlPuppetPreviewProcess->state() == QProcess::Running);
+   }
 
    if (!m_localServer->hasPendingConnections())
        m_localServer->waitForNewConnection(-1);
@@ -79,12 +88,14 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    Q_ASSERT(m_firstSocket);
    connect(m_firstSocket.data(), SIGNAL(readyRead()), this, SLOT(readFirstDataStream()));
 
-   if (!m_localServer->hasPendingConnections())
-       m_localServer->waitForNewConnection(-1);
+   if (runModus == NormalModus) {
+       if (!m_localServer->hasPendingConnections())
+           m_localServer->waitForNewConnection(-1);
 
-   m_secondSocket = m_localServer->nextPendingConnection();
-   Q_ASSERT(m_secondSocket);
-   connect(m_secondSocket.data(), SIGNAL(readyRead()), this, SLOT(readSecondDataStream()));
+       m_secondSocket = m_localServer->nextPendingConnection();
+       Q_ASSERT(m_secondSocket);
+       connect(m_secondSocket.data(), SIGNAL(readyRead()), this, SLOT(readSecondDataStream()));
+   }
 
    m_localServer->close();
 }
@@ -117,6 +128,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
     static const int childrenChangedCommandType = QMetaType::type("ChildrenChangedCommand");
     static const int statePreviewImageChangedCommandType = QMetaType::type("StatePreviewImageChangedCommand");
     static const int componentCompletedCommandType = QMetaType::type("ComponentCompletedCommand");
+    static const int synchronizeCommandType = QMetaType::type("SynchronizeCommand");
 
     if (command.userType() ==  informationChangedCommandType)
         nodeInstanceClient()->informationChanged(command.value<InformationChangedCommand>());
@@ -130,7 +142,10 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
         nodeInstanceClient()->statePreviewImagesChanged(command.value<StatePreviewImageChangedCommand>());
     else if (command.userType() == componentCompletedCommandType)
         nodeInstanceClient()->componentCompleted(command.value<ComponentCompletedCommand>());
-    else
+    else if (command.userType() == synchronizeCommandType) {
+        SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
+        m_synchronizeId = synchronizeCommand.synchronizeId();
+    }  else
         Q_ASSERT(false);
 }
 
@@ -141,28 +156,44 @@ NodeInstanceClientInterface *NodeInstanceServerProxy::nodeInstanceClient() const
 
 static void writeCommandToSocket(const QVariant &command, QLocalSocket *socket)
 {
-    Q_ASSERT(socket);
+    if(socket) {
+        QByteArray block;
+        QDataStream out(&block, QIODevice::WriteOnly);
+        out << quint32(0);
+        out << command;
+        out.device()->seek(0);
+        out << quint32(block.size() - sizeof(quint32));
 
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out << quint32(0);
-    out << command;
-    out.device()->seek(0);
-    out << quint32(block.size() - sizeof(quint32));
-
-    socket->write(block);
+        socket->write(block);
+    }
 }
 
 void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 {
     writeCommandToSocket(command, m_firstSocket.data());
     writeCommandToSocket(command, m_secondSocket.data());
+
+    if (m_runModus == TestModus) {
+        static int synchronizeId = 0;
+        synchronizeId++;
+        SynchronizeCommand synchronizeCommand(synchronizeId);
+
+        writeCommandToSocket(QVariant::fromValue(synchronizeCommand), m_firstSocket.data());
+
+        while(m_firstSocket->waitForReadyRead()) {
+                readFirstDataStream();
+                if (m_synchronizeId == synchronizeId)
+                    return;
+        }
+    }
 }
 
 void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitStatus exitStatus)
 {
-    m_firstSocket->close();
-    m_secondSocket->close();
+    if (m_firstSocket)
+        m_firstSocket->close();
+    if (m_secondSocket)
+        m_secondSocket->close();
     if (exitStatus == QProcess::CrashExit)
         emit processCrashed();
 }

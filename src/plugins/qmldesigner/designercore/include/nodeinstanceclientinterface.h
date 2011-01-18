@@ -23,6 +23,7 @@ public:
     virtual void componentCompleted(const ComponentCompletedCommand &command) = 0;
 
     virtual void flush() {};
+    virtual void synchronizeWithClientProcess() {}
     virtual qint64 bytesToWrite() const {return 0;}
 
 };

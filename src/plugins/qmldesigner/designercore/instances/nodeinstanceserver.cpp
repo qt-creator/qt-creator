@@ -958,6 +958,7 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
 
             slowDownRenderTimer();
             nodeInstanceClient()->flush();
+            nodeInstanceClient()->synchronizeWithClientProcess();
         }
 
         inFunction = false;

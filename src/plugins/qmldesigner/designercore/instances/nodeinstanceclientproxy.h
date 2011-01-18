@@ -43,6 +43,7 @@ public:
     void componentCompleted(const ComponentCompletedCommand &command);
 
     void flush();
+    void synchronizeWithClientProcess();
     qint64 bytesToWrite() const;
 
 protected:
@@ -71,6 +72,7 @@ private:
     QLocalSocket *m_socket;
     NodeInstanceServerInterface *m_nodeInstanceServer;
     quint32 m_blockSize;
+    int m_synchronizeId;
 };
 
 } // namespace QmlDesigner

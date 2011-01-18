@@ -25,6 +25,7 @@
 #include "changestatecommand.h"
 #include "addimportcommand.h"
 #include "completecomponentcommand.h"
+#include "synchronizecommand.h"
 
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
@@ -39,7 +40,8 @@ namespace QmlDesigner {
 NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
     : QObject(parent),
       m_nodeInstanceServer(0),
-      m_blockSize(0)
+      m_blockSize(0),
+      m_synchronizeId(-1)
 {
     if (QCoreApplication::arguments().at(2) == QLatin1String("previewmode")) {
         m_nodeInstanceServer = new PreviewNodeInstanceServer(this);
@@ -99,6 +101,14 @@ void NodeInstanceClientProxy::componentCompleted(const ComponentCompletedCommand
 
 void NodeInstanceClientProxy::flush()
 {
+}
+
+void NodeInstanceClientProxy::synchronizeWithClientProcess()
+{
+    if (m_synchronizeId >= 0) {
+        SynchronizeCommand synchronizeCommand(m_synchronizeId);
+        writeCommand(QVariant::fromValue(synchronizeCommand));
+    }
 }
 
 qint64 NodeInstanceClientProxy::bytesToWrite() const
@@ -222,6 +232,7 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int changeStateCommandType = QMetaType::type("ChangeStateCommand");
     static const int addImportCommandType = QMetaType::type("AddImportCommand");
     static const int completeComponentCommandType = QMetaType::type("CompleteComponentCommand");
+    static const int synchronizeCommandType = QMetaType::type("SynchronizeCommand");
 
     if (command.userType() ==  createInstancesCommandType) {
         createInstances(command.value<CreateInstancesCommand>());
@@ -249,7 +260,10 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
         addImport(command.value<AddImportCommand>());
     else if (command.userType() ==  completeComponentCommandType)
         completeComponent(command.value<CompleteComponentCommand>());
-    else
+    else if (command.userType() == synchronizeCommandType) {
+        SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
+        m_synchronizeId = synchronizeCommand.synchronizeId();
+    } else
         Q_ASSERT(false);
 }
 } // namespace QmlDesigner
