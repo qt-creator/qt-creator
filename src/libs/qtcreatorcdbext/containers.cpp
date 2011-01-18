@@ -277,17 +277,6 @@ static inline AbstractSymbolGroupNodePtrVector qLinkedListChildList(SymbolGroupN
     return AbstractSymbolGroupNodePtrVector();
 }
 
-// Symbol Name/(Expression) of a pointed-to instance ('Foo' at 0x10') ==> '*(Foo *)0x10'
-static inline std::string pointedToSymbolName(ULONG64 address, const std::string &type)
-{
-    std::ostringstream str;
-    str << "*(" << type;
-    if (!endsWith(type, '*'))
-        str << ' ';
-    str << "*)" << std::showbase << std::hex << address;
-    return str.str();
-}
-
 /* Helper for array-type containers:
  * Add a series of "*(innertype *)0x (address + n * size)" fake child symbols.
  * for a function generating a sequence of addresses. */
@@ -304,7 +293,7 @@ AbstractSymbolGroupNodePtrVector arrayChildList(SymbolGroup *sg, AddressFunc add
     std::string errorMessage;
     rc.reserve(count);
     for (int i = 0; i < count; i++) {
-        const std::string name = pointedToSymbolName(addressFunc(), innerType);
+        const std::string name = SymbolGroupValue::pointedToSymbolName(addressFunc(), innerType);
         if (SymbolGroupNode *child = sg->addSymbol(module, name, std::string(), &errorMessage)) {
             rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, child));
         } else {
@@ -393,7 +382,7 @@ AbstractSymbolGroupNodePtrVector
             block -= blockArraySize;
         const ULONG64 blockOffset = offset % dequeSize;
         const ULONG64 address = blockArray[block] + innerTypeSize * blockOffset;
-        if (SymbolGroupNode *n = sg->addSymbol(module, pointedToSymbolName(address, innerType), std::string(), &errorMessage)) {
+        if (SymbolGroupNode *n = sg->addSymbol(module, SymbolGroupValue::pointedToSymbolName(address, innerType), std::string(), &errorMessage)) {
             rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, n));
         } else {
             return AbstractSymbolGroupNodePtrVector();
@@ -773,7 +762,7 @@ SymbolGroupValueVector hashBuckets(SymbolGroup *sg, const std::string &hashNodeT
     // empty array elements.
     for (const AddressType *p = pointerArray; p < end; p++) {
         if (*p != ePtr) {
-            const std::string name = pointedToSymbolName(*p, hashNodeType);
+            const std::string name = SymbolGroupValue::pointedToSymbolName(*p, hashNodeType);
             if (SymbolGroupNode *child = sg->addSymbol(module, name, std::string(), &errorMessage)) {
                 rc.push_back(SymbolGroupValue(child, ctx));
             } else {
@@ -1002,8 +991,8 @@ static inline AbstractSymbolGroupNodePtrVector
         if (!nodePtr)
             return AbstractSymbolGroupNodePtrVector();
         const ULONG64 keyAddress = nodePtr - payLoad;
-        const std::string keyExp = pointedToSymbolName(keyAddress, keyType);
-        const std::string valueExp = pointedToSymbolName(keyAddress + valueOffset, valueType);
+        const std::string keyExp = SymbolGroupValue::pointedToSymbolName(keyAddress, keyType);
+        const std::string valueExp = SymbolGroupValue::pointedToSymbolName(keyAddress + valueOffset, valueType);
         if (SymbolGroupValue::verbose) {
             DebugPrint() << '#' << i << '/' << count << ' ' << std::hex << ",node=0x" << nodePtr <<
                   ',' <<keyExp << ',' << valueExp;

@@ -377,6 +377,17 @@ std::string SymbolGroupValue::moduleOfType(const std::string &type)
     return exclPos != std::string::npos ? type.substr(0, exclPos) : std::string();
 }
 
+// Symbol Name/(Expression) of a pointed-to instance ('Foo' at 0x10') ==> '*(Foo *)0x10'
+std::string SymbolGroupValue::pointedToSymbolName(ULONG64 address, const std::string &type)
+{
+    std::ostringstream str;
+    str << "*(" << type;
+    if (!endsWith(type, '*'))
+        str << ' ';
+    str << "*)" << std::showbase << std::hex << address;
+    return str.str();
+}
+
 /* QtInfo helper: Determine the full name of a Qt Symbol like 'qstrdup' in 'QtCored4'.
  * as 'QtCored4![namespace::]qstrdup'. In the event someone really uses a different
  * library prefix or namespaced Qt, this should be found.
@@ -1746,14 +1757,45 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
     return rc;
 }
 
+// Dump of QByteArray: Display as an array of unsigned chars.
+static inline std::vector<AbstractSymbolGroupNode *>
+    complexDumpQByteArray(SymbolGroupNode *n, const SymbolGroupValueContext &ctx)
+{
+    std::vector<AbstractSymbolGroupNode *> rc;
+    const SymbolGroupValue ba(n, ctx);
+    int size = ba["d"]["size"].intValue();
+    ULONG64 address = ba["d"]["data"].pointerValue();
+    if (size <= 0 || !address)
+        return rc;
+    if (size > 200)
+        size = 200;
+    rc.reserve(size);
+    const std::string charType = "unsigned char";
+    std::string errorMessage;
+    SymbolGroup *sg = n->symbolGroup();
+    for (int i = 0; i < size; i++, address++) {
+        SymbolGroupNode *en = sg->addSymbol(std::string(), SymbolGroupValue::pointedToSymbolName(address, charType),
+                                            std::string(), &errorMessage);
+        if (!en) {
+            rc.clear();
+            return rc;
+        }
+        rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, en));
+    }
+    return rc;
+}
+
 std::vector<AbstractSymbolGroupNode *>
-    dumpComplexType(SymbolGroupNode *, int type, void *specialInfo,
-                    const SymbolGroupValueContext &)
+    dumpComplexType(SymbolGroupNode *n, int type, void *specialInfo,
+                    const SymbolGroupValueContext &ctx)
 {
     std::vector<AbstractSymbolGroupNode *> rc;
     if (!(type & KT_HasComplexDumper))
         return rc;
     switch (type) {
+    case KT_QByteArray:
+        rc = complexDumpQByteArray(n, ctx);
+        break;
     case KT_QWidget: // Special info by simple dumper is the QWidgetPrivate node
     case KT_QObject: // Special info by simple dumper is the QObjectPrivate node
         if (specialInfo) {

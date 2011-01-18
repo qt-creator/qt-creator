@@ -57,7 +57,7 @@ enum KnownType
     KT_PointerType = KT_POD_Type + 7,     // pointer to class or complex type
     // Types: Qt Basic
     KT_QChar = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 1,
-    KT_QByteArray = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 2,
+    KT_QByteArray = KT_Qt_Type + KT_Qt_MovableType + KT_HasComplexDumper + KT_HasSimpleDumper + 2,
     KT_QString = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 3,
     KT_QColor = KT_Qt_Type + KT_HasSimpleDumper + 4,
     KT_QFlags = KT_Qt_Type + KT_HasSimpleDumper + 5,

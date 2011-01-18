@@ -447,7 +447,7 @@ bool SymbolGroup::assign(const std::string &nodeName, const std::string &value,
         *errorMessage = msgAssignError(nodeName, value, "No such node");
         return false;
     }
-    SymbolGroupNode *node = aNode->asSymbolGroupNode();
+    SymbolGroupNode *node = aNode->resolveReference()->asSymbolGroupNode();
     if (node == 0) {
         *errorMessage = msgAssignError(nodeName, value, "Invalid node type");
         return false;

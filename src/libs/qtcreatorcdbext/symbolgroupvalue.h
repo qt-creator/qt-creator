@@ -124,6 +124,8 @@ public:
     static unsigned isPointerType(const std::string &);
     // add pointer type 'Foo' -> 'Foo *', 'Foo *' -> 'Foo **'
     static std::string pointerType(const std::string &type);
+    // Symbol Name/(Expression) of a pointed-to instance ('Foo' at 0x10') ==> '*(Foo *)0x10'
+    static std::string pointedToSymbolName(ULONG64 address, const std::string &type);
     // Resolve a type, that is, obtain its module name ('QString'->'QtCored4!QString')
     // Some operations on types (like adding symbols may fail non-deterministically
     // or be slow when the module specification is omitted).
