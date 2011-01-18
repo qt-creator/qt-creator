@@ -82,6 +82,7 @@ public:
     QString instanceType(const QString &name) const;
 
     qint32 parentId() const;
+    qint32 instanceId() const;
 
 protected:
     void setProperty(const QString &name, const QVariant &value);
@@ -93,11 +94,12 @@ protected:
     void setParentId(qint32 instanceId);
     void setRenderImage(const QImage &image);
     NodeInstance(ProxyNodeInstanceData *d);
-    qint32 instanceId() const;
 
 private:
     QSharedPointer<ProxyNodeInstanceData> d;
 };
+
+bool operator ==(const NodeInstance &first, const NodeInstance &second);
 
 }
 

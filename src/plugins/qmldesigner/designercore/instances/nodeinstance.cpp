@@ -342,4 +342,9 @@ void NodeInstance::setInformation(InformationName name, const QVariant &informat
     }
 }
 
+bool operator ==(const NodeInstance &first, const NodeInstance &second)
+{
+    return first.instanceId() >= 0 && first.instanceId() == second.instanceId();
+}
+
 }

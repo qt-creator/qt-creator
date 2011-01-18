@@ -95,6 +95,7 @@ public:
     const MetaInfo metaInfo() const;
     MetaInfo metaInfo();
     NodeMetaInfo metaInfo(const QString &typeName, int majorVersion = -1, int minorVersion = -1);
+    bool hasNodeMetaInfo(const QString &typeName, int majorVersion = -1, int minorVersion = -1);
     void setMetaInfo(const MetaInfo &metaInfo);
 
     void attachView(AbstractView *view);
