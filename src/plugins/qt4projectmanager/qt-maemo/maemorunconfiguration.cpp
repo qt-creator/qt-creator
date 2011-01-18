@@ -104,7 +104,7 @@ void MaemoRunConfiguration::init()
         this, SLOT(handleDeployConfigChanged()));
     handleDeployConfigChanged();
 
-    Qt4Project *pro = qt4Target()->qt4Project();
+    Qt4Project *pro = maemoTarget()->qt4Project();
     connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)));
     connect(pro, SIGNAL(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *)),
@@ -115,9 +115,9 @@ MaemoRunConfiguration::~MaemoRunConfiguration()
 {
 }
 
-Qt4MaemoTarget *MaemoRunConfiguration::qt4Target() const
+AbstractQt4MaemoTarget *MaemoRunConfiguration::maemoTarget() const
 {
-    return static_cast<Qt4MaemoTarget *>(target());
+    return static_cast<AbstractQt4MaemoTarget *>(target());
 }
 
 Qt4BuildConfiguration *MaemoRunConfiguration::activeQt4BuildConfiguration() const
@@ -139,7 +139,7 @@ QWidget *MaemoRunConfiguration::createConfigurationWidget()
 
 ProjectExplorer::OutputFormatter *MaemoRunConfiguration::createOutputFormatter() const
 {
-    return new QtOutputFormatter(qt4Target()->qt4Project());
+    return new QtOutputFormatter(maemoTarget()->qt4Project());
 }
 
 void MaemoRunConfiguration::handleParseState(bool success)
@@ -196,7 +196,7 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
         SystemEnvironmentBase).toInt());
     m_remoteMounts->fromMap(map);
 
-    m_validParse = qt4Target()->qt4Project()->validParse(m_proFilePath);
+    m_validParse = maemoTarget()->qt4Project()->validParse(m_proFilePath);
 
     setDefaultDisplayName(defaultDisplayName());
 
@@ -217,11 +217,11 @@ MaemoDeviceConfig::ConstPtr MaemoRunConfiguration::deviceConfig() const
     return step ? step->deviceConfig() : MaemoDeviceConfig::ConstPtr();
 }
 
-const MaemoToolChain *MaemoRunConfiguration::toolchain() const
+const AbstractMaemoToolChain *MaemoRunConfiguration::toolchain() const
 {
     Qt4BuildConfiguration *qt4bc(activeQt4BuildConfiguration());
     QTC_ASSERT(qt4bc, return 0);
-    MaemoToolChain *tc = dynamic_cast<MaemoToolChain *>(qt4bc->toolChain());
+    AbstractMaemoToolChain *tc = dynamic_cast<AbstractMaemoToolChain *>(qt4bc->toolChain());
     QTC_ASSERT(tc != 0, return 0);
     return tc;
 }
@@ -238,7 +238,7 @@ MaemoDeployStep *MaemoRunConfiguration::deployStep() const
 
 const QString MaemoRunConfiguration::sysRoot() const
 {
-    if (const MaemoToolChain *tc = toolchain())
+    if (const AbstractMaemoToolChain *tc = toolchain())
         return tc->sysroot();
     return QString();
 }
@@ -289,7 +289,7 @@ QString MaemoRunConfiguration::remoteProjectSourcesMountPoint() const
 
 QString MaemoRunConfiguration::localExecutableFilePath() const
 {
-    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()
+    TargetInformation ti = maemoTarget()->qt4Project()->rootProjectNode()
         ->targetInformation(m_proFilePath);
     if (!ti.valid)
         return QString();

@@ -56,14 +56,14 @@ class Qt4BaseTarget;
 namespace Internal {
 
 class Qt4ProFileNode;
-class Qt4MaemoTarget;
+class AbstractQt4MaemoTarget;
 
 class MaemoDeviceConfigListModel;
 class MaemoDeployStep;
 class MaemoManager;
 class MaemoRemoteMountsModel;
 class MaemoRunConfigurationFactory;
-class MaemoToolChain;
+class AbstractMaemoToolChain;
 
 class MaemoRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -85,13 +85,13 @@ public:
     bool isEnabled(ProjectExplorer::BuildConfiguration *config) const;
     QWidget *createConfigurationWidget();
     ProjectExplorer::OutputFormatter *createOutputFormatter() const;
-    Qt4MaemoTarget *qt4Target() const;
+    AbstractQt4MaemoTarget *maemoTarget() const;
     Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
     MaemoDeployStep *deployStep() const;
     MaemoRemoteMountsModel *remoteMounts() const { return m_remoteMounts; }
 
-    const MaemoToolChain *toolchain() const;
+    const AbstractMaemoToolChain *toolchain() const;
     QString localExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
     const QString sysRoot() const;

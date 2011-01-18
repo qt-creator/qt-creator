@@ -40,14 +40,13 @@ namespace Qt4ProjectManager {
 class QtVersion;
 namespace Internal {
 
-class MaemoToolChain : public ProjectExplorer::GccToolChain
+class AbstractMaemoToolChain : public ProjectExplorer::GccToolChain
 {
 public:
-    MaemoToolChain(const QtVersion *qtVersion);
-    virtual ~MaemoToolChain();
+    AbstractMaemoToolChain(const QtVersion *qtVersion);
+    virtual ~AbstractMaemoToolChain();
 
     void addToEnvironment(Utils::Environment &env);
-    ProjectExplorer::ToolChainType type() const;
     QString makeCommand() const;
     QString sysroot() const;
 
@@ -61,6 +60,24 @@ private:
     mutable QString m_sysrootRoot;
     mutable bool m_sysrootInitialized;
     int m_qtVersionId;
+};
+
+class Maemo5ToolChain : public AbstractMaemoToolChain
+{
+public:
+    Maemo5ToolChain(const QtVersion *qtVersion);
+    ~Maemo5ToolChain();
+
+    ProjectExplorer::ToolChainType type() const;
+};
+
+class HarmattanToolChain : public AbstractMaemoToolChain
+{
+public:
+    HarmattanToolChain(const QtVersion *qtVersion);
+    ~HarmattanToolChain();
+
+    ProjectExplorer::ToolChainType type() const;
 };
 
 } // namespace Internal

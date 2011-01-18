@@ -1,6 +1,7 @@
 #include "maemodeploystepfactory.h"
 
 #include "maemodeploystep.h"
+#include "maemomanager.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
@@ -23,7 +24,7 @@ MaemoDeployStepFactory::MaemoDeployStepFactory(QObject *parent)
 QStringList MaemoDeployStepFactory::availableCreationIds(BuildStepList *parent) const
 {
     if (parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-        && parent->target()->id() == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID)
+        && MaemoManager::instance().isMaemoTargetId(parent->target()->id())
         && !parent->contains(MaemoDeployStep::Id))
         return QStringList() << MaemoDeployStep::Id;
     return QStringList();
@@ -41,7 +42,7 @@ bool MaemoDeployStepFactory::canCreate(BuildStepList *parent, const QString &id)
 {
     return parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
             && id == QLatin1String(MaemoDeployStep::Id)
-            && parent->target()->id() == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID)
+            && MaemoManager::instance().isMaemoTargetId(parent->target()->id())
             && !parent->contains(MaemoDeployStep::Id);
 }
 

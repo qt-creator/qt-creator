@@ -44,13 +44,13 @@ class Qt4Project;
 namespace Internal {
 class Qt4MaemoDeployConfigurationFactory;
 
-class Qt4MaemoTarget : public Qt4BaseTarget
+class AbstractQt4MaemoTarget : public Qt4BaseTarget
 {
     friend class Qt4MaemoTargetFactory;
     Q_OBJECT
 public:
-    explicit Qt4MaemoTarget(Qt4Project *parent, const QString &id);
-    virtual ~Qt4MaemoTarget();
+    explicit AbstractQt4MaemoTarget(Qt4Project *parent, const QString &id);
+    virtual ~AbstractQt4MaemoTarget();
 
     Internal::Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
     ProjectExplorer::DeployConfigurationFactory *deployConfigurationFactory() const;
@@ -61,19 +61,16 @@ public:
     QStringList debianFiles() const;
 
     QString projectVersion(QString *error = 0) const;
-    bool setProjectVersion(const QString &version, QString *error = 0) const;
+    bool setProjectVersion(const QString &version, QString *error = 0);
 
     QIcon packageManagerIcon(QString *error = 0) const;
-    bool setPackageManagerIcon(const QString &iconFilePath,
-        QString *error = 0) const;
+    bool setPackageManagerIcon(const QString &iconFilePath, QString *error = 0);
 
     QString name() const;
     bool setName(const QString &name);
 
     QString shortDescription() const;
     bool setShortDescription(const QString &description);
-
-    static QString defaultDisplayName();
 
 signals:
     void debianDirContentsChanged();
@@ -87,6 +84,14 @@ private slots:
     void handleDebianFileChanged(const QString &filePath);
 
 private:
+    virtual QString debianDirName() const=0;
+
+    bool setProjectVersionInternal(const QString &version, QString *error = 0);
+    bool setPackageManagerIconInternal(const QString &iconFilePath,
+        QString *error = 0);
+    bool setNameInternal(const QString &name);
+    bool setShortDescriptionInternal(const QString &description);
+
     QString changeLogFilePath() const;
     QString controlFilePath() const;
     QByteArray controlFileFieldValue(const QString &key, bool multiLine) const;
@@ -99,6 +104,7 @@ private:
     bool createDebianTemplatesIfNecessary();
     bool adaptRulesFile();
     bool adaptControlFile();
+    bool initPackagingSettingsFromOtherTarget();
     void raiseError(const QString &reason);
 
     Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
@@ -106,7 +112,34 @@ private:
     QFileSystemWatcher * const m_debianFilesWatcher;
 };
 
-}
-}
+
+class Qt4Maemo5Target : public AbstractQt4MaemoTarget
+{
+    Q_OBJECT
+public:
+    explicit Qt4Maemo5Target(Qt4Project *parent, const QString &id);
+    virtual ~Qt4Maemo5Target();
+
+    static QString defaultDisplayName();
+
+private:
+    virtual QString debianDirName() const;
+};
+
+class Qt4HarmattanTarget : public AbstractQt4MaemoTarget
+{
+    Q_OBJECT
+public:
+    explicit Qt4HarmattanTarget(Qt4Project *parent, const QString &id);
+    virtual ~Qt4HarmattanTarget();
+
+    static QString defaultDisplayName();
+
+private:
+    virtual QString debianDirName() const;
+};
+
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // QT4MAEMOTARGET_H

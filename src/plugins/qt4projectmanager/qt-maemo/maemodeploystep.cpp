@@ -52,6 +52,7 @@
 #include <projectexplorer/target.h>
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qt4target.h>
 
 #include <QtCore/QCoreApplication>
@@ -89,7 +90,10 @@ MaemoDeployStep::~MaemoDeployStep() { }
 void MaemoDeployStep::ctor()
 {
     //: MaemoDeployStep default display name
-    setDefaultDisplayName(tr("Deploy to Maemo device"));
+    if (target()->id() == QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
+        setDefaultDisplayName(tr("Deploy to Maemo5 device"));
+    else if (target()->id() == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
+        setDefaultDisplayName(tr("Deploy to Harmattan device"));
 
     // A MaemoDeployables object is only dependent on the active build
     // configuration and therefore can (and should) be shared among all
@@ -97,7 +101,7 @@ void MaemoDeployStep::ctor()
     const QList<DeployConfiguration *> &deployConfigs
         = target()->deployConfigurations();
     if (deployConfigs.isEmpty()) {
-        const Qt4MaemoTarget * const qt4Target = qobject_cast<Qt4MaemoTarget *>(target());
+        const AbstractQt4MaemoTarget * const qt4Target = qobject_cast<AbstractQt4MaemoTarget *>(target());
         Q_ASSERT(qt4Target);
         m_deployables = QSharedPointer<MaemoDeployables>(new MaemoDeployables(qt4Target));
     } else {
@@ -816,11 +820,11 @@ QString MaemoDeployStep::deployMountPoint() const
         + QLatin1String("/deployMountPoint_") + packagingStep()->projectName();
 }
 
-const MaemoToolChain *MaemoDeployStep::toolChain() const
+const AbstractMaemoToolChain *MaemoDeployStep::toolChain() const
 {
     const Qt4BuildConfiguration * const bc
         = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
-    return static_cast<MaemoToolChain *>(bc->toolChain());
+    return static_cast<AbstractMaemoToolChain *>(bc->toolChain());
 }
 
 void MaemoDeployStep::handleSysrootInstallerOutput()

@@ -36,7 +36,6 @@
 #include "maemoconstants.h"
 #include "maemodeploystepfactory.h"
 #include "maemodeviceconfigurations.h"
-#include "maemoglobal.h"
 #include "maemopackagecreationfactory.h"
 #include "maemopublishingwizardfactories.h"
 #include "maemoqemumanager.h"
@@ -46,6 +45,7 @@
 #include "qt4maemotargetfactory.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qtversionmanager.h>
 
 #include <QtCore/QDir>
@@ -110,17 +110,36 @@ MaemoManager &MaemoManager::instance()
     return *m_instance;
 }
 
-bool MaemoManager::isValidMaemoQtVersion(const QtVersion *version) const
+bool MaemoManager::isMaemoTargetId(const QString &id) const
 {
+    return id == QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID)
+        || id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID);
+}
+
+bool MaemoManager::isValidMaemo5QtVersion(const QtVersion *version) const
+{
+    return isValidMaemoQtVersion(version, MaemoGlobal::Maemo5);
+}
+
+bool MaemoManager::isValidHarmattanQtVersion(const QtVersion *version) const
+{
+    return isValidMaemoQtVersion(version, MaemoGlobal::Maemo6);
+}
+
+bool MaemoManager::isValidMaemoQtVersion(const QtVersion *qtVersion,
+    MaemoGlobal::MaemoVersion maemoVersion) const
+{
+    if (MaemoGlobal::version(qtVersion) != maemoVersion)
+        return false;
     QProcess madAdminProc;
     const QStringList arguments(QLatin1String("list"));
-    if (!MaemoGlobal::callMadAdmin(madAdminProc, arguments, version))
+    if (!MaemoGlobal::callMadAdmin(madAdminProc, arguments, qtVersion))
         return false;
     if (!madAdminProc.waitForStarted() || !madAdminProc.waitForFinished())
         return false;
 
     madAdminProc.setReadChannel(QProcess::StandardOutput);
-    const QByteArray targetName = MaemoGlobal::targetName(version).toAscii();
+    const QByteArray targetName = MaemoGlobal::targetName(qtVersion).toAscii();
     while (madAdminProc.canReadLine()) {
         const QByteArray &line = madAdminProc.readLine();
         if (line.contains(targetName)
@@ -130,10 +149,15 @@ bool MaemoManager::isValidMaemoQtVersion(const QtVersion *version) const
     return false;
 }
 
-ToolChain* MaemoManager::maemoToolChain(const QtVersion *version) const
+ToolChain* MaemoManager::maemo5ToolChain(const QtVersion *version) const
 {
-    return new MaemoToolChain(version);
+    return new Maemo5ToolChain(version);
 }
 
-    } // namespace Internal
+ToolChain* MaemoManager::harmattanToolChain(const QtVersion *version) const
+{
+    return new HarmattanToolChain(version);
+}
+
+} // namespace Internal
 } // namespace Qt4ProjectManager

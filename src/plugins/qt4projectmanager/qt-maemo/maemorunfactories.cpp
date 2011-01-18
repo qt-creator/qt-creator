@@ -76,18 +76,16 @@ MaemoRunConfigurationFactory::~MaemoRunConfigurationFactory()
 bool MaemoRunConfigurationFactory::canCreate(Target *parent,
     const QString &id) const
 {
-    Qt4MaemoTarget *target = qobject_cast<Qt4MaemoTarget *>(parent);
-    if (!target
-        || target->id() != QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID)) {
+    AbstractQt4MaemoTarget *target = qobject_cast<AbstractQt4MaemoTarget *>(parent);
+    if (!target)
         return false;
-    }
     return target->qt4Project()->hasApplicationProFile(pathFromId(id));
 }
 
 bool MaemoRunConfigurationFactory::canRestore(Target *parent,
     const QVariantMap &map) const
 {
-    if (!qobject_cast<Qt4MaemoTarget *>(parent))
+    if (!qobject_cast<AbstractQt4MaemoTarget *>(parent))
         return false;
     return ProjectExplorer::idFromMap(map)
         .startsWith(QLatin1String(MAEMO_RC_ID));
@@ -101,8 +99,8 @@ bool MaemoRunConfigurationFactory::canClone(Target *parent,
 
 QStringList MaemoRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    if (Qt4MaemoTarget *t = qobject_cast<Qt4MaemoTarget *>(parent)) {
-        if (t->id() == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID)) {
+    if (AbstractQt4MaemoTarget *t = qobject_cast<AbstractQt4MaemoTarget *>(parent)) {
+        if (t) {
             return t->qt4Project()->
                 applicationProFilePathes(QLatin1String(MAEMO_RC_ID_PREFIX));
         }
@@ -120,7 +118,7 @@ RunConfiguration *MaemoRunConfigurationFactory::create(Target *parent,
 {
     if (!canCreate(parent, id))
         return 0;
-    Qt4MaemoTarget *pqt4parent = static_cast<Qt4MaemoTarget *>(parent);
+    AbstractQt4MaemoTarget *pqt4parent = static_cast<AbstractQt4MaemoTarget *>(parent);
     return new MaemoRunConfiguration(pqt4parent, pathFromId(id));
 
 }
@@ -130,7 +128,7 @@ RunConfiguration *MaemoRunConfigurationFactory::restore(Target *parent,
 {
     if (!canRestore(parent, map))
         return 0;
-    Qt4MaemoTarget *target = static_cast<Qt4MaemoTarget *>(parent);
+    AbstractQt4MaemoTarget *target = static_cast<AbstractQt4MaemoTarget *>(parent);
     MaemoRunConfiguration *rc = new MaemoRunConfiguration(target, QString());
     if (rc->fromMap(map))
         return rc;
@@ -146,7 +144,7 @@ RunConfiguration *MaemoRunConfigurationFactory::clone(Target *parent,
         return 0;
 
     MaemoRunConfiguration *old = static_cast<MaemoRunConfiguration *>(source);
-    return new MaemoRunConfiguration(static_cast<Qt4MaemoTarget *>(parent), old);
+    return new MaemoRunConfiguration(static_cast<AbstractQt4MaemoTarget *>(parent), old);
 }
 
 // #pragma mark -- MaemoRunControlFactory

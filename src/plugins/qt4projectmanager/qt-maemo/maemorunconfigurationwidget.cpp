@@ -94,7 +94,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
         this, SLOT(handleCurrentDeviceConfigChanged()));
     handleCurrentDeviceConfigChanged();
-    connect(m_runConfiguration->qt4Target(),
+    connect(m_runConfiguration->maemoTarget(),
         SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
         this, SLOT(handleBuildConfigChanged()));
 

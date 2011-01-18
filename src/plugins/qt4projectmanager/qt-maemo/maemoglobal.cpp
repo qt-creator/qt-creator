@@ -148,7 +148,6 @@ MaemoGlobal::MaemoVersion MaemoGlobal::version(const QtVersion *qtVersion)
         return Maemo5;
     if (name.startsWith(QLatin1String("harmattan")))
         return Maemo6;
-    qWarning("Unknown Maemo version!");
     return static_cast<MaemoVersion>(-1);
 }
 

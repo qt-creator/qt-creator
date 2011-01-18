@@ -41,6 +41,7 @@
 
 #include "maemopackagecreationfactory.h"
 
+#include "maemomanager.h"
 #include "maemopackagecreationstep.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -66,7 +67,7 @@ MaemoPackageCreationFactory::MaemoPackageCreationFactory(QObject *parent)
 QStringList MaemoPackageCreationFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
     if (parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-        && parent->target()->id() == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID)
+        && MaemoManager::instance().isMaemoTargetId(parent->target()->id())
         && !parent->contains(MaemoPackageCreationStep::CreatePackageId))
         return QStringList() << MaemoPackageCreationStep::CreatePackageId;
     return QStringList();
@@ -84,7 +85,7 @@ bool MaemoPackageCreationFactory::canCreate(ProjectExplorer::BuildStepList *pare
 {
     return parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
         && id == QLatin1String(MaemoPackageCreationStep::CreatePackageId)
-        && parent->target()->id() == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID)
+        && MaemoManager::instance().isMaemoTargetId(parent->target()->id())
         && !parent->contains(MaemoPackageCreationStep::CreatePackageId);
 }
 

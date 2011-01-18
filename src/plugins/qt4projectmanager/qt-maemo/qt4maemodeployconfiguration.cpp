@@ -35,6 +35,8 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
 
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
+
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
@@ -48,8 +50,10 @@ ProjectExplorer::DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create
 
     if (!dc)
         return 0;
-
-    dc->setDefaultDisplayName(tr("Deploy to Maemo device"));
+    if (parent->id() == QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
+        dc->setDefaultDisplayName(tr("Deploy to Maemo5 device"));
+    if (parent->id() == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
+        dc->setDefaultDisplayName(tr("Deploy to Harmattan device"));
     dc->stepList()->insertStep(0, new MaemoPackageCreationStep(dc->stepList()));
     dc->stepList()->insertStep(1, new MaemoDeployStep(dc->stepList()));
 

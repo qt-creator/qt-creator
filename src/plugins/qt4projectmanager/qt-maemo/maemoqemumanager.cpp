@@ -159,7 +159,8 @@ void MaemoQemuManager::qtVersionsChanged(const QList<int> &uniqueIds)
     foreach (int uniqueId, uniqueIds) {
         if (manager->isValidId(uniqueId)) {
             QtVersion *version = manager->version(uniqueId);
-            if (version->supportsTargetId(Constants::MAEMO_DEVICE_TARGET_ID)) {
+            if (version->supportsTargetId(Constants::MAEMO5_DEVICE_TARGET_ID)
+                    || version->supportsTargetId(Constants::HARMATTAN_DEVICE_TARGET_ID)) {
                 MaemoQemuRuntime runtime
                     = MaemoQemuRuntimeParser::parseRuntime(version);
                 if (runtime.isValid()) {
@@ -221,14 +222,9 @@ void MaemoQemuManager::projectChanged(ProjectExplorer::Project *project)
     }
 }
 
-bool targetIsMaemo(const QString &id)
-{
-    return id == QLatin1String(Qt4ProjectManager::Constants::MAEMO_DEVICE_TARGET_ID);
-}
-
 void MaemoQemuManager::targetAdded(ProjectExplorer::Target *target)
 {
-    if (!target || !targetIsMaemo(target->id()))
+    if (!target || !MaemoManager::instance().isMaemoTargetId(target->id()))
         return;
 
     // handle all run configuration changes, add, remove, etc...
@@ -257,7 +253,7 @@ void MaemoQemuManager::targetAdded(ProjectExplorer::Target *target)
 
 void MaemoQemuManager::targetRemoved(ProjectExplorer::Target *target)
 {
-    if (!target || !targetIsMaemo(target->id()))
+    if (!target || !MaemoManager::instance().isMaemoTargetId(target->id()))
         return;
 
     disconnect(target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
@@ -291,14 +287,14 @@ void MaemoQemuManager::targetChanged(ProjectExplorer::Target *target)
 
 void MaemoQemuManager::runConfigurationAdded(ProjectExplorer::RunConfiguration *rc)
 {
-    if (!rc || !targetIsMaemo(rc->target()->id()))
+    if (!rc || !MaemoManager::instance().isMaemoTargetId(rc->target()->id()))
         return;
     toggleDeviceConnections(qobject_cast<MaemoRunConfiguration*> (rc), true);
 }
 
 void MaemoQemuManager::runConfigurationRemoved(ProjectExplorer::RunConfiguration *rc)
 {
-    if (!rc || rc->target()->id() != QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
+    if (!rc || !MaemoManager::instance().isMaemoTargetId(rc->target()->id()))
         return;
     toggleDeviceConnections(qobject_cast<MaemoRunConfiguration*> (rc), false);
 }
@@ -311,7 +307,7 @@ void MaemoQemuManager::runConfigurationChanged(ProjectExplorer::RunConfiguration
 
 void MaemoQemuManager::buildConfigurationAdded(ProjectExplorer::BuildConfiguration *bc)
 {
-    if (!bc || !targetIsMaemo(bc->target()->id()))
+    if (!bc || !MaemoManager::instance().isMaemoTargetId(bc->target()->id()))
         return;
 
     connect(bc, SIGNAL(environmentChanged()), this, SLOT(environmentChanged()));
@@ -319,7 +315,7 @@ void MaemoQemuManager::buildConfigurationAdded(ProjectExplorer::BuildConfigurati
 
 void MaemoQemuManager::buildConfigurationRemoved(ProjectExplorer::BuildConfiguration *bc)
 {
-    if (!bc || !targetIsMaemo(bc->target()->id()))
+    if (!bc || !MaemoManager::instance().isMaemoTargetId(bc->target()->id()))
         return;
 
     disconnect(bc, SIGNAL(environmentChanged()), this, SLOT(environmentChanged()));
@@ -507,7 +503,7 @@ void MaemoQemuManager::toggleStarterButton(Target *target)
 {
     int uniqueId = -1;
     if (target) {
-        if (Qt4MaemoTarget *qt4Target = qobject_cast<Qt4MaemoTarget*>(target)) {
+        if (AbstractQt4MaemoTarget *qt4Target = qobject_cast<AbstractQt4MaemoTarget*>(target)) {
             if (Qt4BuildConfiguration *bc = qt4Target->activeBuildConfiguration()) {
                 if (QtVersion *version = bc->qtVersion())
                     uniqueId = version->uniqueId();
@@ -529,12 +525,15 @@ void MaemoQemuManager::toggleStarterButton(Target *target)
 
 bool MaemoQemuManager::sessionHasMaemoTarget() const
 {
-    bool result = false;
     ProjectExplorerPlugin *explorer = ProjectExplorerPlugin::instance();
     const QList<Project*> &projects = explorer->session()->projects();
-    foreach (const Project *p, projects)
-        result |= p->target(QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID)) != 0;
-    return result;
+    foreach (const Project *p, projects) {
+        foreach (const Target * const target, p->targets()) {
+            if (MaemoManager::instance().isMaemoTargetId(target->id()))
+                return true;
+        }
+    }
+    return false;
 }
 
 bool MaemoQemuManager::targetUsesMatchingRuntimeConfig(Target *target,

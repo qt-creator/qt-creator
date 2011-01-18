@@ -80,7 +80,8 @@ static QList<int> allGdbToolChains()
        << ProjectExplorer::ToolChain_RVCT2_ARMV5
        << ProjectExplorer::ToolChain_RVCT2_ARMV6
 #endif
-       << ProjectExplorer::ToolChain_GCC_MAEMO
+       << ProjectExplorer::ToolChain_GCC_MAEMO5
+       << ProjectExplorer::ToolChain_GCC_HARMATTAN
 #ifdef Q_OS_UNIX
        << ProjectExplorer::ToolChain_GCCE_GNUPOC
        << ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC
@@ -461,7 +462,8 @@ ToolChainSelectorWidget::ToolChainSelectorWidget(QWidget *parent) :
         case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
             symbianLayout->addWidget(createToolChainCheckBox(tc));
             break;
-        case ProjectExplorer::ToolChain_GCC_MAEMO:
+        case ProjectExplorer::ToolChain_GCC_MAEMO5:
+        case ProjectExplorer::ToolChain_GCC_HARMATTAN:
             maemoLayout->addWidget(createToolChainCheckBox(tc));
             break;
         case ProjectExplorer::ToolChain_INVALID:

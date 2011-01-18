@@ -341,8 +341,8 @@ const QtVersion *MaemoDeployableListModel::qtVersion() const
     const ProjectExplorer::Project *const activeProject
         = ProjectExplorer::ProjectExplorerPlugin::instance()->session()->startupProject();
     QTC_ASSERT(activeProject, return 0);
-    const Qt4MaemoTarget *const activeTarget
-        = qobject_cast<Qt4MaemoTarget *>(activeProject->activeTarget());
+    const AbstractQt4MaemoTarget *const activeTarget
+        = qobject_cast<AbstractQt4MaemoTarget *>(activeProject->activeTarget());
     QTC_ASSERT(activeTarget, return 0);
     const Qt4BuildConfiguration *const bc
         = activeTarget->activeBuildConfiguration();

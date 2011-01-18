@@ -73,7 +73,7 @@ MaemoPublishingBuildSettingsPageFremantleFree::~MaemoPublishingBuildSettingsPage
 void MaemoPublishingBuildSettingsPageFremantleFree::collectBuildConfigurations(const Project *project)
 {
     foreach (const Target *const target, project->targets()) {
-        if (target->id() != QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
+        if (target->id() != QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
             continue;
         foreach (BuildConfiguration * const bc, target->buildConfigurations()) {
             Qt4BuildConfiguration * const qt4Bc

@@ -70,7 +70,7 @@ bool MaemoPublishingWizardFactoryFremantleFree::canCreateWizard(const Project *p
     if (!qobject_cast<const Qt4Project *>(project))
         return false;
     foreach (const Target *const target, project->targets()) {
-        if (target->id() != QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
+        if (target->id() != QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
             continue;
         foreach (const BuildConfiguration *const bc, target->buildConfigurations()) {
             const Qt4BuildConfiguration *const qt4Bc

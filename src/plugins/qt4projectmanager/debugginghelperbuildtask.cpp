@@ -80,8 +80,11 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(QtVersion *version, Debugging
 
     tc->addToEnvironment(m_environment);
 
-    m_target = (tc->type() == ProjectExplorer::ToolChain_GCC_MAEMO ? QLatin1String("-unix")
-                                                                   : QLatin1String(""));
+    if (tc->type() == ProjectExplorer::ToolChain_GCC_MAEMO5
+            || tc->type() == ProjectExplorer::ToolChain_GCC_HARMATTAN) {
+        m_target = QLatin1String("-unix");
+    }
+
     m_qmakeCommand = version->qmakeCommand();
     m_makeCommand = tc->makeCommand();
     m_mkspec = version->mkspec();

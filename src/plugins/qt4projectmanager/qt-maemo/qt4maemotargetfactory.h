@@ -55,6 +55,10 @@ public:
     QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &proFilePath);
     Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id);
     Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id, QList<BuildConfigurationInfo> infos);
+
+private:
+    QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &proFilePath,
+        const QString &id);
 };
 
 } // namespace Internal

@@ -56,13 +56,13 @@ class Qt4BuildConfiguration;
 
 namespace Internal {
 class Qt4ProFileNode;
-class Qt4MaemoTarget;
+class AbstractQt4MaemoTarget;
 
 class MaemoDeployables : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    MaemoDeployables(const Qt4MaemoTarget *target);
+    MaemoDeployables(const AbstractQt4MaemoTarget *target);
     ~MaemoDeployables();
     void setUnmodified();
     bool isModified() const;
@@ -84,7 +84,7 @@ private:
 
     QList<MaemoDeployableListModel *> m_listModels;
     UpdateSettingsMap m_updateSettings;
-    const Qt4MaemoTarget * const m_target;
+    const AbstractQt4MaemoTarget * const m_target;
     QTimer *const m_updateTimer;
 };
 

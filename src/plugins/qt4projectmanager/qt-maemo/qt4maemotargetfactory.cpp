@@ -27,6 +27,7 @@
 **
 **************************************************************************/
 
+#include "maemomanager.h"
 #include "qt4maemotargetfactory.h"
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
@@ -61,22 +62,27 @@ Qt4MaemoTargetFactory::~Qt4MaemoTargetFactory()
 
 bool Qt4MaemoTargetFactory::supportsTargetId(const QString &id) const
 {
-    return id == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID);
+    return MaemoManager::instance().isMaemoTargetId(id);
 }
 
 QStringList Qt4MaemoTargetFactory::supportedTargetIds(ProjectExplorer::Project *parent) const
 {
+    QStringList targetIds;
     if (!qobject_cast<Qt4Project *>(parent))
-        return QStringList();
-    if (!QtVersionManager::instance()->supportsTargetId(Constants::MAEMO_DEVICE_TARGET_ID))
-        return QStringList();
-    return QStringList() << QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID);
+        return targetIds;
+    if (QtVersionManager::instance()->supportsTargetId(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID)))
+        targetIds << QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID);
+    if (QtVersionManager::instance()->supportsTargetId(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID)))
+        targetIds << QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID);
+    return targetIds;
 }
 
 QString Qt4MaemoTargetFactory::displayNameForId(const QString &id) const
 {
-    if (id == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
-        return Qt4MaemoTarget::defaultDisplayName();
+    if (id == QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
+        return Qt4Maemo5Target::defaultDisplayName();
+    else if (id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
+        return Qt4HarmattanTarget::defaultDisplayName();
     return QString();
 }
 
@@ -97,9 +103,13 @@ Qt4BaseTarget *Qt4MaemoTargetFactory::restore(ProjectExplorer::Project *parent, 
     if (!canRestore(parent, map))
         return 0;
 
+    const QString id = idFromMap(map);
+    AbstractQt4MaemoTarget *target;
     Qt4Project *qt4project = static_cast<Qt4Project *>(parent);
-    Qt4MaemoTarget *target = new Qt4MaemoTarget(qt4project, QLatin1String("transient ID"));
-
+    if (id == QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
+        target = new Qt4Maemo5Target(qt4project, QLatin1String("transient ID"));
+    else if (id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
+        target = new Qt4HarmattanTarget(qt4project, QLatin1String("transient ID"));
     if (target->fromMap(map))
         return target;
     delete target;
@@ -108,25 +118,38 @@ Qt4BaseTarget *Qt4MaemoTargetFactory::restore(ProjectExplorer::Project *parent, 
 
 QString Qt4MaemoTargetFactory::defaultShadowBuildDirectory(const QString &projectLocation, const QString &id)
 {
-    if (id != QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
+    QString suffix;
+    if (id == QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
+        suffix = QLatin1String("maemo");
+    else if (id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
+        suffix = QLatin1String("harmattan");
+    else
         return QString();
 
     // currently we can't have the build directory to be deeper than the source directory
     // since that is broken in qmake
     // Once qmake is fixed we can change that to have a top directory and
     // subdirectories per build. (Replacing "QChar('-')" with "QChar('/') )
-    return projectLocation + QLatin1String("-maemo");
+    return projectLocation + QLatin1Char('-') + suffix;
 }
 
 QList<BuildConfigurationInfo> Qt4MaemoTargetFactory::availableBuildConfigurations(const QString &proFilePath)
 {
+    return QList<BuildConfigurationInfo>()
+        << availableBuildConfigurations(proFilePath, QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
+        << availableBuildConfigurations(proFilePath, QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID));
+}
+
+QList<BuildConfigurationInfo> Qt4MaemoTargetFactory::availableBuildConfigurations(const QString &proFilePath,
+    const QString &id)
+{
     QList<BuildConfigurationInfo> infos;
-    QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(Constants::MAEMO_DEVICE_TARGET_ID);
+    QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id);
 
     foreach (QtVersion *version, knownVersions) {
         bool buildAll = version->defaultBuildConfig() & QtVersion::BuildAll;
         QtVersion::QmakeBuildConfigs config = buildAll ? QtVersion::BuildAll : QtVersion::QmakeBuildConfig(0);
-        QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), Constants::MAEMO_DEVICE_TARGET_ID);
+        QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), id);
         infos.append(BuildConfigurationInfo(version, config, QString(), dir));
         infos.append(BuildConfigurationInfo(version, config | QtVersion::DebugBuild, QString(), dir));
     }
@@ -153,26 +176,32 @@ Qt4BaseTarget *Qt4MaemoTargetFactory::create(ProjectExplorer::Project *parent, c
     return create(parent, id, infos);
 }
 
-Qt4BaseTarget *Qt4MaemoTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, QList<BuildConfigurationInfo> infos)
+Qt4BaseTarget *Qt4MaemoTargetFactory::create(ProjectExplorer::Project *parent,
+    const QString &id, QList<BuildConfigurationInfo> infos)
 {
     if (!canCreate(parent, id))
         return 0;
-    Qt4MaemoTarget *t = new Qt4MaemoTarget(static_cast<Qt4Project *>(parent), id);
+
+    AbstractQt4MaemoTarget *target = 0;
+    if (id == QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
+        target = new Qt4Maemo5Target(static_cast<Qt4Project *>(parent), id);
+    else if (id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
+        target = new Qt4HarmattanTarget(static_cast<Qt4Project *>(parent), id);
+    Q_ASSERT(target);
+
     foreach (const BuildConfigurationInfo &info, infos) {
         QString displayName = info.version->displayName() + QLatin1Char(' ');
         displayName += (info.buildConfig & QtVersion::DebugBuild) ? tr("Debug") : tr("Release");
-        t->addQt4BuildConfiguration(displayName,
+        target->addQt4BuildConfiguration(displayName,
                                     info.version,
                                     info.buildConfig,
                                     info.additionalArguments,
                                     info.directory);
     }
 
-    t->addDeployConfiguration(t->deployConfigurationFactory()->create(t, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
-
-    t->createApplicationProFiles();
-
-    if (t->runConfigurations().isEmpty())
-        t->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(t));
-    return t;
+    target->addDeployConfiguration(target->deployConfigurationFactory()->create(target, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
+    target->createApplicationProFiles();
+    if (target->runConfigurations().isEmpty())
+        target->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(target));
+    return target;
 }

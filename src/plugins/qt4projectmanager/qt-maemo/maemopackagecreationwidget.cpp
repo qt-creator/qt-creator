@@ -84,14 +84,18 @@ void MaemoPackageCreationWidget::init()
 
 void MaemoPackageCreationWidget::initGui()
 {
+    const Qt4BuildConfiguration * const bc = m_step->qt4BuildConfiguration();
+    if (bc) {
+        m_ui->skipCheckBox->setVisible(MaemoGlobal::allowsPackagingDisabling(
+            bc->qtVersion()));
+        m_ui->skipCheckBox->setChecked(!m_step->isPackagingEnabled());
+    }
+
     updateDebianFileList();
     updateVersionInfo();
     handleControlFileUpdate();
     connect(m_step, SIGNAL(packageFilePathChanged()), this,
         SIGNAL(updateSummary()));
-    connect(m_step, SIGNAL(qtVersionChanged()), this,
-        SLOT(handleToolchainChanged()));
-    handleToolchainChanged();
     versionInfoChanged();
     connect(m_step->maemoTarget(), SIGNAL(debianDirContentsChanged()),
         SLOT(updateDebianFileList()));
@@ -191,18 +195,6 @@ void MaemoPackageCreationWidget::setShortDescription()
         QMessageBox::critical(this, tr("File Error"),
             tr("Could not set project description."));
     }
-}
-
-// TODO: Can go when a target has only one possible type of toolchain
-void MaemoPackageCreationWidget::handleToolchainChanged()
-{
-    const Qt4BuildConfiguration * const bc = m_step->qt4BuildConfiguration();
-    if (!bc)
-        return;
-    m_ui->skipCheckBox->setVisible(MaemoGlobal::allowsPackagingDisabling(
-        bc->qtVersion()));
-    m_ui->skipCheckBox->setChecked(!m_step->isPackagingEnabled());
-    emit updateSummary();
 }
 
 QString MaemoPackageCreationWidget::summaryText() const

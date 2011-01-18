@@ -55,7 +55,7 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoDeployables::MaemoDeployables(const Qt4MaemoTarget *target)
+MaemoDeployables::MaemoDeployables(const AbstractQt4MaemoTarget *target)
     : m_target(target), m_updateTimer(new QTimer(this))
 {
     QTimer::singleShot(0, this, SLOT(init()));

@@ -203,7 +203,7 @@ bool MaemoPackageCreationStep::createPackage(QProcess *buildProc)
 
     // Workaround for non-working dh_builddeb --destdir=.
     if (!QDir(buildDirectory()).isRoot()) {
-        const Qt4MaemoTarget * const target = maemoTarget();
+        const AbstractQt4MaemoTarget * const target = maemoTarget();
         const ProjectExplorer::Project * const project = target->project();
         QString error;
         const QString pkgFileName = packageFileName(project,
@@ -329,9 +329,9 @@ const Qt4BuildConfiguration *MaemoPackageCreationStep::qt4BuildConfiguration() c
     return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
 }
 
-Qt4MaemoTarget *MaemoPackageCreationStep::maemoTarget() const
+AbstractQt4MaemoTarget *MaemoPackageCreationStep::maemoTarget() const
 {
-    return qobject_cast<Qt4MaemoTarget *>(buildConfiguration()->target());
+    return qobject_cast<AbstractQt4MaemoTarget *>(buildConfiguration()->target());
 }
 
 QString MaemoPackageCreationStep::buildDirectory() const

@@ -74,7 +74,6 @@ private slots:
     void setPackageManagerIcon();
     void setName();
     void setShortDescription();
-    void handleToolchainChanged();
 
 private:
     void updatePackageManagerIcon();

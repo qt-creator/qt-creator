@@ -46,23 +46,18 @@ using namespace ProjectExplorer;
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoToolChain::MaemoToolChain(const QtVersion *qtVersion)
+AbstractMaemoToolChain::AbstractMaemoToolChain(const QtVersion *qtVersion)
     : GccToolChain(MaemoGlobal::targetRoot(qtVersion) % QLatin1String("/bin/gcc"))
     , m_sysrootInitialized(false)
     , m_qtVersionId(qtVersion->uniqueId())
 {
 }
 
-MaemoToolChain::~MaemoToolChain()
+AbstractMaemoToolChain::~AbstractMaemoToolChain()
 {
 }
 
-ProjectExplorer::ToolChainType MaemoToolChain::type() const
-{
-    return ProjectExplorer::ToolChain_GCC_MAEMO;
-}
-
-void MaemoToolChain::addToEnvironment(Utils::Environment &env)
+void AbstractMaemoToolChain::addToEnvironment(Utils::Environment &env)
 {
     QtVersion *version = QtVersionManager::instance()->version(m_qtVersionId);
     const QString maddeRoot = MaemoGlobal::maddeRoot(version);
@@ -81,25 +76,25 @@ void MaemoToolChain::addToEnvironment(Utils::Environment &env)
         QDir::toNativeSeparators(QString("%1/madlib/perl5").arg(maddeRoot)));
 }
 
-QString MaemoToolChain::makeCommand() const
+QString AbstractMaemoToolChain::makeCommand() const
 {
     return QLatin1String("make" EXEC_SUFFIX);
 }
 
-bool MaemoToolChain::equals(const ToolChain *other) const
+bool AbstractMaemoToolChain::equals(const ToolChain *other) const
 {
-    const MaemoToolChain *toolChain = static_cast<const MaemoToolChain*> (other);
+    const AbstractMaemoToolChain *toolChain = static_cast<const AbstractMaemoToolChain*> (other);
     return other->type() == type() && toolChain->m_qtVersionId == m_qtVersionId;
 }
 
-QString MaemoToolChain::sysroot() const
+QString AbstractMaemoToolChain::sysroot() const
 {
     if (!m_sysrootInitialized)
         setSysroot();
     return m_sysrootRoot;
 }
 
-void MaemoToolChain::setSysroot() const
+void AbstractMaemoToolChain::setSysroot() const
 {
     QtVersion *version = QtVersionManager::instance()->version(m_qtVersionId);
     QFile file(QDir::cleanPath(MaemoGlobal::targetRoot(version))
@@ -119,6 +114,31 @@ void MaemoToolChain::setSysroot() const
     }
 
     m_sysrootInitialized = true;
+}
+
+
+Maemo5ToolChain::Maemo5ToolChain(const QtVersion *qtVersion)
+        : AbstractMaemoToolChain(qtVersion)
+{
+}
+
+Maemo5ToolChain::~Maemo5ToolChain() {}
+
+ProjectExplorer::ToolChainType Maemo5ToolChain::type() const
+{
+    return ProjectExplorer::ToolChain_GCC_MAEMO5;
+}
+
+HarmattanToolChain::HarmattanToolChain(const QtVersion *qtVersion)
+        : AbstractMaemoToolChain(qtVersion)
+{
+}
+
+HarmattanToolChain::~HarmattanToolChain() {}
+
+ProjectExplorer::ToolChainType HarmattanToolChain::type() const
+{
+    return ProjectExplorer::ToolChain_GCC_HARMATTAN;
 }
 
 } // namespace Internal

@@ -587,8 +587,8 @@ bool MaemoPublisherFremantleFree::addOrReplaceDesktopFileValue(QByteArray &fileC
 QStringList MaemoPublisherFremantleFree::findProblems() const
 {
     QStringList problems;
-    const Qt4MaemoTarget * const target
-        = qobject_cast<Qt4MaemoTarget *>(m_buildConfig->target());
+    const Qt4Maemo5Target * const target
+        = qobject_cast<Qt4Maemo5Target *>(m_buildConfig->target());
     const QString &description = target->shortDescription();
     if (description.trimmed().isEmpty()) {
         problems << tr("The package description is empty.");

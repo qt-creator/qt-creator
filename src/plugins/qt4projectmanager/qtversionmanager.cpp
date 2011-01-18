@@ -1290,7 +1290,8 @@ bool QtVersion::supportsMobileTarget() const
 {
     return supportsTargetId(Constants::S60_DEVICE_TARGET_ID) ||
            supportsTargetId(Constants::S60_EMULATOR_TARGET_ID) ||
-           supportsTargetId(Constants::MAEMO_DEVICE_TARGET_ID) ||
+           supportsTargetId(Constants::MAEMO5_DEVICE_TARGET_ID) ||
+           supportsTargetId(Constants::HARMATTAN_DEVICE_TARGET_ID) ||
            supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID);
 }
 
@@ -1463,10 +1464,12 @@ void QtVersion::updateToolChainAndMkspec() const
             m_targetIds.insert(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
 #    endif
         }
-    } else if (qt_arch.startsWith(QLatin1String("arm"))
-               && MaemoManager::instance().isValidMaemoQtVersion(this)) {
-        m_toolChains << ToolChainPtr(MaemoManager::instance().maemoToolChain(this));
-        m_targetIds.insert(QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID));
+    } else if (MaemoManager::instance().isValidMaemo5QtVersion(this)) {
+        m_toolChains << ToolChainPtr(MaemoManager::instance().maemo5ToolChain(this));
+        m_targetIds.insert(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID));
+    } else if (MaemoManager::instance().isValidHarmattanQtVersion(this)) {
+        m_toolChains << ToolChainPtr(MaemoManager::instance().harmattanToolChain(this));
+        m_targetIds.insert(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID));
     } else if (qmakeCXX == "cl" || qmakeCXX == "icl") {
         // TODO proper support for intel cl. Detect matching VC version unless set.
         if (m_msvcVersion.isEmpty())
@@ -1660,8 +1663,10 @@ QString QtVersion::description() const
     else if (targets.contains(Constants::S60_DEVICE_TARGET_ID) ||
              targets.contains(Constants::S60_EMULATOR_TARGET_ID))
         envs = QCoreApplication::translate("QtVersion", "Symbian", "Qt Version is meant for Symbian");
-    else if (targets.contains(Constants::MAEMO_DEVICE_TARGET_ID))
-        envs = QCoreApplication::translate("QtVersion", "Maemo", "Qt Version is meant for Maemo");
+    else if (targets.contains(Constants::MAEMO5_DEVICE_TARGET_ID))
+        envs = QCoreApplication::translate("QtVersion", "Maemo", "Qt Version is meant for Maemo5");
+    else if (targets.contains(Constants::HARMATTAN_DEVICE_TARGET_ID))
+        envs = QCoreApplication::translate("QtVersion", "Harmattan ", "Qt Version is meant for Harmattan");
     else if (targets.contains(Constants::QT_SIMULATOR_TARGET_ID))
         envs = QCoreApplication::translate("QtVersion", "Qt Simulator", "Qt Version is meant for Qt Simulator");
     else
@@ -1754,7 +1759,8 @@ bool QtVersion::supportsBinaryDebuggingHelper() const
         case ProjectExplorer::ToolChain_MinGW:
         case ProjectExplorer::ToolChain_MSVC:
         case ProjectExplorer::ToolChain_WINCE:
-        case ProjectExplorer::ToolChain_GCC_MAEMO:
+        case ProjectExplorer::ToolChain_GCC_MAEMO5:
+        case ProjectExplorer::ToolChain_GCC_HARMATTAN:
         case ProjectExplorer::ToolChain_OTHER:
         case ProjectExplorer::ToolChain_UNKNOWN:
             return true;
