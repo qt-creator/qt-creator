@@ -46,7 +46,7 @@ S60CreatePackageParser::S60CreatePackageParser(const QString &packageName) :
     m_needPassphrase(false)
 {
     setObjectName(QLatin1String("S60CreatePackageParser"));
-    m_signSis.setPattern("^\\s*(error\\s?:\\s?)+(.+)$");
+    m_signSis.setPattern("^(\\s*|\\(\\d+\\)\\s*:\\s*)(error\\s?:\\s?)+(.+)$");
     m_signSis.setMinimal(true);
     m_signSis.setCaseSensitivity(Qt::CaseInsensitive);
 }
@@ -80,7 +80,7 @@ bool S60CreatePackageParser::parseLine(const QString &line)
     }
 
     if (m_signSis.indexIn(line) > -1) {
-        QString errorMessage(m_signSis.cap(2));
+        QString errorMessage(m_signSis.cap(3));
         if (errorMessage.contains(QLatin1String("bad password"))
             || errorMessage.contains(QLatin1String("bad decrypt")))
             m_needPassphrase = true;
@@ -131,4 +131,8 @@ NOTE: A patched package may not work as expected due to reduced capabilities and
       Use a proper certificate to avoid the need to patch the package.
 
 Processing untitled131_release-armv5.pkg...
+
+
+and errors like:
+(35) : error: Cannot find file : c:/QtSDK/Symbian/SDKs/Symbian3Qt471/epoc32/data/z/resource/apps/untitledSymbian.mif
 */
