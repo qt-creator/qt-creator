@@ -53,7 +53,9 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    m_localServer->listen(socketToken);
    m_localServer->setMaxPendingConnections(2);
 
-   QString applicationPath = QCoreApplication::applicationDirPath();
+   QString applicationPath =  QCoreApplication::applicationDirPath();
+   if (runModus == TestModus)
+       applicationPath += "/../../../../../bin";
 #ifdef Q_OS_MACX
    applicationPath += "/qmlpuppet.app/Contents/MacOS";
 #endif

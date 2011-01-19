@@ -1,6 +1,20 @@
 include(../../../qttest.pri)
 
+
+
+
+QTCREATOR_SOURCE=$$PWD/../../../../..
+QTCREATOR_BUILD=$$OUT_PWD/../../../../..
+# can we check that this is a valid build dir?
+
+OUT_PWD_SAVE=$$OUT_PWD
+OUT_PWD=QTCREATOR_BUILD
 include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/config.pri)
+OUT_PWD=$$OUT_PWD_SAVE
+
+LIBS += -L$$IDE_PLUGIN_PATH/Nokia
+
+unix: QMAKE_LFLAGS += \'-Wl,-rpath,$${IDE_LIBRARY_PATH}\' \'-Wl,-rpath,$${IDE_PLUGIN_PATH}/Nokia\'
 
 QT += script \
     network \
@@ -17,9 +31,8 @@ INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/include
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore
 
 include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/designercore.pri)
-include($$IDE_SOURCE_TREE/src/libs/utils/utils-lib.pri)
-include($$IDE_SOURCE_TREE/src/libs/qmljs/qmljs-lib.pri)
-include($$IDE_SOURCE_TREE/src/libs/languageutils/languageutils-lib.pri)
+include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
+include($$IDE_SOURCE_TREE/src/plugins/qmljstools/qmljstools.pri)
 
 CONFIG += console
 CONFIG -= app_bundle
