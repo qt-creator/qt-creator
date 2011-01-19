@@ -1578,11 +1578,89 @@
     \section2 Completing Code Snippets
 
     Code snippets can consist of multiple
-    fields that you specify values for. Select an item in the list and press
+    variables that you specify values for. Select an item in the list and press
     \key Tab or \key Enter to complete the code. Press \key Tab to
-    move between the fields and specify values for them.
+    move between the variables and specify values for them. When you specify a
+    value for a variable, all instances of the variable within the snippet
+    are renamed.
 
     \image qmldesigner-code-completion.png "Completing QML code"
+
+    \section2 Editing Code Snippets
+
+    Code snippets specify C++ or QML code constructs. You can add, modify,
+    and remove snippets in the snippet editor. To open the editor, select
+    \gui {Tools > Options... > Text Editor > Snippets}.
+
+    \image qtcreator-edit-code-snippets "Snippet options"
+
+    Qt Creator provides you with built-in snippets in the following categories:
+
+    \list
+
+        \o Text snippets, which can contain any text string. For example, code
+        comments
+
+        \o C++ code snippets, which specify C++ code constructs
+
+        \o QML code snippets, which specify QML code constructs
+
+    \endlist
+
+    \section3 Adding and Editing Snippets
+
+    Select a snippet in the list to edit it in the snippet editor. To add a new
+    snippet, select \gui Add. Specify a trigger and, if the trigger is already
+    in use, an optional variant, which appear in the list of suggestions when
+    you write code. Also specify a text string or C++ or QML code construct in
+    the snippet editor, depending on the snippet category.
+
+    The snippet editor provides you with:
+
+    \list
+
+        \o Highlighting
+
+        \o Indentation
+
+        \o Parentheses matching
+
+        \o Basic code completion
+
+    \endlist
+
+    Specify the variables for the snippets in the following format:
+
+    \c $variable$
+
+    Use unique variable names within a snippet, because all instances of a
+    variable are renamed when you specify a value for it.
+
+    The snippet editor does not check the syntax of the snippets that you edit
+    or add. However, when you use the snippets, the code editor marks any
+    errors by underlining them in red.
+
+    To discard the changes you made to a built-in snippet, select \gui {Revert
+    Built-in}.
+
+    \section3 Removing Snippets
+
+    Several similar built-in snippets might be provided for different use
+    cases. To make the list of suggestions shorter when you write code, remove
+    the built-in snippets that you do not need. If you need them later, you
+    can restore them.
+
+    To remove snippets, select a snippet in the list, and then select
+    \gui Remove. To restore the removed snippets, select \gui {Restore Removed
+    Built-ins}.
+
+    \section3 Resetting Snippets
+
+    To remove all added snippets and to restore all removed snippets, select
+    \gui {Reset All}.
+
+    \note If you now select \gui OK or \gui Apply, you permanently lose all
+    your own snippets.
 
     \section1 Using Bookmarks
 
