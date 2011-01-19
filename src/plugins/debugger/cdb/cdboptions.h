@@ -68,6 +68,7 @@ public:
     bool enabled;
     bool is64bit;
     QString executable;
+    QString additionalArguments;
     QStringList symbolPaths;
     QStringList sourcePaths;
     // Events to break on (Command 'sxe' with abbreviation and optional parameter)

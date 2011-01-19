@@ -591,6 +591,7 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
 {
     if (debug)
         qDebug("launchCDB startMode=%d", sp.startMode);
+    const QChar blank(QLatin1Char(' '));
     // Start engine which will run until initial breakpoint:
     // Determine extension lib name and path to use
     // The extension is passed as relative name with the path variable set
@@ -621,10 +622,14 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
         arguments << QLatin1String("-y") << m_options->symbolPaths.join(QString(QLatin1Char(';')));
     if (!m_options->sourcePaths.isEmpty())
         arguments << QLatin1String("-srcpath") << m_options->sourcePaths.join(QString(QLatin1Char(';')));
+    // Compile argument string preserving quotes
+    QString nativeArguments = m_options->additionalArguments;
     switch (sp.startMode) {
     case StartInternal:
     case StartExternal:
-        arguments << QDir::toNativeSeparators(sp.executable);
+        if (!nativeArguments.isEmpty())
+            nativeArguments.push_back(blank);
+        nativeArguments += QDir::toNativeSeparators(sp.executable);
         break;
     case AttachToRemote:
         break;
@@ -638,19 +643,26 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
         *errorMessage = QString::fromLatin1("Internal error: Unsupported start mode %1.").arg(sp.startMode);
         return false;
     }
+    if (!sp.processArgs.isEmpty()) { // Complete native argument string.
+        if (!nativeArguments.isEmpty())
+            nativeArguments.push_back(blank);
+        nativeArguments += sp.processArgs;
+    }
+
     const QString executable = m_options->executable;
     const QString msg = QString::fromLatin1("Launching %1 %2\nusing %3 of %4.").
             arg(QDir::toNativeSeparators(executable),
-                arguments.join(QString(QLatin1Char(' '))),
+                arguments.join(QString(blank)) + blank + nativeArguments,
                 QDir::toNativeSeparators(extensionFi.absoluteFilePath()),
                 extensionFi.lastModified().toString(Qt::SystemLocaleShortDate));
     showMessage(msg, LogMisc);
 
     m_outputBuffer.clear();
     m_process.setEnvironment(mergeEnvironment(sp.environment.toStringList(), extensionFi.absolutePath()));
+
 #ifdef Q_OS_WIN
-    if (!sp.processArgs.isEmpty()) // Appends
-        m_process.setNativeArguments(sp.processArgs);
+    if (!nativeArguments.isEmpty()) // Appends
+        m_process.setNativeArguments(nativeArguments);
 #endif
     m_process.start(executable, arguments);
     if (!m_process.waitForStarted()) {

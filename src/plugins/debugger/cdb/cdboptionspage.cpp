@@ -210,6 +210,7 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
 void CdbOptionsPageWidget::setOptions(CdbOptions &o)
 {
     m_ui.pathChooser->setPath(o.executable);
+    m_ui.additionalArgumentsLineEdit->setText(o.additionalArguments);
     m_ui.is64BitCheckBox->setChecked(o.is64bit);
     m_ui.cdbPathGroupBox->setChecked(o.enabled);
     setSymbolPaths(o.symbolPaths);
@@ -231,6 +232,7 @@ CdbOptions CdbOptionsPageWidget::options() const
 {
     CdbOptions  rc;
     rc.executable = path();
+    rc.additionalArguments = m_ui.additionalArgumentsLineEdit->text().trimmed();
     rc.enabled = m_ui.cdbPathGroupBox->isChecked();
     rc.is64bit = is64Bit();
     rc.symbolPaths = symbolPaths();

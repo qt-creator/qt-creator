@@ -50,6 +50,7 @@ static const char symbolPathsKeyC[] = "SymbolPaths";
 static const char sourcePathsKeyC[] = "SourcePaths";
 static const char breakEventKeyC[] = "BreakEvent";
 static const char is64bitKeyC[] = "64bit";
+static const char additionalArgumentsKeyC[] = "AdditionalArguments";
 
 namespace Debugger {
 namespace Internal {
@@ -148,6 +149,7 @@ void CdbOptions::fromSettings(QSettings *s)
     enabled = s->value(enabledKey, false).toBool();
     is64bit = s->value(keyRoot + QLatin1String(is64bitKeyC), is64bit).toBool();
     executable = s->value(keyRoot + QLatin1String(pathKeyC), executable).toString();
+    additionalArguments = s->value(keyRoot + QLatin1String(additionalArgumentsKeyC), QString()).toString();
     symbolPaths = s->value(keyRoot + QLatin1String(symbolPathsKeyC), QStringList()).toStringList();
     sourcePaths = s->value(keyRoot + QLatin1String(sourcePathsKeyC), QStringList()).toStringList();
     breakEvents = s->value(keyRoot + QLatin1String(breakEventKeyC), QStringList()).toStringList();
@@ -162,6 +164,7 @@ void CdbOptions::toSettings(QSettings *s) const
     s->setValue(QLatin1String(symbolPathsKeyC), symbolPaths);
     s->setValue(QLatin1String(sourcePathsKeyC), sourcePaths);
     s->setValue(QLatin1String(breakEventKeyC), breakEvents);
+    s->setValue(QLatin1String(additionalArgumentsKeyC), additionalArguments);
     s->endGroup();
 }
 
@@ -169,6 +172,7 @@ bool CdbOptions::equals(const CdbOptions &rhs) const
 {
     return enabled == rhs.enabled && is64bit == rhs.is64bit
             && executable == rhs.executable
+            && additionalArguments == rhs.additionalArguments
             && symbolPaths == rhs.symbolPaths
             && sourcePaths == rhs.sourcePaths
             && breakEvents == rhs.breakEvents;

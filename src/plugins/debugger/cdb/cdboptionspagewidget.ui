@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Debugger::Internal::CdbOptionsPageWidget</class>
- <widget class="QWidget" name="Debugger::Cdb::CdbOptionsPageWidget">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>347</width>
-    <height>358</height>
-   </rect>
-  </property>
+ <widget class="QWidget" name="Debugger::Internal::CdbOptionsPageWidget">
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -25,7 +17,10 @@
         <item row="1" column="0">
          <widget class="QLabel" name="pathLabel">
           <property name="text">
-           <string>Path:</string>
+           <string>&amp;Path:</string>
+          </property>
+          <property name="buddy">
+           <cstring>pathChooser</cstring>
           </property>
          </widget>
         </item>
@@ -39,7 +34,20 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0" colspan="2">
+        <item row="3" column="0">
+         <widget class="QLabel" name="additionalArgumentsLabel">
+          <property name="text">
+           <string>Additional &amp;arguments:</string>
+          </property>
+          <property name="buddy">
+           <cstring>additionalArgumentsLineEdit</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="additionalArgumentsLineEdit"/>
+        </item>
+        <item row="2" column="0">
          <widget class="QCheckBox" name="is64BitCheckBox">
           <property name="text">
            <string>64 bit</string>
@@ -63,7 +71,10 @@
       <item row="0" column="0">
        <widget class="QLabel" name="symbolPathLabel">
         <property name="text">
-         <string>Symbol paths:</string>
+         <string>&amp;Symbol paths:</string>
+        </property>
+        <property name="buddy">
+         <cstring>symbolPathListEditor</cstring>
         </property>
        </widget>
       </item>
@@ -73,7 +84,10 @@
       <item row="1" column="0">
        <widget class="QLabel" name="sourcePathLabel">
         <property name="text">
-         <string>Source paths:</string>
+         <string>S&amp;ource paths:</string>
+        </property>
+        <property name="buddy">
+         <cstring>sourcePathListEditor</cstring>
         </property>
        </widget>
       </item>
