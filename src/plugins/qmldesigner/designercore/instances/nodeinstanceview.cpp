@@ -926,20 +926,21 @@ void NodeInstanceView::informationChanged(const InformationChangedCommand &comma
     if (!model())
         return;
 
-    QList<ModelNode> informationChangedList;
+    QVector<ModelNode> informationChangedVector;
 
     foreach(const InformationContainer &container, command.informations()) {
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
                 instance.setInformation(container.name(), container.information(), container.secondInformation(), container.thirdInformation());
-                informationChangedList.append(instance.modelNode());
+                if (!informationChangedVector.contains(instance.modelNode()))
+                    informationChangedVector.append(instance.modelNode());
             }
         }
     }
 
-    if (!informationChangedList.isEmpty())
-        emitCustomNotification("__instance information changed__", informationChangedList);
+    if (!informationChangedVector.isEmpty())
+        emitCustomNotification("__instance information changed__", informationChangedVector.toList());
 }
 
 QImage NodeInstanceView::statePreviewImage(const ModelNode &stateNode) const
