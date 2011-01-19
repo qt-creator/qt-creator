@@ -41,7 +41,7 @@
 
 #include "maemopackagecreationfactory.h"
 
-#include "maemomanager.h"
+#include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 
 #include <projectexplorer/buildconfiguration.h>
