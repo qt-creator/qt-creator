@@ -42,6 +42,9 @@
 #include <QtCore/QMap>
 #include <QtCore/QTime>
 
+namespace Utils {
+class ConsoleProcess;
+}
 namespace Debugger {
 namespace Internal {
 
@@ -150,6 +153,10 @@ private slots:
     void postCommandSequence(unsigned mask);
     void operateByInstructionTriggered(bool);
 
+    void consoleStubMessage(const QString &, bool);
+    void consoleStubProcessStarted();
+    void consoleStubExited();
+
 private:
     enum SpecialStopMode
     {
@@ -158,11 +165,13 @@ private:
         SpecialStopGetWidgetAt
     };
 
+    bool startConsole(const DebuggerStartParameters &sp, QString *errorMessage);
     unsigned examineStopReason(const QByteArray &messageIn, QString *message,
                                QString *exceptionBoxMessage);
     bool commandsPending() const;
     void handleExtensionMessage(char t, int token, const QByteArray &what, const QByteArray &message);
     bool doSetupEngine(QString *errorMessage);
+    bool launchCDB(const DebuggerStartParameters &sp, QString *errorMessage);
     void handleSessionAccessible(unsigned long cdbExState);
     void handleSessionInaccessible(unsigned long cdbExState);
     void handleSessionIdle(const QByteArray &message);
@@ -202,6 +211,8 @@ private:
     const OptionsPtr m_options;
 
     QProcess m_process;
+    QScopedPointer<Utils::ConsoleProcess> m_consoleStub;
+    DebuggerStartMode m_effectiveStartMode;
     QByteArray m_outputBuffer;
     unsigned long m_inferiorPid;
     // Debugger accessible (expecting commands)

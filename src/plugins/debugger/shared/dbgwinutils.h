@@ -67,16 +67,19 @@ QString winNormalizeFileName(const QString &f);
 bool isWinProcessBeingDebugged(unsigned long pid);
 
 // Special exception codes.
-enum { winExceptionCppException = 0xe06d7363,
-       winExceptionStartupCompleteTrap = 0x406d1388,
-       winExceptionRpcServerUnavailable = 0x6ba,
-       winExceptionRpcServerInvalid = 0x6a6,
-       winExceptionDllNotFound = 0xc0000135,
-       winExceptionDllEntryPointNoFound = 0xc0000139,
-       winExceptionDllInitFailed = 0xc0000142,
-       winExceptionMissingSystemFile = 0xc0000143,
-       winExceptionAppInitFailed = 0xc0000143,
-       winExceptionWX86Breakpoint = 0x4000001f
+enum
+{
+    winExceptionCppException = 0xe06d7363,
+    winExceptionStartupCompleteTrap = 0x406d1388,
+    winExceptionRpcServerUnavailable = 0x6ba,
+    winExceptionRpcServerInvalid = 0x6a6,
+    winExceptionDllNotFound = 0xc0000135,
+    winExceptionDllEntryPointNoFound = 0xc0000139,
+    winExceptionDllInitFailed = 0xc0000142,
+    winExceptionMissingSystemFile = 0xc0000143,
+    winExceptionAppInitFailed = 0xc0000143,
+    winExceptionWX86Breakpoint = 0x4000001f,
+    winExceptionCtrlPressed = 0x40010005
 };
 
 // Format windows Exception
