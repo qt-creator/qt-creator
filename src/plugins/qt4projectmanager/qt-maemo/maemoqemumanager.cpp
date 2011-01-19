@@ -86,8 +86,6 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
         QIcon::Normal, QIcon::On);
 
     m_qemuAction = new QAction("Maemo Emulator", this);
-    m_qemuAction->setEnabled(false);
-    m_qemuAction->setVisible(false);
     m_qemuAction->setIcon(m_qemuStarterIcon.pixmap(iconSize));
     m_qemuAction->setToolTip(tr("Start Maemo Emulator"));
     connect(m_qemuAction, SIGNAL(triggered()), this, SLOT(startRuntime()));
@@ -101,6 +99,8 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
 
     Core::ModeManager *modeManager = core->modeManager();
     modeManager->addAction(qemuCommand->action(), 1);
+    m_qemuAction->setEnabled(false);
+    m_qemuAction->setVisible(false);
 
     // listen to qt version changes to update the start button
     connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
