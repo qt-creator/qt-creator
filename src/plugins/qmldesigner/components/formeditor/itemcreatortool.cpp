@@ -183,7 +183,7 @@ void ItemCreatorTool::createAtItem(const QRectF &rect)
     if (list.first() == "item") {
         RewriterTransaction transaction = view()->beginRewriterTransaction();
         Q_ASSERT(false); //this code is out of date
-        ItemLibraryEntry itemLibraryEntry; //= view()->model()->metaInfo().itemLibraryInfo()->entry(list.at(1));
+        ItemLibraryEntry itemLibraryEntry; // = view()->model()->metaInfo().itemLibraryInfo()->entry(list.at(1));
         QmlItemNode newNode = view()->createQmlItemNode(itemLibraryEntry, pos, parentNode);
         newNode.modelNode().variantProperty("width") = rect.width();
         newNode.modelNode().variantProperty("height") = rect.height();

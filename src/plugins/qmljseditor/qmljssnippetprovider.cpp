@@ -44,6 +44,7 @@
 #include <texteditor/snippets/snippeteditor.h>
 
 #include <QtCore/QLatin1String>
+#include <QtCore/QCoreApplication>
 
 using namespace QmlJSEditor;
 using namespace Internal;
@@ -62,7 +63,7 @@ QString QmlJSSnippetProvider::groupId() const
 
 QString QmlJSSnippetProvider::displayName() const
 {
-    return tr("QML");
+    return QCoreApplication::translate("QmlJSEditor::Internal::QmlJSSnippetProvider", "QML");
 }
 
 void QmlJSSnippetProvider::decorateEditor(TextEditor::SnippetEditor *editor) const

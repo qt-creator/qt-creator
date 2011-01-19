@@ -92,13 +92,9 @@ BaseGitArgumentsWidget::BaseGitArgumentsWidget(GitSettings *settings,
     Q_ASSERT(client);
 }
 
-} // namespace Internal
-} // namespace Git
-
-namespace {
-
 class BaseGitDiffArgumentsWidget : public Git::Internal::BaseGitArgumentsWidget
 {
+    Q_OBJECT
 public:
     BaseGitDiffArgumentsWidget(Git::Internal::GitSettings *settings,
                                Git::Internal::GitClient *client,
@@ -164,6 +160,7 @@ protected:
 
 class GitCommitDiffArgumentsWidget : public BaseGitDiffArgumentsWidget
 {
+    Q_OBJECT
 public:
     GitCommitDiffArgumentsWidget(Git::Internal::GitSettings *settings,
                                  Git::Internal::GitClient *client, const QString &directory,
@@ -186,6 +183,7 @@ private:
 
 class GitFileDiffArgumentsWidget : public BaseGitDiffArgumentsWidget
 {
+    Q_OBJECT
 public:
     GitFileDiffArgumentsWidget(Git::Internal::GitSettings *settings,
                                Git::Internal::GitClient *client, const QString &directory,
@@ -205,6 +203,7 @@ private:
 
 class GitBranchDiffArgumentsWidget : public BaseGitDiffArgumentsWidget
 {
+    Q_OBJECT
 public:
     GitBranchDiffArgumentsWidget(Git::Internal::GitSettings *settings,
                                  Git::Internal::GitClient *client, const QString &directory,
@@ -224,6 +223,7 @@ private:
 
 class GitShowArgumentsWidget : public Git::Internal::BaseGitArgumentsWidget
 {
+    Q_OBJECT
 public:
     GitShowArgumentsWidget(Git::Internal::GitSettings *settings,
                            Git::Internal::GitClient *client,
@@ -289,6 +289,7 @@ private:
 
 class GitBlameArgumentsWidget : public Git::Internal::BaseGitArgumentsWidget
 {
+    Q_OBJECT
 public:
     GitBlameArgumentsWidget(Git::Internal::GitSettings *settings,
                             Git::Internal::GitClient *client, const QString &directory,
@@ -365,8 +366,6 @@ private:
     QString m_fileName;
 };
 
-} // namespace
-
 inline Core::IEditor* locateEditor(const Core::ICore *core, const char *property, const QString &entry)
 {
     foreach (Core::IEditor *ed, core->editorManager()->openedEditors())
@@ -399,9 +398,6 @@ static inline VCSBase::VCSBaseOutputWindow *outputWindow()
 {
     return VCSBase::VCSBaseOutputWindow::instance();
 }
-
-namespace Git {
-namespace Internal {
 
 static inline QString msgRepositoryNotFound(const QString &dir)
 {
@@ -2457,3 +2453,5 @@ unsigned GitClient::synchronousGitVersion(bool silent, QString *errorMessage /* 
 
 } // namespace Internal
 } // namespace Git
+
+#include "gitclient.moc"

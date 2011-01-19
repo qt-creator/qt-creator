@@ -44,6 +44,7 @@
 #include <texteditor/snippets/snippeteditor.h>
 
 #include <QtCore/QLatin1String>
+#include <QtCore/QCoreApplication>
 
 using namespace CppEditor;
 using namespace Internal;
@@ -62,7 +63,7 @@ QString CppSnippetProvider::groupId() const
 
 QString CppSnippetProvider::displayName() const
 {
-    return tr("C++");
+    return QCoreApplication::translate("CppEditor::Internal::CppSnippetProvider", "C++");
 }
 
 void CppSnippetProvider::decorateEditor(TextEditor::SnippetEditor *editor) const

@@ -221,7 +221,7 @@ class ProjectsMode : public Core::IMode
 public:
     ProjectsMode(QWidget *proWindow) : m_widget(proWindow) {}
 
-    QString displayName() const { return tr("Projects"); }
+    QString displayName() const { return QCoreApplication::translate("ProjectExplorer::ProjectsMode", "Projects"); }
     QIcon icon() const { return QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")); }
     int priority() const { return Constants::P_MODE_SESSION; }
     QWidget *widget() { return m_widget; }

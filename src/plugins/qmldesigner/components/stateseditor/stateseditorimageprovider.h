@@ -34,12 +34,12 @@
 #ifndef STATESEDITORIMAGEPROVIDER_H
 #define STATESEDITORIMAGEPROVIDER_H
 
-#include <QDeclarativeImageProvider>
-#include <QWeakPointer>
 #include"abstractview.h"
 
-namespace QmlDesigner {
+#include <QtDeclarative/QDeclarativeImageProvider>
+#include <QtCore/QWeakPointer>
 
+namespace QmlDesigner {
 namespace Internal {
 
 class StatesEditorView;
@@ -57,9 +57,8 @@ private:
     QWeakPointer<NodeInstanceView> m_nodeInstanceView;
 };
 
-}
-
-}
+} // namespace Internal
+} // namespace QmlDesigner
 
 #endif // STATESEDITORIMAGEPROVIDER_H
 

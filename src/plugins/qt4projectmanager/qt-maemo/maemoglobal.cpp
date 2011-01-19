@@ -36,19 +36,18 @@
 #include "maemoconstants.h"
 #include "maemodeviceconfigurations.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <coreplugin/filemanager.h>
 #include <coreplugin/ssh/sshconnection.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qtversionmanager.h>
 #include <utils/environment.h>
 
-#include <QtCore/QCoreApplication>
 #include <QtGui/QDesktopServices>
 #include <QtCore/QDir>
 #include <QtCore/QProcess>
 #include <QtCore/QString>
-
-#define TR(text) QCoreApplication::translate("Qt4ProjectManager::Internal::MaemoGlobal", text)
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -136,23 +135,23 @@ QString MaemoGlobal::remoteEnvironment(const QList<Utils::EnvironmentItem> &list
 QString MaemoGlobal::failedToConnectToServerMessage(const Core::SshConnection::Ptr &connection,
     const MaemoDeviceConfig::ConstPtr &deviceConfig)
 {
-    QString errorMsg = TR("Could not connect to host: %1")
+    QString errorMsg = tr("Could not connect to host: %1")
         .arg(connection->errorString());
 
     if (deviceConfig->type() == MaemoDeviceConfig::Simulator) {
         if (connection->errorState() == Core::SshTimeoutError
                 || connection->errorState() == Core::SshSocketError) {
-            errorMsg += TR("\nDid you start Qemu?");
+            errorMsg += tr("\nDid you start Qemu?");
         }
     } else if (connection->errorState() == Core::SshTimeoutError) {
-        errorMsg += TR("\nIs the device connected and set up for network access?");
+        errorMsg += tr("\nIs the device connected and set up for network access?");
     }
     return errorMsg;
 }
 
 QString MaemoGlobal::deviceConfigurationName(const MaemoDeviceConfig::ConstPtr &devConf)
 {
-    return devConf ? devConf->name() : TR("(No device)");
+    return devConf ? devConf->name() : tr("(No device)");
 }
 
 QString MaemoGlobal::maddeRoot(const QtVersion *qtVersion)
@@ -209,13 +208,13 @@ bool MaemoGlobal::removeRecursively(const QString &filePath, QString &error)
         }
         dir.cdUp();
         if (!dir.rmdir(fileInfo.fileName())) {
-            error = TR("Failed to remove directory '%1'.")
+            error = tr("Failed to remove directory '%1'.")
                 .arg(QDir::toNativeSeparators(filePath));
             return false;
         }
     } else {
         if (!QFile::remove(filePath)) {
-            error = TR("Failed to remove file '%1'.")
+            error = tr("Failed to remove file '%1'.")
                 .arg(QDir::toNativeSeparators(filePath));
             return false;
         }

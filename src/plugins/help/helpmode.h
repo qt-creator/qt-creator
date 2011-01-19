@@ -34,9 +34,6 @@
 #ifndef HELPMODE_H
 #define HELPMODE_H
 
-#include "helpmode.h"
-#include "helpconstants.h"
-
 #include <coreplugin/imode.h>
 
 #include <QtCore/QString>
@@ -48,15 +45,15 @@ namespace Internal {
 class HelpMode : public Core::IMode
 {
 public:
-    HelpMode(QObject *parent = 0);
+    explicit HelpMode(QObject *parent = 0);
 
-    QString displayName() const { return tr("Help"); }
+    QString displayName() const;
     QIcon icon() const { return m_icon; }
-    int priority() const { return Constants::P_MODE_HELP; }
+    int priority() const;
     QWidget *widget() { return m_widget; }
-    QString id() const { return QLatin1String(Constants::ID_MODE_HELP); }
+    QString id() const;
     QString type() const { return QString(); }
-    Core::Context context() const { return Core::Context(Constants::C_MODE_HELP); }
+    Core::Context context() const;
     QString contextHelpId() const { return QString(); }
     void setWidget(QWidget *widget) { m_widget = widget; }
 

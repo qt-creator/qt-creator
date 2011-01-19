@@ -36,6 +36,7 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <QtCore/QLatin1String>
+#include <QtCore/QCoreApplication>
 
 using namespace TextEditor;
 using namespace Internal;
@@ -53,7 +54,7 @@ QString PlainTextSnippetProvider::groupId() const
 
 QString PlainTextSnippetProvider::displayName() const
 {
-    return tr("Text");
+    return QCoreApplication::translate("TextEditor::Internal::PlainTextSnippetProvider", "Text");
 }
 
 void PlainTextSnippetProvider::decorateEditor(TextEditor::SnippetEditor *) const

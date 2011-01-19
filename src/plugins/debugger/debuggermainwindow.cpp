@@ -475,7 +475,7 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     debugToolBarLayout->addStretch();
     debugToolBarLayout->addWidget(new Utils::StyledSeparator);
 
-    QDockWidget *dock = new QDockWidget(tr("Debugger Toolbar"));
+    QDockWidget *dock = new QDockWidget(DebuggerMainWindowPrivate::tr("Debugger Toolbar"));
     dock->setObjectName(QLatin1String("Debugger Toolbar"));
     dock->setWidget(debugToolBar);
     dock->setFeatures(QDockWidget::NoDockWidgetFeatures);

@@ -34,8 +34,7 @@
 #include "helpmode.h"
 #include "helpconstants.h"
 
-#include <QtGui/QIcon>
-#include <QtGui/QWidget>
+#include <QtCore/QCoreApplication>
 
 using namespace Help;
 using namespace Help::Internal;
@@ -46,4 +45,24 @@ HelpMode::HelpMode(QObject *parent)
     m_icon(QLatin1String(":/fancyactionbar/images/mode_Reference.png"))
 {
     setObjectName(QLatin1String("HelpMode"));
+}
+
+QString HelpMode::displayName() const
+{
+    return QCoreApplication::translate("Help::Internal::HelpMode", "Help");
+}
+
+int HelpMode::priority() const
+{
+    return Constants::P_MODE_HELP;
+}
+
+QString HelpMode::id() const
+{
+    return QLatin1String(Constants::ID_MODE_HELP);
+}
+
+Core::Context HelpMode::context() const
+{
+    return Core::Context(Constants::C_MODE_HELP);
 }

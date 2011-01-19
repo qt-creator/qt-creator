@@ -536,7 +536,7 @@ bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfiguration, const
 
 QString DebuggerRunControlFactory::displayName() const
 {
-    return tr("Debug");
+    return DebuggerRunControl::tr("Debug");
 }
 
 // Find Qt installation by running qmake
@@ -638,7 +638,7 @@ DebuggerRunControl *DebuggerRunControlFactory::create
 
     if (!check) {
         //appendMessage(errorMessage, true);
-        Core::ICore::instance()->showWarningWithOptions(tr("Debugger"),
+        Core::ICore::instance()->showWarningWithOptions(DebuggerRunControl::tr("Debugger"),
             check.errorMessage, QString(), check.settingsCategory, check.settingsPage);
         return 0;
     }

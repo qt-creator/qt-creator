@@ -36,12 +36,12 @@
 
 #include <utils/environment.h>
 
-#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/deployconfiguration.h>
 
 #include <QtCore/QList>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QCoreApplication>
 
 #define ASSERT_STATE_GENERIC(State, expected, actual)                         \
     MaemoGlobal::assertState<State>(expected, actual, Q_FUNC_INFO)
@@ -52,7 +52,6 @@ class QString;
 QT_END_NAMESPACE
 
 namespace Core { class SshConnection; }
-
 namespace Qt4ProjectManager {
 class QtVersion;
 namespace Internal {
@@ -60,6 +59,7 @@ class MaemoDeviceConfig;
 
 class MaemoGlobal
 {
+    Q_DECLARE_TR_FUNCTIONS(Qt4ProjectManager::Internal::MaemoGlobal)
 public:
     enum MaemoVersion { Maemo5, Maemo6 };
 
