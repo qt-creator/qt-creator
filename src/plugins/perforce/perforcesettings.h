@@ -91,7 +91,10 @@ public:
     PerforceSettings();
     ~PerforceSettings();
 
-    inline bool isValid() const { return !m_topLevel.isEmpty(); }
+    inline bool isValid() const
+    {
+        return !m_topLevel.isEmpty() && !m_settings.p4Command.isEmpty();
+    }
 
     void fromSettings(QSettings *settings);
     void toSettings(QSettings *) const;
