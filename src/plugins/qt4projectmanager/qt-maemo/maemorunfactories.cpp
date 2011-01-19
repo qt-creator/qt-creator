@@ -169,9 +169,8 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
         return false;
     const int freePortCount = maemoRunConfig->freePorts().count();
 
-    const QtVersion * const qtVersion
-        = maemoRunConfig->activeQt4BuildConfiguration()->qtVersion();
-    const bool remoteMountsAllowed = MaemoGlobal::allowsRemoteMounts(qtVersion);
+    const bool remoteMountsAllowed
+        = maemoRunConfig->maemoTarget()->allowsRemoteMounts();
     if (remoteMountsAllowed && freePortCount == 0)
         return false;
     const int mountDirCount

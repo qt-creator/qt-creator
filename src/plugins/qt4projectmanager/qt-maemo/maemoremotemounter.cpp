@@ -35,6 +35,7 @@
 
 #include "maemoglobal.h"
 #include "maemousedportsgatherer.h"
+#include "qt4maemotarget.h"
 
 #include <coreplugin/ssh/sftpchannel.h>
 #include <coreplugin/ssh/sshconnection.h>
@@ -75,7 +76,8 @@ void MaemoRemoteMounter::setBuildConfiguration(const Qt4BuildConfiguration *bc)
 {
     ASSERT_STATE(Inactive);
     const QtVersion * const qtVersion = bc->qtVersion();
-    m_remoteMountsAllowed = MaemoGlobal::allowsRemoteMounts(qtVersion);
+    m_remoteMountsAllowed
+        = qobject_cast<AbstractQt4MaemoTarget *>(bc->target())->allowsRemoteMounts();
     m_maddeRoot = MaemoGlobal::maddeRoot(qtVersion);
 }
 

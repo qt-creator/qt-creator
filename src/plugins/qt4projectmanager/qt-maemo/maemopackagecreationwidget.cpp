@@ -86,8 +86,7 @@ void MaemoPackageCreationWidget::initGui()
 {
     const Qt4BuildConfiguration * const bc = m_step->qt4BuildConfiguration();
     if (bc) {
-        m_ui->skipCheckBox->setVisible(MaemoGlobal::allowsPackagingDisabling(
-            bc->qtVersion()));
+        m_ui->skipCheckBox->setVisible(m_step->maemoTarget()->allowsPackagingDisabling());
         m_ui->skipCheckBox->setChecked(!m_step->isPackagingEnabled());
     }
 

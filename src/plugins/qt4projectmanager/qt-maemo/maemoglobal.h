@@ -89,9 +89,6 @@ public:
     static QString targetName(const QtVersion *qtVersion);
     static QString madCommand(const QtVersion *qtVersion);
     static MaemoVersion version(const QtVersion *qtVersion);
-    static bool allowsRemoteMounts(const QtVersion *qtVersion) { return version(qtVersion) == Maemo5; }
-    static bool allowsPackagingDisabling(const QtVersion *qtVersion) { return version(qtVersion) == Maemo5; }
-    static bool allowsQmlDebugging(const QtVersion *qtVersion) { return version(qtVersion) == Maemo6; }
 
     static bool callMad(QProcess &proc, const QStringList &args,
         const QtVersion *qtVersion);

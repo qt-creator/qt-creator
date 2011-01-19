@@ -482,15 +482,12 @@ void MaemoDeployStep::handleUnmounted()
         m_mounter->resetMountSpecifications();
         setState(Inactive);
         break;
-    case UnmountingOldDirs: {
-        const Qt4BuildConfiguration * const bc
-            = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
-        if (MaemoGlobal::allowsRemoteMounts(bc->qtVersion()))
+    case UnmountingOldDirs:
+        if (maemotarget()->allowsRemoteMounts())
             setupMount();
         else
             prepareSftpConnection();
         break;
-    }
     case UnmountingCurrentDirs:
         setState(GatheringPorts);
         m_portsGatherer->start(m_connection, m_cachedDeviceConfig->freePorts());
@@ -825,6 +822,13 @@ const AbstractMaemoToolChain *MaemoDeployStep::toolChain() const
     const Qt4BuildConfiguration * const bc
         = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
     return static_cast<AbstractMaemoToolChain *>(bc->toolChain());
+}
+
+const AbstractQt4MaemoTarget *MaemoDeployStep::maemotarget() const
+{
+    const Qt4BuildConfiguration * const bc
+        = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
+    return static_cast<AbstractQt4MaemoTarget *>(bc->target());
 }
 
 void MaemoDeployStep::handleSysrootInstallerOutput()

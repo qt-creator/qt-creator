@@ -342,16 +342,13 @@ void MaemoRunConfigurationWidget::handleBuildConfigChanged()
 
 void MaemoRunConfigurationWidget::handleToolchainChanged()
 {
-    const Qt4BuildConfiguration * const bc
-        = m_runConfiguration->activeQt4BuildConfiguration();
-    if (bc) {
-        const QtVersion * const qtVersion = bc->qtVersion();
-        const bool remoteMountsAvailable
-            = MaemoGlobal::allowsRemoteMounts(qtVersion);
+    const AbstractQt4MaemoTarget * const maemoTarget
+        = m_runConfiguration->maemoTarget();
+    if (maemoTarget) {
+        const bool remoteMountsAvailable = maemoTarget->allowsRemoteMounts();
         m_debugDetailsContainer->setVisible(remoteMountsAvailable);
         m_mountDetailsContainer->setVisible(remoteMountsAvailable);
-        const bool qmlDebuggingAvailable
-            = MaemoGlobal::allowsQmlDebugging(qtVersion);
+        const bool qmlDebuggingAvailable = maemoTarget->allowsQmlDebugging();
         m_debuggingLanguagesLabel->setVisible(qmlDebuggingAvailable);
         m_debugCppOnlyButton->setVisible(qmlDebuggingAvailable);
         m_debugQmlOnlyButton->setVisible(qmlDebuggingAvailable);

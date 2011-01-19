@@ -72,6 +72,10 @@ public:
     QString shortDescription() const;
     bool setShortDescription(const QString &description);
 
+    virtual bool allowsRemoteMounts() const=0;
+    virtual bool allowsPackagingDisabling() const=0;
+    virtual bool allowsQmlDebugging() const=0;
+
 signals:
     void debianDirContentsChanged();
     void changeLogChanged();
@@ -124,6 +128,9 @@ public:
 
 private:
     virtual QString debianDirName() const;
+    virtual bool allowsRemoteMounts() const { return true; }
+    virtual bool allowsPackagingDisabling() const { return true; }
+    virtual bool allowsQmlDebugging() const { return false; }
 };
 
 class Qt4HarmattanTarget : public AbstractQt4MaemoTarget
@@ -137,6 +144,9 @@ public:
 
 private:
     virtual QString debianDirName() const;
+    virtual bool allowsRemoteMounts() const { return false; }
+    virtual bool allowsPackagingDisabling() const { return false; }
+    virtual bool allowsQmlDebugging() const { return true; }
 };
 
 } // namespace Internal

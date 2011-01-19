@@ -321,8 +321,7 @@ MaemoPortList MaemoRunConfiguration::freePorts() const
 
 bool MaemoRunConfiguration::useRemoteGdb() const
 {
-    return m_useRemoteGdb
-        && MaemoGlobal::allowsRemoteMounts(activeQt4BuildConfiguration()->qtVersion());
+    return m_useRemoteGdb && maemoTarget()->allowsRemoteMounts();
 }
 
 void MaemoRunConfiguration::setArguments(const QString &args)
@@ -332,7 +331,7 @@ void MaemoRunConfiguration::setArguments(const QString &args)
 
 MaemoRunConfiguration::DebuggingType MaemoRunConfiguration::debuggingType() const
 {
-    if (!MaemoGlobal::allowsQmlDebugging(activeQt4BuildConfiguration()->qtVersion()))
+    if (!maemoTarget()->allowsQmlDebugging())
         return DebugCppOnly;
     if (useCppDebugger()) {
         if (useQmlDebugger())

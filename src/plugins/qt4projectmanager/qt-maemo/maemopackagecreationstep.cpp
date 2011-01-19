@@ -413,8 +413,7 @@ QString MaemoPackageCreationStep::packageFilePath() const
 
 bool MaemoPackageCreationStep::isPackagingEnabled() const
 {
-    return m_packagingEnabled
-        || !MaemoGlobal::allowsPackagingDisabling(qt4BuildConfiguration()->qtVersion());
+    return m_packagingEnabled || !maemoTarget()->allowsPackagingDisabling();
 }
 
 QString MaemoPackageCreationStep::versionString(QString *error) const

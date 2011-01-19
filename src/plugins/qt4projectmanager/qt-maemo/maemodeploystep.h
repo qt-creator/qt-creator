@@ -143,6 +143,7 @@ private:
     const MaemoPackageCreationStep *packagingStep() const;
     QString deployMountPoint() const;
     const AbstractMaemoToolChain *toolChain() const;
+    const AbstractQt4MaemoTarget *maemotarget() const;
     void copyNextFileToDevice();
     void installToSysroot();
     QString uploadDir() const;
