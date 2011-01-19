@@ -343,9 +343,12 @@ bool CheckSymbols::warning(AST *ast, const QString &text)
     return false;
 }
 
-FunctionDefinitionAST *CheckSymbols::enclosingFunctionDefinition() const
+FunctionDefinitionAST *CheckSymbols::enclosingFunctionDefinition(bool skipTopOfStack) const
 {
-    for (int index = _astStack.size() - 1; index != -1; --index) {
+    int index = _astStack.size() - 1;
+    if (skipTopOfStack && !_astStack.isEmpty())
+        --index;
+    for (; index != -1; --index) {
         AST *ast = _astStack.at(index);
 
         if (FunctionDefinitionAST *funDef = ast->asFunctionDefinition())
@@ -791,7 +794,9 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
             addUse(u);
     }
 
-    flush();
+    if (!enclosingFunctionDefinition(true))
+        flush();
+
     return false;
 }
 

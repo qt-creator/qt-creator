@@ -124,7 +124,7 @@ protected:
     bool isTemplateClass(Symbol *s) const;
 
     Scope *enclosingScope() const;
-    FunctionDefinitionAST *enclosingFunctionDefinition() const;
+    FunctionDefinitionAST *enclosingFunctionDefinition(bool skipTopOfStack = false) const;
     TemplateDeclarationAST *enclosingTemplateDeclaration() const;
 
     virtual bool preVisit(AST *);
