@@ -641,7 +641,7 @@ void CheckSymbols::checkName(NameAST *ast, Scope *scope)
         if (! scope)
             scope = enclosingScope();
 
-        if (ast->asDestructorName() != 0 && scope->isClass()) {
+        if (ast->asDestructorName() != 0) {
             Class *klass = scope->asClass();
             if (hasVirtualDestructor(_context.lookupType(klass)))
                 addUse(ast, Use::VirtualMethod);
