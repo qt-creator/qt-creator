@@ -123,6 +123,10 @@ public:
 
     ProjectExplorer::IOutputParser *createOutputParser() const;
 
+    virtual bool isEnabled() const;
+    /// \internal For Qt4Project, since that manages the parsing information
+    void setEnabled(bool enabled);
+
 public slots:
     void importFromBuildDirectory();
 
@@ -160,6 +164,7 @@ private:
     QString rawBuildDirectory() const;
 
     bool m_shadowBuild;
+    bool m_isEnabled;
     QString m_buildDirectory;
     QString m_lastEmmitedBuildDirectory;
     int m_qtVersionId;

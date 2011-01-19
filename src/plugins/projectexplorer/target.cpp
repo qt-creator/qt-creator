@@ -108,6 +108,13 @@ void Target::changeEnvironment()
         emit environmentChanged();
 }
 
+void Target::changeBuildConfigurationEnabled()
+{
+    ProjectExplorer::BuildConfiguration *bc = qobject_cast<ProjectExplorer::BuildConfiguration *>(sender());
+    if (bc == activeBuildConfiguration())
+        emit buildConfigurationEnabledChanged();
+}
+
 Project *Target::project() const
 {
     return static_cast<Project *>(parent());
@@ -136,6 +143,9 @@ void Target::addBuildConfiguration(BuildConfiguration *configuration)
 
     connect(configuration, SIGNAL(environmentChanged()),
             SLOT(changeEnvironment()));
+
+    connect(configuration, SIGNAL(enabledChanged()),
+            this, SLOT(changeBuildConfigurationEnabled()));
 
     if (!activeBuildConfiguration())
         setActiveBuildConfiguration(configuration);
@@ -179,6 +189,7 @@ void Target::setActiveBuildConfiguration(BuildConfiguration *configuration)
         d->m_activeBuildConfiguration = configuration;
         emit activeBuildConfigurationChanged(d->m_activeBuildConfiguration);
         emit environmentChanged();
+        emit buildConfigurationEnabledChanged();
     }
 }
 

@@ -136,6 +136,10 @@ signals:
     /// environmentChanged() or if the active build configuration changes
     void environmentChanged();
 
+    /// convenience signal, emitted if either the active buildconfiguration emits
+    /// enabledChanged() or if the active build configuration changes
+    void buildConfigurationEnabledChanged();
+
 protected:
     Target(Project *parent, const QString &id);
 
@@ -145,6 +149,7 @@ protected:
 
 private slots:
     void changeEnvironment();
+    void changeBuildConfigurationEnabled();
 
 private:
     QScopedPointer<TargetPrivate> d;

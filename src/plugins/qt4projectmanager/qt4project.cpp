@@ -610,6 +610,7 @@ void Qt4Project::update()
     if (debug)
         qDebug()<<"State is now Base";
     m_asyncUpdateState = Base;
+    activeTarget()->activeBuildConfiguration()->setEnabled(true);
 }
 
 void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
@@ -629,6 +630,8 @@ void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
         // So we don't need to do anything
         return;
     }
+
+    activeTarget()->activeBuildConfiguration()->setEnabled(false);
 
     if (m_asyncUpdateState == AsyncFullUpdatePending) {
         // Just postpone
@@ -698,6 +701,7 @@ void Qt4Project::scheduleAsyncUpdate()
             qDebug()<<"  update in progress, canceling and setting state to full update pending";
         m_cancelEvaluate = true;
         m_asyncUpdateState = AsyncFullUpdatePending;
+        activeTarget()->activeBuildConfiguration()->setEnabled(false);
         m_rootProjectNode->emitProFileInvalidated();
         return;
     }
@@ -705,6 +709,7 @@ void Qt4Project::scheduleAsyncUpdate()
     if (debug)
         qDebug()<<"  starting timer for full update, setting state to full update pending";
     m_partialEvaluate.clear();
+    activeTarget()->activeBuildConfiguration()->setEnabled(false);
     m_rootProjectNode->emitProFileInvalidated();
     m_asyncUpdateState = AsyncFullUpdatePending;
     m_asyncUpdateTimer.start();
@@ -750,6 +755,7 @@ void Qt4Project::decrementPendingEvaluateFutures()
             m_asyncUpdateTimer.start();
         } else  if (m_asyncUpdateState != ShuttingDown){
             // After being done, we need to call:
+            activeTarget()->activeBuildConfiguration()->setEnabled(true);
             foreach (Target *t, targets())
                 static_cast<Qt4BaseTarget *>(t)->createApplicationProFiles();
             updateFileList();

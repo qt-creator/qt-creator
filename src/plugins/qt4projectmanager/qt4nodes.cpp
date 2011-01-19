@@ -1394,7 +1394,6 @@ void Qt4ProFileNode::emitProFileUpdated()
     }
 }
 
-
 void Qt4ProFileNode::emitProFileInvalidated()
 {
     foreach (NodesWatcher *watcher, watchers())

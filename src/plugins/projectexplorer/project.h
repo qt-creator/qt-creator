@@ -131,8 +131,13 @@ signals:
 
     /// convenience signal emitted if the activeBuildConfiguration emits environmentChanged
     /// or if the activeBuildConfiguration changes
-    /// (which theoretically might happen due to the active target changing).
+    /// (including due to the active target changing).
     void environmentChanged();
+
+    /// convenience signal emitted if the activeBuildConfiguration emits isEnabledChanged()
+    /// or if the activeBuildConfiguration changes
+    /// (including due to the active target changing).
+    void buildConfigurationEnabledChanged();
 
 protected:
     // restore all data from the map.
@@ -142,6 +147,7 @@ protected:
 
 private slots:
     void changeEnvironment();
+    void changeBuildConfigurationEnabled();
 
 private:
     QScopedPointer<ProjectPrivate> d;

@@ -93,11 +93,14 @@ public:
 
     Target *target() const;
 
+    virtual bool isEnabled() const;
+
     Utils::AbstractMacroExpander *macroExpander() { return &m_macroExpander; }
 
 signals:
     void environmentChanged();
     void buildDirectoryChanged();
+    void enabledChanged();
 
 protected:
     BuildConfiguration(Target *target, const QString &id);

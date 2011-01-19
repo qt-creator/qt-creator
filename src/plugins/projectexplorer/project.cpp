@@ -103,11 +103,17 @@ QString Project::makeUnique(const QString &preferredName, const QStringList &use
 
 void Project::changeEnvironment()
 {
-    Target *t(qobject_cast<Target *>(sender()));
+    Target *t = qobject_cast<Target *>(sender());
     if (t == activeTarget())
         emit environmentChanged();
 }
 
+void Project::changeBuildConfigurationEnabled()
+{
+    Target *t = qobject_cast<Target *>(sender());
+    if (t == activeTarget())
+        emit buildConfigurationEnabledChanged();
+}
 
 void Project::addTarget(Target *t)
 {
@@ -127,6 +133,8 @@ void Project::addTarget(Target *t)
     d->m_targets.push_back(t);
     connect(t, SIGNAL(environmentChanged()),
             SLOT(changeEnvironment()));
+    connect(t, SIGNAL(buildConfigurationEnabledChanged()),
+            this, SLOT(changeBuildConfigurationEnabled()));
     emit addedTarget(t);
 
     // check activeTarget:
@@ -169,6 +177,7 @@ void Project::setActiveTarget(Target *target)
         d->m_activeTarget = target;
         emit activeTargetChanged(d->m_activeTarget);
         emit environmentChanged();
+        emit buildConfigurationEnabledChanged();
     }
 }
 

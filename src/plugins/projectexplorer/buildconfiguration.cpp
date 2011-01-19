@@ -211,6 +211,11 @@ void BuildConfiguration::cloneSteps(BuildConfiguration *source)
     }
 }
 
+bool BuildConfiguration::isEnabled() const
+{
+    return true;
+}
+
 bool BuildConfigMacroExpander::resolveMacro(const QString &name, QString *ret)
 {
     if (name == QLatin1String("sourceDir")) {

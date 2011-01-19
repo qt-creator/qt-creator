@@ -195,9 +195,10 @@ private slots:
 
     void setCurrentFile(const QString &filePath);
 
-    // RunControl
     void runControlFinished();
 
+    void projectAdded(ProjectExplorer::Project *pro);
+    void projectRemoved(ProjectExplorer::Project *pro);
     void startupProjectChanged(); // Calls updateRunAction
     void activeTargetChanged();
     void activeRunConfigurationChanged();
@@ -236,6 +237,7 @@ private:
     bool parseArguments(const QStringList &arguments, QString *error);
     void executeRunConfiguration(RunConfiguration *, const QString &mode);
     bool hasBuildSettings(Project *pro);
+    bool buildSettingsEnabled(Project *pro);
     bool hasDeploySettings(Project *pro);
 
     void setCurrent(Project *project, QString filePath, Node *node);

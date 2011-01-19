@@ -70,6 +70,7 @@ enum { debug = 0 };
 Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BaseTarget *target) :
     BuildConfiguration(target, QLatin1String(QT4_BC_ID)),
     m_shadowBuild(true),
+    m_isEnabled(false),
     m_qtVersionId(-1),
     m_toolChainType(-1), // toolChainType() makes sure to return the default toolchainType
     m_qmakeBuildConfiguration(0),
@@ -81,6 +82,7 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BaseTarget *target) :
 Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BaseTarget *target, const QString &id) :
     BuildConfiguration(target, id),
     m_shadowBuild(true),
+    m_isEnabled(false),
     m_qtVersionId(-1),
     m_toolChainType(-1), // toolChainType() makes sure to return the default toolchainType
     m_qmakeBuildConfiguration(0),
@@ -92,6 +94,7 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BaseTarget *target, const QStrin
 Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BaseTarget *target, Qt4BuildConfiguration *source) :
     BuildConfiguration(target, source),
     m_shadowBuild(source->m_shadowBuild),
+    m_isEnabled(false),
     m_buildDirectory(source->m_buildDirectory),
     m_qtVersionId(source->m_qtVersionId),
     m_toolChainType(source->m_toolChainType),
@@ -650,6 +653,19 @@ ProjectExplorer::IOutputParser *Qt4BuildConfiguration::createOutputParser() cons
     if (tc)
         return toolChain()->outputParser();
     return 0;
+}
+
+bool Qt4BuildConfiguration::isEnabled() const
+{
+    return m_isEnabled;
+}
+
+void Qt4BuildConfiguration::setEnabled(bool enabled)
+{
+    if (m_isEnabled == enabled)
+        return;
+    m_isEnabled = enabled;
+    emit enabledChanged();
 }
 
 /*!
