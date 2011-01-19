@@ -1168,13 +1168,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     const int lineNumber = frame.findChild("line").data().toInt();
     QString fullName = QString::fromUtf8(frame.findChild("fullname").data());
 
-    // QML single stepping: *stopped,reason="function-finished",
-    // frame={addr="0x00f1678e",func="myns::QScript::FunctionWrapper::proxyCall"
-    // ,args=[{name="exec",value="0xb71f10b0"}
-    // ,{name="callee",value="0xb7184480"},{name="thisObject",value="..."}
-    //const bool wasQmlStep = reason == "function-finished"
-    //    && frame.findChild("func").data().endsWith("::FunctionWrapper::proxyCall");
-
     if (fullName.isEmpty())
         fullName = QString::fromUtf8(frame.findChild("file").data());
 
@@ -1255,16 +1248,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         m_entryPoint.clear();
     }
 #endif
-
-/*
-    if (wasQmlStep) {
-        qDebug() << "GOT IT";
-        notifyInferiorStopOk();
-        notifyInferiorRunRequested();
-        postCommand("-exec-step", RunRequest, CB(handleExecuteContinue));
-        return;
-    }
-*/
 
     if (isSpecialQmlBreakpoint)
         return;
