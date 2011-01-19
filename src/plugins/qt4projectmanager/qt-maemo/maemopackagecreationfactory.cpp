@@ -67,7 +67,7 @@ MaemoPackageCreationFactory::MaemoPackageCreationFactory(QObject *parent)
 QStringList MaemoPackageCreationFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
     if (parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-        && MaemoManager::instance().isMaemoTargetId(parent->target()->id())
+        && MaemoGlobal::isMaemoTargetId(parent->target()->id())
         && !parent->contains(MaemoPackageCreationStep::CreatePackageId))
         return QStringList() << MaemoPackageCreationStep::CreatePackageId;
     return QStringList();
@@ -85,7 +85,7 @@ bool MaemoPackageCreationFactory::canCreate(ProjectExplorer::BuildStepList *pare
 {
     return parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
         && id == QLatin1String(MaemoPackageCreationStep::CreatePackageId)
-        && MaemoManager::instance().isMaemoTargetId(parent->target()->id())
+        && MaemoGlobal::isMaemoTargetId(parent->target()->id())
         && !parent->contains(MaemoPackageCreationStep::CreatePackageId);
 }
 

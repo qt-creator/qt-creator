@@ -71,6 +71,10 @@ public:
         const QString m_fileName;
     };
 
+    static bool isMaemoTargetId(const QString &id);
+    static bool isValidMaemo5QtVersion(const Qt4ProjectManager::QtVersion *version);
+    static bool isValidHarmattanQtVersion(const Qt4ProjectManager::QtVersion *version);
+
     static QString homeDirOnDevice(const QString &uname);
     static QString remoteSudo();
     static QString remoteCommandPrefix(const QString &commandFilePath);
@@ -127,6 +131,8 @@ public:
     }
 
 private:
+    static bool isValidMaemoQtVersion(const Qt4ProjectManager::QtVersion *qtVersion,
+        MaemoVersion maemoVersion);
     static QString madAdminCommand(const QtVersion *qtVersion);
     static bool callMaddeShellScript(QProcess &proc, const QString &maddeRoot,
         const QString &command, const QStringList &args);

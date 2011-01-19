@@ -27,11 +27,11 @@
 **
 **************************************************************************/
 
-#include "maemomanager.h"
 #include "qt4maemotargetfactory.h"
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt-maemo/maemodeploystep.h"
+#include "maemoglobal.h"
 #include "qt-maemo/maemopackagecreationstep.h"
 #include "qt-maemo/maemorunconfiguration.h"
 #include "qt-maemo/qt4maemotarget.h"
@@ -62,7 +62,7 @@ Qt4MaemoTargetFactory::~Qt4MaemoTargetFactory()
 
 bool Qt4MaemoTargetFactory::supportsTargetId(const QString &id) const
 {
-    return MaemoManager::instance().isMaemoTargetId(id);
+    return MaemoGlobal::isMaemoTargetId(id);
 }
 
 QStringList Qt4MaemoTargetFactory::supportedTargetIds(ProjectExplorer::Project *parent) const

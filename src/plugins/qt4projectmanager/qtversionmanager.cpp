@@ -37,6 +37,7 @@
 #include "qt4target.h"
 #include "profilereader.h"
 
+#include "qt-maemo/maemoglobal.h"
 #include "qt-maemo/maemomanager.h"
 #include "qt-s60/s60manager.h"
 #include "qt-s60/s60projectchecker.h"
@@ -1464,10 +1465,10 @@ void QtVersion::updateToolChainAndMkspec() const
             m_targetIds.insert(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
 #    endif
         }
-    } else if (MaemoManager::instance().isValidMaemo5QtVersion(this)) {
+    } else if (MaemoGlobal::isValidMaemo5QtVersion(this)) {
         m_toolChains << ToolChainPtr(MaemoManager::instance().maemo5ToolChain(this));
         m_targetIds.insert(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID));
-    } else if (MaemoManager::instance().isValidHarmattanQtVersion(this)) {
+    } else if (MaemoGlobal::isValidHarmattanQtVersion(this)) {
         m_toolChains << ToolChainPtr(MaemoManager::instance().harmattanToolChain(this));
         m_targetIds.insert(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID));
     } else if (qmakeCXX == "cl" || qmakeCXX == "icl") {

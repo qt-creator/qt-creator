@@ -38,6 +38,7 @@
 
 #include <coreplugin/filemanager.h>
 #include <coreplugin/ssh/sshconnection.h>
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qtversionmanager.h>
 #include <utils/environment.h>
 
@@ -54,6 +55,46 @@ namespace Internal {
 namespace {
 static const QLatin1String binQmake("/bin/qmake" EXEC_SUFFIX);
 }
+
+bool MaemoGlobal::isMaemoTargetId(const QString &id)
+{
+    return id == QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID)
+        || id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID);
+}
+
+bool MaemoGlobal::isValidMaemo5QtVersion(const QtVersion *version)
+{
+    return isValidMaemoQtVersion(version, Maemo5);
+}
+
+bool MaemoGlobal::isValidHarmattanQtVersion(const QtVersion *version)
+{
+    return isValidMaemoQtVersion(version, Maemo6);
+}
+
+bool MaemoGlobal::isValidMaemoQtVersion(const QtVersion *qtVersion,
+    MaemoVersion maemoVersion)
+{
+    if (version(qtVersion) != maemoVersion)
+        return false;
+    QProcess madAdminProc;
+    const QStringList arguments(QLatin1String("list"));
+    if (!callMadAdmin(madAdminProc, arguments, qtVersion))
+        return false;
+    if (!madAdminProc.waitForStarted() || !madAdminProc.waitForFinished())
+        return false;
+
+    madAdminProc.setReadChannel(QProcess::StandardOutput);
+    const QByteArray tgtName = targetName(qtVersion).toAscii();
+    while (madAdminProc.canReadLine()) {
+        const QByteArray &line = madAdminProc.readLine();
+        if (line.contains(tgtName)
+            && (line.contains("(installed)") || line.contains("(default)")))
+            return true;
+    }
+    return false;
+}
+
 
 QString MaemoGlobal::homeDirOnDevice(const QString &uname)
 {

@@ -224,7 +224,7 @@ void MaemoQemuManager::projectChanged(ProjectExplorer::Project *project)
 
 void MaemoQemuManager::targetAdded(ProjectExplorer::Target *target)
 {
-    if (!target || !MaemoManager::instance().isMaemoTargetId(target->id()))
+    if (!target || !MaemoGlobal::isMaemoTargetId(target->id()))
         return;
 
     // handle all run configuration changes, add, remove, etc...
@@ -253,7 +253,7 @@ void MaemoQemuManager::targetAdded(ProjectExplorer::Target *target)
 
 void MaemoQemuManager::targetRemoved(ProjectExplorer::Target *target)
 {
-    if (!target || !MaemoManager::instance().isMaemoTargetId(target->id()))
+    if (!target || !MaemoGlobal::isMaemoTargetId(target->id()))
         return;
 
     disconnect(target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
@@ -287,14 +287,14 @@ void MaemoQemuManager::targetChanged(ProjectExplorer::Target *target)
 
 void MaemoQemuManager::runConfigurationAdded(ProjectExplorer::RunConfiguration *rc)
 {
-    if (!rc || !MaemoManager::instance().isMaemoTargetId(rc->target()->id()))
+    if (!rc || !MaemoGlobal::isMaemoTargetId(rc->target()->id()))
         return;
     toggleDeviceConnections(qobject_cast<MaemoRunConfiguration*> (rc), true);
 }
 
 void MaemoQemuManager::runConfigurationRemoved(ProjectExplorer::RunConfiguration *rc)
 {
-    if (!rc || !MaemoManager::instance().isMaemoTargetId(rc->target()->id()))
+    if (!rc || !MaemoGlobal::isMaemoTargetId(rc->target()->id()))
         return;
     toggleDeviceConnections(qobject_cast<MaemoRunConfiguration*> (rc), false);
 }
@@ -307,7 +307,7 @@ void MaemoQemuManager::runConfigurationChanged(ProjectExplorer::RunConfiguration
 
 void MaemoQemuManager::buildConfigurationAdded(ProjectExplorer::BuildConfiguration *bc)
 {
-    if (!bc || !MaemoManager::instance().isMaemoTargetId(bc->target()->id()))
+    if (!bc || !MaemoGlobal::isMaemoTargetId(bc->target()->id()))
         return;
 
     connect(bc, SIGNAL(environmentChanged()), this, SLOT(environmentChanged()));
@@ -315,7 +315,7 @@ void MaemoQemuManager::buildConfigurationAdded(ProjectExplorer::BuildConfigurati
 
 void MaemoQemuManager::buildConfigurationRemoved(ProjectExplorer::BuildConfiguration *bc)
 {
-    if (!bc || !MaemoManager::instance().isMaemoTargetId(bc->target()->id()))
+    if (!bc || !MaemoGlobal::isMaemoTargetId(bc->target()->id()))
         return;
 
     disconnect(bc, SIGNAL(environmentChanged()), this, SLOT(environmentChanged()));
@@ -529,7 +529,7 @@ bool MaemoQemuManager::sessionHasMaemoTarget() const
     const QList<Project*> &projects = explorer->session()->projects();
     foreach (const Project *p, projects) {
         foreach (const Target * const target, p->targets()) {
-            if (MaemoManager::instance().isMaemoTargetId(target->id()))
+            if (MaemoGlobal::isMaemoTargetId(target->id()))
                 return true;
         }
     }

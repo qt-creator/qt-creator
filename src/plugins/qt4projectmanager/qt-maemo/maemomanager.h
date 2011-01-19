@@ -34,8 +34,6 @@
 #ifndef MAEMOMANAGER_H
 #define MAEMOMANAGER_H
 
-#include "maemoglobal.h"
-
 #include <QtCore/QObject>
 
 namespace ProjectExplorer {
@@ -66,9 +64,6 @@ public:
     ~MaemoManager();
     static MaemoManager &instance();
 
-    bool isMaemoTargetId(const QString &id) const;
-    bool isValidMaemo5QtVersion(const Qt4ProjectManager::QtVersion *version) const;
-    bool isValidHarmattanQtVersion(const Qt4ProjectManager::QtVersion *version) const;
     ToolChain *maemo5ToolChain(const Qt4ProjectManager::QtVersion *version) const;
     ToolChain *harmattanToolChain(const Qt4ProjectManager::QtVersion *version) const;
 
@@ -76,9 +71,6 @@ public:
     MaemoQemuSettingsPage *qemuSettingsPage() const { return m_qemuSettingsPage; }
 
 private:
-    bool isValidMaemoQtVersion(const Qt4ProjectManager::QtVersion *qtVersion,
-        MaemoGlobal::MaemoVersion maemoVersion) const;
-
     static MaemoManager *m_instance;
 
     MaemoRunControlFactory *m_runControlFactory;
