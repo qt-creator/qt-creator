@@ -1289,6 +1289,8 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
     // the function signature.
 
     // check if function signature autocompletion is appropriate
+    // Also check if the function name is a destructor name.
+    bool isDestructor = false;
     if (! functions.isEmpty() && ! toolTipOnly) {
 
         // function definitions will only happen in class or namespace scope,
@@ -1314,7 +1316,7 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
             tc.setPosition(endOfExpression);
             BackwardsScanner bs(tc);
             const int startToken = bs.startToken();
-            const int lineStartToken = bs.startOfLine(startToken);
+            int lineStartToken = bs.startOfLine(startToken);
             // make sure the required tokens are actually available
             bs.LA(startToken - lineStartToken);
             QString possibleDecl = bs.mid(lineStartToken).trimmed().append("();");
@@ -1327,12 +1329,24 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
                     if (sd->declarator_list &&
                         sd->declarator_list && sd->declarator_list->value->postfix_declarator_list
                         && sd->declarator_list->value->postfix_declarator_list->value->asFunctionDeclarator()) {
+
                         autocompleteSignature = true;
+
+                        CoreDeclaratorAST *coreDecl = sd->declarator_list->value->core_declarator;
+                        if (coreDecl && coreDecl->asDeclaratorId() && coreDecl->asDeclaratorId()->name) {
+                            NameAST *declName = coreDecl->asDeclaratorId()->name;
+                            if (declName->asDestructorName()) {
+                                isDestructor = true;
+                            } else if (QualifiedNameAST *qName = declName->asQualifiedName()) {
+                                if (qName->unqualified_name && qName->unqualified_name->asDestructorName())
+                                    isDestructor = true;
+                            }
+                        }
                     }
                 }
             }
 
-            if (autocompleteSignature) {
+            if (autocompleteSignature && !isDestructor) {
                 // set up signature autocompletion
                 foreach (Function *f, functions) {
                     Overview overview;
@@ -1352,7 +1366,7 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
         }
     }
 
-    if (! functions.empty()) {
+    if (! functions.empty() && !isDestructor) {
         // set up function call tooltip
 
         // Recreate if necessary
