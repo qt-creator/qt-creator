@@ -59,16 +59,17 @@ private:
     DebuggerEngine *m_qmlEngine;
     DebuggerEngine *m_cppEngine;
     DebuggerEngine *m_activeEngine;
+    int m_stackBoundary;
 };
 
 
 QmlCppEnginePrivate::QmlCppEnginePrivate(QmlCppEngine *parent,
         const DebuggerStartParameters &sp)
-  : q(parent),
-    m_qmlEngine(0),
-    m_cppEngine(0),
-    m_activeEngine(0)
+  : q(parent)
 {
+    m_stackBoundary = 0;
+    m_cppEngine = 0;
+    m_activeEngine = 0;
     m_qmlEngine = createQmlEngine(sp, q);
 
     if (sp.cppEngineType == GdbEngineType) {
@@ -100,6 +101,7 @@ void QmlCppEnginePrivate::cppStackChanged()
         frames.append(frame);
     }
     int level = frames.size();
+    m_stackBoundary = level;
     foreach (StackFrame frame, m_qmlEngine->stackHandler()->frames()) {
         frame.level = level++;
         frames.append(frame);
@@ -109,7 +111,9 @@ void QmlCppEnginePrivate::cppStackChanged()
 
 void QmlCppEnginePrivate::qmlStackChanged()
 {
-    q->stackHandler()->setFrames(m_qmlEngine->stackHandler()->frames());
+    StackFrames frames = m_qmlEngine->stackHandler()->frames();
+    q->stackHandler()->setFrames(frames);
+    m_stackBoundary = frames.size();
 }
 
 
@@ -163,7 +167,10 @@ void QmlCppEngine::fetchDisassembler(DisassemblerAgent *da)
 
 void QmlCppEngine::activateFrame(int index)
 {
-    d->m_cppEngine->activateFrame(index);
+    if (index >= d->m_stackBoundary)
+        d->m_qmlEngine->activateFrame(index - d->m_stackBoundary);
+    else
+        d->m_cppEngine->activateFrame(index);
 }
 
 void QmlCppEngine::reloadModules()
