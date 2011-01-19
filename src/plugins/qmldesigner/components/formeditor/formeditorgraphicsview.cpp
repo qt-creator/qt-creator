@@ -46,8 +46,8 @@ FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent) :
 {
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setResizeAnchor(QGraphicsView::AnchorViewCenter);
-//    setCacheMode(QGraphicsView::CacheNone);
-    setCacheMode(QGraphicsView::CacheBackground);
+    setCacheMode(QGraphicsView::CacheNone);
+//    setCacheMode(QGraphicsView::CacheBackground);
     setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
     setOptimizationFlags(QGraphicsView::DontSavePainterState);
 //    setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
@@ -110,6 +110,16 @@ void FormEditorGraphicsView::keyPressEvent(QKeyEvent *event)
     QGraphicsView::keyPressEvent(event);
 }
 
+void FormEditorGraphicsView::setRootItemRect(const QRectF &rect)
+{
+    m_rootItemRect = rect;
+    qDebug() << __FUNCTION__ << m_rootItemRect;
+}
+
+QRectF FormEditorGraphicsView::rootItemRect() const
+{
+    return m_rootItemRect;
+}
 
 void FormEditorGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
@@ -298,11 +308,10 @@ void FormEditorGraphicsView::drawBackground(QPainter *painter, const QRectF &rec
 {
     painter->save();
     painter->setBrushOrigin(0, 0);
-    painter->fillRect(rect.intersected(sceneRect()), backgroundBrush());
+    painter->fillRect(rect.intersected(rootItemRect()), backgroundBrush());
     // paint rect around editable area
     painter->setPen(Qt::black);
-    QRectF frameRect = sceneRect().adjusted(0, 0, 0, 0);
-    painter->drawRect(frameRect);
+    painter->drawRect( rootItemRect());
     painter->restore();
 }
 

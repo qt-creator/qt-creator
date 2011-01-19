@@ -74,6 +74,9 @@ public:
 
     QString contextHelpId() const;
 
+    void setRootItemRect(const QRectF &rect);
+    QRectF rootItemRect() const;
+
 protected:
     void enterEvent(QEvent *event);
     void wheelEvent(QWheelEvent *event);

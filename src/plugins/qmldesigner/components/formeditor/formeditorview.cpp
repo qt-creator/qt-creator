@@ -486,6 +486,9 @@ void FormEditorView::customNotification(const AbstractView *view, const QString 
             QmlItemNode qmlItemNode(node);
             if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
                 scene()->synchronizeTransformation(qmlItemNode);
+                if (qmlItemNode.isRootModelNode())
+                    widget()->setRootItemRect(qmlItemNode.instanceBoundingRect());
+
                 itemNodeList.append(scene()->itemForQmlItemNode(qmlItemNode));
             }
         }

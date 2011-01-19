@@ -46,6 +46,8 @@ public:
     explicit FormEditorGraphicsView(QWidget *parent = 0);
 
     void setFeedbackNode(const QmlItemNode &node);
+    void setRootItemRect(const QRectF &rect);
+    QRectF rootItemRect() const;
 
 protected:
     void drawForeground(QPainter *painter, const QRectF &rect );
@@ -55,6 +57,8 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
     void leaveEvent(QEvent *);
     void keyPressEvent(QKeyEvent *event);
+
+
 private:
     QmlItemNode m_feedbackNode;
     QmlObjectNode m_parentNode;
@@ -72,6 +76,7 @@ private:
     bool m_beginHeightHasExpression;
     QPoint m_feedbackOriginPoint;
     QPixmap m_bubblePixmap;
+    QRectF m_rootItemRect;
 };
 
 } // namespace QmlDesigner

@@ -65,8 +65,6 @@ FormEditorScene::FormEditorScene(FormEditorWidget *view, FormEditorView *editorV
         m_paintMode(NormalMode),
         m_showBoundingRects(true)
 {
-    setSceneRect(0, 0, 1, 1); // prevent automatic calculation (causing a recursion), right size will be set later
-
     m_manipulatorLayerItem->setZValue(1.0);
     m_formLayerItem->setZValue(0.0);
     m_formLayerItem->setFlag(QGraphicsItem::ItemClipsChildrenToShape, false);
@@ -150,9 +148,6 @@ void FormEditorScene::synchronizeTransformation(const QmlItemNode &qmlItemNode)
     item->updateGeometry();
 
     if (qmlItemNode.isRootNode()) {
-        QRectF sceneRect(qmlItemNode.instanceBoundingRect());
-
-        setSceneRect(sceneRect);
         formLayerItem()->update();
         manipulatorLayerItem()->update();
     }
@@ -198,9 +193,6 @@ FormEditorItem *FormEditorScene::addFormEditorItem(const QmlItemNode &qmlItemNod
 
     m_qmlItemNodeItemHash.insert(qmlItemNode, formEditorItem);
     if (qmlItemNode.isRootNode()) {
-        QRectF sceneRect(qmlItemNode.instanceBoundingRect());
-
-        setSceneRect(sceneRect);
         formLayerItem()->update();
         manipulatorLayerItem()->update();
     }

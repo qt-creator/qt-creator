@@ -280,6 +280,16 @@ QString FormEditorWidget::contextHelpId() const
     return helpId;
 }
 
+void FormEditorWidget::setRootItemRect(const QRectF &rect)
+{
+    m_graphicsView->setRootItemRect(rect);
+}
+
+QRectF FormEditorWidget::rootItemRect() const
+{
+    return m_graphicsView->rootItemRect();
+}
+
 }
 
 
