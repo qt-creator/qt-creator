@@ -119,8 +119,7 @@ void AbstractPlainGdbAdapter::handleNamespaceExtraction1(const GdbResponse &resp
     while (pos1 > 0 && ba.at(pos1) != 'N' && ba.at(pos1) > '@')
         --pos1;
     ++pos1;
-    QByteArray ns = ba.mid(pos1, pos - pos1);
-    qDebug() << "NAMESPACE: " << ns;
+    const QByteArray ns = ba.mid(pos1, pos - pos1);
     if (!ns.isEmpty())
         m_engine->setQtNamespace(ns + "::");
     if (m_engine->isSlaveEngine()) {
