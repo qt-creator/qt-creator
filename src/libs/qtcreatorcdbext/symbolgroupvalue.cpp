@@ -402,24 +402,38 @@ static inline std::string resolveQtSymbol(const char *symbolC,
                                           const char *modulePatternC,
                                           const SymbolGroupValueContext &ctx)
 {
+    enum { debugResolveQtSymbol =  0 };
     typedef std::list<std::string> StringList;
     typedef StringList::const_iterator StringListConstIt;
 
+    if (debugResolveQtSymbol)
+        DebugPrint() << ">resolveQtSymbol" << symbolC << " def=" << defaultModuleNameC << " defModName="
+                     << defaultModuleNameC << " modPattern=" << modulePatternC;
     // First try a match with the default module name 'QtCored4!qstrdup' for speed reasons
     std::string defaultPattern = defaultModuleNameC;
     defaultPattern.push_back('!');
     defaultPattern += symbolC;
     const StringList defaultMatches = SymbolGroupValue::resolveSymbolName(defaultPattern.c_str(), ctx);
+    if (debugResolveQtSymbol)
+        DebugPrint() << "resolveQtSymbol: defaultMatches=" << DebugSequence<StringListConstIt>(defaultMatches.begin(), defaultMatches.end());
     const SubStringPredicate modulePattern(modulePatternC);
     const StringListConstIt defaultIt = std::find_if(defaultMatches.begin(), defaultMatches.end(), modulePattern);
-    if (defaultIt !=  defaultMatches.end())
+    if (defaultIt != defaultMatches.end()) {
+        if (debugResolveQtSymbol)
+            DebugPrint() << "<resolveQtSymbol return1 " << *defaultIt;
         return *defaultIt;
+    }
     // Fail, now try a search with '*qstrdup' in all modules. This might return several matches
     // like 'QtCored4!qstrdup', 'QGuid4!qstrdup'
     const std::string wildCardPattern = std::string(1, '*') + symbolC;
     const StringList allMatches = SymbolGroupValue::resolveSymbolName(wildCardPattern.c_str(), ctx);
+    if (debugResolveQtSymbol)
+        DebugPrint() << "resolveQtSymbol: allMatches= (" << wildCardPattern << ") -> " << DebugSequence<StringListConstIt>(allMatches.begin(), allMatches.end());
     const StringListConstIt allIt = std::find_if(allMatches.begin(), allMatches.end(), modulePattern);
-    return allIt != allMatches.end() ? *allIt : std::string();
+    const std::string rc = allIt != allMatches.end() ? *allIt : std::string();
+    if (debugResolveQtSymbol)
+        DebugPrint() << "<resolveQtSymbol return2 " << rc;
+    return rc;
 }
 
 const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
@@ -844,6 +858,9 @@ static KnownType knownClassTypeHelper(const std::string &type,
         return KT_Unknown;
     // Qt types (templates)
     if (templatePos != std::string::npos) {
+        // Do not fall for QMap<K,T>::iterator, which is actually an inner class.
+        if (endPos > templatePos && type.at(endPos - 1) != '>')
+            return KT_Unknown;
         switch (templatePos - qPos) {
         case 4:
             if (!type.compare(qPos, 4, "QSet"))

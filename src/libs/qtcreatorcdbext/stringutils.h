@@ -65,11 +65,11 @@ void split(const std::string &s, char sep, Iterator it)
 class SubStringPredicate : public std::unary_function<const std::string &, bool>
 {
 public:
-    explicit SubStringPredicate(const std::string &needle) : m_needle(needle) {}
+    explicit SubStringPredicate(const char *needle) : m_needle(needle) {}
     bool operator()(const std::string &s) { return s.find(m_needle) != std::string::npos; }
 
 private:
-    const std::string &m_needle;
+    const char *m_needle;
 };
 
 // Format numbers, etc, as a string.
@@ -88,6 +88,25 @@ std::wstring toWString(const Streamable s)
     std::wostringstream str;
     str << s;
     return str.str();
+}
+
+// Helper for outputting a sequence/container to a ostream as a comma-separated, quoted list
+// to be used as "os << DebugSequence<Iterator>(list.begin(), list.end()) << "..."
+template <class Iterator>
+struct DebugSequence : public std::pair<Iterator, Iterator>
+{
+    DebugSequence(const Iterator &i1, const Iterator &i2) : std::pair<Iterator, Iterator>(i1, i2) {}
+};
+
+template <class Iterator>
+std::ostream &operator<<(std::ostream &os, const DebugSequence<Iterator> &s)
+{
+    for (Iterator it = s.first; it != s.second; ++it) {
+        if (it != s.first)
+            os << ',';
+        os << '\'' << *it << '\'';
+    }
+    return os;
 }
 
 bool endsWith(const std::string &haystack, const char *needle);
