@@ -80,10 +80,6 @@ void AbstractPlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &respon
             if (m_engine->m_gdbVersion < 70000)
                 m_engine->postCommand("info target", CB(handleInfoTarget));
         }
-        //if (m_engine->isSlaveEngine())
-            //m_engine->postCommand("qmlb", GdbEngine::ConsoleCommand);
-            //m_engine->postCommand("rbreak QScript::FunctionWrapper::proxyCall");
-         //   m_engine->postCommand("-break-insert -f 'myns::QScript::FunctionWrapper::proxyCall'");
         m_engine->handleInferiorPrepared();
     } else {
         QByteArray ba = response.data.findChild("msg").data();
@@ -105,15 +101,15 @@ void AbstractPlainGdbAdapter::runEngine()
         fileName = symbols.fileName();
     }
     m_engine->postCommand("maint print msymbols " + fileName.toLocal8Bit(),
-        CB(handleNamespaceExtraction1), fileName);
-    //m_engine->postCommand("print QString", CB(handleNamespaceExtraction));
+        CB(handleNamespaceExtraction), fileName);
 }
 
-void AbstractPlainGdbAdapter::handleNamespaceExtraction1(const GdbResponse &response)
+void AbstractPlainGdbAdapter::handleNamespaceExtraction(const GdbResponse &response)
 {
     QFile file(response.cookie.toString());
     file.open(QIODevice::ReadOnly);
     QByteArray ba = file.readAll();
+    file.remove();
     int pos = ba.indexOf("7QString9fromAscii");
     int pos1 = pos - 1;
     while (pos1 > 0 && ba.at(pos1) != 'N' && ba.at(pos1) > '@')
@@ -122,75 +118,7 @@ void AbstractPlainGdbAdapter::handleNamespaceExtraction1(const GdbResponse &resp
     const QByteArray ns = ba.mid(pos1, pos - pos1);
     if (!ns.isEmpty())
         m_engine->setQtNamespace(ns + "::");
-    if (m_engine->isSlaveEngine()) {
-        for (int i = 1; i <= 8; ++i) {
-            m_engine->postCommand("-break-insert -f '" + m_engine->qtNamespace()
-                 + "QScript::qScriptBreaker" + QByteArray::number(i) + "'",
-                 CB(handleFindScriptBreaker), i);
-        }
-    } else {
-        doRunEngine();
-    }
-    file.remove();
-}
-
-void AbstractPlainGdbAdapter::handleNamespaceExtraction(const GdbResponse &response)
-{
-    if (response.resultClass == GdbResultDone) {
-        // $1 = {void (myns::QString * const, const char *)} 0x8058e2c <QString>"}
-        const QByteArray ba = response.data.findChild("consolestreamoutput").data();
-        const int posQString = ba.indexOf("QString");
-        const int posNs = ba.lastIndexOf('(', posQString) + 1;
-        const QByteArray ns = ba.mid(posNs, posQString - posNs);
-        if (!ns.isEmpty())
-            m_engine->setQtNamespace(ns);
-    }
-    if (m_engine->isSlaveEngine()) {
-        for (int i = 1; i <= 8; ++i) {
-            m_engine->postCommand("-break-insert -f '" + m_engine->qtNamespace()
-                 + "QScript::qScriptBreaker" + QByteArray::number(i) + "'",
-                 CB(handleFindScriptBreaker), i);
-        }
-    } else {
-        doRunEngine();
-    }
-}
-
-void AbstractPlainGdbAdapter::handleFindScriptBreaker(const GdbResponse &response)
-{
-    //QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
-        const int qmlBpType = response.cookie.toInt();
-        // 20^done,bkpt={number="2",type="breakpoint",disp="keep",enabled="y",
-        // addr="<PENDING>",pending="'myns::QScript::qScriptBreaker'"
-        const GdbMi bkpt = response.data.findChild("bkpt");
-        const GdbMi number = bkpt.findChild("number");
-        const int bpnr = number.data().toInt();
-        m_engine->addQmlBreakpointNumber(qmlBpType, bpnr);
-        //m_engine->postCommand("disable " + number.data());
-        switch (qmlBpType) {
-            case 5:
-                m_engine->postCommand("enable " + number.data());
-                m_engine->postCommand("command " + number.data() +
-                    //"\necho \"STEP NOW\"\nfinish\nend")
-                        "\nup"
-                        "\necho \"YYY\""
-                        "\ntbreak"
-                        "\ncommands"
-                            "\necho \"XXX\""
-                            "\nstep"
-                        "\nend"
-                        "\ncontinue"
-                    "\nend");
-                break;
-            default:
-                //m_engine->postCommand("command " + number.data() +
-                //    "\nfinish\nend");
-                break;
-        }
-    }
-    if (response.cookie.toInt() == 8)
-        doRunEngine();
+    doRunEngine();
 }
 
 void AbstractPlainGdbAdapter::doRunEngine()

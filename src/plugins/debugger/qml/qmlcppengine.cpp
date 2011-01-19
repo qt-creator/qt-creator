@@ -220,16 +220,16 @@ void QmlCppEngine::executeStep()
 {
     if (d->m_activeEngine == d->m_qmlEngine) {
         QTC_ASSERT(d->m_cppEngine->state() == InferiorRunOk, /**/);
-        d->m_cppEngine->prepareForQmlBreak(true);
+        if (d->m_cppEngine->setupQmlStep(true))
+            return; // Wait for callback to readyToExecuteQmlStep()
     }
-    notifyInferiorRunRequested();
-    d->m_activeEngine->executeStep();
+    readyToExecuteQmlStep();
 }
 
-void QmlCppEngine::handlePrepareForQmlBreak()
+void QmlCppEngine::readyToExecuteQmlStep()
 {
     notifyInferiorRunRequested();
-    d->m_activeEngine->executeStep();
+    d->m_qmlEngine->executeStep();
 }
 
 void QmlCppEngine::executeStepOut()

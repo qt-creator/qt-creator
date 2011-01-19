@@ -1178,7 +1178,10 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     if (fullName.isEmpty())
         fullName = QString::fromUtf8(frame.findChild("file").data());
 
-    if (bkptno && frame.isValid()) {
+    const bool isSpecialQmlBreakpoint =
+        m_qmlBreakpointNumbers.keys().contains(bkptno);
+
+    if (bkptno && frame.isValid() && !isSpecialQmlBreakpoint) {
         // Use opportunity to update the breakpoint marker position.
         BreakHandler *handler = breakHandler();
         BreakpointId id = handler->findBreakpointByNumber(bkptno);
@@ -1194,7 +1197,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
     // Quickly set the location marker.
     if (lineNumber && !debuggerCore()->boolSetting(OperateByInstruction)
-            && QFileInfo(fullName).exists())
+            && QFileInfo(fullName).exists() && !isSpecialQmlBreakpoint)
         gotoLocation(Location(fullName, lineNumber));
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
@@ -1262,6 +1265,9 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         return;
     }
 */
+
+    if (isSpecialQmlBreakpoint)
+        return;
 
     handleStop0(data);
 }
@@ -4534,27 +4540,36 @@ void GdbEngine::handleRemoteSetupFailed(const QString &message)
     m_gdbAdapter->handleRemoteSetupFailed(message);
 }
 
-bool GdbEngine::prepareForQmlBreak(bool on)
+bool GdbEngine::setupQmlStep(bool on)
 {
     QTC_ASSERT(isSlaveEngine(), return false);
+    Q_UNUSED(on);
+    postCommand("tbreak '" + qtNamespace() + "QScript::FunctionWrapper::proxyCall'\n"
+        "commands\n"
+        "set $d=(void*)((FunctionWrapper*)callee)->data->function\n"
+        "tbreak *$d\ncontinue\nend",
+        NeedsStop, CB(handleSetQmlStepBreakpoint));
     m_preparedForQmlBreak = on;
     return true;
 }
 
-void GdbEngine::handleQmlBreakpoint(const GdbResponse &response)
+void GdbEngine::handleSetQmlStepBreakpoint(const GdbResponse &response)
 {
+    //QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        qDebug() << "RESPONSE: " << response.toString();
+        // 20^done,bkpt={number="2",type="breakpoint",disp="keep",enabled="y",
+        // addr="<PENDING>",pending="'myns::QScript::qScriptBreaker'"}
+        const GdbMi bkpt = response.data.findChild("bkpt");
+        const GdbMi number = bkpt.findChild("number");
+        const int bpnr = number.data().toInt();
+        m_qmlBreakpointNumbers[1] = bpnr;
+        //postCommand("disable " + number.data());
+        //postCommand("enable " + number.data());
     }
     QTC_ASSERT(masterEngine(), return);
-    masterEngine()->handlePrepareForQmlBreak();
+    masterEngine()->readyToExecuteQmlStep();
 }
 
-void GdbEngine::addQmlBreakpointNumber(int type, int nr)
-{
-    qDebug() << "ADD SPECIAL QML BREAKPOINT, TYPE: " << type << "NR: " << nr;
-    m_qmlBreakpointNumbers[type] = nr;
-}
 
 //
 // Factory

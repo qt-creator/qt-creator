@@ -94,7 +94,7 @@ private:
     void setState(DebuggerState newState, bool forced = false);
     void slaveEngineStateChanged(DebuggerEngine *slaveEngine, DebuggerState state);
 
-    virtual void handlePrepareForQmlBreak();
+    void readyToExecuteQmlStep();
 
 private:
     QScopedPointer<QmlCppEnginePrivate> d;

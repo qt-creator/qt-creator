@@ -553,12 +553,10 @@ private: ////////// View & Data Stuff //////////
     //
     // Qml
     //
-    void addQmlBreakpointNumber(int type /* 1-8 */, int nr);
     QHash<int, int> m_qmlBreakpointNumbers;
     bool m_preparedForQmlBreak;
-    bool prepareForQmlBreak(bool on);
-    void handleQmlBreakpoint(const GdbResponse &response);
-
+    bool setupQmlStep(bool on);
+    void handleSetQmlStepBreakpoint(const GdbResponse &response);
 
     // HACK:
     StackFrame m_targetFrame;
