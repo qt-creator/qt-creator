@@ -518,6 +518,8 @@ void QmlCppEngine::slaveEngineStateChanged
             if (otherEngine->state() == InferiorRunOk) {
                 EDEBUG("PLANNED INFERIOR RUN");
                 notifyInferiorRunOk();
+            } else if (otherEngine->state() == InferiorStopOk) {
+                EDEBUG("PLANNED SINGLE INFERIOR RUN");
             } else {
                 EDEBUG(" **** INFERIOR RUN NOT OK ****");
             }
@@ -542,13 +544,15 @@ void QmlCppEngine::slaveEngineStateChanged
                 showStatusMessage(tr("%1 debugger activated").arg(engineName));
                 d->m_activeEngine = slaveEngine;
             }
-            if (otherEngine->state() == InferiorShutdownOk) {
+            if (otherEngine->state() == InferiorStopOk) {
+                EDEBUG("... BOTH STOPPED ");
+            } else if (otherEngine->state() == InferiorShutdownOk) {
                 EDEBUG("... STOPP ");
             } else if (state() == InferiorStopRequested) {
                 EDEBUG("... AN INFERIOR STOPPED EXPECTEDLY");
                 notifyInferiorStopOk();
             } else {
-                EDEBUG("... AN INFERIOR STOPPED UNEXPECTEDLY");
+                EDEBUG("... AN INFERIOR STOPPED SPONTANEOUSLY");
                 notifyInferiorSpontaneousStop();
             }
         }
