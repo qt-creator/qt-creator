@@ -182,8 +182,7 @@ void MaemoQemuManager::qtVersionsChanged(const QList<int> &uniqueIds)
         }
     }
 
-    // make visible only if we have a runtime and a maemo target
-    m_qemuAction->setVisible(!m_runtimes.isEmpty() && sessionHasMaemoTarget());
+    showOrHideQemuButton();
 }
 
 void MaemoQemuManager::projectAdded(ProjectExplorer::Project *project)
@@ -211,7 +210,7 @@ void MaemoQemuManager::projectRemoved(ProjectExplorer::Project *project)
 
     foreach (Target *target, project->targets())
         targetRemoved(target);
-    m_qemuAction->setVisible(!m_runtimes.isEmpty() && sessionHasMaemoTarget());
+    showOrHideQemuButton();
 }
 
 void MaemoQemuManager::projectChanged(ProjectExplorer::Project *project)
@@ -274,7 +273,7 @@ void MaemoQemuManager::targetRemoved(ProjectExplorer::Target *target)
 
     foreach (RunConfiguration *rc, target->runConfigurations())
         toggleDeviceConnections(qobject_cast<MaemoRunConfiguration*> (rc), false);
-    m_qemuAction->setVisible(!m_runtimes.isEmpty() && sessionHasMaemoTarget());
+    showOrHideQemuButton();
 }
 
 void MaemoQemuManager::targetChanged(ProjectExplorer::Target *target)
@@ -518,9 +517,14 @@ void MaemoQemuManager::toggleStarterButton(Target *target)
     if (m_runningQtId == uniqueId)
         isRunning = false;
 
-    m_qemuAction->setEnabled(m_runtimes.value(uniqueId, MaemoQemuRuntime()).isValid()
-        && targetUsesMatchingRuntimeConfig(target) && !isRunning);
-    m_qemuAction->setVisible(!m_runtimes.isEmpty() && sessionHasMaemoTarget());
+    const Project * const p
+        = ProjectExplorerPlugin::instance()->session()->startupProject();
+    const bool qemuButtonEnabled
+        = p && p->activeTarget() && MaemoGlobal::isMaemoTargetId(p->activeTarget()->id())
+            && m_runtimes.value(uniqueId, MaemoQemuRuntime()).isValid()
+            && targetUsesMatchingRuntimeConfig(target) && !isRunning;
+    m_qemuAction->setEnabled(qemuButtonEnabled);
+    showOrHideQemuButton();
 }
 
 bool MaemoQemuManager::sessionHasMaemoTarget() const
@@ -579,4 +583,12 @@ void MaemoQemuManager::toggleDeviceConnections(MaemoRunConfiguration *mrc,
         disconnect(mrc, SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
             this, SLOT(deviceConfigurationChanged(ProjectExplorer::Target*)));
     }
+}
+
+void MaemoQemuManager::showOrHideQemuButton()
+{
+    const bool showButton = !m_runtimes.isEmpty() && sessionHasMaemoTarget();
+    if (!showButton)
+        terminateRuntime();
+    m_qemuAction->setVisible(showButton);
 }

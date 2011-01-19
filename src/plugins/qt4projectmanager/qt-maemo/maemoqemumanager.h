@@ -118,6 +118,7 @@ private:
 
     void notify(const QList<int> uniqueIds);
     void toggleDeviceConnections(MaemoRunConfiguration *mrc, bool connect);
+    void showOrHideQemuButton();
 
 private:
     QAction *m_qemuAction;
