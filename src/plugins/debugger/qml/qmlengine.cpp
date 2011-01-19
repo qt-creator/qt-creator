@@ -675,7 +675,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
     stream >> command;
 
     if (command == "STOPPED") {
-        qDebug() << command << this << state();
+        //qDebug() << command << this << state();
         if (state() == InferiorRunOk)
             notifyInferiorSpontaneousStop();
 
@@ -693,7 +693,6 @@ void QmlEngine::messageReceived(const QByteArray &message)
         for (int i = 0; i != stackFrames.size(); ++i)
             stackFrames[i].level = i + 1;
 
-        gotoLocation(stackFrames.value(0));
         stackHandler()->setFrames(stackFrames);
 
         watchHandler()->beginCycle();
@@ -773,6 +772,10 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
             logMessage(LogReceive, logString);
         }
+
+        if (!stackFrames.isEmpty())
+            gotoLocation(stackFrames.value(0));
+
     } else if (command == "RESULT") {
         WatchData data;
         QByteArray iname;

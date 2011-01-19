@@ -97,7 +97,6 @@ void QmlCppEnginePrivate::cppStackChanged()
     foreach (const StackFrame &frame, m_cppEngine->stackHandler()->frames()) {
         if (frame.function.endsWith(firstFunction))
             break;
-        qDebug() << firstFunction << frame.function;
         frames.append(frame);
     }
     int level = frames.size();
