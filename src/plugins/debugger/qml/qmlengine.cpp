@@ -693,6 +693,8 @@ void QmlEngine::messageReceived(const QByteArray &message)
         for (int i = 0; i != stackFrames.size(); ++i)
             stackFrames[i].level = i + 1;
 
+        if (stackFrames.size() && stackFrames.back().function == "<global>")
+            stackFrames.takeLast();
         stackHandler()->setFrames(stackFrames);
 
         watchHandler()->beginCycle();
@@ -735,8 +737,10 @@ void QmlEngine::messageReceived(const QByteArray &message)
             logString += QLatin1String(" ") + error;
             logMessage(LogReceive, logString);
 
-            QString msg =
-                tr("<p>An Uncaught Exception occured in <i>%1</i>:</p><p>%2</p>")
+            QString msg = stackFrames.isEmpty()
+                ? tr("<p>An Uncaught Exception occured:</p><p>%2</p>")
+                    .arg(Qt::escape(error))
+                : tr("<p>An Uncaught Exception occured in <i>%1</i>:</p><p>%2</p>")
                     .arg(stackFrames.value(0).file, Qt::escape(error));
             showMessageBox(QMessageBox::Information, tr("Uncaught Exception"), msg);
         } else {
