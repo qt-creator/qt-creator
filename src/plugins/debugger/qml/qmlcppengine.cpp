@@ -3,6 +3,7 @@
 
 #include "debuggercore.h"
 #include "debuggerstartparameters.h"
+#include "stackhandler.h"
 
 #include <utils/qtcassert.h>
 
@@ -32,49 +33,99 @@ DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp)
     return 0;
 }
 
-class QmlCppEnginePrivate
+
+////////////////////////////////////////////////////////////////////////
+//
+// QmlCppEnginePrivate
+//
+////////////////////////////////////////////////////////////////////////
+
+class QmlCppEnginePrivate : public QObject
 {
+    Q_OBJECT
+
 public:
-    QmlCppEnginePrivate();
+    QmlCppEnginePrivate(QmlCppEngine *parent,
+            const DebuggerStartParameters &sp);
     ~QmlCppEnginePrivate() {}
 
-    friend class QmlCppEngine;
+private slots:
+    void cppStackChanged();
+    void qmlStackChanged();
+
 private:
+    friend class QmlCppEngine;
+    QmlCppEngine *q;
     DebuggerEngine *m_qmlEngine;
     DebuggerEngine *m_cppEngine;
     DebuggerEngine *m_activeEngine;
 };
 
-QmlCppEnginePrivate::QmlCppEnginePrivate()
-  : m_qmlEngine(0),
+
+QmlCppEnginePrivate::QmlCppEnginePrivate(QmlCppEngine *parent,
+        const DebuggerStartParameters &sp)
+  : q(parent),
+    m_qmlEngine(0),
     m_cppEngine(0),
     m_activeEngine(0)
-{}
-
-
-QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
-    : DebuggerEngine(sp), d(new QmlCppEnginePrivate)
 {
-    d->m_qmlEngine = createQmlEngine(sp, this);
+    m_qmlEngine = createQmlEngine(sp, q);
 
-    if (startParameters().cppEngineType == GdbEngineType) {
-        d->m_cppEngine = createGdbEngine(sp, this);
+    if (sp.cppEngineType == GdbEngineType) {
+        m_cppEngine = createGdbEngine(sp, q);
     } else {
         QString errorMessage;
-        d->m_cppEngine = createCdbEngine(sp, this, &errorMessage);
-        if (!d->m_cppEngine) {
+        m_cppEngine = createCdbEngine(sp, q, &errorMessage);
+        if (!m_cppEngine) {
             qWarning("%s", qPrintable(errorMessage));
             return;
         }
     }
 
-    d->m_activeEngine = d->m_cppEngine;
+    m_activeEngine = m_cppEngine;
 
-    if (0) {
-        setStateDebugging(true);
-        d->m_cppEngine->setStateDebugging(true);
-        d->m_qmlEngine->setStateDebugging(true);
+    connect(m_cppEngine->stackHandler()->model(), SIGNAL(modelReset()),
+        SLOT(cppStackChanged()), Qt::QueuedConnection);
+    connect(m_qmlEngine->stackHandler()->model(), SIGNAL(modelReset()),
+        SLOT(qmlStackChanged()), Qt::QueuedConnection);
+}
+
+void QmlCppEnginePrivate::cppStackChanged()
+{
+    const QLatin1String firstFunction("QScript::FunctionWrapper::proxyCall");
+    StackFrames frames;
+    foreach (const StackFrame &frame, m_cppEngine->stackHandler()->frames()) {
+        if (frame.function.endsWith(firstFunction))
+            break;
+        qDebug() << firstFunction << frame.function;
+        frames.append(frame);
     }
+    int level = frames.size();
+    foreach (StackFrame frame, m_qmlEngine->stackHandler()->frames()) {
+        frame.level = level++;
+        frames.append(frame);
+    }
+    q->stackHandler()->setFrames(frames);
+}
+
+void QmlCppEnginePrivate::qmlStackChanged()
+{
+    q->stackHandler()->setFrames(m_qmlEngine->stackHandler()->frames());
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// QmlCppEngine
+//
+////////////////////////////////////////////////////////////////////////
+
+QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
+    : DebuggerEngine(sp), d(new QmlCppEnginePrivate(this, sp))
+{
+    //setStateDebugging(true);
+    //m_cppEngine->setStateDebugging(true);
+    //m_qmlEngine->setStateDebugging(true);
 }
 
 QmlCppEngine::~QmlCppEngine()
@@ -567,3 +618,5 @@ DebuggerEngine *QmlCppEngine::cppEngine() const
 
 } // namespace Internal
 } // namespace Debugger
+
+#include "qmlcppengine.moc"

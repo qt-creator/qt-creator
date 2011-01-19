@@ -391,9 +391,10 @@ RegisterHandler *DebuggerEngine::registerHandler() const
 
 StackHandler *DebuggerEngine::stackHandler() const
 {
-    return d->m_masterEngine
-        ? d->m_masterEngine->stackHandler()
-        : &d->m_stackHandler;
+    //return d->m_masterEngine
+    //    ? d->m_masterEngine->stackHandler()
+    //    : &d->m_stackHandler;
+    return &d->m_stackHandler;
 }
 
 ThreadsHandler *DebuggerEngine::threadsHandler() const
