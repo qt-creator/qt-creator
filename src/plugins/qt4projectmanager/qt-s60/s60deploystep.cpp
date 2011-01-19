@@ -597,7 +597,7 @@ void S60DeployStep::checkForTimeout()
     const QString title  = tr("Waiting for CODA");
     const QString text = tr("Qt Creator is waiting for the CODA application to connect. "
                             "Please make sure the application is running on "
-                            "your mobile phone and the right ip address and port are "
+                            "your mobile phone and the right IP address and port are "
                             "configured in the project settings.");
     QMessageBox *mb = new QMessageBox(QMessageBox::Information, title, text,
                                       QMessageBox::Cancel, Core::ICore::instance()->mainWindow());

@@ -42,8 +42,6 @@
 #include <QtCore/QScopedPointer>
 #include <QtCore/QStringList>
 
-#include <QTime> //TODO: remove
-
 QT_BEGIN_NAMESPACE
 class QMessageBox;
 class QWidget;

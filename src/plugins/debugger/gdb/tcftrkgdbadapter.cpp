@@ -1277,7 +1277,6 @@ void TcfTrkGdbAdapter::handleRegisterChildren(const tcftrk::TcfTrkCommandResult 
     logMessage(msg);
     m_trkDevice->setRegisterNames(registerNames);
     if (m_registerRequestPending) { // Request already pending?
-qDebug("RR")        ;
         logMessage(_("Resuming registers request after receiving register names..."));
         sendRegistersGetMCommand();
     }

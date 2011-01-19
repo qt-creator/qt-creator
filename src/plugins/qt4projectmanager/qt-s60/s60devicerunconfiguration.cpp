@@ -585,7 +585,7 @@ void S60DeviceRunControl::start()
     emit started();
 
     if (m_runSmartInstaller) { //Smart Installer does the running by itself
-        appendMessage(tr("Please finalise the installation on your device."), NormalMessageFormat);
+        appendMessage(tr("Please finalize the installation on your device."), NormalMessageFormat);
         emit finished();
         return;
     }
@@ -766,7 +766,7 @@ void S60DeviceRunControl::slotTcftrkEvent(const TcfTrkEvent &event)
     switch (event.type()) {
     case TcfTrkEvent::LocatorHello: { // Commands accepted now
         m_state = StateConnected;
-        appendMessage(tr("Connected!"), NormalMessageFormat);
+        appendMessage(tr("Connected."), NormalMessageFormat);
         if (m_launchProgress)
             m_launchProgress->setProgressValue(PROGRESS_MAX*0.80);
         initCommunication();
@@ -885,7 +885,7 @@ void S60DeviceRunControl::handleCreateProcess(const TcfTrkCommandResult &result)
     if (ok) {
         if (m_launchProgress)
             m_launchProgress->setProgressValue(PROGRESS_MAX);
-        appendMessage(tr("Launched!"), NormalMessageFormat);
+        appendMessage(tr("Launched."), NormalMessageFormat);
     } else {
         appendMessage(tr("Launch failed: %1").arg(result.toString()), ErrorMessageFormat);
         finishRunControl();
