@@ -735,8 +735,21 @@ void testQList()
 #endif
  }
 
+namespace A {
+namespace B {
+
+struct SomeType
+{
+    SomeType(int a) : a(a) {}
+    int a;
+};
+
+} // namespace B
+} // namespace A
+
 void testQMap()
 {
+#if 0
     QMap<uint, QStringList> ggl;
     ggl[11] = QStringList() << "11";
     ggl[22] = QStringList() << "22";
@@ -745,8 +758,9 @@ void testQMap()
     T ggt;
     ggt[11] = QStringList() << "11";
     ggt[22] = QStringList() << "22";
+#endif
 
-#if 1
+#if 0
     QMap<uint, float> gg0;
     gg0[11] = 11.0;
     gg0[22] = 22.0;
@@ -767,6 +781,18 @@ void testQMap()
     map.insert("Hallo", QPointer<QObject>(&ob));
     map.insert("Welt", QPointer<QObject>(&ob));
     map.insert(".", QPointer<QObject>(&ob));
+#endif
+
+#if 1
+    QList<A::B::SomeType *> x;
+    x.append(new A::B::SomeType(1));
+    x.append(new A::B::SomeType(2));
+    x.append(new A::B::SomeType(3));
+    QMap<QString, QList<A::B::SomeType *> > mlt;
+    mlt["foo"] = x;
+    mlt["bar"] = x;
+    mlt["1"] = x;
+    mlt["2"] = x;
 #endif
 }
 

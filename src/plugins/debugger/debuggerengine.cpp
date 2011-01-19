@@ -78,13 +78,10 @@ using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace TextEditor;
 
-//#define DEBUG_STATE 1
-#if DEBUG_STATE
-#   define SDEBUG(s) qDebug() << s
-#else
-#   define SDEBUG(s)
-#endif
-# define XSDEBUG(s) qDebug() << s
+enum { debug = 0 };
+
+#define SDEBUG(s) if (!debug) {} else qDebug() << s;
+#define XSDEBUG(s) qDebug() << s
 
 
 ///////////////////////////////////////////////////////////////////////

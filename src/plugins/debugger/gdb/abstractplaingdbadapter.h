@@ -53,14 +53,17 @@ public:
 protected:
     void handleInfoTarget(const GdbResponse &response);
     void handleNamespaceExtraction(const GdbResponse &response);
+    void handleNamespaceExtraction1(const GdbResponse &response);
 
 private:
     virtual QByteArray execFilePath() const = 0;
     virtual bool infoTargetNecessary() const = 0;
-    virtual QByteArray toLocalEncoding(const QString &s) const = 0;
-    virtual QString fromLocalEncoding(const QByteArray &b) const = 0;
+    virtual QByteArray toLocalEncoding(const QString &str) const = 0;
+    virtual QString fromLocalEncoding(const QByteArray &ba) const = 0;
     void handleExecRun(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);
+    void handleFindScriptBreaker(const GdbResponse &response);
+    void doRunEngine();
 };
 
 } // namespace Debugger

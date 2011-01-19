@@ -39,6 +39,10 @@
 #include "debuggercore.h"
 #include "debuggerstringutils.h"
 
+#include <QDir>
+#include <QFile>
+#include <QTemporaryFile>
+
 #include <utils/qtcassert.h>
 
 namespace Debugger {
@@ -94,8 +98,41 @@ void AbstractPlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &respon
 void AbstractPlainGdbAdapter::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    m_engine->postCommand("print QString", CB(handleNamespaceExtraction));
-    m_engine->postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
+    QString fileName;
+    {
+        QTemporaryFile symbols(QDir::tempPath() + "/gdb_ns_");
+        symbols.open();
+        fileName = symbols.fileName();
+    }
+    m_engine->postCommand("maint print msymbols " + fileName.toLocal8Bit(),
+        CB(handleNamespaceExtraction1), fileName);
+    //m_engine->postCommand("print QString", CB(handleNamespaceExtraction));
+}
+
+void AbstractPlainGdbAdapter::handleNamespaceExtraction1(const GdbResponse &response)
+{
+    QFile file(response.cookie.toString());
+    file.open(QIODevice::ReadOnly);
+    QByteArray ba = file.readAll();
+    int pos = ba.indexOf("7QString9fromAscii");
+    int pos1 = pos - 1;
+    while (pos1 > 0 && ba.at(pos1) != 'N' && ba.at(pos1) > '@')
+        --pos1;
+    ++pos1;
+    QByteArray ns = ba.mid(pos1, pos - pos1);
+    qDebug() << "NAMESPACE: " << ns;
+    if (!ns.isEmpty())
+        m_engine->setQtNamespace(ns + "::");
+    if (m_engine->isSlaveEngine()) {
+        for (int i = 1; i <= 8; ++i) {
+            m_engine->postCommand("-break-insert -f '" + m_engine->qtNamespace()
+                 + "QScript::qScriptBreaker" + QByteArray::number(i) + "'",
+                 CB(handleFindScriptBreaker), i);
+        }
+    } else {
+        doRunEngine();
+    }
+    file.remove();
 }
 
 void AbstractPlainGdbAdapter::handleNamespaceExtraction(const GdbResponse &response)
@@ -106,10 +143,60 @@ void AbstractPlainGdbAdapter::handleNamespaceExtraction(const GdbResponse &respo
         const int posQString = ba.indexOf("QString");
         const int posNs = ba.lastIndexOf('(', posQString) + 1;
         const QByteArray ns = ba.mid(posNs, posQString - posNs);
-        //qDebug() << "BA: " << response.toString() << ba << posQString << posNs << ns;
         if (!ns.isEmpty())
             m_engine->setQtNamespace(ns);
     }
+    if (m_engine->isSlaveEngine()) {
+        for (int i = 1; i <= 8; ++i) {
+            m_engine->postCommand("-break-insert -f '" + m_engine->qtNamespace()
+                 + "QScript::qScriptBreaker" + QByteArray::number(i) + "'",
+                 CB(handleFindScriptBreaker), i);
+        }
+    } else {
+        doRunEngine();
+    }
+}
+
+void AbstractPlainGdbAdapter::handleFindScriptBreaker(const GdbResponse &response)
+{
+    //QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    if (response.resultClass == GdbResultDone) {
+        const int qmlBpType = response.cookie.toInt();
+        // 20^done,bkpt={number="2",type="breakpoint",disp="keep",enabled="y",
+        // addr="<PENDING>",pending="'myns::QScript::qScriptBreaker'"
+        const GdbMi bkpt = response.data.findChild("bkpt");
+        const GdbMi number = bkpt.findChild("number");
+        const int bpnr = number.data().toInt();
+        m_engine->addQmlBreakpointNumber(qmlBpType, bpnr);
+        //m_engine->postCommand("disable " + number.data());
+        switch (qmlBpType) {
+            case 5:
+                m_engine->postCommand("enable " + number.data());
+                m_engine->postCommand("command " + number.data() +
+                    //"\necho \"STEP NOW\"\nfinish\nend")
+                        "\nup"
+                        "\necho \"YYY\""
+                        "\ntbreak"
+                        "\ncommands"
+                            "\necho \"XXX\""
+                            "\nstep"
+                        "\nend"
+                        "\ncontinue"
+                    "\nend");
+                break;
+            default:
+                //m_engine->postCommand("command " + number.data() +
+                //    "\nfinish\nend");
+                break;
+        }
+    }
+    if (response.cookie.toInt() == 8)
+        doRunEngine();
+}
+
+void AbstractPlainGdbAdapter::doRunEngine()
+{
+    m_engine->postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
 }
 
 void AbstractPlainGdbAdapter::handleExecRun(const GdbResponse &response)

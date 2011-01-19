@@ -615,7 +615,7 @@ void BreakHandler::setMarkerFileAndLine(BreakpointId id,
     const QString &fileName, int lineNumber)
 {
     Iterator it = m_storage.find(id);
-    QTC_ASSERT(it != m_storage.end(), return);
+    QTC_ASSERT(it != m_storage.end(), qDebug() << id; return);
     if (it->response.fileName == fileName && it->response.lineNumber == lineNumber)
         return;
     it->response.fileName = fileName;
@@ -628,23 +628,23 @@ void BreakHandler::setMarkerFileAndLine(BreakpointId id,
 BreakpointState BreakHandler::state(BreakpointId id) const
 {
     ConstIterator it = m_storage.find(id);
-    QTC_ASSERT(it != m_storage.end(), return BreakpointDead);
+    QTC_ASSERT(it != m_storage.end(), qDebug() << id; return BreakpointDead);
     return it->state;
 }
 
 DebuggerEngine *BreakHandler::engine(BreakpointId id) const
 {
     ConstIterator it = m_storage.find(id);
-    QTC_ASSERT(it != m_storage.end(), return 0);
+    QTC_ASSERT(it != m_storage.end(), qDebug() << id; return 0);
     return it->engine;
 }
 
 void BreakHandler::setEngine(BreakpointId id, DebuggerEngine *value)
 {
     Iterator it = m_storage.find(id);
-    QTC_ASSERT(it != m_storage.end(), return);
-    QTC_ASSERT(it->state == BreakpointNew, /**/);
-    QTC_ASSERT(!it->engine, return);
+    QTC_ASSERT(it != m_storage.end(), qDebug() << id; return);
+    QTC_ASSERT(it->state == BreakpointNew, qDebug() << id);
+    QTC_ASSERT(!it->engine, qDebug() << id; return);
     it->engine = value;
     it->state = BreakpointInsertRequested;
     it->response = BreakpointResponse();
@@ -687,7 +687,7 @@ void BreakHandler::setState(BreakpointId id, BreakpointState state)
 {
     Iterator it = m_storage.find(id);
     //qDebug() << "BREAKPOINT STATE TRANSITION" << id << it->state << state;
-    QTC_ASSERT(it != m_storage.end(), return);
+    QTC_ASSERT(it != m_storage.end(), qDebug() << id; return);
     QTC_ASSERT(isAllowedTransition(it->state, state),
         qDebug() << "UNEXPECTED BREAKPOINT STATE TRANSITION"
             << it->state << state);
@@ -963,7 +963,7 @@ const BreakpointResponse &BreakHandler::response(BreakpointId id) const
 {
     static BreakpointResponse dummy;
     ConstIterator it = m_storage.find(id);
-    QTC_ASSERT(it != m_storage.end(), return dummy);
+    QTC_ASSERT(it != m_storage.end(), qDebug() << id; return dummy);
     return it->response;
 }
 

@@ -519,9 +519,6 @@ private: ////////// View & Data Stuff //////////
     void setLocals(const QList<GdbMi> &locals);
     void handleStackListArgumentsClassic(const GdbResponse &response);
 
-    bool prepareForQmlBreak();
-    void handleQmlBreakpoint(const GdbResponse &response);
-
     QSet<QByteArray> m_processedNames;
 
     //
@@ -552,6 +549,16 @@ private: ////////// View & Data Stuff //////////
     // For short-circuiting stack and thread list evaluation.
     bool m_stackNeeded;
     int m_currentThreadId;
+
+    //
+    // Qml
+    //
+    void addQmlBreakpointNumber(int type /* 1-8 */, int nr);
+    QHash<int, int> m_qmlBreakpointNumbers;
+    bool m_preparedForQmlBreak;
+    bool prepareForQmlBreak(bool on);
+    void handleQmlBreakpoint(const GdbResponse &response);
+
 
     // HACK:
     StackFrame m_targetFrame;
