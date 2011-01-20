@@ -44,13 +44,13 @@ using ProjectExplorer::Task;
 
 namespace {
     // opt. drive letter + filename: (2 brackets)
-    const char * const FILE_PATTERN = "^(([A-Za-z]:)?[^:]+\\.[^:]+):";
+    const char * const FILE_PATTERN = "^(([A-Za-z]:)?[^:]+\\.[^:]+)";
 }
 
 QtParser::QtParser()
 {
     setObjectName(QLatin1String("QtParser"));
-    m_mocRegExp.setPattern(QString::fromLatin1(FILE_PATTERN) + "(\\d+):\\s(Warning|Error):\\s(.+)$");
+    m_mocRegExp.setPattern(QString::fromLatin1(FILE_PATTERN) + "[:\\(](\\d+)\\)?:\\s(Warning|Error):\\s(.+)$");
     m_mocRegExp.setMinimal(true);
 }
 
@@ -129,6 +129,15 @@ void Qt4ProjectManagerPlugin::testQtOutputParser_data()
             << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
                                                        QLatin1String("No relevant classes found. No output generated."),
                                                        QLatin1String("..\\untitled\\errorfile.h"), 0,
+                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+    QTest::newRow("moc warning 2")
+            << QString::fromLatin1("c:\\code\\test.h(96): Warning: Property declaration ) has no READ accessor function. The property will be invalid.")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
+                                                       QLatin1String("Property declaration ) has no READ accessor function. The property will be invalid."),
+                                                       QLatin1String("c:\\code\\test.h"), 96,
                                                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
             << QString();
 }
