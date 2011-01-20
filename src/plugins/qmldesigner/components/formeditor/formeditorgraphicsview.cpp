@@ -113,7 +113,7 @@ void FormEditorGraphicsView::keyPressEvent(QKeyEvent *event)
 void FormEditorGraphicsView::setRootItemRect(const QRectF &rect)
 {
     m_rootItemRect = rect;
-    qDebug() << __FUNCTION__ << m_rootItemRect;
+    update();
 }
 
 QRectF FormEditorGraphicsView::rootItemRect() const
