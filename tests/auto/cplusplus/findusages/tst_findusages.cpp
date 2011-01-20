@@ -89,7 +89,7 @@ void tst_FindUsages::inlineMethod()
     QVERIFY(arg);
     QCOMPARE(arg->identifier()->chars(), "arg");
 
-    FindUsages findUsages(QByteArray(), doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot);
     findUsages(arg);
     QCOMPARE(findUsages.usages().size(), 2);
     QCOMPARE(findUsages.references().size(), 2);
@@ -148,7 +148,7 @@ void tst_FindUsages::objc_args()
     Argument *arg = methodImpl->argumentAt(0)->asArgument();
     QCOMPARE(arg->identifier()->chars(), "arg");
 
-    FindUsages findUsages(QByteArray(), doc, snapshot);
+    FindUsages findUsages(objcSource, doc, snapshot);
     findUsages(arg);
     QCOMPARE(findUsages.usages().size(), 2);
     QCOMPARE(findUsages.references().size(), 2);
@@ -186,7 +186,7 @@ void tst_FindUsages::qproperty_1()
     QCOMPARE(setX_method->identifier()->chars(), "setX");
     QCOMPARE(setX_method->argumentCount(), 1U);
 
-    FindUsages findUsages(QByteArray(), doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot);
     findUsages(setX_method);
     QCOMPARE(findUsages.usages().size(), 2);
     QCOMPARE(findUsages.references().size(), 2);
