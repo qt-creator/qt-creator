@@ -314,10 +314,7 @@ void NodeInstanceView::removeInstanceAndSubInstances(const ModelNode &node)
 
 void NodeInstanceView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
-    nodeInstanceServer()->clearScene(createClearSceneCommand());
-    removeAllInstanceNodeRelationships();
-
-    nodeInstanceServer()->createScene(createCreateSceneCommand());
+    restartProcess();
 }
 
 void NodeInstanceView::bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
