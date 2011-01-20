@@ -4743,6 +4743,44 @@ bool Parser::parseCastExpression(ExpressionAST *&node)
         unsigned lparen_token = consumeToken();
         ExpressionAST *type_id = 0;
         if (parseTypeId(type_id) && LA() == T_RPAREN) {
+
+            if (TypeIdAST *tid = type_id->asTypeId()) {
+                if (tid->type_specifier_list && ! tid->type_specifier_list->next) {
+                    if (tid->type_specifier_list->value->asNamedTypeSpecifier()) {
+                        switch (LA(2)) {
+                        case T_LBRACKET: // ... it's definitely a unary expression followed by an array access.
+                            goto parse_as_unary_expression;
+
+                        case T_PLUS_PLUS:
+                        case T_MINUS_MINUS: {
+                            const unsigned rparen_token = consumeToken();
+
+                            const bool blocked = blockErrors(true);
+                            ExpressionAST *unary = 0;
+                            bool followedByUnaryExpression = parseUnaryExpression(unary);
+                            blockErrors(blocked);
+                            rewind(rparen_token);
+
+                            if (followedByUnaryExpression) {
+                                if (! unary)
+                                    followedByUnaryExpression = false;
+                                else if (UnaryExpressionAST *u = unary->asUnaryExpression())
+                                    followedByUnaryExpression = u->expression != 0;
+                            }
+
+                            if (! followedByUnaryExpression)
+                                goto parse_as_unary_expression;
+
+                        }   break;
+
+                        case T_LPAREN: // .. it can be parsed as a function call.
+                            // ### TODO: check if it is followed by a parenthesized expression list.
+                            break;
+                        }
+                    }
+                }
+            }
+
             unsigned rparen_token = consumeToken();
             ExpressionAST *expression = 0;
             if (parseCastExpression(expression)) {
@@ -4755,8 +4793,11 @@ bool Parser::parseCastExpression(ExpressionAST *&node)
                 return true;
             }
         }
+
+parse_as_unary_expression:
         rewind(lparen_token);
     }
+
     return parseUnaryExpression(node);
 }
 
