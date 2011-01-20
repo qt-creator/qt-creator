@@ -127,6 +127,7 @@ private:
     void addSedCmdToRulesFile(QByteArray &rulesFileContent, int &insertPos,
         const QString &desktopFilePath, const QByteArray &oldString,
         const QByteArray &newString);
+    static QString replaceDots(const QString &name);
 
     static const QLatin1String CreatePackageId;
 

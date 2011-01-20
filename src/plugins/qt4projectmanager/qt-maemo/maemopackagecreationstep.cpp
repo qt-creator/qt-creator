@@ -210,15 +210,17 @@ bool MaemoPackageCreationStep::createPackage(QProcess *buildProc)
             target->projectVersion(&error));
         if (!error.isEmpty())
             raiseError(tr("Packaging failed."), error);
-        const QString changesFileName = QFileInfo(pkgFileName)
-            .completeBaseName() + QLatin1String(".changes");
+        const QString changesSourceFileName = QFileInfo(pkgFileName).completeBaseName()
+            + QLatin1String(".changes");
+        const QString changesTargetFileName = replaceDots(QFileInfo(pkgFileName).completeBaseName())
+            + QLatin1String(".changes");
         const QString packageSourceDir = buildDirectory() + QLatin1String("/../");
         const QString packageSourceFilePath
             = packageSourceDir + pkgFileName;
         const QString changesSourceFilePath
-            = packageSourceDir + changesFileName;
+            = packageSourceDir + changesSourceFileName;
         const QString changesTargetFilePath
-            = buildDirectory() + QLatin1Char('/') + changesFileName;
+            = buildDirectory() + QLatin1Char('/') + changesTargetFileName;
         QFile::remove(packageFilePath());
         QFile::remove(changesTargetFilePath);
         if (!QFile::rename(packageSourceFilePath, packageFilePath())
@@ -408,7 +410,8 @@ QString MaemoPackageCreationStep::packageFilePath() const
     if (version.isEmpty())
         return QString();
     return buildDirectory() % '/'
-        % packageFileName(buildConfiguration()->target()->project(), version);
+        % packageFileName(buildConfiguration()->target()->project(),
+              replaceDots(version));
 }
 
 bool MaemoPackageCreationStep::isPackagingEnabled() const
@@ -517,8 +520,11 @@ void MaemoPackageCreationStep::checkProjectName()
 QString MaemoPackageCreationStep::packageName(const ProjectExplorer::Project *project)
 {
     QString packageName = project->displayName().toLower();
-    const QRegExp legalLetter(QLatin1String("[a-z0-9+-.]"), Qt::CaseSensitive,
+
+    // We also replace dots, because OVI store chokes on them.
+    const QRegExp legalLetter(QLatin1String("[a-z0-9+-]"), Qt::CaseSensitive,
         QRegExp::WildcardUnix);
+
     for (int i = 0; i < packageName.length(); ++i) {
         if (!legalLetter.exactMatch(packageName.mid(i, 1)))
             packageName[i] = QLatin1Char('-');
@@ -633,6 +639,12 @@ void MaemoPackageCreationStep::addSedCmdToRulesFile(QByteArray &rulesFileContent
     insertPos += sedCmd.length();
     rulesFileContent.insert(insertPos, mvCmd);
     insertPos += mvCmd.length();
+}
+
+QString MaemoPackageCreationStep::replaceDots(const QString &name)
+{
+    QString adaptedName = name;
+    return adaptedName.replace(QLatin1Char('.'), QLatin1Char('_'));
 }
 
 const QLatin1String MaemoPackageCreationStep::CreatePackageId("Qt4ProjectManager.MaemoPackageCreationStep");
