@@ -41,6 +41,7 @@
 #include "customdraganddrop.h"
 #include <model.h>
 #include <metainfo.h>
+#include "rewritingexception.h"
 
 #include <QFileInfo>
 #include <QFileIconProvider>
@@ -355,6 +356,33 @@ void ItemLibraryWidget::setModel(Model *model)
     updateModel();
 }
 
+void ItemLibraryWidget::emitImportChecked()
+{
+    if (!m_d->model)
+        return;
+
+    bool qtOnlyImport = false;
+    bool meegoImport = false;
+    bool symbianImport = false;
+
+    foreach (const Import &import, m_d->model->imports()) {
+        if (import.isLibraryImport()) {
+            if (import.url().contains(QString("meego"), Qt::CaseInsensitive))
+                meegoImport = true;
+            if (import.url().contains(QString("Qt"), Qt::CaseInsensitive) || import.url().contains(QString("QtQuick"), Qt::CaseInsensitive))
+                qtOnlyImport = true;
+            if (import.url().contains(QString("symbian"), Qt::CaseInsensitive))
+                symbianImport = true;
+        }
+    }
+
+    if (meegoImport || symbianImport)
+        qtOnlyImport = false;
+
+    emit qtBasicOnlyChecked(qtOnlyImport);
+    emit meegoChecked(meegoImport);
+    emit symbianChecked(symbianImport);
+}
 
 void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
 {
@@ -368,31 +396,33 @@ void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
     if (block == true)
         return;
 
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-    block = true;
-    if (flag == QtBasic) {
-        removeImport(QLatin1String("com.meego"));
-        removeImport(QLatin1String("com.nokia.symbian"));
-        emit qtBasicOnlyChecked(true);
-        emit meegoChecked(false);
-        emit symbianChecked(false);
-    } else  if (flag == Symbian) {
-        removeImport(QLatin1String("com.meego"));
-        addImport(QLatin1String("com.nokia.symbian"), QLatin1String("1.0"));
-        emit qtBasicOnlyChecked(false);
-        emit meegoChecked(false);
-        emit symbianChecked(true);
-    }  else  if (flag == Meego) {
-        removeImport(QLatin1String("com.nokia.symbian"));
-        addImport(QLatin1String("com.meego"), QLatin1String("1.0"));
-        emit qtBasicOnlyChecked(false);
-        emit meegoChecked(true);
-        emit symbianChecked(false);
+    FilterChangeFlag oldfilterFlag = m_filterFlag;
+
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    try {
+        block = true;
+        if (flag == QtBasic) {
+            removeImport(QLatin1String("com.meego"));
+            removeImport(QLatin1String("com.nokia.symbian"));
+        } else  if (flag == Symbian) {
+            removeImport(QLatin1String("com.meego"));
+            addImport(QLatin1String("com.nokia.symbian"), QLatin1String("1.0"));
+        }  else  if (flag == Meego) {
+            removeImport(QLatin1String("com.nokia.symbian"));
+            addImport(QLatin1String("com.meego"), QLatin1String("1.0"));
+        }
+        QApplication::restoreOverrideCursor();
+        block = false;
+        m_filterFlag = flag;
+    } catch (RewritingException &xcetion) {
+        QApplication::restoreOverrideCursor();
+        m_filterFlag = oldfilterFlag;
+        block = false;
+        // do something about it
     }
-    QApplication::restoreOverrideCursor();
-    block = false;
-    m_filterFlag = flag;
+
+    emitImportChecked();
 }
 
 void ItemLibraryWidget::onQtBasicOnlyChecked(bool b)

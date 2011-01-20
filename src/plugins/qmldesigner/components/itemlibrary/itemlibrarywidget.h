@@ -87,6 +87,7 @@ protected:
     void wheelEvent(QWheelEvent *event);
     void removeImport(const QString &name);
     void addImport(const QString &name, const QString &version);
+    void emitImportChecked();
 
 signals:
     void itemActivated(const QString& itemName);
