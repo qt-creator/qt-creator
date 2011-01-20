@@ -390,14 +390,14 @@ void ModelPrivate::notifyRootNodeTypeChanged(const QString &type, int majorVersi
         resetModel = true;
     }
 
+    if (nodeInstanceView())
+        nodeInstanceView()->rootNodeTypeChanged(type, majorVersion, minorVersion);
+
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         Q_ASSERT(view != 0);
         view->rootNodeTypeChanged(type, majorVersion, minorVersion);
 
     }
-
-    if (nodeInstanceView())
-        nodeInstanceView()->rootNodeTypeChanged(type, majorVersion, minorVersion);
 
     if (resetModel) {
         resetModelByRewriter(description);
