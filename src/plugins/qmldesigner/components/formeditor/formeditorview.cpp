@@ -182,19 +182,14 @@ void FormEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 
  void FormEditorView::rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
  {
-     QmlItemNode oldItemNode(rootModelNode());
-     if (oldItemNode.isValid() && m_scene->hasItemForQmlItemNode(oldItemNode)) {
-         FormEditorItem *item = m_scene->itemForQmlItemNode(oldItemNode);
+     foreach (FormEditorItem *item, m_scene->allFormEditorItems()) {
+         item->setParentItem(0);
+         item->setParent(0);
+     }
 
-         QList<QmlItemNode> nodeList;
-         nodeList.append(oldItemNode.allSubModelNodes());
-         nodeList.append(oldItemNode);
-
-         QList<FormEditorItem*> removedItemList;
-         removedItemList.append(scene()->itemsForQmlItemNodes(nodeList));
-         m_currentTool->itemsAboutToRemoved(removedItemList);
-
+     foreach (FormEditorItem *item, m_scene->allFormEditorItems()) {
          delete item;
+         m_scene->removeItemFromHash(item);
      }
 
      QmlModelView::rootNodeTypeChanged(type, majorVersion, minorVersion);
