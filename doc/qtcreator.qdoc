@@ -7025,20 +7025,47 @@
     switch from one thread to another. The \gui Stack view adjusts itself
     accordingly.
 
-    \section2 Viewing Modules and Source Files
+    \section2 Viewing Modules
 
-    The \gui{Modules} view and \gui{Source Files} views display information
-    that the debugger plugin has about modules and source files included in
-    the project. The \gui{Modules} view lists the modules in the project and
-    symbols within the modules. In addition, it indicates where the module
-    was loaded.
+    The \gui{Modules} view displays information that the debugger plugin has
+    about modules included in the application that is being debugged. A module
+    is a dynamic link library (.dll) in Windows, a shared object (.so) in
+    Linux, and a dynamic shared library (.dylib) in Mac OS.
+
+    In addition, the view displays symbols within the modules and indicates
+    where each module was loaded.
+
+    Right-click the view to open a context menu that contains menu items for:
+
+    \list
+
+        \o Updating the module list
+
+        \o Loading symbols for modules
+
+        \o Examining modules
+
+        \o Editing module files
+
+        \o Showing symbols in modules
+
+        \o Showing dependencies between modules (Windows only)
+
+    \endlist
+
+    By default, the \gui{Modules} view is hidden.
+
+    \section2 Viewing Source Files
 
     The \gui{Source Files} view lists all the source files included in the project.
     If you cannot step into an instruction, you can check whether the source file is
     actually part of the project, or whether it was compiled
     elsewhere. The view shows the path to each file in the file system.
 
-    By default, the \gui{Modules} view and \gui{Source Files} view are hidden.
+    Right-click the view to open a context menu that contains menu items for
+    reloading data and opening files.
+
+    By default, the \gui{Source Files} view is hidden.
 
 
     \section2 Viewing Disassembled Code and Register State
