@@ -1284,7 +1284,7 @@ QStringList Qt4ProFileNode::symbianCapabilities() const
         }
     }
     QStringList result; //let's make the result pretty
-    int index;
+    int index = -1;
     foreach (QString lowerCase, lowerCasedResult) {
         for (int i = 0; i < all.count(); ++i) {
             index = -1;

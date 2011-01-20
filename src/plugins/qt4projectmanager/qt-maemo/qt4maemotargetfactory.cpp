@@ -104,7 +104,7 @@ Qt4BaseTarget *Qt4MaemoTargetFactory::restore(ProjectExplorer::Project *parent, 
         return 0;
 
     const QString id = idFromMap(map);
-    AbstractQt4MaemoTarget *target;
+    AbstractQt4MaemoTarget *target = 0;
     Qt4Project *qt4project = static_cast<Qt4Project *>(parent);
     if (id == QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
         target = new Qt4Maemo5Target(qt4project, QLatin1String("transient ID"));
