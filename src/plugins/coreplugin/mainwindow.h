@@ -177,6 +177,8 @@ private:
     void readSettings();
     void writeSettings();
 
+    void registerUserMimeTypes() const;
+
     CoreImpl *m_coreImpl;
     UniqueIDManager *m_uniqueIDManager;
     Context m_additionalContexts;

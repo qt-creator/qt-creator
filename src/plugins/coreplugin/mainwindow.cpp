@@ -87,6 +87,7 @@
 #include <QtCore/QtPlugin>
 #include <QtCore/QUrl>
 #include <QtCore/QDir>
+#include <QtCore/QFile>
 
 #include <QtGui/QApplication>
 #include <QtGui/QCloseEvent>
@@ -338,6 +339,8 @@ void MainWindow::extensionsInitialized()
 
     readSettings();
     updateContext();
+
+    registerUserMimeTypes();
 
     emit m_coreImpl->coreAboutToOpen();
     show();
@@ -1382,4 +1385,16 @@ bool MainWindow::showWarningWithOptions(const QString &title,
         return showOptionsDialog(settingsCategory, settingsId);
     }
     return false;
+}
+
+void MainWindow::registerUserMimeTypes() const
+{
+    // This is to temporarily allow user specific MIME types (without recompilation).
+    // Be careful with the file contents. Otherwise unpredictable behavior might arise.
+    const QString &fileName = m_coreImpl->userResourcePath() + QLatin1String("/mimetypes.xml");
+    if (QFile::exists(fileName)) {
+        QString error;
+        if (!m_coreImpl->mimeDatabase()->addMimeTypes(fileName, &error))
+            qWarning() << error;
+    }
 }
