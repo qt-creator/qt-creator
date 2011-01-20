@@ -11,12 +11,10 @@ UTILSDIR = ../../../src/libs
 SOURCES += \
         $$FAKEVIMDIR/fakevimhandler.cpp \
         $$FAKEVIMDIR/fakevimactions.cpp \
-        $$FAKEVIMDIR/fakevimsyntax.cpp \
         tst_fakevim.cpp
 
 HEADERS += \
         $$FAKEVIMDIR/fakevimhandler.h \
-        $$FAKEVIMDIR/fakevimactions.h \
-        $$FAKEVIMDIR/fakevimsyntax.h \
+        $$FAKEVIMDIR/fakevimactions.h
 
 INCLUDEPATH += $$FAKEVIMDIR $$UTILSDIR

@@ -1576,7 +1576,7 @@ virtual bool visit(LambdaCaptureAST *ast)
     return false;
 }
 
-virtual bool visit(CaptureAST *ast)
+virtual bool visit(CaptureAST *)
 {
     return false;
 }

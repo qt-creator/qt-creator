@@ -228,8 +228,8 @@ void tst_PluginSpec::resolveDependencies()
     Internal::PluginManagerPrivate::privateSpec(spec5)->read("testdependencies/spec5.xml");
     QVERIFY(spec1Priv->resolveDependencies(specs));
     QCOMPARE(spec1Priv->dependencySpecs.size(), 2);
-    QVERIFY(spec1Priv->dependencySpecs.contains(spec2));
-    QVERIFY(spec1Priv->dependencySpecs.contains(spec3));
+    QVERIFY(!spec1Priv->dependencySpecs.key(spec2).name.isEmpty());
+    QVERIFY(!spec1Priv->dependencySpecs.key(spec3).name.isEmpty());
     QCOMPARE(spec1Priv->state, PluginSpec::Resolved);
     QVERIFY(!spec4Priv->resolveDependencies(specs));
     QVERIFY(spec4Priv->hasError);

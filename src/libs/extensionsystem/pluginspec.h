@@ -60,6 +60,8 @@ struct EXTENSIONSYSTEM_EXPORT PluginDependency
         Optional
     };
 
+    PluginDependency() : type(Required) {}
+
     QString name;
     QString version;
     Type type;
