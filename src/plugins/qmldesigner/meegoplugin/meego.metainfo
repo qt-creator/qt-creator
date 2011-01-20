@@ -20,8 +20,23 @@
     <itemlibraryentry name="Spinner"  category="Components MeeGo" libraryIcon=":/meegoplugin/images/item-icon.png" requiredImport="com.meego">
     </itemlibraryentry>
   </node>
-  <node name="LineEdit" icon=":/meegoplugin/images/lineedit16.png">
-    <itemlibraryentry name="LineEdit"  category="Components MeeGo" libraryIcon=":/meegoplugin/images/lineedit.png" requiredImport="com.meego">
+  <node name="TextField" icon=":/meegoplugin/images/lineedit16.png">
+    <itemlibraryentry name="TextField"  category="Components MeeGo" libraryIcon=":/meegoplugin/images/lineedit.png" requiredImport="com.meego">
+    </itemlibraryentry>
+  </node>
+  <node name="Fader">
+    <itemlibraryentry name="Fader"  category="Components MeeGo" requiredImport="com.meego">
+    </itemlibraryentry>
+  </node>
+  <node name="IconButton">
+    <itemlibraryentry name="IconButton"  category="Components MeeGo" requiredImport="com.meego">
+    </itemlibraryentry>
+  </node>
+  <node name="TextArea">
+    <itemlibraryentry name="TextArea"  category="Components MeeGo" requiredImport="com.meego">
+      <property name="width" type="int" value="100"/>
+      <property name="height" type="int" value="100"/>
+      <property name="text" type="QString" value="TextArea"/>
     </itemlibraryentry>
   </node>
 </metainfo>
