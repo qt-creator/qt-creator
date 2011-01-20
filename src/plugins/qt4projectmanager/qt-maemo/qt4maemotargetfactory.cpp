@@ -147,6 +147,8 @@ QList<BuildConfigurationInfo> Qt4MaemoTargetFactory::availableBuildConfiguration
     QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id);
 
     foreach (QtVersion *version, knownVersions) {
+        if (!version->isValid())
+            continue;
         bool buildAll = version->defaultBuildConfig() & QtVersion::BuildAll;
         QtVersion::QmakeBuildConfigs config = buildAll ? QtVersion::BuildAll : QtVersion::QmakeBuildConfig(0);
         QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), id);

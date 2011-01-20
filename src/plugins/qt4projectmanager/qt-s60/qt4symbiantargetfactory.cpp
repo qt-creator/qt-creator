@@ -132,6 +132,8 @@ QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurati
     QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(Constants::S60_EMULATOR_TARGET_ID);
 
     foreach (QtVersion *version, knownVersions) {
+        if (!version->isValid())
+            continue;
         bool buildAll = version->defaultBuildConfig() & QtVersion::BuildAll;
         QtVersion::QmakeBuildConfigs config = buildAll ? QtVersion::BuildAll : QtVersion::QmakeBuildConfig(0);
         QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), Constants::S60_EMULATOR_TARGET_ID);
@@ -140,6 +142,8 @@ QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurati
 
     knownVersions = QtVersionManager::instance()->versionsForTargetId(Constants::S60_DEVICE_TARGET_ID);
     foreach (QtVersion *version, knownVersions) {
+        if (!version->isValid())
+            continue;
         bool buildAll = version->defaultBuildConfig() & QtVersion::BuildAll;
         QtVersion::QmakeBuildConfigs config = buildAll ? QtVersion::BuildAll : QtVersion::QmakeBuildConfig(0);
         QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), Constants::S60_DEVICE_TARGET_ID);
