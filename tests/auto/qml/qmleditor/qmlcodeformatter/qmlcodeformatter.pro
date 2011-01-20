@@ -8,6 +8,7 @@ SRCDIR = ../../../../../src
 #include($$SRCDIR/../qtcreator.pri)
 include($$SRCDIR/libs/qmljs/qmljs-lib.pri)
 include($$SRCDIR/libs/utils/utils-lib.pri)
+include($$SRCDIR/libs/languageutils/languageutils-lib.pri)
 #LIBS += -L$$IDE_LIBRARY_PATH
 
 SOURCES += \

@@ -53,6 +53,7 @@ private Q_SLOTS:
     void expressionContinuation();
     void objectLiteral();
     void keywordStatement();
+    void namespacedObjects();
 };
 
 struct Line {
@@ -957,6 +958,19 @@ void tst_QMLCodeFormatter::keywordStatement()
          << Line("        return 1")
          << Line("    var x = 2")
          << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::namespacedObjects()
+{
+    QList<Line> data;
+    data << Line("Item {")
+         << Line("    width: Q.Foo {")
+         << Line("        Q.Bar {")
+         << Line("            x: 12")
+         << Line("        }")
+         << Line("    }")
          ;
     checkIndent(data);
 }

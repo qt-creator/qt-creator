@@ -246,8 +246,10 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 
         case expression_or_objectdefinition:
             switch (kind) {
+            case Dot:
+            case Identifier:    break; // need to become an objectdefinition_open in cases like "width: Qt.Foo {"
             case LeftBrace:     turnInto(objectdefinition_open); break;
-            default:            enter(expression); continue; // really? first token already gone!
+            default:            enter(expression); continue; // really? identifier and more tokens might already be gone
             } break;
 
         case expression:
