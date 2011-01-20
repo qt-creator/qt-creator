@@ -48,7 +48,7 @@ FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent) :
     setResizeAnchor(QGraphicsView::AnchorViewCenter);
     setCacheMode(QGraphicsView::CacheNone);
 //    setCacheMode(QGraphicsView::CacheBackground);
-    setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+    setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
     setOptimizationFlags(QGraphicsView::DontSavePainterState);
 //    setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
     setRenderHint(QPainter::Antialiasing, false);
@@ -113,7 +113,7 @@ void FormEditorGraphicsView::keyPressEvent(QKeyEvent *event)
 void FormEditorGraphicsView::setRootItemRect(const QRectF &rect)
 {
     m_rootItemRect = rect;
-    update();
+    viewport()->update();
 }
 
 QRectF FormEditorGraphicsView::rootItemRect() const
@@ -304,11 +304,12 @@ void FormEditorGraphicsView::setFeedbackNode(const QmlItemNode &node)
     }
 }
 
-void FormEditorGraphicsView::drawBackground(QPainter *painter, const QRectF &rect)
+void FormEditorGraphicsView::drawBackground(QPainter *painter, const QRectF &rectangle)
 {
     painter->save();
     painter->setBrushOrigin(0, 0);
-    painter->fillRect(rect.intersected(rootItemRect()), backgroundBrush());
+
+    painter->fillRect(rectangle.intersected(rootItemRect()), backgroundBrush());
     // paint rect around editable area
     painter->setPen(Qt::black);
     painter->drawRect( rootItemRect());
