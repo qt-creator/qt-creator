@@ -40,6 +40,7 @@
 
 #include <QtCore/QStringList>
 #include <QtGui/QWidget>
+#include <QtCore/QMetaType>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;

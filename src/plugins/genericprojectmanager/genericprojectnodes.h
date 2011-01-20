@@ -80,6 +80,7 @@ public:
                              const QString &filePath,
                              const QString &newFilePath);
 
+    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
 
     void refresh();
 

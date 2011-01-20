@@ -50,6 +50,7 @@ public:
     ProjectExplorer::DeployConfigurationFactory *deployConfigurationFactory() const;
 
     void createApplicationProFiles();
+    QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
 
     static QString defaultDisplayName();
 

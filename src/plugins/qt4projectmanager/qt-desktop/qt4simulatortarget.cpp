@@ -94,3 +94,13 @@ void Qt4SimulatorTarget::createApplicationProFiles()
         addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(this));
     }
 }
+
+QList<ProjectExplorer::RunConfiguration *> Qt4SimulatorTarget::runConfigurationsForNode(ProjectExplorer::Node *n)
+{
+    QList<ProjectExplorer::RunConfiguration *> result;
+    foreach (ProjectExplorer::RunConfiguration *rc, runConfigurations())
+        if (Qt4RunConfiguration *qt4c = qobject_cast<Qt4RunConfiguration *>(rc))
+            if (qt4c->proFilePath() == n->path())
+                result << rc;
+    return result;
+}

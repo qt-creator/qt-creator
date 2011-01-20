@@ -180,6 +180,7 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_setStartupProjectAction;
     QAction *m_projectSelectorAction;
     QAction *m_projectSelectorActionMenu;
+    QAction *m_runSubProject;
 
     Internal::ProjectWindow *m_proWindow;
     SessionManager *m_session;
@@ -428,9 +429,18 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_FIRST);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_BUILD);
+    msubProjectContextMenu->appendGroup(Constants::G_PROJECT_RUN);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_FILES);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_OTHER);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_CONFIG);
+
+    Core::ActionContainer *runMenu = Core::ICore::instance()->actionManager()->createMenu(Constants::RUNMENUCONTEXTMENU);
+    runMenu->setOnAllDisabledBehavior(Core::ActionContainer::Hide);
+    QIcon runIcon(Constants::ICON_RUN);
+    runIcon.addFile(Constants::ICON_RUN_SMALL);
+    runMenu->menu()->setIcon(runIcon);
+    runMenu->menu()->setTitle("Run");
+    msubProjectContextMenu->addMenu(runMenu, ProjectExplorer::Constants::G_PROJECT_RUN);
 
     mfolderContextMenu->appendGroup(Constants::G_FOLDER_FILES);
     mfolderContextMenu->appendGroup(Constants::G_FOLDER_OTHER);
@@ -700,8 +710,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = am->registerAction(d->m_cleanProjectOnlyAction, Constants::CLEANPROJECTONLY, globalcontext);
 
     // run action
-    QIcon runIcon(Constants::ICON_RUN);
-    runIcon.addFile(Constants::ICON_RUN_SMALL);
     d->m_runAction = new QAction(runIcon, tr("Run"), this);
     cmd = am->registerAction(d->m_runAction, Constants::RUN, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
@@ -714,6 +722,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_runActionContextMenu = new QAction(runIcon, tr("Run"), this);
     cmd = am->registerAction(d->m_runActionContextMenu, Constants::RUNCONTEXTMENU, projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_RUN);
+    msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_RUN);
 
     // cancel build action
     d->m_cancelBuildAction = new QAction(tr("Cancel Build"), this);
@@ -1714,7 +1723,18 @@ void ProjectExplorerPlugin::runProject()
 
 void ProjectExplorerPlugin::runProjectContextMenu()
 {
-    runProject(d->m_currentProject, ProjectExplorer::Constants::RUNMODE);
+    ProjectNode *projectNode = qobject_cast<ProjectNode*>(d->m_currentNode);
+    if (projectNode == d->m_currentProject->rootProjectNode() || !projectNode) {
+        runProject(d->m_currentProject, ProjectExplorer::Constants::RUNMODE);
+    } else {
+        QAction *act = qobject_cast<QAction *>(sender());
+        if (!act)
+            return;
+        RunConfiguration *rc = act->data().value<RunConfiguration *>();
+        if (!rc)
+            return;
+        runRunConfiguration(rc, ProjectExplorer::Constants::RUNMODE);
+    }
 }
 
 bool ProjectExplorerPlugin::hasBuildSettings(Project *pro)
@@ -1770,12 +1790,17 @@ bool ProjectExplorerPlugin::hasDeploySettings(Project *pro)
     return false;
 }
 
-void ProjectExplorerPlugin::runProject(Project *pro, QString mode)
+void ProjectExplorerPlugin::runProject(Project *pro, const QString &mode)
 {
     if (!pro)
         return;
 
-    if (!pro->activeTarget()->activeRunConfiguration()->isEnabled())
+    runRunConfiguration(pro->activeTarget()->activeRunConfiguration(), mode);
+}
+
+void ProjectExplorerPlugin::runRunConfiguration(ProjectExplorer::RunConfiguration *rc, const QString &mode)
+{
+    if (!rc->isEnabled())
         return;
 
     QStringList stepIds;
@@ -1784,6 +1809,8 @@ void ProjectExplorerPlugin::runProject(Project *pro, QString mode)
             stepIds << Constants::BUILDSTEPS_BUILD;
         stepIds << Constants::BUILDSTEPS_DEPLOY;
     }
+
+    Project *pro = rc->target()->project();
     const QList<Project *> &projects = d->m_session->projectOrder(pro);
     int queueCount = queue(projects, stepIds);
 
@@ -1793,9 +1820,9 @@ void ProjectExplorerPlugin::runProject(Project *pro, QString mode)
     if (queueCount > 0) {
         // delay running till after our queued steps were processed
         d->m_runMode = mode;
-        d->m_delayedRunConfiguration = pro->activeTarget()->activeRunConfiguration();
+        d->m_delayedRunConfiguration = rc;
     } else {
-        executeRunConfiguration(pro->activeTarget()->activeRunConfiguration(), mode);
+        executeRunConfiguration(rc, mode);
     }
     emit updateRunActions();
 }
@@ -2072,12 +2099,37 @@ void ProjectExplorerPlugin::updateContextMenuActions()
     d->m_addExistingFilesAction->setVisible(true);
     d->m_removeFileAction->setVisible(true);
     d->m_deleteFileAction->setVisible(true);
+    d->m_runActionContextMenu->setVisible(false);
+
+    Core::ActionContainer *runMenu = Core::ICore::instance()->actionManager()->actionContainer(Constants::RUNMENUCONTEXTMENU);
+    runMenu->menu()->clear();
 
     if (d->m_currentNode && d->m_currentNode->projectNode()) {
         QList<ProjectNode::ProjectAction> actions =
                 d->m_currentNode->projectNode()->supportedActions(d->m_currentNode);
 
+        if (ProjectNode *pn = qobject_cast<ProjectNode *>(d->m_currentNode)) {
+            if (pn == d->m_currentProject->rootProjectNode()) {
+                d->m_runActionContextMenu->setVisible(true);
+            } else {
+                QList<RunConfiguration *> runConfigs = pn->runConfigurationsFor(pn);
+                if (runConfigs.count() == 1) {
+                    d->m_runActionContextMenu->setVisible(true);
+                    d->m_runActionContextMenu->setData(QVariant::fromValue(runConfigs.first()));
+                } else if (runConfigs.count() > 1) {
+                    foreach (RunConfiguration *rc, runConfigs) {
+                        QAction *act = new QAction(runMenu->menu());
+                        act->setData(QVariant::fromValue(rc));
+                        act->setText(QString("Run %1").arg(rc->displayName()));
+                        runMenu->menu()->addAction(act);
+                        connect(act, SIGNAL(triggered()),
+                                this, SLOT(runProjectContextMenu()));
+                    }
+                }
+            }
+        }
         if (qobject_cast<FolderNode*>(d->m_currentNode)) {
+            // Also handles ProjectNode
             d->m_addNewFileAction->setEnabled(actions.contains(ProjectNode::AddNewFile));
             d->m_addNewSubprojectAction->setEnabled(d->m_currentNode->nodeType() == ProjectNodeType
                                                     && actions.contains(ProjectNode::AddSubProject));

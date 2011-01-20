@@ -101,3 +101,9 @@ bool CMakeProjectNode::renameFile(const ProjectExplorer::FileType fileType, cons
     Q_UNUSED(newFilePath)
     return false;
 }
+
+QList<ProjectExplorer::RunConfiguration *> CMakeProjectNode::runConfigurationsFor(Node *node)
+{
+    Q_UNUSED(node)
+    return QList<ProjectExplorer::RunConfiguration *>();
+}

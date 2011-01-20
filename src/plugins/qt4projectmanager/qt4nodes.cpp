@@ -760,6 +760,11 @@ bool Qt4PriFileNode::deploysFolder(const QString &folder) const
     return false;
 }
 
+QList<ProjectExplorer::RunConfiguration *> Qt4PriFileNode::runConfigurationsFor(Node *node)
+{
+    return m_project->activeTarget()->runConfigurationsForNode(node);
+}
+
 QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) const
 {
     QList<ProjectAction> actions;
@@ -810,6 +815,9 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) c
     FileNode *fileNode = qobject_cast<FileNode *>(node);
     if (fileNode && fileNode->fileType() != ProjectExplorer::ProjectFileType)
         actions << Rename;
+
+    if (!m_project->activeTarget()->runConfigurationsForNode(node).isEmpty())
+        actions << HasSubProjectRunConfigurations;
 
     return actions;
 }

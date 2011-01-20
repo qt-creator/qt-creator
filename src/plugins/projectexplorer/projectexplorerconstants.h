@@ -162,6 +162,8 @@ const char * const G_FILE_OPEN          = "ProjectFile.Group.Open";
 const char * const G_FILE_OTHER         = "ProjectFile.Group.Other";
 const char * const G_FILE_CONFIG        = "ProjectFile.Group.Config";
 
+const char * const RUNMENUCONTEXTMENU   = "Project.RunMenu";
+
 // file id
 const char * const FILE_FACTORY_ID      = "ProjectExplorer.FileFactoryId";
 

@@ -56,6 +56,7 @@ public:
     QString defaultBuildDirectory() const;
 
     void createApplicationProFiles();
+    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
 
     static QString defaultDisplayName(const QString &id);
     static QIcon iconForId(const QString &id);

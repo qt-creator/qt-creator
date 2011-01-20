@@ -37,6 +37,7 @@
 #include <coreplugin/ifile.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/runconfiguration.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
@@ -164,6 +165,7 @@ public:
     void folderChanged(const QString &changedFolder);
 
     bool deploysFolder(const QString &folder) const;
+    QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
 
 protected:
     void clear();
@@ -310,6 +312,7 @@ public:
     bool validParse() const;
 
     bool hasBuildTargets(Qt4ProjectType projectType) const;
+
 public slots:
     void asyncUpdate();
 

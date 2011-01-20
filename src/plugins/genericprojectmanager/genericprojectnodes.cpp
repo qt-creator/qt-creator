@@ -235,3 +235,9 @@ bool GenericProjectNode::renameFile(const ProjectExplorer::FileType fileType,
     Q_UNUSED(newFilePath)
     return false;
 }
+
+QList<ProjectExplorer::RunConfiguration *> GenericProjectNode::runConfigurationsFor(Node *node)
+{
+    Q_UNUSED(node)
+    return QList<ProjectExplorer::RunConfiguration *>();
+}

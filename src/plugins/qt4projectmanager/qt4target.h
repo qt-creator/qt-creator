@@ -36,7 +36,9 @@
 
 #include "qt4buildconfiguration.h"
 #include "qtversionmanager.h"
+
 #include <projectexplorer/target.h>
+#include <projectexplorer/projectnodes.h>
 
 namespace Qt4ProjectManager {
 
@@ -81,6 +83,8 @@ public:
     virtual QList<ProjectExplorer::ToolChainType> filterToolChainTypes(const QList<ProjectExplorer::ToolChainType> &candidates) const;
     virtual ProjectExplorer::ToolChainType preferredToolChainType(const QList<ProjectExplorer::ToolChainType> &candidates) const;
     virtual QString defaultBuildDirectory() const;
+
+    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n) = 0;
 signals:
     void buildDirectoryInitialized();
     /// emitted if the build configuration changed in a way that

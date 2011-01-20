@@ -81,6 +81,7 @@ public:
     virtual bool renameFile(const ProjectExplorer::FileType fileType,
                              const QString &filePath,
                              const QString &newFilePath);
+    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
 
 
     void refresh();

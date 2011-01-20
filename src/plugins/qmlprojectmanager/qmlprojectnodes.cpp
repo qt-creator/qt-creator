@@ -228,5 +228,11 @@ bool QmlProjectNode::renameFile(const ProjectExplorer::FileType /*fileType*/,
     return true;
 }
 
+QList<ProjectExplorer::RunConfiguration *> QmlProjectNode::runConfigurationsFor(Node *node)
+{
+    Q_UNUSED(node)
+    return QList<ProjectExplorer::RunConfiguration *>();
+}
+
 } // namespace Internal
 } // namespace QmlProjectManager

@@ -116,6 +116,16 @@ void AbstractQt4MaemoTarget::createApplicationProFiles()
     }
 }
 
+QList<ProjectExplorer::RunConfiguration *> AbstractQt4MaemoTarget::runConfigurationsForNode(ProjectExplorer::Node *n)
+{
+    QList<ProjectExplorer::RunConfiguration *> result;
+    foreach (ProjectExplorer::RunConfiguration *rc, runConfigurations())
+        if (MaemoRunConfiguration *mrc = qobject_cast<MaemoRunConfiguration *>(rc))
+            if (mrc->proFilePath() == n->path())
+                result << rc;
+    return result;
+}
+
 QString AbstractQt4MaemoTarget::projectVersion(QString *error) const
 {
     QSharedPointer<QFile> changeLog = openFile(changeLogFilePath(),

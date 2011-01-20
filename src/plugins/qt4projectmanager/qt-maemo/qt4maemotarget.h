@@ -56,6 +56,7 @@ public:
     ProjectExplorer::DeployConfigurationFactory *deployConfigurationFactory() const;
     QString defaultBuildDirectory() const;
     void createApplicationProFiles();
+    QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
 
     QString debianDirPath() const;
     QStringList debianFiles() const;

@@ -38,7 +38,9 @@
 #include <QtCore/QStringList>
 #include <QtGui/QIcon>
 
+#include "runconfiguration.h"
 #include "projectexplorer_export.h"
+
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
@@ -174,7 +176,8 @@ public:
         // that a file was deleted
         // DeleteFile is a define on windows...
         EraseFile,
-        Rename
+        Rename,
+        HasSubProjectRunConfigurations
     };
 
     // all subFolders that are projects
@@ -208,6 +211,9 @@ public:
                              const QString &newFilePath) = 0;
     // by default returns false
     virtual bool deploysFolder(const QString &folder) const;
+
+    // TODO node parameter not really needed
+    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node) = 0;
 
 
     QList<NodesWatcher*> watchers() const;
