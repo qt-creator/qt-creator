@@ -39,6 +39,8 @@
 #include "coreconstants.h"
 #include "uniqueidmanager.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
 #include <QtGui/QAction>
@@ -165,6 +167,9 @@ using namespace Core::Internal;
 ActionContainerPrivate::ActionContainerPrivate(int id)
     : m_onAllDisabledBehavior(Disable), m_id(id), m_updateRequested(false)
 {
+    appendGroup(QLatin1String(Constants::G_DEFAULT_ONE));
+    appendGroup(QLatin1String(Constants::G_DEFAULT_TWO));
+    appendGroup(QLatin1String(Constants::G_DEFAULT_THREE));
     scheduleUpdate();
 }
 
@@ -178,51 +183,92 @@ ActionContainer::OnAllDisabledBehavior ActionContainerPrivate::onAllDisabledBeha
     return m_onAllDisabledBehavior;
 }
 
-void ActionContainerPrivate::appendGroup(const QString &group)
+void ActionContainerPrivate::appendGroup(const QString &groupId)
 {
-    int gid = UniqueIDManager::instance()->uniqueIdentifier(group);
-    m_groups << gid;
+    m_groups.append(Group(groupId));
 }
 
-QAction *ActionContainerPrivate::insertLocation(const QString &group) const
+QList<Group>::const_iterator ActionContainerPrivate::findGroup(const QString &groupId) const
 {
-    int grpid = UniqueIDManager::instance()->uniqueIdentifier(group);
-    int prevKey = 0;
-    int pos = ((grpid << 16) | 0xFFFF);
-    return beforeAction(pos, &prevKey);
+    QList<Group>::const_iterator it = m_groups.constBegin();
+    while (it != m_groups.constEnd()) {
+        if (it->id == groupId)
+            break;
+        ++it;
+    }
+    return it;
 }
 
-void ActionContainerPrivate::addAction(Command *action, const QString &group)
+
+QAction *ActionContainerPrivate::insertLocation(const QString &groupId) const
 {
-    if (!canAddAction(action))
+    QList<Group>::const_iterator it = findGroup(groupId);
+    QTC_ASSERT(it != m_groups.constEnd(), return 0);
+    return insertLocation(it);
+}
+
+QAction *ActionContainerPrivate::insertLocation(QList<Group>::const_iterator group) const
+{
+    if (group == m_groups.constEnd())
+        return 0;
+    ++group;
+    while (group != m_groups.constEnd()) {
+        if (!group->items.isEmpty()) {
+            QObject *item = group->items.first();
+            if (Command *cmd = qobject_cast<Command *>(item)) {
+                return cmd->action();
+            } else if (ActionContainer *container = qobject_cast<ActionContainer *>(item)) {
+                if (container->menu())
+                    return container->menu()->menuAction();
+            }
+            QTC_ASSERT(false, return 0);
+        }
+        ++group;
+    }
+    return 0;
+}
+
+void ActionContainerPrivate::addAction(Command *command, const QString &groupId)
+{
+    if (!canAddAction(command))
         return;
 
-    ActionManagerPrivate *am = ActionManagerPrivate::instance();
-    UniqueIDManager *idmanager = UniqueIDManager::instance();
-    int grpid = idmanager->uniqueIdentifier(Constants::G_DEFAULT_TWO);
-    if (!group.isEmpty())
-        grpid = idmanager->uniqueIdentifier(group);
-    if (!m_groups.contains(grpid) && !am->defaultGroups().contains(grpid))
-        qWarning() << "*** addAction(): Unknown group: " << group;
-    int pos = ((grpid << 16) | 0xFFFF);
-    addActionInternal(action, pos);
+    QString actualGroupId;
+    if (groupId.isEmpty())
+        actualGroupId = QLatin1String(Constants::G_DEFAULT_TWO);
+    else
+        actualGroupId = groupId;
+
+    QList<Group>::const_iterator groupIt = findGroup(actualGroupId);
+    QTC_ASSERT(groupIt != m_groups.constEnd(), return);
+    QAction *beforeAction = insertLocation(groupIt);
+    m_groups[groupIt-m_groups.constBegin()].items.append(command);
+
+    connect(command, SIGNAL(activeStateChanged()), this, SLOT(scheduleUpdate()));
+    insertAction(beforeAction, command->action());
+    scheduleUpdate();
 }
 
-void ActionContainerPrivate::addMenu(ActionContainer *menu, const QString &group)
+void ActionContainerPrivate::addMenu(ActionContainer *menu, const QString &groupId)
 {
-    ActionContainerPrivate *container = static_cast<ActionContainerPrivate *>(menu);
-    if (!container->canBeAddedToMenu())
+    ActionContainerPrivate *containerPrivate = static_cast<ActionContainerPrivate *>(menu);
+    if (!containerPrivate->canBeAddedToMenu())
         return;
+    MenuActionContainer *container = static_cast<MenuActionContainer *>(containerPrivate);
 
-    ActionManagerPrivate *am = ActionManagerPrivate::instance();
-    UniqueIDManager *idmanager = UniqueIDManager::instance();
-    int grpid = idmanager->uniqueIdentifier(Constants::G_DEFAULT_TWO);
-    if (!group.isEmpty())
-        grpid = idmanager->uniqueIdentifier(group);
-    if (!m_groups.contains(grpid) && !am->defaultGroups().contains(grpid))
-        qWarning() << "*** addMenu(): Unknown group: " << group;
-    int pos = ((grpid << 16) | 0xFFFF);
-    addMenuInternal(menu, pos);
+    QString actualGroupId;
+    if (groupId.isEmpty())
+        actualGroupId = QLatin1String(Constants::G_DEFAULT_TWO);
+    else
+        actualGroupId = groupId;
+
+    QList<Group>::const_iterator groupIt = findGroup(actualGroupId);
+    QTC_ASSERT(groupIt != m_groups.constEnd(), return);
+    QAction *beforeAction = insertLocation(groupIt);
+    m_groups[groupIt-m_groups.constBegin()].items.append(menu);
+
+    insertMenu(beforeAction, container->menu());
+    scheduleUpdate();
 }
 
 int ActionContainerPrivate::id() const
@@ -243,79 +289,6 @@ QMenuBar *ActionContainerPrivate::menuBar() const
 bool ActionContainerPrivate::canAddAction(Command *action) const
 {
     return (action->action() != 0);
-}
-
-void ActionContainerPrivate::addActionInternal(Command *action, int pos)
-{
-    Action *a = static_cast<Action *>(action);
-
-    int prevKey = 0;
-    QAction *ba = beforeAction(pos, &prevKey);
-    pos = calcPosition(pos, prevKey);
-
-    m_commands.append(action);
-    m_posmap.insert(pos, action->id());
-    connect(action, SIGNAL(activeStateChanged()), this, SLOT(scheduleUpdate()));
-    insertAction(ba, a->action());
-    scheduleUpdate();
-}
-
-void ActionContainerPrivate::addMenuInternal(ActionContainer *menu, int pos)
-{
-    MenuActionContainer *mc = static_cast<MenuActionContainer *>(menu);
-
-    int prevKey = 0;
-    QAction *ba = beforeAction(pos, &prevKey);
-    pos = calcPosition(pos, prevKey);
-
-    m_subContainers.append(menu);
-    m_posmap.insert(pos, menu->id());
-    insertMenu(ba, mc->menu());
-    scheduleUpdate();
-}
-
-QAction *ActionContainerPrivate::beforeAction(int pos, int *prevKey) const
-{
-    ActionManagerPrivate *am = ActionManagerPrivate::instance();
-
-    int baId = -1;
-
-    (*prevKey) = -1;
-
-    QMap<int, int>::const_iterator i = m_posmap.constBegin();
-    while (i != m_posmap.constEnd()) {
-        if (i.key() > pos) {
-            baId = i.value();
-            break;
-        }
-        (*prevKey) = i.key();
-        ++i;
-    }
-
-    if (baId == -1)
-        return 0;
-
-    if (Command *cmd = am->command(baId))
-        return cmd->action();
-    if (ActionContainer *container = am->actionContainer(baId))
-        if (QMenu *menu = container->menu())
-            return menu->menuAction();
-
-    return 0;
-}
-
-int ActionContainerPrivate::calcPosition(int pos, int prevKey) const
-{
-    int grp = (pos & 0xFFFF0000);
-    if (prevKey == -1)
-        return grp;
-
-    int prevgrp = (prevKey & 0xFFFF0000);
-
-    if (grp != prevgrp)
-        return grp;
-
-    return grp + (prevKey & 0xFFFF) + 10;
 }
 
 void ActionContainerPrivate::scheduleUpdate()
@@ -378,25 +351,32 @@ bool MenuActionContainer::updateInternal()
     bool hasitems = false;
     QList<QAction *> actions = m_menu->actions();
 
-    foreach (ActionContainer *container, subContainers()) {
-        actions.removeAll(container->menu()->menuAction());
-        if (container == this) {
-            qWarning() << Q_FUNC_INFO << "container" << (this->menu() ? this->menu()->title() : "") <<  "contains itself as subcontainer";
-            continue;
-        }
-        if (qobject_cast<ActionContainerPrivate*>(container)->updateInternal()) {
-            hasitems = true;
-            break;
-        }
-    }
-    if (!hasitems) {
-        foreach (Command *command, commands()) {
-            actions.removeAll(command->action());
-            if (command->isActive()) {
-                hasitems = true;
-                break;
+    QListIterator<Group> it(m_groups);
+    while (it.hasNext()) {
+        const Group &group = it.next();
+        foreach (QObject *item, group.items) {
+            if (ActionContainerPrivate *container = qobject_cast<ActionContainerPrivate*>(item)) {
+                actions.removeAll(container->menu()->menuAction());
+                if (container == this) {
+                    qWarning() << Q_FUNC_INFO << "container" << (this->menu() ? this->menu()->title() : "") <<  "contains itself as subcontainer";
+                    continue;
+                }
+                if (container->updateInternal()) {
+                    hasitems = true;
+                    break;
+                }
+            } else if (Command *command = qobject_cast<Command *>(item)) {
+                actions.removeAll(command->action());
+                if (command->isActive()) {
+                    hasitems = true;
+                    break;
+                }
+            } else {
+                QTC_ASSERT(false, continue);
             }
         }
+        if (hasitems)
+            break;
     }
     if (!hasitems) {
         // look if there were actions added that we don't control and check if they are enabled

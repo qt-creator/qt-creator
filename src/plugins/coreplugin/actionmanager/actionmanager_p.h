@@ -69,7 +69,6 @@ public:
     static ActionManagerPrivate *instance();
 
     void saveSettings(QSettings *settings);
-    QList<int> defaultGroups() const;
 
     QList<Command *> commands() const;
 
@@ -98,7 +97,6 @@ private:
     Action *overridableAction(const Id &id);
 
     static ActionManagerPrivate *m_instance;
-    QList<int> m_defaultGroups;
 
     typedef QHash<int, CommandPrivate *> IdCmdMap;
     IdCmdMap m_idCmdMap;

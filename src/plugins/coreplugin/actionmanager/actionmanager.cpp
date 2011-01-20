@@ -242,12 +242,7 @@ ActionManagerPrivate::ActionManagerPrivate(MainWindow *mainWnd)
   : ActionManager(mainWnd),
     m_mainWnd(mainWnd)
 {
-    UniqueIDManager *uidmgr = UniqueIDManager::instance();
-    m_defaultGroups << uidmgr->uniqueIdentifier(Constants::G_DEFAULT_ONE);
-    m_defaultGroups << uidmgr->uniqueIdentifier(Constants::G_DEFAULT_TWO);
-    m_defaultGroups << uidmgr->uniqueIdentifier(Constants::G_DEFAULT_THREE);
     m_instance = this;
-
 }
 
 ActionManagerPrivate::~ActionManagerPrivate()
@@ -259,11 +254,6 @@ ActionManagerPrivate::~ActionManagerPrivate()
 ActionManagerPrivate *ActionManagerPrivate::instance()
 {
     return m_instance;
-}
-
-QList<int> ActionManagerPrivate::defaultGroups() const
-{
-    return m_defaultGroups;
 }
 
 QList<Command *> ActionManagerPrivate::commands() const
