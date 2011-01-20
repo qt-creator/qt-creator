@@ -72,7 +72,8 @@
 #include <qmljs/qmljsindenter.h>
 #include <qmljs/qmljsscanner.h>
 
-#include <QtDebug>
+#include <QtCore/QtDebug>
+#include <QtGui/QTextBlock>
 
 using namespace QmlJS;
 

@@ -43,9 +43,8 @@
 #define TEXTEDITOR_SYNTAXHIGHLIGHTER_H
 
 #include "texteditor_global.h"
-#include <QtCore/qglobal.h>
-#include <QtCore/qobject.h>
-#include <QtGui/qtextobject.h>
+
+#include <QtCore/QObject>
 #include <QtGui/QTextLayout>
 
 QT_BEGIN_NAMESPACE

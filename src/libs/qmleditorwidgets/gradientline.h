@@ -36,8 +36,7 @@
 
 #include <qmleditorwidgets_global.h>
 #include <QtGui/QWidget>
-#include <QToolButton>
-#include <QLinearGradient>
+#include <QtGui/QLinearGradient>
 
 namespace QmlEditorWidgets {
 

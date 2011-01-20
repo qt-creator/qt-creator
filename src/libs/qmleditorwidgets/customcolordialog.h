@@ -35,8 +35,7 @@
 #define CUSTOMCOLORDIALOG_H
 
 #include <qmleditorwidgets_global.h>
-#include <QFrame>
-#include <QDialog>
+#include <QtGui/QFrame>
 
 QT_BEGIN_NAMESPACE
 class QDoubleSpinBox;

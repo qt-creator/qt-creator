@@ -35,12 +35,11 @@
 #define QMLJSINDENTER_H
 
 #include <qmljs/qmljs_global.h>
-#include <qmljs/qmljsscanner.h>
 #include <qmljs/qmljslineinfo.h>
 
 #include <QtCore/QRegExp>
-#include <QtCore/QStringList>
-#include <QtGui/QTextBlock>
+
+QT_FORWARD_DECLARE_CLASS(QTextBlock)
 
 namespace QmlJS {
 

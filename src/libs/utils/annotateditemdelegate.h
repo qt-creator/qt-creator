@@ -37,7 +37,6 @@
 #include "utils_global.h"
 
 #include <QtCore/QString>
-#include <QtCore/QSize>
 #include <QtGui/QStyledItemDelegate>
 
 namespace Utils {

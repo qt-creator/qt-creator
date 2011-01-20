@@ -35,7 +35,9 @@
 #define CPLUSPLUS_OVERVIEW_H
 
 #include <CPlusPlusForwardDeclarations.h>
-#include <QString>
+
+#include <QtCore/QList>
+#include <QtCore/QString>
 
 namespace CPlusPlus {
 

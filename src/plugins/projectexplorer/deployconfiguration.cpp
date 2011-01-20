@@ -40,6 +40,8 @@
 #include "projectexplorerconstants.h"
 #include "target.h"
 
+#include <QtCore/QStringList>
+
 using namespace ProjectExplorer;
 
 namespace {

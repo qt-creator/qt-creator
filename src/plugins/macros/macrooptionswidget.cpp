@@ -44,16 +44,17 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/uniqueidmanager.h>
 
-#include <QButtonGroup>
-#include <QTreeWidget>
-#include <QTreeWidgetItem>
-#include <QCheckBox>
-#include <QDir>
-#include <QGroupBox>
-#include <QHeaderView>
-#include <QFileInfo>
-#include <QRegExpValidator>
-#include <QLineEdit>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+
+#include <QtGui/QButtonGroup>
+#include <QtGui/QTreeWidget>
+#include <QtGui/QTreeWidgetItem>
+#include <QtGui/QCheckBox>
+#include <QtGui/QGroupBox>
+#include <QtGui/QHeaderView>
+#include <QtGui/QRegExpValidator>
+#include <QtGui/QLineEdit>
 
 namespace {
     int DIRECTORY = 1;

@@ -46,8 +46,8 @@
 
 #include <QtCore/QString>
 #include <QtCore/QList>
-#include <QtCore/QSharedPointer>
-#include <QtGui/QTextCursor>
+
+QT_FORWARD_DECLARE_CLASS(QTextCursor)
 
 namespace Utils {
 

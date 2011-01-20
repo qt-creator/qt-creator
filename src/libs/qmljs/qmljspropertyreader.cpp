@@ -36,6 +36,8 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljscheck.h>
 
+#include <QtGui/QLinearGradient>
+
 namespace QmlJS {
 
 using namespace AST;

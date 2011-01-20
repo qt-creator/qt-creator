@@ -36,9 +36,13 @@
 
 #include "macros_global.h"
 
-#include <QString>
-#include <QVariant>
-#include <QDataStream>
+#include <QtCore/QMap>
+
+QT_BEGIN_NAMESPACE
+class QByteArray;
+class QVariant;
+class QDataStream;
+QT_END_NAMESPACE
 
 namespace Macros {
 

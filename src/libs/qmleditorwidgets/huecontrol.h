@@ -36,8 +36,7 @@
 
 #include <qmleditorwidgets_global.h>
 #include <QtGui/QWidget>
-#include <QToolButton>
-#include <qdeclarative.h>
+#include <QtDeclarative/qdeclarative.h>
 
 namespace QmlEditorWidgets {
 

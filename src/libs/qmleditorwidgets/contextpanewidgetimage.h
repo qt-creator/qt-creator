@@ -35,11 +35,9 @@
 #define CONTEXTPANEWIDGETIMAGE_H
 
 #include <qmleditorwidgets_global.h>
-#include <QWidget>
-#include <QFrame>
-#include <QLabel>
-#include <qdrawutil.h>
+#include <QtGui/QLabel>
 #include <contextpanewidget.h>
+#include <qdrawutil.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

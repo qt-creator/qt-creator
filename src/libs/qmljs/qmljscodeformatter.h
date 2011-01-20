@@ -38,11 +38,9 @@
 
 #include "qmljsscanner.h"
 
-#include <QtCore/QChar>
 #include <QtCore/QStack>
 #include <QtCore/QList>
 #include <QtCore/QVector>
-#include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;

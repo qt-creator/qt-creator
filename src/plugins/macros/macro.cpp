@@ -35,7 +35,8 @@
 
 #include <coreplugin/coreconstants.h>
 
-#include <QFileInfo>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDataStream>
 
 using namespace Macros;
 

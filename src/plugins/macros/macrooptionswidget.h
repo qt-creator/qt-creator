@@ -34,10 +34,10 @@
 #ifndef MACROSPLUGIN_MACROOPTIONSWIDGET_H
 #define MACROSPLUGIN_MACROOPTIONSWIDGET_H
 
-#include <QWidget>
-#include <QPixmap>
-#include <QMap>
-#include <QStringList>
+#include <QtGui/QWidget>
+
+#include <QtCore/QStringList>
+#include <QtCore/QMap>
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;

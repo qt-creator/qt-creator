@@ -39,15 +39,15 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <QPixmap>
+#include <QtGui/QPixmap>
 
 using namespace Macros;
 using namespace Macros::Internal;
 
 MacroLocatorFilter::MacroLocatorFilter():
-    m_icon(QPixmap(":/macros/images/macro.png"))
+    m_icon(QPixmap(QLatin1String(":/macros/images/macro.png")))
 {
-    setShortcutString("rm");
+    setShortcutString(QLatin1String("rm"));
 }
 
 MacroLocatorFilter::~MacroLocatorFilter()

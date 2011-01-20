@@ -40,7 +40,6 @@
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
-class QMouseEvent;
 class QPlainTextEdit;
 class QTextCharFormat;
 class QColor;

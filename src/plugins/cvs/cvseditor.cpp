@@ -42,6 +42,7 @@
 
 #include <QtCore/QDebug>
 #include <QtGui/QTextCursor>
+#include <QtGui/QTextBlock>
 
 namespace CVS {
 namespace Internal {

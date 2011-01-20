@@ -35,6 +35,7 @@
 #include "buildstep.h"
 #include "project.h"
 #include "buildconfiguration.h"
+#include "projectexplorerconstants.h"
 
 #include <coreplugin/ifile.h>
 #include <utils/qtcprocess.h>
@@ -83,7 +84,7 @@ void ProcessStep::ctor()
     //: Default ProcessStep display name
     setDefaultDisplayName(tr("Custom Process Step"));
     if (m_workingDirectory.isEmpty())
-        m_workingDirectory = QLatin1String(DEFAULT_WORKING_DIR);
+        m_workingDirectory = QLatin1String(ProjectExplorer::Constants::DEFAULT_WORKING_DIR);
 }
 
 ProcessStep::~ProcessStep()
@@ -157,7 +158,7 @@ void ProcessStep::setEnabled(bool enabled)
 void ProcessStep::setWorkingDirectory(const QString &workingDirectory)
 {
     if (workingDirectory.isEmpty())
-        m_workingDirectory = QLatin1String(DEFAULT_WORKING_DIR);
+        m_workingDirectory = QLatin1String(ProjectExplorer::Constants::DEFAULT_WORKING_DIR);
     else
         m_workingDirectory = workingDirectory;
 }

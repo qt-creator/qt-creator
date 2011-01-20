@@ -34,11 +34,11 @@
 #ifndef MACROSPLUGIN_MACRO_H
 #define MACROSPLUGIN_MACRO_H
 
-#include <QList>
-#include <QString>
-
-#include "macroevent.h"
 #include "macros_global.h"
+#include "macroevent.h"
+
+#include <QtCore/QList>
+#include <QtCore/QString>
 
 namespace Macros {
 

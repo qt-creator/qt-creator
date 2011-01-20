@@ -36,6 +36,9 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
+
 using namespace Core;
 using namespace Locator;
 using namespace Locator::Internal;

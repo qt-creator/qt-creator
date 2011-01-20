@@ -38,9 +38,7 @@
 #include <qmljs/qmljsscanner.h>
 
 #include <QtCore/QRegExp>
-#include <QtCore/QStringList>
 #include <QtGui/QTextBlock>
-#include <QtGui/QTextCursor>
 
 namespace QmlJS {
 

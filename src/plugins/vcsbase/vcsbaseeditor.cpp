@@ -58,6 +58,7 @@
 #include <QtCore/QSet>
 #include <QtCore/QTextCodec>
 #include <QtCore/QTextStream>
+#include <QtGui/QTextBlock>
 #include <QtGui/QAction>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QLayout>

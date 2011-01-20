@@ -35,8 +35,9 @@
 
 #include "SimpleLexer.h"
 
-#include <QtGui/QTextCursor>
 #include <QtGui/QTextBlock>
+
+QT_FORWARD_DECLARE_CLASS(QTextCursor)
 
 namespace CPlusPlus {
 

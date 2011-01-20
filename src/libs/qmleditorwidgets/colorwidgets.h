@@ -35,16 +35,6 @@
 #define COLORWIDGET_H
 
 #include <qmleditorwidgets_global.h>
-#include <QWeakPointer>
-#include <QtGui/QWidget>
-#include <QLabel>
-#include <QToolButton>
-#include <QMouseEvent>
-
-
-QT_BEGIN_NAMESPACE
-class QToolButton;
-QT_END_NAMESPACE
 
 namespace QmlEditorWidgets {
 
@@ -52,11 +42,8 @@ class QMLEDITORWIDGETS_EXPORT ColorWidgets {
 
 public:
     static void registerDeclarativeTypes();
-
-
 };
 
-
-} //QmlDesigner
+} // namespace QmlEditorWidgets
 
 #endif //COLORWIDGET_H

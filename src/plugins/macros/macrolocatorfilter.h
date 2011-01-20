@@ -36,7 +36,7 @@
 
 #include <locator/ilocatorfilter.h>
 
-#include <QIcon>
+#include <QtGui/QIcon>
 
 namespace Macros {
 
@@ -61,7 +61,7 @@ public:
     void refresh(QFutureInterface<void> &future);
 
 private:
-    QIcon m_icon;
+    const QIcon m_icon;
 };
 
 } // namespace Internal

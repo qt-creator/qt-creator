@@ -34,6 +34,7 @@
 #include "qmlprojectrunconfiguration.h"
 #include "qmlproject.h"
 #include "qmlprojectmanagerconstants.h"
+#include "qmlprojecttarget.h"
 #include "qmlprojectrunconfigurationwidget.h"
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/editormanager/editormanager.h>

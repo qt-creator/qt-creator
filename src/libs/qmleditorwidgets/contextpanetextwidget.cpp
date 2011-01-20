@@ -36,8 +36,8 @@
 #include "customcolordialog.h"
 #include "ui_contextpanetext.h"
 #include <qmljs/qmljspropertyreader.h>
-#include <QTimerEvent>
-
+#include <QtCore/QTimerEvent>
+#include <QtCore/QVariant>
 namespace QmlEditorWidgets {
 
 ContextPaneTextWidget::ContextPaneTextWidget(QWidget *parent) :

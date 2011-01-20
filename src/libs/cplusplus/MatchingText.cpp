@@ -36,6 +36,9 @@
 #include <Token.h>
 
 #include <QtGui/QTextDocument>
+#include <QtGui/QTextCursor>
+
+#include <QtCore/QChar>
 #include <QtCore/QtDebug>
 
 using namespace CPlusPlus;

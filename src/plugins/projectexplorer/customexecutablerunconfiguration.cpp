@@ -34,11 +34,12 @@
 #include "customexecutablerunconfiguration.h"
 #include "customexecutableconfigurationwidget.h"
 #include "toolchaintype.h"
+#include "buildconfiguration.h"
+#include "debugginghelper.h"
+#include "target.h"
+#include "projectexplorerconstants.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/debugginghelper.h>
-#include <projectexplorer/target.h>
 
 #include <utils/qtcprocess.h>
 
@@ -81,10 +82,10 @@ void CustomExecutableRunConfiguration::ctor()
 
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *parent) :
     LocalApplicationRunConfiguration(parent, QLatin1String(CUSTOM_EXECUTABLE_ID)),
+    m_workingDirectory(QLatin1String(ProjectExplorer::Constants::DEFAULT_WORKING_DIR)),
     m_runMode(Gui),
     m_baseEnvironmentBase(CustomExecutableRunConfiguration::BuildEnvironmentBase)
 {
-    m_workingDirectory = QLatin1String(DEFAULT_WORKING_DIR);
     ctor();
 }
 

@@ -37,14 +37,12 @@
 #include "qmljstools_global.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#include <qmljs/qmljsdocument.h>
-#include <cplusplus/CppDocument.h>
+
 #include <cplusplus/ModelManagerInterface.h>
 
-#include <QFuture>
-#include <QFutureSynchronizer>
-#include <QMutex>
-#include <QProcess>
+#include <QtCore/QFuture>
+#include <QtCore/QFutureSynchronizer>
+#include <QtCore/QMutex>
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 

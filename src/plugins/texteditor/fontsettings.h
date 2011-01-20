@@ -40,14 +40,12 @@
 
 #include <QtCore/QString>
 #include <QtCore/QList>
-#include <QtCore/QMap>
 #include <QtCore/QVector>
-#include <QtGui/QFont>
 
 QT_BEGIN_NAMESPACE
 class QTextCharFormat;
 class QSettings;
-
+class QFont;
 QT_END_NAMESPACE
 
 namespace TextEditor {
@@ -85,8 +83,7 @@ public:
     int fontZoom() const;
     void setFontZoom(int zoom);
 
-    QFont font() const
-    { return QFont(family(), fontSize()); }
+    QFont font() const;
 
     bool antialias() const;
     void setAntialias(bool antialias);

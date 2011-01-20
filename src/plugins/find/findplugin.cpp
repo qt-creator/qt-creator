@@ -373,6 +373,11 @@ QStringListModel *FindPlugin::replaceCompletionModel() const
     return d->m_replaceCompletionModel;
 }
 
+QKeySequence IFindFilter::defaultShortcut() const
+{
+    return QKeySequence();
+}
+
 } // namespace Find
 
 // declared in textfindconstants.h

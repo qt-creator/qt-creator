@@ -35,11 +35,15 @@
 #define CONTEXTPANEWIDGET_H
 
 #include <qmleditorwidgets_global.h>
-#include <QFrame>
-#include <QVariant>
-#include <QGraphicsEffect>
-#include <QWeakPointer>
-#include <QToolButton>
+#include <QtGui/QFrame>
+#include <QtCore/QWeakPointer>
+
+QT_BEGIN_NAMESPACE
+class QToolButton;
+class QVariant;
+class QGraphicsDropShadowEffect;
+class QGraphicsOpacityEffect;
+QT_END_NAMESPACE
 
 namespace QmlJS {
     class PropertyReader;

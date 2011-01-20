@@ -61,6 +61,7 @@
 #include <cpptools/insertionpointlocator.h>
 #include <extensionsystem/iplugin.h>
 
+#include <QtCore/QFileInfo>
 #include <QtGui/QApplication>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>

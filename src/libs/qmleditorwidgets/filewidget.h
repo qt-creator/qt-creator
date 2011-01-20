@@ -36,12 +36,17 @@
 #define FILEWIDGET_H
 
 #include <qmleditorwidgets_global.h>
+
 #include <QtGui/QWidget>
-#include <QLabel>
-#include <QToolButton>
-#include <QLineEdit>
-#include <QComboBox>
-#include <QUrl>
+
+#include <QtCore/QUrl>
+
+QT_BEGIN_NAMESPACE
+class QLabel;
+class QToolButton;
+class QLineEdit;
+class QComboBox;
+QT_END_NAMESPACE
 
 namespace QmlEditorWidgets {
 

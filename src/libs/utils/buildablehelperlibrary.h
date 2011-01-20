@@ -3,7 +3,7 @@
 
 #include "utils_global.h"
 
-#include <QString>
+#include <QtCore/QString>
 
 QT_FORWARD_DECLARE_CLASS(QFileInfo)
 

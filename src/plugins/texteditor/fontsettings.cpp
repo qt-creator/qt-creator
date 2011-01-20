@@ -42,6 +42,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QCoreApplication>
 #include <QtGui/QTextCharFormat>
+#include <QtGui/QFont>
 
 static const char *fontFamilyKey = "FontFamily";
 static const char *fontSizeKey = "FontSize";
@@ -240,6 +241,11 @@ int FontSettings::fontZoom() const
 void FontSettings::setFontZoom(int zoom)
 {
     m_fontZoom = zoom;
+}
+
+QFont FontSettings::font() const
+{
+    return QFont(family(), fontSize());
 }
 
 /**

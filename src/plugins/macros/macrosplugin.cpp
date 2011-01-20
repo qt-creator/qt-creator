@@ -48,15 +48,14 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/icontext.h>
 
-#include <QtPlugin>
-#include <QAction>
-#include <QKeySequence>
-#include <QSettings>
-#include <QMenu>
+#include <QtCore/QtPlugin>
+#include <QtCore/QSettings>
+#include <QtGui/QAction>
+#include <QtGui/QKeySequence>
+#include <QtGui/QMenu>
 
 using namespace Macros;
 using namespace Macros::Internal;
-
 
 MacrosPlugin::MacrosPlugin()
 {

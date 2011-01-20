@@ -38,9 +38,6 @@
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 
-#include <QtCore/QList>
-#include <QtCore/QHash>
-#include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
 
 namespace QmlJS {

@@ -35,10 +35,10 @@
 #define QMLPROJECTRUNCONFIGURATION_H
 
 #include "qmlprojectmanager_global.h"
+
 #include <projectexplorer/runconfiguration.h>
-#include <QWeakPointer>
-#include <QComboBox>
-#include <QLabel>
+
+#include <QtCore/QWeakPointer>
 
 QT_FORWARD_DECLARE_CLASS(QStringListModel)
 

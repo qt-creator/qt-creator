@@ -38,12 +38,11 @@
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsdocument.h>
 
-#include <QHash>
-#include <QList>
-#include <QVariant>
-#include <QString>
-#include <QStringList>
-#include <QLinearGradient>
+#include <QtCore/QHash>
+#include <QtCore/QVariant>
+#include <QtCore/QStringList>
+
+QT_FORWARD_DECLARE_CLASS(QLinearGradient)
 
 namespace QmlJS {
 

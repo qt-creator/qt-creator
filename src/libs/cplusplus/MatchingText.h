@@ -34,7 +34,9 @@
 #define CPLUSPLUS_MATCHINGTEXT_H
 
 #include <CPlusPlusForwardDeclarations.h>
-#include <QtGui/QTextCursor>
+
+QT_FORWARD_DECLARE_CLASS(QTextCursor)
+QT_FORWARD_DECLARE_CLASS(QChar)
 
 namespace CPlusPlus {
 

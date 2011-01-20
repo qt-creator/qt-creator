@@ -33,6 +33,10 @@
 
 #include "macroevent.h"
 
+#include <QtCore/QString>
+#include <QtCore/QVariant>
+#include <QtCore/QDataStream>
+
 using namespace Macros;
 
 /*!

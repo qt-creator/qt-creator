@@ -35,15 +35,15 @@
 #define REFACTORINGCHANGES_H
 
 #include <utils/changeset.h>
-#include <texteditor/basetexteditor.h>
 #include <texteditor/texteditor_global.h>
 
 #include <QtCore/QList>
-#include <QtCore/QMap>
 #include <QtCore/QString>
 
-namespace TextEditor {
+QT_FORWARD_DECLARE_CLASS(QTextDocument)
 
+namespace TextEditor {
+class BaseTextEditor;
 class RefactoringChanges;
 
 class TEXTEDITOR_EXPORT RefactoringFile

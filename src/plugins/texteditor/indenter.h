@@ -36,12 +36,13 @@
 
 #include "texteditor_global.h"
 
-#include <QtCore/QChar>
-#include <QtGui/QTextBlock>
+#include <QtCore/QtGlobal>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
 class QTextCursor;
+class QTextBlock;
+class QChar;
 QT_END_NAMESPACE
 
 namespace TextEditor {

@@ -35,10 +35,10 @@
 #define CONTEXTPANETEXTWIDGET_H
 
 #include <qmleditorwidgets_global.h>
-#include <QWidget>
-#include <QVariant>
+#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
+class QVariant;
 namespace Ui {
     class ContextPaneTextWidget;
 }

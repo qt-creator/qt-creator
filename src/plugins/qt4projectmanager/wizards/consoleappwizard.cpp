@@ -39,7 +39,7 @@
 #include <cpptools/abstracteditorsupport.h>
 
 #include <QtGui/QIcon>
-
+#include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 
 static const char *mainCppC =

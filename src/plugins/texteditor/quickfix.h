@@ -37,10 +37,7 @@
 #include "texteditor_global.h"
 #include "icompletioncollector.h"
 
-#include <utils/changeset.h>
-
 #include <QtCore/QSharedPointer>
-#include <QtGui/QTextCursor>
 
 namespace TextEditor {
 

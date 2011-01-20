@@ -147,7 +147,4 @@ signals:
 
 Q_DECLARE_METATYPE(ProjectExplorer::BuildConfiguration *)
 
-// Default directory to run custom (build) commands in.
-#define DEFAULT_WORKING_DIR "%{buildDir}"
-
 #endif // BUILDCONFIGURATION_H

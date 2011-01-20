@@ -35,12 +35,12 @@
 #define DIFFHIGHLIGHTER_H
 
 #include "vcsbase_global.h"
+
 #include <texteditor/syntaxhighlighter.h>
-#include <QtGui/QTextCharFormat>
-#include <QtCore/QVector>
 
 QT_BEGIN_NAMESPACE
 class QRegExp;
+class QTextCharFormat;
 QT_END_NAMESPACE
 
 namespace Core {

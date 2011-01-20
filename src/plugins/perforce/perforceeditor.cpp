@@ -54,6 +54,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextEdit>
+#include <QtGui/QTextBlock>
 
 namespace Perforce {
 namespace Internal {

@@ -36,16 +36,15 @@
 
 #include "pluginspec.h"
 
-#include <QtCore/QList>
 #include <QtCore/QSet>
 #include <QtCore/QStringList>
 #include <QtCore/QObject>
 #include <QtCore/QScopedPointer>
-#include <QtCore/QEventLoop>
 
 QT_BEGIN_NAMESPACE
 class QTime;
 class QSettings;
+class QEventLoop;
 QT_END_NAMESPACE
 
 namespace ExtensionSystem {

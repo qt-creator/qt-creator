@@ -32,13 +32,15 @@
 **************************************************************************/
 
 #include "wizard.h"
-#include <QLabel>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QMap>
-#include <QHash>
-#include <QVariant>
-#include <QStyle>
+
+#include <QtCore/QMap>
+#include <QtCore/QHash>
+#include <QtCore/QVariant>
+
+#include <QtGui/QLabel>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QStyle>
 
 namespace Utils {
 

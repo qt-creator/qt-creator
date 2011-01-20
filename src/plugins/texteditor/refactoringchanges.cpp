@@ -32,6 +32,7 @@
 **************************************************************************/
 
 #include "refactoringchanges.h"
+#include "basetexteditor.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
@@ -39,6 +40,8 @@
 #include <QtCore/QFile>
 #include <QtCore/QSet>
 #include <QtGui/QTextBlock>
+#include <QtGui/QTextCursor>
+#include <QtGui/QTextDocument>
 #include <QtCore/QDebug>
 
 using namespace TextEditor;

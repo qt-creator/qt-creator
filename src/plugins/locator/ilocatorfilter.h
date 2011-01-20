@@ -36,7 +36,6 @@
 
 #include "locator_global.h"
 
-#include <QtCore/QDir>
 #include <QtCore/QVariant>
 #include <QtCore/QFutureInterface>
 #include <QtGui/QIcon>

@@ -39,7 +39,8 @@
 #include <utils/buildablehelperlibrary.h>
 
 #include <QtCore/QString>
-#include <QtCore/QStringList>
+
+QT_FORWARD_DECLARE_CLASS(QStringList)
 
 namespace ProjectExplorer {
 

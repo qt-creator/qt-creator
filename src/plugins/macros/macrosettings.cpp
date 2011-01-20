@@ -33,7 +33,7 @@
 
 #include "macrosettings.h"
 
-#include <QSettings>
+#include <QtCore/QSettings>
 
 using namespace Macros::Internal;
 

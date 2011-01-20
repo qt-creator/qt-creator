@@ -38,6 +38,7 @@
 #include "qmlproject.h"
 #include "qmlprojectrunconfigurationfactory.h"
 #include "qmlprojectruncontrol.h"
+#include "qmlprojecttarget.h"
 #include "fileformat/qmlprojectfileformat.h"
 
 #include <extensionsystem/pluginmanager.h>

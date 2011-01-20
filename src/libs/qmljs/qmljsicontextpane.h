@@ -34,20 +34,18 @@
 #ifndef QMLJSICONTEXTPANE_H
 #define QMLJSICONTEXTPANE_H
 
-#include <QObject>
+#include <QtCore/QObject>
+
 #include "qmljs_global.h"
+
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljslookupcontext.h>
 
-
 namespace TextEditor {
-
 class BaseTextEditorEditable;
-
 } //TextEditor
 
 namespace QmlJS {
-
 
 class QMLJS_EXPORT IContextPane : public QObject
 {

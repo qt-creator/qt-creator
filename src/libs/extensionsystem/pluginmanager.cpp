@@ -39,6 +39,7 @@
 #include "iplugin.h"
 #include "plugincollection.h"
 
+#include <QtCore/QEventLoop>
 #include <QtCore/QDateTime>
 #include <QtCore/QDir>
 #include <QtCore/QMetaProperty>

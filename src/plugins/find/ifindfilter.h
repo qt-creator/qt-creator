@@ -37,12 +37,10 @@
 #include "find_global.h"
 #include "textfindconstants.h"
 
-#include <QtGui/QTextDocument>
-#include <QtGui/QKeySequence>
-
 QT_BEGIN_NAMESPACE
 class QWidget;
 class QSettings;
+class QKeySequence;
 QT_END_NAMESPACE
 
 namespace Find {
@@ -60,7 +58,7 @@ public:
     virtual bool isEnabled() const = 0;
     virtual bool canCancel() const = 0;
     virtual void cancel() = 0;
-    virtual QKeySequence defaultShortcut() const { return QKeySequence(); }
+    virtual QKeySequence defaultShortcut() const;
     virtual bool isReplaceSupported() const { return false; }
     virtual FindFlags supportedFindFlags() const;
 

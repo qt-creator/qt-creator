@@ -225,6 +225,9 @@ const char * const DEFAULT_DEPLOYCONFIGURATION_ID = "ProjectExplorer.DefaultDepl
 // Run Configuration defaults:
 const int QML_DEFAULT_DEBUG_SERVER_PORT = 3768;
 
+// Default directory to run custom (build) commands in.
+const char * const DEFAULT_WORKING_DIR = "%{buildDir}";
+
 } // namespace Constants
 } // namespace ProjectExplorer
 

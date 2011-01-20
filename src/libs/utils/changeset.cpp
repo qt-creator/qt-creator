@@ -41,6 +41,8 @@
 
 #include "changeset.h"
 
+#include <QtGui/QTextCursor>
+
 namespace Utils {
 
 ChangeSet::ChangeSet()

@@ -34,10 +34,9 @@
 #ifndef QMLPROJECT_H
 #define QMLPROJECT_H
 
-#include "qmlprojectmanager.h"
 #include "qmlprojectmanager_global.h"
 #include "qmlprojectnodes.h"
-#include "qmlprojecttarget.h"
+#include "qmlprojectmanager.h"
 
 #include <projectexplorer/project.h>
 
@@ -58,8 +57,7 @@ class QmlProjectItem;
 namespace Internal {
 
 class QmlProjectFile;
-class QmlProjectNode;
-
+class QmlProjectTarget;
 } // namespace Internal
 
 class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project

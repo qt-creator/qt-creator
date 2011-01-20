@@ -34,14 +34,16 @@
 #include "debugginghelper.h"
 
 #include <coreplugin/icore.h>
+
+#include <utils/synchronousprocess.h>
+
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QHash>
 #include <QtCore/QProcess>
 #include <QtCore/QDir>
 #include <QtCore/QDateTime>
-
-#include <utils/synchronousprocess.h>
+#include <QtCore/QStringList>
 
 #include <QtGui/QDesktopServices>
 

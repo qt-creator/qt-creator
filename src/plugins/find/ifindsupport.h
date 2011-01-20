@@ -39,7 +39,6 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
-#include <QtGui/QTextDocument>
 
 namespace Find {
 

@@ -47,8 +47,6 @@
 QT_BEGIN_NAMESPACE
 class QLabel;
 class QComboBox;
-class QCheckBox;
-class QStringListModel;
 QT_END_NAMESPACE
 
 namespace Find {

@@ -44,17 +44,17 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/icontext.h>
 
-#include <QObject>
-#include <QEvent>
-#include <QAction>
-#include <QSignalMapper>
-#include <QShortcut>
-#include <QtAlgorithms>
-#include <QStringList>
+#include <QtCore/QObject>
+#include <QtCore/QEvent>
+#include <QtCore/QSignalMapper>
+#include <QtCore/QtAlgorithms>
+#include <QtCore/QStringList>
+
+#include <QtGui/QAction>
+#include <QtGui/QShortcut>
 
 using namespace Macros;
 using namespace Macros::Internal;
-
 
 static const char EVENTNAME[] = "Action";
 static quint8 ACTIONNAME = 0;

@@ -36,7 +36,7 @@
 
 #include <find/ifindsupport.h>
 
-#include <QPointer>
+#include <QtCore/QPointer>
 
 namespace Macros {
 namespace Internal {

@@ -34,8 +34,6 @@
 #ifndef WIZARD_H
 #define WIZARD_H
 
-#include <QWizard>
-
 #include "utils_global.h"
 
 #include <QtGui/QWizard>
@@ -65,7 +63,7 @@ public:
 
 signals:
     void nextClicked(); /* workaround for QWizard behavior where page->initialize is
-                           called before currentIdChanged */
+                         * called before currentIdChanged */
 
 private slots:
     void _q_currentPageChanged(int pageId);

@@ -43,6 +43,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 #include <QtGui/QTextCursor>
+#include <QtGui/QTextBlock>
 
 using namespace Subversion;
 using namespace Subversion::Internal;

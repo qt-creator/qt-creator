@@ -39,10 +39,9 @@
 
 #include <utils/environment.h>
 
-#include <QObject>
-#include <QStringList>
-#include <QSharedPointer>
-#include <QPointer>
+#include <QtCore/QObject>
+#include <QtCore/QStringList>
+#include <QtCore/QPointer>
 
 namespace ProjectExplorer {
     class Project;

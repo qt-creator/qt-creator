@@ -35,11 +35,8 @@
 #define BASEANNOTATIONHIGHLIGHTER_H
 
 #include "vcsbase_global.h"
+
 #include <texteditor/syntaxhighlighter.h>
-#include <QtCore/QMap>
-#include <QtCore/QSet>
-#include <QtGui/QSyntaxHighlighter>
-#include <QtGui/QTextCharFormat>
 
 namespace VCSBase {
 
