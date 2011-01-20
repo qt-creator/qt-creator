@@ -265,12 +265,18 @@ void writeEasingCurve(QXmlStreamWriter *xml)
     xml->writeEndElement();
 }
 
+enum ExitCode {
+    EXIT_INVALIDARGUMENTS = 1,
+    EXIT_SEGV = 2,
+    EXIT_IMPORTERROR = 3
+};
+
 #ifdef Q_OS_UNIX
 void sigSegvHandler(int) {
     fprintf(stderr, "Error: qmldump SEGV\n");
     if (!currentProperty.isEmpty())
         fprintf(stderr, "While processing the property '%s', which probably has uninitialized data.\n", currentProperty.toLatin1().constData());
-    exit(EXIT_FAILURE);
+    exit(EXIT_SEGV);
 }
 #endif
 
@@ -296,7 +302,7 @@ int main(int argc, char *argv[])
     if (argc != 1 && argc != 3) {
         qWarning() << "Usage: qmldump [plugin/import/path plugin.uri]";
         qWarning() << "Example: ./qmldump /home/user/dev/qt-install/imports Qt.labs.particles";
-        return 1;
+        return EXIT_INVALIDARGUMENTS;
     }
 
     QString pluginImportName;
@@ -315,7 +321,7 @@ int main(int argc, char *argv[])
     {
         QByteArray code = "import QtQuick 1.0; Item {}";
         QDeclarativeComponent c(engine);
-        c.setData(code, QUrl("xxx"));
+        c.setData(code, QUrl("qtquickcheck"));
         c.create();
         if (c.errors().isEmpty()) {
             hasQtQuickModule = true;
@@ -341,10 +347,13 @@ int main(int argc, char *argv[])
         code += "Item {}";
         QDeclarativeComponent c(engine);
 
-        c.setData(code, QUrl("xxx"));
+        c.setData(code, QUrl("typelist"));
         c.create();
-        if (!c.errors().isEmpty())
-            qDebug() << c.errorString();
+        if (!c.errors().isEmpty()) {
+            foreach (const QDeclarativeError &error, c.errors())
+                qWarning() << error.toString();
+            return EXIT_IMPORTERROR;
+        }
     }
 
     cppToId.insert("QString", "string");
@@ -400,7 +409,7 @@ int main(int argc, char *argv[])
         code += " {}\n";
 
         QDeclarativeComponent c(engine);
-        c.setData(code, QUrl("xxx"));
+        c.setData(code, QUrl("typeinstance"));
 
         QObject *object = c.create();
         if (object)

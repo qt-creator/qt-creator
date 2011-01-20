@@ -121,9 +121,17 @@ static QString qmldumpErrorMessage(const QString &libraryPath, const QString &er
     return PluginDumper::tr("Type dump of QML plugin in %0 failed.\nErrors:\n%1\n").arg(libraryPath, error);
 }
 
-static QString qmldumpFailedMessage()
+static QString qmldumpFailedMessage(const QString &error)
 {
-    return PluginDumper::tr("Type dump of C++ plugin failed.\nCheck 'General Messages' output pane for details.");
+    QString firstLines =
+            QStringList(error.split(QLatin1Char('\n')).mid(0, 10)).join(QLatin1String("\n"));
+    return PluginDumper::tr("Type dump of C++ plugin failed.\n"
+                            "First 10 lines or errors:\n"
+                            "\n"
+                            "%1"
+                            "\n"
+                            "Check 'General Messages' output pane for details."
+                            ).arg(firstLines);
 }
 
 static QList<FakeMetaObject::ConstPtr> parseHelper(const QByteArray &xml, QString *error)
@@ -156,8 +164,9 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
 
     if (exitCode != 0) {
         Core::MessageManager *messageManager = Core::MessageManager::instance();
-        messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, process->readAllStandardError()));
-        libraryInfo.setDumpStatus(LibraryInfo::DumpError, qmldumpFailedMessage());
+        const QString errorMessages = process->readAllStandardError();
+        messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, errorMessages));
+        libraryInfo.setDumpStatus(LibraryInfo::DumpError, qmldumpFailedMessage(errorMessages));
     }
 
     const QByteArray output = process->readAllStandardOutput();
@@ -188,12 +197,13 @@ void PluginDumper::qmlPluginTypeDumpError(QProcess::ProcessError)
     const QString libraryPath = m_runningQmldumps.take(process);
 
     Core::MessageManager *messageManager = Core::MessageManager::instance();
-    messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, process->readAllStandardError()));
+    const QString errorMessages = process->readAllStandardError();
+    messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, errorMessages));
 
     if (!libraryPath.isEmpty()) {
         const Snapshot snapshot = m_modelManager->snapshot();
         LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
-        libraryInfo.setDumpStatus(LibraryInfo::DumpError, qmldumpFailedMessage());
+        libraryInfo.setDumpStatus(LibraryInfo::DumpError, qmldumpFailedMessage(errorMessages));
         m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
     }
 }
