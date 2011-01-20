@@ -82,6 +82,7 @@ class MapObjectWithDebugReference : public Visitor
 
     private:
         void process(UiObjectMember *ast);
+        void process(UiObjectBinding *ast);
     private:
         int activated;
 };
@@ -118,6 +119,16 @@ void MapObjectWithDebugReference::process(UiObjectMember* ast)
 {
     if (lookupObjects.isEmpty() || activated) {
         SourceLocation loc = ast->firstSourceLocation();
+        QHash<QPair<int, int>, DebugIdList>::const_iterator it = ids.constFind(qMakePair<int, int>(loc.startLine, loc.startColumn));
+        if (it != ids.constEnd())
+            result[ast].append(*it);
+    }
+}
+
+void MapObjectWithDebugReference::process(UiObjectBinding* ast)
+{
+    if (lookupObjects.isEmpty() || activated) {
+        SourceLocation loc = ast->qualifiedTypeNameId->identifierToken;
         QHash<QPair<int, int>, DebugIdList>::const_iterator it = ids.constFind(qMakePair<int, int>(loc.startLine, loc.startColumn));
         if (it != ids.constEnd())
             result[ast].append(*it);
