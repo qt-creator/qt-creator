@@ -85,6 +85,7 @@ protected:
 private slots:
     void scheduleUpdate();
     void update();
+    void itemDestroyed();
 
 private:
     QList<Group>::const_iterator findGroup(const QString &groupId) const;

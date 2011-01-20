@@ -247,8 +247,9 @@ ActionManagerPrivate::ActionManagerPrivate(MainWindow *mainWnd)
 
 ActionManagerPrivate::~ActionManagerPrivate()
 {
-    qDeleteAll(m_idCmdMap.values());
+    // first delete containers to avoid them reacting to command deletion
     qDeleteAll(m_idContainerMap.values());
+    qDeleteAll(m_idCmdMap.values());
 }
 
 ActionManagerPrivate *ActionManagerPrivate::instance()
@@ -382,6 +383,7 @@ void ActionManagerPrivate::unregisterAction(QAction *action, const Id &id)
     a->removeOverrideAction(action);
     if (a->isEmpty()) {
         // clean up
+        // ActionContainers listen to the commands' destroyed signals
         m_mainWnd->removeAction(a->action());
         delete a->action();
         m_idCmdMap.remove(uid);

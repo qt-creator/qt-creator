@@ -245,6 +245,7 @@ void ActionContainerPrivate::addAction(Command *command, const QString &groupId)
     m_groups[groupIt-m_groups.constBegin()].items.append(command);
 
     connect(command, SIGNAL(activeStateChanged()), this, SLOT(scheduleUpdate()));
+    connect(command, SIGNAL(destroyed()), this, SLOT(itemDestroyed()));
     insertAction(beforeAction, command->action());
     scheduleUpdate();
 }
@@ -269,6 +270,17 @@ void ActionContainerPrivate::addMenu(ActionContainer *menu, const QString &group
 
     insertMenu(beforeAction, container->menu());
     scheduleUpdate();
+}
+
+void ActionContainerPrivate::itemDestroyed()
+{
+    QObject *obj = sender();
+    QMutableListIterator<Group> it(m_groups);
+    while (it.hasNext()) {
+        Group &group = it.next();
+        if (group.items.removeAll(obj) > 0)
+            break;
+    }
 }
 
 int ActionContainerPrivate::id() const
