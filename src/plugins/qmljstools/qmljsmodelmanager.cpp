@@ -357,9 +357,7 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
         if (import.type() != Interpreter::ImportInfo::LibraryImport)
             continue;
         foreach (const QString &importPath, importPaths) {
-            QDir dir(importPath);
-            dir.cd(import.name());
-            const QString targetPath = dir.absolutePath();
+            const QString targetPath = QDir(importPath).filePath(import.name());
 
             // if we know there is a library, done
             if (snapshot.libraryInfo(targetPath).isValid())
@@ -367,30 +365,37 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
             if (newLibraries->contains(targetPath))
                 break;
 
-            // if there is a qmldir file, we found a new library!
-            if (dir.exists("qmldir")) {
-                QFile qmldirFile(dir.filePath("qmldir"));
-                qmldirFile.open(QFile::ReadOnly);
-                QString qmldirData = QString::fromUtf8(qmldirFile.readAll());
+            // check for a qmldir file
+            const QDir targetDir(targetPath);
+            QFile qmldirFile(targetDir.filePath(QLatin1String("qmldir")));
+            if (!qmldirFile.exists())
+                continue;
 
-                QmlDirParser qmldirParser;
-                qmldirParser.setSource(qmldirData);
-                qmldirParser.parse();
+#ifdef Q_OS_WIN
+            // QTCREATORBUG-3402 - be case sensitive even here?
+#endif
 
-                const QString libraryPath = QFileInfo(qmldirFile).absolutePath();
-                newLibraries->insert(libraryPath);
-                modelManager->updateLibraryInfo(libraryPath,
-                                                LibraryInfo(qmldirParser));
+            // found a new library!
+            qmldirFile.open(QFile::ReadOnly);
+            QString qmldirData = QString::fromUtf8(qmldirFile.readAll());
 
-                // scan the qml files in the library
-                foreach (const QmlDirParser::Component &component, qmldirParser.components()) {
-                    if (! component.fileName.isEmpty()) {
-                        QFileInfo componentFileInfo(dir.filePath(component.fileName));
-                        const QString path = componentFileInfo.absolutePath();
-                        if (! scannedPaths->contains(path)) {
-                            *importedFiles += qmlFilesInDirectory(path);
-                            scannedPaths->insert(path);
-                        }
+            QmlDirParser qmldirParser;
+            qmldirParser.setSource(qmldirData);
+            qmldirParser.parse();
+
+            const QString libraryPath = QFileInfo(qmldirFile).absolutePath();
+            newLibraries->insert(libraryPath);
+            modelManager->updateLibraryInfo(libraryPath,
+                                            LibraryInfo(qmldirParser));
+
+            // scan the qml files in the library
+            foreach (const QmlDirParser::Component &component, qmldirParser.components()) {
+                if (! component.fileName.isEmpty()) {
+                    const QFileInfo componentFileInfo(targetDir.filePath(component.fileName));
+                    const QString path = QDir::cleanPath(componentFileInfo.absolutePath());
+                    if (! scannedPaths->contains(path)) {
+                        *importedFiles += qmlFilesInDirectory(path);
+                        scannedPaths->insert(path);
                     }
                 }
             }
@@ -544,7 +549,11 @@ void ModelManager::updateImportPaths()
     QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
     while (it.hasNext()) {
         it.next();
-        m_allImportPaths += it.value().importPaths;
+        foreach (const QString &path, it.value().importPaths) {
+            const QString canonicalPath = QFileInfo(path).canonicalFilePath();
+            if (!canonicalPath.isEmpty())
+                m_allImportPaths += canonicalPath;
+        }
     }
     m_allImportPaths += m_defaultImportPaths;
     m_allImportPaths.removeDuplicates();
