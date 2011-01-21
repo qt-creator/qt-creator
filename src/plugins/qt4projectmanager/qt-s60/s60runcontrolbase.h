@@ -73,7 +73,7 @@ protected:
 
     void setProgress(int value);
     void cancelProgress();
-    inline int maxProgress() const;
+    int maxProgress() const;
 
 private:
     void startLaunching();

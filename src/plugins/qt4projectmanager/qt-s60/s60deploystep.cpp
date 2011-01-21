@@ -173,6 +173,8 @@ bool S60DeployStep::init()
     case S60DeployConfiguration::CommunicationCodaTcpConnection:
         m_address = deployConfiguration->deviceAddress();
         m_port = deployConfiguration->devicePort().toInt();
+    default:
+        break;
     }
     m_channel = deployConfiguration->communicationChannel();
 
