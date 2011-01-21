@@ -89,7 +89,7 @@ private:
 private:
     void handleCreateProcess(const tcftrk::TcfTrkCommandResult &result);
     void handleAddListener(const tcftrk::TcfTrkCommandResult &result);
-    void handleGetThreads(const tcftrk::TcfTrkCommandResult &result);
+    void handleFindProcesses(const tcftrk::TcfTrkCommandResult &result);
 
 private:
     enum State {

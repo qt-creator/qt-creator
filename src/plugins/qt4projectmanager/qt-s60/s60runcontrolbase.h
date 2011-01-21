@@ -63,6 +63,7 @@ protected:
 protected:
     ProjectExplorer::ToolChainType toolChain() const;
     quint32 executableUid() const;
+    QString executableName() const;
     const QString &targetName() const;
     const QString &commandLineArguments() const;
     const QString &executableFileName() const;

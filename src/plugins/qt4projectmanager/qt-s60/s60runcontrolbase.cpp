@@ -220,6 +220,11 @@ quint32 S60RunControlBase::executableUid() const
     return m_executableUid;
 }
 
+QString S60RunControlBase::executableName() const
+{
+    return QString::fromLatin1("%1.exe").arg(targetName());
+}
+
 const QString &S60RunControlBase::targetName() const
 {
     return m_targetName;

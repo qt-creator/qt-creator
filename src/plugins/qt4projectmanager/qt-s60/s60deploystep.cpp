@@ -594,7 +594,7 @@ void S60DeployStep::handleFileSystemClose(const tcftrk::TcfTrkCommandResult &res
 
 void S60DeployStep::checkForTimeout()
 {
-    if (m_state >= StateConnected)
+    if (m_state != StateConnecting)
         return;
 
     const QString title  = tr("Waiting for CODA");

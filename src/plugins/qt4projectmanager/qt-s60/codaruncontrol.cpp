@@ -64,20 +64,6 @@ using namespace tcftrk;
 
 enum { debug = 0 };
 
-static inline bool isProcessRunning(const TcfTrkCommandResult &result, const QString &processName)
-{
-    if (result.values.size() && result.values.at(0).type() == JsonValue::Array) {
-        foreach(const JsonValue &threadValue, result.values.at(0).children()) {
-            for (int i = threadValue.children().count()-1; i >= 0; --i) { //Usually our process will be near the end of the list
-                const JsonValue &value(threadValue.childAt(i));
-                if (value.hasName("p_name") && QString::fromLatin1(value.data()).startsWith(processName, Qt::CaseInsensitive))
-                    return true;
-            }
-        }
-    }
-    return false;
-}
-
 CodaRunControl::CodaRunControl(RunConfiguration *runConfiguration, const QString &mode) :
     S60RunControlBase(runConfiguration, mode),
     m_tcfTrkDevice(0),
@@ -275,20 +261,20 @@ void CodaRunControl::handleLogging(const TcfTrkEvent &event)
 void CodaRunControl::handleAddListener(const TcfTrkCommandResult &result)
 {
     Q_UNUSED(result)
-    m_tcfTrkDevice->sendSymbianOsDataGetThreadsCommand(TcfTrkCallback(this, &CodaRunControl::handleGetThreads));
+    m_tcfTrkDevice->sendSymbianOsDataFindProcessesCommand(TcfTrkCallback(this, &CodaRunControl::handleFindProcesses), executableName().toLatin1(), "0");
 }
 
-void CodaRunControl::handleGetThreads(const TcfTrkCommandResult &result)
+void CodaRunControl::handleFindProcesses(const TcfTrkCommandResult &result)
 {
-    if (isProcessRunning(result, targetName())) {
+    if (result.values.size() && result.values.at(0).type() == JsonValue::Array && result.values.at(0).children().count()) {
+        //there are processes running. Cannot run mine
         appendMessage(tr("The process is already running on the device. Please first close it."), ErrorMessageFormat);
         finishRunControl();
     } else {
         setProgress(maxProgress()*0.90);
-        const QString runFileName = QString::fromLatin1("%1.exe").arg(targetName());
         m_tcfTrkDevice->sendProcessStartCommand(TcfTrkCallback(this, &CodaRunControl::handleCreateProcess),
-                                                runFileName, executableUid(), commandLineArguments().split(" "), QString(), true);
-        appendMessage(tr("Launching: %1").arg(runFileName), NormalMessageFormat);
+                                                executableName(), executableUid(), commandLineArguments().split(" "), QString(), true);
+        appendMessage(tr("Launching: %1").arg(executableName()), NormalMessageFormat);
     }
 }
 
@@ -327,7 +313,7 @@ QMessageBox *CodaRunControl::createCodaWaitingMessageBox(QWidget *parent)
 
 void CodaRunControl::checkForTimeout()
 {
-    if (m_state >= StateConnected)
+    if (m_state != StateConnecting)
         return;
 
     QMessageBox *mb = createCodaWaitingMessageBox(Core::ICore::instance()->mainWindow());
@@ -338,7 +324,7 @@ void CodaRunControl::checkForTimeout()
 
 void CodaRunControl::cancelConnection()
 {
-    if (m_state >= StateConnected)
+    if (m_state != StateConnecting)
         return;
 
     stop();

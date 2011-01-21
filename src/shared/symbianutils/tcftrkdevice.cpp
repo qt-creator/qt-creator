@@ -1360,6 +1360,16 @@ void TcfTrkDevice::sendSymbianOsDataGetThreadsCommand(const TcfTrkCallback &call
     sendTcfTrkMessage(MessageWithReply, SymbianOSData, "getThreads", data, callBack, cookie);
 }
 
+void TcfTrkDevice::sendSymbianOsDataFindProcessesCommand(const TcfTrkCallback &callBack,
+                                            const QByteArray &processName,
+                                            const QByteArray &uid,
+                                            const QVariant &cookie)
+{
+    QByteArray data;
+    JsonInputStream str(data);
+    str << processName << '\0' << uid;
+    sendTcfTrkMessage(MessageWithReply, SymbianOSData, "findRunningProcesses", data, callBack, cookie);
+}
 
 void tcftrk::TcfTrkDevice::sendFileSystemOpenCommand(const tcftrk::TcfTrkCallback &callBack,
                                                      const QByteArray &name,

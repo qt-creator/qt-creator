@@ -353,6 +353,11 @@ public:
     void sendSymbianOsDataGetThreadsCommand(const TcfTrkCallback &callBack,
                                             const QVariant &cookie = QVariant());
 
+    void sendSymbianOsDataFindProcessesCommand(const TcfTrkCallback &callBack,
+                                                const QByteArray &processName,
+                                                const QByteArray &uid,
+                                                const QVariant &cookie = QVariant());
+
     // Settings
     void sendSettingsEnableLogCommand();
 
