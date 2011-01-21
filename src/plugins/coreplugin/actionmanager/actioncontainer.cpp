@@ -333,11 +333,6 @@ MenuActionContainer::MenuActionContainer(int id)
 void MenuActionContainer::setMenu(QMenu *menu)
 {
     m_menu = menu;
-
-    QVariant v;
-    qVariantSetValue<MenuActionContainer*>(v, this);
-
-    m_menu->menuAction()->setData(v);
 }
 
 QMenu *MenuActionContainer::menu() const
