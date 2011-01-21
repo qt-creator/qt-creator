@@ -37,7 +37,6 @@
 #include "maemousedportsgatherer.h"
 #include "qt4maemotarget.h"
 
-#include <coreplugin/ssh/sftpchannel.h>
 #include <coreplugin/ssh/sshconnection.h>
 #include <coreplugin/ssh/sshremoteprocess.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
@@ -53,8 +52,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 MaemoRemoteMounter::MaemoRemoteMounter(QObject *parent)
-    : QObject(parent), m_utfsServerTimer(new QTimer(this)),
-      m_uploadJobId(SftpInvalidJob), m_state(Inactive)
+    : QObject(parent), m_utfsServerTimer(new QTimer(this)), m_state(Inactive)
 {
     connect(m_utfsServerTimer, SIGNAL(timeout()), this,
         SLOT(handleUtfsServerTimeout()));
@@ -109,7 +107,7 @@ void MaemoRemoteMounter::mount(MaemoPortList *freePorts,
     } else {
         m_freePorts = freePorts;
         m_portsGatherer = portsGatherer;
-        deployUtfsClient();
+        startUtfsClients();
     }
 }
 
@@ -181,73 +179,6 @@ void MaemoRemoteMounter::handleUnmountProcessFinished(int exitStatus)
 void MaemoRemoteMounter::stop()
 {
     setState(Inactive);
-}
-
-void MaemoRemoteMounter::deployUtfsClient()
-{
-    emit reportProgress(tr("Setting up SFTP connection..."));
-    m_utfsClientUploader = m_connection->createSftpChannel();
-    connect(m_utfsClientUploader.data(), SIGNAL(initialized()), this,
-        SLOT(handleUploaderInitialized()));
-    connect(m_utfsClientUploader.data(), SIGNAL(initializationFailed(QString)),
-        this, SLOT(handleUploaderInitializationFailed(QString)));
-    m_utfsClientUploader->initialize();
-
-    setState(UploaderInitializing);
-}
-
-void MaemoRemoteMounter::handleUploaderInitializationFailed(const QString &reason)
-{
-    ASSERT_STATE(QList<State>() << UploaderInitializing << Inactive);
-
-    if (m_state == UploaderInitializing) {
-        emit error(tr("Failed to establish SFTP connection: %1").arg(reason));
-        setState(Inactive);
-    }
-}
-
-void MaemoRemoteMounter::handleUploaderInitialized()
-{
-    ASSERT_STATE(QList<State>() << UploaderInitializing << Inactive);
-    if (m_state == Inactive)
-        return;
-
-    emit reportProgress(tr("Uploading UTFS client..."));
-    connect(m_utfsClientUploader.data(),
-        SIGNAL(finished(Core::SftpJobId, QString)), this,
-        SLOT(handleUploadFinished(Core::SftpJobId, QString)));
-    const QString localFile
-        = m_maddeRoot + QLatin1String("/madlib/armel/utfs-client");
-    m_uploadJobId = m_utfsClientUploader->uploadFile(localFile,
-        utfsClientOnDevice(), SftpOverwriteExisting);
-    if (m_uploadJobId == SftpInvalidJob) {
-        setState(Inactive);
-        emit error(tr("Could not upload UTFS client (%1).").arg(localFile));
-    } else {
-        setState(UploadRunning);
-    }
-}
-
-void MaemoRemoteMounter::handleUploadFinished(Core::SftpJobId jobId,
-    const QString &errorMsg)
-{
-    ASSERT_STATE(QList<State>() << UploadRunning << Inactive);
-
-    if (m_state == Inactive)
-        return;
-
-    if (jobId != m_uploadJobId) {
-        qWarning("Warning: unknown upload job %d finished.", jobId);
-        return;
-    }
-
-    m_uploadJobId = SftpInvalidJob;
-    if (!errorMsg.isEmpty()) {
-        emit reportProgress(tr("Could not upload UTFS client (%1), continuing anyway.")
-            .arg(errorMsg));
-    }
-
-    startUtfsClients();
 }
 
 void MaemoRemoteMounter::startUtfsClients()
@@ -412,8 +343,7 @@ void MaemoRemoteMounter::handleUmountStderr(const QByteArray &output)
 
 QString MaemoRemoteMounter::utfsClientOnDevice() const
 {
-    return MaemoGlobal::homeDirOnDevice(m_connection->connectionParameters().uname)
-        + QLatin1String("/utfs-client");
+    return QLatin1String("/usr/lib/mad-developer/utfs-client");
 }
 
 QString MaemoRemoteMounter::utfsServer() const
@@ -452,10 +382,6 @@ void MaemoRemoteMounter::setState(State newState)
 {
     if (newState == Inactive) {
         m_utfsServerTimer->stop();
-        if (m_utfsClientUploader) {
-            disconnect(m_utfsClientUploader.data(), 0, this, 0);
-            m_utfsClientUploader->closeChannel();
-        }
         if (m_mountProcess) {
             disconnect(m_mountProcess.data(), 0, this, 0);
             m_mountProcess->closeChannel();

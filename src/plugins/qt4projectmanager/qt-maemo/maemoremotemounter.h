@@ -37,8 +37,6 @@
 #include "maemodeviceconfigurations.h"
 #include "maemomountspecification.h"
 
-#include <coreplugin/ssh/sftpdefs.h>
-
 #include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
@@ -86,9 +84,6 @@ signals:
     void debugOutput(const QString &output);
 
 private slots:
-    void handleUploaderInitialized();
-    void handleUploaderInitializationFailed(const QString &reason);
-    void handleUploadFinished(Core::SftpJobId jobId, const QString &error);
     void handleUtfsClientsStarted();
     void handleUtfsClientsFinished(int exitStatus);
     void handleUtfsClientStderr(const QByteArray &output);
@@ -103,13 +98,12 @@ private slots:
 
 private:
     enum State {
-        Inactive, Unmounting, UploaderInitializing, UploadRunning,
-        UtfsClientsStarting, UtfsClientsStarted, UtfsServersStarted
+        Inactive, Unmounting, UtfsClientsStarting, UtfsClientsStarted,
+            UtfsServersStarted
     };
 
     void setState(State newState);
 
-    void deployUtfsClient();
     void startUtfsClients();
     void killUtfsServer(QProcess *proc);
     void killAllUtfsServers();
@@ -128,10 +122,8 @@ private:
 
     QSharedPointer<Core::SshConnection> m_connection;
     QList<MountInfo> m_mountSpecs;
-    QSharedPointer<Core::SftpChannel> m_utfsClientUploader;
     QSharedPointer<Core::SshRemoteProcess> m_mountProcess;
     QSharedPointer<Core::SshRemoteProcess> m_unmountProcess;
-    Core::SftpJobId m_uploadJobId;
 
     typedef QSharedPointer<QProcess> ProcPtr;
     QList<ProcPtr> m_utfsServers;
