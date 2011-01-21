@@ -5805,8 +5805,10 @@
             and .ui files
         \o  Class and method definitions in your project or anywhere referenced
             from your project
+        \o  Class and method definitions in the current document
         \o  Help topics, including Qt documentation
         \o  Specific line in the document displayed in your editor
+
     \endlist
 
     To use a specific locator filter, type the assigned prefix followed by
@@ -5849,6 +5851,10 @@
             \o  Go to a symbol definition.
             \o  \tt{\bold{: \e{Symbol name}}}
             \o  \image qtcreator-locator-symbols.png
+        \row
+            \o  Go to a symbol definition in the current file.
+            \o  \tt{\bold{. \e{Symbol name}}}
+            \o  \image qtcreator-locator-method-list.png
         \row
             \o  Go to a help topic.
             \o  \tt{\bold{? \e{Help topic}}}
