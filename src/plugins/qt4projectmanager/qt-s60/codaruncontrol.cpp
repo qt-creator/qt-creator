@@ -50,6 +50,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QScopedPointer>
+#include <QtCore/QTimer>
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
