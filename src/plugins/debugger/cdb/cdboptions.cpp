@@ -242,11 +242,15 @@ bool CdbOptions::autoDetectExecutable(QString *outPath, bool *is64bitIn  /* = 0 
         return true;
     }
 #else
-    *outPath = checkCdbExecutable(programDir + QLatin1String(" (x64)"), QString(), checkedDirectories);
-    if (!outPath->isEmpty()) {
-        if (is64bitIn)
-            *is64bitIn = true;
-        return true;
+    // A 32bit process on 64 bit sees "ProgramFiles\Debg.. (x64)"
+    if (programDir.endsWith(QLatin1String(" (x86)"))) {
+        *outPath = checkCdbExecutable(programDir.left(programDir.size() - 6),
+                                      QLatin1String(" (x64)"), checkedDirectories);
+        if (!outPath->isEmpty()) {
+            if (is64bitIn)
+                *is64bitIn = true;
+            return true;
+        }
     }
 #endif
     return false;
