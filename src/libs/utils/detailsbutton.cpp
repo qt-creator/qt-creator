@@ -74,7 +74,7 @@ void FadingPanel::fadeTo(float value)
 DetailsButton::DetailsButton(QWidget *parent) : QAbstractButton(parent), m_fader(0)
 {
     setCheckable(true);
-    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     setText(tr("Details"));
 }
 
