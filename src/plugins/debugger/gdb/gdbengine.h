@@ -561,6 +561,7 @@ private: ////////// View & Data Stuff //////////
     // HACK:
     StackFrame m_targetFrame;
     QByteArray m_currentThread;
+    QString m_lastWinException;
 };
 
 } // namespace Internal

@@ -68,6 +68,9 @@
 #include "threadshandler.h"
 #include "watchhandler.h"
 
+#ifdef Q_OS_WIN
+#    include "dbgwinutils.h"
+#endif
 #include "logwindow.h"
 
 #include <coreplugin/icore.h>
@@ -282,6 +285,30 @@ static void dump(const char *first, const char *middle, const QString & to)
 }
 #endif
 
+// Parse "~:gdb: unknown target exception 0xc0000139 at 0x77bef04e\n"
+// and return an exception message
+static inline QString msgWinException(const QByteArray &data)
+{
+    const int exCodePos = data.indexOf("0x");
+    const int blankPos = exCodePos != -1 ? data.indexOf(' ', exCodePos + 1) : -1;
+    const int addressPos = blankPos != -1 ? data.indexOf("0x", blankPos + 1) : -1;
+    if (addressPos < 0)
+        return GdbEngine::tr("An exception was triggered.");
+    const unsigned exCode = data.mid(exCodePos, blankPos - exCodePos).toUInt(0, 0);
+    const quint64 address = data.mid(addressPos).trimmed().toULongLong(0, 0);
+    QString rc;
+    QTextStream str(&rc);
+    str << GdbEngine::tr("An exception was triggered: ");
+#ifdef Q_OS_WIN
+    formatWindowsException(exCode, address, 0, 0, 0, str);
+#else
+    Q_UNUSED(exCode)
+    Q_UNUSED(address)
+#endif
+    str << '.';
+    return rc;
+}
+
 void GdbEngine::readDebugeeOutput(const QByteArray &data)
 {
     QString msg = m_outputCodec->toUnicode(data.constData(), data.length(),
@@ -475,6 +502,12 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     data.chop(1);
                 progressPing();
                 showStatusMessage(_(data), 1000);
+            } else if (data.startsWith("gdb: unknown target exception 0x")) {
+                // [Windows, most likely some DLL/Entry point not found]:
+                // "gdb: unknown target exception 0xc0000139 at 0x77bef04e"
+                // This may be fatal and cause the target to exit later
+                m_lastWinException = msgWinException(data);
+                showMessage(m_lastWinException, LogMisc);
             }
             break;
         }
@@ -837,8 +870,9 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         // reported in the "first" response to the command) in practice it
         // does. We try to handle a few situations we are aware of gracefully.
         // Ideally, this code should not be present at all.
-        showMessage(_("COOKIE FOR TOKEN %1 ALREADY EATEN. "
-            "TWO RESPONSES FOR ONE COMMAND?").arg(token));
+        showMessage(_("COOKIE FOR TOKEN %1 ALREADY EATEN (%2). "
+                      "TWO RESPONSES FOR ONE COMMAND?").arg(token).
+                    arg(QString::fromAscii(stateName(state()))));
         if (response->resultClass == GdbResultError) {
             QByteArray msg = response->data.findChild("msg").data();
             if (msg == "Cannot find new threads: generic error") {
@@ -892,10 +926,16 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 notifyInferiorSpontaneousStop();
                 notifyEngineIll();
             } else {
-                showMessageBox(QMessageBox::Critical,
-                    tr("Executable failed"), QString::fromLocal8Bit(msg));
-                showStatusMessage(tr("Executable failed: %1")
-                    .arg(QString::fromLocal8Bit(msg)));
+                // Windows: Some DLL or some function not found. Report
+                // the exception now in a box.
+                if (msg.startsWith("During startup program exited with"))
+                    notifyInferiorExited();
+                QString logMsg;
+                if (!m_lastWinException.isEmpty())
+                    logMsg = m_lastWinException + QLatin1Char('\n');
+                logMsg += QString::fromLocal8Bit(msg);
+                showMessageBox(QMessageBox::Critical, tr("Executable Failed"), logMsg);
+                showStatusMessage(tr("Executable failed: %1").arg(logMsg));
             }
         }
         return;
