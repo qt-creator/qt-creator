@@ -34,6 +34,8 @@
 #ifndef QT4NODES_H
 #define QT4NODES_H
 
+#include "qt4buildconfiguration.h"
+
 #include <coreplugin/ifile.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/project.h>
@@ -289,7 +291,7 @@ public:
     void updateCodeModelSupportFromBuild(const QStringList &files);
     void updateCodeModelSupportFromEditor(const QString &uiFileName, const QString &contents);
 
-    QString buildDir() const;
+    QString buildDir(Qt4BuildConfiguration *bc = 0) const;
 
     QString uiDirectory() const;
     static QString uiHeaderFile(const QString &uiDir, const QString &formFile);

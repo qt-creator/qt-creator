@@ -880,22 +880,21 @@ void Qt4Project::proFileParseError(const QString &errorMessage)
     Core::ICore::instance()->messageManager()->printToOutputPane(errorMessage);
 }
 
-ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode)
+ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc)
 {
     if (!m_proFileOption) {
         m_proFileOption = new ProFileOption;
         m_proFileOptionRefCnt = 0;
 
-        if (activeTarget() &&
-            activeTarget()->activeBuildConfiguration()) {
-            QtVersion *version = activeTarget()->activeBuildConfiguration()->qtVersion();
+        if (!bc && activeTarget() && activeTarget()->activeBuildConfiguration())
+            bc = activeTarget()->activeBuildConfiguration();
+
+        if (bc) {
+            QtVersion *version = bc->qtVersion();
             if (version->isValid()) {
                 m_proFileOption->properties = version->versionInfo();
-                if (activeTarget()
-                        && activeTarget()->activeBuildConfiguration()
-                        && activeTarget()->activeBuildConfiguration()->toolChain())
-                    m_proFileOption->sysroot
-                            = activeTarget()->activeBuildConfiguration()->qtVersion()->systemRoot();
+                if (bc->toolChain())
+                    m_proFileOption->sysroot = bc->qtVersion()->systemRoot();
             }
         }
 

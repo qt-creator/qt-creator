@@ -38,7 +38,6 @@
 #include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 #include "qtuicodemodelsupport.h"
-#include "qt4buildconfiguration.h"
 #include "qmakestep.h"
 
 #include <projectexplorer/nodesvisitor.h>
@@ -2120,11 +2119,15 @@ InstallsList Qt4ProFileNode::installsList() const
     return m_installsList;
 }
 
-QString Qt4ProFileNode::buildDir() const
+QString Qt4ProFileNode::buildDir(Qt4BuildConfiguration *bc) const
 {
     const QDir srcDirRoot = QFileInfo(m_project->rootProjectNode()->path()).absoluteDir();
     const QString relativeDir = srcDirRoot.relativeFilePath(m_projectDir);
-    return QDir(m_project->activeTarget()->activeBuildConfiguration()->buildDirectory()).absoluteFilePath(relativeDir);
+    if (!bc && m_project->activeTarget())
+        bc = m_project->activeTarget()->activeBuildConfiguration();
+    if (!bc)
+        return QString();
+    return QDir(bc->buildDirectory()).absoluteFilePath(relativeDir);
 }
 
 /*

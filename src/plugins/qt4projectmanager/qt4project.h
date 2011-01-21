@@ -166,7 +166,7 @@ public:
     void notifyChanged(const QString &name);
 
     /// \internal
-    Internal::ProFileReader *createProFileReader(Internal::Qt4ProFileNode *qt4ProFileNode);
+    Internal::ProFileReader *createProFileReader(Internal::Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc = 0);
     /// \internal
     void destroyProFileReader(Internal::ProFileReader *reader);
 

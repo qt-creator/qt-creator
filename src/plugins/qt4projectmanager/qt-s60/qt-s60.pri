@@ -31,7 +31,13 @@ SOURCES += $$PWD/s60devices.cpp \
     $$PWD/s60runcontrolfactory.cpp \
     $$PWD/codaruncontrol.cpp \
     $$PWD/trkruncontrol.cpp \
-    $$PWD/s60runcontrolbase.cpp
+    $$PWD/s60runcontrolbase.cpp \
+    $$PWD/s60publishingwizardfactories.cpp \
+    $$PWD/s60publishingwizardovi.cpp \
+    $$PWD/s60publishingsissettingspageovi.cpp \
+    $$PWD/s60publisherovi.cpp \
+    $$PWD/s60publishingbuildsettingspageovi.cpp \
+    $$PWD/s60publishingresultspageovi.cpp
 
 HEADERS += $$PWD/s60devices.h \
     $$PWD/s60devicespreferencepane.h \
@@ -63,10 +69,19 @@ HEADERS += $$PWD/s60devices.h \
     $$PWD/s60runcontrolfactory.h \
     $$PWD/codaruncontrol.h \
     $$PWD/trkruncontrol.h \
-    $$PWD/s60runcontrolbase.h
+    $$PWD/s60runcontrolbase.h \
+    $$PWD/s60publishingwizardfactories.h \
+    $$PWD/s60publishingwizardovi.h \
+    $$PWD/s60publishingsissettingspageovi.h \
+    $$PWD/s60publisherovi.h \
+    $$PWD/s60publishingbuildsettingspageovi.h \
+    $$PWD/s60publishingresultspageovi.h
 
 FORMS += $$PWD/s60devicespreferencepane.ui \
     $$PWD/s60createpackagestep.ui \
     $$PWD/s60certificatedetailsdialog.ui \
-    qt-s60/rvcttoolchainconfigwidget.ui \
-    qt-s60/winscwtoolchainconfigwidget.ui
+    $$PWD/rvcttoolchainconfigwidget.ui \
+    $$PWD/winscwtoolchainconfigwidget.ui \
+    $$PWD/s60publishingbuildsettingspageovi.ui \
+    $$PWD/s60publishingresultspageovi.ui \
+    $$PWD/s60publishingsissettingspageovi.ui

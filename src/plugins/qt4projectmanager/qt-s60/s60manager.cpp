@@ -42,6 +42,7 @@
 #include "s60runcontrolfactory.h"
 
 #include "qt4symbiantargetfactory.h"
+#include "s60publishingwizardfactories.h"
 
 #include "gccetoolchain.h"
 #include "rvcttoolchain.h"
@@ -133,6 +134,8 @@ S60Manager::S60Manager(QObject *parent)
 
     addAutoReleasedObject(new S60DeviceDebugRunControlFactory);
     addAutoReleasedObject(new Qt4SymbianTargetFactory);
+
+    addAutoReleasedObject(new S60PublishingWizardFactoryOvi);
 
     updateQtVersions();
     connect(m_devices, SIGNAL(qtVersionsChanged()),
