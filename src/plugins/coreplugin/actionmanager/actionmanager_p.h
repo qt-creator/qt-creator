@@ -93,6 +93,8 @@ public:
     void unregisterAction(QAction *action, const Id &id);
     void unregisterShortcut(const Id &id);
 
+private slots:
+    void containerDestroyed();
 private:
     bool hasContext(const Context &context) const;
     Action *overridableAction(const Id &id);

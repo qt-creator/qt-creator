@@ -248,6 +248,8 @@ ActionManagerPrivate::ActionManagerPrivate(MainWindow *mainWnd)
 ActionManagerPrivate::~ActionManagerPrivate()
 {
     // first delete containers to avoid them reacting to command deletion
+    foreach (ActionContainerPrivate *container, m_idContainerMap)
+        disconnect(container, SIGNAL(destroyed()), this, SLOT(containerDestroyed()));
     qDeleteAll(m_idContainerMap.values());
     qDeleteAll(m_idCmdMap.values());
 }
@@ -314,6 +316,7 @@ ActionContainer *ActionManagerPrivate::createMenu(const Id &id)
     mc->setMenu(m);
 
     m_idContainerMap.insert(uid, mc);
+    connect(mc, SIGNAL(destroyed()), this, SLOT(containerDestroyed()));
 
     return mc;
 }
@@ -332,8 +335,15 @@ ActionContainer *ActionManagerPrivate::createMenuBar(const Id &id)
     mbc->setMenuBar(mb);
 
     m_idContainerMap.insert(uid, mbc);
+    connect(mbc, SIGNAL(destroyed()), this, SLOT(containerDestroyed()));
 
     return mbc;
+}
+
+void ActionManagerPrivate::containerDestroyed()
+{
+    ActionContainerPrivate *container = static_cast<ActionContainerPrivate *>(sender());
+    m_idContainerMap.remove(m_idContainerMap.key(container));
 }
 
 Command *ActionManagerPrivate::registerAction(QAction *action, const Id &id, const Context &context, bool scriptable)

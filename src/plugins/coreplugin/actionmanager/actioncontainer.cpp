@@ -268,7 +268,29 @@ void ActionContainerPrivate::addMenu(ActionContainer *menu, const QString &group
     QAction *beforeAction = insertLocation(groupIt);
     m_groups[groupIt-m_groups.constBegin()].items.append(menu);
 
+    connect(menu, SIGNAL(destroyed()), this, SLOT(itemDestroyed()));
     insertMenu(beforeAction, container->menu());
+    scheduleUpdate();
+}
+
+void ActionContainerPrivate::clear()
+{
+    QMutableListIterator<Group> it(m_groups);
+    while (it.hasNext()) {
+        Group &group = it.next();
+        foreach (QObject *item, group.items) {
+            if (Command *command = qobject_cast<Command *>(item)) {
+                removeAction(command->action());
+                disconnect(command, SIGNAL(activeStateChanged()), this, SLOT(scheduleUpdate()));
+                disconnect(command, SIGNAL(destroyed()), this, SLOT(itemDestroyed()));
+            } else if (ActionContainer *container = qobject_cast<ActionContainer *>(item)) {
+                container->clear();
+                disconnect(container, SIGNAL(destroyed()), this, SLOT(itemDestroyed()));
+                removeMenu(container->menu());
+            }
+        }
+        group.items.clear();
+    }
     scheduleUpdate();
 }
 
@@ -348,6 +370,16 @@ void MenuActionContainer::insertAction(QAction *before, QAction *action)
 void MenuActionContainer::insertMenu(QAction *before, QMenu *menu)
 {
     m_menu->insertMenu(before, menu);
+}
+
+void MenuActionContainer::removeAction(QAction *action)
+{
+    m_menu->removeAction(action);
+}
+
+void MenuActionContainer::removeMenu(QMenu *menu)
+{
+    m_menu->removeAction(menu->menuAction());
 }
 
 bool MenuActionContainer::updateInternal()
@@ -440,6 +472,16 @@ void MenuBarActionContainer::insertAction(QAction *before, QAction *action)
 void MenuBarActionContainer::insertMenu(QAction *before, QMenu *menu)
 {
     m_menuBar->insertMenu(before, menu);
+}
+
+void MenuBarActionContainer::removeAction(QAction *action)
+{
+    m_menuBar->removeAction(action);
+}
+
+void MenuBarActionContainer::removeMenu(QMenu *menu)
+{
+    m_menuBar->removeAction(menu->menuAction());
 }
 
 bool MenuBarActionContainer::updateInternal()

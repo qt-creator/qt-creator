@@ -70,6 +70,9 @@ public:
     virtual void addAction(Core::Command *action, const QString &group = QString()) = 0;
     virtual void addMenu(Core::ActionContainer *menu, const QString &group = QString()) = 0;
 
+    // clears this menu and submenus from all actions and submenus
+    // doesn't destroy the submenus and commands, just removes them from their parents
+    virtual void clear() = 0;
     virtual ~ActionContainer() {}
 };
 

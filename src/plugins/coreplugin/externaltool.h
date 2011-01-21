@@ -33,6 +33,7 @@
 #include "icore.h"
 #include "core_global.h"
 #include "actionmanager/command.h"
+#include "actionmanager/actioncontainer.h"
 
 #include <utils/qtcprocess.h>
 
@@ -58,12 +59,13 @@ public:
     };
 
     ExternalTool();
-    ExternalTool(const ExternalTool *other);
+    explicit ExternalTool(const ExternalTool *other);
     ~ExternalTool();
 
     QString id() const;
     QString description() const;
     QString displayName() const;
+    void setDisplayName(const QString &name);
     QString displayCategory() const;
     int order() const;
     OutputHandling outputHandling() const;
@@ -76,6 +78,11 @@ public:
 
     static ExternalTool *createFromXml(const QByteArray &xml, QString *errorMessage = 0, const QString &locale = QString());
 
+    // if the display name is different from the one in the original xml
+    bool isDisplayNameChanged() const { return m_isDisplayNameChanged; }
+
+    // ignores changed state
+    bool operator==(const ExternalTool &other);
 private:
     QString m_id;
     QString m_description;
@@ -88,6 +95,7 @@ private:
     QString m_workingDirectory;
     OutputHandling m_outputHandling;
     OutputHandling m_errorHandling;
+    bool m_isDisplayNameChanged;
 };
 
 class ExternalToolRunner : public QObject
@@ -95,6 +103,7 @@ class ExternalToolRunner : public QObject
     Q_OBJECT
 public:
     ExternalToolRunner(const ExternalTool *tool);
+    ~ExternalToolRunner();
 
 private slots:
     void started();
@@ -107,7 +116,7 @@ private:
     void run();
     bool resolve();
 
-    const ExternalTool *m_tool;
+    const ExternalTool *m_tool; // is a copy of the tool that was passed in
     QString m_resolvedExecutable;
     QString m_resolvedArguments;
     QString m_resolvedInput;
@@ -132,7 +141,10 @@ public:
     ExternalToolManager(Core::ICore *core);
     ~ExternalToolManager();
 
-    QMap<QString, QList<Internal::ExternalTool *> > tools() const;
+    QMap<QString, QList<Internal::ExternalTool *> > toolsByCategory() const;
+    QMap<QString, Internal::ExternalTool *> toolsById() const;
+
+    void setToolsByCategory(const QMap<QString, QList<Internal::ExternalTool *> > &tools);
 
 signals:
     void replaceSelectionRequested(const QString &text);
@@ -142,13 +154,20 @@ private slots:
 
 private:
     void initialize();
-    void parseDirectory(const QString &directory, QMap<QString, QMultiMap<int, Internal::ExternalTool*> > *categoryMenus,
+    void parseDirectory(const QString &directory,
+                        QMap<QString, QMultiMap<int, Internal::ExternalTool*> > *categoryMenus,
+                        QMap<QString, Internal::ExternalTool *> *tools,
                         bool ignoreDuplicates = false);
+    void readSettings(const QMap<QString, Internal::ExternalTool *> &tools,
+                      QMap<QString, QMultiMap<int, Internal::ExternalTool*> > *categoryPriorityMap);
+    void writeSettings();
 
     static ExternalToolManager *m_instance;
     Core::ICore *m_core;
     QMap<QString, Internal::ExternalTool *> m_tools;
     QMap<QString, QList<Internal::ExternalTool *> > m_categoryMap;
+    QMap<QString, QAction *> m_actions;
+    QMap<QString, ActionContainer *> m_containers;
 
     // for sending the replaceSelectionRequested signal
     friend class Core::Internal::ExternalToolRunner;

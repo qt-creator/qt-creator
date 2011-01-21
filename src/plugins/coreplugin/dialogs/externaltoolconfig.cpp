@@ -34,6 +34,8 @@
 #include "externaltoolconfig.h"
 #include "ui_externaltoolconfig.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QTextStream>
 
 using namespace Core::Internal;
@@ -43,13 +45,21 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     ui(new Ui::ExternalToolConfig)
 {
     ui->setupUi(this);
+    ui->toolTree->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
     connect(ui->toolTree, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
             this, SLOT(showInfoForItem(QTreeWidgetItem*)));
+    connect(ui->toolTree, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
+            this, SLOT(updateItem(QTreeWidgetItem *)));
     showInfoForItem(0);
 }
 
 ExternalToolConfig::~ExternalToolConfig()
 {
+    QMapIterator<QString, QList<ExternalTool *> > it(m_tools);
+    while (it.hasNext()) {
+        it.next();
+        qDeleteAll(it.value());
+    }
     delete ui;
 }
 
@@ -69,19 +79,32 @@ QString ExternalToolConfig::searchKeywords() const
 
 void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &tools)
 {
-    // TODO make copy of tools
+    QMapIterator<QString, QList<ExternalTool *> > it(tools);
+    while (it.hasNext()) {
+        it.next();
+        QList<ExternalTool *> itemCopy;
+        foreach (ExternalTool *tool, it.value())
+            itemCopy.append(new ExternalTool(tool));
+        m_tools.insert(it.key(), itemCopy);
+    }
 
-    QMapIterator<QString, QList<ExternalTool *> > categories(tools);
+    bool blocked = ui->toolTree->blockSignals(true); // block itemChanged
+    Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable;
+    QMapIterator<QString, QList<ExternalTool *> > categories(m_tools);
     while (categories.hasNext()) {
         categories.next();
         QString name = (categories.key().isEmpty() ? tr("External Tools Menu") : categories.key());
         QTreeWidgetItem *category = new QTreeWidgetItem(ui->toolTree, QStringList() << name);
+        category->setFlags(flags);
+        category->setData(0, Qt::UserRole, name); // save the name in case of category being renamed by user
         foreach (ExternalTool *tool, categories.value()) {
             QTreeWidgetItem *item = new QTreeWidgetItem(category, QStringList() << tool->displayName());
+            item->setFlags(flags);
             item->setData(0, Qt::UserRole, qVariantFromValue(tool));
         }
     }
     ui->toolTree->expandAll();
+    ui->toolTree->blockSignals(blocked); // unblock itemChanged
 }
 
 void ExternalToolConfig::showInfoForItem(QTreeWidgetItem *item)
@@ -109,4 +132,52 @@ void ExternalToolConfig::showInfoForItem(QTreeWidgetItem *item)
     ui->inputText->setPlainText(tool->input());
     ui->description->setCursorPosition(0);
     ui->arguments->setCursorPosition(0);
+}
+
+void ExternalToolConfig::updateItem(QTreeWidgetItem *item)
+{
+    ExternalTool *tool = 0;
+    if (item)
+        tool = item->data(0, Qt::UserRole).value<ExternalTool *>();
+    if (tool) {
+        // tool was renamed
+        const QString &newName = item->data(0, Qt::DisplayRole).toString();
+        if (newName == tool->displayName())
+            return;
+        if (newName.isEmpty()) {
+            // prevent empty names
+            bool blocked = ui->toolTree->blockSignals(true); // block itemChanged
+            item->setData(0, Qt::DisplayRole, tool->displayName());
+            ui->toolTree->blockSignals(blocked); // unblock itemChanged
+            return;
+        }
+        tool->setDisplayName(item->data(0, Qt::DisplayRole).toString());
+    } else {
+        // category was renamed
+        const QString &oldName = item->data(0, Qt::UserRole).toString();
+        const QString &newName = item->data(0, Qt::DisplayRole).toString();
+        if (oldName == newName)
+            return;
+        if (newName.isEmpty() && m_tools.contains(newName)) {
+            // prevent empty or duplicate names
+            bool blocked = ui->toolTree->blockSignals(true); // block itemChanged
+            item->setData(0, Qt::DisplayRole, oldName);
+            ui->toolTree->blockSignals(blocked); // unblock itemChanged
+            return;
+        }
+        QTC_ASSERT(m_tools.contains(oldName), return);
+        m_tools.insert(newName, m_tools.value(oldName));
+        m_tools.remove(oldName);
+
+        bool blocked = ui->toolTree->blockSignals(true); // block itemChanged
+        item->setData(0, Qt::UserRole, newName);
+        int currentIndex = ui->toolTree->indexOfTopLevelItem(item);
+        bool wasExpanded = ui->toolTree->isExpanded(ui->toolTree->model()->index(currentIndex, 0));
+        ui->toolTree->takeTopLevelItem(currentIndex);
+        int newIndex = m_tools.keys().indexOf(newName);
+        ui->toolTree->insertTopLevelItem(newIndex, item);
+        if (wasExpanded)
+            ui->toolTree->expand(ui->toolTree->model()->index(newIndex, 0));
+        ui->toolTree->blockSignals(blocked); // unblock itemChanged
+    }
 }

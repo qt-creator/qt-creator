@@ -80,7 +80,7 @@ bool ToolSettings::matches(const QString & searchKeyWord) const
 QWidget *ToolSettings::createPage(QWidget *parent)
 {
     m_widget = new ExternalToolConfig(parent);
-    m_widget->setTools(ExternalToolManager::instance()->tools());
+    m_widget->setTools(ExternalToolManager::instance()->toolsByCategory());
     if (m_searchKeywords.isEmpty()) {
         m_searchKeywords = m_widget->searchKeywords();
     }
@@ -90,6 +90,30 @@ QWidget *ToolSettings::createPage(QWidget *parent)
 
 void ToolSettings::apply()
 {
+    if (!m_widget)
+        return;
+    QMap<QString, ExternalTool *> originalTools = ExternalToolManager::instance()->toolsById();
+    QMap<QString, QList<ExternalTool *> > newToolsMap = m_widget->tools();
+    QMap<QString, QList<ExternalTool *> > resultMap;
+    QMapIterator<QString, QList<ExternalTool *> > it(newToolsMap);
+    while (it.hasNext()) {
+        it.next();
+        QList<ExternalTool *> items;
+        foreach (ExternalTool *tool, it.value()) {
+            ExternalTool *toolToAdd = 0;
+            if (ExternalTool *originalTool = originalTools.take(tool->id())) {
+                // check if the tool has changed
+                if ((*originalTool) == (*tool)) {
+                    toolToAdd = originalTool;
+                } else {
+                    toolToAdd = new ExternalTool(tool);
+                }
+            }
+            items.append(toolToAdd);
+        }
+        resultMap.insert(it.key(), items);
+    }
+    ExternalToolManager::instance()->setToolsByCategory(resultMap);
 }
 
 

@@ -134,6 +134,7 @@ MainWindow::MainWindow() :
     m_printer(0),
     m_actionManager(new ActionManagerPrivate(this)),
     m_editorManager(0),
+    m_externalToolManager(0),
     m_fileManager(new FileManager(this)),
     m_progressManager(new ProgressManagerPrivate()),
     m_scriptManager(new ScriptManagerPrivate(this)),
@@ -208,7 +209,7 @@ MainWindow::MainWindow() :
     m_messageManager = new MessageManager;
     m_editorManager = new EditorManager(m_coreImpl, this);
     m_editorManager->hide();
-    new ExternalToolManager(m_coreImpl);
+    m_externalToolManager = new ExternalToolManager(m_coreImpl);
     setCentralWidget(m_modeStack);
 
     connect(QApplication::instance(), SIGNAL(focusChanged(QWidget*,QWidget*)),
@@ -255,6 +256,8 @@ MainWindow::~MainWindow()
     pm->removeObject(m_generalSettings);
     pm->removeObject(m_toolSettings);
     pm->removeObject(m_systemEditor);
+    delete m_externalToolManager;
+    m_externalToolManager = 0;
     delete m_messageManager;
     m_messageManager = 0;
     delete m_shortcutSettings;

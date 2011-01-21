@@ -63,6 +63,7 @@ public:
     void appendGroup(const QString &id);
     void addAction(Command *action, const QString &group = QString());
     void addMenu(ActionContainer *menu, const QString &group = QString());
+    virtual void clear();
 
     int id() const;
 
@@ -71,6 +72,9 @@ public:
 
     virtual void insertAction(QAction *before, QAction *action) = 0;
     virtual void insertMenu(QAction *before, QMenu *menu) = 0;
+
+    virtual void removeAction(QAction *action) = 0;
+    virtual void removeMenu(QMenu *menu) = 0;
 
     virtual bool updateInternal() = 0;
 
@@ -107,6 +111,9 @@ public:
     void insertAction(QAction *before, QAction *action);
     void insertMenu(QAction *before, QMenu *menu);
 
+    void removeAction(QAction *action);
+    void removeMenu(QMenu *menu);
+
 protected:
     bool canBeAddedToMenu() const;
     bool updateInternal();
@@ -125,6 +132,9 @@ public:
 
     void insertAction(QAction *before, QAction *action);
     void insertMenu(QAction *before, QMenu *menu);
+
+    void removeAction(QAction *action);
+    void removeMenu(QMenu *menu);
 
 protected:
     bool canBeAddedToMenu() const;

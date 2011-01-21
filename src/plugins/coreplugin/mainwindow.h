@@ -53,6 +53,7 @@ namespace Core {
 class ActionManager;
 class StatusBarWidget;
 class EditorManager;
+class ExternalToolManager;
 class FileManager;
 class HelpManager;
 class IWizard;
@@ -189,6 +190,7 @@ private:
     mutable QPrinter *m_printer;
     ActionManagerPrivate *m_actionManager;
     EditorManager *m_editorManager;
+    ExternalToolManager *m_externalToolManager;
     FileManager *m_fileManager;
     MessageManager *m_messageManager;
     ProgressManagerPrivate *m_progressManager;
