@@ -31,7 +31,6 @@
 **
 **************************************************************************/
 #include "qmljspropertyinspector.h"
-#include <private/qdeclarativemetatype_p.h>
 #include <utils/qtcassert.h>
 #include <qdeclarativeproperty.h>
 
