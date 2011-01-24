@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/qtquickplugin">
         <file>images/template_image.png</file>
+        <file>html/welcome.html</file>
+        <file>images/webkit.png</file>
     </qresource>
 </RCC>

@@ -99,7 +99,7 @@
     <itemlibraryentry name="Web View" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/webview-icon.png" version="1.0">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
-      <property name="url" type="QString" value="http://qt.nokia.com"/>
+      <property name="url" type="QString" value="qrc:/qtquickplugin/html/welcome.html"/>
     </itemlibraryentry>
   </node>
   <node name="Qt/Row" icon=":/qtquickplugin/images/item-icon16.png">
