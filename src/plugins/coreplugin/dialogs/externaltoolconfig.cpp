@@ -73,7 +73,8 @@ QString ExternalToolConfig::searchKeywords() const
             << ui->workingDirectoryLabel->text()
             << ui->outputLabel->text()
             << ui->errorOutputLabel->text()
-            << ui->inputCheckbox->text();
+            << ui->modifiesDocumentCheckbox->text()
+            << ui->inputLabel->text();
     return keywords;
 }
 
@@ -128,7 +129,7 @@ void ExternalToolConfig::showInfoForItem(QTreeWidgetItem *item)
     ui->workingDirectory->setPath(tool->workingDirectory());
     ui->outputBehavior->setCurrentIndex((int)tool->outputHandling());
     ui->errorOutputBehavior->setCurrentIndex((int)tool->errorHandling());
-    ui->inputCheckbox->setChecked(!tool->input().isEmpty());
+    ui->modifiesDocumentCheckbox->setChecked(tool->modifiesCurrentDocument());
     ui->inputText->setPlainText(tool->input());
     ui->description->setCursorPosition(0);
     ui->arguments->setCursorPosition(0);

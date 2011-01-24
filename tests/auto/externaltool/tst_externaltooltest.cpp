@@ -49,7 +49,7 @@ static const char * const TEST_XML3 =
 "    <displayname xml:lang=\"de\">In vi öffnen</displayname>"
 "    <category>Text</category>"
 "    <category xml:lang=\"de\">Text</category>"
-"    <executable output=\"reloaddocument\">"
+"    <executable modifiesdocument=\"yes\">"
 "        <path>xterm</path>"
 "        <arguments>-geom %{EditorCharWidth}x%{EditorCharHeight}+%{EditorXPos}+%{EditorYPos} -e vi %{CurrentFilePath} +%{EditorLine} +\"normal %{EditorColumn}|\"</arguments>"
 "        <workingdirectory>%{CurrentPath}</workingdirectory>"
@@ -143,7 +143,8 @@ void ExternaltoolTest::testRead3()
     QVERIFY(tool->arguments().startsWith(QLatin1String("-geom %{")));
     QCOMPARE(tool->input(), QString());
     QCOMPARE(tool->workingDirectory(), QString::fromLatin1("%{CurrentPath}"));
-    QCOMPARE(tool->outputHandling(), ExternalTool::ReloadDocument);
+    QCOMPARE(tool->outputHandling(), ExternalTool::ShowInPane);
+    QCOMPARE(tool->modifiesCurrentDocument(), true);
     QCOMPARE(tool->errorHandling(), ExternalTool::ShowInPane);
     delete tool;
 }

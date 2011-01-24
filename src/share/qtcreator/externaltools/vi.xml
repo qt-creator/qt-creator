@@ -36,7 +36,7 @@
     <displayname xml:lang="de">In vi öffnen</displayname>
     <category>Text</category>
     <category xml:lang="de">Text</category>
-    <executable output="reloaddocument">
+    <executable modifiesdocument="yes">
         <path>xterm</path>
         <arguments>-geom %{CurrentDocument:ColumnCount}x%{CurrentDocument:RowCount}+%{CurrentDocument:XPos}+%{CurrentDocument:YPos} -e vi "%{CurrentDocument:FilePath}" +%{CurrentDocument:Row} +"normal %{CurrentDocument:Column}|"</arguments>
         <workingdirectory>%{CurrentDocument:Path}</workingdirectory>

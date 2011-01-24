@@ -54,8 +54,7 @@ public:
     enum OutputHandling {
         Ignore,
         ShowInPane,
-        ReplaceSelection,
-        ReloadDocument
+        ReplaceSelection
     };
 
     ExternalTool();
@@ -70,6 +69,7 @@ public:
     int order() const;
     OutputHandling outputHandling() const;
     OutputHandling errorHandling() const;
+    bool modifiesCurrentDocument() const;
 
     QStringList executables() const;
     QString arguments() const;
@@ -95,6 +95,8 @@ private:
     QString m_workingDirectory;
     OutputHandling m_outputHandling;
     OutputHandling m_errorHandling;
+    bool m_modifiesCurrentDocument;
+
     bool m_isDisplayNameChanged;
 };
 

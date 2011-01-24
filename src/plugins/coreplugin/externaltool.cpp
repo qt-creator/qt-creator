@@ -70,8 +70,12 @@ namespace {
     const char * const kError = "error";
     const char * const kOutputShowInPane = "showinpane";
     const char * const kOutputReplaceSelection = "replaceselection";
-    const char * const kOutputReloadDocument = "reloaddocument";
     const char * const kOutputIgnore = "ignore";
+    const char * const kModifiesDocument = "modifiesdocument";
+    const char * const kYes = "yes";
+    const char * const kNo = "no";
+    const char * const kTrue= "true";
+    const char * const kFalse = "false";
 }
 
 // #pragma mark -- ExternalTool
@@ -80,6 +84,7 @@ ExternalTool::ExternalTool() :
     m_order(-1),
     m_outputHandling(ShowInPane),
     m_errorHandling(ShowInPane),
+    m_modifiesCurrentDocument(false),
     m_isDisplayNameChanged(false)
 {
 }
@@ -96,6 +101,7 @@ ExternalTool::ExternalTool(const ExternalTool *other)
       m_workingDirectory(other->m_workingDirectory),
       m_outputHandling(other->m_outputHandling),
       m_errorHandling(other->m_errorHandling),
+      m_modifiesCurrentDocument(other->m_modifiesCurrentDocument),
       m_isDisplayNameChanged(other->m_isDisplayNameChanged)
 {
 }
@@ -167,6 +173,11 @@ ExternalTool::OutputHandling ExternalTool::errorHandling() const
     return m_errorHandling;
 }
 
+bool ExternalTool::modifiesCurrentDocument() const
+{
+    return m_modifiesCurrentDocument;
+}
+
 static QStringList splitLocale(const QString &locale)
 {
     QString value = locale;
@@ -217,12 +228,10 @@ static bool parseOutputAttribute(const QString &attribute, QXmlStreamReader *rea
         *value = ExternalTool::ShowInPane;
     } else if (output == QLatin1String(kOutputReplaceSelection)) {
         *value = ExternalTool::ReplaceSelection;
-    } else if (output == QLatin1String(kOutputReloadDocument)) {
-        *value = ExternalTool::ReloadDocument;
     } else if (output == QLatin1String(kOutputIgnore)) {
         *value = ExternalTool::Ignore;
     } else {
-        reader->raiseError(QLatin1String("Allowed values for output attribute are 'showinpane','replaceselection','reloaddocument'"));
+        reader->raiseError(QLatin1String("Allowed values for output attribute are 'showinpane','replaceselection','ignore'"));
         return false;
     }
     return true;
@@ -266,6 +275,17 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
             if (reader.attributes().hasAttribute(QLatin1String(kError))) {
                 if (!parseOutputAttribute(QLatin1String(kError), &reader, &tool->m_errorHandling))
                     break;
+            }
+            if (reader.attributes().hasAttribute(QLatin1String(kModifiesDocument))) {
+                const QString &value = reader.attributes().value(QLatin1String(kModifiesDocument)).toString();
+                if (value == QLatin1String(kYes) || value == QLatin1String(kTrue)) {
+                    tool->m_modifiesCurrentDocument = true;
+                } else if (value == QLatin1String(kNo) || value == QLatin1String(kFalse)) {
+                    tool->m_modifiesCurrentDocument = false;
+                } else {
+                    reader.raiseError(QLatin1String("Allowed values for modifiesdocument attribute are 'yes','true','no','false'"));
+                    break;
+                }
             }
             while (reader.readNextStartElement()) {
                 if (reader.name() == QLatin1String(kPath)) {
@@ -319,6 +339,7 @@ bool ExternalTool::operator==(const ExternalTool &other)
             && m_input == other.m_input
             && m_workingDirectory == other.m_workingDirectory
             && m_outputHandling == other.m_outputHandling
+            && m_modifiesCurrentDocument == other.m_modifiesCurrentDocument
             && m_errorHandling == other.m_errorHandling;
 }
 
@@ -376,8 +397,7 @@ void ExternalToolRunner::run()
         deleteLater();
         return;
     }
-    if (m_tool->outputHandling() == ExternalTool::ReloadDocument
-               || m_tool->errorHandling() == ExternalTool::ReloadDocument) {
+    if (m_tool->modifiesCurrentDocument()) {
         if (IEditor *editor = EditorManager::instance()->currentEditor()) {
             m_expectedFileName = editor->file()->fileName();
             bool cancelled = false;
@@ -421,8 +441,8 @@ void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
         if (m_tool->outputHandling() == ExternalTool::ReplaceSelection
                 || m_tool->errorHandling() == ExternalTool::ReplaceSelection) {
             emit ExternalToolManager::instance()->replaceSelectionRequested(m_processOutput);
-        } else if (m_tool->outputHandling() == ExternalTool::ReloadDocument
-                || m_tool->errorHandling() == ExternalTool::ReloadDocument) {
+        }
+        if (m_tool->modifiesCurrentDocument()) {
             FileManager::instance()->unexpectFileChange(m_expectedFileName);
         }
     }
@@ -433,8 +453,7 @@ void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
 
 void ExternalToolRunner::error(QProcess::ProcessError error)
 {
-    if (m_tool->outputHandling() == ExternalTool::ReloadDocument
-            || m_tool->errorHandling() == ExternalTool::ReloadDocument) {
+    if (m_tool->modifiesCurrentDocument()) {
         FileManager::instance()->unexpectFileChange(m_expectedFileName);
     }
     // TODO inform about errors
