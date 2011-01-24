@@ -498,9 +498,9 @@ void QtOptionsPageWidget::updateDebuggingHelperInfo(const QtVersion *version)
 
         QString status;
         if (helperNames.isEmpty()) {
-            status = tr("Helper Tools: None available");
+            status = tr("Helpers: None available");
         } else {
-            status = tr("Helper Tools: %1 are available.", "%1 is list of tool names").arg(
+            status = tr("Helper(s): %1.", "%1 is list of tool names", helperNames.size()).arg(
                         helperNames.join(tr(", ", "Separator used to join names of helper tools.")));
         }
 
