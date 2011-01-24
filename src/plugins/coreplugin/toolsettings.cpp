@@ -92,6 +92,7 @@ void ToolSettings::apply()
 {
     if (!m_widget)
         return;
+    m_widget->apply();
     QMap<QString, ExternalTool *> originalTools = ExternalToolManager::instance()->toolsById();
     QMap<QString, QList<ExternalTool *> > newToolsMap = m_widget->tools();
     QMap<QString, QList<ExternalTool *> > resultMap;

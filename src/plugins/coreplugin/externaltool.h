@@ -64,7 +64,6 @@ public:
     QString id() const;
     QString description() const;
     QString displayName() const;
-    void setDisplayName(const QString &name);
     QString displayCategory() const;
     int order() const;
     OutputHandling outputHandling() const;
@@ -78,11 +77,21 @@ public:
 
     static ExternalTool *createFromXml(const QByteArray &xml, QString *errorMessage = 0, const QString &locale = QString());
 
-    // if the display name is different from the one in the original xml
-    bool isDisplayNameChanged() const { return m_isDisplayNameChanged; }
-
     // ignores changed state
     bool operator==(const ExternalTool &other);
+
+    void setDisplayName(const QString &name);
+    void setDescription(const QString &description);
+    void setOutputHandling(OutputHandling handling);
+    void setErrorHandling(OutputHandling handling);
+    void setModifiesCurrentDocument(bool modifies);
+    void setExecutables(const QStringList &executables);
+    void setArguments(const QString &arguments);
+    void setInput(const QString &input);
+    void setWorkingDirectory(const QString &workingDirectory);
+    // if the display name is different from the one in the original xml
+    bool isDisplayNameChanged() const { return m_isDisplayNameChanged; }
+    bool isChanged() const { return m_isChanged; }
 private:
     QString m_id;
     QString m_description;
@@ -98,6 +107,7 @@ private:
     bool m_modifiesCurrentDocument;
 
     bool m_isDisplayNameChanged;
+    bool m_isChanged;
 };
 
 class ExternalToolRunner : public QObject

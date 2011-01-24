@@ -125,14 +125,6 @@ QString ExternalTool::displayName() const
     return m_displayName;
 }
 
-void ExternalTool::setDisplayName(const QString &name)
-{
-    if (name == m_displayName)
-        return;
-    m_isDisplayNameChanged = true;
-    m_displayName = name;
-}
-
 QString ExternalTool::displayCategory() const
 {
     return m_displayCategory;
@@ -176,6 +168,85 @@ ExternalTool::OutputHandling ExternalTool::errorHandling() const
 bool ExternalTool::modifiesCurrentDocument() const
 {
     return m_modifiesCurrentDocument;
+}
+
+void ExternalTool::setDisplayName(const QString &name)
+{
+    if (name == m_displayName)
+        return;
+    m_isDisplayNameChanged = true;
+    m_displayName = name;
+}
+
+void ExternalTool::setDescription(const QString &description)
+{
+    if (description == m_description)
+        return;
+    m_isChanged = true;
+    m_description = description;
+}
+
+
+void ExternalTool::setOutputHandling(OutputHandling handling)
+{
+    if (handling == m_outputHandling)
+        return;
+    m_isChanged = true;
+    m_outputHandling = handling;
+}
+
+
+void ExternalTool::setErrorHandling(OutputHandling handling)
+{
+    if (handling == m_errorHandling)
+        return;
+    m_isChanged = true;
+    m_errorHandling = handling;
+}
+
+
+void ExternalTool::setModifiesCurrentDocument(bool modifies)
+{
+    if (modifies == m_modifiesCurrentDocument)
+        return;
+    m_isChanged = true;
+    m_modifiesCurrentDocument = modifies;
+}
+
+
+void ExternalTool::setExecutables(const QStringList &executables)
+{
+    if (executables == m_executables)
+        return;
+    m_isChanged = true;
+    m_executables = executables;
+}
+
+
+void ExternalTool::setArguments(const QString &arguments)
+{
+    if (arguments == m_arguments)
+        return;
+    m_isChanged = true;
+    m_arguments = arguments;
+}
+
+
+void ExternalTool::setInput(const QString &input)
+{
+    if (input == m_input)
+        return;
+    m_isChanged = true;
+    m_input = input;
+}
+
+
+void ExternalTool::setWorkingDirectory(const QString &workingDirectory)
+{
+    if (workingDirectory == m_workingDirectory)
+        return;
+    m_isChanged = true;
+    m_workingDirectory = workingDirectory;
 }
 
 static QStringList splitLocale(const QString &locale)

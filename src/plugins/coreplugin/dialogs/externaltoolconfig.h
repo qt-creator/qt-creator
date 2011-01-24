@@ -55,13 +55,16 @@ public:
     ~ExternalToolConfig();
 
     void setTools(const QMap<QString, QList<ExternalTool *> > &tools);
-    QMap<QString, QList<ExternalTool *> > tools() const { return m_tools; }
+    QMap<QString, QList<ExternalTool *> > tools() const;
+    void apply();
 
     QString searchKeywords() const;
 
 private slots:
+    void handleCurrentItemChanged(QTreeWidgetItem *now, QTreeWidgetItem *previous);
     void showInfoForItem(QTreeWidgetItem *item);
     void updateItem(QTreeWidgetItem *item);
+    void updateItemName(QTreeWidgetItem *item);
 
 private:
     Ui::ExternalToolConfig *ui;

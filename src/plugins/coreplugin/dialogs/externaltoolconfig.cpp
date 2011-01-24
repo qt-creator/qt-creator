@@ -47,9 +47,10 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     ui->setupUi(this);
     ui->toolTree->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
     connect(ui->toolTree, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
-            this, SLOT(showInfoForItem(QTreeWidgetItem*)));
+            this, SLOT(handleCurrentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)));
     connect(ui->toolTree, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
-            this, SLOT(updateItem(QTreeWidgetItem *)));
+            this, SLOT(updateItemName(QTreeWidgetItem *)));
+
     showInfoForItem(0);
 }
 
@@ -108,6 +109,34 @@ void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &t
     ui->toolTree->blockSignals(blocked); // unblock itemChanged
 }
 
+void ExternalToolConfig::handleCurrentItemChanged(QTreeWidgetItem *now, QTreeWidgetItem *previous)
+{
+    updateItem(previous);
+    showInfoForItem(now);
+}
+
+void ExternalToolConfig::updateItem(QTreeWidgetItem *item)
+{
+    ExternalTool *tool = 0;
+    if (item)
+        tool = item->data(0, Qt::UserRole).value<ExternalTool *>();
+    if (!tool)
+        return;
+    tool->setDescription(ui->description->text());
+    QStringList executables = tool->executables();
+    if (executables.size() > 0)
+        executables[0] = ui->executable->path();
+    else
+        executables << ui->executable->path();
+    tool->setExecutables(executables);
+    tool->setArguments(ui->arguments->text());
+    tool->setWorkingDirectory(ui->workingDirectory->path());
+    tool->setOutputHandling((ExternalTool::OutputHandling)ui->outputBehavior->currentIndex());
+    tool->setErrorHandling((ExternalTool::OutputHandling)ui->errorOutputBehavior->currentIndex());
+    tool->setModifiesCurrentDocument(ui->modifiesDocumentCheckbox->checkState());
+    tool->setInput(ui->inputText->toPlainText());
+}
+
 void ExternalToolConfig::showInfoForItem(QTreeWidgetItem *item)
 {
     ExternalTool *tool = 0;
@@ -135,7 +164,7 @@ void ExternalToolConfig::showInfoForItem(QTreeWidgetItem *item)
     ui->arguments->setCursorPosition(0);
 }
 
-void ExternalToolConfig::updateItem(QTreeWidgetItem *item)
+void ExternalToolConfig::updateItemName(QTreeWidgetItem *item)
 {
     ExternalTool *tool = 0;
     if (item)
@@ -181,4 +210,14 @@ void ExternalToolConfig::updateItem(QTreeWidgetItem *item)
             ui->toolTree->expand(ui->toolTree->model()->index(newIndex, 0));
         ui->toolTree->blockSignals(blocked); // unblock itemChanged
     }
+}
+
+QMap<QString, QList<ExternalTool *> > ExternalToolConfig::tools() const
+{
+    return m_tools;
+}
+
+void ExternalToolConfig::apply()
+{
+    updateItem(ui->toolTree->currentItem());
 }
