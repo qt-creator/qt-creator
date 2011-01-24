@@ -9628,7 +9628,7 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
     </message>
     <message>
         <source>Resources</source>
-        <translation>Zdroje</translation>
+        <translation>Prostředky</translation>
     </message>
     <message>
         <source>Other files</source>
