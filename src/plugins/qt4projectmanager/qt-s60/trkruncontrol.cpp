@@ -165,7 +165,7 @@ void TrkRunControl::processStopped(uint pc, uint pid, uint tid, const QString &r
 QMessageBox *TrkRunControl::createTrkWaitingMessageBox(const QString &port, QWidget *parent)
 {
     const QString title  = tr("Waiting for App TRK");
-    const QString text = tr("Qt Creator is waiting for the TRK application to connect.<br>"
+    const QString text = tr("Qt Creator is waiting for the TRK application to connect on %1.<br>"
                             "Please make sure the application is running on "
                             "your mobile phone and the right port is "
                             "configured in the project settings.").arg(port);

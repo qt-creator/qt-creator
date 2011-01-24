@@ -627,7 +627,7 @@ void S60CreatePackageStep::checkForCancel()
 
 QString S60CreatePackageStep::generateKeyId(const QString &keyPath) const
 {
-    if (keyPath.isNull())
+    if (keyPath.isEmpty())
         return QString();
 
     QFile file(keyPath);
