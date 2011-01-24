@@ -55,6 +55,38 @@ const QByteArray IconFieldName("XB-Maemo-Icon-26");
 const QByteArray NameFieldName("XB-Maemo-Display-Name");
 const QByteArray ShortDescriptionFieldName("Description");
 const QLatin1String PackagingDirName("qtc_packaging");
+const QByteArray NameTag("Name");
+const QByteArray SummaryTag("Summary");
+const QByteArray VersionTag("Version");
+
+bool adaptTagValue(QByteArray &document, const QByteArray &fieldName,
+    const QByteArray &newFieldValue, bool caseSensitive)
+{
+    QByteArray adaptedLine = fieldName + ": " + newFieldValue;
+    const QByteArray completeTag = fieldName + ":";
+    const int lineOffset = caseSensitive ? document.indexOf(completeTag)
+        : document.toLower().indexOf(completeTag.toLower());
+    if (lineOffset == -1) {
+        document.append(adaptedLine).append('\n');
+        return true;
+    }
+
+    int newlineOffset = document.indexOf('\n', lineOffset);
+    bool updated = false;
+    if (newlineOffset == -1) {
+        newlineOffset = document.length();
+        adaptedLine += '\n';
+        updated = true;
+    }
+    const int replaceCount = newlineOffset - lineOffset;
+    if (!updated && document.mid(lineOffset, replaceCount) != adaptedLine)
+        updated = true;
+    if (updated)
+        document.replace(lineOffset, replaceCount, adaptedLine);
+    return updated;
+}
+
+
 } // anonymous namespace
 
 
@@ -140,22 +172,6 @@ bool AbstractQt4MaemoTarget::setProjectVersion(const QString &version,
     }
     return success;
 }
-
-bool AbstractQt4MaemoTarget::setPackageManagerIcon(const QString &iconFilePath,
-    QString *error)
-{
-    bool success = true;
-    foreach (Target * const target, project()->targets()) {
-        AbstractQt4MaemoTarget * const maemoTarget
-            = qobject_cast<AbstractQt4MaemoTarget *>(target);
-        if (maemoTarget) {
-            if (!maemoTarget->setPackageManagerIconInternal(iconFilePath, error))
-                success = false;
-        }
-    }
-    return success;
-}
-
 
 bool AbstractQt4MaemoTarget::setName(const QString &name)
 {
@@ -265,8 +281,6 @@ bool AbstractQt4MaemoTarget::initPackagingSettingsFromOtherTarget()
         if (maemoTarget && maemoTarget != this) {
             if (!setProjectVersionInternal(maemoTarget->projectVersion()))
                 success = false;
-            if (!setRawIconValue(maemoTarget->rawIconValue()))
-                success = false;
             if (!setNameInternal(maemoTarget->name()))
                 success = false;
             if (!setShortDescriptionInternal(maemoTarget->shortDescription()))
@@ -274,7 +288,7 @@ bool AbstractQt4MaemoTarget::initPackagingSettingsFromOtherTarget()
             break;
         }
     }
-    return success;
+    return initAdditionalPackagingSettingsFromOtherTarget();
 }
 
 void AbstractQt4MaemoTarget::raiseError(const QString &reason)
@@ -519,26 +533,7 @@ bool AbstractDebBasedQt4MaemoTarget::setControlFieldValue(const QByteArray &fiel
 bool AbstractDebBasedQt4MaemoTarget::adaptControlFileField(QByteArray &document,
     const QByteArray &fieldName, const QByteArray &newFieldValue)
 {
-    QByteArray adaptedLine = fieldName + ": " + newFieldValue;
-    const int lineOffset = document.indexOf(fieldName + ":");
-    if (lineOffset == -1) {
-        document.append(adaptedLine).append('\n');
-        return true;
-    }
-
-    int newlineOffset = document.indexOf('\n', lineOffset);
-    bool updated = false;
-    if (newlineOffset == -1) {
-        newlineOffset = document.length();
-        adaptedLine += '\n';
-        updated = true;
-    }
-    const int replaceCount = newlineOffset - lineOffset;
-    if (!updated && document.mid(lineOffset, replaceCount) != adaptedLine)
-        updated = true;
-    if (updated)
-        document.replace(lineOffset, replaceCount, adaptedLine);
-    return updated;
+    return adaptTagValue(document, fieldName, newFieldValue, true);
 }
 
 void AbstractDebBasedQt4MaemoTarget::handleTargetAddedSpecial()
@@ -565,16 +560,6 @@ void AbstractDebBasedQt4MaemoTarget::removeTarget()
     QString error;
     if (!MaemoGlobal::removeRecursively(debianDirPath(), error))
         qDebug("%s", qPrintable(error));
-}
-
-QByteArray AbstractDebBasedQt4MaemoTarget::rawIconValue() const
-{
-    return controlFileFieldValue(IconFieldName, true);
-}
-
-bool AbstractDebBasedQt4MaemoTarget::setRawIconValue(const QByteArray &icon)
-{
-    return setControlFieldValue(IconFieldName, icon);
 }
 
 void AbstractDebBasedQt4MaemoTarget::handleDebianFileChanged(const QString &filePath)
@@ -721,6 +706,184 @@ bool AbstractDebBasedQt4MaemoTarget::adaptControlFile()
     return true;
 }
 
+bool AbstractDebBasedQt4MaemoTarget::initAdditionalPackagingSettingsFromOtherTarget()
+{
+    foreach (const Target * const t, project()->targets()) {
+        const AbstractDebBasedQt4MaemoTarget *target
+            = qobject_cast<const AbstractDebBasedQt4MaemoTarget *>(t);
+        if (target) {
+            return setControlFieldValue(IconFieldName,
+                target->controlFileFieldValue(IconFieldName, true));
+        }
+    }
+    return true;
+}
+
+bool AbstractDebBasedQt4MaemoTarget::setPackageManagerIcon(const QString &iconFilePath,
+    QString *error)
+{
+    bool success = true;
+    foreach (Target * const target, project()->targets()) {
+        AbstractDebBasedQt4MaemoTarget* const maemoTarget
+            = qobject_cast<AbstractDebBasedQt4MaemoTarget*>(target);
+        if (maemoTarget) {
+            if (!maemoTarget->setPackageManagerIconInternal(iconFilePath, error))
+                success = false;
+        }
+    }
+    return success;
+}
+
+
+AbstractRpmBasedQt4MaemoTarget::AbstractRpmBasedQt4MaemoTarget(Qt4Project *parent,
+    const QString &id) : AbstractQt4MaemoTarget(parent, id)
+{
+}
+
+AbstractRpmBasedQt4MaemoTarget::~AbstractRpmBasedQt4MaemoTarget()
+{
+}
+
+QString AbstractRpmBasedQt4MaemoTarget::specFilePath() const
+{
+    const QLatin1Char sep('/');
+    return project()->projectDirectory() + sep + PackagingDirName + sep
+        + specFileName();
+}
+
+QString AbstractRpmBasedQt4MaemoTarget::projectVersion(QString *error) const
+{
+    return QString::fromUtf8(getValueForTag(VersionTag, error));
+}
+
+bool AbstractRpmBasedQt4MaemoTarget::setProjectVersionInternal(const QString &version,
+    QString *error)
+{
+    return setValueForTag(VersionTag, version.toUtf8(), error);
+}
+
+QString AbstractRpmBasedQt4MaemoTarget::name() const
+{
+    return getValueForTag(NameTag, 0);
+}
+
+bool AbstractRpmBasedQt4MaemoTarget::setNameInternal(const QString &name)
+{
+    return setValueForTag(NameTag, name.toUtf8(), 0);
+}
+
+QString AbstractRpmBasedQt4MaemoTarget::shortDescription() const
+{
+    return getValueForTag(SummaryTag, 0);
+}
+
+bool AbstractRpmBasedQt4MaemoTarget::setShortDescriptionInternal(const QString &description)
+{
+    return setValueForTag(SummaryTag, description.toUtf8(), 0);
+}
+
+bool AbstractRpmBasedQt4MaemoTarget::createSpecialTemplates()
+{
+    if (QFileInfo(specFilePath()).exists())
+        return true;
+    QSharedPointer<QFile> specFile
+        = openFile(specFilePath(), QIODevice::WriteOnly, 0);
+    if (!specFile)
+        return false;
+    QByteArray initialContent(
+        "Name: %%name%%\n"
+        "Summary: <insert short description here>\n"
+        "Version: 0.0.1\n"
+        "Release: 1\n"
+        "License: \n"
+        "Group: <Set your application's group here>\n"
+        "%description\n"
+        "<Insert longer, multi-line description\n"
+        "here.>\n"
+        "\n"
+        "%prep\n"
+        "%setup -q\n"
+        "\n"
+        "%build\n"
+        "# You can leave this empty for use with Qt Creator."
+        "\n"
+        "%install\n"
+        "rm -rf %{buildroot}\n"
+        "make INSTALL_ROOT=%{buildroot} install\n"
+        "\n"
+        "%clean\n"
+        "rm -rf %{buildroot}\n"
+        "\n"
+        "BuildRequires: \n"
+        "%define _unpackaged_files_terminate_build 0\n"
+        "%file\n"
+        "%post\n"
+        "/sbin/ldconfig # For shared libraries\n"
+        );
+    initialContent.replace("%%name%%", project()->displayName().toUtf8());
+    return specFile->write(initialContent) == initialContent.count();
+}
+
+void AbstractRpmBasedQt4MaemoTarget::handleTargetAddedSpecial()
+{
+    m_filesWatcher->addPath(specFilePath());
+    connect(m_filesWatcher, SIGNAL(fileChanged(QString)), this,
+        SIGNAL(specFileChanged()));
+}
+
+bool AbstractRpmBasedQt4MaemoTarget::targetCanBeRemoved() const
+{
+    return QFileInfo(specFilePath()).exists();
+}
+
+void AbstractRpmBasedQt4MaemoTarget::removeTarget()
+{
+    if (!QFile::remove(specFilePath())) {
+        qDebug("%s: Could not remove %s", Q_FUNC_INFO,
+            qPrintable(specFilePath()));
+    }
+}
+
+bool AbstractRpmBasedQt4MaemoTarget::initAdditionalPackagingSettingsFromOtherTarget()
+{
+    // Nothing to do here for now.
+    return true;
+}
+
+QByteArray AbstractRpmBasedQt4MaemoTarget::getValueForTag(const QByteArray &tag,
+    QString *error) const
+{
+    QSharedPointer<QFile> specFile
+        = openFile(specFilePath(), QIODevice::ReadOnly, error);
+    if (!specFile)
+        return QByteArray();
+    const QByteArray &content = specFile->readAll();
+    const QByteArray completeTag = tag.toLower() + ':';
+    int index = content.toLower().indexOf(completeTag);
+    if (index == -1)
+        return QByteArray();
+    index += completeTag.count();
+    int endIndex = content.indexOf('\n', index);
+    if (endIndex == -1)
+        endIndex = content.count();
+    return content.mid(index, endIndex - index);
+}
+
+bool AbstractRpmBasedQt4MaemoTarget::setValueForTag(const QByteArray &tag,
+    const QByteArray &value, QString *error)
+{
+    QSharedPointer<QFile> specFile
+        = openFile(specFilePath(), QIODevice::ReadWrite, error);
+    if (!specFile)
+        return false;
+    QByteArray content = specFile->readAll();
+    if (adaptTagValue(content, tag, value, false)) {
+        specFile->resize(0);
+        specFile->write(content);
+    }
+    return true;
+}
+
 Qt4Maemo5Target::Qt4Maemo5Target(Qt4Project *parent, const QString &id)
         : AbstractDebBasedQt4MaemoTarget(parent, id)
 {
@@ -757,4 +920,42 @@ QString Qt4HarmattanTarget::defaultDisplayName()
 QString Qt4HarmattanTarget::debianDirName() const
 {
     return QLatin1String("debian_harmattan");
+}
+
+
+Qt4MeegoArmTarget::Qt4MeegoArmTarget(Qt4Project *parent, const QString &id)
+       : AbstractRpmBasedQt4MaemoTarget(parent, id)
+{
+}
+
+Qt4MeegoArmTarget::~Qt4MeegoArmTarget() {}
+
+QString Qt4MeegoArmTarget::defaultDisplayName()
+{
+    return QApplication::translate("Qt4ProjectManager::Qt4Target",
+        "Meego (ARM)", "Qt4 Meego/ARM target display name");
+}
+
+QString Qt4MeegoArmTarget::specFileName() const
+{
+    return QLatin1String("meego-arm");
+}
+
+
+Qt4MeegoIa32Target::Qt4MeegoIa32Target(Qt4Project *parent, const QString &id)
+       : AbstractRpmBasedQt4MaemoTarget(parent, id)
+{
+}
+
+Qt4MeegoIa32Target::~Qt4MeegoIa32Target() {}
+
+QString Qt4MeegoIa32Target::defaultDisplayName()
+{
+    return QApplication::translate("Qt4ProjectManager::Qt4Target",
+        "Meego (IA32)", "Qt4 Meego/IA32 target display name");
+}
+
+QString Qt4MeegoIa32Target::specFileName() const
+{
+    return QLatin1String("meego-ia32");
 }

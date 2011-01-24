@@ -63,12 +63,10 @@ public:
     virtual bool allowsQmlDebugging() const=0;
 
     virtual QString projectVersion(QString *error = 0) const=0;
-    virtual QIcon packageManagerIcon(QString *error = 0) const=0;
     virtual QString name() const=0;
     virtual QString shortDescription() const=0;
 
     bool setProjectVersion(const QString &version, QString *error = 0);
-    bool setPackageManagerIcon(const QString &iconFilePath, QString *error = 0);
     bool setName(const QString &name);
     bool setShortDescription(const QString &description);
 
@@ -86,8 +84,6 @@ private slots:
 private:
     virtual bool setProjectVersionInternal(const QString &version,
         QString *error = 0)=0;
-    virtual bool setPackageManagerIconInternal(const QString &iconFilePath,
-        QString *error = 0)=0;
     virtual bool setNameInternal(const QString &name)=0;
     virtual bool setShortDescriptionInternal(const QString &description)=0;
     virtual bool createSpecialTemplates()=0;
@@ -97,9 +93,7 @@ private:
 
     bool createTemplates();
     bool initPackagingSettingsFromOtherTarget();
-
-    virtual QByteArray rawIconValue() const=0;
-    virtual bool setRawIconValue(const QByteArray &icon)=0;
+    virtual bool initAdditionalPackagingSettingsFromOtherTarget()=0;
 
     Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
     Qt4MaemoDeployConfigurationFactory *m_deployConfigurationFactory;
@@ -116,6 +110,14 @@ public:
     QString debianDirPath() const;
     QStringList debianFiles() const;
 
+    virtual QString debianDirName() const=0;
+    virtual QString projectVersion(QString *error = 0) const;
+    virtual QString name() const;
+    virtual QString shortDescription() const;
+
+    bool setPackageManagerIcon(const QString &iconFilePath, QString *error = 0);
+    QIcon packageManagerIcon(QString *error = 0) const;
+
 signals:
     void debianDirContentsChanged();
     void changeLogChanged();
@@ -126,14 +128,7 @@ private slots:
     void handleDebianFileChanged(const QString &filePath);
 
 private:
-    virtual QString debianDirName() const=0;
-    virtual QString projectVersion(QString *error = 0) const;
-    virtual QIcon packageManagerIcon(QString *error = 0) const;
-    virtual QString name() const;
-    virtual QString shortDescription() const;
     virtual bool setProjectVersionInternal(const QString &version,
-        QString *error = 0);
-    virtual bool setPackageManagerIconInternal(const QString &iconFilePath,
         QString *error = 0);
     virtual bool setNameInternal(const QString &name);
     virtual bool setShortDescriptionInternal(const QString &description);
@@ -142,9 +137,7 @@ private:
     virtual void handleTargetAddedSpecial();
     virtual bool targetCanBeRemoved() const;
     virtual void removeTarget();
-
-    virtual QByteArray rawIconValue() const;
-    virtual bool setRawIconValue(const QByteArray &icon);
+    virtual bool initAdditionalPackagingSettingsFromOtherTarget();
 
     QString changeLogFilePath() const;
     QString controlFilePath() const;
@@ -155,7 +148,49 @@ private:
         const QByteArray &newFieldValue);
     bool adaptRulesFile();
     bool adaptControlFile();
+    bool setPackageManagerIconInternal(const QString &iconFilePath,
+        QString *error = 0);
 };
+
+
+class AbstractRpmBasedQt4MaemoTarget : public AbstractQt4MaemoTarget
+{
+    Q_OBJECT
+public:
+    AbstractRpmBasedQt4MaemoTarget(Qt4Project *parent, const QString &id);
+    ~AbstractRpmBasedQt4MaemoTarget();
+
+    virtual bool allowsRemoteMounts() const { return false; }
+    virtual bool allowsPackagingDisabling() const { return false; }
+    virtual bool allowsQmlDebugging() const { return true; }
+
+    virtual QString projectVersion(QString *error = 0) const;
+    virtual QString name() const;
+    virtual QString shortDescription() const;
+
+    QString specFilePath() const;
+
+signals:
+    void specFileChanged();
+
+private:
+    virtual bool setProjectVersionInternal(const QString &version,
+        QString *error = 0);
+    virtual bool setNameInternal(const QString &name);
+    virtual bool setShortDescriptionInternal(const QString &description);
+    virtual bool createSpecialTemplates();
+    virtual void handleTargetAddedSpecial();
+    virtual bool targetCanBeRemoved() const;
+    virtual void removeTarget();
+    virtual bool initAdditionalPackagingSettingsFromOtherTarget();
+
+    virtual QString specFileName() const=0;
+
+    QByteArray getValueForTag(const QByteArray &tag, QString *error) const;
+    bool setValueForTag(const QByteArray &tag, const QByteArray &value,
+        QString *error);
+};
+
 
 class Qt4Maemo5Target : public AbstractDebBasedQt4MaemoTarget
 {
@@ -164,14 +199,16 @@ public:
     explicit Qt4Maemo5Target(Qt4Project *parent, const QString &id);
     virtual ~Qt4Maemo5Target();
 
+    virtual bool allowsRemoteMounts() const { return true; }
+    virtual bool allowsPackagingDisabling() const { return true; }
+    virtual bool allowsQmlDebugging() const { return false; }
+
     static QString defaultDisplayName();
 
 private:
     virtual QString debianDirName() const;
-    virtual bool allowsRemoteMounts() const { return true; }
-    virtual bool allowsPackagingDisabling() const { return true; }
-    virtual bool allowsQmlDebugging() const { return false; }
 };
+
 
 class Qt4HarmattanTarget : public AbstractDebBasedQt4MaemoTarget
 {
@@ -180,13 +217,35 @@ public:
     explicit Qt4HarmattanTarget(Qt4Project *parent, const QString &id);
     virtual ~Qt4HarmattanTarget();
 
+    virtual bool allowsRemoteMounts() const { return false; }
+    virtual bool allowsPackagingDisabling() const { return false; }
+    virtual bool allowsQmlDebugging() const { return true; }
+
     static QString defaultDisplayName();
 
 private:
     virtual QString debianDirName() const;
-    virtual bool allowsRemoteMounts() const { return false; }
-    virtual bool allowsPackagingDisabling() const { return false; }
-    virtual bool allowsQmlDebugging() const { return true; }
+};
+
+
+class Qt4MeegoArmTarget : public AbstractRpmBasedQt4MaemoTarget
+{
+public:
+    explicit Qt4MeegoArmTarget(Qt4Project *parent, const QString &id);
+    virtual ~Qt4MeegoArmTarget();
+    static QString defaultDisplayName();
+private:
+    virtual QString specFileName() const;
+};
+
+class Qt4MeegoIa32Target : public AbstractRpmBasedQt4MaemoTarget
+{
+public:
+    explicit Qt4MeegoIa32Target(Qt4Project *parent, const QString &id);
+    virtual ~Qt4MeegoIa32Target();
+    static QString defaultDisplayName();
+private:
+    virtual QString specFileName() const;
 };
 
 } // namespace Internal

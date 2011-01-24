@@ -587,7 +587,7 @@ bool MaemoPublisherFremantleFree::addOrReplaceDesktopFileValue(QByteArray &fileC
 QStringList MaemoPublisherFremantleFree::findProblems() const
 {
     QStringList problems;
-    const AbstractQt4MaemoTarget * const target
+    const Qt4Maemo5Target * const target
         = qobject_cast<Qt4Maemo5Target *>(m_buildConfig->target());
     const QString &description = target->shortDescription();
     if (description.trimmed().isEmpty()) {

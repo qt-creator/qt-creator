@@ -150,7 +150,7 @@ void MaemoPackageCreationWidget::handleControlFileUpdate()
 void MaemoPackageCreationWidget::updatePackageManagerIcon()
 {
     QString error;
-    const QIcon &icon = m_step->maemoTarget()->packageManagerIcon(&error);
+    const QIcon &icon = m_step->debBasedMaemoTarget()->packageManagerIcon(&error);
     if (!error.isEmpty()) {
         QMessageBox::critical(this, tr("Could not read icon"), error);
     } else {
@@ -181,7 +181,7 @@ void MaemoPackageCreationWidget::setPackageManagerIcon()
         QString(), imageFilter);
     if (!iconFileName.isEmpty()) {
         QString error;
-        if (!m_step->maemoTarget()->setPackageManagerIcon(iconFileName, &error))
+        if (!m_step->debBasedMaemoTarget()->setPackageManagerIcon(iconFileName, &error))
             QMessageBox::critical(this, tr("Could Not Set New Icon"), error);
     }
 }
