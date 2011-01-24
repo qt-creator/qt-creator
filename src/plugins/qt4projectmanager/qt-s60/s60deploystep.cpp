@@ -178,6 +178,11 @@ bool S60DeployStep::init()
     }
     m_channel = deployConfiguration->communicationChannel();
 
+    if (m_signedPackages.isEmpty()) {
+        appendMessage(tr("No package has been found. Please specify at least one installation package."), true);
+        return false;
+    }
+
     if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
         QString message;
         if (m_launcher) {
