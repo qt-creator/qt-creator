@@ -254,7 +254,7 @@ int main(int argc, char **argv)
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     QUrl proxyUrl(QString::fromLatin1(qgetenv("http_proxy")));
     if (proxyUrl.isValid()) {
-        QNetworkProxy proxy(QNetworkProxy::HttpCachingProxy, proxyUrl.host(),
+        QNetworkProxy proxy(QNetworkProxy::HttpProxy, proxyUrl.host(),
                             proxyUrl.port(), proxyUrl.userName(), proxyUrl.password());
         QNetworkProxy::setApplicationProxy(proxy);
     }

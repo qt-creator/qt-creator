@@ -19,8 +19,8 @@ for(deploymentfolder, DEPLOYMENTFOLDERS) {
 MAINPROFILEPWD = $$PWD
 
 symbian {
-    ICON = $${TARGET}.svg
-    TARGET.EPOCHEAPSIZE = 0x20000 0x2000000
+    isEmpty(ICON):exists($${TARGET}.svg):ICON = $${TARGET}.svg
+    isEmpty(TARGET.EPOCHEAPSIZE):TARGET.EPOCHEAPSIZE = 0x20000 0x2000000
     contains(DEFINES, ORIENTATIONLOCK):LIBS += -lavkon -leikcore -lcone
     contains(DEFINES, NETWORKACCESS):TARGET.CAPABILITY += NetworkServices
 } else:win32 {

@@ -664,6 +664,7 @@ CustomWizardParameters::ParseResult
             case ParseWithinFields:  // Leaving a field element
                 fields.push_back(field);
                 field.clear();
+                comboEntryCount = 0;
                 break;
             case ParseWithinComboEntries:
                 comboEntryCount++;

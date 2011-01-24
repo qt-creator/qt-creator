@@ -782,6 +782,10 @@ Decimal signed value (big endian): %4</source>
         <translation>История текущего файла</translation>
     </message>
     <message>
+        <source>Cannot find repository for &apos;%1&apos;</source>
+        <translation>Не удалось найти хранилище для &quot;%1&quot;</translation>
+    </message>
+    <message>
         <source>Filelog &quot;%1&quot;</source>
         <translation>История &apos;%1&apos;</translation>
     </message>
@@ -819,15 +823,15 @@ Decimal signed value (big endian): %4</source>
     </message>
     <message>
         <source>Unedit</source>
-        <translation type="unfinished">Отменить изменения</translation>
+        <translation>Отменить изменения</translation>
     </message>
     <message>
         <source>Unedit &quot;%1&quot;</source>
-        <translation type="unfinished">Отменить изменения &quot;%1&quot;</translation>
+        <translation>Отменить изменения &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Unedit Repository</source>
-        <translation type="unfinished">Отменить изменения хранилища</translation>
+        <translation>Отменить изменения хранилища</translation>
     </message>
     <message>
         <source>Diff Project &quot;%1&quot;</source>
@@ -1070,13 +1074,6 @@ Decimal signed value (big endian): %4</source>
     </message>
 </context>
 <context>
-    <name>CVSPlugin</name>
-    <message>
-        <source>Cannot find repository for &apos;%1&apos;</source>
-        <translation>Не удалось найти хранилище для &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
     <name>CdbCore::CoreEngine</name>
     <message>
         <source>Unable to set the image path to %1: %2</source>
@@ -1133,19 +1130,6 @@ Decimal signed value (big endian): %4</source>
     <message>
         <source>Break on exception</source>
         <translation>Остановиться при исключении</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Restarting Qt Creator is required for these settings to take effect.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Укажите путь к &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Замечание:&lt;/b&gt; Для вступления изменений в силу необходим перезапуск Qt Creator.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>64-bit version</source>
-        <translation>64-х битная версия</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation>32-х битная версия</translation>
     </message>
 </context>
 <context>
@@ -1317,7 +1301,7 @@ Decimal signed value (big endian): %4</source>
     <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
-        <translation type="unfinished">Общие файлы</translation>
+        <translation>Общие файлы</translation>
     </message>
 </context>
 <context>
@@ -1426,7 +1410,7 @@ Decimal signed value (big endian): %4</source>
     </message>
     <message>
         <source>Copy-paste URL to clipboard</source>
-        <translation type="unfinished">Скопировать ссылку в буфер обмена</translation>
+        <translation>Скопировать ссылку в буфер обмена</translation>
     </message>
 </context>
 <context>
@@ -1461,7 +1445,7 @@ Decimal signed value (big endian): %4</source>
     </message>
     <message>
         <source>Target Identifier</source>
-        <translation type="unfinished">Обозначение цели</translation>
+        <translation>Обозначение цели</translation>
     </message>
     <message>
         <source>Target:</source>
@@ -1721,15 +1705,15 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>The image is stretched horizontally and tiled vertically</source>
-        <translation type="unfinished">Обрезать изображение горизонтально и размножить по вертикали</translation>
+        <translation>Обрезать изображение горизонтально и размножить по вертикали</translation>
     </message>
     <message>
         <source>The image is stretched vertically and tiled horizontally</source>
-        <translation type="unfinished">Обрезать изображение вертикально и размножить по горизонтали</translation>
+        <translation>Обрезать изображение вертикально и размножить по горизонтали</translation>
     </message>
     <message>
         <source>The image is duplicated horizontally and vertically</source>
-        <translation type="unfinished">Размножить изображение горизнтально и вертикально</translation>
+        <translation>Размножить изображение горизнтально и вертикально</translation>
     </message>
     <message>
         <source>The image is scaled uniformly to fit without cropping</source>
@@ -3487,11 +3471,11 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Move to Called Frame</source>
-        <translation type="unfinished">Перейти в вызванный кадр</translation>
+        <translation>Перейти в вызванный кадр</translation>
     </message>
     <message>
         <source>Move to Calling Frame</source>
-        <translation type="unfinished">Перейти в вызывающий кадр</translation>
+        <translation>Перейти в вызывающий кадр</translation>
     </message>
     <message>
         <source>Error evaluating command line arguments: %1</source>
@@ -4261,6 +4245,19 @@ Qt Creator не может подключиться к нему.</translation>
 <context>
     <name>Debugger::Internal::CdbOptionsPageWidget</name>
     <message>
+        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Restarting Qt Creator is required for these settings to take effect.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
+        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Укажите путь к &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Замечание:&lt;/b&gt; Для вступления изменений в силу необходим перезапуск Qt Creator.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>64-bit version</source>
+        <translation>64-х битная версия</translation>
+    </message>
+    <message>
+        <source>32-bit version</source>
+        <translation>32-х битная версия</translation>
+    </message>
+    <message>
         <source>Autodetect</source>
         <translation>Автоопределение</translation>
     </message>
@@ -4457,7 +4454,7 @@ Qt Creator не может подключиться к нему.</translation>
     </message>
     <message>
         <source>Debug Debugging Helpers</source>
-        <translation type="unfinished">Отлаживать помощников отладчика</translation>
+        <translation>Отлаживать помощников отладчика</translation>
     </message>
     <message>
         <source>Use Code Model</source>
@@ -4593,6 +4590,10 @@ Qt Creator не может подключиться к нему.</translation>
 <context>
     <name>Debugger::Internal::GdbChooserWidget</name>
     <message>
+        <source>Unable to run &apos;%1&apos;: %2</source>
+        <translation>Не удалось запустить &quot;%1&quot;: %2</translation>
+    </message>
+    <message>
         <source>Binary</source>
         <translation>Программа</translation>
     </message>
@@ -4602,7 +4603,7 @@ Qt Creator не может подключиться к нему.</translation>
     </message>
     <message>
         <source>Duplicate binary</source>
-        <translation type="unfinished">Идентичная программа</translation>
+        <translation>Идентичная программа</translation>
     </message>
     <message>
         <source>The binary &apos;%1&apos; already exists.</source>
@@ -5300,7 +5301,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>Application output reader unexpectedly finished.</source>
-        <translation type="unfinished">Процесс чтения вывода приложения неожиданно завершился.</translation>
+        <translation>Процесс чтения вывода приложения неожиданно завершился.</translation>
     </message>
     <message>
         <source>Remote gdb failed to start.</source>
@@ -5610,6 +5611,10 @@ Setting breakpoints by file name and line number may fail.</source>
 <context>
     <name>Debugger::Internal::TcfTrkGdbAdapter</name>
     <message>
+        <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
+        <translation>Процесс запущен, PID: 0x%1, ID потока: 0x%2, сегмент кода: 0x%3, сегмент данных: 0x%4.</translation>
+    </message>
+    <message>
         <source>The reported code segment address (0x%1) might be invalid. Symbol resolution or setting breakoints may not work.</source>
         <translation>Сообщённый адрес сегмента кода (0x%1) может быть неверным. Разрешение имён и установка точек останова может не работать.</translation>
     </message>
@@ -5647,7 +5652,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>Core:</source>
-        <translation type="unfinished">Дамп:</translation>
+        <translation>Дамп:</translation>
     </message>
     <message>
         <source>Stopped&amp;nbsp;at:</source>
@@ -5671,7 +5676,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>Core</source>
-        <translation type="unfinished">Дамп</translation>
+        <translation>Дамп</translation>
     </message>
     <message>
         <source>State</source>
@@ -5920,7 +5925,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>Automatic</source>
-        <translation type="unfinished">Автоматический</translation>
+        <translation>Автоматический</translation>
     </message>
     <message>
         <source>Change Format for Object Named &quot;%1&quot;</source>
@@ -5948,7 +5953,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>Open Memory Editor at Referenced Address (0x%1)</source>
-        <translation type="unfinished">Открыть редактор памяти по адресу указателя (0x%1)</translation>
+        <translation>Открыть редактор памяти по адресу указателя (0x%1)</translation>
     </message>
     <message>
         <source>Break on Changes at Object&apos;s Address (0x%1)</source>
@@ -5956,7 +5961,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>Break on Changes at Referenced Address (0x%1)</source>
-        <translation type="unfinished">Останов при изменении по адресу указателя (0x%1)</translation>
+        <translation>Останов при изменении по адресу указателя (0x%1)</translation>
     </message>
     <message>
         <source>Break on Changing Contents</source>
@@ -5984,7 +5989,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>Show View Contents in Editor</source>
-        <translation type="unfinished">Открыть содержимое окна</translation>
+        <translation>Открыть содержимое окна</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
@@ -6572,11 +6577,11 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <source>Easing period of an elastic curve</source>
-        <translation type="unfinished">Период перехода эластичной кривой</translation>
+        <translation>Период перехода эластичной кривой</translation>
     </message>
     <message>
         <source>Easing overshoot for a back curve</source>
-        <translation type="unfinished">Отклонение перехода кубической кривой</translation>
+        <translation>Отклонение перехода кубической кривой</translation>
     </message>
 </context>
 <context>
@@ -6875,7 +6880,7 @@ Reason: %3</source>
     <name>FakeVim::Internal::FakeVimExCommandsPage</name>
     <message>
         <source>Ex Command Mapping</source>
-        <translation type="unfinished">Расширенное связывание команд</translation>
+        <translation>Расширенное связывание команд</translation>
     </message>
     <message>
         <source>FakeVim</source>
@@ -6883,7 +6888,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>Ex Trigger Expression</source>
-        <translation type="unfinished">Выражение запуска</translation>
+        <translation>Выражение запуска</translation>
     </message>
     <message>
         <source>Regular expression:</source>
@@ -6891,7 +6896,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>Ex Command</source>
-        <translation type="unfinished">Расширенная команда</translation>
+        <translation>Расширенная команда</translation>
     </message>
 </context>
 <context>
@@ -6918,7 +6923,7 @@ Reason: %3</source>
     </message>
     <message numerus="yes">
         <source>%n lines filtered</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%n строка соответствует шаблону</numerusform>
             <numerusform>%n строки соответствует шаблону</numerusform>
             <numerusform>%n строк соответствуют шаблону</numerusform>
@@ -6962,7 +6967,7 @@ Reason: %3</source>
     </message>
     <message numerus="yes">
         <source>%n lines %1ed %2 time</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%n строка сдвинута %1 %2 раз</numerusform>
             <numerusform>%n строки сдвинуто %1 %2 раз</numerusform>
             <numerusform>%n строк сдвинуто %1 %2 раз</numerusform>
@@ -7099,7 +7104,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>Show position of text marks</source>
-        <translation type="unfinished">Отображать положение текстовых меток</translation>
+        <translation>Отображать положение текстовых меток</translation>
     </message>
     <message>
         <source>Vim tabstop option</source>
@@ -7369,13 +7374,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Style</source>
         <translation>Стиль</translation>
-    </message>
-</context>
-<context>
-    <name>GdbChooserWidget</name>
-    <message>
-        <source>Unable to run &apos;%1&apos;: %2</source>
-        <translation>Не удалось запустить &quot;%1&quot;: %2</translation>
     </message>
 </context>
 <context>
@@ -7984,7 +7982,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Git SVN Log</source>
-        <translation type="unfinished">Git - история SVN</translation>
+        <translation>Git - история SVN</translation>
     </message>
     <message>
         <source>Unable to restore stash %1: %2</source>
@@ -8013,6 +8011,10 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>Unable stash in %1: %2</source>
         <translation>Не удалось спрятать в %1: %2</translation>
+    </message>
+    <message>
+        <source>Unable to determine the repository for %1.</source>
+        <translation>Не удалось определить хранилище для %1.</translation>
     </message>
     <message>
         <source>Unable to resolve stash message &apos;%1&apos; in %2</source>
@@ -8150,7 +8152,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Log Current File</source>
-        <translation type="unfinished">История текущего файла</translation>
+        <translation>История текущего файла</translation>
     </message>
     <message>
         <source>Stage &quot;%1&quot; for Commit</source>
@@ -8220,7 +8222,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Patch</source>
-        <translation type="unfinished">Заплатки</translation>
+        <translation>Заплатки</translation>
     </message>
     <message>
         <source>Apply from Editor</source>
@@ -8244,19 +8246,19 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Undo Unstaged Changes</source>
-        <translation type="unfinished">Отменить неподготовленные к фиксации изменения</translation>
+        <translation>Отменить неподготовленные к фиксации изменения</translation>
     </message>
     <message>
         <source>Undo Unstaged Changes for &quot;%1&quot;</source>
-        <translation type="unfinished">Отменить неподготовленные к фиксации изменения &quot;%1&quot;</translation>
+        <translation>Отменить неподготовленные к фиксации изменения &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Undo Uncommitted Changes</source>
-        <translation type="unfinished">Отменить незафиксированные изменения</translation>
+        <translation>Отменить незафиксированные изменения</translation>
     </message>
     <message>
         <source>Undo Uncommitted Changes for &quot;%1&quot;</source>
-        <translation type="unfinished">Отменить незафиксированные изменения &quot;%1&quot;</translation>
+        <translation>Отменить незафиксированные изменения &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Clean Project...</source>
@@ -8661,13 +8663,6 @@ You can choose between stashing the changes or discarding them.</source>
     <message>
         <source>Error restoring %1</source>
         <translation>Ошибка восстановления %1</translation>
-    </message>
-</context>
-<context>
-    <name>GitClient</name>
-    <message>
-        <source>Unable to determine the repository for %1.</source>
-        <translation>Не удалось определить хранилище для %1.</translation>
     </message>
 </context>
 <context>
@@ -9495,19 +9490,19 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Источник</translation>
+        <translation>Источник</translation>
     </message>
     <message>
         <source>Fill Mode</source>
-        <translation type="unfinished">Режим заливки</translation>
+        <translation>Режим заливки</translation>
     </message>
     <message>
         <source>Aliasing</source>
-        <translation type="unfinished">Ступенчатость</translation>
+        <translation>Сглаживание</translation>
     </message>
     <message>
         <source>Smooth</source>
-        <translation type="unfinished">Гладкий</translation>
+        <translation>Использовать</translation>
     </message>
     <message>
         <source>Source Size</source>
@@ -9676,7 +9671,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>Limit to prefix</source>
-        <translation type="unfinished">Ограничить до префикса</translation>
+        <translation>Ограничить до префикса</translation>
     </message>
     <message>
         <source>Prefix:</source>
@@ -9699,11 +9694,11 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>%1 filter update: 0 files</source>
-        <translation type="unfinished">Фильтру %1 соответствует: 0 файлов</translation>
+        <translation>Фильтру %1 соответствует: 0 файлов</translation>
     </message>
     <message numerus="yes">
         <source>%1 filter update: %n files</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Фильтру %1 соответствует: %n файл</numerusform>
             <numerusform>Фильтру %1 соответствует: %n файла</numerusform>
             <numerusform>Фильтру %1 соответствует: %n файлов</numerusform>
@@ -9711,7 +9706,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>%1 filter update: canceled</source>
-        <translation type="unfinished">Фильтру %1 соответствует: отменено</translation>
+        <translation>Фильтру %1 соответствует: отменено</translation>
     </message>
 </context>
 <context>
@@ -9736,7 +9731,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Limit to prefix</source>
-        <translation type="unfinished">Ограничить до префикса</translation>
+        <translation>Ограничить до префикса</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -9951,7 +9946,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <name>MaemoProFilesUpdateDialog</name>
     <message>
         <source>Maemo Deployment Issue</source>
-        <translation type="unfinished">Установка Maemo</translation>
+        <translation>Установка Maemo</translation>
     </message>
     <message>
         <source>The project files listed below do not contain Maemo deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator can add the missing information to these files. </source>
@@ -10758,7 +10753,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Qt Creator Generic Assembler</source>
-        <translation type="unfinished">Ассемблер Qt Creator</translation>
+        <translation>Ассемблер Qt Creator</translation>
     </message>
     <message>
         <source>Differences between files</source>
@@ -10838,11 +10833,11 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     <name>Modifiers</name>
     <message>
         <source>Manipulation</source>
-        <translation type="unfinished">Управление</translation>
+        <translation>Управление</translation>
     </message>
     <message>
         <source>Rotation</source>
-        <translation type="unfinished">Вращение</translation>
+        <translation>Вращение</translation>
     </message>
     <message>
         <source>z</source>
@@ -11830,7 +11825,7 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
     <message>
         <source>Timeout after %1s.</source>
-        <translation type="unfinished">Истекло время (%1 с).</translation>
+        <translation>Истекло время (%1 с).</translation>
     </message>
     <message>
         <source>The process crashed.</source>
@@ -12712,7 +12707,7 @@ Reason: %2</source>
     <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
         <source>&lt;Implicitly Add&gt;</source>
-        <translation type="unfinished">&lt;Добавлено неявно&gt;</translation>
+        <translation>&lt;Добавлено неявно&gt;</translation>
     </message>
     <message>
         <source>The files are implicitly added to the projects:
@@ -12832,7 +12827,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Files to be added in</source>
-        <translation type="unfinished">Будут добавлены файлы</translation>
+        <translation>Будут добавлены файлы</translation>
     </message>
 </context>
 <context>
@@ -13324,7 +13319,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Open Build/Run Target Selector...</source>
-        <translation type="unfinished">Открыть выбор цели сборки/выполнения...</translation>
+        <translation>Открыть выбор цели сборки/выполнения...</translation>
     </message>
     <message>
         <source>Ctrl+T</source>
@@ -13803,7 +13798,7 @@ Do you still want to load the settings file?</source>
     <message>
         <source>base state</source>
         <comment>Implicit default state</comment>
-        <translation type="unfinished">исходное состояние</translation>
+        <translation>исходное состояние</translation>
     </message>
     <message>
         <source>Invalid state name</source>
@@ -14165,7 +14160,7 @@ Do you still want to load the settings file?</source>
 Errors:
 %1
 </source>
-        <translation type="unfinished">Не удалось получить типы от модуля QML в %0.
+        <translation>Не удалось получить типы от модуля QML в %0.
 Ошибки:
 %1
 </translation>
@@ -14373,7 +14368,7 @@ Errors:
     </message>
     <message>
         <source>Live Preview Changes in QML Viewer</source>
-        <translation type="unfinished">Применить изменения к QML Viewer</translation>
+        <translation>Применить изменения к QML Viewer</translation>
     </message>
     <message>
         <source>Animation Speed</source>
@@ -14556,7 +14551,7 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
         <source>Include .qml, .js, and image files from current directory and subdirectories</source>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="unfinished">Включает файлы .qml, .js и изображений из текущего каталога и его подкаталогов</translation>
+        <translation>Включает файлы .qml, .js и изображений из текущего каталога и его подкаталогов</translation>
     </message>
     <message>
         <source>List of plugin directories passed to QML runtime</source>
@@ -14751,7 +14746,7 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
     <name>Qt4ProjectManager::AbstractMobileApp</name>
     <message>
         <source>Could not open desktop file template</source>
-        <translation type="unfinished">Не удалось открыть шаблон файла рабочего стола</translation>
+        <translation>Не удалось открыть шаблон файла рабочего стола</translation>
     </message>
     <message>
         <source>Could not open main.cpp template &apos;%1&apos;.</source>
@@ -15691,7 +15686,7 @@ Qemu уже запущен?</translation>
     </message>
     <message>
         <source>Installation to sysroot failed, continuing anyway.</source>
-        <translation type="unfinished">Не удалось установить в sysroot, в любом случае продолжаем.</translation>
+        <translation>Не удалось установить в sysroot, в любом случае продолжаем.</translation>
     </message>
     <message>
         <source>Copying files to sysroot ...</source>
@@ -15699,7 +15694,7 @@ Qemu уже запущен?</translation>
     </message>
     <message>
         <source>Sysroot installation failed: Could not copy &apos;%1&apos; to &apos;%2&apos;. Continuing anyway.</source>
-        <translation type="unfinished">Не удалось установить в sysroot: Не удалось скопировать &quot;%1&quot; в &quot;%2&quot;. В любом случае продолжаем.</translation>
+        <translation>Не удалось установить в sysroot: Не удалось скопировать &quot;%1&quot; в &quot;%2&quot;. В любом случае продолжаем.</translation>
     </message>
     <message>
         <source>Installing package to device...</source>
@@ -16097,7 +16092,7 @@ stderr was: %1</source>
     </message>
     <message>
         <source>Fetching environment failed: %1</source>
-        <translation type="unfinished">Не удалось загрузить окружение: %1</translation>
+        <translation>Не удалось загрузить окружение: %1</translation>
     </message>
     <message>
         <source>No local directories to be mounted on the device.</source>
@@ -18856,15 +18851,15 @@ Server list was %2.</source>
     </message>
     <message>
         <source>Diff Repository</source>
-        <translation type="unfinished">Сравнить всё</translation>
+        <translation>Сравнить всё</translation>
     </message>
     <message>
         <source>Repository Status</source>
-        <translation type="unfinished">Состояние хранилища</translation>
+        <translation>Состояние хранилища</translation>
     </message>
     <message>
         <source>Log Repository</source>
-        <translation type="unfinished">История хранилища</translation>
+        <translation>История хранилища</translation>
     </message>
     <message>
         <source>Update Repository</source>
@@ -19050,7 +19045,7 @@ Server list was %2.</source>
     <name>TaskList::Internal::TaskFileFactory</name>
     <message>
         <source>Task file reader</source>
-        <translation type="unfinished">Просмотр файла задач</translation>
+        <translation>Просмотр файла задач</translation>
     </message>
 </context>
 <context>
@@ -19059,13 +19054,6 @@ Server list was %2.</source>
         <source>My Tasks</source>
         <extracomment>Category under which tasklist tasks are listed in build issues view</extracomment>
         <translation>Мои задачи</translation>
-    </message>
-</context>
-<context>
-    <name>TcfTrkGdbAdapter</name>
-    <message>
-        <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation>Процесс запущен, PID: 0x%1, ID потока: 0x%2, сегмент кода: 0x%3, сегмент данных: 0x%4.</translation>
     </message>
 </context>
 <context>
@@ -19600,7 +19588,7 @@ The following encodings are likely to fit:</source>
     </message>
     <message>
         <source>Erase foreground</source>
-        <translation type="unfinished">Очистить передний план</translation>
+        <translation>Убрать передний план</translation>
     </message>
 </context>
 <context>
@@ -20170,7 +20158,7 @@ Please check the directory&apos;s access rights.</source>
     </message>
     <message>
         <source>Local</source>
-        <translation type="unfinished">Локальная переменная</translation>
+        <translation>Локальная переменная</translation>
     </message>
     <message>
         <source>Field</source>
@@ -20178,7 +20166,7 @@ Please check the directory&apos;s access rights.</source>
     </message>
     <message>
         <source>Static</source>
-        <translation type="unfinished">Статическая переменная</translation>
+        <translation>Статическая переменная</translation>
     </message>
     <message>
         <source>Virtual Method</source>
@@ -20261,7 +20249,7 @@ Please check the directory&apos;s access rights.</source>
     </message>
     <message>
         <source>Pass. Char</source>
-        <translation type="unfinished">Символ пароля</translation>
+        <translation>Символ пароля</translation>
     </message>
     <message>
         <source>Password Character</source>
@@ -21134,11 +21122,11 @@ Please check the directory&apos;s access rights.</source>
     </message>
     <message>
         <source>The path in which the directory containing the checkout will be created.</source>
-        <translation type="unfinished">Путь, в котором будет создан каталог с загруженными данными.</translation>
+        <translation>Путь, в котором будет создан каталог с загруженными данными.</translation>
     </message>
     <message>
         <source>Checkout Path:</source>
-        <translation type="unfinished">Путь загрузки:</translation>
+        <translation>Путь загрузки:</translation>
     </message>
     <message>
         <source>The local directory that will contain the code after the checkout.</source>
@@ -21631,7 +21619,7 @@ p, li { white-space: pre-wrap; }
     <name>emptyPane</name>
     <message>
         <source>none or multiple items selected</source>
-        <translation type="unfinished">ничего не выбрано или выбрано несколько элементов</translation>
+        <translation>ничего не выбрано или выбрано несколько элементов</translation>
     </message>
 </context>
 <context>
