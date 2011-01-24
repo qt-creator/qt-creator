@@ -42,7 +42,7 @@
 #ifndef ORIENTATION_H
 #define ORIENTATION_H
 
-#include <QObject>
+#include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
 

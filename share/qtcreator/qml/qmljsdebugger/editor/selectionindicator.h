@@ -34,9 +34,15 @@
 #ifndef SELECTIONINDICATOR_H
 #define SELECTIONINDICATOR_H
 
-#include <QWeakPointer>
-#include <QGraphicsPolygonItem>
-#include <QGraphicsObject>
+#include <QtCore/QWeakPointer>
+#include <QtCore/QHash>
+
+QT_BEGIN_NAMESPACE
+class QGraphicsObject;
+class QGraphicsPolygonItem;
+class QGraphicsItem;
+class QPolygonF;
+QT_END_NAMESPACE
 
 namespace QmlJSDebugger {
 

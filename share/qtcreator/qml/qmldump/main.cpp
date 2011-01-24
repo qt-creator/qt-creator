@@ -1,19 +1,22 @@
-#include <QApplication>
-#include <QSet>
-#include <QXmlStreamWriter>
-#include <QXmlStreamReader>
-
-#include <QMetaObject>
-#include <QMetaProperty>
-#include <QPushButton>
-#include <QDebug>
-#include <iostream>
-#include <QtDeclarative>
-#include <QtCore/private/qobject_p.h>
-#include <QtCore/private/qmetaobject_p.h>
+#include <QtDeclarative/QtDeclarative>
 #include <QtDeclarative/private/qdeclarativemetatype_p.h>
 #include <QtDeclarative/private/qdeclarativeopenmetaobject_p.h>
 #include <QtDeclarative/QDeclarativeView>
+
+#include <QtGui/QApplication>
+#include <QtGui/QPushButton>
+
+#include <QtCore/QSet>
+#include <QtCore/QXmlStreamWriter>
+#include <QtCore/QXmlStreamReader>
+#include <QtCore/QMetaObject>
+#include <QtCore/QMetaProperty>
+#include <QtCore/QDebug>
+#include <QtCore/private/qobject_p.h>
+#include <QtCore/private/qmetaobject_p.h>
+
+#include <iostream>
+
 #ifdef QT_SIMULATOR
 #include <QtGui/private/qsimulatorconnection_p.h>
 #endif

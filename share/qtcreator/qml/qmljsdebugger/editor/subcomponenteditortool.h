@@ -35,8 +35,8 @@
 #define SUBCOMPONENTEDITORTOOL_H
 
 #include "abstractformeditortool.h"
-#include <QStack>
-#include <QStringList>
+#include <QtCore/QStack>
+#include <QtCore/QStringList>
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsObject)
 QT_FORWARD_DECLARE_CLASS(QPoint)

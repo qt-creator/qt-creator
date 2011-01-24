@@ -35,10 +35,14 @@
 #include "../qdeclarativeviewobserver_p.h"
 #include "qmlobserverconstants.h"
 
-#include <QPen>
+#include <QtCore/QDebug>
+
+#include <QtGui/QGraphicsPolygonItem>
+#include <QtGui/QGraphicsObject>
+#include <QtGui/QGraphicsScene>
+#include <QtGui/QPen>
+
 #include <cmath>
-#include <QGraphicsScene>
-#include <QDebug>
 
 namespace QmlJSDebugger {
 

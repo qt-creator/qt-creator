@@ -36,9 +36,9 @@
 
 #include "abstractformeditortool.h"
 
-#include <QColor>
+#include <QtGui/QColor>
 
-QT_FORWARD_DECLARE_CLASS(QPoint);
+QT_FORWARD_DECLARE_CLASS(QPoint)
 
 namespace QmlJSDebugger {
 

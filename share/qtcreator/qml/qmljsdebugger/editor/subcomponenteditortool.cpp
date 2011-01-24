@@ -36,14 +36,13 @@
 #include "subcomponentmasklayeritem.h"
 #include "layeritem.h"
 
-#include <QGraphicsItem>
-#include <QGraphicsObject>
-#include <QTimer>
-#include <QMouseEvent>
-#include <QKeyEvent>
+#include <QtGui/QGraphicsItem>
+#include <QtGui/QGraphicsObject>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QKeyEvent>
 
-#include <QDebug>
-
+#include <QtCore/QTimer>
+#include <QtCore/QDebug>
 
 namespace QmlJSDebugger {
 

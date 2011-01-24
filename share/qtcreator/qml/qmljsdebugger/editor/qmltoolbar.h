@@ -34,8 +34,9 @@
 #ifndef QMLTOOLBAR_H
 #define QMLTOOLBAR_H
 
-#include <QToolBar>
-#include <QIcon>
+#include <QtGui/QToolBar>
+#include <QtGui/QIcon>
+
 #include "qmlobserverconstants.h"
 
 namespace QmlJSDebugger {

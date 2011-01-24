@@ -36,12 +36,14 @@
 
 #include "qmljsdebugger_global.h"
 #include "qmlobserverconstants.h"
-#include <qdeclarativeview.h>
-#include <QWeakPointer>
 
-QT_FORWARD_DECLARE_CLASS(QDeclarativeItem);
-QT_FORWARD_DECLARE_CLASS(QMouseEvent);
-QT_FORWARD_DECLARE_CLASS(QToolBar);
+#include <QtDeclarative/QDeclarativeView>
+
+#include <QtCore/QScopedPointer>
+
+QT_FORWARD_DECLARE_CLASS(QDeclarativeItem)
+QT_FORWARD_DECLARE_CLASS(QMouseEvent)
+QT_FORWARD_DECLARE_CLASS(QToolBar)
 
 namespace QmlJSDebugger {
 

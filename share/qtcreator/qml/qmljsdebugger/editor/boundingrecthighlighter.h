@@ -34,16 +34,16 @@
 #ifndef BOUNDINGRECTHIGHLIGHTER_H
 #define BOUNDINGRECTHIGHLIGHTER_H
 
-#include <QObject>
-#include <QWeakPointer>
-
 #include "layeritem.h"
 
-QT_FORWARD_DECLARE_CLASS(QGraphicsItem);
-QT_FORWARD_DECLARE_CLASS(QPainter);
-QT_FORWARD_DECLARE_CLASS(QWidget);
-QT_FORWARD_DECLARE_CLASS(QStyleOptionGraphicsItem);
-QT_FORWARD_DECLARE_CLASS(QTimer);
+#include <QtCore/QObject>
+#include <QtCore/QWeakPointer>
+
+QT_FORWARD_DECLARE_CLASS(QGraphicsItem)
+QT_FORWARD_DECLARE_CLASS(QPainter)
+QT_FORWARD_DECLARE_CLASS(QWidget)
+QT_FORWARD_DECLARE_CLASS(QStyleOptionGraphicsItem)
+QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace QmlJSDebugger {
 
@@ -73,7 +73,7 @@ private:
     void freeBoundingBox(BoundingBox *box);
 
 private:
-    Q_DISABLE_COPY(BoundingRectHighlighter);
+    Q_DISABLE_COPY(BoundingRectHighlighter)
 
     QDeclarativeViewObserver *m_view;
     QList<BoundingBox* > m_boxes;
@@ -96,7 +96,7 @@ public:
     QGraphicsPolygonItem *highlightPolygonEdge;
 
 private:
-    Q_DISABLE_COPY(BoundingBox);
+    Q_DISABLE_COPY(BoundingBox)
 
 };
 

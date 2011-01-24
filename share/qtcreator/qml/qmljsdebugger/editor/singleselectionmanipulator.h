@@ -34,8 +34,8 @@
 #ifndef SINGLESELECTIONMANIPULATOR_H
 #define SINGLESELECTIONMANIPULATOR_H
 
-#include <QPointF>
-#include <QList>
+#include <QtCore/QPointF>
+#include <QtCore/QList>
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsItem);
 

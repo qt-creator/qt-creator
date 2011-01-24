@@ -34,9 +34,8 @@
 #ifndef ABSTRACTFORMEDITORTOOL_H
 #define ABSTRACTFORMEDITORTOOL_H
 
-#include <qglobal.h>
-#include <QList>
-#include <QObject>
+#include <QtCore/QList>
+#include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
 class QMouseEvent;

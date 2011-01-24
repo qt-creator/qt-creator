@@ -34,9 +34,8 @@
 #ifndef QDECLARATIVEVIEWOBSERVER_P_H
 #define QDECLARATIVEVIEWOBSERVER_P_H
 
-#include <QWeakPointer>
-#include <QPointF>
-#include <QTimer>
+#include <QtCore/QWeakPointer>
+#include <QtCore/QPointF>
 
 #include "qdeclarativeviewobserver.h"
 #include "qdeclarativeobserverservice.h"

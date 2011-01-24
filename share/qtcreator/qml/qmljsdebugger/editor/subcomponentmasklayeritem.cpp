@@ -34,7 +34,7 @@
 #include "subcomponentmasklayeritem.h"
 #include "qmlobserverconstants.h"
 #include "qdeclarativeviewobserver.h"
-#include <QPolygonF>
+#include <QtGui/QPolygonF>
 
 namespace QmlJSDebugger {
 

@@ -40,14 +40,15 @@
 ****************************************************************************/
 
 #include <qdeclarativetester.h>
-#include <QDebug>
-#include <QApplication>
-#include <qdeclarativeview.h>
-#include <QFile>
-#include <QDeclarativeComponent>
-#include <QDir>
-#include <QCryptographicHash>
-#include <QGraphicsObject>
+#include <QtDeclarative/qdeclarativeview.h>
+#include <QtDeclarative/QDeclarativeComponent>
+#include <QtGui/QGraphicsObject>
+#include <QtGui/QApplication>
+#include <QtCore/QDebug>
+#include <QtCore/QFile>
+#include <QtCore/QDir>
+#include <QtCore/QCryptographicHash>
+
 #ifndef NO_PRIVATE_HEADERS
 #include <private/qabstractanimation_p.h>
 #include <private/qdeclarativeitem_p.h>

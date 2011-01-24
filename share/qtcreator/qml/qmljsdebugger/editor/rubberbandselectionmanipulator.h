@@ -37,6 +37,10 @@
 
 #include "selectionrectangle.h"
 
+#include <QtCore/QPointF>
+
+QT_FORWARD_DECLARE_CLASS(QGraphicsItem)
+
 namespace QmlJSDebugger {
 
 class QDeclarativeViewObserver;

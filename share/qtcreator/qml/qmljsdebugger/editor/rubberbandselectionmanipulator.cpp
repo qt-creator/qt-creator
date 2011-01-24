@@ -34,7 +34,9 @@
 #include "rubberbandselectionmanipulator.h"
 #include "../qdeclarativeviewobserver_p.h"
 
-#include <QDebug>
+#include <QtGui/QGraphicsItem>
+
+#include <QtCore/QDebug>
 
 namespace QmlJSDebugger {
 

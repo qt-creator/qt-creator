@@ -42,10 +42,10 @@
 #ifndef QDECLARATIVEVIEWER_H
 #define QDECLARATIVEVIEWER_H
 
-#include <QMainWindow>
-#include <QTimer>
-#include <QTime>
-#include <QList>
+#include <QtGui/QMainWindow>
+#include <QtCore/QTimer>
+#include <QtCore/QTime>
+#include <QtCore/QList>
 
 #include "loggerwidget.h"
 

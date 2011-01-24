@@ -40,14 +40,13 @@
 #include "singleselectionmanipulator.h"
 #include "selectionindicator.h"
 
-#include <QHash>
-#include <QList>
-#include <QTime>
-#include <QAction>
+#include <QtCore/QList>
+#include <QtCore/QTime>
 
-QT_FORWARD_DECLARE_CLASS(QGraphicsItem);
-QT_FORWARD_DECLARE_CLASS(QMouseEvent);
-QT_FORWARD_DECLARE_CLASS(QKeyEvent);
+QT_FORWARD_DECLARE_CLASS(QGraphicsItem)
+QT_FORWARD_DECLARE_CLASS(QMouseEvent)
+QT_FORWARD_DECLARE_CLASS(QKeyEvent)
+QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace QmlJSDebugger {
 

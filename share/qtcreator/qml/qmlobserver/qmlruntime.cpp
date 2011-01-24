@@ -67,36 +67,40 @@
 #include <qdeclarativeviewobserver.h>
 #include <qdeclarativeobserverservice.h>
 
-#include <QSettings>
-#include <QXmlStreamReader>
-#include <QBuffer>
-#include <QNetworkReply>
-#include <QNetworkCookieJar>
-#include <QNetworkDiskCache>
-#include <QNetworkAccessManager>
-#include <QSignalMapper>
-#include <QDeclarativeComponent>
-#include <QWidget>
-#include <QApplication>
-#include <QTranslator>
-#include <QDir>
-#include <QTextBrowser>
-#include <QFile>
-#include <QFileInfo>
-#include <QVBoxLayout>
-#include <QProgressDialog>
-#include <QProcess>
-#include <QMenuBar>
-#include <QMenu>
-#include <QAction>
-#include <QFileDialog>
-#include <QInputDialog>
-#include <QTimer>
-#include <QGraphicsObject>
-#include <QNetworkProxyFactory>
-#include <QKeyEvent>
-#include <QMutex>
-#include <QMutexLocker>
+#include <QtNetwork/QNetworkReply>
+#include <QtNetwork/QNetworkCookieJar>
+#include <QtNetwork/QNetworkDiskCache>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkProxyFactory>
+
+#include <QtDeclarative/QDeclarativeComponent>
+
+#include <QtGui/QWidget>
+#include <QtGui/QApplication>
+#include <QtGui/QTextBrowser>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QProgressDialog>
+#include <QtGui/QMenuBar>
+#include <QtGui/QMenu>
+#include <QtGui/QAction>
+#include <QtGui/QFileDialog>
+#include <QtGui/QInputDialog>
+#include <QtGui/QGraphicsObject>
+#include <QtGui/QKeyEvent>
+
+#include <QtCore/QSignalMapper>
+#include <QtCore/QSettings>
+#include <QtCore/QXmlStreamReader>
+#include <QtCore/QBuffer>
+#include <QtCore/QTranslator>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QProcess>
+#include <QtCore/QTimer>
+#include <QtCore/QMutex>
+#include <QtCore/QMutexLocker>
+
 #include "proxysettings.h"
 #include "deviceorientation.h"
 

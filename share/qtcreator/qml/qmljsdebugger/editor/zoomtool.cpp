@@ -34,14 +34,14 @@
 #include "zoomtool.h"
 #include "../qdeclarativeviewobserver_p.h"
 
-#include <QMouseEvent>
-#include <QWheelEvent>
-#include <QKeyEvent>
-#include <QRectF>
-#include <QMenu>
-#include <QAction>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QWheelEvent>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QMenu>
+#include <QtGui/QAction>
 
-#include <QDebug>
+#include <QtCore/QRectF>
+#include <QtCore/QDebug>
 
 namespace QmlJSDebugger {
 

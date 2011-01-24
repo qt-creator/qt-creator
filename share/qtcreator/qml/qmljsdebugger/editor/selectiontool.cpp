@@ -34,21 +34,20 @@
 #include "selectiontool.h"
 #include "layeritem.h"
 
-//#include "resizehandleitem.h"
 #include "../qdeclarativeviewobserver_p.h"
 
-#include <QDeclarativeEngine>
+#include <QtGui/QApplication>
+#include <QtGui/QWheelEvent>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QClipboard>
+#include <QtGui/QMenu>
+#include <QtGui/QAction>
+#include <QtGui/QGraphicsObject>
 
-#include <QApplication>
-#include <QWheelEvent>
-#include <QMouseEvent>
-#include <QClipboard>
-#include <QMenu>
-#include <QAction>
-#include <QDeclarativeItem>
-#include <QGraphicsObject>
+#include <QtDeclarative/QDeclarativeItem>
+#include <QtDeclarative/QDeclarativeEngine>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 namespace QmlJSDebugger {
 

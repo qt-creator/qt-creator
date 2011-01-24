@@ -34,11 +34,14 @@
 #include "selectionrectangle.h"
 #include "qmlobserverconstants.h"
 
-#include <QPen>
-#include <QGraphicsScene>
-#include <QtDebug>
+#include <QtGui/QPen>
+#include <QtGui/QGraphicsRectItem>
+#include <QtGui/QGraphicsObject>
+#include <QtGui/QGraphicsScene>
+
+#include <QtCore/QtDebug>
+
 #include <cmath>
-#include <QGraphicsScene>
 
 namespace QmlJSDebugger {
 

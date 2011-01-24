@@ -31,15 +31,15 @@
 **
 **************************************************************************/
 
-#include <QLabel>
-#include <QIcon>
-#include <QAction>
-#include <QMenu>
-
 #include "qmltoolbar.h"
 #include "toolbarcolorbox.h"
 
-#include <QDebug>
+#include <QtGui/QLabel>
+#include <QtGui/QIcon>
+#include <QtGui/QAction>
+#include <QtGui/QMenu>
+
+#include <QtCore/QDebug>
 
 namespace QmlJSDebugger {
 

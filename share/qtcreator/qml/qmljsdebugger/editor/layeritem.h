@@ -34,8 +34,7 @@
 #ifndef LAYERITEM_H
 #define LAYERITEM_H
 
-#include <QGraphicsObject>
-#include <QWeakPointer>
+#include <QtGui/QGraphicsObject>
 
 namespace QmlJSDebugger {
 

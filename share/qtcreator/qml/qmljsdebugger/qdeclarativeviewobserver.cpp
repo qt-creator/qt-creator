@@ -44,15 +44,15 @@
 
 #include "qt_private/qdeclarativedebughelper_p.h"
 
-#include <QDeclarativeItem>
-#include <QDeclarativeEngine>
-#include <QDeclarativeContext>
-#include <QDeclarativeExpression>
-#include <QWidget>
-#include <QMouseEvent>
-#include <QGraphicsObject>
-#include <QApplication>
-#include <QAbstractAnimation>
+#include <QtDeclarative/QDeclarativeItem>
+#include <QtDeclarative/QDeclarativeEngine>
+#include <QtDeclarative/QDeclarativeContext>
+#include <QtDeclarative/QDeclarativeExpression>
+#include <QtGui/QWidget>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QGraphicsObject>
+#include <QtGui/QApplication>
+#include <QtCore/QAbstractAnimation>
 
 namespace QmlJSDebugger {
 

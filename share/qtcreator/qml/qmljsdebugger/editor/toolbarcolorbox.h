@@ -34,12 +34,12 @@
 #ifndef ToolBarColorBox_H
 #define ToolBarColorBox_H
 
-#include <QLabel>
-#include <QColor>
-#include <QPoint>
+#include <QtGui/QLabel>
+#include <QtGui/QColor>
+#include <QtCore/QPoint>
 
-QT_FORWARD_DECLARE_CLASS(QContextMenuEvent);
-QT_FORWARD_DECLARE_CLASS(QAction);
+QT_FORWARD_DECLARE_CLASS(QContextMenuEvent)
+QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace QmlJSDebugger {
 

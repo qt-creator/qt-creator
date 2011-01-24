@@ -34,9 +34,12 @@
 #ifndef SELECTIONRECTANGLE_H
 #define SELECTIONRECTANGLE_H
 
-#include <QWeakPointer>
-#include <QGraphicsRectItem>
-#include <QGraphicsObject>
+#include <QtCore/QWeakPointer>
+
+QT_FORWARD_DECLARE_CLASS(QGraphicsObject)
+QT_FORWARD_DECLARE_CLASS(QGraphicsRectItem)
+QT_FORWARD_DECLARE_CLASS(QPointF)
+QT_FORWARD_DECLARE_CLASS(QRectF)
 
 namespace QmlJSDebugger {
 
