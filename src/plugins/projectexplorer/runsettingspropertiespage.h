@@ -50,6 +50,7 @@ namespace ProjectExplorer {
 class DeployConfiguration;
 class DeployConfigurationWidget;
 class DeployConfigurationModel;
+class RunConfiguration;
 class RunConfigurationModel;
 
 namespace Internal {
@@ -112,6 +113,7 @@ private:
     QString uniqueDCName(const QString &name);
     QString uniqueRCName(const QString &name);
     void updateDeployConfiguration(DeployConfiguration *);
+    void setConfigurationWidget(RunConfiguration *rc);
 
     Target *m_target;
     RunConfigurationModel *m_runConfigurationsModel;

@@ -191,8 +191,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     m_ui->removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
     m_ui->renameRunButton->setEnabled(m_target->activeRunConfiguration());
 
-    m_runConfigurationWidget = m_target->activeRunConfiguration()->createConfigurationWidget();
-    m_runLayout->addWidget(m_runConfigurationWidget);
+    setConfigurationWidget(m_target->activeRunConfiguration());
 
     connect(m_addRunMenu, SIGNAL(aboutToShow()),
             this, SLOT(aboutToShowAddMenu()));
@@ -280,10 +279,6 @@ void RunSettingsWidget::activeRunConfigurationChanged()
     m_ignoreChange = true;
     m_ui->runConfigurationCombo->setCurrentIndex(actRc.row());
     m_ignoreChange = false;
-
-    delete m_runConfigurationWidget;
-    m_runConfigurationWidget = m_target->activeRunConfiguration()->createConfigurationWidget();
-    m_runLayout->addWidget(m_runConfigurationWidget);
 }
 
 void RunSettingsWidget::renameRunConfiguration()
@@ -308,22 +303,17 @@ void RunSettingsWidget::currentRunConfigurationChanged(int index)
 {
     if (m_ignoreChange)
         return;
-    if (index == -1) {
-        delete m_runConfigurationWidget;
-        m_runConfigurationWidget = 0;
-        return;
-    }
-    RunConfiguration *selectedRunConfiguration =
-            m_runConfigurationsModel->runConfigurationAt(index);
+
+    RunConfiguration *selectedRunConfiguration = 0;
+    if (index >= 0)
+        selectedRunConfiguration = m_runConfigurationsModel->runConfigurationAt(index);
 
     m_ignoreChange = true;
     m_target->setActiveRunConfiguration(selectedRunConfiguration);
     m_ignoreChange = false;
 
     // Update the run configuration configuration widget
-    delete m_runConfigurationWidget;
-    m_runConfigurationWidget = selectedRunConfiguration->createConfigurationWidget();
-    m_runLayout->addWidget(m_runConfigurationWidget);
+    setConfigurationWidget(selectedRunConfiguration);
 }
 
 void RunSettingsWidget::currentDeployConfigurationChanged(int index)
@@ -422,6 +412,16 @@ void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
     m_deploySteps = new BuildStepListWidget;
     m_deploySteps->init(dc->stepList());
     m_deployLayout->addWidget(m_deploySteps);
+}
+
+void RunSettingsWidget::setConfigurationWidget(RunConfiguration *rc)
+{
+    delete m_runConfigurationWidget;
+    m_runConfigurationWidget = 0;
+    if (!rc)
+        return;
+    m_runConfigurationWidget = m_target->activeRunConfiguration()->createConfigurationWidget();
+    m_runLayout->addWidget(m_runConfigurationWidget);
 }
 
 QString RunSettingsWidget::uniqueDCName(const QString &name)
