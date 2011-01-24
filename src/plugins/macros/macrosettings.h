@@ -58,7 +58,7 @@ public:
 
     QString defaultDirectory;
     QStringList directories;
-    QMap<QString, QVariant> shortcutIds;
+    QMap<QString, QVariant> shortcuts;
     bool showSaveDialog;
 };
 

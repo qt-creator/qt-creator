@@ -34,6 +34,13 @@
 #ifndef MACROSPLUGIN_MACRO_H
 #define MACROSPLUGIN_MACRO_H
 
+#include <coreplugin/uniqueidmanager.h>
+
+#include <QList>
+#include <QString>
+#include <QShortcut>
+
+#include "macroevent.h"
 #include "macros_global.h"
 #include "macroevent.h"
 
@@ -63,9 +70,6 @@ public:
 
     void append(const MacroEvent &event);
     const QList<MacroEvent> &events() const;
-
-    void setShortcutId(int id);
-    int shortcutId() const;
 
     bool isWritable() const;
 

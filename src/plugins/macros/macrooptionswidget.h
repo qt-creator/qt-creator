@@ -75,7 +75,6 @@ private:
 
 private slots:
     void changeDescription(const QString &description);
-    void changeShortcut(bool shortcut);
 
 private:
     Ui::MacroOptionsWidget *ui;

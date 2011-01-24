@@ -54,7 +54,6 @@ public:
     QString name() const;
     QString description() const;
     bool hideSaveDialog() const;
-    bool createShortcut() const;
 
 private:
     Ui::SaveDialog *ui;

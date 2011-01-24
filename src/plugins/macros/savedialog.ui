@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>219</width>
-    <height>153</height>
+    <height>116</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -51,14 +51,7 @@
    <item row="4" column="0" colspan="2">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
-      <set>QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QCheckBox" name="createShortcut">
-     <property name="text">
-      <string>Create a shortcut</string>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
      </property>
     </widget>
    </item>
@@ -67,8 +60,6 @@
  <tabstops>
   <tabstop>name</tabstop>
   <tabstop>description</tabstop>
-  <tabstop>createShortcut</tabstop>
-  <tabstop>buttonBox</tabstop>
   <tabstop>hideSaveDialog</tabstop>
  </tabstops>
  <resources/>

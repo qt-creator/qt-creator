@@ -77,7 +77,7 @@ protected:
     friend class Internal::MacroOptionsWidget;
 
     void deleteMacro(const QString &name);
-    void changeMacro(const QString &name, const QString &description, bool shortcut);
+    void changeMacro(const QString &name, const QString &description);
     void appendDirectory(const QString &directory);
     void removeDirectory(const QString &directory);
     void setDefaultDirectory(const QString &directory);

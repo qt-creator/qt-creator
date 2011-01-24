@@ -67,8 +67,3 @@ bool SaveDialog::hideSaveDialog() const
 {
     return ui->hideSaveDialog->isChecked();
 }
-
-bool SaveDialog::createShortcut() const
-{
-    return ui->createShortcut->isChecked();
-}

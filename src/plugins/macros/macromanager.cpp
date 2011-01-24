@@ -114,8 +114,6 @@ public:
     QList<IMacroHandler*> handlers;
 
     QSignalMapper *mapper;
-    QMap<int, QShortcut *> shortcuts;
-    int currentId;
 
     ActionMacroHandler *actionHandler;
     TextEditorMacroHandler *textEditorHandler;
@@ -124,12 +122,9 @@ public:
     void init();
     void appendDirectory(const QString &directory);
     void removeDirectory(const QString &directory);
-    void addMacro(Macro *macro);
+    void addMacro(Macro *macro, QKeySequence ks=QKeySequence());
     void removeMacro(const QString &name);
     void changeMacroDescription(Macro *macro, const QString &description);
-
-    int addShortcut(Macro *macro, int id=-1);
-    void removeShortcut(Macro *macro);
 
     bool executeMacro(Macro *macro);
     void showSaveDialog();
@@ -139,8 +134,7 @@ MacroManager::MacroManagerPrivate::MacroManagerPrivate(MacroManager *qq):
     q(qq),
     currentMacro(0),
     isRecording(false),
-    mapper(new QSignalMapper(qq)),
-    currentId(0)
+    mapper(new QSignalMapper(qq))
 {
     settings.fromSettings(Core::ICore::instance()->settings());
 
@@ -167,13 +161,13 @@ void MacroManager::MacroManagerPrivate::appendDirectory(const QString &directory
         QString fileName = dir.absolutePath()+"/"+name;
         Macro *macro = new Macro;
         macro->loadHeader(fileName);
-        addMacro(macro);
 
         // Create shortcut
-        if (settings.shortcutIds.contains(macro->displayName())) {
-            int id = settings.shortcutIds.value(macro->displayName()).toInt();
-            addShortcut(macro, id);
-        }
+        QKeySequence ks;
+        if (settings.shortcuts.contains(macro->displayName()))
+            ks.fromString(settings.shortcuts.value(macro->displayName()).toString());
+
+        addMacro(macro, ks);
     }
 }
 
@@ -192,8 +186,22 @@ void MacroManager::MacroManagerPrivate::removeDirectory(const QString &directory
         removeMacro(name);
 }
 
-void MacroManager::MacroManagerPrivate::addMacro(Macro *macro)
+void MacroManager::MacroManagerPrivate::addMacro(Macro *macro, QKeySequence ks)
 {
+    // Add sortcut
+    Core::Context context(TextEditor::Constants::C_TEXTEDITOR);
+    Core::ICore *core = Core::ICore::instance();
+    Core::ActionManager *am = core->actionManager();
+    QShortcut *shortcut = new QShortcut(core->mainWindow());
+    shortcut->setWhatsThis(macro->description());
+    const QString macroId = QLatin1String(Constants::PREFIX_MACRO) + macro->displayName();
+    Core::Command *command = am->registerShortcut(shortcut, macroId, context);
+    if (!ks.isEmpty())
+        command->setDefaultKeySequence(ks);
+    connect(shortcut, SIGNAL(activated()), mapper, SLOT(map()));
+    mapper->setMapping(shortcut, macro->displayName());
+
+    // Add macro to the map
     macros[macro->displayName()] = macro;
 }
 
@@ -201,8 +209,13 @@ void MacroManager::MacroManagerPrivate::removeMacro(const QString &name)
 {
     if (!macros.contains(name))
         return;
+    // Remove shortcut
+    Core::ICore *core = Core::ICore::instance();
+    Core::ActionManager *am = core->actionManager();
+    am->unregisterShortcut(Core::Id(Constants::PREFIX_MACRO+name));
+
+    // Remove macro from the map
     Macro *macro = macros.take(name);
-    removeShortcut(macro);
     delete macro;
 }
 
@@ -211,52 +224,14 @@ void MacroManager::MacroManagerPrivate::changeMacroDescription(Macro *macro, con
     macro->load();
     macro->setDescription(description);
     macro->save(macro->fileName());
-}
 
-int MacroManager::MacroManagerPrivate::addShortcut(Macro *macro, int id)
-{
-    if (id==-1)
-        id=currentId;
-    QShortcut *shortcut=0;
-    if (shortcuts.contains(id)) {
-        shortcut = shortcuts.value(id);
-    } else {
-        Core::Context context(TextEditor::Constants::C_TEXTEDITOR);
-        Core::ICore *core = Core::ICore::instance();
-        Core::ActionManager *am = core->actionManager();
-        shortcut = new QShortcut(core->mainWindow());
-        connect(shortcut, SIGNAL(activated()), mapper, SLOT(map()));
-        const QString macroId = QLatin1String(Constants::SHORTCUT_MACRO) + QString("%1").arg(id, 2, 10, QLatin1Char('0'));
-        Core::Command *command = am->registerShortcut(shortcut, macroId, context);
+    // Change shortcut what's this
+    Core::ICore *core = Core::ICore::instance();
+    Core::ActionManager *am = core->actionManager();
 
-        // Add a default shortcut for the 10 first shortcuts
-        if (id < 10)
-            command->setDefaultKeySequence(QKeySequence(QString(tr("Alt+R,Alt+%1").arg(id))));
-        shortcuts[id] = shortcut;
-    }
-    // Update the current id (first id without shortcut)
-    while (shortcuts.contains(currentId))
-        currentId++;
-
-    // Assign the shortcut
-    macro->setShortcutId(id);
-    shortcut->setWhatsThis(macro->displayName());
-    mapper->setMapping(shortcut, macro->displayName());
-    return id;
-}
-
-void MacroManager::MacroManagerPrivate::removeShortcut(Macro *macro)
-{
-    // Remove the old shortcut
-    if (macro->shortcutId() >= 0) {
-        QShortcut* shortcut = qobject_cast<QShortcut *>(mapper->mapping(macro->displayName()));
-        shortcut->setWhatsThis("");
-        if (shortcut)
-            mapper->removeMappings(shortcut);
-        if (currentId > macro->shortcutId())
-            currentId = macro->shortcutId();
-        macro->setShortcutId(-1);
-    }
+    Core::Command *command = am->command(Core::Id(Constants::PREFIX_MACRO+macro->displayName()));
+    if (command && command->shortcut())
+        command->shortcut()->setWhatsThis(description);
 }
 
 bool MacroManager::MacroManagerPrivate::executeMacro(Macro *macro)
@@ -324,9 +299,6 @@ void MacroManager::MacroManagerPrivate::showSaveDialog()
         currentMacro->setDescription(dialog.description());
         currentMacro->save(fileName);
         addMacro(currentMacro);
-
-        if (dialog.createShortcut())
-            settings.shortcutIds[dialog.name()] = addShortcut(currentMacro);
 
         if (changed)
             q->saveSettings();
@@ -458,7 +430,7 @@ void MacroManager::deleteMacro(const QString &name)
     if (macro) {
         QString fileName = macro->fileName();
         d->removeMacro(name);
-        d->settings.shortcutIds.remove(name);
+        d->settings.shortcuts.remove(name);
         QFile::remove(fileName);
     }
 }
@@ -483,7 +455,7 @@ MacroManager *MacroManager::instance()
     return m_instance;
 }
 
-void MacroManager::changeMacro(const QString &name, const QString &description, bool shortcut)
+void MacroManager::changeMacro(const QString &name, const QString &description)
 {
     if (!d->macros.contains(name))
         return;
@@ -492,16 +464,4 @@ void MacroManager::changeMacro(const QString &name, const QString &description, 
     // Change description
     if (macro->description() != description)
         d->changeMacroDescription(macro, description);
-
-    // Change shortcut
-    if ((macro->shortcutId()==-1 && !shortcut)
-            || (macro->shortcutId()>=0 && shortcut))
-        return;
-
-    if (shortcut) {
-        d->settings.shortcutIds[name] = d->addShortcut(macro);
-    } else {
-        d->removeShortcut(macro);
-        d->settings.shortcutIds.remove(name);
-    }
 }

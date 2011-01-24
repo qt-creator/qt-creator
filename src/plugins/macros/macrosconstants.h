@@ -42,7 +42,7 @@ const char * const M_TOOLS_MACRO = "Macros.Tools.Menu";
 const char * const START_MACRO = "Macros.StartMacro";
 const char * const END_MACRO = "Macros.EndMacro";
 const char * const EXECUTE_LAST_MACRO = "Macros.ExecuteLastMacro";
-const char * const SHORTCUT_MACRO = "Macros.Shortcut-";
+const char * const PREFIX_MACRO = "Macros.";
 
 const char * const M_OPTIONS_PAGE = "Macros";
 const char * const M_OPTIONS_TR_PAGE = "Macros";

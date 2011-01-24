@@ -87,8 +87,6 @@ MacroOptionsWidget::MacroOptionsWidget(QWidget *parent) :
             this, SLOT(addDirectoy()));
     connect(ui->description, SIGNAL(textChanged(QString)),
             this, SLOT(changeDescription(QString)));
-    connect(ui->assignShortcut, SIGNAL(toggled(bool)),
-            this, SLOT(changeShortcut(bool)));
 
     ui->treeWidget->header()->setSortIndicator(0, Qt::AscendingOrder);
 }
@@ -125,6 +123,7 @@ void MacroOptionsWidget::appendDirectory(const QString &directory, bool isDefaul
 
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
+
     QMapIterator<QString, Macro *> it(MacroManager::instance()->macros());
     while (it.hasNext()) {
         it.next();
@@ -135,14 +134,10 @@ void MacroOptionsWidget::appendDirectory(const QString &directory, bool isDefaul
             macroItem->setText(1, it.value()->description());
             macroItem->setData(0, NAME_ROLE, it.value()->displayName());
             macroItem->setData(0, WRITE_ROLE, it.value()->isWritable());
-            macroItem->setData(0, ID_ROLE, it.value()->shortcutId());
 
-            if (it.value()->shortcutId() >= 0) {
-                QString textId = QString("%1").arg(it.value()->shortcutId(), 2, 10, QLatin1Char('0'));
-                QString commandId = QLatin1String(Constants::SHORTCUT_MACRO)+textId;
-                QString shortcut = am->command(commandId)->keySequence().toString();
-                macroItem->setText(2, QString("%1 (%2)").arg(shortcut).arg(commandId));
-            }
+            Core::Command *command = am->command(Core::Id(Constants::PREFIX_MACRO+it.value()->displayName()));
+            if (command && command->shortcut())
+                macroItem->setText(2, command->shortcut()->key().toString());
         }
     }
 }
@@ -160,7 +155,6 @@ void MacroOptionsWidget::changeCurrentItem(QTreeWidgetItem *current)
         ui->removeButton->setEnabled(false);
         ui->defaultButton->setEnabled(false);
         ui->description->clear();
-        ui->assignShortcut->setChecked(false);
         ui->macroGroup->setEnabled(false);
     }
     else if (current->type() == DIRECTORY) {
@@ -168,14 +162,12 @@ void MacroOptionsWidget::changeCurrentItem(QTreeWidgetItem *current)
         ui->removeButton->setEnabled(!isDefault);
         ui->defaultButton->setEnabled(!isDefault);
         ui->description->clear();
-        ui->assignShortcut->setChecked(false);
         ui->macroGroup->setEnabled(false);
     } else {
         ui->removeButton->setEnabled(true);
         ui->defaultButton->setEnabled(false);
         ui->description->setText(current->text(1));
         ui->description->setEnabled(current->data(0, WRITE_ROLE).toBool());
-        ui->assignShortcut->setChecked(current->data(0, ID_ROLE).toInt() >= 0);
         ui->macroGroup->setEnabled(true);
     }
     changingCurrent = false;
@@ -217,8 +209,7 @@ void MacroOptionsWidget::apply()
     QMapIterator<QString, ChangeSet> it(m_macroToChange);
     while (it.hasNext()) {
         it.next();
-        MacroManager::instance()->changeMacro(it.key(), it.value().description,
-                                              it.value().shortcut);
+        MacroManager::instance()->changeMacro(it.key(), it.value().description);
     }
 
     // Get list of dir to append or remove
@@ -263,21 +254,6 @@ void MacroOptionsWidget::changeData(QTreeWidgetItem *current, int column, QVaria
         font.setItalic(true);
         current->setFont(1, font);
     }
-    // Change the shortcut
-    if (column == 2) {
-        bool shortcut = value.toBool();
-        m_macroToChange[macroName].shortcut = shortcut;
-        QFont font = current->font(2);
-        if (current->data(0, ID_ROLE).toInt() >= 0) {
-            font.setStrikeOut(!shortcut);
-            font.setItalic(!shortcut);
-        }
-        else {
-            font.setItalic(shortcut);
-            current->setText(2, shortcut?tr("create shortcut"):"");
-        }
-        current->setFont(2, font);
-    }
 }
 
 void MacroOptionsWidget::changeDescription(const QString &description)
@@ -286,12 +262,4 @@ void MacroOptionsWidget::changeDescription(const QString &description)
     if (changingCurrent || !current || current->type() == DIRECTORY)
         return;
     changeData(current, 1, description);
-}
-
-void MacroOptionsWidget::changeShortcut(bool shortcut)
-{
-    QTreeWidgetItem *current = ui->treeWidget->currentItem();
-    if (changingCurrent || !current || current->type() == DIRECTORY)
-        return;
-    changeData(current, 2, shortcut);
 }
