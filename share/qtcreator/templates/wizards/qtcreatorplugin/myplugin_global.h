@@ -1,7 +1,7 @@
 #ifndef %PluginName:u%_GLOBAL_%CppHeaderSuffix:u%
 #define %PluginName:u%_GLOBAL_%CppHeaderSuffix:u%
 
-#include <QtCore/qglobal.h>
+#include <QtCore/QtGlobal>
 
 #if defined(%PluginName:u%_LIBRARY)
 #  define %PluginName:u%SHARED_EXPORT Q_DECL_EXPORT

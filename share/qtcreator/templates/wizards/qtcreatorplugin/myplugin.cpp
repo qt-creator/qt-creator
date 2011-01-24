@@ -1,8 +1,6 @@
 #include "%PluginName:l%plugin.%CppHeaderSuffix%"
 #include "%PluginName:l%constants.%CppHeaderSuffix%"
 
-#include <QtPlugin>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -10,11 +8,12 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
 
-#include <QtPlugin>
-#include <QAction>
-#include <QMessageBox>
-#include <QMainWindow>
-#include <QMenu>
+#include <QtGui/QAction>
+#include <QtGui/QMessageBox>
+#include <QtGui/QMainWindow>
+#include <QtGui/QMenu>
+
+#include <QtCore/QtPlugin>
 
 using namespace %PluginName%::Internal;
 
