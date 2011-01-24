@@ -70,7 +70,7 @@ Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters()
     Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::QML_WIZARD_ICON)));
     parameters.setDisplayName(tr("Qt Quick UI"));
-    parameters.setId(QLatin1String("QA.QML Application"));
+    parameters.setId(QLatin1String("QB.QML Application"));
 
     parameters.setDescription(tr("Creates a  Qt Quick UI project with a single "
         "QML file that contains the main view.\n\n"

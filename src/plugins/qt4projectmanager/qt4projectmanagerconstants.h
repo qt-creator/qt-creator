@@ -97,12 +97,12 @@ const char * const QTVERSION_SETTINGS_PAGE_ID = "Qt Versions";
 const char * const QTVERSION_SETTINGS_PAGE_NAME = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt Versions");
 
 // C++ wizard categories
-const char * const QT_APP_WIZARD_CATEGORY = "C.QtApplicationProjects";
+const char * const QT_APP_WIZARD_CATEGORY = "F.QtApplicationProjects";
 const char * const QT_APP_WIZARD_TR_SCOPE = "Qt4ProjectManager";
-const char * const QT_APP_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt C++ Project");
+const char * const QT_APP_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt QWidget Project");
 
 // QML wizard categories
-const char * const QML_WIZARD_CATEGORY = "F.Projects"; // (after Qt)
+const char * const QML_WIZARD_CATEGORY = "C.Projects"; // (before Qt)
 const char * const QML_WIZARD_TR_SCOPE = "QmlProjectManager";
 const char * const QML_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("QmlProjectManager", "Qt Quick Project");
 const char * const QML_WIZARD_ICON = ":/qmlproject/images/qml_wizard.png";

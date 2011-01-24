@@ -40,7 +40,7 @@ leave room for the Qt 4 target page.
 -->
 <wizard version="1" kind="project"
         class="qt4project" firstpage="10"
-        id="QmlExtensionPlugin" category="F.Projects">
+        id="QmlExtensionPlugin" category="C.Projects">
     <icon>lib.png</icon>
     <description>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QDeclarativeEngine class.</description>
     <displayname>Custom QML Extension Plugin</displayname>
