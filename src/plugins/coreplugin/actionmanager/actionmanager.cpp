@@ -377,7 +377,7 @@ void ActionManagerPrivate::unregisterAction(QAction *action, const Id &id)
     QTC_ASSERT(c, return);
     a = qobject_cast<Action *>(c);
     if (!a) {
-        qWarning() << "registerAction: id" << id << "is registered with a different command type.";
+        qWarning() << "unregisterAction: id" << id << "is registered with a different command type.";
         return;
     }
     a->removeOverrideAction(action);
@@ -516,4 +516,21 @@ void ActionManagerPrivate::saveSettings(QSettings *settings)
     }
 
     settings->endArray();
+}
+
+void ActionManagerPrivate::unregisterShortcut(const Core::Id &id)
+{
+    Shortcut *sc = 0;
+    const int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
+    CommandPrivate *c = m_idCmdMap.value(uid, 0);
+    QTC_ASSERT(c, return);
+    sc = qobject_cast<Shortcut *>(c);
+    if (!sc) {
+        qWarning() << "unregisterShortcut: id" << id << "is registered with a different command type.";
+        return;
+    }
+    delete sc->shortcut();
+    m_idCmdMap.remove(uid);
+    delete sc;
+    emit commandListChanged();
 }

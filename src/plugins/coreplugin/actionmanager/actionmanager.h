@@ -71,6 +71,7 @@ public:
     virtual QList<Command *> commands() const = 0;
 
     virtual void unregisterAction(QAction *action, const Id &id) = 0;
+    virtual void unregisterShortcut(const Id &id) = 0;
 
 signals:
     void commandListChanged();
