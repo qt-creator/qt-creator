@@ -41,13 +41,13 @@
         <input>
         --Terminal opens a window by default when it is not running, so check
         on applicationIsRunning(applicationName)
-                tell application "System Events" to count (every process whose name is applicationName)
+                tell application &quot;System Events&quot; to count (every process whose name is applicationName)
                 return result is greater than 0
         end applicationIsRunning
-        set terminalWasRunning to applicationIsRunning("Terminal")
+        set terminalWasRunning to applicationIsRunning(&quot;Terminal&quot;)
 
-        set editorScript to "vi \"%{CurrentDocument:FilePath}\" +%{CurrentDocument:Row} +\"normal %{CurrentDocument:Column}|\"; exit"
-        tell application "Terminal"
+        set editorScript to &quot;vi \&quot;%{CurrentDocument:FilePath}\&quot; +%{CurrentDocument:Row} +\&quot;normal %{CurrentDocument:Column}|\&quot;; exit&quot;
+        tell application &quot;Terminal&quot;
             --do script will open a new window if none given, but terminal already opens one if not running
             if terminalWasRunning then
                 do script editorScript

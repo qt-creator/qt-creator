@@ -42,8 +42,10 @@
 #include <utils/environment.h>
 
 #include <QtCore/QXmlStreamReader>
+#include <QtCore/QXmlStreamWriter>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
+#include <QtCore/QDateTime>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuItem>
 #include <QtGui/QAction>
@@ -55,6 +57,7 @@ using namespace Core::Internal;
 
 namespace {
     const char * const kExternalTool = "externaltool";
+    const char * const kId = "id";
     const char * const kDescription = "description";
     const char * const kDisplayName = "displayname";
     const char * const kCategory = "category";
@@ -84,8 +87,7 @@ ExternalTool::ExternalTool() :
     m_order(-1),
     m_outputHandling(ShowInPane),
     m_errorHandling(ShowInPane),
-    m_modifiesCurrentDocument(false),
-    m_isDisplayNameChanged(false)
+    m_modifiesCurrentDocument(false)
 {
 }
 
@@ -102,7 +104,8 @@ ExternalTool::ExternalTool(const ExternalTool *other)
       m_outputHandling(other->m_outputHandling),
       m_errorHandling(other->m_errorHandling),
       m_modifiesCurrentDocument(other->m_modifiesCurrentDocument),
-      m_isDisplayNameChanged(other->m_isDisplayNameChanged)
+      m_fileName(other->m_fileName),
+      m_presetFileName(other->m_presetFileName)
 {
 }
 
@@ -170,82 +173,75 @@ bool ExternalTool::modifiesCurrentDocument() const
     return m_modifiesCurrentDocument;
 }
 
+void ExternalTool::setFileName(const QString &fileName)
+{
+    m_fileName = fileName;
+}
+
+void ExternalTool::setPresetFileName(const QString &fileName)
+{
+    m_presetFileName = fileName;
+}
+
+QString ExternalTool::fileName() const
+{
+    return m_fileName;
+}
+
+QString ExternalTool::presetFileName() const
+{
+    return m_presetFileName;
+}
+
 void ExternalTool::setDisplayName(const QString &name)
 {
-    if (name == m_displayName)
-        return;
-    m_isDisplayNameChanged = true;
     m_displayName = name;
 }
 
 void ExternalTool::setDescription(const QString &description)
 {
-    if (description == m_description)
-        return;
-    m_isChanged = true;
     m_description = description;
 }
 
 
 void ExternalTool::setOutputHandling(OutputHandling handling)
 {
-    if (handling == m_outputHandling)
-        return;
-    m_isChanged = true;
     m_outputHandling = handling;
 }
 
 
 void ExternalTool::setErrorHandling(OutputHandling handling)
 {
-    if (handling == m_errorHandling)
-        return;
-    m_isChanged = true;
     m_errorHandling = handling;
 }
 
 
 void ExternalTool::setModifiesCurrentDocument(bool modifies)
 {
-    if (modifies == m_modifiesCurrentDocument)
-        return;
-    m_isChanged = true;
     m_modifiesCurrentDocument = modifies;
 }
 
 
 void ExternalTool::setExecutables(const QStringList &executables)
 {
-    if (executables == m_executables)
-        return;
-    m_isChanged = true;
     m_executables = executables;
 }
 
 
 void ExternalTool::setArguments(const QString &arguments)
 {
-    if (arguments == m_arguments)
-        return;
-    m_isChanged = true;
     m_arguments = arguments;
 }
 
 
 void ExternalTool::setInput(const QString &input)
 {
-    if (input == m_input)
-        return;
-    m_isChanged = true;
     m_input = input;
 }
 
 
 void ExternalTool::setWorkingDirectory(const QString &workingDirectory)
 {
-    if (workingDirectory == m_workingDirectory)
-        return;
-    m_isChanged = true;
     m_workingDirectory = workingDirectory;
 }
 
@@ -319,7 +315,7 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
 
     if (!reader.readNextStartElement() || reader.name() != QLatin1String(kExternalTool))
         reader.raiseError(QLatin1String("Missing start element <externaltool>"));
-    tool->m_id = reader.attributes().value(QLatin1String("id")).toString();
+    tool->m_id = reader.attributes().value(QLatin1String(kId)).toString();
     if (tool->m_id.isEmpty())
         reader.raiseError(QLatin1String("Missing or empty id attribute for <externaltool>"));
     while (reader.readNextStartElement()) {
@@ -396,6 +392,82 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
         return 0;
     }
     return tool;
+}
+
+ExternalTool * ExternalTool::createFromFile(const QString &fileName, QString *errorMessage, const QString &locale, bool isPreset)
+{
+    QFileInfo info(fileName);
+    QFile file(info.absoluteFilePath());
+    if (!file.open(QIODevice::ReadOnly)) {
+        if (errorMessage)
+            *errorMessage = tr("Could not open tool specification %1 for reading").arg(fileName);
+        return 0;
+    }
+    const QByteArray &bytes = file.readAll();
+    file.close();
+    ExternalTool *tool = ExternalTool::createFromXml(bytes, errorMessage, locale);
+    if (!tool) {
+        return 0;
+    }
+    tool->m_fileName = file.fileName();
+    if (isPreset) {
+        tool->setPresetFileName(file.fileName());
+    }
+    return tool;
+}
+
+static QLatin1String stringForOutputHandling(ExternalTool::OutputHandling handling)
+{
+    switch (handling) {
+    case Core::Internal::ExternalTool::Ignore:
+        return QLatin1String(kOutputIgnore);
+    case Core::Internal::ExternalTool::ShowInPane:
+        return QLatin1String(kOutputShowInPane);
+    case Core::Internal::ExternalTool::ReplaceSelection:
+        return QLatin1String(kOutputReplaceSelection);
+    }
+    return QLatin1String("");
+}
+
+bool ExternalTool::save(QString *errorMessage) const
+{
+    if (m_fileName.isEmpty())
+        return false;
+    QFile file(m_fileName);
+    if (!file.open(QIODevice::WriteOnly)) {
+        if (errorMessage)
+            *errorMessage = tr("Could not write tool specification %1").arg(m_fileName);
+        return false;
+    }
+    QXmlStreamWriter out(&file);
+    out.setAutoFormatting(true);
+    out.writeStartDocument(QLatin1String("1.0"));
+    out.writeComment(QString::fromLatin1("Written on %1 by Qt Creator %2")
+                     .arg(QDateTime::currentDateTime().toString(), QLatin1String(Constants::IDE_VERSION_LONG)));
+    out.writeStartElement(QLatin1String(kExternalTool));
+    out.writeAttribute(QLatin1String(kId), m_id);
+    out.writeTextElement(QLatin1String(kDescription), m_description);
+    out.writeTextElement(QLatin1String(kDisplayName), m_displayName);
+    out.writeTextElement(QLatin1String(kCategory), m_displayCategory);
+    if (m_order != -1)
+        out.writeTextElement(QLatin1String(kOrder), QString::number(m_order));
+
+    out.writeStartElement(QLatin1String(kExecutable));
+    out.writeAttribute(QLatin1String(kOutput), stringForOutputHandling(m_outputHandling));
+    out.writeAttribute(QLatin1String(kError), stringForOutputHandling(m_errorHandling));
+    out.writeAttribute(QLatin1String(kModifiesDocument), m_modifiesCurrentDocument ? QLatin1String(kYes) : QLatin1String(kNo));
+    foreach (const QString &executable, m_executables)
+        out.writeTextElement(QLatin1String(kPath), executable);
+    if (!m_arguments.isEmpty())
+        out.writeTextElement(QLatin1String(kArguments), m_arguments);
+    if (!m_input.isEmpty())
+        out.writeTextElement(QLatin1String(kInput), m_input);
+    if (!m_workingDirectory.isEmpty())
+        out.writeTextElement(QLatin1String(kWorkingDirectory), m_workingDirectory);
+    out.writeEndElement();
+
+    out.writeEndDocument();
+    file.close();
 }
 
 bool ExternalTool::operator==(const ExternalTool &other)
@@ -610,33 +682,31 @@ void ExternalToolManager::initialize()
 void ExternalToolManager::parseDirectory(const QString &directory,
                                          QMap<QString, QMultiMap<int, Internal::ExternalTool*> > *categoryMenus,
                                          QMap<QString, ExternalTool *> *tools,
-                                         bool ignoreDuplicates)
+                                         bool isPreset)
 {
     QTC_ASSERT(categoryMenus, return);
     QTC_ASSERT(tools, return);
     QDir dir(directory, QLatin1String("*.xml"), QDir::Unsorted, QDir::Files | QDir::Readable);
     foreach (const QFileInfo &info, dir.entryInfoList()) {
-        QFile file(info.absoluteFilePath());
-        if (file.open(QIODevice::ReadOnly)) {
-            const QByteArray &bytes = file.readAll();
-            file.close();
-            QString error;
-            ExternalTool *tool = ExternalTool::createFromXml(bytes, &error, m_core->userInterfaceLanguage());
-            if (!tool) {
-                // TODO error handling
-                qDebug() << tr("Error while parsing external tool %1: %2").arg(file.fileName(), error);
-                continue;
-            }
-            if (tools->contains(tool->id())) {
-                // TODO error handling
-                if (!ignoreDuplicates)
-                    qDebug() << tr("Error: External tool in %1 has duplicate id").arg(file.fileName());
-                delete tool;
-                continue;
-            }
-            tools->insert(tool->id(), tool);
-            (*categoryMenus)[tool->displayCategory()].insert(tool->order(), tool);
+        const QString &fileName = info.absoluteFilePath();
+        QString error;
+        ExternalTool *tool = ExternalTool::createFromFile(fileName, &error, m_core->userInterfaceLanguage(), isPreset);
+        if (!tool) {
+            qWarning() << tr("Error while parsing external tool %1: %2").arg(fileName, error);
+            continue;
         }
+        if (tools->contains(tool->id())) {
+            if (isPreset) {
+                ExternalTool *other = tools->value(tool->id());
+                other->setPresetFileName(fileName);
+            } else {
+                qWarning() << tr("Error: External tool in %1 has duplicate id").arg(fileName);
+            }
+            delete tool;
+            continue;
+        }
+        tools->insert(tool->id(), tool);
+        (*categoryMenus)[tool->displayCategory()].insert(tool->order(), tool);
     }
 }
 
@@ -750,16 +820,6 @@ void ExternalToolManager::readSettings(const QMap<QString, ExternalTool *> &tool
     QSettings *settings = m_core->settings();
     settings->beginGroup(QLatin1String("ExternalTools"));
 
-    settings->beginGroup(QLatin1String("OverrideDisplayNames"));
-    foreach (const QString &id, settings->allKeys()) {
-        if (tools.contains(id)) {
-            const QString &newName = settings->value(id).toString();
-            if (tools.value(id)->displayName() != newName)
-                tools.value(id)->setDisplayName(newName);
-        }
-    }
-    settings->endGroup();
-
     if (categoryPriorityMap) {
         settings->beginGroup(QLatin1String("OverrideCategories"));
         foreach (const QString &id, settings->allKeys()) {
@@ -785,14 +845,6 @@ void ExternalToolManager::writeSettings()
     QSettings *settings = m_core->settings();
     settings->beginGroup(QLatin1String("ExternalTools"));
     settings->remove(QLatin1String(""));
-
-    settings->beginGroup(QLatin1String("OverrideDisplayNames"));
-    foreach (ExternalTool *tool, m_tools) {
-        if (tool->isDisplayNameChanged()) {
-            settings->setValue(tool->id(), tool->displayName());
-        }
-    }
-    settings->endGroup();
 
     settings->beginGroup(QLatin1String("OverrideCategories"));
     QMapIterator<QString, QList<ExternalTool *> > it(m_categoryMap);

@@ -33,6 +33,8 @@
 #include "coreconstants.h"
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -107,6 +109,20 @@ void ToolSettings::apply()
                 if ((*originalTool) == (*tool)) {
                     toolToAdd = originalTool;
                 } else {
+                    // save the new tool description and make it be added
+                    if (!tool->presetFileName().isEmpty() && tool->fileName() == tool->presetFileName()) {
+                        // we don't overwrite the preset, so give it a new file name in user resources
+                        // TODO avoid overwriting a tool xml file of another existing tool?
+                        const QString &fileName = QFileInfo(tool->presetFileName()).fileName();
+                        QDir resourceDir(ICore::instance()->userResourcePath());
+                        if (!resourceDir.exists(QLatin1String("externaltools")))
+                            resourceDir.mkpath(QLatin1String("externaltools"));
+                        const QString &newFilePath = ICore::instance()->userResourcePath()
+                                + QLatin1String("/externaltools/") + fileName;
+                        tool->setFileName(newFilePath);
+                    }
+                    // TODO error handling
+                    tool->save();
                     toolToAdd = new ExternalTool(tool);
                 }
             }

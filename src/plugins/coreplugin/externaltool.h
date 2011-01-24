@@ -75,11 +75,21 @@ public:
     QString input() const;
     QString workingDirectory() const;
 
+    void setFileName(const QString &fileName);
+    void setPresetFileName(const QString &fileName);
+    QString fileName() const;
+    QString presetFileName() const;
+
     static ExternalTool *createFromXml(const QByteArray &xml, QString *errorMessage = 0, const QString &locale = QString());
+    static ExternalTool *createFromFile(const QString &fileName, QString *errorMessage = 0,
+                                        const QString &locale = QString(), bool isPreset = false);
+
+    bool save(QString *errorMessage = 0) const;
 
     // ignores changed state
     bool operator==(const ExternalTool &other);
 
+    // display category and order are handled specially
     void setDisplayName(const QString &name);
     void setDescription(const QString &description);
     void setOutputHandling(OutputHandling handling);
@@ -89,9 +99,7 @@ public:
     void setArguments(const QString &arguments);
     void setInput(const QString &input);
     void setWorkingDirectory(const QString &workingDirectory);
-    // if the display name is different from the one in the original xml
-    bool isDisplayNameChanged() const { return m_isDisplayNameChanged; }
-    bool isChanged() const { return m_isChanged; }
+
 private:
     QString m_id;
     QString m_description;
@@ -106,8 +114,10 @@ private:
     OutputHandling m_errorHandling;
     bool m_modifiesCurrentDocument;
 
-    bool m_isDisplayNameChanged;
-    bool m_isChanged;
+    QString m_fileName;
+    QString m_presetFileName;
+
+    mutable bool m_isChanged;
 };
 
 class ExternalToolRunner : public QObject
@@ -169,7 +179,7 @@ private:
     void parseDirectory(const QString &directory,
                         QMap<QString, QMultiMap<int, Internal::ExternalTool*> > *categoryMenus,
                         QMap<QString, Internal::ExternalTool *> *tools,
-                        bool ignoreDuplicates = false);
+                        bool isPreset = false);
     void readSettings(const QMap<QString, Internal::ExternalTool *> &tools,
                       QMap<QString, QMultiMap<int, Internal::ExternalTool*> > *categoryPriorityMap);
     void writeSettings();
