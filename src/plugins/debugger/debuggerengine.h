@@ -247,6 +247,8 @@ public:
     virtual bool setupQmlStep(bool /*on*/) { return false; }
     virtual void readyToExecuteQmlStep() {}
 
+    virtual bool canDisplayTooltip() const { return state() == InferiorStopOk; }
+
 signals:
     void stateChanged(const DebuggerState &state);
     void updateViewsRequested();

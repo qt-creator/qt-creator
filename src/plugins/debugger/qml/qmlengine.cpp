@@ -263,6 +263,11 @@ void QmlEngine::pauseConnection()
     d->m_adapter.pauseConnection();
 }
 
+bool QmlEngine::canDisplayTooltip() const
+{
+    return state() == InferiorRunOk || state() == InferiorStopOk;
+}
+
 void QmlEngine::closeConnection()
 {
     ExtensionSystem::PluginManager *pluginManager =

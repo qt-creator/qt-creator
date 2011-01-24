@@ -60,6 +60,7 @@ public:
 
     void gotoLocation(const Location &location);
     void pauseConnection();
+    bool canDisplayTooltip() const;
 
 public slots:
     void messageReceived(const QByteArray &message);

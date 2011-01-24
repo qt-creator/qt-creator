@@ -1928,7 +1928,7 @@ void DebuggerPluginPrivate::showToolTip(ITextEditor *editor,
         return;
     if (!currentEngine())
         return;
-    if (currentEngine()->state() != InferiorStopOk)
+    if (!currentEngine()->canDisplayTooltip())
         return;
     QTC_ASSERT(handled, return);
     *handled = true;
