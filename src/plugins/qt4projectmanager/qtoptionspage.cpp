@@ -484,7 +484,7 @@ void QtOptionsPageWidget::updateDebuggingHelperInfo(const QtVersion *version)
         bool canBuildQmlObserver = QmlObserverTool::canBuild(version);
 
         bool hasGdbHelper = !version->debuggingHelperLibrary().isEmpty();
-        bool hasQmlDumper = !version->qmlDumpTool().isEmpty();
+        bool hasQmlDumper = version->hasQmlDump();
         bool hasQmlObserver = !version->qmlObserverTool().isEmpty();
 
         // get names of tools from labels
@@ -513,7 +513,13 @@ void QtOptionsPageWidget::updateDebuggingHelperInfo(const QtVersion *version)
 
         QString qmlDumpStatusText;
         if (hasQmlDumper) {
-            qmlDumpStatusText = version->qmlDumpTool();
+            qmlDumpStatusText = version->qmlDumpTool(false);
+            const QString debugQmlDumpPath = version->qmlDumpTool(true);
+            if (qmlDumpStatusText != debugQmlDumpPath) {
+                if (!qmlDumpStatusText.isEmpty())
+                    qmlDumpStatusText += QLatin1String("\n");
+                qmlDumpStatusText += debugQmlDumpPath;
+            }
         } else {
             if (canBuildQmlDumper) {
                 qmlDumpStatusText = tr("<i>Not yet built.</i>");

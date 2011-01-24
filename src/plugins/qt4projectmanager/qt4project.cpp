@@ -584,7 +584,9 @@ void Qt4Project::updateQmlJSCodeModel()
     foreach (Qt4ProFileNode *node, proFiles) {
         projectInfo.importPaths.append(node->variableValue(QmlImportPathVar));
     }
+    bool preferDebugDump = false;
     if (activeTarget() && activeTarget()->activeBuildConfiguration()) {
+        preferDebugDump = activeTarget()->activeBuildConfiguration()->qmakeBuildConfiguration() & QtVersion::DebugBuild;
         const QtVersion *qtVersion = activeTarget()->activeBuildConfiguration()->qtVersion();
         if (qtVersion->isValid()) {
             const QString qtVersionImportPath = qtVersion->versionInfo().value("QT_INSTALL_IMPORTS");
@@ -592,7 +594,7 @@ void Qt4Project::updateQmlJSCodeModel()
                 projectInfo.importPaths += qtVersionImportPath;
         }
     }
-    QmlDumpTool::pathAndEnvironment(this, &projectInfo.qmlDumpPath, &projectInfo.qmlDumpEnvironment);
+    QmlDumpTool::pathAndEnvironment(this, preferDebugDump, &projectInfo.qmlDumpPath, &projectInfo.qmlDumpEnvironment);
     projectInfo.importPaths.removeDuplicates();
 
     modelManager->updateProjectInfo(projectInfo);

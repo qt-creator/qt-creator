@@ -134,7 +134,7 @@ void QmlProject::refresh(RefreshOptions options)
     QmlJS::ModelManagerInterface::ProjectInfo pinfo(this);
     pinfo.sourceFiles = files();
     pinfo.importPaths = importPaths();
-    Qt4ProjectManager::QmlDumpTool::pathAndEnvironment(this, &pinfo.qmlDumpPath, &pinfo.qmlDumpEnvironment);
+    Qt4ProjectManager::QmlDumpTool::pathAndEnvironment(this, false, &pinfo.qmlDumpPath, &pinfo.qmlDumpEnvironment);
     m_modelManager->updateProjectInfo(pinfo);
 }
 

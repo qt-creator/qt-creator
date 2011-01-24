@@ -82,9 +82,9 @@ public:
         m_buildTask->run(future);
     }
 
-    void updateProjectWhenDone(ProjectExplorer::Project *project)
+    void updateProjectWhenDone(ProjectExplorer::Project *project, bool preferDebug)
     {
-        m_projectsToUpdate.insert(project);
+        m_projectsToUpdate.insert(qMakePair(project, preferDebug));
     }
 
     bool hasFailed() const
@@ -104,7 +104,7 @@ private slots:
         } else {
             version->invalidateCache();
 
-            if (version->qmlDumpTool().isEmpty()) {
+            if (!version->hasQmlDump()) {
                 m_failed = true;
                 errorMessage = QString::fromLatin1("Could not build QML plugin dumping helper for %1\n"
                                                    "Output:\n%2").
@@ -121,9 +121,12 @@ private slots:
         if (!modelManager)
             return;
 
-        foreach (ProjectExplorer::Project *project, m_projectsToUpdate) {
-            QmlJS::ModelManagerInterface::ProjectInfo projectInfo = modelManager->projectInfo(project);
-            projectInfo.qmlDumpPath = version->qmlDumpTool();
+        typedef QPair<ProjectExplorer::Project *, bool> ProjectAndDebug;
+        foreach (ProjectAndDebug projectAndDebug, m_projectsToUpdate) {
+            QmlJS::ModelManagerInterface::ProjectInfo projectInfo = modelManager->projectInfo(projectAndDebug.first);
+            projectInfo.qmlDumpPath = version->qmlDumpTool(projectAndDebug.second);
+            if (projectInfo.qmlDumpPath.isEmpty())
+                projectInfo.qmlDumpPath = version->qmlDumpTool(!projectAndDebug.second);
             projectInfo.qmlDumpEnvironment = version->qmlToolsEnvironment();
             modelManager->updateProjectInfo(projectInfo);
         }
@@ -134,7 +137,7 @@ private slots:
     }
 
 private:
-    QSet<ProjectExplorer::Project *> m_projectsToUpdate;
+    QSet<QPair<ProjectExplorer::Project *, bool> > m_projectsToUpdate;
     Internal::DebuggingHelperBuildTask *m_buildTask; // deletes itself after run()
     QtVersion m_version;
     bool m_failed;
@@ -144,13 +147,17 @@ private:
 
 namespace Qt4ProjectManager {
 
-static inline QStringList validBinaryFilenames()
+static inline QStringList validBinaryFilenames(bool debugBuild)
 {
-    return QStringList()
-            << QLatin1String("debug/qmldump.exe")
+    QStringList list = QStringList()
             << QLatin1String("qmldump.exe")
             << QLatin1String("qmldump")
             << QLatin1String("qmldump.app/Contents/MacOS/qmldump");
+    if (debugBuild)
+        list.prepend(QLatin1String("debug/qmldump.exe"));
+    else
+        list.prepend(QLatin1String("release/qmldump.exe"));
+    return list;
 }
 
 bool QmlDumpTool::canBuild(const QtVersion *qtVersion)
@@ -195,9 +202,7 @@ static QtVersion *qtVersionForProject(ProjectExplorer::Project *project)
     foreach (QtVersion *version, qtVersions->validVersions()) {
         if (version->supportsTargetId(Constants::DESKTOP_TARGET_ID)
                 || version->supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID)) {
-            const QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
-            const QString path = QmlDumpTool::toolByInstallData(qtInstallData);
-            if (!path.isEmpty())
+            if (version->hasQmlDump())
                 return version;
 
             if (!canBuildQmlDump && QmlDumpTool::canBuild(version)) {
@@ -209,19 +214,19 @@ static QtVersion *qtVersionForProject(ProjectExplorer::Project *project)
     return canBuildQmlDump;
 }
 
-QString QmlDumpTool::toolForProject(ProjectExplorer::Project *project)
+QString QmlDumpTool::toolForProject(ProjectExplorer::Project *project, bool debugDump)
 {
     QtVersion *version = qtVersionForProject(project);
     if (version) {
         QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
-        QString toolPath = toolByInstallData(qtInstallData);
+        QString toolPath = toolByInstallData(qtInstallData, debugDump);
         return toolPath;
     }
 
     return QString();
 }
 
-QString QmlDumpTool::toolByInstallData(const QString &qtInstallData)
+QString QmlDumpTool::toolByInstallData(const QString &qtInstallData, bool debugDump)
 {
     if (!Core::ICore::instance())
         return QString();
@@ -229,16 +234,16 @@ QString QmlDumpTool::toolByInstallData(const QString &qtInstallData)
     const QString mainFilename = Core::ICore::instance()->resourcePath()
             + QLatin1String("/qml/qmldump/main.cpp");
     const QStringList directories = installDirectories(qtInstallData);
-    const QStringList binFilenames = validBinaryFilenames();
+    const QStringList binFilenames = validBinaryFilenames(debugDump);
 
     return byInstallDataHelper(mainFilename, directories, binFilenames);
 }
 
-QStringList QmlDumpTool::locationsByInstallData(const QString &qtInstallData)
+QStringList QmlDumpTool::locationsByInstallData(const QString &qtInstallData, bool debugDump)
 {
     QStringList result;
     QFileInfo fileInfo;
-    const QStringList binFilenames = validBinaryFilenames();
+    const QStringList binFilenames = validBinaryFilenames(debugDump);
     foreach(const QString &directory, installDirectories(qtInstallData)) {
         if (getHelperFileInfoFor(binFilenames, directory, &fileInfo))
             result << fileInfo.filePath();
@@ -291,21 +296,20 @@ QStringList QmlDumpTool::installDirectories(const QString &qtInstallData)
     return directories;
 }
 
-void QmlDumpTool::pathAndEnvironment(ProjectExplorer::Project *project, QString *dumperPath, Utils::Environment *env)
+void QmlDumpTool::pathAndEnvironment(ProjectExplorer::Project *project, bool preferDebug,
+                                     QString *dumperPath, Utils::Environment *env)
 {
     QString path;
 
-    path = Qt4ProjectManager::QmlDumpTool::toolForProject(project);
-
     QtVersion *version = qtVersionForProject(project);
-    if (version && path.isEmpty() && QmlDumpTool::canBuild(version)) {
+    if (version && !version->hasQmlDump() && QmlDumpTool::canBuild(version)) {
         QmlDumpBuildTask *qmlDumpBuildTask = qmlDumpBuilds()->value(version->uniqueId());
         if (qmlDumpBuildTask) {
             if (!qmlDumpBuildTask->hasFailed())
-                qmlDumpBuildTask->updateProjectWhenDone(project);
+                qmlDumpBuildTask->updateProjectWhenDone(project, preferDebug);
         } else {
             QmlDumpBuildTask *buildTask = new QmlDumpBuildTask(version);
-            buildTask->updateProjectWhenDone(project);
+            buildTask->updateProjectWhenDone(project, preferDebug);
             QFuture<void> task = QtConcurrent::run(&QmlDumpBuildTask::run, buildTask);
             const QString taskName = QmlDumpBuildTask::tr("Building helper");
             Core::ICore::instance()->progressManager()->addTask(task, taskName,
@@ -313,6 +317,10 @@ void QmlDumpTool::pathAndEnvironment(ProjectExplorer::Project *project, QString 
         }
         return;
     }
+
+    path = Qt4ProjectManager::QmlDumpTool::toolForProject(project, preferDebug);
+    if (path.isEmpty())
+        path = Qt4ProjectManager::QmlDumpTool::toolForProject(project, !preferDebug);
 
     if (!path.isEmpty()) {
         QFileInfo qmldumpFileInfo(path);

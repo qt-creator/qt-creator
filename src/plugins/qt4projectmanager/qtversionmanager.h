@@ -129,7 +129,7 @@ public:
 
     bool hasDebuggingHelper() const;
     QString debuggingHelperLibrary() const;
-    QString qmlDumpTool() const;
+    QString qmlDumpTool(bool debugVersion) const;
     QString qmlObserverTool() const;
     QStringList debuggingHelperLibraryLocations() const;
     bool supportsBinaryDebuggingHelper() const;

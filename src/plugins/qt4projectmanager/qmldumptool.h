@@ -52,9 +52,9 @@ class QT4PROJECTMANAGER_EXPORT QmlDumpTool : public Utils::BuildableHelperLibrar
 {
 public:
     static bool canBuild(const QtVersion *qtVersion);
-    static QString toolForProject(ProjectExplorer::Project *project);
-    static QString toolByInstallData(const QString &qtInstallData);
-    static QStringList locationsByInstallData(const QString &qtInstallData);
+    static QString toolForProject(ProjectExplorer::Project *project, bool debugDump);
+    static QString toolByInstallData(const QString &qtInstallData, bool debugDump);
+    static QStringList locationsByInstallData(const QString &qtInstallData, bool debugDump);
 
     // Build the helpers and return the output log/errormessage.
     static bool build(const QString &directory, const QString &makeCommand,
@@ -65,7 +65,8 @@ public:
     // Copy the source files to a target location and return the chosen target location.
     static QString copy(const QString &qtInstallData, QString *errorMessage);
 
-    static void pathAndEnvironment(ProjectExplorer::Project *project, QString *path, Utils::Environment *env);
+    static void pathAndEnvironment(ProjectExplorer::Project *project, bool preferDebug,
+                                   QString *path, Utils::Environment *env);
 
 private:
     static QStringList installDirectories(const QString &qtInstallData);

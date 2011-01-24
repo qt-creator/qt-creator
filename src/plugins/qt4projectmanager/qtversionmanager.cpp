@@ -1159,7 +1159,7 @@ void QtVersion::updateVersionInfo() const
 
         if (!qtInstallData.isEmpty()) {
             m_hasDebuggingHelper = !DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
-            m_hasQmlDump = !QmlDumpTool::toolByInstallData(qtInstallData).isEmpty();
+            m_hasQmlDump = !QmlDumpTool::toolByInstallData(qtInstallData, false).isEmpty() || !QmlDumpTool::toolByInstallData(qtInstallData, true).isEmpty();
             m_hasQmlObserver = !QmlObserverTool::toolByInstallData(qtInstallData).isEmpty();
         }
     }
@@ -1726,12 +1726,12 @@ QString QtVersion::debuggingHelperLibrary() const
     return DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
 }
 
-QString QtVersion::qmlDumpTool() const
+QString QtVersion::qmlDumpTool(bool debugVersion) const
 {
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
     if (qtInstallData.isEmpty())
         return QString();
-    return QmlDumpTool::toolByInstallData(qtInstallData);
+    return QmlDumpTool::toolByInstallData(qtInstallData, debugVersion);
 }
 
 QString QtVersion::qmlObserverTool() const
