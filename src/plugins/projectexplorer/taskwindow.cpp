@@ -265,6 +265,7 @@ TaskView::TaskView(QWidget *parent)
     : QListView(parent)
 {
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 }
 
 TaskView::~TaskView()
