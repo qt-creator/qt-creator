@@ -402,8 +402,10 @@ int AbstractMobileApp::makeStubVersion(int minor)
 
 QString AbstractMobileApp::outputPathBase() const
 {
-    return m_projectPath.absoluteFilePath() + QLatin1Char('/')
-        + projectName() + QLatin1Char('/');
+    QString path = m_projectPath.absoluteFilePath();
+    if (!path.endsWith(QLatin1Char('/')))
+            path.append(QLatin1Char('/'));
+    return path + projectName() + QLatin1Char('/');
 }
 
 void AbstractMobileApp::insertParameter(QString &line, const QString &parameter)

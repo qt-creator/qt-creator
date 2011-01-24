@@ -701,9 +701,9 @@ QtVersion::reportIssues(const QString &proFile, const QString &buildDir)
 {
     QList<ProjectExplorer::Task> results;
 
-    QString tmpBuildDir = buildDir;
-    if (!buildDir.endsWith(QChar('/')))
-        tmpBuildDir.append(QChar('/'));
+    QString tmpBuildDir = QDir(buildDir).absolutePath();
+    if (!tmpBuildDir.endsWith(QLatin1Char('/')))
+        tmpBuildDir.append(QLatin1Char('/'));
 
     if (!isValid()) {
         //: %1: Reason for being invalid
@@ -723,9 +723,8 @@ QtVersion::reportIssues(const QString &proFile, const QString &buildDir)
     }
 
     QString sourcePath = QFileInfo(proFile).absolutePath();
-    if (!sourcePath.endsWith(QChar('/')))
-        sourcePath.append(QChar('/'));
-
+    if (!sourcePath.endsWith(QLatin1Char('/')))
+        sourcePath.append(QLatin1Char('/'));
     if ((tmpBuildDir.startsWith(sourcePath)) && (tmpBuildDir != sourcePath)) {
         const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion",
                                                         "Qmake does not support build directories below the source directory.");
