@@ -148,9 +148,10 @@ bool S60DeployConfiguration::isStaticLibrary(const Qt4ProFileNode &projectNode) 
 
 QStringList S60DeployConfiguration::signedPackages() const
 {
-    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->leafProFiles();
+    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->allProFiles();
     QStringList result;
     foreach (Qt4ProFileNode *node, list) {
+        qDebug() << __FUNCTION__ << node->targetInformation().buildDir;
         if (isStaticLibrary(*node)) //no sis package
             continue;
         TargetInformation ti = node->targetInformation();
@@ -171,7 +172,7 @@ QString S60DeployConfiguration::createPackageName(const QString &baseName) const
 
 QStringList S60DeployConfiguration::packageFileNamesWithTargetInfo() const
 {
-    QList<Qt4ProFileNode *> leafs = qt4Target()->qt4Project()->leafProFiles();
+    QList<Qt4ProFileNode *> leafs = qt4Target()->qt4Project()->allProFiles();
     QStringList result;
     foreach (Qt4ProFileNode *qt4ProFileNode, leafs) {
         if (isStaticLibrary(*qt4ProFileNode)) //no sis package
@@ -190,7 +191,7 @@ QStringList S60DeployConfiguration::packageFileNamesWithTargetInfo() const
 
 QStringList S60DeployConfiguration::packageTemplateFileNames() const
 {
-    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->leafProFiles();
+    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->allProFiles();
     QStringList result;
     foreach (Qt4ProFileNode *node, list) {
         if (isStaticLibrary(*node)) //no sis package
@@ -204,7 +205,7 @@ QStringList S60DeployConfiguration::packageTemplateFileNames() const
 
 QStringList S60DeployConfiguration::appPackageTemplateFileNames() const
 {
-    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->leafProFiles();
+    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->allProFiles();
     QStringList result;
     foreach (Qt4ProFileNode *node, list) {
         if (isStaticLibrary(*node)) //no sis package
@@ -318,7 +319,7 @@ QVariantMap S60DeployConfiguration::toMap() const
 
 QString S60DeployConfiguration::defaultDisplayName() const
 {
-    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->leafProFiles();
+    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->allProFiles();
     foreach (Qt4ProFileNode *node, list) {
         TargetInformation ti = node->targetInformation();
         if (ti.valid && !ti.buildDir.isEmpty())

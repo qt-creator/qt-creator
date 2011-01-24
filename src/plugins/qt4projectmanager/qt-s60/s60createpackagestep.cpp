@@ -181,7 +181,7 @@ bool S60CreatePackageStep::init()
 {
     Qt4Project *pro = qobject_cast<Qt4Project *>(buildConfiguration()->target()->project());
 
-    QList<Qt4ProFileNode *> nodes = pro->leafProFiles();
+    QList<Qt4ProFileNode *> nodes = pro->allProFiles();
 
     m_workingDirectories.clear();
     QStringList projectCapabilities;

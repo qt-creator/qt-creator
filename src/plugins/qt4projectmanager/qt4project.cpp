@@ -969,15 +969,13 @@ QList<BuildConfigWidget*> Qt4Project::subConfigWidgets()
     return subWidgets;
 }
 
-void Qt4Project::collectLeafProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node)
+void Qt4Project::collectAllfProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node)
 {
-    if (node->projectType() != Internal::SubDirsTemplate) {
-        list.append(node);
-    }
+    list.append(node);
     foreach (ProjectNode *n, node->subProjectNodes()) {
         Qt4ProFileNode *qt4ProFileNode = qobject_cast<Qt4ProFileNode *>(n);
         if (qt4ProFileNode)
-            collectLeafProFiles(list, qt4ProFileNode);
+            collectAllfProFiles(list, qt4ProFileNode);
     }
 }
 
@@ -995,12 +993,12 @@ void Qt4Project::collectApplicationProFiles(QList<Qt4ProFileNode *> &list, Qt4Pr
     }
 }
 
-QList<Qt4ProFileNode *> Qt4Project::leafProFiles() const
+QList<Qt4ProFileNode *> Qt4Project::allProFiles() const
 {
     QList<Qt4ProFileNode *> list;
     if (!rootProjectNode())
         return list;
-    collectLeafProFiles(list, rootProjectNode());
+    collectAllfProFiles(list, rootProjectNode());
     return list;
 }
 
