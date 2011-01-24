@@ -39,9 +39,9 @@
 #include "debuggercore.h"
 #include "debuggerstringutils.h"
 
-#include <QDir>
-#include <QFile>
-#include <QTemporaryFile>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QTemporaryFile>
 
 #include <utils/qtcassert.h>
 

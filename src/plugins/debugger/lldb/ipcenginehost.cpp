@@ -51,11 +51,11 @@
 
 #include <utils/qtcassert.h>
 
-#include <QSysInfo>
-#include <QDebug>
-#include <QFileInfo>
-#include <QTimer>
-#include <QLocalSocket>
+#include <QtCore/QSysInfo>
+#include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
+#include <QtCore/QTimer>
+#include <QtNetwork/QLocalSocket>
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
 #define SET_NATIVE_BYTE_ORDER(x) x.setByteOrder(QDataStream::LittleEndian)

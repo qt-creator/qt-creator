@@ -44,9 +44,9 @@
 #include <utils/qtcassert.h>
 #include <projectexplorer/project.h>
 
-#include <QUrl>
-#include <QAbstractSocket>
-#include <QDebug>
+#include <QtCore/QUrl>
+#include <QtNetwork/QAbstractSocket>
+#include <QtCore/QDebug>
 
 enum {
     debug = false

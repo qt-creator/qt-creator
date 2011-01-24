@@ -38,7 +38,7 @@
 
 #include <QtCore/QDebug>
 
-#include <QDir> //TODO REMOVE WHEN BASE FILE CHANGES ARE PULLED
+#include <QtCore/QDir> //TODO REMOVE WHEN BASE FILE CHANGES ARE PULLED
 
 using namespace Mercurial::Internal;
 

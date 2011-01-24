@@ -53,11 +53,12 @@
 #include <qt4projectmanager/qmlobservertool.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
-#include <QApplication>
-#include <QDir>
-#include <QLabel>
-#include <QMessageBox>
-#include <QPushButton>
+#include <QtGui/QApplication>
+#include <QtGui/QLabel>
+#include <QtGui/QMessageBox>
+#include <QtGui/QPushButton>
+
+#include <QtCore/QDir>
 
 using namespace ProjectExplorer;
 

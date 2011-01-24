@@ -5,9 +5,9 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QRadioButton>
 #include <QtGui/QLabel>
-#include <QtCore/QFileInfo>
 
-#include <QDebug>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDebug>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

@@ -32,8 +32,8 @@
 **************************************************************************/
 
 #include "gradientline.h"
-#include <QPainter>
-#include <QMouseEvent>
+#include <QtGui/QPainter>
+#include <QtGui/QMouseEvent>
 
 static inline QPixmap tilePixMap(int size)
 {

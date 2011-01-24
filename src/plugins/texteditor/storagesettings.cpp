@@ -33,8 +33,8 @@
 
 #include "storagesettings.h"
 
-#include <QSettings>
-#include <QString>
+#include <QtCore/QSettings>
+#include <QtCore/QString>
 
 namespace TextEditor {
 

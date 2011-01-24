@@ -34,6 +34,7 @@
 #include "macromanager.h"
 
 #include "macrosconstants.h"
+#include "macroevent.h"
 #include "macro.h"
 #include "macrosettings.h"
 #include "imacrohandler.h"

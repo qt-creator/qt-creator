@@ -39,8 +39,8 @@
 #include <projectexplorer/buildstep.h>
 #include <qt4projectmanager/makestep.h>
 
-#include <QMutex>
-#include <QWaitCondition>
+#include <QtCore/QMutex>
+#include <QtCore/QWaitCondition>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

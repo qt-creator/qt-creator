@@ -34,7 +34,7 @@
 #ifndef S60CERTIFICATEDETAILSDIALOG_H
 #define S60CERTIFICATEDETAILSDIALOG_H
 
-#include <QDialog>
+#include <QtGui/QDialog>
 
 struct S60CertificateDetailsDialogPrivate;
 

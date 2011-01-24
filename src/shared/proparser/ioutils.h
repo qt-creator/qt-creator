@@ -34,7 +34,7 @@
 #ifndef IOUTILS_H
 #define IOUTILS_H
 
-#include <QString>
+#include <QtCore/QString>
 
 namespace ProFileEvaluatorInternal {
 

@@ -34,7 +34,7 @@
 #ifndef DEBUGGER_MODULESWINDOW_H
 #define DEBUGGER_MODULESWINDOW_H
 
-#include <QTreeView>
+#include <QtGui/QTreeView>
 
 namespace Debugger {
 namespace Internal {

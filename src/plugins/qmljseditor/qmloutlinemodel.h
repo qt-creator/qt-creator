@@ -7,7 +7,7 @@
 #include <qmljs/qmljsicons.h>
 #include <qmljs/qmljslookupcontext.h>
 
-#include <QStandardItemModel>
+#include <QtGui/QStandardItemModel>
 
 namespace QmlJS {
 namespace Interpreter {

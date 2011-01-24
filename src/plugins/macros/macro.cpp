@@ -32,6 +32,7 @@
 **************************************************************************/
 
 #include "macro.h"
+#include "macroevent.h"
 
 #include <coreplugin/coreconstants.h>
 

@@ -36,8 +36,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskwindow.h>
 
-
-#include <QDebug>
+#include <QtCore/QDebug>
 
 using namespace Qt4ProjectManager::Internal;
 

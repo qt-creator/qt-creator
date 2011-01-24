@@ -36,7 +36,7 @@
 
 #include "namespace_global.h"
 
-#include <QStringList>
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 class QDir;

@@ -17,7 +17,8 @@
 #include <texteditor/tabsettings.h>
 #include <coreplugin/icore.h>
 #include <customcolordialog.h>
-#include <QDebug>
+
+#include <QtCore/QDebug>
 
 using namespace QmlJS;
 using namespace AST;

@@ -34,7 +34,7 @@
 #ifndef QTCPROCESS_H
 #define QTCPROCESS_H
 
-#include <QProcess>
+#include <QtCore/QProcess>
 
 #include "utils_global.h"
 

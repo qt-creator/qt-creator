@@ -33,6 +33,8 @@
 
 #include "cpptools_global.h"
 
+QT_FORWARD_DECLARE_CLASS(QChar)
+
 namespace CppTools {
 
 enum DoxygenReservedWord {

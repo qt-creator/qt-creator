@@ -35,7 +35,7 @@
 #include <utils/stylehelper.h>
 #include <utils/styledbar.h>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 #include <QtGui/QColorDialog>
 #include <QtGui/QHBoxLayout>

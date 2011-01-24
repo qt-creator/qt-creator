@@ -38,7 +38,7 @@
 #include "itemdata.h"
 #include "reuse.h"
 
-#include <QLatin1String>
+#include <QtCore/QString>
 
 using namespace TextEditor;
 using namespace Internal;

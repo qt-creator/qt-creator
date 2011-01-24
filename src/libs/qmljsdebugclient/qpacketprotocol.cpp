@@ -41,7 +41,7 @@
 
 #include "qpacketprotocol_p.h"
 
-#include <QBuffer>
+#include <QtCore/QBuffer>
 
 namespace QmlJsDebugClient {
 

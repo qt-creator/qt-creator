@@ -35,10 +35,10 @@
 #include "ui_easingcontextpane.h"
 #include <qmljs/qmljspropertyreader.h>
 
-#include <QGraphicsPixmapItem>
-#include <QGraphicsScene>
-#include <QPropertyAnimation>
-#include <QSequentialAnimationGroup>
+#include <QtGui/QGraphicsPixmapItem>
+#include <QtGui/QGraphicsScene>
+#include <QtCore/QPropertyAnimation>
+#include <QtCore/QSequentialAnimationGroup>
 
 namespace QmlEditorWidgets {
 

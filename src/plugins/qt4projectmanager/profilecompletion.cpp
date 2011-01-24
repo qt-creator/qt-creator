@@ -4,7 +4,7 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/completionsettings.h>
 #include <cplusplus/Icons.h>
-#include <QDebug>
+#include <QtCore/QDebug>
 
 using namespace Qt4ProjectManager::Internal;
 

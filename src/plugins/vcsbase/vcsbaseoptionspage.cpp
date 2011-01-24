@@ -35,7 +35,7 @@
 
 #include "vcsbaseconstants.h"
 
-#include <QCoreApplication>
+#include <QtCore/QCoreApplication>
 
 namespace VCSBase {
 

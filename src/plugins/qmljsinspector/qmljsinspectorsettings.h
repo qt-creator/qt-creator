@@ -34,7 +34,7 @@
 #ifndef INSPECTORSETTINGS_H
 #define INSPECTORSETTINGS_H
 
-#include <QObject>
+#include <QtCore/QObject>
 
 QT_FORWARD_DECLARE_CLASS(QSettings)
 

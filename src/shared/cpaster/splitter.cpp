@@ -33,7 +33,7 @@
 
 #include "splitter.h"
 
-#include <QRegExp>
+#include <QtCore/QRegExp>
 
 FileDataList splitDiffToFiles(const QByteArray &data)
 {

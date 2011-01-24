@@ -37,7 +37,8 @@
 #include <projectexplorer/taskwindow.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
-#include <QDir>
+
+#include <QtCore/QDir>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

@@ -44,7 +44,7 @@
 #include <utils/synchronousprocess.h>
 
 #include <QtGui/QDesktopServices>
-#include <QDebug>
+#include <QtCore/QDebug>
 
 namespace Utils {
 

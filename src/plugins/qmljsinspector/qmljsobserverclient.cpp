@@ -43,7 +43,7 @@
 #include "qmljsclientproxy.h"
 #include "qmljsinspectorconstants.h"
 
-#include <QColor>
+#include <QtGui/QColor>
 
 namespace QmlJSInspector {
 namespace Internal {

@@ -34,7 +34,7 @@
 #include "fileinprojectfinder.h"
 #include <utils/qtcassert.h>
 
-#include <QFileInfo>
+#include <QtCore/QFileInfo>
 
 namespace Utils {
 

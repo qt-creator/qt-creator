@@ -33,10 +33,9 @@
 
 #include "cgi.h"
 
-#include <QByteArray>
+#include <QtCore/QByteArray>
 
-
-const char *cgi_chars = "0123456789abcdef"; // RFC 1738 suggests lower-case to be optimal
+const char cgi_chars[] = "0123456789abcdef"; // RFC 1738 suggests lower-case to be optimal
 
 QString CGI::encodeURL(const QString &rawText)
 {

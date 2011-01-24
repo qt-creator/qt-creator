@@ -1,9 +1,9 @@
 #ifndef QMLPROJECTITEM_H
 #define QMLPROJECTITEM_H
 
-#include <QObject>
-#include <QStringList>
-#include <qdeclarative.h>
+#include <QtCore/QObject>
+#include <QtCore/QStringList>
+#include <QtDeclarative/qdeclarative.h>
 
 namespace QmlProjectManager {
 

@@ -38,7 +38,7 @@
 #include <projectexplorer/taskhub.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 namespace QmlJSEditor {
 namespace Internal {

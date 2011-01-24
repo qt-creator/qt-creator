@@ -44,10 +44,10 @@
 
 #include <utils/qtcassert.h>
 
-#include <QDesignerFormWindowInterface>
-#include <QDesignerFormWindowManagerInterface>
-#include <QDesignerFormEditorInterface>
-#include <QDesignerPropertyEditorInterface>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerPropertyEditorInterface>
 
 #include <QtCore/QDebug>
 #include <QtCore/QVariant>

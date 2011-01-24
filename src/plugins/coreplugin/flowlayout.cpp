@@ -33,8 +33,8 @@
 
 #include "flowlayout.h"
 
-#include <QRect>
-#include <QWidgetItem>
+#include <QtCore/QRect>
+#include <QtGui/QWidgetItem>
 
 using namespace Core::Internal;
 

@@ -46,9 +46,9 @@
 #include <qt4projectmanager/qtversionmanager.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <QTextStream>
-#include <QDeclarativeComponent>
-#include <QtDebug>
+#include <QtCore/QTextStream>
+#include <QtDeclarative/QDeclarativeComponent>
+#include <QtCore/QtDebug>
 
 namespace QmlProjectManager {
 

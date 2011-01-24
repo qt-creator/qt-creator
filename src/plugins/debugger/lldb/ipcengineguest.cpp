@@ -38,12 +38,14 @@
 #include "threaddata.h"
 #include "debuggerstreamops.h"
 
-#include <QSysInfo>
-#include <QDebug>
-#include <QFileInfo>
-#include <QTimer>
 #include <utils/qtcassert.h>
-#include <QLocalSocket>
+
+#include <QtNetwork/QLocalSocket>
+
+#include <QtCore/QSysInfo>
+#include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
+#include <QtCore/QTimer>
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
 #define SET_NATIVE_BYTE_ORDER(x) x.setByteOrder(QDataStream::LittleEndian)

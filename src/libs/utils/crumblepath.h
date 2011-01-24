@@ -37,7 +37,7 @@
 #include "utils_global.h"
 
 #include <QtGui/QWidget>
-#include <QVariant>
+#include <QtCore/QVariant>
 
 QT_FORWARD_DECLARE_CLASS(QResizeEvent)
 

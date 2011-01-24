@@ -1,5 +1,7 @@
 #include "filefilteritems.h"
-#include <qdebug.h>
+
+#include <QtCore/QDebug>
+#include <QtCore/QDir>
 #include <QtGui/QImageReader>
 
 namespace QmlProjectManager {

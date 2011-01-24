@@ -38,8 +38,8 @@
 #include <Literals.h>
 #include <Symbols.h>
 
-#include <QFile>
-#include <QtDebug>
+#include <QtCore/QFile>
+#include <QtCore/QtDebug>
 
 using namespace CPlusPlus;
 

@@ -40,7 +40,7 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QApplication>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 namespace QmlJSEditor {
 namespace Internal {

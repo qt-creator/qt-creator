@@ -32,15 +32,16 @@
 **************************************************************************/
 
 #include "historycompleter.h"
-#include <QLineEdit>
-#include <QCompleter>
-#include <QAbstractListModel>
-#include <QSettings>
-#include <QKeyEvent>
-#include <QItemDelegate>
-#include <QListView>
-#include <QPainter>
-#include <QStyle>
+
+#include <QtCore/QAbstractListModel>
+#include <QtCore/QSettings>
+
+#include <QtGui/QLineEdit>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QItemDelegate>
+#include <QtGui/QListView>
+#include <QtGui/QPainter>
+#include <QtGui/QStyle>
 
 namespace Utils {
 

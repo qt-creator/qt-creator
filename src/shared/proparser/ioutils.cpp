@@ -33,8 +33,8 @@
 
 #include "ioutils.h"
 
-#include <QDir>
-#include <QFile>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
 
 #ifdef Q_OS_WIN
 #  include <windows.h>

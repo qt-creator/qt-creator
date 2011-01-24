@@ -1,15 +1,16 @@
 #ifndef FILEFILTERITEMS_H
 #define FILEFILTERITEMS_H
 
-#include <QDir>
-#include <QObject>
-#include <QSet>
-#include <qdeclarative.h>
-#include <QFileSystemWatcher>
-#include <QTimer>
-
 #include "qmlprojectitem.h"
 #include "filesystemwatcher.h"
+
+#include <QtCore/QObject>
+#include <QtCore/QSet>
+#include <QtCore/QTimer>
+
+#include <QtDeclarative/qdeclarative.h>
+
+QT_FORWARD_DECLARE_CLASS(QDir)
 
 namespace QmlProjectManager {
 

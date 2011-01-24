@@ -60,8 +60,8 @@
 #include <QtCore/QTimer>
 #include <QtCore/QCryptographicHash>
 
-#include <QSettings>
-#include <QMessageBox>
+#include <QtCore/QSettings>
+#include <QtGui/QMessageBox>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

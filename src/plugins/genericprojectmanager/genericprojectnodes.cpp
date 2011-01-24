@@ -37,7 +37,7 @@
 #include <coreplugin/ifile.h>
 #include <projectexplorer/projectexplorer.h>
 
-#include <QFileInfo>
+#include <QtCore/QFileInfo>
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;

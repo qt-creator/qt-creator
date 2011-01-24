@@ -31,8 +31,9 @@
 **
 **************************************************************************/
 
-#include <QString>
 #include "cppdoxygen.h"
+
+#include <QtCore/QString>
 
 using namespace CppTools;
 

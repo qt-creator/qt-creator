@@ -33,8 +33,8 @@
 
 #include "fontsizespinbox.h"
 
-#include <QLineEdit>
-#include <QRegExpValidator>
+#include <QtGui/QLineEdit>
+#include <QtGui/QRegExpValidator>
 
 namespace QmlEditorWidgets {
 

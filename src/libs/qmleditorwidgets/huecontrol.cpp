@@ -32,8 +32,8 @@
 **************************************************************************/
 
 #include "huecontrol.h"
-#include <QPainter>
-#include <QMouseEvent>
+#include <QtGui/QPainter>
+#include <QtGui/QMouseEvent>
 
 static inline int clamp(int x, int lower, int upper)
 {

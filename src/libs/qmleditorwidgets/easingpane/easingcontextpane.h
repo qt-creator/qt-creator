@@ -34,13 +34,12 @@
 #ifndef EASINGCONTEXTPANE_H
 #define EASINGCONTEXTPANE_H
 
-#include <QWidget>
-#include <QVariant>
-
 #include "easinggraph.h"
 
+#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
+class QVariant;
 namespace Ui {
     class EasingContextPane;
 }

@@ -32,8 +32,8 @@
 **************************************************************************/
 
 #include "colorbox.h"
-#include <QPainter>
-#include <QMouseEvent>
+#include <QtGui/QPainter>
+#include <QtGui/QMouseEvent>
 
 static inline QString properName(const QColor &color)
 {

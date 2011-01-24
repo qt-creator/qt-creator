@@ -45,10 +45,10 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/uniqueidmanager.h>
 
-#include <QWidget>
-#include <QKeyEvent>
-#include <QApplication>
-#include <QShortcut>
+#include <QtGui/QWidget>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QApplication>
+#include <QtGui/QShortcut>
 
 using namespace Macros;
 using namespace Macros::Internal;

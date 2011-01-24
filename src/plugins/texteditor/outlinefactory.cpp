@@ -3,11 +3,13 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <QVBoxLayout>
-#include <QDebug>
-#include <QToolButton>
-#include <QLabel>
-#include <QStackedWidget>
+
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QToolButton>
+#include <QtGui/QLabel>
+#include <QtGui/QStackedWidget>
+
+#include <QtCore/QDebug>
 
 namespace TextEditor {
 namespace Internal {

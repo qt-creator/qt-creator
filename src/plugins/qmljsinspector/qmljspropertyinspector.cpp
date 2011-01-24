@@ -34,9 +34,9 @@
 #include <utils/qtcassert.h>
 #include <qdeclarativeproperty.h>
 
-#include <QHeaderView>
-#include <QItemDelegate>
-#include <QLineEdit>
+#include <QtGui/QHeaderView>
+#include <QtGui/QItemDelegate>
+#include <QtGui/QLineEdit>
 
 namespace QmlJSInspector {
 namespace Internal {

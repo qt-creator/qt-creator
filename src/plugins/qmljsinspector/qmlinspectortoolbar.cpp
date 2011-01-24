@@ -44,12 +44,12 @@
 
 #include <utils/styledbar.h>
 
-#include <QAction>
-#include <QActionGroup>
-#include <QHBoxLayout>
-#include <QMenu>
-#include <QToolButton>
-#include <QLineEdit>
+#include <QtGui/QAction>
+#include <QtGui/QActionGroup>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QMenu>
+#include <QtGui/QToolButton>
+#include <QtGui/QLineEdit>
 
 namespace QmlJSInspector {
 namespace Internal {

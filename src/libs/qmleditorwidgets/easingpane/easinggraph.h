@@ -34,10 +34,9 @@
 #ifndef EASINGGRAPH_H
 #define EASINGGRAPH_H
 
-//#include <QtDeclarative/qdeclarativeitem.h>
-#include <QWidget>
-#include <QEasingCurve>
-#include <QHash>
+#include <QtGui/QWidget>
+#include <QtCore/QEasingCurve>
+#include <QtCore/QHash>
 
 QT_BEGIN_HEADER
 

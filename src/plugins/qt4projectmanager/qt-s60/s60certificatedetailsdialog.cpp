@@ -39,7 +39,7 @@ using namespace Qt4ProjectManager::Internal;
 
 struct S60CertificateDetailsDialogPrivate
 {
-    S60CertificateDetailsDialogPrivate(){};
+    S60CertificateDetailsDialogPrivate(){}
     Ui::S60CertificateDetailsDialog m_ui;
 };
 

@@ -34,8 +34,8 @@
 #ifndef QMLINSPECTORTOOLBAR_H
 #define QMLINSPECTORTOOLBAR_H
 
-#include <QObject>
-#include <QIcon>
+#include <QtCore/QObject>
+#include <QtGui/QIcon>
 
 QT_FORWARD_DECLARE_CLASS(QAction)
 QT_FORWARD_DECLARE_CLASS(QColor)

@@ -33,9 +33,9 @@
 
 #include "pkgconfigtool.h"
 
-#include <QProcess>
-#include <QTextStream>
-#include <QtDebug>
+#include <QtCore/QProcess>
+#include <QtCore/QTextStream>
+#include <QtCore/QtDebug>
 
 using namespace GenericProjectManager::Internal;
 

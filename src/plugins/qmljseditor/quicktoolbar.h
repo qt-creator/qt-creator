@@ -1,16 +1,6 @@
 #ifndef QUICKTOOLBAR_H
 #define QUICKTOOLBAR_H
 
-#include <QLabel>
-#include <QToolBar>
-#include <QPushButton>
-#include <QToolButton>
-#include <QGridLayout>
-#include <QGroupBox>
-#include <QVariant>
-#include <QGraphicsDropShadowEffect>
-#include <QWeakPointer>
-
 #include <qmljs/qmljsicontextpane.h>
 
 namespace TextEditor {

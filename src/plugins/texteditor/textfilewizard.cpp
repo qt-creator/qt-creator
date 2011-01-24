@@ -34,7 +34,7 @@
 #include "textfilewizard.h"
 #include "basetexteditor.h"
 #include "texteditorconstants.h"
-#include <QDebug>
+#include <QtCore/QDebug>
 
 using namespace TextEditor;
 

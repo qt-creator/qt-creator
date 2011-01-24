@@ -34,8 +34,9 @@
 #ifndef S60SYMBIANCERTIFICATE_H
 #define S60SYMBIANCERTIFICATE_H
 
-#include <QStringList>
-#include <QDateTime>
+#include <QtCore/QStringList>
+
+QT_FORWARD_DECLARE_CLASS(QDateTime)
 
 class S60SymbianCertificatePrivate;
 

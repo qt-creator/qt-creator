@@ -36,8 +36,8 @@
 
 #include <projectexplorer/projectnodes.h>
 
-#include <QStringList>
-#include <QHash>
+#include <QtCore/QStringList>
+#include <QtCore/QHash>
 
 namespace Core {
 class IFile;

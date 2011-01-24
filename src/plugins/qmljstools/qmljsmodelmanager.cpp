@@ -52,17 +52,17 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QLibraryInfo>
-#include <QtConcurrentRun>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QLibraryInfo>
+#include <QtCore/QtConcurrentRun>
 #include <qtconcurrent/runextensions.h>
-#include <QTextStream>
-#include <QCoreApplication>
-#include <QTimer>
+#include <QtCore/QTextStream>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QTimer>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 using namespace QmlJS;
 using namespace QmlJSTools;

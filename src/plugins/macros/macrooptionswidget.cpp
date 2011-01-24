@@ -47,6 +47,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
+#include <QtGui/QShortcut>
 #include <QtGui/QButtonGroup>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QTreeWidgetItem>

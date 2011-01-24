@@ -35,7 +35,8 @@
 #include "qmldumptool.h"
 #include "qmlobservertool.h"
 #include <projectexplorer/debugginghelper.h>
-#include <QCoreApplication>
+
+#include <QtCore/QCoreApplication>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

@@ -35,9 +35,8 @@
 
 #include <qmljsprivateapi.h>
 #include <QtGui/QTreeView>
-#include <QStandardItemModel>
-#include <QSortFilterProxyModel>
-
+#include <QtGui/QStandardItemModel>
+#include <QtGui/QSortFilterProxyModel>
 
 QT_BEGIN_NAMESPACE
 

@@ -36,8 +36,7 @@
 #include "project.h"
 
 #include <QtCore/QTextCodec>
-
-#include <QDebug>
+#include <QtCore/QDebug>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

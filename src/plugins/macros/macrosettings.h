@@ -34,7 +34,6 @@
 #ifndef MACROSPLUGIN_MACROSETTINGS_H
 #define MACROSPLUGIN_MACROSETTINGS_H
 
-#include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 #include <QtCore/QVariant>

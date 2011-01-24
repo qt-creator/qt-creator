@@ -51,6 +51,8 @@
 #include <memory>
 #include <string>
 
+#include <QtCore/QDateTime>
+
 using namespace Botan;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

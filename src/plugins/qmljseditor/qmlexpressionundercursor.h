@@ -37,7 +37,7 @@
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsdocument.h>
 
-#include <QTextCursor>
+#include <QtGui/QTextCursor>
 
 namespace QmlJSEditor {
 namespace Internal {

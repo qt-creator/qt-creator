@@ -36,7 +36,7 @@
 
 #include "qtversionmanager.h"
 #include <utils/environment.h>
-#include <QObject>
+#include <QtCore/QObject>
 
 namespace Qt4ProjectManager {
 namespace Internal {

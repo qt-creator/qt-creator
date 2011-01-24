@@ -1,6 +1,8 @@
 #include "qmlprojectitem.h"
 #include "filefilteritems.h"
-#include <qdebug.h>
+
+#include <QtCore/QDebug>
+#include <QtCore/QDir>
 
 namespace QmlProjectManager {
 

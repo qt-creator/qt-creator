@@ -34,7 +34,7 @@
 #ifndef CGI_H
 #define CGI_H
 
-#include <QString>
+#include <QtCore/QString>
 
 class CGI
 {

@@ -38,7 +38,7 @@
 
 #include <QtGui/QTextBlock>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

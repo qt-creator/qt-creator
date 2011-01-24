@@ -53,7 +53,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QFileInfo>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;

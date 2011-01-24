@@ -39,10 +39,10 @@
 #include <utils/qtcassert.h>
 
 #include <projectexplorer/project.h>
-#include <QDesktopServices>
-#include <QCoreApplication>
-#include <QDir>
-#include <QDebug>
+#include <QtGui/QDesktopServices>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
+#include <QtCore/QDebug>
 
 namespace Qt4ProjectManager {
 

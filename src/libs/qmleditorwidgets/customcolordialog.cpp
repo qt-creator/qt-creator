@@ -32,17 +32,17 @@
 **************************************************************************/
 
 #include "customcolordialog.h"
-
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QPainter>
-#include <QDoubleSpinBox>
-#include <QGridLayout>
-#include <QPushButton>
-#include <QDialogButtonBox>
-#include <QGraphicsEffect>
 #include "huecontrol.h"
 #include "colorbox.h"
+
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QPainter>
+#include <QtGui/QDoubleSpinBox>
+#include <QtGui/QGridLayout>
+#include <QtGui/QPushButton>
+#include <QtGui/QDialogButtonBox>
+#include <QtGui/QGraphicsEffect>
 
 namespace QmlEditorWidgets {
 

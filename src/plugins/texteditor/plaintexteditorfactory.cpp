@@ -43,7 +43,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;

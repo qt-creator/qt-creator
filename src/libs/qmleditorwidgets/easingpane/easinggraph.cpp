@@ -33,68 +33,65 @@
 
 #include "easinggraph.h"
 
-#include <QPainter>
-#include <QStyleOptionGraphicsItem>
+#include <QtGui/QPainter>
+#include <QtGui/QStyleOptionGraphicsItem>
 #include <math.h>
 
 QT_BEGIN_NAMESPACE
 
-EasingGraph::EasingGraph(QWidget *parent):QWidget(parent)
+EasingGraph::EasingGraph(QWidget *parent):QWidget(parent),
+    m_color(Qt::magenta), m_zeroColor(Qt::gray),m_duration(0),
+    m_easingExtremes(QLatin1String("In"))
 {
 //    setFlag(QGraphicsItem::ItemHasNoContents, false);
 
     // populate the hash
-    m_availableNames["Linear"]=QEasingCurve::Linear;
-    m_availableNames["InQuad"]=QEasingCurve::InQuad;
-    m_availableNames["OutQuad"]=QEasingCurve::OutQuad;
-    m_availableNames["InOutQuad"]=QEasingCurve::InOutQuad;
-    m_availableNames["OutInQuad"]=QEasingCurve::OutInQuad;
-    m_availableNames["InCubic"]=QEasingCurve::InCubic;
-    m_availableNames["OutCubic"]=QEasingCurve::OutCubic;
-    m_availableNames["InOutCubic"]=QEasingCurve::InOutCubic;
-    m_availableNames["OutInCubic"]=QEasingCurve::OutInCubic;
-    m_availableNames["InQuart"]=QEasingCurve::InQuart;
-    m_availableNames["OutQuart"]=QEasingCurve::OutQuart;
-    m_availableNames["InOutQuart"]=QEasingCurve::InOutQuart;
-    m_availableNames["OutInQuart"]=QEasingCurve::OutInQuart;
-    m_availableNames["InQuint"]=QEasingCurve::InQuint;
-    m_availableNames["OutQuint"]=QEasingCurve::OutQuint;
-    m_availableNames["InOutQuint"]=QEasingCurve::InOutQuint;
-    m_availableNames["OutInQuint"]=QEasingCurve::OutInQuint;
-    m_availableNames["InSine"]=QEasingCurve::InSine;
-    m_availableNames["OutSine"]=QEasingCurve::OutSine;
-    m_availableNames["InOutSine"]=QEasingCurve::InOutSine;
-    m_availableNames["OutInSine"]=QEasingCurve::OutInSine;
-    m_availableNames["InExpo"]=QEasingCurve::InExpo;
-    m_availableNames["OutExpo"]=QEasingCurve::OutExpo;
-    m_availableNames["InOutExpo"]=QEasingCurve::InOutExpo;
-    m_availableNames["OutInExpo"]=QEasingCurve::OutInExpo;
-    m_availableNames["InCirc"]=QEasingCurve::InCirc;
-    m_availableNames["OutCirc"]=QEasingCurve::OutCirc;
-    m_availableNames["InOutCirc"]=QEasingCurve::InOutCirc;
-    m_availableNames["OutInCirc"]=QEasingCurve::OutInCirc;
-    m_availableNames["InElastic"]=QEasingCurve::InElastic;
-    m_availableNames["OutElastic"]=QEasingCurve::OutElastic;
-    m_availableNames["InOutElastic"]=QEasingCurve::InOutElastic;
-    m_availableNames["OutInElastic"]=QEasingCurve::OutInElastic;
-    m_availableNames["InBack"]=QEasingCurve::InBack;
-    m_availableNames["OutBack"]=QEasingCurve::OutBack;
-    m_availableNames["InOutBack"]=QEasingCurve::InOutBack;
-    m_availableNames["OutInBack"]=QEasingCurve::OutInBack;
-    m_availableNames["InBounce"]=QEasingCurve::InBounce;
-    m_availableNames["OutBounce"]=QEasingCurve::OutBounce;
-    m_availableNames["InOutBounce"]=QEasingCurve::InOutBounce;
-    m_availableNames["OutInBounce"]=QEasingCurve::OutInBounce;
-    m_availableNames["InCurve"]=QEasingCurve::InCurve;
-    m_availableNames["OutCurve"]=QEasingCurve::OutCurve;
-    m_availableNames["SineCurve"]=QEasingCurve::SineCurve;
-    m_availableNames["CosineCurve"]=QEasingCurve::CosineCurve;
-
-    m_color = Qt::magenta;
-    m_zeroColor = Qt::gray;
-    m_easingExtremes = "In";
+    m_availableNames.insert(QLatin1String("Linear"), QEasingCurve::Linear);
+    m_availableNames.insert(QLatin1String("InQuad"), QEasingCurve::InQuad);
+    m_availableNames.insert(QLatin1String("OutQuad"), QEasingCurve::OutQuad);
+    m_availableNames.insert(QLatin1String("InOutQuad"), QEasingCurve::InOutQuad);
+    m_availableNames.insert(QLatin1String("OutInQuad"), QEasingCurve::OutInQuad);
+    m_availableNames.insert(QLatin1String("InCubic"), QEasingCurve::InCubic);
+    m_availableNames.insert(QLatin1String("OutCubic"), QEasingCurve::OutCubic);
+    m_availableNames.insert(QLatin1String("InOutCubic"), QEasingCurve::InOutCubic);
+    m_availableNames.insert(QLatin1String("OutInCubic"), QEasingCurve::OutInCubic);
+    m_availableNames.insert(QLatin1String("InQuart"), QEasingCurve::InQuart);
+    m_availableNames.insert(QLatin1String("OutQuart"), QEasingCurve::OutQuart);
+    m_availableNames.insert(QLatin1String("InOutQuart"), QEasingCurve::InOutQuart);
+    m_availableNames.insert(QLatin1String("OutInQuart"), QEasingCurve::OutInQuart);
+    m_availableNames.insert(QLatin1String("InQuint"), QEasingCurve::InQuint);
+    m_availableNames.insert(QLatin1String("OutQuint"), QEasingCurve::OutQuint);
+    m_availableNames.insert(QLatin1String("InOutQuint"), QEasingCurve::InOutQuint);
+    m_availableNames.insert(QLatin1String("OutInQuint"), QEasingCurve::OutInQuint);
+    m_availableNames.insert(QLatin1String("InSine"), QEasingCurve::InSine);
+    m_availableNames.insert(QLatin1String("OutSine"), QEasingCurve::OutSine);
+    m_availableNames.insert(QLatin1String("InOutSine"), QEasingCurve::InOutSine);
+    m_availableNames.insert(QLatin1String("OutInSine"), QEasingCurve::OutInSine);
+    m_availableNames.insert(QLatin1String("InExpo"), QEasingCurve::InExpo);
+    m_availableNames.insert(QLatin1String("OutExpo"), QEasingCurve::OutExpo);
+    m_availableNames.insert(QLatin1String("InOutExpo"), QEasingCurve::InOutExpo);
+    m_availableNames.insert(QLatin1String("OutInExpo"), QEasingCurve::OutInExpo);
+    m_availableNames.insert(QLatin1String("InCirc"), QEasingCurve::InCirc);
+    m_availableNames.insert(QLatin1String("OutCirc"), QEasingCurve::OutCirc);
+    m_availableNames.insert(QLatin1String("InOutCirc"), QEasingCurve::InOutCirc);
+    m_availableNames.insert(QLatin1String("OutInCirc"), QEasingCurve::OutInCirc);
+    m_availableNames.insert(QLatin1String("InElastic"), QEasingCurve::InElastic);
+    m_availableNames.insert(QLatin1String("OutElastic"), QEasingCurve::OutElastic);
+    m_availableNames.insert(QLatin1String("InOutElastic"), QEasingCurve::InOutElastic);
+    m_availableNames.insert(QLatin1String("OutInElastic"), QEasingCurve::OutInElastic);
+    m_availableNames.insert(QLatin1String("InBack"), QEasingCurve::InBack);
+    m_availableNames.insert(QLatin1String("OutBack"), QEasingCurve::OutBack);
+    m_availableNames.insert(QLatin1String("InOutBack"), QEasingCurve::InOutBack);
+    m_availableNames.insert(QLatin1String("OutInBack"), QEasingCurve::OutInBack);
+    m_availableNames.insert(QLatin1String("InBounce"), QEasingCurve::InBounce);
+    m_availableNames.insert(QLatin1String("OutBounce"), QEasingCurve::OutBounce);
+    m_availableNames.insert(QLatin1String("InOutBounce"), QEasingCurve::InOutBounce);
+    m_availableNames.insert(QLatin1String("OutInBounce"), QEasingCurve::OutInBounce);
+    m_availableNames.insert(QLatin1String("InCurve"), QEasingCurve::InCurve);
+    m_availableNames.insert(QLatin1String("OutCurve"), QEasingCurve::OutCurve);
+    m_availableNames.insert(QLatin1String("SineCurve"), QEasingCurve::SineCurve);
+    m_availableNames.insert(QLatin1String("CosineCurve"), QEasingCurve::CosineCurve);
 }
-
 
 EasingGraph::~EasingGraph()
 {

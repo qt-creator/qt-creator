@@ -34,20 +34,14 @@
 #ifndef MACROSPLUGIN_MACRO_H
 #define MACROSPLUGIN_MACRO_H
 
-#include <coreplugin/uniqueidmanager.h>
-
-#include <QList>
-#include <QString>
-#include <QShortcut>
-
-#include "macroevent.h"
 #include "macros_global.h"
-#include "macroevent.h"
 
 #include <QtCore/QList>
 #include <QtCore/QString>
 
 namespace Macros {
+
+class MacroEvent;
 
 class MACROS_EXPORT Macro
 {
@@ -57,7 +51,7 @@ public:
     ~Macro();
     Macro& operator=(const Macro& other);
 
-    void load(QString fileName = QString::null);
+    void load(QString fileName = QString());
     void loadHeader(const QString &fileName);
     void save(const QString &fileName);
 

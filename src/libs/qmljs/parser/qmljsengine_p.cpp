@@ -45,7 +45,7 @@
 #include "qmljsnodepool_p.h"
 
 #include <qnumeric.h>
-#include <QHash>
+#include <QtCore/QHash>
 
 QT_QML_BEGIN_NAMESPACE
 

@@ -34,8 +34,8 @@
 #ifndef SCRIPTBINDINGREWRITER_H
 #define SCRIPTBINDINGREWRITER_H
 
-#include <QObject>
-#include <QWeakPointer>
+#include <QtCore/QObject>
+#include <QtCore/QWeakPointer>
 
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsdocument.h>

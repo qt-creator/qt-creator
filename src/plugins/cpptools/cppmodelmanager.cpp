@@ -43,9 +43,9 @@
 #endif
 
 #include <functional>
-#include <QtConcurrentRun>
+#include <QtCore/QtConcurrentRun>
 #ifndef ICHECK_BUILD
-#  include <QFutureSynchronizer>
+#  include <QtCore/QFutureSynchronizer>
 #  include <qtconcurrent/runextensions.h>
 #  include <texteditor/itexteditor.h>
 #  include <texteditor/basetexteditor.h>
@@ -59,7 +59,7 @@
 #  include <coreplugin/progressmanager/progressmanager.h>
 #  include <extensionsystem/pluginmanager.h>
 #else
-#  include <QDir>
+#  include <QtCore/QDir>
 #endif
 
 #include <utils/qtcassert.h>

@@ -1,10 +1,11 @@
-#include <QtCore/QCoreApplication>
-#include <QtNetwork/QLocalSocket>
 #include "lldbengineguest.h"
-#include <cstdio>
-#include <QSocketNotifier>
-#include <QQueue>
 
+#include <QtNetwork/QLocalSocket>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QSocketNotifier>
+#include <QtCore/QQueue>
+
+#include <cstdio>
 
 // #define DO_STDIO_DEBUG 1
 #ifdef DO_STDIO_DEBUG
