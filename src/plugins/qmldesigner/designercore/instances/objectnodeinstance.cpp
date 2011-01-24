@@ -862,7 +862,7 @@ QStringList propertyNameForWritableProperties(QObject *object, const QString &ba
     for (int index = 0; index < metaObject->propertyCount(); ++index) {
         QMetaProperty metaProperty = metaObject->property(index);
         QDeclarativeProperty declarativeProperty(object, QLatin1String(metaProperty.name()));
-        if (declarativeProperty.isValid() && declarativeProperty.isWritable() && declarativeProperty.propertyTypeCategory() == QDeclarativeProperty::Object) {
+        if (declarativeProperty.isValid() && !declarativeProperty.isWritable() && declarativeProperty.propertyTypeCategory() == QDeclarativeProperty::Object) {
             if (declarativeProperty.name() != "parent") {
                 QObject *childObject = QDeclarativeMetaType::toQObject(declarativeProperty.read());
                 if (childObject)
