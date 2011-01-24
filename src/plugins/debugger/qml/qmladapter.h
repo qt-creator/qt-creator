@@ -76,6 +76,8 @@ public:
     void setMaxConnectionAttempts(int maxAttempts);
     void setConnectionAttemptInterval(int interval);
 
+    bool disableJsDebugging(bool block);
+
 public slots:
     void logServiceStatusChange(const QString &service, QDeclarativeDebugClient::Status newStatus);    
     void logServiceActivity(const QString &service, const QString &logMessage);

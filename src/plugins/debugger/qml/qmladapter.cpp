@@ -273,6 +273,25 @@ void QmlAdapter::setConnectionAttemptInterval(int interval)
     d->m_connectionTimer.setInterval(interval);
 }
 
+bool QmlAdapter::disableJsDebugging(bool block)
+{
+    if (d->m_engine.isNull())
+        return block;
+
+    bool isBlocked = d->m_engine.data()->state() == InferiorRunOk;
+
+    if (isBlocked == block)
+        return block;
+
+    if (block)
+        d->m_engine.data()->continueInferior();
+    else
+        d->m_engine.data()->requestInterruptInferior();
+
+    return isBlocked;
+}
+
+
 void QmlAdapter::logServiceStatusChange(const QString &service, QDeclarativeDebugClient::Status newStatus)
 {
     switch (newStatus) {

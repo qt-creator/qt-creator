@@ -322,8 +322,12 @@ QDeclarativeDebugExpressionQuery *ClientProxy::queryExpressionResult(int objectD
 {
     if (debug)
         qDebug() << "queryExpressionResult():" << objectDebugId << expr << parent;
-    if (objectDebugId != -1)
-        return m_engineClient->queryExpressionResult(objectDebugId,expr,parent);
+    if (objectDebugId != -1) {
+        bool block = m_adapter->disableJsDebugging(true);
+        QDeclarativeDebugExpressionQuery *query = m_engineClient->queryExpressionResult(objectDebugId,expr,parent);
+        m_adapter->disableJsDebugging(block);
+        return query;
+    }
     return 0;
 }
 

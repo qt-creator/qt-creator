@@ -357,6 +357,7 @@ private:
     // Wrapper engine needs access to state of its subengines.
     friend class Internal::QmlCppEngine;
     friend class Internal::DebuggerPluginPrivate;
+    friend class QmlAdapter;
 
     virtual void setState(DebuggerState state, bool forced = false);
 
