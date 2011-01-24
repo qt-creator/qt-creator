@@ -185,7 +185,7 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
         DebuggerEngine *masterEngine)
   : DebuggerEngine(startParameters, masterEngine)
 {
-    setObjectName(QLatin1String("GdbEngine"));
+    setObjectName(_("GdbEngine"));
 
     m_busy = false;
     m_gdbAdapter = 0;
@@ -461,8 +461,10 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // line="1584",shlib="/../libFoo_debug.dylib",times="0"}
                 const GdbMi bkpt = result.findChild("bkpt");
                 const int number = bkpt.findChild("number").data().toInt();
-                BreakpointId id = breakHandler()->findBreakpointByNumber(number);
-                updateBreakpointDataFromOutput(id, bkpt);
+                if (!isQmlStepBreakpoint1(number) && isQmlStepBreakpoint2(number)) {
+                    BreakpointId id = breakHandler()->findBreakpointByNumber(number);
+                    updateBreakpointDataFromOutput(id, bkpt);
+                }
             } else {
                 qDebug() << "IGNORED ASYNC OUTPUT"
                     << asyncClass << result.toString();
@@ -509,6 +511,15 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 m_lastWinException = msgWinException(data);
                 showMessage(m_lastWinException, LogMisc);
             }
+
+            if (data.startsWith("QMLBP:")) {
+                int pos1 = 6;
+                int pos2 = data.indexOf(' ', pos1);
+                m_qmlBreakpointNumbers[2] = data.mid(pos1, pos2 - pos1).toInt();
+                //qDebug() << "FOUND QMLBP: " << m_qmlBreakpointNumbers[2];
+                //qDebug() << "CURRENT: " << m_qmlBreakpointNumbers;
+            }
+
             break;
         }
 
@@ -1211,12 +1222,14 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     if (fullName.isEmpty())
         fullName = QString::fromUtf8(frame.findChild("file").data());
 
-    const bool isSpecialQmlBreakpoint =
-        m_qmlBreakpointNumbers.keys().contains(bkptno);
-
-    if (bkptno && frame.isValid() && !isSpecialQmlBreakpoint) {
+    if (bkptno && frame.isValid()
+            && !isQmlStepBreakpoint1(bkptno)
+            && !isQmlStepBreakpoint2(bkptno)) {
         // Use opportunity to update the breakpoint marker position.
         BreakHandler *handler = breakHandler();
+        //qDebug() << " PROBLEM: " << m_qmlBreakpointNumbers << bkptno
+        //    << isQmlStepBreakpoint1(bkptno)
+        //    << isQmlStepBreakpoint2(bkptno)
         BreakpointId id = handler->findBreakpointByNumber(bkptno);
         const BreakpointResponse &response = handler->response(id);
         QString fileName = response.fileName;
@@ -1228,9 +1241,12 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             handler->setMarkerFileAndLine(id, fileName, lineNumber);
     }
 
+    //qDebug() << "BP " << bkptno << data.toString();
     // Quickly set the location marker.
     if (lineNumber && !debuggerCore()->boolSetting(OperateByInstruction)
-            && QFileInfo(fullName).exists() && !isSpecialQmlBreakpoint)
+            && QFileInfo(fullName).exists()
+            && !isQmlStepBreakpoint1(bkptno)
+            && !isQmlStepBreakpoint2(bkptno))
         gotoLocation(Location(fullName, lineNumber));
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
@@ -1259,6 +1275,8 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         // *stopped arriving earlier than ^done response to an -exec-step
         notifyInferiorRunOk();
         notifyInferiorSpontaneousStop();
+    } else if (state() == InferiorStopOk && isQmlStepBreakpoint2(bkptno)) {
+        // That's expected.
     } else {
         QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
         notifyInferiorStopOk();
@@ -1289,7 +1307,9 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
 #endif
 
-    if (isSpecialQmlBreakpoint)
+    //qDebug() << "STOP: " << m_qmlBreakpointNumbers;
+
+    if (isQmlStepBreakpoint1(bkptno))
         return;
 
     handleStop0(data);
@@ -2097,6 +2117,7 @@ void GdbEngine::setTokenBarrier()
 void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkpt)
 {
     QTC_ASSERT(bkpt.isValid(), return);
+
     BreakpointResponse response = breakHandler()->response(id);
 
     response.multiple = false;
@@ -2359,8 +2380,7 @@ void GdbEngine::handleBreakList(const GdbMi &table)
     foreach (const GdbMi &bkpt, bkpts) {
         BreakpointResponse needle;
         needle.number = bkpt.findChild("number").data().toInt();
-        // FIXME: Performance.
-        if (m_qmlBreakpointNumbers.values().contains(needle.number))
+        if (isQmlStepBreakpoint2(needle.number))
             continue;
         BreakpointId id = breakHandler()->findSimilarBreakpoint(needle);
         if (id != BreakpointId(-1)) {
@@ -3940,11 +3960,7 @@ static DisassemblerLine parseLine(const GdbMi &line)
 {
     DisassemblerLine dl;
     QByteArray address = line.findChild("address").data();
-    //QByteArray funcName = line.findChild("func-name").data();
-    //QByteArray offset = line.findChild("offset").data();
     dl.address = address.toULongLong();
-    //ba += funcName + "+" + offset + "  ";
-    //ba += QByteArray(30 - funcName.size() - offset.size(), ' ');
     dl.data = _(line.findChild("inst").data());
     return dl;
 }
@@ -4181,18 +4197,19 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
         return false;
     }
 
-    const QString winPythonVersion = QLatin1String(winPythonVersionC);
+    const QString winPythonVersion = _(winPythonVersionC);
     const QDir dir = fi.absoluteDir();
 
     QProcessEnvironment environment = gdbProc()->processEnvironment();
-    const QString pythonPathVariable = QLatin1String("PYTHONPATH");
+    const QString pythonPathVariable = _("PYTHONPATH");
     QString pythonPath;
 
     const QString environmentPythonPath = environment.value(pythonPathVariable);
     if (dir.exists(winPythonVersion)) {
         pythonPath = QDir::toNativeSeparators(dir.absoluteFilePath(winPythonVersion));
-    } else if (dir.exists(QLatin1String("lib"))) { // Needed for our gdb 7.2 packages
-        pythonPath = QDir::toNativeSeparators(dir.absoluteFilePath(QLatin1String("lib")));
+    } else if (dir.exists(_("lib"))) {
+        // Needed for our gdb 7.2 packages
+        pythonPath = QDir::toNativeSeparators(dir.absoluteFilePath(_("lib")));
     } else {
         pythonPath = environmentPythonPath;
     }
@@ -4201,8 +4218,8 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
         showMessage(_("GDB %1 CANNOT FIND THE PYTHON INSTALLATION.").arg(nativeGdb));
         showStatusMessage(_("%1 cannot find python").arg(nativeGdb));
         const QString msg = tr("The gdb installed at %1 cannot "
-                               "find a valid python installation in its %2 subdirectory.\n"
-                               "You may set the PYTHONPATH to your installation.")
+           "find a valid python installation in its %2 subdirectory.\n"
+           "You may set the PYTHONPATH to your installation.")
                 .arg(nativeGdb).arg(winPythonVersion);
         handleAdapterStartFailed(msg, settingsIdHint);
         return false;
@@ -4393,7 +4410,8 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
     }
 }
 
-void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &settingsIdHint)
+void GdbEngine::handleAdapterStartFailed(const QString &msg,
+    const QString &settingsIdHint)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("ADAPTER START FAILED"));
@@ -4505,10 +4523,8 @@ void GdbEngine::handleAdapterCrashed(const QString &msg)
         showMessageBox(QMessageBox::Critical, tr("Adapter crashed"), msg);
 }
 
-void GdbEngine::setUseDebuggingHelpers(const QVariant &on)
+void GdbEngine::setUseDebuggingHelpers(const QVariant &)
 {
-    //qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;
-    Q_UNUSED(on)
     setTokenBarrier();
     updateLocals();
 }
@@ -4566,11 +4582,12 @@ void GdbEngine::handleRemoteSetupFailed(const QString &message)
 bool GdbEngine::setupQmlStep(bool on)
 {
     QTC_ASSERT(isSlaveEngine(), return false);
-    Q_UNUSED(on);
+    m_qmlBreakpointNumbers.clear();
+    //qDebug() << "CLEAR: " << m_qmlBreakpointNumbers;
     postCommand("tbreak '" + qtNamespace() + "QScript::FunctionWrapper::proxyCall'\n"
         "commands\n"
         "set $d=(void*)((FunctionWrapper*)callee)->data->function\n"
-        "tbreak *$d\ncontinue\nend",
+        "tbreak *$d\nprintf \"QMLBP:%d \\n\",$bpnum\ncontinue\nend",
         NeedsStop, CB(handleSetQmlStepBreakpoint));
     m_preparedForQmlBreak = on;
     return true;
@@ -4580,19 +4597,32 @@ void GdbEngine::handleSetQmlStepBreakpoint(const GdbResponse &response)
 {
     //QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        // 20^done,bkpt={number="2",type="breakpoint",disp="keep",enabled="y",
-        // addr="<PENDING>",pending="'myns::QScript::qScriptBreaker'"}
-        const GdbMi bkpt = response.data.findChild("bkpt");
-        const GdbMi number = bkpt.findChild("number");
-        const int bpnr = number.data().toInt();
+        // "{logstreamoutput="tbreak 'myns::QScript::FunctionWrapper::proxyCall'\n"
+        //,consolestreamoutput="Temporary breakpoint 1 at 0xf166e7:
+        // file bridge/qscriptfunction.cpp, line 75.\n"}
+        QByteArray ba = parsePlainConsoleStream(response);
+        const int pos2 = ba.indexOf(" at 0x");
+        const int pos1 = ba.lastIndexOf(" ", pos2 - 1) + 1;
+        QByteArray mid = ba.mid(pos1, pos2 - pos1);
+        const int bpnr = mid.toInt();
         m_qmlBreakpointNumbers[1] = bpnr;
-        //postCommand("disable " + number.data());
-        //postCommand("enable " + number.data());
+        //qDebug() << "SET: " << m_qmlBreakpointNumbers;
     }
     QTC_ASSERT(masterEngine(), return);
     masterEngine()->readyToExecuteQmlStep();
 }
 
+bool GdbEngine::isQmlStepBreakpoint1(int bpnr) const
+{
+    //qDebug() << "CHECK 1: " << m_qmlBreakpointNumbers[1] << bpnr;
+    return bpnr && m_qmlBreakpointNumbers[1] == bpnr;
+}
+
+bool GdbEngine::isQmlStepBreakpoint2(int bpnr) const
+{
+    //qDebug() << "CHECK 2: " << m_qmlBreakpointNumbers[2] << bpnr;
+    return bpnr && m_qmlBreakpointNumbers[2] == bpnr;
+}
 
 //
 // Factory

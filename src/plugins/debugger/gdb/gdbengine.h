@@ -557,6 +557,8 @@ private: ////////// View & Data Stuff //////////
     bool m_preparedForQmlBreak;
     bool setupQmlStep(bool on);
     void handleSetQmlStepBreakpoint(const GdbResponse &response);
+    bool isQmlStepBreakpoint1(int bpnr) const;
+    bool isQmlStepBreakpoint2(int bpnr) const;
 
     // HACK:
     StackFrame m_targetFrame;
