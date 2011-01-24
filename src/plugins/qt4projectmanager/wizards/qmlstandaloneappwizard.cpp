@@ -142,8 +142,7 @@ void QmlStandaloneAppWizard::prepareGenerateFiles(const QWizard *w,
     Q_UNUSED(errorMessage)
     const QmlStandaloneAppWizardDialog *wizard = qobject_cast<const QmlStandaloneAppWizardDialog*>(w);
     const QString mainQmlFile = wizard->m_qmlSourcesPage->mainQmlFile();
-    if (!mainQmlFile.isEmpty())
-        m_d->standaloneApp->setMainQmlFile(mainQmlFile);
+    m_d->standaloneApp->setMainQmlFile(mainQmlFile);
 }
 
 bool QmlStandaloneAppWizard::postGenerateFilesInternal(const Core::GeneratedFiles &l,
