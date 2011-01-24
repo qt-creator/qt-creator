@@ -96,12 +96,18 @@ void MaemoPackageCreationWidget::initGui()
     connect(m_step, SIGNAL(packageFilePathChanged()), this,
         SIGNAL(updateSummary()));
     versionInfoChanged();
-    connect(m_step->maemoTarget(), SIGNAL(debianDirContentsChanged()),
-        SLOT(updateDebianFileList()));
-    connect(m_step->maemoTarget(), SIGNAL(changeLogChanged()),
-        SLOT(updateVersionInfo()));
-    connect(m_step->maemoTarget(), SIGNAL(controlChanged()),
-        SLOT(handleControlFileUpdate()));
+    const AbstractDebBasedQt4MaemoTarget * const debBasedMaemoTarget
+        = m_step->debBasedMaemoTarget();
+    if (debBasedMaemoTarget) {
+        connect(debBasedMaemoTarget, SIGNAL(debianDirContentsChanged()),
+            SLOT(updateDebianFileList()));
+        connect(debBasedMaemoTarget, SIGNAL(changeLogChanged()),
+            SLOT(updateVersionInfo()));
+        connect(debBasedMaemoTarget, SIGNAL(controlChanged()),
+            SLOT(handleControlFileUpdate()));
+    } else {
+        // TODO: Connect the respective signals for RPM-based target
+    }
     connect(m_ui->nameLineEdit, SIGNAL(editingFinished()), SLOT(setName()));
     m_ui->shortDescriptionLineEdit->setMaxLength(60);
     connect(m_ui->shortDescriptionLineEdit, SIGNAL(editingFinished()),
@@ -111,7 +117,7 @@ void MaemoPackageCreationWidget::initGui()
 void MaemoPackageCreationWidget::updateDebianFileList()
 {
     m_ui->debianFilesComboBox->clear();
-    const QStringList &debianFiles = m_step->maemoTarget()->debianFiles();
+    const QStringList &debianFiles = m_step->debBasedMaemoTarget()->debianFiles();
     foreach (const QString &fileName, debianFiles) {
         if (fileName != QLatin1String("compat")
                 && !fileName.endsWith(QLatin1Char('~')))
@@ -236,7 +242,7 @@ void MaemoPackageCreationWidget::versionInfoChanged()
 
 void MaemoPackageCreationWidget::editDebianFile()
 {
-    const QString debianFilePath = m_step->maemoTarget()->debianDirPath()
+    const QString debianFilePath = m_step->debBasedMaemoTarget()->debianDirPath()
         + QLatin1Char('/') + m_ui->debianFilesComboBox->currentText();
     Core::EditorManager::instance()->openEditor(debianFilePath, QString(),
         Core::EditorManager::ModeSwitch);

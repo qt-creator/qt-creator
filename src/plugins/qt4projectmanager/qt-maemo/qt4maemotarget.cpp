@@ -60,9 +60,9 @@ const QLatin1String PackagingDirName("qtc_packaging");
 
 AbstractQt4MaemoTarget::AbstractQt4MaemoTarget(Qt4Project *parent, const QString &id) :
     Qt4BaseTarget(parent, id),
+    m_filesWatcher(new QFileSystemWatcher(this)),
     m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this)),
-    m_deployConfigurationFactory(new Qt4MaemoDeployConfigurationFactory(this)),
-    m_debianFilesWatcher(new QFileSystemWatcher(this))
+    m_deployConfigurationFactory(new Qt4MaemoDeployConfigurationFactory(this))
 {
     setIcon(QIcon(":/projectexplorer/images/MaemoDevice.png"));
     connect(parent, SIGNAL(addedTarget(ProjectExplorer::Target*)),
@@ -126,7 +126,171 @@ QList<ProjectExplorer::RunConfiguration *> AbstractQt4MaemoTarget::runConfigurat
     return result;
 }
 
-QString AbstractQt4MaemoTarget::projectVersion(QString *error) const
+bool AbstractQt4MaemoTarget::setProjectVersion(const QString &version,
+    QString *error)
+{
+    bool success = true;
+    foreach (Target * const target, project()->targets()) {
+        AbstractQt4MaemoTarget * const maemoTarget
+            = qobject_cast<AbstractQt4MaemoTarget *>(target);
+        if (maemoTarget) {
+            if (!maemoTarget->setProjectVersionInternal(version, error))
+                success = false;
+        }
+    }
+    return success;
+}
+
+bool AbstractQt4MaemoTarget::setPackageManagerIcon(const QString &iconFilePath,
+    QString *error)
+{
+    bool success = true;
+    foreach (Target * const target, project()->targets()) {
+        AbstractQt4MaemoTarget * const maemoTarget
+            = qobject_cast<AbstractQt4MaemoTarget *>(target);
+        if (maemoTarget) {
+            if (!maemoTarget->setPackageManagerIconInternal(iconFilePath, error))
+                success = false;
+        }
+    }
+    return success;
+}
+
+
+bool AbstractQt4MaemoTarget::setName(const QString &name)
+{
+    bool success = true;
+    foreach (Target * const target, project()->targets()) {
+        AbstractQt4MaemoTarget * const maemoTarget
+            = qobject_cast<AbstractQt4MaemoTarget *>(target);
+        if (maemoTarget) {
+            if (!maemoTarget->setNameInternal(name))
+                success = false;
+        }
+    }
+    return success;
+}
+
+bool AbstractQt4MaemoTarget::setShortDescription(const QString &description)
+{
+    bool success = true;
+    foreach (Target * const target, project()->targets()) {
+        AbstractQt4MaemoTarget * const maemoTarget
+            = qobject_cast<AbstractQt4MaemoTarget *>(target);
+        if (maemoTarget) {
+            if (!maemoTarget->setShortDescriptionInternal(description))
+                success = false;
+        }
+    }
+    return success;
+}
+
+QSharedPointer<QFile> AbstractQt4MaemoTarget::openFile(const QString &filePath,
+    QIODevice::OpenMode mode, QString *error) const
+{
+    const QString nativePath = QDir::toNativeSeparators(filePath);
+    QSharedPointer<QFile> file(new QFile(filePath));
+    if (!file->exists()) {
+        if (error)
+            *error = tr("File '%1' does not exist").arg(nativePath);
+        file.clear();
+    } else if (!file->open(mode)) {
+        if (error) {
+            *error = tr("Cannot open file '%1': %2")
+                .arg(nativePath, file->errorString());
+        }
+        file.clear();
+    }
+    return file;
+}
+
+void AbstractQt4MaemoTarget::handleTargetAdded(ProjectExplorer::Target *target)
+{
+    if (target != this)
+        return;
+
+    disconnect(project(), SIGNAL(addedTarget(ProjectExplorer::Target*)),
+        this, SLOT(handleTargetAdded(ProjectExplorer::Target*)));
+    connect(project(), SIGNAL(aboutToRemoveTarget(ProjectExplorer::Target*)),
+        SLOT(handleTargetToBeRemoved(ProjectExplorer::Target*)));
+    if (!createTemplates())
+        return;
+    initPackagingSettingsFromOtherTarget();
+    handleTargetAddedSpecial();
+}
+
+void AbstractQt4MaemoTarget::handleTargetToBeRemoved(ProjectExplorer::Target *target)
+{
+    if (target != this)
+        return;
+    if (!targetCanBeRemoved())
+        return;
+    const int answer = QMessageBox::warning(0, tr("Qt Creator"),
+        tr("Do you want to remove the packaging directory\n"
+           "associated with the target '%1'?").arg(displayName()),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if (answer == QMessageBox::No)
+        return;
+    removeTarget();
+    QString error;
+    const QString packagingPath = project()->projectDirectory()
+        + QLatin1Char('/') + PackagingDirName;
+    const QStringList otherContents = QDir(packagingPath).entryList(QDir::Dirs
+        | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot);
+    if (otherContents.isEmpty()) {
+        if (!MaemoGlobal::removeRecursively(packagingPath, error))
+            qDebug("%s", qPrintable(error));
+    }
+}
+
+bool AbstractQt4MaemoTarget::createTemplates()
+{
+    QDir projectDir(project()->projectDirectory());
+    if (!projectDir.exists(PackagingDirName)
+            && !projectDir.mkdir(PackagingDirName)) {
+        raiseError(tr("Error creating Maemo packaging directory '%1'.")
+            .arg(PackagingDirName));
+        return false;
+    }
+
+    return createSpecialTemplates();
+}
+
+bool AbstractQt4MaemoTarget::initPackagingSettingsFromOtherTarget()
+{
+    bool success = true;
+    foreach (const Target * const target, project()->targets()) {
+        const AbstractQt4MaemoTarget * const maemoTarget
+            = qobject_cast<const AbstractQt4MaemoTarget *>(target);
+        if (maemoTarget && maemoTarget != this) {
+            if (!setProjectVersionInternal(maemoTarget->projectVersion()))
+                success = false;
+            if (!setRawIconValue(maemoTarget->rawIconValue()))
+                success = false;
+            if (!setNameInternal(maemoTarget->name()))
+                success = false;
+            if (!setShortDescriptionInternal(maemoTarget->shortDescription()))
+                success = false;
+            break;
+        }
+    }
+    return success;
+}
+
+void AbstractQt4MaemoTarget::raiseError(const QString &reason)
+{
+    QMessageBox::critical(0, tr("Error creating Maemo templates"), reason);
+}
+
+
+AbstractDebBasedQt4MaemoTarget::AbstractDebBasedQt4MaemoTarget(Qt4Project *parent,
+    const QString &id) : AbstractQt4MaemoTarget(parent, id)
+{
+}
+
+AbstractDebBasedQt4MaemoTarget::~AbstractDebBasedQt4MaemoTarget() {}
+
+QString AbstractDebBasedQt4MaemoTarget::projectVersion(QString *error) const
 {
     QSharedPointer<QFile> changeLog = openFile(changeLogFilePath(),
         QIODevice::ReadOnly, error);
@@ -153,22 +317,7 @@ QString AbstractQt4MaemoTarget::projectVersion(QString *error) const
         closeParenPos - openParenPos - 1).data());
 }
 
-bool AbstractQt4MaemoTarget::setProjectVersion(const QString &version,
-    QString *error)
-{
-    bool success = true;
-    foreach (Target * const target, project()->targets()) {
-        AbstractQt4MaemoTarget * const maemoTarget
-            = qobject_cast<AbstractQt4MaemoTarget *>(target);
-        if (maemoTarget) {
-            if (!maemoTarget->setProjectVersionInternal(version, error))
-                success = false;
-        }
-    }
-    return success;
-}
-
-bool AbstractQt4MaemoTarget::setProjectVersionInternal(const QString &version,
+bool AbstractDebBasedQt4MaemoTarget::setProjectVersionInternal(const QString &version,
     QString *error)
 {
     const QString filePath = changeLogFilePath();
@@ -195,7 +344,7 @@ bool AbstractQt4MaemoTarget::setProjectVersionInternal(const QString &version,
     return true;
 }
 
-QIcon AbstractQt4MaemoTarget::packageManagerIcon(QString *error) const
+QIcon AbstractDebBasedQt4MaemoTarget::packageManagerIcon(QString *error) const
 {
     const QByteArray &base64Icon = controlFileFieldValue(IconFieldName, true);
     if (base64Icon.isEmpty())
@@ -209,22 +358,7 @@ QIcon AbstractQt4MaemoTarget::packageManagerIcon(QString *error) const
     return QIcon(pixmap);
 }
 
-bool AbstractQt4MaemoTarget::setPackageManagerIcon(const QString &iconFilePath,
-    QString *error)
-{
-    bool success = true;
-    foreach (Target * const target, project()->targets()) {
-        AbstractQt4MaemoTarget * const maemoTarget
-            = qobject_cast<AbstractQt4MaemoTarget *>(target);
-        if (maemoTarget) {
-            if (!maemoTarget->setPackageManagerIconInternal(iconFilePath, error))
-                success = false;
-        }
-    }
-    return success;
-}
-
-bool AbstractQt4MaemoTarget::setPackageManagerIconInternal(const QString &iconFilePath,
+bool AbstractDebBasedQt4MaemoTarget::setPackageManagerIconInternal(const QString &iconFilePath,
     QString *error)
 {
     const QString filePath = controlFilePath();
@@ -287,96 +421,49 @@ bool AbstractQt4MaemoTarget::setPackageManagerIconInternal(const QString &iconFi
     return true;
 }
 
-QString AbstractQt4MaemoTarget::name() const
+QString AbstractDebBasedQt4MaemoTarget::name() const
 {
     return QString::fromUtf8(controlFileFieldValue(NameFieldName, false));
 }
 
-bool AbstractQt4MaemoTarget::setName(const QString &name)
-{
-    bool success = true;
-    foreach (Target * const target, project()->targets()) {
-        AbstractQt4MaemoTarget * const maemoTarget
-            = qobject_cast<AbstractQt4MaemoTarget *>(target);
-        if (maemoTarget) {
-            if (!maemoTarget->setNameInternal(name))
-                success = false;
-        }
-    }
-    return success;
-}
-
-bool AbstractQt4MaemoTarget::setNameInternal(const QString &name)
+bool AbstractDebBasedQt4MaemoTarget::setNameInternal(const QString &name)
 {
     return setControlFieldValue(NameFieldName, name.toUtf8());
 }
 
-QString AbstractQt4MaemoTarget::shortDescription() const
+QString AbstractDebBasedQt4MaemoTarget::shortDescription() const
 {
     return QString::fromUtf8(controlFileFieldValue(ShortDescriptionFieldName, false));
 }
 
-bool AbstractQt4MaemoTarget::setShortDescription(const QString &description)
-{
-    bool success = true;
-    foreach (Target * const target, project()->targets()) {
-        AbstractQt4MaemoTarget * const maemoTarget
-            = qobject_cast<AbstractQt4MaemoTarget *>(target);
-        if (maemoTarget) {
-            if (!maemoTarget->setShortDescriptionInternal(description))
-                success = false;
-        }
-    }
-    return success;
-}
-
-bool AbstractQt4MaemoTarget::setShortDescriptionInternal(const QString &description)
+bool AbstractDebBasedQt4MaemoTarget::setShortDescriptionInternal(const QString &description)
 {
     return setControlFieldValue(ShortDescriptionFieldName, description.toUtf8());
 }
 
-QString AbstractQt4MaemoTarget::debianDirPath() const
+QString AbstractDebBasedQt4MaemoTarget::debianDirPath() const
 {
     return project()->projectDirectory() + QLatin1Char('/') + PackagingDirName
         + QLatin1Char('/') + debianDirName();
 }
 
-QStringList AbstractQt4MaemoTarget::debianFiles() const
+QStringList AbstractDebBasedQt4MaemoTarget::debianFiles() const
 {
     return QDir(debianDirPath())
         .entryList(QDir::Files, QDir::Name | QDir::IgnoreCase);
 }
 
-QString AbstractQt4MaemoTarget::changeLogFilePath() const
+QString AbstractDebBasedQt4MaemoTarget::changeLogFilePath() const
 {
     return debianDirPath() + QLatin1String("/changelog");
 }
 
-QString AbstractQt4MaemoTarget::controlFilePath() const
+QString AbstractDebBasedQt4MaemoTarget::controlFilePath() const
 {
     return debianDirPath() + QLatin1String("/control");
 }
 
-QSharedPointer<QFile> AbstractQt4MaemoTarget::openFile(const QString &filePath,
-    QIODevice::OpenMode mode, QString *error) const
-{
-    const QString nativePath = QDir::toNativeSeparators(filePath);
-    QSharedPointer<QFile> file(new QFile(filePath));
-    if (!file->exists()) {
-        if (error)
-            *error = tr("File '%1' does not exist").arg(nativePath);
-        file.clear();
-    } else if (!file->open(mode)) {
-        if (error) {
-            *error = tr("Cannot open file '%1': %2")
-                .arg(nativePath, file->errorString());
-        }
-        file.clear();
-    }
-    return file;
-}
-
-QByteArray AbstractQt4MaemoTarget::controlFileFieldValue(const QString &key,
+QByteArray AbstractDebBasedQt4MaemoTarget::controlFileFieldValue(const QString &key,
     bool multiLine) const
 {
     QByteArray value;
@@ -414,7 +501,7 @@ QByteArray AbstractQt4MaemoTarget::controlFileFieldValue(const QString &key,
     return value;
 }
 
-bool AbstractQt4MaemoTarget::setControlFieldValue(const QByteArray &fieldName,
+bool AbstractDebBasedQt4MaemoTarget::setControlFieldValue(const QByteArray &fieldName,
     const QByteArray &fieldValue)
 {
     QFile controlFile(controlFilePath());
@@ -429,7 +516,7 @@ bool AbstractQt4MaemoTarget::setControlFieldValue(const QByteArray &fieldName,
     return true;
 }
 
-bool AbstractQt4MaemoTarget::adaptControlFileField(QByteArray &document,
+bool AbstractDebBasedQt4MaemoTarget::adaptControlFileField(QByteArray &document,
     const QByteArray &fieldName, const QByteArray &newFieldValue)
 {
     QByteArray adaptedLine = fieldName + ": " + newFieldValue;
@@ -454,69 +541,60 @@ bool AbstractQt4MaemoTarget::adaptControlFileField(QByteArray &document,
     return updated;
 }
 
-void AbstractQt4MaemoTarget::handleTargetAdded(ProjectExplorer::Target *target)
+void AbstractDebBasedQt4MaemoTarget::handleTargetAddedSpecial()
 {
-    if (target != this)
-        return;
-
-    disconnect(project(), SIGNAL(addedTarget(ProjectExplorer::Target*)),
-        this, SLOT(handleTargetAdded(ProjectExplorer::Target*)));
-    connect(project(), SIGNAL(aboutToRemoveTarget(ProjectExplorer::Target*)),
-        SLOT(handleTargetToBeRemoved(ProjectExplorer::Target*)));
-    if (!createDebianTemplatesIfNecessary())
-        return;
-    initPackagingSettingsFromOtherTarget();
-
-    m_debianFilesWatcher->addPath(debianDirPath());
-    m_debianFilesWatcher->addPath(changeLogFilePath());
-    m_debianFilesWatcher->addPath(controlFilePath());
-    connect(m_debianFilesWatcher, SIGNAL(directoryChanged(QString)), this,
+    m_filesWatcher->addPath(debianDirPath());
+    m_filesWatcher->addPath(changeLogFilePath());
+    m_filesWatcher->addPath(controlFilePath());
+    connect(m_filesWatcher, SIGNAL(directoryChanged(QString)), this,
         SLOT(handleDebianDirContentsChanged()));
-    connect(m_debianFilesWatcher, SIGNAL(fileChanged(QString)), this,
+    connect(m_filesWatcher, SIGNAL(fileChanged(QString)), this,
         SLOT(handleDebianFileChanged(QString)));
     handleDebianDirContentsChanged();
     handleDebianFileChanged(changeLogFilePath());
     handleDebianFileChanged(controlFilePath());
 }
 
-void AbstractQt4MaemoTarget::handleTargetToBeRemoved(ProjectExplorer::Target *target)
+bool AbstractDebBasedQt4MaemoTarget::targetCanBeRemoved() const
 {
-    if (target != this)
-        return;
-    const QString debianPath = debianDirPath();
-    if (!QFileInfo(debianPath).exists())
-        return;
-    const int answer = QMessageBox::warning(0, tr("Qt Creator"),
-        tr("Do you want to remove the packaging directory\n"
-           "associated with the target '%1'?").arg(displayName()),
-        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-    if (answer == QMessageBox::No)
-        return;
-    QString error;
-    if (!MaemoGlobal::removeRecursively(debianPath, error))
-        qDebug("%s", qPrintable(error));
-    const QString packagingPath = project()->projectDirectory()
-        + QLatin1Char('/') + PackagingDirName;
-    const QStringList otherContents = QDir(packagingPath).entryList(QDir::Dirs
-        | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot);
-    if (otherContents.isEmpty()) {
-        if (!MaemoGlobal::removeRecursively(packagingPath, error))
-            qDebug("%s", qPrintable(error));
-    }
+    return QFileInfo(debianDirPath()).exists();
 }
 
-bool AbstractQt4MaemoTarget::createDebianTemplatesIfNecessary()
+void AbstractDebBasedQt4MaemoTarget::removeTarget()
+{
+    QString error;
+    if (!MaemoGlobal::removeRecursively(debianDirPath(), error))
+        qDebug("%s", qPrintable(error));
+}
+
+QByteArray AbstractDebBasedQt4MaemoTarget::rawIconValue() const
+{
+    return controlFileFieldValue(IconFieldName, true);
+}
+
+bool AbstractDebBasedQt4MaemoTarget::setRawIconValue(const QByteArray &icon)
+{
+    return setControlFieldValue(IconFieldName, icon);
+}
+
+void AbstractDebBasedQt4MaemoTarget::handleDebianFileChanged(const QString &filePath)
+{
+    if (filePath == changeLogFilePath())
+        emit changeLogChanged();
+    else if (filePath == controlFilePath())
+        emit controlChanged();
+}
+
+void AbstractDebBasedQt4MaemoTarget::handleDebianDirContentsChanged()
+{
+    emit debianDirContentsChanged();
+}
+
+bool AbstractDebBasedQt4MaemoTarget::createSpecialTemplates()
 {
     if (QFileInfo(debianDirPath()).exists())
         return true;
     QDir projectDir(project()->projectDirectory());
-    if (!projectDir.exists(PackagingDirName)
-            && !projectDir.mkdir(PackagingDirName)) {
-        raiseError(tr("Error creating Maemo packaging directory '%1'.")
-            .arg(PackagingDirName));
-        return false;
-    }
-
     QProcess dh_makeProc;
     QString error;
     const Qt4BuildConfiguration * const bc = activeBuildConfiguration();
@@ -568,7 +646,7 @@ bool AbstractQt4MaemoTarget::createDebianTemplatesIfNecessary()
     return adaptRulesFile() && adaptControlFile();
 }
 
-bool AbstractQt4MaemoTarget::adaptRulesFile()
+bool AbstractDebBasedQt4MaemoTarget::adaptRulesFile()
 {
     const QString rulesFilePath = debianDirPath() + "/rules";
     QFile rulesFile(rulesFilePath);
@@ -603,7 +681,7 @@ bool AbstractQt4MaemoTarget::adaptRulesFile()
     return true;
 }
 
-bool AbstractQt4MaemoTarget::adaptControlFile()
+bool AbstractDebBasedQt4MaemoTarget::adaptControlFile()
 {
     QFile controlFile(controlFilePath());
     if (!controlFile.open(QIODevice::ReadWrite)) {
@@ -643,48 +721,8 @@ bool AbstractQt4MaemoTarget::adaptControlFile()
     return true;
 }
 
-bool AbstractQt4MaemoTarget::initPackagingSettingsFromOtherTarget()
-{
-    bool success = true;
-    foreach (const Target * const target, project()->targets()) {
-        const AbstractQt4MaemoTarget * const maemoTarget
-            = qobject_cast<const AbstractQt4MaemoTarget *>(target);
-        if (maemoTarget && maemoTarget != this) {
-            if (!setProjectVersionInternal(maemoTarget->projectVersion()))
-                success = false;
-            if (!setControlFieldValue(IconFieldName, maemoTarget->controlFileFieldValue(IconFieldName, true)))
-                success = false;
-            if (!setNameInternal(maemoTarget->name()))
-                success = false;
-            if (!setShortDescriptionInternal(maemoTarget->shortDescription()))
-                success = false;
-            break;
-        }
-    }
-    return success;
-}
-
-void AbstractQt4MaemoTarget::handleDebianFileChanged(const QString &filePath)
-{
-    if (filePath == changeLogFilePath())
-        emit changeLogChanged();
-    else if (filePath == controlFilePath())
-        emit controlChanged();
-}
-
-void AbstractQt4MaemoTarget::handleDebianDirContentsChanged()
-{
-    emit debianDirContentsChanged();
-}
-
-void AbstractQt4MaemoTarget::raiseError(const QString &reason)
-{
-    QMessageBox::critical(0, tr("Error creating Maemo templates"), reason);
-}
-
-
 Qt4Maemo5Target::Qt4Maemo5Target(Qt4Project *parent, const QString &id)
-        : AbstractQt4MaemoTarget(parent, id)
+        : AbstractDebBasedQt4MaemoTarget(parent, id)
 {
     setDisplayName(defaultDisplayName());
 }
@@ -702,8 +740,8 @@ QString Qt4Maemo5Target::debianDirName() const
     return QLatin1String("debian_fremantle");
 }
 
-Qt4HarmattanTarget::Qt4HarmattanTarget(Qt4Project *parent,
-    const QString &id) : AbstractQt4MaemoTarget(parent, id)
+Qt4HarmattanTarget::Qt4HarmattanTarget(Qt4Project *parent, const QString &id)
+        : AbstractDebBasedQt4MaemoTarget(parent, id)
 {
     setDisplayName(defaultDisplayName());
 }

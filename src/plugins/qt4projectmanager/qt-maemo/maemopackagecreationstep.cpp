@@ -270,7 +270,7 @@ bool MaemoPackageCreationStep::copyDebianFiles(bool inSourceBuild)
                    .arg(debianDirPath));
         return false;
     }
-    const QString templatesDirPath = maemoTarget()->debianDirPath();
+    const QString templatesDirPath = debBasedMaemoTarget()->debianDirPath();
     QDir templatesDir(templatesDirPath);
     const QStringList &files = templatesDir.entryList(QDir::Files);
     foreach (const QString &fileName, files) {
@@ -336,6 +336,11 @@ AbstractQt4MaemoTarget *MaemoPackageCreationStep::maemoTarget() const
     return qobject_cast<AbstractQt4MaemoTarget *>(buildConfiguration()->target());
 }
 
+AbstractDebBasedQt4MaemoTarget *MaemoPackageCreationStep::debBasedMaemoTarget() const
+{
+    return qobject_cast<AbstractDebBasedQt4MaemoTarget*>(buildConfiguration()->target());
+}
+
 QString MaemoPackageCreationStep::buildDirectory() const
 {
     return qt4BuildConfiguration()->buildDirectory();
@@ -371,14 +376,19 @@ bool MaemoPackageCreationStep::packagingNeeded() const
             return true;
     }
 
-    const QString debianPath = maemoTarget()->debianDirPath();
-    if (packageInfo.lastModified() <= QFileInfo(debianPath).lastModified())
-        return true;
-    const QStringList debianFiles = maemoTarget()->debianFiles();
-    foreach (const QString &debianFile, debianFiles) {
-        const QString absFilePath = debianPath + QLatin1Char('/') + debianFile;
-        if (packageInfo.lastModified() <= QFileInfo(absFilePath).lastModified())
+    if (debBasedMaemoTarget()) {
+        const QString debianPath = debBasedMaemoTarget()->debianDirPath();
+        if (packageInfo.lastModified() <= QFileInfo(debianPath).lastModified())
             return true;
+        const QStringList debianFiles = debBasedMaemoTarget()->debianFiles();
+        foreach (const QString &debianFile, debianFiles) {
+            const QString absFilePath
+                = debianPath + QLatin1Char('/') + debianFile;
+            if (packageInfo.lastModified() <= QFileInfo(absFilePath).lastModified())
+                return true;
+        }
+    } else {
+        // TODO: Check spec file date.
     }
 
     return false;

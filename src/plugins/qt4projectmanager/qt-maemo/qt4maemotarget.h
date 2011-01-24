@@ -58,24 +58,63 @@ public:
     void createApplicationProFiles();
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
 
-    QString debianDirPath() const;
-    QStringList debianFiles() const;
-
-    QString projectVersion(QString *error = 0) const;
-    bool setProjectVersion(const QString &version, QString *error = 0);
-
-    QIcon packageManagerIcon(QString *error = 0) const;
-    bool setPackageManagerIcon(const QString &iconFilePath, QString *error = 0);
-
-    QString name() const;
-    bool setName(const QString &name);
-
-    QString shortDescription() const;
-    bool setShortDescription(const QString &description);
-
     virtual bool allowsRemoteMounts() const=0;
     virtual bool allowsPackagingDisabling() const=0;
     virtual bool allowsQmlDebugging() const=0;
+
+    virtual QString projectVersion(QString *error = 0) const=0;
+    virtual QIcon packageManagerIcon(QString *error = 0) const=0;
+    virtual QString name() const=0;
+    virtual QString shortDescription() const=0;
+
+    bool setProjectVersion(const QString &version, QString *error = 0);
+    bool setPackageManagerIcon(const QString &iconFilePath, QString *error = 0);
+    bool setName(const QString &name);
+    bool setShortDescription(const QString &description);
+
+protected:
+    void raiseError(const QString &reason);
+    QSharedPointer<QFile> openFile(const QString &filePath,
+        QIODevice::OpenMode mode, QString *error) const;
+
+    QFileSystemWatcher * const m_filesWatcher;
+
+private slots:
+    void handleTargetAdded(ProjectExplorer::Target *target);
+    void handleTargetToBeRemoved(ProjectExplorer::Target *target);
+
+private:
+    virtual bool setProjectVersionInternal(const QString &version,
+        QString *error = 0)=0;
+    virtual bool setPackageManagerIconInternal(const QString &iconFilePath,
+        QString *error = 0)=0;
+    virtual bool setNameInternal(const QString &name)=0;
+    virtual bool setShortDescriptionInternal(const QString &description)=0;
+    virtual bool createSpecialTemplates()=0;
+    virtual void handleTargetAddedSpecial()=0;
+    virtual bool targetCanBeRemoved() const=0;
+    virtual void removeTarget()=0;
+
+    bool createTemplates();
+    bool initPackagingSettingsFromOtherTarget();
+
+    virtual QByteArray rawIconValue() const=0;
+    virtual bool setRawIconValue(const QByteArray &icon)=0;
+
+    Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
+    Qt4MaemoDeployConfigurationFactory *m_deployConfigurationFactory;
+};
+
+
+class AbstractDebBasedQt4MaemoTarget : public AbstractQt4MaemoTarget
+{
+    Q_OBJECT
+public:
+    AbstractDebBasedQt4MaemoTarget(Qt4Project *parent, const QString &id);
+    ~AbstractDebBasedQt4MaemoTarget();
+
+    QString debianDirPath() const;
+    QStringList debianFiles() const;
 
 signals:
     void debianDirContentsChanged();
@@ -83,19 +122,29 @@ signals:
     void controlChanged();
 
 private slots:
-    void handleTargetAdded(ProjectExplorer::Target *target);
-    void handleTargetToBeRemoved(ProjectExplorer::Target *target);
     void handleDebianDirContentsChanged();
     void handleDebianFileChanged(const QString &filePath);
 
 private:
     virtual QString debianDirName() const=0;
-
-    bool setProjectVersionInternal(const QString &version, QString *error = 0);
-    bool setPackageManagerIconInternal(const QString &iconFilePath,
+    virtual QString projectVersion(QString *error = 0) const;
+    virtual QIcon packageManagerIcon(QString *error = 0) const;
+    virtual QString name() const;
+    virtual QString shortDescription() const;
+    virtual bool setProjectVersionInternal(const QString &version,
         QString *error = 0);
-    bool setNameInternal(const QString &name);
-    bool setShortDescriptionInternal(const QString &description);
+    virtual bool setPackageManagerIconInternal(const QString &iconFilePath,
+        QString *error = 0);
+    virtual bool setNameInternal(const QString &name);
+    virtual bool setShortDescriptionInternal(const QString &description);
+
+    virtual bool createSpecialTemplates();
+    virtual void handleTargetAddedSpecial();
+    virtual bool targetCanBeRemoved() const;
+    virtual void removeTarget();
+
+    virtual QByteArray rawIconValue() const;
+    virtual bool setRawIconValue(const QByteArray &icon);
 
     QString changeLogFilePath() const;
     QString controlFilePath() const;
@@ -104,21 +153,11 @@ private:
         const QByteArray &fieldValue);
     bool adaptControlFileField(QByteArray &document, const QByteArray &fieldName,
         const QByteArray &newFieldValue);
-    QSharedPointer<QFile> openFile(const QString &filePath,
-        QIODevice::OpenMode mode, QString *error) const;
-    bool createDebianTemplatesIfNecessary();
     bool adaptRulesFile();
     bool adaptControlFile();
-    bool initPackagingSettingsFromOtherTarget();
-    void raiseError(const QString &reason);
-
-    Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
-    Qt4MaemoDeployConfigurationFactory *m_deployConfigurationFactory;
-    QFileSystemWatcher * const m_debianFilesWatcher;
 };
 
-
-class Qt4Maemo5Target : public AbstractQt4MaemoTarget
+class Qt4Maemo5Target : public AbstractDebBasedQt4MaemoTarget
 {
     Q_OBJECT
 public:
@@ -134,7 +173,7 @@ private:
     virtual bool allowsQmlDebugging() const { return false; }
 };
 
-class Qt4HarmattanTarget : public AbstractQt4MaemoTarget
+class Qt4HarmattanTarget : public AbstractDebBasedQt4MaemoTarget
 {
     Q_OBJECT
 public:
