@@ -781,8 +781,11 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
     if (!defaultPropertyItems.isEmpty()) {
         if (defaultPropertyName.isEmpty()) {
-            if (modelNode.type() != QLatin1String("Qt/Component"))
+            if (!isComponentType(modelNode.type())) {
                 qWarning() << "No default property for node type" << modelNode.type() << ", ignoring child items.";
+            } else {
+                setupComponent(modelNode);
+            }
         } else {
             AbstractProperty modelProperty = modelNode.property(defaultPropertyName);
             if (modelProperty.isNodeListProperty()) {
