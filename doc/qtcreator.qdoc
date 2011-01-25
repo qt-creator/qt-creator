@@ -7859,7 +7859,7 @@
     To update the \tt{.files} on the \gui Git repository use the following
     script:
     \code
-    git ls-files *.cpp *.h > MyProject.files
+    git ls-files "*.cpp" "*.h" > MyProject.files
     \endcode
 
     \section1 Specifying Include Paths
