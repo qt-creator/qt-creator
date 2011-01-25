@@ -513,17 +513,7 @@ void QtOptionsPageWidget::updateDebuggingHelperInfo(const QtVersion *version)
 
         QString qmlDumpStatusText;
         if (hasQmlDumper) {
-            QString qmlDumpPaths = version->qmlDumpTool(false);
-            {
-                QString debugQmlDumpPath = version->qmlDumpTool(true);
-                if (qmlDumpPaths != debugQmlDumpPath) {
-                    if (!qmlDumpPaths.isEmpty())
-                        qmlDumpPaths += QLatin1String("\n");
-                    qmlDumpPaths += debugQmlDumpPath;
-                }
-            }
-
-            qmlDumpStatusText = qmlDumpPaths;
+            qmlDumpStatusText = version->qmlDumpTool();
         } else {
             if (canBuildQmlDumper) {
                 qmlDumpStatusText = tr("<i>Not yet built.</i>");
