@@ -103,6 +103,7 @@ private:
 
     QString m_address;
     unsigned short m_port;
+    QString m_serialPort;
     QString m_runningProcessId;
 
     State m_state;

@@ -34,7 +34,7 @@
 #include "codaclientapplication.h"
 
 #ifdef HAS_SERIALPORT
-#    include <qextserialport/qextserialport.h>
+#include  "virtualserialdevice.h"
 #endif
 
 #include "tcftrkdevice.h"
@@ -322,32 +322,16 @@ bool CodaClientApplication::start()
     if (isSerialPort(m_address)) {
 #ifdef HAS_SERIALPORT
         // Serial
-#ifdef Q_OS_WIN
-        const QString fullPort = QextSerialPort::fullPortNameWin(m_address);
-#else
-        const QString fullPort = m_address;
-#endif
-        const QSharedPointer<QextSerialPort>
-                serialPort(new QextSerialPort(fullPort, QextSerialPort::EventDriven));
-        std::printf("Opening port %s...\n", qPrintable(fullPort));
-
-        // Magic USB serial parameters
-        serialPort->setTimeout(2000);
-        serialPort->setBaudRate(BAUD115200);
-        serialPort->setFlowControl(FLOW_OFF);
-        serialPort->setParity(PAR_NONE);
-        serialPort->setDataBits(DATA_8);
-        serialPort->setStopBits(STOP_1);
-
+        const QSharedPointer<QIODevice> serialPort(new SymbianUtils::VirtualSerialDevice(m_address));
+        std::printf("Opening port %s...\n", qPrintable(m_address));
         m_trkDevice->setSerialFrame(true);
         m_trkDevice->setDevice(serialPort); // Grab all data from start
-        if (!serialPort->open(QIODevice::ReadWrite|QIODevice::Unbuffered)) {
+        if (!serialPort->open(QIODevice::ReadWrite)) {
             std::fprintf(stderr, "Cannot open port: %s", qPrintable(serialPort->errorString()));
             return false;
         }
         // Initiate communication
         m_trkDevice->sendSerialPing(m_mode == Ping);
-        serialPort->flush();
 #else
         std::fprintf(stderr, "Not implemented\n");
         return false;

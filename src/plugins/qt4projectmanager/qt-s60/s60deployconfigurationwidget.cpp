@@ -86,7 +86,9 @@ S60DeployConfigurationWidget::S60DeployConfigurationWidget(QWidget *parent)
       m_silentInstallCheckBox(new QCheckBox(tr("Silent installation"))),
       m_serialRadioButton(new QRadioButton(tr("Serial:"))),
       m_wlanRadioButton(new QRadioButton(tr("Experimental WLAN:"))), //TODO: Remove ""Experimental" when CODA is stable and official
-      m_ipAddress(new Utils::IpAddressLineEdit)
+      m_ipAddress(new Utils::IpAddressLineEdit),
+      m_trkRadioButton(new QRadioButton(tr("TRK"))),
+      m_codaRadioButton(new QRadioButton(tr("CODA")))
 {
 }
 
@@ -140,7 +142,37 @@ void S60DeployConfigurationWidget::init(ProjectExplorer::DeployConfiguration *dc
     connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(updated()),
             this, SLOT(updateSerialDevices()));
 
-    formLayout->addRow(createCommunicationChannel());
+    //Debug Client
+    QHBoxLayout *debugClientHBoxLayout = new QHBoxLayout;
+
+    QVBoxLayout *debugClientVBoxLayout = new QVBoxLayout;
+    debugClientVBoxLayout->addWidget(m_trkRadioButton);
+    debugClientVBoxLayout->addWidget(m_codaRadioButton);
+
+    debugClientVBoxLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
+
+    debugClientHBoxLayout->addLayout(debugClientVBoxLayout);
+
+    debugClientHBoxLayout->addWidget(createCommunicationChannel());
+    debugClientHBoxLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
+
+    QGroupBox *debugClientGroupBox = new QGroupBox(tr("Debug Client"));
+    debugClientGroupBox->setLayout(debugClientHBoxLayout);
+
+    bool usingTrk = m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationTrkSerialConnection;
+    m_trkRadioButton->setChecked(usingTrk);
+    m_codaRadioButton->setChecked(!usingTrk);
+
+    bool usingTcp = m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationCodaTcpConnection;
+    m_serialRadioButton->setChecked(!usingTcp);
+    m_wlanRadioButton->setChecked(usingTcp);
+
+    connect(m_trkRadioButton, SIGNAL(clicked()), this, SLOT(updateDebugClient()));
+    connect(m_codaRadioButton, SIGNAL(clicked()), this, SLOT(updateDebugClient()));
+
+    updateDebugClient();
+
+    formLayout->addRow(debugClientGroupBox);
 
     // Device Info with button. Widgets are enabled in above call to updateSerialDevices()
     QHBoxLayout *infoHBoxLayout = new QHBoxLayout;
@@ -180,7 +212,7 @@ QWidget *S60DeployConfigurationWidget::createCommunicationChannel()
     serialPortHBoxLayout->addWidget(updateSerialDevicesButton);
 #endif
 
-    QGroupBox *communicationChannelGroupBox = new QGroupBox(tr("Communication channel"));
+    QGroupBox *communicationChannelGroupBox = new QGroupBox(tr("Communication Channel"));
     QFormLayout *communicationChannelFormLayout = new QFormLayout();
     communicationChannelFormLayout->setWidget(0, QFormLayout::LabelRole, m_serialRadioButton);
     communicationChannelFormLayout->setWidget(1, QFormLayout::LabelRole, m_wlanRadioButton);
@@ -200,21 +232,6 @@ QWidget *S60DeployConfigurationWidget::createCommunicationChannel()
 
     communicationChannelFormLayout->setLayout(0, QFormLayout::FieldRole, serialPortHBoxLayout);
     communicationChannelFormLayout->setLayout(1, QFormLayout::FieldRole, wlanChannelLayout);
-
-    switch (m_deployConfiguration->communicationChannel()) {
-    case S60DeployConfiguration::CommunicationTrkSerialConnection:
-        m_serialRadioButton->setChecked(true);
-        m_ipAddress->setDisabled(true);
-        m_serialPortsCombo->setDisabled(false);
-        break;
-    case S60DeployConfiguration::CommunicationCodaTcpConnection:
-        m_wlanRadioButton->setChecked(true);
-        m_ipAddress->setDisabled(false);
-        m_serialPortsCombo->setDisabled(true);
-        break;
-    default:
-        break;
-    }
 
     communicationChannelGroupBox->setLayout(communicationChannelFormLayout);
     return communicationChannelGroupBox;
@@ -303,20 +320,40 @@ void S60DeployConfigurationWidget::setSerialPort(int index)
     clearDeviceInfo();
 }
 
+void S60DeployConfigurationWidget::updateDebugClient()
+{
+        if (!m_trkRadioButton->isChecked() && !m_codaRadioButton->isChecked())
+            m_trkRadioButton->setChecked(true);
+
+        if (m_trkRadioButton->isChecked()) {
+            m_serialRadioButton->setEnabled(true);
+            m_serialRadioButton->setChecked(true);
+            m_wlanRadioButton->setEnabled(false);
+            updateSerialDevices();
+        } else if(m_codaRadioButton->isChecked()) {
+            m_serialRadioButton->setEnabled(true);
+            m_wlanRadioButton->setEnabled(true);
+        }
+
+        updateCommunicationChannel();
+}
+
 void S60DeployConfigurationWidget::updateCommunicationChannel()
 {
+    if (!m_serialRadioButton->isChecked() && !m_wlanRadioButton->isChecked())
+        m_serialRadioButton->setChecked(true);
+
     if (m_serialRadioButton->isChecked()) {
         m_ipAddress->setDisabled(true);
         m_serialPortsCombo->setDisabled(false);
-        m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationTrkSerialConnection);
+        if (m_trkRadioButton->isChecked())
+            m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationTrkSerialConnection);
+        else
+            m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationCodaSerialConnection);
         updateSerialDevices();
     } else if(m_wlanRadioButton->isChecked()) {
-        QMessageBox::information(this, tr("CODA required"),
-                                 tr("You need to have CODA v4.0.14 (or newer) installed on your device "
-                                    "in order to use the WLAN functionality.")); //TODO: Remove this when CODA is stable and official
         m_ipAddress->setDisabled(false);
         m_serialPortsCombo->setDisabled(true);
-        m_deviceInfoButton->setEnabled(false);
         m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationCodaTcpConnection);
     }
 }

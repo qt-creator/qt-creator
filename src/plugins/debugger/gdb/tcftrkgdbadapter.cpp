@@ -37,6 +37,7 @@
 #include "tcftrkdevice.h"
 #include "trkutils.h"
 #include "gdbmi.h"
+#include "virtualserialdevice.h"
 
 #include "registerhandler.h"
 #include "threadshandler.h"
@@ -1012,9 +1013,25 @@ void TcfTrkGdbAdapter::startAdapter()
 
     QPair<QString, unsigned short> tcfTrkAddress;
 
-    QSharedPointer<QTcpSocket> tcfTrkSocket(new QTcpSocket);
-    m_trkDevice->setDevice(tcfTrkSocket);
-    m_trkIODevice = tcfTrkSocket;
+    QSharedPointer<QTcpSocket> tcfTrkSocket;
+    if (parameters.communicationChannel == DebuggerStartParameters::CommunicationChannelTcpIp) {
+        tcfTrkSocket = QSharedPointer<QTcpSocket>(new QTcpSocket);
+        m_trkDevice->setDevice(tcfTrkSocket);
+        m_trkIODevice = tcfTrkSocket;
+    } else {
+        QSharedPointer<SymbianUtils::VirtualSerialDevice> serialDevice(new SymbianUtils::VirtualSerialDevice(parameters.remoteChannel));
+        m_trkDevice->setSerialFrame(true);
+        m_trkDevice->setDevice(serialDevice);
+        bool ok = serialDevice->open(QIODevice::ReadWrite);
+        if (!ok) {
+            QString msg = QString("Couldn't open serial device: %1.")
+                .arg(serialDevice->errorString());
+            logMessage(msg, LogError);
+            m_engine->handleAdapterStartFailed(msg, QString());
+            return;
+        }
+        m_trkIODevice = serialDevice;
+    }
 
     if (debug)
         qDebug() << parameters.processArgs;
@@ -1049,9 +1066,13 @@ void TcfTrkGdbAdapter::startAdapter()
     connect(m_gdbServer, SIGNAL(newConnection()),
         this, SLOT(handleGdbConnection()));
 
-    logMessage(_("Connecting to TCF TRK on %1:%2")
-               .arg(tcfTrkAddress.first).arg(tcfTrkAddress.second));
-    tcfTrkSocket->connectToHost(tcfTrkAddress.first, tcfTrkAddress.second);
+    if (parameters.communicationChannel == DebuggerStartParameters::CommunicationChannelTcpIp) {
+        logMessage(_("Connecting to TCF TRK on %1:%2")
+                   .arg(tcfTrkAddress.first).arg(tcfTrkAddress.second));
+        tcfTrkSocket->connectToHost(tcfTrkAddress.first, tcfTrkAddress.second);
+    } else {
+        m_trkDevice->sendSerialPing(false);
+    }
 }
 
 void TcfTrkGdbAdapter::setupInferior()

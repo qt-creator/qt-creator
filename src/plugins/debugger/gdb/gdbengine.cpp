@@ -1792,8 +1792,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
     case ProjectExplorer::ToolChain_RVCT2_ARMV6:
     case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
     case ProjectExplorer::ToolChain_GCCE_GNUPOC:
-        // FIXME: 1 of 3 testing hacks.
-        if (sp.communicationChannel == DebuggerStartParameters::CommunicationChannelTcpIp)
+        if (sp.debugClient == DebuggerStartParameters::DebugClientCoda)
             return new TcfTrkGdbAdapter(this);
         else
             return new TrkGdbAdapter(this);

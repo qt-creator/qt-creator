@@ -43,6 +43,7 @@
 #include "qt4symbiantarget.h"
 #include "qt4target.h"
 #include "qtoutputformatter.h"
+#include "virtualserialdevice.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -75,8 +76,15 @@ CodaRunControl::CodaRunControl(RunConfiguration *runConfiguration, const QString
     const S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(s60runConfig->qt4Target()->activeDeployConfiguration());
     QTC_ASSERT(activeDeployConf, return);
 
-    m_address = activeDeployConf->deviceAddress();
-    m_port = activeDeployConf->devicePort().toInt();
+    S60DeployConfiguration::CommunicationChannel channel = activeDeployConf->communicationChannel();
+    if (channel == S60DeployConfiguration::CommunicationCodaTcpConnection) {
+        m_address = activeDeployConf->deviceAddress();
+        m_port = activeDeployConf->devicePort().toInt();
+    } else if (channel == S60DeployConfiguration::CommunicationCodaSerialConnection) {
+        m_serialPort = activeDeployConf->serialPortName();
+    } else {
+        QTC_ASSERT(false, return);
+    }
 }
 
 CodaRunControl::~CodaRunControl()
@@ -87,7 +95,7 @@ CodaRunControl::~CodaRunControl()
 
 bool CodaRunControl::doStart()
 {
-    if (m_address.isEmpty()) {
+    if (m_address.isEmpty() && m_serialPort.isEmpty()) {
         cancelProgress();
         QString msg = tr("No device is connected. Please connect a device and try again.");
         appendMessage(msg, NormalMessageFormat);
@@ -116,12 +124,26 @@ bool CodaRunControl::setupLauncher()
     connect(m_tcfTrkDevice, SIGNAL(tcfEvent(tcftrk::TcfTrkEvent)), this, SLOT(slotTcftrkEvent(tcftrk::TcfTrkEvent)));
     connect(m_tcfTrkDevice, SIGNAL(serialPong(QString)), this, SLOT(slotSerialPong(QString)));
 
-    const QSharedPointer<QTcpSocket> tcfTrkSocket(new QTcpSocket);
-    m_tcfTrkDevice->setDevice(tcfTrkSocket);
-    tcfTrkSocket->connectToHost(m_address, m_port);
-    m_state = StateConnecting;
-    appendMessage(tr("Connecting to %1:%2...").arg(m_address).arg(m_port), NormalMessageFormat);
-    QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
+    if (m_serialPort.length()) {
+        const QSharedPointer<SymbianUtils::VirtualSerialDevice> serialDevice(new SymbianUtils::VirtualSerialDevice(m_serialPort));
+        appendMessage(tr("Conecting to '%2'...").arg(m_serialPort), NormalMessageFormat);
+        m_tcfTrkDevice->setSerialFrame(true);
+        m_tcfTrkDevice->setDevice(serialDevice);
+        bool ok = serialDevice->open(QIODevice::ReadWrite);
+        if (!ok) {
+            appendMessage(tr("Couldn't open serial device: %1").arg(serialDevice->errorString()), ErrorMessageFormat);
+            return false;
+        }
+        m_state = StateConnecting;
+        m_tcfTrkDevice->sendSerialPing(false);
+    } else {
+        const QSharedPointer<QTcpSocket> tcfTrkSocket(new QTcpSocket);
+        m_tcfTrkDevice->setDevice(tcfTrkSocket);
+        tcfTrkSocket->connectToHost(m_address, m_port);
+        m_state = StateConnecting;
+        appendMessage(tr("Connecting to %1:%2...").arg(m_address).arg(m_port), NormalMessageFormat);
+        QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
+    }
     return true;
 }
 

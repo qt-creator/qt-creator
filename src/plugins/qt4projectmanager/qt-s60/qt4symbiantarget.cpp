@@ -180,7 +180,8 @@ bool Qt4SymbianTarget::isSymbianConnectionAvailable(QString &tooltipText)
     if (!s60DeployConf)
         return false;
     switch (s60DeployConf->communicationChannel()) {
-    case S60DeployConfiguration::CommunicationTrkSerialConnection: {
+    case S60DeployConfiguration::CommunicationTrkSerialConnection:
+    case S60DeployConfiguration::CommunicationCodaSerialConnection: {
         const SymbianUtils::SymbianDeviceManager *sdm = SymbianUtils::SymbianDeviceManager::instance();
         const int deviceIndex = sdm->findByPortName(s60DeployConf->serialPortName());
         if (deviceIndex == -1) {

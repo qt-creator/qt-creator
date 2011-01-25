@@ -90,6 +90,7 @@ private slots:
     void slotWaitingForTrkClosed();
     void silentInstallChanged(int);
     void updateCommunicationChannel();
+    void updateDebugClient();
     void updateWlanAddress(const QString &address);
     void cleanWlanAddress();
 
@@ -114,6 +115,8 @@ private:
     QRadioButton *m_serialRadioButton;
     QRadioButton *m_wlanRadioButton;
     Utils::IpAddressLineEdit *m_ipAddress;
+    QRadioButton *m_trkRadioButton;
+    QRadioButton *m_codaRadioButton;
 };
 
 } // namespace Internal

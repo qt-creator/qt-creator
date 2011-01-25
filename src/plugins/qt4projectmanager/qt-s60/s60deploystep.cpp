@@ -48,7 +48,7 @@
 
 #include <symbianutils/launcher.h>
 #include <symbianutils/symbiandevicemanager.h>
-
+#include <symbianutils/virtualserialdevice.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QMessageBox>
@@ -66,7 +66,7 @@
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
-enum { debug = 0 };
+enum {debug = 0};
 
 static const quint64  DEFAULT_CHUNK_SIZE = 10240;
 
@@ -277,16 +277,20 @@ void S60DeployStep::start()
 {
     QString errorMessage;
 
-    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
-        if (m_serialPortName.isEmpty() || !m_launcher) {
-            errorMessage = tr("No device is connected. Please connect a device and try again.");
-            reportError(errorMessage);
-            return;
-        }
-    } else {
+    bool serialConnection = (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection
+            || m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection);
+    bool trkClient = m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection;
+
+    if (serialConnection && m_serialPortName.isEmpty()
+            || (trkClient && !m_launcher)) {
+        errorMessage = tr("No device is connected. Please connect a device and try again.");
+        reportError(errorMessage);
+        return;
+    }
+    if (!trkClient) {
         QTC_ASSERT(!m_trkDevice, return);
         m_trkDevice = new tcftrk::TcfTrkDevice;
-        if (m_address.isEmpty() || !m_trkDevice) {
+        if (m_address.isEmpty() && !serialConnection) {
             errorMessage = tr("No address for a device has been defined. Please define an address and try again.");
             reportError(errorMessage);
             return;
@@ -374,6 +378,19 @@ void S60DeployStep::startDeployment()
             reportError(errorMessage);
             stop();
         }
+    } else if (m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection) {
+        const QSharedPointer<SymbianUtils::VirtualSerialDevice> serialDevice(new SymbianUtils::VirtualSerialDevice(m_serialPortName));
+        appendMessage(tr("Deploying application to '%1'...").arg(m_serialPortFriendlyName), false);
+        m_trkDevice->setSerialFrame(true);
+        m_trkDevice->setDevice(serialDevice);
+        bool ok = serialDevice->open(QIODevice::ReadWrite);
+        if (!ok) {
+            reportError(tr("Couldn't open serial device: %1").arg(serialDevice->errorString()));
+            stop();
+            return;
+        }
+        m_state = StateConnecting;
+        m_trkDevice->sendSerialPing(false);
     } else {
         const QSharedPointer<QTcpSocket> tcfTrkSocket(new QTcpSocket);
         m_trkDevice->setDevice(tcfTrkSocket);
@@ -729,9 +746,6 @@ void S60DeployStep::launcherFinished(bool success)
 void S60DeployStep::deploymentFinished(bool success)
 {
     m_deployResult = success;
-    if (m_trkDevice)
-        m_trkDevice->deleteLater();
-    m_trkDevice = 0;
     if (m_eventLoop)
         m_eventLoop->exit();
 }

@@ -56,6 +56,11 @@ public:
         CommunicationChannelUsb
     };
 
+    enum DebugClient {
+        DebugClientTrk,
+        DebugClientCoda
+    };
+
     DebuggerStartParameters()
       : isSnapshot(false),
         attachPID(-1),
@@ -68,8 +73,9 @@ public:
         toolChainType(ProjectExplorer::ToolChain_UNKNOWN),
         startMode(NoStartMode),
         executableUid(0),
-        communicationChannel(CommunicationChannelTcpIp),
-        serverPort(0)
+        communicationChannel(CommunicationChannelUsb),
+        serverPort(0),
+        debugClient(DebugClientTrk)
     {}
 
     QString executable;
@@ -122,6 +128,7 @@ public:
     CommunicationChannel communicationChannel;
     QString serverAddress;
     quint16 serverPort;
+    DebugClient debugClient;
 };
 
 } // namespace Debugger

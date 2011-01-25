@@ -522,10 +522,14 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
     sp.serverAddress = activeDeployConf->deviceAddress();
     sp.serverPort = activeDeployConf->devicePort().toInt();
 
-    //FIXME: there should be only one... trkAdapter
-    sp.communicationChannel = activeDeployConf->communicationChannel() == S60DeployConfiguration::CommunicationTrkSerialConnection?
-                Debugger::DebuggerStartParameters::CommunicationChannelUsb:
-                Debugger::DebuggerStartParameters::CommunicationChannelTcpIp;
+    sp.communicationChannel = activeDeployConf->communicationChannel() == S60DeployConfiguration::CommunicationCodaTcpConnection?
+                Debugger::DebuggerStartParameters::CommunicationChannelTcpIp:
+                Debugger::DebuggerStartParameters::CommunicationChannelUsb;
+
+    sp.debugClient = activeDeployConf->communicationChannel() == S60DeployConfiguration::CommunicationTrkSerialConnection?
+                Debugger::DebuggerStartParameters::DebugClientTrk:
+                Debugger::DebuggerStartParameters::DebugClientCoda;
+
     QTC_ASSERT(sp.executableUid, return sp);
 
     // Prefer the '*.sym' file over the '.exe', which should exist at the same

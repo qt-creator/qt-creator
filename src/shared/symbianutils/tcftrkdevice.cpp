@@ -512,7 +512,7 @@ void TcfTrkDevice::deviceReadyReadSerial()
             break;
         processSerialMessage(d->m_readBuffer.mid(messagePos.first, messagePos.second));
         d->m_readBuffer.remove(0, messageEnd);
-    } while (d->m_readBuffer.isEmpty());
+    } while (!d->m_readBuffer.isEmpty());
     checkSendQueue(); // Send off further messages
 }
 
