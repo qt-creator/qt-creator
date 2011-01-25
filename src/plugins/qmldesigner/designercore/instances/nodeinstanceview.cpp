@@ -177,12 +177,21 @@ void NodeInstanceView::restartProcess()
     }
 }
 
-/*! \brief Notifing the view that a node was created.
-  A NodeInstance will be created for the new created ModelNode.
-\param createdNode New created ModelNode.
-*/
+bool isSkippedNode(const ModelNode &node)
+{
+    static QStringList skipList =  QStringList() << "Qt/ListModel" << "QtQuick/ListModel";
+
+    if (skipList.contains(node.type()))
+        return true;
+
+    return false;
+}
+
 void NodeInstanceView::nodeCreated(const ModelNode &createdNode)
 {
+    if (isSkippedNode(createdNode))
+        return;
+
     NodeInstance instance = loadNode(createdNode);
     nodeInstanceServer()->createInstances(createCreateInstancesCommand(QList<NodeInstance>() << instance));
     nodeInstanceServer()->changePropertyValues(createChangeValueCommand(createdNode.variantProperties()));
@@ -625,9 +634,22 @@ QRectF NodeInstanceView::sceneRect() const
     return QRectF();
 }
 
+QList<ModelNode> filterNodesForSkipItems(const QList<ModelNode> &nodeList)
+{
+    QList<ModelNode> filteredNodeList;
+    foreach(const ModelNode &node, nodeList) {
+        if (isSkippedNode(node))
+            continue;
+
+        filteredNodeList.append(node);
+    }
+
+    return filteredNodeList;
+}
+
 CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 {
-    QList<ModelNode> nodeList = allModelNodes();
+    QList<ModelNode> nodeList = filterNodesForSkipItems(allModelNodes());
     QList<NodeInstance> instanceList;
 
     foreach (const ModelNode &node, nodeList)
