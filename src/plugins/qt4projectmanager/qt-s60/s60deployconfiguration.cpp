@@ -151,7 +151,6 @@ QStringList S60DeployConfiguration::signedPackages() const
     QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->allProFiles();
     QStringList result;
     foreach (Qt4ProFileNode *node, list) {
-        qDebug() << __FUNCTION__ << node->targetInformation().buildDir;
         if (isStaticLibrary(*node)) //no sis package
             continue;
         TargetInformation ti = node->targetInformation();
