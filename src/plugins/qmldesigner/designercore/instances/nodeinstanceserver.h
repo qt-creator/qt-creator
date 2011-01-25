@@ -14,6 +14,7 @@ class QFileSystemWatcher;
 class QDeclarativeView;
 class QDeclarativeEngine;
 class QGraphicsObject;
+class QFileInfo;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -66,6 +67,7 @@ public:
     void removeAllInstanceRelationships();
 
     QFileSystemWatcher *fileSystemWatcher();
+    QFileSystemWatcher *dummydataFileSystemWatcher();
     Internal::ChildrenChangeEventFilter *childrenChangeEventFilter() const;
     void addFilePropertyToFileSystemWatcher(QObject *object, const QString &propertyName, const QString &path);
     void removeFilePropertyFromFileSystemWatcher(QObject *object, const QString &propertyName, const QString &path);
@@ -84,6 +86,7 @@ public:
 
 public slots:
     void refreshLocalFileProperty(const QString &path);
+    void refreshDummyData(const QString &path);
     void emitParentChanged(QObject *child);
 
 protected:
@@ -128,7 +131,7 @@ protected:
     void initializeDeclarativeView();
     QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command);
     void loadDummyDataFiles(const QString& directory);
-
+    void loadDummyDataFile(const QFileInfo& fileInfo);
     QImage renderPreviewImage();
 
     void setTimerId(int timerId);
@@ -141,6 +144,7 @@ private:
     QHash<QObject*, ServerNodeInstance> m_objectInstanceHash;
     QMultiHash<QString, ObjectPropertyPair> m_fileSystemWatcherHash;
     QWeakPointer<QFileSystemWatcher> m_fileSystemWatcher;
+    QWeakPointer<QFileSystemWatcher> m_dummdataFileSystemWatcher;
     QWeakPointer<QDeclarativeView> m_declarativeView;
     QWeakPointer<Internal::ChildrenChangeEventFilter> m_childrenChangeEventFilter;
     QUrl m_fileUrl;

@@ -401,6 +401,15 @@ void NodeInstanceServer::removeAllInstanceRelationships()
     m_objectInstanceHash.clear();
 }
 
+QFileSystemWatcher *NodeInstanceServer::dummydataFileSystemWatcher()
+{
+    if (m_dummdataFileSystemWatcher.isNull()) {
+        m_dummdataFileSystemWatcher = new QFileSystemWatcher(this);
+        connect(m_dummdataFileSystemWatcher.data(), SIGNAL(fileChanged(QString)), this, SLOT(refreshDummyData(QString)));
+    }
+
+    return m_dummdataFileSystemWatcher.data();
+}
 
 QFileSystemWatcher *NodeInstanceServer::fileSystemWatcher()
 {
@@ -443,6 +452,13 @@ void NodeInstanceServer::refreshLocalFileProperty(const QString &path)
             }
         }
     }
+}
+
+void NodeInstanceServer::refreshDummyData(const QString &path)
+{
+    engine()->clearComponentCache();
+    loadDummyDataFile(QFileInfo(path));
+    startRenderTimer();
 }
 
 void NodeInstanceServer::addChangedProperty(const InstancePropertyPair &property)
@@ -848,26 +864,38 @@ QImage NodeInstanceServer::renderPreviewImage()
     return image;
 }
 
+void NodeInstanceServer::loadDummyDataFile(const QFileInfo& qmlFileInfo)
+{
+    QDeclarativeComponent component(engine(), qmlFileInfo.filePath());
+    QObject *dummyData = component.create();
+    if(component.isError()) {
+        QList<QDeclarativeError> errors = component.errors();
+        foreach (const QDeclarativeError &error, errors) {
+            qWarning() << error;
+        }
+    }
+
+    QVariant oldDummyDataObject = m_declarativeView->rootContext()->contextProperty(qmlFileInfo.completeBaseName());
+
+    if (dummyData) {
+        qWarning() << "Loaded dummy data:" << qmlFileInfo.filePath();
+        m_declarativeView->rootContext()->setContextProperty(qmlFileInfo.completeBaseName(), dummyData);
+        dummyData->setParent(this);
+    }
+
+    if (!oldDummyDataObject.isNull())
+        delete oldDummyDataObject.value<QObject*>();
+
+    if (!dummydataFileSystemWatcher()->files().contains(qmlFileInfo.filePath()))
+        dummydataFileSystemWatcher()->addPath(qmlFileInfo.filePath());
+}
+
 void NodeInstanceServer::loadDummyDataFiles(const QString& directory)
 {
     QDir dir(directory, "*.qml");
     QList<QFileInfo> filePathList = dir.entryInfoList();
-    foreach (const QFileInfo &qmlFileInfo, filePathList) {
-        QDeclarativeComponent component(engine(), qmlFileInfo.filePath());
-        QObject *dummyData = component.create();
-        if(component.isError()) {
-            QList<QDeclarativeError> errors = component.errors();
-            foreach (const QDeclarativeError &error, errors) {
-                qWarning() << error;
-            }
-        }
-
-        if (dummyData) {
-            qWarning() << "Loaded dummy data:" << qmlFileInfo.path();
-            m_declarativeView->rootContext()->setContextProperty(qmlFileInfo.completeBaseName(), dummyData);
-            dummyData->setParent(this);
-        }
-    }
+    foreach (const QFileInfo &qmlFileInfo, filePathList)
+        loadDummyDataFile(qmlFileInfo);
 }
 
 QStringList dummyDataDirectories(const QString& directoryPath)
