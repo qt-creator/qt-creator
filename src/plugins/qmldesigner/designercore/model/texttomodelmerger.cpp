@@ -1350,7 +1350,11 @@ void TextToModelMerger::setupComponent(const ModelNode &node)
         result = componentText; //implicit component
     }
 
-    node.variantProperty("__component_data") = result;
+    if (node.hasVariantProperty("__component_data")
+            && node.variantProperty("__component_data").value().toString() == result)
+        return;
+
+    node.variantProperty("__component_data").setValue(result);
 }
 
 QString TextToModelMerger::textAt(const Document::Ptr &doc,
