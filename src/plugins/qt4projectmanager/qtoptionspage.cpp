@@ -509,27 +509,43 @@ void QtOptionsPageWidget::updateDebuggingHelperInfo(const QtVersion *version)
         // Set detailed labels
         m_debuggingHelperUi->gdbHelperStatus->setText(hasGdbHelper
                                                 ? version->debuggingHelperLibrary()
-                                                : QLatin1String("-"));
+                                                : tr("<i>Not yet built.</i>"));
 
-        if (canBuildQmlDumper) {
-            m_debuggingHelperUi->qmlDumpStatus->setText(hasQmlDumper
-                                                        ? version->qmlDumpTool()
-                                                         : QLatin1String("-"));
-            m_debuggingHelperUi->qmlDumpBuildButton->setEnabled(true);
-        } else {
-            m_debuggingHelperUi->qmlDumpStatus->setText(tr("<i>Cannot be compiled.</i>"));
-            m_debuggingHelperUi->qmlDumpBuildButton->setEnabled(false);
-        }
+        QString qmlDumpStatusText;
+        if (hasQmlDumper) {
+            QString qmlDumpPaths = version->qmlDumpTool(false);
+            {
+                QString debugQmlDumpPath = version->qmlDumpTool(true);
+                if (qmlDumpPaths != debugQmlDumpPath) {
+                    if (!qmlDumpPaths.isEmpty())
+                        qmlDumpPaths += QLatin1String("\n");
+                    qmlDumpPaths += debugQmlDumpPath;
+                }
+            }
 
-        if (canBuildQmlObserver) {
-            m_debuggingHelperUi->qmlObserverStatus->setText(hasQmlObserver
-                                                    ? version->qmlObserverTool()
-                                                    : QLatin1String("-"));
-            m_debuggingHelperUi->qmlObserverBuildButton->setEnabled(true);
+            qmlDumpStatusText = qmlDumpPaths;
         } else {
-            m_debuggingHelperUi->qmlDumpStatus->setText(tr("<i>Cannot be compiled.</i>"));
-            m_debuggingHelperUi->qmlObserverBuildButton->setEnabled(false);
+            if (canBuildQmlDumper) {
+                qmlDumpStatusText = tr("<i>Not yet built.</i>");
+            } else {
+                qmlDumpStatusText = tr("<i>Cannot be compiled.</i>");
+            }
         }
+        m_debuggingHelperUi->qmlDumpStatus->setText(qmlDumpStatusText);
+        m_debuggingHelperUi->qmlDumpBuildButton->setEnabled(canBuildQmlDumper);
+
+        QString qmlObserverStatusText;
+        if (hasQmlObserver) {
+            qmlObserverStatusText = version->qmlObserverTool();
+        }  else {
+            if (canBuildQmlObserver) {
+                qmlObserverStatusText = tr("<i>Not yet built.</i>");
+            } else {
+                qmlObserverStatusText = tr("<i>Cannot be compiled.</i>");
+            }
+        }
+        m_debuggingHelperUi->qmlObserverStatus->setText(qmlObserverStatusText);
+        m_debuggingHelperUi->qmlObserverBuildButton->setEnabled(canBuildQmlObserver);
 
         const QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
         const bool hasLog = currentItem && !currentItem->data(0, BuildLogRole).toString().isEmpty();
