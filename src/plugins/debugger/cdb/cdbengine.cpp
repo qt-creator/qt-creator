@@ -1561,13 +1561,13 @@ enum StopActionFlags
     // Report options
     StopReportLog = 0x1,
     StopReportStatusMessage = 0x2,
-    StopReportParseError = 0x2,
-    StopShowExceptionMessageBox = 0x4,
+    StopReportParseError = 0x4,
+    StopShowExceptionMessageBox = 0x8,
     // Notify stop or just continue
-    StopNotifyStop = 0x8,
-    StopIgnoreContinue = 0x10,
+    StopNotifyStop = 0x10,
+    StopIgnoreContinue = 0x20,
     // Hit on break in artificial stop thread (created by DebugBreak()).
-    StopInArtificialThread = 0x20
+    StopInArtificialThread = 0x40
 };
 
 unsigned CdbEngine::examineStopReason(const QByteArray &messageIn,
