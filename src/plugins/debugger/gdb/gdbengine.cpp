@@ -4302,9 +4302,10 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     //postCommand(_("handle SIGTERM pass nostop print"));
 
     postCommand("set unwindonsignal on");
-    //postCommand("pwd");
+    postCommand("pwd");
     postCommand("set width 0");
     postCommand("set height 0");
+    postCommand("set auto-solib-add on");
 
     if (false && m_isMacGdb) {
         // FIXME: m_isMacGdb is only known after handleShowVersion!
