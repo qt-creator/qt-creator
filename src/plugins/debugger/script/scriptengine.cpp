@@ -72,17 +72,14 @@
 #include <QtScript/QScriptValue>
 #include <QtScript/QScriptValueIterator>
 
-//#define DEBUG_SCRIPT 1
-#if DEBUG_SCRIPT
-#   define SDEBUG(s) qDebug() << s
-#else
-#   define SDEBUG(s)
-#endif
-# define XSDEBUG(s) qDebug() << s
-
 
 namespace Debugger {
 namespace Internal {
+
+enum { debugScript = 0 };
+
+#define SDEBUG(s) do { if (debugScript) qDebug() << s; } while (0)
+#define XSDEBUG(s) qDebug() << s
 
 ///////////////////////////////////////////////////////////////////////
 //

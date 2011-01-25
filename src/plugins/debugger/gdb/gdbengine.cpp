@@ -105,16 +105,11 @@
 namespace Debugger {
 namespace Internal {
 
-//#define DEBUG_PENDING  1
-
 static const char winPythonVersionC[] = "python2.5";
 
-#if DEBUG_PENDING
-#   define PENDING_DEBUG(s) qDebug() << s
-#else
-#   define PENDING_DEBUG(s)
-#endif
-#define PENDING_DEBUGX(s) qDebug() << s
+enum { debugPending = 0 };
+
+#define PENDING_DEBUG(s) do { if (debugPending) qDebug() << s; } while (0)
 
 #define CB(callback) &GdbEngine::callback, STRINGIFY(callback)
 

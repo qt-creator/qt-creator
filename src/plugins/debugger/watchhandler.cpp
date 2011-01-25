@@ -61,18 +61,15 @@
 #include <ctype.h>
 #include <utils/qtcassert.h>
 
-// Creates debug output for accesses to the model.
-//#define DEBUG_MODEL 1
-
-#if DEBUG_MODEL
-#   define MODEL_DEBUG(s) qDebug() << s
-#else
-#   define MODEL_DEBUG(s)
-#endif
-#define MODEL_DEBUGX(s) qDebug() << s
 
 namespace Debugger {
 namespace Internal {
+
+// Creates debug output for accesses to the model.
+enum { debugModel = 0 };
+
+#define MODEL_DEBUG(s) do { if (debugModel) qDebug() << s; } while (0)
+#define MODEL_DEBUGX(s) qDebug() << s
 
 static const QString strNotInScope =
     QCoreApplication::translate("Debugger::Internal::WatchData", "<not in scope>");
