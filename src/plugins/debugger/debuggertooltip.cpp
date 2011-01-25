@@ -41,7 +41,6 @@
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QHeaderView>
-#include <QtGui/QKeyEvent>
 #include <QtGui/QScrollBar>
 #include <QtGui/QTreeView>
 #include <QtGui/QSortFilterProxyModel>
@@ -56,7 +55,6 @@ class ToolTipWidget : public QTreeView
 public:
     ToolTipWidget(QWidget *parent);
 
-    bool eventFilter(QObject *ob, QEvent *ev);
     QSize sizeHint() const { return m_size; }
 
     void done();
@@ -89,36 +87,6 @@ ToolTipWidget::ToolTipWidget(QWidget *parent)
         Qt::QueuedConnection);
     connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(computeSize()),
         Qt::QueuedConnection);
-
-    qApp->installEventFilter(this);
-}
-
-bool ToolTipWidget::eventFilter(QObject *ob, QEvent *ev)
-{
-    Q_UNUSED(ob)
-    switch (ev->type()) {
-    case QEvent::ShortcutOverride:
-        if (static_cast<QKeyEvent *>(ev)->key() == Qt::Key_Escape)
-            return true;
-        break;
-    case QEvent::KeyPress:
-        if (static_cast<QKeyEvent *>(ev)->key() == Qt::Key_Escape)
-            return true;
-        break;
-    case QEvent::KeyRelease:
-        if (static_cast<QKeyEvent *>(ev)->key() == Qt::Key_Escape) {
-            done();
-            return true;
-        }
-        break;
-    case QEvent::WindowDeactivate:
-    case QEvent::FocusOut:
-        done();
-        break;
-    default:
-        break;
-    }
-    return false;
 }
 
 int ToolTipWidget::computeHeight(const QModelIndex &index) const
@@ -171,7 +139,6 @@ void ToolTipWidget::computeSize()
 
 void ToolTipWidget::done()
 {
-    qApp->removeEventFilter(this);
     deleteLater();
 }
 
