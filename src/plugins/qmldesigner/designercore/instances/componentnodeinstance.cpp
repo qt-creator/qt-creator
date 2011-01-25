@@ -83,6 +83,7 @@ void ComponentNodeInstance::setPropertyVariant(const QString &name, const QVaria
         data.prepend(importArray);
 
         component()->setData(data, nodeInstanceServer()->fileUrl());
+        setId(id());
 
     }
 
