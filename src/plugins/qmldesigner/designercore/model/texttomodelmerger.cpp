@@ -219,6 +219,12 @@ static inline QVariant convertDynamicPropertyValueToVariant(const QString &astVa
     }
 }
 
+static bool isComponentType(const QString &type)
+{
+    qDebug() << __FUNCTION__ << type;
+    return  type == QLatin1String("Component") || type == QLatin1String("Qt/Component") || type == QLatin1String("QtQuick/Component");
+}
+
 } // anonymous namespace
 
 namespace QmlDesigner {
@@ -992,7 +998,7 @@ void TextToModelMerger::syncNodeListProperty(NodeListProperty &modelListProperty
         QString name;
         if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(arrayMember))
             name = flatten(definition->qualifiedTypeNameId);
-        if (name == QLatin1String("Qt/Component"))
+        if (isComponentType(name))
             setupComponent(newNode);
     }
 
@@ -1319,7 +1325,7 @@ void ModelAmender::idsDiffer(ModelNode &modelNode, const QString &qmlId)
 
 void TextToModelMerger::setupComponent(const ModelNode &node)
 {
-    Q_ASSERT(node.type() == QLatin1String("Qt/Component"));
+    Q_ASSERT(isComponentType(node.type()));
 
     QString componentText = m_rewriterView->extractText(QList<ModelNode>() << node).value(node);
 

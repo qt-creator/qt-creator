@@ -756,7 +756,11 @@ QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumb
     QObject *object = 0;
     QDeclarativeType *type = QDeclarativeMetaType::qmlType(typeName.toUtf8(), majorNumber, minorNumber);
     if (type)  {
-        object = type->create();
+        if (type->typeName() == "QDeclarativeComponent") {
+            object = new QDeclarativeComponent(context->engine(), 0);
+        } else  {
+            object = type->create();
+        }
     } else {
         qWarning() << "QuickDesigner: Cannot create an object of type"
                    << QString("%1 %2,%3").arg(typeName).arg(majorNumber).arg(minorNumber)
