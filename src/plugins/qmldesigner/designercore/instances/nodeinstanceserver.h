@@ -127,6 +127,7 @@ protected:
 
     void initializeDeclarativeView();
     QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command);
+    void loadDummyDataFiles(const QString& directory);
 
     QImage renderPreviewImage();
 

@@ -848,10 +848,51 @@ QImage NodeInstanceServer::renderPreviewImage()
     return image;
 }
 
+void NodeInstanceServer::loadDummyDataFiles(const QString& directory)
+{
+    QDir dir(directory, "*.qml");
+    QList<QFileInfo> filePathList = dir.entryInfoList();
+    foreach (const QFileInfo &qmlFileInfo, filePathList) {
+        QDeclarativeComponent component(engine(), qmlFileInfo.filePath());
+        QObject *dummyData = component.create();
+        if(component.isError()) {
+            QList<QDeclarativeError> errors = component.errors();
+            foreach (const QDeclarativeError &error, errors) {
+                qWarning() << error;
+            }
+        }
+
+        if (dummyData) {
+            qWarning() << "Loaded dummy data:" << qmlFileInfo.path();
+            m_declarativeView->rootContext()->setContextProperty(qmlFileInfo.completeBaseName(), dummyData);
+            dummyData->setParent(this);
+        }
+    }
+}
+
+QStringList dummyDataDirectories(const QString& directoryPath)
+{
+    QStringList dummyDataDirectoryList;
+    QDir directory(directoryPath);
+    while(true) {
+        if (directory.isRoot() || !directory.exists())
+            return dummyDataDirectoryList;
+
+        if (directory.exists("dummydata"))
+            dummyDataDirectoryList.prepend(directory.absoluteFilePath("dummydata"));
+
+        directory.cdUp();
+    }
+}
+
 QList<ServerNodeInstance> NodeInstanceServer::setupScene(const CreateSceneCommand &command)
 {
-    if (!command.fileUrl().isEmpty())
+    if (!command.fileUrl().isEmpty()) {
         engine()->setBaseUrl(command.fileUrl());
+        QStringList dummyDataDirectoryList = dummyDataDirectories(QFileInfo(command.fileUrl().toLocalFile()).path());
+        foreach(const QString &dummyDataDirectory, dummyDataDirectoryList)
+            loadDummyDataFiles(dummyDataDirectory);
+    }
 
     addImports(command.imports());
 
