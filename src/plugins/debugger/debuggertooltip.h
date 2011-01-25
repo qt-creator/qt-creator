@@ -39,12 +39,15 @@
 QT_BEGIN_NAMESPACE
 class QModelIndex;
 class QPoint;
+class QAbstractItemModel;
 QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
 
 void showDebuggerToolTip(const QPoint &point, const QModelIndex &rootIndex);
+// Show tooltip filtering a row of a source model.
+void showDebuggerToolTip(const QPoint &point, QAbstractItemModel *model, int row);
 void hideDebuggerToolTip(int delay = 0);
 
 } // namespace Internal

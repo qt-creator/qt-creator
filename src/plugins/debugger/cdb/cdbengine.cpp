@@ -440,9 +440,11 @@ void CdbEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEd
     if (!(exp.at(0).isLetter() || exp.at(0) == QLatin1Char('_')))
         return;
     const QByteArray iname = QByteArray(localsPrefixC) + exp.toAscii();
-    if (const WatchData *data = watchHandler()->findItem(iname)) {
-        QToolTip::hideText();
-        QToolTip::showText(mousePos, data->toToolTip());
+    const QModelIndex index = watchHandler()->itemIndex(iname);
+    if (index.isValid()) {
+        showDebuggerToolTip(mousePos, watchHandler()->modelForIName(iname), index.row());
+    } else {
+        hideDebuggerToolTip();
     }
 }
 
