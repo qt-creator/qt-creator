@@ -10,12 +10,12 @@ Windows 7, Windows XP SP2, Windows Vista
 (K)Ubuntu Linux 8.04 (32-bit and 64-bit) or later
 Mac OS 10.5 or later
 
-Building the sources requires Qt 4.7.0 or later.
+Building the sources requires Qt 4.7.1 or later.
 
 Compiling Qt Creator
 ====================
 Prerequisites:
-   * Qt 4.7
+   * Qt 4.7.1
    * On Windows:
      -  ActiveState Active Perl (version 5.8.9 for Symbian development)
      -  MinGW 4.4 or later, Visual Studio 2008 or later
