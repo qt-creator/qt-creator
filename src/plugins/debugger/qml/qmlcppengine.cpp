@@ -279,8 +279,10 @@ void QmlCppEngine::executeStep()
         QTC_ASSERT(d->m_cppEngine->state() == InferiorRunOk, /**/);
         if (d->m_cppEngine->setupQmlStep(true))
             return; // Wait for callback to readyToExecuteQmlStep()
+    } else {
+        notifyInferiorRunRequested();
+        d->m_cppEngine->executeStep();
     }
-    readyToExecuteQmlStep();
 }
 
 void QmlCppEngine::readyToExecuteQmlStep()
