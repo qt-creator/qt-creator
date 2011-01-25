@@ -8,9 +8,12 @@
 #include <QFileSystemWatcher>
 #include <QUrl>
 #include <QSet>
+#include <QDir>
 #include <QVariant>
 #include <QMetaType>
 #include <QDeclarativeComponent>
+#include <QDeclarativeContext>
+#include <private/qlistmodelinterface_p.h>
 
 #include "servernodeinstance.h"
 #include "childrenchangeeventfilter.h"
@@ -55,7 +58,7 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
     m_slowRenderTimer(false),
     m_slowRenderTimerInterval(1000)
 {
-    m_importList.append("import Qt 4.7");
+    m_importList.append("import Qt 4.7\n");
     connect(m_childrenChangeEventFilter.data(), SIGNAL(childrenChanged(QObject*)), this, SLOT(emitParentChanged(QObject*)));
 }
 
@@ -298,6 +301,8 @@ void NodeInstanceServer::addImports(const QVector<AddImportContainer> &container
         if (!container.alias().isEmpty())
             importStatement += " as " + container.alias();
 
+        importStatement.append("\n");
+
         if (!m_importList.contains(importStatement))
             m_importList.append(importStatement);
 
@@ -310,7 +315,7 @@ void NodeInstanceServer::addImports(const QVector<AddImportContainer> &container
     QDeclarativeComponent importComponent(engine(), 0);
     QString componentString;
     foreach(const QString &importStatement, m_importList)
-        componentString += QString("%1\n").arg(importStatement);
+        componentString += QString("%1").arg(importStatement);
 
     componentString += QString("Item {}\n");
 
