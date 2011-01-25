@@ -111,6 +111,26 @@ public:
     }
 #endif
 
+    void next() {
+        int index = currentIndex().row();
+        ++index;
+        if (index >= model()->rowCount(QModelIndex())) {
+            // wrap
+            index = 0;
+        }
+        setCurrentIndex(model()->index(index, 0));
+    }
+
+    void previous() {
+        int index = currentIndex().row();
+        --index;
+        if (index < 0) {
+            // wrap
+            index = model()->rowCount(QModelIndex()) - 1;
+        }
+        setCurrentIndex(model()->index(index, 0));
+    }
+
 private:
     QSize m_preferredSize;
 };
@@ -385,6 +405,12 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
             return true;
         case Qt::Key_Escape:
             m_completionList->hide();
+            return true;
+        case Qt::Key_Tab:
+            m_completionList->next();
+            return true;
+        case Qt::Key_Backtab:
+            m_completionList->previous();
             return true;
         default:
             break;
