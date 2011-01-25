@@ -52,6 +52,8 @@ class ExtensionContext {
 
     ExtensionContext();
 public:
+    enum { maxStackFrames = 200 };
+
     // Key used to report stop reason in StopReasonMap
     static const char *stopReasonKeyC;
     // Map of parameters reported with the next stop as GDBMI
@@ -85,7 +87,7 @@ public:
     // Call from notify handler, tell engine about state.
     void notifyState(ULONG Notify);
     // register as '.idle_cmd' to notify creator about stop
-    void notifyIdle();
+    void notifyIdleCommand(CIDebugClient *client);
 
     // Return symbol group for frame (cached as long as frame/thread do not change).
     LocalsSymbolGroup *symbolGroup(CIDebugSymbols *symbols, ULONG threadId, int frame, std::string *errorMessage);

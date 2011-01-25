@@ -256,7 +256,7 @@ std::wstring dataToReadableHexW(const unsigned char *begin, const unsigned char 
 }
 
 // Format a map as a GDBMI hash {key="value",..}
-void formatGdbmiHash(std::ostream &os, const std::map<std::string, std::string> &m)
+void formatGdbmiHash(std::ostream &os, const std::map<std::string, std::string> &m, bool closeHash)
 {
     typedef std::map<std::string, std::string>::const_iterator It;
     const It begin = m.begin();
@@ -267,5 +267,6 @@ void formatGdbmiHash(std::ostream &os, const std::map<std::string, std::string> 
             os << ',';
         os << it->first << "=\"" << gdbmiStringFormat(it->second) << '"';
     }
-    os << '}';
+    if (closeHash)
+        os << '}';
 }

@@ -859,9 +859,9 @@ extern "C" HRESULT CALLBACK modules(CIDebugClient *Client, PCSTR argsIn)
 
 // Report stop of debuggee to Creator. This is hooked up as .idle_cmd command
 // by the Creator engine to reliably get notified about stops.
-extern "C" HRESULT CALLBACK idle(CIDebugClient *, PCSTR)
+extern "C" HRESULT CALLBACK idle(CIDebugClient *client, PCSTR)
 {
-    ExtensionContext::instance().notifyIdle();
+    ExtensionContext::instance().notifyIdleCommand(client);
     return S_OK;
 }
 
@@ -922,7 +922,7 @@ extern "C" HRESULT CALLBACK stack(CIDebugClient *Client, PCSTR argsIn)
 
     int token;
     bool humanReadable = false;
-    unsigned maxFrames = 1000;
+    unsigned maxFrames = ExtensionContext::maxStackFrames;
 
     StringList tokens = commandTokens<StringList>(argsIn, &token);
     if (!tokens.empty() && tokens.front() == "-h") {

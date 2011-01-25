@@ -186,6 +186,6 @@ std::wstring dataToHexW(const unsigned char *begin, const unsigned char *end);
 std::wstring dataToReadableHexW(const unsigned char *begin, const unsigned char *end);
 
 // Format a map as a GDBMI hash {key="value",..}
-void formatGdbmiHash(std::ostream &os, const std::map<std::string, std::string> &);
+void formatGdbmiHash(std::ostream &os, const std::map<std::string, std::string> &, bool closeHash = true);
 
 #endif // SPLIT_H

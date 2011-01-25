@@ -53,6 +53,7 @@ struct CdbBuiltinCommand;
 struct CdbExtensionCommand;
 struct CdbOptions;
 class ByteArrayInputStream;
+class GdbMi;
 
 class CdbEngine : public Debugger::DebuggerEngine
 {
@@ -164,9 +165,14 @@ private:
         SpecialStopSynchronizeBreakpoints,
         SpecialStopGetWidgetAt
     };
+    enum ParseStackResultFlags // Flags returned by parseStackTrace
+    {
+        ParseStackStepInto = 1 // Need to execute a step, hit on a call frame in "Step into"
+    };
+
 
     bool startConsole(const DebuggerStartParameters &sp, QString *errorMessage);
-    unsigned examineStopReason(const QByteArray &messageIn, QString *message,
+    unsigned examineStopReason(const GdbMi &stopReason, QString *message,
                                QString *exceptionBoxMessage);
     bool commandsPending() const;
     void handleExtensionMessage(char t, int token, const QByteArray &what, const QByteArray &message);
@@ -205,6 +211,8 @@ private:
     void updateLocals();
     int elapsedLogTime() const;
     void addLocalsOptions(ByteArrayInputStream &s) const;
+    unsigned parseStackTrace(const GdbMi &data, bool sourceStepInto);
+    void parseThreads(const GdbMi &, int forceCurrentThreadId = -1);
 
     const QByteArray m_creatorExtPrefix;
     const QByteArray m_tokenPrefix;

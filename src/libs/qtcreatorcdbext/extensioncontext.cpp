@@ -36,6 +36,7 @@
 #include "eventcallback.h"
 #include "outputcallback.h"
 #include "stringutils.h"
+#include "gdbmihelpers.h"
 
 #include <algorithm>
 
@@ -154,19 +155,16 @@ ULONG ExtensionContext::executionStatus() const
 
 // Complete stop parameters with common parameters and report
 static inline ExtensionContext::StopReasonMap
-    completeStopReasons(ExtensionContext::StopReasonMap stopReasons, ULONG ex)
+    completeStopReasons(CIDebugClient *client, ExtensionContext::StopReasonMap stopReasons, ULONG ex)
 {
     typedef ExtensionContext::StopReasonMap::value_type StopReasonMapValue;
 
     stopReasons.insert(StopReasonMapValue(std::string("executionStatus"), toString(ex)));
 
-    IInterfacePointer<CIDebugClient> client;
-    if (client.create()) {
-        if (const ULONG processId = currentProcessId(client.data()))
-            stopReasons.insert(StopReasonMapValue(std::string("processId"), toString(processId)));
-        const ULONG threadId = currentThreadId(client.data());
-        stopReasons.insert(StopReasonMapValue(std::string("threadId"), toString(threadId)));
-    }
+    if (const ULONG processId = currentProcessId(client))
+        stopReasons.insert(StopReasonMapValue(std::string("processId"), toString(processId)));
+    const ULONG threadId = currentThreadId(client);
+    stopReasons.insert(StopReasonMapValue(std::string("threadId"), toString(threadId)));
     // Any reason?
     const std::string reasonKey = std::string(ExtensionContext::stopReasonKeyC);
     if (stopReasons.find(reasonKey) == stopReasons.end())
@@ -174,14 +172,32 @@ static inline ExtensionContext::StopReasonMap
     return stopReasons;
 }
 
-void ExtensionContext::notifyIdle()
+void ExtensionContext::notifyIdleCommand(CIDebugClient *client)
 {
     discardSymbolGroup();
     if (m_stateNotification) {
-        const StopReasonMap stopReasons = completeStopReasons(m_stopReason, executionStatus());
+        // Format full thread and stack info along with completed stop reasons.
+        std::string errorMessage;
+        ExtensionCommandContext exc(client);
+        const StopReasonMap stopReasons = completeStopReasons(client, m_stopReason, executionStatus());
         // Format
         std::ostringstream str;
-        formatGdbmiHash(str, stopReasons);
+        formatGdbmiHash(str, stopReasons, false);
+        const std::string threadInfo = gdbmiThreadList(exc.systemObjects(), exc.symbols(),
+                                                       exc.control(), exc.advanced(), &errorMessage);
+        if (threadInfo.empty()) {
+            str << ",threaderror=" << gdbmiStringFormat(errorMessage);
+        } else {
+            str << ",threads=" << threadInfo;
+        }
+        const std::string stackInfo = gdbmiStack(exc.control(), exc.symbols(),
+                                                 maxStackFrames, false, &errorMessage);
+        if (stackInfo.empty()) {
+            str << ",stackerror=" << gdbmiStringFormat(errorMessage);
+        } else {
+            str << ",stack=" << stackInfo;
+        }
+        str << '}';
         reportLong('E', 0, "session_idle", str.str());
     }
     m_stopReason.clear();
