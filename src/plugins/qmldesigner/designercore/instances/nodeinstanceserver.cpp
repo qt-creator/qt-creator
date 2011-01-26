@@ -14,6 +14,8 @@
 #include <QDeclarativeComponent>
 #include <QDeclarativeContext>
 #include <private/qlistmodelinterface_p.h>
+#include <QAbstractAnimation>
+#include <private/qabstractanimation_p.h>
 
 #include "servernodeinstance.h"
 #include "childrenchangeeventfilter.h"
@@ -840,6 +842,8 @@ void NodeInstanceServer::initializeDeclarativeView()
 #ifdef Q_WS_MAC
     m_declarativeView->setAttribute(Qt::WA_DontShowOnScreen, true);
 #endif
+    QUnifiedTimer::instance()->setSlowdownFactor(1000000.);
+    QUnifiedTimer::instance()->setSlowModeEnabled(true);
 }
 
 QImage NodeInstanceServer::renderPreviewImage()
