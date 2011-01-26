@@ -742,11 +742,9 @@ void tweakObjects(QObject *object)
 QObject *createComponent(const QString &componentPath, QDeclarativeContext *context)
 {
     QDeclarativeComponent component(context->engine(), QUrl::fromLocalFile(componentPath));
-    QDeclarativeContext *newContext =  new QDeclarativeContext(context);
-    QObject *object = component.beginCreate(newContext);
+    QObject *object = component.beginCreate(context);
     tweakObjects(object);
     component.completeCreate();
-    newContext->setParent(object);
 
     return object;
 }
