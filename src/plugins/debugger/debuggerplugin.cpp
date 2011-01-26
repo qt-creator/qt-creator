@@ -138,125 +138,140 @@
 #   define STATE_DEBUG(s)
 #endif
 
-// Note: the Debugger process itself and any helper processes like
-// gdbserver, the trk client etc are referred to as 'Engine',
-// whereas the debugged process is referred to as 'Inferior'.
-//
-// Transitions marked by '---' are done in the individual engines.
-// Transitions marked by '+-+' are done in the base DebuggerEngine.
-// Transitions marked by '*' are done asynchronously.
-// The GdbEngine->setupEngine() function is described in more detail below.
-//
-// The engines are responsible for local roll-back to the last
-// acknowledged state before calling notify*Failed. I.e. before calling
-// notifyEngineSetupFailed() any process started during setupEngine()
-// so far must be terminated.
-//
-//
-//
-//                        DebuggerNotReady
-//                               +
-//                      EngineSetupRequested
-//                               +
-//                  (calls *Engine->setupEngine())
-//                            |      |
-//                            |      |
-//                       {notify-  {notify-
-//                        Engine-   Engine-
-//                        SetupOk}  SetupFailed}
-//                            +      +
-//                            +      `+-+-+> EngineSetupFailed
-//                            +                   +
-//                            +    [calls RunControl->startFailed]
-//                            +                   +
-//                            +             DebuggerFinished
-//                            v
-//                      EngineSetupOk
-//                            +
-//             [calls RunControl->StartSuccessful]
-//                            +
-//                  InferiorSetupRequested
-//                            +
-//             (calls *Engine->setupInferior())
-//                         |       |
-//                         |       |
-//                    {notify-   {notify-
-//                     Inferior- Inferior-
-//                     SetupOk}  SetupFailed}
-//                         +       +
-//                         +       ` +-+-> InferiorSetupFailed +-+-+-+-+-+->.
-//                         +                                                +
-//                  InferiorSetupOk                                         +
-//                         +                                                +
-//                  EngineRunRequested                                      +
-//                         +                                                +
-//                 (calls *Engine->runEngine())                             +
-//               /       |            |        \                            +
-//             /         |            |          \                          +
-//            | (core)   | (attach)   |           |                         +
-//            |          |            |           |                         +
-//      {notify-    {notifyER&- {notifyER&-  {notify-                       +
-//      Inferior-     Inferior-   Inferior-  EngineRun-                     +
-//     Unrunnable}     StopOk}     RunOk}     Failed}                       +
-//           +           +            +           +                         +
-//   InferiorUnrunnable  +     InferiorRunOk      +                         +
-//                       +                        +                         +
-//                InferiorStopOk            EngineRunFailed                 +
-//                                                +                         v
-//                                                 `-+-+-+-+-+-+-+-+-+-+-+>-+
-//                                                                          +
-//                                                                          +
-//                       #Interrupt@InferiorRunOk#                          +
-//                                  +                                       +
-//                          InferiorStopRequested                           +
-//  #SpontaneousStop                +                                       +
-//   @InferiorRunOk#         (calls *Engine->                               +
-//          +               interruptInferior())                            +
-//      {notify-               |          |                                 +
-//     Spontaneous-       {notify-    {notify-                              +
-//      Inferior-          Inferior-   Inferior-                            +
-//       StopOk}           StopOk}    StopFailed}                           +
-//           +              +             +                                 +
-//            +            +              +                                 +
-//            InferiorStopOk              +                                 +
-//                  +                     +                                 +
-//                  +                    +                                  +
-//                  +                   +                                   +
-//        #Stop@InferiorUnrunnable#    +                                    +
-//          #Creator Close Event#     +                                     +
-//                       +           +                                      +
-//                InferiorShutdownRequested                                 +
-//                            +                                             +
-//           (calls *Engine->shutdownInferior())                            +
-//                         |        |                                       +
-//                    {notify-   {notify-                                   +
-//                     Inferior- Inferior-                                  +
-//                  ShutdownOk}  ShutdownFailed}                            +
-//                         +        +                                       +
-//                         +        +                                       +
-//  #Inferior exited#      +        +                                       +
-//         |               +        +                                       +
-//   {notifyInferior-      +        +                                       +
-//      Exited}            +        +                                       +
-//           +             +        +                                       +
-//     InferiorExitOk      +        +                                       +
-//             +           +        +                                       +
-//            InferiorShutdownOk InferiorShutdownFailed                     +
-//                      *          *                                        +
-//                  EngineShutdownRequested                                 +
-//                            +                                             +
-//           (calls *Engine->shutdownEngine())  <+-+-+-+-+-+-+-+-+-+-+-+-+-+'
-//                         |        |
-//                         |        |
-//                    {notify-   {notify-
-//                     Engine-    Engine-
-//                  ShutdownOk}  ShutdownFailed}
-//                         +       +
-//            EngineShutdownOk  EngineShutdownFailed
-//                         *       *
-//                     DebuggerFinished
-//
+/*!
+    \namespace Debugger
+    Debugger plugin namespace
+*/
 
+/*!
+    \namespace Debugger::Internal
+    Internal namespace of the Debugger plugin
+*/
+
+/*!
+    \class Debugger::DebuggerEngine
+
+    \brief Base class of a debugger engine.
+
+    Note: the Debugger process itself and any helper processes like
+    gdbserver, the trk client etc are referred to as 'Engine',
+    whereas the debugged process is referred to as 'Inferior'.
+
+    Transitions marked by '---' are done in the individual engines.
+    Transitions marked by '+-+' are done in the base DebuggerEngine.
+    Transitions marked by '*' are done asynchronously.
+
+    The GdbEngine->setupEngine() function is described in more detail below.
+
+    The engines are responsible for local roll-back to the last
+    acknowledged state before calling notify*Failed. I.e. before calling
+    notifyEngineSetupFailed() any process started during setupEngine()
+    so far must be terminated.
+    \code
+
+                        DebuggerNotReady
+                         progressmanager/progressmanager.cpp      +
+                      EngineSetupRequested
+                               +
+                  (calls *Engine->setupEngine())
+                            |      |
+                            |      |
+                       {notify-  {notify-
+                        Engine-   Engine-
+                        SetupOk}  SetupFailed}
+                            +      +
+                            +      `+-+-+> EngineSetupFailed
+                            +                   +
+                            +    [calls RunControl->startFailed]
+                            +                   +
+                            +             DebuggerFinished
+                            v
+                      EngineSetupOk
+                            +
+             [calls RunControl->StartSuccessful]
+                            +
+                  InferiorSetupRequested
+                            +
+             (calls *Engine->setupInferior())
+                         |       |
+                         |       |
+                    {notify-   {notify-
+                     Inferior- Inferior-
+                     SetupOk}  SetupFailed}
+                         +       +
+                         +       ` +-+-> InferiorSetupFailed +-+-+-+-+-+->.
+                         +                                                +
+                  InferiorSetupOk                                         +
+                         +                                                +
+                  EngineRunRequested                                      +
+                         +                                                +
+                 (calls *Engine->runEngine())                             +
+               /       |            |        \                            +
+             /         |            |          \                          +
+            | (core)   | (attach)   |           |                         +
+            |          |            |           |                         +
+      {notify-    {notifyER&- {notifyER&-  {notify-                       +
+      Inferior-     Inferior-   Inferior-  EngineRun-                     +
+     Unrunnable}     StopOk}     RunOk}     Failed}                       +
+           +           +            +           +                         +
+   InferiorUnrunnable  +     InferiorRunOk      +                         +
+                       +                        +                         +
+                InferiorStopOk            EngineRunFailed                 +
+                                                +                         v
+                                                 `-+-+-+-+-+-+-+-+-+-+-+>-+
+                                                                          +
+                                                                          +
+                       #Interrupt@InferiorRunOk#                          +
+                                  +                                       +
+                          InferiorStopRequested                           +
+  #SpontaneousStop                +                                       +
+   @InferiorRunOk#         (calls *Engine->                               +
+          +               interruptInferior())                            +
+      {notify-               |          |                                 +
+     Spontaneous-       {notify-    {notify-                              +
+      Inferior-          Inferior-   Inferior-                            +
+       StopOk}           StopOk}    StopFailed}                           +
+           +              +             +                                 +
+            +            +              +                                 +
+            InferiorStopOk              +                                 +
+                  +                     +                                 +
+                  +                    +                                  +
+                  +                   +                                   +
+        #Stop@InferiorUnrunnable#    +                                    +
+          #Creator Close Event#     +                                     +
+                       +           +                                      +
+                InferiorShutdownRequested                                 +
+                            +                                             +
+           (calls *Engine->shutdownInferior())                            +
+                         |        |                                       +
+                    {notify-   {notify-                                   +
+                     Inferior- Inferior-                                  +
+                  ShutdownOk}  ShutdownFailed}                            +
+                         +        +                                       +
+                         +        +                                       +
+  #Inferior exited#      +        +                                       +
+         |               +        +                                       +
+   {notifyInferior-      +        +                                       +
+      Exited}            +        +                                       +
+           +             +        +                                       +
+     InferiorExitOk      +        +                                       +
+             +           +        +                                       +
+            InferiorShutdownOk InferiorShutdownFailed                     +
+                      *          *                                        +
+                  EngineShutdownRequested                                 +
+                            +                                             +
+           (calls *Engine->shutdownEngine())  <+-+-+-+-+-+-+-+-+-+-+-+-+-+'
+                         |        |
+                         |        |
+                    {notify-   {notify-
+                     Engine-    Engine-
+                  ShutdownOk}  ShutdownFailed}
+                         +       +
+            EngineShutdownOk  EngineShutdownFailed
+                         *       *
+                     DebuggerFinished
+
+\endcode */
 
 /* Here is a matching graph as a GraphViz graph. View it using
  * \code
@@ -302,40 +317,44 @@ sg1: }
 // Additional signalling:    {notifyInferiorIll}   {notifyEngineIll}
 
 
-// GdbEngine specific startup. All happens in EngineSetupRequested state
-//
-// Transitions marked by '---' are done in the individual adapters.
-// Transitions marked by '+-+' are done in the GdbEngine.
-//
-//                  GdbEngine::setupEngine()
-//                          +
-//            (calls *Adapter->startAdapter())
-//                          |      |
-//                          |      `---> handleAdapterStartFailed()
-//                          |                   +
-//                          |             {notifyEngineSetupFailed}
-//                          |
-//                 handleAdapterStarted()
-//                          +
-//                 {notifyEngineSetupOk}
-//
-//
-//
-//                GdbEngine::setupInferior()
-//                          +
-//            (calls *Adapter->prepareInferior())
-//                          |      |
-//                          |      `---> handlePrepareInferiorFailed()
-//                          |                   +
-//                          |             {notifyInferiorSetupFailed}
-//                          |
-//                handleInferiorPrepared()
-//                          +
-//                {notifyInferiorSetupOk}
+/*!
+    \class Debugger::Internal::GdbEngine
+    \brief Implementation of Debugger::Engine driving a gdb executable.
+
+    GdbEngine specific startup. All happens in EngineSetupRequested state:
+
+    Transitions marked by '---' are done in the individual adapters.
+
+    Transitions marked by '+-+' are done in the GdbEngine.
+
+    \code
+                  GdbEngine::setupEngine()
+                          +
+            (calls *Adapter->startAdapter())
+                          |      |
+                          |      `---> handleAdapterStartFailed()
+                          |                   +
+                          |             {notifyEngineSetupFailed}
+                          |
+                 handleAdapterStarted()
+                          +
+                 {notifyEngineSetupOk}
 
 
 
+                GdbEngine::setupInferior()
+                          +
+            (calls *Adapter->prepareInferior())
+                          |      |
+                          |      `---> handlePrepareInferiorFailed()
+                          |                   +
+                          |             {notifyInferiorSetupFailed}
+                          |
+                handleInferiorPrepared()
+                          +
+                {notifyInferiorSetupOk}
 
+\endcode */
 
 using namespace Core;
 using namespace Debugger::Constants;

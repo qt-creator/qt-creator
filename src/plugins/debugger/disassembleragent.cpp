@@ -134,7 +134,7 @@ DisassemblerAgentPrivate::~DisassemblerAgentPrivate()
 }
 
 /*!
-    \class DisassemblerAgent
+    \class Debugger::Internal::DisassemblerAgent
 
      Objects from this class are created in response to user actions in
      the Gui for showing disassembled memory from the inferior. After creation

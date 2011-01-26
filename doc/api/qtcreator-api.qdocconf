@@ -11,7 +11,8 @@ headerdirs              = . \
                           ../../src/libs/extensionsystem \
                           ../../src/plugins/coreplugin \
                           ../../src/plugins/find \
-                          ../../src/plugins/locator
+                          ../../src/plugins/locator \
+                          ../../src/plugins/debugger
 
 sourcedirs              = . \
                           ../../src/libs/aggregation \
@@ -19,7 +20,8 @@ sourcedirs              = . \
                           ../../src/libs/extensionsystem \
                           ../../src/plugins/coreplugin \
                           ../../src/plugins/find \
-                          ../../src/plugins/locator
+                          ../../src/plugins/locator \
+                         ../../src/plugins/debugger
 
 headers.fileextesnions  = "*.h"
 sources.fileextensions  = "*.cpp *.qdoc"

@@ -85,6 +85,10 @@
     \o \l{Locator}
     \o Hooks for providing content for Locator.
 
+    \row
+    \o \l{Debugger}
+    \o Debugging functionality.
+
     \endtable
 */
 
@@ -140,7 +144,7 @@
     \row
     \o Add a mode.
     \o Modes correspond to complete screens of controls, specialized for a task.
-    \o \l{Core::IMode}, \l{Core::BaseMode}
+    \o \l{Core::IMode}
 
     \row
     \o Add a new editor type.

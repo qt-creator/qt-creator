@@ -57,7 +57,7 @@ namespace Internal {
 ///////////////////////////////////////////////////////////////////////
 
 /*!
-    \class MemoryAgent
+    \class Debugger::Internal::MemoryAgent
 
     Objects form this class are created in response to user actions in
     the Gui for showing raw memory from the inferior. After creation
