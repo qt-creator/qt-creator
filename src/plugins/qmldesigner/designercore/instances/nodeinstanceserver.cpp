@@ -56,7 +56,7 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
     m_timer(0),
     m_renderTimerInterval(16),
     m_slowRenderTimer(false),
-    m_slowRenderTimerInterval(1000)
+    m_slowRenderTimerInterval(200)
 {
     m_importList.append("import Qt 4.7\n");
     connect(m_childrenChangeEventFilter.data(), SIGNAL(childrenChanged(QObject*)), this, SLOT(emitParentChanged(QObject*)));

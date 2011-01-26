@@ -7,8 +7,8 @@ namespace QmlDesigner {
 PreviewNodeInstanceServer::PreviewNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
     NodeInstanceServer(nodeInstanceClient)
 {
-    setRenderTimerInterval(500);
-    setSlowRenderTimerInterval(10000);
+    setRenderTimerInterval(200);
+    setSlowRenderTimerInterval(2000);
 }
 
 void PreviewNodeInstanceServer::createScene(const CreateSceneCommand &command)
