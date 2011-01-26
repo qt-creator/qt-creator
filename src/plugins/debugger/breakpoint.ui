@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>BreakpointDialog</class>
+ <class>Debugger::Internal::BreakpointDialog</class>
  <widget class="QDialog" name="BreakpointDialog">
   <property name="geometry">
    <rect>

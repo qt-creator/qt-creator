@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>BreakCondition</class>
+ <class>Debugger::Internal::BreakCondition</class>
  <widget class="QDialog" name="BreakCondition">
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
