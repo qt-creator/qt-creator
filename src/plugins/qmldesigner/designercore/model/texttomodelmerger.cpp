@@ -221,7 +221,6 @@ static inline QVariant convertDynamicPropertyValueToVariant(const QString &astVa
 
 static bool isComponentType(const QString &type)
 {
-    qDebug() << __FUNCTION__ << type;
     return  type == QLatin1String("Component") || type == QLatin1String("Qt/Component") || type == QLatin1String("QtQuick/Component");
 }
 
