@@ -75,6 +75,8 @@ protected:
 
     Scope *switchScope(Scope *scope);
 
+    QString matchingLine(const Token &tk) const;
+
     void reportResult(unsigned tokenIndex, const Name *name, Scope *scope = 0);
     void reportResult(unsigned tokenIndex, const Identifier *id, Scope *scope = 0);
     void reportResult(unsigned tokenIndex, const QList<LookupItem> &candidates);

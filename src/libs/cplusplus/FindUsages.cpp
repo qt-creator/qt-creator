@@ -134,6 +134,27 @@ void FindUsages::reportResult(unsigned tokenIndex, const QList<LookupItem> &cand
         reportResult(tokenIndex);
 }
 
+QString FindUsages::matchingLine(const Token &tk) const
+{
+    const char *beg = _source.constData();
+    const char *cp = beg + tk.offset;
+    for (; cp != beg - 1; --cp) {
+        if (*cp == '\n')
+            break;
+    }
+
+    ++cp;
+
+    const char *lineEnd = cp + 1;
+    for (; *lineEnd; ++lineEnd) {
+        if (*lineEnd == '\n')
+            break;
+    }
+
+    const QString matchingLine = QString::fromUtf8(cp, lineEnd - cp);
+    return matchingLine;
+}
+
 void FindUsages::reportResult(unsigned tokenIndex)
 {
     const Token &tk = tokenAt(tokenIndex);
@@ -146,7 +167,12 @@ void FindUsages::reportResult(unsigned tokenIndex)
 
     unsigned line, col;
     getTokenStartPosition(tokenIndex, &line, &col);
-    const QString lineText = QString::fromUtf8(_originalSource.split('\n').at(line - 1));
+    QString lineText;
+    QList<QByteArray> lines = _originalSource.split('\n');
+    if (lines.size() < ((int) line - 1))
+        lineText = matchingLine(tk);
+    else
+        lineText = QString::fromUtf8(lines.at(line - 1));
 
     if (col)
         --col;  // adjust the column position.
