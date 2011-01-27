@@ -415,8 +415,6 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
                                         m_model(model)
 {
     if (lookupContext()) {
-        if (type == "Popup")
-            qDebug() << __FUNCTION__ << type;
         const Interpreter::QmlObjectValue *objectValue = getQmlObjectValue();
         if (objectValue) {
             setupPropertyInfo(getTypes(objectValue, lookupContext()));
