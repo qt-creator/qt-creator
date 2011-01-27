@@ -54,13 +54,13 @@ int main(int argc, char *argv[])
         QmlStandaloneApp sAppImport01;
         sAppImport01.setProjectPath(projectPath);
         sAppImport01.setProjectName(QLatin1String("imported_scenario_01"));
-        sAppImport01.setMainQmlFile(QLatin1String("../qmlstandalone/qmlimportscenario_01/myqmlapp.qml"));
+        sAppImport01.setMainQmlFile(QLatin1String("../appwizards/qmlimportscenario_01/myqmlapp.qml"));
         if (!sAppImport01.generateFiles(&errorMessage))
             return 1;
     }
 
     {
-        const QString rootPath = QLatin1String("../qmlstandalone/qmlimportscenario_02/");
+        const QString rootPath = QLatin1String("../appwizards/qmlimportscenario_02/");
         QmlStandaloneApp sAppImport02;
         sAppImport02.setProjectPath(projectPath);
         sAppImport02.setProjectName(QLatin1String("imported_scenario_02"));
