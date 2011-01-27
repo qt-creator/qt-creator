@@ -62,12 +62,14 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    applicationPath += "/qmlpuppet";
 
    m_qmlPuppetEditorProcess = new QProcess(QCoreApplication::instance());
+   m_qmlPuppetEditorProcess->processEnvironment().insert("M_FORCE_LOCAL_THEME", "1");
    connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
    m_qmlPuppetEditorProcess->setProcessChannelMode(QProcess::ForwardedChannels);
    m_qmlPuppetEditorProcess->start(applicationPath, QStringList() << socketToken << "editormode" << "-graphicssystem raster");
 
    if (runModus == NormalModus) {
        m_qmlPuppetPreviewProcess = new QProcess(QCoreApplication::instance());
+       m_qmlPuppetPreviewProcess->processEnvironment().insert("M_FORCE_LOCAL_THEME", "1");
        connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
        m_qmlPuppetPreviewProcess->setProcessChannelMode(QProcess::ForwardedChannels);
        m_qmlPuppetPreviewProcess->start(applicationPath, QStringList() << socketToken << "previewmode" << "-graphicssystem raster");
