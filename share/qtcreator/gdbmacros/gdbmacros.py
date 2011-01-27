@@ -1948,7 +1948,7 @@ def qdump__QWeakPointer(d, item):
         return
     weakref = d_ptr["weakref"]["_q_value"]
     strongref = d_ptr["strongref"]["_q_value"]
-    check(0 < int(strongref))
+    check(int(strongref) >= -1)
     check(int(strongref) <= int(weakref))
     check(int(weakref) <= 10*1000*1000)
 
