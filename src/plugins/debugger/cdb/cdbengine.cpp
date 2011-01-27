@@ -661,6 +661,8 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
 
     m_outputBuffer.clear();
     m_process.setEnvironment(mergeEnvironment(sp.environment.toStringList(), extensionFi.absolutePath()));
+    if (!sp.workingDirectory.isEmpty())
+        m_process.setWorkingDirectory(sp.workingDirectory);
 
 #ifdef Q_OS_WIN
     if (!nativeArguments.isEmpty()) // Appends
