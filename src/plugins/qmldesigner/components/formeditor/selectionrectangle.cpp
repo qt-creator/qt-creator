@@ -51,8 +51,10 @@ SelectionRectangle::SelectionRectangle(LayerItem *layerItem)
 
 SelectionRectangle::~SelectionRectangle()
 {
-    if (m_layerItem)
+    if (m_layerItem) {
         m_layerItem->scene()->removeItem(m_controlShape);
+        delete  m_controlShape;
+    }
 }
 
 void SelectionRectangle::clear()
