@@ -411,37 +411,39 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate() : m_isValid(false)
 
 NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, int min) :
                                         m_qualfiedTypeName(type), m_majorVersion(maj),
-                                        m_minorVersion(min), m_isValid(true), m_isComponent(false),
+                                        m_minorVersion(min), m_isValid(false), m_isComponent(false),
                                         m_model(model)
 {
-    if (!lookupContext()) {
-        m_isValid = false;
-        return;
-    }
-
-    if (const Interpreter::QmlObjectValue *objectValue = getQmlObjectValue()) {
-        setupPropertyInfo(getTypes(objectValue, lookupContext()));
-        setupLocalPropertyInfo(getTypes(objectValue, lookupContext(), true));        
-        m_defaultPropertyName = objectValue->defaultPropertyName();
-        setupPrototypes();
-        return;
-    }
-    m_qualfiedTypeName = m_qualfiedTypeName.split('/').last();
-    if (const Interpreter::ObjectValue *objectValue = getObjectValue()) {
-        if (const Interpreter::QmlObjectValue *qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(objectValue)) {
-            m_majorVersion = qmlValue->version().majorVersion();
-            m_minorVersion = qmlValue->version().minorVersion();
-            m_qualfiedTypeName = qmlValue->packageName() + '/' + qmlValue->className();
+    if (lookupContext()) {
+        if (type == "Popup")
+            qDebug() << __FUNCTION__ << type;
+        const Interpreter::QmlObjectValue *objectValue = getQmlObjectValue();
+        if (objectValue) {
+            setupPropertyInfo(getTypes(objectValue, lookupContext()));
+            setupLocalPropertyInfo(getTypes(objectValue, lookupContext(), true));
+            m_defaultPropertyName = objectValue->defaultPropertyName();
+            setupPrototypes();
+            m_isValid = true;
         } else {
-            m_isComponent = true;
+            m_qualfiedTypeName = m_qualfiedTypeName.split('/').last();
+            const Interpreter::ObjectValue *objectValue = getObjectValue();
+            if (objectValue) {
+                const Interpreter::QmlObjectValue *qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(objectValue);
+                if (qmlValue) {
+                    m_majorVersion = qmlValue->version().majorVersion();
+                    m_minorVersion = qmlValue->version().minorVersion();
+                    m_qualfiedTypeName = qmlValue->packageName() + '/' + qmlValue->className();
+                } else {
+                    m_isComponent = true;
+                }
+                setupPropertyInfo(getTypes(objectValue, lookupContext()));
+                setupLocalPropertyInfo(getTypes(objectValue, lookupContext(), true));
+                m_defaultPropertyName = lookupContext()->context()->defaultPropertyName(objectValue);
+                setupPrototypes();
+                m_isValid = true;
+            }
         }
-        setupPropertyInfo(getTypes(objectValue, lookupContext()));
-        setupLocalPropertyInfo(getTypes(objectValue, lookupContext(), true));
-        m_defaultPropertyName = lookupContext()->context()->defaultPropertyName(objectValue);
-        setupPrototypes();
-        return;
     }
-    m_isValid = false;
 }
 
 const QmlJS::Interpreter::QmlObjectValue *NodeMetaInfoPrivate::getQmlObjectValue() const
