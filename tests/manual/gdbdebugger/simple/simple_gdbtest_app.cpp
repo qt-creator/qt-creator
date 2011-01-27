@@ -867,7 +867,7 @@ public:
 void testQObject(int &argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QString longString = QString(10000, QLatin1Char('A'));
+    //QString longString = QString(10000, QLatin1Char('A'));
 #if 1
     Names::Bar::TestObject test;
     test.setMyProp1("HELLO");
@@ -887,7 +887,7 @@ void testQObject(int &argc, char *argv[])
     t += "y";
 #endif
 
-#if 0
+#if 1
     QWidget ob;
     ob.setObjectName("An Object");
     ob.setProperty("USER DEFINED 1", 44);
@@ -895,6 +895,7 @@ void testQObject(int &argc, char *argv[])
     QObject ob1;
     ob1.setObjectName("Another Object");
 
+    QObject::connect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));
     QObject::connect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));
     //QObject::connect(&app, SIGNAL(lastWindowClosed()), &ob, SLOT(deleteLater()));
 #endif

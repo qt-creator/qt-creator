@@ -19,6 +19,18 @@ def qdump__QBasicAtomicInt(d, item):
     d.putNumChild(0)
 
 
+def qdump__QBasicAtomicPointer(d, item):
+    innerType = templateArgument(item.value.type.unqualified(), 0)
+    d.putType(item.value.type)
+    p = cleanAddress(item.value["_q_value"])
+    d.putValue(p)
+    d.putPointerValue(item.value.address)
+    d.putNumChild(p)
+    if d.isExpanded(item):
+        with Children(d):
+           d.putItem(item.value["_q_value"])
+
+
 def qdump__QByteArray(d, item):
     d.putByteArrayValue(item.value)
 
