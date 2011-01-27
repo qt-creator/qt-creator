@@ -72,7 +72,8 @@ const QString AbstractMobileApp::FileStubVersion(QLatin1String("version"));
 const int AbstractMobileApp::StubVersion = 3;
 
 AbstractMobileApp::AbstractMobileApp()
-    : m_orientation(ScreenOrientationAuto), m_networkEnabled(false)
+    : m_orientation(ScreenOrientationAuto)
+    , m_networkEnabled(true)
 {
 }
 
