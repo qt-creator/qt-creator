@@ -93,11 +93,13 @@ QAction *ProxyAction::action() const
 void ProxyAction::setAttribute(ProxyAction::Attribute attribute)
 {
     m_attributes |= attribute;
+    updateState();
 }
 
 void ProxyAction::removeAttribute(ProxyAction::Attribute attribute)
 {
     m_attributes &= ~attribute;
+    updateState();
 }
 
 bool ProxyAction::hasAttribute(ProxyAction::Attribute attribute)

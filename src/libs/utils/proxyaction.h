@@ -46,9 +46,9 @@ class QTCREATOR_UTILS_EXPORT ProxyAction : public QAction
     Q_OBJECT
 public:
     enum Attribute {
-        Hide,
-        UpdateText,
-        UpdateIcon
+        Hide = 0x01,
+        UpdateText = 0x02,
+        UpdateIcon = 0x04
     };
     Q_DECLARE_FLAGS(Attributes, Attribute)
 
