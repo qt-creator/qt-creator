@@ -116,7 +116,8 @@ S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc,
     m_putChunkSize(DEFAULT_CHUNK_SIZE),
     m_currentFileIndex(0),
     m_channel(bs->m_channel),
-    m_deployCanceled(false)
+    m_deployCanceled(false),
+    m_copyProgress(0)
 {
     ctor();
 }
@@ -134,7 +135,8 @@ S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc):
     m_putChunkSize(DEFAULT_CHUNK_SIZE),
     m_currentFileIndex(0),
     m_channel(S60DeployConfiguration::CommunicationTrkSerialConnection),
-    m_deployCanceled(false)
+    m_deployCanceled(false),
+    m_copyProgress(0)
 {
     ctor();
 }
@@ -200,6 +202,10 @@ bool S60DeployStep::init()
             appendMessage(message, true);
             return true;
         }
+
+        if (debug)
+            m_launcher->setVerbose(1);
+
         // Prompt the user to start up the Bluetooth connection
         const trk::PromptStartCommunicationResult src =
                 S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
@@ -337,6 +343,7 @@ void S60DeployStep::setupConnections()
         connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(installFailed(QString,QString)));
         connect(m_launcher, SIGNAL(installingFinished()), this, SLOT(printInstallingFinished()));
         connect(m_launcher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
+        connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(setCopyProgress(int)));
     } else {
         connect(m_trkDevice, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
         connect(m_trkDevice, SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
@@ -409,6 +416,8 @@ void S60DeployStep::run(QFutureInterface<bool> &fi)
     m_deployCanceled = false;
     disconnect(this);
 
+    m_futureInterface->setProgressRange(0, 100*m_signedPackages.count());
+
     if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
         connect(this, SIGNAL(finished(bool)), this, SLOT(launcherFinished(bool)));
         connect(this, SIGNAL(finishNow(bool)), this, SLOT(launcherFinished(bool)), Qt::DirectConnection);
@@ -418,6 +427,8 @@ void S60DeployStep::run(QFutureInterface<bool> &fi)
         connect(this, SIGNAL(allFilesSent()), this, SLOT(startInstalling()), Qt::DirectConnection);
         connect(this, SIGNAL(allFilesInstalled()), this, SIGNAL(finished()), Qt::DirectConnection);
     }
+
+    connect(this, SIGNAL(copyProgressChanged(int)), this, SLOT(updateProgress(int)));
 
     start();
     m_timer = new QTimer();
@@ -565,9 +576,11 @@ void S60DeployStep::putSendNextChunk()
     // Read and send off next chunk
     const quint64 pos = m_putFile->pos();
     const QByteArray data = m_putFile->read(m_putChunkSize);
+    const quint64 size = m_putFile->size();
     if (data.isEmpty()) {
         m_putWriteOk = true;
         closeRemoteFile();
+        setCopyProgress(100);
     } else {
         m_putLastChunkSize = data.size();
         if (debug)
@@ -576,6 +589,7 @@ void S60DeployStep::putSendNextChunk()
                    m_remoteFileHandle.constData(), pos);
         m_trkDevice->sendFileSystemWriteCommand(tcftrk::TcfTrkCallback(this, &S60DeployStep::handleFileSystemWrite),
                                                 m_remoteFileHandle, data, unsigned(pos));
+        setCopyProgress((100*(m_putLastChunkSize+pos))/size);
     }
 }
 
@@ -733,6 +747,8 @@ void S60DeployStep::checkForCancel()
 void S60DeployStep::launcherFinished(bool success)
 {
     m_deployResult = success;
+    if(m_deployResult && m_futureInterface)
+        m_futureInterface->setProgressValue(m_futureInterface->progressMaximum());
     if (m_releaseDeviceAfterLauncherFinish && m_launcher) {
         m_handleDeviceRemoval = false;
         trk::Launcher::releaseToDeviceManager(m_launcher);
@@ -747,6 +763,8 @@ void S60DeployStep::launcherFinished(bool success)
 void S60DeployStep::deploymentFinished(bool success)
 {
     m_deployResult = success;
+    if(m_deployResult && m_futureInterface)
+        m_futureInterface->setProgressValue(m_futureInterface->progressMaximum());
     if (m_eventLoop)
         m_eventLoop->exit();
 }
@@ -755,6 +773,32 @@ void S60DeployStep::deviceRemoved(const SymbianUtils::SymbianDevice &d)
 {
     if (m_handleDeviceRemoval && d.portName() == m_serialPortName)
         reportError(tr("The device '%1' has been disconnected").arg(d.friendlyName()));
+}
+
+void S60DeployStep::setCopyProgress(int progress)
+{
+    if (progress < 0)
+        progress = 0;
+    else if (progress > 100)
+        progress = 100;
+    if (copyProgress() == progress)
+        return;
+    m_copyProgress = progress;
+    emit copyProgressChanged(m_copyProgress);
+}
+
+int S60DeployStep::copyProgress() const
+{
+    return m_copyProgress;
+}
+
+void S60DeployStep::updateProgress(int progress)
+{
+    //This would show the percentage on the Compile output
+    //appendMessage(tr("Copy percentage: %1%").arg((m_currentFileIndex*100 + progress) /m_signedPackages.count()), false);
+    int copyProgress = ((m_currentFileIndex*100 + progress) /m_signedPackages.count());
+    int entireProgress = copyProgress * 0.8; //the copy progress is just 80% of the whole deployment progress
+    m_futureInterface->setProgressValueAndText(entireProgress, tr("Copy percentage: %1%").arg(copyProgress));
 }
 
 // #pragma mark -- S60DeployStepWidget

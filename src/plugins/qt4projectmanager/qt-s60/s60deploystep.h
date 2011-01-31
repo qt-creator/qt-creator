@@ -138,6 +138,10 @@ private slots:
     void slotWaitingForTckTrkClosed(int result);
     void showManualInstallationInfo();
 
+    void setCopyProgress(int progress);
+
+    void updateProgress(int progress);
+
 signals:
     void finished(bool success = true);
     void finishNow(bool success = true);
@@ -148,6 +152,7 @@ signals:
     void codaConnected();
 
     void manualInstallation();
+    void copyProgressChanged(int progress);
 
 private:
     S60DeployStep(ProjectExplorer::BuildStepList *parent,
@@ -171,6 +176,7 @@ private:
 
     void initFileSending();
     void initFileInstallation();
+    int copyProgress() const;
 
     enum State {
         StateUninit,
@@ -211,6 +217,7 @@ private:
     int m_currentFileIndex;
     int m_channel;
     volatile bool m_deployCanceled;
+    int m_copyProgress;
 };
 
 class S60DeployStepWidget : public ProjectExplorer::BuildStepConfigWidget
