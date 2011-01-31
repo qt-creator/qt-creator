@@ -3302,7 +3302,15 @@
 
     For more information on the options you have, see \l{Specifying Build Settings}.
 
-    \section1 Troubleshooting Build Issues
+    \section1 Building for Symbian
+
+    The tool chain for building applications locally on the development PC for
+    the \gui {Symbian Device} target is only supported on Windows.
+    If you develop on Linux or Mac OS, you must use the Remote Compiler
+    interface to a compilation service at Forum Nokia. For more information,
+    see \l{Building with Remote Compiler}.
+
+    \section2 Troubleshooting Build Issues
 
     If you cannot build the application for a Symbian device, check that:
 
