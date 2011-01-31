@@ -5,7 +5,6 @@
 #include <sys/ioctl.h>
 #include <QtCore/QSocketNotifier>
 #include <QtCore/QTimer>
-#include <QtCore/private/qcore_unix_p.h> // For qt_safe_select
 #include "virtualserialdevice.h"
 
 namespace SymbianUtils {
@@ -207,6 +206,30 @@ void VirtualSerialDevice::writeHasUnblocked(int fileHandle)
     if (needToWait) d->writeUnblockedNotifier->setEnabled(true);
 }
 
+// Copy of qt_safe_select from /qt/src/corelib/kernel/qeventdispatcher_unix.cpp
+// But without the timeout correction
+int safe_select(int nfds, fd_set *fdread, fd_set *fdwrite, fd_set *fdexcept,
+                   const struct timeval *orig_timeout)
+{
+    if (!orig_timeout) {
+        // no timeout -> block forever
+        register int ret;
+        do {
+            ret = select(nfds, fdread, fdwrite, fdexcept, 0);
+        } while (ret == -1 && errno == EINTR);
+        return ret;
+    }
+
+    timeval timeout = *orig_timeout;
+
+    int ret;
+    forever {
+        ret = ::select(nfds, fdread, fdwrite, fdexcept, &timeout);
+        if (ret != -1 || errno != EINTR)
+            return ret;
+    }
+}
+
 bool VirtualSerialDevice::waitForBytesWritten(int msecs)
 {
     //TODO this won't handle multithreading... need to disable writeCompleteNotifier in main thread context (or use bytesWrittenSignalsAlreadyEmitted)
@@ -225,7 +248,7 @@ bool VirtualSerialDevice::waitForBytesWritten(int msecs)
             timeout.tv_sec = msecs / 1000;
             timeout.tv_usec = (msecs % 1000) * 1000;
         }
-        int ret = qt_safe_select(d->portHandle+1, NULL, &writeSet, NULL, msecs == -1 ? NULL : &timeout);
+        int ret = safe_select(d->portHandle+1, NULL, &writeSet, NULL, msecs == -1 ? NULL : &timeout);
 
         if (ret == 0) {
             // Timeout
