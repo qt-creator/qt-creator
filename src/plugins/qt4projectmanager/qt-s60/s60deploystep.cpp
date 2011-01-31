@@ -68,7 +68,7 @@ using namespace Qt4ProjectManager::Internal;
 
 enum {debug = 0};
 
-static const quint64  DEFAULT_CHUNK_SIZE = 10240;
+static const quint64  DEFAULT_CHUNK_SIZE = 40000;
 
 namespace {
 const char * const S60_DEPLOY_STEP_ID = "Qt4ProjectManager.S60DeployStep";
