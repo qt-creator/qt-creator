@@ -922,12 +922,15 @@ QList<ServerNodeInstance> NodeInstanceServer::setupScene(const CreateSceneComman
     if (!command.fileUrl().isEmpty()) {
         engine()->setBaseUrl(command.fileUrl());
         m_fileUrl = command.fileUrl();
+    }
+
+    addImports(command.imports());
+
+    if (!command.fileUrl().isEmpty()) {
         QStringList dummyDataDirectoryList = dummyDataDirectories(QFileInfo(command.fileUrl().toLocalFile()).path());
         foreach(const QString &dummyDataDirectory, dummyDataDirectoryList)
             loadDummyDataFiles(dummyDataDirectory);
     }
-
-    addImports(command.imports());
 
     static_cast<QGraphicsScenePrivate*>(QObjectPrivate::get(m_declarativeView->scene()))->processDirtyItemsEmitted = true;
 
