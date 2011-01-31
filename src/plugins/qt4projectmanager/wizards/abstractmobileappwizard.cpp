@@ -88,7 +88,8 @@ int AbstractMobileAppWizardDialog::nextId() const
         || m_targetsPage->isTargetSelected(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
     const bool maemoTargetSelected =
         m_targetsPage->isTargetSelected(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
-            || m_targetsPage->isTargetSelected(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID));
+            || m_targetsPage->isTargetSelected(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
+            || m_targetsPage->isTargetSelected(QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID));
 
     if (currentPage() == m_targetsPage) {
         if (symbianTargetSelected || maemoTargetSelected)
@@ -122,7 +123,8 @@ void AbstractMobileAppWizardDialog::initializePage(int id)
             || m_targetsPage->isTargetSelected(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
         const bool maemoTargetSelected =
             m_targetsPage->isTargetSelected(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
-                || m_targetsPage->isTargetSelected(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID));
+                || m_targetsPage->isTargetSelected(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
+                || m_targetsPage->isTargetSelected(QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID));
 
         QList<Utils::WizardProgressItem *> order;
         order << m_genericItem;

@@ -94,6 +94,8 @@ void MaemoDeployStep::ctor()
         setDefaultDisplayName(tr("Deploy to Maemo5 device"));
     else if (target()->id() == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
         setDefaultDisplayName(tr("Deploy to Harmattan device"));
+    else if (target()->id() == QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID))
+        setDefaultDisplayName(tr("Deploy to Meego device"));
 
     // A MaemoDeployables object is only dependent on the active build
     // configuration and therefore can (and should) be shared among all
@@ -438,7 +440,7 @@ void MaemoDeployStep::handleSftpJobFinished(Core::SftpJobId,
             .arg(filePathNative));
         const QString remoteFilePath
             = uploadDir() + QLatin1Char('/') + QFileInfo(filePathNative).fileName();
-        runDpkg(remoteFilePath);
+        runPackageInstaller(remoteFilePath);
     }
 }
 
@@ -457,7 +459,7 @@ void MaemoDeployStep::handleMounted()
         if (m_needsInstall) {
             const QString remoteFilePath = deployMountPoint() + QLatin1Char('/')
                 + QFileInfo(packagingStep()->packageFilePath()).fileName();
-            runDpkg(remoteFilePath);
+            runPackageInstaller(remoteFilePath);
         } else {
             setState(CopyingFile);
             copyNextFileToDevice();
@@ -701,15 +703,17 @@ void MaemoDeployStep::unmountOldDirs()
     unmount();
 }
 
-void MaemoDeployStep::runDpkg(const QString &packageFilePath)
+void MaemoDeployStep::runPackageInstaller(const QString &packageFilePath)
 {
     ASSERT_STATE(QList<State>() << Mounting << Uploading);
     const bool removeAfterInstall = m_state == Uploading;
     setState(InstallingToDevice);
 
     writeOutput(tr("Installing package to device..."));
-    QByteArray cmd = MaemoGlobal::remoteSudo().toUtf8() + " dpkg -i "
-        + packageFilePath.toUtf8();
+    const QByteArray installCommand
+        = packagingStep()->debBasedMaemoTarget() ? "dpkg -i" : "rpm -Uhv";
+    QByteArray cmd = MaemoGlobal::remoteSudo().toUtf8() + ' '
+        + installCommand + ' ' + packageFilePath.toUtf8();
     if (removeAfterInstall)
         cmd += " && (rm " + packageFilePath.toUtf8() + " || :)";
     m_deviceInstaller = m_connection->createRemoteProcess(cmd);

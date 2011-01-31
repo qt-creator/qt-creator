@@ -117,7 +117,8 @@ GuiAppParameters GuiAppWizardDialog::parameters() const
     rc.designerForm =  m_filesPage->formInputChecked();
     rc.isMobileApplication = true;
     if (isTargetSelected(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
-            || isTargetSelected(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))) {
+            || isTargetSelected(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
+            || isTargetSelected(QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID))) {
         rc.widgetWidth = 800;
         rc.widgetHeight = 480;
     } else if (isTargetSelected(QLatin1String(Constants::S60_DEVICE_TARGET_ID)) ||

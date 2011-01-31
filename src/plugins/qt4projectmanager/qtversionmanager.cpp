@@ -1292,6 +1292,7 @@ bool QtVersion::supportsMobileTarget() const
            supportsTargetId(Constants::S60_EMULATOR_TARGET_ID) ||
            supportsTargetId(Constants::MAEMO5_DEVICE_TARGET_ID) ||
            supportsTargetId(Constants::HARMATTAN_DEVICE_TARGET_ID) ||
+           supportsTargetId(Constants::MEEGO_DEVICE_TARGET_ID) ||
            supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID);
 }
 
@@ -1470,6 +1471,9 @@ void QtVersion::updateToolChainAndMkspec() const
     } else if (MaemoGlobal::isValidHarmattanQtVersion(this)) {
         m_toolChains << ToolChainPtr(MaemoManager::instance().harmattanToolChain(this));
         m_targetIds.insert(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID));
+    } else if (MaemoGlobal::isValidMeegoQtVersion(this)) {
+        m_toolChains << ToolChainPtr(MaemoManager::instance().meegoToolChain(this));
+        m_targetIds.insert(QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID));
     } else if (qmakeCXX == "cl" || qmakeCXX == "icl") {
         // TODO proper support for intel cl. Detect matching VC version unless set.
         if (m_msvcVersion.isEmpty())
@@ -1667,6 +1671,8 @@ QString QtVersion::description() const
         envs = QCoreApplication::translate("QtVersion", "Maemo", "Qt Version is meant for Maemo5");
     else if (targets.contains(Constants::HARMATTAN_DEVICE_TARGET_ID))
         envs = QCoreApplication::translate("QtVersion", "Harmattan ", "Qt Version is meant for Harmattan");
+    else if (targets.contains(Constants::MEEGO_DEVICE_TARGET_ID))
+        envs = QCoreApplication::translate("QtVersion", "Meego", "Qt Version is meant for Meego");
     else if (targets.contains(Constants::QT_SIMULATOR_TARGET_ID))
         envs = QCoreApplication::translate("QtVersion", "Qt Simulator", "Qt Version is meant for Qt Simulator");
     else
@@ -1761,6 +1767,7 @@ bool QtVersion::supportsBinaryDebuggingHelper() const
         case ProjectExplorer::ToolChain_WINCE:
         case ProjectExplorer::ToolChain_GCC_MAEMO5:
         case ProjectExplorer::ToolChain_GCC_HARMATTAN:
+        case ProjectExplorer::ToolChain_GCC_MEEGO:
         case ProjectExplorer::ToolChain_OTHER:
         case ProjectExplorer::ToolChain_UNKNOWN:
             return true;

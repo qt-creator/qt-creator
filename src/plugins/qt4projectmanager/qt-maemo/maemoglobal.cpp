@@ -58,7 +58,8 @@ static const QLatin1String binQmake("/bin/qmake" EXEC_SUFFIX);
 bool MaemoGlobal::isMaemoTargetId(const QString &id)
 {
     return id == QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID)
-        || id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID);
+        || id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID)
+        || id == QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID);
 }
 
 bool MaemoGlobal::isValidMaemo5QtVersion(const QtVersion *version)
@@ -69,6 +70,11 @@ bool MaemoGlobal::isValidMaemo5QtVersion(const QtVersion *version)
 bool MaemoGlobal::isValidHarmattanQtVersion(const QtVersion *version)
 {
     return isValidMaemoQtVersion(version, Maemo6);
+}
+
+bool MaemoGlobal::isValidMeegoQtVersion(const Qt4ProjectManager::QtVersion *version)
+{
+    return isValidMaemoQtVersion(version, Meego);
 }
 
 bool MaemoGlobal::isValidMaemoQtVersion(const QtVersion *qtVersion,
@@ -188,7 +194,24 @@ MaemoGlobal::MaemoVersion MaemoGlobal::version(const QtVersion *qtVersion)
         return Maemo5;
     if (name.startsWith(QLatin1String("harmattan")))
         return Maemo6;
+    if (name.startsWith(QLatin1String("meego")))
+        return Meego;
     return static_cast<MaemoVersion>(-1);
+}
+
+QString MaemoGlobal::architecture(const QtVersion *qtVersion)
+{
+    QProcess proc;
+    const QStringList args = QStringList() << QLatin1String("-t")
+        << targetName(qtVersion) << QLatin1String("uname")
+        << QLatin1String("-m");
+    if (!callMad(proc, args, qtVersion))
+        return QString();
+    if (!proc.waitForFinished())
+        return QString();
+    QString arch = QString::fromUtf8(proc.readAllStandardOutput());
+    arch.chop(1); // Newline
+    return arch;
 }
 
 bool MaemoGlobal::removeRecursively(const QString &filePath, QString &error)

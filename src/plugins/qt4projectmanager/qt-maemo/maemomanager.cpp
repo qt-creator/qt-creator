@@ -119,5 +119,10 @@ ToolChain* MaemoManager::harmattanToolChain(const QtVersion *version) const
     return new HarmattanToolChain(version);
 }
 
+ToolChain* MaemoManager::meegoToolChain(const QtVersion *version) const
+{
+    return new MeegoToolChain(version);
+}
+
 } // namespace Internal
 } // namespace Qt4ProjectManager

@@ -82,7 +82,8 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(QtVersion *version, Tools too
     tc->addToEnvironment(m_environment);
 
     if (tc->type() == ProjectExplorer::ToolChain_GCC_MAEMO5
-            || tc->type() == ProjectExplorer::ToolChain_GCC_HARMATTAN) {
+            || tc->type() == ProjectExplorer::ToolChain_GCC_HARMATTAN
+            || tc->type() == ProjectExplorer::ToolChain_GCC_MEEGO) {
         m_target = QLatin1String("-unix");
     }
 

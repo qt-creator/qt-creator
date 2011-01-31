@@ -85,6 +85,7 @@ AbstractGdbAdapter::DumperHandling RemoteGdbServerAdapter::dumperHandling() cons
     case ProjectExplorer::ToolChain_RVCT2_ARMV6:
     case ProjectExplorer::ToolChain_GCC_MAEMO5:
     case ProjectExplorer::ToolChain_GCC_HARMATTAN:
+    case ProjectExplorer::ToolChain_GCC_MEEGO:
         return DumperLoadedByGdb;
     default:
         break;

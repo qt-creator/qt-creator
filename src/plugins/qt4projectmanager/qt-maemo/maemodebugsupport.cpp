@@ -39,6 +39,7 @@
 #include "maemoglobal.h"
 #include "maemosshrunner.h"
 #include "maemousedportsgatherer.h"
+#include "qt4maemotarget.h"
 
 #include <coreplugin/ssh/sftpchannel.h>
 #include <debugger/debuggerplugin.h>
@@ -103,8 +104,10 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
             params.remoteChannel
                 = devConf->sshParameters().host + QLatin1String(":-1");
             params.useServerStartScript = true;
-            params.remoteArchitecture = QLatin1String("arm");
-            params.gnuTarget = QLatin1String("arm-none-linux-gnueabi");
+            const AbstractQt4MaemoTarget::DebugArchitecture &debugArch
+                = runConfig->maemoTarget()->debugArchitecture();
+            params.remoteArchitecture = debugArch.architecture;
+            params.gnuTarget = debugArch.gnuTarget;
         }
     } else {
         params.startMode = AttachToRemote;

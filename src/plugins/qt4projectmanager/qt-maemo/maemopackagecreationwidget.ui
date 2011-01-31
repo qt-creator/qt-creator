@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>584</width>
-    <height>230</height>
+    <height>284</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -29,6 +29,9 @@
    </item>
    <item>
     <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::ExpandingFieldsGrow</enum>
+     </property>
      <item row="0" column="1">
       <spacer name="verticalSpacer">
        <property name="orientation">
@@ -43,6 +46,16 @@
       </spacer>
      </item>
      <item row="1" column="0">
+      <widget class="QLabel" name="packageNameLabel">
+       <property name="text">
+        <string>Package name:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="packageNameLineEdit"/>
+     </item>
+     <item row="2" column="0">
       <widget class="QLabel" name="label">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -57,11 +70,11 @@
         </font>
        </property>
        <property name="text">
-        <string>Version number:</string>
+        <string>Package version:</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="2" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QLabel" name="label_2">
@@ -156,24 +169,10 @@
        </item>
       </layout>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="nameLabel">
-       <property name="text">
-        <string>Name for Package Manager:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
-       <item>
-        <widget class="QLineEdit" name="nameLineEdit"/>
-       </item>
-      </layout>
-     </item>
      <item row="4" column="0">
       <widget class="QLabel" name="shortDescriptionLabel">
        <property name="text">
-        <string>Short description for Package Manager:</string>
+        <string>Short package description:</string>
        </property>
       </widget>
      </item>
@@ -185,6 +184,20 @@
       </layout>
      </item>
      <item row="5" column="0">
+      <widget class="QLabel" name="packageManagerNameLabel">
+       <property name="text">
+        <string>Name to be displayed in Package Manager:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QLineEdit" name="packageManagerNameLineEdit"/>
+       </item>
+      </layout>
+     </item>
+     <item row="6" column="0">
       <widget class="QLabel" name="packageManagerIconLabel">
        <property name="minimumSize">
         <size>
@@ -193,11 +206,11 @@
         </size>
        </property>
        <property name="text">
-        <string>Package Manager icon:</string>
+        <string>Icon to be displayed in Package Manager:</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
+     <item row="6" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
         <widget class="QToolButton" name="packageManagerIconButton">
@@ -222,7 +235,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_3">
+        <spacer name="packageManagerIconSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -236,14 +249,14 @@
        </item>
       </layout>
      </item>
-     <item row="6" column="0">
+     <item row="7" column="0">
       <widget class="QLabel" name="editDebianFileLabel">
        <property name="text">
         <string>Adapt Debian file:</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="7" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QComboBox" name="debianFilesComboBox"/>
@@ -269,6 +282,13 @@
         </spacer>
        </item>
       </layout>
+     </item>
+     <item row="8" column="1">
+      <widget class="QPushButton" name="editSpecFileButton">
+       <property name="text">
+        <string>Edit spec file</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -299,8 +319,8 @@
    <slot>versionInfoChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>332</x>
-     <y>67</y>
+     <x>352</x>
+     <y>88</y>
     </hint>
     <hint type="destinationlabel">
      <x>461</x>
@@ -315,8 +335,8 @@
    <slot>versionInfoChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>429</x>
-     <y>67</y>
+     <x>449</x>
+     <y>88</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -331,8 +351,8 @@
    <slot>versionInfoChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>526</x>
-     <y>67</y>
+     <x>546</x>
+     <y>88</y>
     </hint>
     <hint type="destinationlabel">
      <x>466</x>

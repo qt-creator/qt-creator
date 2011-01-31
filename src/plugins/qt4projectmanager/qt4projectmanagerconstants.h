@@ -119,6 +119,7 @@ const char * const S60_EMULATOR_TARGET_ID = "Qt4ProjectManager.Target.S60Emulato
 const char * const S60_DEVICE_TARGET_ID   = "Qt4ProjectManager.Target.S60DeviceTarget";
 const char * const MAEMO5_DEVICE_TARGET_ID = "Qt4ProjectManager.Target.MaemoDeviceTarget";
 const char * const HARMATTAN_DEVICE_TARGET_ID = "Qt4ProjectManager.Target.HarmattanDeviceTarget";
+const char * const MEEGO_DEVICE_TARGET_ID = "Qt4ProjectManager.Target.MeegoDeviceTarget";
 const char * const QT_SIMULATOR_TARGET_ID = "Qt4ProjectManager.Target.QtSimulatorTarget";
 
 // ICONS

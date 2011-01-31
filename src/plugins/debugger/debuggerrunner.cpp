@@ -229,6 +229,7 @@ static DebuggerEngineType engineForToolChain(ToolChainType toolChainType)
         case ToolChain_GCCE_GNUPOC:
         case ToolChain_GCC_MAEMO5:
         case ToolChain_GCC_HARMATTAN:
+        case ToolChain_GCC_MEEGO:
 #ifdef WITH_LLDB
             // lldb override
             if (Core::ICore::instance()->settings()->value("LLDB/enabled").toBool())

@@ -54,6 +54,8 @@ ProjectExplorer::DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create
         dc->setDefaultDisplayName(tr("Deploy to Maemo5 device"));
     if (parent->id() == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
         dc->setDefaultDisplayName(tr("Deploy to Harmattan device"));
+    if (parent->id() == QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID))
+        dc->setDefaultDisplayName(tr("Deploy to Meego device"));
     dc->stepList()->insertStep(0, new MaemoPackageCreationStep(dc->stepList()));
     dc->stepList()->insertStep(1, new MaemoDeployStep(dc->stepList()));
 

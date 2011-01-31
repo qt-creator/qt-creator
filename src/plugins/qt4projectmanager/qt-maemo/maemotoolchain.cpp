@@ -141,5 +141,18 @@ ProjectExplorer::ToolChainType HarmattanToolChain::type() const
     return ProjectExplorer::ToolChain_GCC_HARMATTAN;
 }
 
+
+MeegoToolChain::MeegoToolChain(const QtVersion *qtVersion)
+        : AbstractMaemoToolChain(qtVersion)
+{
+}
+
+MeegoToolChain::~MeegoToolChain() {}
+
+ProjectExplorer::ToolChainType MeegoToolChain::type() const
+{
+    return ProjectExplorer::ToolChain_GCC_MEEGO;
+}
+
 } // namespace Internal
 } // namespace Qt4ProjectManager

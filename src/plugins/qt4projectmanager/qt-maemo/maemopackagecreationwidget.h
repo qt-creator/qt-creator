@@ -66,19 +66,24 @@ public:
 private slots:
     void handleSkipButtonToggled(bool checked);
     void editDebianFile();
+    void editSpecFile();
     void versionInfoChanged();
     void initGui();
     void updateDebianFileList();
     void updateVersionInfo();
     void handleControlFileUpdate();
+    void handleSpecFileUpdate();
     void setPackageManagerIcon();
-    void setName();
+    void setPackageManagerName();
+    void setPackageName();
     void setShortDescription();
 
 private:
     void updatePackageManagerIcon();
-    void updateName();
+    void updatePackageName();
+    void updatePackageManagerName();
     void updateShortDescription();
+    void editFile(const QString &filePath);
 
     MaemoPackageCreationStep * const m_step;
     Ui::MaemoPackageCreationWidget * const m_ui;

@@ -80,6 +80,15 @@ public:
     ProjectExplorer::ToolChainType type() const;
 };
 
+class MeegoToolChain : public AbstractMaemoToolChain
+{
+public:
+    MeegoToolChain(const QtVersion *qtVersion);
+    ~MeegoToolChain();
+
+    ProjectExplorer::ToolChainType type() const;
+};
+
 } // namespace Internal
 } // namespace Qt4ProjectManager
 

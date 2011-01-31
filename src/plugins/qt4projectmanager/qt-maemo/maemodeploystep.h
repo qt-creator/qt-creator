@@ -151,7 +151,7 @@ private:
     void unmountOldDirs();
     void setupMount();
     void prepareSftpConnection();
-    void runDpkg(const QString &packageFilePath);
+    void runPackageInstaller(const QString &packageFilePath);
     void setState(State newState);
     void unmount();
     void setDeviceConfig(MaemoDeviceConfig::Id internalId);

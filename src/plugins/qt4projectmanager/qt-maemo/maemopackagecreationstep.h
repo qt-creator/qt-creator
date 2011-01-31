@@ -58,6 +58,7 @@ class MaemoDeployStep;
 class MaemoDeployableListModel;
 class AbstractQt4MaemoTarget;
 class AbstractDebBasedQt4MaemoTarget;
+class AbstractRpmBasedQt4MaemoTarget;
 
 class MaemoPackageCreationStep : public ProjectExplorer::BuildStep
 {
@@ -79,15 +80,13 @@ public:
         QString *error);
     static QString packagingCommand(const Qt4BuildConfiguration *bc,
         const QString &commandName);
-    static QString packageName(const ProjectExplorer::Project *project);
-    static QString packageFileName(const ProjectExplorer::Project *project,
-        const QString &version);
     static void ensureShlibdeps(QByteArray &rulesContent);
 
     QString projectName() const;
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
     AbstractQt4MaemoTarget *maemoTarget() const;
     AbstractDebBasedQt4MaemoTarget *debBasedMaemoTarget() const;
+    AbstractRpmBasedQt4MaemoTarget *rpmBasedMaemoTarget() const;
 
     static const QLatin1String DefaultVersionNumber;
 
@@ -130,6 +129,7 @@ private:
         const QString &desktopFilePath, const QByteArray &oldString,
         const QByteArray &newString);
     static QString replaceDots(const QString &name);
+    static QString rpmBuildDir(const Qt4BuildConfiguration *bc);
 
     static const QLatin1String CreatePackageId;
 

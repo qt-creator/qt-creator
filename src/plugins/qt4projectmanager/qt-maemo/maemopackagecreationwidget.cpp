@@ -84,21 +84,23 @@ void MaemoPackageCreationWidget::init()
 
 void MaemoPackageCreationWidget::initGui()
 {
-    const Qt4BuildConfiguration * const bc = m_step->qt4BuildConfiguration();
-    if (bc) {
-        m_ui->skipCheckBox->setVisible(m_step->maemoTarget()->allowsPackagingDisabling());
-        m_ui->skipCheckBox->setChecked(!m_step->isPackagingEnabled());
+    // The "remove" stuff below is fragile; be careful when editing the UI file.
+    m_ui->skipCheckBox->setChecked(!m_step->isPackagingEnabled());
+    if (!m_step->maemoTarget()->allowsPackagingDisabling()) {
+        m_ui->skipCheckBox->hide();
+        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(0, QFormLayout::FieldRole));
     }
-
-    updateDebianFileList();
+    m_ui->shortDescriptionLineEdit->setMaxLength(60);
     updateVersionInfo();
-    handleControlFileUpdate();
-    connect(m_step, SIGNAL(packageFilePathChanged()), this,
-        SIGNAL(updateSummary()));
     versionInfoChanged();
     const AbstractDebBasedQt4MaemoTarget * const debBasedMaemoTarget
         = m_step->debBasedMaemoTarget();
     if (debBasedMaemoTarget) {
+        m_ui->editSpecFileButton->setVisible(false);
+        updateDebianFileList();
+        handleControlFileUpdate();
+        connect(m_ui->packageManagerNameLineEdit, SIGNAL(editingFinished()),
+            SLOT(setPackageManagerName()));
         connect(debBasedMaemoTarget, SIGNAL(debianDirContentsChanged()),
             SLOT(updateDebianFileList()));
         connect(debBasedMaemoTarget, SIGNAL(changeLogChanged()),
@@ -106,10 +108,29 @@ void MaemoPackageCreationWidget::initGui()
         connect(debBasedMaemoTarget, SIGNAL(controlChanged()),
             SLOT(handleControlFileUpdate()));
     } else {
-        // TODO: Connect the respective signals for RPM-based target
+        m_ui->packageManagerNameLabel->hide();
+        m_ui->packageManagerNameLineEdit->hide();
+        m_ui->packageManagerIconLabel->hide();
+        m_ui->packageManagerIconButton->hide();
+        m_ui->editDebianFileLabel->hide();
+        m_ui->debianFilesComboBox->hide();
+        m_ui->editDebianFileButton->hide();
+        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(5, QFormLayout::LabelRole));
+        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(5, QFormLayout::FieldRole));
+        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(6, QFormLayout::LabelRole));
+        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(6, QFormLayout::FieldRole));
+        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(7, QFormLayout::LabelRole));
+        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(7, QFormLayout::FieldRole));
+        handleSpecFileUpdate();
+        connect(m_step->rpmBasedMaemoTarget(), SIGNAL(specFileChanged()),
+            SLOT(handleSpecFileUpdate()));
+        connect(m_ui->editSpecFileButton, SIGNAL(clicked()),
+            SLOT(editSpecFile()));
     }
-    connect(m_ui->nameLineEdit, SIGNAL(editingFinished()), SLOT(setName()));
-    m_ui->shortDescriptionLineEdit->setMaxLength(60);
+    connect(m_step, SIGNAL(packageFilePathChanged()), this,
+        SIGNAL(updateSummary()));
+    connect(m_ui->packageNameLineEdit, SIGNAL(editingFinished()),
+        SLOT(setPackageName()));
     connect(m_ui->shortDescriptionLineEdit, SIGNAL(editingFinished()),
         SLOT(setShortDescription()));
 }
@@ -142,9 +163,19 @@ void MaemoPackageCreationWidget::updateVersionInfo()
 
 void MaemoPackageCreationWidget::handleControlFileUpdate()
 {
-    updatePackageManagerIcon();
-    updateName();
+    updatePackageName();
     updateShortDescription();
+    updatePackageManagerName();
+    updatePackageManagerIcon();
+    updateSummary();
+}
+
+void MaemoPackageCreationWidget::handleSpecFileUpdate()
+{
+    updatePackageName();
+    updateShortDescription();
+    updateVersionInfo();
+    updateSummary();
 }
 
 void MaemoPackageCreationWidget::updatePackageManagerIcon()
@@ -159,9 +190,14 @@ void MaemoPackageCreationWidget::updatePackageManagerIcon()
     }
 }
 
-void MaemoPackageCreationWidget::updateName()
+void MaemoPackageCreationWidget::updatePackageName()
 {
-    m_ui->nameLineEdit->setText(m_step->maemoTarget()->name());
+    m_ui->packageNameLineEdit->setText(m_step->maemoTarget()->packageName());
+}
+
+void MaemoPackageCreationWidget::updatePackageManagerName()
+{
+    m_ui->packageManagerNameLineEdit->setText(m_step->debBasedMaemoTarget()->packageManagerName());
 }
 
 void MaemoPackageCreationWidget::updateShortDescription()
@@ -186,11 +222,19 @@ void MaemoPackageCreationWidget::setPackageManagerIcon()
     }
 }
 
-void MaemoPackageCreationWidget::setName()
+void MaemoPackageCreationWidget::setPackageName()
 {
-    if (!m_step->maemoTarget()->setName(m_ui->nameLineEdit->text())) {
+    if (!m_step->maemoTarget()->setPackageName(m_ui->packageNameLineEdit->text())) {
         QMessageBox::critical(this, tr("File Error"),
             tr("Could not set project name."));
+    }
+}
+
+void MaemoPackageCreationWidget::setPackageManagerName()
+{
+    if (!m_step->debBasedMaemoTarget()->setPackageManagerName(m_ui->packageManagerNameLineEdit->text())) {
+        QMessageBox::critical(this, tr("File Error"),
+            tr("Could not set package name for project manager."));
     }
 }
 
@@ -223,8 +267,10 @@ void MaemoPackageCreationWidget::handleSkipButtonToggled(bool checked)
     m_ui->patch->setEnabled(!checked);
     m_ui->debianFilesComboBox->setEnabled(!checked);
     m_ui->editDebianFileButton->setEnabled(!checked);
+    m_ui->editSpecFileButton->setEnabled(!checked);
     m_ui->packageManagerIconButton->setEnabled(!checked);
-    m_ui->nameLineEdit->setEnabled(!checked);
+    m_ui->packageNameLineEdit->setEnabled(!checked);
+    m_ui->packageManagerNameLineEdit->setEnabled(!checked);
     m_ui->shortDescriptionLineEdit->setEnabled(!checked);
     m_step->setPackagingEnabled(!checked);
     emit updateSummary();
@@ -242,9 +288,18 @@ void MaemoPackageCreationWidget::versionInfoChanged()
 
 void MaemoPackageCreationWidget::editDebianFile()
 {
-    const QString debianFilePath = m_step->debBasedMaemoTarget()->debianDirPath()
-        + QLatin1Char('/') + m_ui->debianFilesComboBox->currentText();
-    Core::EditorManager::instance()->openEditor(debianFilePath, QString(),
+    editFile(m_step->debBasedMaemoTarget()->debianDirPath()
+        + QLatin1Char('/') + m_ui->debianFilesComboBox->currentText());
+}
+
+void MaemoPackageCreationWidget::editSpecFile()
+{
+    editFile(m_step->rpmBasedMaemoTarget()->specFilePath());
+}
+
+void MaemoPackageCreationWidget::editFile(const QString &filePath)
+{
+    Core::EditorManager::instance()->openEditor(filePath, QString(),
         Core::EditorManager::ModeSwitch);
 }
 

@@ -66,6 +66,7 @@ public:
 
     ToolChain *maemo5ToolChain(const Qt4ProjectManager::QtVersion *version) const;
     ToolChain *harmattanToolChain(const Qt4ProjectManager::QtVersion *version) const;
+    ToolChain *meegoToolChain(const Qt4ProjectManager::QtVersion *version) const;
 
     MaemoDeviceConfigurationsSettingsPage *deviceConfigurationsSettingsPage() const { return m_deviceConfigurationsSettingsPage; }
     MaemoQemuSettingsPage *qemuSettingsPage() const { return m_qemuSettingsPage; }

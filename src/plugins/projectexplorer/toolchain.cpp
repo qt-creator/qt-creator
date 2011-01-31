@@ -165,6 +165,8 @@ QString ToolChain::toolChainName(ToolChainType tc)
         return QCoreApplication::translate("ToolChain", "GCC for Maemo5");
     case ToolChain_GCC_HARMATTAN:
         return QCoreApplication::translate("ToolChain", "GCC for Harmattan");
+    case ToolChain_GCC_MEEGO:
+        return QCoreApplication::translate("ToolChain", "GCC for Meego");
     case ToolChain_OTHER:
         return QCoreApplication::translate("ToolChain", "Other");
     case ToolChain_INVALID:

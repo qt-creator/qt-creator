@@ -61,7 +61,7 @@ class MaemoGlobal
 {
     Q_DECLARE_TR_FUNCTIONS(Qt4ProjectManager::Internal::MaemoGlobal)
 public:
-    enum MaemoVersion { Maemo5, Maemo6 };
+    enum MaemoVersion { Maemo5, Maemo6, Meego };
 
     class FileUpdate {
     public:
@@ -74,6 +74,7 @@ public:
     static bool isMaemoTargetId(const QString &id);
     static bool isValidMaemo5QtVersion(const Qt4ProjectManager::QtVersion *version);
     static bool isValidHarmattanQtVersion(const Qt4ProjectManager::QtVersion *version);
+    static bool isValidMeegoQtVersion(const Qt4ProjectManager::QtVersion *version);
 
     static QString homeDirOnDevice(const QString &uname);
     static QString remoteSudo();
@@ -89,7 +90,9 @@ public:
     static QString targetName(const QtVersion *qtVersion);
     static QString madCommand(const QtVersion *qtVersion);
     static MaemoVersion version(const QtVersion *qtVersion);
+    static QString architecture(const QtVersion *version);
 
+    // TODO: Provide version that inserts "-t <target>" itself.
     static bool callMad(QProcess &proc, const QStringList &args,
         const QtVersion *qtVersion);
     static bool callMadAdmin(QProcess &proc, const QStringList &args,

@@ -39,9 +39,12 @@
 
 #include <QtGui/QApplication>
 #include <QtCore/QBuffer>
+#include <QtCore/QRegExp>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
+#include <QtCore/QProcess>
+#include <QtCore/QStringList>
 #include <QtGui/QIcon>
 #include <QtGui/QMessageBox>
 
@@ -51,13 +54,16 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 namespace {
+const QByteArray NameFieldName("Package");
 const QByteArray IconFieldName("XB-Maemo-Icon-26");
-const QByteArray NameFieldName("XB-Maemo-Display-Name");
+const QByteArray PackageManagerNameFieldName("XB-Maemo-Display-Name");
 const QByteArray ShortDescriptionFieldName("Description");
+const QByteArray PackageFieldName("Package");
 const QLatin1String PackagingDirName("qtc_packaging");
 const QByteArray NameTag("Name");
 const QByteArray SummaryTag("Summary");
 const QByteArray VersionTag("Version");
+const QByteArray ReleaseTag("Release");
 
 bool adaptTagValue(QByteArray &document, const QByteArray &fieldName,
     const QByteArray &newFieldValue, bool caseSensitive)
@@ -173,14 +179,14 @@ bool AbstractQt4MaemoTarget::setProjectVersion(const QString &version,
     return success;
 }
 
-bool AbstractQt4MaemoTarget::setName(const QString &name)
+bool AbstractQt4MaemoTarget::setPackageName(const QString &name)
 {
     bool success = true;
     foreach (Target * const target, project()->targets()) {
         AbstractQt4MaemoTarget * const maemoTarget
             = qobject_cast<AbstractQt4MaemoTarget *>(target);
         if (maemoTarget) {
-            if (!maemoTarget->setNameInternal(name))
+            if (!maemoTarget->setPackageNameInternal(name))
                 success = false;
         }
     }
@@ -206,7 +212,7 @@ QSharedPointer<QFile> AbstractQt4MaemoTarget::openFile(const QString &filePath,
 {
     const QString nativePath = QDir::toNativeSeparators(filePath);
     QSharedPointer<QFile> file(new QFile(filePath));
-    if (!file->exists()) {
+    if (mode == QIODevice::ReadOnly && !file->exists()) {
         if (error)
             *error = tr("File '%1' does not exist").arg(nativePath);
         file.clear();
@@ -281,7 +287,7 @@ bool AbstractQt4MaemoTarget::initPackagingSettingsFromOtherTarget()
         if (maemoTarget && maemoTarget != this) {
             if (!setProjectVersionInternal(maemoTarget->projectVersion()))
                 success = false;
-            if (!setNameInternal(maemoTarget->name()))
+            if (!setPackageNameInternal(maemoTarget->packageName()))
                 success = false;
             if (!setShortDescriptionInternal(maemoTarget->shortDescription()))
                 success = false;
@@ -294,6 +300,22 @@ bool AbstractQt4MaemoTarget::initPackagingSettingsFromOtherTarget()
 void AbstractQt4MaemoTarget::raiseError(const QString &reason)
 {
     QMessageBox::critical(0, tr("Error creating Maemo templates"), reason);
+}
+
+AbstractQt4MaemoTarget::DebugArchitecture AbstractQt4MaemoTarget::debugArchitecture() const
+{
+    const QString arch
+        = MaemoGlobal::architecture(activeBuildConfiguration()->qtVersion());
+    if (arch.startsWith(QLatin1String("arm"))) {
+        return DebugArchitecture(QLatin1String("arm"),
+            QLatin1String("arm-none-linux-gnueabi"));
+    } else if (arch.startsWith(QLatin1String("x86_64"))) {
+        return DebugArchitecture(QLatin1String("i386:x86-64"),
+            QLatin1String("x86_64-unknown-linux-gnu "));
+    } else {
+        return DebugArchitecture(QLatin1String("x86"),
+            QLatin1String("i386-unknown-linux-gnu "));
+    }
 }
 
 
@@ -435,19 +457,66 @@ bool AbstractDebBasedQt4MaemoTarget::setPackageManagerIconInternal(const QString
     return true;
 }
 
-QString AbstractDebBasedQt4MaemoTarget::name() const
+QString AbstractDebBasedQt4MaemoTarget::packageName() const
 {
     return QString::fromUtf8(controlFileFieldValue(NameFieldName, false));
 }
 
-bool AbstractDebBasedQt4MaemoTarget::setNameInternal(const QString &name)
+bool AbstractDebBasedQt4MaemoTarget::setPackageNameInternal(const QString &packageName)
 {
-    return setControlFieldValue(NameFieldName, name.toUtf8());
+    if (!setControlFieldValue(NameFieldName, packageName.toUtf8()))
+        return false;
+    if (!setControlFieldValue("Source", packageName.toUtf8()))
+        return false;
+    QSharedPointer<QFile> file
+        = openFile(changeLogFilePath(), QIODevice::ReadWrite, 0);
+    if (!file)
+        return false;
+    QString contents = QString::fromUtf8(file->readAll());
+    QRegExp pattern(QLatin1String("[^\\s]+( \\(\\d\\.\\d\\.\\d\\))"));
+    contents.replace(pattern, packageName + QLatin1String("\\1"));
+    if (!file->resize(0))
+        return false;
+    const QByteArray &baContents = contents.toUtf8();
+    return file->write(baContents) == baContents.count();
+}
+
+QString AbstractDebBasedQt4MaemoTarget::packageManagerName() const
+{
+    return QString::fromUtf8(controlFileFieldValue(PackageManagerNameFieldName, false));
+}
+
+bool AbstractDebBasedQt4MaemoTarget::setPackageManagerName(const QString &name,
+    QString *error)
+{
+    bool success = true;
+    foreach (Target * const t, project()->targets()) {
+        AbstractDebBasedQt4MaemoTarget * const target
+            = qobject_cast<AbstractDebBasedQt4MaemoTarget *>(t);
+        if (target) {
+            if (!target->setPackageManagerNameInternal(name, error))
+                success = false;
+        }
+    }
+    return success;
+}
+
+bool AbstractDebBasedQt4MaemoTarget::setPackageManagerNameInternal(const QString &name,
+    QString *error)
+{
+    Q_UNUSED(error);
+    return setControlFieldValue(PackageManagerNameFieldName, name.toUtf8());
 }
 
 QString AbstractDebBasedQt4MaemoTarget::shortDescription() const
 {
     return QString::fromUtf8(controlFileFieldValue(ShortDescriptionFieldName, false));
+}
+
+QString AbstractDebBasedQt4MaemoTarget::packageFileName() const
+{
+    return QString::fromUtf8(controlFileFieldValue(PackageFieldName, false))
+        + QLatin1Char('_') + projectVersion() + QLatin1String("_armel.deb");
 }
 
 bool AbstractDebBasedQt4MaemoTarget::setShortDescriptionInternal(const QString &description)
@@ -593,7 +662,7 @@ bool AbstractDebBasedQt4MaemoTarget::createSpecialTemplates()
         + PackagingDirName + QLatin1String("/debian");
     MaemoGlobal::removeRecursively(dhMakeDebianDir, error);
     const QString command = QLatin1String("dh_make -s -n -p ")
-        + MaemoPackageCreationStep::packageName(project()) + QLatin1Char('_')
+        + defaultPackageFileName() + QLatin1Char('_')
         + MaemoPackageCreationStep::DefaultVersionNumber;
     dh_makeProc.start(MaemoPackageCreationStep::packagingCommand(bc, command));
     if (!dh_makeProc.waitForStarted()) {
@@ -679,7 +748,7 @@ bool AbstractDebBasedQt4MaemoTarget::adaptControlFile()
 
     adaptControlFileField(controlContents, "Section", "user/hidden");
     adaptControlFileField(controlContents, "Priority", "optional");
-    adaptControlFileField(controlContents, NameFieldName,
+    adaptControlFileField(controlContents, PackageManagerNameFieldName,
         project()->displayName().toUtf8());
     const int buildDependsOffset = controlContents.indexOf("Build-Depends:");
     if (buildDependsOffset == -1) {
@@ -717,6 +786,21 @@ bool AbstractDebBasedQt4MaemoTarget::initAdditionalPackagingSettingsFromOtherTar
         }
     }
     return true;
+}
+
+QString AbstractDebBasedQt4MaemoTarget::defaultPackageFileName() const
+{
+    QString packageName = project()->displayName().toLower();
+
+    // We also replace dots, because OVI store chokes on them.
+    const QRegExp legalLetter(QLatin1String("[a-z0-9+-]"), Qt::CaseSensitive,
+        QRegExp::WildcardUnix);
+
+    for (int i = 0; i < packageName.length(); ++i) {
+        if (!legalLetter.exactMatch(packageName.mid(i, 1)))
+            packageName[i] = QLatin1Char('-');
+    }
+    return packageName;
 }
 
 bool AbstractDebBasedQt4MaemoTarget::setPackageManagerIcon(const QString &iconFilePath,
@@ -762,19 +846,27 @@ bool AbstractRpmBasedQt4MaemoTarget::setProjectVersionInternal(const QString &ve
     return setValueForTag(VersionTag, version.toUtf8(), error);
 }
 
-QString AbstractRpmBasedQt4MaemoTarget::name() const
+QString AbstractRpmBasedQt4MaemoTarget::packageName() const
 {
-    return getValueForTag(NameTag, 0);
+    return QString::fromUtf8(getValueForTag(NameTag, 0));
 }
 
-bool AbstractRpmBasedQt4MaemoTarget::setNameInternal(const QString &name)
+bool AbstractRpmBasedQt4MaemoTarget::setPackageNameInternal(const QString &name)
 {
     return setValueForTag(NameTag, name.toUtf8(), 0);
 }
 
 QString AbstractRpmBasedQt4MaemoTarget::shortDescription() const
 {
-    return getValueForTag(SummaryTag, 0);
+    return QString::fromUtf8(getValueForTag(SummaryTag, 0));
+}
+
+QString AbstractRpmBasedQt4MaemoTarget::packageFileName() const
+{
+    return packageName() + QLatin1Char('-') + projectVersion() + QLatin1Char('-')
+        + QString::fromUtf8(getValueForTag(ReleaseTag, 0)) + QLatin1Char('.')
+        + MaemoGlobal::architecture(activeBuildConfiguration()->qtVersion())
+        + QLatin1String(".rpm");
 }
 
 bool AbstractRpmBasedQt4MaemoTarget::setShortDescriptionInternal(const QString &description)
@@ -795,7 +887,7 @@ bool AbstractRpmBasedQt4MaemoTarget::createSpecialTemplates()
         "Summary: <insert short description here>\n"
         "Version: 0.0.1\n"
         "Release: 1\n"
-        "License: \n"
+        "License: <Enter your application's license here>\n"
         "Group: <Set your application's group here>\n"
         "%description\n"
         "<Insert longer, multi-line description\n"
@@ -815,10 +907,17 @@ bool AbstractRpmBasedQt4MaemoTarget::createSpecialTemplates()
         "rm -rf %{buildroot}\n"
         "\n"
         "BuildRequires: \n"
-        "%define _unpackaged_files_terminate_build 0\n"
-        "%file\n"
+        "# %define _unpackaged_files_terminate_build 0\n"
+        "%files\n"
+        "# Add files to be included in the package here.\n"
+        "%pre\n"
+        "# Add pre-install scripts here."
         "%post\n"
         "/sbin/ldconfig # For shared libraries\n"
+        "%preun\n"
+        "# Add pre-uninstall scripts here."
+        "%postun\n"
+        "# Add post-uninstall scripts here."
         );
     initialContent.replace("%%name%%", project()->displayName().toUtf8());
     return specFile->write(initialContent) == initialContent.count();
@@ -866,7 +965,7 @@ QByteArray AbstractRpmBasedQt4MaemoTarget::getValueForTag(const QByteArray &tag,
     int endIndex = content.indexOf('\n', index);
     if (endIndex == -1)
         endIndex = content.count();
-    return content.mid(index, endIndex - index);
+    return content.mid(index, endIndex - index).trimmed();
 }
 
 bool AbstractRpmBasedQt4MaemoTarget::setValueForTag(const QByteArray &tag,
@@ -923,6 +1022,26 @@ QString Qt4HarmattanTarget::debianDirName() const
 }
 
 
+Qt4MeegoTarget::Qt4MeegoTarget(Qt4Project *parent, const QString &id)
+       : AbstractRpmBasedQt4MaemoTarget(parent, id)
+{
+    setDisplayName(defaultDisplayName());
+}
+
+Qt4MeegoTarget::~Qt4MeegoTarget() {}
+
+QString Qt4MeegoTarget::defaultDisplayName()
+{
+    return QApplication::translate("Qt4ProjectManager::Qt4Target",
+        "Meego", "Qt4 Meego target display name");
+}
+
+QString Qt4MeegoTarget::specFileName() const
+{
+    return QLatin1String("meego.spec");
+}
+
+/*
 Qt4MeegoArmTarget::Qt4MeegoArmTarget(Qt4Project *parent, const QString &id)
        : AbstractRpmBasedQt4MaemoTarget(parent, id)
 {
@@ -959,3 +1078,4 @@ QString Qt4MeegoIa32Target::specFileName() const
 {
     return QLatin1String("meego-ia32");
 }
+*/

@@ -160,7 +160,8 @@ void MaemoQemuManager::qtVersionsChanged(const QList<int> &uniqueIds)
         if (manager->isValidId(uniqueId)) {
             QtVersion *version = manager->version(uniqueId);
             if (version->supportsTargetId(Constants::MAEMO5_DEVICE_TARGET_ID)
-                    || version->supportsTargetId(Constants::HARMATTAN_DEVICE_TARGET_ID)) {
+                    || version->supportsTargetId(Constants::HARMATTAN_DEVICE_TARGET_ID)
+                    || version->supportsTargetId(Constants::MEEGO_DEVICE_TARGET_ID)) {
                 MaemoQemuRuntime runtime
                     = MaemoQemuRuntimeParser::parseRuntime(version);
                 if (runtime.isValid()) {

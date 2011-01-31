@@ -74,6 +74,8 @@ QStringList Qt4MaemoTargetFactory::supportedTargetIds(ProjectExplorer::Project *
         targetIds << QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID);
     if (QtVersionManager::instance()->supportsTargetId(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID)))
         targetIds << QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID);
+    if (QtVersionManager::instance()->supportsTargetId(QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID)))
+        targetIds << QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID);
     return targetIds;
 }
 
@@ -83,6 +85,8 @@ QString Qt4MaemoTargetFactory::displayNameForId(const QString &id) const
         return Qt4Maemo5Target::defaultDisplayName();
     else if (id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
         return Qt4HarmattanTarget::defaultDisplayName();
+    else if (id == QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID))
+        return Qt4MeegoTarget::defaultDisplayName();
     return QString();
 }
 
@@ -110,6 +114,8 @@ Qt4BaseTarget *Qt4MaemoTargetFactory::restore(ProjectExplorer::Project *parent, 
         target = new Qt4Maemo5Target(qt4project, QLatin1String("transient ID"));
     else if (id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
         target = new Qt4HarmattanTarget(qt4project, QLatin1String("transient ID"));
+    else if (id == QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID))
+        target = new Qt4MeegoTarget(qt4project, QLatin1String("transient ID"));
     if (target->fromMap(map))
         return target;
     delete target;
@@ -123,6 +129,8 @@ QString Qt4MaemoTargetFactory::defaultShadowBuildDirectory(const QString &projec
         suffix = QLatin1String("maemo");
     else if (id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
         suffix = QLatin1String("harmattan");
+    else if (id == QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID))
+        suffix = QLatin1String("meego");
     else
         return QString();
 
@@ -137,7 +145,8 @@ QList<BuildConfigurationInfo> Qt4MaemoTargetFactory::availableBuildConfiguration
 {
     return QList<BuildConfigurationInfo>()
         << availableBuildConfigurations(proFilePath, QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
-        << availableBuildConfigurations(proFilePath, QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID));
+        << availableBuildConfigurations(proFilePath, QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
+        << availableBuildConfigurations(proFilePath, QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID));
 }
 
 QList<BuildConfigurationInfo> Qt4MaemoTargetFactory::availableBuildConfigurations(const QString &proFilePath,
@@ -189,6 +198,8 @@ Qt4BaseTarget *Qt4MaemoTargetFactory::create(ProjectExplorer::Project *parent,
         target = new Qt4Maemo5Target(static_cast<Qt4Project *>(parent), id);
     else if (id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
         target = new Qt4HarmattanTarget(static_cast<Qt4Project *>(parent), id);
+    else if (id == QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID))
+        target = new Qt4MeegoTarget(static_cast<Qt4Project *>(parent), id);
     Q_ASSERT(target);
 
     foreach (const BuildConfigurationInfo &info, infos) {
