@@ -321,7 +321,7 @@ void NodeInstanceServer::addImports(const QVector<AddImportContainer> &container
 
     componentString += QString("Item {}\n");
 
-    importComponent.setData(componentString.toUtf8(), QUrl());
+    importComponent.setData(componentString.toUtf8(), fileUrl());
 
     if (!importComponent.errorString().isEmpty())
         qDebug() << "QmlDesigner.NodeInstances: import wrong: " << importComponent.errorString();
