@@ -1016,6 +1016,7 @@ public slots:
     void toggleBreakpointByFileAndLine(const QString &fileName, int lineNumber);
     void toggleBreakpointByAddress(quint64 address);
     void onModeChanged(Core::IMode *mode);
+    void onCoreAboutToOpen();
     void showSettingsDialog();
 
     void debugProject();
@@ -2265,6 +2266,11 @@ void DebuggerPluginPrivate::updateDebugActions()
     m_debugAction->setEnabled(pe->canRun(project, Constants::DEBUGMODE));
 }
 
+void DebuggerPluginPrivate::onCoreAboutToOpen()
+{
+    m_mainWindow->onModeChanged(ModeManager::instance()->currentMode());
+}
+
 void DebuggerPluginPrivate::onModeChanged(IMode *mode)
 {
      // FIXME: This one gets always called, even if switching between modes
@@ -3037,6 +3043,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
         SLOT(onModeChanged(Core::IMode*)));
+    connect(ICore::instance(), SIGNAL(coreAboutToOpen()),
+            SLOT(onCoreAboutToOpen()));
 
 
     // Debug mode setup

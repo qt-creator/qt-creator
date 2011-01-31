@@ -272,11 +272,11 @@ DebuggerLanguages DebuggerMainWindow::activeDebugLanguages() const
 
 void DebuggerMainWindow::onModeChanged(IMode *mode)
 {
-    d->m_inDebugMode = (mode->id() == Constants::MODE_DEBUG);
+    d->m_inDebugMode = (mode && mode->id() == Constants::MODE_DEBUG);
     setDockActionsVisible(d->m_inDebugMode);
 
     // Hide all the debugger windows if mode is different.
-    if (mode->id() == Constants::MODE_DEBUG) {
+    if (d->m_inDebugMode) {
         readSettings();
         d->updateActiveLanguages();
     } else {
@@ -292,7 +292,7 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
 {
     ICore *core = ICore::instance();
     ActionManager *am = core->actionManager();
-    Context globalcontext(Core::Constants::C_GLOBAL);
+    Context debugcontext(Core::Context(Constants::C_DEBUGMODE));
     m_viewsMenu = am->actionContainer(Id(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(m_viewsMenu, return)
 
@@ -305,20 +305,25 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
     Command *cmd = 0;
     cmd = am->registerAction(openMemoryEditorAction,
         Core::Id("Debugger.Views.OpenMemoryEditor"),
-        Core::Context(Constants::C_DEBUGMODE));
+        debugcontext);
+    cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd);
     cmd = am->registerAction(q->menuSeparator1(),
-        Core::Id("Debugger.Views.Separator1"), globalcontext);
-    m_viewsMenu->addAction(cmd);
+        Core::Id("Debugger.Views.Separator1"), debugcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
     cmd = am->registerAction(q->toggleLockedAction(),
-        Core::Id("Debugger.Views.ToggleLocked"), globalcontext);
-    m_viewsMenu->addAction(cmd);
+        Core::Id("Debugger.Views.ToggleLocked"), debugcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
     cmd = am->registerAction(q->menuSeparator2(),
-        Core::Id("Debugger.Views.Separator2"), globalcontext);
-    m_viewsMenu->addAction(cmd);
+        Core::Id("Debugger.Views.Separator2"), debugcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
     cmd = am->registerAction(q->resetLayoutAction(),
-        Core::Id("Debugger.Views.ResetSimple"), globalcontext);
-    m_viewsMenu->addAction(cmd);
+        Core::Id("Debugger.Views.ResetSimple"), debugcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 }
 
 void DebuggerMainWindowPrivate::addLanguage(const DebuggerLanguage &languageId,
