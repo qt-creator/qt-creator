@@ -208,6 +208,7 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> fact
         d->m_factoryModel->appendRow(newRow);
     }
     d->m_factoryModel->sort(0);
+    updateToggleText();
 }
 
 int NavigationWidget::storedWidth()
@@ -224,7 +225,7 @@ void NavigationWidget::updateToggleText()
 {
     bool haveData = d->m_factoryModel->rowCount();
     d->m_toggleSideBarAction->setVisible(haveData);
-    d->m_toggleSideBarAction->setEnabled(haveData);
+    d->m_toggleSideBarAction->setEnabled(haveData && NavigationWidgetPlaceHolder::m_current);
 
     if (isShown())
         d->m_toggleSideBarAction->setToolTip(tr("Hide Sidebar"));
@@ -234,7 +235,6 @@ void NavigationWidget::updateToggleText()
 
 void NavigationWidget::placeHolderChanged(NavigationWidgetPlaceHolder *holder)
 {
-    d->m_toggleSideBarAction->setEnabled(holder);
     d->m_toggleSideBarAction->setChecked(holder && isShown());
     updateToggleText();
 }
