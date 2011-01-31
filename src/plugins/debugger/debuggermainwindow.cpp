@@ -292,7 +292,7 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
 {
     ICore *core = ICore::instance();
     ActionManager *am = core->actionManager();
-    Context debugcontext(Core::Context(Constants::C_DEBUGMODE));
+    Context debugcontext(Constants::C_DEBUGMODE);
     m_viewsMenu = am->actionContainer(Id(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(m_viewsMenu, return)
 
