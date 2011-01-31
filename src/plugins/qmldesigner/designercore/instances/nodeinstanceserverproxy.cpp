@@ -61,16 +61,16 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 #endif
    applicationPath += "/qmlpuppet";
 
-   m_qmlPuppetEditorProcess = new QProcess(QCoreApplication::instance());
-   m_qmlPuppetEditorProcess->processEnvironment().insert("M_FORCE_LOCAL_THEME", "1");
+   m_qmlPuppetEditorProcess = new QProcess(this);
    connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
+   connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetEditorProcess.data(), SLOT(kill()));
    m_qmlPuppetEditorProcess->setProcessChannelMode(QProcess::ForwardedChannels);
    m_qmlPuppetEditorProcess->start(applicationPath, QStringList() << socketToken << "editormode" << "-graphicssystem raster");
 
    if (runModus == NormalModus) {
-       m_qmlPuppetPreviewProcess = new QProcess(QCoreApplication::instance());
-       m_qmlPuppetPreviewProcess->processEnvironment().insert("M_FORCE_LOCAL_THEME", "1");
+       m_qmlPuppetPreviewProcess = new QProcess(this);
        connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
+       connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetPreviewProcess.data(), SLOT(kill()));
        m_qmlPuppetPreviewProcess->setProcessChannelMode(QProcess::ForwardedChannels);
        m_qmlPuppetPreviewProcess->start(applicationPath, QStringList() << socketToken << "previewmode" << "-graphicssystem raster");
    }
@@ -78,18 +78,15 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 
    m_qmlPuppetEditorProcess->waitForStarted();
-   Q_ASSERT(m_qmlPuppetEditorProcess->state() == QProcess::Running);
 
    if (runModus == NormalModus) {
        m_qmlPuppetPreviewProcess->waitForStarted();
-       Q_ASSERT(m_qmlPuppetPreviewProcess->state() == QProcess::Running);
    }
 
    if (!m_localServer->hasPendingConnections())
        m_localServer->waitForNewConnection(-1);
 
    m_firstSocket = m_localServer->nextPendingConnection();
-   Q_ASSERT(m_firstSocket);
    connect(m_firstSocket.data(), SIGNAL(readyRead()), this, SLOT(readFirstDataStream()));
 
    if (runModus == NormalModus) {
@@ -97,7 +94,6 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
            m_localServer->waitForNewConnection(-1);
 
        m_secondSocket = m_localServer->nextPendingConnection();
-       Q_ASSERT(m_secondSocket);
        connect(m_secondSocket.data(), SIGNAL(readyRead()), this, SLOT(readSecondDataStream()));
    }
 
@@ -224,8 +220,6 @@ void NodeInstanceServerProxy::readFirstDataStream()
         in >> command;
         m_firstBlockSize = 0;
 
-        Q_ASSERT(in.status() == QDataStream::Ok);
-
         commandList.append(command);
     }
 
@@ -254,8 +248,6 @@ void NodeInstanceServerProxy::readSecondDataStream()
         QVariant command;
         in >> command;
         m_secondBlockSize = 0;
-
-        Q_ASSERT(in.status() == QDataStream::Ok);
 
         commandList.append(command);
     }
