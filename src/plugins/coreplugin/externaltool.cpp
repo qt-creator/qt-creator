@@ -105,7 +105,7 @@ ExternalTool::ExternalTool(const ExternalTool *other)
       m_errorHandling(other->m_errorHandling),
       m_modifiesCurrentDocument(other->m_modifiesCurrentDocument),
       m_fileName(other->m_fileName),
-      m_presetFileName(other->m_presetFileName)
+      m_presetTool(other->m_presetTool)
 {
 }
 
@@ -178,9 +178,9 @@ void ExternalTool::setFileName(const QString &fileName)
     m_fileName = fileName;
 }
 
-void ExternalTool::setPresetFileName(const QString &fileName)
+void ExternalTool::setPreset(QSharedPointer<ExternalTool> preset)
 {
-    m_presetFileName = fileName;
+    m_presetTool = preset;
 }
 
 QString ExternalTool::fileName() const
@@ -188,9 +188,9 @@ QString ExternalTool::fileName() const
     return m_fileName;
 }
 
-QString ExternalTool::presetFileName() const
+QSharedPointer<ExternalTool> ExternalTool::preset() const
 {
-    return m_presetFileName;
+    return m_presetTool;
 }
 
 void ExternalTool::setDisplayName(const QString &name)
@@ -394,7 +394,7 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
     return tool;
 }
 
-ExternalTool * ExternalTool::createFromFile(const QString &fileName, QString *errorMessage, const QString &locale, bool isPreset)
+ExternalTool * ExternalTool::createFromFile(const QString &fileName, QString *errorMessage, const QString &locale)
 {
     QFileInfo info(fileName);
     QFile file(info.absoluteFilePath());
@@ -410,9 +410,6 @@ ExternalTool * ExternalTool::createFromFile(const QString &fileName, QString *er
         return 0;
     }
     tool->m_fileName = file.fileName();
-    if (isPreset) {
-        tool->setPresetFileName(file.fileName());
-    }
     return tool;
 }
 
@@ -468,6 +465,7 @@ bool ExternalTool::save(QString *errorMessage) const
 
     out.writeEndDocument();
     file.close();
+    return true;
 }
 
 bool ExternalTool::operator==(const ExternalTool &other)
@@ -483,7 +481,8 @@ bool ExternalTool::operator==(const ExternalTool &other)
             && m_workingDirectory == other.m_workingDirectory
             && m_outputHandling == other.m_outputHandling
             && m_modifiesCurrentDocument == other.m_modifiesCurrentDocument
-            && m_errorHandling == other.m_errorHandling;
+            && m_errorHandling == other.m_errorHandling
+            && m_fileName == other.m_fileName;
 }
 
 // #pragma mark -- ExternalToolRunner
@@ -690,20 +689,25 @@ void ExternalToolManager::parseDirectory(const QString &directory,
     foreach (const QFileInfo &info, dir.entryInfoList()) {
         const QString &fileName = info.absoluteFilePath();
         QString error;
-        ExternalTool *tool = ExternalTool::createFromFile(fileName, &error, m_core->userInterfaceLanguage(), isPreset);
+        ExternalTool *tool = ExternalTool::createFromFile(fileName, &error, m_core->userInterfaceLanguage());
         if (!tool) {
             qWarning() << tr("Error while parsing external tool %1: %2").arg(fileName, error);
             continue;
         }
         if (tools->contains(tool->id())) {
             if (isPreset) {
+                // preset that was changed
                 ExternalTool *other = tools->value(tool->id());
-                other->setPresetFileName(fileName);
+                other->setPreset(QSharedPointer<ExternalTool>(tool));
             } else {
                 qWarning() << tr("Error: External tool in %1 has duplicate id").arg(fileName);
+                delete tool;
             }
-            delete tool;
             continue;
+        }
+        if (isPreset) {
+            // preset that wasn't changed --> save original values
+            tool->setPreset(QSharedPointer<ExternalTool>(new ExternalTool(tool)));
         }
         tools->insert(tool->id(), tool);
         (*categoryMenus)[tool->displayCategory()].insert(tool->order(), tool);

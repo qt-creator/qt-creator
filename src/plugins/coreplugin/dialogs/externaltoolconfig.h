@@ -65,6 +65,9 @@ private slots:
     void showInfoForItem(QTreeWidgetItem *item);
     void updateItem(QTreeWidgetItem *item);
     void updateItemName(QTreeWidgetItem *item);
+    void revertCurrentItem();
+    void updateButtons(QTreeWidgetItem *item);
+    void updateCurrentItem();
 
 private:
     Ui::ExternalToolConfig *ui;

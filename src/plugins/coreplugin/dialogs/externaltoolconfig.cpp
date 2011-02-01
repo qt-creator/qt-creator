@@ -36,8 +36,13 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QTextStream>
+#include <coreplugin/coreconstants.h>
 
+#include <QtCore/QTextStream>
+#include <QtCore/QFile>
+#include <QtGui/QMessageBox>
+
+using namespace Core;
 using namespace Core::Internal;
 
 ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
@@ -50,8 +55,24 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
             this, SLOT(handleCurrentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)));
     connect(ui->toolTree, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
             this, SLOT(updateItemName(QTreeWidgetItem *)));
+    connect(ui->description, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
+    connect(ui->executable, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
+    connect(ui->executable, SIGNAL(browsingFinished()), this, SLOT(updateCurrentItem()));
+    connect(ui->arguments, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
+    connect(ui->workingDirectory, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
+    connect(ui->workingDirectory, SIGNAL(browsingFinished()), this, SLOT(updateCurrentItem()));
+    connect(ui->outputBehavior, SIGNAL(activated(int)), this, SLOT(updateCurrentItem()));
+    connect(ui->errorOutputBehavior, SIGNAL(activated(int)), this, SLOT(updateCurrentItem()));
+    connect(ui->modifiesDocumentCheckbox, SIGNAL(clicked()), this, SLOT(updateCurrentItem()));
+    connect(ui->inputText, SIGNAL(textChanged()), this, SLOT(updateCurrentItem()));
+
+    ui->addButton->setIcon(QIcon(QLatin1String(Constants::ICON_PLUS)));
+    ui->removeButton->setIcon(QIcon(QLatin1String(Constants::ICON_MINUS)));
+    ui->revertButton->setIcon(QIcon(QLatin1String(Constants::ICON_RESET)));
+    connect(ui->revertButton, SIGNAL(clicked()), this, SLOT(revertCurrentItem()));
 
     showInfoForItem(0);
+    updateButtons(ui->toolTree->currentItem());
 }
 
 ExternalToolConfig::~ExternalToolConfig()
@@ -115,6 +136,32 @@ void ExternalToolConfig::handleCurrentItemChanged(QTreeWidgetItem *now, QTreeWid
     showInfoForItem(now);
 }
 
+void ExternalToolConfig::updateButtons(QTreeWidgetItem *item)
+{
+    ExternalTool *tool = 0;
+    if (item)
+        tool = item->data(0, Qt::UserRole).value<ExternalTool *>();
+    if (!tool) {
+        ui->removeButton->setEnabled(false);
+        ui->revertButton->setEnabled(false);
+        return;
+    }
+    if (!tool->preset()) {
+        ui->removeButton->setEnabled(true);
+        ui->revertButton->setEnabled(false);
+    } else {
+        ui->removeButton->setEnabled(false);
+        ui->revertButton->setEnabled((*tool) != (*(tool->preset())));
+    }
+}
+
+void ExternalToolConfig::updateCurrentItem()
+{
+    QTreeWidgetItem *item = ui->toolTree->currentItem();
+    updateItem(item);
+    updateButtons(item);
+}
+
 void ExternalToolConfig::updateItem(QTreeWidgetItem *item)
 {
     ExternalTool *tool = 0;
@@ -125,12 +172,12 @@ void ExternalToolConfig::updateItem(QTreeWidgetItem *item)
     tool->setDescription(ui->description->text());
     QStringList executables = tool->executables();
     if (executables.size() > 0)
-        executables[0] = ui->executable->path();
+        executables[0] = ui->executable->rawPath();
     else
-        executables << ui->executable->path();
+        executables << ui->executable->rawPath();
     tool->setExecutables(executables);
     tool->setArguments(ui->arguments->text());
-    tool->setWorkingDirectory(ui->workingDirectory->path());
+    tool->setWorkingDirectory(ui->workingDirectory->rawPath());
     tool->setOutputHandling((ExternalTool::OutputHandling)ui->outputBehavior->currentIndex());
     tool->setErrorHandling((ExternalTool::OutputHandling)ui->errorOutputBehavior->currentIndex());
     tool->setModifiesCurrentDocument(ui->modifiesDocumentCheckbox->checkState());
@@ -139,6 +186,7 @@ void ExternalToolConfig::updateItem(QTreeWidgetItem *item)
 
 void ExternalToolConfig::showInfoForItem(QTreeWidgetItem *item)
 {
+    updateButtons(item);
     ExternalTool *tool = 0;
     if (item)
         tool = item->data(0, Qt::UserRole).value<ExternalTool *>();
@@ -159,7 +207,9 @@ void ExternalToolConfig::showInfoForItem(QTreeWidgetItem *item)
     ui->outputBehavior->setCurrentIndex((int)tool->outputHandling());
     ui->errorOutputBehavior->setCurrentIndex((int)tool->errorHandling());
     ui->modifiesDocumentCheckbox->setChecked(tool->modifiesCurrentDocument());
+    bool blocked = ui->inputText->blockSignals(true);
     ui->inputText->setPlainText(tool->input());
+    ui->inputText->blockSignals(blocked);
     ui->description->setCursorPosition(0);
     ui->arguments->setCursorPosition(0);
 }
@@ -210,6 +260,7 @@ void ExternalToolConfig::updateItemName(QTreeWidgetItem *item)
             ui->toolTree->expand(ui->toolTree->model()->index(newIndex, 0));
         ui->toolTree->blockSignals(blocked); // unblock itemChanged
     }
+    updateButtons(item);
 }
 
 QMap<QString, QList<ExternalTool *> > ExternalToolConfig::tools() const
@@ -220,4 +271,31 @@ QMap<QString, QList<ExternalTool *> > ExternalToolConfig::tools() const
 void ExternalToolConfig::apply()
 {
     updateItem(ui->toolTree->currentItem());
+    updateButtons(ui->toolTree->currentItem());
+}
+
+void ExternalToolConfig::revertCurrentItem()
+{
+    QTreeWidgetItem *currentItem = ui->toolTree->currentItem();
+    QTC_ASSERT(currentItem, return);
+    ExternalTool *tool = currentItem->data(0, Qt::UserRole).value<ExternalTool *>();
+    QTC_ASSERT(tool, return);
+    QTC_ASSERT(tool->preset() && !tool->preset()->fileName().isEmpty(), return);
+    ExternalTool *resetTool = new ExternalTool(tool->preset().data());
+    resetTool->setPreset(tool->preset());
+    bool blocked = ui->toolTree->blockSignals(true); // block itemChanged
+    currentItem->setData(0, Qt::UserRole, qVariantFromValue(resetTool));
+    currentItem->setData(0, Qt::DisplayRole, resetTool->displayName());
+    ui->toolTree->blockSignals(blocked); // unblock itemChanged
+    showInfoForItem(currentItem);
+    QMutableMapIterator<QString, QList<ExternalTool *> > it(m_tools);
+    while (it.hasNext()) {
+        it.next();
+        QList<ExternalTool *> &items = it.value();
+        int index = items.indexOf(tool);
+        if (index != -1) {
+            items[index] = resetTool;
+        }
+    }
+    delete tool;
 }

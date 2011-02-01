@@ -41,6 +41,7 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QProcess>
+#include <QtCore/QSharedPointer>
 #include <QtCore/QTextCodec>
 
 namespace Core {
@@ -76,18 +77,19 @@ public:
     QString workingDirectory() const;
 
     void setFileName(const QString &fileName);
-    void setPresetFileName(const QString &fileName);
+    void setPreset(QSharedPointer<ExternalTool> preset);
     QString fileName() const;
-    QString presetFileName() const;
+    // all tools that are preset (changed or unchanged) have the original value here:
+    QSharedPointer<ExternalTool> preset() const;
 
     static ExternalTool *createFromXml(const QByteArray &xml, QString *errorMessage = 0, const QString &locale = QString());
     static ExternalTool *createFromFile(const QString &fileName, QString *errorMessage = 0,
-                                        const QString &locale = QString(), bool isPreset = false);
+                                        const QString &locale = QString());
 
     bool save(QString *errorMessage = 0) const;
 
-    // ignores changed state
     bool operator==(const ExternalTool &other);
+    bool operator!=(const ExternalTool &other) { return !((*this) == other); }
 
     // display category and order are handled specially
     void setDisplayName(const QString &name);
@@ -116,8 +118,7 @@ private:
 
     QString m_fileName;
     QString m_presetFileName;
-
-    mutable bool m_isChanged;
+    QSharedPointer<ExternalTool> m_presetTool;
 };
 
 class ExternalToolRunner : public QObject

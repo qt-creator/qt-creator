@@ -109,20 +109,38 @@ void ToolSettings::apply()
                 if ((*originalTool) == (*tool)) {
                     toolToAdd = originalTool;
                 } else {
-                    // save the new tool description and make it be added
-                    if (!tool->presetFileName().isEmpty() && tool->fileName() == tool->presetFileName()) {
-                        // we don't overwrite the preset, so give it a new file name in user resources
-                        // TODO avoid overwriting a tool xml file of another existing tool?
-                        const QString &fileName = QFileInfo(tool->presetFileName()).fileName();
-                        QDir resourceDir(ICore::instance()->userResourcePath());
-                        if (!resourceDir.exists(QLatin1String("externaltools")))
-                            resourceDir.mkpath(QLatin1String("externaltools"));
-                        const QString &newFilePath = ICore::instance()->userResourcePath()
-                                + QLatin1String("/externaltools/") + fileName;
-                        tool->setFileName(newFilePath);
+                    // case 1: tool is changed preset
+                    if (tool->preset() && (*tool) != (*(tool->preset()))) {
+                        // check if we need to choose a new file name
+                        if (tool->preset()->fileName() == tool->fileName()) {
+                            // TODO avoid overwriting a tool xml file of another existing tool?
+                            const QString &fileName = QFileInfo(tool->preset()->fileName()).fileName();
+                            QDir resourceDir(ICore::instance()->userResourcePath());
+                            if (!resourceDir.exists(QLatin1String("externaltools")))
+                                resourceDir.mkpath(QLatin1String("externaltools"));
+                            const QString &newFilePath = ICore::instance()->userResourcePath()
+                                    + QLatin1String("/externaltools/") + fileName;
+                            tool->setFileName(newFilePath);
+                        }
+                        // TODO error handling
+                        tool->save();
+                    // case 2: tool is previously changed preset but now same as preset
+                    } else if (tool->preset() && (*tool) == (*(tool->preset()))) {
+                        // check if we need to delete the changed description
+                        if (originalTool->fileName() != tool->preset()->fileName()
+                                && QFile::exists(originalTool->fileName())) {
+                            // TODO error handling
+                            QFile::remove(originalTool->fileName());
+                        }
+                        tool->setFileName(tool->preset()->fileName());
+                        // no need to save, it's the same as the preset
+                    // case 3: tool is custom tool
+                    } else {
+                        // TODO error handling
+                        tool->save();
                     }
-                    // TODO error handling
-                    tool->save();
+
+                     // 'tool' is deleted by config page, 'originalTool' is deleted by setToolsByCategory
                     toolToAdd = new ExternalTool(tool);
                 }
             }
