@@ -193,8 +193,7 @@ public:
     void sendSerialPing(bool pingOnly = false);
 
     // Send with parameters from string (which may contain '\0').
-    void sendTcfTrkMessage(MessageType mt, Services service,
-                           const char *command,
+    void sendTcfTrkMessage(MessageType mt, Services service, const char *command,
                            const char *commandParameters, int commandParametersLength,
                            const TcfTrkCallback &callBack = TcfTrkCallback(),
                            const QVariant &cookie = QVariant());
@@ -394,13 +393,6 @@ private:
     inline void processSerialMessage(const QByteArray &message);
     int parseTcfCommandReply(char type, const QVector<QByteArray> &tokens);
     int parseTcfEvent(const QVector<QByteArray> &tokens);
-    // Send with parameters from string (which may contain '\0').
-    void sendTcfTrkMessage(MessageType mt, Services service,
-                           const char *command,
-                           const char *commandParameters, int commandParametersLength,
-                           const TcfTrkCallback &callBack, const QVariant &cookie,
-                           unsigned specialHandling);
-
     TcfTrkDevicePrivate *d;
 };
 

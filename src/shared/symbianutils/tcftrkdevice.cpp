@@ -296,11 +296,6 @@ TcfTrkStatResponse::TcfTrkStatResponse() : size(0)
 {
 }
 
-// Entry for send queue.
-enum SpecialHandlingFlags { None =0,
-                            FakeRegisterGetMIntermediate = 0x1,
-                            FakeRegisterGetMFinal = 0x2 };
-
 struct TcfTrkSendQueueEntry
 {
     typedef TcfTrkDevice::MessageType MessageType;
@@ -310,10 +305,8 @@ struct TcfTrkSendQueueEntry
                                   Services s,
                                   const QByteArray &d,
                                   const TcfTrkCallback &cb= TcfTrkCallback(),
-                                  const QVariant &ck = QVariant(),
-                                  unsigned sh = 0) :
-        messageType(mt), service(s), data(d), token(tok), cookie(ck), callback(cb),
-        specialHandling(sh) {}
+                                  const QVariant &ck = QVariant()) :
+        messageType(mt), service(s), data(d), token(tok), cookie(ck), callback(cb) {}
 
     MessageType messageType;
     Services service;
@@ -680,46 +673,6 @@ int TcfTrkDevice::parseTcfCommandReply(char type, const QVector<QByteArray> &tok
     TcfTrkCommandResult result(type, it.value().service, it.value().data,
                                values, it.value().cookie);
 
-    // Check special handling
-    if (specialHandling) {
-        if (!result) {
-            qWarning("Error in special handling: %s", qPrintable(result.errorString()));
-            return -2;
-        }
-        // Fake 'Registers:getm': Store single register values in cache
-        if ((specialHandling & FakeRegisterGetMIntermediate)
-                || (specialHandling & FakeRegisterGetMFinal)) {
-            if (result.values.size() == 1) {
-                const int index = int(specialHandling) >> 16;
-                if (index >= 0 && index < d->m_fakeGetMRegisterValues.size()) {
-                    const QByteArray base64 = result.values.front().data();
-                    d->m_fakeGetMRegisterValues[index] = base64;
-                    if (d->m_verbose) {
-                        const QString msg = QString::fromLatin1("Caching register value #%1 '%2' 0x%3 (%4)").
-                                arg(index).arg(QString::fromAscii(d->m_registerNames.at(index))).
-                                arg(QString::fromAscii(QByteArray::fromBase64(base64).toHex())).
-                                arg(QString::fromAscii(base64));
-                        emitLogMessage(msg);
-                    }
-                }
-            }
-        }
-        // Fake 'Registers:getm' final value: Reformat entries as array and send off
-        if (specialHandling & FakeRegisterGetMFinal) {
-            QByteArray str;
-            str.append('[');
-            foreach(const QByteArray &rval, d->m_fakeGetMRegisterValues)
-                if (!rval.isEmpty()) {
-                    if (str.size() > 1)
-                        str.append(',');
-                    str.append('"');
-                    str.append(rval);
-                    str.append('"');
-                }
-            str.append(']');
-            result.values[0] = JsonValue(str);
-        }
-    }
     if (it.value().callback)
         it.value().callback(result);
     d->m_writtenMessages.erase(it);
@@ -826,16 +779,6 @@ void TcfTrkDevice::sendTcfTrkMessage(MessageType mt, Services service, const cha
                                      int commandParametersLength,
                                      const TcfTrkCallback &callBack,
                                      const QVariant &cookie)
-{
-    sendTcfTrkMessage(mt, service, command, commandParameters, commandParametersLength,
-                      callBack, cookie, 0u);
-}
-
-void TcfTrkDevice::sendTcfTrkMessage(MessageType mt, Services service,
-                       const char *command,
-                       const char *commandParameters, int commandParametersLength,
-                       const TcfTrkCallback &callBack, const QVariant &cookie,
-                       unsigned specialHandling)
 
 {
     if (!checkOpen())
@@ -854,7 +797,7 @@ void TcfTrkDevice::sendTcfTrkMessage(MessageType mt, Services service,
     data.append('\0');
     if (commandParametersLength)
         data.append(commandParameters, commandParametersLength);
-    const TcfTrkSendQueueEntry entry(mt, token, service, data, callBack, cookie, specialHandling);
+    const TcfTrkSendQueueEntry entry(mt, token, service, data, callBack, cookie);
     d->m_sendQueue.enqueue(entry);
     checkSendQueue();
 }
@@ -1254,9 +1197,7 @@ void TcfTrkDevice::sendRegistersGetMCommand(const TcfTrkCallback &callBack,
                                             const QVector<QByteArray> &ids,
                                             const QVariant &cookie)
 {
-    // TODO: use "Registers" (which uses base64-encoded values)
-#if 0 // Once 'getm' is supported:
-    // Manually format the complete register ids as an array
+    // Format the register ids as a JSON list
     QByteArray data;
     JsonInputStream str(data);
     str << '[';
@@ -1264,31 +1205,11 @@ void TcfTrkDevice::sendRegistersGetMCommand(const TcfTrkCallback &callBack,
     for (int r = 0; r < count; r++) {
         if (r)
             str << ',';
-        str << registerId(contextId, ids.at(r));
+        // TODO: When 8-byte floating-point registers are supported, query for register length based on register id
+        str << '[' << registerId(contextId, ids.at(r)) << ',' << '0' << ',' << '4' << ']';
     }
     str << ']';
     sendTcfTrkMessage(MessageWithReply, RegistersService, "getm", data, callBack, cookie);
-#else
-    // TCF TRK 4.0.5: Fake 'getm' by sending all requests, pass on callback to the last
-    // @Todo: Hopefully, we get 'getm'?
-    const int last = ids.size() - 1;
-    d->m_fakeGetMRegisterValues = QVector<QByteArray>(ids.size(), QByteArray());
-    for (int r = 0; r <= last; r++) {
-        const QByteArray data = registerGetData(contextId, ids.at(r));
-        // Determine special flags along with index
-        unsigned specialFlags = r == last ? FakeRegisterGetMFinal : FakeRegisterGetMIntermediate;
-        const int index = d->m_registerNames.indexOf(ids.at(r));
-        if (index == -1) { // Should not happen
-            qWarning("Invalid register name %s", ids.at(r).constData());
-            return;
-        }
-        specialFlags |= unsigned(index) << 16;
-        sendTcfTrkMessage(MessageWithReply, RegistersService, "get",
-                          data.constData(), data.size(),
-                          r == last ? callBack : TcfTrkCallback(),
-                          cookie, specialFlags);
-    }
-#endif
 }
 
 void TcfTrkDevice::sendRegistersGetMRangeCommand(const TcfTrkCallback &callBack,

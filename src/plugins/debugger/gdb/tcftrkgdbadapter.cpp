@@ -1305,21 +1305,31 @@ void TcfTrkGdbAdapter::handleRegisterChildren(const tcftrk::TcfTrkCommandResult 
 
 void TcfTrkGdbAdapter::handleReadRegisters(const TcfTrkCommandResult &result)
 {
+    // check for errors
     if (!result) {
         logMessage("ERROR: " + result.errorString(), LogError);
         return;
     }
-    if (result.values.isEmpty() || result.values.front().type() != JsonValue::Array) {
+    if (result.values.isEmpty() || result.values.front().type() != JsonValue::String) {
         logMessage(_("Format error in register message: ") + result.toString(), LogError);
         return;
     }
+
     unsigned i = result.cookie.toUInt();
+    // TODO: When reading 8-byte floating-point registers is supported, thread registers won't be an array of uints
     uint *registers = m_snapshot.registers(m_session.tid);
     QTC_ASSERT(registers, return;)
-    foreach (const JsonValue &jr, result.values.front().children()) {
-        QByteArray bigEndianRaw = QByteArray::fromBase64(jr.data());
-        registers[i++] = trk::extractInt(bigEndianRaw);
+
+    QByteArray bigEndianRaw = QByteArray::fromBase64(result.values.front().data());
+    // TODO: When reading 8-byte floating-point registers is supported, will need to know the list
+    // of registers and lengths of each register
+    for (int j = 0; j < bigEndianRaw.size(); j += 4) {
+        registers[i++] = ((bigEndianRaw.at(j    ) & 0xff) << 24) +
+                         ((bigEndianRaw.at(j + 1) & 0xff) << 16) +
+                         ((bigEndianRaw.at(j + 2) & 0xff) <<  8) +
+                          (bigEndianRaw.at(j + 3) & 0xff);
     }
+
     m_snapshot.setRegistersValid(m_session.tid, true);
     if (debug)
         qDebug() << "handleReadRegisters: " << m_snapshot.toString();
