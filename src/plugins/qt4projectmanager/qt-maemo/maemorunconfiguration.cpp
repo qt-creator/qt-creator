@@ -305,6 +305,7 @@ QString MaemoRunConfiguration::remoteExecutableFilePath() const
         : QString();
 }
 
+// TODO: Move to deploy step
 MaemoPortList MaemoRunConfiguration::freePorts() const
 {
     const Qt4BuildConfiguration * const qt4bc = activeQt4BuildConfiguration();

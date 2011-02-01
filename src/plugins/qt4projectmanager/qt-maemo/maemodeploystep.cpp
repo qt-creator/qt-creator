@@ -613,7 +613,9 @@ void MaemoDeployStep::installToSysroot()
         const Qt4BuildConfiguration * const bc
             = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
         const QtVersion * const qtVersion = bc->qtVersion();
-        const QStringList args = QStringList() << QLatin1String("xdpkg")
+        const QString command = QLatin1String(
+            packagingStep()->debBasedMaemoTarget() ? "xdpkg" : "xrpm");
+        const QStringList args = QStringList() << command
             << QLatin1String("-i") << packagingStep()->packageFilePath();
         MaemoGlobal::callMadAdmin(*m_sysrootInstaller, args, qtVersion, true);
         if (!m_sysrootInstaller->waitForStarted()) {

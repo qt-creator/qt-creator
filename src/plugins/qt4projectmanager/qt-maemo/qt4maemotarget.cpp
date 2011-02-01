@@ -248,7 +248,7 @@ void AbstractQt4MaemoTarget::handleTargetToBeRemoved(ProjectExplorer::Target *ta
     if (!targetCanBeRemoved())
         return;
     const int answer = QMessageBox::warning(0, tr("Qt Creator"),
-        tr("Do you want to remove the packaging directory\n"
+        tr("Do you want to remove the packaging file(s) "
            "associated with the target '%1'?").arg(displayName()),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if (answer == QMessageBox::No)
@@ -909,7 +909,9 @@ bool AbstractRpmBasedQt4MaemoTarget::createSpecialTemplates()
         "BuildRequires: \n"
         "# %define _unpackaged_files_terminate_build 0\n"
         "%files\n"
-        "# Add files to be included in the package here.\n"
+        "%defattr(-,root,root,-)"
+        "/usr\n"
+        "# Add additional files to be included in the package here.\n"
         "%pre\n"
         "# Add pre-install scripts here."
         "%post\n"
