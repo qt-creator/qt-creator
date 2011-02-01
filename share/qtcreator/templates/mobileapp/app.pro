@@ -8,12 +8,12 @@ DEPLOYMENTFOLDERS = # file1 dir1
 # ORIENTATIONLOCK #
 DEFINES += ORIENTATIONLOCK
 
-# Needs to be defined for Symbian
-# NETWORKACCESS #
-DEFINES += NETWORKACCESS
-
 # TARGETUID3 #
 symbian:TARGET.UID3 = 0xE1111234
+
+# Allow network access on Symbian
+# NETWORKACCESS #
+symbian:TARGET.CAPABILITY += NetworkServices
 
 # If your application uses the Qt Mobility libraries, uncomment
 # the following lines and add the respective components to the 

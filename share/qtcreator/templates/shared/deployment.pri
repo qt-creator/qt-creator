@@ -22,7 +22,6 @@ symbian {
     isEmpty(ICON):exists($${TARGET}.svg):ICON = $${TARGET}.svg
     isEmpty(TARGET.EPOCHEAPSIZE):TARGET.EPOCHEAPSIZE = 0x20000 0x2000000
     contains(DEFINES, ORIENTATIONLOCK):LIBS += -lavkon -leikcore -lcone
-    contains(DEFINES, NETWORKACCESS):TARGET.CAPABILITY += NetworkServices
 } else:win32 {
     copyCommand =
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
