@@ -792,8 +792,9 @@ void NodeMetaInfoPrivate::setupPrototypes()
             description.majorVersion = qmlValue->version().majorVersion();
             if (!qmlValue->packageName().isEmpty())
                 description.className = qmlValue->packageName() + "/" + description.className;
+
+            m_prototypes.append(description);
         }
-        m_prototypes.append(description);
     }
 }
 
