@@ -44,7 +44,7 @@ RewriterTransaction::RewriterTransaction() : m_valid(false)
 RewriterTransaction::RewriterTransaction(AbstractView *_view) : m_view(_view), m_valid(true)
 {
     Q_ASSERT(view());
-    view()->emitCustomNotification("__start rewriter transaction__");
+    view()->emitRewriterBeginTransaction();
 }
 
 RewriterTransaction::~RewriterTransaction()
@@ -61,7 +61,7 @@ void RewriterTransaction::commit()
 {
     if (m_valid) {
         m_valid = false;
-        view()->emitCustomNotification("__end rewriter transaction__");
+        view()->emitRewriterEndTransaction();
     }
 }
 

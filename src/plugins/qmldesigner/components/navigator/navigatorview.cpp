@@ -217,6 +217,31 @@ void NavigatorView::instancesCompleted(const QVector<ModelNode> &/*completedNode
 {
 }
 
+void NavigatorView::instanceInformationsChange(const QVector<ModelNode> &/*nodeList*/)
+{
+}
+
+void NavigatorView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+}
+
+void NavigatorView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+}
+
+void NavigatorView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+
+}
+
+void NavigatorView::rewriterBeginTransaction()
+{
+}
+
+void NavigatorView::rewriterEndTransaction()
+{
+}
+
 void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int oldIndex)
 {
     if (m_treeModel->isInTree(node))

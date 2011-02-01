@@ -82,6 +82,13 @@ public:
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
     void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
     void instancesCompleted(const QVector<ModelNode> &completedNodeList);
+    void instanceInformationsChange(const QVector<ModelNode> &nodeList);
+    void instancesRenderImageChanged(const QVector<ModelNode> &nodeList);
+    void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
+    void instancesChildrenChanged(const QVector<ModelNode> &nodeList);
+
+    void rewriterBeginTransaction();
+    void rewriterEndTransaction();
 
 protected:
     void updateImports();

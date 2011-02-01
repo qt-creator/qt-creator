@@ -72,11 +72,12 @@ public:
     void parentChanged(const QmlObjectNode &qmlObjectNode);
     void otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
 
-    void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
     void nodeIdChanged(const ModelNode &node, const QString &newId, const QString &oldId);
     void bindingPropertiesChanged(const QList<BindingProperty> &propertyList, PropertyChangeFlags propertyChange);
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList);
+
+    void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
 
     StatesEditorWidget *widget();
 

@@ -364,21 +364,6 @@ void RewriterView::customNotification(const AbstractView * /*view*/, const QStri
 {
     if (identifier == StartRewriterAmend || identifier == EndRewriterAmend)
         return; // we emitted this ourselves, so just ignore these notifications.
-
-    if (identifier == ("__start rewriter transaction__")) {
-        transactionLevel++;
-        setModificationGroupActive(true);
-    }
-    else if (identifier == ("__end rewriter transaction__")) {
-        transactionLevel--;
-        Q_ASSERT(transactionLevel >= 0);
-
-    }
-    if (transactionLevel == 0)
-    {
-        setModificationGroupActive(false);
-        applyModificationGroupChanges();
-    }
 }
 
 void RewriterView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
@@ -393,6 +378,42 @@ void RewriterView::instancesCompleted(const QVector<ModelNode> &/*completedNodeL
 {
 }
 
+void RewriterView::instanceInformationsChange(const QVector<ModelNode> &/*nodeList*/)
+{
+
+}
+
+void RewriterView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+
+}
+
+void RewriterView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+
+}
+
+void RewriterView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+
+}
+
+void RewriterView::rewriterBeginTransaction()
+{
+    transactionLevel++;
+    setModificationGroupActive(true);
+}
+
+void RewriterView::rewriterEndTransaction()
+{
+    transactionLevel--;
+    Q_ASSERT(transactionLevel >= 0);
+    if (transactionLevel == 0)
+    {
+        setModificationGroupActive(false);
+        applyModificationGroupChanges();
+    }
+}
 
 void RewriterView::selectedNodesChanged(const QList<ModelNode> & /* selectedNodeList, */, const QList<ModelNode> & /*lastSelectedNodeList */)
 {

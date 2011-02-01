@@ -325,32 +325,25 @@ void StatesEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode, 
     QmlModelView::otherPropertyChanged(qmlObjectNode, propertyName);
 }
 
-
-void StatesEditorView::customNotification(const AbstractView * view, const QString & identifier, const QList<ModelNode> & nodeList, const QList<QVariant> &imageList)
+void StatesEditorView::instancesPreviewImageChanged(const QVector<ModelNode> &nodeList)
 {
-
-    if (identifier == "__instance preview image changed__")   {
-        int minimumIndex = 10000;
-        int maximumIndex = -1;
-        foreach(const ModelNode &node, nodeList) {
-            if (node.isRootNode()) {
-                minimumIndex = qMin(minimumIndex, 0);
-                maximumIndex = qMax(maximumIndex, 0);
-            } else {
-                int index = rootStateGroup().allStates().indexOf(QmlModelState(node)) + 1;
-                if (index > 0) {
-                    minimumIndex = qMin(minimumIndex, index);
-                    maximumIndex = qMax(maximumIndex, index);
-                }
+    int minimumIndex = 10000;
+    int maximumIndex = -1;
+    foreach(const ModelNode &node, nodeList) {
+        if (node.isRootNode()) {
+            minimumIndex = qMin(minimumIndex, 0);
+            maximumIndex = qMax(maximumIndex, 0);
+        } else {
+            int index = rootStateGroup().allStates().indexOf(QmlModelState(node)) + 1;
+            if (index > 0) {
+                minimumIndex = qMin(minimumIndex, index);
+                maximumIndex = qMax(maximumIndex, index);
             }
         }
-
-        if (maximumIndex >= 0)
-            m_statesEditorModel->updateState(minimumIndex, maximumIndex);
-
-    } else {
-        QmlModelView::customNotification(view, identifier, nodeList, imageList);
     }
+
+    if (maximumIndex >= 0)
+        m_statesEditorModel->updateState(minimumIndex, maximumIndex);
 }
 
 void StatesEditorView::scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList)

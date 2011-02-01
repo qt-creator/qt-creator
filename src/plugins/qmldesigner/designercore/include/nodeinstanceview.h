@@ -105,6 +105,13 @@ public:
     void instancesCompleted(const QVector<ModelNode> &completedNodeList);
     void importAdded(const Import &import);
     void importRemoved(const Import &import);
+    void instanceInformationsChange(const QVector<ModelNode> &nodeList);
+    void instancesRenderImageChanged(const QVector<ModelNode> &nodeList);
+    void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
+    void instancesChildrenChanged(const QVector<ModelNode> &nodeList);
+
+    void rewriterBeginTransaction();
+    void rewriterEndTransaction();
 
     QList<NodeInstance> instances() const;
     NodeInstance instanceForNode(const ModelNode &node) const ;

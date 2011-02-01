@@ -443,6 +443,37 @@ void NodeInstanceView::importRemoved(const Import &/*import*/)
     restartProcess();
 }
 
+void NodeInstanceView::instanceInformationsChange(const QVector<ModelNode> &/*nodeList*/)
+{
+
+}
+
+void NodeInstanceView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+
+}
+
+void NodeInstanceView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+
+}
+
+void NodeInstanceView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+
+}
+
+
+void NodeInstanceView::rewriterBeginTransaction()
+{
+
+}
+
+void NodeInstanceView::rewriterEndTransaction()
+{
+
+}
+
 //\}
 
 
@@ -931,7 +962,7 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
     }
 
     if (!renderImageChangeSet.isEmpty())
-        emitCustomNotification("__instance render pixmap changed__", renderImageChangeSet.toList());
+        emitInstancesRenderImageChanged(renderImageChangeSet.toList().toVector());
 }
 
 void NodeInstanceView::informationChanged(const InformationChangedCommand &command)
@@ -953,7 +984,7 @@ void NodeInstanceView::informationChanged(const InformationChangedCommand &comma
     }
 
     if (!informationChangedVector.isEmpty())
-        emitCustomNotification("__instance information changed__", informationChangedVector.toList());
+        emitInstanceInformationsChange(informationChangedVector.toList().toVector());
 }
 
 QImage NodeInstanceView::statePreviewImage(const ModelNode &stateNode) const
@@ -969,21 +1000,21 @@ void NodeInstanceView::statePreviewImagesChanged(const StatePreviewImageChangedC
     if (!model())
       return;
 
-  QList<ModelNode> previewImageChangeList;
+  QVector<ModelNode> previewImageChangeVector;
 
   foreach (const ImageContainer &container, command.previews()) {
       if (container.instanceId() == 0) {
           m_baseStatePreviewImage = container.image();
-          previewImageChangeList.append(rootModelNode());
+          previewImageChangeVector.append(rootModelNode());
       } else if (hasInstanceForId(container.instanceId())) {
           ModelNode node = modelNodeForInternalId(container.instanceId());
           m_statePreviewImage.insert(node, container.image());
-          previewImageChangeList.append(node);
+          previewImageChangeVector.append(node);
       }
   }
 
-  if (!previewImageChangeList.isEmpty())
-       emitCustomNotification("__instance preview image changed__", previewImageChangeList);
+  if (!previewImageChangeVector.isEmpty())
+       emitInstancesPreviewImageChanged(previewImageChangeVector);
 }
 
 void NodeInstanceView::componentCompleted(const ComponentCompletedCommand &command)
@@ -1008,18 +1039,18 @@ void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
      if (!model())
         return;
 
-    QList<ModelNode> childNodeList;
+    QVector<ModelNode> childNodeVector;
 
     foreach(qint32 instanceId, command.childrenInstances()) {
         if (hasInstanceForId(instanceId)) {
             NodeInstance instance = instanceForId(instanceId);
             instance.setParentId(command.parentInstanceId());
-            childNodeList.append(instance.modelNode());
+            childNodeVector.append(instance.modelNode());
         }
     }
 
-    if (!childNodeList.isEmpty())
-        emitCustomNotification("__instance children changed__", childNodeList);
+    if (!childNodeVector.isEmpty())
+        emitInstancesChildrenChanged(childNodeVector);
 }
 
 }

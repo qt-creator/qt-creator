@@ -283,7 +283,7 @@ QmlObjectNode QmlModelView::fxObjectNodeForId(const QString &id)
 
 void QmlModelView::customNotification(const AbstractView * /* view */, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> & /* data */)
 {
-    if (identifier == "__state changed__") {
+    if (identifier == "__state changed__") { // TODO: Is this still needed?
         QmlModelState newState(nodeList.first());
         QmlModelState oldState = currentState();
 
@@ -368,6 +368,37 @@ void QmlModelView::instancePropertyChange(const QList<QPair<ModelNode, QString> 
 }
 void QmlModelView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/)
 {
+}
+
+void QmlModelView::instanceInformationsChange(const QVector<ModelNode> &/*nodeList*/)
+{
+
+}
+
+void QmlModelView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+
+}
+
+void QmlModelView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+
+}
+
+void QmlModelView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+
+}
+
+
+void QmlModelView::rewriterBeginTransaction()
+{
+
+}
+
+void QmlModelView::rewriterEndTransaction()
+{
+
 }
 
 void QmlModelView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)

@@ -225,5 +225,47 @@ void ViewLogger::instancesCompleted(const QVector<ModelNode> &completedNodeList)
 
 }
 
+void ViewLogger::instanceInformationsChange(const QVector<ModelNode> &nodeList)
+{
+    m_output << time() << indent("instanceInformationsChange:") << endl;
+
+    foreach(const ModelNode &node, nodeList)
+        m_output << time() << indent("node: ") << node << endl;
+}
+
+void ViewLogger::instancesRenderImageChanged(const QVector<ModelNode> &nodeList)
+{
+    m_output << time() << indent("instancesRenderImageChanged:") << endl;
+
+    foreach(const ModelNode &node, nodeList)
+        m_output << time() << indent("node: ") << node << endl;
+}
+
+void ViewLogger::instancesPreviewImageChanged(const QVector<ModelNode> &nodeList)
+{
+    m_output << time() << indent("instancesPreviewImageChanged:") << endl;
+
+    foreach(const ModelNode &node, nodeList)
+        m_output << time() << indent("node: ") << node << endl;
+}
+
+void ViewLogger::instancesChildrenChanged(const QVector<ModelNode> &nodeList)
+{
+    m_output << time() << indent("instancesChildrenChanged:") << endl;
+
+    foreach(const ModelNode &node, nodeList)
+        m_output << time() << indent("node: ") << node << endl;
+}
+
+void ViewLogger::rewriterBeginTransaction()
+{
+    m_output << time() << indent("rewriterBeginTransaction:") << endl;
+}
+
+void ViewLogger::rewriterEndTransaction()
+{
+    m_output << time() << indent("rewriterEndTransaction:") << endl;
+}
+
 } // namespace Internal
 } // namespace QmlDesigner

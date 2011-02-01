@@ -403,6 +403,42 @@ void AbstractView::emitInstancesCompleted(const QVector<ModelNode> &nodeVector)
         model()->m_d->notifyInstancesCompleted(nodeVector);
 }
 
+void AbstractView::emitInstanceInformationsChange(const QVector<ModelNode> &nodeVector)
+{
+    if (model() && nodeInstanceView() == this)
+        model()->m_d->notifyInstancesInformationsChange(nodeVector);
+}
+
+void AbstractView::emitInstancesRenderImageChanged(const QVector<ModelNode> &nodeVector)
+{
+    if (model() && nodeInstanceView() == this)
+        model()->m_d->notifyInstancesRenderImageChanged(nodeVector);
+}
+
+void AbstractView::emitInstancesPreviewImageChanged(const QVector<ModelNode> &nodeVector)
+{
+    if (model() && nodeInstanceView() == this)
+        model()->m_d->notifyInstancesPreviewImageChanged(nodeVector);
+}
+
+void AbstractView::emitInstancesChildrenChanged(const QVector<ModelNode> &nodeVector)
+{
+    if (model() && nodeInstanceView() == this)
+        model()->m_d->notifyInstancesChildrenChanged(nodeVector);
+}
+
+void AbstractView::emitRewriterBeginTransaction()
+{
+    if (model())
+        model()->m_d->notifyRewriterBeginTransaction();
+}
+
+void AbstractView::emitRewriterEndTransaction()
+{
+    if (model())
+        model()->m_d->notifyRewriterEndTransaction();
+}
+
 void AbstractView::changeRootNodeType(const QString &type, int majorVersion, int minorVersion)
 {
     Internal::WriteLocker locker(m_model.data());

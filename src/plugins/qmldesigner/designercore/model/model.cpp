@@ -451,6 +451,176 @@ void ModelPrivate::notifyInstancesCompleted(const QVector<ModelNode> &nodeVector
     }
 }
 
+void ModelPrivate::notifyInstancesInformationsChange(const QVector<ModelNode> &nodeVector)
+{
+    bool resetModel = false;
+    QString description;
+
+    QVector<Internal::InternalNode::Pointer> internalVector(toInternalNodeVector(nodeVector));
+
+    try {
+        if (rewriterView())
+            rewriterView()->instanceInformationsChange(toModelNodeVector(internalVector, rewriterView()));
+    } catch (RewritingException &e) {
+        description = e.description();
+        resetModel = true;
+    }
+
+    foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
+        Q_ASSERT(view != 0);
+        view->instanceInformationsChange(toModelNodeVector(internalVector, view.data()));
+    }
+
+    if (nodeInstanceView()) {
+        nodeInstanceView()->instanceInformationsChange(toModelNodeVector(internalVector, nodeInstanceView()));
+    }
+
+    if (resetModel) {
+        resetModelByRewriter(description);
+    }
+}
+
+void ModelPrivate::notifyInstancesRenderImageChanged(const QVector<ModelNode> &nodeVector)
+{
+    bool resetModel = false;
+    QString description;
+
+    QVector<Internal::InternalNode::Pointer> internalVector(toInternalNodeVector(nodeVector));
+
+    try {
+        if (rewriterView())
+            rewriterView()->instancesRenderImageChanged(toModelNodeVector(internalVector, rewriterView()));
+    } catch (RewritingException &e) {
+        description = e.description();
+        resetModel = true;
+    }
+
+    foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
+        Q_ASSERT(view != 0);
+        view->instancesRenderImageChanged(toModelNodeVector(internalVector, view.data()));
+    }
+
+    if (nodeInstanceView()) {
+        nodeInstanceView()->instancesRenderImageChanged(toModelNodeVector(internalVector, nodeInstanceView()));
+    }
+
+    if (resetModel) {
+        resetModelByRewriter(description);
+    }
+}
+
+void ModelPrivate::notifyInstancesPreviewImageChanged(const QVector<ModelNode> &nodeVector)
+{
+    bool resetModel = false;
+    QString description;
+
+    QVector<Internal::InternalNode::Pointer> internalVector(toInternalNodeVector(nodeVector));
+
+    try {
+        if (rewriterView())
+            rewriterView()->instancesPreviewImageChanged(toModelNodeVector(internalVector, rewriterView()));
+    } catch (RewritingException &e) {
+        description = e.description();
+        resetModel = true;
+    }
+
+    foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
+        Q_ASSERT(view != 0);
+        view->instancesPreviewImageChanged(toModelNodeVector(internalVector, view.data()));
+    }
+
+    if (nodeInstanceView()) {
+        nodeInstanceView()->instancesPreviewImageChanged(toModelNodeVector(internalVector, nodeInstanceView()));
+    }
+
+    if (resetModel) {
+        resetModelByRewriter(description);
+    }
+}
+
+void ModelPrivate::notifyInstancesChildrenChanged(const QVector<ModelNode> &nodeVector)
+{
+    bool resetModel = false;
+    QString description;
+
+    QVector<Internal::InternalNode::Pointer> internalVector(toInternalNodeVector(nodeVector));
+
+    try {
+        if (rewriterView())
+            rewriterView()->instancesChildrenChanged(toModelNodeVector(internalVector, rewriterView()));
+    } catch (RewritingException &e) {
+        description = e.description();
+        resetModel = true;
+    }
+
+    foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
+        Q_ASSERT(view != 0);
+        view->instancesChildrenChanged(toModelNodeVector(internalVector, view.data()));
+    }
+
+    if (nodeInstanceView()) {
+        nodeInstanceView()->instancesChildrenChanged(toModelNodeVector(internalVector, nodeInstanceView()));
+    }
+
+    if (resetModel) {
+        resetModelByRewriter(description);
+    }
+}
+
+void ModelPrivate::notifyRewriterBeginTransaction()
+{
+    bool resetModel = false;
+    QString description;
+
+    try {
+        if (rewriterView())
+            rewriterView()->rewriterBeginTransaction();
+    } catch (RewritingException &e) {
+        description = e.description();
+        resetModel = true;
+    }
+
+    foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
+        Q_ASSERT(view != 0);
+        view->rewriterBeginTransaction();
+    }
+
+    if (nodeInstanceView()) {
+        nodeInstanceView()->rewriterBeginTransaction();
+    }
+
+    if (resetModel) {
+        resetModelByRewriter(description);
+    }
+}
+
+void ModelPrivate::notifyRewriterEndTransaction()
+{
+    bool resetModel = false;
+    QString description;
+
+    try {
+        if (rewriterView())
+            rewriterView()->rewriterEndTransaction();
+    } catch (RewritingException &e) {
+        description = e.description();
+        resetModel = true;
+    }
+
+    foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
+        Q_ASSERT(view != 0);
+        view->rewriterEndTransaction();
+    }
+
+    if (nodeInstanceView()) {
+        nodeInstanceView()->rewriterEndTransaction();
+    }
+
+    if (resetModel) {
+        resetModelByRewriter(description);
+    }
+}
+
 void ModelPrivate::notifyCustomNotification(const AbstractView *senderView, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
     bool resetModel = false;

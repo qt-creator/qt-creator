@@ -458,68 +458,68 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
     currentTool()->instancesCompleted(itemNodeList);
 }
 
-
-void FormEditorView::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
+void FormEditorView::instanceInformationsChange(const QVector<ModelNode> &nodeList)
 {
-    if (identifier == "__start rewriter transaction__") {
-        m_transactionCounter++;
-        if (m_transactionCounter == 1
-            && selectedModelNodes().count() == 1)
-            m_formEditorWidget->setFeedbackNode(QmlItemNode(selectedModelNodes().first()));
-    }
+    QList<FormEditorItem*> itemNodeList;
 
-    if (identifier == "__end rewriter transaction__") {
-        m_transactionCounter--;
-        if (m_transactionCounter == 0)
-            m_formEditorWidget->setFeedbackNode(QmlItemNode());
-    }
+    foreach (const ModelNode &node, nodeList) {
+        QmlItemNode qmlItemNode(node);
+        if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
+            scene()->synchronizeTransformation(qmlItemNode);
+            if (qmlItemNode.isRootModelNode())
+                widget()->setRootItemRect(qmlItemNode.instanceBoundingRect());
 
-    if (identifier == "__instance information changed__") {
-        QList<FormEditorItem*> itemNodeList;
-
-        foreach (const ModelNode &node, nodeList) {
-            QmlItemNode qmlItemNode(node);
-            if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
-                scene()->synchronizeTransformation(qmlItemNode);
-                if (qmlItemNode.isRootModelNode())
-                    widget()->setRootItemRect(qmlItemNode.instanceBoundingRect());
-
-                itemNodeList.append(scene()->itemForQmlItemNode(qmlItemNode));
-            }
-        }
-
-        m_currentTool->formEditorItemsChanged(itemNodeList);
-
-    }
-
-    if (identifier == "__instance render pixmap changed__") {
-        QList<FormEditorItem*> itemNodeList;
-
-        foreach (const ModelNode &node, nodeList) {
-            QmlItemNode qmlItemNode(node);
-            if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
-               scene()->itemForQmlItemNode(qmlItemNode)->update();
-            }
+            itemNodeList.append(scene()->itemForQmlItemNode(qmlItemNode));
         }
     }
 
-    if (identifier == "__instance children changed__") {
-        QList<FormEditorItem*> itemNodeList;
-
-        foreach (const ModelNode &node, nodeList) {
-            QmlItemNode qmlItemNode(node);
-            if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
-                scene()->synchronizeParent(qmlItemNode);
-                itemNodeList.append(scene()->itemForQmlItemNode(qmlItemNode));
-            }
-        }
-
-        m_currentTool->formEditorItemsChanged(itemNodeList);
-    }
-
-    QmlModelView::customNotification(view, identifier, nodeList, data);
+    m_currentTool->formEditorItemsChanged(itemNodeList);
 }
 
+void FormEditorView::instancesRenderImageChanged(const QVector<ModelNode> &nodeList)
+{
+    foreach (const ModelNode &node, nodeList) {
+        QmlItemNode qmlItemNode(node);
+        if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
+           scene()->itemForQmlItemNode(qmlItemNode)->update();
+        }
+    }
+}
+
+void FormEditorView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+
+}
+
+void FormEditorView::instancesChildrenChanged(const QVector<ModelNode> &nodeList)
+{
+    QList<FormEditorItem*> itemNodeList;
+
+    foreach (const ModelNode &node, nodeList) {
+        QmlItemNode qmlItemNode(node);
+        if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
+            scene()->synchronizeParent(qmlItemNode);
+            itemNodeList.append(scene()->itemForQmlItemNode(qmlItemNode));
+        }
+    }
+
+    m_currentTool->formEditorItemsChanged(itemNodeList);
+}
+
+void FormEditorView::rewriterBeginTransaction()
+{
+    m_transactionCounter++;
+    if (m_transactionCounter == 1
+        && selectedModelNodes().count() == 1)
+        m_formEditorWidget->setFeedbackNode(QmlItemNode(selectedModelNodes().first()));
+}
+
+void FormEditorView::rewriterEndTransaction()
+{
+    m_transactionCounter--;
+    if (m_transactionCounter == 0)
+        m_formEditorWidget->setFeedbackNode(QmlItemNode());
+}
 
 double FormEditorView::margins() const
 {
