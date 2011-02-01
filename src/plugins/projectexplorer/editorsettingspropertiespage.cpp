@@ -36,7 +36,6 @@
 #include "project.h"
 
 #include <QtCore/QTextCodec>
-#include <QtCore/QDebug>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -88,48 +87,75 @@ QIcon EditorSettingsPanel::icon() const
     return m_icon;
 }
 
-EditorSettingsWidget::EditorSettingsWidget(Project *project)
-    : QWidget(),
-      m_project(project)
+EditorSettingsWidget::EditorSettingsWidget(Project *project) : QWidget(), m_project(project)
 {
     m_ui.setupUi(this);
-    QTextCodec *defaultTextCodec = 0;
-    m_codecs += defaultTextCodec;
-    m_ui.encodingComboBox->addItem(tr("Default"));
 
-    defaultTextCodec = m_project->editorConfiguration()->defaultTextCodec();
+    const EditorConfiguration *config = m_project->editorConfiguration();
+    settingsToUi(config);
 
-    QList<int> mibs = QTextCodec::availableMibs();
-    qSort(mibs);
-    QList<int> sortedMibs;
-    foreach (int mib, mibs)
-        if (mib >= 0)
-            sortedMibs += mib;
-    foreach (int mib, mibs)
-        if (mib < 0)
-            sortedMibs += mib;
-    int i = 1; // 0 is the default
-    foreach (int mib, sortedMibs) {
-        QTextCodec *codec = QTextCodec::codecForMib(mib);
-        m_codecs += codec;
-        QString name = codec->name();
-        foreach (const QByteArray &alias, codec->aliases()) {
-            name += QLatin1String(" / ");
-            name += QString::fromLatin1(alias);
-        }
-        m_ui.encodingComboBox->addItem(name);
-        if (defaultTextCodec == codec)
-            m_ui.encodingComboBox->setCurrentIndex(i);
-        i++;
-    }
+    setGlobalSettingsEnabled(config->useGlobalSettings());
 
-    connect(m_ui.encodingComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(currentEncodingChanged(int)));
+    connect(m_ui.useGlobalCheckBox, SIGNAL(clicked(bool)),
+            this, SLOT(setGlobalSettingsEnabled(bool)));
+    connect(m_ui.useGlobalCheckBox, SIGNAL(clicked(bool)),
+            config, SLOT(setUseGlobalSettings(bool)));
+    connect(m_ui.restoreButton, SIGNAL(clicked()), this, SLOT(restoreDefaultValues()));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(insertSpacesChanged(bool)),
+            config, SLOT(setInsertSpaces(bool)));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(autoInsertSpacesChanged(bool)),
+            config, SLOT(setAutoInsertSpaces(bool)));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(autoIndentChanged(bool)),
+            config, SLOT(setAutoIndent(bool)));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(smartBackSpaceChanged(bool)),
+            config, SLOT(setSmartBackSpace(bool)));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(tabSizeChanged(int)),
+            config, SLOT(setTabSize(int)));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(indentSizeChanged(int)),
+            config, SLOT(setIndentSize(int)));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(indentBlocksBehaviorChanged(int)),
+            config, SLOT(setIndentBlocksBehavior(int)));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(tabKeyBehaviorChanged(int)),
+            config, SLOT(setTabKeyBehavior(int)));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(continuationAlignBehaviorChanged(int)),
+            config, SLOT(setContinuationAlignBehavior(int)));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(cleanWhiteSpaceChanged(bool)),
+            config, SLOT(setCleanWhiteSpace(bool)));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(inEntireDocumentChanged(bool)),
+            config, SLOT(setInEntireDocument(bool)));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(addFinalNewLineChanged(bool)),
+            config, SLOT(setAddFinalNewLine(bool)));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(cleanIndentationChanged(bool)),
+            config, SLOT(setCleanIndentation(bool)));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(mouseNavigationChanged(bool)),
+            config, SLOT(setMouseNavigation(bool)));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(scrollWheelZoomingChanged(bool)),
+            config, SLOT(setScrollWheelZooming(bool)));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(utf8BomSettingsChanged(int)),
+            config, SLOT(setUtf8BomSettings(int)));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(textCodecChanged(QTextCodec*)),
+            config, SLOT(setTextCodec(QTextCodec*)));
 }
 
-void EditorSettingsWidget::currentEncodingChanged(int index)
+void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
 {
-    m_project->editorConfiguration()->setDefaultTextCodec(m_codecs.at(index));
+    m_ui.useGlobalCheckBox->setChecked(config->useGlobalSettings());
+    m_ui.behaviorSettingsWidget->setAssignedCodec(config->textCodec());
+    m_ui.behaviorSettingsWidget->setAssignedTabSettings(config->tabSettings());
+    m_ui.behaviorSettingsWidget->setAssignedStorageSettings(config->storageSettings());
+    m_ui.behaviorSettingsWidget->setAssignedBehaviorSettings(config->behaviorSettings());
+    m_ui.behaviorSettingsWidget->setAssignedExtraEncodingSettings(config->extraEncodingSettings());
 }
 
+void EditorSettingsWidget::setGlobalSettingsEnabled(bool enabled)
+{
+    m_ui.behaviorSettingsWidget->setActive(!enabled);
+    m_ui.restoreButton->setEnabled(!enabled);
+}
 
+void EditorSettingsWidget::restoreDefaultValues()
+{
+    EditorConfiguration *config = m_project->editorConfiguration();
+    config->cloneGlobalSettings();
+    settingsToUi(config);
+}

@@ -84,7 +84,9 @@ public:
     QmlJSRefactoringFile file(const QString &fileName);
 
 private:
-    virtual void indentSelection(const QTextCursor &selection) const;
+    virtual void indentSelection(const QTextCursor &selection,
+                                 const QString &fileName,
+                                 const TextEditor::BaseTextEditor *textEditor) const;
     virtual void fileChanged(const QString &fileName);
 
 private:

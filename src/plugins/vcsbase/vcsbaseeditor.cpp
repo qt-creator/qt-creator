@@ -722,7 +722,7 @@ static QTextCodec *findProjectCodec(const QString &dir)
         for (ProjectList::const_iterator it = projects.constBegin(); it != pcend; ++it)
             if (const Core::IFile *file = (*it)->file())
                 if (file->fileName().startsWith(dir)) {
-                    QTextCodec *codec = (*it)->editorConfiguration()->defaultTextCodec();
+                    QTextCodec *codec = (*it)->editorConfiguration()->textCodec();
                     if (VCSBase::Constants::Internal::debug)
                         qDebug() << Q_FUNC_INFO << dir << (*it)->displayName() << codec->name();
                     return codec;

@@ -39,6 +39,8 @@
 
 namespace ProjectExplorer {
 
+class EditorConfiguration;
+
 namespace Internal {
 
 const char * const EDITORSETTINGS_PANEL_ID("ProjectExplorer.EditorSettingsPanel");
@@ -75,12 +77,14 @@ public:
     EditorSettingsWidget(Project *project);
 
 private slots:
-    void currentEncodingChanged(int index);
+    void setGlobalSettingsEnabled(bool enabled);
+    void restoreDefaultValues();
 
 private:
+    void settingsToUi(const EditorConfiguration *config);
+
     Ui::EditorSettingsPropertiesPage m_ui;
     Project *m_project;
-    QList<QTextCodec *> m_codecs;
 };
 
 } // namespace Internal

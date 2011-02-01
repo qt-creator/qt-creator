@@ -187,10 +187,7 @@ public:
     void setReloadSetting(IFile::ReloadSetting behavior);
     IFile::ReloadSetting reloadSetting() const;
 
-    void setUtf8BomSetting(IFile::Utf8BomSetting behavior);
-    IFile::Utf8BomSetting utf8BomSetting() const;
-
-    QTextCodec *defaultTextEncoding() const;
+    QTextCodec *defaultTextCodec() const;
 
     static qint64 maxTextFileSize();
 

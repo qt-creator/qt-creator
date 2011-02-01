@@ -32,43 +32,324 @@
 **************************************************************************/
 
 #include "editorconfiguration.h"
+#include "session.h"
+#include "projectexplorer.h"
+#include "project.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
+#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/storagesettings.h>
+#include <texteditor/behaviorsettings.h>
+#include <texteditor/extraencodingsettings.h>
+
+#include <QtCore/QLatin1String>
+#include <QtCore/QByteArray>
 #include <QtCore/QTextCodec>
 
-using namespace ProjectExplorer;
+static const QLatin1String kPrefix("EditorConfiguration.");
+static const QLatin1String kUseGlobal("EditorConfiguration.UseGlobal");
+static const QLatin1String kCodec("EditorConfiguration.Codec");
 
-namespace {
-const char * const CODEC("EditorConfiguration.Codec");
-}
+using namespace TextEditor;
 
-EditorConfiguration::EditorConfiguration()
-    : m_defaultTextCodec(0)
+namespace ProjectExplorer {
+
+struct EditorConfigurationPrivate
+{
+    EditorConfigurationPrivate()
+        : m_useGlobal(true)
+        , m_tabSettings(TextEditorSettings::instance()->tabSettings())
+        , m_storageSettings(TextEditorSettings::instance()->storageSettings())
+        , m_behaviorSettings(TextEditorSettings::instance()->behaviorSettings())
+        , m_extraEncodingSettings(TextEditorSettings::instance()->extraEncodingSettings())
+        , m_textCodec(Core::EditorManager::instance()->defaultTextCodec())
+    {}
+
+    bool m_useGlobal;
+    TabSettings m_tabSettings;
+    StorageSettings m_storageSettings;
+    BehaviorSettings m_behaviorSettings;
+    ExtraEncodingSettings m_extraEncodingSettings;
+    QTextCodec *m_textCodec;
+};
+
+EditorConfiguration::EditorConfiguration() : m_d(new EditorConfigurationPrivate)
 {
 }
 
-QTextCodec *EditorConfiguration::defaultTextCodec() const
+EditorConfiguration::~EditorConfiguration()
 {
-    return m_defaultTextCodec;
 }
 
-void EditorConfiguration::setDefaultTextCodec(QTextCodec *codec)
+bool EditorConfiguration::useGlobalSettings() const
 {
-    m_defaultTextCodec = codec;
+    return m_d->m_useGlobal;
+}
+
+void EditorConfiguration::cloneGlobalSettings()
+{
+    m_d->m_tabSettings = TextEditorSettings::instance()->tabSettings();
+    m_d->m_storageSettings = TextEditorSettings::instance()->storageSettings();
+    m_d->m_behaviorSettings = TextEditorSettings::instance()->behaviorSettings();
+    m_d->m_extraEncodingSettings = TextEditorSettings::instance()->extraEncodingSettings();
+    m_d->m_textCodec = Core::EditorManager::instance()->defaultTextCodec();
+
+    emitTabSettingsChanged();
+    emitStorageSettingsChanged();
+    emitBehaviorSettingsChanged();
+    emitExtraEncodingSettingsChanged();
+}
+
+QTextCodec *EditorConfiguration::textCodec() const
+{
+    return m_d->m_textCodec;
+}
+
+const TabSettings &EditorConfiguration::tabSettings() const
+{
+    return m_d->m_tabSettings;
+}
+
+const StorageSettings &EditorConfiguration::storageSettings() const
+{
+    return m_d->m_storageSettings;
+}
+
+const BehaviorSettings &EditorConfiguration::behaviorSettings() const
+{
+    return m_d->m_behaviorSettings;
+}
+
+const ExtraEncodingSettings &EditorConfiguration::extraEncodingSettings() const
+{
+    return m_d->m_extraEncodingSettings;
 }
 
 QVariantMap EditorConfiguration::toMap() const
 {
     QVariantMap map;
-    QByteArray name = "Default";
-    if (m_defaultTextCodec)
-        name = m_defaultTextCodec->name();
-    map.insert(QLatin1String(CODEC), name);
+    map.insert(kUseGlobal, m_d->m_useGlobal);
+    map.insert(kCodec, m_d->m_textCodec->name());
+    m_d->m_tabSettings.toMap(kPrefix, &map);
+    m_d->m_storageSettings.toMap(kPrefix, &map);
+    m_d->m_behaviorSettings.toMap(kPrefix, &map);
+    m_d->m_extraEncodingSettings.toMap(kPrefix, &map);
+
     return map;
 }
 
 void EditorConfiguration::fromMap(const QVariantMap &map)
 {
-    QByteArray name = map.value(QLatin1String(CODEC)).toString().toLocal8Bit();
-    QTextCodec *codec = QTextCodec::codecForName(name);
-    m_defaultTextCodec = codec;
+    m_d->m_useGlobal = map.value(kUseGlobal, m_d->m_useGlobal).toBool();
+
+    const QByteArray &codecName = map.value(kCodec, m_d->m_textCodec->name()).toByteArray();
+    m_d->m_textCodec = QTextCodec::codecForName(codecName);
+    if (!m_d->m_textCodec)
+        m_d->m_textCodec = Core::EditorManager::instance()->defaultTextCodec();
+
+    m_d->m_tabSettings.fromMap(kPrefix, map);
+    m_d->m_storageSettings.fromMap(kPrefix, map);
+    m_d->m_behaviorSettings.fromMap(kPrefix, map);
+    m_d->m_extraEncodingSettings.fromMap(kPrefix, map);
 }
+
+void EditorConfiguration::apply(ITextEditor *textEditor) const
+{
+    if (!m_d->m_useGlobal) {
+        textEditor->setTextCodec(m_d->m_textCodec, ITextEditor::TextCodecFromProjectSetting);
+        if (BaseTextEditor *baseTextEditor = qobject_cast<BaseTextEditor *>(textEditor->widget()))
+            switchSettings(baseTextEditor);
+    }
+}
+
+void EditorConfiguration::setUseGlobalSettings(bool use)
+{
+    m_d->m_useGlobal = use;
+    const SessionManager *session = ProjectExplorerPlugin::instance()->session();
+    QList<Core::IEditor *> opened = Core::EditorManager::instance()->openedEditors();
+    foreach (Core::IEditor *editor, opened) {
+        if (BaseTextEditor *baseTextEditor = qobject_cast<BaseTextEditor *>(editor->widget())) {
+            Project *project = session->projectForFile(editor->file()->fileName());
+            if (project && project->editorConfiguration() == this)
+                switchSettings(baseTextEditor);
+        }
+    }
+}
+
+void EditorConfiguration::switchSettings(BaseTextEditor *baseTextEditor) const
+{
+    if (m_d->m_useGlobal)
+        switchSettings_helper(TextEditorSettings::instance(), this, baseTextEditor);
+    else
+        switchSettings_helper(this, TextEditorSettings::instance(), baseTextEditor);
+}
+
+template <class NewSenderT, class OldSenderT>
+void EditorConfiguration::switchSettings_helper(const NewSenderT *newSender,
+                                                const OldSenderT *oldSender,
+                                                BaseTextEditor *baseTextEditor) const
+{
+    baseTextEditor->setTabSettings(newSender->tabSettings());
+    baseTextEditor->setStorageSettings(newSender->storageSettings());
+    baseTextEditor->setBehaviorSettings(newSender->behaviorSettings());
+    baseTextEditor->setExtraEncodingSettings(newSender->extraEncodingSettings());
+
+    disconnect(oldSender, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)),
+               baseTextEditor, SLOT(setTabSettings(TextEditor::TabSettings)));
+    disconnect(oldSender, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
+               baseTextEditor, SLOT(setStorageSettings(TextEditor::StorageSettings)));
+    disconnect(oldSender, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
+               baseTextEditor, SLOT(setBehaviorSettings(TextEditor::BehaviorSettings)));
+    disconnect(oldSender, SIGNAL(extraEncodingSettingsChanged(TextEditor::ExtraEncodingSettings)),
+               baseTextEditor, SLOT(setExtraEncodingSettings(TextEditor::ExtraEncodingSettings)));
+
+    connect(newSender, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)),
+            baseTextEditor, SLOT(setTabSettings(TextEditor::TabSettings)));
+    connect(newSender, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
+            baseTextEditor, SLOT(setStorageSettings(TextEditor::StorageSettings)));
+    connect(newSender, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
+            baseTextEditor, SLOT(setBehaviorSettings(TextEditor::BehaviorSettings)));
+    connect(newSender, SIGNAL(extraEncodingSettingsChanged(TextEditor::ExtraEncodingSettings)),
+            baseTextEditor, SLOT(setExtraEncodingSettings(TextEditor::ExtraEncodingSettings)));
+}
+
+void EditorConfiguration::setInsertSpaces(bool spaces)
+{
+    m_d->m_tabSettings.m_spacesForTabs = spaces;
+    emitTabSettingsChanged();
+}
+
+void EditorConfiguration::setAutoInsertSpaces(bool autoSpaces)
+{
+    m_d->m_tabSettings.m_autoSpacesForTabs = autoSpaces;
+    emitTabSettingsChanged();
+}
+
+void EditorConfiguration::setAutoIndent(bool autoIndent)
+{
+    m_d->m_tabSettings.m_autoIndent = autoIndent;
+    emitTabSettingsChanged();
+}
+
+void EditorConfiguration::setSmartBackSpace(bool smartBackSpace)
+{
+    m_d->m_tabSettings.m_smartBackspace = smartBackSpace;
+    emitTabSettingsChanged();
+}
+
+void EditorConfiguration::setTabSize(int size)
+{
+    m_d->m_tabSettings.m_tabSize = size;
+    emitTabSettingsChanged();
+}
+
+void EditorConfiguration::setIndentSize(int size)
+{
+    m_d->m_tabSettings.m_indentSize = size;
+    emitTabSettingsChanged();
+}
+
+void EditorConfiguration::setIndentBlocksBehavior(int index)
+{
+    m_d->m_tabSettings.m_indentBraces = index >= 1;
+    m_d->m_tabSettings.m_doubleIndentBlocks = index >= 2;
+    emitTabSettingsChanged();
+}
+
+void EditorConfiguration::setTabKeyBehavior(int index)
+{
+    m_d->m_tabSettings.m_tabKeyBehavior = (TabSettings::TabKeyBehavior)index;
+    emitTabSettingsChanged();
+}
+
+void EditorConfiguration::setContinuationAlignBehavior(int index)
+{
+    m_d->m_tabSettings.m_continuationAlignBehavior = (TabSettings::ContinuationAlignBehavior)index;
+    emitTabSettingsChanged();
+}
+
+void EditorConfiguration::setCleanWhiteSpace(bool cleanWhiteSpace)
+{
+    m_d->m_storageSettings.m_cleanWhitespace = cleanWhiteSpace;
+    emitStorageSettingsChanged();
+}
+
+void EditorConfiguration::setInEntireDocument(bool entireDocument)
+{
+    m_d->m_storageSettings.m_inEntireDocument = entireDocument;
+    emitStorageSettingsChanged();
+}
+
+void EditorConfiguration::setAddFinalNewLine(bool newLine)
+{
+    m_d->m_storageSettings.m_addFinalNewLine = newLine;
+    emitStorageSettingsChanged();
+}
+
+void EditorConfiguration::setCleanIndentation(bool cleanIndentation)
+{
+    m_d->m_storageSettings.m_cleanIndentation = cleanIndentation;
+    emitStorageSettingsChanged();
+}
+
+void EditorConfiguration::setMouseNavigation(bool mouseNavigation)
+{
+    m_d->m_behaviorSettings.m_mouseNavigation = mouseNavigation;
+    emitBehaviorSettingsChanged();
+}
+
+void EditorConfiguration::setScrollWheelZooming(bool scrollZooming)
+{
+    m_d->m_behaviorSettings.m_scrollWheelZooming = scrollZooming;
+    emitBehaviorSettingsChanged();
+}
+
+void EditorConfiguration::setUtf8BomSettings(int index)
+{
+    m_d->m_extraEncodingSettings.m_utf8BomSetting = (ExtraEncodingSettings::Utf8BomSetting)index;
+    emitExtraEncodingSettingsChanged();
+}
+
+void EditorConfiguration::setTextCodec(QTextCodec *textCodec)
+{
+    m_d->m_textCodec = textCodec;
+}
+
+void EditorConfiguration::emitTabSettingsChanged()
+{
+    emit tabSettingsChanged(m_d->m_tabSettings);
+}
+
+void EditorConfiguration::emitStorageSettingsChanged()
+{
+    emit storageSettingsChanged(m_d->m_storageSettings);
+}
+
+void EditorConfiguration::emitBehaviorSettingsChanged()
+{
+    emit behaviorSettingsChanged(m_d->m_behaviorSettings);
+}
+
+void EditorConfiguration::emitExtraEncodingSettingsChanged()
+{
+    emit extraEncodingSettingsChanged(m_d->m_extraEncodingSettings);
+}
+
+const TabSettings &actualTabSettings(const QString &fileName, const BaseTextEditor *baseTextEditor)
+{
+    if (baseTextEditor) {
+        return baseTextEditor->tabSettings();
+    } else {
+        const SessionManager *session = ProjectExplorerPlugin::instance()->session();
+        if (Project *project = session->projectForFile(fileName))
+            return project->editorConfiguration()->tabSettings();
+        else
+            return TextEditorSettings::instance()->tabSettings();
+    }
+}
+
+} // ProjectExplorer

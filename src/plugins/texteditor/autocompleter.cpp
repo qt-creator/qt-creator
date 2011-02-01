@@ -263,7 +263,8 @@ bool AutoCompleter::autoBackspace(QTextCursor &cursor)
     return false;
 }
 
-int AutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
+int AutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor,
+                                                       const TabSettings &tabSettings)
 {
     if (!m_autoParenthesesEnabled)
         return 0;
@@ -289,17 +290,16 @@ int AutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
             if (condition) {|
                 statement;
     */
-    const TabSettings &ts = TextEditorSettings::instance()->tabSettings();
     QTextBlock block = cursor.block();
-    int indentation = ts.indentationColumn(block.text());
+    int indentation = tabSettings.indentationColumn(block.text());
 
     if (block.next().isValid()) { // not the last block
         block = block.next();
         //skip all empty blocks
-        while (block.isValid() && ts.onlySpace(block.text()))
+        while (block.isValid() && tabSettings.onlySpace(block.text()))
             block = block.next();
         if (block.isValid()
-                && ts.indentationColumn(block.text()) > indentation)
+                && tabSettings.indentationColumn(block.text()) > indentation)
             return 0;
     }
 

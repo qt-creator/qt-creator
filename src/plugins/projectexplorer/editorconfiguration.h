@@ -36,29 +36,98 @@
 
 #include "projectexplorer_export.h"
 
+#include <QtCore/QObject>
 #include <QtCore/QVariantMap>
+#include <QtCore/QScopedPointer>
 
-QT_BEGIN_NAMESPACE
-class QTextCodec;
-QT_END_NAMESPACE
+namespace TextEditor {
+class ITextEditor;
+class BaseTextEditor;
+class TabSettings;
+class StorageSettings;
+class BehaviorSettings;
+class ExtraEncodingSettings;
+}
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT EditorConfiguration
+struct EditorConfigurationPrivate;
+
+class PROJECTEXPLORER_EXPORT EditorConfiguration : public QObject
 {
+    Q_OBJECT
+
 public:
     EditorConfiguration();
+    ~EditorConfiguration();
 
-    // defaultTextCodec can be 0, in that case the editor settings default encoding shall be used
-    QTextCodec *defaultTextCodec() const;
-    void setDefaultTextCodec(QTextCodec *codec);
+    bool useGlobalSettings() const;
+    void cloneGlobalSettings();
+
+    // The default codec is returned in the case the project doesn't override it.
+    QTextCodec *textCodec() const;
+
+    const TextEditor::TabSettings &tabSettings() const;
+    const TextEditor::StorageSettings &storageSettings() const;
+    const TextEditor::BehaviorSettings &behaviorSettings() const;
+    const TextEditor::ExtraEncodingSettings &extraEncodingSettings() const;
+
+    void apply(TextEditor::ITextEditor *textEditor) const;
 
     QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);
 
+signals:
+    void tabSettingsChanged(const TextEditor::TabSettings &);
+    void storageSettingsChanged(const TextEditor::StorageSettings &);
+    void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
+    void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
+
+private slots:
+    void setUseGlobalSettings(bool use);
+
+    void setInsertSpaces(bool spaces);
+    void setAutoInsertSpaces(bool autoSpaces);
+    void setAutoIndent(bool autoIndent);
+    void setSmartBackSpace(bool smartBackSpace);
+    void setTabSize(int size);
+    void setIndentSize(int size);
+    void setIndentBlocksBehavior(int index);
+    void setTabKeyBehavior(int index);
+    void setContinuationAlignBehavior(int index);
+
+    void setCleanWhiteSpace(bool cleanWhiteSpace);
+    void setInEntireDocument(bool entireDocument);
+    void setAddFinalNewLine(bool newLine);
+    void setCleanIndentation(bool cleanIndentation);
+
+    void setMouseNavigation(bool mouseNavigation);
+    void setScrollWheelZooming(bool scrollZooming);
+
+    void setUtf8BomSettings(int index);
+
+    void setTextCodec(QTextCodec *textCodec);
+
 private:
-    QTextCodec *m_defaultTextCodec;
+    void switchSettings(TextEditor::BaseTextEditor *baseTextEditor) const;
+    template <class NewSenderT, class OldSenderT>
+    void switchSettings_helper(const NewSenderT *newSender,
+                               const OldSenderT *oldSender,
+                               TextEditor::BaseTextEditor *baseTextEditor) const;
+
+    void emitTabSettingsChanged();
+    void emitStorageSettingsChanged();
+    void emitBehaviorSettingsChanged();
+    void emitExtraEncodingSettingsChanged();
+
+    QScopedPointer<EditorConfigurationPrivate> m_d;
 };
+
+// Return the editor settings in the case it's not null. Otherwise, try to find the project
+// the file belongs to and return the project settings. If the file doesn't belong to any
+// project return the global settings.
+PROJECTEXPLORER_EXPORT const TextEditor::TabSettings &actualTabSettings(
+    const QString &fileName, const TextEditor::BaseTextEditor *baseTextEditor);
 
 } // ProjectExplorer
 

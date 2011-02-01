@@ -220,7 +220,6 @@ struct EditorManagerPrivate {
     OpenEditorsModel *m_editorModel;
 
     IFile::ReloadSetting m_reloadSetting;
-    IFile::Utf8BomSetting m_utf8BomSetting;
 
     QString m_titleAddition;
 };
@@ -242,8 +241,7 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_goForwardAction(new QAction(QIcon(QLatin1String(Constants::ICON_NEXT)), EditorManager::tr("Go Forward"), parent)),
     m_windowPopup(0),
     m_coreListener(0),
-    m_reloadSetting(IFile::AlwaysAsk),
-    m_utf8BomSetting(IFile::OnlyKeep)
+    m_reloadSetting(IFile::AlwaysAsk)
 {
     m_editorModel = new OpenEditorsModel(parent);
 }
@@ -1803,14 +1801,12 @@ bool EditorManager::restoreState(const QByteArray &state)
 
 static const char * const documentStatesKey = "EditorManager/DocumentStates";
 static const char * const reloadBehaviorKey = "EditorManager/ReloadBehavior";
-static const char * const utf8BomBehaviorKey = "EditorManager/Utf8BomBehavior";
 
 void EditorManager::saveSettings()
 {
     SettingsDatabase *settings = m_d->m_core->settingsDatabase();
     settings->setValue(QLatin1String(documentStatesKey), m_d->m_editorStates);
     settings->setValue(QLatin1String(reloadBehaviorKey), m_d->m_reloadSetting);
-    settings->setValue(QLatin1String(utf8BomBehaviorKey), m_d->m_utf8BomSetting);
 }
 
 void EditorManager::readSettings()
@@ -1830,9 +1826,6 @@ void EditorManager::readSettings()
 
     if (settings->contains(QLatin1String(reloadBehaviorKey)))
         m_d->m_reloadSetting = (IFile::ReloadSetting)settings->value(QLatin1String(reloadBehaviorKey)).toInt();
-
-    if (settings->contains(QLatin1String(utf8BomBehaviorKey)))
-        m_d->m_utf8BomSetting = (IFile::Utf8BomSetting)settings->value(QLatin1String(utf8BomBehaviorKey)).toInt();
 }
 
 
@@ -1900,17 +1893,7 @@ IFile::ReloadSetting EditorManager::reloadSetting() const
     return m_d->m_reloadSetting;
 }
 
-void EditorManager::setUtf8BomSetting(IFile::Utf8BomSetting behavior)
-{
-    m_d->m_utf8BomSetting = behavior;
-}
-
-IFile::Utf8BomSetting EditorManager::utf8BomSetting() const
-{
-    return m_d->m_utf8BomSetting;
-}
-
-QTextCodec *EditorManager::defaultTextEncoding() const
+QTextCodec *EditorManager::defaultTextCodec() const
 {
     QSettings *settings = Core::ICore::instance()->settings();
     if (QTextCodec *candidate = QTextCodec::codecForName(

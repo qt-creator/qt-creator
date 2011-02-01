@@ -43,6 +43,7 @@
 #include "fontsettingspage.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
+#include "extraencodingsettings.h"
 #include "texteditorplugin.h"
 #include "highlightersettingspage.h"
 #include "snippetssettingspage.h"
@@ -238,6 +239,8 @@ void TextEditorSettings::initializeEditor(BaseTextEditor *editor)
             editor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
     connect(this, SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
             editor, SLOT(setCompletionSettings(TextEditor::CompletionSettings)));
+    connect(this, SIGNAL(extraEncodingSettingsChanged(TextEditor::ExtraEncodingSettings)),
+            editor, SLOT(setExtraEncodingSettings(TextEditor::ExtraEncodingSettings)));
 
     connect(editor, SIGNAL(requestFontZoom(int)),
             this, SLOT(fontZoomRequested(int)));
@@ -251,6 +254,7 @@ void TextEditorSettings::initializeEditor(BaseTextEditor *editor)
     editor->setBehaviorSettings(behaviorSettings());
     editor->setDisplaySettings(displaySettings());
     editor->setCompletionSettings(completionSettings());
+    editor->setExtraEncodingSettings(extraEncodingSettings());
 }
 
 
@@ -287,6 +291,11 @@ const CompletionSettings &TextEditorSettings::completionSettings() const
 const HighlighterSettings &TextEditorSettings::highlighterSettings() const
 {
     return m_d->m_highlighterSettingsPage->highlighterSettings();
+}
+
+const ExtraEncodingSettings &TextEditorSettings::extraEncodingSettings() const
+{
+    return m_d->m_behaviorSettingsPage->extraEncodingSettings();
 }
 
 void TextEditorSettings::setCompletionSettings(const TextEditor::CompletionSettings &settings)

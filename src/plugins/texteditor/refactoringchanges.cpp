@@ -120,7 +120,7 @@ bool RefactoringChanges::createFile(const QString &fileName, const QString &cont
 
         if (reindent) {
             cursor.select(QTextCursor::Document);
-            indentSelection(cursor);
+            indentSelection(cursor, fileName, editor);
         }
 
         cursor.endEditBlock();
@@ -222,7 +222,7 @@ RefactoringFile::~RefactoringFile()
             // apply changes and reindent
             m_changes.apply(&c);
             foreach (const QTextCursor &selection, indentSelections) {
-                m_refactoringChanges->indentSelection(selection);
+                m_refactoringChanges->indentSelection(selection, m_fileName, m_editor);
             }
 
             c.endEditBlock();

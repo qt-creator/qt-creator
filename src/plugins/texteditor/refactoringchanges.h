@@ -122,7 +122,9 @@ private:
                                          bool openIfClosed = false);
 
     static QList<QTextCursor> rangesToSelections(QTextDocument *document, const QList<Range> &ranges);
-    virtual void indentSelection(const QTextCursor &selection) const = 0;
+    virtual void indentSelection(const QTextCursor &selection,
+                                 const QString &fileName,
+                                 const BaseTextEditor *textEditor) const = 0;
     virtual void fileChanged(const QString &fileName) = 0;
 
     friend class RefactoringFile;

@@ -111,9 +111,7 @@ Utils::FileIterator *AllProjectsFind::files() const
         foreach (const QString &fileName, filteredFiles) {
             QTextCodec *codec = openEditorEncodings.value(fileName);
             if (!codec)
-                codec = project->editorConfiguration()->defaultTextCodec();
-            if (!codec)
-                codec = Core::EditorManager::instance()->defaultTextEncoding();
+                codec = project->editorConfiguration()->textCodec();
             encodings.insert(fileName, codec);
         }
     }

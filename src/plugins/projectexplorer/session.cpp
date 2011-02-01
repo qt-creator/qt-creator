@@ -321,7 +321,7 @@ SessionManager::SessionManager(QObject *parent)
     Core::EditorManager *em = m_core->editorManager();
 
     connect(em, SIGNAL(editorCreated(Core::IEditor *, QString)),
-            this, SLOT(setEditorCodec(Core::IEditor *, QString)));
+            this, SLOT(configureEditor(Core::IEditor *, QString)));
     connect(ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project *)),
             this, SLOT(updateWindowTitle()));
     connect(em, SIGNAL(editorOpened(Core::IEditor*)),
@@ -823,13 +823,15 @@ bool SessionManager::projectContainsFile(Project *p, const QString &fileName) co
     return m_projectFileCache.value(p).contains(fileName);
 }
 
-void SessionManager::setEditorCodec(Core::IEditor *editor, const QString &fileName)
+void SessionManager::configureEditor(Core::IEditor *editor, const QString &fileName)
 {
-    if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor))
-        if (Project *project = projectForFile(fileName)) {
-            if (QTextCodec *codec = project->editorConfiguration()->defaultTextCodec())
-                textEditor->setTextCodec(codec, TextEditor::ITextEditor::TextCodecFromProjectSetting);
+    if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor)) {
+        Project *project = projectForFile(fileName);
+        // Global settings are the default.
+        if (project && !project->editorConfiguration()->useGlobalSettings()) {
+            project->editorConfiguration()->apply(textEditor);
         }
+    }
 }
 
 QString SessionManager::currentSession() const

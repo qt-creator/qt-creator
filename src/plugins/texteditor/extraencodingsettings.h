@@ -6,12 +6,12 @@
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-** No Commercial Usage
+** Commercial Usage
 **
-** This file contains pre-release code and may not be distributed.
-** You may use this file in accordance with the terms and conditions
-** contained in the Technology Preview License Agreement accompanying
-** this package.
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
 **
 ** GNU Lesser General Public License Usage
 **
@@ -22,17 +22,13 @@
 ** ensure the GNU Lesser General Public License version 2.1 requirements
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights.  These rights are described in the Nokia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** If you have questions regarding the use of this file, please contact
-** Nokia at qt-info@nokia.com.
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 
-#ifndef BEHAVIORSETTINGS_H
-#define BEHAVIORSETTINGS_H
+#ifndef ENCODINGSETTINGS_H
+#define ENCODINGSETTINGS_H
 
 #include "texteditor_global.h"
 
@@ -44,14 +40,11 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-/**
- * Settings that describe how the text editor behaves. This does not include
- * the TabSettings and StorageSettings.
- */
-class TEXTEDITOR_EXPORT BehaviorSettings
+class TEXTEDITOR_EXPORT ExtraEncodingSettings
 {
 public:
-    BehaviorSettings();
+    ExtraEncodingSettings();
+    ~ExtraEncodingSettings();
 
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, const QSettings *s);
@@ -59,15 +52,22 @@ public:
     void toMap(const QString &prefix, QVariantMap *map) const;
     void fromMap(const QString &prefix, const QVariantMap &map);
 
-    bool equals(const BehaviorSettings &bs) const;
+    bool equals(const ExtraEncodingSettings &s) const;
 
-    bool m_mouseNavigation;
-    bool m_scrollWheelZooming;
+    enum Utf8BomSetting {
+        AlwaysAdd = 0,
+        OnlyKeep = 1,
+        AlwaysDelete = 2
+    };
+    Utf8BomSetting m_utf8BomSetting;
 };
 
-inline bool operator==(const BehaviorSettings &t1, const BehaviorSettings &t2) { return t1.equals(t2); }
-inline bool operator!=(const BehaviorSettings &t1, const BehaviorSettings &t2) { return !t1.equals(t2); }
+inline bool operator==(const ExtraEncodingSettings &a, const ExtraEncodingSettings &b)
+{ return a.equals(b); }
 
-} // namespace TextEditor
+inline bool operator!=(const ExtraEncodingSettings &a, const ExtraEncodingSettings &b)
+{ return !a.equals(b); }
 
-#endif // BEHAVIORSETTINGS_H
+} // TextEditor
+
+#endif // ENCODINGSETTINGS_H

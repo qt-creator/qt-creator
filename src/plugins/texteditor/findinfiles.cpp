@@ -73,7 +73,7 @@ Utils::FileIterator *FindInFiles::files() const
 {
     return new Utils::SubDirFileIterator(QStringList() << m_directory->currentText(),
                                          fileNameFilters(),
-                                         Core::EditorManager::instance()->defaultTextEncoding());
+                                         Core::EditorManager::instance()->defaultTextCodec());
 }
 
 QWidget *FindInFiles::createConfigWidget()

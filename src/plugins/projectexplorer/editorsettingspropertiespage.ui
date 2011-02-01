@@ -6,29 +6,64 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>275</width>
-    <height>44</height>
+    <width>368</width>
+    <height>98</height>
    </rect>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
-   <property name="leftMargin">
-    <number>0</number>
-   </property>
-   <property name="rightMargin">
-    <number>0</number>
-   </property>
-   <item>
-    <widget class="QLabel" name="encodingLabel">
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="2">
+    <widget class="QCheckBox" name="useGlobalCheckBox">
      <property name="text">
-      <string>Default file encoding:</string>
+      <string>Use global settings</string>
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="QComboBox" name="encodingComboBox"/>
+   <item row="1" column="0" colspan="3">
+    <widget class="TextEditor::BehaviorSettingsWidget" name="behaviorSettingsWidget" native="true"/>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>224</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>12</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="2">
+    <widget class="QPushButton" name="restoreButton">
+     <property name="text">
+      <string>Restore Global Values</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TextEditor::BehaviorSettingsWidget</class>
+   <extends>QWidget</extends>
+   <header>texteditor/behaviorsettingswidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

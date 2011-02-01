@@ -1555,7 +1555,8 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         const TabSettings &ts = d->m_document->tabSettings();
         cursor.beginEditBlock();
 
-        int extraBlocks = d->m_autoCompleter->paragraphSeparatorAboutToBeInserted(cursor);
+        int extraBlocks =
+            d->m_autoCompleter->paragraphSeparatorAboutToBeInserted(cursor, tabSettings());
 
         QString previousIndentationString;
         if (ts.m_autoIndent) {
@@ -5422,6 +5423,11 @@ void BaseTextEditor::setCompletionSettings(const TextEditor::CompletionSettings 
 {
     d->m_autoCompleter->setAutoParenthesesEnabled(completionSettings.m_autoInsertBrackets);
     d->m_autoCompleter->setSurroundWithEnabled(completionSettings.m_autoInsertBrackets);
+}
+
+void BaseTextEditor::setExtraEncodingSettings(const ExtraEncodingSettings &extraEncodingSettings)
+{
+    d->m_document->setExtraEncodingSettings(extraEncodingSettings);
 }
 
 void BaseTextEditor::fold()

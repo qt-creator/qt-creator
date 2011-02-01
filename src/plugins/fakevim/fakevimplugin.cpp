@@ -1169,9 +1169,12 @@ void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
         //core->updateAdditionalContexts(Core::Context(),
         // Core::Context(FAKEVIM_CONTEXT));
         showCommandBuffer(QString());
-        TabSettings ts = TextEditorSettings::instance()->tabSettings();
-        foreach (Core::IEditor *editor, m_editorToHandler.keys())
-            m_editorToHandler[editor]->restoreWidget(ts.m_tabSize);
+        foreach (Core::IEditor *editor, m_editorToHandler.keys()) {
+            if (TextEditor::BaseTextEditor *textEditor =
+                    qobject_cast<TextEditor::BaseTextEditor *>(editor->widget())) {
+                m_editorToHandler[editor]->restoreWidget(textEditor->tabSettings().m_tabSize);
+            }
+        }
     }
 }
 

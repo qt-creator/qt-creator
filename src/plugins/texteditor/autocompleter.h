@@ -45,6 +45,8 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
+class TabSettings;
+
 class TEXTEDITOR_EXPORT AutoCompleter
 {
 public:
@@ -64,7 +66,8 @@ public:
     virtual bool autoBackspace(QTextCursor &cursor);
 
     // Hook to insert special characters on enter. Returns the number of extra blocks inserted.
-    virtual int paragraphSeparatorAboutToBeInserted(QTextCursor &cursor);
+    virtual int paragraphSeparatorAboutToBeInserted(QTextCursor &cursor,
+                                                    const TabSettings &tabSettings);
 
     virtual bool contextAllowsAutoParentheses(const QTextCursor &cursor,
                                               const QString &textToInsert = QString()) const;

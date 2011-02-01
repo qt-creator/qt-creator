@@ -39,6 +39,7 @@
 #include <cpptools/cppmodelmanager.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/tabsettings.h>
+#include <projectexplorer/editorconfiguration.h>
 
 #include <QtGui/QTextBlock>
 
@@ -64,7 +65,9 @@ CppRefactoringFile CppRefactoringChanges::file(const QString &fileName)
     return CppRefactoringFile(fileName, this);
 }
 
-void CppRefactoringChanges::indentSelection(const QTextCursor &selection) const
+void CppRefactoringChanges::indentSelection(const QTextCursor &selection,
+                                            const QString &fileName,
+                                            const TextEditor::BaseTextEditor *textEditor) const
 {
     // ### shares code with CPPEditor::indent()
     QTextDocument *doc = selection.document();
@@ -72,7 +75,8 @@ void CppRefactoringChanges::indentSelection(const QTextCursor &selection) const
     QTextBlock block = doc->findBlock(selection.selectionStart());
     const QTextBlock end = doc->findBlock(selection.selectionEnd()).next();
 
-    const TextEditor::TabSettings &tabSettings(TextEditor::TextEditorSettings::instance()->tabSettings());
+    const TextEditor::TabSettings &tabSettings =
+        ProjectExplorer::actualTabSettings(fileName, textEditor);
     CppTools::QtStyleCodeFormatter codeFormatter(tabSettings);
     codeFormatter.updateStateUntil(block);
 

@@ -33,6 +33,8 @@
 
 #include "tabsettings.h"
 
+#include <utils/settingsutils.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
 #include <QtCore/QString>
@@ -69,46 +71,48 @@ TabSettings::TabSettings() :
 
 void TabSettings::toSettings(const QString &category, QSettings *s) const
 {
-    QString group = QLatin1String(groupPostfix);
-    if (!category.isEmpty())
-        group.insert(0, category);
-    s->beginGroup(group);
-    s->setValue(QLatin1String(spacesForTabsKey),  m_spacesForTabs);
-    s->setValue(QLatin1String(autoSpacesForTabsKey),  m_autoSpacesForTabs);
-    s->setValue(QLatin1String(autoIndentKey), m_autoIndent);
-    s->setValue(QLatin1String(smartBackspaceKey), m_smartBackspace);
-    s->setValue(QLatin1String(tabSizeKey), m_tabSize);
-    s->setValue(QLatin1String(indentSizeKey), m_indentSize);
-    s->setValue(QLatin1String(indentBracesKey), m_indentBraces);
-    s->setValue(QLatin1String(doubleIndentBlocksKey), m_doubleIndentBlocks);
-    s->setValue(QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior);
-    s->setValue(QLatin1String(paddingModeKey), m_continuationAlignBehavior);
-    s->endGroup();
+    Utils::toSettings(QLatin1String(groupPostfix), category, s, this);
 }
 
 void TabSettings::fromSettings(const QString &category, const QSettings *s)
 {
-    QString group = QLatin1String(groupPostfix);
-    if (!category.isEmpty())
-        group.insert(0, category);
-    group += QLatin1Char('/');
-
     *this = TabSettings(); // Assign defaults
-
-    m_spacesForTabs     = s->value(group + QLatin1String(spacesForTabsKey), m_spacesForTabs).toBool();
-    m_autoSpacesForTabs = s->value(group + QLatin1String(autoSpacesForTabsKey), m_autoSpacesForTabs).toBool();
-    m_autoIndent        = s->value(group + QLatin1String(autoIndentKey), m_autoIndent).toBool();
-    m_smartBackspace    = s->value(group + QLatin1String(smartBackspaceKey), m_smartBackspace).toBool();
-    m_tabSize           = s->value(group + QLatin1String(tabSizeKey), m_tabSize).toInt();
-    m_indentSize        = s->value(group + QLatin1String(indentSizeKey), m_indentSize).toInt();
-    m_indentBraces      = s->value(group + QLatin1String(indentBracesKey), m_indentBraces).toBool();
-    m_doubleIndentBlocks
-			= s->value(group + QLatin1String(doubleIndentBlocksKey), m_doubleIndentBlocks).toBool();
-
-    m_tabKeyBehavior    = (TabKeyBehavior)s->value(group + QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior).toInt();
-    m_continuationAlignBehavior       = (ContinuationAlignBehavior)s->value(group + QLatin1String(paddingModeKey), m_continuationAlignBehavior).toInt();
+    Utils::fromSettings(QLatin1String(groupPostfix), category, s, this);
 }
 
+void TabSettings::toMap(const QString &prefix, QVariantMap *map) const
+{
+    map->insert(prefix + QLatin1String(spacesForTabsKey), m_spacesForTabs);
+    map->insert(prefix + QLatin1String(autoSpacesForTabsKey), m_autoSpacesForTabs);
+    map->insert(prefix + QLatin1String(autoIndentKey), m_autoIndent);
+    map->insert(prefix + QLatin1String(smartBackspaceKey), m_smartBackspace);
+    map->insert(prefix + QLatin1String(tabSizeKey), m_tabSize);
+    map->insert(prefix + QLatin1String(indentSizeKey), m_indentSize);
+    map->insert(prefix + QLatin1String(indentBracesKey), m_indentBraces);
+    map->insert(prefix + QLatin1String(doubleIndentBlocksKey), m_doubleIndentBlocks);
+    map->insert(prefix + QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior);
+    map->insert(prefix + QLatin1String(paddingModeKey), m_continuationAlignBehavior);
+}
+
+void TabSettings::fromMap(const QString &prefix, const QVariantMap &map)
+{
+    m_spacesForTabs =
+        map.value(prefix + QLatin1String(spacesForTabsKey), m_spacesForTabs).toBool();
+    m_autoSpacesForTabs =
+        map.value(prefix + QLatin1String(autoSpacesForTabsKey), m_autoSpacesForTabs).toBool();
+    m_autoIndent = map.value(prefix + QLatin1String(autoIndentKey), m_autoIndent).toBool();
+    m_smartBackspace =
+            map.value(prefix + QLatin1String(smartBackspaceKey), m_smartBackspace).toBool();
+    m_tabSize = map.value(prefix + QLatin1String(tabSizeKey), m_tabSize).toInt();
+    m_indentSize = map.value(prefix + QLatin1String(indentSizeKey), m_indentSize).toInt();
+    m_indentBraces = map.value(prefix + QLatin1String(indentBracesKey), m_indentBraces).toBool();
+    m_doubleIndentBlocks =
+        map.value(prefix + QLatin1String(doubleIndentBlocksKey), m_doubleIndentBlocks).toBool();
+    m_tabKeyBehavior = (TabKeyBehavior)
+        map.value(prefix + QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior).toInt();
+    m_continuationAlignBehavior = (ContinuationAlignBehavior)
+        map.value(prefix + QLatin1String(paddingModeKey), m_continuationAlignBehavior).toInt();
+}
 
 bool TabSettings::cursorIsAtBeginningOfLine(const QTextCursor &cursor) const
 {

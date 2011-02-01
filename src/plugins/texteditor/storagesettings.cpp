@@ -33,6 +33,8 @@
 
 #include "storagesettings.h"
 
+#include <utils/settingsutils.h>
+
 #include <QtCore/QSettings>
 #include <QtCore/QString>
 
@@ -54,27 +56,33 @@ StorageSettings::StorageSettings()
 
 void StorageSettings::toSettings(const QString &category, QSettings *s) const
 {
-    QString group = QLatin1String(groupPostfix);
-    if (!category.isEmpty())
-        group.insert(0, category);
-    s->beginGroup(group);
-    s->setValue(QLatin1String(cleanWhitespaceKey), m_cleanWhitespace);
-    s->setValue(QLatin1String(inEntireDocumentKey), m_inEntireDocument);
-    s->setValue(QLatin1String(addFinalNewLineKey), m_addFinalNewLine);
-    s->setValue(QLatin1String(cleanIndentationKey), m_cleanIndentation);
-    s->endGroup();
+    Utils::toSettings(QLatin1String(groupPostfix), category, s, this);
 }
 
 void StorageSettings::fromSettings(const QString &category, const QSettings *s)
 {
-    QString group = QLatin1String(groupPostfix);
-    if (!category.isEmpty())
-        group.insert(0, category);
-    group += QLatin1Char('/');
-    m_cleanWhitespace = s->value(group + QLatin1String(cleanWhitespaceKey), m_cleanWhitespace).toBool();
-    m_inEntireDocument = s->value(group + QLatin1String(inEntireDocumentKey), m_inEntireDocument).toBool();
-    m_addFinalNewLine = s->value(group + QLatin1String(addFinalNewLineKey), m_addFinalNewLine).toBool();
-    m_cleanIndentation = s->value(group + QLatin1String(cleanIndentationKey), m_cleanIndentation).toBool();
+    *this = StorageSettings();
+    Utils::fromSettings(QLatin1String(groupPostfix), category, s, this);
+}
+
+void StorageSettings::toMap(const QString &prefix, QVariantMap *map) const
+{
+    map->insert(prefix + QLatin1String(cleanWhitespaceKey), m_cleanWhitespace);
+    map->insert(prefix + QLatin1String(inEntireDocumentKey), m_inEntireDocument);
+    map->insert(prefix + QLatin1String(addFinalNewLineKey), m_addFinalNewLine);
+    map->insert(prefix + QLatin1String(cleanIndentationKey), m_cleanIndentation);
+}
+
+void StorageSettings::fromMap(const QString &prefix, const QVariantMap &map)
+{
+    m_cleanWhitespace =
+        map.value(prefix + QLatin1String(cleanWhitespaceKey), m_cleanWhitespace).toBool();
+    m_inEntireDocument =
+        map.value(prefix + QLatin1String(inEntireDocumentKey), m_inEntireDocument).toBool();
+    m_addFinalNewLine =
+        map.value(prefix + QLatin1String(addFinalNewLineKey), m_addFinalNewLine).toBool();
+    m_cleanIndentation =
+        map.value(prefix + QLatin1String(cleanIndentationKey), m_cleanIndentation).toBool();
 }
 
 bool StorageSettings::equals(const StorageSettings &ts) const

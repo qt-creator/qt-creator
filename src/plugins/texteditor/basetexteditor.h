@@ -75,6 +75,7 @@ class DisplaySettings;
 class StorageSettings;
 class Indenter;
 class AutoCompleter;
+class ExtraEncodingSettings;
 
 class TEXTEDITOR_EXPORT BaseTextEditorAnimator : public QObject
 {
@@ -412,6 +413,7 @@ public slots:
     virtual void setBehaviorSettings(const TextEditor::BehaviorSettings &);
     virtual void setStorageSettings(const TextEditor::StorageSettings &);
     virtual void setCompletionSettings(const TextEditor::CompletionSettings &);
+    virtual void setExtraEncodingSettings(const TextEditor::ExtraEncodingSettings &);
 
 protected:
     bool viewportEvent(QEvent *event);

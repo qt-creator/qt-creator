@@ -80,7 +80,9 @@ SOURCES += texteditorplugin.cpp \
     snippets/snippetssettings.cpp \
     snippets/isnippetprovider.cpp \
     snippets/snippetcollector.cpp \
-    snippets/plaintextsnippetprovider.cpp
+    snippets/plaintextsnippetprovider.cpp \
+    behaviorsettingswidget.cpp \
+    extraencodingsettings.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -163,14 +165,18 @@ HEADERS += texteditorplugin.h \
     snippets/snippetssettings.h \
     snippets/isnippetprovider.h \
     snippets/snippetcollector.h \
-    snippets/plaintextsnippetprovider.h
+    snippets/plaintextsnippetprovider.h \
+    behaviorsettingswidget.h \
+    extraencodingsettings.h
 
-FORMS += behaviorsettingspage.ui \
+FORMS += \
     displaysettingspage.ui \
     fontsettingspage.ui \
     colorschemeedit.ui \
     generichighlighter/highlightersettingspage.ui \
     generichighlighter/managedefinitionsdialog.ui \
-    snippets/snippetssettingspage.ui
+    snippets/snippetssettingspage.ui \
+    behaviorsettingswidget.ui \
+    behaviorsettingspage.ui
 RESOURCES += texteditor.qrc
 OTHER_FILES += TextEditor.mimetypes.xml

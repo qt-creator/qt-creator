@@ -33,6 +33,8 @@
 
 #include "behaviorsettings.h"
 
+#include <utils/settingsutils.h>
+
 #include <QtCore/QSettings>
 #include <QtCore/QString>
 
@@ -50,26 +52,27 @@ BehaviorSettings::BehaviorSettings() :
 
 void BehaviorSettings::toSettings(const QString &category, QSettings *s) const
 {
-    QString group = QLatin1String(groupPostfix);
-    if (!category.isEmpty())
-        group.insert(0, category);
-    s->beginGroup(group);
-    s->setValue(QLatin1String(mouseNavigationKey), m_mouseNavigation);
-    s->setValue(QLatin1String(scrollWheelZoomingKey), m_scrollWheelZooming);
-    s->endGroup();
+    Utils::toSettings(QLatin1String(groupPostfix), category, s, this);
 }
 
 void BehaviorSettings::fromSettings(const QString &category, const QSettings *s)
 {
-    QString group = QLatin1String(groupPostfix);
-    if (!category.isEmpty())
-        group.insert(0, category);
-    group += QLatin1Char('/');
+    *this = BehaviorSettings();
+    Utils::fromSettings(QLatin1String(groupPostfix), category, s, this);
+}
 
-    *this = BehaviorSettings(); // Assign defaults
+void BehaviorSettings::toMap(const QString &prefix, QVariantMap *map) const
+{
+    map->insert(prefix + QLatin1String(mouseNavigationKey), m_mouseNavigation);
+    map->insert(prefix + QLatin1String(scrollWheelZoomingKey), m_scrollWheelZooming);
+}
 
-    m_mouseNavigation = s->value(group + QLatin1String(mouseNavigationKey), m_mouseNavigation).toBool();
-    m_scrollWheelZooming = s->value(group + QLatin1String(scrollWheelZoomingKey), m_scrollWheelZooming).toBool();
+void BehaviorSettings::fromMap(const QString &prefix, const QVariantMap &map)
+{
+    m_mouseNavigation =
+        map.value(prefix + QLatin1String(mouseNavigationKey), m_mouseNavigation).toBool();
+    m_scrollWheelZooming =
+        map.value(prefix + QLatin1String(scrollWheelZoomingKey), m_scrollWheelZooming).toBool();
 }
 
 bool BehaviorSettings::equals(const BehaviorSettings &ds) const

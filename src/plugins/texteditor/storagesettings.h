@@ -36,6 +36,8 @@
 
 #include "texteditor_global.h"
 
+#include <QtCore/QVariant>
+
 QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
@@ -49,6 +51,9 @@ public:
 
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, const QSettings *s);
+
+    void toMap(const QString &prefix, QVariantMap *map) const;
+    void fromMap(const QString &prefix, const QVariantMap &map);
 
     bool equals(const StorageSettings &ts) const;
 

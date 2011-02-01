@@ -37,6 +37,7 @@
 #include "basetexteditor.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
+#include "extraencodingsettings.h"
 #include "syntaxhighlighter.h"
 #include "texteditorconstants.h"
 
@@ -180,6 +181,7 @@ public:
     QString m_mimeType;
     StorageSettings m_storageSettings;
     TabSettings m_tabSettings;
+    ExtraEncodingSettings m_extraEncodingSettings;
     QTextDocument *m_document;
     Internal::DocumentMarker *m_documentMarker;
     SyntaxHighlighter *m_highlighter;
@@ -211,7 +213,7 @@ BaseTextDocumentPrivate::BaseTextDocumentPrivate(BaseTextDocument *q) :
     m_documentMarker(new Internal::DocumentMarker(m_document)),
     m_highlighter(0),
     m_lineTerminatorMode(NativeLineTerminator),
-    m_codec(Core::EditorManager::instance()->defaultTextEncoding()),
+    m_codec(Core::EditorManager::instance()->defaultTextCodec()),
     m_fileHasUtf8Bom(false),
     m_fileIsReadOnly(false),
     m_hasDecodingError(false)
@@ -258,6 +260,16 @@ void BaseTextDocument::setTabSettings(const TabSettings &tabSettings)
 const TabSettings &BaseTextDocument::tabSettings() const
 {
     return d->m_tabSettings;
+}
+
+void BaseTextDocument::setExtraEncodingSettings(const ExtraEncodingSettings &extraEncodingSettings)
+{
+    d->m_extraEncodingSettings = extraEncodingSettings;
+}
+
+const ExtraEncodingSettings &BaseTextDocument::extraEncodingSettings() const
+{
+    return d->m_extraEncodingSettings;
 }
 
 QString BaseTextDocument::fileName() const
@@ -358,9 +370,10 @@ bool BaseTextDocument::save(const QString &fileName)
     if (d->m_lineTerminatorMode == BaseTextDocumentPrivate::CRLFLineTerminator)
         plainText.replace(QLatin1Char('\n'), QLatin1String("\r\n"));
 
-    Core::IFile::Utf8BomSetting utf8bomSetting = Core::EditorManager::instance()->utf8BomSetting();
-    if (d->m_codec->name() == "UTF-8" &&
-        (utf8bomSetting == Core::IFile::AlwaysAdd || (utf8bomSetting == Core::IFile::OnlyKeep && d->m_fileHasUtf8Bom))) {
+    if (d->m_codec->name() == "UTF-8"
+            && (d->m_extraEncodingSettings.m_utf8BomSetting == ExtraEncodingSettings::AlwaysAdd
+                || (d->m_extraEncodingSettings.m_utf8BomSetting == ExtraEncodingSettings::OnlyKeep
+                    && d->m_fileHasUtf8Bom))) {
         file.write("\xef\xbb\xbf", 3);
     }
 

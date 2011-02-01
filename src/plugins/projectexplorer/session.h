@@ -158,7 +158,7 @@ signals:
 private slots:
     void saveActiveMode(Core::IMode *mode);
     void clearProjectFileCache();
-    void setEditorCodec(Core::IEditor *editor, const QString &fileName);
+    void configureEditor(Core::IEditor *editor, const QString &fileName);
     void updateWindowTitle();
 
     void markSessionFileDirty(bool makeDefaultVirginDirty = true);

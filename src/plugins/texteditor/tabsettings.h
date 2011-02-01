@@ -36,6 +36,7 @@
 
 #include "texteditor_global.h"
 
+#include <QtCore/QVariant>
 #include <QtGui/QTextBlock>
 
 QT_BEGIN_NAMESPACE
@@ -68,6 +69,8 @@ public:
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, const QSettings *s);
 
+    void toMap(const QString &prefix, QVariantMap *map) const;
+    void fromMap(const QString &prefix, const QVariantMap &map);
 
     int lineIndentPosition(const QString &text) const;
     int firstNonSpace(const QString &text) const;

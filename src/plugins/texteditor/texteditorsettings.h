@@ -48,6 +48,7 @@ class BehaviorSettings;
 class DisplaySettings;
 class CompletionSettings;
 class HighlighterSettings;
+class ExtraEncodingSettings;
 
 namespace Internal {
 class TextEditorSettingsPrivate;
@@ -77,6 +78,7 @@ public:
     const DisplaySettings &displaySettings() const;
     const CompletionSettings &completionSettings() const;
     const HighlighterSettings &highlighterSettings() const;
+    const ExtraEncodingSettings &extraEncodingSettings() const;
 
     void setCompletionSettings(const TextEditor::CompletionSettings &);
 
@@ -87,6 +89,7 @@ signals:
     void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
     void displaySettingsChanged(const TextEditor::DisplaySettings &);
     void completionSettingsChanged(const TextEditor::CompletionSettings &);
+    void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
 
 private:
     Internal::TextEditorSettingsPrivate *m_d;

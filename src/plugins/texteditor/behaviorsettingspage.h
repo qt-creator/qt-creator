@@ -43,6 +43,7 @@ namespace TextEditor {
 class TabSettings;
 class StorageSettings;
 class BehaviorSettings;
+class ExtraEncodingSettings;
 
 class BehaviorSettingsPageParameters
 {
@@ -72,16 +73,19 @@ public:
     const TabSettings &tabSettings() const;
     const StorageSettings &storageSettings() const;
     const BehaviorSettings &behaviorSettings() const;
+    const ExtraEncodingSettings &extraEncodingSettings() const;
 
 signals:
     void tabSettingsChanged(const TextEditor::TabSettings &);
     void storageSettingsChanged(const TextEditor::StorageSettings &);
     void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
+    void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
 
 private:
-    void settingsFromUI(TabSettings &rc,
-                        StorageSettings &storageSettings,
-                        BehaviorSettings &behaviorSettings) const;
+    void settingsFromUI(TabSettings *tabSettings,
+                        StorageSettings *storageSettings,
+                        BehaviorSettings *behaviorSettings,
+                        ExtraEncodingSettings *extraEncodingSettings) const;
     void settingsToUI();
 
     QList<QTextCodec *> m_codecs;

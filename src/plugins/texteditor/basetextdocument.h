@@ -51,6 +51,7 @@ class DocumentMarker;
 class ITextMarkable;
 class StorageSettings;
 class TabSettings;
+class ExtraEncodingSettings;
 class SyntaxHighlighter;
 class BaseTextDocumentPrivate;
 
@@ -64,9 +65,11 @@ public:
 
     void setStorageSettings(const StorageSettings &storageSettings);
     void setTabSettings(const TabSettings &tabSettings);
+    void setExtraEncodingSettings(const ExtraEncodingSettings &extraEncodingSettings);
 
     const StorageSettings &storageSettings() const;
     const TabSettings &tabSettings() const;
+    const ExtraEncodingSettings &extraEncodingSettings() const;
 
     ITextMarkable *documentMarker() const;
 
