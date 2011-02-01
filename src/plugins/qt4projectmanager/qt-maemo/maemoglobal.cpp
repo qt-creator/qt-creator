@@ -84,7 +84,7 @@ bool MaemoGlobal::isValidMaemoQtVersion(const QtVersion *qtVersion,
         return false;
     QProcess madAdminProc;
     const QStringList arguments(QLatin1String("list"));
-    if (!callMadAdmin(madAdminProc, arguments, qtVersion))
+    if (!callMadAdmin(madAdminProc, arguments, qtVersion, false))
         return false;
     if (!madAdminProc.waitForStarted() || !madAdminProc.waitForFinished())
         return false;
@@ -202,10 +202,9 @@ MaemoGlobal::MaemoVersion MaemoGlobal::version(const QtVersion *qtVersion)
 QString MaemoGlobal::architecture(const QtVersion *qtVersion)
 {
     QProcess proc;
-    const QStringList args = QStringList() << QLatin1String("-t")
-        << targetName(qtVersion) << QLatin1String("uname")
+    const QStringList args = QStringList() << QLatin1String("uname")
         << QLatin1String("-m");
-    if (!callMad(proc, args, qtVersion))
+    if (!callMad(proc, args, qtVersion, true))
         return QString();
     if (!proc.waitForFinished())
         return QString();
@@ -246,39 +245,48 @@ bool MaemoGlobal::removeRecursively(const QString &filePath, QString &error)
 }
 
 bool MaemoGlobal::callMad(QProcess &proc, const QStringList &args,
-    const QtVersion *qtVersion)
+    const QtVersion *qtVersion, bool useTarget)
 {
-    return callMaddeShellScript(proc, maddeRoot(qtVersion),
-        madCommand(qtVersion), args);
+    return callMaddeShellScript(proc, qtVersion, madCommand(qtVersion), args,
+        useTarget);
 }
 
 bool MaemoGlobal::callMadAdmin(QProcess &proc, const QStringList &args,
-    const QtVersion *qtVersion)
+    const QtVersion *qtVersion, bool useTarget)
 {
-    return callMaddeShellScript(proc, maddeRoot(qtVersion),
-        madAdminCommand(qtVersion), args);
+    return callMaddeShellScript(proc, qtVersion, madAdminCommand(qtVersion),
+        args, useTarget);
 }
 
-bool MaemoGlobal::callMaddeShellScript(QProcess &proc, const QString &maddeRoot,
-    const QString &command, const QStringList &args)
+bool MaemoGlobal::callMaddeShellScript(QProcess &proc,
+    const QtVersion *qtVersion, const QString &command, const QStringList &args,
+    bool useTarget)
 {
     if (!QFileInfo(command).exists())
         return false;
     QString actualCommand = command;
-    QStringList actualArgs = args;
+    QStringList actualArgs = targetArgs(qtVersion, useTarget) + args;
 #ifdef Q_OS_WIN
     Utils::Environment env(proc.systemEnvironment());
-    env.prependOrSetPath(maddeRoot + QLatin1String("/bin"));
+    const QString root = maddeRoot(qtVersion);
+    env.prependOrSetPath(root + QLatin1String("/bin"));
     env.prependOrSet(QLatin1String("HOME"),
         QDesktopServices::storageLocation(QDesktopServices::HomeLocation));
     proc.setEnvironment(env.toStringList());
     actualArgs.prepend(command);
-    actualCommand = maddeRoot + QLatin1String("/bin/sh.exe");
-#else
-    Q_UNUSED(maddeRoot);
+    actualCommand = root + QLatin1String("/bin/sh.exe");
 #endif
     proc.start(actualCommand, actualArgs);
     return true;
+}
+
+QStringList MaemoGlobal::targetArgs(const QtVersion *qtVersion, bool useTarget)
+{
+    QStringList args;
+    if (useTarget) {
+        args << QLatin1String("-t") << targetName(qtVersion);
+    }
+    return args;
 }
 
 MaemoGlobal::FileUpdate::FileUpdate(const QString &fileName)

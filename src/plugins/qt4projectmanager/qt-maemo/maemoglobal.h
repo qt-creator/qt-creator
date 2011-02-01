@@ -92,11 +92,10 @@ public:
     static MaemoVersion version(const QtVersion *qtVersion);
     static QString architecture(const QtVersion *version);
 
-    // TODO: Provide version that inserts "-t <target>" itself.
     static bool callMad(QProcess &proc, const QStringList &args,
-        const QtVersion *qtVersion);
+        const QtVersion *qtVersion, bool useTarget);
     static bool callMadAdmin(QProcess &proc, const QStringList &args,
-        const QtVersion *qtVersion);
+        const QtVersion *qtVersion, bool useTarget);
 
     static bool removeRecursively(const QString &filePath, QString &error);
 
@@ -134,8 +133,9 @@ private:
     static bool isValidMaemoQtVersion(const Qt4ProjectManager::QtVersion *qtVersion,
         MaemoVersion maemoVersion);
     static QString madAdminCommand(const QtVersion *qtVersion);
-    static bool callMaddeShellScript(QProcess &proc, const QString &maddeRoot,
-        const QString &command, const QStringList &args);
+    static bool callMaddeShellScript(QProcess &proc, const QtVersion *qtVersion,
+        const QString &command, const QStringList &args, bool useTarget);
+    static QStringList targetArgs(const QtVersion *qtVersion, bool useTarget);
 };
 
 } // namespace Internal

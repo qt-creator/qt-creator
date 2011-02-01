@@ -613,10 +613,9 @@ void MaemoDeployStep::installToSysroot()
         const Qt4BuildConfiguration * const bc
             = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
         const QtVersion * const qtVersion = bc->qtVersion();
-        const QStringList args = QStringList() << QLatin1String("-t")
-            << MaemoGlobal::targetName(qtVersion) << QLatin1String("xdpkg")
+        const QStringList args = QStringList() << QLatin1String("xdpkg")
             << QLatin1String("-i") << packagingStep()->packageFilePath();
-        MaemoGlobal::callMadAdmin(*m_sysrootInstaller, args, qtVersion);
+        MaemoGlobal::callMadAdmin(*m_sysrootInstaller, args, qtVersion, true);
         if (!m_sysrootInstaller->waitForStarted()) {
             writeOutput(tr("Installation to sysroot failed, continuing anyway."),
                 ErrorMessageOutput);

@@ -173,8 +173,7 @@ bool MaemoPackageCreationStep::createPackage(QProcess *buildProc)
 
     const QtVersion * const qtVersion = qt4BuildConfiguration()->qtVersion();
     const QString madCommand = MaemoGlobal::madCommand(qtVersion);
-    QStringList args = QStringList() << QLatin1String("-t")
-        << MaemoGlobal::targetName(qtVersion);
+    QStringList args;
     if (debBasedMaemoTarget()) {
         args << QLatin1String("dpkg-buildpackage") << QLatin1String("-nc")
             << QLatin1String("-uc") << QLatin1String("-us");
@@ -186,7 +185,7 @@ bool MaemoPackageCreationStep::createPackage(QProcess *buildProc)
         + args.join(QLatin1String(" "));
     emit addOutput(tr("Package Creation: Running command '%1'.").arg(cmdLine),
         BuildStep::MessageOutput);
-    MaemoGlobal::callMad(*buildProc, args, qtVersion);
+    MaemoGlobal::callMad(*buildProc, args, qtVersion, true);
     if (!buildProc->waitForStarted()) {
         raiseError(tr("Packaging failed."),
             tr("Packaging error: Could not start command '%1'. Reason: %2")
