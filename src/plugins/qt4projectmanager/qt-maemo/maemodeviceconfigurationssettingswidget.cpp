@@ -407,7 +407,7 @@ void MaemoDeviceConfigurationsSettingsWidget::deployKey()
         SLOT(handleKeyUploadFinished(int)));
     const QByteArray command = "test -d .ssh "
         "|| mkdir .ssh && chmod 0700 .ssh && echo '"
-        + key + "' >> .ssh/authorized_keys";
+        + key + "' >> .ssh/authorized_keys && chmod 0700 .ssh/authorized_keys";
     m_keyDeployer->run(command);
 }
 
