@@ -37,8 +37,8 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/toolchaintype.h>
+#include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/abi.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTextStream>
@@ -47,22 +47,37 @@
 namespace Debugger {
 namespace Internal {
 
-const char gdbBinariesSettingsGroupC[] = "GdbBinaries";
-const char debugModeGdbBinaryKeyC[] = "GdbBinary";
+static const char *GDB_MAPPING_ARRAY = "GdbMapping";
+static const char *GDB_ABI_KEY = "Abi";
+static const char *GDB_BINARY_KEY = "Binary";
 
-GdbOptionsPage::GdbBinaryToolChainMap GdbOptionsPage::gdbBinaryToolChainMap;
-bool GdbOptionsPage::gdbBinariesChanged = true;
+GdbOptionsPage::GdbBinaryToolChainMap GdbOptionsPage::abiToGdbMap;
+bool GdbOptionsPage::gdbMappingChanged = true;
 
-void GdbOptionsPage::readGdbBinarySettings() /* static */
+void GdbOptionsPage::readGdbSettings() /* static */
 {
+    // FIXME: Convert old settings!
     using namespace ProjectExplorer;
     QSettings *settings = Core::ICore::instance()->settings();
-    // Convert gdb binaries from flat settings list (see writeSettings)
-    // into map ("binary1=gdb,1,2", "binary2=symbian_gdb,3,4").
-    gdbBinaryToolChainMap.clear();
+
+    abiToGdbMap.clear();
+
+    int size = settings->beginReadArray(GDB_MAPPING_ARRAY);
+    for (int i = 0; i < size; ++i) {
+        settings->setArrayIndex(i);
+        ProjectExplorer::Abi abi(settings->value(GDB_ABI_KEY).toString());
+        if (!abi.isValid())
+            continue;
+        QString binary = settings->value(GDB_BINARY_KEY).toString();
+        if (binary.isEmpty())
+            continue;
+        abiToGdbMap.insert(abi.toString(), binary);
+    }
+    settings->endArray();
+
+    // Map old settings (pre 2.2):
     const QChar separator = QLatin1Char(',');
-    const QString keyRoot = QLatin1String(gdbBinariesSettingsGroupC) + QLatin1Char('/') +
-                            QLatin1String(debugModeGdbBinaryKeyC);
+    const QString keyRoot = QLatin1String("GdbBinaries/GdbBinaries");
     for (int i = 1; ; i++) {
         const QString value = settings->value(keyRoot + QString::number(i)).toString();
         if (value.isEmpty())
@@ -71,81 +86,116 @@ void GdbOptionsPage::readGdbBinarySettings() /* static */
         QStringList tokens = value.split(separator);
         if (tokens.size() < 2)
             break;
+
         const QString binary = tokens.front();
         // Skip non-existent absolute binaries allowing for upgrades by the installer.
         // Force a rewrite of the settings file.
         const QFileInfo binaryInfo(binary);
         if (binaryInfo.isAbsolute() && !binaryInfo.isExecutable()) {
-            gdbBinariesChanged = true;
             const QString msg = QString::fromLatin1("Warning: The gdb binary '%1' does not exist, skipping.\n").arg(binary);
             qWarning("%s", qPrintable(msg));
             continue;
         }
+
         // Create entries for all toolchains.
         tokens.pop_front();
         foreach (const QString &t, tokens) {
             // Paranoia: Check if the there is already a binary configured for the toolchain.
-            const int toolChain = t.toInt();
-            const QString predefinedGdb = gdbBinaryToolChainMap.key(toolChain);
-            if (predefinedGdb.isEmpty()) {
-                gdbBinaryToolChainMap.insert(binary, toolChain);
-            } else {
-                const QString toolChainName =
-                    ProjectExplorer::ToolChain::toolChainName(ToolChainType(toolChain));
-                const QString msg =
-                        QString::fromLatin1("An inconsistency has been encountered in the Ini-file '%1':\n"
-                                            "Skipping gdb binary '%2' for toolchain '%3' as '%4' is already configured for it.").
-                        arg(settings->fileName(), binary, toolChainName, predefinedGdb);
-                qWarning("%s", qPrintable(msg));
+            QString abi;
+            switch (t.toInt())
+            {
+            case 0: // GCC
+            case 1: // Linux ICC
+#ifndef Q_OS_WIN
+                abi = ProjectExplorer::Abi::hostAbi().toString();
+#endif
+                break;
+            case 2: // MinGW
+            case 3: // MSVC
+            case 4: // WINCE
+#ifdef Q_OS_WIN
+                abi = ProjectExplorer::Abi::hostAbi().toString();
+#endif
+                break;
+            case 5: // WINSCW
+                abi = ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Symbian,
+                                           ProjectExplorer::Abi::Symbian_emulator,
+                                           ProjectExplorer::Abi::Format_ELF,
+                                           32).toString();
+                break;
+            case 6: // GCCE
+            case 7: // RVCT 2, ARM v5
+            case 8: // RVCT 2, ARM v6
+            case 11: // RVCT GNUPOC
+            case 12: // RVCT 4, ARM v5
+            case 13: // RVCT 4, ARM v6
+                abi = ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Symbian,
+                                           ProjectExplorer::Abi::Symbian_device,
+                                           ProjectExplorer::Abi::Format_ELF,
+                                           32).toString();
+                break;
+            case 9: // GCC Maemo5
+                abi = ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Linux,
+                                           ProjectExplorer::Abi::Linux_maemo,
+                                           ProjectExplorer::Abi::Format_ELF,
+                                           32).toString();
+
+                break;
+            case 14: // GCC Harmattan
+                abi = ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Linux,
+                                           ProjectExplorer::Abi::Linux_harmattan,
+                                           ProjectExplorer::Abi::Format_ELF,
+                                           32).toString();
+                break;
+            case 15: // GCC Meego
+                abi = ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Linux,
+                                           ProjectExplorer::Abi::Linux_meego,
+                                           ProjectExplorer::Abi::Format_ELF,
+                                           32).toString();
+                break;
+            default:
+                break;
             }
+            if (abi.isEmpty() || abiToGdbMap.contains(abi))
+                continue;
+
+            abiToGdbMap.insert(abi, binary);
         }
     }
-    // Linux defaults
-#ifdef Q_OS_UNIX
-    if (gdbBinaryToolChainMap.isEmpty()) {
-        const QString gdb = QLatin1String("gdb");
-        gdbBinaryToolChainMap.insert(gdb, ToolChain_GCC);
-        gdbBinaryToolChainMap.insert(gdb, ToolChain_LINUX_ICC);
-        gdbBinaryToolChainMap.insert(gdb, ToolChain_OTHER);
-        gdbBinaryToolChainMap.insert(gdb, ToolChain_UNKNOWN);
-    }
-#endif
+
+    gdbMappingChanged = false;
 }
 
-void GdbOptionsPage::writeGdbBinarySettings() /* static */
+void GdbOptionsPage::writeGdbSettings() /* static */
 {
+    // FIXME: This should actually get called in response to ICore::saveSettingsRequested()
+    if (!gdbMappingChanged)
+        return;
+
     QSettings *settings = Core::ICore::instance()->settings();
-    // Convert gdb binaries map into a flat settings list of
-    // ("binary1=gdb,1,2", "binary2=symbian_gdb,3,4"). It needs to be ASCII for installers
-    QString lastBinary;
-    QStringList settingsList;
-    const QChar separator = QLatin1Char(',');
-    const GdbBinaryToolChainMap::const_iterator cend = gdbBinaryToolChainMap.constEnd();
-    for (GdbBinaryToolChainMap::const_iterator it = gdbBinaryToolChainMap.constBegin(); it != cend; ++it) {
-        if (it.key() != lastBinary) {
-            lastBinary = it.key(); // Start new entry with first toolchain
-            settingsList.push_back(lastBinary);
-        }
-        settingsList.back().append(separator); // Append toolchain to last binary
-        settingsList.back().append(QString::number(it.value()));
+
+    settings->beginWriteArray(GDB_MAPPING_ARRAY);
+
+    int index = 0;
+    for (QMap<QString, QString>::const_iterator i = abiToGdbMap.constBegin();
+         i != abiToGdbMap.constEnd(); ++i) {
+        if (i.value().isEmpty())
+            continue;
+
+        settings->setArrayIndex(index);
+        ++index;
+
+        settings->setValue(GDB_ABI_KEY, i.key());
+        settings->setValue(GDB_BINARY_KEY, i.value());
     }
-    // Terminate settings list by an empty element such that consecutive keys resulting
-    // from ini-file merging are suppressed while reading.
-    settingsList.push_back(QString());
-    // Write out list
-    settings->beginGroup(QLatin1String(gdbBinariesSettingsGroupC));
-    settings->remove(QString()); // remove all keys in group.
-    const int count = settingsList.size();
-    const QString keyRoot = QLatin1String(debugModeGdbBinaryKeyC);
-    for (int i = 0; i < count; i++)
-        settings->setValue(keyRoot + QString::number(i + 1), settingsList.at(i));
-    settings->endGroup();
+    settings->endArray();
+
+    gdbMappingChanged = false;
 }
 
 GdbOptionsPage::GdbOptionsPage()
     : m_ui(0)
-{
-}
+{ }
 
 QString GdbOptionsPage::settingsId()
 {
@@ -174,10 +224,41 @@ QIcon GdbOptionsPage::categoryIcon() const
 
 QWidget *GdbOptionsPage::createPage(QWidget *parent)
 {
+    // Fix up abi mapping now that the ToolChainManager is available:
+    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
+            this, SLOT(handleToolChainAdditions(ProjectExplorer::ToolChain*)));
+    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
+            this, SLOT(handleToolChainRemovals(ProjectExplorer::ToolChain*)));
+
+    // Update mapping now that toolchains are available
+    QList<ProjectExplorer::ToolChain *> tcs =
+            ProjectExplorer::ToolChainManager::instance()->toolChains();
+
+    QStringList abiList;
+    foreach (ProjectExplorer::ToolChain *tc, tcs) {
+        const QString abi = tc->targetAbi().toString();
+        if (!abiList.contains(abi))
+            abiList.append(abi);
+        if (!abiToGdbMap.contains(abi))
+            handleToolChainAdditions(tc);
+    }
+
+    QStringList toRemove;
+    for (QMap<QString, QString>::const_iterator i = abiToGdbMap.constBegin();
+         i != abiToGdbMap.constEnd(); ++i) {
+        if (!abiList.contains(i.key()))
+            toRemove.append(i.key());
+    }
+
+    foreach (const QString &key, toRemove)
+        abiToGdbMap.remove(key);
+
+    // Actual page setup:
     QWidget *w = new QWidget(parent);
     m_ui = new Ui::GdbOptionsPage;
     m_ui->setupUi(w);
-    m_ui->gdbChooserWidget->setGdbBinaries(gdbBinaryToolChainMap);
+    m_ui->gdbChooserWidget->setGdbMapping(abiToGdbMap);
+
     m_ui->scriptFileChooser->setExpectedKind(Utils::PathChooser::File);
     m_ui->scriptFileChooser->setPromptDialogTitle(tr("Choose Location of Startup Script File"));
 
@@ -201,18 +282,7 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
         m_ui->checkBoxEnableReverseDebugging);
     m_group.insert(debuggerCore()->action(GdbWatchdogTimeout), 0);
 
-#if 1
     m_ui->groupBoxPluginDebugging->hide();
-#else // The related code (handleAqcuiredInferior()) is disabled as well.
-    m_group.insert(debuggerCore()->action(AllPluginBreakpoints),
-        m_ui->radioButtonAllPluginBreakpoints);
-    m_group.insert(debuggerCore()->action(SelectedPluginBreakpoints),
-        m_ui->radioButtonSelectedPluginBreakpoints);
-    m_group.insert(debuggerCore()->action(NoPluginBreakpoints),
-        m_ui->radioButtonNoPluginBreakpoints);
-    m_group.insert(debuggerCore()->action(SelectedPluginBreakpointsPattern),
-        m_ui->lineEditSelectedPluginBreakpointsPattern);
-#endif
 
     m_ui->lineEditSelectedPluginBreakpointsPattern->
         setEnabled(debuggerCore()->action(SelectedPluginBreakpoints)->value().toBool());
@@ -246,11 +316,12 @@ void GdbOptionsPage::apply()
 {
     if (!m_ui) // page never shown
         return;
+
     m_group.apply(Core::ICore::instance()->settings());
     if (m_ui->gdbChooserWidget->isDirty()) {
-        gdbBinariesChanged = true;
-        gdbBinaryToolChainMap = m_ui->gdbChooserWidget->gdbBinaries();
-        m_ui->gdbChooserWidget->clearDirty();
+        abiToGdbMap = m_ui->gdbChooserWidget->gdbMapping();
+        m_ui->gdbChooserWidget->setGdbMapping(abiToGdbMap);
+        gdbMappingChanged = true;
     }
 }
 
@@ -266,6 +337,38 @@ void GdbOptionsPage::finish()
 bool GdbOptionsPage::matches(const QString &s) const
 {
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+}
+
+void GdbOptionsPage::handleToolChainAdditions(ProjectExplorer::ToolChain *tc)
+{
+    ProjectExplorer::Abi tcAbi = tc->targetAbi();
+
+    if (tcAbi.binaryFormat() != ProjectExplorer::Abi::Format_ELF
+            && tcAbi.binaryFormat() != ProjectExplorer::Abi::Format_Mach_O
+            && !( tcAbi.os() == ProjectExplorer::Abi::Windows
+                  && tcAbi.osFlavor() == ProjectExplorer::Abi::Windows_msys ))
+        return;
+    if (abiToGdbMap.contains(tcAbi.toString()))
+        return;
+
+    QString binary;
+#ifdef Q_OS_UNIX
+    ProjectExplorer::Abi hostAbi = ProjectExplorer::Abi::hostAbi();
+    if (hostAbi == tcAbi)
+        binary = QLatin1String("gdb");
+#endif
+    abiToGdbMap.insert(tc->targetAbi().toString(), binary);
+}
+
+void GdbOptionsPage::handleToolChainRemovals(ProjectExplorer::ToolChain *tc)
+{
+    QList<ProjectExplorer::ToolChain *> tcs = ProjectExplorer::ToolChainManager::instance()->toolChains();
+    foreach (ProjectExplorer::ToolChain *current, tcs) {
+        if (current->targetAbi() == tc->targetAbi())
+            return;
+    }
+
+    abiToGdbMap.remove(tc->targetAbi().toString());
 }
 
 } // namespace Internal

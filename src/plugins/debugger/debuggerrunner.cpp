@@ -49,9 +49,9 @@
 #  include "peutils.h"
 #endif
 
+#include <projectexplorer/abi.h>
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -74,7 +74,7 @@ namespace Debugger {
 namespace Internal {
 
 bool isCdbEngineEnabled(); // Check the configuration page
-ConfigurationCheck checkCdbConfiguration(ToolChainType toolChain);
+ConfigurationCheck checkCdbConfiguration(const ProjectExplorer::Abi &);
 
 DebuggerEngine *createCdbEngine(const DebuggerStartParameters &,
     DebuggerEngine *masterEngine, QString *error);
@@ -88,7 +88,7 @@ DebuggerEngine *createQmlEngine(const DebuggerStartParameters &,
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &);
 DebuggerEngine *createLldbEngine(const DebuggerStartParameters &);
 
-extern QString msgNoBinaryForToolChain(int tc);
+extern QString msgNoBinaryForToolChain(const ProjectExplorer::Abi &abi);
 
 static QString msgEngineNotAvailable(const char *engine)
 {
@@ -165,8 +165,13 @@ DebuggerEngineType DebuggerRunControlPrivate::engineForExecutable
 
     // We need the CDB debugger in order to be able to debug VS
     // executables.
-   ConfigurationCheck check = checkDebugConfiguration(ToolChain_MSVC);
-   if (!check) {
+    Abi hostAbi = Abi::hostAbi();
+    ConfigurationCheck check = checkDebugConfiguration(Abi(hostAbi.architecture(),
+                                                           Abi::Windows,
+                                                           hostAbi.osFlavor(),
+                                                           Abi::Format_PE,
+                                                           hostAbi.wordWidth()));
+    if (!check) {
         m_errorMessage = check.errorMessage;
         m_settingsIdHint = check.settingsPage;
         if (enabledEngineTypes & CdbEngineType)
@@ -216,38 +221,18 @@ DebuggerEngineType DebuggerRunControlPrivate::engineForMode
 //
 ////////////////////////////////////////////////////////////////////////
 
-static DebuggerEngineType engineForToolChain(ToolChainType toolChainType)
+static DebuggerEngineType engineForToolChain(const Abi &toolChain)
 {
-    switch (toolChainType) {
-        case ToolChain_LINUX_ICC:
-        case ToolChain_MinGW:
-        case ToolChain_GCC:
-        case ToolChain_WINSCW: // S60
-        case ToolChain_GCCE:
-        case ToolChain_RVCT2_ARMV5:
-        case ToolChain_RVCT2_ARMV6:
-        case ToolChain_RVCT_ARMV5_GNUPOC:
-        case ToolChain_GCCE_GNUPOC:
-        case ToolChain_GCC_MAEMO5:
-        case ToolChain_GCC_HARMATTAN:
-        case ToolChain_GCC_MEEGO:
+    if (toolChain.binaryFormat() == Abi::Format_ELF || toolChain.binaryFormat() == Abi::Format_Mach_O
+            || (toolChain.binaryFormat() == Abi::Format_PE && toolChain.osFlavor() == Abi::Windows_msys)) {
 #ifdef WITH_LLDB
             // lldb override
             if (Core::ICore::instance()->settings()->value("LLDB/enabled").toBool())
                 return LldbEngineType;
 #endif
             return GdbEngineType;
-
-
-        case ToolChain_MSVC:
-        case ToolChain_WINCE:
+    } else if (toolChain.binaryFormat() == Abi::Format_PE && toolChain.osFlavor() != Abi::Windows_msys) {
             return CdbEngineType;
-
-        case ToolChain_OTHER:
-        case ToolChain_UNKNOWN:
-        case ToolChain_INVALID:
-        default:
-            break;
     }
     return NoEngineType;
 }
@@ -280,7 +265,7 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
     else if (sp.executable.endsWith(_(".py")))
         engineType = PdbEngineType;
     else {
-        engineType = engineForToolChain(sp.toolChainType);
+        engineType = engineForToolChain(sp.toolChainAbi);
         if (engineType == CdbEngineType && !(enabledEngineTypes & CdbEngineType)) {
             d->m_errorMessage = msgEngineNotAvailable("Cdb Engine");
             engineType = NoEngineType;
@@ -351,9 +336,8 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
         // Could not find anything suitable.
         debuggingFinished();
         // Create Message box with possibility to go to settings.
-        QString toolChainName = ToolChain::toolChainName(sp.toolChainType);
-        const QString msg = tr("Cannot debug '%1' (tool chain: '%2'): %3")
-            .arg(sp.executable, toolChainName, d->m_errorMessage);
+        const QString msg = tr("Cannot debug '%1' (binary format: '%2'): %3")
+            .arg(sp.executable, sp.toolChainAbi.toString(), d->m_errorMessage);
         Core::ICore::instance()->showWarningWithOptions(tr("Warning"),
             msg, QString(), QLatin1String(Constants::DEBUGGER_SETTINGS_CATEGORY),
             d->m_settingsIdHint);
@@ -388,37 +372,27 @@ void DebuggerRunControl::setCustomEnvironment(Utils::Environment env)
     d->m_engine->startParameters().environment = env;
 }
 
-DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(ToolChainType toolChain)
+ConfigurationCheck checkDebugConfiguration(const ProjectExplorer::Abi &abi)
 {
     ConfigurationCheck result;
 
     if (!(debuggerCore()->activeLanguages() & CppLanguage))
         return result;
 
-    switch(toolChain) {
-    case ToolChain_GCC:
-    case ToolChain_LINUX_ICC:
-    case ToolChain_MinGW:
-    case ToolChain_WINCE: // S60
-    case ToolChain_WINSCW:
-    case ToolChain_GCCE:
-    case ToolChain_RVCT2_ARMV5:
-    case ToolChain_RVCT2_ARMV6:
-        if (debuggerCore()->gdbBinaryForToolChain(toolChain).isEmpty()) {
-            result.errorMessage = msgNoBinaryForToolChain(toolChain);
+    if (abi.binaryFormat() == Abi::Format_ELF ||
+            abi.binaryFormat() == Abi::Format_Mach_O ||
+            (abi.binaryFormat() == Abi::Format_PE && abi.osFlavor() == Abi::Windows_msys)) {
+        if (debuggerCore()->gdbBinaryForAbi(abi).isEmpty()) {
+            result.errorMessage = msgNoBinaryForToolChain(abi);
             result.errorMessage += QLatin1Char(' ') + msgEngineNotAvailable("Gdb");
             result.settingsPage = GdbOptionsPage::settingsId();
         }
-        break;
-    case ToolChain_MSVC:
-        result = checkCdbConfiguration(toolChain);
+    } else if (abi.binaryFormat() == Abi::Format_PE && abi.osFlavor() != Abi::Windows_msys) {
+        result = checkCdbConfiguration(abi);
         if (!result) {
             result.errorMessage += msgEngineNotAvailable("Cdb");
             result.settingsPage = QLatin1String("Cdb");
         }
-        break;
-    default:
-        break;
     }
 
     if (!result && !result.settingsPage.isEmpty())
@@ -586,7 +560,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     sp.workingDirectory = rc->workingDirectory();
     sp.executable = rc->executable();
     sp.processArgs = rc->commandLineArguments();
-    sp.toolChainType = rc->toolChainType();
+    sp.toolChainAbi = rc->abi();
     sp.useTerminal = rc->runMode() == LocalApplicationRunConfiguration::Console;
     sp.dumperLibrary = rc->dumperLibrary();
     sp.dumperLibraryLocations = rc->dumperLibraryLocations();
@@ -644,7 +618,7 @@ DebuggerRunControl *DebuggerRunControlFactory::create
 {
     DebuggerStartParameters sp = sp0;
     sp.enabledEngines = m_enabledEngines;
-    ConfigurationCheck check = checkDebugConfiguration(sp.toolChainType);
+    ConfigurationCheck check = checkDebugConfiguration(sp.toolChainAbi);
 
     if (!check) {
         //appendMessage(errorMessage, true);

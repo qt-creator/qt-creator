@@ -38,6 +38,7 @@
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "target.h"
+#include "toolchainmanager.h"
 #include "project.h"
 
 #include <coreplugin/variablemanager.h>
@@ -52,13 +53,15 @@ const char * const BUILD_STEP_LIST_COUNT("ProjectExplorer.BuildConfiguration.Bui
 const char * const BUILD_STEP_LIST_PREFIX("ProjectExplorer.BuildConfiguration.BuildStepList.");
 const char * const CLEAR_SYSTEM_ENVIRONMENT_KEY("ProjectExplorer.BuildConfiguration.ClearSystemEnvironment");
 const char * const USER_ENVIRONMENT_CHANGES_KEY("ProjectExplorer.BuildConfiguration.UserEnvironmentChanges");
+const char * const TOOLCHAIN_KEY("ProjectExplorer.BuildCOnfiguration.ToolChain");
 
 } // namespace
 
 BuildConfiguration::BuildConfiguration(Target *target, const QString &id) :
     ProjectConfiguration(target, id),
     m_clearSystemEnvironment(false),
-    m_macroExpander(this)
+    m_macroExpander(this),
+    m_toolChain(0)
 {
     Q_ASSERT(target);
     BuildStepList *bsl = new BuildStepList(this, QLatin1String(Constants::BUILDSTEPS_BUILD));
@@ -75,7 +78,8 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
     ProjectConfiguration(target, source),
     m_clearSystemEnvironment(source->m_clearSystemEnvironment),
     m_userEnvironmentChanges(source->m_userEnvironmentChanges),
-    m_macroExpander(this)
+    m_macroExpander(this),
+    m_toolChain(source->m_toolChain)
 {
     Q_ASSERT(target);
     // Do not clone stepLists here, do that in the derived constructor instead
@@ -112,6 +116,8 @@ QVariantMap BuildConfiguration::toMap() const
     for (int i = 0; i < m_stepLists.count(); ++i)
         map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(i), m_stepLists.at(i)->toMap());
 
+    map.insert(QLatin1String(TOOLCHAIN_KEY), m_toolChain ? m_toolChain->id() : QLatin1String("INVALID"));
+
     return map;
 }
 
@@ -139,6 +145,9 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
         m_stepLists.append(list);
     }
 
+    QString id = map.value(QLatin1String(TOOLCHAIN_KEY)).toString();
+    m_toolChain = ToolChainManager::instance()->findToolChain(id);
+
     // TODO: We currently assume there to be at least a clean and build list!
     Q_ASSERT(knownStepLists().contains(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
     Q_ASSERT(knownStepLists().contains(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
@@ -149,6 +158,19 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
 Target *BuildConfiguration::target() const
 {
     return static_cast<Target *>(parent());
+}
+
+ProjectExplorer::ToolChain *BuildConfiguration::toolChain() const
+{
+    return m_toolChain;
+}
+
+void BuildConfiguration::setToolChain(ProjectExplorer::ToolChain *tc)
+{
+    if (m_toolChain == tc)
+        return;
+    m_toolChain = tc;
+    emit toolChainChanged();
 }
 
 Utils::Environment BuildConfiguration::baseEnvironment() const

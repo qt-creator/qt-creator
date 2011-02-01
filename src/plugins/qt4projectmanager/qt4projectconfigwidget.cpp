@@ -44,7 +44,7 @@
 
 #include <coreplugin/icore.h>
 
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <utils/qtcassert.h>
@@ -61,7 +61,7 @@ bool debug = false;
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
-using ProjectExplorer::ToolChain;
+using namespace ProjectExplorer;
 
 Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BaseTarget *target)
     : BuildConfigWidget(),
@@ -106,6 +106,9 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BaseTarget *target)
     connect(m_ui->manageQtVersionPushButtons, SIGNAL(clicked()),
             this, SLOT(manageQtVersions()));
 
+    connect(m_ui->manageToolChainPushButton, SIGNAL(clicked()),
+            this, SLOT(manageToolChains()));
+
     connect(target->qt4Project(), SIGNAL(environmentChanged()),
             this, SLOT(environmentChanged()));
 
@@ -139,7 +142,8 @@ void Qt4ProjectConfigWidget::updateDetails()
                    "with tool chain <b>%2</b><br>"
                    "building in <b>%3</b>")
                 .arg(versionString,
-                     ProjectExplorer::ToolChain::toolChainName(m_buildConfiguration->toolChainType()),
+                     m_buildConfiguration->toolChain() ? m_buildConfiguration->toolChain()->displayName() :
+                                                         tr("<Invalid ToolChain>"),
                      QDir::toNativeSeparators(m_buildConfiguration->buildDirectory())));
     }
 }
@@ -164,6 +168,13 @@ void Qt4ProjectConfigWidget::manageQtVersions()
     core->showOptionsDialog(Constants::QT_SETTINGS_CATEGORY, Constants::QTVERSION_SETTINGS_PAGE_ID);
 }
 
+void Qt4ProjectConfigWidget::manageToolChains()
+{
+    Core::ICore *core = Core::ICore::instance();
+    core->showOptionsDialog(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY,
+                            ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_PAGE_ID);
+}
+
 QString Qt4ProjectConfigWidget::displayName() const
 {
     return tr("General");
@@ -183,8 +194,8 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
                    this, SLOT(qtVersionChanged()));
         disconnect(m_buildConfiguration, SIGNAL(qmakeBuildConfigurationChanged()),
                    this, SLOT(updateImportLabel()));
-        disconnect(m_buildConfiguration, SIGNAL(toolChainTypeChanged()),
-                   this, SLOT(toolChainTypeChanged()));
+        disconnect(m_buildConfiguration, SIGNAL(toolChainChanged()),
+                   this, SLOT(toolChainChanged()));
     }
     m_buildConfiguration = static_cast<Qt4BuildConfiguration *>(bc);
     m_ui->shadowBuildDirEdit->setEnvironment(m_buildConfiguration->environment());
@@ -195,8 +206,8 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
             this, SLOT(qtVersionChanged()));
     connect(m_buildConfiguration, SIGNAL(qmakeBuildConfigurationChanged()),
             this, SLOT(updateImportLabel()));
-    connect(m_buildConfiguration, SIGNAL(toolChainTypeChanged()),
-            this, SLOT(toolChainTypeChanged()));
+    connect(m_buildConfiguration, SIGNAL(toolChainChanged()),
+            this, SLOT(toolChainChanged()));
 
     qtVersionsChanged();
     QtVersionManager *vm = QtVersionManager::instance();
@@ -211,6 +222,11 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
     updateImportLabel();
     updateToolChainCombo();
     updateDetails();
+
+    connect(ToolChainManager::instance(), SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
+            this, SLOT(updateToolChainCombo()));
+    connect(ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
+            this, SLOT(updateToolChainCombo()));
 }
 
 void Qt4ProjectConfigWidget::qtVersionChanged()
@@ -435,14 +451,14 @@ void Qt4ProjectConfigWidget::qtVersionSelected(const QString &)
     updateDetails();
 }
 
-void Qt4ProjectConfigWidget::toolChainTypeChanged()
+void Qt4ProjectConfigWidget::toolChainChanged()
 {
     if (m_ignoreChange)
         return;
     for (int i=0; i < m_ui->toolChainComboBox->count(); ++i) {
-        ProjectExplorer::ToolChainType tt =
-                m_ui->toolChainComboBox->itemData(i, Qt::UserRole).value<ProjectExplorer::ToolChainType>();
-        if (tt == m_buildConfiguration->toolChainType()) {
+        ProjectExplorer::ToolChain *tc =
+                static_cast<ProjectExplorer::ToolChain *>(m_ui->toolChainComboBox->itemData(i, Qt::UserRole).value<void *>());
+        if (tc == m_buildConfiguration->toolChain()) {
             m_ignoreChange = true;
             m_ui->toolChainComboBox->setCurrentIndex(i);
             m_ignoreChange = false;
@@ -453,29 +469,38 @@ void Qt4ProjectConfigWidget::toolChainTypeChanged()
 void Qt4ProjectConfigWidget::updateToolChainCombo()
 {
     m_ui->toolChainComboBox->clear();
-    QList<ProjectExplorer::ToolChainType> toolchains =
-            m_buildConfiguration->qtVersion()->possibleToolChainTypes();
+    QList<ProjectExplorer::ToolChain *> toolchains =
+            m_buildConfiguration->qt4Target()->possibleToolChains(m_buildConfiguration);
 
-    toolchains = m_buildConfiguration->qt4Target()->filterToolChainTypes(toolchains);
-
-    foreach (ProjectExplorer::ToolChainType toolchain, toolchains)
-        m_ui->toolChainComboBox->addItem(ToolChain::toolChainName(toolchain), qVariantFromValue(toolchain));
-    m_ui->toolChainComboBox->setEnabled(toolchains.size() > 1);
-
+    foreach (ProjectExplorer::ToolChain *toolchain, toolchains)
+        m_ui->toolChainComboBox->addItem(toolchain->displayName(),
+                                         qVariantFromValue(static_cast<void *>(toolchain)));
     m_ignoreChange = true;
-    m_ui->toolChainComboBox->setCurrentIndex(toolchains.indexOf(m_buildConfiguration->toolChainType()));
+    if (!m_buildConfiguration->toolChain() || toolchains.isEmpty()) {
+        m_ui->toolChainComboBox->addItem(tr("<Invalid Toolchain>"), qVariantFromValue(static_cast<void *>(0)));
+        m_ui->toolChainComboBox->setCurrentIndex(m_ui->toolChainComboBox->count() - 1);
+    } else if (toolchains.contains(m_buildConfiguration->toolChain())) {
+        m_ui->toolChainComboBox->setCurrentIndex(toolchains.indexOf(m_buildConfiguration->toolChain()));
+    } else { // reset to some sensible toolchain
+        ToolChain *tc = 0;
+        if (!toolchains.isEmpty())
+            tc = toolchains.at(0);
+        m_buildConfiguration->setToolChain(tc);
+    }
     m_ignoreChange = false;
+    m_ui->toolChainComboBox->setEnabled(toolchains.size() > 1);
 }
 
 void Qt4ProjectConfigWidget::toolChainSelected(int index)
 {
     if (m_ignoreChange)
         return;
-    ProjectExplorer::ToolChainType selectedToolChainType =
-        m_ui->toolChainComboBox->itemData(index,
-            Qt::UserRole).value<ProjectExplorer::ToolChainType>();
+    ProjectExplorer::ToolChain *selectedToolChain =
+            static_cast<ProjectExplorer::ToolChain *>(
+                m_ui->toolChainComboBox->itemData(index,
+                                                  Qt::UserRole).value<void *>());
     m_ignoreChange = true;
-    m_buildConfiguration->setToolChainType(selectedToolChainType);
+    m_buildConfiguration->setToolChain(selectedToolChain);
     m_ignoreChange = false;
     updateDetails();
 }

@@ -35,9 +35,6 @@
 #include "qtversionmanager.h"
 
 #include "s60devicespreferencepane.h"
-#include "winscwtoolchain.h"
-#include "gccetoolchain.h"
-#include "rvcttoolchain.h"
 #include "s60emulatorrunconfiguration.h"
 #include "s60devicerunconfiguration.h"
 #include "s60createpackagestep.h"
@@ -45,6 +42,10 @@
 #include "s60runcontrolfactory.h"
 
 #include "qt4symbiantargetfactory.h"
+
+#include "gccetoolchain.h"
+#include "rvcttoolchain.h"
+#include "winscwtoolchain.h"
 
 #include <symbianutils/symbiandevicemanager.h>
 
@@ -112,25 +113,27 @@ S60Manager::S60Manager(QObject *parent)
 {
     m_instance = this;
 
+    addAutoReleasedObject(new GcceToolChainFactory);
+    addAutoReleasedObject(new RvctToolChainFactory);
+    addAutoReleasedObject(new WinscwToolChainFactory);
+
 #ifdef QTCREATOR_WITH_S60
     addAutoReleasedObject(new S60DevicesPreferencePane(m_devices, this));
 #endif
 
     addAutoReleasedObject(new S60EmulatorRunConfigurationFactory);
-    addAutoReleasedObject(new RunControlFactory<S60EmulatorRunControl,
-                                                S60EmulatorRunConfiguration>
-                                                (QLatin1String(ProjectExplorer::Constants::RUNMODE),
-                                                 tr("Run in Emulator"), parent));
+    addAutoReleasedObject(new RunControlFactory<S60EmulatorRunControl, S60EmulatorRunConfiguration>
+                          (QLatin1String(ProjectExplorer::Constants::RUNMODE),
+                           tr("Run in Emulator"), parent));
     addAutoReleasedObject(new S60DeviceRunConfigurationFactory);
     addAutoReleasedObject(new S60RunControlFactory(QLatin1String(ProjectExplorer::Constants::RUNMODE),
                                                  tr("Run on Device"), parent));
     addAutoReleasedObject(new S60CreatePackageStepFactory);
     addAutoReleasedObject(new S60DeployStepFactory);
 
-    addAutoReleasedObject(new RunControlFactory<S60DeviceDebugRunControl,
-                                            S60DeviceRunConfiguration>
-                                            (QLatin1String(Debugger::Constants::DEBUGMODE),
-                                             tr("Debug on Device"), parent));
+    addAutoReleasedObject(new RunControlFactory<S60DeviceDebugRunControl, S60DeviceRunConfiguration>
+                          (QLatin1String(Debugger::Constants::DEBUGMODE),
+                           tr("Debug on Device"), parent));
     addAutoReleasedObject(new Qt4SymbianTargetFactory);
 
     updateQtVersions();
@@ -149,14 +152,12 @@ S60Manager::~S60Manager()
     }
 }
 
-bool S60Manager::hasRvct2Compiler()
+QString S60Manager::platform(const ProjectExplorer::ToolChain *tc)
 {
-    return RVCT2ToolChain::configuredRvctVersions().contains(qMakePair(2, 2));
-}
-
-bool S60Manager::hasRvct4Compiler()
-{
-    return RVCT2ToolChain::configuredRvctVersions().contains(qMakePair(2, 2));
+    if (!tc || tc->targetAbi().os() == ProjectExplorer::Abi::Symbian)
+        return QString();
+    QString target = tc->defaultMakeTarget();
+    return target.right(target.lastIndexOf(QLatin1Char('-')));
 }
 
 void S60Manager::addAutoReleasedObject(QObject *o)
@@ -225,39 +226,6 @@ void S60Manager::updateQtVersions()
     foreach (QtVersion *version, versionsToAdd) {
         versionManager->addVersion(version);
     }
-}
-
-ProjectExplorer::ToolChain *S60Manager::createWINSCWToolChain(const Qt4ProjectManager::QtVersion *version) const
-{
-    Q_ASSERT(version);
-    return new WINSCWToolChain(deviceForQtVersion(version), version->mwcDirectory());
-}
-
-ProjectExplorer::ToolChain *S60Manager::createGCCEToolChain(const Qt4ProjectManager::QtVersion *version) const
-{
-    Q_ASSERT(version);
-    return GCCEToolChain::create(deviceForQtVersion(version), version->gcceDirectory(), ProjectExplorer::ToolChain_GCCE);
-}
-
-ProjectExplorer::ToolChain *S60Manager::createGCCE_GnuPocToolChain(const Qt4ProjectManager::QtVersion *version) const
-{
-    Q_ASSERT(version);
-    return GCCEToolChain::create(deviceForQtVersion(version), version->gcceDirectory(), ProjectExplorer::ToolChain_GCCE_GNUPOC);
-}
-
-ProjectExplorer::ToolChain *S60Manager::createRVCTToolChain(
-        const Qt4ProjectManager::QtVersion *version,
-        ProjectExplorer::ToolChainType type) const
-{
-    Q_ASSERT(version);
-    if (type == ProjectExplorer::ToolChain_RVCT2_ARMV5
-            || type == ProjectExplorer::ToolChain_RVCT2_ARMV6
-            || type == ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC)
-        return new RVCT2ToolChain(deviceForQtVersion(version), type);
-    if (type == ProjectExplorer::ToolChain_RVCT4_ARMV5
-            || type == ProjectExplorer::ToolChain_RVCT4_ARMV6)
-        return new RVCT4ToolChain(deviceForQtVersion(version), type);
-    return 0;
 }
 
 S60Devices::Device S60Manager::deviceForQtVersion(const Qt4ProjectManager::QtVersion *version) const

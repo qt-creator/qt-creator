@@ -36,8 +36,6 @@
 
 #include "s60devices.h"
 
-#include <projectexplorer/toolchaintype.h>
-
 #include <QtCore/QObject>
 
 namespace ProjectExplorer {
@@ -57,18 +55,11 @@ public:
     ~S60Manager();
     static S60Manager *instance();
 
-    ProjectExplorer::ToolChain *createWINSCWToolChain(const Qt4ProjectManager::QtVersion *version) const;
-    ProjectExplorer::ToolChain *createGCCEToolChain(const Qt4ProjectManager::QtVersion *version) const;
-    ProjectExplorer::ToolChain *createGCCE_GnuPocToolChain(const Qt4ProjectManager::QtVersion *version) const;
-    ProjectExplorer::ToolChain *createRVCTToolChain(const Qt4ProjectManager::QtVersion *version,
-                                                    ProjectExplorer::ToolChainType type) const;
-
     S60Devices *devices() const { return m_devices; }
     S60Devices::Device deviceForQtVersion(const Qt4ProjectManager::QtVersion *version) const;
     QString deviceIdFromDetectionSource(const QString &autoDetectionSource) const;
 
-    static bool hasRvct2Compiler();
-    static bool hasRvct4Compiler();
+    static QString platform(const ProjectExplorer::ToolChain *tc);
 
 private slots:
     void updateQtVersions();

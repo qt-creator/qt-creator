@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Qt4ProjectManager::Internal::WinscwToolChainConfigWidget</class>
+ <widget class="QWidget" name="Qt4ProjectManager::Internal::WinscwToolChainConfigWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>428</width>
+    <height>95</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Compiler path:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="Utils::PathChooser" name="compilerPath"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>System include path:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="includeEdit"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>System library path:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="libraryEdit"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QLineEdit</extends>
+   <header>utils/pathchooser.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -839,9 +839,9 @@ QString MaemoDeployStep::deployMountPoint() const
         + QLatin1String("/deployMountPoint_") + packagingStep()->projectName();
 }
 
-const AbstractMaemoToolChain *MaemoDeployStep::toolChain() const
+const MaemoToolChain *MaemoDeployStep::toolChain() const
 {
-    return static_cast<AbstractMaemoToolChain *>(qt4BuildConfiguration()->toolChain());
+    return static_cast<MaemoToolChain *>(qt4BuildConfiguration()->toolChain());
 }
 
 const AbstractQt4MaemoTarget *MaemoDeployStep::maemotarget() const

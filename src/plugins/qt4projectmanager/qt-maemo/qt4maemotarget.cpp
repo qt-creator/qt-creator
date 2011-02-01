@@ -37,6 +37,7 @@
 #include "maemopackagecreationstep.h"
 #include "maemopertargetdeviceconfigurationlistmodel.h"
 #include "maemorunconfiguration.h"
+#include "maemotoolchain.h"
 #include "qt4maemodeployconfiguration.h"
 
 #include <coreplugin/icore.h>
@@ -120,9 +121,44 @@ AbstractQt4MaemoTarget::AbstractQt4MaemoTarget(Qt4Project *parent, const QString
 }
 
 AbstractQt4MaemoTarget::~AbstractQt4MaemoTarget()
-{
+{ }
 
+AbstractQt4MaemoTarget::DebugArchitecture AbstractQt4MaemoTarget::debugArchitecture() const
+{
+    const QString arch
+        = MaemoGlobal::architecture(activeBuildConfiguration()->qtVersion());
+    if (arch.startsWith(QLatin1String("arm"))) {
+        return DebugArchitecture(QLatin1String("arm"),
+            QLatin1String("arm-none-linux-gnueabi"));
+    } else if (arch.startsWith(QLatin1String("x86_64"))) {
+        return DebugArchitecture(QLatin1String("i386:x86-64"),
+            QLatin1String("x86_64-unknown-linux-gnu "));
+    } else {
+        return DebugArchitecture(QLatin1String("x86"),
+            QLatin1String("i386-unknown-linux-gnu "));
+    }
 }
+
+QList<ProjectExplorer::ToolChain *> AbstractQt4MaemoTarget::possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const
+{
+    QList<ProjectExplorer::ToolChain *> result;
+
+    Qt4BuildConfiguration *qt4Bc = qobject_cast<Qt4BuildConfiguration *>(bc);
+    if (!qt4Bc)
+        return result;
+
+    QList<ProjectExplorer::ToolChain *> candidates = Qt4BaseTarget::possibleToolChains(bc);
+    foreach (ProjectExplorer::ToolChain *i, candidates) {
+        MaemoToolChain *tc = dynamic_cast<MaemoToolChain *>(i);
+        if (!tc)
+            continue;
+        if (tc->qtVersionId() == qt4Bc->qtVersion()->uniqueId())
+            result.append(tc);
+    }
+
+    return result;
+}
+
 
 Qt4BuildConfigurationFactory *AbstractQt4MaemoTarget::buildConfigurationFactory() const
 {
@@ -345,23 +381,6 @@ void AbstractQt4MaemoTarget::raiseError(const QString &reason)
 {
     QMessageBox::critical(0, tr("Error creating Maemo templates"), reason);
 }
-
-AbstractQt4MaemoTarget::DebugArchitecture AbstractQt4MaemoTarget::debugArchitecture() const
-{
-    const QString arch
-        = MaemoGlobal::architecture(activeBuildConfiguration()->qtVersion());
-    if (arch.startsWith(QLatin1String("arm"))) {
-        return DebugArchitecture(QLatin1String("arm"),
-            QLatin1String("arm-none-linux-gnueabi"));
-    } else if (arch.startsWith(QLatin1String("x86_64"))) {
-        return DebugArchitecture(QLatin1String("i386:x86-64"),
-            QLatin1String("x86_64-unknown-linux-gnu "));
-    } else {
-        return DebugArchitecture(QLatin1String("x86"),
-            QLatin1String("i386-unknown-linux-gnu "));
-    }
-}
-
 
 AbstractDebBasedQt4MaemoTarget::AbstractDebBasedQt4MaemoTarget(Qt4Project *parent,
     const QString &id) : AbstractQt4MaemoTarget(parent, id)

@@ -217,11 +217,11 @@ MaemoDeviceConfig::ConstPtr MaemoRunConfiguration::deviceConfig() const
     return step ? step->deviceConfig() : MaemoDeviceConfig::ConstPtr();
 }
 
-const AbstractMaemoToolChain *MaemoRunConfiguration::toolchain() const
+const MaemoToolChain *MaemoRunConfiguration::toolchain() const
 {
     Qt4BuildConfiguration *qt4bc(activeQt4BuildConfiguration());
     QTC_ASSERT(qt4bc, return 0);
-    AbstractMaemoToolChain *tc = dynamic_cast<AbstractMaemoToolChain *>(qt4bc->toolChain());
+    MaemoToolChain *tc = dynamic_cast<MaemoToolChain *>(qt4bc->toolChain());
     QTC_ASSERT(tc != 0, return 0);
     return tc;
 }
@@ -238,7 +238,7 @@ MaemoDeployStep *MaemoRunConfiguration::deployStep() const
 
 const QString MaemoRunConfiguration::sysRoot() const
 {
-    if (const AbstractMaemoToolChain *tc = toolchain())
+    if (const MaemoToolChain *tc = toolchain())
         return tc->sysroot();
     return QString();
 }

@@ -184,6 +184,7 @@ const char * const ICON_DEBUG           = ":/projectexplorer/images/debugger_sta
 const char * const ICON_DEBUG_SMALL     = ":/projectexplorer/images/debugger_start_small.png";
 const char * const ICON_CLOSETAB        = ":/projectexplorer/images/closetab.png";
 const char * const ICON_STOP            = ":/projectexplorer/images/stop.png";
+const char * const ICON_TOOLCHAIN_SETTINGS_CATEGORY = ":projectexplorer/images/build.png"; // FIXME: Need an icon!
 
 // find filters
 const char * const FIND_CUR_PROJECT     = "ProjectExplorer.FindFilter.CurrentProject";
@@ -206,6 +207,8 @@ const char * const PROJECTEXPLORER_SETTINGS_CATEGORY  = "K.ProjectExplorer";
 const char * const PROJECTEXPLORER_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("ProjectExplorer", "Projects");
 const char * const PROJECTEXPLORER_SETTINGS_CATEGORY_ICON  = ":/core/images/category_project.png";
 const char * const PROJECTEXPLORER_SETTINGS_ID = "ProjectExplorer.ProjectExplorer";
+const char * const TOOLCHAIN_SETTINGS_CATEGORY = "ProjectExplorer.Settings.ToolChains";
+const char * const TOOLCHAIN_SETTINGS_PAGE_ID = "M.ProjectExplorer.ToolChainOptions";
 
 // task categories
 const char * const TASK_CATEGORY_COMPILE = "Task.Category.Compile";
@@ -223,6 +226,12 @@ const char * const BUILDSTEPS_DEPLOY = "ProjectExplorer.BuildSteps.Deploy";
 
 // Deploy Configuration id:
 const char * const DEFAULT_DEPLOYCONFIGURATION_ID = "ProjectExplorer.DefaultDeployConfiguration";
+
+// ToolChain Ids
+const char * const GCC_TOOLCHAIN_ID = "ProjectExplorer.ToolChain.Gcc";
+const char * const MINGW_TOOLCHAIN_ID = "ProjectExplorer.ToolChain.Mingw";
+const char * const LINUXICC_TOOLCHAIN_ID = "ProjectExplorer.ToolChain.LinuxIcc";
+const char * const MSVC_TOOLCHAIN_ID = "ProjectExplorer.ToolChain.Msvc";
 
 // Run Configuration defaults:
 const int QML_DEFAULT_DEBUG_SERVER_PORT = 3768;

@@ -97,8 +97,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/toolchaintype.h>
 
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
@@ -904,7 +902,7 @@ public slots:
     void runControlStarted(DebuggerEngine *engine);
     void runControlFinished(DebuggerEngine *engine);
     DebuggerLanguages activeLanguages() const;
-    QString gdbBinaryForToolChain(int toolChain) const;
+    QString gdbBinaryForAbi(const ProjectExplorer::Abi &abi) const;
     void remoteCommand(const QStringList &options, const QStringList &);
 
     bool isReverseDebugging() const;
@@ -1536,7 +1534,8 @@ void DebuggerPluginPrivate::startExternalApplication()
         sp.processArgs = dlg.executableArguments();
     // Fixme: 1 of 3 testing hacks.
     if (sp.processArgs.startsWith(__("@tcf@ ")) || sp.processArgs.startsWith(__("@sym@ ")))
-        sp.toolChainType = ToolChain_RVCT2_ARMV5;
+        // Set up an ARM Symbian Abi
+        sp.toolChainAbi = Abi(Abi::ARM, Abi::Symbian, Abi::Symbian_device, Abi::Format_ELF, false);
 
     if (dlg.breakAtMain()) {
 #ifdef Q_OS_WIN
@@ -1615,7 +1614,12 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
 {
     const QString connectionKey = _("CdbRemoteConnection");
     DebuggerStartParameters sp;
-    sp.toolChainType = ToolChain_MSVC;
+    Abi hostAbi = Abi::hostAbi();
+    sp.toolChainAbi = ProjectExplorer::Abi(hostAbi.architecture(),
+                                           ProjectExplorer::Abi::Windows,
+                                           ProjectExplorer::Abi::Windows_msvc,
+                                           ProjectExplorer::Abi::Format_PE,
+                                           true);
     sp.startMode = AttachToRemote;
     StartRemoteCdbDialog dlg(mainWindow());
     QString previousConnection = configValue(connectionKey).toString();
@@ -1681,7 +1685,7 @@ void DebuggerPluginPrivate::startRemoteApplication()
     sp.displayName = dlg.localExecutable();
     sp.debuggerCommand = dlg.debugger(); // Override toolchain-detection.
     if (!sp.debuggerCommand.isEmpty())
-        sp.toolChainType = ToolChain_INVALID;
+        sp.toolChainAbi = ProjectExplorer::Abi();
     sp.startMode = AttachToRemote;
     sp.useServerStartScript = dlg.useServerStartScript();
     sp.serverStartScript = dlg.serverStartScript();
@@ -2494,10 +2498,9 @@ void DebuggerPluginPrivate::createNewDock(QWidget *widget)
 void DebuggerPluginPrivate::runControlStarted(DebuggerEngine *engine)
 {
     activateDebugMode();
-    QString toolChainName =
-        ToolChain::toolChainName(engine->startParameters().toolChainType);
-    const QString message = tr("Starting debugger '%1' for tool chain '%2'...")
-            .arg(engine->objectName()).arg(toolChainName);
+    const QString message = tr("Starting debugger '%1' for ABI '%2'...")
+            .arg(engine->objectName())
+            .arg(engine->startParameters().toolChainAbi.toString());
     showMessage(message, StatusBar);
     showMessage(m_debuggerSettings->dump(), LogDebug);
     m_snapshotHandler->appendSnapshot(engine);
@@ -2534,9 +2537,9 @@ void DebuggerPluginPrivate::remoteCommand(const QStringList &options,
     runScheduled();
 }
 
-QString DebuggerPluginPrivate::gdbBinaryForToolChain(int toolChain) const
+QString DebuggerPluginPrivate::gdbBinaryForAbi(const ProjectExplorer::Abi &abi) const
 {
-    return GdbOptionsPage::gdbBinaryToolChainMap.key(toolChain);
+    return GdbOptionsPage::abiToGdbMap.value(abi.toString());
 }
 
 DebuggerLanguages DebuggerPluginPrivate::activeLanguages() const
@@ -2757,7 +2760,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     dock->setProperty(DOCKWIDGET_DEFAULT_AREA, Qt::RightDockWidgetArea);
 
     m_debuggerSettings->readSettings();
-    GdbOptionsPage::readGdbBinarySettings();
+    GdbOptionsPage::readGdbSettings();
 
     // Register factory of DebuggerRunControl.
     m_debuggerRunControlFactory = new DebuggerRunControlFactory
@@ -3158,8 +3161,7 @@ void DebuggerPluginPrivate::aboutToShutdown()
         this, 0);
     m_debuggerSettings->writeSettings();
     m_mainWindow->writeSettings();
-    if (GdbOptionsPage::gdbBinariesChanged)
-        GdbOptionsPage::writeGdbBinarySettings();
+    GdbOptionsPage::writeGdbSettings();
 }
 
 } // namespace Internal

@@ -41,12 +41,16 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildstep.h>
-#include <projectexplorer/toolchaintype.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <coreplugin/ifile.h>
 
 #include <QtCore/QFuture>
+
+QT_BEGIN_NAMESPACE
+class QComboBox;
+QT_END_NAMESPACE
 
 namespace Utils {
 class PathChooser;
@@ -90,7 +94,6 @@ public:
     QStringList files(FilesMode fileMode) const;
 
     QStringList buildTargets() const;
-    ProjectExplorer::ToolChain *toolChain() const;
 
     bool addFiles(const QStringList &filePaths);
     bool removeFiles(const QStringList &filePaths);
@@ -111,10 +114,13 @@ public:
     QStringList projectIncludePaths() const;
     QStringList files() const;
     QStringList generated() const;
-    ProjectExplorer::ToolChainType toolChainType() const;
-    void setToolChainType(ProjectExplorer::ToolChainType type);
+    ProjectExplorer::ToolChain *toolChain() const;
+    void setToolChain(ProjectExplorer::ToolChain *tc);
 
     QVariantMap toMap() const;
+
+signals:
+    void toolChainChanged(ProjectExplorer::ToolChain *);
 
 protected:
     virtual bool fromMap(const QVariantMap &map);
@@ -143,7 +149,6 @@ private:
 
     GenericProjectNode *m_rootNode;
     ProjectExplorer::ToolChain *m_toolChain;
-    ProjectExplorer::ToolChainType m_toolChainType;
     QFuture<void> m_codeModelFuture;
 };
 
@@ -190,10 +195,13 @@ public:
 private Q_SLOTS:
     void buildDirectoryChanged();
     void toolChainSelected(int index);
+    void toolChainChanged(ProjectExplorer::ToolChain *);
+    void updateToolChainList();
 
 private:
     GenericTarget *m_target;
     Utils::PathChooser *m_pathChooser;
+    QComboBox *m_toolChainChooser;
     GenericBuildConfiguration *m_buildConfiguration;
 };
 

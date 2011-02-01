@@ -57,9 +57,6 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/toolchaintype.h>
-
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetextmark.h>
 
@@ -123,7 +120,7 @@ QDebug operator<<(QDebug str, const DebuggerStartParameters &sp)
             << " symbolFileName=" << sp.symbolFileName
             << " useServerStartScript=" << sp.useServerStartScript
             << " serverStartScript=" << sp.serverStartScript
-            << " toolchain=" << sp.toolChainType << '\n';
+            << " abi=" << sp.toolChainAbi.toString() << '\n';
     return str;
 }
 

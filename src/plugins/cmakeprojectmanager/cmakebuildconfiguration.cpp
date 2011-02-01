@@ -38,7 +38,7 @@
 #include "cmaketarget.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <utils/qtcassert.h>
 
@@ -50,7 +50,7 @@ using namespace Internal;
 namespace {
 const char * const CMAKE_BC_ID("CMakeProjectManager.CMakeBuildConfiguration");
 
-const char * const MSVC_VERSION_KEY("CMakeProjectManager.CMakeBuildConfiguration.MsvcVersion");
+const char * const TOOLCHAIN_KEY("CMakeProjectManager.CMakeBuildConfiguration.ToolChain");
 const char * const BUILD_DIRECTORY_KEY("CMakeProjectManager.CMakeBuildConfiguration.BuildDirectory");
 } // namespace
 
@@ -74,7 +74,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeTarget *parent, CMakeBuild
 QVariantMap CMakeBuildConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::BuildConfiguration::toMap());
-    map.insert(QLatin1String(MSVC_VERSION_KEY), m_msvcVersion);
+    map.insert(QLatin1String(TOOLCHAIN_KEY), m_toolChain ? m_toolChain->id() : QString());
     map.insert(QLatin1String(BUILD_DIRECTORY_KEY), m_buildDirectory);
     return map;
 }
@@ -84,7 +84,8 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
     if (!BuildConfiguration::fromMap(map))
         return false;
 
-    m_msvcVersion = map.value(QLatin1String(MSVC_VERSION_KEY)).toString();
+    m_toolChain = ProjectExplorer::ToolChainManager::instance()->
+            findToolChain(map.value(QLatin1String(TOOLCHAIN_KEY)).toString());
     m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY), cmakeTarget()->defaultBuildDirectory()).toString();
 
     return true;
@@ -105,41 +106,6 @@ QString CMakeBuildConfiguration::buildDirectory() const
     return m_buildDirectory;
 }
 
-ProjectExplorer::ToolChainType CMakeBuildConfiguration::toolChainType() const
-{
-    if (m_toolChain)
-        return m_toolChain->type();
-    return ProjectExplorer::ToolChain_UNKNOWN;
-}
-
-ProjectExplorer::ToolChain *CMakeBuildConfiguration::toolChain() const
-{
-    updateToolChain();
-    return m_toolChain;
-}
-
-void CMakeBuildConfiguration::updateToolChain() const
-{
-    ProjectExplorer::ToolChain *newToolChain = 0;
-    if (msvcVersion().isEmpty()) {
-#ifdef Q_OS_WIN
-        newToolChain = ProjectExplorer::ToolChain::createMinGWToolChain("gcc", QString());
-#else
-        newToolChain = ProjectExplorer::ToolChain::createGccToolChain("gcc");
-#endif
-    } else { // msvc
-        newToolChain = ProjectExplorer::ToolChain::createMSVCToolChain(m_msvcVersion, false);
-    }
-
-    if (ProjectExplorer::ToolChain::equals(newToolChain, m_toolChain)) {
-        delete newToolChain;
-        newToolChain = 0;
-    } else {
-        delete m_toolChain;
-        m_toolChain = newToolChain;
-    }
-}
-
 void CMakeBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
 {
     if (m_buildDirectory == buildDirectory)
@@ -147,21 +113,6 @@ void CMakeBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
     m_buildDirectory = buildDirectory;
     emit buildDirectoryChanged();
     emit environmentChanged();
-}
-
-QString CMakeBuildConfiguration::msvcVersion() const
-{
-    return m_msvcVersion;
-}
-
-void CMakeBuildConfiguration::setMsvcVersion(const QString &msvcVersion)
-{
-    if (m_msvcVersion == msvcVersion)
-        return;
-    m_msvcVersion = msvcVersion;
-    updateToolChain();
-
-    emit msvcVersionChanged();
 }
 
 ProjectExplorer::IOutputParser *CMakeBuildConfiguration::createOutputParser() const
@@ -255,10 +206,10 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
         delete bc;
         return 0;
     }
+    bc->setToolChain(copw.toolChain());
     cmtarget->addBuildConfiguration(bc); // this also makes the name unique
 
     bc->setBuildDirectory(copw.buildDirectory());
-    bc->setMsvcVersion(copw.msvcVersion());
     cmtarget->cmakeProject()->parseCMakeLists();
 
     // Default to all

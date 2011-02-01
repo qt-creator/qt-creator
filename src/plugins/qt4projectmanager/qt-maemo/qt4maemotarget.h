@@ -77,16 +77,20 @@ public:
     bool setShortDescription(const QString &description);
 
     struct DebugArchitecture {
-        DebugArchitecture(const QString &a, const QString &t) :
-            architecture(a), gnuTarget(t) {}
+        explicit DebugArchitecture(const QString &a = QString(), const QString &t = QString()) :
+            architecture(a), gnuTarget(t)
+        { }
+
         QString architecture;
         QString gnuTarget;
     };
+    // TODO: Is this needed with the ABI info we have?
     DebugArchitecture debugArchitecture() const;
 
     MaemoPerTargetDeviceConfigurationListModel *deviceConfigurationsModel() const {
         return m_deviceConfigurationsListModel;
     }
+    QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
 
 protected:
     enum ActionStatus { NoActionRequired, ActionSuccessful, ActionFailed };

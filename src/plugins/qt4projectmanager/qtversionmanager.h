@@ -38,17 +38,14 @@
 
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/taskwindow.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/abi.h>
 #include <projectexplorer/task.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QSet>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QFutureInterface>
-
-namespace ProjectExplorer {
-class ToolChain;
-}
 
 namespace Utils {
 class Environment;
@@ -88,13 +85,13 @@ public:
     QString designerCommand() const;
     QString linguistCommand() const;
     QString qmlviewerCommand() const;
+    QString systemRoot() const;
 
     bool supportsTargetId(const QString &id) const;
     QSet<QString> supportedTargetIds() const;
     bool supportsMobileTarget() const;
 
-    QList<ProjectExplorer::ToolChainType> possibleToolChainTypes() const;
-    ProjectExplorer::ToolChain *toolChain(ProjectExplorer::ToolChainType type) const;
+    QList<ProjectExplorer::Abi> qtAbis() const;
 
     /// @returns the name of the mkspec, which is generally not enough
     /// to pass to qmake.
@@ -114,28 +111,21 @@ public:
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
     QHash<QString,QString> versionInfo() const;
 
-    QString mwcDirectory() const;
-    void setMwcDirectory(const QString &directory);
     QString s60SDKDirectory() const;
     void setS60SDKDirectory(const QString &directory);
-    QString gcceDirectory() const;
-    void setGcceDirectory(const QString &directory);
     QString sbsV2Directory() const;
     void setSbsV2Directory(const QString &directory);
 
-    QString mingwDirectory() const;
-    void setMingwDirectory(const QString &directory);
-    QString msvcVersion() const;
-    void setMsvcVersion(const QString &version);
     void addToEnvironment(Utils::Environment &env) const;
+    QList<ProjectExplorer::HeaderPath> systemHeaderPathes() const;
 
+    bool supportsBinaryDebuggingHelper() const;
     bool hasDebuggingHelper() const;
     QString debuggingHelperLibrary() const;
     QString qmlDebuggingHelperLibrary(bool debugVersion) const;
     QString qmlDumpTool(bool debugVersion) const;
     QString qmlObserverTool() const;
     QStringList debuggingHelperLibraryLocations() const;
-    bool supportsBinaryDebuggingHelper() const;
 
     bool hasQmlDump() const;
     bool hasQmlDebuggingLibrary() const;
@@ -155,10 +145,10 @@ public:
 
     QString headerInstallPath() const;
     QString frameworkInstallPath() const;
+    QString libraryInstallPath() const;
 
     // All valid Ids are >= 0
     int uniqueId() const;
-    bool isQt64Bit() const;
 
     enum QmakeBuildConfig
     {
@@ -183,18 +173,17 @@ public:
     ProjectExplorer::IOutputParser *createOutputParser() const;
 
 private:
-    QList<QSharedPointer<ProjectExplorer::ToolChain> > toolChains() const;
     static int getUniqueId();
     // Also used by QtOptionsPageWidget
     void updateSourcePath();
     void updateVersionInfo() const;
     QString findQtBinary(const QStringList &possibleName) const;
-    void updateToolChainAndMkspec() const;
+    void updateAbiAndMkspec() const;
     QString resolveLink(const QString &path) const;
+    QString qtCorePath() const;
+
     QString m_displayName;
     QString m_sourcePath;
-    QString m_mingwDirectory;
-    mutable QString m_msvcVersion;
     int m_id;
     bool m_isAutodetected;
     QString m_autodetectionSource;
@@ -203,15 +192,14 @@ private:
     mutable bool m_hasQmlDebuggingLibrary; // controlled by m_versionInfoUpdate
     mutable bool m_hasQmlObserver;     // controlled by m_versionInfoUpToDate
 
-    QString m_mwcDirectory;
     QString m_s60SDKDirectory;
-    QString m_gcceDirectory;
     QString m_sbsV2Directory;
+    mutable QString m_systemRoot;
 
-    mutable bool m_toolChainUpToDate;
+    mutable bool m_abiUpToDate;
     mutable QString m_mkspec; // updated lazily
     mutable QString m_mkspecFullPath;
-    mutable QList<QSharedPointer<ProjectExplorer::ToolChain> > m_toolChains;
+    mutable QList<ProjectExplorer::Abi> m_abis;
 
     mutable bool m_versionInfoUpToDate;
     mutable QHash<QString,QString> m_versionInfo; // updated lazily
@@ -305,8 +293,7 @@ private:
     int getUniqueId();
     void writeVersionsIntoSettings();
     void addNewVersionsFromInstaller();
-    void updateSystemVersion();
-    void updateDocumentation();
+    void updateSystemVersion(); void updateDocumentation();
 
     static int indexOfVersionInList(const QtVersion * const version, const QList<QtVersion *> &list);
     void updateUniqueIdToIndexMap();

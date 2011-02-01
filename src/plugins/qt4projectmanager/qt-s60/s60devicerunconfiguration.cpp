@@ -155,39 +155,16 @@ Qt4SymbianTarget *S60DeviceRunConfiguration::qt4Target() const
     return static_cast<Qt4SymbianTarget *>(target());
 }
 
-ProjectExplorer::ToolChainType S60DeviceRunConfiguration::toolChainType(
-    ProjectExplorer::BuildConfiguration *configuration) const
-{
-    if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(configuration))
-        return bc->toolChainType();
-    return ProjectExplorer::ToolChain_INVALID;
-}
-
-ProjectExplorer::ToolChainType S60DeviceRunConfiguration::toolChainType() const
-{
-    if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration()))
-        return bc->toolChainType();
-    return ProjectExplorer::ToolChain_INVALID;
-}
-
 bool S60DeviceRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
 {
     if (!m_validParse)
         return false;
-    const Qt4BuildConfiguration *qt4bc = static_cast<const Qt4BuildConfiguration *>(configuration);
-    switch (qt4bc->toolChainType()) {
-    case ProjectExplorer::ToolChain_GCCE:
-    case ProjectExplorer::ToolChain_RVCT2_ARMV5:
-    case ProjectExplorer::ToolChain_RVCT2_ARMV6:
-    case ProjectExplorer::ToolChain_RVCT4_ARMV5:
-    case ProjectExplorer::ToolChain_RVCT4_ARMV6:
-    case ProjectExplorer::ToolChain_GCCE_GNUPOC:
-    case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
-        return true;
-    default:
-        break;
-    }
-    return false;
+
+    Q_ASSERT(configuration->target() == target());
+    Q_ASSERT(target()->id() == Constants::S60_DEVICE_TARGET_ID);
+
+    const Qt4BuildConfiguration *qt4bc = qobject_cast<const Qt4BuildConfiguration *>(configuration);
+    return qt4bc && qt4bc->toolChain();
 }
 
 QWidget *S60DeviceRunConfiguration::createConfigurationWidget()
@@ -266,21 +243,6 @@ QString S60DeviceRunConfiguration::symbianTarget() const
     return isDebug() ? QLatin1String("udeb") : QLatin1String("urel");
 }
 
-static inline QString symbianPlatformForToolChain(ProjectExplorer::ToolChainType t)
-{
-    switch (t) {
-    case ProjectExplorer::ToolChain_GCCE:
-    case ProjectExplorer::ToolChain_GCCE_GNUPOC:
-        return QLatin1String("gcce");
-    case ProjectExplorer::ToolChain_RVCT2_ARMV5:
-    case ProjectExplorer::ToolChain_RVCT4_ARMV5:
-        return QLatin1String("armv5");
-    default: // including ProjectExplorer::RVCT_ARMV6_GNUPOC:
-        break;
-    }
-    return QLatin1String("armv6");
-}
-
 /* Grep a package file for the '.exe' file. Currently for use on Linux only
  * as the '.pkg'-files on Windows do not contain drive letters, which is not
  * handled here. \code
@@ -313,47 +275,35 @@ static inline QString executableFromPackageUnix(const QString &packageFileName)
 static inline QString localExecutableFromDevice(const QtVersion *qtv,
                                                 const QString &symbianTarget, /* udeb/urel */
                                                 const QString &targetName,
-                                                ProjectExplorer::ToolChainType t)
+                                                const ProjectExplorer::ToolChain *tc)
 {
-    QTC_ASSERT(qtv, return QString(); )
+    Q_ASSERT(qtv);
+    if (!tc)
+        return QString();
 
             const S60Devices::Device device = S60Manager::instance()->deviceForQtVersion(qtv);
     QString localExecutable;
+    QString platform = S60Manager::platform(tc);
+    if (qtv->isBuildWithSymbianSbsV2() && platform == QLatin1String("gcce"))
+        platform = "armv5";
     QTextStream(&localExecutable) << device.epocRoot << "/epoc32/release/"
-                                  << symbianPlatformForToolChain(t)
-                                  << '/' << symbianTarget << '/' << targetName
-                                  << ".exe";
+            << platform << '/' << symbianTarget << '/' << targetName << ".exe";
     return localExecutable;
 }
 
 QString S60DeviceRunConfiguration::localExecutableFileName() const
 {
-    const ProjectExplorer::ToolChainType toolChain = toolChainType();
-    switch (toolChain) {
-    case ProjectExplorer::ToolChain_GCCE_GNUPOC:
-    case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC: {
-        TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(projectFilePath());
-        if (!ti.valid)
-            return QString();
+    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(projectFilePath());
+    if (!ti.valid)
+        return QString();
+
+    const ProjectExplorer::Abi hostAbi = ProjectExplorer::Abi::hostAbi();
+    if (hostAbi.os() == ProjectExplorer::Abi::Linux) {
         return executableFromPackageUnix(ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg"));
     }
-    case ProjectExplorer::ToolChain_RVCT2_ARMV5:
-    case ProjectExplorer::ToolChain_RVCT2_ARMV6:
-        return localExecutableFromDevice(qtVersion(), symbianTarget(), targetName(), toolChain);
-        break;
-    case ProjectExplorer::ToolChain_GCCE: {
-        // As of 4.7.1, qmake-gcce-Raptor builds were changed to put all executables into 'armv5'
-        const QtVersion *qtv = qtVersion();
-        QTC_ASSERT(qtv, return QString(); )
-                return qtv->isBuildWithSymbianSbsV2() ?
-                    localExecutableFromDevice(qtv, symbianTarget(), targetName(), ProjectExplorer::ToolChain_RVCT2_ARMV5) :
-                    localExecutableFromDevice(qtv, symbianTarget(), targetName(), toolChain);
-    }
-    break;
-    default:
-        break;
-    }
-    return QString();
+
+    ProjectExplorer::ToolChain *tc = qt4Target()->activeBuildConfiguration()->toolChain();
+    return localExecutableFromDevice(qtVersion(), symbianTarget(), targetName(), tc);
 }
 
 quint32 S60DeviceRunConfiguration::executableUid() const
@@ -515,7 +465,7 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
     sp.remoteChannel = activeDeployConf->serialPortName();
     sp.processArgs = rc->commandLineArguments();
     sp.startMode = Debugger::StartInternal;
-    sp.toolChainType = rc->toolChainType();
+    sp.toolChainAbi = rc->abi();
     sp.executable = debugFileName;
     sp.executableUid = rc->executableUid();
     sp.enabledEngines = Debugger::GdbEngineType;
@@ -552,7 +502,7 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc
 void S60DeviceDebugRunControl::start()
 {
     Debugger::ConfigurationCheck check =
-        Debugger::checkDebugConfiguration(startParameters().toolChainType);
+        Debugger::checkDebugConfiguration(startParameters().toolChainAbi);
 
     if (!check) {
         appendMessage(check.errorMessage, ErrorMessageFormat);

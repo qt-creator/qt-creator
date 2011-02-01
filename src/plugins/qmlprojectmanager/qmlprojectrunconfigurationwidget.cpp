@@ -41,6 +41,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <utils/debuggerlanguagechooser.h>
 #include <utils/detailswidget.h>
+#include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qtversionmanager.h>

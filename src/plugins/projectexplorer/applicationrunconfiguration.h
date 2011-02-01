@@ -34,10 +34,10 @@
 #ifndef APPLICATIONRUNCONFIGURATION_H
 #define APPLICATIONRUNCONFIGURATION_H
 
-#include <projectexplorer/toolchaintype.h>
-
 #include "runconfiguration.h"
 #include "applicationlauncher.h"
+
+#include "abi.h"
 
 namespace Utils {
 class AbstractMacroExpander;
@@ -63,7 +63,6 @@ public:
     virtual Utils::Environment environment() const = 0;
     virtual QString dumperLibrary() const = 0;
     virtual QStringList dumperLibraryLocations() const = 0;
-    virtual ProjectExplorer::ToolChainType toolChainType() const = 0;
 
 protected:
     explicit LocalApplicationRunConfiguration(Target *target, const QString &id);

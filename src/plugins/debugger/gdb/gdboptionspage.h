@@ -39,6 +39,10 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/savedaction.h>
 
+namespace ProjectExplorer {
+class ToolChain;
+} // namespace ProjectExplorer
+
 namespace Debugger {
 namespace Internal {
 
@@ -61,11 +65,15 @@ public:
 
     static QString settingsId();
 
-    typedef QMultiMap<QString, int> GdbBinaryToolChainMap;
-    static GdbBinaryToolChainMap gdbBinaryToolChainMap;
-    static bool gdbBinariesChanged;
-    static void readGdbBinarySettings();
-    static void writeGdbBinarySettings();
+    typedef QMap<QString, QString> GdbBinaryToolChainMap;
+    static GdbBinaryToolChainMap abiToGdbMap;
+    static bool gdbMappingChanged;
+    static void readGdbSettings();
+    static void writeGdbSettings();
+
+private slots:
+    static void handleToolChainAdditions(ProjectExplorer::ToolChain *);
+    static void handleToolChainRemovals(ProjectExplorer::ToolChain *);
 
 private:
     Ui::GdbOptionsPage *m_ui;

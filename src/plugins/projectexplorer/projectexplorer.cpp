@@ -35,10 +35,14 @@
 
 #include "buildsteplist.h"
 #include "deployconfiguration.h"
+#include "gcctoolchain.h"
+#include "msvctoolchain.h"
 #include "project.h"
 #include "projectexplorersettings.h"
 #include "target.h"
 #include "targetsettingspanel.h"
+#include "toolchainmanager.h"
+#include "toolchainoptionspage.h"
 #include "copytaskhandler.h"
 #include "showineditortaskhandler.h"
 #include "vcsannotatetaskhandler.h"
@@ -211,13 +215,16 @@ struct ProjectExplorerPluginPrivate {
     Internal::ProjectWelcomePage *m_welcomePage;
 
     Core::IMode *m_projectsMode;
+
+    ToolChainManager *m_toolChainManager;
 };
 
 ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
     m_currentProject(0),
     m_currentNode(0),
     m_delayedRunConfiguration(0),
-    m_projectsMode(0)
+    m_projectsMode(0),
+    m_toolChainManager(0)
 {
 }
 
@@ -258,6 +265,7 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
 {
     removeObject(d->m_welcomePage);
     delete d->m_welcomePage;
+    delete d->m_toolChainManager;
     removeObject(this);
     delete d;
 }
@@ -278,6 +286,19 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     if (!parseArguments(arguments, error))
         return false;
     addObject(this);
+
+    // Add ToolChainFactories:
+#ifndef Q_OS_WIN
+    addAutoReleasedObject(new Internal::GccToolChainFactory);
+    addAutoReleasedObject(new Internal::LinuxIccToolChainFactory);
+#else
+    addAutoReleasedObject(new Internal::MingwToolChainFactory);
+    addAutoReleasedObject(new Internal::MsvcToolChainFactory);
+#endif
+
+    d->m_toolChainManager = new ToolChainManager(this);
+
+    addAutoReleasedObject(new Internal::ToolChainOptionsPage);
 
     addAutoReleasedObject(new TaskHub);
 
@@ -986,6 +1007,8 @@ void ProjectExplorerPlugin::clearSession()
 
 void ProjectExplorerPlugin::extensionsInitialized()
 {
+    d->m_toolChainManager->restoreToolChains();
+
     d->m_proWindow->extensionsInitialized();
     d->m_fileFactories = ProjectFileFactory::createFactories(&d->m_projectFilterString);
     foreach (ProjectFileFactory *pf, d->m_fileFactories) {

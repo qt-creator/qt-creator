@@ -66,7 +66,7 @@ namespace Internal {
 class MaemoRemoteMounter;
 class MaemoDeviceConfig;
 class MaemoPackageCreationStep;
-class AbstractMaemoToolChain;
+class MaemoToolChain;
 class MaemoUsedPortsGatherer;
 
 class MaemoDeployStep : public ProjectExplorer::BuildStep
@@ -145,7 +145,7 @@ private:
     void getDeployTimesFromMap(const QVariantMap &map);
     const MaemoPackageCreationStep *packagingStep() const;
     QString deployMountPoint() const;
-    const AbstractMaemoToolChain *toolChain() const;
+    const MaemoToolChain *toolChain() const;
     void copyNextFileToDevice();
     void installToSysroot();
     QString uploadDir() const;

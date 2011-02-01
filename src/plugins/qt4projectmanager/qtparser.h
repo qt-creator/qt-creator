@@ -47,7 +47,7 @@ class QtParser : public ProjectExplorer::IOutputParser
 
 public:
     QtParser();
-    virtual void stdError(const QString &line);
+    void stdError(const QString &line);
 
 private:
     QRegExp m_mocRegExp;

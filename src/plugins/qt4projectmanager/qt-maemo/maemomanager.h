@@ -36,11 +36,6 @@
 
 #include <QtCore/QObject>
 
-namespace ProjectExplorer {
-    class ToolChain;
-}
-using ProjectExplorer::ToolChain;
-
 namespace Qt4ProjectManager {
     class QtVersion;
 namespace Internal {
@@ -54,6 +49,7 @@ class MaemoDeviceConfigurationsSettingsPage;
 class MaemoQemuManager;
 class MaemoQemuSettingsPage;
 class Qt4MaemoTargetFactory;
+class MaemoToolChainFactory;
 
 class MaemoManager : public QObject
 {
@@ -63,10 +59,6 @@ public:
     MaemoManager();
     ~MaemoManager();
     static MaemoManager &instance();
-
-    ToolChain *maemo5ToolChain(const Qt4ProjectManager::QtVersion *version) const;
-    ToolChain *harmattanToolChain(const Qt4ProjectManager::QtVersion *version) const;
-    ToolChain *meegoToolChain(const Qt4ProjectManager::QtVersion *version) const;
 
     MaemoDeviceConfigurationsSettingsPage *deviceConfigurationsSettingsPage() const { return m_deviceConfigurationsSettingsPage; }
     MaemoQemuSettingsPage *qemuSettingsPage() const { return m_qemuSettingsPage; }
@@ -83,6 +75,7 @@ private:
     MaemoQemuManager *m_qemuRuntimeManager;
     MaemoPublishingWizardFactoryFremantleFree *m_publishingFactoryFremantleFree;
     Qt4MaemoTargetFactory *m_maemoTargetFactory;
+    MaemoToolChainFactory *m_toolChainFactory;
 };
 
     } // namespace Internal

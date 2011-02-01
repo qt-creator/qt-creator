@@ -37,6 +37,8 @@
 #include "abstractgdbadapter.h"
 #include "localgdbprocess.h"
 
+#include <projectexplorer/abi.h>
+
 namespace Debugger {
 namespace Internal {
 
@@ -51,7 +53,7 @@ class RemoteGdbServerAdapter : public AbstractGdbAdapter
     Q_OBJECT
 
 public:
-    RemoteGdbServerAdapter(GdbEngine *engine, int toolChainType, QObject *parent = 0);
+    RemoteGdbServerAdapter(GdbEngine *engine, const ProjectExplorer::Abi &abi, QObject *parent = 0);
 
 private:
     DumperHandling dumperHandling() const;
@@ -93,7 +95,7 @@ private:
     void handleTargetRemote(const GdbResponse &response);
     void handleInterruptInferior(const GdbResponse &response);
 
-    const int m_toolChainType;
+    const ProjectExplorer::Abi m_abi;
 
     QProcess m_uploadProc;
     LocalGdbProcess m_gdbProc;

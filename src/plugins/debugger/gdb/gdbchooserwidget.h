@@ -67,96 +67,17 @@ class GdbChooserWidget : public QWidget
 public:
     explicit GdbChooserWidget(QWidget *parent = 0);
 
-    typedef QMultiMap<QString, int> BinaryToolChainMap;
-
-    BinaryToolChainMap gdbBinaries() const;
-    void setGdbBinaries(const BinaryToolChainMap &m);
+    QMap<QString, QString> gdbMapping() const;
+    void setGdbMapping(const QMap<QString, QString> &m);
 
     bool isDirty() const;
-
-public slots:
-    void clearDirty();
-
-private slots:
-    void slotAdd();
-    void slotRemove();
-    void slotCurrentChanged(const QModelIndex &current, const QModelIndex & previous);
-    void slotDoubleClicked(const QModelIndex &current);
 
 private:
     void removeItem(QStandardItem *item);
     QToolButton *createAddToolMenuButton();
-    QStandardItem *currentItem() const;
 
     QTreeView *m_treeView;
     GdbBinaryModel *m_model;
-    QToolButton *m_addButton;
-    QToolButton *m_deleteButton;
-    bool m_dirty;
-};
-
-// Present toolchains with checkboxes grouped in QGroupBox panes
-// and provide valid-handling. Unavailabe toolchains can be grayed
-// out using setEnabledToolChains().
-class ToolChainSelectorWidget : public QWidget {
-    Q_OBJECT
-public:
-    typedef GdbChooserWidget::BinaryToolChainMap BinaryToolChainMap;
-
-    explicit ToolChainSelectorWidget(QWidget *parent = 0);
-
-    void setEnabledToolChains(const QList<int> &enabled,
-                              // Optionally used for generating a tooltip for the disabled check boxes
-                              const BinaryToolChainMap *binaryToolChainMap = 0);
-
-    void setCheckedToolChains(const QList<int> &);
-    QList<int> checkedToolChains() const;
-
-    bool isValid() const;
-
-signals:
-    void validChanged(bool);
-
-private slots:
-    void slotCheckStateChanged(int);
-
-private:
-    bool hasCheckedToolChain() const;
-    QCheckBox *createToolChainCheckBox(int tc);
-
-    QList<QCheckBox*> m_checkBoxes;
-    bool m_valid;
-};
-
-// Internal helper dialog for selecting a binary and its
-// associated toolchains.
-class BinaryToolChainDialog : public QDialog {
-    Q_OBJECT
-public:
-    typedef GdbChooserWidget::BinaryToolChainMap BinaryToolChainMap;
-
-    explicit BinaryToolChainDialog(QWidget *parent);
-
-    void setToolChainChoices(const QList<int> &,
-                             // Optionally used for generating a tooltip for the disabled check boxes
-                             const BinaryToolChainMap *binaryToolChainMap = 0);
-
-    void setToolChains(const QList<int> &);
-    QList<int> toolChains() const;
-
-    void setPath(const QString &);
-    QString path() const;
-
-private slots:
-    void slotValidChanged();
-
-private:
-    void setOkButtonEnabled(bool e);
-
-    ToolChainSelectorWidget *m_toolChainSelector;
-    QFormLayout *m_mainLayout;
-    QDialogButtonBox *m_buttonBox;
-    Utils::PathChooser *m_pathChooser;
 };
 
 } // namespace Internal

@@ -36,6 +36,7 @@
 #include "maemoconstants.h"
 #include "maemodeploystepfactory.h"
 #include "maemodeviceconfigurations.h"
+#include "maemoglobal.h"
 #include "maemopackagecreationfactory.h"
 #include "maemopublishingwizardfactories.h"
 #include "maemoqemumanager.h"
@@ -43,9 +44,10 @@
 #include "maemosettingspages.h"
 #include "maemotoolchain.h"
 #include "qt4maemotargetfactory.h"
+#include "qt4projectmanager/qtversionmanager.h"
+#include "qt4projectmanager/qt4projectmanagerconstants.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <qt4projectmanager/qtversionmanager.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -69,6 +71,7 @@ MaemoManager::MaemoManager()
     , m_qemuSettingsPage(new MaemoQemuSettingsPage(this))
     , m_publishingFactoryFremantleFree(new MaemoPublishingWizardFactoryFremantleFree(this))
     , m_maemoTargetFactory(new Qt4MaemoTargetFactory(this))
+    , m_toolChainFactory(new MaemoToolChainFactory)
 {
     Q_ASSERT(!m_instance);
 
@@ -77,6 +80,7 @@ MaemoManager::MaemoManager()
     MaemoDeviceConfigurations::instance(this);
 
     PluginManager *pluginManager = PluginManager::instance();
+    pluginManager->addObject(m_toolChainFactory);
     pluginManager->addObject(m_runControlFactory);
     pluginManager->addObject(m_runConfigurationFactory);
     pluginManager->addObject(m_packageCreationFactory);
@@ -98,6 +102,8 @@ MaemoManager::~MaemoManager()
     pluginManager->removeObject(m_packageCreationFactory);
     pluginManager->removeObject(m_runConfigurationFactory);
     pluginManager->removeObject(m_runControlFactory);
+    pluginManager->removeObject(m_toolChainFactory);
+    delete m_toolChainFactory;
 
     m_instance = 0;
 }
@@ -106,21 +112,6 @@ MaemoManager &MaemoManager::instance()
 {
     Q_ASSERT(m_instance);
     return *m_instance;
-}
-
-ToolChain* MaemoManager::maemo5ToolChain(const QtVersion *version) const
-{
-    return new Maemo5ToolChain(version);
-}
-
-ToolChain* MaemoManager::harmattanToolChain(const QtVersion *version) const
-{
-    return new HarmattanToolChain(version);
-}
-
-ToolChain* MaemoManager::meegoToolChain(const QtVersion *version) const
-{
-    return new MeegoToolChain(version);
 }
 
 } // namespace Internal

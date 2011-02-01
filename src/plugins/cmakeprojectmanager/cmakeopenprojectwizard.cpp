@@ -44,7 +44,7 @@
 #include "cmakeprojectmanager.h"
 
 #include <utils/pathchooser.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainmanager.h>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QFormLayout>
@@ -72,7 +72,8 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(false),
-      m_environment(env)
+      m_environment(env),
+      m_toolChain(0)
 {
     int startid;
     if (hasInSourceBuild()) {
@@ -106,7 +107,8 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(true),
-      m_environment(env)
+      m_environment(env),
+      m_toolChain(0)
 {
 
     CMakeRunPage::Mode rmode;
@@ -126,7 +128,8 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(true),
-      m_environment(env)
+      m_environment(env),
+      m_toolChain(0)
 {
     m_buildDirectory = oldBuildDirectory;
     addPage(new ShadowBuildPage(this, true));
@@ -196,16 +199,6 @@ void CMakeOpenProjectWizard::setBuildDirectory(const QString &directory)
     m_buildDirectory = directory;
 }
 
-QString CMakeOpenProjectWizard::msvcVersion() const
-{
-    return m_msvcVersion;
-}
-
-void CMakeOpenProjectWizard::setMsvcVersion(const QString &version)
-{
-    m_msvcVersion = version;
-}
-
 QString CMakeOpenProjectWizard::arguments() const
 {
     return m_arguments;
@@ -215,6 +208,17 @@ void CMakeOpenProjectWizard::setArguments(const QString &args)
 {
     m_arguments = args;
 }
+
+ProjectExplorer::ToolChain *CMakeOpenProjectWizard::toolChain() const
+{
+    return m_toolChain;
+}
+
+void CMakeOpenProjectWizard::setToolChain(ProjectExplorer::ToolChain *tc)
+{
+    m_toolChain = tc;
+}
+
 
 Utils::Environment CMakeOpenProjectWizard::environment() const
 {
@@ -235,7 +239,6 @@ InSourceBuildPage::InSourceBuildPage(CMakeOpenProjectWizard *cmakeWizard)
     layout()->addWidget(label);
     setTitle(tr("Build Location"));
 }
-
 
 ShadowBuildPage::ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool change)
     : QWizardPage(cmakeWizard), m_cmakeWizard(cmakeWizard)
@@ -378,9 +381,8 @@ void CMakeRunPage::initializePage()
         m_descriptionLabel->setText(tr("Refreshing cbp file in %1.").arg(m_buildDirectory));
     }
     if (m_cmakeWizard->cmakeManager()->hasCodeBlocksMsvcGenerator()) {
-        m_generatorComboBox->setVisible(true);
+        // Try to find out generator from CMakeCache file, if it exists
         QString cachedGenerator;
-        // Try to find out generator from CMakeCachhe file, if it exists
 
         QFile fi(m_buildDirectory + "/CMakeCache.txt");
         if (fi.exists()) {
@@ -398,66 +400,65 @@ void CMakeRunPage::initializePage()
                 }
             }
         }
+
+        m_generatorComboBox->setVisible(true);
         m_generatorComboBox->clear();
-        // Find out whether we have multiple msvc versions
-        QStringList msvcVersions = ProjectExplorer::ToolChain::availableMSVCVersions();
-        if (msvcVersions.isEmpty()) {
-
-        } else if (msvcVersions.count() == 1) {
-            m_generatorComboBox->addItem(tr("NMake Generator"), msvcVersions.first());
-        } else {
-            foreach (const QString &msvcVersion, msvcVersions)
-                m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(msvcVersion), msvcVersion);
-        }
-
-        if (cachedGenerator == "NMake Makefiles" && !msvcVersions.isEmpty()) {
-            m_generatorComboBox->setCurrentIndex(0);
-            m_cmakeWizard->setMsvcVersion(msvcVersions.first());
-        }
-
-        m_generatorComboBox->addItem(tr("MinGW Generator"), "mingw");
-        if (cachedGenerator == "MinGW Makefiles") {
-            m_generatorComboBox->setCurrentIndex(m_generatorComboBox->count() - 1);
-            m_cmakeWizard->setMsvcVersion("");
+        QList<ProjectExplorer::ToolChain *> tcs =
+                ProjectExplorer::ToolChainManager::instance()->findToolChains(ProjectExplorer::Abi::hostAbi());
+        foreach (ProjectExplorer::ToolChain *tc, tcs) {
+            ProjectExplorer::Abi targetAbi = tc->targetAbi();
+            QVariant tcVariant = qVariantFromValue(static_cast<void *>(tc));
+            if (targetAbi.os() == ProjectExplorer::Abi::Windows) {
+                if (targetAbi.osFlavor() == ProjectExplorer::Abi::Windows_msvc)
+                    m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(tc->displayName()), tcVariant);
+                else if (targetAbi.osFlavor() == ProjectExplorer::Abi::Windows_msys)
+                    m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(tc->displayName()), tcVariant);
+                else
+                    continue;
+            }
         }
     } else {
         // No new enough cmake, simply hide the combo box
         m_generatorComboBox->setVisible(false);
+        QList<ProjectExplorer::ToolChain *> tcs =
+                ProjectExplorer::ToolChainManager::instance()->findToolChains(ProjectExplorer::Abi::hostAbi());
+        if (tcs.isEmpty())
+            return;
+        m_cmakeWizard->setToolChain(tcs.at(0));
     }
 }
 
 void CMakeRunPage::runCMake()
 {
+    int index = m_generatorComboBox->currentIndex();
+
+    ProjectExplorer::ToolChain *tc = 0;
+    if (index >= 0) {
+        tc = static_cast<ProjectExplorer::ToolChain *>(m_generatorComboBox->itemData(index).value<void *>());
+        if (!tc)
+            return;
+        m_cmakeWizard->setToolChain(tc);
+    } else {
+        tc = m_cmakeWizard->toolChain();
+    }
+    Q_ASSERT(tc);
+
     m_runCMake->setEnabled(false);
     m_argumentsLineEdit->setEnabled(false);
+    m_generatorComboBox->setEnabled(false);
     CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
 
-#ifdef Q_OS_WIN
-    m_cmakeWizard->setMsvcVersion(QString());
-    QString generator = QLatin1String("-GCodeBlocks - MinGW Makefiles");
-    if (m_generatorComboBox->isVisible()) {
-         // the combobox is shown, check which generator is selected
-        int index = m_generatorComboBox->currentIndex();
-        if (index != -1) {
-            QString version = m_generatorComboBox->itemData(index).toString();
-            if (version != "mingw") {
-                generator = "-GCodeBlocks - NMake Makefiles";
-                m_cmakeWizard->setMsvcVersion(version);
-            } else {
-                m_cmakeWizard->setMsvcVersion("");
-            }
-        }
-    }
-#else // Q_OS_WIN
     QString generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
-#endif
-    Utils::Environment env = m_cmakeWizard->environment();
-    if (!m_cmakeWizard->msvcVersion().isEmpty()) {
-        // Add the environment of that msvc version to environment
-        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChain::createMSVCToolChain(m_cmakeWizard->msvcVersion(), false);
-        tc->addToEnvironment(env);
-        delete tc;
+    if (tc->targetAbi().os() == ProjectExplorer::Abi::Windows) {
+        if (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::Windows_msvc)
+            generator = QLatin1String("-GCodeBlocks - NMake Makefiles");
+        else
+            generator = QLatin1String("-GCodeBlocks - MinGW Makefiles");
     }
+
+
+    Utils::Environment env = m_cmakeWizard->environment();
+    tc->addToEnvironment(env);
 
     if (m_cmakeExecutable) {
         // We asked the user for the cmake executable
@@ -475,6 +476,7 @@ void CMakeRunPage::runCMake()
     } else {
         m_runCMake->setEnabled(true);
         m_argumentsLineEdit->setEnabled(true);
+        m_generatorComboBox->setEnabled(true);
         m_output->appendPlainText(tr("No valid CMake executable specified."));
     }
 }
@@ -515,6 +517,8 @@ void CMakeRunPage::cmakeFinished()
 {
     m_runCMake->setEnabled(true);
     m_argumentsLineEdit->setEnabled(true);
+    m_generatorComboBox->setEnabled(true);
+
     if (m_cmakeProcess->exitCode() != 0) {
         m_exitCodeLabel->setVisible(true);
         m_exitCodeLabel->setText(tr("CMake exited with errors. Please check cmake output."));
@@ -542,4 +546,3 @@ bool CMakeRunPage::isComplete() const
 {
     return m_complete;
 }
-

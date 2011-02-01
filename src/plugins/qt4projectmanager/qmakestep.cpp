@@ -33,7 +33,7 @@
 
 #include "qmakestep.h"
 
-#include "projectexplorer/projectexplorerconstants.h"
+#include <projectexplorer/projectexplorerconstants.h>
 #include <proparser/profileevaluator.h>
 #include "qmakeparser.h"
 #include "qt4buildconfiguration.h"
@@ -45,6 +45,7 @@
 #include "debugginghelperbuildtask.h"
 
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/toolchain.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -155,11 +156,10 @@ QStringList QMakeStep::moreArguments()
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
     QStringList arguments;
 #if defined(Q_OS_WIN) || defined(Q_OS_MAC)
-    const ProjectExplorer::ToolChainType type = bc->toolChainType();
-    if (type == ProjectExplorer::ToolChain_GCC_MAEMO5
-            || type == ProjectExplorer::ToolChain_GCC_HARMATTAN) {
+    ProjectExplorer::ToolChain *tc = bc->toolChain();
+    if (tc && (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::Linux_harmattan
+               || tc->targetAbi().osFlavor() == ProjectExplorer::Abi::Linux_maemo))
         arguments << QLatin1String("-unix");
-    }
 #endif
     if (!bc->qtVersion()->supportsShadowBuilds()) {
         // We have a target which does not allow shadow building.

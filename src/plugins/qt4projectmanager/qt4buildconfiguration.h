@@ -37,7 +37,6 @@
 #include "qtversionmanager.h"
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/toolchaintype.h>
 
 namespace ProjectExplorer {
 class ToolChain;
@@ -79,9 +78,7 @@ public:
     QtVersion *qtVersion() const;
     void setQtVersion(QtVersion *);
 
-    ProjectExplorer::ToolChain *toolChain() const;
-    void setToolChainType(ProjectExplorer::ToolChainType type);
-    ProjectExplorer::ToolChainType toolChainType() const;
+    void setToolChain(ProjectExplorer::ToolChain *tc);
 
     QtVersion::QmakeBuildConfigs qmakeBuildConfiguration() const;
     void setQMakeBuildConfiguration(QtVersion::QmakeBuildConfigs config);
@@ -134,9 +131,6 @@ signals:
     /// emitted if the qt version changes (either directly, or because the default qt version changed
     /// or because the user changed the settings for the qt version
     void qtVersionChanged();
-    /// emitted iff the setToolChainType() function is called, not emitted for qtversion changes
-    /// even if those result in a toolchain change
-    void toolChainTypeChanged();
     /// emitted for setQMakeBuildConfig, not emitted for qt version changes, even
     /// if those change the qmakebuildconfig
     void qmakeBuildConfigurationChanged();
@@ -168,7 +162,6 @@ private:
     QString m_buildDirectory;
     QString m_lastEmmitedBuildDirectory;
     int m_qtVersionId;
-    int m_toolChainType;
     QtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
     Qt4ProjectManager::Internal::Qt4ProFileNode *m_subNodeBuild;
 };

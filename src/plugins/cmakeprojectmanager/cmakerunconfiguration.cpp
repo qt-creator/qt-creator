@@ -299,14 +299,6 @@ void CMakeRunConfiguration::setUserEnvironmentChanges(const QList<Utils::Environ
     }
 }
 
-ProjectExplorer::ToolChainType CMakeRunConfiguration::toolChainType() const
-{
-    CMakeBuildConfiguration *bc = activeBuildConfiguration();
-    if (!bc)
-        return ProjectExplorer::ToolChain_UNKNOWN;
-    return bc->toolChainType();
-}
-
 void CMakeRunConfiguration::setEnabled(bool b)
 {
     if (m_enabled == b)

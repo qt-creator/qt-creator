@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Qt4ProjectManager::Internal::RvctToolChainConfigWidget</class>
+ <widget class="QWidget" name="Qt4ProjectManager::Internal::RvctToolChainConfigWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>432</width>
+    <height>173</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Compiler path:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="Utils::PathChooser" name="compilerPath"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>ARM version:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QComboBox" name="versionComboBox">
+     <item>
+      <property name="text">
+       <string>Version 5</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Version 6</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>3</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Environment variables:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QTableView" name="environmentView"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QLineEdit</extends>
+   <header>utils/pathchooser.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

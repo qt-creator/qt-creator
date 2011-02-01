@@ -63,7 +63,7 @@ class MaemoDeployStep;
 class MaemoManager;
 class MaemoRemoteMountsModel;
 class MaemoRunConfigurationFactory;
-class AbstractMaemoToolChain;
+class MaemoToolChain;
 
 class MaemoRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -91,7 +91,7 @@ public:
     MaemoDeployStep *deployStep() const;
     MaemoRemoteMountsModel *remoteMounts() const { return m_remoteMounts; }
 
-    const AbstractMaemoToolChain *toolchain() const;
+    const MaemoToolChain *toolchain() const;
     QString localExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
     const QString sysRoot() const;

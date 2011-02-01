@@ -52,50 +52,14 @@
 #include <QtGui/QIcon>
 #include <QtGui/QGroupBox>
 #include <QtGui/QCheckBox>
-#include <QtCore/QDebug>
 #include <QtCore/QSet>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QProcess>
 
-enum { binaryRole = Qt::UserRole + 1, toolChainRole = Qt::UserRole + 2 };
-enum Columns { binaryColumn, toolChainColumn, ColumnCount };
+enum Columns { abiColumn, binaryColumn, ColumnCount };
 
 typedef QList<QStandardItem *> StandardItemList;
-
-Q_DECLARE_METATYPE(QList<int>)
-
-static QList<int> allGdbToolChains()
-{
-    QList<int> rc;
-    rc
-#ifdef Q_OS_UNIX
-       << ProjectExplorer::ToolChain_GCC
-       << ProjectExplorer::ToolChain_LINUX_ICC
-#endif
-#ifdef Q_OS_WIN
-       << ProjectExplorer::ToolChain_MinGW
-       << ProjectExplorer::ToolChain_WINSCW
-       << ProjectExplorer::ToolChain_GCCE
-       << ProjectExplorer::ToolChain_RVCT2_ARMV5
-       << ProjectExplorer::ToolChain_RVCT2_ARMV6
-#endif
-       << ProjectExplorer::ToolChain_GCC_MAEMO5
-       << ProjectExplorer::ToolChain_GCC_HARMATTAN
-       << ProjectExplorer::ToolChain_GCC_MEEGO
-#ifdef Q_OS_UNIX
-       << ProjectExplorer::ToolChain_GCCE_GNUPOC
-       << ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC
-#endif
-       << ProjectExplorer::ToolChain_OTHER
-       << ProjectExplorer::ToolChain_UNKNOWN;
-    return rc;
-}
-
-static inline QString toolChainName(int tc)
-{
-    return ProjectExplorer::ToolChain::toolChainName(static_cast<ProjectExplorer::ToolChainType>(tc));
-}
 
 namespace Debugger {
 namespace Internal {
@@ -105,6 +69,10 @@ namespace Internal {
 // Obtain a tooltip for a gdb binary by running --version
 static inline QString gdbToolTip(const QString &binary)
 {
+    if (binary.isEmpty())
+        return QString();
+    if (!QFileInfo(binary).exists())
+        return GdbChooserWidget::tr("File not found.");
     QProcess process;
     process.start(binary, QStringList(QLatin1String("--version")));
     process.closeWriteChannel();
@@ -122,37 +90,32 @@ static inline QString gdbToolTip(const QString &binary)
 // Provides a delayed tooltip listing the gdb version as
 // obtained by running it. Provides conveniences for getting/setting the maps and
 // for listing the toolchains used and the ones still available.
-
 class GdbBinaryModel : public QStandardItemModel {
 public:
-    typedef GdbChooserWidget::BinaryToolChainMap BinaryToolChainMap;
-
     explicit GdbBinaryModel(QObject * parent = 0);
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
 
     // get / set data as map.
-    BinaryToolChainMap gdbBinaries() const;
-    void setGdbBinaries(const BinaryToolChainMap &m);
+    QMap<QString, QString> gdbMapping() const;
+    void setGdbMapping(const QMap<QString, QString> &m);
 
     QString binary(int row) const;
-    QList<int> toolChains(int row) const;
+    QString abi(int row) const;
 
-    QStringList binaries() const;
-    QList<int> usedToolChains() const;
-    QSet<int> unusedToolChainSet() const;
-    QList<int> unusedToolChains() const;
+    void append(const QString &abi, const QString &binary);
 
-    void append(const QString &binary, const QList<int> &toolChains);
+    bool isDirty() const;
 
+    static void setAbiItem(QStandardItem *item, const QString &abi);
     static void setBinaryItem(QStandardItem *item, const QString &binary);
-    static void setToolChainItem(QStandardItem *item, const QList<int> &toolChain);
 };
 
 GdbBinaryModel::GdbBinaryModel(QObject *parent) :
     QStandardItemModel(0, ColumnCount, parent)
 {
     QStringList headers;
-    headers << GdbChooserWidget::tr("Binary") << GdbChooserWidget::tr("Toolchains");
+    headers << GdbChooserWidget::tr("ABI") << GdbChooserWidget::tr("Debugger");
     setHorizontalHeaderLabels(headers);
 }
 
@@ -166,455 +129,119 @@ QVariant GdbBinaryModel::data(const QModelIndex &index, int role) const
         // Run the gdb and obtain the tooltip
         const QString tooltip = gdbToolTip(binary(index.row()));
         // Set on the whole row
+        item(index.row(), abiColumn)->setToolTip(tooltip);
         item(index.row(), binaryColumn)->setToolTip(tooltip);
-        item(index.row(), toolChainColumn)->setToolTip(tooltip);
         return QVariant(tooltip);
     }
     return QStandardItemModel::data(index, role);
 }
 
-QStringList GdbBinaryModel::binaries() const
+bool GdbBinaryModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    QStringList rc;
-    const int binaryCount = rowCount();
-    for (int b = 0; b < binaryCount; b++)
-        rc.push_back(binary(b));
-    return rc;
-}
-
-QList<int> GdbBinaryModel::usedToolChains() const
-{
-    // Loop over model and collect all toolchains.
-    QList<int> rc;
-    const int binaryCount = rowCount();
-    for (int b = 0; b < binaryCount; b++)
-        foreach(int tc, toolChains(b))
-            rc.push_back(tc);
-    return rc;
-}
-
-QSet<int> GdbBinaryModel::unusedToolChainSet() const
-{
-    const QSet<int> used = usedToolChains().toSet();
-    QSet<int> all = allGdbToolChains().toSet();
-    return all.subtract(used);
-}
-
-QList<int> GdbBinaryModel::unusedToolChains() const
-{
-    QList<int> unused = unusedToolChainSet().toList();
-    qSort(unused);
-    return unused;
-}
-
-GdbBinaryModel::BinaryToolChainMap GdbBinaryModel::gdbBinaries() const
-{
-    BinaryToolChainMap rc;
-    const int binaryCount = rowCount();
-    for (int r = 0; r < binaryCount; r++) {
-        const QString bin = binary(r);
-        foreach(int tc, toolChains(r))
-            rc.insert(bin, tc);
+    if (index.isValid() && role == Qt::EditRole) {
+        Q_ASSERT(index.column() == binaryColumn);
+        item(index.row(), abiColumn)->setToolTip(QString());
+        item(index.row(), binaryColumn)->setToolTip(QString());
+        item(index.row(), binaryColumn)->setData(true);
+        QFont f(item(index.row(), binaryColumn)->font());
+        f.setBold(true);
+        item(index.row(), binaryColumn)->setFont(f);
     }
+    return QStandardItemModel::setData(index, value, role);
+}
+
+QMap<QString, QString> GdbBinaryModel::gdbMapping() const
+{
+    QMap<QString, QString> rc;
+    const int binaryCount = rowCount();
+    for (int r = 0; r < binaryCount; ++r)
+        rc.insert(abi(r), binary(r));
     return rc;
 }
 
-void GdbBinaryModel::setGdbBinaries(const BinaryToolChainMap &m)
+void GdbBinaryModel::setGdbMapping(const QMap<QString, QString> &m)
 {
     removeRows(0, rowCount());
-    foreach(const QString &binary, m.uniqueKeys())
-        append(binary, m.values(binary));
+    for (QMap<QString, QString>::const_iterator i = m.constBegin(); i != m.constEnd(); ++i)
+        append(i.key(), i.value());
 }
 
 QString GdbBinaryModel::binary(int row) const
 {
-    return item(row, binaryColumn)->data(binaryRole).toString();
+    return QDir::fromNativeSeparators(item(row, binaryColumn)->data(Qt::DisplayRole).toString());
 }
 
-QList<int> GdbBinaryModel::toolChains(int row) const
+QString GdbBinaryModel::abi(int row) const
 {
-    const QVariant data = item(row, toolChainColumn)->data(toolChainRole);
-    return qVariantValue<QList<int> >(data);
+    return item(row, abiColumn)->data(Qt::DisplayRole).toString();
 }
 
 void GdbBinaryModel::setBinaryItem(QStandardItem *item, const QString &binary)
 {
-    const QFileInfo fi(binary);
-    item->setText(fi.isAbsolute() ? fi.fileName() : QDir::toNativeSeparators(binary));
+    item->setText(binary.isEmpty() ? QString() : QDir::toNativeSeparators(binary));
     item->setToolTip(QString());; // clean out delayed tooltip
-    item->setData(QVariant(binary), binaryRole);
-    item->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
+    item->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable|Qt::ItemIsEditable);
+    item->setData(false);
 }
 
-void GdbBinaryModel::setToolChainItem(QStandardItem *item, const QList<int> &toolChains)
+void GdbBinaryModel::setAbiItem(QStandardItem *item, const QString &abi)
 {
-    // Format comma-separated list
-    const QString toolChainSeparator = QLatin1String(", ");
-    QString toolChainDesc;
-    const int count = toolChains.size();
-    for (int i = 0; i < count; i++) {
-        if (i)
-            toolChainDesc += toolChainSeparator;
-        toolChainDesc += toolChainName(toolChains.at(i));
-    }
-
-    item->setText(toolChainDesc);
-    item->setToolTip(QString());; // clean out delayed tooltip
-    item->setData(qVariantFromValue(toolChains), toolChainRole);
+    item->setText(abi);
+    item->setToolTip(QString()); // clean out delayed tooltip
     item->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
 }
 
-void GdbBinaryModel::append(const QString &binary, const QList<int> &toolChains)
+void GdbBinaryModel::append(const QString &abi, const QString &binary)
 {
     QStandardItem *binaryItem = new QStandardItem;
-    QStandardItem *toolChainItem = new QStandardItem;
+    QStandardItem *abiItem = new QStandardItem;
+    GdbBinaryModel::setAbiItem(abiItem, abi);
     GdbBinaryModel::setBinaryItem(binaryItem, binary);
-    GdbBinaryModel::setToolChainItem(toolChainItem, toolChains);
+
     StandardItemList row;
-    row << binaryItem << toolChainItem;
+    row << abiItem << binaryItem;
     appendRow(row);
+}
+
+bool GdbBinaryModel::isDirty() const
+{
+    for (int i = 0; i < rowCount(); ++i) {
+        if (item(i, binaryColumn)->data().toBool())
+            return true;
+    }
+    return false;
 }
 
 // ----------- GdbChooserWidget
 GdbChooserWidget::GdbChooserWidget(QWidget *parent) :
     QWidget(parent),
     m_treeView(new QTreeView),
-    m_model(new GdbBinaryModel(m_treeView)),
-    m_addButton(new QToolButton),
-    m_deleteButton(new QToolButton),
-    m_dirty(false)
+    m_model(new GdbBinaryModel(m_treeView))
 {
-    QHBoxLayout *mainHLayout = new QHBoxLayout;
-
+    QVBoxLayout *layout = new QVBoxLayout(this);
     m_treeView->setRootIsDecorated(false);
     m_treeView->setModel(m_model);
     m_treeView->setUniformRowHeights(true);
     m_treeView->setAllColumnsShowFocus(true);
     m_treeView->setSelectionMode(QAbstractItemView::SingleSelection);
-    connect(m_treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(slotCurrentChanged(QModelIndex,QModelIndex)));
-    connect(m_treeView, SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(slotDoubleClicked(QModelIndex)));
-    mainHLayout->addWidget(m_treeView);
-
-    m_addButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PLUS)));
-    connect(m_addButton, SIGNAL(clicked()), this, SLOT(slotAdd()));
-
-    m_deleteButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_MINUS)));
-    m_deleteButton->setEnabled(false);
-    connect(m_deleteButton, SIGNAL(clicked()), this, SLOT(slotRemove()));
-
-    QVBoxLayout *vButtonLayout = new QVBoxLayout;
-    vButtonLayout->addWidget(m_addButton);
-    vButtonLayout->addWidget(m_deleteButton);
-    vButtonLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
-
-    mainHLayout->addLayout(vButtonLayout);
-    setLayout(mainHLayout);
+    layout->addWidget(m_treeView);
 }
 
-QStandardItem *GdbChooserWidget::currentItem() const
+QMap<QString, QString> GdbChooserWidget::gdbMapping() const
 {
-    // Return the column-0-item
-    QModelIndex currentIndex = m_treeView->currentIndex();
-    if (!currentIndex.isValid())
-        return 0;
-    if (currentIndex.column() != binaryColumn)
-        currentIndex = currentIndex.sibling(currentIndex.row(), binaryColumn);
-    return m_model->itemFromIndex(currentIndex);
+    return m_model->gdbMapping();
 }
 
-void GdbChooserWidget::slotAdd()
+void GdbChooserWidget::setGdbMapping(const QMap<QString, QString> &m)
 {
-    // Any toolchains left?
-    const QList<int> unusedToolChains = m_model->unusedToolChains();
-    if (unusedToolChains.isEmpty())
-        return;
-
-    // On a binary or no current item: Add binary + toolchain
-    BinaryToolChainDialog binaryDialog(this);
-    binaryDialog.setToolChainChoices(unusedToolChains);
-    if (binaryDialog.exec() != QDialog::Accepted)
-        return;
-    // Refuse binaries that already exist
-    const QString path = binaryDialog.path();
-    if (m_model->binaries().contains(path)) {
-        QMessageBox::warning(this, tr("Duplicate binary"),
-                             tr("The binary '%1' already exists.").arg(path));
-        return;
-    }
-    // Add binary + toolchain to model
-    m_model->append(path, binaryDialog.toolChains());
-    m_dirty = true;
-}
-
-void GdbChooserWidget::slotRemove()
-{
-    if (QStandardItem *item = currentItem())
-        removeItem(item);
-}
-
-void GdbChooserWidget::removeItem(QStandardItem *item)
-{
-    m_model->removeRow(item->row());
-    m_dirty = true;
-}
-
-void GdbChooserWidget::slotCurrentChanged(const QModelIndex &current, const QModelIndex &)
-{
-    const bool hasItem = current.isValid() && m_model->itemFromIndex(current);
-    m_deleteButton->setEnabled(hasItem);
-}
-
-void GdbChooserWidget::slotDoubleClicked(const QModelIndex &current)
-{
-    QTC_ASSERT(current.isValid(), return)
-    // Show dialog to edit. Make all unused toolchains including the ones
-    // previously assigned to that binary available.
-    const int row = current.row();
-    const QString oldBinary = m_model->binary(row);
-    const QList<int> oldToolChains = m_model->toolChains(row);
-    const QSet<int> toolChainChoices = m_model->unusedToolChainSet().unite(oldToolChains.toSet());
-
-    BinaryToolChainDialog dialog(this);
-    dialog.setPath(oldBinary);
-    const BinaryToolChainMap map = gdbBinaries();
-    dialog.setToolChainChoices(toolChainChoices.toList(), &map);
-    dialog.setToolChains(oldToolChains);
-    if (dialog.exec() != QDialog::Accepted)
-        return;
-    // Check if anything changed.
-    const QString newBinary = dialog.path();
-    const QList<int> newToolChains = dialog.toolChains();
-    if (newBinary == oldBinary && newToolChains == oldToolChains)
-        return;
-
-    GdbBinaryModel::setBinaryItem(m_model->item(row, binaryColumn), newBinary);
-    GdbBinaryModel::setToolChainItem(m_model->item(row, toolChainColumn), newToolChains);
-    m_dirty = true;
-}
-
-GdbChooserWidget::BinaryToolChainMap GdbChooserWidget::gdbBinaries() const
-{
-    return m_model->gdbBinaries();
-}
-
-void GdbChooserWidget::setGdbBinaries(const BinaryToolChainMap &m)
-{
-    m_model->setGdbBinaries(m);
+    m_model->setGdbMapping(m);
     for (int c = 0; c < ColumnCount; c++)
         m_treeView->resizeColumnToContents(c);
-    m_dirty = false;
 }
 
 bool GdbChooserWidget::isDirty() const
 {
-    return m_dirty;
-}
-
-void GdbChooserWidget::clearDirty()
-{
-    m_dirty = false;
-}
-
-// -------------- ToolChainSelectorWidget
-static const char *toolChainPropertyC = "toolChain";
-
-static inline int toolChainOfCheckBox(const QCheckBox *c)
-{
-    return c->property(toolChainPropertyC).toInt();
-}
-
-static inline QVBoxLayout *createGroupBox(const QString &title, QVBoxLayout *lt)
-{
-    QGroupBox *gb = new QGroupBox(title);
-    QVBoxLayout *gbLayout = new QVBoxLayout;
-    gb->setLayout(gbLayout);
-    lt->addWidget(gb);
-    return gbLayout;
-}
-
-ToolChainSelectorWidget::ToolChainSelectorWidget(QWidget *parent) :
-    QWidget(parent), m_valid(false)
-{
-    QVBoxLayout *mainLayout = new QVBoxLayout;
-    QVBoxLayout *desktopLayout = createGroupBox(tr("Desktop/General"), mainLayout);
-    QVBoxLayout *symbianLayout = createGroupBox(tr("Symbian"), mainLayout);
-    QVBoxLayout *maemoLayout = createGroupBox(tr("Maemo"), mainLayout);
-
-    // Group checkboxes into categories
-    foreach(int tc, allGdbToolChains()) {
-        switch (tc) {
-        case ProjectExplorer::ToolChain_GCC:
-        case ProjectExplorer::ToolChain_LINUX_ICC:
-        case ProjectExplorer::ToolChain_MinGW:
-        case ProjectExplorer::ToolChain_OTHER:
-        case ProjectExplorer::ToolChain_UNKNOWN:
-            desktopLayout->addWidget(createToolChainCheckBox(tc));
-            break;
-        case ProjectExplorer::ToolChain_MSVC:
-        case ProjectExplorer::ToolChain_WINCE:
-            break;
-        case ProjectExplorer::ToolChain_WINSCW:
-        case ProjectExplorer::ToolChain_GCCE:
-        case ProjectExplorer::ToolChain_RVCT2_ARMV5:
-        case ProjectExplorer::ToolChain_RVCT2_ARMV6:
-        case ProjectExplorer::ToolChain_GCCE_GNUPOC:
-        case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
-            symbianLayout->addWidget(createToolChainCheckBox(tc));
-            break;
-        case ProjectExplorer::ToolChain_GCC_MAEMO5:
-        case ProjectExplorer::ToolChain_GCC_HARMATTAN:
-        case ProjectExplorer::ToolChain_GCC_MEEGO:
-            maemoLayout->addWidget(createToolChainCheckBox(tc));
-            break;
-        case ProjectExplorer::ToolChain_INVALID:
-            break;
-        }
-    }
-    setLayout(mainLayout);
-}
-
-QCheckBox *ToolChainSelectorWidget::createToolChainCheckBox(int tc)
-{
-    // Add checkbox
-    QCheckBox *cb = new QCheckBox(toolChainName(tc));
-    cb->setProperty(toolChainPropertyC, QVariant(tc));
-    connect(cb, SIGNAL(stateChanged(int)), this, SLOT(slotCheckStateChanged(int)));
-    m_checkBoxes.push_back(cb);
-    return cb;
-}
-
-static inline QString msgDisabledToolChainToolTip(const QString &binary, int toolChain)
-{
-    return ToolChainSelectorWidget::tr(
-    "<html><head/><body><p>Another gdb binary (<i>%1</i>) is currently configured "
-    "to handle the toolchain <i>%2</i>.</p></body></html>").
-    arg(QFileInfo(binary).fileName(), toolChainName(toolChain));
-}
-
-void ToolChainSelectorWidget::setEnabledToolChains(const QList<int> &enabled,
-                                                   const BinaryToolChainMap *binaryToolChainMap)
-{
-    foreach(QCheckBox *cb, m_checkBoxes) {
-        const int toolChain = toolChainOfCheckBox(cb);
-        if (enabled.contains(toolChain)) {
-            cb->setToolTip(QString());
-        } else {
-            // Toolchain is handled by a different binary, hint to user.
-            cb->setEnabled(false);
-            const QString binary = binaryToolChainMap ?  binaryToolChainMap->key(toolChain) : QString();
-            if (!binary.isEmpty())
-                cb->setToolTip(msgDisabledToolChainToolTip(binary, toolChain));
-        }
-    }
-}
-
-void ToolChainSelectorWidget::setCheckedToolChains(const QList<int> &checked)
-{
-    foreach(QCheckBox *cb, m_checkBoxes)
-        if (checked.contains(toolChainOfCheckBox(cb)))
-            cb->setChecked(true);
-    // Trigger 'valid changed'
-    slotCheckStateChanged(checked.isEmpty() ? Qt::Unchecked : Qt::Checked);
-}
-
-QList<int> ToolChainSelectorWidget::checkedToolChains() const
-{
-    QList<int> rc;
-    foreach(const QCheckBox *cb, m_checkBoxes)
-        if (cb->isChecked())
-            rc.push_back(toolChainOfCheckBox(cb));
-    return rc;
-}
-
-bool ToolChainSelectorWidget::isValid() const
-{
-    return m_valid;
-}
-
-void ToolChainSelectorWidget::slotCheckStateChanged(int state)
-{
-    // Emit signal if valid state changed
-    const bool newValid = state == Qt::Checked || hasCheckedToolChain();
-    if (newValid != m_valid) {
-        m_valid = newValid;
-        emit validChanged(m_valid);
-    }
-}
-
-bool ToolChainSelectorWidget::hasCheckedToolChain() const
-{
-    foreach(const QCheckBox *cb, m_checkBoxes)
-        if (cb->isChecked())
-            return true;
-    return false;
-}
-
-// -------------- ToolChainDialog
-BinaryToolChainDialog::BinaryToolChainDialog(QWidget *parent) :
-    QDialog(parent),
-    m_toolChainSelector(new ToolChainSelectorWidget),
-    m_mainLayout(new QFormLayout),
-    m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel)),
-    m_pathChooser(new Utils::PathChooser)
-{
-
-    setModal(true);
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    setWindowTitle(tr("Select binary and toolchains"));
-
-    m_pathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_pathChooser->setPromptDialogTitle(tr("Gdb binary"));
-    connect(m_pathChooser, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
-    m_mainLayout->addRow(tr("Path:"), m_pathChooser);
-
-    connect(m_toolChainSelector, SIGNAL(validChanged(bool)), this, SLOT(slotValidChanged()));
-    m_mainLayout->addRow(m_toolChainSelector);
-
-    connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    m_mainLayout->addRow(m_buttonBox);
-    setLayout(m_mainLayout);
-
-    setOkButtonEnabled(false);
-    m_pathChooser->setFocus();
-}
-
-void BinaryToolChainDialog::setToolChainChoices(const QList<int> &tcs,
-                                                const BinaryToolChainMap *binaryToolChainMap)
-{
-    m_toolChainSelector->setEnabledToolChains(tcs, binaryToolChainMap);
-}
-
-void BinaryToolChainDialog::setToolChains(const QList<int> &tcs)
-{
-    m_toolChainSelector->setCheckedToolChains(tcs);
-}
-
-QList<int> BinaryToolChainDialog::toolChains() const
-{
-    return m_toolChainSelector->checkedToolChains();
-}
-
-void BinaryToolChainDialog::setOkButtonEnabled(bool v)
-{
-    m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(v);
-}
-
-void BinaryToolChainDialog::setPath(const QString &p)
-{
-    m_pathChooser->setPath(p);
-}
-
-QString BinaryToolChainDialog::path() const
-{
-    return m_pathChooser->rawPath();
-}
-
-void BinaryToolChainDialog::slotValidChanged()
-{
-    setOkButtonEnabled(m_pathChooser->isValid() && m_toolChainSelector->isValid());
+    return m_model->isDirty();
 }
 
 } // namespace Internal

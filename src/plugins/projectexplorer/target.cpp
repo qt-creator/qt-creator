@@ -38,6 +38,7 @@
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "runconfiguration.h"
+#include "toolchainmanager.h"
 
 #include <limits>
 #include <utils/qtcassert.h>
@@ -352,6 +353,25 @@ void Target::setToolTip(const QString &text)
 {
     d->m_toolTip = text;
     emit toolTipChanged();
+}
+
+QList<ToolChain *> Target::possibleToolChains(BuildConfiguration *) const
+{
+    QList<ToolChain *> tcList = ToolChainManager::instance()->toolChains();
+    QList<ToolChain *> result;
+    foreach (ToolChain *tc, tcList) {
+        if (!tc->restrictedToTargets().contains(id()))
+            result.append(tc);
+    }
+    return result;
+}
+
+ToolChain *Target::preferredToolChain(BuildConfiguration *bc) const
+{
+    QList<ToolChain *> tcs = possibleToolChains(bc);
+    if (tcs.isEmpty())
+        return 0;
+    return tcs.at(0);
 }
 
 QVariantMap Target::toMap() const

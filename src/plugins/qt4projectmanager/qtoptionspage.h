@@ -94,20 +94,13 @@ private slots:
     void addQtDir();
     void removeQtDir();
     void updateState();
-    void makeMingwVisible(bool visible);
-    void makeMSVCVisible(bool visible);
     void makeS60Visible(bool visible);
     void onQtBrowsed();
-    void onMingwBrowsed();
     void updateCurrentQtName();
     void updateCurrentQMakeLocation();
-    void updateCurrentMingwDirectory();
-    void updateCurrentMwcDirectory();
     void updateCurrentS60SDKDirectory();
-    void updateCurrentGcceDirectory();
     void updateCurrentSbsV2Directory();
     void updateDebuggingHelperUi();
-    void msvcVersionChanged();
     void buildDebuggingHelper(DebuggingHelperBuildTask::Tools tools
                               = DebuggingHelperBuildTask::AllTools);
     void buildGdbHelper();

@@ -31,35 +31,47 @@
 **
 **************************************************************************/
 
-#ifndef TOOLCHAINTYPE_H
-#define TOOLCHAINTYPE_H
+#include "toolchainconfigwidget.h"
+
+#include "toolchain.h"
 
 namespace ProjectExplorer {
+namespace Internal {
 
-enum ToolChainType
+// --------------------------------------------------------------------------
+// ToolChainConfigWidgetPrivate
+// --------------------------------------------------------------------------
+
+class ToolChainConfigWidgetPrivate
 {
-    ToolChain_GCC = 0,
-    ToolChain_LINUX_ICC = 1,
-    ToolChain_MinGW = 2,
-    ToolChain_MSVC = 3,
-    ToolChain_WINCE = 4,
-    ToolChain_WINSCW = 5,
-    ToolChain_GCCE = 6,
-    ToolChain_RVCT2_ARMV5 = 7,
-    ToolChain_RVCT2_ARMV6 = 8,
-    ToolChain_GCC_MAEMO5 = 9,
-    ToolChain_GCCE_GNUPOC = 10,
-    ToolChain_RVCT_ARMV5_GNUPOC = 11,
-    ToolChain_RVCT4_ARMV5 = 12,
-    ToolChain_RVCT4_ARMV6 = 13,
-    ToolChain_GCC_HARMATTAN = 14,
-    ToolChain_GCC_MEEGO = 15,
-    ToolChain_LAST_VALID = 15,
-    ToolChain_OTHER = 200,
-    ToolChain_UNKNOWN = 201,
-    ToolChain_INVALID = 202
+public:
+    ToolChainConfigWidgetPrivate(ToolChain *tc) :
+        m_toolChain(tc)
+    {
+        Q_ASSERT(tc);
+    }
+
+    ToolChain *m_toolChain;
 };
 
-} // namespace ProjectExplorer
+} // namespace Internal
 
-#endif // TOOLCHAINTYPE_H
+// --------------------------------------------------------------------------
+// ToolChainConfigWidget
+// --------------------------------------------------------------------------
+
+ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
+    m_d(new Internal::ToolChainConfigWidgetPrivate(tc))
+{ }
+
+void ToolChainConfigWidget::setDisplayName(const QString &name)
+{
+    m_d->m_toolChain->setDisplayName(name);
+}
+
+ToolChain *ToolChainConfigWidget::toolChain() const
+{
+    return m_d->m_toolChain;
+}
+
+} // namespace ProjectExplorer

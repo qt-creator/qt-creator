@@ -80,11 +80,12 @@ public:
                                                             QString directory);
 
     virtual void createApplicationProFiles() = 0;
-    virtual QList<ProjectExplorer::ToolChainType> filterToolChainTypes(const QList<ProjectExplorer::ToolChainType> &candidates) const;
-    virtual ProjectExplorer::ToolChainType preferredToolChainType(const QList<ProjectExplorer::ToolChainType> &candidates) const;
     virtual QString defaultBuildDirectory() const;
 
     virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n) = 0;
+
+    QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
+
 signals:
     void buildDirectoryInitialized();
     /// emitted if the build configuration changed in a way that

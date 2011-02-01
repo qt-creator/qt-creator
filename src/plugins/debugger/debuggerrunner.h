@@ -36,8 +36,8 @@
 
 #include "debugger_global.h"
 
+#include <projectexplorer/abi.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/toolchaintype.h>
 
 #include <QtCore/QScopedPointer>
 
@@ -68,7 +68,7 @@ public:
     QString settingsPage;
 };
 
-DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(ProjectExplorer::ToolChainType toolChain);
+DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const ProjectExplorer::Abi &abi);
 
 // This is a job description containing all data "local" to the jobs, including
 // the models of the individual debugger views.

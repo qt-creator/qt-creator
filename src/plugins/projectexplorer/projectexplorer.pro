@@ -10,6 +10,9 @@ include(../../libs/utils/utils.pri)
 include(customwizard/customwizard.pri)
 INCLUDEPATH += $$PWD/../../libs/utils
 HEADERS += projectexplorer.h \
+    abi.h \
+    gcctoolchain.h \
+    msvctoolchain.h \
     projectexplorer_export.h \
     projectwindow.h \
     buildmanager.h \
@@ -70,6 +73,9 @@ HEADERS += projectexplorer.h \
     projectmodels.h \
     currentprojectfind.h \
     toolchain.h \
+    toolchainconfigwidget.h \
+    toolchainmanager.h \
+    toolchainoptionspage.h \
     userfileaccessor.h \
     cesdkhandler.h \
     gccparser.h \
@@ -98,11 +104,13 @@ HEADERS += projectexplorer.h \
     customexecutableconfigurationwidget.h \
     sessionnodeimpl.h \
     metatypedeclarations.h \
-    toolchaintype.h \
     publishing/publishingwizardselectiondialog.h \
     publishing/ipublishingwizardfactory.h
 
 SOURCES += projectexplorer.cpp \
+    abi.cpp \
+    gcctoolchain.cpp \
+    msvctoolchain.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
     buildsteplist.cpp \
@@ -156,6 +164,9 @@ SOURCES += projectexplorer.cpp \
     projectmodels.cpp \
     currentprojectfind.cpp \
     toolchain.cpp \
+    toolchainconfigwidget.cpp \
+    toolchainmanager.cpp \
+    toolchainoptionspage.cpp \
     cesdkhandler.cpp \
     userfileaccessor.cpp \
     gccparser.cpp \
@@ -185,6 +196,7 @@ SOURCES += projectexplorer.cpp \
     publishing/publishingwizardselectiondialog.cpp
 
 FORMS += processstep.ui \
+    toolchainoptionspage.ui \
     editorsettingspropertiespage.ui \
     runsettingspropertiespage.ui \
     sessiondialog.ui \
@@ -212,4 +224,12 @@ win32 {
     macx:LIBS += -framework Carbon
 }
 RESOURCES += projectexplorer.qrc
+
+# Some way to override the architecture used in Abi:
+!isEmpty($$(QTC_CPU)) {
+    DEFINES += QTC_CPU=$$(QTC_CPU)
+} else {
+    DEFINES += QTC_CPU=x86
+}
+
 DEFINES += PROJECTEXPLORER_LIBRARY

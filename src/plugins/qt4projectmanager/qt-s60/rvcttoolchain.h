@@ -34,97 +34,141 @@
 #ifndef RVCTTOOLCHAIN_H
 #define RVCTTOOLCHAIN_H
 
-#include "s60devices.h"
-
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainconfigwidget.h>
+#include <utils/environment.h>
+
+namespace Utils {
+class EnvironmentModel;
+class PathChooser;
+} // namespace Utils
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
+namespace Ui {
+class RvctToolChainConfigWidget;
+}
+
+class RvctToolChainFactory;
+
 // ==========================================================================
-// RVCTToolChain
+// RvctToolChain
 // ==========================================================================
 
-class RVCTToolChain : public ProjectExplorer::ToolChain
+class RvctToolChain : public ProjectExplorer::ToolChain
 {
 public:
-    explicit RVCTToolChain(const S60Devices::Device &device,
-                           ProjectExplorer::ToolChainType type);
-    QByteArray predefinedMacros();
-    QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
-    void addToEnvironment(Utils::Environment &env);
-    ProjectExplorer::ToolChainType type() const;
+    struct RvctVersion {
+        RvctVersion() : majorVersion(0), minorVersion(0), build(0)
+        { }
+
+        bool isNull() { return majorVersion == 0 && minorVersion == 0 && build == 0; }
+        void reset() { majorVersion = 0; minorVersion = 0; build = 0; }
+
+        int majorVersion;
+        int minorVersion;
+        int build;
+    };
+
+    static RvctVersion version(const QString &rvctPath);
+
+    enum ArmVersion { ARMv5, ARMv6 };
+
+    QString typeName() const;
+    ProjectExplorer::Abi targetAbi() const;
+
+    bool isValid() const;
+
+    QByteArray predefinedMacros() const;
+    QList<ProjectExplorer::HeaderPath> systemHeaderPaths() const;
+    void addToEnvironment(Utils::Environment &env) const;
     QString makeCommand() const;
+    QString defaultMakeTarget() const;
     ProjectExplorer::IOutputParser *outputParser() const;
 
-    static QSet<QPair<int, int> > configuredRvctVersions();
+    bool operator ==(const ToolChain &) const;
 
-    // Return the environment variable indicating the RVCT version
-    // 'RVCT2<minor>BIN' and its setting
-    virtual QByteArray rvctBinEnvironmentVariable() = 0;
+    void setEnvironmentChanges(const QList<Utils::EnvironmentItem> &changes);
+    QList<Utils::EnvironmentItem> environmentChanges() const;
 
-    QString rvctBinPath();
-    QString rvctBinary();
+    void setCompilerPath(const QString &path);
+    QString compilerPath() const;
 
-protected:
-    bool equals(const ToolChain *other) const = 0;
+    void setArmVersion(ArmVersion);
+    ArmVersion armVersion() const;
 
-    QStringList configuredEnvironment();
+    void setVersion(const RvctVersion &v) const;
 
-    QByteArray rvctBinEnvironmentVariableForVersion(int major);
-    void addToRVCTPathVariable(const QString &postfix, const QStringList &values,
-                               Utils::Environment &env) const;
-    QStringList libPaths();
-    void updateVersion();
+    ProjectExplorer::ToolChainConfigWidget *configurationWidget();
+    ProjectExplorer::ToolChain *clone() const;
 
-    QByteArray m_predefinedMacros;
-    QList<ProjectExplorer::HeaderPath> m_systemHeaderPaths;
-
-    const S60ToolChainMixin m_mixin;
-    const ProjectExplorer::ToolChainType m_type;
-    bool m_versionUpToDate;
-    int m_major;
-    int m_minor;
-    int m_build;
+    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &data);
 
 private:
-    QString m_binPath;
-    QStringList m_additionalEnvironment;
+    void updateId();
+
+    explicit RvctToolChain(bool autodetected = false);
+    RvctToolChain(const RvctToolChain &);
+
+    QString varName(const QString &postFix) const;
+
+    QList<ProjectExplorer::HeaderPath> m_systemHeaderPaths;
+    QString m_compilerPath;
+    QList<Utils::EnvironmentItem> m_environmentChanges;
+    ArmVersion m_armVersion;
+    mutable RvctVersion m_version;
+
+    friend class RvctToolChainFactory;
 };
 
 // ==========================================================================
-// RVCT2ToolChain
+// RvctToolChainConfigWidget
 // ==========================================================================
 
-class RVCT2ToolChain : public RVCTToolChain
+class RvctToolChainConfigWidget : public ProjectExplorer::ToolChainConfigWidget
 {
+    Q_OBJECT
+
 public:
-    explicit RVCT2ToolChain(const S60Devices::Device &device,
-                            ProjectExplorer::ToolChainType type);
-    QByteArray rvctBinEnvironmentVariable();
+    RvctToolChainConfigWidget(RvctToolChain *tc);
 
-    QByteArray predefinedMacros();
+    void apply();
+    void discard();
+    bool isDirty() const;
 
-protected:
-    bool equals(const ToolChain *other) const;
+private slots:
+    void makeDirty();
+
+private:
+    QList<Utils::EnvironmentItem> environmentChanges() const;
+
+    Ui::RvctToolChainConfigWidget *m_ui;
+    Utils::EnvironmentModel *m_model;
 };
 
 // ==========================================================================
-// RVCT4ToolChain
+// RvctToolChainFactory
 // ==========================================================================
 
-class RVCT4ToolChain : public RVCT2ToolChain
+class RvctToolChainFactory : public ProjectExplorer::ToolChainFactory
 {
+    Q_OBJECT
+
 public:
-    explicit RVCT4ToolChain(const S60Devices::Device &device,
-                            ProjectExplorer::ToolChainType type);
+    // Name used to display the name of the toolchain that will be created.
+    QString displayName() const;
+    QString id() const;
 
-    QByteArray rvctBinEnvironmentVariable();
+    QList<ProjectExplorer::ToolChain *> autoDetect();
 
-    QByteArray predefinedMacros();
+    bool canCreate();
+    ProjectExplorer::ToolChain *create();
 
-protected:
-    bool equals(const ToolChain *other) const;
+    // Used by the ToolChainManager to restore user-generated ToolChains
+    bool canRestore(const QVariantMap &data);
+    ProjectExplorer::ToolChain *restore(const QVariantMap &data);
 };
 
 } // namespace Internal

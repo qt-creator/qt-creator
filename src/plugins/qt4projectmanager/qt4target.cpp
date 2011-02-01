@@ -43,6 +43,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
+#include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 using namespace Qt4ProjectManager;
@@ -118,23 +119,32 @@ Qt4Project *Qt4BaseTarget::qt4Project() const
     return static_cast<Qt4Project *>(project());
 }
 
-QList<ProjectExplorer::ToolChainType> Qt4BaseTarget::filterToolChainTypes(const QList<ProjectExplorer::ToolChainType> &candidates) const
-{
-    return candidates;
-}
-
-ProjectExplorer::ToolChainType Qt4BaseTarget::preferredToolChainType(const QList<ProjectExplorer::ToolChainType> &candidates) const
-{
-    ProjectExplorer::ToolChainType preferredType = ProjectExplorer::ToolChain_INVALID;
-    if (!candidates.isEmpty())
-        preferredType = candidates.at(0);
-    return preferredType;
-}
-
 QString Qt4BaseTarget::defaultBuildDirectory() const
 {
     Qt4BaseTargetFactory *fac = Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(id());
     return fac->defaultShadowBuildDirectory(qt4Project()->defaultTopLevelBuildDirectory(), id());
+}
+
+QList<ProjectExplorer::ToolChain *> Qt4BaseTarget::possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const
+{
+    QList<ProjectExplorer::ToolChain *> tmp;
+    QList<ProjectExplorer::ToolChain *> result;
+
+    Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(bc);
+    if (!qt4bc && !qt4bc->qtVersion()->isValid())
+        return tmp;
+
+    QList<ProjectExplorer::Abi> abiList = qt4bc->qtVersion()->qtAbis();
+    foreach (const ProjectExplorer::Abi &abi, abiList)
+        tmp.append(ProjectExplorer::ToolChainManager::instance()->findToolChains(abi));
+
+    foreach (ProjectExplorer::ToolChain *tc, tmp) {
+        if (result.contains(tc))
+            continue;
+        if (tc->restrictedToTargets().isEmpty() || tc->restrictedToTargets().contains(id()))
+            result.append(tc);
+    }
+    return result;
 }
 
 void Qt4BaseTarget::removeUnconfiguredCustomExectutableRunConfigurations()
@@ -191,8 +201,6 @@ Qt4BuildConfiguration *Qt4BaseTarget::addQt4BuildConfiguration(QString displayNa
 
     // Finally set the qt version & ToolChain
     bc->setQtVersion(qtversion);
-    ProjectExplorer::ToolChainType defaultTc = preferredToolChainType(filterToolChainTypes(bc->qtVersion()->possibleToolChainTypes()));
-    bc->setToolChainType(defaultTc);
     if (!directory.isEmpty())
         bc->setShadowBuildAndDirectory(directory != project()->projectDirectory(), directory);
     addBuildConfiguration(bc);

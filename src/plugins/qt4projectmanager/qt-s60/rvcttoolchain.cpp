@@ -33,178 +33,133 @@
 
 #include "rvcttoolchain.h"
 #include "rvctparser.h"
+#include "ui_rvcttoolchainconfigwidget.h"
+#include "qt4projectmanager/qt4projectmanagerconstants.h"
 
-#include <utils/qtcassert.h>
+#include <utils/environment.h>
+#include <utils/environmentmodel.h>
 #include <utils/synchronousprocess.h>
 
-#include <QtCore/QProcess>
-#include <QtCore/QProcessEnvironment>
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
 #include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QProcess>
+#include <QtGui/QGridLayout>
+#include <QtGui/QLabel>
 
-using namespace ProjectExplorer;
-using namespace Qt4ProjectManager::Internal;
+namespace Qt4ProjectManager {
+namespace Internal {
 
-static const char rvctBinaryC[] = "armcc";
+#if defined Q_OS_WIN
+static const char *const RVCT_BINARY = "armcc.exe";
+#else
+static const char *const RVCT_BINARY = "armcc";
+#endif
 
-static inline QStringList headerPathToStringList(const QList<ProjectExplorer::HeaderPath> &hl)
+static const char *const RVCT_LICENSE_KEY = "ARMLMD_LICENSE_FILE";
+
+static const char *const RVCT_PATH_KEY = "Qt4ProjectManager.RvctToolChain.CompilerPath";
+static const char *const RVCT_ENVIRONMENT_KEY = "Qt4ProjectManager.RvctToolChain.Environment";
+static const char *const RVCT_ARM_VERSION_KEY = "Qt4ProjectManager.RvctToolChain.ArmVersion";
+
+static QString valueOf(const QList<Utils::EnvironmentItem> &items, const QString &suffix)
 {
-    QStringList rc;
-    foreach (const ProjectExplorer::HeaderPath &hp, hl)
-        rc.push_back(hp.path());
-    return rc;
-}
-
-// ==========================================================================
-// RVCTToolChain
-// ==========================================================================
-
-RVCTToolChain::RVCTToolChain(const S60Devices::Device &device, ProjectExplorer::ToolChainType type) :
-    m_mixin(device),
-    m_type(type),
-    m_versionUpToDate(false),
-    m_major(0),
-    m_minor(0),
-    m_build(0)
-{
-}
-
-QSet<QPair<int, int> > RVCTToolChain::configuredRvctVersions()
-{
-    static QSet<QPair<int, int> > result;
-
-    if (result.isEmpty()) {
-        QRegExp regex(QLatin1String("^RVCT(\\d)(\\d)BIN=.*$"));
-        Q_ASSERT(regex.isValid());
-        QStringList environment = QProcessEnvironment::systemEnvironment().toStringList();
-        foreach (const QString &v, environment) {
-            if (regex.exactMatch(v)) {
-                int major = regex.cap(1).toInt();
-                int minor = regex.cap(2).toInt();
-                result.insert(qMakePair(major, minor));
-            }
-        }
+    foreach (const Utils::EnvironmentItem &i, items) {
+        if (i.name.mid(6) == suffix && !i.unset)
+            return i.value;
     }
+    return QString();
+}
+
+static QString armVersionString(RvctToolChain::ArmVersion av)
+{
+    switch (av) {
+    case RvctToolChain::ARMv5:
+        return RvctToolChainFactory::tr("ARMv5");
+    case RvctToolChain::ARMv6:
+        return RvctToolChainFactory::tr("ARMv6");
+    };
+    return QString();
+}
+
+static Utils::Environment baseEnvironment(RvctToolChain *tc)
+{
+    Utils::Environment result;
+    tc->addToEnvironment(result);
     return result;
 }
 
-QStringList RVCTToolChain::configuredEnvironment()
+// ==========================================================================
+// RvctToolChain
+// ==========================================================================
+
+RvctToolChain::RvctToolChain(bool autodetected) :
+    ToolChain(QLatin1String(Constants::RVCT_TOOLCHAIN_ID), autodetected),
+    m_armVersion(ARMv5)
+{ }
+
+RvctToolChain::RvctToolChain(const RvctToolChain &tc) :
+    ToolChain(tc),
+    m_compilerPath(tc.m_compilerPath),
+    m_environmentChanges(tc.m_environmentChanges),
+    m_armVersion(tc.m_armVersion)
+{ }
+
+RvctToolChain::RvctVersion RvctToolChain::version(const QString &rvctPath)
 {
-    updateVersion();
+    RvctToolChain::RvctVersion v;
 
-    if (m_additionalEnvironment.isEmpty()) {
-        const QString binVarName = QString::fromLocal8Bit(rvctBinEnvironmentVariable());
-        const QString varName = binVarName.left(binVarName.count() - 3 /* BIN */);
-        QStringList environment = QProcessEnvironment::systemEnvironment().toStringList();
-        foreach (const QString &v, environment) {
-            if ((v.startsWith(varName) && !v.startsWith(binVarName))
-                 || v.startsWith(QLatin1String("ARMLMD_LICENSE_FILE="))) {
-                m_additionalEnvironment.append(v);
-            }
-        }
-    }
-    return m_additionalEnvironment;
-}
-
-// Return the environment variable indicating the RVCT version
-// 'RVCT<major><minor>BIN'
-QByteArray RVCTToolChain::rvctBinEnvironmentVariableForVersion(int major)
-{
-    QSet<QPair<int, int> > versions = configuredRvctVersions();
-
-    for (QSet<QPair<int, int> >::const_iterator it = versions.constBegin();
-         it != versions.constEnd(); ++it) {
-        if (it->first == major) {
-            if (it->first < 0 || it->first > 9) continue;
-            if (it->second < 0 || it->second > 9) continue;
-            QByteArray result = "RVCT..BIN";
-            result[4] = '0' + it->first;
-            result[5] = '0' + it->second;
-            return result;
-        }
-    }
-    return QByteArray();
-}
-
-QString RVCTToolChain::rvctBinPath()
-{
-    if (m_binPath.isEmpty()) {
-        const QByteArray binVar = rvctBinEnvironmentVariable();
-        if (!binVar.isEmpty()) {
-            const QByteArray binPathB = qgetenv(binVar);
-            if (!binPathB.isEmpty()) {
-                const QFileInfo fi(QString::fromLocal8Bit(binPathB));
-                if (fi.isDir())
-                    m_binPath = fi.absoluteFilePath();
-            }
-        }
-    }
-    return m_binPath;
-}
-
-// Return binary expanded by path or resort to PATH
-QString RVCTToolChain::rvctBinary()
-{
-    QString executable = QLatin1String(rvctBinaryC);
-#ifdef Q_OS_WIN
-    executable += QLatin1String(".exe");
-#endif
-    const QString binPath = rvctBinPath();
-    return binPath.isEmpty() ? executable : (binPath + QLatin1Char('/') + executable);
-}
-
-ProjectExplorer::ToolChainType RVCTToolChain::type() const
-{
-    return m_type;
-}
-
-void RVCTToolChain::updateVersion()
-{
-    if (m_versionUpToDate)
-        return;
-
-    m_versionUpToDate = true;
-    m_major = 0;
-    m_minor = 0;
-    m_build = 0;
     QProcess armcc;
-    Utils::Environment env = Utils::Environment::systemEnvironment();
-    addToEnvironment(env);
-    armcc.setEnvironment(env.toStringList());
-    const QString binary = rvctBinary();
+    const QString binary = rvctPath;
     armcc.start(binary, QStringList());
     if (!armcc.waitForStarted()) {
         qWarning("Unable to run rvct binary '%s' when trying to determine version.", qPrintable(binary));
-        return;
+        return v;
     }
     armcc.closeWriteChannel();
     if (!armcc.waitForFinished()) {
         Utils::SynchronousProcess::stopProcess(armcc);
         qWarning("Timeout running rvct binary '%s' trying to determine version.", qPrintable(binary));
-        return;
+        return v;
     }
     if (armcc.exitStatus() != QProcess::NormalExit) {
         qWarning("A crash occurred when running rvct binary '%s' trying to determine version.", qPrintable(binary));
-        return;
+        return v;
     }
     QString versionLine = QString::fromLocal8Bit(armcc.readAllStandardOutput());
     versionLine += QString::fromLocal8Bit(armcc.readAllStandardError());
     const QRegExp versionRegExp(QLatin1String("RVCT(\\d*)\\.(\\d*).*\\[Build.(\\d*)\\]"),
                                 Qt::CaseInsensitive);
-    QTC_ASSERT(versionRegExp.isValid(), return);
+    Q_ASSERT(versionRegExp.isValid());
+
     if (versionRegExp.indexIn(versionLine) != -1) {
-        m_major = versionRegExp.cap(1).toInt();
-        m_minor = versionRegExp.cap(2).toInt();
-        m_build = versionRegExp.cap(3).toInt();
+        v.majorVersion = versionRegExp.cap(1).toInt();
+        v.minorVersion = versionRegExp.cap(2).toInt();
+        v.build = versionRegExp.cap(3).toInt();
     }
+    return v;
 }
 
-QByteArray RVCTToolChain::predefinedMacros()
+QString RvctToolChain::typeName() const
+{
+    return RvctToolChainFactory::tr("RVCT");
+}
+
+ProjectExplorer::Abi RvctToolChain::targetAbi() const
+{
+    return ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Symbian,
+                                ProjectExplorer::Abi::Symbian_device, ProjectExplorer::Abi::Format_ELF,
+                                32);
+}
+
+bool RvctToolChain::isValid() const
+{
+    return !m_compilerPath.isEmpty();
+}
+
+QByteArray RvctToolChain::predefinedMacros() const
 {
     // see http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0205f/Babbacdb.html (version 2.2)
     // and http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0491b/BABJFEFG.html (version 4.0)
-    updateVersion();
     QByteArray ba("#define __ARRAY_OPERATORS\n"
                   "#define _BOOL\n"
                   "#define __cplusplus\n"
@@ -224,101 +179,36 @@ QByteArray RVCTToolChain::predefinedMacros()
     return ba;
 }
 
-QList<HeaderPath> RVCTToolChain::systemHeaderPaths()
+QList<ProjectExplorer::HeaderPath> RvctToolChain::systemHeaderPaths() const
 {
-    if (m_systemHeaderPaths.isEmpty()) {
-        updateVersion();
-        QString rvctInclude = qgetenv(QString::fromLatin1("RVCT%1%2INC").arg(m_major).arg(m_minor).toLatin1());
-        if (!rvctInclude.isEmpty())
-            m_systemHeaderPaths.append(HeaderPath(rvctInclude, HeaderPath::GlobalHeaderPath));
-        switch (m_type) {
-        case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
-            m_systemHeaderPaths += m_mixin.gnuPocRvctHeaderPaths(m_major, m_minor);
-            break;
-        default:
-            m_systemHeaderPaths += m_mixin.epocHeaderPaths();
-            break;
-        }
-    }
-    return m_systemHeaderPaths;
+    return QList<ProjectExplorer::HeaderPath>()
+            << ProjectExplorer::HeaderPath(valueOf(m_environmentChanges, QLatin1String("INC")),
+                                           ProjectExplorer::HeaderPath::GlobalHeaderPath);
 }
 
-// Expand an RVCT variable, such as RVCT22BIN, by some new values
-void RVCTToolChain::addToRVCTPathVariable(const QString &postfix, const QStringList &values,
-                                          Utils::Environment &env) const
+void RvctToolChain::addToEnvironment(Utils::Environment &env) const
 {
-    // get old values
-    const QChar separator = QLatin1Char(',');
-    const QString variable = QString::fromLatin1("RVCT%1%2%3").arg(m_major).arg(m_minor).arg(postfix);
-    const QString oldValueS = env.value(variable);
-    const QStringList oldValue = oldValueS.isEmpty() ? QStringList() : oldValueS.split(separator);
-    // merge new values
-    QStringList newValue = oldValue;
-    foreach(const QString &v, values) {
-        const QString normalized = QDir::toNativeSeparators(v);
-        if (!newValue.contains(normalized))
-            newValue.push_back(normalized);
-    }
-    if (newValue != oldValue)
-        env.set(variable, newValue.join(QString(separator)));
-}
+    if (m_compilerPath.isEmpty())
+        return;
 
-// Figure out lib path via
-QStringList RVCTToolChain::libPaths()
-{
-    const QByteArray binLocation = qgetenv(rvctBinEnvironmentVariable());
-    if (binLocation.isEmpty())
-        return QStringList();
-    const QString pathRoot = QFileInfo(QString::fromLocal8Bit(binLocation)).path();
-    QStringList rc;
-    rc.push_back(pathRoot + QLatin1String("/lib"));
-    rc.push_back(pathRoot + QLatin1String("/lib/armlib"));
-    return rc;
-}
+    if (m_version.isNull())
+        setVersion(version(m_compilerPath));
+    if (m_version.isNull())
+        return;
 
-void RVCTToolChain::addToEnvironment(Utils::Environment &env)
-{
-    updateVersion();
+    env.modify(m_environmentChanges);
 
-    // Push additional configuration variables for the compiler through:
-    QStringList additionalVariables = configuredEnvironment();
-    foreach (const QString &var, additionalVariables) {
-        int pos = var.indexOf(QLatin1Char('='));
-        Q_ASSERT(pos >= 0);
-        const QString key = var.left(pos);
-        const QString value = var.mid(pos + 1);
-        env.set(key, value);
-    }
-
-    switch (m_type) {
-    case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC: {
-        m_mixin.addGnuPocToEnvironment(&env);
-        // setup RVCT22INC, LIB
-        addToRVCTPathVariable(QLatin1String("INC"),
-                      headerPathToStringList(m_mixin.gnuPocRvctHeaderPaths(m_major, m_minor)),
-                      env);
-        addToRVCTPathVariable(QLatin1String("LIB"),
-                              libPaths() + m_mixin.gnuPocRvctLibPaths(5, true),
-                              env);
-        }
-        break;
-    default:
-        m_mixin.addEpocToEnvironment(&env);
-        break;
-    }
-
-    const QString binPath = rvctBinPath();
-    env.set(rvctBinEnvironmentVariable(), QDir::toNativeSeparators(binPath));
+    env.set(QLatin1String("QT_RVCT_VERSION"), QString::fromLatin1("%1.%2")
+            .arg(m_version.majorVersion).arg(m_version.minorVersion));
+    env.set(varName(QLatin1String("BIN")), QDir::toNativeSeparators(QFileInfo(m_compilerPath).absolutePath()));
 
     // Add rvct to path and set locale to 'C'
-    if (!binPath.isEmpty())
-        env.prependOrSetPath(binPath);
+    if (!m_compilerPath.isEmpty())
+        env.prependOrSetPath(QFileInfo(m_compilerPath).absolutePath());
     env.set(QLatin1String("LANG"), QString(QLatin1Char('C')));
-
-    env.set(QLatin1String("QT_RVCT_VERSION"), QString::fromLatin1("%1.%2").arg(m_major).arg(m_minor));
 }
 
-QString RVCTToolChain::makeCommand() const
+QString RvctToolChain::makeCommand() const
 {
 #if defined(Q_OS_WIN)
     return QLatin1String("make.exe");
@@ -327,76 +217,304 @@ QString RVCTToolChain::makeCommand() const
 #endif
 }
 
-ProjectExplorer::IOutputParser *RVCTToolChain::outputParser() const
+QString RvctToolChain::defaultMakeTarget() const
+{
+    if (!isValid())
+        return QString();
+    if (m_armVersion == ARMv6)
+        return QLatin1String("armv6");
+    return QLatin1String("armv5");
+
+}
+
+ProjectExplorer::IOutputParser *RvctToolChain::outputParser() const
 {
     return new RvctParser;
 }
 
-// ==========================================================================
-// RVCT2ToolChain
-// ==========================================================================
-
-RVCT2ToolChain::RVCT2ToolChain(const S60Devices::Device &device, ProjectExplorer::ToolChainType type) :
-    RVCTToolChain(device, type)
-{ }
-
-QByteArray RVCT2ToolChain::rvctBinEnvironmentVariable()
+bool RvctToolChain::operator ==(const ToolChain &other) const
 {
-    return rvctBinEnvironmentVariableForVersion(2);
+    if (!ToolChain::operator ==(other))
+        return false;
+    const RvctToolChain *otherPtr = dynamic_cast<const RvctToolChain *>(&other);
+    return m_compilerPath == otherPtr->m_compilerPath
+            && m_environmentChanges == otherPtr->m_environmentChanges
+            && m_armVersion == otherPtr->m_armVersion;
 }
 
-QByteArray RVCT2ToolChain::predefinedMacros()
+void RvctToolChain::setEnvironmentChanges(const QList<Utils::EnvironmentItem> &changes)
 {
-    QByteArray result = RVCTToolChain::predefinedMacros();
-    result.append(QString::fromLatin1("#define __arm__arm__\n"
-                                      "#define __ARMCC_VERSION %1%2%3%4\n"
-                                      "#define c_plusplus\n"
-                                      )
-                  .arg(m_major, 1, 10, QLatin1Char('0'))
-                  .arg(m_minor, 1, 10, QLatin1Char('0'))
-                  .arg("0")
-                  .arg(m_build, 3, 10, QLatin1Char('0')).toLatin1());
+    m_environmentChanges = changes;
+}
+
+QList<Utils::EnvironmentItem> RvctToolChain::environmentChanges() const
+{
+    return m_environmentChanges;
+}
+
+void RvctToolChain::setCompilerPath(const QString &path)
+{
+    if (m_compilerPath == path)
+        return;
+
+    m_compilerPath = path;
+    m_version.reset();
+    updateId();
+}
+
+QString RvctToolChain::compilerPath() const
+{
+    return m_compilerPath;
+}
+
+void RvctToolChain::setArmVersion(RvctToolChain::ArmVersion av)
+{
+    m_armVersion = av;
+}
+
+RvctToolChain::ArmVersion RvctToolChain::armVersion() const
+{
+    return m_armVersion;
+}
+
+void RvctToolChain::setVersion(const RvctVersion &v) const
+{
+    m_version = v;
+}
+
+ProjectExplorer::ToolChainConfigWidget *RvctToolChain::configurationWidget()
+{
+    return new RvctToolChainConfigWidget(this);
+}
+
+ProjectExplorer::ToolChain *RvctToolChain::clone() const
+{
+    return new RvctToolChain(*this);
+}
+
+
+QVariantMap RvctToolChain::toMap() const
+{
+    QVariantMap result = ToolChain::toMap();
+    result.insert(QLatin1String(RVCT_PATH_KEY), m_compilerPath);
+    QVariantMap tmp;
+    foreach (const Utils::EnvironmentItem &i, m_environmentChanges)
+        tmp.insert(i.name, i.value);
+    result.insert(QLatin1String(RVCT_ENVIRONMENT_KEY), tmp);
+    result.insert(QLatin1String(RVCT_ARM_VERSION_KEY), static_cast<int>(m_armVersion));
     return result;
 }
 
-bool RVCT2ToolChain::equals(const ToolChain *otherIn) const
+bool RvctToolChain::fromMap(const QVariantMap &data)
 {
-    if (otherIn->type() != type())
+    if (!ToolChain::fromMap(data))
         return false;
-    const RVCT2ToolChain *other = static_cast<const RVCT2ToolChain *>(otherIn);
-    return other->m_mixin == m_mixin;
+    m_compilerPath = data.value(QLatin1String(RVCT_PATH_KEY)).toString();
+
+    m_environmentChanges.clear();
+    QVariantMap tmp = data.value(QLatin1String(RVCT_ENVIRONMENT_KEY)).toMap();
+    for (QVariantMap::const_iterator i = tmp.constBegin(); i != tmp.constEnd(); ++i)
+        m_environmentChanges.append(Utils::EnvironmentItem(i.key(), i.value().toString()));
+    m_armVersion = static_cast<ArmVersion>(data.value(QLatin1String(RVCT_ARM_VERSION_KEY), 0).toInt());
+
+    return isValid();
+}
+
+void RvctToolChain::updateId()
+{
+    setId(QString::fromLatin1("%1:%2").arg(Constants::RVCT_TOOLCHAIN_ID).arg(m_compilerPath));
+}
+
+QString RvctToolChain::varName(const QString &postFix) const
+{
+    return QString::fromLatin1("RVCT%1%2%3")
+            .arg(m_version.majorVersion).arg(m_version.minorVersion).arg(postFix);
 }
 
 // ==========================================================================
-// RVCT4ToolChain
+// RvctToolChainConfigWidget
 // ==========================================================================
 
-RVCT4ToolChain::RVCT4ToolChain(const S60Devices::Device &device,
-                               ProjectExplorer::ToolChainType type) :
-    RVCT2ToolChain(device, type)
-{ }
-
-QByteArray RVCT4ToolChain::rvctBinEnvironmentVariable()
+RvctToolChainConfigWidget::RvctToolChainConfigWidget(RvctToolChain *tc) :
+    ProjectExplorer::ToolChainConfigWidget(tc),
+    m_ui(new Ui::RvctToolChainConfigWidget()),
+    m_model(new Utils::EnvironmentModel(this))
 {
-    return rvctBinEnvironmentVariableForVersion(4);
+    m_ui->setupUi(this);
+
+    m_ui->environmentView->setModel(m_model);
+    m_ui->environmentView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+    m_ui->environmentView->horizontalHeader()->setStretchLastSection(true);
+    connect(m_model, SIGNAL(userChangesChanged()), this, SLOT(makeDirty()));
+
+    m_ui->compilerPath->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_ui->compilerPath->setPath(tc->compilerPath());
+    connect(m_ui->compilerPath, SIGNAL(changed(QString)), this, SLOT(makeDirty()));
+    m_ui->versionComboBox->setCurrentIndex(static_cast<int>(tc->armVersion()));
+    connect(m_ui->versionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(makeDirty()));
+
+    discard();
 }
 
-QByteArray RVCT4ToolChain::predefinedMacros()
+void RvctToolChainConfigWidget::apply()
 {
-    QByteArray result = RVCTToolChain::predefinedMacros();
-    result.append(QString::fromLatin1("#define __arm__\n"
-                                      "#define __ARMCC_VERSION %1%2%3\n")
-                  .arg(m_major, 1, 10, QLatin1Char('0'))
-                  .arg(m_minor, 1, 10, QLatin1Char('0'))
-                  .arg(m_build, 3, 10, QLatin1Char('0')).toLatin1());
+    RvctToolChain *tc = static_cast<RvctToolChain *>(toolChain());
+    Q_ASSERT(tc);
+
+    QList<Utils::EnvironmentItem> changes = environmentChanges();
+    tc->setCompilerPath(m_ui->compilerPath->path());
+    tc->setArmVersion(static_cast<RvctToolChain::ArmVersion>(m_ui->versionComboBox->currentIndex()));
+    tc->setEnvironmentChanges(changes);
+
+    m_model->setUserChanges(changes);
+}
+
+void RvctToolChainConfigWidget::discard()
+{
+    RvctToolChain *tc = static_cast<RvctToolChain *>(toolChain());
+    Q_ASSERT(tc);
+
+    m_model->setBaseEnvironment(baseEnvironment(tc));
+
+    m_ui->compilerPath->setPath(tc->compilerPath());
+    m_ui->versionComboBox->setCurrentIndex(static_cast<int>(tc->armVersion()));
+}
+
+bool RvctToolChainConfigWidget::isDirty() const
+{
+    RvctToolChain *tc = static_cast<RvctToolChain *>(toolChain());
+    Q_ASSERT(tc);
+
+    return tc->compilerPath() != m_ui->compilerPath->path()
+            || tc->armVersion() != static_cast<RvctToolChain::ArmVersion>(m_ui->versionComboBox->currentIndex())
+            || tc->environmentChanges() != environmentChanges();
+}
+
+void RvctToolChainConfigWidget::makeDirty()
+{
+    emit dirty(toolChain());
+}
+
+QList<Utils::EnvironmentItem> RvctToolChainConfigWidget::environmentChanges() const
+{
+    Utils::Environment baseEnv;
+    Utils::Environment resultEnv = baseEnvironment(static_cast<RvctToolChain *>(toolChain()));
+    resultEnv.modify(m_model->userChanges());
+    return baseEnv.diff(resultEnv);
+}
+
+// ==========================================================================
+// RvctToolChainFactory
+// ==========================================================================
+
+QString RvctToolChainFactory::displayName() const
+{
+    return tr("RVCT");
+}
+
+QString RvctToolChainFactory::id() const
+{
+    return QLatin1String(Constants::RVCT_TOOLCHAIN_ID);
+}
+
+QList<ProjectExplorer::ToolChain *> RvctToolChainFactory::autoDetect()
+{
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+
+    QMap<QString, QList<Utils::EnvironmentItem> > rvcts;
+    QList<Utils::EnvironmentItem> globalItems;
+
+    // Find all RVCT..x variables
+    for (Utils::Environment::const_iterator i = env.constBegin(); i != env.constEnd(); ++i) {
+        if (i.key() == QLatin1String(RVCT_LICENSE_KEY))
+            globalItems.append(Utils::EnvironmentItem(i.key(), i.value()));
+        if (!i.key().startsWith(QLatin1String("RVCT")))
+            continue;
+
+        const QString key = i.key().left(6);
+        QList<Utils::EnvironmentItem> values = rvcts.value(key);
+
+        values.append(Utils::EnvironmentItem(i.key(), i.value()));
+
+        rvcts.insert(key, values);
+    }
+
+    // Set up toolchains for each RVCT.. set
+    QList<ProjectExplorer::ToolChain *> result;
+    for (QMap<QString, QList<Utils::EnvironmentItem> >::const_iterator i = rvcts.constBegin();
+         i != rvcts.constEnd(); ++i) {
+        QList<Utils::EnvironmentItem> changes = i.value();
+        changes.append(globalItems);
+
+        QString binary = QDir::fromNativeSeparators(valueOf(changes, QLatin1String("BIN")));
+        if (binary.isEmpty())
+            continue;
+        binary = binary + QLatin1Char('/') + RVCT_BINARY;
+        QFileInfo fi(binary);
+        if (!fi.exists() || !fi.isExecutable())
+            continue;
+
+        RvctToolChain::RvctVersion v = RvctToolChain::version(binary);
+        if (v.majorVersion == 0 && v.minorVersion == 0 && v.build == 0)
+            continue; // Failed to start.
+
+        //: %1 arm version, %2 major version, %3 minor version, %4 build number
+        const QString name = tr("RVCT (%1 %2.%3 Build %4)");
+
+        RvctToolChain *tc = new RvctToolChain(true);
+        tc->setCompilerPath(binary);
+        tc->setEnvironmentChanges(changes);
+        tc->setDisplayName(name.arg(armVersionString(tc->armVersion()))
+                           .arg(v.majorVersion).arg(v.minorVersion).arg(v.build));
+        tc->setVersion(v);
+        result.append(tc);
+
+        tc = new RvctToolChain(true);
+        tc->setCompilerPath(binary);
+        tc->setEnvironmentChanges(changes);
+        tc->setArmVersion(RvctToolChain::ARMv6);
+        tc->setDisplayName(name.arg(armVersionString(tc->armVersion()))
+                           .arg(v.majorVersion).arg(v.minorVersion).arg(v.build));
+        tc->setVersion(v);
+        result.append(tc);
+    }
+
     return result;
 }
 
-
-bool RVCT4ToolChain::equals(const ToolChain *otherIn) const
+bool RvctToolChainFactory::canCreate()
 {
-    if (otherIn->type() != type())
-        return false;
-    const RVCT4ToolChain *other = static_cast<const RVCT4ToolChain *>(otherIn);
-    return other->m_mixin == m_mixin;
+    return true;
 }
+
+ProjectExplorer::ToolChain *RvctToolChainFactory::create()
+{
+    RvctToolChain *tc = new RvctToolChain(false);
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    if (env.hasKey(QLatin1String(RVCT_LICENSE_KEY))) {
+        tc->setEnvironmentChanges(QList<Utils::EnvironmentItem>()
+                                  << Utils::EnvironmentItem(QLatin1String(RVCT_LICENSE_KEY),
+                                                            env.value(QLatin1String(RVCT_LICENSE_KEY))));
+    }
+    tc->setDisplayName(tr("RVCT"));
+    return tc;
+}
+
+bool RvctToolChainFactory::canRestore(const QVariantMap &data)
+{
+    return idFromMap(data).startsWith(QLatin1String(Constants::RVCT_TOOLCHAIN_ID));
+}
+
+ProjectExplorer::ToolChain *RvctToolChainFactory::restore(const QVariantMap &data)
+{
+    RvctToolChain *tc = new RvctToolChain(false);
+    if (tc->fromMap(data))
+        return tc;
+
+    delete tc;
+    return 0;
+
+}
+
+} // Internal
+} // Qt4ProjectManager

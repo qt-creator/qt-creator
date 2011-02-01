@@ -103,6 +103,8 @@ public:
     ProjectExplorer::OutputFormatter *createOutputFormatter() const;
     QVariantMap toMap() const;
 
+    ProjectExplorer::Abi abi() const;
+
 public slots:
     void changeCurrentFile(Core::IEditor*);
 

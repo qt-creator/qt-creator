@@ -48,6 +48,10 @@ namespace Utils {
     class PathChooser;
 }
 
+namespace ProjectExplorer {
+class ToolChain;
+}
+
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -87,10 +91,11 @@ public:
     CMakeManager *cmakeManager() const;
     QString arguments() const;
     void setArguments(const QString &args);
+    ProjectExplorer::ToolChain *toolChain() const;
+    void setToolChain(ProjectExplorer::ToolChain *);
     Utils::Environment environment() const;
-    QString msvcVersion() const;
-    void setMsvcVersion(const QString &version);
     bool existsUpToDateXmlFile() const;
+
 private:
     void init();
     bool hasInSourceBuild() const;
@@ -98,9 +103,9 @@ private:
     QString m_buildDirectory;
     QString m_sourceDirectory;
     QString m_arguments;
-    QString m_msvcVersion;
     bool m_creatingCbpFiles;
     Utils::Environment m_environment;
+    ProjectExplorer::ToolChain *m_toolChain;
 };
 
 class InSourceBuildPage : public QWizardPage

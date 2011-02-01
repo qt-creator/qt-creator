@@ -35,11 +35,11 @@
 #define S60DEPLOYCONFIGURATION_H
 
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/toolchaintype.h>
 
 namespace ProjectExplorer {
 class BuildConfiguration;
 class RunConfiguration;
+class ToolChain;
 }
 
 namespace Qt4ProjectManager {
@@ -72,7 +72,7 @@ public:
 
     const QtVersion *qtVersion() const;
     Qt4SymbianTarget *qt4Target() const;
-    ProjectExplorer::ToolChainType toolChainType() const;
+    ProjectExplorer::ToolChain *toolChain() const;
 
     QString serialPortName() const;
     void setSerialPortName(const QString &name);
@@ -120,7 +120,6 @@ protected:
 private:
     void ctor();
     bool isSigned() const;
-    QString symbianPlatform() const;
     QString symbianTarget() const;
     QString createPackageName(const QString &baseName) const;
     bool isDebug() const;

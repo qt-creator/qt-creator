@@ -431,14 +431,10 @@ void Qt4Project::updateCppCodeModel()
     ToolChain *tc = activeBC->toolChain();
     if (tc) {
         predefinedMacros = tc->predefinedMacros();
-        //qDebug()<<"Predefined Macros";
-        //qDebug()<<tc->predefinedMacros();
-        //qDebug()<<"";
-        //qDebug()<<"System Header Paths";
-        //foreach(const HeaderPath &hp, tc->systemHeaderPaths())
-        //    qDebug()<<hp.path();
 
-        foreach (const HeaderPath &headerPath, tc->systemHeaderPaths()) {
+        QList<HeaderPath> headers = tc->systemHeaderPaths();
+        headers.append(activeBC->qtVersion()->systemHeaderPathes());
+        foreach (const HeaderPath &headerPath, headers) {
             if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
                 predefinedFrameworkPaths.append(headerPath.path());
             else
@@ -920,8 +916,11 @@ ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode)
             QtVersion *version = activeTarget()->activeBuildConfiguration()->qtVersion();
             if (version->isValid()) {
                 m_proFileOption->properties = version->versionInfo();
-                m_proFileOption->sysroot
-                    = activeTarget()->activeBuildConfiguration()->toolChain()->sysroot();
+                if (activeTarget()
+                        && activeTarget()->activeBuildConfiguration()
+                        && activeTarget()->activeBuildConfiguration()->toolChain())
+                    m_proFileOption->sysroot
+                            = activeTarget()->activeBuildConfiguration()->qtVersion()->systemRoot();
             }
         }
 

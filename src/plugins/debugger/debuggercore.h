@@ -36,6 +36,8 @@
 
 #include "debuggerconstants.h"
 
+#include <projectexplorer/abi.h>
+
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
@@ -101,7 +103,7 @@ public:
     virtual bool initialize(const QStringList &arguments, QString *errorMessage) = 0;
     virtual QWidget *mainWindow() const = 0;
     virtual bool isDockVisible(const QString &objectName) const = 0;
-    virtual QString gdbBinaryForToolChain(int toolChain) const = 0;
+    virtual QString gdbBinaryForAbi(const ProjectExplorer::Abi &abi) const = 0;
     virtual void showModuleSymbols(const QString &moduleName,
         const QVector<Symbol> &symbols) = 0;
     virtual void openMemoryEditor() = 0;

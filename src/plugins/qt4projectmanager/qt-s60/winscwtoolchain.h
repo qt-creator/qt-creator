@@ -34,37 +34,111 @@
 #ifndef WINSCWTOOLCHAIN_H
 #define WINSCWTOOLCHAIN_H
 
-#include "s60devices.h"
-
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainconfigwidget.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
+namespace Ui {
+class WinscwToolChainConfigWidget;
+} // namespace Ui
 
-class WINSCWToolChain : public ProjectExplorer::ToolChain
+// --------------------------------------------------------------------------
+// WinscwToolChain
+// --------------------------------------------------------------------------
+
+class WinscwToolChain : public ProjectExplorer::ToolChain
 {
 public:
-    explicit WINSCWToolChain(const S60Devices::Device &device, const QString &mwcDirectory);
-    QByteArray predefinedMacros();
-    QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
-    void addToEnvironment(Utils::Environment &env);
-    ProjectExplorer::ToolChainType type() const;
+    WinscwToolChain(const WinscwToolChain &);
+    ~WinscwToolChain();
+
+    QString typeName() const;
+    ProjectExplorer::Abi targetAbi() const;
+
+    bool isValid() const;
+
+    QByteArray predefinedMacros() const;
+    QList<ProjectExplorer::HeaderPath> systemHeaderPaths() const;
+    void addToEnvironment(Utils::Environment &env) const;
     QString makeCommand() const;
+    QString defaultMakeTarget() const;
     ProjectExplorer::IOutputParser *outputParser() const;
 
-protected:
-    bool equals(const ToolChain *other) const;
+    bool operator ==(const ProjectExplorer::ToolChain &) const;
+
+    ProjectExplorer::ToolChainConfigWidget *configurationWidget();
+    ProjectExplorer::ToolChain *clone() const;
+
+    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &data);
+
+    void setSystemIncludePathes(const QStringList &);
+    QStringList systemIncludePathes() const;
+
+    void setSystemLibraryPathes(const QStringList &);
+    QStringList systemLibraryPathes() const;
+
+    void setCompilerPath(const QString &);
+    QString compilerPath() const;
 
 private:
-    QStringList systemIncludes() const;
+    void updateId();
 
-    const S60ToolChainMixin m_mixin;
+    explicit WinscwToolChain(bool);
 
-    QString m_carbidePath;
-    QString m_deviceId;
-    QString m_deviceName;
-    QString m_deviceRoot;
-    QList<ProjectExplorer::HeaderPath> m_systemHeaderPaths;
+    QStringList m_systemIncludePathes;
+    QStringList m_systemLibraryPathes;
+    QString m_compilerPath;
+
+    friend class WinscwToolChainFactory;
+};
+
+// --------------------------------------------------------------------------
+// WinscwToolChainConfigWidget
+// --------------------------------------------------------------------------
+
+class WinscwToolChainConfigWidget : public ProjectExplorer::ToolChainConfigWidget
+{
+    Q_OBJECT
+
+public:
+    WinscwToolChainConfigWidget(WinscwToolChain *);
+
+    void apply();
+    void discard();
+    bool isDirty() const;
+
+private slots:
+    void handleCompilerPathUpdate();
+    void makeDirty();
+
+private:
+    Ui::WinscwToolChainConfigWidget *m_ui;
+};
+
+// --------------------------------------------------------------------------
+// WinscwToolChainFactory
+// --------------------------------------------------------------------------
+
+class WinscwToolChainFactory : public ProjectExplorer::ToolChainFactory
+{
+    Q_OBJECT
+
+public:
+    WinscwToolChainFactory();
+
+    QString displayName() const;
+    QString id() const;
+
+    QList<ProjectExplorer::ToolChain *> autoDetect();
+
+    bool canCreate();
+    ProjectExplorer::ToolChain *create();
+
+    // Used by the ToolChainManager to restore user-generated ToolChains
+    bool canRestore(const QVariantMap &data);
+    ProjectExplorer::ToolChain *restore(const QVariantMap &data);
 };
 
 } // namespace Internal

@@ -40,6 +40,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildconfiguration.h>
 
 #include <QtCore/QFileInfo>
@@ -86,8 +87,10 @@ LibraryDetailsController::LibraryDetailsController(
     Qt4BuildConfiguration *qt4BuildConfiguration =
             qobject_cast<Qt4BuildConfiguration *>(project->activeTarget()->activeBuildConfiguration());
     // if its toolchain is maemo behave the same as we would be on linux
-    if (qt4BuildConfiguration && (qt4BuildConfiguration->toolChainType() == ProjectExplorer::ToolChain_GCC_MAEMO5
-            || qt4BuildConfiguration->toolChainType() == ProjectExplorer::ToolChain_GCC_HARMATTAN))
+    if (qt4BuildConfiguration
+            && qt4BuildConfiguration->toolChain()
+            && (qt4BuildConfiguration->toolChain()->targetAbi().osFlavor() == ProjectExplorer::Abi::Linux_harmattan
+                || qt4BuildConfiguration->toolChain()->targetAbi().osFlavor() == ProjectExplorer::Abi::Linux_maemo))
         m_creatorPlatform = CreatorLinux;
 #endif
 

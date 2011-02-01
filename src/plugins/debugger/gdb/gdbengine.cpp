@@ -1795,36 +1795,29 @@ int GdbEngine::currentFrame() const
     return stackHandler()->currentIndex();
 }
 
-QString msgNoBinaryForToolChain(int tc)
+QString msgNoBinaryForToolChain(const ProjectExplorer::Abi &tc)
 {
     using namespace ProjectExplorer;
-    return GdbEngine::tr("There is no gdb binary available for '%1'.")
-        .arg(ToolChain::toolChainName(ToolChainType(tc)));
+    return GdbEngine::tr("There is no gdb binary available for binaries in format '%1'")
+        .arg(tc.toString());
 }
 
 AbstractGdbAdapter *GdbEngine::createAdapter()
 {
     const DebuggerStartParameters &sp = startParameters();
-    switch (sp.toolChainType) {
-    case ProjectExplorer::ToolChain_WINSCW: // S60
-    case ProjectExplorer::ToolChain_GCCE:
-    case ProjectExplorer::ToolChain_RVCT2_ARMV5:
-    case ProjectExplorer::ToolChain_RVCT2_ARMV6:
-    case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
-    case ProjectExplorer::ToolChain_GCCE_GNUPOC:
+    if (sp.toolChainAbi.os() == ProjectExplorer::Abi::Symbian) {
+        // FIXME: 1 of 3 testing hacks.
         if (sp.debugClient == DebuggerStartParameters::DebugClientCoda)
             return new CodaGdbAdapter(this);
         else
             return new TrkGdbAdapter(this);
-    default:
-        break;
     }
 
     switch (sp.startMode) {
     case AttachCore:
         return new CoreGdbAdapter(this);
     case AttachToRemote:
-        return new RemoteGdbServerAdapter(this, sp.toolChainType);
+        return new RemoteGdbServerAdapter(this, sp.toolChainAbi);
     case StartRemoteGdb:
         return new RemotePlainGdbAdapter(this);
     case AttachExternal:
@@ -4220,12 +4213,12 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb,
     const DebuggerStartParameters &sp = startParameters();
     m_gdb = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_PATH"));
     if (m_gdb.isEmpty() && sp.startMode != StartRemoteGdb)
-        m_gdb = debuggerCore()->gdbBinaryForToolChain(sp.toolChainType);
+        m_gdb = debuggerCore()->gdbBinaryForAbi(startParameters().toolChainAbi);
     if (m_gdb.isEmpty())
         m_gdb = gdb;
     if (m_gdb.isEmpty()) {
         handleAdapterStartFailed(
-            msgNoBinaryForToolChain(sp.toolChainType),
+            msgNoBinaryForToolChain(sp.toolChainAbi),
             GdbOptionsPage::settingsId());
         return false;
     }

@@ -36,6 +36,7 @@
 #include "outputformatter.h"
 #include "project.h"
 #include "target.h"
+#include "toolchain.h"
 #include "buildconfiguration.h"
 #include "projectexplorerconstants.h"
 #include <extensionsystem/pluginmanager.h>
@@ -239,6 +240,17 @@ QVariantMap RunConfiguration::toMap() const
     map.insert(QLatin1String(USE_QML_DEBUGGER_KEY), m_useQmlDebugger);
     map.insert(QLatin1String(QML_DEBUG_SERVER_PORT_KEY), m_qmlDebugServerPort);
     return map;
+}
+
+ProjectExplorer::Abi RunConfiguration::abi() const
+{
+    BuildConfiguration *bc = target()->activeBuildConfiguration();
+    if (!bc)
+        return Abi::hostAbi();
+    ToolChain *tc = bc->toolChain();
+    if (!tc)
+        return Abi::hostAbi();
+    return tc->targetAbi();
 }
 
 bool RunConfiguration::fromMap(const QVariantMap &map)

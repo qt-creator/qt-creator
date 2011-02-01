@@ -44,8 +44,8 @@
 #include "qmldebugginglibrary.h"
 #include "debugginghelperbuildtask.h"
 
+#include <projectexplorer/abi.h>
 #include <projectexplorer/debugginghelper.h>
-#include <projectexplorer/toolchaintype.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -151,15 +151,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     m_versionUi->setupUi(versionInfoWidget);
     m_versionUi->qmakePath->setExpectedKind(Utils::PathChooser::File);
     m_versionUi->qmakePath->setPromptDialogTitle(tr("Select qmake Executable"));
-    m_versionUi->mingwPath->setExpectedKind(Utils::PathChooser::Directory);
-    m_versionUi->mingwPath->setPromptDialogTitle(tr("Select the MinGW Directory"));
-    m_versionUi->mwcPath->setExpectedKind(Utils::PathChooser::Directory);
-    m_versionUi->mwcPath->setPromptDialogTitle(tr("Select Carbide Install Directory"));
     m_versionUi->s60SDKPath->setExpectedKind(Utils::PathChooser::Directory);
     m_versionUi->s60SDKPath->setPromptDialogTitle(tr("Select S60 SDK Root"));
-    m_versionUi->gccePath->setExpectedKind(Utils::PathChooser::Directory);
-    m_versionUi->gccePath->setPromptDialogTitle(tr("Select the CSL ARM Toolchain (GCCE) Directory"));
-
 
     QWidget *debuggingHelperDetailsWidget = new QWidget();
     m_debuggingHelperUi->setupUi(debuggingHelperDetailsWidget);
@@ -198,17 +191,10 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     connect(m_versionUi->nameEdit, SIGNAL(textEdited(const QString &)),
             this, SLOT(updateCurrentQtName()));
 
-
     connect(m_versionUi->qmakePath, SIGNAL(changed(QString)),
             this, SLOT(updateCurrentQMakeLocation()));
-    connect(m_versionUi->mingwPath, SIGNAL(changed(QString)),
-            this, SLOT(updateCurrentMingwDirectory()));
-    connect(m_versionUi->mwcPath, SIGNAL(changed(QString)),
-            this, SLOT(updateCurrentMwcDirectory()));
     connect(m_versionUi->s60SDKPath, SIGNAL(changed(QString)),
             this, SLOT(updateCurrentS60SDKDirectory()));
-    connect(m_versionUi->gccePath, SIGNAL(changed(QString)),
-            this, SLOT(updateCurrentGcceDirectory()));
     connect(m_versionUi->sbsV2Path, SIGNAL(changed(QString)),
             this, SLOT(updateCurrentSbsV2Directory()));
 
@@ -219,13 +205,9 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
 
     connect(m_versionUi->qmakePath, SIGNAL(browsingFinished()),
             this, SLOT(onQtBrowsed()));
-    connect(m_versionUi->mingwPath, SIGNAL(browsingFinished()),
-            this, SLOT(onMingwBrowsed()));
 
     connect(m_ui->qtdirList, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
             this, SLOT(versionChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
-    connect(m_versionUi->msvcComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(msvcVersionChanged()));
 
     connect(m_debuggingHelperUi->rebuildButton, SIGNAL(clicked()),
             this, SLOT(buildDebuggingHelper()));
@@ -658,37 +640,17 @@ void QtOptionsPageWidget::updateState()
     m_ui->delButton->setEnabled(enabled && !isAutodetected);
     m_versionUi->nameEdit->setEnabled(enabled && !isAutodetected);
     m_versionUi->qmakePath->setEnabled(enabled && !isAutodetected);
-    m_versionUi->mingwPath->setEnabled(enabled);
-    m_versionUi->mwcPath->setEnabled(enabled);
     bool s60SDKPathEnabled = enabled &&
                              (isAutodetected ? version->s60SDKDirectory().isEmpty() : true);
     m_versionUi->s60SDKPath->setEnabled(s60SDKPathEnabled);
-    m_versionUi->gccePath->setEnabled(enabled);
 
     updateDebuggingHelperUi();
 }
 
-void QtOptionsPageWidget::makeMingwVisible(bool visible)
-{
-    m_versionUi->mingwLabel->setVisible(visible);
-    m_versionUi->mingwPath->setVisible(visible);
-}
-
-void QtOptionsPageWidget::makeMSVCVisible(bool visible)
-{
-    m_versionUi->msvcLabel->setVisible(visible);
-    m_versionUi->msvcComboBox->setVisible(visible);
-    m_versionUi->msvcNotFoundLabel->setVisible(false);
-}
-
 void QtOptionsPageWidget::makeS60Visible(bool visible)
 {
-    m_versionUi->mwcLabel->setVisible(visible);
-    m_versionUi->mwcPath->setVisible(visible);
     m_versionUi->s60SDKLabel->setVisible(visible);
     m_versionUi->s60SDKPath->setVisible(visible);
-    m_versionUi->gcceLabel->setVisible(visible);
-    m_versionUi->gccePath->setVisible(visible);
     m_versionUi->sbsV2Label->setVisible(visible);
     m_versionUi->sbsV2Path->setVisible(visible);
 }
@@ -697,66 +659,28 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
 {
     if (item) {
         int index = indexForTreeItem(item);
-        if (index < 0) {
+        QSharedPointerQtVersion qtVersion;
+        if (index >= 0)
+            qtVersion = m_versions.at(index);
+
+        if (qtVersion.isNull() || !qtVersion->isValid()) {
             m_versionUi->errorLabel->setText("");
-            makeMSVCVisible(false);
-            makeMingwVisible(false);
             makeS60Visible(false);
             return;
         }
-        const QSharedPointerQtVersion qtVersion = m_versions.at(index);
-        QList<ProjectExplorer::ToolChainType> types = qtVersion->possibleToolChainTypes();
-        QSet<QString> targets = qtVersion->supportedTargetIds();
-        if (types.isEmpty()) {
-            makeMSVCVisible(false);
-            makeMingwVisible(false);
-            makeS60Visible(false);
-        } else if (types.contains(ProjectExplorer::ToolChain_MinGW)) {
-            makeMSVCVisible(false);
-            makeMingwVisible(true);
-            makeS60Visible(false);
-            m_versionUi->mingwPath->setPath(m_versions.at(index)->mingwDirectory());
-        } else if (types.contains(ProjectExplorer::ToolChain_MSVC) ||
-                   types.contains(ProjectExplorer::ToolChain_WINCE)) {
-            makeMSVCVisible(false);
-            makeMingwVisible(false);
-            makeS60Visible(false);
-            const QStringList msvcEnvironments = ProjectExplorer::ToolChain::availableMSVCVersions(qtVersion->isQt64Bit());
-            if (msvcEnvironments.count() == 0) {
-                m_versionUi->msvcLabel->setVisible(true);
-                m_versionUi->msvcNotFoundLabel->setVisible(true);
-            } else {
-                 makeMSVCVisible(true);
-                 bool block = m_versionUi->msvcComboBox->blockSignals(true);
-                 m_versionUi->msvcComboBox->clear();
-                 foreach(const QString &msvcenv, msvcEnvironments) {
-                     m_versionUi->msvcComboBox->addItem(msvcenv);
-                     if (msvcenv == m_versions.at(index)->msvcVersion()) {
-                         m_versionUi->msvcComboBox->setCurrentIndex(m_versionUi->msvcComboBox->count() - 1);
-                     }
-                 }
-                 m_versionUi->msvcComboBox->blockSignals(block);
-            }
-        } else if (targets.contains(Constants::S60_DEVICE_TARGET_ID) ||
-                   targets.contains(Constants::S60_EMULATOR_TARGET_ID)) {
-            makeMSVCVisible(false);
-            makeMingwVisible(false);
+
+        ProjectExplorer::Abi qtAbi = qtVersion->qtAbis().at(0);
+
+        if (qtAbi.os() == ProjectExplorer::Abi::Symbian) {
             makeS60Visible(true);
-            m_versionUi->mwcPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->mwcDirectory()));
             m_versionUi->s60SDKPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->s60SDKDirectory()));
-            m_versionUi->gccePath->setPath(QDir::toNativeSeparators(m_versions.at(index)->gcceDirectory()));
             m_versionUi->sbsV2Path->setPath(m_versions.at(index)->sbsV2Directory());
             m_versionUi->sbsV2Path->setEnabled(m_versions.at(index)->isBuildWithSymbianSbsV2());
-        } else { //ProjectExplorer::ToolChain::GCC
-            makeMSVCVisible(false);
-            makeMingwVisible(false);
+        } else {
             makeS60Visible(false);
         }
-
         m_versionUi->errorLabel->setText(m_versions.at(index)->description());
     } else {
-        makeMSVCVisible(false);
-        makeMingwVisible(false);
         makeS60Visible(false);
     }
 }
@@ -813,16 +737,6 @@ void QtOptionsPageWidget::onQtBrowsed()
         return;
 
     updateCurrentQMakeLocation();
-    updateState();
-}
-
-void QtOptionsPageWidget::onMingwBrowsed()
-{
-    const QString dir = m_versionUi->mingwPath->path();
-    if (dir.isEmpty())
-        return;
-
-    updateCurrentMingwDirectory();
     updateState();
 }
 
@@ -905,37 +819,6 @@ void QtOptionsPageWidget::updateCurrentQMakeLocation()
     }
 }
 
-void QtOptionsPageWidget::updateCurrentMingwDirectory()
-{
-    QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
-    Q_ASSERT(currentItem);
-    int currentItemIndex = indexForTreeItem(currentItem);
-    if (currentItemIndex < 0)
-        return;
-    m_versions[currentItemIndex]->setMingwDirectory(m_versionUi->mingwPath->path());
-}
-
-void QtOptionsPageWidget::msvcVersionChanged()
-{
-    const QString &msvcVersion = m_versionUi->msvcComboBox->currentText();
-    QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
-    Q_ASSERT(currentItem);
-    int currentItemIndex = indexForTreeItem(currentItem);
-    if (currentItemIndex < 0)
-        return;
-    m_versions[currentItemIndex]->setMsvcVersion(msvcVersion);
-}
-
-void QtOptionsPageWidget::updateCurrentMwcDirectory()
-{
-    QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
-    Q_ASSERT(currentItem);
-    int currentItemIndex = indexForTreeItem(currentItem);
-    if (currentItemIndex < 0)
-        return;
-    m_versions[currentItemIndex]->setMwcDirectory(
-            QDir::fromNativeSeparators(m_versionUi->mwcPath->path()));
-}
 void QtOptionsPageWidget::updateCurrentS60SDKDirectory()
 {
     QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
@@ -945,17 +828,6 @@ void QtOptionsPageWidget::updateCurrentS60SDKDirectory()
         return;
     m_versions[currentItemIndex]->setS60SDKDirectory(
             QDir::fromNativeSeparators(m_versionUi->s60SDKPath->path()));
-}
-
-void QtOptionsPageWidget::updateCurrentGcceDirectory()
-{
-    QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
-    Q_ASSERT(currentItem);
-    int currentItemIndex = indexForTreeItem(currentItem);
-    if (currentItemIndex < 0)
-        return;
-    m_versions[currentItemIndex]->setGcceDirectory(
-            QDir::fromNativeSeparators(m_versionUi->gccePath->path()));
 }
 
 void QtOptionsPageWidget::updateCurrentSbsV2Directory()
@@ -986,11 +858,7 @@ QString QtOptionsPageWidget::searchKeywords() const
     QTextStream(&rc)
             << sep << m_versionUi->versionNameLabel->text()
             << sep << m_versionUi->pathLabel->text()
-            << sep << m_versionUi->mingwLabel->text()
-            << sep << m_versionUi->msvcLabel->text()
             << sep << m_versionUi->s60SDKLabel->text()
-            << sep << m_versionUi->gcceLabel->text()
-            << sep << m_versionUi->mwcLabel->text()
             << sep << m_versionUi->sbsV2Label->text()
             << sep << m_debuggingHelperUi->gdbHelperLabel->text()
             << sep << m_debuggingHelperUi->qmlDumpLabel->text()

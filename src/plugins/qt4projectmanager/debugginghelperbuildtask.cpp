@@ -35,6 +35,9 @@
 #include "qmldumptool.h"
 #include "qmlobservertool.h"
 #include "qmldebugginglibrary.h"
+#include "qt4projectmanager/qt4projectmanagerconstants.h"
+
+#include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/debugginghelper.h>
 
 #include <QtCore/QCoreApplication>
@@ -46,6 +49,8 @@ using ProjectExplorer::DebuggingHelperLibrary;
 
 DebuggingHelperBuildTask::DebuggingHelperBuildTask(QtVersion *version, Tools tools)
 {
+    if (!version || !version->isValid())
+        return;
     // allow type to be used in queued connections.
     qRegisterMetaType<DebuggingHelperBuildTask::Tools>("DebuggingHelperBuildTask::Tools");
 
@@ -68,29 +73,20 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(QtVersion *version, Tools too
     version->addToEnvironment(m_environment);
 
     // TODO: the debugging helper doesn't comply to actual tool chain yet
-    ProjectExplorer::ToolChain *tc = 0;
-    foreach (ProjectExplorer::ToolChainType toolChainType, version->possibleToolChainTypes()) {
-        tc = version->toolChain(toolChainType);
-        if (tc)
-            break;
-    }
-
-    if (!tc) {
+    QList<ProjectExplorer::ToolChain *> tcList = ProjectExplorer::ToolChainManager::instance()->findToolChains(version->qtAbis().at(0));
+    if (tcList.isEmpty()) {
         m_errorMessage =
                 QCoreApplication::translate(
                     "QtVersion",
                     "The Qt Version has no toolchain.");
         return;
     }
-
+    ProjectExplorer::ToolChain *tc = tcList.at(0);
     tc->addToEnvironment(m_environment);
 
-    if (tc->type() == ProjectExplorer::ToolChain_GCC_MAEMO5
-            || tc->type() == ProjectExplorer::ToolChain_GCC_HARMATTAN
-            || tc->type() == ProjectExplorer::ToolChain_GCC_MEEGO) {
+    if (tc->targetAbi().os() == ProjectExplorer::Abi::Linux
+        && ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::Windows)
         m_target = QLatin1String("-unix");
-    }
-
     m_qmakeCommand = version->qmakeCommand();
     m_makeCommand = tc->makeCommand();
     m_mkspec = version->mkspec();

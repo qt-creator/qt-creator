@@ -32,73 +32,68 @@
 **************************************************************************/
 
 #include "gccetoolchain.h"
-#include "qt4project.h"
+#include "qt4projectmanagerconstants.h"
 
-#include <utils/qtcassert.h>
+#include <utils/environment.h>
 #include <utils/synchronousprocess.h>
 
 #include <QtCore/QDir>
-#include <QtCore/QProcess>
-#include <QtCore/QtDebug>
 
-enum { debug = 0 };
+namespace Qt4ProjectManager {
+namespace Internal {
 
-using namespace ProjectExplorer;
-using namespace Qt4ProjectManager::Internal;
-
-// Locate the compiler via path.
-static QString gcceCommand(const QString &dir)
+static QString gcceVersion(const QString &command)
 {
+    if (command.isEmpty())
+        return QString();
+
+    QProcess gxx;
+    QStringList arguments;
+    arguments << QLatin1String("-dumpversion");
     Utils::Environment env = Utils::Environment::systemEnvironment();
-    if (!dir.isEmpty()) {
-        env.prependOrSetPath(dir + QLatin1String("/bin"));
-        env.prependOrSetPath(dir);
+    env.set(QLatin1String("LC_ALL"), QLatin1String("C"));   //override current locale settings
+    gxx.setEnvironment(env.toStringList());
+    gxx.setReadChannelMode(QProcess::MergedChannels);
+    gxx.start(command, arguments);
+    if (!gxx.waitForStarted()) {
+        qWarning("Cannot start '%s': %s", qPrintable(command), qPrintable(gxx.errorString()));
+        return QString();
     }
-    QString gcce = QLatin1String("arm-none-symbianelf-gcc");
-#ifdef Q_OS_WIN
-    gcce += QLatin1String(".exe");
-#endif
-    const QString rc = env.searchInPath(gcce);
-    if (debug && rc.isEmpty()) {
-        const QString msg = QString::fromLatin1("GCCEToolChain: Unable to locate '%1' in '%2' (GCCE root: '%3')")
-                            .arg(gcce, env.value(QLatin1String("PATH")), dir);
-        qWarning("%s", qPrintable(msg));
-        return gcce;
+    gxx.closeWriteChannel();
+    if (!gxx.waitForFinished())      {
+        Utils::SynchronousProcess::stopProcess(gxx);
+        qWarning("Timeout running '%s'.", qPrintable(command));
+        return QString();
     }
-    return rc;
+    if (gxx.exitStatus() != QProcess::NormalExit) {
+        qWarning("'%s' crashed.", qPrintable(command));
+        return QString();
+    }
+
+    if (gxx.canReadLine())
+        return gxx.readLine().trimmed();
+
+    return QString();
 }
 
-// The GccToolChain base class constructor wants to know the gcc command
-GCCEToolChain *GCCEToolChain::create(const S60Devices::Device &device,
-                                     const QString &gcceRoot,
-                                     ProjectExplorer::ToolChainType type)
+
+// ==========================================================================
+// GcceToolChain
+// ==========================================================================
+
+QString GcceToolChain::typeName() const
 {
-    const QString gccCommand = gcceCommand(gcceRoot);
-    const QFileInfo gccCommandFi(gccCommand);
-    const QString binPath = gccCommandFi.isRelative() ? QString() : gccCommandFi.absolutePath();
-    return new GCCEToolChain(device, binPath, gccCommand, type);
+    return GcceToolChainFactory::tr("GCCE");
 }
 
-GCCEToolChain::GCCEToolChain(const S60Devices::Device &device,
-                             const QString &gcceBinPath,
-                             const QString &gcceCommand,
-                             ProjectExplorer::ToolChainType type) :
-    GccToolChain(gcceCommand),
-    m_mixin(device),
-    m_type(type),
-    m_gcceBinPath(gcceBinPath)
+ProjectExplorer::Abi GcceToolChain::targetAbi() const
 {
-    QTC_ASSERT(m_type == ProjectExplorer::ToolChain_GCCE || m_type == ProjectExplorer::ToolChain_GCCE_GNUPOC, return)
-    if (debug)
-        qDebug() << "GCCEToolChain on" << m_type << gcceCommand << gcceBinPath << m_mixin.device();
+    return ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Symbian,
+                                ProjectExplorer::Abi::Symbian_device,
+                                ProjectExplorer::Abi::Format_ELF, false);
 }
 
-ProjectExplorer::ToolChainType GCCEToolChain::type() const
-{
-    return m_type;
-}
-
-QByteArray GCCEToolChain::predefinedMacros()
+QByteArray GcceToolChain::predefinedMacros() const
 {
     if (m_predefinedMacros.isEmpty()) {
         ProjectExplorer::GccToolChain::predefinedMacros();
@@ -109,97 +104,90 @@ QByteArray GCCEToolChain::predefinedMacros()
     return m_predefinedMacros;
 }
 
-QList<HeaderPath> GCCEToolChain::systemHeaderPaths()
+void GcceToolChain::addToEnvironment(Utils::Environment &env) const
 {
-    if (m_systemHeaderPaths.isEmpty()) {
-        GccToolChain::systemHeaderPaths();
-        switch (m_type) {
-        case ProjectExplorer::ToolChain_GCCE:
-            m_systemHeaderPaths += m_mixin.epocHeaderPaths();
-            break;
-        case ProjectExplorer::ToolChain_GCCE_GNUPOC:
-            m_systemHeaderPaths += m_mixin.gnuPocHeaderPaths();
-            break;
-        default:
-            break;
-        }
+    GccToolChain::addToEnvironment(env);
+
+    if (m_gcceVersion.isEmpty())
+        m_gcceVersion = gcceVersion(compilerPath());
+    if (m_gcceVersion.isEmpty())
+        return;
+
+    env.set(QLatin1String("QT_GCCE_VERSION"), m_gcceVersion);
+    QString version = m_gcceVersion;
+    env.set(QString::fromLatin1("SBS_GCCE") + version.remove(QLatin1Char('.'))
+            + QLatin1String("BIN"),
+            QDir::toNativeSeparators(QFileInfo(compilerPath()).absolutePath()));
+}
+
+QString GcceToolChain::defaultMakeTarget() const
+{
+    return QLatin1String("gcce");
+}
+
+ProjectExplorer::ToolChain *GcceToolChain::clone() const
+{
+    return new GcceToolChain(*this);
+}
+
+GcceToolChain::GcceToolChain(bool autodetected) :
+    GccToolChain(QLatin1String(Constants::GCCE_TOOLCHAIN_ID), autodetected)
+{ }
+
+// ==========================================================================
+// GcceToolChainFactory
+// ==========================================================================
+
+QString GcceToolChainFactory::displayName() const
+{
+    return tr("GCCE");
+}
+
+QString GcceToolChainFactory::id() const
+{
+    return QLatin1String(Constants::GCCE_TOOLCHAIN_ID);
+}
+
+QList<ProjectExplorer::ToolChain *> GcceToolChainFactory::autoDetect()
+{
+    QList<ProjectExplorer::ToolChain *> result;
+
+    QString fullPath = Utils::Environment::systemEnvironment().searchInPath(QLatin1String("arm-none-symbianelf-gcc"));
+    if (!fullPath.isEmpty()) {
+        GcceToolChain *tc = new GcceToolChain(true);
+        tc->setCompilerPath(fullPath);
+        tc->setDisplayName(tr("GCCE (%1)").arg(gcceVersion(fullPath)));
+        result.append(tc);
     }
-    return m_systemHeaderPaths;
+    return result;
 }
 
-void GCCEToolChain::addToEnvironment(Utils::Environment &env)
+bool GcceToolChainFactory::canCreate()
 {
-    if (debug)
-        qDebug() << "GCCEToolChain::addToEnvironment" << m_type << gcc() << m_gcceBinPath<< m_mixin.device();
-
-    if (!m_gcceBinPath.isEmpty())
-        env.prependOrSetPath(m_gcceBinPath);
-    switch (m_type) {
-    case ProjectExplorer::ToolChain_GCCE:
-        m_mixin.addEpocToEnvironment(&env);
-        break;
-    case ProjectExplorer::ToolChain_GCCE_GNUPOC:
-        m_mixin.addGnuPocToEnvironment(&env);
-        break;
-    default:
-        break;
-    }
-    QString version = gcceVersion();
-    env.set(QLatin1String("QT_GCCE_VERSION"), version);
-    version = version.remove(QLatin1Char('.'));
-    env.set(QString::fromLatin1("SBS_GCCE") + version + QLatin1String("BIN"), QDir::toNativeSeparators(m_gcceBinPath));
+    return true;
 }
 
-QString GCCEToolChain::makeCommand() const
+ProjectExplorer::ToolChain *GcceToolChainFactory::create()
 {
-#if defined (Q_OS_WIN)
-    return QLatin1String("make.exe");
-#else
-    return QLatin1String("make");
-#endif
+    GcceToolChain *tc = new GcceToolChain(false);
+    tc->setDisplayName(tr("GCCE"));
+    return tc;
 }
 
-bool GCCEToolChain::equals(const ToolChain *otherIn) const
+bool GcceToolChainFactory::canRestore(const QVariantMap &data)
 {
-    if (otherIn->type() != type())
-                return false;
-    const GCCEToolChain *other = static_cast<const GCCEToolChain *>(otherIn);
-    return m_mixin == other->m_mixin
-           && m_gcceBinPath == other->m_gcceBinPath
-           && gcc() == other->gcc();
+    return idFromMap(data).startsWith(QLatin1String(Constants::GCCE_TOOLCHAIN_ID));
 }
 
-QString GCCEToolChain::gcceVersion() const
+ProjectExplorer::ToolChain *GcceToolChainFactory::restore(const QVariantMap &data)
 {
-    if (m_gcceVersion.isEmpty()) {
-        QString command = gcceCommand(m_gcceBinPath);
-        if (command.isEmpty())
-            return QString();
-        QProcess gxx;
-        QStringList arguments;
-        arguments << QLatin1String("-dumpversion");
-        Utils::Environment env = Utils::Environment::systemEnvironment();
-        env.set(QLatin1String("LC_ALL"), QLatin1String("C"));   //override current locale settings
-        gxx.setEnvironment(env.toStringList());
-        gxx.setReadChannelMode(QProcess::MergedChannels);
-        gxx.start(command, arguments);
-        if (!gxx.waitForStarted()) {
-            qWarning("Cannot start '%s': %s", qPrintable(command), qPrintable(gxx.errorString()));
-            return QString();
-        }
-        gxx.closeWriteChannel();
-        if (!gxx.waitForFinished())      {
-            Utils::SynchronousProcess::stopProcess(gxx);
-            qWarning("Timeout running '%s'.", qPrintable(command));
-            return QString();
-        }
-        if (gxx.exitStatus() != QProcess::NormalExit) {
-            qWarning("'%s' crashed.", qPrintable(command));
-            return QString();
-        }
+    GcceToolChain *tc = new GcceToolChain(false);
+    if (tc->fromMap(data))
+        return tc;
 
-        if (gxx.canReadLine())
-            m_gcceVersion = gxx.readLine().trimmed();
-    }
-    return m_gcceVersion;
+    delete tc;
+    return 0;
 }
+
+} // namespace Internal
+} // namespace Qt4ProjectManager

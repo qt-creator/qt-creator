@@ -43,13 +43,12 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 
-
-
 namespace ProjectExplorer {
 
 class BuildConfiguration;
 class BuildStepList;
 class Target;
+class ToolChain;
 class IOutputParser;
 
 class BuildConfigMacroExpander : public Utils::AbstractQtcMacroExpander {
@@ -97,10 +96,14 @@ public:
 
     Utils::AbstractMacroExpander *macroExpander() { return &m_macroExpander; }
 
+    virtual ProjectExplorer::ToolChain *toolChain() const;
+    virtual void setToolChain(ProjectExplorer::ToolChain *tc);
+
 signals:
     void environmentChanged();
     void buildDirectoryChanged();
     void enabledChanged();
+    void toolChainChanged();
 
 protected:
     BuildConfiguration(Target *target, const QString &id);
@@ -115,6 +118,7 @@ private:
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     QList<BuildStepList *> m_stepLists;
     BuildConfigMacroExpander m_macroExpander;
+    ToolChain *m_toolChain;
 };
 
 class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory :

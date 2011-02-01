@@ -173,13 +173,10 @@ bool MakeStep::init()
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
 
-    if (toolchain) {
-        if (toolchain->type() != ProjectExplorer::ToolChain_MSVC &&
-            toolchain->type() != ProjectExplorer::ToolChain_WINCE) {
-            if (m_makeCmd.isEmpty())
-                Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
-        }
-    }
+    if (toolchain
+            && toolchain->targetAbi().binaryFormat() != ProjectExplorer::Abi::Format_PE
+            && m_makeCmd.isEmpty())
+        Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
 
     setEnabled(true);
     pp->setArguments(args);
@@ -304,14 +301,11 @@ void MakeStepConfigWidget::updateDetails()
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
     QString args = m_makeStep->userArguments();
-    ProjectExplorer::ToolChainType t = ProjectExplorer::ToolChain_UNKNOWN;
     ProjectExplorer::ToolChain *toolChain = bc->toolChain();
-    if (toolChain)
-        t = toolChain->type();
-    if (t != ProjectExplorer::ToolChain_MSVC && t != ProjectExplorer::ToolChain_WINCE) {
-        if (m_makeStep->m_makeCmd.isEmpty())
-            Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
-    }
+    if (toolChain
+        && toolChain->targetAbi().binaryFormat() != ProjectExplorer::Abi::Format_PE
+        && m_makeStep->m_makeCmd.isEmpty())
+        Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
     param.setArguments(args);
     m_summaryText = param.summaryInWorkdir(displayName());
     emit updateSummary();

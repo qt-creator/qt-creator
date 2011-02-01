@@ -52,6 +52,7 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/persistentsettings.h>
+#include <projectexplorer/toolchain.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/pathchooser.h>
@@ -693,11 +694,6 @@ void Qt4RunConfiguration::setBaseEnvironmentBase(BaseEnvironmentBase env)
 Qt4RunConfiguration::BaseEnvironmentBase Qt4RunConfiguration::baseEnvironmentBase() const
 {
     return m_baseEnvironmentBase;
-}
-ProjectExplorer::ToolChainType Qt4RunConfiguration::toolChainType() const
-{
-    Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
-    return qt4bc->toolChainType();
 }
 
 ProjectExplorer::OutputFormatter *Qt4RunConfiguration::createOutputFormatter() const

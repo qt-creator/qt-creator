@@ -269,7 +269,6 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                         QLatin1String("debug\\Experimentation.exe"), -1,
                         QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
-
 }
 
 void ProjectExplorerPlugin::testMsvcOutputParsers()

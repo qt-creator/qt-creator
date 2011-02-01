@@ -309,10 +309,10 @@ static inline bool validMode(DebuggerStartMode sm)
     return true;
 }
 
-static inline QString msgCdbDisabled(ToolChainType tc)
+static inline QString msgCdbDisabled(const ProjectExplorer::Abi &abi)
 {
     return CdbEngine::tr("The CDB debug engine required for %1 is currently disabled.").
-                      arg(ToolChain::toolChainName(tc));
+            arg(abi.toString());
 }
 
 // Accessed by RunControlFactory
@@ -322,7 +322,7 @@ DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp,
 #ifdef Q_OS_WIN
     CdbOptionsPage *op = CdbOptionsPage::instance();
     if (!op || !op->options()->isValid()) {
-        *errorMessage = msgCdbDisabled(sp.toolChainType);
+        *errorMessage = msgCdbDisabled(sp.toolChainAbi);
         return 0;
     }
     if (!validMode(sp.startMode)) {
@@ -347,25 +347,18 @@ bool isCdbEngineEnabled()
 #endif
 }
 
-ConfigurationCheck checkCdbConfiguration(ToolChainType toolChain)
+ConfigurationCheck checkCdbConfiguration(const ProjectExplorer::Abi &abi)
 {
     ConfigurationCheck check;
-    switch (toolChain) {
-    case ToolChain_MinGW: // Do our best
-    case ToolChain_MSVC:
-    case ToolChain_WINCE:
-    case ToolChain_OTHER:
-    case ToolChain_UNKNOWN:
-    case ToolChain_INVALID:
+    if (abi.binaryFormat() == ProjectExplorer::Abi::Format_PE
+            && abi.osFlavor() != ProjectExplorer::Abi::Windows_msys) {
         if (!isCdbEngineEnabled()) {
-            check.errorMessage = msgCdbDisabled(toolChain);
+            check.errorMessage = msgCdbDisabled(abi);
             check.settingsPage = CdbOptionsPage::settingsId();
         }
-        break;
-    default:
-        //: %1 is something like "GCCE" or "Intel C++ Compiler (Linux)" (see ToolChain context)
-        check.errorMessage = CdbEngine::tr("The CDB debug engine does not support the %1 toolchain.").
-                    arg(ToolChain::toolChainName(toolChain));
+    } else {
+        check.errorMessage = CdbEngine::tr("The CDB debug engine does not support the %1 ABI.").
+                    arg(abi.toString());
         check.settingsPage = CdbOptionsPage::settingsId();
     }
     return check;

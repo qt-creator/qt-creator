@@ -33,11 +33,11 @@
 
 #include "customexecutablerunconfiguration.h"
 #include "customexecutableconfigurationwidget.h"
-#include "toolchaintype.h"
+
 #include "buildconfiguration.h"
 #include "debugginghelper.h"
-#include "target.h"
 #include "projectexplorerconstants.h"
+#include "target.h"
 
 #include <coreplugin/icore.h>
 
@@ -334,9 +334,9 @@ QStringList CustomExecutableRunConfiguration::dumperLibraryLocations() const
     return ProjectExplorer::DebuggingHelperLibrary::locationsByInstallData(qtInstallData);
 }
 
-ProjectExplorer::ToolChainType CustomExecutableRunConfiguration::toolChainType() const
+ProjectExplorer::Abi CustomExecutableRunConfiguration::abi() const
 {
-    return ProjectExplorer::ToolChain_UNKNOWN;
+    return ProjectExplorer::Abi::hostAbi();
 }
 
 // Factory

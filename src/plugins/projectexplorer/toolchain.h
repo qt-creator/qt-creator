@@ -35,18 +35,32 @@
 #define TOOLCHAIN_H
 
 #include "projectexplorer_export.h"
-#include "toolchaintype.h"
 
-#include <utils/environment.h>
+#include "abi.h"
 
+#include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QPair>
 #include <QtCore/QMetaType>
+#include <QtCore/QVariantMap>
+
+namespace Utils {
+class Environment;
+}
 
 namespace ProjectExplorer {
 
+namespace Internal {
+class ToolChainPrivate;
+}
+
 class IOutputParser;
-class Project;
+class ToolChainConfigWidget;
+class ToolChainFactory;
+
+// --------------------------------------------------------------------------
+// HeaderPath
+// --------------------------------------------------------------------------
 
 class PROJECTEXPLORER_EXPORT HeaderPath
 {
@@ -58,191 +72,103 @@ public:
     };
 
     HeaderPath()
-        : _kind(GlobalHeaderPath)
+        : m_kind(GlobalHeaderPath)
     { }
 
     HeaderPath(const QString &path, Kind kind)
-        : _path(path), _kind(kind)
+        : m_path(path), m_kind(kind)
     { }
 
-    QString path() const { return _path; }
-    Kind    kind() const { return _kind; }
+    QString path() const { return m_path; }
+    Kind kind() const { return m_kind; }
 
 private:
-    QString _path;
-    Kind _kind;
+    QString m_path;
+    Kind m_kind;
 };
 
-
+// --------------------------------------------------------------------------
+// ToolChain
+// --------------------------------------------------------------------------
 
 class PROJECTEXPLORER_EXPORT ToolChain
 {
 public:
-    virtual QByteArray predefinedMacros() = 0;
-    virtual QList<HeaderPath> systemHeaderPaths() = 0;
-    virtual void addToEnvironment(Utils::Environment &env) = 0;
-    virtual ToolChainType type() const = 0;
-    virtual QString makeCommand() const = 0;
-    virtual IOutputParser *outputParser() const = 0;
-    virtual QString sysroot() const { return QString(); }
-
-    ToolChain();
     virtual ~ToolChain();
 
-    static bool equals(const ToolChain *, const ToolChain *);
-    // Factory methods
-    static ToolChain *createGccToolChain(const QString &gcc);
-    static ToolChain *createMinGWToolChain(const QString &gcc, const QString &mingwPath);
-    static ToolChain *createLinuxIccToolChain();
-    static ToolChain *createMSVCToolChain(const QString &name, bool amd64);
-    static ToolChain *createWinCEToolChain(const QString &name, const QString &platform);
-    static QStringList availableMSVCVersions();
-    static QStringList availableMSVCVersions(bool amd64); // filter 32/64bit apart
-    static QList<ToolChainType> supportedToolChains();
+    QString displayName() const;
+    void setDisplayName(const QString &name) const;
 
-    static QString toolChainName(ToolChainType tc);
+    bool isAutoDetected() const;
+    QString id() const;
+
+    virtual QString typeName() const = 0;
+    virtual Abi targetAbi() const = 0;
+
+    virtual bool isValid() const = 0;
+
+    /// Returns a list of target ids that this ToolChain is restricted to.
+    /// An empty list is shows that the toolchain is compatible with all targets.
+    virtual QStringList restrictedToTargets() const;
+
+    virtual QByteArray predefinedMacros() const = 0;
+    virtual QList<HeaderPath> systemHeaderPaths() const = 0;
+    virtual void addToEnvironment(Utils::Environment &env) const = 0;
+    virtual QString makeCommand() const = 0;
+    virtual QString defaultMakeTarget() const;
+    virtual IOutputParser *outputParser() const = 0;
+
+    virtual bool operator ==(const ToolChain &) const;
+
+    virtual ToolChainConfigWidget *configurationWidget() = 0;
+    virtual bool canClone() const;
+    virtual ToolChain *clone() const = 0;
+
+    // Used by the toolchainmanager to save user-generated ToolChains.
+    // Make sure to call this method when deriving!
+    virtual QVariantMap toMap() const;
 
 protected:
-    virtual bool equals(const ToolChain *other) const = 0;
-};
+    ToolChain(const QString &id, bool autoDetect);
+    explicit ToolChain(const ToolChain &);
 
-class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
-{
-public:
-    GccToolChain(const QString &gcc);
-    virtual QByteArray predefinedMacros();
-    virtual QList<HeaderPath> systemHeaderPaths();
-    virtual void addToEnvironment(Utils::Environment &env);
-    virtual ToolChainType type() const;
-    virtual QString makeCommand() const;
-    virtual IOutputParser *outputParser() const;
+    void setId(const QString &id);
 
-protected:
-    virtual bool equals(const ToolChain *other) const;
-    QByteArray m_predefinedMacros;
-    QList<HeaderPath> m_systemHeaderPaths;
-    QString gcc() const { return m_gcc; }
+    // Make sure to call this method when deriving!
+    virtual bool fromMap(const QVariantMap &data);
 
 private:
-    QString m_gcc;
+    Internal::ToolChainPrivate *const m_d;
+
+    friend class ToolChainFactory;
 };
 
-// TODO this class needs to fleshed out more
-class PROJECTEXPLORER_EXPORT MinGWToolChain : public GccToolChain
+// --------------------------------------------------------------------------
+// ToolChainFactory
+// --------------------------------------------------------------------------
+
+class PROJECTEXPLORER_EXPORT ToolChainFactory : public QObject
 {
+    Q_OBJECT
+
 public:
-    MinGWToolChain(const QString &gcc, const QString &mingwPath);
-    virtual void addToEnvironment(Utils::Environment &env);
-    virtual ToolChainType type() const;
-    virtual QString makeCommand() const;
-    virtual IOutputParser *outputParser() const;
+    // Name used to display the name of the toolchain that will be created.
+    virtual QString displayName() const = 0;
+    virtual QString id() const = 0;
+
+    virtual QList<ToolChain *> autoDetect();
+
+    virtual bool canCreate();
+    virtual ToolChain *create();
+
+    // Used by the ToolChainManager to restore user-generated ToolChains
+    virtual bool canRestore(const QVariantMap &data);
+    virtual ToolChain *restore(const QVariantMap &data);
 
 protected:
-    virtual bool equals(const ToolChain *other) const;
-
-private:
-    QString m_mingwPath;
+    static QString idFromMap(const QVariantMap &data);
 };
 
-class PROJECTEXPLORER_EXPORT LinuxIccToolChain : public GccToolChain
-{
-public:
-    LinuxIccToolChain();
-    virtual ToolChainType type() const;
-
-    virtual IOutputParser *outputParser() const;
-};
-
-// TODO some stuff needs to be moved into this
-class PROJECTEXPLORER_EXPORT MSVCToolChain : public ToolChain
-{
-    Q_DISABLE_COPY(MSVCToolChain)
-public:
-    // A MSVC installation (SDK or VS) with name and setup script with args
-    struct Installation {
-        enum Type { WindowsSDK, VS };
-        enum Platform { s32, s64, ia64, amd64 };
-
-        explicit Installation(Type t, const QString &name, Platform p,
-                              const QString &varsBat,
-                              const QString &varBatArg = QString());
-        Installation();
-        static QString platformName(Platform t);
-        bool is64bit() const;
-
-        Type type;
-        QString name;
-        Platform platform;
-        QString varsBat;    // Script to setup environment
-        QString varsBatArg; // Argument
-    };
-    // Find all installations
-    typedef QList<Installation> InstallationList;
-    static InstallationList installations();
-    // Return matching installation or empty one
-    static Installation findInstallationByName(bool is64Bit,
-                                               const QString &name = QString(),
-                                               bool excludeSDK = false);
-    static Installation findInstallationByMkSpec(bool is64Bit,
-                                                 const QString &mkSpec,
-                                                 bool excludeSDK = false);
-
-    static MSVCToolChain *create(const QString &name,
-                                 bool amd64 = false);
-    virtual QByteArray predefinedMacros();
-    virtual QList<HeaderPath> systemHeaderPaths();
-    virtual void addToEnvironment(Utils::Environment &env);
-    virtual ToolChainType type() const;
-    virtual QString makeCommand() const;
-    virtual IOutputParser *outputParser() const;
-
-protected:
-    explicit MSVCToolChain(const Installation &in);
-
-    typedef QPair<QString, QString> StringStringPair;
-    typedef QList<StringStringPair> StringStringPairList;
-
-    virtual bool equals(const ToolChain *other) const;
-    static StringStringPairList readEnvironmentSetting(const QString &varsBat,
-                                                       const QStringList &args,
-                                                       const Utils::Environment &env);
-
-    QByteArray m_predefinedMacros;
-    const Installation m_installation;
-
-private:
-    static StringStringPairList readEnvironmentSettingI(const QString &varsBat,
-                                                        const QStringList &args,
-                                                        const Utils::Environment &env);
-
-    mutable StringStringPairList m_values;
-    mutable bool m_valuesSet;
-    mutable Utils::Environment m_lastEnvironment;
-};
-
-PROJECTEXPLORER_EXPORT QDebug operator<<(QDebug in, const MSVCToolChain::Installation &i);
-
-// TODO some stuff needs to be moved into here
-class PROJECTEXPLORER_EXPORT WinCEToolChain : public MSVCToolChain
-{
-public:
-    static WinCEToolChain *create(const QString &name, const QString &platform);
-
-    virtual QByteArray predefinedMacros();
-    virtual QList<HeaderPath> systemHeaderPaths();
-    virtual void addToEnvironment(Utils::Environment &env);
-    virtual ToolChainType type() const;
-
-protected:
-    explicit WinCEToolChain(const Installation &in, const QString &platform);
-    virtual bool equals(const ToolChain *other) const;
-
-private:
-    const QString m_platform;
-};
-
-}
-
-Q_DECLARE_METATYPE(ProjectExplorer::ToolChainType)
+} // namespace ProjectExplorer
 
 #endif // TOOLCHAIN_H

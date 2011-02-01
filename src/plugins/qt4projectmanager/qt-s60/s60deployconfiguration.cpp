@@ -33,6 +33,7 @@
 
 #include "s60deployconfiguration.h"
 #include "s60deployconfigurationwidget.h"
+#include "s60manager.h"
 #include "qt4project.h"
 #include "qt4target.h"
 #include "qt4projectmanagerconstants.h"
@@ -47,6 +48,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QFileInfo>
 
@@ -182,7 +184,7 @@ QStringList S60DeployConfiguration::packageFileNamesWithTargetInfo() const
         QString baseFileName = ti.buildDir + QLatin1Char('/') + ti.target;
         baseFileName += QLatin1Char('_')
                 + (isDebug() ? QLatin1String("debug") : QLatin1String("release"))
-                + QLatin1Char('-') + symbianPlatform() + QLatin1String(".sis");
+                + QLatin1Char('-') + S60Manager::platform(qt4Target()->activeBuildConfiguration()->toolChain()) + QLatin1String(".sis");
         result << baseFileName;
     }
     return result;
@@ -246,26 +248,11 @@ bool S60DeployConfiguration::isSigned() const
     return false;
 }
 
-ProjectExplorer::ToolChainType S60DeployConfiguration::toolChainType() const
+ProjectExplorer::ToolChain *S60DeployConfiguration::toolChain() const
 {
     if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration()))
-        return bc->toolChainType();
-    return ProjectExplorer::ToolChain_INVALID;
-}
-
-QString S60DeployConfiguration::symbianPlatform() const
-{
-    const Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
-    switch (qt4bc->toolChainType()) {
-    case ProjectExplorer::ToolChain_GCCE:
-    case ProjectExplorer::ToolChain_GCCE_GNUPOC:
-        return QLatin1String("gcce");
-    case ProjectExplorer::ToolChain_RVCT2_ARMV5:
-    case ProjectExplorer::ToolChain_RVCT4_ARMV5:
-        return QLatin1String("armv5");
-    default: // including ProjectExplorer::RVCT_ARMV6_GNUPOC:
-        return QLatin1String("armv6");
-    }
+        return bc->toolChain();
+    return 0;
 }
 
 bool S60DeployConfiguration::isDebug() const

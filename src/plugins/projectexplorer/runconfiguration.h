@@ -34,6 +34,7 @@
 #ifndef RUNCONFIGURATION_H
 #define RUNCONFIGURATION_H
 
+#include "abi.h"
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
 #include "outputformat.h"
@@ -101,6 +102,8 @@ public:
     void setQmlDebugServerPort(uint port);
 
     virtual QVariantMap toMap() const;
+
+    virtual ProjectExplorer::Abi abi() const;
 
 signals:
     void isEnabledChanged(bool value);

@@ -6,19 +6,13 @@
 * QtVersion:
     * gui for overriding the default make target if necessary,
       make arguments --> make options
-    * build parser should be defined/created by toolchain, not make step
 
 * Tool chains
-    * Qt4Project::setQtVersion should think about tool chains,
-      might be better to remove the magic in toolChainType method
     * should the default make target be defined by the project
       instead of tool chain, or perhaps by the QtVersion dependent on a
       tool chain?
-    * seems that the make for building for device doesn't return useful exit code,
-      so a run is started even if the build has errors
 
 * Run on device
-    * passphrase for signing
     * time stamp of copied sisx is ridiculous
     * don't copy the sisx all the time
     * don't hardcode copy destination

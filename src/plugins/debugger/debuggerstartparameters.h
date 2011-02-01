@@ -39,7 +39,7 @@
 
 #include <utils/ssh/sshconnection.h>
 #include <utils/environment.h>
-#include <projectexplorer/toolchaintype.h>
+#include <projectexplorer/abi.h>
 
 #include <QtCore/QMetaType>
 
@@ -70,7 +70,6 @@ public:
         qmlServerPort(0),
         useServerStartScript(false),
         connParams(Utils::SshConnectionParameters::NoProxy),
-        toolChainType(ProjectExplorer::ToolChain_UNKNOWN),
         startMode(NoStartMode),
         executableUid(0),
         communicationChannel(CommunicationChannelUsb),
@@ -117,7 +116,7 @@ public:
     Utils::SshConnectionParameters connParams;
 
     QString debuggerCommand;
-    ProjectExplorer::ToolChainType toolChainType;
+    ProjectExplorer::Abi toolChainAbi;
     QString qtInstallPath;
 
     QString dumperLibrary;

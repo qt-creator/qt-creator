@@ -33,100 +33,372 @@
 
 #include "winscwtoolchain.h"
 
+#include "qt4projectmanager/qt4projectmanagerconstants.h"
+
+#include "ui_winscwtoolchainconfigwidget.h"
 #include "winscwparser.h"
 
-#include <QtCore/QByteArray>
-#include <QtCore/QString>
+#include <utils/environment.h>
 
-using namespace ProjectExplorer;
-using namespace Qt4ProjectManager::Internal;
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 
-WINSCWToolChain::WINSCWToolChain(const S60Devices::Device &device, const QString &mwcDirectory)
-    : m_mixin(device),
-    m_carbidePath(mwcDirectory),
-    m_deviceId(device.id),
-    m_deviceName(device.name),
-    m_deviceRoot(device.epocRoot)
+namespace Qt4ProjectManager {
+namespace Internal {
+
+static const char *const WINSCW_COMPILER_PATH_KEY = "Qt4ProjectManager.Winscw.CompilerPath";
+static const char *const WINSCW_SYSTEM_INCLUDE_PATH_KEY = "Qt4ProjectManager.Winscw.IncludePath";
+static const char *const WINSCW_SYSTEM_LIBRARY_PATH_KEY = "Qt4ProjectManager.Winscw.LibraryPath";
+
+static const char *const WINSCW_DEFAULT_SYSTEM_INCLUDES[] = {
+    "/MSL/MSL_C/MSL_Common/Include",
+    "/MSL/MSL_C/MSL_Win32/Include",
+    "/MSL/MSL_CMSL_X86",
+    "/MSL/MSL_C++/MSL_Common/Include",
+    "/MSL/MSL_Extras/MSL_Common/Include",
+    "/MSL/MSL_Extras/MSL_Win32/Include",
+    "/Win32-x86 Support/Headers/Win32 SDK",
+    0
+};
+
+static const char *const WINSCW_DEFAULT_SYSTEM_LIBRARIES[] = {
+    "/Win32-x86 Support/Libraries/Win32 SDK",
+    "/Runtime/Runtime_x86/Runtime_Win32/Libs",
+    0
+};
+
+static QString winscwRoot(const QString &path)
 {
+    if (path.isEmpty())
+        return QString();
 
+    QDir dir(path);
+    dir.cdUp();
+    dir.cdUp();
+    dir.cdUp();
+    dir.cd("Symbian_Support");
+    return dir.absolutePath();
 }
 
-ProjectExplorer::ToolChainType WINSCWToolChain::type() const
+static QString toNativePath(const QStringList &list)
 {
-    return ProjectExplorer::ToolChain_WINSCW;
+    return QDir::toNativeSeparators(list.join(QString(QLatin1Char(';'))));
 }
 
-QByteArray WINSCWToolChain::predefinedMacros()
+static QStringList fromNativePath(const QString &list)
+{
+    QString tmp = QDir::fromNativeSeparators(list);
+    return tmp.split(';');
+}
+
+static QStringList detectIncludesFor(const QString path)
+{
+    QString root = winscwRoot(path);
+    QStringList result;
+    for (int i = 0; WINSCW_DEFAULT_SYSTEM_INCLUDES[i] != 0; ++i) {
+        QDir dir(root + QLatin1String(WINSCW_DEFAULT_SYSTEM_INCLUDES[i]));
+        if (dir.exists())
+            result.append(dir.absolutePath());
+    }
+    return result;
+}
+
+static QStringList detectLibrariesFor(const QString path)
+{
+    QString root = winscwRoot(path);
+    QStringList result;
+    for (int i = 0; WINSCW_DEFAULT_SYSTEM_LIBRARIES[i] != 0; ++i) {
+        QDir dir(root + QLatin1String(WINSCW_DEFAULT_SYSTEM_LIBRARIES[i]));
+        if (dir.exists())
+            result.append(dir.absolutePath());
+    }
+    return result;
+}
+
+// --------------------------------------------------------------------------
+// WinscwToolChain
+// --------------------------------------------------------------------------
+
+WinscwToolChain::WinscwToolChain(bool autodetected) :
+    ProjectExplorer::ToolChain(QLatin1String(Constants::WINSCW_TOOLCHAIN_ID), autodetected)
+{ }
+
+WinscwToolChain::WinscwToolChain(const WinscwToolChain &tc) :
+    ProjectExplorer::ToolChain(tc),
+    m_systemIncludePathes(tc.m_systemIncludePathes),
+    m_systemLibraryPathes(tc.m_systemLibraryPathes),
+    m_compilerPath(tc.m_compilerPath)
+{ }
+
+WinscwToolChain::~WinscwToolChain()
+{ }
+
+QString WinscwToolChain::typeName() const
+{
+    return WinscwToolChainFactory::tr("WINSCW");
+}
+
+ProjectExplorer::Abi WinscwToolChain::targetAbi() const
+{
+    return ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Symbian,
+                                ProjectExplorer::Abi::Symbian_emulator,
+                                ProjectExplorer::Abi::Format_ELF, false);
+}
+
+bool WinscwToolChain::isValid() const
+{
+    if (m_compilerPath.isEmpty())
+        return false;
+
+    QFileInfo fi(m_compilerPath);
+    return fi.exists() && fi.isExecutable();
+}
+
+QByteArray WinscwToolChain::predefinedMacros() const
 {
     return QByteArray("#define __SYMBIAN32__\n");
 }
 
-QList<HeaderPath> WINSCWToolChain::systemHeaderPaths()
+QList<ProjectExplorer::HeaderPath> WinscwToolChain::systemHeaderPaths() const
 {
-    if (m_systemHeaderPaths.isEmpty()) {
-        foreach (const QString &value, systemIncludes()) {
-            m_systemHeaderPaths.append(HeaderPath(value, HeaderPath::GlobalHeaderPath));
-        }
-        m_systemHeaderPaths += m_mixin.epocHeaderPaths();
-    }
-    return m_systemHeaderPaths;
+    QList<ProjectExplorer::HeaderPath> result;
+    foreach (const QString &value, m_systemIncludePathes)
+        result.append(ProjectExplorer::HeaderPath(value, ProjectExplorer::HeaderPath::GlobalHeaderPath));
+    return result;
 }
 
-QStringList WINSCWToolChain::systemIncludes() const
+void WinscwToolChain::addToEnvironment(Utils::Environment &env) const
 {
-    if (m_carbidePath.isEmpty()) {
-        Utils::Environment env = Utils::Environment::systemEnvironment();
-        QString symIncludesValue = env.value("MWCSYM2INCLUDES");
-        if (!symIncludesValue.isEmpty())
-            return symIncludesValue.split(QLatin1Char(';'));
-    } else {
-        QStringList symIncludes = QStringList()
-            << "\\MSL\\MSL_C\\MSL_Common\\Include"
-            << "\\MSL\\MSL_C\\MSL_Win32\\Include"
-            << "\\MSL\\MSL_CMSL_X86"
-            << "\\MSL\\MSL_C++\\MSL_Common\\Include"
-            << "\\MSL\\MSL_Extras\\MSL_Common\\Include"
-            << "\\MSL\\MSL_Extras\\MSL_Win32\\Include"
-            << "\\Win32-x86 Support\\Headers\\Win32 SDK";
-        for (int i = 0; i < symIncludes.size(); ++i)
-            symIncludes[i].prepend(QString("%1\\x86Build\\Symbian_Support").arg(m_carbidePath));
-        return symIncludes;
-    }
-    return QStringList();
+    if (!isValid())
+        return;
+
+    env.set(QLatin1String("MWCSYM2INCLUDES"), toNativePath(m_systemIncludePathes));
+    env.set(QLatin1String("MWSYM2LIBRARIES"), toNativePath(m_systemLibraryPathes));
+    env.set(QLatin1String("MWSYM2LIBRARYFILES"),
+            QLatin1String("MSL_All_MSE_Symbian_D.lib;gdi32.lib;user32.lib;kernel32.lib"));
+    env.prependOrSetPath(QFileInfo(m_compilerPath).absolutePath());
 }
 
-void WINSCWToolChain::addToEnvironment(Utils::Environment &env)
+QString WinscwToolChain::makeCommand() const
 {
-    if (!m_carbidePath.isEmpty()) {
-        env.set("MWCSYM2INCLUDES", systemIncludes().join(QString(QLatin1Char(';'))));
-        QStringList symLibraries = QStringList()
-            << "\\Win32-x86 Support\\Libraries\\Win32 SDK"
-            << "\\Runtime\\Runtime_x86\\Runtime_Win32\\Libs";
-        for (int i = 0; i < symLibraries.size(); ++i)
-            symLibraries[i].prepend(QString("%1\\x86Build\\Symbian_Support").arg(m_carbidePath));
-        env.set("MWSYM2LIBRARIES", symLibraries.join(";"));
-        env.set("MWSYM2LIBRARYFILES", "MSL_All_MSE_Symbian_D.lib;gdi32.lib;user32.lib;kernel32.lib");
-        env.prependOrSetPath(QString("%1\\x86Build\\Symbian_Tools\\Command_Line_Tools").arg(m_carbidePath)); // compiler
-    }
-    m_mixin.addEpocToEnvironment(&env);
-}
-
-QString WINSCWToolChain::makeCommand() const
-{
+#if defined Q_OS_WIN
+    return QLatin1String("make.exe");
+#else
     return QLatin1String("make");
+#endif
 }
 
-IOutputParser *WINSCWToolChain::outputParser() const
+
+QString WinscwToolChain::defaultMakeTarget() const
+{
+    return QLatin1String("winscw");
+}
+
+ProjectExplorer::IOutputParser *WinscwToolChain::outputParser() const
 {
     return new WinscwParser;
 }
 
-bool WINSCWToolChain::equals(const ToolChain *other) const
+bool WinscwToolChain::operator ==(const ProjectExplorer::ToolChain &tc) const
 {
-    const WINSCWToolChain *otherWINSCW = static_cast<const WINSCWToolChain *>(other);
-    return (other->type() == type()
-            && m_deviceId == otherWINSCW->m_deviceId
-            && m_deviceName == otherWINSCW->m_deviceName
-            && m_deviceRoot == otherWINSCW->m_deviceRoot
-            && m_carbidePath == otherWINSCW->m_carbidePath);
+    if (!ToolChain::operator ==(tc))
+        return false;
+
+    const WinscwToolChain *tcPtr = dynamic_cast<const WinscwToolChain *>(&tc);
+    Q_ASSERT(tcPtr);
+    return m_compilerPath == tcPtr->m_compilerPath
+            && m_systemIncludePathes == tcPtr->m_systemIncludePathes
+            && m_systemLibraryPathes == tcPtr->m_systemLibraryPathes;
 }
+
+ProjectExplorer::ToolChainConfigWidget *WinscwToolChain::configurationWidget()
+{
+    return new WinscwToolChainConfigWidget(this);
+}
+
+ProjectExplorer::ToolChain *WinscwToolChain::clone() const
+{
+    return new WinscwToolChain(*this);
+}
+
+QVariantMap WinscwToolChain::toMap() const
+{
+    QVariantMap result = ToolChain::toMap();
+    result.insert(QLatin1String(WINSCW_COMPILER_PATH_KEY), m_compilerPath);
+    result.insert(QLatin1String(WINSCW_SYSTEM_INCLUDE_PATH_KEY), m_systemIncludePathes.join(QString(QLatin1Char(';'))));
+    result.insert(QLatin1String(WINSCW_SYSTEM_LIBRARY_PATH_KEY), m_systemLibraryPathes.join(QString(QLatin1Char(';'))));
+    return result;
+}
+
+bool WinscwToolChain::fromMap(const QVariantMap &data)
+{
+    if (!ToolChain::fromMap(data))
+        return false;
+    m_compilerPath = data.value(QLatin1String(WINSCW_COMPILER_PATH_KEY)).toString();
+    m_systemIncludePathes = data.value(QLatin1String(WINSCW_SYSTEM_INCLUDE_PATH_KEY)).toString().split(QLatin1Char(';'));
+    m_systemLibraryPathes = data.value(QLatin1String(WINSCW_SYSTEM_LIBRARY_PATH_KEY)).toString().split(QLatin1Char(';'));
+
+    return isValid();
+}
+
+void WinscwToolChain::setSystemIncludePathes(const QStringList &pathes)
+{
+    m_systemIncludePathes = pathes;
+}
+
+QStringList WinscwToolChain::systemIncludePathes() const
+{
+    return m_systemIncludePathes;
+}
+
+void WinscwToolChain::setSystemLibraryPathes(const QStringList &pathes)
+{
+    m_systemLibraryPathes = pathes;
+}
+
+QStringList WinscwToolChain::systemLibraryPathes() const
+{
+    return m_systemLibraryPathes;
+}
+
+void WinscwToolChain::setCompilerPath(const QString &path)
+{
+    if (m_compilerPath == path)
+        return;
+
+    m_compilerPath = path;
+    updateId();
+}
+
+QString WinscwToolChain::compilerPath() const
+{
+    return m_compilerPath;
+}
+
+void WinscwToolChain::updateId()
+{
+    setId(QString::fromLatin1("%1:%2").arg(Constants::WINSCW_TOOLCHAIN_ID).arg(m_compilerPath));
+}
+
+// --------------------------------------------------------------------------
+// ToolChainConfigWidget
+// --------------------------------------------------------------------------
+
+WinscwToolChainConfigWidget::WinscwToolChainConfigWidget(WinscwToolChain *tc) :
+    ProjectExplorer::ToolChainConfigWidget(tc),
+    m_ui(new Ui::WinscwToolChainConfigWidget)
+{
+    m_ui->setupUi(this);
+
+    m_ui->compilerPath->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    connect(m_ui->compilerPath, SIGNAL(changed(QString)),
+            this, SLOT(handleCompilerPathUpdate()));
+    connect(m_ui->includeEdit, SIGNAL(textChanged(QString)), this, SLOT(makeDirty()));
+    connect(m_ui->libraryEdit, SIGNAL(textChanged(QString)), this, SLOT(makeDirty()));
+
+    discard();
+}
+
+void WinscwToolChainConfigWidget::apply()
+{
+    WinscwToolChain *tc = static_cast<WinscwToolChain *>(toolChain());
+    Q_ASSERT(tc);
+    tc->setCompilerPath(m_ui->compilerPath->path());
+    tc->setSystemIncludePathes(fromNativePath(m_ui->includeEdit->text()));
+    tc->setSystemLibraryPathes(fromNativePath(m_ui->libraryEdit->text()));
+}
+
+void WinscwToolChainConfigWidget::discard()
+{
+    WinscwToolChain *tc = static_cast<WinscwToolChain *>(toolChain());
+    Q_ASSERT(tc);
+    m_ui->compilerPath->setPath(tc->compilerPath());
+    m_ui->includeEdit->setText(toNativePath(tc->systemIncludePathes()));
+    m_ui->libraryEdit->setText(toNativePath(tc->systemLibraryPathes()));
+}
+
+bool WinscwToolChainConfigWidget::isDirty() const
+{
+    WinscwToolChain *tc = static_cast<WinscwToolChain *>(toolChain());
+    Q_ASSERT(tc);
+    return tc->compilerPath() != m_ui->compilerPath->path()
+            || tc->systemIncludePathes() != fromNativePath(m_ui->includeEdit->text())
+            || tc->systemLibraryPathes() != fromNativePath(m_ui->libraryEdit->text());
+}
+
+void WinscwToolChainConfigWidget::handleCompilerPathUpdate()
+{
+    QString path = m_ui->compilerPath->path();
+    if (path.isEmpty())
+        return;
+    QFileInfo fi(path);
+    if (!fi.exists())
+        return;
+    m_ui->includeEdit->setText(toNativePath(detectIncludesFor(path)));
+    m_ui->libraryEdit->setText(toNativePath(detectLibrariesFor(path)));
+}
+
+void WinscwToolChainConfigWidget::makeDirty()
+{
+    emit dirty(toolChain());
+}
+
+// --------------------------------------------------------------------------
+// ToolChainFactory
+// --------------------------------------------------------------------------
+
+WinscwToolChainFactory::WinscwToolChainFactory() :
+    ProjectExplorer::ToolChainFactory()
+{ }
+
+QString WinscwToolChainFactory::displayName() const
+{
+    return tr("WINSCW");
+}
+
+QString WinscwToolChainFactory::id() const
+{
+    return QLatin1String(Constants::WINSCW_TOOLCHAIN_ID);
+}
+
+QList<ProjectExplorer::ToolChain *> WinscwToolChainFactory::autoDetect()
+{
+    QList<ProjectExplorer::ToolChain *> result;
+    QString cc = Utils::Environment::systemEnvironment().searchInPath(QLatin1String("mwwinrc"));
+    if (!cc.isEmpty()) {
+        WinscwToolChain *tc = new WinscwToolChain(true);
+        tc->setCompilerPath(cc);
+        tc->setSystemIncludePathes(detectIncludesFor(cc));
+        tc->setSystemLibraryPathes(detectLibrariesFor(cc));
+        result.append(tc);
+    }
+    return result;
+}
+
+bool WinscwToolChainFactory::canCreate()
+{
+    return true;
+}
+
+ProjectExplorer::ToolChain *WinscwToolChainFactory::create()
+{
+    return new WinscwToolChain(false);
+}
+
+bool WinscwToolChainFactory::canRestore(const QVariantMap &data)
+{
+    return idFromMap(data).startsWith(QLatin1String(Constants::WINSCW_TOOLCHAIN_ID));
+}
+
+ProjectExplorer::ToolChain *WinscwToolChainFactory::restore(const QVariantMap &data)
+{
+    WinscwToolChain *tc = new WinscwToolChain(false);
+    if (tc->fromMap(data))
+        return tc;
+
+    delete tc;
+    return 0;
+}
+
+} // namespace Internal
+} // namespace Qt4ProjectManager

@@ -46,8 +46,7 @@
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerengine.h>
-#include <projectexplorer/toolchaintype.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -75,8 +74,7 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
     if (debuggingType != MaemoRunConfiguration::DebugQmlOnly) {
         params.processArgs = runConfig->arguments();
         params.sysRoot = runConfig->sysRoot();
-        params.toolChainType
-            = runConfig->activeQt4BuildConfiguration()->toolChainType();
+        params.toolChainAbi = runConfig->abi();
         params.dumperLibrary = runConfig->dumperLib();
         params.remoteDumperLib = uploadDir(devConf).toUtf8() + '/'
             + QFileInfo(runConfig->dumperLib()).fileName().toUtf8();

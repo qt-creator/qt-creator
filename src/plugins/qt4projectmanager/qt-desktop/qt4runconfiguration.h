@@ -94,7 +94,6 @@ public:
     virtual Utils::Environment environment() const;
     virtual QString dumperLibrary() const;
     virtual QStringList dumperLibraryLocations() const;
-    virtual ProjectExplorer::ToolChainType toolChainType() const;
 
     bool isUsingDyldImageSuffix() const;
     void setUsingDyldImageSuffix(bool state);

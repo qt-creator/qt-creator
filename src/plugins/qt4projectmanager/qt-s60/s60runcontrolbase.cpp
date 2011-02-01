@@ -74,8 +74,7 @@ QString S60RunControlBase::msgListFile(const QString &file)
 
 S60RunControlBase::S60RunControlBase(RunConfiguration *runConfiguration, const QString &mode) :
     RunControl(runConfiguration, mode),
-    m_launchProgress(0),
-    m_toolChain(ProjectExplorer::ToolChain_INVALID)
+    m_launchProgress(0)
 {
     connect(this, SIGNAL(finished()), this, SLOT(reportLaunchFinished()));
     connect(this, SIGNAL(finished()), this, SLOT(handleFinished()));
@@ -87,7 +86,6 @@ S60RunControlBase::S60RunControlBase(RunConfiguration *runConfiguration, const Q
     const S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(s60runConfig->qt4Target()->activeDeployConfiguration());
     QTC_ASSERT(activeDeployConf, return);
 
-    m_toolChain = s60runConfig->toolChainType();
     m_executableUid = s60runConfig->executableUid();
     m_targetName = s60runConfig->targetName();
     m_commandLineArguments = s60runConfig->commandLineArguments();
@@ -100,7 +98,7 @@ S60RunControlBase::S60RunControlBase(RunConfiguration *runConfiguration, const Q
     m_runSmartInstaller = activeDeployConf->runSmartInstaller();
 
     if (debug)
-        qDebug() << "S60RunControlBase::CT" << m_targetName << ProjectExplorer::ToolChain::toolChainName(m_toolChain);
+        qDebug() << "S60RunControlBase::CT" << m_targetName;
 }
 
 void S60RunControlBase::start()
@@ -208,11 +206,6 @@ int S60RunControlBase::maxProgress() const
 void S60RunControlBase::reportLaunchFinished()
 {
     setProgress(maxProgress());
-}
-
-ToolChainType S60RunControlBase::toolChain() const
-{
-    return m_toolChain;
 }
 
 quint32 S60RunControlBase::executableUid() const

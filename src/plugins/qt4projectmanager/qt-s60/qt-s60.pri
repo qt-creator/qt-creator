@@ -67,4 +67,6 @@ HEADERS += $$PWD/s60devices.h \
 
 FORMS += $$PWD/s60devicespreferencepane.ui \
     $$PWD/s60createpackagestep.ui \
-    $$PWD/s60certificatedetailsdialog.ui
+    $$PWD/s60certificatedetailsdialog.ui \
+    qt-s60/rvcttoolchainconfigwidget.ui \
+    qt-s60/winscwtoolchainconfigwidget.ui

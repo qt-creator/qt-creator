@@ -72,18 +72,20 @@ private slots:
     void qtVersionSelected(const QString &);
     void toolChainSelected(int index);
     void manageQtVersions();
+    void manageToolChains();
     void importLabelClicked();
 
     // Changes triggered from creator
     void qtVersionsChanged();
     void qtVersionChanged();
     void buildDirectoryChanged();
-    void toolChainTypeChanged();
+    void toolChainChanged();
     void updateImportLabel();
     void environmentChanged();
+    void updateToolChainCombo();
+
 private:
     void updateDetails();
-    void updateToolChainCombo();
     void updateShadowBuildUi();
 
     Ui::Qt4ProjectConfigWidget *m_ui;

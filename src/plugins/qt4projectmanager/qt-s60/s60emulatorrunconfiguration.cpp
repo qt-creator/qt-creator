@@ -142,10 +142,11 @@ bool S60EmulatorRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration 
 {
     if (!m_validParse)
         return false;
-    Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(configuration);
-    QTC_ASSERT(qt4bc, return false);
-    const ProjectExplorer::ToolChainType type = qt4bc->toolChainType();
-    return type == ProjectExplorer::ToolChain_WINSCW;
+    Q_ASSERT(configuration->target() == target());
+    Q_ASSERT(target()->id() == Constants::S60_EMULATOR_TARGET_ID);
+
+    const Qt4BuildConfiguration *qt4bc = qobject_cast<const Qt4BuildConfiguration *>(configuration);
+    return qt4bc && qt4bc->toolChain();
 }
 
 QWidget *S60EmulatorRunConfiguration::createConfigurationWidget()
@@ -323,9 +324,9 @@ QStringList S60EmulatorRunConfigurationFactory::availableCreationIds(Target *par
 
 QString S60EmulatorRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-	if (!pathFromId(id).isEmpty())
+    if (!pathFromId(id).isEmpty())
         return tr("%1 in Symbian Emulator").arg(QFileInfo(pathFromId(id)).completeBaseName());
-	return QString();
+    return QString();
 }
 
 // ======== S60EmulatorRunControl
@@ -333,9 +334,8 @@ QString S60EmulatorRunConfigurationFactory::displayNameForId(const QString &id) 
 S60EmulatorRunControl::S60EmulatorRunControl(S60EmulatorRunConfiguration *runConfiguration, QString mode)
     : RunControl(runConfiguration, mode)
 {
-    // stuff like the EPOCROOT and EPOCDEVICE env variable
-    Utils::Environment env = Utils::Environment::systemEnvironment();
-    runConfiguration->qt4Target()->activeBuildConfiguration()->toolChain()->addToEnvironment(env);
+    // FIXME: This should be configurable!
+    Utils::Environment env = runConfiguration->qt4Target()->activeBuildConfiguration()->environment();
     m_applicationLauncher.setEnvironment(env);
 
     m_executable = runConfiguration->executable();

@@ -36,37 +36,54 @@
 
 #include "s60devices.h"
 
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/gcctoolchain.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class GCCEToolChain : public ProjectExplorer::GccToolChain
+// ==========================================================================
+// GcceToolChain
+// ==========================================================================
+
+class GcceToolChain : public ProjectExplorer::GccToolChain
 {
-    explicit GCCEToolChain(const S60Devices::Device &device,
-                           const QString &gcceBinPath,
-                           const QString &gcceCommand,
-                           ProjectExplorer::ToolChainType type);
 public:
-    static GCCEToolChain *create(const S60Devices::Device &device,
-                                 const QString &gcceRoot,
-                                 ProjectExplorer::ToolChainType type);
+    QString typeName() const;
+    ProjectExplorer::Abi targetAbi() const;
 
-    QByteArray predefinedMacros();
-    virtual QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
-    virtual void addToEnvironment(Utils::Environment &env);
-    virtual ProjectExplorer::ToolChainType type() const;
-    virtual QString makeCommand() const;
+    QByteArray predefinedMacros() const;
+    void addToEnvironment(Utils::Environment &env) const;
+    QString defaultMakeTarget() const;
 
-protected:
-    virtual bool equals(const ToolChain *other) const;
+    ProjectExplorer::ToolChain *clone() const;
 
 private:
-    QString gcceVersion() const;
-    const S60ToolChainMixin m_mixin;
-    const ProjectExplorer::ToolChainType m_type;
-    const QString m_gcceBinPath;
+    explicit GcceToolChain(bool autodetected);
+
     mutable QString m_gcceVersion;
+
+    friend class GcceToolChainFactory;
+};
+
+// ==========================================================================
+// GcceToolChainFactory
+// ==========================================================================
+
+class GcceToolChainFactory : public ProjectExplorer::ToolChainFactory
+{
+    Q_OBJECT
+
+public:
+    QString displayName() const;
+    QString id() const;
+
+    QList<ProjectExplorer::ToolChain *> autoDetect();
+
+    bool canCreate();
+    ProjectExplorer::ToolChain *create();
+
+    bool canRestore(const QVariantMap &data);
+    ProjectExplorer::ToolChain *restore(const QVariantMap &data);
 };
 
 } // namespace Internal

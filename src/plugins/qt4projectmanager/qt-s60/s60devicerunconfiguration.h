@@ -36,7 +36,6 @@
 
 #include <debugger/debuggerrunner.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/toolchaintype.h>
 
 #include <QtCore/QFutureInterface>
 #include <QtCore/QScopedPointer>
@@ -79,8 +78,6 @@ public:
 
     QString projectFilePath() const;
 
-    ProjectExplorer::ToolChainType toolChainType() const;
-
     QString targetName() const;
     QString localExecutableFileName() const;
     quint32 executableUid() const;
@@ -103,7 +100,6 @@ private slots:
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro, bool success);
 
 private:
-    ProjectExplorer::ToolChainType toolChainType(ProjectExplorer::BuildConfiguration *configuration) const;
     void ctor();
     void handleParserState(bool sucess);
 

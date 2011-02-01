@@ -1,0 +1,525 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** No Commercial Usage
+**
+** This file contains pre-release code and may not be distributed.
+** You may use this file in accordance with the terms and conditions
+** contained in the Technology Preview License Agreement accompanying
+** this package.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights.  These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+**************************************************************************/
+
+#include "msvctoolchain.h"
+#include "msvcparser.h"
+#include "projectexplorerconstants.h"
+
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorersettings.h>
+
+#include <utils/qtcprocess.h>
+#include <utils/synchronousprocess.h>
+
+#include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QSettings>
+#include <QtCore/QTemporaryFile>
+#include <QtGui/QLabel>
+#include <QtGui/QVBoxLayout>
+
+namespace ProjectExplorer {
+namespace Internal {
+
+// --------------------------------------------------------------------------
+// Helpers:
+// --------------------------------------------------------------------------
+
+static QString platformName(MsvcToolChain::Platform t)
+{
+    switch (t) {
+    case MsvcToolChain::s32:
+        return QLatin1String(" (x86)");
+    case MsvcToolChain::s64:
+        return QLatin1String(" (x64)");
+    case MsvcToolChain::ia64:
+        return QLatin1String(" (ia64)");
+    case MsvcToolChain::amd64:
+        return QLatin1String(" (amd64)");
+    }
+    return QString();
+}
+
+static QString generateDisplayName(const QString &name,
+                                   MsvcToolChain::Type t,
+                                   MsvcToolChain::Platform p)
+{
+    if (t == MsvcToolChain::WindowsSDK) {
+        QString sdkName = name;
+        sdkName += platformName(p);
+        return sdkName;
+    }
+    // Comes as "9.0" from the registry
+    QString vcName = QLatin1String("Microsoft Visual C++ Compiler ");
+    vcName += name;
+    vcName += platformName(p);
+    return vcName;
+}
+
+static QByteArray msvcCompilationFile()
+{
+    static const char* macros[] = {"_ATL_VER", "_CHAR_UNSIGNED", "__CLR_VER",
+                                   "__cplusplus_cli", "__COUNTER__", "__cplusplus",
+                                   "_CPPLIB_VER", "_CPPRTTI", "_CPPUNWIND",
+                                   "_DEBUG", "_DLL", "__FUNCDNAME__",
+                                   "__FUNCSIG__","__FUNCTION__","_INTEGRAL_MAX_BITS",
+                                   "_M_ALPHA","_M_CEE","_M_CEE_PURE",
+                                   "_M_CEE_SAFE","_M_IX86","_M_IA64",
+                                   "_M_IX86_FP","_M_MPPC","_M_MRX000",
+                                   "_M_PPC","_M_X64","_MANAGED",
+                                   "_MFC_VER","_MSC_BUILD", /* "_MSC_EXTENSIONS", */
+                                   "_MSC_FULL_VER","_MSC_VER","__MSVC_RUNTIME_CHECKS",
+                                   "_MT", "_NATIVE_WCHAR_T_DEFINED", "_OPENMP",
+                                   "_VC_NODEFAULTLIB", "_WCHAR_T_DEFINED", "_WIN32",
+                                   "_WIN32_WCE", "_WIN64", "_Wp64", "__DATE__",
+                                   "__DATE__", "__TIME__", "__TIMESTAMP__",
+                                   0};
+    QByteArray file = "#define __PPOUT__(x) V##x=x\n\n";
+    for (int i = 0; macros[i] != 0; ++i) {
+        const QByteArray macro(macros[i]);
+        file += "#if defined(" + macro + ")\n__PPOUT__("
+                + macro + ")\n#endif\n";
+    }
+    file += "\nvoid main(){}\n\n";
+    return file;
+}
+
+// Run MSVC 'cl' compiler to obtain #defines.
+static QByteArray msvcPredefinedMacros(const QStringList &env)
+{
+    QByteArray predefinedMacros = "#define __MSVCRT__\n"
+                      "#define __w64\n"
+                      "#define __int64 long long\n"
+                      "#define __int32 long\n"
+                      "#define __int16 short\n"
+                      "#define __int8 char\n"
+                      "#define __ptr32\n"
+                      "#define __ptr64\n";
+
+    QString tmpFilePath;
+    {
+        // QTemporaryFile is buggy and will not unlock the file for cl.exe
+        QTemporaryFile tmpFile(QDir::tempPath()+"/envtestXXXXXX.cpp");
+        tmpFile.setAutoRemove(false);
+        if (!tmpFile.open())
+            return predefinedMacros;
+        tmpFilePath = QFileInfo(tmpFile).canonicalFilePath();
+        tmpFile.write(msvcCompilationFile());
+        tmpFile.close();
+    }
+    QProcess cpp;
+    cpp.setEnvironment(env);
+    cpp.setWorkingDirectory(QDir::tempPath());
+    QStringList arguments;
+    const QString binary = QLatin1String("cl.exe");
+    arguments << QLatin1String("/EP") << QDir::toNativeSeparators(tmpFilePath);
+    cpp.start(QLatin1String("cl.exe"), arguments);
+    if (!cpp.waitForStarted()) {
+        qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(binary),
+            qPrintable(cpp.errorString()));
+        return predefinedMacros;
+    }
+    cpp.closeWriteChannel();
+    if (!cpp.waitForFinished()) {
+        Utils::SynchronousProcess::stopProcess(cpp);
+        qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(binary));
+        return predefinedMacros;
+    }
+    if (cpp.exitStatus() != QProcess::NormalExit) {
+        qWarning("%s: '%s' crashed.", Q_FUNC_INFO, qPrintable(binary));
+        return predefinedMacros;
+    }
+
+    const QList<QByteArray> output = cpp.readAllStandardOutput().split('\n');
+    foreach (const QByteArray& line, output) {
+        if (line.startsWith('V')) {
+            QList<QByteArray> split = line.split('=');
+            const QByteArray key = split.at(0).mid(1);
+            QByteArray value = split.at(1);
+            if (!value.isEmpty()) {
+                value.chop(1); //remove '\n'
+            }
+            predefinedMacros += "#define ";
+            predefinedMacros += key;
+            predefinedMacros += ' ';
+            predefinedMacros += value;
+            predefinedMacros += '\n';
+        }
+    }
+    QFile::remove(tmpFilePath);
+    return predefinedMacros;
+}
+
+static QString winExpandDelayedEnvReferences(QString in, const Utils::Environment &env)
+{
+    const QChar exclamationMark = QLatin1Char('!');
+    for (int pos = 0; pos < in.size(); ) {
+        // Replace "!REF!" by its value in process environment
+        pos = in.indexOf(exclamationMark, pos);
+        if (pos == -1)
+            break;
+        const int nextPos = in.indexOf(exclamationMark, pos + 1);
+        if (nextPos == -1)
+            break;
+        const QString var = in.mid(pos + 1, nextPos - pos - 1);
+        const QString replacement = env.value(var.toUpper());
+        in.replace(pos, nextPos + 1 - pos, replacement);
+        pos += replacement.size();
+    }
+    return in;
+}
+
+static Utils::Environment msvcReadEnvironmentSetting(const QString &varsBat,
+                                                     const QString &args,
+                                                     Utils::Environment &env)
+{
+    // Run the setup script and extract the variables
+    if (!QFileInfo(varsBat).exists())
+        return env;
+
+    const QString tempOutputFileName = QDir::tempPath() + QLatin1String("\\qtcreator-msvc-environment.txt");
+    QTemporaryFile tf(QDir::tempPath() + "\\XXXXXX.bat");
+    tf.setAutoRemove(true);
+    if (!tf.open())
+        return env;
+
+    const QString filename = tf.fileName();
+
+    QByteArray call = "call ";
+    call += Utils::QtcProcess::quoteArg(varsBat).toLocal8Bit();
+    if (!args.isEmpty()) {
+        call += ' ';
+        call += args.toLocal8Bit();
+    }
+    call += "\r\n";
+    tf.write(call);
+    const QByteArray redirect = "set > " + Utils::QtcProcess::quoteArg(
+                QDir::toNativeSeparators(tempOutputFileName)).toLocal8Bit() + "\r\n";
+    tf.write(redirect);
+    tf.flush();
+    tf.waitForBytesWritten(30000);
+
+    Utils::QtcProcess run;
+    run.setEnvironment(env);
+    const QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
+    run.setCommand(cmdPath, QString::fromLatin1("/c \"%1\"").arg(QDir::toNativeSeparators(filename)));
+    run.start();
+    if (!run.waitForStarted()) {
+        qWarning("%s: Unable to run '%s': %s", Q_FUNC_INFO, qPrintable(varsBat),
+            qPrintable(run.errorString()));
+        return env;
+    }
+    if (!run.waitForFinished()) {
+        qWarning("%s: Timeout running '%s'", Q_FUNC_INFO, qPrintable(varsBat));
+        Utils::SynchronousProcess::stopProcess(run);
+        return env;
+    }
+    tf.close();
+
+    QFile varsFile(tempOutputFileName);
+    if (!varsFile.open(QIODevice::ReadOnly|QIODevice::Text))
+        return env;
+
+    QRegExp regexp(QLatin1String("(\\w*)=(.*)"));
+    Utils::Environment result;
+    while (!varsFile.atEnd()) {
+        const QString line = QString::fromLocal8Bit(varsFile.readLine()).trimmed();
+        if (regexp.exactMatch(line)) {
+            const QString varName = regexp.cap(1);
+            const QString expandedValue = winExpandDelayedEnvReferences(regexp.cap(2), env);
+            if (!expandedValue.isEmpty())
+                env.set(varName, expandedValue);
+        }
+    }
+    varsFile.close();
+    varsFile.remove();
+
+    return env;
+}
+
+// --------------------------------------------------------------------------
+// MsvcToolChain
+// --------------------------------------------------------------------------
+
+MsvcToolChain::MsvcToolChain(Type type, const QString &name, Platform platform,
+                             const QString &varsBat, const QString &varsBatArg, bool autodetect) :
+    ToolChain(QLatin1String(Constants::MSVC_TOOLCHAIN_ID), autodetect),
+    m_varsBat(varsBat),
+    m_varsBatArg(varsBatArg),
+    m_is64bit(true),
+    m_architecture(Abi::x86)
+{
+    Q_ASSERT(!name.isEmpty());
+    Q_ASSERT(!m_varsBat.isEmpty());
+    Q_ASSERT(QFileInfo(m_varsBat).exists());
+
+    switch (platform)
+    {
+    case ProjectExplorer::Internal::MsvcToolChain::s32:
+        m_is64bit = false;
+        break;
+    case ProjectExplorer::Internal::MsvcToolChain::ia64:
+        m_architecture = Abi::Itanium;
+        break;
+    case ProjectExplorer::Internal::MsvcToolChain::s64:
+    case ProjectExplorer::Internal::MsvcToolChain::amd64:
+        break;
+    };
+
+    setId(QString::fromLatin1("%1:%2.%3").arg(Constants::MSVC_TOOLCHAIN_ID).arg(m_varsBat)
+            .arg(m_varsBatArg));
+
+    setDisplayName(generateDisplayName(name, type, platform));
+}
+
+QString MsvcToolChain::typeName() const
+{
+    return MsvcToolChainFactory::tr("MSVC");
+}
+
+Abi MsvcToolChain::targetAbi() const
+{
+    return Abi(m_architecture, Abi::Windows, Abi::Windows_msvc, Abi::Format_PE, m_is64bit ? 64 : 32);
+}
+
+bool MsvcToolChain::isValid() const
+{
+    return !m_varsBat.isEmpty();
+}
+
+QByteArray MsvcToolChain::predefinedMacros() const
+{
+    if (m_predefinedMacros.isEmpty()) {
+        Utils::Environment env(m_lastEnvironment);
+        addToEnvironment(env);
+        m_predefinedMacros = msvcPredefinedMacros(env.toStringList());
+    }
+    return m_predefinedMacros;
+}
+
+QList<HeaderPath> MsvcToolChain::systemHeaderPaths() const
+{
+    if (m_headerPathes.isEmpty()) {
+        Utils::Environment env(m_lastEnvironment);
+        addToEnvironment(env);
+        foreach (const QString &path, env.value("INCLUDE").split(QLatin1Char(';')))
+            m_headerPathes.append(HeaderPath(path, HeaderPath::GlobalHeaderPath));
+    }
+    return m_headerPathes;
+}
+
+void MsvcToolChain::addToEnvironment(Utils::Environment &env) const
+{
+    // We cache the full environment (incoming + modifications by setup script).
+    if (!m_resultEnvironment.size() || env != m_lastEnvironment) {
+        m_lastEnvironment = env;
+        m_resultEnvironment = msvcReadEnvironmentSetting(m_varsBat, m_varsBatArg, env);
+    }
+    env = m_resultEnvironment;
+}
+
+QString MsvcToolChain::makeCommand() const
+{
+    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().useJom) {
+        // We want jom! Try to find it.
+        QString jom = QCoreApplication::applicationDirPath() + QLatin1String("/jom.exe");
+        if (QFileInfo(jom).exists())
+            return jom;
+        else
+            return QLatin1String("jom.exe");
+    }
+    return QLatin1String("nmake.exe");
+}
+
+IOutputParser *MsvcToolChain::outputParser() const
+{
+    return new MsvcParser;
+}
+
+ToolChainConfigWidget *MsvcToolChain::configurationWidget()
+{
+    return new MsvcToolChainConfigWidget(this);
+}
+
+bool MsvcToolChain::canClone() const
+{
+    return false;
+}
+
+ToolChain *MsvcToolChain::clone() const
+{
+    return 0;
+}
+
+// --------------------------------------------------------------------------
+// MsvcToolChainConfigWidget
+// --------------------------------------------------------------------------
+
+MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc) :
+    ToolChainConfigWidget(tc)
+{
+    QLabel *label = new QLabel;
+    label->setText(tc->displayName());
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->addWidget(label);
+}
+
+void MsvcToolChainConfigWidget::apply()
+{
+    // Nothing to apply!
+}
+
+void MsvcToolChainConfigWidget::discard()
+{
+    // Nothing to apply!
+}
+
+bool MsvcToolChainConfigWidget::isDirty() const
+{
+    return false;
+}
+
+// --------------------------------------------------------------------------
+// MsvcToolChainFactory
+// --------------------------------------------------------------------------
+
+QString MsvcToolChainFactory::displayName() const
+{
+    return tr("MSVC");
+}
+
+QString MsvcToolChainFactory::id() const
+{
+    return QLatin1String(Constants::MSVC_TOOLCHAIN_ID);
+}
+
+QList<ToolChain *> MsvcToolChainFactory::autoDetect()
+{
+    QList<ToolChain *> results;
+
+#ifdef Q_OS_WIN
+    // 1) Installed SDKs preferred over standalone Visual studio
+    const QSettings sdkRegistry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Microsoft SDKs\\Windows",
+                                QSettings::NativeFormat);
+    const QString defaultSdkPath = sdkRegistry.value(QLatin1String("CurrentInstallFolder")).toString();
+    if (!defaultSdkPath.isEmpty()) {
+        foreach (const QString &sdkKey, sdkRegistry.childGroups()) {
+            const QString name = sdkRegistry.value(sdkKey + QLatin1String("/ProductName")).toString();
+            const QString folder = sdkRegistry.value(sdkKey + QLatin1String("/InstallationFolder")).toString();
+            if (folder.isEmpty())
+                continue;
+
+            const QString sdkVcVarsBat = folder + QLatin1String("bin\\SetEnv.cmd");
+            if (!QFileInfo(sdkVcVarsBat).exists())
+                continue;
+            QList<ToolChain *> tmp;
+            tmp.append(new MsvcToolChain(MsvcToolChain::WindowsSDK, name,MsvcToolChain::s32,
+                                         sdkVcVarsBat, QLatin1String("/x86"), true));
+#ifdef Q_OS_WIN64
+            // Add all platforms
+            tmp.append(new MsvcToolChain(MsvcToolChain::WindowsSDK, name, MsvcToolChain::s64,
+                                         sdkVcVarsBat, QLatin1String("/x64"), true));
+            tmp.append(new MsvcToolChain(MsvcToolChain::WindowsSDK, name, MsvcToolChain::ia64,
+                                         sdkVcVarsBat, QLatin1String("/ia64"), true));
+#endif
+            // Make sure the default is front.
+            if (folder == defaultSdkPath)
+                results = tmp + results;
+            else
+                results += tmp;
+        } // foreach
+    }
+
+    // 2) Installed MSVCs
+    const QSettings vsRegistry(
+#ifdef Q_OS_WIN64
+                QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\VisualStudio\\SxS\\VC7"),
+#else
+                QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7"),
+#endif
+                QSettings::NativeFormat);
+    foreach (const QString &vsName, vsRegistry.allKeys()) {
+        // Scan for version major.minor
+        const int dotPos = vsName.indexOf(QLatin1Char('.'));
+        if (dotPos == -1)
+            continue;
+
+        const QString path = vsRegistry.value(vsName).toString();
+        const int version = vsName.left(dotPos).toInt();
+        // Check existence of various install scripts
+        const QString vcvars32bat = path + QLatin1String("bin\\vcvars32.bat");
+        if (QFileInfo(vcvars32bat).isFile())
+            results.append(new MsvcToolChain(MsvcToolChain::VS, vsName, MsvcToolChain::s32,
+                                             vcvars32bat, QString(), true));
+        if (version >= 10) {
+            // Just one common file
+            const QString vcvarsAllbat = path + QLatin1String("vcvarsall.bat");
+            if (QFileInfo(vcvarsAllbat).isFile()) {
+                results.append(new MsvcToolChain(MsvcToolChain::VS, vsName, MsvcToolChain::s32,
+                                                 vcvarsAllbat, QLatin1String("x86"), true));
+                results.append(new MsvcToolChain(MsvcToolChain::VS, vsName, MsvcToolChain::amd64,
+                                                 vcvarsAllbat, QLatin1String("amd64"), true));
+                results.append(new MsvcToolChain(MsvcToolChain::VS, vsName, MsvcToolChain::s64,
+                                                 vcvarsAllbat, QLatin1String("x64"), true));
+                results.append(new MsvcToolChain(MsvcToolChain::VS, vsName, MsvcToolChain::ia64,
+                                                 vcvarsAllbat, QLatin1String("ia64"), true));
+            } else {
+                qWarning("Unable to find MSVC setup script %s in version %d", qPrintable(vcvarsAllbat), version);
+            }
+        } else {
+            // Amd 64 is the preferred 64bit platform
+            const QString vcvarsAmd64bat = path + QLatin1String("bin\\amd64\\vcvarsamd64.bat");
+            if (QFileInfo(vcvarsAmd64bat).isFile())
+                results.append(new MsvcToolChain(MsvcToolChain::VS, vsName, MsvcToolChain::amd64,
+                                                 vcvarsAmd64bat, QString(), true));
+            const QString vcvarsAmd64bat2 = path + QLatin1String("bin\\vcvarsx86_amd64.bat");
+            if (QFileInfo(vcvarsAmd64bat2).isFile())
+                results.append(new MsvcToolChain(MsvcToolChain::VS, vsName, MsvcToolChain::amd64,
+                                                 vcvarsAmd64bat2, QString(), true));
+            const QString vcvars64bat = path + QLatin1String("bin\\vcvars64.bat");
+            if (QFileInfo(vcvars64bat).isFile())
+                results.append(new MsvcToolChain(MsvcToolChain::VS, vsName, MsvcToolChain::s64,
+                                                 vcvars64bat, QString(), true));
+            const QString vcvarsIA64bat = path + QLatin1String("bin\\vcvarsx86_ia64.bat");
+            if (QFileInfo(vcvarsIA64bat).isFile())
+                results.append(new MsvcToolChain(MsvcToolChain::VS, vsName, MsvcToolChain::ia64,
+                                                 vcvarsIA64bat, QString(), true));
+        }
+    }
+#endif
+    return results;
+}
+
+} // namespace Internal
+} // namespace ProjectExplorer

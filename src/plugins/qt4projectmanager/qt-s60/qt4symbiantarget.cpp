@@ -39,8 +39,9 @@
 #include "qt-s60/s60devicerunconfiguration.h"
 
 #include <coreplugin/coreconstants.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/toolchainmanager.h>
 #include <symbianutils/symbiandevicemanager.h>
 #include <QtGui/QPainter>
 #include <QtGui/QApplication>
@@ -96,30 +97,24 @@ ProjectExplorer::DeployConfigurationFactory *Qt4SymbianTarget::deployConfigurati
     return m_deployConfigurationFactory;
 }
 
-QList<ProjectExplorer::ToolChainType> Qt4SymbianTarget::filterToolChainTypes(const QList<ProjectExplorer::ToolChainType> &candidates) const
+QList<ProjectExplorer::ToolChain *> Qt4SymbianTarget::possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const
 {
-    QList<ProjectExplorer::ToolChainType> tmp(candidates);
-    if (id() == QLatin1String(Constants::S60_EMULATOR_TARGET_ID)) {
-        if (tmp.contains(ProjectExplorer::ToolChain_WINSCW))
-            return QList<ProjectExplorer::ToolChainType>() << ProjectExplorer::ToolChain_WINSCW;
-        else
-            return QList<ProjectExplorer::ToolChainType>();
-    } else if (id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID)) {
-        tmp.removeAll(ProjectExplorer::ToolChain_WINSCW);
-        return tmp;
-    }
-    return tmp;
-}
+    QList<ProjectExplorer::ToolChain *> candidates = Qt4BaseTarget::possibleToolChains(bc);
 
-ProjectExplorer::ToolChainType Qt4SymbianTarget::preferredToolChainType(const QList<ProjectExplorer::ToolChainType> &candidates) const
-{
-    ProjectExplorer::ToolChainType preferredType = ProjectExplorer::ToolChain_INVALID;
-    if (id() == QLatin1String(Constants::S60_EMULATOR_TARGET_ID) &&
-        candidates.contains(ProjectExplorer::ToolChain_WINSCW))
-        preferredType = ProjectExplorer::ToolChain_WINSCW;
-    if (!candidates.isEmpty())
-        preferredType = candidates.at(0);
-    return preferredType;
+    QList<ProjectExplorer::ToolChain *> tmp;
+    if (id() == QLatin1String(Constants::S60_EMULATOR_TARGET_ID)) {
+        foreach (ProjectExplorer::ToolChain *tc, candidates) {
+            if (tc->id().startsWith(QLatin1String(Constants::WINSCW_TOOLCHAIN_ID)))
+                tmp.append(tc);
+        }
+    } else if (id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID)) {
+        foreach (ProjectExplorer::ToolChain *tc, candidates) {
+            if (!tc->id().startsWith(Qt4ProjectManager::Constants::WINSCW_TOOLCHAIN_ID))
+                tmp.append(tc);
+        }
+    }
+
+    return tmp;
 }
 
 QString Qt4SymbianTarget::defaultBuildDirectory() const

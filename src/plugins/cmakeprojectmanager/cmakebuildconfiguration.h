@@ -35,7 +35,7 @@
 #define CMAKEBUILDCONFIGURATION_H
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/toolchaintype.h>
+#include <projectexplorer/abi.h>
 
 namespace ProjectExplorer {
 class ToolChain;
@@ -60,22 +60,13 @@ public:
 
     virtual QString buildDirectory() const;
 
-    ProjectExplorer::ToolChainType toolChainType() const;
-    ProjectExplorer::ToolChain *toolChain() const;
-
     void setBuildDirectory(const QString &buildDirectory);
-
-    QString msvcVersion() const;
-    void setMsvcVersion(const QString &msvcVersion);
 
     QVariantMap toMap() const;
 
     ProjectExplorer::IOutputParser *createOutputParser() const;
 
     Utils::Environment baseEnvironment() const;
-
-signals:
-    void msvcVersionChanged();
 
 protected:
     CMakeBuildConfiguration(CMakeTarget *parent, CMakeBuildConfiguration *source);

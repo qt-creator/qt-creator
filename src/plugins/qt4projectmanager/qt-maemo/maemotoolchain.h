@@ -34,59 +34,90 @@
 #ifndef MAEMOTOOLCHAIN_H
 #define MAEMOTOOLCHAIN_H
 
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/gcctoolchain.h>
+#include <projectexplorer/toolchainconfigwidget.h>
 
 namespace Qt4ProjectManager {
 class QtVersion;
+
 namespace Internal {
 
-class AbstractMaemoToolChain : public ProjectExplorer::GccToolChain
+// --------------------------------------------------------------------------
+// MaemoToolChain
+// --------------------------------------------------------------------------
+
+class MaemoToolChain : public ProjectExplorer::GccToolChain
 {
 public:
-    AbstractMaemoToolChain(const QtVersion *qtVersion);
-    virtual ~AbstractMaemoToolChain();
+    ~MaemoToolChain();
 
-    void addToEnvironment(Utils::Environment &env);
-    QString makeCommand() const;
+    QString typeName() const;
+    ProjectExplorer::Abi targetAbi() const;
+
+    bool isValid() const;
+
+    void addToEnvironment(Utils::Environment &env) const;
     QString sysroot() const;
 
-protected:
-    bool equals(const ToolChain *other) const;
+    bool operator ==(const ProjectExplorer::ToolChain &) const;
+
+    ProjectExplorer::ToolChainConfigWidget *configurationWidget();
+
+
+    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &data);
+
+    void setQtVersionId(int);
+    int qtVersionId() const;
 
 private:
-    void setSysroot() const;
+    void updateId();
 
-private:
-    mutable QString m_sysrootRoot;
-    mutable bool m_sysrootInitialized;
+    explicit MaemoToolChain(bool);
+    MaemoToolChain(const MaemoToolChain &);
+
     int m_qtVersionId;
+    mutable QString m_sysroot;
+    ProjectExplorer::Abi m_targetAbi;
+
+    friend class MaemoToolChainFactory;
 };
 
-class Maemo5ToolChain : public AbstractMaemoToolChain
-{
-public:
-    Maemo5ToolChain(const QtVersion *qtVersion);
-    ~Maemo5ToolChain();
+// --------------------------------------------------------------------------
+// MaemoToolChainConfigWidget
+// --------------------------------------------------------------------------
 
-    ProjectExplorer::ToolChainType type() const;
+class MaemoToolChainConfigWidget : public ProjectExplorer::ToolChainConfigWidget
+{
+    Q_OBJECT
+
+public:
+    MaemoToolChainConfigWidget(MaemoToolChain *);
+
+    void apply();
+    void discard();
+    bool isDirty() const;
 };
 
-class HarmattanToolChain : public AbstractMaemoToolChain
+// --------------------------------------------------------------------------
+// MaemoToolChainFactory
+// --------------------------------------------------------------------------
+
+class MaemoToolChainFactory : public ProjectExplorer::ToolChainFactory
 {
+    Q_OBJECT
+
 public:
-    HarmattanToolChain(const QtVersion *qtVersion);
-    ~HarmattanToolChain();
+    MaemoToolChainFactory();
 
-    ProjectExplorer::ToolChainType type() const;
-};
+    QString displayName() const;
+    QString id() const;
 
-class MeegoToolChain : public AbstractMaemoToolChain
-{
-public:
-    MeegoToolChain(const QtVersion *qtVersion);
-    ~MeegoToolChain();
+    QList<ProjectExplorer::ToolChain *> autoDetect();
 
-    ProjectExplorer::ToolChainType type() const;
+private slots:
+    void handleQtVersionChanges(const QList<int> &);
+    QList<ProjectExplorer::ToolChain *> createToolChainList(const QList<int> &);
 };
 
 } // namespace Internal

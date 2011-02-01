@@ -45,6 +45,7 @@ class Environment;
 
 namespace ProjectExplorer {
 class RunConfiguration;
+class ToolChain;
 class BuildConfiguration;
 class DeployConfiguration;
 class IBuildConfigurationFactory;
@@ -107,6 +108,10 @@ public:
     void setOverlayIcon(QIcon icon);
     QString toolTip() const;
     void setToolTip(const QString &text);
+
+    virtual QList<ToolChain *> possibleToolChains(BuildConfiguration *) const;
+    virtual ToolChain *preferredToolChain(BuildConfiguration *) const;
+
 
     virtual QVariantMap toMap() const;
 

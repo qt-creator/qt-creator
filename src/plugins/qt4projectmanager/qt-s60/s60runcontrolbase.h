@@ -35,7 +35,7 @@
 #define S60RUNCONTROLBASE_H
 
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/toolchaintype.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QFutureInterface>
 
@@ -61,7 +61,6 @@ protected:
     virtual bool setupLauncher() = 0;
 
 protected:
-    ProjectExplorer::ToolChainType toolChain() const;
     quint32 executableUid() const;
     QString executableName() const;
     const QString &targetName() const;
@@ -87,7 +86,6 @@ private slots:
 
 private:
     QFutureInterface<void> *m_launchProgress;
-    ProjectExplorer::ToolChainType m_toolChain;
     quint32 m_executableUid;
     QString m_targetName;
     QString m_commandLineArguments;

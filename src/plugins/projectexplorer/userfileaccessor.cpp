@@ -40,7 +40,6 @@
 #include "projectexplorersettings.h"
 #include "projectexplorerconstants.h"
 #include "target.h"
-#include "toolchaintype.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
@@ -976,13 +975,13 @@ QVariantMap Version0Handler::update(Project *project, const QVariantMap &map)
         if (!ok) {
             QString toolChainName(toolchain.toString());
             if (toolChainName == QLatin1String("gcc"))
-                type = ProjectExplorer::ToolChain_GCC;
+                type = 0;
             else if (toolChainName == QLatin1String("mingw"))
-                type = ProjectExplorer::ToolChain_MinGW;
+                type = 2;
             else if (toolChainName == QLatin1String("msvc"))
-                type = ProjectExplorer::ToolChain_MSVC;
+                type = 3;
             else if (toolChainName == QLatin1String("wince"))
-                type = ProjectExplorer::ToolChain_WINCE;
+                type = 4;
         }
         result.insert(QLatin1String("GenericProjectManager.GenericProject.Toolchain"), type);
     }

@@ -41,7 +41,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
-#include <projectexplorer/toolchaintype.h>
+#include <projectexplorer/abi.h>
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QMessageBox>
@@ -59,9 +59,11 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-RemoteGdbServerAdapter::RemoteGdbServerAdapter(GdbEngine *engine, int toolChainType, QObject *parent) :
+RemoteGdbServerAdapter::RemoteGdbServerAdapter(GdbEngine *engine,
+                                               const ProjectExplorer::Abi &abi,
+                                               QObject *parent) :
     AbstractGdbAdapter(engine, parent),
-    m_toolChainType(toolChainType)
+    m_abi(abi)
 {
     connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
         SLOT(uploadProcError(QProcess::ProcessError)));
@@ -75,21 +77,10 @@ RemoteGdbServerAdapter::RemoteGdbServerAdapter(GdbEngine *engine, int toolChainT
 
 AbstractGdbAdapter::DumperHandling RemoteGdbServerAdapter::dumperHandling() const
 {
-    switch (m_toolChainType) {
-    case ProjectExplorer::ToolChain_MinGW:
-    case ProjectExplorer::ToolChain_MSVC:
-    case ProjectExplorer::ToolChain_WINCE:
-    case ProjectExplorer::ToolChain_WINSCW:
-    case ProjectExplorer::ToolChain_GCCE:
-    case ProjectExplorer::ToolChain_RVCT2_ARMV5:
-    case ProjectExplorer::ToolChain_RVCT2_ARMV6:
-    case ProjectExplorer::ToolChain_GCC_MAEMO5:
-    case ProjectExplorer::ToolChain_GCC_HARMATTAN:
-    case ProjectExplorer::ToolChain_GCC_MEEGO:
+    if (m_abi.os() == ProjectExplorer::Abi::Symbian
+            || m_abi.os() == ProjectExplorer::Abi::Windows
+            || m_abi.binaryFormat() == ProjectExplorer::Abi::Format_ELF)
         return DumperLoadedByGdb;
-    default:
-        break;
-    }
     return DumperLoadedByGdbPreload;
 }
 
