@@ -128,6 +128,37 @@ private:
     QList<PropertyInfo> m_properties;
 };
 
+
+class HasValueProcessor : public Interpreter::MemberProcessor
+{
+public:
+    HasValueProcessor(const Interpreter::Value *compareValue)
+        : MemberProcessor(),
+          m_compareValue(compareValue),
+          m_isInMembers(false)
+    {}
+
+    virtual bool processProperty(const QString &/*name*/, const Interpreter::Value *value)
+    {
+        if (value == m_compareValue) {
+            m_isInMembers = true;
+            return false;
+        }
+
+        return true;
+    }
+
+    bool hasValue() const
+    {
+        return m_isInMembers;
+    }
+
+private:
+    const Interpreter::Value *m_compareValue;
+    bool m_isInMembers;
+};
+
+
 static inline bool isValueType(const QString &type)
 {
     QStringList objectValuesList;
@@ -792,9 +823,12 @@ void NodeMetaInfoPrivate::setupPrototypes()
             description.majorVersion = qmlValue->version().majorVersion();
             if (!qmlValue->packageName().isEmpty())
                 description.className = qmlValue->packageName() + "/" + description.className;
-
-            m_prototypes.append(description);
         }
+
+        HasValueProcessor hasValueProcessor(ov);
+        lookupContext()->context()->typeEnvironment(document())->processMembers(&hasValueProcessor);
+        if (hasValueProcessor.hasValue())
+            m_prototypes.append(description);
     }
 }
 
