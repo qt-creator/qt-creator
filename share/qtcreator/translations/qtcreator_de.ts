@@ -43,7 +43,7 @@
     </message>
     <message>
         <source>Attach to process ID:</source>
-        <translation>Prozess-Id:</translation>
+        <translation>Prozess-ID:</translation>
     </message>
 </context>
 <context>
@@ -702,7 +702,7 @@
     </message>
     <message>
         <source>Could not find commits of id &apos;%1&apos; on %2.</source>
-        <translation>Es konnten keine Abgaben des Datums %2 mit der Id &apos;%1&apos; gefunden werden.</translation>
+        <translation>Es konnten keine Abgaben des Datums %2 mit der ID &apos;%1&apos; gefunden werden.</translation>
     </message>
     <message>
         <source>No cvs executable specified!</source>
@@ -771,7 +771,7 @@
     </message>
     <message>
         <source>Describe all files matching commit id</source>
-        <translation>Alle zur Commit-Id gehörenden Dateien beschreiben:</translation>
+        <translation>Alle zur Commit-ID gehörenden Dateien beschreiben:</translation>
     </message>
     <message>
         <source>Timeout:</source>
@@ -795,7 +795,7 @@
     </message>
     <message>
         <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit ID). Otherwise, only the respective file will be displayed.</source>
-        <translation>Wenn die Option aktiviert ist, werden beim Klick auf die Revisionsnummer in der Annotationsansicht alle Dateien angezeigt, die zu einer Abgabe gehören (mittels Commit-Id bestimmt). Ansonsten wird nur die betreffende Datei angezeigt.</translation>
+        <translation>Wenn die Option aktiviert ist, werden beim Klick auf die Revisionsnummer in der Annotationsansicht alle Dateien angezeigt, die zu einer Abgabe gehören (mittels Commit-ID bestimmt). Ansonsten wird nur die betreffende Datei angezeigt.</translation>
     </message>
 </context>
 <context>
@@ -2009,6 +2009,10 @@ Sollen sie überschrieben werden?</translation>
         <translation>Ja, Ich bin mir dessen bewusst.</translation>
     </message>
     <message>
+        <source>&amp;Refactor</source>
+        <translation>&amp;Refactoring</translation>
+    </message>
+    <message>
         <source>Unused variable</source>
         <translation>Unbenutzte Variable</translation>
     </message>
@@ -2303,7 +2307,7 @@ Sollen sie überschrieben werden?</translation>
     <name>Debugger::Internal::AttachExternalDialog</name>
     <message>
         <source>Process ID</source>
-        <translation>Prozess-Id</translation>
+        <translation>Prozess-ID</translation>
     </message>
     <message>
         <source>Name</source>
@@ -3595,11 +3599,11 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     <name>Debugger::Internal::ThreadsHandler</name>
     <message>
         <source>Thread&amp;nbsp;id:</source>
-        <translation>Thread-Id:</translation>
+        <translation>Thread-ID:</translation>
     </message>
     <message>
         <source>Target&amp;nbsp;id:</source>
-        <translation>Ziel-Id:</translation>
+        <translation>Ziel-ID:</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -3647,7 +3651,7 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     </message>
     <message>
         <source>Thread ID</source>
-        <translation>Thread-Id</translation>
+        <translation>Thread-ID</translation>
     </message>
 </context>
 <context>
@@ -3677,7 +3681,7 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     </message>
     <message>
         <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation>Der Prozess wurde gestartet, PID: 0x%1, Thread-Id: 0x%2, Code-Segment: 0x%3, Datensegment: 0x%4.</translation>
+        <translation>Der Prozess wurde gestartet, PID: 0x%1, Thread-ID: 0x%2, Code-Segment: 0x%3, Datensegment: 0x%4.</translation>
     </message>
     <message>
         <source>The reported code segment address (0x%1) might be invalid. Symbol resolution or setting breakoints may not work.</source>
@@ -9804,7 +9808,7 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
     </message>
     <message>
         <source>Application running with pid %1.</source>
-        <translation>Die Anwendung läuft mit der Prozess-Id: %1.</translation>
+        <translation>Die Anwendung läuft mit der Prozess-ID: %1.</translation>
     </message>
     <message>
         <source>Finished.</source>
@@ -12770,7 +12774,7 @@ p, li { white-space: pre-wrap; }
     <name>Qt4ProjectManager::Internal::S60Devices::Device</name>
     <message>
         <source>Id:</source>
-        <translation>Id:</translation>
+        <translation>ID:</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -14801,11 +14805,11 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <name>QmlDesigner::NavigatorTreeModel</name>
     <message>
         <source>Invalid Id</source>
-        <translation>Ungültige Id</translation>
+        <translation>Ungültige ID</translation>
     </message>
     <message>
         <source>%1 is an invalid id</source>
-        <translation>%1 ist keine gültige Id</translation>
+        <translation>%1 ist keine gültige ID</translation>
     </message>
     <message>
         <source>Warning</source>
@@ -15094,7 +15098,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <source>New id:</source>
-        <translation>Neue Id:</translation>
+        <translation>Neue ID:</translation>
     </message>
     <message>
         <source>Unused variable</source>
@@ -15102,11 +15106,11 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <source>Refactoring</source>
-        <translation>Refaktorisierung</translation>
+        <translation>Refactoring</translation>
     </message>
     <message>
         <source>Rename id &apos;%1&apos;...</source>
-        <translation>Id &apos;%1&apos; Umbenennen</translation>
+        <translation>ID &apos;%1&apos; umbenennen</translation>
     </message>
 </context>
 <context>
@@ -15596,15 +15600,15 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <source>expected id</source>
-        <translation>Id erwartet</translation>
+        <translation>ID erwartet</translation>
     </message>
     <message>
         <source>using string literals for ids is discouraged</source>
-        <translation>Von der Verwendung von Zeichenketten-Literalen als Ids wird abgeraten</translation>
+        <translation>Von der Verwendung von Zeichenketten-Literalen als IDs wird abgeraten</translation>
     </message>
     <message>
         <source>ids must be lower case</source>
-        <translation>Ids müssen mit einem Kleinbuchstaben beginnen</translation>
+        <translation>IDs müssen mit einem Kleinbuchstaben beginnen</translation>
     </message>
 </context>
 <context>
@@ -16866,7 +16870,7 @@ Haben Sie Qemu gestartet?</translation>
     </message>
     <message>
         <source>Id</source>
-        <translation>Id</translation>
+        <translation>ID</translation>
     </message>
 </context>
 <context>
@@ -17988,11 +17992,11 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     <name>QmlDesigner::PropertyEditor</name>
     <message>
         <source>Invalid Id</source>
-        <translation>Ungültige Id</translation>
+        <translation>Ungültige ID</translation>
     </message>
     <message>
         <source>%1 is an invalid id</source>
-        <translation>%1 ist keine gültige Id</translation>
+        <translation>%1 ist keine gültige ID</translation>
     </message>
 </context>
 <context>
@@ -18023,16 +18027,16 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
         <source>Only alphanumeric characters and underscore allowed.
 Ids must begin with a lowercase letter.</source>
         <translation>Es sind nur alphanumerische Zeichen und Unterstriche zulässig.
-Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
+IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>Ids have to be unique.</source>
-        <translation>Ids müssen eindeutig sein.</translation>
+        <translation>IDs müssen eindeutig sein.</translation>
     </message>
     <message>
         <source>Invalid Id: %1
 %2</source>
-        <translation>Ungültige Id: %1
+        <translation>Ungültige ID: %1
 %2</translation>
     </message>
 </context>
@@ -18047,7 +18051,7 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <name>QmlDesigner::QmlModelView</name>
     <message>
         <source>Invalid Id</source>
-        <translation>Ungültige Id</translation>
+        <translation>Ungültige ID</translation>
     </message>
 </context>
 <context>
@@ -19329,7 +19333,7 @@ Server: %2.</translation>
     </message>
     <message>
         <source>Cannot attach to PID 0</source>
-        <translation>Der Debugger kann nicht an die Prozess-Id 0 angehängt werden</translation>
+        <translation>Der Debugger kann nicht an die Prozess-ID 0 angehängt werden</translation>
     </message>
     <message>
         <source>Process %1</source>
@@ -19450,7 +19454,7 @@ Das Setzen von Haltepunkten nach Dateinamen und Zeilennummern könnte nicht funk
     <name>Debugger::Internal::TcfTrkGdbAdapter</name>
     <message>
         <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation>Der Prozess wurde gestartet, PID: 0x%1, Thread-Id: 0x%2, Code-Segment: 0x%3, Datensegment: 0x%4.</translation>
+        <translation>Der Prozess wurde gestartet, PID: 0x%1, Thread-ID: 0x%2, Code-Segment: 0x%3, Datensegment: 0x%4.</translation>
     </message>
     <message>
         <source>The reported code segment address (0x%1) might be invalid. Symbol resolution or setting breakoints may not work.</source>
