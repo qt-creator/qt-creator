@@ -120,6 +120,8 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
 
     connect(&d->m_watcher, SIGNAL(progressValueChanged(int)),
             this, SLOT(progressChanged()));
+    connect(&d->m_watcher, SIGNAL(progressTextChanged(QString)),
+            this, SLOT(progressTextChanged()));
     connect(&d->m_watcher, SIGNAL(progressRangeChanged(int, int)),
             this, SLOT(progressChanged()));
 
@@ -370,8 +372,17 @@ void BuildManager::progressChanged()
     int range = d->m_watcher.progressMaximum() - d->m_watcher.progressMinimum();
     if (range != 0) {
         int percent = (d->m_watcher.progressValue() - d->m_watcher.progressMinimum()) * 100 / range;
-        d->m_progressFutureInterface->setProgressValue(d->m_progress * 100 + percent);
+        d->m_progressFutureInterface->setProgressValueAndText(d->m_progress * 100 + percent, msgProgress(d->m_progress, d->m_maxProgress) + "\n" + d->m_watcher.progressText());
     }
+}
+
+void BuildManager::progressTextChanged()
+{
+    int range = d->m_watcher.progressMaximum() - d->m_watcher.progressMinimum();
+    int percent = 0;
+    if (range != 0)
+        percent = (d->m_watcher.progressValue() - d->m_watcher.progressMinimum()) * 100 / range;
+    d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100 + percent, msgProgress(d->m_progress, d->m_maxProgress) + "\n" + d->m_watcher.progressText());
 }
 
 void BuildManager::nextStep()

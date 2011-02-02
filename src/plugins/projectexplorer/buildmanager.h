@@ -89,6 +89,7 @@ private slots:
 
     void nextBuildQueue();
     void progressChanged();
+    void progressTextChanged();
     void emitCancelMessage();
     void showBuildResults();
     void updateTaskCount();
