@@ -193,6 +193,16 @@ QSharedPointer<ExternalTool> ExternalTool::preset() const
     return m_presetTool;
 }
 
+void ExternalTool::setId(const QString &id)
+{
+    m_id = id;
+}
+
+void ExternalTool::setCategory(const QString &category)
+{
+    m_displayCategory = category;
+}
+
 void ExternalTool::setDisplayName(const QString &name)
 {
     m_displayName = name;

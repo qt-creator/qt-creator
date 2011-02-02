@@ -35,6 +35,9 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
+#include <QtCore/QTime>
+
+#include <QtDebug>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -90,6 +93,67 @@ QWidget *ToolSettings::createPage(QWidget *parent)
 }
 
 
+static QString getUserFilePath(const QString &proposalFileName)
+{
+    static bool seeded = false;
+    QDir resourceDir(ICore::instance()->userResourcePath());
+    if (!resourceDir.exists(QLatin1String("externaltools")))
+        resourceDir.mkpath(QLatin1String("externaltools"));
+    QFileInfo fi(proposalFileName);
+    const QString &suffix = QLatin1String(".") + fi.completeSuffix();
+    const QString &newFilePath = ICore::instance()->userResourcePath()
+            + QLatin1String("/externaltools/") + fi.baseName();
+    int count = 0;
+    QString tryPath = newFilePath + suffix;
+    while (QFile::exists(tryPath)) {
+        if (count > 15)
+            return QString();
+        // add random number
+        if (!seeded) {
+            seeded = true;
+            qsrand(QTime::currentTime().msec());
+        }
+        int number = qrand() % 1000;
+        tryPath = newFilePath + QString::number(number) + suffix;
+    }
+    return tryPath;
+}
+
+static QString idFromDisplayName(const QString &displayName)
+{
+    QString id = displayName;
+    QChar *c = id.data();
+    while (!c->isNull()) {
+        if (!c->isLetterOrNumber())
+            *c = QLatin1Char('_');
+        ++c;
+    }
+    return id;
+}
+
+static QString findUnusedId(const QString &proposal, const QMap<QString, QList<ExternalTool *> > &tools)
+{
+    int number = 0;
+    QString result;
+    bool found = false;
+    do {
+        result = proposal + (number > 0 ? QString::number(number) : QString::fromLatin1(""));
+        ++number;
+        found = false;
+        QMapIterator<QString, QList<ExternalTool *> > it(tools);
+        while (!found && it.hasNext()) {
+            it.next();
+            foreach (ExternalTool *tool, it.value()) {
+                if (tool->id() == proposal) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+    } while (found);
+    return result;
+}
+
 void ToolSettings::apply()
 {
     if (!m_widget)
@@ -113,13 +177,9 @@ void ToolSettings::apply()
                     if (tool->preset() && (*tool) != (*(tool->preset()))) {
                         // check if we need to choose a new file name
                         if (tool->preset()->fileName() == tool->fileName()) {
-                            // TODO avoid overwriting a tool xml file of another existing tool?
                             const QString &fileName = QFileInfo(tool->preset()->fileName()).fileName();
-                            QDir resourceDir(ICore::instance()->userResourcePath());
-                            if (!resourceDir.exists(QLatin1String("externaltools")))
-                                resourceDir.mkpath(QLatin1String("externaltools"));
-                            const QString &newFilePath = ICore::instance()->userResourcePath()
-                                    + QLatin1String("/externaltools/") + fileName;
+                            const QString &newFilePath = getUserFilePath(fileName);
+                            // TODO error handling if newFilePath.isEmpty() (i.e. failed to find a unused name)
                             tool->setFileName(newFilePath);
                         }
                         // TODO error handling
@@ -143,6 +203,16 @@ void ToolSettings::apply()
                      // 'tool' is deleted by config page, 'originalTool' is deleted by setToolsByCategory
                     toolToAdd = new ExternalTool(tool);
                 }
+            } else {
+                // new tool. 'tool' is deleted by config page
+                QString id = idFromDisplayName(tool->displayName());
+                id = findUnusedId(id, newToolsMap);
+                tool->setId(id);
+                // TODO error handling if newFilePath.isEmpty() (i.e. failed to find a unused name)
+                tool->setFileName(getUserFilePath(id + QLatin1String(".xml")));
+                // TODO error handling
+                tool->save();
+                toolToAdd = new ExternalTool(tool);
             }
             items.append(toolToAdd);
         }

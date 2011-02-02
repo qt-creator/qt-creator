@@ -91,7 +91,8 @@ public:
     bool operator==(const ExternalTool &other);
     bool operator!=(const ExternalTool &other) { return !((*this) == other); }
 
-    // display category and order are handled specially
+    void setId(const QString &id);
+    void setCategory(const QString &category);
     void setDisplayName(const QString &name);
     void setDescription(const QString &description);
     void setOutputHandling(OutputHandling handling);

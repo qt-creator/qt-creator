@@ -70,6 +70,7 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     ui->removeButton->setIcon(QIcon(QLatin1String(Constants::ICON_MINUS)));
     ui->revertButton->setIcon(QIcon(QLatin1String(Constants::ICON_RESET)));
     connect(ui->revertButton, SIGNAL(clicked()), this, SLOT(revertCurrentItem()));
+    connect(ui->addButton, SIGNAL(clicked()), this, SLOT(addTool()));
 
     showInfoForItem(0);
     updateButtons(ui->toolTree->currentItem());
@@ -100,6 +101,9 @@ QString ExternalToolConfig::searchKeywords() const
     return keywords;
 }
 
+static const Qt::ItemFlags TOOL_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable;
+
+
 void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &tools)
 {
     QMapIterator<QString, QList<ExternalTool *> > it(tools);
@@ -112,17 +116,16 @@ void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &t
     }
 
     bool blocked = ui->toolTree->blockSignals(true); // block itemChanged
-    Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable;
     QMapIterator<QString, QList<ExternalTool *> > categories(m_tools);
     while (categories.hasNext()) {
         categories.next();
         QString name = (categories.key().isEmpty() ? tr("External Tools Menu") : categories.key());
         QTreeWidgetItem *category = new QTreeWidgetItem(ui->toolTree, QStringList() << name);
-        category->setFlags(flags);
+        category->setFlags(TOOL_ITEM_FLAGS);
         category->setData(0, Qt::UserRole, name); // save the name in case of category being renamed by user
         foreach (ExternalTool *tool, categories.value()) {
             QTreeWidgetItem *item = new QTreeWidgetItem(category, QStringList() << tool->displayName());
-            item->setFlags(flags);
+            item->setFlags(TOOL_ITEM_FLAGS);
             item->setData(0, Qt::UserRole, qVariantFromValue(tool));
         }
     }
@@ -139,6 +142,7 @@ void ExternalToolConfig::handleCurrentItemChanged(QTreeWidgetItem *now, QTreeWid
 void ExternalToolConfig::updateButtons(QTreeWidgetItem *item)
 {
     ExternalTool *tool = 0;
+    ui->addButton->setEnabled(item != 0);
     if (item)
         tool = item->data(0, Qt::UserRole).value<ExternalTool *>();
     if (!tool) {
@@ -216,6 +220,8 @@ void ExternalToolConfig::showInfoForItem(QTreeWidgetItem *item)
 
 void ExternalToolConfig::updateItemName(QTreeWidgetItem *item)
 {
+    if (item != ui->toolTree->currentItem())
+        return;
     ExternalTool *tool = 0;
     if (item)
         tool = item->data(0, Qt::UserRole).value<ExternalTool *>();
@@ -258,6 +264,7 @@ void ExternalToolConfig::updateItemName(QTreeWidgetItem *item)
         ui->toolTree->insertTopLevelItem(newIndex, item);
         if (wasExpanded)
             ui->toolTree->expand(ui->toolTree->model()->index(newIndex, 0));
+        ui->toolTree->setCurrentItem(item);
         ui->toolTree->blockSignals(blocked); // unblock itemChanged
     }
     updateButtons(item);
@@ -298,4 +305,34 @@ void ExternalToolConfig::revertCurrentItem()
         }
     }
     delete tool;
+}
+
+void ExternalToolConfig::addTool()
+{
+    // find category to use
+    QTreeWidgetItem *currentItem = ui->toolTree->currentItem();
+    QTC_ASSERT(currentItem, return);
+    QString category;
+    QTreeWidgetItem *parent;
+    if (currentItem->parent()) {
+        parent = currentItem->parent();
+    } else {
+        parent = currentItem;
+    }
+    category = parent->data(0, Qt::UserRole).toString();
+    ExternalTool *tool = new ExternalTool;
+    tool->setCategory(category);
+    tool->setDisplayName(tr("New tool"));
+    tool->setDescription(tr("This tool prints a line of useful text"));
+    tool->setExecutables(QStringList() << "echo");
+    tool->setArguments(tr("Useful text"));
+    // todo ordering
+    m_tools[category].append(tool);
+    bool blocked = ui->toolTree->blockSignals(true); // block itemChanged
+    QTreeWidgetItem *item = new QTreeWidgetItem(parent, QStringList() << tool->displayName());
+    item->setFlags(TOOL_ITEM_FLAGS);
+    item->setData(0, Qt::UserRole, qVariantFromValue(tool));
+    ui->toolTree->blockSignals(blocked); // unblock itemChanged
+    ui->toolTree->setCurrentItem(item);
+    ui->toolTree->editItem(item);
 }
