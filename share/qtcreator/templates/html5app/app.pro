@@ -4,12 +4,11 @@ folder_01.source = html
 DEPLOYMENTFOLDERS = folder_01
 # DEPLOYMENTFOLDERS_END #
 
-# Avoid auto screen rotation
-# ORIENTATIONLOCK #
-DEFINES += ORIENTATIONLOCK
-
 # TARGETUID3 #
 symbian:TARGET.UID3 = 0xE1111234
+
+# Allow network access on Symbian
+# NETWORKACCESS #
 symbian:TARGET.CAPABILITY += NetworkServices
 
 # Smart Installer package's UID
