@@ -507,11 +507,9 @@ void QmlCppEngine::slaveEngineStateChanged
 
     case InferiorRunOk:
         if (state() == EngineRunRequested) {
-            if (otherEngine->state() == InferiorRunOk
-                    || otherEngine->state() == InferiorStopOk)
+            if (otherEngine->state() == InferiorRunOk)
                 notifyEngineRunAndInferiorRunOk();
-            else if (otherEngine->state() == InferiorRunOk
-                     || otherEngine->state() == InferiorStopOk)
+            else if (otherEngine->state() == InferiorStopOk)
                 notifyEngineRunAndInferiorStopOk();
             else
                 EDEBUG("... WAITING FOR OTHER INFERIOR RUN");
