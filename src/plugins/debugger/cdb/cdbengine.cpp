@@ -141,10 +141,12 @@ namespace Internal {
 
 static const char localsPrefixC[] = "local.";
 
-struct MemoryViewCookie {
+struct MemoryViewCookie
+{
     explicit MemoryViewCookie(MemoryAgent *a = 0, QObject *e = 0,
                               quint64 addr = 0, quint64 l = 0) :
-        agent(a), editorToken(e), address(addr), length(l) {}
+        agent(a), editorToken(e), address(addr), length(l)
+    {}
 
     MemoryAgent *agent;
     QObject *editorToken;
@@ -152,7 +154,8 @@ struct MemoryViewCookie {
     quint64 length;
 };
 
-struct SourceLocationCookie {
+struct SourceLocationCookie
+{
     explicit SourceLocationCookie(const QString &f = QString(), int l = 0) :
              fileName(f), lineNumber(l) {}
 
@@ -170,10 +173,13 @@ namespace Debugger {
 namespace Internal {
 
 static inline bool isConsole(const DebuggerStartParameters &sp)
-{ return (sp.startMode == StartInternal || sp.startMode == StartExternal) && sp.useTerminal; }
+{
+    return (sp.startMode == StartInternal || sp.startMode == StartExternal)
+        && sp.useTerminal;
+}
 
-static QMessageBox
-    *nonModalMessageBox(QMessageBox::Icon icon, const QString &title, const QString &text)
+static QMessageBox *
+nonModalMessageBox(QMessageBox::Icon icon, const QString &title, const QString &text)
 {
     QMessageBox *mb = new QMessageBox(icon, title, text, QMessageBox::Ok,
                                       debuggerCore()->mainWindow());
@@ -220,7 +226,8 @@ struct CdbBuiltinCommand : public CdbCommandBase
     CdbBuiltinCommand(const QByteArray  &cmd, int token, unsigned flags,
                       CommandHandler h,
                       unsigned nc, const QVariant &cookie) :
-        CdbCommandBase(cmd, token, flags, nc, cookie), handler(h) {}
+        CdbCommandBase(cmd, token, flags, nc, cookie), handler(h)
+    {}
 
 
     QByteArray joinedReply() const;
