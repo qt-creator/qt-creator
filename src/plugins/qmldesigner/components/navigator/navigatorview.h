@@ -98,6 +98,8 @@ public:
     void rewriterBeginTransaction();
     void rewriterEndTransaction();
 
+    void actualStateChanged(const ModelNode &node);
+
 private slots:
 //    void handleChangedItem(QStandardItem * item);
     void changeSelection(const QItemSelection &selected, const QItemSelection &deselected);

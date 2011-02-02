@@ -101,9 +101,11 @@ void DesignDocumentControllerView::rewriterBeginTransaction()
 
 void DesignDocumentControllerView::rewriterEndTransaction()
 {
-
 }
 
+void DesignDocumentControllerView::actualStateChanged(const ModelNode &/*node*/)
+{
+}
 
 static QStringList arrayToStringList(const QByteArray &byteArray)
 {

@@ -173,7 +173,7 @@ void ComponentView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeLis
 
 void ComponentView::rewriterBeginTransaction() {}
 void ComponentView::rewriterEndTransaction() {}
-
+void ComponentView::actualStateChanged(const ModelNode &/*node*/) {}
 void ComponentView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/,
                                   const QList<ModelNode> &/*lastSelectedNodeList*/) {}
 

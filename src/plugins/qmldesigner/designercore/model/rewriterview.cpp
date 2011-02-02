@@ -415,6 +415,10 @@ void RewriterView::rewriterEndTransaction()
     }
 }
 
+void RewriterView::actualStateChanged(const ModelNode &/*node*/)
+{
+}
+
 void RewriterView::selectedNodesChanged(const QList<ModelNode> & /* selectedNodeList, */, const QList<ModelNode> & /*lastSelectedNodeList */)
 {
 }

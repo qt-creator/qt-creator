@@ -153,6 +153,10 @@ void ItemLibraryView::rewriterEndTransaction()
 {
 }
 
+void ItemLibraryView::actualStateChanged(const ModelNode &/*node*/)
+{
+}
+
 void ItemLibraryView::updateImports()
 {
     m_widget->updateModel();

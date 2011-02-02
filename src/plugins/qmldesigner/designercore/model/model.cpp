@@ -567,6 +567,33 @@ void ModelPrivate::notifyInstancesChildrenChanged(const QVector<ModelNode> &node
     }
 }
 
+void ModelPrivate::notifyActualStateChanged(const ModelNode &node)
+{
+    bool resetModel = false;
+    QString description;
+
+    try {
+        if (rewriterView())
+            rewriterView()->actualStateChanged(ModelNode(node.internalNode(), model(), rewriterView()));
+    } catch (RewritingException &e) {
+        description = e.description();
+        resetModel = true;
+    }
+
+    foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
+        Q_ASSERT(view != 0);
+        view->actualStateChanged(ModelNode(node.internalNode(), model(), view.data()));
+    }
+
+    if (nodeInstanceView()) {
+        nodeInstanceView()->actualStateChanged(ModelNode(node.internalNode(), model(), nodeInstanceView()));
+    }
+
+    if (resetModel) {
+        resetModelByRewriter(description);
+    }
+}
+
 void ModelPrivate::notifyRewriterBeginTransaction()
 {
     bool resetModel = false;

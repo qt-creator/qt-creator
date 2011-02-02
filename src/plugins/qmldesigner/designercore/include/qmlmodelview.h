@@ -87,8 +87,6 @@ public:
 
     QmlObjectNode fxObjectNodeForId(const QString &id);
 
-    void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
-
     void modelAttached(Model *model);
     void modelAboutToBeDetached(Model *model);
 
@@ -103,6 +101,8 @@ public:
 
     void rewriterBeginTransaction();
     void rewriterEndTransaction();
+
+    void actualStateChanged(const ModelNode &node);
 
     void nodeCreated(const ModelNode &createdNode);
     void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange);
@@ -129,7 +129,6 @@ protected:
     virtual void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
 
     void activateState(const QmlModelState &state);
-    void changeToState(const ModelNode &node, const QString &stateName);
 
 private:
     QmlModelState m_state;

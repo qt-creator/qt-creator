@@ -148,6 +148,8 @@ public:
     void rewriterBeginTransaction();
     void rewriterEndTransaction();
 
+    void actualStateChanged(const ModelNode &node);
+
     void importAdded(const Import &import);
     void importRemoved(const Import &import);
 

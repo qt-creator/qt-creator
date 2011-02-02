@@ -86,6 +86,8 @@ public:
     void rewriterBeginTransaction();
     void rewriterEndTransaction();
 
+    void actualStateChanged(const ModelNode &node);
+
 protected:
     QString time() const;
 

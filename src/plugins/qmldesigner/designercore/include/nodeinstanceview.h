@@ -113,6 +113,8 @@ public:
     void rewriterBeginTransaction();
     void rewriterEndTransaction();
 
+    void actualStateChanged(const ModelNode &node);
+
     QList<NodeInstance> instances() const;
     NodeInstance instanceForNode(const ModelNode &node) const ;
     bool hasInstanceForNode(const ModelNode &node) const;

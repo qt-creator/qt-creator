@@ -245,6 +245,10 @@ void NavigatorView::rewriterEndTransaction()
 {
 }
 
+void NavigatorView::actualStateChanged(const ModelNode &/*node*/)
+{
+}
+
 void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int oldIndex)
 {
     if (m_treeModel->isInTree(node))

@@ -118,6 +118,7 @@ public:
     void emitInstancesChildrenChanged(const QVector<ModelNode> &nodeList);
     void emitRewriterBeginTransaction();
     void emitRewriterEndTransaction();
+    void emitActualStateChanged(const ModelNode &node);
 
     virtual void modelAttached(Model *model);
     virtual void modelAboutToBeDetached(Model *model);
@@ -143,6 +144,8 @@ public:
 
     virtual void rewriterBeginTransaction() = 0;
     virtual void rewriterEndTransaction() = 0;
+
+    virtual void actualStateChanged(const ModelNode &node) = 0; // base state is a invalid model node
 
     virtual void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                       const QList<ModelNode> &lastSelectedNodeList) = 0;

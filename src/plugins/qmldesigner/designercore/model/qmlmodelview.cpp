@@ -57,7 +57,7 @@ void QmlModelView::setCurrentState(const QmlModelState &state)
     if (!state.isValid())
         return;
 
-    emitCustomNotification("__state changed__", QList<ModelNode>() << state.modelNode());
+    emitActualStateChanged(state.modelNode());
 }
 
 QmlModelState QmlModelView::currentState() const
@@ -281,24 +281,6 @@ QmlObjectNode QmlModelView::fxObjectNodeForId(const QString &id)
     return QmlObjectNode(modelNodeForId(id));
 }
 
-void QmlModelView::customNotification(const AbstractView * /* view */, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> & /* data */)
-{
-    if (identifier == "__state changed__") { // TODO: Is this still needed?
-        QmlModelState newState(nodeList.first());
-        QmlModelState oldState = currentState();
-
-        if (!newState.isValid())
-            newState = baseState();
-
-        activateState(newState);
-
-        m_state = newState;
-
-        if (newState != oldState)
-            stateChanged(newState, oldState);
-    }
-}
-
 NodeInstance QmlModelView::instanceForModelNode(const ModelNode &modelNode)
 {
     return nodeInstanceView()->instanceForNode(modelNode);
@@ -401,6 +383,23 @@ void QmlModelView::rewriterEndTransaction()
 
 }
 
+void QmlModelView::actualStateChanged(const ModelNode &node)
+{
+    QmlModelState newState(node);
+    QmlModelState oldState = currentState();
+
+    if (!newState.isValid())
+        newState = baseState();
+
+    activateState(newState);
+
+    m_state = newState;
+
+    if (newState != oldState)
+        stateChanged(newState, oldState);
+
+}
+
 void QmlModelView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)
 {
     QmlObjectNode qmlObjectNode(node);
@@ -437,25 +436,6 @@ void QmlModelView::activateState(const QmlModelState &state)
         nodeInstanceView()->activateState(newStateInstance);
     }
 }
-
-void QmlModelView::changeToState(const ModelNode &node, const QString &stateName)
-{
-    QmlItemNode itemNode(node);
-
-    QmlModelState newState;
-    if (stateName.isEmpty())
-        newState = baseState();
-    else
-        newState = itemNode.states().state(stateName);
-
-    QmlModelState oldState = m_state;
-
-    if (newState.isValid() && oldState != newState) {
-        m_state = newState;
-        stateChanged(newState, oldState);
-    }
-}
-
 
 void QmlModelView::transformChanged(const QmlObjectNode &/*qmlObjectNode*/, const QString &/*propertyName*/)
 {

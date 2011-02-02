@@ -474,6 +474,11 @@ void NodeInstanceView::rewriterEndTransaction()
 
 }
 
+void NodeInstanceView::actualStateChanged(const ModelNode &/*node*/)
+{
+}
+
+
 //\}
 
 

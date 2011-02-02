@@ -73,6 +73,8 @@ public:
     void rewriterBeginTransaction();
     void rewriterEndTransaction();
 
+    void actualStateChanged(const ModelNode &node);
+
     ModelNode insertModel(const ModelNode &modelNode)
     { return m_modelMerger.insertModel(modelNode); }
     void replaceModel(const ModelNode &modelNode)

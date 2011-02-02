@@ -153,6 +153,7 @@ public:
     void notifyInstancesRenderImageChanged(const QVector<ModelNode> &nodeList);
     void notifyInstancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
     void notifyInstancesChildrenChanged(const QVector<ModelNode> &nodeList);
+    void notifyActualStateChanged(const ModelNode &node);
 
     void notifyRewriterBeginTransaction();
     void notifyRewriterEndTransaction();

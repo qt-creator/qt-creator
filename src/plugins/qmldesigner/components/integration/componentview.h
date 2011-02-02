@@ -82,6 +82,8 @@ public:
     void rewriterBeginTransaction();
     void rewriterEndTransaction();
 
+    void actualStateChanged(const ModelNode &node);
+
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                       const QList<ModelNode> &lastSelectedNodeList);
 

@@ -267,5 +267,9 @@ void ViewLogger::rewriterEndTransaction()
     m_output << time() << indent("rewriterEndTransaction:") << endl;
 }
 
+void ViewLogger::actualStateChanged(const ModelNode &node)
+{
+    m_output << time() << indent("actualStateChanged:") << node << endl;
+}
 } // namespace Internal
 } // namespace QmlDesigner

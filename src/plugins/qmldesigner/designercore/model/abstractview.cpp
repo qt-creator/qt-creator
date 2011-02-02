@@ -439,6 +439,12 @@ void AbstractView::emitRewriterEndTransaction()
         model()->m_d->notifyRewriterEndTransaction();
 }
 
+void AbstractView::emitActualStateChanged(const ModelNode &node)
+{
+    if (model())
+        model()->m_d->notifyActualStateChanged(node);
+}
+
 void AbstractView::changeRootNodeType(const QString &type, int majorVersion, int minorVersion)
 {
     Internal::WriteLocker locker(m_model.data());
