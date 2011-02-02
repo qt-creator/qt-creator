@@ -35,6 +35,8 @@
 #ifndef MAEMODEVICECONFIGURATIONS_H
 #define MAEMODEVICECONFIGURATIONS_H
 
+#include "maemoglobal.h"
+
 #include <coreplugin/ssh/sshconnection.h>
 
 #include <QtCore/QAbstractListModel>
@@ -77,6 +79,7 @@ public:
     MaemoPortList freePorts() const;
     Core::SshConnectionParameters sshParameters() const { return m_sshParameters; }
     QString name() const { return m_name; }
+    MaemoGlobal::MaemoVersion osVersion() const { return m_osVersion; }
     DeviceType type() const { return m_type; }
     QString portsSpec() const { return m_portsSpec; }
     bool isDefault() const { return m_isDefault; }
@@ -87,14 +90,16 @@ public:
 private:
     typedef QSharedPointer<MaemoDeviceConfig> Ptr;
 
-    MaemoDeviceConfig(const QString &name, DeviceType type, Id &nextId);
+    MaemoDeviceConfig(const QString &name, MaemoGlobal::MaemoVersion osVersion,
+        DeviceType type, Id &nextId);
     MaemoDeviceConfig(const QSettings &settings, Id &nextId);
     MaemoDeviceConfig(const ConstPtr &other);
 
     MaemoDeviceConfig(const MaemoDeviceConfig &);
     MaemoDeviceConfig &operator=(const MaemoDeviceConfig &);
 
-    static Ptr create(const QString &name, DeviceType type, Id &nextId);
+    static Ptr create(const QString &name, MaemoGlobal::MaemoVersion osVersion,
+       DeviceType type, Id &nextId);
     static Ptr create(const QSettings &settings, Id &nextId);
     static Ptr create(const ConstPtr &other);
 
@@ -102,9 +107,11 @@ private:
     int defaultSshPort(DeviceType type) const;
     QString defaultPortsSpec(DeviceType type) const;
     QString defaultHost(DeviceType type) const;
+    QString defaultUser(MaemoGlobal::MaemoVersion osVersion) const;
 
     Core::SshConnectionParameters m_sshParameters;
     QString m_name;
+    MaemoGlobal::MaemoVersion m_osVersion;
     DeviceType m_type;
     QString m_portsSpec;
     bool m_isDefault;
@@ -133,6 +140,7 @@ public:
     QString defaultSshKeyFilePath() const { return m_defaultSshKeyFilePath; }
 
     void addConfiguration(const QString &name,
+        MaemoGlobal::MaemoVersion osVersion,
         MaemoDeviceConfig::DeviceType type);
     void removeConfiguration(int index);
     void setConfigurationName(int i, const QString &name);

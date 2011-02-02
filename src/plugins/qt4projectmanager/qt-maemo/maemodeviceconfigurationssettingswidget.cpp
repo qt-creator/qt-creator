@@ -180,7 +180,8 @@ void MaemoDeviceConfigurationsSettingsWidget::addConfig()
         isUnique = !m_devConfigs->hasConfig(newName);
     } while (!isUnique);
 
-    m_devConfigs->addConfiguration(newName, MaemoDeviceConfig::Physical);
+    m_devConfigs->addConfiguration(newName, MaemoGlobal::Maemo5,
+       MaemoDeviceConfig::Physical);
     m_ui->removeConfigButton->setEnabled(true);
     m_ui->configurationComboBox->setCurrentIndex(m_ui->configurationComboBox->count()-1);
     m_ui->configurationComboBox->setFocus();
