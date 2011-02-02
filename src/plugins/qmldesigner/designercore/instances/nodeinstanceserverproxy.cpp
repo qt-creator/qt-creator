@@ -61,7 +61,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 #endif
    applicationPath += "/qmlpuppet";
 
-   m_qmlPuppetEditorProcess = new QProcess(this);
+   m_qmlPuppetEditorProcess = new QProcess;
    connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
    connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetEditorProcess.data(), SLOT(kill()));
    bool fowardQmlpuppetOutput = !qgetenv("FORWARD_QMLPUPPET_OUTPUT").isEmpty();
@@ -70,7 +70,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    m_qmlPuppetEditorProcess->start(applicationPath, QStringList() << socketToken << "editormode" << "-graphicssystem raster");
 
    if (runModus == NormalModus) {
-       m_qmlPuppetPreviewProcess = new QProcess(this);
+       m_qmlPuppetPreviewProcess = new QProcess;
        connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
        connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetPreviewProcess.data(), SLOT(kill()));
        if (fowardQmlpuppetOutput)
@@ -82,8 +82,11 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
    m_qmlPuppetEditorProcess->waitForStarted();
 
+   connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int)), m_qmlPuppetEditorProcess.data(),SLOT(deleteLater()));
+
    if (runModus == NormalModus) {
        m_qmlPuppetPreviewProcess->waitForStarted();
+       connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int)), m_qmlPuppetPreviewProcess.data(),SLOT(deleteLater()));
    }
 
    if (!m_localServer->hasPendingConnections())
@@ -105,6 +108,8 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
 NodeInstanceServerProxy::~NodeInstanceServerProxy()
 {
+    disconnect(this, SLOT(processFinished(int,QProcess::ExitStatus)));
+
     if (m_firstSocket)
         m_firstSocket->close();
 
@@ -112,21 +117,11 @@ NodeInstanceServerProxy::~NodeInstanceServerProxy()
         m_secondSocket->close();
 
 
-    if (m_qmlPuppetEditorProcess) {
-        m_qmlPuppetEditorProcess->blockSignals(true);
+    if (m_qmlPuppetEditorProcess)
         m_qmlPuppetEditorProcess->kill();
-    }
 
-    if (m_qmlPuppetPreviewProcess) {
-        m_qmlPuppetPreviewProcess->blockSignals(true);
+    if (m_qmlPuppetPreviewProcess)
         m_qmlPuppetPreviewProcess->kill();
-    }
-
-    if (m_qmlPuppetEditorProcess && m_qmlPuppetEditorProcess->state() != QProcess::NotRunning)
-        m_qmlPuppetEditorProcess->waitForFinished(1000);
-
-    if (m_qmlPuppetPreviewProcess && m_qmlPuppetPreviewProcess->state() != QProcess::NotRunning)
-        m_qmlPuppetPreviewProcess->waitForFinished(1000);
 }
 
 void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
