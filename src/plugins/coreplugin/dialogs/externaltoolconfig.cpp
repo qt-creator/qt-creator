@@ -41,6 +41,7 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QFile>
 #include <QtGui/QMessageBox>
+#include <QtGui/QMenu>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -72,6 +73,12 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     connect(ui->revertButton, SIGNAL(clicked()), this, SLOT(revertCurrentItem()));
     connect(ui->addButton, SIGNAL(clicked()), this, SLOT(addTool()));
     connect(ui->removeButton, SIGNAL(clicked()), this, SLOT(removeTool()));
+
+    QMenu *menu = new QMenu(ui->addButton);
+    ui->addButton->setMenu(menu);
+    QAction *addCategory = new QAction(tr("Add Category"), this);
+    menu->addAction(addCategory);
+    connect(addCategory, SIGNAL(triggered()), this, SLOT(addCategory()));
 
     showInfoForItem(0);
     updateButtons(ui->toolTree->currentItem());
@@ -143,7 +150,6 @@ void ExternalToolConfig::handleCurrentItemChanged(QTreeWidgetItem *now, QTreeWid
 void ExternalToolConfig::updateButtons(QTreeWidgetItem *item)
 {
     ExternalTool *tool = 0;
-    ui->addButton->setEnabled(item != 0);
     if (item)
         tool = item->data(0, Qt::UserRole).value<ExternalTool *>();
     if (!tool) {
@@ -313,7 +319,10 @@ void ExternalToolConfig::addTool()
 {
     // find category to use
     QTreeWidgetItem *currentItem = ui->toolTree->currentItem();
-    QTC_ASSERT(currentItem, return);
+    if (!currentItem) {
+        addCategory();
+        return;
+    }
     QString category;
     QTreeWidgetItem *parent;
     if (currentItem->parent()) {
@@ -360,4 +369,25 @@ void ExternalToolConfig::removeTool()
     ui->toolTree->setCurrentItem(0);
     delete currentItem;
     delete tool;
+}
+
+void ExternalToolConfig::addCategory()
+{
+    const QString &categoryBase = tr("New category");
+    QString category = categoryBase;
+    int count = 0;
+    while (m_tools.contains(category)) {
+        ++count;
+        category = categoryBase + QString::number(count);
+    }
+    bool blocked = ui->toolTree->blockSignals(true); // block itemChanged
+    QTreeWidgetItem *item = new QTreeWidgetItem(QStringList() << category);
+    item->setFlags(TOOL_ITEM_FLAGS);
+    item->setData(0, Qt::UserRole, category); // save name for the renaming stuff
+    m_tools.insert(category, QList<ExternalTool *>());
+    int newIndex = m_tools.keys().indexOf(category);
+    ui->toolTree->insertTopLevelItem(newIndex, item);
+    ui->toolTree->blockSignals(blocked); // unblock itemChanged
+    ui->toolTree->setCurrentItem(item);
+    ui->toolTree->editItem(item);
 }

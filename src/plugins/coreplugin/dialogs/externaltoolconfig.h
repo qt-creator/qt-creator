@@ -70,6 +70,7 @@ private slots:
     void updateCurrentItem();
     void addTool();
     void removeTool();
+    void addCategory();
 
 private:
     Ui::ExternalToolConfig *ui;
