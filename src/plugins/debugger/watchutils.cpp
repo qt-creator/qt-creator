@@ -190,45 +190,51 @@ bool isLeavableFunction(const QString &funcName, const QString &fileName)
         return true;
     if (funcName.endsWith(QLatin1String("QMutexPool::get")))
         return true;
-    if (fileName.endsWith(QLatin1String("kernel/qmetaobject.cpp"))
-            && funcName.endsWith(QLatin1String("QMetaObject::methodOffset")))
-        return true;
-    if (fileName.endsWith(QLatin1String("kernel/qobject.h")))
-        return true;
-    if (fileName.endsWith(QLatin1String("kernel/qobject.cpp"))
-            && funcName.endsWith(QLatin1String("QObjectConnectionListVector::at")))
-        return true;
-    if (fileName.endsWith(QLatin1String("kernel/qobject.cpp"))
-            && funcName.endsWith(QLatin1String("~QObject")))
-        return true;
-    if (fileName.endsWith(QLatin1String("thread/qmutex.cpp")))
-        return true;
-    if (fileName.endsWith(QLatin1String("thread/qthread.cpp")))
-        return true;
-    if (fileName.endsWith(QLatin1String("thread/qthread_unix.cpp")))
-        return true;
-    if (fileName.endsWith(QLatin1String("thread/qmutex.h")))
-        return true;
-    if (fileName.contains(QLatin1String("thread/qbasicatomic")))
-        return true;
-    if (fileName.contains(QLatin1String("thread/qorderedmutexlocker_p")))
-        return true;
-    if (fileName.contains(QLatin1String("arch/qatomic")))
-        return true;
-    if (fileName.endsWith(QLatin1String("tools/qvector.h")))
-        return true;
-    if (fileName.endsWith(QLatin1String("tools/qlist.h")))
-        return true;
-    if (fileName.endsWith(QLatin1String("tools/qhash.h")))
-        return true;
-    if (fileName.endsWith(QLatin1String("tools/qmap.h")))
-        return true;
-    if (fileName.endsWith(QLatin1String("tools/qshareddata.h")))
-        return true;
-    if (fileName.endsWith(QLatin1String("tools/qstring.h")))
-        return true;
-    if (fileName.endsWith(QLatin1String("global/qglobal.h")))
-        return true;
+
+    if (fileName.endsWith(QLatin1String(".cpp"))) {
+        if (fileName.endsWith(QLatin1String("/qmetaobject.cpp"))
+                && funcName.endsWith(QLatin1String("QMetaObject::methodOffset")))
+            return true;
+        if (fileName.endsWith(QLatin1String("/qobject.cpp"))
+                && (funcName.endsWith(QLatin1String("QObjectConnectionListVector::at"))
+                    || funcName.endsWith(QLatin1String("~QObject"))))
+            return true;
+        if (fileName.endsWith(QLatin1String("/qmutex.cpp")))
+            return true;
+        if (fileName.endsWith(QLatin1String("/qthread.cpp")))
+            return true;
+        if (fileName.endsWith(QLatin1String("/qthread_unix.cpp")))
+            return true;
+    } else if (fileName.endsWith(QLatin1String(".h"))) {
+
+        if (fileName.endsWith(QLatin1String("/qobject.h")))
+            return true;
+        if (fileName.endsWith(QLatin1String("/qmutex.h")))
+            return true;
+        if (fileName.endsWith(QLatin1String("/qvector.h")))
+            return true;
+        if (fileName.endsWith(QLatin1String("/qlist.h")))
+            return true;
+        if (fileName.endsWith(QLatin1String("/qhash.h")))
+            return true;
+        if (fileName.endsWith(QLatin1String("/qmap.h")))
+            return true;
+        if (fileName.endsWith(QLatin1String("/qshareddata.h")))
+            return true;
+        if (fileName.endsWith(QLatin1String("/qstring.h")))
+            return true;
+        if (fileName.endsWith(QLatin1String("/qglobal.h")))
+            return true;
+
+    } else {
+
+        if (fileName.contains(QLatin1String("/qbasicatomic")))
+            return true;
+        if (fileName.contains(QLatin1String("/qorderedmutexlocker_p")))
+            return true;
+        if (fileName.contains(QLatin1String("/qatomic")))
+            return true;
+    }
 
     return false;
 }

@@ -370,61 +370,61 @@ namespace Constants {
 
 const char * const M_DEBUG_START_DEBUGGING = "QtCreator.Menu.Debug.StartDebugging";
 
-const char * const STARTEXTERNAL        = "Debugger.StartExternal";
-const char * const ATTACHEXTERNAL       = "Debugger.AttachExternal";
-const char * const ATTACHCORE           = "Debugger.AttachCore";
-const char * const ATTACHTCF            = "Debugger.AttachTcf";
-const char * const ATTACHREMOTE         = "Debugger.AttachRemote";
-const char * const ATTACHREMOTECDB      = "Debugger.AttachRemoteCDB";
-const char * const STARTREMOTELLDB      = "Debugger.StartRemoteLLDB";
-const char * const DETACH               = "Debugger.Detach";
+const char * const STARTEXTERNAL            = "Debugger.StartExternal";
+const char * const ATTACHEXTERNAL           = "Debugger.AttachExternal";
+const char * const ATTACHCORE               = "Debugger.AttachCore";
+const char * const ATTACHTCF                = "Debugger.AttachTcf";
+const char * const ATTACHREMOTE             = "Debugger.AttachRemote";
+const char * const ATTACHREMOTECDB          = "Debugger.AttachRemoteCDB";
+const char * const STARTREMOTELLDB          = "Debugger.StartRemoteLLDB";
+const char * const DETACH                   = "Debugger.Detach";
 
-const char * const RUN_TO_LINE1         = "Debugger.RunToLine1";
-const char * const RUN_TO_LINE2         = "Debugger.RunToLine2";
-const char * const RUN_TO_FUNCTION      = "Debugger.RunToFunction";
-const char * const JUMP_TO_LINE1        = "Debugger.JumpToLine1";
-const char * const JUMP_TO_LINE2        = "Debugger.JumpToLine2";
-const char * const RETURN_FROM_FUNCTION = "Debugger.ReturnFromFunction";
-const char * const SNAPSHOT             = "Debugger.Snapshot";
-const char * const TOGGLE_BREAK         = "Debugger.ToggleBreak";
-const char * const BREAK_BY_FUNCTION    = "Debugger.BreakByFunction";
-const char * const BREAK_AT_MAIN        = "Debugger.BreakAtMain";
-const char * const ADD_TO_WATCH1        = "Debugger.AddToWatch1";
-const char * const ADD_TO_WATCH2        = "Debugger.AddToWatch2";
-const char * const OPERATE_BY_INSTRUCTION  = "Debugger.OperateByInstruction";
-const char * const FRAME_UP             = "Debugger.FrameUp";
-const char * const FRAME_DOWN           = "Debugger.FrameDown";
+const char * const RUN_TO_LINE1             = "Debugger.RunToLine1";
+const char * const RUN_TO_LINE2             = "Debugger.RunToLine2";
+const char * const RUN_TO_SELECTED_FUNCTION = "Debugger.RunToSelectedFunction";
+const char * const JUMP_TO_LINE1            = "Debugger.JumpToLine1";
+const char * const JUMP_TO_LINE2            = "Debugger.JumpToLine2";
+const char * const RETURN_FROM_FUNCTION     = "Debugger.ReturnFromFunction";
+const char * const SNAPSHOT                 = "Debugger.Snapshot";
+const char * const TOGGLE_BREAK             = "Debugger.ToggleBreak";
+const char * const BREAK_BY_FUNCTION        = "Debugger.BreakByFunction";
+const char * const BREAK_AT_MAIN            = "Debugger.BreakAtMain";
+const char * const ADD_TO_WATCH1            = "Debugger.AddToWatch1";
+const char * const ADD_TO_WATCH2            = "Debugger.AddToWatch2";
+const char * const OPERATE_BY_INSTRUCTION   = "Debugger.OperateByInstruction";
+const char * const FRAME_UP                 = "Debugger.FrameUp";
+const char * const FRAME_DOWN               = "Debugger.FrameDown";
 
 #ifdef Q_WS_MAC
-const char * const STOP_KEY                 = "Shift+Ctrl+Y";
-const char * const RESET_KEY                = "Ctrl+Shift+F5";
-const char * const STEP_KEY                 = "Ctrl+Shift+I";
-const char * const STEPOUT_KEY              = "Ctrl+Shift+T";
-const char * const NEXT_KEY                 = "Ctrl+Shift+O";
-const char * const REVERSE_KEY              = "";
-const char * const RUN_TO_LINE_KEY          = "Shift+F8";
-const char * const RUN_TO_FUNCTION_KEY      = "Ctrl+F6";
-const char * const JUMP_TO_LINE_KEY         = "Ctrl+D,Ctrl+L";
-const char * const TOGGLE_BREAK_KEY         = "F8";
-const char * const BREAK_BY_FUNCTION_KEY    = "Ctrl+D,Ctrl+F";
-const char * const BREAK_AT_MAIN_KEY        = "Ctrl+D,Ctrl+M";
-const char * const ADD_TO_WATCH_KEY         = "Ctrl+D,Ctrl+W";
-const char * const SNAPSHOT_KEY             = "Ctrl+D,Ctrl+S";
+const char * const STOP_KEY                     = "Shift+Ctrl+Y";
+const char * const RESET_KEY                    = "Ctrl+Shift+F5";
+const char * const STEP_KEY                     = "Ctrl+Shift+I";
+const char * const STEPOUT_KEY                  = "Ctrl+Shift+T";
+const char * const NEXT_KEY                     = "Ctrl+Shift+O";
+const char * const REVERSE_KEY                  = "";
+const char * const RUN_TO_LINE_KEY              = "Shift+F8";
+const char * const RUN_TO_SELECTED_FUNCTION_KEY = "Ctrl+F6";
+const char * const JUMP_TO_LINE_KEY             = "Ctrl+D,Ctrl+L";
+const char * const TOGGLE_BREAK_KEY             = "F8";
+const char * const BREAK_BY_FUNCTION_KEY        = "Ctrl+D,Ctrl+F";
+const char * const BREAK_AT_MAIN_KEY            = "Ctrl+D,Ctrl+M";
+const char * const ADD_TO_WATCH_KEY             = "Ctrl+D,Ctrl+W";
+const char * const SNAPSHOT_KEY                 = "Ctrl+D,Ctrl+S";
 #else
-const char * const STOP_KEY                 = "Shift+F5";
-const char * const RESET_KEY                = "Ctrl+Shift+F5";
-const char * const STEP_KEY                 = "F11";
-const char * const STEPOUT_KEY              = "Shift+F11";
-const char * const NEXT_KEY                 = "F10";
-const char * const REVERSE_KEY              = "F12";
-const char * const RUN_TO_LINE_KEY          = "";
-const char * const RUN_TO_FUNCTION_KEY      = "";
-const char * const JUMP_TO_LINE_KEY         = "";
-const char * const TOGGLE_BREAK_KEY         = "F9";
-const char * const BREAK_BY_FUNCTION_KEY    = "";
-const char * const BREAK_AT_MAIN_KEY        = "";
-const char * const ADD_TO_WATCH_KEY         = "Ctrl+Alt+Q";
-const char * const SNAPSHOT_KEY             = "Ctrl+D,Ctrl+S";
+const char * const STOP_KEY                     = "Shift+F5";
+const char * const RESET_KEY                    = "Ctrl+Shift+F5";
+const char * const STEP_KEY                     = "F11";
+const char * const STEPOUT_KEY                  = "Shift+F11";
+const char * const NEXT_KEY                     = "F10";
+const char * const REVERSE_KEY                  = "F12";
+const char * const RUN_TO_LINE_KEY              = "";
+const char * const RUN_TO_SELECTED_FUNCTION_KEY = "Ctrl+F6";
+const char * const JUMP_TO_LINE_KEY             = "";
+const char * const TOGGLE_BREAK_KEY             = "F9";
+const char * const BREAK_BY_FUNCTION_KEY        = "";
+const char * const BREAK_AT_MAIN_KEY            = "";
+const char * const ADD_TO_WATCH_KEY             = "Ctrl+Alt+Q";
+const char * const SNAPSHOT_KEY                 = "Ctrl+D,Ctrl+S";
 #endif
 
 } // namespace Constants
@@ -885,7 +885,7 @@ struct DebuggerActions
     QAction *stepAction;
     QAction *stepOutAction;
     QAction *runToLineAction; // Debug menu
-    QAction *runToFunctionAction;
+    QAction *runToSelectedFunctionAction;
     QAction *jumpToLineAction; // in the Debug menu
     QAction *returnFromFunctionAction;
     QAction *nextAction;
@@ -1164,9 +1164,8 @@ public slots:
             currentEngine()->executeRunToLine(fileName, lineNumber);
     }
 
-    void handleExecRunToFunction()
+    void handleExecRunToSelectedFunction()
     {
-        currentEngine()->resetLocation();
         ITextEditor *textEditor = currentTextEditor();
         QTC_ASSERT(textEditor, return);
         QPlainTextEdit *ed = qobject_cast<QPlainTextEdit*>(textEditor->widget());
@@ -1191,8 +1190,14 @@ public slots:
             }
         }
 
-        if (!functionName.isEmpty())
+        if (functionName.isEmpty()) {
+            showStatusMessage(tr("No function selected."));
+        } else {
+            showStatusMessage(tr("Running to function \"%1\".")
+                .arg(functionName));
+            currentEngine()->resetLocation();
             currentEngine()->executeRunToFunction(functionName);
+        }
     }
 
     void slotEditBreakpoint()
@@ -2108,7 +2113,7 @@ void DebuggerPluginPrivate::setInitialState()
     m_actions.stepAction->setEnabled(false);
     m_actions.stepOutAction->setEnabled(false);
     m_actions.runToLineAction->setEnabled(false);
-    m_actions.runToFunctionAction->setEnabled(false);
+    m_actions.runToSelectedFunctionAction->setEnabled(true);
     m_actions.returnFromFunctionAction->setEnabled(false);
     m_actions.jumpToLineAction->setEnabled(false);
     m_actions.nextAction->setEnabled(false);
@@ -2235,7 +2240,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_actions.stepAction->setEnabled(stopped);
     m_actions.stepOutAction->setEnabled(stopped);
     m_actions.runToLineAction->setEnabled(stopped);
-    m_actions.runToFunctionAction->setEnabled(stopped);
+    m_actions.runToSelectedFunctionAction->setEnabled(stopped);
     m_actions.returnFromFunctionAction->
         setEnabled(stopped && (caps & ReturnFromFunctionCapability));
 
@@ -2699,9 +2704,9 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act = m_actions.runToLineAction = new QAction(tr("Run to Line"), this);
     connect(act, SIGNAL(triggered()), SLOT(handleExecRunToLine()));
 
-    act = m_actions.runToFunctionAction =
-        new QAction(tr("Run to Outermost Function"), this);
-    connect(act, SIGNAL(triggered()), SLOT(handleExecRunToFunction()));
+    act = m_actions.runToSelectedFunctionAction =
+        new QAction(tr("Run to Selected Function"), this);
+    connect(act, SIGNAL(triggered()), SLOT(handleExecRunToSelectedFunction()));
 
     act = m_actions.returnFromFunctionAction =
         new QAction(tr("Immediately Return From Inner Function"), this);
@@ -2946,11 +2951,14 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
-    cmd = am->registerAction(m_actions.runToFunctionAction,
-        Constants::RUN_TO_FUNCTION, cppDebuggercontext);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_FUNCTION_KEY));
+    cmd = am->registerAction(m_actions.runToSelectedFunctionAction,
+        Constants::RUN_TO_SELECTED_FUNCTION, cppDebuggercontext);
+    cmd->setDefaultKeySequence(QKeySequence(
+        Constants::RUN_TO_SELECTED_FUNCTION_KEY));
     cmd->setAttribute(Command::CA_Hide);
-    debugMenu->addAction(cmd);
+    // Don't add to menu by default as keeping its enabled state
+    // and text up-to-date is a lot of hassle.
+    // debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_actions.jumpToLineAction,
         Constants::JUMP_TO_LINE1, cppDebuggercontext);

@@ -1996,7 +1996,7 @@ void testTypedef()
     ++k;
     ++t1;
     ++t2;
-};
+}
 
 void testConditional(const QString &str)
 {
@@ -2019,7 +2019,10 @@ void testChar()
 
 void testStuff()
 {
+    typedef unsigned char byte;
+    byte f = '2';
     testConditional("foo");
+    testConditional(fooxx());
     testConditional("bar");
     testConditional("zzz");
     Foo *f1 = new Foo(1);
