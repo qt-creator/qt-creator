@@ -35,6 +35,8 @@
 #include "navigatortreemodel.h"
 #include "navigatorwidget.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <nodeproperty.h>
 #include <nodelistproperty.h>
 #include <QHeaderView>
@@ -51,6 +53,7 @@ NavigatorView::NavigatorView(QObject* parent) :
     m_widget->setTreeModel(m_treeModel.data());
 
     connect(treeWidget()->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(changeSelection(QItemSelection,QItemSelection)));
+    connect(treeWidget(), SIGNAL(doubleClicked(QModelIndex)), this, SLOT(changeToComponent(QModelIndex)));
     treeWidget()->setIndentation(treeWidget()->indentation() * 0.5);
 
     NameItemDelegate *idDelegate = new NameItemDelegate(this,m_treeModel.data());
@@ -246,6 +249,15 @@ void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const
 {
     if (m_treeModel->isInTree(node))
         m_treeModel->updateItemRowOrder(listProperty, node, oldIndex);
+}
+
+void NavigatorView::changeToComponent(const QModelIndex &index)
+{
+    if (index.isValid() && m_treeModel->data(index, Qt::UserRole).isValid()) {
+        ModelNode doubleClickNode = m_treeModel->nodeForIndex(index);
+        if (doubleClickNode.metaInfo().isComponent())
+            Core::EditorManager::instance()->openEditor(doubleClickNode.metaInfo().componentFileName());
+    }
 }
 
 void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, const QItemSelection &/*deselected*/)

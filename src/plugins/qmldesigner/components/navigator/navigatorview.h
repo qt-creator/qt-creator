@@ -102,6 +102,7 @@ private slots:
 //    void handleChangedItem(QStandardItem * item);
     void changeSelection(const QItemSelection &selected, const QItemSelection &deselected);
     void updateItemSelection();
+    void changeToComponent(const QModelIndex &index);
 
 protected: //functions
     QTreeView *treeWidget();
