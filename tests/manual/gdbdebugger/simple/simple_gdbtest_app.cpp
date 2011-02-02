@@ -406,6 +406,14 @@ void testQByteArray()
     ba += 2;
 }
 
+int testQByteArray2()
+{
+    QByteArray ba;
+    for (int i = 256; --i >= 0; )
+        ba.append(char(i));
+    return ba.size();
+}
+
 static void throwit1()
 {
     throw 14;
@@ -2204,6 +2212,7 @@ int main(int argc, char *argv[])
     testArray();
     testCatchThrow();
     testQByteArray();
+    testQByteArray2();
 
     testStdDeque();
     testStdList();
