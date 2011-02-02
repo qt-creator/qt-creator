@@ -278,6 +278,7 @@ void RunSettingsWidget::activeRunConfigurationChanged()
     QModelIndex actRc = m_runConfigurationsModel->indexFor(m_target->activeRunConfiguration());
     m_ignoreChange = true;
     m_ui->runConfigurationCombo->setCurrentIndex(actRc.row());
+    setConfigurationWidget(m_runConfigurationsModel->runConfigurationAt(actRc.row()));
     m_ignoreChange = false;
 }
 
