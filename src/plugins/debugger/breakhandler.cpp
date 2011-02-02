@@ -241,6 +241,7 @@ bool BreakHandler::hasWatchpointAt(quint64 address) const
 
 void BreakHandler::saveBreakpoints()
 {
+    const QString one = _("1");
     //qDebug() << "SAVING BREAKPOINTS...";
     QTC_ASSERT(debuggerCore(), return);
     QList<QVariant> list;
@@ -268,11 +269,13 @@ void BreakHandler::saveBreakpoints()
         if (data.threadSpec >= 0)
             map.insert(_("threadspec"), data.threadSpec);
         if (!data.enabled)
-            map.insert(_("disabled"), _("1"));
+            map.insert(_("disabled"), one);
         if (data.useFullPath)
-            map.insert(_("usefullpath"), _("1"));
+            map.insert(_("usefullpath"), one);
         if (data.tracepoint)
-            map.insert(_("tracepoint"), _("1"));
+            map.insert(_("tracepoint"), one);
+        if (!data.module.isEmpty())
+            map.insert(_("module"), data.module);
         list.append(map);
     }
     debuggerCore()->setSessionValue("Breakpoints", list);
@@ -322,6 +325,9 @@ void BreakHandler::loadBreakpoints()
         v = map.value(_("type"));
         if (v.isValid() && v.toInt() != UnknownType)
             data.type = BreakpointType(v.toInt());
+        v = map.value(_("module"));
+        if (v.isValid())
+            data.module = v.toString();
         appendBreakpoint(data);
     }
     //qDebug() << "LOADED BREAKPOINTS" << this << list.size();
@@ -1163,12 +1169,15 @@ QString BreakHandler::BreakpointItem::toToolTip() const
         << "</th><th>" << tr("Requested")
         << "</th><th>" << tr("Obtained") << "</th></tr>"
         << "<tr><td>" << tr("Internal Number:")
-        << "</td><td>&mdash;</td><td>" << response.number << "</td></tr>"
-        << "<tr><td>" << tr("Function Name:")
+        << "</td><td>&mdash;</td><td>" << response.number << "</td></tr>";
+    if (data.type == BreakpointByFunction) {
+        str << "<tr><td>" << tr("Function Name:")
         << "</td><td>" << data.functionName
         << "</td><td>" << response.functionName
-        << "</td></tr>"
-        << "<tr><td>" << tr("File Name:")
+        << "</td></tr>";
+    }
+    if (data.type == BreakpointByFileAndLine) {
+    str << "<tr><td>" << tr("File Name:")
         << "</td><td>" << QDir::toNativeSeparators(data.fileName)
         << "</td><td>" << QDir::toNativeSeparators(response.fileName)
         << "</td></tr>"
@@ -1177,8 +1186,15 @@ QString BreakHandler::BreakpointItem::toToolTip() const
         << "</td><td>" << response.lineNumber << "</td></tr>"
         << "<tr><td>" << tr("Corrected Line Number:")
         << "</td><td>-"
-        << "</td><td>" << response.correctedLineNumber << "</td></tr>"
-        << "<tr><td>" << tr("Breakpoint Address:")
+        << "</td><td>" << response.correctedLineNumber << "</td></tr>";
+    }
+    if (data.type == BreakpointByFunction || data.type == BreakpointByFileAndLine) {
+        str << "<tr><td>" << tr("Module:")
+            << "</td><td>" << data.module
+            << "</td><td>" << response.module
+            << "</td></tr>";
+    }
+    str << "<tr><td>" << tr("Breakpoint Address:")
         << "</td><td>";
     formatAddress(str, data.address);
     str << "</td><td>";

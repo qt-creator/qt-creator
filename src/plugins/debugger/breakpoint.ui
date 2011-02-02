@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Debugger::Internal::BreakpointDialog</class>
- <widget class="QDialog" name="BreakpointDialog">
+ <widget class="QDialog" name="Debugger::Internal::BreakpointDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>558</width>
-    <height>302</height>
+    <width>700</width>
+    <height>401</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,10 @@
      <item row="0" column="0">
       <widget class="QLabel" name="labelType">
        <property name="text">
-        <string>Breakpoint type:</string>
+        <string>Breakpoint &amp;type:</string>
+       </property>
+       <property name="buddy">
+        <cstring>comboBoxType</cstring>
        </property>
       </widget>
      </item>
@@ -29,17 +32,23 @@
      <item row="1" column="0">
       <widget class="QLabel" name="labelFileName">
        <property name="text">
-        <string>File name:</string>
+        <string>&amp;File name:</string>
+       </property>
+       <property name="buddy">
+        <cstring>pathChooserFileName</cstring>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="Utils::PathChooser" name="pathChooserFileName"/>
+      <widget class="Utils::PathChooser" name="pathChooserFileName" native="true"/>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="labelLineNumber">
        <property name="text">
-        <string>Line number:</string>
+        <string>&amp;Line number:</string>
+       </property>
+       <property name="buddy">
+        <cstring>lineEditLineNumber</cstring>
        </property>
       </widget>
      </item>
@@ -56,7 +65,10 @@
      <item row="3" column="0">
       <widget class="QLabel" name="labelEnabled">
        <property name="text">
-        <string>Enabled:</string>
+        <string>&amp;Enabled:</string>
+       </property>
+       <property name="buddy">
+        <cstring>checkBoxEnabled</cstring>
        </property>
       </widget>
      </item>
@@ -70,14 +82,20 @@
      <item row="4" column="0">
       <widget class="QLabel" name="labelUseFullPath">
        <property name="text">
-        <string>Use full path:</string>
+        <string>&amp;Use full path:</string>
+       </property>
+       <property name="buddy">
+        <cstring>checkBoxUseFullPath</cstring>
        </property>
       </widget>
      </item>
      <item row="5" column="0">
       <widget class="QLabel" name="labelAddress">
        <property name="text">
-        <string>Address:</string>
+        <string>&amp;Address:</string>
+       </property>
+       <property name="buddy">
+        <cstring>lineEditAddress</cstring>
        </property>
       </widget>
      </item>
@@ -87,56 +105,84 @@
      <item row="6" column="0">
       <widget class="QLabel" name="labelFunction">
        <property name="text">
-        <string>Function:</string>
+        <string>Fun&amp;ction:</string>
+       </property>
+       <property name="buddy">
+        <cstring>lineEditFunction</cstring>
        </property>
       </widget>
      </item>
      <item row="6" column="1">
       <widget class="QLineEdit" name="lineEditFunction"/>
      </item>
-     <item row="7" column="0">
+     <item row="8" column="0">
       <widget class="QLabel" name="labelCondition">
        <property name="text">
-        <string>Condition:</string>
+        <string>&amp;Condition:</string>
        </property>
-      </widget>
-     </item>
-     <item row="7" column="1">
-      <widget class="QLineEdit" name="lineEditCondition"/>
-     </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="labelIgnoreCount">
-       <property name="text">
-        <string>Ignore count:</string>
+       <property name="buddy">
+        <cstring>lineEditCondition</cstring>
        </property>
       </widget>
      </item>
      <item row="8" column="1">
-      <widget class="QLineEdit" name="lineEditIgnoreCount"/>
+      <widget class="QLineEdit" name="lineEditCondition"/>
      </item>
      <item row="9" column="0">
-      <widget class="QLabel" name="labelThreadSpec">
+      <widget class="QLabel" name="labelIgnoreCount">
        <property name="text">
-        <string>Thread specification:</string>
+        <string>&amp;Ignore count:</string>
+       </property>
+       <property name="buddy">
+        <cstring>lineEditIgnoreCount</cstring>
        </property>
       </widget>
      </item>
      <item row="9" column="1">
-      <widget class="QLineEdit" name="lineEditThreadSpec"/>
+      <widget class="QLineEdit" name="lineEditIgnoreCount"/>
+     </item>
+     <item row="10" column="0">
+      <widget class="QLabel" name="labelThreadSpec">
+       <property name="text">
+        <string>&amp;Thread specification:</string>
+       </property>
+       <property name="buddy">
+        <cstring>lineEditThreadSpec</cstring>
+       </property>
+      </widget>
      </item>
      <item row="10" column="1">
+      <widget class="QLineEdit" name="lineEditThreadSpec"/>
+     </item>
+     <item row="11" column="1">
       <widget class="QCheckBox" name="checkBoxTracepoint">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item row="10" column="0">
+     <item row="11" column="0">
       <widget class="QLabel" name="labelTracepoint">
        <property name="text">
-        <string>Tracepoint only:</string>
+        <string>T&amp;racepoint only:</string>
+       </property>
+       <property name="buddy">
+        <cstring>checkBoxTracepoint</cstring>
        </property>
       </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="labelModule">
+       <property name="text">
+        <string>&amp;Module:</string>
+       </property>
+       <property name="buddy">
+        <cstring>lineEditModule</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QLineEdit" name="lineEditModule"/>
      </item>
     </layout>
    </item>
@@ -144,12 +190,6 @@
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
      </property>
     </spacer>
    </item>
@@ -170,7 +210,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>BreakpointDialog</receiver>
+   <receiver>Debugger::Internal::BreakpointDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -186,7 +226,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>BreakpointDialog</receiver>
+   <receiver>Debugger::Internal::BreakpointDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

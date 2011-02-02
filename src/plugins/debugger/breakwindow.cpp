@@ -85,7 +85,8 @@ private:
         FunctionPart = 0x2,
         AddressPart = 0x4,
         ConditionPart = 0x8,
-        AllParts = FileAndLinePart|FunctionPart|AddressPart|ConditionPart
+        ModulePart = 0x10,
+        AllParts = FileAndLinePart|FunctionPart|AddressPart|ConditionPart|ModulePart
     };
 
     void setPartsEnabled(unsigned partsMask);
@@ -168,28 +169,33 @@ void BreakpointDialog::setPartsEnabled(unsigned partsMask)
     m_ui.lineEditCondition->setEnabled(partsMask & ConditionPart);
     m_ui.lineEditIgnoreCount->setEnabled(partsMask & ConditionPart);
     m_ui.lineEditThreadSpec->setEnabled(partsMask & ConditionPart);
+
+    m_ui.labelModule->setEnabled(partsMask & ModulePart);
+    m_ui.lineEditModule->setEnabled(partsMask & ModulePart);
 }
 
 void BreakpointDialog::clearOtherParts(unsigned partsMask)
 {
-    partsMask = ~partsMask;
-    if (partsMask & FileAndLinePart) {
+    const unsigned inversedPartsMask = ~partsMask;
+    if (inversedPartsMask & FileAndLinePart) {
         m_ui.pathChooserFileName->setPath(QString());
         m_ui.lineEditLineNumber->clear();
         m_ui.checkBoxUseFullPath->setChecked(false);
     }
 
-    if (partsMask & FunctionPart)
+    if (inversedPartsMask & FunctionPart)
         m_ui.lineEditFunction->clear();
 
-    if (partsMask & AddressPart)
+    if (inversedPartsMask & AddressPart)
         m_ui.lineEditAddress->clear();
 
-    if (partsMask & ConditionPart) {
-        m_ui.lineEditCondition->setText(QString());
-        m_ui.lineEditIgnoreCount->setText(QString());
-        m_ui.lineEditThreadSpec->setText(QString());
+    if (inversedPartsMask & ConditionPart) {
+        m_ui.lineEditCondition->clear();
+        m_ui.lineEditIgnoreCount->clear();
+        m_ui.lineEditThreadSpec->clear();
     }
+    if (inversedPartsMask & ModulePart)
+        m_ui.lineEditModule->clear();
 }
 
 void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) const
@@ -214,6 +220,8 @@ void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) 
         data->threadSpec =
             BreakHandler::threadSpecFromDisplay(m_ui.lineEditThreadSpec->text());
     }
+    if (partsMask & ModulePart)
+        data->module = m_ui.lineEditModule->text();
 }
 
 void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
@@ -245,6 +253,8 @@ void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
         m_ui.lineEditThreadSpec->
             setText(BreakHandler::displayFromThreadSpec(data.threadSpec));
     }
+    if (mask & ModulePart)
+        m_ui.lineEditModule->setText(data.module);
 }
 
 void BreakpointDialog::typeChanged(int)
@@ -257,10 +267,10 @@ void BreakpointDialog::typeChanged(int)
     case UnknownType:
         break;
     case BreakpointByFileAndLine:
-        getParts(FileAndLinePart, &m_savedParameters);
+        getParts(FileAndLinePart|ModulePart, &m_savedParameters);
         break;
     case BreakpointByFunction:
-        getParts(FunctionPart, &m_savedParameters);
+        getParts(FunctionPart|ModulePart, &m_savedParameters);
         break;
     case BreakpointAtThrow:
     case BreakpointAtCatch:
@@ -277,18 +287,18 @@ void BreakpointDialog::typeChanged(int)
     case UnknownType:
         break;
     case BreakpointByFileAndLine:
-        setParts(FileAndLinePart|ConditionPart, m_savedParameters);
-        setPartsEnabled(FileAndLinePart|ConditionPart);
-        clearOtherParts(FileAndLinePart|ConditionPart);
+        setParts(FileAndLinePart|ConditionPart|ModulePart, m_savedParameters);
+        setPartsEnabled(FileAndLinePart|ConditionPart|ModulePart);
+        clearOtherParts(FileAndLinePart|ConditionPart|ModulePart);
         break;
     case BreakpointByFunction:
-        setParts(FunctionPart|ConditionPart, m_savedParameters);
-        setPartsEnabled(FunctionPart|ConditionPart);
-        clearOtherParts(FunctionPart|ConditionPart);
+        setParts(FunctionPart|ConditionPart|ModulePart, m_savedParameters);
+        setPartsEnabled(FunctionPart|ConditionPart|ModulePart);
+        clearOtherParts(FunctionPart|ConditionPart|ModulePart);
         break;
     case BreakpointAtThrow:
     case BreakpointAtCatch:
-        clearOtherParts(ConditionPart);
+        clearOtherParts(ConditionPart|ModulePart);
         setPartsEnabled(ConditionPart);
         break;
     case BreakpointAtMain:

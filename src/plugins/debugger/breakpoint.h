@@ -99,6 +99,7 @@ public:
     quint64 address;         // Address for watchpoints.
     int threadSpec;          // Thread specification.
     QString functionName;
+    QString module;          // module for file name
     bool tracepoint;
 };
 

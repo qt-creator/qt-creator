@@ -178,7 +178,7 @@ public:
 
     static WatchesSymbolGroup *create(CIDebugSymbols *, std::string *errorMessage);
 
-    static inline std::string fixWatchExpression(CIDebugSymbols *s, const std::string &ex);
+    static std::string fixWatchExpression(CIDebugSymbols *s, const std::string &ex);
 
 private:
     explicit WatchesSymbolGroup(CIDebugSymbolGroup *);

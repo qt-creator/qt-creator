@@ -63,7 +63,8 @@ bool BreakpointParameters::equals(const BreakpointParameters &rhs) const
         && address == rhs.address
         && threadSpec == rhs.threadSpec
         && functionName == rhs.functionName
-        && tracepoint == rhs.tracepoint;
+        && tracepoint == rhs.tracepoint
+        && module == rhs.module;
 }
 
 bool BreakpointParameters::conditionsMatch(const QByteArray &other) const
@@ -88,9 +89,9 @@ QString BreakpointParameters::toString() const
     ts << " FunctionName: " << functionName;
     ts << " UseFullPath: " << useFullPath;
     ts << " Tracepoint: " << tracepoint;
+    ts << " Module: " << module;
     return result;
 }
-
 
 //////////////////////////////////////////////////////////////////
 //

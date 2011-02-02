@@ -85,10 +85,15 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn, bool onesho
         str << hex << hexPrefixOn << bp.address << hexPrefixOff << dec;
         break;
     case BreakpointByFunction:
+        if (!bp.module.isEmpty())
+            str << bp.module << '!';
         str << bp.functionName;
         break;
     case BreakpointByFileAndLine:
-        str << '`' << QDir::toNativeSeparators(bp.fileName) << ':' << bp.lineNumber << '`';
+        str << '`';
+        if (!bp.module.isEmpty())
+            str << bp.module << '!';
+        str << QDir::toNativeSeparators(bp.fileName) << ':' << bp.lineNumber << '`';
         break;
     case Watchpoint:
         str << "rw 1 " << hex << hexPrefixOn << bp.address << hexPrefixOff << dec;
