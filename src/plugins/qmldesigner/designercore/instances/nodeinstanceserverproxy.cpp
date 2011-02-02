@@ -64,14 +64,17 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    m_qmlPuppetEditorProcess = new QProcess(this);
    connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
    connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetEditorProcess.data(), SLOT(kill()));
-   m_qmlPuppetEditorProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+   bool fowardQmlpuppetOutput = !qgetenv("FORWARD_QMLPUPPET_OUTPUT").isEmpty();
+   if (fowardQmlpuppetOutput)
+       m_qmlPuppetEditorProcess->setProcessChannelMode(QProcess::ForwardedChannels);
    m_qmlPuppetEditorProcess->start(applicationPath, QStringList() << socketToken << "editormode" << "-graphicssystem raster");
 
    if (runModus == NormalModus) {
        m_qmlPuppetPreviewProcess = new QProcess(this);
        connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
        connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetPreviewProcess.data(), SLOT(kill()));
-       m_qmlPuppetPreviewProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+       if (fowardQmlpuppetOutput)
+           m_qmlPuppetPreviewProcess->setProcessChannelMode(QProcess::ForwardedChannels);
        m_qmlPuppetPreviewProcess->start(applicationPath, QStringList() << socketToken << "previewmode" << "-graphicssystem raster");
    }
 
