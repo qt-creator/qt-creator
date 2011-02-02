@@ -680,8 +680,12 @@ void InspectorUi::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectRef
     fileName = m_projectFinder.findFile(fileName);
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
+    Core::IEditor *currentEditor = editorManager->currentEditor();
     Core::IEditor *editor = editorManager->openEditor(fileName);
     TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
+
+    if (currentEditor != editor)
+            m_selectionCallbackExpected = true;
 
     if (textEditor) {
         QDeclarativeDebugObjectReference ref = objectReferenceForLocation(fileName);
