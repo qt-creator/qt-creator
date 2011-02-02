@@ -55,7 +55,7 @@
 using namespace Utils;
 
 static const char debugModeSettingsGroupC[] = "DebugMode";
-static const char gdbBinariesSettingsGroupC[] = "GdbBinaries";
+static const char gdbBinariesSettingsGroupC[] = "GdbBinaries21";
 static const char debugModeGdbBinaryKeyC[] = "GdbBinary";
 
 namespace Debugger {
@@ -85,16 +85,14 @@ void DebuggerSettings::insertItem(int code, SavedAction *item)
     m_items[code] = item;
 }
 
-void DebuggerSettings::readSettings(QSettings *settings)
+// Convert gdb binaries from flat settings list (see writeSettings)
+// into map ("binary1=gdb,1,2", "binary2=symbian_gdb,3,4").
+DebuggerSettings::GdbBinaryToolChainMap DebuggerSettings::gdbBinaryToolChainMapFromSettings(const QSettings *settings)
 {
-    foreach (SavedAction *item, m_items)
-        item->readSettings(settings);
-    // Convert gdb binaries from flat settings list (see writeSettings)
-    // into map ("binary1=gdb,1,2", "binary2=symbian_gdb,3,4").
-    m_gdbBinaryToolChainMap.clear();
+    GdbBinaryToolChainMap gdbBinaryToolChainMap;
     const QChar separator = QLatin1Char(',');
     const QString keyRoot = QLatin1String(gdbBinariesSettingsGroupC) + QLatin1Char('/') +
-                            QLatin1String(debugModeGdbBinaryKeyC);
+            QLatin1String(debugModeGdbBinaryKeyC);
     for (int i = 1; ; i++) {
         const QString value = settings->value(keyRoot + QString::number(i)).toString();
         if (value.isEmpty())
@@ -108,9 +106,9 @@ void DebuggerSettings::readSettings(QSettings *settings)
         foreach(const QString &t, tokens) {
             // Paranoia: Check if the there is already a binary configured for the toolchain.
             const int toolChain = t.toInt();
-            const QString predefinedGdb = m_gdbBinaryToolChainMap.key(toolChain);
+            const QString predefinedGdb = gdbBinaryToolChainMap.key(toolChain);
             if (predefinedGdb.isEmpty()) {
-                m_gdbBinaryToolChainMap.insert(binary, toolChain);
+                gdbBinaryToolChainMap.insert(binary, toolChain);
             } else {
                 const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(static_cast<ProjectExplorer::ToolChain::ToolChainType>(toolChain));
                 const QString msg =
@@ -123,14 +121,24 @@ void DebuggerSettings::readSettings(QSettings *settings)
     }
     // Linux defaults
 #ifdef Q_OS_UNIX
-    if (m_gdbBinaryToolChainMap.isEmpty()) {
+    if (gdbBinaryToolChainMap.isEmpty()) {
         const QString gdb = QLatin1String("gdb");
-        m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::GCC);
-        m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::LINUX_ICC);
-        m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::OTHER);
-        m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::UNKNOWN);
+        gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::GCC);
+        gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::LINUX_ICC);
+        gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::OTHER);
+        gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::UNKNOWN);
     }
 #endif
+    return gdbBinaryToolChainMap;
+}
+
+void DebuggerSettings::readSettings(QSettings *settings)
+{
+    foreach (SavedAction *item, m_items)
+        item->readSettings(settings);
+    // Convert gdb binaries from flat settings list (see writeSettings)
+    // into map ("binary1=gdb,1,2", "binary2=symbian_gdb,3,4").
+    m_gdbBinaryToolChainMap = gdbBinaryToolChainMapFromSettings(settings);
 }
 
 void DebuggerSettings::writeSettings(QSettings *settings) const
@@ -139,6 +147,8 @@ void DebuggerSettings::writeSettings(QSettings *settings) const
         item->writeSettings(settings);
     // Convert gdb binaries map into a flat settings list of
     // ("binary1=gdb,1,2", "binary2=symbian_gdb,3,4"). It needs to be ASCII for installers
+    if (m_gdbBinaryToolChainMap == gdbBinaryToolChainMapFromSettings(settings))
+        return;
     QString lastBinary;
     QStringList settingsList;
     const QChar separator = QLatin1Char(',');

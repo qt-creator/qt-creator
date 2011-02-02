@@ -76,6 +76,8 @@ public slots:
     void writeSettings(QSettings *settings) const;
 
 private:
+    static GdbBinaryToolChainMap gdbBinaryToolChainMapFromSettings(const QSettings *s);
+
     QHash<int, Utils::SavedAction *> m_items;
     GdbBinaryToolChainMap m_gdbBinaryToolChainMap;
 };
