@@ -75,9 +75,6 @@ protected:
     void executeJumpToLine(const QString &fileName, int lineNumber);
     void executeDebuggerCommand(const QString &command);
 
-    void frameUp();
-    void frameDown();
-
     void setupEngine();
     void setupInferior();
     void runEngine();

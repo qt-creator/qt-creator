@@ -171,6 +171,7 @@ void QmlCppEngine::activateFrame(int index)
         d->m_qmlEngine->activateFrame(index - d->m_stackBoundary);
     else
         d->m_cppEngine->activateFrame(index);
+    stackHandler()->setCurrentIndex(index);
 }
 
 void QmlCppEngine::reloadModules()
@@ -367,16 +368,6 @@ void QmlCppEngine::executeJumpToLine(const QString &fileName, int lineNumber)
 void QmlCppEngine::executeDebuggerCommand(const QString &command)
 {
     d->m_cppEngine->executeDebuggerCommand(command);
-}
-
-void QmlCppEngine::frameUp()
-{
-    d->m_activeEngine->frameUp();
-}
-
-void QmlCppEngine::frameDown()
-{
-    d->m_activeEngine->frameDown();
 }
 
 /////////////////////////////////////////////////////////
