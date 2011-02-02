@@ -161,7 +161,7 @@ QVariant SnippetsTableModel::headerData(int section, Qt::Orientation orientation
     if (section == 0)
         return tr("Trigger");
     else
-        return tr("Complement");
+        return tr("Trigger Variant");
 }
 
 void SnippetsTableModel::load(const QString &groupId)
