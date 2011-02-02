@@ -71,6 +71,7 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     ui->revertButton->setIcon(QIcon(QLatin1String(Constants::ICON_RESET)));
     connect(ui->revertButton, SIGNAL(clicked()), this, SLOT(revertCurrentItem()));
     connect(ui->addButton, SIGNAL(clicked()), this, SLOT(addTool()));
+    connect(ui->removeButton, SIGNAL(clicked()), this, SLOT(removeTool()));
 
     showInfoForItem(0);
     updateButtons(ui->toolTree->currentItem());
@@ -302,6 +303,7 @@ void ExternalToolConfig::revertCurrentItem()
         int index = items.indexOf(tool);
         if (index != -1) {
             items[index] = resetTool;
+            break;
         }
     }
     delete tool;
@@ -335,4 +337,27 @@ void ExternalToolConfig::addTool()
     ui->toolTree->blockSignals(blocked); // unblock itemChanged
     ui->toolTree->setCurrentItem(item);
     ui->toolTree->editItem(item);
+}
+
+void ExternalToolConfig::removeTool()
+{
+    QTreeWidgetItem *currentItem = ui->toolTree->currentItem();
+    QTC_ASSERT(currentItem, return);
+    ExternalTool *tool = currentItem->data(0, Qt::UserRole).value<ExternalTool *>();
+    QTC_ASSERT(tool, return);
+    QTC_ASSERT(!tool->preset(), return);
+    // remove the tool and the tree item
+    QMutableMapIterator<QString, QList<ExternalTool *> > it(m_tools);
+    while (it.hasNext()) {
+        it.next();
+        QList<ExternalTool *> &items = it.value();
+        int index = items.indexOf(tool);
+        if (index != -1) {
+            items.removeAt(index);
+            break;
+        }
+    }
+    ui->toolTree->setCurrentItem(0);
+    delete currentItem;
+    delete tool;
 }
