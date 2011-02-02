@@ -990,7 +990,7 @@ void DebuggerEngine::notifyInferiorIll()
 
 void DebuggerEngine::shutdownSlaveEngine()
 {
-    QTC_ASSERT(state() == InferiorShutdownOk, /**/);
+    QTC_ASSERT(isAllowedTransition(state(),EngineShutdownRequested), /**/);
     setState(EngineShutdownRequested);
     shutdownEngine();
 }
