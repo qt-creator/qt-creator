@@ -24,7 +24,6 @@ void VirtualSerialDevice::close()
 {
     if (isOpen()) {
         Q_ASSERT(thread() == QThread::currentThread()); // My brain will explode otherwise
-        flush();
         delete waiterForBytesWritten;
         waiterForBytesWritten = NULL;
         QMutexLocker locker(&lock);
