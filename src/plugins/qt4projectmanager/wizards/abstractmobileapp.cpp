@@ -262,9 +262,6 @@ QByteArray AbstractMobileApp::generateProFile(QString *errorMessage) const
     while (!(line = in.readLine()).isNull()) {
         if (line.contains(QLatin1String("# TARGETUID3"))) {
             valueOnNextLine = symbianTargetUid();
-        } else if (line.contains(QLatin1String("# ORIENTATIONLOCK"))
-            && orientation() == ScreenOrientationAuto) {
-            uncommentNextLine = true;
         } else if (line.contains(QLatin1String("# NETWORKACCESS"))
             && !networkEnabled()) {
             uncommentNextLine = true;

@@ -4,10 +4,6 @@
 # dir1.source = mydir
 DEPLOYMENTFOLDERS = # file1 dir1
 
-# Avoid auto screen rotation
-# ORIENTATIONLOCK #
-DEFINES += ORIENTATIONLOCK
-
 # TARGETUID3 #
 symbian:TARGET.UID3 = 0xE1111234
 
