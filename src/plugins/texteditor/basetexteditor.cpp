@@ -4371,6 +4371,7 @@ void BaseTextEditor::indentOrUnindent(bool doIndent)
         cursor.setPosition(block.position() + indentPosition - spaces, QTextCursor::KeepAnchor);
         cursor.removeSelectedText();
         cursor.insertText(tabSettings.indentationString(startColumn, targetColumn, block));
+        setTextCursor(cursor);
     }
 
     cursor.endEditBlock();
