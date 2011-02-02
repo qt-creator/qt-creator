@@ -163,13 +163,13 @@ QString currentTime()
 
 bool isSkippableFunction(const QString &funcName, const QString &fileName)
 {
-    if (fileName.endsWith(QLatin1String("kernel/qobject.cpp")))
+    if (fileName.endsWith(QLatin1String("/qobject.cpp")))
         return true;
-    if (fileName.endsWith(QLatin1String("kernel/moc_qobject.cpp")))
+    if (fileName.endsWith(QLatin1String("/moc_qobject.cpp")))
         return true;
-    if (fileName.endsWith(QLatin1String("kernel/qmetaobject.cpp")))
+    if (fileName.endsWith(QLatin1String("/qmetaobject.cpp")))
         return true;
-    if (fileName.endsWith(QLatin1String("kernel/qmetaobject_p.h")))
+    if (fileName.endsWith(QLatin1String("/qmetaobject_p.h")))
         return true;
     if (fileName.endsWith(QLatin1String(".moc")))
         return true;
