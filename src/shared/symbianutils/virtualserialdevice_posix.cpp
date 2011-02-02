@@ -5,6 +5,8 @@
 #include <sys/ioctl.h>
 #include <QtCore/QSocketNotifier>
 #include <QtCore/QTimer>
+#include <QtCore/QThread>
+#include <QtCore/QWaitCondition>
 #include "virtualserialdevice.h"
 
 namespace SymbianUtils {
@@ -35,41 +37,6 @@ bool VirtualSerialDevice::open(OpenMode mode)
         setErrorString(QString("Posix error %1 opening %2").arg(errno).arg(portName));
         return false;
         }
-
-    // Not totally sure this stuff is needed -tomsci
-    /*
-    struct termios termInfo;
-    if (tcgetattr(d->portHandle, &termInfo) < 0) {
-        setErrorString(QString::fromLatin1("Unable to retrieve terminal settings: %1 %2").arg(errno).arg(QString::fromAscii(strerror(errno))));
-        close();
-        return false;
-    }
-    cfmakeraw(&termInfo); //TOMSCI TESTING
-    // Turn off terminal echo as not get messages back, among other things
-    termInfo.c_cflag |= CREAD|CLOCAL;
-
-    // BEGIN TESTING
-    //termInfo.c_cflag&=(~CBAUD);
-    //termInfo.c_cflag|=B115200;
-    //termInfo.c_cc[VTIME] = 5;
-    //END TESTING
-
-    termInfo.c_lflag &= (~(ICANON|ECHO|ECHOE|ECHOK|ECHONL|ISIG));
-    termInfo.c_iflag &= (~(INPCK|IGNPAR|PARMRK|ISTRIP|ICRNL|IXANY));
-    termInfo.c_oflag &= (~OPOST);
-    termInfo.c_cc[VMIN]  = 0;
-    termInfo.c_cc[VINTR] = _POSIX_VDISABLE;
-    termInfo.c_cc[VQUIT] = _POSIX_VDISABLE;
-    termInfo.c_cc[VSTART] = _POSIX_VDISABLE;
-    termInfo.c_cc[VSTOP] = _POSIX_VDISABLE;
-    termInfo.c_cc[VSUSP] = _POSIX_VDISABLE;
-    if (tcsetattr(d->portHandle, TCSAFLUSH, &termInfo) < 0) {
-        setErrorString(QString::fromLatin1("Unable to apply terminal settings: %1 %2").arg(errno).arg(QString::fromAscii(strerror(errno))));
-        close();
-        return false;
-    }
-    //fcntl(d->portHandle, F_SETFL, O_SYNC); // TOMSCI TESTING
-    */
 
     d->readNotifier = new QSocketNotifier(d->portHandle, QSocketNotifier::Read);
     connect(d->readNotifier, SIGNAL(activated(int)), this, SIGNAL(readyRead()));
@@ -117,7 +84,8 @@ qint64 VirtualSerialDevice::readData(char *data, qint64 maxSize)
 {
     QMutexLocker locker(&lock);
     int result = ::read(d->portHandle, data, maxSize);
-    if (result == -1 && errno == EAGAIN) result = 0; // To Qt, 0 here means nothing ready right now, and -1 is reserved for permanent errors
+    if (result == -1 && errno == EAGAIN)
+        result = 0; // To Qt, 0 here means nothing ready right now, and -1 is reserved for permanent errors
     return result;
 }
 
@@ -232,10 +200,17 @@ int safe_select(int nfds, fd_set *fdread, fd_set *fdwrite, fd_set *fdexcept,
 
 bool VirtualSerialDevice::waitForBytesWritten(int msecs)
 {
-    //TODO this won't handle multithreading... need to disable writeCompleteNotifier in main thread context (or use bytesWrittenSignalsAlreadyEmitted)
-
     QMutexLocker locker(&lock);
     if (pendingWrites.count() == 0) return false;
+
+    if (QThread::currentThread() != thread()) {
+        // Wait for signal from main thread
+        unsigned long timeout = msecs;
+        if (msecs == -1) timeout = ULONG_MAX;
+        if (waiterForBytesWritten == NULL)
+            waiterForBytesWritten = new QWaitCondition;
+        return waiterForBytesWritten->wait(&lock, timeout);
+    }
 
     d->writeUnblockedNotifier->setEnabled(false);
     forever {

@@ -4,6 +4,7 @@
 #include <QtCore/QIODevice>
 #include <QtCore/QString>
 #include <QtCore/QMutex>
+class QWaitCondition;
 
 #include "symbianutils_global.h"
 
@@ -43,12 +44,14 @@ private:
     mutable QMutex lock;
     QList<QByteArray> pendingWrites;
     bool emittingBytesWritten;
+    QWaitCondition* waiterForBytesWritten;
     VirtualSerialDevicePrivate *d;
 
 // Platform-specific stuff
 #ifdef Q_OS_WIN
 private:
     qint64 writeNextBuffer(QMutexLocker &locker);
+    void doWriteCompleted(QMutexLocker &locker);
 private slots:
     void writeCompleted();
     void commEventOccurred();

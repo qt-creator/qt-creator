@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <QtCore/private/qwineventnotifier_p.h>
 #include <QtCore/QThread>
+#include <QtCore/QWaitCondition>
 
 namespace SymbianUtils {
 
@@ -14,7 +15,6 @@ public:
     DWORD commEventMask;
     QWinEventNotifier *writeCompleteNotifier;
     QWinEventNotifier *commEventNotifier;
-    int bytesWrittenSignalsAlreadyEmitted;
 };
 
 void VirtualSerialDevice::platInit()
@@ -25,7 +25,34 @@ void VirtualSerialDevice::platInit()
     memset(&d->writeOverlapped, 0, sizeof(OVERLAPPED));
     d->commEventNotifier = NULL;
     memset(&d->commEventOverlapped, 0, sizeof(OVERLAPPED));
-    d->bytesWrittenSignalsAlreadyEmitted = 0;
+}
+
+QString windowsPortName(const QString& port)
+{
+    // Add the \\.\ to the name if it's a COM port and doesn't already have it
+    QString winPortName(port);
+    if (winPortName.startsWith("COM")) {
+        winPortName.prepend("\\\\.\\");
+    }
+    return winPortName;
+}
+
+// Copied from \creator\src\libs\utils\winutils.cpp
+QString winErrorMessage(unsigned long error)
+{
+    QString rc = QString::fromLatin1("#%1: ").arg(error);
+    ushort *lpMsgBuf;
+
+    const int len = FormatMessage(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, error, 0, (LPTSTR)&lpMsgBuf, 0, NULL);
+    if (len) {
+        rc = QString::fromUtf16(lpMsgBuf, len);
+        LocalFree(lpMsgBuf);
+    } else {
+        rc += QString::fromLatin1("<unknown error>");
+    }
+    return rc.trimmed();
 }
 
 bool VirtualSerialDevice::open(OpenMode mode)
@@ -33,9 +60,9 @@ bool VirtualSerialDevice::open(OpenMode mode)
     Q_ASSERT(QThread::currentThread() == thread());
     if (isOpen()) return true;
 
-    d->portHandle = CreateFileA(portName.toAscii(), GENERIC_READ|GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
+    d->portHandle = CreateFileA(windowsPortName(portName).toAscii(), GENERIC_READ|GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
     if (d->portHandle == INVALID_HANDLE_VALUE) {
-        setErrorString(QString("Windows error %1 opening %2").arg(GetLastError()).arg(portName));
+        setErrorString(winErrorMessage(GetLastError()));
         return false;
     }
 
@@ -59,10 +86,10 @@ bool VirtualSerialDevice::open(OpenMode mode)
         commState.Parity = NOPARITY;
         commState.StopBits = ONESTOPBIT;
         ok = SetCommState(d->portHandle, &commState);
-        }
+    }
     if (!ok) {
-        qWarning("Windows error %d setting comm state", (int)GetLastError());
-        }
+        qWarning("%s setting comm state", qPrintable(winErrorMessage(GetLastError())));
+    }
 
     // http://msdn.microsoft.com/en-us/library/aa363190(v=vs.85).aspx says this means
     // "the read operation is to return immediately with the bytes that have already been received, even if no bytes have been received"
@@ -91,7 +118,7 @@ bool VirtualSerialDevice::open(OpenMode mode)
     Q_ASSERT(result == false); // Can't see how it would make sense to be anything else...
     (void)result; // For release build
     if (GetLastError() != ERROR_IO_PENDING) {
-        setErrorString(QString("Windows error %1 waiting for read notifications from %2").arg(GetLastError()).arg(portName));
+        setErrorString(QString("%1 waiting for read notifications from %2").arg(winErrorMessage(GetLastError())).arg(portName));
         close();
         return false;
     }
@@ -162,7 +189,7 @@ qint64 VirtualSerialDevice::readData(char *data, qint64 maxSize)
     }
 
     // If we reach here an error has occurred
-    setErrorString(QString("Windows error %1 reading from %2").arg(GetLastError()).arg(portName));
+    setErrorString(QString("%1 reading from %2").arg(winErrorMessage(GetLastError())).arg(portName));
     return -1;
 }
 
@@ -193,7 +220,7 @@ qint64 VirtualSerialDevice::writeNextBuffer(QMutexLocker& locker)
         return bufLen;
     }
     else {
-        setErrorString(QString("Windows error %1 writing to %2").arg(GetLastError()).arg(portName));
+        setErrorString(QString("%1 writing to %2").arg(winErrorMessage(GetLastError())).arg(portName));
         pendingWrites.removeFirst();
         return -1;
     }
@@ -201,21 +228,20 @@ qint64 VirtualSerialDevice::writeNextBuffer(QMutexLocker& locker)
 
 void VirtualSerialDevice::writeCompleted()
 {
-    ResetEvent(d->writeOverlapped.hEvent);
-
     QMutexLocker locker(&lock);
-
-    if (d->bytesWrittenSignalsAlreadyEmitted > 0) {
-        // The signal has already been emitted due to waitForBytesWritten being called, so don't do it here
-        d->bytesWrittenSignalsAlreadyEmitted--;
-        return;
-    }
-
     if (pendingWrites.count() == 0) {
         qWarning("writeCompleted called when there are no pending writes!");
         return;
     }
-    //Q_ASSERT(pendingWrites.count());
+
+    doWriteCompleted(locker);
+}
+
+void VirtualSerialDevice::doWriteCompleted(QMutexLocker &locker)
+{
+    // Must be locked on entry
+    ResetEvent(d->writeOverlapped.hEvent);
+
     qint64 len = pendingWrites.first().length();
     pendingWrites.removeFirst();
 
@@ -232,6 +258,15 @@ bool VirtualSerialDevice::waitForBytesWritten(int msecs)
     QMutexLocker locker(&lock);
     if (pendingWrites.count() == 0) return false;
 
+    if (QThread::currentThread() != thread()) {
+        // Wait for signal from main thread
+        unsigned long timeout = msecs;
+        if (msecs == -1) timeout = ULONG_MAX;
+        if (waiterForBytesWritten == NULL)
+            waiterForBytesWritten = new QWaitCondition;
+        return waiterForBytesWritten->wait(&lock, timeout);
+    }
+
     DWORD waitTime = msecs;
     if (msecs == -1) waitTime = INFINITE; // Ok these are probably bitwise the same, but just to prove I've thought about it...
     DWORD result = WaitForSingleObject(d->writeOverlapped.hEvent, waitTime); // Do I need WaitForSingleObjectEx and worry about alertable states?
@@ -242,28 +277,16 @@ bool VirtualSerialDevice::waitForBytesWritten(int msecs)
         DWORD bytesWritten;
         BOOL ok = GetOverlappedResult(d->portHandle, &d->writeOverlapped, &bytesWritten, TRUE);
         if (!ok) {
-            setErrorString(QString("Windows error %1 syncing on waitForBytesWritten for %2").arg(GetLastError()).arg(portName));
+            setErrorString(QString("%1 syncing on waitForBytesWritten for %2").arg(winErrorMessage(GetLastError())).arg(portName));
             return false;
         }
         Q_ASSERT(bytesWritten == (DWORD)pendingWrites.first().length());
 
-        //TODO should we call writeNextBuffer() here? (Probably)
-
-        /*if (thread() == QThread::currentThread()) {
-            ResetEvent(writeHandle); // Make sure we don't cause a writeCompleted via the writeCompleteNotifier
-
-        }
-        else*/ {
-            // We're waiting in another thread - make sure the main thread doesn't also emit bytesWritten
-            d->bytesWrittenSignalsAlreadyEmitted++;
-            qint64 len = pendingWrites.first().length();
-            pendingWrites.removeFirst();
-            emitBytesWrittenIfNeeded(locker, len);
-            return true;
-        }
+        doWriteCompleted(locker);
+        return true;
     }
     else {
-        setErrorString(QString("Windows error %1 in waitForBytesWritten for %2").arg(GetLastError()).arg(portName));
+        setErrorString(QString("%1 in waitForBytesWritten for %2").arg(winErrorMessage(GetLastError())).arg(portName));
         return false;
     }
 }
