@@ -121,6 +121,12 @@ NodeInstanceServerProxy::~NodeInstanceServerProxy()
         m_qmlPuppetPreviewProcess->blockSignals(true);
         m_qmlPuppetPreviewProcess->kill();
     }
+
+    if (m_qmlPuppetEditorProcess && m_qmlPuppetEditorProcess->state() != QProcess::NotRunning)
+        m_qmlPuppetEditorProcess->waitForFinished(1000);
+
+    if (m_qmlPuppetPreviewProcess && m_qmlPuppetPreviewProcess->state() != QProcess::NotRunning)
+        m_qmlPuppetPreviewProcess->waitForFinished(1000);
 }
 
 void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
