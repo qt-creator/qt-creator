@@ -117,7 +117,7 @@ bool CodaRunControl::setupLauncher()
 
     m_tcfTrkDevice = new TcfTrkDevice;
     if (debug)
-        m_tcfTrkDevice->setVerbose(1);
+        m_tcfTrkDevice->setVerbose(debug);
 
     connect(m_tcfTrkDevice, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
     connect(m_tcfTrkDevice, SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
@@ -136,6 +136,7 @@ bool CodaRunControl::setupLauncher()
         }
         m_state = StateConnecting;
         m_tcfTrkDevice->sendSerialPing(false);
+        QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
     } else {
         const QSharedPointer<QTcpSocket> tcfTrkSocket(new QTcpSocket);
         m_tcfTrkDevice->setDevice(tcfTrkSocket);

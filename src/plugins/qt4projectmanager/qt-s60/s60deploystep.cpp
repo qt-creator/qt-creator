@@ -391,6 +391,7 @@ void S60DeployStep::startDeployment()
         }
         m_state = StateConnecting;
         m_trkDevice->sendSerialPing(false);
+        QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
     } else {
         const QSharedPointer<QTcpSocket> tcfTrkSocket(new QTcpSocket);
         m_trkDevice->setDevice(tcfTrkSocket);
@@ -462,7 +463,7 @@ void S60DeployStep::slotTcftrkEvent (const tcftrk::TcfTrkEvent &event)
     switch (event.type()) {
     case tcftrk::TcfTrkEvent::LocatorHello: {// Commands accepted now
         m_state = StateConnected;
-        emit tcpConnected();
+        emit codaConnected();
         startTransferring();
         break;
     }
@@ -620,13 +621,13 @@ void S60DeployStep::checkForTimeout()
         return;
 
     const QString title  = tr("Waiting for CODA");
-    const QString text = tr("Qt Creator is waiting for the CODA application to connect. "
-                            "Please make sure the application is running on "
-                            "your mobile phone and the right IP address and port are "
+    const QString text = tr("Qt Creator is waiting for the CODA application to connect."
+                            "\nPlease make sure the application is running on "
+                            "your mobile phone and the right IP address or serial port is "
                             "configured in the project settings.");
     QMessageBox *mb = new QMessageBox(QMessageBox::Information, title, text,
                                       QMessageBox::Cancel, Core::ICore::instance()->mainWindow());
-    connect(this, SIGNAL(tcpConnected()), mb, SLOT(close()));
+    connect(this, SIGNAL(codaConnected()), mb, SLOT(close()));
     connect(this, SIGNAL(finished()), mb, SLOT(close()));
     connect(this, SIGNAL(finishNow()), mb, SLOT(close()));
     connect(mb, SIGNAL(finished(int)), this, SLOT(slotWaitingForTckTrkClosed(int)));

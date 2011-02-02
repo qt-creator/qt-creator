@@ -145,7 +145,7 @@ signals:
     void allFilesSent();
     void allFilesInstalled();
 
-    void tcpConnected();
+    void codaConnected();
 
     void manualInstallation();
 
