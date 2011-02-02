@@ -36,6 +36,7 @@
 #include "formeditorview.h"
 
 #include "resizehandleitem.h"
+#include "nodemetainfo.h"
 
 
 #include <QApplication>
@@ -197,10 +198,9 @@ void SelectionTool::mouseReleaseEvent(const QList<QGraphicsItem*> &/*itemList*/,
 
 }
 
-void SelectionTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &/*itemList*/,
-                                          QGraphicsSceneMouseEvent * /*event*/)
+void SelectionTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent * event)
 {
-
+    AbstractFormEditorTool::mouseDoubleClickEvent(itemList, event);
 }
 
 void SelectionTool::keyPressEvent(QKeyEvent *event)

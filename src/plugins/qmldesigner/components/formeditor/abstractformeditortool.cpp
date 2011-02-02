@@ -35,6 +35,8 @@
 #include "formeditorview.h"
 #include "formeditorview.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <QtDebug>
 #include <QGraphicsSceneDragDropEvent>
 #include <nodemetainfo.h>
@@ -192,5 +194,15 @@ void AbstractFormEditorTool::dragMoveEvent(QGraphicsSceneDragDropEvent * /* even
     Q_ASSERT(false);
 }
 
-
+void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event)
+{
+    FormEditorItem *formEditorItem = topFormEditorItem(itemList);
+    if (formEditorItem) {
+        ModelNode doubleClickNode = formEditorItem->qmlItemNode().modelNode();
+        if (doubleClickNode.metaInfo().isComponent()) {
+            Core::EditorManager::instance()->openEditor(doubleClickNode.metaInfo().componentFileName());
+            event->accept();
+        }
+    }
+}
 }

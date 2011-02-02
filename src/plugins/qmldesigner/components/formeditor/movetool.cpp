@@ -40,6 +40,8 @@
 
 #include "resizehandleitem.h"
 
+#include "nodemetainfo.h"
+
 #include <QApplication>
 #include <QGraphicsSceneMouseEvent>
 #include <QAction>
@@ -218,10 +220,9 @@ void MoveTool::mouseReleaseEvent(const QList<QGraphicsItem*> &/*itemList*/,
     }
 }
 
-void MoveTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> & /*itemList*/,
-                                              QGraphicsSceneMouseEvent * /*event*/)
+void MoveTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event)
 {
-
+    AbstractFormEditorTool::mouseDoubleClickEvent(itemList, event);
 }
 
 void MoveTool::itemsAboutToRemoved(const QList<FormEditorItem*> &removedItemList)

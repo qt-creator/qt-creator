@@ -59,7 +59,7 @@ public:
     virtual void mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
                            QGraphicsSceneMouseEvent *event) = 0;
     virtual void mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList,
-                                       QGraphicsSceneMouseEvent *event) = 0;
+                                       QGraphicsSceneMouseEvent *event);
 
     virtual void hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
                         QGraphicsSceneMouseEvent *event) = 0;
