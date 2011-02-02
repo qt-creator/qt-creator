@@ -45,6 +45,7 @@
 WINDBG_EXTENSION_APIS   ExtensionApis = {sizeof(WINDBG_EXTENSION_APIS), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 const char *ExtensionContext::stopReasonKeyC = "reason";
+const char *ExtensionContext::breakPointStopReasonC = "breakpoint";
 
 ExtensionContext::ExtensionContext() :
     m_hookedClient(0),
@@ -196,6 +197,17 @@ void ExtensionContext::notifyIdleCommand(CIDebugClient *client)
             str << ",stackerror=" << gdbmiStringFormat(errorMessage);
         } else {
             str << ",stack=" << stackInfo;
+        }
+        // Report breakpoints
+        const StopReasonMap::const_iterator rit = stopReasons.find(stopReasonKeyC);
+        if (rit != stopReasons.end() && rit->second == breakPointStopReasonC) {
+            const std::string breakpoints = gdbmiBreakpoints(exc.control(), exc.symbols(),
+                                                             false, false, &errorMessage);
+            if (breakpoints.empty()) {
+                str << ",breakpointserror=" << gdbmiStringFormat(errorMessage);
+            } else {
+                str << ",breakpoints=" << breakpoints;
+            }
         }
         str << '}';
         reportLong('E', 0, "session_idle", str.str());

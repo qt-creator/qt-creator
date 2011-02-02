@@ -122,3 +122,21 @@ ULONG currentProcessId(CIDebugClient *client)
         return currentProcessId(sysObjects.data());
     return 0;
 }
+
+std::string moduleNameByOffset(CIDebugSymbols *symbols, ULONG64 offset)
+{
+    enum { BufSize = 512 };
+    ULONG index = 0;
+    ULONG64 base = 0;
+    // Convert module base address to module index
+    HRESULT hr = symbols->GetModuleByOffset(offset, 0, &index, &base);
+    if (FAILED(hr))
+        return std::string();
+    // Obtain module name
+    char buf[BufSize];
+    buf[0] = '\0';
+    hr = symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, index, base, buf, BufSize, 0);
+    if (FAILED(hr))
+        return std::string();
+    return std::string(buf);
+}

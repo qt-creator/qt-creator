@@ -172,7 +172,7 @@ STDMETHODIMP EventCallback::Exception(
 
     std::ostringstream str;
     formatGdbmiHash(str, parameters);
-    ExtensionContext::instance().setStopReason(parameters, "exception");
+    ExtensionContext::instance().setStopReason(parameters, ExtensionContext::breakPointStopReasonC);
     ExtensionContext::instance().report('E', 0, 0, "exception", "%s", str.str().c_str());
     return m_wrapped ? m_wrapped->Exception(Ex, FirstChance) : S_OK;
 }

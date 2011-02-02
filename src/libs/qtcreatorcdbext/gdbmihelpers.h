@@ -113,6 +113,13 @@ Modules getModules(CIDebugSymbols *syms, std::string *errorMessage);
 // Format modules as GDBMI
 std::string gdbmiModules(CIDebugSymbols *syms, bool humanReadable, std::string *errorMessage);
 
+// Format breakpoints as GDBMI
+std::string gdbmiBreakpoints(CIDebugControl *ctrl,
+                             CIDebugSymbols *symbols /* = 0 */,
+                             bool humanReadable,
+                             bool verbose,
+                             std::string *errorMessage);
+
 /* Helpers for registers */
 struct Register
 {

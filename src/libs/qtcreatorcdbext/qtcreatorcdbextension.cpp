@@ -101,6 +101,7 @@ enum Command {
     CmdShutdownex,
     CmdAddWatch,
     CmdWidgetAt,
+    CmdBreakPoints,
     CmdTest
 };
 
@@ -158,6 +159,7 @@ static const CommandDescription commandDescriptions[] = {
 {"shutdownex","Unhooks output callbacks.\nNeeds to be called explicitly only in case of remote debugging.",""},
 {"addwatch","Add watch expression","<iname> <expression>"},
 {"widgetat","Return address of widget at position","<x> <y>"},
+{"breakpoints","List breakpoints with modules","[-h] [-v]"},
 {"test","Testing command","-T type | -w watch-expression"}
 };
 
@@ -980,6 +982,34 @@ extern "C" HRESULT CALLBACK widgetat(CIDebugClient *client, PCSTR argsIn)
         ExtensionContext::instance().report('N', token, 0, "widgetat", errorMessage.c_str());
     } else {
         ExtensionContext::instance().reportLong('R', token, "widgetat", widgetAddress);
+    }
+    return S_OK;
+}
+
+extern "C" HRESULT CALLBACK breakpoints(CIDebugClient *client, PCSTR argsIn)
+{
+    ExtensionCommandContext exc(client);
+    int token;
+    std::string errorMessage;
+    bool humanReadable = false;
+    bool verbose = false;
+    StringList tokens = commandTokens<StringList>(argsIn, &token);
+    while (!tokens.empty() && tokens.front().size() == 2 && tokens.front().at(0) == '-') {
+        switch (tokens.front().at(1)) {
+        case 'h':
+            humanReadable = true;
+            break;
+        case 'v':
+            verbose = true;
+            break;
+        }
+        tokens.pop_front();
+    }
+    const std::string bp = gdbmiBreakpoints(exc.control(), exc.symbols(), humanReadable, verbose, &errorMessage);
+    if (bp.empty()) {
+        ExtensionContext::instance().report('N', token, 0, "breakpoints", errorMessage.c_str());
+    } else {
+        ExtensionContext::instance().reportLong('R', token, "breakpoints", bp);
     }
     return S_OK;
 }

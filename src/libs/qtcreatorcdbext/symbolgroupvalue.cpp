@@ -600,20 +600,10 @@ std::string SymbolGroupValue::resolveType(const std::string &typeIn,
     const ULONG typeSize = Ioctl(IG_GET_TYPE_SIZE, &symParameters, symParameters.size);
     if (!typeSize || !symParameters.ModBase) // Failed?
         return stripped;
-    ULONG index = 0;
-    ULONG64 base = 0;
-    // Convert module base address to module index
-    HRESULT hr = ctx.symbols->GetModuleByOffset(symParameters.ModBase, 0, &index, &base);
-    if (FAILED(hr))
+    const std::string module = moduleNameByOffset(ctx.symbols, symParameters.ModBase);
+    if (module.empty())
         return stripped;
-    // Obtain module name
-    char buf[BufSize];
-    buf[0] = '\0';
-    hr = ctx.symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, index, base, buf, BufSize, 0);
-    if (FAILED(hr))
-        return stripped;
-
-    std::string rc = buf;
+    std::string rc = module;
     rc.push_back('!');
     rc += stripped;
     return rc;

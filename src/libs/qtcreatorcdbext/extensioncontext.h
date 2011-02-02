@@ -56,6 +56,7 @@ public:
 
     // Key used to report stop reason in StopReasonMap
     static const char *stopReasonKeyC;
+    static const char *breakPointStopReasonC;  // pre-defined stop reasons
     // Map of parameters reported with the next stop as GDBMI
     typedef std::map<std::string, std::string> StopReasonMap;
 

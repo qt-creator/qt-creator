@@ -670,3 +670,84 @@ std::string widgetAt(const SymbolGroupValueContext &ctx, int x, int y, std::stri
         wOutput.erase(sepPos, 1);
     return wStringToString(wOutput);
 }
+
+static inline void formatGdbmiFlag(std::ostream &str, const char *name, bool v)
+{
+    str << name << "=\"" << (v ? "true" : "false") << '"';
+}
+
+static bool gdbmiFormatBreakpoint(std::ostream &str,
+                                  IDebugBreakpoint *bp,
+                                  CIDebugSymbols *symbols  /* = 0 */,
+                                  bool verbose, std::string *errorMessage)
+{
+    enum { BufSize = 512 };
+    ULONG64 offset = 0;
+    ULONG flags = 0;
+    HRESULT hr = bp->GetFlags(&flags);
+    if (FAILED(hr)) {
+        *errorMessage = msgDebugEngineComFailed("GetFlags", hr);
+        return false;
+    }
+    const bool deferred = (flags & DEBUG_BREAKPOINT_DEFERRED) != 0;
+    formatGdbmiFlag(str, ",deferred", deferred);
+    if (verbose) {
+        formatGdbmiFlag(str, ",enabled", (flags & DEBUG_BREAKPOINT_ENABLED) != 0);
+        formatGdbmiFlag(str, ",oneshot", (flags & DEBUG_BREAKPOINT_ONE_SHOT) != 0);
+        str << ",flags=\"" << flags << '"';
+        ULONG threadId = 0;
+        if (SUCCEEDED(bp->GetMatchThreadId(&threadId))) // Fails if none set
+            str << ",thread=\"" << threadId << '"';
+        ULONG passCount = 0;
+        if (SUCCEEDED(bp->GetPassCount(&passCount)))
+            str << ",passcount=\"" << passCount << '"';
+    }
+    // Offset: Fails for deferred ones
+    if (!deferred && SUCCEEDED(bp->GetOffset(&offset))) {
+        str << ",address=\"" << std::hex << std::showbase << offset
+            << std::dec << std::noshowbase << '"';
+        if (symbols) {
+            const std::string module = moduleNameByOffset(symbols, offset);
+            if (!module.empty())
+                str << ",module=\"" << module << '"';
+        }
+    }
+    // Expression
+    char buf[BufSize];
+    if (SUCCEEDED(bp->GetOffsetExpression(buf, BUFSIZ, 0)))
+        str << ",expression=\"" << gdbmiStringFormat(buf) << '"';
+    return true;
+}
+
+// Format breakpoints as GDBMI
+std::string gdbmiBreakpoints(CIDebugControl *ctrl,
+                             CIDebugSymbols *symbols /* = 0 */,
+                             bool humanReadable, bool verbose, std::string *errorMessage)
+{
+    ULONG breakPointCount = 0;
+    HRESULT hr = ctrl->GetNumberBreakpoints(&breakPointCount);
+    if (FAILED(hr)) {
+        *errorMessage = msgDebugEngineComFailed("GetNumberBreakpoints", hr);
+        return std::string();
+    }
+    std::ostringstream str;
+    str << '[';
+    if (humanReadable)
+        str << '\n';
+    for (ULONG i = 0; i < breakPointCount; i++) {
+        str << "{id=\"" << i << '"';
+        IDebugBreakpoint *bp = 0;
+        hr = ctrl->GetBreakpointByIndex(i, &bp);
+        if (FAILED(hr) || !bp) {
+            *errorMessage = msgDebugEngineComFailed("GetBreakpointByIndex", hr);
+            return std::string();
+        }
+        if (!gdbmiFormatBreakpoint(str, bp, symbols, verbose, errorMessage))
+            return std::string();
+        str << '}';
+        if (humanReadable)
+            str << '\n';
+    }
+    str << ']';
+    return str.str();
+}

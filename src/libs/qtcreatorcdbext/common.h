@@ -74,6 +74,7 @@ ULONG currentThreadId(IDebugSystemObjects *sysObjects);
 ULONG currentThreadId(CIDebugClient *client);
 ULONG currentProcessId(IDebugSystemObjects *sysObjects);
 ULONG currentProcessId(CIDebugClient *client);
+std::string moduleNameByOffset(CIDebugSymbols *symbols, ULONG64 offset);
 
 #ifdef QTC_TRACE
 #  define QTC_TRACE_IN dprintf(">%s\n", __FUNCTION__);
