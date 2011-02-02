@@ -199,7 +199,7 @@ QImage GraphicsObjectNodeInstance::renderImage() const
     QRectF boundingRect = graphicsObject()->boundingRect();
     QSize boundingSize = boundingRect.size().toSize();
 
-    QImage image(boundingSize, QImage::Format_ARGB32);
+    QImage image(boundingSize, QImage::Format_ARGB32_Premultiplied);
 
     if (image.isNull())
         return image;
