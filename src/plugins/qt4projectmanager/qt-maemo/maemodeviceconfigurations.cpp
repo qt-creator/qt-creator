@@ -68,9 +68,6 @@ namespace {
     const QLatin1String InternalIdKey("InternalId");
     const QLatin1String DefaultKeyFilePathKey("DefaultKeyFile");
 
-    const QString DefaultKeyFile =
-        QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
-        + QLatin1String("/.ssh/id_rsa");
     const int DefaultSshPortHW(22);
     const int DefaultSshPortSim(6666);
     const int DefaultGdbServerPortHW(10000);
@@ -274,7 +271,7 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
         = static_cast<AuthType>(settings.value(AuthKey, DefaultAuthType).toInt());
     m_sshParameters.pwd = settings.value(PasswordKey).toString();
     m_sshParameters.privateKeyFile
-        = settings.value(KeyFileKey, DefaultKeyFile).toString();
+        = settings.value(KeyFileKey, defaultPrivateKeyFilePath()).toString();
     m_sshParameters.timeout = settings.value(TimeoutKey, DefaultTimeout).toInt();
 }
 
@@ -306,9 +303,15 @@ QString MaemoDeviceConfig::defaultPortsSpec(DeviceType type) const
     return QLatin1String(type == Physical ? "10000-10100" : "13219,14168");
 }
 
-QString MaemoDeviceConfig::defaultHost(DeviceType type) const
+QString MaemoDeviceConfig::defaultHost(DeviceType type)
 {
     return type == Physical ? DefaultHostNameHW : DefaultHostNameSim;
+}
+
+QString MaemoDeviceConfig::defaultPrivateKeyFilePath()
+{
+    return QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
+        + QLatin1String("/.ssh/id_rsa");
 }
 
 QString MaemoDeviceConfig::defaultUser(MaemoGlobal::MaemoVersion osVersion) const
@@ -528,8 +531,8 @@ void MaemoDeviceConfigurations::load()
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(SettingsGroup);
     m_nextId = settings->value(IdCounterKey, 1).toULongLong();
-    m_defaultSshKeyFilePath
-        = settings->value(DefaultKeyFilePathKey, DefaultKeyFile).toString();
+    m_defaultSshKeyFilePath = settings->value(DefaultKeyFilePathKey,
+        MaemoDeviceConfig::defaultPrivateKeyFilePath()).toString();
     int count = settings->beginReadArray(ConfigListKey);
     bool hasDefault = false;
     for (int i = 0; i < count; ++i) {
