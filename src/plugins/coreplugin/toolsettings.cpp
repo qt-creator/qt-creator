@@ -144,7 +144,7 @@ static QString findUnusedId(const QString &proposal, const QMap<QString, QList<E
         while (!found && it.hasNext()) {
             it.next();
             foreach (ExternalTool *tool, it.value()) {
-                if (tool->id() == proposal) {
+                if (tool->id() == result) {
                     found = true;
                     break;
                 }
@@ -216,7 +216,8 @@ void ToolSettings::apply()
             }
             items.append(toolToAdd);
         }
-        resultMap.insert(it.key(), items);
+        if (!items.isEmpty())
+            resultMap.insert(it.key(), items);
     }
     ExternalToolManager::instance()->setToolsByCategory(resultMap);
 }
