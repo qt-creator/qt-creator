@@ -4,7 +4,10 @@
 #include <QtCore/QIODevice>
 #include <QtCore/QString>
 #include <QtCore/QMutex>
+
+QT_BEGIN_NAMESPACE
 class QWaitCondition;
+QT_END_NAMESPACE
 
 #include "symbianutils_global.h"
 
