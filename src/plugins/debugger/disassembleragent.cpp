@@ -327,7 +327,7 @@ void DisassemblerAgent::updateBreakpointMarkers()
         d->editor->markableInterface()->removeMark(marker);
     d->breakpointMarks.clear();
     foreach (BreakpointId id, ids) {
-        const quint64 address = handler->address(id);
+        const quint64 address = handler->response(id).address;
         if (!address)
             continue;
         const int lineNumber = contents.lineForAddress(address);

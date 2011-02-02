@@ -189,7 +189,7 @@ BreakpointId BreakHandler::findBreakpointByAddress(quint64 address) const
 {
     ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
     for ( ; it != et; ++it)
-        if (it->data.address == address)
+        if (it->data.address == address || it->response.address == address)
             return it.key();
     return BreakpointId();
 }
