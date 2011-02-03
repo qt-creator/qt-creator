@@ -37,6 +37,7 @@
 #include "ui_maemodeviceconfigurationssettingswidget.h"
 
 #include "maemoconfigtestdialog.h"
+#include "maemodeviceconfigwizard.h"
 #include "maemodeviceconfigurations.h"
 #include "maemokeydeployer.h"
 #include "maemoremoteprocessesdialog.h"
@@ -175,21 +176,13 @@ void MaemoDeviceConfigurationsSettingsWidget::initGui()
 
 void MaemoDeviceConfigurationsSettingsWidget::addConfig()
 {
-    const QString prefix = tr("New Device Configuration %1", "Standard "
-        "Configuration name with number");
-    int suffix = 1;
-    QString newName;
-    bool isUnique = false;
-    do {
-        newName = prefix.arg(QString::number(suffix++));
-        isUnique = !m_devConfigs->hasConfig(newName);
-    } while (!isUnique);
-
-    m_devConfigs->addConfiguration(newName, MaemoGlobal::Maemo5,
-       MaemoDeviceConfig::Physical);
-    m_ui->removeConfigButton->setEnabled(true);
-    m_ui->configurationComboBox->setCurrentIndex(m_ui->configurationComboBox->count()-1);
-    m_ui->configurationComboBox->setFocus();
+    MaemoDeviceConfigWizard wizard(m_devConfigs.data(), this);
+    if (wizard.exec() == QDialog::Accepted) {
+        wizard.createDeviceConfig();
+        m_ui->removeConfigButton->setEnabled(true);
+        m_ui->configurationComboBox->setCurrentIndex(m_ui->configurationComboBox->count()-1);
+        testConfig();
+    }
 }
 
 void MaemoDeviceConfigurationsSettingsWidget::deleteConfig()
@@ -269,7 +262,7 @@ void MaemoDeviceConfigurationsSettingsWidget::deviceTypeChanged()
     const MaemoDeviceConfig::DeviceType devType
         = m_ui->deviceButton->isChecked()
             ? MaemoDeviceConfig::Physical : MaemoDeviceConfig::Simulator;
-    m_devConfigs->setDeviceType(currentIndex(), devType);
+    //m_devConfigs->setDeviceType(currentIndex(), devType);
     fillInValues();
 }
 

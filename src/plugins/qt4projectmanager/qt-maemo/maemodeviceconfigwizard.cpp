@@ -469,8 +469,10 @@ public:
 
 struct MaemoDeviceConfigWizardPrivate
 {
-    MaemoDeviceConfigWizardPrivate(QWidget *parent)
-        : startPage(parent),
+    MaemoDeviceConfigWizardPrivate(MaemoDeviceConfigurations *devConfigs,
+            QWidget *parent)
+        : devConfigs(devConfigs),
+          startPage(parent),
           previousKeySetupPage(parent),
           reuseKeysCheckPage(parent),
           keyCreationPage(parent),
@@ -480,6 +482,7 @@ struct MaemoDeviceConfigWizardPrivate
     }
 
     WizardData wizardData;
+    MaemoDeviceConfigurations * const devConfigs;
     MaemoDeviceConfigWizardStartPage startPage;
     MaemoDeviceConfigWizardPreviousKeySetupCheckPage previousKeySetupPage;
     MaemoDeviceConfigWizardReuseKeysCheckPage reuseKeysCheckPage;
@@ -489,8 +492,10 @@ struct MaemoDeviceConfigWizardPrivate
 };
 
 
-MaemoDeviceConfigWizard::MaemoDeviceConfigWizard(QWidget *parent) :
-    QWizard(parent), d(new MaemoDeviceConfigWizardPrivate(this))
+MaemoDeviceConfigWizard::MaemoDeviceConfigWizard(MaemoDeviceConfigurations *devConfigs,
+    QWidget *parent)
+        : QWizard(parent),
+          d(new MaemoDeviceConfigWizardPrivate(devConfigs, this))
 {
     setWindowTitle(tr("New Device Configuration Setup"));
     setPage(StartPageId, &d->startPage);
@@ -504,6 +509,27 @@ MaemoDeviceConfigWizard::MaemoDeviceConfigWizard(QWidget *parent) :
 
 MaemoDeviceConfigWizard::~MaemoDeviceConfigWizard() {}
 
+void MaemoDeviceConfigWizard::createDeviceConfig()
+{
+    QString name = d->wizardData.configName;
+    if (d->devConfigs->hasConfig(name)) {
+        const QString nameTemplate = name + QLatin1String(" (%1)");
+        int suffix = 2;
+        do
+            name = nameTemplate.arg(QString::number(suffix++));
+        while (d->devConfigs->hasConfig(name));
+    }
+
+    if (d->wizardData.deviceType == MaemoDeviceConfig::Physical) {
+        d->devConfigs->addHardwareDeviceConfiguration(name,
+            d->wizardData.maemoVersion, d->wizardData.hostName,
+            d->wizardData.privateKeyFilePath);
+    } else {
+        d->devConfigs->addEmulatorDeviceConfiguration(name,
+            d->wizardData.maemoVersion);
+    }
+}
+
 int MaemoDeviceConfigWizard::nextId() const
 {
     switch (currentId()) {
@@ -516,7 +542,6 @@ int MaemoDeviceConfigWizard::nextId() const
         d->wizardData.hostName = d->startPage.hostName();
 
         if (d->wizardData.deviceType == MaemoDeviceConfig::Simulator) {
-            // TODO: insert default MADDE key file paths
             return FinalPageId;
         } else {
             return PreviousKeySetupCheckPageId;
@@ -545,7 +570,9 @@ int MaemoDeviceConfigWizard::nextId() const
         d->wizardData.publicKeyFilePath
             = d->keyCreationPage.publicKeyFilePath();
         return KeyDeploymentPageId;
-    case KeyDeploymentPageId: return FinalPageId;
+    case KeyDeploymentPageId:
+        d->wizardData.hostName = d->keyDeploymentPage.hostAddress();
+        return FinalPageId;
     case FinalPageId: return -1;
     default:
         Q_ASSERT(false);

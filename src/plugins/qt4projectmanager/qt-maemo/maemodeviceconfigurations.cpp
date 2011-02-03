@@ -216,12 +216,6 @@ QString MaemoPortList::toString() const
 }
 
 
-MaemoDeviceConfig::Ptr MaemoDeviceConfig::create(const QString &name,
-    MaemoGlobal::MaemoVersion osVersion, DeviceType type, Id &nextId)
-{
-    return Ptr(new MaemoDeviceConfig(name, osVersion, type, nextId));
-}
-
 MaemoDeviceConfig::Ptr MaemoDeviceConfig::create(const QSettings &settings,
     Id &nextId)
 {
@@ -233,9 +227,31 @@ MaemoDeviceConfig::Ptr MaemoDeviceConfig::create(const ConstPtr &other)
     return Ptr(new MaemoDeviceConfig(other));
 }
 
+MaemoDeviceConfig::Ptr MaemoDeviceConfig::createHardwareConfig(const QString &name,
+    MaemoGlobal::MaemoVersion osVersion, const QString &hostName,
+    const QString privateKeyFilePath, Id &nextId)
+{
+    Core::SshConnectionParameters sshParams(Core::SshConnectionParameters::NoProxy);
+    sshParams.authType = Core::SshConnectionParameters::AuthByKey;
+    sshParams.host = hostName;
+    sshParams.privateKeyFile = privateKeyFilePath;
+    return Ptr(new MaemoDeviceConfig(name, osVersion, Physical, sshParams, nextId));
+}
+
+MaemoDeviceConfig::Ptr MaemoDeviceConfig::createEmulatorConfig(const QString &name,
+    MaemoGlobal::MaemoVersion osVersion, Id &nextId)
+{
+    Core::SshConnectionParameters sshParams(Core::SshConnectionParameters::NoProxy);
+    sshParams.authType = Core::SshConnectionParameters::AuthByPwd;
+    sshParams.host = defaultHost(Simulator);
+    sshParams.pwd = defaultQemuPassword(osVersion);
+    return Ptr(new MaemoDeviceConfig(name, osVersion, Simulator, sshParams, nextId));
+}
+
 MaemoDeviceConfig::MaemoDeviceConfig(const QString &name,
-    MaemoGlobal::MaemoVersion osVersion, DeviceType devType, Id &nextId)
-    : m_sshParameters(Core::SshConnectionParameters::NoProxy),
+    MaemoGlobal::MaemoVersion osVersion, DeviceType devType,
+    const Core::SshConnectionParameters &sshParams, Id &nextId)
+    : m_sshParameters(sshParams),
       m_name(name),
       m_osVersion(osVersion),
       m_type(devType),
@@ -243,12 +259,8 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QString &name,
       m_isDefault(false),
       m_internalId(nextId++)
 {
-    m_sshParameters.host = defaultHost(m_type);
     m_sshParameters.port = defaultSshPort(m_type);
     m_sshParameters.uname = defaultUser(m_osVersion);
-    m_sshParameters.authType = DefaultAuthType;
-    m_sshParameters.privateKeyFile
-        = MaemoDeviceConfigurations::instance()->defaultSshKeyFilePath();
     m_sshParameters.timeout = DefaultTimeout;
 }
 
@@ -328,6 +340,20 @@ QString MaemoDeviceConfig::defaultUser(MaemoGlobal::MaemoVersion osVersion)
     }
 }
 
+QString MaemoDeviceConfig::defaultQemuPassword(MaemoGlobal::MaemoVersion osVersion)
+{
+    switch (osVersion) {
+    case MaemoGlobal::Maemo5:
+    case MaemoGlobal::Maemo6:
+        return QString();
+    case MaemoGlobal::Meego:
+        return QLatin1String("meego");
+    default:
+        Q_ASSERT(false);
+        return QString();
+    }
+}
+
 MaemoPortList MaemoDeviceConfig::freePorts() const
 {
     return PortsSpecParser(m_portsSpec).parse();
@@ -390,7 +416,6 @@ void MaemoDeviceConfigurations::copy(const MaemoDeviceConfigurations *source,
     }
     target->m_defaultSshKeyFilePath = source->m_defaultSshKeyFilePath;
     target->m_nextId = source->m_nextId;
-    target->initShadowDevConfs();
 }
 
 void MaemoDeviceConfigurations::save()
@@ -408,45 +433,29 @@ void MaemoDeviceConfigurations::save()
     settings->endGroup();
 }
 
-void MaemoDeviceConfigurations::initShadowDevConfs()
+void MaemoDeviceConfigurations::addHardwareDeviceConfiguration(const QString &name,
+    MaemoGlobal::MaemoVersion osVersion, const QString &hostName,
+    const QString privateKeyFilePath)
 {
-    m_shadowDevConfigs.clear();
-    for (int i = 0; i < m_devConfigs.count(); ++i)
-        m_shadowDevConfigs.push_back(MaemoDeviceConfig::Ptr());
+    const MaemoDeviceConfig::Ptr &devConf = MaemoDeviceConfig::createHardwareConfig(name,
+        osVersion, hostName, privateKeyFilePath, m_nextId);
+    addConfiguration(devConf);
 }
 
-void MaemoDeviceConfigurations::setupShadowDevConf(int idx)
+void MaemoDeviceConfigurations::addEmulatorDeviceConfiguration(const QString &name,
+    MaemoGlobal::MaemoVersion osVersion)
 {
-    MaemoDeviceConfig::Ptr shadowConf = m_shadowDevConfigs.at(idx);
-    if (shadowConf)
-        return;
-
-    const MaemoDeviceConfig::Ptr devConf = m_devConfigs.at(idx);
-    const MaemoDeviceConfig::DeviceType shadowType
-        = devConf->type() == MaemoDeviceConfig::Physical
-            ? MaemoDeviceConfig::Simulator : MaemoDeviceConfig::Physical;
-    shadowConf = MaemoDeviceConfig::create(devConf->name(),
-        devConf->osVersion(), shadowType, m_nextId);
-    shadowConf->m_sshParameters.authType = devConf->m_sshParameters.authType;
-    shadowConf->m_sshParameters.timeout = devConf->m_sshParameters.timeout;
-    shadowConf->m_sshParameters.pwd = devConf->m_sshParameters.pwd;
-    shadowConf->m_sshParameters.privateKeyFile
-        = devConf->m_sshParameters.privateKeyFile;
-    shadowConf->m_isDefault = devConf->m_isDefault;
-    shadowConf->m_internalId = devConf->m_internalId;
-    m_shadowDevConfigs[idx] = shadowConf;
+    const MaemoDeviceConfig::Ptr &devConf
+        = MaemoDeviceConfig::createEmulatorConfig(name, osVersion, m_nextId);
+    addConfiguration(devConf);
 }
 
-void MaemoDeviceConfigurations::addConfiguration(const QString &name,
-    MaemoGlobal::MaemoVersion osVersion, MaemoDeviceConfig::DeviceType type)
+void MaemoDeviceConfigurations::addConfiguration(const MaemoDeviceConfig::Ptr &devConfig)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    const MaemoDeviceConfig::Ptr devConf
-        = MaemoDeviceConfig::create(name, osVersion, type, m_nextId);
     if (m_devConfigs.isEmpty())
-        devConf->m_isDefault = true;
-    m_devConfigs << devConf;
-    m_shadowDevConfigs << MaemoDeviceConfig::Ptr();
+        devConfig->m_isDefault = true;
+    m_devConfigs << devConfig;
     endInsertRows();
 }
 
@@ -456,7 +465,6 @@ void MaemoDeviceConfigurations::removeConfiguration(int idx)
     beginRemoveRows(QModelIndex(), idx, idx);
     const bool wasDefault = deviceAt(idx)->m_isDefault;
     m_devConfigs.removeAt(idx);
-    m_shadowDevConfigs.removeAt(idx);
     endRemoveRows();
     if (wasDefault && !m_devConfigs.isEmpty()) {
         m_devConfigs.first()->m_isDefault = true;
@@ -469,22 +477,8 @@ void MaemoDeviceConfigurations::setConfigurationName(int i, const QString &name)
 {
     Q_ASSERT(i >= 0 && i < rowCount());
     m_devConfigs.at(i)->m_name = name;
-    const MaemoDeviceConfig::Ptr shadowConfig = m_shadowDevConfigs.at(i);
-    if (shadowConfig)
-        shadowConfig->m_name = name;
     const QModelIndex changedIndex = index(i, 0);
     emit dataChanged(changedIndex, changedIndex);
-}
-
-void MaemoDeviceConfigurations::setDeviceType(int i,
-    const MaemoDeviceConfig::DeviceType type)
-{
-    Q_ASSERT(i >= 0 && i < rowCount());
-    MaemoDeviceConfig::Ptr &current = m_devConfigs[i];
-    if (current->type() == type)
-        return;
-    setupShadowDevConf(i);
-    std::swap(current, m_shadowDevConfigs[i]);
 }
 
 void MaemoDeviceConfigurations::setSshParameters(int i,
@@ -544,7 +538,6 @@ void MaemoDeviceConfigurations::load()
     }
     settings->endArray();
     settings->endGroup();
-    initShadowDevConfs();
     if (!hasDefault && !m_devConfigs.isEmpty())
         m_devConfigs.first()->m_isDefault = true;
 }

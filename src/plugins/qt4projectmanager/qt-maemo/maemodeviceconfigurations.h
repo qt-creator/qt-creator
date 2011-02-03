@@ -88,6 +88,7 @@ public:
     static QString defaultPrivateKeyFilePath();
     static QString defaultUser(MaemoGlobal::MaemoVersion osVersion);
     static int defaultSshPort(DeviceType type);
+    static QString defaultQemuPassword(MaemoGlobal::MaemoVersion osVersion);
 
     static const Id InvalidId;
 
@@ -95,15 +96,19 @@ private:
     typedef QSharedPointer<MaemoDeviceConfig> Ptr;
 
     MaemoDeviceConfig(const QString &name, MaemoGlobal::MaemoVersion osVersion,
-        DeviceType type, Id &nextId);
+        DeviceType type, const Core::SshConnectionParameters &sshParams,
+        Id &nextId);
     MaemoDeviceConfig(const QSettings &settings, Id &nextId);
     MaemoDeviceConfig(const ConstPtr &other);
 
     MaemoDeviceConfig(const MaemoDeviceConfig &);
     MaemoDeviceConfig &operator=(const MaemoDeviceConfig &);
 
-    static Ptr create(const QString &name, MaemoGlobal::MaemoVersion osVersion,
-       DeviceType type, Id &nextId);
+    static Ptr createHardwareConfig(const QString &name,
+        MaemoGlobal::MaemoVersion osVersion, const QString &hostName,
+        const QString privateKeyFilePath, Id &nextId);
+    static Ptr createEmulatorConfig(const QString &name,
+        MaemoGlobal::MaemoVersion osVersion, Id &nextId);
     static Ptr create(const QSettings &settings, Id &nextId);
     static Ptr create(const ConstPtr &other);
 
@@ -140,12 +145,13 @@ public:
     void setDefaultSshKeyFilePath(const QString &path) { m_defaultSshKeyFilePath = path; }
     QString defaultSshKeyFilePath() const { return m_defaultSshKeyFilePath; }
 
-    void addConfiguration(const QString &name,
-        MaemoGlobal::MaemoVersion osVersion,
-        MaemoDeviceConfig::DeviceType type);
+    void addHardwareDeviceConfiguration(const QString &name,
+        MaemoGlobal::MaemoVersion osVersion, const QString &hostName,
+        const QString privateKeyFilePath);
+    void addEmulatorDeviceConfiguration(const QString &name,
+        MaemoGlobal::MaemoVersion osVersion);
     void removeConfiguration(int index);
     void setConfigurationName(int i, const QString &name);
-    void setDeviceType(int i, const MaemoDeviceConfig::DeviceType type);
     void setSshParameters(int i, const Core::SshConnectionParameters &params);
     void setPortsSpec(int i, const QString &portsSpec);
     void setDefaultDevice(int index);
@@ -161,15 +167,13 @@ private:
     MaemoDeviceConfigurations(QObject *parent);
     void load();
     void save();
-    void initShadowDevConfs();
     static void copy(const MaemoDeviceConfigurations *source,
         MaemoDeviceConfigurations *target, bool deep);
-    void setupShadowDevConf(int index);
+    void addConfiguration(const MaemoDeviceConfig::Ptr &devConfig);
 
     static MaemoDeviceConfigurations *m_instance;
     MaemoDeviceConfig::Id m_nextId;
     QList<MaemoDeviceConfig::Ptr> m_devConfigs;
-    QList<MaemoDeviceConfig::Ptr> m_shadowDevConfigs;
     QString m_defaultSshKeyFilePath;
 };
 
