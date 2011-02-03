@@ -95,11 +95,7 @@ QmlCppPlugin::QmlCppPlugin(const QString &name, const QFileInfo &path,
     , path(path)
     , module(module)
     , proFile(proFile)
-{}
-
-bool QmlAppGeneratedFileInfo::isOutdated() const
 {
-    return version < AbstractMobileApp::makeStubVersion(QmlStandaloneApp::StubVersion);
 }
 
 QmlStandaloneApp::QmlStandaloneApp() : AbstractMobileApp()
@@ -407,9 +403,9 @@ int QmlStandaloneApp::stubVersionMinor() const
     return StubVersion;
 }
 
-static QList<QmlAppGeneratedFileInfo> updateableFiles(const QString &mainProFile)
+QList<AbstractGeneratedFileInfo> QmlStandaloneApp::updateableFiles(const QString &mainProFile) const
 {
-    QList<QmlAppGeneratedFileInfo> result;
+    QList<AbstractGeneratedFileInfo> result;
     static const struct {
         int fileType;
         QString fileName;
@@ -428,58 +424,12 @@ static QList<QmlAppGeneratedFileInfo> updateableFiles(const QString &mainProFile
         QmlAppGeneratedFileInfo file;
         file.fileType = files[i].fileType;
         file.fileInfo = QFileInfo(fileName);
+        file.currentVersion = AbstractMobileApp::makeStubVersion(QmlStandaloneApp::StubVersion);
         result.append(file);
     }
     if (result.count() != size)
         result.clear(); // All files must be found. No wrong/partial updates, please.
     return result;
-}
-
-QList<QmlAppGeneratedFileInfo> QmlStandaloneApp::fileUpdates(const QString &mainProFile)
-{
-    QList<QmlAppGeneratedFileInfo> result;
-    foreach (const QmlAppGeneratedFileInfo &file, updateableFiles(mainProFile)) {
-        QmlAppGeneratedFileInfo newFile = file;
-        QFile readFile(newFile.fileInfo.absoluteFilePath());
-        if (!readFile.open(QIODevice::ReadOnly))
-           continue;
-        const QString firstLine = readFile.readLine();
-        const QStringList elements = firstLine.split(QLatin1Char(' '));
-        if (elements.count() != 5 || elements.at(1) != FileChecksum
-                || elements.at(3) != FileStubVersion)
-            continue;
-        const QString versionString = elements.at(4);
-        newFile.version = versionString.startsWith(QLatin1String("0x"))
-            ? versionString.toInt(0, 16) : 0;
-        newFile.statedChecksum = elements.at(2).toUShort(0, 16);
-        QByteArray data = readFile.readAll();
-        data.replace('\x0D', "");
-        data.replace('\x0A', "");
-        newFile.dataChecksum = qChecksum(data.constData(), data.length());
-        if (!newFile.isUpToDate())
-            result.append(newFile);
-    }
-    return result;
-}
-
-bool QmlStandaloneApp::updateFiles(const QList<QmlAppGeneratedFileInfo> &list, QString &error)
-{
-    error.clear();
-    const QmlStandaloneApp app;
-    foreach (const QmlAppGeneratedFileInfo &info, list) {
-        const QByteArray data = app.generateFile(info.fileType, &error);
-        if (!error.isEmpty())
-            return false;
-        QFile file(info.fileInfo.absoluteFilePath());
-        if (!file.open(QIODevice::WriteOnly) || file.write(data) == -1) {
-            error = QCoreApplication::translate(
-                        "Qt4ProjectManager::Internal::QmlStandaloneApp",
-                        "Could not write file '%1'.").
-                    arg(QDir::toNativeSeparators(info.fileInfo.canonicalFilePath()));
-            return false;
-        }
-    }
-    return true;
 }
 
 const int QmlStandaloneApp::StubVersion = 10;

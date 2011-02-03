@@ -87,7 +87,6 @@ struct QmlAppGeneratedFileInfo : public AbstractGeneratedFileInfo
     };
 
     QmlAppGeneratedFileInfo() : AbstractGeneratedFileInfo() {}
-    virtual bool isOutdated() const;
 };
 
 class QmlStandaloneApp : public AbstractMobileApp
@@ -122,8 +121,6 @@ public:
 #endif // CREATORLESSTEST
     bool useExistingMainQml() const;
     const QList<QmlModule*> modules() const;
-    static QList<QmlAppGeneratedFileInfo> fileUpdates(const QString &mainProFile);
-    static bool updateFiles(const QList<QmlAppGeneratedFileInfo> &list, QString &error);
 
     static const int StubVersion;
 
@@ -138,6 +135,7 @@ private:
     virtual void handleCurrentProFileTemplateLine(const QString &line,
         QTextStream &proFileTemplate, QTextStream &proFile,
         bool &uncommentNextLine) const;
+    QList<AbstractGeneratedFileInfo> updateableFiles(const QString &mainProFile) const;
 
     bool addExternalModule(const QString &uri, const QFileInfo &dir,
                            const QFileInfo &contentDir);

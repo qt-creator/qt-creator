@@ -142,6 +142,12 @@ QString MobileApp::mainWindowClassName() const
 
 int MobileApp::stubVersionMinor() const { return StubVersion; }
 
+QList<AbstractGeneratedFileInfo> MobileApp::updateableFiles(const QString &mainProFile) const
+{
+    Q_UNUSED(mainProFile)
+    return QList<AbstractGeneratedFileInfo>(); // Nothing to update, here
+}
+
 const int MobileApp::StubVersion = 2;
 
 } // namespace Internal

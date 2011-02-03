@@ -60,15 +60,12 @@ struct AbstractGeneratedFileInfo
 
     AbstractGeneratedFileInfo();
 
-    bool isUpToDate() const;
-    bool wasModified() const;
-    virtual bool isOutdated() const=0;
-
     int fileType;
     QFileInfo fileInfo;
-    int version;
-    quint16 dataChecksum;
-    quint16 statedChecksum;
+    int currentVersion; // Current version of the template file in Creator
+    int version; // The version in the file header
+    quint16 dataChecksum; // The calculated checksum
+    quint16 statedChecksum; // The checksum in the file header
 };
 
 class AbstractMobileApp : public QObject
@@ -125,6 +122,8 @@ public:
 
     static QString symbianUidForPath(const QString &path);
     static int makeStubVersion(int minor);
+    QList<AbstractGeneratedFileInfo> fileUpdates(const QString &mainProFile) const;
+    bool updateFiles(const QList<AbstractGeneratedFileInfo> &list, QString &error) const;
 
     static const QString DeploymentPriFileName;
 protected:
@@ -164,6 +163,7 @@ private:
     virtual void handleCurrentProFileTemplateLine(const QString &line,
         QTextStream &proFileTemplate, QTextStream &proFile,
         bool &uncommentNextLine) const=0;
+    virtual QList<AbstractGeneratedFileInfo> updateableFiles(const QString &mainProFile) const = 0;
 
     QString m_projectName;
     QFileInfo m_projectPath;

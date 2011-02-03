@@ -80,6 +80,7 @@ private:
     virtual void handleCurrentProFileTemplateLine(const QString &line,
         QTextStream &proFileTemplate, QTextStream &proFile,
         bool &uncommentNextLine) const;
+    QList<AbstractGeneratedFileInfo> updateableFiles(const QString &mainProFile) const;
 };
 
 } // end of namespace Internal

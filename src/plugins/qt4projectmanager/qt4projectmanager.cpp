@@ -194,22 +194,19 @@ QString Qt4Manager::mimeType() const
     return QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE);
 }
 
-// Prototype Ui for update of QmlApplicationView files.
-// TODO implement a proper Ui for this. Maybe not as modal message box.
-// When removing this, also remove the inclusions of "wizards/qmlstandaloneapp.h" and QtGui/QMessageBox
-inline void updateQmlApplicationViewerFiles(const QString proFile)
+inline void updateBoilerPlateCodeFiles(const AbstractMobileApp &app, const QString proFile)
 {
-    const QList<QmlAppGeneratedFileInfo> updates =
-            QmlStandaloneApp::fileUpdates(proFile);
+    const QList<AbstractGeneratedFileInfo> updates =
+            app.fileUpdates(proFile);
     if (!updates.empty()) {
         // TODO Translate the folloing strings when we want to keep the code
         QString message = QLatin1String("The following files are either outdated or have been modified:");
         message.append(QLatin1String("<ul>"));
-        foreach (const QmlAppGeneratedFileInfo &info, updates) {
+        foreach (const AbstractGeneratedFileInfo &info, updates) {
             QStringList reasons;
-            if (info.wasModified())
+            if (info.statedChecksum != info.dataChecksum)
                 reasons.append(QLatin1String("modified"));
-            if (info.isOutdated())
+            if (info.version != info.currentVersion)
                 reasons.append(QLatin1String("outdated"));
             message.append(QString::fromLatin1("<li><nobr>%1 (%2)</nobr></li>")
                            .arg(QDir::toNativeSeparators(info.fileInfo.canonicalFilePath()))
@@ -220,7 +217,7 @@ inline void updateQmlApplicationViewerFiles(const QString proFile)
         const QString title = QLatin1String("Update of the QmlApplicationView files");
         if (QMessageBox::question(0, title, message, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
             QString error;
-            if (!QmlStandaloneApp::updateFiles(updates, error))
+            if (!app.updateFiles(updates, error))
                 QMessageBox::critical(0, title, error);
         }
     }
@@ -248,7 +245,7 @@ ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName)
         }
     }
 
-    updateQmlApplicationViewerFiles(canonicalFilePath);
+    updateBoilerPlateCodeFiles(QmlStandaloneApp(), canonicalFilePath);
 
     Qt4Project *pro = new Qt4Project(this, canonicalFilePath);
     return pro;
