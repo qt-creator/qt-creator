@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>602</width>
+    <width>703</width>
     <height>421</height>
    </rect>
   </property>
@@ -85,29 +85,6 @@
              <property name="text">
               <string>Device type:</string>
              </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QWidget" name="deviceTypeButtonsWidget" native="true">
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <property name="margin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QRadioButton" name="deviceButton">
-                <property name="text">
-                 <string>Remote device</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="simulatorButton">
-                <property name="text">
-                 <string>Maemo &amp;emulator</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
             </widget>
            </item>
            <item row="2" column="0">
@@ -332,7 +309,7 @@
            <item row="9" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
-              <widget class="Utils::PathChooser" name="keyFileLineEdit" native="true"/>
+              <widget class="Utils::PathChooser" name="keyFileLineEdit"/>
              </item>
              <item>
               <widget class="QPushButton" name="makeKeyFileDefaultButton">
@@ -342,6 +319,13 @@
               </widget>
              </item>
             </layout>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="deviceTypeValueLabel">
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -485,22 +469,6 @@
  <resources/>
  <connections>
   <connection>
-   <sender>deviceButton</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
-   <slot>deviceTypeChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>231</x>
-     <y>99</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>511</x>
-     <y>279</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>hostLineEdit</sender>
    <signal>editingFinished()</signal>
    <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
@@ -545,22 +513,6 @@
     <hint type="destinationlabel">
      <x>423</x>
      <y>336</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>simulatorButton</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
-   <slot>deviceTypeChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>335</x>
-     <y>99</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>426</x>
-     <y>87</y>
     </hint>
    </hints>
   </connection>

@@ -132,9 +132,8 @@ QString MaemoDeviceConfigurationsSettingsWidget::searchKeywords() const
         << ' ' << m_ui->passwordButton->text()
         << ' ' << m_ui->authTypeLabel->text()
         << ' ' << m_ui->connectionTimeoutLabel->text()
-        << ' ' << m_ui->deviceButton->text()
-        << ' ' << m_ui->simulatorButton->text()
         << ' ' << m_ui->deviceTypeLabel->text()
+        << ' ' << m_ui->deviceTypeValueLabel->text()
         << ' ' << m_ui->deviceNameLabel->text()
         << ' ' << m_ui->hostNameLabel->text()
         << ' ' << m_ui->keyLabel->text()
@@ -198,9 +197,9 @@ void MaemoDeviceConfigurationsSettingsWidget::displayCurrent()
     m_ui->defaultDeviceButton->setEnabled(!current->isDefault());
     const SshConnectionParameters &sshParams = current->sshParameters();
     if (current->type() == MaemoDeviceConfig::Physical)
-        m_ui->deviceButton->setChecked(true);
+        m_ui->deviceTypeValueLabel->setText(tr("Physical Device"));
     else
-        m_ui->simulatorButton->setChecked(true);
+        m_ui->deviceTypeValueLabel->setText(tr("Emulator (Qemu)"));
     if (sshParams.authType == Core::SshConnectionParameters::AuthByPwd)
         m_ui->passwordButton->setChecked(true);
     else
@@ -255,15 +254,6 @@ void MaemoDeviceConfigurationsSettingsWidget::configNameEditingFinished()
     const QString &newName = m_ui->nameLineEdit->text();
     m_devConfigs->setConfigurationName(currentIndex(), newName);
     m_nameValidator->setDisplayName(newName);
-}
-
-void MaemoDeviceConfigurationsSettingsWidget::deviceTypeChanged()
-{
-    const MaemoDeviceConfig::DeviceType devType
-        = m_ui->deviceButton->isChecked()
-            ? MaemoDeviceConfig::Physical : MaemoDeviceConfig::Simulator;
-    //m_devConfigs->setDeviceType(currentIndex(), devType);
-    fillInValues();
 }
 
 void MaemoDeviceConfigurationsSettingsWidget::authenticationTypeChanged()
