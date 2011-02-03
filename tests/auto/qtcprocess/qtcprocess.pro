@@ -3,6 +3,8 @@ TEMPLATE = app
 CONFIG -= app_bundle
 DEFINES += QTCREATOR_UTILS_LIB
 
+win32:DEFINES += _CRT_SECURE_NO_WARNINGS
+
 UTILS_PATH = ../../../src/libs/utils
 
 INCLUDEPATH += $$UTILS_PATH/..
