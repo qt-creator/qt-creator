@@ -38,6 +38,10 @@
 
 #include <nodeinstanceclientproxy.h>
 
+#ifdef ENABLE_QT_BREAKPAD
+#include <qtsystemexceptionhandler.h>
+#endif
+
 int main(int argc, char *argv[])
 {
     QApplication application(argc, argv);
@@ -48,6 +52,10 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("Nokia");
     QCoreApplication::setOrganizationDomain("nokia.com");
     QCoreApplication::setApplicationName("QmlPuppet");
+
+#ifdef ENABLE_QT_BREAKPAD
+    QtSystemExceptionHandler systemExceptionHandler;
+#endif
 
     new QmlDesigner::NodeInstanceClientProxy(&application);
 

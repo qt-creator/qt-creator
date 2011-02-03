@@ -14,6 +14,12 @@ include(../../rpath.pri)
 include (../../plugins/qmldesigner/designercore/instances/instances.pri)
 include (../../plugins/qmldesigner/designercore/exceptions/exceptions.pri)
 
+
+QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
+!isEmpty(QT_BREAKPAD_ROOT_PATH) {
+    include($$QT_BREAKPAD_ROOT_PATH/qtbreakpad.pri)
+}
+
 SOURCES += main.cpp
 RESOURCES += qmlpuppet.qrc
 
