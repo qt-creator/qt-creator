@@ -107,16 +107,14 @@ STDMETHODIMP EventCallback::Breakpoint(THIS_ __in PDEBUG_BREAKPOINT b)
     typedef ExtensionContext::StopReasonMap StopReasonMap;
     typedef ExtensionContext::StopReasonMap::value_type StopReasonMapValue;
 
-    ULONG id = 0;
+    ULONG uId = 0;
     ULONG64 address = 0;
-    b->GetId(&id);
-    b->GetOffset(&address);
-
     StopReasonMap stopReason;
-    stopReason.insert(StopReasonMapValue(std::string("breakpointId"), toString(id)));
-    if (address)
+    if (SUCCEEDED(b->GetId(&uId)))
+        stopReason.insert(StopReasonMapValue(std::string("breakpointId"), toString(uId)));
+    if (SUCCEEDED(b->GetOffset(&address)))
         stopReason.insert(StopReasonMapValue(std::string("breakpointAddress"), toString(address)));
-    ExtensionContext::instance().setStopReason(stopReason, "breakpoint");
+    ExtensionContext::instance().setStopReason(stopReason, ExtensionContext::breakPointStopReasonC);
     return m_wrapped ? m_wrapped->Breakpoint(b) : S_OK;
 }
 
@@ -172,7 +170,7 @@ STDMETHODIMP EventCallback::Exception(
 
     std::ostringstream str;
     formatGdbmiHash(str, parameters);
-    ExtensionContext::instance().setStopReason(parameters, ExtensionContext::breakPointStopReasonC);
+    ExtensionContext::instance().setStopReason(parameters, "exception");
     ExtensionContext::instance().report('E', 0, 0, "exception", "%s", str.str().c_str());
     return m_wrapped ? m_wrapped->Exception(Ex, FirstChance) : S_OK;
 }
