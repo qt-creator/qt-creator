@@ -144,6 +144,7 @@ public:
           m_ui(new Ui::MaemoDeviceConfigWizardCheckPreviousKeySetupPage)
     {
         m_ui->setupUi(this);
+        m_ui->privateKeyFilePathChooser->setExpectedKind(Utils::PathChooser::File);
         setTitle(tr("Device Status Check"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
         QButtonGroup * const buttonGroup = new QButtonGroup(this);
@@ -152,19 +153,21 @@ public:
         buttonGroup->addButton(m_ui->keyWasNotSetUpButton);
         connect(buttonGroup, SIGNAL(buttonClicked(int)),
             SLOT(handleSelectionChanged()));
-        handleSelectionChanged();
-        connect(m_ui->privateKeyFilePathLineEdit, SIGNAL(textChanged(QString)),
+        connect(m_ui->privateKeyFilePathChooser, SIGNAL(changed(QString)),
             this, SIGNAL(completeChanged()));
     }
 
-    virtual bool isComplete() const {
-        return !keyBasedLoginWasSetup() || !privateKeyFilePath().isEmpty();
+    virtual bool isComplete() const
+    {
+        return !keyBasedLoginWasSetup()
+            || m_ui->privateKeyFilePathChooser->isValid();
     }
 
     virtual void initializePage()
     {
         m_ui->keyWasNotSetUpButton->setChecked(true);
-        m_ui->privateKeyFilePathLineEdit->clear();
+        m_ui->privateKeyFilePathChooser->setPath(MaemoDeviceConfig::defaultPrivateKeyFilePath());
+        handleSelectionChanged();
     }
 
     bool keyBasedLoginWasSetup() const {
@@ -172,13 +175,13 @@ public:
     }
 
     QString privateKeyFilePath() const {
-        return m_ui->privateKeyFilePathLineEdit->text().trimmed();
+        return m_ui->privateKeyFilePathChooser->path();
     }
 
 private:
     Q_SLOT void handleSelectionChanged()
     {
-        m_ui->privateKeyFilePathLineEdit->setEnabled(keyBasedLoginWasSetup());
+        m_ui->privateKeyFilePathChooser->setEnabled(keyBasedLoginWasSetup());
         emit completeChanged();
     }
 
@@ -196,49 +199,51 @@ public:
         m_ui->setupUi(this);
         setTitle(tr("Existing Keys Check"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
+        m_ui->publicKeyFilePathChooser->setExpectedKind(Utils::PathChooser::File);
+        m_ui->privateKeyFilePathChooser->setExpectedKind(Utils::PathChooser::File);
         QButtonGroup * const buttonGroup = new QButtonGroup(this);
         buttonGroup->setExclusive(true);
         buttonGroup->addButton(m_ui->reuseButton);
         buttonGroup->addButton(m_ui->dontReuseButton);
         connect(buttonGroup, SIGNAL(buttonClicked(int)),
             SLOT(handleSelectionChanged()));
-        connect(m_ui->privateKeyFilePathLineEdit, SIGNAL(textChanged(QString)),
+        connect(m_ui->privateKeyFilePathChooser, SIGNAL(changed(QString)),
             this, SIGNAL(completeChanged()));
-        connect(m_ui->publicKeyFilePathLineEdit, SIGNAL(textChanged(QString)),
+        connect(m_ui->publicKeyFilePathChooser, SIGNAL(changed(QString)),
             this, SIGNAL(completeChanged()));
     }
 
     virtual bool isComplete() const
     {
-        return !reuseKeys() || (!privateKeyFilePath().isEmpty()
-            && !publicKeyFilePath().isEmpty());
+        return !reuseKeys() || (m_ui->publicKeyFilePathChooser->isValid()
+            && m_ui->privateKeyFilePathChooser->isValid());
     }
 
     virtual void initializePage()
     {
         m_ui->dontReuseButton->setChecked(true);
-        m_ui->privateKeyFilePathLineEdit->clear();
-        m_ui->publicKeyFilePathLineEdit->clear();
+        m_ui->privateKeyFilePathChooser->setPath(QString());
+        m_ui->publicKeyFilePathChooser->setPath(QString());
         handleSelectionChanged();
     }
 
     bool reuseKeys() const { return m_ui->reuseButton->isChecked(); }
 
     QString privateKeyFilePath() const {
-        return m_ui->privateKeyFilePathLineEdit->text().trimmed();
+        return m_ui->privateKeyFilePathChooser->path();
     }
 
     QString publicKeyFilePath() const {
-        return m_ui->publicKeyFilePathLineEdit->text().trimmed();
+        return m_ui->publicKeyFilePathChooser->path();
     }
 
 private:
     Q_SLOT void handleSelectionChanged()
     {
         m_ui->privateKeyFilePathLabel->setEnabled(reuseKeys());
-        m_ui->privateKeyFilePathLineEdit->setEnabled(reuseKeys());
+        m_ui->privateKeyFilePathChooser->setEnabled(reuseKeys());
         m_ui->publicKeyFilePathLabel->setEnabled(reuseKeys());
-        m_ui->publicKeyFilePathLineEdit->setEnabled(reuseKeys());
+        m_ui->publicKeyFilePathChooser->setEnabled(reuseKeys());
         emit completeChanged();
     }
 
@@ -256,13 +261,13 @@ public:
         m_ui->setupUi(this);
         setTitle(tr("Key Creation"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-        connect(m_ui->directoryLineEdit, SIGNAL(textChanged(QString)),
+        connect(m_ui->keyDirPathChooser, SIGNAL(changed(QString)),
             SLOT(enableOrDisableButton()));
         connect(m_ui->createKeysButton, SIGNAL(clicked()), SLOT(createKeys()));
     }
 
     QString privateKeyFilePath() const {
-        return m_ui->directoryLineEdit->text() + QLatin1String("/qtc_id_rsa");
+        return m_ui->keyDirPathChooser->path() + QLatin1String("/qtc_id_rsa");
     }
 
     QString publicKeyFilePath() const {
@@ -274,7 +279,7 @@ public:
         m_isComplete = false;
         const QString &dir = QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
            + QLatin1String("/.ssh");
-        m_ui->directoryLineEdit->setText(dir);
+        m_ui->keyDirPathChooser->setPath(dir);
         enableInput();
     }
 
@@ -283,13 +288,12 @@ public:
 private:
     Q_SLOT void enableOrDisableButton()
     {
-        const QString &dir = m_ui->directoryLineEdit->text().trimmed();
-        m_ui->createKeysButton->setEnabled(!dir.isEmpty());
+        m_ui->createKeysButton->setEnabled(m_ui->keyDirPathChooser->isValid());
     }
 
     Q_SLOT void createKeys()
     {
-        const QString &dirPath = m_ui->directoryLineEdit->text();
+        const QString &dirPath = m_ui->keyDirPathChooser->path();
         QDir dir(dirPath);
         QDir parentDir = QDir(dirPath + QLatin1String("/.."));
         if ((!dir.exists() && !parentDir.mkdir(dir.dirName()))
@@ -299,7 +303,7 @@ private:
             return;
         }
 
-        m_ui->directoryLineEdit->setEnabled(false);
+        m_ui->keyDirPathChooser->setEnabled(false);
         m_ui->createKeysButton->setEnabled(false);
         m_ui->statusLabel->setText(tr("Creating keys ... "));
         Core::SshKeyGenerator keyGenerator;
@@ -338,7 +342,7 @@ private:
 
     void enableInput()
     {
-        m_ui->directoryLineEdit->setEnabled(true);
+        m_ui->keyDirPathChooser->setEnabled(true);
         enableOrDisableButton();
         m_ui->statusLabel->clear();
     }
