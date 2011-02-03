@@ -1799,13 +1799,10 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     if (!isDebuggable(editor))
         return;
 
-    BreakpointId id = BreakpointId();
-    QString fileName;
-    quint64 address = 0;
-
     ContextData args;
     args.lineNumber = lineNumber;
 
+    BreakpointId id = BreakpointId();
     if (editor->property("DisassemblerView").toBool()) {
         args.fileName = editor->file()->fileName();
         QString line = editor->contents()
@@ -1818,7 +1815,8 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
         id = breakHandler()->findSimilarBreakpoint(needle);
     } else {
         args.fileName = editor->file()->fileName();
-        id = breakHandler()->findBreakpointByFileAndLine(fileName, lineNumber);
+        id = breakHandler()
+            ->findBreakpointByFileAndLine(args.fileName, lineNumber);
     }
 
     if (id) {
@@ -1852,8 +1850,8 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
         menu->addAction(act);
     } else {
         // Handle non-existing breakpoint.
-        const QString text = address ?
-                    tr("Set Breakpoint at 0x%1").arg(address, 0, 16) :
+        const QString text = args.address ?
+                    tr("Set Breakpoint at 0x%1").arg(args.address, 0, 16) :
                     tr("Set Breakpoint at line %1").arg(lineNumber);
         QAction *act = new QAction(text, menu);
         act->setData(QVariant::fromValue(args));
