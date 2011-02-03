@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>602</width>
+    <width>703</width>
     <height>421</height>
    </rect>
   </property>
@@ -70,7 +70,7 @@
            <item row="0" column="0">
             <widget class="QLabel" name="deviceNameLabel">
              <property name="text">
-              <string>&amp;Name</string>
+              <string>&amp;Name:</string>
              </property>
              <property name="buddy">
               <cstring>nameLineEdit</cstring>
@@ -80,44 +80,21 @@
            <item row="0" column="1">
             <widget class="QLineEdit" name="nameLineEdit"/>
            </item>
-           <item row="1" column="0">
+           <item row="2" column="0">
             <widget class="QLabel" name="deviceTypeLabel">
              <property name="text">
               <string>Device type:</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QWidget" name="deviceTypeButtonsWidget" native="true">
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <property name="margin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QRadioButton" name="deviceButton">
-                <property name="text">
-                 <string>Remote device</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="simulatorButton">
-                <property name="text">
-                 <string>Maemo &amp;emulator</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item row="2" column="0">
+           <item row="3" column="0">
             <widget class="QLabel" name="authTypeLabel">
              <property name="text">
               <string>Authentication type:</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
+           <item row="3" column="1">
             <widget class="QWidget" name="authTypeButtonsWidget" native="true">
              <layout class="QHBoxLayout" name="horizontalLayout_3">
               <property name="margin">
@@ -140,7 +117,7 @@
              </layout>
             </widget>
            </item>
-           <item row="3" column="0">
+           <item row="4" column="0">
             <widget class="QLabel" name="hostNameLabel">
              <property name="text">
               <string>&amp;Host name:</string>
@@ -150,14 +127,14 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="4" column="1">
             <widget class="QLineEdit" name="hostLineEdit">
              <property name="placeholderText">
               <string>IP or host name of the device</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
+           <item row="5" column="0">
             <widget class="QLabel" name="sshPortLabel">
              <property name="text">
               <string>&amp;SSH port:</string>
@@ -167,7 +144,7 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="5" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
               <widget class="QSpinBox" name="sshPortSpinBox">
@@ -197,7 +174,7 @@
              </item>
             </layout>
            </item>
-           <item row="5" column="0">
+           <item row="6" column="0">
             <widget class="QLabel" name="freePortsLabel">
              <property name="text">
               <string>Free ports:</string>
@@ -207,7 +184,7 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="1">
+           <item row="6" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_7">
              <item>
               <widget class="QLineEdit" name="portsLineEdit">
@@ -238,7 +215,7 @@
              </item>
             </layout>
            </item>
-           <item row="6" column="0">
+           <item row="7" column="0">
             <widget class="QLabel" name="connectionTimeoutLabel">
              <property name="text">
               <string>Connection time&amp;out:</string>
@@ -248,7 +225,7 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="1">
+           <item row="7" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_5">
              <item>
               <widget class="QSpinBox" name="timeoutSpinBox">
@@ -281,7 +258,7 @@
              </item>
             </layout>
            </item>
-           <item row="7" column="0">
+           <item row="8" column="0">
             <widget class="QLabel" name="userNameLabel">
              <property name="text">
               <string>&amp;Username:</string>
@@ -291,10 +268,10 @@
              </property>
             </widget>
            </item>
-           <item row="7" column="1">
+           <item row="8" column="1">
             <widget class="QLineEdit" name="userLineEdit"/>
            </item>
-           <item row="8" column="0">
+           <item row="9" column="0">
             <widget class="QLabel" name="passwordLabel">
              <property name="text">
               <string>&amp;Password:</string>
@@ -304,7 +281,7 @@
              </property>
             </widget>
            </item>
-           <item row="8" column="1">
+           <item row="9" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_6">
              <item>
               <widget class="QLineEdit" name="pwdLineEdit">
@@ -322,17 +299,17 @@
              </item>
             </layout>
            </item>
-           <item row="9" column="0">
+           <item row="10" column="0">
             <widget class="QLabel" name="keyLabel">
              <property name="text">
               <string>Private key file:</string>
              </property>
             </widget>
            </item>
-           <item row="9" column="1">
+           <item row="10" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
-              <widget class="Utils::PathChooser" name="keyFileLineEdit" native="true"/>
+              <widget class="Utils::PathChooser" name="keyFileLineEdit"/>
              </item>
              <item>
               <widget class="QPushButton" name="makeKeyFileDefaultButton">
@@ -342,6 +319,27 @@
               </widget>
              </item>
             </layout>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="deviceTypeValueLabel">
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="oSTypeLabel">
+             <property name="text">
+              <string>OS type:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="osTypeValueLabel">
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -485,22 +483,6 @@
  <resources/>
  <connections>
   <connection>
-   <sender>deviceButton</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
-   <slot>deviceTypeChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>231</x>
-     <y>99</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>511</x>
-     <y>279</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>hostLineEdit</sender>
    <signal>editingFinished()</signal>
    <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
@@ -545,22 +527,6 @@
     <hint type="destinationlabel">
      <x>423</x>
      <y>336</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>simulatorButton</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
-   <slot>deviceTypeChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>335</x>
-     <y>99</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>426</x>
-     <y>87</y>
     </hint>
    </hints>
   </connection>

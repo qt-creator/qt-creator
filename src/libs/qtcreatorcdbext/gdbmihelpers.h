@@ -117,7 +117,7 @@ std::string gdbmiModules(CIDebugSymbols *syms, bool humanReadable, std::string *
 std::string gdbmiBreakpoints(CIDebugControl *ctrl,
                              CIDebugSymbols *symbols /* = 0 */,
                              bool humanReadable,
-                             bool verbose,
+                             unsigned verbose,
                              std::string *errorMessage);
 
 /* Helpers for registers */

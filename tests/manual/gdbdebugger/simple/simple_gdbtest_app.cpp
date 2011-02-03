@@ -406,6 +406,14 @@ void testQByteArray()
     ba += 2;
 }
 
+int testQByteArray2()
+{
+    QByteArray ba;
+    for (int i = 256; --i >= 0; )
+        ba.append(char(i));
+    return ba.size();
+}
+
 static void throwit1()
 {
     throw 14;
@@ -1498,6 +1506,11 @@ void testTypeFormats()
     // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
     // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
     const wchar_t *w = L"aöa";
+    QString u;
+    if (sizeof(wchar_t) == 4)
+        u = QString::fromUcs4((uint *)w);
+    else
+        u = QString::fromUtf16((ushort *)w);
 
     // Make sure to undo "Change Format".
     int dummy = 1;
@@ -2204,6 +2217,7 @@ int main(int argc, char *argv[])
     testArray();
     testCatchThrow();
     testQByteArray();
+    testQByteArray2();
 
     testStdDeque();
     testStdList();

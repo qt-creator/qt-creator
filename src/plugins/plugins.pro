@@ -40,6 +40,10 @@ SUBDIRS   = plugin_coreplugin \
             plugin_macros \
             debugger/dumper.pro
 
+linux-* {
+     SUBDIRS += debugger/ptracepreload.pro
+}
+
 include(../../qtcreator.pri)
 
 contains(QT_CONFIG, declarative) {

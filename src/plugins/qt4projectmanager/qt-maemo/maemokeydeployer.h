@@ -38,7 +38,7 @@
 #include <QtCore/QSharedPointer>
 
 namespace Core {
-class SshConnectionParameters;
+struct SshConnectionParameters;
 class SshRemoteProcessRunner;
 }
 

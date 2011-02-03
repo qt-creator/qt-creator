@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>377</width>
-    <height>155</height>
+    <width>621</width>
+    <height>121</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,6 +31,9 @@
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
        <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
@@ -51,7 +54,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="privateKeyFilePathLineEdit"/>
+          <widget class="Utils::PathChooser" name="privateKeyFilePathChooser"/>
          </item>
         </layout>
        </item>
@@ -81,6 +84,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

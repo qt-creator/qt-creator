@@ -37,6 +37,7 @@
 #include "ui_maemodeviceconfigurationssettingswidget.h"
 
 #include "maemoconfigtestdialog.h"
+#include "maemodeviceconfigwizard.h"
 #include "maemodeviceconfigurations.h"
 #include "maemokeydeployer.h"
 #include "maemoremoteprocessesdialog.h"
@@ -131,9 +132,8 @@ QString MaemoDeviceConfigurationsSettingsWidget::searchKeywords() const
         << ' ' << m_ui->passwordButton->text()
         << ' ' << m_ui->authTypeLabel->text()
         << ' ' << m_ui->connectionTimeoutLabel->text()
-        << ' ' << m_ui->deviceButton->text()
-        << ' ' << m_ui->simulatorButton->text()
         << ' ' << m_ui->deviceTypeLabel->text()
+        << ' ' << m_ui->deviceTypeValueLabel->text()
         << ' ' << m_ui->deviceNameLabel->text()
         << ' ' << m_ui->hostNameLabel->text()
         << ' ' << m_ui->keyLabel->text()
@@ -175,21 +175,13 @@ void MaemoDeviceConfigurationsSettingsWidget::initGui()
 
 void MaemoDeviceConfigurationsSettingsWidget::addConfig()
 {
-    const QString prefix = tr("New Device Configuration %1", "Standard "
-        "Configuration name with number");
-    int suffix = 1;
-    QString newName;
-    bool isUnique = false;
-    do {
-        newName = prefix.arg(QString::number(suffix++));
-        isUnique = !m_devConfigs->hasConfig(newName);
-    } while (!isUnique);
-
-    m_devConfigs->addConfiguration(newName, MaemoGlobal::Maemo5,
-       MaemoDeviceConfig::Physical);
-    m_ui->removeConfigButton->setEnabled(true);
-    m_ui->configurationComboBox->setCurrentIndex(m_ui->configurationComboBox->count()-1);
-    m_ui->configurationComboBox->setFocus();
+    MaemoDeviceConfigWizard wizard(m_devConfigs.data(), this);
+    if (wizard.exec() == QDialog::Accepted) {
+        wizard.createDeviceConfig();
+        m_ui->removeConfigButton->setEnabled(true);
+        m_ui->configurationComboBox->setCurrentIndex(m_ui->configurationComboBox->count()-1);
+        testConfig();
+    }
 }
 
 void MaemoDeviceConfigurationsSettingsWidget::deleteConfig()
@@ -203,11 +195,12 @@ void MaemoDeviceConfigurationsSettingsWidget::displayCurrent()
 {
     const MaemoDeviceConfig::ConstPtr &current = currentConfig();
     m_ui->defaultDeviceButton->setEnabled(!current->isDefault());
+    m_ui->osTypeValueLabel->setText(MaemoGlobal::maemoVersionToString(current->osVersion()));
     const SshConnectionParameters &sshParams = current->sshParameters();
     if (current->type() == MaemoDeviceConfig::Physical)
-        m_ui->deviceButton->setChecked(true);
+        m_ui->deviceTypeValueLabel->setText(tr("Physical Device"));
     else
-        m_ui->simulatorButton->setChecked(true);
+        m_ui->deviceTypeValueLabel->setText(tr("Emulator (Qemu)"));
     if (sshParams.authType == Core::SshConnectionParameters::AuthByPwd)
         m_ui->passwordButton->setChecked(true);
     else
@@ -262,15 +255,6 @@ void MaemoDeviceConfigurationsSettingsWidget::configNameEditingFinished()
     const QString &newName = m_ui->nameLineEdit->text();
     m_devConfigs->setConfigurationName(currentIndex(), newName);
     m_nameValidator->setDisplayName(newName);
-}
-
-void MaemoDeviceConfigurationsSettingsWidget::deviceTypeChanged()
-{
-    const MaemoDeviceConfig::DeviceType devType
-        = m_ui->deviceButton->isChecked()
-            ? MaemoDeviceConfig::Physical : MaemoDeviceConfig::Simulator;
-    m_devConfigs->setDeviceType(currentIndex(), devType);
-    fillInValues();
 }
 
 void MaemoDeviceConfigurationsSettingsWidget::authenticationTypeChanged()

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>375</width>
-    <height>118</height>
+    <width>447</width>
+    <height>115</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,7 +34,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="directoryLineEdit"/>
+      <widget class="Utils::PathChooser" name="keyDirPathChooser"/>
      </item>
      <item>
       <widget class="QPushButton" name="createKeysButton">
@@ -44,6 +44,13 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="statusLabel">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -60,6 +67,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -97,6 +97,8 @@ public:
     static bool callMadAdmin(QProcess &proc, const QStringList &args,
         const QtVersion *qtVersion, bool useTarget);
 
+    static QString maemoVersionToString(MaemoVersion version);
+
     static bool removeRecursively(const QString &filePath, QString &error);
 
     template<class T> static T *buildStep(const ProjectExplorer::DeployConfiguration *dc)

@@ -679,11 +679,14 @@ static inline void formatGdbmiFlag(std::ostream &str, const char *name, bool v)
 static bool gdbmiFormatBreakpoint(std::ostream &str,
                                   IDebugBreakpoint *bp,
                                   CIDebugSymbols *symbols  /* = 0 */,
-                                  bool verbose, std::string *errorMessage)
+                                  unsigned verbose, std::string *errorMessage)
 {
     enum { BufSize = 512 };
     ULONG64 offset = 0;
     ULONG flags = 0;
+    ULONG id = 0;
+    if (SUCCEEDED(bp->GetId(&id)))
+        str << ",id=\"" << id << '"';
     HRESULT hr = bp->GetFlags(&flags);
     if (FAILED(hr)) {
         *errorMessage = msgDebugEngineComFailed("GetFlags", hr);
@@ -691,8 +694,8 @@ static bool gdbmiFormatBreakpoint(std::ostream &str,
     }
     const bool deferred = (flags & DEBUG_BREAKPOINT_DEFERRED) != 0;
     formatGdbmiFlag(str, ",deferred", deferred);
+    formatGdbmiFlag(str, ",enabled", (flags & DEBUG_BREAKPOINT_ENABLED) != 0);
     if (verbose) {
-        formatGdbmiFlag(str, ",enabled", (flags & DEBUG_BREAKPOINT_ENABLED) != 0);
         formatGdbmiFlag(str, ",oneshot", (flags & DEBUG_BREAKPOINT_ONE_SHOT) != 0);
         str << ",flags=\"" << flags << '"';
         ULONG threadId = 0;
@@ -713,16 +716,18 @@ static bool gdbmiFormatBreakpoint(std::ostream &str,
         }
     }
     // Expression
-    char buf[BufSize];
-    if (SUCCEEDED(bp->GetOffsetExpression(buf, BUFSIZ, 0)))
-        str << ",expression=\"" << gdbmiStringFormat(buf) << '"';
+    if (verbose > 1) {
+        char buf[BufSize];
+        if (SUCCEEDED(bp->GetOffsetExpression(buf, BUFSIZ, 0)))
+            str << ",expression=\"" << gdbmiStringFormat(buf) << '"';
+    }
     return true;
 }
 
 // Format breakpoints as GDBMI
 std::string gdbmiBreakpoints(CIDebugControl *ctrl,
                              CIDebugSymbols *symbols /* = 0 */,
-                             bool humanReadable, bool verbose, std::string *errorMessage)
+                             bool humanReadable, unsigned verbose, std::string *errorMessage)
 {
     ULONG breakPointCount = 0;
     HRESULT hr = ctrl->GetNumberBreakpoints(&breakPointCount);
@@ -735,7 +740,7 @@ std::string gdbmiBreakpoints(CIDebugControl *ctrl,
     if (humanReadable)
         str << '\n';
     for (ULONG i = 0; i < breakPointCount; i++) {
-        str << "{id=\"" << i << '"';
+        str << "{number=\"" << i << '"';
         IDebugBreakpoint *bp = 0;
         hr = ctrl->GetBreakpointByIndex(i, &bp);
         if (FAILED(hr) || !bp) {

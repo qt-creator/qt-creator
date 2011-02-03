@@ -35,6 +35,7 @@
 #define DEBUGGER_CDBENGINE_H
 
 #include "debuggerengine.h"
+#include "breakpoint.h"
 
 #include <QtCore/QSharedPointer>
 #include <QtCore/QProcess>
@@ -68,7 +69,8 @@ public:
         CommandListStack = 0x1,
         CommandListThreads = 0x2,
         CommandListRegisters = 0x4,
-        CommandListModules = 0x8
+        CommandListModules = 0x8,
+        CommandListBreakPoints = 0x10
     };
 
     typedef QSharedPointer<CdbBuiltinCommand> CdbBuiltinCommandPtr;
@@ -159,6 +161,8 @@ private slots:
     void consoleStubExited();
 
 private:
+    typedef QHash<BreakpointId, BreakpointResponse> PendingBreakPointMap;
+
     enum SpecialStopMode
     {
         NoSpecialStop,
@@ -205,6 +209,8 @@ private:
     void handleModules(const CdbExtensionCommandPtr &reply);
     void handleMemory(const CdbExtensionCommandPtr &);
     void handleWidgetAt(const CdbExtensionCommandPtr &);
+    void handleBreakPoints(const CdbExtensionCommandPtr &);
+    void handleBreakPoints(const GdbMi &value);
 
     QString normalizeFileName(const QString &f);
     void updateLocalVariable(const QByteArray &iname);
@@ -227,7 +233,6 @@ private:
     bool m_accessible;
     SpecialStopMode m_specialStopMode;
     int m_nextCommandToken;
-    int m_nextBreakpointNumber;
     QList<CdbBuiltinCommandPtr> m_builtinCommandQueue;
     int m_currentBuiltinCommandIndex; // Current command whose output is recorded.
     QList<CdbExtensionCommandPtr> m_extensionCommandQueue;
@@ -244,6 +249,8 @@ private:
     unsigned m_wX86BreakpointCount;
     int m_watchPointX;
     int m_watchPointY;
+    PendingBreakPointMap m_pendingBreakpointMap;
+    QHash<QString, QString> m_fileNameModuleHash;
 };
 
 } // namespace Internal

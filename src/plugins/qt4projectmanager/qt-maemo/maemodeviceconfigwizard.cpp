@@ -33,11 +33,13 @@
 ****************************************************************************/
 #include "maemodeviceconfigwizard.h"
 #include "ui_maemodeviceconfigwizardkeycreationpage.h"
+#include "ui_maemodeviceconfigwizardkeydeploymentpage.h"
 #include "ui_maemodeviceconfigwizardpreviouskeysetupcheckpage.h"
 #include "ui_maemodeviceconfigwizardreusekeyscheckpage.h"
 #include "ui_maemodeviceconfigwizardstartpage.h"
 
 #include "maemodeviceconfigurations.h"
+#include "maemokeydeployer.h"
 
 #include <coreplugin/ssh/sshkeygenerator.h>
 
@@ -64,7 +66,7 @@ struct WizardData
 
 enum PageId {
     StartPageId, PreviousKeySetupCheckPageId, ReuseKeysCheckPageId,
-    KeyCreationPageId, KeyDeploymentPageId, FinalTestPageId
+    KeyCreationPageId, KeyDeploymentPageId, FinalPageId
 };
 
 class MaemoDeviceConfigWizardStartPage : public QWizardPage
@@ -75,8 +77,11 @@ public:
         : QWizardPage(parent), m_ui(new Ui::MaemoDeviceConfigWizardStartPage)
     {
         m_ui->setupUi(this);
-        m_ui->harmattanButton->setChecked(true);
-        m_ui->hwButton->setChecked(true);
+        setTitle(tr("General Information"));
+        setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
+        m_ui->fremantleButton->setText(MaemoGlobal::maemoVersionToString(MaemoGlobal::Maemo5));
+        m_ui->harmattanButton->setText(MaemoGlobal::maemoVersionToString(MaemoGlobal::Maemo6));
+        m_ui->meegoButton->setText(MaemoGlobal::maemoVersionToString(MaemoGlobal::Meego));
         QButtonGroup * const buttonGroup = new QButtonGroup(this);
         buttonGroup->setExclusive(true);
         buttonGroup->addButton(m_ui->hwButton);
@@ -84,6 +89,8 @@ public:
         m_ui->nameLineEdit->setText(QLatin1String("(New Configuration)"));
         connect(buttonGroup, SIGNAL(buttonClicked(int)),
            SLOT(handleDeviceTypeChanged()));
+        m_ui->harmattanButton->setChecked(true);
+        m_ui->hwButton->setChecked(true);
         handleDeviceTypeChanged();
         m_ui->hostNameLineEdit->setText(MaemoDeviceConfig::defaultHost(deviceType()));
         connect(m_ui->nameLineEdit, SIGNAL(textChanged(QString)), this,
@@ -140,20 +147,30 @@ public:
           m_ui(new Ui::MaemoDeviceConfigWizardCheckPreviousKeySetupPage)
     {
         m_ui->setupUi(this);
-        m_ui->keyWasNotSetUpButton->setChecked(true);
+        m_ui->privateKeyFilePathChooser->setExpectedKind(Utils::PathChooser::File);
+        setTitle(tr("Device Status Check"));
+        setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
         QButtonGroup * const buttonGroup = new QButtonGroup(this);
         buttonGroup->setExclusive(true);
         buttonGroup->addButton(m_ui->keyWasSetUpButton);
         buttonGroup->addButton(m_ui->keyWasNotSetUpButton);
         connect(buttonGroup, SIGNAL(buttonClicked(int)),
             SLOT(handleSelectionChanged()));
-        handleSelectionChanged();
-        connect(m_ui->privateKeyFilePathLineEdit, SIGNAL(textChanged(QString)),
+        connect(m_ui->privateKeyFilePathChooser, SIGNAL(changed(QString)),
             this, SIGNAL(completeChanged()));
     }
 
-    virtual bool isComplete() const {
-        return !keyBasedLoginWasSetup() || !privateKeyFilePath().isEmpty();
+    virtual bool isComplete() const
+    {
+        return !keyBasedLoginWasSetup()
+            || m_ui->privateKeyFilePathChooser->isValid();
+    }
+
+    virtual void initializePage()
+    {
+        m_ui->keyWasNotSetUpButton->setChecked(true);
+        m_ui->privateKeyFilePathChooser->setPath(MaemoDeviceConfig::defaultPrivateKeyFilePath());
+        handleSelectionChanged();
     }
 
     bool keyBasedLoginWasSetup() const {
@@ -161,13 +178,13 @@ public:
     }
 
     QString privateKeyFilePath() const {
-        return m_ui->privateKeyFilePathLineEdit->text().trimmed();
+        return m_ui->privateKeyFilePathChooser->path();
     }
 
 private:
     Q_SLOT void handleSelectionChanged()
     {
-        m_ui->privateKeyFilePathLineEdit->setEnabled(keyBasedLoginWasSetup());
+        m_ui->privateKeyFilePathChooser->setEnabled(keyBasedLoginWasSetup());
         emit completeChanged();
     }
 
@@ -183,41 +200,53 @@ public:
           m_ui(new Ui::MaemoDeviceConfigWizardReuseKeysCheckPage)
     {
         m_ui->setupUi(this);
-        m_ui->dontReuseButton->setChecked(true);
+        setTitle(tr("Existing Keys Check"));
+        setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
+        m_ui->publicKeyFilePathChooser->setExpectedKind(Utils::PathChooser::File);
+        m_ui->privateKeyFilePathChooser->setExpectedKind(Utils::PathChooser::File);
         QButtonGroup * const buttonGroup = new QButtonGroup(this);
         buttonGroup->setExclusive(true);
         buttonGroup->addButton(m_ui->reuseButton);
         buttonGroup->addButton(m_ui->dontReuseButton);
         connect(buttonGroup, SIGNAL(buttonClicked(int)),
             SLOT(handleSelectionChanged()));
-        handleSelectionChanged();
-        connect(m_ui->privateKeyFilePathLineEdit, SIGNAL(textChanged(QString)),
+        connect(m_ui->privateKeyFilePathChooser, SIGNAL(changed(QString)),
             this, SIGNAL(completeChanged()));
-        connect(m_ui->publicKeyFilePathLineEdit, SIGNAL(textChanged(QString)),
+        connect(m_ui->publicKeyFilePathChooser, SIGNAL(changed(QString)),
             this, SIGNAL(completeChanged()));
     }
 
-    virtual bool isComplete()
+    virtual bool isComplete() const
     {
-        return !reuseKeys() || (!privateKeyFilePath().isEmpty()
-            && !publicKeyFilePath().isEmpty());
+        return !reuseKeys() || (m_ui->publicKeyFilePathChooser->isValid()
+            && m_ui->privateKeyFilePathChooser->isValid());
+    }
+
+    virtual void initializePage()
+    {
+        m_ui->dontReuseButton->setChecked(true);
+        m_ui->privateKeyFilePathChooser->setPath(QString());
+        m_ui->publicKeyFilePathChooser->setPath(QString());
+        handleSelectionChanged();
     }
 
     bool reuseKeys() const { return m_ui->reuseButton->isChecked(); }
+
     QString privateKeyFilePath() const {
-        return m_ui->privateKeyFilePathLineEdit->text().trimmed();
+        return m_ui->privateKeyFilePathChooser->path();
     }
+
     QString publicKeyFilePath() const {
-        return m_ui->publicKeyFilePathLineEdit->text().trimmed();
+        return m_ui->publicKeyFilePathChooser->path();
     }
 
 private:
     Q_SLOT void handleSelectionChanged()
     {
         m_ui->privateKeyFilePathLabel->setEnabled(reuseKeys());
-        m_ui->privateKeyFilePathLineEdit->setEnabled(reuseKeys());
+        m_ui->privateKeyFilePathChooser->setEnabled(reuseKeys());
         m_ui->publicKeyFilePathLabel->setEnabled(reuseKeys());
-        m_ui->publicKeyFilePathLineEdit->setEnabled(reuseKeys());
+        m_ui->publicKeyFilePathChooser->setEnabled(reuseKeys());
         emit completeChanged();
     }
 
@@ -230,23 +259,31 @@ class MaemoDeviceConfigWizardKeyCreationPage : public QWizardPage
 public:
     MaemoDeviceConfigWizardKeyCreationPage(QWidget *parent)
         : QWizardPage(parent),
-          m_ui(new Ui::MaemoDeviceConfigWizardKeyCreationPage),
-          m_isComplete(false)
+          m_ui(new Ui::MaemoDeviceConfigWizardKeyCreationPage)
     {
         m_ui->setupUi(this);
-        const QString &homeDir
-            = QDesktopServices::storageLocation(QDesktopServices::HomeLocation);
-        m_ui->directoryLineEdit->setText(homeDir);
-        connect(m_ui->directoryLineEdit, SIGNAL(textChanged(QString)),
+        setTitle(tr("Key Creation"));
+        setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
+        connect(m_ui->keyDirPathChooser, SIGNAL(changed(QString)),
             SLOT(enableOrDisableButton()));
+        connect(m_ui->createKeysButton, SIGNAL(clicked()), SLOT(createKeys()));
     }
 
     QString privateKeyFilePath() const {
-        return m_ui->directoryLineEdit->text() + QLatin1String("/qtc_id_rsa");
+        return m_ui->keyDirPathChooser->path() + QLatin1String("/qtc_id_rsa");
     }
 
     QString publicKeyFilePath() const {
         return privateKeyFilePath() + QLatin1String(".pub");
+    }
+
+    virtual void initializePage()
+    {
+        m_isComplete = false;
+        const QString &dir = QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
+           + QLatin1String("/.ssh");
+        m_ui->keyDirPathChooser->setPath(dir);
+        enableInput();
     }
 
     virtual bool isComplete() const { return m_isComplete; }
@@ -254,39 +291,40 @@ public:
 private:
     Q_SLOT void enableOrDisableButton()
     {
-        const QString &dir = m_ui->directoryLineEdit->text().trimmed();
-        m_ui->createKeysButton->setEnabled(!dir.isEmpty());
+        m_ui->createKeysButton->setEnabled(m_ui->keyDirPathChooser->isValid());
     }
 
     Q_SLOT void createKeys()
     {
-        const QString &dirName = m_ui->directoryLineEdit->text();
-        QDir dir(dirName);
-        if (!dir.exists() || !QFileInfo(dirName).isWritable()) {
+        const QString &dirPath = m_ui->keyDirPathChooser->path();
+        QDir dir(dirPath);
+        QDir parentDir = QDir(dirPath + QLatin1String("/.."));
+        if ((!dir.exists() && !parentDir.mkdir(dir.dirName()))
+                || !QFileInfo(dirPath).isWritable()) {
             QMessageBox::critical(this, tr("Can't Create Keys"),
                 tr("You have not entered a writable directory."));
             return;
         }
 
-        m_ui->directoryLineEdit->setEnabled(false);
+        m_ui->keyDirPathChooser->setEnabled(false);
         m_ui->createKeysButton->setEnabled(false);
+        m_ui->statusLabel->setText(tr("Creating keys ... "));
         Core::SshKeyGenerator keyGenerator;
         if (!keyGenerator.generateKeys(Core::SshKeyGenerator::Rsa,
              Core::SshKeyGenerator::OpenSsl, 1024)) {
             QMessageBox::critical(this, tr("Can't Create Keys"),
                 tr("Key creation failed: %1").arg(keyGenerator.error()));
-            m_ui->directoryLineEdit->setEnabled(true);
-            m_ui->createKeysButton->setEnabled(true);
+            enableInput();
             return;
         }
 
         if (!saveFile(privateKeyFilePath(), keyGenerator.privateKey())
                 || !saveFile(publicKeyFilePath(), keyGenerator.publicKey())) {
-            m_ui->directoryLineEdit->setEnabled(true);
-            m_ui->createKeysButton->setEnabled(true);
+            enableInput();
             return;
         }
 
+        m_ui->statusLabel->setText(m_ui->statusLabel->text() + tr("Done!"));
         m_isComplete = true;
         emit completeChanged();
     }
@@ -305,40 +343,199 @@ private:
         return true;
     }
 
+    void enableInput()
+    {
+        m_ui->keyDirPathChooser->setEnabled(true);
+        enableOrDisableButton();
+        m_ui->statusLabel->clear();
+    }
+
     const QScopedPointer<Ui::MaemoDeviceConfigWizardKeyCreationPage> m_ui;
     bool m_isComplete;
+};
+
+class MaemoDeviceConfigWizardKeyDeploymentPage : public QWizardPage
+{
+    Q_OBJECT
+public:
+    MaemoDeviceConfigWizardKeyDeploymentPage(const WizardData &wizardData,
+        QWidget *parent = 0)
+            : QWizardPage(parent),
+              m_ui(new Ui::MaemoDeviceConfigWizardKeyDeploymentPage),
+              m_wizardData(wizardData),
+              m_keyDeployer(new MaemoKeyDeployer(this))
+    {
+        m_ui->setupUi(this);
+        setTitle(tr("Key Deployment"));
+        setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
+        connect(m_ui->deviceAddressLineEdit, SIGNAL(textChanged(QString)),
+            SLOT(enableOrDisableButton()));
+        connect(m_ui->passwordLineEdit, SIGNAL(textChanged(QString)),
+            SLOT(enableOrDisableButton()));
+        connect(m_ui->deployButton, SIGNAL(clicked()), SLOT(deployKey()));
+        connect(m_keyDeployer, SIGNAL(error(QString)),
+            SLOT(handleKeyDeploymentError(QString)));
+        connect(m_keyDeployer, SIGNAL(finishedSuccessfully()),
+            SLOT(handleKeyDeploymentSuccess()));
+    }
+
+    virtual void initializePage()
+    {
+        m_isComplete = false;
+        m_ui->deviceAddressLineEdit->setText(m_wizardData.hostName);
+        m_ui->passwordLineEdit->clear();
+        enableInput();
+    }
+
+    virtual bool isComplete() const { return m_isComplete; }
+
+    QString hostAddress() const {
+        return m_ui->deviceAddressLineEdit->text().trimmed();
+    }
+
+private:
+    Q_SLOT void enableOrDisableButton()
+    {
+        m_ui->deployButton->setEnabled(!hostAddress().isEmpty()
+            && !password().isEmpty());
+    }
+
+    Q_SLOT void deployKey()
+    {
+        using namespace Core;
+        m_ui->deviceAddressLineEdit->setEnabled(false);
+        m_ui->passwordLineEdit->setEnabled(false);
+        m_ui->deployButton->setEnabled(false);
+        Core::SshConnectionParameters sshParams(SshConnectionParameters::NoProxy);
+        sshParams.authType = SshConnectionParameters::AuthByPwd;
+        sshParams.host = hostAddress();
+        sshParams.port = MaemoDeviceConfig::defaultSshPort(MaemoDeviceConfig::Physical);
+        sshParams.pwd = password();
+        sshParams.timeout = 30;
+        sshParams.uname = MaemoDeviceConfig::defaultUser(m_wizardData.maemoVersion);
+        m_ui->statusLabel->setText(tr("Deploying... "));
+        m_keyDeployer->deployPublicKey(sshParams, m_wizardData.publicKeyFilePath);
+    }
+
+    Q_SLOT void handleKeyDeploymentError(const QString &errorMsg)
+    {
+        QMessageBox::critical(this, tr("Key Deployment Failure"), errorMsg);
+        enableInput();
+    }
+
+    Q_SLOT void handleKeyDeploymentSuccess()
+    {
+        QMessageBox::information(this, tr("Key Deployment Success"),
+            tr("The key was successfully deployed. You may now close "
+               "the \"Mad Developer\" application and continue."));
+        m_ui->statusLabel->setText(m_ui->statusLabel->text() + tr("Done!"));
+        m_isComplete = true;
+        emit completeChanged();
+    }
+
+    void enableInput()
+    {
+        m_ui->deviceAddressLineEdit->setEnabled(true);
+        m_ui->passwordLineEdit->setEnabled(true);
+        m_ui->statusLabel->clear();
+        enableOrDisableButton();
+    }
+
+    QString password() const {
+        return m_ui->passwordLineEdit->text().trimmed();
+    }
+
+
+    const QScopedPointer<Ui::MaemoDeviceConfigWizardKeyDeploymentPage> m_ui;
+    bool m_isComplete;
+    const WizardData &m_wizardData;
+    MaemoKeyDeployer * const m_keyDeployer;
+};
+
+class MaemoDeviceConfigWizardFinalPage : public QWizardPage
+{
+    Q_OBJECT
+public:
+    MaemoDeviceConfigWizardFinalPage(QWidget *parent) : QWizardPage(parent)
+    {
+        setTitle(tr("Setup Finished"));
+        setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
+        const QString infoText = tr("Setup is complete.\n"
+            "The new device configuration will now be created and a test "
+            "procedure will be run to check whether Qt Creator can "
+            "connect to the device and to provide some information "
+            "about its features.");
+        QLabel * const infoLabel = new QLabel(infoText, this);
+        infoLabel->setWordWrap(true);
+        QVBoxLayout * const layout = new QVBoxLayout(this);
+        layout->addWidget(infoLabel);
+    }
 };
 
 } // anonymous namespace
 
 struct MaemoDeviceConfigWizardPrivate
 {
-    MaemoDeviceConfigWizardPrivate(QWidget *parent)
-        : startPage(parent),
+    MaemoDeviceConfigWizardPrivate(MaemoDeviceConfigurations *devConfigs,
+            QWidget *parent)
+        : devConfigs(devConfigs),
+          startPage(parent),
           previousKeySetupPage(parent),
           reuseKeysCheckPage(parent),
-          keyCreationPage(parent)
+          keyCreationPage(parent),
+          keyDeploymentPage(wizardData, parent),
+          finalPage(parent)
     {
     }
 
     WizardData wizardData;
+    MaemoDeviceConfigurations * const devConfigs;
     MaemoDeviceConfigWizardStartPage startPage;
     MaemoDeviceConfigWizardPreviousKeySetupCheckPage previousKeySetupPage;
     MaemoDeviceConfigWizardReuseKeysCheckPage reuseKeysCheckPage;
     MaemoDeviceConfigWizardKeyCreationPage keyCreationPage;
+    MaemoDeviceConfigWizardKeyDeploymentPage keyDeploymentPage;
+    MaemoDeviceConfigWizardFinalPage finalPage;
 };
 
 
-MaemoDeviceConfigWizard::MaemoDeviceConfigWizard(QWidget *parent) :
-    QWizard(parent), d(new MaemoDeviceConfigWizardPrivate(this))
+MaemoDeviceConfigWizard::MaemoDeviceConfigWizard(MaemoDeviceConfigurations *devConfigs,
+    QWidget *parent)
+        : QWizard(parent),
+          d(new MaemoDeviceConfigWizardPrivate(devConfigs, this))
 {
+    setWindowTitle(tr("New Device Configuration Setup"));
     setPage(StartPageId, &d->startPage);
     setPage(PreviousKeySetupCheckPageId, &d->previousKeySetupPage);
     setPage(ReuseKeysCheckPageId, &d->reuseKeysCheckPage);
     setPage(KeyCreationPageId, &d->keyCreationPage);
+    setPage(KeyDeploymentPageId, &d->keyDeploymentPage);
+    setPage(FinalPageId, &d->finalPage);
+    d->finalPage.setCommitPage(true);
 }
 
 MaemoDeviceConfigWizard::~MaemoDeviceConfigWizard() {}
+
+void MaemoDeviceConfigWizard::createDeviceConfig()
+{
+    QString name = d->wizardData.configName;
+    if (d->devConfigs->hasConfig(name)) {
+        const QString nameTemplate = name + QLatin1String(" (%1)");
+        int suffix = 2;
+        do
+            name = nameTemplate.arg(QString::number(suffix++));
+        while (d->devConfigs->hasConfig(name));
+    }
+
+    if (d->wizardData.deviceType == MaemoDeviceConfig::Physical) {
+        d->devConfigs->addHardwareDeviceConfiguration(name,
+            d->wizardData.maemoVersion, d->wizardData.hostName,
+            d->wizardData.privateKeyFilePath);
+    } else {
+        d->devConfigs->addEmulatorDeviceConfiguration(name,
+            d->wizardData.maemoVersion);
+    }
+}
 
 int MaemoDeviceConfigWizard::nextId() const
 {
@@ -351,13 +548,16 @@ int MaemoDeviceConfigWizard::nextId() const
         d->wizardData.deviceType = d->startPage.deviceType();
         d->wizardData.hostName = d->startPage.hostName();
 
-        // TODO: Different paths for Qemu/HW?
-        return PreviousKeySetupCheckPageId;
+        if (d->wizardData.deviceType == MaemoDeviceConfig::Simulator) {
+            return FinalPageId;
+        } else {
+            return PreviousKeySetupCheckPageId;
+        }
     case PreviousKeySetupCheckPageId:
         if (d->previousKeySetupPage.keyBasedLoginWasSetup()) {
             d->wizardData.privateKeyFilePath
                 = d->previousKeySetupPage.privateKeyFilePath();
-            return FinalTestPageId;
+            return FinalPageId;
         } else {
             return ReuseKeysCheckPageId;
         }
@@ -377,8 +577,10 @@ int MaemoDeviceConfigWizard::nextId() const
         d->wizardData.publicKeyFilePath
             = d->keyCreationPage.publicKeyFilePath();
         return KeyDeploymentPageId;
-    case KeyDeploymentPageId: return FinalTestPageId;
-    case FinalTestPageId: return -1;
+    case KeyDeploymentPageId:
+        d->wizardData.hostName = d->keyDeploymentPage.hostAddress();
+        return FinalPageId;
+    case FinalPageId: return -1;
     default:
         Q_ASSERT(false);
         return -1;

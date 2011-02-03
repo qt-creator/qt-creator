@@ -219,9 +219,15 @@ void NodeInstanceServer::clearScene(const ClearSceneCommand &/*command*/)
 
 void NodeInstanceServer::removeInstances(const RemoveInstancesCommand &command)
 {
+    if (activeStateInstance().isValid())
+        activeStateInstance().deactivateState();
+
     foreach(qint32 instanceId, command.instanceIds()) {
         removeInstanceRelationsip(instanceId);
     }
+
+    if (activeStateInstance().isValid())
+        activeStateInstance().activateState();
 
     startRenderTimer();
 }

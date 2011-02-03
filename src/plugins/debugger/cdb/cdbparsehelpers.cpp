@@ -54,7 +54,9 @@ namespace Debugger {
 namespace Internal {
 
 // Convert breakpoint in CDB syntax.
-QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn, bool oneshot, int id)
+QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
+                                   BreakpointId id /* = BreakpointId(-1) */,
+                                   bool oneshot)
 {
 #ifdef Q_OS_WIN
     const BreakpointParameters bp = fixWinMSVCBreakpoint(bpIn);
@@ -68,8 +70,10 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn, bool onesho
     if (bp.threadSpec >= 0)
         str << '~' << bp.threadSpec << ' ';
 
-    str << (bp.type == Watchpoint ? "ba" : "bp");
-    if (id >= 0)
+    // Currently use 'bu' so that the offset expression (including file name)
+    // is kept when reporting back breakpoints (which is otherwise discarded when resolving).
+    str << (bp.type == Watchpoint ? "ba" : "bu");
+    if (id != BreakpointId(-1))
         str << id;
     str << ' ';
     if (oneshot)
@@ -100,7 +104,7 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn, bool onesho
         break;
     }
     if (bp.ignoreCount)
-        str << ' ' << bp.ignoreCount;
+        str << ' ' << (bp.ignoreCount + 1);
     // Condition currently unsupported.
     return rc;
 }
@@ -179,6 +183,66 @@ static inline bool parseThread(QByteArray line, ThreadData *thread, bool *curren
         break;
     } // switch size
     return true;
+}
+
+// Helper to retrieve an int child from GDBMI
+static inline bool gdbmiChildToInt(const GdbMi &parent, const char *childName, int *target)
+{
+    const GdbMi childBA = parent.findChild(childName);
+    if (childBA.isValid()) {
+        bool ok;
+        const int v = childBA.data().toInt(&ok);
+        if (ok) {
+            *target = v;
+            return  true;
+        }
+    }
+    return false;
+}
+
+// Helper to retrieve an bool child from GDBMI
+static inline bool gdbmiChildToBool(const GdbMi &parent, const char *childName, bool *target)
+{
+    const GdbMi childBA = parent.findChild(childName);
+    if (childBA.isValid()) {
+        *target = childBA.data() == "true";
+        return true;
+    }
+    return false;
+}
+
+// Parse extension command listing breakpoints.
+// Note that not all fields are returned, since file, line, function are encoded
+// in the expression (that is in addition deleted on resolving for a bp-type breakpoint).
+BreakpointId parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
+                             QString *expression /*  = 0 */)
+{
+    BreakpointId id = BreakpointId(-1);
+    gdbmiChildToInt(gdbmi, "number", &(r->number));
+    gdbmiChildToBool(gdbmi, "enabled", &(r->enabled));
+    gdbmiChildToBool(gdbmi, "deferred", &(r->pending));
+    const GdbMi idG = gdbmi.findChild("id");
+    if (idG.isValid()) { // Might not be valid if there is not id
+        bool ok;
+        const BreakpointId cid = idG.data().toULongLong(&ok);
+        if (ok)
+            id = cid;
+    }
+    const GdbMi moduleG = gdbmi.findChild("module");
+    if (moduleG.isValid())
+        r->module = QString::fromLocal8Bit(moduleG.data());
+    if (expression) {
+        const GdbMi expressionG = gdbmi.findChild("expression");
+        if (expressionG.isValid())
+            *expression = QString::fromLocal8Bit(expressionG.data());
+    }
+    const GdbMi addressG = gdbmi.findChild("address");
+    if (addressG.isValid())
+        r->address = addressG.data().toULongLong(0, 0);
+    if (gdbmiChildToInt(gdbmi, "passcount", &(r->ignoreCount)))
+        r->ignoreCount--;
+    gdbmiChildToInt(gdbmi, "thread", &(r->threadSpec));
+    return id;
 }
 
 QString debugByteArray(const QByteArray &a)

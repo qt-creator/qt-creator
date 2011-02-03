@@ -263,7 +263,7 @@ extern "C" HRESULT CALLBACK pid(CIDebugClient *client, PCSTR args)
 
     int token;
     commandTokens<StringList>(args, &token);
-
+    dprintf("Qt Creator CDB extension version 0.1 %d bit built %s.\n", sizeof(void *) > 4 ? 64 : 32, __DATE__);
     if (const ULONG pid = currentProcessId(client)) {
         ExtensionContext::instance().report('R', token, 0, "pid", "%u", pid);
     } else {
@@ -992,7 +992,7 @@ extern "C" HRESULT CALLBACK breakpoints(CIDebugClient *client, PCSTR argsIn)
     int token;
     std::string errorMessage;
     bool humanReadable = false;
-    bool verbose = false;
+    unsigned verbose = 0;
     StringList tokens = commandTokens<StringList>(argsIn, &token);
     while (!tokens.empty() && tokens.front().size() == 2 && tokens.front().at(0) == '-') {
         switch (tokens.front().at(1)) {
@@ -1000,7 +1000,7 @@ extern "C" HRESULT CALLBACK breakpoints(CIDebugClient *client, PCSTR argsIn)
             humanReadable = true;
             break;
         case 'v':
-            verbose = true;
+            verbose++;
             break;
         }
         tokens.pop_front();

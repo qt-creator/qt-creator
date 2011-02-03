@@ -109,6 +109,13 @@ on slow machines. In this case, the value should be increased.</string>
         </property>
        </widget>
       </item>
+      <item row="8" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxTargetAsync">
+        <property name="text">
+         <string>Use asyncronous mode to control the inferior</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

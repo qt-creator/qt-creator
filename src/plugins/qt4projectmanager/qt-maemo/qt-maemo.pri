@@ -115,6 +115,7 @@ FORMS += \
     $$PWD/maemodeviceconfigwizardstartpage.ui \
     $$PWD/maemodeviceconfigwizardpreviouskeysetupcheckpage.ui \
     $$PWD/maemodeviceconfigwizardreusekeyscheckpage.ui \
-    $$PWD/maemodeviceconfigwizardkeycreationpage.ui
+    $$PWD/maemodeviceconfigwizardkeycreationpage.ui \
+    $$PWD/maemodeviceconfigwizardkeydeploymentpage.ui
 
 RESOURCES += $$PWD/qt-maemo.qrc

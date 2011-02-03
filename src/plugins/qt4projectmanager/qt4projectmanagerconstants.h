@@ -99,7 +99,7 @@ const char * const QTVERSION_SETTINGS_PAGE_NAME = QT_TRANSLATE_NOOP("Qt4ProjectM
 // C++ wizard categories
 const char * const QT_APP_WIZARD_CATEGORY = "F.QtApplicationProjects";
 const char * const QT_APP_WIZARD_TR_SCOPE = "Qt4ProjectManager";
-const char * const QT_APP_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt QWidget Project");
+const char * const QT_APP_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt Widget Project");
 
 // QML wizard categories
 const char * const QML_WIZARD_CATEGORY = "C.Projects"; // (before Qt)

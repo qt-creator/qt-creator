@@ -73,7 +73,6 @@ private slots:
     void addConfig();
     void deleteConfig();
     void configNameEditingFinished();
-    void deviceTypeChanged();
     void authenticationTypeChanged();
     void hostNameEditingFinished();
     void sshPortEditingFinished();

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>370</width>
-    <height>188</height>
+    <width>574</width>
+    <height>185</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,6 +30,9 @@
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -55,6 +58,9 @@
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
            <property name="sizeHint" stdset="0">
             <size>
              <width>40</width>
@@ -72,9 +78,6 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="publicKeyFilePathLineEdit"/>
-           </item>
            <item row="1" column="0">
             <widget class="QLabel" name="privateKeyFilePathLabel">
              <property name="text">
@@ -82,8 +85,11 @@
              </property>
             </widget>
            </item>
+           <item row="0" column="1">
+            <widget class="Utils::PathChooser" name="publicKeyFilePathChooser"/>
+           </item>
            <item row="1" column="1">
-            <widget class="QLineEdit" name="privateKeyFilePathLineEdit"/>
+            <widget class="Utils::PathChooser" name="privateKeyFilePathChooser"/>
            </item>
           </layout>
          </item>
@@ -115,6 +121,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

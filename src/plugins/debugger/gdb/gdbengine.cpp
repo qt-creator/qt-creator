@@ -642,9 +642,14 @@ void GdbEngine::readGdbStandardOutput()
 void GdbEngine::interruptInferior()
 {
     QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state(); return);
-    showStatusMessage(tr("Stop requested..."), 5000);
-    showMessage(_("TRYING TO INTERRUPT INFERIOR"));
-    m_gdbAdapter->interruptInferior();
+
+    if (debuggerCore()->boolSetting(TargetAsync)) {
+        postCommand("-exec-interrupt");
+    } else {
+        showStatusMessage(tr("Stop requested..."), 5000);
+        showMessage(_("TRYING TO INTERRUPT INFERIOR"));
+        m_gdbAdapter->interruptInferior();
+    }
 }
 
 void GdbEngine::interruptInferiorTemporarily()
@@ -4157,18 +4162,20 @@ void GdbEngine::handleFetchDisassemblerByCli(const GdbResponse &response)
 // Starting up & shutting down
 //
 
-bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QString &settingsIdHint)
+bool GdbEngine::startGdb(const QStringList &args, const QString &gdb,
+    const QString &settingsIdHint)
 {
     gdbProc()->disconnect(); // From any previous runs
 
+    const DebuggerStartParameters &sp = startParameters();
     m_gdb = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_PATH"));
-    if (m_gdb.isEmpty() && startParameters().startMode != StartRemoteGdb)
-        m_gdb = debuggerCore()->gdbBinaryForToolChain(startParameters().toolChainType);
+    if (m_gdb.isEmpty() && sp.startMode != StartRemoteGdb)
+        m_gdb = debuggerCore()->gdbBinaryForToolChain(sp.toolChainType);
     if (m_gdb.isEmpty())
         m_gdb = gdb;
     if (m_gdb.isEmpty()) {
         handleAdapterStartFailed(
-            msgNoBinaryForToolChain(startParameters().toolChainType),
+            msgNoBinaryForToolChain(sp.toolChainType),
             GdbOptionsPage::settingsId());
         return false;
     }
@@ -4300,6 +4307,11 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     postCommand("set width 0");
     postCommand("set height 0");
     postCommand("set auto-solib-add on");
+
+    if (debuggerCore()->boolSetting(TargetAsync)) {
+        postCommand("set target-async on");
+        postCommand("set non-stop on");
+    }
 
     if (false && m_isMacGdb) {
         // FIXME: m_isMacGdb is only known after handleShowVersion!

@@ -2720,6 +2720,10 @@
 
         \o C++ class, source, or header files
 
+        \o GLSL files that define fragment and vertex shaders in the Open GL/ES
+        2.0 Shading Language (GLSL/ES) or in the Desktop OpenGL Shading
+        Language (GLSL)
+
         \o Text files
 
     \endlist
@@ -2741,6 +2745,24 @@
 
     You can create your own project and class wizards. For more information,
     see \l{Adding New Custom Wizards}.
+
+    \section2 Creating OpenGL Fragment and Vertex Shaders
+
+    Qt provides support for integration with OpenGL implementations on all
+    platforms, which allows you to display hardware accelerated 3D graphics
+    alongside a more conventional user interface. For more information, see
+    \l{http://doc.qt.nokia.com/4.7/qtopengl.html}{QtOpenGL Module}.
+
+    You can use the QGLShader class to compile OpenGL shaders written in the
+    OpenGL Shading Language (GLSL) and in the OpenGL/ES Shading Language
+    (GLSL/ES). QGLShader and QGLShaderProgram shelter you from the details of
+    compiling and linking vertex and fragment shaders.
+
+    You can use Qt Creator code editor to write fragment and vertex shaders
+    in GLSL or GLSL/ES. The code editor provides syntax highlighting and code
+    completion for the files.
+
+    \image qtcreator-new-opengl-file.png "New OpenGL file wizard"
 
     \section2 Displaying Additional File Types in Projects Pane
 

@@ -253,6 +253,13 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     insertItem(LoadGdbInit, item);
 
     item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("TargetAsync"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    item->setValue(false);
+    insertItem(TargetAsync, item);
+
+    item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("ScriptFile"));
     item->setDefaultValue(QString());
     insertItem(GdbScriptFile, item);

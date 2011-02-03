@@ -104,16 +104,11 @@ QDeclarativeStateGroup *QmlStateNodeInstance::stateGroup() const
 
 bool QmlStateNodeInstance::isStateActive() const
 {
-    qDebug() << stateObject();
-    qDebug() << stateGroup();
-    if (stateGroup())
-        qDebug() << "state name" << stateGroup()->state() << property("name");
     return stateObject() && stateGroup() && stateGroup()->state() == property("name");
 }
 
 void QmlStateNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
-    qDebug() << __FUNCTION__ << stateObject() << name << value;
     bool hasParent = parent();
     bool isStateOfTheRootModelNode = parentInstance() && parentInstance()->isRootNodeInstance();
     if (name == "when" && (!hasParent || isStateOfTheRootModelNode))

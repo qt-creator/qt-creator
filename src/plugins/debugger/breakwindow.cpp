@@ -117,6 +117,12 @@ BreakpointDialog::BreakpointDialog(QWidget *parent)
     connect(m_ui.comboBoxType, SIGNAL(activated(int)), SLOT(typeChanged(int)));
     m_ui.lineEditIgnoreCount->setValidator(
         new QIntValidator(0, 2147483647, m_ui.lineEditIgnoreCount));
+    const QString moduleToolTip =
+        tr("Specifying the module (base name of the library or executable)\n"
+           "for function or file type breakpoints can significantly speed up\n"
+           "debugger start-up times (CDB, LLDB).");
+    m_ui.labelModule->setToolTip(moduleToolTip);
+    m_ui.lineEditModule->setToolTip(moduleToolTip);
 }
 
 void BreakpointDialog::setType(BreakpointType type)

@@ -446,7 +446,7 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
 
 const QmlJS::Interpreter::QmlObjectValue *NodeMetaInfoPrivate::getQmlObjectValue() const
 {
-    return lookupContext()->engine()->cppQmlTypes().types().value(lookupName());
+    return lookupContext()->engine()->cppQmlTypes().typeByQualifiedName(lookupName());
 }
 
 const QmlJS::Interpreter::ObjectValue *NodeMetaInfoPrivate::getObjectValue() const
@@ -647,6 +647,7 @@ bool NodeMetaInfoPrivate::cleverCheckType(const QString &otherType) const
 
     if (isComponent())
         return false;
+
     QStringList split = otherType.split('/');
     QString package;
     QString typeName = otherType;
@@ -742,17 +743,19 @@ QString NodeMetaInfoPrivate::componentFileName() const
 
 QString NodeMetaInfoPrivate::lookupName() const
 {
-    QString tempString = m_qualfiedTypeName;
-    tempString.replace('/', '.');
-    if (!tempString.contains('.'))
-        tempString.prepend('.');
-    tempString.append(' ');
+    QString className = m_qualfiedTypeName;
+    QString packageName;
 
-    tempString.append(QString::number(m_majorVersion));
-    tempString.append('.');
-    tempString.append(QString::number(m_minorVersion));
+    QStringList packageClassName = m_qualfiedTypeName.split(QLatin1Char('/'));
+    if (packageClassName.size() > 1) {
+        className = packageClassName.takeLast();
+        packageName = packageClassName.join(QLatin1String("."));
+    }
 
-    return tempString;
+    return Interpreter::CppQmlTypes::qualifiedName(
+                packageName,
+                className,
+                LanguageUtils::ComponentVersion(m_majorVersion, m_minorVersion));
 }
 
 QStringList NodeMetaInfoPrivate::lookupNameComponent() const
@@ -792,10 +795,11 @@ void NodeMetaInfoPrivate::setupPrototypes()
             description.majorVersion = qmlValue->version().majorVersion();
             if (!qmlValue->packageName().isEmpty())
                 description.className = qmlValue->packageName() + "/" + description.className;
-        }
-
-        if (lookupContext()->context()->lookupType(document(), QStringList() << ov->className()))
             m_prototypes.append(description);
+        } else {
+            if (lookupContext()->context()->lookupType(document(), QStringList() << ov->className()))
+                m_prototypes.append(description);
+        }
     }
 }
 
