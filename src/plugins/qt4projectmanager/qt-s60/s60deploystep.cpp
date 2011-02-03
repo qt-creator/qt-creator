@@ -287,7 +287,7 @@ void S60DeployStep::start()
             || m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection);
     bool trkClient = m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection;
 
-    if (serialConnection && m_serialPortName.isEmpty()
+    if ((serialConnection && m_serialPortName.isEmpty())
             || (trkClient && !m_launcher)) {
         errorMessage = tr("No device is connected. Please connect a device and try again.");
         reportError(errorMessage);
