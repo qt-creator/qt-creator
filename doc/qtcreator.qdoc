@@ -2802,28 +2802,25 @@
     \section1 Adding Subprojects to Projects
 
     When you create a new project, you can add it to another project as a subproject
-    in the \gui{Project Management} dialog. However, you first have to edit the
-    .pro file of the parent project to specify that qmake uses the \c subdirs template
-    to build the project.
+    in the \gui{Project Management} dialog. However, the root project must
+    specify that qmake uses the \c subdirs template to build the project.
 
-    The \c subdirs template creates a Makefile for building subprojects. They can be
-    located either in subdirectories of the project directory or in any other directory.
-    The location of the targets is specified using the SUBDIRS variable. If the project file
-    has the same name as the directory, you can just specify the directory name. If the project
-    name and directory name are different, you must specify the project file name (.pro).
+    To create a root project, select \gui {File > New File or Project... >
+    Other Project > Subdirs Project > Choose}.
 
-    For more information on the SUBDIRS variable, see the
-    \l{http://doc.qt.nokia.com/4.7/qmake-variable-reference.html#subdirs}{qmake Variable Reference}.
+    On the \gui Summary page, select \gui {Finish & Add Subproject} to create
+    the root project and to add another project, such as a C++ library.
 
-    For example, the following code specifies that plugin_coreplugin/plugin_coreplugin.pro
-    and mylogin.pro belong to the project:
+    The wizard creates a project file (.pro) that defines a \c subdirs template
+    and the subproject that you add as a value of the
+    \l{http://doc.qt.nokia.com/4.7/qmake-variable-reference.html#subdirs}{SUBDIRS variable}.
+    It also adds all the necessary files for the subproject.
 
-    \code
-    TEMPLATE  = subdirs
+    To add more subprojects, right-click the project name in the \gui Projects
+    pane, and select \gui {New Subproject} in the context menu.
 
-    SUBDIRS = plugin_coreplugin \
-    ../another/plugin/myplugin.pro
-    \endcode
+    To remove subprojects, right-click the project name in the \gui Projects
+    pane, and select \gui {Remove Subproject} in the context menu.
 
     To specify dependencies, use the \gui{Add Library} wizard. For more information,
     see \l{Adding Libraries to qmake Projects}.
@@ -10055,9 +10052,6 @@
            To be on the safe side, we recommend creating projects and project
            items with names consisting of plain characters, numbers,
            underscores, and hyphens.
-
-        \o There is no IDE support for adding or removing subprojects. Project
-           hierarchies (SUBDIRS template) have to be created manually.
 
         \o Creating new CMake projects with Qt Creator is not supported.
 
