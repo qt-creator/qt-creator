@@ -37,7 +37,6 @@
 
 #include <QtCore/QList>
 #include <QtCore/QScopedPointer>
-#include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 #include <QtGui/QWidget>
 
@@ -57,6 +56,7 @@ namespace Internal {
 class NameValidator;
 class MaemoDeviceConfig;
 class MaemoDeviceConfigurations;
+class MaemoKeyDeployer;
 
 class MaemoDeviceConfigurationsSettingsWidget : public QWidget
 {
@@ -95,9 +95,9 @@ private slots:
 
     // For key deploying.
     void deployKey();
-    void stopDeploying();
-    void handleConnectionFailure();
-    void handleKeyUploadFinished(int exitStatus);
+    void finishDeployment();
+    void handleDeploymentError(const QString &errorMsg);
+    void handleDeploymentSuccess();
 
 private:
     void initGui();
@@ -110,9 +110,9 @@ private:
     void updatePortsWarningLabel();
 
     Ui_MaemoDeviceConfigurationsSettingsWidget *m_ui;
-    QSharedPointer<Core::SshRemoteProcessRunner> m_keyDeployer;
     const QScopedPointer<MaemoDeviceConfigurations> m_devConfigs;
     NameValidator * const m_nameValidator;
+    MaemoKeyDeployer *const m_keyDeployer;
     bool m_saveSettingsRequested;
 };
 

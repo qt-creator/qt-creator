@@ -31,32 +31,46 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef MAEMODEVICECONFIGWIZARD_H
-#define MAEMODEVICECONFIGWIZARD_H
+#ifndef MAEMOKEYDEPLOYER_H
+#define MAEMOKEYDEPLOYER_H
 
-#include <QtCore/QScopedPointer>
+#include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
-#include <QtGui/QWizard>
+
+namespace Core {
+class SshConnectionParameters;
+class SshRemoteProcessRunner;
+}
 
 namespace Qt4ProjectManager {
 namespace Internal {
-class MaemoDeviceConfig;
-struct MaemoDeviceConfigWizardPrivate;
 
-class MaemoDeviceConfigWizard : public QWizard
+class MaemoKeyDeployer : public QObject
 {
     Q_OBJECT
 public:
-    explicit MaemoDeviceConfigWizard(QWidget *parent = 0);
-    ~MaemoDeviceConfigWizard();
-    QSharedPointer<MaemoDeviceConfig> deviceConfig() const;
-    virtual int nextId() const;
+    explicit MaemoKeyDeployer(QObject *parent = 0);
+    ~MaemoKeyDeployer();
+
+    void deployPublicKey(const Core::SshConnectionParameters &sshParams,
+        const QString &keyFilePath);
+    void stopDeployment();
+
+signals:
+    void error(const QString &errorMsg);
+    void finishedSuccessfully();
+
+private slots:
+    void handleConnectionFailure();
+    void handleKeyUploadFinished(int exitStatus);
 
 private:
-    const QScopedPointer<MaemoDeviceConfigWizardPrivate> d;
+    void cleanup();
+
+    QSharedPointer<Core::SshRemoteProcessRunner> m_deployProcess;
 };
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // MAEMODEVICECONFIGWIZARD_H
+#endif // MAEMOKEYDEPLOYER_H
