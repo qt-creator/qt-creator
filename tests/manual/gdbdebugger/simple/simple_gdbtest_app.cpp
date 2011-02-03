@@ -1506,6 +1506,11 @@ void testTypeFormats()
     // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
     // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
     const wchar_t *w = L"aöa";
+    QString u;
+    if (sizeof(wchar_t) == 4)
+        u = QString::fromUcs4((uint *)w);
+    else
+        u = QString::fromUtf16((ushort *)w);
 
     // Make sure to undo "Change Format".
     int dummy = 1;
