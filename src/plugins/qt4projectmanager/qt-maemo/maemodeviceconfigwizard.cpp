@@ -79,6 +79,9 @@ public:
         m_ui->setupUi(this);
         setTitle(tr("General Information"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
+        m_ui->fremantleButton->setText(MaemoGlobal::maemoVersionToString(MaemoGlobal::Maemo5));
+        m_ui->harmattanButton->setText(MaemoGlobal::maemoVersionToString(MaemoGlobal::Maemo6));
+        m_ui->meegoButton->setText(MaemoGlobal::maemoVersionToString(MaemoGlobal::Meego));
         QButtonGroup * const buttonGroup = new QButtonGroup(this);
         buttonGroup->setExclusive(true);
         buttonGroup->addButton(m_ui->hwButton);
