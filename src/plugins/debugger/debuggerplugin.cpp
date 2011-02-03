@@ -2306,8 +2306,7 @@ void DebuggerPluginPrivate::clearStatusMessage()
 /*! Activates the previous mode when the current mode is the debug mode. */
 void DebuggerPluginPrivate::activatePreviousMode()
 {
-    ModeManager *modeManager = ICore::instance()->modeManager();
-
+    ModeManager *modeManager = ModeManager::instance();
     if (modeManager->currentMode() == modeManager->mode(MODE_DEBUG)
             && !m_previousMode.isEmpty()) {
         modeManager->activateMode(m_previousMode);
@@ -2819,7 +2818,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
 #ifdef Q_OS_WIN
     m_startRemoteCdbAction = new QAction(tr("Attach to Remote CDB Session..."), this);
-    connect(m_startRemoteCdbAction, SIGNAL(triggered()), SLOT(startRemoteCdbSession()));
+    connect(m_startRemoteCdbAction, SIGNAL(triggered()),
+        SLOT(startRemoteCdbSession()));
 #endif
 
     act = m_detachAction = new QAction(this);
@@ -2839,7 +2839,9 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_visibleDebugAction->setAttribute(Utils::ProxyAction::UpdateText);
     m_visibleDebugAction->setAttribute(Utils::ProxyAction::UpdateIcon);
     m_visibleDebugAction->setAction(cmd->action());
-    Core::ICore::instance()->modeManager()->addAction(m_visibleDebugAction, Constants::P_ACTION_DEBUG);
+
+    ModeManager *modeManager = ModeManager::instance();
+    modeManager->addAction(m_visibleDebugAction, Constants::P_ACTION_DEBUG);
 
     cmd = am->registerAction(m_startExternalAction,
         Constants::STARTEXTERNAL, globalcontext);
@@ -3036,7 +3038,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
         SLOT(onModeChanged(Core::IMode*)));
     connect(ICore::instance(), SIGNAL(coreAboutToOpen()),
-            SLOT(onCoreAboutToOpen()));
+        SLOT(onCoreAboutToOpen()));
 
 
     // Debug mode setup
