@@ -340,6 +340,7 @@ void MaemoDeployStep::start()
     Q_ASSERT(!m_currentDeviceDeployAction);
     Q_ASSERT(!m_needsInstall);
     Q_ASSERT(m_filesToCopy.isEmpty());
+    m_installerStderr.clear();
     const MaemoPackageCreationStep * const pStep = packagingStep();
     const QString hostName = m_cachedDeviceConfig->sshParameters().host;
     if (pStep->isPackagingEnabled()) {
@@ -711,8 +712,8 @@ void MaemoDeployStep::runPackageInstaller(const QString &packageFilePath)
     setState(InstallingToDevice);
 
     writeOutput(tr("Installing package to device..."));
-    const QByteArray installCommand
-        = packagingStep()->debBasedMaemoTarget() ? "dpkg -i" : "rpm -Uhv";
+    const QByteArray installCommand = packagingStep()->debBasedMaemoTarget()
+        ? "dpkg -i --no-force-downgrade" : "rpm -Uhv";
     QByteArray cmd = MaemoGlobal::remoteSudo().toUtf8() + ' '
         + installCommand + ' ' + packageFilePath.toUtf8();
     if (removeAfterInstall)
@@ -876,6 +877,9 @@ void MaemoDeployStep::handleInstallationFinished(int exitStatus)
         if (exitStatus != SshRemoteProcess::ExitedNormally
             || m_deviceInstaller->exitCode() != 0) {
             raiseError(tr("Installing package failed."));
+        } else if (m_installerStderr.contains("Will not downgrade")) {
+            raiseError(tr("Installation failed: "
+                "You tried to downgrade a package, which is not allowed."));
         } else {
             m_needsInstall = false;
             setDeployed(m_connection->connectionParameters().host,
@@ -967,6 +971,7 @@ void MaemoDeployStep::handleDeviceInstallerErrorOutput(const QByteArray &output)
     switch (m_state) {
     case InstallingToDevice:
     case StopRequested:
+        m_installerStderr += output;
         writeOutput(QString::fromUtf8(output), ErrorOutput);
         break;
     default:

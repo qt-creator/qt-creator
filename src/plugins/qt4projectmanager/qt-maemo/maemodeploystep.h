@@ -176,6 +176,7 @@ private:
     QSharedPointer<const MaemoDeviceConfig> m_cachedDeviceConfig;
     MaemoUsedPortsGatherer *m_portsGatherer;
     MaemoPortList m_freePorts;
+    QByteArray m_installerStderr;
     State m_state;
 };
 
