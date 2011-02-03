@@ -86,6 +86,8 @@ public:
     static QString portsRegExpr();
     static QString defaultHost(DeviceType type);
     static QString defaultPrivateKeyFilePath();
+    static QString defaultUser(MaemoGlobal::MaemoVersion osVersion);
+    static int defaultSshPort(DeviceType type);
 
     static const Id InvalidId;
 
@@ -106,9 +108,7 @@ private:
     static Ptr create(const ConstPtr &other);
 
     void save(QSettings &settings) const;
-    int defaultSshPort(DeviceType type) const;
     QString defaultPortsSpec(DeviceType type) const;
-    QString defaultUser(MaemoGlobal::MaemoVersion osVersion) const;
 
     Core::SshConnectionParameters m_sshParameters;
     QString m_name;

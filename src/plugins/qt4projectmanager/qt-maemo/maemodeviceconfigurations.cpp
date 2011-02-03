@@ -293,7 +293,7 @@ QString MaemoDeviceConfig::portsRegExpr()
     return QString::fromLatin1("((%1)(,%1)*)?").arg(listElemExpr);
 }
 
-int MaemoDeviceConfig::defaultSshPort(DeviceType type) const
+int MaemoDeviceConfig::defaultSshPort(DeviceType type)
 {
     return type == Physical ? DefaultSshPortHW : DefaultSshPortSim;
 }
@@ -314,7 +314,7 @@ QString MaemoDeviceConfig::defaultPrivateKeyFilePath()
         + QLatin1String("/.ssh/id_rsa");
 }
 
-QString MaemoDeviceConfig::defaultUser(MaemoGlobal::MaemoVersion osVersion) const
+QString MaemoDeviceConfig::defaultUser(MaemoGlobal::MaemoVersion osVersion)
 {
     switch (osVersion) {
     case MaemoGlobal::Maemo5:

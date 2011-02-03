@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>618</width>
+    <width>680</width>
     <height>122</height>
    </rect>
   </property>
@@ -68,7 +68,7 @@
      <item>
       <widget class="QRadioButton" name="qemuButton">
        <property name="text">
-        <string>Emulator (Qemu)</string>
+        <string>Emulator (Qemu, should be currently running)</string>
        </property>
       </widget>
      </item>
