@@ -523,7 +523,7 @@ void PropertyEditor::otherPropertyChanged(const QmlObjectNode &fxObjectNode, con
     if (fxObjectNode.isValid() && m_currentType && fxObjectNode == m_selectedNode && fxObjectNode.currentState().isValid()) {
         AbstractProperty property = fxObjectNode.modelNode().property(propertyName);
         if (fxObjectNode == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == fxObjectNode) {
-            if ( m_selectedNode.property(property.name()).isBindingProperty() || !m_selectedNode.hasProperty(propertyName))
+            if ( !m_selectedNode.hasProperty(propertyName) || m_selectedNode.property(property.name()).isBindingProperty() )
                 setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).instanceValue(property.name()));
             else
                 setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).modelValue(property.name()));
