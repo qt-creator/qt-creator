@@ -1418,8 +1418,11 @@ class Dumper:
 
     def putPointerValue(self, value):
         # Use a lower priority
-        self.putValue("0x%x" % value.dereference().cast(
-            lookupType("unsigned long")), None, -1)
+        if value is None:
+            self.putValue(" ", None, -1)
+        else:
+            self.putValue("0x%x" % value.dereference().cast(
+                lookupType("unsigned long")), None, -1)
 
     def putStringValue(self, value):
         if not value is None:

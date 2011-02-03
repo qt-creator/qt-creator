@@ -2030,7 +2030,40 @@ void testChar()
     strcat(s,"\""); // add a quote
 }
 
+struct Tx
+{
+    Tx() { data = new char[20](); data[0] = '1'; }
+
+    char *GetStringPtr() const
+    {
+        return data;
+    }
+
+    char *data;
+};
+
+struct Ty
+{
+    void doit()
+    {
+        int i = 1;
+        i = 2;
+        i = 2;
+        i = 2;
+        i = 2;
+    }
+
+    Tx m_buffer;
+};
+
 void testStuff()
+{
+    Ty x;
+    x.doit();
+    char *s = x.m_buffer.GetStringPtr();
+}
+
+void testStuff3()
 {
     typedef unsigned char byte;
     byte f = '2';
