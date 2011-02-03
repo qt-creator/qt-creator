@@ -59,6 +59,7 @@
 #include <texteditor/basetextmark.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/tabsettings.h>
+#include <texteditor/tabpreferences.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/indenter.h>
 #include <texteditor/codeassist/basicproposalitem.h>
@@ -237,7 +238,7 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
 
 void FakeVimOptionPage::copyTextEditorSettings()
 {
-    TabSettings ts = TextEditorSettings::instance()->tabSettings();
+    TabSettings ts = TextEditorSettings::instance()->tabPreferences()->settings();
     m_ui.checkBoxExpandTab->setChecked(ts.m_spacesForTabs);
     m_ui.spinBoxTabStop->setValue(ts.m_tabSize);
     m_ui.spinBoxShiftWidth->setValue(ts.m_indentSize);

@@ -827,9 +827,8 @@ void SessionManager::configureEditor(Core::IEditor *editor, const QString &fileN
     if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor)) {
         Project *project = projectForFile(fileName);
         // Global settings are the default.
-        if (project && !project->editorConfiguration()->useGlobalSettings()) {
-            project->editorConfiguration()->apply(textEditor);
-        }
+        if (project)
+            project->editorConfiguration()->configureEditor(textEditor);
     }
 }
 

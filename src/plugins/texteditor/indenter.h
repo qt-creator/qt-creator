@@ -47,6 +47,7 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class BaseTextEditorWidget;
+class IFallbackPreferences;
 
 class TEXTEDITOR_EXPORT Indenter
 {
@@ -72,6 +73,8 @@ public:
     // Reindent at cursor. Selection will be adjusted according to the indentation
     // change of the first block.
     virtual void reindent(QTextDocument *doc, const QTextCursor &cursor, BaseTextEditorWidget *editor);
+
+    virtual void setCodeStylePreferences(IFallbackPreferences *preferences);
 };
 
 } // namespace TextEditor

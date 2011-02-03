@@ -44,6 +44,8 @@
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextBlock>
 
+#include "cppcodestylesettingspage.h"
+
 using namespace CPlusPlus;
 using namespace CppTools;
 using namespace TextEditor;
@@ -177,26 +179,25 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             } break;
 
         case declaration_start:
-            if (tryExpression(true))
-                break;
             switch (kind) {
             case T_RBRACE:      leave(true); continue;
             case T_SEMICOLON:   leave(true); break;
-            case T_EQUAL:       enter(initializer); break;
+            case T_EQUAL:       enter(assign_open_or_initializer); break;
             case T_LBRACE:      enter(defun_open); break;
             case T_COLON:       enter(member_init_open); enter(member_init); break;
             case T_OPERATOR:    enter(operator_declaration); break;
+            default:            tryExpression(true); break;
             } break;
 
-        case initializer:
+        case assign_open_or_initializer:
             switch (kind) {
             case T_LBRACE:      enter(brace_list_open); break;
-            default:            turnInto(expression); continue;
+            case T_RBRACE:      leave(true); continue;
+            case T_SEMICOLON:   leave(); continue;
+            default:            enter(assign_open); continue;
             } break;
 
         case expression:
-            if (tryExpression())
-                break;
             switch (kind) {
             case T_RBRACE:      leave(true); continue;
             case T_SEMICOLON:   leave(); continue;
@@ -208,30 +209,34 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
                     continue;
                 }
                 break;
+            default:            tryExpression(); break;
+            } break;
+
+        case assign_open:
+            switch (kind) {
+            case T_RBRACE:      leave(true); continue;
+            case T_SEMICOLON:   leave(); continue;
+            default:            tryExpression(); break;
             } break;
 
         case arglist_open:
-            if (tryExpression())
-                break;
             switch (kind) {
             case T_SEMICOLON:   leave(true); break;
             case T_RBRACE:      leave(true); continue;
             case T_RPAREN:      leave(); break;
+            default:            tryExpression(); break;
             } break;
 
         case ternary_op:
-            if (tryExpression())
-                break;
             switch (kind) {
             case T_RPAREN:
             case T_COMMA:
             case T_SEMICOLON:   leave(); continue; // always nested, propagate
+            default:            tryExpression(); break;
             } break;
 
         case stream_op:
         case stream_op_cont:
-            if (kind != T_LESS_LESS && kind != T_GREATER_GREATER && tryExpression())
-                break;
             switch (kind) {
             case T_LESS_LESS:
             case T_GREATER_GREATER:
@@ -243,6 +248,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_RPAREN:
             case T_COMMA:
             case T_SEMICOLON:   leave(); continue; // always nested, propagate
+            default:            tryExpression(); break;
             } break;
 
         case member_init_open:
@@ -261,11 +267,10 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             } break;
 
         case member_init_paren_open:
-            if (tryExpression())
-                break;
             switch (kind) {
             case T_RPAREN:      leave(); continue;
             case T_SEMICOLON:   leave(); continue; // try to recover
+            default:            tryExpression(); break;
             } break;
 
         case defun_open:
@@ -681,6 +686,22 @@ bool CodeFormatter::tryExpression(bool alsoExpression)
     case T_LPAREN:          newState = arglist_open; break;
     case T_QUESTION:        newState = ternary_op; break;
 
+    case T_EQUAL:
+    case T_AMPER_EQUAL:
+    case T_CARET_EQUAL:
+    case T_SLASH_EQUAL:
+    case T_EXCLAIM_EQUAL:
+    case T_GREATER_GREATER_EQUAL:
+    case T_LESS_LESS_EQUAL:
+    case T_MINUS_EQUAL:
+    case T_PERCENT_EQUAL:
+    case T_PIPE_EQUAL:
+    case T_PLUS_EQUAL:
+    case T_STAR_EQUAL:
+    case T_TILDE_EQUAL:
+        newState = assign_open;
+        break;
+
     case T_LESS_LESS:
     case T_GREATER_GREATER:
         newState = stream_op;
@@ -977,63 +998,26 @@ namespace Internal {
 }
 
 QtStyleCodeFormatter::QtStyleCodeFormatter()
-    : m_indentSize(4)
-    , m_indentSubstatementBraces(false)
-    , m_indentSubstatementStatements(true)
-    , m_indentDeclarationBraces(false)
-    , m_indentDeclarationMembers(true)
 {
 }
 
-QtStyleCodeFormatter::QtStyleCodeFormatter(const TextEditor::TabSettings &tabSettings)
-    : m_indentSize(tabSettings.m_indentSize)
-    , m_indentSubstatementBraces(false)
-    , m_indentSubstatementStatements(true)
-    , m_indentDeclarationBraces(false)
-    , m_indentDeclarationMembers(true)
+QtStyleCodeFormatter::QtStyleCodeFormatter(const TextEditor::TabSettings &tabSettings,
+                                           const CppCodeStyleSettings &settings)
+    : m_tabSettings(tabSettings)
+    , m_styleSettings(settings)
 {
     setTabSize(tabSettings.m_tabSize);
-    if (tabSettings.m_indentBraces && tabSettings.m_doubleIndentBlocks) { // gnu style
-        setIndentSubstatementBraces(true);
-        setIndentSubstatementStatements(true);
-        setIndentDeclarationBraces(false);
-        setIndentDeclarationMembers(true);
-    } else if (tabSettings.m_indentBraces) { // whitesmiths style
-        setIndentSubstatementBraces(true);
-        setIndentSubstatementStatements(false);
-        setIndentDeclarationBraces(true);
-        setIndentDeclarationMembers(false);
-    } else { // default Qt style
-        setIndentSubstatementBraces(false);
-        setIndentSubstatementStatements(true);
-        setIndentDeclarationBraces(false);
-        setIndentDeclarationMembers(true);
-    }
 }
 
-void QtStyleCodeFormatter::setIndentSize(int size)
+void QtStyleCodeFormatter::setTabSettings(const TextEditor::TabSettings &tabSettings)
 {
-    m_indentSize = size;
+    m_tabSettings = tabSettings;
+    setTabSize(tabSettings.m_tabSize);
 }
 
-void QtStyleCodeFormatter::setIndentSubstatementBraces(bool onOff)
+void QtStyleCodeFormatter::setCodeStyleSettings(const CppCodeStyleSettings &settings)
 {
-    m_indentSubstatementBraces = onOff;
-}
-
-void QtStyleCodeFormatter::setIndentSubstatementStatements(bool onOff)
-{
-    m_indentSubstatementStatements = onOff;
-}
-
-void QtStyleCodeFormatter::setIndentDeclarationBraces(bool onOff)
-{
-    m_indentDeclarationBraces = onOff;
-}
-
-void QtStyleCodeFormatter::setIndentDeclarationMembers(bool onOff)
-{
-    m_indentDeclarationMembers = onOff;
+    m_styleSettings = settings;
 }
 
 void QtStyleCodeFormatter::saveBlockData(QTextBlock *block, const BlockData &data) const
@@ -1100,7 +1084,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
             *savedIndentDepth = tokenPosition;
             *indentDepth = tokenPosition;
         }
-        *paddingDepth = 2*m_indentSize;
+        *paddingDepth = 2*m_tabSettings.m_indentSize;
         break;
 
     case template_param:
@@ -1108,9 +1092,9 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
             *paddingDepth = nextTokenPosition-*indentDepth;
         else {
             if (*paddingDepth == 0)
-                *paddingDepth = 2*m_indentSize;
+                *paddingDepth = 2*m_tabSettings.m_indentSize;
             else
-                *paddingDepth += m_indentSize;
+                *paddingDepth += m_tabSettings.m_indentSize;
         }
         break;
 
@@ -1121,7 +1105,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     case return_statement:
         if (firstToken)
             *indentDepth = *savedIndentDepth = tokenPosition;
-        *paddingDepth = 2*m_indentSize;
+        *paddingDepth = 2*m_tabSettings.m_indentSize;
         break;
 
     case declaration_start:
@@ -1133,10 +1117,21 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         // after the return type in "void\nfoo() {}"
         for (int i = 0; state(i).type != topmost_intro; ++i) {
             if (state(i).type == defun_open) {
-                *paddingDepth = 2*m_indentSize;
+                *paddingDepth = 2*m_tabSettings.m_indentSize;
                 break;
             }
         }
+        break;
+
+    case assign_open:
+        if (parentState.type == assign_open_or_initializer)
+            break;
+        // fallthrough
+    case assign_open_or_initializer:
+        if (!lastToken && m_styleSettings.alignAssignments)
+            *paddingDepth = nextTokenPosition-*indentDepth;
+        else
+            *paddingDepth = 2*m_tabSettings.m_indentSize;
         break;
 
     case arglist_open:
@@ -1144,14 +1139,14 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         if (!lastToken)
             *paddingDepth = nextTokenPosition-*indentDepth;
         else
-            *paddingDepth += m_indentSize;
+            *paddingDepth += m_tabSettings.m_indentSize;
         break;
 
     case ternary_op:
         if (!lastToken)
             *paddingDepth = spaceOrNextTokenPosition-*indentDepth;
         else
-            *paddingDepth += m_indentSize;
+            *paddingDepth += m_tabSettings.m_indentSize;
         break;
 
     case stream_op:
@@ -1169,7 +1164,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         if (firstToken)
             *paddingDepth = tokenPosition-*indentDepth;
         else
-            *paddingDepth = m_indentSize - 2; // they'll get another 2 from member_init
+            *paddingDepth = m_tabSettings.m_indentSize - 2; // they'll get another 2 from member_init
         break;
 
     case member_init:
@@ -1177,24 +1172,45 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         break;
 
     case member_init_paren_open:
-        *paddingDepth += m_indentSize;
+        *paddingDepth += m_tabSettings.m_indentSize;
         break;
 
     case case_cont:
-        *indentDepth += m_indentSize;
+        if (m_styleSettings.indentStatementsRelativeToSwitchLabels)
+            *indentDepth += m_tabSettings.m_indentSize;
         break;
 
+    case namespace_open:
     case class_open:
     case enum_open:
     case defun_open: {
         // undo the continuation indent of the parent
         *savedPaddingDepth = 0;
 
+        // whether the { is followed by a non-comment token
         bool followedByData = (!lastToken && !tokenAt(tokenIndex() + 1).isComment());
         if (followedByData)
-            *savedPaddingDepth = tokenPosition-*indentDepth;
+            *savedPaddingDepth = tokenPosition-*indentDepth; // pad the } to align with the {
 
-        *indentDepth += m_indentSize;
+        if (newState == class_open) {
+            if (m_styleSettings.indentAccessSpecifiers
+                    || m_styleSettings.indentDeclarationsRelativeToAccessSpecifiers)
+                *indentDepth += m_tabSettings.m_indentSize;
+            if (m_styleSettings.indentAccessSpecifiers && m_styleSettings.indentDeclarationsRelativeToAccessSpecifiers)
+                *indentDepth += m_tabSettings.m_indentSize;
+        } else if (newState == defun_open) {
+            if (m_styleSettings.indentFunctionBody || m_styleSettings.indentFunctionBraces)
+                *indentDepth += m_tabSettings.m_indentSize;
+            if (m_styleSettings.indentFunctionBody && m_styleSettings.indentFunctionBraces)
+                *indentDepth += m_tabSettings.m_indentSize;
+        } else if (newState == namespace_open) {
+            if (m_styleSettings.indentNamespaceBody || m_styleSettings.indentNamespaceBraces)
+                *indentDepth += m_tabSettings.m_indentSize;
+            if (m_styleSettings.indentNamespaceBody && m_styleSettings.indentNamespaceBraces)
+                *indentDepth += m_tabSettings.m_indentSize;
+        } else {
+            *indentDepth += m_tabSettings.m_indentSize;
+        }
 
         if (followedByData) {
             *paddingDepth = nextTokenPosition-*indentDepth;
@@ -1206,42 +1222,40 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         // undo parent continuation indent
         *savedPaddingDepth = 0;
 
-        if (firstToken) {
-            *savedIndentDepth = tokenPosition;
-            *indentDepth = *savedIndentDepth;
-        } else if (m_indentSubstatementBraces && !m_indentSubstatementStatements) {
-            // ### The preceding check is quite arbitrary.
-            // It actually needs another flag to determine whether the closing curly
-            // should be indented or not
-            *indentDepth = *savedIndentDepth += m_indentSize;
-        }
-
-        if (m_indentSubstatementStatements) {
-            if (parentState.type != switch_statement)
-                *indentDepth += m_indentSize;
+        if (parentState.type == switch_statement) {
+            if (m_styleSettings.indentSwitchLabels)
+                *indentDepth += m_tabSettings.m_indentSize;
+        } else {
+            if (m_styleSettings.indentBlockBody || m_styleSettings.indentBlockBraces)
+                *indentDepth += m_tabSettings.m_indentSize;
+            if (m_styleSettings.indentBlockBody && m_styleSettings.indentBlockBraces)
+                *indentDepth += m_tabSettings.m_indentSize;
         }
         break;
 
     case brace_list_open:
         if (!lastToken) {
-            if (parentState.type == initializer)
+            if (parentState.type == assign_open_or_initializer)
                 *savedPaddingDepth = tokenPosition-*indentDepth;
             *paddingDepth = nextTokenPosition-*indentDepth;
         } else {
             // avoid existing continuation indents
-            if (parentState.type == initializer)
+            if (parentState.type == assign_open_or_initializer)
                 *savedPaddingDepth = state(1).savedPaddingDepth;
-            *paddingDepth = *savedPaddingDepth + m_indentSize;
+            *paddingDepth = *savedPaddingDepth + m_tabSettings.m_indentSize;
         }
         break;
 
     case block_open:
         // case_cont already adds some indent, revert it for a block
-        if (parentState.type == case_cont && !m_indentSubstatementBraces)
-            *indentDepth = *savedIndentDepth = parentState.savedIndentDepth;
+        if (parentState.type == case_cont) {
+            *indentDepth = parentState.savedIndentDepth;
+            if (m_styleSettings.indentBlocksRelativeToSwitchLabels)
+                *indentDepth += m_tabSettings.m_indentSize;
+        }
 
-        if (m_indentSubstatementStatements)
-            *indentDepth += m_indentSize;
+        if (m_styleSettings.indentBlockBody)
+            *indentDepth += m_tabSettings.m_indentSize;
         break;
 
     case condition_open:
@@ -1250,8 +1264,9 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         *savedPaddingDepth = *paddingDepth;
 
         // fixed extra indent when continuing 'if (', but not for 'else if ('
-        if (nextTokenPosition-*indentDepth <= m_indentSize)
-            *paddingDepth = 2*m_indentSize;
+        if (m_styleSettings.extraPaddingForConditionsIfConfusingAlign
+                && nextTokenPosition-*indentDepth <= m_tabSettings.m_indentSize)
+            *paddingDepth = 2*m_tabSettings.m_indentSize;
         else
             *paddingDepth = nextTokenPosition-*indentDepth;
         break;
@@ -1286,7 +1301,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
 
     case cpp_macro:
     case cpp_macro_cont:
-        *indentDepth = m_indentSize;
+        *indentDepth = m_tabSettings.m_indentSize;
         break;
     }
 
@@ -1316,7 +1331,7 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
     // adjusting the indentDepth here instead of in enter() gives 'else if' the correct indentation
     // ### could be moved?
     if (topState.type == substatement)
-        *indentDepth += m_indentSize;
+        *indentDepth += m_tabSettings.m_indentSize;
 
     // keep user-adjusted indent in multiline comments
     if (topState.type == multiline_comment_start
@@ -1333,7 +1348,7 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
     case T_COLON:
         // ### ok for constructor initializer lists - what about ? and bitfields?
         if (topState.type == expression && previousState.type == declaration_start) {
-            *paddingDepth = m_indentSize;
+            *paddingDepth = m_tabSettings.m_indentSize;
         } else if (topState.type == ternary_op) {
             if (*paddingDepth >= 2)
                 *paddingDepth -= 2;
@@ -1344,24 +1359,41 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
     case T_LBRACE: {
         if (topState.type == case_cont) {
             *indentDepth = topState.savedIndentDepth;
-            if (m_indentSubstatementBraces)
-                *indentDepth += m_indentSize;
+            if (m_styleSettings.indentBlocksRelativeToSwitchLabels)
+                *indentDepth += m_tabSettings.m_indentSize;
             *paddingDepth = 0;
         // function definition - argument list is expression state
-        } else if (topState.type == expression && previousState.type == declaration_start) {
-            *indentDepth = previousState.savedIndentDepth;
-            if (m_indentDeclarationBraces)
-                *indentDepth += m_indentSize;
+        // or constructor
+        } else if ((topState.type == expression && previousState.type == declaration_start)
+                   || topState.type == member_init || topState.type == member_init_open) {
+            // the declaration_start indent is the base
+            if (topState.type == member_init) {
+                *indentDepth = state(2).savedIndentDepth;
+            } else {
+                *indentDepth = previousState.savedIndentDepth;
+            }
+            if (m_styleSettings.indentFunctionBraces)
+                *indentDepth += m_tabSettings.m_indentSize;
             *paddingDepth = 0;
         } else if (topState.type == class_start) {
             *indentDepth = topState.savedIndentDepth;
-            if (m_indentDeclarationBraces)
-                *indentDepth += m_indentSize;
+            if (m_styleSettings.indentClassBraces)
+                *indentDepth += m_tabSettings.m_indentSize;
+            *paddingDepth = 0;
+        } else if (topState.type == enum_start) {
+            *indentDepth = topState.savedIndentDepth;
+            if (m_styleSettings.indentEnumBraces)
+                *indentDepth += m_tabSettings.m_indentSize;
+            *paddingDepth = 0;
+        } else if (topState.type == namespace_start) {
+            *indentDepth = topState.savedIndentDepth;
+            if (m_styleSettings.indentNamespaceBraces)
+                *indentDepth += m_tabSettings.m_indentSize;
             *paddingDepth = 0;
         } else if (topState.type == substatement) {
             *indentDepth = topState.savedIndentDepth;
-            if (m_indentSubstatementBraces)
-                *indentDepth += m_indentSize;
+            if (m_styleSettings.indentBlockBraces)
+                *indentDepth += m_tabSettings.m_indentSize;
             *paddingDepth = 0;
         } else if (topState.type != defun_open
                 && topState.type != block_open
@@ -1376,8 +1408,10 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
     }
     case T_RBRACE: {
         if (topState.type == block_open && previousState.type == case_cont) {
-            *indentDepth = topState.savedIndentDepth;
-            *paddingDepth = topState.savedPaddingDepth;
+            *indentDepth = previousState.savedIndentDepth;
+            *paddingDepth = previousState.savedPaddingDepth;
+            if (m_styleSettings.indentBlocksRelativeToSwitchLabels)
+                *indentDepth += m_tabSettings.m_indentSize;
             break;
         }
         for (int i = 0; state(i).type != topmost_intro; ++i) {
@@ -1386,17 +1420,18 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
                     || type == namespace_open
                     || type == extern_open
                     || type == enum_open
-                    || type == defun_open) {
-                *indentDepth = state(i).savedIndentDepth;
-                if (m_indentDeclarationBraces)
-                    *indentDepth += m_indentSize;
-                *paddingDepth = state(i).savedPaddingDepth;
-                break;
-            } else if (type == substatement_open
-                       || type == brace_list_open
-                       || type == block_open) {
+                    || type == defun_open
+                    || type == substatement_open
+                    || type == brace_list_open
+                    || type == block_open) {
                 *indentDepth = state(i).savedIndentDepth;
                 *paddingDepth = state(i).savedPaddingDepth;
+                if ((type == defun_open && m_styleSettings.indentFunctionBraces)
+                        || (type == class_open && m_styleSettings.indentClassBraces)
+                        || (type == namespace_open && m_styleSettings.indentNamespaceBraces)
+                        || (type == enum_open && m_styleSettings.indentEnumBraces)
+                        || (type == substatement_open && m_styleSettings.indentBlockBraces))
+                    *indentDepth += m_tabSettings.m_indentSize;
                 break;
             }
         }
@@ -1411,13 +1446,12 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
     //    break;
     case T_DEFAULT:
     case T_CASE: {
-        int lastSubstatementIndent = 0;
         for (int i = 0; state(i).type != topmost_intro; ++i) {
             const int type = state(i).type;
-            if (type == substatement_open) {
-                lastSubstatementIndent = state(i).savedIndentDepth;
-            } else if (type == switch_statement) {
-                *indentDepth = lastSubstatementIndent;
+            if (type == switch_statement) {
+                *indentDepth = state(i).savedIndentDepth;
+                if (m_styleSettings.indentSwitchLabels)
+                    *indentDepth += m_tabSettings.m_indentSize;
                 break;
             } else if (type == case_cont) {
                 *indentDepth = state(i).savedIndentDepth;
@@ -1432,9 +1466,13 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
     case T_PRIVATE:
     case T_PROTECTED:
     case T_Q_SIGNALS:
-        if (topState.type == class_open) {
-            if (tokenAt(1).is(T_COLON) || tokenAt(2).is(T_COLON))
+        if (m_styleSettings.indentDeclarationsRelativeToAccessSpecifiers
+                && topState.type == class_open) {
+            if (tokenAt(1).is(T_COLON) || tokenAt(2).is(T_COLON)) {
                 *indentDepth = topState.savedIndentDepth;
+                if (m_styleSettings.indentAccessSpecifiers)
+                    *indentDepth += m_tabSettings.m_indentSize;
+            }
         }
         break;
     case T_ELSE:
@@ -1460,8 +1498,8 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
                 && (kind == T_COMMENT || kind == T_DOXY_COMMENT)
                 && (lexerState == Lexer::State_Default
                     || tokens.size() != 1)) {
-            if (*indentDepth >= m_indentSize)
-                *indentDepth -= m_indentSize;
+            if (*indentDepth >= m_tabSettings.m_indentSize)
+                *indentDepth -= m_tabSettings.m_indentSize;
             else
                 *indentDepth = 0;
         }
@@ -1476,7 +1514,18 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
                 *indentDepth = 0;
         }
         break;
+    case T_BREAK:
+    case T_CONTINUE:
+    case T_RETURN:
+        if (topState.type == case_cont) {
+            *indentDepth = topState.savedIndentDepth;
+            if (m_styleSettings.indentControlFlowRelativeToSwitchLabels)
+                *indentDepth += m_tabSettings.m_indentSize;
+        }
     }
+    // ensure padding and indent are >= 0
+    *indentDepth = qMax(0, *indentDepth);
+    *paddingDepth = qMax(0, *paddingDepth);
 }
 
 bool QtStyleCodeFormatter::shouldClearPaddingOnEnter(int state)

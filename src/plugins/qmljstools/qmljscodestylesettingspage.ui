@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QmlJSCodeStyleSettingsPage</class>
+ <widget class="QWidget" name="QmlJSCodeStyleSettingsPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>342</width>
+    <height>304</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="TextEditor::TabPreferencesWidget" name="tabPreferencesWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="TextEditor::SnippetEditorWidget" name="previewTextEdit">
+     <property name="plainText">
+      <string>import QtQuick 1.0
+
+Rectangle {
+    width: 360
+    height: 360
+    Text {
+        anchors.centerIn: parent
+        text: &quot;Hello World&quot;
+    }
+    MouseArea {
+        anchors.fill: parent
+        onClicked: {
+            Qt.quit();
+        }
+    }
+}
+</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TextEditor::SnippetEditorWidget</class>
+   <extends>QPlainTextEdit</extends>
+   <header location="global">texteditor/snippets/snippeteditor.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TextEditor::TabPreferencesWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">texteditor/tabpreferenceswidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

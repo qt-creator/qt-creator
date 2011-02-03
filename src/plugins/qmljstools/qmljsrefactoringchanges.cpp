@@ -32,6 +32,7 @@
 
 #include "qmljsrefactoringchanges.h"
 #include "qmljsqtstylecodeformatter.h"
+#include "qmljstoolsconstants.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>

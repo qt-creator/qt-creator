@@ -21,7 +21,6 @@ HEADERS += cppplugin.h \
     cpplocalsymbols.h \
     cpptypehierarchy.h \
     cppelementevaluator.h \
-    cppqtstyleindenter.h \
     cppautocompleter.h \
     cppcompleteswitch.h \
     cppsnippetprovider.h \
@@ -43,7 +42,6 @@ SOURCES += cppplugin.cpp \
     cpplocalsymbols.cpp \
     cpptypehierarchy.cpp \
     cppelementevaluator.cpp \
-    cppqtstyleindenter.cpp \
     cppautocompleter.cpp \
     cppcompleteswitch.cpp \
     cppsnippetprovider.cpp \

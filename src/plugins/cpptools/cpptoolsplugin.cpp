@@ -33,6 +33,7 @@
 #include "cpptoolsplugin.h"
 #include "completionsettingspage.h"
 #include "cppfilesettingspage.h"
+#include "cppcodestylesettingspage.h"
 #include "cppclassesfilter.h"
 #include "cppfunctionsfilter.h"
 #include "cppcurrentdocumentfilter.h"
@@ -41,6 +42,8 @@
 #include "cpplocatorfilter.h"
 #include "symbolsfindfilter.h"
 #include "cppcompletionassist.h"
+#include "cpptoolssettings.h"
+#include "cppcodestylesettingsfactory.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -56,6 +59,8 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/filemanager.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/codestylepreferencesmanager.h>
 #include <cppeditor/cppeditorconstants.h>
 
 #include <QtCore/QtConcurrentRun>
@@ -103,6 +108,8 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
 
+    m_settings = new CppToolsSettings(this); // force registration of cpp tools settings
+
     // Objects
     m_modelManager = new CppModelManager(this);
     Core::VcsManager *vcsManager = core->vcsManager();
@@ -121,6 +128,10 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new CompletionSettingsPage);
     addAutoReleasedObject(new CppFileSettingsPage(m_fileSettings));
     addAutoReleasedObject(new SymbolsFindFilter(m_modelManager));
+    addAutoReleasedObject(new CppCodeStyleSettingsPage);
+
+    TextEditor::CodeStylePreferencesManager::instance()->registerFactory(
+                new CppTools::CppCodeStylePreferencesFactory());
 
     // Menus
     Core::ActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);

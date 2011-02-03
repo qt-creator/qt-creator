@@ -33,9 +33,10 @@
 #include "cppsnippetprovider.h"
 #include "cpphighlighter.h"
 #include "cppeditor.h"
-#include "cppqtstyleindenter.h"
 #include "cppautocompleter.h"
 #include "cppeditorconstants.h"
+
+#include <cpptools/cppqtstyleindenter.h>
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
@@ -73,6 +74,6 @@ void CppSnippetProvider::decorateEditor(TextEditor::SnippetEditorWidget *editor)
         fs.toTextCharFormats(CPPEditorWidget::highlighterFormatCategories());
     highlighter->setFormats(formats.constBegin(), formats.constEnd());
     editor->setSyntaxHighlighter(highlighter);
-    editor->setIndenter(new CppQtStyleIndenter);
+    editor->setIndenter(new CppTools::CppQtStyleIndenter);
     editor->setAutoCompleter(new CppAutoCompleter);
 }

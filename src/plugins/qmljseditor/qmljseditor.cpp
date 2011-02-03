@@ -38,7 +38,6 @@
 #include "qmloutlinemodel.h"
 #include "qmljsfindreferences.h"
 #include "qmljssemantichighlighter.h"
-#include "qmljsindenter.h"
 #include "qmljsautocompleter.h"
 #include "qmljscompletionassist.h"
 #include "qmljsquickfixassist.h"
@@ -53,6 +52,7 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
 
+#include <qmljstools/qmljsindenter.h>
 #include <qmljstools/qmljsqtstylecodeformatter.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -1446,6 +1446,14 @@ void QmlJSTextEditorWidget::resizeEvent(QResizeEvent *event)
 void QmlJSTextEditorWidget::unCommentSelection()
 {
     Utils::unCommentSelection(this);
+}
+
+void QmlJSTextEditorWidget::setTabSettings(const TextEditor::TabSettings &ts)
+{
+    QmlJSTools::QtStyleCodeFormatter formatter(ts);
+    formatter.invalidateCache(document());
+
+    TextEditor::BaseTextEditorWidget::setTabSettings(ts);
 }
 
 void QmlJSTextEditorWidget::forceSemanticRehighlight()

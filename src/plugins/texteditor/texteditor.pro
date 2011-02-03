@@ -99,7 +99,14 @@ SOURCES += texteditorplugin.cpp \
     codeassist/genericproposalwidget.cpp \
     codeassist/basicproposalitem.cpp \
     codeassist/basicproposalitemlistmodel.cpp \
-    codeassist/iassistproposalmodel.cpp
+    codeassist/iassistproposalmodel.cpp \
+    tabsettingswidget.cpp \
+    codestylepreferencesmanager.cpp \
+    ifallbackpreferences.cpp \
+    tabpreferences.cpp \
+    icodestylepreferencesfactory.cpp \
+    tabpreferenceswidget.cpp \
+    fallbackselectorwidget.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -203,7 +210,14 @@ HEADERS += texteditorplugin.h \
     codeassist/genericproposalwidget.h \
     codeassist/basicproposalitem.h \
     codeassist/basicproposalitemlistmodel.h \
-    codeassist/iassistproposalmodel.h
+    codeassist/iassistproposalmodel.h \
+    tabsettingswidget.h \
+    codestylepreferencesmanager.h \
+    ifallbackpreferences.h \
+    tabpreferences.h \
+    icodestylepreferencesfactory.h \
+    tabpreferenceswidget.h \
+    fallbackselectorwidget.h
 
 FORMS += \
     displaysettingspage.ui \
@@ -213,6 +227,8 @@ FORMS += \
     generichighlighter/managedefinitionsdialog.ui \
     snippets/snippetssettingspage.ui \
     behaviorsettingswidget.ui \
-    behaviorsettingspage.ui
+    behaviorsettingspage.ui \
+    tabsettingswidget.ui \
+    tabpreferenceswidget.ui
 RESOURCES += texteditor.qrc
 OTHER_FILES += TextEditor.mimetypes.xml

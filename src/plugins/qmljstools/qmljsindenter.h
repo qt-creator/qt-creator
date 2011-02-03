@@ -33,12 +33,14 @@
 #ifndef QMLJSINDENTER_H
 #define QMLJSINDENTER_H
 
+#include "qmljstools_global.h"
+
 #include <texteditor/indenter.h>
 
 namespace QmlJSEditor {
 namespace Internal {
 
-class Indenter : public TextEditor::Indenter
+class QMLJSTOOLS_EXPORT Indenter : public TextEditor::Indenter
 {
 public:
     Indenter();

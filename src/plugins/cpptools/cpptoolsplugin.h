@@ -51,6 +51,9 @@ class QDir;
 QT_END_NAMESPACE
 
 namespace CppTools {
+
+class CppToolsSettings;
+
 namespace Internal {
 
 class CppModelManager;
@@ -81,6 +84,7 @@ private:
 
     CppModelManager *m_modelManager;
     QSharedPointer<CppFileSettings> m_fileSettings;
+    CppToolsSettings *m_settings;
 
     static CppToolsPlugin *m_instance;
 };

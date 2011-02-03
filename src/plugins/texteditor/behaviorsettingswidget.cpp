@@ -51,7 +51,7 @@ namespace TextEditor {
 
 struct BehaviorSettingsWidgetPrivate
 {
-    Ui::BehaviorSettingsWidget m_ui;
+    ::Ui::BehaviorSettingsWidget m_ui;
     QList<QTextCodec *> m_codecs;
 };
 
@@ -78,36 +78,22 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
         m_d->m_codecs.append(codec);
     }
 
-    connect(m_d->m_ui.insertSpaces, SIGNAL(clicked(bool)), this, SIGNAL(insertSpacesChanged(bool)));
-    connect(m_d->m_ui.autoInsertSpaces, SIGNAL(clicked(bool)),
-            this, SIGNAL(autoInsertSpacesChanged(bool)));
-    connect(m_d->m_ui.autoIndent, SIGNAL(clicked(bool)), this, SIGNAL(autoIndentChanged(bool)));
-    connect(m_d->m_ui.smartBackspace, SIGNAL(clicked(bool)),
-            this, SIGNAL(smartBackSpaceChanged(bool)));
-    connect(m_d->m_ui.tabSize, SIGNAL(valueChanged(int)), this, SIGNAL(tabSizeChanged(int)));
-    connect(m_d->m_ui.indentSize, SIGNAL(valueChanged(int)), this, SIGNAL(indentSizeChanged(int)));
-    connect(m_d->m_ui.indentBlocksBehavior, SIGNAL(currentIndexChanged(int)),
-            this, SIGNAL(indentBlocksBehaviorChanged(int)));
-    connect(m_d->m_ui.tabKeyBehavior, SIGNAL(currentIndexChanged(int)),
-            this, SIGNAL(tabKeyBehaviorChanged(int)));
-    connect(m_d->m_ui.continuationAlignBehavior, SIGNAL(currentIndexChanged(int)),
-            this, SIGNAL(continuationAlignBehaviorChanged(int)));
     connect(m_d->m_ui.cleanWhitespace, SIGNAL(clicked(bool)),
-            this, SIGNAL(cleanWhiteSpaceChanged(bool)));
+            this, SLOT(slotStorageSettingsChanged()));
     connect(m_d->m_ui.inEntireDocument, SIGNAL(clicked(bool)),
-            this, SIGNAL(inEntireDocumentChanged(bool)));
+            this, SLOT(slotStorageSettingsChanged()));
     connect(m_d->m_ui.addFinalNewLine, SIGNAL(clicked(bool)),
-            this, SIGNAL(addFinalNewLineChanged(bool)));
+            this, SLOT(slotStorageSettingsChanged()));
     connect(m_d->m_ui.cleanIndentation, SIGNAL(clicked(bool)),
-            this, SIGNAL(cleanIndentationChanged(bool)));
-    connect(m_d->m_ui.mouseNavigation, SIGNAL(clicked(bool)),
-            this, SIGNAL(mouseNavigationChanged(bool)));
+            this, SLOT(slotStorageSettingsChanged()));
+    connect(m_d->m_ui.mouseNavigation, SIGNAL(clicked()),
+            this, SLOT(slotBehaviorSettingsChanged()));
     connect(m_d->m_ui.scrollWheelZooming, SIGNAL(clicked(bool)),
-            this, SIGNAL(scrollWheelZoomingChanged(bool)));
+            this, SLOT(slotBehaviorSettingsChanged()));
     connect(m_d->m_ui.utf8BomBox, SIGNAL(currentIndexChanged(int)),
-            this, SIGNAL(utf8BomSettingsChanged(int)));
+            this, SLOT(slotExtraEncodingChanged()));
     connect(m_d->m_ui.encodingBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(handleEncodingBoxChange(int)));
+            this, SLOT(slotEncodingBoxChanged(int)));
 }
 
 BehaviorSettingsWidget::~BehaviorSettingsWidget()
@@ -117,10 +103,10 @@ BehaviorSettingsWidget::~BehaviorSettingsWidget()
 
 void BehaviorSettingsWidget::setActive(bool active)
 {
+    m_d->m_ui.tabPreferencesWidget->setEnabled(active);
     m_d->m_ui.groupBoxEncodings->setEnabled(active);
     m_d->m_ui.groupBoxMouse->setEnabled(active);
     m_d->m_ui.groupBoxStorageSettings->setEnabled(active);
-    m_d->m_ui.groupBoxTabAndIndentSettings->setEnabled(active);
 }
 
 void BehaviorSettingsWidget::setAssignedCodec(QTextCodec *codec)
@@ -138,36 +124,9 @@ QTextCodec *BehaviorSettingsWidget::assignedCodec() const
     return m_d->m_codecs.at(m_d->m_ui.encodingBox->currentIndex());
 }
 
-void BehaviorSettingsWidget::setAssignedTabSettings(const TabSettings &tabSettings)
+void BehaviorSettingsWidget::setTabPreferences(TabPreferences *tabPreferences)
 {
-    m_d->m_ui.insertSpaces->setChecked(tabSettings.m_spacesForTabs);
-    m_d->m_ui.autoInsertSpaces->setChecked(tabSettings.m_autoSpacesForTabs);
-    m_d->m_ui.autoIndent->setChecked(tabSettings.m_autoIndent);
-    m_d->m_ui.smartBackspace->setChecked(tabSettings.m_smartBackspace);
-    m_d->m_ui.tabSize->setValue(tabSettings.m_tabSize);
-    m_d->m_ui.indentSize->setValue(tabSettings.m_indentSize);
-    m_d->m_ui.indentBlocksBehavior->setCurrentIndex(tabSettings.m_indentBraces ?
-                                                      (tabSettings.m_doubleIndentBlocks ? 2 : 1)
-                                                        : 0);
-    m_d->m_ui.tabKeyBehavior->setCurrentIndex(tabSettings.m_tabKeyBehavior);
-    m_d->m_ui.continuationAlignBehavior->setCurrentIndex(tabSettings.m_continuationAlignBehavior);
-}
-
-void BehaviorSettingsWidget::assignedTabSettings(TabSettings *tabSettings) const
-{
-    tabSettings->m_spacesForTabs = m_d->m_ui.insertSpaces->isChecked();
-    tabSettings->m_autoSpacesForTabs = m_d->m_ui.autoInsertSpaces->isChecked();
-    tabSettings->m_autoIndent = m_d->m_ui.autoIndent->isChecked();
-    tabSettings->m_smartBackspace = m_d->m_ui.smartBackspace->isChecked();
-    tabSettings->m_tabSize = m_d->m_ui.tabSize->value();
-    tabSettings->m_indentSize = m_d->m_ui.indentSize->value();
-    tabSettings->m_indentBraces = m_d->m_ui.indentBlocksBehavior->currentIndex() >= 1;
-    tabSettings->m_doubleIndentBlocks = m_d->m_ui.indentBlocksBehavior->currentIndex() >= 2;
-
-    tabSettings->m_tabKeyBehavior =
-        (TabSettings::TabKeyBehavior)m_d->m_ui.tabKeyBehavior->currentIndex();
-    tabSettings->m_continuationAlignBehavior =
-        (TabSettings::ContinuationAlignBehavior)m_d->m_ui.continuationAlignBehavior->currentIndex();
+    m_d->m_ui.tabPreferencesWidget->setTabPreferences(tabPreferences);
 }
 
 void BehaviorSettingsWidget::setAssignedStorageSettings(const StorageSettings &storageSettings)
@@ -216,13 +175,7 @@ QString BehaviorSettingsWidget::collectUiKeywords() const
     static const QLatin1Char sep(' ');
     QString keywords;
     QTextStream(&keywords)
-        << m_d->m_ui.insertSpaces->text()
-        << sep << m_d->m_ui.autoInsertSpaces->text()
-        << sep << m_d->m_ui.autoIndent->text()
-        << sep << m_d->m_ui.smartBackspace->text()
-        << sep << m_d->m_ui.indentBlocksLabel->text()
-        << sep << m_d->m_ui.continuationAlignLabel->text()
-        << sep << m_d->m_ui.tabKeyIndentLabel->text()
+        << sep << m_d->m_ui.tabPreferencesWidget->searchKeywords()
         << sep << m_d->m_ui.cleanWhitespace->text()
         << sep << m_d->m_ui.inEntireDocument->text()
         << sep << m_d->m_ui.cleanIndentation->text()
@@ -231,7 +184,6 @@ QString BehaviorSettingsWidget::collectUiKeywords() const
         << sep << m_d->m_ui.utf8BomLabel->text()
         << sep << m_d->m_ui.mouseNavigation->text()
         << sep << m_d->m_ui.scrollWheelZooming->text()
-        << sep << m_d->m_ui.groupBoxTabAndIndentSettings->title()
         << sep << m_d->m_ui.groupBoxStorageSettings->title()
         << sep << m_d->m_ui.groupBoxEncodings->title()
         << sep << m_d->m_ui.groupBoxMouse->title();
@@ -239,7 +191,33 @@ QString BehaviorSettingsWidget::collectUiKeywords() const
     return keywords;
 }
 
-void BehaviorSettingsWidget::handleEncodingBoxChange(int index)
+void BehaviorSettingsWidget::setFallbacksVisible(bool on)
+{
+    m_d->m_ui.tabPreferencesWidget->setFallbacksVisible(on);
+}
+
+void BehaviorSettingsWidget::slotStorageSettingsChanged()
+{
+    StorageSettings settings;
+    assignedStorageSettings(&settings);
+    emit storageSettingsChanged(settings);
+}
+
+void BehaviorSettingsWidget::slotBehaviorSettingsChanged()
+{
+    StorageSettings settings;
+    assignedStorageSettings(&settings);
+    emit storageSettingsChanged(settings);
+}
+
+void BehaviorSettingsWidget::slotExtraEncodingChanged()
+{
+    ExtraEncodingSettings settings;
+    assignedExtraEncodingSettings(&settings);
+    emit extraEncodingSettingsChanged(settings);
+}
+
+void BehaviorSettingsWidget::slotEncodingBoxChanged(int index)
 {
     emit textCodecChanged(m_d->m_codecs.at(index));
 }

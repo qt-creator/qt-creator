@@ -33,12 +33,18 @@
 #ifndef CPPQTSTYLEINDENTER_H
 #define CPPQTSTYLEINDENTER_H
 
+#include "cpptools_global.h"
 #include <texteditor/indenter.h>
+#include "cppcodestylesettingspage.h"
 
-namespace CppEditor {
-namespace Internal {
+namespace TextEditor
+{
+class IFallbackPreferences;
+}
 
-class CppQtStyleIndenter : public TextEditor::Indenter
+namespace CppTools {
+
+class CPPTOOLS_EXPORT CppQtStyleIndenter : public TextEditor::Indenter
 {
 public:
     CppQtStyleIndenter();
@@ -54,9 +60,13 @@ public:
                         const QTextCursor &cursor,
                         const QChar &typedChar,
                         TextEditor::BaseTextEditorWidget *editor);
+
+    virtual void setCodeStylePreferences(TextEditor::IFallbackPreferences *preferences);
+private:
+    CppCodeStyleSettings codeStyleSettings() const;
+    CppCodeStylePreferences *m_cppCodeStylePreferences;
 };
 
-} // Internal
-} // CppEditor
+} // CppTools
 
 #endif // CPPQTSTYLEINDENTER_H

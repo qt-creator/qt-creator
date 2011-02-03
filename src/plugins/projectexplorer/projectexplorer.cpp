@@ -53,6 +53,7 @@
 #include "currentprojectfilter.h"
 #include "customexecutablerunconfiguration.h"
 #include "editorsettingspropertiespage.h"
+#include "codestylesettingspropertiespage.h"
 #include "dependenciespanel.h"
 #include "foldernavigationwidget.h"
 #include "iprojectmanager.h"
@@ -389,6 +390,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new BuildSettingsPanelFactory);
     addAutoReleasedObject(new RunSettingsPanelFactory);
     addAutoReleasedObject(new EditorSettingsPanelFactory);
+    addAutoReleasedObject(new CodeStyleSettingsPanelFactory);
     addAutoReleasedObject(new DependenciesPanelFactory(d->m_session));
 
     ProcessStepFactory *processStepFactory = new ProcessStepFactory;

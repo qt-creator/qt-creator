@@ -54,6 +54,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/navigationwidget.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/tabpreferences.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorplugin.h>
@@ -61,6 +62,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <cplusplus/ModelManagerInterface.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <cpptools/cpptoolssettings.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
@@ -170,6 +172,7 @@ void CppPlugin::initializeEditor(CPPEditorWidget *editor)
 {
     m_actionHandler->setupActions(editor);
 
+    editor->setLanguageSettingsId(CppTools::Constants::CPP_SETTINGS_ID);
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
 
     // method combo box sorting

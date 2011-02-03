@@ -99,7 +99,8 @@ HEADERS += projectexplorer.h \
     publishing/ipublishingwizardfactory.h \
     headerpath.h \
     gcctoolchainfactories.h \
-    appoutputpane.h
+    appoutputpane.h \
+    codestylesettingspropertiespage.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -184,7 +185,8 @@ SOURCES += projectexplorer.cpp \
     customexecutableconfigurationwidget.cpp \
     sessionnodeimpl.cpp \
     publishing/publishingwizardselectiondialog.cpp \
-    appoutputpane.cpp
+    appoutputpane.cpp \
+    codestylesettingspropertiespage.cpp
 
 FORMS += processstep.ui \
     toolchainoptionspage.ui \
@@ -197,7 +199,8 @@ FORMS += processstep.ui \
     projectwelcomepagewidget.ui \
     targetsettingswidget.ui \
     doubletabwidget.ui \
-    publishing/publishingwizardselectiondialog.ui
+    publishing/publishingwizardselectiondialog.ui \
+    codestylesettingspropertiespage.ui
 
 equals(TEST, 1) {
     SOURCES += \

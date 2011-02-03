@@ -130,7 +130,7 @@ QuickToolBarSettingsPage::QuickToolBarSettingsPage() :
 
 QString QuickToolBarSettingsPage::id() const
 {
-    return QLatin1String("QmlToolbar");
+    return QLatin1String("C.QmlToolbar");
 }
 
 QString QuickToolBarSettingsPage::displayName() const

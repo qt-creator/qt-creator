@@ -32,20 +32,26 @@
 
 #include "cppqtstyleindenter.h"
 
-#include <cpptools/cppcodeformatter.h>
+#include "cppcodeformatter.h"
+#include "cpptoolssettings.h"
+#include "cppcodestylepreferences.h"
+#include "cpptoolsconstants.h"
 #include <texteditor/basetexteditor.h>
 #include <texteditor/tabsettings.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <QtCore/QChar>
 #include <QtGui/QTextDocument>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
 
-using namespace CppEditor;
-using namespace Internal;
+using namespace CppTools;
 
 CppQtStyleIndenter::CppQtStyleIndenter()
-{}
+    : m_cppCodeStylePreferences(0)
+{
+    m_cppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStylePreferences();
+}
 
 CppQtStyleIndenter::~CppQtStyleIndenter()
 {}
@@ -89,7 +95,7 @@ void CppQtStyleIndenter::indentBlock(QTextDocument *doc,
     Q_UNUSED(doc)
 
     const TextEditor::TabSettings &ts = editor->tabSettings();
-    CppTools::QtStyleCodeFormatter codeFormatter(ts);
+    CppTools::QtStyleCodeFormatter codeFormatter(ts, codeStyleSettings());
 
     codeFormatter.updateStateUntil(block);
     int indent;
@@ -123,7 +129,7 @@ void CppQtStyleIndenter::indent(QTextDocument *doc,
         const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
 
         const TextEditor::TabSettings &ts = editor->tabSettings();
-        CppTools::QtStyleCodeFormatter codeFormatter(ts);
+        CppTools::QtStyleCodeFormatter codeFormatter(ts, codeStyleSettings());
         codeFormatter.updateStateUntil(block);
 
         QTextCursor tc = editor->textCursor();
@@ -140,4 +146,19 @@ void CppQtStyleIndenter::indent(QTextDocument *doc,
     } else {
         indentBlock(doc, cursor.block(), typedChar, editor);
     }
+}
+
+void CppQtStyleIndenter::setCodeStylePreferences(TextEditor::IFallbackPreferences *preferences)
+{
+    CppTools::CppCodeStylePreferences *cppCodeStylePreferences
+            = qobject_cast<CppTools::CppCodeStylePreferences *>(preferences);
+    if (cppCodeStylePreferences)
+        m_cppCodeStylePreferences = cppCodeStylePreferences;
+}
+
+CppCodeStyleSettings CppQtStyleIndenter::codeStyleSettings() const
+{
+    if (m_cppCodeStylePreferences)
+        return m_cppCodeStylePreferences->currentSettings();
+    return CppCodeStyleSettings();
 }

@@ -61,6 +61,7 @@ class Symbol;
 
 namespace CppTools {
 class CppModelManagerInterface;
+class CppCodeStyleSettings;
 }
 
 namespace TextEditor {
@@ -216,6 +217,8 @@ protected:
 
     const CPlusPlus::Macro *findCanonicalMacro(const QTextCursor &cursor,
                                                CPlusPlus::Document::Ptr doc) const;
+protected Q_SLOTS:
+    void slotCodeStyleSettingsChanged(const QVariant &);
 
 private Q_SLOTS:
     void updateFileName();

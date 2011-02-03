@@ -106,3 +106,8 @@ void Indenter::reindent(QTextDocument *doc, const QTextCursor &cursor, BaseTextE
         indentBlock(doc, cursor.block(), QChar::Null, editor);
     }
 }
+
+void Indenter::setCodeStylePreferences(IFallbackPreferences *)
+{
+
+}

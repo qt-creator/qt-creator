@@ -39,6 +39,7 @@
 #include "codecselector.h"
 #include "completionsettings.h"
 #include "tabsettings.h"
+#include "tabpreferences.h"
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
 #include "syntaxhighlighter.h"
@@ -2341,6 +2342,8 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_formatRange(false),
     m_parenthesesMatchingTimer(0),
     m_extraArea(0),
+    m_tabPreferences(0),
+    m_codeStylePreferences(0),
     extraAreaSelectionAnchorBlockNumber(-1),
     extraAreaToggleMarkBlockNumber(-1),
     extraAreaHighlightFoldedBlockNumber(-1),
@@ -4306,6 +4309,50 @@ void BaseTextEditorWidget::toggleBlockVisible(const QTextBlock &block)
 const TabSettings &BaseTextEditorWidget::tabSettings() const
 {
     return d->m_document->tabSettings();
+}
+
+void BaseTextEditorWidget::setLanguageSettingsId(const QString &settingsId)
+{
+    d->m_tabSettingsId = settingsId;
+}
+
+QString BaseTextEditorWidget::languageSettingsId() const
+{
+    return d->m_tabSettingsId;
+}
+
+void BaseTextEditorWidget::setTabPreferences(TabPreferences *tabPreferences)
+{
+    if (d->m_tabPreferences) {
+        disconnect(d->m_tabPreferences, SIGNAL(currentSettingsChanged(TextEditor::TabSettings)),
+                this, SLOT(setTabSettings(TextEditor::TabSettings)));
+    }
+    d->m_tabPreferences = tabPreferences;
+    if (d->m_tabPreferences) {
+        connect(d->m_tabPreferences, SIGNAL(currentSettingsChanged(TextEditor::TabSettings)),
+                this, SLOT(setTabSettings(TextEditor::TabSettings)));
+        setTabSettings(d->m_tabPreferences->currentSettings());
+    }
+}
+
+void BaseTextEditorWidget::setCodeStylePreferences(IFallbackPreferences *preferences)
+{
+    indenter()->setCodeStylePreferences(preferences);
+    if (d->m_codeStylePreferences) {
+        disconnect(d->m_codeStylePreferences, SIGNAL(currentValueChanged(QVariant)),
+                this, SLOT(slotCodeStyleSettingsChanged(QVariant)));
+    }
+    d->m_codeStylePreferences = preferences;
+    if (d->m_codeStylePreferences) {
+        connect(d->m_codeStylePreferences, SIGNAL(currentValueChanged(QVariant)),
+                this, SLOT(slotCodeStyleSettingsChanged(QVariant)));
+        slotCodeStyleSettingsChanged(d->m_codeStylePreferences->currentValue());
+    }
+}
+
+void BaseTextEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)
+{
+
 }
 
 const DisplaySettings &BaseTextEditorWidget::displaySettings() const

@@ -44,6 +44,8 @@ class StorageSettings;
 class BehaviorSettings;
 class ExtraEncodingSettings;
 
+class TabPreferences;
+
 class BehaviorSettingsPageParameters
 {
 public:
@@ -69,13 +71,13 @@ public:
     void finish();
     bool matches(const QString &s) const;
 
-    const TabSettings &tabSettings() const;
     const StorageSettings &storageSettings() const;
     const BehaviorSettings &behaviorSettings() const;
     const ExtraEncodingSettings &extraEncodingSettings() const;
 
+    TabPreferences *tabPreferences() const;
+
 signals:
-    void tabSettingsChanged(const TextEditor::TabSettings &);
     void storageSettingsChanged(const TextEditor::StorageSettings &);
     void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);

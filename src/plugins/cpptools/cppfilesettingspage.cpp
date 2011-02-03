@@ -333,12 +333,12 @@ CppFileSettingsPage::~CppFileSettingsPage()
 
 QString CppFileSettingsPage::id() const
 {
-    return QLatin1String(Constants::CPP_SETTINGS_ID);
+    return QLatin1String(Constants::CPP_FILE_SETTINGS_ID);
 }
 
 QString CppFileSettingsPage::displayName() const
 {
-    return QCoreApplication::translate("CppTools", Constants::CPP_SETTINGS_NAME);
+    return QCoreApplication::translate("CppTools", Constants::CPP_FILE_SETTINGS_NAME);
 }
 
 QString CppFileSettingsPage::category() const

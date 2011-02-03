@@ -31,11 +31,14 @@
 **************************************************************************/
 
 #include "cpprefactoringchanges.h"
+#include "cppcodestylepreferences.h"
 
 #include <TranslationUnit.h>
 #include <AST.h>
 #include <cpptools/cppcodeformatter.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolssettings.h>
+#include <cpptools/cpptoolsconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/tabsettings.h>
 #include <projectexplorer/editorconfiguration.h>
@@ -76,7 +79,9 @@ void CppRefactoringChanges::indentSelection(const QTextCursor &selection,
 
     const TextEditor::TabSettings &tabSettings =
         ProjectExplorer::actualTabSettings(fileName, textEditor);
-    CppTools::QtStyleCodeFormatter codeFormatter(tabSettings);
+    // TODO: add similar method like above one
+    CppTools::QtStyleCodeFormatter codeFormatter(tabSettings,
+        CppToolsSettings::instance()->cppCodeStylePreferences()->settings());
     codeFormatter.updateStateUntil(block);
 
     do {

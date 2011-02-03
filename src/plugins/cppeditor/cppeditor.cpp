@@ -36,7 +36,6 @@
 #include "cpphighlighter.h"
 #include "cppchecksymbols.h"
 #include "cpplocalsymbols.h"
-#include "cppqtstyleindenter.h"
 #include "cppautocompleter.h"
 #include "cppquickfixassistant.h"
 
@@ -66,6 +65,8 @@
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppcodeformatter.h>
 #include <cpptools/cppcompletionassist.h>
+#include <cpptools/cppqtstyleindenter.h>
+#include <cpptools/cppcodestylesettings.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -423,7 +424,7 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
-    setIndenter(new CppQtStyleIndenter);
+    setIndenter(new CppTools::CppQtStyleIndenter);
     setAutoCompleter(new CppAutoCompleter);
 
     baseTextDocument()->setSyntaxHighlighter(new CppHighlighter);
@@ -1812,6 +1813,12 @@ void CPPEditorWidget::setTabSettings(const TextEditor::TabSettings &ts)
 void CPPEditorWidget::unCommentSelection()
 {
     Utils::unCommentSelection(this);
+}
+
+void CPPEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)
+{
+    CppTools::QtStyleCodeFormatter formatter;
+    formatter.invalidateCache(document());
 }
 
 CPPEditorWidget::Link CPPEditorWidget::linkToSymbol(CPlusPlus::Symbol *symbol)

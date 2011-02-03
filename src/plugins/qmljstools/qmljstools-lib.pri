@@ -13,7 +13,9 @@ HEADERS += \
     $$PWD/qmljsrefactoringchanges.h \
     $$PWD/qmljsplugindumper.h \
     $$PWD/qmljsfunctionfilter.h \
-    $$PWD/qmljslocatordata.h
+    $$PWD/qmljslocatordata.h \
+    $$PWD/qmljsindenter.h \
+    $$PWD/qmljscodestylesettingspage.h
 
 SOURCES += \
     $$PWD/qmljstoolsplugin.cpp \
@@ -22,4 +24,9 @@ SOURCES += \
     $$PWD/qmljsrefactoringchanges.cpp \
     $$PWD/qmljsplugindumper.cpp \
     $$PWD/qmljsfunctionfilter.cpp \
-    $$PWD/qmljslocatordata.cpp
+    $$PWD/qmljslocatordata.cpp \
+    $$PWD/qmljsindenter.cpp \
+    $$PWD/qmljscodestylesettingspage.cpp
+
+FORMS += \
+    $$PWD/qmljscodestylesettingspage.ui

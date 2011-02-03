@@ -49,6 +49,7 @@
 
 #include <qmljs/qmljsicons.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljstools/qmljstoolsconstants.h>
 
 #include <qmldesigner/qmldesignerconstants.h>
 
@@ -264,6 +265,7 @@ void QmlJSEditorPlugin::initializeEditor(QmlJSEditor::QmlJSTextEditorWidget *edi
 
     m_actionHandler->setupActions(editor);
 
+    editor->setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
 }
 

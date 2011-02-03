@@ -41,7 +41,8 @@
 using namespace QmlJS;
 
 CodeFormatter::BlockData::BlockData()
-    : m_blockRevision(-1)
+    : m_indentDepth(0)
+    , m_blockRevision(-1)
 {
 }
 

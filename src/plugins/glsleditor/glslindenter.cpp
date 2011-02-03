@@ -33,6 +33,8 @@
 #include "glslindenter.h"
 
 #include <cpptools/cppcodeformatter.h>
+#include <cpptools/cpptoolssettings.h>
+#include <cpptools/cppcodestylepreferences.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/tabsettings.h>
 
@@ -69,7 +71,9 @@ void GLSLIndenter::indentBlock(QTextDocument *doc,
     Q_UNUSED(doc)
 
     const TextEditor::TabSettings &ts = editor->tabSettings();
-    CppTools::QtStyleCodeFormatter codeFormatter(ts);
+    // TODO: do something with it
+    CppTools::QtStyleCodeFormatter codeFormatter(ts,
+              CppTools::CppToolsSettings::instance()->cppCodeStylePreferences()->settings());
 
     codeFormatter.updateStateUntil(block);
     int indent;
@@ -99,7 +103,9 @@ void GLSLIndenter::indent(QTextDocument *doc,
         const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
 
         const TextEditor::TabSettings &ts = editor->tabSettings();
-        CppTools::QtStyleCodeFormatter codeFormatter(ts);
+        // TODO: do something with it
+        CppTools::QtStyleCodeFormatter codeFormatter(ts,
+                  CppTools::CppToolsSettings::instance()->cppCodeStylePreferences()->settings());
         codeFormatter.updateStateUntil(block);
 
         QTextCursor tc = editor->textCursor();

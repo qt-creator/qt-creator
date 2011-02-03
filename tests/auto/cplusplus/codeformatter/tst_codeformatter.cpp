@@ -62,6 +62,8 @@ private Q_SLOTS:
     void cStyleComments();
     void cppStyleComments();
     void expressionContinuation();
+    void assignContinuation1();
+    void assignContinuation2();
     void classAccess();
     void ternary();
     void objcAtDeclarations();
@@ -72,6 +74,11 @@ private Q_SLOTS:
     void bug2();
     void bug3();
     void switch1();
+    void switch2();
+    void switch3();
+    void switch4();
+    void switch5();
+    void blocks();
     void memberInitializer();
     void templates();
     void operatorOverloads();
@@ -93,6 +100,26 @@ private Q_SLOTS:
     void labels();
     void functionsWithExtraSpecifier();
     void externSpec();
+    void indentNamespace();
+    void indentNamespace2();
+    void accessSpecifiers1();
+    void accessSpecifiers2();
+    void accessSpecifiers3();
+    void accessSpecifiers4();
+    void accessSpecifiers5();
+    void accessSpecifiers6();
+    void functionBodyAndBraces1();
+    void functionBodyAndBraces2();
+    void functionBodyAndBraces3();
+    void functionBodyAndBraces4();
+    void constructor();
+    void caseBody1();
+    void caseBody2();
+    void caseBody3();
+    void caseBody4();
+    void caseBody5();
+    void caseBody6();
+    void blockBraces1();
 };
 
 struct Line {
@@ -148,19 +175,10 @@ QString concatLines(QList<Line> lines)
     return result;
 }
 
-void checkIndent(QList<Line> data, int style = 0)
+void checkIndent(QList<Line> data, QtStyleCodeFormatter formatter)
 {
     QString text = concatLines(data);
     QTextDocument document(text);
-    QtStyleCodeFormatter formatter;
-    if (style == 1) {// gnu
-        formatter.setIndentSubstatementBraces(true);
-    } else if (style == 2) { // whitesmiths
-        formatter.setIndentSubstatementStatements(false);
-        formatter.setIndentSubstatementBraces(true);
-        formatter.setIndentDeclarationMembers(false);
-        formatter.setIndentDeclarationBraces(true);
-    }
 
     int i = 0;
     foreach (const Line &l, data) {
@@ -176,6 +194,37 @@ void checkIndent(QList<Line> data, int style = 0)
         formatter.updateLineStateChange(b);
         ++i;
     }
+}
+
+void checkIndent(QList<Line> data, CppCodeStyleSettings style)
+{
+    QtStyleCodeFormatter formatter;
+    formatter.setCodeStyleSettings(style);
+    checkIndent(data, formatter);
+}
+
+void checkIndent(QList<Line> data, int style = 0)
+{
+    CppCodeStyleSettings codeStyle;
+    QtStyleCodeFormatter formatter;
+    if (style == 1) {// gnu
+        codeStyle.indentBlockBraces = true;
+        codeStyle.indentSwitchLabels = true;
+        codeStyle.indentBlocksRelativeToSwitchLabels = true;
+    } else if (style == 2) { // whitesmiths
+        codeStyle.indentBlockBody = false;
+        codeStyle.indentBlockBraces = true;
+        codeStyle.indentClassBraces = true;
+        codeStyle.indentNamespaceBraces = true;
+        codeStyle.indentEnumBraces = true;
+        codeStyle.indentFunctionBody = false;
+        codeStyle.indentFunctionBraces = true;
+        codeStyle.indentSwitchLabels = true;
+        codeStyle.indentBlocksRelativeToSwitchLabels = true;
+    }
+    formatter.setCodeStyleSettings(codeStyle);
+
+    checkIndent(data, formatter);
 }
 
 void tst_CodeFormatter::ifStatementWithoutBraces1()
@@ -585,6 +634,46 @@ void tst_CodeFormatter::expressionContinuation()
     checkIndent(data);
 }
 
+void tst_CodeFormatter::assignContinuation1()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    abcdefgh = a +")
+         << Line("    ~       b;")
+         << Line("    a = a +")
+         << Line("    ~       b;")
+         << Line("    (a = a +")
+         << Line("    ~       b);")
+         << Line("    abcdefgh =")
+         << Line("    ~       a + b;")
+         << Line("    a =")
+         << Line("    ~       a + b;")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::assignContinuation2()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    abcdefgh = a +")
+         << Line("    ~          b;")
+         << Line("    a = a +")
+         << Line("    ~   b;")
+         << Line("    (a = a +")
+         << Line("    ~    b);")
+         << Line("    abcdefgh =")
+         << Line("    ~       a + b;")
+         << Line("    a =")
+         << Line("    ~       a + b;")
+         << Line("}")
+         ;
+    CppCodeStyleSettings style;
+    style.alignAssignments = true;
+    checkIndent(data, style);
+}
+
 void tst_CodeFormatter::classAccess()
 {
     QList<Line> data;
@@ -772,15 +861,163 @@ void tst_CodeFormatter::switch1()
          << Line("    }")
          << Line("    case bar:")
          << Line("        break;")
-         << Line("    }")
          << Line("    case 4:")
          << Line("    {")
          << Line("        if (a) {")
          << Line("        }")
          << Line("    }")
+         << Line("    }")
          << Line("}")
          ;
     checkIndent(data);
+}
+
+void tst_CodeFormatter::switch2()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    switch (a) {")
+         << Line("        case 1:")
+         << Line("            foo;")
+         << Line("            if (a);")
+         << Line("        case 2:")
+         << Line("        case 3: {")
+         << Line("            foo;")
+         << Line("        }")
+         << Line("        case 4:")
+         << Line("        {")
+         << Line("            foo;")
+         << Line("        }")
+         << Line("        case bar:")
+         << Line("            break;")
+         << Line("        case 4:")
+         << Line("        {")
+         << Line("            if (a) {")
+         << Line("            }")
+         << Line("        }")
+         << Line("    }")
+         << Line("}")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentSwitchLabels = true;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::switch3()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    switch (a)")
+         << Line("        {")
+         << Line("    case 1:")
+         << Line("        foo;")
+         << Line("        if (a);")
+         << Line("    case 2:")
+         << Line("    case 3:")
+         << Line("        {")
+         << Line("            foo;")
+         << Line("        }")
+         << Line("    case bar:")
+         << Line("        break;")
+         << Line("    case 4:")
+         << Line("        {")
+         << Line("            if (a)")
+         << Line("                {")
+         << Line("                }")
+         << Line("        }")
+         << Line("        }")
+         << Line("}")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentBlockBraces = true;
+    codeStyle.indentBlocksRelativeToSwitchLabels= true;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::switch4()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    switch (a)")
+         << Line("        {")
+         << Line("        case 1:")
+         << Line("            foo;")
+         << Line("            if (a);")
+         << Line("        case 2:")
+         << Line("        case 4:")
+         << Line("            {")
+         << Line("                foo;")
+         << Line("            }")
+         << Line("        case bar:")
+         << Line("            break;")
+         << Line("        case 4:")
+         << Line("            {")
+         << Line("                if (a)")
+         << Line("                    {")
+         << Line("                    }")
+         << Line("            }")
+         << Line("        }")
+         << Line("}")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentBlockBraces = true;
+    codeStyle.indentBlocksRelativeToSwitchLabels = true;
+    codeStyle.indentSwitchLabels = true;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::switch5()
+{
+    QList<Line> data;
+    data << Line("void foo()")
+         << Line("{")
+         << Line("    switch (a)")
+         << Line("        {")
+         << Line("        case 1:")
+         << Line("            foo;")
+         << Line("            if (a);")
+         << Line("        case 2:")
+         << Line("        case 4:")
+         << Line("            {")
+         << Line("            foo;")
+         << Line("            }")
+         << Line("        case bar:")
+         << Line("            break;")
+         << Line("        case 4:")
+         << Line("            {")
+         << Line("            if (a)")
+         << Line("                {")
+         << Line("                }")
+         << Line("            }")
+         << Line("        }")
+         << Line("}")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentBlockBraces = true;
+    codeStyle.indentBlockBody = false;
+    codeStyle.indentBlocksRelativeToSwitchLabels = true;
+    codeStyle.indentSwitchLabels = true;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::blocks()
+{
+    QList<Line> data;
+    data << Line("void foo()")
+         << Line("{")
+         << Line("    int a;")
+         << Line("    {")
+         << Line("    int b;")
+         << Line("    {")
+         << Line("    int c;")
+         << Line("    }")
+         << Line("    }")
+         << Line("}")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentBlockBody = false;
+    codeStyle.indentBlockBraces = true;
+    checkIndent(data, codeStyle);
 }
 
 void tst_CodeFormatter::memberInitializer()
@@ -870,8 +1107,8 @@ void tst_CodeFormatter::gnuStyle()
          << Line("            {")
          << Line("            }")
          << Line("        if (b) {")
-         << Line("            fpp;")
-         << Line("        }")
+         << Line("                fpp;")
+         << Line("            }")
          << Line("        {")
          << Line("            foo;")
          << Line("        }")
@@ -899,6 +1136,14 @@ void tst_CodeFormatter::whitesmithsStyle()
          << Line("        foo;")
          << Line("        }")
          << Line("        }")
+         << Line("    };")
+         << Line("enum E")
+         << Line("    {")
+         << Line("    FOO")
+         << Line("    };")
+         << Line("namespace")
+         << Line("    {")
+         << Line("    int i;")
          << Line("    };")
          ;
     checkIndent(data, 2);
@@ -1189,6 +1434,31 @@ void tst_CodeFormatter::functionsWithExtraSpecifier()
          << Line("namespace foo {")
          << Line("}")
          << Line("int a;")
+            ;
+       checkIndent(data);
+}
+
+void tst_CodeFormatter::indentNamespace()
+{
+    QList<Line> data;
+    data << Line("namespace Foo {")
+         << Line("int x;")
+         << Line("class C;")
+         << Line("struct S {")
+         << Line("    int a;")
+         << Line("};")
+         << Line("}")
+         << Line("int j;")
+         << Line("namespace {")
+         << Line("namespace Foo {")
+         << Line("int j;")
+         << Line("}")
+         << Line("int j;")
+         << Line("namespace {")
+         << Line("int j;")
+         << Line("}")
+         << Line("}")
+         << Line("int j;")
          ;
     checkIndent(data);
 }
@@ -1209,7 +1479,422 @@ void tst_CodeFormatter::externSpec()
     checkIndent(data);
 }
 
+void tst_CodeFormatter::indentNamespace2()
+{
+    QList<Line> data;
+    data << Line("namespace Foo {")
+         << Line("    int x;")
+         << Line("    class C;")
+         << Line("    struct S {")
+         << Line("        int a;")
+         << Line("    };")
+         << Line("}")
+         << Line("int j;")
+         << Line("namespace {")
+         << Line("    int j;")
+         << Line("    namespace Foo {")
+         << Line("        int j;")
+         << Line("    }")
+         << Line("    int j;")
+         << Line("    namespace {")
+         << Line("        int j;")
+         << Line("    }")
+         << Line("}")
+         << Line("int j;")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentNamespaceBody = true;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::accessSpecifiers1()
+{
+    QList<Line> data;
+    data << Line("class C {")
+         << Line("    public:")
+         << Line("    int i;")
+         << Line("    protected:")
+         << Line("    int i;")
+         << Line("    private:")
+         << Line("    int i;")
+         << Line("    private slots:")
+         << Line("    void foo();")
+         << Line("    signals:")
+         << Line("    void foo();")
+         << Line("};")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentAccessSpecifiers = true;
+    codeStyle.indentDeclarationsRelativeToAccessSpecifiers = false;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::accessSpecifiers2()
+{
+    QList<Line> data;
+    data << Line("class C {")
+         << Line("    public:")
+         << Line("        int i;")
+         << Line("    protected:")
+         << Line("        int i;")
+         << Line("    private:")
+         << Line("        int i;")
+         << Line("    private slots:")
+         << Line("        void foo();")
+         << Line("    signals:")
+         << Line("        void foo();")
+         << Line("};")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentAccessSpecifiers = true;
+    codeStyle.indentDeclarationsRelativeToAccessSpecifiers = true;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::accessSpecifiers3()
+{
+    QList<Line> data;
+    data << Line("class C {")
+         << Line("public:")
+         << Line("int i;")
+         << Line("protected:")
+         << Line("int i;")
+         << Line("private:")
+         << Line("int i;")
+         << Line("private slots:")
+         << Line("void foo();")
+         << Line("signals:")
+         << Line("void foo();")
+         << Line("};")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentAccessSpecifiers = false;
+    codeStyle.indentDeclarationsRelativeToAccessSpecifiers = false;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::accessSpecifiers4()
+{
+    QList<Line> data;
+    data << Line("class C {")
+         << Line("public:")
+         << Line("    int i;")
+         << Line("protected:")
+         << Line("    int i;")
+         << Line("private:")
+         << Line("    int i;")
+         << Line("private slots:")
+         << Line("    void foo();")
+         << Line("signals:")
+         << Line("    void foo();")
+         << Line("};")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentAccessSpecifiers = false;
+    codeStyle.indentDeclarationsRelativeToAccessSpecifiers = true;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::accessSpecifiers5()
+{
+    QList<Line> data;
+    data << Line("class C {")
+         << Line("public:")
+         << Line("      int i;", 4)
+         << Line("protected:")
+         << Line("      int i;")
+         << Line("private:")
+         << Line("  int i;", 6)
+         << Line("private slots:")
+         << Line("  void foo();")
+         << Line("signals:")
+         << Line("  void foo();")
+         << Line("};")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentAccessSpecifiers = false;
+    codeStyle.indentDeclarationsRelativeToAccessSpecifiers = true;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::accessSpecifiers6()
+{
+    // not great, but the best we can do with the current scheme
+    QList<Line> data;
+    data << Line("class C {")
+         << Line("    public:")
+         << Line("      int i;", 8)
+         << Line("    protected:")
+         << Line("      int i;")
+         << Line("    private:")
+         << Line("  int i;", 6)
+         << Line("    private slots:")
+         << Line("  void foo();")
+         << Line("    signals:")
+         << Line("  void foo();")
+         << Line("};")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentAccessSpecifiers = true;
+    codeStyle.indentDeclarationsRelativeToAccessSpecifiers = true;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::functionBodyAndBraces1()
+{
+    QList<Line> data;
+    data << Line("void foo()")
+         << Line("{")
+         << Line("    int i;")
+         << Line("}")
+         << Line("void bar()")
+         << Line("{")
+         << Line("      int i;", 4)
+         << Line("      int j;")
+         << Line("}")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentFunctionBody = true;
+    codeStyle.indentFunctionBraces = false;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::functionBodyAndBraces2()
+{
+    QList<Line> data;
+    data << Line("void foo()")
+         << Line("    {")
+         << Line("        int i;")
+         << Line("    }")
+         << Line("void bar()")
+         << Line("    {")
+         << Line("          int i;", 8)
+         << Line("          int j;")
+         << Line("    }")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentFunctionBody = true;
+    codeStyle.indentFunctionBraces = true;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::functionBodyAndBraces3()
+{
+    QList<Line> data;
+    data << Line("void foo()")
+         << Line("{")
+         << Line("int i;")
+         << Line("}")
+         << Line("void bar()")
+         << Line("{")
+         << Line("  int i;", 0)
+         << Line("  int j;")
+         << Line("};")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentFunctionBody = false;
+    codeStyle.indentFunctionBraces = false;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::functionBodyAndBraces4()
+{
+    QList<Line> data;
+    data << Line("void foo()")
+         << Line("    {")
+         << Line("    int i;")
+         << Line("    }")
+         << Line("void bar()")
+         << Line("    {")
+         << Line("      int i;", 4)
+         << Line("      int j;")
+         << Line("    };")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentFunctionBody = false;
+    codeStyle.indentFunctionBraces = true;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::constructor()
+{
+    QList<Line> data;
+    data << Line("class Foo {")
+         << Line("    Foo() : _a(0)")
+         << Line("        {")
+         << Line("        _b = 0")
+         << Line("        }")
+         << Line("    int _a;")
+         << Line("    int _b;")
+         << Line("};")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentFunctionBody = false;
+    codeStyle.indentFunctionBraces = true;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::caseBody1()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    switch (f) {")
+         << Line("    case 1:")
+         << Line("    a = b;")
+         << Line("    break;")
+         << Line("    case 2:")
+         << Line("    a = b;")
+         << Line("    case 3: {")
+         << Line("        a = b;")
+         << Line("    }")
+         << Line("    }")
+         << Line("}")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentStatementsRelativeToSwitchLabels = false;
+    codeStyle.indentBlocksRelativeToSwitchLabels = false;
+    codeStyle.indentControlFlowRelativeToSwitchLabels = false;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::caseBody2()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    switch (f) {")
+         << Line("    case 1:")
+         << Line("        a = b;")
+         << Line("        break;")
+         << Line("    case 2:")
+         << Line("        a = b;")
+         << Line("    case 3: {")
+         << Line("        a = b;")
+         << Line("    }")
+         << Line("    }")
+         << Line("}")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentStatementsRelativeToSwitchLabels = true;
+    codeStyle.indentBlocksRelativeToSwitchLabels = false;
+    codeStyle.indentControlFlowRelativeToSwitchLabels = true;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::caseBody3()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    switch (f) {")
+         << Line("    case 1:")
+         << Line("        a = b;")
+         << Line("        break;")
+         << Line("    case 2:")
+         << Line("        a = b;")
+         << Line("    case 3: {")
+         << Line("            a = b;")
+         << Line("        }")
+         << Line("    }")
+         << Line("}")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentStatementsRelativeToSwitchLabels = true;
+    codeStyle.indentBlocksRelativeToSwitchLabels = true;
+    codeStyle.indentControlFlowRelativeToSwitchLabels = true;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::caseBody4()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    switch (f) {")
+         << Line("        case 1:")
+         << Line("        a = b;")
+         << Line("        break;")
+         << Line("        case 2:")
+         << Line("        a = b;")
+         << Line("        case 3: {")
+         << Line("            a = b;")
+         << Line("        }")
+         << Line("    }")
+         << Line("}")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentSwitchLabels = true;
+    codeStyle.indentStatementsRelativeToSwitchLabels = false;
+    codeStyle.indentBlocksRelativeToSwitchLabels = false;
+    codeStyle.indentControlFlowRelativeToSwitchLabels = false;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::caseBody5()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    switch (f) {")
+         << Line("        case 1:")
+         << Line("            a = b;")
+         << Line("            break;")
+         << Line("        case 2:")
+         << Line("            a = b;")
+         << Line("        case 3: {")
+         << Line("            a = b;")
+         << Line("        }")
+         << Line("    }")
+         << Line("}")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentSwitchLabels = true;
+    codeStyle.indentStatementsRelativeToSwitchLabels = true;
+    codeStyle.indentBlocksRelativeToSwitchLabels = false;
+    codeStyle.indentControlFlowRelativeToSwitchLabels = true;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::caseBody6()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    switch (f) {")
+         << Line("        case 1:")
+         << Line("            a = b;")
+         << Line("            break;")
+         << Line("        case 2:")
+         << Line("            a = b;")
+         << Line("        case 3: {")
+         << Line("                a = b;")
+         << Line("            }")
+         << Line("    }")
+         << Line("}")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentSwitchLabels = true;
+    codeStyle.indentStatementsRelativeToSwitchLabels = true;
+    codeStyle.indentBlocksRelativeToSwitchLabels = true;
+    codeStyle.indentControlFlowRelativeToSwitchLabels = true;
+    checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::blockBraces1()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    if (a) {")
+         << Line("            int a;")
+         << Line("        }")
+         << Line("    if (a)")
+         << Line("        {")
+         << Line("            int a;")
+         << Line("        }")
+         << Line("}")
+         ;
+    CppCodeStyleSettings codeStyle;
+    codeStyle.indentBlockBraces = true;
+    checkIndent(data, codeStyle);
+}
+
 QTEST_APPLESS_MAIN(tst_CodeFormatter)
+
 #include "tst_codeformatter.moc"
 
 

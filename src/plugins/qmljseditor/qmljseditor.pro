@@ -30,7 +30,6 @@ HEADERS += \
     qmljsfindreferences.h \
     qmljseditoreditable.h \
     qmljssemantichighlighter.h \
-    qmljsindenter.h \
     qmljsautocompleter.h \
     jsfilewizard.h \
     qmljssnippetprovider.h \
@@ -61,7 +60,6 @@ SOURCES += \
     qmljsfindreferences.cpp \
     qmljseditoreditable.cpp \
     qmljssemantichighlighter.cpp \
-    qmljsindenter.cpp \
     qmljsautocompleter.cpp \
     jsfilewizard.cpp \
     qmljssnippetprovider.cpp \

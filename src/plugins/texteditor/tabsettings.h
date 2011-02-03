@@ -112,4 +112,6 @@ inline bool operator!=(const TabSettings &t1, const TabSettings &t2) { return !t
 
 } // namespace TextEditor
 
+Q_DECLARE_METATYPE(TextEditor::TabSettings)
+
 #endif // TABSETTINGS_H

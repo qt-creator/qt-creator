@@ -164,6 +164,7 @@ public:
                                                         TextEditor::AssistReason reason) const;
 
 public slots:
+    virtual void setTabSettings(const TextEditor::TabSettings &ts);
     void forceSemanticRehighlight();
     void followSymbolUnderCursor();
     void findUsages();

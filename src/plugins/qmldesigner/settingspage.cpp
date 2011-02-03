@@ -84,7 +84,7 @@ SettingsPage::SettingsPage() :
 
 QString SettingsPage::id() const
 {
-    return QLatin1String("QmlDesigner");
+    return QLatin1String("B.QmlDesigner");
 }
 
 QString SettingsPage::displayName() const

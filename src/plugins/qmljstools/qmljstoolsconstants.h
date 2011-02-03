@@ -43,6 +43,12 @@ const char * const JS_MIMETYPE = "application/javascript";
 
 const char * const TASK_INDEX = "QmlJSEditor.TaskIndex";
 
+const char * const QML_JS_CODE_STYLE_SETTINGS_ID = "A.Code Style";
+const char * const QML_JS_CODE_STYLE_SETTINGS_NAME = QT_TRANSLATE_NOOP("QmlJSTools", "Code Style");
+
+const char * const QML_JS_SETTINGS_ID = "QmlJS";
+const char * const QML_JS_SETTINGS_NAME = QT_TRANSLATE_NOOP("QmlJSTools", "Qt Quick");
+
 } // namespace Constants
 } // namespace QmlJSEditor
 

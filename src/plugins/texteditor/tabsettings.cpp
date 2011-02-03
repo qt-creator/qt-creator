@@ -338,8 +338,10 @@ void TabSettings::indentLine(QTextBlock block, int newIndent, int padding) const
     }
 
     // Quickly check whether indenting is required.
-    if (indentationColumn(text) == newIndent)
-        return;
+    // fixme: after changing "use spaces for tabs" the change was not reflected
+    // because of the following optimisation. Commenting it out for now.
+//    if (indentationColumn(text) == newIndent)
+//        return;
 
     QString indentString;
 
@@ -405,7 +407,7 @@ bool TabSettings::equals(const TabSettings &ts) const
         && m_tabSize == ts.m_tabSize
         && m_indentSize == ts.m_indentSize
         && m_indentBraces == ts.m_indentBraces
-	&& m_doubleIndentBlocks == ts.m_doubleIndentBlocks
+        && m_doubleIndentBlocks == ts.m_doubleIndentBlocks
         && m_tabKeyBehavior == ts.m_tabKeyBehavior
         && m_continuationAlignBehavior == ts.m_continuationAlignBehavior;
 }

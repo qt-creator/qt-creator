@@ -54,11 +54,13 @@ namespace Utils {
 
 namespace TextEditor {
 class TabSettings;
+class TabPreferences;
 class RefactorOverlay;
 struct RefactorMarker;
 class IAssistMonitorInterface;
 class IAssistInterface;
 class IAssistProvider;
+class IFallbackPreferences;
 
 namespace Internal {
     class BaseTextEditorPrivate;
@@ -368,6 +370,12 @@ public:
     virtual void extraAreaMouseEvent(QMouseEvent *);
 
     const TabSettings &tabSettings() const;
+    void setLanguageSettingsId(const QString &settingsId);
+    QString languageSettingsId() const;
+
+    void setTabPreferences(TabPreferences *preferences);
+    void setCodeStylePreferences(IFallbackPreferences *settings);
+
     const DisplaySettings &displaySettings() const;
 
     void markBlocksAsChanged(QList<int> blockNumbers);
@@ -493,6 +501,7 @@ protected slots:
     virtual void slotUpdateRequest(const QRect &r, int dy);
     virtual void slotCursorPositionChanged();
     virtual void slotUpdateBlockNotify(const QTextBlock &);
+    virtual void slotCodeStyleSettingsChanged(const QVariant &);
 
 signals:
     void requestFontZoom(int zoom);

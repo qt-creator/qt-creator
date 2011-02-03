@@ -43,6 +43,8 @@ namespace TextEditor {
 class ITextEditor;
 class BaseTextEditorWidget;
 class TabSettings;
+class TabPreferences;
+class IFallbackPreferences;
 class StorageSettings;
 class BehaviorSettings;
 class ExtraEncodingSettings;
@@ -66,18 +68,22 @@ public:
     // The default codec is returned in the case the project doesn't override it.
     QTextCodec *textCodec() const;
 
-    const TextEditor::TabSettings &tabSettings() const;
+    TextEditor::TabPreferences *tabPreferences() const;
     const TextEditor::StorageSettings &storageSettings() const;
     const TextEditor::BehaviorSettings &behaviorSettings() const;
     const TextEditor::ExtraEncodingSettings &extraEncodingSettings() const;
 
-    void apply(TextEditor::ITextEditor *textEditor) const;
+    TextEditor::TabPreferences *tabPreferences(const QString &languageId) const;
+    QMap<QString, TextEditor::TabPreferences *> languageTabPreferences() const;
+    TextEditor::IFallbackPreferences *codeStylePreferences(const QString &languageId) const;
+    QMap<QString, TextEditor::IFallbackPreferences *> languageCodeStylePreferences() const;
+
+    void configureEditor(TextEditor::ITextEditor *textEditor) const;
 
     QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);
 
 signals:
-    void tabSettingsChanged(const TextEditor::TabSettings &);
     void storageSettingsChanged(const TextEditor::StorageSettings &);
     void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
@@ -85,25 +91,9 @@ signals:
 private slots:
     void setUseGlobalSettings(bool use);
 
-    void setInsertSpaces(bool spaces);
-    void setAutoInsertSpaces(bool autoSpaces);
-    void setAutoIndent(bool autoIndent);
-    void setSmartBackSpace(bool smartBackSpace);
-    void setTabSize(int size);
-    void setIndentSize(int size);
-    void setIndentBlocksBehavior(int index);
-    void setTabKeyBehavior(int index);
-    void setContinuationAlignBehavior(int index);
-
-    void setCleanWhiteSpace(bool cleanWhiteSpace);
-    void setInEntireDocument(bool entireDocument);
-    void setAddFinalNewLine(bool newLine);
-    void setCleanIndentation(bool cleanIndentation);
-
-    void setMouseNavigation(bool mouseNavigation);
-    void setScrollWheelZooming(bool scrollZooming);
-
-    void setUtf8BomSettings(int index);
+    void setStorageSettings(const TextEditor::StorageSettings &settings);
+    void setBehaviorSettings(const TextEditor::BehaviorSettings &settings);
+    void setExtraEncodingSettings(const TextEditor::ExtraEncodingSettings &settings);
 
     void setTextCodec(QTextCodec *textCodec);
 
@@ -114,7 +104,6 @@ private:
                                const OldSenderT *oldSender,
                                TextEditor::BaseTextEditorWidget *baseTextEditor) const;
 
-    void emitTabSettingsChanged();
     void emitStorageSettingsChanged();
     void emitBehaviorSettingsChanged();
     void emitExtraEncodingSettingsChanged();
@@ -125,7 +114,7 @@ private:
 // Return the editor settings in the case it's not null. Otherwise, try to find the project
 // the file belongs to and return the project settings. If the file doesn't belong to any
 // project return the global settings.
-PROJECTEXPLORER_EXPORT const TextEditor::TabSettings &actualTabSettings(
+PROJECTEXPLORER_EXPORT TextEditor::TabSettings actualTabSettings(
     const QString &fileName, const TextEditor::BaseTextEditorWidget *baseTextEditor);
 
 } // ProjectExplorer

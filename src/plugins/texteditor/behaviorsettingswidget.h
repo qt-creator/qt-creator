@@ -43,7 +43,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class TabSettings;
+class TabPreferences;
 class StorageSettings;
 class BehaviorSettings;
 class ExtraEncodingSettings;
@@ -63,8 +63,7 @@ public:
     void setAssignedCodec(QTextCodec *codec);
     QTextCodec *assignedCodec() const;
 
-    void setAssignedTabSettings(const TabSettings &tabSettings);
-    void assignedTabSettings(TabSettings *tabSettings) const;
+    void setTabPreferences(TabPreferences *tabPreferences);
 
     void setAssignedStorageSettings(const StorageSettings &storageSettings);
     void assignedStorageSettings(StorageSettings *storageSettings) const;
@@ -77,31 +76,19 @@ public:
 
     QString collectUiKeywords() const;
 
+    void setFallbacksVisible(bool on);
+
 signals:
-    void insertSpacesChanged(bool spaces);
-    void autoInsertSpacesChanged(bool autoSpaces);
-    void autoIndentChanged(bool autoIndent);
-    void smartBackSpaceChanged(bool smartBackSpace);
-    void tabSizeChanged(int size);
-    void indentSizeChanged(int size);
-    void indentBlocksBehaviorChanged(int index);
-    void tabKeyBehaviorChanged(int index);
-    void continuationAlignBehaviorChanged(int index);
-
-    void cleanWhiteSpaceChanged(bool cleanWhiteSpace);
-    void inEntireDocumentChanged(bool entireDocument);
-    void addFinalNewLineChanged(bool newLine);
-    void cleanIndentationChanged(bool cleanIndentation);
-
-    void mouseNavigationChanged(bool mouseNavigation);
-    void scrollWheelZoomingChanged(bool scrollZooming);
-
-    void utf8BomSettingsChanged(int index);
-
+    void storageSettingsChanged(const TextEditor::StorageSettings &settings);
+    void behaviorSettingsChanged(const TextEditor::BehaviorSettings &settings);
+    void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &settings);
     void textCodecChanged(QTextCodec *codec);
 
 private slots:
-    void handleEncodingBoxChange(int index);
+    void slotStorageSettingsChanged();
+    void slotBehaviorSettingsChanged();
+    void slotExtraEncodingChanged();
+    void slotEncodingBoxChanged(int index);
 
 private:
     BehaviorSettingsWidgetPrivate *m_d;

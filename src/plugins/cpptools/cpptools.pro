@@ -18,6 +18,7 @@ HEADERS += completionsettingspage.h \
     cpptoolsconstants.h \
     cpptoolseditorsupport.h \
     cpptoolsplugin.h \
+    cppqtstyleindenter.h \
     searchsymbols.h \
     cppdoxygen.h \
     cppfilesettingspage.h \
@@ -28,7 +29,12 @@ HEADERS += completionsettingspage.h \
     insertionpointlocator.h \
     cpprefactoringchanges.h \
     abstracteditorsupport.h \
-    cppcompletionassist.h
+    cppcompletionassist.h \
+    cppcodestylesettingspage.h \
+    cpptoolssettings.h \
+    cppcodestylesettings.h \
+    cppcodestylesettingsfactory.h \
+    cppcodestylepreferences.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
@@ -38,6 +44,7 @@ SOURCES += completionsettingspage.cpp \
     cpplocatorfilter.cpp \
     cpptoolseditorsupport.cpp \
     cpptoolsplugin.cpp \
+    cppqtstyleindenter.cpp \
     searchsymbols.cpp \
     cppdoxygen.cpp \
     cppfilesettingspage.cpp \
@@ -48,7 +55,13 @@ SOURCES += completionsettingspage.cpp \
     uicodecompletionsupport.cpp \
     insertionpointlocator.cpp \
     cpprefactoringchanges.cpp \
-    cppcompletionassist.cpp
+    cppcompletionassist.cpp \
+    cppcodestylesettingspage.cpp \
+    cpptoolssettings.cpp \
+    cppcodestylesettings.cpp \
+    cppcodestylesettingsfactory.cpp \
+    cppcodestylepreferences.cpp
 
 FORMS += completionsettingspage.ui \
-    cppfilesettingspage.ui
+    cppfilesettingspage.ui \
+    cppcodestylesettingspage.ui

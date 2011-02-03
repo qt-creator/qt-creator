@@ -42,6 +42,7 @@
 #include "fontsettingspage.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
+#include "tabpreferences.h"
 #include "extraencodingsettings.h"
 #include "texteditorplugin.h"
 #include "highlightersettingspage.h"
@@ -68,6 +69,9 @@ public:
     DisplaySettingsPage *m_displaySettingsPage;
     HighlighterSettingsPage *m_highlighterSettingsPage;
     SnippetsSettingsPage *m_snippetsSettingsPage;
+
+    QMap<QString, TabPreferences *> m_languageTabPreferences;
+    QMap<QString, IFallbackPreferences *> m_languageCodeStylePreferences;
 
     CompletionSettings m_completionSettings;
 
@@ -186,8 +190,6 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
 
     connect(m_d->m_fontSettingsPage, SIGNAL(changed(TextEditor::FontSettings)),
             this, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)));
-    connect(m_d->m_behaviorSettingsPage, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)),
-            this, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)));
     connect(m_d->m_behaviorSettingsPage, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
             this, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)));
     connect(m_d->m_behaviorSettingsPage, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
@@ -228,8 +230,6 @@ void TextEditorSettings::initializeEditor(BaseTextEditorWidget *editor)
     // Connect to settings change signals
     connect(this, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
             editor, SLOT(setFontSettingsIfVisible(TextEditor::FontSettings)));
-    connect(this, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)),
-            editor, SLOT(setTabSettings(TextEditor::TabSettings)));
     connect(this, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
             editor, SLOT(setStorageSettings(TextEditor::StorageSettings)));
     connect(this, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
@@ -248,23 +248,19 @@ void TextEditorSettings::initializeEditor(BaseTextEditorWidget *editor)
 
     // Apply current settings (tab settings depend on font settings)
     editor->setFontSettings(fontSettings());
-    editor->setTabSettings(tabSettings());
+    editor->setTabSettings(tabPreferences()->settings());
     editor->setStorageSettings(storageSettings());
     editor->setBehaviorSettings(behaviorSettings());
     editor->setDisplaySettings(displaySettings());
     editor->setCompletionSettings(completionSettings());
     editor->setExtraEncodingSettings(extraEncodingSettings());
+    editor->setTabPreferences(tabPreferences(editor->languageSettingsId()));
+    editor->setCodeStylePreferences(codeStylePreferences(editor->languageSettingsId()));
 }
-
 
 const FontSettings &TextEditorSettings::fontSettings() const
 {
     return m_d->m_fontSettingsPage->fontSettings();
-}
-
-const TabSettings &TextEditorSettings::tabSettings() const
-{
-    return m_d->m_behaviorSettingsPage->tabSettings();
 }
 
 const StorageSettings &TextEditorSettings::storageSettings() const
@@ -307,6 +303,44 @@ void TextEditorSettings::setCompletionSettings(const TextEditor::CompletionSetti
         m_d->m_completionSettings.toSettings(QLatin1String("CppTools/"), s);
 
     emit completionSettingsChanged(m_d->m_completionSettings);
+}
+
+TabPreferences *TextEditorSettings::tabPreferences() const
+{
+    return m_d->m_behaviorSettingsPage->tabPreferences();
+}
+
+TabPreferences *TextEditorSettings::tabPreferences(const QString &languageId) const
+{
+    TabPreferences *prefs = m_d->m_languageTabPreferences.value(languageId);
+    if (!prefs)
+        prefs = tabPreferences();
+    return prefs;
+}
+
+QMap<QString, TabPreferences *> TextEditorSettings::languageTabPreferences() const
+{
+    return m_d->m_languageTabPreferences;
+}
+
+void TextEditorSettings::registerLanguageTabPreferences(const QString &languageId, TabPreferences *prefs)
+{
+    m_d->m_languageTabPreferences.insert(languageId, prefs);
+}
+
+IFallbackPreferences *TextEditorSettings::codeStylePreferences(const QString &languageId) const
+{
+    return m_d->m_languageCodeStylePreferences.value(languageId);
+}
+
+QMap<QString, IFallbackPreferences *> TextEditorSettings::languageCodeStylePreferences() const
+{
+    return m_d->m_languageCodeStylePreferences;
+}
+
+void TextEditorSettings::registerLanguageCodeStylePreferences(const QString &languageId, IFallbackPreferences *prefs)
+{
+    m_d->m_languageCodeStylePreferences.insert(languageId, prefs);
 }
 
 #include "moc_texteditorsettings.cpp"
