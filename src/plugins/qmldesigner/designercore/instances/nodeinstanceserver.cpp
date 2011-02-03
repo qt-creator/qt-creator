@@ -1027,7 +1027,7 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
             if (!parentChangedSet.isEmpty())
                 sendChildrenChangedCommand(parentChangedSet.toList());
 
-            if (!m_dirtyInstanceSet.isEmpty() && nodeInstanceClient()->bytesToWrite() < 100000) {
+            if (!m_dirtyInstanceSet.isEmpty() && nodeInstanceClient()->bytesToWrite() < 10000) {
                 nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(m_dirtyInstanceSet.toList()));
                 m_dirtyInstanceSet.clear();
             }
