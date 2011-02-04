@@ -100,10 +100,11 @@ private:
     Ui::BreakpointDialog m_ui;
     BreakpointParameters m_savedParameters;
     BreakpointType m_previousType;
+    bool m_firstTypeChange;
 };
 
 BreakpointDialog::BreakpointDialog(QWidget *parent)
-  : QDialog(parent), m_previousType(UnknownType)
+    : QDialog(parent), m_previousType(UnknownType), m_firstTypeChange(true)
 {
     // Match BreakpointType (omitting unknown type).
     m_ui.setupUi(this);
@@ -128,9 +129,10 @@ BreakpointDialog::BreakpointDialog(QWidget *parent)
 void BreakpointDialog::setType(BreakpointType type)
 {
     const int comboIndex = type - 1; // Skip UnknownType.
-    if (comboIndex != m_ui.comboBoxType->currentIndex()) {
+    if (comboIndex != m_ui.comboBoxType->currentIndex() || m_firstTypeChange) {
         m_ui.comboBoxType->setCurrentIndex(comboIndex);
         typeChanged(comboIndex);
+        m_firstTypeChange = false;
     }
 }
 

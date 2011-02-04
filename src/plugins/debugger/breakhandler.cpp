@@ -832,9 +832,15 @@ void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
     item.data = data;
     item.response.fileName = data.fileName;
     item.response.lineNumber = data.lineNumber;
+
+    const int row = m_storage.size();
+    beginInsertRows(QModelIndex(), row, row);
     m_storage.insert(id, item);
+    endInsertRows();
+
     updateMarker(id);
     scheduleSynchronization();
+
 }
 
 void BreakHandler::saveSessionData()
