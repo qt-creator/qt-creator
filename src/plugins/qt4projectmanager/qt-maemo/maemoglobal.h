@@ -62,6 +62,7 @@ class MaemoGlobal
     Q_DECLARE_TR_FUNCTIONS(Qt4ProjectManager::Internal::MaemoGlobal)
 public:
     enum MaemoVersion { Maemo5, Maemo6, Meego };
+    enum PackagingSystem { Dpkg, Rpm };
 
     class FileUpdate {
     public:
@@ -98,6 +99,8 @@ public:
         const QtVersion *qtVersion, bool useTarget);
 
     static QString maemoVersionToString(MaemoVersion version);
+
+    static PackagingSystem packagingSystem(MaemoVersion maemoVersion);
 
     static bool removeRecursively(const QString &filePath, QString &error);
 

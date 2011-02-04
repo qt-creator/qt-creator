@@ -300,6 +300,10 @@ QString MaemoGlobal::maemoVersionToString(MaemoVersion version)
     return QString();
 }
 
+MaemoGlobal::PackagingSystem MaemoGlobal::packagingSystem(MaemoVersion maemoVersion)
+{
+    return maemoVersion == Meego ? Rpm : Dpkg;
+}
 
 MaemoGlobal::FileUpdate::FileUpdate(const QString &fileName)
     : m_fileName(fileName)

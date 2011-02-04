@@ -456,20 +456,36 @@ class MaemoDeviceConfigWizardFinalPage : public QWizardPage
 {
     Q_OBJECT
 public:
-    MaemoDeviceConfigWizardFinalPage(QWidget *parent) : QWizardPage(parent)
+    MaemoDeviceConfigWizardFinalPage(const WizardData &wizardData,
+        QWidget *parent)
+            : QWizardPage(parent),
+              m_infoLabel(new QLabel(this)),
+              m_wizardData(wizardData)
     {
         setTitle(tr("Setup Finished"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-        const QString infoText = tr("Setup is complete.\n"
-            "The new device configuration will now be created and a test "
-            "procedure will be run to check whether Qt Creator can "
-            "connect to the device and to provide some information "
-            "about its features.");
-        QLabel * const infoLabel = new QLabel(infoText, this);
-        infoLabel->setWordWrap(true);
+        m_infoLabel->setWordWrap(true);
         QVBoxLayout * const layout = new QVBoxLayout(this);
-        layout->addWidget(infoLabel);
+        layout->addWidget(m_infoLabel);
     }
+
+    virtual void initializePage()
+    {
+        QString infoText = tr("The new device configuration will now be "
+            "created and a test procedure will be run to check whether "
+            "Qt Creator can connect to the device and to provide some "
+            "information about its features.");
+        if (m_wizardData.deviceType == MaemoDeviceConfig::Simulator) {
+            infoText += QLatin1Char('\n')
+                + tr("Please make sure that Qemu is running, otherwise "
+                     "the test will fail.");
+        }
+        m_infoLabel->setText(infoText);
+    }
+
+private:
+    QLabel * const m_infoLabel;
+    const WizardData &m_wizardData;
 };
 
 } // anonymous namespace
@@ -484,7 +500,7 @@ struct MaemoDeviceConfigWizardPrivate
           reuseKeysCheckPage(parent),
           keyCreationPage(parent),
           keyDeploymentPage(wizardData, parent),
-          finalPage(parent)
+          finalPage(wizardData, parent)
     {
     }
 
