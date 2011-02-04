@@ -284,7 +284,9 @@ void CodaRunControl::handleLogging(const TcfTrkEvent &event)
 void CodaRunControl::handleAddListener(const TcfTrkCommandResult &result)
 {
     Q_UNUSED(result)
-    m_tcfTrkDevice->sendSymbianOsDataFindProcessesCommand(TcfTrkCallback(this, &CodaRunControl::handleFindProcesses), executableName().toLatin1(), "0");
+    m_tcfTrkDevice->sendSymbianOsDataFindProcessesCommand(TcfTrkCallback(this, &CodaRunControl::handleFindProcesses),
+                                                          QByteArray(),
+                                                          QByteArray::number(executableUid(), 16));
 }
 
 void CodaRunControl::handleFindProcesses(const TcfTrkCommandResult &result)
