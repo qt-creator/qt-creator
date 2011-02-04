@@ -1,4 +1,6 @@
 
+#define _POSIX_SOURCE
+
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/prctl.h>
