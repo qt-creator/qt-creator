@@ -194,10 +194,10 @@ QString Qt4Manager::mimeType() const
     return QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE);
 }
 
-inline void updateBoilerPlateCodeFiles(const AbstractMobileApp &app, const QString proFile)
+static void updateBoilerPlateCodeFiles(const AbstractMobileApp *app, const QString proFile)
 {
     const QList<AbstractGeneratedFileInfo> updates =
-            app.fileUpdates(proFile);
+            app->fileUpdates(proFile);
     if (!updates.empty()) {
         // TODO Translate the folloing strings when we want to keep the code
         QString message = QLatin1String("The following files are either outdated or have been modified:");
@@ -217,7 +217,7 @@ inline void updateBoilerPlateCodeFiles(const AbstractMobileApp &app, const QStri
         const QString title = QLatin1String("Update of the QmlApplicationView files");
         if (QMessageBox::question(0, title, message, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
             QString error;
-            if (!app.updateFiles(updates, error))
+            if (!app->updateFiles(updates, error))
                 QMessageBox::critical(0, title, error);
         }
     }
@@ -246,7 +246,7 @@ ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName)
     }
 
     QmlStandaloneApp app;
-    updateBoilerPlateCodeFiles(app, canonicalFilePath);
+    updateBoilerPlateCodeFiles(&app, canonicalFilePath);
 
     Qt4Project *pro = new Qt4Project(this, canonicalFilePath);
     return pro;
