@@ -250,7 +250,7 @@ public:
     virtual bool canDisplayTooltip() const { return state() == InferiorStopOk; }
 
 signals:
-    void stateChanged(const DebuggerState &state);
+    void stateChanged(const Debugger::DebuggerState &state);
     void updateViewsRequested();
     /*
      * For "external" clients of a debugger run control that needs to do

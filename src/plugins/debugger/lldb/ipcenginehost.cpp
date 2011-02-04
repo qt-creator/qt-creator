@@ -73,7 +73,7 @@ IPCEngineHost::IPCEngineHost (const DebuggerStartParameters &startParameters)
     , m_cookie(1)
     , m_device(0)
 {
-    connect(this, SIGNAL(stateChanged(DebuggerState)), SLOT(m_stateChanged(DebuggerState)));
+    connect(this, SIGNAL(stateChanged(Debugger::DebuggerState)), SLOT(m_stateChanged(Debugger::DebuggerState)));
 }
 
 IPCEngineHost::~IPCEngineHost()
@@ -583,7 +583,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
     }
 }
 
-void IPCEngineHost::m_stateChanged(const DebuggerState &state)
+void IPCEngineHost::m_stateChanged(const Debugger::DebuggerState &state)
 {
     QByteArray p;
     {
