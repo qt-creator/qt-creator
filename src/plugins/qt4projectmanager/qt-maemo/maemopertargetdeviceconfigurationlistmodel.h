@@ -33,9 +33,11 @@
 #ifndef MAEMOPERTARGETDEVICECONFIGURATIONLISTMODEL_H
 #define MAEMOPERTARGETDEVICECONFIGURATIONLISTMODEL_H
 
+#include "maemodeviceconfigurations.h"
 #include "maemoglobal.h"
 
 #include <QtCore/QAbstractListModel>
+#include <QtCore/QSharedPointer>
 
 namespace ProjectExplorer { class Target; }
 
@@ -46,12 +48,16 @@ class MaemoPerTargetDeviceConfigurationListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit MaemoPerTargetDeviceConfigurationListModel(const ProjectExplorer::Target *target,
-        QObject *parent = 0);
+    explicit MaemoPerTargetDeviceConfigurationListModel(ProjectExplorer::Target *target);
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index,
         int role = Qt::DisplayRole) const;
+
+    QSharedPointer<const MaemoDeviceConfig> deviceAt(int idx) const;
+    QSharedPointer<const MaemoDeviceConfig> defaultDeviceConfig() const;
+    QSharedPointer<const MaemoDeviceConfig> find(MaemoDeviceConfig::Id id) const;
+    int indexForInternalId(MaemoDeviceConfig::Id id) const;
 
 signals:
     void updated();

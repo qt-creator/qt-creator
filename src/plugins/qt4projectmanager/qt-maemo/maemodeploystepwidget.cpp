@@ -4,8 +4,11 @@
 #include "maemodeploystep.h"
 #include "maemodeployablelistmodel.h"
 #include "maemodeployables.h"
+#include "maemodeviceconfigurations.h"
 #include "maemoglobal.h"
+#include "maemopertargetdeviceconfigurationlistmodel.h"
 #include "maemorunconfiguration.h"
+#include "qt4maemotarget.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/target.h>
@@ -49,7 +52,7 @@ MaemoDeployStepWidget::~MaemoDeployStepWidget()
 
 void MaemoDeployStepWidget::init()
 {
-    ui->deviceConfigComboBox->setModel(MaemoDeviceConfigurations::instance());
+    ui->deviceConfigComboBox->setModel(m_step->maemotarget()->deviceConfigurationsModel());
     connect(m_step, SIGNAL(deviceConfigChanged()), SLOT(handleDeviceUpdate()));
     handleDeviceUpdate();
     connect(ui->deviceConfigComboBox, SIGNAL(activated(int)), this,
@@ -62,10 +65,11 @@ void MaemoDeployStepWidget::init()
 void MaemoDeployStepWidget::handleDeviceUpdate()
 {
     const MaemoDeviceConfig::ConstPtr &devConf = m_step->deviceConfig();
-    const MaemoDeviceConfigurations * const devConfigs
-        = MaemoDeviceConfigurations::instance();
-    ui->deviceConfigComboBox->setCurrentIndex(
-        devConfigs->indexForInternalId(devConfigs->internalId(devConf)));
+    const MaemoDeviceConfig::Id internalId
+        = MaemoDeviceConfigurations::instance()->internalId(devConf);
+    const int newIndex = m_step->maemotarget()->deviceConfigurationsModel()
+        ->indexForInternalId(internalId);
+    ui->deviceConfigComboBox->setCurrentIndex(newIndex);
     emit updateSummary();
 }
 

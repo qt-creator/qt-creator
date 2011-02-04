@@ -31,6 +31,7 @@
 
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
+#include "maemopertargetdeviceconfigurationlistmodel.h"
 #include "maemorunconfiguration.h"
 #include "qt4maemodeployconfiguration.h"
 
@@ -295,6 +296,12 @@ bool AbstractQt4MaemoTarget::initPackagingSettingsFromOtherTarget()
         }
     }
     return initAdditionalPackagingSettingsFromOtherTarget();
+}
+
+void AbstractQt4MaemoTarget::initDeviceConfigurationsModel()
+{
+    m_deviceConfigurationsListModel
+        = new MaemoPerTargetDeviceConfigurationListModel(this);
 }
 
 void AbstractQt4MaemoTarget::raiseError(const QString &reason)
@@ -989,6 +996,7 @@ Qt4Maemo5Target::Qt4Maemo5Target(Qt4Project *parent, const QString &id)
         : AbstractDebBasedQt4MaemoTarget(parent, id)
 {
     setDisplayName(defaultDisplayName());
+    initDeviceConfigurationsModel();
 }
 
 Qt4Maemo5Target::~Qt4Maemo5Target() {}
@@ -1008,6 +1016,7 @@ Qt4HarmattanTarget::Qt4HarmattanTarget(Qt4Project *parent, const QString &id)
         : AbstractDebBasedQt4MaemoTarget(parent, id)
 {
     setDisplayName(defaultDisplayName());
+    initDeviceConfigurationsModel();
 }
 
 Qt4HarmattanTarget::~Qt4HarmattanTarget() {}
@@ -1028,6 +1037,7 @@ Qt4MeegoTarget::Qt4MeegoTarget(Qt4Project *parent, const QString &id)
        : AbstractRpmBasedQt4MaemoTarget(parent, id)
 {
     setDisplayName(defaultDisplayName());
+    initDeviceConfigurationsModel();
 }
 
 Qt4MeegoTarget::~Qt4MeegoTarget() {}

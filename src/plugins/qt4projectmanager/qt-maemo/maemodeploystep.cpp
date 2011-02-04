@@ -37,6 +37,7 @@
 #include "maemodeploystepwidget.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
+#include "maemopertargetdeviceconfigurationlistmodel.h"
 #include "maemoremotemounter.h"
 #include "maemorunconfiguration.h"
 #include "maemotoolchain.h"
@@ -113,7 +114,7 @@ void MaemoDeployStep::ctor()
     }
 
     m_state = Inactive;
-    m_deviceConfig = MaemoDeviceConfigurations::instance()->defaultDeviceConfig();
+    m_deviceConfig = maemotarget()->deviceConfigurationsModel()->defaultDeviceConfig();
     m_needsInstall = false;
     m_sysrootInstaller = new QProcess(this);
     connect(m_sysrootInstaller, SIGNAL(finished(int,QProcess::ExitStatus)),
@@ -136,7 +137,7 @@ void MaemoDeployStep::ctor()
         SLOT(handlePortsGathererError(QString)));
     connect(m_portsGatherer, SIGNAL(portListReady()), this,
         SLOT(handlePortListReady()));
-    connect(MaemoDeviceConfigurations::instance(), SIGNAL(updated()),
+    connect(maemotarget()->deviceConfigurationsModel(), SIGNAL(updated()),
         SLOT(handleDeviceConfigurationsUpdated()));
 }
 
@@ -308,17 +309,13 @@ void MaemoDeployStep::handleDeviceConfigurationsUpdated()
 
 void MaemoDeployStep::setDeviceConfig(MaemoDeviceConfig::Id internalId)
 {
-    const MaemoDeviceConfigurations * const devConfs
-        = MaemoDeviceConfigurations::instance();
-    m_deviceConfig = devConfs->find(internalId);
-    if (!m_deviceConfig)
-        m_deviceConfig = devConfs->defaultDeviceConfig();
+    m_deviceConfig = maemotarget()->deviceConfigurationsModel()->find(internalId);
     emit deviceConfigChanged();
 }
 
 void MaemoDeployStep::setDeviceConfig(int i)
 {
-    m_deviceConfig = MaemoDeviceConfigurations::instance()->deviceAt(i);
+    m_deviceConfig = maemotarget()->deviceConfigurationsModel()->deviceAt(i);
     emit deviceConfigChanged();
 }
 

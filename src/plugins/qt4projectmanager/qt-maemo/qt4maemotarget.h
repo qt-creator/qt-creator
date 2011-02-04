@@ -42,6 +42,7 @@ QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher)
 namespace Qt4ProjectManager {
 class Qt4Project;
 namespace Internal {
+class MaemoPerTargetDeviceConfigurationListModel;
 class Qt4MaemoDeployConfigurationFactory;
 
 class AbstractQt4MaemoTarget : public Qt4BaseTarget
@@ -79,7 +80,12 @@ public:
     };
     DebugArchitecture debugArchitecture() const;
 
+    MaemoPerTargetDeviceConfigurationListModel *deviceConfigurationsModel() const {
+        return m_deviceConfigurationsListModel;
+    }
+
 protected:
+    void initDeviceConfigurationsModel();
     void raiseError(const QString &reason);
     QSharedPointer<QFile> openFile(const QString &filePath,
         QIODevice::OpenMode mode, QString *error) const;
@@ -106,6 +112,7 @@ private:
 
     Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
     Qt4MaemoDeployConfigurationFactory *m_deployConfigurationFactory;
+    MaemoPerTargetDeviceConfigurationListModel * m_deviceConfigurationsListModel;
 };
 
 

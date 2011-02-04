@@ -292,8 +292,8 @@ QStringList MaemoGlobal::targetArgs(const QtVersion *qtVersion, bool useTarget)
 QString MaemoGlobal::maemoVersionToString(MaemoVersion version)
 {
     switch (version) {
-    case Maemo5: return QLatin1String("Maemo 5 (Fremantle)");
-    case Maemo6: return QLatin1String("Maemo 6 (Harmattan)");
+    case Maemo5: return QLatin1String("Maemo 5/Fremantle");
+    case Maemo6: return QLatin1String("Maemo 6/Harmattan");
     case Meego: return QLatin1String("Meego");
     }
     Q_ASSERT(false);

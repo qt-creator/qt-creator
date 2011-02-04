@@ -82,6 +82,7 @@ public:
     MaemoGlobal::MaemoVersion osVersion() const { return m_osVersion; }
     DeviceType type() const { return m_type; }
     QString portsSpec() const { return m_portsSpec; }
+    Id internalId() const { return m_internalId; }
     bool isDefault() const { return m_isDefault; }
     static QString portsRegExpr();
     static QString defaultHost(DeviceType type);
@@ -137,7 +138,7 @@ public:
 
     MaemoDeviceConfig::ConstPtr deviceAt(int index) const;
     MaemoDeviceConfig::ConstPtr find(MaemoDeviceConfig::Id id) const;
-    MaemoDeviceConfig::ConstPtr defaultDeviceConfig() const;
+    MaemoDeviceConfig::ConstPtr defaultDeviceConfig(const MaemoGlobal::MaemoVersion osVersion) const;
     bool hasConfig(const QString &name) const;
     int indexForInternalId(MaemoDeviceConfig::Id internalId) const;
     MaemoDeviceConfig::Id internalId(MaemoDeviceConfig::ConstPtr devConf) const;
@@ -170,6 +171,7 @@ private:
     static void copy(const MaemoDeviceConfigurations *source,
         MaemoDeviceConfigurations *target, bool deep);
     void addConfiguration(const MaemoDeviceConfig::Ptr &devConfig);
+    void ensureDefaultExists(MaemoGlobal::MaemoVersion osVersion);
 
     static MaemoDeviceConfigurations *m_instance;
     MaemoDeviceConfig::Id m_nextId;

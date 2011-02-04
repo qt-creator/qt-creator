@@ -453,7 +453,7 @@ void MaemoDeviceConfigurations::addEmulatorDeviceConfiguration(const QString &na
 void MaemoDeviceConfigurations::addConfiguration(const MaemoDeviceConfig::Ptr &devConfig)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    if (m_devConfigs.isEmpty())
+    if (!defaultDeviceConfig(devConfig->osVersion()))
         devConfig->m_isDefault = true;
     m_devConfigs << devConfig;
     endInsertRows();
@@ -464,12 +464,18 @@ void MaemoDeviceConfigurations::removeConfiguration(int idx)
     Q_ASSERT(idx >= 0 && idx < rowCount());
     beginRemoveRows(QModelIndex(), idx, idx);
     const bool wasDefault = deviceAt(idx)->m_isDefault;
+    const MaemoGlobal::MaemoVersion osVersion = deviceAt(idx)->osVersion();
     m_devConfigs.removeAt(idx);
     endRemoveRows();
-    if (wasDefault && !m_devConfigs.isEmpty()) {
-        m_devConfigs.first()->m_isDefault = true;
-        const QModelIndex changedIndex = index(0, 0);
-        emit dataChanged(changedIndex, changedIndex);
+    if (wasDefault) {
+        for (int i = 0; i < m_devConfigs.count(); ++i) {
+            if (deviceAt(i)->osVersion() == osVersion) {
+                m_devConfigs.at(i)->m_isDefault = true;
+                const QModelIndex changedIndex = index(i, 0);
+                emit dataChanged(changedIndex, changedIndex);
+                break;
+            }
+        }
     }
 }
 
@@ -497,12 +503,14 @@ void MaemoDeviceConfigurations::setPortsSpec(int i, const QString &portsSpec)
 void MaemoDeviceConfigurations::setDefaultDevice(int idx)
 {
     Q_ASSERT(idx >= 0 && idx < rowCount());
-    if (m_devConfigs.at(idx)->m_isDefault)
+    const MaemoDeviceConfig::Ptr &devConf = m_devConfigs.at(idx);
+    if (devConf->m_isDefault)
         return;
     QModelIndex oldDefaultIndex;
     for (int i = 0; i < m_devConfigs.count(); ++i) {
         const MaemoDeviceConfig::Ptr &oldDefaultDev = m_devConfigs.at(i);
-        if (oldDefaultDev->m_isDefault) {
+        if (oldDefaultDev->m_isDefault
+                && oldDefaultDev->osVersion() == devConf->osVersion()) {
             oldDefaultDev->m_isDefault = false;
             oldDefaultIndex = index(i, 0);
             break;
@@ -510,7 +518,7 @@ void MaemoDeviceConfigurations::setDefaultDevice(int idx)
     }
     Q_ASSERT(oldDefaultIndex.isValid());
     emit dataChanged(oldDefaultIndex, oldDefaultIndex);
-    m_devConfigs.at(idx)->m_isDefault = true;
+    devConf->m_isDefault = true;
     const QModelIndex newDefaultIndex = index(idx, 0);
     emit dataChanged(newDefaultIndex, newDefaultIndex);
 }
@@ -528,18 +536,17 @@ void MaemoDeviceConfigurations::load()
     m_defaultSshKeyFilePath = settings->value(DefaultKeyFilePathKey,
         MaemoDeviceConfig::defaultPrivateKeyFilePath()).toString();
     int count = settings->beginReadArray(ConfigListKey);
-    bool hasDefault = false;
     for (int i = 0; i < count; ++i) {
         settings->setArrayIndex(i);
         MaemoDeviceConfig::Ptr devConf
             = MaemoDeviceConfig::create(*settings, m_nextId);
-        hasDefault |= devConf->m_isDefault;
         m_devConfigs << devConf;
     }
     settings->endArray();
     settings->endGroup();
-    if (!hasDefault && !m_devConfigs.isEmpty())
-        m_devConfigs.first()->m_isDefault = true;
+    ensureDefaultExists(MaemoGlobal::Maemo5);
+    ensureDefaultExists(MaemoGlobal::Maemo6);
+    ensureDefaultExists(MaemoGlobal::Meego);
 }
 
 MaemoDeviceConfig::ConstPtr MaemoDeviceConfigurations::deviceAt(int idx) const
@@ -562,13 +569,12 @@ MaemoDeviceConfig::ConstPtr MaemoDeviceConfigurations::find(MaemoDeviceConfig::I
     return index == -1 ? MaemoDeviceConfig::ConstPtr() : deviceAt(index);
 }
 
-MaemoDeviceConfig::ConstPtr MaemoDeviceConfigurations::defaultDeviceConfig() const
+MaemoDeviceConfig::ConstPtr MaemoDeviceConfigurations::defaultDeviceConfig(const MaemoGlobal::MaemoVersion osVersion) const
 {
     foreach (const MaemoDeviceConfig::ConstPtr &devConf, m_devConfigs) {
-        if (devConf->m_isDefault)
+        if (devConf->m_isDefault && devConf->osVersion() == osVersion)
             return devConf;
     }
-    Q_ASSERT(m_devConfigs.isEmpty());
     return MaemoDeviceConfig::ConstPtr();
 }
 
@@ -586,6 +592,18 @@ MaemoDeviceConfig::Id MaemoDeviceConfigurations::internalId(MaemoDeviceConfig::C
     return devConf ? devConf->m_internalId : MaemoDeviceConfig::InvalidId;
 }
 
+void MaemoDeviceConfigurations::ensureDefaultExists(MaemoGlobal::MaemoVersion osVersion)
+{
+    if (!defaultDeviceConfig(osVersion)) {
+        foreach (const MaemoDeviceConfig::Ptr &devConf, m_devConfigs) {
+            if (devConf->osVersion() == osVersion) {
+                devConf->m_isDefault = true;
+                break;
+            }
+        }
+    }
+}
+
 int MaemoDeviceConfigurations::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
@@ -598,8 +616,10 @@ QVariant MaemoDeviceConfigurations::data(const QModelIndex &index, int role) con
         return QVariant();
     const MaemoDeviceConfig::ConstPtr devConf = deviceAt(index.row());
     QString name = devConf->name();
-    if (devConf->m_isDefault)
-        name += tr(" (default)");
+    if (devConf->m_isDefault) {
+        name += QLatin1Char(' ') + tr("(default for %1)")
+            .arg(MaemoGlobal::maemoVersionToString(devConf->osVersion()));
+    }
     return name;
 }
 
