@@ -70,6 +70,9 @@ public slots:
                      const QString &content,
                      bool error);
 
+private slots:
+    void updateActions();
+
 private:
     void post(QString data, const QString &mimeType);
 

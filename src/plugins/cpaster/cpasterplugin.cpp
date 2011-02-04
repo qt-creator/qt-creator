@@ -142,6 +142,9 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
     connect(m_fetchAction, SIGNAL(triggered()), this, SLOT(fetch()));
     cpContainer->addAction(command);
 
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+            this, SLOT(updateActions()));
+    updateActions();
     return true;
 }
 
@@ -158,6 +161,13 @@ ExtensionSystem::IPlugin::ShutdownFlag CodepasterPlugin::aboutToShutdown()
             file.remove();
     }
     return SynchronousShutdown;
+}
+
+void CodepasterPlugin::updateActions()
+{
+    const IEditor* editor = EditorManager::instance()->currentEditor();
+    const BaseTextEditorEditable *textEditor = qobject_cast<const BaseTextEditorEditable *>(editor);
+    m_postEditorAction->setEnabled(textEditor != 0);
 }
 
 void CodepasterPlugin::postEditor()
