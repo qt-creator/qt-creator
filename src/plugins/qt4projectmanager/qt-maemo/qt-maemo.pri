@@ -48,7 +48,8 @@ HEADERS += \
     $$PWD/qt4maemotarget.h \
     $$PWD/qt4maemodeployconfiguration.h \
     $$PWD/maemodeviceconfigwizard.h \
-    $$PWD/maemokeydeployer.h
+    $$PWD/maemokeydeployer.h \
+    $$PWD/maemopertargetdeviceconfigurationlistmodel.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -97,7 +98,8 @@ SOURCES += \
     $$PWD/qt4maemotarget.cpp \
     $$PWD/qt4maemodeployconfiguration.cpp \
     $$PWD/maemodeviceconfigwizard.cpp \
-    $$PWD/maemokeydeployer.cpp
+    $$PWD/maemokeydeployer.cpp \
+    $$PWD/maemopertargetdeviceconfigurationlistmodel.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \
