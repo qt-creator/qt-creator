@@ -63,6 +63,7 @@ CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/)
     m_outputWindow->setWindowTitle(tr("Compile Output"));
     m_outputWindow->setWindowIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_WINDOW)));
     m_outputWindow->setReadOnly(true);
+    m_outputWindow->setUndoRedoEnabled(false);
 
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(m_outputWindow);
