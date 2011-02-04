@@ -973,6 +973,7 @@ public slots:
     }
 
     void editorOpened(Core::IEditor *editor);
+    void updateBreakMenuItem(Core::IEditor *editor);
     void setBusyCursor(bool busy);
     void requestMark(TextEditor::ITextEditor *editor, int lineNumber);
     void showToolTip(TextEditor::ITextEditor *editor,
@@ -1780,6 +1781,12 @@ void DebuggerPluginPrivate::editorOpened(IEditor *editor)
         SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
 }
 
+void DebuggerPluginPrivate::updateBreakMenuItem(Core::IEditor *editor)
+{
+    ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
+    m_breakAction->setEnabled(textEditor != 0);
+}
+
 void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     int lineNumber, QMenu *menu)
 {
@@ -2088,12 +2095,15 @@ void DebuggerPluginPrivate::setInitialState()
 
     m_watchAction1->setEnabled(true);
     m_watchAction2->setEnabled(true);
-    m_breakAction->setEnabled(true);
+    m_breakAction->setEnabled(false);
     //m_snapshotAction->setEnabled(false);
     action(OperateByInstruction)->setEnabled(false);
 
     m_exitAction->setEnabled(false);
     m_resetAction->setEnabled(false);
+
+    m_interruptAction->setEnabled(false);
+    m_continueAction->setEnabled(false);
 
     m_stepAction->setEnabled(false);
     m_stepOutAction->setEnabled(false);
@@ -2997,7 +3007,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_watchAction1,
         Constants::ADD_TO_WATCH1, cppeditorcontext);
-    cmd->action()->setEnabled(true);
     //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+W")));
     debugMenu->addAction(cmd);
 
@@ -3067,6 +3076,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
     QObject *editorManager = core->editorManager();
     connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),
         SLOT(editorOpened(Core::IEditor*)));
+    connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
+            SLOT(updateBreakMenuItem(Core::IEditor*)));
 
     // Application interaction
     connect(action(SettingsDialog), SIGNAL(triggered()),
