@@ -124,7 +124,7 @@ protected:
 public slots:
     void rpcCallback(quint64 f, QByteArray payload = QByteArray());
 private slots:
-    void m_stateChanged(const DebuggerState &state);
+    void m_stateChanged(const Debugger::DebuggerState &state);
     void readyRead();
 private:
     IPCEngineGuest *m_localGuest;
