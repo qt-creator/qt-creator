@@ -90,6 +90,16 @@ static QString threadToolTip(const ThreadData &thread)
 //
 ///////////////////////////////////////////////////////////////////////
 
+/*!
+    \struct Debugger::Internal::ThreadData
+    \brief A structure containing information about a single thread
+*/
+
+/*!
+    \class Debugger::Internal::ThreadsHandler
+    \brief A model to represent the running threads in a QTreeView or ComboBox
+*/
+
 ThreadsHandler::ThreadsHandler()
   : m_currentIndex(0),
     m_positionIcon(QLatin1String(":/debugger/images/location_16.png")),

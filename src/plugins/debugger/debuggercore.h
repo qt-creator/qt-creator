@@ -62,10 +62,6 @@ class BreakHandler;
 class SnapshotHandler;
 class Symbol;
 
-// This is the "internal" interface of the debugger plugin that's
-// used by debugger views and debugger engines. The interface is
-// implemented in DebuggerPluginPrivate.
-
 class DebuggerCore : public QObject
 {
     Q_OBJECT

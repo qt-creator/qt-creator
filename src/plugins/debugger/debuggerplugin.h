@@ -49,11 +49,6 @@ class DebuggerMainWindow;
 class DebuggerRunControl;
 class DebuggerStartParameters;
 
-// This is the "external" interface of the debugger plugin that's visible
-// from Qt Creator core. The internal interface to global debugger
-// functionality that is used by debugger views and debugger engines
-// is DebuggerCore, implemented in DebuggerPluginPrivate.
-
 class DEBUGGER_EXPORT DebuggerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT

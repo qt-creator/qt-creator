@@ -146,6 +146,7 @@
 /*!
     \namespace Debugger::Internal
     Internal namespace of the Debugger plugin
+    \internal
 */
 
 /*!
@@ -877,6 +878,20 @@ namespace Debugger {
 namespace Internal {
 
 static DebuggerPluginPrivate *theDebuggerCore = 0;
+
+/*!
+    \class Debugger::Internal::DebuggerCore
+
+    This is the "internal" interface of the debugger plugin that's
+    used by debugger views and debugger engines. The interface is
+    implemented in DebuggerPluginPrivate.
+*/
+
+/*!
+    \class Debugger::Internal::DebuggerPluginPrivate
+
+    Implementation of DebuggerCore.
+*/
 
 class DebuggerPluginPrivate : public DebuggerCore
 {
@@ -3203,6 +3218,14 @@ void DebuggerPluginPrivate::aboutToShutdown()
 ///////////////////////////////////////////////////////////////////////
 
 using namespace Debugger::Internal;
+
+/*!
+    \class Debugger::DebuggerPlugin
+
+    This is the "external" interface of the debugger plugin that's visible
+    from Qt Creator core. The internal interface to global debugger
+    functionality that is used by debugger views and debugger engines
+    is DebuggerCore, implemented in DebuggerPluginPrivate. */
 
 DebuggerPlugin::DebuggerPlugin()
 {

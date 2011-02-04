@@ -229,16 +229,16 @@ private:
     DebuggerStartMode m_effectiveStartMode;
     QByteArray m_outputBuffer;
     unsigned long m_inferiorPid;
-    // Debugger accessible (expecting commands)
+    //! Debugger accessible (expecting commands)
     bool m_accessible;
     SpecialStopMode m_specialStopMode;
     int m_nextCommandToken;
     QList<CdbBuiltinCommandPtr> m_builtinCommandQueue;
-    int m_currentBuiltinCommandIndex; // Current command whose output is recorded.
+    int m_currentBuiltinCommandIndex; //!< Current command whose output is recorded.
     QList<CdbExtensionCommandPtr> m_extensionCommandQueue;
     QMap<QString, QString> m_normalizedFileCache;
-    const QByteArray m_extensionCommandPrefixBA; // Library name used as prefix
-    bool m_operateByInstructionPending; // Creator operate by instruction action changed.
+    const QByteArray m_extensionCommandPrefixBA; //!< Library name used as prefix
+    bool m_operateByInstructionPending; //!< Creator operate by instruction action changed.
     bool m_operateByInstruction;
     bool m_notifyEngineShutdownOnTermination;
     bool m_hasDebuggee;

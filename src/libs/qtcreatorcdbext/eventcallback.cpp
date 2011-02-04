@@ -50,6 +50,14 @@ enum { winExceptionCppException = 0xe06d7363,
        winExceptionAppInitFailed = 0xc0000143
 };
 
+/*!
+    \class IDebugEventCallbacks
+
+    Event handler wrapping the original IDebugEventCallbacks
+    to catch and store exceptions (report crashes as stop reasons).
+    \ingroup qtcreatorcdbext
+*/
+
 EventCallback::EventCallback(IDebugEventCallbacks *wrapped) :
     m_wrapped(wrapped)
 {

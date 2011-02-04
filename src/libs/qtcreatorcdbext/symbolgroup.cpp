@@ -48,6 +48,18 @@ typedef std::vector<std::string> StringVector;
 enum { debug = 0 };
 
 // ------------- SymbolGroup
+
+/*!
+  \class SymbolGroup A symbol group storing a tree of expanded symbols rooted on a fake "locals" root element.
+
+  Provides a find() method based on inames ("locals.this.i1.data") and
+  dump() methods used for GDBMI-format dumping and debug helpers.
+  Qt Creator's WatchModel is fed from this class. It basically represents the
+  symbol group tree with some additional node types (Reference and Map Node
+  types.
+  \ingroup qtcreatorcdbext
+*/
+
 SymbolGroup::SymbolGroup(IDebugSymbolGroup2 *sg,
                          const SymbolParameterVector &vec,
                          const std::string &rootModule,
@@ -525,7 +537,14 @@ AbstractSymbolGroupNode *SymbolGroup::find(const std::string &iname) const
     return rc;
 }
 
-// --------- LocalsSymbolGroup
+/*!
+    \class LocalsSymbolGroup
+
+    Symbol group representing the Locals view. It is firmly associated
+    with stack frame, function (module) and thread.
+    \ingroup qtcreatorcdbext
+*/
+
 LocalsSymbolGroup::LocalsSymbolGroup(CIDebugSymbolGroup *sg,
                                      const SymbolParameterVector &vec,
                                      ULONG threadId, unsigned frame,
@@ -608,7 +627,13 @@ std::string LocalsSymbolGroup::module() const
     return root()->module();
 }
 
-// ----------- WatchSymbolGroup
+/*!
+  \class WatchesSymbolGroup
+
+  Watch symbol group. Contains watches as added by Qt Creator as iname='watch.0',
+  name='<expression>'. The IDebugSymbolGroup is created without scope.
+  \ingroup qtcreatorcdbext
+*/
 
 const char *WatchesSymbolGroup::watchInamePrefix = "watch";
 
@@ -854,3 +879,5 @@ WatchesSymbolGroup *WatchesSymbolGroup::create(CIDebugSymbols *symbols,
     }
     return new WatchesSymbolGroup(idebugSymbols);
 }
+
+//! @}

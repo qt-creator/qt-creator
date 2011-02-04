@@ -91,8 +91,12 @@ inline std::ostream &operator<<(std::ostream &str, const DebugNodeFlags &f)
     return str;
 }
 
-// -------------- AbstractSymbolGroupNode
+/*!
+  \class AbstractSymbolGroupNode
 
+    Abstract base class for a node of SymbolGroup providing the child list interface.
+    \ingroup qtcreatorcdbext
+*/
 AbstractSymbolGroupNode::AbstractSymbolGroupNode(const std::string &name,
                                                  const std::string &iname) :
     m_name(name), m_iname(iname), m_parent(0), m_flags(0)
@@ -205,7 +209,12 @@ void AbstractSymbolGroupNode::setParent(AbstractSymbolGroupNode *n)
     m_parent = n;
 }
 
-// -------- BaseSymbolGroupNode
+/*! \class BaseSymbolGroupNode
+
+    Base class for a node of SymbolGroup with a flat list of children.
+    \ingroup qtcreatorcdbext
+*/
+
 BaseSymbolGroupNode::BaseSymbolGroupNode(const std::string &name, const std::string &iname) :
     AbstractSymbolGroupNode(name, iname)
 {
@@ -272,7 +281,14 @@ std::ostream &operator<<(std::ostream &str, const DEBUG_SYMBOL_PARAMETERS &param
     return str;
 }
 
-// --------------- DumpParameters
+/*! \struct DumpParameters
+
+    All parameters for GDBMI dumping of a symbol group in one struct.
+    The debugging engine passes maps of type names/inames to special
+    integer values indicating hex/dec, etc.
+    \ingroup qtcreatorcdbext
+*/
+
 DumpParameters::DumpParameters() : dumpFlags(0)
 {
 }
@@ -459,7 +475,29 @@ void ErrorSymbolGroupNode::debug(std::ostream &os, const std::string &visitingFu
     os << "ErrorSymbolGroupNode '" << name() << "','" << iName() << "', '" << visitingFullIname << "'\n";
 }
 
-// ------- SymbolGroupNode
+/*! \class SymbolGroupNode
+
+ \brief 'Real' node within a symbol group, identified by its index in IDebugSymbolGroup.
+
+ Provides accessors for fixed-up symbol group value and a dumping facility
+ consisting of:
+ \list
+ \o 'Simple' dumping done when running the DumpVisitor. This produces one
+    line of formatted output shown for the class. These values
+    values are always displayed, while still allowing for expansion of the structure
+    in the debugger.
+    It also pre-determines some information for complex dumping (type, container).
+ \o 'Complex' dumping: Obscures the symbol group children by fake children, for
+    example container children, to be run when calling SymbolGroup::dump with an iname.
+    The fake children are appended to the child list (other children are just marked as
+    obscured for GDBMI dumping so that SymbolGroupValue expressions still work as before).
+ \endlist
+
+ The dumping is mostly based on SymbolGroupValue expressions.
+ in the debugger. Evaluating those dumpers might expand symbol nodes, which are
+ then marked as 'ExpandedByDumper'. This stops the dump recursion to prevent
+ outputting data that were not explicitly expanded by the watch handler.
+ \ingroup qtcreatorcdbext */
 
 SymbolGroupNode::SymbolGroupNode(SymbolGroup *symbolGroup,
                                  ULONG index,
@@ -1204,8 +1242,6 @@ SymbolGroupNode *SymbolGroupNode::addSymbolByName(const std::string &module,
     return node;
 }
 
-// --------- ReferenceSymbolGroupNode
-
 // Utility returning a pair ('[42]','42') as name/iname pair
 // for a node representing an array index
 typedef std::pair<std::string, std::string> StringStringPair;
@@ -1218,6 +1254,13 @@ static inline StringStringPair arrayIndexNameIname(int index)
     rc.first.push_back(']');
     return rc;
 }
+
+/*! \class ReferenceSymbolGroupNode
+
+    Artificial node referencing another (real) SymbolGroupNode (added symbol or
+    symbol from within an expanded linked list structure). Forwards the
+    dumping to the referenced node using its own name.
+    \ingroup qtcreatorcdbext */
 
 ReferenceSymbolGroupNode::ReferenceSymbolGroupNode(const std::string &name,
                                                    const std::string &iname,
@@ -1249,7 +1292,13 @@ void ReferenceSymbolGroupNode::debug(std::ostream &str, const std::string &visit
     m_referencedNode->debug(str, visitingFullIname, verbosity, depth);
 }
 
-// ---------------- MapNodeSymbolGroupNode
+/*! \class MapNodeSymbolGroupNode
+
+  \brief A [fake] map node with a fake array index and key/value entries consisting
+         of ReferenceSymbolGroupNode.
+  \ingroup qtcreatorcdbext
+*/
+
 MapNodeSymbolGroupNode::MapNodeSymbolGroupNode(const std::string &name,
                                                const std::string &iname,
                                                ULONG64 address,
@@ -1293,7 +1342,18 @@ void MapNodeSymbolGroupNode::debug(std::ostream &os, const std::string &visiting
     os << "MapNode " << name() << '/' << visitingFullIname << '\n';
 }
 
-// --------- DebugSymbolGroupNodeVisitor
+/*! \class SymbolGroupNodeVisitor
+
+    Visitor that takes care of iterating over the nodes and
+    building the full iname path ('local.foo.bar') that is required for
+    GDBMI dumping. The full name depends on the path on which a node was reached
+    for referenced nodes (a linked list element can be reached via array index
+    or by expanding the whole structure).
+    visit() is not called for the (invisible) root node, but starting with the
+    root's children with depth=0.
+    Return VisitStop from visit() to terminate the recursion.
+    \ingroup qtcreatorcdbext
+*/
 
 // "local.vi" -> "local"
 std::string SymbolGroupNodeVisitor::parentIname(const std::string &iname)
@@ -1301,6 +1361,11 @@ std::string SymbolGroupNodeVisitor::parentIname(const std::string &iname)
     const std::string::size_type lastSep = iname.rfind(SymbolGroupNodeVisitor::iNamePathSeparator);
     return lastSep == std::string::npos ? std::string() : iname.substr(0, lastSep);
 }
+
+/*! \class DebugSymbolGroupNodeVisitor
+    \brief Debug output visitor.
+    \ingroup qtcreatorcdbext
+*/
 
 DebugSymbolGroupNodeVisitor::DebugSymbolGroupNodeVisitor(std::ostream &os, unsigned verbosity) :
     m_os(os), m_verbosity(verbosity)
@@ -1315,6 +1380,11 @@ SymbolGroupNodeVisitor::VisitResult
     node->debug(m_os, aFullIname, m_verbosity, depth);
     return VisitContinue;
 }
+
+/*! \class DebugFilterSymbolGroupNodeVisitor
+    \brief Debug filtering output visitor.
+    \ingroup qtcreatorcdbext
+*/
 
 DebugFilterSymbolGroupNodeVisitor::DebugFilterSymbolGroupNodeVisitor(std::ostream &os,
                                                                      const std::string &filter,
@@ -1334,7 +1404,12 @@ SymbolGroupNodeVisitor::VisitResult
     return DebugSymbolGroupNodeVisitor::visit(node, fullIname, child, depth);
 }
 
-// --------------------- DumpSymbolGroupNodeVisitor
+/*! \class DumpSymbolGroupNodeVisitor
+
+    GDBMI dump output visitor used to report locals values back to the
+    debugging engine.  \ingroup qtcreatorcdbext
+*/
+
 DumpSymbolGroupNodeVisitor::DumpSymbolGroupNodeVisitor(std::ostream &os,
                                                        const SymbolGroupValueContext &context,
                                                        const DumpParameters &parameters) :

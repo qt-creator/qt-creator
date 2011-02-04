@@ -118,6 +118,13 @@ QDebug operator<<(QDebug d, const  SnapshotData &f)
 //
 ////////////////////////////////////////////////////////////////////////
 
+/*!
+    \class Debugger::Internal::SnapshotHandler
+    \brief A model to represent the snapshots in a QTreeView.
+
+    A snapshot represents a debugging session.
+*/
+
 SnapshotHandler::SnapshotHandler()
   : m_positionIcon(QIcon(QLatin1String(":/debugger/images/location_16.png"))),
     m_emptyIcon(QIcon(QLatin1String(":/debugger/images/debugger_empty_14.png")))

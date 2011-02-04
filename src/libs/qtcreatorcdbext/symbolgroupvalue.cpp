@@ -41,6 +41,24 @@
 
 typedef std::vector<int>::size_type VectorIndexType;
 
+/*! \struct SymbolGroupValueContext
+    \brief Structure to pass all IDebug interfaces required for SymbolGroupValue
+    \ingroup qtcreatorcdbext */
+
+/*! \class SymbolGroupValue
+
+    Flyweight tied to a SymbolGroupNode
+    providing a convenient operator[] (name, index) and value
+    getters for notation of dumpers.
+    Inaccessible members return a SymbolGroupValue in state 'invalid'.
+    Example:
+    \code
+    SymbolGroupValue container(symbolGroupNode, symbolGroupValueContext);
+    if (SymbolGroupValue sizeV = container["d"]["size"])
+      int size = sizeV.intValue()
+    \endcode
+    etc. \ingroup qtcreatorcdbext */
+
 unsigned SymbolGroupValue::verbose = 0;
 
 SymbolGroupValue::SymbolGroupValue(const std::string &parentError) :
@@ -435,6 +453,12 @@ static inline std::string resolveQtSymbol(const char *symbolC,
         DebugPrint() << "<resolveQtSymbol return2 " << rc;
     return rc;
 }
+
+/*! \struct QtInfo
+
+    Qt Information determined on demand: Namespace, modules and basic class
+    names containing the module for fast lookup.
+    \ingroup qtcreatorcdbext */
 
 const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
 {

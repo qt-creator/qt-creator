@@ -39,7 +39,9 @@
     To get an overview of what parts of Qt Creator are extensible, have a look at the \l{Common Extension Tasks} page.
     Also read and follow the Qt Creator \l{Qt Creator Coding Rules}{coding style and best practice patterns}.
 
-    \section1 Core Libraries
+    \section1 Libraries
+
+    \section2 Core Libraries
 
     There are a few core libraries used by many parts of Qt Creator.
 
@@ -57,6 +59,19 @@
     \o \l{ExtensionSystem}
     \o Implements the plugin loader framework. Provides a base class for plugins and
     basic mechanisms for plugin interaction like an object pool.
+
+    \endtable
+
+    \section2 Additional libraries
+
+    \table
+    \header
+    \o Library Name
+    \o Description
+
+    \row
+    \o \l{qtcreatorcdbext}
+    \o Windows CDB debugger extension
 
     \endtable
 

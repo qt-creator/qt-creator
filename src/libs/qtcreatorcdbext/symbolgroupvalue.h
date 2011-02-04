@@ -45,7 +45,6 @@ class AbstractSymbolGroupNode;
 class SymbolGroupNode;
 class SymbolGroup;
 
-// Structure to pass all IDebug interfaces required for SymbolGroupValue
 struct SymbolGroupValueContext
 {
     SymbolGroupValueContext(CIDebugDataSpaces *ds, CIDebugSymbols *s) : dataspaces(ds), symbols(s) {}
@@ -54,16 +53,6 @@ struct SymbolGroupValueContext
     CIDebugDataSpaces *dataspaces;
     CIDebugSymbols *symbols;
 };
-
-/* SymbolGroupValue: Flyweight tied to a SymbolGroupNode
- * providing a convenient operator[] (name, index) and value
- * getters for notation of dumpers.
- * Inaccessible members return a SymbolGroupValue in state 'invalid'.
- * Example:
- *   SymbolGroupValue container(symbolGroupNode, symbolGroupValueContext);
- *   if (SymbolGroupValue sizeV = container["d"]["size"])
- *     int size = sizeV.intValue()
- * etc. */
 
 class SymbolGroupValue
 {
@@ -161,8 +150,6 @@ private:
 // For debugging purposes
 std::ostream &operator<<(std::ostream &, const SymbolGroupValue &v);
 
-// Qt Information determined on demand: Namespace, modules and basic class
-// names containing the module for fast lookup.
 struct QtInfo
 {
     static const QtInfo &get(const SymbolGroupValueContext &ctx);

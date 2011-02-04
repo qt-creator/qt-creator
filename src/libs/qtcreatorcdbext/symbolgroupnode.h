@@ -50,9 +50,6 @@ class SymbolGroup;
 struct SymbolGroupValueContext;
 class SymbolGroupNode;
 
-// All parameters for GDBMI dumping of a symbol group in one struct.
-// The debugging engine passes maps of type names/inames to special
-// integer values indicating hex/dec, etc.
 struct DumpParameters
 {
     typedef std::map<std::string, int> FormatMap; // type or iname to format
@@ -77,7 +74,6 @@ struct DumpParameters
     FormatMap individualFormats;
 };
 
-// Abstract base class for a node of SymbolGroup providing the child list interface.
 class AbstractSymbolGroupNode
 {
     AbstractSymbolGroupNode(const AbstractSymbolGroupNode&);
@@ -148,7 +144,6 @@ private:
     unsigned m_flags;
 };
 
-// Base class for a node of SymbolGroup with a flat list of children.
 class BaseSymbolGroupNode : public AbstractSymbolGroupNode
 {
 public:
@@ -178,24 +173,6 @@ public:
     virtual void debug(std::ostream &os, const std::string &visitingFullIname,
                        unsigned verbosity, unsigned depth) const;
 };
-
-/* SymbolGroupNode: 'Real' node within a symbol group, identified by its index
- * in IDebugSymbolGroup.
- * Provides accessors for fixed-up symbol group value and a dumping facility
- * consisting of:
- * - 'Simple' dumping done when running the DumpVisitor. This produces one
- *   line of formatted output shown for the class. These values
- *   values are always displayed, while still allowing for expansion of the structure
- *   in the debugger.
- *   It also pre-determines some information for complex dumping (type, container).
- * - 'Complex' dumping: Obscures the symbol group children by fake children, for
- *   example container children, to be run when calling SymbolGroup::dump with an iname.
- *   The fake children are appended to the child list (other children are just marked as
- *   obscured for GDBMI dumping so that SymbolGroupValue expressions still work as before).
- * The dumping is mostly based on SymbolGroupValue expressions.
- * in the debugger. Evaluating those dumpers might expand symbol nodes, which are
- * then marked as 'ExpandedByDumper'. This stops the dump recursion to prevent
- * outputting data that were not explicitly expanded by the watch handler. */
 
 class SymbolGroupNode : public BaseSymbolGroupNode
 {
@@ -296,9 +273,6 @@ private:
     void *m_dumperSpecialInfo; // Opaque information passed from simple to complex dumpers
 };
 
-// Artificial node referencing another (real) SymbolGroupNode (added symbol or
-// symbol from within an expanded linked list structure). Forwards the
-// dumping to the referenced node using its own name.
 class ReferenceSymbolGroupNode : public AbstractSymbolGroupNode
 {
 public:
@@ -323,8 +297,6 @@ private:
     SymbolGroupNode * const m_referencedNode;
 };
 
-// A [fake] map node with a fake array index and key/value entries consisting
-// of ReferenceSymbolGroupNode.
 class MapNodeSymbolGroupNode : public BaseSymbolGroupNode
 {
 private:
@@ -349,15 +321,6 @@ private:
     const ULONG64 m_address;
     const std::string m_type;
 };
-
-/* Visitor that takes care of iterating over the nodes and
- * building the full iname path ('local.foo.bar') that is required for
- * GDBMI dumping. The full name depends on the path on which a node was reached
- * for referenced nodes (a linked list element can be reached via array index
- * or by expanding the whole structure).
- * visit() is not called for the (invisible) root node, but starting with the
- * root's children with depth=0.
- * Return VisitStop from visit() to terminate the recursion. */
 
 class SymbolGroupNodeVisitor {
     SymbolGroupNodeVisitor(const SymbolGroupNodeVisitor&);
@@ -389,7 +352,6 @@ protected:
     virtual void childrenVisited(const AbstractSymbolGroupNode * /* node */, unsigned /* depth */) {}
 };
 
-// Debug output visitor.
 class DebugSymbolGroupNodeVisitor : public SymbolGroupNodeVisitor {
 public:
     explicit DebugSymbolGroupNodeVisitor(std::ostream &os, unsigned verbosity = 0);
@@ -404,7 +366,6 @@ private:
     const unsigned m_verbosity;
 };
 
-// Debug filtering output visitor.
 class DebugFilterSymbolGroupNodeVisitor : public DebugSymbolGroupNodeVisitor {
 public:
     explicit DebugFilterSymbolGroupNodeVisitor(std::ostream &os,
@@ -420,8 +381,6 @@ private:
     const std::string m_filter;
 };
 
-// GDBMI dump output visitor used to report locals values back to the
-// debugging engine.
 class DumpSymbolGroupNodeVisitor : public SymbolGroupNodeVisitor {
 public:
     explicit DumpSymbolGroupNodeVisitor(std::ostream &os,

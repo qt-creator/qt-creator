@@ -62,7 +62,6 @@ struct StackCookie
 //
 ////////////////////////////////////////////////////////////////////////
 
-/*! A model to represent the stack in a QTreeView. */
 class StackHandler : public QAbstractTableModel
 {
     Q_OBJECT

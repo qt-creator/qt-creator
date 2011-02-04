@@ -97,42 +97,60 @@ enum { debugBreakpoints = 0 };
 #  define STATE_DEBUG(state, func, line, notifyFunc)
 #endif
 
-/* CdbEngine version 2: Run the CDB process on pipes and parse its output.
- * The engine relies on a CDB extension Qt Creator provides as an extension
- * library (32/64bit), which is loaded into cdb.exe. It serves to:
- * - Notify the engine about the state of the debugging session:
- *   + idle: (hooked up with .idle_cmd) debuggee stopped
- *   + accessible: Debuggee stopped, cdb.exe accepts commands
- *   + inaccessible: Debuggee runs, no way to post commands
- *   + session active/inactive: Lost debuggee, terminating.
- * - Hook up with output/event callbacks and produce formatted output to be able
- *   to catch application output and exceptions.
- * - Provide some extension commands that produce output in a standardized (GDBMI)
- *   format that ends up in handleExtensionMessage().
- *   + pid     Return debuggee pid for interrupting.
- *   + locals  Print locals from SymbolGroup
- *   + expandLocals Expand locals in symbol group
- *   + registers, modules, threads
- * Commands can be posted by calling:
- * 1) postCommand(): Does not expect a reply
- * 2) postBuiltinCommand(): Run a builtin-command producing free-format, multiline output
- *    that is captured by enclosing it in special tokens using the 'echo' command and
- *    then invokes a callback with a CdbBuiltinCommand structure.
- * 3) postExtensionCommand(): Run a command provided by the extension producing
- *    one-line output and invoke a callback with a CdbExtensionCommand structure
- *    (output is potentially split up in chunks).
- *
- * Startup sequence:
- * [Console: The console stub launches the process. On process startup,
- *           launchCDB() is called with AttachExternal.
- * setupEngine() calls launchCDB() with the startparameters. The debuggee
- * runs into the initial breakpoint (session idle). EngineSetupOk is
- * notified (inferior still stopped). setupInferior() is then called
- * which does breakpoint synchronization and issues the extension 'pid'
- * command to obtain the inferior pid. handlePid() notifies notifyInferiorSetupOk.
- * runEngine() is then called which issues 'g' to continue the inferior.
- * Shutdown mostly uses notifyEngineSpontaneousShutdown() as cdb just quits
- * when the inferior exits (except attach modes).  */
+/*!
+    \class Debugger::Internal::CdbEngine
+
+    Cdb engine version 2: Run the CDB process on pipes and parse its output.
+    The engine relies on a CDB extension Qt Creator provides as an extension
+    library (32/64bit), which is loaded into cdb.exe. It serves to:
+
+    \list
+    \o Notify the engine about the state of the debugging session:
+        \list
+        \o idle: (hooked up with .idle_cmd) debuggee stopped
+        \o accessible: Debuggee stopped, cdb.exe accepts commands
+        \o inaccessible: Debuggee runs, no way to post commands
+        \o session active/inactive: Lost debuggee, terminating.
+        \endlist
+    \o Hook up with output/event callbacks and produce formatted output to be able
+       to catch application output and exceptions.
+    \o Provide some extension commands that produce output in a standardized (GDBMI)
+      format that ends up in handleExtensionMessage(), for example:
+      \list
+      \o pid     Return debuggee pid for interrupting.
+      \o locals  Print locals from SymbolGroup
+      \o expandLocals Expand locals in symbol group
+      \o registers, modules, threads
+      \endlist
+   \endlist
+
+   Debugger commands can be posted by calling:
+
+   \list
+
+    \o postCommand(): Does not expect a reply
+    \o postBuiltinCommand(): Run a builtin-command producing free-format, multiline output
+       that is captured by enclosing it in special tokens using the 'echo' command and
+       then invokes a callback with a CdbBuiltinCommand structure.
+    \o postExtensionCommand(): Run a command provided by the extension producing
+       one-line output and invoke a callback with a CdbExtensionCommand structure
+       (output is potentially split up in chunks).
+    \endlist
+
+
+    Startup sequence:
+    [Console: The console stub launches the process. On process startup,
+              launchCDB() is called with AttachExternal].
+    setupEngine() calls launchCDB() with the startparameters. The debuggee
+    runs into the initial breakpoint (session idle). EngineSetupOk is
+    notified (inferior still stopped). setupInferior() is then called
+    which does breakpoint synchronization and issues the extension 'pid'
+    command to obtain the inferior pid (which also hooks up the output callbacks).
+     handlePid() notifies notifyInferiorSetupOk.
+    runEngine() is then called which issues 'g' to continue the inferior.
+    Shutdown mostly uses notifyEngineSpontaneousShutdown() as cdb just quits
+    when the inferior exits (except attach modes).
+*/
 
 using namespace ProjectExplorer;
 

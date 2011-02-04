@@ -49,6 +49,7 @@ typedef quint64 BreakpointId;
 //
 //////////////////////////////////////////////////////////////////
 
+//! \enum Debugger::Internal::BreakpointType
 enum BreakpointType
 {
     UnknownType,
@@ -61,10 +62,11 @@ enum BreakpointType
     Watchpoint
 };
 
+//! \enum Debugger::Internal::BreakpointState
 enum BreakpointState
 {
     BreakpointNew,
-    BreakpointInsertRequested,  // Inferior was told about bp, not ack'ed.
+    BreakpointInsertRequested,  //!< Inferior was told about bp, not ack'ed.
     BreakpointInsertProceeding,
     BreakpointChangeRequested,
     BreakpointChangeProceeding,
@@ -89,24 +91,21 @@ public:
     bool operator==(const BreakpointParameters &p) const { return equals(p); }
     bool operator!=(const BreakpointParameters &p) const { return !equals(p); }
 
-    BreakpointType type;     // Type of breakpoint.
-    bool enabled;            // Should we talk to the debugger engine?
-    bool useFullPath;        // Should we use the full path when setting the bp?
-    QString fileName;        // Short name of source file.
-    QByteArray condition;    // Condition associated with breakpoint.
-    int ignoreCount;         // Ignore count associated with breakpoint.
-    int lineNumber;          // Line in source file.
-    quint64 address;         // Address for watchpoints.
-    int threadSpec;          // Thread specification.
+    BreakpointType type;     //!< Type of breakpoint.
+    bool enabled;            //!< Should we talk to the debugger engine?
+    bool useFullPath;        //!< Should we use the full path when setting the bp?
+    QString fileName;        //!< Short name of source file.
+    QByteArray condition;    //!< Condition associated with breakpoint.
+    int ignoreCount;         //!< Ignore count associated with breakpoint.
+    int lineNumber;          //!< Line in source file.
+    quint64 address;         //!< Address for watchpoints.
+    int threadSpec;          //!< Thread specification.
     QString functionName;
-    QString module;          // module for file name
-    QString command;         // command to execute
+    QString module;          //!< module for file name
+    QString command;         //!< command to execute
     bool tracepoint;
 };
 
-
-// This is what debuggers produced in response to the attempt to
-// insert a breakpoint. The data might differ from the requested bits.
 class BreakpointResponse : public BreakpointParameters
 {
 public:
@@ -116,11 +115,11 @@ public:
 public:
     void fromParameters(const BreakpointParameters &p);
 
-    int number;             // Breakpoint number assigned by the debugger engine.
-    bool pending;           // Breakpoint not fully resolved.
-    QString fullName;       // Full file name acknowledged by the debugger engine.
-    bool multiple;          // Happens in constructors/gdb.
-    QByteArray extra;       // gdb: <PENDING>, <MULTIPLE>
+    int number;             //!< Breakpoint number assigned by the debugger engine.
+    bool pending;           //!< Breakpoint not fully resolved.
+    QString fullName;       //!< Full file name acknowledged by the debugger engine.
+    bool multiple;          //!< Happens in constructors/gdb.
+    QByteArray extra;       //!< gdb: <PENDING>, <MULTIPLE>
     int correctedLineNumber;
 };
 

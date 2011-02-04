@@ -37,8 +37,6 @@
 #include "common.h"
 #include "extensioncontext.h"
 
-/* IDebugEventCallbacks event handler wrapping the original IDebugEventCallbacks
- * to catch and store exceptions (report crashes as stop reasons). */
 class EventCallback : public IDebugEventCallbacks
 {
 public:

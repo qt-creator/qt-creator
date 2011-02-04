@@ -47,6 +47,13 @@ WINDBG_EXTENSION_APIS   ExtensionApis = {sizeof(WINDBG_EXTENSION_APIS), 0, 0, 0,
 const char *ExtensionContext::stopReasonKeyC = "reason";
 const char *ExtensionContext::breakPointStopReasonC = "breakpoint";
 
+/*!  \class ExtensionContext
+
+    Global singleton with context.
+    Caches a symbolgroup per frame and thread as long as the session is accessible.
+    \ingroup qtcreatorcdbext
+*/
+
 ExtensionContext::ExtensionContext() :
     m_hookedClient(0),
     m_oldEventCallback(0), m_oldOutputCallback(0),
@@ -376,7 +383,11 @@ void CALLBACK DebugExtensionNotify(ULONG Notify, ULONG64)
 
 } // extern "C"
 
-// -------- ExtensionCommandContext
+/*!  \class ExtensionCommandContext
+
+    Context for extension commands to be instantiated on stack in a command handler.
+    Provides the IDebug objects on demand. \ingroup qtcreatorcdbext
+*/
 
 ExtensionCommandContext *ExtensionCommandContext::m_instance = 0;
 

@@ -52,6 +52,11 @@ namespace Internal {
 //
 ////////////////////////////////////////////////////////////////////////
 
+/*!
+    \class Debugger::Internal::StackHandler
+    \brief A model to represent the stack in a QTreeView.
+ */
+
 StackHandler::StackHandler()
   : m_positionIcon(QIcon(QLatin1String(":/debugger/images/location_16.png"))),
     m_emptyIcon(QIcon(QLatin1String(":/debugger/images/debugger_empty_14.png")))

@@ -131,7 +131,7 @@ int containerSize(KnownType kt, SymbolGroupNode *n, const SymbolGroupValueContex
     return ct;
 }
 
-// Determine size of containers
+/*! Determine size of containers \ingroup qtcreatorcdbext */
 int containerSize(KnownType kt, const SymbolGroupValue &v)
 {
     switch (kt) {
@@ -1008,6 +1008,7 @@ static inline AbstractSymbolGroupNodePtrVector
     return rc;
 }
 
+/*! Determine children of containers \ingroup qtcreatorcdbext */
 AbstractSymbolGroupNodePtrVector containerChildren(SymbolGroupNode *node, int type,
                                                    int size, const SymbolGroupValueContext &ctx)
 {

@@ -45,6 +45,12 @@ namespace Internal {
 //
 //////////////////////////////////////////////////////////////////
 
+/*!
+    \class Debugger::Internal::BreakpointParameters
+
+    Data type holding the parameters of a breakpoint.
+*/
+
 BreakpointParameters::BreakpointParameters(BreakpointType t)
   : type(t), enabled(true), useFullPath(false),
     ignoreCount(0), lineNumber(0), address(0), threadSpec(-1),
@@ -97,9 +103,16 @@ QString BreakpointParameters::toString() const
 
 //////////////////////////////////////////////////////////////////
 //
-// BreakpointParameters
+// BreakpointResponse
 //
 //////////////////////////////////////////////////////////////////
+
+/*!
+    \class Debugger::Internal::BreakpointResponse
+
+    This is what debuggers produce in response to the attempt to
+    insert a breakpoint. The data might differ from the requested bits.
+*/
 
 BreakpointResponse::BreakpointResponse()
     : number(0), pending(true), multiple(false), correctedLineNumber(0)

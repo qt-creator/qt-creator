@@ -48,7 +48,6 @@ class GdbMi;
 //
 ////////////////////////////////////////////////////////////////////////
 
-/*! A model to represent the running threads in a QTreeView or ComboBox */
 class ThreadsHandler : public QAbstractTableModel
 {
     Q_OBJECT

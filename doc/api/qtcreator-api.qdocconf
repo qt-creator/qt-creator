@@ -9,6 +9,7 @@ headerdirs              = . \
                           ../../src/libs/aggregation \
                           ../../src/libs/cplusplus \
                           ../../src/libs/extensionsystem \
+                          ../../src/libs/qtcreatorcdbext \
                           ../../src/plugins/coreplugin \
                           ../../src/plugins/find \
                           ../../src/plugins/locator \
@@ -18,12 +19,18 @@ sourcedirs              = . \
                           ../../src/libs/aggregation \
                           ../../src/libs/cplusplus \
                           ../../src/libs/extensionsystem \
+                          ../../src/libs/qtcreatorcdbext \
                           ../../src/plugins/coreplugin \
                           ../../src/plugins/find \
                           ../../src/plugins/locator \
                          ../../src/plugins/debugger
 
-headers.fileextesnions  = "*.h"
+# -- Generate complete documentation. Set this to 'false'
+#    to generate public API documentation only.
+
+showinternal = true
+
+headers.fileextensions  = "*.h"
 sources.fileextensions  = "*.cpp *.qdoc"
 
 imagedirs               = images ../templates/images

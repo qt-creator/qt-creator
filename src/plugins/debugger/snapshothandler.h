@@ -49,7 +49,7 @@ namespace Internal {
 //
 ////////////////////////////////////////////////////////////////////////
 
-/*! A model to represent the snapshots in a QTreeView. */
+
 class SnapshotHandler : public QAbstractTableModel
 {
     Q_OBJECT

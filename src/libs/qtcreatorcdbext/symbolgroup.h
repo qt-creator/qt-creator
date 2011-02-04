@@ -39,14 +39,6 @@
 
 #include <map>
 
-/* A symbol group storing a tree of expanded symbols rooted on
- * a fake "locals" root element.
- * Provides a find() method based on inames ("locals.this.i1.data") and
- * dump() methods used for GDBMI-format dumping and debug helpers.
- * Qt Creator's WatchModel is fed from this class. It basically represents the
- * symbol group tree with some additional node types (Reference and Map Node
- * types. */
-
 class SymbolGroup {
 public:
     typedef std::vector<DEBUG_SYMBOL_PARAMETERS> SymbolParameterVector;
@@ -136,9 +128,6 @@ private:
     SymbolGroupNode *m_root;
 };
 
-/* Symbol group representing the Locals view. It is firmly associated
- * with stack frame, function (module) and thread. */
-
 class LocalsSymbolGroup : public SymbolGroup {
 protected:
     explicit LocalsSymbolGroup(CIDebugSymbolGroup *,
@@ -163,8 +152,6 @@ private:
     std::string m_function;
 };
 
-// Watch symbol group. Contains watches as added by Qt Creator as iname='watch.0',
-// name='<expression>'. The IDebugSymbolGroup is created without scope.
 class WatchesSymbolGroup : public SymbolGroup {
 public:
     typedef std::map<std::string, std::string> InameExpressionMap;

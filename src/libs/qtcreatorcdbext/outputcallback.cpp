@@ -38,6 +38,13 @@
 
 #include <cstring>
 
+/* \class OutputCallback
+
+    OutputCallback catches DEBUG_OUTPUT_DEBUGGEE and reports it
+    base64-encoded back to Qt Creator.
+    \ingroup qtcreatorcdbext
+ */
+
 OutputCallback::OutputCallback(IDebugOutputCallbacksWide *wrapped) :
     m_wrapped(wrapped), m_recording(false)
 {

@@ -44,17 +44,27 @@
 #include <list>
 #include <iterator>
 
-/* QtCreatorCDB ext is an extension loaded into CDB.exe (see cdbengine.cpp)
- * providing:
- * - Notification about the state of the debugging session:
- *   + idle: (hooked with .idle_cmd) debuggee stopped
- *   + accessible: Debuggee stopped, cdb.exe accepts commands
- *   + inaccessible: Debuggee runs, no way to post commands
- *   + session active/inactive: Lost debuggee, terminating.
- * - Hook up with output/event callbacks and produce formatted output
- * - Provide some extension commands that produce output in a standardized (GDBMI)
- *   format that ends up in handleExtensionMessage().
- */
+/*!
+    \group qtcreatorcdbext
+    \title Qt Creator CDB extension
+
+    \brief  QtCreatorCDB ext is an extension loaded into CDB.exe (see cdbengine.cpp).
+
+
+    It provides
+
+    \list
+    \o Notification about the state of the debugging session:
+    \list
+        \o idle: (hooked with .idle_cmd) debuggee stopped
+        \o accessible: Debuggee stopped, cdb.exe accepts commands
+        \o inaccessible: Debuggee runs, no way to post commands
+        \o session active/inactive: Lost debuggee, terminating.
+    \endlist
+    \o Hook up with output/event callbacks and produce formatted output
+    \o Provide some extension commands that produce output in a standardized (GDBMI)
+       format that ends up in handleExtensionMessage().
+*/
 
 // Data struct and helpers for formatting help
 struct CommandDescription {
