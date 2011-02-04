@@ -367,6 +367,7 @@ public:
 signals:
     void genericTcfEvent(int service, const QByteArray &name, const QVector<JsonValue> &value);
     void tcfEvent(const Coda::CodaEvent &knownEvent);
+    void traceCoreEvent(const QByteArray& data);
     void serialPong(const QString &codaVersion);
 
     void logMessage(const QString &);
@@ -393,6 +394,9 @@ private:
     inline void processSerialMessage(const QByteArray &message);
     int parseTcfCommandReply(char type, const QVector<QByteArray> &tokens);
     int parseTcfEvent(const QVector<QByteArray> &tokens);
+
+private:
+    QPair<int, int> findSerialHeader(QByteArray &in);
     CodaDevicePrivate *d;
 };
 

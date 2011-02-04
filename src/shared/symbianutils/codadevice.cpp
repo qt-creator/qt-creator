@@ -43,7 +43,7 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QFileInfo>
 
-enum { debug = 0 };
+enum { debug = 1 };
 
 static const char tcpMessageTerminatorC[] = "\003\001";
 
@@ -347,6 +347,7 @@ CodaDevicePrivate::CodaDevicePrivate() :
 CodaDevice::CodaDevice(QObject *parent) :
     QObject(parent), d(new CodaDevicePrivate)
 {
+    if (debug) setVerbose(true);
 }
 
 CodaDevice::~CodaDevice()
@@ -470,26 +471,45 @@ void CodaDevice::slotDeviceReadyRead()
 
 // Find a serial header in input stream '0x1', '0x92', 'lenH', 'lenL'
 // and return message position and size.
-static inline QPair<int, int> findSerialHeader(const QByteArray &in)
+QPair<int, int> TcfTrkDevice::findSerialHeader(QByteArray &in)
 {
-    const int size = in.size();
     const char header1 = 0x1;
     const char header2 = char(0x92);
+    const char header2tracecore = char(0x91);
     // Header should in theory always be at beginning of
-    // buffer. Warn if  there are bogus data in-between.
-    for (int pos = 0; pos < size; ) {
-        if (pos + 4 < size && in.at(pos) == header1 &&  in.at(pos + 1) == header2) {
+    // buffer. Warn if there are bogus data in-between.
+
+    while (in.size() >= 4) {
+        if (in.at(0) == header1 && in.at(1) == header2) {
+            // Good packet
             const int length = trk::extractShort(in.constData() + 2);
-            return QPair<int, int>(pos + 4, length);
+            return QPair<int, int>(4, length);
+        } else if (in.at(0) == header1 && in.at(1) == header2tracecore) {
+            // We recognise it but it's not a TCF message - emit it for any interested party to handle
+            const int length = trk::extractShort(in.constData() + 2);
+            if (4 + length <= in.size()) {
+                // We have all the data
+                QByteArray data(in.mid(4, length));
+                emit traceCoreEvent(data);
+                in.remove(0, 4+length);
+                // and continue
+            } else {
+                // If we don't have all this packet, there can't be any data following it, so return now
+                // and wait for more data
+                return QPair<int, int>(-1, -1);
+            }
+        } else {
+            // Bad data - log it, remove it, and go round again
+            int nextHeader = in.indexOf(header1, 1);
+            QByteArray bad = in.mid(0, nextHeader);
+            qWarning("Bogus data received on serial line: %s\n"
+                     "Frame Header at: %d", qPrintable(trk::stringFromArray(bad)), nextHeader);
+            d->m_device->write(bad); // Backatcha - TOMSCI TESTING
+            in.remove(0, bad.length());
+            // and continue
         }
-        // Find next
-        pos = in.indexOf(header1, pos + 1);
-        qWarning("Bogus data received on serial line: %s\n"
-                 "Frame Header at: %d", qPrintable(trk::stringFromArray(in)), pos);
-        if (pos < 0)
-           break;
     }
-    return QPair<int, int>(-1, -1);
+    return QPair<int, int>(-1, -1); // No more data, or not enough for a complete header
 }
 
 void CodaDevice::deviceReadyReadSerial()
@@ -767,6 +787,9 @@ void CodaDevice::sendSerialPing(bool pingOnly)
     if (!checkOpen())
         return;
 
+    dumpObjectInfo();
+    d->m_device->dumpObjectInfo();
+
     d->m_serialPingOnly = pingOnly;
     setSerialFrame(true);
     writeMessage(QByteArray(serialPingC, qstrlen(serialPingC)), false);
@@ -839,7 +862,9 @@ void CodaDevice::writeMessage(QByteArray data, bool ensureTerminating0)
     if (debug > 1)
         qDebug("Writing:\n%s", qPrintable(formatData(data)));
 
-    d->m_device->write(data);
+    int result = d->m_device->write(data);
+    if (result < data.length())
+        qWarning("Failed to write all data! result=%d", result);
     if (QAbstractSocket *as = qobject_cast<QAbstractSocket *>(d->m_device.data()))
         as->flush();
 }

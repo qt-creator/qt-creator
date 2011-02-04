@@ -33,6 +33,8 @@
 
 #include "symbiandevicemanager.h"
 #include "trkdevice.h"
+#include "tcftrkdevice.h"
+#include "virtualserialdevice.h"
 
 #include <QtCore/QSettings>
 #include <QtCore/QStringList>
@@ -42,6 +44,8 @@
 #include <QtCore/QSharedData>
 #include <QtCore/QScopedPointer>
 #include <QtCore/QSignalMapper>
+#include <QtCore/QThread>
+#include <QtCore/QWaitCondition>
 
 namespace SymbianUtils {
 
@@ -58,7 +62,7 @@ public:
     SymbianDeviceData();
     ~SymbianDeviceData();
 
-    inline bool isOpen() const { return !device.isNull() && device->isOpen(); }
+    bool isOpen() const;
     void forcedClose();
 
     QString portName;
@@ -69,6 +73,7 @@ public:
 
     DeviceCommunicationType type;
     QSharedPointer<trk::TrkDevice> device;
+    QSharedPointer<tcftrk::TcfTrkDevice> tcfdevice;
     bool deviceAcquired;
 };
 
@@ -76,6 +81,18 @@ SymbianDeviceData::SymbianDeviceData() :
         type(SerialPortCommunication),
         deviceAcquired(false)
 {
+}
+
+bool SymbianDeviceData::isOpen() const
+{
+    if (device) {
+        // TRK device
+        return device->isOpen();
+    } else if (tcfdevice) {
+        return tcfdevice->device()->isOpen();
+    } else {
+        return false;
+    }
 }
 
 SymbianDeviceData::~SymbianDeviceData()
@@ -93,7 +110,8 @@ void SymbianDeviceData::forcedClose()
         if (deviceAcquired)
             qWarning("Device on '%s' unplugged while an operation is in progress.",
                      qPrintable(portName));
-        device->close();
+        if (device) device->close();
+        else tcfdevice->device()->close();
     }
 }
 
@@ -247,17 +265,34 @@ SYMBIANUTILS_EXPORT QDebug operator<<(QDebug d, const SymbianDevice &cd)
 
 // ------------- SymbianDeviceManagerPrivate
 struct SymbianDeviceManagerPrivate {
-    SymbianDeviceManagerPrivate() : m_initialized(false), m_destroyReleaseMapper(0) {}
+    SymbianDeviceManagerPrivate() : m_initialized(false) /*, m_destroyReleaseMapper(0),*/ {}
 
     bool m_initialized;
     SymbianDeviceManager::SymbianDeviceList m_devices;
-    QSignalMapper *m_destroyReleaseMapper;
+    //QSignalMapper *m_destroyReleaseMapper;
+    // The following 2 variables are needed to manage requests for a TCF port not coming from the main thread
+    int m_constructTcfPortEventType;
+    QMutex m_tcfPortWaitMutex;
 };
+
+class QConstructTcfPortEvent : public QEvent
+{
+public:
+    QConstructTcfPortEvent(QEvent::Type eventId, const QString &portName, TcfTrkDevicePtr *device, QWaitCondition *waiter) :
+        QEvent(eventId), m_portName(portName), m_device(device), m_waiter(waiter)
+       {}
+
+    QString m_portName;
+    TcfTrkDevicePtr* m_device;
+    QWaitCondition *m_waiter;
+};
+
 
 SymbianDeviceManager::SymbianDeviceManager(QObject *parent) :
     QObject(parent),
     d(new SymbianDeviceManagerPrivate)
 {
+    d->m_constructTcfPortEventType = QEvent::registerEventType();
 }
 
 SymbianDeviceManager::~SymbianDeviceManager()
@@ -316,6 +351,85 @@ SymbianDeviceManager::TrkDevicePtr
     if (debug)
         qDebug() << "SymbianDeviceManager::acquireDevice" << port << " returns " << !rc.isNull();
     return rc;
+}
+
+TcfTrkDevicePtr SymbianDeviceManager::getTcfPort(const QString &port)
+{
+    ensureInitialized();
+    const int idx = findByPortName(port);
+    if (idx == -1) {
+        qWarning("Attempt to acquire device '%s' that does not exist.", qPrintable(port));
+        if (debug)
+            qDebug() << *this;
+        return TcfTrkDevicePtr();
+    }
+    SymbianDevice& device = d->m_devices[idx];
+    if (device.m_data->device) {
+        qWarning("Attempting to open a port '%s' that is configured for TRK!", qPrintable(port));
+        return TcfTrkDevicePtr();
+    }
+    TcfTrkDevicePtr& devicePtr = device.m_data->tcfdevice;
+    if (devicePtr.isNull()) {
+        // Check we instanciate in the correct thread - we can't afford to create the TcfTrkDevice (and more specifically, open the VirtualSerialDevice) in a thread that isn't guaranteed to be long-lived.
+        // Therefore, if we're not in SymbianDeviceManager's thread, rejig things so it's opened in the main thread
+        if (QThread::currentThread() != thread()) {
+            // SymbianDeviceManager is owned by the current thread
+            d->m_tcfPortWaitMutex.lock();
+            QWaitCondition waiter;
+            QCoreApplication::postEvent(this, new QConstructTcfPortEvent((QEvent::Type)d->m_constructTcfPortEventType, port, &devicePtr, &waiter));
+            waiter.wait(&d->m_tcfPortWaitMutex);
+            // When the wait returns (due to the wakeAll in SymbianDeviceManager::customEvent), the TcfTrkDevice will be fully set up
+            d->m_tcfPortWaitMutex.unlock();
+        } else {
+            // We're in the main thread, just set it up directly
+            constructTcfPort(devicePtr, port);
+        }
+    }
+    if (!devicePtr->device()->isOpen()) {
+        bool ok = devicePtr->device().staticCast<SymbianUtils::VirtualSerialDevice>()->open(QIODevice::ReadWrite);
+        if (!ok && debug) {
+            qDebug("SymbianDeviceManager: Failed to open port %s", qPrintable(port));
+        }
+        // We still carry on in the case we failed to open so the client can access the IODevice's errorString()
+    }
+    //Q_ASSERT(QThread::currentThread() == devicePtr->thread());
+    return devicePtr;
+}
+
+void SymbianDeviceManager::constructTcfPort(TcfTrkDevicePtr& device, const QString& portName)
+{
+    QMutexLocker locker(&d->m_tcfPortWaitMutex);
+    device = QSharedPointer<tcftrk::TcfTrkDevice>(new tcftrk::TcfTrkDevice);
+    const QSharedPointer<SymbianUtils::VirtualSerialDevice> serialDevice(new SymbianUtils::VirtualSerialDevice(portName));
+    device->setSerialFrame(true);
+    device->setDevice(serialDevice);
+}
+
+void SymbianDeviceManager::customEvent(QEvent *event)
+{
+    if (event->type() == d->m_constructTcfPortEventType)
+    {
+        QConstructTcfPortEvent* constructEvent = static_cast<QConstructTcfPortEvent*>(event);
+        constructTcfPort(*constructEvent->m_device, constructEvent->m_portName);
+        constructEvent->m_waiter->wakeAll(); // Should only ever be one thing waiting on this
+    }
+}
+
+/*
+TcfTrkDevicePtr SymbianDeviceManager::getTcfPort(const QString &host, quint16 port)
+{
+    // No attempt to check the device list. The main purpose in doing that is to cooperatively share the port with other services, and there's no need to do that with TCP/IP as you can just use separate port numbers.
+    // Ok it might make it slightly quicker but I'm not going to worry about it just now
+
+}
+*/
+
+void SymbianDeviceManager::releaseTcfPort(TcfTrkDevicePtr &aPort)
+{
+    if (aPort) {
+        aPort.clear();
+    }
+    //TODO close the port after a timeer if last reference?
 }
 
 void SymbianDeviceManager::update()

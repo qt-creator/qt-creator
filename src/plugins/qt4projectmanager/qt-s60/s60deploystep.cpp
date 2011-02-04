@@ -48,7 +48,6 @@
 
 #include <symbianutils/launcher.h>
 #include <symbianutils/symbiandevicemanager.h>
-#include <symbianutils/virtualserialdevice.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QMessageBox>
@@ -108,7 +107,6 @@ S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc,
     m_releaseDeviceAfterLauncherFinish(bs->m_releaseDeviceAfterLauncherFinish),
     m_handleDeviceRemoval(bs->m_handleDeviceRemoval),
     m_launcher(0),
-    m_trkDevice(0),
     m_eventLoop(0),
     m_state(StateUninit),
     m_putWriteOk(false),
@@ -127,7 +125,6 @@ S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc):
     m_releaseDeviceAfterLauncherFinish(true),
     m_handleDeviceRemoval(true),
     m_launcher(0),
-    m_trkDevice(0),
     m_eventLoop(0),
     m_state(StateUninit),
     m_putWriteOk(false),
@@ -151,7 +148,6 @@ S60DeployStep::~S60DeployStep()
 {
     delete m_timer;
     delete m_launcher;
-    delete m_trkDevice;
     delete m_eventLoop;
 }
 
@@ -294,8 +290,7 @@ void S60DeployStep::start()
         return;
     }
     if (!trkClient) {
-        QTC_ASSERT(!m_trkDevice, return);
-        m_trkDevice = new Coda::CodaDevice;
+        QTC_ASSERT(!m_codaDevice.data(), return);
         if (m_address.isEmpty() && !serialConnection) {
             errorMessage = tr("No address for a device has been defined. Please define an address and try again.");
             reportError(errorMessage);
@@ -320,8 +315,8 @@ void S60DeployStep::stop()
             m_launcher->terminate();
     } else {
         if (m_trkDevice) {
-            delete m_trkDevice;
-            m_trkDevice = 0;
+            disconnect(m_trkDevice.data(), 0, this, 0);
+            SymbianUtils::SymbianDeviceManager::instance()->releaseTcfPort(m_trkDevice);
         }
     }
     emit finished(false);
@@ -345,10 +340,10 @@ void S60DeployStep::setupConnections()
         connect(m_launcher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
         connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(setCopyProgress(int)));
     } else {
-        connect(m_trkDevice, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
-        connect(m_trkDevice, SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
-        connect(m_trkDevice, SIGNAL(tcfEvent(Coda::CodaEvent)), this, SLOT(slotCodaEvent(Coda::CodaEvent)), Qt::DirectConnection);
-        connect(m_trkDevice, SIGNAL(serialPong(QString)), this, SLOT(slotSerialPong(QString)));
+        connect(m_codaDevice.data(), SIGNAL(error(QString)), this, SLOT(slotError(QString)));
+        connect(m_codaDevice.data(), SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
+        connect(m_codaDevice.data(), SIGNAL(tcfEvent(tcftrk::TcfTrkEvent)), this, SLOT(slotTcftrkEvent(tcftrk::TcfTrkEvent)), Qt::DirectConnection);
+        connect(m_codaDevice.data(), SIGNAL(serialPong(QString)), this, SLOT(slotSerialPong(QString)));
         connect(this, SIGNAL(manualInstallation()), this, SLOT(showManualInstallationInfo()));
     }
 }
@@ -357,13 +352,14 @@ void S60DeployStep::startDeployment()
 {
     if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
         QTC_ASSERT(m_launcher, return);
-    } else {
-        QTC_ASSERT(m_trkDevice, return);
     }
+    QTC_ASSERT(!m_trkDevice.data(), return);
 
-    setupConnections();
+    // We need to defer setupConnections() in the case of CommunicationCodaSerialConnection
+    //setupConnections();
 
     if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
+        setupConnections();
         QStringList copyDst;
         foreach (const QString &signedPackage, m_signedPackages)
             copyDst << QString::fromLatin1("%1:\\Data\\%2").arg(m_installationDrive).arg(QFileInfo(signedPackage).fileName());
@@ -386,22 +382,25 @@ void S60DeployStep::startDeployment()
             stop();
         }
     } else if (m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection) {
-        const QSharedPointer<SymbianUtils::VirtualSerialDevice> serialDevice(new SymbianUtils::VirtualSerialDevice(m_serialPortName));
         appendMessage(tr("Deploying application to '%1'...").arg(m_serialPortFriendlyName), false);
-        m_trkDevice->setSerialFrame(true);
-        m_trkDevice->setDevice(serialDevice);
-        bool ok = serialDevice->open(QIODevice::ReadWrite);
+        m_trkDevice = SymbianUtils::SymbianDeviceManager::instance()->getTcfPort(m_serialPortName);
+        bool ok = m_trkDevice && m_trkDevice->device()->isOpen();
         if (!ok) {
-            reportError(tr("Couldn't open serial device: %1").arg(serialDevice->errorString()));
+            QString deviceError = tr("No such port");
+            if (m_trkDevice) deviceError = m_trkDevice->device()->errorString();
+            reportError(tr("Couldn't open serial device: %1").arg(deviceError));
             stop();
             return;
         }
+        setupConnections();
         m_state = StateConnecting;
         m_trkDevice->sendSerialPing(false);
         QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
     } else {
+        m_codaDevice = QSharedPointer<Coda::CodaDevice>(new Coda::CodaDevice);
+        setupConnections();
         const QSharedPointer<QTcpSocket> codaSocket(new QTcpSocket);
-        m_trkDevice->setDevice(codaSocket);
+        m_codaDevice->setDevice(codaSocket);
         codaSocket->connectToHost(m_address, m_port);
         m_state = StateConnecting;
         appendMessage(tr("Connecting to %1:%2...").arg(m_address).arg(m_port), false);
@@ -440,8 +439,10 @@ void S60DeployStep::run(QFutureInterface<bool> &fi)
     delete m_timer;
     m_timer = 0;
 
-    delete m_trkDevice;
-    m_trkDevice = 0;
+    if (m_trkDevice) {
+        disconnect(m_trkDevice.data(), 0, this, 0);
+        SymbianUtils::SymbianDeviceManager::instance()->releaseTcfPort(m_trkDevice);
+    }
 
     delete m_eventLoop;
     m_eventLoop = 0;

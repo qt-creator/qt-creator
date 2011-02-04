@@ -43,7 +43,7 @@
 #include "qt4symbiantarget.h"
 #include "qt4target.h"
 #include "qtoutputformatter.h"
-#include "virtualserialdevice.h"
+#include "symbiandevicemanager.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -65,11 +65,10 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using namespace Coda;
 
-enum { debug = 0 };
+enum { debug = 1 };
 
 CodaRunControl::CodaRunControl(RunConfiguration *runConfiguration, const QString &mode) :
     S60RunControlBase(runConfiguration, mode),
-    m_codaDevice(0),
     m_port(0),
     m_state(StateUninit)
 {
@@ -87,12 +86,6 @@ CodaRunControl::CodaRunControl(RunConfiguration *runConfiguration, const QString
     } else {
         QTC_ASSERT(false, return);
     }
-}
-
-CodaRunControl::~CodaRunControl()
-{
-    if (m_codaDevice)
-        m_codaDevice->deleteLater();
 }
 
 bool CodaRunControl::doStart()
@@ -117,31 +110,32 @@ bool CodaRunControl::setupLauncher()
 {
     QTC_ASSERT(!m_codaDevice, return false);
 
-    m_codaDevice = new CodaDevice;
-    if (debug)
-        m_codaDevice->setVerbose(debug);
-
-    connect(m_codaDevice, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
-    connect(m_codaDevice, SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
-    connect(m_codaDevice, SIGNAL(tcfEvent(Coda::CodaEvent)), this, SLOT(slotCodaEvent(Coda::CodaEvent)));
-    connect(m_codaDevice, SIGNAL(serialPong(QString)), this, SLOT(slotSerialPong(QString)));
-
     if (m_serialPort.length()) {
-        const QSharedPointer<SymbianUtils::VirtualSerialDevice> serialDevice(new SymbianUtils::VirtualSerialDevice(m_serialPort));
-        appendMessage(tr("Conecting to '%2'...").arg(m_serialPort), NormalMessageFormat);
-        m_codaDevice->setSerialFrame(true);
-        m_codaDevice->setDevice(serialDevice);
-        bool ok = serialDevice->open(QIODevice::ReadWrite);
+        // We get the port from SymbianDeviceManager
+        appendMessage(tr("Connecting to '%2'...").arg(m_serialPort), NormalMessageFormat);
+        m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getTcfPort(m_serialPort);
+
+        bool ok = m_codaDevice && m_tcfTrkDevice->device()->isOpen();
         if (!ok) {
-            appendMessage(tr("Couldn't open serial device: %1").arg(serialDevice->errorString()), ErrorMessageFormat);
+            appendMessage(tr("Couldn't open serial device: %1").arg(m_tcfTrkDevice->device()->errorString()), ErrorMessageFormat);
             return false;
         }
         connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),
                 this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
+        connect(m_tcfTrkDevice.data(), SIGNAL(error(QString)), this, SLOT(slotError(QString)));
+        connect(m_tcfTrkDevice.data(), SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
+        connect(m_tcfTrkDevice.data(), SIGNAL(tcfEvent(tcftrk::TcfTrkEvent)), this, SLOT(slotTcftrkEvent(tcftrk::TcfTrkEvent)));
+        connect(m_tcfTrkDevice.data(), SIGNAL(serialPong(QString)), this, SLOT(slotSerialPong(QString)));
         m_state = StateConnecting;
         m_codaDevice->sendSerialPing(false);
         QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
     } else {
+        // For TCP we don't use device manager, we just set it up directly
+        m_codaDevice = QSharedPointer<Coda::CodaDevice>(new Coda::CodaDevice);
+        connect(m_codaDevice.data(), SIGNAL(error(QString)), this, SLOT(slotError(QString)));
+        connect(m_codaDevice.data(), SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
+        connect(m_codaDevice.data(), SIGNAL(tcfEvent(tcftrk::TcfTrkEvent)), this, SLOT(slotTcftrkEvent(tcftrk::TcfTrkEvent)));
+
         const QSharedPointer<QTcpSocket> codaSocket(new QTcpSocket);
         m_codaDevice->setDevice(codaSocket);
         codaSocket->connectToHost(m_address, m_port);
@@ -149,6 +143,7 @@ bool CodaRunControl::setupLauncher()
         appendMessage(tr("Connecting to %1:%2...").arg(m_address).arg(m_port), NormalMessageFormat);
         QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
     }
+    if (debug) m_tcfTrkDevice->setVerbose(1);
     return true;
 }
 
@@ -325,9 +320,10 @@ void CodaRunControl::handleCreateProcess(const CodaCommandResult &result)
 void CodaRunControl::finishRunControl()
 {
     m_runningProcessId.clear();
-    if (m_codaDevice)
-        m_codaDevice->deleteLater();
-    m_codaDevice = 0;
+    if (m_codaDevice) {
+        disconnect(m_codaDevice.data(), 0, this, 0);
+        SymbianUtils::SymbianDeviceManager::instance()->releaseTcfPort(m_codaDevice);
+    }
     m_state = StateUninit;
     emit finished();
 }

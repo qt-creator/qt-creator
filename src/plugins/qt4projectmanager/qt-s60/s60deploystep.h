@@ -201,7 +201,8 @@ private:
     QFutureInterface<bool> *m_futureInterface; //not owned
 
     trk::Launcher *m_launcher;
-    Coda::CodaDevice *m_trkDevice;
+
+    QSharedPointer<Coda::CodaDevice> m_codaDevice;
 
     QEventLoop *m_eventLoop;
     bool m_deployResult;

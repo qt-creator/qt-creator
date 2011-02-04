@@ -60,7 +60,6 @@ class CodaRunControl : public S60RunControlBase
     Q_OBJECT
 public:
     CodaRunControl(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
-    ~CodaRunControl();
     virtual bool isRunning() const;
 
     static QMessageBox *createCodaWaitingMessageBox(QWidget *parent = 0);
@@ -104,7 +103,7 @@ private:
         StateProcessRunning
     };
 
-    Coda::CodaDevice *m_codaDevice;
+    QSharedPointer<Coda::CodaDevice> m_codaDevice;
 
     QString m_address;
     unsigned short m_port;

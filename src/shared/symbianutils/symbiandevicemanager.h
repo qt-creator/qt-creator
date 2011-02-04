@@ -48,6 +48,9 @@ QT_END_NAMESPACE
 namespace trk {
     class TrkDevice;
 }
+namespace tcftrk {
+    class TcfTrkDevice;
+}
 
 namespace SymbianUtils {
 
@@ -58,6 +61,8 @@ enum DeviceCommunicationType {
     SerialPortCommunication = 0,
     BlueToothCommunication = 1
 };
+
+typedef QSharedPointer<tcftrk::TcfTrkDevice> TcfTrkDevicePtr;
 
 // SymbianDevice: Explicitly shared device data and a TrkDevice
 // instance that can be acquired (exclusively) for use.
@@ -82,13 +87,6 @@ public:
     QString additionalInformation() const;
     void setAdditionalInformation(const QString &);
 
-    // Acquire: Mark the device as 'out' and return a shared pointer
-    // unless it is already in use by another owner. The result should not
-    // be passed on further.
-    TrkDevicePtr acquireDevice();
-    // Give back a device and mark it as 'free'.
-    void releaseDevice(TrkDevicePtr *ptr = 0);
-
     bool isOpen() const;
 
     // Windows only.
@@ -99,6 +97,14 @@ public:
     QString toString() const;
 
 private:
+    // Acquire: Mark the device as 'out' and return a shared pointer
+    // unless it is already in use by another owner. The result should not
+    // be passed on further.
+    // TRK only
+    TrkDevicePtr acquireDevice();
+    // Give back a device and mark it as 'free'. TRK only.
+    void releaseDevice(TrkDevicePtr *ptr = 0);
+
     void forcedClose();
 
     QExplicitlySharedDataPointer<SymbianDeviceData> m_data;
@@ -137,15 +143,27 @@ public:
     SymbianDeviceList devices() const;
     QString toString() const;
 
-    // Acquire a device for use. See releaseDevice().
+    // Acquire a TRK device for use. Assuming the port is found, equivalent to devices()[findByPortName(port)].acquireDevice(). See also releaseDevice().
     TrkDevicePtr acquireDevice(const QString &port);
+
+    //// The TCF code prefers to set up the TcfTrkDevice object itself, so we let it and just handle opening the underlying QIODevice and keeping track of the TcfTrkDevice
+    //// Returns true if port was opened successfully.
+
+    // Gets the TcfTrkDevice, which may or may not be open depending on what other clients have already acquired it.
+    // Therefore once clients have set up any signals and slots they required, they should check TcfTrkDevice::device()->isOpen()
+    // and if false, the open failed and they should check device()->errorString() if required.
+    // Caller should call releaseTcfPort if they want the port to auto-close itself
+    TcfTrkDevicePtr getTcfPort(const QString &port);
+
+    // Caller is responsible for disconnecting any signals from aPort - do not assume the TcfTrkDevice will be deleted as a result of this call. On return aPort will be clear()ed.
+    void releaseTcfPort(TcfTrkDevicePtr &aPort);
 
     int findByPortName(const QString &p) const;
     QString friendlyNameForPort(const QString &port) const;
 
 public slots:
     void update();
-    // Relase a device, make it available for further use.
+    // Release a device, make it available for further use. Only for use with a TRK device
     void releaseDevice(const QString &port);
     void setAdditionalInformation(const QString &port, const QString &ai);
 
@@ -159,6 +177,8 @@ private:
     void update(bool emitSignals);
     SymbianDeviceList serialPorts() const;
     SymbianDeviceList blueToothDevices() const;
+    void customEvent(QEvent *event);
+    void constructTcfPort(TcfTrkDevicePtr& device, const QString& portName);
 
     SymbianDeviceManagerPrivate *d;
 };

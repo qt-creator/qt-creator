@@ -23,10 +23,9 @@ const QString& VirtualSerialDevice::getPortName() const
 void VirtualSerialDevice::close()
 {
     if (isOpen()) {
-        Q_ASSERT(thread() == QThread::currentThread()); // My brain will explode otherwise
+        QMutexLocker locker(&lock);
         delete waiterForBytesWritten;
         waiterForBytesWritten = NULL;
-        QMutexLocker locker(&lock);
         QIODevice::close();
         platClose();
     }

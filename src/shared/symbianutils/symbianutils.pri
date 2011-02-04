@@ -15,7 +15,7 @@ HEADERS += $$PWD/symbianutils_global.h \
     $$PWD/codadevice.h \
     $$PWD/codamessage.h \
     $$PWD/json.h \
-	$$PWD/virtualserialdevice.h
+    $$PWD/virtualserialdevice.h
 
 SOURCES += $$PWD/trkutils.cpp \
     $$PWD/trkdevice.cpp \
