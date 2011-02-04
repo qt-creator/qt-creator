@@ -106,6 +106,7 @@ private:
 BreakpointDialog::BreakpointDialog(QWidget *parent)
     : QDialog(parent), m_previousType(UnknownType), m_firstTypeChange(true)
 {
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     // Match BreakpointType (omitting unknown type).
     m_ui.setupUi(this);
     QStringList types;
@@ -116,14 +117,19 @@ BreakpointDialog::BreakpointDialog(QWidget *parent)
     m_ui.comboBoxType->addItems(types);
     m_ui.pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
     connect(m_ui.comboBoxType, SIGNAL(activated(int)), SLOT(typeChanged(int)));
-    m_ui.lineEditIgnoreCount->setValidator(
-        new QIntValidator(0, 2147483647, m_ui.lineEditIgnoreCount));
     const QString moduleToolTip =
         tr("Specifying the module (base name of the library or executable)\n"
            "for function or file type breakpoints can significantly speed up\n"
            "debugger start-up times (CDB, LLDB).");
     m_ui.labelModule->setToolTip(moduleToolTip);
     m_ui.lineEditModule->setToolTip(moduleToolTip);
+    const QString commandToolTip =
+        tr("Debugger command to be executed when the breakpoint is hit.\n"
+           "gdb allows for specifying a sequence of commands separated by the delimiter '\\n'.");
+    m_ui.lineEditCommand->setToolTip(commandToolTip);
+    m_ui.labelCommand->setToolTip(commandToolTip);
+    m_ui.spinBoxIgnoreCount->setMinimum(0);
+    m_ui.spinBoxIgnoreCount->setMaximum(2147483647);
 }
 
 void BreakpointDialog::setType(BreakpointType type)
@@ -175,7 +181,7 @@ void BreakpointDialog::setPartsEnabled(unsigned partsMask)
     m_ui.labelIgnoreCount->setEnabled(partsMask & ConditionPart);
     m_ui.labelThreadSpec->setEnabled(partsMask & ConditionPart);
     m_ui.lineEditCondition->setEnabled(partsMask & ConditionPart);
-    m_ui.lineEditIgnoreCount->setEnabled(partsMask & ConditionPart);
+    m_ui.spinBoxIgnoreCount->setEnabled(partsMask & ConditionPart);
     m_ui.lineEditThreadSpec->setEnabled(partsMask & ConditionPart);
 
     m_ui.labelModule->setEnabled(partsMask & ModulePart);
@@ -199,7 +205,7 @@ void BreakpointDialog::clearOtherParts(unsigned partsMask)
 
     if (inversedPartsMask & ConditionPart) {
         m_ui.lineEditCondition->clear();
-        m_ui.lineEditIgnoreCount->clear();
+        m_ui.spinBoxIgnoreCount->clear();
         m_ui.lineEditThreadSpec->clear();
     }
     if (inversedPartsMask & ModulePart)
@@ -210,6 +216,7 @@ void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) 
 {
     data->enabled = m_ui.checkBoxEnabled->isChecked();
     data->tracepoint = m_ui.checkBoxTracepoint->isChecked();
+    data->command = m_ui.lineEditCommand->text().trimmed();
 
     if (partsMask & FileAndLinePart) {
         data->lineNumber = m_ui.lineEditLineNumber->text().toInt();
@@ -224,7 +231,7 @@ void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) 
 
     if (partsMask & ConditionPart) {
         data->condition = m_ui.lineEditCondition->text().toUtf8();
-        data->ignoreCount = m_ui.lineEditIgnoreCount->text().toInt();
+        data->ignoreCount = m_ui.spinBoxIgnoreCount->text().toInt();
         data->threadSpec =
             BreakHandler::threadSpecFromDisplay(m_ui.lineEditThreadSpec->text());
     }
@@ -236,6 +243,7 @@ void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
 {
     m_ui.checkBoxEnabled->setChecked(data.enabled);
     m_ui.checkBoxUseFullPath->setChecked(data.useFullPath);
+    m_ui.lineEditCommand->setText(data.command);
 
     if (mask & FileAndLinePart) {
         m_ui.pathChooserFileName->setPath(data.fileName);
@@ -257,7 +265,7 @@ void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
 
     if (mask & ConditionPart) {
         m_ui.lineEditCondition->setText(QString::fromUtf8(data.condition));
-        m_ui.lineEditIgnoreCount->setText(QString::number(data.ignoreCount));
+        m_ui.spinBoxIgnoreCount->setValue(data.ignoreCount);
         m_ui.lineEditThreadSpec->
             setText(BreakHandler::displayFromThreadSpec(data.threadSpec));
     }
@@ -275,10 +283,10 @@ void BreakpointDialog::typeChanged(int)
     case UnknownType:
         break;
     case BreakpointByFileAndLine:
-        getParts(FileAndLinePart|ModulePart, &m_savedParameters);
+        getParts(FileAndLinePart|ModulePart|ConditionPart, &m_savedParameters);
         break;
     case BreakpointByFunction:
-        getParts(FunctionPart|ModulePart, &m_savedParameters);
+        getParts(FunctionPart|ModulePart|ConditionPart, &m_savedParameters);
         break;
     case BreakpointAtThrow:
     case BreakpointAtCatch:
@@ -286,7 +294,7 @@ void BreakpointDialog::typeChanged(int)
         break;
     case BreakpointByAddress:
     case Watchpoint:
-        getParts(AddressPart, &m_savedParameters);
+        getParts(AddressPart|ConditionPart, &m_savedParameters);
         break;
     }
 
@@ -338,6 +346,35 @@ bool BreakpointDialog::showDialog(BreakpointParameters *data)
     return true;
 }
 
+// Dialog allowing changing properties of multiple breakpoints at a time.
+class MultiBreakPointsDialog : public QDialog {
+    Q_OBJECT
+public:
+    explicit MultiBreakPointsDialog(QWidget *parent = 0);
+
+    QString condition() const { return m_ui.lineEditCondition->text(); }
+    int ignoreCount() const { return m_ui.spinBoxIgnoreCount->value(); }
+    int threadSpec() const
+       { return BreakHandler::threadSpecFromDisplay(m_ui.lineEditThreadSpec->text()); }
+
+    void setCondition(const QString &c) { m_ui.lineEditCondition->setText(c); }
+    void setIgnoreCount(int i) { m_ui.spinBoxIgnoreCount->setValue(i); }
+    void setThreadSpec(int t)
+        { return m_ui.lineEditThreadSpec->setText(BreakHandler::displayFromThreadSpec(t)); }
+
+private:
+    Ui::BreakCondition m_ui;
+};
+
+MultiBreakPointsDialog::MultiBreakPointsDialog(QWidget *parent) :
+    QDialog(parent)
+{
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    m_ui.setupUi(this);
+    setWindowTitle(tr("Edit Breakpoint Properties"));
+    m_ui.spinBoxIgnoreCount->setMinimum(0);
+    m_ui.spinBoxIgnoreCount->setMaximum(2147483647);
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -579,6 +616,7 @@ void BreakWindow::addBreakpoint()
 {
     BreakpointParameters data(BreakpointByFileAndLine);
     BreakpointDialog dialog(this);
+    dialog.setWindowTitle(tr("Add Breakpoint"));
     if (dialog.showDialog(&data))
         breakHandler()->appendBreakpoint(data);
 }
@@ -595,29 +633,21 @@ void BreakWindow::editBreakpoints(const BreakpointIds &ids)
     }
 
     // This allows to change properties of multiple breakpoints at a time.
-    QDialog dlg(this);
-    Ui::BreakCondition ui;
-    ui.setupUi(&dlg);
-    dlg.setWindowTitle(tr("Edit Breakpoint Properties"));
-    ui.lineEditIgnoreCount->setValidator(
-        new QIntValidator(0, 2147483647, ui.lineEditIgnoreCount));
-
+    MultiBreakPointsDialog dialog;
     BreakHandler *handler = breakHandler();
     const QString oldCondition = QString::fromLatin1(handler->condition(id));
-    const QString oldIgnoreCount = QString::number(handler->ignoreCount(id));
-    const QString oldThreadSpec =
-        BreakHandler::displayFromThreadSpec(handler->threadSpec(id));
+    dialog.setCondition(oldCondition);
+    const int oldIgnoreCount = handler->ignoreCount(id);
+    dialog.setIgnoreCount(oldIgnoreCount);
+    const int oldThreadSpec = handler->threadSpec(id);
+    dialog.setThreadSpec(oldThreadSpec);
 
-    ui.lineEditCondition->setText(oldCondition);
-    ui.lineEditIgnoreCount->setText(oldIgnoreCount);
-    ui.lineEditThreadSpec->setText(oldThreadSpec);
-
-    if (dlg.exec() == QDialog::Rejected)
+    if (dialog.exec() == QDialog::Rejected)
         return;
 
-    const QString newCondition = ui.lineEditCondition->text();
-    const QString newIgnoreCount = ui.lineEditIgnoreCount->text();
-    const QString newThreadSpec = ui.lineEditThreadSpec->text();
+    const QString newCondition = dialog.condition();
+    const int newIgnoreCount = dialog.ignoreCount();
+    const int newThreadSpec = dialog.threadSpec();
 
     if (newCondition == oldCondition && newIgnoreCount == oldIgnoreCount
             && newThreadSpec == oldThreadSpec)
@@ -625,9 +655,8 @@ void BreakWindow::editBreakpoints(const BreakpointIds &ids)
 
     foreach (const BreakpointId id, ids) {
         handler->setCondition(id, newCondition.toLatin1());
-        handler->setIgnoreCount(id, newIgnoreCount.toInt());
-        handler->setThreadSpec(id,
-            BreakHandler::threadSpecFromDisplay(newThreadSpec));
+        handler->setIgnoreCount(id, newIgnoreCount);
+        handler->setThreadSpec(id, newThreadSpec);
     }
 }
 

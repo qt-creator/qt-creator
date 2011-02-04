@@ -100,6 +100,7 @@ public:
     int threadSpec;          // Thread specification.
     QString functionName;
     QString module;          // module for file name
+    QString command;         // command to execute
     bool tracepoint;
 };
 

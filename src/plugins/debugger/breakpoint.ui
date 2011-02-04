@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>700</width>
-    <height>401</height>
+    <width>543</width>
+    <height>427</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,181 +15,228 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QFormLayout" name="formLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="labelType">
-       <property name="text">
-        <string>Breakpoint &amp;type:</string>
-       </property>
-       <property name="buddy">
-        <cstring>comboBoxType</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="comboBoxType"/>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="labelFileName">
-       <property name="text">
-        <string>&amp;File name:</string>
-       </property>
-       <property name="buddy">
-        <cstring>pathChooserFileName</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="Utils::PathChooser" name="pathChooserFileName" native="true"/>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="labelLineNumber">
-       <property name="text">
-        <string>&amp;Line number:</string>
-       </property>
-       <property name="buddy">
-        <cstring>lineEditLineNumber</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="lineEditLineNumber"/>
-     </item>
-     <item row="3" column="1">
-      <widget class="QCheckBox" name="checkBoxEnabled">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="labelEnabled">
-       <property name="text">
-        <string>&amp;Enabled:</string>
-       </property>
-       <property name="buddy">
-        <cstring>checkBoxEnabled</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QCheckBox" name="checkBoxUseFullPath">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="labelUseFullPath">
-       <property name="text">
-        <string>&amp;Use full path:</string>
-       </property>
-       <property name="buddy">
-        <cstring>checkBoxUseFullPath</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="labelAddress">
-       <property name="text">
-        <string>&amp;Address:</string>
-       </property>
-       <property name="buddy">
-        <cstring>lineEditAddress</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QLineEdit" name="lineEditAddress"/>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="labelFunction">
-       <property name="text">
-        <string>Fun&amp;ction:</string>
-       </property>
-       <property name="buddy">
-        <cstring>lineEditFunction</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1">
-      <widget class="QLineEdit" name="lineEditFunction"/>
-     </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="labelCondition">
-       <property name="text">
-        <string>&amp;Condition:</string>
-       </property>
-       <property name="buddy">
-        <cstring>lineEditCondition</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="1">
-      <widget class="QLineEdit" name="lineEditCondition"/>
-     </item>
-     <item row="9" column="0">
-      <widget class="QLabel" name="labelIgnoreCount">
-       <property name="text">
-        <string>&amp;Ignore count:</string>
-       </property>
-       <property name="buddy">
-        <cstring>lineEditIgnoreCount</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="1">
-      <widget class="QLineEdit" name="lineEditIgnoreCount"/>
-     </item>
-     <item row="10" column="0">
-      <widget class="QLabel" name="labelThreadSpec">
-       <property name="text">
-        <string>&amp;Thread specification:</string>
-       </property>
-       <property name="buddy">
-        <cstring>lineEditThreadSpec</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="1">
-      <widget class="QLineEdit" name="lineEditThreadSpec"/>
-     </item>
-     <item row="11" column="1">
-      <widget class="QCheckBox" name="checkBoxTracepoint">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="11" column="0">
-      <widget class="QLabel" name="labelTracepoint">
-       <property name="text">
-        <string>T&amp;racepoint only:</string>
-       </property>
-       <property name="buddy">
-        <cstring>checkBoxTracepoint</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="labelModule">
-       <property name="text">
-        <string>&amp;Module:</string>
-       </property>
-       <property name="buddy">
-        <cstring>lineEditModule</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="1">
-      <widget class="QLineEdit" name="lineEditModule"/>
-     </item>
-    </layout>
+    <widget class="QGroupBox" name="groupBoxBasic">
+     <property name="title">
+      <string>Basic</string>
+     </property>
+     <layout class="QFormLayout" name="basicFormLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelType">
+        <property name="text">
+         <string>Breakpoint &amp;type:</string>
+        </property>
+        <property name="buddy">
+         <cstring>comboBoxType</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="comboBoxType"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="labelFileName">
+        <property name="text">
+         <string>&amp;File name:</string>
+        </property>
+        <property name="buddy">
+         <cstring>pathChooserFileName</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="Utils::PathChooser" name="pathChooserFileName"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="labelLineNumber">
+        <property name="text">
+         <string>&amp;Line number:</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditLineNumber</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="lineEditLineNumber"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="labelEnabled">
+        <property name="text">
+         <string>&amp;Enabled:</string>
+        </property>
+        <property name="buddy">
+         <cstring>checkBoxEnabled</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QCheckBox" name="checkBoxEnabled">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="labelAddress">
+        <property name="text">
+         <string>&amp;Address:</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditAddress</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="lineEditAddress"/>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="labelFunction">
+        <property name="text">
+         <string>Fun&amp;ction:</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditFunction</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLineEdit" name="lineEditFunction"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBoxAdvanced">
+     <property name="title">
+      <string>Advanced</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <layout class="QFormLayout" name="advancedFormLayout1">
+        <property name="fieldGrowthPolicy">
+         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+        </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelTracepoint">
+          <property name="text">
+           <string>T&amp;racepoint only:</string>
+          </property>
+          <property name="buddy">
+           <cstring>checkBoxTracepoint</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QCheckBox" name="checkBoxTracepoint">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="labelUseFullPath">
+          <property name="text">
+           <string>&amp;Use full path:</string>
+          </property>
+          <property name="buddy">
+           <cstring>checkBoxUseFullPath</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QCheckBox" name="checkBoxUseFullPath">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="labelModule">
+          <property name="text">
+           <string>&amp;Module:</string>
+          </property>
+          <property name="buddy">
+           <cstring>lineEditModule</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="lineEditModule"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="labelCommand">
+          <property name="text">
+           <string>&amp;Command:</string>
+          </property>
+          <property name="buddy">
+           <cstring>lineEditCommand</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="lineEditCommand"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QFormLayout" name="conditionFormLayout">
+        <property name="fieldGrowthPolicy">
+         <enum>QFormLayout::ExpandingFieldsGrow</enum>
+        </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelCondition">
+          <property name="text">
+           <string>C&amp;ondition:</string>
+          </property>
+          <property name="buddy">
+           <cstring>lineEditCondition</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="lineEditCondition"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="labelIgnoreCount">
+          <property name="text">
+           <string>&amp;Ignore count:</string>
+          </property>
+          <property name="buddy">
+           <cstring>spinBoxIgnoreCount</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="spinBoxIgnoreCount"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="labelThreadSpec">
+          <property name="text">
+           <string>T&amp;hread specification:</string>
+          </property>
+          <property name="buddy">
+           <cstring>lineEditThreadSpec</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="lineEditThreadSpec"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
      </property>
     </spacer>
    </item>
@@ -205,6 +252,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

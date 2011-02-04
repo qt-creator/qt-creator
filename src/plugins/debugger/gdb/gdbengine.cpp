@@ -2453,7 +2453,9 @@ void GdbEngine::handleBreakIgnore(const GdbResponse &response)
     //else if (msg.contains(__("Will ignore next")))
     //    response.ignoreCount = data->ignoreCount;
     // FIXME: this assumes it is doing the right thing...
-    br.ignoreCount = handler->ignoreCount(id);
+    const BreakpointParameters &parameters = handler->breakpointData(id);
+    br.ignoreCount = parameters.ignoreCount;
+    br.command = parameters.command;
     handler->setResponse(id, br);
     changeBreakpoint(id); // Maybe there's more to do.
 }
@@ -2643,6 +2645,19 @@ void GdbEngine::changeBreakpoint(BreakpointId id)
         postCommand("-break-delete " + bpnr,
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakThreadSpec), id);
+        return;
+    }
+    if (data.command != response.command) {
+        QByteArray breakCommand = "-break-commands " + bpnr;
+        foreach (const QString &command, data.command.split(QLatin1String("\\n"))) {
+            if (!command.isEmpty()) {
+                breakCommand.append(" \"");
+                breakCommand.append(command.toLatin1());
+                breakCommand.append('"');
+            }
+        }
+        postCommand(breakCommand, NeedsStop | RebuildBreakpointModel,
+                    CB(handleBreakIgnore), id);
         return;
     }
     if (!data.conditionsMatch(response.condition)) {
