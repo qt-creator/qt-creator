@@ -170,7 +170,8 @@ Only one declaration on each line.
 	potential of being more expensive then direct construction by
 	'QString a("joe")'. However the compiler is allowed to elide the copy
 	(even if it had side effects), and modern compilers typically do so.
-	Given these equal costs, Qt Creator code favours the '=' idiom as it is in
+	Given these equal costs, Qt Creator code favours the '=' idiom as
+        it is in
 	line with the traditional C-style initialization, _and_ cannot be
 	mistaken as function declaration, _and_ reduces the level of nested
 	parantheses in more initializations.]
@@ -196,8 +197,8 @@ Only one declaration on each line.
 \endcode
 
 
-  Using a plain 0 for Null pointer constants is always correct and least effort
-  to type. So:
+  Using a plain 0 for Null pointer constants is always correct and
+  least effort to type. So:
 \code
 	void *p = 0;
 	-NOT-
@@ -239,7 +240,7 @@ Only one declaration on each line.
 
   \o Class names are capitalized, and function names lowercased.
     Enums are named like Classes, values are in lower-case.
-\endlist
+ \endlist
 
 
 
@@ -247,16 +248,19 @@ Only one declaration on each line.
    We are using the Qt Coding style, please follow the guidelines below.
 
 Indentation
-  4 spaces, no tabs
+  Four spaces, no tabs.
 
 Declaring variables
-  Declare each variable on a separate line
-  Avoid short (e.g., a,rbarr,nughdeget) names whenever possible
-  Single character variable names are only okay for counters and temporaries, where the purpose of the variable is obvious
-  Wait with declaring a variable until it is needed
+ \list
+  \o Declare each variable on a separate line.
+  \o Avoid short (e.g., a, rbarr, nughdeget) names whenever possible.
+  \o Single character variable names are only okay for counters and
+     temporaries, where the purpose of the variable is obvious.
+  \o Wait with declaring a variable until it is needed.
+  \o Variables and functions start with a small letter.
+  \o Each consecutive word in a variable's name starts with a capital letter.
 
-  Variables and functions start with a small letter. Each consecutive word in a variable's name starts with a capital letter
-  Avoid abbreviations
+  \o Avoid abbreviations
 
     // Wrong
     int a, b;
@@ -267,11 +271,14 @@ Declaring variables
     int width;
     char *nameOfThis;
     char *nameOfThat;
+ \endlist
 
 Whitespace
-  Use blank lines to group statements together where suited
-  Always use only one blank line
-  Always use a single space after a keyword, and before a curly brace.
+ \list
+  \o Use blank lines to group statements together where suited.
+  \o Always use only one blank line.
+  \o Always use a single space after a keyword, and before a curly brace.
+ \endlist
 
 \code
     // Wrong
@@ -283,7 +290,8 @@ Whitespace
     }
 \endcode
 
-  For pointers or references, always use a single space before '*' or '&', but never after.
+  For pointers or references, always use a single space before '*' or '&',
+  but never after.
   Avoid C-style casts when possible.
 \code
     // Wrong
@@ -297,7 +305,8 @@ Whitespace
   option.
 
 Braces
-  As a base rule, the left curly brace goes on the same line as the start of the statement:
+  As a base rule, the left curly brace goes on the same line as the
+  start of the statement:
 \code
     // Wrong
     if (codec)
@@ -309,7 +318,8 @@ Braces
     }
 \endcode
 
-  Exception: Function implementations and class declarations always have the left brace on the start of a line:
+  Exception: Function implementations and class declarations always have
+  the left brace on the start of a line:
 \code
     static void foo(int g)
     {
@@ -321,7 +331,8 @@ Braces
     };
 \endcode
 
-  Use curly braces when the body of a conditional statement contains more than one line, and also if a single line statement is somewhat complex.
+  Use curly braces when the body of a conditional statement contains more
+  than one line, and also if a single line statement is somewhat complex.
 \code
     // Wrong
     if (address.isEmpty()) {
@@ -340,16 +351,32 @@ Braces
         qDebug("%i", i);
 \endcode
 
-  Exception 1: Use braces also if the parent statement covers several lines / wraps
+  Exception 1: Use braces also if the parent statement covers several
+  lines / wraps
 \code
     // Correct
-    if (address.isEmpty() || !isValid()
-        || !codec) {
+    if (address.isEmpty()
+            || !isValid()
+            || !codec)
         return false;
-    }
 \endcode
 
-  Exception 2: Use braces also in if-then-else blocks where either the if-code or the else-code covers several lines
+  Note: This could be re-written as:
+
+\code
+    // Als correct
+    if (address.isEmpty())
+        return false;
+
+    if (!isValid())
+        return false;
+
+    if (!codec)
+        return false;
+\endcode
+
+  Exception 2: Use braces also in if-then-else blocks where either the
+  if-code or the else-code covers several lines
 \code
     // Wrong
     if (address.isEmpty())
@@ -410,7 +437,9 @@ Parentheses
 
 Line breaks
   Keep lines shorter than 100 characters; insert line breaks if necessary.
-  Commas go at the end of a broken line; operators start at the beginning of the new line. The operator is at the end of the line to avoid having to scroll if your editor is too narrow.
+  Commas go at the end of a broken line; operators start at the beginning
+  of the new line. The operator is at the end of the line to avoid having
+  to scroll if your editor is too narrow.
 \code
     // Wrong
     if (longExpression +
@@ -495,36 +524,40 @@ the API that comes from the user, you need to convert it with
 QDir::fromNativeSeparators first. Whenever you present a file name to the user,
 you need to convert it back to native format with QDir::toNativeSeparators.
 
-When comparing file names consider using FileManager::fixFileName which makes
-sure that paths are clean and absolute and also takes Windows' case-insensitivity
-into account (but is an expensive operation).
+When comparing file names consider using FileManager::fixFileName which
+makes sure that paths are clean and absolute and also takes Windows'
+case-insensitivity into account (but is an expensive operation).
 
 \section2 Plugin extension points
 
-A plugin extension point is an interface that is provided by a plugin to
-be implemented by others. The plugin then retrieves all implementations of the interface
-and uses them, they "extend" the functionality of the plugin. A common pattern is
-that the implementations of the interface are put into the global object pool
-during plugin initialization, and the plugin retrieves them from the object pool at
-the end of plugin initialization.
+A plugin extension point is an interface that is provided by a plugin
+to be implemented by others. The plugin then retrieves all
+implementations of the interface and uses them, they "extend" the
+functionality of the plugin. A common pattern is that the
+implementations of the interface are put into the global object pool
+during plugin initialization, and the plugin retrieves them from the
+object pool at the end of plugin initialization.
 
-For example: The Find plugin provides the FindFilter interface for others to implement.
-With the FindFilter interface, additional search scopes can be added, that appear in
-the Advanced Search dialog. The Find plugin retrieves all FindFilter implementations
-(from the global object pool, see below) 
-and presents them in the dialog, forwarding the actual search request to the correct
-FindFilter implementation, which then performs the search.
+For example: The Find plugin provides the FindFilter interface for
+others to implement.  With the FindFilter interface, additional search
+scopes can be added, that appear in the Advanced Search dialog. The
+Find plugin retrieves all FindFilter implementations (from the global
+object pool, see below) and presents them in the dialog, forwarding the
+actual search request to the correct FindFilter implementation, which
+then performs the search.
 
 \section2 Using the global object pool
 
-You can add objects to the global object pool via \l{ExtensionSystem::PluginManager::addObject()},
-and retrieve objects of a specific type again via \l{ExtensionSystem::PluginManager::getObjects()}.
-This should mostly be used for implementations of \l{Plugin extension points}.
+You can add objects to the global object pool via
+\l{ExtensionSystem::PluginManager::addObject()}, and retrieve objects
+of a specific type again via
+\l{ExtensionSystem::PluginManager::getObjects()}.  This should mostly
+be used for implementations of \l{Plugin extension points}.
 
 Cases where you should not use it are:
 \list
-\o Singletons. Don't put a singleton into the pool, and don't retrieve it from there.
-   Use the singleton pattern instead.
+\o Singletons. Don't put a singleton into the pool, and don't retrieve
+   it from there.  Use the singleton pattern instead.
 \endlist
 
 */
