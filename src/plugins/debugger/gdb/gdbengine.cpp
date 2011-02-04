@@ -2715,6 +2715,7 @@ void GdbEngine::loadSymbols(const QString &moduleName)
     // FIXME: gdb does not understand quoted names here (tested with 6.8)
     postCommand("sharedlibrary " + dotEscape(moduleName.toLocal8Bit()));
     reloadModulesInternal();
+    reloadBreakListInternal();
     reloadStack(true);
     updateLocals();
 }
@@ -2723,6 +2724,7 @@ void GdbEngine::loadAllSymbols()
 {
     postCommand("sharedlibrary .*");
     reloadModulesInternal();
+    reloadBreakListInternal();
     reloadStack(true);
     updateLocals();
 }
@@ -2746,6 +2748,7 @@ void GdbEngine::loadSymbolsForStack()
     }
     if (needUpdate) {
         reloadModulesInternal();
+        reloadBreakListInternal();
         reloadStack(true);
         updateLocals();
     }
@@ -2835,10 +2838,6 @@ void GdbEngine::reloadModulesInternal()
 {
     m_modulesListOutdated = false;
     postCommand("info shared", NeedsStop, CB(handleModulesList));
-#if 0
-    if (m_gdbVersion < 70000 && !m_isMacGdb)
-        postCommand("set stop-on-solib-events 1");
-#endif
 }
 
 void GdbEngine::handleModulesList(const GdbResponse &response)
