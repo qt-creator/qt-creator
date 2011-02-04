@@ -58,7 +58,7 @@ enum {
 
 CPLUSPLUS_EXPORT int classifyObjectiveCContextKeyword(const char *s, int n);
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_OBJC_TYPEQUALIFIERS_H

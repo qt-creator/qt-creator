@@ -4320,6 +4320,6 @@ protected:
     virtual bool match0(AST *, ASTMatcher *);
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_AST_H

@@ -108,7 +108,7 @@ private:
     unsigned _endOffset;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_SCOPE_H

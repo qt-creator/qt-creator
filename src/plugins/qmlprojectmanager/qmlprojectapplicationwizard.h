@@ -76,7 +76,7 @@ protected:
     virtual bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 };
 
-} // end of namespace Internal
-} // end of namespace QmlProjectManager
+} // namespace Internal
+} // namespace QmlProjectManager
 
 #endif // QMLPROJECTAPPLICATIONWIZARD_H

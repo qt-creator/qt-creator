@@ -107,6 +107,6 @@ private:
     QScopedPointer<SyntaxHighlighterPrivate> d_ptr;
 };
 
-} // end of namespace TextEditor
+} // namespace TextEditor
 
 #endif // TEXTEDITOR_SYNTAXHIGHLIGHTER_H

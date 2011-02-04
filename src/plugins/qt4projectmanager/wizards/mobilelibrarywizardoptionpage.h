@@ -60,7 +60,7 @@ private:
     class MobileLibraryWizardOptionPagePrivate *m_d;
 };
 
-} // end of namespace Internal
-} // end of namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // MOBILELIBRARYWIZARDOPTIONPAGE_H

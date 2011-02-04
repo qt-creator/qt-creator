@@ -84,6 +84,6 @@ public:
     virtual Scope *asScope() { return this; }
 };
 
-} // end of namespace GLSL
+} // namespace GLSL
 
 #endif // GLSLSYMBOL_H

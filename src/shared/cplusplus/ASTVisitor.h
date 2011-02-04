@@ -396,7 +396,7 @@ private:
     TranslationUnit *_translationUnit;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_ASTVISITOR_H

@@ -45,7 +45,7 @@ namespace CppTools {
     class CppModelManagerInterface;
     class CppRefactoringFile;
     class CppRefactoringChanges;
-} // end of namespace CppTools
+} // namespace CppTools
 
 namespace ExtensionSystem {
 class IPlugin;
@@ -55,7 +55,7 @@ namespace CppEditor {
 
 namespace Internal {
 class CppQuickFixCollector;
-} // end of namespace Internal
+} // namespace Internal
 
 class CPPEDITOR_EXPORT CppQuickFixState: public TextEditor::QuickFixState
 {

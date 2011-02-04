@@ -174,7 +174,7 @@ private:
     bool m_networkEnabled;
 };
 
-} // end of namespace Internal
-} // end of namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // ABSTRACTMOBILEAPP_H

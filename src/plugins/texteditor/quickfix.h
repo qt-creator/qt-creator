@@ -177,6 +177,6 @@ private:
     QList<QuickFixOperation::Ptr> _quickFixes;
 };
 
-} // end of namespace TextEditor
+} // namespace TextEditor
 
 #endif // TEXTEDITORQUICKFIX_H

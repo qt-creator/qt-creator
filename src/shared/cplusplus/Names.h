@@ -269,6 +269,6 @@ private:
     bool _hasArguments;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_NAMES_H

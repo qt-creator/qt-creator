@@ -113,6 +113,6 @@ CPLUSPLUS_EXPORT const Name *rewriteName(const Name *name,
 // 'std::string'.
 CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn);
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif

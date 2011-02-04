@@ -172,6 +172,6 @@ private:
     unsigned _flushLine;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_CHECKSYMBOLS_H

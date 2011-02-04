@@ -95,7 +95,7 @@ protected:
                      QStringList *paths) const;
 };
 
-} // end of namespace Internal
-} // end of namespace GenericProjectManager
+} // namespace Internal
+} // namespace GenericProjectManager
 
 #endif // GENERICPROJECTWIZARD_H

@@ -62,7 +62,7 @@ private:
     class MobileAppWizardPrivate *m_d;
 };
 
-} // end of namespace Internal
-} // end of namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // MOBILEAPPWIZARD_H

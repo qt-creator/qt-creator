@@ -880,7 +880,7 @@ private:
     int _propertyAttributes;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_SYMBOLS_H

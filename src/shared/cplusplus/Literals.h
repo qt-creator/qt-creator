@@ -147,7 +147,7 @@ protected:
     virtual void accept0(NameVisitor *visitor) const;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_LITERALS_H

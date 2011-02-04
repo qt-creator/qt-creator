@@ -308,6 +308,6 @@ private:
     bool _skipFunctionBodies;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_BIND_H

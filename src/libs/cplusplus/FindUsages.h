@@ -304,7 +304,7 @@ private:
     Scope *_currentScope;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_FINDUSAGES_H
 

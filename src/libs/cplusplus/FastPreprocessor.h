@@ -79,6 +79,6 @@ public:
     virtual void stopSkippingBlocks(unsigned) {}
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_FASTPREPROCESSOR_H

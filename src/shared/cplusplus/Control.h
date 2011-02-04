@@ -235,7 +235,7 @@ private:
     Data *d;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_CONTROL_H

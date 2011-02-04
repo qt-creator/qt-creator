@@ -51,6 +51,6 @@ private:
     Symbol *_symbol;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_SYMBOLNAMEVISITOR_H

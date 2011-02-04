@@ -112,6 +112,6 @@ private:
     QList<DiagnosticMessage> *_diagnosticMessages;
 };
 
-} // end of namespace Qml
+} // namespace Qml
 
 #endif // QMLBIND_H

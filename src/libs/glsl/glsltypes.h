@@ -296,6 +296,6 @@ private:
     QVector<Function *> _functions;
 };
 
-} // end of namespace GLSL
+} // namespace GLSL
 
 #endif // GLSLTYPES_H

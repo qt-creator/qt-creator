@@ -108,7 +108,7 @@ private:
 };
 
 
-} // end of namespace Internal
-} // end of namespace QmlJSEditor
+} // namespace Internal
+} // namespace QmlJSEditor
 
 #endif // QMLJSCODECOMPLETION_H

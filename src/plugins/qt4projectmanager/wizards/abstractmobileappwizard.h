@@ -106,7 +106,7 @@ private:
         QString *errorMessage)=0;
 };
 
-} // end of namespace Internal
-} // end of namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // ABSTRACTMOBILEAPPWIZARD_H

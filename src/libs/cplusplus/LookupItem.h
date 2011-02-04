@@ -80,7 +80,7 @@ private:
 
 uint qHash(const CPlusPlus::LookupItem &result);
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #if defined(Q_CC_MSVC) && _MSC_VER <= 1300
 //this ensures that code outside QmlJS can use the hash function

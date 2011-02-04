@@ -53,7 +53,7 @@ namespace QmlJSEditor {
 
 namespace Internal {
 class QmlJSQuickFixCollector;
-} // end of namespace Internal
+} // namespace Internal
 
 /*!
     Specialized QuickFixState for QML/JavaScript quick-fixes.
@@ -161,7 +161,7 @@ public:
     static void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
 };
 
-} // end of namespace Internal
-} // end of namespace QmlJSEditor
+} // namespace Internal
+} // namespace QmlJSEditor
 
 #endif // QMLJSQUICKFIX_H

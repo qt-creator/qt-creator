@@ -56,6 +56,6 @@ private:
     Document::Ptr _document;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_SNAPSHOTSYMBOLVISITOR_H

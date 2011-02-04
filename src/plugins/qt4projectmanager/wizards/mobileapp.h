@@ -83,7 +83,7 @@ private:
     QList<AbstractGeneratedFileInfo> updateableFiles(const QString &mainProFile) const;
 };
 
-} // end of namespace Internal
-} // end of namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // MOBILEAPP_H

@@ -222,5 +222,5 @@ void AbstractMobileAppWizard::useProjectPath(const QString &projectName,
     projectPathChanged(app()->path(AbstractMobileApp::AppPro));
 }
 
-} // end of namespace Internal
-} // end of namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager

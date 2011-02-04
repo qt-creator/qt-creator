@@ -82,7 +82,7 @@ private:
     QScopedPointer<LookupContextData> d;
 };
 
-} // end of namespace QmlJS
+} // namespace QmlJS
 
 #endif // QMLJSLOOKUPCONTEXT_H
 

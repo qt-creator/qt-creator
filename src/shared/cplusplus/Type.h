@@ -146,7 +146,7 @@ protected:
     virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const = 0;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_TYPE_H

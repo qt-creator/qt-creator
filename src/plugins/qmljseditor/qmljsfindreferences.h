@@ -48,7 +48,7 @@ QT_FORWARD_DECLARE_CLASS(QTimer)
 namespace Find {
     class SearchResultWindow;
     struct SearchResultItem;
-} // end of namespace Find
+} // namespace Find
 
 namespace QmlJSEditor {
 
@@ -96,6 +96,6 @@ private:
     QFutureWatcher<Usage> m_watcher;
 };
 
-} // end of namespace QmlJSEditor
+} // namespace QmlJSEditor
 
 #endif // QMLJSFINDREFERENCES_H

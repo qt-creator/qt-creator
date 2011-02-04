@@ -160,7 +160,7 @@ private:
     unsigned _currentLine;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_LEXER_H

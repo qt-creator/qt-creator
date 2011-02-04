@@ -57,6 +57,6 @@ private:
     bool shouldInsertNewline(const QTextCursor &tc) const;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // MATCHINGTEXT_H

@@ -72,6 +72,6 @@ public:
     bool isEqualTo(const Name *name, const Name *otherName) const;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // TYPEMATCHER_H

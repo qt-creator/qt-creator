@@ -109,6 +109,6 @@ private:
     QVector<OverloadSet *> _overloadSets;
 };
 
-} // end of namespace GLSL
+} // namespace GLSL
 
 #endif // GLSLSYMBOLS_H

@@ -418,7 +418,7 @@ private:
     std::vector<Token> _tokens;
 };
 
-} // end of namespace GLSL
+} // namespace GLSL
 :/
 
 /.

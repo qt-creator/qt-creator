@@ -357,7 +357,7 @@ public:
     };
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_TOKEN_H

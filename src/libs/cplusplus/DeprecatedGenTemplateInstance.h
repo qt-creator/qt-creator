@@ -62,6 +62,6 @@ private:
     const Substitution _substitution;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_DEPRECATEDGENTEMPLATEINSTANCE_H

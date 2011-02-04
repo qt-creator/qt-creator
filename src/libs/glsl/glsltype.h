@@ -66,6 +66,6 @@ public:
     virtual bool isLessThan(const Type *other) const = 0;
 };
 
-} // end of namespace GLSL
+} // namespace GLSL
 
 #endif // GLSLTYPE_H

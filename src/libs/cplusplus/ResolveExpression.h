@@ -128,6 +128,6 @@ private:
     bool _reference;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_RESOLVEEXPRESSION_H

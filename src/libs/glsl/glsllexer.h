@@ -136,6 +136,6 @@ private:
     Value _yyval;
 };
 
-} // end of namespace GLSL
+} // namespace GLSL
 
 #endif // GLSLLEXER_H

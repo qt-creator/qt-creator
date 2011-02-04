@@ -99,6 +99,6 @@ private:
     QTextCharFormat m_formats[NumFormats];
 };
 
-} // end of namespace QmlJSEditor
+} // namespace QmlJSEditor
 
 #endif // QSCRIPTSYNTAXHIGHLIGHTER_H

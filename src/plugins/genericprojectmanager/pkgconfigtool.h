@@ -66,7 +66,7 @@ private:
     mutable QList<Package> m_packages;
 };
 
-} // end of namespace Internal
-} // end of namespace GenericProjectManager
+} // namespace Internal
+} // namespace GenericProjectManager
 
 #endif // PKGCONFIGTOOL_H

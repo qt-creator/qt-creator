@@ -354,7 +354,7 @@ private:
     friend class SymbolTable;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_SYMBOL_H

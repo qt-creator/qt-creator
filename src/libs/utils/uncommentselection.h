@@ -75,6 +75,6 @@ QTCREATOR_UTILS_EXPORT
 void unCommentSelection(QPlainTextEdit *edit,
                         const CommentDefinition &definiton = CommentDefinition());
 
-} // end of namespace Utils
+} // namespace Utils
 
 #endif // UNCOMMENTSELECTION_H

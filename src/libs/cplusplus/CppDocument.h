@@ -397,6 +397,6 @@ private:
     _Base _documents;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_CPPDOCUMENT_H

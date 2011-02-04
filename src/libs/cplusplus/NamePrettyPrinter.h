@@ -66,6 +66,6 @@ private:
     QString _name;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_NAMEPRETTYPRINTER_H

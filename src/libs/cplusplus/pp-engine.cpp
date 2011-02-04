@@ -133,7 +133,7 @@ struct Value
 #undef PP_DEFINE_BIN_OP
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 using namespace CPlusPlus;

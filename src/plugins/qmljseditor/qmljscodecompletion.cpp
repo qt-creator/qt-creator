@@ -485,7 +485,7 @@ void FunctionArgumentWidget::updateHintText()
     m_popupFrame->move(pos);
 }
 
-} } // end of namespace QmlJSEditor::Internal
+} } // namespace QmlJSEditor::Internal
 
 CodeCompletion::CodeCompletion(ModelManagerInterface *modelManager, QObject *parent)
     : TextEditor::ICompletionCollector(parent),

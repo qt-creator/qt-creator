@@ -128,7 +128,7 @@ public:
     void operator delete(void *, MemoryPool *);
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_MEMORYPOOL_H

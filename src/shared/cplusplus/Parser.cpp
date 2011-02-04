@@ -134,7 +134,7 @@ enum {
     Multiplicative  = 13,
     PointerToMember = 14
 };
-} // end of namespace Precedece
+} // namespace Precedece
 
 inline int precedence(int tokenKind, bool templateArguments)
 {

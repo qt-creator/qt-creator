@@ -89,6 +89,6 @@ private:
     bool _needsParens;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_TYPEPRETTYPRINTER_H

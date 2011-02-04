@@ -81,6 +81,6 @@ private:
     bool _endedJoined: 1;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_SIMPLELEXER_H

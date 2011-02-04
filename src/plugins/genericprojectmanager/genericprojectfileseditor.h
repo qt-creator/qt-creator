@@ -128,7 +128,7 @@ private:
     Manager *m_manager;
 };
 
-} // end of namespace Internal
-} // end of namespace GenericProjectManager
+} // namespace Internal
+} // namespace GenericProjectManager
 
 #endif // GENERICPROJECTFILESEDITOR_H

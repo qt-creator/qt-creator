@@ -93,7 +93,7 @@ public:
     virtual void visit(ObjCForwardProtocolDeclaration*) {}
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_TYPEVISITOR_H

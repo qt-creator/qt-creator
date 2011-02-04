@@ -1018,6 +1018,6 @@ public:
     ImportInfo importInfo(const QString &name, const Context *context) const;
 };
 
-} } // end of namespace QmlJS::Interpreter
+} } // namespace QmlJS::Interpreter
 
 #endif // QMLJS_INTERPRETER_H

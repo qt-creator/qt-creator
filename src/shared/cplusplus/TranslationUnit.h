@@ -216,7 +216,7 @@ private:
     };
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_TRANSLATIONUNIT_H

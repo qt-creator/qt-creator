@@ -45,7 +45,7 @@ namespace Interpreter {
     class Value;
     class ObjectValue;
     class FunctionValue;
-} // end of namespace Interpreter
+} // namespace Interpreter
 
 class QMLJS_EXPORT Evaluate: protected AST::Visitor
 {
@@ -165,6 +165,6 @@ private:
     const Interpreter::Value *_result;
 };
 
-} // end of namespace Qml
+} // namespace Qml
 
 #endif // QMLCheck_H

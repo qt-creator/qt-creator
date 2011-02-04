@@ -79,7 +79,7 @@ public:
                         const char *format, va_list ap) = 0;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_DIAGNOSTICCLIENT_H

@@ -91,7 +91,7 @@ protected:
     virtual void accept0(NameVisitor *visitor) const = 0;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_NAME_H

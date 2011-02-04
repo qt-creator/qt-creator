@@ -79,6 +79,6 @@ private:
     Icons _icons;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_OVERVIEWMODEL_H

@@ -53,7 +53,7 @@ struct pp_frame
 };
 
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 using namespace CPlusPlus;
 

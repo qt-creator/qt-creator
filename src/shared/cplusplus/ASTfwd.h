@@ -239,7 +239,7 @@ typedef List<ObjCPropertyAttributeAST *> ObjCPropertyAttributeListAST;
 typedef List<ObjCMessageArgumentDeclarationAST *> ObjCMessageArgumentDeclarationListAST;
 typedef List<ObjCSynthesizedPropertyAST *> ObjCSynthesizedPropertyListAST;
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_ASTFWD_H

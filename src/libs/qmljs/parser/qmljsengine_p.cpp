@@ -207,6 +207,6 @@ void Engine::setNodePool(NodePool *nodePool)
 
 
 
-} // end of namespace QmlJS
+} // namespace QmlJS
 
 QT_QML_END_NAMESPACE

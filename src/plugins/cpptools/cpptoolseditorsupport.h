@@ -54,7 +54,7 @@ namespace CPlusPlus {
 namespace TextEditor {
     class ITextEditor;
     class ITextMark;
-} // end of namespace TextEditor
+} // namespace TextEditor
 
 namespace CppTools {
 namespace Internal {

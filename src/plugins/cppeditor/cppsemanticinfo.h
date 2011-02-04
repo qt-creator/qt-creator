@@ -80,7 +80,7 @@ public:
     QList<CPlusPlus::Document::DiagnosticMessage> diagnosticMessages;
 };
 
-} // end of namespace Internal
-} // end of namespace CppEditor;
+} // namespace Internal
+} // namespace CppEditor;
 
 #endif // CPPSEMANTICINFO_H

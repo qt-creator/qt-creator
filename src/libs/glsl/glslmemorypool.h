@@ -108,7 +108,7 @@ public:
     void operator delete(void *, MemoryPool *);
 };
 
-} // end of namespace GLSL
+} // namespace GLSL
 
 
 #endif // GLSLMEMORYPOOL_H

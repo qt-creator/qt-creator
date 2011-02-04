@@ -252,6 +252,6 @@ private:
     QSharedPointer<Control> _control;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_LOOKUPCONTEXT_H

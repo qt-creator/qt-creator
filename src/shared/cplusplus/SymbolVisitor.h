@@ -102,7 +102,7 @@ public:
     virtual bool visit(ObjCPropertyDeclaration *) { return true; }
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // SYMBOLVISITOR_H

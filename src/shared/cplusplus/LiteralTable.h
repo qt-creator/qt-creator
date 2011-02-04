@@ -195,7 +195,7 @@ protected:
     int _allocatedBuckets;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_LITERALTABLE_H

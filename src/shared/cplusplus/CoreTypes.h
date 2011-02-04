@@ -289,6 +289,6 @@ private:
     const Name *_name;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_CORETYPES_H

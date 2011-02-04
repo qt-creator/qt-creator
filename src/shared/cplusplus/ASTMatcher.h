@@ -183,6 +183,6 @@ public:
     virtual bool match(BracedInitializerAST *node, BracedInitializerAST *pattern);
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // ASTMATCHER_H

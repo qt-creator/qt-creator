@@ -1299,6 +1299,6 @@ public:
 
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_AST_PATTERN_BUILDER_H

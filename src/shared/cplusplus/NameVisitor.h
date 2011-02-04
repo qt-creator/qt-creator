@@ -81,7 +81,7 @@ public:
     virtual void visit(const SelectorNameId *) {}
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 
 #endif // CPLUSPLUS_NAMEVISITOR_H

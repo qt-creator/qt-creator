@@ -100,6 +100,6 @@ private:
     bool _showTemplateParameters: 1;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_OVERVIEW_H

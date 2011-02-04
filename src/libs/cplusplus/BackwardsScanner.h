@@ -90,6 +90,6 @@ private:
     int _startToken;
 };
 
-} // end of namespace CPlusPlus
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_BACKWARDSSCANNER_H

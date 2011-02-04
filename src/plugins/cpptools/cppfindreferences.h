@@ -49,7 +49,7 @@ QT_FORWARD_DECLARE_CLASS(QTimer)
 namespace Find {
     class SearchResultWindow;
     struct SearchResultItem;
-} // end of namespace Find
+} // namespace Find
 
 namespace CPlusPlus {
 class CppModelManagerInterface;
@@ -100,7 +100,7 @@ private:
     CPlusPlus::DependencyTable m_deps;
 };
 
-} // end of namespace Internal
-} // end of namespace CppTools
+} // namespace Internal
+} // namespace CppTools
 
 #endif // CPPFINDREFERENCES_H
