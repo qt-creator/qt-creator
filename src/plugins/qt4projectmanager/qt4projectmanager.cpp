@@ -245,7 +245,8 @@ ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName)
         }
     }
 
-    updateBoilerPlateCodeFiles(QmlStandaloneApp(), canonicalFilePath);
+    QmlStandaloneApp app;
+    updateBoilerPlateCodeFiles(app, canonicalFilePath);
 
     Qt4Project *pro = new Qt4Project(this, canonicalFilePath);
     return pro;
