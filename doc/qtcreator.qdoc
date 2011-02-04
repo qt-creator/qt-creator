@@ -5955,6 +5955,7 @@
 
 /*!
     \contentspage index.html
+    \previouspage creator-developing-symbian.html
     \page creator-project-managing-sessions.html
     \nextpage creator-project-wizards.html
 
@@ -7316,6 +7317,7 @@
     \contentspage index.html
     \previouspage creator-project-cmake.html
     \page creator-project-generic.html
+    \nextpage creator-developing-maemo.html
 
     \title Setting Up a Generic Project
 
