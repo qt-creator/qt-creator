@@ -194,27 +194,19 @@ QString Qt4Manager::mimeType() const
     return QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE);
 }
 
-static void updateBoilerPlateCodeFiles(const AbstractMobileApp *app, const QString proFile)
+static void updateBoilerPlateCodeFiles(const AbstractMobileApp *app, const QString &proFile)
 {
     const QList<AbstractGeneratedFileInfo> updates =
             app->fileUpdates(proFile);
     if (!updates.empty()) {
-        // TODO Translate the folloing strings when we want to keep the code
-        QString message = QLatin1String("The following files are either outdated or have been modified:");
-        message.append(QLatin1String("<ul>"));
-        foreach (const AbstractGeneratedFileInfo &info, updates) {
-            QStringList reasons;
-            if (info.statedChecksum != info.dataChecksum)
-                reasons.append(QLatin1String("modified"));
-            if (info.version != info.currentVersion)
-                reasons.append(QLatin1String("outdated"));
-            message.append(QString::fromLatin1("<li><nobr>%1 (%2)</nobr></li>")
-                           .arg(QDir::toNativeSeparators(info.fileInfo.canonicalFilePath()))
-                           .arg(reasons.join(QLatin1String(", "))));
-        }
-        message.append(QLatin1String("</ul>"));
-        message.append(QLatin1String("Do you want Qt Creator to update the files? Any changes will be lost."));
-        const QString title = QLatin1String("Update of the QmlApplicationView files");
+        const QString title = Qt4Manager::tr("Update of generated files");
+        QStringList fileNames;
+        foreach (const AbstractGeneratedFileInfo &info, updates)
+            fileNames.append(QDir::toNativeSeparators(info.fileInfo.fileName()));
+        const QString message =
+                Qt4Manager::tr("The following files are either outdated or have been modified:<br><br>%1"
+                               "<br><br>Do you want Qt Creator to update the files? Any changes will be lost.")
+                .arg(fileNames.join(QLatin1String(", ")));
         if (QMessageBox::question(0, title, message, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
             QString error;
             if (!app->updateFiles(updates, error))
