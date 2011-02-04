@@ -75,8 +75,7 @@ See http://qt.gitorious.org/qt/pages/QtContributionGuidelines
 
 We have several guidelines on code constructs, some of these exist to
 make the code faster, others to make the code clearer. Yet others
-exist to allow us to take advantage of the strong type checking
-in C++.
+exist to allow us to take advantage of the strong type checking in C++.
 
 \list 1
 \o Declaration of variables should wait as long as possible. The rule
@@ -147,34 +146,59 @@ in C++.
 
 \section1 Formatting
 
-\section2 Declarations
+\section2 Naming rules
 
-Only one declaration on each line.
-\code
-	int a;
-	int b;
-	-NOT-
-	int a, b; // not used in Qt Creator
-\endcode
+ \list
+  \o Class names are capitalized, and function names lowercased.
+  \o Variables and functions start with a lower case letter.
+  \o Enums are named like Classes, values are in loweri case, containing
+      some part of the name of the enum type.
+ \endlist
 
-  This is especially important when initialization is done at the same
-  time.
-\code
-	QString a = "Joe";
-	QString b = "Foo";
-	-NOT-
-	QString a = "Joe", b = "Foo"; // not used in Qt Creator
-\endcode
+
+\section2 Declaration of variables
+
+ \list
+  \o Each consecutive word in a variable's name starts with a capital letter.
+
+  \o Avoid short (e.g., a, rbarr, nughdeget) names whenever possible.
+     Single character variable names are only okay for counters and
+     temporaries, where the purpose of the variable is obvious.
+
+  \o Declare each variable on a separate line.
+        \code
+            QString a = "Joe";
+            QString b = "Foo";
+            -NOT-
+            QString a = "Joe", b = "Foo"; // not used in Qt Creator
+        \endcode
 	[Note that 'QString a = "Joe"' is formally calling a copy constructor
 	on a temporary constructed from a string literal and therefore has the
 	potential of being more expensive then direct construction by
-	'QString a("joe")'. However the compiler is allowed to elide the copy
+	'QString a("Joe")'. However the compiler is allowed to elide the copy
 	(even if it had side effects), and modern compilers typically do so.
 	Given these equal costs, Qt Creator code favours the '=' idiom as
         it is in
 	line with the traditional C-style initialization, _and_ cannot be
 	mistaken as function declaration, _and_ reduces the level of nested
 	parantheses in more initializations.]
+
+  \o Avoid abbreviations
+
+    // Wrong
+    int a, b;
+    char *c, *d;
+
+    // Correct
+    int height;
+    int width;
+    char *nameOfThis;
+    char *nameOfThat;
+
+  \o Wait with declaring a variable until it is needed. This is especially
+     important when initialization is done at the same time.
+ \endlist
+
 
 
 \section2  Pointers and references
@@ -186,8 +210,6 @@ Only one declaration on each line.
 	char* p = "flop"; // not used in Qt Creator
 	char & c = *p;     // not used in Qt Creator
 \endcode
-
-  This is simply in line with the official Qt guide lines.
 
   Also note that we will have:
 \code
@@ -232,48 +254,12 @@ Only one declaration on each line.
 
 
 
-\section2 Naming rules
-
-  Simply follow the style of Qt proper. As examples:
- \list
-  \o Use descriptive but simple and short names. Do not abbreviate.
-
-  \o Class names are capitalized, and function names lowercased.
-    Enums are named like Classes, values are in lower-case.
- \endlist
-
-
-
-\section2 Formatting
-   We are using the Qt Coding style, please follow the guidelines below.
-
-Indentation
+\section2 Indentation
   Four spaces, no tabs.
 
-Declaring variables
- \list
-  \o Declare each variable on a separate line.
-  \o Avoid short (e.g., a, rbarr, nughdeget) names whenever possible.
-  \o Single character variable names are only okay for counters and
-     temporaries, where the purpose of the variable is obvious.
-  \o Wait with declaring a variable until it is needed.
-  \o Variables and functions start with a small letter.
-  \o Each consecutive word in a variable's name starts with a capital letter.
 
-  \o Avoid abbreviations
 
-    // Wrong
-    int a, b;
-    char *c, *d;
-
-    // Correct
-    int height;
-    int width;
-    char *nameOfThis;
-    char *nameOfThat;
- \endlist
-
-Whitespace
+\section2 Whitespace
  \list
   \o Use blank lines to group statements together where suited.
   \o Always use only one blank line.
@@ -419,7 +405,8 @@ Braces
     while (a) {}
 \endcode
 
-Parentheses
+
+\section2 Parentheses
   Use parentheses to group expressions:
 \code
     // Wrong
@@ -435,7 +422,8 @@ Parentheses
     (a + b) & c
 \endcode
 
-Line breaks
+
+\section2 Line breaks
   Keep lines shorter than 100 characters; insert line breaks if necessary.
   Commas go at the end of a broken line; operators start at the beginning
   of the new line. The operator is at the end of the line to avoid having
@@ -559,5 +547,324 @@ Cases where you should not use it are:
 \o Singletons. Don't put a singleton into the pool, and don't retrieve
    it from there.  Use the singleton pattern instead.
 \endlist
+
+
+\section2 C++ features
+
+  \list
+    \o Don’t use exceptions _unless you know what you do_.
+    \o Don’t use RTTI (Run-Time Type Information; that is, the typeinfo
+       struct, the dynamic_cast or the typeid operators, including throwing
+       exceptions) _unless you know what you do_.
+    \o Use templates wisely, not just because you can.
+
+     Hint: Use the compile autotest to see whether a C++ feature is supported
+     by all compilers in the test farm.
+
+    \o All code is ascii only (7-bit characters only, run man ascii if unsure)
+      \list
+          \o Rationale: We have too many locales inhouse and an unhealthy
+             mix of UTF-8 and latin1 systems. Usually, characters > 127 can
+             be broken without you even knowing by clicking SAVE in your
+             favourite editor.
+          \o For strings: Use \nnn (where nnn is the octal representation
+             of whatever locale you want your string in) or \xnn (where nn
+             is hexadecimal).
+             Example: QString s = QString::fromUtf8("\213\005");
+          \o For umlauts in documentation, or other non-ASCII characters,
+             either use qdoc’s \unicode command or use the relevant macro;
+             e.g. \uuml for ü
+       \endlist
+
+    \o Avoid the use of anonymous namespaces in favor of the static keyword
+       if possible. A name localized to the compilation unit with static is
+       guaranteed to have internal linkage. For names declared in anonymous
+       namespaces the C++ standard unfortunately mandates external linkage.
+       (7.1.1/6, or see various discussions about this on the gcc mailing
+       lists)
+
+   \endlist
+
+
+\section2 QObject usage
+
+  \list
+
+    \o Every QObject subclass must have a Q_OBJECT macro, even if it
+       doesn’t have signals or slots, if it is intended to be used
+       with qobject_cast<>.
+
+    \o Normalize the arguments for signals + slots
+       (see QMetaObject::normalizedSignature) inside connect statements
+       to safe a few cycles faster signal/slot lookups.
+       You can use $QTDIR/util/normalize to normalize existing code.
+
+   \endlist
+
+
+\section2 Including headers
+
+   \list
+     \o Prefer use this form to include Qt headers:
+        \c{#include <QtCore/QWhatEver>}.
+     \o Order includes from most-specific to least-specific, i.e.
+        \list
+           \o \c{#include "myclass.h"}
+           \o \c{#include "otherclassinplugin.h"}
+           \o \c{#include <otherplugin/someclass.h>"}
+           \o \c{#include <QtModule/QtClass>"}
+           \o \c{#include <stdthing>"}
+           \o \c{#include <system.h>"}
+         \endif
+         Add empty line between long blocks and try to keep
+         alphabetical order within a block.
+   \endlist
+
+\section2 Casting
+
+   \list
+    \o Avoid C casts, prefer C++ casts (static_cast, const_cast,
+       reinterpret_cast) Rationale: Both reinterpret_cast and
+       C-style casts are dangerous, but at least reinterpret_cast
+       won’t remove the const modifier.
+    \o Don’t use dynamic_cast, use qobject_cast for QObjects or
+       refactor your design, for example by introducing a type()
+       method (see QListWidgetItem) _unless you know what you do_.
+   \endlist
+
+
+\section Compiler/Platform specific issues
+
+   \list
+     \o Be extremely careful when using the question mark operator.
+         If the returned types aren’t identical, some compilers generate
+         code that crashes at runtime (you won’t even get a compiler warning).
+        \code
+        QString s;
+        // crash at runtime - QString vs. const char *
+        return condition ? s : "nothing";
+        \endcode
+
+    \o Be extremely careful about alignment.
+
+       Whenever a pointer is cast such that the required alignment of
+       the target is increased, the resulting code might crash at runtime
+       on some architectures. For example, if a const char * is cast to an
+       const int *, it’ll crash on machines where integers have to be
+       aligned at a two- or four-byte boundaries.
+
+       Use a union to force the compiler to align variables correctly.
+       In the example below, you can be sure that all instances of
+       AlignHelper are aligned at integer-boundaries.
+        \code
+            union AlignHelper
+            {
+                char c;
+                int i;
+            };
+        \endcode
+
+    \o Anything that has a constructor or needs to run code to be
+       initialized cannot be used as global object in library code,
+       since it is undefined when that constructor/code will be run
+       (on first usage, on library load, before main() or not at all).
+
+       Even if the execution time of the initializer is defined for
+       shared libraries, you’ll get into trouble when moving that code
+       in a plugin or if the library is compiled statically:
+
+        \code
+          // global scope
+          // Wrong - default constructor needs to be run to initialize x:
+          static const QString x;
+
+          // Wrong - constructor that takes a const char * has to be run  :
+          static const QString y = "Hello";
+
+          // Super wrong:
+          QString z;
+
+          // Wrong, call time of foo() undefined, might not be called at all:
+          static const int i = foo();
+        \endcode
+
+    Things you can do:
+
+      \code
+        // global scope
+        // Works - no constructor must be run, x set at compile time:
+        static const char x[] = "someText";
+
+        // Works - y will be set at compile time:
+        static int y = 7;
+
+        // Works - will be initialized statically, no code being run.
+        static MyStruct s = {1, 2, 3};
+
+        // Pointers to objects are ok, no code needed to be run to
+        // initialize ptr:
+        static QString *ptr = 0;
+
+        // Use Q_GLOBAL_STATIC to create static global objects instead:
+
+        Q_STATIC_GLOBAL(QString, s)
+
+        void foo()
+        {
+            s()->append("moo");
+        }
+      \endcode
+
+    Note: Static objects in function scope are no problem, the constructor
+    will be run the first time the function is
+    entered. The code is not reentrant, though.
+
+
+  \o A char is signed or unsigned dependent on the architecture. Use signed
+     char or uchar if you explicitely want a signed/unsigned char.
+     The following code will break on PPC, for example:
+
+     \code
+      char c = 'A';
+      // WRONG - condition is always true on platforms where the
+      // default is unsigned:
+      if (c < 0) { ... }
+     \endcode
+
+  \o Try to avoid 64-bit enum values. The aapcs embedded ABI hard codes
+     all enum values to a 32-bit integer.
+ \endlist
+
+
+\section2 Aestethics
+
+  \list
+
+    \o Prefer enums to define constants over static const int or defines.
+       enum values will be replaced by the compiler at compile time,
+       resulting in faster code defines are not namespace safe (and look ugly).
+    \o Prefer verbose argument names in headers.
+       Qt Creator will show the argument names in their completion-box.
+       It will look better in the documentation.
+
+   \endlist
+
+
+\section2 Things to avoid
+
+   \list
+     \o Do not inherit from template/tool classes _unless you know what
+        you do_. Possible pitfalls: The destructors are not virtual,
+        leading to potential memory leaks. The symbols are not exported
+        (and mostly inline), leading to interesting symbol clashes.
+        Example: Library A has class Q_EXPORT X: public QList<QVariant> {};
+        and library B has class Q_EXPORT Y: public QList<QVariant> {};.
+        Suddenly, QList’s symbols are exported from two libraries – /clash/.
+      \o Don’t mix const and non-const iterators. This will silently crash
+         on broken compilers.
+
+        \code
+        // Wrong:
+      for (Container::const_iterator it = c.begin(); it != c.end(); ++it)
+        // Correct:
+      for (Container::const_iterator it = c.constBegin(); it != c.constEnd(); ++it)
+        \endcode
+    \endlist
+
+\section2 Binary and Source Compatibility:
+
+  \list
+    \o Definitions:
+        \list
+          \o Qt 4.0.0 is a major release, Qt 4.1.0 is a minor release,
+             Qt 4.1.1 is a patch release.
+          \o Backward binary compatibility: Code linked to an earlier
+             version of the library keeps working.
+          \o Forward binary compatibility: Code linked to a newer
+             version of the library works with an older library.
+          \o Source code compatibility: Code compiles without modification.
+        \endlist
+
+    \o TRY TO keep backward binary compatibility and backward source code
+        compatibility in minor releases.
+        NOTE: This is not yet mandatory.
+
+    \o TRY TO Keep backward and forward binary compatibility and forward
+        and backward source code compatibility in patch releases
+        \list
+          \o Don’t add/remove any public API (e.g. global functions,x
+              public/protected/private methods)
+          \o Don’t reimplement methods (not even inlines,
+             nor protected/private methods)
+          \o Check BinaryCompatibilityWorkarounds for ways to keep b/c
+        \endlist
+        NOTE: This is not yet mandatory!
+
+    \o Some information on binary compatibility:
+        http://techbase.kde.org/Policies/Binary_Compatibility_Issues_With_C++
+
+   \endlist
+
+
+\section2 Namespacing
+
+    Read QtInNamespace and keep in mind that all of Qt Creator is
+    “namespace aware” code.
+
+
+\section2 Conventions for public header files
+
+    Our public header files have to survive the strict settings of
+    some of our users. All installed headers have to follow these rules:
+
+    \list
+
+      \o No C style casts (-Wold-style-cast). Use static_cast, const_cast
+         or reinterpret_cast, for basic types, use the constructor form:
+         int(a) instead of (int)a. See chapter “Casting” for more info.
+
+      \o No float comparisons (-Wfloat-equal). Use qFuzzyCompare to compare
+         values with a delta. Use qIsNull to check whether a float is
+         binary 0, instead of comparing it to 0.0, or, prefered, move
+         such code into an implementaion fole.
+
+      \o Don’t hide virtual methods in subclasses (-Woverloaded-virtual).
+         If the baseclass A has a virtual int val() and subclass B an
+         overload with the same name, int val(int x), A’s val function
+         is hidden. Use the using keyword to make it visible again, and
+         add the following silly workaround for broken compilers:
+        \code
+            class B: public A
+            {
+            #ifdef Q_NO_USING_KEYWORD
+            inline int val() { return A::val(); }
+            #else
+            using A::val;
+            #endif
+            };
+        \code
+
+      \o Don’t shadow variables (-Wshadow). Avoid things like this->x = x;
+
+      \o Don’t give variables the same name as functions declared in
+        yours class.
+
+      \o Always check whether a preprocessor variable is defined before
+        probing its value (-Wundef).
+
+        \code
+          // Wrong:
+          #if Foo == 0
+
+          // Correct:
+          #if defined(Foo) && Foo == 0
+
+          // Wrong. We don't want to do "clever" things like that.
+          // Use the one above instead, for better readability.
+          #if Foo - 0 == 0
+
+        \endcode
+
+    \endlist
 
 */
