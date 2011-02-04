@@ -47,17 +47,17 @@
 #include <QtCore/QList>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
-#include <coreplugin/ssh/sshconnection.h>
 #include <coreplugin/ssh/sshremoteprocessrunner.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
+class MaemoDeviceConfig;
 
 class MaemoRemoteProcessList : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit MaemoRemoteProcessList(const Core::SshConnectionParameters &params,
+    explicit MaemoRemoteProcessList(const QSharedPointer<const MaemoDeviceConfig> &devConfig,
         QObject *parent = 0);
     ~MaemoRemoteProcessList();
     void update();
@@ -100,6 +100,7 @@ private:
         QString cmdLine;
     };
     QList<RemoteProc> m_remoteProcs;
+    const QSharedPointer<const MaemoDeviceConfig> m_devConfig;
 };
 
 } // namespace Internal

@@ -41,8 +41,8 @@
 #ifndef MAEMOREMOTEPROCESSDIALOG_H
 #define MAEMOREMOTEPROCESSDIALOG_H
 
+#include <QtCore/QSharedPointer>
 #include <QtGui/QDialog>
-#include <coreplugin/ssh/sshconnection.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -53,6 +53,7 @@ QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
+class MaemoDeviceConfig;
 class MaemoRemoteProcessList;
 
 class MaemoRemoteProcessesDialog : public QDialog
@@ -60,7 +61,7 @@ class MaemoRemoteProcessesDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit MaemoRemoteProcessesDialog(const Core::SshConnectionParameters &params,
+    explicit MaemoRemoteProcessesDialog(const QSharedPointer<const MaemoDeviceConfig> &devConfig,
         QWidget *parent = 0);
     ~MaemoRemoteProcessesDialog();
 

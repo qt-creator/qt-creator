@@ -41,6 +41,7 @@
 #include "maemoremoteprocessesdialog.h"
 #include "ui_maemoremoteprocessesdialog.h"
 
+#include "maemodeviceconfigurations.h"
 #include "maemoremoteprocesslist.h"
 
 #include <QtGui/QMessageBox>
@@ -49,11 +50,11 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoRemoteProcessesDialog::MaemoRemoteProcessesDialog(const Core::SshConnectionParameters &params,
-    QWidget *parent) :
+MaemoRemoteProcessesDialog::MaemoRemoteProcessesDialog(const MaemoDeviceConfig::ConstPtr &devConfig,
+    QWidget *parent):
     QDialog(parent),
     m_ui(new Ui::MaemoRemoteProcessesDialog),
-    m_processList(new MaemoRemoteProcessList(params, this)),
+    m_processList(new MaemoRemoteProcessList(devConfig, this)),
     m_proxyModel(new QSortFilterProxyModel(this))
 {
     m_ui->setupUi(this);
@@ -64,7 +65,12 @@ MaemoRemoteProcessesDialog::MaemoRemoteProcessesDialog(const Core::SshConnection
     m_ui->tableView->setModel(m_proxyModel);
     connect(m_ui->processFilterLineEdit, SIGNAL(textChanged(QString)),
         m_proxyModel, SLOT(setFilterRegExp(QString)));
-    m_ui->processFilterLineEdit->setText(QLatin1String("[^ ]+"));
+
+    // Manually gathered process information is missing the command line for
+    // some system processes. Dont's show these lines by default.
+    if (devConfig->osVersion() == MaemoGlobal::Maemo5)
+        m_ui->processFilterLineEdit->setText(QLatin1String("[^ ]+"));
+
     connect(m_ui->tableView->selectionModel(),
         SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
         SLOT(handleSelectionChanged()));
