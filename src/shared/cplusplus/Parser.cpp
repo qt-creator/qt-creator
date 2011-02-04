@@ -566,6 +566,12 @@ bool Parser::parseTranslationUnit(TranslationUnitAST *&node)
             skipUntilDeclaration();
         }
 
+
+        if (TopLevelDeclarationProcessor *processor = _control->topLevelDeclarationProcessor()) {
+            if (processor->processDeclaration(declaration))
+                break;
+        }
+
         _templateArgumentList.clear();
     }
 
@@ -6032,3 +6038,4 @@ void Parser::fatal(unsigned index, const char *format, ...)
     va_end(ap);
     va_end(args);
 }
+

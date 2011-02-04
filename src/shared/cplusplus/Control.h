@@ -54,9 +54,17 @@
 #define CPLUSPLUS_CONTROL_H
 
 #include "CPlusPlusForwardDeclarations.h"
+#include "ASTfwd.h"
 #include "Names.h"
 
 namespace CPlusPlus {
+
+class CPLUSPLUS_EXPORT TopLevelDeclarationProcessor
+{
+public:
+    virtual ~TopLevelDeclarationProcessor() {}
+    virtual bool processDeclaration(DeclarationAST *ast) = 0;
+};
 
 class CPLUSPLUS_EXPORT Control
 {
@@ -66,6 +74,9 @@ public:
 
     TranslationUnit *translationUnit() const;
     TranslationUnit *switchTranslationUnit(TranslationUnit *unit);
+
+    TopLevelDeclarationProcessor *topLevelDeclarationProcessor() const;
+    void setTopLevelDeclarationProcessor(TopLevelDeclarationProcessor *processor);
 
     DiagnosticClient *diagnosticClient() const;
     void setDiagnosticClient(DiagnosticClient *diagnosticClient);

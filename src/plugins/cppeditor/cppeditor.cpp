@@ -2182,6 +2182,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         const QByteArray preprocessedCode = snapshot.preprocessedCode(source.code, source.fileName);
 
         doc = snapshot.documentFromSource(preprocessedCode, source.fileName);
+        doc->control()->setTopLevelDeclarationProcessor(this);
         doc->check();
 
 #if 0

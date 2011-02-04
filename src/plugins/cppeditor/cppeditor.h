@@ -73,13 +73,15 @@ namespace Internal {
 
 class CPPEditor;
 
-class SemanticHighlighter: public QThread
+class SemanticHighlighter: public QThread, CPlusPlus::TopLevelDeclarationProcessor
 {
     Q_OBJECT
 
 public:
     SemanticHighlighter(QObject *parent = 0);
     virtual ~SemanticHighlighter();
+
+    virtual bool processDeclaration(CPlusPlus::DeclarationAST *) { return m_done; }
 
     void abort();
 

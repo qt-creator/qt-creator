@@ -244,6 +244,7 @@ public:
         , objcRetainId(0)
         , objcCopyId(0)
         , objcNonatomicId(0)
+        , processor(0)
     {}
 
     ~Data()
@@ -531,6 +532,7 @@ public:
     const Identifier *objcRetainId;
     const Identifier *objcCopyId;
     const Identifier *objcNonatomicId;
+    TopLevelDeclarationProcessor *processor;
 };
 
 Control::Control()
@@ -808,4 +810,14 @@ bool Control::hasSymbol(Symbol *symbol) const
 void Control::squeeze()
 {
     d->numericLiterals.reset();
+}
+
+TopLevelDeclarationProcessor *Control::topLevelDeclarationProcessor() const
+{
+    return d->processor;
+}
+
+void Control::setTopLevelDeclarationProcessor(CPlusPlus::TopLevelDeclarationProcessor *processor)
+{
+    d->processor = processor;
 }
