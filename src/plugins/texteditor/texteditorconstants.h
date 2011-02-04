@@ -98,6 +98,7 @@ const char * const C_TEXTEDITOR_MIMETYPE_TEXT = "text/plain";
 const char * const INFO_SYNTAX_DEFINITION = "TextEditor.InfoSyntaxDefinition";
 const char * const TASK_DOWNLOAD_DEFINITIONS = "TextEditor.Task.Download";
 const char * const TASK_REGISTER_DEFINITIONS = "TextEditor.Task.Register";
+const char * const TASK_OPEN_FILE = "TextEditor.Task.OpenFile";
 
 // Text color and style categories
 const char * const C_TEXT                = "Text";

@@ -38,6 +38,7 @@
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "syntaxhighlighter.h"
+#include "texteditorconstants.h"
 
 #include <QtCore/QStringList>
 #include <QtCore/QFile>
@@ -45,12 +46,14 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 #include <QtCore/QTextCodec>
+#include <QtCore/QFutureInterface>
 #include <QtGui/QMainWindow>
 #include <QtGui/QSyntaxHighlighter>
 #include <QtGui/QApplication>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/reloadpromptutils.h>
 
@@ -521,14 +524,22 @@ bool BaseTextDocument::open(const QString &fileName)
         if (d->m_isBinaryData) {
             d->m_document->setHtml(tr("<em>Binary data</em>"));
         } else {
-            if (content.size() == 1) {
+            const int chunks = content.size();
+            if (chunks == 1) {
                 d->m_document->setPlainText(content.at(0));
             } else {
+                QFutureInterface<void> interface;
+                interface.setProgressRange(0, chunks);
+                Core::ICore::instance()->progressManager()->addTask(
+                    interface.future(), tr("Opening file"), Constants::TASK_OPEN_FILE);
+                interface.reportStarted();
                 QTextCursor c(d->m_document);
-                foreach (const QString &text, content) {
-                    c.insertText(text);
+                for (int i = 0; i < chunks; ++i) {
+                    c.insertText(content.at(i));
+                    interface.setProgressValue(i + 1);
                     QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
                 }
+                interface.reportFinished();
             }
         }
         BaseTextDocumentLayout *documentLayout =
