@@ -199,7 +199,6 @@ public:
     bool m_fileHasUtf8Bom;
 
     bool m_fileIsReadOnly;
-    bool m_isBinaryData;
     bool m_hasDecodingError;
     QByteArray m_decodingErrorSample;
     static const int kChunkSize = 65536;
@@ -213,7 +212,6 @@ BaseTextDocumentPrivate::BaseTextDocumentPrivate(BaseTextDocument *q) :
     m_codec(Core::EditorManager::instance()->defaultTextEncoding()),
     m_fileHasUtf8Bom(false),
     m_fileIsReadOnly(false),
-    m_isBinaryData(false),
     m_hasDecodingError(false)
 {
 }
@@ -300,14 +298,9 @@ SyntaxHighlighter *BaseTextDocument::syntaxHighlighter() const
     return d->m_highlighter;
 }
 
-bool BaseTextDocument::isBinaryData() const
-{
-    return d->m_isBinaryData;
-}
-
 bool BaseTextDocument::hasDecodingError() const
 {
-    return d->m_hasDecodingError || d->m_isBinaryData;
+    return d->m_hasDecodingError;
 }
 
 QTextCodec *BaseTextDocument::codec() const
@@ -381,7 +374,6 @@ bool BaseTextDocument::save(const QString &fileName)
     emit titleChanged(fi.fileName());
     emit changed();
 
-    d->m_isBinaryData = false;
     d->m_hasDecodingError = false;
     d->m_decodingErrorSample.clear();
 
@@ -398,7 +390,7 @@ void BaseTextDocument::rename(const QString &newName)
 
 bool BaseTextDocument::isReadOnly() const
 {
-    if (d->m_isBinaryData || d->m_hasDecodingError)
+    if (d->m_hasDecodingError)
         return true;
     if (d->m_fileName.isEmpty()) //have no corresponding file, so editing is ok
         return false;
@@ -521,26 +513,22 @@ bool BaseTextDocument::open(const QString &fileName)
         }
 
         d->m_document->setModified(false);
-        if (d->m_isBinaryData) {
-            d->m_document->setHtml(tr("<em>Binary data</em>"));
+        const int chunks = content.size();
+        if (chunks == 1) {
+            d->m_document->setPlainText(content.at(0));
         } else {
-            const int chunks = content.size();
-            if (chunks == 1) {
-                d->m_document->setPlainText(content.at(0));
-            } else {
-                QFutureInterface<void> interface;
-                interface.setProgressRange(0, chunks);
-                Core::ICore::instance()->progressManager()->addTask(
-                    interface.future(), tr("Opening file"), Constants::TASK_OPEN_FILE);
-                interface.reportStarted();
-                QTextCursor c(d->m_document);
-                for (int i = 0; i < chunks; ++i) {
-                    c.insertText(content.at(i));
-                    interface.setProgressValue(i + 1);
-                    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-                }
-                interface.reportFinished();
+            QFutureInterface<void> interface;
+            interface.setProgressRange(0, chunks);
+            Core::ICore::instance()->progressManager()->addTask(
+                interface.future(), tr("Opening file"), Constants::TASK_OPEN_FILE);
+            interface.reportStarted();
+            QTextCursor c(d->m_document);
+            for (int i = 0; i < chunks; ++i) {
+                c.insertText(content.at(i));
+                interface.setProgressValue(i + 1);
+                QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
             }
+            interface.reportFinished();
         }
         BaseTextDocumentLayout *documentLayout =
             qobject_cast<BaseTextDocumentLayout*>(d->m_document->documentLayout());

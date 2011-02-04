@@ -97,7 +97,6 @@ public:
     SyntaxHighlighter *syntaxHighlighter() const;
 
 
-    bool isBinaryData() const;
     bool hasDecodingError() const;
     QTextCodec *codec() const;
     void setCodec(QTextCodec *c);
