@@ -1150,15 +1150,12 @@ void MainWindow::updateContextObject(IContext *context)
 {
     if (context == m_activeContext)
         return;
-    IContext *oldContext = m_activeContext;
+    emit m_coreImpl->contextAboutToChange(context);
     m_activeContext = context;
-    if (!context || oldContext != m_activeContext) {
-        emit m_coreImpl->contextAboutToChange(context);
-        updateContext();
-        if (debugMainWindow)
-            qDebug() << "new context object =" << context << (context ? context->widget() : 0)
-                     << (context ? context->widget()->metaObject()->className() : 0);
-    }
+    updateContext();
+    if (debugMainWindow)
+        qDebug() << "new context object =" << context << (context ? context->widget() : 0)
+                 << (context ? context->widget()->metaObject()->className() : 0);
 }
 
 void MainWindow::resetContext()
