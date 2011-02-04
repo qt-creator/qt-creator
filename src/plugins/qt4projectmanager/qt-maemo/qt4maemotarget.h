@@ -245,6 +245,7 @@ private:
 
 class Qt4MeegoTarget : public AbstractRpmBasedQt4MaemoTarget
 {
+    Q_OBJECT
 public:
     explicit Qt4MeegoTarget(Qt4Project *parent, const QString &id);
     virtual ~Qt4MeegoTarget();
