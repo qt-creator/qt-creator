@@ -208,10 +208,10 @@ void OpenEditorsWidget::contextMenuRequested(QPoint pos)
     const QModelIndex index = m_ui.editorList->indexAt(pos);
     QMenu contextMenu;
     QAction *closeEditor = contextMenu.addAction(
-            index.isValid() ?  tr("Close %1").arg(index.data().toString())
+            index.isValid() ?  tr("Close \"%1\"").arg(index.data().toString())
                             :  tr("Close Editor"));
     QAction *closeOtherEditors = contextMenu.addAction(
-            index.isValid() ? tr("Close All Except %1").arg(index.data().toString())
+            index.isValid() ? tr("Close All Except \"%1\"").arg(index.data().toString())
                             : tr("Close Other Editors"));
     QAction *closeAllEditors = contextMenu.addAction(tr("Close All Editors"));
 
