@@ -35,7 +35,7 @@
 
 REQUIRED_HEADERS="pluginmanager_p.h iconloader_p.h qdesigner_formwindowmanager_p.h formwindowbase_p.h
 abstractnewformwidget_p.h qtresourcemodel_p.h abstractoptionspage_p.h
-shared_global_p.h abstractsettings_p.h qdesigner_integration_p.h"
+shared_global_p.h abstractsettings_p.h qdesigner_integration_p.h qsimpleresource_p.h shared_enums_p.h"
 
 echo Using $QTDIR
 

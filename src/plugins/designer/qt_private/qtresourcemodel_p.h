@@ -48,6 +48,7 @@
 #include "shared_global_p.h"
 #include <QtCore/QMap>
 #include <QtCore/QObject>
+#include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 
@@ -79,7 +80,7 @@ private:
     ~QtResourceSet();
     friend class QtResourceModel;
 
-    class QtResourceSetPrivate *d_ptr;
+    QScopedPointer<class QtResourceSetPrivate> d_ptr;
     Q_DECLARE_PRIVATE(QtResourceSet)
     Q_DISABLE_COPY(QtResourceSet)
 };
@@ -124,7 +125,7 @@ signals:
 private:
     friend class QtResourceSet;
 
-    class QtResourceModelPrivate *d_ptr;
+    QScopedPointer<class QtResourceModelPrivate> d_ptr;
     Q_DECLARE_PRIVATE(QtResourceModel)
     Q_DISABLE_COPY(QtResourceModel)
 

@@ -41,6 +41,7 @@
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
+#include "qt_private/qsimpleresource_p.h"
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
@@ -80,7 +81,10 @@ bool FormWindowFile::save(const QString &name /* = QString() */)
     m_formWindow->setFileName(formName);
 
     QString errorString;
-    if (!writeFile(actualName, errorString)) {
+    const bool warningsEnabled = qdesigner_internal::QSimpleResource::setWarningsEnabled(false);
+    const bool writeOK = writeFile(actualName, errorString);
+    qdesigner_internal::QSimpleResource::setWarningsEnabled(warningsEnabled);
+    if (!writeOK) {
         QMessageBox::critical(0, tr("Error saving %1").arg(formName), errorString);
         m_formWindow->setFileName(oldFormName);
         return false;

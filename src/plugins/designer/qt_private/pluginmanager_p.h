@@ -46,9 +46,11 @@
 #define PLUGINMANAGER_H
 
 #include "shared_global_p.h"
+#include "shared_enums_p.h"
 
 #include <QtCore/QSharedDataPointer>
 #include <QtCore/QMap>
+#include <QtCore/QPair>
 #include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
@@ -62,6 +64,9 @@ class QDesignerCustomWidgetSharedData;
 /* Information contained in the Dom XML of a custom widget. */
 class QDESIGNER_SHARED_EXPORT QDesignerCustomWidgetData {
 public:
+    // StringPropertyType: validation mode and translatable flag.
+    typedef QPair<qdesigner_internal::TextPropertyValidationMode, bool> StringPropertyType;
+
     explicit QDesignerCustomWidgetData(const QString &pluginPath = QString());
 
     enum ParseResult { ParseOk, ParseWarning, ParseError };
@@ -85,6 +90,8 @@ public:
     QString xmlExtends() const;
     // Optional. The name to be used in the widget box.
     QString xmlDisplayName() const;
+    // Type of a string property
+    bool xmlStringPropertyType(const QString &name, StringPropertyType *type) const;
 
 private:
     QSharedDataPointer<QDesignerCustomWidgetSharedData> m_d;
@@ -120,6 +127,7 @@ public:
 
     CustomWidgetList registeredCustomWidgets() const;
     QDesignerCustomWidgetData customWidgetData(QDesignerCustomWidgetInterface *w) const;
+    QDesignerCustomWidgetData customWidgetData(const QString &className) const;
 
     bool registerNewPlugins();
 
