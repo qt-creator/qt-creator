@@ -81,7 +81,10 @@ void MaemoConfigTestDialog::startConfigTest()
         return;
 
     m_currentTest = GeneralTest;
-    m_ui->testResultEdit->setPlainText(tr("Testing configuration..."));
+    const QString testingText = m_config->type() == MaemoDeviceConfig::Simulator
+        ? tr("Testing configuration. This may take a while.")
+        : tr("Testing configuration...");
+    m_ui->testResultEdit->setPlainText(testingText);
     m_closeButton->setText(tr("Stop Test"));
     m_testProcessRunner = SshRemoteProcessRunner::create(m_config->sshParameters());
     connect(m_testProcessRunner.data(), SIGNAL(connectionError(Core::SshError)),
@@ -91,9 +94,12 @@ void MaemoConfigTestDialog::startConfigTest()
     connect(m_testProcessRunner.data(),
         SIGNAL(processOutputAvailable(QByteArray)), this,
         SLOT(processSshOutput(QByteArray)));
-    QLatin1String sysInfoCmd("uname -rsm");
-    QLatin1String qtInfoCmd("dpkg-query -W -f '${Package} ${Version} ${Status}\n' 'libqt*' "
-        "|grep ' installed$'");
+    const QLatin1String sysInfoCmd("uname -rsm");
+    const bool osUsesRpm = MaemoGlobal::packagingSystem(m_config->osVersion()) == MaemoGlobal::Rpm;
+    const QLatin1String qtInfoCmd(osUsesRpm
+        ? "rpm -qa 'libqt*' --queryformat '%{NAME} %{VERSION}\\n'"
+        : "dpkg-query -W -f '${Package} ${Version} ${Status}\n' 'libqt*' "
+          "|grep ' installed$'");
     QString command(sysInfoCmd + " && " + qtInfoCmd);
     m_testProcessRunner->run(command.toUtf8());
 }
@@ -229,8 +235,11 @@ QString MaemoConfigTestDialog::parseTestOutput()
 
     output = tr("Hardware architecture: %1\n").arg(unamePattern.cap(2));
     output.append(tr("Kernel version: %1\n").arg(unamePattern.cap(1)));
-    const QRegExp dkpgPattern(QLatin1String("(\\S+) (\\S*(\\d+)\\.(\\d+)\\.(\\d+)\\S*) \\S+ \\S+ \\S+"));
-    index = dkpgPattern.indexIn(m_deviceTestOutput);
+    const bool osUsesRpm = MaemoGlobal::packagingSystem(m_config->osVersion()) == MaemoGlobal::Rpm;
+    const QRegExp packagePattern(QLatin1String(osUsesRpm
+        ? "(libqt\\S+) ((\\d+)\\.(\\d+)\\.(\\d+))"
+        : "(\\S+) (\\S*(\\d+)\\.(\\d+)\\.(\\d+)\\S*) \\S+ \\S+ \\S+"));
+    index = packagePattern.indexIn(m_deviceTestOutput);
     if (index == -1) {
         output.append(tr("No Qt packages installed."));
         return output;
@@ -238,12 +247,12 @@ QString MaemoConfigTestDialog::parseTestOutput()
 
     output.append(tr("List of installed Qt packages:") + QLatin1Char('\n'));
     do {
-        output.append(QLatin1Char('\t') + dkpgPattern.cap(1) + QLatin1Char(' ')
-            + dkpgPattern.cap(2) + QLatin1Char('\n'));
-        index = dkpgPattern.indexIn(m_deviceTestOutput, index
-            + dkpgPattern.cap(0).length());
-        if (!m_qtVersionOk && QT_VERSION_CHECK(dkpgPattern.cap(3).toInt(),
-            dkpgPattern.cap(4).toInt(), dkpgPattern.cap(5).toInt()) >= 0x040602) {
+        output.append(QLatin1Char('\t') + packagePattern.cap(1) + QLatin1Char(' ')
+            + packagePattern.cap(2) + QLatin1Char('\n'));
+        index = packagePattern.indexIn(m_deviceTestOutput, index
+            + packagePattern.cap(0).length());
+        if (!m_qtVersionOk && QT_VERSION_CHECK(packagePattern.cap(3).toInt(),
+            packagePattern.cap(4).toInt(), packagePattern.cap(5).toInt()) >= 0x040602) {
             m_qtVersionOk = true;
         }
     } while (index != -1);

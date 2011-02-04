@@ -276,6 +276,8 @@ void BreakHandler::saveBreakpoints()
             map.insert(_("tracepoint"), one);
         if (!data.module.isEmpty())
             map.insert(_("module"), data.module);
+        if (!data.command.isEmpty())
+            map.insert(_("command"), data.command);
         list.append(map);
     }
     debuggerCore()->setSessionValue("Breakpoints", list);
@@ -328,6 +330,9 @@ void BreakHandler::loadBreakpoints()
         v = map.value(_("module"));
         if (v.isValid())
             data.module = v.toString();
+        v = map.value(_("command"));
+        if (v.isValid())
+            data.command = v.toString();
         appendBreakpoint(data);
     }
     //qDebug() << "LOADED BREAKPOINTS" << this << list.size();
@@ -1102,6 +1107,8 @@ bool BreakHandler::BreakpointItem::needsChange() const
         return true;
     if (data.threadSpec != response.threadSpec)
         return true;
+    if (data.command != response.command)
+        return true;
     return false;
 }
 
@@ -1221,6 +1228,12 @@ QString BreakHandler::BreakpointItem::toToolTip() const
     formatAddress(str, data.address);
     str << "</td><td>";
     formatAddress(str, response.address);
+    if (!data.command.isEmpty() || !response.command.isEmpty()) {
+        str << "</td></tr>"
+            << "<tr><td>" << tr("Command:")
+            << "</td><td>" << data.command
+            << "</td><td>" << response.command<< "</td></tr>";
+    }
     if (!data.condition.isEmpty() || !response.condition.isEmpty()) {
         str << "</td></tr>"
             << "<tr><td>" << tr("Condition:")

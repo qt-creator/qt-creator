@@ -340,7 +340,7 @@ void MaemoDeviceConfigurationsSettingsWidget::showGenerateSshKeyDialog()
 
 void MaemoDeviceConfigurationsSettingsWidget::showRemoteProcesses()
 {
-    MaemoRemoteProcessesDialog dlg(currentConfig()->sshParameters(), this);
+    MaemoRemoteProcessesDialog dlg(currentConfig(), this);
     dlg.exec();
 }
 

@@ -212,7 +212,7 @@ void AbstractSshChannel::handleChannelRequest(const SshIncomingPacket &packet)
         handleExitStatus(packet.extractChannelExitStatus());
     else if (requestType == SshIncomingPacket::ExitSignalType)
         handleExitSignal(packet.extractChannelExitSignal());
-    else
+    else if (requestType != "eow@openssh.com") // Suppress warning for this one, as it's sent all the time.
         qWarning("Ignoring unknown request type '%s'", requestType.data());
 }
 

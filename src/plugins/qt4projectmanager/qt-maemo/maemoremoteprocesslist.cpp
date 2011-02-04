@@ -41,6 +41,8 @@
 
 #include "maemoremoteprocesslist.h"
 
+#include "maemodeviceconfigurations.h"
+
 #include <coreplugin/ssh/sshremoteprocessrunner.h>
 
 #include <QtCore/QStringList>
@@ -55,11 +57,12 @@ const QByteArray LineSeparator2("QTCENDOFLINE---");
 const QByteArray LineSeparator = LineSeparator1 + LineSeparator2;
 } // anonymous namespace
 
-MaemoRemoteProcessList::MaemoRemoteProcessList(const Core::SshConnectionParameters &params,
+MaemoRemoteProcessList::MaemoRemoteProcessList(const MaemoDeviceConfig::ConstPtr &devConfig,
     QObject *parent)
-    : QAbstractTableModel(parent),
-      m_process(SshRemoteProcessRunner::create(params)),
-      m_state(Inactive)
+        : QAbstractTableModel(parent),
+          m_process(SshRemoteProcessRunner::create(devConfig->sshParameters())),
+          m_state(Inactive),
+          m_devConfig(devConfig)
 {
 }
 
@@ -73,17 +76,25 @@ void MaemoRemoteProcessList::update()
     }
     beginResetModel();
     m_remoteProcs.clear();
-    const QByteArray command = QByteArray()
-        + "sep1=" + LineSeparator1 + '\n'
-        + "sep2=" + LineSeparator2 + '\n'
-        + "pidlist=`ls /proc |grep -E '^[[:digit:]]+$' |sort -n`; "
-        +  "for pid in $pidlist\n"
-        +  "do\n"
-        +  "    echo -n \"$pid \"\n"
-        +  "    tr '\\0' ' ' < /proc/$pid/cmdline\n"
-        +  "    echo -n \"$sep1$sep2\"\n"
-        +  "done\n"
-        +  "echo ''";
+    QByteArray command;
+
+    // The ps command on Fremantle ignores all command line options, so
+    // we have to collect the information in /proc manually.
+    if (m_devConfig->osVersion() == MaemoGlobal::Maemo5) {
+        command = "sep1=" + LineSeparator1 + '\n'
+            + "sep2=" + LineSeparator2 + '\n'
+            + "pidlist=`ls /proc |grep -E '^[[:digit:]]+$' |sort -n`; "
+            +  "for pid in $pidlist\n"
+            +  "do\n"
+            +  "    echo -n \"$pid \"\n"
+            +  "    tr '\\0' ' ' < /proc/$pid/cmdline\n"
+            +  "    echo -n \"$sep1$sep2\"\n"
+            +  "done\n"
+            +  "echo ''";
+    } else {
+        command = "ps -eo pid,args";
+    }
+
     startProcess(command, Listing);
 }
 
@@ -191,21 +202,25 @@ void MaemoRemoteProcessList::stop()
 
 void MaemoRemoteProcessList::buildProcessList()
 {
+    const bool isFremantle = m_devConfig->osVersion() == MaemoGlobal::Maemo5;
     const QString remoteOutput = QString::fromUtf8(m_remoteStdout);
-    const QStringList &lines
-        = remoteOutput.split(QString::fromUtf8(LineSeparator));
+    const QByteArray lineSeparator = isFremantle ? LineSeparator : "\n";
+    QStringList lines = remoteOutput.split(QString::fromUtf8(lineSeparator));
+    if (!isFremantle)
+        lines.removeFirst(); // column headers
     foreach (const QString &line, lines) {
-        const int pidEndPos = line.indexOf(' ');
+        const QString &trimmedLine = line.trimmed();
+        const int pidEndPos = trimmedLine.indexOf(' ');
         if (pidEndPos == -1)
             continue;
         bool isNumber;
-        const int pid = line.left(pidEndPos).toInt(&isNumber);
+        const int pid = trimmedLine.left(pidEndPos).toInt(&isNumber);
         if (!isNumber) {
             qDebug("%s: Non-integer value where pid was expected. Line was: '%s'",
-                Q_FUNC_INFO, qPrintable(line));
+                Q_FUNC_INFO, qPrintable(trimmedLine));
             continue;
         }
-        m_remoteProcs << RemoteProc(pid, line.mid(pidEndPos));
+        m_remoteProcs << RemoteProc(pid, trimmedLine.mid(pidEndPos));
     }
 }
 
