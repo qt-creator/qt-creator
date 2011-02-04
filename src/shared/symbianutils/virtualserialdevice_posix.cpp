@@ -96,13 +96,18 @@ qint64 VirtualSerialDevice::writeData(const char *data, qint64 maxSize)
     bool needToWait = tryFlushPendingBuffers(locker, EmitBytesWrittenAsync);
     if (!needToWait) {
         needToWait = tryWrite(data, maxSize, bytesWritten);
+        if (needToWait && bytesWritten > 0) {
+            // Wrote some of the buffer, adjust pointers to point to the remainder that needs queueing
+            data += bytesWritten;
+            maxSize -= bytesWritten;
+        }
     }
 
     if (needToWait) {
         pendingWrites.append(QByteArray(data, maxSize));
         d->writeUnblockedNotifier->setEnabled(true);
         // Now wait for the writeUnblocked signal or for a call to waitForBytesWritten
-        return maxSize;
+        return bytesWritten + maxSize;
     } else {
         //emitBytesWrittenIfNeeded(locker, bytesWritten);
         // Can't emit bytesWritten directly from writeData - means clients end up recursing
@@ -118,21 +123,27 @@ qint64 VirtualSerialDevice::writeData(const char *data, qint64 maxSize)
 bool VirtualSerialDevice::tryWrite(const char *data, qint64 maxSize, qint64& bytesWritten)
 {
     // Must be locked
-    int result = ::write(d->portHandle, data, maxSize);
-    if (result == -1) {
-        if (errno == EAGAIN) {
-            // Need to wait
-            return true;
+    bytesWritten = 0;
+    while (maxSize > 0) {
+        int result = ::write(d->portHandle, data, maxSize);
+        if (result == -1) {
+            if (errno == EAGAIN) {
+                // Need to wait
+                return true;
+            } else {
+                setErrorString(QString("Posix error %1 from write to %2").arg(errno).arg(portName));
+                bytesWritten = -1;
+                return false;
+            }
         } else {
-            setErrorString(QString("Posix error %1 from write to %2").arg(errno).arg(portName));
-            bytesWritten = -1;
-            return false;
+            if (result == 0)
+                qWarning("Zero bytes written to port!");
+            bytesWritten += result;
+            maxSize -= result;
+            data += result;
         }
-    } else {
-        Q_ASSERT(result == maxSize); // Otherwise I cry
-        bytesWritten = maxSize;
-        return false;
     }
+    return false; // If we reach here we've successfully written all the data without blocking
 }
 
 /* Returns true if EAGAIN encountered. Emits (or queues) bytesWritten for any buffers written.
@@ -140,7 +151,7 @@ bool VirtualSerialDevice::tryWrite(const char *data, qint64 maxSize, qint64& byt
  * attempting to drain the whole queue.
  * Doesn't modify notifier.
  */
-bool VirtualSerialDevice::tryFlushPendingBuffers(QMutexLocker& locker, FlushPendingOptions flags) //bool stopAfterWritingOneBuffer)
+bool VirtualSerialDevice::tryFlushPendingBuffers(QMutexLocker& locker, FlushPendingOptions flags)
 {
     while (pendingWrites.count() > 0) {
         // Try writing everything we've got, until we hit EAGAIN
@@ -148,6 +159,12 @@ bool VirtualSerialDevice::tryFlushPendingBuffers(QMutexLocker& locker, FlushPend
         qint64 bytesWritten;
         bool needToWait = tryWrite(data.constData(), data.size(), bytesWritten);
         if (needToWait) {
+            if (bytesWritten > 0) {
+                // We wrote some of the data, update the pending queue
+                QByteArray remainder = data.mid(bytesWritten);
+                pendingWrites.removeFirst();
+                pendingWrites.insert(0, remainder);
+            }
             return needToWait;
         } else {
             pendingWrites.removeFirst();
