@@ -47,12 +47,14 @@ using namespace Qt4ProjectManager;
 
 QtOutputFormatter::QtOutputFormatter(ProjectExplorer::Project *project)
     : OutputFormatter()
-    , m_qmlError(QLatin1String("^(file:///.+"    // file url
+    , m_qmlError(QLatin1String("^(?:\\[Qt Message\\] )?" // '[Qt Message] ' prefix (optional, on Symbian)
+                               "(file:///.+"      // file url
                                ":\\d+"           // colon, line
                                "(?::\\d+)?)"     // colon, column (optional)
                                ":"))             // colon
     , m_qtError(QLatin1String("Object::.*in (.*:\\d+)"))
-    , m_qtAssert(QLatin1String("^ASSERT: .* in file (.+, line \\d+)$"))
+    , m_qtAssert(QLatin1String("^(?:\\[Qt Message\\] )?" // '[Qt Message] ' prefix (optional, on Symbian)
+                               "ASSERT: .* in file (.+, line \\d+)$"))
     , m_qtTestFail(QLatin1String("^   Loc: \\[(.*)\\]$"))
     , m_project(project)
 {
