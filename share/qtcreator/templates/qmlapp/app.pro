@@ -9,14 +9,6 @@ DEPLOYMENTFOLDERS = folder_01
 # QML_IMPORT_PATH #
 QML_IMPORT_PATH =
 
-# Avoid auto screen rotation
-# ORIENTATIONLOCK #
-DEFINES += ORIENTATIONLOCK
-
-# Needs to be defined for Symbian
-# NETWORKACCESS #
-DEFINES += NETWORKACCESS
-
 # TARGETUID3 #
 symbian:TARGET.UID3 = 0xE1111234
 
@@ -26,6 +18,10 @@ symbian:TARGET.UID3 = 0xE1111234
 # range value if unprotected UID is defined for the application and
 # 0x2002CCCF value if protected UID is given to the application
 #symbian:DEPLOYMENT.installer_header = 0x2002CCCF
+
+# Allow network access on Symbian
+# NETWORKACCESS #
+symbian:TARGET.CAPABILITY += NetworkServices
 
 # Define QMLJSDEBUGGER to allow debugging of QML in debug builds
 # (This might significantly increase build time)

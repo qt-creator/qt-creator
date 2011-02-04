@@ -62,7 +62,8 @@ const QString AbstractMobileApp::FileStubVersion(QLatin1String("version"));
 const int AbstractMobileApp::StubVersion = 3;
 
 AbstractMobileApp::AbstractMobileApp()
-    : m_orientation(ScreenOrientationAuto), m_networkEnabled(false)
+    : m_orientation(ScreenOrientationAuto)
+    , m_networkEnabled(true)
 {
 }
 
@@ -253,9 +254,6 @@ QByteArray AbstractMobileApp::generateProFile(QString *errorMessage) const
     while (!(line = in.readLine()).isNull()) {
         if (line.contains(QLatin1String("# TARGETUID3"))) {
             valueOnNextLine = symbianTargetUid();
-        } else if (line.contains(QLatin1String("# ORIENTATIONLOCK"))
-            && orientation() == ScreenOrientationAuto) {
-            uncommentNextLine = true;
         } else if (line.contains(QLatin1String("# NETWORKACCESS"))
             && !networkEnabled()) {
             uncommentNextLine = true;
