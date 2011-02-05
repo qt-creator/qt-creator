@@ -32,6 +32,7 @@
 **************************************************************************/
 
 #include "qmlstandaloneapp.h"
+#include "html5app.h"
 #include <QtCore>
 
 using namespace Qt4ProjectManager::Internal;
@@ -77,6 +78,14 @@ int main(int argc, char *argv[])
         }
         if (!sAppImport02.generateFiles(&errorMessage))
             return 1;
+    }
+
+    {
+        Html5App sAppNew;
+        sAppNew.setProjectPath(projectPath);
+        sAppNew.setProjectName(QLatin1String("new_html5_app"));
+        if (!sAppNew.generateFiles(&errorMessage))
+           return 1;
     }
 
     return 0;

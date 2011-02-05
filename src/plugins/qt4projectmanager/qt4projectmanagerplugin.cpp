@@ -44,6 +44,7 @@
 #include "wizards/emptyprojectwizard.h"
 #include "wizards/subdirsprojectwizard.h"
 #include "wizards/qmlstandaloneappwizard.h"
+#include "wizards/html5appwizard.h"
 #include "customwidgetwizard/customwidgetwizard.h"
 #include "profileeditorfactory.h"
 #include "qt4projectmanagerconstants.h"
@@ -145,6 +146,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new ConsoleAppWizard);
     addAutoReleasedObject(new MobileAppWizard);
     addAutoReleasedObject(new QmlStandaloneAppWizard());
+    addAutoReleasedObject(new Html5AppWizard);
     addAutoReleasedObject(new LibraryWizard);
     addAutoReleasedObject(new TestWizard);
     addAutoReleasedObject(new CustomWidgetWizard);

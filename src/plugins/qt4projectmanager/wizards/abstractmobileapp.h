@@ -48,7 +48,6 @@ namespace Internal {
 struct AbstractGeneratedFileInfo
 {
     enum FileType {
-        MainQmlFile,
         MainCppFile,
         AppProFile,
         DeploymentPriFile,

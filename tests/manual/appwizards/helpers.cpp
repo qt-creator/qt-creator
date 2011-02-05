@@ -1,4 +1,5 @@
 #include "qmlstandaloneapp.h"
+#include "html5app.h"
 #include <QtCore>
 
 using namespace Qt4ProjectManager::Internal;
@@ -26,8 +27,20 @@ bool QmlStandaloneApp::generateFiles(QString *errorMessage) const
             && writeFile(generateFile(QmlAppGeneratedFileInfo::DesktopFile, errorMessage), path(Desktop));
 }
 
+bool Html5App::generateFiles(QString *errorMessage) const
+{
+    return     writeFile(generateFile(Html5AppGeneratedFileInfo::MainCppFile, errorMessage), path(MainCpp))
+            && writeFile(generateFile(Html5AppGeneratedFileInfo::AppProFile, errorMessage), path(AppPro))
+            && (useExistingIndexHtml() ? true : writeFile(generateFile(Html5AppGeneratedFileInfo::IndexHtmlFile, errorMessage), path(IndexHtml)))
+            && writeFile(generateFile(Html5AppGeneratedFileInfo::AppViewerPriFile, errorMessage), path(AppViewerPri))
+            && writeFile(generateFile(Html5AppGeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp))
+            && writeFile(generateFile(Html5AppGeneratedFileInfo::AppViewerHFile, errorMessage), path(AppViewerH))
+            && writeFile(generateFile(Html5AppGeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon))
+            && writeFile(generateFile(Html5AppGeneratedFileInfo::MaemoPngIconFile, errorMessage), path(MaemoPngIcon))
+            && writeFile(generateFile(Html5AppGeneratedFileInfo::DesktopFile, errorMessage), path(Desktop));
+}
+
 QString AbstractMobileApp::templatesRoot()
 {
     return QLatin1String("../../../share/qtcreator/templates/");
 }
-

@@ -38,6 +38,9 @@ HEADERS += \
     wizards/targetsetuppage.h \
     wizards/qmlstandaloneappwizard.h \
     wizards/qmlstandaloneappwizardpages.h \
+    wizards/html5app.h \
+    wizards/html5appwizard.h \
+    wizards/html5appwizardpages.h \
     wizards/abstractmobileapp.h \
     wizards/qmlstandaloneapp.h \
     wizards/abstractmobileappwizard.h \
@@ -101,6 +104,9 @@ SOURCES += qt4projectmanagerplugin.cpp \
     wizards/targetsetuppage.cpp \
     wizards/qmlstandaloneappwizard.cpp \
     wizards/qmlstandaloneappwizardpages.cpp \
+    wizards/html5app.cpp \
+    wizards/html5appwizard.cpp \
+    wizards/html5appwizardpages.cpp \
     wizards/abstractmobileapp.cpp \
     wizards/qmlstandaloneapp.cpp \
     wizards/abstractmobileappwizard.cpp \
@@ -138,6 +144,7 @@ FORMS += makestep.ui \
     wizards/testwizardpage.ui \
     wizards/targetsetuppage.ui \
     wizards/qmlstandaloneappwizardsourcespage.ui \
+    wizards/html5appwizardsourcespage.ui \
     wizards/mobilelibrarywizardoptionpage.ui \
     wizards/mobileappwizardgenericoptionspage.ui \
     wizards/mobileappwizardsymbianoptionspage.ui \
