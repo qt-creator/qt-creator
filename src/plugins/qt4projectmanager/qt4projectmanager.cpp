@@ -42,6 +42,7 @@
 #include "qmakestep.h"
 #include "qt4buildconfiguration.h"
 #include "wizards/qtquickapp.h"
+#include "wizards/html5app.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/basefilewizard.h>
@@ -237,8 +238,10 @@ ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName)
         }
     }
 
-    QtQuickApp app;
-    updateBoilerPlateCodeFiles(&app, canonicalFilePath);
+    const QtQuickApp qtQuickApp;
+    updateBoilerPlateCodeFiles(&qtQuickApp, canonicalFilePath);
+    const Html5App html5App;
+    updateBoilerPlateCodeFiles(&html5App, canonicalFilePath);
 
     Qt4Project *pro = new Qt4Project(this, canonicalFilePath);
     return pro;
