@@ -31,7 +31,7 @@
 **
 **************************************************************************/
 
-#include "qmlstandaloneapp.h"
+#include "qtquickapp.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -55,12 +55,12 @@ const QString appViewerHFileName(appViewerBaseName + QLatin1String(".h"));
 const QString appViewerOriginsSubDir(appViewerBaseName + QLatin1Char('/'));
 
 QmlModule::QmlModule(const QString &uri, const QFileInfo &rootDir, const QFileInfo &qmldir,
-                     bool isExternal, QmlStandaloneApp *qmlStandaloneApp)
+                     bool isExternal, QtQuickApp *qtQuickApp)
     : uri(uri)
     , rootDir(rootDir)
     , qmldir(qmldir)
     , isExternal(isExternal)
-    , qmlStandaloneApp(qmlStandaloneApp)
+    , qtQuickApp(qtQuickApp)
 {}
 
 QString QmlModule::path(Path path) const
@@ -70,7 +70,7 @@ QString QmlModule::path(Path path) const
             return rootDir.canonicalFilePath();
         }
         case ContentDir: {
-            const QDir proFile(qmlStandaloneApp->path(QmlStandaloneApp::AppProPath));
+            const QDir proFile(qtQuickApp->path(QtQuickApp::AppProPath));
             return proFile.relativeFilePath(qmldir.canonicalPath());
         }
         case ContentBase: {
@@ -81,7 +81,7 @@ QString QmlModule::path(Path path) const
             return localContentDir.right(localContentDir.length() - localRoot.length());
         }
         case DeployedContentBase: {
-            const QString modulesDir = qmlStandaloneApp->path(QmlStandaloneApp::ModulesDir);
+            const QString modulesDir = qtQuickApp->path(QtQuickApp::ModulesDir);
             return modulesDir + QLatin1Char('/') + this->path(ContentBase);
         }
         default: qFatal("QmlModule::path() needs more work");
@@ -98,26 +98,26 @@ QmlCppPlugin::QmlCppPlugin(const QString &name, const QFileInfo &path,
 {
 }
 
-QmlStandaloneApp::QmlStandaloneApp() : AbstractMobileApp()
+QtQuickApp::QtQuickApp() : AbstractMobileApp()
 {
 }
 
-QmlStandaloneApp::~QmlStandaloneApp()
+QtQuickApp::~QtQuickApp()
 {
     clearModulesAndPlugins();
 }
 
-void QmlStandaloneApp::setMainQmlFile(const QString &qmlFile)
+void QtQuickApp::setMainQmlFile(const QString &qmlFile)
 {
     m_mainQmlFile.setFile(qmlFile);
 }
 
-QString QmlStandaloneApp::mainQmlFile() const
+QString QtQuickApp::mainQmlFile() const
 {
     return path(MainQml);
 }
 
-bool QmlStandaloneApp::setExternalModules(const QStringList &uris,
+bool QtQuickApp::setExternalModules(const QStringList &uris,
                                           const QStringList &importPaths)
 {
     clearModulesAndPlugins();
@@ -158,7 +158,7 @@ bool QmlStandaloneApp::setExternalModules(const QStringList &uris,
     return true;
 }
 
-QString QmlStandaloneApp::pathExtended(int fileType) const
+QString QtQuickApp::pathExtended(int fileType) const
 {
     QString cleanProjectName = projectName().replace(QLatin1Char('-'), QString());
     const QString qmlSubDir = QLatin1String("qml/")
@@ -190,17 +190,17 @@ QString QmlStandaloneApp::pathExtended(int fileType) const
     return QString();
 }
 
-QString QmlStandaloneApp::originsRoot() const
+QString QtQuickApp::originsRoot() const
 {
     return templatesRoot() + QLatin1String("qmlapp/");
 }
 
-QString QmlStandaloneApp::mainWindowClassName() const
+QString QtQuickApp::mainWindowClassName() const
 {
     return QLatin1String("QmlApplicationViewer");
 }
 
-bool QmlStandaloneApp::adaptCurrentMainCppTemplateLine(QString &line) const
+bool QtQuickApp::adaptCurrentMainCppTemplateLine(QString &line) const
 {
     const QLatin1Char quote('"');
     bool adaptLine = true;
@@ -215,7 +215,7 @@ bool QmlStandaloneApp::adaptCurrentMainCppTemplateLine(QString &line) const
     return adaptLine;
 }
 
-void QmlStandaloneApp::handleCurrentProFileTemplateLine(const QString &line,
+void QtQuickApp::handleCurrentProFileTemplateLine(const QString &line,
     QTextStream &proFileTemplate, QTextStream &proFile,
     bool &uncommentNextLine) const
 {
@@ -267,7 +267,7 @@ void QmlStandaloneApp::handleCurrentProFileTemplateLine(const QString &line,
     }
 }
 
-void QmlStandaloneApp::clearModulesAndPlugins()
+void QtQuickApp::clearModulesAndPlugins()
 {
     qDeleteAll(m_modules);
     m_modules.clear();
@@ -275,7 +275,7 @@ void QmlStandaloneApp::clearModulesAndPlugins()
     m_cppPlugins.clear();
 }
 
-bool QmlStandaloneApp::addCppPlugin(const QString &qmldirLine, QmlModule *module)
+bool QtQuickApp::addCppPlugin(const QString &qmldirLine, QmlModule *module)
 {
     const QStringList qmldirLineElements =
             qmldirLine.split(QLatin1Char(' '), QString::SkipEmptyParts);
@@ -321,7 +321,7 @@ bool QmlStandaloneApp::addCppPlugin(const QString &qmldirLine, QmlModule *module
     return true;
 }
 
-bool QmlStandaloneApp::addCppPlugins(QmlModule *module)
+bool QtQuickApp::addCppPlugins(QmlModule *module)
 {
     QFile qmlDirFile(module->qmldir.absoluteFilePath());
     if (qmlDirFile.open(QIODevice::ReadOnly)) {
@@ -336,7 +336,7 @@ bool QmlStandaloneApp::addCppPlugins(QmlModule *module)
     return true;
 }
 
-bool QmlStandaloneApp::addExternalModule(const QString &name, const QFileInfo &dir,
+bool QtQuickApp::addExternalModule(const QString &name, const QFileInfo &dir,
                                          const QFileInfo &contentDir)
 {
     QmlModule *module = new QmlModule(name, dir, contentDir, true, this);
@@ -345,51 +345,51 @@ bool QmlStandaloneApp::addExternalModule(const QString &name, const QFileInfo &d
 }
 
 #ifndef CREATORLESSTEST
-Core::GeneratedFiles QmlStandaloneApp::generateFiles(QString *errorMessage) const
+Core::GeneratedFiles QtQuickApp::generateFiles(QString *errorMessage) const
 {
     Core::GeneratedFiles files = AbstractMobileApp::generateFiles(errorMessage);
     if (!useExistingMainQml()) {
-        files.append(file(generateFile(QmlAppGeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)));
+        files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)));
         files.last().setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     }
 
-    files.append(file(generateFile(QmlAppGeneratedFileInfo::AppViewerPriFile, errorMessage), path(AppViewerPri)));
-    files.append(file(generateFile(QmlAppGeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp)));
-    files.append(file(generateFile(QmlAppGeneratedFileInfo::AppViewerHFile, errorMessage), path(AppViewerH)));
+    files.append(file(generateFile(QtQuickAppGeneratedFileInfo::AppViewerPriFile, errorMessage), path(AppViewerPri)));
+    files.append(file(generateFile(QtQuickAppGeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp)));
+    files.append(file(generateFile(QtQuickAppGeneratedFileInfo::AppViewerHFile, errorMessage), path(AppViewerH)));
 
     return files;
 }
 #endif // CREATORLESSTEST
 
-bool QmlStandaloneApp::useExistingMainQml() const
+bool QtQuickApp::useExistingMainQml() const
 {
     return !m_mainQmlFile.filePath().isEmpty();
 }
 
-const QList<QmlModule*> QmlStandaloneApp::modules() const
+const QList<QmlModule*> QtQuickApp::modules() const
 {
     return m_modules;
 }
 
-QByteArray QmlStandaloneApp::generateFileExtended(int fileType,
+QByteArray QtQuickApp::generateFileExtended(int fileType,
     bool *versionAndCheckSum, QString *comment, QString *errorMessage) const
 {
     QByteArray data;
     switch (fileType) {
-        case QmlAppGeneratedFileInfo::MainQmlFile:
+        case QtQuickAppGeneratedFileInfo::MainQmlFile:
             data = readBlob(path(MainQmlOrigin), errorMessage);
             break;
-        case QmlAppGeneratedFileInfo::AppViewerPriFile:
+        case QtQuickAppGeneratedFileInfo::AppViewerPriFile:
             data = readBlob(path(AppViewerPriOrigin), errorMessage);
             data.append(readBlob(path(DeploymentPriOrigin), errorMessage));
             *comment = ProFileComment;
             *versionAndCheckSum = true;
             break;
-        case QmlAppGeneratedFileInfo::AppViewerCppFile:
+        case QtQuickAppGeneratedFileInfo::AppViewerCppFile:
             data = readBlob(path(AppViewerCppOrigin), errorMessage);
             *versionAndCheckSum = true;
             break;
-        case QmlAppGeneratedFileInfo::AppViewerHFile:
+        case QtQuickAppGeneratedFileInfo::AppViewerHFile:
         default:
             data = readBlob(path(AppViewerHOrigin), errorMessage);
             *versionAndCheckSum = true;
@@ -398,21 +398,21 @@ QByteArray QmlStandaloneApp::generateFileExtended(int fileType,
     return data;
 }
 
-int QmlStandaloneApp::stubVersionMinor() const
+int QtQuickApp::stubVersionMinor() const
 {
     return StubVersion;
 }
 
-QList<AbstractGeneratedFileInfo> QmlStandaloneApp::updateableFiles(const QString &mainProFile) const
+QList<AbstractGeneratedFileInfo> QtQuickApp::updateableFiles(const QString &mainProFile) const
 {
     QList<AbstractGeneratedFileInfo> result;
     static const struct {
         int fileType;
         QString fileName;
     } files[] = {
-        {QmlAppGeneratedFileInfo::AppViewerPriFile, appViewerPriFileName},
-        {QmlAppGeneratedFileInfo::AppViewerHFile, appViewerHFileName},
-        {QmlAppGeneratedFileInfo::AppViewerCppFile, appViewerCppFileName}
+        {QtQuickAppGeneratedFileInfo::AppViewerPriFile, appViewerPriFileName},
+        {QtQuickAppGeneratedFileInfo::AppViewerHFile, appViewerHFileName},
+        {QtQuickAppGeneratedFileInfo::AppViewerCppFile, appViewerCppFileName}
     };
     const QFileInfo mainProFileInfo(mainProFile);
     const int size = sizeof(files) / sizeof(files[0]);
@@ -421,10 +421,10 @@ QList<AbstractGeneratedFileInfo> QmlStandaloneApp::updateableFiles(const QString
                 + QLatin1Char('/') + appViewerOriginsSubDir + files[i].fileName;
         if (!QFile::exists(fileName))
             continue;
-        QmlAppGeneratedFileInfo file;
+        QtQuickAppGeneratedFileInfo file;
         file.fileType = files[i].fileType;
         file.fileInfo = QFileInfo(fileName);
-        file.currentVersion = AbstractMobileApp::makeStubVersion(QmlStandaloneApp::StubVersion);
+        file.currentVersion = AbstractMobileApp::makeStubVersion(QtQuickApp::StubVersion);
         result.append(file);
     }
     if (result.count() != size)
@@ -432,7 +432,7 @@ QList<AbstractGeneratedFileInfo> QmlStandaloneApp::updateableFiles(const QString
     return result;
 }
 
-const int QmlStandaloneApp::StubVersion = 10;
+const int QtQuickApp::StubVersion = 10;
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

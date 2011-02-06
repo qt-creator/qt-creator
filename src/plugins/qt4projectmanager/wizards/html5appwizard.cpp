@@ -99,7 +99,7 @@ Html5AppWizard::~Html5AppWizard()
 Core::BaseFileWizardParameters Html5AppWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
-    parameters.setIcon(QIcon(QLatin1String(Constants::ICON_QML_STANDALONE)));
+    parameters.setIcon(QIcon(QLatin1String(Constants::ICON_QT_PROJECT)));
     parameters.setDisplayName(tr("Html5 Application"));
     parameters.setId(QLatin1String("QA.HTML5A Application"));
     parameters.setDescription(tr("Creates an Html5 application project that can contain "

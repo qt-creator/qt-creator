@@ -4,13 +4,15 @@ DEFINES += \
     CREATORLESSTEST
 APPSOURCEDIR = $$CREATORSOURCEDIR/src/plugins/qt4projectmanager/wizards
 HEADERS += \
-    $$APPSOURCEDIR/qmlstandaloneapp.h \
+    $$APPSOURCEDIR/qtquickapp.h \
+    $$APPSOURCEDIR/html5app.h \
     $$APPSOURCEDIR/abstractmobileapp.h
 SOURCES += \
-    $$APPSOURCEDIR/qmlstandaloneapp.cpp \
+    $$APPSOURCEDIR/qtquickapp.cpp \
+    $$APPSOURCEDIR/html5app.cpp \
     $$APPSOURCEDIR/abstractmobileapp.cpp \
     main.cpp \
-    $$CREATORSOURCEDIR/tests/manual/qmlstandalone/helpers.cpp
+    $$CREATORSOURCEDIR/tests/manual/appwizards/helpers.cpp
 INCLUDEPATH += $$APPSOURCEDIR
 OTHER_FILES = qtquickapps.xml
 RESOURCES += \

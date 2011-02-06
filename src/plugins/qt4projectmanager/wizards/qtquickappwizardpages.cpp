@@ -31,8 +31,8 @@
 **
 **************************************************************************/
 
-#include "qmlstandaloneappwizardpages.h"
-#include "ui_qmlstandaloneappwizardsourcespage.h"
+#include "qtquickappwizardpages.h"
+#include "ui_qtquickappwizardsourcespage.h"
 #include <coreplugin/coreconstants.h>
 
 #include <QtGui/QDesktopServices>
@@ -43,15 +43,15 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class QmlStandaloneAppWizardSourcesPagePrivate
+class QtQuickAppWizardSourcesPagePrivate
 {
-    Ui::QmlStandaloneAppWizardSourcesPage ui;
-    friend class QmlStandaloneAppWizardSourcesPage;
+    Ui::QtQuickAppWizardSourcesPage ui;
+    friend class QtQuickAppWizardSourcesPage;
 };
 
-QmlStandaloneAppWizardSourcesPage::QmlStandaloneAppWizardSourcesPage(QWidget *parent)
+QtQuickAppWizardSourcesPage::QtQuickAppWizardSourcesPage(QWidget *parent)
     : QWizardPage(parent)
-    , m_d(new QmlStandaloneAppWizardSourcesPagePrivate)
+    , m_d(new QtQuickAppWizardSourcesPagePrivate)
 {
     m_d->ui.setupUi(this);
     m_d->ui.mainQmlFileLineEdit->setExpectedKind(Utils::PathChooser::File);
@@ -65,18 +65,18 @@ QmlStandaloneAppWizardSourcesPage::QmlStandaloneAppWizardSourcesPage(QWidget *pa
     m_d->ui.newQmlRadioButton->setChecked(true);
 }
 
-QmlStandaloneAppWizardSourcesPage::~QmlStandaloneAppWizardSourcesPage()
+QtQuickAppWizardSourcesPage::~QtQuickAppWizardSourcesPage()
 {
     delete m_d;
 }
 
-QString QmlStandaloneAppWizardSourcesPage::mainQmlFile() const
+QString QtQuickAppWizardSourcesPage::mainQmlFile() const
 {
     return m_d->ui.importExistingQmlRadioButton->isChecked() ?
                 m_d->ui.mainQmlFileLineEdit->path() : QString();
 }
 
-bool QmlStandaloneAppWizardSourcesPage::isComplete() const
+bool QtQuickAppWizardSourcesPage::isComplete() const
 {
     return !m_d->ui.importExistingQmlRadioButton->isChecked()
             || m_d->ui.mainQmlFileLineEdit->isValid();

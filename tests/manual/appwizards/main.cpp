@@ -31,7 +31,7 @@
 **
 **************************************************************************/
 
-#include "qmlstandaloneapp.h"
+#include "qtquickapp.h"
 #include "html5app.h"
 #include <QtCore>
 
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     const QString projectPath = QLatin1String("testprojects");
 
     {
-        QmlStandaloneApp sAppNew;
+        QtQuickApp sAppNew;
         sAppNew.setProjectPath(projectPath);
         sAppNew.setProjectName(QLatin1String("new_qml_app"));
         if (!sAppNew.generateFiles(&errorMessage))
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     }
 
     {
-        QmlStandaloneApp sAppImport01;
+        QtQuickApp sAppImport01;
         sAppImport01.setProjectPath(projectPath);
         sAppImport01.setProjectName(QLatin1String("imported_scenario_01"));
         sAppImport01.setMainQmlFile(QLatin1String("../appwizards/qmlimportscenario_01/myqmlapp.qml"));
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 
     {
         const QString rootPath = QLatin1String("../appwizards/qmlimportscenario_02/");
-        QmlStandaloneApp sAppImport02;
+        QtQuickApp sAppImport02;
         sAppImport02.setProjectPath(projectPath);
         sAppImport02.setProjectName(QLatin1String("imported_scenario_02"));
         sAppImport02.setMainQmlFile(rootPath + QLatin1String("subfolder1/myqmlapp.qml"));

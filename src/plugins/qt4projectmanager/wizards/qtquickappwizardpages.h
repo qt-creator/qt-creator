@@ -31,32 +31,31 @@
 **
 **************************************************************************/
 
-#ifndef QMLSTANDALONEAPPWIZARDPAGES_H
-#define QMLSTANDALONEAPPWIZARDPAGES_H
+#ifndef QTQUICKAPPWIZARDPAGES_H
+#define QTQUICKAPPWIZARDPAGES_H
 
 #include <QtGui/QWizardPage>
-#include "qmlstandaloneapp.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class QmlStandaloneAppWizardSourcesPage : public QWizardPage
+class QtQuickAppWizardSourcesPage : public QWizardPage
 {
     Q_OBJECT
-    Q_DISABLE_COPY(QmlStandaloneAppWizardSourcesPage)
+    Q_DISABLE_COPY(QtQuickAppWizardSourcesPage)
 
 public:
-    explicit QmlStandaloneAppWizardSourcesPage(QWidget *parent = 0);
-    virtual ~QmlStandaloneAppWizardSourcesPage();
+    explicit QtQuickAppWizardSourcesPage(QWidget *parent = 0);
+    virtual ~QtQuickAppWizardSourcesPage();
 
     QString mainQmlFile() const;
     virtual bool isComplete() const;
 
 private:
-    class QmlStandaloneAppWizardSourcesPagePrivate *m_d;
+    class QtQuickAppWizardSourcesPagePrivate *m_d;
 };
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // QMLSTANDALONEAPPWIZARDPAGES_H
+#endif // QTQUICKAPPWIZARDPAGES_H

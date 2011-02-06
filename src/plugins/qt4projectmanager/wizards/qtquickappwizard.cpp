@@ -33,9 +33,9 @@
 
 #include "mobileappwizardpages.h"
 
-#include "qmlstandaloneapp.h"
-#include "qmlstandaloneappwizard.h"
-#include "qmlstandaloneappwizardpages.h"
+#include "qtquickapp.h"
+#include "qtquickappwizard.h"
+#include "qtquickappwizardpages.h"
 #include "targetsetuppage.h"
 
 #include "qt4projectmanagerconstants.h"
@@ -59,8 +59,8 @@ public:
     explicit QmlStandaloneAppWizardDialog(QWidget *parent = 0);
 
 private:
-    class QmlStandaloneAppWizardSourcesPage *m_qmlSourcesPage;
-    friend class QmlStandaloneAppWizard;
+    class QtQuickAppWizardSourcesPage *m_qmlSourcesPage;
+    friend class QtQuickAppWizard;
 };
 
 QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QWidget *parent)
@@ -70,36 +70,36 @@ QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QWidget *parent)
     setWindowTitle(tr("New Qt Quick Application"));
     setIntroDescription(tr("This wizard generates a Qt Quick application project."));
 
-    m_qmlSourcesPage = new QmlStandaloneAppWizardSourcesPage;
+    m_qmlSourcesPage = new QtQuickAppWizardSourcesPage;
     addPageWithTitle(m_qmlSourcesPage, tr("QML Sources"));
 }
 
 
-class QmlStandaloneAppWizardPrivate
+class QtQuickAppWizardPrivate
 {
-    class QmlStandaloneApp *standaloneApp;
+    class QtQuickApp *app;
     class QmlStandaloneAppWizardDialog *wizardDialog;
-    friend class QmlStandaloneAppWizard;
+    friend class QtQuickAppWizard;
 };
 
-QmlStandaloneAppWizard::QmlStandaloneAppWizard()
+QtQuickAppWizard::QtQuickAppWizard()
     : AbstractMobileAppWizard(parameters())
-    , m_d(new QmlStandaloneAppWizardPrivate)
+    , m_d(new QtQuickAppWizardPrivate)
 {
-    m_d->standaloneApp = new QmlStandaloneApp;
+    m_d->app = new QtQuickApp;
     m_d->wizardDialog = 0;
 }
 
-QmlStandaloneAppWizard::~QmlStandaloneAppWizard()
+QtQuickAppWizard::~QtQuickAppWizard()
 {
-    delete m_d->standaloneApp;
+    delete m_d->app;
     delete m_d;
 }
 
-Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters()
+Core::BaseFileWizardParameters QtQuickAppWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
-    parameters.setIcon(QIcon(QLatin1String(Constants::ICON_QML_STANDALONE)));
+    parameters.setIcon(QIcon(QLatin1String(Constants::ICON_QTQUICK_APP)));
     parameters.setDisplayName(tr("Qt Quick Application"));
     parameters.setId(QLatin1String("QA.QMLA Application"));
     parameters.setDescription(tr("Creates a Qt Quick application project that can contain "
@@ -114,13 +114,13 @@ Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters()
     return parameters;
 }
 
-AbstractMobileAppWizardDialog *QmlStandaloneAppWizard::createWizardDialogInternal(QWidget *parent) const
+AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWidget *parent) const
 {
     m_d->wizardDialog = new QmlStandaloneAppWizardDialog(parent);
     return m_d->wizardDialog;
 }
 
-void QmlStandaloneAppWizard::projectPathChanged(const QString &path) const
+void QtQuickAppWizard::projectPathChanged(const QString &path) const
 {
     const QList<TargetSetupPage::ImportInfo> &qtVersions
         = TargetSetupPage::importInfosForKnownQtVersions(path);
@@ -139,33 +139,33 @@ void QmlStandaloneAppWizard::projectPathChanged(const QString &path) const
     m_d->wizardDialog->m_targetsPage->setImportInfos(qmlQtVersions);
 }
 
-void QmlStandaloneAppWizard::prepareGenerateFiles(const QWizard *w,
+void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,
     QString *errorMessage) const
 {
     Q_UNUSED(errorMessage)
     const QmlStandaloneAppWizardDialog *wizard = qobject_cast<const QmlStandaloneAppWizardDialog*>(w);
     const QString mainQmlFile = wizard->m_qmlSourcesPage->mainQmlFile();
-    m_d->standaloneApp->setMainQmlFile(mainQmlFile);
+    m_d->app->setMainQmlFile(mainQmlFile);
 }
 
-bool QmlStandaloneAppWizard::postGenerateFilesInternal(const Core::GeneratedFiles &l,
+bool QtQuickAppWizard::postGenerateFilesInternal(const Core::GeneratedFiles &l,
     QString *errorMessage)
 {
     const bool success = ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
-    if (success && !m_d->standaloneApp->mainQmlFile().isEmpty()) {
-        ProjectExplorer::ProjectExplorerPlugin::instance()->setCurrentFile(0, m_d->standaloneApp->mainQmlFile());
-        Core::EditorManager::instance()->openEditor(m_d->standaloneApp->mainQmlFile(),
+    if (success && !m_d->app->mainQmlFile().isEmpty()) {
+        ProjectExplorer::ProjectExplorerPlugin::instance()->setCurrentFile(0, m_d->app->mainQmlFile());
+        Core::EditorManager::instance()->openEditor(m_d->app->mainQmlFile(),
                                                     QString(), Core::EditorManager::ModeSwitch);
     }
     return success;
 }
 
-AbstractMobileApp *QmlStandaloneAppWizard::app() const
+AbstractMobileApp *QtQuickAppWizard::app() const
 {
-    return m_d->standaloneApp;
+    return m_d->app;
 }
 
-AbstractMobileAppWizardDialog *QmlStandaloneAppWizard::wizardDialog() const
+AbstractMobileAppWizardDialog *QtQuickAppWizard::wizardDialog() const
 {
     return m_d->wizardDialog;
 }
@@ -173,4 +173,4 @@ AbstractMobileAppWizardDialog *QmlStandaloneAppWizard::wizardDialog() const
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#include "qmlstandaloneappwizard.moc"
+#include "qtquickappwizard.moc"

@@ -1,4 +1,4 @@
-#include "qmlstandaloneapp.h"
+#include "qtquickapp.h"
 #include <QtCore>
 
 using namespace Qt4ProjectManager::Internal;
@@ -27,14 +27,14 @@ bool processXmlFile(const QString &xmlFile)
         switch (token) {
             case QXmlStreamReader::StartElement:
                 if (reader.name() == tag_app) {
-                    QmlStandaloneApp qmlApp;
+                    QtQuickApp app;
                     QFileInfo projectPath;
                     if (!reader.attributes().hasAttribute(attrib_projectPath)) {
                         qDebug() << "Project without path found";
                         continue;
                     }
                     projectPath = qtDir + reader.attributes().value(attrib_projectPath).toString();
-                    qmlApp.setProjectPath(projectPath.absoluteFilePath());
+                    app.setProjectPath(projectPath.absoluteFilePath());
                     if (reader.attributes().hasAttribute(attrib_mainQmlFile)) {
                         const QFileInfo qmlFileOrigin(
                                 qtDir + reader.attributes().value(attrib_mainQmlFile).toString());
@@ -63,25 +63,25 @@ bool processXmlFile(const QString &xmlFile)
 #else // Q_OS_WIN
                         // Implement me!
 #endif // Q_OS_WIN
-                        qmlApp.setMainQmlFile(qmlTargetPath.absoluteFilePath()
+                        app.setMainQmlFile(qmlTargetPath.absoluteFilePath()
                                               + QLatin1Char('/') + qmlFileOrigin.fileName());
                     }
-                    qmlApp.setProjectName(reader.attributes().hasAttribute(attrib_projectName)
+                    app.setProjectName(reader.attributes().hasAttribute(attrib_projectName)
                                             ? reader.attributes().value(attrib_projectName).toString()
-                                            : QFileInfo(qmlApp.mainQmlFile()).baseName());
+                                            : QFileInfo(app.mainQmlFile()).baseName());
                     if (reader.attributes().hasAttribute(attrib_screenOrientation)) {
                         const QStringRef orientation = reader.attributes().value(attrib_screenOrientation);
-                        qmlApp.setOrientation(orientation == value_screenOrientationLockLandscape ?
+                        app.setOrientation(orientation == value_screenOrientationLockLandscape ?
                                                 AbstractMobileApp::ScreenOrientationLockLandscape
                                               : orientation == value_screenOrientationLockPortrait ?
                                                 AbstractMobileApp::ScreenOrientationLockPortrait
                                               : AbstractMobileApp::ScreenOrientationAuto);
                     }
                     if (reader.attributes().hasAttribute(attrib_networkAccess))
-                        qmlApp.setNetworkEnabled(
+                        app.setNetworkEnabled(
                                     reader.attributes().value(attrib_networkAccess).toString() == QLatin1String("true"));
-                    if (!qmlApp.generateFiles(0))
-                        qDebug() << "Unable to generate the files for" << qmlApp.projectName();
+                    if (!app.generateFiles(0))
+                        qDebug() << "Unable to generate the files for" << app.projectName();
                 }
                 break;
             default:

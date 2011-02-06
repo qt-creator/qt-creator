@@ -31,21 +31,21 @@
 **
 **************************************************************************/
 
-#ifndef QMLSTANDALONEAPPWIZARD_H
-#define QMLSTANDALONEAPPWIZARD_H
+#ifndef QTQUICKAPPWIZARD_H
+#define QTQUICKAPPWIZARD_H
 
 #include "abstractmobileappwizard.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class QmlStandaloneAppWizard : public AbstractMobileAppWizard
+class QtQuickAppWizard : public AbstractMobileAppWizard
 {
     Q_OBJECT
 
 public:
-    QmlStandaloneAppWizard();
-    virtual ~QmlStandaloneAppWizard();
+    QtQuickAppWizard();
+    virtual ~QtQuickAppWizard();
 
 private:
     static Core::BaseFileWizardParameters parameters();
@@ -59,10 +59,10 @@ private:
     virtual bool postGenerateFilesInternal(const Core::GeneratedFiles &l,
         QString *errorMessage);
 
-    class QmlStandaloneAppWizardPrivate *m_d;
+    class QtQuickAppWizardPrivate *m_d;
 };
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // QMLSTANDALONEAPPWIZARD_H
+#endif // QTQUICKAPPWIZARD_H

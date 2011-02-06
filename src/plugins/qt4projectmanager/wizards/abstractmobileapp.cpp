@@ -325,7 +325,7 @@ bool AbstractMobileApp::updateFiles(const QList<AbstractGeneratedFileInfo> &list
         QFile file(info.fileInfo.absoluteFilePath());
         if (!file.open(QIODevice::WriteOnly) || file.write(data) == -1) {
             error = QCoreApplication::translate(
-                        "Qt4ProjectManager::Internal::QmlStandaloneApp",
+                        "Qt4ProjectManager::Internal::QtQuickApp",
                         "Could not write file '%1'.").
                     arg(QDir::toNativeSeparators(info.fileInfo.canonicalFilePath()));
             return false;
@@ -335,8 +335,8 @@ bool AbstractMobileApp::updateFiles(const QList<AbstractGeneratedFileInfo> &list
 }
 
 #ifndef CREATORLESSTEST
-// The definition of QmlStandaloneApp::templatesRoot() for
-// CREATORLESSTEST is in tests/manual/qmlstandalone/main.cpp
+// The definition of QtQuickApp::templatesRoot() for
+// CREATORLESSTEST is in tests/manual/appwizards/helpers.cpp
 QString AbstractMobileApp::templatesRoot()
 {
     return Core::ICore::instance()->resourcePath()

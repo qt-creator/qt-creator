@@ -36,13 +36,13 @@ HEADERS += \
     wizards/filespage.h \
     wizards/qtwizard.h \
     wizards/targetsetuppage.h \
-    wizards/qmlstandaloneappwizard.h \
-    wizards/qmlstandaloneappwizardpages.h \
+    wizards/qtquickapp.h \
+    wizards/qtquickappwizard.h \
+    wizards/qtquickappwizardpages.h \
     wizards/html5app.h \
     wizards/html5appwizard.h \
     wizards/html5appwizardpages.h \
     wizards/abstractmobileapp.h \
-    wizards/qmlstandaloneapp.h \
     wizards/abstractmobileappwizard.h \
     wizards/subdirsprojectwizard.h \
     wizards/subdirsprojectwizarddialog.h \
@@ -102,13 +102,13 @@ SOURCES += qt4projectmanagerplugin.cpp \
     wizards/filespage.cpp \
     wizards/qtwizard.cpp \
     wizards/targetsetuppage.cpp \
-    wizards/qmlstandaloneappwizard.cpp \
-    wizards/qmlstandaloneappwizardpages.cpp \
+    wizards/qtquickapp.cpp \
+    wizards/qtquickappwizard.cpp \
+    wizards/qtquickappwizardpages.cpp \
     wizards/html5app.cpp \
     wizards/html5appwizard.cpp \
     wizards/html5appwizardpages.cpp \
     wizards/abstractmobileapp.cpp \
-    wizards/qmlstandaloneapp.cpp \
     wizards/abstractmobileappwizard.cpp \
     wizards/subdirsprojectwizard.cpp \
     wizards/subdirsprojectwizarddialog.cpp \
@@ -143,7 +143,7 @@ FORMS += makestep.ui \
     gettingstartedwelcomepagewidget.ui \
     wizards/testwizardpage.ui \
     wizards/targetsetuppage.ui \
-    wizards/qmlstandaloneappwizardsourcespage.ui \
+    wizards/qtquickappwizardsourcespage.ui \
     wizards/html5appwizardsourcespage.ui \
     wizards/mobilelibrarywizardoptionpage.ui \
     wizards/mobileappwizardgenericoptionspage.ui \

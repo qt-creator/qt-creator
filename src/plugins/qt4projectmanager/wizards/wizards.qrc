@@ -3,6 +3,6 @@
         <file>images/console.png</file>
         <file>images/gui.png</file>
         <file>images/lib.png</file>
-        <file>images/qml_standalone.png</file>
+        <file>images/qtquickapp.png</file>
     </qresource>
 </RCC>

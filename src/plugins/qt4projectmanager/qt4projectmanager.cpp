@@ -41,7 +41,7 @@
 #include "profilereader.h"
 #include "qmakestep.h"
 #include "qt4buildconfiguration.h"
-#include "wizards/qmlstandaloneapp.h"
+#include "wizards/qtquickapp.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/basefilewizard.h>
@@ -237,7 +237,7 @@ ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName)
         }
     }
 
-    QmlStandaloneApp app;
+    QtQuickApp app;
     updateBoilerPlateCodeFiles(&app, canonicalFilePath);
 
     Qt4Project *pro = new Qt4Project(this, canonicalFilePath);
