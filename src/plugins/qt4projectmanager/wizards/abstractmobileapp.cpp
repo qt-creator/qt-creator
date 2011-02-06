@@ -249,16 +249,16 @@ QByteArray AbstractMobileApp::generateProFile(QString *errorMessage) const
     QTextStream out(&proFileContent, QIODevice::WriteOnly);
 
     QString valueOnNextLine;
-    bool uncommentNextLine = false;
+    bool commentOutNextLine = false;
     QString line;
     while (!(line = in.readLine()).isNull()) {
         if (line.contains(QLatin1String("# TARGETUID3"))) {
             valueOnNextLine = symbianTargetUid();
         } else if (line.contains(QLatin1String("# NETWORKACCESS"))
             && !networkEnabled()) {
-            uncommentNextLine = true;
+            commentOutNextLine = true;
         } else {
-            handleCurrentProFileTemplateLine(line, in, out, uncommentNextLine);
+            handleCurrentProFileTemplateLine(line, in, out, commentOutNextLine);
         }
 
         // Remove all marker comments
@@ -273,9 +273,9 @@ QByteArray AbstractMobileApp::generateProFile(QString *errorMessage) const
             continue;
         }
 
-        if (uncommentNextLine) {
+        if (commentOutNextLine) {
             out << comment << line << endl;
-            uncommentNextLine = false;
+            commentOutNextLine = false;
             continue;
         }
         out << line << endl;

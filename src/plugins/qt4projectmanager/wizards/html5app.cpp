@@ -121,8 +121,9 @@ bool Html5App::adaptCurrentMainCppTemplateLine(QString &line) const
 
 void Html5App::handleCurrentProFileTemplateLine(const QString &line,
     QTextStream &proFileTemplate, QTextStream &proFile,
-    bool &uncommentNextLine) const
+    bool &commentOutNextLine) const
 {
+    Q_UNUSED(commentOutNextLine)
     if (line.contains(QLatin1String("# DEPLOYMENTFOLDERS"))) {
         // Eat lines
         QString nextLine;

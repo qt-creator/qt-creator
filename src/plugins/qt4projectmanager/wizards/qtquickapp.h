@@ -134,7 +134,7 @@ private:
     virtual bool adaptCurrentMainCppTemplateLine(QString &line) const;
     virtual void handleCurrentProFileTemplateLine(const QString &line,
         QTextStream &proFileTemplate, QTextStream &proFile,
-        bool &uncommentNextLine) const;
+        bool &commentOutNextLine) const;
     QList<AbstractGeneratedFileInfo> updateableFiles(const QString &mainProFile) const;
 
     bool addExternalModule(const QString &uri, const QFileInfo &dir,

@@ -161,7 +161,7 @@ private:
     virtual bool adaptCurrentMainCppTemplateLine(QString &line) const=0;
     virtual void handleCurrentProFileTemplateLine(const QString &line,
         QTextStream &proFileTemplate, QTextStream &proFile,
-        bool &uncommentNextLine) const=0;
+        bool &commentOutNextLine) const = 0;
     virtual QList<AbstractGeneratedFileInfo> updateableFiles(const QString &mainProFile) const = 0;
 
     QString m_projectName;

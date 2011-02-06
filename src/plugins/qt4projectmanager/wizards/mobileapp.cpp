@@ -86,12 +86,12 @@ bool MobileApp::adaptCurrentMainCppTemplateLine(QString &line) const
 
 void MobileApp::handleCurrentProFileTemplateLine(const QString &line,
     QTextStream &proFileTemplate, QTextStream &proFile,
-    bool &uncommentNextLine) const
+    bool &commentOutNextLine) const
 {
     Q_UNUSED(line);
     Q_UNUSED(proFileTemplate);
     Q_UNUSED(proFile);
-    Q_UNUSED(uncommentNextLine);
+    Q_UNUSED(commentOutNextLine);
 }
 
 Core::GeneratedFiles MobileApp::generateFiles(QString *errorMessage) const
