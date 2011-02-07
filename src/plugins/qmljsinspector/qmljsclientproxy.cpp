@@ -46,11 +46,6 @@
 
 #include <QtCore/QUrl>
 #include <QtNetwork/QAbstractSocket>
-#include <QtCore/QDebug>
-
-enum {
-    debug = false
-};
 
 using namespace QmlJSInspector::Internal;
 
@@ -217,6 +212,19 @@ QDeclarativeDebugObjectReference ClientProxy::objectReferenceForId(int debugId) 
     return QDeclarativeDebugObjectReference();
 }
 
+void ClientProxy::log(LogDirection direction, const QString &message)
+{
+    QString msg;
+    if (direction == LogSend) {
+        msg += " sending ";
+    } else {
+        msg += " receiving ";
+    }
+    msg += message;
+
+    m_adapter->logServiceActivity("QDeclarativeDebug", msg);
+}
+
 QList<QDeclarativeDebugObjectReference> QmlJSInspector::Internal::ClientProxy::rootObjectReference() const
 {
     return m_rootObjects;
@@ -286,45 +294,60 @@ bool ClientProxy::setBindingForObject(int objectDebugId,
                                       const QVariant &value,
                                       bool isLiteralValue)
 {
-    if (debug)
-        qDebug() << "setBindingForObject():" << objectDebugId << propertyName << value;
     if (objectDebugId == -1)
         return false;
 
     if (propertyName == QLatin1String("id"))
         return false; // Crashes the QMLViewer.
 
+    log(LogSend, QString("SET_BINDING %1 %2 %3 %4").arg(QString::number(objectDebugId), propertyName, value.toString(), QString(isLiteralValue ? "true" : "false")));
+
     bool result = m_engineClient->setBindingForObject(objectDebugId, propertyName, value.toString(), isLiteralValue);
+
+    if (!result)
+        log(LogSend, QString("failed!"));
 
     return result;
 }
 
 bool ClientProxy::setMethodBodyForObject(int objectDebugId, const QString &methodName, const QString &methodBody)
 {
-    if (debug)
-        qDebug() << "setMethodBodyForObject():" << objectDebugId << methodName << methodBody;
     if (objectDebugId == -1)
         return 0;
-    return m_engineClient->setMethodBody(objectDebugId, methodName, methodBody);
+
+    log(LogSend, QString("SET_METHOD_BODY %1 %2 %3").arg(QString::number(objectDebugId), methodName, methodBody));
+
+    bool result = m_engineClient->setMethodBody(objectDebugId, methodName, methodBody);
+
+    if (!result)
+        log(LogSend, QString("failed!"));
+
+    return result;
 }
 
 bool ClientProxy::resetBindingForObject(int objectDebugId, const QString& propertyName)
 {
-    if (debug)
-        qDebug() << "resetBindingForObject():" << objectDebugId << propertyName;
     if (objectDebugId == -1)
         return false;
-    //    if (propertyName == QLatin1String("id"))  return false;
-    return m_engineClient->resetBindingForObject(objectDebugId, propertyName);
+
+    log(LogSend, QString("RESET_BINDING %1 %2").arg(QString::number(objectDebugId), propertyName));
+
+    bool result = m_engineClient->resetBindingForObject(objectDebugId, propertyName);
+
+    if (!result)
+        log(LogSend, QString("failed!"));
+
+    return result;
 }
 
 QDeclarativeDebugExpressionQuery *ClientProxy::queryExpressionResult(int objectDebugId, const QString &expr, QObject *parent)
 {
-    if (debug)
-        qDebug() << "queryExpressionResult():" << objectDebugId << expr << parent;
     if (objectDebugId != -1) {
         bool block = m_adapter->disableJsDebugging(true);
+
+        log(LogSend, QString("EVAL_EXPRESSION %1 %2").arg(QString::number(objectDebugId), expr));
         QDeclarativeDebugExpressionQuery *query = m_engineClient->queryExpressionResult(objectDebugId,expr,parent);
+
         m_adapter->disableJsDebugging(block);
         return query;
     }
@@ -339,8 +362,6 @@ void ClientProxy::clearComponentCache()
 
 bool ClientProxy::addObjectWatch(int objectDebugId)
 {
-    if (debug)
-        qDebug() << "addObjectWatch():" << objectDebugId;
     if (objectDebugId == -1)
         return false;
 
@@ -352,6 +373,9 @@ bool ClientProxy::addObjectWatch(int objectDebugId)
     if (ref.debugId() != objectDebugId)
         return false;
 
+    // is flooding the debugging output log!
+    // log(LogSend, QString("WATCH_PROPERTY %1").arg(objectDebugId));
+
     QDeclarativeDebugWatch *watch = m_engineClient->addWatch(ref, this);
     m_objectWatches.insert(objectDebugId, watch);
 
@@ -362,16 +386,16 @@ bool ClientProxy::addObjectWatch(int objectDebugId)
 
 void ClientProxy::objectWatchTriggered(const QByteArray &propertyName, const QVariant &propertyValue)
 {
+    // is flooding the debugging output log!
+    // log(LogReceive, QString("UPDATE_WATCH %1 %2").arg(QString::fromAscii(propertyName), propertyValue.toString()));
+
     QDeclarativeDebugWatch *watch = dynamic_cast<QDeclarativeDebugWatch *>(QObject::sender());
     if (watch)
         emit propertyChanged(watch->objectDebugId(),propertyName, propertyValue);
-
 }
 
 bool ClientProxy::removeObjectWatch(int objectDebugId)
 {
-    if (debug)
-        qDebug() << "removeObjectWatch():" << objectDebugId;
     if (objectDebugId == -1)
         return false;
 
@@ -380,6 +404,10 @@ bool ClientProxy::removeObjectWatch(int objectDebugId)
 
     QDeclarativeDebugWatch *watch = m_objectWatches.value(objectDebugId);
     disconnect(watch,SIGNAL(valueChanged(QByteArray,QVariant)), this, SLOT(objectWatchTriggered(QByteArray,QVariant)));
+
+    // is flooding the debugging output log!
+    // log(LogSend, QString("NO_WATCH %1").arg(QString::number(objectDebugId)));
+
     m_engineClient->removeWatch(watch);
     delete watch;
     m_objectWatches.remove(objectDebugId);
@@ -405,6 +433,8 @@ void ClientProxy::queryEngineContext(int id)
         m_contextQuery = 0;
     }
 
+    log(LogSend, QString("LIST_OBJECTS %1").arg(QString::number(id)));
+
     m_contextQuery = m_engineClient->queryRootContexts(QDeclarativeDebugEngineReference(id), this);
     if (!m_contextQuery->isWaiting())
         contextChanged();
@@ -415,6 +445,7 @@ void ClientProxy::queryEngineContext(int id)
 
 void ClientProxy::contextChanged()
 {
+    log(LogReceive, QString("LIST_OBJECTS_R"));
     if (m_contextQuery) {
         m_rootObjects.clear();
         QDeclarativeDebugContextReference rootContext = m_contextQuery->rootContext();
@@ -432,6 +463,9 @@ void ClientProxy::contextChanged()
 void ClientProxy::fetchContextObjectRecursive(const QDeclarativeDebugContextReference& context)
 {
     foreach (const QDeclarativeDebugObjectReference & obj, context.objects()) {
+
+        log(LogSend, QString("FETCH_OBJECT %1").arg(obj.idString()));
+
         QDeclarativeDebugObjectQuery* query = m_engineClient->queryObjectRecursive(obj, this);
         if (!query->isWaiting()) {
             query->deleteLater(); //ignore errors;
@@ -455,6 +489,8 @@ void ClientProxy::objectTreeFetched(QDeclarativeDebugQuery::State state)
         delete query;
         return;
     }
+
+    log(LogReceive, QString("FETCH_OBJECT_R %1").arg(query->object().idString()));
 
     m_rootObjects.append(query->object());
 
@@ -611,6 +647,8 @@ void ClientProxy::reloadEngines()
 
     emit aboutToReloadEngines();
 
+    log(LogSend, QString("LIST_ENGINES"));
+
     m_engineQuery = m_engineClient->queryAvailableEngines(this);
     if (!m_engineQuery->isWaiting())
         updateEngineList();
@@ -626,6 +664,8 @@ QList<QDeclarativeDebugEngineReference> ClientProxy::engines() const
 
 void ClientProxy::updateEngineList()
 {
+    log(LogReceive, QString("LIST_ENGINES_R"));
+
     m_engines = m_engineQuery->engines();
     delete m_engineQuery;
     m_engineQuery = 0;
@@ -645,6 +685,7 @@ bool ClientProxy::isConnected() const
 
 void ClientProxy::newObjects()
 {
+    log(LogReceive, QString("OBJECT_CREATED"));
     if (!m_requestObjectsTimer.isActive())
         m_requestObjectsTimer.start();
 }

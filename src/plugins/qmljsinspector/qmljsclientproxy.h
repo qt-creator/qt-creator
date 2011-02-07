@@ -153,6 +153,13 @@ private:
     QList<QDeclarativeDebugObjectReference> objectReferences(const QDeclarativeDebugObjectReference &objectRef) const;
     QDeclarativeDebugObjectReference objectReferenceForId(int debugId, const QDeclarativeDebugObjectReference &ref) const;
 
+    enum LogDirection {
+        LogSend,
+        LogReceive
+    };
+    void log(LogDirection direction, const QString &message);
+
+
 private:
     Q_DISABLE_COPY(ClientProxy)
     void buildDebugIdHashRecursive(const QDeclarativeDebugObjectReference &ref);
