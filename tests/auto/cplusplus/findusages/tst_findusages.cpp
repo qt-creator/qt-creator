@@ -180,8 +180,8 @@ void tst_FindUsages::qproperty_1()
 
     Class *tst = doc->globalSymbolAt(0)->asClass();
     QVERIFY(tst);
-    QCOMPARE(tst->memberCount(), 4U);
-    Function *setX_method = tst->memberAt(1)->asFunction();
+    QCOMPARE(tst->memberCount(), 5U);
+    Function *setX_method = tst->memberAt(2)->asFunction();
     QVERIFY(setX_method);
     QCOMPARE(setX_method->identifier()->chars(), "setX");
     QCOMPARE(setX_method->argumentCount(), 1U);

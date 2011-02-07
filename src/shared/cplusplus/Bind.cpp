@@ -1892,6 +1892,8 @@ bool Bind::visit(QtPropertyDeclarationAST *ast)
     for (QtPropertyDeclarationItemListAST *it = ast->property_declaration_item_list; it; it = it->next) {
         if (!it->value || !it->value->item_name_token)
             continue;
+        this->expression(it->value->expression);
+
         std::string name = spell(it->value->item_name_token);
 
         if (name == "CONSTANT") {
