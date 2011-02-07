@@ -49,39 +49,41 @@ static const char dockWidgetActiveState[] = "DockWidgetActiveState";
 
 namespace Utils {
 
-struct FancyMainWindowPrivate {
-    explicit FancyMainWindowPrivate(FancyMainWindow *q);
+struct FancyMainWindowPrivate
+{
+    FancyMainWindowPrivate();
 
     bool m_locked;
     bool m_handleDockVisibilityChanges; //todo
 
-    QAction *m_menuSeparator1;
-    QAction *m_toggleLockedAction;
-    QAction *m_menuSeparator2;
-    QAction *m_resetLayoutAction;
+    QAction m_menuSeparator1;
+    QAction m_toggleLockedAction;
+    QAction m_menuSeparator2;
+    QAction m_resetLayoutAction;
     QDockWidget *m_toolBarDockWidget;
 };
 
-FancyMainWindowPrivate::FancyMainWindowPrivate(FancyMainWindow *q) :
-    m_locked(true), m_handleDockVisibilityChanges(true),
-    m_menuSeparator1(new QAction(q)),
-    m_toggleLockedAction(new QAction(FancyMainWindow::tr("Locked"), q)),
-    m_menuSeparator2(new QAction(q)),
-    m_resetLayoutAction(new QAction(FancyMainWindow::tr("Reset to Default Layout") ,q)),
+FancyMainWindowPrivate::FancyMainWindowPrivate() :
+    m_locked(true),
+    m_handleDockVisibilityChanges(true),
+    m_menuSeparator1(0),
+    m_toggleLockedAction(FancyMainWindow::tr("Locked"), 0),
+    m_menuSeparator2(0),
+    m_resetLayoutAction(FancyMainWindow::tr("Reset to Default Layout"), 0),
     m_toolBarDockWidget(0)
 {
-    m_toggleLockedAction->setCheckable(true);
-    m_toggleLockedAction->setChecked(m_locked);
-    m_menuSeparator1->setSeparator(true);
-    m_menuSeparator2->setSeparator(true);
+    m_toggleLockedAction.setCheckable(true);
+    m_toggleLockedAction.setChecked(m_locked);
+    m_menuSeparator1.setSeparator(true);
+    m_menuSeparator2.setSeparator(true);
 }
 
 FancyMainWindow::FancyMainWindow(QWidget *parent) :
-    QMainWindow(parent), d(new FancyMainWindowPrivate(this))
+    QMainWindow(parent), d(new FancyMainWindowPrivate)
 {
-    connect(d->m_toggleLockedAction, SIGNAL(toggled(bool)),
+    connect(&d->m_toggleLockedAction, SIGNAL(toggled(bool)),
             this, SLOT(setLocked(bool)));
-    connect(d->m_resetLayoutAction, SIGNAL(triggered()),
+    connect(&d->m_resetLayoutAction, SIGNAL(triggered()),
             this, SIGNAL(resetLayout()));
 }
 
@@ -236,7 +238,7 @@ void FancyMainWindow::restoreSettings(const QHash<QString, QVariant> &settings)
     if (!ba.isEmpty())
         restoreState(ba, settingsVersion);
     d->m_locked = settings.value(QLatin1String("Locked"), true).toBool();
-    d->m_toggleLockedAction->setChecked(d->m_locked);
+    d->m_toggleLockedAction.setChecked(d->m_locked);
     foreach (QDockWidget *widget, dockWidgets()) {
         widget->setProperty(dockWidgetActiveState,
             settings.value(widget->objectName(), false));
@@ -256,41 +258,41 @@ bool FancyMainWindow::isLocked() const
 QMenu *FancyMainWindow::createPopupMenu()
 {
     QMenu *menu = QMainWindow::createPopupMenu();
-    menu->addAction(d->m_menuSeparator1);
-    menu->addAction(d->m_toggleLockedAction);
-    menu->addAction(d->m_menuSeparator2);
-    menu->addAction(d->m_resetLayoutAction);
+    menu->addAction(&d->m_menuSeparator1);
+    menu->addAction(&d->m_toggleLockedAction);
+    menu->addAction(&d->m_menuSeparator2);
+    menu->addAction(&d->m_resetLayoutAction);
     return menu;
 }
 
 QAction *FancyMainWindow::menuSeparator1() const
 {
-    return d->m_menuSeparator1;
+    return &d->m_menuSeparator1;
 }
 
 QAction *FancyMainWindow::toggleLockedAction() const
 {
-    return d->m_toggleLockedAction;
+    return &d->m_toggleLockedAction;
 }
 
 QAction *FancyMainWindow::menuSeparator2() const
 {
-    return d->m_menuSeparator2;
+    return &d->m_menuSeparator2;
 }
 
 QAction *FancyMainWindow::resetLayoutAction() const
 {
-    return d->m_resetLayoutAction;
+    return &d->m_resetLayoutAction;
 }
 
 void FancyMainWindow::setDockActionsVisible(bool v)
 {
-    foreach(const QDockWidget *dockWidget, dockWidgets())
+    foreach (const QDockWidget *dockWidget, dockWidgets())
         dockWidget->toggleViewAction()->setVisible(v);
-    d->m_toggleLockedAction->setVisible(v);
-    d->m_menuSeparator1->setVisible(v);
-    d->m_menuSeparator2->setVisible(v);
-    d->m_resetLayoutAction->setVisible(v);
+    d->m_toggleLockedAction.setVisible(v);
+    d->m_menuSeparator1.setVisible(v);
+    d->m_menuSeparator2.setVisible(v);
+    d->m_resetLayoutAction.setVisible(v);
 }
 
 QDockWidget *FancyMainWindow::toolBarDockWidget() const
