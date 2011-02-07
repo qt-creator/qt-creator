@@ -314,9 +314,9 @@ void S60DeployStep::stop()
         if (m_launcher)
             m_launcher->terminate();
     } else {
-        if (m_trkDevice) {
-            disconnect(m_trkDevice.data(), 0, this, 0);
-            SymbianUtils::SymbianDeviceManager::instance()->releaseTcfPort(m_trkDevice);
+        if (m_codaDevice) {
+            disconnect(m_codaDevice.data(), 0, this, 0);
+            SymbianUtils::SymbianDeviceManager::instance()->releaseTcfPort(m_codaDevice);
         }
     }
     emit finished(false);
@@ -342,7 +342,7 @@ void S60DeployStep::setupConnections()
     } else {
         connect(m_codaDevice.data(), SIGNAL(error(QString)), this, SLOT(slotError(QString)));
         connect(m_codaDevice.data(), SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
-        connect(m_codaDevice.data(), SIGNAL(tcfEvent(tcftrk::TcfTrkEvent)), this, SLOT(slotTcftrkEvent(tcftrk::TcfTrkEvent)), Qt::DirectConnection);
+        connect(m_codaDevice.data(), SIGNAL(tcfEvent(Coda::CodaEvent)), this, SLOT(slotCodaEvent(Coda::CodaEvent)), Qt::DirectConnection);
         connect(m_codaDevice.data(), SIGNAL(serialPong(QString)), this, SLOT(slotSerialPong(QString)));
         connect(this, SIGNAL(manualInstallation()), this, SLOT(showManualInstallationInfo()));
     }
@@ -353,7 +353,7 @@ void S60DeployStep::startDeployment()
     if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
         QTC_ASSERT(m_launcher, return);
     }
-    QTC_ASSERT(!m_trkDevice.data(), return);
+    QTC_ASSERT(!m_codaDevice.data(), return);
 
     // We need to defer setupConnections() in the case of CommunicationCodaSerialConnection
     //setupConnections();
@@ -383,18 +383,19 @@ void S60DeployStep::startDeployment()
         }
     } else if (m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection) {
         appendMessage(tr("Deploying application to '%1'...").arg(m_serialPortFriendlyName), false);
-        m_trkDevice = SymbianUtils::SymbianDeviceManager::instance()->getTcfPort(m_serialPortName);
-        bool ok = m_trkDevice && m_trkDevice->device()->isOpen();
+        m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getTcfPort(m_serialPortName);
+        bool ok = m_codaDevice && m_codaDevice->device()->isOpen();
         if (!ok) {
             QString deviceError = tr("No such port");
-            if (m_trkDevice) deviceError = m_trkDevice->device()->errorString();
+            if (m_codaDevice)
+                deviceError = m_codaDevice->device()->errorString();
             reportError(tr("Couldn't open serial device: %1").arg(deviceError));
             stop();
             return;
         }
         setupConnections();
         m_state = StateConnecting;
-        m_trkDevice->sendSerialPing(false);
+        m_codaDevice->sendSerialPing(false);
         QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
     } else {
         m_codaDevice = QSharedPointer<Coda::CodaDevice>(new Coda::CodaDevice);
@@ -439,9 +440,9 @@ void S60DeployStep::run(QFutureInterface<bool> &fi)
     delete m_timer;
     m_timer = 0;
 
-    if (m_trkDevice) {
-        disconnect(m_trkDevice.data(), 0, this, 0);
-        SymbianUtils::SymbianDeviceManager::instance()->releaseTcfPort(m_trkDevice);
+    if (m_codaDevice) {
+        disconnect(m_codaDevice.data(), 0, this, 0);
+        SymbianUtils::SymbianDeviceManager::instance()->releaseTcfPort(m_codaDevice);
     }
 
     delete m_eventLoop;
@@ -499,7 +500,7 @@ void S60DeployStep::initFileSending()
 
     QString packageName(QFileInfo(m_signedPackages.at(m_currentFileIndex)).fileName());
     QString remoteFileLocation = QString::fromLatin1("%1:\\Data\\%2").arg(m_installationDrive).arg(packageName);
-    m_trkDevice->sendFileSystemOpenCommand(Coda::CodaCallback(this, &S60DeployStep::handleFileSystemOpen),
+    m_codaDevice->sendFileSystemOpenCommand(Coda::CodaCallback(this, &S60DeployStep::handleFileSystemOpen),
                                            remoteFileLocation.toAscii(), flags);
     appendMessage(tr("Copying \"%1\"...").arg(packageName), false);
 }
@@ -512,11 +513,11 @@ void S60DeployStep::initFileInstallation()
     QString packageName(QFileInfo(m_signedPackages.at(m_currentFileIndex)).fileName());
     QString remoteFileLocation = QString::fromLatin1("%1:\\Data\\%2").arg(m_installationDrive).arg(packageName);
     if (m_silentInstall) {
-        m_trkDevice->sendSymbianInstallSilentInstallCommand(Coda::CodaCallback(this, &S60DeployStep::handleSymbianInstall),
+        m_codaDevice->sendSymbianInstallSilentInstallCommand(Coda::CodaCallback(this, &S60DeployStep::handleSymbianInstall),
                                                             remoteFileLocation.toAscii(), QString::fromLatin1("%1:").arg(m_installationDrive).toAscii());
         appendMessage(tr("Installing package \"%1\" on drive %2:...").arg(packageName).arg(m_installationDrive), false);
     } else {
-        m_trkDevice->sendSymbianInstallUIInstallCommand(Coda::CodaCallback(this, &S60DeployStep::handleSymbianInstall),
+        m_codaDevice->sendSymbianInstallUIInstallCommand(Coda::CodaCallback(this, &S60DeployStep::handleSymbianInstall),
                                                         remoteFileLocation.toAscii());
         appendMessage(tr("Please continue the installation on your device."), false);
         emit manualInstallation();
@@ -588,7 +589,7 @@ void S60DeployStep::putSendNextChunk()
             qDebug("Writing %llu bytes to remote file '%s' at %llu\n",
                    m_putLastChunkSize,
                    m_remoteFileHandle.constData(), pos);
-        m_trkDevice->sendFileSystemWriteCommand(Coda::CodaCallback(this, &S60DeployStep::handleFileSystemWrite),
+        m_codaDevice->sendFileSystemWriteCommand(Coda::CodaCallback(this, &S60DeployStep::handleFileSystemWrite),
                                                 m_remoteFileHandle, data, unsigned(pos));
         setCopyProgress((100*(m_putLastChunkSize+pos))/size);
     }
@@ -596,7 +597,7 @@ void S60DeployStep::putSendNextChunk()
 
 void S60DeployStep::closeRemoteFile()
 {
-    m_trkDevice->sendFileSystemCloseCommand(Coda::CodaCallback(this, &S60DeployStep::handleFileSystemClose),
+    m_codaDevice->sendFileSystemCloseCommand(Coda::CodaCallback(this, &S60DeployStep::handleFileSystemClose),
                                             m_remoteFileHandle);
 }
 

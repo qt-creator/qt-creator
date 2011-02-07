@@ -43,7 +43,7 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QFileInfo>
 
-enum { debug = 1 };
+enum { debug = 0 };
 
 static const char tcpMessageTerminatorC[] = "\003\001";
 
@@ -60,15 +60,18 @@ static const char locatorAnswerC[] = "E\0Locator\0Hello\0[\"Locator\"]";
 static const unsigned serialChunkLength = 0x400;  // 1K max USB router
 static const int maxSerialMessageLength = 0x10000; // given chunking scheme
 
+static const char validProtocolIdStart = (char)0x90;
+static const char validProtocolIdEnd = (char)0x95;
+static const char codaProtocolId = (char)0x92;
 static const unsigned char serialChunkingStart = 0xfe;
 static const unsigned char serialChunkingContinuation = 0x0;
 enum { SerialChunkHeaderSize = 2 };
 
 // Create USB router frame
-static inline void encodeSerialFrame(const QByteArray &data, QByteArray *target)
+static inline void encodeSerialFrame(const QByteArray &data, QByteArray *target, char protocolId)
 {
     target->append(char(0x01));
-    target->append(char(0x92)); // CODA serial message ID
+    target->append(protocolId);
     appendShort(target, ushort(data.size()), trk::BigEndian);
     target->append(data);
 }
@@ -76,14 +79,14 @@ static inline void encodeSerialFrame(const QByteArray &data, QByteArray *target)
 // Split in chunks of 1K according to CODA protocol chunking
 static inline QByteArray encodeUsbSerialMessage(const QByteArray &dataIn)
 {
-     // Reserve 2 header bytes
+    // Reserve 2 header bytes
     static const int chunkSize = serialChunkLength - SerialChunkHeaderSize;
     const int size = dataIn.size();
     QByteArray frame;
     // Do we need to split?
     if (size < chunkSize) {  // Nope, all happy.
         frame.reserve(size + 4);
-        encodeSerialFrame(dataIn, &frame);
+        encodeSerialFrame(dataIn, &frame, codaProtocolId);
         return frame;
     }
     // Split.
@@ -102,7 +105,7 @@ static inline QByteArray encodeUsbSerialMessage(const QByteArray &dataIn)
         chunk.append(char(static_cast<unsigned char>(c))); // Avoid any signedness issues.
         const int chunkEnd = qMin(pos + chunkSize, size);
         chunk.append(dataIn.mid(pos, chunkEnd - pos));
-        encodeSerialFrame(chunk, &frame);
+        encodeSerialFrame(chunk, &frame, codaProtocolId);
         pos = chunkEnd;
     }
     if (debug > 1)
@@ -471,26 +474,24 @@ void CodaDevice::slotDeviceReadyRead()
 
 // Find a serial header in input stream '0x1', '0x92', 'lenH', 'lenL'
 // and return message position and size.
-QPair<int, int> TcfTrkDevice::findSerialHeader(QByteArray &in)
+QPair<int, int> CodaDevice::findSerialHeader(QByteArray &in)
 {
-    const char header1 = 0x1;
-    const char header2 = char(0x92);
-    const char header2tracecore = char(0x91);
-    // Header should in theory always be at beginning of
+    static const char header1 = 0x1;
+   // Header should in theory always be at beginning of
     // buffer. Warn if there are bogus data in-between.
 
     while (in.size() >= 4) {
-        if (in.at(0) == header1 && in.at(1) == header2) {
+        if (in.at(0) == header1 && in.at(1) == codaProtocolId) {
             // Good packet
             const int length = trk::extractShort(in.constData() + 2);
             return QPair<int, int>(4, length);
-        } else if (in.at(0) == header1 && in.at(1) == header2tracecore) {
+        } else if (in.at(0) == header1 && in.at(1) >= validProtocolIdStart && in.at(1) <= validProtocolIdEnd) {
             // We recognise it but it's not a TCF message - emit it for any interested party to handle
             const int length = trk::extractShort(in.constData() + 2);
             if (4 + length <= in.size()) {
                 // We have all the data
                 QByteArray data(in.mid(4, length));
-                emit traceCoreEvent(data);
+                emit unknownEvent(in.at(1), data);
                 in.remove(0, 4+length);
                 // and continue
             } else {
@@ -504,7 +505,6 @@ QPair<int, int> TcfTrkDevice::findSerialHeader(QByteArray &in)
             QByteArray bad = in.mid(0, nextHeader);
             qWarning("Bogus data received on serial line: %s\n"
                      "Frame Header at: %d", qPrintable(trk::stringFromArray(bad)), nextHeader);
-            d->m_device->write(bad); // Backatcha - TOMSCI TESTING
             in.remove(0, bad.length());
             // and continue
         }
@@ -787,9 +787,6 @@ void CodaDevice::sendSerialPing(bool pingOnly)
     if (!checkOpen())
         return;
 
-    dumpObjectInfo();
-    d->m_device->dumpObjectInfo();
-
     d->m_serialPingOnly = pingOnly;
     setSerialFrame(true);
     writeMessage(QByteArray(serialPingC, qstrlen(serialPingC)), false);
@@ -867,6 +864,24 @@ void CodaDevice::writeMessage(QByteArray data, bool ensureTerminating0)
         qWarning("Failed to write all data! result=%d", result);
     if (QAbstractSocket *as = qobject_cast<QAbstractSocket *>(d->m_device.data()))
         as->flush();
+}
+
+void CodaDevice::writeCustomData(char protocolId, const QByteArray &data)
+{
+    if (!checkOpen())
+        return;
+
+    if (!d->m_serialFrame) {
+        qWarning("Ignoring request to send data to non-serial CodaDevice");
+        return;
+    }
+    if (data.length() > 0xFFFF) {
+        qWarning("Ignoring request to send too large packet, of size %d", data.length());
+        return;
+    }
+    QByteArray framedData;
+    encodeSerialFrame(data, &framedData, protocolId);
+    device()->write(framedData);
 }
 
 void CodaDevice::checkSendQueue()

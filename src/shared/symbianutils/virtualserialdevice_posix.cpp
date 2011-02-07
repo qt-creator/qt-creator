@@ -127,14 +127,11 @@ bool VirtualSerialDevice::tryWrite(const char *data, qint64 maxSize, qint64& byt
     while (maxSize > 0) {
         int result = ::write(d->portHandle, data, maxSize);
         if (result == -1) {
-            if (errno == EAGAIN) {
-                // Need to wait
-                return true;
-            } else {
-                setErrorString(QString("Posix error %1 from write to %2").arg(errno).arg(portName));
-                bytesWritten = -1;
-                return false;
-            }
+            if (errno == EAGAIN)
+                return true; // Need to wait
+            setErrorString(QString("Posix error %1 from write to %2").arg(errno).arg(portName));
+            bytesWritten = -1;
+            return false;
         } else {
             if (result == 0)
                 qWarning("Zero bytes written to port!");

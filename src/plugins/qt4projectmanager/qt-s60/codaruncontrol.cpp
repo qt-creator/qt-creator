@@ -65,7 +65,7 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using namespace Coda;
 
-enum { debug = 1 };
+enum { debug = 0 };
 
 CodaRunControl::CodaRunControl(RunConfiguration *runConfiguration, const QString &mode) :
     S60RunControlBase(runConfiguration, mode),
@@ -115,35 +115,37 @@ bool CodaRunControl::setupLauncher()
         appendMessage(tr("Connecting to '%2'...").arg(m_serialPort), NormalMessageFormat);
         m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getTcfPort(m_serialPort);
 
-        bool ok = m_codaDevice && m_tcfTrkDevice->device()->isOpen();
+        bool ok = m_codaDevice && m_codaDevice->device()->isOpen();
         if (!ok) {
-            appendMessage(tr("Couldn't open serial device: %1").arg(m_tcfTrkDevice->device()->errorString()), ErrorMessageFormat);
+            appendMessage(tr("Couldn't open serial device: %1").arg(m_codaDevice->device()->errorString()), ErrorMessageFormat);
             return false;
         }
         connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),
                 this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
-        connect(m_tcfTrkDevice.data(), SIGNAL(error(QString)), this, SLOT(slotError(QString)));
-        connect(m_tcfTrkDevice.data(), SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
-        connect(m_tcfTrkDevice.data(), SIGNAL(tcfEvent(tcftrk::TcfTrkEvent)), this, SLOT(slotTcftrkEvent(tcftrk::TcfTrkEvent)));
-        connect(m_tcfTrkDevice.data(), SIGNAL(serialPong(QString)), this, SLOT(slotSerialPong(QString)));
+        connect(m_codaDevice.data(), SIGNAL(error(QString)), this, SLOT(slotError(QString)));
+        connect(m_codaDevice.data(), SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
+        connect(m_codaDevice.data(), SIGNAL(tcfEvent(Coda::CodaEvent)), this, SLOT(slotCodaEvent(Coda::CodaEvent)));
+        connect(m_codaDevice.data(), SIGNAL(serialPong(QString)), this, SLOT(slotSerialPong(QString)));
         m_state = StateConnecting;
         m_codaDevice->sendSerialPing(false);
-        QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
     } else {
         // For TCP we don't use device manager, we just set it up directly
         m_codaDevice = QSharedPointer<Coda::CodaDevice>(new Coda::CodaDevice);
         connect(m_codaDevice.data(), SIGNAL(error(QString)), this, SLOT(slotError(QString)));
         connect(m_codaDevice.data(), SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
-        connect(m_codaDevice.data(), SIGNAL(tcfEvent(tcftrk::TcfTrkEvent)), this, SLOT(slotTcftrkEvent(tcftrk::TcfTrkEvent)));
+        connect(m_codaDevice.data(), SIGNAL(tcfEvent(Coda::CodaEvent)), this, SLOT(slotCodaEvent(Coda::CodaEvent)));
 
         const QSharedPointer<QTcpSocket> codaSocket(new QTcpSocket);
         m_codaDevice->setDevice(codaSocket);
         codaSocket->connectToHost(m_address, m_port);
         m_state = StateConnecting;
         appendMessage(tr("Connecting to %1:%2...").arg(m_address).arg(m_port), NormalMessageFormat);
-        QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
+
     }
-    if (debug) m_tcfTrkDevice->setVerbose(1);
+    QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
+    if (debug)
+        m_codaDevice->setVerbose(debug);
+
     return true;
 }
 

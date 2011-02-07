@@ -360,6 +360,8 @@ public:
     // Settings
     void sendSettingsEnableLogCommand();
 
+    void writeCustomData(char protocolId, const QByteArray &aData);
+
     static QByteArray parseMemoryGet(const CodaCommandResult &r);
     static QVector<QByteArray> parseRegisterGetChildren(const CodaCommandResult &r);
     static CodaStatResponse parseStat(const CodaCommandResult &r);
@@ -367,7 +369,7 @@ public:
 signals:
     void genericTcfEvent(int service, const QByteArray &name, const QVector<JsonValue> &value);
     void tcfEvent(const Coda::CodaEvent &knownEvent);
-    void traceCoreEvent(const QByteArray& data);
+    void unknownEvent(uchar protocolId, const QByteArray& data);
     void serialPong(const QString &codaVersion);
 
     void logMessage(const QString &);

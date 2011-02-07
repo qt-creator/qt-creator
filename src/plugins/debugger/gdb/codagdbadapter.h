@@ -106,6 +106,7 @@ public:
     virtual DumperHandling dumperHandling() const { return DumperNotAvailable; }
 
 private:
+    void setupTrkDeviceSignals();
     void startAdapter();
     void setupInferior();
     void runEngine();
@@ -144,7 +145,8 @@ private:
     QString m_gdbServerName; // 127.0.0.1:(2222+uid)
     bool m_running;
     int m_stopReason;
-    Coda::CodaDevice *m_trkDevice;
+
+    QSharedPointer<Coda::CodaDevice> m_codaDevice;
     QSharedPointer<QIODevice> m_trkIODevice;
 
     //

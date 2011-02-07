@@ -48,8 +48,8 @@ QT_END_NAMESPACE
 namespace trk {
     class TrkDevice;
 }
-namespace tcftrk {
-    class TcfTrkDevice;
+namespace Coda {
+    class CodaDevice;
 }
 
 namespace SymbianUtils {
@@ -62,7 +62,7 @@ enum DeviceCommunicationType {
     BlueToothCommunication = 1
 };
 
-typedef QSharedPointer<tcftrk::TcfTrkDevice> TcfTrkDevicePtr;
+typedef QSharedPointer<Coda::CodaDevice> CodaDevicePtr;
 
 // SymbianDevice: Explicitly shared device data and a TrkDevice
 // instance that can be acquired (exclusively) for use.
@@ -146,17 +146,17 @@ public:
     // Acquire a TRK device for use. Assuming the port is found, equivalent to devices()[findByPortName(port)].acquireDevice(). See also releaseDevice().
     TrkDevicePtr acquireDevice(const QString &port);
 
-    //// The TCF code prefers to set up the TcfTrkDevice object itself, so we let it and just handle opening the underlying QIODevice and keeping track of the TcfTrkDevice
+    //// The TCF code prefers to set up the CodaDevice object itself, so we let it and just handle opening the underlying QIODevice and keeping track of the CodaDevice
     //// Returns true if port was opened successfully.
 
-    // Gets the TcfTrkDevice, which may or may not be open depending on what other clients have already acquired it.
-    // Therefore once clients have set up any signals and slots they required, they should check TcfTrkDevice::device()->isOpen()
+    // Gets the CodaDevice, which may or may not be open depending on what other clients have already acquired it.
+    // Therefore once clients have set up any signals and slots they required, they should check CodaDevice::device()->isOpen()
     // and if false, the open failed and they should check device()->errorString() if required.
     // Caller should call releaseTcfPort if they want the port to auto-close itself
-    TcfTrkDevicePtr getTcfPort(const QString &port);
+    CodaDevicePtr getTcfPort(const QString &port);
 
-    // Caller is responsible for disconnecting any signals from aPort - do not assume the TcfTrkDevice will be deleted as a result of this call. On return aPort will be clear()ed.
-    void releaseTcfPort(TcfTrkDevicePtr &aPort);
+    // Caller is responsible for disconnecting any signals from aPort - do not assume the CodaDevice will be deleted as a result of this call. On return aPort will be clear()ed.
+    void releaseTcfPort(CodaDevicePtr &aPort);
 
     int findByPortName(const QString &p) const;
     QString friendlyNameForPort(const QString &port) const;
@@ -178,7 +178,7 @@ private:
     SymbianDeviceList serialPorts() const;
     SymbianDeviceList blueToothDevices() const;
     void customEvent(QEvent *event);
-    void constructTcfPort(TcfTrkDevicePtr& device, const QString& portName);
+    void constructTcfPort(CodaDevicePtr& device, const QString& portName);
 
     SymbianDeviceManagerPrivate *d;
 };

@@ -37,7 +37,7 @@
 #include "codadevice.h"
 #include "trkutils.h"
 #include "gdbmi.h"
-#include "virtualserialdevice.h"
+#include "symbiandevicemanager.h"
 
 #include "registerhandler.h"
 #include "threadshandler.h"
@@ -123,7 +123,6 @@ CodaGdbAdapter::CodaGdbAdapter(GdbEngine *engine) :
     AbstractGdbAdapter(engine),
     m_running(false),
     m_stopReason(0),
-    m_trkDevice(new CodaDevice(this)),
     m_gdbAckMode(true),
     m_uid(0),
     m_verbose(0),
@@ -148,11 +147,15 @@ CodaGdbAdapter::CodaGdbAdapter(GdbEngine *engine) :
 
     connect(debuggerCore()->action(VerboseLog), SIGNAL(valueChanged(QVariant)),
         this, SLOT(setVerbose(QVariant)));
-    connect(m_trkDevice, SIGNAL(error(QString)),
+}
+
+void CodaGdbAdapter::setupTrkDeviceSignals()
+{
+    connect(m_codaDevice.data(), SIGNAL(error(QString)),
         this, SLOT(codaDeviceError(QString)));
-    connect(m_trkDevice, SIGNAL(logMessage(QString)),
+    connect(m_codaDevice.data(), SIGNAL(logMessage(QString)),
         this, SLOT(trkLogMessage(QString)));
-    connect(m_trkDevice, SIGNAL(tcfEvent(Coda::CodaEvent)),
+    connect(m_codaDevice.data(), SIGNAL(tcfEvent(Coda::CodaEvent)),
         this, SLOT(codaEvent(Coda::CodaEvent)));
 }
 
@@ -172,7 +175,8 @@ void CodaGdbAdapter::setVerbose(int verbose)
     if (debug)
         qDebug("CodaGdbAdapter::setVerbose %d", verbose);
     m_verbose = verbose;
-    m_trkDevice->setVerbose(m_verbose);
+    if (m_codaDevice)
+        m_codaDevice->setVerbose(m_verbose);
 }
 
 void CodaGdbAdapter::trkLogMessage(const QString &msg)
@@ -278,7 +282,7 @@ void CodaGdbAdapter::handleCodaRunControlModuleLoadContextSuspendedEvent(const C
                 qDebug() << "Initial module load suspended: " << m_session.toString();
         } else {
             // Consecutive module load suspended: (not observed yet): Just continue
-            m_trkDevice->sendRunControlResumeCommand(CodaCallback(), se.id());
+            m_codaDevice->sendRunControlResumeCommand(CodaCallback(), se.id());
         }
     }
 }
@@ -305,7 +309,7 @@ void CodaGdbAdapter::codaEvent(const CodaEvent &e)
 
     switch (e.type()) {
     case CodaEvent::LocatorHello:
-        m_trkDevice->sendLoggingAddListenerCommand(CodaCallback());
+        m_codaDevice->sendLoggingAddListenerCommand(CodaCallback());
         startGdb(); // Commands are only accepted after hello
         break;
     case CodaEvent::RunControlModuleLoadSuspended: // A module was loaded
@@ -349,7 +353,7 @@ void CodaGdbAdapter::codaEvent(const CodaEvent &e)
             m_stopReason = reason.contains(QLatin1String("exception"), Qt::CaseInsensitive)
                            || reason.contains(QLatin1String("panic"), Qt::CaseInsensitive) ?
                            gdbServerSignalSegfault : gdbServerSignalTrap;
-            m_trkDevice->sendRegistersGetMRangeCommand(
+            m_codaDevice->sendRegistersGetMRangeCommand(
                 CodaCallback(this, &CodaGdbAdapter::handleAndReportReadRegistersAfterStop),
                 currentThreadContextId(), 0,
                 Symbian::RegisterCount);
@@ -604,7 +608,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             reportRegisters();
         } else {
             sendGdbServerAck();
-            if (m_trkDevice->registerNames().isEmpty()) {
+            if (m_codaDevice->registerNames().isEmpty()) {
                 m_registerRequestPending = true;
             } else {
                 sendRegistersGetMCommand();
@@ -688,7 +692,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         logMessage(_("Writing %1 bytes from 0x%2: %3").
                    arg(addrLength.second).arg(addrLength.first, 0, 16).
                    arg(QString::fromAscii(data.toHex())));
-        m_trkDevice->sendMemorySetCommand(
+        m_codaDevice->sendMemorySetCommand(
             CodaCallback(this, &CodaGdbAdapter::handleWriteMemory),
             m_tcfProcessId, addrLength.first, data);
     }
@@ -707,7 +711,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             sendGdbServerMessage(thread.gdbReportSingleRegister(registerNumber), thread.gdbSingleRegisterLogMessage(registerNumber));
         } else {
             //qDebug() << "Fetching single register";
-            m_trkDevice->sendRegistersGetMRangeCommand(
+            m_codaDevice->sendRegistersGetMRangeCommand(
                 CodaCallback(this, &CodaGdbAdapter::handleAndReportReadRegister),
                 currentThreadContextId(), registerNumber, 1);
         }
@@ -723,7 +727,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         logMessage(_("Setting register #%1 to 0x%2").arg(regnumValue.first).arg(regnumValue.second, 0, 16));
         QByteArray registerValue;
         trk::appendInt(&registerValue, trk::BigEndian); // Registers are big endian
-        m_trkDevice->sendRegistersSetCommand(
+        m_codaDevice->sendRegistersSetCommand(
             CodaCallback(this, &CodaGdbAdapter::handleWriteRegister),
             currentThreadContextId(), regnumValue.first, registerValue,
             QVariant(regnumValue.first));
@@ -899,7 +903,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             bp.setContextId(m_session.pid);
             // We use the automatic ids calculated from the location
             // address instead of the map in snapshot.
-            m_trkDevice->sendBreakpointsAddCommand(
+            m_codaDevice->sendBreakpointsAddCommand(
                 CodaCallback(this, &CodaGdbAdapter::handleAndReportSetBreakpoint),
                 bp);
         } else {
@@ -914,7 +918,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // $z0,786a4ccc,4#99
         const int pos = cmd.lastIndexOf(',');
         const uint addr = cmd.mid(3, pos - 3).toUInt(0, 16);
-        m_trkDevice->sendBreakpointsRemoveCommand(
+        m_codaDevice->sendBreakpointsRemoveCommand(
             CodaCallback(this, &CodaGdbAdapter::handleClearBreakpoint),
             Coda::Breakpoint::idFromLocation(addr));
     }
@@ -960,7 +964,7 @@ void CodaGdbAdapter::sendRunControlTerminateCommand()
     // Requires id of main thread to terminate.
     // Note that calling 'Settings|set|removeExecutable' crashes TCF TRK,
     // so, it is apparently not required.
-    m_trkDevice->sendRunControlTerminateCommand(CodaCallback(this, &CodaGdbAdapter::handleRunControlTerminate),
+    m_codaDevice->sendRunControlTerminateCommand(CodaCallback(this, &CodaGdbAdapter::handleRunControlTerminate),
                                                 mainThreadContextId());
 }
 
@@ -993,7 +997,7 @@ void CodaGdbAdapter::gdbSetCurrentThread(const QByteArray &cmd, const char *why)
 
 void CodaGdbAdapter::interruptInferior()
 {
-    m_trkDevice->sendRunControlSuspendCommand(CodaCallback(), m_tcfProcessId);
+    m_codaDevice->sendRunControlSuspendCommand(CodaCallback(), m_tcfProcessId);
 }
 
 void CodaGdbAdapter::startAdapter()
@@ -1015,22 +1019,25 @@ void CodaGdbAdapter::startAdapter()
 
     QSharedPointer<QTcpSocket> codaSocket;
     if (parameters.communicationChannel == DebuggerStartParameters::CommunicationChannelTcpIp) {
+        m_codaDevice = QSharedPointer<Coda::CodaDevice>(new Coda::CodaDevice);
+        setupTrkDeviceSignals();
         codaSocket = QSharedPointer<QTcpSocket>(new QTcpSocket);
-        m_trkDevice->setDevice(codaSocket);
+        m_codaDevice->setDevice(codaSocket);
         m_trkIODevice = codaSocket;
     } else {
-        QSharedPointer<SymbianUtils::VirtualSerialDevice> serialDevice(new SymbianUtils::VirtualSerialDevice(parameters.remoteChannel));
-        m_trkDevice->setSerialFrame(true);
-        m_trkDevice->setDevice(serialDevice);
-        bool ok = serialDevice->open(QIODevice::ReadWrite);
+        m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getTcfPort(parameters.remoteChannel);
+        bool ok = m_codaDevice && m_codaDevice->device()->isOpen();
+
         if (!ok) {
-            QString msg = QString("Couldn't open serial device: %1.")
-                .arg(serialDevice->errorString());
+            QString msg = QString("Couldn't open serial device %1").arg(parameters.remoteChannel);
+            if (m_codaDevice)
+                msg.append(QString(": %1").arg(m_codaDevice->device()->errorString()));
             logMessage(msg, LogError);
             m_engine->handleAdapterStartFailed(msg, QString());
             return;
         }
-        m_trkIODevice = serialDevice;
+        setupTrkDeviceSignals();
+        m_codaDevice->setVerbose(m_verbose);
     }
 
     if (debug)
@@ -1071,7 +1078,7 @@ void CodaGdbAdapter::startAdapter()
                    .arg(codaAddress.first).arg(codaAddress.second));
         codaSocket->connectToHost(codaAddress.first, codaAddress.second);
     } else {
-        m_trkDevice->sendSerialPing(false);
+        m_codaDevice->sendSerialPing(false);
     }
 }
 
@@ -1085,7 +1092,7 @@ void CodaGdbAdapter::setupInferior()
     for (unsigned i = 0; i < libraryCount; i++)
         libraries.push_back(QString::fromAscii(librariesC[i]));
 
-    m_trkDevice->sendProcessStartCommand(
+    m_codaDevice->sendProcessStartCommand(
         CodaCallback(this, &CodaGdbAdapter::handleCreateProcess),
         m_remoteExecutable, m_uid, m_remoteArguments,
         QString(), true, libraries);
@@ -1105,7 +1112,7 @@ void CodaGdbAdapter::addThread(unsigned id)
         // We cannot retrieve register values unless the registers of that
         // thread have been retrieved (TCF TRK oddity).
         const QByteArray contextId = Coda::RunControlContext::tcfId(m_session.pid, id);
-        m_trkDevice->sendRegistersGetChildrenCommand(CodaCallback(this, &CodaGdbAdapter::handleRegisterChildren),
+        m_codaDevice->sendRegistersGetChildrenCommand(CodaCallback(this, &CodaGdbAdapter::handleRegisterChildren),
                                                      contextId, QVariant(contextId));
     }
 }
@@ -1197,6 +1204,10 @@ void CodaGdbAdapter::cleanup()
             }
         }
     } //!m_trkIODevice.isNull()
+    if (m_codaDevice) {
+        disconnect(m_codaDevice.data(), 0, this, 0);
+        SymbianUtils::SymbianDeviceManager::instance()->releaseTcfPort(m_codaDevice);
+    }
 }
 
 void CodaGdbAdapter::shutdownInferior()
@@ -1211,7 +1222,7 @@ void CodaGdbAdapter::shutdownAdapter()
         m_engine->notifyAdapterShutdownOk();
     } else {
         // Something is wrong, gdb crashed. Kill debuggee (see handleDeleteProcess2)
-        if (m_trkDevice->device()->isOpen()) {
+        if (m_codaDevice->device()->isOpen()) {
             logMessage("Emergency shutdown of CODA", LogError);
             sendRunControlTerminateCommand();
         }
@@ -1244,9 +1255,9 @@ void CodaGdbAdapter::handleWriteRegister(const CodaCommandResult &result)
 void CodaGdbAdapter::sendRegistersGetMCommand()
 {
     // Send off a register command, which requires the names to be present.
-    QTC_ASSERT(!m_trkDevice->registerNames().isEmpty(), return )
+    QTC_ASSERT(!m_codaDevice->registerNames().isEmpty(), return )
 
-    m_trkDevice->sendRegistersGetMRangeCommand(
+    m_codaDevice->sendRegistersGetMRangeCommand(
                 CodaCallback(this, &CodaGdbAdapter::handleAndReportReadRegisters),
                 currentThreadContextId(), 0,
                 Symbian::RegisterCount);
@@ -1273,12 +1284,12 @@ void CodaGdbAdapter::handleRegisterChildren(const Coda::CodaCommandResult &resul
     // able to access the register contents.
     QVector<QByteArray> registerNames = Coda::CodaDevice::parseRegisterGetChildren(result);
     if (registerNames.size() == 1) {
-        m_trkDevice->sendRegistersGetChildrenCommand(CodaCallback(this, &CodaGdbAdapter::handleRegisterChildren),
+        m_codaDevice->sendRegistersGetChildrenCommand(CodaCallback(this, &CodaGdbAdapter::handleRegisterChildren),
                                                      registerNames.front(), result.cookie);
         return;
     }
     // First thread: Set base names in device.
-    if (!m_trkDevice->registerNames().isEmpty())
+    if (!m_codaDevice->registerNames().isEmpty())
         return;
     // Make sure we get all registers
     const int registerCount = registerNames.size();
@@ -1297,7 +1308,7 @@ void CodaGdbAdapter::handleRegisterChildren(const Coda::CodaCommandResult &resul
         msg += QString::fromAscii(registerNames[i]);
     }
     logMessage(msg);
-    m_trkDevice->setRegisterNames(registerNames);
+    m_codaDevice->setRegisterNames(registerNames);
     if (m_registerRequestPending) { // Request already pending?
         logMessage(_("Resuming registers request after receiving register names..."));
         sendRegistersGetMCommand();
@@ -1425,7 +1436,7 @@ void CodaGdbAdapter::sendMemoryGetCommand(const MemoryRange &range, bool buffere
     const CodaCallback cb = buffered ?
       CodaCallback(this, &CodaGdbAdapter::handleReadMemoryBuffered) :
       CodaCallback(this, &CodaGdbAdapter::handleReadMemoryUnbuffered);
-    m_trkDevice->sendMemoryGetCommand(cb, currentThreadContextId(), range.from, range.size(), cookie);
+    m_codaDevice->sendMemoryGetCommand(cb, currentThreadContextId(), range.from, range.size(), cookie);
 }
 
 void CodaGdbAdapter::handleReadMemoryBuffered(const CodaCommandResult &result)
@@ -1563,7 +1574,7 @@ void CodaGdbAdapter::sendTrkContinue()
     // at the next stop.
     if (m_snapshot.threadInfo.size() > 1)
         m_snapshot.threadInfo.remove(1, m_snapshot.threadInfo.size() - 1);
-    m_trkDevice->sendRunControlResumeCommand(CodaCallback(), m_tcfProcessId);
+    m_codaDevice->sendRunControlResumeCommand(CodaCallback(), m_tcfProcessId);
 }
 
 void CodaGdbAdapter::sendTrkStepRange()
@@ -1586,7 +1597,7 @@ void CodaGdbAdapter::sendTrkStepRange()
 
     logMessage(_("Stepping from 0x%1 to 0x%2 (current PC=0x%3), mode %4").
                arg(from, 0, 16).arg(to, 0, 16).arg(pc).arg(int(mode)));
-    m_trkDevice->sendRunControlResumeCommand(
+    m_codaDevice->sendRunControlResumeCommand(
         CodaCallback(this, &CodaGdbAdapter::handleStep),
         currentThreadContextId(),
         mode, 1, from, to);
