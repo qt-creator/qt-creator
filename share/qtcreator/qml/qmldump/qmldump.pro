@@ -10,7 +10,11 @@ CONFIG += console
 
 TEMPLATE = app
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    qmlstreamwriter.cpp
 
 OTHER_FILES += Info.plist
 macx:QMAKE_INFO_PLIST = Info.plist
+
+HEADERS += \
+    qmlstreamwriter.h
