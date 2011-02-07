@@ -259,8 +259,11 @@ void CodaRunControl::handleContextSuspended(const TcfTrkEvent &event)
 
     switch (me.reason()) {
     case TcfSuspendEvent::Crash:
-        appendMessage(tr("Process has crashed: %1").arg(QString::fromLatin1(me.message())), ErrorMessageFormat);
-        m_tcfTrkDevice->sendRunControlResumeCommand(TcfTrkCallback(), me.id()); //TODO: Should I resume automaticly
+        appendMessage(tr("Thread has crashed: %1").arg(QString::fromLatin1(me.message())), ErrorMessageFormat);
+        //If we get a crash report then we display it and stop the process.
+        //Now sure if this should be the final solution but it works for now.
+        //m_tcfTrkDevice->sendRunControlResumeCommand(TcfTrkCallback(), me.id()); //TODO: Should I resume automaticly
+        stop();
         break;
     default:
         if (debug)
