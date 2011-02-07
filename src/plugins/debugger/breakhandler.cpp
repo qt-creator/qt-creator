@@ -534,10 +534,18 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 return displayFromThreadSpec(data.threadSpec);
             break;
     }
-    if (role == Qt::ToolTipRole)
-        return debuggerCore()->boolSetting(UseToolTipsInBreakpointsView)
-                ? QVariant(it->toToolTip()) : QVariant();
-
+    switch (role) {
+    case Qt::ToolTipRole:
+        if (debuggerCore()->boolSetting(UseToolTipsInBreakpointsView))
+                return QVariant(it->toToolTip());
+        break;
+    case EngineCapabilitiesRole:  {
+        const unsigned caps = it.value().engine ?
+                              it.value().engine->debuggerCapabilities() :
+                              unsigned(AllDebuggerCapabilities);
+        return QVariant(caps);
+    }
+    }
     return QVariant();
 }
 

@@ -950,7 +950,8 @@ unsigned CdbEngine::debuggerCapabilities() const
 {
     return DisassemblerCapability | RegisterCapability | ShowMemoryCapability
            |WatchpointCapability|JumpToLineCapability|AddWatcherCapability
-           |BreakOnThrowAndCatchCapability; // Sort-of: Can break on throw().
+           |BreakOnThrowAndCatchCapability // Sort-of: Can break on throw().
+           |BreakModuleCapability;
 }
 
 void CdbEngine::executeStep()

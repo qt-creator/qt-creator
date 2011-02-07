@@ -168,11 +168,14 @@ enum DebuggerCapabilities
     ReloadModuleCapability = 0x80,
     ReloadModuleSymbolsCapability = 0x100,
     BreakOnThrowAndCatchCapability = 0x200,
-    ReturnFromFunctionCapability = 0x400,
-    CreateFullBacktraceCapability = 0x800,
-    AddWatcherCapability = 0x1000,
-    WatchpointCapability = 0x2000,
-    ShowModuleSymbolsCapability = 0x4000
+    BreakConditionCapability = 0x400, //!< Conditional Breakpoints
+    BreakModuleCapability = 0x800, //!< Breakpoint specification includes module
+    ReturnFromFunctionCapability = 0x1000,
+    CreateFullBacktraceCapability = 0x2000,
+    AddWatcherCapability = 0x4000,
+    WatchpointCapability = 0x8000,
+    ShowModuleSymbolsCapability = 0x10000,
+    AllDebuggerCapabilities = 0xFFFFFFFF
 };
 
 enum LogChannel

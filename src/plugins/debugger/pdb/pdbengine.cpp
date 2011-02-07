@@ -832,7 +832,7 @@ void PdbEngine::handleListLocals(const PdbResponse &response)
 
 unsigned PdbEngine::debuggerCapabilities() const
 {
-    return ReloadModuleCapability;
+    return ReloadModuleCapability|BreakConditionCapability;
 }
 
 DebuggerEngine *createPdbEngine(const DebuggerStartParameters &startParameters)
