@@ -51,8 +51,7 @@ namespace Utils {
 struct FancyMainWindowPrivate {
     explicit FancyMainWindowPrivate(FancyMainWindow *q);
 
-    QList<QDockWidget *> m_dockWidgets;
-    QList<bool> m_dockWidgetActiveState;
+    QMap<QDockWidget *, bool> m_dockWidgetActiveState;
     bool m_locked;
     bool m_handleDockVisibilityChanges; //todo
 
@@ -98,7 +97,7 @@ QDockWidget *FancyMainWindow::addDockForWidget(QWidget *widget)
     // Set an object name to be used in settings, derive from widget name
     const QString objectName = widget->objectName();
     if (objectName.isEmpty()) {
-        dockWidget->setObjectName(QLatin1String("dockWidget") + QString::number(d->m_dockWidgets.size() + 1));
+        dockWidget->setObjectName(QLatin1String("dockWidget") + QString::number(dockWidgets().size() + 1));
     } else {
         dockWidget->setObjectName(objectName + QLatin1String("DockWidget"));
     }
@@ -108,8 +107,7 @@ QDockWidget *FancyMainWindow::addDockForWidget(QWidget *widget)
             this, SLOT(onDockVisibilityChange(bool)));
     connect(dockWidget, SIGNAL(topLevelChanged(bool)),
             this, SLOT(onTopLevelChanged()));
-    d->m_dockWidgets.append(dockWidget);
-    d->m_dockWidgetActiveState.append(true);
+    d->m_dockWidgetActiveState[dockWidget] = true;
     updateDockWidget(dockWidget);
     return dockWidget;
 }
@@ -144,8 +142,7 @@ void FancyMainWindow::onDockVisibilityChange(bool visible)
     if (!d->m_handleDockVisibilityChanges)
         return;
     QDockWidget *dockWidget = qobject_cast<QDockWidget *>(sender());
-    int index = d->m_dockWidgets.indexOf(dockWidget);
-    d->m_dockWidgetActiveState[index] = visible;
+    d->m_dockWidgetActiveState[dockWidget] = visible;
 }
 
 void FancyMainWindow::onTopLevelChanged()
@@ -157,8 +154,8 @@ void FancyMainWindow::setTrackingEnabled(bool enabled)
 {
     if (enabled) {
         d->m_handleDockVisibilityChanges = true;
-        for (int i = 0; i < d->m_dockWidgets.size(); ++i)
-            d->m_dockWidgetActiveState[i] = d->m_dockWidgets[i]->isVisible();
+        foreach(QDockWidget *dockWidget, dockWidgets())
+            d->m_dockWidgetActiveState[dockWidget] = dockWidget->isVisible();
     } else {
         d->m_handleDockVisibilityChanges = false;
     }
@@ -167,7 +164,7 @@ void FancyMainWindow::setTrackingEnabled(bool enabled)
 void FancyMainWindow::setLocked(bool locked)
 {
     d->m_locked = locked;
-    foreach (QDockWidget *dockWidget, d->m_dockWidgets) {
+    foreach (QDockWidget *dockWidget, dockWidgets()) {
         updateDockWidget(dockWidget);
     }
 }
@@ -194,10 +191,9 @@ void FancyMainWindow::contextMenuEvent(QContextMenuEvent *event)
 void FancyMainWindow::handleVisibilityChanged(bool visible)
 {
     d->m_handleDockVisibilityChanges = false;
-    for (int i = 0; i < d->m_dockWidgets.size(); ++i) {
-        QDockWidget *dockWidget = d->m_dockWidgets.at(i);
+    foreach(QDockWidget *dockWidget, dockWidgets()) {
         if (dockWidget->isFloating()) {
-            dockWidget->setVisible(visible && d->m_dockWidgetActiveState.at(i));
+            dockWidget->setVisible(visible && d->m_dockWidgetActiveState.value(dockWidget));
         }
     }
     if (visible)
@@ -228,9 +224,9 @@ QHash<QString, QVariant> FancyMainWindow::saveSettings() const
     QHash<QString, QVariant> settings;
     settings.insert(QLatin1String(stateKeyC), saveState(settingsVersion));
     settings.insert(QLatin1String(lockedKeyC), d->m_locked);
-    for (int i = 0; i < d->m_dockWidgetActiveState.count(); ++i) {
-        settings.insert(d->m_dockWidgets.at(i)->objectName(),
-                           d->m_dockWidgetActiveState.at(i));
+    foreach(QDockWidget *dockWidget, dockWidgets()) {
+        settings.insert(dockWidget->objectName(),
+                        d->m_dockWidgetActiveState.value(dockWidget));
     }
     return settings;
 }
@@ -242,14 +238,14 @@ void FancyMainWindow::restoreSettings(const QHash<QString, QVariant> &settings)
         restoreState(ba, settingsVersion);
     d->m_locked = settings.value(QLatin1String("Locked"), true).toBool();
     d->m_toggleLockedAction->setChecked(d->m_locked);
-    for (int i = 0; i < d->m_dockWidgetActiveState.count(); ++i) {
-        d->m_dockWidgetActiveState[i] = settings.value(d->m_dockWidgets.at(i)->objectName(), false).toBool();
+    foreach(QDockWidget *widget, dockWidgets()) {
+        d->m_dockWidgetActiveState[widget] = settings.value(widget->objectName(), false).toBool();
     }
 }
 
 QList<QDockWidget *> FancyMainWindow::dockWidgets() const
 {
-    return d->m_dockWidgets;
+    return qFindChildren<QDockWidget *>(this);
 }
 
 bool FancyMainWindow::isLocked() const
@@ -289,7 +285,7 @@ QAction *FancyMainWindow::resetLayoutAction() const
 
 void FancyMainWindow::setDockActionsVisible(bool v)
 {
-    foreach(const QDockWidget *dockWidget, d->m_dockWidgets)
+    foreach(const QDockWidget *dockWidget, dockWidgets())
         dockWidget->toggleViewAction()->setVisible(v);
     d->m_toggleLockedAction->setVisible(v);
     d->m_menuSeparator1->setVisible(v);
