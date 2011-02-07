@@ -49,10 +49,10 @@ namespace trk{
 class Launcher;
 }
 
-namespace tcftrk {
-    struct TcfTrkCommandResult;
-    class TcfTrkDevice;
-    class TcfTrkEvent;
+namespace Coda {
+    struct CodaCommandResult;
+    class CodaDevice;
+    class CodaEvent;
 }
 
 namespace ProjectExplorer {
@@ -129,7 +129,7 @@ private slots:
     void slotError(const QString &error);
     void slotTrkLogMessage(const QString &log);
     void slotSerialPong(const QString &message);
-    void slotTcftrkEvent(const tcftrk::TcfTrkEvent &event);
+    void slotCodaEvent(const Coda::CodaEvent &event);
 
     void startInstalling();
     void startTransferring();
@@ -167,12 +167,12 @@ private:
     void appendMessage(const QString &error, bool isError);
     void reportError(const QString &error);
 
-    void handleSymbianInstall(const tcftrk::TcfTrkCommandResult &result);
-    void handleFileSystemOpen(const tcftrk::TcfTrkCommandResult &result);
-    void handleFileSystemWrite(const tcftrk::TcfTrkCommandResult &result);
+    void handleSymbianInstall(const Coda::CodaCommandResult &result);
+    void handleFileSystemOpen(const Coda::CodaCommandResult &result);
+    void handleFileSystemWrite(const Coda::CodaCommandResult &result);
     void closeRemoteFile();
     void putSendNextChunk();
-    void handleFileSystemClose(const tcftrk::TcfTrkCommandResult &result);
+    void handleFileSystemClose(const Coda::CodaCommandResult &result);
 
     void initFileSending();
     void initFileInstallation();
@@ -201,7 +201,7 @@ private:
     QFutureInterface<bool> *m_futureInterface; //not owned
 
     trk::Launcher *m_launcher;
-    tcftrk::TcfTrkDevice *m_trkDevice;
+    Coda::CodaDevice *m_trkDevice;
 
     QEventLoop *m_eventLoop;
     bool m_deployResult;

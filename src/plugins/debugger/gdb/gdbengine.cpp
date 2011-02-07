@@ -44,7 +44,7 @@
 #include "remotegdbserveradapter.h"
 #include "remoteplaingdbadapter.h"
 #include "trkgdbadapter.h"
-#include "tcftrkgdbadapter.h"
+#include "codagdbadapter.h"
 
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
@@ -1798,7 +1798,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
     case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
     case ProjectExplorer::ToolChain_GCCE_GNUPOC:
         if (sp.debugClient == DebuggerStartParameters::DebugClientCoda)
-            return new TcfTrkGdbAdapter(this);
+            return new CodaGdbAdapter(this);
         else
             return new TrkGdbAdapter(this);
     default:

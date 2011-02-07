@@ -12,8 +12,8 @@ HEADERS += $$PWD/symbianutils_global.h \
     $$PWD/bluetoothlistener.h \
     $$PWD/communicationstarter.h \
     $$PWD/symbiandevicemanager.h \
-    $$PWD/tcftrkdevice.h \
-    $$PWD/tcftrkmessage.h \
+    $$PWD/codadevice.h \
+    $$PWD/codamessage.h \
     $$PWD/json.h \
 	$$PWD/virtualserialdevice.h
 
@@ -23,8 +23,8 @@ SOURCES += $$PWD/trkutils.cpp \
     $$PWD/bluetoothlistener.cpp \
     $$PWD/communicationstarter.cpp \
     $$PWD/symbiandevicemanager.cpp \
-    $$PWD/tcftrkdevice.cpp \
-    $$PWD/tcftrkmessage.cpp \
+    $$PWD/codadevice.cpp \
+    $$PWD/codamessage.cpp \
     $$PWD/json.cpp \
     $$PWD/virtualserialdevice.cpp
 

@@ -31,11 +31,11 @@
 **
 **************************************************************************/
 
-#ifndef TCFTRKENGINE_H
-#define TCFTRKENGINE_H
+#ifndef CODAENGINE_H
+#define CODAENGINE_H
 
 #include "symbianutils_global.h"
-#include "tcftrkmessage.h"
+#include "Codamessage.h"
 #include "callback.h"
 #include "json.h"
 
@@ -51,9 +51,9 @@ class QIODevice;
 class QTextStream;
 QT_END_NAMESPACE
 
-namespace tcftrk {
+namespace Coda {
 
-struct TcfTrkDevicePrivate;
+struct CodaDevicePrivate;
 struct Breakpoint;
 
 /* Command error handling in TCF:
@@ -61,12 +61,12 @@ struct Breakpoint;
  *     nonstandard message (\3\2 error parameters) and closes the connection.
  * 2) Protocol errors: 'N' without error message is returned.
  * 3) Errors in command execution: 'R' with a TCF error hash is returned
- *    (see TcfTrkCommandError). */
+ *    (see CodaCommandError). */
 
 /* Error code return in 'R' reply to command
  * (see top of 'Services' documentation). */
-struct SYMBIANUTILS_EXPORT TcfTrkCommandError {
-    TcfTrkCommandError();
+struct SYMBIANUTILS_EXPORT CodaCommandError {
+    CodaCommandError();
     void clear();
     bool isError() const;
     operator bool() const { return isError(); }
@@ -83,17 +83,17 @@ struct SYMBIANUTILS_EXPORT TcfTrkCommandError {
 };
 
 /* Answer to a Tcf command passed to the callback. */
-struct SYMBIANUTILS_EXPORT TcfTrkCommandResult {
+struct SYMBIANUTILS_EXPORT CodaCommandResult {
     enum Type
     {
         SuccessReply,       // 'R' and no error -> all happy.
-        CommandErrorReply,  // 'R' with TcfTrkCommandError received
+        CommandErrorReply,  // 'R' with CodaCommandError received
         ProgressReply,      // 'P', progress indicator
         FailReply           // 'N' Protocol NAK, severe error
     };
 
-    explicit TcfTrkCommandResult(Type t = SuccessReply);
-    explicit TcfTrkCommandResult(char typeChar, Services service,
+    explicit CodaCommandResult(Type t = SuccessReply);
+    explicit CodaCommandResult(char typeChar, Services service,
                                  const QByteArray &request,
                                  const QVector<JsonValue> &values,
                                  const QVariant &cookie);
@@ -107,32 +107,32 @@ struct SYMBIANUTILS_EXPORT TcfTrkCommandResult {
     Type type;
     Services service;
     QByteArray request;
-    TcfTrkCommandError commandError;
+    CodaCommandError commandError;
     QVector<JsonValue> values;
     QVariant cookie;
 };
 
 // Response to stat/fstat
-struct SYMBIANUTILS_EXPORT TcfTrkStatResponse
+struct SYMBIANUTILS_EXPORT CodaStatResponse
 {
-    TcfTrkStatResponse();
+    CodaStatResponse();
 
     quint64 size;
     QDateTime modTime;
     QDateTime accessTime;
 };
 
-typedef trk::Callback<const TcfTrkCommandResult &> TcfTrkCallback;
+typedef trk::Callback<const CodaCommandResult &> CodaCallback;
 
-/* TcfTrkDevice: TCF communication helper using an asynchronous QIODevice
+/* CodaDevice: TCF communication helper using an asynchronous QIODevice
  * implementing the TCF protocol according to:
 http://dev.eclipse.org/svnroot/dsdp/org.eclipse.tm.tcf/trunk/docs/TCF%20Specification.html
 http://dev.eclipse.org/svnroot/dsdp/org.eclipse.tm.tcf/trunk/docs/TCF%20Services.html
  * Commands can be sent along with callbacks that are passed a
- * TcfTrkCommandResult and an opaque QVariant cookie. In addition, events are emitted.
+ * CodaCommandResult and an opaque QVariant cookie. In addition, events are emitted.
  *
  * Note: As of 11.8.2010, TCF Trk 4.0.5 does not currently support 'Registers::getm'
- * (get multiple registers). So, TcfTrkDevice emulates it by sending a sequence of
+ * (get multiple registers). So, CodaDevice emulates it by sending a sequence of
  * single commands. As soon as 'Registers::getm' is natively supported, all code
  * related to 'FakeRegisterGetm' should be removed. The workaround requires that
  * the register name is known.
@@ -146,7 +146,7 @@ http://dev.eclipse.org/svnroot/dsdp/org.eclipse.tm.tcf/trunk/docs/TCF%20Services
  *     Receive Locator Hello Event from CODA -> Commands are accepted.
  */
 
-class SYMBIANUTILS_EXPORT TcfTrkDevice : public QObject
+class SYMBIANUTILS_EXPORT CodaDevice : public QObject
 {
     Q_PROPERTY(unsigned verbose READ verbose WRITE setVerbose)
     Q_PROPERTY(bool serialFrame READ serialFrame WRITE setSerialFrame)
@@ -172,8 +172,8 @@ public:
 
     typedef QSharedPointer<QIODevice> IODevicePtr;
 
-    explicit TcfTrkDevice(QObject *parent = 0);
-    virtual ~TcfTrkDevice();
+    explicit CodaDevice(QObject *parent = 0);
+    virtual ~CodaDevice();
 
     unsigned verbose() const;
     bool serialFrame() const;
@@ -193,18 +193,18 @@ public:
     void sendSerialPing(bool pingOnly = false);
 
     // Send with parameters from string (which may contain '\0').
-    void sendTcfTrkMessage(MessageType mt, Services service, const char *command,
+    void sendCodaMessage(MessageType mt, Services service, const char *command,
                            const char *commandParameters, int commandParametersLength,
-                           const TcfTrkCallback &callBack = TcfTrkCallback(),
+                           const CodaCallback &callBack = CodaCallback(),
                            const QVariant &cookie = QVariant());
 
-    void sendTcfTrkMessage(MessageType mt, Services service, const char *command,
+    void sendCodaMessage(MessageType mt, Services service, const char *command,
                            const QByteArray &commandParameters,
-                           const TcfTrkCallback &callBack = TcfTrkCallback(),
+                           const CodaCallback &callBack = CodaCallback(),
                            const QVariant &cookie = QVariant());
 
     // Convenience messages: Start a process
-    void sendProcessStartCommand(const TcfTrkCallback &callBack,
+    void sendProcessStartCommand(const CodaCallback &callBack,
                                  const QString &binary,
                                  unsigned uid,
                                  QStringList arguments = QStringList(),
@@ -214,11 +214,11 @@ public:
                                  const QVariant &cookie = QVariant());
 
     // Preferred over Processes:Terminate by TCF TRK.
-    void sendRunControlTerminateCommand(const TcfTrkCallback &callBack,
+    void sendRunControlTerminateCommand(const CodaCallback &callBack,
                                         const QByteArray &id,
                                         const QVariant &cookie = QVariant());
 
-    void sendProcessTerminateCommand(const TcfTrkCallback &callBack,
+    void sendProcessTerminateCommand(const CodaCallback &callBack,
                                      const QByteArray &id,
                                      const QVariant &cookie = QVariant());
 
@@ -229,12 +229,12 @@ public:
                                              const QStringList &additionalLibraries = QStringList(),
                                              const QVariant &cookie = QVariant());
 
-    void sendRunControlSuspendCommand(const TcfTrkCallback &callBack,
+    void sendRunControlSuspendCommand(const CodaCallback &callBack,
                                       const QByteArray &id,
                                       const QVariant &cookie = QVariant());
 
     // Resume / Step (see RunControlResumeMode).
-    void sendRunControlResumeCommand(const TcfTrkCallback &callBack,
+    void sendRunControlResumeCommand(const CodaCallback &callBack,
                                      const QByteArray &id,
                                      RunControlResumeMode mode,
                                      unsigned count /* = 1, currently ignored. */,
@@ -242,117 +242,117 @@ public:
                                      const QVariant &cookie = QVariant());
 
     // Convenience to resume a suspended process
-    void sendRunControlResumeCommand(const TcfTrkCallback &callBack,
+    void sendRunControlResumeCommand(const CodaCallback &callBack,
                                      const QByteArray &id,
                                      const QVariant &cookie = QVariant());
 
-    void sendBreakpointsAddCommand(const TcfTrkCallback &callBack,
+    void sendBreakpointsAddCommand(const CodaCallback &callBack,
                                    const Breakpoint &b,
                                    const QVariant &cookie = QVariant());
 
-    void sendBreakpointsRemoveCommand(const TcfTrkCallback &callBack,
+    void sendBreakpointsRemoveCommand(const CodaCallback &callBack,
                                       const QByteArray &id,
                                       const QVariant &cookie = QVariant());
 
-    void sendBreakpointsRemoveCommand(const TcfTrkCallback &callBack,
+    void sendBreakpointsRemoveCommand(const CodaCallback &callBack,
                                       const QVector<QByteArray> &id,
                                       const QVariant &cookie = QVariant());
 
-    void sendBreakpointsEnableCommand(const TcfTrkCallback &callBack,
+    void sendBreakpointsEnableCommand(const CodaCallback &callBack,
                                       const QByteArray &id,
                                       bool enable,
                                       const QVariant &cookie = QVariant());
 
-    void sendBreakpointsEnableCommand(const TcfTrkCallback &callBack,
+    void sendBreakpointsEnableCommand(const CodaCallback &callBack,
                                       const QVector<QByteArray> &id,
                                       bool enable,
                                       const QVariant &cookie = QVariant());
 
 
-    void sendMemoryGetCommand(const TcfTrkCallback &callBack,
+    void sendMemoryGetCommand(const CodaCallback &callBack,
                               const QByteArray &contextId,
                               quint64 start, quint64 size,
                               const QVariant &cookie = QVariant());
 
-    void sendMemorySetCommand(const TcfTrkCallback &callBack,
+    void sendMemorySetCommand(const CodaCallback &callBack,
                               const QByteArray &contextId,
                               quint64 start, const QByteArray& data,
                               const QVariant &cookie = QVariant());
 
     // Get register names (children of context).
     // It is possible to recurse from  thread id down to single registers.
-    void sendRegistersGetChildrenCommand(const TcfTrkCallback &callBack,
+    void sendRegistersGetChildrenCommand(const CodaCallback &callBack,
                                          const QByteArray &contextId,
                                          const QVariant &cookie = QVariant());
 
     // Register get
-    void sendRegistersGetCommand(const TcfTrkCallback &callBack,
+    void sendRegistersGetCommand(const CodaCallback &callBack,
                                  const QByteArray &contextId,
                                  QByteArray id,
                                  const QVariant &cookie);
 
-    void sendRegistersGetMCommand(const TcfTrkCallback &callBack,
+    void sendRegistersGetMCommand(const CodaCallback &callBack,
                                   const QByteArray &contextId,
                                   const QVector<QByteArray> &ids,
                                   const QVariant &cookie = QVariant());
 
     // Convenience to get a range of register "R0" .. "R<n>".
     // Cookie will be an int containing "start".
-    void sendRegistersGetMRangeCommand(const TcfTrkCallback &callBack,
+    void sendRegistersGetMRangeCommand(const CodaCallback &callBack,
                                  const QByteArray &contextId,
                                   unsigned start, unsigned count);
 
     // Set register
-    void sendRegistersSetCommand(const TcfTrkCallback &callBack,
+    void sendRegistersSetCommand(const CodaCallback &callBack,
                                  const QByteArray &contextId,
                                  QByteArray ids,
                                  const QByteArray &value, // binary value
                                  const QVariant &cookie = QVariant());
     // Set register
-    void sendRegistersSetCommand(const TcfTrkCallback &callBack,
+    void sendRegistersSetCommand(const CodaCallback &callBack,
                                  const QByteArray &contextId,
                                  unsigned registerNumber,
                                  const QByteArray &value, // binary value
                                  const QVariant &cookie = QVariant());
 
     // File System
-    void sendFileSystemOpenCommand(const TcfTrkCallback &callBack,
+    void sendFileSystemOpenCommand(const CodaCallback &callBack,
                                    const QByteArray &name,
                                    unsigned flags = FileSystem_TCF_O_READ,
                                    const QVariant &cookie = QVariant());
 
-    void sendFileSystemFstatCommand(const TcfTrkCallback &callBack,
+    void sendFileSystemFstatCommand(const CodaCallback &callBack,
                                    const QByteArray &handle,
                                    const QVariant &cookie = QVariant());
 
-    void sendFileSystemWriteCommand(const TcfTrkCallback &callBack,
+    void sendFileSystemWriteCommand(const CodaCallback &callBack,
                                     const QByteArray &handle,
                                     const QByteArray &data,
                                     unsigned offset = 0,
                                     const QVariant &cookie = QVariant());
 
-    void sendFileSystemCloseCommand(const TcfTrkCallback &callBack,
+    void sendFileSystemCloseCommand(const CodaCallback &callBack,
                                    const QByteArray &handle,
                                    const QVariant &cookie = QVariant());
 
     // Symbian Install
-    void sendSymbianInstallSilentInstallCommand(const TcfTrkCallback &callBack,
+    void sendSymbianInstallSilentInstallCommand(const CodaCallback &callBack,
                                                 const QByteArray &file,
                                                 const QByteArray &targetDrive,
                                                 const QVariant &cookie = QVariant());
 
-    void sendSymbianInstallUIInstallCommand(const TcfTrkCallback &callBack,
+    void sendSymbianInstallUIInstallCommand(const CodaCallback &callBack,
                                             const QByteArray &file,
                                             const QVariant &cookie = QVariant());
 
-    void sendLoggingAddListenerCommand(const TcfTrkCallback &callBack,
+    void sendLoggingAddListenerCommand(const CodaCallback &callBack,
                                        const QVariant &cookie = QVariant());
 
     // SymbianOs Data
-    void sendSymbianOsDataGetThreadsCommand(const TcfTrkCallback &callBack,
+    void sendSymbianOsDataGetThreadsCommand(const CodaCallback &callBack,
                                             const QVariant &cookie = QVariant());
 
-    void sendSymbianOsDataFindProcessesCommand(const TcfTrkCallback &callBack,
+    void sendSymbianOsDataFindProcessesCommand(const CodaCallback &callBack,
                                                 const QByteArray &processName,
                                                 const QByteArray &uid,
                                                 const QVariant &cookie = QVariant());
@@ -360,13 +360,13 @@ public:
     // Settings
     void sendSettingsEnableLogCommand();
 
-    static QByteArray parseMemoryGet(const TcfTrkCommandResult &r);
-    static QVector<QByteArray> parseRegisterGetChildren(const TcfTrkCommandResult &r);
-    static TcfTrkStatResponse parseStat(const TcfTrkCommandResult &r);
+    static QByteArray parseMemoryGet(const CodaCommandResult &r);
+    static QVector<QByteArray> parseRegisterGetChildren(const CodaCommandResult &r);
+    static CodaStatResponse parseStat(const CodaCommandResult &r);
 
 signals:
-    void genericTcfEvent(int service, const QByteArray &name, const QVector<tcftrk::JsonValue> &value);
-    void tcfEvent(const tcftrk::TcfTrkEvent &knownEvent);
+    void genericTcfEvent(int service, const QByteArray &name, const QVector<JsonValue> &value);
+    void tcfEvent(const Coda::CodaEvent &knownEvent);
     void serialPong(const QString &codaVersion);
 
     void logMessage(const QString &);
@@ -393,9 +393,9 @@ private:
     inline void processSerialMessage(const QByteArray &message);
     int parseTcfCommandReply(char type, const QVector<QByteArray> &tokens);
     int parseTcfEvent(const QVector<QByteArray> &tokens);
-    TcfTrkDevicePrivate *d;
+    CodaDevicePrivate *d;
 };
 
-} // namespace tcftrk
+} // namespace Coda
 
-#endif // TCFTRKENGINE_H
+#endif // CODAENGINE_H

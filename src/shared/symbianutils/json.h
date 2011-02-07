@@ -40,7 +40,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QVector>
 
-namespace tcftrk {
+namespace Coda {
 
 class SYMBIANUTILS_EXPORT JsonValue
 {
@@ -136,6 +136,6 @@ private:
     QByteArray &m_target;
 };
 
-} // namespace tcftrk
+} // namespace Coda
 
 #endif // SYMBIANUTILS_JSON_H

@@ -37,7 +37,7 @@
 #include "s60deployconfiguration.h"
 #include "s60devicerunconfiguration.h"
 #include "s60runconfigbluetoothstarter.h"
-#include "tcftrkdevice.h"
+#include "codadevice.h"
 #include "trkruncontrol.h"
 
 #include <coreplugin/icore.h>
@@ -295,7 +295,7 @@ void S60DeployStep::start()
     }
     if (!trkClient) {
         QTC_ASSERT(!m_trkDevice, return);
-        m_trkDevice = new tcftrk::TcfTrkDevice;
+        m_trkDevice = new Coda::CodaDevice;
         if (m_address.isEmpty() && !serialConnection) {
             errorMessage = tr("No address for a device has been defined. Please define an address and try again.");
             reportError(errorMessage);
@@ -347,7 +347,7 @@ void S60DeployStep::setupConnections()
     } else {
         connect(m_trkDevice, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
         connect(m_trkDevice, SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
-        connect(m_trkDevice, SIGNAL(tcfEvent(tcftrk::TcfTrkEvent)), this, SLOT(slotTcftrkEvent(tcftrk::TcfTrkEvent)), Qt::DirectConnection);
+        connect(m_trkDevice, SIGNAL(tcfEvent(Coda::CodaEvent)), this, SLOT(slotCodaEvent(Coda::CodaEvent)), Qt::DirectConnection);
         connect(m_trkDevice, SIGNAL(serialPong(QString)), this, SLOT(slotSerialPong(QString)));
         connect(this, SIGNAL(manualInstallation()), this, SLOT(showManualInstallationInfo()));
     }
@@ -400,9 +400,9 @@ void S60DeployStep::startDeployment()
         m_trkDevice->sendSerialPing(false);
         QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
     } else {
-        const QSharedPointer<QTcpSocket> tcfTrkSocket(new QTcpSocket);
-        m_trkDevice->setDevice(tcfTrkSocket);
-        tcfTrkSocket->connectToHost(m_address, m_port);
+        const QSharedPointer<QTcpSocket> codaSocket(new QTcpSocket);
+        m_trkDevice->setDevice(codaSocket);
+        codaSocket->connectToHost(m_address, m_port);
         m_state = StateConnecting;
         appendMessage(tr("Connecting to %1:%2...").arg(m_address).arg(m_port), false);
         QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
@@ -466,13 +466,13 @@ void S60DeployStep::slotSerialPong(const QString &message)
         qDebug() << "CODA serial pong:" << message;
 }
 
-void S60DeployStep::slotTcftrkEvent (const tcftrk::TcfTrkEvent &event)
+void S60DeployStep::slotCodaEvent (const Coda::CodaEvent &event)
 {
     if (debug)
         qDebug() << "CODA event:" << "Type:" << event.type() << "Message:" << event.toString();
 
     switch (event.type()) {
-    case tcftrk::TcfTrkEvent::LocatorHello: {// Commands accepted now
+    case Coda::CodaEvent::LocatorHello: {// Commands accepted now
         m_state = StateConnected;
         emit codaConnected();
         startTransferring();
@@ -491,14 +491,14 @@ void S60DeployStep::initFileSending()
     QTC_ASSERT(m_currentFileIndex >= 0, return);
 
     const unsigned flags =
-            tcftrk::TcfTrkDevice::FileSystem_TCF_O_WRITE
-            |tcftrk::TcfTrkDevice::FileSystem_TCF_O_CREAT
-            |tcftrk::TcfTrkDevice::FileSystem_TCF_O_TRUNC;
+            Coda::CodaDevice::FileSystem_TCF_O_WRITE
+            |Coda::CodaDevice::FileSystem_TCF_O_CREAT
+            |Coda::CodaDevice::FileSystem_TCF_O_TRUNC;
     m_putWriteOk = false;
 
     QString packageName(QFileInfo(m_signedPackages.at(m_currentFileIndex)).fileName());
     QString remoteFileLocation = QString::fromLatin1("%1:\\Data\\%2").arg(m_installationDrive).arg(packageName);
-    m_trkDevice->sendFileSystemOpenCommand(tcftrk::TcfTrkCallback(this, &S60DeployStep::handleFileSystemOpen),
+    m_trkDevice->sendFileSystemOpenCommand(Coda::CodaCallback(this, &S60DeployStep::handleFileSystemOpen),
                                            remoteFileLocation.toAscii(), flags);
     appendMessage(tr("Copying \"%1\"...").arg(packageName), false);
 }
@@ -511,11 +511,11 @@ void S60DeployStep::initFileInstallation()
     QString packageName(QFileInfo(m_signedPackages.at(m_currentFileIndex)).fileName());
     QString remoteFileLocation = QString::fromLatin1("%1:\\Data\\%2").arg(m_installationDrive).arg(packageName);
     if (m_silentInstall) {
-        m_trkDevice->sendSymbianInstallSilentInstallCommand(tcftrk::TcfTrkCallback(this, &S60DeployStep::handleSymbianInstall),
+        m_trkDevice->sendSymbianInstallSilentInstallCommand(Coda::CodaCallback(this, &S60DeployStep::handleSymbianInstall),
                                                             remoteFileLocation.toAscii(), QString::fromLatin1("%1:").arg(m_installationDrive).toAscii());
         appendMessage(tr("Installing package \"%1\" on drive %2:...").arg(packageName).arg(m_installationDrive), false);
     } else {
-        m_trkDevice->sendSymbianInstallUIInstallCommand(tcftrk::TcfTrkCallback(this, &S60DeployStep::handleSymbianInstall),
+        m_trkDevice->sendSymbianInstallUIInstallCommand(Coda::CodaCallback(this, &S60DeployStep::handleSymbianInstall),
                                                         remoteFileLocation.toAscii());
         appendMessage(tr("Please continue the installation on your device."), false);
         emit manualInstallation();
@@ -536,9 +536,9 @@ void S60DeployStep::startInstalling()
     m_state = StateInstalling;
 }
 
-void S60DeployStep::handleFileSystemOpen(const tcftrk::TcfTrkCommandResult &result)
+void S60DeployStep::handleFileSystemOpen(const Coda::CodaCommandResult &result)
 {
-    if (result.type != tcftrk::TcfTrkCommandResult::SuccessReply) {
+    if (result.type != Coda::CodaCommandResult::SuccessReply) {
         reportError(tr("Open remote file failed: %1").arg(result.errorString()));
         return;
     }
@@ -558,9 +558,9 @@ void S60DeployStep::handleFileSystemOpen(const tcftrk::TcfTrkCommandResult &resu
     putSendNextChunk();
 }
 
-void S60DeployStep::handleSymbianInstall(const tcftrk::TcfTrkCommandResult &result)
+void S60DeployStep::handleSymbianInstall(const Coda::CodaCommandResult &result)
 {
-    if (result.type == tcftrk::TcfTrkCommandResult::SuccessReply) {
+    if (result.type == Coda::CodaCommandResult::SuccessReply) {
         appendMessage(tr("Installation has finished"), false);
         if (++m_currentFileIndex >= m_signedPackages.count())
             emit allFilesInstalled();
@@ -587,7 +587,7 @@ void S60DeployStep::putSendNextChunk()
             qDebug("Writing %llu bytes to remote file '%s' at %llu\n",
                    m_putLastChunkSize,
                    m_remoteFileHandle.constData(), pos);
-        m_trkDevice->sendFileSystemWriteCommand(tcftrk::TcfTrkCallback(this, &S60DeployStep::handleFileSystemWrite),
+        m_trkDevice->sendFileSystemWriteCommand(Coda::CodaCallback(this, &S60DeployStep::handleFileSystemWrite),
                                                 m_remoteFileHandle, data, unsigned(pos));
         setCopyProgress((100*(m_putLastChunkSize+pos))/size);
     }
@@ -595,11 +595,11 @@ void S60DeployStep::putSendNextChunk()
 
 void S60DeployStep::closeRemoteFile()
 {
-    m_trkDevice->sendFileSystemCloseCommand(tcftrk::TcfTrkCallback(this, &S60DeployStep::handleFileSystemClose),
+    m_trkDevice->sendFileSystemCloseCommand(Coda::CodaCallback(this, &S60DeployStep::handleFileSystemClose),
                                             m_remoteFileHandle);
 }
 
-void S60DeployStep::handleFileSystemWrite(const tcftrk::TcfTrkCommandResult &result)
+void S60DeployStep::handleFileSystemWrite(const Coda::CodaCommandResult &result)
 {
     // Close remote file even if copy fails
     m_putWriteOk = result;
@@ -615,9 +615,9 @@ void S60DeployStep::handleFileSystemWrite(const tcftrk::TcfTrkCommandResult &res
     }
 }
 
-void S60DeployStep::handleFileSystemClose(const tcftrk::TcfTrkCommandResult &result)
+void S60DeployStep::handleFileSystemClose(const Coda::CodaCommandResult &result)
 {
-    if (result.type == tcftrk::TcfTrkCommandResult::SuccessReply) {
+    if (result.type == Coda::CodaCommandResult::SuccessReply) {
         if (debug)
             qDebug("File closed.\n");
         if (++m_currentFileIndex >= m_signedPackages.count())

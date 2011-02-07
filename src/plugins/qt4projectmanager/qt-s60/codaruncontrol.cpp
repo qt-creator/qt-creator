@@ -36,8 +36,8 @@
 #include "s60deployconfiguration.h"
 #include "s60devicerunconfiguration.h"
 
-#include "tcftrkdevice.h"
-#include "tcftrkmessage.h"
+#include "codadevice.h"
+#include "codamessage.h"
 
 #include "qt4buildconfiguration.h"
 #include "qt4symbiantarget.h"
@@ -63,13 +63,13 @@
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
-using namespace tcftrk;
+using namespace Coda;
 
 enum { debug = 0 };
 
 CodaRunControl::CodaRunControl(RunConfiguration *runConfiguration, const QString &mode) :
     S60RunControlBase(runConfiguration, mode),
-    m_tcfTrkDevice(0),
+    m_codaDevice(0),
     m_port(0),
     m_state(StateUninit)
 {
@@ -91,8 +91,8 @@ CodaRunControl::CodaRunControl(RunConfiguration *runConfiguration, const QString
 
 CodaRunControl::~CodaRunControl()
 {
-    if (m_tcfTrkDevice)
-        m_tcfTrkDevice->deleteLater();
+    if (m_codaDevice)
+        m_codaDevice->deleteLater();
 }
 
 bool CodaRunControl::doStart()
@@ -115,22 +115,22 @@ bool CodaRunControl::isRunning() const
 
 bool CodaRunControl::setupLauncher()
 {
-    QTC_ASSERT(!m_tcfTrkDevice, return false);
+    QTC_ASSERT(!m_codaDevice, return false);
 
-    m_tcfTrkDevice = new TcfTrkDevice;
+    m_codaDevice = new CodaDevice;
     if (debug)
-        m_tcfTrkDevice->setVerbose(debug);
+        m_codaDevice->setVerbose(debug);
 
-    connect(m_tcfTrkDevice, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
-    connect(m_tcfTrkDevice, SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
-    connect(m_tcfTrkDevice, SIGNAL(tcfEvent(tcftrk::TcfTrkEvent)), this, SLOT(slotTcftrkEvent(tcftrk::TcfTrkEvent)));
-    connect(m_tcfTrkDevice, SIGNAL(serialPong(QString)), this, SLOT(slotSerialPong(QString)));
+    connect(m_codaDevice, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
+    connect(m_codaDevice, SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
+    connect(m_codaDevice, SIGNAL(tcfEvent(Coda::CodaEvent)), this, SLOT(slotCodaEvent(Coda::CodaEvent)));
+    connect(m_codaDevice, SIGNAL(serialPong(QString)), this, SLOT(slotSerialPong(QString)));
 
     if (m_serialPort.length()) {
         const QSharedPointer<SymbianUtils::VirtualSerialDevice> serialDevice(new SymbianUtils::VirtualSerialDevice(m_serialPort));
         appendMessage(tr("Conecting to '%2'...").arg(m_serialPort), NormalMessageFormat);
-        m_tcfTrkDevice->setSerialFrame(true);
-        m_tcfTrkDevice->setDevice(serialDevice);
+        m_codaDevice->setSerialFrame(true);
+        m_codaDevice->setDevice(serialDevice);
         bool ok = serialDevice->open(QIODevice::ReadWrite);
         if (!ok) {
             appendMessage(tr("Couldn't open serial device: %1").arg(serialDevice->errorString()), ErrorMessageFormat);
@@ -139,12 +139,12 @@ bool CodaRunControl::setupLauncher()
         connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),
                 this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
         m_state = StateConnecting;
-        m_tcfTrkDevice->sendSerialPing(false);
+        m_codaDevice->sendSerialPing(false);
         QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
     } else {
-        const QSharedPointer<QTcpSocket> tcfTrkSocket(new QTcpSocket);
-        m_tcfTrkDevice->setDevice(tcfTrkSocket);
-        tcfTrkSocket->connectToHost(m_address, m_port);
+        const QSharedPointer<QTcpSocket> codaSocket(new QTcpSocket);
+        m_codaDevice->setDevice(codaSocket);
+        codaSocket->connectToHost(m_address, m_port);
         m_state = StateConnecting;
         appendMessage(tr("Connecting to %1:%2...").arg(m_address).arg(m_port), NormalMessageFormat);
         QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
@@ -162,7 +162,7 @@ void CodaRunControl::doStop()
         break;
     case StateProcessRunning:
         QTC_ASSERT(!m_runningProcessId.isEmpty(), return);
-        m_tcfTrkDevice->sendRunControlTerminateCommand(TcfTrkCallback(),
+        m_codaDevice->sendRunControlTerminateCommand(CodaCallback(),
                                                        m_runningProcessId.toAscii());
         break;
     }
@@ -187,34 +187,34 @@ void CodaRunControl::slotSerialPong(const QString &message)
         qDebug() << "CODA serial pong:" << message;
 }
 
-void CodaRunControl::slotTcftrkEvent(const TcfTrkEvent &event)
+void CodaRunControl::slotCodaEvent(const CodaEvent &event)
 {
     if (debug)
         qDebug() << "CODA event:" << "Type:" << event.type() << "Message:" << event.toString();
 
     switch (event.type()) {
-    case TcfTrkEvent::LocatorHello: { // Commands accepted now
+    case CodaEvent::LocatorHello: { // Commands accepted now
         m_state = StateConnected;
         appendMessage(tr("Connected."), NormalMessageFormat);
         setProgress(maxProgress()*0.80);
         initCommunication();
     }
     break;
-    case TcfTrkEvent::RunControlContextRemoved:
+    case CodaEvent::RunControlContextRemoved:
         handleContextRemoved(event);
         break;
-    case TcfTrkEvent::RunControlContextAdded:
+    case CodaEvent::RunControlContextAdded:
         m_state = StateProcessRunning;
         reportLaunchFinished();
         handleContextAdded(event);
         break;
-    case TcfTrkEvent::RunControlSuspended:
+    case CodaEvent::RunControlSuspended:
         handleContextSuspended(event);
         break;
-    case TcfTrkEvent::RunControlModuleLoadSuspended:
+    case CodaEvent::RunControlModuleLoadSuspended:
         handleModuleLoadSuspended(event);
         break;
-    case TcfTrkEvent::LoggingWriteEvent:
+    case CodaEvent::LoggingWriteEvent:
         handleLogging(event);
         break;
     default:
@@ -226,13 +226,13 @@ void CodaRunControl::slotTcftrkEvent(const TcfTrkEvent &event)
 
 void CodaRunControl::initCommunication()
 {
-    m_tcfTrkDevice->sendLoggingAddListenerCommand(TcfTrkCallback(this, &CodaRunControl::handleAddListener));
+    m_codaDevice->sendLoggingAddListenerCommand(CodaCallback(this, &CodaRunControl::handleAddListener));
 }
 
-void CodaRunControl::handleContextRemoved(const TcfTrkEvent &event)
+void CodaRunControl::handleContextRemoved(const CodaEvent &event)
 {
     const QVector<QByteArray> removedItems
-            = static_cast<const TcfTrkRunControlContextRemovedEvent &>(event).ids();
+            = static_cast<const CodaRunControlContextRemovedEvent &>(event).ids();
     if (!m_runningProcessId.isEmpty()
             && removedItems.contains(m_runningProcessId.toAscii())) {
         appendMessage(tr("Process has finished."), NormalMessageFormat);
@@ -240,9 +240,9 @@ void CodaRunControl::handleContextRemoved(const TcfTrkEvent &event)
     }
 }
 
-void CodaRunControl::handleContextAdded(const TcfTrkEvent &event)
+void CodaRunControl::handleContextAdded(const CodaEvent &event)
 {
-    typedef TcfTrkRunControlContextAddedEvent TcfAddedEvent;
+    typedef CodaRunControlContextAddedEvent TcfAddedEvent;
 
     const TcfAddedEvent &me = static_cast<const TcfAddedEvent &>(event);
     foreach (const RunControlContext &context, me.contexts()) {
@@ -251,9 +251,9 @@ void CodaRunControl::handleContextAdded(const TcfTrkEvent &event)
     }
 }
 
-void CodaRunControl::handleContextSuspended(const TcfTrkEvent &event)
+void CodaRunControl::handleContextSuspended(const CodaEvent &event)
 {
-    typedef TcfTrkRunControlContextSuspendedEvent TcfSuspendEvent;
+    typedef CodaRunControlContextSuspendedEvent TcfSuspendEvent;
 
     const TcfSuspendEvent &me = static_cast<const TcfSuspendEvent &>(event);
 
@@ -262,7 +262,7 @@ void CodaRunControl::handleContextSuspended(const TcfTrkEvent &event)
         appendMessage(tr("Thread has crashed: %1").arg(QString::fromLatin1(me.message())), ErrorMessageFormat);
         //If we get a crash report then we display it and stop the process.
         //Now sure if this should be the final solution but it works for now.
-        //m_tcfTrkDevice->sendRunControlResumeCommand(TcfTrkCallback(), me.id()); //TODO: Should I resume automaticly
+        //m_codaDevice->sendRunControlResumeCommand(CodaCallback(), me.id()); //TODO: Should I resume automaticly
         stop();
         break;
     default:
@@ -272,31 +272,31 @@ void CodaRunControl::handleContextSuspended(const TcfTrkEvent &event)
     }
 }
 
-void CodaRunControl::handleModuleLoadSuspended(const TcfTrkEvent &event)
+void CodaRunControl::handleModuleLoadSuspended(const CodaEvent &event)
 {
     // Debug mode start: Continue:
-    typedef TcfTrkRunControlModuleLoadContextSuspendedEvent TcfModuleLoadSuspendedEvent;
+    typedef CodaRunControlModuleLoadContextSuspendedEvent TcfModuleLoadSuspendedEvent;
 
     const TcfModuleLoadSuspendedEvent &me = static_cast<const TcfModuleLoadSuspendedEvent &>(event);
     if (me.info().requireResume)
-        m_tcfTrkDevice->sendRunControlResumeCommand(TcfTrkCallback(), me.id());
+        m_codaDevice->sendRunControlResumeCommand(CodaCallback(), me.id());
 }
 
-void CodaRunControl::handleLogging(const TcfTrkEvent &event)
+void CodaRunControl::handleLogging(const CodaEvent &event)
 {
-    const TcfTrkLoggingWriteEvent &me = static_cast<const TcfTrkLoggingWriteEvent &>(event);
+    const CodaLoggingWriteEvent &me = static_cast<const CodaLoggingWriteEvent &>(event);
     appendMessage(me.message(), StdOutFormat);
 }
 
-void CodaRunControl::handleAddListener(const TcfTrkCommandResult &result)
+void CodaRunControl::handleAddListener(const CodaCommandResult &result)
 {
     Q_UNUSED(result)
-    m_tcfTrkDevice->sendSymbianOsDataFindProcessesCommand(TcfTrkCallback(this, &CodaRunControl::handleFindProcesses),
+    m_codaDevice->sendSymbianOsDataFindProcessesCommand(CodaCallback(this, &CodaRunControl::handleFindProcesses),
                                                           QByteArray(),
                                                           QByteArray::number(executableUid(), 16));
 }
 
-void CodaRunControl::handleFindProcesses(const TcfTrkCommandResult &result)
+void CodaRunControl::handleFindProcesses(const CodaCommandResult &result)
 {
     if (result.values.size() && result.values.at(0).type() == JsonValue::Array && result.values.at(0).children().count()) {
         //there are processes running. Cannot run mine
@@ -304,15 +304,15 @@ void CodaRunControl::handleFindProcesses(const TcfTrkCommandResult &result)
         finishRunControl();
     } else {
         setProgress(maxProgress()*0.90);
-        m_tcfTrkDevice->sendProcessStartCommand(TcfTrkCallback(this, &CodaRunControl::handleCreateProcess),
+        m_codaDevice->sendProcessStartCommand(CodaCallback(this, &CodaRunControl::handleCreateProcess),
                                                 executableName(), executableUid(), commandLineArguments().split(" "), QString(), true);
         appendMessage(tr("Launching: %1").arg(executableName()), NormalMessageFormat);
     }
 }
 
-void CodaRunControl::handleCreateProcess(const TcfTrkCommandResult &result)
+void CodaRunControl::handleCreateProcess(const CodaCommandResult &result)
 {
-    const bool ok = result.type == TcfTrkCommandResult::SuccessReply;
+    const bool ok = result.type == CodaCommandResult::SuccessReply;
     if (ok) {
         setProgress(maxProgress());
         appendMessage(tr("Launched."), NormalMessageFormat);
@@ -325,9 +325,9 @@ void CodaRunControl::handleCreateProcess(const TcfTrkCommandResult &result)
 void CodaRunControl::finishRunControl()
 {
     m_runningProcessId.clear();
-    if (m_tcfTrkDevice)
-        m_tcfTrkDevice->deleteLater();
-    m_tcfTrkDevice = 0;
+    if (m_codaDevice)
+        m_codaDevice->deleteLater();
+    m_codaDevice = 0;
     m_state = StateUninit;
     emit finished();
 }
@@ -366,7 +366,7 @@ void CodaRunControl::cancelConnection()
 
 void CodaRunControl::deviceRemoved(const SymbianUtils::SymbianDevice &device)
 {
-    if (m_tcfTrkDevice && device.portName() == m_serialPort) {
+    if (m_codaDevice && device.portName() == m_serialPort) {
         QString msg = tr("The device '%1' has been disconnected").arg(device.friendlyName());
         appendMessage(msg, ErrorMessageFormat);
         finishRunControl();

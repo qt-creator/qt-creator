@@ -31,8 +31,8 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_TCFTRKGDBADAPTER_H
-#define DEBUGGER_TCFTRKGDBADAPTER_H
+#ifndef DEBUGGER_CODAGDBADAPTER_H
+#define DEBUGGER_CODAGDBADAPTER_H
 
 #include "abstractgdbadapter.h"
 #include "localgdbprocess.h"
@@ -51,11 +51,11 @@ class QTcpSocket;
 class QIODevice;
 QT_END_NAMESPACE
 
-namespace tcftrk {
-    struct TcfTrkCommandResult;
-    class TcfTrkDevice;
-    class TcfTrkEvent;
-    class TcfTrkRunControlModuleLoadContextSuspendedEvent;
+namespace Coda {
+    struct CodaCommandResult;
+    class CodaDevice;
+    class CodaEvent;
+    class CodaRunControlModuleLoadContextSuspendedEvent;
 }
 
 namespace Debugger {
@@ -66,21 +66,21 @@ struct GdbResult;
 
 ///////////////////////////////////////////////////////////////////////
 //
-// TcfTrkGdbAdapter
+// CodaGdbAdapter
 //
 ///////////////////////////////////////////////////////////////////////
 
-class TcfTrkGdbAdapter : public AbstractGdbAdapter
+class CodaGdbAdapter : public AbstractGdbAdapter
 {
     Q_OBJECT
 
 public:
     typedef trk::Callback<const GdbResult &> GdbResultCallback;
-    typedef trk::Callback<const tcftrk::TcfTrkCommandResult &> TcfTrkCallback;
+    typedef trk::Callback<const Coda::CodaCommandResult &> CodaCallback;
     typedef trk::Callback<const GdbResponse &> GdbCallback;
 
-    explicit TcfTrkGdbAdapter(GdbEngine *engine);
-    virtual ~TcfTrkGdbAdapter();
+    explicit CodaGdbAdapter(GdbEngine *engine);
+    virtual ~CodaGdbAdapter();
     void setGdbServerName(const QString &name);
     QString gdbServerName() const { return m_gdbServerName; }
 
@@ -113,22 +113,22 @@ private:
     void shutdownInferior();
     void shutdownAdapter();
     void sendRunControlTerminateCommand();
-    void handleRunControlTerminate(const tcftrk::TcfTrkCommandResult &);
+    void handleRunControlTerminate(const Coda::CodaCommandResult &);
     void sendRegistersGetMCommand();
-    void handleWriteRegister(const tcftrk::TcfTrkCommandResult &result);
+    void handleWriteRegister(const Coda::CodaCommandResult &result);
     void reportRegisters();
-    void handleReadRegisters(const tcftrk::TcfTrkCommandResult &result);
-    void handleRegisterChildren(const tcftrk::TcfTrkCommandResult &result);
-    void handleAndReportReadRegisters(const tcftrk::TcfTrkCommandResult &result);
-    void handleAndReportReadRegister(const tcftrk::TcfTrkCommandResult &result);
-    void handleAndReportReadRegistersAfterStop(const tcftrk::TcfTrkCommandResult &result);
+    void handleReadRegisters(const Coda::CodaCommandResult &result);
+    void handleRegisterChildren(const Coda::CodaCommandResult &result);
+    void handleAndReportReadRegisters(const Coda::CodaCommandResult &result);
+    void handleAndReportReadRegister(const Coda::CodaCommandResult &result);
+    void handleAndReportReadRegistersAfterStop(const Coda::CodaCommandResult &result);
     QByteArray stopMessage() const;
-    void handleAndReportSetBreakpoint(const tcftrk::TcfTrkCommandResult &result);
-    void handleClearBreakpoint(const tcftrk::TcfTrkCommandResult &result);
+    void handleAndReportSetBreakpoint(const Coda::CodaCommandResult &result);
+    void handleClearBreakpoint(const Coda::CodaCommandResult &result);
     void readMemory(uint addr, uint len, bool buffered);
-    void handleReadMemoryBuffered(const tcftrk::TcfTrkCommandResult &result);
-    void handleReadMemoryUnbuffered(const tcftrk::TcfTrkCommandResult &result);
-    void handleWriteMemory(const tcftrk::TcfTrkCommandResult &result);
+    void handleReadMemoryBuffered(const Coda::CodaCommandResult &result);
+    void handleReadMemoryUnbuffered(const Coda::CodaCommandResult &result);
+    void handleWriteMemory(const Coda::CodaCommandResult &result);
     void tryAnswerGdbMemoryRequest(bool buffered);
     inline void sendMemoryGetCommand(const MemoryRange &range, bool buffered);
     void addThread(unsigned id);
@@ -144,7 +144,7 @@ private:
     QString m_gdbServerName; // 127.0.0.1:(2222+uid)
     bool m_running;
     int m_stopReason;
-    tcftrk::TcfTrkDevice *m_trkDevice;
+    Coda::CodaDevice *m_trkDevice;
     QSharedPointer<QIODevice> m_trkIODevice;
 
     //
@@ -152,14 +152,14 @@ private:
     //
     Q_SLOT void handleGdbConnection();
     Q_SLOT void readGdbServerCommand();
-    Q_SLOT void tcftrkDeviceError(const QString  &);
+    Q_SLOT void codaDeviceError(const QString  &);
     void startGdb();
-    Q_SLOT void tcftrkEvent(const tcftrk::TcfTrkEvent &knownEvent);
-    void handleTcfTrkRunControlModuleLoadContextSuspendedEvent(const tcftrk::TcfTrkRunControlModuleLoadContextSuspendedEvent &e);
+    Q_SLOT void codaEvent(const Coda::CodaEvent &knownEvent);
+    void handleCodaRunControlModuleLoadContextSuspendedEvent(const Coda::CodaRunControlModuleLoadContextSuspendedEvent &e);
     inline void sendTrkContinue();
     void sendTrkStepRange();
-    void handleStep(const tcftrk::TcfTrkCommandResult &result);
-    void handleCreateProcess(const tcftrk::TcfTrkCommandResult &result);
+    void handleStep(const Coda::CodaCommandResult &result);
+    void handleCreateProcess(const Coda::CodaCommandResult &result);
 
     void readGdbResponse();
     void handleGdbServerCommand(const QByteArray &cmd);
@@ -197,4 +197,4 @@ private:
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_TCFTRKGDBADAPTER_H
+#endif // DEBUGGER_CODAGDBADAPTER_H

@@ -41,10 +41,10 @@ class QMessageBox;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace tcftrk {
-struct TcfTrkCommandResult;
-class TcfTrkDevice;
-class TcfTrkEvent;
+namespace Coda {
+struct CodaCommandResult;
+class CodaDevice;
+class CodaEvent;
 }
 
 namespace SymbianUtils {
@@ -54,7 +54,7 @@ class SymbianDevice;
 namespace Qt4ProjectManager {
 namespace Internal {
 
-// CodaRunControl configures tcftrk to run the application
+// CodaRunControl configures Coda to run the application
 class CodaRunControl : public S60RunControlBase
 {
     Q_OBJECT
@@ -79,22 +79,22 @@ protected slots:
 private slots:
     void slotError(const QString &error);
     void slotTrkLogMessage(const QString &log);
-    void slotTcftrkEvent(const tcftrk::TcfTrkEvent &event);
+    void slotCodaEvent(const Coda::CodaEvent &event);
     void slotSerialPong(const QString &message);
 
 private:
     void initCommunication();
 
-    void handleModuleLoadSuspended(const tcftrk::TcfTrkEvent &event);
-    void handleContextSuspended(const tcftrk::TcfTrkEvent &event);
-    void handleContextAdded(const tcftrk::TcfTrkEvent &event);
-    void handleContextRemoved(const tcftrk::TcfTrkEvent &event);
-    void handleLogging(const tcftrk::TcfTrkEvent &event);
+    void handleModuleLoadSuspended(const Coda::CodaEvent &event);
+    void handleContextSuspended(const Coda::CodaEvent &event);
+    void handleContextAdded(const Coda::CodaEvent &event);
+    void handleContextRemoved(const Coda::CodaEvent &event);
+    void handleLogging(const Coda::CodaEvent &event);
 
 private:
-    void handleCreateProcess(const tcftrk::TcfTrkCommandResult &result);
-    void handleAddListener(const tcftrk::TcfTrkCommandResult &result);
-    void handleFindProcesses(const tcftrk::TcfTrkCommandResult &result);
+    void handleCreateProcess(const Coda::CodaCommandResult &result);
+    void handleAddListener(const Coda::CodaCommandResult &result);
+    void handleFindProcesses(const Coda::CodaCommandResult &result);
 
 private:
     enum State {
@@ -104,7 +104,7 @@ private:
         StateProcessRunning
     };
 
-    tcftrk::TcfTrkDevice *m_tcfTrkDevice;
+    Coda::CodaDevice *m_codaDevice;
 
     QString m_address;
     unsigned short m_port;

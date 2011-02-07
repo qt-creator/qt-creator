@@ -31,7 +31,7 @@
 **
 **************************************************************************/
 
-#include "tcftrkdevice.h"
+#include "codadevice.h"
 #include "json.h"
 #include "trkutils.h"
 
@@ -106,18 +106,18 @@ static inline QByteArray encodeUsbSerialMessage(const QByteArray &dataIn)
         pos = chunkEnd;
     }
     if (debug > 1)
-        qDebug("Serial chunked:\n%s", qPrintable(tcftrk::formatData(frame)));
+        qDebug("Serial chunked:\n%s", qPrintable(Coda::formatData(frame)));
     return frame;
 }
 
-namespace tcftrk {
-// ------------- TcfTrkCommandError
+namespace Coda {
+// ------------- CodaCommandError
 
-TcfTrkCommandError::TcfTrkCommandError() : timeMS(0), code(0), alternativeCode(0)
+CodaCommandError::CodaCommandError() : timeMS(0), code(0), alternativeCode(0)
 {
 }
 
-void TcfTrkCommandError::clear()
+void CodaCommandError::clear()
 {
     timeMS = 0;
     code = alternativeCode = 0;
@@ -125,17 +125,17 @@ void TcfTrkCommandError::clear()
     alternativeOrganization.clear();
 }
 
-QDateTime TcfTrkCommandResult::tcfTimeToQDateTime(quint64 tcfTimeMS)
+QDateTime CodaCommandResult::tcfTimeToQDateTime(quint64 tcfTimeMS)
 {
     const QDateTime time(QDate(1970, 1, 1));
     return time.addMSecs(tcfTimeMS);
 }
 
-void TcfTrkCommandError::write(QTextStream &str) const
+void CodaCommandError::write(QTextStream &str) const
 {
     if (isError()) {
         if (timeMS)
-            str << TcfTrkCommandResult::tcfTimeToQDateTime(timeMS).toString(Qt::ISODate) << ": ";
+            str << CodaCommandResult::tcfTimeToQDateTime(timeMS).toString(Qt::ISODate) << ": ";
         str << "Error code: " << code
                 << " '" << format << '\'';
         if (!alternativeOrganization.isEmpty())
@@ -145,7 +145,7 @@ void TcfTrkCommandError::write(QTextStream &str) const
     }
 }
 
-QString TcfTrkCommandError::toString() const
+QString CodaCommandError::toString() const
 {
     QString rc;
     QTextStream str(&rc);
@@ -153,13 +153,13 @@ QString TcfTrkCommandError::toString() const
     return rc;
 }
 
-bool TcfTrkCommandError::isError() const
+bool CodaCommandError::isError() const
 {
     return timeMS != 0 || code != 0 || !format.isEmpty() || alternativeCode != 0;
 }
 
 /* {"Time":1277459762255,"Code":1,"AltCode":-6,"AltOrg":"POSIX","Format":"Unknown error: -6"} */
-bool TcfTrkCommandError::parse(const QVector<JsonValue> &values)
+bool CodaCommandError::parse(const QVector<JsonValue> &values)
 {
     // Parse an arbitrary hash (that could as well be a command response)
     // and check for error elements. It looks like sometimes errors are appended
@@ -199,21 +199,21 @@ bool TcfTrkCommandError::parse(const QVector<JsonValue> &values)
     if (!errorFound)
         clear();
     if (debug) {
-        qDebug("TcfTrkCommandError::parse: Found error %d (%u): ", errorFound, errorKeyCount);
+        qDebug("CodaCommandError::parse: Found error %d (%u): ", errorFound, errorKeyCount);
         if (!values.isEmpty())
             qDebug() << values.back().toString();
     }
     return errorFound;
 }
 
-// ------------ TcfTrkCommandResult
+// ------------ CodaCommandResult
 
-TcfTrkCommandResult::TcfTrkCommandResult(Type t) :
+CodaCommandResult::CodaCommandResult(Type t) :
     type(t), service(LocatorService)
 {
 }
 
-TcfTrkCommandResult::TcfTrkCommandResult(char typeChar, Services s,
+CodaCommandResult::CodaCommandResult(char typeChar, Services s,
                                          const QByteArray &r,
                                          const QVector<JsonValue> &v,
                                          const QVariant &ck) :
@@ -234,7 +234,7 @@ TcfTrkCommandResult::TcfTrkCommandResult(char typeChar, Services s,
     }
 }
 
-QString TcfTrkCommandResult::errorString() const
+QString CodaCommandResult::errorString() const
 {
     QString rc;
     QTextStream str(&rc);
@@ -259,7 +259,7 @@ QString TcfTrkCommandResult::errorString() const
     return rc;
 }
 
-QString TcfTrkCommandResult::toString() const
+QString CodaCommandResult::toString() const
 {
     QString rc;
     QTextStream str(&rc);
@@ -292,19 +292,19 @@ QString TcfTrkCommandResult::toString() const
     return rc;
 }
 
-TcfTrkStatResponse::TcfTrkStatResponse() : size(0)
+CodaStatResponse::CodaStatResponse() : size(0)
 {
 }
 
-struct TcfTrkSendQueueEntry
+struct CodaSendQueueEntry
 {
-    typedef TcfTrkDevice::MessageType MessageType;
+    typedef CodaDevice::MessageType MessageType;
 
-    explicit TcfTrkSendQueueEntry(MessageType mt,
+    explicit CodaSendQueueEntry(MessageType mt,
                                   int tok,
                                   Services s,
                                   const QByteArray &d,
-                                  const TcfTrkCallback &cb= TcfTrkCallback(),
+                                  const CodaCallback &cb= CodaCallback(),
                                   const QVariant &ck = QVariant()) :
         messageType(mt), service(s), data(d), token(tok), cookie(ck), callback(cb) {}
 
@@ -313,15 +313,15 @@ struct TcfTrkSendQueueEntry
     QByteArray data;
     int token;
     QVariant cookie;
-    TcfTrkCallback callback;
+    CodaCallback callback;
     unsigned specialHandling;
 };
 
-struct TcfTrkDevicePrivate {
-    typedef TcfTrkDevice::IODevicePtr IODevicePtr;
-    typedef QHash<int, TcfTrkSendQueueEntry> TokenWrittenMessageMap;
+struct CodaDevicePrivate {
+    typedef CodaDevice::IODevicePtr IODevicePtr;
+    typedef QHash<int, CodaSendQueueEntry> TokenWrittenMessageMap;
 
-    TcfTrkDevicePrivate();
+    CodaDevicePrivate();
 
     const QByteArray m_tcpMessageTerminator;
 
@@ -330,7 +330,7 @@ struct TcfTrkDevicePrivate {
     QByteArray m_readBuffer;
     QByteArray m_serialBuffer; // for chunked messages
     int m_token;
-    QQueue<TcfTrkSendQueueEntry> m_sendQueue;
+    QQueue<CodaSendQueueEntry> m_sendQueue;
     TokenWrittenMessageMap m_writtenMessages;
     QVector<QByteArray> m_registerNames;
     QVector<QByteArray> m_fakeGetMRegisterValues;
@@ -338,28 +338,28 @@ struct TcfTrkDevicePrivate {
     bool m_serialPingOnly;
 };
 
-TcfTrkDevicePrivate::TcfTrkDevicePrivate() :
+CodaDevicePrivate::CodaDevicePrivate() :
     m_tcpMessageTerminator(tcpMessageTerminatorC),
     m_verbose(0), m_token(0), m_serialFrame(false), m_serialPingOnly(false)
 {
 }
 
-TcfTrkDevice::TcfTrkDevice(QObject *parent) :
-    QObject(parent), d(new TcfTrkDevicePrivate)
+CodaDevice::CodaDevice(QObject *parent) :
+    QObject(parent), d(new CodaDevicePrivate)
 {
 }
 
-TcfTrkDevice::~TcfTrkDevice()
+CodaDevice::~CodaDevice()
 {
     delete d;
 }
 
-QVector<QByteArray> TcfTrkDevice::registerNames() const
+QVector<QByteArray> CodaDevice::registerNames() const
 {
     return d->m_registerNames;
 }
 
-void TcfTrkDevice::setRegisterNames(const QVector<QByteArray>& n)
+void CodaDevice::setRegisterNames(const QVector<QByteArray>& n)
 {
     d->m_registerNames = n;
     if (d->m_verbose) {
@@ -373,12 +373,12 @@ void TcfTrkDevice::setRegisterNames(const QVector<QByteArray>& n)
     }
 }
 
-TcfTrkDevice::IODevicePtr TcfTrkDevice::device() const
+CodaDevice::IODevicePtr CodaDevice::device() const
 {
     return d->m_device;
 }
 
-TcfTrkDevice::IODevicePtr TcfTrkDevice::takeDevice()
+CodaDevice::IODevicePtr CodaDevice::takeDevice()
 {
     const IODevicePtr old = d->m_device;
     if (!old.isNull()) {
@@ -391,7 +391,7 @@ TcfTrkDevice::IODevicePtr TcfTrkDevice::takeDevice()
     return old;
 }
 
-void TcfTrkDevice::setDevice(const IODevicePtr &dp)
+void CodaDevice::setDevice(const IODevicePtr &dp)
 {
     if (dp.data() == d->m_device.data())
         return;
@@ -408,14 +408,14 @@ void TcfTrkDevice::setDevice(const IODevicePtr &dp)
     }
 }
 
-void TcfTrkDevice::slotDeviceError()
+void CodaDevice::slotDeviceError()
 {
     const QString message = d->m_device->errorString();
     emitLogMessage(message);
     emit error(message);
 }
 
-void TcfTrkDevice::slotDeviceSocketStateChanged()
+void CodaDevice::slotDeviceSocketStateChanged()
 {
     if (const QAbstractSocket *s = qobject_cast<const QAbstractSocket *>(d->m_device.data())) {
         const QAbstractSocket::SocketState st = s->state();
@@ -455,7 +455,7 @@ static inline QString debugMessage(QByteArray  message, const char *prefix = 0)
             (QLatin1String(prefix) + messageS) :  messageS;
 }
 
-void TcfTrkDevice::slotDeviceReadyRead()
+void CodaDevice::slotDeviceReadyRead()
 {
     const QByteArray newData = d->m_device->readAll();
     d->m_readBuffer += newData;
@@ -492,7 +492,7 @@ static inline QPair<int, int> findSerialHeader(const QByteArray &in)
     return QPair<int, int>(-1, -1);
 }
 
-void TcfTrkDevice::deviceReadyReadSerial()
+void CodaDevice::deviceReadyReadSerial()
 {
     do {
         // Extract message (pos,len)
@@ -509,7 +509,7 @@ void TcfTrkDevice::deviceReadyReadSerial()
     checkSendQueue(); // Send off further messages
 }
 
-void TcfTrkDevice::processSerialMessage(const QByteArray &message)
+void CodaDevice::processSerialMessage(const QByteArray &message)
 {
     if (debug > 1)
         qDebug("Serial message: %s",qPrintable(trk::stringFromArray(message)));
@@ -551,7 +551,7 @@ void TcfTrkDevice::processSerialMessage(const QByteArray &message)
     }
 }
 
-void TcfTrkDevice::deviceReadyReadTcp()
+void CodaDevice::deviceReadyReadTcp()
 {
     // Take complete message off front of readbuffer.
     do {
@@ -569,7 +569,7 @@ void TcfTrkDevice::deviceReadyReadTcp()
     checkSendQueue(); // Send off further messages
 }
 
-void TcfTrkDevice::processMessage(const QByteArray &message)
+void CodaDevice::processMessage(const QByteArray &message)
 {
     if (debug)
         qDebug("Read %d bytes:\n%s", message.size(), qPrintable(formatData(message)));
@@ -598,7 +598,7 @@ static inline QVector<QByteArray> splitMessage(const QByteArray &message)
     return tokens;
 }
 
-int TcfTrkDevice::parseMessage(const QByteArray &message)
+int CodaDevice::parseMessage(const QByteArray &message)
 {
     if (d->m_verbose)
         emitLogMessage(debugMessage(message, "TCF ->"));
@@ -630,9 +630,9 @@ int TcfTrkDevice::parseMessage(const QByteArray &message)
     return 0;
 }
 
-int TcfTrkDevice::parseTcfCommandReply(char type, const QVector<QByteArray> &tokens)
+int CodaDevice::parseTcfCommandReply(char type, const QVector<QByteArray> &tokens)
 {
-    typedef TcfTrkDevicePrivate::TokenWrittenMessageMap::iterator TokenWrittenMessageMapIterator;
+    typedef CodaDevicePrivate::TokenWrittenMessageMap::iterator TokenWrittenMessageMapIterator;
     // Find the corresponding entry in the written messages hash.
     const int tokenCount = tokens.size();
     if (tokenCount < 1)
@@ -643,7 +643,7 @@ int TcfTrkDevice::parseTcfCommandReply(char type, const QVector<QByteArray> &tok
         return 235;
     const TokenWrittenMessageMapIterator it = d->m_writtenMessages.find(token);
     if (it == d->m_writtenMessages.end()) {
-        qWarning("TcfTrkDevice: Internal error: token %d not found for '%s'",
+        qWarning("CodaDevice: Internal error: token %d not found for '%s'",
                  token, qPrintable(joinByteArrays(tokens)));
         return 236;
     }
@@ -670,7 +670,7 @@ int TcfTrkDevice::parseTcfCommandReply(char type, const QVector<QByteArray> &tok
         }
     }
     // Construct result and invoke callback, remove entry from map.
-    TcfTrkCommandResult result(type, it.value().service, it.value().data,
+    CodaCommandResult result(type, it.value().service, it.value().data,
                                values, it.value().cookie);
 
     if (it.value().callback)
@@ -679,7 +679,7 @@ int TcfTrkDevice::parseTcfCommandReply(char type, const QVector<QByteArray> &tok
     return 0;
 }
 
-int TcfTrkDevice::parseTcfEvent(const QVector<QByteArray> &tokens)
+int CodaDevice::parseTcfEvent(const QVector<QByteArray> &tokens)
 {
     // Event: Ignore the periodical heartbeat event, answer 'Hello',
     // emit signal for the rest
@@ -696,10 +696,10 @@ int TcfTrkDevice::parseTcfEvent(const QVector<QByteArray> &tokens)
         values.push_back(value);
     }
     // Parse known events, emit signals
-    QScopedPointer<TcfTrkEvent> knownEvent(TcfTrkEvent::parseEvent(service, tokens.at(1), values));
+    QScopedPointer<CodaEvent> knownEvent(CodaEvent::parseEvent(service, tokens.at(1), values));
     if (!knownEvent.isNull()) {
         // Answer hello event (WLAN)
-        if (knownEvent->type() == TcfTrkEvent::LocatorHello)
+        if (knownEvent->type() == CodaEvent::LocatorHello)
             if (!d->m_serialFrame)
                 writeMessage(QByteArray(locatorAnswerC, sizeof(locatorAnswerC)));
         emit tcfEvent(*knownEvent);
@@ -722,47 +722,47 @@ int TcfTrkDevice::parseTcfEvent(const QVector<QByteArray> &tokens)
     return 0;
 }
 
-unsigned TcfTrkDevice::verbose() const
+unsigned CodaDevice::verbose() const
 {
     return d->m_verbose;
 }
 
-bool TcfTrkDevice::serialFrame() const
+bool CodaDevice::serialFrame() const
 {
     return d->m_serialFrame;
 }
 
-void TcfTrkDevice::setSerialFrame(bool s)
+void CodaDevice::setSerialFrame(bool s)
 {
     d->m_serialFrame = s;
 }
 
-void TcfTrkDevice::setVerbose(unsigned v)
+void CodaDevice::setVerbose(unsigned v)
 {
     d->m_verbose = v;
 }
 
-void TcfTrkDevice::emitLogMessage(const QString &m)
+void CodaDevice::emitLogMessage(const QString &m)
 {
     if (debug)
         qWarning("%s", qPrintable(m));
     emit logMessage(m);
 }
 
-bool TcfTrkDevice::checkOpen()
+bool CodaDevice::checkOpen()
 {
     if (d->m_device.isNull()) {
-        emitLogMessage(QLatin1String("Internal error: No device set on TcfTrkDevice."));
+        emitLogMessage(QLatin1String("Internal error: No device set on CodaDevice."));
         return false;
     }
     if (!d->m_device->isOpen()) {
-        emitLogMessage(QLatin1String("Internal error: Device not open in TcfTrkDevice."));
+        emitLogMessage(QLatin1String("Internal error: Device not open in CodaDevice."));
         return false;
     }
     return true;
 }
 
-void TcfTrkDevice::sendSerialPing(bool pingOnly)
+void CodaDevice::sendSerialPing(bool pingOnly)
 {
     if (!checkOpen())
         return;
@@ -774,10 +774,10 @@ void TcfTrkDevice::sendSerialPing(bool pingOnly)
         emitLogMessage(QLatin1String("Ping..."));
 }
 
-void TcfTrkDevice::sendTcfTrkMessage(MessageType mt, Services service, const char *command,
+void CodaDevice::sendCodaMessage(MessageType mt, Services service, const char *command,
                                      const char *commandParameters, // may contain '\0'
                                      int commandParametersLength,
-                                     const TcfTrkCallback &callBack,
+                                     const CodaCallback &callBack,
                                      const QVariant &cookie)
 
 {
@@ -797,22 +797,22 @@ void TcfTrkDevice::sendTcfTrkMessage(MessageType mt, Services service, const cha
     data.append('\0');
     if (commandParametersLength)
         data.append(commandParameters, commandParametersLength);
-    const TcfTrkSendQueueEntry entry(mt, token, service, data, callBack, cookie);
+    const CodaSendQueueEntry entry(mt, token, service, data, callBack, cookie);
     d->m_sendQueue.enqueue(entry);
     checkSendQueue();
 }
 
-void TcfTrkDevice::sendTcfTrkMessage(MessageType mt, Services service, const char *command,
+void CodaDevice::sendCodaMessage(MessageType mt, Services service, const char *command,
                                      const QByteArray &commandParameters,
-                                     const TcfTrkCallback &callBack,
+                                     const CodaCallback &callBack,
                                      const QVariant &cookie)
 {
-    sendTcfTrkMessage(mt, service, command, commandParameters.constData(), commandParameters.size(),
+    sendCodaMessage(mt, service, command, commandParameters.constData(), commandParameters.size(),
                       callBack, cookie);
 }
 
 // Enclose in message frame and write.
-void TcfTrkDevice::writeMessage(QByteArray data, bool ensureTerminating0)
+void CodaDevice::writeMessage(QByteArray data, bool ensureTerminating0)
 {
     if (!checkOpen())
         return;
@@ -844,14 +844,14 @@ void TcfTrkDevice::writeMessage(QByteArray data, bool ensureTerminating0)
         as->flush();
 }
 
-void TcfTrkDevice::checkSendQueue()
+void CodaDevice::checkSendQueue()
 {
     // Fire off messages or invoke noops until a message with reply is found
     // and an entry to writtenMessages is made.
     while (d->m_writtenMessages.empty()) {
         if (d->m_sendQueue.isEmpty())
             break;
-        TcfTrkSendQueueEntry entry = d->m_sendQueue.dequeue();
+        CodaSendQueueEntry entry = d->m_sendQueue.dequeue();
         switch (entry.messageType) {
         case MessageWithReply:
             d->m_writtenMessages.insert(entry.token, entry);
@@ -862,7 +862,7 @@ void TcfTrkDevice::checkSendQueue()
             break;
         case NoopMessage: // Invoke the noop-callback for synchronization
             if (entry.callback) {
-                TcfTrkCommandResult noopResult(TcfTrkCommandResult::SuccessReply);
+                CodaCommandResult noopResult(CodaCommandResult::SuccessReply);
                 noopResult.cookie = entry.cookie;
                 entry.callback(noopResult);
             }
@@ -879,7 +879,7 @@ static inline QString fixFileName(QString in)
 }
 
 // Start a process (consisting of a non-reply setSettings and start).
-void TcfTrkDevice::sendProcessStartCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendProcessStartCommand(const CodaCallback &callBack,
                                                  const QString &binaryIn,
                                                  unsigned uid,
                                                  QStringList arguments,
@@ -911,7 +911,7 @@ void TcfTrkDevice::sendProcessStartCommand(const TcfTrkCallback &callBack,
                 << '{' << binaryFileName << ':' << QString::number(uid, 16) << '}' << ','
                 << additionalLibraries << ',' << true
             << ']';
-    sendTcfTrkMessage(
+    sendCodaMessage(
 #if 1
                 MessageWithReply,    // TCF TRK 4.0.5 onwards
 #else
@@ -925,10 +925,10 @@ void TcfTrkDevice::sendProcessStartCommand(const TcfTrkCallback &callBack,
             << '\0' << binaryFileName << '\0' << arguments << '\0'
             << QStringList() << '\0' // Env is an array ["PATH=value"] (non-standard)
             << debugControl;
-    sendTcfTrkMessage(MessageWithReply, ProcessesService, "start", startData, callBack, cookie);
+    sendCodaMessage(MessageWithReply, ProcessesService, "start", startData, callBack, cookie);
 }
 
-void TcfTrkDevice::sendSettingsEnableLogCommand()
+void CodaDevice::sendSettingsEnableLogCommand()
 {
 
     QByteArray setData;
@@ -938,7 +938,7 @@ void TcfTrkDevice::sendSettingsEnableLogCommand()
             << '\0' << '['
             << true
             << ']';
-    sendTcfTrkMessage(
+    sendCodaMessage(
 #if 1
                 MessageWithReply,    // TCF TRK 4.0.5 onwards
 #else
@@ -947,28 +947,28 @@ void TcfTrkDevice::sendSettingsEnableLogCommand()
                 SettingsService, "set", setData);
 }
 
-void TcfTrkDevice::sendProcessTerminateCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendProcessTerminateCommand(const CodaCallback &callBack,
                                                const QByteArray &id,
                                                const QVariant &cookie)
 {
     QByteArray data;
     JsonInputStream str(data);
     str << id;
-    sendTcfTrkMessage(MessageWithReply, ProcessesService, "terminate", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, ProcessesService, "terminate", data, callBack, cookie);
 }
 
-void TcfTrkDevice::sendRunControlTerminateCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendRunControlTerminateCommand(const CodaCallback &callBack,
                                                   const QByteArray &id,
                                                   const QVariant &cookie)
 {
     QByteArray data;
     JsonInputStream str(data);
     str << id;
-    sendTcfTrkMessage(MessageWithReply, RunControlService, "terminate", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, RunControlService, "terminate", data, callBack, cookie);
 }
 
 // Non-standard: Remove executable from settings
-void TcfTrkDevice::sendSettingsRemoveExecutableCommand(const QString &binaryIn,
+void CodaDevice::sendSettingsRemoveExecutableCommand(const QString &binaryIn,
                                                        unsigned uid,
                                                        const QStringList &additionalLibraries,
                                                        const QVariant &cookie)
@@ -981,10 +981,10 @@ void TcfTrkDevice::sendSettingsRemoveExecutableCommand(const QString &binaryIn,
                 << '{' << QFileInfo(binaryIn).fileName() << ':' << QString::number(uid, 16) << '}' << ','
                 << additionalLibraries
             << ']';
-    sendTcfTrkMessage(MessageWithoutReply, SettingsService, "set", setData, TcfTrkCallback(), cookie);
+    sendCodaMessage(MessageWithoutReply, SettingsService, "set", setData, CodaCallback(), cookie);
 }
 
-void TcfTrkDevice::sendRunControlResumeCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendRunControlResumeCommand(const CodaCallback &callBack,
                                                const QByteArray &id,
                                                RunControlResumeMode mode,
                                                unsigned count,
@@ -1006,54 +1006,54 @@ void TcfTrkDevice::sendRunControlResumeCommand(const TcfTrkCallback &callBack,
     default:
         break;
     }
-    sendTcfTrkMessage(MessageWithReply, RunControlService, "resume", resumeData, callBack, cookie);
+    sendCodaMessage(MessageWithReply, RunControlService, "resume", resumeData, callBack, cookie);
 }
 
-void TcfTrkDevice::sendRunControlSuspendCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendRunControlSuspendCommand(const CodaCallback &callBack,
                                                 const QByteArray &id,
                                                 const QVariant &cookie)
 {
     QByteArray data;
     JsonInputStream str(data);
     str << id;
-    sendTcfTrkMessage(MessageWithReply, RunControlService, "suspend", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, RunControlService, "suspend", data, callBack, cookie);
 }
 
-void TcfTrkDevice::sendRunControlResumeCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendRunControlResumeCommand(const CodaCallback &callBack,
                                                const QByteArray &id,
                                                const QVariant &cookie)
 {
     sendRunControlResumeCommand(callBack, id, RM_RESUME, 1, 0, 0, cookie);
 }
 
-void TcfTrkDevice::sendBreakpointsAddCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendBreakpointsAddCommand(const CodaCallback &callBack,
                                              const Breakpoint &bp,
                                              const QVariant &cookie)
 {
     QByteArray data;
     JsonInputStream str(data);
     str << bp;
-    sendTcfTrkMessage(MessageWithReply, BreakpointsService, "add", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, BreakpointsService, "add", data, callBack, cookie);
 }
 
-void TcfTrkDevice::sendBreakpointsRemoveCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendBreakpointsRemoveCommand(const CodaCallback &callBack,
                                                 const QByteArray &id,
                                                 const QVariant &cookie)
 {
     sendBreakpointsRemoveCommand(callBack, QVector<QByteArray>(1, id), cookie);
 }
 
-void TcfTrkDevice::sendBreakpointsRemoveCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendBreakpointsRemoveCommand(const CodaCallback &callBack,
                                                 const QVector<QByteArray> &ids,
                                                 const QVariant &cookie)
 {
     QByteArray data;
     JsonInputStream str(data);
     str << ids;
-    sendTcfTrkMessage(MessageWithReply, BreakpointsService, "remove", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, BreakpointsService, "remove", data, callBack, cookie);
 }
 
-void TcfTrkDevice::sendBreakpointsEnableCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendBreakpointsEnableCommand(const CodaCallback &callBack,
                                                 const QByteArray &id,
                                                 bool enable,
                                                 const QVariant &cookie)
@@ -1061,7 +1061,7 @@ void TcfTrkDevice::sendBreakpointsEnableCommand(const TcfTrkCallback &callBack,
     sendBreakpointsEnableCommand(callBack, QVector<QByteArray>(1, id), enable, cookie);
 }
 
-void TcfTrkDevice::sendBreakpointsEnableCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendBreakpointsEnableCommand(const CodaCallback &callBack,
                                                 const QVector<QByteArray> &ids,
                                                 bool enable,
                                                 const QVariant &cookie)
@@ -1069,12 +1069,12 @@ void TcfTrkDevice::sendBreakpointsEnableCommand(const TcfTrkCallback &callBack,
     QByteArray data;
     JsonInputStream str(data);
     str << ids;
-    sendTcfTrkMessage(MessageWithReply, BreakpointsService,
+    sendCodaMessage(MessageWithReply, BreakpointsService,
                       enable ? "enable" : "disable",
                       data, callBack, cookie);
 }
 
-void TcfTrkDevice::sendMemorySetCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendMemorySetCommand(const CodaCallback &callBack,
                                         const QByteArray &contextId,
                                         quint64 start, const QByteArray& data,
                                         const QVariant &cookie)
@@ -1084,10 +1084,10 @@ void TcfTrkDevice::sendMemorySetCommand(const TcfTrkCallback &callBack,
     // start/word size/mode. Mode should ideally be 1 (continue on error?)
     str << contextId << '\0' << start << '\0' << 1 << '\0' << data.size() << '\0' << 1
         << '\0' << data.toBase64();
-    sendTcfTrkMessage(MessageWithReply, MemoryService, "set", getData, callBack, cookie);
+    sendCodaMessage(MessageWithReply, MemoryService, "set", getData, callBack, cookie);
 }
 
-void TcfTrkDevice::sendMemoryGetCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendMemoryGetCommand(const CodaCallback &callBack,
                                         const QByteArray &contextId,
                                         quint64 start, quint64 size,
                                         const QVariant &cookie)
@@ -1096,12 +1096,12 @@ void TcfTrkDevice::sendMemoryGetCommand(const TcfTrkCallback &callBack,
     JsonInputStream str(data);
     // start/word size/mode. Mode should ideally be 1 (continue on error?)
     str << contextId << '\0' << start << '\0' << 1 << '\0' << size << '\0' << 1;
-    sendTcfTrkMessage(MessageWithReply, MemoryService, "get", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, MemoryService, "get", data, callBack, cookie);
 }
 
-QByteArray TcfTrkDevice::parseMemoryGet(const TcfTrkCommandResult &r)
+QByteArray CodaDevice::parseMemoryGet(const CodaCommandResult &r)
 {
-    if (r.type != TcfTrkCommandResult::SuccessReply || r.values.size() < 1)
+    if (r.type != CodaCommandResult::SuccessReply || r.values.size() < 1)
         return QByteArray();
     const JsonValue &memoryV = r.values.front();
 
@@ -1112,18 +1112,18 @@ QByteArray TcfTrkDevice::parseMemoryGet(const TcfTrkCommandResult &r)
     // R.4."TlVMTA==".{"Time":1276786871255,"Code":1,"AltCode":-38,"AltOrg":"POSIX","Format":"BadDescriptor"}
     // Not sure what to make of it.
     if (r.values.size() >= 2 && r.values.at(1).type() == JsonValue::Object)
-        qWarning("TcfTrkDevice::parseMemoryGet(): Error retrieving memory: %s", r.values.at(1).toString(false).constData());
+        qWarning("CodaDevice::parseMemoryGet(): Error retrieving memory: %s", r.values.at(1).toString(false).constData());
     // decode
     const QByteArray memory = QByteArray::fromBase64(memoryV.data());
     if (memory.isEmpty())
         qWarning("Base64 decoding of %s failed.", memoryV.data().constData());
     if (debug)
-        qDebug("TcfTrkDevice::parseMemoryGet: received %d bytes", memory.size());
+        qDebug("CodaDevice::parseMemoryGet: received %d bytes", memory.size());
     return memory;
 }
 
 // Parse register children (array of names)
-QVector<QByteArray> TcfTrkDevice::parseRegisterGetChildren(const TcfTrkCommandResult &r)
+QVector<QByteArray> CodaDevice::parseRegisterGetChildren(const CodaCommandResult &r)
 {
     QVector<QByteArray> rc;
     if (!r || r.values.size() < 1 || r.values.front().type() != JsonValue::Array)
@@ -1135,9 +1135,9 @@ QVector<QByteArray> TcfTrkDevice::parseRegisterGetChildren(const TcfTrkCommandRe
     return rc;
 }
 
-TcfTrkStatResponse TcfTrkDevice::parseStat(const TcfTrkCommandResult &r)
+CodaStatResponse CodaDevice::parseStat(const CodaCommandResult &r)
 {
-    TcfTrkStatResponse rc;
+    CodaStatResponse rc;
     if (!r || r.values.size() < 1 || r.values.front().type() != JsonValue::Object)
         return rc;
     foreach(const JsonValue &v, r.values.front().children()) {
@@ -1145,23 +1145,23 @@ TcfTrkStatResponse TcfTrkDevice::parseStat(const TcfTrkCommandResult &r)
             rc.size = v.data().toULongLong();
         } else if (v.name() == "ATime") {
             if (const quint64 atime = v.data().toULongLong())
-                rc.accessTime = TcfTrkCommandResult::tcfTimeToQDateTime(atime);
+                rc.accessTime = CodaCommandResult::tcfTimeToQDateTime(atime);
         } else if (v.name() == "MTime") {
             if (const quint64 mtime = v.data().toULongLong())
-                rc.modTime = TcfTrkCommandResult::tcfTimeToQDateTime(mtime);
+                rc.modTime = CodaCommandResult::tcfTimeToQDateTime(mtime);
         }
     }
     return rc;
 }
 
-void TcfTrkDevice::sendRegistersGetChildrenCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendRegistersGetChildrenCommand(const CodaCallback &callBack,
                                      const QByteArray &contextId,
                                      const QVariant &cookie)
 {
     QByteArray data;
     JsonInputStream str(data);
     str << contextId;
-    sendTcfTrkMessage(MessageWithReply, RegistersService, "getChildren", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, RegistersService, "getChildren", data, callBack, cookie);
 }
 
 // Format id of register get request (needs contextId containing process and thread)
@@ -1183,16 +1183,16 @@ static inline QByteArray registerGetData(const QByteArray &contextId, QByteArray
     return data;
 }
 
-void TcfTrkDevice::sendRegistersGetCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendRegistersGetCommand(const CodaCallback &callBack,
                                             const QByteArray &contextId,
                                             QByteArray id,
                                             const QVariant &cookie)
 {
-    sendTcfTrkMessage(MessageWithReply, RegistersService, "get",
+    sendCodaMessage(MessageWithReply, RegistersService, "get",
                       registerGetData(contextId, id), callBack, cookie);
 }
 
-void TcfTrkDevice::sendRegistersGetMCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendRegistersGetMCommand(const CodaCallback &callBack,
                                             const QByteArray &contextId,
                                             const QVector<QByteArray> &ids,
                                             const QVariant &cookie)
@@ -1209,16 +1209,16 @@ void TcfTrkDevice::sendRegistersGetMCommand(const TcfTrkCallback &callBack,
         str << '[' << registerId(contextId, ids.at(r)) << ',' << '0' << ',' << '4' << ']';
     }
     str << ']';
-    sendTcfTrkMessage(MessageWithReply, RegistersService, "getm", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, RegistersService, "getm", data, callBack, cookie);
 }
 
-void TcfTrkDevice::sendRegistersGetMRangeCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendRegistersGetMRangeCommand(const CodaCallback &callBack,
                                                  const QByteArray &contextId,
                                                  unsigned start, unsigned count)
 {
     const unsigned end = start + count;
     if (end > (unsigned)d->m_registerNames.size()) {
-        qWarning("TcfTrkDevice: No register name set for index %u (size: %d).", end, d->m_registerNames.size());
+        qWarning("CodaDevice: No register name set for index %u (size: %d).", end, d->m_registerNames.size());
         return;
     }
 
@@ -1230,7 +1230,7 @@ void TcfTrkDevice::sendRegistersGetMRangeCommand(const TcfTrkCallback &callBack,
 }
 
 // Set register
-void TcfTrkDevice::sendRegistersSetCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendRegistersSetCommand(const CodaCallback &callBack,
                                            const QByteArray &contextId,
                                            QByteArray id,
                                            const QByteArray &value,
@@ -1243,18 +1243,18 @@ void TcfTrkDevice::sendRegistersSetCommand(const TcfTrkCallback &callBack,
         id.prepend(contextId);
     }
     str << id << '\0' << value.toBase64();
-    sendTcfTrkMessage(MessageWithReply, RegistersService, "set", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, RegistersService, "set", data, callBack, cookie);
 }
 
 // Set register
-void TcfTrkDevice::sendRegistersSetCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendRegistersSetCommand(const CodaCallback &callBack,
                                            const QByteArray &contextId,
                                            unsigned registerNumber,
                                            const QByteArray &value,
                                            const QVariant &cookie)
 {
     if (registerNumber >= (unsigned)d->m_registerNames.size()) {
-        qWarning("TcfTrkDevice: No register name set for index %u (size: %d).", registerNumber, d->m_registerNames.size());
+        qWarning("CodaDevice: No register name set for index %u (size: %d).", registerNumber, d->m_registerNames.size());
         return;
     }
     sendRegistersSetCommand(callBack, contextId,
@@ -1265,23 +1265,23 @@ void TcfTrkDevice::sendRegistersSetCommand(const TcfTrkCallback &callBack,
 //static const char outputListenerIDC[] = "org.eclipse.cdt.debug.edc.ui.ProgramOutputConsoleLogger";
 static const char outputListenerIDC[] = "ProgramOutputConsoleLogger"; //TODO: this one might be the correct one
 
-void TcfTrkDevice::sendLoggingAddListenerCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendLoggingAddListenerCommand(const CodaCallback &callBack,
                                                  const QVariant &cookie)
 {
     QByteArray data;
     JsonInputStream str(data);
     str << outputListenerIDC;
-    sendTcfTrkMessage(MessageWithReply, LoggingService, "addListener", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, LoggingService, "addListener", data, callBack, cookie);
 }
 
-void TcfTrkDevice::sendSymbianOsDataGetThreadsCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendSymbianOsDataGetThreadsCommand(const CodaCallback &callBack,
                                                  const QVariant &cookie)
 {
     QByteArray data;
-    sendTcfTrkMessage(MessageWithReply, SymbianOSData, "getThreads", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, SymbianOSData, "getThreads", data, callBack, cookie);
 }
 
-void TcfTrkDevice::sendSymbianOsDataFindProcessesCommand(const TcfTrkCallback &callBack,
+void CodaDevice::sendSymbianOsDataFindProcessesCommand(const CodaCallback &callBack,
                                             const QByteArray &processName,
                                             const QByteArray &uid,
                                             const QVariant &cookie)
@@ -1289,10 +1289,10 @@ void TcfTrkDevice::sendSymbianOsDataFindProcessesCommand(const TcfTrkCallback &c
     QByteArray data;
     JsonInputStream str(data);
     str << processName << '\0' << uid;
-    sendTcfTrkMessage(MessageWithReply, SymbianOSData, "findRunningProcesses", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, SymbianOSData, "findRunningProcesses", data, callBack, cookie);
 }
 
-void tcftrk::TcfTrkDevice::sendFileSystemOpenCommand(const tcftrk::TcfTrkCallback &callBack,
+void Coda::CodaDevice::sendFileSystemOpenCommand(const Coda::CodaCallback &callBack,
                                                      const QByteArray &name,
                                                      unsigned flags,
                                                      const QVariant &cookie)
@@ -1300,20 +1300,20 @@ void tcftrk::TcfTrkDevice::sendFileSystemOpenCommand(const tcftrk::TcfTrkCallbac
     QByteArray data;
     JsonInputStream str(data);
     str << name << '\0' << flags << '\0' << '{' << '}';
-    sendTcfTrkMessage(MessageWithReply, FileSystemService, "open", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, FileSystemService, "open", data, callBack, cookie);
 }
 
-void tcftrk::TcfTrkDevice::sendFileSystemFstatCommand(const TcfTrkCallback &callBack,
+void Coda::CodaDevice::sendFileSystemFstatCommand(const CodaCallback &callBack,
                                                       const QByteArray &handle,
                                                       const QVariant &cookie)
 {
     QByteArray data;
     JsonInputStream str(data);
     str << handle;
-    sendTcfTrkMessage(MessageWithReply, FileSystemService, "fstat", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, FileSystemService, "fstat", data, callBack, cookie);
 }
 
-void tcftrk::TcfTrkDevice::sendFileSystemWriteCommand(const tcftrk::TcfTrkCallback &callBack,
+void Coda::CodaDevice::sendFileSystemWriteCommand(const Coda::CodaCallback &callBack,
                                                       const QByteArray &handle,
                                                       const QByteArray &dataIn,
                                                       unsigned offset,
@@ -1322,20 +1322,20 @@ void tcftrk::TcfTrkDevice::sendFileSystemWriteCommand(const tcftrk::TcfTrkCallba
     QByteArray data;
     JsonInputStream str(data);
     str << handle << '\0' << offset << '\0' << dataIn.toBase64();
-    sendTcfTrkMessage(MessageWithReply, FileSystemService, "write", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, FileSystemService, "write", data, callBack, cookie);
 }
 
-void tcftrk::TcfTrkDevice::sendFileSystemCloseCommand(const tcftrk::TcfTrkCallback &callBack,
+void Coda::CodaDevice::sendFileSystemCloseCommand(const Coda::CodaCallback &callBack,
                                                       const QByteArray &handle,
                                                       const QVariant &cookie)
 {
     QByteArray data;
     JsonInputStream str(data);
     str << handle;
-    sendTcfTrkMessage(MessageWithReply, FileSystemService, "close", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, FileSystemService, "close", data, callBack, cookie);
 }
 
-void tcftrk::TcfTrkDevice::sendSymbianInstallSilentInstallCommand(const tcftrk::TcfTrkCallback &callBack,
+void Coda::CodaDevice::sendSymbianInstallSilentInstallCommand(const Coda::CodaCallback &callBack,
                                                                   const QByteArray &file,
                                                                   const QByteArray &targetDrive,
                                                                   const QVariant &cookie)
@@ -1343,16 +1343,16 @@ void tcftrk::TcfTrkDevice::sendSymbianInstallSilentInstallCommand(const tcftrk::
     QByteArray data;
     JsonInputStream str(data);
     str << file << '\0' << targetDrive;
-    sendTcfTrkMessage(MessageWithReply, SymbianInstallService, "install", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, SymbianInstallService, "install", data, callBack, cookie);
 }
 
-void tcftrk::TcfTrkDevice::sendSymbianInstallUIInstallCommand(const tcftrk::TcfTrkCallback &callBack,
+void Coda::CodaDevice::sendSymbianInstallUIInstallCommand(const Coda::CodaCallback &callBack,
                                                               const QByteArray &file,
                                                               const QVariant &cookie)
 {
     QByteArray data;
     JsonInputStream str(data);
     str << file;
-    sendTcfTrkMessage(MessageWithReply, SymbianInstallService, "installWithUI", data, callBack, cookie);
+    sendCodaMessage(MessageWithReply, SymbianInstallService, "installWithUI", data, callBack, cookie);
 }
-} // namespace tcftrk
+} // namespace Coda

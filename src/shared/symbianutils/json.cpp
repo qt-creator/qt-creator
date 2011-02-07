@@ -51,7 +51,7 @@
 #define JDEBUG(s)
 #endif
 
-namespace tcftrk {
+namespace Coda {
 
 static void skipSpaces(const char *&from, const char *to)
 {
@@ -497,5 +497,5 @@ JsonInputStream &JsonInputStream::operator<<(bool b)
     return *this;
 }
 
-} // namespace tcftrk
+} // namespace Coda
 

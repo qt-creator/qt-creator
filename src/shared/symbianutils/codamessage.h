@@ -43,7 +43,7 @@ QT_BEGIN_NAMESPACE
 class QTextStream;
 QT_END_NAMESPACE
 
-namespace tcftrk {
+namespace Coda {
 
 class JsonValue;
 class JsonInputStream;
@@ -133,7 +133,7 @@ struct SYMBIANUTILS_EXPORT ModuleLoadEventInfo {
     bool requireResume;
 };
 
-// Breakpoint as supported by TcfTrk source June 2010
+// Breakpoint as supported by Coda source June 2010
 // TODO: Add watchpoints,etc once they are implemented
 struct SYMBIANUTILS_EXPORT Breakpoint {
     enum Type { Software, Hardware, Auto };
@@ -157,8 +157,8 @@ struct SYMBIANUTILS_EXPORT Breakpoint {
 SYMBIANUTILS_EXPORT JsonInputStream &operator<<(JsonInputStream &str, const Breakpoint &b);
 
 // Event hierarchy
-class SYMBIANUTILS_EXPORT TcfTrkEvent {
-    Q_DISABLE_COPY(TcfTrkEvent)
+class SYMBIANUTILS_EXPORT CodaEvent {
+    Q_DISABLE_COPY(CodaEvent)
 public:
     enum Type { None,
                 LocatorHello,
@@ -171,24 +171,24 @@ public:
                 LoggingWriteEvent // Non-standard
               };
 
-    virtual ~TcfTrkEvent();
+    virtual ~CodaEvent();
 
     Type type() const;
     virtual QString toString() const;
 
-    static TcfTrkEvent *parseEvent(Services s, const QByteArray &name, const QVector<JsonValue> &val);
+    static CodaEvent *parseEvent(Services s, const QByteArray &name, const QVector<JsonValue> &val);
 
 protected:
-    explicit TcfTrkEvent(Type type = None);
+    explicit CodaEvent(Type type = None);
 
 private:
     const Type m_type;
 };
 
 // ServiceHello
-class SYMBIANUTILS_EXPORT TcfTrkLocatorHelloEvent : public TcfTrkEvent {
+class SYMBIANUTILS_EXPORT CodaLocatorHelloEvent : public CodaEvent {
 public:
-    explicit TcfTrkLocatorHelloEvent(const QStringList &);
+    explicit CodaLocatorHelloEvent(const QStringList &);
 
     const QStringList &services() { return m_services; }
     virtual QString toString() const;
@@ -198,9 +198,9 @@ private:
 };
 
 // Logging event (non-standard, trk specific)
-class SYMBIANUTILS_EXPORT TcfTrkLoggingWriteEvent : public TcfTrkEvent {
+class SYMBIANUTILS_EXPORT CodaLoggingWriteEvent : public CodaEvent {
 public:
-    explicit TcfTrkLoggingWriteEvent(const QByteArray &console, const QByteArray &message);
+    explicit CodaLoggingWriteEvent(const QByteArray &console, const QByteArray &message);
 
     QByteArray message() const { return m_message; }
     QByteArray console() const { return m_console; }
@@ -214,9 +214,9 @@ private:
 
 // Base for events that just have one id as parameter
 // (simple suspend)
-class SYMBIANUTILS_EXPORT TcfTrkIdEvent : public TcfTrkEvent {
+class SYMBIANUTILS_EXPORT CodaIdEvent : public CodaEvent {
 protected:
-    explicit TcfTrkIdEvent(Type t, const QByteArray &id);
+    explicit CodaIdEvent(Type t, const QByteArray &id);
 public:
     QByteArray id() const { return m_id; }
     QString idString() const { return QString::fromUtf8(m_id); }
@@ -227,9 +227,9 @@ private:
 
 // Base for events that just have some ids as parameter
 // (context removed)
-class SYMBIANUTILS_EXPORT TcfTrkIdsEvent : public TcfTrkEvent {
+class SYMBIANUTILS_EXPORT CodaIdsEvent : public CodaEvent {
 protected:
-    explicit TcfTrkIdsEvent(Type t, const QVector<QByteArray> &ids);
+    explicit CodaIdsEvent(Type t, const QVector<QByteArray> &ids);
 
 public:
     QVector<QByteArray> ids() const { return m_ids; }
@@ -240,34 +240,34 @@ private:
 };
 
 // RunControlContextAdded
-class SYMBIANUTILS_EXPORT TcfTrkRunControlContextAddedEvent : public TcfTrkEvent {
+class SYMBIANUTILS_EXPORT CodaRunControlContextAddedEvent : public CodaEvent {
 public:
     typedef QVector<RunControlContext> RunControlContexts;
 
-    explicit TcfTrkRunControlContextAddedEvent(const RunControlContexts &c);
+    explicit CodaRunControlContextAddedEvent(const RunControlContexts &c);
 
     const RunControlContexts &contexts() const { return m_contexts; }
     virtual QString toString() const;
 
-    static TcfTrkRunControlContextAddedEvent *parseEvent(const QVector<JsonValue> &val);
+    static CodaRunControlContextAddedEvent *parseEvent(const QVector<JsonValue> &val);
 
 private:
     const RunControlContexts m_contexts;
 };
 
 // RunControlContextRemoved
-class SYMBIANUTILS_EXPORT TcfTrkRunControlContextRemovedEvent : public TcfTrkIdsEvent {
+class SYMBIANUTILS_EXPORT CodaRunControlContextRemovedEvent : public CodaIdsEvent {
 public:
-    explicit TcfTrkRunControlContextRemovedEvent(const QVector<QByteArray> &id);
+    explicit CodaRunControlContextRemovedEvent(const QVector<QByteArray> &id);
     virtual QString toString() const;
 };
 
 // Simple RunControlContextSuspended (process/thread)
-class SYMBIANUTILS_EXPORT TcfTrkRunControlContextSuspendedEvent : public TcfTrkIdEvent {
+class SYMBIANUTILS_EXPORT CodaRunControlContextSuspendedEvent : public CodaIdEvent {
 public:
     enum Reason  { BreakPoint, ModuleLoad, Crash, Other } ;
 
-    explicit TcfTrkRunControlContextSuspendedEvent(const QByteArray &id,
+    explicit CodaRunControlContextSuspendedEvent(const QByteArray &id,
                                                    const QByteArray &reason,
                                                    const QByteArray &message,
                                                    quint64 pc = 0);
@@ -279,7 +279,7 @@ public:
     QByteArray message() const { return m_message; }
 
 protected:
-    explicit TcfTrkRunControlContextSuspendedEvent(Type t,
+    explicit CodaRunControlContextSuspendedEvent(Type t,
                                                    const QByteArray &id,
                                                    const QByteArray &reason,
                                                    quint64 pc = 0);
@@ -292,9 +292,9 @@ private:
 };
 
 // RunControlContextSuspended due to module load
-class SYMBIANUTILS_EXPORT TcfTrkRunControlModuleLoadContextSuspendedEvent : public TcfTrkRunControlContextSuspendedEvent {
+class SYMBIANUTILS_EXPORT CodaRunControlModuleLoadContextSuspendedEvent : public CodaRunControlContextSuspendedEvent {
 public:
-    explicit TcfTrkRunControlModuleLoadContextSuspendedEvent(const QByteArray &id,
+    explicit CodaRunControlModuleLoadContextSuspendedEvent(const QByteArray &id,
                                                              const QByteArray &reason,
                                                              quint64 pc,
                                                              const ModuleLoadEventInfo &mi);
@@ -306,5 +306,5 @@ private:
     const ModuleLoadEventInfo m_mi;
 };
 
-} // namespace tcftrk
+} // namespace Coda
 #endif // TRCFTRKMESSAGE_H

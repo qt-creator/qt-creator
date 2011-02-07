@@ -10,7 +10,7 @@ HEADERS += \
     $$PWD/termgdbadapter.h \
     $$PWD/remotegdbserveradapter.h \
     $$PWD/trkgdbadapter.h \
-    $$PWD/tcftrkgdbadapter.h \
+    $$PWD/codagdbadapter.h \
     $$PWD/s60debuggerbluetoothstarter.h \
     $$PWD/abstractgdbprocess.h \
     $$PWD/localgdbprocess.h \
@@ -33,7 +33,7 @@ SOURCES += \
     $$PWD/termgdbadapter.cpp \
     $$PWD/remotegdbserveradapter.cpp \
     $$PWD/trkgdbadapter.cpp \
-    $$PWD/tcftrkgdbadapter.cpp \
+    $$PWD/codagdbadapter.cpp \
     $$PWD/s60debuggerbluetoothstarter.cpp \
     $$PWD/abstractgdbprocess.cpp \
     $$PWD/localgdbprocess.cpp \
