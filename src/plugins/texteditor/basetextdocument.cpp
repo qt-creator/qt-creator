@@ -201,8 +201,10 @@ public:
     bool m_fileIsReadOnly;
     bool m_hasDecodingError;
     QByteArray m_decodingErrorSample;
-    static const int kChunkSize = 65536;
+    static const int kChunkSize;
 };
+
+const int BaseTextDocumentPrivate::kChunkSize = 65536;
 
 BaseTextDocumentPrivate::BaseTextDocumentPrivate(BaseTextDocument *q) :
     m_document(new QTextDocument(q)),
