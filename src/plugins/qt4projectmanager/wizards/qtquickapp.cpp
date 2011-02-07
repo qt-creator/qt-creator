@@ -219,31 +219,7 @@ void QtQuickApp::handleCurrentProFileTemplateLine(const QString &line,
     QTextStream &proFileTemplate, QTextStream &proFile,
     bool &commentOutNextLine) const
 {
-    if (line.contains(QLatin1String("# DEPLOYMENTFOLDERS"))) {
-        // Eat lines
-        QString nextLine;
-        while (!(nextLine = proFileTemplate.readLine()).isNull()
-            && !nextLine.contains(QLatin1String("# DEPLOYMENTFOLDERS_END")))
-        { }
-        if (nextLine.isNull())
-            return;
-        QStringList folders;
-        proFile << "folder_01.source = " << path(QmlDirProFileRelative) << endl;
-        proFile << "folder_01.target = qml" << endl;
-        folders.append(QLatin1String("folder_01"));
-        int foldersCount = 1;
-        foreach (const QmlModule *module, m_modules) {
-            if (module->isExternal) {
-                foldersCount ++;
-                const QString folder =
-                    QString::fromLatin1("folder_%1").arg(foldersCount, 2, 10, QLatin1Char('0'));
-                folders.append(folder);
-                proFile << folder << ".source = " << module->path(QmlModule::ContentDir) << endl;
-                proFile << folder << ".target = " << module->path(QmlModule::DeployedContentBase) << endl;
-            }
-        }
-        proFile << "DEPLOYMENTFOLDERS = " << folders.join(QLatin1String(" ")) << endl;
-    } else if (line.contains(QLatin1String("# QMLJSDEBUGGER"))) {
+    if (line.contains(QLatin1String("# QMLJSDEBUGGER"))) {
         // ### disabled for now; figure out the private headers problem first.
         //commentOutNextLine = true;
         Q_UNUSED(commentOutNextLine)
@@ -429,6 +405,16 @@ QList<AbstractGeneratedFileInfo> QtQuickApp::updateableFiles(const QString &main
     }
     if (result.count() != size)
         result.clear(); // All files must be found. No wrong/partial updates, please.
+    return result;
+}
+
+QList<DeploymentFolder> QtQuickApp::deploymentFolders() const
+{
+    QList<DeploymentFolder> result;
+    result.append(DeploymentFolder(path(QmlDirProFileRelative), QLatin1String("qml")));
+    foreach (const QmlModule *module, m_modules)
+        if (module->isExternal)
+            result.append(DeploymentFolder(module->path(QmlModule::ContentDir), module->path(QmlModule::DeployedContentBase)));
     return result;
 }
 

@@ -35,6 +35,7 @@
 #define ABSTRACTMOBILEAPP_H
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QPair>
 
 #ifndef CREATORLESSTEST
 #include <coreplugin/basefilewizard.h>
@@ -66,6 +67,8 @@ struct AbstractGeneratedFileInfo
     quint16 dataChecksum; // The calculated checksum
     quint16 statedChecksum; // The checksum in the file header
 };
+
+typedef QPair<QString, QString> DeploymentFolder; // QPair<.source, .target>
 
 class AbstractMobileApp : public QObject
 {
@@ -163,6 +166,7 @@ private:
         QTextStream &proFileTemplate, QTextStream &proFile,
         bool &commentOutNextLine) const = 0;
     virtual QList<AbstractGeneratedFileInfo> updateableFiles(const QString &mainProFile) const = 0;
+    virtual QList<DeploymentFolder> deploymentFolders() const = 0;
 
     QString m_projectName;
     QFileInfo m_projectPath;

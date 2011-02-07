@@ -101,6 +101,7 @@ private:
         QTextStream &proFileTemplate, QTextStream &proFile,
         bool &commentOutNextLine) const;
     QList<AbstractGeneratedFileInfo> updateableFiles(const QString &mainProFile) const;
+    QList<DeploymentFolder> deploymentFolders() const;
 
     QFileInfo m_indexHtmlFile;
 };

@@ -148,6 +148,12 @@ QList<AbstractGeneratedFileInfo> MobileApp::updateableFiles(const QString &mainP
     return QList<AbstractGeneratedFileInfo>(); // Nothing to update, here
 }
 
+QList<DeploymentFolder> MobileApp::deploymentFolders() const
+{
+    QList<DeploymentFolder> result;
+    return result;
+}
+
 const int MobileApp::StubVersion = 2;
 
 } // namespace Internal

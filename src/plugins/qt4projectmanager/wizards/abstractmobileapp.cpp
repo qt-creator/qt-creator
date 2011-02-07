@@ -257,6 +257,28 @@ QByteArray AbstractMobileApp::generateProFile(QString *errorMessage) const
         } else if (line.contains(QLatin1String("# NETWORKACCESS"))
             && !networkEnabled()) {
             commentOutNextLine = true;
+        } else if (line.contains(QLatin1String("# DEPLOYMENTFOLDERS"))) {
+            // Eat lines
+            QString nextLine;
+            while (!(nextLine = in.readLine()).isNull()
+                && !nextLine.contains(QLatin1String("# DEPLOYMENTFOLDERS_END")))
+            { }
+            if (nextLine.isNull())
+                continue;
+
+            int foldersCount = 0;
+            QStringList folders;
+            foreach (const DeploymentFolder &folder, deploymentFolders()) {
+                foldersCount++;
+                const QString folderName =
+                    QString::fromLatin1("folder_%1").arg(foldersCount, 2, 10, QLatin1Char('0'));
+                out << folderName << ".source = " << folder.first << endl;
+                if (!folder.second.isEmpty())
+                    out << folderName << ".target = " << folder.second << endl;
+                folders.append(folderName);
+            }
+            if (foldersCount > 0)
+                out << "DEPLOYMENTFOLDERS = " << folders.join(QLatin1String(" ")) << endl;
         } else {
             handleCurrentProFileTemplateLine(line, in, out, commentOutNextLine);
         }

@@ -124,20 +124,7 @@ void Html5App::handleCurrentProFileTemplateLine(const QString &line,
     bool &commentOutNextLine) const
 {
     Q_UNUSED(commentOutNextLine)
-    if (line.contains(QLatin1String("# DEPLOYMENTFOLDERS"))) {
-        // Eat lines
-        QString nextLine;
-        while (!(nextLine = proFileTemplate.readLine()).isNull()
-            && !nextLine.contains(QLatin1String("# DEPLOYMENTFOLDERS_END")))
-        { }
-        if (nextLine.isNull())
-            return;
-        QStringList folders;
-        proFile << "folder_01.source = " << path(HtmlDirProFileRelative) << endl;
-        proFile << "folder_01.target = ." << endl;
-        folders.append(QLatin1String("folder_01"));
-        proFile << "DEPLOYMENTFOLDERS = " << folders.join(QLatin1String(" ")) << endl;
-    } else if (line.contains(QLatin1String("# INCLUDE_DEPLOYMENT_PRI"))) {
+    if (line.contains(QLatin1String("# INCLUDE_DEPLOYMENT_PRI"))) {
         proFileTemplate.readLine(); // eats 'include(deployment.pri)'
     }
 }
@@ -222,6 +209,13 @@ QList<AbstractGeneratedFileInfo> Html5App::updateableFiles(const QString &mainPr
     }
     if (result.count() != size)
         result.clear(); // All files must be found. No wrong/partial updates, please.
+    return result;
+}
+
+QList<DeploymentFolder> Html5App::deploymentFolders() const
+{
+    QList<DeploymentFolder> result;
+    result.append(DeploymentFolder(path(HtmlDirProFileRelative), QLatin1String(".")));
     return result;
 }
 

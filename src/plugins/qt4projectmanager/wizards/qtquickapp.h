@@ -136,6 +136,7 @@ private:
         QTextStream &proFileTemplate, QTextStream &proFile,
         bool &commentOutNextLine) const;
     QList<AbstractGeneratedFileInfo> updateableFiles(const QString &mainProFile) const;
+    QList<DeploymentFolder> deploymentFolders() const;
 
     bool addExternalModule(const QString &uri, const QFileInfo &dir,
                            const QFileInfo &contentDir);
