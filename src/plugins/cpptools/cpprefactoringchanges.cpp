@@ -97,7 +97,10 @@ CppRefactoringFile::CppRefactoringFile()
 
 CppRefactoringFile::CppRefactoringFile(const QString &fileName, CppRefactoringChanges *refactoringChanges)
     : RefactoringFile(fileName, refactoringChanges)
-{ }
+{
+    const Snapshot &snapshot = refactoringChanges->snapshot();
+    m_cppDocument = snapshot.document(fileName);
+}
 
 CppRefactoringFile::CppRefactoringFile(TextEditor::BaseTextEditor *editor, CPlusPlus::Document::Ptr document)
     : RefactoringFile()
