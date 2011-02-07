@@ -1189,6 +1189,7 @@ void TcfTrkGdbAdapter::cleanup()
             ? socket->state() == QAbstractSocket::ConnectedState
             : m_trkIODevice->isOpen();
         if (isOpen) {
+            sendRunControlTerminateCommand(); //ensure process is stopped after being suspended
             if (socket) {
                 socket->disconnect();
             } else {
