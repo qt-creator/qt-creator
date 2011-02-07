@@ -253,7 +253,7 @@ bool MacroManager::MacroManagerPrivate::executeMacro(Macro *macro)
 
     if (error) {
         QMessageBox::warning(Core::ICore::instance()->mainWindow(),
-                             tr("Executing Macro"),
+                             tr("Playing Macro"),
                              tr("An error occured while replaying the macro, execution stopped."));
     }
 
@@ -355,12 +355,12 @@ void MacroManager::startMacro()
 
     QString endShortcut = am->command(Constants::END_MACRO)->defaultKeySequence().toString();
     QString executeShortcut = am->command(Constants::EXECUTE_LAST_MACRO)->defaultKeySequence().toString();
-    QString help = tr("Macro mode. Type \"%1\" to stop recording and \"%2\" to execute it")
+    QString help = tr("Macro mode. Type \"%1\" to stop recording and \"%2\" to play it")
         .arg(endShortcut).arg(executeShortcut);
     Core::EditorManager::instance()->showEditorStatusBar(
                 QLatin1String(Constants::M_STATUS_BUFFER),
                 help,
-                tr("End Macro"), this, SLOT(endMacro()));
+                tr("Stop Recording Macro"), this, SLOT(endMacro()));
 }
 
 void MacroManager::endMacro()
