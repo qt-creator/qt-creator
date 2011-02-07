@@ -85,6 +85,8 @@ public:
     }
 
 protected:
+    enum ActionStatus { NoActionRequired, ActionSuccessful, ActionFailed };
+
     void initDeviceConfigurationsModel();
     void raiseError(const QString &reason);
     QSharedPointer<QFile> openFile(const QString &filePath,
@@ -101,12 +103,13 @@ private:
         QString *error = 0)=0;
     virtual bool setPackageNameInternal(const QString &packageName)=0;
     virtual bool setShortDescriptionInternal(const QString &description)=0;
-    virtual bool createSpecialTemplates()=0;
+    virtual ActionStatus createSpecialTemplates()=0;
     virtual void handleTargetAddedSpecial()=0;
     virtual bool targetCanBeRemoved() const=0;
     virtual void removeTarget()=0;
+    virtual QStringList packagingFiles() const=0;
 
-    bool createTemplates();
+    ActionStatus createTemplates();
     bool initPackagingSettingsFromOtherTarget();
     virtual bool initAdditionalPackagingSettingsFromOtherTarget()=0;
 
@@ -152,11 +155,12 @@ private:
     virtual bool setPackageNameInternal(const QString &packageName);
     virtual bool setShortDescriptionInternal(const QString &description);
 
-    virtual bool createSpecialTemplates();
+    virtual ActionStatus createSpecialTemplates();
     virtual void handleTargetAddedSpecial();
     virtual bool targetCanBeRemoved() const;
     virtual void removeTarget();
     virtual bool initAdditionalPackagingSettingsFromOtherTarget();
+    virtual QStringList packagingFiles() const { return QStringList(debianDirPath()); }
 
     QString changeLogFilePath() const;
     QString controlFilePath() const;
@@ -200,11 +204,12 @@ private:
         QString *error = 0);
     virtual bool setPackageNameInternal(const QString &packageName);
     virtual bool setShortDescriptionInternal(const QString &description);
-    virtual bool createSpecialTemplates();
+    virtual ActionStatus createSpecialTemplates();
     virtual void handleTargetAddedSpecial();
     virtual bool targetCanBeRemoved() const;
     virtual void removeTarget();
     virtual bool initAdditionalPackagingSettingsFromOtherTarget();
+    virtual QStringList packagingFiles() const { return QStringList(specFilePath()); }
 
     virtual QString specFileName() const=0;
 

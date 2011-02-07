@@ -236,7 +236,7 @@ void AbstractQt4MaemoTarget::handleTargetAdded(ProjectExplorer::Target *target)
         this, SLOT(handleTargetAdded(ProjectExplorer::Target*)));
     connect(project(), SIGNAL(aboutToRemoveTarget(ProjectExplorer::Target*)),
         SLOT(handleTargetToBeRemoved(ProjectExplorer::Target*)));
-    if (!createTemplates())
+    if (createTemplates() == ActionFailed)
         return;
     initPackagingSettingsFromOtherTarget();
     handleTargetAddedSpecial();
@@ -266,14 +266,14 @@ void AbstractQt4MaemoTarget::handleTargetToBeRemoved(ProjectExplorer::Target *ta
     }
 }
 
-bool AbstractQt4MaemoTarget::createTemplates()
+AbstractQt4MaemoTarget::ActionStatus AbstractQt4MaemoTarget::createTemplates()
 {
     QDir projectDir(project()->projectDirectory());
     if (!projectDir.exists(PackagingDirName)
             && !projectDir.mkdir(PackagingDirName)) {
         raiseError(tr("Error creating Maemo packaging directory '%1'.")
             .arg(PackagingDirName));
-        return false;
+        return ActionFailed;
     }
 
     return createSpecialTemplates();
@@ -651,10 +651,10 @@ void AbstractDebBasedQt4MaemoTarget::handleDebianDirContentsChanged()
     emit debianDirContentsChanged();
 }
 
-bool AbstractDebBasedQt4MaemoTarget::createSpecialTemplates()
+AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpecialTemplates()
 {
     if (QFileInfo(debianDirPath()).exists())
-        return true;
+        return NoActionRequired;
     QDir projectDir(project()->projectDirectory());
     QProcess dh_makeProc;
     QString error;
@@ -662,7 +662,7 @@ bool AbstractDebBasedQt4MaemoTarget::createSpecialTemplates()
     if (!MaemoPackageCreationStep::preparePackagingProcess(&dh_makeProc, bc,
         projectDir.path() + QLatin1Char('/') + PackagingDirName, &error)) {
         raiseError(error);
-        return false;
+        return ActionFailed;
     }
 
     const QString dhMakeDebianDir = projectDir.path() + QLatin1Char('/')
@@ -675,7 +675,7 @@ bool AbstractDebBasedQt4MaemoTarget::createSpecialTemplates()
     if (!dh_makeProc.waitForStarted()) {
         raiseError(tr("Unable to create Debian templates: dh_make failed (%1)")
             .arg(dh_makeProc.errorString()));
-        return false;
+        return ActionFailed;
     }
     dh_makeProc.write("\n"); // Needs user input.
     dh_makeProc.waitForFinished(-1);
@@ -683,14 +683,14 @@ bool AbstractDebBasedQt4MaemoTarget::createSpecialTemplates()
         || dh_makeProc.exitCode() != 0) {
         raiseError(tr("Unable to create debian templates: dh_make failed (%1)")
             .arg(dh_makeProc.errorString()));
-        return false;
+        return ActionFailed;
     }
 
     if (!QFile::rename(dhMakeDebianDir, debianDirPath())) {
         raiseError(tr("Unable to move new debian directory to '%1'.")
             .arg(QDir::toNativeSeparators(debianDirPath())));
         MaemoGlobal::removeRecursively(dhMakeDebianDir, error);
-        return false;
+        return ActionFailed;
     }
 
     QDir debianDir(debianDirPath());
@@ -704,7 +704,8 @@ bool AbstractDebBasedQt4MaemoTarget::createSpecialTemplates()
         }
     }
 
-    return adaptRulesFile() && adaptControlFile();
+    return adaptRulesFile() && adaptControlFile()
+        ? ActionSuccessful : ActionFailed;
 }
 
 bool AbstractDebBasedQt4MaemoTarget::adaptRulesFile()
@@ -881,14 +882,14 @@ bool AbstractRpmBasedQt4MaemoTarget::setShortDescriptionInternal(const QString &
     return setValueForTag(SummaryTag, description.toUtf8(), 0);
 }
 
-bool AbstractRpmBasedQt4MaemoTarget::createSpecialTemplates()
+AbstractQt4MaemoTarget::ActionStatus AbstractRpmBasedQt4MaemoTarget::createSpecialTemplates()
 {
     if (QFileInfo(specFilePath()).exists())
-        return true;
+        return NoActionRequired;
     QSharedPointer<QFile> specFile
         = openFile(specFilePath(), QIODevice::WriteOnly, 0);
     if (!specFile)
-        return false;
+        return ActionFailed;
     QByteArray initialContent(
         "Name: %%name%%\n"
         "Summary: <insert short description here>\n"
@@ -929,7 +930,8 @@ bool AbstractRpmBasedQt4MaemoTarget::createSpecialTemplates()
         "# Add post-uninstall scripts here."
         );
     initialContent.replace("%%name%%", project()->displayName().toUtf8());
-    return specFile->write(initialContent) == initialContent.count();
+    return specFile->write(initialContent) == initialContent.count()
+        ? ActionSuccessful : ActionFailed;
 }
 
 void AbstractRpmBasedQt4MaemoTarget::handleTargetAddedSpecial()
