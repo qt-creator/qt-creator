@@ -18761,7 +18761,7 @@ aktywny tylko po wpisaniu przedrostka</translation>
     </message>
 </context>
 <context>
-    <name>QmlStandaloneAppWizardSourcesPage</name>
+    <name>QtQuickAppWizardSourcesPage</name>
     <message>
         <source>WizardPage</source>
         <translation>StronaKreatora</translation>
@@ -21422,7 +21422,7 @@ Wstępnie wybiera wersję Qt dla Symulatora i aplikacji mobilnych (jeśli jest d
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneApp</name>
+    <name>Qt4ProjectManager::Internal::QtQuickApp</name>
     <message>
         <source>The QML import path &apos;%1&apos; cannot be found.</source>
         <translation>Nie można odnaleźć ścieżki importu QML &quot;%1&quot;.</translation>
@@ -21445,7 +21445,7 @@ Wstępnie wybiera wersję Qt dla Symulatora i aplikacji mobilnych (jeśli jest d
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizardDialog</name>
+    <name>Qt4ProjectManager::Internal::QtQuickAppWizardDialog</name>
     <message>
         <source>New Qt Quick Application</source>
         <translation>Nowa aplikacja Qt Quick</translation>
@@ -21460,7 +21460,7 @@ Wstępnie wybiera wersję Qt dla Symulatora i aplikacji mobilnych (jeśli jest d
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizard</name>
+    <name>Qt4ProjectManager::Internal::QtQuickAppWizard</name>
     <message>
         <source>Qt Quick Application</source>
         <translation>Aplikacja Qt Quick</translation>
@@ -21760,7 +21760,7 @@ Powód: %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizardSourcesPage</name>
+    <name>Qt4ProjectManager::Internal::QtQuickAppWizardSourcesPage</name>
     <message>
         <source>Select QML File</source>
         <translation>Wybierz plik QML</translation>

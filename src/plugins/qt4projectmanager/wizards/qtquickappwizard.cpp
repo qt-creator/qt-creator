@@ -51,19 +51,19 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class QmlStandaloneAppWizardDialog : public AbstractMobileAppWizardDialog
+class QtQuickAppWizardDialog : public AbstractMobileAppWizardDialog
 {
     Q_OBJECT
 
 public:
-    explicit QmlStandaloneAppWizardDialog(QWidget *parent = 0);
+    explicit QtQuickAppWizardDialog(QWidget *parent = 0);
 
 private:
     class QtQuickAppWizardSourcesPage *m_qmlSourcesPage;
     friend class QtQuickAppWizard;
 };
 
-QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QWidget *parent)
+QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent)
     : AbstractMobileAppWizardDialog(parent)
     , m_qmlSourcesPage(0)
 {
@@ -78,7 +78,7 @@ QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QWidget *parent)
 class QtQuickAppWizardPrivate
 {
     class QtQuickApp *app;
-    class QmlStandaloneAppWizardDialog *wizardDialog;
+    class QtQuickAppWizardDialog *wizardDialog;
     friend class QtQuickAppWizard;
 };
 
@@ -116,7 +116,7 @@ Core::BaseFileWizardParameters QtQuickAppWizard::parameters()
 
 AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWidget *parent) const
 {
-    m_d->wizardDialog = new QmlStandaloneAppWizardDialog(parent);
+    m_d->wizardDialog = new QtQuickAppWizardDialog(parent);
     return m_d->wizardDialog;
 }
 
@@ -143,7 +143,7 @@ void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,
     QString *errorMessage) const
 {
     Q_UNUSED(errorMessage)
-    const QmlStandaloneAppWizardDialog *wizard = qobject_cast<const QmlStandaloneAppWizardDialog*>(w);
+    const QtQuickAppWizardDialog *wizard = qobject_cast<const QtQuickAppWizardDialog*>(w);
     const QString mainQmlFile = wizard->m_qmlSourcesPage->mainQmlFile();
     m_d->app->setMainQmlFile(mainQmlFile);
 }

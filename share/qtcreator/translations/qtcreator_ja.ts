@@ -21906,7 +21906,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>QmlStandaloneAppWizardSourcesPage</name>
+    <name>QtQuickAppWizardSourcesPage</name>
     <message>
         <source>WizardPage</source>
         <translation>ウィザードページ</translation>
@@ -24700,7 +24700,7 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneApp</name>
+    <name>Qt4ProjectManager::Internal::QtQuickApp</name>
     <message>
         <source>The QML import path &apos;%1&apos; cannot be found.</source>
         <translation>QML インポート パス &apos;%1&apos; が見つかりませんでした。</translation>
@@ -24723,7 +24723,7 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizardDialog</name>
+    <name>Qt4ProjectManager::Internal::QtQuickAppWizardDialog</name>
     <message>
         <source>New Qt Quick Application</source>
         <translation>Qt Quick アプリケーションの新規作成</translation>
@@ -24738,7 +24738,7 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizard</name>
+    <name>Qt4ProjectManager::Internal::QtQuickAppWizard</name>
     <message>
         <source>Qt Quick Application</source>
         <translation>Qt Quick アプリケーション</translation>
@@ -24753,7 +24753,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizardSourcesPage</name>
+    <name>Qt4ProjectManager::Internal::QtQuickAppWizardSourcesPage</name>
     <message>
         <source>Select QML File</source>
         <translation>QML ファイルを選択</translation>

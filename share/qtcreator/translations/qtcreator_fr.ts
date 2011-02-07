@@ -26038,7 +26038,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>QmlStandaloneAppWizardSourcesPage</name>
+    <name>QtQuickAppWizardSourcesPage</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -28660,7 +28660,7 @@ Présélectionne la version de Qt pour le simulateur et les mobiles si disponibl
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneApp</name>
+    <name>Qt4ProjectManager::Internal::QtQuickApp</name>
     <message>
         <source>The QML import path &apos;%1&apos; cannot be found.</source>
         <translation>Le chemin d&apos;import QML &apos;%1&apos; est introuvable.</translation>
@@ -28683,7 +28683,7 @@ Présélectionne la version de Qt pour le simulateur et les mobiles si disponibl
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizardDialog</name>
+    <name>Qt4ProjectManager::Internal::QtQuickAppWizardDialog</name>
     <message>
         <source>New Qt Quick Application</source>
         <translation>Nouvelle application Qt Quick</translation>
@@ -28698,7 +28698,7 @@ Présélectionne la version de Qt pour le simulateur et les mobiles si disponibl
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizard</name>
+    <name>Qt4ProjectManager::Internal::QtQuickAppWizard</name>
     <message>
         <source>Qt Quick Application</source>
         <translation>Application Qt Quick</translation>
@@ -28713,7 +28713,7 @@ Vous pouvez construire l&apos;application et la déployer sur un ordinateur de b
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizardSourcesPage</name>
+    <name>Qt4ProjectManager::Internal::QtQuickAppWizardSourcesPage</name>
     <message>
         <source>Select QML File</source>
         <translation>Sélectionner un fichier QML</translation>

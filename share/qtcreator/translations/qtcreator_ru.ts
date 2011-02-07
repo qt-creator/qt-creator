@@ -14671,7 +14671,7 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
     </message>
 </context>
 <context>
-    <name>QmlStandaloneAppWizardSourcesPage</name>
+    <name>QtQuickAppWizardSourcesPage</name>
     <message>
         <source>WizardPage</source>
         <translation></translation>
@@ -16475,7 +16475,7 @@ stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneApp</name>
+    <name>Qt4ProjectManager::Internal::QtQuickApp</name>
     <message>
         <source>The QML import path &apos;%1&apos; cannot be found.</source>
         <translation>Не удалось найти путь импорта QML &quot;%1&quot;.</translation>
@@ -16498,7 +16498,7 @@ stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizard</name>
+    <name>Qt4ProjectManager::Internal::QtQuickAppWizard</name>
     <message>
         <source>Qt Quick Application</source>
         <translation>Приложение Qt Quick</translation>
@@ -16513,7 +16513,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizardDialog</name>
+    <name>Qt4ProjectManager::Internal::QtQuickAppWizardDialog</name>
     <message>
         <source>New Qt Quick Application</source>
         <translation>Новое приложение Qt Quick</translation>
@@ -16528,7 +16528,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizardSourcesPage</name>
+    <name>Qt4ProjectManager::Internal::QtQuickAppWizardSourcesPage</name>
     <message>
         <source>Select QML File</source>
         <translation>Выбор файла QML</translation>

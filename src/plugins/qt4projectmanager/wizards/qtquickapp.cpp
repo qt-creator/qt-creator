@@ -125,7 +125,7 @@ bool QtQuickApp::setExternalModules(const QStringList &uris,
     foreach (const QFileInfo &importPath, importPaths) {
         if (!importPath.exists()) {
             m_error = QCoreApplication::translate(
-                        "Qt4ProjectManager::Internal::QmlStandaloneApp",
+                        "Qt4ProjectManager::Internal::QtQuickApp",
                         "The QML import path '%1' cannot be found.")
                       .arg(QDir::toNativeSeparators(importPath.filePath()));
             return false;
@@ -149,7 +149,7 @@ bool QtQuickApp::setExternalModules(const QStringList &uris,
         }
         if (modulesCount == m_modules.count()) { // no module was added
             m_error = QCoreApplication::translate(
-                      "Qt4ProjectManager::Internal::QmlStandaloneApp",
+                      "Qt4ProjectManager::Internal::QtQuickApp",
                       "The QML module '%1' cannot be found.").arg(uri);
             return false;
         }
@@ -185,14 +185,14 @@ QString QtQuickApp::pathExtended(int fileType) const
         case QmlDirProFileRelative:         return useExistingMainQml() ? appProFilePath.relativeFilePath(m_mainQmlFile.canonicalPath())
                                                 : QString(qmlSubDir).remove(qmlSubDir.length() - 1, 1);
         case ModulesDir:                    return QLatin1String("modules");
-        default:                            qFatal("QmlStandaloneApp::pathExtended() needs more work");
+        default:                            qFatal("QtQuickApp::pathExtended() needs more work");
     }
     return QString();
 }
 
 QString QtQuickApp::originsRoot() const
 {
-    return templatesRoot() + QLatin1String("qmlapp/");
+    return templatesRoot() + QLatin1String("qtquickapp/");
 }
 
 QString QtQuickApp::mainWindowClassName() const
@@ -281,7 +281,7 @@ bool QtQuickApp::addCppPlugin(const QString &qmldirLine, QmlModule *module)
             qmldirLine.split(QLatin1Char(' '), QString::SkipEmptyParts);
     if (qmldirLineElements.count() < 2) {
         m_error = QCoreApplication::translate(
-                      "Qt4ProjectManager::Internal::QmlStandaloneApp",
+                      "Qt4ProjectManager::Internal::QtQuickApp",
                       "Invalid '%1' entry in '%2' of module '%3'.")
                   .arg(qmldir_plugin).arg(qmldir).arg(module->uri);
         return false;
@@ -310,7 +310,7 @@ bool QtQuickApp::addCppPlugin(const QString &qmldirLine, QmlModule *module)
         foundProFile = proFile_guess4.canonicalFilePath();
     } else {
         m_error = QCoreApplication::translate(
-                    "Qt4ProjectManager::Internal::QmlStandaloneApp",
+                    "Qt4ProjectManager::Internal::QtQuickApp",
                     "No .pro file for plugin '%1' cannot be found.").arg(name);
         return false;
     }

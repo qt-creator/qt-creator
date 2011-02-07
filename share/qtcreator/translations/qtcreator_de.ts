@@ -18546,7 +18546,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
 </context>
 <context>
-    <name>QmlStandaloneAppWizardSourcesPage</name>
+    <name>QtQuickAppWizardSourcesPage</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -20756,7 +20756,7 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneApp</name>
+    <name>Qt4ProjectManager::Internal::QtQuickApp</name>
     <message>
         <source>The QML import path &apos;%1&apos; cannot be found.</source>
         <translation>Der QML-Importpfad &apos;%1&apos; konnte nicht gefunden werden.</translation>
@@ -20779,7 +20779,7 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizardDialog</name>
+    <name>Qt4ProjectManager::Internal::QtQuickAppWizardDialog</name>
     <message>
         <source>New Qt Quick Application</source>
         <translation>Neue Qt Quick-Anwendung</translation>
@@ -20794,7 +20794,7 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizardSourcesPage</name>
+    <name>Qt4ProjectManager::Internal::QtQuickAppWizardSourcesPage</name>
     <message>
         <source>Select QML File</source>
         <translation>QML-Datei auswählen</translation>
@@ -21370,7 +21370,7 @@ Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar s
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizard</name>
+    <name>Qt4ProjectManager::Internal::QtQuickAppWizard</name>
     <message>
         <source>Qt Quick Application</source>
         <translation>Neue Qt Quick-Anwendung</translation>
