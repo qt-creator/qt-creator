@@ -501,6 +501,7 @@ bool BaseTextDocument::open(const QString &fileName)
         } else {
             d->m_decodingErrorSample.clear();
         }
+        buf.clear();
 
         foreach (const QString &text, content) {
             int lf = text.indexOf('\n');
