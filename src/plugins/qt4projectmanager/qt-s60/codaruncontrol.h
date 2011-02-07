@@ -47,6 +47,10 @@ class TcfTrkDevice;
 class TcfTrkEvent;
 }
 
+namespace SymbianUtils {
+class SymbianDevice;
+}
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -70,6 +74,7 @@ protected slots:
     void finishRunControl();
     void checkForTimeout();
     void cancelConnection();
+    void deviceRemoved(const SymbianUtils::SymbianDevice &device);
 
 private slots:
     void slotError(const QString &error);

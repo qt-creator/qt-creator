@@ -48,6 +48,8 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
+#include <symbianutils/symbiandevicemanager.h>
+
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QScopedPointer>
@@ -134,6 +136,8 @@ bool CodaRunControl::setupLauncher()
             appendMessage(tr("Couldn't open serial device: %1").arg(serialDevice->errorString()), ErrorMessageFormat);
             return false;
         }
+        connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),
+                this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
         m_state = StateConnecting;
         m_tcfTrkDevice->sendSerialPing(false);
         QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
@@ -355,4 +359,13 @@ void CodaRunControl::cancelConnection()
     stop();
     appendMessage(tr("Canceled."), ErrorMessageFormat);
     emit finished();
+}
+
+void CodaRunControl::deviceRemoved(const SymbianUtils::SymbianDevice &device)
+{
+    if (m_tcfTrkDevice && device.portName() == m_serialPort) {
+        QString msg = tr("The device '%1' has been disconnected").arg(device.friendlyName());
+        appendMessage(msg, ErrorMessageFormat);
+        finishRunControl();
+    }
 }
