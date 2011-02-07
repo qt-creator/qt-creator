@@ -35,7 +35,7 @@
 #define CODAENGINE_H
 
 #include "symbianutils_global.h"
-#include "Codamessage.h"
+#include "codamessage.h"
 #include "callback.h"
 #include "json.h"
 
