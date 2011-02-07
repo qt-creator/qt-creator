@@ -531,6 +531,7 @@ bool BaseTextDocument::open(const QString &fileName)
                 interface.setProgressValue(i + 1);
                 QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
             }
+            d->m_document->clearUndoRedoStacks();
             interface.reportFinished();
         }
         BaseTextDocumentLayout *documentLayout =
