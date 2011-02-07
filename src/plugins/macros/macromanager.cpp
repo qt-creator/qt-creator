@@ -36,7 +36,6 @@
 #include "macrosconstants.h"
 #include "macroevent.h"
 #include "macro.h"
-#include "macrosettings.h"
 #include "imacrohandler.h"
 #include "savedialog.h"
 #include "actionmacrohandler.h"
@@ -63,7 +62,6 @@
 #include <QtCore/QList>
 
 #include <QtGui/QShortcut>
-#include <QtGui/QKeySequence>
 #include <QtGui/QMainWindow>
 #include <QtGui/QAction>
 #include <QtGui/QFileDialog>
@@ -107,7 +105,6 @@ public:
     MacroManagerPrivate(MacroManager *qq);
 
     MacroManager *q;
-    MacroSettings settings;
     QMap<QString, Macro *> macros;
     Macro *currentMacro;
     bool isRecording;
@@ -120,10 +117,8 @@ public:
     TextEditorMacroHandler *textEditorHandler;
     FindMacroHandler *findHandler;
 
-    void init();
-    void appendDirectory(const QString &directory);
-    void removeDirectory(const QString &directory);
-    void addMacro(Macro *macro, QKeySequence ks=QKeySequence());
+    void initialize();
+    void addMacro(Macro *macro);
     void removeMacro(const QString &name);
     void changeMacroDescription(Macro *macro, const QString &description);
 
@@ -137,23 +132,20 @@ MacroManager::MacroManagerPrivate::MacroManagerPrivate(MacroManager *qq):
     isRecording(false),
     mapper(new QSignalMapper(qq))
 {
-    settings.fromSettings(Core::ICore::instance()->settings());
-
     connect(mapper, SIGNAL(mapped(QString)), q, SLOT(executeMacro(QString)));
 
-    // Load/unload macros
-    foreach (const QString &dir, settings.directories)
-        appendDirectory(dir);
+    // Load existing macros
+    initialize();
 
     actionHandler = new ActionMacroHandler;
     textEditorHandler = new TextEditorMacroHandler;
     findHandler = new FindMacroHandler;
 }
 
-void MacroManager::MacroManagerPrivate::appendDirectory(const QString &directory)
+void MacroManager::MacroManagerPrivate::initialize()
 {
     macros.clear();
-    QDir dir(directory);
+    QDir dir(q->macrosDirectory());
     QStringList filter;
     filter << QString("*.")+Constants::M_EXTENSION;
     QStringList files = dir.entryList(filter, QDir::Files);
@@ -162,32 +154,11 @@ void MacroManager::MacroManagerPrivate::appendDirectory(const QString &directory
         QString fileName = dir.absolutePath()+"/"+name;
         Macro *macro = new Macro;
         macro->loadHeader(fileName);
-
-        // Create shortcut
-        QKeySequence ks;
-        if (settings.shortcuts.contains(macro->displayName()))
-            ks.fromString(settings.shortcuts.value(macro->displayName()).toString());
-
-        addMacro(macro, ks);
+        addMacro(macro);
     }
 }
 
-void MacroManager::MacroManagerPrivate::removeDirectory(const QString &directory)
-{
-    QMapIterator<QString, Macro *> it(macros);
-    QDir dir(directory);
-    QStringList removeList;
-    while (it.hasNext()) {
-        it.next();
-        QFileInfo fileInfo(it.value()->fileName());
-        if (fileInfo.absoluteDir() == dir.absolutePath())
-            removeList.append(it.key());
-    }
-    foreach (const QString &name, removeList)
-        removeMacro(name);
-}
-
-void MacroManager::MacroManagerPrivate::addMacro(Macro *macro, QKeySequence ks)
+void MacroManager::MacroManagerPrivate::addMacro(Macro *macro)
 {
     // Add sortcut
     Core::Context context(TextEditor::Constants::C_TEXTEDITOR);
@@ -196,9 +167,7 @@ void MacroManager::MacroManagerPrivate::addMacro(Macro *macro, QKeySequence ks)
     QShortcut *shortcut = new QShortcut(core->mainWindow());
     shortcut->setWhatsThis(macro->description());
     const QString macroId = QLatin1String(Constants::PREFIX_MACRO) + macro->displayName();
-    Core::Command *command = am->registerShortcut(shortcut, macroId, context);
-    if (!ks.isEmpty())
-        command->setDefaultKeySequence(ks);
+    am->registerShortcut(shortcut, macroId, context);
     connect(shortcut, SIGNAL(activated()), mapper, SLOT(map()));
     mapper->setMapping(shortcut, macro->displayName());
 
@@ -274,22 +243,8 @@ void MacroManager::MacroManagerPrivate::showSaveDialog()
         if (dialog.name().isEmpty())
             return;
 
-        // Check if there's a default directory
-        // If not, ask a directory to the user
-        QString directory = settings.defaultDirectory;
-        QDir dir(directory);
-        if (directory.isEmpty() || !dir.exists()) {
-            directory = QFileDialog::getExistingDirectory(
-                    mainWindow,
-                    tr("Choose a default macro directory"),
-                    QDir::homePath());
-            if (directory.isNull())
-                return;
-            settings.directories.append(directory);
-            settings.defaultDirectory= directory;
-            q->saveSettings();
-        }
-        QString fileName = directory + '/' + dialog.name()
+        // Save in the resource path
+        QString fileName = q->macrosDirectory() + '/' + dialog.name()
                            + '.' + Constants::M_EXTENSION;
         currentMacro->setDescription(dialog.description());
         currentMacro->save(fileName);
@@ -322,11 +277,6 @@ MacroManager::~MacroManager()
     qDeleteAll(d->handlers);
 
     delete d;
-}
-
-const MacroSettings &MacroManager::settings() const
-{
-    return d->settings;
 }
 
 void MacroManager::startMacro()
@@ -397,30 +347,12 @@ bool MacroManager::executeMacro(const QString &name)
     return true;
 }
 
-void MacroManager::appendDirectory(const QString &directory)
-{
-    d->appendDirectory(directory);
-    d->settings.directories.append(directory);
-}
-
-void MacroManager::removeDirectory(const QString &directory)
-{
-    d->removeDirectory(directory);
-    d->settings.directories.removeAll(directory);
-}
-
-void MacroManager::setDefaultDirectory(const QString &directory)
-{
-    d->settings.defaultDirectory = directory;
-}
-
 void MacroManager::deleteMacro(const QString &name)
 {
     Macro *macro = d->macros.value(name);
     if (macro) {
         QString fileName = macro->fileName();
         d->removeMacro(name);
-        d->settings.shortcuts.remove(name);
         QFile::remove(fileName);
     }
 }
@@ -428,11 +360,6 @@ void MacroManager::deleteMacro(const QString &name)
 const QMap<QString,Macro*> &MacroManager::macros() const
 {
     return d->macros;
-}
-
-void MacroManager::saveSettings()
-{
-    d->settings.toSettings(Core::ICore::instance()->settings());
 }
 
 void MacroManager::registerMacroHandler(IMacroHandler *handler)
@@ -460,4 +387,13 @@ void Macros::MacroManager::saveLastMacro()
 {
     if (d->currentMacro->events().count())
         d->showSaveDialog();
+}
+
+QString Macros::MacroManager::macrosDirectory() const
+{
+    const QString &path =
+        Core::ICore::instance()->userResourcePath() + QLatin1String("/macros");
+    if (QFile::exists(path) || QDir().mkpath(path))
+        return path;
+    return QString();
 }

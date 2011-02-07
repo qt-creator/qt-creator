@@ -9,7 +9,6 @@ include(macros_dependencies.pri)
 HEADERS += macrosplugin.h \
     macros_global.h \
     macrosconstants.h \
-    macrosettings.h \
     macro.h \
     macroevent.h \
     macromanager.h \
@@ -24,7 +23,6 @@ HEADERS += macrosplugin.h \
     imacrohandler.h
 
 SOURCES += macrosplugin.cpp \
-    macrosettings.cpp \
     macro.cpp \
     macroevent.cpp \
     macromanager.cpp \

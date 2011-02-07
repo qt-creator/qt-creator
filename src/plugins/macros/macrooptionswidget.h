@@ -59,34 +59,26 @@ public:
     explicit MacroOptionsWidget(QWidget *parent = 0);
     ~MacroOptionsWidget();
 
-    void setSettings(const MacroSettings &s);
+    void initialize();
 
     void apply();
 
 private slots:
-    void addDirectoy();
     void remove();
-    void setDefault();
     void changeCurrentItem(QTreeWidgetItem *current);
 
 private:
-    void appendDirectory(const QString &directory, bool isDefault = false);
-    void changeData(QTreeWidgetItem *current, int column, QVariant value);
+    void createTable();
 
 private slots:
     void changeDescription(const QString &description);
 
 private:
-    Ui::MacroOptionsWidget *ui;
+    Ui::MacroOptionsWidget *m_ui;
     QStringList m_macroToRemove;
-    QStringList m_directories;
-    bool changingCurrent;
+    bool m_changingCurrent;
 
-    struct ChangeSet {
-        QString description;
-        bool shortcut;
-    };
-    QMap<QString, ChangeSet> m_macroToChange;
+    QMap<QString, QString> m_macroToChange;
 };
 
 } // namespace Internal

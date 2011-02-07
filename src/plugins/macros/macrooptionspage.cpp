@@ -85,7 +85,6 @@ QIcon MacroOptionsPage::categoryIcon() const
 QWidget *MacroOptionsPage::createPage(QWidget *parent)
 {
     m_widget = new MacroOptionsWidget(parent);
-    m_widget->setSettings(MacroManager::instance()->settings());
     return m_widget;
 }
 
