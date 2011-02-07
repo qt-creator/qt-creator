@@ -120,6 +120,8 @@ public:
     void runProject(Project *pro, const QString &mode);
     void runRunConfiguration(ProjectExplorer::RunConfiguration *rc, const QString &mode);
 
+    void addExistingFiles(const QStringList &filePaths);
+
 signals:
     void aboutToShowContextMenu(ProjectExplorer::Project *project,
                                 ProjectExplorer::Node *node);

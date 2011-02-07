@@ -107,7 +107,7 @@ private:
     virtual void handleTargetAddedSpecial()=0;
     virtual bool targetCanBeRemoved() const=0;
     virtual void removeTarget()=0;
-    virtual QStringList packagingFiles() const=0;
+    virtual QStringList packagingFilePaths() const=0;
 
     ActionStatus createTemplates();
     bool initPackagingSettingsFromOtherTarget();
@@ -160,7 +160,7 @@ private:
     virtual bool targetCanBeRemoved() const;
     virtual void removeTarget();
     virtual bool initAdditionalPackagingSettingsFromOtherTarget();
-    virtual QStringList packagingFiles() const { return QStringList(debianDirPath()); }
+    virtual QStringList packagingFilePaths() const;
 
     QString changeLogFilePath() const;
     QString controlFilePath() const;
@@ -209,7 +209,7 @@ private:
     virtual bool targetCanBeRemoved() const;
     virtual void removeTarget();
     virtual bool initAdditionalPackagingSettingsFromOtherTarget();
-    virtual QStringList packagingFiles() const { return QStringList(specFilePath()); }
+    virtual QStringList packagingFilePaths() const { return QStringList(specFilePath()); }
 
     virtual QString specFileName() const=0;
 

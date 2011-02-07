@@ -35,10 +35,16 @@
 #include "maemorunconfiguration.h"
 #include "qt4maemodeployconfiguration.h"
 
+#include <coreplugin/icore.h>
+#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsmanager.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectnodes.h>
 #include <qt4projectmanager/qt4project.h>
 
 #include <QtGui/QApplication>
+#include <QtGui/QMainWindow>
 #include <QtCore/QBuffer>
 #include <QtCore/QRegExp>
 #include <QtCore/QDir>
@@ -105,7 +111,8 @@ AbstractQt4MaemoTarget::AbstractQt4MaemoTarget(Qt4Project *parent, const QString
 {
     setIcon(QIcon(":/projectexplorer/images/MaemoDevice.png"));
     connect(parent, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-        this, SLOT(handleTargetAdded(ProjectExplorer::Target*)));
+        this, SLOT(handleTargetAdded(ProjectExplorer::Target*)),
+        Qt::QueuedConnection); // Otherwise ProjextExplorerPlugin::addExistingFiles() won't be ready.
 }
 
 AbstractQt4MaemoTarget::~AbstractQt4MaemoTarget()
@@ -248,12 +255,23 @@ void AbstractQt4MaemoTarget::handleTargetToBeRemoved(ProjectExplorer::Target *ta
         return;
     if (!targetCanBeRemoved())
         return;
-    const int answer = QMessageBox::warning(0, tr("Qt Creator"),
-        tr("Do you want to remove the packaging file(s) "
+
+    Core::ICore * const core = Core::ICore::instance();
+    const int answer = QMessageBox::warning(core->mainWindow(),
+        tr("Qt Creator"), tr("Do you want to remove the packaging file(s) "
            "associated with the target '%1'?").arg(displayName()),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if (answer == QMessageBox::No)
         return;
+    const QStringList pkgFilePaths = packagingFilePaths();
+    project()->rootProjectNode()->removeFiles(ProjectExplorer::UnknownFileType,
+        pkgFilePaths);
+    Core::IVersionControl * const vcs = core->vcsManager()
+        ->findVersionControlForDirectory(QFileInfo(packagingFilePaths().first()).dir().path());
+    if (vcs && vcs->supportsOperation(Core::IVersionControl::DeleteOperation)) {
+        foreach (const QString &filePath, pkgFilePaths)
+            vcs->vcsDelete(filePath);
+    }
     removeTarget();
     QString error;
     const QString packagingPath = project()->projectDirectory()
@@ -276,7 +294,22 @@ AbstractQt4MaemoTarget::ActionStatus AbstractQt4MaemoTarget::createTemplates()
         return ActionFailed;
     }
 
-    return createSpecialTemplates();
+    const ActionStatus actionStatus = createSpecialTemplates();
+    if (actionStatus == ActionFailed)
+        return ActionFailed;
+    if (actionStatus == ActionSuccessful) {
+        const QStringList &files = packagingFilePaths();
+        QMessageBox::StandardButton button
+            = QMessageBox::question(Core::ICore::instance()->mainWindow(),
+                  tr("Add Packaging Files to Project"),
+                  tr("Qt Creator has set up the following files to enable "
+                     "packaging:\n   %1\nDo you want to add them to the project?")
+                      .arg(files.join(QLatin1String("\n   "))),
+                  QMessageBox::Yes | QMessageBox::No);
+        if (button == QMessageBox::Yes)
+            ProjectExplorer::ProjectExplorerPlugin::instance()->addExistingFiles(files);
+    }
+    return actionStatus;
 }
 
 bool AbstractQt4MaemoTarget::initPackagingSettingsFromOtherTarget()
@@ -634,8 +667,7 @@ bool AbstractDebBasedQt4MaemoTarget::targetCanBeRemoved() const
 void AbstractDebBasedQt4MaemoTarget::removeTarget()
 {
     QString error;
-    if (!MaemoGlobal::removeRecursively(debianDirPath(), error))
-        qDebug("%s", qPrintable(error));
+    MaemoGlobal::removeRecursively(debianDirPath(), error);
 }
 
 void AbstractDebBasedQt4MaemoTarget::handleDebianFileChanged(const QString &filePath)
@@ -796,6 +828,15 @@ bool AbstractDebBasedQt4MaemoTarget::initAdditionalPackagingSettingsFromOtherTar
     return true;
 }
 
+QStringList AbstractDebBasedQt4MaemoTarget::packagingFilePaths() const
+{
+    QStringList filePaths;
+    const QString parentDir = debianDirPath();
+    foreach (const QString &fileName, debianFiles())
+        filePaths << parentDir + QLatin1Char('/') + fileName;
+    return filePaths;
+}
+
 QString AbstractDebBasedQt4MaemoTarget::defaultPackageFileName() const
 {
     QString packageName = project()->displayName().toLower();
@@ -948,10 +989,7 @@ bool AbstractRpmBasedQt4MaemoTarget::targetCanBeRemoved() const
 
 void AbstractRpmBasedQt4MaemoTarget::removeTarget()
 {
-    if (!QFile::remove(specFilePath())) {
-        qDebug("%s: Could not remove %s", Q_FUNC_INFO,
-            qPrintable(specFilePath()));
-    }
+    QFile::remove(specFilePath());
 }
 
 bool AbstractRpmBasedQt4MaemoTarget::initAdditionalPackagingSettingsFromOtherTarget()

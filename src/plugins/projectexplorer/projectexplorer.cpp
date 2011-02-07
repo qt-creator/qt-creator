@@ -2204,13 +2204,19 @@ void ProjectExplorerPlugin::addExistingFiles()
 {
     QTC_ASSERT(d->m_currentNode, return)
 
+    QStringList fileNames = QFileDialog::getOpenFileNames(Core::ICore::instance()->mainWindow(),
+        tr("Add Existing Files"), directoryFor(d->m_currentNode));
+    if (fileNames.isEmpty())
+        return;
+    addExistingFiles(fileNames);
+}
+
+void ProjectExplorerPlugin::addExistingFiles(const QStringList &filePaths)
+{
     ProjectNode *projectNode = qobject_cast<ProjectNode*>(d->m_currentNode->projectNode());
     Core::ICore *core = Core::ICore::instance();
     const QString dir = directoryFor(d->m_currentNode);
-    QStringList fileNames = QFileDialog::getOpenFileNames(core->mainWindow(), tr("Add Existing Files"), dir);
-    if (fileNames.isEmpty())
-        return;
-
+    QStringList fileNames = filePaths;
     QHash<FileType, QString> fileTypeToFiles;
     foreach (const QString &fileName, fileNames) {
         FileType fileType = typeForFileName(core->mimeDatabase(), QFileInfo(fileName));
