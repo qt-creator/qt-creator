@@ -117,7 +117,6 @@ public slots:
 
 public:
     DebuggerMainWindow *q;
-    QList<QDockWidget *> m_dockWidgets;
 
     QHash<QString, QVariant> m_dockWidgetActiveStateCpp;
     QHash<QString, QVariant> m_dockWidgetActiveStateQmlCpp;
@@ -281,7 +280,7 @@ void DebuggerMainWindow::onModeChanged(IMode *mode)
         d->updateActiveLanguages();
     } else {
         // Hide dock widgets manually in case they are floating.
-        foreach (QDockWidget *dockWidget, d->m_dockWidgets) {
+        foreach (QDockWidget *dockWidget, dockWidgets()) {
             if (dockWidget->isFloating())
                 dockWidget->hide();
         }
@@ -387,11 +386,7 @@ void DebuggerMainWindow::setToolbar(const DebuggerLanguage &language, QWidget *w
 
 QDockWidget *DebuggerMainWindow::dockWidget(const QString &objectName) const
 {
-    foreach (QDockWidget *dockWidget, d->m_dockWidgets) {
-        if (dockWidget->objectName() == objectName)
-            return dockWidget;
-    }
-    return 0;
+    return findChild<QDockWidget *>(objectName);
 }
 
 bool DebuggerMainWindow::isDockVisible(const QString &objectName) const
@@ -406,12 +401,9 @@ bool DebuggerMainWindow::isDockVisible(const QString &objectName) const
 QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &language,
     QWidget *widget)
 {
-//    qDebug() << "CREATE DOCK" << widget->objectName() << "LANGUAGE ID" << language
-//             << "VISIBLE BY DEFAULT" << ((d->m_activeDebugLanguages & language) ? "true" : "false");
     QDockWidget *dockWidget = addDockForWidget(widget);
     dockWidget->setObjectName(widget->objectName());
     addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
-    d->m_dockWidgets.append(dockWidget);
 
     if (!(d->m_activeDebugLanguages & language))
         dockWidget->hide();
@@ -616,15 +608,7 @@ bool DebuggerMainWindowPrivate::isQmlActive() const
 
 QMenu *DebuggerMainWindow::createPopupMenu()
 {
-    QMenu *menu = 0;
-    if (!d->m_dockWidgets.isEmpty()) {
-        menu = FancyMainWindow::createPopupMenu();
-        foreach (QDockWidget *dockWidget, d->m_dockWidgets)
-            if (dockWidget->parentWidget() == this)
-                menu->addAction(dockWidget->toggleViewAction());
-        menu->addSeparator();
-    }
-    return menu;
+    return FancyMainWindow::createPopupMenu();
 }
 
 void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
@@ -633,12 +617,13 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
     QTC_ASSERT(q, return);
     q->setTrackingEnabled(false);
 
-    foreach (QDockWidget *dockWidget, m_dockWidgets) {
+    QList<QDockWidget *> dockWidgets = q->dockWidgets();
+    foreach (QDockWidget *dockWidget, dockWidgets) {
         dockWidget->setFloating(false);
         q->removeDockWidget(dockWidget);
     }
 
-    foreach (QDockWidget *dockWidget, m_dockWidgets) {
+    foreach (QDockWidget *dockWidget, dockWidgets) {
         int area = Qt::BottomDockWidgetArea;
         QVariant p = dockWidget->property(DOCKWIDGET_DEFAULT_AREA);
         if (p.isValid())
