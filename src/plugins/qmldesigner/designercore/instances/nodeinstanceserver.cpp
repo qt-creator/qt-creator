@@ -383,6 +383,21 @@ QDeclarativeEngine *NodeInstanceServer::engine() const
     return 0;
 }
 
+QDeclarativeView *NodeInstanceServer::delcarativeView() const
+{
+    return m_declarativeView.data();
+}
+
+const QVector<NodeInstanceServer::InstancePropertyPair> NodeInstanceServer::changedPropertyList() const
+{
+    return m_changedPropertyList;
+}
+
+void NodeInstanceServer::clearChangedPropertyList()
+{
+    m_changedPropertyList.clear();
+}
+
 void NodeInstanceServer::removeAllInstanceRelationships()
 {
     // prevent destroyed() signals calling back
@@ -983,9 +998,6 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
                     if (d->dirtySceneTransform || d->geometryChanged || d->dirty)
                         informationChangedInstanceSet.insert(instance);
 
-                    if((d->dirty && d->notifyBoundingRectChanged)|| (d->dirty && !d->dirtySceneTransform) || nonInstanceChildIsDirty(graphicsObject))
-                        m_dirtyInstanceSet.insert(instance);
-
                     if (d->geometryChanged) {
                         if (instance.isRootNodeInstance())
                             m_declarativeView->scene()->setSceneRect(item->boundingRect());
@@ -1003,9 +1015,6 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
 
                 if (propertyName.contains("anchors") && informationChangedInstanceSet.contains(instance))
                     informationChangedInstanceSet.insert(instance);
-
-                if (propertyName == "width" || propertyName == "height")
-                    m_dirtyInstanceSet.insert(instance);
 
                 if (propertyName == "parent") {
                     informationChangedInstanceSet.insert(instance);
@@ -1026,11 +1035,6 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
 
             if (!parentChangedSet.isEmpty())
                 sendChildrenChangedCommand(parentChangedSet.toList());
-
-            if (!m_dirtyInstanceSet.isEmpty() && nodeInstanceClient()->bytesToWrite() < 10000) {
-                nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(m_dirtyInstanceSet.toList()));
-                m_dirtyInstanceSet.clear();
-            }
 
             if (adjustSceneRect) {
                 QRectF boundingRect = m_rootNodeInstance.boundingRect();

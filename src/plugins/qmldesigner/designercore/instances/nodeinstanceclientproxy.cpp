@@ -7,6 +7,7 @@
 
 #include "nodeinstanceserver.h"
 #include "previewnodeinstanceserver.h"
+#include "rendernodeinstanceserver.h"
 
 #include "propertyabstractcontainer.h"
 #include "propertyvaluecontainer.h"
@@ -47,6 +48,8 @@ NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
         m_nodeInstanceServer = new PreviewNodeInstanceServer(this);
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("editormode")) {
         m_nodeInstanceServer = new NodeInstanceServer(this);
+    } else if (QCoreApplication::arguments().at(2) == QLatin1String("rendermode")) {
+        m_nodeInstanceServer = new RenderNodeInstanceServer(this);
     }
 
     m_socket = new QLocalSocket(this);

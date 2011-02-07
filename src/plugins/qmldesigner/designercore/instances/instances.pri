@@ -3,6 +3,7 @@ INCLUDEPATH += $$PWD/../include
 
 
 HEADERS += $$PWD/behaviornodeinstance.h
+HEADERS += $$PWD/rendernodeinstanceserver.h
 HEADERS += $$PWD/synchronizecommand.h
 HEADERS += $$PWD/addimportcontainer.h
 HEADERS += $$PWD/previewnodeinstanceserver.h
@@ -50,6 +51,7 @@ HEADERS += $$PWD/../include/nodeinstanceserverinterface.h
 
 
 SOURCES +=  $$PWD/behaviornodeinstance.cpp
+SOURCES +=  $$PWD/rendernodeinstanceserver.cpp
 SOURCES +=  $$PWD/synchronizecommand.cpp
 SOURCES +=  $$PWD/addimportcontainer.cpp
 SOURCES +=  $$PWD/previewnodeinstanceserver.cpp

@@ -137,6 +137,10 @@ protected:
     void setTimerId(int timerId);
     int timerId() const;
 
+    QDeclarativeView *delcarativeView() const;
+    const QVector<InstancePropertyPair> changedPropertyList() const;
+    void clearChangedPropertyList();
+
 private:
     ServerNodeInstance m_rootNodeInstance;
     ServerNodeInstance m_activeStateInstance;
@@ -155,7 +159,6 @@ private:
     int m_slowRenderTimerInterval;
     QVector<InstancePropertyPair> m_changedPropertyList;
     QStringList m_importList;
-    QSet<ServerNodeInstance> m_dirtyInstanceSet;
     QList<ServerNodeInstance> m_completedComponentList;
 };
 

@@ -45,13 +45,14 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
       m_nodeInstanceView(nodeInstanceView),
       m_firstBlockSize(0),
       m_secondBlockSize(0),
+      m_thirdBlockSize(0),
       m_runModus(runModus),
       m_synchronizeId(-1)
 {
    QString socketToken(QUuid::createUuid().toString());
 
    m_localServer->listen(socketToken);
-   m_localServer->setMaxPendingConnections(2);
+   m_localServer->setMaxPendingConnections(3);
 
    QString applicationPath =  QCoreApplication::applicationDirPath();
    if (runModus == TestModus)
@@ -76,6 +77,14 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
        if (fowardQmlpuppetOutput)
            m_qmlPuppetPreviewProcess->setProcessChannelMode(QProcess::ForwardedChannels);
        m_qmlPuppetPreviewProcess->start(applicationPath, QStringList() << socketToken << "previewmode" << "-graphicssystem raster");
+
+       m_qmlPuppetRenderProcess = new QProcess;
+       connect(m_qmlPuppetRenderProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
+       connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetRenderProcess.data(), SLOT(kill()));
+       if (fowardQmlpuppetOutput)
+           m_qmlPuppetRenderProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+       m_qmlPuppetRenderProcess->start(applicationPath, QStringList() << socketToken << "rendermode" << "-graphicssystem raster");
+
    }
 
    connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
@@ -87,6 +96,9 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    if (runModus == NormalModus) {
        m_qmlPuppetPreviewProcess->waitForStarted();
        connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int)), m_qmlPuppetPreviewProcess.data(),SLOT(deleteLater()));
+
+       m_qmlPuppetRenderProcess->waitForStarted();
+       connect(m_qmlPuppetRenderProcess.data(), SIGNAL(finished(int)), m_qmlPuppetRenderProcess.data(),SLOT(deleteLater()));
    }
 
    if (!m_localServer->hasPendingConnections())
@@ -101,6 +113,13 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
        m_secondSocket = m_localServer->nextPendingConnection();
        connect(m_secondSocket.data(), SIGNAL(readyRead()), this, SLOT(readSecondDataStream()));
+
+       if (!m_localServer->hasPendingConnections())
+           m_localServer->waitForNewConnection(-1);
+
+       m_thirdSocket = m_localServer->nextPendingConnection();
+       connect(m_thirdSocket.data(), SIGNAL(readyRead()), this, SLOT(readThirdDataStream()));
+
    }
 
    m_localServer->close();
@@ -116,12 +135,18 @@ NodeInstanceServerProxy::~NodeInstanceServerProxy()
     if (m_secondSocket)
         m_secondSocket->close();
 
+    if(m_thirdSocket)
+        m_thirdSocket->close();
+
 
     if (m_qmlPuppetEditorProcess)
         m_qmlPuppetEditorProcess->kill();
 
     if (m_qmlPuppetPreviewProcess)
         m_qmlPuppetPreviewProcess->kill();
+
+    if (m_qmlPuppetRenderProcess)
+        m_qmlPuppetRenderProcess->kill();
 }
 
 void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
@@ -176,6 +201,7 @@ void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 {
     writeCommandToSocket(command, m_firstSocket.data());
     writeCommandToSocket(command, m_secondSocket.data());
+    writeCommandToSocket(command, m_thirdSocket.data());
 
     if (m_runModus == TestModus) {
         static int synchronizeId = 0;
@@ -198,6 +224,9 @@ void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitSt
         m_firstSocket->close();
     if (m_secondSocket)
         m_secondSocket->close();
+    if (m_thirdSocket)
+        m_thirdSocket->close();
+
     if (exitStatus == QProcess::CrashExit)
         emit processCrashed();
 }
@@ -260,6 +289,36 @@ void NodeInstanceServerProxy::readSecondDataStream()
         dispatchCommand(command);
     }
 }
+
+void NodeInstanceServerProxy::readThirdDataStream()
+{
+    QList<QVariant> commandList;
+
+    while (!m_thirdSocket->atEnd()) {
+        if (m_thirdSocket->bytesAvailable() < int(sizeof(quint32)))
+            break;
+
+        QDataStream in(m_thirdSocket.data());
+
+        if (m_thirdBlockSize == 0) {
+            in >> m_thirdBlockSize;
+        }
+
+        if (m_thirdSocket->bytesAvailable() < m_thirdBlockSize)
+            break;
+
+        QVariant command;
+        in >> command;
+        m_thirdBlockSize = 0;
+
+        commandList.append(command);
+    }
+
+    foreach (const QVariant &command, commandList) {
+        dispatchCommand(command);
+    }
+}
+
 
 void NodeInstanceServerProxy::createInstances(const CreateInstancesCommand &command)
 {

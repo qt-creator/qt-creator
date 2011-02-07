@@ -51,16 +51,20 @@ private slots:
     void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void readFirstDataStream();
     void readSecondDataStream();
+    void readThirdDataStream();
 
 private:
     QWeakPointer<QLocalServer> m_localServer;
     QWeakPointer<QLocalSocket> m_firstSocket;
     QWeakPointer<QLocalSocket> m_secondSocket;
+    QWeakPointer<QLocalSocket> m_thirdSocket;
     QWeakPointer<NodeInstanceView> m_nodeInstanceView;
     QWeakPointer<QProcess> m_qmlPuppetEditorProcess;
     QWeakPointer<QProcess> m_qmlPuppetPreviewProcess;
+    QWeakPointer<QProcess> m_qmlPuppetRenderProcess;
     quint32 m_firstBlockSize;
     quint32 m_secondBlockSize;
+    quint32 m_thirdBlockSize;
     RunModus m_runModus;
     int m_synchronizeId;
 };
