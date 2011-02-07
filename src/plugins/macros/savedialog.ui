@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>219</width>
-    <height>116</height>
+    <height>91</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,13 +42,6 @@
     </widget>
    </item>
    <item row="3" column="0" colspan="2">
-    <widget class="QCheckBox" name="hideSaveDialog">
-     <property name="text">
-      <string>Don't show this dialog again</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="2">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
@@ -60,7 +53,6 @@
  <tabstops>
   <tabstop>name</tabstop>
   <tabstop>description</tabstop>
-  <tabstop>hideSaveDialog</tabstop>
  </tabstops>
  <resources/>
  <connections>

@@ -62,8 +62,3 @@ QString SaveDialog::description() const
 {
     return ui->description->text();
 }
-
-bool SaveDialog::hideSaveDialog() const
-{
-    return ui->hideSaveDialog->isChecked();
-}

@@ -104,8 +104,6 @@ void MacroOptionsWidget::setSettings(const MacroSettings &s)
     m_directories.clear();
     ui->treeWidget->clear();
 
-    ui->showSaveDialog->setChecked(s.showSaveDialog);
-
     // Create the treeview
     foreach (const QString &dir, s.directories)
         appendDirectory(dir, s.defaultDirectory==dir);
@@ -230,8 +228,6 @@ void MacroOptionsWidget::apply()
         MacroManager::instance()->appendDirectory(dir);
     foreach (const QString &dir, dirToRemove)
         MacroManager::instance()->removeDirectory(dir);
-
-    MacroManager::instance()->showSaveDialog(ui->showSaveDialog->checkState()==Qt::Checked);
 
     MacroManager::instance()->saveSettings();
 

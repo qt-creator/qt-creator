@@ -115,6 +115,12 @@ bool MacrosPlugin::initialize(const QStringList &arguments, QString *error_messa
     mmacrotools->addAction(command);
     connect(executeLastMacro, SIGNAL(triggered()), m_macroManager, SLOT(executeLastMacro()));
 
+    QAction *saveLastMacro = new QAction(tr("Save Last Macro"),  this);
+    saveLastMacro->setEnabled(false);
+    command = am->registerAction(saveLastMacro, Constants::SAVE_LAST_MACRO, textContext);
+    mmacrotools->addAction(command);
+    connect(saveLastMacro, SIGNAL(triggered()), m_macroManager, SLOT(saveLastMacro()));
+
     return true;
 }
 

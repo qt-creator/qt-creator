@@ -71,6 +71,7 @@ public slots:
     void startMacro();
     void endMacro();
     void executeLastMacro();
+    void saveLastMacro();
     bool executeMacro(const QString &name);
 
 protected:
@@ -81,7 +82,6 @@ protected:
     void appendDirectory(const QString &directory);
     void removeDirectory(const QString &directory);
     void setDefaultDirectory(const QString &directory);
-    void showSaveDialog(bool value);
     void saveSettings();
 
 private:

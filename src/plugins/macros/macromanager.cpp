@@ -271,12 +271,6 @@ void MacroManager::MacroManagerPrivate::showSaveDialog()
     QMainWindow *mainWindow = Core::ICore::instance()->mainWindow();
     SaveDialog dialog(mainWindow);
     if (dialog.exec()) {
-        bool changed = false;
-        if (settings.showSaveDialog == dialog.hideSaveDialog()) {
-            settings.showSaveDialog = !dialog.hideSaveDialog();
-            changed = true;
-        }
-
         if (dialog.name().isEmpty())
             return;
 
@@ -293,16 +287,13 @@ void MacroManager::MacroManagerPrivate::showSaveDialog()
                 return;
             settings.directories.append(directory);
             settings.defaultDirectory= directory;
-            changed = true;
+            q->saveSettings();
         }
         QString fileName = directory + '/' + dialog.name()
                            + '.' + Constants::M_EXTENSION;
         currentMacro->setDescription(dialog.description());
         currentMacro->save(fileName);
         addMacro(currentMacro);
-
-        if (changed)
-            q->saveSettings();
     }
 }
 
@@ -350,6 +341,7 @@ void MacroManager::startMacro()
     am->command(Constants::START_MACRO)->action()->setEnabled(false);
     am->command(Constants::END_MACRO)->action()->setEnabled(true);
     am->command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(false);
+    am->command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(false);
     foreach (IMacroHandler *handler, d->handlers)
         handler->startRecording(d->currentMacro);
 
@@ -371,13 +363,11 @@ void MacroManager::endMacro()
     am->command(Constants::START_MACRO)->action()->setEnabled(true);
     am->command(Constants::END_MACRO)->action()->setEnabled(false);
     am->command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(true);
+    am->command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(true);
     foreach (IMacroHandler *handler, d->handlers)
         handler->endRecordingMacro(d->currentMacro);
 
     d->isRecording = false;
-
-    if (d->currentMacro->events().count() && d->settings.showSaveDialog)
-        d->showSaveDialog();
 }
 
 void MacroManager::executeLastMacro()
@@ -400,6 +390,10 @@ bool MacroManager::executeMacro(const QString &name)
     if (d->currentMacro && d->currentMacro->displayName().isEmpty())
         delete d->currentMacro;
     d->currentMacro = macro;
+
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    am->command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(true);
+
     return true;
 }
 
@@ -418,11 +412,6 @@ void MacroManager::removeDirectory(const QString &directory)
 void MacroManager::setDefaultDirectory(const QString &directory)
 {
     d->settings.defaultDirectory = directory;
-}
-
-void MacroManager::showSaveDialog(bool value)
-{
-    d->settings.showSaveDialog = value;
 }
 
 void MacroManager::deleteMacro(const QString &name)
@@ -465,4 +454,10 @@ void MacroManager::changeMacro(const QString &name, const QString &description)
     // Change description
     if (macro->description() != description)
         d->changeMacroDescription(macro, description);
+}
+
+void Macros::MacroManager::saveLastMacro()
+{
+    if (d->currentMacro->events().count())
+        d->showSaveDialog();
 }

@@ -39,13 +39,11 @@ using namespace Macros::Internal;
 
 static const char GROUP[] = "Macro";
 static const char DEFAULT_DIRECTORY[] = "DefaultDirectory";
-static const char SHOW_SAVE_DIALOG[] = "ShowSaveDialog";
 static const char DIRECTORIES[] = "Directories";
 static const char SHORTCUTS[] = "Shortcuts";
 
 
-MacroSettings::MacroSettings():
-    showSaveDialog(false)
+MacroSettings::MacroSettings()
 {
 }
 
@@ -53,7 +51,6 @@ void MacroSettings::toSettings(QSettings *s) const
 {
     s->beginGroup(QLatin1String(GROUP));
     s->setValue(QLatin1String(DEFAULT_DIRECTORY), defaultDirectory);
-    s->setValue(QLatin1String(SHOW_SAVE_DIALOG), showSaveDialog);
     s->setValue(QLatin1String(DIRECTORIES), directories);
     s->setValue(QLatin1String(SHORTCUTS), shortcuts);
     s->endGroup();
@@ -63,7 +60,6 @@ void MacroSettings::fromSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(GROUP));
     defaultDirectory = s->value(QLatin1String(DEFAULT_DIRECTORY), QString("")).toString();
-    showSaveDialog = s->value(QLatin1String(SHOW_SAVE_DIALOG), false).toBool();
     directories = s->value(QLatin1String(DIRECTORIES)).toStringList();
     shortcuts = s->value(QLatin1String(SHORTCUTS)).toMap();
     s->endGroup();
@@ -73,6 +69,5 @@ bool MacroSettings::equals(const MacroSettings &ms) const
 {
     return defaultDirectory == ms.defaultDirectory &&
             shortcuts == ms.shortcuts &&
-            directories == ms.directories &&
-            showSaveDialog == ms.showSaveDialog;
+            directories == ms.directories;
 }

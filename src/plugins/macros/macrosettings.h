@@ -58,7 +58,6 @@ public:
     QString defaultDirectory;
     QStringList directories;
     QMap<QString, QVariant> shortcuts;
-    bool showSaveDialog;
 };
 
 inline bool operator==(const MacroSettings &m1, const MacroSettings &m2) { return m1.equals(m2); }

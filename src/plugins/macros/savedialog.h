@@ -53,7 +53,6 @@ public:
 
     QString name() const;
     QString description() const;
-    bool hideSaveDialog() const;
 
 private:
     Ui::SaveDialog *ui;
