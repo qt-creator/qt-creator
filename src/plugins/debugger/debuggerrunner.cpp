@@ -597,6 +597,12 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
             sp.projectBuildDir = runConfiguration->target()
                 ->activeBuildConfiguration()->buildDirectory();
 
+        // Makes sure that all bindings go through the JavaScript engine, so that
+        // breakpoints are actually hit!
+        if (!sp.environment.hasKey(QLatin1String("QML_DISABLE_OPTIMIZER"))) {
+            sp.environment.set(QLatin1String("QML_DISABLE_OPTIMIZER"), QLatin1String("1"));
+        }
+
         Utils::QtcProcess::addArg(&sp.processArgs, QLatin1String("-qmljsdebugger=port:")
                                   + QString::number(sp.qmlServerPort));
     }
