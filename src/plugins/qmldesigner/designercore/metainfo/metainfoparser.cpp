@@ -151,8 +151,6 @@ void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader,
         if (!requiredImport.isEmpty())
             entry.setRequiredImport(requiredImport);
 
-        qDebug() << entry.requiredImport();
-
         while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "itemlibraryentry")) {
             reader.readNext();
             handleItemLibraryEntryPropertyElement(reader, entry);
