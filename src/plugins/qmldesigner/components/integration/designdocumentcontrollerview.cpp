@@ -179,7 +179,7 @@ void DesignDocumentControllerView::fromText(QString text)
     QString imports;
     foreach (Import import, model()->imports())
         imports += import.toString() + ";\n";
-    qDebug() << imports;
+
     textEdit.setPlainText(imports + text);
     NotIndentingTextEditModifier modifier(&textEdit);
 
