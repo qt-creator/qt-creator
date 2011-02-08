@@ -956,6 +956,8 @@ void NodeInstanceServer::loadDummyContextObjectFile(const QFileInfo& qmlFileInfo
 
     if (!dummydataFileSystemWatcher()->files().contains(qmlFileInfo.filePath()))
         dummydataFileSystemWatcher()->addPath(qmlFileInfo.filePath());
+
+    refreshBindings();
 }
 
 void NodeInstanceServer::loadDummyDataFiles(const QString& directory)
