@@ -2704,7 +2704,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Shortcut</source>
-        <translation>Сокращение</translation>
+        <translation>Комбинация клавиш</translation>
     </message>
     <message>
         <source>Import Keyboard Mapping Scheme</source>
@@ -13315,7 +13315,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Set as Startup Project</source>
-        <translation>Сделать начальным проектом</translation>
+        <translation>Сделать активным проектом</translation>
     </message>
     <message>
         <source>Open Build/Run Target Selector...</source>
