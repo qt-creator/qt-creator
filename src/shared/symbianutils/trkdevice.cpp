@@ -691,10 +691,11 @@ private:
     inline int tryRead();
 
     HANDLE m_handles[HandleCount];
+    bool m_terminated;
 };
 
 WinReaderThread::WinReaderThread(const QSharedPointer<DeviceContext> &context) :
-    ReaderThreadBase(context)
+    ReaderThreadBase(context), m_terminated(false)
 {
     m_handles[FileHandle] = NULL;
     m_handles[TerminateEventHandle] = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -720,10 +721,18 @@ int WinReaderThread::tryRead()
     // Trigger read
     DWORD bytesRead = 0;
     if (ReadFile(m_context->device, &buffer, bytesToRead, &bytesRead, &m_context->readOverlapped)) {
-        if (bytesRead == 1) {
+        if (m_terminated)
+            return 1;
+        switch (bytesRead) {
+        case 0:
+            Sleep(100);
+            break;
+        case 1:
             processData(buffer[0]);
-        } else {
+            break;
+        default:
             processData(QByteArray(buffer, bytesRead));
+            break;
         }
         return 0;
     }
@@ -762,6 +771,7 @@ void WinReaderThread::run()
 
 void WinReaderThread::terminate()
 {
+    m_terminated = true;
     SetEvent(m_handles[TerminateEventHandle]);
     wait();
 }

@@ -338,7 +338,7 @@ void CodaRunControl::finishRunControl()
 QMessageBox *CodaRunControl::createCodaWaitingMessageBox(QWidget *parent)
 {
     const QString title  = tr("Waiting for CODA");
-    const QString text = tr("Qt Creator is waiting for the CODA application to connect. "
+    const QString text = tr("Qt Creator is waiting for the CODA application to connect.<br>"
                             "Please make sure the application is running on "
                             "your mobile phone and the right IP address and port are "
                             "configured in the project settings.");

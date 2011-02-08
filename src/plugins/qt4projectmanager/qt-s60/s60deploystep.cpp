@@ -39,6 +39,7 @@
 #include "s60runconfigbluetoothstarter.h"
 #include "codadevice.h"
 #include "trkruncontrol.h"
+#include "codaruncontrol.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildsteplist.h>
@@ -65,7 +66,7 @@
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
-enum {debug = 0};
+enum { debug = 0 };
 
 static const quint64  DEFAULT_CHUNK_SIZE = 40000;
 
@@ -200,7 +201,7 @@ bool S60DeployStep::init()
         }
 
         if (debug)
-            m_launcher->setVerbose(1);
+            m_launcher->setVerbose(debug);
 
         // Prompt the user to start up the Bluetooth connection
         const trk::PromptStartCommunicationResult src =
@@ -396,7 +397,6 @@ void S60DeployStep::startDeployment()
         setupConnections();
         m_state = StateConnecting;
         m_codaDevice->sendSerialPing(false);
-        QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
     } else {
         m_codaDevice = QSharedPointer<Coda::CodaDevice>(new Coda::CodaDevice);
         setupConnections();
@@ -405,8 +405,8 @@ void S60DeployStep::startDeployment()
         codaSocket->connectToHost(m_address, m_port);
         m_state = StateConnecting;
         appendMessage(tr("Connecting to %1:%2...").arg(m_address).arg(m_port), false);
-        QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
     }
+    QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
 }
 
 void S60DeployStep::run(QFutureInterface<bool> &fi)
@@ -458,7 +458,7 @@ void S60DeployStep::slotError(const QString &error)
 
 void S60DeployStep::slotTrkLogMessage(const QString &log)
 {
-    if (debug)
+    if (debug > 1)
         qDebug() << "CODA log:" << log;
 }
 
@@ -585,7 +585,7 @@ void S60DeployStep::putSendNextChunk()
         setCopyProgress(100);
     } else {
         m_putLastChunkSize = data.size();
-        if (debug)
+        if (debug > 1)
             qDebug("Writing %llu bytes to remote file '%s' at %llu\n",
                    m_putLastChunkSize,
                    m_remoteFileHandle.constData(), pos);
@@ -636,13 +636,7 @@ void S60DeployStep::checkForTimeout()
     if (m_state != StateConnecting)
         return;
 
-    const QString title  = tr("Waiting for CODA");
-    const QString text = tr("Qt Creator is waiting for the CODA application to connect."
-                            "\nPlease make sure the application is running on "
-                            "your mobile phone and the right IP address or serial port is "
-                            "configured in the project settings.");
-    QMessageBox *mb = new QMessageBox(QMessageBox::Information, title, text,
-                                      QMessageBox::Cancel, Core::ICore::instance()->mainWindow());
+    QMessageBox *mb = CodaRunControl::createCodaWaitingMessageBox(Core::ICore::instance()->mainWindow());
     connect(this, SIGNAL(codaConnected()), mb, SLOT(close()));
     connect(this, SIGNAL(finished()), mb, SLOT(close()));
     connect(this, SIGNAL(finishNow()), mb, SLOT(close()));
