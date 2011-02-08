@@ -460,23 +460,6 @@ static QToolButton *toolButton(QAction *action)
     return button;
 }
 
-struct AttachRemoteParameters
-{
-    AttachRemoteParameters() : attachPid(0), winCrashEvent(0) {}
-    void clear();
-
-    quint64 attachPid;
-    QString attachTarget;  // core file name or  server:port
-    // Event handle for attaching to crashed Windows processes.
-    quint64 winCrashEvent;
-};
-
-void AttachRemoteParameters::clear()
-{
-    attachPid = winCrashEvent = 0;
-    attachTarget.clear();
-}
-
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -736,107 +719,6 @@ bool DebuggingHelperOptionPage::matches(const QString &s) const
 
 ///////////////////////////////////////////////////////////////////////
 //
-// Argument parsing
-//
-///////////////////////////////////////////////////////////////////////
-
-static QString msgParameterMissing(const QString &a)
-{
-    return DebuggerPlugin::tr("Option '%1' is missing the parameter.").arg(a);
-}
-
-static QString msgInvalidNumericParameter(const QString &a, const QString &number)
-{
-    return DebuggerPlugin::tr("The parameter '%1' of option '%2' is not a number.").arg(number, a);
-}
-
-static bool parseArgument(QStringList::const_iterator &it,
-    const QStringList::const_iterator &cend,
-    AttachRemoteParameters *attachRemoteParameters,
-    unsigned *enabledEngines, QString *errorMessage)
-{
-    const QString &option = *it;
-    // '-debug <pid>'
-    // '-debug <corefile>'
-    // '-debug <server:port>'
-    if (*it == _("-debug")) {
-        ++it;
-        if (it == cend) {
-            *errorMessage = msgParameterMissing(*it);
-            return false;
-        }
-        bool ok;
-        attachRemoteParameters->attachPid = it->toULongLong(&ok);
-        if (!ok)
-            attachRemoteParameters->attachTarget = *it;
-        return true;
-    }
-    // -wincrashevent <event-handle>. A handle used for
-    // a handshake when attaching to a crashed Windows process.
-    if (*it == _("-wincrashevent")) {
-        ++it;
-        if (it == cend) {
-            *errorMessage = msgParameterMissing(*it);
-            return false;
-        }
-        bool ok;
-        attachRemoteParameters->winCrashEvent = it->toULongLong(&ok);
-        if (!ok) {
-            *errorMessage = msgInvalidNumericParameter(option, *it);
-            return false;
-        }
-        return true;
-    }
-    // Engine disabling.
-    if (option == _("-disable-cdb")) {
-        *enabledEngines &= ~CdbEngineType;
-        return true;
-    }
-    if (option == _("-disable-gdb")) {
-        *enabledEngines &= ~GdbEngineType;
-        return true;
-    }
-    if (option == _("-disable-qmldb")) {
-        *enabledEngines &= ~QmlEngineType;
-        return true;
-    }
-    if (option == _("-disable-sdb")) {
-        *enabledEngines &= ~ScriptEngineType;
-        return true;
-    }
-    if (option == _("-disable-tcf")) {
-        *enabledEngines &= ~TcfEngineType;
-        return true;
-    }
-    if (option == _("-disable-lldb")) {
-        *enabledEngines &= ~LldbEngineType;
-        return true;
-    }
-
-    *errorMessage = DebuggerPlugin::tr("Invalid debugger option: %1").arg(option);
-    return false;
-}
-
-static bool parseArguments(const QStringList &args,
-   AttachRemoteParameters *attachRemoteParameters,
-   unsigned *enabledEngines, QString *errorMessage)
-{
-    attachRemoteParameters->clear();
-    const QStringList::const_iterator cend = args.constEnd();
-    for (QStringList::const_iterator it = args.constBegin(); it != cend; ++it)
-        if (!parseArgument(it, cend, attachRemoteParameters, enabledEngines, errorMessage))
-            return false;
-    if (Constants::Internal::debug)
-        qDebug().nospace() << args << "engines=0x"
-            << QString::number(*enabledEngines, 16)
-            << " pid" << attachRemoteParameters->attachPid
-            << " target" << attachRemoteParameters->attachTarget << '\n';
-    return true;
-}
-
-
-///////////////////////////////////////////////////////////////////////
-//
 // Misc
 //
 ///////////////////////////////////////////////////////////////////////
@@ -1011,9 +893,8 @@ public slots:
     void startRemoteApplication();
     void startRemoteEngine();
     void attachExternalApplication();
-    void attachExternalApplication
-        (qint64 pid, const QString &binary, const QString &crashParameter);
-    bool attachCmdLine();
+    void attachExternalApplication(qint64 pid, const QString &binary);
+    void runScheduled();
     void attachCore();
     void attachCore(const QString &core, const QString &exeFileName);
     void attachRemote(const QString &spec);
@@ -1284,12 +1165,18 @@ public slots:
 
     void showModuleSymbols(const QString &moduleName, const Symbols &symbols);
 
+    bool parseArgument(QStringList::const_iterator &it,
+        const QStringList::const_iterator &cend,
+        unsigned *enabledEngines, QString *errorMessage);
+    bool parseArguments(const QStringList &args,
+        unsigned *enabledEngines, QString *errorMessage);
+
 public:
     DebuggerMainWindow *m_mainWindow;
     DebuggerRunControlFactory *m_debuggerRunControlFactory;
 
     QString m_previousMode;
-    AttachRemoteParameters m_attachRemoteParameters;
+    QList<DebuggerStartParameters> m_scheduledStarts;
 
     Utils::ProxyAction *m_visibleDebugAction;
     QAction *m_debugAction;
@@ -1429,12 +1316,136 @@ DebuggerCore *debuggerCore()
     return theDebuggerCore;
 }
 
+static QString msgParameterMissing(const QString &a)
+{
+    return DebuggerPlugin::tr("Option '%1' is missing the parameter.").arg(a);
+}
+
+bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
+    const QStringList::const_iterator &cend,
+    unsigned *enabledEngines, QString *errorMessage)
+{
+    const QString &option = *it;
+    // '-debug <pid>'
+    // '-debug <corefile>'
+    // '-debug <server:port>@<exe>@<arch>'
+    if (*it == _("-debug")) {
+        ++it;
+        if (it == cend) {
+            *errorMessage = msgParameterMissing(*it);
+            return false;
+        }
+        DebuggerStartParameters sp;
+        qulonglong pid = it->toULongLong();
+        QString remoteChannel = it->contains('@') ? it->section('@', 0, 0) : *it;
+        uint port = 0;
+        int pos = remoteChannel.indexOf(QLatin1Char(':'));
+        if (pos != -1)
+            port = remoteChannel.mid(pos + 1).toUInt();
+        qDebug() << "CMD: " << *it << " CHANNEL" << remoteChannel << "PORT: " << port;
+        if (pid) {
+            sp.startMode = AttachExternal;
+            sp.attachPID = pid;
+            sp.displayName = tr("Process %1").arg(sp.attachPID);
+            sp.startMessage = tr("Attaching to local process %1.").arg(sp.attachPID);
+        } else if (port) {
+            sp.startMode = AttachToRemote;
+            sp.remoteChannel = remoteChannel;
+            sp.executable = it->section('@', 1, 1);
+            qDebug() << "SP" << sp.remoteChannel << sp.executable;
+            if (sp.remoteChannel.isEmpty()) {
+                *errorMessage = DebuggerPlugin::tr("The parameter '%1' of option "
+                    "'%2' does not match the pattern <server:port>@<exe>@<arch>.")
+                        .arg(*it, option);
+                return false;
+            }
+            sp.remoteArchitecture = it->section('@', 2, 2);
+            sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
+            sp.startMessage = tr("Attaching to remote server %1.")
+                .arg(sp.remoteChannel);
+        } else {
+            sp.startMode = AttachCore;
+            sp.coreFile = *it;
+            sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
+            sp.startMessage = tr("Attaching to core file %1.").arg(sp.coreFile);
+        }
+        m_scheduledStarts.append(sp);
+        return true;
+    }
+    // -wincrashevent <event-handle>:<pid>. A handle used for
+    // a handshake when attaching to a crashed Windows process.
+    // This is created by $QTC/src/tools/qtcdebugger/main.cpp:
+    // args << QLatin1String("-wincrashevent")
+    //   << QString("%1:%2").arg(argWinCrashEvent).arg(argProcessId);
+    if (*it == _("-wincrashevent")) {
+        ++it;
+        if (it == cend) {
+            *errorMessage = msgParameterMissing(*it);
+            return false;
+        }
+        DebuggerStartParameters sp;
+        sp.startMode = AttachCrashedExternal;
+        sp.crashParameter = it->section(':', 0, 0);
+        sp.attachPID = it->section(':', 1, 1).toULongLong();
+        sp.displayName = tr("Crashed process %1").arg(sp.attachPID);
+        sp.startMessage = tr("Attaching to crashed process %1").arg(sp.attachPID);
+        if (!sp.attachPID) {
+            *errorMessage = DebuggerPlugin::tr("The parameter '%1' of option '%2' "
+                "does not match the pattern <handle>:<pid>.").arg(*it, option);
+            return false;
+        }
+        m_scheduledStarts.append(sp);
+        return true;
+    }
+    // Engine disabling.
+    if (option == _("-disable-cdb")) {
+        *enabledEngines &= ~CdbEngineType;
+        return true;
+    }
+    if (option == _("-disable-gdb")) {
+        *enabledEngines &= ~GdbEngineType;
+        return true;
+    }
+    if (option == _("-disable-qmldb")) {
+        *enabledEngines &= ~QmlEngineType;
+        return true;
+    }
+    if (option == _("-disable-sdb")) {
+        *enabledEngines &= ~ScriptEngineType;
+        return true;
+    }
+    if (option == _("-disable-tcf")) {
+        *enabledEngines &= ~TcfEngineType;
+        return true;
+    }
+    if (option == _("-disable-lldb")) {
+        *enabledEngines &= ~LldbEngineType;
+        return true;
+    }
+
+    *errorMessage = DebuggerPlugin::tr("Invalid debugger option: %1").arg(option);
+    return false;
+}
+
+bool DebuggerPluginPrivate::parseArguments(const QStringList &args,
+   unsigned *enabledEngines, QString *errorMessage)
+{
+    const QStringList::const_iterator cend = args.constEnd();
+    for (QStringList::const_iterator it = args.constBegin(); it != cend; ++it)
+        if (!parseArgument(it, cend, enabledEngines, errorMessage))
+            return false;
+    if (Constants::Internal::debug)
+        qDebug().nospace() << args << "engines=0x"
+            << QString::number(*enabledEngines, 16) << '\n';
+    return true;
+}
+
+
 bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     QString *errorMessage)
 {
     // Do not fail to load the whole plugin if something goes wrong here.
-    if (!parseArguments(arguments, &m_attachRemoteParameters,
-            &m_cmdLineEnabledEngines, errorMessage)) {
+    if (!parseArguments(arguments, &m_cmdLineEnabledEngines, errorMessage)) {
         *errorMessage = tr("Error evaluating command line arguments: %1")
             .arg(*errorMessage);
         qWarning("%s\n", qPrintable(*errorMessage));
@@ -1556,11 +1567,11 @@ void DebuggerPluginPrivate::attachExternalApplication()
 {
     AttachExternalDialog dlg(mainWindow());
     if (dlg.exec() == QDialog::Accepted)
-        attachExternalApplication(dlg.attachPID(), dlg.executable(), QString());
+        attachExternalApplication(dlg.attachPID(), dlg.executable());
 }
 
 void DebuggerPluginPrivate::attachExternalApplication
-    (qint64 pid, const QString &binary, const QString &crashParameter)
+    (qint64 pid, const QString &binary)
 {
     if (pid == 0) {
         QMessageBox::warning(mainWindow(), tr("Warning"),
@@ -1571,8 +1582,7 @@ void DebuggerPluginPrivate::attachExternalApplication
     sp.attachPID = pid;
     sp.displayName = tr("Process %1").arg(pid);
     sp.executable = binary;
-    sp.crashParameter = crashParameter;
-    sp.startMode = crashParameter.isEmpty() ? AttachExternal : AttachCrashedExternal;
+    sp.startMode = AttachExternal;
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1602,10 +1612,10 @@ void DebuggerPluginPrivate::attachCore(const QString &core, const QString &exe)
 
 void DebuggerPluginPrivate::attachRemote(const QString &spec)
 {
-    // spec is:  executable@server:port@architecture
+    // spec is: server:port@executable@architecture
     DebuggerStartParameters sp;
-    sp.executable = spec.section('@', 0, 0);
-    sp.remoteChannel = spec.section('@', 1, 1);
+    sp.remoteChannel = spec.section('@', 0, 0);
+    sp.executable = spec.section('@', 1, 1);
     sp.remoteArchitecture = spec.section('@', 2, 2);
     sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
     sp.startMode = AttachToRemote;
@@ -1754,28 +1764,14 @@ void DebuggerPluginPrivate::attachRemoteTcf()
         startDebugger(rc);
 }
 
-bool DebuggerPluginPrivate::attachCmdLine()
+void DebuggerPluginPrivate::runScheduled()
 {
-    if (m_attachRemoteParameters.attachPid) {
-        showStatusMessage(tr("Attaching to PID %1.")
-            .arg(m_attachRemoteParameters.attachPid));
-        const QString crashParameter = m_attachRemoteParameters.winCrashEvent
-            ? QString::number(m_attachRemoteParameters.winCrashEvent) : QString();
-        attachExternalApplication(m_attachRemoteParameters.attachPid,
-            QString(), crashParameter);
-        return true;
+    foreach (const DebuggerStartParameters &sp, m_scheduledStarts) {
+        RunControl *rc = createDebugger(sp);
+        QTC_ASSERT(rc, qDebug() << "CANNOT CREATE RUN CONTROL"; continue);
+        showStatusMessage(sp.startMessage);
+        startDebugger(rc);
     }
-    const QString target = m_attachRemoteParameters.attachTarget;
-    if (target.isEmpty())
-        return false;
-    if (target.indexOf(':') > 0) {
-        showStatusMessage(tr("Attaching to remote server %1.").arg(target));
-        attachRemote(target);
-    } else {
-        showStatusMessage(tr("Attaching to core %1.").arg(target));
-        attachCore(target, QString());
-    }
-    return true;
 }
 
 void DebuggerPluginPrivate::editorOpened(IEditor *editor)
@@ -2561,16 +2557,11 @@ void DebuggerPluginPrivate::remoteCommand(const QStringList &options,
     unsigned enabledEngines = 0;
     QString errorMessage;
 
-    if (!parseArguments(options,
-            &m_attachRemoteParameters, &enabledEngines, &errorMessage)) {
+    if (!parseArguments(options, &enabledEngines, &errorMessage)) {
         qWarning("%s", qPrintable(errorMessage));
         return;
     }
-
-    if (!attachCmdLine())
-        qWarning("%s", qPrintable(
-            _("Incomplete remote attach command received: %1").
-               arg(options.join(QString(QLatin1Char(' '))))));
+    runScheduled();
 }
 
 QString DebuggerPluginPrivate::gdbBinaryForToolChain(int toolChain) const
@@ -3143,14 +3134,9 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_watchersWindow->setVisible(false);
     m_returnWindow->setVisible(false);
 
-    // time gdb -i mi -ex 'debuggerplugin.cpp:800' -ex r -ex q bin/qtcreator.bin
-    const QByteArray env = qgetenv("QTC_DEBUGGER_TEST");
-    //qDebug() << "EXTENSIONS INITIALIZED:" << env;
-    // if (!env.isEmpty())
-    //    m_plugin->runTest(QString::fromLocal8Bit(env));
-    if (m_attachRemoteParameters.attachPid
-            || !m_attachRemoteParameters.attachTarget.isEmpty())
-        QTimer::singleShot(0, this, SLOT(attachCmdLine()));
+    // time gdb -i mi -ex 'b debuggerplugin.cpp:800' -ex r -ex q bin/qtcreator.bin
+    if (!m_scheduledStarts.isEmpty())
+        QTimer::singleShot(0, this, SLOT(runScheduled()));
 }
 
 Utils::SavedAction *DebuggerPluginPrivate::action(int code) const
@@ -3255,7 +3241,6 @@ void DebuggerPlugin::remoteCommand(const QStringList &options,
     theDebuggerCore->remoteCommand(options, list);
 }
 
-
 DebuggerRunControl *DebuggerPlugin::createDebugger
     (const DebuggerStartParameters &sp, RunConfiguration *rc)
 {
@@ -3291,23 +3276,6 @@ QWidget *DebugMode::widget()
     }
     return m_widget;
 }
-
-//////////////////////////////////////////////////////////////////////
-//
-// Testing
-//
-//////////////////////////////////////////////////////////////////////
-
-/*
-void DebuggerPlugin::runTest(const QString &fileName)
-{
-    DebuggerStartParameters sp;
-    sp.executable = fileName;
-    sp.processArgs = QStringList() << "--run-debuggee";
-    sp.workingDirectory.clear();
-    startDebugger(m_debuggerRunControlFactory->create(sp));
-}
-*/
 
 } // namespace Debugger
 

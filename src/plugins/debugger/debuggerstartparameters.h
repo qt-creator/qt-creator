@@ -79,7 +79,8 @@ public:
     {}
 
     QString executable;
-    QString displayName;
+    QString displayName; // Used in the Snapshots view.
+    QString startMessage; // First status message shown.
     QString coreFile;
     bool isSnapshot; // Set if created internally.
     QString processArgs;

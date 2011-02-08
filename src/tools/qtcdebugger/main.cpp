@@ -276,8 +276,8 @@ bool startCreatorAsDebugger(bool asClient, QString *errorMessage)
     // Send to running Creator: Unstable with directly linked CDB engine.
     if (asClient)
         args << QLatin1String("-client");
-    args << QLatin1String("-debug") << QString::number(argProcessId)
-            << QLatin1String("-wincrashevent") << QString::number(argWinCrashEvent);
+    args << QLatin1String("-wincrashevent")
+        << QString::fromLatin1("%1:%2").arg(argWinCrashEvent).arg(argProcessId);
     if (debug)
         qDebug() << binary << args;
     QProcess p;
