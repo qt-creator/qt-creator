@@ -783,16 +783,6 @@ void CdbEngine::shutdownInferior()
         notifyInferiorShutdownOk();
         return;
     }
-    if (!canInterruptInferior() || commandsPending()) {
-        QString msg = QLatin1String("Cannot interrupt the inferior");
-        if (commandsPending())
-            msg += QLatin1String(" (pending)");
-        msg += QLatin1Char('.');
-        showMessage(msg, LogWarning);
-        STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFailed")
-        notifyInferiorShutdownFailed();
-        return;
-    }
 
     if (m_accessible) {
         if (m_effectiveStartMode == AttachExternal || m_effectiveStartMode == AttachCrashedExternal)
@@ -800,6 +790,19 @@ void CdbEngine::shutdownInferior()
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownOk")
         notifyInferiorShutdownOk();
     } else {
+        // A command got stuck.
+        if (commandsPending()) {
+            showMessage(QLatin1String("Cannot shut down inferior due to pending commands."), LogWarning);
+            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFailed")
+            notifyInferiorShutdownFailed();
+            return;
+        }
+        if (!canInterruptInferior()) {
+            showMessage(QLatin1String("Cannot interrupt the inferior."), LogWarning);
+            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFailed")
+            notifyInferiorShutdownFailed();
+            return;
+        }
         interruptInferior(); // Calls us again
     }
 }
@@ -1637,7 +1640,8 @@ enum StopActionFlags
     StopNotifyStop = 0x10,
     StopIgnoreContinue = 0x20,
     // Hit on break in artificial stop thread (created by DebugBreak()).
-    StopInArtificialThread = 0x40
+    StopInArtificialThread = 0x40,
+    StopShutdownInProgress = 0x80 // Shutdown in progress
 };
 
 unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
@@ -1645,18 +1649,23 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
                                       QString *exceptionBoxMessage)
 {
     // Report stop reason (GDBMI)
+    unsigned rc  = 0;
+    if (targetState() == DebuggerFinished)
+        rc |= StopShutdownInProgress;
     if (debug)
         qDebug("%s", stopReason.toString(true, 4).constData());
     const QByteArray reason = stopReason.findChild("reason").data();
     if (reason.isEmpty()) {
         *message = tr("Malformed stop response received.");
-        return StopReportParseError|StopNotifyStop;
+        rc |= StopReportParseError|StopNotifyStop;
+        return rc;
     }
     // Additional stop messages occurring for debuggee function calls (widgetAt, etc). Just log.
     if (state() == InferiorStopOk) {
         *message = QString::fromLatin1("Ignored stop notification from function call (%1).").
                     arg(QString::fromAscii(reason));
-        return StopReportLog;
+        rc |= StopReportLog;
+        return rc;
     }
     const int threadId = stopReason.findChild("threadId").data().toInt();
     if (reason == "breakpoint") {
@@ -1674,7 +1683,8 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
         } else {
             *message = msgBreakpointTriggered(id, number, QString::number(threadId));
         }
-        return StopReportStatusMessage|StopNotifyStop;
+        rc |= StopReportStatusMessage|StopNotifyStop;
+        return rc;
     }
     if (reason == "exception") {
         WinException exception;
@@ -1690,19 +1700,21 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
         if (exception.exceptionCode == winExceptionWX86Breakpoint) {
             if (m_wX86BreakpointCount++) {
                 *message = tr("Interrupted (%1)").arg(description);
-                return StopReportStatusMessage|StopNotifyStop;
+                rc |= StopReportStatusMessage|StopNotifyStop;
             } else {
                 *message = description;
-                return StopIgnoreContinue|StopReportLog;
+                rc |= StopIgnoreContinue|StopReportLog;
             }
+            return rc;
         }
         if (exception.exceptionCode == winExceptionCtrlPressed) {
             // Detect interruption by pressing Ctrl in a console and force a switch to thread 0.
             *message = msgInterrupted();
-            return StopReportStatusMessage|StopNotifyStop|StopInArtificialThread;
+            rc |= StopReportStatusMessage|StopNotifyStop|StopInArtificialThread;
+            return rc;
         }
         if (isDebuggerWinException(exception.exceptionCode)) {
-            unsigned rc = StopReportStatusMessage|StopNotifyStop;
+            rc |= StopReportStatusMessage|StopNotifyStop;
             // Detect interruption by DebugBreak() and force a switch to thread 0.
             if (exception.function == "ntdll!DbgBreakPoint")
                 rc |= StopInArtificialThread;
@@ -1712,10 +1724,12 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
 #endif
         *exceptionBoxMessage = msgStoppedByException(description, QString::number(threadId));
         *message = description;
-        return StopShowExceptionMessageBox|StopReportStatusMessage|StopNotifyStop;
+        rc |= StopShowExceptionMessageBox|StopReportStatusMessage|StopNotifyStop;
+        return rc;
     }
     *message = msgStopped(QLatin1String(reason));
-    return StopReportStatusMessage|StopNotifyStop;
+    rc |= StopReportStatusMessage|StopNotifyStop;
+    return rc;
 }
 
 void CdbEngine::handleSessionIdle(const QByteArray &messageBA)
@@ -1782,6 +1796,11 @@ void CdbEngine::handleSessionIdle(const QByteArray &messageBA)
         } else {
             STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorSpontaneousStop")
             notifyInferiorSpontaneousStop();
+        }
+        // Prevent further commands from being sent if shutdown is in progress
+        if (stopFlags & StopShutdownInProgress) {
+            showMessage(QString::fromLatin1("Shutdown request detected..."));
+            return;
         }
         const bool sourceStepInto = m_sourceStepInto;
         m_sourceStepInto = false;
