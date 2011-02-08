@@ -72,6 +72,19 @@ QmlGraphicsItemNodeInstance::~QmlGraphicsItemNodeInstance()
 {
 }
 
+bool anyItemHasContent(QGraphicsItem *graphicsItem)
+{
+    if (!graphicsItem->flags().testFlag(QGraphicsItem::ItemHasNoContents))
+        return true;
+
+    foreach (QGraphicsItem *childItem, graphicsItem->childItems()) {
+        if (anyItemHasContent(childItem))
+            return true;
+    }
+
+    return false;
+}
+
 QmlGraphicsItemNodeInstance::Pointer QmlGraphicsItemNodeInstance::create(QObject *object)
 {
     QDeclarativeItem *qmlGraphicsItem = dynamic_cast<QDeclarativeItem*>(object);
@@ -81,7 +94,7 @@ QmlGraphicsItemNodeInstance::Pointer QmlGraphicsItemNodeInstance::create(QObject
 
     Pointer instance(new QmlGraphicsItemNodeInstance(qmlGraphicsItem));
 
-    instance->setHasContent(!qmlGraphicsItem->flags().testFlag(QGraphicsItem::ItemHasNoContents));
+    instance->setHasContent(anyItemHasContent(qmlGraphicsItem));
     qmlGraphicsItem->setFlag(QGraphicsItem::ItemHasNoContents, false);
 
     if (qmlGraphicsItem->inherits("QDeclarativeText"))
