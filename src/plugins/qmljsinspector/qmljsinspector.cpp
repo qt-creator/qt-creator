@@ -124,7 +124,7 @@ QmlJS::ModelManagerInterface *modelManager()
 InspectorUi::InspectorUi(QObject *parent)
     : QObject(parent)
     , m_listeningToEditorManager(false)
-    , m_toolbar(0)
+    , m_toolBar(0)
     , m_crumblePath(0)
     , m_propertyInspector(0)
     , m_settings(new InspectorSettings(this))
@@ -135,7 +135,7 @@ InspectorUi::InspectorUi(QObject *parent)
     , m_selectionCallbackExpected(false)
 {
     m_instance = this;
-    m_toolbar = new QmlInspectorToolbar(this);
+    m_toolBar = new QmlInspectorToolBar(this);
 }
 
 InspectorUi::~InspectorUi()
@@ -161,16 +161,14 @@ void InspectorUi::restoreSettings()
 void InspectorUi::setDebuggerEngine(QObject *qmlEngine)
 {
     if (m_qmlEngine && !qmlEngine) {
-        disconnect(m_qmlEngine,
-            SIGNAL(tooltipRequested(QPoint,TextEditor::ITextEditor*,int)),
-            this, SLOT(showDebuggerTooltip(QPoint,TextEditor::ITextEditor*,int)));
+        disconnect(m_qmlEngine, SIGNAL(tooltipRequested(QPoint,TextEditor::ITextEditor*,int)),
+                   this, SLOT(showDebuggerTooltip(QPoint,TextEditor::ITextEditor*,int)));
     }
 
     m_qmlEngine = qmlEngine;
     if (m_qmlEngine) {
-        connect(m_qmlEngine,
-            SIGNAL(tooltipRequested(QPoint,TextEditor::ITextEditor*,int)),
-            this, SLOT(showDebuggerTooltip(QPoint,TextEditor::ITextEditor*,int)));
+        connect(m_qmlEngine, SIGNAL(tooltipRequested(QPoint,TextEditor::ITextEditor*,int)),
+                this, SLOT(showDebuggerTooltip(QPoint,TextEditor::ITextEditor*,int)));
     }
 }
 
@@ -288,17 +286,6 @@ void InspectorUi::connected(ClientProxy *clientProxy)
         it.value()->resetInitialDoc(doc);
     }
 
-    connect(m_clientProxy, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
-            SLOT(selectItems(QList<QDeclarativeDebugObjectReference>)));
-
-    connect(m_clientProxy, SIGNAL(enginesChanged()), SLOT(updateEngineList()));
-    connect(m_clientProxy, SIGNAL(serverReloaded()), this, SLOT(serverReloaded()));
-    connect(m_clientProxy, SIGNAL(propertyChanged(int, QByteArray,QVariant)),
-            m_propertyInspector, SLOT(propertyValueChanged(int, QByteArray,QVariant)));
-    connect(m_propertyInspector, SIGNAL(changePropertyValue(int,QString,QString)),
-            this, SLOT(changePropertyValue(int,QString,QString)));
-    connect(m_clientProxy,SIGNAL(objectTreeUpdated()),this,SLOT(objectTreeReady()));
-
     m_debugProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
     if (m_debugProject->activeTarget()
             && m_debugProject->activeTarget()->activeBuildConfiguration())
@@ -311,7 +298,8 @@ void InspectorUi::connected(ClientProxy *clientProxy)
     connect(m_debugProject, SIGNAL(destroyed()), SLOT(currentDebugProjectRemoved()));
     m_projectFinder.setProjectDirectory(m_debugProject->projectDirectory());
 
-    setupToolbar(true);
+    connectSignals();
+    enable();
     resetViews();
 
     initializeDocuments();
@@ -322,35 +310,17 @@ void InspectorUi::connected(ClientProxy *clientProxy)
         iter.value()->setClientProxy(m_clientProxy);
         iter.value()->updateDebugIds();
     }
-
-
-}
-
-void InspectorUi::objectTreeReady()
-{
-    // Should only run once, after debugger startup
-    if (!m_clientProxy->rootObjectReference().isEmpty()) {
-        selectItems(m_clientProxy->rootObjectReference());
-        disconnect(m_clientProxy,SIGNAL(objectTreeUpdated()),this,SLOT(objectTreeReady()));
-    }
 }
 
 void InspectorUi::disconnected()
 {
-    disconnect(m_clientProxy, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
-               this, SLOT(selectItems(QList<QDeclarativeDebugObjectReference>)));
-    disconnect(m_clientProxy, SIGNAL(enginesChanged()), this, SLOT(updateEngineList()));
-    disconnect(m_clientProxy, SIGNAL(serverReloaded()), this, SLOT(serverReloaded()));
-    disconnect(m_clientProxy, SIGNAL(propertyChanged(int, QByteArray,QVariant)),
-               m_propertyInspector, SLOT(propertyValueChanged(int, QByteArray,QVariant)));
-    disconnect(m_propertyInspector, SIGNAL(changePropertyValue(int,QString,QString)),
-               this, SLOT(changePropertyValue(int,QString,QString)));
+    disconnectSignals();
+    disable();
 
     m_debugProject = 0;
     m_qmlEngine = 0;
     resetViews();
 
-    setupToolbar(false);
     applyChangesToQmlObserverHelper(false);
 
     QHashIterator<QString, QmlJSLiveTextPreview *> iter(m_textPreviews);
@@ -361,6 +331,16 @@ void InspectorUi::disconnected()
     m_clientProxy = 0;
     m_propertyInspector->clear();
     m_pendingPreviewDocumentNames.clear();
+}
+
+void InspectorUi::objectTreeReady()
+{
+    // Should only run once, after debugger startup
+    if (!m_clientProxy->rootObjectReference().isEmpty()) {
+        selectItems(m_clientProxy->rootObjectReference());
+        disconnect(m_clientProxy, SIGNAL(objectTreeUpdated()),
+                   this, SLOT(objectTreeReady()));
+    }
 }
 
 void InspectorUi::updateEngineList()
@@ -624,19 +604,19 @@ void InspectorUi::selectItems(const QList<int> &objectIds)
 void InspectorUi::changePropertyValue(int debugId,const QString &propertyName, const QString &valueExpression)
 {
     QString query = propertyName + '=' + valueExpression;
-    m_clientProxy->queryExpressionResult(debugId,query, this);
+    m_clientProxy->queryExpressionResult(debugId, query, this);
 }
 
 void InspectorUi::enable()
 {
-    m_toolbar->enable();
+    m_toolBar->enable();
     m_crumblePath->setEnabled(true);
     m_propertyInspector->setEnabled(true);
 }
 
 void InspectorUi::disable()
 {
-    m_toolbar->disable();
+    m_toolBar->disable();
     m_crumblePath->setEnabled(false);
     m_propertyInspector->setEnabled(false);
 }
@@ -711,8 +691,8 @@ bool InspectorUi::addQuotesForData(const QVariant &value) const
 
 void InspectorUi::setupDockWidgets()
 {
-    m_toolbar->createActions(Core::Context(Debugger::Constants::C_QMLDEBUGGER));
-    m_toolbar->setObjectName("QmlInspectorToolbar");
+    m_toolBar->createActions(Core::Context(Debugger::Constants::C_QMLDEBUGGER));
+    m_toolBar->setObjectName("QmlInspectorToolbar");
 
     m_crumblePath = new ContextCrumblePath;
     m_crumblePath->setObjectName("QmlContextPath");
@@ -729,7 +709,7 @@ void InspectorUi::setupDockWidgets()
     wlay->setMargin(0);
     wlay->setSpacing(0);
     observerWidget->setLayout(wlay);
-    wlay->addWidget(m_toolbar->widget());
+    wlay->addWidget(m_toolBar->widget());
     wlay->addWidget(m_propertyInspector);
     wlay->addWidget(m_crumblePath);
 
@@ -814,9 +794,8 @@ void InspectorUi::updatePendingPreviewDocuments(QmlJS::Document::Ptr doc)
     QmlJSLiveTextPreview *preview = createPreviewForEditor(editors.first());
     editors.removeFirst();
 
-    foreach (Core::IEditor *editor, editors) {
+    foreach (Core::IEditor *editor, editors)
         preview->associateEditor(editor);
-    }
 }
 
 void InspectorUi::disableLivePreview()
@@ -824,87 +803,73 @@ void InspectorUi::disableLivePreview()
     setApplyChangesToQmlObserver(false);
 }
 
-void InspectorUi::setupToolbar(bool doConnect)
+void InspectorUi::connectSignals()
 {
-    if (doConnect) {
-        connect(m_clientProxy, SIGNAL(connected()),
-                this, SLOT(enable()));
-        connect(m_clientProxy, SIGNAL(disconnected()),
-                this, SLOT(disable()));
+    connect(m_propertyInspector, SIGNAL(changePropertyValue(int,QString,QString)),
+            this, SLOT(changePropertyValue(int,QString,QString)));
 
-        connect(m_toolbar, SIGNAL(designModeSelected(bool)),
-                m_clientProxy, SLOT(setDesignModeBehavior(bool)));
-        connect(m_toolbar, SIGNAL(reloadSelected()),
-                m_clientProxy, SLOT(reloadQmlViewer()));
-        connect(m_toolbar, SIGNAL(animationSpeedChanged(qreal)),
-                m_clientProxy, SLOT(setAnimationSpeed(qreal)));
-        connect(m_toolbar, SIGNAL(colorPickerSelected()),
-                m_clientProxy, SLOT(changeToColorPickerTool()));
-        connect(m_toolbar, SIGNAL(zoomToolSelected()),
-                m_clientProxy, SLOT(changeToZoomTool()));
-        connect(m_toolbar, SIGNAL(selectToolSelected()),
-                m_clientProxy, SLOT(changeToSelectTool()));
-        connect(m_toolbar, SIGNAL(applyChangesFromQmlFileTriggered(bool)),
-                this, SLOT(setApplyChangesToQmlObserver(bool)));
-        connect(m_toolbar, SIGNAL(showAppOnTopSelected(bool)),
-                m_clientProxy, SLOT(showAppOnTop(bool)));
-        connect(m_toolbar, SIGNAL(filterTextChanged(QString)),
-                m_propertyInspector,SLOT(filterBy(QString)));
-        connect(m_clientProxy, SIGNAL(colorPickerActivated()),
-                m_toolbar, SLOT(activateColorPicker()));
-        connect(m_clientProxy, SIGNAL(selectToolActivated()),
-                m_toolbar, SLOT(activateSelectTool()));
-        connect(m_clientProxy, SIGNAL(zoomToolActivated()),
-                m_toolbar, SLOT(activateZoomTool()));
-        connect(m_clientProxy, SIGNAL(designModeBehaviorChanged(bool)),
-                m_toolbar, SLOT(setDesignModeBehavior(bool)));
-        connect(m_clientProxy, SIGNAL(showAppOnTopChanged(bool)),
-                m_toolbar, SLOT(setShowAppOnTop(bool)));
-        connect(m_clientProxy, SIGNAL(selectedColorChanged(QColor)),
-                m_toolbar, SLOT(setSelectedColor(QColor)));
+    connect(m_clientProxy, SIGNAL(propertyChanged(int,QByteArray,QVariant)),
+            m_propertyInspector, SLOT(propertyValueChanged(int,QByteArray,QVariant)));
 
-        connect(m_clientProxy, SIGNAL(animationSpeedChanged(qreal)),
-                m_toolbar, SLOT(setAnimationSpeed(qreal)));
+    connect(m_clientProxy, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
+            this, SLOT(selectItems(QList<QDeclarativeDebugObjectReference>)));
+    connect(m_clientProxy, SIGNAL(enginesChanged()),
+            this, SLOT(updateEngineList()));
+    connect(m_clientProxy, SIGNAL(serverReloaded()),
+            this, SLOT(serverReloaded()));
+    connect(m_clientProxy, SIGNAL(objectTreeUpdated()),
+            this, SLOT(objectTreeReady()));
+    connect(m_clientProxy, SIGNAL(connected()),
+            this, SLOT(enable()));
+    connect(m_clientProxy, SIGNAL(disconnected()),
+            this, SLOT(disable()));
 
-        enable();
-    } else {
-        disconnect(m_clientProxy, SIGNAL(connected()), this, SLOT(enable()));
-        disconnect(m_clientProxy, SIGNAL(disconnected()), this, SLOT(disable()));
+    connect(m_clientProxy, SIGNAL(colorPickerActivated()),
+            m_toolBar, SLOT(activateColorPicker()));
+    connect(m_clientProxy, SIGNAL(selectToolActivated()),
+            m_toolBar, SLOT(activateSelectTool()));
+    connect(m_clientProxy, SIGNAL(zoomToolActivated()),
+            m_toolBar, SLOT(activateZoomTool()));
+    connect(m_clientProxy, SIGNAL(designModeBehaviorChanged(bool)),
+            m_toolBar, SLOT(setDesignModeBehavior(bool)));
+    connect(m_clientProxy, SIGNAL(showAppOnTopChanged(bool)),
+            m_toolBar, SLOT(setShowAppOnTop(bool)));
+    connect(m_clientProxy, SIGNAL(selectedColorChanged(QColor)),
+            m_toolBar, SLOT(setSelectedColor(QColor)));
+    connect(m_clientProxy, SIGNAL(animationSpeedChanged(qreal)),
+            m_toolBar, SLOT(setAnimationSpeed(qreal)));
 
-        disconnect(m_toolbar, SIGNAL(designModeSelected(bool)),
-                   m_clientProxy, SLOT(setDesignModeBehavior(bool)));
-        disconnect(m_toolbar, SIGNAL(reloadSelected()),
-                   m_clientProxy, SLOT(reloadQmlViewer()));
-        disconnect(m_toolbar, SIGNAL(animationSpeedChanged(qreal)),
-                   m_clientProxy, SLOT(setAnimationSpeed(qreal)));
-        disconnect(m_toolbar, SIGNAL(colorPickerSelected()),
-                   m_clientProxy, SLOT(changeToColorPickerTool()));
-        disconnect(m_toolbar, SIGNAL(zoomToolSelected()),
-                   m_clientProxy, SLOT(changeToZoomTool()));
-        disconnect(m_toolbar, SIGNAL(selectToolSelected()),
-                   m_clientProxy, SLOT(changeToSelectTool()));
-        disconnect(m_toolbar, SIGNAL(applyChangesFromQmlFileTriggered(bool)),
-                   this, SLOT(setApplyChangesToQmlObserver(bool)));
-        disconnect(m_toolbar, SIGNAL(showAppOnTopSelected(bool)),
-                   m_clientProxy, SLOT(showAppOnTop(bool)));
-        disconnect(m_toolbar, SIGNAL(filterTextChanged(QString)),
-                   m_propertyInspector,SLOT(filterBy(QString)));
-        disconnect(m_clientProxy, SIGNAL(colorPickerActivated()),
-                   m_toolbar, SLOT(activateColorPicker()));
-        disconnect(m_clientProxy, SIGNAL(selectToolActivated()),
-                   m_toolbar, SLOT(activateSelectTool()));
-        disconnect(m_clientProxy, SIGNAL(zoomToolActivated()),
-                   m_toolbar, SLOT(activateZoomTool()));
-        disconnect(m_clientProxy, SIGNAL(designModeBehaviorChanged(bool)),
-                   m_toolbar, SLOT(setDesignModeBehavior(bool)));
-        disconnect(m_clientProxy, SIGNAL(showAppOnTopChanged(bool)),
-                   m_toolbar, SLOT(setShowAppOnTop(bool)));
-        disconnect(m_clientProxy, SIGNAL(selectedColorChanged(QColor)),
-                   m_toolbar, SLOT(setSelectedColor(QColor)));
+    connect(m_toolBar, SIGNAL(applyChangesFromQmlFileTriggered(bool)),
+            this, SLOT(setApplyChangesToQmlObserver(bool)));
 
-        disconnect(m_clientProxy, SIGNAL(animationSpeedChanged(qreal)),
-                   m_toolbar, SLOT(setAnimationSpeed(qreal)));
+    connect(m_toolBar, SIGNAL(designModeSelected(bool)),
+            m_clientProxy, SLOT(setDesignModeBehavior(bool)));
+    connect(m_toolBar, SIGNAL(reloadSelected()),
+            m_clientProxy, SLOT(reloadQmlViewer()));
+    connect(m_toolBar, SIGNAL(animationSpeedChanged(qreal)),
+            m_clientProxy, SLOT(setAnimationSpeed(qreal)));
+    connect(m_toolBar, SIGNAL(colorPickerSelected()),
+            m_clientProxy, SLOT(changeToColorPickerTool()));
+    connect(m_toolBar, SIGNAL(zoomToolSelected()),
+            m_clientProxy, SLOT(changeToZoomTool()));
+    connect(m_toolBar, SIGNAL(selectToolSelected()),
+            m_clientProxy, SLOT(changeToSelectTool()));
+    connect(m_toolBar, SIGNAL(showAppOnTopSelected(bool)),
+            m_clientProxy, SLOT(showAppOnTop(bool)));
 
-        disable();
-    }
+    connect(m_toolBar, SIGNAL(filterTextChanged(QString)),
+            m_propertyInspector, SLOT(filterBy(QString)));
+}
+
+void InspectorUi::disconnectSignals()
+{
+    m_propertyInspector->disconnect(this);
+
+    m_clientProxy->disconnect(m_propertyInspector);
+    m_clientProxy->disconnect(this);
+    m_clientProxy->disconnect(m_toolBar);
+
+    m_toolBar->disconnect(this);
+    m_toolBar->disconnect(m_clientProxy);
+    m_toolBar->disconnect(m_propertyInspector);
 }

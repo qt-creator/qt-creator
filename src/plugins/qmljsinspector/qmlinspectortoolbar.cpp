@@ -61,7 +61,7 @@ static QToolButton *createToolButton(QAction *action)
     return button;
 }
 
-QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
+QmlInspectorToolBar::QmlInspectorToolBar(QObject *parent) :
     QObject(parent),
     m_fromQmlAction(0),
     m_observerModeAction(0),
@@ -89,7 +89,7 @@ QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
 {
 }
 
-void QmlInspectorToolbar::setEnabled(bool value)
+void QmlInspectorToolBar::setEnabled(bool value)
 {
     m_fromQmlAction->setEnabled(value);
     m_showAppOnTopAction->setEnabled(value);
@@ -102,7 +102,7 @@ void QmlInspectorToolbar::setEnabled(bool value)
     m_filterExp->setEnabled(value);
 }
 
-void QmlInspectorToolbar::enable()
+void QmlInspectorToolBar::enable()
 {
     setEnabled(true);
     m_emitSignals = false;
@@ -112,35 +112,35 @@ void QmlInspectorToolbar::enable()
     m_emitSignals = true;
 }
 
-void QmlInspectorToolbar::disable()
+void QmlInspectorToolBar::disable()
 {
     setAnimationSpeed(1.0f);
     activateSelectTool();
     setEnabled(false);
 }
 
-void QmlInspectorToolbar::activateColorPicker()
+void QmlInspectorToolBar::activateColorPicker()
 {
     m_emitSignals = false;
     activateColorPickerOnClick();
     m_emitSignals = true;
 }
 
-void QmlInspectorToolbar::activateSelectTool()
+void QmlInspectorToolBar::activateSelectTool()
 {
     m_emitSignals = false;
     activateSelectToolOnClick();
     m_emitSignals = true;
 }
 
-void QmlInspectorToolbar::activateZoomTool()
+void QmlInspectorToolBar::activateZoomTool()
 {
     m_emitSignals = false;
     activateZoomOnClick();
     m_emitSignals = true;
 }
 
-void QmlInspectorToolbar::setAnimationSpeed(qreal slowdownFactor)
+void QmlInspectorToolBar::setAnimationSpeed(qreal slowdownFactor)
 {
     m_emitSignals = false;
     if (slowdownFactor != 0) {
@@ -166,7 +166,7 @@ void QmlInspectorToolbar::setAnimationSpeed(qreal slowdownFactor)
     m_emitSignals = true;
 }
 
-void QmlInspectorToolbar::setDesignModeBehavior(bool inDesignMode)
+void QmlInspectorToolBar::setDesignModeBehavior(bool inDesignMode)
 {
     m_emitSignals = false;
     m_observerModeAction->setChecked(inDesignMode);
@@ -174,14 +174,14 @@ void QmlInspectorToolbar::setDesignModeBehavior(bool inDesignMode)
     m_emitSignals = true;
 }
 
-void QmlInspectorToolbar::setShowAppOnTop(bool showAppOnTop)
+void QmlInspectorToolBar::setShowAppOnTop(bool showAppOnTop)
 {
     m_emitSignals = false;
     m_showAppOnTopAction->setChecked(showAppOnTop);
     m_emitSignals = true;
 }
 
-void QmlInspectorToolbar::createActions(const Core::Context &context)
+void QmlInspectorToolBar::createActions(const Core::Context &context)
 {
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
@@ -316,42 +316,42 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     connect(m_filterExp, SIGNAL(textChanged(QString)), SIGNAL(filterTextChanged(QString)));
 }
 
-QWidget *QmlInspectorToolbar::widget() const
+QWidget *QmlInspectorToolBar::widget() const
 {
     return m_barWidget;
 }
 
-void QmlInspectorToolbar::changeToDefaultAnimSpeed()
+void QmlInspectorToolBar::changeToDefaultAnimSpeed()
 {
     m_animationSpeed = 1.0f;
     updatePlayAction();
 }
 
-void QmlInspectorToolbar::changeToHalfAnimSpeed()
+void QmlInspectorToolBar::changeToHalfAnimSpeed()
 {
     m_animationSpeed = 2.0f;
     updatePlayAction();
 }
 
-void QmlInspectorToolbar::changeToFourthAnimSpeed()
+void QmlInspectorToolBar::changeToFourthAnimSpeed()
 {
     m_animationSpeed = 4.0f;
     updatePlayAction();
 }
 
-void QmlInspectorToolbar::changeToEighthAnimSpeed()
+void QmlInspectorToolBar::changeToEighthAnimSpeed()
 {
     m_animationSpeed = 8.0f;
     updatePlayAction();
 }
 
-void QmlInspectorToolbar::changeToTenthAnimSpeed()
+void QmlInspectorToolBar::changeToTenthAnimSpeed()
 {
     m_animationSpeed = 10.0f;
     updatePlayAction();
 }
 
-void QmlInspectorToolbar::activateDesignModeOnClick()
+void QmlInspectorToolBar::activateDesignModeOnClick()
 {
     bool checked = m_observerModeAction->isChecked();
 
@@ -364,7 +364,7 @@ void QmlInspectorToolbar::activateDesignModeOnClick()
         emit designModeSelected(checked);
 }
 
-void QmlInspectorToolbar::activatePlayOnClick()
+void QmlInspectorToolBar::activatePlayOnClick()
 {
     if (m_isRunning) {
         updatePauseAction();
@@ -373,7 +373,7 @@ void QmlInspectorToolbar::activatePlayOnClick()
     }
 }
 
-void QmlInspectorToolbar::updatePlayAction()
+void QmlInspectorToolBar::updatePlayAction()
 {
     m_isRunning = true;
     m_playAction->setIcon(m_pauseIcon);
@@ -386,7 +386,7 @@ void QmlInspectorToolbar::updatePlayAction()
     m_playButton->setDefaultAction(m_playAction);
 }
 
-void QmlInspectorToolbar::updatePauseAction()
+void QmlInspectorToolBar::updatePauseAction()
 {
     m_isRunning = false;
     m_playAction->setIcon(m_playIcon);
@@ -396,7 +396,7 @@ void QmlInspectorToolbar::updatePauseAction()
     m_playButton->setDefaultAction(m_playAction);
 }
 
-void QmlInspectorToolbar::activateColorPickerOnClick()
+void QmlInspectorToolBar::activateColorPickerOnClick()
 {
     m_zoomAction->setChecked(false);
     m_selectAction->setChecked(false);
@@ -409,7 +409,7 @@ void QmlInspectorToolbar::activateColorPickerOnClick()
     }
 }
 
-void QmlInspectorToolbar::activateSelectToolOnClick()
+void QmlInspectorToolBar::activateSelectToolOnClick()
 {
     m_zoomAction->setChecked(false);
     m_colorPickerAction->setChecked(false);
@@ -422,7 +422,7 @@ void QmlInspectorToolbar::activateSelectToolOnClick()
     }
 }
 
-void QmlInspectorToolbar::activateZoomOnClick()
+void QmlInspectorToolBar::activateZoomOnClick()
 {
     m_selectAction->setChecked(false);
     m_colorPickerAction->setChecked(false);
@@ -435,18 +435,18 @@ void QmlInspectorToolbar::activateZoomOnClick()
     }
 }
 
-void QmlInspectorToolbar::showAppOnTopClick()
+void QmlInspectorToolBar::showAppOnTopClick()
 {
     if (m_emitSignals)
         emit showAppOnTopSelected(m_showAppOnTopAction->isChecked());
 }
 
-void QmlInspectorToolbar::setSelectedColor(const QColor &color)
+void QmlInspectorToolBar::setSelectedColor(const QColor &color)
 {
     m_colorBox->setColor(color);
 }
 
-void QmlInspectorToolbar::activateFromQml()
+void QmlInspectorToolBar::activateFromQml()
 {
     if (m_emitSignals)
         emit applyChangesFromQmlFileTriggered(m_fromQmlAction->isChecked());

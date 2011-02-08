@@ -80,7 +80,7 @@ public:
     QDeclarativeDebugObjectReference objectReferenceForId(const QString &objectId) const;
     QDeclarativeDebugObjectReference objectReferenceForLocation(const int line, const int column) const;
     QList<QDeclarativeDebugObjectReference> rootObjectReference() const;
-    DebugIdHash debugIdHash() const { return m_debugIdHash; };
+    DebugIdHash debugIdHash() const { return m_debugIdHash; }
 
     bool isConnected() const;
 

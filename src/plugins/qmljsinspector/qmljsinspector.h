@@ -66,7 +66,7 @@ namespace QmlJS {
 namespace QmlJSInspector {
 namespace Internal {
 
-class QmlInspectorToolbar;
+class QmlInspectorToolBar;
 class QmlJSPropertyInspector;
 class ClientProxy;
 class InspectorSettings;
@@ -83,7 +83,7 @@ public:
         CppProjectWithQmlEngines,
         QmlProjectWithCppPlugins
     };
-public:
+
     InspectorUi(QObject *parent = 0);
     virtual ~InspectorUi();
 
@@ -128,7 +128,6 @@ private slots:
 
     void updateEngineList();
 
-
     void removePreviewForEditor(Core::IEditor *newEditor);
     QmlJSLiveTextPreview *createPreviewForEditor(Core::IEditor *newEditor);
 
@@ -146,16 +145,18 @@ private:
 
     void initializeDocuments();
     void applyChangesToQmlObserverHelper(bool applyChanges);
-    void setupToolbar(bool doConnect);
     void setupDockWidgets();
     QString filenameForShadowBuildFile(const QString &filename) const;
     void populateCrumblePath(const QDeclarativeDebugObjectReference &objRef);
     bool isRoot(const QDeclarativeDebugObjectReference &obj) const;
     QDeclarativeDebugObjectReference objectReferenceForLocation(const QString &fileName, int cursorPosition=-1) const;
 
+    void connectSignals();
+    void disconnectSignals();
+
 private:
     bool m_listeningToEditorManager;
-    QmlInspectorToolbar *m_toolbar;
+    QmlInspectorToolBar *m_toolBar;
     ContextCrumblePath *m_crumblePath;
     QmlJSPropertyInspector *m_propertyInspector;
 

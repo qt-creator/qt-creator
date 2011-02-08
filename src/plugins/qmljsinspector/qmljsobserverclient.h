@@ -98,8 +98,8 @@ signals:
     void logActivity(QString client, QString message);
 
 protected:
-    virtual void statusChanged(Status);
-    virtual void messageReceived(const QByteArray &);
+    void statusChanged(Status);
+    void messageReceived(const QByteArray &);
 
 private:
     enum LogDirection {

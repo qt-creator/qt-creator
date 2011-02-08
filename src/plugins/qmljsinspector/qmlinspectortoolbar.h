@@ -57,7 +57,7 @@ class ToolBarColorBox;
 
 namespace Internal {
 
-class QmlInspectorToolbar : public QObject
+class QmlInspectorToolBar : public QObject
 {
     Q_OBJECT
 public:
@@ -71,7 +71,7 @@ public:
         ZoomMode = 6
     };
 
-    explicit QmlInspectorToolbar(QObject *parent = 0);
+    explicit QmlInspectorToolBar(QObject *parent = 0);
     void createActions(const Core::Context &context);
     QWidget *widget() const;
 
