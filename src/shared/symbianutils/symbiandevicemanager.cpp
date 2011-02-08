@@ -36,6 +36,8 @@
 #include "codadevice.h"
 #include "virtualserialdevice.h"
 
+#include <QtCore/QCoreApplication>
+#include <QtCore/QEvent>
 #include <QtCore/QSettings>
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
