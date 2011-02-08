@@ -1023,7 +1023,7 @@ void CodaGdbAdapter::startAdapter()
         setupTrkDeviceSignals();
         codaSocket = QSharedPointer<QTcpSocket>(new QTcpSocket);
         m_codaDevice->setDevice(codaSocket);
-        m_trkIODevice = codaSocket;
+        m_codaSocketIODevice = codaSocket;
     } else {
         m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getTcfPort(parameters.remoteChannel);
         bool ok = m_codaDevice && m_codaDevice->device()->isOpen();
@@ -1190,21 +1190,22 @@ void CodaGdbAdapter::cleanup()
 {
     delete m_gdbServer;
     m_gdbServer = 0;
-    if (!m_trkIODevice.isNull()) {
-        QAbstractSocket *socket = qobject_cast<QAbstractSocket *>(m_trkIODevice.data());
+    if (!m_codaSocketIODevice.isNull()) {
+        QAbstractSocket *socket = qobject_cast<QAbstractSocket *>(m_codaSocketIODevice.data());
         const bool isOpen = socket
             ? socket->state() == QAbstractSocket::ConnectedState
-            : m_trkIODevice->isOpen();
+            : m_codaSocketIODevice->isOpen();
         if (isOpen) {
             sendRunControlTerminateCommand(); //ensure process is stopped after being suspended
             if (socket) {
                 socket->disconnect();
             } else {
-                m_trkIODevice->close();
+                m_codaSocketIODevice->close();
             }
         }
     } //!m_trkIODevice.isNull()
     if (m_codaDevice) {
+        sendRunControlTerminateCommand(); //ensure process is stopped after being suspended
         disconnect(m_codaDevice.data(), 0, this, 0);
         SymbianUtils::SymbianDeviceManager::instance()->releaseTcfPort(m_codaDevice);
     }

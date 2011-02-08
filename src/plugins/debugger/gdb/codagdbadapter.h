@@ -147,7 +147,7 @@ private:
     int m_stopReason;
 
     QSharedPointer<Coda::CodaDevice> m_codaDevice;
-    QSharedPointer<QIODevice> m_trkIODevice;
+    QSharedPointer<QIODevice> m_codaSocketIODevice;
 
     //
     // Gdb
