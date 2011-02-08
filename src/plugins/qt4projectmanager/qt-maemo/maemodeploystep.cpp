@@ -613,8 +613,10 @@ void MaemoDeployStep::installToSysroot()
         const QtVersion * const qtVersion = bc->qtVersion();
         const QString command = QLatin1String(
             packagingStep()->debBasedMaemoTarget() ? "xdpkg" : "xrpm");
-        const QStringList args = QStringList() << command
-            << QLatin1String("-i") << packagingStep()->packageFilePath();
+        QStringList args = QStringList() << command << QLatin1String("-i");
+        if (packagingStep()->debBasedMaemoTarget())
+            args << QLatin1String("--no-force-downgrade");
+        args << packagingStep()->packageFilePath();
         MaemoGlobal::callMadAdmin(*m_sysrootInstaller, args, qtVersion, true);
         if (!m_sysrootInstaller->waitForStarted()) {
             writeOutput(tr("Installation to sysroot failed, continuing anyway."),
