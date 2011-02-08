@@ -375,6 +375,8 @@ void QmlCppEngine::executeDebuggerCommand(const QString &command)
 void QmlCppEngine::setupEngine()
 {
     EDEBUG("\nMASTER SETUP ENGINE");
+    d->m_activeEngine = d->m_cppEngine;
+    d->m_stackBoundary = 0;
     d->m_qmlEngine->setupSlaveEngine();
     d->m_cppEngine->setupSlaveEngine();
 }

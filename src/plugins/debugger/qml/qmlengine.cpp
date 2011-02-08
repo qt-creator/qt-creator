@@ -346,6 +346,7 @@ void QmlEngine::shutdownEngine()
 
 void QmlEngine::setupEngine()
 {
+    d->m_ping = 0;
     d->m_adapter.setMaxConnectionAttempts(MaxConnectionAttempts);
     d->m_adapter.setConnectionAttemptInterval(ConnectionAttemptDefaultInterval);
     connect(&d->m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
