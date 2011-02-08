@@ -1,0 +1,55 @@
+import QtQuick.tooling 1.0
+
+// This file describes the plugin-supplied types contained in the library.
+// It is used for QML tooling purposes only.
+
+Module {
+    Component {
+        name: "QDeclarativeService"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.serviceframework/Service 1.1"
+        ]
+        Property { name: "interfaceName"; type: "string" }
+        Property { name: "serviceName"; type: "string"; isReadonly: true }
+        Property { name: "majorVersion"; type: "int"; isReadonly: true }
+        Property { name: "minorVersion"; type: "int"; isReadonly: true }
+        Property { name: "valid"; type: "bool"; isReadonly: true }
+        Property { name: "serviceObject"; type: "QObject"; isReadonly: true; isPointer: true }
+        Signal { name: "validChanged" }
+        Signal { name: "serviceObjectChanged" }
+        Signal { name: "interfaceNameChanged" }
+        Signal { name: "serviceNameChanged" }
+        Signal { name: "majorVersionChanged" }
+        Signal { name: "minorVersionChanged" }
+    }
+    Component {
+        name: "QDeclarativeServiceList"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.serviceframework/ServiceList 1.1"
+        ]
+        Enum {
+            name: "MatchRule"
+            values: {
+                "Minimum": 0,
+                "Exact": 1
+            }
+        }
+        Property { name: "serviceName"; type: "string" }
+        Property { name: "interfaceName"; type: "string" }
+        Property { name: "majorVersion"; type: "int" }
+        Property { name: "minorVersion"; type: "int" }
+        Property { name: "services"; type: "QDeclarativeService"; isList: true; isReadonly: true }
+        Property { name: "versionMatch"; type: "MatchRule" }
+        Signal {
+            name: "servicesChanged"
+            Parameter { type: "QDeclarativeService"; isList: true }
+        }
+        Signal { name: "serviceNameChanged" }
+        Signal { name: "interfaceNameChanged" }
+        Signal { name: "minorVersionChanged" }
+        Signal { name: "majorVersionChanged" }
+        Signal { name: "versionMatchChanged" }
+    }
+}

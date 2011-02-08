@@ -5,6 +5,9 @@
 
 #include <QtCore/QScopedPointer>
 
+// for Q_DECLARE_TR_FUNCTIONS
+#include <QtCore/QCoreApplication>
+
 QT_BEGIN_NAMESPACE
 class QIODevice;
 class QBuffer;
@@ -21,11 +24,13 @@ class SourceLocation;
 
 class TypeDescriptionReader
 {
+    Q_DECLARE_TR_FUNCTIONS(QmlJS::TypeDescriptionReader)
+
 public:
     explicit TypeDescriptionReader(const QString &data);
     ~TypeDescriptionReader();
 
-    bool operator()(QMap<QString, LanguageUtils::FakeMetaObject::Ptr> *objects);
+    bool operator()(QHash<QString, LanguageUtils::FakeMetaObject::Ptr> *objects);
     QString errorMessage() const;
 
 private:
@@ -45,7 +50,7 @@ private:
 
     QString _source;
     QString _errorMessage;
-    QMap<QString, LanguageUtils::FakeMetaObject::Ptr> *_objects;
+    QHash<QString, LanguageUtils::FakeMetaObject::Ptr> *_objects;
 };
 
 } // namespace QmlJS

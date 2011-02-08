@@ -1,0 +1,430 @@
+import QtQuick.tooling 1.0
+
+// This file describes the plugin-supplied types contained in the library.
+// It is used for QML tooling purposes only.
+
+Module {
+    Component {
+        name: "QDeclarativeAudio"
+        prototype: "QObject"
+        exports: [
+            "QtMultimediaKit/Audio 1.1"
+        ]
+        Enum {
+            name: "Status"
+            values: {
+                "UnknownStatus": 0,
+                "NoMedia": 1,
+                "Loading": 2,
+                "Loaded": 3,
+                "Stalled": 4,
+                "Buffering": 5,
+                "Buffered": 6,
+                "EndOfMedia": 7,
+                "InvalidMedia": 8
+            }
+        }
+        Enum {
+            name: "Error"
+            values: {
+                "NoError": 0,
+                "ResourceError": 1,
+                "FormatError": 2,
+                "NetworkError": 3,
+                "AccessDenied": 4,
+                "ServiceMissing": 5
+            }
+        }
+        Property { name: "source"; type: "QUrl" }
+        Property { name: "autoLoad"; type: "bool" }
+        Property { name: "playing"; type: "bool" }
+        Property { name: "paused"; type: "bool" }
+        Property { name: "status"; type: "Status"; isReadonly: true }
+        Property { name: "duration"; type: "int"; isReadonly: true }
+        Property { name: "position"; type: "int" }
+        Property { name: "volume"; type: "qreal" }
+        Property { name: "muted"; type: "bool" }
+        Property { name: "bufferProgress"; type: "int"; isReadonly: true }
+        Property { name: "seekable"; type: "bool"; isReadonly: true }
+        Property { name: "playbackRate"; type: "qreal" }
+        Property { name: "error"; type: "Error"; isReadonly: true }
+        Property { name: "errorString"; type: "string"; isReadonly: true }
+        Property {
+            name: "metaData"
+            type: "QDeclarativeMediaMetaData"
+            isReadonly: true
+            isPointer: true
+        }
+        Signal { name: "sourceChanged" }
+        Signal { name: "autoLoadChanged" }
+        Signal { name: "playingChanged" }
+        Signal { name: "pausedChanged" }
+        Signal { name: "started" }
+        Signal { name: "resumed" }
+        Signal { name: "paused" }
+        Signal { name: "stopped" }
+        Signal { name: "statusChanged" }
+        Signal { name: "durationChanged" }
+        Signal { name: "positionChanged" }
+        Signal { name: "volumeChanged" }
+        Signal { name: "mutedChanged" }
+        Signal { name: "bufferProgressChanged" }
+        Signal { name: "seekableChanged" }
+        Signal { name: "playbackRateChanged" }
+        Signal { name: "errorChanged" }
+        Signal {
+            name: "error"
+            Parameter { name: "error"; type: "QDeclarativeAudio::Error" }
+            Parameter { name: "errorString"; type: "string" }
+        }
+        Method { name: "play" }
+        Method { name: "pause" }
+        Method { name: "stop" }
+    }
+    Component {
+        name: "QDeclarativeCamera"
+        defaultProperty: "data"
+        prototype: "QDeclarativeItem"
+        exports: [
+            "QtMultimediaKit/Camera 1.1"
+        ]
+        Enum {
+            name: "State"
+            values: {
+                "ActiveState": 2,
+                "LoadedState": 1,
+                "UnloadedState": 0
+            }
+        }
+        Enum {
+            name: "LockStatus"
+            values: {
+                "Unlocked": 0,
+                "Searching": 1,
+                "Locked": 2
+            }
+        }
+        Enum {
+            name: "Error"
+            values: {
+                "NoError": 0,
+                "CameraError": 1,
+                "InvalidRequestError": 2,
+                "ServiceMissingError": 3,
+                "NotSupportedFeatureError": 4
+            }
+        }
+        Enum {
+            name: "FlashMode"
+            values: {
+                "FlashAuto": 1,
+                "FlashOff": 2,
+                "FlashOn": 4,
+                "FlashRedEyeReduction": 8,
+                "FlashFill": 16,
+                "FlashTorch": 32,
+                "FlashSlowSyncFrontCurtain": 64,
+                "FlashSlowSyncRearCurtain": 128,
+                "FlashManual": 256
+            }
+        }
+        Enum {
+            name: "ExposureMode"
+            values: {
+                "ExposureAuto": 0,
+                "ExposureManual": 1,
+                "ExposurePortrait": 2,
+                "ExposureNight": 3,
+                "ExposureBacklight": 4,
+                "ExposureSpotlight": 5,
+                "ExposureSports": 6,
+                "ExposureSnow": 7,
+                "ExposureBeach": 8,
+                "ExposureLargeAperture": 9,
+                "ExposureSmallAperture": 10,
+                "ExposureModeVendor": 1000
+            }
+        }
+        Enum {
+            name: "WhiteBalanceMode"
+            values: {
+                "WhiteBalanceAuto": 0,
+                "WhiteBalanceManual": 1,
+                "WhiteBalanceSunlight": 2,
+                "WhiteBalanceCloudy": 3,
+                "WhiteBalanceShade": 4,
+                "WhiteBalanceTungsten": 5,
+                "WhiteBalanceFluorescent": 6,
+                "WhiteBalanceIncandescent": 7,
+                "WhiteBalanceFlash": 8,
+                "WhiteBalanceSunset": 9,
+                "WhiteBalanceVendor": 1000
+            }
+        }
+        Property { name: "cameraState"; type: "State" }
+        Property { name: "lockStatus"; type: "LockStatus"; isReadonly: true }
+        Property { name: "errorString"; type: "string"; isReadonly: true }
+        Property { name: "capturedImagePath"; type: "string"; isReadonly: true }
+        Property { name: "iso"; type: "int" }
+        Property { name: "shutterSpeed"; type: "qreal"; isReadonly: true }
+        Property { name: "aperture"; type: "qreal"; isReadonly: true }
+        Property { name: "exposureCompensation"; type: "qreal" }
+        Property { name: "exposureMode"; type: "ExposureMode" }
+        Property { name: "flashMode"; type: "int" }
+        Property { name: "whiteBalanceMode"; type: "WhiteBalanceMode" }
+        Property { name: "manualWhiteBalance"; type: "int" }
+        Property { name: "captureResolution"; type: "QSize" }
+        Property { name: "opticalZoom"; type: "qreal" }
+        Property { name: "maximumOpticalZoom"; type: "qreal"; isReadonly: true }
+        Property { name: "digitalZoom"; type: "qreal" }
+        Property { name: "maximumDigitalZoom"; type: "qreal"; isReadonly: true }
+        Signal { name: "errorChanged" }
+        Signal {
+            name: "error"
+            Parameter { name: "error"; type: "QDeclarativeCamera::Error" }
+            Parameter { name: "errorString"; type: "string" }
+        }
+        Signal {
+            name: "cameraStateChanged"
+            Parameter { type: "QDeclarativeCamera::State" }
+        }
+        Signal { name: "lockStatusChanged" }
+        Signal {
+            name: "imageCaptured"
+            Parameter { name: "preview"; type: "string" }
+        }
+        Signal {
+            name: "imageSaved"
+            Parameter { name: "path"; type: "string" }
+        }
+        Signal {
+            name: "captureFailed"
+            Parameter { name: "message"; type: "string" }
+        }
+        Signal {
+            name: "isoSensitivityChanged"
+            Parameter { type: "int" }
+        }
+        Signal {
+            name: "apertureChanged"
+            Parameter { type: "qreal" }
+        }
+        Signal {
+            name: "shutterSpeedChanged"
+            Parameter { type: "qreal" }
+        }
+        Signal {
+            name: "exposureCompensationChanged"
+            Parameter { type: "qreal" }
+        }
+        Signal {
+            name: "exposureModeChanged"
+            Parameter { type: "QDeclarativeCamera::ExposureMode" }
+        }
+        Signal {
+            name: "flashModeChanged"
+            Parameter { type: "int" }
+        }
+        Signal {
+            name: "whiteBalanceModeChanged"
+            Parameter { type: "QDeclarativeCamera::WhiteBalanceMode" }
+        }
+        Signal {
+            name: "manualWhiteBalanceChanged"
+            Parameter { type: "int" }
+        }
+        Signal {
+            name: "captureResolutionChanged"
+            Parameter { type: "QSize" }
+        }
+        Signal {
+            name: "opticalZoomChanged"
+            Parameter { type: "qreal" }
+        }
+        Signal {
+            name: "digitalZoomChanged"
+            Parameter { type: "qreal" }
+        }
+        Signal {
+            name: "maximumOpticalZoomChanged"
+            Parameter { type: "qreal" }
+        }
+        Signal {
+            name: "maximumDigitalZoomChanged"
+            Parameter { type: "qreal" }
+        }
+        Method { name: "start" }
+        Method { name: "stop" }
+        Method {
+            name: "setCameraState"
+            Parameter { name: "state"; type: "State" }
+        }
+        Method { name: "searchAndLock" }
+        Method { name: "unlock" }
+        Method { name: "captureImage" }
+        Method {
+            name: "setFlashMode"
+            Parameter { type: "int" }
+        }
+        Method {
+            name: "setExposureMode"
+            Parameter { type: "QDeclarativeCamera::ExposureMode" }
+        }
+        Method {
+            name: "setExposureCompensation"
+            Parameter { name: "ev"; type: "qreal" }
+        }
+        Method {
+            name: "setManualIsoSensitivity"
+            Parameter { name: "iso"; type: "int" }
+        }
+        Method {
+            name: "setWhiteBalanceMode"
+            Parameter { name: "mode"; type: "QDeclarativeCamera::WhiteBalanceMode" }
+        }
+        Method {
+            name: "setManualWhiteBalance"
+            Parameter { name: "colorTemp"; type: "int" }
+        }
+        Method {
+            name: "setCaptureResolution"
+            Parameter { name: "size"; type: "QSize" }
+        }
+        Method {
+            name: "setOpticalZoom"
+            Parameter { type: "qreal" }
+        }
+        Method {
+            name: "setDigitalZoom"
+            Parameter { type: "qreal" }
+        }
+    }
+    Component {
+        name: "QDeclarativeVideo"
+        defaultProperty: "data"
+        prototype: "QDeclarativeItem"
+        exports: [
+            "QtMultimediaKit/Video 1.1"
+        ]
+        Enum {
+            name: "FillMode"
+            values: {
+                "Stretch": 0,
+                "PreserveAspectFit": 1,
+                "PreserveAspectCrop": 2
+            }
+        }
+        Enum {
+            name: "Status"
+            values: {
+                "UnknownStatus": 0,
+                "NoMedia": 1,
+                "Loading": 2,
+                "Loaded": 3,
+                "Stalled": 4,
+                "Buffering": 5,
+                "Buffered": 6,
+                "EndOfMedia": 7,
+                "InvalidMedia": 8
+            }
+        }
+        Enum {
+            name: "Error"
+            values: {
+                "NoError": 0,
+                "ResourceError": 1,
+                "FormatError": 2,
+                "NetworkError": 3,
+                "AccessDenied": 4,
+                "ServiceMissing": 5
+            }
+        }
+        Property { name: "source"; type: "QUrl" }
+        Property { name: "autoLoad"; type: "bool" }
+        Property { name: "playing"; type: "bool" }
+        Property { name: "paused"; type: "bool" }
+        Property { name: "status"; type: "Status"; isReadonly: true }
+        Property { name: "duration"; type: "int"; isReadonly: true }
+        Property { name: "position"; type: "int" }
+        Property { name: "volume"; type: "qreal" }
+        Property { name: "muted"; type: "bool" }
+        Property { name: "hasAudio"; type: "bool"; isReadonly: true }
+        Property { name: "hasVideo"; type: "bool"; isReadonly: true }
+        Property { name: "bufferProgress"; type: "int"; isReadonly: true }
+        Property { name: "seekable"; type: "bool"; isReadonly: true }
+        Property { name: "playbackRate"; type: "qreal" }
+        Property { name: "error"; type: "Error"; isReadonly: true }
+        Property { name: "errorString"; type: "string"; isReadonly: true }
+        Property { name: "fillMode"; type: "FillMode" }
+        Property {
+            name: "metaData"
+            type: "QDeclarativeMediaMetaData"
+            isReadonly: true
+            isPointer: true
+        }
+        Signal { name: "sourceChanged" }
+        Signal { name: "autoLoadChanged" }
+        Signal { name: "playingChanged" }
+        Signal { name: "pausedChanged" }
+        Signal { name: "started" }
+        Signal { name: "resumed" }
+        Signal { name: "paused" }
+        Signal { name: "stopped" }
+        Signal { name: "statusChanged" }
+        Signal { name: "durationChanged" }
+        Signal { name: "positionChanged" }
+        Signal { name: "volumeChanged" }
+        Signal { name: "mutedChanged" }
+        Signal { name: "hasAudioChanged" }
+        Signal { name: "hasVideoChanged" }
+        Signal { name: "bufferProgressChanged" }
+        Signal { name: "seekableChanged" }
+        Signal { name: "playbackRateChanged" }
+        Signal { name: "errorChanged" }
+        Signal {
+            name: "error"
+            Parameter { name: "error"; type: "QDeclarativeVideo::Error" }
+            Parameter { name: "errorString"; type: "string" }
+        }
+        Method { name: "play" }
+        Method { name: "pause" }
+        Method { name: "stop" }
+    }
+    Component {
+        name: "QSoundEffect"
+        prototype: "QObject"
+        exports: [
+            "QtMultimediaKit/SoundEffect 1.1"
+        ]
+        Enum {
+            name: "Loop"
+            values: {
+                "Infinite": -2
+            }
+        }
+        Enum {
+            name: "Status"
+            values: {
+                "Null": 0,
+                "Loading": 1,
+                "Ready": 2,
+                "Error": 3
+            }
+        }
+        Property { name: "source"; type: "QUrl" }
+        Property { name: "loops"; type: "int" }
+        Property { name: "volume"; type: "qreal" }
+        Property { name: "muted"; type: "bool" }
+        Property { name: "playing"; type: "bool"; isReadonly: true }
+        Property { name: "status"; type: "Status"; isReadonly: true }
+        Signal { name: "sourceChanged" }
+        Signal { name: "loopCountChanged" }
+        Signal { name: "volumeChanged" }
+        Signal { name: "mutedChanged" }
+        Signal { name: "loadedChanged" }
+        Signal { name: "playingChanged" }
+        Signal { name: "statusChanged" }
+        Method { name: "play" }
+        Method { name: "stop" }
+    }
+}

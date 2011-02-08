@@ -201,7 +201,8 @@ public:
 
             foreach (const QDeclarativeType *qmlTy, qmlTypes) {
                 QString qmlTyName = qmlTy->qmlTypeName();
-                if (qmlTyName.startsWith(relocatableModuleUri + QLatin1Char('/'))) {
+                if (!relocatableModuleUri.isNull()
+                        && qmlTyName.startsWith(relocatableModuleUri + QLatin1Char('/'))) {
                     qmlTyName.remove(0, relocatableModuleUri.size() + 1);
                 }
                 exports += enquote(QString("%1 %2.%3").arg(
@@ -359,6 +360,15 @@ void sigSegvHandler(int) {
 }
 #endif
 
+void printUsage(const QString &appName)
+{
+    qWarning() << qPrintable(QString(
+                                 "Usage: %1 [--notrelocatable] module.uri version [module/import/path]\n"
+                                 "       %1 --builtins\n"
+                                 "Example: %1 Qt.labs.particles 4.7 /home/user/dev/qt-install/imports").arg(
+                                 appName));
+}
+
 int main(int argc, char *argv[])
 {
 #ifdef Q_OS_UNIX
@@ -380,23 +390,39 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     const QStringList args = app.arguments();
     const QString appName = QFileInfo(app.applicationFilePath()).baseName();
-    if (args.size() != 3 && args.size() != 4 && !(args.size() == 2 && args.at(1) == QLatin1String("--builtins"))) {
-        qWarning() << qPrintable(QString(
-                                     "Usage: %1 module.uri version [module/import/path]\n"
-                                     "       %1 --builtins\n"
-                                     "Example: %1 Qt.labs.particles 4.7 /home/user/dev/qt-install/imports").arg(
-                                     appName));
+    if (!(args.size() >= 3 || (args.size() == 2 && args.at(1) == QLatin1String("--builtins")))) {
+        printUsage(appName);
         return EXIT_INVALIDARGUMENTS;
     }
 
     QString pluginImportUri;
     QString pluginImportVersion;
     QString pluginImportPath;
-    if (args.size() > 2) {
-        pluginImportUri = args[1];
-        pluginImportVersion = args[2];
-        if (args.size() >= 4)
-            pluginImportPath = args[3];
+    bool relocatable = true;
+    if (args.size() >= 3) {
+        QStringList positionalArgs;
+        foreach (const QString &arg, args) {
+            if (!arg.startsWith("--")) {
+                positionalArgs.append(arg);
+                continue;
+            }
+
+            if (arg == QLatin1String("--notrelocatable")) {
+                relocatable = false;
+            } else {
+                qWarning() << "Invalid argument: " << arg;
+                return EXIT_INVALIDARGUMENTS;
+            }
+        }
+
+        if (positionalArgs.size() != 3 && positionalArgs.size() != 4) {
+            qWarning() << "Incorrect number of positional arguments";
+            return EXIT_INVALIDARGUMENTS;
+        }
+        pluginImportUri = positionalArgs[1];
+        pluginImportVersion = positionalArgs[2];
+        if (positionalArgs.size() >= 4)
+            pluginImportPath = positionalArgs[3];
     }
 
     QDeclarativeView view;
@@ -470,7 +496,8 @@ int main(int argc, char *argv[])
         nameToMeta.insert(convertToId(meta->className()), meta);
 
     Dumper dumper(&qml);
-    dumper.setRelocatableModuleUri(pluginImportUri);
+    if (relocatable)
+        dumper.setRelocatableModuleUri(pluginImportUri);
     foreach (const QMetaObject *meta, nameToMeta) {
         dumper.dump(meta);
     }

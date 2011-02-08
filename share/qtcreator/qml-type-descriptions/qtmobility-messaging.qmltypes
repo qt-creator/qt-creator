@@ -1,0 +1,264 @@
+import QtQuick.tooling 1.0
+
+// This file describes the plugin-supplied types contained in the library.
+// It is used for QML tooling purposes only.
+
+Module {
+    Component {
+        name: "QAbstractItemModel"
+        prototype: "QObject"
+        Signal {
+            name: "dataChanged"
+            Parameter { name: "topLeft"; type: "QModelIndex" }
+            Parameter { name: "bottomRight"; type: "QModelIndex" }
+        }
+        Signal {
+            name: "headerDataChanged"
+            Parameter { name: "orientation"; type: "Qt::Orientation" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal { name: "layoutChanged" }
+        Signal { name: "layoutAboutToBeChanged" }
+        Signal {
+            name: "rowsAboutToBeInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "rowsInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "rowsAboutToBeRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "rowsRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsAboutToBeInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsAboutToBeRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal { name: "modelAboutToBeReset" }
+        Signal { name: "modelReset" }
+        Signal {
+            name: "rowsAboutToBeMoved"
+            Parameter { name: "sourceParent"; type: "QModelIndex" }
+            Parameter { name: "sourceStart"; type: "int" }
+            Parameter { name: "sourceEnd"; type: "int" }
+            Parameter { name: "destinationParent"; type: "QModelIndex" }
+            Parameter { name: "destinationRow"; type: "int" }
+        }
+        Signal {
+            name: "rowsMoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "start"; type: "int" }
+            Parameter { name: "end"; type: "int" }
+            Parameter { name: "destination"; type: "QModelIndex" }
+            Parameter { name: "row"; type: "int" }
+        }
+        Signal {
+            name: "columnsAboutToBeMoved"
+            Parameter { name: "sourceParent"; type: "QModelIndex" }
+            Parameter { name: "sourceStart"; type: "int" }
+            Parameter { name: "sourceEnd"; type: "int" }
+            Parameter { name: "destinationParent"; type: "QModelIndex" }
+            Parameter { name: "destinationColumn"; type: "int" }
+        }
+        Signal {
+            name: "columnsMoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "start"; type: "int" }
+            Parameter { name: "end"; type: "int" }
+            Parameter { name: "destination"; type: "QModelIndex" }
+            Parameter { name: "column"; type: "int" }
+        }
+        Method { name: "submit"; type: "bool" }
+        Method { name: "revert" }
+    }
+    Component { name: "QAbstractListModel"; prototype: "QAbstractItemModel" }
+    Component {
+        name: "QDeclarativeMessageFilter"
+        prototype: "QDeclarativeMessageFilterBase"
+        exports: [
+            "QtMobility.messaging/MessageFilter 1.1"
+        ]
+        Enum {
+            name: "FilterType"
+            values: {
+                "AncestorFolder": 0,
+                "ParentFolder": 1,
+                "Priority": 2,
+                "Recipients": 3,
+                "Sender": 4,
+                "Size": 5,
+                "StandardFolder": 6,
+                "Status": 7,
+                "Subject": 8,
+                "Timestamp": 9,
+                "ReceptionTimestamp": 10,
+                "Type": 11
+            }
+        }
+        Enum {
+            name: "Comparator"
+            values: {
+                "Includes": 0,
+                "Excludes": 1,
+                "Equal": 2,
+                "NotEqual": 3,
+                "LessThan": 4,
+                "LessThanEqual": 5,
+                "GreaterThan": 6,
+                "GreaterThanEqual": 7
+            }
+        }
+        Enum {
+            name: "Priority"
+            values: {
+                "HighPriority": 1,
+                "NormalPriority": 2,
+                "LowPriority": 3
+            }
+        }
+        Enum {
+            name: "Type"
+            values: {
+                "Mms": 1,
+                "Sms": 2,
+                "Email": 4,
+                "InstantMessage": 8,
+                "AnyType": -1
+            }
+        }
+        Enum {
+            name: "Status"
+            values: {
+                "Read": 1,
+                "HasAttachments": 2,
+                "Incoming": 4,
+                "Removed": 8
+            }
+        }
+        Property { name: "type"; type: "FilterType" }
+        Property { name: "value"; type: "QVariant" }
+        Property { name: "comparator"; type: "Comparator" }
+        Signal { name: "typeChanged" }
+        Signal { name: "valueChanged" }
+        Signal { name: "comparatorChanged" }
+    }
+    Component {
+        name: "QDeclarativeMessageFilterBase"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.messaging/MessageFilterBase 1.1"
+        ]
+        Property { name: "negated"; type: "bool" }
+        Signal { name: "negatedChanged" }
+    }
+    Component {
+        name: "QDeclarativeMessageIntersectionFilter"
+        defaultProperty: "filters"
+        prototype: "QDeclarativeMessageFilterBase"
+        exports: [
+            "QtMobility.messaging/MessageIntersectionFilter 1.1"
+        ]
+        Property {
+            name: "filters"
+            type: "QDeclarativeMessageFilterBase"
+            isList: true
+            isReadonly: true
+        }
+    }
+    Component {
+        name: "QDeclarativeMessageModel"
+        prototype: "QAbstractListModel"
+        exports: [
+            "QtMobility.messaging/MessageModel 1.1"
+        ]
+        Enum {
+            name: "SortKey"
+            values: {
+                "Priority": 0,
+                "Sender": 1,
+                "Size": 2,
+                "StatusRead": 3,
+                "StatusIncoming": 4,
+                "Subject": 5,
+                "Timestamp": 6,
+                "ReceptionTimestamp": 7,
+                "Recipients": 8,
+                "Type": 9
+            }
+        }
+        Enum {
+            name: "SortOrder"
+            values: {
+                "AscendingOrder": 0,
+                "DescendingOrder": 1
+            }
+        }
+        Property { name: "filter"; type: "QDeclarativeMessageFilterBase"; isPointer: true }
+        Property { name: "sortBy"; type: "SortKey" }
+        Property { name: "sortOrder"; type: "SortOrder" }
+        Property { name: "count"; type: "int"; isReadonly: true }
+        Property { name: "limit"; type: "int" }
+        Signal { name: "filterChanged" }
+        Signal { name: "sortByChanged" }
+        Signal { name: "sortOrderChanged" }
+        Signal { name: "limitChanged" }
+        Signal { name: "countChanged" }
+        Signal { name: "messageAdded" }
+        Method {
+            name: "showMessage"
+            Parameter { name: "index"; type: "int" }
+        }
+        Method {
+            name: "removeMessage"
+            Parameter { name: "index"; type: "int" }
+        }
+    }
+    Component {
+        name: "QDeclarativeMessageUnionFilter"
+        defaultProperty: "filters"
+        prototype: "QDeclarativeMessageFilterBase"
+        exports: [
+            "QtMobility.messaging/MessageUnionFilter 1.1"
+        ]
+        Property {
+            name: "filters"
+            type: "QDeclarativeMessageFilterBase"
+            isList: true
+            isReadonly: true
+        }
+    }
+}

@@ -36,6 +36,7 @@
 #include "qmljslink.h"
 #include "qmljsbind.h"
 #include "qmljsscopebuilder.h"
+#include "qmljstypedescriptionreader.h"
 #include "parser/qmljsast_p.h"
 
 #include <languageutils/fakemetaobject.h>
@@ -1943,45 +1944,48 @@ const Value *Function::invoke(const Activation *activation) const
 // typing environment
 ////////////////////////////////////////////////////////////////////////////////
 
-QList<FakeMetaObject::ConstPtr> CppQmlTypesLoader::builtinObjects;
+QHash<QString, FakeMetaObject::ConstPtr> CppQmlTypesLoader::builtinObjects;
 
-QStringList CppQmlTypesLoader::loadXml(const QFileInfoList &xmlFiles)
+QStringList CppQmlTypesLoader::loadQmlTypes(const QFileInfoList &qmlTypeFiles)
 {
-    QMap<QString, FakeMetaObject::Ptr> newObjects;
+    QHash<QString, FakeMetaObject::Ptr> newObjects;
     QStringList errorMsgs;
 
-    foreach (const QFileInfo &xmlFile, xmlFiles) {
-        QFile file(xmlFile.absoluteFilePath());
+    foreach (const QFileInfo &qmlTypeFile, qmlTypeFiles) {
+        QFile file(qmlTypeFile.absoluteFilePath());
         if (file.open(QIODevice::ReadOnly)) {
-            QmlXmlReader read(&file);
-            if (!read(&newObjects)) {
-                errorMsgs.append(read.errorMessage());
-            }
+            QString contents = QString::fromUtf8(file.readAll());
             file.close();
+
+            QmlJS::TypeDescriptionReader reader(contents);
+            if (!reader(&newObjects)) {
+                errorMsgs.append(reader.errorMessage());
+            }
         } else {
-            errorMsgs.append(QmlXmlReader::tr("%1: %2").arg(xmlFile.absoluteFilePath(),
-                                                            file.errorString()));
+            errorMsgs.append(QmlJS::TypeDescriptionReader::tr("%1: %2")
+                             .arg(qmlTypeFile.absoluteFilePath(),
+                                  file.errorString()));
         }
     }
 
     if (errorMsgs.isEmpty()) {
         setSuperClasses(&newObjects);
 
-        // we need to go from QList<T *> of newObjects.values() to QList<const T *>
+        // we need to go from QHash<K, T::Ptr> to QHash<K, T::ConstPtr>
         // and there seems to be no better way
-        QMapIterator<QString, FakeMetaObject::Ptr> it(newObjects);
+        QHashIterator<QString, FakeMetaObject::Ptr> it(newObjects);
         while (it.hasNext()) {
             it.next();
-            builtinObjects.append(it.value());
+            builtinObjects.insert(it.key(), it.value());
         }
     }
 
     return errorMsgs;
 }
 
-QString CppQmlTypesLoader::parseQmlTypeXml(const QByteArray &xml, QMap<QString, FakeMetaObject::Ptr> *newObjects)
+QString CppQmlTypesLoader::parseQmlTypeDescriptions(const QByteArray &xml, QHash<QString, FakeMetaObject::Ptr> *newObjects)
 {
-    QmlXmlReader reader(xml);
+    QmlJS::TypeDescriptionReader reader(QString::fromUtf8(xml));
     if (!reader(newObjects)) {
         if (reader.errorMessage().isEmpty())
             return QLatin1String("unknown error");
@@ -1991,16 +1995,18 @@ QString CppQmlTypesLoader::parseQmlTypeXml(const QByteArray &xml, QMap<QString, 
     return QString();
 }
 
-void CppQmlTypesLoader::setSuperClasses(QMap<QString, FakeMetaObject::Ptr> *newObjects)
+void CppQmlTypesLoader::setSuperClasses(QHash<QString, FakeMetaObject::Ptr> *newObjects)
 {
-    QMapIterator<QString, FakeMetaObject::Ptr> it(*newObjects);
+    QHashIterator<QString, FakeMetaObject::Ptr> it(*newObjects);
     while (it.hasNext()) {
         it.next();
         FakeMetaObject::Ptr obj = it.value();
 
         const QString superName = obj->superclassName();
         if (! superName.isEmpty()) {
-            FakeMetaObject::Ptr superClass = newObjects->value(superName);
+            FakeMetaObject::ConstPtr superClass = newObjects->value(superName);
+            if (!superClass)
+                superClass = builtinObjects.value(superName);
             if (superClass)
                 obj->setSuperclass(superClass);
             else
@@ -2009,7 +2015,8 @@ void CppQmlTypesLoader::setSuperClasses(QMap<QString, FakeMetaObject::Ptr> *newO
     }
 }
 
-void CppQmlTypes::load(Engine *engine, const QList<FakeMetaObject::ConstPtr> &objects)
+template <typename T>
+void CppQmlTypes::load(Engine *engine, const T &objects)
 {
     // load
     QList<FakeMetaObject::ConstPtr> newObjects;
@@ -2052,6 +2059,9 @@ void CppQmlTypes::load(Engine *engine, const QList<FakeMetaObject::ConstPtr> &ob
         }
     }
 }
+// explicitly instantiate load for list and hash
+template void CppQmlTypes::load< QList<FakeMetaObject::ConstPtr> >(Engine *, const QList<FakeMetaObject::ConstPtr> &);
+template void CppQmlTypes::load< QHash<QString, FakeMetaObject::ConstPtr> >(Engine *, const QHash<QString, FakeMetaObject::ConstPtr> &);
 
 QList<QmlObjectValue *> CppQmlTypes::typesForImport(const QString &packageName, ComponentVersion version) const
 {

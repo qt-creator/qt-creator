@@ -104,6 +104,7 @@ void ModelManager::delayedInitialization()
 void ModelManager::loadQmlTypeDescriptions()
 {
     if (Core::ICore::instance()) {
+        // ### this does not necessarily work, should only call loadQmlTypes once!
         loadQmlTypeDescriptions(Core::ICore::instance()->resourcePath());
         loadQmlTypeDescriptions(Core::ICore::instance()->userResourcePath());
     }
@@ -112,12 +113,13 @@ void ModelManager::loadQmlTypeDescriptions()
 void ModelManager::loadQmlTypeDescriptions(const QString &resourcePath)
 {
     const QDir typeFileDir(resourcePath + QLatin1String("/qml-type-descriptions"));
-    const QStringList xmlExtensions = QStringList() << QLatin1String("*.xml");
-    const QFileInfoList xmlFiles = typeFileDir.entryInfoList(xmlExtensions,
-                                                             QDir::Files,
-                                                             QDir::Name);
+    const QStringList qmlTypesExtensions = QStringList() << QLatin1String("*.qmltypes");
+    const QFileInfoList qmlTypesFiles = typeFileDir.entryInfoList(
+                qmlTypesExtensions,
+                QDir::Files,
+                QDir::Name);
 
-    const QStringList errors = Interpreter::CppQmlTypesLoader::loadXml(xmlFiles);
+    const QStringList errors = Interpreter::CppQmlTypesLoader::loadQmlTypes(qmlTypesFiles);
     foreach (const QString &error, errors)
         qWarning() << qPrintable(error);
 

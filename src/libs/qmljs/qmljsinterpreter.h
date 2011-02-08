@@ -585,20 +585,21 @@ class QMLJS_EXPORT CppQmlTypesLoader
 {
 public:
     /** \return an empty list when successful, error messages otherwise. */
-    static QStringList loadXml(const QFileInfoList &xmlFiles);
-    static QList<LanguageUtils::FakeMetaObject::ConstPtr> builtinObjects;
+    static QStringList loadQmlTypes(const QFileInfoList &xmlFiles);
+    static QHash<QString, LanguageUtils::FakeMetaObject::ConstPtr> builtinObjects;
 
     // parses the xml string and fills the newObjects map
-    static QString parseQmlTypeXml(const QByteArray &xml,
-                                   QMap<QString, LanguageUtils::FakeMetaObject::Ptr> *newObjects);
+    static QString parseQmlTypeDescriptions(const QByteArray &xml,
+                                   QHash<QString, LanguageUtils::FakeMetaObject::Ptr> *newObjects);
 private:
-    static void setSuperClasses(QMap<QString, LanguageUtils::FakeMetaObject::Ptr> *newObjects);
+    static void setSuperClasses(QHash<QString, LanguageUtils::FakeMetaObject::Ptr> *newObjects);
 };
 
 class QMLJS_EXPORT CppQmlTypes
 {
 public:
-    void load(Interpreter::Engine *interpreter, const QList<LanguageUtils::FakeMetaObject::ConstPtr> &objects);
+    template <typename T>
+    void load(Interpreter::Engine *interpreter, const T &objects);
 
     QList<Interpreter::QmlObjectValue *> typesForImport(const QString &prefix, LanguageUtils::ComponentVersion version) const;
     Interpreter::QmlObjectValue *typeForImport(const QString &qualifiedName,

@@ -1,0 +1,1154 @@
+import QtQuick.tooling 1.0
+
+// This file describes the plugin-supplied types contained in the library.
+// It is used for QML tooling purposes only.
+
+Module {
+    Component {
+        name: "QAbstractItemModel"
+        prototype: "QObject"
+        Signal {
+            name: "dataChanged"
+            Parameter { name: "topLeft"; type: "QModelIndex" }
+            Parameter { name: "bottomRight"; type: "QModelIndex" }
+        }
+        Signal {
+            name: "headerDataChanged"
+            Parameter { name: "orientation"; type: "Qt::Orientation" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal { name: "layoutChanged" }
+        Signal { name: "layoutAboutToBeChanged" }
+        Signal {
+            name: "rowsAboutToBeInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "rowsInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "rowsAboutToBeRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "rowsRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsAboutToBeInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsAboutToBeRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal { name: "modelAboutToBeReset" }
+        Signal { name: "modelReset" }
+        Signal {
+            name: "rowsAboutToBeMoved"
+            Parameter { name: "sourceParent"; type: "QModelIndex" }
+            Parameter { name: "sourceStart"; type: "int" }
+            Parameter { name: "sourceEnd"; type: "int" }
+            Parameter { name: "destinationParent"; type: "QModelIndex" }
+            Parameter { name: "destinationRow"; type: "int" }
+        }
+        Signal {
+            name: "rowsMoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "start"; type: "int" }
+            Parameter { name: "end"; type: "int" }
+            Parameter { name: "destination"; type: "QModelIndex" }
+            Parameter { name: "row"; type: "int" }
+        }
+        Signal {
+            name: "columnsAboutToBeMoved"
+            Parameter { name: "sourceParent"; type: "QModelIndex" }
+            Parameter { name: "sourceStart"; type: "int" }
+            Parameter { name: "sourceEnd"; type: "int" }
+            Parameter { name: "destinationParent"; type: "QModelIndex" }
+            Parameter { name: "destinationColumn"; type: "int" }
+        }
+        Signal {
+            name: "columnsMoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "start"; type: "int" }
+            Parameter { name: "end"; type: "int" }
+            Parameter { name: "destination"; type: "QModelIndex" }
+            Parameter { name: "column"; type: "int" }
+        }
+        Method { name: "submit"; type: "bool" }
+        Method { name: "revert" }
+    }
+    Component { name: "QAbstractListModel"; prototype: "QAbstractItemModel" }
+    Component {
+        name: "QDeclarativeContact"
+        defaultProperty: "details"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.contacts/Contact 1.1"
+        ]
+        Enum {
+            name: "ContactType"
+            values: {
+                "Contact": 0,
+                "Group": 1
+            }
+        }
+        Property { name: "contactId"; type: "QContactLocalId"; isReadonly: true }
+        Property { name: "manager"; type: "string"; isReadonly: true }
+        Property { name: "details"; type: "QDeclarativeContactDetail"; isList: true; isReadonly: true }
+        Property {
+            name: "address"
+            type: "QDeclarativeContactAddress"
+            isReadonly: true
+            isPointer: true
+        }
+        Property {
+            name: "anniversary"
+            type: "QDeclarativeContactAnniversary"
+            isReadonly: true
+            isPointer: true
+        }
+        Property { name: "avatar"; type: "QDeclarativeContactAvatar"; isReadonly: true; isPointer: true }
+        Property {
+            name: "birthday"
+            type: "QDeclarativeContactBirthday"
+            isReadonly: true
+            isPointer: true
+        }
+        Property { name: "displayLabel"; type: "string"; isReadonly: true }
+        Property {
+            name: "email"
+            type: "QDeclarativeContactEmailAddress"
+            isReadonly: true
+            isPointer: true
+        }
+        Property { name: "family"; type: "QDeclarativeContactFamily"; isReadonly: true; isPointer: true }
+        Property {
+            name: "favorite"
+            type: "QDeclarativeContactFavorite"
+            isReadonly: true
+            isPointer: true
+        }
+        Property { name: "gender"; type: "QDeclarativeContactGender"; isReadonly: true; isPointer: true }
+        Property {
+            name: "geolocation"
+            type: "QDeclarativeContactGeoLocation"
+            isReadonly: true
+            isPointer: true
+        }
+        Property {
+            name: "globalPresence"
+            type: "QDeclarativeContactGlobalPresence"
+            isReadonly: true
+            isPointer: true
+        }
+        Property { name: "guid"; type: "QDeclarativeContactGuid"; isReadonly: true; isPointer: true }
+        Property { name: "name"; type: "QDeclarativeContactName"; isReadonly: true; isPointer: true }
+        Property {
+            name: "nickname"
+            type: "QDeclarativeContactNickname"
+            isReadonly: true
+            isPointer: true
+        }
+        Property { name: "note"; type: "QDeclarativeContactNote"; isReadonly: true; isPointer: true }
+        Property {
+            name: "onlineAccount"
+            type: "QDeclarativeContactOnlineAccount"
+            isReadonly: true
+            isPointer: true
+        }
+        Property {
+            name: "organization"
+            type: "QDeclarativeContactOrganization"
+            isReadonly: true
+            isPointer: true
+        }
+        Property {
+            name: "phoneNumber"
+            type: "QDeclarativeContactPhoneNumber"
+            isReadonly: true
+            isPointer: true
+        }
+        Property {
+            name: "presence"
+            type: "QDeclarativeContactPresence"
+            isReadonly: true
+            isPointer: true
+        }
+        Property {
+            name: "ringtone"
+            type: "QDeclarativeContactRingtone"
+            isReadonly: true
+            isPointer: true
+        }
+        Property {
+            name: "syncTarget"
+            type: "QDeclarativeContactSyncTarget"
+            isReadonly: true
+            isPointer: true
+        }
+        Property { name: "tag"; type: "QDeclarativeContactTag"; isReadonly: true; isPointer: true }
+        Property { name: "thumbnail"; type: "QUrl" }
+        Property { name: "type"; type: "ContactType" }
+        Property { name: "url"; type: "QDeclarativeContactUrl"; isReadonly: true; isPointer: true }
+        Property { name: "hobby"; type: "QDeclarativeContactHobby"; isReadonly: true; isPointer: true }
+        Property { name: "modified"; type: "bool"; isReadonly: true }
+        Signal { name: "contactIdChanged" }
+        Signal { name: "managerChanged" }
+        Signal { name: "detailsChanged" }
+        Method { name: "clearDetails" }
+        Method { name: "save" }
+        Method {
+            name: "detail"
+            type: "QDeclarativeContactDetail*"
+            Parameter { name: "name"; type: "QVariant" }
+        }
+        Method {
+            name: "details"
+            type: "QDeclarativeListProperty<QDeclarativeContactDetail>"
+            Parameter { name: "name"; type: "QVariant" }
+        }
+        Method {
+            name: "removeDetail"
+            type: "bool"
+            Parameter { name: "detail"; type: "QDeclarativeContactDetail"; isPointer: true }
+        }
+        Method {
+            name: "addDetail"
+            type: "bool"
+            Parameter { name: "detail"; type: "QDeclarativeContactDetail"; isPointer: true }
+        }
+    }
+    Component {
+        name: "QDeclarativeContactActionFilter"
+        prototype: "QDeclarativeContactFilter"
+        exports: [
+            "QtMobility.contacts/ActionFilter 1.1"
+        ]
+        Property { name: "actionName"; type: "string" }
+        Signal { name: "valueChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactAddress"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Address 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Street": 0,
+                "Locality": 1,
+                "Region": 2,
+                "Postcode": 3,
+                "Country": 4,
+                "SubTypes": 5,
+                "PostOfficeBox": 6
+            }
+        }
+        Enum {
+            name: "AddressSubType"
+            values: {
+                "Parcel": 0,
+                "Postal": 1,
+                "Domestic": 2,
+                "International": 3
+            }
+        }
+        Property { name: "street"; type: "string" }
+        Property { name: "locality"; type: "string" }
+        Property { name: "region"; type: "string" }
+        Property { name: "postcode"; type: "string" }
+        Property { name: "country"; type: "string" }
+        Property { name: "subTypes"; type: "QVariant" }
+        Property { name: "postOfficeBox"; type: "string" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactAnniversary"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Anniversary 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "CalendarId": 0,
+                "OriginalDate": 1,
+                "Event": 2,
+                "SubType": 3
+            }
+        }
+        Enum {
+            name: "AnniversarySubType"
+            values: {
+                "Unknown": 0,
+                "Wedding": 1,
+                "Engagement": 2,
+                "House": 3,
+                "Employment": 4,
+                "Memorial": 5
+            }
+        }
+        Property { name: "calendarId"; type: "string" }
+        Property { name: "originalDate"; type: "QDate" }
+        Property { name: "originalDateTime"; type: "QDateTime" }
+        Property { name: "event"; type: "string" }
+        Property { name: "subType"; type: "AnniversarySubType" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactAvatar"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Avatar 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "ImageUrl": 0,
+                "VideoUrl": 1
+            }
+        }
+        Property { name: "imageUrl"; type: "QUrl" }
+        Property { name: "videoUrl"; type: "QUrl" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactBirthday"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Birthday 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Birthday": 0
+            }
+        }
+        Property { name: "birthday"; type: "QDateTime" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactChangeLogFilter"
+        prototype: "QDeclarativeContactFilter"
+        exports: [
+            "QtMobility.contacts/ChangeLogFilter 1.1"
+        ]
+        Enum {
+            name: "EventType"
+            values: {
+                "EventAdded": 0,
+                "EventChanged": 1,
+                "EventRemoved": 2
+            }
+        }
+        Property { name: "since"; type: "QDateTime" }
+        Property { name: "eventType"; type: "EventType" }
+        Signal { name: "valueChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactDetail"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.contacts/ContactDetail 1.1"
+        ]
+        Enum {
+            name: "ContactDetailType"
+            values: {
+                "Address": 0,
+                "Anniversary": 1,
+                "Avatar": 2,
+                "Birthday": 3,
+                "DisplayLabel": 4,
+                "Email": 5,
+                "Family": 6,
+                "Favorite": 7,
+                "Gender": 8,
+                "Geolocation": 9,
+                "GlobalPresence": 10,
+                "Guid": 11,
+                "Name": 12,
+                "NickName": 13,
+                "Note": 14,
+                "OnlineAccount": 15,
+                "Organization": 16,
+                "PhoneNumber": 17,
+                "Presence": 18,
+                "Ringtone": 19,
+                "SyncTarget": 20,
+                "Tag": 21,
+                "Timestamp": 22,
+                "Url": 23,
+                "Hobby": 24,
+                "Customized": 100
+            }
+        }
+        Property { name: "type"; type: "ContactDetailType"; isReadonly: true }
+        Property { name: "definitionName"; type: "string"; isReadonly: true }
+        Property { name: "contexts"; type: "QStringList" }
+        Property { name: "detailUri"; type: "string" }
+        Property { name: "linkedDetailUris"; type: "QStringList" }
+        Property { name: "fieldNames"; type: "QStringList"; isReadonly: true }
+        Property { name: "readOnly"; type: "bool"; isReadonly: true }
+        Property { name: "removable"; type: "bool"; isReadonly: true }
+        Signal { name: "valueChanged" }
+        Method {
+            name: "value"
+            type: "QVariant"
+            Parameter { name: "key"; type: "string" }
+        }
+        Method {
+            name: "setValue"
+            type: "bool"
+            Parameter { name: "key"; type: "string" }
+            Parameter { name: "value"; type: "QVariant" }
+        }
+    }
+    Component {
+        name: "QDeclarativeContactDetailFilter"
+        prototype: "QDeclarativeContactFilter"
+        exports: [
+            "QtMobility.contacts/DetailFilter 1.1"
+        ]
+        Property { name: "detail"; type: "QVariant" }
+        Property { name: "field"; type: "QVariant" }
+        Property { name: "value"; type: "QVariant" }
+        Property { name: "matchFlags"; type: "MatchFlags" }
+        Signal { name: "valueChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactDetailRangeFilter"
+        prototype: "QDeclarativeContactFilter"
+        exports: [
+            "QtMobility.contacts/DetailRangeFilter 1.1"
+        ]
+        Enum {
+            name: "RangeFlags"
+            values: {
+                "IncludeLower": 0,
+                "IncludeUpper": 1,
+                "ExcludeLower": 2,
+                "ExcludeUpper": 0
+            }
+        }
+        Property { name: "detail"; type: "QVariant" }
+        Property { name: "field"; type: "QVariant" }
+        Property { name: "min"; type: "QVariant" }
+        Property { name: "max"; type: "QVariant" }
+        Property { name: "matchFlags"; type: "MatchFlags" }
+        Property { name: "rangeFlags"; type: "RangeFlags" }
+        Signal { name: "valueChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactDisplayLabel"
+        defaultProperty: "label"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/DisplayLabel 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Label": 0
+            }
+        }
+        Property { name: "label"; type: "string"; isReadonly: true }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactEmailAddress"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/EmailAddress 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "EmailAddress": 0
+            }
+        }
+        Property { name: "emailAddress"; type: "string" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactFamily"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Family 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Spouse": 0,
+                "Children": 1
+            }
+        }
+        Property { name: "spouse"; type: "string" }
+        Property { name: "children"; type: "QStringList" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactFavorite"
+        defaultProperty: "index"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Favorite 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Favorite": 0,
+                "Index": 1
+            }
+        }
+        Property { name: "favorite"; type: "bool" }
+        Property { name: "index"; type: "int" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactFetchHint"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.contacts/FetchHint 1.1"
+        ]
+        Enum {
+            name: "OptimizationHints"
+            values: {
+                "AllRequired": 0,
+                "NoRelationships": 1,
+                "NoActionPreferences": 2,
+                "NoBinaryBlobs": 4
+            }
+        }
+        Property { name: "detailDefinitionsHint"; type: "QStringList" }
+        Property { name: "relationshipTypesHint"; type: "QStringList" }
+        Property { name: "optimizationHints"; type: "OptimizationHints" }
+        Property { name: "imageWidth"; type: "int" }
+        Property { name: "imageHeight"; type: "int" }
+        Signal { name: "fetchHintChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactFilter"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.contacts/Filter 1.1"
+        ]
+        Enum {
+            name: "FilterType"
+            values: {
+                "InvalidFilter": 0,
+                "DetailFilter": 1,
+                "DetailRangeFilter": 2,
+                "ChangeLogFilter": 3,
+                "ActionFilter": 4,
+                "RelationshipFilter": 5,
+                "IntersectionFilter": 6,
+                "UnionFilter": 7,
+                "IdFilter": 8,
+                "DefaultFilter": 9
+            }
+        }
+        Enum {
+            name: "MatchFlags"
+            values: {
+                "MatchExactly": 0,
+                "MatchContains": 1,
+                "MatchStartsWith": 2,
+                "MatchEndsWith": 3,
+                "MatchFixedString": 8,
+                "MatchCaseSensitive": 16,
+                "MatchPhoneNumber": 1024,
+                "MatchKeypadCollation": 2048
+            }
+        }
+        Signal { name: "filterChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactGender"
+        defaultProperty: "gender"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Gender 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Gender": 0
+            }
+        }
+        Enum {
+            name: "GenderType"
+            values: {
+                "Male": 0,
+                "Female": 1
+            }
+        }
+        Property { name: "gender"; type: "GenderType" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactGeoLocation"
+        defaultProperty: "label"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Location 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Label": 0,
+                "Latitude": 1,
+                "Longitude": 2,
+                "Accuracy": 3,
+                "Altitude": 4,
+                "AltitudeAccuracy": 5,
+                "Heading": 6,
+                "Speed": 7,
+                "Timestamp": 8
+            }
+        }
+        Property { name: "label"; type: "string" }
+        Property { name: "latitude"; type: "double" }
+        Property { name: "longitude"; type: "double" }
+        Property { name: "accuracy"; type: "double" }
+        Property { name: "altitude"; type: "double" }
+        Property { name: "altitudeAccuracy"; type: "double" }
+        Property { name: "heading"; type: "double" }
+        Property { name: "speed"; type: "double" }
+        Property { name: "timestamp"; type: "QDateTime" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactGlobalPresence"
+        defaultProperty: "state"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/GlobalPresence 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Timestamp": 0,
+                "Nickname": 1,
+                "State": 2,
+                "StateText": 3,
+                "ImageUrl": 4,
+                "CustomMessage": 5
+            }
+        }
+        Property { name: "timestamp"; type: "QDateTime" }
+        Property { name: "nickname"; type: "string" }
+        Property { name: "state"; type: "QDeclarativeContactPresence::PresenceStateType" }
+        Property { name: "stateText"; type: "string" }
+        Property { name: "imageUrl"; type: "QUrl" }
+        Property { name: "customMessage"; type: "string" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactGuid"
+        defaultProperty: "guid"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Guid 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Guid": 0
+            }
+        }
+        Property { name: "guid"; type: "string" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactHobby"
+        defaultProperty: "hobby"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Hobby 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Hobby": 0
+            }
+        }
+        Property { name: "hobby"; type: "string" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactIntersectionFilter"
+        defaultProperty: "filters"
+        prototype: "QDeclarativeContactFilter"
+        exports: [
+            "QtMobility.contacts/IntersectionFilter 1.1"
+        ]
+        Property { name: "filters"; type: "QDeclarativeContactFilter"; isList: true; isReadonly: true }
+        Signal { name: "valueChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactLocalIdFilter"
+        defaultProperty: "ids"
+        prototype: "QDeclarativeContactFilter"
+        exports: [
+            "QtMobility.contacts/IdFilter 1.1"
+        ]
+        Property { name: "ids"; type: "QStringList" }
+        Signal { name: "valueChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactModel"
+        prototype: "QAbstractListModel"
+        exports: [
+            "QtMobility.contacts/ContactModel 1.1"
+        ]
+        Property { name: "manager"; type: "string" }
+        Property { name: "availableManagers"; type: "QStringList"; isReadonly: true }
+        Property { name: "error"; type: "string"; isReadonly: true }
+        Property { name: "autoUpdate"; type: "bool" }
+        Property { name: "filter"; type: "QDeclarativeContactFilter"; isPointer: true }
+        Property { name: "fetchHint"; type: "QDeclarativeContactFetchHint"; isPointer: true }
+        Property { name: "contacts"; type: "QDeclarativeContact"; isList: true; isReadonly: true }
+        Property {
+            name: "sortOrders"
+            type: "QDeclarativeContactSortOrder"
+            isList: true
+            isReadonly: true
+        }
+        Signal { name: "managerChanged" }
+        Signal { name: "filterChanged" }
+        Signal { name: "errorChanged" }
+        Signal { name: "fetchHintChanged" }
+        Signal { name: "contactsChanged" }
+        Signal { name: "vcardChanged" }
+        Signal { name: "sortOrdersChanged" }
+        Signal { name: "autoUpdateChanged" }
+        Method { name: "update" }
+        Method { name: "cancelUpdate" }
+        Method {
+            name: "exportContacts"
+            Parameter { name: "url"; type: "QUrl" }
+            Parameter { name: "profiles"; type: "QStringList" }
+        }
+        Method {
+            name: "exportContacts"
+            Parameter { name: "url"; type: "QUrl" }
+        }
+        Method {
+            name: "importContacts"
+            Parameter { name: "url"; type: "QUrl" }
+            Parameter { name: "profiles"; type: "QStringList" }
+        }
+        Method {
+            name: "importContacts"
+            Parameter { name: "url"; type: "QUrl" }
+        }
+        Method {
+            name: "removeContacts"
+            Parameter { name: "ids"; type: "QList<QContactLocalId>" }
+        }
+        Method {
+            name: "fetchContacts"
+            Parameter { name: "contactIds"; type: "QList<QContactLocalId>" }
+        }
+        Method {
+            name: "removeContact"
+            Parameter { name: "id"; type: "QContactLocalId" }
+        }
+        Method {
+            name: "saveContact"
+            Parameter { name: "dc"; type: "QDeclarativeContact"; isPointer: true }
+        }
+    }
+    Component {
+        name: "QDeclarativeContactName"
+        defaultProperty: "firstName"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Name 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Prefix": 0,
+                "FirstName": 1,
+                "MiddleName": 2,
+                "LastName": 3,
+                "Suffix": 4,
+                "CustomLabel": 5
+            }
+        }
+        Property { name: "prefix"; type: "string" }
+        Property { name: "firstName"; type: "string" }
+        Property { name: "middleName"; type: "string" }
+        Property { name: "lastName"; type: "string" }
+        Property { name: "suffix"; type: "string" }
+        Property { name: "customLabel"; type: "string" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactNickname"
+        defaultProperty: "nickname"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Nickname 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "NickName": 0
+            }
+        }
+        Property { name: "nickname"; type: "string" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactNote"
+        defaultProperty: "note"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Note 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Note": 0
+            }
+        }
+        Property { name: "note"; type: "string" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactOnlineAccount"
+        defaultProperty: "accountUri"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/OnlineAccount 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "AccountUri": 0,
+                "ServiceProvider": 1,
+                "Capabilities": 2,
+                "SubTypes": 3
+            }
+        }
+        Enum {
+            name: "OnlineAccountSubType"
+            values: {
+                "Unknown": 0,
+                "Sip": 1,
+                "SipVoip": 2,
+                "Impp": 3,
+                "VideoShare": 4
+            }
+        }
+        Property { name: "accountUri"; type: "string" }
+        Property { name: "serviceProvider"; type: "string" }
+        Property { name: "capabilities"; type: "QStringList" }
+        Property { name: "subTypes"; type: "QVariant" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactOrganization"
+        defaultProperty: "name"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Organization 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Name": 0,
+                "LogoUrl": 1,
+                "Department": 2,
+                "Location": 3,
+                "Role": 4,
+                "Title": 5,
+                "AssistantName": 6
+            }
+        }
+        Property { name: "name"; type: "string" }
+        Property { name: "logoUrl"; type: "QUrl" }
+        Property { name: "department"; type: "QStringList" }
+        Property { name: "location"; type: "string" }
+        Property { name: "role"; type: "string" }
+        Property { name: "title"; type: "string" }
+        Property { name: "assistantName"; type: "string" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactPhoneNumber"
+        defaultProperty: "number"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/PhoneNumber 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Number": 0,
+                "SubTypes": 1
+            }
+        }
+        Enum {
+            name: "PhoneNumberSubType"
+            values: {
+                "Unknown": 0,
+                "Landline": 1,
+                "Mobile": 2,
+                "Fax": 3,
+                "Pager": 4,
+                "Voice": 5,
+                "Modem": 6,
+                "Video": 7,
+                "Car": 8,
+                "BulletinBoardSystem": 9,
+                "MessagingCapable": 10,
+                "Assistant": 11,
+                "DtmfMenu": 12
+            }
+        }
+        Property { name: "number"; type: "string" }
+        Property { name: "subTypes"; type: "QVariant" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactPresence"
+        defaultProperty: "state"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Presence 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Timestamp": 0,
+                "Nickname": 1,
+                "State": 2,
+                "StateText": 3,
+                "ImageUrl": 4,
+                "CustomMessage": 5
+            }
+        }
+        Enum {
+            name: "PresenceStateType"
+            values: {
+                "Unknown": 0,
+                "Available": 1,
+                "Hidden": 2,
+                "Busy": 3,
+                "Away": 4,
+                "ExtendedAway": 5,
+                "Offline": 6
+            }
+        }
+        Property { name: "timestamp"; type: "QDateTime" }
+        Property { name: "nickname"; type: "string" }
+        Property { name: "state"; type: "PresenceStateType" }
+        Property { name: "stateText"; type: "string" }
+        Property { name: "imageUrl"; type: "QUrl" }
+        Property { name: "customMessage"; type: "string" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactRelationship"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.contacts/Relationship 1.1"
+        ]
+        Enum {
+            name: "RelationshipRole"
+            values: {
+                "First": 0,
+                "Second": 1,
+                "Either": 2
+            }
+        }
+        Enum {
+            name: "RelationshipType"
+            values: {
+                "Unknown": 0,
+                "HasMember": 1,
+                "Aggregates": 2,
+                "IsSameAs": 3,
+                "HasAssistant": 4,
+                "HasManager": 5,
+                "HasSpouse": 6
+            }
+        }
+        Property { name: "first"; type: "QContactLocalId" }
+        Property { name: "second"; type: "QContactLocalId" }
+        Property { name: "type"; type: "QVariant" }
+        Signal { name: "valueChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactRelationshipFilter"
+        prototype: "QDeclarativeContactFilter"
+        exports: [
+            "QtMobility.contacts/RelationshipFilter 1.1"
+        ]
+        Property { name: "relationshipType"; type: "QVariant" }
+        Property { name: "relatedContactId"; type: "QContactLocalId" }
+        Property {
+            name: "relatedContactRole"
+            type: "QDeclarativeContactRelationship::RelationshipRole"
+        }
+        Signal { name: "valueChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactRingtone"
+        defaultProperty: "audioRingtoneUrl"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Ringtone 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "AudioRingtoneUrl": 0,
+                "VideoRingtoneUrl": 1,
+                "VibrationRingtoneUrl": 2
+            }
+        }
+        Property { name: "audioRingtoneUrl"; type: "QUrl" }
+        Property { name: "videoRingtoneUrl"; type: "QUrl" }
+        Property { name: "vibrationRingtoneUrl"; type: "QUrl" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactSortOrder"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.contacts/SortOrder 1.1"
+        ]
+        Enum {
+            name: "BlankPolicy"
+            values: {
+                "BlanksFirst": 0,
+                "BlanksLast": 1
+            }
+        }
+        Property { name: "detail"; type: "QVariant" }
+        Property { name: "field"; type: "QVariant" }
+        Property { name: "direction"; type: "Qt::SortOrder" }
+        Property { name: "blankPolicy"; type: "BlankPolicy" }
+        Property { name: "caseSensitivity"; type: "Qt::CaseSensitivity" }
+        Signal { name: "sortOrderChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactSyncTarget"
+        defaultProperty: "syncTarget"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/SyncTarget 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "SyncTarget": 0
+            }
+        }
+        Property { name: "syncTarget"; type: "string" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactTag"
+        defaultProperty: "tag"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Tag 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Tag": 0
+            }
+        }
+        Property { name: "tag"; type: "string" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactTimestamp"
+        defaultProperty: "lastModified"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Timestamp 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "LastModified": 0,
+                "Created": 1
+            }
+        }
+        Property { name: "lastModified"; type: "QDateTime" }
+        Property { name: "created"; type: "QDateTime" }
+        Signal { name: "fieldsChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactUnionFilter"
+        defaultProperty: "filters"
+        prototype: "QDeclarativeContactFilter"
+        exports: [
+            "QtMobility.contacts/UnionFilter 1.1"
+        ]
+        Property { name: "filters"; type: "QDeclarativeContactFilter"; isList: true; isReadonly: true }
+        Signal { name: "valueChanged" }
+    }
+    Component {
+        name: "QDeclarativeContactUrl"
+        prototype: "QDeclarativeContactDetail"
+        exports: [
+            "QtMobility.contacts/Url 1.1"
+        ]
+        Enum {
+            name: "FieldType"
+            values: {
+                "Url": 0,
+                "SubType": 1
+            }
+        }
+        Enum {
+            name: "UrlSubType"
+            values: {
+                "Unknown": 0,
+                "HomePage": 1,
+                "Blog": 2,
+                "Favourite": 3
+            }
+        }
+        Property { name: "url"; type: "string" }
+        Property { name: "subType"; type: "QVariant" }
+        Signal { name: "fieldsChanged" }
+    }
+}

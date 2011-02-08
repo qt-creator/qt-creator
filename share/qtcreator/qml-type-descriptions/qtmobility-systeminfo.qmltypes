@@ -1,0 +1,382 @@
+import QtQuick.tooling 1.0
+
+// This file describes the plugin-supplied types contained in the library.
+// It is used for QML tooling purposes only.
+
+Module {
+    Component {
+        name: "QDeclarativeDeviceInfo"
+        prototype: "QSystemDeviceInfo"
+        exports: [
+            "QtMobility.systeminfo/DeviceInfo 1.1"
+        ]
+        Signal {
+            name: "batteryLevelChanged"
+            Parameter { name: "level"; type: "int" }
+        }
+        Signal {
+            name: "batteryStatusChanged"
+            Parameter { name: "batteryStatus"; type: "QSystemDeviceInfo::BatteryStatus" }
+        }
+        Signal {
+            name: "powerStateChanged"
+            Parameter { name: "powerState"; type: "QSystemDeviceInfo::PowerState" }
+        }
+        Signal {
+            name: "currentProfileChanged"
+            Parameter { name: "currentProfile"; type: "QSystemDeviceInfo::Profile" }
+        }
+        Signal {
+            name: "bluetoothStateChanged"
+            Parameter { name: "on"; type: "bool" }
+        }
+        Method { name: "startBatteryLevelChanged" }
+        Method { name: "startBatteryStatusChanged" }
+        Method { name: "startPowerStateChanged" }
+        Method { name: "startCurrentProfileChanged" }
+        Method { name: "startBluetoothStateChanged" }
+    }
+    Component {
+        name: "QDeclarativeGeneralInfo"
+        prototype: "QSystemInfo"
+        exports: [
+            "QtMobility.systeminfo/GeneralInfo 1.1"
+        ]
+        Signal {
+            name: "currentLanguageChanged"
+            Parameter { name: "language"; type: "string" }
+        }
+        Method { name: "startCurrentLanguageChanged" }
+    }
+    Component {
+        name: "QDeclarativeNetworkInfo"
+        prototype: "QSystemNetworkInfo"
+        exports: [
+            "QtMobility.systeminfo/NetworkInfo 1.1"
+        ]
+        Property { name: "networkStatus"; type: "string"; isReadonly: true }
+        Property { name: "networkName"; type: "string"; isReadonly: true }
+        Property { name: "networkSignalStrength"; type: "int"; isReadonly: true }
+        Property { name: "macAddress"; type: "string"; isReadonly: true }
+        Property { name: "mode"; type: "QSystemNetworkInfo::NetworkMode" }
+        Property {
+            name: "availableModes"
+            type: "QList<QSystemNetworkInfo::NetworkMode>"
+            isReadonly: true
+        }
+        Signal {
+            name: "statusChanged"
+            Parameter { name: "newStatus"; type: "string" }
+        }
+        Signal {
+            name: "signalStrengthChanged"
+            Parameter { name: "strength"; type: "int" }
+        }
+        Signal {
+            name: "nameChanged"
+            Parameter { name: "name"; type: "string" }
+        }
+        Signal { name: "modeChanged" }
+        Signal {
+            name: "currentMobileCountryCodeChanged"
+            Parameter { name: "newMcc"; type: "string" }
+        }
+        Signal {
+            name: "currentMobileNetworkCodeChanged"
+            Parameter { name: "newMnc"; type: "string" }
+        }
+        Method { name: "interfaceForMode"; type: "QNetworkInterface" }
+        Method { name: "startStatusChanged" }
+        Method { name: "startSignalStrengthChanged" }
+        Method { name: "startNameChanged" }
+        Method { name: "startModeChanged" }
+        Method { name: "startCurrentMobileCountryCodeChanged" }
+        Method { name: "startCurrentMobileNetworkCodeChanged" }
+        Method { name: "availableModes"; type: "QList<QSystemNetworkInfo::NetworkMode>" }
+    }
+    Component {
+        name: "QDeclarativeScreenSaver"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.systeminfo/ScreenSaver 1.1"
+        ]
+        Property { name: "screenSaverDelayed"; type: "bool" }
+        Property { name: "screenSaverInhibited"; type: "bool"; isReadonly: true }
+        Method {
+            name: "setScreenSaverDelayed"
+            Parameter { name: "on"; type: "bool" }
+        }
+        Method { name: "setScreenSaverInhibit"; type: "bool" }
+    }
+    Component {
+        name: "QSystemDeviceInfo"
+        prototype: "QObject"
+        Enum {
+            name: "BatteryStatus"
+            values: {
+                "NoBatteryLevel": 0,
+                "BatteryCritical": 1,
+                "BatteryVeryLow": 2,
+                "BatteryLow": 3,
+                "BatteryNormal": 4
+            }
+        }
+        Enum {
+            name: "PowerState"
+            values: {
+                "UnknownPower": 0,
+                "BatteryPower": 1,
+                "WallPower": 2,
+                "WallPowerChargingBattery": 3
+            }
+        }
+        Enum {
+            name: "InputMethod"
+            values: {
+                "Keys": 1,
+                "Keypad": 2,
+                "Keyboard": 4,
+                "SingleTouch": 8,
+                "MultiTouch": 16,
+                "Mouse": 32
+            }
+        }
+        Enum {
+            name: "InputMethodFlags"
+            values: {
+                "Keys": 1,
+                "Keypad": 2,
+                "Keyboard": 4,
+                "SingleTouch": 8,
+                "MultiTouch": 16,
+                "Mouse": 32
+            }
+        }
+        Enum {
+            name: "Profile"
+            values: {
+                "UnknownProfile": 0,
+                "SilentProfile": 1,
+                "NormalProfile": 2,
+                "LoudProfile": 3,
+                "VibProfile": 4,
+                "OfflineProfile": 5,
+                "PowersaveProfile": 6,
+                "CustomProfile": 7,
+                "BeepProfile": 8
+            }
+        }
+        Enum {
+            name: "SimStatus"
+            values: {
+                "SimNotAvailable": 0,
+                "SingleSimAvailable": 1,
+                "DualSimAvailable": 2,
+                "SimLocked": 3
+            }
+        }
+        Property { name: "currentProfile"; type: "Profile"; isReadonly: true }
+        Property { name: "powerState"; type: "PowerState"; isReadonly: true }
+        Property { name: "simStatus"; type: "SimStatus"; isReadonly: true }
+        Property { name: "batteryStatus"; type: "BatteryStatus"; isReadonly: true }
+        Property { name: "inputMethodType"; type: "InputMethodFlags"; isReadonly: true }
+        Property { name: "imei"; type: "string"; isReadonly: true }
+        Property { name: "imsi"; type: "string"; isReadonly: true }
+        Property { name: "manufacturer"; type: "string"; isReadonly: true }
+        Property { name: "model"; type: "string"; isReadonly: true }
+        Property { name: "productName"; type: "string"; isReadonly: true }
+        Property { name: "batteryLevel"; type: "int"; isReadonly: true }
+        Property { name: "isDeviceLocked"; type: "bool"; isReadonly: true }
+        Property { name: "currentBluetoothPowerState"; type: "bool"; isReadonly: true }
+        Property { name: "currentPowerState"; type: "QSystemDeviceInfo::PowerState"; isReadonly: true }
+        Signal {
+            name: "batteryLevelChanged"
+            Parameter { name: "level"; type: "int" }
+        }
+        Signal {
+            name: "batteryStatusChanged"
+            Parameter { name: "batteryStatus"; type: "QSystemDeviceInfo::BatteryStatus" }
+        }
+        Signal {
+            name: "powerStateChanged"
+            Parameter { name: "powerState"; type: "QSystemDeviceInfo::PowerState" }
+        }
+        Signal {
+            name: "currentProfileChanged"
+            Parameter { name: "currentProfile"; type: "QSystemDeviceInfo::Profile" }
+        }
+        Signal {
+            name: "bluetoothStateChanged"
+            Parameter { name: "on"; type: "bool" }
+        }
+    }
+    Component {
+        name: "QSystemDisplayInfo"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.systeminfo/DisplayInfo 1.1"
+        ]
+    }
+    Component {
+        name: "QSystemInfo"
+        prototype: "QObject"
+        Enum {
+            name: "Version"
+            values: {
+                "Os": 1,
+                "QtCore": 2,
+                "Firmware": 3,
+                "QtMobility": 4
+            }
+        }
+        Enum {
+            name: "Feature"
+            values: {
+                "BluetoothFeature": 0,
+                "CameraFeature": 1,
+                "FmradioFeature": 2,
+                "IrFeature": 3,
+                "LedFeature": 4,
+                "MemcardFeature": 5,
+                "UsbFeature": 6,
+                "VibFeature": 7,
+                "WlanFeature": 8,
+                "SimFeature": 9,
+                "LocationFeature": 10,
+                "VideoOutFeature": 11,
+                "HapticsFeature": 12
+            }
+        }
+        Property { name: "currentLanguage"; type: "string"; isReadonly: true }
+        Property { name: "availableLanguages"; type: "QStringList"; isReadonly: true }
+        Property { name: "currentCountryCode"; type: "string"; isReadonly: true }
+        Signal {
+            name: "currentLanguageChanged"
+            Parameter { type: "string" }
+        }
+    }
+    Component {
+        name: "QSystemNetworkInfo"
+        prototype: "QObject"
+        Enum {
+            name: "NetworkStatus"
+            values: {
+                "UndefinedStatus": 0,
+                "NoNetworkAvailable": 1,
+                "EmergencyOnly": 2,
+                "Searching": 3,
+                "Busy": 4,
+                "Connected": 5,
+                "HomeNetwork": 6,
+                "Denied": 7,
+                "Roaming": 8
+            }
+        }
+        Enum {
+            name: "NetworkMode"
+            values: {
+                "UnknownMode": 0,
+                "GsmMode": 1,
+                "CdmaMode": 2,
+                "WcdmaMode": 3,
+                "WlanMode": 4,
+                "EthernetMode": 5,
+                "BluetoothMode": 6,
+                "WimaxMode": 7
+            }
+        }
+        Property { name: "cellId"; type: "int"; isReadonly: true }
+        Property { name: "locationAreaCode"; type: "int"; isReadonly: true }
+        Property { name: "currentMobileCountryCode"; type: "string"; isReadonly: true }
+        Property { name: "currentMobileNetworkCode"; type: "string"; isReadonly: true }
+        Property { name: "homeMobileCountryCode"; type: "string"; isReadonly: true }
+        Property { name: "homeMobileNetworkCode"; type: "string"; isReadonly: true }
+        Property { name: "currentMode"; type: "QSystemNetworkInfo::NetworkMode"; isReadonly: true }
+        Signal {
+            name: "networkStatusChanged"
+            Parameter { type: "QSystemNetworkInfo::NetworkMode" }
+            Parameter { type: "QSystemNetworkInfo::NetworkStatus" }
+        }
+        Signal {
+            name: "networkSignalStrengthChanged"
+            Parameter { type: "QSystemNetworkInfo::NetworkMode" }
+            Parameter { type: "int" }
+        }
+        Signal {
+            name: "currentMobileCountryCodeChanged"
+            Parameter { type: "string" }
+        }
+        Signal {
+            name: "currentMobileNetworkCodeChanged"
+            Parameter { type: "string" }
+        }
+        Signal {
+            name: "networkNameChanged"
+            Parameter { type: "QSystemNetworkInfo::NetworkMode" }
+            Parameter { type: "string" }
+        }
+        Signal {
+            name: "networkModeChanged"
+            Parameter { type: "QSystemNetworkInfo::NetworkMode" }
+        }
+        Method {
+            name: "networkStatus"
+            type: "QSystemNetworkInfo::NetworkStatus"
+            Parameter { name: "mode"; type: "QSystemNetworkInfo::NetworkMode" }
+        }
+        Method {
+            name: "networkSignalStrength"
+            type: "int"
+            Parameter { name: "mode"; type: "QSystemNetworkInfo::NetworkMode" }
+        }
+        Method {
+            name: "macAddress"
+            type: "string"
+            Parameter { name: "mode"; type: "QSystemNetworkInfo::NetworkMode" }
+        }
+        Method { name: "currentMode"; type: "QSystemNetworkInfo::NetworkMode" }
+        Method {
+            name: "networkName"
+            type: "string"
+            Parameter { name: "mode"; type: "QSystemNetworkInfo::NetworkMode" }
+        }
+    }
+    Component {
+        name: "QSystemStorageInfo"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.systeminfo/StorageInfo 1.1"
+        ]
+        Enum {
+            name: "DriveType"
+            values: {
+                "NoDrive": 0,
+                "InternalDrive": 1,
+                "RemovableDrive": 2,
+                "RemoteDrive": 3,
+                "CdromDrive": 4
+            }
+        }
+        Property { name: "logicalDrives"; type: "QStringList"; isReadonly: true }
+        Signal {
+            name: "logicalDriveChanged"
+            Parameter { name: "added"; type: "bool" }
+            Parameter { name: "vol"; type: "string" }
+        }
+        Method {
+            name: "totalDiskSpace"
+            type: "qlonglong"
+            Parameter { name: "driveVolume"; type: "string" }
+        }
+        Method {
+            name: "availableDiskSpace"
+            type: "qlonglong"
+            Parameter { name: "driveVolume"; type: "string" }
+        }
+        Method {
+            name: "typeForDrive"
+            type: "QSystemStorageInfo::DriveType"
+            Parameter { name: "driveVolume"; type: "string" }
+        }
+    }
+}

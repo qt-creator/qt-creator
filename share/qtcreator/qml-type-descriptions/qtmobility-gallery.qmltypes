@@ -1,0 +1,414 @@
+import QtQuick.tooling 1.0
+
+// This file describes the plugin-supplied types contained in the library.
+// It is used for QML tooling purposes only.
+
+Module {
+    Component {
+        name: "QAbstractItemModel"
+        prototype: "QObject"
+        Signal {
+            name: "dataChanged"
+            Parameter { name: "topLeft"; type: "QModelIndex" }
+            Parameter { name: "bottomRight"; type: "QModelIndex" }
+        }
+        Signal {
+            name: "headerDataChanged"
+            Parameter { name: "orientation"; type: "Qt::Orientation" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal { name: "layoutChanged" }
+        Signal { name: "layoutAboutToBeChanged" }
+        Signal {
+            name: "rowsAboutToBeInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "rowsInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "rowsAboutToBeRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "rowsRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsAboutToBeInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsAboutToBeRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal { name: "modelAboutToBeReset" }
+        Signal { name: "modelReset" }
+        Signal {
+            name: "rowsAboutToBeMoved"
+            Parameter { name: "sourceParent"; type: "QModelIndex" }
+            Parameter { name: "sourceStart"; type: "int" }
+            Parameter { name: "sourceEnd"; type: "int" }
+            Parameter { name: "destinationParent"; type: "QModelIndex" }
+            Parameter { name: "destinationRow"; type: "int" }
+        }
+        Signal {
+            name: "rowsMoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "start"; type: "int" }
+            Parameter { name: "end"; type: "int" }
+            Parameter { name: "destination"; type: "QModelIndex" }
+            Parameter { name: "row"; type: "int" }
+        }
+        Signal {
+            name: "columnsAboutToBeMoved"
+            Parameter { name: "sourceParent"; type: "QModelIndex" }
+            Parameter { name: "sourceStart"; type: "int" }
+            Parameter { name: "sourceEnd"; type: "int" }
+            Parameter { name: "destinationParent"; type: "QModelIndex" }
+            Parameter { name: "destinationColumn"; type: "int" }
+        }
+        Signal {
+            name: "columnsMoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "start"; type: "int" }
+            Parameter { name: "end"; type: "int" }
+            Parameter { name: "destination"; type: "QModelIndex" }
+            Parameter { name: "column"; type: "int" }
+        }
+        Method { name: "submit"; type: "bool" }
+        Method { name: "revert" }
+    }
+    Component { name: "QAbstractListModel"; prototype: "QAbstractItemModel" }
+    Component {
+        name: "QDeclarativeDocumentGallery"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.gallery/DocumentGallery 1.1"
+        ]
+        Enum {
+            name: "ItemType"
+            values: {
+                "InvalidType": 0,
+                "File": 1,
+                "Folder": 2,
+                "Document": 3,
+                "Text": 4,
+                "Audio": 5,
+                "Image": 6,
+                "Video": 7,
+                "Playlist": 8,
+                "Artist": 9,
+                "AlbumArtist": 10,
+                "Album": 11,
+                "AudioGenre": 12,
+                "PhotoAlbum": 13
+            }
+        }
+    }
+    Component {
+        name: "QDeclarativeDocumentGalleryItem"
+        prototype: "QDeclarativeGalleryItem"
+        exports: [
+            "QtMobility.gallery/DocumentGalleryItem 1.1"
+        ]
+        Property { name: "itemType"; type: "QDeclarativeDocumentGallery::ItemType"; isReadonly: true }
+        Signal { name: "itemTypeChanged" }
+    }
+    Component {
+        name: "QDeclarativeDocumentGalleryModel"
+        prototype: "QDeclarativeGalleryQueryModel"
+        exports: [
+            "QtMobility.gallery/DocumentGalleryModel 1.1"
+        ]
+        Property { name: "rootType"; type: "QDeclarativeDocumentGallery::ItemType" }
+        Signal { name: "rootTypeChanged" }
+    }
+    Component {
+        name: "QDeclarativeDocumentGalleryType"
+        prototype: "QDeclarativeGalleryType"
+        exports: [
+            "QtMobility.gallery/DocumentGalleryType 1.1"
+        ]
+        Property { name: "itemType"; type: "QDeclarativeDocumentGallery::ItemType" }
+        Signal { name: "itemTypeChanged" }
+    }
+    Component {
+        name: "QDeclarativeGalleryContainsFilter"
+        prototype: "QDeclarativeGalleryStringFilter"
+        exports: [
+            "QtMobility.gallery/GalleryContainsFilter 1.1"
+        ]
+    }
+    Component {
+        name: "QDeclarativeGalleryEndsWithFilter"
+        prototype: "QDeclarativeGalleryStringFilter"
+        exports: [
+            "QtMobility.gallery/GalleryEndsWithFilter 1.1"
+        ]
+    }
+    Component {
+        name: "QDeclarativeGalleryEqualsFilter"
+        prototype: "QDeclarativeGalleryValueFilter"
+        exports: [
+            "QtMobility.gallery/GalleryEqualsFilter 1.1"
+        ]
+    }
+    Component {
+        name: "QDeclarativeGalleryFilterBase"
+        prototype: "QObject"
+        Signal { name: "filterChanged" }
+    }
+    Component {
+        name: "QDeclarativeGalleryFilterGroup"
+        defaultProperty: "filters"
+        prototype: "QDeclarativeGalleryFilterBase"
+        Property {
+            name: "filters"
+            type: "QDeclarativeGalleryFilterBase"
+            isList: true
+            isReadonly: true
+        }
+    }
+    Component {
+        name: "QDeclarativeGalleryFilterIntersection"
+        defaultProperty: "filters"
+        prototype: "QDeclarativeGalleryFilterGroup"
+        exports: [
+            "QtMobility.gallery/GalleryFilterIntersection 1.1"
+        ]
+    }
+    Component {
+        name: "QDeclarativeGalleryFilterUnion"
+        defaultProperty: "filters"
+        prototype: "QDeclarativeGalleryFilterGroup"
+        exports: [
+            "QtMobility.gallery/GalleryFilterUnion 1.1"
+        ]
+    }
+    Component {
+        name: "QDeclarativeGalleryGreaterThanEqualsFilter"
+        prototype: "QDeclarativeGalleryValueFilter"
+        exports: [
+            "QtMobility.gallery/GalleryGreaterThanEqualsFilter 1.1"
+        ]
+    }
+    Component {
+        name: "QDeclarativeGalleryGreaterThanFilter"
+        prototype: "QDeclarativeGalleryValueFilter"
+        exports: [
+            "QtMobility.gallery/GalleryGreaterThanFilter 1.1"
+        ]
+    }
+    Component {
+        name: "QDeclarativeGalleryItem"
+        prototype: "QObject"
+        Enum {
+            name: "Status"
+            values: {
+                "Null": 0,
+                "Active": 1,
+                "Canceling": 2,
+                "Canceled": 3,
+                "Idle": 4,
+                "Finished": 5,
+                "Error": 6
+            }
+        }
+        Property { name: "status"; type: "Status"; isReadonly: true }
+        Property { name: "progress"; type: "qreal"; isReadonly: true }
+        Property { name: "properties"; type: "QStringList" }
+        Property { name: "autoUpdate"; type: "bool" }
+        Property { name: "item"; type: "QVariant" }
+        Property { name: "available"; type: "bool"; isReadonly: true }
+        Property { name: "itemUrl"; type: "QUrl"; isReadonly: true }
+        Property { name: "metaData"; type: "QObject"; isReadonly: true; isPointer: true }
+        Signal { name: "statusChanged" }
+        Signal { name: "progressChanged" }
+        Signal { name: "availableChanged" }
+        Signal { name: "metaDataChanged" }
+        Signal { name: "galleryChanged" }
+        Signal { name: "propertyNamesChanged" }
+        Signal { name: "autoUpdateChanged" }
+        Signal { name: "itemIdChanged" }
+        Method { name: "reload" }
+        Method { name: "cancel" }
+        Method { name: "clear" }
+    }
+    Component {
+        name: "QDeclarativeGalleryLessThanEqualsFilter"
+        prototype: "QDeclarativeGalleryValueFilter"
+        exports: [
+            "QtMobility.gallery/GalleryLessThanEqualsFilter 1.1"
+        ]
+    }
+    Component {
+        name: "QDeclarativeGalleryLessThanFilter"
+        prototype: "QDeclarativeGalleryValueFilter"
+        exports: [
+            "QtMobility.gallery/GalleryLessThanFilter 1.1"
+        ]
+    }
+    Component {
+        name: "QDeclarativeGalleryQueryModel"
+        prototype: "QAbstractListModel"
+        Enum {
+            name: "Status"
+            values: {
+                "Null": 0,
+                "Active": 1,
+                "Canceling": 2,
+                "Canceled": 3,
+                "Idle": 4,
+                "Finished": 5,
+                "Error": 6
+            }
+        }
+        Enum {
+            name: "Scope"
+            values: {
+                "AllDescendants": 0,
+                "DirectDescendants": 1
+            }
+        }
+        Property { name: "status"; type: "Status"; isReadonly: true }
+        Property { name: "progress"; type: "qreal"; isReadonly: true }
+        Property { name: "properties"; type: "QStringList" }
+        Property { name: "sortProperties"; type: "QStringList" }
+        Property { name: "autoUpdate"; type: "bool" }
+        Property { name: "rootItem"; type: "QVariant" }
+        Property { name: "scope"; type: "Scope" }
+        Property { name: "offset"; type: "int" }
+        Property { name: "limit"; type: "int" }
+        Property { name: "count"; type: "int"; isReadonly: true }
+        Property { name: "filter"; type: "QDeclarativeGalleryFilterBase"; isPointer: true }
+        Signal { name: "statusChanged" }
+        Signal { name: "progressChanged" }
+        Signal { name: "propertyNamesChanged" }
+        Signal { name: "sortPropertyNamesChanged" }
+        Signal { name: "autoUpdateChanged" }
+        Signal { name: "rootItemChanged" }
+        Signal { name: "scopeChanged" }
+        Signal { name: "filterChanged" }
+        Signal { name: "offsetChanged" }
+        Signal { name: "limitChanged" }
+        Signal { name: "countChanged" }
+        Method { name: "reload" }
+        Method { name: "cancel" }
+        Method { name: "clear" }
+        Method {
+            name: "get"
+            type: "QScriptValue"
+            Parameter { name: "index"; type: "QScriptValue" }
+        }
+        Method {
+            name: "property"
+            type: "QVariant"
+            Parameter { name: "index"; type: "int" }
+            Parameter { name: "property"; type: "string" }
+        }
+        Method {
+            name: "set"
+            Parameter { name: "index"; type: "int" }
+            Parameter { name: "value"; type: "QScriptValue" }
+        }
+        Method {
+            name: "setProperty"
+            Parameter { name: "index"; type: "int" }
+            Parameter { name: "property"; type: "string" }
+            Parameter { name: "value"; type: "QVariant" }
+        }
+    }
+    Component {
+        name: "QDeclarativeGalleryStartsWithFilter"
+        prototype: "QDeclarativeGalleryStringFilter"
+        exports: [
+            "QtMobility.gallery/GalleryStartsWithFilter 1.1"
+        ]
+    }
+    Component {
+        name: "QDeclarativeGalleryStringFilter"
+        prototype: "QDeclarativeGalleryFilterBase"
+        Property { name: "property"; type: "string" }
+        Property { name: "value"; type: "string" }
+        Property { name: "negated"; type: "bool" }
+        Signal { name: "propertyNameChanged" }
+        Signal { name: "valueChanged" }
+        Signal { name: "negatedChanged" }
+    }
+    Component {
+        name: "QDeclarativeGalleryType"
+        prototype: "QObject"
+        Enum {
+            name: "Status"
+            values: {
+                "Null": 0,
+                "Active": 1,
+                "Canceling": 2,
+                "Canceled": 3,
+                "Idle": 4,
+                "Finished": 5,
+                "Error": 6
+            }
+        }
+        Property { name: "status"; type: "Status"; isReadonly: true }
+        Property { name: "progress"; type: "qreal"; isReadonly: true }
+        Property { name: "properties"; type: "QStringList" }
+        Property { name: "autoUpdate"; type: "bool" }
+        Property { name: "available"; type: "bool"; isReadonly: true }
+        Property { name: "metaData"; type: "QObject"; isReadonly: true; isPointer: true }
+        Signal { name: "statusChanged" }
+        Signal { name: "progressChanged" }
+        Signal { name: "availableChanged" }
+        Signal { name: "metaDataChanged" }
+        Signal { name: "galleryChanged" }
+        Signal { name: "propertyNamesChanged" }
+        Signal { name: "autoUpdateChanged" }
+        Method { name: "reload" }
+        Method { name: "cancel" }
+        Method { name: "clear" }
+    }
+    Component {
+        name: "QDeclarativeGalleryValueFilter"
+        prototype: "QDeclarativeGalleryFilterBase"
+        Property { name: "property"; type: "string" }
+        Property { name: "value"; type: "QVariant" }
+        Property { name: "negated"; type: "bool" }
+        Signal { name: "propertyNameChanged" }
+        Signal { name: "valueChanged" }
+        Signal { name: "negatedChanged" }
+    }
+    Component {
+        name: "QDeclarativeGalleryWildcardFilter"
+        prototype: "QDeclarativeGalleryStringFilter"
+        exports: [
+            "QtMobility.gallery/GalleryWildcardFilter 1.1"
+        ]
+    }
+}

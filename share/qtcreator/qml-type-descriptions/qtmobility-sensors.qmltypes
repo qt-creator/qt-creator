@@ -1,0 +1,205 @@
+import QtQuick.tooling 1.0
+
+// This file describes the plugin-supplied types contained in the library.
+// It is used for QML tooling purposes only.
+
+Module {
+    Component {
+        name: "QAccelerometer"
+        prototype: "QSensor"
+        exports: [
+            "QtMobility.sensors/Accelerometer 1.1"
+        ]
+    }
+    Component {
+        name: "QAccelerometerReading"
+        prototype: "QSensorReading"
+        exports: [
+            "QtMobility.sensors/AccelerometerReading 1.1"
+        ]
+        Property { name: "x"; type: "qreal"; isReadonly: true }
+        Property { name: "y"; type: "qreal"; isReadonly: true }
+        Property { name: "z"; type: "qreal"; isReadonly: true }
+    }
+    Component {
+        name: "QAmbientLightReading"
+        prototype: "QSensorReading"
+        exports: [
+            "QtMobility.sensors/AmbientLightReading 1.1"
+        ]
+        Enum {
+            name: "LightLevel"
+            values: {
+                "Undefined": 0,
+                "Dark": 1,
+                "Twilight": 2,
+                "Light": 3,
+                "Bright": 4,
+                "Sunny": 5
+            }
+        }
+        Property { name: "lightLevel"; type: "LightLevel"; isReadonly: true }
+    }
+    Component {
+        name: "QAmbientLightSensor"
+        prototype: "QSensor"
+        exports: [
+            "QtMobility.sensors/AmbientLightSensor 1.1"
+        ]
+    }
+    Component {
+        name: "QCompass"
+        prototype: "QSensor"
+        exports: [
+            "QtMobility.sensors/Compass 1.1"
+        ]
+    }
+    Component {
+        name: "QCompassReading"
+        prototype: "QSensorReading"
+        exports: [
+            "QtMobility.sensors/CompassReading 1.1"
+        ]
+        Property { name: "azimuth"; type: "qreal"; isReadonly: true }
+        Property { name: "calibrationLevel"; type: "qreal"; isReadonly: true }
+    }
+    Component {
+        name: "QMagnetometer"
+        prototype: "QSensor"
+        exports: [
+            "QtMobility.sensors/Magnetometer 1.1"
+        ]
+    }
+    Component {
+        name: "QMagnetometerReading"
+        prototype: "QSensorReading"
+        exports: [
+            "QtMobility.sensors/MagnetometerReading 1.1"
+        ]
+        Property { name: "x"; type: "qreal"; isReadonly: true }
+        Property { name: "y"; type: "qreal"; isReadonly: true }
+        Property { name: "z"; type: "qreal"; isReadonly: true }
+        Property { name: "calibrationLevel"; type: "qreal"; isReadonly: true }
+    }
+    Component {
+        name: "QOrientationReading"
+        prototype: "QSensorReading"
+        exports: [
+            "QtMobility.sensors/OrientationReading 1.1"
+        ]
+        Enum {
+            name: "Orientation"
+            values: {
+                "Undefined": 0,
+                "TopUp": 1,
+                "TopDown": 2,
+                "LeftUp": 3,
+                "RightUp": 4,
+                "FaceUp": 5,
+                "FaceDown": 6
+            }
+        }
+        Property { name: "orientation"; type: "Orientation"; isReadonly: true }
+    }
+    Component {
+        name: "QOrientationSensor"
+        prototype: "QSensor"
+        exports: [
+            "QtMobility.sensors/OrientationSensor 1.1"
+        ]
+    }
+    Component {
+        name: "QProximityReading"
+        prototype: "QSensorReading"
+        exports: [
+            "QtMobility.sensors/ProximityReading 1.1"
+        ]
+        Property { name: "close"; type: "bool"; isReadonly: true }
+    }
+    Component {
+        name: "QProximitySensor"
+        prototype: "QSensor"
+        exports: [
+            "QtMobility.sensors/ProximitySensor 1.1"
+        ]
+    }
+    Component {
+        name: "QRotationReading"
+        prototype: "QSensorReading"
+        exports: [
+            "QtMobility.sensors/RotationReading 1.1"
+        ]
+        Property { name: "x"; type: "qreal"; isReadonly: true }
+        Property { name: "y"; type: "qreal"; isReadonly: true }
+        Property { name: "z"; type: "qreal"; isReadonly: true }
+    }
+    Component {
+        name: "QRotationSensor"
+        prototype: "QSensor"
+        exports: [
+            "QtMobility.sensors/RotationSensor 1.1"
+        ]
+    }
+    Component {
+        name: "QSensor"
+        prototype: "QObject"
+        Property { name: "sensorid"; type: "QByteArray" }
+        Property { name: "type"; type: "QByteArray"; isReadonly: true }
+        Property { name: "connectedToBackend"; type: "bool"; isReadonly: true }
+        Property { name: "availableDataRates"; type: "QtMobility::qrangelist"; isReadonly: true }
+        Property { name: "dataRate"; type: "int" }
+        Property { name: "reading"; type: "QSensorReading"; isReadonly: true; isPointer: true }
+        Property { name: "busy"; type: "bool"; isReadonly: true }
+        Property { name: "active"; type: "bool" }
+        Property { name: "outputRanges"; type: "QtMobility::qoutputrangelist"; isReadonly: true }
+        Property { name: "outputRange"; type: "int" }
+        Property { name: "description"; type: "string"; isReadonly: true }
+        Property { name: "error"; type: "int"; isReadonly: true }
+        Signal { name: "busyChanged" }
+        Signal { name: "activeChanged" }
+        Signal { name: "readingChanged" }
+        Signal {
+            name: "sensorError"
+            Parameter { name: "error"; type: "int" }
+        }
+        Method { name: "start"; type: "bool" }
+        Method { name: "stop" }
+        Method { name: "connectToBackend"; type: "bool" }
+    }
+    Component {
+        name: "QSensorReading"
+        prototype: "QObject"
+        Property { name: "timestamp"; type: "QtMobility::qtimestamp"; isReadonly: true }
+    }
+    Component {
+        name: "QTapReading"
+        prototype: "QSensorReading"
+        exports: [
+            "QtMobility.sensors/TapReading 1.1"
+        ]
+        Enum {
+            name: "TapDirection"
+            values: {
+                "Undefined": 0,
+                "X": 1,
+                "Y": 2,
+                "Z": 4,
+                "X_Pos": 17,
+                "Y_Pos": 34,
+                "Z_Pos": 68,
+                "X_Neg": 257,
+                "Y_Neg": 514,
+                "Z_Neg": 1028
+            }
+        }
+        Property { name: "tapDirection"; type: "TapDirection"; isReadonly: true }
+        Property { name: "doubleTap"; type: "bool"; isReadonly: true }
+    }
+    Component {
+        name: "QTapSensor"
+        prototype: "QSensor"
+        exports: [
+            "QtMobility.sensors/TapSensor 1.1"
+        ]
+    }
+}

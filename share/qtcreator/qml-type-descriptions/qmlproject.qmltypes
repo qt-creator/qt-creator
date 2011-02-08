@@ -1,0 +1,72 @@
+import QtQuick.tooling 1.0
+
+// This file describes the plugin-supplied types contained in the library.
+// It is used for QML tooling purposes only.
+
+Module {
+    Component {
+        name: "QmlProject.Project"
+        exports: [
+            "QmlProject/Project 1.0",
+            "QmlProject/Project 1.1"
+        ]
+        Property { name: "sourceDirectory"; type: "string" }
+        Property { name: "mainFile"; type: "string" }
+        Property { name: "importPaths"; type: "string"; isList: true }
+        Property { name: "content"; type: "QmlProjectItem"; isList: true }
+    }
+    Component {
+        name: "QmlProjectItem"
+    }
+    Component {
+        name: "FileFilterBaseItem"
+        prototype: "QmlProjectItem"
+        Property { name: "directory"; type: "string" }
+        Property { name: "recursive"; type: "string" }
+        Property { name: "paths"; type: "string"; isList: true }
+        Property { name: "files"; type: "string"; isList: true }
+    }
+    Component {
+        name: "QmlProject.QmlFiles"
+        prototype: "FileFilterBaseItem"
+        exports: [
+            "QmlProject/QmlFiles 1.0",
+            "QmlProject/QmlFiles 1.1"
+        ]
+    }
+    Component {
+        name: "QmlProject.JavaScriptFiles"
+        prototype: "FileFilterBaseItem"
+        exports: [
+            "QmlProject/JavaScriptFiles 1.0",
+            "QmlProject/JavaScriptFiles 1.1"
+        ]
+        Property { name: "filter"; type: "string" }
+    }
+    Component {
+        name: "QmlProject.ImageFiles"
+        prototype: "FileFilterBaseItem"
+        exports: [
+            "QmlProject/ImageFiles 1.0",
+            "QmlProject/ImageFiles 1.1"
+        ]
+        Property { name: "filter"; type: "string" }
+    }
+    Component {
+        name: "QmlProject.CssFiles"
+        prototype: "FileFilterBaseItem"
+        exports: [
+            "QmlProject/CssFiles 1.0",
+            "QmlProject/CssFiles 1.1"
+        ]
+        Property { name: "filter"; type: "string" }
+    }
+    Component {
+        name: "QmlProject.Files"
+        prototype: "FileFilterBaseItem"
+        exports: [
+            "QmlProject/Files 1.1"
+        ]
+        Property { name: "filter"; type: "string" }
+    }
+}

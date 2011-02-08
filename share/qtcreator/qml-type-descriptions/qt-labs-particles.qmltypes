@@ -1,0 +1,91 @@
+import QtQuick.tooling 1.0
+
+// This file describes the plugin-supplied types contained in the library.
+// It is used for QML tooling purposes only.
+
+Module {
+    Component {
+        name: "QDeclarativeParticleMotion"
+        prototype: "QObject"
+        exports: [
+            "Qt.labs.particles/ParticleMotion 1.0"
+        ]
+    }
+    Component {
+        name: "QDeclarativeParticleMotionGravity"
+        prototype: "QDeclarativeParticleMotion"
+        exports: [
+            "Qt.labs.particles/ParticleMotionGravity 1.0"
+        ]
+        Property { name: "xattractor"; type: "qreal" }
+        Property { name: "yattractor"; type: "qreal" }
+        Property { name: "acceleration"; type: "qreal" }
+        Signal { name: "xattractorChanged" }
+        Signal { name: "yattractorChanged" }
+        Signal { name: "accelerationChanged" }
+    }
+    Component {
+        name: "QDeclarativeParticleMotionLinear"
+        prototype: "QDeclarativeParticleMotion"
+        exports: [
+            "Qt.labs.particles/ParticleMotionLinear 1.0"
+        ]
+    }
+    Component {
+        name: "QDeclarativeParticleMotionWander"
+        prototype: "QDeclarativeParticleMotion"
+        exports: [
+            "Qt.labs.particles/ParticleMotionWander 1.0"
+        ]
+        Property { name: "xvariance"; type: "qreal" }
+        Property { name: "yvariance"; type: "qreal" }
+        Property { name: "pace"; type: "qreal" }
+        Signal { name: "xvarianceChanged" }
+        Signal { name: "yvarianceChanged" }
+        Signal { name: "paceChanged" }
+    }
+    Component {
+        name: "QDeclarativeParticles"
+        defaultProperty: "motion"
+        prototype: "QDeclarativeItem"
+        exports: [
+            "Qt.labs.particles/Particles 1.0"
+        ]
+        Property { name: "source"; type: "QUrl" }
+        Property { name: "count"; type: "int" }
+        Property { name: "emissionRate"; type: "int" }
+        Property { name: "emissionVariance"; type: "qreal" }
+        Property { name: "lifeSpan"; type: "int" }
+        Property { name: "lifeSpanDeviation"; type: "int" }
+        Property { name: "fadeInDuration"; type: "int" }
+        Property { name: "fadeOutDuration"; type: "int" }
+        Property { name: "angle"; type: "qreal" }
+        Property { name: "angleDeviation"; type: "qreal" }
+        Property { name: "velocity"; type: "qreal" }
+        Property { name: "velocityDeviation"; type: "qreal" }
+        Property { name: "motion"; type: "QDeclarativeParticleMotion"; isPointer: true }
+        Signal { name: "sourceChanged" }
+        Signal { name: "countChanged" }
+        Signal { name: "emissionRateChanged" }
+        Signal { name: "emissionVarianceChanged" }
+        Signal { name: "lifeSpanChanged" }
+        Signal { name: "lifeSpanDeviationChanged" }
+        Signal { name: "fadeInDurationChanged" }
+        Signal { name: "fadeOutDurationChanged" }
+        Signal { name: "angleChanged" }
+        Signal { name: "angleDeviationChanged" }
+        Signal { name: "velocityChanged" }
+        Signal { name: "velocityDeviationChanged" }
+        Signal { name: "emittingChanged" }
+        Signal { name: "motionChanged" }
+        Method {
+            name: "burst"
+            Parameter { name: "count"; type: "int" }
+            Parameter { name: "emissionRate"; type: "int" }
+        }
+        Method {
+            name: "burst"
+            Parameter { name: "count"; type: "int" }
+        }
+    }
+}

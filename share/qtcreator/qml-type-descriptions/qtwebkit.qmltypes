@@ -1,0 +1,209 @@
+import QtQuick.tooling 1.0
+
+// This file describes the plugin-supplied types contained in the library.
+// It is used for QML tooling purposes only.
+
+Module {
+    Component {
+        name: "QAction"
+        prototype: "QObject"
+        Enum {
+            name: "MenuRole"
+            values: {
+                "NoRole": 0,
+                "TextHeuristicRole": 1,
+                "ApplicationSpecificRole": 2,
+                "AboutQtRole": 3,
+                "AboutRole": 4,
+                "PreferencesRole": 5,
+                "QuitRole": 6
+            }
+        }
+        Enum {
+            name: "SoftKeyRole"
+            values: {
+                "NoSoftKey": 0,
+                "PositiveSoftKey": 1,
+                "NegativeSoftKey": 2,
+                "SelectSoftKey": 3
+            }
+        }
+        Enum {
+            name: "Priority"
+            values: {
+                "LowPriority": 0,
+                "NormalPriority": 128,
+                "HighPriority": 256
+            }
+        }
+        Property { name: "checkable"; type: "bool" }
+        Property { name: "checked"; type: "bool" }
+        Property { name: "enabled"; type: "bool" }
+        Property { name: "icon"; type: "QIcon" }
+        Property { name: "text"; type: "string" }
+        Property { name: "iconText"; type: "string" }
+        Property { name: "toolTip"; type: "string" }
+        Property { name: "statusTip"; type: "string" }
+        Property { name: "whatsThis"; type: "string" }
+        Property { name: "font"; type: "QFont" }
+        Property { name: "shortcut"; type: "QKeySequence" }
+        Property { name: "shortcutContext"; type: "Qt::ShortcutContext" }
+        Property { name: "autoRepeat"; type: "bool" }
+        Property { name: "visible"; type: "bool" }
+        Property { name: "menuRole"; type: "MenuRole" }
+        Property { name: "softKeyRole"; type: "SoftKeyRole" }
+        Property { name: "iconVisibleInMenu"; type: "bool" }
+        Property { name: "priority"; type: "Priority" }
+        Signal { name: "changed" }
+        Signal {
+            name: "triggered"
+            Parameter { name: "checked"; type: "bool" }
+        }
+        Signal { name: "triggered" }
+        Signal { name: "hovered" }
+        Signal {
+            name: "toggled"
+            Parameter { type: "bool" }
+        }
+        Method { name: "trigger" }
+        Method { name: "hover" }
+        Method {
+            name: "setChecked"
+            Parameter { type: "bool" }
+        }
+        Method { name: "toggle" }
+        Method {
+            name: "setEnabled"
+            Parameter { type: "bool" }
+        }
+        Method {
+            name: "setDisabled"
+            Parameter { name: "b"; type: "bool" }
+        }
+        Method {
+            name: "setVisible"
+            Parameter { type: "bool" }
+        }
+    }
+    Component {
+        name: "QDeclarativeWebSettings"
+        prototype: "QObject"
+        Property { name: "standardFontFamily"; type: "string" }
+        Property { name: "fixedFontFamily"; type: "string" }
+        Property { name: "serifFontFamily"; type: "string" }
+        Property { name: "sansSerifFontFamily"; type: "string" }
+        Property { name: "cursiveFontFamily"; type: "string" }
+        Property { name: "fantasyFontFamily"; type: "string" }
+        Property { name: "minimumFontSize"; type: "int" }
+        Property { name: "minimumLogicalFontSize"; type: "int" }
+        Property { name: "defaultFontSize"; type: "int" }
+        Property { name: "defaultFixedFontSize"; type: "int" }
+        Property { name: "autoLoadImages"; type: "bool" }
+        Property { name: "javascriptEnabled"; type: "bool" }
+        Property { name: "javaEnabled"; type: "bool" }
+        Property { name: "pluginsEnabled"; type: "bool" }
+        Property { name: "privateBrowsingEnabled"; type: "bool" }
+        Property { name: "javascriptCanOpenWindows"; type: "bool" }
+        Property { name: "javascriptCanAccessClipboard"; type: "bool" }
+        Property { name: "developerExtrasEnabled"; type: "bool" }
+        Property { name: "linksIncludedInFocusChain"; type: "bool" }
+        Property { name: "zoomTextOnly"; type: "bool" }
+        Property { name: "printElementBackgrounds"; type: "bool" }
+        Property { name: "offlineStorageDatabaseEnabled"; type: "bool" }
+        Property { name: "offlineWebApplicationCacheEnabled"; type: "bool" }
+        Property { name: "localStorageDatabaseEnabled"; type: "bool" }
+        Property { name: "localContentCanAccessRemoteUrls"; type: "bool" }
+    }
+    Component {
+        name: "QDeclarativeWebView"
+        defaultProperty: "data"
+        prototype: "QDeclarativeItem"
+        exports: [
+            "QtWebKit/WebView 1.0"
+        ]
+        Enum {
+            name: "Status"
+            values: {
+                "Null": 0,
+                "Ready": 1,
+                "Loading": 2,
+                "Error": 3
+            }
+        }
+        Property { name: "title"; type: "string"; isReadonly: true }
+        Property { name: "icon"; type: "QPixmap"; isReadonly: true }
+        Property { name: "statusText"; type: "string"; isReadonly: true }
+        Property { name: "html"; type: "string" }
+        Property { name: "pressGrabTime"; type: "int" }
+        Property { name: "preferredWidth"; type: "int" }
+        Property { name: "preferredHeight"; type: "int" }
+        Property { name: "url"; type: "QUrl" }
+        Property { name: "progress"; type: "qreal"; isReadonly: true }
+        Property { name: "status"; type: "Status"; isReadonly: true }
+        Property { name: "reload"; type: "QAction"; isReadonly: true; isPointer: true }
+        Property { name: "back"; type: "QAction"; isReadonly: true; isPointer: true }
+        Property { name: "forward"; type: "QAction"; isReadonly: true; isPointer: true }
+        Property { name: "stop"; type: "QAction"; isReadonly: true; isPointer: true }
+        Property { name: "settings"; type: "QDeclarativeWebSettings"; isReadonly: true; isPointer: true }
+        Property { name: "javaScriptWindowObjects"; type: "QObject"; isList: true; isReadonly: true }
+        Property { name: "newWindowComponent"; type: "QDeclarativeComponent"; isPointer: true }
+        Property { name: "newWindowParent"; type: "QDeclarativeItem"; isPointer: true }
+        Property { name: "renderingEnabled"; type: "bool" }
+        Property { name: "contentsSize"; type: "QSize"; isReadonly: true }
+        Property { name: "contentsScale"; type: "qreal" }
+        Signal { name: "preferredWidthChanged" }
+        Signal { name: "preferredHeightChanged" }
+        Signal { name: "urlChanged" }
+        Signal { name: "progressChanged" }
+        Signal {
+            name: "statusChanged"
+            Parameter { type: "Status" }
+        }
+        Signal {
+            name: "titleChanged"
+            Parameter { type: "string" }
+        }
+        Signal { name: "iconChanged" }
+        Signal { name: "statusTextChanged" }
+        Signal { name: "htmlChanged" }
+        Signal { name: "pressGrabTimeChanged" }
+        Signal { name: "newWindowComponentChanged" }
+        Signal { name: "newWindowParentChanged" }
+        Signal { name: "renderingEnabledChanged" }
+        Signal {
+            name: "contentsSizeChanged"
+            Parameter { type: "QSize" }
+        }
+        Signal { name: "contentsScaleChanged" }
+        Signal { name: "loadStarted" }
+        Signal { name: "loadFinished" }
+        Signal { name: "loadFailed" }
+        Signal {
+            name: "doubleClick"
+            Parameter { name: "clickX"; type: "int" }
+            Parameter { name: "clickY"; type: "int" }
+        }
+        Signal {
+            name: "zoomTo"
+            Parameter { name: "zoom"; type: "qreal" }
+            Parameter { name: "centerX"; type: "int" }
+            Parameter { name: "centerY"; type: "int" }
+        }
+        Signal {
+            name: "alert"
+            Parameter { name: "message"; type: "string" }
+        }
+        Method {
+            name: "evaluateJavaScript"
+            type: "QVariant"
+            Parameter { type: "string" }
+        }
+        Method {
+            name: "heuristicZoom"
+            type: "bool"
+            Parameter { name: "clickX"; type: "int" }
+            Parameter { name: "clickY"; type: "int" }
+            Parameter { name: "maxzoom"; type: "qreal" }
+        }
+    }
+}

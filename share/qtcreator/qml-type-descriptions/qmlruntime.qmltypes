@@ -1,0 +1,22 @@
+import QtQuick.tooling 1.0
+
+// This file describes the plugin-supplied types contained in the library.
+// It is used for QML tooling purposes only.
+
+Module {
+    Component {
+        name: "QDeclarativeViewer.Screen"
+        exports: [
+            "QDeclarativeViewer/Screen 1.0"
+        ]
+        Enum {
+            name: "Orientation"
+            values: {
+                "UnknownOrientation": 0,
+                "Portrait": 1,
+                "Landscape": 2
+            }
+        }
+        Property { name: "orientation"; type: "Orientation" }
+    }
+}
