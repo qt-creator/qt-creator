@@ -456,6 +456,7 @@ public:
 
     QString packageName() const;
     QString nameInPackage(const QString &packageName) const;
+    QString fullyQualifiedNameInPackage(const QString &packageName) const;
     LanguageUtils::ComponentVersion version() const;
     QString defaultPropertyName() const;
     QString propertyType(const QString &propertyName) const;
@@ -598,12 +599,16 @@ private:
 class QMLJS_EXPORT CppQmlTypes
 {
 public:
+    // package name for objects that should be always available
+    static const QLatin1String defaultPackage;
+    // package name for objects with their raw cpp name
+    static const QLatin1String cppPackage;
+
     template <typename T>
     void load(Interpreter::Engine *interpreter, const T &objects);
 
     QList<Interpreter::QmlObjectValue *> typesForImport(const QString &prefix, LanguageUtils::ComponentVersion version) const;
-    Interpreter::QmlObjectValue *typeForImport(const QString &qualifiedName,
-                                               LanguageUtils::ComponentVersion version = LanguageUtils::ComponentVersion()) const;
+    Interpreter::QmlObjectValue *typeByCppName(const QString &cppName) const;
 
     bool hasPackage(const QString &package) const;
 
@@ -611,11 +616,15 @@ public:
     { return _typesByFullyQualifiedName; }
 
     static QString qualifiedName(const QString &package, const QString &type, LanguageUtils::ComponentVersion version);
-    QmlObjectValue *typeByQualifiedName(const QString &name) const;
+    QmlObjectValue *typeByQualifiedName(const QString &fullyQualifiedName) const;
     QmlObjectValue *typeByQualifiedName(const QString &package, const QString &type,
                                         LanguageUtils::ComponentVersion version) const;
 
 private:
+    void makeObject(Engine *engine,
+                    LanguageUtils::FakeMetaObject::ConstPtr metaObject,
+                    const LanguageUtils::FakeMetaObject::Export &exp,
+                    QList<LanguageUtils::FakeMetaObject::ConstPtr> *newObjects);
     QmlObjectValue *getOrCreate(const QString &package, const QString &cppName,
                                 LanguageUtils::FakeMetaObject::ConstPtr metaObject,
                                 Engine *engine, bool *created);

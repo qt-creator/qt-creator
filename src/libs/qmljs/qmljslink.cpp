@@ -174,7 +174,7 @@ void Link::populateImportedTypes(TypeEnvironment *typeEnv, Document::Ptr doc)
         return;
 
     // implicit imports: the <default> package is always available
-    const QLatin1String defaultPackage("<default>");
+    const QString defaultPackage = CppQmlTypes::defaultPackage;
     if (engine()->cppQmlTypes().hasPackage(defaultPackage)) {
         ImportInfo info(ImportInfo::LibraryImport, defaultPackage);
         ObjectValue *import = d->importCache.value(ImportCacheKey(info));

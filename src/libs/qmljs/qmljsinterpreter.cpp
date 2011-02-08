@@ -658,11 +658,11 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
     const QString typeName = prop.typeName();
 
     // ### Verify type resolving.
-    QmlObjectValue *objectValue = engine()->cppQmlTypes().typeForImport(typeName);
+    QmlObjectValue *objectValue = engine()->cppQmlTypes().typeByCppName(typeName);
     if (objectValue) {
-        QString packageClassName = objectValue->nameInPackage(packageName());
-        if (!packageClassName.isEmpty())
-            objectValue = engine()->cppQmlTypes().typeForImport(packageName() + '.' + packageClassName);
+        QString fqn = objectValue->fullyQualifiedNameInPackage(packageName());
+        if (!fqn.isEmpty())
+            objectValue = engine()->cppQmlTypes().typeByQualifiedName(fqn);
         return objectValue;
     }
 
@@ -721,6 +721,14 @@ QString QmlObjectValue::nameInPackage(const QString &packageName) const
     foreach (const FakeMetaObject::Export &exp, _metaObject->exports())
         if (exp.package == packageName)
             return exp.type;
+    return QString();
+}
+
+QString QmlObjectValue::fullyQualifiedNameInPackage(const QString &packageName) const
+{
+    foreach (const FakeMetaObject::Export &exp, _metaObject->exports())
+        if (exp.package == packageName)
+            return exp.packageNameVersion;
     return QString();
 }
 
@@ -2015,24 +2023,23 @@ void CppQmlTypesLoader::setSuperClasses(QHash<QString, FakeMetaObject::Ptr> *new
     }
 }
 
+const QLatin1String CppQmlTypes::defaultPackage("<default>");
+const QLatin1String CppQmlTypes::cppPackage("<cpp>");
+
 template <typename T>
 void CppQmlTypes::load(Engine *engine, const T &objects)
 {
     // load
     QList<FakeMetaObject::ConstPtr> newObjects;
     foreach (FakeMetaObject::ConstPtr metaObject, objects) {
-        for (int i = 0; i < metaObject->exports().size(); ++i) {
-            const FakeMetaObject::Export &exp = metaObject->exports().at(i);
-            // make sure we're not loading duplicate objects
-            if (_typesByFullyQualifiedName.contains(exp.packageNameVersion))
-                continue;
+        foreach (const FakeMetaObject::Export &exp, metaObject->exports())
+            makeObject(engine, metaObject, exp, &newObjects);
 
-            newObjects.append(metaObject);
-            QmlObjectValue *objectValue = new QmlObjectValue(
-                        metaObject, exp.type, exp.package, exp.version, engine);
-            _typesByPackage[exp.package].append(objectValue);
-            _typesByFullyQualifiedName[exp.packageNameVersion] = objectValue;
-        }
+        FakeMetaObject::Export cppExport;
+        cppExport.package = cppPackage;
+        cppExport.type = metaObject->className();
+        cppExport.packageNameVersion = qualifiedName(cppPackage, cppExport.type, cppExport.version);
+        makeObject(engine, metaObject, cppExport, &newObjects);
     }
 
     // set prototypes
@@ -2087,37 +2094,9 @@ QList<QmlObjectValue *> CppQmlTypes::typesForImport(const QString &packageName, 
     return objectValuesByName.values();
 }
 
-QmlObjectValue *CppQmlTypes::typeForImport(const QString &qualifiedName,
-                                           ComponentVersion version) const
+QmlObjectValue *CppQmlTypes::typeByCppName(const QString &cppName) const
 {
-    QString name = qualifiedName;
-    QString packageName;
-    int dotIdx = name.indexOf(QLatin1Char('.'));
-    if (dotIdx != -1) {
-        packageName = name.left(dotIdx);
-        name = name.mid(dotIdx + 1);
-    }
-
-    QmlObjectValue *previousCandidate = 0;
-    foreach (QmlObjectValue *qmlObjectValue, _typesByPackage.value(packageName)) {
-        const QString typeName = qmlObjectValue->className();
-        if (typeName != name)
-            continue;
-        if (version.isValid() && version < qmlObjectValue->version())
-            continue;
-
-        if (previousCandidate) {
-            // check if our new candidate is newer than the one we found previously
-            if (previousCandidate->version() < qmlObjectValue->version()) {
-                // the new candidate has a higher version no. than the one we found previously, so replace it
-                previousCandidate = qmlObjectValue;
-            }
-        } else {
-            previousCandidate = qmlObjectValue;
-        }
-    }
-
-    return previousCandidate;
+    return typeByQualifiedName(cppPackage, cppName, ComponentVersion());
 }
 
 bool CppQmlTypes::hasPackage(const QString &package) const
@@ -2141,6 +2120,22 @@ QmlObjectValue *CppQmlTypes::typeByQualifiedName(const QString &name) const
 QmlObjectValue *CppQmlTypes::typeByQualifiedName(const QString &package, const QString &type, ComponentVersion version) const
 {
     return typeByQualifiedName(qualifiedName(package, type, version));
+}
+
+void CppQmlTypes::makeObject(Engine *engine,
+                             FakeMetaObject::ConstPtr metaObject,
+                             const LanguageUtils::FakeMetaObject::Export &exp,
+                             QList<LanguageUtils::FakeMetaObject::ConstPtr> *newObjects)
+{
+    // make sure we're not loading duplicate objects
+    if (_typesByFullyQualifiedName.contains(exp.packageNameVersion))
+        return;
+
+    newObjects->append(metaObject);
+    QmlObjectValue *objectValue = new QmlObjectValue(
+                metaObject, exp.type, exp.package, exp.version, engine);
+    _typesByPackage[exp.package].append(objectValue);
+    _typesByFullyQualifiedName[exp.packageNameVersion] = objectValue;
 }
 
 QmlObjectValue *CppQmlTypes::getOrCreate(const QString &package, const QString &cppName,
@@ -2453,7 +2448,7 @@ Engine::Engine()
     // the 'Qt' object is dumped even though it is not exported
     // it contains useful information, in particular on enums - add the
     // object as a prototype to our custom Qt object to offer these for completion
-    _qtObject->setPrototype(_cppQmlTypes.typeForImport(QLatin1String("Qt")));
+    _qtObject->setPrototype(_cppQmlTypes.typeByCppName(QLatin1String("Qt")));
 }
 
 Engine::~Engine()

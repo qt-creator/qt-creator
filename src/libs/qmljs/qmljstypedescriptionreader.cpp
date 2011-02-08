@@ -172,8 +172,6 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
         return;
     }
 
-    // ### for backwards compatibility until fixed: export by cpp name
-    fmo->addExport(fmo->className(), "", ComponentVersion());
     _objects->insert(fmo->className(), fmo);
 }
 
