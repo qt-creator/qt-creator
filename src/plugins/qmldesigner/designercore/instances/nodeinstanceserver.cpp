@@ -45,6 +45,8 @@
 #include "componentcompletedcommand.h"
 #include "createscenecommand.h"
 
+#include "dummycontextobject.h"
+
 #include <iostream>
 #include <stdio.h>
 
@@ -60,6 +62,8 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
     m_slowRenderTimer(false),
     m_slowRenderTimerInterval(200)
 {
+    qmlRegisterType<DummyContextObject>("QmlDesigner", 1, 0, "DummyContextObject");
+
     m_importList.append("import Qt 4.7\n");
     connect(m_childrenChangeEventFilter.data(), SIGNAL(childrenChanged(QObject*)), this, SLOT(emitParentChanged(QObject*)));
 }
@@ -398,6 +402,12 @@ void NodeInstanceServer::clearChangedPropertyList()
     m_changedPropertyList.clear();
 }
 
+void NodeInstanceServer::refreshBindings()
+{
+    static int counter = 0;
+    engine()->rootContext()->setContextProperty(QString("__%1").arg(counter++), 0); // refreshing bindings
+}
+
 void NodeInstanceServer::removeAllInstanceRelationships()
 {
     // prevent destroyed() signals calling back
@@ -480,7 +490,12 @@ void NodeInstanceServer::refreshLocalFileProperty(const QString &path)
 void NodeInstanceServer::refreshDummyData(const QString &path)
 {
     engine()->clearComponentCache();
-    loadDummyDataFile(QFileInfo(path));
+    QFileInfo filePath(path);
+    if (filePath.completeBaseName().contains("_dummycontext")) {
+        loadDummyContextObjectFile(filePath);
+    } else {
+        loadDummyDataFile(filePath);
+    }
     startRenderTimer();
 }
 
@@ -783,6 +798,11 @@ QStringList NodeInstanceServer::imports() const
     return m_importList;
 }
 
+QObject *NodeInstanceServer::dummyContextObject() const
+{
+    return m_dummyContextObject.data();
+}
+
 void NodeInstanceServer::notifyPropertyChange(qint32 instanceid, const QString &propertyName)
 {
     if (hasInstanceForId(instanceid))
@@ -915,12 +935,41 @@ void NodeInstanceServer::loadDummyDataFile(const QFileInfo& qmlFileInfo)
         dummydataFileSystemWatcher()->addPath(qmlFileInfo.filePath());
 }
 
+void NodeInstanceServer::loadDummyContextObjectFile(const QFileInfo& qmlFileInfo)
+{
+    delete m_dummyContextObject.data();
+
+    QDeclarativeComponent component(engine(), qmlFileInfo.filePath());
+    m_dummyContextObject = component.create();
+
+    if(component.isError()) {
+        QList<QDeclarativeError> errors = component.errors();
+        foreach (const QDeclarativeError &error, errors) {
+            qWarning() << error;
+        }
+    }
+
+    if (m_dummyContextObject) {
+        qWarning() << "Loaded dummy context object:" << qmlFileInfo.filePath();
+        m_dummyContextObject->setParent(this);
+    }
+
+    if (!dummydataFileSystemWatcher()->files().contains(qmlFileInfo.filePath()))
+        dummydataFileSystemWatcher()->addPath(qmlFileInfo.filePath());
+}
+
 void NodeInstanceServer::loadDummyDataFiles(const QString& directory)
 {
     QDir dir(directory, "*.qml");
     QList<QFileInfo> filePathList = dir.entryInfoList();
-    foreach (const QFileInfo &qmlFileInfo, filePathList)
-        loadDummyDataFile(qmlFileInfo);
+    QString baseName = QFileInfo(fileUrl().toLocalFile()).completeBaseName();
+    foreach (const QFileInfo &qmlFileInfo, filePathList) {
+        if (!qmlFileInfo.completeBaseName().contains("_dummycontext")) {
+            loadDummyDataFile(qmlFileInfo);
+        } else if (qmlFileInfo.completeBaseName() == baseName+"_dummycontext") {
+            loadDummyContextObjectFile(qmlFileInfo);
+        }
+    }
 }
 
 QStringList dummyDataDirectories(const QString& directoryPath)

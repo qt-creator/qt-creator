@@ -4,6 +4,7 @@
 #include <QSharedPointer>
 #include <QMetaProperty>
 #include <qnumeric.h>
+#include <QtDebug>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -59,10 +60,26 @@ int NodeInstanceMetaObject::metaCall(QMetaObject::Call call, int id, void **a)
         oldValue = property(id).read(m_nodeInstance->object());
     }
 
-    if (parent() && id < parent()->propertyOffset())
+    ObjectNodeInstance::Pointer objectNodeInstance = m_nodeInstance.toStrongRef();
+
+    if (parent() && id < parent()->propertyOffset()) {
         metaCallReturnValue = parent()->metaCall(call, id, a);
-    else
+    } else {
         metaCallReturnValue = QDeclarativeOpenMetaObject::metaCall(call, id, a);
+    }
+
+    if ((call == QMetaObject::WriteProperty || call == QMetaObject::ReadProperty) && metaCallReturnValue < 0) {
+        if (objectNodeInstance
+                && objectNodeInstance->nodeInstanceServer()
+                && objectNodeInstance->nodeInstanceServer()->dummyContextObject()
+                && !(objectNodeInstance && !objectNodeInstance->isRootNodeInstance() && property(id).name() == QLatin1String("parent"))) {
+
+            QObject *contextDummyObject = objectNodeInstance->nodeInstanceServer()->dummyContextObject();
+            int properyIndex = contextDummyObject->metaObject()->indexOfProperty(property(id).name());
+            if (properyIndex >= 0)
+                metaCallReturnValue = contextDummyObject->qt_metacall(call, properyIndex, a);
+        }
+    }
 
     if (metaCallReturnValue >= 0
             && call == QMetaObject::WriteProperty

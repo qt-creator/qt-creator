@@ -83,6 +83,7 @@ public:
     void notifyPropertyChange(qint32 instanceid, const QString &propertyName);
 
     QStringList imports() const;
+    QObject *dummyContextObject() const;
 
 public slots:
     void refreshLocalFileProperty(const QString &path);
@@ -132,6 +133,7 @@ protected:
     QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command);
     void loadDummyDataFiles(const QString& directory);
     void loadDummyDataFile(const QFileInfo& fileInfo);
+    void loadDummyContextObjectFile(const QFileInfo& fileInfo);
     QImage renderPreviewImage();
 
     void setTimerId(int timerId);
@@ -140,6 +142,8 @@ protected:
     QDeclarativeView *delcarativeView() const;
     const QVector<InstancePropertyPair> changedPropertyList() const;
     void clearChangedPropertyList();
+
+    void refreshBindings();
 
 private:
     ServerNodeInstance m_rootNodeInstance;
@@ -160,6 +164,7 @@ private:
     QVector<InstancePropertyPair> m_changedPropertyList;
     QStringList m_importList;
     QList<ServerNodeInstance> m_completedComponentList;
+    QWeakPointer<QObject> m_dummyContextObject;
 };
 
 }
