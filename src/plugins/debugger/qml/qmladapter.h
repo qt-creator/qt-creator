@@ -97,7 +97,7 @@ private slots:
     void pollInferior();
 
 private:
-    bool connectToViewer();
+    void connectToViewer();
     void createDebuggerClient();
     void showConnectionStatusMessage(const QString &message);
     void showConnectionErrorMessage(const QString &message);

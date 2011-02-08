@@ -77,6 +77,12 @@ QmlAdapter::QmlAdapter(DebuggerEngine *engine, QObject *parent)
     : QObject(parent), d(new Internal::QmlAdapterPrivate(engine))
 {
     connect(&d->m_connectionTimer, SIGNAL(timeout()), SLOT(pollInferior()));
+    d->m_conn = new QDeclarativeDebugConnection(this);
+    connect(d->m_conn, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
+            SLOT(connectionStateChanged()));
+    connect(d->m_conn, SIGNAL(error(QAbstractSocket::SocketError)),
+            SLOT(connectionErrorOccurred(QAbstractSocket::SocketError)));
+
 }
 
 QmlAdapter::~QmlAdapter()
@@ -109,39 +115,27 @@ void QmlAdapter::pollInferior()
 {
     ++d->m_connectionAttempts;
 
-    if (connectToViewer()) {
+    if (isConnected()) {
         d->m_connectionTimer.stop();
         d->m_connectionAttempts = 0;
     } else if (d->m_connectionAttempts == d->m_maxConnectionAttempts) {
         emit connectionStartupFailed();
         d->m_connectionTimer.stop();
         d->m_connectionAttempts = 0;
+    } else {
+        connectToViewer();
     }
 }
 
-bool QmlAdapter::connectToViewer()
+void QmlAdapter::connectToViewer()
 {
     if (d->m_engine.isNull() || (d->m_conn && d->m_conn->state() != QAbstractSocket::UnconnectedState))
-        return false;
-
-    d->m_conn = new QDeclarativeDebugConnection(this);
-    connect(d->m_conn, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
-            SLOT(connectionStateChanged()));
-    connect(d->m_conn, SIGNAL(error(QAbstractSocket::SocketError)),
-            SLOT(connectionErrorOccurred(QAbstractSocket::SocketError)));
+        return;
 
     QString address = d->m_engine.data()->startParameters().qmlServerAddress;
-    QString port = QString::number(d->m_engine.data()->startParameters().qmlServerPort);
-    showConnectionStatusMessage(tr("Connect to debug server %1:%2").arg(address).arg(port));
-    d->m_conn->connectToHost(d->m_engine.data()->startParameters().qmlServerAddress,
-                          d->m_engine.data()->startParameters().qmlServerPort);
-
-
-    // blocks until connected; if no connection is available, will fail immediately
-    if (!d->m_conn->waitForConnected())
-        return false;
-
-    return true;
+    quint16 port = d->m_engine.data()->startParameters().qmlServerPort;
+    showConnectionStatusMessage(tr("Connect to debug server %1:%2").arg(address).arg(QString::number(port)));
+    d->m_conn->connectToHost(address, port);
 }
 
 void QmlAdapter::sendMessage(const QByteArray &msg)
