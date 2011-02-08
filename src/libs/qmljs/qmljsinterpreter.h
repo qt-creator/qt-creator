@@ -585,7 +585,7 @@ class QMLJS_EXPORT CppQmlTypesLoader
 {
 public:
     /** \return an empty list when successful, error messages otherwise. */
-    static QStringList load(const QFileInfoList &xmlFiles);
+    static QStringList loadXml(const QFileInfoList &xmlFiles);
     static QList<LanguageUtils::FakeMetaObject::ConstPtr> builtinObjects;
 
     // parses the xml string and fills the newObjects map

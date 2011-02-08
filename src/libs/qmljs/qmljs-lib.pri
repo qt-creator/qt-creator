@@ -27,7 +27,8 @@ HEADERS += \
     $$PWD/qmljspropertyreader.h \
     $$PWD/qmljsrewriter.h \
     $$PWD/qmljsicons.h \
-    $$PWD/qmljsdelta.h
+    $$PWD/qmljsdelta.h \
+    $$PWD/qmljstypedescriptionreader.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
@@ -45,7 +46,8 @@ SOURCES += \
     $$PWD/qmljspropertyreader.cpp \
     $$PWD/qmljsrewriter.cpp \
     $$PWD/qmljsicons.cpp \
-    $$PWD/qmljsdelta.cpp
+    $$PWD/qmljsdelta.cpp \
+    $$PWD/qmljstypedescriptionreader.cpp
 
 RESOURCES += \
     $$PWD/qmljs.qrc

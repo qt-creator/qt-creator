@@ -1945,7 +1945,7 @@ const Value *Function::invoke(const Activation *activation) const
 
 QList<FakeMetaObject::ConstPtr> CppQmlTypesLoader::builtinObjects;
 
-QStringList CppQmlTypesLoader::load(const QFileInfoList &xmlFiles)
+QStringList CppQmlTypesLoader::loadXml(const QFileInfoList &xmlFiles)
 {
     QMap<QString, FakeMetaObject::Ptr> newObjects;
     QStringList errorMsgs;
@@ -2117,10 +2117,10 @@ bool CppQmlTypes::hasPackage(const QString &package) const
 
 QString CppQmlTypes::qualifiedName(const QString &package, const QString &type, ComponentVersion version)
 {
-    return QString("%1.%2 %3.%4").arg(
+    return QString("%1.%2 %3").arg(
                 package, type,
-                QString::number(version.majorVersion()),
-                QString::number(version.minorVersion()));
+                version.toString());
+
 }
 
 QmlObjectValue *CppQmlTypes::typeByQualifiedName(const QString &name) const

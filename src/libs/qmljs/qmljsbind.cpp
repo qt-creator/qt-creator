@@ -254,11 +254,8 @@ bool Bind::visit(UiImport *ast)
 
     if (ast->versionToken.isValid()) {
         const QString versionString = _doc->source().mid(ast->versionToken.offset, ast->versionToken.length);
-        const int dotIdx = versionString.indexOf(QLatin1Char('.'));
-        if (dotIdx != -1) {
-            version = ComponentVersion(versionString.left(dotIdx).toInt(),
-                                       versionString.mid(dotIdx + 1).toInt());
-        } else {
+        version = ComponentVersion(versionString);
+        if (!version.isValid()) {
             _diagnosticMessages->append(
                         errorMessage(ast->versionToken, tr("expected two numbers separated by a dot")));
         }

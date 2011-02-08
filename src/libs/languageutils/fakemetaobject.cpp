@@ -35,12 +35,18 @@
 
 using namespace LanguageUtils;
 
+FakeMetaEnum::FakeMetaEnum()
+{}
+
 FakeMetaEnum::FakeMetaEnum(const QString &name)
     : m_name(name)
 {}
 
 QString FakeMetaEnum::name() const
 { return m_name; }
+
+void FakeMetaEnum::setName(const QString &name)
+{ m_name = name; }
 
 void FakeMetaEnum::addKey(const QString &key, int value)
 { m_keys.append(key); m_values.append(value); }
@@ -61,8 +67,19 @@ FakeMetaMethod::FakeMetaMethod(const QString &name, const QString &returnType)
     , m_methodAccess(FakeMetaMethod::Public)
 {}
 
+FakeMetaMethod::FakeMetaMethod()
+    : m_methodTy(FakeMetaMethod::Method)
+    , m_methodAccess(FakeMetaMethod::Public)
+{}
+
 QString FakeMetaMethod::methodName() const
 { return m_name; }
+
+void FakeMetaMethod::setMethodName(const QString &name)
+{ m_name = name; }
+
+void FakeMetaMethod::setReturnType(const QString &type)
+{ m_returnType = type; }
 
 QStringList FakeMetaMethod::parameterNames() const
 { return m_paramNames; }
@@ -108,16 +125,20 @@ FakeMetaObject::FakeMetaObject()
 {
 }
 
+QString FakeMetaObject::className() const
+{ return m_className; }
+void FakeMetaObject::setClassName(const QString &name)
+{ m_className = name; }
+
 void FakeMetaObject::addExport(const QString &name, const QString &package, ComponentVersion version)
 {
     Export exp;
     exp.type = name;
     exp.package = package;
     exp.version = version;
-    exp.packageNameVersion = QString::fromLatin1("%1.%2 %3.%4").arg(
+    exp.packageNameVersion = QString::fromLatin1("%1.%2 %3").arg(
                 package, name,
-                QString::number(version.majorVersion()),
-                QString::number(version.minorVersion()));
+                version.toString());
     m_exports.append(exp);
 }
 QList<FakeMetaObject::Export> FakeMetaObject::exports() const

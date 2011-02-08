@@ -33,6 +33,8 @@
 
 #include "componentversion.h"
 
+#include <QtCore/QString>
+
 using namespace LanguageUtils;
 
 const int ComponentVersion::NoVersion = -1;
@@ -47,6 +49,23 @@ ComponentVersion::ComponentVersion(int major, int minor)
 {
 }
 
+ComponentVersion::ComponentVersion(const QString &versionString)
+    : _major(NoVersion), _minor(NoVersion)
+{
+    int dotIdx = versionString.indexOf(QLatin1Char('.'));
+    if (dotIdx == -1)
+        return;
+    bool ok = false;
+    int maybeMajor = versionString.left(dotIdx).toInt(&ok);
+    if (!ok)
+        return;
+    int maybeMinor = versionString.mid(dotIdx + 1).toInt(&ok);
+    if (!ok)
+        return;
+    _major = maybeMajor;
+    _minor = maybeMinor;
+}
+
 ComponentVersion::~ComponentVersion()
 {
 }
@@ -54,6 +73,12 @@ ComponentVersion::~ComponentVersion()
 bool ComponentVersion::isValid() const
 {
     return _major >= 0 && _minor >= 0;
+}
+
+QString ComponentVersion::toString() const
+{
+    return QString("%1.%2").arg(QString::number(_major),
+                                QString::number(_minor));
 }
 
 namespace LanguageUtils {

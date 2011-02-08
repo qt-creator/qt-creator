@@ -48,6 +48,7 @@ public:
 
     ComponentVersion();
     ComponentVersion(int major, int minor);
+    explicit ComponentVersion(const QString &versionString);
     ~ComponentVersion();
 
     int majorVersion() const
@@ -56,6 +57,7 @@ public:
     { return _minor; }
 
     bool isValid() const;
+    QString toString() const;
 };
 
 bool LANGUAGEUTILS_EXPORT operator<(const ComponentVersion &lhs, const ComponentVersion &rhs);

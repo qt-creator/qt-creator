@@ -51,9 +51,11 @@ class LANGUAGEUTILS_EXPORT FakeMetaEnum {
     QList<int> m_values;
 
 public:
-    FakeMetaEnum(const QString &name);
+    FakeMetaEnum();
+    explicit FakeMetaEnum(const QString &name);
 
     QString name() const;
+    void setName(const QString &name);
 
     void addKey(const QString &key, int value);
     QString key(int index) const;
@@ -76,9 +78,14 @@ public:
     };
 
 public:
-    FakeMetaMethod(const QString &name, const QString &returnType = QString());
+    FakeMetaMethod();
+    explicit FakeMetaMethod(const QString &name, const QString &returnType = QString());
 
     QString methodName() const;
+    void setMethodName(const QString &name);
+
+    void setReturnType(const QString &type);
+
     QStringList parameterNames() const;
     QStringList parameterTypes() const;
     void addParameter(const QString &name, const QString &type);
@@ -131,6 +138,7 @@ public:
     };
 
 private:
+    QString m_className;
     QList<Export> m_exports;
     ConstPtr m_super;
     QString m_superName;
@@ -143,6 +151,9 @@ private:
 
 public:
     FakeMetaObject();
+
+    QString className() const;
+    void setClassName(const QString &name);
 
     void addExport(const QString &name, const QString &package, ComponentVersion version);
     QList<Export> exports() const;

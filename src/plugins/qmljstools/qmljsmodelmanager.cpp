@@ -117,7 +117,7 @@ void ModelManager::loadQmlTypeDescriptions(const QString &resourcePath)
                                                              QDir::Files,
                                                              QDir::Name);
 
-    const QStringList errors = Interpreter::CppQmlTypesLoader::load(xmlFiles);
+    const QStringList errors = Interpreter::CppQmlTypesLoader::loadXml(xmlFiles);
     foreach (const QString &error, errors)
         qWarning() << qPrintable(error);
 
