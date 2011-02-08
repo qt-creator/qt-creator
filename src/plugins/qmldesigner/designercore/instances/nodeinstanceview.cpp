@@ -139,6 +139,17 @@ NodeInstanceView::~NodeInstanceView()
   For every ModelNode in the model a NodeInstance will be created.
 \param model Model to which the view is attached
 */
+
+bool isSkippedNode(const ModelNode &node)
+{
+    static QStringList skipList =  QStringList() << "Qt/ListModel" << "QtQuick/ListModel";
+
+    if (skipList.contains(node.type()))
+        return true;
+
+    return false;
+}
+
 void NodeInstanceView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
@@ -146,7 +157,8 @@ void NodeInstanceView::modelAttached(Model *model)
     m_lastCrashTime.start();
     connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(handleChrash()));
 
-    nodeInstanceServer()->createScene(createCreateSceneCommand());
+    if (!isSkippedNode(rootModelNode()))
+        nodeInstanceServer()->createScene(createCreateSceneCommand());
 }
 
 void NodeInstanceView::modelAboutToBeDetached(Model * model)
@@ -154,6 +166,11 @@ void NodeInstanceView::modelAboutToBeDetached(Model * model)
     removeAllInstanceNodeRelationships();
     nodeInstanceServer()->clearScene(createClearSceneCommand());
     delete nodeInstanceServer();
+    m_statePreviewImage.clear();
+    m_baseStatePreviewImage = QImage();
+    removeAllInstanceNodeRelationships();
+    m_activeStateInstance = NodeInstance();
+    m_rootNodeInstance = NodeInstance();
     AbstractView::modelAboutToBeDetached(model);
 }
 
@@ -165,6 +182,8 @@ void NodeInstanceView::handleChrash()
         restartProcess();
 }
 
+
+
 void NodeInstanceView::restartProcess()
 {
     if (model()) {
@@ -173,18 +192,9 @@ void NodeInstanceView::restartProcess()
         m_nodeInstanceServer = new NodeInstanceServerProxy(this, m_runModus);
         connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(handleChrash()));
 
-        nodeInstanceServer()->createScene(createCreateSceneCommand());
+        if (!isSkippedNode(rootModelNode()))
+            nodeInstanceServer()->createScene(createCreateSceneCommand());
     }
-}
-
-bool isSkippedNode(const ModelNode &node)
-{
-    static QStringList skipList =  QStringList() << "Qt/ListModel" << "QtQuick/ListModel";
-
-    if (skipList.contains(node.type()))
-        return true;
-
-    return false;
 }
 
 void NodeInstanceView::nodeCreated(const ModelNode &createdNode)
