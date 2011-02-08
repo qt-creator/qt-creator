@@ -547,10 +547,6 @@ void InspectorUi::selectItems(const QList<QDeclarativeDebugObjectReference> &obj
             gotoObjectReferenceDefinition(objref);
             return;
         }
-
-    // empty list
-    m_propertyInspector->clear();
-    m_crumblePath->clear();
 }
 
 inline QString displayName(const QDeclarativeDebugObjectReference &obj)
