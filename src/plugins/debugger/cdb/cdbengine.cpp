@@ -408,7 +408,8 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp,
     m_sourceStepInto(false),
     m_wX86BreakpointCount(0),
     m_watchPointX(0),
-    m_watchPointY(0)
+    m_watchPointY(0),
+    m_ignoreCdbOutput(false)
 {
     Utils::SavedAction *assemblerAction = theAssemblerAction();
     m_operateByInstructionPending = assemblerAction->isChecked();
@@ -419,6 +420,31 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp,
     connect(&m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(processError()));
     connect(&m_process, SIGNAL(readyReadStandardOutput()), this, SLOT(readyReadStandardOut()));
     connect(&m_process, SIGNAL(readyReadStandardError()), this, SLOT(readyReadStandardOut()));
+}
+
+void CdbEngine::init()
+{
+    m_effectiveStartMode = NoStartMode;
+    m_inferiorPid = 0;
+    m_accessible = false;
+    m_specialStopMode = NoSpecialStop;
+    m_nextCommandToken  = 0;
+    m_currentBuiltinCommandIndex = -1;
+    m_operateByInstructionPending = true;
+    m_operateByInstruction = true; // Default CDB setting
+    m_notifyEngineShutdownOnTermination = false;
+    m_hasDebuggee = false;
+    m_sourceStepInto = false;
+    m_wX86BreakpointCount = 0;
+    m_watchPointX = m_watchPointY = 0;
+    m_ignoreCdbOutput = false;
+
+    m_outputBuffer.clear();
+    m_builtinCommandQueue.clear();
+    m_extensionCommandQueue.clear();
+    m_extensionMessageBuffer.clear();
+    m_pendingBreakpointMap.clear();
+    QTC_ASSERT(m_process.state() != QProcess::Running, Utils::SynchronousProcess::stopProcess(m_process); )
 }
 
 CdbEngine::~CdbEngine()
@@ -592,7 +618,9 @@ void CdbEngine::setupEngine()
                                                          &(m_options->symbolPaths)))
         m_options->toSettings(Core::ICore::instance()->settings());
 
-    m_logTime.start();
+    init();
+    if (!m_logTime.elapsed())
+        m_logTime.start();
     QString errorMessage;
     // Console: Launch the stub with the suspended application and attach to it
     // CDB in theory has a command line option '-2' that launches a
@@ -756,6 +784,11 @@ void CdbEngine::shutdownInferior()
         return;
     }
     if (!canInterruptInferior() || commandsPending()) {
+        QString msg = QLatin1String("Cannot interrupt the inferior");
+        if (commandsPending())
+            msg += QLatin1String(" (pending)");
+        msg += QLatin1Char('.');
+        showMessage(msg, LogWarning);
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFailed")
         notifyInferiorShutdownFailed();
         return;
@@ -794,8 +827,7 @@ void CdbEngine::shutdownEngine()
     }
 
     // No longer trigger anything from messages
-    disconnect(&m_process, SIGNAL(readyReadStandardOutput()), this, 0);
-    disconnect(&m_process, SIGNAL(readyReadStandardError()), this, 0);
+    m_ignoreCdbOutput = true;
     // Go for kill if there are commands pending.
     if (m_accessible && !commandsPending()) {
         // detach: Wait for debugger to finish.
@@ -1001,11 +1033,13 @@ void CdbEngine::doContinueInferior()
 
 bool CdbEngine::canInterruptInferior() const
 {
-    return m_effectiveStartMode != AttachToRemote;
+    return m_effectiveStartMode != AttachToRemote && m_inferiorPid;
 }
 
 void CdbEngine::interruptInferior()
 {
+    if (debug)
+        qDebug() << "CdbEngine::interruptInferior()" << stateName(state());
     if (canInterruptInferior()) {
         doInterruptInferior(NoSpecialStop);
     } else {
@@ -1025,9 +1059,10 @@ void CdbEngine::doInterruptInferior(SpecialStopMode sm)
     const SpecialStopMode oldSpecialMode = m_specialStopMode;
     m_specialStopMode = sm;
     QString errorMessage;
+    showMessage(QString::fromLatin1("Interrupting process %1...").arg(m_inferiorPid), LogMisc);
     if (!winDebugBreakProcess(m_inferiorPid, &errorMessage)) {
         m_specialStopMode = oldSpecialMode;
-        showMessage(errorMessage, LogError);
+        showMessage(QString::fromLatin1("Cannot interrupt process %1: %2").arg(m_inferiorPid).arg(errorMessage), LogError);
     }
 #else
     Q_UNUSED(sm)
@@ -2057,6 +2092,8 @@ void CdbEngine::parseOutputLine(QByteArray line)
 
 void CdbEngine::readyReadStandardOut()
 {
+    if (m_ignoreCdbOutput)
+        return;
     m_outputBuffer += m_process.readAllStandardOutput();
     // Split into lines and parse line by line.
     while (true) {

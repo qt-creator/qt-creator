@@ -176,6 +176,7 @@ private:
 
 
     bool startConsole(const DebuggerStartParameters &sp, QString *errorMessage);
+    void init();
     unsigned examineStopReason(const GdbMi &stopReason, QString *message,
                                QString *exceptionBoxMessage);
     bool commandsPending() const;
@@ -251,6 +252,7 @@ private:
     int m_watchPointY;
     PendingBreakPointMap m_pendingBreakpointMap;
     QHash<QString, QString> m_fileNameModuleHash;
+    bool m_ignoreCdbOutput;
 };
 
 } // namespace Internal
