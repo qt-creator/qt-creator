@@ -291,7 +291,8 @@ ObjectValue *Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo
             if (libraryInfo.dumpStatus() == LibraryInfo::DumpNotStartedOrRunning) {
                 ModelManagerInterface *modelManager = ModelManagerInterface::instance();
                 if (modelManager)
-                    modelManager->loadPluginTypes(libraryPath, importPath, packageName);
+                    modelManager->loadPluginTypes(libraryPath, importPath,
+                                                  packageName, version.toString());
                 warning(doc, locationFromRange(importInfo.ast()->firstSourceLocation(),
                                                importInfo.ast()->lastSourceLocation()),
                         tr("Library contains C++ plugins, type dump is in progress."));

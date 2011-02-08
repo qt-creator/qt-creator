@@ -571,9 +571,10 @@ void ModelManager::updateImportPaths()
     updateSourceFiles(importedFiles, true);
 }
 
-void ModelManager::loadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri)
+void ModelManager::loadPluginTypes(const QString &libraryPath, const QString &importPath,
+                                   const QString &importUri, const QString &importVersion)
 {
-    m_pluginDumper->loadPluginTypes(libraryPath, importPath, importUri);
+    m_pluginDumper->loadPluginTypes(libraryPath, importPath, importUri, importVersion);
 }
 
 void ModelManager::queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc)

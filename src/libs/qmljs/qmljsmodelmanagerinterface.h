@@ -131,7 +131,8 @@ public:
 
     virtual QStringList importPaths() const = 0;
 
-    virtual void loadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri) = 0;
+    virtual void loadPluginTypes(const QString &libraryPath, const QString &importPath,
+                                 const QString &importUri, const QString &importVersion) = 0;
 
     virtual CppQmlTypeHash cppQmlTypes() const = 0;
 

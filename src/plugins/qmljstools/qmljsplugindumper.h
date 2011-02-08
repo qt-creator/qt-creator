@@ -59,12 +59,12 @@ public:
 
 public:
     void loadPluginTypes(const QString &libraryPath, const QString &importPath,
-                         const QString &importUri);
+                         const QString &importUri, const QString &importVersion);
     void scheduleCompleteRedump();
 
 private slots:
     void onLoadPluginTypes(const QString &libraryPath, const QString &importPath,
-                           const QString &importUri);
+                           const QString &importUri, const QString &importVersion);
     void dumpAllPlugins();
     void qmlPluginTypeDumpDone(int exitCode);
     void qmlPluginTypeDumpError(QProcess::ProcessError error);
@@ -76,6 +76,7 @@ private:
         QString qmldirPath;
         QString importPath;
         QString importUri;
+        QString importVersion;
 
         bool hasPredumpedQmlTypesFile() const;
         QString predumpedQmlTypesFilePath() const;

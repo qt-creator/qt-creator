@@ -55,16 +55,17 @@ PluginDumper::PluginDumper(ModelManager *modelManager)
     connect(m_pluginWatcher, SIGNAL(fileChanged(QString)), SLOT(pluginChanged(QString)));
 }
 
-void PluginDumper::loadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri)
+void PluginDumper::loadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri, const QString &importVersion)
 {
     // move to the owning thread
     metaObject()->invokeMethod(this, "onLoadPluginTypes",
                                Q_ARG(QString, libraryPath),
                                Q_ARG(QString, importPath),
-                               Q_ARG(QString, importUri));
+                               Q_ARG(QString, importUri),
+                               Q_ARG(QString, importVersion));
 }
 
-void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri)
+void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri, const QString &importVersion)
 {
     const QString canonicalLibraryPath = QDir::cleanPath(libraryPath);
     if (m_runningQmldumps.values().contains(canonicalLibraryPath))
@@ -87,6 +88,7 @@ void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &
     plugin.qmldirPath = canonicalLibraryPath;
     plugin.importPath = importPath;
     plugin.importUri = importUri;
+    plugin.importVersion = importVersion;
 
     // watch plugin libraries
     foreach (const QmlDirParser::Plugin &plugin, snapshot.libraryInfo(canonicalLibraryPath).plugins()) {
@@ -277,8 +279,10 @@ void PluginDumper::dump(const Plugin &plugin)
     connect(process, SIGNAL(finished(int)), SLOT(qmlPluginTypeDumpDone(int)));
     connect(process, SIGNAL(error(QProcess::ProcessError)), SLOT(qmlPluginTypeDumpError(QProcess::ProcessError)));
     QStringList args;
-    args << plugin.importPath;
+    args << QLatin1String("--notrelocatable"); // ### temporary until relocatable libraries work
     args << plugin.importUri;
+    args << plugin.importVersion;
+    args << plugin.importPath;
     process->start(info.qmlDumpPath, args);
     m_runningQmldumps.insert(process, plugin.qmldirPath);
 }

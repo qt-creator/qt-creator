@@ -83,7 +83,8 @@ public:
 
     virtual QStringList importPaths() const;
 
-    virtual void loadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri);
+    virtual void loadPluginTypes(const QString &libraryPath, const QString &importPath,
+                                 const QString &importUri, const QString &importVersion);
 
     virtual CppQmlTypeHash cppQmlTypes() const;
 
