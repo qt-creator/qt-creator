@@ -1342,7 +1342,6 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         int pos = remoteChannel.indexOf(QLatin1Char(':'));
         if (pos != -1)
             port = remoteChannel.mid(pos + 1).toUInt();
-        qDebug() << "CMD: " << *it << " CHANNEL" << remoteChannel << "PORT: " << port;
         if (pid) {
             sp.startMode = AttachExternal;
             sp.attachPID = pid;
@@ -1352,7 +1351,6 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             sp.startMode = AttachToRemote;
             sp.remoteChannel = remoteChannel;
             sp.executable = it->section('@', 1, 1);
-            qDebug() << "SP" << sp.remoteChannel << sp.executable;
             if (sp.remoteChannel.isEmpty()) {
                 *errorMessage = DebuggerPlugin::tr("The parameter '%1' of option "
                     "'%2' does not match the pattern <server:port>@<exe>@<arch>.")
