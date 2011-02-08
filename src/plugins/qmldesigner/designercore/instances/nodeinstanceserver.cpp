@@ -1014,11 +1014,25 @@ QList<ServerNodeInstance> NodeInstanceServer::setupScene(const CreateSceneComman
             instanceForId(container.instanceId()).setId(container.id());
     }
 
-    foreach(const PropertyValueContainer &container, command.valueChanges())
-        setInstancePropertyVariant(container);
+    foreach(const PropertyValueContainer &container, command.valueChanges()) {
+        if (container.isDynamic())
+            setInstancePropertyVariant(container);
+    }
 
-    foreach(const PropertyBindingContainer &container, command.bindingChanges())
-        setInstancePropertyBinding(container);
+    foreach(const PropertyValueContainer &container, command.valueChanges()) {
+        if (!container.isDynamic())
+            setInstancePropertyVariant(container);
+    }
+
+    foreach(const PropertyBindingContainer &container, command.bindingChanges()) {
+        if (container.isDynamic())
+            setInstancePropertyBinding(container);
+    }
+
+    foreach(const PropertyBindingContainer &container, command.bindingChanges()) {
+        if (!container.isDynamic())
+            setInstancePropertyBinding(container);
+    }
 
     foreach(ServerNodeInstance instance, instanceList)
         instance.doComponentComplete();
