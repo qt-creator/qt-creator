@@ -761,7 +761,7 @@ void GdbEngine::handleDebuggingHelperVersionCheckClassic(const GdbResponse &resp
 }
 
 void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
-    const WatchData &parent)
+    const WatchData &parent, int sortId)
 {
     //qDebug() <<  "VAR_LIST_CHILDREN: PARENT" << parent.toString();
     //qDebug() <<  "VAR_LIST_CHILDREN: ITEM" << item.toString();
@@ -812,6 +812,7 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
         WatchData data;
         data.iname = parent.iname + '.' + exp;
         data.variable = name;
+        data.sortId = sortId;
         setWatchDataType(data, item.findChild("type"));
         setWatchDataValue(data, item);
         setWatchDataAddress(data, item.findChild("addr"));
@@ -870,12 +871,12 @@ void GdbEngine::handleVarListChildrenClassic(const GdbResponse &response)
         return;
     if (response.resultClass == GdbResultDone) {
         //qDebug() <<  "VAR_LIST_CHILDREN: PARENT" << data.toString();
-        GdbMi children = response.data.findChild("children");
+        QList<GdbMi> children = response.data.findChild("children").children();
 
-        foreach (const GdbMi &child, children.children())
-            handleVarListChildrenHelperClassic(child, data);
+        for (int i = 0; i != children.size(); ++i)
+            handleVarListChildrenHelperClassic(children.at(i), data, i);
 
-        if (children.children().isEmpty()) {
+        if (children.isEmpty()) {
             // happens e.g. if no debug information is present or
             // if the class really has no children
             WatchData data1;

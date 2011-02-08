@@ -490,7 +490,7 @@ private: ////////// View & Data Stuff //////////
 
     void handleVarListChildrenClassic(const GdbResponse &response);
     void handleVarListChildrenHelperClassic(const GdbMi &child,
-        const WatchData &parent);
+        const WatchData &parent, int sortId);
     void handleVarCreate(const GdbResponse &response);
     void handleVarAssign(const GdbResponse &response);
     void handleEvaluateExpressionClassic(const GdbResponse &response);
