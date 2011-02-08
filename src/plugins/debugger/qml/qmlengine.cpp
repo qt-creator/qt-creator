@@ -270,13 +270,14 @@ bool QmlEngine::canDisplayTooltip() const
 
 void QmlEngine::closeConnection()
 {
+    disconnect(&d->m_adapter, SIGNAL(connectionStartupFailed()),
+        this, SLOT(connectionStartupFailed()));
+    d->m_adapter.closeConnection();
+
     ExtensionSystem::PluginManager *pluginManager =
         ExtensionSystem::PluginManager::instance();
-    if (pluginManager->allObjects().contains(this)) {
-        disconnect(&d->m_adapter, SIGNAL(connectionStartupFailed()),
-            this, SLOT(connectionStartupFailed()));
-        d->m_adapter.closeConnection();
 
+    if (pluginManager->allObjects().contains(this)) {
         pluginManager->removeObject(&d->m_adapter);
         pluginManager->removeObject(this);
     }
