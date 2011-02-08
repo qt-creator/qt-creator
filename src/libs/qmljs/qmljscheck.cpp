@@ -170,7 +170,7 @@ public:
                 } else {
                     QString fileName = url.toLocalFile();
                     if (!fileName.isEmpty()) {
-                        if (url.isRelative()) {
+                        if (QFileInfo(fileName).isRelative()) {
                             fileName.prepend(QDir::separator());
                             fileName.prepend(_doc->path());
                         }
