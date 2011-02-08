@@ -88,6 +88,10 @@ CodaRunControl::CodaRunControl(RunConfiguration *runConfiguration, const QString
     }
 }
 
+CodaRunControl::~CodaRunControl()
+{
+}
+
 bool CodaRunControl::doStart()
 {
     if (m_address.isEmpty() && m_serialPort.isEmpty()) {

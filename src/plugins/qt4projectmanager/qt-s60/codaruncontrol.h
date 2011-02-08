@@ -59,7 +59,9 @@ class CodaRunControl : public S60RunControlBase
 {
     Q_OBJECT
 public:
-    CodaRunControl(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
+    explicit CodaRunControl(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
+    virtual ~CodaRunControl();
+
     virtual bool isRunning() const;
 
     static QMessageBox *createCodaWaitingMessageBox(QWidget *parent = 0);
