@@ -173,14 +173,13 @@ void CodaRunControl::slotError(const QString &error)
 
 void CodaRunControl::slotTrkLogMessage(const QString &log)
 {
-    if (debug) {
+    if (debug > 1)
         qDebug("CODA log: %s", qPrintable(log.size()>200?log.left(200).append(QLatin1String(" ...")): log));
-    }
 }
 
 void CodaRunControl::slotSerialPong(const QString &message)
 {
-    if (debug)
+    if (debug > 1)
         qDebug() << "CODA serial pong:" << message;
 }
 
@@ -255,12 +254,14 @@ void CodaRunControl::handleContextSuspended(const CodaEvent &event)
     const TcfSuspendEvent &me = static_cast<const TcfSuspendEvent &>(event);
 
     switch (me.reason()) {
+    case TcfSuspendEvent::Other:
     case TcfSuspendEvent::Crash:
         appendMessage(tr("Thread has crashed: %1").arg(QString::fromLatin1(me.message())), ErrorMessageFormat);
-        //If we get a crash report then we display it and stop the process.
-        //Now sure if this should be the final solution but it works for now.
-        //m_codaDevice->sendRunControlResumeCommand(CodaCallback(), me.id()); //TODO: Should I resume automaticly
-        stop();
+
+        if (me.reason() == TcfSuspendEvent::Crash)
+            stop();
+        else
+            m_codaDevice->sendRunControlResumeCommand(CodaCallback(), me.id()); //TODO: Should I resume automaticly
         break;
     default:
         if (debug)
