@@ -5,11 +5,14 @@
 #include "maemodeployablelistmodel.h"
 #include "maemodeployables.h"
 #include "maemodeviceconfigurations.h"
+#include "maemosettingspages.h"
 #include "maemoglobal.h"
+#include "maemomanager.h"
 #include "maemopertargetdeviceconfigurationlistmodel.h"
 #include "maemorunconfiguration.h"
 #include "qt4maemotarget.h"
 
+#include <coreplugin/icore.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
@@ -60,6 +63,8 @@ void MaemoDeployStepWidget::init()
     ui->deployToSysrootCheckBox->setChecked(m_step->isDeployToSysrootEnabled());
     connect(ui->deployToSysrootCheckBox, SIGNAL(toggled(bool)), this,
         SLOT(setDeployToSysroot(bool)));
+    connect(ui->manageDevConfsLabel, SIGNAL(linkActivated(QString)),
+        SLOT(showDeviceConfigurations()));
 }
 
 void MaemoDeployStepWidget::handleDeviceUpdate()
@@ -188,6 +193,13 @@ void MaemoDeployStepWidget::addIcon()
     }
     ui->addIconButton->setEnabled(model->canAddIcon());
     ui->tableView->resizeRowsToContents();
+}
+
+void MaemoDeployStepWidget::showDeviceConfigurations()
+{
+    MaemoDeviceConfigurationsSettingsPage *page
+        = MaemoManager::instance().deviceConfigurationsSettingsPage();
+    Core::ICore::instance()->showOptionsDialog(page->category(), page->id());
 }
 
 } // namespace Internal
