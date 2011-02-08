@@ -1678,7 +1678,7 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
                 ++newCumlativeIt;
             }
             // Update existingNodeIte
-            ProFile *fileExact = includeFilesCumlative.value((*existingIt)->path());
+            ProFile *fileExact = includeFilesExact.value((*existingIt)->path());
             ProFile *fileCumlative = includeFilesCumlative.value((*existingIt)->path());
             if (fileExact || fileCumlative) {
                 static_cast<Qt4PriFileNode *>(*existingIt)->update(fileExact, m_readerExact, fileCumlative, m_readerCumulative);
@@ -1697,7 +1697,7 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
         }
         // If we found something to add, do it
         if (!nodeToAdd.isEmpty()) {
-            ProFile *fileExact = includeFilesCumlative.value(nodeToAdd);
+            ProFile *fileExact = includeFilesExact.value(nodeToAdd);
             ProFile *fileCumlative = includeFilesCumlative.value(nodeToAdd);
 
             // Loop preventation, make sure that exact same node is not in our parent chain
