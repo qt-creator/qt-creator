@@ -1743,10 +1743,7 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
     newVarValues[QmlImportPathVar] = m_readerExact->absolutePathValues(
                 QLatin1String("QML_IMPORT_PATH"), m_projectDir);
     newVarValues[Makefile] = m_readerExact->values("MAKEFILE");
-
-    // We use the cumulative parse so that we get the capabilities for symbian even if
-    // a different target is selected and the capabilities are set in a symbian scope
-    newVarValues[SymbianCapabilities] = m_readerCumulative->values("TARGET.CAPABILITY");
+    newVarValues[SymbianCapabilities] = m_readerExact->values("TARGET.CAPABILITY");
 
     if (m_varValues != newVarValues) {
         Qt4VariablesHash oldValues = m_varValues;
