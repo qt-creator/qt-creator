@@ -44,10 +44,8 @@ symbian {
     }
 } else:unix {
     maemo5 {
-        installPrefix = /opt/usr
         desktopfile.path = /usr/share/applications/hildon
     } else {
-        installPrefix = /usr
         desktopfile.path = /usr/share/applications
         copyCommand =
         for(deploymentfolder, DEPLOYMENTFOLDERS) {
@@ -76,12 +74,13 @@ symbian {
             QMAKE_EXTRA_TARGETS += first copydeploymentfolders
         }
     }
+    installPrefix = /opt/$${TARGET}
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
         item = item$${deploymentfolder}
         itemfiles = $${item}.files
         $$itemfiles = $$eval($${deploymentfolder}.source)
         itempath = $${item}.path
-        $$itempath = $${installPrefix}/share/$${TARGET}/$$eval($${deploymentfolder}.target)
+        $$itempath = $${installPrefix}/$$eval($${deploymentfolder}.target)
         export($$itemfiles)
         export($$itempath)
         INSTALLS += $$item

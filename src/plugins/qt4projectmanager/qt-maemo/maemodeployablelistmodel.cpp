@@ -360,10 +360,7 @@ QString MaemoDeployableListModel::proFileScope() const
 
 QString MaemoDeployableListModel::installPrefix() const
 {
-    const QtVersion *const qv = qtVersion();
-    QTC_ASSERT(qv, return QString());
-    return QLatin1String(MaemoGlobal::version(qv) == MaemoGlobal::Maemo5
-        ? "/opt/usr" : "/usr");
+    return QLatin1String("/opt/") + m_projectName;
 }
 
 } // namespace Qt4ProjectManager
