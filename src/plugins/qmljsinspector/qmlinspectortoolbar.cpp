@@ -106,6 +106,7 @@ void QmlInspectorToolBar::enable()
 {
     setEnabled(true);
     m_emitSignals = false;
+    m_showAppOnTopAction->setChecked(false);
     m_observerModeAction->setChecked(false);
     setAnimationSpeed(1.0f);
     activateDesignModeOnClick();
