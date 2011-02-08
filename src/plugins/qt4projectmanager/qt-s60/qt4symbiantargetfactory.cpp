@@ -144,11 +144,12 @@ QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurati
     foreach (QtVersion *version, knownVersions) {
         if (!version->isValid())
             continue;
-        bool buildAll = version->defaultBuildConfig() & QtVersion::BuildAll;
-        QtVersion::QmakeBuildConfigs config = buildAll ? QtVersion::BuildAll : QtVersion::QmakeBuildConfig(0);
+        QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
+        bool buildAll = config & QtVersion::BuildAll;
         QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), Constants::S60_DEVICE_TARGET_ID);
         infos.append(BuildConfigurationInfo(version, config, QString(), dir));
-        infos.append(BuildConfigurationInfo(version, config | QtVersion::DebugBuild, QString(), dir));
+        if (buildAll)
+            infos.append(BuildConfigurationInfo(version, config ^ QtVersion::DebugBuild, QString(), dir));
     }
 
     return infos;
