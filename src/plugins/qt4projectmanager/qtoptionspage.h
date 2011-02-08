@@ -114,7 +114,7 @@ private slots:
     void buildQmlDump();
     void buildQmlObserver();
     void slotShowDebuggingBuildLog();
-    void debuggingHelperBuildFinished(int qtVersionId, const QString &output);
+    void debuggingHelperBuildFinished(int qtVersionId, DebuggingHelperBuildTask::Tools tools, const QString &output);
 
 private:
     void showDebuggingBuildLog(const QTreeWidgetItem *currentItem);

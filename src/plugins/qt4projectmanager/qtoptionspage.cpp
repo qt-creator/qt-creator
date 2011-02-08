@@ -287,7 +287,7 @@ static inline int findVersionById(const QList<QSharedPointerQtVersion> &l, int i
 }
 
 // Update with results of terminated helper build
-void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, const QString &output)
+void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, DebuggingHelperBuildTask::Tools tools, const QString &output)
 {
     const int index = findVersionById(m_versions, qtVersionId);
     if (index == -1)
@@ -302,9 +302,14 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, const QS
     item->setData(0, BuildLogRole, output);
 
     QSharedPointerQtVersion qtVersion = m_versions.at(index);
-    const bool success = qtVersion->hasDebuggingHelper()
-            && (!QmlDumpTool::canBuild(qtVersion.data()) || qtVersion->hasQmlDump())
-            && (!QmlObserverTool::canBuild(qtVersion.data()) || qtVersion->hasQmlObserver());
+
+    bool success = true;
+    if (tools & DebuggingHelperBuildTask::GdbDebugging)
+        success &= qtVersion->hasDebuggingHelper();
+    if (tools & DebuggingHelperBuildTask::QmlDump)
+        success &= qtVersion->hasQmlDump();
+    if (tools & DebuggingHelperBuildTask::QmlObserver)
+        success &= qtVersion->hasQmlObserver();
 
     // Update bottom control if the selection is still the same
     if (index == currentIndex()) {
@@ -333,7 +338,8 @@ void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools t
 
     // Run a debugging helper build task in the background.
     DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(version, tools);
-    connect(buildTask, SIGNAL(finished(int,QString)), this, SLOT(debuggingHelperBuildFinished(int,QString)),
+    connect(buildTask, SIGNAL(finished(int,DebuggingHelperBuildTask::Tools,QString)),
+            this, SLOT(debuggingHelperBuildFinished(int,DebuggingHelperBuildTask::Tools,QString)),
             Qt::QueuedConnection);
     QFuture<void> task = QtConcurrent::run(&DebuggingHelperBuildTask::run, buildTask);
     const QString taskName = tr("Building helpers");

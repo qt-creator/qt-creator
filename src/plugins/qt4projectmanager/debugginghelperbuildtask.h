@@ -59,7 +59,7 @@ public:
     void run(QFutureInterface<void> &future);
 
 signals:
-    void finished(int qtVersionId, const QString &output);
+    void finished(int qtVersionId, DebuggingHelperBuildTask::Tools tools, const QString &output);
 
 private:
     bool buildDebuggingHelper(QFutureInterface<void> &future, QString *output);
