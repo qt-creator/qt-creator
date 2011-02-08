@@ -49,13 +49,14 @@ using namespace Core::Internal;
 
 static const Qt::ItemFlags TOOLSMENU_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
 static const Qt::ItemFlags CATEGORY_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable;
-static const Qt::ItemFlags TOOL_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable;
+static const Qt::ItemFlags TOOL_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsEditable;
 
 // #pragma mark -- ExternalToolModel
 
 ExternalToolModel::ExternalToolModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
+    setSupportedDragActions(Qt::MoveAction);
 }
 
 ExternalToolModel::~ExternalToolModel()
@@ -65,6 +66,11 @@ ExternalToolModel::~ExternalToolModel()
         it.next();
         qDeleteAll(it.value());
     }
+}
+
+Qt::DropActions ExternalToolModel::supportedDropActions() const
+{
+    return Qt::MoveAction;
 }
 
 int ExternalToolModel::columnCount(const QModelIndex &parent) const
@@ -108,6 +114,61 @@ QVariant ExternalToolModel::data(const QString &category, int role) const
     return QVariant();
 }
 
+QMimeData *ExternalToolModel::mimeData(const QModelIndexList &indexes) const
+{
+    if (indexes.isEmpty())
+        return 0;
+    QModelIndex modelIndex = indexes.first();
+    ExternalTool *tool = toolForIndex(modelIndex);
+    QTC_ASSERT(tool, return 0);
+    QString category = categoryForIndex(modelIndex.parent());
+    QTC_ASSERT(!category.isNull(), return 0);
+    QMimeData *md = new QMimeData();
+    QByteArray ba;
+    QDataStream stream(&ba, QIODevice::WriteOnly);
+    stream << category << m_tools.value(category).indexOf(tool);
+    md->setData(QLatin1String("application/qtcreator-externaltool-config"), ba);
+    return md;
+}
+
+bool ExternalToolModel::dropMimeData(const QMimeData *data,
+                                     Qt::DropAction action,
+                                     int row,
+                                     int column,
+                                     const QModelIndex &parent)
+{
+    Q_UNUSED(column)
+    if (action != Qt::MoveAction || !data)
+        return false;
+    QString toCategory = categoryForIndex(parent);
+    QTC_ASSERT(!toCategory.isNull(), return false);
+    QByteArray ba = data->data(QLatin1String("application/qtcreator-externaltool-config"));
+    if (ba.isEmpty())
+        return false;
+    QDataStream stream(&ba, QIODevice::ReadOnly);
+    QString category;
+    int pos = -1;
+    stream >> category;
+    stream >> pos;
+    QTC_ASSERT(!category.isNull(), return false);
+    QList<ExternalTool *> &items = m_tools[category];
+    QTC_ASSERT(pos >= 0 && pos < items.count(), return false);
+    beginRemoveRows(index(m_tools.keys().indexOf(category), 0), pos, pos);
+    ExternalTool *tool = items.takeAt(pos);
+    endRemoveRows();
+    if (row < 0)
+        row = m_tools.value(toCategory).count();
+    beginInsertRows(index(m_tools.keys().indexOf(toCategory), 0), row, row);
+    m_tools[toCategory].insert(row, tool);
+    endInsertRows();
+    return true;
+}
+
+QStringList ExternalToolModel::mimeTypes() const
+{
+    return QStringList() << QLatin1String("application/qtcreator-externaltool-config");
+}
+
 QModelIndex ExternalToolModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (column == 0 && parent.isValid()) {
@@ -118,8 +179,9 @@ QModelIndex ExternalToolModel::index(int row, int column, const QModelIndex &par
                 return createIndex(row, 0, items.at(row));
             }
         }
-    }
-    return createIndex(row, column);
+    } else if (column == 0 && row < m_tools.keys().count())
+        return createIndex(row, 0);
+    return QModelIndex();
 }
 
 QModelIndex ExternalToolModel::parent(const QModelIndex &child) const
@@ -185,13 +247,16 @@ bool ExternalToolModel::setData(const QModelIndex &modelIndex, const QVariant &v
             // rename category
             QList<QString> categories = m_tools.keys();
             int previousIndex = categories.indexOf(category);
+            categories.removeAt(previousIndex);
             categories.append(string);
             qSort(categories);
             int newIndex = categories.indexOf(string);
-            beginMoveRows(QModelIndex(), previousIndex, previousIndex, QModelIndex(), newIndex);
+            if (newIndex != previousIndex)
+                beginMoveRows(QModelIndex(), previousIndex, previousIndex, QModelIndex(), newIndex);
             QList<ExternalTool *> items = m_tools.take(category);
             m_tools.insert(string, items);
-            endMoveRows();
+            if (newIndex != previousIndex)
+                endMoveRows();
             return true;
         }
     }
@@ -381,6 +446,8 @@ void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &t
             itemCopy.append(new ExternalTool(tool));
         toolsCopy.insert(it.key(), itemCopy);
     }
+    if (!toolsCopy.contains(QLatin1String("")))
+        toolsCopy.insert(QLatin1String(""), QList<ExternalTool *>());
     m_model->setTools(toolsCopy);
     ui->toolTree->expandAll();
 }

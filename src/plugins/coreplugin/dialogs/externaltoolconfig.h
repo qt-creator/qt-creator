@@ -62,6 +62,14 @@ public:
     Qt::ItemFlags flags(const QModelIndex &modelIndex) const;
     bool setData(const QModelIndex &modelIndex, const QVariant &value, int role = Qt::EditRole);
 
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
+    bool dropMimeData(const QMimeData *data,
+                      Qt::DropAction action,
+                      int row,
+                      int column,
+                      const QModelIndex &parent);
+    QStringList mimeTypes() const;
+
     void setTools(const QMap<QString, QList<ExternalTool *> > &tools);
     QMap<QString, QList<ExternalTool *> > tools() const;
 
@@ -71,6 +79,7 @@ public:
     QModelIndex addCategory();
     QModelIndex addTool(const QModelIndex &atIndex);
     void removeTool(const QModelIndex &modelIndex);
+    Qt::DropActions supportedDropActions() const;
 private:
     QVariant data(ExternalTool *tool, int role = Qt::DisplayRole) const;
     QVariant data(const QString &category, int role = Qt::DisplayRole) const;
