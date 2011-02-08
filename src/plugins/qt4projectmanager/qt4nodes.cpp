@@ -608,8 +608,7 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, ProFileReader *readerExac
             QStringList vPathsCumulative = fullVPaths(baseVPathsCumulative, readerCumulative, type, qmakeVariable, projectDir);
 
             newFilePaths += readerExact->absoluteFileValues(qmakeVariable, projectDir, vPathsExact, includeFileExact).toSet();
-            if (readerCumulative)
-                newFilePaths += readerCumulative->absoluteFileValues(qmakeVariable, projectDir, vPathsCumulative, includeFileCumlative).toSet();
+            newFilePaths += readerCumulative->absoluteFileValues(qmakeVariable, projectDir, vPathsCumulative, includeFileCumlative).toSet();
 
         }
 
@@ -1522,8 +1521,7 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
         return;
     if (!parseResult || m_project->wasEvaluateCanceled()) {
         m_project->destroyProFileReader(m_readerExact);
-        if (m_readerCumulative)
-            m_project->destroyProFileReader(m_readerCumulative);
+        m_project->destroyProFileReader(m_readerCumulative);
         m_readerExact = m_readerCumulative = 0;
         if (!parseResult) {
             m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
@@ -1538,19 +1536,7 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
     if (debug)
         qDebug() << "Qt4ProFileNode - updating files for file " << m_projectFilePath;
 
-    Qt4ProjectType projectType = InvalidProject;
-    // Check that both are the same if we have both
-    if (m_readerExact->templateType() != m_readerCumulative->templateType()) {
-        // Now what. The only thing which could be reasonable is that someone
-        // changes between template app and library.
-        // Well, we are conservative here for now.
-        // Let's wait until someone complains and look at what they are doing.
-        m_project->destroyProFileReader(m_readerCumulative);
-        m_readerCumulative = 0;
-    }
-
-    projectType = proFileTemplateTypeToProjectType(m_readerExact->templateType());
-
+    Qt4ProjectType projectType = proFileTemplateTypeToProjectType(m_readerExact->templateType());
     if (projectType != m_projectType) {
         Qt4ProjectType oldType = m_projectType;
         // probably all subfiles/projects have changed anyway ...
@@ -1596,16 +1582,14 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
     QStringList newProjectFilesCumlative;
     QHash<QString, ProFile*> includeFilesCumlative;
     ProFile *fileForCurrentProjectCumlative = 0;
-    if (m_readerCumulative) {
-        if (m_projectType == SubDirsTemplate)
-            newProjectFilesCumlative = subDirsPaths(m_readerCumulative);
-        foreach (ProFile *includeFile, m_readerCumulative->includeFiles()) {
-            if (includeFile->fileName() == m_projectFilePath) {
-                fileForCurrentProjectCumlative = includeFile;
-            } else {
-                newProjectFilesCumlative << includeFile->fileName();
-                includeFilesCumlative.insert(includeFile->fileName(), includeFile);
-            }
+    if (m_projectType == SubDirsTemplate)
+        newProjectFilesCumlative = subDirsPaths(m_readerCumulative);
+    foreach (ProFile *includeFile, m_readerCumulative->includeFiles()) {
+        if (includeFile->fileName() == m_projectFilePath) {
+            fileForCurrentProjectCumlative = includeFile;
+        } else {
+            newProjectFilesCumlative << includeFile->fileName();
+            includeFilesCumlative.insert(includeFile->fileName(), includeFile);
         }
     }
 
@@ -1759,12 +1743,10 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
     newVarValues[QmlImportPathVar] = m_readerExact->absolutePathValues(
                 QLatin1String("QML_IMPORT_PATH"), m_projectDir);
     newVarValues[Makefile] = m_readerExact->values("MAKEFILE");
+
     // We use the cumulative parse so that we get the capabilities for symbian even if
     // a different target is selected and the capabilities are set in a symbian scope
-
-    if (m_readerCumulative)
-        newVarValues[SymbianCapabilities] = m_readerCumulative->values("TARGET.CAPABILITY");
-
+    newVarValues[SymbianCapabilities] = m_readerCumulative->values("TARGET.CAPABILITY");
 
     if (m_varValues != newVarValues) {
         Qt4VariablesHash oldValues = m_varValues;
@@ -1785,8 +1767,7 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
             emit qt4Watcher->proFileUpdated(this, true);
 
     m_project->destroyProFileReader(m_readerExact);
-    if (m_readerCumulative)
-        m_project->destroyProFileReader(m_readerCumulative);
+    m_project->destroyProFileReader(m_readerCumulative);
 
     m_readerExact = 0;
     m_readerCumulative = 0;
