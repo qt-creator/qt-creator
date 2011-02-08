@@ -525,13 +525,14 @@ bool BaseTextDocument::open(const QString &fileName)
             Core::ICore::instance()->progressManager()->addTask(
                 interface.future(), tr("Opening file"), Constants::TASK_OPEN_FILE);
             interface.reportStarted();
+            d->m_document->setUndoRedoEnabled(false);
             QTextCursor c(d->m_document);
             for (int i = 0; i < chunks; ++i) {
                 c.insertText(content.at(i));
                 interface.setProgressValue(i + 1);
                 QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
             }
-            d->m_document->clearUndoRedoStacks();
+            d->m_document->setUndoRedoEnabled(true);
             interface.reportFinished();
         }
         BaseTextDocumentLayout *documentLayout =
