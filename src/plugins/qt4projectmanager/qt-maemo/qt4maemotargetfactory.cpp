@@ -178,12 +178,12 @@ Qt4BaseTarget *Qt4MaemoTargetFactory::create(ProjectExplorer::Project *parent, c
         return 0;
 
     QtVersion *qtVersion = knownVersions.first();
-    bool buildAll = qtVersion->isValid() && (qtVersion->defaultBuildConfig() & QtVersion::BuildAll);
-    QtVersion::QmakeBuildConfigs config = buildAll ? QtVersion::BuildAll : QtVersion::QmakeBuildConfig(0);
-
-    QList<BuildConfigurationInfo> infos;
-    infos.append(BuildConfigurationInfo(qtVersion, config | QtVersion::DebugBuild, QString(), QString()));
-    infos.append(BuildConfigurationInfo(qtVersion, config, QString(), QString()));
+    QtVersion::QmakeBuildConfigs config = qtVersion->defaultBuildConfig();
+    bool buildAll = config & QtVersion::BuildAll;
+    QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), id);
+    infos.append(BuildConfigurationInfo(qtVersion, config, QString(), dir));
+    if (buildAll)
+        infos.append(BuildConfigurationInfo(qtVersion, config ^ QtVersion::DebugBuild, QString(), dir));
 
     return create(parent, id, infos);
 }

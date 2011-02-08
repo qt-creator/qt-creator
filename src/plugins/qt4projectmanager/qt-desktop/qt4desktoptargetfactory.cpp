@@ -144,12 +144,13 @@ Qt4BaseTarget *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent,
         return 0;
 
     QtVersion *qtVersion = knownVersions.first();
-    bool buildAll = qtVersion->isValid() && (qtVersion->defaultBuildConfig() & QtVersion::BuildAll);
-    QtVersion::QmakeBuildConfigs config = buildAll ? QtVersion::BuildAll : QtVersion::QmakeBuildConfig(0);
+    QtVersion::QmakeBuildConfigs config = qtVersion->defaultBuildConfig();
+    bool buildAll = qtVersion->defaultBuildConfig() & QtVersion::BuildAll;
 
-    QList<BuildConfigurationInfo> infos;
-    infos.append(BuildConfigurationInfo(qtVersion, config | QtVersion::DebugBuild, QString(), QString()));
-    infos.append(BuildConfigurationInfo(qtVersion, config, QString(), QString()));
+    QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), Constants::DESKTOP_TARGET_ID);
+    infos.append(BuildConfigurationInfo(qtVersion, config, QString(), dir));
+    if (buildAll)
+        infos.append(BuildConfigurationInfo(qtVersion, config ^ QtVersion::DebugBuild, QString(), dir));
 
     return create(parent, id, infos);
 }
