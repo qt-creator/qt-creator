@@ -105,7 +105,7 @@ private:
     };
 
     void setState(State newState);
-    void emitError(const QString &errorMsg);
+    void emitError(const QString &errorMsg, bool force = false);
 
     void cleanup();
     bool isConnectionUsable() const;

@@ -68,6 +68,8 @@ public:
     static MaemoQemuManager& instance(QObject *parent = 0);
 
     bool runtimeForQtVersion(int uniqueId, MaemoQemuRuntime *rt) const;
+    bool qemuIsRunning() const;
+    Q_SLOT void startRuntime();
 
 signals:
     void qemuProcessStatus(QemuStatus, const QString &error = QString());
@@ -94,7 +96,6 @@ private slots:
     void environmentChanged();  // needed to check for qt version
     void deviceConfigurationChanged(ProjectExplorer::Target *target);
 
-    void startRuntime();
     void terminateRuntime();
 
     void qemuProcessFinished();

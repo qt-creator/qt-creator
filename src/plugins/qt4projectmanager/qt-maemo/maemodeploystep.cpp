@@ -38,6 +38,7 @@
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemopertargetdeviceconfigurationlistmodel.h"
+#include "maemoqemumanager.h"
 #include "maemoremotemounter.h"
 #include "maemorunconfiguration.h"
 #include "maemotoolchain.h"
@@ -354,6 +355,18 @@ void MaemoDeployStep::start()
     }
 
     if (m_needsInstall || !m_filesToCopy.isEmpty()) {
+        if (m_cachedDeviceConfig->type() == MaemoDeviceConfig::Simulator
+                && !MaemoQemuManager::instance().qemuIsRunning()) {
+            MaemoQemuManager::instance().startRuntime();
+            raiseError(tr("Deployment failed: Qemu was not running. "
+                "It has now been started up for you, but it will take "
+                "a bit of time until it is ready."));
+            m_needsInstall = false;
+            m_filesToCopy.clear();
+            emit done();
+            return;
+        }
+
         if (m_deployToSysroot)
             installToSysroot();
         else

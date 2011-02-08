@@ -153,6 +153,11 @@ bool MaemoQemuManager::runtimeForQtVersion(int uniqueId, MaemoQemuRuntime *rt) c
     return rt->isValid();
 }
 
+bool MaemoQemuManager::qemuIsRunning() const
+{
+    return m_runningQtId != INT_MIN;
+}
+
 void MaemoQemuManager::qtVersionsChanged(const QList<int> &uniqueIds)
 {
     QtVersionManager *manager = QtVersionManager::instance();

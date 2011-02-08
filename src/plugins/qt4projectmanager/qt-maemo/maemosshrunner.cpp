@@ -36,6 +36,7 @@
 
 #include "maemodeploystep.h"
 #include "maemoglobal.h"
+#include "maemoqemumanager.h"
 #include "maemoremotemounter.h"
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
@@ -97,11 +98,20 @@ void MaemoSshRunner::start()
     ASSERT_STATE(QList<State>() << Inactive << StopRequested);
 
     if (m_remoteExecutable.isEmpty()) {
-        emitError(tr("Cannot run: No remote executable set."));
+        emitError(tr("Cannot run: No remote executable set."), true);
         return;
     }
     if (!m_devConfig) {
-        emitError(tr("Cannot run: No device configuration set."));
+        emitError(tr("Cannot run: No device configuration set."), true);
+        return;
+    }
+
+    if (m_devConfig->type() == MaemoDeviceConfig::Simulator
+            && !MaemoQemuManager::instance().qemuIsRunning()) {
+        MaemoQemuManager::instance().startRuntime();
+        emitError(tr("Cannot run: Qemu was not running. "
+            "It has now been started up for you, but it will take "
+            "a bit of time until it is ready."), true);
         return;
     }
 
@@ -317,10 +327,12 @@ void MaemoSshRunner::setState(State newState)
     m_state = newState;
 }
 
-void MaemoSshRunner::emitError(const QString &errorMsg)
+void MaemoSshRunner::emitError(const QString &errorMsg, bool force)
 {
     if (m_state != Inactive) {
         setState(Inactive);
+        emit error(errorMsg);
+    } else if (force) {
         emit error(errorMsg);
     }
 }
