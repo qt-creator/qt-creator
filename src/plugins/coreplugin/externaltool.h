@@ -90,6 +90,7 @@ public:
 
     bool operator==(const ExternalTool &other);
     bool operator!=(const ExternalTool &other) { return !((*this) == other); }
+    ExternalTool &operator=(const ExternalTool &other);
 
     void setId(const QString &id);
     void setCategory(const QString &category);

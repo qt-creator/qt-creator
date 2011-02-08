@@ -109,6 +109,24 @@ ExternalTool::ExternalTool(const ExternalTool *other)
 {
 }
 
+ExternalTool &ExternalTool::operator=(const ExternalTool &other)
+{
+    m_id = other.m_id;
+    m_description = other.m_description;
+    m_displayName = other.m_displayName;
+    m_displayCategory = other.m_displayCategory;
+    m_order = other.m_order;
+    m_executables = other.m_executables;
+    m_arguments = other.m_arguments;
+    m_input = other.m_input;
+    m_workingDirectory = other.m_workingDirectory;
+    m_outputHandling = other.m_outputHandling;
+    m_errorHandling = other.m_errorHandling;
+    m_modifiesCurrentDocument = other.m_modifiesCurrentDocument;
+    m_fileName = other.m_fileName;
+    m_presetTool = other.m_presetTool;
+}
+
 ExternalTool::~ExternalTool()
 {
 }

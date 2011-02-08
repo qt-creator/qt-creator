@@ -37,7 +37,7 @@
 #include "coreplugin/externaltool.h"
 
 #include <QtGui/QWidget>
-#include <QtGui/QTreeWidgetItem>
+#include <QtCore/QAbstractItemModel>
 
 namespace Core {
 namespace Internal {
@@ -45,6 +45,39 @@ namespace Internal {
 namespace Ui {
     class ExternalToolConfig;
 }
+
+class ExternalToolModel : public QAbstractItemModel
+{
+    Q_OBJECT
+
+public:
+    explicit ExternalToolModel(QObject *parent);
+    ~ExternalToolModel();
+
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &modelIndex, int role = Qt::DisplayRole) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex parent(const QModelIndex &child) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    Qt::ItemFlags flags(const QModelIndex &modelIndex) const;
+    bool setData(const QModelIndex &modelIndex, const QVariant &value, int role = Qt::EditRole);
+
+    void setTools(const QMap<QString, QList<ExternalTool *> > &tools);
+    QMap<QString, QList<ExternalTool *> > tools() const;
+
+    ExternalTool *toolForIndex(const QModelIndex &modelIndex) const;
+    QString categoryForIndex(const QModelIndex &modelIndex) const;
+    void revertTool(const QModelIndex &modelIndex);
+    QModelIndex addCategory();
+    QModelIndex addTool(const QModelIndex &atIndex);
+    void removeTool(const QModelIndex &modelIndex);
+private:
+    QVariant data(ExternalTool *tool, int role = Qt::DisplayRole) const;
+    QVariant data(const QString &category, int role = Qt::DisplayRole) const;
+
+    QMap<QString, QList<ExternalTool *> > m_tools;
+};
+
 
 class ExternalToolConfig : public QWidget
 {
@@ -61,20 +94,19 @@ public:
     QString searchKeywords() const;
 
 private slots:
-    void handleCurrentItemChanged(QTreeWidgetItem *now, QTreeWidgetItem *previous);
-    void showInfoForItem(QTreeWidgetItem *item);
-    void updateItem(QTreeWidgetItem *item);
-    void updateItemName(QTreeWidgetItem *item);
+    void handleCurrentChanged(const QModelIndex &now, const QModelIndex &previous);
+    void showInfoForItem(const QModelIndex &index);
+    void updateItem(const QModelIndex &index);
     void revertCurrentItem();
-    void updateButtons(QTreeWidgetItem *item);
+    void updateButtons(const QModelIndex &index);
     void updateCurrentItem();
-    void addTool();
+    void add();
     void removeTool();
     void addCategory();
 
 private:
     Ui::ExternalToolConfig *ui;
-    QMap<QString, QList<ExternalTool *> > m_tools;
+    ExternalToolModel *m_model;
 };
 
 } // Internal

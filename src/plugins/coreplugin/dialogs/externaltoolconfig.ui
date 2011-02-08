@@ -17,15 +17,19 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QTreeWidget" name="toolTree">
+      <widget class="QTreeView" name="toolTree">
+       <property name="dragEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::InternalMove</enum>
+       </property>
        <attribute name="headerVisible">
         <bool>false</bool>
        </attribute>
-       <column>
-        <property name="text">
-         <string notr="true">1</string>
-        </property>
-       </column>
+       <attribute name="headerDefaultSectionSize">
+        <number>0</number>
+       </attribute>
       </widget>
      </item>
      <item>
@@ -125,7 +129,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="Utils::PathChooser" name="executable" native="true"/>
+       <widget class="Utils::PathChooser" name="executable"/>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="argumentsLabel">
@@ -145,7 +149,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="Utils::PathChooser" name="workingDirectory" native="true"/>
+       <widget class="Utils::PathChooser" name="workingDirectory"/>
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="outputLabel">
