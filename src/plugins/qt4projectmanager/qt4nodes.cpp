@@ -1782,7 +1782,7 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
 
     foreach (NodesWatcher *watcher, watchers())
         if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
-            emit qt4Watcher->proFileUpdated(this, parseResult);
+            emit qt4Watcher->proFileUpdated(this, true);
 
     m_project->destroyProFileReader(m_readerExact);
     if (m_readerCumulative)
