@@ -20,7 +20,6 @@ QWidget {
             GroupBox {
                 finished: finishedNotify;
                 caption: qsTr("Flickable")                
-                }
         }
     }
 }
