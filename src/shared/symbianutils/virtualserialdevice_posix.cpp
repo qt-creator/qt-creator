@@ -38,6 +38,32 @@ bool VirtualSerialDevice::open(OpenMode mode)
         return false;
         }
 
+    struct termios termInfo;
+    if (tcgetattr(d->portHandle, &termInfo) < 0) {
+        setErrorString(QString::fromLatin1("Unable to retrieve terminal settings: %1 %2").arg(errno).arg(QString::fromAscii(strerror(errno))));
+        close();
+        return false;
+    }
+    cfmakeraw(&termInfo);
+    // Turn off terminal echo as not get messages back, among other things
+    termInfo.c_cflag |= CREAD|CLOCAL;
+    termInfo.c_cc[VTIME] = 0;
+    termInfo.c_lflag &= (~(ICANON|ECHO|ECHOE|ECHOK|ECHONL|ISIG));
+    termInfo.c_iflag &= (~(INPCK|IGNPAR|PARMRK|ISTRIP|ICRNL|IXANY|IXON|IXOFF));
+    termInfo.c_oflag &= (~OPOST);
+    termInfo.c_cc[VMIN]  = 0;
+    termInfo.c_cc[VINTR] = _POSIX_VDISABLE;
+    termInfo.c_cc[VQUIT] = _POSIX_VDISABLE;
+    termInfo.c_cc[VSTART] = _POSIX_VDISABLE;
+    termInfo.c_cc[VSTOP] = _POSIX_VDISABLE;
+    termInfo.c_cc[VSUSP] = _POSIX_VDISABLE;
+
+    if (tcsetattr(d->portHandle, TCSAFLUSH, &termInfo) < 0) {
+        setErrorString(QString::fromLatin1("Unable to apply terminal settings: %1 %2").arg(errno).arg(QString::fromAscii(strerror(errno))));
+        close();
+        return false;
+    }
+
     d->readNotifier = new QSocketNotifier(d->portHandle, QSocketNotifier::Read);
     connect(d->readNotifier, SIGNAL(activated(int)), this, SIGNAL(readyRead()));
 
@@ -45,7 +71,7 @@ bool VirtualSerialDevice::open(OpenMode mode)
     d->writeUnblockedNotifier->setEnabled(false);
     connect(d->writeUnblockedNotifier, SIGNAL(activated(int)), this, SLOT(writeHasUnblocked(int)));
 
-    bool ok = QIODevice::open(mode);
+    bool ok = QIODevice::open(mode | QIODevice::Unbuffered);
     if (!ok) close();
     return ok;
 }
