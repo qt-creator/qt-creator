@@ -178,6 +178,7 @@ private:
     MaemoPortList m_freePorts;
     QByteArray m_installerStderr;
     State m_state;
+    bool m_hasError;
 };
 
 class MaemoDeployEventHandler : public QObject

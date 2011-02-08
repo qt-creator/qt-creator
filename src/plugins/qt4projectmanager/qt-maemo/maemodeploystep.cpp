@@ -230,6 +230,7 @@ void MaemoDeployStep::raiseError(const QString &errorString)
 {
     emit addTask(Task(Task::Error, errorString, QString(), -1,
         ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+    m_hasError = true;
     emit error();
 }
 
@@ -339,6 +340,7 @@ void MaemoDeployStep::start()
     Q_ASSERT(!m_needsInstall);
     Q_ASSERT(m_filesToCopy.isEmpty());
     m_installerStderr.clear();
+    m_hasError = false;
     const MaemoPackageCreationStep * const pStep = packagingStep();
     const QString hostName = m_cachedDeviceConfig->sshParameters().host;
     if (pStep->isPackagingEnabled()) {
@@ -506,7 +508,10 @@ void MaemoDeployStep::handleUnmounted()
         m_portsGatherer->start(m_connection, m_cachedDeviceConfig->freePorts());
         break;
     case UnmountingCurrentMounts:
-        writeOutput(tr("Deployment finished."));
+        if (m_hasError)
+            writeOutput(tr("Deployment failed."), ErrorMessageOutput);
+        else
+            writeOutput(tr("Deployment finished."));
         setState(Inactive);
         break;
     case Inactive:
