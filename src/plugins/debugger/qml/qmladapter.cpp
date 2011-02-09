@@ -290,7 +290,7 @@ void QmlAdapter::logServiceStatusChange(const QString &service, QDeclarativeDebu
 {
     switch (newStatus) {
     case QDeclarativeDebugClient::Unavailable: {
-        showConnectionErrorMessage(tr("Debug service '%1' became unavailable.").arg(service));
+        showConnectionStatusMessage(tr("Debug service '%1' became unavailable.").arg(service));
         emit serviceConnectionError(service);
         break;
     }
