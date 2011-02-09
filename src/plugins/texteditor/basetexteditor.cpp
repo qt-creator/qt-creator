@@ -903,6 +903,7 @@ void BaseTextEditor::copyLineDown()
     copyLineUpDown(false);
 }
 
+// @todo: Potential reuse of some code around the following functions...
 void BaseTextEditor::copyLineUpDown(bool up)
 {
     QTextCursor cursor = textCursor();
@@ -915,7 +916,8 @@ void BaseTextEditor::copyLineUpDown(bool up)
         move.setPosition(cursor.selectionStart());
         move.movePosition(QTextCursor::StartOfBlock);
         move.setPosition(cursor.selectionEnd(), QTextCursor::KeepAnchor);
-        move.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        move.movePosition(move.atBlockStart() ? QTextCursor::Left: QTextCursor::EndOfBlock,
+                          QTextCursor::KeepAnchor);
     } else {
         move.movePosition(QTextCursor::StartOfBlock);
         move.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
@@ -1038,7 +1040,8 @@ void BaseTextEditor::moveLineUpDown(bool up)
         move.setPosition(cursor.selectionStart());
         move.movePosition(QTextCursor::StartOfBlock);
         move.setPosition(cursor.selectionEnd(), QTextCursor::KeepAnchor);
-        move.movePosition(move.atBlockStart() ? QTextCursor::Left: QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        move.movePosition(move.atBlockStart() ? QTextCursor::Left: QTextCursor::EndOfBlock,
+                          QTextCursor::KeepAnchor);
     } else {
         move.movePosition(QTextCursor::StartOfBlock);
         move.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
@@ -1051,7 +1054,8 @@ void BaseTextEditor::moveLineUpDown(bool up)
 
     foreach (const RefactorMarker &marker, d->m_refactorOverlay->markers()) {
         //test if marker is part of the selection to be moved
-        if ((move.selectionStart() <= marker.cursor.position()) && (move.selectionEnd() >= marker.cursor.position())) {
+        if ((move.selectionStart() <= marker.cursor.position())
+                && (move.selectionEnd() >= marker.cursor.position())) {
             affectedMarkers.append(marker);
             //remember the offset of markers in text
             int offset = marker.cursor.position() - move.selectionStart();
