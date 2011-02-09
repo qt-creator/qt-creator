@@ -232,7 +232,7 @@ QString Environment::searchInPath(const QStringList &executables,
             fp += slash;
             fp += exec;
             const QFileInfo fi(fp);
-            if (fi.exists())
+            if (fi.exists() && fi.isExecutable() && !fi.isDir())
                 return fi.absoluteFilePath();
         }
     }
