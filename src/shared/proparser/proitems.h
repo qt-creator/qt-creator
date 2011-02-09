@@ -199,11 +199,15 @@ public:
     void ref() { m_refCount.ref(); }
     void deref() { if (!m_refCount.deref()) delete this; }
 
+    bool isOk() const { return m_ok; }
+    void setOk(bool ok) { m_ok = ok; }
+
 private:
     ProItemRefCount m_refCount;
     QString m_proitems;
     QString m_fileName;
     QString m_directoryName;
+    bool m_ok;
 };
 
 QT_END_NAMESPACE

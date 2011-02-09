@@ -310,6 +310,8 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
     ptr += 4;
     ushort *xprPtr = ptr;
 
+    ushort *oldTokPtr = tokPtr;
+
 #define FLUSH_LHS_LITERAL(setSep) \
     do { \
         if ((tlen = ptr - xprPtr)) { \
@@ -356,9 +358,14 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
             c = *cur;
             if (c == '\n') {
                 ++cur;
-                goto flushLine;
+                if (!inError)
+                    goto flushLine;
+                ++m_lineNo;
+                goto freshLine;
             } else if (!c) {
-                goto flushLine;
+                if (!inError)
+                    goto flushLine;
+                goto flushFile;
             } else if (c != ' ' && c != '\t' && c != '\r') {
                 break;
             }
@@ -430,8 +437,11 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                         }
                         tlen = ptr - xprPtr;
                         if (context == CtxTest) {
-                            if (needSep)
-                                goto extraChars;
+                            if (needSep) {
+                              extraChars:
+                                parseError(fL1S("Extra characters after test expression."));
+                                goto parseErr;
+                            }
                             if (tlen)
                                 finalizeHashStr(xprPtr, tlen);
                             else
@@ -533,7 +543,12 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                                 parseError(fL1S("Missing %1 terminator [found %2]")
                                     .arg(QChar(term))
                                     .arg(c ? QString(c) : QString::fromLatin1("end-of-line")));
-                                return false;
+                              parseErr:
+                                pro->setOk(false);
+                                xprStack.resize(0);
+                                tokPtr = oldTokPtr;
+                                inError = true;
+                                goto skip;
                             }
                         }
                       joinToken:
@@ -616,8 +631,7 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                         FLUSH_LHS_LITERAL(false);
                         if (ptr == buf) {
                             parseError(fL1S("Opening parenthesis without prior test name."));
-                            inError = true;
-                            goto skip;
+                            goto parseErr;
                         }
                         *ptr++ = TokTestCall;
                         term = ':';
@@ -690,8 +704,7 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                         putLineMarker(tokPtr);
                         if (!(tlen = ptr - buf)) {
                             parseError(fL1S("Assignment operator without prior variable name."));
-                            inError = true;
-                            goto skip;
+                            goto parseErr;
                         }
                         putBlock(tokPtr, buf, tlen);
                         putTok(tokPtr, tok);
@@ -743,11 +756,11 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                 FLUSH_LITERAL(false);
                 if (quote) {
                     parseError(fL1S("Missing closing %1 quote").arg(QChar(quote)));
-                    return false;
+                    goto parseErr;
                 }
                 if (!xprStack.isEmpty()) {
                     parseError(fL1S("Missing closing parenthesis in function call"));
-                    return false;
+                    goto parseErr;
                 }
                 if (context == CtxValue) {
                     tokPtr[-1] = litCount ? litCount + expCount : 0;
@@ -756,17 +769,8 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                 } else {
                     finalizeCond(tokPtr, buf, ptr);
                 }
-                if (!c) {
-                    flushScopes(tokPtr);
-                    if (m_blockstack.size() > 1)
-                        parseError(fL1S("Missing closing brace(s)."));
-                    while (m_blockstack.size())
-                        leaveScope(tokPtr);
-                    xprBuff.clear();
-                    *pro->itemsRef() =
-                            QString(tokBuff.constData(), tokPtr - (ushort *)tokBuff.constData());
-                    return true;
-                }
+                if (!c)
+                    break;
                 ++m_lineNo;
                 goto freshLine;
             }
@@ -783,13 +787,21 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
         ++m_lineNo;
     }
 
+  flushFile:
+    flushScopes(tokPtr);
+    if (m_blockstack.size() > 1) {
+        parseError(fL1S("Missing closing brace(s)."));
+        pro->setOk(false);
+    }
+    while (m_blockstack.size())
+        leaveScope(tokPtr);
+    xprBuff.clear();
+    *pro->itemsRef() = QString(tokBuff.constData(), tokPtr - (ushort *)tokBuff.constData());
+    return true;
+
 #undef FLUSH_LITERAL
 #undef FLUSH_LHS_LITERAL
 #undef FLUSH_RHS_LITERAL
-
-  extraChars:
-    parseError(fL1S("Extra characters after test expression."));
-    return false;
 }
 
 void ProFileParser::putLineMarker(ushort *&tokPtr)

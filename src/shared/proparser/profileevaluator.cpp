@@ -1137,6 +1137,9 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
         ProFile *pro, ProFileEvaluatorHandler::EvalFileType type,
         ProFileEvaluator::LoadFlags flags)
 {
+    if (!m_cumulative && !pro->isOk())
+        return ReturnFalse;
+
     m_handler->aboutToEval(currentProFile(), pro, type);
     m_profileStack.push(pro);
     if (flags & LoadPreFiles) {

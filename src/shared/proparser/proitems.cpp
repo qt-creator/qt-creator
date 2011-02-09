@@ -336,7 +336,8 @@ void ProStringList::removeDuplicates()
 
 ProFile::ProFile(const QString &fileName)
     : m_refCount(1),
-      m_fileName(fileName)
+      m_fileName(fileName),
+      m_ok(true)
 {
     if (!fileName.startsWith(QLatin1Char('(')))
         m_directoryName = fileName.left(fileName.lastIndexOf(QLatin1Char('/')));
