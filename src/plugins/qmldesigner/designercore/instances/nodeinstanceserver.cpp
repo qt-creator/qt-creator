@@ -913,7 +913,7 @@ void NodeInstanceServer::initializeDeclarativeView()
 #ifdef Q_WS_MAC
     m_declarativeView->setAttribute(Qt::WA_DontShowOnScreen, true);
 #endif
-    QUnifiedTimer::instance()->setSlowdownFactor(1000000.);
+    QUnifiedTimer::instance()->setSlowdownFactor(0.00001);
     QUnifiedTimer::instance()->setSlowModeEnabled(true);
 }
 
