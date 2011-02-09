@@ -625,7 +625,7 @@ Core::ActionContainer *FormEditorW::createPreviewStyleMenu(Core::ActionManager *
         bindShortcut(command, a);
         if (isDeviceProfile) {
             command->setAttribute(Core::Command::CA_UpdateText);
-            command->setAttribute(Core::Command::CA_NonConfigureable);
+            command->setAttribute(Core::Command::CA_NonConfigurable);
         }
         menuPreviewStyle->addAction(command);
     }

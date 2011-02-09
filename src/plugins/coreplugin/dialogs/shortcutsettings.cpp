@@ -300,7 +300,7 @@ void ShortcutSettings::initialize()
     QMap<QString, QTreeWidgetItem *> sections;
 
     foreach (Command *c, am->commands()) {
-        if (c->hasAttribute(Command::CA_NonConfigureable))
+        if (c->hasAttribute(Command::CA_NonConfigurable))
             continue;
         if (c->action() && c->action()->isSeparator())
             continue;

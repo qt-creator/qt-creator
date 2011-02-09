@@ -83,7 +83,7 @@
     \value CA_Hide
         When there is no active action, hide the user "visible" action, instead of just
         disabling it.
-    \value CA_NonConfigureable
+    \value CA_NonConfigurable
         Flag to indicate that the keyboard shortcut of this Command should not be
         configurable by the user.
 */
@@ -535,7 +535,7 @@ void Action::setAttribute(CommandAttribute attr)
     case Core::Command::CA_UpdateIcon:
         m_action->setAttribute(Utils::ProxyAction::UpdateIcon);
         break;
-    case Core::Command::CA_NonConfigureable:
+    case Core::Command::CA_NonConfigurable:
         break;
     }
 }
@@ -553,7 +553,7 @@ void Action::removeAttribute(CommandAttribute attr)
     case Core::Command::CA_UpdateIcon:
         m_action->removeAttribute(Utils::ProxyAction::UpdateIcon);
         break;
-    case Core::Command::CA_NonConfigureable:
+    case Core::Command::CA_NonConfigurable:
         break;
     }
 }

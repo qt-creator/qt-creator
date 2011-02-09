@@ -57,7 +57,7 @@ public:
         CA_Hide = 1,
         CA_UpdateText = 2,
         CA_UpdateIcon = 4,
-        CA_NonConfigureable = 8
+        CA_NonConfigurable = 8
     };
     Q_DECLARE_FLAGS(CommandAttributes, CommandAttribute)
 

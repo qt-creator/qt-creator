@@ -3027,7 +3027,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
         cmd->action()->setEnabled(true);
         editorContextMenu->addAction(cmd);
         cmd->setAttribute(Command::CA_Hide);
-        cmd->setAttribute(Command::CA_NonConfigureable); // ADD_TO_WATCH1 is enough.
+        cmd->setAttribute(Command::CA_NonConfigurable); // ADD_TO_WATCH1 is enough.
     }
 
     m_plugin->addAutoReleasedObject(new CommonOptionsPage);
