@@ -35,6 +35,7 @@
 #define QTQUICKAPPWIZARDPAGES_H
 
 #include <QtGui/QWizardPage>
+#include "qtquickapp.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -48,6 +49,7 @@ public:
     explicit QtQuickAppWizardSourcesPage(QWidget *parent = 0);
     virtual ~QtQuickAppWizardSourcesPage();
 
+    QtQuickApp::Mode mainQmlMode() const;
     QString mainQmlFile() const;
     virtual bool isComplete() const;
 

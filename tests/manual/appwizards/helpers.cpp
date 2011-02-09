@@ -18,7 +18,7 @@ bool QtQuickApp::generateFiles(QString *errorMessage) const
 {
     return     writeFile(generateFile(QtQuickAppGeneratedFileInfo::MainCppFile, errorMessage), path(MainCpp))
             && writeFile(generateFile(QtQuickAppGeneratedFileInfo::AppProFile, errorMessage), path(AppPro))
-            && (useExistingMainQml() ? true : writeFile(generateFile(QtQuickAppGeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)))
+            && (m_mainQmlMode != ModeImport ? true : writeFile(generateFile(QtQuickAppGeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)))
             && writeFile(generateFile(QtQuickAppGeneratedFileInfo::AppViewerPriFile, errorMessage), path(AppViewerPri))
             && writeFile(generateFile(QtQuickAppGeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp))
             && writeFile(generateFile(QtQuickAppGeneratedFileInfo::AppViewerHFile, errorMessage), path(AppViewerH))

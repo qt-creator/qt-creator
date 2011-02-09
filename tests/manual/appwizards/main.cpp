@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
         QtQuickApp sAppImport01;
         sAppImport01.setProjectPath(projectPath);
         sAppImport01.setProjectName(QLatin1String("qml_imported_scenario_01"));
-        sAppImport01.setMainQmlFile(QLatin1String("../appwizards/qmlimportscenario_01/myqmlapp.qml"));
+        sAppImport01.setMainQml(QtQuickApp::ModeImport, QLatin1String("../appwizards/qmlimportscenario_01/myqmlapp.qml"));
         if (!sAppImport01.generateFiles(&errorMessage))
             return 1;
     }
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
         QtQuickApp sAppImport02;
         sAppImport02.setProjectPath(projectPath);
         sAppImport02.setProjectName(QLatin1String("qml_imported_scenario_02"));
-        sAppImport02.setMainQmlFile(rootPath + QLatin1String("subfolder1/myqmlapp.qml"));
+        sAppImport02.setMainQml(QtQuickApp::ModeImport, rootPath + QLatin1String("subfolder1/myqmlapp.qml"));
         QStringList moduleNames;
         moduleNames.append(QLatin1String("no.trolltech.QmlModule01"));
         moduleNames.append(QLatin1String("com.nokia.QmlModule02"));

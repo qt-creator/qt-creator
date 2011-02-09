@@ -21,21 +21,21 @@
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0" colspan="2">
-       <widget class="QRadioButton" name="newQmlRadioButton">
+       <widget class="QRadioButton" name="generateRadioButton">
         <property name="text">
          <string>Generate a main.qml file</string>
         </property>
        </widget>
       </item>
       <item row="1" column="0" colspan="2">
-       <widget class="QRadioButton" name="importExistingQmlRadioButton">
+       <widget class="QRadioButton" name="importRadioButton">
         <property name="text">
          <string>Import an existing .qml file</string>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="Utils::PathChooser" name="mainQmlFileLineEdit"/>
+       <widget class="Utils::PathChooser" name="importLineEdit"/>
       </item>
       <item row="2" column="0">
        <spacer name="horizontalSpacer">

@@ -144,18 +144,22 @@ void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,
 {
     Q_UNUSED(errorMessage)
     const QtQuickAppWizardDialog *wizard = qobject_cast<const QtQuickAppWizardDialog*>(w);
-    const QString mainQmlFile = wizard->m_qmlSourcesPage->mainQmlFile();
-    m_d->app->setMainQmlFile(mainQmlFile);
+    if (wizard->m_qmlSourcesPage->mainQmlMode() == QtQuickApp::ModeGenerate) {
+        m_d->app->setMainQml(QtQuickApp::ModeGenerate);
+    } else {
+        const QString mainQmlFile = wizard->m_qmlSourcesPage->mainQmlFile();
+        m_d->app->setMainQml(QtQuickApp::ModeImport, mainQmlFile);
+    }
 }
 
 bool QtQuickAppWizard::postGenerateFilesInternal(const Core::GeneratedFiles &l,
     QString *errorMessage)
 {
     const bool success = ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
-    if (success && !m_d->app->mainQmlFile().isEmpty()) {
-        ProjectExplorer::ProjectExplorerPlugin::instance()->setCurrentFile(0, m_d->app->mainQmlFile());
-        Core::EditorManager::instance()->openEditor(m_d->app->mainQmlFile(),
-                                                    QString(), Core::EditorManager::ModeSwitch);
+    const QString mainQmlFile = m_d->app->path(QtQuickApp::MainQml);
+    if (success && !mainQmlFile.isEmpty()) {
+        ProjectExplorer::ProjectExplorerPlugin::instance()->setCurrentFile(0, mainQmlFile);
+        Core::EditorManager::instance()->openEditor(mainQmlFile, QString(), Core::EditorManager::ModeSwitch);
     }
     return success;
 }

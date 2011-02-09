@@ -98,7 +98,9 @@ QmlCppPlugin::QmlCppPlugin(const QString &name, const QFileInfo &path,
 {
 }
 
-QtQuickApp::QtQuickApp() : AbstractMobileApp()
+QtQuickApp::QtQuickApp()
+    : AbstractMobileApp()
+    , m_mainQmlMode(ModeGenerate)
 {
 }
 
@@ -107,18 +109,20 @@ QtQuickApp::~QtQuickApp()
     clearModulesAndPlugins();
 }
 
-void QtQuickApp::setMainQmlFile(const QString &qmlFile)
+void QtQuickApp::setMainQml(Mode mode, const QString &file)
 {
-    m_mainQmlFile.setFile(qmlFile);
+    Q_ASSERT(mode != ModeGenerate || file.isEmpty());
+    m_mainQmlMode = mode;
+    m_mainQmlFile.setFile(file);
 }
 
-QString QtQuickApp::mainQmlFile() const
+QtQuickApp::Mode QtQuickApp::mainQmlMode() const
 {
-    return path(MainQml);
+    return m_mainQmlMode;
 }
 
 bool QtQuickApp::setExternalModules(const QStringList &uris,
-                                          const QStringList &importPaths)
+                                    const QStringList &importPaths)
 {
     clearModulesAndPlugins();
     m_importPaths.clear();
@@ -161,19 +165,20 @@ bool QtQuickApp::setExternalModules(const QStringList &uris,
 QString QtQuickApp::pathExtended(int fileType) const
 {
     QString cleanProjectName = projectName().replace(QLatin1Char('-'), QString());
+    const bool importQmlFile = m_mainQmlMode == ModeImport;
     const QString qmlSubDir = QLatin1String("qml/")
-                              + (useExistingMainQml() ? m_mainQmlFile.dir().dirName() : cleanProjectName)
-                              + QLatin1Char('/');   
+                              + (importQmlFile ? m_mainQmlFile.dir().dirName() : cleanProjectName)
+                              + QLatin1Char('/');
     const QString appViewerTargetSubDir = appViewerOriginsSubDir;
     const QString mainQml = QLatin1String("main.qml");
     const QString pathBase = outputPathBase();
     const QDir appProFilePath(pathBase);
 
     switch (fileType) {
-        case MainQml:                       return useExistingMainQml() ? m_mainQmlFile.canonicalFilePath()
-                                                : pathBase + qmlSubDir + mainQml;
-        case MainQmlDeployed:               return useExistingMainQml() ? qmlSubDir + m_mainQmlFile.fileName()
-                                                : QString(qmlSubDir + mainQml);
+        case MainQml:                       return importQmlFile ? m_mainQmlFile.canonicalFilePath()
+                                                                 : pathBase + qmlSubDir + mainQml;
+        case MainQmlDeployed:               return importQmlFile ? qmlSubDir + m_mainQmlFile.fileName()
+                                                                 : QString(qmlSubDir + mainQml);
         case MainQmlOrigin:                 return originsRoot() + QLatin1String("qml/app/") + mainQml;
         case AppViewerPri:                  return pathBase + appViewerTargetSubDir + appViewerPriFileName;
         case AppViewerPriOrigin:            return originsRoot() + appViewerOriginsSubDir + appViewerPriFileName;
@@ -182,8 +187,8 @@ QString QtQuickApp::pathExtended(int fileType) const
         case AppViewerH:                    return pathBase + appViewerTargetSubDir + appViewerHFileName;
         case AppViewerHOrigin:              return originsRoot() + appViewerOriginsSubDir + appViewerHFileName;
         case QmlDir:                        return pathBase + qmlSubDir;
-        case QmlDirProFileRelative:         return useExistingMainQml() ? appProFilePath.relativeFilePath(m_mainQmlFile.canonicalPath())
-                                                : QString(qmlSubDir).remove(qmlSubDir.length() - 1, 1);
+        case QmlDirProFileRelative:         return importQmlFile ? appProFilePath.relativeFilePath(m_mainQmlFile.canonicalPath())
+                                                                 : QString(qmlSubDir).remove(qmlSubDir.length() - 1, 1);
         case ModulesDir:                    return QLatin1String("modules");
         default:                            qFatal("QtQuickApp::pathExtended() needs more work");
     }

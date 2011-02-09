@@ -107,11 +107,16 @@ public:
         ModulesDir
     };
 
+    enum Mode {
+        ModeGenerate,
+        ModeImport
+    };
+
     QtQuickApp();
     virtual ~QtQuickApp();
 
-    void setMainQmlFile(const QString &qmlFile);
-    QString mainQmlFile() const;
+    void setMainQml(Mode mode, const QString &file = QString());
+    Mode mainQmlMode() const;
     bool setExternalModules(const QStringList &uris, const QStringList &importPaths);
 
 #ifndef CREATORLESSTEST
@@ -145,6 +150,7 @@ private:
     void clearModulesAndPlugins();
 
     QFileInfo m_mainQmlFile;
+    Mode m_mainQmlMode;
     QStringList m_importPaths;
     QList <QmlModule*> m_modules;
     QList <QmlCppPlugin*> m_cppPlugins;

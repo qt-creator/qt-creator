@@ -54,15 +54,15 @@ QtQuickAppWizardSourcesPage::QtQuickAppWizardSourcesPage(QWidget *parent)
     , m_d(new QtQuickAppWizardSourcesPagePrivate)
 {
     m_d->ui.setupUi(this);
-    m_d->ui.mainQmlFileLineEdit->setExpectedKind(Utils::PathChooser::File);
-    m_d->ui.mainQmlFileLineEdit->setPromptDialogFilter(QLatin1String("*.qml"));
-    m_d->ui.mainQmlFileLineEdit->setPromptDialogTitle(tr("Select QML File"));
-    connect(m_d->ui.mainQmlFileLineEdit, SIGNAL(changed(QString)), SIGNAL(completeChanged()));
-    connect(m_d->ui.importExistingQmlRadioButton,
+    m_d->ui.importLineEdit->setExpectedKind(Utils::PathChooser::File);
+    m_d->ui.importLineEdit->setPromptDialogFilter(QLatin1String("*.qml"));
+    m_d->ui.importLineEdit->setPromptDialogTitle(tr("Select QML File"));
+    connect(m_d->ui.importLineEdit, SIGNAL(changed(QString)), SIGNAL(completeChanged()));
+    connect(m_d->ui.importRadioButton,
             SIGNAL(toggled(bool)), SIGNAL(completeChanged()));
-    connect(m_d->ui.newQmlRadioButton, SIGNAL(toggled(bool)),
-            m_d->ui.mainQmlFileLineEdit, SLOT(setDisabled(bool)));
-    m_d->ui.newQmlRadioButton->setChecked(true);
+    connect(m_d->ui.generateRadioButton, SIGNAL(toggled(bool)),
+            m_d->ui.importLineEdit, SLOT(setDisabled(bool)));
+    m_d->ui.generateRadioButton->setChecked(true);
 }
 
 QtQuickAppWizardSourcesPage::~QtQuickAppWizardSourcesPage()
@@ -70,16 +70,22 @@ QtQuickAppWizardSourcesPage::~QtQuickAppWizardSourcesPage()
     delete m_d;
 }
 
+QtQuickApp::Mode QtQuickAppWizardSourcesPage::mainQmlMode() const
+{
+    return  m_d->ui.generateRadioButton->isChecked() ? QtQuickApp::ModeGenerate
+                                                     : QtQuickApp::ModeImport;
+}
+
 QString QtQuickAppWizardSourcesPage::mainQmlFile() const
 {
-    return m_d->ui.importExistingQmlRadioButton->isChecked() ?
-                m_d->ui.mainQmlFileLineEdit->path() : QString();
+    return mainQmlMode() == QtQuickApp::ModeImport ?
+                m_d->ui.importLineEdit->path() : QString();
 }
 
 bool QtQuickAppWizardSourcesPage::isComplete() const
 {
-    return !m_d->ui.importExistingQmlRadioButton->isChecked()
-            || m_d->ui.mainQmlFileLineEdit->isValid();
+    return mainQmlMode() != QtQuickApp::ModeImport
+            || m_d->ui.importLineEdit->isValid();
 }
 
 } // namespace Internal
