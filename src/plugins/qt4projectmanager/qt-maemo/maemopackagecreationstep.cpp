@@ -523,6 +523,7 @@ bool MaemoPackageCreationStep::preparePackagingProcess(QProcess *proc,
 #endif
     env.insert(QLatin1String("PERL5LIB"), perlLib);
     env.insert(QLatin1String("PWD"), workingDir);
+    env.insert(QLatin1String("LC_ALL"), QLatin1String("C"));
 
     const QRegExp envPattern(QLatin1String("([^=]+)=[\"']?([^;\"']+)[\"']? ;.*"));
     QByteArray line;
