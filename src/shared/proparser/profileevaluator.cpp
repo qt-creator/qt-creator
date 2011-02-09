@@ -3230,7 +3230,7 @@ ProFileEvaluator::TemplateType ProFileEvaluator::templateType() const
 
 bool ProFileEvaluator::accept(ProFile *pro, LoadFlags flags)
 {
-    return d->visitProFile(pro, ProFileEvaluatorHandler::EvalProjectFile, flags);
+    return d->visitProFile(pro, ProFileEvaluatorHandler::EvalProjectFile, flags) == Private::ReturnTrue;
 }
 
 QString ProFileEvaluator::propertyValue(const QString &name) const
