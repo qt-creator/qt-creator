@@ -129,7 +129,7 @@ QList<BuildConfigurationInfo> Qt4SimulatorTargetFactory::availableBuildConfigura
         bool buildAll = config & QtVersion::BuildAll;
         QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), Constants::QT_SIMULATOR_TARGET_ID);
         infos.append(BuildConfigurationInfo(version, config, QString(), dir));
-        if (buildAll)
+        if (config)
             infos.append(BuildConfigurationInfo(version, config ^ QtVersion::DebugBuild, QString(), dir));
     }
     return infos;
@@ -145,12 +145,12 @@ Qt4BaseTarget *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *paren
         return 0;
 
     QtVersion *qtVersion = knownVersions.first();
-    QtVersion::QmakeBuildConfigs config = qtVersion->defaultBuildConfig();
-    bool buildAll = config & QtVersion::BuildAll;
-    QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), Constants::QT_SIMULATOR_TARGET_ID);
-    infos.append(BuildConfigurationInfo(qtVersion, config, QString(), dir));
-    if (buildAll)
-        infos.append(BuildConfigurationInfo(qtVersion, config ^ QtVersion::DebugBuild, QString(), dir));
+    bool buildAll = qtVersion->isValid() && (qtVersion->defaultBuildConfig() & QtVersion::BuildAll);
+    QtVersion::QmakeBuildConfigs config = buildAll ? QtVersion::BuildAll : QtVersion::QmakeBuildConfig(0);
+
+    QList<BuildConfigurationInfo> infos;
+    infos.append(BuildConfigurationInfo(qtVersion, config | QtVersion::DebugBuild, QString(), QString()));
+    infos.append(BuildConfigurationInfo(qtVersion, config, QString(), QString()));
 
     return create(parent, id, infos);
 }
