@@ -49,7 +49,7 @@ namespace QmlJSDebugger {
 const qreal MaxOpacity = 0.5f;
 
 SubcomponentEditorTool::SubcomponentEditorTool(QDeclarativeViewObserver *view)
-    : AbstractFormEditorTool(view),
+    : AbstractLiveEditTool(view),
       m_animIncrement(0.05f),
       m_animTimer(new QTimer(this))
 {

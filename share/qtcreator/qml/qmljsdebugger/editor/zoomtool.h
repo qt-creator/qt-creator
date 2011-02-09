@@ -41,7 +41,7 @@ QT_FORWARD_DECLARE_CLASS(QAction);
 
 namespace QmlJSDebugger {
 
-class ZoomTool : public AbstractFormEditorTool
+class ZoomTool : public AbstractLiveEditTool
 {
     Q_OBJECT
 public:
@@ -86,7 +86,7 @@ private:
     QAction *m_zoomTo100Action;
     QAction *m_zoomInAction;
     QAction *m_zoomOutAction;
-    RubberBandSelectionManipulator *m_rubberbandManipulator;
+    LiveRubberBandSelectionManipulator *m_rubberbandManipulator;
 
     qreal m_smoothZoomMultiplier;
     qreal m_currentScale;

@@ -70,7 +70,6 @@ private:
 
     QColor m_borderColorOuter;
     QColor m_borderColorInner;
-
 };
 
 } // namespace QmlJSInspector

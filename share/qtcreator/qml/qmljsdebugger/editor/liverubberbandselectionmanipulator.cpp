@@ -31,7 +31,7 @@
 **
 **************************************************************************/
 
-#include "rubberbandselectionmanipulator.h"
+#include "liverubberbandselectionmanipulator.h"
 #include "../qdeclarativeviewobserver_p.h"
 
 #include <QtGui/QGraphicsItem>
@@ -40,8 +40,8 @@
 
 namespace QmlJSDebugger {
 
-RubberBandSelectionManipulator::RubberBandSelectionManipulator(QGraphicsObject *layerItem,
-                                                               QDeclarativeViewObserver *editorView)
+LiveRubberBandSelectionManipulator::LiveRubberBandSelectionManipulator(QGraphicsObject *layerItem,
+                                                                       QDeclarativeViewObserver *editorView)
     : m_selectionRectangleElement(layerItem),
       m_editorView(editorView),
       m_beginFormEditorItem(0),
@@ -50,7 +50,7 @@ RubberBandSelectionManipulator::RubberBandSelectionManipulator(QGraphicsObject *
     m_selectionRectangleElement.hide();
 }
 
-void RubberBandSelectionManipulator::clear()
+void LiveRubberBandSelectionManipulator::clear()
 {
     m_selectionRectangleElement.clear();
     m_isActive = false;
@@ -59,8 +59,8 @@ void RubberBandSelectionManipulator::clear()
     m_oldSelectionList.clear();
 }
 
-QGraphicsItem *RubberBandSelectionManipulator::topFormEditorItem(const QList<QGraphicsItem*>
-                                                                 &itemList)
+QGraphicsItem *LiveRubberBandSelectionManipulator::topFormEditorItem(const QList<QGraphicsItem*>
+                                                                     &itemList)
 {
     if (itemList.isEmpty())
         return 0;
@@ -68,7 +68,7 @@ QGraphicsItem *RubberBandSelectionManipulator::topFormEditorItem(const QList<QGr
     return itemList.first();
 }
 
-void RubberBandSelectionManipulator::begin(const QPointF& beginPoint)
+void LiveRubberBandSelectionManipulator::begin(const QPointF &beginPoint)
 {
     m_beginPoint = beginPoint;
     m_selectionRectangleElement.setRect(m_beginPoint, m_beginPoint);
@@ -80,19 +80,19 @@ void RubberBandSelectionManipulator::begin(const QPointF& beginPoint)
     m_oldSelectionList = m_editorView->selectedItems();
 }
 
-void RubberBandSelectionManipulator::update(const QPointF& updatePoint)
+void LiveRubberBandSelectionManipulator::update(const QPointF &updatePoint)
 {
     m_selectionRectangleElement.setRect(m_beginPoint, updatePoint);
 }
 
-void RubberBandSelectionManipulator::end()
+void LiveRubberBandSelectionManipulator::end()
 {
     m_oldSelectionList.clear();
     m_selectionRectangleElement.hide();
     m_isActive = false;
 }
 
-void RubberBandSelectionManipulator::select(SelectionType selectionType)
+void LiveRubberBandSelectionManipulator::select(SelectionType selectionType)
 {
     QDeclarativeViewObserverPrivate *observerPrivate
             = QDeclarativeViewObserverPrivate::get(m_editorView);
@@ -138,17 +138,17 @@ void RubberBandSelectionManipulator::select(SelectionType selectionType)
 }
 
 
-void RubberBandSelectionManipulator::setItems(const QList<QGraphicsItem*> &itemList)
+void LiveRubberBandSelectionManipulator::setItems(const QList<QGraphicsItem*> &itemList)
 {
     m_itemList = itemList;
 }
 
-QPointF RubberBandSelectionManipulator::beginPoint() const
+QPointF LiveRubberBandSelectionManipulator::beginPoint() const
 {
     return m_beginPoint;
 }
 
-bool RubberBandSelectionManipulator::isActive() const
+bool LiveRubberBandSelectionManipulator::isActive() const
 {
     return m_isActive;
 }

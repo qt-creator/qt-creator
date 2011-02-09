@@ -31,8 +31,8 @@
 **
 **************************************************************************/
 
-#ifndef ToolBarColorBox_H
-#define ToolBarColorBox_H
+#ifndef TOOLBARCOLORBOX_H
+#define TOOLBARCOLORBOX_H
 
 #include <QtGui/QLabel>
 #include <QtGui/QColor>
@@ -66,9 +66,8 @@ private:
     QPoint m_dragBeginPoint;
     QAction *m_copyHexColor;
     QColor m_color;
-
 };
 
 } // namespace QmlJSDebugger
 
-#endif // ToolBarColorBox_H
+#endif // TOOLBARCOLORBOX_H

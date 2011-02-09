@@ -45,7 +45,7 @@
 namespace QmlJSDebugger {
 
 ColorPickerTool::ColorPickerTool(QDeclarativeViewObserver *view) :
-    AbstractFormEditorTool(view)
+    AbstractLiveEditTool(view)
 {
     m_selectedColor.setRgb(0,0,0);
 }

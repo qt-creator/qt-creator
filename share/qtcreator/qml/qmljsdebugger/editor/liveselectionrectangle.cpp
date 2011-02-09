@@ -31,7 +31,7 @@
 **
 **************************************************************************/
 
-#include "selectionrectangle.h"
+#include "liveselectionrectangle.h"
 #include "qmlobserverconstants.h"
 
 #include <QtGui/QPen>
@@ -52,7 +52,7 @@ public:
     int type() const { return Constants::EditorItemType; }
 };
 
-SelectionRectangle::SelectionRectangle(QGraphicsObject *layerItem)
+LiveSelectionRectangle::LiveSelectionRectangle(QGraphicsObject *layerItem)
     : m_controlShape(new SelectionRectShape(layerItem)),
       m_layerItem(layerItem)
 {
@@ -60,32 +60,32 @@ SelectionRectangle::SelectionRectangle(QGraphicsObject *layerItem)
     m_controlShape->setBrush(QColor(128, 128, 128, 50));
 }
 
-SelectionRectangle::~SelectionRectangle()
+LiveSelectionRectangle::~LiveSelectionRectangle()
 {
     if (m_layerItem)
         m_layerItem.data()->scene()->removeItem(m_controlShape);
 }
 
-void SelectionRectangle::clear()
+void LiveSelectionRectangle::clear()
 {
     hide();
 }
-void SelectionRectangle::show()
+void LiveSelectionRectangle::show()
 {
     m_controlShape->show();
 }
 
-void SelectionRectangle::hide()
+void LiveSelectionRectangle::hide()
 {
     m_controlShape->hide();
 }
 
-QRectF SelectionRectangle::rect() const
+QRectF LiveSelectionRectangle::rect() const
 {
     return m_controlShape->mapFromScene(m_controlShape->rect()).boundingRect();
 }
 
-void SelectionRectangle::setRect(const QPointF &firstPoint,
+void LiveSelectionRectangle::setRect(const QPointF &firstPoint,
                                  const QPointF &secondPoint)
 {
     double firstX = std::floor(firstPoint.x()) + 0.5;

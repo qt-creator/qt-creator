@@ -31,8 +31,8 @@
 **
 **************************************************************************/
 
-#ifndef SELECTIONTOOL_H
-#define SELECTIONTOOL_H
+#ifndef LIVESELECTIONTOOL_H
+#define LIVESELECTIONTOOL_H
 
 
 #include "abstractformeditortool.h"
@@ -50,13 +50,13 @@ QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace QmlJSDebugger {
 
-class SelectionTool : public AbstractFormEditorTool
+class LiveSelectionTool : public AbstractLiveEditTool
 {
     Q_OBJECT
 
 public:
-    SelectionTool(QDeclarativeViewObserver* editorView);
-    ~SelectionTool();
+    LiveSelectionTool(QDeclarativeViewObserver* editorView);
+    ~LiveSelectionTool();
 
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
@@ -96,9 +96,9 @@ private:
 
 private:
     bool m_rubberbandSelectionMode;
-    RubberBandSelectionManipulator m_rubberbandSelectionManipulator;
+    LiveRubberBandSelectionManipulator m_rubberbandSelectionManipulator;
     SingleSelectionManipulator m_singleSelectionManipulator;
-    SelectionIndicator m_selectionIndicator;
+    LiveSelectionIndicator m_selectionIndicator;
     //ResizeIndicator m_resizeIndicator;
     QTime m_mousePressTimer;
     bool m_selectOnlyContentItems;
@@ -108,6 +108,6 @@ private:
     QList<QGraphicsItem*> m_contextMenuItemList;
 };
 
-}
+} // namespace QmlJSDebugger
 
-#endif // SELECTIONTOOL_H
+#endif // LIVESELECTIONTOOL_H

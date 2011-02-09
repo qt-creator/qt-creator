@@ -31,51 +31,59 @@
 **
 **************************************************************************/
 
-#ifndef SINGLESELECTIONMANIPULATOR_H
-#define SINGLESELECTIONMANIPULATOR_H
+#ifndef RUBBERBANDSELECTIONMANIPULATOR_H
+#define RUBBERBANDSELECTIONMANIPULATOR_H
+
+
+#include "selectionrectangle.h"
 
 #include <QtCore/QPointF>
-#include <QtCore/QList>
 
-QT_FORWARD_DECLARE_CLASS(QGraphicsItem);
+QT_FORWARD_DECLARE_CLASS(QGraphicsItem)
 
 namespace QmlJSDebugger {
 
 class QDeclarativeViewObserver;
 
-class SingleSelectionManipulator
+class LiveRubberBandSelectionManipulator
 {
 public:
-    SingleSelectionManipulator(QDeclarativeViewObserver *editorView);
-
     enum SelectionType {
         ReplaceSelection,
         AddToSelection,
-        RemoveFromSelection,
-        InvertSelection
+        RemoveFromSelection
     };
+
+    LiveRubberBandSelectionManipulator(QGraphicsObject *layerItem,
+                                       QDeclarativeViewObserver *editorView);
+
+    void setItems(const QList<QGraphicsItem*> &itemList);
 
     void begin(const QPointF& beginPoint);
     void update(const QPointF& updatePoint);
-    void end(const QPointF& updatePoint);
-
-    void select(SelectionType selectionType, const QList<QGraphicsItem*> &items,
-                bool selectOnlyContentItems);
-    void select(SelectionType selectionType, bool selectOnlyContentItems);
+    void end();
 
     void clear();
+
+    void select(SelectionType selectionType);
 
     QPointF beginPoint() const;
 
     bool isActive() const;
 
+protected:
+    QGraphicsItem *topFormEditorItem(const QList<QGraphicsItem*> &itemList);
+
 private:
+    QList<QGraphicsItem*> m_itemList;
     QList<QGraphicsItem*> m_oldSelectionList;
+    LiveSelectionRectangle m_selectionRectangleElement;
     QPointF m_beginPoint;
     QDeclarativeViewObserver *m_editorView;
+    QGraphicsItem *m_beginFormEditorItem;
     bool m_isActive;
 };
 
 }
 
-#endif // SINGLESELECTIONMANIPULATOR_H
+#endif // RUBBERBANDSELECTIONMANIPULATOR_H

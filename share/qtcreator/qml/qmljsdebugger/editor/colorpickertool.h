@@ -34,7 +34,7 @@
 #ifndef COLORPICKERTOOL_H
 #define COLORPICKERTOOL_H
 
-#include "abstractformeditortool.h"
+#include "abstractliveedittool.h"
 
 #include <QtGui/QColor>
 
@@ -42,7 +42,7 @@ QT_FORWARD_DECLARE_CLASS(QPoint)
 
 namespace QmlJSDebugger {
 
-class ColorPickerTool : public AbstractFormEditorTool
+class ColorPickerTool : public AbstractLiveEditTool
 {
     Q_OBJECT
 public:
@@ -78,7 +78,6 @@ private:
 
 private:
     QColor m_selectedColor;
-
 };
 
 } // namespace QmlJSDebugger

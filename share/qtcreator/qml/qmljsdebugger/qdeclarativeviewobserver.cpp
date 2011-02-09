@@ -76,8 +76,8 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
     QObject(parent), data(new QDeclarativeViewObserverPrivate(this))
 {
     data->view = view;
-    data->manipulatorLayer = new LayerItem(view->scene());
-    data->selectionTool = new SelectionTool(this);
+    data->manipulatorLayer = new LiveLayerItem(view->scene());
+    data->selectionTool = new LiveSelectionTool(this);
     data->zoomTool = new ZoomTool(this);
     data->colorPickerTool = new ColorPickerTool(this);
     data->boundingRectHighlighter = new BoundingRectHighlighter(this);
@@ -269,7 +269,7 @@ bool QDeclarativeViewObserver::mouseMoveEvent(QMouseEvent *event)
 
     QList<QGraphicsItem*> selItems = data->selectableItems(event->pos());
     if (!selItems.isEmpty()) {
-        declarativeView()->setToolTip(AbstractFormEditorTool::titleForItem(selItems.first()));
+        declarativeView()->setToolTip(AbstractLiveEditTool::titleForItem(selItems.first()));
     } else {
         declarativeView()->setToolTip(QString());
     }

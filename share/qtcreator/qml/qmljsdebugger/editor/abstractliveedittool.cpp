@@ -31,7 +31,7 @@
 **
 **************************************************************************/
 
-#include "abstractformeditortool.h"
+#include "abstractliveedittool.h"
 #include "qdeclarativeviewobserver.h"
 #include "../qdeclarativeviewobserver_p.h"
 
@@ -43,48 +43,48 @@
 
 namespace QmlJSDebugger {
 
-AbstractFormEditorTool::AbstractFormEditorTool(QDeclarativeViewObserver *editorView)
+AbstractLiveEditTool::AbstractLiveEditTool(QDeclarativeViewObserver *editorView)
     : QObject(editorView), m_observer(editorView)
 {
 }
 
 
-AbstractFormEditorTool::~AbstractFormEditorTool()
+AbstractLiveEditTool::~AbstractLiveEditTool()
 {
 
 }
 
-QDeclarativeViewObserver *AbstractFormEditorTool::observer() const
+QDeclarativeViewObserver *AbstractLiveEditTool::observer() const
 {
     return m_observer;
 }
 
-QDeclarativeView *AbstractFormEditorTool::view() const
+QDeclarativeView *AbstractLiveEditTool::view() const
 {
     return m_observer->declarativeView();
 }
 
-QGraphicsScene* AbstractFormEditorTool::scene() const
+QGraphicsScene* AbstractLiveEditTool::scene() const
 {
     return view()->scene();
 }
 
-void AbstractFormEditorTool::updateSelectedItems()
+void AbstractLiveEditTool::updateSelectedItems()
 {
     selectedItemsChanged(items());
 }
 
-QList<QGraphicsItem*> AbstractFormEditorTool::items() const
+QList<QGraphicsItem*> AbstractLiveEditTool::items() const
 {
     return observer()->selectedItems();
 }
 
-void AbstractFormEditorTool::enterContext(QGraphicsItem *itemToEnter)
+void AbstractLiveEditTool::enterContext(QGraphicsItem *itemToEnter)
 {
     observer()->data->enterContext(itemToEnter);
 }
 
-bool AbstractFormEditorTool::topItemIsMovable(const QList<QGraphicsItem*> & itemList)
+bool AbstractLiveEditTool::topItemIsMovable(const QList<QGraphicsItem*> & itemList)
 {
     QGraphicsItem *firstSelectableItem = topMovableGraphicsItem(itemList);
     if (firstSelectableItem == 0)
@@ -100,7 +100,7 @@ bool AbstractFormEditorTool::topItemIsMovable(const QList<QGraphicsItem*> & item
 
 }
 
-bool AbstractFormEditorTool::topSelectedItemIsMovable(const QList<QGraphicsItem*> &itemList)
+bool AbstractLiveEditTool::topSelectedItemIsMovable(const QList<QGraphicsItem*> &itemList)
 {
     QList<QGraphicsItem*> selectedItems = observer()->selectedItems();
 
@@ -116,17 +116,17 @@ bool AbstractFormEditorTool::topSelectedItemIsMovable(const QList<QGraphicsItem*
 
 }
 
-bool AbstractFormEditorTool::topItemIsResizeHandle(const QList<QGraphicsItem*> &/*itemList*/)
+bool AbstractLiveEditTool::topItemIsResizeHandle(const QList<QGraphicsItem*> &/*itemList*/)
 {
     return false;
 }
 
-QDeclarativeItem *AbstractFormEditorTool::toQDeclarativeItem(QGraphicsItem *item)
+QDeclarativeItem *AbstractLiveEditTool::toQDeclarativeItem(QGraphicsItem *item)
 {
     return dynamic_cast<QDeclarativeItem*>(item->toGraphicsObject());
 }
 
-QGraphicsItem *AbstractFormEditorTool::topMovableGraphicsItem(const QList<QGraphicsItem*> &itemList)
+QGraphicsItem *AbstractLiveEditTool::topMovableGraphicsItem(const QList<QGraphicsItem*> &itemList)
 {
     foreach (QGraphicsItem *item, itemList) {
         if (item->flags().testFlag(QGraphicsItem::ItemIsMovable))
@@ -135,8 +135,8 @@ QGraphicsItem *AbstractFormEditorTool::topMovableGraphicsItem(const QList<QGraph
     return 0;
 }
 
-QDeclarativeItem *AbstractFormEditorTool::topMovableDeclarativeItem(const QList<QGraphicsItem*>
-                                                                    &itemList)
+QDeclarativeItem *AbstractLiveEditTool::topMovableDeclarativeItem(const QList<QGraphicsItem*>
+                                                                  &itemList)
 {
     foreach (QGraphicsItem *item, itemList) {
         QDeclarativeItem *declarativeItem = toQDeclarativeItem(item);
@@ -147,8 +147,8 @@ QDeclarativeItem *AbstractFormEditorTool::topMovableDeclarativeItem(const QList<
     return 0;
 }
 
-QList<QGraphicsObject*> AbstractFormEditorTool::toGraphicsObjectList(const QList<QGraphicsItem*>
-                                                                     &itemList)
+QList<QGraphicsObject*> AbstractLiveEditTool::toGraphicsObjectList(const QList<QGraphicsItem*>
+                                                                   &itemList)
 {
     QList<QGraphicsObject*> gfxObjects;
     foreach(QGraphicsItem *item, itemList) {
@@ -160,7 +160,7 @@ QList<QGraphicsObject*> AbstractFormEditorTool::toGraphicsObjectList(const QList
     return gfxObjects;
 }
 
-QString AbstractFormEditorTool::titleForItem(QGraphicsItem *item)
+QString AbstractLiveEditTool::titleForItem(QGraphicsItem *item)
 {
     QString className("QGraphicsItem");
     QString objectStringId;

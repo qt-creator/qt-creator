@@ -50,7 +50,7 @@ namespace QmlJSDebugger {
 class QDeclarativeViewObserver;
 class BoundingBox;
 
-class BoundingRectHighlighter : public LayerItem
+class BoundingRectHighlighter : public LiveLayerItem
 {
     Q_OBJECT
 public:

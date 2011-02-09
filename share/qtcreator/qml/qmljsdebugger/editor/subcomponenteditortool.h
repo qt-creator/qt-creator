@@ -46,7 +46,7 @@ namespace QmlJSDebugger {
 
 class SubcomponentMaskLayerItem;
 
-class SubcomponentEditorTool : public AbstractFormEditorTool
+class SubcomponentEditorTool : public AbstractLiveEditTool
 {
     Q_OBJECT
 

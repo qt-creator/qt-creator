@@ -27,13 +27,13 @@ contains(CONFIG, dll) {
         include/qdeclarativeviewobserver.h \
         include/qdeclarativeobserverservice.h \
         include/qmlobserverconstants.h \
-        editor/abstractformeditortool.h \
-        editor/selectiontool.h \
-        editor/layeritem.h \
-        editor/singleselectionmanipulator.h \
-        editor/rubberbandselectionmanipulator.h \
-        editor/selectionrectangle.h \
-        editor/selectionindicator.h \
+        editor/abstractliveedittool.h \
+        editor/liveselectiontool.h \
+        editor/livelayeritem.h \
+        editor/livesingleselectionmanipulator.h \
+        editor/liverubberbandselectionmanipulator.h \
+        editor/liveselectionrectangle.h \
+        editor/liveselectionindicator.h \
         editor/boundingrecthighlighter.h \
         editor/subcomponenteditortool.h \
         editor/subcomponentmasklayeritem.h \
@@ -46,13 +46,13 @@ contains(CONFIG, dll) {
     SOURCES += \
         qdeclarativeviewobserver.cpp \
         qdeclarativeobserverservice.cpp \
-        editor/abstractformeditortool.cpp \
-        editor/selectiontool.cpp \
-        editor/layeritem.cpp \
-        editor/singleselectionmanipulator.cpp \
-        editor/rubberbandselectionmanipulator.cpp \
-        editor/selectionrectangle.cpp \
-        editor/selectionindicator.cpp \
+        editor/abstractliveedittool.cpp \
+        editor/liveselectiontool.cpp \
+        editor/livelayeritem.cpp \
+        editor/livesingleselectionmanipulator.cpp \
+        editor/liverubberbandselectionmanipulator.cpp \
+        editor/liveselectionrectangle.cpp \
+        editor/liveselectionindicator.cpp \
         editor/boundingrecthighlighter.cpp \
         editor/subcomponenteditortool.cpp \
         editor/subcomponentmasklayeritem.cpp \

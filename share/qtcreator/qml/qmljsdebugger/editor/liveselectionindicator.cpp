@@ -31,7 +31,7 @@
 **
 **************************************************************************/
 
-#include "selectionindicator.h"
+#include "liveselectionindicator.h"
 #include "../qdeclarativeviewobserver_p.h"
 #include "qmlobserverconstants.h"
 
@@ -46,30 +46,30 @@
 
 namespace QmlJSDebugger {
 
-SelectionIndicator::SelectionIndicator(QDeclarativeViewObserver *editorView,
+LiveSelectionIndicator::LiveSelectionIndicator(QDeclarativeViewObserver *editorView,
                                        QGraphicsObject *layerItem)
     : m_layerItem(layerItem), m_view(editorView)
 {
 }
 
-SelectionIndicator::~SelectionIndicator()
+LiveSelectionIndicator::~LiveSelectionIndicator()
 {
     clear();
 }
 
-void SelectionIndicator::show()
+void LiveSelectionIndicator::show()
 {
     foreach (QGraphicsPolygonItem *item, m_indicatorShapeHash.values())
         item->show();
 }
 
-void SelectionIndicator::hide()
+void LiveSelectionIndicator::hide()
 {
     foreach (QGraphicsPolygonItem *item, m_indicatorShapeHash.values())
         item->hide();
 }
 
-void SelectionIndicator::clear()
+void LiveSelectionIndicator::clear()
 {
     if (!m_layerItem.isNull()) {
         QHashIterator<QGraphicsItem*, QGraphicsPolygonItem *> iter(m_indicatorShapeHash);
@@ -84,7 +84,7 @@ void SelectionIndicator::clear()
 
 }
 
-QPolygonF SelectionIndicator::addBoundingRectToPolygon(QGraphicsItem *item, QPolygonF &polygon)
+QPolygonF LiveSelectionIndicator::addBoundingRectToPolygon(QGraphicsItem *item, QPolygonF &polygon)
 {
     // ### remove this if statement when QTBUG-12172 gets fixed
     if (item->boundingRect() != QRectF(0,0,0,0)) {
@@ -100,7 +100,7 @@ QPolygonF SelectionIndicator::addBoundingRectToPolygon(QGraphicsItem *item, QPol
     return polygon;
 }
 
-void SelectionIndicator::setItems(const QList<QWeakPointer<QGraphicsObject> > &itemList)
+void LiveSelectionIndicator::setItems(const QList<QWeakPointer<QGraphicsObject> > &itemList)
 {
     clear();
 

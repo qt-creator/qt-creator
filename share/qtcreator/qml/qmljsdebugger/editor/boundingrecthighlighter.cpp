@@ -83,7 +83,7 @@ int BoundingBoxPolygonItem::type() const
 }
 
 BoundingRectHighlighter::BoundingRectHighlighter(QDeclarativeViewObserver *view) :
-    LayerItem(view->declarativeView()->scene()),
+    LiveLayerItem(view->declarativeView()->scene()),
     m_view(view),
     m_animFrame(0)
 {

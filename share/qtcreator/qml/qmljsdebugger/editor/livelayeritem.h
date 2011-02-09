@@ -31,59 +31,29 @@
 **
 **************************************************************************/
 
-#ifndef RUBBERBANDSELECTIONMANIPULATOR_H
-#define RUBBERBANDSELECTIONMANIPULATOR_H
+#ifndef LIVELAYERITEM_H
+#define LIVELAYERITEM_H
 
-
-#include "selectionrectangle.h"
-
-#include <QtCore/QPointF>
-
-QT_FORWARD_DECLARE_CLASS(QGraphicsItem)
+#include <QtGui/QGraphicsObject>
 
 namespace QmlJSDebugger {
 
-class QDeclarativeViewObserver;
-
-class RubberBandSelectionManipulator
+class LiveLayerItem : public QGraphicsObject
 {
 public:
-    enum SelectionType {
-        ReplaceSelection,
-        AddToSelection,
-        RemoveFromSelection
-    };
+    LiveLayerItem(QGraphicsScene *scene);
+    ~LiveLayerItem();
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                QWidget *widget = 0);
+    QRectF boundingRect() const;
+    int type() const;
 
-    RubberBandSelectionManipulator(QGraphicsObject *layerItem,
-                                   QDeclarativeViewObserver *editorView);
-
-    void setItems(const QList<QGraphicsItem*> &itemList);
-
-    void begin(const QPointF& beginPoint);
-    void update(const QPointF& updatePoint);
-    void end();
-
-    void clear();
-
-    void select(SelectionType selectionType);
-
-    QPointF beginPoint() const;
-
-    bool isActive() const;
+    QList<QGraphicsItem*> findAllChildItems() const;
 
 protected:
-    QGraphicsItem *topFormEditorItem(const QList<QGraphicsItem*> &itemList);
-
-private:
-    QList<QGraphicsItem*> m_itemList;
-    QList<QGraphicsItem*> m_oldSelectionList;
-    SelectionRectangle m_selectionRectangleElement;
-    QPointF m_beginPoint;
-    QDeclarativeViewObserver *m_editorView;
-    QGraphicsItem *m_beginFormEditorItem;
-    bool m_isActive;
+    QList<QGraphicsItem*> findAllChildItems(const QGraphicsItem *item) const;
 };
 
 }
 
-#endif // RUBBERBANDSELECTIONMANIPULATOR_H
+#endif // LIVELAYERITEM_H

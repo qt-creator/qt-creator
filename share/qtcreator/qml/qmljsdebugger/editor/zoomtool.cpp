@@ -46,7 +46,7 @@
 namespace QmlJSDebugger {
 
 ZoomTool::ZoomTool(QDeclarativeViewObserver *view) :
-    AbstractFormEditorTool(view),
+    AbstractLiveEditTool(view),
     m_rubberbandManipulator(),
     m_smoothZoomMultiplier(0.05f),
     m_currentScale(1.0f)
@@ -58,9 +58,9 @@ ZoomTool::ZoomTool(QDeclarativeViewObserver *view) :
     m_zoomOutAction->setShortcut(QKeySequence(Qt::Key_Minus));
 
 
-    LayerItem *layerItem = QDeclarativeViewObserverPrivate::get(view)->manipulatorLayer;
+    LiveLayerItem *layerItem = QDeclarativeViewObserverPrivate::get(view)->manipulatorLayer;
     QGraphicsObject *layerObject = reinterpret_cast<QGraphicsObject *>(layerItem);
-    m_rubberbandManipulator = new RubberBandSelectionManipulator(layerObject, view);
+    m_rubberbandManipulator = new LiveRubberBandSelectionManipulator(layerObject, view);
 
 
     connect(m_zoomTo100Action, SIGNAL(triggered()), SLOT(zoomTo100()));

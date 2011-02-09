@@ -363,4 +363,4 @@ void QmlToolbar::activateToQml()
         emit applyChangesToQmlFileSelected();
 }
 
-}
+} // namespace QmlJSDebugger

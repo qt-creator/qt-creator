@@ -31,48 +31,48 @@
 **
 **************************************************************************/
 
-#include "singleselectionmanipulator.h"
+#include "livesingleselectionmanipulator.h"
 #include "qdeclarativeviewobserver.h"
 #include "../qdeclarativeviewobserver_p.h"
 #include <QtDebug>
 
 namespace QmlJSDebugger {
 
-SingleSelectionManipulator::SingleSelectionManipulator(QDeclarativeViewObserver *editorView)
+LiveSingleSelectionManipulator::LiveSingleSelectionManipulator(QDeclarativeViewObserver *editorView)
     : m_editorView(editorView),
       m_isActive(false)
 {
 }
 
 
-void SingleSelectionManipulator::begin(const QPointF &beginPoint)
+void LiveSingleSelectionManipulator::begin(const QPointF &beginPoint)
 {
     m_beginPoint = beginPoint;
     m_isActive = true;
     m_oldSelectionList = QDeclarativeViewObserverPrivate::get(m_editorView)->selectedItems();
 }
 
-void SingleSelectionManipulator::update(const QPointF &/*updatePoint*/)
+void LiveSingleSelectionManipulator::update(const QPointF &/*updatePoint*/)
 {
     m_oldSelectionList.clear();
 }
 
-void SingleSelectionManipulator::clear()
+void LiveSingleSelectionManipulator::clear()
 {
     m_beginPoint = QPointF();
     m_oldSelectionList.clear();
 }
 
 
-void SingleSelectionManipulator::end(const QPointF &/*updatePoint*/)
+void LiveSingleSelectionManipulator::end(const QPointF &/*updatePoint*/)
 {
     m_oldSelectionList.clear();
     m_isActive = false;
 }
 
-void SingleSelectionManipulator::select(SelectionType selectionType,
-                                        const QList<QGraphicsItem*> &items,
-                                        bool /*selectOnlyContentItems*/)
+void LiveSingleSelectionManipulator::select(SelectionType selectionType,
+                                            const QList<QGraphicsItem*> &items,
+                                            bool /*selectOnlyContentItems*/)
 {
     QGraphicsItem *selectedItem = 0;
 
@@ -120,7 +120,7 @@ void SingleSelectionManipulator::select(SelectionType selectionType,
     m_editorView->setSelectedItems(resultList);
 }
 
-void SingleSelectionManipulator::select(SelectionType selectionType, bool selectOnlyContentItems)
+void LiveSingleSelectionManipulator::select(SelectionType selectionType, bool selectOnlyContentItems)
 {
     QDeclarativeViewObserverPrivate *observerPrivate =
             QDeclarativeViewObserverPrivate::get(m_editorView);
@@ -129,12 +129,12 @@ void SingleSelectionManipulator::select(SelectionType selectionType, bool select
 }
 
 
-bool SingleSelectionManipulator::isActive() const
+bool LiveSingleSelectionManipulator::isActive() const
 {
     return m_isActive;
 }
 
-QPointF SingleSelectionManipulator::beginPoint() const
+QPointF LiveSingleSelectionManipulator::beginPoint() const
 {
     return m_beginPoint;
 }

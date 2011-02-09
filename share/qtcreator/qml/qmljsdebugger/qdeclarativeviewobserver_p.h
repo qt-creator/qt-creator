@@ -44,15 +44,15 @@ namespace QmlJSDebugger {
 
 class JSDebuggerAgent;
 class QDeclarativeViewObserver;
-class SelectionTool;
+class LiveSelectionTool;
 class ZoomTool;
 class ColorPickerTool;
-class LayerItem;
+class LiveLayerItem;
 class BoundingRectHighlighter;
 class SubcomponentEditorTool;
 class QmlToolbar;
 class CrumblePath;
-class AbstractFormEditorTool;
+class AbstractLiveEditTool;
 
 class QDeclarativeViewObserverPrivate
 {
@@ -75,13 +75,13 @@ public:
     QList<QWeakPointer<QGraphicsObject> > currentSelection;
 
     Constants::DesignTool currentToolMode;
-    AbstractFormEditorTool *currentTool;
+    AbstractLiveEditTool *currentTool;
 
-    SelectionTool *selectionTool;
+    LiveSelectionTool *selectionTool;
     ZoomTool *zoomTool;
     ColorPickerTool *colorPickerTool;
     SubcomponentEditorTool *subcomponentEditorTool;
-    LayerItem *manipulatorLayer;
+    LiveLayerItem *manipulatorLayer;
 
     BoundingRectHighlighter *boundingRectHighlighter;
 

@@ -31,8 +31,8 @@
 **
 **************************************************************************/
 
-#ifndef ABSTRACTFORMEDITORTOOL_H
-#define ABSTRACTFORMEDITORTOOL_H
+#ifndef ABSTRACTLIVEEDITTOOL_H
+#define ABSTRACTLIVEEDITTOOL_H
 
 #include <QtCore/QList>
 #include <QtCore/QObject>
@@ -54,13 +54,13 @@ class QDeclarativeViewObserver;
 
 class FormEditorView;
 
-class AbstractFormEditorTool : public QObject
+class AbstractLiveEditTool : public QObject
 {
     Q_OBJECT
 public:
-    AbstractFormEditorTool(QDeclarativeViewObserver* observer);
+    AbstractLiveEditTool(QDeclarativeViewObserver *observer);
 
-    virtual ~AbstractFormEditorTool();
+    virtual ~AbstractLiveEditTool();
 
     virtual void mousePressEvent(QMouseEvent *event) = 0;
     virtual void mouseMoveEvent(QMouseEvent *event) = 0;
@@ -105,4 +105,4 @@ private:
 
 }
 
-#endif // ABSTRACTFORMEDITORTOOL_H
+#endif // ABSTRACTLIVEEDITTOOL_H

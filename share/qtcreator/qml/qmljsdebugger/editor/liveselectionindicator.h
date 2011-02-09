@@ -31,8 +31,8 @@
 **
 **************************************************************************/
 
-#ifndef SELECTIONINDICATOR_H
-#define SELECTIONINDICATOR_H
+#ifndef LIVESELECTIONINDICATOR_H
+#define LIVESELECTIONINDICATOR_H
 
 #include <QtCore/QWeakPointer>
 #include <QtCore/QHash>
@@ -48,11 +48,11 @@ namespace QmlJSDebugger {
 
 class QDeclarativeViewObserver;
 
-class SelectionIndicator
+class LiveSelectionIndicator
 {
 public:
-    SelectionIndicator(QDeclarativeViewObserver* editorView, QGraphicsObject *layerItem);
-    ~SelectionIndicator();
+    LiveSelectionIndicator(QDeclarativeViewObserver* editorView, QGraphicsObject *layerItem);
+    ~LiveSelectionIndicator();
 
     void show();
     void hide();
@@ -73,4 +73,4 @@ private:
 
 }
 
-#endif // SELECTIONINDICATOR_H
+#endif // LIVESELECTIONINDICATOR_H

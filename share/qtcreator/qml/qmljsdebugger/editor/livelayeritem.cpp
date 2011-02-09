@@ -31,39 +31,53 @@
 **
 **************************************************************************/
 
-#ifndef SELECTIONRECTANGLE_H
-#define SELECTIONRECTANGLE_H
+#include "livelayeritem.h"
+#include "qmlobserverconstants.h"
 
-#include <QtCore/QWeakPointer>
-
-QT_FORWARD_DECLARE_CLASS(QGraphicsObject)
-QT_FORWARD_DECLARE_CLASS(QGraphicsRectItem)
-QT_FORWARD_DECLARE_CLASS(QPointF)
-QT_FORWARD_DECLARE_CLASS(QRectF)
+#include <QGraphicsScene>
 
 namespace QmlJSDebugger {
 
-class SelectionRectangle
+LiveLayerItem::LiveLayerItem(QGraphicsScene* scene)
+    : QGraphicsObject()
 {
-public:
-    SelectionRectangle(QGraphicsObject *layerItem);
-    ~SelectionRectangle();
-
-    void show();
-    void hide();
-
-    void clear();
-
-    void setRect(const QPointF &firstPoint,
-                 const QPointF &secondPoint);
-
-    QRectF rect() const;
-
-private:
-    QGraphicsRectItem *m_controlShape;
-    QWeakPointer<QGraphicsObject> m_layerItem;
-};
-
+    scene->addItem(this);
+    setZValue(1);
+    setFlag(QGraphicsItem::ItemIsMovable, false);
 }
 
-#endif // SELECTIONRECTANGLE_H
+LiveLayerItem::~LiveLayerItem()
+{
+}
+
+void LiveLayerItem::paint(QPainter * /*painter*/, const QStyleOptionGraphicsItem * /*option*/,
+                          QWidget * /*widget*/)
+{
+}
+
+int LiveLayerItem::type() const
+{
+    return Constants::EditorItemType;
+}
+
+QRectF LiveLayerItem::boundingRect() const
+{
+    return childrenBoundingRect();
+}
+
+QList<QGraphicsItem*> LiveLayerItem::findAllChildItems() const
+{
+    return findAllChildItems(this);
+}
+
+QList<QGraphicsItem*> LiveLayerItem::findAllChildItems(const QGraphicsItem *item) const
+{
+    QList<QGraphicsItem*> itemList(item->childItems());
+
+    foreach (QGraphicsItem *childItem, item->childItems())
+        itemList += findAllChildItems(childItem);
+
+    return itemList;
+}
+
+} // namespace QmlJSDebugger
