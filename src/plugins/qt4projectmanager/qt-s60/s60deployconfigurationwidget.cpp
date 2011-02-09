@@ -85,7 +85,7 @@ S60DeployConfigurationWidget::S60DeployConfigurationWidget(QWidget *parent)
       m_installationDriveCombo(new QComboBox()),
       m_silentInstallCheckBox(new QCheckBox(tr("Silent installation"))),
       m_serialRadioButton(new QRadioButton(tr("Serial:"))),
-      m_wlanRadioButton(new QRadioButton(tr("Experimental WLAN:"))), //TODO: Remove ""Experimental" when CODA is stable and official
+      m_wlanRadioButton(new QRadioButton(tr("WLAN:"))),
       m_ipAddress(new Utils::IpAddressLineEdit),
       m_trkRadioButton(new QRadioButton(tr("TRK"))),
       m_codaRadioButton(new QRadioButton(tr("CODA")))
@@ -213,9 +213,9 @@ QWidget *S60DeployConfigurationWidget::createCommunicationChannel()
 #endif
 
     QGroupBox *communicationChannelGroupBox = new QGroupBox(tr("Communication Channel"));
-    QFormLayout *communicationChannelFormLayout = new QFormLayout();
-    communicationChannelFormLayout->setWidget(0, QFormLayout::LabelRole, m_serialRadioButton);
-    communicationChannelFormLayout->setWidget(1, QFormLayout::LabelRole, m_wlanRadioButton);
+    QGridLayout *communicationChannelGridLayout = new QGridLayout;
+    communicationChannelGridLayout->addWidget(m_serialRadioButton, 0, 0);
+    communicationChannelGridLayout->addWidget(m_wlanRadioButton, 1, 0);
 
     m_ipAddress->setMinimumWidth(30);
     m_ipAddress->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
@@ -230,10 +230,10 @@ QWidget *S60DeployConfigurationWidget::createCommunicationChannel()
     wlanChannelLayout->addWidget(m_ipAddress);
     wlanChannelLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
 
-    communicationChannelFormLayout->setLayout(0, QFormLayout::FieldRole, serialPortHBoxLayout);
-    communicationChannelFormLayout->setLayout(1, QFormLayout::FieldRole, wlanChannelLayout);
+    communicationChannelGridLayout->addLayout(serialPortHBoxLayout, 0, 1);
+    communicationChannelGridLayout->addLayout(wlanChannelLayout, 1, 1);
 
-    communicationChannelGroupBox->setLayout(communicationChannelFormLayout);
+    communicationChannelGroupBox->setLayout(communicationChannelGridLayout);
     return communicationChannelGroupBox;
 }
 

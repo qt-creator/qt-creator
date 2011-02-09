@@ -582,7 +582,9 @@ SymbianDeviceManager::SymbianDeviceList SymbianDeviceManager::blueToothDevices()
     }
     // New kernel versions support /dev/ttyUSB0, /dev/ttyUSB1. Trk responds
     // on the latter (usually), try first.
-    static const char *usbTtyDevices[] = { "/dev/ttyUSB1", "/dev/ttyUSB0" };
+    static const char *usbTtyDevices[] = {
+        "/dev/ttyUSB3", "/dev/ttyUSB2", "/dev/ttyUSB1", "/dev/ttyUSB0",
+        "/dev/ttyACM3", "/dev/ttyACM2", "/dev/ttyACM1", "/dev/ttyACM0"};
     const int usbTtyCount = sizeof(usbTtyDevices)/sizeof(const char *);
     for (int d = 0; d < usbTtyCount; d++) {
         const QString ttyUSBDevice = QLatin1String(usbTtyDevices[d]);
