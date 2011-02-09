@@ -1353,7 +1353,7 @@ Qt4ProFileNode::~Qt4ProFileNode()
     m_parseFutureWatcher.waitForFinished();
     if (m_readerExact) {
         // Oh we need to clean up
-        applyEvaluate(true, true);
+        applyEvaluate(EvalFail, true);
         m_project->decrementPendingEvaluateFutures();
     }
 }
@@ -1440,7 +1440,7 @@ void Qt4ProFileNode::asyncUpdate()
     m_project->incrementPendingEvaluateFutures();
     setupReader();
     m_parseFutureWatcher.waitForFinished();
-    QFuture<bool> future = QtConcurrent::run(&Qt4ProFileNode::asyncEvaluate, this);
+    QFuture<EvalResult> future = QtConcurrent::run(&Qt4ProFileNode::asyncEvaluate, this);
     m_parseFutureWatcher.setFuture(future);
 }
 
@@ -1454,8 +1454,8 @@ void Qt4ProFileNode::update()
     }
 
     setupReader();
-    bool parserError = evaluate();
-    applyEvaluate(!parserError, false);
+    EvalResult evalResult = evaluate();
+    applyEvaluate(evalResult, false);
 }
 
 void Qt4ProFileNode::setupReader()
@@ -1478,25 +1478,25 @@ void Qt4ProFileNode::setupReader()
     m_readerCumulative->setCommandLineArguments(args);
 }
 
-bool Qt4ProFileNode::evaluate()
+Qt4ProFileNode::EvalResult Qt4ProFileNode::evaluate()
 {
-    bool parserError = false;
+    EvalResult evalResult = EvalOk;
     if (ProFile *pro = m_readerExact->parsedProFile(m_projectFilePath)) {
         if (!m_readerExact->accept(pro, ProFileEvaluator::LoadAll))
-            parserError = true;
+            evalResult = EvalPartial;
         if (!m_readerCumulative->accept(pro, ProFileEvaluator::LoadPreFiles))
-            parserError = true;
+            evalResult = EvalFail;
         pro->deref();
     } else {
-        parserError = true;
+        evalResult = EvalFail;
     }
-    return parserError;
+    return evalResult;
 }
 
-void Qt4ProFileNode::asyncEvaluate(QFutureInterface<bool> &fi)
+void Qt4ProFileNode::asyncEvaluate(QFutureInterface<EvalResult> &fi)
 {
-    bool parserError = evaluate();
-    fi.reportResult(!parserError);
+    EvalResult evalResult = evaluate();
+    fi.reportResult(evalResult);
 }
 
 void Qt4ProFileNode::applyAsyncEvaluate()
@@ -1522,15 +1522,15 @@ static Qt4ProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::Templat
     }
 }
 
-void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
+void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 {
     if (!m_readerExact)
         return;
-    if (!parseResult || m_project->wasEvaluateCanceled()) {
+    if (evalResult == EvalFail || m_project->wasEvaluateCanceled()) {
         m_project->destroyProFileReader(m_readerExact);
         m_project->destroyProFileReader(m_readerCumulative);
         m_readerExact = m_readerCumulative = 0;
-        if (!parseResult) {
+        if (evalResult == EvalFail) {
             m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
             invalidate();
         }
@@ -1543,7 +1543,8 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
     if (debug)
         qDebug() << "Qt4ProFileNode - updating files for file " << m_projectFilePath;
 
-    Qt4ProjectType projectType = proFileTemplateTypeToProjectType(m_readerExact->templateType());
+    Qt4ProjectType projectType = proFileTemplateTypeToProjectType(
+                (evalResult == EvalOk ? m_readerExact : m_readerCumulative)->templateType());
     if (projectType != m_projectType) {
         Qt4ProjectType oldType = m_projectType;
         // probably all subfiles/projects have changed anyway ...
@@ -1574,17 +1575,18 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
     QStringList newProjectFilesExact;
     QHash<QString, ProFile*> includeFilesExact;
     ProFile *fileForCurrentProjectExact = 0;
-    if (m_projectType == SubDirsTemplate)
-        newProjectFilesExact = subDirsPaths(m_readerExact);
-    foreach (ProFile *includeFile, m_readerExact->includeFiles()) {
-        if (includeFile->fileName() == m_projectFilePath) { // this file
-            fileForCurrentProjectExact = includeFile;
-        } else {
-            newProjectFilesExact << includeFile->fileName();
-            includeFilesExact.insert(includeFile->fileName(), includeFile);
+    if (evalResult == EvalOk) {
+        if (m_projectType == SubDirsTemplate)
+            newProjectFilesExact = subDirsPaths(m_readerExact);
+        foreach (ProFile *includeFile, m_readerExact->includeFiles()) {
+            if (includeFile->fileName() == m_projectFilePath) { // this file
+                fileForCurrentProjectExact = includeFile;
+            } else {
+                newProjectFilesExact << includeFile->fileName();
+                includeFilesExact.insert(includeFile->fileName(), includeFile);
+            }
         }
     }
-
 
     QStringList newProjectFilesCumlative;
     QHash<QString, ProFile*> includeFilesCumlative;
@@ -1727,39 +1729,43 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
 
     Qt4PriFileNode::update(fileForCurrentProjectExact, m_readerExact, fileForCurrentProjectCumlative, m_readerCumulative);
 
-    // update TargetInformation
-    m_qt4targetInformation = targetInformation(m_readerExact);
+    if (evalResult == EvalOk) {
 
-    setupInstallsList(m_readerExact);
+        // update TargetInformation
+        m_qt4targetInformation = targetInformation(m_readerExact);
 
-    // update other variables
-    QHash<Qt4Variable, QStringList> newVarValues;
+        setupInstallsList(m_readerExact);
 
-    newVarValues[DefinesVar] = m_readerExact->values(QLatin1String("DEFINES"));
-    newVarValues[IncludePathVar] = includePaths(m_readerExact);
-    newVarValues[UiDirVar] = QStringList() << uiDirPath(m_readerExact);
-    newVarValues[MocDirVar] = QStringList() << mocDirPath(m_readerExact);
-    newVarValues[PkgConfigVar] = m_readerExact->values(QLatin1String("PKGCONFIG"));
-    newVarValues[PrecompiledHeaderVar] =
-            m_readerExact->absoluteFileValues(QLatin1String("PRECOMPILED_HEADER"),
-                                              m_projectDir,
-                                              QStringList() << m_projectDir,
-                                              0);
-    newVarValues[LibDirectoriesVar] = libDirectories(m_readerExact);
-    newVarValues[ConfigVar] = m_readerExact->values(QLatin1String("CONFIG"));
-    newVarValues[QmlImportPathVar] = m_readerExact->absolutePathValues(
-                QLatin1String("QML_IMPORT_PATH"), m_projectDir);
-    newVarValues[Makefile] = m_readerExact->values("MAKEFILE");
-    newVarValues[SymbianCapabilities] = m_readerExact->values("TARGET.CAPABILITY");
+        // update other variables
+        QHash<Qt4Variable, QStringList> newVarValues;
 
-    if (m_varValues != newVarValues) {
-        Qt4VariablesHash oldValues = m_varValues;
-        m_varValues = newVarValues;
+        newVarValues[DefinesVar] = m_readerExact->values(QLatin1String("DEFINES"));
+        newVarValues[IncludePathVar] = includePaths(m_readerExact);
+        newVarValues[UiDirVar] = QStringList() << uiDirPath(m_readerExact);
+        newVarValues[MocDirVar] = QStringList() << mocDirPath(m_readerExact);
+        newVarValues[PkgConfigVar] = m_readerExact->values(QLatin1String("PKGCONFIG"));
+        newVarValues[PrecompiledHeaderVar] =
+                m_readerExact->absoluteFileValues(QLatin1String("PRECOMPILED_HEADER"),
+                                                  m_projectDir,
+                                                  QStringList() << m_projectDir,
+                                                  0);
+        newVarValues[LibDirectoriesVar] = libDirectories(m_readerExact);
+        newVarValues[ConfigVar] = m_readerExact->values(QLatin1String("CONFIG"));
+        newVarValues[QmlImportPathVar] = m_readerExact->absolutePathValues(
+                    QLatin1String("QML_IMPORT_PATH"), m_projectDir);
+        newVarValues[Makefile] = m_readerExact->values("MAKEFILE");
+        newVarValues[SymbianCapabilities] = m_readerExact->values("TARGET.CAPABILITY");
 
-        foreach (NodesWatcher *watcher, watchers())
-            if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
-                emit qt4Watcher->variablesChanged(this, oldValues, m_varValues);
-    }
+        if (m_varValues != newVarValues) {
+            Qt4VariablesHash oldValues = m_varValues;
+            m_varValues = newVarValues;
+
+            foreach (NodesWatcher *watcher, watchers())
+                if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
+                    emit qt4Watcher->variablesChanged(this, oldValues, m_varValues);
+        }
+
+    } // evalResult == EvalOk
 
     createUiCodeModelSupport();
     updateUiFiles();

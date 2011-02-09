@@ -322,10 +322,11 @@ private slots:
 
 private:
     void setupReader();
-    bool evaluate();
-    void applyEvaluate(bool parseResult, bool async);
+    enum EvalResult { EvalFail, EvalPartial, EvalOk };
+    EvalResult evaluate();
+    void applyEvaluate(EvalResult parseResult, bool async);
 
-    void asyncEvaluate(QFutureInterface<bool> &fi);
+    void asyncEvaluate(QFutureInterface<EvalResult> &fi);
 
     typedef QHash<Qt4Variable, QStringList> Qt4VariablesHash;
 
@@ -353,7 +354,7 @@ private:
     bool m_validParse;
 
     // Async stuff
-    QFutureWatcher<bool> m_parseFutureWatcher;
+    QFutureWatcher<EvalResult> m_parseFutureWatcher;
     ProFileReader *m_readerExact;
     ProFileReader *m_readerCumulative;
 };
