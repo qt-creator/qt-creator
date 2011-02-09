@@ -197,10 +197,13 @@ void MaemoDeviceConfigurationsSettingsWidget::displayCurrent()
     m_ui->defaultDeviceButton->setEnabled(!current->isDefault());
     m_ui->osTypeValueLabel->setText(MaemoGlobal::maemoVersionToString(current->osVersion()));
     const SshConnectionParameters &sshParams = current->sshParameters();
-    if (current->type() == MaemoDeviceConfig::Physical)
+    if (current->type() == MaemoDeviceConfig::Physical) {
         m_ui->deviceTypeValueLabel->setText(tr("Physical Device"));
-    else
+        m_ui->portsLineEdit->setReadOnly(false);
+    } else {
         m_ui->deviceTypeValueLabel->setText(tr("Emulator (Qemu)"));
+        m_ui->portsLineEdit->setReadOnly(true);
+    }
     if (sshParams.authType == Core::SshConnectionParameters::AuthByPwd)
         m_ui->passwordButton->setChecked(true);
     else
