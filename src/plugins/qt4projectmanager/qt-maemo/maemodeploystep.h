@@ -61,6 +61,7 @@ class SshRemoteProcess;
 }
 
 namespace Qt4ProjectManager {
+class Qt4BuildConfiguration;
 namespace Internal {
 class MaemoRemoteMounter;
 class MaemoDeviceConfig;
@@ -155,6 +156,7 @@ private:
     void setState(State newState);
     void unmount();
     void setDeviceConfig(MaemoDeviceConfig::Id internalId);
+    const Qt4BuildConfiguration *qt4BuildConfiguration() const;
 
     static const QLatin1String Id;
 

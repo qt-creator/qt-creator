@@ -566,7 +566,7 @@ void MaemoDeployStep::setupMount()
 
     Q_ASSERT(m_needsInstall || !m_filesToCopy.isEmpty());
     m_mounter->resetMountSpecifications();
-    m_mounter->setBuildConfiguration(static_cast<Qt4BuildConfiguration *>(buildConfiguration()));
+    m_mounter->setBuildConfiguration(qt4BuildConfiguration());
     if (m_needsInstall) {
         const QString localDir
             = QFileInfo(packagingStep()->packageFilePath()).absolutePath();
@@ -626,9 +626,7 @@ void MaemoDeployStep::installToSysroot()
 
     if (m_needsInstall) {
         writeOutput(tr("Installing package to sysroot ..."));
-        const Qt4BuildConfiguration * const bc
-            = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
-        const QtVersion * const qtVersion = bc->qtVersion();
+        const QtVersion * const qtVersion = qt4BuildConfiguration()->qtVersion();
         const QString command = QLatin1String(
             packagingStep()->debBasedMaemoTarget() ? "xdpkg" : "xrpm");
         QStringList args = QStringList() << command << QLatin1String("-i");
@@ -842,16 +840,12 @@ QString MaemoDeployStep::deployMountPoint() const
 
 const AbstractMaemoToolChain *MaemoDeployStep::toolChain() const
 {
-    const Qt4BuildConfiguration * const bc
-        = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
-    return static_cast<AbstractMaemoToolChain *>(bc->toolChain());
+    return static_cast<AbstractMaemoToolChain *>(qt4BuildConfiguration()->toolChain());
 }
 
 const AbstractQt4MaemoTarget *MaemoDeployStep::maemotarget() const
 {
-    const Qt4BuildConfiguration * const bc
-        = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
-    return static_cast<AbstractQt4MaemoTarget *>(bc->target());
+    return static_cast<AbstractQt4MaemoTarget *>(qt4BuildConfiguration()->target());
 }
 
 void MaemoDeployStep::handleSysrootInstallerOutput()
@@ -995,6 +989,12 @@ void MaemoDeployStep::handleDeviceInstallerErrorOutput(const QByteArray &output)
         break;
     }
 }
+
+const Qt4BuildConfiguration *MaemoDeployStep::qt4BuildConfiguration() const
+{
+    return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
+}
+
 
 MaemoDeployEventHandler::MaemoDeployEventHandler(MaemoDeployStep *deployStep,
     QFutureInterface<bool> &future)
