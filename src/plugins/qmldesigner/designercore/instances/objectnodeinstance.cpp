@@ -371,8 +371,6 @@ void ObjectNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentIn
         m_parentProperty = newParentProperty;
         addToNewProperty(object(), newParentInstance->object(), newParentProperty);
     }
-
-    refreshBindings(context()->engine()->rootContext());
 }
 
 void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
@@ -968,17 +966,6 @@ void ObjectNodeInstance::createDynamicProperty(const QString &name, const QStrin
     }
 
     m_metaObject->createNewProperty(name);
-}
-
-/**
-  Force all bindings in this or a sub context to be re-evaluated.
-  */
-void ObjectNodeInstance::refreshBindings(QDeclarativeContext *context)
-{
-    // TODO: Maybe do this via a timer to prevent update flooding
-
-    static int i = 0;
-    context->setContextProperty(QString("__dummy_%1").arg(i++), true);
 }
 
 bool ObjectNodeInstance::updateStateVariant(const ObjectNodeInstance::Pointer &/*target*/, const QString &/*propertyName*/, const QVariant &/*value*/)

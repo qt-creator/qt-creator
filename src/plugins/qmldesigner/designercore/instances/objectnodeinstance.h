@@ -183,8 +183,6 @@ protected:
     void deleteObjectsInList(const QDeclarativeProperty &metaProperty);
 
 private:
-    static void refreshBindings(QDeclarativeContext *context);
-
     QHash<QString, QVariant> m_resetValueHash;
     QHash<QString, ServerNodeInstance> m_modelAbstractPropertyHash;
     mutable QHash<QString, bool> m_hasBindingHash;
