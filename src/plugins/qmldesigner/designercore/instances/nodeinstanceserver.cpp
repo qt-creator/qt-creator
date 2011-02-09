@@ -489,15 +489,18 @@ Internal::ChildrenChangeEventFilter *NodeInstanceServer::childrenChangeEventFilt
 
 void NodeInstanceServer::addFilePropertyToFileSystemWatcher(QObject *object, const QString &propertyName, const QString &path)
 {
-    m_fileSystemWatcherHash.insert(path, ObjectPropertyPair(object, propertyName));
-    fileSystemWatcher()->addPath(path);
-
+    if (!m_fileSystemWatcherHash.contains(path)) {
+        m_fileSystemWatcherHash.insert(path, ObjectPropertyPair(object, propertyName));
+        fileSystemWatcher()->addPath(path);
+    }
 }
 
 void NodeInstanceServer::removeFilePropertyFromFileSystemWatcher(QObject *object, const QString &propertyName, const QString &path)
 {
-    fileSystemWatcher()->removePath(path);
-    m_fileSystemWatcherHash.remove(path, ObjectPropertyPair(object, propertyName));
+    if (m_fileSystemWatcherHash.contains(path)) {
+        fileSystemWatcher()->removePath(path);
+        m_fileSystemWatcherHash.remove(path, ObjectPropertyPair(object, propertyName));
+    }
 }
 
 void NodeInstanceServer::refreshLocalFileProperty(const QString &path)
