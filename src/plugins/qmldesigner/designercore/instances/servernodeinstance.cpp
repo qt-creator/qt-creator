@@ -195,15 +195,15 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
     Q_ASSERT(instanceContainer.instanceId() != -1);
     Q_ASSERT(nodeInstanceServer);
 
-    QDeclarativeContext *context = nodeInstanceServer->engine()->rootContext();
+    QDeclarativeContext *context = nodeInstanceServer->context();
 
     QObject *object = Internal::ObjectNodeInstance::createObject(instanceContainer.type(), instanceContainer.majorNumber(), instanceContainer.minorNumber(), instanceContainer.componentPath(), context);
 
     ServerNodeInstance instance(createInstance(object));
 
-    instance.internalInstance()->setInstanceId(instanceContainer.instanceId());
-
     instance.internalInstance()->setNodeInstanceServer(nodeInstanceServer);
+
+    instance.internalInstance()->setInstanceId(instanceContainer.instanceId());
 
     instance.internalInstance()->initializePropertyWatcher(instance.m_nodeInstance);
 

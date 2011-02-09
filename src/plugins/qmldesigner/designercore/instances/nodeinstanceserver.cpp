@@ -336,19 +336,21 @@ void NodeInstanceServer::addImports(const QVector<AddImportContainer> &container
         }
     }
 
-    QDeclarativeComponent importComponent(engine(), 0);
+    delete m_importComponent.data();
+    delete m_importComponentObject.data();
+
+    m_importComponent = new QDeclarativeComponent(engine(), 0);
     QString componentString;
     foreach(const QString &importStatement, m_importList)
         componentString += QString("%1").arg(importStatement);
 
     componentString += QString("Item {}\n");
 
-    importComponent.setData(componentString.toUtf8(), fileUrl());
+    m_importComponent->setData(componentString.toUtf8(), fileUrl());
+    m_importComponentObject = m_importComponent->create();
 
-    if (!importComponent.errorString().isEmpty())
-        qDebug() << "QmlDesigner.NodeInstances: import wrong: " << importComponent.errorString();
-
-    refreshBindings();
+    if (!m_importComponent->errorString().isEmpty())
+        qDebug() << "QmlDesigner.NodeInstances: import wrong: " << m_importComponent->errorString();
 }
 
 void NodeInstanceServer::addImport(const AddImportCommand &command)
@@ -413,6 +415,11 @@ QDeclarativeEngine *NodeInstanceServer::engine() const
         return m_declarativeView->engine();
 
     return 0;
+}
+
+QDeclarativeContext *NodeInstanceServer::context() const
+{
+    return QDeclarativeEngine::contextForObject(m_importComponentObject.data());
 }
 
 QDeclarativeView *NodeInstanceServer::delcarativeView() const

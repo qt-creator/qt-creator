@@ -15,6 +15,7 @@ class QDeclarativeView;
 class QDeclarativeEngine;
 class QGraphicsObject;
 class QFileInfo;
+class QDeclarativeComponent;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -63,6 +64,7 @@ public:
     bool hasInstanceForObject(QObject *object) const;
 
     QDeclarativeEngine *engine() const;
+    QDeclarativeContext *context() const;
 
     void removeAllInstanceRelationships();
 
@@ -165,6 +167,8 @@ private:
     QStringList m_importList;
     QList<ServerNodeInstance> m_completedComponentList;
     QWeakPointer<QObject> m_dummyContextObject;
+    QWeakPointer<QDeclarativeComponent> m_importComponent;
+    QWeakPointer<QObject> m_importComponentObject;
 };
 
 }

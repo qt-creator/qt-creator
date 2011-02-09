@@ -823,12 +823,10 @@ void ObjectNodeInstance::updateAnchors()
 
 QDeclarativeContext *ObjectNodeInstance::context() const
 {
-    QDeclarativeContext *context = QDeclarativeEngine::contextForObject(object());
-    if (context)
-        return context;
-    else if (nodeInstanceServer())
-        return nodeInstanceServer()->engine()->rootContext();
+    if (nodeInstanceServer())
+        return nodeInstanceServer()->context();
 
+    qWarning() << "Error: No NodeInstanceServer";
     return 0;
 }
 
@@ -885,7 +883,7 @@ void ObjectNodeInstance::populateResetValueHash()
     QStringList propertyNameList = propertyNameForWritableProperties(object());
 
     foreach(const QString &propertyName, propertyNameList) {
-        QDeclarativeProperty property(object(), propertyName, context());
+        QDeclarativeProperty property(object(), propertyName, QDeclarativeEngine::contextForObject(object()));
         if (property.isWritable())
             m_resetValueHash.insert(propertyName, property.read());
     }
