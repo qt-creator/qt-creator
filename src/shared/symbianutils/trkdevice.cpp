@@ -725,6 +725,7 @@ int WinReaderThread::tryRead()
             return 1;
         switch (bytesRead) {
         case 0:
+            //happens when the USB port has a different settings then the default ones
             Sleep(100);
             break;
         case 1:
@@ -972,6 +973,16 @@ bool TrkDevice::open(QString *errorMessage)
         *errorMessage = QString::fromLatin1("Could not open device '%1': %2").arg(port(), winErrorMessage(GetLastError()));
         return false;
     }
+
+    //reset COM settings to the default values
+    COMMTIMEOUTS timeouts;
+    timeouts.ReadIntervalTimeout = 0;
+    timeouts.ReadTotalTimeoutMultiplier = 0;
+    timeouts.ReadTotalTimeoutConstant = 0;
+    timeouts.WriteTotalTimeoutMultiplier = 0;
+    timeouts.WriteTotalTimeoutConstant = 0;
+    SetCommTimeouts(d->deviceContext->device, &timeouts);
+
     memset(&d->deviceContext->readOverlapped, 0, sizeof(OVERLAPPED));
     d->deviceContext->readOverlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
     memset(&d->deviceContext->writeOverlapped, 0, sizeof(OVERLAPPED));
