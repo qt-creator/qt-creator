@@ -1767,11 +1767,12 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
 
 
     if (m_varValues != newVarValues) {
+        Qt4VariablesHash oldValues = m_varValues;
         m_varValues = newVarValues;
 
         foreach (NodesWatcher *watcher, watchers())
             if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
-                emit qt4Watcher->variablesChanged(this, m_varValues, newVarValues);
+                emit qt4Watcher->variablesChanged(this, oldValues, m_varValues);
     }
 
     createUiCodeModelSupport();
