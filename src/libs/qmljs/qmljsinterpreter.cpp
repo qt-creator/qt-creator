@@ -2106,7 +2106,7 @@ bool CppQmlTypes::hasPackage(const QString &package) const
 
 QString CppQmlTypes::qualifiedName(const QString &package, const QString &type, ComponentVersion version)
 {
-    return QString("%1.%2 %3").arg(
+    return QString("%1/%2 %3").arg(
                 package, type,
                 version.toString());
 

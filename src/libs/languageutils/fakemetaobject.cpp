@@ -136,7 +136,7 @@ void FakeMetaObject::addExport(const QString &name, const QString &package, Comp
     exp.type = name;
     exp.package = package;
     exp.version = version;
-    exp.packageNameVersion = QString::fromLatin1("%1.%2 %3").arg(
+    exp.packageNameVersion = QString::fromLatin1("%1/%2 %3").arg(
                 package, name,
                 version.toString());
     m_exports.append(exp);
