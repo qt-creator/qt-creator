@@ -8,8 +8,11 @@ int main(int argc, char *argv[])
     Html5ApplicationViewer viewer;
     viewer.setOrientation(Html5ApplicationViewer::ScreenOrientationAuto); // ORIENTATION
     viewer.showExpanded();
-    viewer.loadFile(QLatin1String("html/index.html")); // HTMLFILE
-//    viewer.loadUrl(QUrl(QLatin1String("http://dev.sencha.com/deploy/touch/examples/kitchensink/")));
+#if 1 // DELETE_LINE
+    viewer.loadFile(QLatin1String("html/index.html")); // MAINHTMLFILE
+#else // DELETE_LINE
+    viewer.loadUrl(QUrl(QLatin1String("http://dev.sencha.com/deploy/touch/examples/kitchensink/"))); // MAINHTMLURL
+#endif // DELETE_LINE
 
     return app.exec();
 }

@@ -84,6 +84,27 @@ int main(int argc, char *argv[])
         Html5App sAppNew;
         sAppNew.setProjectPath(projectPath);
         sAppNew.setProjectName(QLatin1String("new_html5_app"));
+        qDebug() << sAppNew.path(Html5App::MainHtml);
+        if (!sAppNew.generateFiles(&errorMessage))
+           return 1;
+    }
+
+    {
+        Html5App sAppNew;
+        sAppNew.setProjectPath(projectPath);
+        sAppNew.setProjectName(QLatin1String("html5_imported_scenario_01"));
+        sAppNew.setMainHtml(Html5App::ModeImport, QLatin1String("../appwizards/htmlimportscenario_01/themainhtml.html"));
+        qDebug() << sAppNew.path(Html5App::MainHtml);
+        if (!sAppNew.generateFiles(&errorMessage))
+           return 1;
+    }
+
+    {
+        Html5App sAppNew;
+        sAppNew.setProjectPath(projectPath);
+        sAppNew.setProjectName(QLatin1String("html5_url"));
+        sAppNew.setMainHtml(Html5App::ModeUrl, QLatin1String("http://www.jqtouch.com/preview/demos/main/"));
+        qDebug() << sAppNew.path(Html5App::MainHtml);
         if (!sAppNew.generateFiles(&errorMessage))
            return 1;
     }

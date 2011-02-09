@@ -54,6 +54,7 @@ const QString appViewerOriginsSubDir(appViewerBaseName + QLatin1Char('/'));
 
 Html5App::Html5App()
     : AbstractMobileApp()
+    , m_mainHtmlMode(ModeGenerate)
 {
 }
 
@@ -61,30 +62,36 @@ Html5App::~Html5App()
 {
 }
 
-void Html5App::setIndexHtmlFile(const QString &qmlFile)
+void Html5App::setMainHtml(Mode mode, const QString &data)
 {
-    m_indexHtmlFile.setFile(qmlFile);
+    Q_ASSERT(mode != ModeGenerate || data.isEmpty());
+    m_mainHtmlMode = mode;
+    m_mainHtmlData = data;
 }
 
-QString Html5App::indexHtmlFile() const
+Html5App::Mode Html5App::mainHtmlMode() const
 {
-    return path(IndexHtml);
+    return m_mainHtmlMode;
 }
 
 QString Html5App::pathExtended(int fileType) const
 {
-    const QString htmlSubDir = QLatin1String("html/");
     const QString appViewerTargetSubDir = appViewerOriginsSubDir;
     const QString indexHtml = QLatin1String("index.html");
     const QString pathBase = outputPathBase();
     const QDir appProFilePath(pathBase);
+    const bool generateHtml = m_mainHtmlMode == ModeGenerate;
+    const bool importHtml = m_mainHtmlMode == ModeImport;
+    const QFileInfo importedHtmlFile(m_mainHtmlData);
+    const QString htmlSubDir = importHtml ? importedHtmlFile.canonicalPath().split(QLatin1Char('/')).last() + QLatin1Char('/')
+                                          : QString::fromLatin1("html/");
 
     switch (fileType) {
-        case IndexHtml:                     return useExistingIndexHtml() ? m_indexHtmlFile.canonicalFilePath()
-                                                : pathBase + htmlSubDir + indexHtml;
-        case IndexHtmlDeployed:             return useExistingIndexHtml() ? htmlSubDir + m_indexHtmlFile.fileName()
-                                                : QString(htmlSubDir + indexHtml);
-        case IndexHtmlOrigin:               return originsRoot() + QLatin1String("html/") + indexHtml;
+        case MainHtml:                      return generateHtml ? pathBase + htmlSubDir + indexHtml
+                                                                : importedHtmlFile.canonicalFilePath();
+        case MainHtmlDeployed:              return generateHtml ? QString(htmlSubDir + indexHtml)
+                                                                : htmlSubDir + importedHtmlFile.fileName();
+        case MainHtmlOrigin:                return originsRoot() + QLatin1String("html/") + indexHtml;
         case AppViewerPri:                  return pathBase + appViewerTargetSubDir + appViewerPriFileName;
         case AppViewerPriOrigin:            return originsRoot() + appViewerOriginsSubDir + appViewerPriFileName;
         case AppViewerCpp:                  return pathBase + appViewerTargetSubDir + appViewerCppFileName;
@@ -92,8 +99,8 @@ QString Html5App::pathExtended(int fileType) const
         case AppViewerH:                    return pathBase + appViewerTargetSubDir + appViewerHFileName;
         case AppViewerHOrigin:              return originsRoot() + appViewerOriginsSubDir + appViewerHFileName;
         case HtmlDir:                       return pathBase + htmlSubDir;
-        case HtmlDirProFileRelative:        return useExistingIndexHtml() ? appProFilePath.relativeFilePath(m_indexHtmlFile.canonicalPath())
-                                                : QString(htmlSubDir).remove(htmlSubDir.length() - 1, 1);
+        case HtmlDirProFileRelative:        return generateHtml ? QString(htmlSubDir).remove(htmlSubDir.length() - 1, 1)
+                                                                : appProFilePath.relativeFilePath(importedHtmlFile.canonicalPath());
         default:                            qFatal("Html5App::pathExtended() needs more work");
     }
     return QString();
@@ -113,8 +120,16 @@ bool Html5App::adaptCurrentMainCppTemplateLine(QString &line) const
 {
     const QLatin1Char quote('"');
     bool adaptLine = true;
-    if (line.contains(QLatin1String("// MAINHTML"))) {
-        insertParameter(line, quote + path(IndexHtmlDeployed) + quote);
+    if (line.contains(QLatin1String("// MAINHTMLFILE"))) {
+        if (m_mainHtmlMode != ModeUrl)
+            insertParameter(line, quote + path(MainHtmlDeployed) + quote);
+        else
+            adaptLine = false;
+    } else if (line.contains(QLatin1String("// MAINHTMLURL"))) {
+        if (m_mainHtmlMode == ModeUrl)
+            insertParameter(line, quote + m_mainHtmlData + quote);
+        else
+            adaptLine = false;
     }
     return adaptLine;
 }
@@ -133,10 +148,10 @@ void Html5App::handleCurrentProFileTemplateLine(const QString &line,
 Core::GeneratedFiles Html5App::generateFiles(QString *errorMessage) const
 {
     Core::GeneratedFiles files = AbstractMobileApp::generateFiles(errorMessage);
-//    if (!useExistingMainQml()) {
-        files.append(file(generateFile(Html5AppGeneratedFileInfo::IndexHtmlFile, errorMessage), path(IndexHtml)));
+    if (m_mainHtmlMode == ModeGenerate) {
+        files.append(file(generateFile(Html5AppGeneratedFileInfo::MainHtmlFile, errorMessage), path(MainHtml)));
         files.last().setAttributes(Core::GeneratedFile::OpenEditorAttribute);
-//    }
+    }
 
     files.append(file(generateFile(Html5AppGeneratedFileInfo::AppViewerPriFile, errorMessage), path(AppViewerPri)));
     files.append(file(generateFile(Html5AppGeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp)));
@@ -146,18 +161,13 @@ Core::GeneratedFiles Html5App::generateFiles(QString *errorMessage) const
 }
 #endif // CREATORLESSTEST
 
-bool Html5App::useExistingIndexHtml() const
-{
-    return !m_indexHtmlFile.filePath().isEmpty();
-}
-
 QByteArray Html5App::generateFileExtended(int fileType,
     bool *versionAndCheckSum, QString *comment, QString *errorMessage) const
 {
     QByteArray data;
     switch (fileType) {
-        case Html5AppGeneratedFileInfo::IndexHtmlFile:
-            data = readBlob(path(IndexHtmlOrigin), errorMessage);
+        case Html5AppGeneratedFileInfo::MainHtmlFile:
+            data = readBlob(path(MainHtmlOrigin), errorMessage);
             break;
         case Html5AppGeneratedFileInfo::AppViewerPriFile:
             data = readBlob(path(AppViewerPriOrigin), errorMessage);
@@ -215,7 +225,8 @@ QList<AbstractGeneratedFileInfo> Html5App::updateableFiles(const QString &mainPr
 QList<DeploymentFolder> Html5App::deploymentFolders() const
 {
     QList<DeploymentFolder> result;
-    result.append(DeploymentFolder(path(HtmlDirProFileRelative), QLatin1String(".")));
+    if (m_mainHtmlMode != ModeUrl)
+        result.append(DeploymentFolder(path(HtmlDirProFileRelative), QLatin1String(".")));
     return result;
 }
 

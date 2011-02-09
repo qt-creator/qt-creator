@@ -49,8 +49,12 @@ public:
     explicit Html5AppWizardSourcesPage(QWidget *parent = 0);
     virtual ~Html5AppWizardSourcesPage();
 
-    QString mainHtmlFile() const;
+    Html5App::Mode mainHtmlMode() const;
+    QString mainHtmlData() const;
     virtual bool isComplete() const;
+
+private slots:
+    void setLineEditsEnabled();
 
 private:
     class Html5AppWizardSourcesPagePrivate *m_d;

@@ -45,7 +45,7 @@ namespace Internal {
 struct Html5AppGeneratedFileInfo : public AbstractGeneratedFileInfo
 {
     enum ExtendedFileType {
-        IndexHtmlFile = ExtendedFile,
+        MainHtmlFile = ExtendedFile,
         AppViewerPriFile,
         AppViewerCppFile,
         AppViewerHFile
@@ -60,9 +60,9 @@ class Html5App : public AbstractMobileApp
 {
 public:
     enum ExtendedFileType {
-        IndexHtml = ExtendedFile,
-        IndexHtmlDeployed,
-        IndexHtmlOrigin,
+        MainHtml = ExtendedFile,
+        MainHtmlDeployed,
+        MainHtmlOrigin,
         AppViewerPri,
         AppViewerPriOrigin,
         AppViewerCpp,
@@ -74,18 +74,23 @@ public:
         ModulesDir
     };
 
+    enum Mode {
+        ModeGenerate,
+        ModeImport,
+        ModeUrl
+    };
+
     Html5App();
     virtual ~Html5App();
 
-    void setIndexHtmlFile(const QString &qmlFile);
-    QString indexHtmlFile() const;
+    void setMainHtml(Mode mode, const QString &data = QString());
+    Mode mainHtmlMode() const;
 
 #ifndef CREATORLESSTEST
     virtual Core::GeneratedFiles generateFiles(QString *errorMessage) const;
 #else
     bool generateFiles(QString *errorMessage) const;
 #endif // CREATORLESSTEST
-    bool useExistingIndexHtml() const;
 
     static const int StubVersion;
 
@@ -104,6 +109,8 @@ private:
     QList<DeploymentFolder> deploymentFolders() const;
 
     QFileInfo m_indexHtmlFile;
+    Mode m_mainHtmlMode;
+    QString m_mainHtmlData;
 };
 
 } // namespace Internal

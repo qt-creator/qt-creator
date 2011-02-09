@@ -21,16 +21,16 @@
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0" colspan="2">
-       <widget class="QRadioButton" name="newHtmlRadioButton">
+       <widget class="QRadioButton" name="generateRadioButton">
         <property name="text">
          <string>Generate an index.html file</string>
         </property>
        </widget>
       </item>
       <item row="1" column="0" colspan="2">
-       <widget class="QRadioButton" name="importExistingHtmlRadioButton">
+       <widget class="QRadioButton" name="importRadioButton">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
          <string>Import an existing .html file</string>
@@ -38,9 +38,9 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="Utils::PathChooser" name="mainHtmlFileLineEdit">
+       <widget class="Utils::PathChooser" name="importLineEdit">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -61,9 +61,9 @@
        </spacer>
       </item>
       <item row="3" column="0" colspan="2">
-       <widget class="QRadioButton" name="loadAUrlRadioButton">
+       <widget class="QRadioButton" name="urlRadioButton">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
          <string>Load a URL</string>
@@ -71,9 +71,12 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QLineEdit" name="loadAUrlLineEdit">
+       <widget class="QLineEdit" name="urlLineEdit">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>http://</string>
         </property>
        </widget>
       </item>
@@ -105,7 +108,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Note: Unless you chose to load an URL, all files and directories that reside in the same directory as the main Html file are deployed. You can modify the contents of the directory any time before deploying.</string>
+      <string>Note: Unless you chose to load a URL, all files and directories that reside in the same directory as the main Html file are deployed. You can modify the contents of the directory any time before deploying.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

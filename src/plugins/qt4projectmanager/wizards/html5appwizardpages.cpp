@@ -54,15 +54,16 @@ Html5AppWizardSourcesPage::Html5AppWizardSourcesPage(QWidget *parent)
     , m_d(new Html5AppWizardSourcesPagePrivate)
 {
     m_d->ui.setupUi(this);
-    m_d->ui.mainHtmlFileLineEdit->setExpectedKind(Utils::PathChooser::File);
-    m_d->ui.mainHtmlFileLineEdit->setPromptDialogFilter(QLatin1String("*.html"));
-    m_d->ui.mainHtmlFileLineEdit->setPromptDialogTitle(tr("Select Html File"));
-    connect(m_d->ui.mainHtmlFileLineEdit, SIGNAL(changed(QString)), SIGNAL(completeChanged()));
-    connect(m_d->ui.importExistingHtmlRadioButton,
+    m_d->ui.importLineEdit->setExpectedKind(Utils::PathChooser::File);
+    m_d->ui.importLineEdit->setPromptDialogFilter(QLatin1String("*.html"));
+    m_d->ui.importLineEdit->setPromptDialogTitle(tr("Select Html File"));
+    connect(m_d->ui.importLineEdit, SIGNAL(changed(QString)), SIGNAL(completeChanged()));
+    connect(m_d->ui.importRadioButton,
             SIGNAL(toggled(bool)), SIGNAL(completeChanged()));
-    connect(m_d->ui.newHtmlRadioButton, SIGNAL(toggled(bool)),
-            m_d->ui.mainHtmlFileLineEdit, SLOT(setDisabled(bool)));
-    m_d->ui.newHtmlRadioButton->setChecked(true);
+    connect(m_d->ui.generateRadioButton, SIGNAL(toggled(bool)), SLOT(setLineEditsEnabled()));
+    connect(m_d->ui.importRadioButton, SIGNAL(toggled(bool)), SLOT(setLineEditsEnabled()));
+    connect(m_d->ui.urlRadioButton, SIGNAL(toggled(bool)), SLOT(setLineEditsEnabled()));
+    m_d->ui.generateRadioButton->setChecked(true);
 }
 
 Html5AppWizardSourcesPage::~Html5AppWizardSourcesPage()
@@ -70,16 +71,35 @@ Html5AppWizardSourcesPage::~Html5AppWizardSourcesPage()
     delete m_d;
 }
 
-QString Html5AppWizardSourcesPage::mainHtmlFile() const
+Html5App::Mode Html5AppWizardSourcesPage::mainHtmlMode() const
 {
-    return m_d->ui.importExistingHtmlRadioButton->isChecked() ?
-                m_d->ui.mainHtmlFileLineEdit->path() : QString();
+    Html5App::Mode result = Html5App::ModeGenerate;
+    if (m_d->ui.importRadioButton->isChecked())
+        result = Html5App::ModeImport;
+    else if (m_d->ui.urlRadioButton->isChecked())
+        result = Html5App::ModeUrl;
+    return result;
+}
+
+QString Html5AppWizardSourcesPage::mainHtmlData() const
+{
+    switch (mainHtmlMode()) {
+    case Html5App::ModeImport: return m_d->ui.importLineEdit->path();
+    case Html5App::ModeUrl: return m_d->ui.urlLineEdit->text();
+    default:
+    case Html5App::ModeGenerate: return QString();
+    }
 }
 
 bool Html5AppWizardSourcesPage::isComplete() const
 {
-    return !m_d->ui.importExistingHtmlRadioButton->isChecked()
-            || m_d->ui.mainHtmlFileLineEdit->isValid();
+    return mainHtmlMode() != Html5App::ModeImport || m_d->ui.importLineEdit->isValid();
+}
+
+void Html5AppWizardSourcesPage::setLineEditsEnabled()
+{
+    m_d->ui.importLineEdit->setEnabled(m_d->ui.importRadioButton->isChecked());
+    m_d->ui.urlLineEdit->setEnabled(m_d->ui.urlRadioButton->isChecked());
 }
 
 } // namespace Internal

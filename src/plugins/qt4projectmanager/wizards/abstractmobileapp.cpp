@@ -219,6 +219,8 @@ QByteArray AbstractMobileApp::generateMainCpp(QString *errorMessage) const
             }
             insertParameter(line, mainWindowClassName() + QLatin1String("::")
                 + QLatin1String(orientationString));
+        } else if (line.contains(QLatin1String("// DELETE_LINE"))) {
+            continue; // omit this line in the output
         } else {
             adaptLine = adaptCurrentMainCppTemplateLine(line);
         }
