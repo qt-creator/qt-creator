@@ -796,7 +796,6 @@ Module {
         defaultProperty: "data"
         prototype: "QDeclarativeImplicitSizeItem"
         exports: [
-            "QtQuick/ 1.1"
         ]
         Enum {
             name: "Status"
@@ -836,8 +835,6 @@ Module {
         defaultProperty: "data"
         prototype: "QDeclarativeItem"
         exports: [
-            "QtQuick/ 1.0",
-            "QtQuick/ 1.1"
         ]
         Property { name: "implicitWidth"; type: "qreal"; isReadonly: true }
         Property { name: "implicitHeight"; type: "qreal"; isReadonly: true }
@@ -849,8 +846,6 @@ Module {
         defaultProperty: "data"
         prototype: "QDeclarativePaintedItem"
         exports: [
-            "QtQuick/ 1.0",
-            "QtQuick/ 1.1"
         ]
         Property { name: "implicitWidth"; type: "qreal"; isReadonly: true }
         Property { name: "implicitHeight"; type: "qreal"; isReadonly: true }

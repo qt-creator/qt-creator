@@ -201,6 +201,9 @@ public:
 
             foreach (const QDeclarativeType *qmlTy, qmlTypes) {
                 QString qmlTyName = qmlTy->qmlTypeName();
+                // some qmltype names are missing the actual names, ignore that import
+                if (qmlTyName.endsWith('/'))
+                    continue;
                 if (!relocatableModuleUri.isNull()
                         && qmlTyName.startsWith(relocatableModuleUri + QLatin1Char('/'))) {
                     qmlTyName.remove(0, relocatableModuleUri.size() + 1);
