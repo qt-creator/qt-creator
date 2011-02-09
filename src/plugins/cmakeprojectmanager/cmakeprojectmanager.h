@@ -92,6 +92,16 @@ private:
     CMakeSettingsPage *m_settingsPage;
 };
 
+struct CMakeValidator
+{
+    enum STATE { VALID, INVALID, RUNNING };
+    STATE state;
+    QProcess *process;
+    bool hasCodeBlocksMsvcGenerator;
+    QString version;
+    QString executable;
+};
+
 class CMakeSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
@@ -110,22 +120,21 @@ public:
 
     QString cmakeExecutable() const;
     void setCMakeExecutable(const QString &executable);
-    bool isCMakeExecutableValid();
+    bool isCMakeExecutableValid() const;
     bool hasCodeBlocksMsvcGenerator() const;
 private slots:
-    void cmakeFinished();
+    void userCmakeFinished();
+    void pathCmakeFinished();
 private:
+    void cmakeFinished(CMakeValidator *cmakeValidator) const;
     void saveSettings() const;
-    void startProcess();
     QString findCmakeExecutable() const;
-    void updateInfo();
+    void startProcess(CMakeValidator *cmakeValidator);
+    void updateInfo(CMakeValidator *cmakeValidator);
 
     Utils::PathChooser *m_pathchooser;
-    QString m_cmakeExecutable;
-    enum STATE { VALID, INVALID, RUNNING } m_state;
-    QProcess *m_process;
-    QString m_version;
-    bool m_hasCodeBlocksMsvcGenerator;
+    mutable CMakeValidator m_userCmake;
+    mutable CMakeValidator m_pathCmake;
 };
 
 } // namespace Internal

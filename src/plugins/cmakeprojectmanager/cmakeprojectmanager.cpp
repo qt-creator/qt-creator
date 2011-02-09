@@ -178,78 +178,99 @@ QString CMakeManager::qtVersionForQMake(const QString &qmakePath)
 
 
 CMakeSettingsPage::CMakeSettingsPage()
-    :  m_pathchooser(0), m_process(0)
+    :  m_pathchooser(0)
 {
+    m_userCmake.process = 0;
+    m_pathCmake.process = 0;
     Core::ICore *core = Core::ICore::instance();
     QSettings * settings = core->settings();
     settings->beginGroup(QLatin1String("CMakeSettings"));
-    m_cmakeExecutable = settings->value(QLatin1String("cmakeExecutable")).toString();
-    QFileInfo fi(m_cmakeExecutable);
-    if (!fi.exists() || !fi.isExecutable())
-        m_cmakeExecutable = findCmakeExecutable();
-    fi.setFile(m_cmakeExecutable);
-    if (fi.exists() && fi.isExecutable()) {
-        // Run it to find out more
-        m_state = RUNNING;
-        startProcess();
-    } else {
-        m_state = INVALID;
-    }
-
+    m_userCmake.executable = settings->value(QLatin1String("cmakeExecutable")).toString();
     settings->endGroup();
+
+    updateInfo(&m_userCmake);
+    m_pathCmake.executable = findCmakeExecutable();
+    updateInfo(&m_pathCmake);
 }
 
-void CMakeSettingsPage::startProcess()
+void CMakeSettingsPage::startProcess(CMakeValidator *cmakeValidator)
 {
-    m_process = new QProcess();
+    cmakeValidator->process = new QProcess();
 
-    connect(m_process, SIGNAL(finished(int)),
-            this, SLOT(cmakeFinished()));
+    if (cmakeValidator == &m_pathCmake) // ugly
+        connect(cmakeValidator->process, SIGNAL(finished(int)),
+                this, SLOT(userCmakeFinished()));
+    else
+        connect(cmakeValidator->process, SIGNAL(finished(int)),
+                this, SLOT(pathCmakeFinished()));
 
-    m_process->start(m_cmakeExecutable, QStringList(QLatin1String("--help")));
-    m_process->waitForStarted();
+    cmakeValidator->process->start(cmakeValidator->executable, QStringList(QLatin1String("--help")));
+    cmakeValidator->process->waitForStarted();
 }
 
-void CMakeSettingsPage::cmakeFinished()
+void CMakeSettingsPage::userCmakeFinished()
 {
-    if (m_process) {
-        QString response = m_process->readAll();
+    cmakeFinished(&m_userCmake);
+}
+
+void CMakeSettingsPage::pathCmakeFinished()
+{
+    cmakeFinished(&m_pathCmake);
+}
+
+void CMakeSettingsPage::cmakeFinished(CMakeValidator *cmakeValidator) const
+{
+    if (cmakeValidator->process) {
+        QString response = cmakeValidator->process->readAll();
         QRegExp versionRegexp(QLatin1String("^cmake version ([\\d\\.]*)"));
         versionRegexp.indexIn(response);
 
         //m_supportsQtCreator = response.contains(QLatin1String("QtCreator"));
-        m_hasCodeBlocksMsvcGenerator = response.contains(QLatin1String("CodeBlocks - NMake Makefiles"));
-        m_version = versionRegexp.cap(1);
+        cmakeValidator->hasCodeBlocksMsvcGenerator = response.contains(QLatin1String("CodeBlocks - NMake Makefiles"));
+        cmakeValidator->version = versionRegexp.cap(1);
         if (!(versionRegexp.capturedTexts().size() > 3))
-            m_version += QLatin1Char('.') + versionRegexp.cap(3);
+            cmakeValidator->version += QLatin1Char('.') + versionRegexp.cap(3);
 
-        if (m_version.isEmpty())
-            m_state = INVALID;
+        if (cmakeValidator->version.isEmpty())
+            cmakeValidator->state = CMakeValidator::INVALID;
         else
-            m_state = VALID;
+            cmakeValidator->state = CMakeValidator::VALID;
 
-        m_process->deleteLater();
-        m_process = 0;
+        cmakeValidator->process->deleteLater();
+        cmakeValidator->process = 0;
     }
 }
 
-bool CMakeSettingsPage::isCMakeExecutableValid()
+bool CMakeSettingsPage::isCMakeExecutableValid() const
 {
-    if (m_state == RUNNING) {
-        disconnect(m_process, SIGNAL(finished(int)),
+    if (m_userCmake.state == CMakeValidator::RUNNING) {
+        disconnect(m_userCmake.process, SIGNAL(finished(int)),
                    this, SLOT(cmakeFinished()));
-        m_process->waitForFinished();
+        m_userCmake.process->waitForFinished();
         // Parse the output now
-        cmakeFinished();
+        cmakeFinished(&m_userCmake);
     }
-    return m_state == VALID;
+
+    if (m_userCmake.state == CMakeValidator::VALID)
+        return true;
+    if (m_pathCmake.state == CMakeValidator::RUNNING) {
+        disconnect(m_userCmake.process, SIGNAL(finished(int)),
+                   this, SLOT(cmakeFinished()));
+        m_pathCmake.process->waitForFinished();
+        // Parse the output now
+        cmakeFinished(&m_pathCmake);
+    }
+    return m_pathCmake.state == CMakeValidator::VALID;
 }
 
 CMakeSettingsPage::~CMakeSettingsPage()
 {
-    if (m_process)
-        m_process->waitForFinished();
-    delete m_process;
+    if (m_userCmake.process)
+        m_userCmake.process->waitForFinished();
+    delete m_userCmake.process;
+    if (m_pathCmake.process)
+        m_pathCmake.process->waitForFinished();
+    delete m_pathCmake.process;
 }
 
 QString CMakeSettingsPage::findCmakeExecutable() const
@@ -292,19 +313,19 @@ QWidget *CMakeSettingsPage::createPage(QWidget *parent)
     m_pathchooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     formLayout->addRow(tr("Executable:"), m_pathchooser);
     formLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
-    m_pathchooser->setPath(cmakeExecutable());
+    m_pathchooser->setPath(m_userCmake.executable);
     return outerWidget;
 }
 
-void CMakeSettingsPage::updateInfo()
+void CMakeSettingsPage::updateInfo(CMakeValidator *cmakeValidator)
 {
-    QFileInfo fi(m_cmakeExecutable);
+    QFileInfo fi(cmakeValidator->executable);
     if (fi.exists() && fi.isExecutable()) {
         // Run it to find out more
-        m_state = RUNNING;
-        startProcess();
+        cmakeValidator->state = CMakeValidator::RUNNING;
+        startProcess(cmakeValidator);
     } else {
-        m_state = INVALID;
+        cmakeValidator->state = CMakeValidator::INVALID;
     }
     saveSettings();
 }
@@ -313,7 +334,7 @@ void CMakeSettingsPage::saveSettings() const
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(QLatin1String("CMakeSettings"));
-    settings->setValue(QLatin1String("cmakeExecutable"), m_cmakeExecutable);
+    settings->setValue(QLatin1String("cmakeExecutable"), m_userCmake.executable);
     settings->endGroup();
 }
 
@@ -321,10 +342,10 @@ void CMakeSettingsPage::apply()
 {
     if (!m_pathchooser) // page was never shown
         return;
-    if (m_cmakeExecutable == m_pathchooser->path())
+    if (m_userCmake.executable == m_pathchooser->path())
         return;
-    m_cmakeExecutable = m_pathchooser->path();
-    updateInfo();
+    m_userCmake.executable = m_pathchooser->path();
+    updateInfo(&m_userCmake);
 }
 
 void CMakeSettingsPage::finish()
@@ -334,18 +355,28 @@ void CMakeSettingsPage::finish()
 
 QString CMakeSettingsPage::cmakeExecutable() const
 {
-    return m_cmakeExecutable;
+    if (!isCMakeExecutableValid())
+        return QString();
+    if (m_userCmake.state == CMakeValidator::VALID)
+        return m_userCmake.executable;
+    else
+        return m_pathCmake.executable;
 }
 
 void CMakeSettingsPage::setCMakeExecutable(const QString &executable)
 {
-    if (m_cmakeExecutable == executable)
+    if (m_userCmake.executable == executable)
         return;
-    m_cmakeExecutable = executable;
-    updateInfo();
+    m_userCmake.executable = executable;
+    updateInfo(&m_userCmake);
 }
 
 bool CMakeSettingsPage::hasCodeBlocksMsvcGenerator() const
 {
-    return m_hasCodeBlocksMsvcGenerator;
+    if (!isCMakeExecutableValid())
+        return false;
+    if (m_userCmake.state == CMakeValidator::VALID)
+        return m_userCmake.hasCodeBlocksMsvcGenerator;
+    else
+        return m_pathCmake.hasCodeBlocksMsvcGenerator;
 }
