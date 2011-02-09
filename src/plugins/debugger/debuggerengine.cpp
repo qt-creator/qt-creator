@@ -769,7 +769,7 @@ void DebuggerEngine::notifyEngineSetupFailed()
     showMessage(_("NOTE: ENGINE SETUP FAILED"));
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupFailed);
-    if (isMasterEngine())
+    if (isMasterEngine() && runControl())
         runControl()->startFailed();
     setState(DebuggerFinished);
 }
