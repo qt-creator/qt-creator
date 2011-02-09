@@ -305,7 +305,6 @@ QString MaemoRunConfiguration::remoteExecutableFilePath() const
         : QString();
 }
 
-// TODO: Move to deploy step
 MaemoPortList MaemoRunConfiguration::freePorts() const
 {
     return deployStep()->freePorts();

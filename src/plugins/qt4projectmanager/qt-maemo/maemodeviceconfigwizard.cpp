@@ -557,9 +557,7 @@ int MaemoDeviceConfigWizard::nextId() const
 {
     switch (currentId()) {
     case StartPageId:
-        // TODO: Make unique (needs list of devices)
         d->wizardData.configName = d->startPage.configName();
-
         d->wizardData.maemoVersion = d->startPage.maemoVersion();
         d->wizardData.deviceType = d->startPage.deviceType();
         d->wizardData.hostName = d->startPage.hostName();
