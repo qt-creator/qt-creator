@@ -182,6 +182,8 @@ CMakeSettingsPage::CMakeSettingsPage()
 {
     m_userCmake.process = 0;
     m_pathCmake.process = 0;
+    m_userCmake.hasCodeBlocksMsvcGenerator = false;
+    m_pathCmake.hasCodeBlocksMsvcGenerator = false;
     Core::ICore *core = Core::ICore::instance();
     QSettings * settings = core->settings();
     settings->beginGroup(QLatin1String("CMakeSettings"));
