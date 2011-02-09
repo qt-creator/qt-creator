@@ -419,7 +419,7 @@ void ObjectNodeInstance::setPropertyBinding(const QString &name, const QString &
             oldBinding->destroy();
         binding->update();
         if (binding->hasError())
-            qDebug() <<" ObjectNodeInstance.setPropertyBinding has Error: " << object() << name << expression;
+            qDebug() <<" ObjectNodeInstance.setPropertyBinding has Error: " << object() << name << expression << binding->error().toString();
     } else {
         qWarning() << "ObjectNodeInstance.setPropertyBinding: Cannot set binding for property" << name << ": property is unknown for type";
     }
