@@ -155,13 +155,8 @@ void MaemoPublisherFremantleFree::createPackage()
     }
 
     emit progressReport(tr("Cleaning up temporary directory ..."));
-    if (!MaemoPackageCreationStep::preparePackagingProcess(m_process,
-            m_buildConfig, m_tmpProjectDir, &error)) {
-        finishWithFailure(tr("Error preparing packaging process: %1").arg(error),
-            tr("Publishing failed: Could not create package."));
-        return;
-    }
-
+    MaemoPackageCreationStep::preparePackagingProcess(m_process,
+            m_buildConfig, m_tmpProjectDir);
     setState(RunningQmake);
     ProjectExplorer::AbstractProcessStep * const qmakeStep
         = m_buildConfig->qmakeStep();

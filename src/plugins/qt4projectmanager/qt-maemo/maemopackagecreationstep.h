@@ -75,9 +75,8 @@ public:
     QString versionString(QString *error) const;
     bool setVersionString(const QString &version, QString *error);
 
-    static bool preparePackagingProcess(QProcess *proc,
-        const Qt4BuildConfiguration *bc, const QString &workingDir,
-        QString *error);
+    static void preparePackagingProcess(QProcess *proc,
+        const Qt4BuildConfiguration *bc, const QString &workingDir);
     static QString packagingCommand(const Qt4BuildConfiguration *bc,
         const QString &commandName);
     static void ensureShlibdeps(QByteArray &rulesContent);

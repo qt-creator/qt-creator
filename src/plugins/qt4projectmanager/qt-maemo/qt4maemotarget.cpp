@@ -691,12 +691,8 @@ AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpeci
     QProcess dh_makeProc;
     QString error;
     const Qt4BuildConfiguration * const bc = activeBuildConfiguration();
-    if (!MaemoPackageCreationStep::preparePackagingProcess(&dh_makeProc, bc,
-        projectDir.path() + QLatin1Char('/') + PackagingDirName, &error)) {
-        raiseError(error);
-        return ActionFailed;
-    }
-
+    MaemoPackageCreationStep::preparePackagingProcess(&dh_makeProc, bc,
+        projectDir.path() + QLatin1Char('/') + PackagingDirName);
     const QString dhMakeDebianDir = projectDir.path() + QLatin1Char('/')
         + PackagingDirName + QLatin1String("/debian");
     MaemoGlobal::removeRecursively(dhMakeDebianDir, error);

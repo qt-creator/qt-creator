@@ -157,12 +157,8 @@ bool MaemoPackageCreationStep::createPackage(QProcess *buildProc)
 
     emit addOutput(tr("Creating package file ..."), MessageOutput);
     checkProjectName();
-    QString error;
-    if (!preparePackagingProcess(buildProc, qt4BuildConfiguration(),
-       buildDirectory(), &error)) {
-        raiseError(error);
-        return false;
-    }
+    preparePackagingProcess(buildProc, qt4BuildConfiguration(),
+        buildDirectory());
 
     const QString projectDir
         = buildConfiguration()->target()->project()->projectDirectory();
@@ -478,51 +474,16 @@ void MaemoPackageCreationStep::raiseError(const QString &shortMsg,
                       TASK_CATEGORY_BUILDSYSTEM));
 }
 
-bool MaemoPackageCreationStep::preparePackagingProcess(QProcess *proc,
-    const Qt4BuildConfiguration *bc, const QString &workingDir, QString *error)
+void MaemoPackageCreationStep::preparePackagingProcess(QProcess *proc,
+    const Qt4BuildConfiguration *bc, const QString &workingDir)
 {
-    const QString targetRoot = MaemoGlobal::targetRoot(bc->qtVersion());
-    QFile configFile(targetRoot % QLatin1String("/config.sh"));
-    if (!configFile.open(QIODevice::ReadOnly)) {
-        *error = tr("Cannot open MADDE config file '%1'.")
-            .arg(nativePath(configFile));
-        return false;
-    }
-
     Utils::Environment env = bc->environment();
-    const QString &path
-        = QDir::toNativeSeparators(MaemoGlobal::maddeRoot(bc->qtVersion())
-              + QLatin1Char('/'));
-#ifdef Q_OS_WIN
-    env.prependOrSetPath(path % QLatin1String("bin"));
-#endif
-    env.prependOrSetPath(targetRoot % QLatin1String("/bin"));
-    env.prependOrSetPath(path % QLatin1String("madbin"));
-
     if (bc->qmakeBuildConfiguration() & QtVersion::DebugBuild) {
         env.appendOrSet(QLatin1String("DEB_BUILD_OPTIONS"),
             QLatin1String("nostrip"), QLatin1String(" "));
     }
-
-    QString perlLib
-        = QDir::fromNativeSeparators(path % QLatin1String("madlib/perl5"));
-#ifdef Q_OS_WIN
-    perlLib = perlLib.remove(QLatin1Char(':'));
-    perlLib = perlLib.prepend(QLatin1Char('/'));
-#endif
-    env.set(QLatin1String("PERL5LIB"), perlLib);
-    env.set(QLatin1String("PWD"), workingDir);
-    const QRegExp envPattern(QLatin1String("([^=]+)=[\"']?([^;\"']+)[\"']? ;.*"));
-    QByteArray line;
-    do {
-        line = configFile.readLine(200);
-        if (envPattern.exactMatch(line))
-            env.set(envPattern.cap(1), envPattern.cap(2));
-    } while (!line.isEmpty());
-
     proc->setEnvironment(env.toStringList());
     proc->setWorkingDirectory(workingDir);
-    return true;
 }
 
 QString MaemoPackageCreationStep::packagingCommand(const Qt4BuildConfiguration *bc,
