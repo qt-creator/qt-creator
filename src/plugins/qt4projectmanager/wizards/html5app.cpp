@@ -138,6 +138,7 @@ void Html5App::handleCurrentProFileTemplateLine(const QString &line,
     QTextStream &proFileTemplate, QTextStream &proFile,
     bool &commentOutNextLine) const
 {
+    Q_UNUSED(proFile)
     Q_UNUSED(commentOutNextLine)
     if (line.contains(QLatin1String("# INCLUDE_DEPLOYMENT_PRI"))) {
         proFileTemplate.readLine(); // eats 'include(deployment.pri)'
