@@ -10,7 +10,7 @@ namespace QmlDesigner {
 namespace Internal {
 
 NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstance::Pointer &nodeInstance, QDeclarativeEngine *engine)
-    : QDeclarativeOpenMetaObject(nodeInstance->object(), new QDeclarativeOpenMetaObjectType(nodeInstance->object()->metaObject(), engine)),
+    : QDeclarativeOpenMetaObject(nodeInstance->object(), new QDeclarativeOpenMetaObjectType(nodeInstance->object()->metaObject(), engine), true),
     m_nodeInstance(nodeInstance),
     m_context(nodeInstance->isRootNodeInstance() ? nodeInstance->context() : 0)
 {
@@ -18,7 +18,7 @@ NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstance::Pointer
 }
 
 NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const QString &prefix, QDeclarativeEngine *engine)
-    : QDeclarativeOpenMetaObject(object, new QDeclarativeOpenMetaObjectType(object->metaObject(), engine)),
+    : QDeclarativeOpenMetaObject(object, new QDeclarativeOpenMetaObjectType(object->metaObject(), engine), true),
     m_nodeInstance(nodeInstance),
     m_prefix(prefix)
 {
@@ -27,7 +27,9 @@ NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &
 
 void NodeInstanceMetaObject::createNewProperty(const QString &name)
 {
+    int id = createProperty(name.toLatin1(), 0);
     createProperty(name.toLatin1(), 0);
+    Q_ASSERT(id >= 0);
 }
 
 int NodeInstanceMetaObject::metaCall(QMetaObject::Call call, int id, void **a)
