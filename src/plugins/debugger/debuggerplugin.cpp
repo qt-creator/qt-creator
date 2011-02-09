@@ -388,7 +388,8 @@ const char * const SNAPSHOT                 = "Debugger.Snapshot";
 const char * const TOGGLE_BREAK             = "Debugger.ToggleBreak";
 const char * const BREAK_BY_FUNCTION        = "Debugger.BreakByFunction";
 const char * const BREAK_AT_MAIN            = "Debugger.BreakAtMain";
-const char * const ADD_TO_WATCH1            = "Debugger.AddToWatch1";
+// Don't add '1' to the string as it shows up in the shortcut dialog.
+const char * const ADD_TO_WATCH1            = "Debugger.AddToWatch";
 const char * const ADD_TO_WATCH2            = "Debugger.AddToWatch2";
 const char * const OPERATE_BY_INSTRUCTION   = "Debugger.OperateByInstruction";
 const char * const FRAME_UP                 = "Debugger.FrameUp";
@@ -3026,6 +3027,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
         cmd->action()->setEnabled(true);
         editorContextMenu->addAction(cmd);
         cmd->setAttribute(Command::CA_Hide);
+        cmd->setAttribute(Command::CA_NonConfigureable); // ADD_TO_WATCH1 is enough.
     }
 
     m_plugin->addAutoReleasedObject(new CommonOptionsPage);
