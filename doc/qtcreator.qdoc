@@ -3518,8 +3518,8 @@
     not supported on the development PC. You can choose from a set of supported
     devices, such as S60 3rd Edition or S60 5th Edition devices.
 
-    \note Remote Compiler is an experimental component that you must select
-    separately when you install the \QSDK.
+    \note Remote Compiler is an experimental component that is installed as
+    part of \QSDK.
 
     \list 1
 
@@ -3527,7 +3527,7 @@
         \gui {Maintain \QSDK} tool.
 
         \o In the \gui {Package Manager}, select \gui {Experimental >
-        Remote Compiler}.
+        Remote Compiler} to install Remote Compiler.
 
         \o In Qt Creator, choose \gui {Tools > Options > Projects > Remote Compiler}
         to log on to Forum Nokia.
@@ -3552,7 +3552,7 @@
     the development PC.
 
     For more information about Remote Compiler, choose \gui {Help > Contents >
-    Remote Compiler}. The document is added during the installation of
+    Remote Compiler Manual}. The document is added during the installation of
     Remote Compiler.
 
 */
