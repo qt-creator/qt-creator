@@ -380,11 +380,9 @@ const char * const ATTACHREMOTECDB          = "Debugger.AttachRemoteCDB";
 const char * const STARTREMOTELLDB          = "Debugger.StartRemoteLLDB";
 const char * const DETACH                   = "Debugger.Detach";
 
-const char * const RUN_TO_LINE1             = "Debugger.RunToLine1";
-const char * const RUN_TO_LINE2             = "Debugger.RunToLine2";
+const char * const RUN_TO_LINE              = "Debugger.RunToLine";
 const char * const RUN_TO_SELECTED_FUNCTION = "Debugger.RunToSelectedFunction";
-const char * const JUMP_TO_LINE1            = "Debugger.JumpToLine1";
-const char * const JUMP_TO_LINE2            = "Debugger.JumpToLine2";
+const char * const JUMP_TO_LINE             = "Debugger.JumpToLine";
 const char * const RETURN_FROM_FUNCTION     = "Debugger.ReturnFromFunction";
 const char * const SNAPSHOT                 = "Debugger.Snapshot";
 const char * const TOGGLE_BREAK             = "Debugger.ToggleBreak";
@@ -2946,7 +2944,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_runToLineAction,
-        Constants::RUN_TO_LINE1, cppDebuggercontext);
+        Constants::RUN_TO_LINE, cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_LINE_KEY));
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
@@ -2961,7 +2959,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     // debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_jumpToLineAction,
-        Constants::JUMP_TO_LINE1, cppDebuggercontext);
+        Constants::JUMP_TO_LINE, cppDebuggercontext);
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
