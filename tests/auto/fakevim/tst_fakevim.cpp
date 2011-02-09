@@ -520,7 +520,7 @@ void tst_FakeVim::command_dgg()
     setup();
     check("G",               lmid(0, l.size()-2)+"\n" "@"+lmid(l.size()-2));
     check("dgg",             "@");
-    check("u",               lmid(0, l.size()-2)+"\n" "@"+lmid(l.size()-2));
+    check("u",               "@" + lmid(0));
 }
 
 void tst_FakeVim::command_dG()
