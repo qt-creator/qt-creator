@@ -89,16 +89,15 @@ MaemoManager::MaemoManager()
 
 MaemoManager::~MaemoManager()
 {
-    // TODO: Remove in reverse order of adding.
     PluginManager *pluginManager = PluginManager::instance();
-    pluginManager->removeObject(m_runControlFactory);
-    pluginManager->removeObject(m_runConfigurationFactory);
+    pluginManager->removeObject(m_maemoTargetFactory);
+    pluginManager->removeObject(m_publishingFactoryFremantleFree);
+    pluginManager->removeObject(m_qemuSettingsPage);
+    pluginManager->removeObject(m_deviceConfigurationsSettingsPage);
     pluginManager->removeObject(m_deployStepFactory);
     pluginManager->removeObject(m_packageCreationFactory);
-    pluginManager->removeObject(m_deviceConfigurationsSettingsPage);
-    pluginManager->removeObject(m_qemuSettingsPage);
-    pluginManager->removeObject(m_publishingFactoryFremantleFree);
-    pluginManager->removeObject(m_maemoTargetFactory);
+    pluginManager->removeObject(m_runConfigurationFactory);
+    pluginManager->removeObject(m_runControlFactory);
 
     m_instance = 0;
 }
