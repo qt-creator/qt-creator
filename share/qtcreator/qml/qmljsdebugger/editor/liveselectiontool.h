@@ -35,10 +35,10 @@
 #define LIVESELECTIONTOOL_H
 
 
-#include "abstractformeditortool.h"
-#include "rubberbandselectionmanipulator.h"
-#include "singleselectionmanipulator.h"
-#include "selectionindicator.h"
+#include "abstractliveedittool.h"
+#include "liverubberbandselectionmanipulator.h"
+#include "livesingleselectionmanipulator.h"
+#include "liveselectionindicator.h"
 
 #include <QtCore/QList>
 #include <QtCore/QTime>
@@ -91,13 +91,13 @@ private slots:
 
 private:
     void createContextMenu(QList<QGraphicsItem*> itemList, QPoint globalPos);
-    SingleSelectionManipulator::SelectionType getSelectionType(Qt::KeyboardModifiers modifiers);
+    LiveSingleSelectionManipulator::SelectionType getSelectionType(Qt::KeyboardModifiers modifiers);
     bool alreadySelected(const QList<QGraphicsItem*> &itemList) const;
 
 private:
     bool m_rubberbandSelectionMode;
     LiveRubberBandSelectionManipulator m_rubberbandSelectionManipulator;
-    SingleSelectionManipulator m_singleSelectionManipulator;
+    LiveSingleSelectionManipulator m_singleSelectionManipulator;
     LiveSelectionIndicator m_selectionIndicator;
     //ResizeIndicator m_resizeIndicator;
     QTime m_mousePressTimer;

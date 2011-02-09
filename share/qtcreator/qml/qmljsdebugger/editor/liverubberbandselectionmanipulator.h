@@ -35,7 +35,7 @@
 #define RUBBERBANDSELECTIONMANIPULATOR_H
 
 
-#include "selectionrectangle.h"
+#include "liveselectionrectangle.h"
 
 #include <QtCore/QPointF>
 

@@ -34,7 +34,7 @@
 #ifndef BOUNDINGRECTHIGHLIGHTER_H
 #define BOUNDINGRECTHIGHLIGHTER_H
 
-#include "layeritem.h"
+#include "livelayeritem.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QWeakPointer>

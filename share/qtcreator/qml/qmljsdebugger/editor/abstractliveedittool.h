@@ -96,7 +96,7 @@ protected:
 
     QDeclarativeViewObserver *observer() const;
     QDeclarativeView *view() const;
-    QGraphicsScene* scene() const;
+    QGraphicsScene *scene() const;
 
 private:
     QDeclarativeViewObserver *m_observer;

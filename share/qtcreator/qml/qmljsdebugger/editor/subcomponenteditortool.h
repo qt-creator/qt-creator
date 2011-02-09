@@ -34,7 +34,7 @@
 #ifndef SUBCOMPONENTEDITORTOOL_H
 #define SUBCOMPONENTEDITORTOOL_H
 
-#include "abstractformeditortool.h"
+#include "abstractliveedittool.h"
 #include <QtCore/QStack>
 #include <QtCore/QStringList>
 

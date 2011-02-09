@@ -34,7 +34,7 @@
 #include "subcomponenteditortool.h"
 #include "../qdeclarativeviewobserver_p.h"
 #include "subcomponentmasklayeritem.h"
-#include "layeritem.h"
+#include "livelayeritem.h"
 
 #include <QtGui/QGraphicsItem>
 #include <QtGui/QGraphicsObject>

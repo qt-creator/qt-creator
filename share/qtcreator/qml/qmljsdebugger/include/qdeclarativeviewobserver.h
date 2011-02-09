@@ -130,8 +130,7 @@ private:
     inline QDeclarativeViewObserverPrivate *d_func() { return data.data(); }
     QScopedPointer<QDeclarativeViewObserverPrivate> data;
     friend class QDeclarativeViewObserverPrivate;
-    friend class AbstractFormEditorTool;
-
+    friend class AbstractLiveEditTool;
 };
 
 } //namespace QmlJSDebugger

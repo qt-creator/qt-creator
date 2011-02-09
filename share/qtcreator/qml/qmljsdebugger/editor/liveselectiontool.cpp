@@ -32,7 +32,7 @@
 **************************************************************************/
 
 #include "liveselectiontool.h"
-#include "layeritem.h"
+#include "livelayeritem.h"
 
 #include "../qdeclarativeviewobserver_p.h"
 
@@ -74,15 +74,15 @@ void LiveSelectionTool::setRubberbandSelectionMode(bool value)
     m_rubberbandSelectionMode = value;
 }
 
-SingleSelectionManipulator::SelectionType LiveSelectionTool::getSelectionType(Qt::KeyboardModifiers
+LiveSingleSelectionManipulator::SelectionType LiveSelectionTool::getSelectionType(Qt::KeyboardModifiers
                                                                           modifiers)
 {
-    SingleSelectionManipulator::SelectionType selectionType
-            = SingleSelectionManipulator::ReplaceSelection;
+   LiveSingleSelectionManipulator::SelectionType selectionType
+            = LiveSingleSelectionManipulator::ReplaceSelection;
     if (modifiers.testFlag(Qt::ControlModifier)) {
-        selectionType = SingleSelectionManipulator::RemoveFromSelection;
+        selectionType = LiveSingleSelectionManipulator::RemoveFromSelection;
     } else if (modifiers.testFlag(Qt::ShiftModifier)) {
-        selectionType = SingleSelectionManipulator::AddToSelection;
+        selectionType = LiveSingleSelectionManipulator::AddToSelection;
     }
     return selectionType;
 }
@@ -110,7 +110,7 @@ void LiveSelectionTool::mousePressEvent(QMouseEvent *event)
     QDeclarativeViewObserverPrivate *observerPrivate
             = QDeclarativeViewObserverPrivate::get(observer());
     QList<QGraphicsItem*> itemList = observerPrivate->selectableItems(event->pos());
-    SingleSelectionManipulator::SelectionType selectionType = getSelectionType(event->modifiers());
+    LiveSingleSelectionManipulator::SelectionType selectionType = getSelectionType(event->modifiers());
 
     if (event->buttons() & Qt::LeftButton) {
         m_mousePressTimer.start();
@@ -182,7 +182,7 @@ void LiveSelectionTool::contextMenuElementSelected()
         QPointF updatePt(0, 0);
         QGraphicsItem *item = m_contextMenuItemList.at(itemListIndex);
         m_singleSelectionManipulator.begin(updatePt);
-        m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection,
+        m_singleSelectionManipulator.select(LiveSingleSelectionManipulator::InvertSelection,
                                             QList<QGraphicsItem*>() << item,
                                             false);
         m_singleSelectionManipulator.end(updatePt);
@@ -275,13 +275,13 @@ void LiveSelectionTool::mouseReleaseEvent(QMouseEvent *event)
             m_singleSelectionManipulator.begin(event->pos());
 
             if (event->modifiers().testFlag(Qt::ControlModifier))
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection,
+                m_singleSelectionManipulator.select(LiveSingleSelectionManipulator::RemoveFromSelection,
                                                     m_selectOnlyContentItems);
             else if (event->modifiers().testFlag(Qt::ShiftModifier))
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection,
+                m_singleSelectionManipulator.select(LiveSingleSelectionManipulator::AddToSelection,
                                                     m_selectOnlyContentItems);
             else
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection,
+                m_singleSelectionManipulator.select(LiveSingleSelectionManipulator::InvertSelection,
                                                     m_selectOnlyContentItems);
 
             m_singleSelectionManipulator.end(event->pos());
@@ -359,7 +359,7 @@ void LiveSelectionTool::wheelEvent(QWheelEvent *event)
 
     QPointF updatePt(0, 0);
     m_singleSelectionManipulator.begin(updatePt);
-    m_singleSelectionManipulator.select(SingleSelectionManipulator::ReplaceSelection,
+    m_singleSelectionManipulator.select(LiveSingleSelectionManipulator::ReplaceSelection,
                                         QList<QGraphicsItem*>() << itemList.at(selectedIdx),
                                         false);
     m_singleSelectionManipulator.end(updatePt);
@@ -423,13 +423,13 @@ void LiveSelectionTool::selectUnderPoint(QMouseEvent *event)
     m_singleSelectionManipulator.begin(event->pos());
 
     if (event->modifiers().testFlag(Qt::ControlModifier))
-        m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection,
+        m_singleSelectionManipulator.select(LiveSingleSelectionManipulator::RemoveFromSelection,
                                             m_selectOnlyContentItems);
     else if (event->modifiers().testFlag(Qt::ShiftModifier))
-        m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection,
+        m_singleSelectionManipulator.select(LiveSingleSelectionManipulator::AddToSelection,
                                             m_selectOnlyContentItems);
     else
-        m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection,
+        m_singleSelectionManipulator.select(LiveSingleSelectionManipulator::InvertSelection,
                                             m_selectOnlyContentItems);
 
     m_singleSelectionManipulator.end(event->pos());

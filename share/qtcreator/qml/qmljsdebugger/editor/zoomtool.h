@@ -34,10 +34,10 @@
 #ifndef ZOOMTOOL_H
 #define ZOOMTOOL_H
 
-#include "abstractformeditortool.h"
-#include "rubberbandselectionmanipulator.h"
+#include "abstractliveedittool.h"
+#include "liverubberbandselectionmanipulator.h"
 
-QT_FORWARD_DECLARE_CLASS(QAction);
+QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace QmlJSDebugger {
 
