@@ -172,6 +172,9 @@ signals:
     void deviceAdded(const SymbianUtils::SymbianDevice &d);
     void updated();
 
+private slots:
+    void delayedClosePort();
+
 private:
     void ensureInitialized() const;
     void update(bool emitSignals);

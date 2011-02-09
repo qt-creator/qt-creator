@@ -48,6 +48,7 @@
 #include <QtCore/QSignalMapper>
 #include <QtCore/QThread>
 #include <QtCore/QWaitCondition>
+#include <QtCore/QTimer>
 
 namespace SymbianUtils {
 
@@ -76,12 +77,12 @@ public:
     DeviceCommunicationType type;
     QSharedPointer<trk::TrkDevice> device;
     QSharedPointer<Coda::CodaDevice> codaDevice;
-    bool deviceAcquired;
+    int deviceAcquired;
 };
 
 SymbianDeviceData::SymbianDeviceData() :
         type(SerialPortCommunication),
-        deviceAcquired(false)
+        deviceAcquired(0)
 {
 }
 
@@ -178,7 +179,7 @@ SymbianDevice::TrkDevicePtr SymbianDevice::acquireDevice()
         m_data->device->setPort(m_data->portName);
         m_data->device->setSerialFrame(m_data->type == SerialPortCommunication);
     }
-    m_data->deviceAcquired = true;
+    m_data->deviceAcquired = 1;
     return m_data->device;
 }
 
@@ -195,7 +196,7 @@ void SymbianDevice::releaseDevice(TrkDevicePtr *ptr /* = 0 */)
             ptr->data()->disconnect();
             *ptr = TrkDevicePtr();
         }
-        m_data->deviceAcquired = false;
+        m_data->deviceAcquired = 0;
     } else {
         qWarning("Internal error: Attempt to release device that is not acquired.");
     }
@@ -365,7 +366,7 @@ CodaDevicePtr SymbianDeviceManager::getTcfPort(const QString &port)
         return CodaDevicePtr();
     }
     SymbianDevice& device = d->m_devices[idx];
-    if (device.m_data->device) {
+    if (device.m_data->device && device.m_data->device.data()->isOpen()) {
         qWarning("Attempting to open a port '%s' that is configured for TRK!", qPrintable(port));
         return CodaDevicePtr();
     }
@@ -387,6 +388,8 @@ CodaDevicePtr SymbianDeviceManager::getTcfPort(const QString &port)
         }
     // We still carry on in the case we failed to open so the client can access the IODevice's errorString()
     }
+    if (devicePtr->device()->isOpen())
+        device.m_data->deviceAcquired++;
     return devicePtr;
 }
 
@@ -416,11 +419,37 @@ void SymbianDeviceManager::customEvent(QEvent *event)
     }
 }
 
-void SymbianDeviceManager::releaseTcfPort(CodaDevicePtr &aPort)
+void SymbianDeviceManager::releaseTcfPort(CodaDevicePtr &port)
 {
-    if (aPort)
-        aPort.clear();
-    //TODO close the port after a timeer if last reference?
+    if (port) {
+        // Check if this was the last reference to the port, if so close it after a short delay
+        foreach (const SymbianDevice& device, d->m_devices) {
+            if (device.m_data->codaDevice.data() == port.data()) {
+                if (device.m_data->deviceAcquired > 0)
+                    device.m_data->deviceAcquired--;
+                if (device.m_data->deviceAcquired == 0) {
+                    if (debug)
+                        qDebug("Starting timer to close port %s", qPrintable(device.m_data->portName));
+                    QTimer::singleShot(1000, this, SLOT(delayedClosePort()));
+                }
+                break;
+            }
+        }
+        port.clear();
+    }
+}
+
+void SymbianDeviceManager::delayedClosePort()
+{
+    // Find any coda ports that are still open but have a reference count of zero, and delete them
+    foreach (const SymbianDevice& device, d->m_devices) {
+        Coda::CodaDevice* codaDevice = device.m_data->codaDevice.data();
+        if (codaDevice && device.m_data->deviceAcquired == 0 && codaDevice->device()->isOpen()) {
+            if (debug)
+                qDebug("Closing device %s", qPrintable(device.m_data->portName));
+            device.m_data->codaDevice->device()->close();
+        }
+    }
 }
 
 void SymbianDeviceManager::update()
