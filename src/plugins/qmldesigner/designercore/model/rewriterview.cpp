@@ -623,7 +623,11 @@ void RewriterView::qmlTextChanged()
     if (m_textToModelMerger && m_textModifier) {
         const QString newQmlText = m_textModifier->text();
 
-//        qDebug() << "qmlTextChanged:" << newQmlText;
+#if 0
+        qDebug() << Q_FUNC_INFO;
+        qDebug() << "old:" << lastCorrectQmlSource;
+        qDebug() << "new:" << newQmlText;
+#endif
 
         switch (m_differenceHandling) {
             case Validate: {

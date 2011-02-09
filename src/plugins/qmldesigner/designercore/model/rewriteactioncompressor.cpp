@@ -226,7 +226,7 @@ void RewriteActionCompressor::compressPropertyActions(QList<RewriteAction *> &ac
     QList<RewriteAction *> actionsToRemove;
     QHash<AbstractProperty, RewriteAction *> removedProperties;
     QHash<AbstractProperty, ChangePropertyRewriteAction *> changedProperties;
-    QSet<AbstractProperty> addedProperties;
+    QHash<AbstractProperty, AddPropertyRewriteAction *> addedProperties;
 
     QMutableListIterator<RewriteAction*> iter(actions);
     iter.toBack();
@@ -234,7 +234,14 @@ void RewriteActionCompressor::compressPropertyActions(QList<RewriteAction *> &ac
         RewriteAction *action = iter.previous();
 
         if (RemovePropertyRewriteAction *removeAction = action->asRemovePropertyRewriteAction()) {
-            removedProperties.insert(removeAction->property(), action);
+            const AbstractProperty property = removeAction->property();
+            if (AddPropertyRewriteAction *addAction = addedProperties.value(property, 0)) {
+                actionsToRemove.append(addAction);
+                actionsToRemove.append(removeAction);
+                addedProperties.remove(property);
+            } else {
+                removedProperties.insert(property, action);
+            }
         } else if (ChangePropertyRewriteAction *changeAction = action->asChangePropertyRewriteAction()) {
             const AbstractProperty property = changeAction->property();
 
@@ -257,7 +264,7 @@ void RewriteActionCompressor::compressPropertyActions(QList<RewriteAction *> &ac
                 if (changedProperties.contains(property))
                     changedProperties.remove(property);
 
-                addedProperties.insert(property);
+                addedProperties.insert(property, addAction);
             }
         }
     }
