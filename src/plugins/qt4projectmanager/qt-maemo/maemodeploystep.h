@@ -85,6 +85,7 @@ public:
     void setDeployed(const QString &host, const MaemoDeployable &deployable);
     QSharedPointer<MaemoDeployables> deployables() const { return m_deployables; }
     QSharedPointer<Core::SshConnection> sshConnection() const { return m_connection; }
+    MaemoPortList freePorts() const;
 
     bool isDeployToSysrootEnabled() const { return m_deployToSysroot; }
     void setDeployToSysrootEnabled(bool deploy) { m_deployToSysroot = deploy; }

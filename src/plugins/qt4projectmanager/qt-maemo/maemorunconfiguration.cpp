@@ -308,16 +308,7 @@ QString MaemoRunConfiguration::remoteExecutableFilePath() const
 // TODO: Move to deploy step
 MaemoPortList MaemoRunConfiguration::freePorts() const
 {
-    const Qt4BuildConfiguration * const qt4bc = activeQt4BuildConfiguration();
-    if (!deviceConfig())
-        return MaemoPortList();
-    if (deviceConfig()->type() == MaemoDeviceConfig::Simulator && qt4bc) {
-        MaemoQemuRuntime rt;
-        const int id = qt4bc->qtVersion()->uniqueId();
-        if (MaemoQemuManager::instance().runtimeForQtVersion(id, &rt))
-            return rt.m_freePorts;
-    }
-    return deviceConfig()->freePorts();
+    return deployStep()->freePorts();
 }
 
 bool MaemoRunConfiguration::useRemoteGdb() const
