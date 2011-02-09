@@ -700,11 +700,12 @@ AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpeci
     const QString dhMakeDebianDir = projectDir.path() + QLatin1Char('/')
         + PackagingDirName + QLatin1String("/debian");
     MaemoGlobal::removeRecursively(dhMakeDebianDir, error);
-    const QString command = QLatin1String("dh_make -s -n -p ")
-        + defaultPackageFileName() + QLatin1Char('_')
-        + MaemoPackageCreationStep::DefaultVersionNumber;
-    dh_makeProc.start(MaemoPackageCreationStep::packagingCommand(bc, command));
-    if (!dh_makeProc.waitForStarted()) {
+    const QStringList dh_makeArgs = QStringList() << QLatin1String("dh_make")
+        << QLatin1String("-s") << QLatin1String("-n") << QLatin1String("-p")
+        << (defaultPackageFileName() + QLatin1Char('_')
+            + MaemoPackageCreationStep::DefaultVersionNumber);
+    if (!MaemoGlobal::callMad(dh_makeProc, dh_makeArgs, activeBuildConfiguration()->qtVersion(), true)
+            || !dh_makeProc.waitForStarted()) {
         raiseError(tr("Unable to create Debian templates: dh_make failed (%1)")
             .arg(dh_makeProc.errorString()));
         return ActionFailed;
