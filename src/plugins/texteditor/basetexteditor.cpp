@@ -4329,21 +4329,20 @@ const DisplaySettings &BaseTextEditor::displaySettings() const
 
 void BaseTextEditor::indentOrUnindent(bool doIndent)
 {
+    const TextEditor::TabSettings &tabSettings = d->m_document->tabSettings();
+
     QTextCursor cursor = textCursor();
     maybeClearSomeExtraSelections(cursor);
     cursor.beginEditBlock();
 
-    int pos = cursor.position();
-    const TextEditor::TabSettings &tabSettings = d->m_document->tabSettings();
-
-    QTextDocument *doc = document();
-
     if (cursor.hasSelection()) {
         // Indent or unindent the selected lines
+        int pos = cursor.position();
         int anchor = cursor.anchor();
         int start = qMin(anchor, pos);
         int end = qMax(anchor, pos);
 
+        QTextDocument *doc = document();
         QTextBlock startBlock = doc->findBlock(start);
         QTextBlock endBlock = doc->findBlock(end-1).next();
 
@@ -4359,6 +4358,7 @@ void BaseTextEditor::indentOrUnindent(bool doIndent)
             cursor.setPosition(block.position() + indentPosition, QTextCursor::KeepAnchor);
             cursor.removeSelectedText();
         }
+        cursor.endEditBlock();
     } else {
         // Indent or unindent at cursor position
         QTextBlock block = cursor.block();
@@ -4371,10 +4371,9 @@ void BaseTextEditor::indentOrUnindent(bool doIndent)
         cursor.setPosition(block.position() + indentPosition - spaces, QTextCursor::KeepAnchor);
         cursor.removeSelectedText();
         cursor.insertText(tabSettings.indentationString(startColumn, targetColumn, block));
+        cursor.endEditBlock();
         setTextCursor(cursor);
     }
-
-    cursor.endEditBlock();
 }
 
 void BaseTextEditor::handleHomeKey(bool anchor)
