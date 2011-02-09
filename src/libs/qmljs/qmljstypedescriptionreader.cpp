@@ -8,6 +8,7 @@
 #include "parser/qmljsastvisitor_p.h"
 
 #include "qmljsbind.h"
+#include "qmljsinterpreter.h"
 
 #include <QtCore/QIODevice>
 #include <QtCore/QBuffer>
@@ -172,6 +173,8 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
         return;
     }
 
+    // ### add implicit export into the package of c++ types
+    fmo->addExport(fmo->className(), QmlJS::Interpreter::CppQmlTypes::cppPackage, ComponentVersion());
     _objects->insert(fmo->className(), fmo);
 }
 

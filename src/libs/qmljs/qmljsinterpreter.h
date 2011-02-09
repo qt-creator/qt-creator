@@ -625,6 +625,9 @@ private:
                     LanguageUtils::FakeMetaObject::ConstPtr metaObject,
                     const LanguageUtils::FakeMetaObject::Export &exp,
                     QList<LanguageUtils::FakeMetaObject::ConstPtr> *newObjects);
+    void setPrototypes(Engine *engine,
+                       LanguageUtils::FakeMetaObject::ConstPtr metaObject,
+                       const LanguageUtils::FakeMetaObject::Export &exp);
     QmlObjectValue *getOrCreate(const QString &package, const QString &cppName,
                                 LanguageUtils::FakeMetaObject::ConstPtr metaObject,
                                 Engine *engine, bool *created);

@@ -2034,36 +2034,12 @@ void CppQmlTypes::load(Engine *engine, const T &objects)
     foreach (FakeMetaObject::ConstPtr metaObject, objects) {
         foreach (const FakeMetaObject::Export &exp, metaObject->exports())
             makeObject(engine, metaObject, exp, &newObjects);
-
-        FakeMetaObject::Export cppExport;
-        cppExport.package = cppPackage;
-        cppExport.type = metaObject->className();
-        cppExport.packageNameVersion = qualifiedName(cppPackage, cppExport.type, cppExport.version);
-        makeObject(engine, metaObject, cppExport, &newObjects);
     }
 
     // set prototypes
     foreach (FakeMetaObject::ConstPtr metaObject, newObjects) {
-        foreach (const FakeMetaObject::Export &exp, metaObject->exports()) {
-            QmlObjectValue *objectValue = _typesByFullyQualifiedName.value(exp.packageNameVersion);
-            if (!objectValue || !metaObject->superClass())
-                continue;
-
-            // set prototypes for whole chain, creating new QmlObjectValues if necessary
-            // for instance, if an type isn't exported in the package of the super type
-            // Example: QObject (Qt, QtQuick) -> Positioner (not exported) -> Column (Qt, QtQuick)
-            // needs to create Positioner (Qt) and Positioner (QtQuick)
-            bool created = true;
-            QmlObjectValue *v = objectValue;
-            FakeMetaObject::ConstPtr fmo = metaObject;
-            while (created && fmo->superClass()) {
-                QmlObjectValue *superValue = getOrCreate(exp.package, fmo->superclassName(),
-                                                         fmo->superClass(), engine, &created);
-                v->setPrototype(superValue);
-                v = superValue;
-                fmo = fmo->superClass();
-            }
-        }
+        foreach (const FakeMetaObject::Export &exp, metaObject->exports())
+            setPrototypes(engine, metaObject, exp);
     }
 }
 // explicitly instantiate load for list and hash
@@ -2136,6 +2112,30 @@ void CppQmlTypes::makeObject(Engine *engine,
                 metaObject, exp.type, exp.package, exp.version, engine);
     _typesByPackage[exp.package].append(objectValue);
     _typesByFullyQualifiedName[exp.packageNameVersion] = objectValue;
+}
+
+void CppQmlTypes::setPrototypes(Engine *engine,
+                                FakeMetaObject::ConstPtr metaObject,
+                                const LanguageUtils::FakeMetaObject::Export &exp)
+{
+    QmlObjectValue *objectValue = _typesByFullyQualifiedName.value(exp.packageNameVersion);
+    if (!objectValue || !metaObject->superClass())
+        return;
+
+    // set prototypes for whole chain, creating new QmlObjectValues if necessary
+    // for instance, if an type isn't exported in the package of the super type
+    // Example: QObject (Qt, QtQuick) -> Positioner (not exported) -> Column (Qt, QtQuick)
+    // needs to create Positioner (Qt) and Positioner (QtQuick)
+    bool created = true;
+    QmlObjectValue *v = objectValue;
+    FakeMetaObject::ConstPtr fmo = metaObject;
+    while (created && fmo->superClass()) {
+        QmlObjectValue *superValue = getOrCreate(exp.package, fmo->superclassName(),
+                                                 fmo->superClass(), engine, &created);
+        v->setPrototype(superValue);
+        v = superValue;
+        fmo = fmo->superClass();
+    }
 }
 
 QmlObjectValue *CppQmlTypes::getOrCreate(const QString &package, const QString &cppName,
