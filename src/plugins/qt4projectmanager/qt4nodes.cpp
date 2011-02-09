@@ -540,23 +540,19 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, ProFileReader *readerExac
 
     const QString &projectDir = m_qt4ProFileNode->m_projectDir;
 
-    QStringList baseVPathsExact = baseVPaths(readerExact, projectDir);
-    QStringList baseVPathsCumulative = baseVPaths(readerCumulative, projectDir);
-
-    const QVector<Qt4NodeStaticData::FileTypeData> &fileTypes = qt4NodeStaticData()->fileTypeData;
-
     InternalNode contents;
 
     // Figure out DEPLOYMENT and INSTALL folders
     QStringList folders;
     QStringList dynamicVariables = dynamicVarNames(readerExact, readerCumulative);
-    foreach (const QString &dynamicVar, dynamicVariables) {
-        folders += readerExact->values(dynamicVar, includeFileExact);
-        // Ignore stuff from cumulative parse
-        // we are recursively enumerating all the files from those folders
-        // and add watchers for them, that's too dangerous if we get the foldrs
-        // wrong and enumerate the whole project tree multiple times
-    }
+    if (includeFileExact)
+        foreach (const QString &dynamicVar, dynamicVariables) {
+            folders += readerExact->values(dynamicVar, includeFileExact);
+            // Ignore stuff from cumulative parse
+            // we are recursively enumerating all the files from those folders
+            // and add watchers for them, that's too dangerous if we get the foldrs
+            // wrong and enumerate the whole project tree multiple times
+        }
 
 
     for (int i=0; i < folders.size(); ++i) {
@@ -597,6 +593,15 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, ProFileReader *readerExac
 
     QMap<FileType, QSet<QString> > foundFiles;
 
+    QStringList baseVPathsExact;
+    if (includeFileExact)
+        baseVPathsExact = baseVPaths(readerExact, projectDir);
+    QStringList baseVPathsCumulative;
+    if (includeFileCumlative)
+        baseVPathsCumulative = baseVPaths(readerCumulative, projectDir);
+
+    const QVector<Qt4NodeStaticData::FileTypeData> &fileTypes = qt4NodeStaticData()->fileTypeData;
+
     // update files
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
@@ -604,12 +609,14 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, ProFileReader *readerExac
 
         QSet<QString> newFilePaths;
         foreach (const QString &qmakeVariable, qmakeVariables) {
-            QStringList vPathsExact = fullVPaths(baseVPathsExact, readerExact, type, qmakeVariable, projectDir);
-            QStringList vPathsCumulative = fullVPaths(baseVPathsCumulative, readerCumulative, type, qmakeVariable, projectDir);
-
-            newFilePaths += readerExact->absoluteFileValues(qmakeVariable, projectDir, vPathsExact, includeFileExact).toSet();
-            newFilePaths += readerCumulative->absoluteFileValues(qmakeVariable, projectDir, vPathsCumulative, includeFileCumlative).toSet();
-
+            if (includeFileExact) {
+                QStringList vPathsExact = fullVPaths(baseVPathsExact, readerExact, type, qmakeVariable, projectDir);
+                newFilePaths += readerExact->absoluteFileValues(qmakeVariable, projectDir, vPathsExact, includeFileExact).toSet();
+            }
+            if (includeFileCumlative) {
+                QStringList vPathsCumulative = fullVPaths(baseVPathsCumulative, readerCumulative, type, qmakeVariable, projectDir);
+                newFilePaths += readerCumulative->absoluteFileValues(qmakeVariable, projectDir, vPathsCumulative, includeFileCumlative).toSet();
+            }
         }
 
         foundFiles[type] = newFilePaths;
