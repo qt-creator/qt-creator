@@ -99,7 +99,7 @@ QList<ServerNodeInstance>  NodeInstanceServer::createInstances(const QVector<Ins
 void NodeInstanceServer::createInstances(const CreateInstancesCommand &command)
 {
     createInstances(command.instances());
-
+    refreshBindings();
     startRenderTimer();
 }
 
@@ -199,6 +199,8 @@ void NodeInstanceServer::createScene(const CreateSceneCommand &command)
     initializeDeclarativeView();
     QList<ServerNodeInstance> instanceList = setupScene(command);
 
+    refreshBindings();
+
     nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(instanceList, true));
     nodeInstanceClient()->valuesChanged(createValuesChangedCommand(instanceList));
     sendChildrenChangedCommand(instanceList);
@@ -233,13 +235,21 @@ void NodeInstanceServer::removeInstances(const RemoveInstancesCommand &command)
     if (activeStateInstance().isValid())
         activeStateInstance().activateState();
 
+
+    refreshBindings();
     startRenderTimer();
 }
 
 void NodeInstanceServer::removeProperties(const RemovePropertiesCommand &command)
 {
-    foreach(const PropertyAbstractContainer &container, command.properties())
+    bool hasDynamicProperties = false;
+    foreach(const PropertyAbstractContainer &container, command.properties()) {
+        hasDynamicProperties |= container.isDynamic();
         resetInstanceProperty(container);
+    }
+
+    if (hasDynamicProperties)
+        refreshBindings();
 
     startRenderTimer();
 }
@@ -252,12 +262,13 @@ void NodeInstanceServer::reparentInstances(const QVector<ReparentContainer> &con
             instance.reparent(instanceForId(container.oldParentInstanceId()), container.oldParentProperty(), instanceForId(container.newParentInstanceId()), container.newParentProperty());
         }
     }
+
 }
 
 void NodeInstanceServer::reparentInstances(const ReparentInstancesCommand &command)
 {
     reparentInstances(command.reparentInstances());
-
+    refreshBindings();
     startRenderTimer();
 }
 
@@ -289,6 +300,7 @@ void NodeInstanceServer::completeComponent(const CompleteComponentCommand &comma
     }
 
     m_completedComponentList.append(instanceList);
+    refreshBindings();
 
     nodeInstanceClient()->valuesChanged(createValuesChangedCommand(instanceList));
     nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(instanceList, true));
@@ -335,6 +347,8 @@ void NodeInstanceServer::addImports(const QVector<AddImportContainer> &container
 
     if (!importComponent.errorString().isEmpty())
         qDebug() << "QmlDesigner.NodeInstances: import wrong: " << importComponent.errorString();
+
+    refreshBindings();
 }
 
 void NodeInstanceServer::addImport(const AddImportCommand &command)
@@ -349,22 +363,35 @@ void NodeInstanceServer::changeFileUrl(const ChangeFileUrlCommand &command)
     if (engine())
         engine()->setBaseUrl(m_fileUrl);
 
+    refreshBindings();
     startRenderTimer();
 }
 
 void NodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command)
 {
-     foreach(const PropertyValueContainer &container, command.valueChanges())
-         setInstancePropertyVariant(container);
+    bool hasDynamicProperties = false;
+    foreach(const PropertyValueContainer &container, command.valueChanges()) {
+        hasDynamicProperties |= container.isDynamic();
+        setInstancePropertyVariant(container);
+    }
 
-     startRenderTimer();
+    if (hasDynamicProperties)
+        refreshBindings();
+
+    startRenderTimer();
 }
 
 
 void NodeInstanceServer::changePropertyBindings(const ChangeBindingsCommand &command)
 {
-    foreach(const PropertyBindingContainer &container, command.bindingChanges())
+    bool hasDynamicProperties = false;
+    foreach(const PropertyBindingContainer &container, command.bindingChanges()) {
+        hasDynamicProperties |= container.isDynamic();
         setInstancePropertyBinding(container);
+    }
+
+    if (hasDynamicProperties)
+        refreshBindings();
 
     startRenderTimer();
 }
@@ -376,6 +403,7 @@ void NodeInstanceServer::changeIds(const ChangeIdsCommand &command)
             instanceForId(container.instanceId()).setId(container.id());
     }
 
+    refreshBindings();
     startRenderTimer();
 }
 
@@ -496,6 +524,8 @@ void NodeInstanceServer::refreshDummyData(const QString &path)
     } else {
         loadDummyDataFile(filePath);
     }
+
+    refreshBindings();
     startRenderTimer();
 }
 
