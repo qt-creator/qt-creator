@@ -99,13 +99,21 @@ bool ToolTip::acceptShow(const TipContent &content,
             QPoint localPos = pos;
             if (w)
                 localPos = w->mapFromGlobal(pos);
-            if (tipChanged(localPos, content, w)) {
+            if (tipChanged(localPos, content, w))
                 setUp(pos, content, w, rect);
-            }
             return false;
         }
         hideTipImmediately();
     }
+#if !defined(QT_NO_EFFECTS) && !defined(Q_WS_MAC)
+    // While the effect takes places it might be that although the widget is actually on
+    // screen the isVisible method doesn't return true.
+    else if (m_tip
+             && (QApplication::isEffectEnabled(Qt::UI_FadeTooltip)
+                 || QApplication::isEffectEnabled(Qt::UI_AnimateTooltip))) {
+        hideTipImmediately();
+    }
+#endif
     return true;
 }
 
