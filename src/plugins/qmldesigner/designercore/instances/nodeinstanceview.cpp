@@ -443,13 +443,7 @@ void NodeInstanceView::instancesCompleted(const QVector<ModelNode> &/*completedN
 {
 }
 
-void NodeInstanceView::importAdded(const Import & /*import*/)
-{
-    restartProcess();
-}
-
-
-void NodeInstanceView::importRemoved(const Import &/*import*/)
+void NodeInstanceView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
 {
     restartProcess();
 }

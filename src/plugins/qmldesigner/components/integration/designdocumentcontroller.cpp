@@ -481,8 +481,7 @@ void DesignDocumentController::copySelected()
     QScopedPointer<Model> model(Model::create("Qt/Rectangle"));
     model->setMetaInfo(m_d->model->metaInfo());
     model->setFileUrl(m_d->model->fileUrl());
-    foreach (const Import &import, m_d->model->imports())
-        model->addImport(import);
+    model->changeImports(m_d->model->imports(), QList<Import>());
 
     Q_ASSERT(model);
 
@@ -578,8 +577,8 @@ void DesignDocumentController::paste()
     QScopedPointer<Model> model(Model::create("empty"));
     model->setMetaInfo(m_d->model->metaInfo());
     model->setFileUrl(m_d->model->fileUrl());
-    foreach (const Import &import, m_d->model->imports())
-        model->addImport(import);
+    model->changeImports(m_d->model->imports(), QList<Import>());
+
     Q_ASSERT(model);
 
     if (!m_d->model)

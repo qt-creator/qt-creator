@@ -1152,12 +1152,12 @@ void ModelValidator::idsDiffer(ModelNode &modelNode, const QString &qmlId)
 
 void ModelAmender::modelMissesImport(const Import &import)
 {
-    m_merger->view()->model()->addImport(import);
+    m_merger->view()->model()->changeImports(QList<Import>() << import, QList<Import>());
 }
 
 void ModelAmender::importAbsentInQMl(const Import &import)
 {
-    m_merger->view()->model()->removeImport(import);
+    m_merger->view()->model()->changeImports(QList<Import>(), QList<Import>() << import);
 }
 
 void ModelAmender::bindingExpressionsDiffer(BindingProperty &modelProperty,

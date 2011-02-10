@@ -111,16 +111,10 @@ void NavigatorView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
 }
 
-void NavigatorView::importAdded(const Import &)
+void NavigatorView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
 {
     treeWidget()->update();
 }
-
-void NavigatorView::importRemoved(const Import &)
-{
-    treeWidget()->update();
-}
-
 
 void NavigatorView::nodeCreated(const ModelNode & /*createdNode*/)
 {

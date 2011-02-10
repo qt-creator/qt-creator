@@ -158,10 +158,9 @@ static ModelNode createNodeFromNode(const ModelNode &modelNode,const QHash<QStri
 
 ModelNode ModelMerger::insertModel(const ModelNode &modelNode)
 {
-     RewriterTransaction transaction(view()->beginRewriterTransaction());
+    RewriterTransaction transaction(view()->beginRewriterTransaction());
 
-    foreach (const Import &import, modelNode.model()->imports())
-        view()->model()->addImport(import);
+    view()->model()->changeImports(modelNode.model()->imports(), QList<Import>());
 
     QHash<QString, QString> idRenamingHash;
     setupIdRenamingHash(modelNode, idRenamingHash, view());
@@ -176,8 +175,7 @@ void ModelMerger::replaceModel(const ModelNode &modelNode)
     try {
         RewriterTransaction transaction(view()->beginRewriterTransaction());
 
-        foreach (const Import &import, modelNode.model()->imports())
-            view()->model()->addImport(import);
+        view()->model()->changeImports(modelNode.model()->imports(), QList<Import>());
         view()->model()->setFileUrl(modelNode.model()->fileUrl());
 
         ModelNode rootNode(view()->rootModelNode());

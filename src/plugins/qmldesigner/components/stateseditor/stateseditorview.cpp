@@ -141,7 +141,7 @@ void StatesEditorView::addState()
 
     try {
         if (rootStateGroup().allStates().count() < 1)
-            model()->addImport(Import::createLibraryImport("QtQuick", "1.0"));
+            model()->changeImports(QList<Import>() << Import::createLibraryImport("QtQuick", "1.0"), QList<Import>());
         ModelNode newState = rootStateGroup().addState(newStateName);
         setCurrentState(newState);
     }  catch (RewritingException &e) {

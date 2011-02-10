@@ -500,18 +500,20 @@ void ItemLibraryWidget::wheelEvent(QWheelEvent *event)
  {
      if (!m_d->model)
          return;
+
+     QList<Import> toBeRemovedImportList;
      foreach (const Import &import, m_d->model->imports())
          if (import.isLibraryImport() && import.url().compare(name, Qt::CaseInsensitive) == 0)
-             m_d->model->removeImport(import);
+             toBeRemovedImportList.append(import);
+
+     m_d->model->changeImports(QList<Import>(), toBeRemovedImportList);
  }
 
  void ItemLibraryWidget::addImport(const QString &name, const QString &version)
  {
      if (!m_d->model)
          return;
-
-     m_d->model->addImport(Import::createLibraryImport(name, version));
-
+     m_d->model->changeImports(QList<Import>() << Import::createLibraryImport(name, version), QList<Import>());
  }
 
 }

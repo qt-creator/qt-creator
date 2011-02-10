@@ -95,6 +95,7 @@ public:
 
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 
+    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
 
     QStandardItemModel *standardItemModel() const;
 

@@ -183,14 +183,18 @@ void ViewLogger::nodeOrderChanged(const NodeListProperty &listProperty, const Mo
     m_output << time() << indent("nodeOrderChanged:") << listProperty << movedNode << oldIndex << endl;
 }
 
-void ViewLogger::importsChanged()
-{
-    m_output << time() << indent("importsChanged:") << endl;
-}
-
 void ViewLogger::auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data)
 {
     m_output << time() << indent("auxiliaryDataChanged:") << node << "\t" << name << "\t" << data.toString() << endl;
+}
+
+void ViewLogger::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
+{
+    m_output << time() << indent("importsChanged:") << endl;
+    foreach(const Import &import, addedImports)
+        m_output << time() << indent("import added: ") << import.toString() << endl;
+    foreach(const Import &import, removedImports)
+        m_output << time() << indent("import removed: ") << import.toString() << endl;
 }
 
 void ViewLogger::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)

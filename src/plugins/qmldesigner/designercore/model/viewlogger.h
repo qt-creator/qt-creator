@@ -70,7 +70,7 @@ public:
 
     void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
 
-    void importsChanged();
+    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
 
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
 

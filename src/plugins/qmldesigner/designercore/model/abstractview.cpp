@@ -207,22 +207,6 @@ void AbstractView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &/*newUrl*/
 }
 
 /*!
-\fn AbstractView::importAdded(const Import &import)
-\brief Called when an import has been added to the model
-*/
-void AbstractView::importAdded(const Import &/*import*/)
-{
-}
-
-/*!
-\fn AbstractView::importRemoved(const Import &import)
-\brief Called when an import has been removed from the model
-*/
-void AbstractView::importRemoved(const Import &/*import*/)
-{
-}
-
-/*!
 \fn void AbstractView::nodeAboutToBeRemoved(const ModelNode &)
 \brief this is called if a node will be removed
 \param removedNode to be removed node

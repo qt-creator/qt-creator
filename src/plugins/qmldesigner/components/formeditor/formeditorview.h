@@ -70,8 +70,7 @@ public:
     void modelAttached(Model *model);
     void modelAboutToBeDetached(Model *model);
 
-    void importAdded(const Import &import);
-    void importRemoved(const Import &import);
+    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
 
     void nodeCreated(const ModelNode &createdNode);
     void nodeAboutToBeRemoved(const ModelNode &removedNode);

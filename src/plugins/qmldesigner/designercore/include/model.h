@@ -105,8 +105,7 @@ public:
 
     // Imports:
     QList<Import> imports() const;
-    void addImport(const Import &import);
-    void removeImport(const Import &import);
+    void changeImports(const QList<Import> &importsToBeAdded, const QList<Import> &importsToBeRemoved);
 
     RewriterView *rewriterView() const;
 

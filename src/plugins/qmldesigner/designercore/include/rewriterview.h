@@ -152,6 +152,7 @@ public:
 
     void importAdded(const Import &import);
     void importRemoved(const Import &import);
+    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
 
     void fileUrlChanged(const QUrl &oldUrl, const QUrl &newUrl);
 

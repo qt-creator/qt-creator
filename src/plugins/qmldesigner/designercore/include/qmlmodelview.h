@@ -119,6 +119,7 @@ public:
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList);
 
+    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
 
 protected:
     NodeInstance instanceForModelNode(const ModelNode &modelNode);

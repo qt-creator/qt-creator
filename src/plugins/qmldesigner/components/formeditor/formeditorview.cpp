@@ -148,12 +148,7 @@ void FormEditorView::modelAboutToBeDetached(Model *model)
     QmlModelView::modelAboutToBeDetached(model);
 }
 
-void FormEditorView::importAdded(const Import &)
-{
-    reset();
-}
-
-void FormEditorView::importRemoved(const Import &)
+void FormEditorView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
 {
     reset();
 }

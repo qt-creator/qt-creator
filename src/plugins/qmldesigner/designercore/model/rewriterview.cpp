@@ -283,6 +283,15 @@ void RewriterView::nodeAboutToBeReparented(const ModelNode &/*node*/, const Node
 {
 }
 
+void RewriterView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
+{
+    foreach (const Import &import, addedImports)
+        importAdded(import);
+
+    foreach (const Import &import, removedImports)
+        importRemoved(import);
+
+}
 
 void RewriterView::importAdded(const Import &import)
 {

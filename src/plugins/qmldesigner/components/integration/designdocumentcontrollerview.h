@@ -75,6 +75,8 @@ public:
 
     void actualStateChanged(const ModelNode &node);
 
+    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
+
     ModelNode insertModel(const ModelNode &modelNode)
     { return m_modelMerger.insertModel(modelNode); }
     void replaceModel(const ModelNode &modelNode)

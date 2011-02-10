@@ -32,12 +32,7 @@ void ItemLibraryView::modelAboutToBeDetached(Model *model)
     m_widget->setModel(0);
 }
 
-void ItemLibraryView::importAdded(const Import &)
-{
-    updateImports();
-}
-
-void ItemLibraryView::importRemoved(const Import &)
+void ItemLibraryView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
 {
     updateImports();
 }

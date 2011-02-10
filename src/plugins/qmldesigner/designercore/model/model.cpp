@@ -132,31 +132,36 @@ Model *ModelPrivate::create(QString type, int major, int minor)
     return model;
 }
 
-void ModelPrivate::addImport(const Import &import)
+void ModelPrivate::changeImports(const QList<Import> &toBeAddedImportList, const QList<Import> &toBeRemovedImportList)
 {
-    if (m_imports.contains(import))
-        return;
+    QList<Import> removedImportList;
+    foreach (const Import &import, toBeRemovedImportList) {
+        if (m_imports.contains(import)) {
+            removedImportList.append(import);
+            m_imports.removeOne(import);
+        }
+    }
 
-    m_imports.append(import);
-    notifyImportAdded(import);
+    QList<Import> addedImportList;
+    foreach (const Import &import, toBeAddedImportList) {
+        if (!m_imports.contains(import)) {
+            addedImportList.append(import);
+            m_imports.append(import);
+        }
+    }
+
+    if (!removedImportList.isEmpty() || !addedImportList.isEmpty())
+        notifyImportsChanged(addedImportList, removedImportList);
 }
 
-void ModelPrivate::removeImport(const Import &import)
-{
-    if (!m_imports.removeOne(import))
-        return;
-
-    notifyImportRemoved(import);
-}
-
-void ModelPrivate::notifyImportAdded(const Import &import)
+void ModelPrivate::notifyImportsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
 {
     bool resetModel = false;
     QString description;
 
     try {
         if (rewriterView()) {
-            rewriterView()->importAdded(import);
+            rewriterView()->importsChanged(addedImports, removedImports);
         }
     } catch (RewritingException &e) {
         description = e.description();
@@ -166,37 +171,10 @@ void ModelPrivate::notifyImportAdded(const Import &import)
     NodeMetaInfo::clearCache();
 
     if (nodeInstanceView())
-        nodeInstanceView()->importAdded(import);
+        nodeInstanceView()->importsChanged(addedImports, removedImports);
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList)
-        view->importAdded(import);
-
-    if (resetModel) {
-        resetModelByRewriter(description);
-    }
-}
-
-void ModelPrivate::notifyImportRemoved(const Import &import)
-{
-    bool resetModel = false;
-    QString description;
-
-    try {
-        if (rewriterView()) {
-            rewriterView()->importRemoved(import);
-        }
-    } catch (RewritingException &e) {
-        description = e.description();
-        resetModel = true;
-    }
-
-    NodeMetaInfo::clearCache();
-
-    if (nodeInstanceView())
-        nodeInstanceView()->importRemoved(import);
-
-    foreach (const QWeakPointer<AbstractView> &view, m_viewList)
-        view->importRemoved(import);
+        view->importsChanged(addedImports, removedImports);
 
     if (resetModel) {
         resetModelByRewriter(description);
@@ -1698,14 +1676,9 @@ QList<Import> Model::imports() const
     return m_d->imports();
 }
 
-void Model::addImport(const Import &import)
+void Model::changeImports(const QList<Import> &importsToBeAdded, const QList<Import> &importsToBeRemoved)
 {
-    m_d->addImport(import);
-}
-
-void Model::removeImport(const Import &import)
-{
-    m_d->removeImport(import);
+    m_d->changeImports(importsToBeAdded, importsToBeRemoved);
 }
 
 RewriterView *Model::rewriterView() const

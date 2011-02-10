@@ -117,7 +117,7 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
         }
 
         if (!model()->imports().contains(newImport)) {
-            model()->addImport(newImport);
+            model()->changeImports(QList<Import>() << newImport, QList<Import>());
         }
 
         QList<QPair<QString, QVariant> > propertyPairList;
@@ -187,7 +187,7 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
             }
 
             if (!model()->imports().contains(newImport)) {
-                model()->addImport(newImport);
+                model()->changeImports(QList<Import>() << newImport, QList<Import>());
             }
         }
 
@@ -372,6 +372,10 @@ void QmlModelView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList
 
 }
 
+void QmlModelView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
+{
+
+}
 
 void QmlModelView::rewriterBeginTransaction()
 {

@@ -262,6 +262,7 @@ void DragTool::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
 {
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
         event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
+        QList<Import> importToBeAddedList;
         m_blockMove = false;
         if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo")) {
             Q_ASSERT(!event->mimeData()->data("application/vnd.bauhaus.itemlibraryinfo").isEmpty());
@@ -272,11 +273,13 @@ void DragTool::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
                 Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
 
                 if (!view()->model()->imports().contains(newImport)) {
-                    view()->model()->addImport(newImport);
+                    importToBeAddedList.append(newImport);
                 }
 
             }
         }
+
+        view()->model()->changeImports(importToBeAddedList, QList<Import>());
 
         if (!m_rewriterTransaction.isValid()) {
             view()->clearSelectedModelNodes();
