@@ -128,8 +128,7 @@ QList<BuildConfigurationInfo> Qt4SimulatorTargetFactory::availableBuildConfigura
         QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
         QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), Constants::QT_SIMULATOR_TARGET_ID);
         infos.append(BuildConfigurationInfo(version, config, QString(), dir));
-        if (config)
-            infos.append(BuildConfigurationInfo(version, config ^ QtVersion::DebugBuild, QString(), dir));
+        infos.append(BuildConfigurationInfo(version, config ^ QtVersion::DebugBuild, QString(), dir));
     }
     return infos;
 }
@@ -144,12 +143,10 @@ Qt4BaseTarget *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *paren
         return 0;
 
     QtVersion *qtVersion = knownVersions.first();
-    bool buildAll = qtVersion->isValid() && (qtVersion->defaultBuildConfig() & QtVersion::BuildAll);
-    QtVersion::QmakeBuildConfigs config = buildAll ? QtVersion::BuildAll : QtVersion::QmakeBuildConfig(0);
-
+    QtVersion::QmakeBuildConfigs config = qtVersion->defaultBuildConfig();
     QList<BuildConfigurationInfo> infos;
-    infos.append(BuildConfigurationInfo(qtVersion, config | QtVersion::DebugBuild, QString(), QString()));
     infos.append(BuildConfigurationInfo(qtVersion, config, QString(), QString()));
+    infos.append(BuildConfigurationInfo(qtVersion, config ^ QtVersion::DebugBuild, QString(), QString()));
 
     return create(parent, id, infos);
 }
