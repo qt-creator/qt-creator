@@ -527,11 +527,14 @@ bool BaseTextDocument::open(const QString &fileName)
             interface.reportStarted();
             d->m_document->setUndoRedoEnabled(false);
             QTextCursor c(d->m_document);
+            c.beginEditBlock();
+            d->m_document->clear();
             for (int i = 0; i < chunks; ++i) {
                 c.insertText(content.at(i));
                 interface.setProgressValue(i + 1);
                 QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
             }
+            c.endEditBlock();
             d->m_document->setUndoRedoEnabled(true);
             interface.reportFinished();
         }
