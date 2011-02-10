@@ -588,6 +588,7 @@ private:
 QmlObjectValue::QmlObjectValue(FakeMetaObject::ConstPtr metaObject, const QString &className,
                                const QString &packageName, const ComponentVersion version, Engine *engine)
     : ObjectValue(engine),
+      _attachedType(0),
       _metaObject(metaObject),
       _packageName(packageName),
       _componentVersion(version)
@@ -717,6 +718,16 @@ const QmlObjectValue *QmlObjectValue::prototype() const
 {
     Q_ASSERT(!_prototype || dynamic_cast<const QmlObjectValue *>(_prototype));
     return static_cast<const QmlObjectValue *>(_prototype);
+}
+
+const QmlObjectValue *QmlObjectValue::attachedType() const
+{
+    return _attachedType;
+}
+
+void QmlObjectValue::setAttachedType(QmlObjectValue *value)
+{
+    _attachedType = value;
 }
 
 FakeMetaObject::ConstPtr QmlObjectValue::metaObject() const
@@ -1294,6 +1305,7 @@ void StringValue::accept(ValueVisitor *visitor) const
 ScopeChain::ScopeChain()
     : globalScope(0)
     , qmlTypes(0)
+    , qmlAttachedTypes(0)
 {
 }
 
@@ -1353,8 +1365,9 @@ void ScopeChain::update()
     _all += qmlScopeObjects;
     if (ids)
         _all += ids;
-    if (qmlTypes)
-        _all += qmlTypes;
+    if (qmlAttachedTypes)
+        _all += qmlAttachedTypes;
+    // qmlTypes are not added on purpose
     _all += jsScopes;
 }
 
@@ -2091,8 +2104,17 @@ QmlObjectValue *CppQmlTypes::makeObject(
 
 void CppQmlTypes::setPrototypes(QmlObjectValue *object)
 {
-    if (!object || object->metaObject()->superclassName().isEmpty())
+    if (!object)
         return;
+
+    FakeMetaObject::ConstPtr fmo = object->metaObject();
+
+    // resolve attached type
+    if (!fmo->attachedTypeName().isEmpty()) {
+        QmlObjectValue *attachedObject = typeByCppName(fmo->attachedTypeName());
+        if (attachedObject)
+            object->setAttachedType(attachedObject);
+    }
 
     const QString targetPackage = object->packageName();
 
@@ -2101,7 +2123,6 @@ void CppQmlTypes::setPrototypes(QmlObjectValue *object)
     // Example: QObject (Qt, QtQuick) -> Positioner (not exported) -> Column (Qt, QtQuick)
     // needs to create Positioner (Qt) and Positioner (QtQuick)
     QmlObjectValue *v = object;
-    FakeMetaObject::ConstPtr fmo = v->metaObject();
     while (!v->prototype() && !fmo->superclassName().isEmpty()) {
         QmlObjectValue *superValue = getOrCreate(targetPackage, fmo->superclassName());
         if (!superValue)
@@ -3403,4 +3424,67 @@ ImportInfo TypeEnvironment::importInfo(const QString &name, const Context *conte
         }
     }
     return ImportInfo();
+}
+
+namespace {
+class AttachedTypeProcessor: public MemberProcessor
+{
+    MemberProcessor *_wrapped;
+
+public:
+    AttachedTypeProcessor(MemberProcessor *wrapped) : _wrapped(wrapped) {}
+
+    static const QmlObjectValue *attachedType(const Value *v)
+    {
+        if (const QmlObjectValue *qmlValue = dynamic_cast<const QmlObjectValue *>(v)) {
+            return qmlValue->attachedType();
+        }
+        return 0;
+    }
+
+    virtual bool processProperty(const QString &name, const Value *value)
+    {
+        const QmlObjectValue *qmlValue = attachedType(value);
+        return qmlValue ? _wrapped->processProperty(name, qmlValue) : true;
+    }
+    virtual bool processEnumerator(const QString &name, const Value *value)
+    {
+        const QmlObjectValue *qmlValue = attachedType(value);
+        return qmlValue ? _wrapped->processEnumerator(name, qmlValue) : true;
+    }
+    virtual bool processSignal(const QString &name, const Value *value)
+    {
+        const QmlObjectValue *qmlValue = attachedType(value);
+        return qmlValue ? _wrapped->processSignal(name, qmlValue) : true;
+    }
+    virtual bool processSlot(const QString &name, const Value *value)
+    {
+        const QmlObjectValue *qmlValue = attachedType(value);
+        return qmlValue ? _wrapped->processSlot(name, qmlValue) : true;
+    }
+    virtual bool processGeneratedSlot(const QString &name, const Value *value)
+    {
+        const QmlObjectValue *qmlValue = attachedType(value);
+        return qmlValue ? _wrapped->processGeneratedSlot(name, qmlValue) : true;
+    }
+};
+} // anonymous namespace
+
+AttachedTypeEnvironment::AttachedTypeEnvironment(const TypeEnvironment *typeEnv)
+    : ObjectValue(typeEnv->engine())
+    , _typeEnvironment(typeEnv)
+{
+}
+
+const Value *AttachedTypeEnvironment::lookupMember(const QString &name, const Context *context,
+                                           const ObjectValue **, bool) const
+{
+    const Value *v = _typeEnvironment->lookupMember(name, context);
+    return AttachedTypeProcessor::attachedType(v);
+}
+
+void AttachedTypeEnvironment::processMembers(MemberProcessor *processor) const
+{
+    AttachedTypeProcessor wrappedProcessor(processor);
+    _typeEnvironment->processMembers(&wrappedProcessor);
 }

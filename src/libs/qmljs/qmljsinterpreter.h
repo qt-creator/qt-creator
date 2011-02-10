@@ -73,6 +73,7 @@ class Reference;
 class ColorValue;
 class AnchorLineValue;
 class TypeEnvironment;
+class AttachedTypeEnvironment;
 
 typedef QList<const Value *> ValueList;
 
@@ -304,6 +305,7 @@ public:
     QSharedPointer<const QmlComponentChain> qmlComponentScope;
     QList<const ObjectValue *> qmlScopeObjects;
     const TypeEnvironment *qmlTypes;
+    const AttachedTypeEnvironment *qmlAttachedTypes;
     QList<const ObjectValue *> jsScopes;
 
     // rebuilds the flat list of all scopes
@@ -461,6 +463,9 @@ public:
     using ObjectValue::prototype;
     const QmlObjectValue *prototype() const;
 
+    const QmlObjectValue *attachedType() const;
+    void setAttachedType(QmlObjectValue *value);
+
     LanguageUtils::FakeMetaObject::ConstPtr metaObject() const;
 
     QString packageName() const;
@@ -484,6 +489,7 @@ protected:
     bool isDerivedFrom(LanguageUtils::FakeMetaObject::ConstPtr base) const;
 
 private:
+    QmlObjectValue *_attachedType;
     LanguageUtils::FakeMetaObject::ConstPtr _metaObject;
     const QString _packageName;
     const LanguageUtils::ComponentVersion _componentVersion;
@@ -1030,6 +1036,19 @@ public:
 
     void addImport(const ObjectValue *import, const ImportInfo &info);
     ImportInfo importInfo(const QString &name, const Context *context) const;
+};
+
+class QMLJS_EXPORT AttachedTypeEnvironment: public ObjectValue
+{
+    const TypeEnvironment *_typeEnvironment;
+
+public:
+    AttachedTypeEnvironment(const TypeEnvironment *typeEnv);
+
+    virtual const Value *lookupMember(const QString &name, const Context *context,
+                                      const ObjectValue **foundInObject = 0,
+                                      bool examinePrototypes = true) const;
+    virtual void processMembers(MemberProcessor *processor) const;
 };
 
 } } // namespace QmlJS::Interpreter

@@ -129,8 +129,10 @@ void ScopeBuilder::initializeScopeChain()
         componentScopes.insert(_doc.data(), chain);
         makeComponentChain(_doc, chain, &componentScopes);
 
-        if (const TypeEnvironment *typeEnvironment = _context->typeEnvironment(_doc.data()))
+        if (const TypeEnvironment *typeEnvironment = _context->typeEnvironment(_doc.data())) {
             scopeChain.qmlTypes = typeEnvironment;
+            scopeChain.qmlAttachedTypes = new AttachedTypeEnvironment(typeEnvironment);
+        }
     } else {
         // add scope chains for all components that import this file
         foreach (Document::Ptr otherDoc, _snapshot) {

@@ -178,7 +178,7 @@ protected:
         const ScopeChain &chain = _context->scopeChain();
         if (chain.jsScopes.contains(scope)
                 || chain.qmlScopeObjects.contains(scope)
-                || chain.qmlTypes == scope
+                || chain.qmlAttachedTypes == scope
                 || chain.globalScope == scope)
             return false;
 

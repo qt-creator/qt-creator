@@ -841,10 +841,12 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         bool doGlobalCompletion = true;
         bool doQmlKeywordCompletion = true;
         bool doJsKeywordCompletion = true;
+        bool doQmlTypeCompletion = false;
 
         if (contextFinder.isInLhsOfBinding() && qmlScopeType) {
             doGlobalCompletion = false;
             doJsKeywordCompletion = false;
+            doQmlTypeCompletion = true;
 
             EnumerateProperties enumerateProperties(context);
             enumerateProperties.setGlobalCompletion(true);
@@ -858,8 +860,6 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             m_completions.append(idPropertyCompletion);
 
             addCompletionsPropertyLhs(enumerateProperties(qmlScopeType), symbolIcon, PropertyOrder, contextFinder.isAfterOnInLhsOfBinding());
-            if (const Interpreter::ObjectValue *qmlTypes = context->scopeChain().qmlTypes)
-                addCompletions(enumerateProperties(qmlTypes), symbolIcon, TypeOrder);
 
             if (ScopeBuilder::isPropertyChangesObject(context, qmlScopeType)
                     && context->scopeChain().qmlScopeObjects.size() == 2) {
@@ -881,6 +881,16 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                     item.order = EnumValueOrder;
                     m_completions.append(item);
                 }
+            }
+        }
+
+        if (!contextFinder.isInImport() && !contextFinder.isInQmlContext())
+            doQmlTypeCompletion = true;
+
+        if (doQmlTypeCompletion) {
+            if (const Interpreter::ObjectValue *qmlTypes = context->scopeChain().qmlTypes) {
+                EnumerateProperties enumerateProperties(context);
+                addCompletions(enumerateProperties(qmlTypes), symbolIcon, TypeOrder);
             }
         }
 
@@ -934,9 +944,10 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion
                 EnumerateProperties enumerateProperties(context);
-                if (contextFinder.isInLhsOfBinding() && qmlScopeType && expressionUnderCursor.text().at(0).isLower())
+                if (contextFinder.isInLhsOfBinding() && qmlScopeType) {
+                    enumerateProperties.setEnumerateGeneratedSlots(true);
                     addCompletionsPropertyLhs(enumerateProperties(value), symbolIcon, PropertyOrder, contextFinder.isAfterOnInLhsOfBinding());
-                else
+                } else
                     addCompletions(enumerateProperties(value), symbolIcon, SymbolOrder);
             } else if (value && completionOperator == QLatin1Char('(') && m_startPosition == editor->position()) {
                 // function completion
