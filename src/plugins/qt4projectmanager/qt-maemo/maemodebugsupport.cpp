@@ -103,6 +103,7 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
     } else {
         params.startMode = AttachToRemote;
     }
+    params.displayName = runConfig->displayName();
 
     DebuggerRunControl * const debuggerRunControl
         = DebuggerPlugin::createDebugger(params, runConfig);
