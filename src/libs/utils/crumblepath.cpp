@@ -37,10 +37,13 @@
 #include <QtCore/QList>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QPushButton>
+#include <QtGui/QMenu>
 #include <QtGui/QStyle>
 #include <QtGui/QResizeEvent>
 #include <QtGui/QPainter>
 #include <QtGui/QImage>
+
+#include <qtcassert.h>
 
 namespace Utils {
 
@@ -82,6 +85,7 @@ private:
     QImage m_segmentSelectedEnd;
     QImage m_segmentHover;
     QImage m_segmentHoverEnd;
+    QImage m_triangleIcon;
     QPoint m_textPos;
 
     QVariant m_data;
@@ -105,6 +109,7 @@ CrumblePathButton::CrumblePathButton(const QString &title, QWidget *parent)
     m_segmentEnd = QImage(":/utils/images/crumblepath-segment-end.png");
     m_segmentSelectedEnd = QImage(":/utils/images/crumblepath-segment-selected-end.png");
     m_segmentHoverEnd = QImage(":/utils/images/crumblepath-segment-hover-end.png");
+    m_triangleIcon = QImage(":/utils/images/triangle_vert.png");
 
     tintImages();
 }
@@ -141,6 +146,10 @@ void CrumblePathButton::paintEvent(QPaintEvent *)
     QString textToDraw = fm.elidedText(text(), Qt::ElideRight, geom.width() - m_textPos.x());
 
     p.drawText(QRectF(m_textPos.x(), 4, geom.width(), geom.height()), textToDraw);
+
+    if (menu()) {
+        p.drawImage(geom.width() - m_triangleIcon.width() - 6, geom.center().y() - m_triangleIcon.height()/2, m_triangleIcon);
+    }
 }
 
 void CrumblePathButton::tintImages()
@@ -204,6 +213,8 @@ QVariant CrumblePathButton::data() const
     return m_data;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 struct CrumblePathPrivate {
     explicit CrumblePathPrivate(CrumblePath *q);
 
@@ -261,7 +272,6 @@ void CrumblePath::pushElement(const QString &title, const QVariant data)
     CrumblePathButton *newButton = new CrumblePathButton(title, this);
     newButton->hide();
     connect(newButton, SIGNAL(clicked()), SLOT(mapClickToIndex()));
-    connect(newButton, SIGNAL(customContextMenuRequested(QPoint)), SLOT(mapContextMenuRequestToIndex()));
 
     int segType = CrumblePathButton::MiddleSegment;
     if (!d->m_buttons.isEmpty()) {
@@ -276,6 +286,23 @@ void CrumblePath::pushElement(const QString &title, const QVariant data)
     d->m_buttons.append(newButton);
 
     resizeButtons();
+}
+
+void CrumblePath::addChild(const QString &title, const QVariant data)
+{
+    QTC_ASSERT(d->m_buttons.count()>0,return);
+
+    QPushButton *lastButton = d->m_buttons.last();
+
+    QMenu *childList = lastButton->menu();
+    if (childList == 0)
+        childList = new QMenu(lastButton);
+
+    QAction *childAction = new QAction(title, lastButton);
+    childAction->setData(data);
+    connect(childAction, SIGNAL(triggered()), this, SLOT(mapClickToIndex()));
+    childList->addAction(childAction);
+    lastButton->setMenu(childList);
 }
 
 void CrumblePath::popElement()
@@ -358,23 +385,12 @@ void CrumblePath::resizeButtons()
 void CrumblePath::mapClickToIndex()
 {
     QObject *element = sender();
-    for (int i = 0; i < d->m_buttons.length(); ++i) {
-        if (d->m_buttons[i] == element) {
-            emit elementClicked(i);
-            return;
+    if (QString("QAction") == element->metaObject()->className()) {
+        emit elementClicked(static_cast<QAction *>(element)->data().toInt());
+    } else
+        if (QString("QPushButton") == element->metaObject()->className()) {
+            emit elementClicked(static_cast<CrumblePathButton *>(element)->data().toInt());
         }
-    }
-}
-
-void CrumblePath::mapContextMenuRequestToIndex()
-{
-    QObject *element = sender();
-    for (int i = 0; i < d->m_buttons.length(); ++i) {
-        if (d->m_buttons[i] == element) {
-            emit elementContextMenuRequested(i);
-            return;
-        }
-    }
 }
 
 void CrumblePath::paintEvent(QPaintEvent *event)

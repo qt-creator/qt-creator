@@ -56,12 +56,12 @@ public:
 
 public slots:
     void pushElement(const QString &title, const QVariant data = QVariant());
+    void addChild(const QString &title, const QVariant data = QVariant());
     void popElement();
     void clear();
 
 signals:
-    void elementClicked(int index);
-    void elementContextMenuRequested(int index);
+    void elementClicked(int debugId);
 
 protected:
     void resizeEvent(QResizeEvent *);
@@ -69,7 +69,6 @@ protected:
 
 private slots:
     void mapClickToIndex();
-    void mapContextMenuRequestToIndex();
 
 private:
     void resizeButtons();

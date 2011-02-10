@@ -576,7 +576,9 @@ void InspectorUi::populateCrumblePath(const QDeclarativeDebugObjectReference &ob
         crumbleStrings.push_front( displayName(ref) );
     }
 
-    int itemIndex = crumbleData.length()-1;
+    m_crumblePath->updateContextPath(crumbleStrings, crumbleData);
+    crumbleStrings.clear();
+    crumbleData.clear();
 
     // now append the children
     foreach (const QDeclarativeDebugObjectReference &child, objRef.children()) {
@@ -584,8 +586,7 @@ void InspectorUi::populateCrumblePath(const QDeclarativeDebugObjectReference &ob
         crumbleStrings.push_back( displayName(child) );
     }
 
-    m_crumblePath->updateContextPath(crumbleStrings, crumbleData);
-    m_crumblePath->selectIndex(itemIndex);
+    m_crumblePath->addChildren(crumbleStrings, crumbleData);
 }
 
 void InspectorUi::selectItems(const QList<int> &objectIds)
@@ -710,8 +711,9 @@ void InspectorUi::setupDockWidgets()
     wlay->setSpacing(0);
     observerWidget->setLayout(wlay);
     wlay->addWidget(m_toolBar->widget());
-    wlay->addWidget(m_propertyInspector);
     wlay->addWidget(m_crumblePath);
+    wlay->addWidget(m_propertyInspector);
+
 
     Debugger::DebuggerMainWindow *mw = Debugger::DebuggerPlugin::mainWindow();
     QDockWidget *dock = mw->createDockWidget(Debugger::QmlLanguage, observerWidget);
@@ -719,10 +721,10 @@ void InspectorUi::setupDockWidgets()
     dock->setTitleBarWidget(new QWidget(dock));
 }
 
-void InspectorUi::crumblePathElementClicked(int pathIndex)
+void InspectorUi::crumblePathElementClicked(int debugId)
 {
     QList <int> l;
-    l << m_crumblePath->debugIdForIndex(pathIndex);
+    l << debugId;
     selectItems(l);
 }
 

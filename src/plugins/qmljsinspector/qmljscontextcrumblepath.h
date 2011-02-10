@@ -50,7 +50,8 @@ public:
 
 public slots:
     void updateContextPath(const QStringList &path, const QList<int> &debugIds);
-    void selectIndex(int index);
+    void addChildren(const QStringList &childrenNames, const QList<int> &childrenDebugIds);
+
 private:
     bool m_isEmpty;
 };
