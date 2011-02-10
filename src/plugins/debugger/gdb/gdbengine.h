@@ -407,17 +407,31 @@ private: ////////// View & Data Stuff //////////
     //
     // Disassembler specific stuff
     //
+    // Chain of fallbacks: PointMixed -> PointPlain -> RangeMixed -> RangePlain.
+    // The Mi versions are not used right now.
     void fetchDisassembler(DisassemblerAgent *agent);
-    void fetchDisassemblerByAddress(const DisassemblerAgentCookie &ac,
-        bool useMixedMode);
-    void fetchDisassemblerByCli(const DisassemblerAgentCookie &ac,
-        bool useMixedMode);
-    void fetchDisassemblerByAddressCli(const DisassemblerAgentCookie &ac);
-    void handleFetchDisassemblerByCli(const GdbResponse &response);
-    void handleFetchDisassemblerByLine(const GdbResponse &response);
-    void handleFetchDisassemblerByAddress1(const GdbResponse &response);
-    void handleFetchDisassemblerByAddress0(const GdbResponse &response);
-    DisassemblerLines parseDisassembler(const GdbMi &lines);
+    void fetchDisassemblerByCliPointMixed(const DisassemblerAgentCookie &ac);
+    void fetchDisassemblerByCliPointPlain(const DisassemblerAgentCookie &ac);
+    void fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &ac);
+    void fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &ac);
+    //void fetchDisassemblerByMiPointMixed(const DisassemblerAgentCookie &ac);
+    //void fetchDisassemblerByMiPointPlain(const DisassemblerAgentCookie &ac);
+    //void fetchDisassemblerByMiRangeMixed(const DisassemblerAgentCookie &ac);
+    //void fetchDisassemblerByMiRangePlain(const DisassemblerAgentCookie &ac);
+    void handleFetchDisassemblerByCliPointMixed(const GdbResponse &response);
+    void handleFetchDisassemblerByCliPointPlain(const GdbResponse &response);
+    void handleFetchDisassemblerByCliRangeMixed(const GdbResponse &response);
+    void handleFetchDisassemblerByCliRangePlain(const GdbResponse &response);
+    //void handleFetchDisassemblerByMiPointMixed(const GdbResponse &response);
+    //void handleFetchDisassemblerByMiPointPlain(const GdbResponse &response);
+    //void handleFetchDisassemblerByMiRangeMixed(const GdbResponse &response);
+    //void handleFetchDisassemblerByMiRangePlain(const GdbResponse &response);
+    void handleDisassemblerCheck(const GdbResponse &response);
+    DisassemblerLines parseDisassembler(const GdbMi &data);
+    DisassemblerLines parseCliDisassembler(const GdbMi &lines);
+    DisassemblerLines parseMiDisassembler(const GdbMi &lines);
+
+    bool m_disassembleUsesComma;
 
     //
     // Source file specific stuff

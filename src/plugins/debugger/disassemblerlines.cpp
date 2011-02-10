@@ -33,19 +33,28 @@
 
 #include "disassemblerlines.h"
 
+#include <QtCore/QDebug>
+#include <QtCore/QRegExp>
+
 namespace Debugger {
 namespace Internal {
 
 DisassemblerLine::DisassemblerLine(const QString &unparsed)
 {
+    int pos = -1;
+    for (int i = 0; i != unparsed.size(); ++i) {
+        uint c = unparsed.at(i).unicode();
+        if (c == ' ' || c == ':' || c == '\t') {
+            pos = i;
+            break;
+        }
+    }
+
     // Mac gdb has an overflow reporting 64bit addresses causing the instruction
     // to follow the last digit "0x000000013fff4810mov 1,1". Truncate here.
-    const int pos = qMin(unparsed.indexOf(QLatin1Char(' ')), 19);
-    if (pos < 0) {
-        address = 0;
-        data = unparsed;
-        return;
-    }
+    if (pos > 19 && unparsed.mid(3, 16).toULongLong())
+        pos = 19;
+
     QString addr = unparsed.left(pos);
     // MSVC 64bit: Remove 64bit separator 00000000`00a45000'.
     if (addr.size() >= 9 && addr.at(8) == QLatin1Char('`'))
@@ -55,8 +64,7 @@ DisassemblerLine::DisassemblerLine(const QString &unparsed)
         addr.chop(1);
     if (addr.startsWith(QLatin1String("0x")))
         addr.remove(0, 2);
-    bool ok;
-    address = addr.toULongLong(&ok, 16);
+    address = addr.toULongLong(0, 16);
     if (address)
         data = unparsed.mid(pos + 1);
     else
