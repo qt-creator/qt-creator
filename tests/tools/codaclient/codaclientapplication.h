@@ -41,10 +41,10 @@
 
 QT_FORWARD_DECLARE_CLASS(QFile)
 
-namespace tcftrk {
-    struct TcfTrkCommandResult;
-    class TcfTrkDevice;
-    class TcfTrkEvent;
+namespace Coda {
+    struct CodaCommandResult;
+    class CodaDevice;
+    class CodaEvent;
 }
 
 class CodaClientApplication : public QCoreApplication
@@ -66,18 +66,18 @@ public:
 private slots:
     void slotError(const QString &);
     void slotTrkLogMessage(const QString &);
-    void slotTcftrkEvent(const tcftrk::TcfTrkEvent &);
+    void slotCodaEvent(const Coda::CodaEvent &);
     void slotSerialPong(const QString &);
 
 private:
     void printTimeStamp();
     bool parseArgument(const QString &a, int argNumber, QString *errorMessage);
-    void handleCreateProcess(const tcftrk::TcfTrkCommandResult &result);
-    void handleFileSystemOpen(const tcftrk::TcfTrkCommandResult &result);
-    void handleFileSystemWrite(const tcftrk::TcfTrkCommandResult &result);
-    void handleFileSystemClose(const tcftrk::TcfTrkCommandResult &result);
-    void handleFileSystemFStat(const tcftrk::TcfTrkCommandResult &result);
-    void handleSymbianInstall(const tcftrk::TcfTrkCommandResult &result);
+    void handleCreateProcess(const Coda::CodaCommandResult &result);
+    void handleFileSystemOpen(const Coda::CodaCommandResult &result);
+    void handleFileSystemWrite(const Coda::CodaCommandResult &result);
+    void handleFileSystemClose(const Coda::CodaCommandResult &result);
+    void handleFileSystemFStat(const Coda::CodaCommandResult &result);
+    void handleSymbianInstall(const Coda::CodaCommandResult &result);
     void doExit(int ex);
     void putSendNextChunk();
     void closeRemoteFile();
@@ -103,7 +103,7 @@ private:
     quint64 m_putChunkSize;
     unsigned m_verbose;
     QTime m_startTime;
-    QScopedPointer<tcftrk::TcfTrkDevice> m_trkDevice;
+    QScopedPointer<Coda::CodaDevice> m_trkDevice;
 };
 
 #endif // CODACLIENTAPPLICATION_H

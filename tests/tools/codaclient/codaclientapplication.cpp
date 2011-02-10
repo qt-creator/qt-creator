@@ -37,7 +37,7 @@
 #include  "virtualserialdevice.h"
 #endif
 
-#include "tcftrkdevice.h"
+#include "codadevice.h"
 #include <QtNetwork/QTcpSocket>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
@@ -309,14 +309,14 @@ bool CodaClientApplication::start()
         break;
     }
     // Start connection
-    m_trkDevice.reset(new tcftrk::TcfTrkDevice);
+    m_trkDevice.reset(new Coda::CodaDevice);
     m_trkDevice->setVerbose(m_verbose);
     connect(m_trkDevice.data(), SIGNAL(error(QString)),
         this, SLOT(slotError(QString)));
     connect(m_trkDevice.data(), SIGNAL(logMessage(QString)),
         this, SLOT(slotTrkLogMessage(QString)));
-    connect(m_trkDevice.data(), SIGNAL(tcfEvent(tcftrk::TcfTrkEvent)),
-        this, SLOT(slotTcftrkEvent(tcftrk::TcfTrkEvent)));
+    connect(m_trkDevice.data(), SIGNAL(tcfEvent(Coda::CodaEvent)),
+        this, SLOT(slotCodaEvent(Coda::CodaEvent)));
     connect(m_trkDevice.data(), SIGNAL(serialPong(QString)),
             this, SLOT(slotSerialPong(QString)));
     if (isSerialPort(m_address)) {
@@ -338,9 +338,9 @@ bool CodaClientApplication::start()
 #endif
     } else {
         // TCP/IP
-        const QSharedPointer<QTcpSocket> tcfTrkSocket(new QTcpSocket);
-        m_trkDevice->setDevice(tcfTrkSocket);
-        tcfTrkSocket->connectToHost(m_address, m_port);
+        const QSharedPointer<QTcpSocket> codaSocket(new QTcpSocket);
+        m_trkDevice->setDevice(codaSocket);
+        codaSocket->connectToHost(m_address, m_port);
         std::printf("Connecting to %s:%hu...\n", qPrintable(m_address), m_port);
     }
     return true;
@@ -358,9 +358,9 @@ void CodaClientApplication::slotTrkLogMessage(const QString &m)
     std::printf("%s\n", qPrintable(m));
 }
 
-void CodaClientApplication::handleCreateProcess(const tcftrk::TcfTrkCommandResult &result)
+void CodaClientApplication::handleCreateProcess(const Coda::CodaCommandResult &result)
 {
-    const bool ok = result.type == tcftrk::TcfTrkCommandResult::SuccessReply;
+    const bool ok = result.type == Coda::CodaCommandResult::SuccessReply;
     if (ok) {
         printTimeStamp();
         std::printf("Launch succeeded: %s\n", qPrintable(result.toString()));
@@ -372,9 +372,9 @@ void CodaClientApplication::handleCreateProcess(const tcftrk::TcfTrkCommandResul
     }
 }
 
-void CodaClientApplication::handleFileSystemOpen(const tcftrk::TcfTrkCommandResult &result)
+void CodaClientApplication::handleFileSystemOpen(const Coda::CodaCommandResult &result)
 {
-    if (result.type != tcftrk::TcfTrkCommandResult::SuccessReply) {
+    if (result.type != Coda::CodaCommandResult::SuccessReply) {
         std::fprintf(stderr, "Open remote file failed: %s\n", qPrintable(result.toString()));
         doExit(-1);
         return;
@@ -389,7 +389,7 @@ void CodaClientApplication::handleFileSystemOpen(const tcftrk::TcfTrkCommandResu
     m_remoteFileHandle = result.values.at(0).data();
 
     if (m_mode == Stat) {
-        m_trkDevice->sendFileSystemFstatCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleFileSystemFStat),
+        m_trkDevice->sendFileSystemFstatCommand(Coda::CodaCallback(this, &CodaClientApplication::handleFileSystemFStat),
                                                m_remoteFileHandle);
         return;
     }
@@ -417,18 +417,18 @@ void CodaClientApplication::putSendNextChunk()
         std::printf("Writing %llu bytes to remote file '%s' at %llu\n",
                     m_putLastChunkSize,
                     m_remoteFileHandle.constData(), pos);
-        m_trkDevice->sendFileSystemWriteCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleFileSystemWrite),
+        m_trkDevice->sendFileSystemWriteCommand(Coda::CodaCallback(this, &CodaClientApplication::handleFileSystemWrite),
                                                 m_remoteFileHandle, data, unsigned(pos));
     }
 }
 
 void CodaClientApplication::closeRemoteFile()
 {
-    m_trkDevice->sendFileSystemCloseCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleFileSystemClose),
+    m_trkDevice->sendFileSystemCloseCommand(Coda::CodaCallback(this, &CodaClientApplication::handleFileSystemClose),
                                             m_remoteFileHandle);
 }
 
-void CodaClientApplication::handleFileSystemWrite(const tcftrk::TcfTrkCommandResult &result)
+void CodaClientApplication::handleFileSystemWrite(const Coda::CodaCommandResult &result)
 {
     // Close remote file even if copy fails
     m_putWriteOk = result;
@@ -441,12 +441,12 @@ void CodaClientApplication::handleFileSystemWrite(const tcftrk::TcfTrkCommandRes
     }
 }
 
-void CodaClientApplication::handleFileSystemFStat(const tcftrk::TcfTrkCommandResult &result)
+void CodaClientApplication::handleFileSystemFStat(const Coda::CodaCommandResult &result)
 {
-    m_statFstatOk = result.type == tcftrk::TcfTrkCommandResult::SuccessReply;
+    m_statFstatOk = result.type == Coda::CodaCommandResult::SuccessReply;
     // Close remote file even if copy fails
     if (m_statFstatOk) {
-        const tcftrk::TcfTrkStatResponse statr = tcftrk::TcfTrkDevice::parseStat(result);
+        const Coda::CodaStatResponse statr = Coda::CodaDevice::parseStat(result);
         printTimeStamp();
         std::printf("File: %s\nSize: %llu bytes\nAccessed: %s\nModified: %s\n",
                     qPrintable(m_statRemoteFile), statr.size,
@@ -458,9 +458,9 @@ void CodaClientApplication::handleFileSystemFStat(const tcftrk::TcfTrkCommandRes
     closeRemoteFile();
 }
 
-void CodaClientApplication::handleFileSystemClose(const tcftrk::TcfTrkCommandResult &result)
+void CodaClientApplication::handleFileSystemClose(const Coda::CodaCommandResult &result)
 {
-    if (result.type == tcftrk::TcfTrkCommandResult::SuccessReply) {
+    if (result.type == Coda::CodaCommandResult::SuccessReply) {
         printTimeStamp();
         std::printf("File closed.\n");
         const bool ok = m_mode == Put ? m_putWriteOk : m_statFstatOk;
@@ -471,9 +471,9 @@ void CodaClientApplication::handleFileSystemClose(const tcftrk::TcfTrkCommandRes
     }
 }
 
-void CodaClientApplication::handleSymbianInstall(const tcftrk::TcfTrkCommandResult &result)
+void CodaClientApplication::handleSymbianInstall(const Coda::CodaCommandResult &result)
 {
-    if (result.type == tcftrk::TcfTrkCommandResult::SuccessReply) {
+    if (result.type == Coda::CodaCommandResult::SuccessReply) {
         printTimeStamp();
         std::printf("Installation succeeded\n.");
         doExit(0);
@@ -483,42 +483,42 @@ void CodaClientApplication::handleSymbianInstall(const tcftrk::TcfTrkCommandResu
     }
 }
 
-void CodaClientApplication::slotTcftrkEvent (const tcftrk::TcfTrkEvent &ev)
+void CodaClientApplication::slotCodaEvent (const Coda::CodaEvent &ev)
 {
     printTimeStamp();
     std::printf("Event: %s\n", qPrintable(ev.toString()));
     switch (ev.type()) {
-    case tcftrk::TcfTrkEvent::LocatorHello: // Commands accepted now
+    case Coda::CodaEvent::LocatorHello: // Commands accepted now
         switch (m_mode) {
         case Ping:
             break;
         case Launch:
-            m_trkDevice->sendProcessStartCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleCreateProcess),
+            m_trkDevice->sendProcessStartCommand(Coda::CodaCallback(this, &CodaClientApplication::handleCreateProcess),
                                                  m_launchBinary, m_launchUID, m_launchArgs, QString(), m_launchDebug);
             break;
         case Install:
             if (m_installSilently) {
-                m_trkDevice->sendSymbianInstallSilentInstallCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleSymbianInstall),
+                m_trkDevice->sendSymbianInstallSilentInstallCommand(Coda::CodaCallback(this, &CodaClientApplication::handleSymbianInstall),
                                                                     m_installSisFile.toAscii(), m_installTargetDrive.toAscii());
             } else {
-                m_trkDevice->sendSymbianInstallUIInstallCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleSymbianInstall),
+                m_trkDevice->sendSymbianInstallUIInstallCommand(Coda::CodaCallback(this, &CodaClientApplication::handleSymbianInstall),
                                                                 m_installSisFile.toAscii());
             }
             break;
         case Put: {
             const unsigned flags =
-                    tcftrk::TcfTrkDevice::FileSystem_TCF_O_WRITE
-                    |tcftrk::TcfTrkDevice::FileSystem_TCF_O_CREAT
-                    |tcftrk::TcfTrkDevice::FileSystem_TCF_O_TRUNC;
+                    Coda::CodaDevice::FileSystem_TCF_O_WRITE
+                    |Coda::CodaDevice::FileSystem_TCF_O_CREAT
+                    |Coda::CodaDevice::FileSystem_TCF_O_TRUNC;
             m_putWriteOk = false;
-            m_trkDevice->sendFileSystemOpenCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleFileSystemOpen),
+            m_trkDevice->sendFileSystemOpenCommand(Coda::CodaCallback(this, &CodaClientApplication::handleFileSystemOpen),
                                                    m_putRemoteFile.toAscii(), flags);
 }
             break;
         case Stat: {
-            const unsigned flags = tcftrk::TcfTrkDevice::FileSystem_TCF_O_READ;
+            const unsigned flags = Coda::CodaDevice::FileSystem_TCF_O_READ;
             m_statFstatOk = false;
-            m_trkDevice->sendFileSystemOpenCommand(tcftrk::TcfTrkCallback(this, &CodaClientApplication::handleFileSystemOpen),
+            m_trkDevice->sendFileSystemOpenCommand(Coda::CodaCallback(this, &CodaClientApplication::handleFileSystemOpen),
                                                    m_statRemoteFile.toAscii(), flags);
 }
             break;
@@ -526,18 +526,18 @@ void CodaClientApplication::slotTcftrkEvent (const tcftrk::TcfTrkEvent &ev)
             break;
         }
         break;
-    case tcftrk::TcfTrkEvent::RunControlModuleLoadSuspended:  {
+    case Coda::CodaEvent::RunControlModuleLoadSuspended:  {
         // Debug mode start: Continue:
-        const tcftrk::TcfTrkRunControlModuleLoadContextSuspendedEvent &me =
-                static_cast<const tcftrk::TcfTrkRunControlModuleLoadContextSuspendedEvent &>(ev);
+        const Coda::CodaRunControlModuleLoadContextSuspendedEvent &me =
+                static_cast<const Coda::CodaRunControlModuleLoadContextSuspendedEvent &>(ev);
         if (me.info().requireResume) {
             printTimeStamp();
             std::printf("Continuing...\n");
-            m_trkDevice->sendRunControlResumeCommand(tcftrk::TcfTrkCallback(), me.id());
+            m_trkDevice->sendRunControlResumeCommand(Coda::CodaCallback(), me.id());
         }
     }
         break;
-    case tcftrk::TcfTrkEvent::RunControlContextRemoved: // App terminated in debug mode
+    case Coda::CodaEvent::RunControlContextRemoved: // App terminated in debug mode
         doExit(0);
         break;
     default:
