@@ -420,9 +420,11 @@ private:
 
 private:
     Engine *_engine;
-    const Value *_prototype;
     QHash<QString, const Value *> _members;
     QString _className;
+
+protected:
+    const Value *_prototype;
 };
 
 class QMLJS_EXPORT PrototypeIterator
@@ -443,6 +445,8 @@ private:
     const Context *m_context;
 };
 
+// A ObjectValue based on a FakeMetaObject.
+// May only have other QmlObjectValues as ancestors.
 class QMLJS_EXPORT QmlObjectValue: public ObjectValue
 {
 public:
@@ -454,10 +458,14 @@ public:
     virtual void processMembers(MemberProcessor *processor) const;
     const Value *propertyValue(const LanguageUtils::FakeMetaProperty &prop) const;
 
+    using ObjectValue::prototype;
+    const QmlObjectValue *prototype() const;
+
+    LanguageUtils::FakeMetaObject::ConstPtr metaObject() const;
+
     QString packageName() const;
-    QString nameInPackage(const QString &packageName) const;
-    QString fullyQualifiedNameInPackage(const QString &packageName) const;
     LanguageUtils::ComponentVersion version() const;
+
     QString defaultPropertyName() const;
     QString propertyType(const QString &propertyName) const;
     bool isListProperty(const QString &name) const;
@@ -591,9 +599,7 @@ public:
 
     // parses the xml string and fills the newObjects map
     static QString parseQmlTypeDescriptions(const QByteArray &xml,
-                                   QHash<QString, LanguageUtils::FakeMetaObject::Ptr> *newObjects);
-private:
-    static void setSuperClasses(QHash<QString, LanguageUtils::FakeMetaObject::Ptr> *newObjects);
+                                   QHash<QString, LanguageUtils::FakeMetaObject::ConstPtr> *newObjects);
 };
 
 class QMLJS_EXPORT CppQmlTypes
@@ -621,16 +627,11 @@ public:
                                         LanguageUtils::ComponentVersion version) const;
 
 private:
-    void makeObject(Engine *engine,
-                    LanguageUtils::FakeMetaObject::ConstPtr metaObject,
-                    const LanguageUtils::FakeMetaObject::Export &exp,
-                    QList<LanguageUtils::FakeMetaObject::ConstPtr> *newObjects);
-    void setPrototypes(Engine *engine,
-                       LanguageUtils::FakeMetaObject::ConstPtr metaObject,
-                       const LanguageUtils::FakeMetaObject::Export &exp);
-    QmlObjectValue *getOrCreate(const QString &package, const QString &cppName,
-                                LanguageUtils::FakeMetaObject::ConstPtr metaObject,
-                                Engine *engine, bool *created);
+    QmlObjectValue *makeObject(Engine *engine,
+                               LanguageUtils::FakeMetaObject::ConstPtr metaObject,
+                               const LanguageUtils::FakeMetaObject::Export &exp);
+    void setPrototypes(QmlObjectValue *object);
+    QmlObjectValue *getOrCreate(const QString &package, const QString &cppName);
 
 
     QHash<QString, QList<QmlObjectValue *> > _typesByPackage;

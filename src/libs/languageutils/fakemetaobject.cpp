@@ -121,7 +121,6 @@ bool FakeMetaProperty::isPointer() const
 
 
 FakeMetaObject::FakeMetaObject()
-    : m_super(0)
 {
 }
 
@@ -143,16 +142,19 @@ void FakeMetaObject::addExport(const QString &name, const QString &package, Comp
 }
 QList<FakeMetaObject::Export> FakeMetaObject::exports() const
 { return m_exports; }
+FakeMetaObject::Export FakeMetaObject::exportInPackage(const QString &package) const
+{
+    foreach (const Export &exp, m_exports) {
+        if (exp.package == package)
+            return exp;
+    }
+    return Export();
+}
 
 void FakeMetaObject::setSuperclassName(const QString &superclass)
 { m_superName = superclass; }
 QString FakeMetaObject::superclassName() const
 { return m_superName; }
-
-void FakeMetaObject::setSuperclass(ConstPtr superClass)
-{ m_super = superClass; }
-FakeMetaObject::ConstPtr FakeMetaObject::superClass() const
-{ return m_super; }
 
 void FakeMetaObject::addEnum(const FakeMetaEnum &fakeEnum)
 { m_enumNameToIndex.insert(fakeEnum.name(), m_enums.size()); m_enums.append(fakeEnum); }

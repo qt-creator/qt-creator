@@ -27,7 +27,7 @@ TypeDescriptionReader::~TypeDescriptionReader()
 {
 }
 
-bool TypeDescriptionReader::operator()(QHash<QString, FakeMetaObject::Ptr> *objects)
+bool TypeDescriptionReader::operator()(QHash<QString, FakeMetaObject::ConstPtr> *objects)
 {
     QString fileName("typeDescription");
     Engine engine;

@@ -30,7 +30,7 @@ public:
     explicit TypeDescriptionReader(const QString &data);
     ~TypeDescriptionReader();
 
-    bool operator()(QHash<QString, LanguageUtils::FakeMetaObject::Ptr> *objects);
+    bool operator()(QHash<QString, LanguageUtils::FakeMetaObject::ConstPtr> *objects);
     QString errorMessage() const;
 
 private:
@@ -50,7 +50,7 @@ private:
 
     QString _source;
     QString _errorMessage;
-    QHash<QString, LanguageUtils::FakeMetaObject::Ptr> *_objects;
+    QHash<QString, LanguageUtils::FakeMetaObject::ConstPtr> *_objects;
 };
 
 } // namespace QmlJS

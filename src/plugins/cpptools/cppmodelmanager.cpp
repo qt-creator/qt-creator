@@ -1551,7 +1551,6 @@ static void populate(LanguageUtils::FakeMetaObject::Ptr fmo, Class *klass,
             baseFmo = FakeMetaObject::Ptr(new FakeMetaObject);
             populate(baseFmo, baseClass, classes, typeOf);
         }
-        fmo->setSuperclass(baseFmo);
     }
 }
 

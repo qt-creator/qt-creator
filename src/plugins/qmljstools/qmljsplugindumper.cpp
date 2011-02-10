@@ -139,16 +139,11 @@ static QString qmldumpFailedMessage(const QString &error)
 static QList<FakeMetaObject::ConstPtr> parseHelper(const QByteArray &qmlTypeDescriptions, QString *error)
 {
     QList<FakeMetaObject::ConstPtr> ret;
-    QHash<QString, FakeMetaObject::Ptr> newObjects;
+    QHash<QString, FakeMetaObject::ConstPtr> newObjects;
     *error = Interpreter::CppQmlTypesLoader::parseQmlTypeDescriptions(qmlTypeDescriptions, &newObjects);
 
     if (error->isEmpty()) {
-        // convert from QList<T *> to QList<const T *>
-        QHashIterator<QString, FakeMetaObject::Ptr> it(newObjects);
-        while (it.hasNext()) {
-            it.next();
-            ret.append(it.value());
-        }
+        ret = newObjects.values();
     }
     return ret;
 }

@@ -52,6 +52,7 @@
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/parser/qmljsast_p.h>
+#include <languageutils/fakemetaobject.h>
 #include <private/qdeclarativemetatype_p.h>
 #include <private/qdeclarativestringconverters_p.h>
 
@@ -658,7 +659,9 @@ bool NodeMetaInfoPrivate::cleverCheckType(const QString &otherType) const
     if (packageName() == package)
         return QString(package + "/" + typeName) == qualfiedTypeName();
 
-    const QString convertedName = getQmlObjectValue()->nameInPackage(package);
+    const LanguageUtils::FakeMetaObject::Export exp =
+            getQmlObjectValue()->metaObject()->exportInPackage(package);
+    const QString convertedName = exp.type;
         return QString(package + "/" + typeName) == QString(package + "/" + convertedName);
 }
 

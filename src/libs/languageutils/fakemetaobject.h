@@ -135,12 +135,13 @@ public:
         QString type;
         ComponentVersion version;
         QString packageNameVersion;
+
+        bool isValid() const;
     };
 
 private:
     QString m_className;
     QList<Export> m_exports;
-    ConstPtr m_super;
     QString m_superName;
     QList<FakeMetaEnum> m_enums;
     QHash<QString, int> m_enumNameToIndex;
@@ -158,11 +159,10 @@ public:
 
     void addExport(const QString &name, const QString &package, ComponentVersion version);
     QList<Export> exports() const;
+    Export exportInPackage(const QString &package) const;
 
     void setSuperclassName(const QString &superclass);
     QString superclassName() const;
-    void setSuperclass(ConstPtr superClass);
-    ConstPtr superClass() const;
 
     void addEnum(const FakeMetaEnum &fakeEnum);
     int enumeratorCount() const;
