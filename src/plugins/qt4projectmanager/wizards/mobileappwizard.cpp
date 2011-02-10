@@ -39,10 +39,6 @@
 
 #include "qt4projectmanagerconstants.h"
 
-#include <projectexplorer/customwizard/customwizard.h>
-#include <projectexplorer/projectexplorer.h>
-#include <coreplugin/editormanager/editormanager.h>
-
 #include <QtCore/QCoreApplication>
 #include <QtGui/QIcon>
 
@@ -123,10 +119,9 @@ void MobileAppWizard::prepareGenerateFiles(const QWizard *w,
     Q_UNUSED(errorMessage)
 }
 
-bool MobileAppWizard::postGenerateFilesInternal(const Core::GeneratedFiles &l,
-    QString *errorMessage)
+QString MobileAppWizard::fileToOpenPostGeneration() const
 {
-    return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
+    return QString();
 }
 
 AbstractMobileApp *MobileAppWizard::app() const

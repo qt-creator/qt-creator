@@ -40,11 +40,6 @@
 
 #include "qt4projectmanagerconstants.h"
 
-#include <projectexplorer/baseprojectwizarddialog.h>
-#include <projectexplorer/customwizard/customwizard.h>
-#include <projectexplorer/projectexplorer.h>
-#include <coreplugin/editormanager/editormanager.h>
-
 #include <QtCore/QCoreApplication>
 #include <QtGui/QIcon>
 
@@ -152,16 +147,9 @@ void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,
     }
 }
 
-bool QtQuickAppWizard::postGenerateFilesInternal(const Core::GeneratedFiles &l,
-    QString *errorMessage)
+QString QtQuickAppWizard::fileToOpenPostGeneration() const
 {
-    const bool success = ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
-    const QString mainQmlFile = m_d->app->path(QtQuickApp::MainQml);
-    if (success && !mainQmlFile.isEmpty()) {
-        ProjectExplorer::ProjectExplorerPlugin::instance()->setCurrentFile(0, mainQmlFile);
-        Core::EditorManager::instance()->openEditor(mainQmlFile, QString(), Core::EditorManager::ModeSwitch);
-    }
-    return success;
+    return m_d->app->path(QtQuickApp::MainQml);
 }
 
 AbstractMobileApp *QtQuickAppWizard::app() const

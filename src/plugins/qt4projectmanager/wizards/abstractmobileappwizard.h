@@ -88,6 +88,9 @@ protected:
 private slots:
     void useProjectPath(const QString &projectName, const QString &projectPath);
 
+protected:
+    virtual QString fileToOpenPostGeneration() const = 0;
+
 private:
     virtual QWizard *createWizardDialog(QWidget *parent,
         const QString &defaultPath, const WizardPageList &extensionPages) const;
@@ -102,8 +105,6 @@ private:
     virtual void projectPathChanged(const QString &path) const=0;
     virtual void prepareGenerateFiles(const QWizard *wizard,
         QString *errorMessage) const=0;
-    virtual bool postGenerateFilesInternal(const Core::GeneratedFiles &l,
-        QString *errorMessage)=0;
 };
 
 } // namespace Internal

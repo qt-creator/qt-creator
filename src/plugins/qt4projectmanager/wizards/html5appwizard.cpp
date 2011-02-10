@@ -40,11 +40,6 @@
 
 #include "qt4projectmanagerconstants.h"
 
-#include <projectexplorer/baseprojectwizarddialog.h>
-#include <projectexplorer/customwizard/customwizard.h>
-#include <projectexplorer/projectexplorer.h>
-#include <coreplugin/editormanager/editormanager.h>
-
 #include <QtCore/QCoreApplication>
 #include <QtGui/QIcon>
 
@@ -134,16 +129,11 @@ void Html5AppWizard::prepareGenerateFiles(const QWizard *w,
                           wizard->m_htmlSourcesPage->mainHtmlData());
 }
 
-bool Html5AppWizard::postGenerateFilesInternal(const Core::GeneratedFiles &l,
-    QString *errorMessage)
+QString Html5AppWizard::fileToOpenPostGeneration() const
 {
-    const bool success = ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
-    const QString mainHtmlFile = m_d->app->path(Html5App::MainHtml);
-    if (success && !mainHtmlFile.isEmpty()) {
-        ProjectExplorer::ProjectExplorerPlugin::instance()->setCurrentFile(0, mainHtmlFile);
-        Core::EditorManager::instance()->openEditor(mainHtmlFile, QString(), Core::EditorManager::ModeSwitch);
-    }
-    return success;
+    return m_d->app->mainHtmlMode() == Html5App::ModeUrl ?
+                m_d->app->path(AbstractMobileApp::MainCpp)
+              : m_d->app->path(Html5App::MainHtml);
 }
 
 AbstractMobileApp *Html5AppWizard::app() const

@@ -47,6 +47,9 @@ public:
     Html5AppWizard();
     virtual ~Html5AppWizard();
 
+protected:
+    QString fileToOpenPostGeneration() const;
+
 private:
     static Core::BaseFileWizardParameters parameters();
 
@@ -56,8 +59,6 @@ private:
     virtual void projectPathChanged(const QString &path) const;
     virtual void prepareGenerateFiles(const QWizard *wizard,
         QString *errorMessage) const;
-    virtual bool postGenerateFilesInternal(const Core::GeneratedFiles &l,
-        QString *errorMessage);
 
     class Html5AppWizardPrivate *m_d;
 };

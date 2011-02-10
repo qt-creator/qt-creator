@@ -41,6 +41,9 @@
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4projectmanager.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/customwizard/customwizard.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <QtGui/QIcon>
 
@@ -196,10 +199,27 @@ Core::GeneratedFiles AbstractMobileAppWizard::generateFiles(const QWizard *wizar
     return app()->generateFiles(errorMessage);
 }
 
+// TODO remove this workaround:
+// SessionManager::projectContainsFile() incorrectly returns false if the
+// file name in the .pro file (and thus also in m_projectFileCache)
+// contains relative path segments ("../").
+inline static QString fileInCurrentProject(const QString &file)
+{
+    const QStringList filesInProject =
+            ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject()->files(
+                ProjectExplorer::Project::ExcludeGeneratedFiles);
+    foreach (const QString &uncleanFile, filesInProject)
+        if (QDir::cleanPath(uncleanFile) == file)
+            return uncleanFile;
+    return QString();
+}
+
 bool AbstractMobileAppWizard::postGenerateFiles(const QWizard *w,
     const Core::GeneratedFiles &l, QString *errorMessage)
 {
-    Q_UNUSED(w);
+    Q_UNUSED(w)
+    Q_UNUSED(l)
+    Q_UNUSED(errorMessage)
     Qt4Manager * const manager
         = ExtensionSystem::PluginManager::instance()->getObject<Qt4Manager>();
     Q_ASSERT(manager);
@@ -207,7 +227,14 @@ bool AbstractMobileAppWizard::postGenerateFiles(const QWizard *w,
     bool success = wizardDialog()->m_targetsPage->setupProject(&project);
     if (success) {
         project.saveSettings();
-        success = postGenerateFilesInternal(l, errorMessage);
+        success = ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
+        if (success) {
+            const QString fileToOpen = fileInCurrentProject(fileToOpenPostGeneration());
+            if (!fileToOpen.isEmpty()) {
+                Core::EditorManager::instance()->openEditor(fileToOpen, QString(), Core::EditorManager::ModeSwitch);
+                ProjectExplorer::ProjectExplorerPlugin::instance()->setCurrentFile(0, fileToOpen);
+            }
+        }
     }
     return success;
 }
