@@ -69,6 +69,9 @@
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextDocument>
 
+#include <QtScript/QScriptEngine>
+#include <QtScript/QScriptValue>
+
 #include <QtNetwork/QHostAddress>
 
 #include <deque>
@@ -2061,12 +2064,14 @@ void testStuff()
     Ty x;
     x.doit();
     char *s = x.m_buffer.GetStringPtr();
+    Q_UNUSED(s);
 }
 
 void testStuff3()
 {
     typedef unsigned char byte;
     byte f = '2';
+    Q_UNUSED(f);
     testConditional("foo");
     testConditional(fooxx());
     testConditional("bar");
@@ -2186,7 +2191,6 @@ void testSSE()
 #endif
 }
 
-
 void testQSettings()
 {
     // Note: Construct a QCoreApplication first.
@@ -2194,6 +2198,18 @@ void testQSettings()
     QVariant value = settings.value("item1","").toString();
     int x = 1;
     Q_UNUSED(x);
+}
+
+void testQScriptValue(int argc, char *argv[])
+{
+    QCoreApplication app(argc, argv);
+    QScriptEngine engine;
+    QDateTime date = QDateTime::currentDateTime();
+    QVariant var;
+    QScriptValue s = engine.newDate(date);
+    s = engine.newVariant(var);
+    s.setProperty("a", QScriptValue());
+    QScriptValue d = s.data();
 }
 
 int main(int argc, char *argv[])
@@ -2279,6 +2295,7 @@ int main(int argc, char *argv[])
     testQSharedPointer();
 #    endif
     testQStringList();
+    testQScriptValue(argc, argv);
     testStruct();
     //testQThread();
     testQVariant1();
