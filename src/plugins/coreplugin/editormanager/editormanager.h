@@ -184,11 +184,6 @@ public:
     EditorFactoryList editorFactories(const MimeType &mimeType, bool bestMatchOnly = true) const;
     ExternalEditorList externalEditors(const MimeType &mimeType, bool bestMatchOnly = true) const;
 
-    void setExternalEditor(const QString &);
-    QString externalEditor() const;
-    QString defaultExternalEditor() const;
-    QString externalEditorHelpText() const;
-
     void setReloadSetting(IFile::ReloadSetting behavior);
     IFile::ReloadSetting reloadSetting() const;
 
@@ -212,7 +207,6 @@ signals:
 
 public slots:
     bool closeAllEditors(bool askAboutModifiedEditors = true);
-    void openInExternalEditor();
 
     bool saveFile(Core::IFile *file = 0);
     bool saveFileAs(Core::IFile *file = 0);

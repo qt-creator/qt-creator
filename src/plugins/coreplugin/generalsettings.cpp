@@ -125,8 +125,8 @@ void GeneralSettings::fillLanguageBox() const
 QWidget *GeneralSettings::createPage(QWidget *parent)
 {
     m_page = new Ui::GeneralSettings();
-    QWidget *w = new QWidget(parent);
-    m_page->setupUi(w);
+    m_widget = new QWidget(parent);
+    m_page->setupUi(m_widget);
 
     QSettings* settings = Core::ICore::instance()->settings();
     Q_UNUSED(settings) // Windows
@@ -134,7 +134,6 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     fillLanguageBox();
 
     m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
-    m_page->externalEditorEdit->setText(EditorManager::instance()->externalEditor());
     m_page->reloadBehavior->setCurrentIndex(EditorManager::instance()->reloadSetting());
 #ifdef Q_OS_UNIX
     m_page->terminalEdit->setText(ConsoleProcess::terminalEmulator(settings));
@@ -155,10 +154,6 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
 
     connect(m_page->resetButton, SIGNAL(clicked()),
             this, SLOT(resetInterfaceColor()));
-    connect(m_page->resetEditorButton, SIGNAL(clicked()),
-            this, SLOT(resetExternalEditor()));
-    connect(m_page->helpExternalEditorButton, SIGNAL(clicked()),
-            this, SLOT(showHelpForExternalEditor()));
 #ifdef Q_OS_UNIX
     connect(m_page->resetTerminalButton, SIGNAL(clicked()),
             this, SLOT(resetTerminal()));
@@ -178,11 +173,10 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
                 << m_page->languageLabel->text() << sep
                 << m_page->systemBox->title() << sep
                 << m_page->terminalLabel->text() << sep
-                << m_page->editorLabel->text() << sep
                 << m_page->modifiedLabel->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
-    return w;
+    return m_widget;
 }
 
 bool GeneralSettings::matches(const QString &s) const
@@ -198,7 +192,6 @@ void GeneralSettings::apply()
     setLanguage(m_page->languageBox->itemData(currentIndex, Qt::UserRole).toString());
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_page->colorButton->color());
-    EditorManager::instance()->setExternalEditor(m_page->externalEditorEdit->text());
     EditorManager::instance()->setReloadSetting(IFile::ReloadSetting(m_page->reloadBehavior->currentIndex()));
 #ifdef Q_OS_UNIX
     ConsoleProcess::setTerminalEmulator(Core::ICore::instance()->settings(),
@@ -220,11 +213,6 @@ void GeneralSettings::finish()
 void GeneralSettings::resetInterfaceColor()
 {
     m_page->colorButton->setColor(StyleHelper::DEFAULT_BASE_COLOR);
-}
-
-void GeneralSettings::resetExternalEditor()
-{
-    m_page->externalEditorEdit->setText(EditorManager::instance()->defaultExternalEditor());
 }
 
 #ifdef Q_OS_UNIX
@@ -257,17 +245,12 @@ void GeneralSettings::variableHelpDialogCreator(const QString &helpText)
                                   tr("Variables"),
                                   helpText,
                                   QMessageBox::Close,
-                                  m_page->helpExternalEditorButton);
+                                  m_widget);
     mb->setWindowModality(Qt::NonModal);
     m_dialog = mb;
     mb->show();
 }
 
-
-void GeneralSettings::showHelpForExternalEditor()
-{
-    variableHelpDialogCreator(EditorManager::instance()->externalEditorHelpText());
-}
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
 void GeneralSettings::showHelpForFileBrowser()

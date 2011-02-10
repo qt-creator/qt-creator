@@ -200,7 +200,6 @@ struct EditorManagerPrivate {
     QAction *m_gotoPreviousDocHistoryAction;
     QAction *m_goBackAction;
     QAction *m_goForwardAction;
-    QAction *m_openInExternalEditorAction;
     QAction *m_splitAction;
     QAction *m_splitSideBySideAction;
     QAction *m_removeCurrentSplitAction;
@@ -214,7 +213,6 @@ struct EditorManagerPrivate {
     Internal::OpenEditorsViewFactory *m_openEditorsFactory;
 
     OpenEditorsModel *m_editorModel;
-    QString m_externalEditor;
 
     IFile::ReloadSetting m_reloadSetting;
     IFile::Utf8BomSetting m_utf8BomSetting;
@@ -237,7 +235,6 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_gotoPreviousDocHistoryAction(new QAction(EditorManager::tr("Previous Open Document in History"), parent)),
     m_goBackAction(new QAction(QIcon(QLatin1String(Constants::ICON_PREV)), EditorManager::tr("Go Back"), parent)),
     m_goForwardAction(new QAction(QIcon(QLatin1String(Constants::ICON_NEXT)), EditorManager::tr("Go Forward"), parent)),
-    m_openInExternalEditorAction(new QAction(EditorManager::tr("Open in External Editor"), parent)),
     m_windowPopup(0),
     m_coreListener(0),
     m_reloadSetting(IFile::AlwaysAsk),
@@ -435,11 +432,6 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Editor"), editManagerContext);
     advancedMenu->addAction(cmd, Constants::G_EDIT_EDITOR);
 
-    cmd = am->registerAction(m_d->m_openInExternalEditorAction, Constants::OPEN_IN_EXTERNAL_EDITOR, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Alt+V,Alt+I")));
-    advancedMenu->addAction(cmd, Constants::G_EDIT_EDITOR);
-    connect(m_d->m_openInExternalEditorAction, SIGNAL(triggered()), this, SLOT(openInExternalEditor()));
-
     // other setup
     m_d->m_splitter = new SplitterOrView(m_d->m_editorModel);
     m_d->m_view = m_d->m_splitter->view();
@@ -486,19 +478,6 @@ void EditorManager::init()
 EditorToolBar *EditorManager::createToolBar(QWidget *parent)
 {
     return new EditorToolBar(parent);
-}
-
-QString EditorManager::defaultExternalEditor() const
-{
-#ifdef Q_OS_UNIX
-    return ConsoleProcess::defaultTerminalEmulator() + QLatin1String(
-# ifdef Q_OS_MAC
-            " -async"
-# endif
-            " -geom %Wx%H+%x+%y -e vi %f +%l +\"normal %c|\"");
-#else
-    return QLatin1String("notepad %f");
-#endif
 }
 
 void EditorManager::removeEditor(IEditor *editor)
@@ -1628,8 +1607,6 @@ void EditorManager::updateActions()
     m_d->m_removeCurrentSplitAction->setEnabled(hasSplitter);
     m_d->m_removeAllSplitsAction->setEnabled(hasSplitter);
     m_d->m_gotoOtherSplitAction->setEnabled(hasSplitter);
-
-    m_d->m_openInExternalEditorAction->setEnabled(curEditor != 0);
 }
 
 bool EditorManager::hasSplitter() const
@@ -1811,7 +1788,6 @@ bool EditorManager::restoreState(const QByteArray &state)
 }
 
 static const char * const documentStatesKey = "EditorManager/DocumentStates";
-static const char * const externalEditorKey = "EditorManager/ExternalEditorCommand";
 static const char * const reloadBehaviorKey = "EditorManager/ReloadBehavior";
 static const char * const utf8BomBehaviorKey = "EditorManager/Utf8BomBehavior";
 
@@ -1819,7 +1795,6 @@ void EditorManager::saveSettings()
 {
     SettingsDatabase *settings = m_d->m_core->settingsDatabase();
     settings->setValue(QLatin1String(documentStatesKey), m_d->m_editorStates);
-    settings->setValue(QLatin1String(externalEditorKey), m_d->m_externalEditor);
     settings->setValue(QLatin1String(reloadBehaviorKey), m_d->m_reloadSetting);
     settings->setValue(QLatin1String(utf8BomBehaviorKey), m_d->m_utf8BomSetting);
 }
@@ -1833,17 +1808,11 @@ void EditorManager::readSettings()
             .value<QMap<QString, QVariant> >();
         qs->remove(QLatin1String(documentStatesKey));
     }
-    if (qs->contains(QLatin1String(externalEditorKey))) {
-        m_d->m_externalEditor = qs->value(QLatin1String(externalEditorKey)).toString();
-        qs->remove(QLatin1String(externalEditorKey));
-    }
 
     SettingsDatabase *settings = m_d->m_core->settingsDatabase();
     if (settings->contains(QLatin1String(documentStatesKey)))
         m_d->m_editorStates = settings->value(QLatin1String(documentStatesKey))
             .value<QMap<QString, QVariant> >();
-    if (settings->contains(QLatin1String(externalEditorKey)))
-        m_d->m_externalEditor = settings->value(QLatin1String(externalEditorKey)).toString();
 
     if (settings->contains(QLatin1String(reloadBehaviorKey)))
         m_d->m_reloadSetting = (IFile::ReloadSetting)settings->value(QLatin1String(reloadBehaviorKey)).toInt();
@@ -1905,106 +1874,6 @@ void EditorManager::showEditorStatusBar(const QString &id,
 void EditorManager::hideEditorStatusBar(const QString &id)
 {
     currentEditorView()->hideEditorStatusBar(id);
-}
-
-QString EditorManager::externalEditorHelpText() const
-{
-    QString help = tr(
-            "<table border=1 cellspacing=0 cellpadding=3>"
-            "<tr><th>Variable</th><th>Expands to</th></tr>"
-            "<tr><td>%f</td><td>file name</td></tr>"
-            "<tr><td>%l</td><td>current line number</td></tr>"
-            "<tr><td>%c</td><td>current column number</td></tr>"
-            "<tr><td>%x</td><td>editor's x position on screen</td></tr>"
-            "<tr><td>%y</td><td>editor's y position on screen</td></tr>"
-            "<tr><td>%w</td><td>editor's width in pixels</td></tr>"
-            "<tr><td>%h</td><td>editor's height in pixels</td></tr>"
-            "<tr><td>%W</td><td>editor's width in characters</td></tr>"
-            "<tr><td>%H</td><td>editor's height in characters</td></tr>"
-            "<tr><td>%%</td><td>%</td></tr>"
-            "</table>");
-    return help;
-}
-
-void EditorManager::openInExternalEditor()
-{
-    QString command = m_d->m_externalEditor;
-    if (command.isEmpty())
-        command = defaultExternalEditor();
-
-    if (command.isEmpty())
-        return;
-
-    IEditor *editor = currentEditor();
-    if (!editor)
-        return;
-    if (editor->file()->isModified()) {
-        bool cancelled = false;
-        QList<IFile*> list = m_d->m_core->fileManager()->
-                             saveModifiedFiles(QList<IFile*>() << editor->file(), &cancelled);
-        if (cancelled)
-            return;
-    }
-
-    QRect rect = editor->widget()->rect();
-    QFont font = editor->widget()->font();
-    QFontMetrics fm(font);
-    rect.moveTo(editor->widget()->mapToGlobal(QPoint(0,0)));
-
-    QString pre = command;
-    QString cmd;
-    for (int i = 0; i < pre.size(); ++i) {
-        QChar c = pre.at(i);
-        if (c == QLatin1Char('%') && i < pre.size()-1) {
-            c = pre.at(++i);
-            QString s;
-            if (c == QLatin1Char('f'))
-                s = editor->file()->fileName();
-            else if (c == QLatin1Char('l'))
-                s = QString::number(editor->currentLine());
-            else if (c == QLatin1Char('c'))
-                s = QString::number(editor->currentColumn());
-            else if (c == QLatin1Char('x'))
-                s = QString::number(rect.x());
-            else if (c == QLatin1Char('y'))
-                s = QString::number(rect.y());
-            else if (c == QLatin1Char('w'))
-                s = QString::number(rect.width());
-            else if (c == QLatin1Char('h'))
-                s = QString::number(rect.height());
-            else if (c == QLatin1Char('W'))
-                s = QString::number(rect.width() / fm.width(QLatin1Char('x')));
-            else if (c == QLatin1Char('H'))
-                s = QString::number(rect.height() / fm.lineSpacing());
-            else if (c == QLatin1Char('%'))
-                s = c;
-            else {
-                s = QLatin1Char('%');
-                s += c;
-            }
-            cmd += s;
-            continue;
-
-        }
-        cmd += c;
-    }
-
-    QProcess::startDetached(cmd);
-}
-
-void EditorManager::setExternalEditor(const QString &editor)
-{
-    if (editor.isEmpty() || editor == defaultExternalEditor())
-        m_d->m_externalEditor = defaultExternalEditor();
-    else
-        m_d->m_externalEditor = editor;
-}
-
-QString EditorManager::externalEditor() const
-{
-    if (m_d->m_externalEditor.isEmpty())
-        return defaultExternalEditor();
-    return m_d->m_externalEditor;
 }
 
 void EditorManager::setReloadSetting(IFile::ReloadSetting behavior)

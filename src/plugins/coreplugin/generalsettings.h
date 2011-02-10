@@ -67,9 +67,7 @@ public:
 
 private slots:
     void resetInterfaceColor();
-    void resetExternalEditor();
     void resetLanguage();
-    void showHelpForExternalEditor();
 #ifdef Q_OS_UNIX
 #  ifndef Q_OS_MAC
     void showHelpForFileBrowser();
@@ -86,6 +84,7 @@ private:
     Ui::GeneralSettings *m_page;
     QString m_searchKeywords;
     QPointer<QMessageBox> m_dialog;
+    QPointer<QWidget> m_widget;
 };
 
 } // namespace Internal
