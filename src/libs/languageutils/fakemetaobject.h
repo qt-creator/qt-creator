@@ -129,7 +129,7 @@ public:
     typedef QSharedPointer<FakeMetaObject> Ptr;
     typedef QSharedPointer<const FakeMetaObject> ConstPtr;
 
-    class Export {
+    class LANGUAGEUTILS_EXPORT Export {
     public:
         QString package;
         QString type;
