@@ -2335,6 +2335,65 @@ def qdump____m128(d, item):
 
 #######################################################################
 #
+# Webkit
+#
+#######################################################################
+
+
+def jstagAsString(tag):
+    # enum { Int32Tag =        0xffffffff };
+    # enum { CellTag =         0xfffffffe };
+    # enum { TrueTag =         0xfffffffd };
+    # enum { FalseTag =        0xfffffffc };
+    # enum { NullTag =         0xfffffffb };
+    # enum { UndefinedTag =    0xfffffffa };
+    # enum { EmptyValueTag =   0xfffffff9 };
+    # enum { DeletedValueTag = 0xfffffff8 };
+    if tag == -1:
+        return "Int32"
+    if tag == -2:
+        return "Cell"
+    if tag == -3:
+        return "True"
+    if tag == -4:
+        return "Null"
+    if tag == -5:
+        return "Undefined"
+    if tag == -6:
+        return "Empty"
+    if tag == -7:
+        return "Deleted"
+    return "Unknown"
+
+
+def qdump__QTJSC__JSValue(d, item):
+    d.putValue(" ")
+    d.putNumChild(1)
+    if d.isExpanded(item):
+        with Children(d):
+            tag = item.value["u"]["asBits"]["tag"]
+            payload = item.value["u"]["asBits"]["payload"]
+            #d.putIntItem("tag", tag)
+            with SubItem(d):
+                d.putName("tag")
+                d.putValue(jstagAsString(long(tag)))
+                d.putType(" ")
+                d.putNumChild(0)
+            if tag == -2:
+                cellType = lookupType("QTJSC::JSCell").pointer()
+                d.putSubItem(Item(payload.cast(cellType), item.iname, "cell", "cell"))
+                #with SubItem(d):
+                #    d.putName("cell")
+                #    d.putValue(payload.cast(cellType))
+                #    d.putType("QTJSC::JSCell*")
+                #    d.putNumChild(1)
+
+            d.putIntItem("payload", long(payload))
+            d.putFields(Item(data, item.iname))
+
+
+#######################################################################
+#
 # Display Test
 #
 #######################################################################
