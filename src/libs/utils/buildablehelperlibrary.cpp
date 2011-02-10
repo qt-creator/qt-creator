@@ -266,7 +266,7 @@ bool BuildableHelperLibrary::buildHelper(const QString &helperName, const QStrin
     proc.setProcessChannelMode(QProcess::MergedChannels);
 
     output->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                          "Building helper library '%1' in %2\n").arg(helperName, directory));
+                                          "Building helper '%1' in %2\n").arg(helperName, directory));
     output->append(newline);
 
     const QString makeFullPath = env.searchInPath(makeCommand);
@@ -282,9 +282,6 @@ bool BuildableHelperLibrary::buildHelper(const QString &helperName, const QStrin
         if (!runBuildProcess(proc, makeFullPath, QStringList(cleanTarget), 30000, true, output, errorMessage))
             return false;
     }
-    output->append(newline);
-    output->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary", "Running %1 ...\n").arg(qmakeCommand));
-
     QStringList qmakeArgs;
     if (!targetMode.isEmpty())
         qmakeArgs << targetMode;
@@ -292,6 +289,11 @@ bool BuildableHelperLibrary::buildHelper(const QString &helperName, const QStrin
         qmakeArgs << QLatin1String("-spec") << mkspec;
     qmakeArgs << proFilename;
     qmakeArgs << qmakeArguments;
+
+    output->append(newline);
+    output->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary", "Running %1 %2 ...\n").arg(qmakeCommand,
+                                                                                                                     qmakeArgs.join(" ")));
+
     if (!runBuildProcess(proc, qmakeCommand, qmakeArgs, 30000, false, output, errorMessage))
         return false;
     output->append(newline);
