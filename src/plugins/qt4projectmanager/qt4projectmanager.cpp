@@ -76,6 +76,8 @@ using ProjectExplorer::FormType;
 using ProjectExplorer::ResourceType;
 using ProjectExplorer::UnknownFileType;
 
+static const char * const kInstallBins = "CurrentProject:QT_INSTALL_BINS";
+
 // Known file types of a Qt 4 project
 static const char* qt4FileTypes[] = {
     "CppHeaderFiles",
@@ -134,7 +136,10 @@ void Qt4Manager::init()
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(editorChanged(Core::IEditor*)));
 
-    connect(Core::VariableManager::instance(), SIGNAL(variableUpdateRequested(QString)),
+    Core::VariableManager *vm = Core::VariableManager::instance();
+    vm->registerVariable(QLatin1String(kInstallBins),
+        tr("Full path to the bin/ install directory of the current project's Qt version."));
+    connect(vm, SIGNAL(variableUpdateRequested(QString)),
             this, SLOT(updateVariable(QString)));
 }
 
@@ -179,7 +184,6 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
 
 void Qt4Manager::updateVariable(const QString &variable)
 {
-    static const char * const kInstallBins = "QT_INSTALL_BINS";
     if (variable == QLatin1String(kInstallBins)) {
         Qt4Project *qt4pro = qobject_cast<Qt4Project *>(projectExplorer()->currentProject());
         if (!qt4pro) {

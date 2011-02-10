@@ -57,6 +57,7 @@
 #include "progressview.h"
 #include "shortcutsettings.h"
 #include "vcsmanager.h"
+#include "variablechooser.h"
 
 #include "scriptmanager_p.h"
 #include "settingsdialog.h"

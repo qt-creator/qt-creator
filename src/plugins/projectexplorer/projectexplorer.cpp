@@ -129,6 +129,9 @@ namespace {
 bool debug = false;
 }
 
+static const char * const kCurrentProjectPath = "CurrentProject:Path";
+static const char * const kCurrentProjectFilePath = "CurrentProject:FilePath";
+
 namespace ProjectExplorer {
 
 struct ProjectExplorerPluginPrivate {
@@ -899,7 +902,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     updateWelcomePage();
 
-    connect(Core::VariableManager::instance(), SIGNAL(variableUpdateRequested(QString)),
+    Core::VariableManager *vm = Core::VariableManager::instance();
+    vm->registerVariable(QLatin1String(kCurrentProjectFilePath),
+        tr("Full path of the current project's main file, including file name."));
+    vm->registerVariable(QLatin1String(kCurrentProjectPath),
+        tr("Full path of the current project's main file, excluding file name."));
+    connect(vm, SIGNAL(variableUpdateRequested(QString)),
             this, SLOT(updateVariable(QString)));
 
     return true;
@@ -1001,8 +1009,6 @@ void ProjectExplorerPlugin::loadCustomWizards()
 
 void ProjectExplorerPlugin::updateVariable(const QString &variable)
 {
-    static const char * const kCurrentProjectPath= "CurrentProject:Path";
-    static const char * const kCurrentProjectFilePath= "CurrentProject:FilePath";
     if (variable == QLatin1String(kCurrentProjectFilePath)) {
         if (currentProject() && currentProject()->file()) {
             Core::VariableManager::instance()->insert(variable,

@@ -38,7 +38,7 @@
     <category xml:lang="de">Linguist</category>
     <order>1</order>
     <executable>
-        <path>%{QT_INSTALL_BINS}/lupdate</path>
+        <path>%{CurrentProject:QT_INSTALL_BINS}/lupdate</path>
         <path>lupdate</path>
         <arguments>%{CurrentProject:FilePath}</arguments>
         <workingdirectory>%{CurrentProject:Path}</workingdirectory>

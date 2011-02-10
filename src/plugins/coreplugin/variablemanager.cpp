@@ -63,6 +63,7 @@ class VariableManagerPrivate : public QObject
 public:
     QHash<QString, QString> m_map;
     VMMapExpander m_macroExpander;
+    QMap<QString, QString> m_descriptions;
     static VariableManager *m_instance;
 };
 
@@ -111,6 +112,21 @@ Utils::AbstractMacroExpander *VariableManager::macroExpander()
 VariableManager* VariableManager::instance()
 {
     return VariableManagerPrivate::m_instance;
+}
+
+void VariableManager::registerVariable(const QString &variable, const QString &description)
+{
+    d->m_descriptions.insert(variable, description);
+}
+
+QList<QString> VariableManager::variables() const
+{
+    return d->m_descriptions.keys();
+}
+
+QString VariableManager::variableDescription(const QString &variable) const
+{
+    return d->m_descriptions.value(variable);
 }
 
 } // namespace Core

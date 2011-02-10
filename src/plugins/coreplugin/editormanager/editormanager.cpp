@@ -86,6 +86,11 @@
 
 enum { debugEditorManager=0 };
 
+static const char * const kCurrentDocumentFilePath = "CurrentDocument:FilePath";
+static const char * const kCurrentDocumentPath = "CurrentDocument:Path";
+static const char * const kCurrentDocumentXPos = "CurrentDocument:XPos";
+static const char * const kCurrentDocumentYPos = "CurrentDocument:YPos";
+
 static inline ExtensionSystem::PluginManager *pluginManager()
 {
     return ExtensionSystem::PluginManager::instance();
@@ -470,7 +475,16 @@ void EditorManager::init()
     m_d->m_openEditorsFactory = new OpenEditorsViewFactory();
     pluginManager()->addObject(m_d->m_openEditorsFactory);
 
-    connect(VariableManager::instance(), SIGNAL(variableUpdateRequested(QString)),
+    VariableManager *vm = VariableManager::instance();
+    vm->registerVariable(QLatin1String(kCurrentDocumentFilePath),
+        tr("Full path of the current document including file name."));
+    vm->registerVariable(QLatin1String(kCurrentDocumentPath),
+        tr("Full path of the current document excluding file name."));
+    vm->registerVariable(QLatin1String(kCurrentDocumentXPos),
+        tr("X-coordinate of the current editor's upper left corner, relative to screen."));
+    vm->registerVariable(QLatin1String(kCurrentDocumentYPos),
+        tr("Y-coordinate of the current editor's upper left corner, relative to screen."));
+    connect(vm, SIGNAL(variableUpdateRequested(QString)),
             this, SLOT(updateVariable(QString)));
 }
 
@@ -2008,10 +2022,6 @@ QString EditorManager::windowTitleAddition() const
 
 void EditorManager::updateVariable(const QString &variable)
 {
-    static const char * const kCurrentDocumentFilePath = "CurrentDocument:FilePath";
-    static const char * const kCurrentDocumentPath = "CurrentDocument:Path";
-    static const char * const kCurrentDocumentXPos = "CurrentDocument:XPos";
-    static const char * const kCurrentDocumentYPos = "CurrentDocument:YPos";
     if (variable == QLatin1String(kCurrentDocumentFilePath)
             || variable == QLatin1String(kCurrentDocumentPath)) {
         QString value;

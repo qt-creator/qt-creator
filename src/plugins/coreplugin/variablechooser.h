@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -31,54 +31,46 @@
 **
 **************************************************************************/
 
-#ifndef VARIABLEMANAGER_H
-#define VARIABLEMANAGER_H
+#ifndef VARIABLECHOOSER_H
+#define VARIABLECHOOSER_H
 
 #include "core_global.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QString>
-
-QT_BEGIN_NAMESPACE
-class QFileInfo;
-QT_END_NAMESPACE
-
-namespace Utils {
-class AbstractMacroExpander;
-}
+#include <QtCore/QPointer>
+#include <QtGui/QWidget>
+#include <QtGui/QLineEdit>
+#include <QtGui/QTextEdit>
+#include <QtGui/QPlainTextEdit>
+#include <QtGui/QListWidgetItem>
 
 namespace Core {
-class VariableManagerPrivate;
 
-class CORE_EXPORT VariableManager : public QObject
+namespace Ui {
+    class VariableChooser;
+}
+
+class CORE_EXPORT VariableChooser : public QWidget
 {
     Q_OBJECT
-    Q_DISABLE_COPY(VariableManager)
+
 public:
-    VariableManager();
-    ~VariableManager();
+    explicit VariableChooser(QWidget *parent = 0);
+    ~VariableChooser();
 
-    static VariableManager* instance();
-
-    void insert(const QString &variable, const QString &value);
-    bool remove(const QString &variable);
-    QString value(const QString &variable, bool *found = 0);
-    QString value(const QString &variable, const QString &defaultValue);
-    Utils::AbstractMacroExpander *macroExpander();
-
-    void registerVariable(const QString &variable,
-                          const QString &description);
-    QList<QString> variables() const;
-    QString variableDescription(const QString &variable) const;
-
-signals:
-    void variableUpdateRequested(const QString &variable);
+private slots:
+    void updateDescription(const QString &variable);
+    void updateCurrentEditor(QWidget *widget);
+    void handleItemActivated(QListWidgetItem *item);
+    void insertVariable(const QString &variable);
 
 private:
-    QScopedPointer<VariableManagerPrivate> d;
+    Ui::VariableChooser *ui;
+    QString m_defaultDescription;
+    QPointer<QLineEdit> m_lineEdit;
+    QPointer<QTextEdit> m_textEdit;
+    QPointer<QPlainTextEdit> m_plainTextEdit;
 };
 
-} // namespace Core
 
-#endif // VARIABLEMANAGER_H
+} // namespace Core
+#endif // VARIABLECHOOSER_H

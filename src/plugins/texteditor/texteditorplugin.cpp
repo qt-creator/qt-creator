@@ -68,6 +68,13 @@
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
+static const char * const kCurrentDocumentSelection = "CurrentDocument:Selection";
+static const char * const kCurrentDocumentRow = "CurrentDocument:Row";
+static const char * const kCurrentDocumentColumn = "CurrentDocument:Column";
+static const char * const kCurrentDocumentRowCount = "CurrentDocument:RowCount";
+static const char * const kCurrentDocumentColumnCount = "CurrentDocument:ColumnCount";
+static const char * const kCurrentDocumentFontSize = "CurrentDocument:FontSize";
+
 TextEditorPlugin *TextEditorPlugin::m_instance = 0;
 
 TextEditorPlugin::TextEditorPlugin()
@@ -177,7 +184,21 @@ void TextEditorPlugin::extensionsInitialized()
 
     addAutoReleasedObject(new FindInFiles(Find::SearchResultWindow::instance()));
     addAutoReleasedObject(new FindInCurrentFile(Find::SearchResultWindow::instance()));
-    connect(Core::VariableManager::instance(), SIGNAL(variableUpdateRequested(QString)),
+
+    Core::VariableManager *vm = Core::VariableManager::instance();
+    vm->registerVariable(QLatin1String(kCurrentDocumentSelection),
+        tr("Selected text within the current document."));
+    vm->registerVariable(QLatin1String(kCurrentDocumentRow),
+        tr("Line number of the text cursor position in current document (starts with 1)."));
+    vm->registerVariable(QLatin1String(kCurrentDocumentColumn),
+        tr("Column number of the text cursor position in current document (starts with 0)."));
+    vm->registerVariable(QLatin1String(kCurrentDocumentRowCount),
+        tr("Number of lines visible in current document."));
+    vm->registerVariable(QLatin1String(kCurrentDocumentColumnCount),
+        tr("Number of columns visible in current document."));
+    vm->registerVariable(QLatin1String(kCurrentDocumentFontSize),
+        tr("Current document's font size in points."));
+    connect(vm, SIGNAL(variableUpdateRequested(QString)),
             this, SLOT(updateVariable(QString)));
     connect(Core::ExternalToolManager::instance(), SIGNAL(replaceSelectionRequested(QString)),
             this, SLOT(updateCurrentSelection(QString)));
@@ -216,12 +237,6 @@ void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
 
 void TextEditorPlugin::updateVariable(const QString &variable)
 {
-    static const char * const kCurrentDocumentSelection = "CurrentDocument:Selection";
-    static const char * const kCurrentDocumentRow = "CurrentDocument:Row";
-    static const char * const kCurrentDocumentColumn = "CurrentDocument:Column";
-    static const char * const kCurrentDocumentRowCount = "CurrentDocument:RowCount";
-    static const char * const kCurrentDocumentColumnCount = "CurrentDocument:ColumnCount";
-    static const char * const kCurrentDocumentFontSize = "CurrentDocument:FontSize";
     static QSet<QString> variables = QSet<QString>()
             << QString::fromLatin1(kCurrentDocumentSelection)
             << QString::fromLatin1(kCurrentDocumentRow)
