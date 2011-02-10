@@ -4,6 +4,7 @@ QT += declarative
 CONFIG += qt plugin
 
 TARGET = $$qtLibraryTarget($$TARGET)
+uri = %Uri%
 
 # Input
 SOURCES += \
@@ -22,4 +23,14 @@ OTHER_FILES = qmldir
     copy_qmldir.commands = $(COPY_FILE) \"$$replace(copy_qmldir.depends, /, $$QMAKE_DIR_SEP)\" \"$$replace(copy_qmldir.target, /, $$QMAKE_DIR_SEP)\"
     QMAKE_EXTRA_TARGETS += copy_qmldir
     PRE_TARGETDEPS += $$copy_qmldir.target
+}
+
+qmldir.files = qmldir
+symbian {
+    # ...
+} else:unix {
+    installPath = /usr/lib/qt4/imports/$$replace(uri, \., /)
+    qmldir.path = $$installPath
+    target.path = $$installPath
+    INSTALLS += target qmldir
 }
