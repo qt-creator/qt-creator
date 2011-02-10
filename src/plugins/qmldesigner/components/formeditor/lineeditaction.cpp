@@ -11,6 +11,16 @@ LineEditAction::LineEditAction(const QString &placeHolderText, QObject *parent) 
 {
 }
 
+void LineEditAction::setLineEditText(const QString &text)
+{
+    emit lineEditTextChange(text);
+}
+
+void LineEditAction::clearLineEditText()
+{
+    emit lineEditTextClear();
+}
+
 QWidget *LineEditAction::createWidget(QWidget *parent)
 {
     QLineEdit *lineEdit = new QLineEdit(parent);
@@ -20,6 +30,8 @@ QWidget *LineEditAction::createWidget(QWidget *parent)
     lineEdit->setValidator(new QIntValidator(0, 4096, this));
 
     connect(lineEdit, SIGNAL(textEdited(QString)), this, SIGNAL(textChanged(QString)));
+    connect(this, SIGNAL(lineEditTextClear()), lineEdit, SLOT(clear()));
+    connect(this, SIGNAL(lineEditTextChange(QString)), lineEdit, SLOT(setText(QString)));
 
     return lineEdit;
 }

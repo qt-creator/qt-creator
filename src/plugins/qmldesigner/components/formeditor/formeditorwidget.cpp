@@ -225,6 +225,25 @@ void FormEditorWidget::wheelEvent(QWheelEvent *event)
 
 }
 
+void FormEditorWidget::updateActions()
+{
+    if (m_formEditorView->model() && m_formEditorView->rootModelNode().isValid()) {
+        if (m_formEditorView->rootModelNode().hasAuxiliaryData("width") && m_formEditorView->rootModelNode().auxiliaryData("width").isValid()) {
+            m_rootWidthAction->setLineEditText(m_formEditorView->rootModelNode().auxiliaryData("width").toString());
+        } else {
+            m_rootWidthAction->clearLineEditText();
+        }
+        if (m_formEditorView->rootModelNode().hasAuxiliaryData("height") && m_formEditorView->rootModelNode().auxiliaryData("height").isValid()) {
+            m_rootHeightAction->setLineEditText(m_formEditorView->rootModelNode().auxiliaryData("height").toString());
+        } else {
+            m_rootHeightAction->clearLineEditText();
+        }
+    } else {
+        m_rootWidthAction->clearLineEditText();
+        m_rootHeightAction->clearLineEditText();
+    }
+}
+
 ZoomAction *FormEditorWidget::zoomAction() const
 {
     return m_zoomAction.data();

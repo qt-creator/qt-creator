@@ -751,8 +751,15 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     foreach(const VariantProperty &property, variantPropertyList) {
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForNode(node)) {
+            QVariant value = property.value();
+            if (node.isRootNode()
+                    && (property.name() == "width" || property.name() == "height")
+                    && node.hasAuxiliaryData(property.name())
+                    && node.auxiliaryData(property.name()).isValid())
+                value = node.auxiliaryData(property.name());
+
             NodeInstance instance = instanceForNode(node);
-            PropertyValueContainer container(instance.instanceId(), property.name(), property.value(), property.dynamicTypeName());
+            PropertyValueContainer container(instance.instanceId(), property.name(), value, property.dynamicTypeName());
             valueContainerList.append(container);
         }
     }
@@ -761,6 +768,12 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     foreach(const BindingProperty &property, bindingPropertyList) {
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForNode(node)) {
+            if (node.isRootNode()
+                    && (property.name() == "width" || property.name() == "height")
+                    && node.hasAuxiliaryData(property.name())
+                    && node.auxiliaryData(property.name()).isValid())
+                continue;
+
             NodeInstance instance = instanceForNode(node);
             PropertyBindingContainer container(instance.instanceId(), property.name(), property.expression(), property.dynamicTypeName());
             bindingContainerList.append(container);

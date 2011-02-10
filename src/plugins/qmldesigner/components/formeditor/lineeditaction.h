@@ -11,11 +11,16 @@ class LineEditAction : public QWidgetAction
 public:
     explicit LineEditAction(const QString &placeHolderText, QObject *parent = 0);
 
+    void setLineEditText(const QString &text);
+    void clearLineEditText();
+
 protected:
     QWidget *createWidget(QWidget *parent);
 
 signals:
     void textChanged(const QString &text);
+    void lineEditTextChange(const QString &text);
+    void lineEditTextClear();
 
 private:
     QString m_placeHolderText;

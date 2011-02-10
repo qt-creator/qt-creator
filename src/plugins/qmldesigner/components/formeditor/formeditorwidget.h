@@ -78,6 +78,8 @@ public:
     void setRootItemRect(const QRectF &rect);
     QRectF rootItemRect() const;
 
+    void updateActions();
+
 protected:
     void enterEvent(QEvent *event);
     void wheelEvent(QWheelEvent *event);
