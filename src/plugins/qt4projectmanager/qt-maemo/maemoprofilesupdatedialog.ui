@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="infoLabel">
      <property name="text">
-      <string>The project files listed below do not contain Maemo deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator can add the missing information to these files. </string>
+      <string>The project files listed below do not contain Maemo deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator will add the missing information to these files if you check the respective rows below.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
