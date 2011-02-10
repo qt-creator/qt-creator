@@ -108,6 +108,7 @@ public:
     void instancesRenderImageChanged(const QVector<ModelNode> &nodeList);
     void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
     void instancesChildrenChanged(const QVector<ModelNode> &nodeList);
+    void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
 
     void rewriterBeginTransaction();
     void rewriterEndTransaction();

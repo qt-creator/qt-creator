@@ -468,6 +468,30 @@ void NodeInstanceView::instancesChildrenChanged(const QVector<ModelNode> &/*node
 
 }
 
+void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data)
+{
+    if (node.isRootNode() && (name == "width" || name == "height")) {
+        if (hasInstanceForNode(node)) {
+            NodeInstance instance = instanceForNode(node);
+            QVariant value = data;
+            if (value.isValid()) {
+                PropertyValueContainer container(instance.instanceId(), name, value, QString());
+                ChangeValuesCommand changeValueCommand(QVector<PropertyValueContainer>() << container);
+                nodeInstanceServer()->changePropertyValues(changeValueCommand);
+            } else {
+                if (node.hasVariantProperty(name)) {
+                    PropertyValueContainer container(instance.instanceId(), name, node.variantProperty(name).value(), QString());
+                    ChangeValuesCommand changeValueCommand(QVector<PropertyValueContainer>() << container);
+                    nodeInstanceServer()->changePropertyValues(changeValueCommand);
+                } else if (node.hasBindingProperty(name)) {
+                    PropertyBindingContainer container(instance.instanceId(), name, node.bindingProperty(name).expression(), QString());
+                    ChangeBindingsCommand changeValueCommand(QVector<PropertyBindingContainer>() << container);
+                    nodeInstanceServer()->changePropertyBindings(changeValueCommand);
+                }
+            }
+        }
+    }
+}
 
 void NodeInstanceView::rewriterBeginTransaction()
 {

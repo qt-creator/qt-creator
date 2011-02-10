@@ -40,7 +40,8 @@ SOURCES += formeditoritem.cpp \
     toolbox.cpp \
     zoomaction.cpp \
     formeditorgraphicsview.cpp \
-    numberseriesaction.cpp
+    numberseriesaction.cpp \
+    lineeditaction.cpp
 HEADERS += formeditorscene.h \
     formeditorwidget.h \
     formeditoritem.h \
@@ -79,5 +80,6 @@ HEADERS += formeditorscene.h \
     toolbox.h \
     zoomaction.h \
     formeditorgraphicsview.h \
-    numberseriesaction.h
+    numberseriesaction.h \
+    lineeditaction.h
 RESOURCES += formeditor.qrc

@@ -43,6 +43,7 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 
 class ZoomAction;
+class LineEditAction;
 class FormEditorView;
 class FormEditorScene;
 class FormEditorGraphicsView;
@@ -86,6 +87,8 @@ private slots:
     void changeTransformTool(bool checked);
     void changeAnchorTool(bool checked);
     void setZoomLevel(double zoomLevel);
+    void changeRootItemWidth(const QString &widthText);
+    void changeRootItemHeight(const QString &heightText);
 
 private:
     QWeakPointer<FormEditorView> m_formEditorView;
@@ -100,6 +103,8 @@ private:
     QWeakPointer<QAction> m_noSnappingAction;
     QWeakPointer<QAction> m_showBoundingRectAction;
     QWeakPointer<QAction> m_selectOnlyContentItemsAction;
+    QWeakPointer<LineEditAction> m_rootWidthAction;
+    QWeakPointer<LineEditAction> m_rootHeightAction;
 };
 
 
