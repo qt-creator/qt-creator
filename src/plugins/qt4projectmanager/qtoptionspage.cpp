@@ -513,11 +513,16 @@ void QtOptionsPageWidget::updateDebuggingHelperInfo(const QtVersion *version)
         m_ui->debuggingHelperWidget->setSummaryText(status);
 
         // Set detailed labels
-        m_debuggingHelperUi->gdbHelperStatus->setText(hasGdbHelper
-                                                ? version->debuggingHelperLibrary()
-                                                : tr("<i>Not yet built.</i>"));
+        if (hasGdbHelper) {
+            m_debuggingHelperUi->gdbHelperStatus->setText(version->debuggingHelperLibrary());
+            m_debuggingHelperUi->gdbHelperStatus->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        } else {
+            m_debuggingHelperUi->gdbHelperStatus->setText(tr("<i>Not yet built.</i>"));
+            m_debuggingHelperUi->gdbHelperStatus->setTextInteractionFlags(Qt::NoTextInteraction);
+        }
 
         QString qmlDumpStatusText;
+        Qt::TextInteractionFlags qmlDumpStatusTextFlags = Qt::NoTextInteraction;
         if (hasQmlDumper) {
             qmlDumpStatusText = version->qmlDumpTool(false);
             const QString debugQmlDumpPath = version->qmlDumpTool(true);
@@ -526,6 +531,7 @@ void QtOptionsPageWidget::updateDebuggingHelperInfo(const QtVersion *version)
                     qmlDumpStatusText += QLatin1String("\n");
                 qmlDumpStatusText += debugQmlDumpPath;
             }
+            qmlDumpStatusTextFlags = Qt::TextSelectableByMouse;
         } else {
             if (canBuildQmlDumper) {
                 qmlDumpStatusText = tr("<i>Not yet built.</i>");
@@ -534,11 +540,14 @@ void QtOptionsPageWidget::updateDebuggingHelperInfo(const QtVersion *version)
             }
         }
         m_debuggingHelperUi->qmlDumpStatus->setText(qmlDumpStatusText);
+        m_debuggingHelperUi->qmlDumpStatus->setTextInteractionFlags(qmlDumpStatusTextFlags);
         m_debuggingHelperUi->qmlDumpBuildButton->setEnabled(canBuildQmlDumper);
 
         QString qmlObserverStatusText;
+        Qt::TextInteractionFlags qmlObserverStatusTextFlags = Qt::NoTextInteraction;
         if (hasQmlObserver) {
             qmlObserverStatusText = version->qmlObserverTool();
+            qmlObserverStatusTextFlags = Qt::TextSelectableByMouse;
         }  else {
             if (canBuildQmlObserver) {
                 qmlObserverStatusText = tr("<i>Not yet built.</i>");
@@ -547,6 +556,7 @@ void QtOptionsPageWidget::updateDebuggingHelperInfo(const QtVersion *version)
             }
         }
         m_debuggingHelperUi->qmlObserverStatus->setText(qmlObserverStatusText);
+        m_debuggingHelperUi->qmlObserverStatus->setTextInteractionFlags(qmlObserverStatusTextFlags);
         m_debuggingHelperUi->qmlObserverBuildButton->setEnabled(canBuildQmlObserver);
 
         const QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
