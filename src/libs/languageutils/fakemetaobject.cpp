@@ -187,6 +187,13 @@ FakeMetaMethod FakeMetaObject::method(int index) const
 
 QString FakeMetaObject::defaultPropertyName() const
 { return m_defaultPropertyName; }
-
-void FakeMetaObject::setDefaultPropertyName(const QString defaultPropertyName)
+void FakeMetaObject::setDefaultPropertyName(const QString &defaultPropertyName)
 { m_defaultPropertyName = defaultPropertyName; }
+
+QString FakeMetaObject::attachedTypeName() const
+{ return m_attachedTypeName; }
+void FakeMetaObject::setAttachedTypeName(const QString &name)
+{ m_attachedTypeName = name; }
+
+bool FakeMetaObject::Export::isValid() const
+{ return !type.isEmpty(); }

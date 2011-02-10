@@ -67,6 +67,8 @@ void collectReachableMetaObjects(QObject *object, QSet<const QMetaObject *> *met
 void collectReachableMetaObjects(const QDeclarativeType *ty, QSet<const QMetaObject *> *metas)
 {
     collectReachableMetaObjects(ty->metaObject(), metas);
+    if (ty->attachedPropertiesType())
+        collectReachableMetaObjects(ty->attachedPropertiesType(), metas);
 }
 
 /* We want to add the MetaObject for 'Qt' to the list, this is a
@@ -219,6 +221,11 @@ public:
             qSort(exports);
 
             qml->writeArrayBinding(QLatin1String("exports"), exports);
+
+            if (const QMetaObject *attachedType = (*qmlTypes.begin())->attachedPropertiesType()) {
+                qml->writeScriptBinding(QLatin1String("attachedType"), enquote(
+                                            convertToId(attachedType->className())));
+            }
         }
 
         for (int index = meta->enumeratorOffset(); index < meta->enumeratorCount(); ++index)

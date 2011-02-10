@@ -148,6 +148,7 @@ private:
     QHash<QString, int> m_propNameToIdx;
     QList<FakeMetaMethod> m_methods;
     QString m_defaultPropertyName;
+    QString m_attachedTypeName;
 
 public:
     FakeMetaObject();
@@ -181,7 +182,10 @@ public:
     FakeMetaMethod method(int index) const;
 
     QString defaultPropertyName() const;
-    void setDefaultPropertyName(const QString defaultPropertyName);
+    void setDefaultPropertyName(const QString &defaultPropertyName);
+
+    QString attachedTypeName() const;
+    void setAttachedTypeName(const QString &name);
 };
 
 } // namespace LanguageUtils

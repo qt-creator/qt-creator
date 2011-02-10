@@ -249,6 +249,7 @@ Module {
             "Qt/Component 4.7",
             "QtQuick/Component 1.0"
         ]
+        attachedType: "QDeclarativeComponentAttached"
         Enum {
             name: "Status"
             values: {
@@ -270,6 +271,12 @@ Module {
             Parameter { type: "qreal" }
         }
         Method { name: "errorString"; type: "string" }
+    }
+    Component {
+        name: "QDeclarativeComponentAttached"
+        prototype: "QObject"
+        Signal { name: "completed" }
+        Signal { name: "destruction" }
     }
     Component {
         name: "QDeclarativeConnections"
@@ -677,6 +684,7 @@ Module {
             "QtQuick/GridView 1.0",
             "QtQuick/GridView 1.1"
         ]
+        attachedType: "QDeclarativeGridViewAttached"
         Enum {
             name: "HighlightRangeMode"
             values: {
@@ -765,6 +773,18 @@ Module {
         }
         Method { name: "positionViewAtBeginning" }
         Method { name: "positionViewAtEnd" }
+    }
+    Component {
+        name: "QDeclarativeGridViewAttached"
+        prototype: "QObject"
+        Property { name: "view"; type: "QDeclarativeGridView"; isReadonly: true; isPointer: true }
+        Property { name: "isCurrentItem"; type: "bool"; isReadonly: true }
+        Property { name: "delayRemove"; type: "bool" }
+        Signal { name: "currentItemChanged" }
+        Signal { name: "delayRemoveChanged" }
+        Signal { name: "add" }
+        Signal { name: "remove" }
+        Signal { name: "viewChanged" }
     }
     Component {
         name: "QDeclarativeImage"
@@ -967,6 +987,7 @@ Module {
             "Qt/KeyNavigation 4.7",
             "QtQuick/KeyNavigation 1.0"
         ]
+        attachedType: "QDeclarativeKeyNavigationAttached"
         Enum {
             name: "Priority"
             values: {
@@ -996,6 +1017,7 @@ Module {
             "Qt/Keys 4.7",
             "QtQuick/Keys 1.0"
         ]
+        attachedType: "QDeclarativeKeysAttached"
         Enum {
             name: "Priority"
             values: {
@@ -1248,6 +1270,7 @@ Module {
             "QtQuick/ListView 1.0",
             "QtQuick/ListView 1.1"
         ]
+        attachedType: "QDeclarativeListViewAttached"
         Enum {
             name: "HighlightRangeMode"
             values: {
@@ -1342,6 +1365,24 @@ Module {
         }
         Method { name: "positionViewAtBeginning" }
         Method { name: "positionViewAtEnd" }
+    }
+    Component {
+        name: "QDeclarativeListViewAttached"
+        prototype: "QObject"
+        Property { name: "view"; type: "QDeclarativeListView"; isReadonly: true; isPointer: true }
+        Property { name: "isCurrentItem"; type: "bool"; isReadonly: true }
+        Property { name: "previousSection"; type: "string"; isReadonly: true }
+        Property { name: "nextSection"; type: "string"; isReadonly: true }
+        Property { name: "section"; type: "string"; isReadonly: true }
+        Property { name: "delayRemove"; type: "bool" }
+        Signal { name: "currentItemChanged" }
+        Signal { name: "sectionChanged" }
+        Signal { name: "prevSectionChanged" }
+        Signal { name: "nextSectionChanged" }
+        Signal { name: "delayRemoveChanged" }
+        Signal { name: "add" }
+        Signal { name: "remove" }
+        Signal { name: "viewChanged" }
     }
     Component {
         name: "QDeclarativeLoader"
@@ -1443,7 +1484,13 @@ Module {
             "Qt/Package 4.7",
             "QtQuick/Package 1.0"
         ]
+        attachedType: "QDeclarativePackageAttached"
         Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
+    }
+    Component {
+        name: "QDeclarativePackageAttached"
+        prototype: "QObject"
+        Property { name: "name"; type: "string" }
     }
     Component {
         name: "QDeclarativePaintedItem"
@@ -1585,6 +1632,7 @@ Module {
             "Qt/PathView 4.7",
             "QtQuick/PathView 1.0"
         ]
+        attachedType: "QDeclarativePathViewAttached"
         Enum {
             name: "HighlightRangeMode"
             values: {
@@ -1636,6 +1684,15 @@ Module {
         Signal { name: "flickEnded" }
         Method { name: "incrementCurrentIndex" }
         Method { name: "decrementCurrentIndex" }
+    }
+    Component {
+        name: "QDeclarativePathViewAttached"
+        prototype: "QObject"
+        Property { name: "view"; type: "QDeclarativePathView"; isReadonly: true; isPointer: true }
+        Property { name: "isCurrentItem"; type: "bool"; isReadonly: true }
+        Property { name: "onPath"; type: "bool"; isReadonly: true }
+        Signal { name: "currentItemChanged" }
+        Signal { name: "pathChanged" }
     }
     Component {
         name: "QDeclarativePauseAnimation"
@@ -2623,8 +2680,15 @@ Module {
             "Qt/VisualItemModel 4.7",
             "QtQuick/VisualItemModel 1.0"
         ]
+        attachedType: "QDeclarativeVisualItemModelAttached"
         Property { name: "children"; type: "QDeclarativeItem"; isList: true; isReadonly: true }
         Signal { name: "childrenChanged" }
+    }
+    Component {
+        name: "QDeclarativeVisualItemModelAttached"
+        prototype: "QObject"
+        Property { name: "index"; type: "int"; isReadonly: true }
+        Signal { name: "indexChanged" }
     }
     Component {
         name: "QDeclarativeVisualModel"

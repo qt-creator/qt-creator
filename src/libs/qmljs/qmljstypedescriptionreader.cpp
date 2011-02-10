@@ -158,8 +158,10 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
                 fmo->setDefaultPropertyName(readStringBinding(script));
             } else if (name == "exports") {
                 readExports(script, fmo);
+            } else if (name == "attachedType") {
+                fmo->setAttachedTypeName(readStringBinding(script));
             } else {
-                addError(script->firstSourceLocation(), "Expected only name, prototype, defaultProperty and exports script bindings");
+                addError(script->firstSourceLocation(), "Expected only name, prototype, defaultProperty, attachedType and exports script bindings");
                 return;
             }
         } else {
