@@ -93,7 +93,7 @@ public:
     ExternalTool &operator=(const ExternalTool &other);
 
     void setId(const QString &id);
-    void setCategory(const QString &category);
+    void setDisplayCategory(const QString &category);
     void setDisplayName(const QString &name);
     void setDescription(const QString &description);
     void setOutputHandling(OutputHandling handling);

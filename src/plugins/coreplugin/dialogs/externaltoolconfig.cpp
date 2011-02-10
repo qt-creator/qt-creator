@@ -329,7 +329,7 @@ QModelIndex ExternalToolModel::addTool(const QModelIndex &atIndex)
         category = categoryForIndex(atIndex.parent());
 
     ExternalTool *tool = new ExternalTool;
-    tool->setCategory(category);
+    tool->setDisplayCategory(category);
     tool->setDisplayName(tr("New tool"));
     tool->setDescription(tr("This tool prints a line of useful text"));
     tool->setExecutables(QStringList() << "echo");

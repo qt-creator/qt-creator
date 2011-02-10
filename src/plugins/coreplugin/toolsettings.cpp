@@ -169,6 +169,10 @@ void ToolSettings::apply()
         foreach (ExternalTool *tool, it.value()) {
             ExternalTool *toolToAdd = 0;
             if (ExternalTool *originalTool = originalTools.take(tool->id())) {
+                // check if it has different category and is custom tool
+                if (tool->displayCategory() != it.key() && !tool->preset()) {
+                    tool->setDisplayCategory(it.key());
+                }
                 // check if the tool has changed
                 if ((*originalTool) == (*tool)) {
                     toolToAdd = originalTool;

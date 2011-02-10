@@ -125,6 +125,7 @@ ExternalTool &ExternalTool::operator=(const ExternalTool &other)
     m_modifiesCurrentDocument = other.m_modifiesCurrentDocument;
     m_fileName = other.m_fileName;
     m_presetTool = other.m_presetTool;
+    return *this;
 }
 
 ExternalTool::~ExternalTool()
@@ -216,7 +217,7 @@ void ExternalTool::setId(const QString &id)
     m_id = id;
 }
 
-void ExternalTool::setCategory(const QString &category)
+void ExternalTool::setDisplayCategory(const QString &category)
 {
     m_displayCategory = category;
 }
