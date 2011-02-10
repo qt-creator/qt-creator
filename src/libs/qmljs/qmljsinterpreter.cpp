@@ -2926,29 +2926,32 @@ void Engine::initializePrototypes()
     _globalObject->setProperty("RegExp", regexpCtor());
 
 
-    //types
+    // global Qt object, in alphabetic order
     _qtObject = newObject(/*prototype */ 0);
-    addFunction(_qtObject, QLatin1String("rgba"), 4);
+    addFunction(_qtObject, QLatin1String("atob"), 1);
+    addFunction(_qtObject, QLatin1String("btoa"), 1);
+    addFunction(_qtObject, QLatin1String("createComponent"), 1);
+    addFunction(_qtObject, QLatin1String("createQmlObject"), 3);
+    addFunction(_qtObject, QLatin1String("darker"), 1);
+    addFunction(_qtObject, QLatin1String("fontFamilies"), 0);
+    addFunction(_qtObject, QLatin1String("formatDate"), 2);
+    addFunction(_qtObject, QLatin1String("formatDateTime"), 2);
+    addFunction(_qtObject, QLatin1String("formatTime"), 2);
     addFunction(_qtObject, QLatin1String("hsla"), 4);
-    addFunction(_qtObject, QLatin1String("rect"), 4);
+    addFunction(_qtObject, QLatin1String("include"), 2);
+    addFunction(_qtObject, QLatin1String("isQtObject"), 1);
+    addFunction(_qtObject, QLatin1String("lighter"), 1);
+    addFunction(_qtObject, QLatin1String("md5"), 1);
+    addFunction(_qtObject, QLatin1String("openUrlExternally"), 1);
     addFunction(_qtObject, QLatin1String("point"), 2);
+    addFunction(_qtObject, QLatin1String("quit"), 0);
+    addFunction(_qtObject, QLatin1String("rect"), 4);
+    addFunction(_qtObject, QLatin1String("resolvedUrl"), 1);
+    addFunction(_qtObject, QLatin1String("rgba"), 4);
     addFunction(_qtObject, QLatin1String("size"), 2);
+    addFunction(_qtObject, QLatin1String("tint"), 2);
     addFunction(_qtObject, QLatin1String("vector3d"), 3);
 
-    //color helpers
-    addFunction(_qtObject, QLatin1String("lighter"), 1);
-    addFunction(_qtObject, QLatin1String("darker"), 1);
-    addFunction(_qtObject, QLatin1String("tint"), 2);
-
-    //misc methods
-    addFunction(_qtObject, QLatin1String("closestAngle"), 2);
-    addFunction(_qtObject, QLatin1String("playSound"), 1);
-    addFunction(_qtObject, QLatin1String("openUrlExternally"), 1);
-    addFunction(_qtObject, QLatin1String("md5"), 1);
-    addFunction(_qtObject, QLatin1String("btoa"), 1);
-    addFunction(_qtObject, QLatin1String("atob"), 1);
-    addFunction(_qtObject, QLatin1String("quit"), 0);
-    addFunction(_qtObject, QLatin1String("resolvedUrl"), 1);
 
     //firebug/webkit compat
     ObjectValue *consoleObject = newObject(/*prototype */ 0);
