@@ -225,8 +225,8 @@ public:
     virtual void initializePage()
     {
         m_ui->dontReuseButton->setChecked(true);
-        m_ui->privateKeyFilePathChooser->setPath(QString());
-        m_ui->publicKeyFilePathChooser->setPath(QString());
+        m_ui->privateKeyFilePathChooser->setPath(MaemoDeviceConfig::defaultPrivateKeyFilePath());
+        m_ui->publicKeyFilePathChooser->setPath(MaemoDeviceConfig::defaultPublicKeyFilePath());
         handleSelectionChanged();
     }
 

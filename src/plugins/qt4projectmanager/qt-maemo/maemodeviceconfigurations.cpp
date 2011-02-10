@@ -326,6 +326,11 @@ QString MaemoDeviceConfig::defaultPrivateKeyFilePath()
         + QLatin1String("/.ssh/id_rsa");
 }
 
+QString MaemoDeviceConfig::defaultPublicKeyFilePath()
+{
+    return defaultPrivateKeyFilePath() + QLatin1String(".pub");
+}
+
 QString MaemoDeviceConfig::defaultUser(MaemoGlobal::MaemoVersion osVersion)
 {
     switch (osVersion) {

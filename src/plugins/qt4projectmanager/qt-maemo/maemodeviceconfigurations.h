@@ -87,6 +87,7 @@ public:
     static QString portsRegExpr();
     static QString defaultHost(DeviceType type);
     static QString defaultPrivateKeyFilePath();
+    static QString defaultPublicKeyFilePath();
     static QString defaultUser(MaemoGlobal::MaemoVersion osVersion);
     static int defaultSshPort(DeviceType type);
     static QString defaultQemuPassword(MaemoGlobal::MaemoVersion osVersion);
