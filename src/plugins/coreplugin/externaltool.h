@@ -184,7 +184,7 @@ private:
                         QMap<QString, Internal::ExternalTool *> *tools,
                         bool isPreset = false);
     void readSettings(const QMap<QString, Internal::ExternalTool *> &tools,
-                      QMap<QString, QMultiMap<int, Internal::ExternalTool*> > *categoryPriorityMap);
+                      QMap<QString, QList<Internal::ExternalTool*> > *categoryPriorityMap);
     void writeSettings();
 
     static ExternalToolManager *m_instance;

@@ -694,9 +694,6 @@ void ExternalToolManager::initialize()
                    &tools,
                    true);
 
-    // adapt overridden names and categories etc
-    readSettings(tools, &categoryPriorityMap);
-
     QMap<QString, QList<Internal::ExternalTool *> > categoryMap;
     QMapIterator<QString, QMultiMap<int, ExternalTool*> > it(categoryPriorityMap);
     while (it.hasNext()) {
@@ -704,6 +701,8 @@ void ExternalToolManager::initialize()
         categoryMap.insert(it.key(), it.value().values());
     }
 
+    // read renamed categories and custom order
+    readSettings(tools, &categoryMap);
     setToolsByCategory(categoryMap);
 }
 
@@ -848,24 +847,29 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
 }
 
 void ExternalToolManager::readSettings(const QMap<QString, ExternalTool *> &tools,
-                                       QMap<QString, QMultiMap<int, Internal::ExternalTool*> > *categoryPriorityMap)
+                                       QMap<QString, QList<ExternalTool *> > *categoryMap)
 {
     QSettings *settings = m_core->settings();
     settings->beginGroup(QLatin1String("ExternalTools"));
 
-    if (categoryPriorityMap) {
+    if (categoryMap) {
         settings->beginGroup(QLatin1String("OverrideCategories"));
-        foreach (const QString &id, settings->allKeys()) {
-            if (tools.contains(id)) {
-                const QString &newCategory = settings->value(id).toString();
-                ExternalTool *tool = tools.value(id);
-                if (tool->displayCategory() != newCategory) {
-                    (*categoryPriorityMap)[tool->displayCategory()].remove(tool->order(), tool);
-                    (*categoryPriorityMap)[newCategory].insert(tool->order(), tool);
-                    if (categoryPriorityMap->value(tool->displayCategory()).isEmpty())
-                        categoryPriorityMap->remove(tool->displayCategory());
+        foreach (const QString &category, settings->childGroups()) {
+            int count = settings->beginReadArray(category);
+            for (int i = 0; i < count; ++i) {
+                settings->setArrayIndex(i);
+                const QString &toolId = settings->value(QLatin1String("Tool")).toString();
+                if (tools.contains(toolId)) {
+                    ExternalTool *tool = tools.value(toolId);
+                    // remove from old category
+                    (*categoryMap)[tool->displayCategory()].removeAll(tool);
+                    if (categoryMap->value(tool->displayCategory()).isEmpty())
+                        categoryMap->remove(tool->displayCategory());
+                    // add to new category
+                    (*categoryMap)[category].append(tool);
                 }
             }
+            settings->endArray();
         }
         settings->endGroup();
     }
@@ -884,10 +888,14 @@ void ExternalToolManager::writeSettings()
     while (it.hasNext()) {
         it.next();
         const QString &category = it.key();
+        settings->beginWriteArray(category, it.value().count());
+        int i = 0;
         foreach (ExternalTool *tool, it.value()) {
-            if (tool->displayCategory() != category)
-                settings->setValue(tool->id(), category);
+            settings->setArrayIndex(i);
+            settings->setValue(QLatin1String("Tool"), tool->id());
+            ++i;
         }
+        settings->endArray();
     }
     settings->endGroup();
 
