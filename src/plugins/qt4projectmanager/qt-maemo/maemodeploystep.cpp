@@ -993,15 +993,17 @@ void MaemoDeployStep::handleDeviceInstallerErrorOutput(const QByteArray &output)
 MaemoPortList MaemoDeployStep::freePorts() const
 {
     const Qt4BuildConfiguration * const qt4bc = qt4BuildConfiguration();
-    if (!m_cachedDeviceConfig)
+    const MaemoDeviceConfig::ConstPtr &devConf
+        = m_cachedDeviceConfig ? m_cachedDeviceConfig : m_deviceConfig;
+    if (!devConf)
         return MaemoPortList();
-    if (m_cachedDeviceConfig->type() == MaemoDeviceConfig::Simulator && qt4bc) {
+    if (devConf->type() == MaemoDeviceConfig::Simulator && qt4bc) {
         MaemoQemuRuntime rt;
         const int id = qt4bc->qtVersion()->uniqueId();
         if (MaemoQemuManager::instance().runtimeForQtVersion(id, &rt))
             return rt.m_freePorts;
     }
-    return m_cachedDeviceConfig->freePorts();
+    return devConf->freePorts();
 }
 
 const Qt4BuildConfiguration *MaemoDeployStep::qt4BuildConfiguration() const
