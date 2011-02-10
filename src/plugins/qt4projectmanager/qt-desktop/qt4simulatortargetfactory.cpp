@@ -126,7 +126,6 @@ QList<BuildConfigurationInfo> Qt4SimulatorTargetFactory::availableBuildConfigura
         if (!version->isValid())
             continue;
         QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
-        bool buildAll = config & QtVersion::BuildAll;
         QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), Constants::QT_SIMULATOR_TARGET_ID);
         infos.append(BuildConfigurationInfo(version, config, QString(), dir));
         if (config)
