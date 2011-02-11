@@ -197,7 +197,7 @@ void QmlEngine::setupInferior()
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
     if (startParameters().startMode == AttachToRemote) {
-        requestRemoteSetup();
+        emit requestRemoteSetup();
     } else {
         connect(&d->m_applicationLauncher,
             SIGNAL(processExited(int)),
@@ -311,10 +311,11 @@ void QmlEngine::stopApplicationLauncher()
     }
 }
 
-void QmlEngine::handleRemoteSetupDone(int port)
+void QmlEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
-    if (port != -1)
-        startParameters().qmlServerPort = port;
+    Q_UNUSED(gdbServerPort);
+    if (qmlPort != -1)
+        startParameters().qmlServerPort = qmlPort;
     notifyInferiorSetupOk();
 }
 

@@ -285,6 +285,10 @@ void MaemoDebugSupport::startDebugging()
             SLOT(handleRemoteErrorOutput(QByteArray)));
         connect(m_runner, SIGNAL(remoteOutput(QByteArray)), this,
             SLOT(handleRemoteOutput(QByteArray)));
+        if (m_debuggingType == MaemoRunConfiguration::DebugQmlOnly) {
+            connect(m_runner, SIGNAL(remoteProcessStarted()),
+                SLOT(handleRemoteProcessStarted()));
+        }
         const QString &remoteExe = m_runner->remoteExecutable();
         const QString cmdPrefix = MaemoGlobal::remoteCommandPrefix(remoteExe);
         const QString env = MaemoGlobal::remoteEnvironment(m_userEnvChanges);
@@ -348,6 +352,13 @@ void MaemoDebugSupport::handleAdapterSetupDone()
 {
     setState(Debugging);
     m_engine->handleRemoteSetupDone(m_gdbServerPort, m_qmlPort);
+}
+
+void MaemoDebugSupport::handleRemoteProcessStarted()
+{
+    Q_ASSERT(m_debuggingType == MaemoRunConfiguration::DebugQmlOnly);
+    ASSERT_STATE(StartingRemoteProcess);
+    handleAdapterSetupDone();
 }
 
 void MaemoDebugSupport::setState(State newState)

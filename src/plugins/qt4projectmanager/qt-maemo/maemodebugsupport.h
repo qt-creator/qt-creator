@@ -82,6 +82,7 @@ private slots:
     void handleRemoteOutput(const QByteArray &output);
     void handleRemoteErrorOutput(const QByteArray &output);
     void handleProgressReport(const QString &progressOutput);
+    void handleRemoteProcessStarted();
 
 private:
     enum State {
