@@ -37,6 +37,7 @@
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerstringutils.h"
+#include "debuggertooltipmanager.h"
 
 #include "breakhandler.h"
 #include "watchhandler.h"
@@ -64,10 +65,21 @@ void GdbEngine::updateLocalsPython(bool tryPartial, const QByteArray &varList)
     expanded += "formats:" + handler->individualFormatRequests();
 
     QByteArray watchers;
-    if (!m_toolTipExpression.isEmpty()) {
-        watchers += m_toolTipExpression.toLatin1();
-        watchers += '#';
-        watchers += tooltipIName(m_toolTipExpression);
+    const QString fileName = stackHandler()->currentFrame().file;
+    const QString function = stackHandler()->currentFrame().function;
+    if (!fileName.isEmpty()) {
+        QStringList expressions =
+            DebuggerToolTipManager::instance()->treeWidgetExpressions(fileName, objectName(), function);
+        const QString currentExpression = tooltipExpression();
+        if (!currentExpression.isEmpty() && !expressions.contains(currentExpression))
+            expressions.push_back(currentExpression);
+        foreach (const QString &te, expressions) {
+            if (!watchers.isEmpty())
+                watchers += "##";
+            watchers += te.toLatin1();
+            watchers += '#';
+            watchers += tooltipIName(te);
+        }
     }
 
     QHash<QByteArray, int> watcherNames = handler->watcherNames();
@@ -120,7 +132,6 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
     PRECONDITION;
     if (response.resultClass == GdbResultDone) {
         const bool partial = response.cookie.toBool();
-        Q_UNUSED(partial);
         //qDebug() << "READING " << (partial ? "PARTIAL" : "FULL");
         QByteArray out = response.data.findChild("consolestreamoutput").data();
         while (out.endsWith(' ') || out.endsWith('\n'))
@@ -192,6 +203,8 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
             //PENDING_DEBUG("\n\n ....  AND TRIGGERS MODEL UPDATE\n");
             rebuildWatchModel();
         }
+        if (!partial)
+            emit stackFrameCompleted();
     } else {
         showMessage(_("DUMPER FAILED: " + response.toString()));
     }

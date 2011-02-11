@@ -81,6 +81,7 @@ class ThreadsHandler;
 class WatchHandler;
 class BreakpointParameters;
 class QmlCppEngine;
+class DebuggerToolTipContext;
 
 struct WatchUpdateFlags
 {
@@ -137,7 +138,7 @@ public:
     DebuggerStartParameters &startParameters();
 
     virtual void setToolTipExpression(const QPoint & mousePos,
-        TextEditor::ITextEditor *editor, int cursorPos);
+        TextEditor::ITextEditor *editor, const Internal::DebuggerToolTipContext &);
 
     virtual void updateWatchData(const Internal::WatchData &data,
         const Internal::WatchUpdateFlags & flags = Internal::WatchUpdateFlags());
@@ -183,7 +184,6 @@ public:
 
     virtual void assignValueInDebugger(const Internal::WatchData *data,
         const QString &expr, const QVariant &value);
-    virtual void removeTooltip();
     virtual void selectThread(int index);
 
     virtual void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
@@ -204,6 +204,7 @@ public:
     virtual QAbstractItemModel *localsModel() const;
     virtual QAbstractItemModel *watchersModel() const;
     virtual QAbstractItemModel *returnModel() const;
+    virtual QAbstractItemModel *toolTipsModel() const;
     virtual QAbstractItemModel *sourceFilesModel() const;
 
     void progressPing();
@@ -253,6 +254,8 @@ public:
 
 signals:
     void stateChanged(const Debugger::DebuggerState &state);
+    // A new stack frame is on display including locals.
+    void stackFrameCompleted();
     void updateViewsRequested();
     /*
      * For "external" clients of a debugger run control that needs to do

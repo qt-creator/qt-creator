@@ -61,6 +61,7 @@ namespace Internal {
 class BreakHandler;
 class SnapshotHandler;
 class Symbol;
+class DebuggerToolTipManager;
 
 class DebuggerCore : public QObject
 {
@@ -109,6 +110,8 @@ public:
     virtual Utils::SavedAction *action(int code) const = 0;
     virtual bool boolSetting(int code) const = 0;
     virtual QString stringSetting(int code) const = 0;
+
+    virtual DebuggerToolTipManager *toolTipManager() const = 0;
 };
 
 // This is the only way to access the global object.

@@ -33,7 +33,6 @@ HEADERS += breakhandler.h \
     debuggerstartparameters.h \
     debuggerstreamops.h \
     debuggerstringutils.h \
-    debuggertooltip.h \
     disassembleragent.h \
     disassemblerlines.h \
     logwindow.h \
@@ -60,7 +59,8 @@ HEADERS += breakhandler.h \
     threaddata.h \
     threadshandler.h \
     watchdelegatewidgets.h \
-    debuggerruncontrolfactory.h
+    debuggerruncontrolfactory.h \
+    debuggertooltipmanager.h
 
 SOURCES += breakhandler.cpp \
     breakpoint.cpp \
@@ -74,7 +74,6 @@ SOURCES += breakhandler.cpp \
     debuggerplugin.cpp \
     debuggerrunner.cpp \
     debuggerstreamops.cpp \
-    debuggertooltip.cpp \
     disassembleragent.cpp \
     disassemblerlines.cpp \
     logwindow.cpp \
@@ -100,7 +99,8 @@ SOURCES += breakhandler.cpp \
     watchutils.cpp \
     watchwindow.cpp \
     stackframe.cpp \
-    watchdelegatewidgets.cpp
+    watchdelegatewidgets.cpp \
+    debuggertooltipmanager.cpp
 
 FORMS += attachexternaldialog.ui \
     attachcoredialog.ui \

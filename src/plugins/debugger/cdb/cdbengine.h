@@ -85,7 +85,8 @@ public:
     virtual ~CdbEngine();
     // Factory function that returns 0 if the debug engine library cannot be found.
 
-    virtual void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
+    virtual void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor,
+                                      const DebuggerToolTipContext &ctx);
     virtual void setupEngine();
     virtual void setupInferior();
     virtual void runEngine();
@@ -215,7 +216,7 @@ private:
 
     QString normalizeFileName(const QString &f);
     void updateLocalVariable(const QByteArray &iname);
-    void updateLocals();
+    void updateLocals(bool forNewStackFrame = false);
     int elapsedLogTime() const;
     void addLocalsOptions(ByteArrayInputStream &s) const;
     unsigned parseStackTrace(const GdbMi &data, bool sourceStepInto);

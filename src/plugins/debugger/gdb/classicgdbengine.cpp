@@ -119,7 +119,7 @@ void GdbEngine::updateLocalsClassic(const QVariant &cookie)
 
     //PENDING_DEBUG("\nRESET PENDING");
     //m_toolTipCache.clear();
-    m_toolTipExpression.clear();
+    clearToolTip();
     watchHandler()->beginCycle();
 
     QByteArray level = QByteArray::number(currentFrame());

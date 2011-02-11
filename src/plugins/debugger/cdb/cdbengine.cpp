@@ -50,7 +50,7 @@
 #include "disassembleragent.h"
 #include "memoryagent.h"
 #include "debuggerrunner.h"
-#include "debuggertooltip.h"
+#include "debuggertooltipmanager.h"
 #include "cdbparsehelpers.h"
 #include "watchutils.h"
 #include "gdb/gdbmi.h"
@@ -471,7 +471,9 @@ void CdbEngine::syncOperateByInstruction(bool operateByInstruction)
     postCommand(m_operateByInstruction ? QByteArray("l-s") : QByteArray("l+s"), 0);
 }
 
-void CdbEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
+void CdbEngine::setToolTipExpression(const QPoint &mousePos,
+                                     TextEditor::ITextEditor *editor,
+                                     const DebuggerToolTipContext &contextIn)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO;
@@ -481,10 +483,10 @@ void CdbEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEd
     // Determine expression and function
     int line;
     int column;
-    QString function;
-    const QString exp = cppExpressionAt(editor, cursorPos, &line, &column, &function);
+    DebuggerToolTipContext context = contextIn;
+    const QString exp = cppExpressionAt(editor, context.position, &line, &column, &context.function);
     // Are we in the current stack frame
-    if (function.isEmpty() || exp.isEmpty() || function != stackHandler()->currentFrame().function)
+    if (context.function.isEmpty() || exp.isEmpty() || context.function != stackHandler()->currentFrame().function)
         return;
     // No numerical or any other expressions [yet]
     if (!(exp.at(0).isLetter() || exp.at(0) == QLatin1Char('_')))
@@ -492,9 +494,12 @@ void CdbEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEd
     const QByteArray iname = QByteArray(localsPrefixC) + exp.toAscii();
     const QModelIndex index = watchHandler()->itemIndex(iname);
     if (index.isValid()) {
-        showDebuggerToolTip(mousePos, watchHandler()->modelForIName(iname), index.row());
-    } else {
-        hideDebuggerToolTip();
+        DebuggerTreeViewToolTipWidget *tw = new DebuggerTreeViewToolTipWidget;
+        tw->setContext(context);
+        tw->setDebuggerModel(LocalsWatch);
+        tw->setExpression(exp);
+        tw->acquireEngine(this);
+        DebuggerToolTipManager::instance()->add(mousePos, tw);
     }
 }
 
@@ -1295,11 +1300,11 @@ void CdbEngine::activateFrame(int index)
         }
     } else {
         gotoLocation(frame);
-        updateLocals();
+        updateLocals(true);
     }
 }
 
-void CdbEngine::updateLocals()
+void CdbEngine::updateLocals(bool forNewStackFrame)
 {
     typedef QHash<QByteArray, int> WatcherHash;
 
@@ -1362,7 +1367,7 @@ void CdbEngine::updateLocals()
     // Required arguments: frame
     str << blankSeparator << frameIndex;
     watchHandler()->beginCycle();
-    postExtensionCommand("locals", arguments, 0, &CdbEngine::handleLocals);
+    postExtensionCommand("locals", arguments, 0, &CdbEngine::handleLocals, 0, QVariant(forNewStackFrame));
 }
 
 void CdbEngine::selectThread(int index)
@@ -1571,6 +1576,9 @@ void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
             foreach (const WatchData &wd, watchData)
                 nsp << wd.toString() <<'\n';
         }
+        const bool forNewStackFrame = reply->cookie.toBool();
+        if (forNewStackFrame)
+            emit stackFrameCompleted();
     } else {
         showMessage(QString::fromLatin1(reply->errorMessage), LogError);
     }

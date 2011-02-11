@@ -75,8 +75,8 @@ private:
     virtual ~WatchModel();
 
 public:
-    int rowCount(const QModelIndex &idx) const;
-    int columnCount(const QModelIndex &idx) const;
+    virtual int rowCount(const QModelIndex &idx = QModelIndex()) const;
+    virtual int columnCount(const QModelIndex &idx) const;
 
 private:
     QVariant data(const QModelIndex &index, int role) const;

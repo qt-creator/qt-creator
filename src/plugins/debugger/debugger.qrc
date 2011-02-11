@@ -29,5 +29,6 @@
         <file>images/breakpoint_pending_24.png</file>
         <file>images/location_16.png</file>
         <file>images/location_24.png</file>
+        <file>images/pin.xpm</file>
     </qresource>
 </RCC>

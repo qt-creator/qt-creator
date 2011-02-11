@@ -42,7 +42,7 @@
 #include "debuggermainwindow.h"
 #include "debuggerrunner.h"
 #include "debuggerstringutils.h"
-#include "debuggertooltip.h"
+#include "debuggertooltipmanager.h"
 
 #include "breakhandler.h"
 #include "moduleshandler.h"
@@ -564,11 +564,11 @@ void QmlEngine::requestModuleSymbols(const QString &moduleName)
 //////////////////////////////////////////////////////////////////////
 
 void QmlEngine::setToolTipExpression(const QPoint &mousePos,
-    TextEditor::ITextEditor *editor, int cursorPos)
+    TextEditor::ITextEditor *editor, const DebuggerToolTipContext &ctx)
 {
     // This is processed by QML inspector, which has dependencies to 
     // the qml js editor. Makes life easier.
-    emit tooltipRequested(mousePos, editor, cursorPos);
+    emit tooltipRequested(mousePos, editor, ctx.position);
 }
 
 //////////////////////////////////////////////////////////////////////

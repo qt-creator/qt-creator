@@ -43,6 +43,7 @@
 #include "debuggerstartparameters.h"
 #include "gdb/gdboptionspage.h"
 #include "lldb/lldbenginehost.h"
+#include "debuggertooltipmanager.h"
 
 #ifdef Q_OS_WIN
 #  include "peutils.h"
@@ -344,7 +345,9 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
             break;
     }
 
-    if (!d->m_engine) {
+    if (d->m_engine) {
+        DebuggerToolTipManager::instance()->registerEngine(d->m_engine);
+    } else {
         // Could not find anything suitable.
         debuggingFinished();
         // Create Message box with possibility to go to settings.

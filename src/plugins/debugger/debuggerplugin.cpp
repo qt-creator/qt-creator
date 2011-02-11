@@ -43,7 +43,6 @@
 #include "debuggerrunner.h"
 #include "debuggerruncontrolfactory.h"
 #include "debuggerstringutils.h"
-#include "debuggertooltip.h"
 
 #include "breakpoint.h"
 #include "breakhandler.h"
@@ -62,6 +61,7 @@
 #include "watchhandler.h"
 #include "watchwindow.h"
 #include "watchutils.h"
+#include "debuggertooltipmanager.h"
 
 #include "snapshothandler.h"
 #include "threadshandler.h"
@@ -1170,6 +1170,8 @@ public slots:
     bool parseArguments(const QStringList &args,
         unsigned *enabledEngines, QString *errorMessage);
 
+    DebuggerToolTipManager *toolTipManager() const { return m_toolTipManager; }
+
 public:
     DebuggerMainWindow *m_mainWindow;
     DebuggerRunControlFactory *m_debuggerRunControlFactory;
@@ -1246,9 +1248,11 @@ public:
     QSettings *m_coreSettings;
     bool m_gdbBinariesChanged;
     uint m_cmdLineEnabledEngines;
+    DebuggerToolTipManager *m_toolTipManager;
 };
 
-DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
+DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
+    m_toolTipManager(new DebuggerToolTipManager(this))
 {
     qRegisterMetaType<WatchData>("WatchData");
     qRegisterMetaType<ContextData>("ContextData");
@@ -1956,8 +1960,12 @@ void DebuggerPluginPrivate::showToolTip(ITextEditor *editor,
     if (!currentEngine()->canDisplayTooltip())
         return;
     QTC_ASSERT(handled, return);
-    *handled = true;
-    currentEngine()->setToolTipExpression(point, editor, pos);
+
+    const DebuggerToolTipContext context = DebuggerToolTipContext::fromEditor(editor, pos);
+    if (context.isValid()) {
+        *handled = true;
+        currentEngine()->setToolTipExpression(point, editor, context);
+    }
 }
 
 DebuggerRunControl *DebuggerPluginPrivate::createDebugger
@@ -2036,7 +2044,7 @@ void DebuggerPluginPrivate::cleanupViews()
 {
     m_reverseDirectionAction->setChecked(false);
     m_reverseDirectionAction->setEnabled(false);
-    hideDebuggerToolTip();
+    m_toolTipManager->closeUnpinnedToolTips();
 
     if (!boolSetting(CloseBuffersOnExit))
         return;
@@ -2089,7 +2097,7 @@ void DebuggerPluginPrivate::setInitialState()
     setBusyCursor(false);
     m_reverseDirectionAction->setChecked(false);
     m_reverseDirectionAction->setEnabled(false);
-    hideDebuggerToolTip();
+    m_toolTipManager->closeAllToolTips();
 
     m_startExternalAction->setEnabled(true);
     m_attachExternalAction->setEnabled(true);
@@ -2286,12 +2294,15 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
 
     m_mainWindow->onModeChanged(mode);
 
-    if (mode->id() != Constants::MODE_DEBUG)
+    if (mode->id() != Constants::MODE_DEBUG) {
+        m_toolTipManager->leavingDebugMode();
         return;
+    }
 
     EditorManager *editorManager = EditorManager::instance();
     if (editorManager->currentEditor())
         editorManager->currentEditor()->widget()->setFocus();
+    m_toolTipManager->debugModeEntered();
 }
 
 void DebuggerPluginPrivate::showSettingsDialog()
@@ -2345,11 +2356,13 @@ void DebuggerPluginPrivate::sessionLoaded()
 {
     m_breakHandler->loadSessionData();
     dummyEngine()->watchHandler()->loadSessionData();
+    m_toolTipManager->loadSessionData();
 }
 
 void DebuggerPluginPrivate::aboutToUnloadSession()
 {
     m_breakHandler->removeSessionData();
+    m_toolTipManager->sessionAboutToChange();
     // Stop debugging the active project when switching sessions.
     // Note that at startup, session switches may occur, which interfere
     // with command-line debugging startup.
@@ -2362,6 +2375,7 @@ void DebuggerPluginPrivate::aboutToUnloadSession()
 void DebuggerPluginPrivate::aboutToSaveSession()
 {
     dummyEngine()->watchHandler()->loadSessionData();
+    m_toolTipManager->saveSessionData();
     m_breakHandler->saveSessionData();
 }
 

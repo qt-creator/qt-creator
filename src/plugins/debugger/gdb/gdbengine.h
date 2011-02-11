@@ -60,6 +60,7 @@ class AbstractGdbAdapter;
 class AbstractGdbProcess;
 class GdbResponse;
 class GdbMi;
+class GdbToolTipContext;
 
 class WatchData;
 class DisassemblerAgentCookie;
@@ -325,6 +326,7 @@ private: ////////// Inferior Management //////////
     void executeNextI();
 
     void continueInferiorInternal();
+    void doNotifyInferiorRunOk();
     void autoContinueInferior();
     void continueInferior();
     void interruptInferior();
@@ -474,8 +476,7 @@ private: ////////// View & Data Stuff //////////
     // Watch specific stuff
     //
     virtual void setToolTipExpression(const QPoint &mousePos,
-        TextEditor::ITextEditor *editor, int cursorPos);
-
+        TextEditor::ITextEditor *editor, const DebuggerToolTipContext &);
     virtual void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);
 
@@ -555,10 +556,11 @@ private: ////////// View & Data Stuff //////////
     AbstractGdbProcess *gdbProc() const;
     void showExecutionError(const QString &message);
 
-    void removeTooltip();
     static QByteArray tooltipIName(const QString &exp);
-    QString m_toolTipExpression;
-    QPoint m_toolTipPos;
+    QString tooltipExpression() const;
+    void clearToolTip();
+    QScopedPointer<GdbToolTipContext> m_toolTipContext;
+
 
     // For short-circuiting stack and thread list evaluation.
     bool m_stackNeeded;

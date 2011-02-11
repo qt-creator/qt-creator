@@ -38,7 +38,6 @@
 #include "debuggerplugin.h"
 #include "debuggerrunner.h"
 #include "debuggerstringutils.h"
-#include "debuggertooltip.h"
 #include "debuggerstartparameters.h"
 
 #include "memoryagent.h"
@@ -357,11 +356,6 @@ void DebuggerEngine::showStatusMessage(const QString &msg, int timeout) const
     showMessage(msg, StatusBar, timeout);
 }
 
-void DebuggerEngine::removeTooltip()
-{
-    watchHandler()->removeTooltip();
-    hideDebuggerToolTip();
-}
 
 void DebuggerEngine::frameUp()
 {
@@ -471,6 +465,14 @@ QAbstractItemModel *DebuggerEngine::returnModel() const
     QAbstractItemModel *model = watchHandler()->model(ReturnWatch);
     if (model->objectName().isEmpty()) // Make debugging easier.
         model->setObjectName(objectName() + QLatin1String("ReturnModel"));
+    return model;
+}
+
+QAbstractItemModel *DebuggerEngine::toolTipsModel() const
+{
+    QAbstractItemModel *model = watchHandler()->model(TooltipsWatch);
+    if (model->objectName().isEmpty()) // Make debugging easier.
+        model->setObjectName(objectName() + QLatin1String("TooltipsModel"));
     return model;
 }
 
@@ -1238,7 +1240,7 @@ DebuggerRunControl *DebuggerEngine::runControl() const
 }
 
 void DebuggerEngine::setToolTipExpression
-    (const QPoint &, TextEditor::ITextEditor *, int)
+    (const QPoint &, TextEditor::ITextEditor *, const DebuggerToolTipContext &)
 {
 }
 

@@ -52,7 +52,7 @@
 #include "debuggerplugin.h"
 #include "debuggerrunner.h"
 #include "debuggerstringutils.h"
-#include "debuggertooltip.h"
+#include "debuggertooltipmanager.h"
 #include "disassembleragent.h"
 #include "gdbmi.h"
 #include "gdboptionspage.h"
@@ -74,6 +74,7 @@
 #include "logwindow.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/ifile.h>
 #include <projectexplorer/toolchain.h>
 #include <texteditor/itexteditor.h>
 #include <utils/qtcassert.h>
@@ -101,9 +102,17 @@
 #endif
 #include <ctype.h>
 
-
 namespace Debugger {
 namespace Internal {
+
+class GdbToolTipContext : public DebuggerToolTipContext
+{
+public:
+    GdbToolTipContext(const DebuggerToolTipContext &c) : DebuggerToolTipContext(c) {}
+
+    QPoint mousePosition;
+    QString expression;
+};
 
 static const char winPythonVersionC[] = "python2.5";
 
@@ -1103,7 +1112,7 @@ void GdbEngine::handleQuerySources(const GdbResponse &response)
 void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultRunning) {
-        notifyInferiorRunOk();
+        doNotifyInferiorRunOk();
         // All is fine. Waiting for the temporary breakpoint to be hit.
     } else if (response.resultClass == GdbResultDone) {
         // This happens on old gdb. Trigger the effect of a '*stopped'.
@@ -1116,7 +1125,7 @@ void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
 void GdbEngine::handleExecuteRunToLine(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultRunning) {
-        notifyInferiorRunOk();
+        doNotifyInferiorRunOk();
         // All is fine. Waiting for the temporary breakpoint to be hit.
     } else if (response.resultClass == GdbResultDone) {
         // This happens on old gdb. Trigger the effect of a '*stopped'.
@@ -1275,7 +1284,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         // be handled in the result handler.
         // -- or --
         // *stopped arriving earlier than ^done response to an -exec-step
-        notifyInferiorRunOk();
+        doNotifyInferiorRunOk();
         notifyInferiorSpontaneousStop();
     } else if (state() == InferiorStopOk && isQmlStepBreakpoint2(bkptno)) {
         // That's expected.
@@ -1630,7 +1639,7 @@ void GdbEngine::handleExecuteContinue(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        notifyInferiorRunOk();
+        doNotifyInferiorRunOk();
         return;
     }
     QByteArray msg = response.data.findChild("msg").data();
@@ -1871,6 +1880,12 @@ void GdbEngine::continueInferiorInternal()
     postCommand("-exec-continue", RunRequest, CB(handleExecuteContinue));
 }
 
+void GdbEngine::doNotifyInferiorRunOk()
+{
+    clearToolTip();
+    notifyInferiorRunOk();
+}
+
 void GdbEngine::autoContinueInferior()
 {
     resetLocation();
@@ -1909,7 +1924,7 @@ void GdbEngine::handleExecuteStep(const GdbResponse &response)
     }
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        notifyInferiorRunOk();
+        doNotifyInferiorRunOk();
         return;
     }
     QByteArray msg = response.data.findChild("msg").data();
@@ -1972,7 +1987,7 @@ void GdbEngine::handleExecuteNext(const GdbResponse &response)
     }
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        notifyInferiorRunOk();
+        doNotifyInferiorRunOk();
         return;
     }
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
@@ -3366,7 +3381,12 @@ bool GdbEngine::supportsThreads() const
 
 bool GdbEngine::showToolTip()
 {
-    const QByteArray iname = tooltipIName(m_toolTipExpression);
+    if (m_toolTipContext.isNull())
+        return false;
+    const QString expression = m_toolTipContext->expression;
+    const QByteArray iname = tooltipIName(m_toolTipContext->expression);
+    if (DebuggerToolTipManager::debug())
+        qDebug() << "GdbEngine::showToolTip " << expression << iname << (*m_toolTipContext);
 
     if (!debuggerCore()->boolSetting(UseToolTipsInMainEditor)) {
         watchHandler()->removeData(iname);
@@ -3376,15 +3396,29 @@ bool GdbEngine::showToolTip()
     const QModelIndex index = watchHandler()->itemIndex(iname);
     if (!index.isValid()) {
         watchHandler()->removeData(iname);
-        hideDebuggerToolTip();
         return false;
     }
-    showDebuggerToolTip(m_toolTipPos, index);
+    DebuggerTreeViewToolTipWidget *tw = new DebuggerTreeViewToolTipWidget;
+    tw->setDebuggerModel(TooltipsWatch);
+    tw->setExpression(expression);
+    tw->setContext(*m_toolTipContext);
+    tw->acquireEngine(this);
+    DebuggerToolTipManager::instance()->add(m_toolTipContext->mousePosition, tw);
     return true;
 }
 
+QString GdbEngine::tooltipExpression() const
+{
+    return m_toolTipContext.isNull() ? QString() : m_toolTipContext->expression;
+}
+
+void GdbEngine::clearToolTip()
+{
+    m_toolTipContext.reset();
+}
+
 void GdbEngine::setToolTipExpression(const QPoint &mousePos,
-    TextEditor::ITextEditor *editor, int cursorPos)
+    TextEditor::ITextEditor *editor, const DebuggerToolTipContext &contextIn)
 {
     if (state() != InferiorStopOk || !isCppEditor(editor)) {
         //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED "
@@ -3392,9 +3426,13 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
         return;
     }
 
-    m_toolTipPos = mousePos;
+    DebuggerToolTipContext context = contextIn;
     int line, column;
-    QString exp = cppExpressionAt(editor, cursorPos, &line, &column);
+    QString exp = cppExpressionAt(editor, context.position, &line, &column, &context.function);
+    if (DebuggerToolTipManager::debug())
+        qDebug() << "GdbEngine::setToolTipExpression1 " << exp << context;
+    if (exp.isEmpty())
+        return;
 
     // Extract the first identifier, everything else is considered
     // too dangerous.
@@ -3414,35 +3452,11 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
     }
     exp = exp.mid(pos1, pos2 - pos1);
 
-    if (!exp.isEmpty() && exp == m_toolTipExpression) {
-        showToolTip();
-        return;
-    }
-
-    m_toolTipExpression = exp;
-
-    // FIXME: enable caching
-    //if (showToolTip())
-    //    return;
-
-    if (exp.isEmpty() || exp.startsWith(_c('#')))  {
-        //QToolTip::hideText();
-        return;
-    }
-
-    if (!hasLetterOrNumber(exp)) {
-        //QToolTip::showText(m_toolTipPos,
-        //    tr("'%1' contains no identifier").arg(exp));
-        return;
-    }
-
-    if (isKeyWord(exp))
+    if (exp.isEmpty() || exp.startsWith(_c('#')) || !hasLetterOrNumber(exp) || isKeyWord(exp))
         return;
 
-    if (exp.startsWith(_c('"')) && exp.endsWith(_c('"')))  {
-        //QToolTip::showText(m_toolTipPos, tr("String literal %1").arg(exp));
+    if (exp.startsWith(_c('"')) && exp.endsWith(_c('"')))
         return;
-    }
 
     if (exp.startsWith(__("++")) || exp.startsWith(__("--")))
         exp = exp.mid(2);
@@ -3453,29 +3467,19 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
     if (exp.startsWith(_c('<')) || exp.startsWith(_c('[')))
         return;
 
-    if (hasSideEffects(exp)) {
-        //QToolTip::showText(m_toolTipPos,
-        //    tr("Cowardly refusing to evaluate expression '%1' "
-        //       "with potential side effects").arg(exp));
+    if (hasSideEffects(exp) || exp.isEmpty())
+        return;
+
+    if (!m_toolTipContext.isNull() && m_toolTipContext->expression == exp) {
+        showToolTip();
         return;
     }
 
-    // Gdb crashes when creating a variable object with the name
-    // of the type of 'this'
-/*
-    for (int i = 0; i != m_currentLocals.childCount(); ++i) {
-        if (m_currentLocals.childAt(i).exp == "this") {
-            qDebug() << "THIS IN ROW" << i;
-            if (m_currentLocals.childAt(i).type.startsWith(exp)) {
-                QToolTip::showText(m_toolTipPos,
-                    tr("%1: type of current 'this'").arg(exp));
-                qDebug() << " TOOLTIP CRASH SUPPRESSED";
-                return;
-            }
-            break;
-        }
-    }
-*/
+    m_toolTipContext.reset(new GdbToolTipContext(context));
+    m_toolTipContext->mousePosition = mousePos;
+    m_toolTipContext->expression = exp;
+    if (DebuggerToolTipManager::debug())
+        qDebug() << "GdbEngine::setToolTipExpression2 " << exp << (*m_toolTipContext);
 
     if (isSynchronous()) {
         updateLocals(QVariant());
@@ -4585,13 +4589,6 @@ void GdbEngine::resetCommandQueue()
         m_cookieForToken.clear();
         showMessage(msg);
     }
-}
-
-void GdbEngine::removeTooltip()
-{
-    m_toolTipExpression.clear();
-    m_toolTipPos = QPoint();
-    DebuggerEngine::removeTooltip();
 }
 
 void GdbEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)

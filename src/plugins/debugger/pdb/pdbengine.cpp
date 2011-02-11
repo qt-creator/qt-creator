@@ -41,6 +41,7 @@
 #include "debuggerdialogs.h"
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
+#include "debuggertooltipmanager.h"
 
 #include "breakhandler.h"
 #include "moduleshandler.h"
@@ -456,11 +457,10 @@ static QPoint m_toolTipPos;
 static QHash<QString, WatchData> m_toolTipCache;
 
 void PdbEngine::setToolTipExpression(const QPoint &mousePos,
-    TextEditor::ITextEditor *editor, int cursorPos)
+    TextEditor::ITextEditor *editor, const DebuggerToolTipContext &ctx)
 {
     Q_UNUSED(mousePos)
     Q_UNUSED(editor)
-    Q_UNUSED(cursorPos)
 
     if (state() != InferiorStopOk) {
         //SDEBUG("SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED");
@@ -474,7 +474,7 @@ void PdbEngine::setToolTipExpression(const QPoint &mousePos,
 
     int line;
     int column;
-    QString exp = cppExpressionAt(editor, cursorPos, &line, &column);
+    QString exp = cppExpressionAt(editor, ctx.position, &line, &column);
 
 /*
     if (m_toolTipCache.contains(exp)) {

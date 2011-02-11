@@ -19,7 +19,7 @@ public:
     ~QmlCppEngine();
 
     void setToolTipExpression(const QPoint &mousePos,
-        TextEditor::ITextEditor * editor, int cursorPos);
+        TextEditor::ITextEditor * editor, const DebuggerToolTipContext &);
     void updateWatchData(const WatchData &data,
         const WatchUpdateFlags &flags);
 

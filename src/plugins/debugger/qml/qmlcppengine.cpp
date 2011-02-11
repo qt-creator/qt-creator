@@ -138,9 +138,9 @@ QmlCppEngine::~QmlCppEngine()
 }
 
 void QmlCppEngine::setToolTipExpression(const QPoint & mousePos,
-        TextEditor::ITextEditor *editor, int cursorPos)
+        TextEditor::ITextEditor *editor, const DebuggerToolTipContext &ctx)
 {
-    d->m_activeEngine->setToolTipExpression(mousePos, editor, cursorPos);
+    d->m_activeEngine->setToolTipExpression(mousePos, editor, ctx);
 }
 
 void QmlCppEngine::updateWatchData(const WatchData &data,
