@@ -763,7 +763,7 @@
             \endcode
     \endlist
 
-    \section2 Aestethics
+    \section2 Esthetics
 
     \list
         \o Prefer enums to define const over static const int or defines.
