@@ -4,5 +4,6 @@
         <file>images/gui.png</file>
         <file>images/lib.png</file>
         <file>images/qtquickapp.png</file>
+        <file>images/html5app.png</file>
     </qresource>
 </RCC>
