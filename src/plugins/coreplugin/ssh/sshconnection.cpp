@@ -188,6 +188,8 @@ SshConnectionPrivate::SshConnectionPrivate(SshConnection *conn)
 {
     setupPacketHandlers();
     m_timeoutTimer.setSingleShot(true);
+    m_keepAliveTimer.setSingleShot(true);
+    m_keepAliveTimer.setInterval(10000);
     connect(m_channelManager, SIGNAL(timeout()), this, SLOT(handleTimeout()));
 }
 
@@ -255,6 +257,9 @@ void SshConnectionPrivate::setupPacketHandlers()
         << KeyExchangeStarted << KeyExchangeSuccess
         << UserAuthServiceRequested << UserAuthRequested
         << ConnectionEstablished, &This::handleDisconnect);
+
+    setupPacketHandler(SSH_MSG_UNIMPLEMENTED,
+        StateList() << ConnectionEstablished, &This::handleUnimplementedPacket);
 }
 
 void SshConnectionPrivate::setupPacketHandler(SshPacketType type,
@@ -436,6 +441,9 @@ void SshConnectionPrivate::handleUserAuthSuccessPacket()
     m_state = ConnectionEstablished;
     m_timeoutTimer.stop();
     emit connected();
+    m_lastInvalidMsgSeqNr = InvalidSeqNr;
+    connect(&m_keepAliveTimer, SIGNAL(timeout()), SLOT(sendKeepAlivePacket()));
+    m_keepAliveTimer.start();
 }
 
 void SshConnectionPrivate::handleUserAuthFailurePacket()
@@ -450,6 +458,19 @@ void SshConnectionPrivate::handleDebugPacket()
     const SshDebug &msg = m_incomingPacket.extractDebug();
     if (msg.display)
         emit dataAvailable(msg.message);
+}
+
+void SshConnectionPrivate::handleUnimplementedPacket()
+{
+    const SshUnimplemented &msg = m_incomingPacket.extractUnimplemented();
+    if (msg.invalidMsgSeqNr != m_lastInvalidMsgSeqNr) {
+        throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Unexpected packet", tr("The server sent an unexpected SSH packet "
+            "of type SSH_MSG_UNIMPLEMENTED."));
+    }
+    m_lastInvalidMsgSeqNr = InvalidSeqNr;
+    m_timeoutTimer.stop();
+    m_keepAliveTimer.start();
 }
 
 void SshConnectionPrivate::handleChannelRequest()
@@ -514,6 +535,8 @@ void SshConnectionPrivate::handleDisconnect()
         "", tr("Server closed connection: %1").arg(msg.description));
 }
 
+
+
 void SshConnectionPrivate::sendData(const QByteArray &data)
 {
     if (canUseSocket())
@@ -539,6 +562,14 @@ void SshConnectionPrivate::handleTimeout()
 {
     closeConnection(SSH_DISCONNECT_BY_APPLICATION, SshTimeoutError, "",
         tr("Timeout waiting for reply from server."));
+}
+
+void SshConnectionPrivate::sendKeepAlivePacket()
+{
+    Q_ASSERT(m_lastInvalidMsgSeqNr == InvalidSeqNr);
+    m_lastInvalidMsgSeqNr = m_sendFacility.nextClientSeqNr();
+    m_sendFacility.sendInvalidPacket();
+    m_timeoutTimer.start(5000);
 }
 
 void SshConnectionPrivate::connectToHost(const SshConnectionParameters &serverInfo)
@@ -577,6 +608,8 @@ void SshConnectionPrivate::closeConnection(SshErrorCode sshError,
     m_timeoutTimer.stop();
     disconnect(m_socket, 0, this, 0);
     disconnect(&m_timeoutTimer, 0, this, 0);
+    m_keepAliveTimer.stop();
+    disconnect(&m_keepAliveTimer, 0, this, 0);
     try {
         m_channelManager->closeAllChannels();
         m_sendFacility.sendDisconnectPacket(sshError, serverErrorString);
@@ -605,6 +638,8 @@ QSharedPointer<SftpChannel> SshConnectionPrivate::createSftpChannel()
 {
     return m_channelManager->createSftpChannel();
 }
+
+const quint64 SshConnectionPrivate::InvalidSeqNr = static_cast<quint64>(-1);
 
 } // namespace Internal
 } // namespace Core

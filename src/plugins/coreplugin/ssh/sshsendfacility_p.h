@@ -66,6 +66,8 @@ public:
     void sendUserAuthByKeyRequestPacket(const QByteArray &user,
         const QByteArray &service);
     void sendRequestFailurePacket();
+    void sendIgnorePacket();
+    void sendInvalidPacket();
     void sendSessionPacket(quint32 channelId, quint32 windowSize,
         quint32 maxPacketSize);
     void sendEnvPacket(quint32 remoteChannel, const QByteArray &var,
@@ -78,6 +80,7 @@ public:
         const QByteArray &signalName);
     void sendChannelEofPacket(quint32 remoteChannel);
     void sendChannelClosePacket(quint32 remoteChannel);
+    quint32 nextClientSeqNr() const { return m_clientSeqNr; }
 
 private:
     void sendPacket();

@@ -133,6 +133,18 @@ void SshSendFacility::sendRequestFailurePacket()
     sendPacket();
 }
 
+void SshSendFacility::sendIgnorePacket()
+{
+    m_outgoingPacket.generateIgnorePacket();
+    sendPacket();
+}
+
+void SshSendFacility::sendInvalidPacket()
+{
+    m_outgoingPacket.generateInvalidMessagePacket();
+    sendPacket();
+}
+
 void SshSendFacility::sendSessionPacket(quint32 channelId, quint32 windowSize,
     quint32 maxPacketSize)
 {

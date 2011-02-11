@@ -59,6 +59,8 @@ public:
     void generateUserAuthByKeyRequestPacket(const QByteArray &user,
         const QByteArray &service);
     void generateRequestFailurePacket();
+    void generateIgnorePacket();
+    void generateInvalidMessagePacket();
     void generateSessionPacket(quint32 channelId, quint32 windowSize,
         quint32 maxPacketSize);
     void generateEnvPacket(quint32 remoteChannel, const QByteArray &var,

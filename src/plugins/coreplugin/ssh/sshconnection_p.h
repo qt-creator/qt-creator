@@ -102,6 +102,7 @@ private:
     Q_SLOT void handleSocketError();
     Q_SLOT void handleSocketDisconnected();
     Q_SLOT void handleTimeout();
+    Q_SLOT void sendKeepAlivePacket();
 
     void handleServerId();
     void handlePackets();
@@ -116,6 +117,7 @@ private:
     void handleUserAuthBannerPacket();
     void handleGlobalRequest();
     void handleDebugPacket();
+    void handleUnimplementedPacket();
     void handleChannelRequest();
     void handleChannelOpen();
     void handleChannelOpenFailure();
@@ -141,6 +143,8 @@ private:
     typedef QPair<StateList, PacketHandler> HandlerInStates;
     QHash<SshPacketType, HandlerInStates> m_packetHandlers;
 
+    static const quint64 InvalidSeqNr;
+
     QTcpSocket *m_socket;
     SshStateInternal m_state;
     SshIncomingPacket m_incomingPacket;
@@ -152,8 +156,10 @@ private:
     QString m_errorString;
     QScopedPointer<SshKeyExchange> m_keyExchange;
     QTimer m_timeoutTimer;
+    QTimer m_keepAliveTimer;
     bool m_ignoreNextPacket;
     SshConnection *m_conn;
+    quint64 m_lastInvalidMsgSeqNr;
 };
 
 } // namespace Internal

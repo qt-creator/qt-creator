@@ -130,6 +130,16 @@ void SshOutgoingPacket::generateRequestFailurePacket()
     init(SSH_MSG_REQUEST_FAILURE).finalize();
 }
 
+void SshOutgoingPacket::generateIgnorePacket()
+{
+    init(SSH_MSG_IGNORE).finalize();
+}
+
+void SshOutgoingPacket::generateInvalidMessagePacket()
+{
+    init(SSH_MSG_INVALID).finalize();
+}
+
 void SshOutgoingPacket::generateSessionPacket(quint32 channelId,
     quint32 windowSize, quint32 maxPacketSize)
 {

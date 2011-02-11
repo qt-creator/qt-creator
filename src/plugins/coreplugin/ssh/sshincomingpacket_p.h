@@ -91,6 +91,11 @@ struct SshDebug
     QByteArray language;
 };
 
+struct SshUnimplemented
+{
+    quint32 invalidMsgSeqNr;
+};
+
 struct SshChannelOpenFailure
 {
     quint32 localChannel;
@@ -156,6 +161,7 @@ public:
     SshDisconnect extractDisconnect() const;
     SshUserAuthBanner extractUserAuthBanner() const;
     SshDebug extractDebug() const;
+    SshUnimplemented extractUnimplemented() const;
 
     SshChannelOpenFailure extractChannelOpenFailure() const;
     SshChannelOpenConfirmation extractChannelOpenConfirmation() const;

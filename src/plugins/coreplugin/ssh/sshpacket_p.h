@@ -79,7 +79,12 @@ enum SshPacketType {
     SSH_MSG_CHANNEL_CLOSE = 97,
     SSH_MSG_CHANNEL_REQUEST = 98,
     SSH_MSG_CHANNEL_SUCCESS = 99,
-    SSH_MSG_CHANNEL_FAILURE = 100
+    SSH_MSG_CHANNEL_FAILURE = 100,
+
+    // Not completely safe, since the server may actually understand this
+    // message type as an extension. Switch to a different value in that case
+    // (between 128 and 191).
+    SSH_MSG_INVALID = 128
 };
 
 enum SshExtendedDataType { SSH_EXTENDED_DATA_STDERR = 1 };

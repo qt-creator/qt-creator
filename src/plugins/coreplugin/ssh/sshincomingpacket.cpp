@@ -257,7 +257,23 @@ SshDebug SshIncomingPacket::extractDebug() const
         return msg;
     } catch (SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
-            "Invalid SSH_MSG_USERAUTH_BANNER.");
+            "Invalid SSH_MSG_DEBUG.");
+    }
+}
+
+SshUnimplemented SshIncomingPacket::extractUnimplemented() const
+{
+    Q_ASSERT(isComplete());
+    Q_ASSERT(type() == SSH_MSG_UNIMPLEMENTED);
+
+    try {
+        SshUnimplemented msg;
+        quint32 offset = TypeOffset + 1;
+        msg.invalidMsgSeqNr = SshPacketParser::asUint32(m_data, &offset);
+        return msg;
+    } catch (SshPacketParseException &) {
+        throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Invalid SSH_MSG_UNIMPLEMENTED.");
     }
 }
 
