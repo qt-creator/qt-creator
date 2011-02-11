@@ -1575,6 +1575,12 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         // :on[ly]
         //triggerAction(Core::Constants::REMOVE_ALL_SPLITS);
         triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
+    } else if (cmd.cmd == "AS") {
+        triggerAction(Core::Constants::SPLIT);
+        triggerAction(CppTools::Constants::SWITCH_HEADER_SOURCE);
+    } else if (cmd.cmd == "AV") {
+        triggerAction(Core::Constants::SPLIT_SIDE_BY_SIDE);
+        triggerAction(CppTools::Constants::SWITCH_HEADER_SOURCE);
     } else {
         // Check whether one of the configure commands matches.
         typedef ExCommandMap::const_iterator Iterator;
