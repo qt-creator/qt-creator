@@ -324,8 +324,9 @@
     \code
     if (address.isEmpty()
             || !isValid()
-            || !codec)
+            || !codec) {
         return false;
+    }
     \endcode
 
     \note This could be re-written as:
