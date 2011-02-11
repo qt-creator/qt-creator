@@ -171,6 +171,8 @@ void MaemoDebugSupport::handleSshError(const QString &error)
     if (m_state == Debugging) {
         showMessage(tr("SSH connection error: %1").arg(error),
             AppError);
+        if (m_engine)
+            m_engine->notifyInferiorIll();
     } else if (m_state != Inactive) {
         handleAdapterSetupFailed(error);
     }

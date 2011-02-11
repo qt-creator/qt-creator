@@ -249,6 +249,8 @@ public:
 
     virtual bool canDisplayTooltip() const { return state() == InferiorStopOk; }
 
+    virtual void notifyInferiorIll();
+
 signals:
     void stateChanged(const Debugger::DebuggerState &state);
     void updateViewsRequested();
@@ -296,7 +298,6 @@ protected:
     virtual void notifyEngineShutdownOk();
     virtual void notifyEngineShutdownFailed();
 
-    virtual void notifyInferiorIll();
     virtual void notifyEngineIll();
 
     virtual void setupEngine() = 0;
