@@ -89,6 +89,8 @@ QmlCppEnginePrivate::QmlCppEnginePrivate(QmlCppEngine *parent,
         SLOT(cppStackChanged()), Qt::QueuedConnection);
     connect(m_qmlEngine->stackHandler()->model(), SIGNAL(modelReset()),
         SLOT(qmlStackChanged()), Qt::QueuedConnection);
+    connect(m_cppEngine, SIGNAL(stackFrameCompleted()), q, SIGNAL(stackFrameCompleted()));
+    connect(m_qmlEngine, SIGNAL(stackFrameCompleted()), q, SIGNAL(stackFrameCompleted()));
 }
 
 void QmlCppEnginePrivate::cppStackChanged()
