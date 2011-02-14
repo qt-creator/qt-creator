@@ -54,6 +54,7 @@ class QLabel;
 class QToolBar;
 class QMenu;
 class QDebug;
+class QAction;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -82,6 +83,9 @@ public:
 
     void addWidget(QWidget *w);
     void addToolBarWidget(QWidget *w);
+    void addMenuAction(QAction *a);
+    // Add an action to "close all". Call in constructor after populating the tool button menu.
+    void addCloseAllMenuAction();
 
 public slots:
     void pin();
@@ -151,6 +155,7 @@ public slots:
 
     void acquireEngine(Debugger::DebuggerEngine *engine);
     void releaseEngine();
+    void copy();
     bool positionShow(const QPlainTextEdit *pe);
 
 protected:
@@ -158,6 +163,8 @@ protected:
     virtual void doReleaseEngine() = 0;
     virtual void doSaveSessionData(QXmlStreamWriter &w) const = 0;
     virtual void doLoadSessionData(QXmlStreamReader &r) = 0;
+    // Return a string suitable for copying contents
+    virtual QString clipboardContents() const { return QString(); }
 
 private:
     static AbstractDebuggerToolTipWidget *loadSessionDataI(QXmlStreamReader &r);
@@ -202,11 +209,14 @@ public:
     QString expression() const { return m_expression; }
     void setExpression(const QString &e) { m_expression = e; }
 
+    static QString treeModelClipboardContents(const QAbstractItemModel *m);
+
 protected:
     virtual void doAcquireEngine(Debugger::DebuggerEngine *engine);
     virtual void doReleaseEngine();
     virtual void doSaveSessionData(QXmlStreamWriter &w) const;
     virtual void doLoadSessionData(QXmlStreamReader &r);
+    virtual QString clipboardContents() const;
 
 private:
     static void restoreTreeModel(QXmlStreamReader &r, QStandardItemModel *m);

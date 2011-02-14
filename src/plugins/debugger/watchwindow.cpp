@@ -41,6 +41,7 @@
 #include "debuggerengine.h"
 #include "watchdelegatewidgets.h"
 #include "watchhandler.h"
+#include "debuggertooltipmanager.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -55,7 +56,8 @@
 #include <QtGui/QItemDelegate>
 #include <QtGui/QMenu>
 #include <QtGui/QResizeEvent>
-
+#include <QtGui/QClipboard>
+#include <QtGui/QApplication>
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -421,6 +423,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         memoryMenu.setEnabled(false);
     }
 
+    QAction *actCopy = new QAction(tr("Copy Contents to Clipboard"), &menu);
+
     menu.addAction(actInsertNewWatchItem);
     menu.addAction(actSelectWidgetToWatch);
     menu.addMenu(&formatMenu);
@@ -428,6 +432,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(actSetWatchpointAtVariableAddress);
     if (actSetWatchpointAtPointerValue)
         menu.addAction(actSetWatchpointAtPointerValue);
+    menu.addAction(actCopy );
     menu.addSeparator();
 
     menu.addAction(debuggerCore()->action(UseDebuggingHelpers));
@@ -485,6 +490,13 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         watchExpression(exp);
     } else if (act == actRemoveWatchExpression) {
         removeWatchExpression(exp);
+    } else if (act == actCopy ) {
+        const QString clipboardText = DebuggerTreeViewToolTipWidget::treeModelClipboardContents(model());
+        QClipboard *clipboard = QApplication::clipboard();
+#ifdef Q_WS_X11
+        clipboard->setText(clipboardText, QClipboard::Selection);
+#endif
+        clipboard->setText(clipboardText, QClipboard::Clipboard);
     } else if (act == actRemoveWatches) {
         currentEngine()->watchHandler()->clearWatches();
     } else if (act == actClearCodeModelSnapshot) {

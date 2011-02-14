@@ -65,6 +65,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
+#include <QtGui/QClipboard>
 
 #include <QtCore/QVariant>
 #include <QtCore/QStack>
@@ -294,10 +295,15 @@ void XmlWriterTreeModelVisitor::handleItem(const QModelIndex &m)
     }
 }
 
-// TreeModelVisitor for debugging models
+// TreeModelVisitor for debugging/copying models
 class DumpTreeModelVisitor : public TreeModelVisitor {
 public:
-    explicit DumpTreeModelVisitor(const QAbstractItemModel *model, QTextStream &s);
+    enum Mode
+    {
+        DebugMode,      // For debugging, "|'data'|"
+        ClipboardMode   // Tab-delimited "\tdata" for clipboard (see stack window)
+    };
+    explicit DumpTreeModelVisitor(const QAbstractItemModel *model, Mode m, QTextStream &s);
 
 protected:
     virtual void rowStarted();
@@ -305,31 +311,61 @@ protected:
     virtual void rowEnded();
 
 private:
+    const Mode m_mode;
+
     QTextStream &m_stream;
     int m_level;
+    unsigned m_itemsInRow;
 };
 
-DumpTreeModelVisitor::DumpTreeModelVisitor(const QAbstractItemModel *model, QTextStream &s) :
-    TreeModelVisitor(model), m_stream(s), m_level(0)
+DumpTreeModelVisitor::DumpTreeModelVisitor(const QAbstractItemModel *model, Mode m, QTextStream &s) :
+    TreeModelVisitor(model), m_mode(m), m_stream(s), m_level(0), m_itemsInRow(0)
 {
-    m_stream << model->metaObject()->className() << '/' << model->objectName();
+    if (m_mode == DebugMode)
+        m_stream << model->metaObject()->className() << '/' << model->objectName();
 }
 
 void DumpTreeModelVisitor::rowStarted()
 {
     m_level++;
-    m_stream << '\n' << QString(2 * m_level, QLatin1Char(' '));
+    if (m_itemsInRow) { // Nested row.
+        m_stream << '\n';
+        m_itemsInRow = 0;
+    }
+    switch (m_mode) {
+    case DebugMode:
+        m_stream << QString(2 * m_level, QLatin1Char(' '));
+        break;
+    case ClipboardMode:
+        m_stream << QString(m_level, QLatin1Char('\t'));
+        break;
+    }
 }
 
 void DumpTreeModelVisitor::handleItem(const QModelIndex &m)
 {
-    if (m.column())
-        m_stream << '|';
-    m_stream << '\'' << m.data().toString() << '\'';
+    const QString data = m.data().toString();
+    switch (m_mode) {
+    case DebugMode:
+        if (m.column())
+            m_stream << '|';
+        m_stream << '\'' << data << '\'';
+        break;
+    case ClipboardMode:
+        if (m.column())
+            m_stream << '\t';
+        m_stream << data;
+        break;
+    }
+    m_itemsInRow++;
 }
 
 void DumpTreeModelVisitor::rowEnded()
 {
+    if (m_itemsInRow) {
+        m_stream << '\n';
+        m_itemsInRow = 0;
+    }
     m_level--;
 }
 
@@ -340,7 +376,7 @@ static inline QDebug operator<<(QDebug d, const QAbstractItemModel &model)
 {
     QString s;
     QTextStream str(&s);
-    Debugger::Internal::DumpTreeModelVisitor v(&model, str);
+    Debugger::Internal::DumpTreeModelVisitor v(&model, Debugger::Internal::DumpTreeModelVisitor::DebugMode, str);
     v.run();
     qDebug().nospace() << s;
     return d;
@@ -390,7 +426,6 @@ PinnableToolTipWidget::PinnableToolTipWidget(QWidget *parent) :
     const QList<QSize> pinIconSizes = pinIcon.availableSizes();
 
     m_toolButton->setIcon(pinIcon);
-    m_menu->addAction(tr("Close All"), this, SIGNAL(closeAllRequested()));
     m_toolButton->setMenu(m_menu);
     m_toolButton->setPopupMode(QToolButton::MenuButtonPopup);
     connect(m_toolButton, SIGNAL(clicked()), this, SLOT(toolButtonClicked()));
@@ -403,6 +438,16 @@ PinnableToolTipWidget::PinnableToolTipWidget(QWidget *parent) :
     m_mainVBoxLayout->addWidget(m_toolBar);
 
     setLayout(m_mainVBoxLayout);
+}
+
+void PinnableToolTipWidget::addMenuAction(QAction *a)
+{
+    m_menu->addAction(a);
+}
+
+void PinnableToolTipWidget::addCloseAllMenuAction()
+{
+    m_menu->addAction(tr("Close All"), this, SIGNAL(closeAllRequested()));
 }
 
 void PinnableToolTipWidget::addWidget(QWidget *w)
@@ -510,6 +555,10 @@ AbstractDebuggerToolTipWidget::AbstractDebuggerToolTipWidget(QWidget *parent) :
 {
     m_titleLabel->setText(msgReleasedText());
     addToolBarWidget(m_titleLabel);
+    QAction *copyAction = new QAction(tr("Copy"), this);
+    connect(copyAction, SIGNAL(triggered()), this, SLOT(copy()));
+    addMenuAction(copyAction);
+    addCloseAllMenuAction();
 }
 
 bool AbstractDebuggerToolTipWidget::matches(const QString &fileName,
@@ -551,6 +600,16 @@ void AbstractDebuggerToolTipWidget::releaseEngine()
     doReleaseEngine();
     m_titleLabel->setText(msgReleasedText());
     m_engineAcquired = false;
+}
+
+void AbstractDebuggerToolTipWidget::copy()
+{
+    const QString clipboardText = clipboardContents();
+    QClipboard *clipboard = QApplication::clipboard();
+#ifdef Q_WS_X11
+    clipboard->setText(clipboardText, QClipboard::Selection);
+#endif
+    clipboard->setText(clipboardText, QClipboard::Clipboard);
 }
 
 bool AbstractDebuggerToolTipWidget::positionShow(const QPlainTextEdit *pe)
@@ -910,6 +969,22 @@ void DebuggerTreeViewToolTipWidget::doLoadSessionData(QXmlStreamReader &r)
     restoreTreeModel(r, m_defaultModel);
     r.readNext(); // Skip </tree>
     m_treeView->swapModel(m_defaultModel);
+}
+
+QString DebuggerTreeViewToolTipWidget::treeModelClipboardContents(const QAbstractItemModel *m)
+{
+    QString rc;
+    QTextStream str(&rc);
+    DumpTreeModelVisitor v(m, DumpTreeModelVisitor::ClipboardMode, str);
+    v.run();
+    return rc;
+}
+
+QString DebuggerTreeViewToolTipWidget::clipboardContents() const
+{
+    if (const QAbstractItemModel *model = m_treeView->model())
+        return DebuggerTreeViewToolTipWidget::treeModelClipboardContents(model);
+    return QString();
 }
 
 /*!
