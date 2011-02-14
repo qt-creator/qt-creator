@@ -480,8 +480,8 @@ void Thread::handleGdbStarted()
 
 void Thread::run()
 {
-    m_proc->write("source -p ../../../share/qtcreator/gdbmacros/dumper.py\n");
-    m_proc->write("source -p ../../../share/qtcreator/gdbmacros/gdbmacros.py\n");
+    m_proc->write("source ../../../share/qtcreator/gdbmacros/dumper.py\n");
+    m_proc->write("source ../../../share/qtcreator/gdbmacros/gdbmacros.py\n");
     m_proc->write("break breaker\n");
     m_proc->write("run\n");
     m_proc->write("handle SIGSTOP stop pass\n");

@@ -2441,7 +2441,7 @@ void tst_Dumpers::initTestCase()
     VERIFY_OFFSETOF(eventFilters);
     VERIFY_OFFSETOF(currentChildBeingDeleted);
     VERIFY_OFFSETOF(connectedSignals);
-    VERIFY_OFFSETOF(deleteWatch);
+    //VERIFY_OFFSETOF(deleteWatch);
 #ifdef QT3_SUPPORT
 #if QT_VERSION < 0x040600
     VERIFY_OFFSETOF(pendingChildInsertedEvents);
