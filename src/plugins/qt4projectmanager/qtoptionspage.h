@@ -106,7 +106,7 @@ private slots:
     void updateCurrentS60SDKDirectory();
     void updateCurrentGcceDirectory();
     void updateCurrentSbsV2Directory();
-    void updateDebuggingHelperInfo(const QtVersion *version = 0);
+    void updateDebuggingHelperInfo();
     void msvcVersionChanged();
     void buildDebuggingHelper(DebuggingHelperBuildTask::Tools tools
                               = DebuggingHelperBuildTask::AllTools);

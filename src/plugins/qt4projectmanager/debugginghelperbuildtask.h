@@ -79,4 +79,6 @@ private:
 } //namespace Internal
 } //namespace Qt4ProjectManager
 
+Q_DECLARE_METATYPE(Qt4ProjectManager::Internal::DebuggingHelperBuildTask::Tools)
+
 #endif // DEBUGGINGHELPERBUILDTASK_H
