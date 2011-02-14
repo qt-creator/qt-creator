@@ -160,6 +160,17 @@ QStringList QMakeStep::moreArguments()
                || tc->targetAbi().osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor))
         arguments << QLatin1String("-unix");
 #endif
+
+    if (m_linkQmlDebuggingLibrary
+            && !bc->qtVersion()->qmlDebuggingHelperLibrary(true).isEmpty()) {
+        // Do not turn debugger path into native path separators: Qmake does not like that!
+        const QString debuggingHelperPath
+                = QFileInfo(bc->qtVersion()->qmlDebuggingHelperLibrary(true)).dir().path();
+
+        arguments << QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH)
+                     + QLatin1Char('=') + debuggingHelperPath;
+    }
+
     if (!bc->qtVersion()->supportsShadowBuilds()) {
         // We have a target which does not allow shadow building.
         // But we really don't want to have the build artefacts in the source dir
@@ -171,16 +182,6 @@ QStringList QMakeStep::moreArguments()
                   << QLatin1String("MOC_DIR=moc")
                   << QLatin1String("UI_DIR=ui")
                   << QLatin1String("RCC_DIR=rcc");
-    }
-
-    if (m_linkQmlDebuggingLibrary
-            && !bc->qtVersion()->qmlDebuggingHelperLibrary(true).isEmpty()) {
-        // Do not turn debugger path into native path separators: Qmake does not like that!
-        const QString debuggingHelperPath
-                = QFileInfo(bc->qtVersion()->qmlDebuggingHelperLibrary(true)).dir().path();
-
-        arguments << QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH)
-                     + QLatin1Char('=') + debuggingHelperPath;
     }
     return arguments;
 }
