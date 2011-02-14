@@ -189,7 +189,9 @@ private slots:
     void dumpQVariant_invalid();
     void dumpQVariant_QString();
     void dumpQVariant_QStringList();
+#ifndef Q_CC_MSVC
     void dumpStdVector();
+#endif // !Q_CC_MSVC
     void dumpQWeakPointer();
     void initTestCase();
 
@@ -520,12 +522,6 @@ const QByteArray createExp(const void *ptr,
 }
 
 // Helper functions.
-
-#ifdef Q_CC_MSVC
-#  define MAP_NODE_TYPE_END ">"
-#else
-#  define MAP_NODE_TYPE_END " >"
-#endif
 
 template <typename T> static const char *typeToString()
 {
@@ -1566,12 +1562,12 @@ template <typename K, typename V>
             char *addr = reinterpret_cast<char *>(&(*it)) + backwardOffset;
             expected.append("addr='").append(ptrToBa(addr)).
                 append("',type='"NS"QMapNode<").append(keyTypeStr).append(",").
-                append(valTypeStr).append(MAP_NODE_TYPE_END).append("'");
+                    append(valTypeStr).append(" >").append("'");
 #else
             expected.append("type='"NS"QMapData::Node<").append(keyTypeStr).
-                append(",").append(valTypeStr).append(MAP_NODE_TYPE_END).
+                append(",").append(valTypeStr).append(" >").
                 append("',exp='*('"NS"QMapData::Node<").append(keyTypeStr).
-                append(",").append(valTypeStr).append(MAP_NODE_TYPE_END).
+                append(",").append(valTypeStr).append(" >").
                 append(" >'*)").append(ptrToBa(&(*it))).append("'");
 #endif
         }
@@ -2307,6 +2303,8 @@ void tst_Dumpers::dumpQVariant_QStringList()
         &v, NS"QVariant", true);
 }
 
+#ifndef Q_CC_MSVC
+
 void tst_Dumpers::dumpStdVector()
 {
     std::vector<std::list<int> *> vector;
@@ -2331,6 +2329,8 @@ void tst_Dumpers::dumpStdVector()
     vector.push_back(new std::list<int>(list));
     vector.push_back(0);
 }
+
+#endif // !Q_CC_MSVC
 
 void tst_Dumpers::dumpQTextCodecHelper(QTextCodec *codec)
 {
