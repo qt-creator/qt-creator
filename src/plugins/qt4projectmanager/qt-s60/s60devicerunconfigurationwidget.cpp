@@ -34,6 +34,7 @@
 #include "s60devicerunconfigurationwidget.h"
 #include "s60devicerunconfiguration.h"
 
+#include <utils/debuggerlanguagechooser.h>
 #include <utils/detailswidget.h>
 
 #include <QtGui/QLineEdit>
@@ -69,11 +70,25 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     detailsBoxLayout->addLayout(formLayout);
     formLayout->addRow(tr("Arguments:"), m_argumentsLineEdit);
 
+    m_debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(this);
+    formLayout->addRow(tr("Debugger:"), m_debuggerLanguageChooser);
+
+    m_debuggerLanguageChooser->setCppChecked(m_runConfiguration->useCppDebugger());
+    m_debuggerLanguageChooser->setQmlChecked(m_runConfiguration->useQmlDebugger());
+    m_debuggerLanguageChooser->setQmlDebugServerPort(m_runConfiguration->qmlDebugServerPort());
+
     connect(m_argumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(argumentsEdited(QString)));
 
     connect(m_runConfiguration, SIGNAL(isEnabledChanged(bool)),
             this, SLOT(runConfigurationEnabledChange(bool)));
+
+    connect(m_debuggerLanguageChooser, SIGNAL(cppLanguageToggled(bool)),
+            this, SLOT(useCppDebuggerToggled(bool)));
+    connect(m_debuggerLanguageChooser, SIGNAL(qmlLanguageToggled(bool)),
+            this, SLOT(useQmlDebuggerToggled(bool)));
+    connect(m_debuggerLanguageChooser, SIGNAL(qmlDebugServerPortChanged(uint)),
+            this, SLOT(qmlDebugServerPortChanged(uint)));
 
     setEnabled(m_runConfiguration->isEnabled());
 }
@@ -86,6 +101,21 @@ void S60DeviceRunConfigurationWidget::argumentsEdited(const QString &text)
 void S60DeviceRunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
 {
     setEnabled(enabled);
+}
+
+void S60DeviceRunConfigurationWidget::useCppDebuggerToggled(bool enabled)
+{
+    m_runConfiguration->setUseCppDebugger(enabled);
+}
+
+void S60DeviceRunConfigurationWidget::useQmlDebuggerToggled(bool enabled)
+{
+    m_runConfiguration->setUseQmlDebugger(enabled);
+}
+
+void S60DeviceRunConfigurationWidget::qmlDebugServerPortChanged(uint port)
+{
+    m_runConfiguration->setQmlDebugServerPort(port);
 }
 
 } // namespace Internal

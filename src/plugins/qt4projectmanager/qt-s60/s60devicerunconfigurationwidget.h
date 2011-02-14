@@ -42,6 +42,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
     class DetailsWidget;
+    class DebuggerLanguageChooser;
 }
 
 namespace Qt4ProjectManager {
@@ -58,10 +59,14 @@ public:
 private slots:
     void argumentsEdited(const QString &text);
     void runConfigurationEnabledChange(bool enabled);
+    void useCppDebuggerToggled(bool);
+    void useQmlDebuggerToggled(bool);
+    void qmlDebugServerPortChanged(uint);
 
 private:
     S60DeviceRunConfiguration *m_runConfiguration;
     Utils::DetailsWidget *m_detailsWidget;
+    Utils::DebuggerLanguageChooser *m_debuggerLanguageChooser;
     QLineEdit *m_argumentsLineEdit;
 };
 
