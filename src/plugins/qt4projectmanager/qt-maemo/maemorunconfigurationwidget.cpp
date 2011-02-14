@@ -51,6 +51,7 @@
 #include <qt4projectmanager/qt4target.h>
 #include <utils/detailswidget.h>
 
+#include <QtGui/QButtonGroup>
 #include <QtCore/QCoreApplication>
 #include <QtGui/QComboBox>
 #include <QtGui/QFileDialog>
@@ -146,6 +147,10 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
     m_debugQmlOnlyButton = new QRadioButton(tr("QML only"));
     m_debugCppAndQmlButton = new QRadioButton(tr("C++ and QML"));
     m_debuggingLanguagesLabel = new QLabel(tr("Debugging type:"));
+    QButtonGroup * const buttonGroup = new QButtonGroup;
+    buttonGroup->addButton(m_debugCppOnlyButton);
+    buttonGroup->addButton(m_debugQmlOnlyButton);
+    buttonGroup->addButton(m_debugCppAndQmlButton);
     debugButtonsLayout->addWidget(m_debugCppOnlyButton);
     debugButtonsLayout->addWidget(m_debugQmlOnlyButton);
     debugButtonsLayout->addWidget(m_debugCppAndQmlButton);
