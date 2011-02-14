@@ -353,7 +353,7 @@ bool CdbOptionsPageWidget::checkInstallation(const QString &executable,
     // 2) Check on extension library
     const QFileInfo extensionFi(CdbEngine::extensionLibraryName(is64Bit));
     if (extensionFi.isFile()) {
-        message->append(tr("Extension library: %1, built: %3.\n").
+        message->append(tr("Extension library: %1, built: %2.\n").
                         arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath())).
                         arg(extensionFi.lastModified().toString(Qt::SystemLocaleShortDate)));
         checkedItems++;

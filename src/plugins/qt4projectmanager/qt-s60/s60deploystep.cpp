@@ -390,7 +390,7 @@ void S60DeployStep::startDeployment()
             QString deviceError = tr("No such port");
             if (m_codaDevice)
                 deviceError = m_codaDevice->device()->errorString();
-            reportError(tr("Couldn't open serial device: %1").arg(deviceError));
+            reportError(tr("Could not open serial device: %1").arg(deviceError));
             stop();
             return;
         }
@@ -541,20 +541,21 @@ void S60DeployStep::startInstalling()
 void S60DeployStep::handleFileSystemOpen(const Coda::CodaCommandResult &result)
 {
     if (result.type != Coda::CodaCommandResult::SuccessReply) {
-        reportError(tr("Open remote file failed: %1").arg(result.errorString()));
+        reportError(tr("Could not open remote file: %1").arg(result.errorString()));
         return;
     }
 
     if (result.values.size() < 1 || result.values.at(0).data().isEmpty()) {
-        reportError(tr("Internal error: No filehandle obtained"));
+        reportError(QLatin1String("Internal error: No filehandle obtained"));
         return;
     }
 
     m_remoteFileHandle = result.values.at(0).data();
 
-    m_putFile.reset(new QFile(m_signedPackages.at(m_currentFileIndex)));
+    const QString fileName = m_signedPackages.at(m_currentFileIndex);
+    m_putFile.reset(new QFile(fileName));
     if (!m_putFile->open(QIODevice::ReadOnly)) { // Should not fail, was checked before
-        reportError(tr("Open local file failed: %1").arg(m_putFile->errorString()));
+        reportError(tr("Could not open local file %1: %2").arg(fileName, m_putFile->errorString()));
         return;
     }
     putSendNextChunk();
@@ -627,7 +628,7 @@ void S60DeployStep::handleFileSystemClose(const Coda::CodaCommandResult &result)
         else
             initFileSending();
     } else {
-        reportError(tr("File close failed: %1").arg(result.toString()));
+        reportError(tr("Failed to close the remote file: %1").arg(result.toString()));
     }
 }
 
@@ -794,7 +795,7 @@ void S60DeployStep::updateProgress(int progress)
     //appendMessage(tr("Copy percentage: %1%").arg((m_currentFileIndex*100 + progress) /m_signedPackages.count()), false);
     int copyProgress = ((m_currentFileIndex*100 + progress) /m_signedPackages.count());
     int entireProgress = copyProgress * 0.8; //the copy progress is just 80% of the whole deployment progress
-    m_futureInterface->setProgressValueAndText(entireProgress, tr("Copy percentage: %1%").arg(copyProgress));
+    m_futureInterface->setProgressValueAndText(entireProgress, tr("Copy progress: %1%").arg(copyProgress));
 }
 
 // #pragma mark -- S60DeployStepWidget

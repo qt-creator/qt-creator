@@ -121,7 +121,7 @@ bool CodaRunControl::setupLauncher()
 
         bool ok = m_codaDevice && m_codaDevice->device()->isOpen();
         if (!ok) {
-            appendMessage(tr("Couldn't open serial device: %1").arg(m_codaDevice->device()->errorString()), ErrorMessageFormat);
+            appendMessage(tr("Could not open serial device: %1").arg(m_codaDevice->device()->errorString()), ErrorMessageFormat);
             return false;
         }
         connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),

@@ -82,7 +82,7 @@ static inline QString msgAutoDetectFail(bool is64Bit, const QString &executable,
                                         const QString &extLib)
 {
     return QCoreApplication::translate("Debugger::Cdb::CdbOptions",
-        "Auto-detection of the new CDB debugging engine (%1bit) failed:\n"
+        "Auto-detection of the CDB debugging engine (%1bit) failed:\n"
         "Debugger executable: %2\n"
         "Extension library  : %3 not present.\n").arg(is64Bit ? 64 : 32).
          arg(QDir::toNativeSeparators(executable), QDir::toNativeSeparators(extLib));

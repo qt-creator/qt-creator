@@ -4256,7 +4256,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb,
         showStatusMessage(_("%1 cannot find python").arg(nativeGdb));
         const QString msg = tr("The gdb installed at %1 cannot "
            "find a valid python installation in its %2 subdirectory.\n"
-           "You may set the PYTHONPATH to your installation.")
+           "You may set the environment variable PYTHONPATH to point to your installation.")
                 .arg(nativeGdb).arg(winPythonVersion);
         handleAdapterStartFailed(msg, settingsIdHint);
         return false;

@@ -1356,7 +1356,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             sp.executable = it->section('@', 1, 1);
             if (sp.remoteChannel.isEmpty()) {
                 *errorMessage = DebuggerPlugin::tr("The parameter '%1' of option "
-                    "'%2' does not match the pattern <server:port>@<exe>@<arch>.")
+                    "'%2' does not match the pattern <server:port>@<executable>@<architecture>.")
                         .arg(*it, option);
                 return false;
             }

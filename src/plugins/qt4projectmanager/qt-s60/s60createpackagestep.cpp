@@ -247,29 +247,22 @@ void S60CreatePackageStep::handleWarnAboutPatching()
         connect(m_patchWarningDialog, SIGNAL(finished(int)), this, SLOT(packageWarningDialogDone()));
 
         QString title;
-        QString text;
-        const QString &url = QString::fromLatin1("qthelp://com.nokia.qtcreator.%1%2%3/doc/creator-run-settings.html#capabilities-and-signing").
+        QString changedText;
+        const QString url = QString::fromLatin1("qthelp://com.nokia.qtcreator.%1%2%3/doc/creator-run-settings.html#capabilities-and-signing").
                 arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
         if (m_packageChanges.count() == 1) {
-            title = tr("A Package was modified");
-            text = tr("<p>Qt modified your package <b>%1</b>.</p>"
-                      "<p><em>These changes were not part of your build system</em> but are required to "
-                      "make sure the <em>self-signed</em> package can be installed successfully on a "
-                      "device.</p>"
-                      "<p>Check the Build Issues for more details on the modifications made.</p>"
-                      "<p>Please see <a href=\"%2\">"
-                      "the documentation</a> for other signing options. These will prevent "
-                      "this patching from happening.</p>").arg(m_packageChanges.at(0).first, url);
+            title = tr("Package Modified");
+            changedText = tr("<p>Qt modified your package <b>%1</b>.</p>").arg(m_packageChanges.at(0).first);
         } else {
-            title = tr("Several Packages were modified");
-            text = tr("<p>Qt modified some of your packages.</p>"
-                      "<p><em>These changes were not part of your build system</em> but are required to "
-                      "make sure the <em>self-signed</em> packages can be installed successfully.</p>"
-                      "<p>Check the Build Issues for more details on the modifications made.</p>"
-                      "<p>Please see <a href=\"%1\">"
-                      "the documentation</a> for other signing options. These will prevent "
-                      "this patching from happening.</p>").arg(url);
+            title = tr("Packages Modified");
+            changedText = tr("<p>Qt modified some of your packages.</p>");
         }
+        const QString text =
+            tr("%1<p><em>These changes were not part of your build system</em> but are required to "
+               "make sure the <em>self-signed</em> package can be installed successfully on a device.</p>"
+               "<p>Check the Build Issues pane for more details on the modifications made.</p>"
+               "<p>Please see the <a href=\"%2\">documentation</a> for other signing options which "
+               "remove the need for this patching.</p>").arg(changedText, url);
         m_patchWarningDialog->setWindowTitle(title);
         m_patchWarningDialog->setText(text);
         m_patchWarningDialog->setCheckBoxText(tr("Ignore patching for this packaging step."));
@@ -457,18 +450,16 @@ bool S60CreatePackageStep::validateCustomSigningResources(const QStringList &cap
 
     QString errorString;
     if (customSignaturePath().isEmpty())
-        errorString = tr("Certificate file has not heen defined. "
-                         "Please define certificate file in the project's options.");
+        errorString = tr("No certificate file specified. Please specify one in the project settings.");
     else if (!QFileInfo(customSignaturePath()).exists())
         errorString = tr("Certificate file \"%1\" does not exist. "
-                         "Please define certificate file in the project's options.").arg(customSignaturePath());
+                         "Please specify an existing certificate file in the project settings.").arg(customSignaturePath());
 
     if (customKeyPath().isEmpty())
-        errorString = tr("Key file has not heen defined. "
-                         "Please define certificate file in the project's options.");
+        errorString = tr("No key file specified. Please specify one in the project settings.");
     else if (!QFileInfo(customKeyPath()).exists())
         errorString = tr("Key file \"%1\" does not exist. "
-                         "Please define certificate file in the project's options.").arg(customKeyPath());
+                         "Please specify an existing key file in the project settings.").arg(customKeyPath());
 
     if (!errorString.isEmpty()) {
         reportPackageStepIssue(errorString, true);
@@ -490,7 +481,7 @@ bool S60CreatePackageStep::validateCustomSigningResources(const QStringList &cap
     QStringList unsupportedCaps;
     if (certInfoPtr.data()->compareCapabilities(capabilitiesInPro, unsupportedCaps)) {
         if (!unsupportedCaps.isEmpty()) {
-            QString message = tr("The created package will not install on a "
+            QString message = tr("The package created will not install on a "
                                  "device as some of the defined capabilities "
                                  "are not supported by the certificate: %1")
                     .arg(unsupportedCaps.join(" "));
@@ -932,11 +923,11 @@ QString S60CreatePackageStepConfigWidget::summaryText() const
     case S60CreatePackageStep::SignCustom:
         if (!m_signStep->customSignaturePath().isEmpty()
                 && !m_signStep->customKeyPath().isEmpty())
-            text = tr("signed with \"%1\" certificate and \"%2\" key file")
+            text = tr("signed with the certificate \"%1\" using the key \"%2\"")
                .arg(QFileInfo(m_signStep->customSignaturePath()).fileName(),
                     QFileInfo(m_signStep->customKeyPath()).fileName());
         else
-            text = tr("signed with a certificate and a key that need to be defined");
+            text = tr("signed with a certificate and a key that need to be specified");
         break;
     case S60CreatePackageStep::NotSigned:
         text = tr("not signed");

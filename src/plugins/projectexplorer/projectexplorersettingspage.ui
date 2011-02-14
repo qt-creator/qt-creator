@@ -78,7 +78,7 @@
       <item>
        <widget class="QCheckBox" name="showRunOutputCheckBox">
         <property name="text">
-         <string>Show run output on running</string>
+         <string>Pop up application output pane on running</string>
         </property>
        </widget>
       </item>

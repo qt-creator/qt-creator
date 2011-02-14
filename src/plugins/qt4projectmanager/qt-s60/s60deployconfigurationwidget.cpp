@@ -156,7 +156,7 @@ void S60DeployConfigurationWidget::init(ProjectExplorer::DeployConfiguration *dc
     debugClientHBoxLayout->addWidget(createCommunicationChannel());
     debugClientHBoxLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
 
-    QGroupBox *debugClientGroupBox = new QGroupBox(tr("Debug Client"));
+    QGroupBox *debugClientGroupBox = new QGroupBox(tr("Device Agent"));
     debugClientGroupBox->setLayout(debugClientHBoxLayout);
 
     bool usingTrk = m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationTrkSerialConnection;
@@ -467,7 +467,7 @@ void S60DeployConfigurationWidget::updateDeviceInfo()
         // Wait for either timeout or results
         m_deviceInfoButton->setEnabled(false);
     } else
-        setDeviceInfoLabel(tr("Currently there is no information about device for CODA connection type."), true);
+        setDeviceInfoLabel(tr("Information about the device is not available when using CODA."), true);
 }
 
 } // namespace Internal

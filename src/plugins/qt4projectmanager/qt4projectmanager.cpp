@@ -200,7 +200,7 @@ static void updateBoilerPlateCodeFiles(const AbstractMobileApp *app, const QStri
     const QList<AbstractGeneratedFileInfo> updates =
             app->fileUpdates(proFile);
     if (!updates.empty()) {
-        const QString title = Qt4Manager::tr("Update of generated files");
+        const QString title = Qt4Manager::tr("Update of Generated Files");
         QStringList fileNames;
         foreach (const AbstractGeneratedFileInfo &info, updates)
             fileNames.append(QDir::toNativeSeparators(info.fileInfo.fileName()));

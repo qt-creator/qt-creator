@@ -180,6 +180,11 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
     return false; // don't let the view do drag&drop on its own
 }
 
+static inline QString msgUnknownItem(const QString &t)
+{
+    return NavigatorTreeModel::tr("Unknown item: %1").arg(t);
+}
+
 NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &node)
 {
     Q_ASSERT(node.isValid());
@@ -193,11 +198,11 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
     idItem->setDropEnabled(dropEnabled);
     idItem->setEditable(true);
     idItem->setData(hash, NavigatorRole);
-    if (node.metaInfo().isValid())
+    if (node.metaInfo().isValid()) {
         idItem->setToolTip(node.type());
-    else
-        idItem->setToolTip(tr("unkown item: ") + node.type());
-
+    } else {
+        idItem->setToolTip(msgUnknownItem(node.type()));
+    }
 #    ifdef _LOCK_ITEMS_
     QStandardItem *lockItem = new QStandardItem;
     lockItem->setDragEnabled(true);
@@ -241,10 +246,11 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &node, ItemRow items)
 
     items.idItem->setText(node.id());
     items.visibilityItem->setCheckState(node.auxiliaryData("invisible").toBool() ? Qt::Unchecked : Qt::Checked);
-    if (node.metaInfo().isValid())
+    if (node.metaInfo().isValid()) {
         items.idItem->setToolTip(node.type());
-    else
-        items.idItem->setToolTip(tr("unkown item: ") + node.type());
+    } else {
+        items.idItem->setToolTip(msgUnknownItem(node.type()));
+    }
 
     blockItemChangedSignal(blockSignal);
 }

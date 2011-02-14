@@ -695,9 +695,8 @@ void QmlEngine::messageReceived(const QByteArray &message)
         QList<WatchData> locals;
         stream >> stackFrames >> watches >> locals;
 
-        logString += tr(" (%1 stack frames)").arg(stackFrames.size());
-        logString += tr(" (%1 watches)").arg(watches.size());
-        logString += tr(" (%1 loacals)").arg(locals.size());
+        logString += QString::fromLatin1(" (%1 stack frames) (%2 watches)  (%3 locals)").
+                     arg(stackFrames.size()).arg(watches.size()).arg(locals.size());
 
         for (int i = 0; i != stackFrames.size(); ++i)
             stackFrames[i].level = i + 1;
