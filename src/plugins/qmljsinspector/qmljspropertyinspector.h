@@ -38,6 +38,11 @@
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QSortFilterProxyModel>
 
+#include <QtGui/QDialog>
+#include <QtGui/QDialogButtonBox>
+
+#include "customcolordialog.h"
+
 QT_BEGIN_NAMESPACE
 
 QT_END_NAMESPACE
@@ -51,22 +56,72 @@ class PropertiesFilter : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    PropertiesFilter(QObject *parent=0):QSortFilterProxyModel(parent) { setDynamicSortFilter(true); }
+    explicit PropertiesFilter(QObject *parent=0):QSortFilterProxyModel(parent) { setDynamicSortFilter(true); }
     ~PropertiesFilter() { }
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+};
+
+class ExpressionEdit : public QDialog
+{
+    Q_OBJECT
+public:
+    explicit ExpressionEdit(const QString & title, QDialog *parent=0);
+
+    QString expression() const;
+    void setItemData(int objectId,const QString &propertyName);
+
+    virtual void accept();
+
+signals:
+    void dataChanged(int debugId, const QString &paramName, const QString &newExpression);
+
+private:
+    QDialogButtonBox *m_buttonBox;
+    QLineEdit *m_exprInput;
+    int m_debugId;
+    QString m_paramName;
+};
+
+class ColorChooserDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    explicit ColorChooserDialog(const QString & title, QDialog *parent=0);
+
+    void setItemData(int objectId,const QString &propertyName, const QString &colorName);
+
+public slots:
+    void acceptColor(const QColor &color);
+
+signals:
+    void dataChanged(int debugId, const QString &paramName, const QString &newExpression);
+
+
+private:
+    int m_debugId;
+    QString m_paramName;
+    QmlEditorWidgets::CustomColorDialog *m_mainFrame;
 };
 
 class QmlJSPropertyInspector : public QTreeView
 {
     Q_OBJECT
 public:
-    QmlJSPropertyInspector(QWidget *parent = 0);
-    void clear();
+    enum PropertyType
+    {
+        BooleanType,
+        NumberType,
+        StringType,
+        ColorType,
+        OtherType
+    };
 
-    QList <int> currentObjects() const;
+    explicit QmlJSPropertyInspector(QWidget *parent = 0);
+    void clear();
 
 signals:
     void changePropertyValue(int debugId, QString propertyName, QString valueExpression);
+    void customContextMenuRequested(const QPoint &pos);
 
 public slots:
     void setCurrentObjects(const QList<QDeclarativeDebugObjectReference> &);
@@ -74,13 +129,20 @@ public slots:
     void propertyValueChanged(int debugId, const QByteArray &propertyName, const QVariant &propertyValue);
     void filterBy(const QString &expression);
 
+    void openExpressionEditor( QModelIndex &itemIndex );
+    void openColorSelector( QModelIndex &itemIndex );
+
 private:
     friend class PropertyEditDelegate;
     void buildPropertyTree(const QDeclarativeDebugObjectReference &);
     void addRow(const QString &name, const QString &value, const QString &type,
                 const int debugId=-1, bool editable=true);
+    void setColorIcon(int row);
 
     QVariant getData(int row, int column, int role) const;
+    QmlJSPropertyInspector::PropertyType getTypeFor(int row) const;
+
+    void contextMenuEvent(QContextMenuEvent *ev);
 
     QStandardItemModel m_model;
     PropertiesFilter *m_filter;

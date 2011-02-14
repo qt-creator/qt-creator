@@ -31,12 +31,22 @@
 **
 **************************************************************************/
 #include "qmljspropertyinspector.h"
-#include <utils/qtcassert.h>
-#include <qdeclarativeproperty.h>
 
 #include <QtGui/QHeaderView>
 #include <QtGui/QItemDelegate>
 #include <QtGui/QLineEdit>
+#include <QtGui/QDoubleValidator>
+#include <QtGui/QPainter>
+
+// expression editor
+#include <QtGui/QContextMenuEvent>
+#include <QtGui/QVBoxLayout>
+
+// context menu
+#include <QtGui/QAction>
+#include <QtGui/QMenu>
+
+#include <utils/qtcassert.h>
 
 namespace QmlJSInspector {
 namespace Internal {
@@ -59,12 +69,34 @@ class PropertyEditDelegate : public QItemDelegate
         if (index.column() != 1)
             return 0;
 
-        return new QLineEdit(parent);
+        switch (m_treeWidget->getTypeFor(index.row())) {
+
+            case QmlJSPropertyInspector::BooleanType: {
+                // invert the bool, skip editor
+                int objectId = m_treeWidget->getData(index.row(), 0, Qt::UserRole).toInt();
+                QString propertyName = m_treeWidget->getData(index.row(), 0, Qt::DisplayRole).toString();
+                bool propertyValue = m_treeWidget->getData(index.row(), 1, Qt::DisplayRole).toBool();
+                m_treeWidget->propertyValueEdited(objectId, propertyName, !propertyValue?"true":"false");
+                return 0;
+            }
+
+            case QmlJSPropertyInspector::NumberType: {
+                QLineEdit *editor = new QLineEdit(parent);
+                editor->setValidator(new QDoubleValidator(editor));
+                return editor;
+            }
+
+        default: {
+                return new QLineEdit(parent);
+            }
+        }
+
+        return 0;
     }
 
     void setEditorData(QWidget *editor, const QModelIndex &index) const
     {
-        QVariant data = m_treeWidget->getData(index.row(),1,Qt::DisplayRole);
+        QVariant data = m_treeWidget->getData(index.row(), 1, Qt::DisplayRole);
         QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
         lineEdit->setText(data.toString());
     }
@@ -73,22 +105,26 @@ class PropertyEditDelegate : public QItemDelegate
     {
         Q_UNUSED(model);
 
-        int objectId = m_treeWidget->getData(index.row(),0,Qt::UserRole).toInt();
+        int objectId = m_treeWidget->getData(index.row(), 0, Qt::UserRole).toInt();
         if (objectId == -1)
             return;
 
-        QString propertyName = m_treeWidget->getData(index.row(),0,Qt::DisplayRole).toString();
+        QString propertyName = m_treeWidget->getData(index.row(), 0, Qt::DisplayRole).toString();
 
         QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
         QString propertyValue = lineEdit->text();
 
         // add quotes if it's a string
-        if ( isStringType( m_treeWidget->getData(index.row(),2,Qt::DisplayRole).toString() ) ) {
-            QChar quote('\"');
-            if (!propertyValue.startsWith(quote))
-                propertyValue = quote + propertyValue;
-            if (!propertyValue.endsWith(quote))
-                propertyValue += quote;
+        QmlJSPropertyInspector::PropertyType propertyType = m_treeWidget->getTypeFor(index.row());
+        QChar quote('\"');
+        QChar backslash('\\');
+
+        if ( propertyType == QmlJSPropertyInspector::StringType ) {
+            propertyValue = propertyValue.replace(quote,backslash+quote);
+        }
+
+        if ( propertyType == QmlJSPropertyInspector::StringType || propertyType == QmlJSPropertyInspector::ColorType ) {
+            propertyValue = quote + propertyValue + quote;
         }
 
         m_treeWidget->propertyValueEdited(objectId, propertyName, propertyValue);
@@ -106,14 +142,77 @@ class PropertyEditDelegate : public QItemDelegate
     }
 
 private:
-    bool isStringType(const QString &typeName) const {
-        return typeName=="QString" || typeName=="QColor";
-    }
-
-private:
     QmlJSPropertyInspector *m_treeWidget;
 
 };
+// *************************************************************************
+//  expressionEdit
+// *************************************************************************
+
+ExpressionEdit::ExpressionEdit(const QString & title, QDialog *parent):QDialog(parent),
+    m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel)),
+    m_exprInput(new QLineEdit(this))
+{
+    setWindowTitle(title);
+
+    QVBoxLayout *vertLayout = new QVBoxLayout;
+    m_exprInput->setMinimumWidth(550);
+    connect(m_exprInput,SIGNAL(returnPressed()),this,SLOT(accept()));
+    vertLayout->addWidget(m_exprInput);
+    vertLayout->addWidget(m_buttonBox);
+    setLayout(vertLayout);
+
+    connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+}
+
+
+QString ExpressionEdit::expression() const
+{
+    return m_exprInput->text();
+}
+
+void ExpressionEdit::setItemData(int objectId, const QString &propertyName)
+{
+    m_debugId = objectId;
+    m_paramName = propertyName;
+}
+
+void ExpressionEdit::accept() {
+    QDialog::accept();
+    emit dataChanged(m_debugId, m_paramName, expression());
+}
+
+// *************************************************************************
+//  color chooser
+// *************************************************************************
+
+ColorChooserDialog::ColorChooserDialog(const QString & title, QDialog *parent):QDialog(parent)
+{
+    setWindowTitle(title);
+
+    QVBoxLayout *vertLayout = new QVBoxLayout;
+    m_mainFrame = new QmlEditorWidgets::CustomColorDialog(this);
+    setLayout(vertLayout);
+
+    setFixedSize(m_mainFrame->size());
+
+    connect(m_mainFrame,SIGNAL(accepted(QColor)),this,SLOT(acceptColor(QColor)));
+    connect(m_mainFrame,SIGNAL(rejected()),this,SLOT(reject()));
+}
+
+void ColorChooserDialog::setItemData(int objectId, const QString &propertyName, const QString& colorName)
+{
+    m_debugId = objectId;
+    m_paramName = propertyName;
+    m_mainFrame->setColor(QColor(colorName));
+}
+
+void ColorChooserDialog::acceptColor(const QColor &color)
+{
+    QDialog::accept();
+    emit dataChanged(m_debugId, m_paramName, QChar('\"')+color.name()+QChar('\"'));
+}
 
 // *************************************************************************
 //  FILTER
@@ -171,11 +270,6 @@ void QmlJSPropertyInspector::clear()
     m_currentObjects.clear();
 }
 
-QList <int> QmlJSPropertyInspector::currentObjects() const
-{
-    return m_currentObjects;
-}
-
 void QmlJSPropertyInspector::setCurrentObjects(const QList<QDeclarativeDebugObjectReference> &objectList)
 {
     if (objectList.isEmpty())
@@ -194,6 +288,11 @@ QVariant QmlJSPropertyInspector::getData(int row, int column, int role) const
     return m_filter->data(m_filter->index(row,column),role);
 }
 
+QmlJSPropertyInspector::PropertyType QmlJSPropertyInspector::getTypeFor(int row) const
+{
+    return static_cast<QmlJSPropertyInspector::PropertyType>(m_filter->data(m_filter->index(row,2),Qt::UserRole).toInt());
+}
+
 void QmlJSPropertyInspector::propertyValueChanged(int debugId, const QByteArray &propertyName, const QVariant &propertyValue)
 {
     if (m_model.rowCount() == 0)
@@ -209,6 +308,8 @@ void QmlJSPropertyInspector::propertyValueChanged(int debugId, const QByteArray 
                 m_model.item(ii,0)->setForeground(QBrush(Qt::red));
                 m_model.item(ii,1)->setForeground(QBrush(Qt::red));
                 m_model.item(ii,2)->setForeground(QBrush(Qt::red));
+                if ((QmlJSPropertyInspector::PropertyType)m_model.item(ii,2)->data(Qt::UserRole).toInt() == QmlJSPropertyInspector::ColorType)
+                    setColorIcon(ii);
             }
             break;
         }
@@ -271,14 +372,105 @@ void QmlJSPropertyInspector::addRow(const QString &name,const QString &value, co
     QStandardItem *valueColumn = new QStandardItem(value);
     valueColumn->setToolTip(value);
     valueColumn->setEditable(editable);
+    valueColumn->setData(QVariant(editable),Qt::UserRole+1);
 
     QStandardItem *typeColumn = new QStandardItem(type);
     typeColumn->setToolTip(type);
     typeColumn->setEditable(false);
+    // encode type for easy lookup
+    QVariant typeCode = QVariant(QmlJSPropertyInspector::OtherType);
+    if (type == "bool")
+        typeCode = QVariant(QmlJSPropertyInspector::BooleanType);
+    if (type == "qreal")
+        typeCode = QVariant(QmlJSPropertyInspector::NumberType);
+    if (type == "QString")
+        typeCode = QVariant(QmlJSPropertyInspector::StringType);
+    if (type == "QColor") {
+        typeCode = QVariant(QmlJSPropertyInspector::ColorType);
+    }
+
+    typeColumn->setData(typeCode,Qt::UserRole);
 
     QList <QStandardItem *> newRow;
     newRow << nameColumn << valueColumn << typeColumn;
     m_model.appendRow(newRow);
+
+    if (type == "QColor") {
+        setColorIcon(m_model.indexFromItem(valueColumn).row());
+    }
+}
+
+void QmlJSPropertyInspector::setColorIcon(int row)
+{
+    QStandardItem *item = m_model.itemFromIndex(m_model.index(row,1));
+    QColor color = QColor(item->data(Qt::DisplayRole).toString());
+
+    int recomendedLength = viewOptions().decorationSize.height() - 2;
+
+    QPixmap colorpix(recomendedLength, recomendedLength);
+    QPainter p(&colorpix);
+    p.fillRect(1,1,recomendedLength-2,recomendedLength-2, color);
+    p.setPen(Qt::black);
+    p.drawRect(0,0,recomendedLength, recomendedLength);
+    item->setIcon(QIcon(colorpix));
+}
+
+void QmlJSPropertyInspector::contextMenuEvent(QContextMenuEvent *ev)
+{
+    QMenu menu;
+    QModelIndex itemIndex = indexAt(ev->pos());
+    bool isEditable = false;
+    bool isColor = false;
+    if (itemIndex.isValid()) {
+        isEditable = m_model.itemFromIndex(m_filter->mapToSource(m_filter->index(itemIndex.row(),1)))->isEditable();
+        isColor = (getTypeFor(itemIndex.row()) == QmlJSPropertyInspector::ColorType);
+    }
+
+    QAction exprAction(tr("Enter expression"), this);
+    if (isEditable)
+        menu.addAction(&exprAction);
+
+    QAction colorAction(tr("Choose color"), this);
+    if (isColor)
+        menu.addAction(&colorAction);
+
+    QAction *action = menu.exec(ev->globalPos());
+    if (action == 0)
+        return;
+
+    if (action == &exprAction)
+        openExpressionEditor( itemIndex );
+    if (action == &colorAction)
+        openColorSelector( itemIndex );
+}
+
+void QmlJSPropertyInspector::openExpressionEditor( QModelIndex &itemIndex )
+{
+    QString propertyName = getData(itemIndex.row(),0,Qt::DisplayRole).toString();
+    QString dialogText = tr("Javascript expression for ")+propertyName;
+    int objectId = getData(itemIndex.row(), 0, Qt::UserRole).toInt();
+
+    ExpressionEdit *expressionDialog = new ExpressionEdit(dialogText);
+    expressionDialog->setItemData(objectId, propertyName);
+
+    connect(expressionDialog,SIGNAL(dataChanged(int,QString,QString)), this, SLOT(propertyValueEdited(int,QString,QString)));
+
+    expressionDialog->show();
+}
+
+void QmlJSPropertyInspector::openColorSelector( QModelIndex &itemIndex )
+{
+    QString propertyName = getData(itemIndex.row(),0,Qt::DisplayRole).toString();
+    QString dialogText = tr("Color selection for ")+propertyName;
+    int objectId = getData(itemIndex.row(), 0, Qt::UserRole).toInt();
+    QString propertyValue = getData(itemIndex.row(),1,Qt::DisplayRole).toString();
+
+    ColorChooserDialog *colorDialog = new ColorChooserDialog(dialogText);
+    colorDialog->setItemData(objectId, propertyName, propertyValue);
+
+    connect(colorDialog,SIGNAL(dataChanged(int,QString,QString)), this, SLOT(propertyValueEdited(int,QString,QString)));
+
+    colorDialog->show();
 }
 
 } // Internal
