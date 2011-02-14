@@ -458,6 +458,12 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                     return response.functionName;
                 if (!data.functionName.isEmpty())
                     return data.functionName;
+                if (data.type == BreakpointAtMain)
+                    return tr("Breakpoint at \"main\"");
+                if (data.type == BreakpointAtCatch)
+                    return tr("Break when catching exceptions");
+                if (data.type == BreakpointAtThrow)
+                    return tr("Break when throwing exceptions");
                 return empty;
             }
             break;

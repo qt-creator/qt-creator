@@ -70,7 +70,7 @@ class BreakpointDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit BreakpointDialog(unsigned engineCapabilities = AllDebuggerCapabilities, QWidget *parent = 0);
+    explicit BreakpointDialog(unsigned engineCapabilities, QWidget *parent = 0);
     bool showDialog(BreakpointParameters *data);
 
     void setParameters(const BreakpointParameters &data);
