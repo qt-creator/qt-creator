@@ -1131,6 +1131,11 @@ void TrkGdbAdapter::handleCpuType(const TrkResult &result)
     //  Command: 0x80 Acknowledge
     //    Error: 0x00
     // [80 03 00  04 00 00 04 00 00 00]
+    if (result.data.size() < 7) {
+        logMessage("ERROR: CPUTYPE RESULT " + result.errorString()
+            + " NOT PARSABLE", LogError);
+        return;
+    }
     m_session.cpuMajor = result.data[1];
     m_session.cpuMinor = result.data[2];
     m_session.bigEndian = result.data[3];
