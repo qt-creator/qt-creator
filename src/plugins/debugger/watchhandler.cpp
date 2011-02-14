@@ -601,25 +601,30 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
     const WatchItem &data = *item;
 
     switch (role) {
-        case  LocalsEditTypeRole:
+        case LocalsEditTypeRole:
             return QVariant(editType(data));
-       case LocalsIntegerBaseRole:
+
+        case LocalsIntegerBaseRole:
             if (isPointerType(data.type)) // Pointers using 0x-convention
                 return QVariant(16);
             return QVariant(formatToIntegerBase(itemFormat(data)));
-        case Qt::EditRole:
+
+        case Qt::EditRole: {
             switch (idx.column()) {
-            case 0:
-                return QVariant(expression(item));
-            case 1:
-                return editValue(data);
-            case 2:
-                // FIXME:: To be tested: Can debuggers handle those?
-                if (!data.displayedType.isEmpty())
-                    return data.displayedType;
-                return QString::fromUtf8(data.type);
-            default: break;
-            } // switch editrole column
+                case 0:
+                    return QVariant(expression(item));
+                case 1:
+                    return editValue(data);
+                case 2:
+                    // FIXME:: To be tested: Can debuggers handle those?
+                    if (!data.displayedType.isEmpty())
+                        return data.displayedType;
+                    return QString::fromUtf8(data.type);
+                default:
+                    break;
+            }
+        }
+
         case Qt::DisplayRole: {
             const QByteArray ns = engine()->qtNamespace();
             switch (idx.column()) {
@@ -636,8 +641,9 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                     return removeNamespaces(displayType(data), ns);
                 default:
                     break;
-            }  // switch editrole column
+            }
         }
+
         case Qt::ToolTipRole:
             return debuggerCore()->boolSetting(UseToolTipsInLocalsView)
                 ? data.toToolTip() : QVariant();
@@ -646,13 +652,15 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             static const QVariant red(QColor(200, 0, 0));
             static const QVariant gray(QColor(140, 140, 140));
             switch (idx.column()) {
-                case 1: return !data.valueEnabled ? gray : data.changed ? red : QVariant();
+                case 1: return !data.valueEnabled ? gray
+                            : data.changed ? red : QVariant();
             }
             break;
         }
 
         case LocalsExpressionRole:
             return QVariant(expression(item));
+
         case LocalsINameRole:
             return data.iname;
 
