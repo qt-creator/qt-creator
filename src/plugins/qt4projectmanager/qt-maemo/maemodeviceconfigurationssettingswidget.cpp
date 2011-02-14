@@ -44,7 +44,7 @@
 #include "maemosshconfigdialog.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/ssh/sshremoteprocessrunner.h>
+#include <utils/ssh/sshremoteprocessrunner.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QRegExp>
@@ -58,6 +58,7 @@
 #include <algorithm>
 
 using namespace Core;
+using namespace Utils;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -204,7 +205,7 @@ void MaemoDeviceConfigurationsSettingsWidget::displayCurrent()
         m_ui->deviceTypeValueLabel->setText(tr("Emulator (Qemu)"));
         m_ui->portsLineEdit->setReadOnly(true);
     }
-    if (sshParams.authType == Core::SshConnectionParameters::AuthByPwd)
+    if (sshParams.authType == Utils::SshConnectionParameters::AuthByPwd)
         m_ui->passwordButton->setChecked(true);
     else
         m_ui->keyButton->setChecked(true);

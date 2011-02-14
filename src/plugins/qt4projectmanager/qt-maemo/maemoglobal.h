@@ -51,7 +51,7 @@ class QProcess;
 class QString;
 QT_END_NAMESPACE
 
-namespace Core { class SshConnection; }
+namespace Utils { class SshConnection; }
 namespace Qt4ProjectManager {
 class QtVersion;
 namespace Internal {
@@ -82,7 +82,7 @@ public:
     static QString remoteCommandPrefix(const QString &commandFilePath);
     static QString remoteEnvironment(const QList<Utils::EnvironmentItem> &list);
     static QString remoteSourceProfilesCommand();
-    static QString failedToConnectToServerMessage(const QSharedPointer<Core::SshConnection> &connection,
+    static QString failedToConnectToServerMessage(const QSharedPointer<Utils::SshConnection> &connection,
         const QSharedPointer<const MaemoDeviceConfig> &deviceConfig);
     static QString deviceConfigurationName(const QSharedPointer<const MaemoDeviceConfig> &devConf);
 

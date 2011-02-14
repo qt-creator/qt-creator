@@ -37,7 +37,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
 
-namespace Core {
+namespace Utils {
 struct SshConnectionParameters;
 class SshRemoteProcessRunner;
 }
@@ -52,7 +52,7 @@ public:
     explicit MaemoKeyDeployer(QObject *parent = 0);
     ~MaemoKeyDeployer();
 
-    void deployPublicKey(const Core::SshConnectionParameters &sshParams,
+    void deployPublicKey(const Utils::SshConnectionParameters &sshParams,
         const QString &keyFilePath);
     void stopDeployment();
 
@@ -67,7 +67,7 @@ private slots:
 private:
     void cleanup();
 
-    QSharedPointer<Core::SshRemoteProcessRunner> m_deployProcess;
+    QSharedPointer<Utils::SshRemoteProcessRunner> m_deployProcess;
 };
 
 } // namespace Internal

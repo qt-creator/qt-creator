@@ -41,7 +41,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 
-namespace Core {
+namespace Utils {
 class SshConnection;
 class SshRemoteProcessRunner;
 }
@@ -55,7 +55,7 @@ class MaemoUsedPortsGatherer : public QObject
 public:
     explicit MaemoUsedPortsGatherer(QObject *parent = 0);
     ~MaemoUsedPortsGatherer();
-    void start(const QSharedPointer<Core::SshConnection> &connection,
+    void start(const QSharedPointer<Utils::SshConnection> &connection,
         const MaemoPortList &portList);
     void stop();
     int getNextFreePort(MaemoPortList *freePorts) const; // returns -1 if no more are left
@@ -74,7 +74,7 @@ private slots:
 private:
     void setupUsedPorts();
 
-    QSharedPointer<Core::SshRemoteProcessRunner> m_procRunner;
+    QSharedPointer<Utils::SshRemoteProcessRunner> m_procRunner;
     QList<int> m_usedPorts;
     QByteArray m_remoteStdout;
     QByteArray m_remoteStderr;

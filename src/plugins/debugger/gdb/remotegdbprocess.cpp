@@ -47,7 +47,7 @@ using namespace Core;
 namespace Debugger {
 namespace Internal {
 
-RemoteGdbProcess::RemoteGdbProcess(const Core::SshConnectionParameters &connParams,
+RemoteGdbProcess::RemoteGdbProcess(const Utils::SshConnectionParameters &connParams,
     RemotePlainGdbAdapter *adapter, QObject *parent)
     : AbstractGdbProcess(parent), m_connParams(connParams),
       m_state(Inactive), m_adapter(adapter)
@@ -91,9 +91,9 @@ void RemoteGdbProcess::realStart(const QString &cmd, const QStringList &args,
     m_gdbOutput.clear();
     m_errorOutput.clear();
     m_inputToSend.clear();
-    m_conn = SshConnection::create();
+    m_conn = Utils::SshConnection::create();
     connect(m_conn.data(), SIGNAL(connected()), this, SLOT(handleConnected()));
-    connect(m_conn.data(), SIGNAL(error(Core::SshError)), this,
+    connect(m_conn.data(), SIGNAL(error(Utils::SshError)), this,
         SLOT(handleConnectionError()));
     m_conn->connectToHost(m_connParams);
 }
@@ -125,7 +125,7 @@ void RemoteGdbProcess::handleFifoCreationFinished(int exitStatus)
         return;
     QTC_ASSERT(m_state == CreatingFifo, return);
 
-    if (exitStatus != SshRemoteProcess::ExitedNormally) {
+    if (exitStatus != Utils::SshRemoteProcess::ExitedNormally) {
         emitErrorExit(tr("Could not create FIFO."));
     } else {
         setState(StartingFifoReader);
@@ -167,7 +167,7 @@ void RemoteGdbProcess::handleAppOutputReaderStarted()
 
 void RemoteGdbProcess::handleAppOutputReaderFinished(int exitStatus)
 {
-    if (exitStatus != SshRemoteProcess::ExitedNormally)
+    if (exitStatus != Utils::SshRemoteProcess::ExitedNormally)
         emitErrorExit(tr("Application output reader unexpectedly finished."));
 }
 
@@ -187,15 +187,15 @@ void RemoteGdbProcess::handleGdbFinished(int exitStatus)
     QTC_ASSERT(m_state == RunningGdb, return);
 
     switch (exitStatus) {
-    case SshRemoteProcess::FailedToStart:
+    case Utils::SshRemoteProcess::FailedToStart:
         m_error = tr("Remote gdb failed to start.");
         setState(Inactive);
         emit startFailed();
         break;
-    case SshRemoteProcess::KilledBySignal:
+    case Utils::SshRemoteProcess::KilledBySignal:
         emitErrorExit(tr("Remote gdb crashed."));
         break;
-    case SshRemoteProcess::ExitedNormally:
+    case Utils::SshRemoteProcess::ExitedNormally:
         const int exitCode = m_gdbProc->exitCode();
         setState(Inactive);
         emit finished(exitCode, QProcess::NormalExit);
@@ -224,7 +224,7 @@ qint64 RemoteGdbProcess::write(const QByteArray &data)
 void RemoteGdbProcess::kill()
 {
     if (m_state == RunningGdb) {
-        SshRemoteProcess::Ptr killProc
+        Utils::SshRemoteProcess::Ptr killProc
             = m_conn->createRemoteProcess("pkill -SIGKILL -x gdb");
         killProc->start();
     } else {
@@ -236,7 +236,7 @@ void RemoteGdbProcess::interruptInferior()
 {
     QTC_ASSERT(m_state == RunningGdb, return);
 
-    SshRemoteProcess::Ptr intProc
+    Utils::SshRemoteProcess::Ptr intProc
         = m_conn->createRemoteProcess("pkill -x -SIGINT gdb");
     intProc->start();
 }
@@ -375,15 +375,15 @@ void RemoteGdbProcess::setState(State newState)
     if (m_state == Inactive) {
         if (m_gdbProc) {
             disconnect(m_gdbProc.data(), 0, this, 0);
-            m_gdbProc = SshRemoteProcess::Ptr();
+            m_gdbProc = Utils::SshRemoteProcess::Ptr();
         }
         if (m_appOutputReader) {
             disconnect(m_appOutputReader.data(), 0, this, 0);
-            m_appOutputReader = SshRemoteProcess::Ptr();
+            m_appOutputReader = Utils::SshRemoteProcess::Ptr();
         }
         if (m_fifoCreator) {
             disconnect(m_fifoCreator.data(), 0, this, 0);
-            m_fifoCreator = SshRemoteProcess::Ptr();
+            m_fifoCreator = Utils::SshRemoteProcess::Ptr();
         }
         disconnect(m_conn.data(), 0, this, 0);
         m_conn->disconnectFromHost();

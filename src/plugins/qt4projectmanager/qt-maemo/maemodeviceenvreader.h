@@ -40,7 +40,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
 
-namespace Core {
+namespace Utils {
     class SshRemoteProcessRunner;
 }
 
@@ -83,7 +83,7 @@ private:
     Utils::Environment m_env;
     QSharedPointer<const MaemoDeviceConfig> m_devConfig;
     MaemoRunConfiguration *m_runConfig;
-    QSharedPointer<Core::SshRemoteProcessRunner> m_remoteProcessRunner;
+    QSharedPointer<Utils::SshRemoteProcessRunner> m_remoteProcessRunner;
 };
 
     }   // Internal

@@ -54,6 +54,7 @@
 #define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
 using namespace Core;
+using namespace Utils;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -371,7 +372,7 @@ void MaemoPublisherFremantleFree::uploadPackage()
     m_uploader = SshRemoteProcessRunner::create(m_sshParams);
     connect(m_uploader.data(), SIGNAL(processStarted()),
         SLOT(handleScpStarted()));
-    connect(m_uploader.data(), SIGNAL(connectionError(Core::SshError)),
+    connect(m_uploader.data(), SIGNAL(connectionError(Utils::SshError)),
         SLOT(handleConnectionError()));
     connect(m_uploader.data(), SIGNAL(processClosed(int)),
         SLOT(handleUploadJobFinished(int)));

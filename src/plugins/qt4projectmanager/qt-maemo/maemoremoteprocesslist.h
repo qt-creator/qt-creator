@@ -47,7 +47,7 @@
 #include <QtCore/QList>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
-#include <coreplugin/ssh/sshremoteprocessrunner.h>
+#include <utils/ssh/sshremoteprocessrunner.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -87,7 +87,7 @@ private:
     void stop();
     void startProcess(const QByteArray &cmdLine, State newState);
 
-    const QSharedPointer<Core::SshRemoteProcessRunner> m_process;
+    const QSharedPointer<Utils::SshRemoteProcessRunner> m_process;
     QByteArray m_remoteStdout;
     QByteArray m_remoteStderr;
     QString m_errorMsg;

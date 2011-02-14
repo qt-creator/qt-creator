@@ -65,7 +65,7 @@
 namespace Debugger {
 namespace Internal {
 
-SshIODevice::SshIODevice(Core::SshRemoteProcessRunner::Ptr r)
+SshIODevice::SshIODevice(Utils::SshRemoteProcessRunner::Ptr r)
     : runner(r)
     , buckethead(0)
 {
@@ -147,10 +147,10 @@ LldbEngineHost::LldbEngineHost(const DebuggerStartParameters &startParameters)
     if (startParameters.startMode == StartRemoteEngine)
     {
         m_guestProcess = 0;
-        Core::SshRemoteProcessRunner::Ptr runner =
-            Core::SshRemoteProcessRunner::create(startParameters.connParams);
-        connect (runner.data(), SIGNAL(connectionError(Core::SshError)),
-                this, SLOT(sshConnectionError(Core::SshError)));
+        Utils::SshRemoteProcessRunner::Ptr runner =
+            Utils::SshRemoteProcessRunner::create(startParameters.connParams);
+        connect (runner.data(), SIGNAL(connectionError(Utils::SshError)),
+                this, SLOT(sshConnectionError(Utils::SshError)));
         runner->run(startParameters.serverStartScript.toUtf8());
         setGuestDevice(new SshIODevice(runner));
     } else  {
@@ -210,7 +210,7 @@ void LldbEngineHost::nuke()
     m_guestProcess->kill();
     notifyEngineSpontaneousShutdown();
 }
-void LldbEngineHost::sshConnectionError(Core::SshError e)
+void LldbEngineHost::sshConnectionError(Utils::SshError e)
 {
     showStatusMessage(tr("ssh connection error: %1").arg(e));
 }

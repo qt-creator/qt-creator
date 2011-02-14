@@ -45,9 +45,9 @@
 #include "maemousedportsgatherer.h"
 #include "qt4maemotarget.h"
 
-#include <coreplugin/ssh/sftpchannel.h>
-#include <coreplugin/ssh/sshconnection.h>
-#include <coreplugin/ssh/sshremoteprocess.h>
+#include <utils/ssh/sftpchannel.h>
+#include <utils/ssh/sshconnection.h>
+#include <utils/ssh/sshremoteprocess.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -66,6 +66,7 @@
 #define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
 using namespace Core;
+using namespace Utils;
 using namespace ProjectExplorer;
 
 namespace Qt4ProjectManager {
@@ -436,7 +437,7 @@ void MaemoDeployStep::handleSftpChannelInitializationFailed(const QString &error
     }
 }
 
-void MaemoDeployStep::handleSftpJobFinished(Core::SftpJobId,
+void MaemoDeployStep::handleSftpJobFinished(Utils::SftpJobId,
     const QString &error)
 {
     ASSERT_STATE(QList<State>() << Uploading << StopRequested);
@@ -612,8 +613,8 @@ void MaemoDeployStep::prepareSftpConnection()
         SLOT(handleSftpChannelInitialized()));
     connect(m_uploader.data(), SIGNAL(initializationFailed(QString)), this,
         SLOT(handleSftpChannelInitializationFailed(QString)));
-    connect(m_uploader.data(), SIGNAL(finished(Core::SftpJobId, QString)),
-        this, SLOT(handleSftpJobFinished(Core::SftpJobId, QString)));
+    connect(m_uploader.data(), SIGNAL(finished(Utils::SftpJobId, QString)),
+        this, SLOT(handleSftpJobFinished(Utils::SftpJobId, QString)));
     connect(m_uploader.data(), SIGNAL(closed()), this,
         SLOT(handleSftpChannelClosed()));
     m_uploader->initialize();
@@ -695,7 +696,7 @@ void MaemoDeployStep::connectToDevice()
         m_connection = SshConnection::create();
     connect(m_connection.data(), SIGNAL(connected()), this,
         SLOT(handleConnected()));
-    connect(m_connection.data(), SIGNAL(error(Core::SshError)), this,
+    connect(m_connection.data(), SIGNAL(error(Utils::SshError)), this,
         SLOT(handleConnectionFailure()));
     if (canReUse) {
         handleConnected();

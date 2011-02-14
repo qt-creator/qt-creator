@@ -43,9 +43,9 @@ class QPushButton;
 class Ui_MaemoConfigTestDialog;
 QT_END_NAMESPACE
 
-namespace Core {
+namespace Utils {
     class SshRemoteProcessRunner;
-} // namespace Core
+} // namespace Utils
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -83,7 +83,7 @@ private:
     QPushButton *m_closeButton;
 
     const QSharedPointer<const MaemoDeviceConfig> m_config;
-    QSharedPointer<Core::SshRemoteProcessRunner> m_testProcessRunner;
+    QSharedPointer<Utils::SshRemoteProcessRunner> m_testProcessRunner;
     QString m_deviceTestOutput;
     bool m_qtVersionOk;
     MaemoUsedPortsGatherer *const m_portsGatherer;

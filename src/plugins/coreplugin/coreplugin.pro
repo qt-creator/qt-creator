@@ -84,26 +84,6 @@ SOURCES += mainwindow.cpp \
     designmode.cpp \
     editortoolbar.cpp \
     helpmanager.cpp \
-    ssh/sshsendfacility.cpp \
-    ssh/sshremoteprocess.cpp \
-    ssh/sshpacketparser.cpp \
-    ssh/sshpacket.cpp \
-    ssh/sshoutgoingpacket.cpp \
-    ssh/sshkeygenerator.cpp \
-    ssh/sshkeyexchange.cpp \
-    ssh/sshincomingpacket.cpp \
-    ssh/sshcryptofacility.cpp \
-    ssh/sshconnection.cpp \
-    ssh/sshchannelmanager.cpp \
-    ssh/sshchannel.cpp \
-    ssh/sshcapabilities.cpp \
-    ssh/sftppacket.cpp \
-    ssh/sftpoutgoingpacket.cpp \
-    ssh/sftpoperation.cpp \
-    ssh/sftpincomingpacket.cpp \
-    ssh/sftpdefs.cpp \
-    ssh/sftpchannel.cpp \
-    ssh/sshremoteprocessrunner.cpp \
     outputpanemanager.cpp \
     navigationsubwidget.cpp \
     sidebarwidget.cpp \
@@ -189,32 +169,6 @@ HEADERS += mainwindow.h \
     designmode.h \
     editortoolbar.h \
     helpmanager.h \
-    ssh/sshsendfacility_p.h \
-    ssh/sshremoteprocess.h \
-    ssh/sshremoteprocess_p.h \
-    ssh/sshpacketparser_p.h \
-    ssh/sshpacket_p.h \
-    ssh/sshoutgoingpacket_p.h \
-    ssh/sshkeygenerator.h \
-    ssh/sshkeyexchange_p.h \
-    ssh/sshincomingpacket_p.h \
-    ssh/sshexception_p.h \
-    ssh/ssherrors.h \
-    ssh/sshcryptofacility_p.h \
-    ssh/sshconnection.h \
-    ssh/sshconnection_p.h \
-    ssh/sshchannelmanager_p.h \
-    ssh/sshchannel_p.h \
-    ssh/sshcapabilities_p.h \
-    ssh/sshbotanconversions_p.h \
-    ssh/sftppacket_p.h \
-    ssh/sftpoutgoingpacket_p.h \
-    ssh/sftpoperation_p.h \
-    ssh/sftpincomingpacket_p.h \
-    ssh/sftpdefs.h \
-    ssh/sftpchannel.h \
-    ssh/sftpchannel_p.h \
-    ssh/sshremoteprocessrunner.h \
     outputpanemanager.h \
     navigationsubwidget.h \
     sidebarwidget.h \

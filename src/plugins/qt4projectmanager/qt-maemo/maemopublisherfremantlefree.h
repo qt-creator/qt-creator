@@ -33,7 +33,7 @@
 #ifndef MAEMOPUBLISHERFREMANTLEFREE_H
 #define MAEMOPUBLISHERFREMANTLEFREE_H
 
-#include <coreplugin/ssh/sshremoteprocessrunner.h>
+#include <utils/ssh/sshremoteprocessrunner.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
@@ -112,9 +112,9 @@ private:
     State m_state;
     QString m_tmpProjectDir;
     QProcess *m_process;
-    Core::SshConnectionParameters m_sshParams;
+    Utils::SshConnectionParameters m_sshParams;
     QString m_remoteDir;
-    QSharedPointer<Core::SshRemoteProcessRunner> m_uploader;
+    QSharedPointer<Utils::SshRemoteProcessRunner> m_uploader;
     QByteArray m_scpOutput;
     QList<QString> m_filesToUpload;
     QString m_resultString;

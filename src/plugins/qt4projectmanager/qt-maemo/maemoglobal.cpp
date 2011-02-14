@@ -39,7 +39,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <coreplugin/filemanager.h>
-#include <coreplugin/ssh/sshconnection.h>
+#include <utils/ssh/sshconnection.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qtversionmanager.h>
 #include <utils/environment.h>
@@ -138,18 +138,18 @@ QString MaemoGlobal::remoteEnvironment(const QList<Utils::EnvironmentItem> &list
     return env.mid(0, env.size() - 1);
 }
 
-QString MaemoGlobal::failedToConnectToServerMessage(const Core::SshConnection::Ptr &connection,
+QString MaemoGlobal::failedToConnectToServerMessage(const Utils::SshConnection::Ptr &connection,
     const MaemoDeviceConfig::ConstPtr &deviceConfig)
 {
     QString errorMsg = tr("Could not connect to host: %1")
         .arg(connection->errorString());
 
     if (deviceConfig->type() == MaemoDeviceConfig::Simulator) {
-        if (connection->errorState() == Core::SshTimeoutError
-                || connection->errorState() == Core::SshSocketError) {
+        if (connection->errorState() == Utils::SshTimeoutError
+                || connection->errorState() == Utils::SshSocketError) {
             errorMsg += tr("\nDid you start Qemu?");
         }
-    } else if (connection->errorState() == Core::SshTimeoutError) {
+    } else if (connection->errorState() == Utils::SshTimeoutError) {
         errorMsg += tr("\nIs the device connected and set up for network access?");
     }
     return errorMsg;

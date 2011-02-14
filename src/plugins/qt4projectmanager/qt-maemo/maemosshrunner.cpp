@@ -42,8 +42,8 @@
 #include "maemorunconfiguration.h"
 #include "maemousedportsgatherer.h"
 
-#include <coreplugin/ssh/sshconnection.h>
-#include <coreplugin/ssh/sshremoteprocess.h>
+#include <utils/ssh/sshconnection.h>
+#include <utils/ssh/sshremoteprocess.h>
 
 #include <QtCore/QFileInfo>
 
@@ -51,7 +51,7 @@
 
 #define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
-using namespace Core;
+using namespace Utils;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -125,7 +125,7 @@ void MaemoSshRunner::start()
         m_connection = SshConnection::create();
     connect(m_connection.data(), SIGNAL(connected()), this,
         SLOT(handleConnected()));
-    connect(m_connection.data(), SIGNAL(error(Core::SshError)), this,
+    connect(m_connection.data(), SIGNAL(error(Utils::SshError)), this,
         SLOT(handleConnectionFailure()));
     if (reUse) {
         handleConnected();

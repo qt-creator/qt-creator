@@ -43,11 +43,11 @@
 
 #include "maemodeviceconfigurations.h"
 
-#include <coreplugin/ssh/sshremoteprocessrunner.h>
+#include <utils/ssh/sshremoteprocessrunner.h>
 
 #include <QtCore/QStringList>
 
-using namespace Core;
+using namespace Utils;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -114,7 +114,7 @@ void MaemoRemoteProcessList::startProcess(const QByteArray &cmdLine,
         stop();
     }
     m_state = newState;
-    connect(m_process.data(), SIGNAL(connectionError(Core::SshError)),
+    connect(m_process.data(), SIGNAL(connectionError(Utils::SshError)),
         SLOT(handleConnectionError()));
     connect(m_process.data(), SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(handleRemoteStdOut(QByteArray)));

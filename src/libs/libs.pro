@@ -3,6 +3,7 @@ CONFIG   += ordered
 QT += core gui
 
 SUBDIRS   = \
+    3rdparty \
     qtconcurrent \
     aggregation \
     extensionsystem \
@@ -13,8 +14,7 @@ SUBDIRS   = \
     qmljs \
     glsl \
     qmleditorwidgets \
-    symbianutils \
-    3rdparty
+    symbianutils
 
 # Windows: Compile Qt Creator CDB extension if Debugging tools can be detected.    
 win32 {

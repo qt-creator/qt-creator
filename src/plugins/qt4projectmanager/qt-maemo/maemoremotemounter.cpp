@@ -37,8 +37,8 @@
 #include "maemousedportsgatherer.h"
 #include "qt4maemotarget.h"
 
-#include <coreplugin/ssh/sshconnection.h>
-#include <coreplugin/ssh/sshremoteprocess.h>
+#include <utils/ssh/sshconnection.h>
+#include <utils/ssh/sshremoteprocess.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <utils/qtcassert.h>
 
@@ -46,7 +46,7 @@
 
 #define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
-using namespace Core;
+using namespace Utils;
 
 namespace Qt4ProjectManager {
 namespace Internal {

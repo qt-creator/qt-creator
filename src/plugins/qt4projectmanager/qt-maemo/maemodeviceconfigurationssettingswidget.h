@@ -46,7 +46,7 @@ class QLineEdit;
 class Ui_MaemoDeviceConfigurationsSettingsWidget;
 QT_END_NAMESPACE
 
-namespace Core {
+namespace Utils {
 class SshRemoteProcessRunner;
 }
 

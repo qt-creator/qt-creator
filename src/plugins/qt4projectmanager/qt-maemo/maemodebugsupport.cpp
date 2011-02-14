@@ -41,7 +41,7 @@
 #include "maemousedportsgatherer.h"
 #include "qt4maemotarget.h"
 
-#include <coreplugin/ssh/sftpchannel.h>
+#include <utils/ssh/sftpchannel.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerrunner.h>
@@ -54,7 +54,7 @@
 
 #define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
-using namespace Core;
+using namespace Utils;
 using namespace Debugger;
 using namespace ProjectExplorer;
 
@@ -205,8 +205,8 @@ void MaemoDebugSupport::startExecution()
                 SLOT(handleSftpChannelInitialized()));
         connect(m_uploader.data(), SIGNAL(initializationFailed(QString)), this,
                 SLOT(handleSftpChannelInitializationFailed(QString)));
-        connect(m_uploader.data(), SIGNAL(finished(Core::SftpJobId, QString)),
-                this, SLOT(handleSftpJobFinished(Core::SftpJobId, QString)));
+        connect(m_uploader.data(), SIGNAL(finished(Utils::SftpJobId, QString)),
+                this, SLOT(handleSftpJobFinished(Utils::SftpJobId, QString)));
         m_uploader->initialize();
     } else {
         setState(DumpersUploaded);
@@ -244,7 +244,7 @@ void MaemoDebugSupport::handleSftpChannelInitializationFailed(const QString &err
     handleAdapterSetupFailed(error);
 }
 
-void MaemoDebugSupport::handleSftpJobFinished(Core::SftpJobId job,
+void MaemoDebugSupport::handleSftpJobFinished(Utils::SftpJobId job,
     const QString &error)
 {
     if (m_state == Inactive)

@@ -39,7 +39,7 @@
 #include "maemodeviceconfigurations.h"
 #include "maemomountspecification.h"
 
-#include <coreplugin/ssh/sftpdefs.h>
+#include <utils/ssh/sftpdefs.h>
 #include <projectexplorer/buildstep.h>
 
 #include <QtCore/QHash>
@@ -54,7 +54,7 @@ class QProcess;
 class QTimer;
 QT_END_NAMESPACE
 
-namespace Core {
+namespace Utils {
 class SftpChannel;
 class SshConnection;
 class SshRemoteProcess;
@@ -84,7 +84,7 @@ public:
         const MaemoDeployable &deployable) const;
     void setDeployed(const QString &host, const MaemoDeployable &deployable);
     QSharedPointer<MaemoDeployables> deployables() const { return m_deployables; }
-    QSharedPointer<Core::SshConnection> sshConnection() const { return m_connection; }
+    QSharedPointer<Utils::SshConnection> sshConnection() const { return m_connection; }
     MaemoPortList freePorts() const;
 
     bool isDeployToSysrootEnabled() const { return m_deployToSysroot; }
@@ -112,7 +112,7 @@ private slots:
     void handleSysrootInstallerErrorOutput();
     void handleSftpChannelInitialized();
     void handleSftpChannelInitializationFailed(const QString &error);
-    void handleSftpJobFinished(Core::SftpJobId job, const QString &error);
+    void handleSftpJobFinished(Utils::SftpJobId job, const QString &error);
     void handleSftpChannelClosed();
     void handleInstallationFinished(int exitStatus);
     void handleDeviceInstallerOutput(const QByteArray &output);
@@ -162,15 +162,15 @@ private:
     static const QLatin1String Id;
 
     QSharedPointer<MaemoDeployables> m_deployables;
-    QSharedPointer<Core::SshConnection> m_connection;
+    QSharedPointer<Utils::SshConnection> m_connection;
     QProcess *m_sysrootInstaller;
-    typedef QPair<MaemoDeployable, QSharedPointer<Core::SshRemoteProcess> > DeviceDeployAction;
+    typedef QPair<MaemoDeployable, QSharedPointer<Utils::SshRemoteProcess> > DeviceDeployAction;
     QScopedPointer<DeviceDeployAction> m_currentDeviceDeployAction;
     QList<MaemoDeployable> m_filesToCopy;
     MaemoRemoteMounter *m_mounter;
     bool m_deployToSysroot;
-    QSharedPointer<Core::SftpChannel> m_uploader;
-    QSharedPointer<Core::SshRemoteProcess> m_deviceInstaller;
+    QSharedPointer<Utils::SftpChannel> m_uploader;
+    QSharedPointer<Utils::SshRemoteProcess> m_deviceInstaller;
 
     bool m_needsInstall;
     typedef QPair<MaemoDeployable, QString> DeployablePerHost;

@@ -33,11 +33,11 @@
 ****************************************************************************/
 #include "maemokeydeployer.h"
 
-#include <coreplugin/ssh/sshremoteprocessrunner.h>
+#include <utils/ssh/sshremoteprocessrunner.h>
 
 #include <QtCore/QFile>
 
-using namespace Core;
+using namespace Utils;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -68,7 +68,7 @@ void MaemoKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
         return;
     }
 
-    connect(m_deployProcess.data(), SIGNAL(connectionError(Core::SshError)), this,
+    connect(m_deployProcess.data(), SIGNAL(connectionError(Utils::SshError)), this,
         SLOT(handleConnectionFailure()));
     connect(m_deployProcess.data(), SIGNAL(processClosed(int)), this,
         SLOT(handleKeyUploadFinished(int)));

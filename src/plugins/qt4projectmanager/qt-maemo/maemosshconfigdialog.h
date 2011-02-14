@@ -40,7 +40,7 @@
 #include <QtCore/QScopedPointer>
 #include <QtGui/QDialog>
 
-namespace Core {
+namespace Utils {
     class SshKeyGenerator;
 }
 
@@ -69,7 +69,7 @@ private:
 
 private:
     QString home;
-    QScopedPointer<Core::SshKeyGenerator> m_keyGenerator;
+    QScopedPointer<Utils::SshKeyGenerator> m_keyGenerator;
     Ui::MaemoSshConfigDialog m_ui;
 };
 

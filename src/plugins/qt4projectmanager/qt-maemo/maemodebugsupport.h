@@ -37,7 +37,7 @@
 
 #include "maemorunconfiguration.h"
 
-#include <coreplugin/ssh/sftpdefs.h>
+#include <utils/ssh/sftpdefs.h>
 #include <utils/environment.h>
 
 #include <QtCore/QObject>
@@ -77,7 +77,7 @@ private slots:
     void startExecution();
     void handleSftpChannelInitialized();
     void handleSftpChannelInitializationFailed(const QString &error);
-    void handleSftpJobFinished(Core::SftpJobId job, const QString &error);
+    void handleSftpJobFinished(Utils::SftpJobId job, const QString &error);
     void handleDebuggingFinished();
     void handleRemoteOutput(const QByteArray &output);
     void handleRemoteErrorOutput(const QByteArray &output);
@@ -106,8 +106,8 @@ private:
     const QString m_dumperLib;
     const QList<Utils::EnvironmentItem> m_userEnvChanges;
 
-    QSharedPointer<Core::SftpChannel> m_uploader;
-    Core::SftpJobId m_uploadJob;
+    QSharedPointer<Utils::SftpChannel> m_uploader;
+    Utils::SftpJobId m_uploadJob;
     QByteArray m_gdbserverOutput;
     State m_state;
     int m_gdbServerPort;

@@ -35,9 +35,9 @@
 
 #include "maemoglobal.h"
 
-#include <coreplugin/ssh/sshremoteprocessrunner.h>
+#include <utils/ssh/sshremoteprocessrunner.h>
 
-using namespace Core;
+using namespace Utils;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -49,7 +49,7 @@ MaemoUsedPortsGatherer::MaemoUsedPortsGatherer(QObject *parent) :
 
 MaemoUsedPortsGatherer::~MaemoUsedPortsGatherer() {}
 
-void MaemoUsedPortsGatherer::start(const Core::SshConnection::Ptr &connection,
+void MaemoUsedPortsGatherer::start(const Utils::SshConnection::Ptr &connection,
     const MaemoPortList &portList)
 {
     if (m_running)
@@ -58,7 +58,7 @@ void MaemoUsedPortsGatherer::start(const Core::SshConnection::Ptr &connection,
     m_remoteStdout.clear();
     m_remoteStderr.clear();
     m_procRunner = SshRemoteProcessRunner::create(connection);
-    connect(m_procRunner.data(), SIGNAL(connectionError(Core::SshError)),
+    connect(m_procRunner.data(), SIGNAL(connectionError(Utils::SshError)),
         SLOT(handleConnectionError()));
     connect(m_procRunner.data(), SIGNAL(processClosed(int)),
         SLOT(handleProcessClosed(int)));

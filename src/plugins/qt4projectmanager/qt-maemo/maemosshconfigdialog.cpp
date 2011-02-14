@@ -36,7 +36,7 @@
 
 #include "maemodeviceconfigurations.h"
 
-#include <coreplugin/ssh/sshkeygenerator.h>
+#include <utils/ssh/sshkeygenerator.h>
 
 #include <QtCore/QDir>
 #include <QtGui/QApplication>
@@ -45,7 +45,7 @@
 #include <QtGui/QMessageBox>
 #include <QtNetwork/QHostInfo>
 
-using namespace Core;
+using namespace Utils;
 using namespace Qt4ProjectManager::Internal;
 
 MaemoSshConfigDialog::MaemoSshConfigDialog(QWidget *parent)

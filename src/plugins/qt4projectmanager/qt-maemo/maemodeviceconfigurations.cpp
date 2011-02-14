@@ -44,7 +44,7 @@
 #include <algorithm>
 #include <cctype>
 
-typedef Core::SshConnectionParameters::AuthType AuthType;
+typedef Utils::SshConnectionParameters::AuthType AuthType;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -74,7 +74,7 @@ namespace {
     const int DefaultGdbServerPortSim(13219);
     const QString DefaultHostNameHW(QLatin1String("192.168.2.15"));
     const QString DefaultHostNameSim(QLatin1String("localhost"));
-    const AuthType DefaultAuthType(Core::SshConnectionParameters::AuthByKey);
+    const AuthType DefaultAuthType(Utils::SshConnectionParameters::AuthByKey);
     const int DefaultTimeout(30);
     const MaemoDeviceConfig::DeviceType DefaultDeviceType(MaemoDeviceConfig::Physical);
 }
@@ -231,8 +231,8 @@ MaemoDeviceConfig::Ptr MaemoDeviceConfig::createHardwareConfig(const QString &na
     MaemoGlobal::MaemoVersion osVersion, const QString &hostName,
     const QString privateKeyFilePath, Id &nextId)
 {
-    Core::SshConnectionParameters sshParams(Core::SshConnectionParameters::NoProxy);
-    sshParams.authType = Core::SshConnectionParameters::AuthByKey;
+    Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
+    sshParams.authType = Utils::SshConnectionParameters::AuthByKey;
     sshParams.host = hostName;
     sshParams.privateKeyFile = privateKeyFilePath;
     return Ptr(new MaemoDeviceConfig(name, osVersion, Physical, sshParams, nextId));
@@ -241,8 +241,8 @@ MaemoDeviceConfig::Ptr MaemoDeviceConfig::createHardwareConfig(const QString &na
 MaemoDeviceConfig::Ptr MaemoDeviceConfig::createEmulatorConfig(const QString &name,
     MaemoGlobal::MaemoVersion osVersion, Id &nextId)
 {
-    Core::SshConnectionParameters sshParams(Core::SshConnectionParameters::NoProxy);
-    sshParams.authType = Core::SshConnectionParameters::AuthByPwd;
+    Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
+    sshParams.authType = Utils::SshConnectionParameters::AuthByPwd;
     sshParams.host = defaultHost(Simulator);
     sshParams.pwd = defaultQemuPassword(osVersion);
     return Ptr(new MaemoDeviceConfig(name, osVersion, Simulator, sshParams, nextId));
@@ -250,7 +250,7 @@ MaemoDeviceConfig::Ptr MaemoDeviceConfig::createEmulatorConfig(const QString &na
 
 MaemoDeviceConfig::MaemoDeviceConfig(const QString &name,
     MaemoGlobal::MaemoVersion osVersion, DeviceType devType,
-    const Core::SshConnectionParameters &sshParams, Id &nextId)
+    const Utils::SshConnectionParameters &sshParams, Id &nextId)
     : m_sshParameters(sshParams),
       m_name(name),
       m_osVersion(osVersion),
@@ -266,7 +266,7 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QString &name,
 
 MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
         Id &nextId)
-    : m_sshParameters(Core::SshConnectionParameters::NoProxy),
+    : m_sshParameters(Utils::SshConnectionParameters::NoProxy),
       m_name(settings.value(NameKey).toString()),
       m_osVersion(static_cast<MaemoGlobal::MaemoVersion>(settings.value(OsVersionKey, MaemoGlobal::Maemo5).toInt())),
       m_type(static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt())),
@@ -493,7 +493,7 @@ void MaemoDeviceConfigurations::setConfigurationName(int i, const QString &name)
 }
 
 void MaemoDeviceConfigurations::setSshParameters(int i,
-    const Core::SshConnectionParameters &params)
+    const Utils::SshConnectionParameters &params)
 {
     Q_ASSERT(i >= 0 && i < rowCount());
     m_devConfigs.at(i)->m_sshParameters = params;

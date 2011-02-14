@@ -37,7 +37,7 @@
 #include "debugger_global.h"
 #include "debuggerconstants.h"
 
-#include <coreplugin/ssh/sshconnection.h>
+#include <utils/ssh/sshconnection.h>
 #include <utils/environment.h>
 #include <projectexplorer/toolchaintype.h>
 
@@ -69,7 +69,7 @@ public:
         qmlServerAddress(QLatin1String("127.0.0.1")),
         qmlServerPort(0),
         useServerStartScript(false),
-        connParams(Core::SshConnectionParameters::NoProxy),
+        connParams(Utils::SshConnectionParameters::NoProxy),
         toolChainType(ProjectExplorer::ToolChain_UNKNOWN),
         startMode(NoStartMode),
         executableUid(0),
@@ -114,7 +114,7 @@ public:
     QByteArray remoteSourcesDir;
     QString remoteMountPoint;
     QString localMountDir;
-    Core::SshConnectionParameters connParams;
+    Utils::SshConnectionParameters connParams;
 
     QString debuggerCommand;
     ProjectExplorer::ToolChainType toolChainType;

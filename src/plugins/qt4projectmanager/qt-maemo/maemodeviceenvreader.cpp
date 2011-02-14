@@ -38,7 +38,7 @@
 #include "maemoglobal.h"
 #include "maemorunconfiguration.h"
 
-#include <coreplugin/ssh/sshremoteprocessrunner.h>
+#include <utils/ssh/sshremoteprocessrunner.h>
 
 namespace Qt4ProjectManager {
     namespace Internal {
@@ -63,13 +63,13 @@ void MaemoDeviceEnvReader::start()
         return;
     m_stop = false;
     if (!m_remoteProcessRunner
-        || m_remoteProcessRunner->connection()->state() != Core::SshConnection::Connected
+        || m_remoteProcessRunner->connection()->state() != Utils::SshConnection::Connected
         || m_remoteProcessRunner->connection()->connectionParameters() != m_devConfig->sshParameters()) {
         m_remoteProcessRunner
-            = Core::SshRemoteProcessRunner::create(m_devConfig->sshParameters());
+            = Utils::SshRemoteProcessRunner::create(m_devConfig->sshParameters());
     }
     connect(m_remoteProcessRunner.data(),
-        SIGNAL(connectionError(Core::SshError)), this,
+        SIGNAL(connectionError(Utils::SshError)), this,
         SLOT(handleConnectionFailure()));
     connect(m_remoteProcessRunner.data(), SIGNAL(processClosed(int)), this,
         SLOT(remoteProcessFinished(int)));
@@ -115,16 +115,16 @@ void MaemoDeviceEnvReader::handleCurrentDeviceConfigChanged()
 
 void MaemoDeviceEnvReader::remoteProcessFinished(int exitCode)
 {
-    Q_ASSERT(exitCode == Core::SshRemoteProcess::FailedToStart
-        || exitCode == Core::SshRemoteProcess::KilledBySignal
-        || exitCode == Core::SshRemoteProcess::ExitedNormally);
+    Q_ASSERT(exitCode == Utils::SshRemoteProcess::FailedToStart
+        || exitCode == Utils::SshRemoteProcess::KilledBySignal
+        || exitCode == Utils::SshRemoteProcess::ExitedNormally);
 
     if (m_stop)
         return;
 
     disconnect(m_remoteProcessRunner.data(), 0, this, 0);
     m_env.clear();
-    if (exitCode == Core::SshRemoteProcess::ExitedNormally) {
+    if (exitCode == Utils::SshRemoteProcess::ExitedNormally) {
         if (!m_remoteOutput.isEmpty()) {
             m_env = Utils::Environment(m_remoteOutput.split(QLatin1Char('\n'),
                 QString::SkipEmptyParts));

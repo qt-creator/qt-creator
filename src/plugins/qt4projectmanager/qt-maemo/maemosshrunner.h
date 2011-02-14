@@ -44,7 +44,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QStringList>
 
-namespace Core {
+namespace Utils {
     class SshConnection;
     class SshRemoteProcess;
 }
@@ -68,7 +68,7 @@ public:
 
     void startExecution(const QByteArray &remoteCall);
 
-    QSharedPointer<Core::SshConnection> connection() const { return m_connection; }
+    QSharedPointer<Utils::SshConnection> connection() const { return m_connection; }
     const MaemoUsedPortsGatherer *usedPortsGatherer() const { return m_portsGatherer; }
     MaemoPortList *freePorts() { return &m_freePorts; }
     QString remoteExecutable() const { return m_remoteExecutable; }
@@ -121,9 +121,9 @@ private:
     const MaemoPortList m_initialFreePorts;
     QList<MaemoMountSpecification> m_mountSpecs;
 
-    QSharedPointer<Core::SshConnection> m_connection;
-    QSharedPointer<Core::SshRemoteProcess> m_runner;
-    QSharedPointer<Core::SshRemoteProcess> m_cleaner;
+    QSharedPointer<Utils::SshConnection> m_connection;
+    QSharedPointer<Utils::SshRemoteProcess> m_runner;
+    QSharedPointer<Utils::SshRemoteProcess> m_cleaner;
     QStringList m_procsToKill;
     MaemoPortList m_freePorts;
 

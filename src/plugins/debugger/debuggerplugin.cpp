@@ -1715,9 +1715,9 @@ void DebuggerPluginPrivate::startRemoteEngine()
     sp.connParams.pwd = dlg.password();
 
     sp.connParams.timeout = 5;
-    sp.connParams.authType = SshConnectionParameters::AuthByPwd;
+    sp.connParams.authType = Utils::SshConnectionParameters::AuthByPwd;
     sp.connParams.port = 22;
-    sp.connParams.proxyType = SshConnectionParameters::NoProxy;
+    sp.connParams.proxyType = Utils::SshConnectionParameters::NoProxy;
 
     sp.executable = dlg.inferiorPath();
     sp.serverStartScript = dlg.enginePath();

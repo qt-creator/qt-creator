@@ -39,12 +39,12 @@
 #include "maemoglobal.h"
 #include "maemousedportsgatherer.h"
 
-#include <coreplugin/ssh/sshremoteprocessrunner.h>
+#include <utils/ssh/sshremoteprocessrunner.h>
 
 #include <QtGui/QPalette>
 #include <QtGui/QPushButton>
 
-using namespace Core;
+using namespace Utils;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -87,7 +87,7 @@ void MaemoConfigTestDialog::startConfigTest()
     m_ui->testResultEdit->setPlainText(testingText);
     m_closeButton->setText(tr("Stop Test"));
     m_testProcessRunner = SshRemoteProcessRunner::create(m_config->sshParameters());
-    connect(m_testProcessRunner.data(), SIGNAL(connectionError(Core::SshError)),
+    connect(m_testProcessRunner.data(), SIGNAL(connectionError(Utils::SshError)),
         this, SLOT(handleConnectionError()));
     connect(m_testProcessRunner.data(), SIGNAL(processClosed(int)), this,
         SLOT(handleTestProcessFinished(int)));

@@ -41,7 +41,7 @@
 #include "maemodeviceconfigurations.h"
 #include "maemokeydeployer.h"
 
-#include <coreplugin/ssh/sshkeygenerator.h>
+#include <utils/ssh/sshkeygenerator.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -309,9 +309,9 @@ private:
         m_ui->keyDirPathChooser->setEnabled(false);
         m_ui->createKeysButton->setEnabled(false);
         m_ui->statusLabel->setText(tr("Creating keys ... "));
-        Core::SshKeyGenerator keyGenerator;
-        if (!keyGenerator.generateKeys(Core::SshKeyGenerator::Rsa,
-             Core::SshKeyGenerator::OpenSsl, 1024)) {
+        Utils::SshKeyGenerator keyGenerator;
+        if (!keyGenerator.generateKeys(Utils::SshKeyGenerator::Rsa,
+             Utils::SshKeyGenerator::OpenSsl, 1024)) {
             QMessageBox::critical(this, tr("Can't Create Keys"),
                 tr("Key creation failed: %1").arg(keyGenerator.error()));
             enableInput();
@@ -402,11 +402,11 @@ private:
 
     Q_SLOT void deployKey()
     {
-        using namespace Core;
+        using namespace Utils;
         m_ui->deviceAddressLineEdit->setEnabled(false);
         m_ui->passwordLineEdit->setEnabled(false);
         m_ui->deployButton->setEnabled(false);
-        Core::SshConnectionParameters sshParams(SshConnectionParameters::NoProxy);
+        Utils::SshConnectionParameters sshParams(SshConnectionParameters::NoProxy);
         sshParams.authType = SshConnectionParameters::AuthByPwd;
         sshParams.host = hostAddress();
         sshParams.port = MaemoDeviceConfig::defaultSshPort(MaemoDeviceConfig::Physical);
