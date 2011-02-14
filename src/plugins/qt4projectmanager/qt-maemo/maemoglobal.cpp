@@ -144,7 +144,7 @@ QString MaemoGlobal::failedToConnectToServerMessage(const Utils::SshConnection::
     QString errorMsg = tr("Could not connect to host: %1")
         .arg(connection->errorString());
 
-    if (deviceConfig->type() == MaemoDeviceConfig::Simulator) {
+    if (deviceConfig->type() == MaemoDeviceConfig::Emulator) {
         if (connection->errorState() == Utils::SshTimeoutError
                 || connection->errorState() == Utils::SshSocketError) {
             errorMsg += tr("\nDid you start Qemu?");

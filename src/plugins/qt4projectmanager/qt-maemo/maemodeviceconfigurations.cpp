@@ -243,9 +243,9 @@ MaemoDeviceConfig::Ptr MaemoDeviceConfig::createEmulatorConfig(const QString &na
 {
     Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
     sshParams.authType = Utils::SshConnectionParameters::AuthByPwd;
-    sshParams.host = defaultHost(Simulator);
+    sshParams.host = defaultHost(Emulator);
     sshParams.pwd = defaultQemuPassword(osVersion);
-    return Ptr(new MaemoDeviceConfig(name, osVersion, Simulator, sshParams, nextId));
+    return Ptr(new MaemoDeviceConfig(name, osVersion, Emulator, sshParams, nextId));
 }
 
 MaemoDeviceConfig::MaemoDeviceConfig(const QString &name,

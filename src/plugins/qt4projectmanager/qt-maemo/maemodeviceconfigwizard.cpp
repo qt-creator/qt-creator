@@ -108,8 +108,8 @@ public:
 
     QString hostName() const
     {
-        return deviceType() == MaemoDeviceConfig::Simulator
-            ? MaemoDeviceConfig::defaultHost(MaemoDeviceConfig::Simulator)
+        return deviceType() == MaemoDeviceConfig::Emulator
+            ? MaemoDeviceConfig::defaultHost(MaemoDeviceConfig::Emulator)
             : m_ui->hostNameLineEdit->text().trimmed();
     }
 
@@ -123,7 +123,7 @@ public:
     MaemoDeviceConfig::DeviceType deviceType() const
     {
         return m_ui->hwButton->isChecked()
-            ? MaemoDeviceConfig::Physical : MaemoDeviceConfig::Simulator;
+            ? MaemoDeviceConfig::Physical : MaemoDeviceConfig::Emulator;
     }
 
 private slots:
@@ -475,7 +475,7 @@ public:
             "created and a test procedure will be run to check whether "
             "Qt Creator can connect to the device and to provide some "
             "information about its features.");
-        if (m_wizardData.deviceType == MaemoDeviceConfig::Simulator) {
+        if (m_wizardData.deviceType == MaemoDeviceConfig::Emulator) {
             infoText += QLatin1Char('\n')
                 + tr("Please make sure that Qemu is running, otherwise "
                      "the test will fail.");
@@ -562,7 +562,7 @@ int MaemoDeviceConfigWizard::nextId() const
         d->wizardData.deviceType = d->startPage.deviceType();
         d->wizardData.hostName = d->startPage.hostName();
 
-        if (d->wizardData.deviceType == MaemoDeviceConfig::Simulator) {
+        if (d->wizardData.deviceType == MaemoDeviceConfig::Emulator) {
             return FinalPageId;
         } else {
             return PreviousKeySetupCheckPageId;

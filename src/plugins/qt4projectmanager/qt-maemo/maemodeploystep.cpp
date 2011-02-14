@@ -358,7 +358,7 @@ void MaemoDeployStep::start()
     }
 
     if (m_needsInstall || !m_filesToCopy.isEmpty()) {
-        if (m_cachedDeviceConfig->type() == MaemoDeviceConfig::Simulator
+        if (m_cachedDeviceConfig->type() == MaemoDeviceConfig::Emulator
                 && !MaemoQemuManager::instance().qemuIsRunning()) {
             MaemoQemuManager::instance().startRuntime();
             raiseError(tr("Deployment failed: Qemu was not running. "
@@ -998,7 +998,7 @@ MaemoPortList MaemoDeployStep::freePorts() const
         = m_cachedDeviceConfig ? m_cachedDeviceConfig : m_deviceConfig;
     if (!devConf)
         return MaemoPortList();
-    if (devConf->type() == MaemoDeviceConfig::Simulator && qt4bc) {
+    if (devConf->type() == MaemoDeviceConfig::Emulator && qt4bc) {
         MaemoQemuRuntime rt;
         const int id = qt4bc->qtVersion()->uniqueId();
         if (MaemoQemuManager::instance().runtimeForQtVersion(id, &rt))

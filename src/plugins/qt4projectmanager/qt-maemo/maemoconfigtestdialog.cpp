@@ -81,7 +81,7 @@ void MaemoConfigTestDialog::startConfigTest()
         return;
 
     m_currentTest = GeneralTest;
-    const QString testingText = m_config->type() == MaemoDeviceConfig::Simulator
+    const QString testingText = m_config->type() == MaemoDeviceConfig::Emulator
         ? tr("Testing configuration. This may take a while.")
         : tr("Testing configuration...");
     m_ui->testResultEdit->setPlainText(testingText);
@@ -110,7 +110,7 @@ void MaemoConfigTestDialog::handleConnectionError()
         return;
     QString output = tr("Could not connect to host: %1")
         .arg(m_testProcessRunner->connection()->errorString());
-    if (m_config->type() == MaemoDeviceConfig::Simulator)
+    if (m_config->type() == MaemoDeviceConfig::Emulator)
         output += tr("\nDid you start Qemu?");
     m_ui->testResultEdit->setPlainText(output);
     stopConfigTest();

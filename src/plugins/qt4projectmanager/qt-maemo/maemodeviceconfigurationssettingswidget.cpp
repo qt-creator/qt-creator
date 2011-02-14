@@ -229,7 +229,7 @@ void MaemoDeviceConfigurationsSettingsWidget::fillInValues()
     m_ui->keyFileLineEdit->setPath(sshParams.privateKeyFile);
     m_ui->showPasswordCheckBox->setChecked(false);
     updatePortsWarningLabel();
-    const bool isSimulator = current->type() == MaemoDeviceConfig::Simulator;
+    const bool isSimulator = current->type() == MaemoDeviceConfig::Emulator;
     m_ui->hostLineEdit->setReadOnly(isSimulator);
     m_ui->sshPortSpinBox->setReadOnly(isSimulator);
 }

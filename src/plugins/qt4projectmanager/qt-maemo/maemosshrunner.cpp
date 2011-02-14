@@ -106,7 +106,7 @@ void MaemoSshRunner::start()
         return;
     }
 
-    if (m_devConfig->type() == MaemoDeviceConfig::Simulator
+    if (m_devConfig->type() == MaemoDeviceConfig::Emulator
             && !MaemoQemuManager::instance().qemuIsRunning()) {
         MaemoQemuManager::instance().startRuntime();
         emitError(tr("Cannot run: Qemu was not running. "

@@ -74,7 +74,7 @@ class MaemoDeviceConfig
 public:
     typedef QSharedPointer<const MaemoDeviceConfig> ConstPtr;
     typedef quint64 Id;
-    enum DeviceType { Physical, Simulator };
+    enum DeviceType { Physical, Emulator };
 
     MaemoPortList freePorts() const;
     Utils::SshConnectionParameters sshParameters() const { return m_sshParameters; }
