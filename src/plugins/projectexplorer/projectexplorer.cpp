@@ -1252,10 +1252,10 @@ void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode, Core::IMode *o
 void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
 {
     QStringList arguments = ExtensionSystem::PluginManager::instance()->arguments();
-    if (arguments.contains("-lastsession")
-            || d->m_projectExplorerSettings.autorestoreLastSession) {
+    // Process command line arguments first:
+    if (arguments.contains("-lastsession"))
         d->m_sessionToRestoreAtStartup = d->m_session->lastSession();
-    } else {
+    if (d->m_sessionToRestoreAtStartup.isNull()) {
         QStringList sessions = d->m_session->sessions();
         // We have command line arguments, try to find a session in them
         // Default to no session loading
@@ -1267,6 +1267,10 @@ void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
             }
         }
     }
+    // Handle settings only after command line arguments:
+    if (d->m_sessionToRestoreAtStartup.isNull()
+        && d->m_projectExplorerSettings.autorestoreLastSession)
+        d->m_sessionToRestoreAtStartup = d->m_session->lastSession();
 
     if (!d->m_sessionToRestoreAtStartup.isNull())
         Core::ICore::instance()->modeManager()->activateMode(Core::Constants::MODE_EDIT);
