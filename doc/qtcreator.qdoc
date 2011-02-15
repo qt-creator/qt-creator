@@ -6736,8 +6736,8 @@
             \o Notes
         \row
             \o Gdb
-            \o On Linux, install version 6.8, 7.0.1 (version 7.0 is not supported),
-            7.1, or later. On Mac OS X, install Apple gdb version 6.3.50-20050815
+            \o On Linux, install version 7.0.1, 7.1, or preferably, 7.2 or
+               later. On Mac OS X, install Apple gdb version 6.3.50-20050815
             (build 1344) or later.
 
         \row
@@ -6747,26 +6747,27 @@
                \l{http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx}{32-bit}
                or
                \l{http://www.microsoft.com/whdc/devtools/debugging/install64bit.Mspx}{64-bit}
-               package (Version 6.11.1.404 for the 32-bit or the 64-bit version of Qt Creator, respectively),
+               package (Version 6.11.1.404 for the 32-bit or the 64-bit version
+               of Qt Creator, respectively),
                which is freely available for download from the
                \l{http://msdn.microsoft.com/en-us/default.aspx}
                {Microsoft Developer Network}. The Qt Creator help browser does
-               not allow you to download files, and therefore, you must copy the above links to
-               a browser.
+               not allow you to download files, and therefore, you must copy
+               the above links to a browser.
 
                \note Visual Studio does not include the Debugging tools needed,
                and therefore, you must install them separately.
 
-               The pre-built \QSDK for Windows makes use
-               of the library if it is present on the system. When manually building Qt
-               Creator using the Microsoft Visual C++ Compiler, the build process checks
-               for the required files in \c{"%ProgramFiles%\Debugging Tools for Windows"}.
+               The pre-built \QSDK for Windows makes use of the library if it
+               is present on the system. When manually building Qt Creator using
+               the Microsoft Visual C++ Compiler, the build process checks for the
+               required files in \c{"%ProgramFiles%\Debugging Tools for Windows"}.
 
-               It is highly recommended that you add the Symbol Server provided by Microsoft to the symbol
-               search path of the debugger. The Symbol Server provides you
-               with debugging informaton for the operating system libraries for debugging
-               Windows applications. For more information, see
-               \l{Setting the Symbol Server in Windows}.
+               It is highly recommended that you add the Symbol Server provided
+               by Microsoft to the symbol search path of the debugger. The Symbol
+               Server provides you with debugging informaton for the operating
+               system libraries for debugging Windows applications. For more
+               information, see \l{Setting the Symbol Server in Windows}.
 
        \row
            \o Debugging tools for Mac OS X
