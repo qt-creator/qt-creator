@@ -321,6 +321,38 @@ void Environment::modify(const QList<EnvironmentItem> & list)
     *this = resultEnvironment;
 }
 
+QList<EnvironmentItem> Environment::diff(const Environment &other) const
+{
+    QMap<QString, QString>::const_iterator thisIt = constBegin();
+    QMap<QString, QString>::const_iterator otherIt = other.constBegin();
+
+    QList<EnvironmentItem> result;
+    while (thisIt != constEnd() || otherIt != other.constEnd()) {
+        if (thisIt == constEnd()) {
+            result.append(Utils::EnvironmentItem(otherIt.key(), otherIt.value()));
+            ++otherIt;
+        } else if (otherIt == constEnd()) {
+            Utils::EnvironmentItem item(thisIt.key(), QString());
+            item.unset = true;
+            result.append(item);
+            ++thisIt;
+        } else if (thisIt.key() < otherIt.key()) {
+            Utils::EnvironmentItem item(thisIt.key(), QString());
+            item.unset = true;
+            result.append(item);
+            ++thisIt;
+        } else if (thisIt.key() > otherIt.key()) {
+            result.append(Utils::EnvironmentItem(otherIt.key(), otherIt.value()));
+            ++otherIt;
+        } else {
+            result.append(Utils::EnvironmentItem(otherIt.key(), otherIt.value()));
+            ++otherIt;
+            ++thisIt;
+        }
+    }
+    return result;
+}
+
 bool Environment::hasKey(const QString &key)
 {
     return m_values.contains(key);
