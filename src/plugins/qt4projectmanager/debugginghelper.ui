@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>Qt4ProjectManager::Internal::DebuggingHelper</class>
  <widget class="QWidget" name="Qt4ProjectManager::Internal::DebuggingHelper">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>228</width>
-    <height>128</height>
-   </rect>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="margin">
     <number>0</number>
@@ -29,7 +21,7 @@
      <item row="0" column="1">
       <widget class="QLabel" name="gdbHelperStatus">
        <property name="text">
-        <string>TextLabel</string>
+        <string notr="true">TextLabel</string>
        </property>
       </widget>
      </item>
@@ -52,14 +44,14 @@
         <string>Used to extract QML type information from library-based plugins.</string>
        </property>
        <property name="text">
-        <string>Qml Dump:</string>
+        <string>QML Dump:</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
       <widget class="QLabel" name="qmlDumpStatus">
        <property name="text">
-        <string>TextLabel</string>
+        <string notr="true">TextLabel</string>
        </property>
       </widget>
      </item>
@@ -79,17 +71,17 @@
      <item row="2" column="0">
       <widget class="QLabel" name="qmlObserverLabel">
        <property name="toolTip">
-        <string>Version of qmlviewer with support for Qml/JS debugging.</string>
+        <string>A modified version of qmlviewer with support for QML/JS debugging.</string>
        </property>
        <property name="text">
-        <string>Qml Observer:</string>
+        <string>QML Observer:</string>
        </property>
       </widget>
      </item>
      <item row="2" column="1">
       <widget class="QLabel" name="qmlObserverStatus">
        <property name="text">
-        <string>TextLabel</string>
+        <string notr="true">TextLabel</string>
        </property>
       </widget>
      </item>

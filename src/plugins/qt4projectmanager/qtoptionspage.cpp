@@ -520,8 +520,8 @@ void QtOptionsPageWidget::updateDebuggingHelperInfo()
         if (helperNames.isEmpty()) {
             status = tr("Helpers: None available");
         } else {
-            status = tr("Helper(s): %1.", "%1 is list of tool names", helperNames.size()).arg(
-                        helperNames.join(tr(", ", "Separator used to join names of helper tools.")));
+            //: %1 is list of tool names.
+            status = tr("Helper(s): %1.").arg(helperNames.join(QLatin1String(", ")));
         }
 
         m_ui->debuggingHelperWidget->setSummaryText(status);

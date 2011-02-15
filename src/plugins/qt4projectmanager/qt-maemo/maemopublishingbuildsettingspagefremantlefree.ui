@@ -51,7 +51,7 @@
    <item>
     <widget class="QCheckBox" name="skipUploadCheckBox">
      <property name="text">
-      <string>Only create source package, don't upload</string>
+      <string>Only create source package, do not upload</string>
      </property>
     </widget>
    </item>

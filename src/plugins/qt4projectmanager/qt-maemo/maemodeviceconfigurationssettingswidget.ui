@@ -399,7 +399,7 @@
         <enum>Qt::StrongFocus</enum>
        </property>
        <property name="toolTip">
-        <string>Click here if you don't have an SSH key yet.</string>
+        <string>Click here if you do not have an SSH key yet.</string>
        </property>
        <property name="text">
         <string>&amp;Generate SSH Key ...</string>
