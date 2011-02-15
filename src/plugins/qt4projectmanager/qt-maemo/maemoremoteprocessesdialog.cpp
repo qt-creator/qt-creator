@@ -96,7 +96,7 @@ MaemoRemoteProcessesDialog::~MaemoRemoteProcessesDialog()
 
 void MaemoRemoteProcessesDialog::handleRemoteError(const QString &errorMsg)
 {
-    QMessageBox::critical(this, tr("Remote error"), errorMsg);
+    QMessageBox::critical(this, tr("Remote Error"), errorMsg);
     m_ui->updateListButton->setEnabled(true);
     handleSelectionChanged();
 }

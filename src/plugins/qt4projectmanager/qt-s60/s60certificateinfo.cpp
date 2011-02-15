@@ -177,19 +177,19 @@ S60CertificateInfo::CertificateState S60CertificateInfo::validateCertificate()
         QDateTime endTime(m_certificate->endTime());
         QDateTime startTime(m_certificate->startTime());
         if (currentTime > endTime) {
-            m_errorString = tr("The \"%1\" certificate has already expired and cannot be used."
+            m_errorString = tr("The certificate \"%1\" has already expired and cannot be used."
                                "\nExpiration date: %2.")
                     .arg(QFileInfo(m_filePath).fileName())
                     .arg(endTime.toLocalTime().toString(QLatin1String(SIMPLE_DATE_FORMAT)));
             result = CertificateError;
         } else if (currentTime < startTime) {
-            m_errorString = tr("The \"%1\" certificate is not yet valid.\nValid from: %2.")
+            m_errorString = tr("The certificate \"%1\" is not yet valid.\nValid from: %2.")
                     .arg(QFileInfo(m_filePath).fileName())
                     .arg(startTime.toLocalTime().toString(QLatin1String(SIMPLE_DATE_FORMAT)));
             result = CertificateWarning; //This certificate may be valid in the near future
         }
     } else {
-        m_errorString = tr("The \"%1\" certificate is not a valid X.509 certificate.")
+        m_errorString = tr("The certificate \"%1\" is not a valid X.509 certificate.")
                 .arg(QFileInfo(m_filePath).baseName());
         result = CertificateError;
     }

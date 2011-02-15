@@ -173,7 +173,7 @@ LldbEngineHost::LldbEngineHost(const DebuggerStartParameters &startParameters)
         m_guestProcess->setReadChannel(QProcess::StandardOutput);
 
         if (!m_guestProcess->waitForStarted()) {
-            showStatusMessage(tr("qtcreator-lldb failed to start %1").arg(m_guestProcess->error()));
+            showStatusMessage(tr("qtcreator-lldb failed to start: %1").arg(m_guestProcess->errorString()));
             notifyEngineSpontaneousShutdown();
             return;
         }
@@ -212,7 +212,7 @@ void LldbEngineHost::nuke()
 }
 void LldbEngineHost::sshConnectionError(Utils::SshError e)
 {
-    showStatusMessage(tr("ssh connection error: %1").arg(e));
+    showStatusMessage(tr("SSH connection error: %1").arg(e));
 }
 
 void LldbEngineHost::finished(int, QProcess::ExitStatus status)

@@ -120,7 +120,8 @@ void PluginDumper::dumpAllPlugins()
 
 static QString qmldumpErrorMessage(const QString &libraryPath, const QString &error)
 {
-    return PluginDumper::tr("Type dump of QML plugin in %0 failed.\nErrors:\n%1\n").arg(libraryPath, error);
+    return PluginDumper::tr("Type dump of QML plugin in %1 failed.\nErrors:\n%2\n").
+           arg(libraryPath, error);
 }
 
 static QString qmldumpFailedMessage(const QString &error)

@@ -114,7 +114,7 @@ QVariant MaemoPublishedProjectModel::data(const QModelIndex &index,
         return QFileSystemModel::data(index, role);
     const bool include = !m_filesToExclude.contains(filePath(index));
     if (role == Qt::DisplayRole)
-        return include ? tr("Include") : tr("Don't include");
+        return include ? tr("Include") : tr("Do not include");
     else if (role == Qt::CheckStateRole)
         return include ? Qt::Checked : Qt::Unchecked;
     else

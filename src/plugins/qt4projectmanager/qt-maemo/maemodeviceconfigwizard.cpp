@@ -301,7 +301,7 @@ private:
         QDir parentDir = QDir(dirPath + QLatin1String("/.."));
         if ((!dir.exists() && !parentDir.mkdir(dir.dirName()))
                 || !QFileInfo(dirPath).isWritable()) {
-            QMessageBox::critical(this, tr("Can't Create Keys"),
+            QMessageBox::critical(this, tr("Cannot Create Keys"),
                 tr("You have not entered a writable directory."));
             return;
         }
@@ -312,7 +312,7 @@ private:
         Utils::SshKeyGenerator keyGenerator;
         if (!keyGenerator.generateKeys(Utils::SshKeyGenerator::Rsa,
              Utils::SshKeyGenerator::OpenSsl, 1024)) {
-            QMessageBox::critical(this, tr("Can't Create Keys"),
+            QMessageBox::critical(this, tr("Cannot Create Keys"),
                 tr("Key creation failed: %1").arg(keyGenerator.error()));
             enableInput();
             return;
@@ -324,7 +324,7 @@ private:
             return;
         }
 
-        m_ui->statusLabel->setText(m_ui->statusLabel->text() + tr("Done!"));
+        m_ui->statusLabel->setText(m_ui->statusLabel->text() + tr("Done."));
         m_isComplete = true;
         emit completeChanged();
     }
@@ -337,7 +337,7 @@ private:
             file.write(data);
         if (!canOpen || file.error() != QFile::NoError) {
             QMessageBox::critical(this, tr("Could Not Save File"),
-                tr("Failed to save key file %1: %1").arg(filePath, file.errorString()));
+                tr("Failed to save key file %1: %2").arg(filePath, file.errorString()));
             return false;
         }
         return true;
@@ -428,7 +428,7 @@ private:
         QMessageBox::information(this, tr("Key Deployment Success"),
             tr("The key was successfully deployed. You may now close "
                "the \"Mad Developer\" application and continue."));
-        m_ui->statusLabel->setText(m_ui->statusLabel->text() + tr("Done!"));
+        m_ui->statusLabel->setText(m_ui->statusLabel->text() + tr("Done."));
         m_isComplete = true;
         emit completeChanged();
     }

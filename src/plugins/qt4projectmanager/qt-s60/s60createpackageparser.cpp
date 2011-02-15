@@ -62,7 +62,7 @@ bool S60CreatePackageParser::parseLine(const QString &line)
         QString lines = m_patchingLines.join("\n");
         m_patchingLines.clear();
         //: %1 package name, %2 will be replaced by a list of patching lines.
-        QString message = tr("The binary package '%1' was patched to be installable after being self-signed!\n%2\n"
+        QString message = tr("The binary package '%1' was patched to be installable after being self-signed.\n%2\n"
                              "Use a developer certificate or any other signing option to prevent "
                              "this patching from happening.").
                 arg(m_packageName, lines);

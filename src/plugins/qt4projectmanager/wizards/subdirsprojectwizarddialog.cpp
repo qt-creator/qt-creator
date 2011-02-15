@@ -46,7 +46,7 @@ SubdirsProjectWizardDialog::SubdirsProjectWizardDialog(const QString &templateNa
     setWindowIcon(icon);
     setWindowTitle(templateName);
 
-    setIntroDescription(tr("This wizard generates Qt4 subdirs project. "
+    setIntroDescription(tr("This wizard generates a Qt4 subdirs project. "
                            "Add subprojects to it later on by using the other wizards."));
 
     addTargetSetupPage();

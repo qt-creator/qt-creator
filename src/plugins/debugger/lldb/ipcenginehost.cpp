@@ -317,10 +317,12 @@ void IPCEngineHost::fetchFrameSource(qint64 id)
 void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
 {
     switch (f) {
-        default:
+        default: {
             showMessage(QLatin1String("IPC Error: unhandled id in guest to host call"));
-            showMessage(tr("Fatal engine shutdown. Incompatible binary or ipc error."), LogError);
-            showStatusMessage(tr("Fatal engine shutdown. Incompatible binary or ipc error."));
+            const QString logMessage = tr("Fatal engine shutdown. Incompatible binary or IPC error.");
+            showMessage(logMessage, LogError);
+            showStatusMessage(logMessage);
+    }
             nuke();
             break;
         case IPCEngineGuest::NotifyEngineSetupOk:
