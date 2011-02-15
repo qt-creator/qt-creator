@@ -316,7 +316,7 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, Debuggin
 
     // Update bottom control if the selection is still the same
     if (index == currentIndex()) {
-        updateDebuggingHelperInfo();
+        updateDebuggingHelperUi();
     }
     if (!success)
         showDebuggingBuildLog(item);
@@ -340,7 +340,7 @@ void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools t
     if (!version)
         return;
 
-    updateDebuggingHelperInfo();
+    updateDebuggingHelperUi();
 
     // Run a debugging helper build task in the background.
     DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(version, tools);
@@ -480,7 +480,7 @@ static inline QString msgHtmlHelperToolTip(const QString &gdbHelperPath, const Q
                       arg(qmlObserverFI.size());
 }
 
-void QtOptionsPageWidget::updateDebuggingHelperInfo()
+void QtOptionsPageWidget::updateDebuggingHelperUi()
 {
     QtVersion *version = currentVersion();
     const QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
@@ -527,20 +527,23 @@ void QtOptionsPageWidget::updateDebuggingHelperInfo()
         m_ui->debuggingHelperWidget->setSummaryText(status);
 
         // Set detailed labels
+        QString gdbHelperText;
+        Qt::TextInteractionFlags gdbHelperTextFlags = Qt::NoTextInteraction;
         if (hasGdbHelper) {
-            m_debuggingHelperUi->gdbHelperStatus->setText(version->debuggingHelperLibrary());
-            m_debuggingHelperUi->gdbHelperStatus->setTextInteractionFlags(Qt::TextSelectableByMouse);
+            gdbHelperText = QDir::toNativeSeparators(version->debuggingHelperLibrary());
+            gdbHelperTextFlags = Qt::TextSelectableByMouse;
         } else {
-            m_debuggingHelperUi->gdbHelperStatus->setText(tr("<i>Not yet built.</i>"));
-            m_debuggingHelperUi->gdbHelperStatus->setTextInteractionFlags(Qt::NoTextInteraction);
+            gdbHelperText =  tr("<i>Not yet built.</i>");
         }
+        m_debuggingHelperUi->gdbHelperStatus->setText(gdbHelperText);
+        m_debuggingHelperUi->gdbHelperStatus->setTextInteractionFlags(gdbHelperTextFlags);
         m_debuggingHelperUi->gdbHelperBuildButton->setEnabled(!isBuildingGdbHelper);
 
         QString qmlDumpStatusText;
         Qt::TextInteractionFlags qmlDumpStatusTextFlags = Qt::NoTextInteraction;
         if (hasQmlDumper) {
-            qmlDumpStatusText = version->qmlDumpTool(false);
-            const QString debugQmlDumpPath = version->qmlDumpTool(true);
+            qmlDumpStatusText = QDir::toNativeSeparators(version->qmlDumpTool(false));
+            const QString debugQmlDumpPath = QDir::toNativeSeparators(version->qmlDumpTool(true));
             if (qmlDumpStatusText != debugQmlDumpPath) {
                 if (!qmlDumpStatusText.isEmpty())
                     qmlDumpStatusText += QLatin1String("\n");
@@ -561,7 +564,7 @@ void QtOptionsPageWidget::updateDebuggingHelperInfo()
         QString qmlObserverStatusText;
         Qt::TextInteractionFlags qmlObserverStatusTextFlags = Qt::NoTextInteraction;
         if (hasQmlObserver) {
-            qmlObserverStatusText = version->qmlObserverTool();
+            qmlObserverStatusText = QDir::toNativeSeparators(version->qmlObserverTool());
             qmlObserverStatusTextFlags = Qt::TextSelectableByMouse;
         }  else {
             if (canBuildQmlObserver) {
@@ -602,7 +605,7 @@ void QtOptionsPageWidget::updateState()
     m_versionUi->s60SDKPath->setEnabled(s60SDKPathEnabled);
     m_versionUi->gccePath->setEnabled(enabled);
 
-    updateDebuggingHelperInfo();
+    updateDebuggingHelperUi();
 }
 
 void QtOptionsPageWidget::makeMingwVisible(bool visible)
@@ -832,7 +835,7 @@ void QtOptionsPageWidget::updateCurrentQMakeLocation()
     currentItem->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
     showEnvironmentPage(currentItem);
 
-    updateDebuggingHelperInfo();
+    updateDebuggingHelperUi();
 
     if (m_versionUi->nameEdit->text().isEmpty() || m_versionUi->nameEdit->text() == m_specifyNameString) {
         QString name = ProjectExplorer::DebuggingHelperLibrary::qtVersionForQMake(version->qmakeCommand());

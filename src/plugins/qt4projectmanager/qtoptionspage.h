@@ -106,7 +106,7 @@ private slots:
     void updateCurrentS60SDKDirectory();
     void updateCurrentGcceDirectory();
     void updateCurrentSbsV2Directory();
-    void updateDebuggingHelperInfo();
+    void updateDebuggingHelperUi();
     void msvcVersionChanged();
     void buildDebuggingHelper(DebuggingHelperBuildTask::Tools tools
                               = DebuggingHelperBuildTask::AllTools);
