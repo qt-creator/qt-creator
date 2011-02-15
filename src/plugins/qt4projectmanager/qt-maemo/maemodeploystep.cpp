@@ -286,7 +286,7 @@ void MaemoDeployStep::stop()
 
 QString MaemoDeployStep::uploadDir() const
 {
-    return MaemoGlobal::homeDirOnDevice(m_connection->connectionParameters().uname);
+    return MaemoGlobal::homeDirOnDevice(m_connection->connectionParameters().userName);
 }
 
 bool MaemoDeployStep::currentlyNeedsDeployment(const QString &host,
@@ -835,7 +835,7 @@ void MaemoDeployStep::handleCopyProcessFinished(int exitStatus)
 
 QString MaemoDeployStep::deployMountPoint() const
 {
-    return MaemoGlobal::homeDirOnDevice(m_cachedDeviceConfig->sshParameters().uname)
+    return MaemoGlobal::homeDirOnDevice(m_cachedDeviceConfig->sshParameters().userName)
         + QLatin1String("/deployMountPoint_") + packagingStep()->projectName();
 }
 

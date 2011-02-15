@@ -282,7 +282,7 @@ QString MaemoRunConfiguration::localDirToMountForRemoteGdb() const
 
 QString MaemoRunConfiguration::remoteProjectSourcesMountPoint() const
 {
-    return MaemoGlobal::homeDirOnDevice(deviceConfig()->sshParameters().uname)
+    return MaemoGlobal::homeDirOnDevice(deviceConfig()->sshParameters().userName)
         + QLatin1String("/gdbSourcesDir_")
         + QFileInfo(localExecutableFilePath()).fileName();
 }

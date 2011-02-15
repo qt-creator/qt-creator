@@ -377,7 +377,7 @@ void MaemoDebugSupport::setState(State newState)
 
 QString MaemoDebugSupport::uploadDir(const MaemoDeviceConfig::ConstPtr &devConf)
 {
-    return MaemoGlobal::homeDirOnDevice(devConf->sshParameters().uname);
+    return MaemoGlobal::homeDirOnDevice(devConf->sshParameters().userName);
 }
 
 bool MaemoDebugSupport::useGdb() const

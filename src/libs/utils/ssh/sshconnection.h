@@ -54,14 +54,15 @@ class SshConnectionPrivate;
 struct QTCREATOR_UTILS_EXPORT SshConnectionParameters
 {
     enum ProxyType { DefaultProxy, NoProxy };
+    enum AuthorizationType { AuthorizationByPassword, AuthorizationByKey };
     SshConnectionParameters(ProxyType proxyType);
 
     QString host;
-    QString uname;
-    QString pwd;
+    QString userName;
+    QString password;
     QString privateKeyFile;
-    int timeout;
-    enum AuthType { AuthByPwd, AuthByKey } authType;
+    int timeout; // In seconds.
+    AuthorizationType authorizationType;
     quint16 port;
     ProxyType proxyType;
 };

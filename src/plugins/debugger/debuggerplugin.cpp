@@ -1711,11 +1711,11 @@ void DebuggerPluginPrivate::startRemoteEngine()
         return;
 
     sp.connParams.host = dlg.host();
-    sp.connParams.uname = dlg.username();
-    sp.connParams.pwd = dlg.password();
+    sp.connParams.userName = dlg.username();
+    sp.connParams.password = dlg.password();
 
     sp.connParams.timeout = 5;
-    sp.connParams.authType = Utils::SshConnectionParameters::AuthByPwd;
+    sp.connParams.authorizationType = Utils::SshConnectionParameters::AuthorizationByPassword;
     sp.connParams.port = 22;
     sp.connParams.proxyType = Utils::SshConnectionParameters::NoProxy;
 

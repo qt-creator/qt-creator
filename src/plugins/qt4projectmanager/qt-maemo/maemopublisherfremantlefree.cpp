@@ -66,7 +66,7 @@ MaemoPublisherFremantleFree::MaemoPublisherFremantleFree(const ProjectExplorer::
     m_state(Inactive),
     m_sshParams(SshConnectionParameters::DefaultProxy)
 {
-    m_sshParams.authType = SshConnectionParameters::AuthByKey;
+    m_sshParams.authorizationType = SshConnectionParameters::AuthorizationByKey;
     m_sshParams.timeout = 30;
     m_sshParams.port = 22;
     m_process = new QProcess(this);
@@ -96,7 +96,7 @@ void MaemoPublisherFremantleFree::setSshParams(const QString &hostName,
 {
     Q_ASSERT(m_doUpload);
     m_sshParams.host = hostName;
-    m_sshParams.uname = userName;
+    m_sshParams.userName = userName;
     m_sshParams.privateKeyFile = keyFile;
     m_remoteDir = remoteDir;
 }

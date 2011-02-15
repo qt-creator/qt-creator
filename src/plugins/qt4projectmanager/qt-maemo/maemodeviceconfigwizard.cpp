@@ -407,12 +407,12 @@ private:
         m_ui->passwordLineEdit->setEnabled(false);
         m_ui->deployButton->setEnabled(false);
         Utils::SshConnectionParameters sshParams(SshConnectionParameters::NoProxy);
-        sshParams.authType = SshConnectionParameters::AuthByPwd;
+        sshParams.authorizationType = SshConnectionParameters::AuthorizationByPassword;
         sshParams.host = hostAddress();
         sshParams.port = MaemoDeviceConfig::defaultSshPort(MaemoDeviceConfig::Physical);
-        sshParams.pwd = password();
+        sshParams.password = password();
         sshParams.timeout = 30;
-        sshParams.uname = MaemoDeviceConfig::defaultUser(m_wizardData.maemoVersion);
+        sshParams.userName = MaemoDeviceConfig::defaultUser(m_wizardData.maemoVersion);
         m_ui->statusLabel->setText(tr("Deploying... "));
         m_keyDeployer->deployPublicKey(sshParams, m_wizardData.publicKeyFilePath);
     }

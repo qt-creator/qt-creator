@@ -44,7 +44,7 @@
 #include <algorithm>
 #include <cctype>
 
-typedef Utils::SshConnectionParameters::AuthType AuthType;
+typedef Utils::SshConnectionParameters::AuthorizationType AuthType;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -74,7 +74,7 @@ namespace {
     const int DefaultGdbServerPortSim(13219);
     const QString DefaultHostNameHW(QLatin1String("192.168.2.15"));
     const QString DefaultHostNameSim(QLatin1String("localhost"));
-    const AuthType DefaultAuthType(Utils::SshConnectionParameters::AuthByKey);
+    const AuthType DefaultAuthType(Utils::SshConnectionParameters::AuthorizationByKey);
     const int DefaultTimeout(30);
     const MaemoDeviceConfig::DeviceType DefaultDeviceType(MaemoDeviceConfig::Physical);
 }
@@ -232,7 +232,7 @@ MaemoDeviceConfig::Ptr MaemoDeviceConfig::createHardwareConfig(const QString &na
     const QString privateKeyFilePath, Id &nextId)
 {
     Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
-    sshParams.authType = Utils::SshConnectionParameters::AuthByKey;
+    sshParams.authorizationType = Utils::SshConnectionParameters::AuthorizationByKey;
     sshParams.host = hostName;
     sshParams.privateKeyFile = privateKeyFilePath;
     return Ptr(new MaemoDeviceConfig(name, osVersion, Physical, sshParams, nextId));
@@ -242,9 +242,9 @@ MaemoDeviceConfig::Ptr MaemoDeviceConfig::createEmulatorConfig(const QString &na
     MaemoGlobal::MaemoVersion osVersion, Id &nextId)
 {
     Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
-    sshParams.authType = Utils::SshConnectionParameters::AuthByPwd;
+    sshParams.authorizationType = Utils::SshConnectionParameters::AuthorizationByPassword;
     sshParams.host = defaultHost(Emulator);
-    sshParams.pwd = defaultQemuPassword(osVersion);
+    sshParams.password = defaultQemuPassword(osVersion);
     return Ptr(new MaemoDeviceConfig(name, osVersion, Emulator, sshParams, nextId));
 }
 
@@ -260,7 +260,7 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QString &name,
       m_internalId(nextId++)
 {
     m_sshParameters.port = defaultSshPort(m_type);
-    m_sshParameters.uname = defaultUser(m_osVersion);
+    m_sshParameters.userName = defaultUser(m_osVersion);
     m_sshParameters.timeout = DefaultTimeout;
 }
 
@@ -278,10 +278,10 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
         ++nextId;
     m_sshParameters.host = settings.value(HostKey, defaultHost(m_type)).toString();
     m_sshParameters.port = settings.value(SshPortKey, defaultSshPort(m_type)).toInt();
-    m_sshParameters.uname = settings.value(UserNameKey, defaultUser(m_osVersion)).toString();
-    m_sshParameters.authType
+    m_sshParameters.userName = settings.value(UserNameKey, defaultUser(m_osVersion)).toString();
+    m_sshParameters.authorizationType
         = static_cast<AuthType>(settings.value(AuthKey, DefaultAuthType).toInt());
-    m_sshParameters.pwd = settings.value(PasswordKey).toString();
+    m_sshParameters.password = settings.value(PasswordKey).toString();
     m_sshParameters.privateKeyFile
         = settings.value(KeyFileKey, defaultPrivateKeyFilePath()).toString();
     m_sshParameters.timeout = settings.value(TimeoutKey, DefaultTimeout).toInt();
@@ -372,9 +372,9 @@ void MaemoDeviceConfig::save(QSettings &settings) const
     settings.setValue(HostKey, m_sshParameters.host);
     settings.setValue(SshPortKey, m_sshParameters.port);
     settings.setValue(PortsSpecKey, m_portsSpec);
-    settings.setValue(UserNameKey, m_sshParameters.uname);
-    settings.setValue(AuthKey, m_sshParameters.authType);
-    settings.setValue(PasswordKey, m_sshParameters.pwd);
+    settings.setValue(UserNameKey, m_sshParameters.userName);
+    settings.setValue(AuthKey, m_sshParameters.authorizationType);
+    settings.setValue(PasswordKey, m_sshParameters.password);
     settings.setValue(KeyFileKey, m_sshParameters.privateKeyFile);
     settings.setValue(TimeoutKey, m_sshParameters.timeout);
     settings.setValue(IsDefaultKey, m_isDefault);

@@ -205,7 +205,7 @@ void MaemoDeviceConfigurationsSettingsWidget::displayCurrent()
         m_ui->deviceTypeValueLabel->setText(tr("Emulator (Qemu)"));
         m_ui->portsLineEdit->setReadOnly(true);
     }
-    if (sshParams.authType == Utils::SshConnectionParameters::AuthByPwd)
+    if (sshParams.authorizationType == Utils::SshConnectionParameters::AuthorizationByPassword)
         m_ui->passwordButton->setChecked(true);
     else
         m_ui->keyButton->setChecked(true);
@@ -224,8 +224,8 @@ void MaemoDeviceConfigurationsSettingsWidget::fillInValues()
     m_ui->sshPortSpinBox->setValue(sshParams.port);
     m_ui->portsLineEdit->setText(current->portsSpec());
     m_ui->timeoutSpinBox->setValue(sshParams.timeout);
-    m_ui->userLineEdit->setText(sshParams.uname);
-    m_ui->pwdLineEdit->setText(sshParams.pwd);
+    m_ui->userLineEdit->setText(sshParams.userName);
+    m_ui->pwdLineEdit->setText(sshParams.password);
     m_ui->keyFileLineEdit->setPath(sshParams.privateKeyFile);
     m_ui->showPasswordCheckBox->setChecked(false);
     updatePortsWarningLabel();
@@ -265,9 +265,9 @@ void MaemoDeviceConfigurationsSettingsWidget::authenticationTypeChanged()
 {
     SshConnectionParameters sshParams = currentConfig()->sshParameters();
     const bool usePassword = m_ui->passwordButton->isChecked();
-    sshParams.authType = usePassword
-        ? SshConnectionParameters::AuthByPwd
-        : SshConnectionParameters::AuthByKey;
+    sshParams.authorizationType = usePassword
+        ? SshConnectionParameters::AuthorizationByPassword
+        : SshConnectionParameters::AuthorizationByKey;
     m_devConfigs->setSshParameters(currentIndex(), sshParams);
     m_ui->pwdLineEdit->setEnabled(usePassword);
     m_ui->passwordLabel->setEnabled(usePassword);
@@ -300,14 +300,14 @@ void MaemoDeviceConfigurationsSettingsWidget::timeoutEditingFinished()
 void MaemoDeviceConfigurationsSettingsWidget::userNameEditingFinished()
 {
     SshConnectionParameters sshParams = currentConfig()->sshParameters();
-    sshParams.uname = m_ui->userLineEdit->text();
+    sshParams.userName = m_ui->userLineEdit->text();
     m_devConfigs->setSshParameters(currentIndex(), sshParams);
 }
 
 void MaemoDeviceConfigurationsSettingsWidget::passwordEditingFinished()
 {
     SshConnectionParameters sshParams = currentConfig()->sshParameters();
-    sshParams.pwd = m_ui->pwdLineEdit->text();
+    sshParams.password = m_ui->pwdLineEdit->text();
     m_devConfigs->setSshParameters(currentIndex(), sshParams);
 }
 

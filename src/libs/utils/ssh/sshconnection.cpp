@@ -76,16 +76,16 @@ namespace {
 
 
 SshConnectionParameters::SshConnectionParameters(ProxyType proxyType) :
-    timeout(0),  authType(AuthByKey), port(0), proxyType(proxyType)
+    timeout(0),  authorizationType(AuthorizationByKey), port(0), proxyType(proxyType)
 {
 }
 
 static inline bool equals(const SshConnectionParameters &p1, const SshConnectionParameters &p2)
 {
-    return p1.host == p2.host && p1.uname == p2.uname
-            && p1.authType == p2.authType
-            && (p1.authType == SshConnectionParameters::AuthByPwd ?
-                    p1.pwd == p2.pwd : p1.privateKeyFile == p2.privateKeyFile)
+    return p1.host == p2.host && p1.userName == p2.userName
+            && p1.authorizationType == p2.authorizationType
+            && (p1.authorizationType == SshConnectionParameters::AuthorizationByPassword ?
+                    p1.password == p2.password : p1.privateKeyFile == p2.privateKeyFile)
             && p1.timeout == p2.timeout && p1.port == p2.port;
 }
 
@@ -394,9 +394,9 @@ void SshConnectionPrivate::handleNewKeysPacket()
 
 void SshConnectionPrivate::handleServiceAcceptPacket()
 {
-    if (m_connParams.authType == SshConnectionParameters::AuthByPwd) {
-        m_sendFacility.sendUserAuthByPwdRequestPacket(m_connParams.uname.toUtf8(),
-            SshCapabilities::SshConnectionService, m_connParams.pwd.toUtf8());
+    if (m_connParams.authorizationType == SshConnectionParameters::AuthorizationByPassword) {
+        m_sendFacility.sendUserAuthByPwdRequestPacket(m_connParams.userName.toUtf8(),
+            SshCapabilities::SshConnectionService, m_connParams.password.toUtf8());
     } else {
         QFile privKeyFile(m_connParams.privateKeyFile);
         bool couldOpen = privKeyFile.open(QIODevice::ReadOnly);
@@ -410,7 +410,7 @@ void SshConnectionPrivate::handleServiceAcceptPacket()
         }
 
         m_sendFacility.createAuthenticationKey(contents);
-        m_sendFacility.sendUserAuthByKeyRequestPacket(m_connParams.uname.toUtf8(),
+        m_sendFacility.sendUserAuthByKeyRequestPacket(m_connParams.userName.toUtf8(),
             SshCapabilities::SshConnectionService);
     }
     m_state = UserAuthRequested;
@@ -418,7 +418,7 @@ void SshConnectionPrivate::handleServiceAcceptPacket()
 
 void SshConnectionPrivate::handlePasswordExpiredPacket()
 {
-    if (m_connParams.authType == SshConnectionParameters::AuthByKey) {
+    if (m_connParams.authorizationType == SshConnectionParameters::AuthorizationByKey) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Got SSH_MSG_USERAUTH_PASSWD_CHANGEREQ, but did not use password.");
     }
@@ -449,7 +449,7 @@ void SshConnectionPrivate::handleUserAuthSuccessPacket()
 void SshConnectionPrivate::handleUserAuthFailurePacket()
 {
     m_timeoutTimer.stop();
-    const QString errorMsg = m_connParams.authType == SshConnectionParameters::AuthByPwd
+    const QString errorMsg = m_connParams.authorizationType == SshConnectionParameters::AuthorizationByPassword
         ? tr("Server rejected password.") : tr("Server rejected key.");
     throw SshClientException(SshAuthenticationError, errorMsg);
 }
