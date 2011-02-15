@@ -62,11 +62,11 @@ Html5AppWizardDialog::Html5AppWizardDialog(QWidget *parent)
     : AbstractMobileAppWizardDialog(parent)
     , m_htmlSourcesPage(0)
 {
-    setWindowTitle(tr("New Html5 Application"));
-    setIntroDescription(tr("This wizard generates a Html5 application project."));
+    setWindowTitle(tr("New HTML5 Application"));
+    setIntroDescription(tr("This wizard generates a HTML5 application project."));
 
     m_htmlSourcesPage = new Html5AppWizardSourcesPage;
-    addPageWithTitle(m_htmlSourcesPage, tr("Html Sources"));
+    addPageWithTitle(m_htmlSourcesPage, tr("HTML Sources"));
 }
 
 
@@ -95,10 +95,10 @@ Core::BaseFileWizardParameters Html5AppWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(Constants::ICON_HTML5_APP)));
-    parameters.setDisplayName(tr("Html5 Application"));
+    parameters.setDisplayName(tr("HTML5 Application"));
     parameters.setId(QLatin1String("QA.HTML5A Application"));
-    parameters.setDescription(tr("Creates an Html5 application project that can contain "
-                                 "both Html5 and C++ code and includes a Webkit view.\n\n"
+    parameters.setDescription(tr("Creates an HTML5 application project that can contain "
+                                 "both HTML5 and C++ code and includes a WebKit view.\n\n"
                                  "You can build the application and deploy it on desktop and "
                                  "mobile target platforms. For example, you can create signed "
                                  "Symbian Installation System (SIS) packages for this type of "
