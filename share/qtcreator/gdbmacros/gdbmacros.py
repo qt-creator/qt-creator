@@ -1915,9 +1915,9 @@ def qdump__QVariant(d, item):
     d.putValue(" ", None, -99)
     d.putType("%sQVariant (%s)" % (d.ns, type))
     d.putNumChild(1)
+    tdata = data.cast(lookupType(type).pointer()).dereference()
     if d.isExpanded(item):
         with Children(d):
-            tdata = data.cast(lookupType(type).pointer()).dereference()
             #warn("TDATA: %s" % tdata)
             d.putSubItem(Item(tdata, item.iname, "data", "data"))
     return tdata.type
@@ -2366,6 +2366,7 @@ def jstagAsString(tag):
     return "Unknown"
 
 
+
 def qdump__QTJSC__JSValue(d, item):
     d.putValue(" ")
     d.putNumChild(1)
@@ -2379,17 +2380,85 @@ def qdump__QTJSC__JSValue(d, item):
                 d.putValue(jstagAsString(long(tag)))
                 d.putType(" ")
                 d.putNumChild(0)
+
+            d.putIntItem("payload", long(payload))
+            d.putFields(Item(item.value["u"], item.iname))
+
             if tag == -2:
                 cellType = lookupType("QTJSC::JSCell").pointer()
                 d.putSubItem(Item(payload.cast(cellType), item.iname, "cell", "cell"))
-                #with SubItem(d):
-                #    d.putName("cell")
-                #    d.putValue(payload.cast(cellType))
-                #    d.putType("QTJSC::JSCell*")
-                #    d.putNumChild(1)
 
-            d.putIntItem("payload", long(payload))
-            d.putFields(Item(data, item.iname))
+            try:
+                # FIXME: This might not always be a variant.
+                delegateType = lookupType(d.ns + "QScript::QVariantDelegate").pointer()
+                delegate = scriptObject["d"]["delegate"].cast(delegateType)
+                #d.putSubItem(Item(delegate, item.iname, "delegate", "delegate"))
+
+                variant = delegate["m_value"]
+                d.putSubItem(Item(variant, item.iname, "variant", "variant"))
+            except:
+                pass
+
+
+def qdump__QScriptValue(d, item):
+    # structure:
+    #  engine        QScriptEnginePrivate
+    #  jscValue      QTJSC::JSValue
+    #  next          QScriptValuePrivate *
+    #  numberValue   5.5987310416280426e-270 myns::qsreal
+    #  prev          QScriptValuePrivate *
+    #  ref           QBasicAtomicInt
+    #  stringValue   QString
+    #  type          QScriptValuePrivate::Type: { JavaScriptCore, Number, String }
+    #d.putValue(" ")
+    dd = item.value["d_ptr"]["d"]
+    if isNull(dd):
+        d.putValue("(invalid)")
+        d.putNumChild(0)
+        return
+    if long(dd["type"]) == 1: # Number
+        d.putValue(dd["numberValue"])
+        d.putType("%sQScriptValue (Number)" % d.ns)
+        d.putNumChild(0)
+        return
+    if long(dd["type"]) == 2: # String
+        d.putStringValue(dd["stringValue"])
+        d.putType("%sQScriptValue (String)" % d.ns)
+        return
+
+    d.putType("%sQScriptValue (JSCoreValue)" % d.ns)
+    x = dd["jscValue"]["u"]
+    tag = x["asBits"]["tag"]
+    payload = x["asBits"]["payload"]
+
+    try:
+        # This might already fail for "native" payloads.
+        scriptObjectType = lookupType(d.ns + "QScriptObject").pointer()
+        scriptObject = payload.cast(scriptObjectType)
+
+        # FIXME: This might not always be a variant.
+        delegateType = lookupType(d.ns + "QScript::QVariantDelegate").pointer()
+        delegate = scriptObject["d"]["delegate"].cast(delegateType)
+        #d.putSubItem(Item(delegate, item.iname, "delegate", "delegate"))
+
+        variant = delegate["m_value"]
+        #d.putSubItem(Item(variant, item.iname, "variant", "variant"))
+        t = qdump__QVariant(d, Item(variant, "variant"))
+        # Override the "QVariant (foo)" output
+        d.putType("%sQScriptValue (%s)" % (d.ns, t),  d.currentTypePriority + 1)
+        if t != "JSCoreValue":
+            return
+    except:
+        pass
+
+    # This is a "native" JSCore type for e.g. QDateTime.
+    d.putValue("<native>")
+    d.putNumChild(1)
+    if d.isExpanded(item):
+        with Children(d):
+           d.putSubItem(Item(dd["jscValue"], item.iname, "jscValue", "jscValue"))
+
+
 
 
 #######################################################################

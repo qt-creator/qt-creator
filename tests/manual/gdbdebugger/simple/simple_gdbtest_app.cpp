@@ -2061,6 +2061,27 @@ struct Ty
 
 void testStuff()
 {
+    using namespace std;
+    typedef map<string, list<string> > map_t;
+    map_t m;
+    m["one"].push_back("a");
+    m["one"].push_back("b");
+    m["one"].push_back("c");
+    m["two"].push_back("1");
+    m["two"].push_back("2");
+    m["two"].push_back("3");
+    map_t::const_iterator i = m.begin();
+
+    vector<int> vec;
+    vec.push_back(1);
+    vec.push_back(2);
+    pair<vector<int>, vector<int> > a(pair<vector<int>,vector<int> >(vec, vec));
+
+    i++;
+}
+
+void testStuff4()
+{
     Ty x;
     x.doit();
     char *s = x.m_buffer.GetStringPtr();
@@ -2205,9 +2226,21 @@ void testQScriptValue(int argc, char *argv[])
     QCoreApplication app(argc, argv);
     QScriptEngine engine;
     QDateTime date = QDateTime::currentDateTime();
-    QVariant var;
-    QScriptValue s = engine.newDate(date);
-    s = engine.newVariant(var);
+    QScriptValue s;
+    s = QScriptValue(33);
+    int x = s.toInt32();
+
+    s = QScriptValue(QString("34"));
+    QString x1 = s.toString();
+
+    s = engine.newVariant(QVariant(43));
+    QVariant v = s.toVariant();
+
+    s = engine.newVariant(QVariant(43.0));
+    s = engine.newVariant(QVariant(QString("sss")));
+    s = engine.newDate(date);
+    x = s.toInt32();
+    date = s.toDateTime();
     s.setProperty("a", QScriptValue());
     QScriptValue d = s.data();
 }
