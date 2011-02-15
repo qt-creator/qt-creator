@@ -224,15 +224,15 @@
     <name>BreakCondition</name>
     <message>
         <source>Condition:</source>
-        <translation>Bedingung:</translation>
+        <translation type="obsolete">Bedingung:</translation>
     </message>
     <message>
         <source>Ignore count:</source>
-        <translation>Anhalten erst nach:</translation>
+        <translation type="obsolete">Anhalten erst nach:</translation>
     </message>
     <message>
         <source>Thread specification:</source>
-        <translation>Thread:</translation>
+        <translation type="obsolete">Thread:</translation>
     </message>
 </context>
 <context>
@@ -377,6 +377,10 @@
         <source>No valid CMake executable specified.</source>
         <translation>Es wurde keine ausführbare cmake-Datei angegeben.</translation>
     </message>
+    <message>
+        <source>CMake exited with errors. Please check cmake output.</source>
+        <translation>CMake wurde mit einem Fehler beendet. Bitte prüfen Sie die Ausgabe von cmake.</translation>
+    </message>
 </context>
 <context>
     <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
@@ -417,7 +421,7 @@
     </message>
     <message>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
-        <translation>&lt;b&gt;Make-Kommando:&lt;/b&gt; %1 %2</translation>
+        <translation type="obsolete">&lt;b&gt;Make-Kommando:&lt;/b&gt; %1 %2</translation>
     </message>
     <message>
         <source>&lt;b&gt;Unknown Toolchain&lt;/b&gt;</source>
@@ -809,59 +813,59 @@
     <name>CdbOptionsPageWidget</name>
     <message>
         <source>These options take effect at the next start of Qt Creator.</source>
-        <translation>Die Einstellungen werden beim nächsten Start von Qt Creator wirksam.</translation>
+        <translation type="obsolete">Die Einstellungen werden beim nächsten Start von Qt Creator wirksam.</translation>
     </message>
     <message>
         <source>Debugger Paths</source>
-        <translation>Debugger-Pfade</translation>
+        <translation type="obsolete">Debugger-Pfade</translation>
     </message>
     <message>
         <source>Symbol paths:</source>
-        <translation>Symbolpfade:</translation>
+        <translation type="obsolete">Symbolpfade:</translation>
     </message>
     <message>
         <source>Source paths:</source>
-        <translation>Quelltext-Pfade:</translation>
+        <translation type="obsolete">Quelltext-Pfade:</translation>
     </message>
     <message>
         <source>Path:</source>
-        <translation>Pfad:</translation>
+        <translation type="obsolete">Pfad:</translation>
     </message>
     <message>
         <source>CDB</source>
         <extracomment>Placeholder</extracomment>
-        <translation>CDB</translation>
+        <translation type="obsolete">CDB</translation>
     </message>
     <message>
         <source>Other Options</source>
-        <translation>Weitere Optionen</translation>
+        <translation type="obsolete">Weitere Optionen</translation>
     </message>
     <message>
         <source>Verbose symbol loading</source>
-        <translation>Ausführliche Meldungen beim Laden der Symbole</translation>
+        <translation type="obsolete">Ausführliche Meldungen beim Laden der Symbole</translation>
     </message>
     <message>
         <source>Fast loading of debugging helpers</source>
-        <translation>Schnelles Laden der Ausgabe-Hilfsbibliothek</translation>
+        <translation type="obsolete">Schnelles Laden der Ausgabe-Hilfsbibliothek</translation>
     </message>
     <message>
         <source>Break on exception</source>
-        <translation>Bei Ausnahme anhalten</translation>
+        <translation type="obsolete">Bei Ausnahme anhalten</translation>
     </message>
 </context>
 <context>
     <name>CdbStackFrameContext</name>
     <message>
         <source>&lt;Unknown Type&gt;</source>
-        <translation>&lt;Unbekannter Typ&gt;</translation>
+        <translation type="obsolete">&lt;Unbekannter Typ&gt;</translation>
     </message>
     <message>
         <source>&lt;Unknown Value&gt;</source>
-        <translation>&lt;Unbekannter Wert&gt;</translation>
+        <translation type="obsolete">&lt;Unbekannter Wert&gt;</translation>
     </message>
     <message>
         <source>&lt;Unknown&gt;</source>
-        <translation>&lt;Unbekannt&gt;</translation>
+        <translation type="obsolete">&lt;Unbekannt&gt;</translation>
     </message>
 </context>
 <context>
@@ -1259,6 +1263,10 @@ Sollen sie überschrieben werden?</translation>
         <translation>Alle Teilungen aufheben</translation>
     </message>
     <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+    <message>
         <source>Save %1 &amp;As...</source>
         <translation>Speichere &apos;%1&apos; &amp;unter...</translation>
     </message>
@@ -1280,15 +1288,15 @@ Sollen sie überschrieben werden?</translation>
     </message>
     <message>
         <source>File is Read Only</source>
-        <translation>Die Datei ist schreibgeschützt</translation>
+        <translation type="obsolete">Die Datei ist schreibgeschützt</translation>
     </message>
     <message>
         <source>Open with VCS (%1)</source>
-        <translation>Öffnen mittels Versionskontrollsystem (%1)</translation>
+        <translation type="obsolete">Öffnen mittels Versionskontrollsystem (%1)</translation>
     </message>
     <message>
         <source>Save as ...</source>
-        <translation>Speichern als...</translation>
+        <translation type="obsolete">Speichern als...</translation>
     </message>
     <message>
         <source>Failed!</source>
@@ -1352,7 +1360,7 @@ Sollen sie überschrieben werden?</translation>
     </message>
     <message>
         <source>The file &lt;i&gt;%1&lt;/i&gt; is read only.</source>
-        <translation>Die Datei &lt;i&gt;%1&lt;/i&gt; ist schreibgeschützt.</translation>
+        <translation type="obsolete">Die Datei &lt;i&gt;%1&lt;/i&gt; ist schreibgeschützt.</translation>
     </message>
     <message>
         <source>&amp;Save %1</source>
@@ -1391,11 +1399,11 @@ Sollen sie überschrieben werden?</translation>
     <name>Core::FileManager</name>
     <message>
         <source>Cannot save file</source>
-        <translation>Die Datei kann nicht gespeichert werden</translation>
+        <translation type="obsolete">Die Datei kann nicht gespeichert werden</translation>
     </message>
     <message>
         <source>Cannot save changes to &apos;%1&apos;. Do you want to continue and lose your changes?</source>
-        <translation>Die Datei &apos;%1&apos; kann nicht gespeichert werden. Wollen Sie trotzdem fortsetzen und Ihre Änderungen aufgeben?</translation>
+        <translation type="obsolete">Die Datei &apos;%1&apos; kann nicht gespeichert werden. Wollen Sie trotzdem fortsetzen und Ihre Änderungen aufgeben?</translation>
     </message>
     <message>
         <source>Overwrite?</source>
@@ -1413,6 +1421,26 @@ Sollen sie überschrieben werden?</translation>
         <source>Open File</source>
         <translation>Datei öffnen</translation>
     </message>
+    <message>
+        <source>File is Read Only</source>
+        <translation>Die Datei ist schreibgeschützt</translation>
+    </message>
+    <message>
+        <source>The file &lt;i&gt;%1&lt;/i&gt; is read only.</source>
+        <translation>Die Datei &lt;i&gt;%1&lt;/i&gt; ist schreibgeschützt.</translation>
+    </message>
+    <message>
+        <source>Open with VCS (%1)</source>
+        <translation>Öffnen mittels Versionskontrollsystem (%1)</translation>
+    </message>
+    <message>
+        <source>Make writable</source>
+        <translation>Schreibbar machen</translation>
+    </message>
+    <message>
+        <source>Save as ...</source>
+        <translation>Speichern als...</translation>
+    </message>
 </context>
 <context>
     <name>Core::Internal::EditMode</name>
@@ -1425,59 +1453,59 @@ Sollen sie überschrieben werden?</translation>
     <name>Core::Internal::EditorSplitter</name>
     <message>
         <source>Split Left/Right</source>
-        <translation>Links/rechts teilen</translation>
+        <translation type="obsolete">Links/rechts teilen</translation>
     </message>
     <message>
         <source>Split Top/Bottom</source>
-        <translation>Oben/unten teilen</translation>
+        <translation type="obsolete">Oben/unten teilen</translation>
     </message>
     <message>
         <source>Unsplit</source>
-        <translation>Teilung aufheben</translation>
+        <translation type="obsolete">Teilung aufheben</translation>
     </message>
     <message>
         <source>Default Splitter Layout</source>
-        <translation>Vorgabe wiederherstellen</translation>
+        <translation type="obsolete">Vorgabe wiederherstellen</translation>
     </message>
     <message>
         <source>Save Current as Default</source>
-        <translation>Gegenwärtige Anordnung als Vorgabe speichern</translation>
+        <translation type="obsolete">Gegenwärtige Anordnung als Vorgabe speichern</translation>
     </message>
     <message>
         <source>Restore Default Layout</source>
-        <translation>Vorgabe wiederherstellen</translation>
+        <translation type="obsolete">Vorgabe wiederherstellen</translation>
     </message>
     <message>
         <source>Previous Document</source>
-        <translation>Voriges Dokument</translation>
+        <translation type="obsolete">Voriges Dokument</translation>
     </message>
     <message>
         <source>Alt+Left</source>
-        <translation>Alt+Left</translation>
+        <translation type="obsolete">Alt+Left</translation>
     </message>
     <message>
         <source>Next Document</source>
-        <translation>Nächstes Dokument</translation>
+        <translation type="obsolete">Nächstes Dokument</translation>
     </message>
     <message>
         <source>Alt+Right</source>
-        <translation>Alt+Right</translation>
+        <translation type="obsolete">Alt+Right</translation>
     </message>
     <message>
         <source>Previous Group</source>
-        <translation>Vorige Gruppe</translation>
+        <translation type="obsolete">Vorige Gruppe</translation>
     </message>
     <message>
         <source>Next Group</source>
-        <translation>Nächste Gruppe</translation>
+        <translation type="obsolete">Nächste Gruppe</translation>
     </message>
     <message>
         <source>Move Document to Previous Group</source>
-        <translation>Dokument in vorige Gruppe verschieben</translation>
+        <translation type="obsolete">Dokument in vorige Gruppe verschieben</translation>
     </message>
     <message>
         <source>Move Document to Next Group</source>
-        <translation>Dokument in nächste Gruppe verschieben</translation>
+        <translation type="obsolete">Dokument in nächste Gruppe verschieben</translation>
     </message>
 </context>
 <context>
@@ -1559,7 +1587,7 @@ Sollen sie überschrieben werden?</translation>
     </message>
     <message>
         <source>Default file encoding: </source>
-        <translation>Vorgabe-Encoding:</translation>
+        <translation type="obsolete">Vorgabe-Encoding:</translation>
     </message>
     <message>
         <source>Always Ask</source>
@@ -1771,7 +1799,7 @@ Sollen sie überschrieben werden?</translation>
     </message>
     <message>
         <source>Close %1</source>
-        <translation>Schließe %1</translation>
+        <translation type="obsolete">Schließe %1</translation>
     </message>
     <message>
         <source>Close Editor</source>
@@ -1779,7 +1807,15 @@ Sollen sie überschrieben werden?</translation>
     </message>
     <message>
         <source>Close All Except %1</source>
-        <translation>Alle außer %1 schließen</translation>
+        <translation type="obsolete">Alle außer %1 schließen</translation>
+    </message>
+    <message>
+        <source>Close &quot;%1&quot;</source>
+        <translation>&quot;%1&quot; schließen</translation>
+    </message>
+    <message>
+        <source>Close All Except &quot;%1&quot;</source>
+        <translation>Alle außer &quot;%1&quot; schließen</translation>
     </message>
     <message>
         <source>Close Other Editors</source>
@@ -2222,6 +2258,10 @@ Sollen sie überschrieben werden?</translation>
         <source>Parsing</source>
         <translation>Parse</translation>
     </message>
+    <message>
+        <source>unnamed</source>
+        <translation>unbenannt</translation>
+    </message>
 </context>
 <context>
     <name>CppTools::Internal::CppLocatorFilter</name>
@@ -2360,7 +2400,7 @@ Qt Creator kann sich nicht anhängen.</translation>
     </message>
     <message>
         <source>Breakpoint</source>
-        <translation>Breakpoint</translation>
+        <translation type="obsolete">Breakpoint</translation>
     </message>
     <message>
         <source>Watchpoint</source>
@@ -2368,7 +2408,7 @@ Qt Creator kann sich nicht anhängen.</translation>
     </message>
     <message>
         <source>Unknown breakpoint type</source>
-        <translation>Unbekannter Typ</translation>
+        <translation type="obsolete">Unbekannter Typ</translation>
     </message>
     <message>
         <source>State:</source>
@@ -2395,12 +2435,81 @@ Qt Creator kann sich nicht anhängen.</translation>
         <translation>Funktionsname:</translation>
     </message>
     <message>
+        <source>Breakpoint at &quot;main&quot;</source>
+        <translation>Halte bei &quot;main&quot;</translation>
+    </message>
+    <message>
+        <source>Break when catching exceptions</source>
+        <translation>Beim Fangen von Ausnahmen anhalten</translation>
+    </message>
+    <message>
+        <source>Break when throwing exceptions</source>
+        <translation>Beim Auslösen von Ausnahmen anhalten</translation>
+    </message>
+    <message>
+        <source>Breakpoint by File and Line</source>
+        <translation>Halte bei Erreichen von Datei/Zeile</translation>
+    </message>
+    <message>
+        <source>Breakpoint by Function</source>
+        <translation>Halte bei Erreichen einer Funktion</translation>
+    </message>
+    <message>
+        <source>Breakpoint by Address</source>
+        <translation>Halte bei Erreichen einer Adresse</translation>
+    </message>
+    <message>
+        <source>Breakpoint at &quot;throw&quot;</source>
+        <translation>Halte bei &quot;throw&quot;</translation>
+    </message>
+    <message>
+        <source>Breakpoint at &quot;catch&quot;</source>
+        <translation>Halte bei &quot;catch&quot;</translation>
+    </message>
+    <message>
+        <source>Breakpoint at Function &quot;main()&quot;</source>
+        <translation>Halte bei Erreichen der Funktion &quot;main()&quot;</translation>
+    </message>
+    <message>
+        <source>Unknown Breakpoint Type</source>
+        <translatorcomment>Haeh?</translatorcomment>
+        <translation>Unbekannter Haltepunkt-Typ</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Aktiviert</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Deaktiviert</translation>
+    </message>
+    <message>
+        <source>, pending</source>
+        <translation>, ausstehend</translation>
+    </message>
+    <message>
+        <source>Engine:</source>
+        <translation>Engine:</translation>
+    </message>
+    <message>
+        <source>Extra Information:</source>
+        <translation>Zusätzliche Informationen:</translation>
+    </message>
+    <message>
         <source>Line Number:</source>
         <translation>Zeilennummer:</translation>
     </message>
     <message>
         <source>Corrected Line Number:</source>
         <translation>Korrigierte Zeilennummer:</translation>
+    </message>
+    <message>
+        <source>Module:</source>
+        <translation>Modul:</translation>
+    </message>
+    <message>
+        <source>Command:</source>
+        <translation>Kommando:</translation>
     </message>
     <message>
         <source>Condition:</source>
@@ -2538,55 +2647,59 @@ Qt Creator kann sich nicht anhängen.</translation>
         <translation>Haltepunkt bei &quot;catch&quot; setzen</translation>
     </message>
     <message>
+        <source>Add Breakpoint</source>
+        <translation>Haltepunkt setzen</translation>
+    </message>
+    <message>
         <source>Edit Breakpoint Properties</source>
-        <translation>Haltepunkts bearbeiten</translation>
+        <translation type="obsolete">Haltepunkts bearbeiten</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::CdbDumperHelper</name>
     <message>
         <source>injection</source>
-        <translation>Injektion</translation>
+        <translation type="obsolete">Injektion</translation>
     </message>
     <message>
         <source>debugger call</source>
-        <translation>Debugger-Aufruf</translation>
+        <translation type="obsolete">Debugger-Aufruf</translation>
     </message>
     <message>
         <source>Loading the custom dumper library &apos;%1&apos; (%2) ...</source>
-        <translation>Ausgabe-Hilfsbibliothek &apos;%1&apos; wird geladen (%2)...</translation>
+        <translation type="obsolete">Ausgabe-Hilfsbibliothek &apos;%1&apos; wird geladen (%2)...</translation>
     </message>
     <message>
         <source>Loading of the custom dumper library &apos;%1&apos; (%2) failed: %3</source>
-        <translation>Das Laden der Ausgabe-Hilfsbibliothek &apos;%1&apos; (%2) schlug fehl: %3</translation>
+        <translation type="obsolete">Das Laden der Ausgabe-Hilfsbibliothek &apos;%1&apos; (%2) schlug fehl: %3</translation>
     </message>
     <message>
         <source>Loaded the custom dumper library &apos;%1&apos; (%2).</source>
-        <translation>Die Ausgabe-Hilfsbibliothek &apos;%1&apos; (%2) wurde geladen.</translation>
+        <translation type="obsolete">Die Ausgabe-Hilfsbibliothek &apos;%1&apos; (%2) wurde geladen.</translation>
     </message>
     <message>
         <source>Stopped / Custom dumper library initialized.</source>
-        <translation>Angehalten / Ausgabe-Hilfsbibliothek initialisiert.</translation>
+        <translation type="obsolete">Angehalten / Ausgabe-Hilfsbibliothek initialisiert.</translation>
     </message>
     <message>
         <source>Disabling dumpers due to debuggee crash...</source>
-        <translation>Ausgabe-Hilfsbibliothek deaktiviert wegen Absturz der zu debuggenden Anwendung...</translation>
+        <translation type="obsolete">Ausgabe-Hilfsbibliothek deaktiviert wegen Absturz der zu debuggenden Anwendung...</translation>
     </message>
     <message>
         <source>The debuggee does not appear to be Qt application.</source>
-        <translation>Die zu debuggende Anwendung scheint nicht Qt zu benutzen.</translation>
+        <translation type="obsolete">Die zu debuggende Anwendung scheint nicht Qt zu benutzen.</translation>
     </message>
     <message>
         <source>Initializing dumpers...</source>
-        <translation>Ausgabe-Hilfsbibliothek initialisieren...</translation>
+        <translation type="obsolete">Ausgabe-Hilfsbibliothek initialisieren...</translation>
     </message>
     <message>
         <source>The custom dumper library could not be initialized: %1</source>
-        <translation>Die Ausgabe-Hilfsbibliothek konnte nicht initialisiert werden: %1</translation>
+        <translation type="obsolete">Die Ausgabe-Hilfsbibliothek konnte nicht initialisiert werden: %1</translation>
     </message>
     <message>
         <source>Querying dumpers for &apos;%1&apos;/&apos;%2&apos; (%3)</source>
-        <translation>Abfrage der Ausgabe-Hilfsbibliothek für &apos;%1&apos;/&apos;%2&apos; (%3)</translation>
+        <translation type="obsolete">Abfrage der Ausgabe-Hilfsbibliothek für &apos;%1&apos;/&apos;%2&apos; (%3)</translation>
     </message>
 </context>
 <context>
@@ -2594,7 +2707,12 @@ Qt Creator kann sich nicht anhängen.</translation>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Restarting Qt Creator is required for these settings to take effect.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Geben Sie den Pfad zu den &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2) an.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hinweis:&lt;/b&gt; Änderungen werden erst beim nächsten Start von Qt Creator wirksam.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;p&gt;Geben Sie den Pfad zu den &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2) an.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hinweis:&lt;/b&gt; Änderungen werden erst beim nächsten Start von Qt Creator wirksam.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
+        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Geben Sie den Pfad zu der ausführbaren Datei des &lt;a href=&quot;%1&quot;&gt;Windows Console Debuggers&lt;/a&gt; (%2) an.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>64-bit version</source>
@@ -2622,6 +2740,66 @@ Qt Creator kann sich nicht anhängen.</translation>
         <source>Autodetection</source>
         <translation>Suche</translation>
     </message>
+    <message>
+        <source>No cdb executable specified.
+</source>
+        <translation>Es wurde keine ausführbare Datei für cdb angegeben.
+</translation>
+    </message>
+    <message>
+        <source>Unable to determine version of %1.
+</source>
+        <translation>Die Version von %1 konnte nicht bestimmt werden.
+</translation>
+    </message>
+    <message>
+        <source>Version: %1</source>
+        <translation>Version: %1</translation>
+    </message>
+    <message>
+        <source>Extension library: %1, built: %2.
+</source>
+        <translation>Erweiterungsbibliothek: %1, erstellt: %2.
+</translation>
+    </message>
+    <message>
+        <source>Extension library: %1, built: %3.
+</source>
+        <translation type="obsolete">Erweiterungsbibliothek: %1, erstellt: %3.</translation>
+    </message>
+    <message>
+        <source>CDB</source>
+        <extracomment>Placeholder</extracomment>
+        <translation>CDB</translation>
+    </message>
+    <message>
+        <source>&amp;Path:</source>
+        <translation>&amp;Pfad:</translation>
+    </message>
+    <message>
+        <source>Additional &amp;arguments:</source>
+        <translation>Zusätzliche &amp;Argumente:</translation>
+    </message>
+    <message>
+        <source>64 bit</source>
+        <translation>64 bit</translation>
+    </message>
+    <message>
+        <source>Debugger Paths</source>
+        <translation>Debugger-Pfade</translation>
+    </message>
+    <message>
+        <source>&amp;Symbol paths:</source>
+        <translation>&amp;Symbolpfade:</translation>
+    </message>
+    <message>
+        <source>S&amp;ource paths:</source>
+        <translation>&amp;Quelltext-Pfade:</translation>
+    </message>
+    <message>
+        <source>Break on:</source>
+        <translation>Halte bei:</translation>
+    </message>
 </context>
 <context>
     <name>Debugger::Internal::CdbSymbolPathListEditor</name>
@@ -2633,12 +2811,24 @@ Qt Creator kann sich nicht anhängen.</translation>
         <source>Adds the Microsoft symbol server providing symbols for operating system libraries.Requires specifying a local cache directory.</source>
         <translation>Fügt den von Microsoft betriebenen Symbol-Server hinzu, der die Symbole für die Bibliotheken des Betriebssystems bereitstellt. Erfordert die Angabe eines lokalen Cache-Verzeichnisses.</translation>
     </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Server&lt;/a&gt;. This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Note:&lt;/i&gt; A fast internet connection is required for this to work smoothly. Also, a delay might occur when connecting for the first time.&lt;/p&gt;&lt;p&gt;Would you like to set it up?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Der Debugger ist nicht zur Benutzung des öffentlichen &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Servers&lt;/a&gt; eingerichtet. Dies wird zur Anzeige der Symbole der Betriebssystem-Bibliotheken empfohlen.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Hinweis:&lt;/i&gt; Eine schnelle Internetverbindung ist erforderlich. Beim ersten Start können Verzögerungen auftreten.&lt;/p&gt;&lt;p&gt;Möchten Sie den Symbol Server einrichten?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Symbol Server</source>
+        <translation>Symbol-Server</translation>
+    </message>
+    <message>
+        <source>Do not ask again</source>
+        <translation>Nicht noch einmal nachfragen</translation>
+    </message>
 </context>
 <context>
     <name>Debugger::Internal::DebugMode</name>
     <message>
         <source>Debug</source>
-        <translation>Debuggen</translation>
+        <translation type="obsolete">Debuggen</translation>
     </message>
 </context>
 <context>
@@ -2701,7 +2891,7 @@ Qt Creator kann sich nicht anhängen.</translation>
     </message>
     <message>
         <source>Debug Debugging Helpers</source>
-        <translation>Debug-Version der Ausgabe-Hilfsbibliothek</translation>
+        <translation type="obsolete">Debug-Version der Ausgabe-Hilfsbibliothek</translation>
     </message>
     <message>
         <source>Use Code Model</source>
@@ -2847,11 +3037,11 @@ Qt Creator kann sich nicht anhängen.</translation>
     </message>
     <message>
         <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation>&lt;p&gt;Der Prozess wurde nach Erhalt eines Signals vom Betriebssystem angehalten.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Name des Signals : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Bedeutung : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
+        <translation type="obsolete">&lt;p&gt;Der Prozess wurde nach Erhalt eines Signals vom Betriebssystem angehalten.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Name des Signals : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Bedeutung : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
     <message>
         <source>Signal received</source>
-        <translation>Signal erhalten</translation>
+        <translation type="obsolete">Signal erhalten</translation>
     </message>
     <message>
         <source>Reading %1...</source>
@@ -2875,11 +3065,11 @@ Qt Creator kann sich nicht anhängen.</translation>
     </message>
     <message>
         <source>Stopped: &quot;%1&quot;</source>
-        <translation>Angehalten: &quot;%1&quot;</translation>
+        <translation type="obsolete">Angehalten: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Stopped: %1 by signal %2</source>
-        <translation>Angehalten: %1, Signal %2</translation>
+        <translation type="obsolete">Angehalten: %1, Signal %2</translation>
     </message>
     <message>
         <source>Stopped.</source>
@@ -2909,7 +3099,7 @@ Qt Creator kann sich nicht anhängen.</translation>
     </message>
     <message>
         <source>Unable to run &apos;%1&apos;: %2</source>
-        <translation>&apos;%1&apos; kann nicht ausgeführt werden: %2</translation>
+        <translation type="obsolete">&apos;%1&apos; kann nicht ausgeführt werden: %2</translation>
     </message>
     <message>
         <source>Retrieving data for stack view...</source>
@@ -2954,6 +3144,14 @@ This might yield incorrect results.</source>
     <message>
         <source>An unknown error in the Gdb process occurred. </source>
         <translation>Im Gdb-Prozess trat ein unbekannter Fehler auf.</translation>
+    </message>
+    <message>
+        <source>An exception was triggered.</source>
+        <translation>Eine Ausnahme wurde ausgelöst.</translation>
+    </message>
+    <message>
+        <source>An exception was triggered: </source>
+        <translation>Eine Ausnahme wurde ausgelöst: </translation>
     </message>
     <message>
         <source>Library %1 loaded</source>
@@ -3022,6 +3220,14 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
         <translation>Der Prozess konnte nicht gestartet werden</translation>
     </message>
     <message>
+        <source>Setting breakpoints failed</source>
+        <translation>Das Setzen der Haltepunkte schlug fehl</translation>
+    </message>
+    <message>
+        <source>Executable Failed</source>
+        <translation>Fehler bei Ausführung</translation>
+    </message>
+    <message>
         <source>Executable failed: %1</source>
         <translation>Fehler bei Ausführung: %1</translation>
     </message>
@@ -3038,14 +3244,22 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
         <translation>Zeile erreicht / Angehalten</translation>
     </message>
     <message>
+        <source>Cannot Read Symbols</source>
+        <translation>Die Symbole konnten nicht gelesen werden</translation>
+    </message>
+    <message>
+        <source>Cannot read symbols for module &quot;%1&quot;.</source>
+        <translation>Die Symbole des Moduls &quot;%1&quot; konnten nicht gelesen werden.</translation>
+    </message>
+    <message>
         <source> &lt;Unknown&gt; </source>
         <comment>name</comment>
-        <translation>&lt;Unbekannt&gt;</translation>
+        <translation type="obsolete">&lt;Unbekannt&gt;</translation>
     </message>
     <message>
         <source> &lt;Unknown&gt; </source>
         <comment>meaning</comment>
-        <translation>&lt;Unbekannt&gt;</translation>
+        <translation type="obsolete">&lt;Unbekannt&gt;</translation>
     </message>
     <message>
         <source>Failed to shut down application</source>
@@ -3053,7 +3267,7 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     </message>
     <message>
         <source>There is no gdb binary available for &apos;%1&apos;</source>
-        <translation>Gdb: Es wurde keine ausführbare Datei für &apos;%1&apos; angegeben</translation>
+        <translation type="obsolete">Gdb: Es wurde keine ausführbare Datei für &apos;%1&apos; angegeben</translation>
     </message>
     <message>
         <source>Continuing after temporary stop...</source>
@@ -3071,15 +3285,19 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     </message>
     <message>
         <source>Watchpoint %1 at %2 triggered:</source>
-        <translation>Watchpoint %1 bei %2 ausgelöst:</translation>
+        <translation type="obsolete">Watchpoint %1 bei %2 ausgelöst:</translation>
     </message>
     <message>
         <source>Stopped at breakpoint %1 in thread %2</source>
-        <translation>An Haltepunkt %1 im Thread %2 angehalten</translation>
+        <translation type="obsolete">An Haltepunkt %1 im Thread %2 angehalten</translation>
     </message>
     <message>
         <source>Raw structure</source>
         <translation>Rohdaten</translation>
+    </message>
+    <message>
+        <source>There is no gdb binary available for &apos;%1&apos;.</source>
+        <translation>Gdb: Es wurde keine ausführbare Datei für &apos;%1&apos; angegeben.</translation>
     </message>
     <message>
         <source>Step requested...</source>
@@ -3117,7 +3335,7 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
         <source>&lt;unknown&gt;</source>
         <comment>address</comment>
         <extracomment>End address of loaded module</extracomment>
-        <translation>&lt;unbekannt&gt;</translation>
+        <translation type="obsolete">&lt;unbekannt&gt;</translation>
     </message>
     <message>
         <source>Retrieving data for stack view thread 0x%1...</source>
@@ -3148,6 +3366,32 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     <message>
         <source>Custom dumper setup: %1</source>
         <translation>Ausgabe-Hilfsbibliothek-Initialisierung: %1</translation>
+    </message>
+    <message>
+        <source>Cannot read widget data: %1</source>
+        <translation>Die Widget-Daten konnten nicht gelesen werden: %1</translation>
+    </message>
+    <message>
+        <source>Could not find a widget.</source>
+        <translation>Es konnte kein Widget gefunden werden.</translation>
+    </message>
+    <message>
+        <source>The gdb location must be given as an absolute path in the debugger settings.</source>
+        <translation>Es muss ein absoluter Pfad für die ausführbare gdb-Datei in den Debugger-Einstellungen angegeben werden.</translation>
+    </message>
+    <message>
+        <source>The gdb installed at %1 cannot find a valid python installation in its %2 subdirectory.
+You may set the PYTHONPATH to your installation.</source>
+        <translation type="obsolete">Der gdb aus %1 konnte keine Python-Installation in dem Unterverzeichnis %2 finden.
+Sie können die Umgebungsvariable PYTHONPATH setzen, um auf die Installation zu verweisen.</translation>
+    </message>
+    <message>
+        <source>The gdb process crashed.</source>
+        <translation>Der gdb-Prozess ist abgestürzt.</translation>
+    </message>
+    <message>
+        <source>The gdb process exited unexpectedly (code %1)</source>
+        <translation>Der Gdb-Prozess wurde plötzlich beendet (%1)</translation>
     </message>
     <message>
         <source>Failed to start application: </source>
@@ -3184,6 +3428,12 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
         <translation>Fehler beim Disassemblieren: %1</translation>
     </message>
     <message>
+        <source>The gdb installed at %1 cannot find a valid python installation in its %2 subdirectory.
+You may set the environment variable PYTHONPATH to point to your installation.</source>
+        <translation>Der gdb aus %1 konnte keine Python-Installation in dem Unterverzeichnis %2 finden.
+Sie können die Umgebungsvariable PYTHONPATH setzen, um auf die Installation zu verweisen.</translation>
+    </message>
+    <message>
         <source>Gdb I/O Error</source>
         <translation>Gdb Ein/Ausgabefehler</translation>
     </message>
@@ -3193,15 +3443,15 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     </message>
     <message>
         <source>The gdb process exited unexpectedly (%1).</source>
-        <translation>Der Gdb-Prozess wurde plötzlich beendet (%1).</translation>
+        <translation type="obsolete">Der Gdb-Prozess wurde plötzlich beendet (%1).</translation>
     </message>
     <message>
         <source>crashed</source>
-        <translation>abgestürzt</translation>
+        <translation type="obsolete">abgestürzt</translation>
     </message>
     <message>
         <source>code %1</source>
-        <translation>Rückgabewert %1</translation>
+        <translation type="obsolete">Rückgabewert %1</translation>
     </message>
     <message>
         <source>Adapter start failed</source>
@@ -3235,15 +3485,15 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     <name>Debugger::Internal::MemoryViewAgent</name>
     <message>
         <source>Memory $</source>
-        <translation>Speicher $</translation>
+        <translation type="obsolete">Speicher $</translation>
     </message>
     <message>
         <source>No memory viewer available</source>
-        <translation>Es ist kein Speicher-Anzeigemodul verfügbar</translation>
+        <translation type="obsolete">Es ist kein Speicher-Anzeigemodul verfügbar</translation>
     </message>
     <message>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
-        <translation>Der Speicherinhalt kann nicht angezeigt werden, da kein Plugin zur Anzeige binärer Daten geladen ist.</translation>
+        <translation type="obsolete">Der Speicherinhalt kann nicht angezeigt werden, da kein Plugin zur Anzeige binärer Daten geladen ist.</translation>
     </message>
 </context>
 <context>
@@ -3292,6 +3542,12 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
         <source>fast</source>
         <translation>schnell</translation>
     </message>
+    <message>
+        <source>&lt;unknown&gt;</source>
+        <comment>address</comment>
+        <extracomment>End address of loaded module</extracomment>
+        <translation>&lt;unbekannt&gt;</translation>
+    </message>
 </context>
 <context>
     <name>Debugger::Internal::ModulesWindow</name>
@@ -3328,6 +3584,10 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
         <translation>Symbole anzeigen</translation>
     </message>
     <message>
+        <source>Show Dependencies</source>
+        <translation>Abhängigkeiten anzeigen</translation>
+    </message>
+    <message>
         <source>Load Symbols for Module &quot;%1&quot;</source>
         <translation>Symbole des Moduls &quot;%1&quot; laden</translation>
     </message>
@@ -3338,6 +3598,10 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     <message>
         <source>Show Symbols in File &quot;%1&quot;</source>
         <translation>Symbole der Datei &quot;%1&quot; laden</translation>
+    </message>
+    <message>
+        <source>Show Dependencies of &quot;%1&quot;</source>
+        <translation>Abhängigkeiten von &quot;%1&quot; anzeigen</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
@@ -3479,27 +3743,27 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     </message>
     <message>
         <source>Address:</source>
-        <translation>Adresse:</translation>
+        <translation type="obsolete">Adresse:</translation>
     </message>
     <message>
         <source>Function:</source>
-        <translation>Funktion:</translation>
+        <translation type="obsolete">Funktion:</translation>
     </message>
     <message>
         <source>File:</source>
-        <translation>Datei:</translation>
+        <translation type="obsolete">Datei:</translation>
     </message>
     <message>
         <source>Line:</source>
-        <translation>Zeile:</translation>
+        <translation type="obsolete">Zeile:</translation>
     </message>
     <message>
         <source>From:</source>
-        <translation>Von:</translation>
+        <translation type="obsolete">Von:</translation>
     </message>
     <message>
         <source>To:</source>
-        <translation>Bis:</translation>
+        <translation type="obsolete">Bis:</translation>
     </message>
     <message>
         <source>Level</source>
@@ -3547,6 +3811,10 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     <message>
         <source>Open Disassembler</source>
         <translation>Disassembler öffnen</translation>
+    </message>
+    <message>
+        <source>Try to Load Unknown Symbols</source>
+        <translation>Lade unbekannte Symbole</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
@@ -3714,6 +3982,14 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
         <translation>Ausdruck</translation>
     </message>
     <message>
+        <source>Internal Type</source>
+        <translation>Interner Typ</translation>
+    </message>
+    <message>
+        <source>Displayed Type</source>
+        <translation>Angezeigter Typ</translation>
+    </message>
+    <message>
         <source> ... &lt;cut off&gt;</source>
         <translation>...&lt;Rest abgeschnitten&gt;</translation>
     </message>
@@ -3746,6 +4022,13 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
         <translation>&lt;nicht zugänglich&gt;</translation>
     </message>
     <message numerus="yes">
+        <source>&lt;more than %n items&gt;</source>
+        <translation>
+            <numerusform>&lt;mehr als ein Element&gt;</numerusform>
+            <numerusform>&lt;mehr als %n Elemente&gt;</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
         <source>&lt;%n items&gt;</source>
         <translation>
             <numerusform>&lt;ein Element&gt;</numerusform>
@@ -3762,7 +4045,7 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     </message>
     <message>
         <source>Locals &amp; Watchers</source>
-        <translation>Lokale Variablen und Überwachte Ausdrücke</translation>
+        <translation type="obsolete">Lokale Variablen und Überwachte Ausdrücke</translation>
     </message>
     <message>
         <source>&lt;Edit&gt;</source>
@@ -3794,7 +4077,7 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Typ</translation>
+        <translation type="obsolete">Typ</translation>
     </message>
     <message>
         <source>Generation</source>
@@ -3864,11 +4147,11 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     </message>
     <message>
         <source>Change Format for Type</source>
-        <translation>Format für Typ ändern</translation>
+        <translation type="obsolete">Format für Typ ändern</translation>
     </message>
     <message>
         <source>Change Format for Type &quot;%1&quot;</source>
-        <translation>Format für den Typ &apos;%1&apos; ändern</translation>
+        <translation type="obsolete">Format für den Typ &apos;%1&apos; ändern</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -3876,11 +4159,11 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     </message>
     <message>
         <source>Change Format for Object Named &quot;%1&quot;</source>
-        <translation>Format für das Objekt &quot;%1&quot; ändern</translation>
+        <translation type="obsolete">Format für das Objekt &quot;%1&quot; ändern</translation>
     </message>
     <message>
         <source>Change Format for Object</source>
-        <translation>Format für das Objekt ändern</translation>
+        <translation type="obsolete">Format für das Objekt ändern</translation>
     </message>
     <message>
         <source>Insert New Watch Item</source>
@@ -3904,15 +4187,15 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     </message>
     <message>
         <source>Break on Changes at Object&apos;s Address (0x%1)</source>
-        <translation>Beim Speicherzugriff auf die Adresse des Objekts (0x%1) anhalten</translation>
+        <translation type="obsolete">Beim Speicherzugriff auf die Adresse des Objekts (0x%1) anhalten</translation>
     </message>
     <message>
         <source>Break on Changes at Referenced Address (0x%1)</source>
-        <translation>Beim Speicherzugriff auf die referenzierte Adresse (0x%1) anhalten</translation>
+        <translation type="obsolete">Beim Speicherzugriff auf die referenzierte Adresse (0x%1) anhalten</translation>
     </message>
     <message>
         <source>Break on Changing Contents</source>
-        <translation>Bei Änderung des Inhalts anhalten</translation>
+        <translation type="obsolete">Bei Änderung des Inhalts anhalten</translation>
     </message>
     <message>
         <source>Watch Expression</source>
@@ -3931,12 +4214,64 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
         <translation>Überwachten Ausdruck &quot;%1&quot; löschen</translation>
     </message>
     <message>
+        <source>Change Display Format...</source>
+        <translation>Anzeigeformat ändern...</translation>
+    </message>
+    <message>
+        <source>Change Display for Type &quot;%1&quot;</source>
+        <translation>Anzeigeformat für den Typ &apos;%1&apos; ändern</translation>
+    </message>
+    <message>
+        <source>Change Display for Object Named &quot;%1&quot;</source>
+        <translation>Format der Anzeige für das Objekt mit dem Namen &quot;%1&quot; ändern</translation>
+    </message>
+    <message>
+        <source>Use Display Format Based on Type</source>
+        <translation>Anzeigeformat per Typ verwenden&apos;</translation>
+    </message>
+    <message>
+        <source>Add Watchpoint at Object&apos;s Address (0x%1)</source>
+        <translation>Beim Speicherzugriff auf die Adresse des Objekts (0x%1) anhalten</translation>
+    </message>
+    <message>
+        <source>Add Watchpoint at Referenced Address (0x%1)</source>
+        <translation>Beim Speicherzugriff auf die referenzierte Adresse (0x%1) anhalten</translation>
+    </message>
+    <message>
+        <source>Add Watchpoint</source>
+        <translation>Haltepunkt bei Adresse setzen</translation>
+    </message>
+    <message>
+        <source>Setting a watchpoint on an address will cause the program to stop when the data at the address it modified.</source>
+        <translation>Das Setzen eines Haltepunkts bei der Adresse bewirkt, dass das Programm gestoppt wird, wenn die dort befindlichen Daten modifiziert werden.</translation>
+    </message>
+    <message>
+        <source>Remove All Watch Items</source>
+        <translation>Alle überwachten Ausdrücke löschen</translation>
+    </message>
+    <message>
+        <source>Open Memory Editor at Object&apos;s Address</source>
+        <translation>Speicher-Editor bei der Adresse des Objekts (0x%1) öffnen</translation>
+    </message>
+    <message>
+        <source>Open Memory Editor at Referenced Address</source>
+        <translation>Speicher-Editor bei der referenzierten Adresse öffnen</translation>
+    </message>
+    <message>
+        <source>Copy Contents to Clipboard</source>
+        <translation>Inhalt in Zwischenablage kopieren</translation>
+    </message>
+    <message>
         <source>Refresh Code Model Snapshot</source>
         <translation>Code-Modell Stand auf aktuellen Stand bringen.</translation>
     </message>
     <message>
         <source>Show View Contents in Editor</source>
         <translation>Ansicht in einem Editor öffnen</translation>
+    </message>
+    <message>
+        <source>Locals &amp; Watchers</source>
+        <translation>Lokale Variablen und Überwachte Ausdrücke</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
@@ -3959,7 +4294,7 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     </message>
     <message>
         <source>Debug debugging helper</source>
-        <translation>Debug-Version der Ausgabe-Hilfsbibliothek</translation>
+        <translation type="obsolete">Debug-Version der Ausgabe-Hilfsbibliothek</translation>
     </message>
     <message>
         <source>Makes use of Qt Creator&apos;s code model to find out if a variable has already been assigned a value at the point the debugger interrupts.</source>
@@ -3980,6 +4315,14 @@ Die Ausgabe-Hilfsbibliothek dient lediglich zur formatierten Ausgabe von Objekte
     <message>
         <source>Use Debugging Helper</source>
         <translation>Ausgabe-Hilfsbibliothek benutzen</translation>
+    </message>
+    <message>
+        <source>Displays names of QThread based threads.</source>
+        <translation>Zeige Namen der Threads an, die auf QThread basieren.</translation>
+    </message>
+    <message>
+        <source>Display thread names</source>
+        <translation>Namen der Threads anzeigen</translation>
     </message>
 </context>
 <context>
@@ -4111,12 +4454,20 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>Qt-Designer-Formular</translation>
     </message>
     <message>
+        <source>Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
+        <translation>Erstellt ein Qt-Designer-Formular für ein Qt-Widget-Projekt. Verwenden Sie diese Vorlage, wenn bereits eine Klasse für den Programmablauf existiert.</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
+        <translation>Erstellt ein Qt-Designer-Formular mit zugehörigem Klassenrumpf (bestehend aus C++-Header- und -Quelldatei) für ein existierendes Qt-Widget-Projekt.</translation>
+    </message>
+    <message>
         <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt C++ Project.</source>
-        <translation>Erstellt ein Qt-Designer-Formular mit zugehörigem Klassenrumpf (bestehend aus C++-Header- und -Quelldatei) für ein existierendes C++-Projekt.</translation>
+        <translation type="obsolete">Erstellt ein Qt-Designer-Formular mit zugehörigem Klassenrumpf (bestehend aus C++-Header- und -Quelldatei) für ein existierendes C++-Projekt.</translation>
     </message>
     <message>
         <source>Creates a Qt Designer form that you can add to a Qt C++ project. This is useful if you already have an existing class for the UI business logic.</source>
-        <translation>Erstellt ein Qt-Designer-Formular für ein C++-Projekt. Verwenden Sie diese Vorlage, wenn bereits eine Klasse für den Programmablauf existiert.</translation>
+        <translation type="obsolete">Erstellt ein Qt-Designer-Formular für ein C++-Projekt. Verwenden Sie diese Vorlage, wenn bereits eine Klasse für den Programmablauf existiert.</translation>
     </message>
     <message>
         <source>Qt Designer Form Class</source>
@@ -4924,12 +5275,16 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Replace</source>
         <translation>Ersetzen</translation>
     </message>
+    <message>
+        <source>Collapse All</source>
+        <translation>Alle einklappen</translation>
+    </message>
 </context>
 <context>
     <name>GdbOptionsPage</name>
     <message>
         <source>Environment:</source>
-        <translation>Umgebung:</translation>
+        <translation type="obsolete">Umgebung:</translation>
     </message>
     <message>
         <source>This is either empty or points to a file containing gdb commands that will be executed immediately after gdb starts up.</source>
@@ -4998,7 +5353,19 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Adjust Breakpoint Locations</source>
+        <translation type="obsolete">Positionen der Haltepunkte korrigieren</translation>
+    </message>
+    <message>
+        <source>Adjust breakpoint locations</source>
         <translation>Positionen der Haltepunkte korrigieren</translation>
+    </message>
+    <message>
+        <source>Load .gdbinit file on startup</source>
+        <translation>Datei .gdbinit zu Beginn laden</translation>
+    </message>
+    <message>
+        <source>Use asynchronous mode to control the inferior</source>
+        <translation>Asynchronen Modus zur Steuerung des zu debuggenden Prozesses verwenden</translation>
     </message>
 </context>
 <context>
@@ -5162,7 +5529,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
-        <translation>&lt;b&gt;Make-Kommando:&lt;/b&gt; %1 %2</translation>
+        <translation type="obsolete">&lt;b&gt;Make-Kommando:&lt;/b&gt; %1 %2</translation>
     </message>
 </context>
 <context>
@@ -5769,6 +6136,10 @@ rückgängig machen?</translation>
         <translation>Git-Editor schließen</translation>
     </message>
     <message>
+        <source>Git will not accept this commit. Do you want to continue to edit it?</source>
+        <translation>Git akzeptiert diesen Commit nicht. Möchten Sie ihn weiter bearbeiten?</translation>
+    </message>
+    <message>
         <source>Repository Clean</source>
         <translation>Repository bereinigt</translation>
     </message>
@@ -5854,7 +6225,7 @@ rückgängig machen?</translation>
     </message>
     <message>
         <source>The commit message check failed. Do you want to commit the change?</source>
-        <translation>Die Überprüfung der Beschreibung schlug fehl. Möchten Sie den Commit trotzdem ausführen?</translation>
+        <translation type="obsolete">Die Überprüfung der Beschreibung schlug fehl. Möchten Sie den Commit trotzdem ausführen?</translation>
     </message>
     <message>
         <source>Unable to retrieve file list</source>
@@ -5974,7 +6345,7 @@ rückgängig machen?</translation>
     </message>
     <message>
         <source>Use &quot;patience diff&quot; algorithm</source>
-        <translation>&quot;patience diff&quot;-Algorithmus verwenden</translation>
+        <translation type="obsolete">&quot;patience diff&quot;-Algorithmus verwenden</translation>
     </message>
     <message>
         <source>Pull with rebase</source>
@@ -6002,11 +6373,11 @@ rückgängig machen?</translation>
     </message>
     <message>
         <source>Omit date from blame output</source>
-        <translation>Datum bei Blame-Ausgabe weglassen</translation>
+        <translation type="obsolete">Datum bei Blame-Ausgabe weglassen</translation>
     </message>
     <message>
         <source>Ignore whitespace changes in blame and diff</source>
-        <translation>Änderungen der Leerzeichen bei Blame- und Diff-Ausgabe weglassen</translation>
+        <translation type="obsolete">Änderungen der Leerzeichen bei Blame- und Diff-Ausgabe weglassen</translation>
     </message>
 </context>
 <context>
@@ -6291,7 +6662,7 @@ rückgängig machen?</translation>
     </message>
     <message>
         <source>Ctrl++</source>
-        <translation>Ctrl++</translation>
+        <translation type="obsolete">Ctrl++</translation>
     </message>
     <message>
         <source>Decrease Font Size</source>
@@ -6299,7 +6670,7 @@ rückgängig machen?</translation>
     </message>
     <message>
         <source>Ctrl+-</source>
-        <translation>Ctrl+-</translation>
+        <translation type="obsolete">Ctrl+-</translation>
     </message>
     <message>
         <source>Reset Font Size</source>
@@ -6307,23 +6678,23 @@ rückgängig machen?</translation>
     </message>
     <message>
         <source>Ctrl+0</source>
-        <translation>Ctrl+0</translation>
+        <translation type="obsolete">Ctrl+0</translation>
     </message>
     <message>
         <source>Alt+Tab</source>
-        <translation>Alt+Tab</translation>
+        <translation type="obsolete">Alt+Tab</translation>
     </message>
     <message>
         <source>Alt+Shift+Tab</source>
-        <translation>Alt+Shift+Tab</translation>
+        <translation type="obsolete">Alt+Shift+Tab</translation>
     </message>
     <message>
         <source>Ctrl+Tab</source>
-        <translation>Ctrl+Tab</translation>
+        <translation type="obsolete">Ctrl+Tab</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Tab</source>
-        <translation>Ctrl+Shift+Tab</translation>
+        <translation type="obsolete">Ctrl+Shift+Tab</translation>
     </message>
     <message>
         <source>Activate Search in Help mode</source>
@@ -6435,8 +6806,12 @@ rückgängig machen?</translation>
         <translation>&lt;title&gt;about:blank&lt;/title&gt;</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;title&gt;Error 404...&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;The page could not be found&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;&lt;/body&gt;</source>
+        <translation>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;title&gt;Fehler 404...&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;Die Seite konnte nicht gefunden werden&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;&lt;/body&gt;</translation>
+    </message>
+    <message>
         <source>&lt;title&gt;Error 404...&lt;/title&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;The page could not be found&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;</source>
-        <translation>&lt;title&gt;Fehler 404...&lt;/title&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;Die Seite konnte nicht gefunden werden&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;</translation>
+        <translation type="obsolete">&lt;title&gt;Fehler 404...&lt;/title&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;Die Seite konnte nicht gefunden werden&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;</translation>
     </message>
 </context>
 <context>
@@ -6525,6 +6900,26 @@ rückgängig machen?</translation>
     <message>
         <source>Generic Qt Creator Project file</source>
         <translation>Allgemeine Qt-Creator-Projektdatei</translation>
+    </message>
+    <message>
+        <source>GLSL Shader file</source>
+        <translation>GLSL Shader-Datei</translation>
+    </message>
+    <message>
+        <source>GLSL Fragment Shader file</source>
+        <translation>GLSL Fragment-Shader-Datei</translation>
+    </message>
+    <message>
+        <source>GLSL/ES Fragment Shader file</source>
+        <translation>GLSL/ES Fragment-Shader-Datei</translation>
+    </message>
+    <message>
+        <source>GLSL Vertex Shader file</source>
+        <translation>GLSL Vertex Shader-Datei</translation>
+    </message>
+    <message>
+        <source>GLSL/ES Vertex Shader file</source>
+        <translation>GLSL/ES Vertex Shader-Datei</translation>
     </message>
     <message>
         <source>BMP image</source>
@@ -6660,137 +7055,6 @@ rückgängig machen?</translation>
     </message>
 </context>
 <context>
-    <name>NameDemanglerPrivate</name>
-    <message>
-        <source>Premature end of input</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid encoding</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid nested-name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid template args</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid template-param</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid qualifiers: unexpected &apos;volatile&apos;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid qualifiers: &apos;const&apos; appears twice</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid non-negative number</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid template-arg</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid expression</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid primary expression</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid expr-primary</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid built-in type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid builtin-type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid function type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid unqualified-name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid operator-name &apos;%s&apos;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid array-type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid pointer-to-member-type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid substitution</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid substitution: element %1 was requested, but there are only %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid substitution: There are no elements</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid special-name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid local-name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid discriminator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid ctor-dtor-name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid call-offset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid v-offset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid digit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>At position %1: </source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>NickNameDialog</name>
     <message>
         <source>Nicknames</source>
@@ -6842,6 +7106,10 @@ rückgängig machen?</translation>
     <message>
         <source>Image Viewer</source>
         <translation>Bildbetrachter</translation>
+    </message>
+    <message>
+        <source>GLSL Editor</source>
+        <translation>GLSL Editor</translation>
     </message>
 </context>
 <context>
@@ -7597,25 +7865,25 @@ Fehler: %2</translation>
     <name>ProjectExplorer::EnvironmentModel</name>
     <message>
         <source>Variable</source>
-        <translation>Variable</translation>
+        <translation type="obsolete">Variable</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation>Wert</translation>
+        <translation type="obsolete">Wert</translation>
     </message>
     <message>
         <source>&lt;VALUE&gt;</source>
         <extracomment>Value when inserting a new variable</extracomment>
-        <translation>&lt;Wert&gt;</translation>
+        <translation type="obsolete">&lt;Wert&gt;</translation>
     </message>
     <message>
         <source>&lt;UNSET&gt;</source>
-        <translation>&lt;Nicht gesetzt&gt;</translation>
+        <translation type="obsolete">&lt;Nicht gesetzt&gt;</translation>
     </message>
     <message>
         <source>&lt;VARIABLE&gt;</source>
         <extracomment>Name when inserting a new variable</extracomment>
-        <translation>&lt;Variable&gt;</translation>
+        <translation type="obsolete">&lt;Variable&gt;</translation>
     </message>
 </context>
 <context>
@@ -7756,7 +8024,7 @@ Fehler: %2</translation>
     </message>
     <message>
         <source>File &amp;pattern:</source>
-        <translation>Such&amp;muster für Dateinamen:</translation>
+        <translation type="obsolete">Such&amp;muster für Dateinamen:</translation>
     </message>
 </context>
 <context>
@@ -7883,11 +8151,20 @@ Fehler: %2</translation>
     <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
     <message>
         <source>&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</source>
-        <translation>&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</translation>
+        <translation type="obsolete">&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</translation>
     </message>
     <message>
         <source>(disabled)</source>
-        <translation>(deaktiviert)</translation>
+        <translation type="obsolete">(deaktiviert)</translation>
+    </message>
+    <message>
+        <source>Custom Process Step</source>
+        <translation>Benutzerdefinierter Verarbeitungsschritt</translation>
+    </message>
+    <message>
+        <source>%1 (disabled)</source>
+        <extracomment>%1 is the custom process step summary</extracomment>
+        <translation>%1 (deaktiviert)</translation>
     </message>
 </context>
 <context>
@@ -7970,6 +8247,22 @@ Fehler: %2</translation>
         <source>Word-wrap application output</source>
         <translation>Ausgabe der Anwendung umbrechen</translation>
     </message>
+    <message>
+        <source>Show run output on running</source>
+        <translation type="obsolete">Ausgabe </translation>
+    </message>
+    <message>
+        <source>Ask before terminating the running application in response to clicking the stop button in Application Output.</source>
+        <translation>Bei Betätigen des Stop-Knopfes im Ausgabe-Panel stets nachfragen.</translation>
+    </message>
+    <message>
+        <source>Always ask before stopping applications</source>
+        <translation>Nachfrage beim Stoppen von Anwendungen</translation>
+    </message>
+    <message>
+        <source>Pop up application output pane on running</source>
+        <translation>Ausgabepanel bei der Ausgeführung von Anwendungen zeigen</translation>
+    </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::ProjectFileFactory</name>
@@ -7980,7 +8273,7 @@ Fehler: %2</translation>
     </message>
     <message>
         <source>Could not open the following project: &apos;%1&apos;</source>
-        <translation>Das Projekt &apos;%1&apos; konnte nicht geöffnet werden</translation>
+        <translation type="obsolete">Das Projekt &apos;%1&apos; konnte nicht geöffnet werden</translation>
     </message>
     <message>
         <source>All Projects</source>
@@ -8289,7 +8582,7 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     <name>ProjectExplorer::ProjectExplorerPlugin</name>
     <message>
         <source>Projects</source>
-        <translation>Projekte</translation>
+        <translation type="obsolete">Projekte</translation>
     </message>
     <message>
         <source>&amp;Build</source>
@@ -8384,6 +8677,14 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
         <translation>Deployment des Projekts %1&quot; durchführen</translation>
     </message>
     <message>
+        <source>Publish Project...</source>
+        <translation>Projekt publizieren...</translation>
+    </message>
+    <message>
+        <source>Publish Project &quot;%1&quot;...</source>
+        <translation>Projekt &quot;%1&quot; publizieren...</translation>
+    </message>
+    <message>
         <source>Clean Project</source>
         <translation>Projekt bereinigen</translation>
     </message>
@@ -8405,7 +8706,7 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Start Debugging</source>
-        <translation>Debuggen</translation>
+        <translation type="obsolete">Debuggen</translation>
     </message>
     <message>
         <source>Add New...</source>
@@ -8440,6 +8741,10 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
         <translation>Datei löschen...</translation>
     </message>
     <message>
+        <source>New Subproject...</source>
+        <translation>Neues Teilprojekt...</translation>
+    </message>
+    <message>
         <source>Rename</source>
         <translation>Umbenennen</translation>
     </message>
@@ -8461,6 +8766,16 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
         <translation>Neues Projekt</translation>
     </message>
     <message>
+        <source>Failed to open project</source>
+        <translation>Das Projekt konnte nicht geöffnet werden</translation>
+    </message>
+    <message>
+        <source>Failed to open project:
+%1</source>
+        <translation>Das Projekt konnte nicht geöffnet werden:
+%1</translation>
+    </message>
+    <message>
         <source>Cancel Build &amp;&amp; Close</source>
         <translation>Erstellen abbrechen und schließen</translation>
     </message>
@@ -8475,6 +8790,11 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     <message>
         <source>Do you want to cancel the build process and close Qt Creator anyway?</source>
         <translation>Möchten Sie die Erstellung abbrechen und Qt Creator schließen?</translation>
+    </message>
+    <message>
+        <source>New Subproject</source>
+        <comment>Title of dialog</comment>
+        <translation>Neues Teilprojekt</translation>
     </message>
     <message>
         <source>Delete File</source>
@@ -8543,11 +8863,11 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Cannot run without a project.</source>
-        <translation>Ausführung ohne Projekt nicht möglich.</translation>
+        <translation type="obsolete">Ausführung ohne Projekt nicht möglich.</translation>
     </message>
     <message>
         <source>Cannot debug without a project.</source>
-        <translation>Debuggen ohne Projekt nicht möglich.</translation>
+        <translation type="obsolete">Debuggen ohne Projekt nicht möglich.</translation>
     </message>
     <message>
         <source>New File</source>
@@ -8595,39 +8915,39 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <name>ProjectExplorer::Internal::BuildConfigDialog</name>
     <message>
         <source>This can happen if the active build configuration uses the wrong Qt version and/or tool chain for the active run configuration (for example, running in Symbian emulator requires building with the WINSCW tool chain).</source>
-        <translation>Das kann passieren, wenn die aktive Build-Konfiguration eine für die aktive Ausführungskonfiguration ungeeignete Qt-Version und/oder Toolchain benutzt (zum Beispiel erfordert die Ausführung im Symbian-Emulator die Toolchain WINSCW).</translation>
+        <translation type="obsolete">Das kann passieren, wenn die aktive Build-Konfiguration eine für die aktive Ausführungskonfiguration ungeeignete Qt-Version und/oder Toolchain benutzt (zum Beispiel erfordert die Ausführung im Symbian-Emulator die Toolchain WINSCW).</translation>
     </message>
     <message>
         <source>Run configuration does not match build configuration</source>
-        <translation>Die Ausführungskonfiguration entspricht nicht der Build-Konfiguration</translation>
+        <translation type="obsolete">Die Ausführungskonfiguration entspricht nicht der Build-Konfiguration</translation>
     </message>
     <message>
         <source>Change build configuration &amp;&amp; continue</source>
-        <translation>Ändere Build-Konfiguration und setze fort</translation>
+        <translation type="obsolete">Ändere Build-Konfiguration und setze fort</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation type="obsolete">Abbrechen</translation>
     </message>
     <message>
         <source>Continue anyway</source>
-        <translation>Trotzdem fortsetzen</translation>
+        <translation type="obsolete">Trotzdem fortsetzen</translation>
     </message>
     <message>
         <source>The active build configuration builds a target that cannot be used by the active run configuration.</source>
-        <translation>Die aktive Build-Konfiguration erstellt ein Ziel, das von der aktiven Ausführungskonfiguration nicht verwendet werden kann.</translation>
+        <translation type="obsolete">Die aktive Build-Konfiguration erstellt ein Ziel, das von der aktiven Ausführungskonfiguration nicht verwendet werden kann.</translation>
     </message>
     <message>
         <source>Active run configuration</source>
-        <translation>Aktive Ausführungskonfiguration</translation>
+        <translation type="obsolete">Aktive Ausführungskonfiguration</translation>
     </message>
     <message>
         <source>Choose build configuration:</source>
-        <translation>Build-Konfiguration wählen:</translation>
+        <translation type="obsolete">Build-Konfiguration wählen:</translation>
     </message>
     <message>
         <source>No valid build configuration found.</source>
-        <translation>Es konnte keine gültige Build-Konfiguration gefunden werden.</translation>
+        <translation type="obsolete">Es konnte keine gültige Build-Konfiguration gefunden werden.</translation>
     </message>
 </context>
 <context>
@@ -8666,7 +8986,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     </message>
     <message>
         <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
+        <translation type="obsolete">Qt Creator</translation>
     </message>
     <message>
         <source>Untitled</source>
@@ -9414,6 +9734,11 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Ungültige Qt-Version</translation>
     </message>
     <message>
+        <source>An build for a different project exists in %1, which will be overwritten.</source>
+        <comment>%1 build directory</comment>
+        <translation>Im Ordner %1 existiert bereits ein Build eines anderen Projektes, welcher überschrieben wird.</translation>
+    </message>
+    <message>
         <source>Error:</source>
         <translation>Fehler:</translation>
     </message>
@@ -9468,6 +9793,10 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <message>
         <source>Clean</source>
         <translation>Bereinigen</translation>
+    </message>
+    <message>
+        <source>Jump to File Under Cursor</source>
+        <translation>Gehe zu Datei unter Einfügemarke</translation>
     </message>
     <message>
         <source>Add Library...</source>
@@ -9604,37 +9933,67 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;GDB-Ausgabe-Hilfsbibliothek&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Datei:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Zuletzt&amp;nbsp;geändert:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Größe:&lt;/td&gt;&lt;td&gt;%3 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;QML-Typausgabe&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Datei:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%4&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Zuletzt&amp;nbsp;geändert:&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Größe:&lt;/td&gt;&lt;td&gt;%6 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;QML observer&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Größe:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%7&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Zuletzt&amp;nbsp;geändert:&lt;/td&gt;&lt;td&gt;%8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Größe:&lt;/td&gt;&lt;td&gt;%9 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
+        <source>Helpers: None available</source>
+        <translation>Hilfskomponenten: Keine verfügbar</translation>
+    </message>
+    <message>
+        <source>Helper(s): %1.</source>
+        <extracomment>%1 is list of tool names.</extracomment>
+        <translation>Hilfskomponenten: %1.</translation>
+    </message>
+    <message numerus="yes">
+        <source>Helper(s): %1.</source>
+        <comment>%1 is list of tool names</comment>
+        <translation type="obsolete">
+            <numerusform>Hilfskomponente: %1.</numerusform>
+            <numerusform>Hilfskomponenten: %1.</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>, </source>
+        <comment>Separator used to join names of helper tools.</comment>
+        <translation type="obsolete">, </translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;Not yet built.&lt;/i&gt;</source>
+        <translation>&lt;i&gt;Noch nicht erstellt.&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;Cannot be compiled.&lt;/i&gt;</source>
+        <translation>&lt;i&gt;Kann nicht erstellt werden.&lt;/i&gt;</translation>
+    </message>
+    <message>
         <source>This Qt Version has a unknown toolchain.</source>
-        <translation>Dieser Qt-Version ist keine bekannte Toolchain zugeordnet.</translation>
+        <translation type="obsolete">Dieser Qt-Version ist keine bekannte Toolchain zugeordnet.</translation>
     </message>
     <message>
         <source>Desktop</source>
         <comment>Qt Version is meant for the desktop</comment>
-        <translation>Desktop</translation>
+        <translation type="obsolete">Desktop</translation>
     </message>
     <message>
         <source>Symbian</source>
         <comment>Qt Version is meant for Symbian</comment>
-        <translation>Symbian</translation>
+        <translation type="obsolete">Symbian</translation>
     </message>
     <message>
         <source>Maemo</source>
         <comment>Qt Version is meant for Maemo</comment>
-        <translation>Maemo</translation>
+        <translation type="obsolete">Maemo</translation>
     </message>
     <message>
         <source>Qt Simulator</source>
         <comment>Qt Version is meant for Qt Simulator</comment>
-        <translation>Qt Simulator</translation>
+        <translation type="obsolete">Qt Simulator</translation>
     </message>
     <message>
         <source>unkown</source>
         <comment>No idea what this Qt Version is meant for!</comment>
-        <translation>unbekannt</translation>
+        <translation type="obsolete">unbekannt</translation>
     </message>
     <message>
         <source>Found Qt version %1, using mkspec %2 (%3)</source>
-        <translation>Es wurde die Qt-Version %1 mit mkspec %2 (%3) gefunden</translation>
+        <translation type="obsolete">Es wurde die Qt-Version %1 mit mkspec %2 (%3) gefunden</translation>
     </message>
 </context>
 <context>
@@ -9653,19 +10012,19 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     </message>
     <message>
         <source>Debugging Helper</source>
-        <translation>Ausgabe-Hilfsbibliothek</translation>
+        <translation type="obsolete">Ausgabe-Hilfsbibliothek</translation>
     </message>
     <message>
         <source>Show &amp;Log</source>
-        <translation>&amp;Protokoll anzeigen</translation>
+        <translation type="obsolete">&amp;Protokoll anzeigen</translation>
     </message>
     <message>
         <source>&amp;Rebuild</source>
-        <translation>&amp;Neu erstellen</translation>
+        <translation type="obsolete">&amp;Neu erstellen</translation>
     </message>
     <message>
         <source>S60 SDK:</source>
-        <translation>S60 SDK:</translation>
+        <translation type="obsolete">S60 SDK:</translation>
     </message>
     <message>
         <source>qmake Location</source>
@@ -9673,39 +10032,39 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     </message>
     <message>
         <source>Toolchain:</source>
-        <translation>Toolchain:</translation>
+        <translation type="obsolete">Toolchain:</translation>
     </message>
     <message>
         <source>Version name:</source>
-        <translation>Name der Version:</translation>
+        <translation type="obsolete">Name der Version:</translation>
     </message>
     <message>
         <source>qmake location:</source>
-        <translation>QMake-Pfad:</translation>
+        <translation type="obsolete">QMake-Pfad:</translation>
     </message>
     <message>
         <source>MinGW directory:</source>
-        <translation>MinGW-Verzeichnis:</translation>
+        <translation type="obsolete">MinGW-Verzeichnis:</translation>
     </message>
     <message>
         <source>CSL/GCCE directory:</source>
-        <translation>CSL/GCCE:</translation>
+        <translation type="obsolete">CSL/GCCE:</translation>
     </message>
     <message>
         <source>Carbide directory:</source>
-        <translation>Carbide-Ordner:</translation>
+        <translation type="obsolete">Carbide-Ordner:</translation>
     </message>
     <message>
         <source>Unable to detect MSVC version.</source>
-        <translation>Die verwendete MSVC-Version konnte nicht bestimmt werden.</translation>
+        <translation type="obsolete">Die verwendete MSVC-Version konnte nicht bestimmt werden.</translation>
     </message>
     <message>
         <source>Debugging helpers:</source>
-        <translation>Ausgabe-Hilfsbibliotheken:</translation>
+        <translation type="obsolete">Ausgabe-Hilfsbibliotheken:</translation>
     </message>
     <message>
         <source>SBS v2 directory:</source>
-        <translation>SBS-v2-Ordner:</translation>
+        <translation type="obsolete">SBS-v2-Ordner:</translation>
     </message>
 </context>
 <context>
@@ -9720,7 +10079,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     </message>
     <message>
         <source>Debugging</source>
-        <translation>Debuggen</translation>
+        <translation type="obsolete">Debuggen</translation>
     </message>
     <message>
         <source>Launching debugger...</source>
@@ -9758,61 +10117,61 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <name>Qt4ProjectManager::Internal::S60DeviceRunControl</name>
     <message>
         <source>Could not start application: %1</source>
-        <translation>Die Anwendung konnte nicht gestartet werden: %1</translation>
+        <translation type="obsolete">Die Anwendung konnte nicht gestartet werden: %1</translation>
     </message>
     <message>
         <source>Starting application...</source>
-        <translation>Starte Anwendung...</translation>
+        <translation type="obsolete">Starte Anwendung...</translation>
     </message>
     <message>
         <source>Launching</source>
-        <translation>Starte</translation>
+        <translation type="obsolete">Starte</translation>
     </message>
     <message>
         <source>There is no device plugged in.</source>
-        <translation>Es ist kein Gerät angeschlossen.</translation>
+        <translation type="obsolete">Es ist kein Gerät angeschlossen.</translation>
     </message>
     <message>
         <source>Executable file: %1</source>
-        <translation>Ausführbare Datei: %1</translation>
+        <translation type="obsolete">Ausführbare Datei: %1</translation>
     </message>
     <message>
         <source>Debugger for Symbian Platform</source>
-        <translation>Debugger für Symbian-Plattform</translation>
+        <translation type="obsolete">Debugger für Symbian-Plattform</translation>
     </message>
     <message>
         <source>Could not connect to phone on port &apos;%1&apos;: %2
 Check if the phone is connected and App TRK is running.</source>
-        <translation>Es konnte keine Verbindung zum Gerät über den Port &apos;%1&apos; hergestellt werden: %2
+        <translation type="obsolete">Es konnte keine Verbindung zum Gerät über den Port &apos;%1&apos; hergestellt werden: %2
 Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos; läuft.</translation>
     </message>
     <message>
         <source>Could not connect to App TRK on device: %1. Restarting App TRK might help.</source>
-        <translation>Es konnte keine Verbindung zu App TRK über den Port &apos;%1&apos; hergestellt werden. Bitte versuchen Sie, App TRK neu zu starten.</translation>
+        <translation type="obsolete">Es konnte keine Verbindung zu App TRK über den Port &apos;%1&apos; hergestellt werden. Bitte versuchen Sie, App TRK neu zu starten.</translation>
     </message>
     <message>
         <source>Waiting for App TRK</source>
-        <translation>Warte auf App TRK</translation>
+        <translation type="obsolete">Warte auf App TRK</translation>
     </message>
     <message>
         <source>Qt Creator is waiting for the TRK application to connect.&lt;br&gt;Please make sure the application is running on your mobile phone and the right port is configured in the project settings.</source>
-        <translation>Qt Creator wartet auf eine Verbindung zur TRK-Anwendung.&lt;br&gt;Bitte starten Sie die Anwendung auf dem Mobiltelefon und prüfen Sie die Einstellung des Ports in der Projektkonfiguration.</translation>
+        <translation type="obsolete">Qt Creator wartet auf eine Verbindung zur TRK-Anwendung.&lt;br&gt;Bitte starten Sie die Anwendung auf dem Mobiltelefon und prüfen Sie die Einstellung des Ports in der Projektkonfiguration.</translation>
     </message>
     <message>
         <source>Canceled.</source>
-        <translation>Abgebrochen.</translation>
+        <translation type="obsolete">Abgebrochen.</translation>
     </message>
     <message>
         <source>The device &apos;%1&apos; has been disconnected</source>
-        <translation>Das Gerät &apos;%1&apos; wurde entfernt</translation>
+        <translation type="obsolete">Das Gerät &apos;%1&apos; wurde entfernt</translation>
     </message>
     <message>
         <source>Application running with pid %1.</source>
-        <translation>Die Anwendung läuft mit der Prozess-ID: %1.</translation>
+        <translation type="obsolete">Die Anwendung läuft mit der Prozess-ID: %1.</translation>
     </message>
     <message>
         <source>Finished.</source>
-        <translation>Beendet.</translation>
+        <translation type="obsolete">Beendet.</translation>
     </message>
 </context>
 <context>
@@ -9914,7 +10273,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
     <message>
         <source>Could not find make command: %1 in the build environment</source>
-        <translation>Das &apos;make&apos;-Kommando &apos;%1&apos; konnte in der Build-Umgebung nicht gefunden werden</translation>
+        <translation type="obsolete">Das &apos;make&apos;-Kommando &apos;%1&apos; konnte in der Build-Umgebung nicht gefunden werden</translation>
     </message>
 </context>
 <context>
@@ -9929,7 +10288,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
     <message>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2 in %3</source>
-        <translation>&lt;b&gt;Make-Kommando:&lt;/b&gt; %1 %2 in %3</translation>
+        <translation type="obsolete">&lt;b&gt;Make-Kommando:&lt;/b&gt; %1 %2 in %3</translation>
     </message>
 </context>
 <context>
@@ -9961,6 +10320,18 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
 </context>
 <context>
     <name>Qt4ProjectManager::Qt4Manager</name>
+    <message>
+        <source>Update of generated files</source>
+        <translation type="obsolete">Generierte Dateien nicht zeigen</translation>
+    </message>
+    <message>
+        <source>Update of Generated Files</source>
+        <translation>Generierte Dateien auf aktuellen Stand bringen</translation>
+    </message>
+    <message>
+        <source>The following files are either outdated or have been modified:&lt;br&gt;&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Do you want Qt Creator to update the files? Any changes will be lost.</source>
+        <translation>Die folgenden Dateien sind entweder veraltet oder wurden modifiziert :&lt;br&gt;&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Sollen sie auf den aktuellen Stand gebracht werden? Dabei gehen alle Änderungen darin verloren.</translation>
+    </message>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project file does not exist</source>
         <translation>Das Projekt %1 konnte nicht geöffnet werden: Die Projektdatei existiert nicht</translation>
@@ -10282,7 +10653,11 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
     <message>
         <source>Creates a Qt Resource file (.qrc) that you can add to a Qt C++ project.</source>
-        <translation>Erstellt eine C++-Quelldatei für ein C++-Projekt.</translation>
+        <translation type="obsolete">Erstellt eine C++-Quelldatei für ein C++-Projekt.</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Resource file (.qrc) that you can add to a Qt Widget Project.</source>
+        <translation>Erstellt eine Qt-Ressourcen-Datei (.qrc), die zu einem Qt-Widget-Projekt hinzugefügt werden kann.</translation>
     </message>
     <message>
         <source>Qt Resource file</source>
@@ -10492,6 +10867,10 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <source>Sysroot:</source>
         <translation>Sysroot:</translation>
+    </message>
+    <message>
+        <source>GNU target</source>
+        <translation>GNU-Zielplattform</translation>
     </message>
 </context>
 <context>
@@ -10801,7 +11180,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <name>SymbolGroup</name>
     <message>
         <source>Out of scope</source>
-        <translation>Nicht im Bereich</translation>
+        <translation type="obsolete">Nicht im Bereich</translation>
     </message>
 </context>
 <context>
@@ -10822,8 +11201,12 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <translation>kein Titel</translation>
     </message>
     <message>
+        <source>Opening file</source>
+        <translation>Datei öffnen</translation>
+    </message>
+    <message>
         <source>&lt;em&gt;Binary data&lt;/em&gt;</source>
-        <translation>&lt;em&gt;Binäre Daten&lt;/em&gt;</translation>
+        <translation type="obsolete">&lt;em&gt;Binäre Daten&lt;/em&gt;</translation>
     </message>
 </context>
 <context>
@@ -10864,11 +11247,11 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <name>TextEditor::BehaviorSettingsPage</name>
     <message>
         <source>Storage</source>
-        <translation>Abspeichern</translation>
+        <translation type="obsolete">Abspeichern</translation>
     </message>
     <message>
         <source>Removes trailing whitespace on saving.</source>
-        <translation>Leerzeichen am Zeilenende beim Abspeichern entfernen.</translation>
+        <translation type="obsolete">Leerzeichen am Zeilenende beim Abspeichern entfernen.</translation>
     </message>
     <message>
         <source>&amp;Clean whitespace</source>
@@ -11123,6 +11506,58 @@ void foo()
 &lt;/pre&gt;
 &lt;/li&gt;
 &lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Cleanup actions which are automatically performed right before the file is saved to disk.</source>
+        <translation>Korrekturen die unmittelbar vor dem Speichern durchgeführt werden.</translation>
+    </message>
+    <message>
+        <source>Cleanups Upon Saving</source>
+        <translation>Korrekturen beim Speichern</translation>
+    </message>
+    <message>
+        <source>Removes trailing whitespace upon saving.</source>
+        <translation>Leerzeichen am Zeilenende beim Abspeichern entfernen.</translation>
+    </message>
+    <message>
+        <source>File Encodings</source>
+        <translation>Datei-Encoding</translation>
+    </message>
+    <message>
+        <source>Default encoding: </source>
+        <translation>Encoding-Vorgabe:</translation>
+    </message>
+    <message>
+        <source>UTF-8 BOM:</source>
+        <translation>UTF-8 BOM:</translation>
+    </message>
+    <message>
+        <source>Add If Encoding Is UTF-8</source>
+        <translation>Bei UTF-8-Encoding hinzufügen</translation>
+    </message>
+    <message>
+        <source>Keep If Already Present</source>
+        <translation>Beibehalten, falls vorhanden</translation>
+    </message>
+    <message>
+        <source>Always Delete</source>
+        <translation>Immer entfernen</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;How text editors should deal with UTF-8 Byte Order Marks. The options are:&lt;/p&gt;
+&lt;ul &gt;&lt;li&gt;&lt;i&gt;Add If Encoding Is UTF-8:&lt;/i&gt; always add a BOM when saving a file in UTF-8 encoding. Note that this will not work if the encoding is &lt;i&gt;System&lt;/i&gt;, as Qt Creator does not know what it actually is.&lt;/li&gt;
+&lt;li&gt;&lt;i&gt;Keep If Already Present: &lt;/i&gt;save the file with a BOM if it already had one when it was loaded.&lt;/li&gt;
+&lt;li&gt;&lt;i&gt;Always Delete:&lt;/i&gt; never write an UTF-8 BOM, possibly deleting a pre-existing one.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Note that UTF-8 BOMs are uncommon and treated incorrectly by some editors, so it usually makes little sense to add any.&lt;/p&gt;
+&lt;p&gt;This setting does &lt;b&gt;not&lt;/b&gt; influence the use of UTF-16 and UTF-32 BOMs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Gibt an, wie sich der Texteditor bezüglich UTF-8 Byte Order Marks verhält. Zur Auswahl stehen:&lt;/p&gt;
+&lt;ul &gt;&lt;li&gt;&lt;i&gt;Bei UTF-8-Encoding hinzufügen&lt;/i&gt; BOM bei UTF-8-Encoding stets hinzufügen. Dies wird jedoch beim Encoding &lt;i&gt;System&lt;/i&gt; nicht funktionieren, da Qt Creator in diesem Fall das Encoding nicht bestimmen kann.&lt;/li&gt;
+&lt;li&gt;&lt;i&gt;Beibehalten, falls vorhanden: &lt;/i&gt;BOM ausschreiben, wenn beim Laden ein BOM festgestellt wurde.&lt;/li&gt;
+&lt;li&gt;&lt;i&gt;Immer entfernen:&lt;/i&gt; UTF-8 BOM niemals ausschreiben, existierende unter Umständen entfernen.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Beachten Sie, dass UTF-8 BOMs selten sind und von einigen Editoren falsch behandelt werden. Daher macht es gewöhnlich wenig Sinn, sie hinzuzufügen.&lt;/p&gt;
+&lt;p&gt;Die Einstellung beeinflusst &lt;b&gt;nicht&lt;/b&gt; die Verwendung von UTF-16 und UTF-32 BOMs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -11632,6 +12067,14 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Nächstes Wort</translation>
     </message>
     <message>
+        <source>Goto Previous Word Camel Case</source>
+        <translation>Vorangehendes Wort (Camel Case)</translation>
+    </message>
+    <message>
+        <source>Goto Next Word Camel Case</source>
+        <translation>Nächstes Wort (Camel Case)</translation>
+    </message>
+    <message>
         <source>Goto Line Start With Selection</source>
         <translation>Bis Zeilenanfang markieren</translation>
     </message>
@@ -11662,6 +12105,14 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <source>Goto Next Word With Selection</source>
         <translation>Nächstes Wort markieren</translation>
+    </message>
+    <message>
+        <source>Goto Previous Word Camel Case With Selection</source>
+        <translation>Vorangehendes Wort markieren (Camel Case)</translation>
+    </message>
+    <message>
+        <source>Goto Next Word Camel Case With Selection</source>
+        <translation>Nächstes Wort markieren (Camel Case)</translation>
     </message>
     <message>
         <source>&lt;line number&gt;</source>
@@ -11842,16 +12293,44 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>RVCT (ARMV6)/GnuPoc</translation>
     </message>
     <message>
+        <source>RVCT 2 (ARMV5)</source>
+        <translation>RVCT 2 (ARMV5)</translation>
+    </message>
+    <message>
+        <source>RVCT 2 (ARMV6)</source>
+        <translation>RVCT 2 (ARMV6)</translation>
+    </message>
+    <message>
+        <source>RVCT 4 (ARMV5)</source>
+        <translation>RVCT 4 (ARMV5)</translation>
+    </message>
+    <message>
+        <source>RVCT 4 (ARMV6)</source>
+        <translation>RVCT 4 (ARMV6)</translation>
+    </message>
+    <message>
+        <source>GCC for Maemo5</source>
+        <translation>GCC für Maemo5</translation>
+    </message>
+    <message>
+        <source>GCC for Harmattan</source>
+        <translation>GCC for Harmattan</translation>
+    </message>
+    <message>
+        <source>GCC for Meego</source>
+        <translation>GCC für Meego</translation>
+    </message>
+    <message>
         <source>RVCT (ARMV5)</source>
-        <translation>RVCT (ARMV5)</translation>
+        <translation type="obsolete">RVCT (ARMV5)</translation>
     </message>
     <message>
         <source>RVCT (ARMV6)</source>
-        <translation>RVCT (ARMV6)</translation>
+        <translation type="obsolete">RVCT (ARMV6)</translation>
     </message>
     <message>
         <source>GCC for Maemo</source>
-        <translation>GCC for Maemo</translation>
+        <translation type="obsolete">GCC for Maemo</translation>
     </message>
     <message>
         <source>Other</source>
@@ -11932,6 +12411,22 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <source>Press &lt;RETURN&gt; to close this window...</source>
         <translation>Betätigen Sie die &lt;RETURN&gt; Taste, um das Fenster zu schließen...</translation>
+    </message>
+    <message>
+        <source>Quoting error in command.</source>
+        <translation>Quotierungsfehler im Kommando</translation>
+    </message>
+    <message>
+        <source>Debugging complex shell commands in a terminal is currently not supported.</source>
+        <translation>Das Debuggen komplexer Shell-Kommandos in einem Terminal wird gegenwärtig nicht unterstützt.</translation>
+    </message>
+    <message>
+        <source>Quoting error in terminal command.</source>
+        <translation>Quotierungsfehler in Terminal-Kommando.</translation>
+    </message>
+    <message>
+        <source>Terminal command may not be a shell command.</source>
+        <translation>Shell-Kommandos sind als Terminal-Kommando nicht zulässig.</translation>
     </message>
     <message>
         <source>Cannot start the terminal emulator &apos;%1&apos;.</source>
@@ -12513,12 +13008,12 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <name>VCSManager</name>
     <message>
         <source>Version Control</source>
-        <translation>Versionskontrolle</translation>
+        <translation type="obsolete">Versionskontrolle</translation>
     </message>
     <message>
         <source>Would you like to remove this file from the version control system (%1)?
 Note: This might remove the local file.</source>
-        <translation>Möchten Sie die Datei aus der Versionskontrolle (%1) entfernen?
+        <translation type="obsolete">Möchten Sie die Datei aus der Versionskontrolle (%1) entfernen?
 Hinweis: Unter Umständen wird die Datei gelöscht.</translation>
     </message>
 </context>
@@ -12658,24 +13153,8 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>mainClass</name>
     <message>
-        <source>main</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Text1:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>N/A</source>
-        <translation>N/A</translation>
-    </message>
-    <message>
-        <source>Text2:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Text3:</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">N/A</translation>
     </message>
 </context>
 <context>
@@ -13160,22 +13639,22 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <source>Library</source>
         <comment>Title of library view</comment>
-        <translation>Bibliothek</translation>
+        <translation type="obsolete">Bibliothek</translation>
     </message>
     <message>
         <source>Items</source>
         <comment>Title of library items view</comment>
-        <translation>Elemente</translation>
+        <translation type="obsolete">Elemente</translation>
     </message>
     <message>
         <source>Resources</source>
         <comment>Title of library resources view</comment>
-        <translation>Ressourcen</translation>
+        <translation type="obsolete">Ressourcen</translation>
     </message>
     <message>
         <source>&lt;Filter&gt;</source>
         <comment>Library search input hint text</comment>
-        <translation>&lt;Filter&gt;</translation>
+        <translation type="obsolete">&lt;Filter&gt;</translation>
     </message>
 </context>
 <context>
@@ -13241,542 +13720,542 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <name>GradientDialog</name>
     <message>
         <source>Edit Gradient</source>
-        <translation>Gradient bearbeiten</translation>
+        <translation type="obsolete">Gradient bearbeiten</translation>
     </message>
 </context>
 <context>
     <name>GradientEditor</name>
     <message>
         <source>Form</source>
-        <translation>Formular</translation>
+        <translation type="obsolete">Formular</translation>
     </message>
     <message>
         <source>Gradient Editor</source>
-        <translation>Gradient Editor</translation>
+        <translation type="obsolete">Gradient Editor</translation>
     </message>
     <message>
         <source>This area shows a preview of the gradient being edited. It also allows you to edit parameters specific to the gradient&apos;s type such as start and final point, radius, etc. by drag &amp; drop.</source>
-        <translation>Dieser Bereich zeigt eine Vorschau des in Bearbeitung befindlichen Gradienten. Hier können Gradienttyp-spezifische Parameter, wie Start- und Endpunkt, Radius etc. per Drag &amp; Drop bearbeitet werden.</translation>
+        <translation type="obsolete">Dieser Bereich zeigt eine Vorschau des in Bearbeitung befindlichen Gradienten. Hier können Gradienttyp-spezifische Parameter, wie Start- und Endpunkt, Radius etc. per Drag &amp; Drop bearbeitet werden.</translation>
     </message>
     <message>
         <source>1</source>
-        <translation>1</translation>
+        <translation type="obsolete">1</translation>
     </message>
     <message>
         <source>2</source>
-        <translation>2</translation>
+        <translation type="obsolete">2</translation>
     </message>
     <message>
         <source>3</source>
-        <translation>3</translation>
+        <translation type="obsolete">3</translation>
     </message>
     <message>
         <source>4</source>
-        <translation>4</translation>
+        <translation type="obsolete">4</translation>
     </message>
     <message>
         <source>5</source>
-        <translation>5</translation>
+        <translation type="obsolete">5</translation>
     </message>
     <message>
         <source>Gradient Stops Editor</source>
-        <translation>Bezugspunkte</translation>
+        <translation type="obsolete">Bezugspunkte</translation>
     </message>
     <message>
         <source>This area allows you to edit gradient stops. Double click on the existing stop handle to duplicate it. Double click outside of the existing stop handles to create a new stop. Drag &amp; drop the handle to reposition it. Use right mouse button to popup context menu with extra actions.</source>
-        <translation>Diese Fläche dient zum Bearbeiten der Bezugspunkte. Doppelklicken Sie auf einen Bezugspunkt, um ihn zu duplizieren. Doppelklicken Sie auf die Fläche, um einen neuen Bezugspunkt zu erzeugen. Benutzen Sie Drag &amp; Drop um einen Punkt zu verschieben. Die rechte Maustaste aktiviert ein Menü mit weiteren Optionen.</translation>
+        <translation type="obsolete">Diese Fläche dient zum Bearbeiten der Bezugspunkte. Doppelklicken Sie auf einen Bezugspunkt, um ihn zu duplizieren. Doppelklicken Sie auf die Fläche, um einen neuen Bezugspunkt zu erzeugen. Benutzen Sie Drag &amp; Drop um einen Punkt zu verschieben. Die rechte Maustaste aktiviert ein Menü mit weiteren Optionen.</translation>
     </message>
     <message>
         <source>Zoom</source>
-        <translation>Vergrößern</translation>
+        <translation type="obsolete">Vergrößern</translation>
     </message>
     <message>
         <source>Reset Zoom</source>
-        <translation>Vergrößerung zurücksetzen</translation>
+        <translation type="obsolete">Vergrößerung zurücksetzen</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation>Position</translation>
+        <translation type="obsolete">Position</translation>
     </message>
     <message>
         <source>Hue</source>
-        <translation>Farbton</translation>
+        <translation type="obsolete">Farbton</translation>
     </message>
     <message>
         <source>H</source>
-        <translation>H</translation>
+        <translation type="obsolete">H</translation>
     </message>
     <message>
         <source>Saturation</source>
-        <translation>Sättigung</translation>
+        <translation type="obsolete">Sättigung</translation>
     </message>
     <message>
         <source>S</source>
-        <translation>S</translation>
+        <translation type="obsolete">S</translation>
     </message>
     <message>
         <source>Sat</source>
-        <translation>Sättigung</translation>
+        <translation type="obsolete">Sättigung</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation>Wert</translation>
+        <translation type="obsolete">Wert</translation>
     </message>
     <message>
         <source>V</source>
-        <translation>V</translation>
+        <translation type="obsolete">V</translation>
     </message>
     <message>
         <source>Val</source>
-        <translation>Wert</translation>
+        <translation type="obsolete">Wert</translation>
     </message>
     <message>
         <source>Alpha</source>
-        <translation>Alpha</translation>
+        <translation type="obsolete">Alpha</translation>
     </message>
     <message>
         <source>A</source>
-        <translation>A</translation>
+        <translation type="obsolete">A</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Typ</translation>
+        <translation type="obsolete">Typ</translation>
     </message>
     <message>
         <source>Spread</source>
-        <translation>Ausbreitung</translation>
+        <translation type="obsolete">Ausbreitung</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation>Farbe</translation>
+        <translation type="obsolete">Farbe</translation>
     </message>
     <message>
         <source>Current stop&apos;s color</source>
-        <translation>Farbe des Bezugspunkts</translation>
+        <translation type="obsolete">Farbe des Bezugspunkts</translation>
     </message>
     <message>
         <source>Show HSV specification</source>
-        <translation>HSV-Spezifikation anzeigen</translation>
+        <translation type="obsolete">HSV-Spezifikation anzeigen</translation>
     </message>
     <message>
         <source>HSV</source>
-        <translation>HSV</translation>
+        <translation type="obsolete">HSV</translation>
     </message>
     <message>
         <source>Show RGB specification</source>
-        <translation>RGB-Spezifikation anzeigen</translation>
+        <translation type="obsolete">RGB-Spezifikation anzeigen</translation>
     </message>
     <message>
         <source>RGB</source>
-        <translation>RGB</translation>
+        <translation type="obsolete">RGB</translation>
     </message>
     <message>
         <source>Current stop&apos;s position</source>
-        <translation>Position des Bezugspunkts</translation>
+        <translation type="obsolete">Position des Bezugspunkts</translation>
     </message>
     <message>
         <source>%</source>
-        <translation>%</translation>
+        <translation type="obsolete">%</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation>Vergrößern</translation>
+        <translation type="obsolete">Vergrößern</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation>Verkleinern</translation>
+        <translation type="obsolete">Verkleinern</translation>
     </message>
     <message>
         <source>Toggle details extension</source>
-        <translation>Weitere Optionen einblenden</translation>
+        <translation type="obsolete">Weitere Optionen einblenden</translation>
     </message>
     <message>
         <source>&gt;</source>
-        <translation>&gt;</translation>
+        <translation type="obsolete">&gt;</translation>
     </message>
     <message>
         <source>Linear Type</source>
-        <translation>Typ linear</translation>
+        <translation type="obsolete">Typ linear</translation>
     </message>
     <message>
         <source>...</source>
-        <translation>...</translation>
+        <translation type="obsolete">...</translation>
     </message>
     <message>
         <source>Radial Type</source>
-        <translation>Typ radial</translation>
+        <translation type="obsolete">Typ radial</translation>
     </message>
     <message>
         <source>Conical Type</source>
-        <translation>Typ konisch</translation>
+        <translation type="obsolete">Typ konisch</translation>
     </message>
     <message>
         <source>Pad Spread</source>
-        <translation>Auffüllen</translation>
+        <translation type="obsolete">Auffüllen</translation>
     </message>
     <message>
         <source>Repeat Spread</source>
-        <translation>Wiederholen</translation>
+        <translation type="obsolete">Wiederholen</translation>
     </message>
     <message>
         <source>Reflect Spread</source>
-        <translation>Spiegeln</translation>
+        <translation type="obsolete">Spiegeln</translation>
     </message>
     <message>
         <source>Start X</source>
-        <translation>Anfangswert X</translation>
+        <translation type="obsolete">Anfangswert X</translation>
     </message>
     <message>
         <source>Start Y</source>
-        <translation>Anfangswert Y</translation>
+        <translation type="obsolete">Anfangswert Y</translation>
     </message>
     <message>
         <source>Final X</source>
-        <translation>Endwert X</translation>
+        <translation type="obsolete">Endwert X</translation>
     </message>
     <message>
         <source>Final Y</source>
-        <translation>Endwert Y</translation>
+        <translation type="obsolete">Endwert Y</translation>
     </message>
     <message>
         <source>Central X</source>
-        <translation>Mittelpunkt X</translation>
+        <translation type="obsolete">Mittelpunkt X</translation>
     </message>
     <message>
         <source>Central Y</source>
-        <translation>Mittelpunkt Y</translation>
+        <translation type="obsolete">Mittelpunkt Y</translation>
     </message>
     <message>
         <source>Focal X</source>
-        <translation>Fokus X</translation>
+        <translation type="obsolete">Fokus X</translation>
     </message>
     <message>
         <source>Focal Y</source>
-        <translation>Fokus Y</translation>
+        <translation type="obsolete">Fokus Y</translation>
     </message>
     <message>
         <source>Radius</source>
-        <translation>Radius</translation>
+        <translation type="obsolete">Radius</translation>
     </message>
     <message>
         <source>Angle</source>
-        <translation>Winkel</translation>
+        <translation type="obsolete">Winkel</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation>Linear</translation>
+        <translation type="obsolete">Linear</translation>
     </message>
     <message>
         <source>Radial</source>
-        <translation>Radial</translation>
+        <translation type="obsolete">Radial</translation>
     </message>
     <message>
         <source>Conical</source>
-        <translation>Konisch</translation>
+        <translation type="obsolete">Konisch</translation>
     </message>
     <message>
         <source>Pad</source>
-        <translation>Auffüllen</translation>
+        <translation type="obsolete">Auffüllen</translation>
     </message>
     <message>
         <source>Repeat</source>
-        <translation>Wiederholen</translation>
+        <translation type="obsolete">Wiederholen</translation>
     </message>
     <message>
         <source>Reflect</source>
-        <translation>Spiegeln</translation>
+        <translation type="obsolete">Spiegeln</translation>
     </message>
 </context>
 <context>
     <name>QtGradientDialog</name>
     <message>
         <source>Edit Gradient</source>
-        <translation>Gradienten bearbeiten</translation>
+        <translation type="obsolete">Gradienten bearbeiten</translation>
     </message>
 </context>
 <context>
     <name>QtGradientEditor</name>
     <message>
         <source>Form</source>
-        <translation>Form</translation>
+        <translation type="obsolete">Form</translation>
     </message>
     <message>
         <source>Gradient Editor</source>
-        <translation>Gradienten bearbeiten</translation>
+        <translation type="obsolete">Gradienten bearbeiten</translation>
     </message>
     <message>
         <source>This area shows a preview of the gradient being edited. It also allows you to edit parameters specific to the gradient&apos;s type such as start and final point, radius, etc. by drag &amp; drop.</source>
-        <translation>Dieser Bereich zeigt eine Vorschau des in Bearbeitung befindlichen Gradienten. Hier können Gradienttyp-spezifische Parameter, wie Start- und Endpunkt, Radius etc. per Drag &amp; Drop bearbeitet werden.</translation>
+        <translation type="obsolete">Dieser Bereich zeigt eine Vorschau des in Bearbeitung befindlichen Gradienten. Hier können Gradienttyp-spezifische Parameter, wie Start- und Endpunkt, Radius etc. per Drag &amp; Drop bearbeitet werden.</translation>
     </message>
     <message>
         <source>1</source>
-        <translation>1</translation>
+        <translation type="obsolete">1</translation>
     </message>
     <message>
         <source>2</source>
-        <translation>2</translation>
+        <translation type="obsolete">2</translation>
     </message>
     <message>
         <source>3</source>
-        <translation>3</translation>
+        <translation type="obsolete">3</translation>
     </message>
     <message>
         <source>4</source>
-        <translation>4</translation>
+        <translation type="obsolete">4</translation>
     </message>
     <message>
         <source>5</source>
-        <translation>5</translation>
+        <translation type="obsolete">5</translation>
     </message>
     <message>
         <source>Gradient Stops Editor</source>
-        <translation>Bezugspunkte</translation>
+        <translation type="obsolete">Bezugspunkte</translation>
     </message>
     <message>
         <source>This area allows you to edit gradient stops. Double click on the existing stop handle to duplicate it. Double click outside of the existing stop handles to create a new stop. Drag &amp; drop the handle to reposition it. Use right mouse button to popup context menu with extra actions.</source>
-        <translation>Diese Fläche dient zum Bearbeiten der Bezugspunkte. Doppelklicken Sie auf einen Bezugspunkt, um ihn zu duplizieren. Doppelklicken Sie auf die Fläche, um einen neuen Bezugspunkt zu erzeugen. Benutzen Sie Drag &amp; Drop um einen Punkt zu verschieben. Die rechte Maustaste aktiviert ein Menü mit weiteren Optionen.</translation>
+        <translation type="obsolete">Diese Fläche dient zum Bearbeiten der Bezugspunkte. Doppelklicken Sie auf einen Bezugspunkt, um ihn zu duplizieren. Doppelklicken Sie auf die Fläche, um einen neuen Bezugspunkt zu erzeugen. Benutzen Sie Drag &amp; Drop um einen Punkt zu verschieben. Die rechte Maustaste aktiviert ein Menü mit weiteren Optionen.</translation>
     </message>
     <message>
         <source>Zoom</source>
-        <translation>Vergrößern</translation>
+        <translation type="obsolete">Vergrößern</translation>
     </message>
     <message>
         <source>Reset Zoom</source>
-        <translation>Vergrößerung zurücksetzen</translation>
+        <translation type="obsolete">Vergrößerung zurücksetzen</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation>Position</translation>
+        <translation type="obsolete">Position</translation>
     </message>
     <message>
         <source>Hue</source>
-        <translation>Farbton</translation>
+        <translation type="obsolete">Farbton</translation>
     </message>
     <message>
         <source>H</source>
-        <translation>H</translation>
+        <translation type="obsolete">H</translation>
     </message>
     <message>
         <source>Saturation</source>
-        <translation>Sättigung</translation>
+        <translation type="obsolete">Sättigung</translation>
     </message>
     <message>
         <source>S</source>
-        <translation>S</translation>
+        <translation type="obsolete">S</translation>
     </message>
     <message>
         <source>Sat</source>
-        <translation>Sättigung</translation>
+        <translation type="obsolete">Sättigung</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation>Wert</translation>
+        <translation type="obsolete">Wert</translation>
     </message>
     <message>
         <source>V</source>
-        <translation>V</translation>
+        <translation type="obsolete">V</translation>
     </message>
     <message>
         <source>Val</source>
-        <translation>Wert</translation>
+        <translation type="obsolete">Wert</translation>
     </message>
     <message>
         <source>Alpha</source>
-        <translation>Alpha</translation>
+        <translation type="obsolete">Alpha</translation>
     </message>
     <message>
         <source>A</source>
-        <translation>A</translation>
+        <translation type="obsolete">A</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Typ</translation>
+        <translation type="obsolete">Typ</translation>
     </message>
     <message>
         <source>Spread</source>
-        <translation>Ausbreitung</translation>
+        <translation type="obsolete">Ausbreitung</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation>Farbe</translation>
+        <translation type="obsolete">Farbe</translation>
     </message>
     <message>
         <source>Current stop&apos;s color</source>
-        <translation>Farbe des Bezugspunkts</translation>
+        <translation type="obsolete">Farbe des Bezugspunkts</translation>
     </message>
     <message>
         <source>Show HSV specification</source>
-        <translation>HSV-Spezifikation anzeigen</translation>
+        <translation type="obsolete">HSV-Spezifikation anzeigen</translation>
     </message>
     <message>
         <source>HSV</source>
-        <translation>HSV</translation>
+        <translation type="obsolete">HSV</translation>
     </message>
     <message>
         <source>Show RGB specification</source>
-        <translation>RGB-Spezifikation anzeigen</translation>
+        <translation type="obsolete">RGB-Spezifikation anzeigen</translation>
     </message>
     <message>
         <source>RGB</source>
-        <translation>RGB</translation>
+        <translation type="obsolete">RGB</translation>
     </message>
     <message>
         <source>Current stop&apos;s position</source>
-        <translation>Position des Bezugspunkts</translation>
+        <translation type="obsolete">Position des Bezugspunkts</translation>
     </message>
     <message>
         <source>%</source>
-        <translation>%</translation>
+        <translation type="obsolete">%</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation>Vergrößern</translation>
+        <translation type="obsolete">Vergrößern</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation>Verkleinern</translation>
+        <translation type="obsolete">Verkleinern</translation>
     </message>
     <message>
         <source>Toggle details extension</source>
-        <translation>Weiter Optionen einblenden</translation>
+        <translation type="obsolete">Weiter Optionen einblenden</translation>
     </message>
     <message>
         <source>&gt;</source>
-        <translation>&gt;</translation>
+        <translation type="obsolete">&gt;</translation>
     </message>
     <message>
         <source>Linear Type</source>
-        <translation>Typ linear</translation>
+        <translation type="obsolete">Typ linear</translation>
     </message>
     <message>
         <source>...</source>
-        <translation>...</translation>
+        <translation type="obsolete">...</translation>
     </message>
     <message>
         <source>Radial Type</source>
-        <translation>Typ radial</translation>
+        <translation type="obsolete">Typ radial</translation>
     </message>
     <message>
         <source>Conical Type</source>
-        <translation>Typ konisch</translation>
+        <translation type="obsolete">Typ konisch</translation>
     </message>
     <message>
         <source>Pad Spread</source>
-        <translation>Auffüllen</translation>
+        <translation type="obsolete">Auffüllen</translation>
     </message>
     <message>
         <source>Repeat Spread</source>
-        <translation>Wiederholen</translation>
+        <translation type="obsolete">Wiederholen</translation>
     </message>
     <message>
         <source>Reflect Spread</source>
-        <translation>Spiegeln</translation>
+        <translation type="obsolete">Spiegeln</translation>
     </message>
     <message>
         <source>Start X</source>
-        <translation>Anfangswert X</translation>
+        <translation type="obsolete">Anfangswert X</translation>
     </message>
     <message>
         <source>Start Y</source>
-        <translation>Anfangswert Y</translation>
+        <translation type="obsolete">Anfangswert Y</translation>
     </message>
     <message>
         <source>Final X</source>
-        <translation>Endwert X</translation>
+        <translation type="obsolete">Endwert X</translation>
     </message>
     <message>
         <source>Final Y</source>
-        <translation>Endwert Y</translation>
+        <translation type="obsolete">Endwert Y</translation>
     </message>
     <message>
         <source>Central X</source>
-        <translation>Mittelpunkt X</translation>
+        <translation type="obsolete">Mittelpunkt X</translation>
     </message>
     <message>
         <source>Central Y</source>
-        <translation>Mittelpunkt Y</translation>
+        <translation type="obsolete">Mittelpunkt Y</translation>
     </message>
     <message>
         <source>Focal X</source>
-        <translation>Fokus X</translation>
+        <translation type="obsolete">Fokus X</translation>
     </message>
     <message>
         <source>Focal Y</source>
-        <translation>Fokus Y</translation>
+        <translation type="obsolete">Fokus Y</translation>
     </message>
     <message>
         <source>Radius</source>
-        <translation>Radius</translation>
+        <translation type="obsolete">Radius</translation>
     </message>
     <message>
         <source>Angle</source>
-        <translation>Winkel</translation>
+        <translation type="obsolete">Winkel</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation>Linear</translation>
+        <translation type="obsolete">Linear</translation>
     </message>
     <message>
         <source>Radial</source>
-        <translation>Radial</translation>
+        <translation type="obsolete">Radial</translation>
     </message>
     <message>
         <source>Conical</source>
-        <translation>Konisch</translation>
+        <translation type="obsolete">Konisch</translation>
     </message>
     <message>
         <source>Pad</source>
-        <translation>Auffüllen</translation>
+        <translation type="obsolete">Auffüllen</translation>
     </message>
     <message>
         <source>Repeat</source>
-        <translation>Wiederholen</translation>
+        <translation type="obsolete">Wiederholen</translation>
     </message>
     <message>
         <source>Reflect</source>
-        <translation>Spiegeln</translation>
+        <translation type="obsolete">Spiegeln</translation>
     </message>
 </context>
 <context>
     <name>QtGradientView</name>
     <message>
         <source>Gradient View</source>
-        <translation>Gradientenanzeige</translation>
+        <translation type="obsolete">Gradientenanzeige</translation>
     </message>
     <message>
         <source>New...</source>
-        <translation>Neu...</translation>
+        <translation type="obsolete">Neu...</translation>
     </message>
     <message>
         <source>Edit...</source>
-        <translation>Ändern...</translation>
+        <translation type="obsolete">Ändern...</translation>
     </message>
     <message>
         <source>Rename</source>
-        <translation>Umbenennen</translation>
+        <translation type="obsolete">Umbenennen</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>Löschen</translation>
+        <translation type="obsolete">Löschen</translation>
     </message>
     <message>
         <source>Grad</source>
-        <translation>Grad</translation>
+        <translation type="obsolete">Grad</translation>
     </message>
     <message>
         <source>Remove Gradient</source>
-        <translation>Gradient löschen</translation>
+        <translation type="obsolete">Gradient löschen</translation>
     </message>
     <message>
         <source>Are you sure you want to remove the selected gradient?</source>
-        <translation>Möchten Sie den ausgewählten Gradienten löschen?</translation>
+        <translation type="obsolete">Möchten Sie den ausgewählten Gradienten löschen?</translation>
     </message>
 </context>
 <context>
     <name>QtGradientViewDialog</name>
     <message>
         <source>Select Gradient</source>
-        <translation>Gradienten auswählen</translation>
+        <translation type="obsolete">Gradienten auswählen</translation>
     </message>
 </context>
 <context>
@@ -14065,41 +14544,41 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <name>CdbSymbolGroupContext</name>
     <message>
         <source>&lt;Unknown Type&gt;</source>
-        <translation>&lt;Unbekannter Typ&gt;</translation>
+        <translation type="obsolete">&lt;Unbekannter Typ&gt;</translation>
     </message>
     <message>
         <source>&lt;Unknown Value&gt;</source>
-        <translation>&lt;Unbekannter Wert&gt;</translation>
+        <translation type="obsolete">&lt;Unbekannter Wert&gt;</translation>
     </message>
     <message>
         <source>&lt;Unknown&gt;</source>
-        <translation>&lt;Unbekannt&gt;</translation>
+        <translation type="obsolete">&lt;Unbekannt&gt;</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Cdb</name>
     <message>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
-        <translation>Die Debugger-Bibliothek &apos;%1&apos; konnte nicht geladen werden: %2</translation>
+        <translation type="obsolete">Die Debugger-Bibliothek &apos;%1&apos; konnte nicht geladen werden: %2</translation>
     </message>
     <message>
         <source>Unable to resolve &apos;%1&apos; in the debugger engine library &apos;%2&apos;</source>
-        <translation>&apos;%1&apos; konnte in der Debugger-Bibliothek &apos;%2&apos; nicht gefunden werden</translation>
+        <translation type="obsolete">&apos;%1&apos; konnte in der Debugger-Bibliothek &apos;%2&apos; nicht gefunden werden</translation>
     </message>
 </context>
 <context>
     <name>CdbCore::CoreEngine</name>
     <message>
         <source>Unable to set the image path to %1: %2</source>
-        <translation>Der Suchpfad für ausführbare Dateien konnte nicht auf %1 gesetzt werden: %2</translation>
+        <translation type="obsolete">Der Suchpfad für ausführbare Dateien konnte nicht auf %1 gesetzt werden: %2</translation>
     </message>
     <message>
         <source>Unable to create a process &apos;%1&apos;: %2</source>
-        <translation>Es konnte kein Prozess mit &apos;%1&apos; gestartet werden: %2</translation>
+        <translation type="obsolete">Es konnte kein Prozess mit &apos;%1&apos; gestartet werden: %2</translation>
     </message>
     <message>
         <source>Attaching to a process failed for process id %1: %2</source>
-        <translation>Der Debugger konnte sich nicht an den Prozess %1 anhängen: %2</translation>
+        <translation type="obsolete">Der Debugger konnte sich nicht an den Prozess %1 anhängen: %2</translation>
     </message>
 </context>
 <context>
@@ -14750,24 +15229,24 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <source>Maemo</source>
         <comment>Qt4 Maemo target display name</comment>
-        <translation>Maemo</translation>
+        <translation type="obsolete">Maemo</translation>
     </message>
     <message>
         <source>Qt Simulator</source>
         <comment>Qt4 Simulator target display name</comment>
-        <translation>Qt Simulator</translation>
+        <translation type="obsolete">Qt Simulator</translation>
     </message>
     <message>
         <source>&lt;b&gt;Device:&lt;/b&gt; Not connected</source>
-        <translation>&lt;b&gt;Gerät:&lt;/b&gt; Nicht angeschlossen</translation>
+        <translation type="obsolete">&lt;b&gt;Gerät:&lt;/b&gt; Nicht angeschlossen</translation>
     </message>
     <message>
         <source>&lt;b&gt;Device:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Gerät:&lt;/b&gt; %1</translation>
+        <translation type="obsolete">&lt;b&gt;Gerät:&lt;/b&gt; %1</translation>
     </message>
     <message>
         <source>&lt;b&gt;Device:&lt;/b&gt; %1, %2</source>
-        <translation>&lt;b&gt;Gerät:&lt;/b&gt; %1, %2</translation>
+        <translation type="obsolete">&lt;b&gt;Gerät:&lt;/b&gt; %1, %2</translation>
     </message>
 </context>
 <context>
@@ -14803,6 +15282,14 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 </context>
 <context>
     <name>QmlDesigner::NavigatorTreeModel</name>
+    <message>
+        <source>Unknown item: %1</source>
+        <translation>Unbekanntes Element: %1</translation>
+    </message>
+    <message>
+        <source>unkown item: </source>
+        <translation type="obsolete">unbekanntes Element: </translation>
+    </message>
     <message>
         <source>Invalid Id</source>
         <translation>Ungültige ID</translation>
@@ -14863,102 +15350,102 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <name>qdesigner_internal::QtGradientStopsController</name>
     <message>
         <source>H</source>
-        <translation>H</translation>
+        <translation type="obsolete">H</translation>
     </message>
     <message>
         <source>S</source>
-        <translation>S</translation>
+        <translation type="obsolete">S</translation>
     </message>
     <message>
         <source>V</source>
-        <translation>V</translation>
+        <translation type="obsolete">V</translation>
     </message>
     <message>
         <source>Hue</source>
-        <translation>Farbton</translation>
+        <translation type="obsolete">Farbton</translation>
     </message>
     <message>
         <source>Sat</source>
-        <translation>Sättigung</translation>
+        <translation type="obsolete">Sättigung</translation>
     </message>
     <message>
         <source>Val</source>
-        <translation>Wert</translation>
+        <translation type="obsolete">Wert</translation>
     </message>
     <message>
         <source>Saturation</source>
-        <translation>Sättigung</translation>
+        <translation type="obsolete">Sättigung</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation>Wert</translation>
+        <translation type="obsolete">Wert</translation>
     </message>
     <message>
         <source>R</source>
-        <translation>R</translation>
+        <translation type="obsolete">R</translation>
     </message>
     <message>
         <source>G</source>
-        <translation>G</translation>
+        <translation type="obsolete">G</translation>
     </message>
     <message>
         <source>B</source>
-        <translation>B</translation>
+        <translation type="obsolete">B</translation>
     </message>
     <message>
         <source>Red</source>
-        <translation>Rot</translation>
+        <translation type="obsolete">Rot</translation>
     </message>
     <message>
         <source>Green</source>
-        <translation>Grün</translation>
+        <translation type="obsolete">Grün</translation>
     </message>
     <message>
         <source>Blue</source>
-        <translation>Blau</translation>
+        <translation type="obsolete">Blau</translation>
     </message>
 </context>
 <context>
     <name>QtGradientStopsWidget</name>
     <message>
         <source>New Stop</source>
-        <translation>Neuer Bezugspunkt</translation>
+        <translation type="obsolete">Neuer Bezugspunkt</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation>Löschen</translation>
+        <translation type="obsolete">Löschen</translation>
     </message>
     <message>
         <source>Flip All</source>
-        <translation>Alles umkehren</translation>
+        <translation type="obsolete">Alles umkehren</translation>
     </message>
     <message>
         <source>Select All</source>
-        <translation>Alles auswählen</translation>
+        <translation type="obsolete">Alles auswählen</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation>Vergrößern</translation>
+        <translation type="obsolete">Vergrößern</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation>Verkleinern</translation>
+        <translation type="obsolete">Verkleinern</translation>
     </message>
     <message>
         <source>Reset Zoom</source>
-        <translation>Vergrößerung zurücksetzen</translation>
+        <translation type="obsolete">Vergrößerung zurücksetzen</translation>
     </message>
 </context>
 <context>
     <name>QmlDesigner::Internal::StatesEditorWidgetPrivate</name>
     <message>
         <source>base state</source>
-        <translation>base state</translation>
+        <translation type="obsolete">base state</translation>
     </message>
     <message>
         <source>State%1</source>
         <comment>Default name for newly created states</comment>
-        <translation>State%1</translation>
+        <translation type="obsolete">State%1</translation>
     </message>
 </context>
 <context>
@@ -15090,27 +15577,27 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <name>QmlJSEditor::Internal::QmlJSTextEditor</name>
     <message>
         <source>Show Qt Quick ToolBar</source>
-        <translation>Qt-Quick-Werkzeugleiste anzeigen</translation>
+        <translation type="obsolete">Qt-Quick-Werkzeugleiste anzeigen</translation>
     </message>
     <message>
         <source>Rename...</source>
-        <translation>Umbenennen...</translation>
+        <translation type="obsolete">Umbenennen...</translation>
     </message>
     <message>
         <source>New id:</source>
-        <translation>Neue ID:</translation>
+        <translation type="obsolete">Neue ID:</translation>
     </message>
     <message>
         <source>Unused variable</source>
-        <translation>Unbenutzte Variable</translation>
+        <translation type="obsolete">Unbenutzte Variable</translation>
     </message>
     <message>
         <source>Refactoring</source>
-        <translation>Refactoring</translation>
+        <translation type="obsolete">Refactoring</translation>
     </message>
     <message>
         <source>Rename id &apos;%1&apos;...</source>
-        <translation>ID &apos;%1&apos; umbenennen</translation>
+        <translation type="obsolete">ID &apos;%1&apos; umbenennen</translation>
     </message>
 </context>
 <context>
@@ -15131,6 +15618,14 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <source>QML File</source>
         <translation>QML-Datei</translation>
+    </message>
+    <message>
+        <source>Creates a JavaScript file.</source>
+        <translation>Erstellt eine JavaScript-Datei.</translation>
+    </message>
+    <message>
+        <source>JS File</source>
+        <translation>JS-Datei</translation>
     </message>
     <message>
         <source>Follow Symbol Under Cursor</source>
@@ -15345,52 +15840,52 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <name>Qt4ProjectManager::Internal::MaemoSettingsWidget</name>
     <message>
         <source>Public Key Files(*.pub);;All Files (*)</source>
-        <translation>Öffentliche Schlüssel (*.pub);;Alle Dateien (*)</translation>
+        <translation type="obsolete">Öffentliche Schlüssel (*.pub);;Alle Dateien (*)</translation>
     </message>
     <message>
         <source>Could not read public key file &apos;%1&apos;.</source>
-        <translation>Die öffentliche Schlüsseldatei &apos;%1&apos; konnte nicht gelesen werden.</translation>
+        <translation type="obsolete">Die öffentliche Schlüsseldatei &apos;%1&apos; konnte nicht gelesen werden.</translation>
     </message>
     <message>
         <source>Deploy Public Key ...</source>
-        <translation>Öffentlichen Schlüssel senden...</translation>
+        <translation type="obsolete">Öffentlichen Schlüssel senden...</translation>
     </message>
     <message>
         <source>Deployment Failed</source>
-        <translation>Deployment fehlgeschlagen</translation>
+        <translation type="obsolete">Deployment fehlgeschlagen</translation>
     </message>
     <message>
         <source>New Device Configuration %1</source>
         <comment>Standard Configuration name with number</comment>
-        <translation>New Device Configuration %1</translation>
+        <translation type="obsolete">New Device Configuration %1</translation>
     </message>
     <message>
         <source>Choose Public Key File</source>
-        <translation>Datei mit öffentlichem Schlüssel</translation>
+        <translation type="obsolete">Datei mit öffentlichem Schlüssel</translation>
     </message>
     <message>
         <source>Key deployment failed: %1.</source>
-        <translation>Das Versenden des Schlüssels schlug fehl: %1.</translation>
+        <translation type="obsolete">Das Versenden des Schlüssels schlug fehl: %1.</translation>
     </message>
     <message>
         <source>You will need at least one port.</source>
-        <translation>Sie benötigen mindestens einen freien Port.</translation>
+        <translation type="obsolete">Sie benötigen mindestens einen freien Port.</translation>
     </message>
     <message>
         <source>Stop Deploying</source>
-        <translation>Deployment beenden</translation>
+        <translation type="obsolete">Deployment beenden</translation>
     </message>
     <message>
         <source>Could not connect to host: %1</source>
-        <translation>Es konnte keine Verbindung zum Host hergestellt werden: %1</translation>
+        <translation type="obsolete">Es konnte keine Verbindung zum Host hergestellt werden: %1</translation>
     </message>
     <message>
         <source>Key was successfully deployed.</source>
-        <translation>Der Schlüssel wurde erfolgreich versandt.</translation>
+        <translation type="obsolete">Der Schlüssel wurde erfolgreich versandt.</translation>
     </message>
     <message>
         <source>Deployment Succeeded</source>
-        <translation>Deployment beendet</translation>
+        <translation type="obsolete">Deployment beendet</translation>
     </message>
 </context>
 <context>
@@ -15427,8 +15922,16 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Qt Versionen</translation>
     </message>
     <message>
+        <source>Qt Widget Project</source>
+        <translation>Qt-Widget-Projekt</translation>
+    </message>
+    <message>
         <source>Qt C++ Project</source>
-        <translation>Qt-C++-Projekt</translation>
+        <translation type="obsolete">Qt-C++-Projekt</translation>
+    </message>
+    <message>
+        <source>Maemo</source>
+        <translation>Maemo</translation>
     </message>
 </context>
 <context>
@@ -15448,6 +15951,53 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <source>Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?</source>
         <translation>Der Pfad zu den ausführbaren Dateien der Qt-Installation konnte nicht bestimmt werden, möglicherweise ist der Pfad zu qmake falsch?</translation>
+    </message>
+    <message>
+        <source>The default mkspec symlink is broken.</source>
+        <translation>Der symbolische Link zu der Vorgabe-mkspec ist fehlerhaft.</translation>
+    </message>
+    <message>
+        <source>This Qt Version has a unknown toolchain.</source>
+        <translation>Dieser Qt-Version ist keine bekannte Toolchain zugeordnet.</translation>
+    </message>
+    <message>
+        <source>Desktop</source>
+        <comment>Qt Version is meant for the desktop</comment>
+        <translation>Desktop</translation>
+    </message>
+    <message>
+        <source>Symbian</source>
+        <comment>Qt Version is meant for Symbian</comment>
+        <translation>Symbian</translation>
+    </message>
+    <message>
+        <source>Maemo</source>
+        <comment>Qt Version is meant for Maemo5</comment>
+        <translation>Maemo</translation>
+    </message>
+    <message>
+        <source>Harmattan </source>
+        <comment>Qt Version is meant for Harmattan</comment>
+        <translation>Harmattan </translation>
+    </message>
+    <message>
+        <source>Meego</source>
+        <comment>Qt Version is meant for Meego</comment>
+        <translation>Meego</translation>
+    </message>
+    <message>
+        <source>Qt Simulator</source>
+        <comment>Qt Version is meant for Qt Simulator</comment>
+        <translation>Qt Simulator</translation>
+    </message>
+    <message>
+        <source>unkown</source>
+        <comment>No idea what this Qt Version is meant for!</comment>
+        <translation>unbekannt</translation>
+    </message>
+    <message>
+        <source>Qt version %1, using mkspec %2 (%3)</source>
+        <translation>die Qt-Version %1 mit mkspec %2 (%3)</translation>
     </message>
     <message>
         <source>Cannot determine the installation path for Qt version &apos;%1&apos;.</source>
@@ -15544,6 +16094,10 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Die Datei &apos;%1&apos; kann nicht geöffnet werden: %2</translation>
     </message>
     <message>
+        <source>No device is connected. Please connect a device and try again.</source>
+        <translation>Es ist kein Gerät verbunden. Bitte stellen Sie die Verbindung zu einem Gerät her und versuchen Sie es erneut.</translation>
+    </message>
+    <message>
         <source>Unable to acquire a device for port &apos;%1&apos;. It appears to be in use.</source>
         <translation>Es kann nicht auf das Gerät &quot;%1&quot; zugegriffen werden. Offenbar ist es bereits in Benutzung.</translation>
     </message>
@@ -15563,6 +16117,54 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Unbekannter Wert für Aufzählung</translation>
     </message>
     <message>
+        <source>ids must be lower case or start with underscore</source>
+        <translation>IDs müssen mit einem Kleinbuchstaben oder einem Unterstrich beginnen</translation>
+    </message>
+    <message>
+        <source>ids must be unique</source>
+        <translation>IDs müssen eindeutig sein.</translation>
+    </message>
+    <message>
+        <source>unknown identifier</source>
+        <translation>Unbekannter Bezeichner</translation>
+    </message>
+    <message>
+        <source>could not resolve</source>
+        <translation>Auflösung schlug fehl</translation>
+    </message>
+    <message>
+        <source>does not have members</source>
+        <translation>hat keine Mitglieder</translation>
+    </message>
+    <message>
+        <source>unknown member</source>
+        <translation>unbekanntes Mitglied</translation>
+    </message>
+    <message>
+        <source>== and != perform type coercion, use === or !== instead to avoid</source>
+        <translation>Die Operatoren == und != bewirken eine Typumwandlung; stattdessen  sollten die Operatoren === oder !== verwendet werden</translation>
+    </message>
+    <message>
+        <source>blocks do not introduce a new scope, avoid</source>
+        <translation>Blocks führen keinen neuen Bereich ein und sollten daher vermieden werden</translation>
+    </message>
+    <message>
+        <source>use of the with statement is not recommended, use a var instead</source>
+        <translation>von der Verwendung der with-Anweisung wird abgeraten, es sollte var benutzt werden</translation>
+    </message>
+    <message>
+        <source>use of void is usually confusing and not recommended</source>
+        <translation>von der Verwendung von void wird abgeraten, da sie zu Verwirrung führen kann</translation>
+    </message>
+    <message>
+        <source>avoid comma expressions</source>
+        <translation>von der Verwendung von Komma-Ausdrücken wird abgeraten</translation>
+    </message>
+    <message>
+        <source>expression statements should be assignments, calls or delete expressions only</source>
+        <translation>Anweisungen mit Ausdrücken sollten Zuweisungen, Funktionsaufrufe oder delete-Ausdrücke sein</translation>
+    </message>
+    <message>
         <source>&apos;%1&apos; does not have members</source>
         <translation>&apos;%1&apos; hat keine MItglieder</translation>
     </message>
@@ -15572,7 +16174,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <source>value might be &apos;undefined&apos;</source>
-        <translation>Wert kann &apos;undefined&apos; sein</translation>
+        <translation type="obsolete">Wert kann &apos;undefined&apos; sein</translation>
     </message>
     <message>
         <source>enum value is not a string or number</source>
@@ -15591,12 +16193,52 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Zeichenkette erwartet</translation>
     </message>
     <message>
+        <source>not a valid url</source>
+        <translation>kein gültiger URL</translation>
+    </message>
+    <message>
+        <source>file or directory does not exist</source>
+        <translation>Datei oder Ordner existiert nicht</translation>
+    </message>
+    <message>
         <source>not a valid color</source>
         <translation>keine gültige Farbe</translation>
     </message>
     <message>
         <source>expected anchor line</source>
         <translation>Ankerzeile erwartet</translation>
+    </message>
+    <message>
+        <source>declarations should be at the start of a function</source>
+        <translation>Deklarationen sollten am Beginn einer Funktion stehen</translation>
+    </message>
+    <message>
+        <source>already a formal parameter</source>
+        <translation>ist bereits ein formaler Parameter</translation>
+    </message>
+    <message>
+        <source>already declared as function</source>
+        <translation>bereits als Funktion deklariert</translation>
+    </message>
+    <message>
+        <source>duplicate declaration</source>
+        <translation>bereits deklariert</translation>
+    </message>
+    <message>
+        <source>variable is used before being declared</source>
+        <translation>Variable wird vor Deklaration benutzt</translation>
+    </message>
+    <message>
+        <source>already declared as var</source>
+        <translation>bereits als var deklariert</translation>
+    </message>
+    <message>
+        <source>function is used before being declared</source>
+        <translation>Funktion wird vor Deklaration benutzt</translation>
+    </message>
+    <message>
+        <source>properties can only be assigned once</source>
+        <translation>Eigenschaften können nur einmal zugewiesen werden</translation>
     </message>
     <message>
         <source>expected id</source>
@@ -15607,8 +16249,16 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Von der Verwendung von Zeichenketten-Literalen als IDs wird abgeraten</translation>
     </message>
     <message>
+        <source>avoid assignments in conditions</source>
+        <translation>Von Zuweisungen in Bedingungen wird abgeraten</translation>
+    </message>
+    <message>
+        <source>case does not end with return, break, continue or throw</source>
+        <translation>case endet nicht mit return, break, continue oder throw</translation>
+    </message>
+    <message>
         <source>ids must be lower case</source>
-        <translation>IDs müssen mit einem Kleinbuchstaben beginnen</translation>
+        <translation type="obsolete">IDs müssen mit einem Kleinbuchstaben beginnen</translation>
     </message>
 </context>
 <context>
@@ -15622,6 +16272,16 @@ Decimal signed value (big endian): %4</source>
 Dezimaler, vorzeichenloser Wert (Big Endian): %2
 Dezimaler, vorzeichenbehafteter Wert (Little Endian): %3
 Dezimaler, vorzeichenbehafteter Wert (Big Endian): %4</translation>
+    </message>
+    <message>
+        <source>Previous decimal unsigned value (little endian): %1
+Previous decimal unsigned value (big endian): %2
+Previous decimal signed value (little endian): %3
+Previous decimal signed value (big endian): %4</source>
+        <translation>Vorheriger vorzeichenloser Dezimalwert (Little Endian): %1
+Vorheriger vorzeichenloser Dezimalwert (Big Endian): %2
+Vorheriger vorzeichenbehafteter Dezimalwert (Little Endian): %3
+Vorheriger vorzeichenbehafteter Dezimalwert (Big Endian): %4</translation>
     </message>
     <message>
         <source>Copying Failed</source>
@@ -15667,11 +16327,11 @@ Dezimaler, vorzeichenbehafteter Wert (Big Endian): %4</translation>
     <name>Debugger::DebuggerUISwitcher</name>
     <message>
         <source>Memory...</source>
-        <translation>Speicher...</translation>
+        <translation type="obsolete">Speicher...</translation>
     </message>
     <message>
         <source>Debugger Toolbar</source>
-        <translation>Debugger-Werkzeugleiste</translation>
+        <translation type="obsolete">Debugger-Werkzeugleiste</translation>
     </message>
 </context>
 <context>
@@ -15746,14 +16406,14 @@ Dezimaler, vorzeichenbehafteter Wert (Big Endian): %4</translation>
     <name>QmlJSEditor::Internal::ModelManager</name>
     <message>
         <source>Indexing</source>
-        <translation>Indizierung</translation>
+        <translation type="obsolete">Indizierung</translation>
     </message>
     <message>
         <source>Type dump of QML plugin in %0 failed.
 Errors:
 %1
 </source>
-        <translation>Die Ausgabe der Typen des QML-Plugins in %0 schlug fehl.
+        <translation type="obsolete">Die Ausgabe der Typen des QML-Plugins in %0 schlug fehl.
 Fehler:
 %1
 </translation>
@@ -15795,19 +16455,19 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
         <source>File generated by QtCreator</source>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation>File generated by QtCreator</translation>
+        <translation type="obsolete">File generated by QtCreator</translation>
     </message>
     <message>
         <source>Include .qml, .js, and image files from current directory and subdirectories</source>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation>Include .qml, .js, and image files from current directory and subdirectories</translation>
+        <translation type="obsolete">Include .qml, .js, and image files from current directory and subdirectories</translation>
     </message>
     <message>
         <source>List of plugin directories passed to QML runtime</source>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation>List of plugin directories passed to QML runtime</translation>
+        <translation type="obsolete">List of plugin directories passed to QML runtime</translation>
     </message>
 </context>
 <context>
@@ -15819,27 +16479,27 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
     </message>
     <message>
         <source>Arguments:</source>
-        <translation>Argumente:</translation>
+        <translation type="obsolete">Argumente:</translation>
     </message>
     <message>
         <source>Manage Qt versions</source>
-        <translation>Qt-Versionen verwalten</translation>
+        <translation type="obsolete">Qt-Versionen verwalten</translation>
     </message>
     <message>
         <source>Qt version:</source>
-        <translation>Qt-Version:</translation>
+        <translation type="obsolete">Qt-Version:</translation>
     </message>
     <message>
         <source>Debugger:</source>
-        <translation>Debugger:</translation>
+        <translation type="obsolete">Debugger:</translation>
     </message>
     <message>
         <source>Main QML file:</source>
-        <translation>QML-Hauptdatei:</translation>
+        <translation type="obsolete">QML-Hauptdatei:</translation>
     </message>
     <message>
         <source>Invalid Qt version</source>
-        <translation>Ungültige Qt-Version</translation>
+        <translation type="obsolete">Ungültige Qt-Version</translation>
     </message>
 </context>
 <context>
@@ -15853,11 +16513,11 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
     <name>Qt4ProjectManager::Internal::Qt4TargetFactory</name>
     <message>
         <source>Debug</source>
-        <translation>Debug</translation>
+        <translation type="obsolete">Debug</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation>Release</translation>
+        <translation type="obsolete">Release</translation>
     </message>
 </context>
 <context>
@@ -15973,107 +16633,107 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
     <name>MaemoSettingsWidget</name>
     <message>
         <source>Maemo Device Configurations</source>
-        <translation>Maemo-Geräte-Konfigurationen</translation>
+        <translation type="obsolete">Maemo-Geräte-Konfigurationen</translation>
     </message>
     <message>
         <source>Device type:</source>
-        <translation>Gerätetyp:</translation>
+        <translation type="obsolete">Gerätetyp:</translation>
     </message>
     <message>
         <source>Authentication type:</source>
-        <translation>Art der Authentifizierung:</translation>
+        <translation type="obsolete">Art der Authentifizierung:</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation>Passwort</translation>
+        <translation type="obsolete">Passwort</translation>
     </message>
     <message>
         <source>Key</source>
-        <translation>Schlüssel</translation>
+        <translation type="obsolete">Schlüssel</translation>
     </message>
     <message>
         <source>Password:</source>
-        <translation>Passwort:</translation>
+        <translation type="obsolete">Passwort:</translation>
     </message>
     <message>
         <source>Private key file:</source>
-        <translation>Private Schlüsseldatei:</translation>
+        <translation type="obsolete">Private Schlüsseldatei:</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation>Hinzufügen</translation>
+        <translation type="obsolete">Hinzufügen</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>Entfernen</translation>
+        <translation type="obsolete">Entfernen</translation>
     </message>
     <message>
         <source>Test</source>
-        <translation>Testen</translation>
+        <translation type="obsolete">Testen</translation>
     </message>
     <message>
         <source>Configuration:</source>
-        <translation>Konfiguration:</translation>
+        <translation type="obsolete">Konfiguration:</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation>Name</translation>
+        <translation type="obsolete">Name</translation>
     </message>
     <message>
         <source>IP or host name of the device</source>
-        <translation>IP-Adresse oder Hostname des Geräts</translation>
+        <translation type="obsolete">IP-Adresse oder Hostname des Geräts</translation>
     </message>
     <message>
         <source>Generate SSH Key ...</source>
-        <translation>Erzeuge SSH-Schlüssel...</translation>
+        <translation type="obsolete">Erzeuge SSH-Schlüssel...</translation>
     </message>
     <message>
         <source>s</source>
-        <translation>s</translation>
+        <translation type="obsolete">s</translation>
     </message>
     <message>
         <source>Deploy Public Key ...</source>
-        <translation>Öffentlichen Schlüssel senden...</translation>
+        <translation type="obsolete">Öffentlichen Schlüssel senden...</translation>
     </message>
     <message>
         <source>Remote device</source>
-        <translation>Gerät</translation>
+        <translation type="obsolete">Gerät</translation>
     </message>
     <message>
         <source>Maemo emulator</source>
-        <translation>Maemo-Emulator</translation>
+        <translation type="obsolete">Maemo-Emulator</translation>
     </message>
     <message>
         <source>Host name:</source>
-        <translation>Hostname:</translation>
+        <translation type="obsolete">Hostname:</translation>
     </message>
     <message>
         <source>Connection timeout:</source>
-        <translation>Zeitlimit der Verbindung:</translation>
+        <translation type="obsolete">Zeitlimit der Verbindung:</translation>
     </message>
     <message>
         <source>Username:</source>
-        <translation>Nutzername:</translation>
+        <translation type="obsolete">Nutzername:</translation>
     </message>
     <message>
         <source>SSH port:</source>
-        <translation>SSH-Port:</translation>
+        <translation type="obsolete">SSH-Port:</translation>
     </message>
     <message>
         <source>Free ports:</source>
-        <translation>Freie Ports:</translation>
+        <translation type="obsolete">Freie Ports:</translation>
     </message>
     <message>
         <source>You can enter lists and ranges like this: 1024,1026-1028,1030</source>
-        <translation>Sie können Listen und Bereiche wie folgt angeben: 1024,1026-1028,1030</translation>
+        <translation type="obsolete">Sie können Listen und Bereiche wie folgt angeben: 1024,1026-1028,1030</translation>
     </message>
     <message>
         <source>TextLabel</source>
-        <translation>TextLabel</translation>
+        <translation type="obsolete">TextLabel</translation>
     </message>
     <message>
         <source>Show password</source>
-        <translation>Passwort anzeigen</translation>
+        <translation type="obsolete">Passwort anzeigen</translation>
     </message>
 </context>
 <context>
@@ -16088,7 +16748,7 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
     </message>
     <message>
         <source>Choose certificate file (.cer)</source>
-        <translation>Geben Sie eine Datei mit einem Zertifikat (.cer) an</translation>
+        <translation type="obsolete">Geben Sie eine Datei mit einem Zertifikat (.cer) an</translation>
     </message>
     <message>
         <source>Key file:</source>
@@ -16109,6 +16769,14 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
     <message>
         <source>Not signed</source>
         <translation>Unsigniert</translation>
+    </message>
+    <message>
+        <source>Choose certificate file</source>
+        <translation>Zertifikatdatei auswählen</translation>
+    </message>
+    <message>
+        <source>Certificate&apos;s details</source>
+        <translation>Details des Zertifikats</translation>
     </message>
 </context>
 <context>
@@ -16286,26 +16954,26 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
     <message>
         <source>base state</source>
         <comment>Implicit default state</comment>
-        <translation>Grundzustand</translation>
+        <translation type="obsolete">Grundzustand</translation>
     </message>
     <message>
         <source>Invalid state name</source>
-        <translation>Ungültiger Name des Zustands</translation>
+        <translation type="obsolete">Ungültiger Name des Zustands</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
-        <translation>Eine leere Zeichenkette ist als Name des Basiszustands reserviert.</translation>
+        <translation type="obsolete">Eine leere Zeichenkette ist als Name des Basiszustands reserviert.</translation>
     </message>
     <message>
         <source>Name already used in another state</source>
-        <translation>Der Name wird bereits von einem anderen Zustand verwendet</translation>
+        <translation type="obsolete">Der Name wird bereits von einem anderen Zustand verwendet</translation>
     </message>
 </context>
 <context>
     <name>QmlDesigner::Internal::SubComponentManagerPrivate</name>
     <message>
         <source>QML Components</source>
-        <translation>QML-Komponenten</translation>
+        <translation type="obsolete">QML-Komponenten</translation>
     </message>
 </context>
 <context>
@@ -16317,6 +16985,10 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::MaemoConfigTestDialog</name>
+    <message>
+        <source>Testing configuration. This may take a while.</source>
+        <translation>Die Konfiguration wird getestet. Das kann einige Zeit dauern.</translation>
+    </message>
     <message>
         <source>Testing configuration...</source>
         <translation>Test der Konfiguration...</translation>
@@ -16346,6 +17018,18 @@ Haben Sie Qemu gestartet?</translation>
     <message>
         <source>Mad Developer is not installed.&lt;br&gt;You will not be able to deploy to this device.</source>
         <translation>Mad Developer ist nicht installiert.&lt;br&gt;Ein Deployment auf dieses Mobilgerät ist nicht möglich.</translation>
+    </message>
+    <message>
+        <source>Error retrieving list of used ports: %1</source>
+        <translation>Fehler bei der Bestimmung der verwendeten Ports: %1</translation>
+    </message>
+    <message>
+        <source>All specified ports are available.</source>
+        <translation>Alle angegebenen Ports sind verfügbar.</translation>
+    </message>
+    <message>
+        <source>The following supposedly free ports are being used on the device:</source>
+        <translation>Die folgenden als frei angenommen Ports sind auf dem Gerät in Verwendung:</translation>
     </message>
     <message>
         <source>Device configuration okay.</source>
@@ -16394,6 +17078,14 @@ Haben Sie Qemu gestartet?</translation>
         <translation>Das &apos;make&apos;-Kommando &apos;%1&apos; konnte in der Build-Umgebung nicht gefunden werden</translation>
     </message>
     <message>
+        <source>A Package was modified</source>
+        <translation type="obsolete">Ein Paket wurde geändert</translation>
+    </message>
+    <message>
+        <source>Ignore patching for this packaging step.</source>
+        <translation>Kein Patchen bei diesem Schritt durchführen</translation>
+    </message>
+    <message>
         <source>The process &quot;%1&quot; exited normally.</source>
         <translation>Der Prozess &quot;%1&quot; wurde normal beendet.</translation>
     </message>
@@ -16410,10 +17102,54 @@ Haben Sie Qemu gestartet?</translation>
         <translation>Der Prozess &quot;%1&quot; konnte in &quot;%2&quot; nicht gestartet werden</translation>
     </message>
     <message>
+        <source>Package Modified</source>
+        <translation>Paket geändert</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Qt modified your package &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Qt hat das Paket &lt;b&gt;%1&lt;/b&gt; geändert.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Packages Modified</source>
+        <translation>Pakete geändert</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Qt modified some of your packages.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Qt hat einige der Pakete geändert.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>%1&lt;p&gt;&lt;em&gt;These changes were not part of your build system&lt;/em&gt; but are required to make sure the &lt;em&gt;self-signed&lt;/em&gt; package can be installed successfully on a device.&lt;/p&gt;&lt;p&gt;Check the Build Issues pane for more details on the modifications made.&lt;/p&gt;&lt;p&gt;Please see the &lt;a href=&quot;%2&quot;&gt;documentation&lt;/a&gt; for other signing options whichremove the need for this patching.&lt;/p&gt;</source>
+        <translation type="obsolete">%1&lt;p&gt;&lt;em&gt; Diese Änderungen wurden nicht vom Build-System vorgenommen, &lt;/em&gt; sind aber die Voraussetzung für die erfolgreiche Installation eines &lt;em&gt;selbstsignierten&lt;/em&gt; Pakets auf einem Mobilgerät.&lt;/p&gt;&lt;p&gt;Das Panel Build-Probleme enthält detaillierte Informationen bezüglich der Änderungen.&lt;/p&gt;&lt;p&gt;Die &lt;a href=&quot;%2&quot;&gt;Dokumentation&lt;/a&gt; enthält weitere Möglichkeiten der Signierung, die diesen Schritt überflüssig machen.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>%1&lt;p&gt;&lt;em&gt;These changes were not part of your build system&lt;/em&gt; but are required to make sure the &lt;em&gt;self-signed&lt;/em&gt; package can be installed successfully on a device.&lt;/p&gt;&lt;p&gt;Check the Build Issues pane for more details on the modifications made.&lt;/p&gt;&lt;p&gt;Please see the &lt;a href=&quot;%2&quot;&gt;documentation&lt;/a&gt; for other signing options which remove the need for this patching.&lt;/p&gt;</source>
+        <translation>%1&lt;p&gt;&lt;em&gt; Diese Änderungen wurden nicht vom Build-System vorgenommen, &lt;/em&gt; sind aber die Voraussetzung für die erfolgreiche Installation eines &lt;em&gt;selbstsignierten&lt;/em&gt; Pakets auf einem Mobilgerät.&lt;/p&gt;&lt;p&gt;Das Panel Build-Probleme enthält detaillierte Informationen bezüglich der Änderungen.&lt;/p&gt;&lt;p&gt;Die &lt;a href=&quot;%2&quot;&gt;Dokumentation&lt;/a&gt; enthält weitere Möglichkeiten der Signierung, die diesen Schritt überflüssig machen.&lt;/p&gt;</translation>
+    </message>
+    <message>
         <source>Starting: &quot;%1&quot; %2 in %3
 </source>
         <translation>Starte: &quot;%1&quot; %2 in %3
 </translation>
+    </message>
+    <message>
+        <source>No certificate file specified. Please specify one in the project settings.</source>
+        <translation>Es wurde keine Zertifikatdatei angegeben. Bitte geben Sie sie in den Projekteinstellungen an.</translation>
+    </message>
+    <message>
+        <source>Certificate file &quot;%1&quot; does not exist. Please specify an existing certificate file in the project settings.</source>
+        <translation>Die angegebene Zertifikatdatei &quot;%1&quot; existiert nicht. Bitte geben Sie eine existierende Zertifikatdatei in den Projekteinstellungen an.</translation>
+    </message>
+    <message>
+        <source>No key file specified. Please specify one in the project settings.</source>
+        <translation>Es wurde keine Schlüsseldatei angegeben. Bitte geben Sie sie in den Projekteinstellungen an.</translation>
+    </message>
+    <message>
+        <source>Key file &quot;%1&quot; does not exist. Please specify an existing key file in the project settings.</source>
+        <translation>Die angegebene Schlüsseldatei &quot;%1&quot; existiert nicht. Bitte geben Sie eine existierende Schlüsseldatei in den Projekteinstellungen an.</translation>
+    </message>
+    <message>
+        <source>The package created will not install on a device as some of the defined capabilities are not supported by the certificate: %1</source>
+        <translation>Das erzeugte Paket kann nicht auf einem Mobilgerät installiert werden, da einige der angegebenen Rechte nicht durch das Zertifikat unterstützt werden: %1</translation>
     </message>
 </context>
 <context>
@@ -16434,6 +17170,18 @@ Haben Sie Qemu gestartet?</translation>
         <translation>Möchten Sie Passwörter aller verwendeten Schlüssel zurücksetzen?</translation>
     </message>
     <message>
+        <source>signed with the certificate &quot;%1&quot; using the key &quot;%2&quot;</source>
+        <translation>signiert mit dem Zertifikat &quot;%1&quot; unter Verwendung des Schlüssels &quot;%2&quot;</translation>
+    </message>
+    <message>
+        <source>signed with a certificate and a key that need to be specified</source>
+        <translation>signiert mit noch anzugebendem Zertifikat und Schlüssel</translation>
+    </message>
+    <message>
+        <source>signed with &quot;%1&quot; certificate and &quot;%2&quot; key file</source>
+        <translation type="obsolete">signiert mit dem Zertifikat &quot;%1&quot; und dem Schlüssel &quot;%2&quot;</translation>
+    </message>
+    <message>
         <source>not signed</source>
         <translation>Unsigniert</translation>
     </message>
@@ -16443,7 +17191,7 @@ Haben Sie Qemu gestartet?</translation>
     </message>
     <message>
         <source>signed with certificate %1 and key file %2</source>
-        <translation>signiert mit Zertifikat %1 und Schlüssel %2</translation>
+        <translation type="obsolete">signiert mit Zertifikat %1 und Schlüssel %2</translation>
     </message>
     <message>
         <source>&lt;b&gt;Create SIS Package:&lt;/b&gt; %1, using Smart Installer</source>
@@ -16481,7 +17229,7 @@ Haben Sie Qemu gestartet?</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="obsolete">%1: %2</translation>
     </message>
 </context>
 <context>
@@ -16510,6 +17258,10 @@ Haben Sie Qemu gestartet?</translation>
 <context>
     <name>QmlJS::Link</name>
     <message>
+        <source>Library contains C++ plugins, type dump is in progress.</source>
+        <translation>Bibliothek enthält C++-Plugins, Emittlung der Typen läuft.</translation>
+    </message>
+    <message>
         <source>package not found</source>
         <translation>Package nicht gefunden</translation>
     </message>
@@ -16525,7 +17277,7 @@ Haben Sie Qemu gestartet?</translation>
     <name>Qt4ProjectManager::Internal::MaemoSettingsPage</name>
     <message>
         <source>Maemo Device Configurations</source>
-        <translation>Maemo-Geräte-Konfigurationen</translation>
+        <translation type="obsolete">Maemo-Geräte-Konfigurationen</translation>
     </message>
 </context>
 <context>
@@ -16715,11 +17467,11 @@ Haben Sie Qemu gestartet?</translation>
     </message>
     <message>
         <source>Aliasing</source>
-        <translation>Kantenglättung</translation>
+        <translation type="obsolete">Kantenglättung</translation>
     </message>
     <message>
         <source>Smooth</source>
-        <translation>Glatt</translation>
+        <translation type="obsolete">Glatt</translation>
     </message>
     <message>
         <source></source>
@@ -16884,6 +17636,10 @@ Haben Sie Qemu gestartet?</translation>
         <translation>sichtbar</translation>
     </message>
     <message>
+        <source>Smooth</source>
+        <translation>Glatt</translation>
+    </message>
+    <message>
         <source>Clip</source>
         <translation>Beschneiden</translation>
     </message>
@@ -16975,6 +17731,10 @@ Haben Sie Qemu gestartet?</translation>
     <message>
         <source>Status</source>
         <translation>Status</translation>
+    </message>
+    <message>
+        <source>Qt Versions</source>
+        <translation>Qt-Versionen</translation>
     </message>
     <message>
         <source>Qt Creator can set up the following targets for&lt;br&gt;project &lt;b&gt;%1&lt;/b&gt;:</source>
@@ -17157,6 +17917,10 @@ Haben Sie Qemu gestartet?</translation>
         <translation>Klassenname des Objektes:</translation>
     </message>
     <message>
+        <source>URI:</source>
+        <translation>URI:</translation>
+    </message>
+    <message>
         <source>The project name and the object class-name cannot be the same.</source>
         <translation>Der Projektname und der Klassenname des Objektes müssen sich unterscheiden.</translation>
     </message>
@@ -17232,7 +17996,7 @@ Haben Sie Qemu gestartet?</translation>
     </message>
     <message>
         <source>Key size:</source>
-        <translation>Größe des Schlüssels:</translation>
+        <translation type="obsolete">Größe des Schlüssels:</translation>
     </message>
     <message>
         <source>Key algorithm:</source>
@@ -17240,11 +18004,11 @@ Haben Sie Qemu gestartet?</translation>
     </message>
     <message>
         <source>RSA</source>
-        <translation>RSA</translation>
+        <translation type="obsolete">RSA</translation>
     </message>
     <message>
         <source>DSA</source>
-        <translation>DSA</translation>
+        <translation type="obsolete">DSA</translation>
     </message>
     <message>
         <source>Key</source>
@@ -17252,19 +18016,47 @@ Haben Sie Qemu gestartet?</translation>
     </message>
     <message>
         <source>Generate SSH Key</source>
-        <translation>SSH-Schlüssel erzeugen</translation>
+        <translation type="obsolete">SSH-Schlüssel erzeugen</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation>Schließen</translation>
+        <translation type="obsolete">Schließen</translation>
     </message>
     <message>
         <source>Save Public Key...</source>
-        <translation>Öffentlichen Schlüssel speichern...</translation>
+        <translation type="obsolete">Öffentlichen Schlüssel speichern...</translation>
     </message>
     <message>
         <source>Save Private Key...</source>
-        <translation>Privaten Schlüssel speichern...</translation>
+        <translation type="obsolete">Privaten Schlüssel speichern...</translation>
+    </message>
+    <message>
+        <source>Key &amp;size:</source>
+        <translation>&amp;Größe des Schlüssels:</translation>
+    </message>
+    <message>
+        <source>&amp;RSA</source>
+        <translation>&amp;RSA</translation>
+    </message>
+    <message>
+        <source>&amp;DSA</source>
+        <translation>&amp;DSA</translation>
+    </message>
+    <message>
+        <source>&amp;Generate SSH Key</source>
+        <translation>SSH-Schlüssel &amp;erzeugen</translation>
+    </message>
+    <message>
+        <source>Save P&amp;ublic Key...</source>
+        <translation>Öffentlichen Schlüssel &amp;speichern...</translation>
+    </message>
+    <message>
+        <source>Save Pr&amp;ivate Key...</source>
+        <translation>&amp;Privaten Schlüssel speichern...</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation>&amp;Schließen</translation>
     </message>
 </context>
 <context>
@@ -17466,6 +18258,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Maemo</source>
         <translation>Maemo</translation>
     </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Another gdb binary (&lt;i&gt;%1&lt;/i&gt;) is currently configured to handle the toolchain &lt;i&gt;%2&lt;/i&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Für die Toolchain &lt;i&gt;%2&lt;/i&gt; ist zur Zeit ist eine andere ausführbare gdb-Datei (&lt;i&gt;%1&lt;/i&gt;) eingestellt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
 </context>
 <context>
     <name>Debugger::Internal::BinaryToolChainDialog</name>
@@ -17518,7 +18314,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Cannot open MADDE config file &apos;%1&apos;.</source>
-        <translation>Die MADDE-Konfigurationsdatei &apos;%1&apos; kann nicht geöffnet werden.</translation>
+        <translation type="obsolete">Die MADDE-Konfigurationsdatei &apos;%1&apos; kann nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Package created.</source>
@@ -17545,6 +18341,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Die Paketdateien konnten nicht von %1 zu %2 verschoben werden.</translation>
     </message>
     <message>
+        <source>Could not move package file from %1 to %2.</source>
+        <translation>Die Paketdateien konnten nicht von %1 zu %2 verschoben werden.</translation>
+    </message>
+    <message>
         <source>Packaging failed: Foreign debian directory detected.</source>
         <translation>Fehlschlag bei Paketerstellung: Es wurde ein fremder Debian-Ordner festgestellt.</translation>
     </message>
@@ -17554,7 +18354,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Could not remove directory &apos;%1&apos;.</source>
-        <translation>Der Ordner %1 konnte nicht entfernt werden.</translation>
+        <translation type="obsolete">Der Ordner %1 konnte nicht entfernt werden.</translation>
     </message>
     <message>
         <source>Could not create Debian directory &apos;%1&apos;.</source>
@@ -17585,6 +18385,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Rückgabewert: %1</translation>
     </message>
     <message>
+        <source>Could not remove directory &apos;%1&apos;: %2</source>
+        <translation>Der Ordner &apos;%1&apos; konnte nicht entfernt werden: %2</translation>
+    </message>
+    <message>
         <source>Your project name contains characters not allowed in Debian packages.
 They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
 We will try to work around that, but you may experience problems.</source>
@@ -17609,7 +18413,7 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     </message>
     <message>
         <source>Choose Image</source>
-        <translation>Bilddatei auswählen</translation>
+        <translation type="obsolete">Bilddatei auswählen</translation>
     </message>
     <message>
         <source>Could Not Set New Icon</source>
@@ -17622,6 +18426,26 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     <message>
         <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
         <translation>&lt;b&gt;Erzeuge Paketdatei:&lt;/b&gt; </translation>
+    </message>
+    <message>
+        <source>Choose Image (will be scaled to 48x48 pixels if necessary)</source>
+        <translation>Wählen Sie ein Icon aus (wird auf 48x48 Pixel skaliert, falls erforderlich)</translation>
+    </message>
+    <message>
+        <source>File Error</source>
+        <translation>Dateifehler</translation>
+    </message>
+    <message>
+        <source>Could not set project name.</source>
+        <translation>Es konnte kein Projektnamen gesetzt werden.</translation>
+    </message>
+    <message>
+        <source>Could not set package name for project manager.</source>
+        <translation>Der Name des Pakets konnte nicht für die Projektverwaltung gesetzt werden.</translation>
+    </message>
+    <message>
+        <source>Could not set project description.</source>
+        <translation>Die Projektbeschreibung konnte nicht gesetzt werden.</translation>
     </message>
     <message>
         <source>(Packaging disabled)</source>
@@ -17741,11 +18565,11 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     </message>
     <message>
         <source>&lt;b&gt;Version number:&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Versionsnummer:&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Versionsnummer:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adapt Debian file:&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Passe Debian-Datei an:&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Passe Debian-Datei an:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -17753,7 +18577,39 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     </message>
     <message>
         <source>&lt;b&gt;Package Manager icon:&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Paketverwaltungs-Icon:&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Paketverwaltungs-Icon:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Package name:</source>
+        <translation>Paketname:</translation>
+    </message>
+    <message>
+        <source>Package version:</source>
+        <translation>Version des Pakets:</translation>
+    </message>
+    <message>
+        <source>Short package description:</source>
+        <translation>Kurzbeschreibung des Pakets:</translation>
+    </message>
+    <message>
+        <source>Name to be displayed in Package Manager:</source>
+        <translation>In Paketverwaltung anzuzeigender Name:</translation>
+    </message>
+    <message>
+        <source>Icon to be displayed in Package Manager:</source>
+        <translation>In Paketverwaltung anzuzeigendes Icon:</translation>
+    </message>
+    <message>
+        <source>Size is 48x48 pixels</source>
+        <translation>Größe: 48x48 Pixel</translation>
+    </message>
+    <message>
+        <source>Adapt Debian file:</source>
+        <translation>Debian-Datei anpassen:</translation>
+    </message>
+    <message>
+        <source>Edit spec file</source>
+        <translation>Spec-Datei editieren</translation>
     </message>
 </context>
 <context>
@@ -17889,8 +18745,16 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
         <translation>Das Plugin &quot;Open C/C++&quot; ist im Symbian SDK nicht installiert oder der Pfad des Symbian SDKs ist bei der Qt-Version %1 falsch konfiguriert.</translation>
     </message>
     <message>
+        <source>The Symbian toolchain does not handle spaces in the project path &apos;%1&apos;.</source>
+        <translation>Bei der Symbian-Toolchain sind keine Leerzeichen in der Pfadangabe &apos;%1&apos; zulässig.</translation>
+    </message>
+    <message>
+        <source>The Symbian toolchain does not handle special characters in the project name &apos;%1&apos; well.</source>
+        <translation>Die Sonderzeichen in der Pfadangabe &apos;%1&apos; können bei der Symbian-Toolchain zu Problemen führen.</translation>
+    </message>
+    <message>
         <source>The Symbian toolchain does not handle special characters in a project path well.</source>
-        <translation>Sonderzeichen in der Pfadangabe können bei der Symbian-Toolchain zu Problemen führen.</translation>
+        <translation type="obsolete">Sonderzeichen in der Pfadangabe können bei der Symbian-Toolchain zu Problemen führen.</translation>
     </message>
 </context>
 <context>
@@ -17915,7 +18779,7 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     </message>
     <message>
         <source>Warning: Cannot build QMLObserver; Qt version must be 4.7.1 or higher.</source>
-        <translation>Warnung: Der QML-Beobachter kann nicht erstellt werden, da er Qt-Version 4.7.1 oder höher erfordert.</translation>
+        <translation type="obsolete">Warnung: Der QML-Beobachter kann nicht erstellt werden, da er Qt-Version 4.7.1 oder höher erfordert.</translation>
     </message>
 </context>
 <context>
@@ -18521,6 +19385,10 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <source>Remove &quot;d&quot; suffix for release version</source>
         <translation>Präfix &quot;d&quot; für Release-Version entfernen</translation>
     </message>
+    <message>
+        <source>Package:</source>
+        <translation>Paket:</translation>
+    </message>
 </context>
 <context>
     <name>MaemoDeployStepWidget</name>
@@ -18543,6 +19411,22 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>&lt;b&gt;Files to install for subproject:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Zu installierende Dateien des Unterprojektes:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;a href=irrelevant&gt;Manage device configurations&lt;/a&gt;</source>
+        <translation>&lt;a href=irrelevant&gt;Gerätekonfigurationen verwalten&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>Edit the project file to add or remove entries.</source>
+        <translation>Projektdatei bearbeiten, um Einträge hinzuzufügen oder zu löschen.</translation>
+    </message>
+    <message>
+        <source>Add Desktop File</source>
+        <translation>Desktop-Datei hinzufügen</translation>
+    </message>
+    <message>
+        <source>Add Launcher Icon ...</source>
+        <translation>Icon für Starter hinzufügen...</translation>
     </message>
 </context>
 <context>
@@ -18749,83 +19633,83 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <name>Core::Internal::SftpChannelPrivate</name>
     <message>
         <source>Server could not start sftp subsystem.</source>
-        <translation>Der Server konnte das sftp-Subsystem nicht starten.</translation>
+        <translation type="obsolete">Der Server konnte das sftp-Subsystem nicht starten.</translation>
     </message>
     <message>
         <source>Unexpected packet of type %1.</source>
-        <translation>Unerwartetes Paket des Typs %1.</translation>
+        <translation type="obsolete">Unerwartetes Paket des Typs %1.</translation>
     </message>
     <message>
         <source>Protocol version mismatch: Expected %1, got %2</source>
-        <translation>Die Versionen des Protokolls stimmen nicht überein: Erwartet %1, erhalten %2</translation>
+        <translation type="obsolete">Die Versionen des Protokolls stimmen nicht überein: Erwartet %1, erhalten %2</translation>
     </message>
     <message>
         <source>Unknown error.</source>
-        <translation>Unbekannter Fehler.</translation>
+        <translation type="obsolete">Unbekannter Fehler.</translation>
     </message>
     <message>
         <source>Created remote directory &apos;%1&apos;.</source>
-        <translation>Der entfernter Ordner &apos;%1&apos; wurde angelegt.</translation>
+        <translation type="obsolete">Der entfernter Ordner &apos;%1&apos; wurde angelegt.</translation>
     </message>
     <message>
         <source>Remote directory &apos;%1&apos; already exists.</source>
-        <translation>Der entfernte Ordner &apos;%1&apos; ist bereits vorhanden.</translation>
+        <translation type="obsolete">Der entfernte Ordner &apos;%1&apos; ist bereits vorhanden.</translation>
     </message>
     <message>
         <source>Error creating directory &apos;%1&apos;: %2</source>
-        <translation>Fehler beim Anlegen des Ordners &apos;%1&apos;: %2</translation>
+        <translation type="obsolete">Fehler beim Anlegen des Ordners &apos;%1&apos;: %2</translation>
     </message>
     <message>
         <source>Could not open local file &apos;%1&apos;: %2</source>
-        <translation>Die lokale Datei &apos;%1&apos; konnte nicht geöffnet werden: %2</translation>
+        <translation type="obsolete">Die lokale Datei &apos;%1&apos; konnte nicht geöffnet werden: %2</translation>
     </message>
     <message>
         <source>Remote directory could not be opened for reading.</source>
-        <translation>Der entfernte Ordner konnte nicht zum Lesen geöffnet werden.</translation>
+        <translation type="obsolete">Der entfernte Ordner konnte nicht zum Lesen geöffnet werden.</translation>
     </message>
     <message>
         <source>Failed to list remote directory contents.</source>
-        <translation>Der Inhalt des entfernten Ordners konnte nicht bestimmt werden.</translation>
+        <translation type="obsolete">Der Inhalt des entfernten Ordners konnte nicht bestimmt werden.</translation>
     </message>
     <message>
         <source>Failed to close remote directory.</source>
-        <translation>Der entfernte Ordner konnte nicht geschlossen werden.</translation>
+        <translation type="obsolete">Der entfernte Ordner konnte nicht geschlossen werden.</translation>
     </message>
     <message>
         <source>Failed to open remote file for reading.</source>
-        <translation>Die entfernte Datei konnte nicht zum Lesen geöffnet werden.</translation>
+        <translation type="obsolete">Die entfernte Datei konnte nicht zum Lesen geöffnet werden.</translation>
     </message>
     <message>
         <source>Failed retrieve information on the remote file (&apos;stat&apos; failed).</source>
-        <translation>Es konnte keine Information über die entfernte Datei eingeholt werden (&apos;stat&apos; schlug fehl).</translation>
+        <translation type="obsolete">Es konnte keine Information über die entfernte Datei eingeholt werden (&apos;stat&apos; schlug fehl).</translation>
     </message>
     <message>
         <source>Cannot append to remote file: Server does not support the file size attribute.</source>
-        <translation>Es können keine Daten an die entfernte Datei angehängt werden, da der Server das Dateigrößenattribut nicht unterstützt.</translation>
+        <translation type="obsolete">Es können keine Daten an die entfernte Datei angehängt werden, da der Server das Dateigrößenattribut nicht unterstützt.</translation>
     </message>
     <message>
         <source>Failed to read remote file.</source>
-        <translation>Die entfernte Datei konnte nicht gelesen werden.</translation>
+        <translation type="obsolete">Die entfernte Datei konnte nicht gelesen werden.</translation>
     </message>
     <message>
         <source>Failed to close remote file.</source>
-        <translation>Die entfernte Datei konnte nicht geschlossen werden.</translation>
+        <translation type="obsolete">Die entfernte Datei konnte nicht geschlossen werden.</translation>
     </message>
     <message>
         <source>Failed to open remote file for writing.</source>
-        <translation>Die entfernte Datei konnte nicht zum Schreiben geöffnet werden.</translation>
+        <translation type="obsolete">Die entfernte Datei konnte nicht zum Schreiben geöffnet werden.</translation>
     </message>
     <message>
         <source>Failed to write remote file.</source>
-        <translation>Die entfernte Datei konnte nicht geschrieben werden.</translation>
+        <translation type="obsolete">Die entfernte Datei konnte nicht geschrieben werden.</translation>
     </message>
     <message>
         <source>Server could not start session.</source>
-        <translation>Der Server konnte keine Sitzung starten.</translation>
+        <translation type="obsolete">Der Server konnte keine Sitzung starten.</translation>
     </message>
     <message>
         <source>Error reading local file: %1</source>
-        <translation>Fehler beim Lesen der lokalen Datei: %1</translation>
+        <translation type="obsolete">Fehler beim Lesen der lokalen Datei: %1</translation>
     </message>
 </context>
 <context>
@@ -18841,58 +19725,62 @@ Server: %2.</translation>
     <name>Core::Internal::SshChannelManager</name>
     <message>
         <source>Invalid channel id %1</source>
-        <translation>Ungültiger Kanalbezeichner %1</translation>
+        <translation type="obsolete">Ungültiger Kanalbezeichner %1</translation>
     </message>
 </context>
 <context>
     <name>Core::Internal::SshConnectionPrivate</name>
     <message>
         <source>SSH Protocol error: %1</source>
-        <translation>SSH-Protokollfehler: %1</translation>
+        <translation type="obsolete">SSH-Protokollfehler: %1</translation>
     </message>
     <message>
         <source>Botan library exception: %1</source>
-        <translation>Ausnahmefehler in der Botan-Bibliothek: %1</translation>
+        <translation type="obsolete">Ausnahmefehler in der Botan-Bibliothek: %1</translation>
     </message>
     <message>
         <source>Invalid protocol version: Expected &apos;2.0&apos;, got &apos;%1&apos;.</source>
-        <translation>Die Versionen des Protokolls stimmen nicht überein: Erwartet &apos;2.0&apos;, erhalten %1.</translation>
+        <translation type="obsolete">Die Versionen des Protokolls stimmen nicht überein: Erwartet &apos;2.0&apos;, erhalten %1.</translation>
     </message>
     <message>
         <source>Invalid server id &apos;%1&apos;.</source>
-        <translation>Ungültige Server-Kennzeichnung &apos;%1&apos;.</translation>
+        <translation type="obsolete">Ungültige Server-Kennzeichnung &apos;%1&apos;.</translation>
     </message>
     <message>
         <source>Unexpected packet of type %1.</source>
-        <translation>Unerwartetes Paket des Typs %1.</translation>
+        <translation type="obsolete">Unerwartetes Paket des Typs %1.</translation>
     </message>
     <message>
         <source>Could not read private key file: %1</source>
-        <translation>Die private  Schlüsseldatei %1 konnte nicht gelesen werden</translation>
+        <translation type="obsolete">Die private  Schlüsseldatei %1 konnte nicht gelesen werden</translation>
     </message>
     <message>
         <source>Password expired.</source>
-        <translation>Das Passwort ist abgelaufen.</translation>
+        <translation type="obsolete">Das Passwort ist abgelaufen.</translation>
     </message>
     <message>
         <source>Server rejected password.</source>
-        <translation>Der Server hat das Passwort zurückgewiesen.</translation>
+        <translation type="obsolete">Der Server hat das Passwort zurückgewiesen.</translation>
     </message>
     <message>
         <source>Server rejected key.</source>
-        <translation>Der Server hat den Schlüssel zurückgewiesen.</translation>
+        <translation type="obsolete">Der Server hat den Schlüssel zurückgewiesen.</translation>
+    </message>
+    <message>
+        <source>The server sent an unexpected SSH packet of type SSH_MSG_UNIMPLEMENTED.</source>
+        <translation type="obsolete">Der Server hat ein unerwartetes SSH-Paket des Typs SSH_MSG_UNIMPLEMENTED gesandt.</translation>
     </message>
     <message>
         <source>Server closed connection: %1</source>
-        <translation>Der Server hat die Verbindung %1 geschlossen</translation>
+        <translation type="obsolete">Der Server hat die Verbindung %1 geschlossen</translation>
     </message>
     <message>
         <source>Connection closed unexpectedly.</source>
-        <translation>Die Verbindung wurde plötzlich geschlossen.</translation>
+        <translation type="obsolete">Die Verbindung wurde plötzlich geschlossen.</translation>
     </message>
     <message>
         <source>Timeout waiting for reply from server.</source>
-        <translation>Überschreitung des Zeitlimits beim Warten auf Antwort vom Server.</translation>
+        <translation type="obsolete">Überschreitung des Zeitlimits beim Warten auf Antwort vom Server.</translation>
     </message>
 </context>
 <context>
@@ -18974,173 +19862,221 @@ Server: %2.</translation>
     <message>
         <source>The function &quot;%1()&quot; failed: %2</source>
         <extracomment>Function call failed</extracomment>
-        <translation>Der Funktionsaufruf &quot;%1()&quot; schlug fehl: %2</translation>
+        <translation type="obsolete">Der Funktionsaufruf &quot;%1()&quot; schlug fehl: %2</translation>
     </message>
     <message>
         <source>An instance of the CDB engine is still running; cannot create an a new instance.</source>
-        <translation>Der CDB-Debugger kann nicht gestartet werden, da noch ein anderer läuft (mehrere Instanzen sind nicht zulässig).</translation>
+        <translation type="obsolete">Der CDB-Debugger kann nicht gestartet werden, da noch ein anderer läuft (mehrere Instanzen sind nicht zulässig).</translation>
     </message>
     <message>
         <source>Version: %1</source>
-        <translation>Version: %1</translation>
+        <translation type="obsolete">Version: %1</translation>
     </message>
     <message>
         <source>&lt;html&gt;The installed version of the &lt;i&gt;Debugging Tools for Windows&lt;/i&gt; (%1) is rather old. Upgrading to version %2 is recommended for the proper display of Qt&apos;s data types.&lt;/html&gt;</source>
-        <translation>&lt;html&gt;Die gegenwärtig installierte Version der &lt;i&gt;Debugging Tools for Windows&lt;/i&gt; (%1) ist veraltet. Es wird ein Upgrade auf Version %2 empfohlen, um die Qt-Datentypen richtig anzeigen zu können.&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;Die gegenwärtig installierte Version der &lt;i&gt;Debugging Tools for Windows&lt;/i&gt; (%1) ist veraltet. Es wird ein Upgrade auf Version %2 empfohlen, um die Qt-Datentypen richtig anzeigen zu können.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Debugger</source>
-        <translation>Debugger</translation>
+        <translation type="obsolete">Debugger</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Server&lt;/a&gt;. This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Note:&lt;/i&gt; A fast internet connection is required for this to work smoothly. Also, a delay might occur when connecting for the first time.&lt;/p&gt;&lt;p&gt;Would you like to set it up?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Der Debugger ist nicht zur Benutzung des öffentlichen &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Servers&lt;/a&gt; eingerichtet. Dies wird zur Anzeige der Symbole der Betriebssystem-Bibliotheken empfohlen.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Hinweis:&lt;/i&gt; Eine schnelle Internetverbindung ist erforderlich. Beim ersten Start können Verzögerungen auftreten.&lt;/p&gt;&lt;p&gt;Möchten Sie den Symbol Server einrichten?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Der Debugger ist nicht zur Benutzung des öffentlichen &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Servers&lt;/a&gt; eingerichtet. Dies wird zur Anzeige der Symbole der Betriebssystem-Bibliotheken empfohlen.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Hinweis:&lt;/i&gt; Eine schnelle Internetverbindung ist erforderlich. Beim ersten Start können Verzögerungen auftreten.&lt;/p&gt;&lt;p&gt;Möchten Sie den Symbol Server einrichten?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Symbol Server</source>
-        <translation>Symbol-Server</translation>
+        <translation type="obsolete">Symbol-Server</translation>
     </message>
     <message>
         <source>Do not ask again</source>
-        <translation>Nicht noch einmal nachfragen</translation>
+        <translation type="obsolete">Nicht noch einmal nachfragen</translation>
     </message>
     <message>
         <source>The dumper library was not found at %1.</source>
-        <translation>Es konnte keine Ausgabe-Hilfsbibliothek unter %1 gefunden werden.</translation>
+        <translation type="obsolete">Es konnte keine Ausgabe-Hilfsbibliothek unter %1 gefunden werden.</translation>
     </message>
     <message>
         <source>The console stub process was unable to start &apos;%1&apos;.</source>
-        <translation>Der Konsolenprozess konnte &apos;%1&apos; nicht ausführen.</translation>
+        <translation type="obsolete">Der Konsolenprozess konnte &apos;%1&apos; nicht ausführen.</translation>
     </message>
     <message>
         <source>Attaching to core files is not supported.</source>
-        <translation>Das Debuggen von Core-Dateien wird nicht unterstützt.</translation>
+        <translation type="obsolete">Das Debuggen von Core-Dateien wird nicht unterstützt.</translation>
     </message>
     <message>
         <source>The process exited with exit code %1.</source>
-        <translation>Der Prozess wurde beendet, Rückgabewert %1.</translation>
+        <translation type="obsolete">Der Prozess wurde beendet, Rückgabewert %1.</translation>
     </message>
     <message>
         <source>&lt;not supported&gt;</source>
-        <translation>&lt;nicht unterstützt&gt;</translation>
+        <translation type="obsolete">&lt;nicht unterstützt&gt;</translation>
     </message>
     <message>
         <source>Continuing with &apos;%1&apos;...</source>
-        <translation>Setze mit &apos;%1&apos; fort...</translation>
+        <translation type="obsolete">Setze mit &apos;%1&apos; fort...</translation>
     </message>
     <message>
         <source>Unable to continue: %1</source>
-        <translation>Die Ausführung des Prozesses kann nicht fortgesetzt werden: %1</translation>
+        <translation type="obsolete">Die Ausführung des Prozesses kann nicht fortgesetzt werden: %1</translation>
     </message>
     <message>
         <source>Reverse stepping is not implemented.</source>
-        <translation>Die Funktionalität für &apos;Einzelschritt rückwärts&apos; ist nicht implementiert.</translation>
+        <translation type="obsolete">Die Funktionalität für &apos;Einzelschritt rückwärts&apos; ist nicht implementiert.</translation>
     </message>
     <message>
         <source>Thread %1 cannot be stepped.</source>
-        <translation>Für den Thread %1 ist kein Einzelschritt möglich.</translation>
+        <translation type="obsolete">Für den Thread %1 ist kein Einzelschritt möglich.</translation>
     </message>
     <message>
         <source>Stepping %1</source>
-        <translation>Führe Schritt aus (%1)</translation>
+        <translation type="obsolete">Führe Schritt aus (%1)</translation>
     </message>
     <message>
         <source>Running requested...</source>
-        <translation>Fortsetzung angefordert...</translation>
+        <translation type="obsolete">Fortsetzung angefordert...</translation>
     </message>
     <message>
         <source>Running up to %1:%2...</source>
-        <translation>Ausführung bis %1:%2...</translation>
+        <translation type="obsolete">Ausführung bis %1:%2...</translation>
     </message>
     <message>
         <source>Running up to function &apos;%1()&apos;...</source>
-        <translation>Ausführung bis zu Funktion &apos;%1()&apos;...</translation>
+        <translation type="obsolete">Ausführung bis zu Funktion &apos;%1()&apos;...</translation>
     </message>
     <message>
         <source>Jump to line is not implemented</source>
-        <translation>Die Funktionalität für &apos;Springe zu Zeile&apos; ist nicht implementiert</translation>
+        <translation type="obsolete">Die Funktionalität für &apos;Springe zu Zeile&apos; ist nicht implementiert</translation>
     </message>
     <message>
         <source>Assigning &apos;%1&apos; to &apos;%2&apos; (%3)...</source>
         <extracomment>Arguments: New value, name, (type)</extracomment>
-        <translation>Weise &apos;%1&apos; an &apos;%2&apos; (%3) zu...</translation>
+        <translation type="obsolete">Weise &apos;%1&apos; an &apos;%2&apos; (%3) zu...</translation>
     </message>
     <message>
         <source>Can assign only scalar values.</source>
-        <translation>Es können nur skalare Werte zugewiesen werden.</translation>
+        <translation type="obsolete">Es können nur skalare Werte zugewiesen werden.</translation>
     </message>
     <message>
         <source>Cannot assign values of type &apos;%1&apos;. Only POD-types can be assigned.</source>
-        <translation>Werte des Typs &apos;%1&apos; können nicht zugewiesen werden. Es sind nur POD-Typen zulässig.</translation>
+        <translation type="obsolete">Werte des Typs &apos;%1&apos; können nicht zugewiesen werden. Es sind nur POD-Typen zulässig.</translation>
     </message>
     <message>
         <source>Unable to assign the value &apos;%1&apos; to &apos;%2&apos; (%3): %4</source>
         <extracomment>Arguments: New value, name, (type): Error</extracomment>
-        <translation>Der Wert &apos;%1&apos; konnte nicht an &apos;%2&apos; (%3) zugewiesen werden: %4</translation>
+        <translation type="obsolete">Der Wert &apos;%1&apos; konnte nicht an &apos;%2&apos; (%3) zugewiesen werden: %4</translation>
     </message>
     <message>
         <source>Unable to retrieve %1 bytes of memory at 0x%2: %3</source>
-        <translation>Die Abfrage des Speichers (%1 bytes ab 0x%2) schlug fehl: %3</translation>
+        <translation type="obsolete">Die Abfrage des Speichers (%1 bytes ab 0x%2) schlug fehl: %3</translation>
     </message>
     <message>
         <source>Cannot retrieve symbols while the debuggee is running.</source>
-        <translation>Die Symbole können nicht bestimmt werden, solange die zu debuggende Anwendung läuft.</translation>
+        <translation type="obsolete">Die Symbole können nicht bestimmt werden, solange die zu debuggende Anwendung läuft.</translation>
+    </message>
+    <message>
+        <source>The CDB debug engine required for %1 is currently disabled.</source>
+        <translation>%1 erfordert den Debugger CDB, der gegenwärtig deaktiviert ist.</translation>
+    </message>
+    <message>
+        <source>The CDB debug engine does not support start mode %1.</source>
+        <translation>Der CDB-Debugger unterstützt den Startmodus %1 nicht.</translation>
+    </message>
+    <message>
+        <source>The console process &apos;%1&apos; could not be started.</source>
+        <translation>Der Konsolenprozess &apos;%1&apos; konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Debugger Error</source>
         <translation>Debugger-Fehler</translation>
     </message>
     <message>
+        <source>CDB crashed</source>
+        <translation>CDB ist abgestürzt</translation>
+    </message>
+    <message>
+        <source>CDB exited (%1)</source>
+        <translation>CDB wurde beendet (Rückgabewert: %1)</translation>
+    </message>
+    <message>
+        <source>Unable to add expression</source>
+        <translation>Das Hinzufügen des überwachten Ausdrucks schlug fehl</translation>
+    </message>
+    <message>
+        <source>Interrupting is not possible in remote sessions.</source>
+        <translation>Das Unterbrechen ist bei entferntem Debuggen nicht möglich.</translation>
+    </message>
+    <message>
+        <source>Malformed stop response received.</source>
+        <translation>Es wurde eine ungültige Stop-Antwort erhalten.</translation>
+    </message>
+    <message>
+        <source>Interrupted (%1)</source>
+        <translation>Unterbrochen (%1)</translation>
+    </message>
+    <message>
+        <source>Switching to main thread...</source>
+        <translation>Wechsel zu Haupt-Thread...</translation>
+    </message>
+    <message>
+        <source>&quot;Select Widget to Watch&quot;: Please stop the application first.</source>
+        <translation>&quot;Widget zur Überwachung auswählen&quot;: Bitte unterbrechen Sie zuerst die Anwendung.</translation>
+    </message>
+    <message>
+        <source>&quot;Select Widget to Watch&quot;: Not supported in state &apos;%1&apos;.</source>
+        <translation>&quot;Widget zur Überwachung auswählen&quot;: Nicht unterstützt im Status &apos;%1&apos;.</translation>
+    </message>
+    <message>
         <source>Ignoring initial breakpoint...</source>
-        <translation>Anfänglicher Haltepunkt wurde übergangen...</translation>
+        <translation type="obsolete">Anfänglicher Haltepunkt wurde übergangen...</translation>
     </message>
     <message>
         <source>&lt;interrupt thread&gt;</source>
-        <translation>&lt;interrupt thread&gt;</translation>
+        <translation type="obsolete">&lt;interrupt thread&gt;</translation>
     </message>
     <message>
         <source>Breakpoint</source>
-        <translation>Breakpoint</translation>
+        <translation type="obsolete">Breakpoint</translation>
     </message>
     <message>
         <source>Interrupted in thread %1, current thread: %2</source>
-        <translation>Angehalten im Thread: %1, aktueller Thread: %2</translation>
+        <translation type="obsolete">Angehalten im Thread: %1, aktueller Thread: %2</translation>
     </message>
     <message>
         <source>Stopped, current thread: %1</source>
-        <translation>Angehalten, Thread: %1</translation>
+        <translation type="obsolete">Angehalten, Thread: %1</translation>
     </message>
     <message>
         <source>Changing threads: %1 -&gt; %2</source>
-        <translation>Wechsel von Thread %1 zu %2</translation>
+        <translation type="obsolete">Wechsel von Thread %1 zu %2</translation>
     </message>
     <message>
         <source>stopped</source>
-        <translation>Angehalten</translation>
+        <translation type="obsolete">Angehalten</translation>
     </message>
     <message>
         <source>Stopped at %1:%2 in thread %3.</source>
-        <translation>Bei %1:%2 im Thread %3 angehalten.</translation>
+        <translation type="obsolete">Bei %1:%2 im Thread %3 angehalten.</translation>
     </message>
     <message>
         <source>Stopped at %1 in thread %2 (missing debug information).</source>
-        <translation>Bei %1 im Thread %2 angehalten (keine Debuginformation).</translation>
+        <translation type="obsolete">Bei %1 im Thread %2 angehalten (keine Debuginformation).</translation>
     </message>
     <message>
         <source>Stopped at %1 (%2) in thread %3 (missing debug information).</source>
-        <translation>Bei %1 (%2) im Thread %3 angehalten (keine Debuginformation).</translation>
+        <translation type="obsolete">Bei %1 (%2) im Thread %3 angehalten (keine Debuginformation).</translation>
     </message>
     <message>
         <source>Stopped in thread %1 (missing debug information).</source>
-        <translation>Im Thread %1 angehalten (keine Debuginformation).</translation>
+        <translation type="obsolete">Im Thread %1 angehalten (keine Debuginformation).</translation>
     </message>
     <message>
         <source>Breakpoint: %1</source>
-        <translation>Haltepunkt: %1</translation>
+        <translation type="obsolete">Haltepunkt: %1</translation>
     </message>
     <message>
         <source>Watchpoint: %1</source>
-        <translation>Watchpoint: %1</translation>
+        <translation type="obsolete">Watchpoint: %1</translation>
     </message>
     <message>
         <source>The CDB debug engine does not support the %1 toolchain.</source>
@@ -19185,12 +20121,28 @@ Server: %2.</translation>
 <context>
     <name>Debugger::DebuggerPlugin</name>
     <message>
+        <source>Debug</source>
+        <translation>Debuggen</translation>
+    </message>
+    <message>
         <source>Option &apos;%1&apos; is missing the parameter.</source>
         <translation>Das Kommandozeilenargument &apos;%1&apos; erfordert einen Parameter.</translation>
     </message>
     <message>
+        <source>The parameter &apos;%1&apos; of option &apos;%2&apos; does not match the pattern &lt;server:port&gt;@&lt;executable&gt;@&lt;architecture&gt;.</source>
+        <translation>Der Parameter &apos;%1&apos; der Option &apos;%2&apos; entspricht nicht dem Muster  &lt;Server:Portnummer&gt;@&lt;Ausführbare Datei&gt;@&lt;Architektur&gt;.</translation>
+    </message>
+    <message>
+        <source>The parameter &apos;%1&apos; of option &apos;%2&apos; does not match the pattern &lt;server:port&gt;@&lt;exe&gt;@&lt;arch&gt;.</source>
+        <translation type="obsolete">Der Parameter &apos;%1&apos; der Option &apos;%2&apos; </translation>
+    </message>
+    <message>
+        <source>The parameter &apos;%1&apos; of option &apos;%2&apos; does not match the pattern &lt;handle&gt;:&lt;pid&gt;.</source>
+        <translation>Der Parameter &apos;%1&apos; der Option &apos;%2&apos; entspricht nicht dem Muster &lt;Handle&gt;:&lt;PID&gt;.</translation>
+    </message>
+    <message>
         <source>The parameter &apos;%1&apos; of option &apos;%2&apos; is not a number.</source>
-        <translation>Der Parameter &apos;%1&apos; des Kommandozeilenarguments &apos;%2&apos; ist keine Zahl.</translation>
+        <translation type="obsolete">Der Parameter &apos;%1&apos; des Kommandozeilenarguments &apos;%2&apos; ist keine Zahl.</translation>
     </message>
     <message>
         <source>Invalid debugger option: %1</source>
@@ -19205,170 +20157,170 @@ Server: %2.</translation>
     <name>Debugger::DebuggerPluginPrivate</name>
     <message>
         <source>QML Script Console</source>
-        <translation>QML Skript-Konsole</translation>
+        <translation type="obsolete">QML Skript-Konsole</translation>
     </message>
     <message>
         <source>Continue</source>
-        <translation>Fortsetzen</translation>
+        <translation type="obsolete">Fortsetzen</translation>
     </message>
     <message>
         <source>Stop Debugger</source>
-        <translation>Debugger anhalten</translation>
+        <translation type="obsolete">Debugger anhalten</translation>
     </message>
     <message>
         <source>Interrupt</source>
-        <translation>Anhalten</translation>
+        <translation type="obsolete">Anhalten</translation>
     </message>
     <message>
         <source>Debugger is Busy</source>
-        <translation>Debugger arbeitet</translation>
+        <translation type="obsolete">Debugger arbeitet</translation>
     </message>
     <message>
         <source>Abort Debugging</source>
-        <translation>Debuggen abbrechen</translation>
+        <translation type="obsolete">Debuggen abbrechen</translation>
     </message>
     <message>
         <source>Aborts debugging and resets the debugger to the initial state.</source>
-        <translation>Bricht das Debuggen ab und setzt den Debugger in den Ausgangszustand.</translation>
+        <translation type="obsolete">Bricht das Debuggen ab und setzt den Debugger in den Ausgangszustand.</translation>
     </message>
     <message>
         <source>Step Over</source>
-        <translation>Einzelschritt über</translation>
+        <translation type="obsolete">Einzelschritt über</translation>
     </message>
     <message>
         <source>Step Into</source>
-        <translation>Einzelschritt herein</translation>
+        <translation type="obsolete">Einzelschritt herein</translation>
     </message>
     <message>
         <source>Step Out</source>
-        <translation>Einzelschritt heraus</translation>
+        <translation type="obsolete">Einzelschritt heraus</translation>
     </message>
     <message>
         <source>Run to Line</source>
-        <translation>Ausführen bis Zeile</translation>
+        <translation type="obsolete">Ausführen bis Zeile</translation>
     </message>
     <message>
         <source>Run to Outermost Function</source>
-        <translation>Ausführen bis zu äußerster Funktion</translation>
+        <translation type="obsolete">Ausführen bis zu äußerster Funktion</translation>
     </message>
     <message>
         <source>Immediately Return From Inner Function</source>
-        <translation>Sofortiges Herausspringen aus innerer Funktion</translation>
+        <translation type="obsolete">Sofortiges Herausspringen aus innerer Funktion</translation>
     </message>
     <message>
         <source>Jump to Line</source>
-        <translation>Zeile anspringen</translation>
+        <translation type="obsolete">Zeile anspringen</translation>
     </message>
     <message>
         <source>Toggle Breakpoint</source>
-        <translation>Haltepunkt umschalten</translation>
+        <translation type="obsolete">Haltepunkt umschalten</translation>
     </message>
     <message>
         <source>Add to Watch Window</source>
-        <translation>Zu Überwachten Ausdrücken hinzufügen</translation>
+        <translation type="obsolete">Zu Überwachten Ausdrücken hinzufügen</translation>
     </message>
     <message>
         <source>Create Snapshot</source>
-        <translation>Snapshot erzeugen</translation>
+        <translation type="obsolete">Snapshot erzeugen</translation>
     </message>
     <message>
         <source>Reverse Direction</source>
-        <translation>Umgekehrte Richtung</translation>
+        <translation type="obsolete">Umgekehrte Richtung</translation>
     </message>
     <message>
         <source>Move to Called Frame</source>
-        <translation>Gehe zum aufgerufenen Stackframe</translation>
+        <translation type="obsolete">Gehe zum aufgerufenen Stackframe</translation>
     </message>
     <message>
         <source>Move to Calling Frame</source>
-        <translation>Gehe zumaufrufenden Stackframe</translation>
+        <translation type="obsolete">Gehe zumaufrufenden Stackframe</translation>
     </message>
     <message>
         <source>Error evaluating command line arguments: %1</source>
-        <translation>Fehler beim Auswerten der Kommandozeilenargumente: %1</translation>
+        <translation type="obsolete">Fehler beim Auswerten der Kommandozeilenargumente: %1</translation>
     </message>
     <message>
         <source>Start and Debug External Application...</source>
-        <translation>Debugge externe Anwendung...</translation>
+        <translation type="obsolete">Debugge externe Anwendung...</translation>
     </message>
     <message>
         <source>Attach to Running External Application...</source>
-        <translation>Debugge externe, laufende Anwendung...</translation>
+        <translation type="obsolete">Debugge externe, laufende Anwendung...</translation>
     </message>
     <message>
         <source>Attach to Core...</source>
-        <translation>Debugge core-Datei</translation>
+        <translation type="obsolete">Debugge core-Datei</translation>
     </message>
     <message>
         <source>Attach to Running Tcf Agent...</source>
-        <translation>Verbinde zu Tcf-Agent...</translation>
+        <translation type="obsolete">Verbinde zu Tcf-Agent...</translation>
     </message>
     <message>
         <source>This attaches to a running &apos;Target Communication Framework&apos; agent.</source>
-        <translation>Verbindet zu einem laufenden Agenten, der das  &apos;Target Communication Framework&apos;-Protokoll verwendet.</translation>
+        <translation type="obsolete">Verbindet zu einem laufenden Agenten, der das  &apos;Target Communication Framework&apos;-Protokoll verwendet.</translation>
     </message>
     <message>
         <source>Start and Attach to Remote Application...</source>
-        <translation>An entfernte Anwendung anhängen...</translation>
+        <translation type="obsolete">An entfernte Anwendung anhängen...</translation>
     </message>
     <message>
         <source>Detach Debugger</source>
-        <translation>Debugger abhängen</translation>
+        <translation type="obsolete">Debugger abhängen</translation>
     </message>
     <message>
         <source>Interrupt Debugger</source>
-        <translation>Debugger unterbrechen</translation>
+        <translation type="obsolete">Debugger unterbrechen</translation>
     </message>
     <message>
         <source>Reset Debugger</source>
-        <translation>Debugger zurücksetzen</translation>
+        <translation type="obsolete">Debugger zurücksetzen</translation>
     </message>
     <message>
         <source>Threads:</source>
-        <translation>Threads:</translation>
+        <translation type="obsolete">Threads:</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation>Warnung</translation>
+        <translation type="obsolete">Warnung</translation>
     </message>
     <message>
         <source>Cannot attach to PID 0</source>
-        <translation>Der Debugger kann nicht an die Prozess-ID 0 angehängt werden</translation>
+        <translation type="obsolete">Der Debugger kann nicht an die Prozess-ID 0 angehängt werden</translation>
     </message>
     <message>
         <source>Process %1</source>
-        <translation>Prozess %1</translation>
+        <translation type="obsolete">Prozess %1</translation>
     </message>
     <message>
         <source>Core file &quot;%1&quot;</source>
-        <translation>Core-Datei &quot;%1&quot;</translation>
+        <translation type="obsolete">Core-Datei &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Remote: &quot;%1&quot;</source>
-        <translation>Verbindung: &quot;%1&quot;</translation>
+        <translation type="obsolete">Verbindung: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Attaching to PID %1.</source>
-        <translation>An Prozess %1 angehängt.</translation>
+        <translation type="obsolete">An Prozess %1 angehängt.</translation>
     </message>
     <message>
         <source>Attaching to remote server %1.</source>
-        <translation>Verbinde zu Server %1.</translation>
+        <translation type="obsolete">Verbinde zu Server %1.</translation>
     </message>
     <message>
         <source>Attaching to core %1.</source>
-        <translation>Debugge core-Datei %1.</translation>
+        <translation type="obsolete">Debugge core-Datei %1.</translation>
     </message>
     <message>
         <source>Save Debugger Log</source>
-        <translation>Debugger Log speichern</translation>
+        <translation type="obsolete">Debugger Log speichern</translation>
     </message>
 </context>
 <context>
     <name>Debugger::DebuggerRunControlFactory</name>
     <message>
         <source>Debug</source>
-        <translation>Debug</translation>
+        <translation type="obsolete">Debug</translation>
     </message>
 </context>
 <context>
@@ -19387,11 +20339,11 @@ Server: %2.</translation>
     </message>
     <message>
         <source>Debugger</source>
-        <translation>Debugger</translation>
+        <translation type="obsolete">Debugger</translation>
     </message>
     <message>
         <source>Starting debugger &apos;%1&apos; for tool chain &apos;%2&apos;...</source>
-        <translation>Starte Debugger &apos;%1&apos; für Toolchain &apos;%2&apos;...</translation>
+        <translation type="obsolete">Starte Debugger &apos;%1&apos; für Toolchain &apos;%2&apos;...</translation>
     </message>
     <message>
         <source>Debugging starts</source>
@@ -19431,7 +20383,11 @@ Das Setzen von Haltepunkten nach Dateinamen und Zeilennummern könnte nicht funk
     <name>Debugger::Internal::RemoteGdbProcess</name>
     <message>
         <source>Connection could not be established.</source>
-        <translation>Es konnte keine Verbindung hergestellt werden.</translation>
+        <translation type="obsolete">Es konnte keine Verbindung hergestellt werden.</translation>
+    </message>
+    <message>
+        <source>Connection failure: %1.</source>
+        <translation>Fehler bei Herstellen der Verbindung: %1</translation>
     </message>
     <message>
         <source>Could not create FIFO.</source>
@@ -19454,16 +20410,16 @@ Das Setzen von Haltepunkten nach Dateinamen und Zeilennummern könnte nicht funk
     <name>Debugger::Internal::TcfTrkGdbAdapter</name>
     <message>
         <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation>Der Prozess wurde gestartet, PID: 0x%1, Thread-ID: 0x%2, Code-Segment: 0x%3, Datensegment: 0x%4.</translation>
+        <translation type="obsolete">Der Prozess wurde gestartet, PID: 0x%1, Thread-ID: 0x%2, Code-Segment: 0x%3, Datensegment: 0x%4.</translation>
     </message>
     <message>
         <source>The reported code segment address (0x%1) might be invalid. Symbol resolution or setting breakoints may not work.</source>
-        <translation>Die erhaltene Startadresse des Codesegments (%0x1) ist eventuell ungültig. Bei Auflösen von Symbolen oder beim Setzen von Haltpunkten könnten Probleme auftreten.</translation>
+        <translation type="obsolete">Die erhaltene Startadresse des Codesegments (%0x1) ist eventuell ungültig. Bei Auflösen von Symbolen oder beim Setzen von Haltpunkten könnten Probleme auftreten.</translation>
     </message>
     <message>
         <source>Connecting to TRK server adapter failed:
 </source>
-        <translation>Die Verbindung zum TRK-Server-Adapter schlug fehl:
+        <translation type="obsolete">Die Verbindung zum TRK-Server-Adapter schlug fehl:
 </translation>
     </message>
 </context>
@@ -19675,11 +20631,21 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     <message>
         <source>error: </source>
         <comment>Task is of type error</comment>
-        <translation>Fehler:</translation>
+        <translation type="obsolete">Fehler:</translation>
     </message>
     <message>
         <source>warning: </source>
         <comment>Task is of type warning</comment>
+        <translation type="obsolete">Warnung:</translation>
+    </message>
+    <message>
+        <source>error: </source>
+        <extracomment>Task is of type: error</extracomment>
+        <translation>Fehler:</translation>
+    </message>
+    <message>
+        <source>warning: </source>
+        <extracomment>Task is of type: warning</extracomment>
         <translation>Warnung:</translation>
     </message>
     <message>
@@ -19728,11 +20694,15 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     </message>
     <message>
         <source>%1 is still running.</source>
-        <translation>%1 läuft noch.</translation>
+        <translation type="obsolete">%1 läuft noch.</translation>
     </message>
     <message>
         <source>Force it to quit?</source>
-        <translation>Soll sie beendet werden?</translation>
+        <translation type="obsolete">Soll sie beendet werden?</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; is still running.&lt;center/&gt;&lt;center&gt;Force it to quit?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; läuft noch.&lt;center/&gt;&lt;center&gt;Soll es beendet werden?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Force Quit</source>
@@ -19741,6 +20711,10 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     <message>
         <source>Keep Running</source>
         <translation>Fortsetzen</translation>
+    </message>
+    <message>
+        <source>Do not ask again</source>
+        <translation>Nicht noch einmal nachfragen</translation>
     </message>
 </context>
 <context>
@@ -19782,6 +20756,16 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
 </context>
 <context>
     <name>ProjectExplorer::UserFileAccessor</name>
+    <message>
+        <source>Using Old Project Settings File</source>
+        <translation>Projekteinstellungsdatei einer Vorgängerversion verwenden</translation>
+    </message>
+    <message>
+        <source>A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.
+Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.</source>
+        <translation>Es wird eine versionierte Sicherungskopie der .user-Datei benutzt, da die aktuelle Datei von einer neuen, inkompatiblen Version von Qt Creator erzeugt wurde.
+Änderungen der Projekteinstellungen, die nach der letzten Benutzung dieser Version von Qt Creator für dieses Projekt vorgenommen wurden, werden nicht berücksichtigt, und die jetzt folgenden Änderungen werden &lt;b&gt;nicht&lt;/b&gt; auf die neue Version übertragen.</translation>
+    </message>
     <message>
         <source>Project Settings File from a different Environment?</source>
         <translation>Projektdatei aus anderer Umgebung?</translation>
@@ -19850,59 +20834,59 @@ Möchten Sie sie trotzdem laden?</translation>
     <name>QmlJSInspector::Internal::QmlInspectorToolbar</name>
     <message>
         <source>Observer Mode</source>
-        <translation>Beobachter-Modus</translation>
+        <translation type="obsolete">Beobachter-Modus</translation>
     </message>
     <message>
         <source>Apply Changes on Save</source>
-        <translation>Änderungen beim Speichern anwenden</translation>
+        <translation type="obsolete">Änderungen beim Speichern anwenden</translation>
     </message>
     <message>
         <source>Play/Pause Animations</source>
-        <translation>Animationen pausieren/fortsetzen</translation>
+        <translation type="obsolete">Animationen pausieren/fortsetzen</translation>
     </message>
     <message>
         <source>Select</source>
-        <translation>Auswählen</translation>
+        <translation type="obsolete">Auswählen</translation>
     </message>
     <message>
         <source>Zoom</source>
-        <translation>Vergrößern</translation>
+        <translation type="obsolete">Vergrößern</translation>
     </message>
     <message>
         <source>Color Picker</source>
-        <translation>Farbauswahl</translation>
+        <translation type="obsolete">Farbauswahl</translation>
     </message>
     <message>
         <source>Live Preview Changes in QML Viewer</source>
-        <translation>Änderungen im QML-Betrachter unmittelbar anzeigen</translation>
+        <translation type="obsolete">Änderungen im QML-Betrachter unmittelbar anzeigen</translation>
     </message>
     <message>
         <source>Animation Speed</source>
-        <translation>Animationsgeschwindigkeit</translation>
+        <translation type="obsolete">Animationsgeschwindigkeit</translation>
     </message>
     <message>
         <source>1x</source>
-        <translation>1x</translation>
+        <translation type="obsolete">1x</translation>
     </message>
     <message>
         <source>0.5x</source>
-        <translation>0.5x</translation>
+        <translation type="obsolete">0.5x</translation>
     </message>
     <message>
         <source>0.25x</source>
-        <translation>0.25x</translation>
+        <translation type="obsolete">0.25x</translation>
     </message>
     <message>
         <source>0.125x</source>
-        <translation>0.125x</translation>
+        <translation type="obsolete">0.125x</translation>
     </message>
     <message>
         <source>0.1x</source>
-        <translation>0.1x</translation>
+        <translation type="obsolete">0.1x</translation>
     </message>
     <message>
         <source>Pause</source>
-        <translation>Pause</translation>
+        <translation type="obsolete">Pause</translation>
     </message>
 </context>
 <context>
@@ -19947,18 +20931,18 @@ Möchten Sie sie trotzdem laden?</translation>
     </message>
     <message>
         <source>Reload</source>
-        <translation>Neu laden</translation>
+        <translation type="obsolete">Neu laden</translation>
     </message>
 </context>
 <context>
     <name>QmlJSInspector::Internal::QmlJSObjectTree</name>
     <message>
         <source>Go to file</source>
-        <translation>Gehe zu Datei</translation>
+        <translation type="obsolete">Gehe zu Datei</translation>
     </message>
     <message>
         <source>Url: </source>
-        <translation>Url: </translation>
+        <translation type="obsolete">Url: </translation>
     </message>
 </context>
 <context>
@@ -20008,6 +20992,14 @@ Neither the path to the library nor the path to its includes is added to the .pr
 Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-Datei hinzugefügt.</translation>
     </message>
     <message>
+        <source>System package</source>
+        <translation>Systempaket</translation>
+    </message>
+    <message>
+        <source>Links to a system library using pkg-config.</source>
+        <translation>Verweist auf eine Systembibliothek unter Verwendung von pkg-config.</translation>
+    </message>
+    <message>
         <source>External library</source>
         <translation>Externe Bibliothek</translation>
     </message>
@@ -20049,6 +21041,14 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     <message>
         <source>External Library</source>
         <translation>Externe Bibliothek</translation>
+    </message>
+    <message>
+        <source>System Package</source>
+        <translation>Systempaket</translation>
+    </message>
+    <message>
+        <source>Specify the package to link to</source>
+        <translation>Geben Sie das zu bindende Paket an</translation>
     </message>
     <message>
         <source>Internal Library</source>
@@ -20097,11 +21097,15 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     <name>Qt4ProjectManager::Internal::MaemoDebugSupport</name>
     <message>
         <source>No device configuration set for run configuration.</source>
-        <translation>Für Ausführungskonfiguration ist keine Gerätekonfiguration eingestellt.</translation>
+        <translation type="obsolete">Für Ausführungskonfiguration ist keine Gerätekonfiguration eingestellt.</translation>
     </message>
     <message>
         <source>Preparing remote side ...</source>
         <translation>Bereite Gegenseite vor...</translation>
+    </message>
+    <message>
+        <source>SSH connection error: %1</source>
+        <translation>SSH-Verbindungsfehler: %1</translation>
     </message>
     <message>
         <source>Upload failed: Could not open file &apos;%1&apos;</source>
@@ -20123,20 +21127,28 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <source>Initial setup failed: %1</source>
         <translation>Initialisierung fehlgeschlagen: %1</translation>
     </message>
+    <message>
+        <source>Not enough free ports on device for debugging.</source>
+        <translation>Auf dem Gerät sind nicht genügend freie Ports für das Debuggen vorhanden.</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::MaemoDeployableListModel</name>
     <message>
         <source>File already in list.</source>
-        <translation>Die Datei ist bereits in der Liste enthalten.</translation>
+        <translation type="obsolete">Die Datei ist bereits in der Liste enthalten.</translation>
     </message>
     <message>
         <source>Failed to update .pro file.</source>
-        <translation>Die .pro-Datei konnte nicht geändert werden.</translation>
+        <translation type="obsolete">Die .pro-Datei konnte nicht geändert werden.</translation>
     </message>
     <message>
         <source>Could not update .pro file.</source>
-        <translation>Die .pro-Datei konnte nicht geändert werden.</translation>
+        <translation type="obsolete">Die .pro-Datei konnte nicht geändert werden.</translation>
+    </message>
+    <message>
+        <source>&lt;no target path set&gt;</source>
+        <translation>&lt;Kein Zielpfad gesetzt&gt;</translation>
     </message>
     <message>
         <source>Local File Path</source>
@@ -20146,17 +21158,29 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <source>Remote Directory</source>
         <translation>Entfernter Ordner</translation>
     </message>
+    <message>
+        <source>Failed to open &apos;%1&apos;: %2</source>
+        <translation>&apos;%1&apos; kann nicht geöffnet werden: %2</translation>
+    </message>
+    <message>
+        <source>Could not write &apos;%1&apos;: %2</source>
+        <translation>&apos;%1&apos; konnte nicht geschrieben werden: %2</translation>
+    </message>
+    <message>
+        <source>Error writing project file.</source>
+        <translation>Fehler beim Schreiben der Projektdatei.</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::MaemoDeployStep</name>
     <message>
         <source>Deploy to Maemo device</source>
         <extracomment>MaemoDeployStep default display name</extracomment>
-        <translation>Deployment auf Maemo-Gerät</translation>
+        <translation type="obsolete">Deployment auf Maemo-Gerät</translation>
     </message>
     <message>
         <source>Cannot start deployment, as the clean-up from the last time has not finished yet.</source>
-        <translation>Das Deployment kann nicht gestartet werden, da die Bereinigung vom letzten Mal noch nicht abgeschlossen wurde.</translation>
+        <translation type="obsolete">Das Deployment kann nicht gestartet werden, da die Bereinigung vom letzten Mal noch nicht abgeschlossen wurde.</translation>
     </message>
     <message>
         <source>Deployment failed: No valid device set.</source>
@@ -20168,7 +21192,32 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Could not connect to host: %1</source>
-        <translation>Es konnte keine Verbindung zum Host hergestellt werden: %1</translation>
+        <translation type="obsolete">Es konnte keine Verbindung zum Host hergestellt werden: %1</translation>
+    </message>
+    <message>
+        <source>Deploy to Maemo5 device</source>
+        <extracomment>MaemoDeployStep default display name</extracomment>
+        <translation>Deployment auf Maemo5-Gerät</translation>
+    </message>
+    <message>
+        <source>Deploy to Harmattan device</source>
+        <translation>Deployment auf Harmattan-Gerät</translation>
+    </message>
+    <message>
+        <source>Deploy to Meego device</source>
+        <translation>Deployment auf Meego-Gerät</translation>
+    </message>
+    <message>
+        <source>Cannot deploy: Still cleaning up from last time.</source>
+        <translation>Es kann kein Deployment durchgeführt werden, da die Bereinigung vom letzten Mal noch läuft.</translation>
+    </message>
+    <message>
+        <source>Deployment failed: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready.</source>
+        <translation>Das Deployment schlug fehl, da Qemu nicht lief. Es wurde soeben gestartet, benötigt jedoch noch einige Zeit.</translation>
+    </message>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>Verbindungsfehler: %1</translation>
     </message>
     <message>
         <source>Upload failed: Could not open file &apos;%1&apos;</source>
@@ -20189,6 +21238,10 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     <message>
         <source>Successfully uploaded file &apos;%1&apos;.</source>
         <translation>Die Datei &apos;%1&apos; wurde hochgeladen.</translation>
+    </message>
+    <message>
+        <source>Deployment failed.</source>
+        <translation>Deployment fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Deployment finished.</source>
@@ -20224,7 +21277,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Device has not enough free ports for deployment.</source>
-        <translation>Das Mobilgerät verfügt nicht über eine ausreichende Anzahl freier Ports für das Deployment.</translation>
+        <translation type="obsolete">Das Mobilgerät verfügt nicht über eine ausreichende Anzahl freier Ports für das Deployment.</translation>
     </message>
     <message>
         <source>Copying file &apos;%1&apos; failed.</source>
@@ -20241,6 +21294,10 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     <message>
         <source>Installing package failed.</source>
         <translation>Die Installation des Pakets schlug fehl.</translation>
+    </message>
+    <message>
+        <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
+        <translation>Die Installation schlug fehl: Es wurde versucht, eine ältere Version zu installieren, was nicht gestattet ist.</translation>
     </message>
     <message>
         <source>Package installed.</source>
@@ -20260,19 +21317,59 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <source>&lt;b&gt;Deploy to device&lt;/b&gt;: %1</source>
         <translation>&lt;b&gt;Deployment auf Mobilgerät&lt;/b&gt;: %1</translation>
     </message>
+    <message>
+        <source>Could not create desktop file</source>
+        <translation>Es konnte keine Desktop-Datei erstellt werden</translation>
+    </message>
+    <message>
+        <source>Error creating desktop file: %1</source>
+        <translation>Fehler beim Anlegen der Desktop-Datei: %1</translation>
+    </message>
+    <message>
+        <source>Choose Icon (will be scaled to 64x64 pixels, if necessary)</source>
+        <translation>Wählen Sie ein Icon aus (wird auf 64x64 Pixel skaliert, falls erforderlich)</translation>
+    </message>
+    <message>
+        <source>Invalid Icon</source>
+        <translation>Ungültiges Icon</translation>
+    </message>
+    <message>
+        <source>Unable to read image</source>
+        <translation>Die Bilddatei konnte nicht gelesen werden</translation>
+    </message>
+    <message>
+        <source>Failed to Save Icon</source>
+        <translation>Das Icon konnte nicht gespeichert werden</translation>
+    </message>
+    <message>
+        <source>Could not save icon to &apos;%1&apos;.</source>
+        <translation>Das Icon konnte nicht unter &apos;%1&apos; gespeichert werden</translation>
+    </message>
+    <message>
+        <source>Could Not Add Icon</source>
+        <translation>Das Icon konnte nicht hinzugefügt werden</translation>
+    </message>
+    <message>
+        <source>Error adding icon: %1</source>
+        <translation>Fehler beim Hinzufügen des Icons: %1</translation>
+    </message>
 </context>
 <context>
     <name>MaemoDeviceConfig</name>
     <message>
         <source>(Invalid device)</source>
-        <translation>(Ungültiges Mobilgerät)</translation>
+        <translation type="obsolete">(Ungültiges Mobilgerät)</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::MaemoDeviceEnvReader</name>
     <message>
         <source>Could not connect to host: %1</source>
-        <translation>Es konnte keine Verbindung zum Host hergestellt werden: %1</translation>
+        <translation type="obsolete">Es konnte keine Verbindung zum Host hergestellt werden: %1</translation>
+    </message>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>Verbindungsfehler: %1</translation>
     </message>
     <message>
         <source>Error running remote process: %1</source>
@@ -20312,7 +21409,7 @@ Fehlerausgabe: &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Qemu crashed</source>
-        <translation>Qemu ist abgestürzt</translation>
+        <translation type="obsolete">Qemu ist abgestürzt</translation>
     </message>
     <message>
         <source>Qemu error</source>
@@ -20353,23 +21450,27 @@ Fehlerausgabe: &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Setting up SFTP connection...</source>
-        <translation>Stelle SFTP-Verbindung her...</translation>
+        <translation type="obsolete">Stelle SFTP-Verbindung her...</translation>
     </message>
     <message>
         <source>Failed to establish SFTP connection: %1</source>
-        <translation>Es konnte keine SFTP-Verbindung hergestellt werden: %1</translation>
+        <translation type="obsolete">Es konnte keine SFTP-Verbindung hergestellt werden: %1</translation>
     </message>
     <message>
         <source>Uploading UTFS client...</source>
-        <translation>Hochladen des UTFS-CLients begonnen...</translation>
+        <translation type="obsolete">Hochladen des UTFS-CLients begonnen...</translation>
     </message>
     <message>
         <source>Could not upload UTFS client (%1).</source>
-        <translation>Fehlschlag beim Hochladen des UTFS-Clients (&apos;%1)</translation>
+        <translation type="obsolete">Fehlschlag beim Hochladen des UTFS-Clients (&apos;%1)</translation>
     </message>
     <message>
         <source>Could not upload UTFS client (%1), continuing anyway.</source>
-        <translation>Fehlschlag beim Hochladen des UTFS-Clients (&apos;%1), setze trotzdem fort.</translation>
+        <translation type="obsolete">Fehlschlag beim Hochladen des UTFS-Clients (&apos;%1), setze trotzdem fort.</translation>
+    </message>
+    <message>
+        <source>Error: Not enough free ports on device to fulfill all mount requests.</source>
+        <translation>Es sind nicht genügend freie Ports auf dem Mobilgerät verfügbar, um alle Mount-Anforderungen zu bedienen.</translation>
     </message>
     <message>
         <source>Starting remote UTFS clients...</source>
@@ -20417,11 +21518,11 @@ Fehlerausgabe: %1</translation>
     <name>Qt4ProjectManager::Internal::MaemoRunControl</name>
     <message>
         <source>No device configuration set for run configuration.</source>
-        <translation>Für Ausführungskonfiguration ist keine Gerätekonfiguration eingestellt.</translation>
+        <translation type="obsolete">Für Ausführungskonfiguration ist keine Gerätekonfiguration eingestellt.</translation>
     </message>
     <message>
         <source>Run configuration no longer available.</source>
-        <translation>Die Ausführungskonfiguration ist nicht mehr verfügbar.</translation>
+        <translation type="obsolete">Die Ausführungskonfiguration ist nicht mehr verfügbar.</translation>
     </message>
     <message>
         <source>Starting remote process ...</source>
@@ -20444,11 +21545,11 @@ Fehlerausgabe: %1</translation>
     </message>
     <message>
         <source>Could not connect to host: %1</source>
-        <translation>Es konnte keine Verbindung zum Host hergestellt werden: %1</translation>
+        <translation type="obsolete">Es konnte keine Verbindung zum Host hergestellt werden: %1</translation>
     </message>
     <message>
         <source>Connection failed: %1</source>
-        <translation>Fehler bei Herstellen der Verbindung: %1</translation>
+        <translation type="obsolete">Fehler bei Herstellen der Verbindung: %1</translation>
     </message>
     <message>
         <source>Killing remote process(es)...</source>
@@ -20468,7 +21569,19 @@ Fehlerausgabe: %1</translation>
     </message>
     <message>
         <source>The device does not have enough free ports for this run configuration.</source>
-        <translation>Für diese Ausführungskonfiguration sind nicht ausreichend freie Ports auf dem Mobilgerät verfügbar.</translation>
+        <translation type="obsolete">Für diese Ausführungskonfiguration sind nicht ausreichend freie Ports auf dem Mobilgerät verfügbar.</translation>
+    </message>
+    <message>
+        <source>Cannot run: No device configuration set.</source>
+        <translation>Ausführung nicht möglich: Es ist keine Gerätekonfiguration ausgewählt.</translation>
+    </message>
+    <message>
+        <source>Cannot run: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready.</source>
+        <translation>Das Deployment schlug fehl, da Qemu nicht lief. Es wurde soeben gestartet, benötigt jedoch noch einige Zeit.</translation>
+    </message>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>Verbindungsfehler: %1</translation>
     </message>
     <message>
         <source>Mounting host directories...</source>
@@ -20491,63 +21604,63 @@ Fehlerausgabe: %1</translation>
     <name>Qt4ProjectManager::Internal::MaemoTemplatesManager</name>
     <message>
         <source>Error creating Maemo packaging directory &apos;%1&apos;.</source>
-        <translation>Fehler beim Anlegen des Maemo-Paket-Ordners &apos;%1&apos;</translation>
+        <translation type="obsolete">Fehler beim Anlegen des Maemo-Paket-Ordners &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Unable to create Debian templates: dh_make failed (%1)</source>
-        <translation>Es konnten keine Debian-Vorlagedateien erstellt werden: dh_make schlug fehl (%1)</translation>
+        <translation type="obsolete">Es konnten keine Debian-Vorlagedateien erstellt werden: dh_make schlug fehl (%1)</translation>
     </message>
     <message>
         <source>Unable to create debian templates: dh_make failed (%1)</source>
-        <translation>Es konnten keine Debian-Vorlagedateien erstellt werden: dh_make schlug fehl (%1)</translation>
+        <translation type="obsolete">Es konnten keine Debian-Vorlagedateien erstellt werden: dh_make schlug fehl (%1)</translation>
     </message>
     <message>
         <source>Unable to move new debian directory to &apos;%1&apos;.</source>
-        <translation>Der Debian-Ordner konnte nicht zu %1 verschoben werden.</translation>
+        <translation type="obsolete">Der Debian-Ordner konnte nicht zu %1 verschoben werden.</translation>
     </message>
     <message>
         <source>Packaging Error: Cannot open file &apos;%1&apos;.</source>
-        <translation>Fehler bei Paketerstellung: Die Datei &apos;%1&apos; kann nicht geöffnet werden.</translation>
+        <translation type="obsolete">Fehler bei Paketerstellung: Die Datei &apos;%1&apos; kann nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Packaging Error: Cannot write file &apos;%1&apos;.</source>
-        <translation>Fehler bei Paketerstellung: Die Datei &apos;%1&apos; kann nicht geschrieben werden.</translation>
+        <translation type="obsolete">Fehler bei Paketerstellung: Die Datei &apos;%1&apos; kann nicht geschrieben werden.</translation>
     </message>
     <message>
         <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
-        <translation>Die Debian-Changelog-Datei &apos;%1&apos; ist in einem unbekannten Format.</translation>
+        <translation type="obsolete">Die Debian-Changelog-Datei &apos;%1&apos; ist in einem unbekannten Format.</translation>
     </message>
     <message>
         <source>Error writing Debian changelog file &apos;%1&apos;: %2</source>
-        <translation>Fehler beim Schreiben der Debian-Changelog-Datei &apos;%1&apos;: %2</translation>
+        <translation type="obsolete">Fehler beim Schreiben der Debian-Changelog-Datei &apos;%1&apos;: %2</translation>
     </message>
     <message>
         <source>Invalid icon data in Debian control file.</source>
-        <translation>Die Debian-Kontrolldatei enthält ungültige Icon-Daten.</translation>
+        <translation type="obsolete">Die Debian-Kontrolldatei enthält ungültige Icon-Daten.</translation>
     </message>
     <message>
         <source>Could not read image file &apos;%1&apos;.</source>
-        <translation>Die Bilddatei &apos;%1&apos; konnte nicht gelesen werden.</translation>
+        <translation type="obsolete">Die Bilddatei &apos;%1&apos; konnte nicht gelesen werden.</translation>
     </message>
     <message>
         <source>Could not export image file &apos;%1&apos;.</source>
-        <translation>Die Bilddatei &apos;%1&apos; konnte nicht exportiert werden.</translation>
+        <translation type="obsolete">Die Bilddatei &apos;%1&apos; konnte nicht exportiert werden.</translation>
     </message>
     <message>
         <source>Error writing file &apos;%1&apos;: %2</source>
-        <translation>Fehler beim Schreiben der Datei %1: %2</translation>
+        <translation type="obsolete">Fehler beim Schreiben der Datei %1: %2</translation>
     </message>
     <message>
         <source>Error creating Maemo templates</source>
-        <translation>Fehlschlag beim Erstellen der Maemo-Vorlagendateien</translation>
+        <translation type="obsolete">Fehlschlag beim Erstellen der Maemo-Vorlagendateien</translation>
     </message>
     <message>
         <source>File &apos;%1&apos; does not exist</source>
-        <translation>Die Datei &apos;%1&apos; existiert nicht</translation>
+        <translation type="obsolete">Die Datei &apos;%1&apos; existiert nicht</translation>
     </message>
     <message>
         <source>Cannot open file &apos;%1&apos;: %2</source>
-        <translation>Die Datei &apos;%1&apos; kann nicht geöffnet werden: %2</translation>
+        <translation type="obsolete">Die Datei &apos;%1&apos; kann nicht geöffnet werden: %2</translation>
     </message>
 </context>
 <context>
@@ -20561,8 +21674,12 @@ Fehlerausgabe: %1</translation>
         <translation>Passphrase speichern</translation>
     </message>
     <message>
+        <source>This is an insecure option. The password will be saved as plain text.</source>
+        <translation>Diese Einstellung ist unsicher. Das Passwort wird als Text gespeichert.</translation>
+    </message>
+    <message>
         <source>This is an insecure option. The password will be saved as a plain text.</source>
-        <translation>Diese Option stellt ein Sicherheitsrisiko dar, da das Passwort als Text gespeichert wird.</translation>
+        <translation type="obsolete">Diese Option stellt ein Sicherheitsrisiko dar, da das Passwort als Text gespeichert wird.</translation>
     </message>
     <message>
         <source>Passphrase for %1</source>
@@ -20586,6 +21703,10 @@ Fehlerausgabe: %1</translation>
         <source>%1 on Symbian Device</source>
         <translation>%1 auf Symbian-Gerät</translation>
     </message>
+    <message>
+        <source>Deploy to Symbian device</source>
+        <translation>Deployment auf Symbian-Gerät</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::S60DeployConfigurationWidget</name>
@@ -20596,6 +21717,22 @@ Fehlerausgabe: %1</translation>
     <message>
         <source>Silent installation</source>
         <translation>Stille Installation</translation>
+    </message>
+    <message>
+        <source>Serial:</source>
+        <translation>Seriell:</translation>
+    </message>
+    <message>
+        <source>WLAN:</source>
+        <translation>WLAN:</translation>
+    </message>
+    <message>
+        <source>TRK</source>
+        <translation>TRK</translation>
+    </message>
+    <message>
+        <source>CODA</source>
+        <translation>CODA</translation>
     </message>
     <message>
         <source>Installation file:</source>
@@ -20610,12 +21747,36 @@ Fehlerausgabe: %1</translation>
         <translation>Installationslaufwerk:</translation>
     </message>
     <message>
+        <source>Device Agent</source>
+        <translation>Hilfsprogramm auf dem Mobilgerät</translation>
+    </message>
+    <message>
+        <source>Information about the device is not available when using CODA.</source>
+        <translation>Bei Verwendung von CODA kann keine Information zum Mobilgerät angezeigt werden.</translation>
+    </message>
+    <message>
+        <source>Debug Client</source>
+        <translation type="obsolete">Port für Debugger:</translation>
+    </message>
+    <message>
         <source>Device on serial port:</source>
-        <translation>Gerät auf serieller Schnittstelle:</translation>
+        <translation type="obsolete">Gerät auf serieller Schnittstelle:</translation>
     </message>
     <message>
         <source>Queries the device for information</source>
         <translation>Fragt Informationen vom Gerät ab</translation>
+    </message>
+    <message>
+        <source>Serial port:</source>
+        <translation>Serielle Schnittstelle:</translation>
+    </message>
+    <message>
+        <source>Communication Channel</source>
+        <translation>Kommunikationsprotokoll</translation>
+    </message>
+    <message>
+        <source>Address:</source>
+        <translation>Adresse:</translation>
     </message>
     <message>
         <source>Connecting...</source>
@@ -20638,6 +21799,10 @@ Fehlerausgabe: %1</translation>
         <translation>Deployment</translation>
     </message>
     <message>
+        <source>No package has been found. Please specify at least one installation package.</source>
+        <translation>Es konnte kein Installationspaket gefunden werden. Bitte geben Sie mindestens eines an.</translation>
+    </message>
+    <message>
         <source>Renaming new package &apos;%1&apos; to &apos;%2&apos;</source>
         <translation>Die Paketdatei wird von &apos;%1&apos; zu &apos;%2&apos; umbenannt</translation>
     </message>
@@ -20650,8 +21815,12 @@ Fehlerausgabe: %1</translation>
         <translation>&apos;%1&apos;: Paketdatei nicht gefunden</translation>
     </message>
     <message>
+        <source>Copy progress: %1%</source>
+        <translation>Kopiere: %1%</translation>
+    </message>
+    <message>
         <source>There is no device plugged in.</source>
-        <translation>Es ist kein Gerät angeschlossen.</translation>
+        <translation type="obsolete">Es ist kein Gerät angeschlossen.</translation>
     </message>
     <message>
         <source>Failed to find package %1</source>
@@ -20669,7 +21838,7 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
     </message>
     <message>
         <source>Canceled.</source>
-        <translation>Abgebrochen.</translation>
+        <translation type="obsolete">Abgebrochen.</translation>
     </message>
     <message>
         <source>Could not create file %1 on device: %2</source>
@@ -20678,6 +21847,22 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
     <message>
         <source>Could not write to file %1 on device: %2</source>
         <translation>Die Datei %1 konnte nicht auf dem Gerät geschrieben werden: %2</translation>
+    </message>
+    <message>
+        <source>Could not open serial device: %1</source>
+        <translation>Die serielle Schnittstelle konnte nicht geöffnet werden: %1</translation>
+    </message>
+    <message>
+        <source>Could not open remote file: %1</source>
+        <translation>Die entfernte Datei konnte nicht geöffnet werden: %1</translation>
+    </message>
+    <message>
+        <source>Could not open local file %1: %2</source>
+        <translation>Die lokale Datei %1 konnte nicht geöffnet werden: %2</translation>
+    </message>
+    <message>
+        <source>Failed to close the remote file: %1</source>
+        <translation>Die entfernte Datei konnte nicht geschlossen werden: %1</translation>
     </message>
     <message>
         <source>Could not close file %1 on device: %2. It will be closed when App TRK is closed.</source>
@@ -20692,16 +21877,64 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
         <translation>Kopieren &quot;%1&quot;...</translation>
     </message>
     <message>
+        <source>No device is connected. Please connect a device and try again.</source>
+        <translation>Es ist kein Gerät verbunden. Bitte stellen Sie die Verbindung zu einem Gerät her und versuchen Sie es erneut.</translation>
+    </message>
+    <message>
+        <source>No address for a device has been defined. Please define an address and try again.</source>
+        <translation>Es wurde kein Adresse für das Gerät angegeben. Bitte geben Sie eine Adresse an und versuchen Sie es erneut.</translation>
+    </message>
+    <message>
+        <source>Deploying application to &apos;%1&apos;...</source>
+        <translation>Deployment der Anwendung auf &apos;%1&apos;...</translation>
+    </message>
+    <message>
+        <source>No such port</source>
+        <translation>Schnittstelle existiert nicht</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t open serial device: %1</source>
+        <translation type="obsolete">Die lokale Datei &apos;%1&apos; konnte nicht geöffnet werden: %2</translation>
+    </message>
+    <message>
+        <source>Connecting to %1:%2...</source>
+        <translation>Verbinde zu %1: %2...</translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation>Fehler: %1</translation>
+    </message>
+    <message>
         <source>Installing package &quot;%1&quot; on drive %2:...</source>
         <translation>Installiere Paket &quot;%1&quot; auf Laufwerk %2:...</translation>
+    </message>
+    <message>
+        <source>Please continue the installation on your device.</source>
+        <translation>Bitte setzen Sie die Installation auf dem Mobilgerät fort.</translation>
+    </message>
+    <message>
+        <source>Open remote file failed: %1</source>
+        <translation type="obsolete">Das Öffnen der entfernten Datei schlug fehl: %1</translation>
     </message>
     <message>
         <source>Installation has finished</source>
         <translation>Installation beendet</translation>
     </message>
     <message>
+        <source>Installation failed: %1</source>
+        <translation>Die Installation schlug fehl: %1</translation>
+    </message>
+    <message>
+        <source>Installation</source>
+        <translation>Installation</translation>
+    </message>
+    <message>
         <source>Could not install from package %1 on device: %2</source>
         <translation>Das Installation des Pakets %1 auf dem Gerät schlug fehl: %2</translation>
+    </message>
+    <message>
+        <source>Deployment has been cancelled.</source>
+        <translation>Das Deployment wurde abgebrochen.</translation>
     </message>
     <message>
         <source>The device &apos;%1&apos; has been disconnected</source>
@@ -20748,11 +21981,11 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
     <name>Qt4ProjectManager::Internal::Qt4DeployConfigurationFactory</name>
     <message>
         <source>Deploy to Symbian device</source>
-        <translation>Deployment auf Symbian-Gerät</translation>
+        <translation type="obsolete">Deployment auf Symbian-Gerät</translation>
     </message>
     <message>
         <source>Deploy to Maemo device</source>
-        <translation>Deployment auf Maemo-Gerät</translation>
+        <translation type="obsolete">Deployment auf Maemo-Gerät</translation>
     </message>
 </context>
 <context>
@@ -20942,101 +22175,101 @@ Bitte prüfen Sie die Zugriffsrechte des Ordners.</translation>
     <name>MobileAppWizardOptionPage</name>
     <message>
         <source>WizardPage</source>
-        <translation>WizardPage</translation>
+        <translation type="obsolete">WizardPage</translation>
     </message>
     <message>
         <source>General</source>
-        <translation>Allgemein</translation>
+        <translation type="obsolete">Allgemein</translation>
     </message>
     <message>
         <source>Target UID3:</source>
-        <translation>Ziel-UID3:</translation>
+        <translation type="obsolete">Ziel-UID3:</translation>
     </message>
     <message>
         <source>Enable network access</source>
-        <translation>Netzwerkzugriff gestatten</translation>
+        <translation type="obsolete">Netzwerkzugriff gestatten</translation>
     </message>
     <message>
         <source>Orientation behavior:</source>
-        <translation>Ausrichtung:</translation>
+        <translation type="obsolete">Ausrichtung:</translation>
     </message>
     <message>
         <source>Symbian Specific</source>
-        <translation>Symbian-spezifisch</translation>
+        <translation type="obsolete">Symbian-spezifisch</translation>
     </message>
     <message>
         <source>Application icon (.svg):</source>
-        <translation>Icon der Anwendung (.svg):</translation>
+        <translation type="obsolete">Icon der Anwendung (.svg):</translation>
     </message>
     <message>
         <source>Maemo Specific</source>
-        <translation>Maemo-spezifisch</translation>
+        <translation type="obsolete">Maemo-spezifisch</translation>
     </message>
     <message>
         <source>Application icon (64x64):</source>
-        <translation>Icon der Anwendung (64x64):</translation>
+        <translation type="obsolete">Icon der Anwendung (64x64):</translation>
     </message>
 </context>
 <context>
     <name>Debugger::DebuggerEnginePrivate</name>
     <message>
         <source>Remove Breakpoint</source>
-        <translation>Haltepunkt löschen</translation>
+        <translation type="obsolete">Haltepunkt löschen</translation>
     </message>
     <message>
         <source>Remove Breakpoint %1</source>
-        <translation>Haltepunkt %1 löschen</translation>
+        <translation type="obsolete">Haltepunkt %1 löschen</translation>
     </message>
     <message>
         <source>Disable Breakpoint</source>
-        <translation>Haltepunkt deaktivieren</translation>
+        <translation type="obsolete">Haltepunkt deaktivieren</translation>
     </message>
     <message>
         <source>Disable Breakpoint %1</source>
-        <translation>Haltepunkt %1 deaktivieren</translation>
+        <translation type="obsolete">Haltepunkt %1 deaktivieren</translation>
     </message>
     <message>
         <source>Enable Breakpoint</source>
-        <translation>Haltepunkt aktivieren</translation>
+        <translation type="obsolete">Haltepunkt aktivieren</translation>
     </message>
     <message>
         <source>Enable Breakpoint %1</source>
-        <translation>Haltepunkt %1 aktivieren</translation>
+        <translation type="obsolete">Haltepunkt %1 aktivieren</translation>
     </message>
     <message>
         <source>Edit Breakpoint...</source>
-        <translation>Haltepunkt bearbeiten...</translation>
+        <translation type="obsolete">Haltepunkt bearbeiten...</translation>
     </message>
     <message>
         <source>Edit Breakpoint %1...</source>
-        <translation>Haltepunkt %1 bearbeiten...</translation>
+        <translation type="obsolete">Haltepunkt %1 bearbeiten...</translation>
     </message>
     <message>
         <source>Set Breakpoint at 0x%1</source>
-        <translation>Haltepunkt bei 0x%1 setzen</translation>
+        <translation type="obsolete">Haltepunkt bei 0x%1 setzen</translation>
     </message>
     <message>
         <source>Set Breakpoint at line %1</source>
-        <translation>Haltepunkt bei Zeile %1 setzen</translation>
+        <translation type="obsolete">Haltepunkt bei Zeile %1 setzen</translation>
     </message>
 </context>
 <context>
     <name>Debugger::DebuggerEngine</name>
     <message>
         <source>Symbol</source>
-        <translation>Symbol</translation>
+        <translation type="obsolete">Symbol</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Adresse</translation>
+        <translation type="obsolete">Adresse</translation>
     </message>
     <message>
         <source>Code</source>
-        <translation>Code</translation>
+        <translation type="obsolete">Code</translation>
     </message>
     <message>
         <source>Symbols in &quot;%1&quot;</source>
-        <translation>Symbole in &quot;%1&quot;</translation>
+        <translation type="obsolete">Symbole in &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Launching</source>
@@ -21047,32 +22280,110 @@ Bitte prüfen Sie die Zugriffsrechte des Ordners.</translation>
         <translation>%1 (explizit in den Debugger-Einstellungen gesetzt)</translation>
     </message>
     <message>
+        <source>Watchpoint %1 (%2) at 0x%3 triggered.</source>
+        <translation>Watchpoint %1 (%2) bei 0x%3 ausgelöst.</translation>
+    </message>
+    <message>
+        <source>Internal watchpoint %1 at 0x%2 triggered.</source>
+        <translation>Interner Watchpoint %1 bei 0x%2 ausgelöst.</translation>
+    </message>
+    <message>
+        <source>Watchpoint %1 (%2) at 0x%3 in thread %4 triggered.</source>
+        <translation>Watchpoint %1 (%2) bei 0x%3 im Thread %4 ausgelöst.</translation>
+    </message>
+    <message>
+        <source>Internal watchpoint %1 at 0x%2 in thread %3 triggered.</source>
+        <translation>Interner Watchpoint %1 bei 0x%2 im Thread %3 ausgelöst.</translation>
+    </message>
+    <message>
+        <source>Stopped at breakpoint %1 (%2) in thread %3.</source>
+        <translation>An Haltepunkt %1 (%2) im Thread %3 angehalten.</translation>
+    </message>
+    <message>
+        <source>Stopped at internal breakpoint %1 in thread %2.</source>
+        <translation>An internem Haltepunkt %1 im Thread %2 angehalten.</translation>
+    </message>
+    <message>
+        <source>Stopped.</source>
+        <translation>Angehalten.</translation>
+    </message>
+    <message>
+        <source>Stopped: &quot;%1&quot;</source>
+        <translation>Angehalten: &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Stopped: %1 by signal %2.</source>
+        <translation>Angehalten: %1 durch Signal %2.</translation>
+    </message>
+    <message>
+        <source>Stopped in thread %1 by: %2.</source>
+        <translation>Im Thread %1 angehalten durch: %2</translation>
+    </message>
+    <message>
+        <source>Interrupted.</source>
+        <translation>Unterbrochen.</translation>
+    </message>
+    <message>
+        <source> &lt;Unknown&gt; </source>
+        <comment>name</comment>
+        <translation>&lt;Unbekannt&gt;</translation>
+    </message>
+    <message>
+        <source> &lt;Unknown&gt; </source>
+        <comment>meaning</comment>
+        <translation>&lt;Unbekannt&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
+        <translation>&lt;p&gt;Der Prozess wurde nach Erhalt eines Signals vom Betriebssystem angehalten.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Name des Signals : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Bedeutung : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
+    </message>
+    <message>
+        <source>Signal received</source>
+        <translation>Signal erhalten</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The inferior stopped because it triggered an exception.&lt;p&gt;%1</source>
+        <translation>&lt;p&gt;Der zu debuggende Prozess wurde angehalten, da eine Ausnahme ausgelöst wurde.&lt;p&gt;%1</translation>
+    </message>
+    <message>
+        <source>Exception Triggered</source>
+        <translation>Ausnahme ausgelöst</translation>
+    </message>
+    <message>
         <source>Open Qt4 Options</source>
-        <translation>Einstellungen zur Qt4-Bibliothek öffnen</translation>
+        <translation type="obsolete">Einstellungen zur Qt4-Bibliothek öffnen</translation>
     </message>
     <message>
         <source>Turn off Helper Usage</source>
-        <translation>Ausgabe-Hilfsbibliothek deaktivieren</translation>
+        <translation type="obsolete">Ausgabe-Hilfsbibliothek deaktivieren</translation>
     </message>
     <message>
         <source>Continue Anyway</source>
-        <translation>Trotzdem fortsetzen</translation>
+        <translation type="obsolete">Trotzdem fortsetzen</translation>
     </message>
     <message>
         <source>Debugging Helper Missing</source>
-        <translation>Ausgabe-Hilfsbibliothek nicht gefunden</translation>
+        <translation type="obsolete">Ausgabe-Hilfsbibliothek nicht gefunden</translation>
     </message>
     <message>
         <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. On the Qt4 options page, select a Qt installation and click Rebuild.</source>
-        <translation>Die Ausgabe-Hilfsbibliothek dient zur Ausgabe der Werte einiger Datentypen aus Qt- und den Standardbibliotheken. Sie muss mit jeder benutzten Qt-Version compiliert werden. Das geschieht in der Seite &apos;Qt-Einstellungen&apos; durch Auswahl der Qt-Installation und Klicken auf &apos;Erstellen&apos; für die Ausgabe-Hilfsbibliothek.</translation>
+        <translation type="obsolete">Die Ausgabe-Hilfsbibliothek dient zur Ausgabe der Werte einiger Datentypen aus Qt- und den Standardbibliotheken. Sie muss mit jeder benutzten Qt-Version compiliert werden. Das geschieht in der Seite &apos;Qt-Einstellungen&apos; durch Auswahl der Qt-Installation und Klicken auf &apos;Erstellen&apos; für die Ausgabe-Hilfsbibliothek.</translation>
     </message>
     <message>
         <source>The debugger could not load the debugging helper library.</source>
-        <translation>Der Debugger konnte die Ausgabe-Hilfsbibliothek nicht finden.</translation>
+        <translation type="obsolete">Der Debugger konnte die Ausgabe-Hilfsbibliothek nicht finden.</translation>
     </message>
     <message>
         <source>Taking notice of pid %1</source>
         <translation>PID %1 gemeldet</translation>
+    </message>
+    <message>
+        <source>Run to Line %1</source>
+        <translation>Ausführen bis Zeile %1</translation>
+    </message>
+    <message>
+        <source>Jump to Line %1</source>
+        <translation>Zeile %1 anspringen</translation>
     </message>
 </context>
 <context>
@@ -21113,8 +22424,12 @@ Bitte prüfen Sie die Zugriffsrechte des Ordners.</translation>
         <translation>schließe Verbindung...</translation>
     </message>
     <message>
+        <source>Debug service &apos;%1&apos; became unavailable.</source>
+        <translation>Der Debug-Dienst &apos;%1&apos; ist nicht mehr verfügbar.</translation>
+    </message>
+    <message>
         <source>Error: Cannot connect to debug service &apos;%1&apos;. Debugging functionality will be limited.</source>
-        <translation>Fehler: Es kann keine Verbindung zum Debug-Dienst &apos;%1&apos; hergestellt werden. Es steht nur eine eingeschränkte Debug-Funktionalität zur Verfügung.</translation>
+        <translation type="obsolete">Fehler: Es kann keine Verbindung zum Debug-Dienst &apos;%1&apos; hergestellt werden. Es steht nur eine eingeschränkte Debug-Funktionalität zur Verfügung.</translation>
     </message>
     <message>
         <source>Connected to debug service &apos;%1&apos;.</source>
@@ -21129,62 +22444,62 @@ Bitte prüfen Sie die Zugriffsrechte des Ordners.</translation>
     <name>Debugger::QmlCppEngine</name>
     <message>
         <source>%1 debugger activated</source>
-        <translation>Debugger %1 aktiviert</translation>
+        <translation type="obsolete">Debugger %1 aktiviert</translation>
     </message>
 </context>
 <context>
     <name>Debugger::QmlEngine</name>
     <message>
         <source>QML Debugger connected.</source>
-        <translation>QML-Debugger verbunden.</translation>
+        <translation type="obsolete">QML-Debugger verbunden.</translation>
     </message>
     <message>
         <source>Failed to connect to debugger</source>
-        <translation>Keine Verbindung zum Debugger</translation>
+        <translation type="obsolete">Keine Verbindung zum Debugger</translation>
     </message>
     <message>
         <source>Could not connect to QML debugger server at %1:%2.</source>
-        <translation>Es konnte keine Verbindung zum QML-Debugger-Server %1 hergestellt werden: %2</translation>
+        <translation type="obsolete">Es konnte keine Verbindung zum QML-Debugger-Server %1 hergestellt werden: %2</translation>
     </message>
     <message>
         <source>QML Debugger: Remote host closed connection.</source>
-        <translation>QML-Debugger: Der Host hat die Verbindung gechlossen.</translation>
+        <translation type="obsolete">QML-Debugger: Der Host hat die Verbindung gechlossen.</translation>
     </message>
     <message>
         <source>QML Debugger: Could not connect to service &apos;%1&apos;.</source>
-        <translation>QML-Debugger: Es konnte keine Verbindung zum Debug-Dienst &apos;%1&apos; hergestellt werden.</translation>
+        <translation type="obsolete">QML-Debugger: Es konnte keine Verbindung zum Debug-Dienst &apos;%1&apos; hergestellt werden.</translation>
     </message>
     <message>
         <source>QML Debugger connecting...</source>
-        <translation>Stelle QML-Debugger-Verbindung her...</translation>
+        <translation type="obsolete">Stelle QML-Debugger-Verbindung her...</translation>
     </message>
     <message>
         <source>Failed to start application</source>
-        <translation>Anwendung konnte nicht gestartet werden</translation>
+        <translation type="obsolete">Anwendung konnte nicht gestartet werden</translation>
     </message>
     <message>
         <source>Application startup failed: %1</source>
-        <translation>Die Anwendung konnte nicht gestartet werden: %1</translation>
+        <translation type="obsolete">Die Anwendung konnte nicht gestartet werden: %1</translation>
     </message>
     <message>
         <source>Trying to stop while process is no longer running.</source>
-        <translation>Versuche zu beenden, da der Prozess nicht mehr läuft.</translation>
+        <translation type="obsolete">Versuche zu beenden, da der Prozess nicht mehr läuft.</translation>
     </message>
     <message>
         <source>Stopped.</source>
-        <translation>Angehalten.</translation>
+        <translation type="obsolete">Angehalten.</translation>
     </message>
     <message>
         <source>&lt;p&gt;An Uncaught Exception occured in &lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</source>
-        <translation>&lt;p&gt;In &lt;i&gt;%1&lt;/i&gt; ist eine unbehandelte Ausnahme ist aufgetreten :&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;p&gt;In &lt;i&gt;%1&lt;/i&gt; ist eine unbehandelte Ausnahme ist aufgetreten :&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Uncaught Exception</source>
-        <translation>Unbehandelter Ausnahmefehler</translation>
+        <translation type="obsolete">Unbehandelter Ausnahmefehler</translation>
     </message>
     <message>
         <source>QML Debugger disconnected.</source>
-        <translation>QML-Debugger getrennt.</translation>
+        <translation type="obsolete">QML-Debugger getrennt.</translation>
     </message>
 </context>
 <context>
@@ -21206,27 +22521,27 @@ Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar s
     <name>Qt4ProjectManager::Internal::MobileAppWizardOptionsPage</name>
     <message>
         <source>Automatically Rotate Orientation</source>
-        <translation>Ausrichtung automatisch ändern</translation>
+        <translation type="obsolete">Ausrichtung automatisch ändern</translation>
     </message>
     <message>
         <source>Lock to Landscape Orientation</source>
-        <translation>Querformat festlegen</translation>
+        <translation type="obsolete">Querformat festlegen</translation>
     </message>
     <message>
         <source>Lock to Portrait Orientation</source>
-        <translation>Hochformat festlegen</translation>
+        <translation type="obsolete">Hochformat festlegen</translation>
     </message>
     <message>
         <source>The file is not a valid image.</source>
-        <translation>Keine gültige Bilddatei.</translation>
+        <translation type="obsolete">Keine gültige Bilddatei.</translation>
     </message>
     <message>
         <source>The icon has an invalid size.</source>
-        <translation>Das Icon hat keine gültige Größe.</translation>
+        <translation type="obsolete">Das Icon hat keine gültige Größe.</translation>
     </message>
     <message>
         <source>Icon unusable</source>
-        <translation>Das Icon kann nicht verwendet werden</translation>
+        <translation type="obsolete">Das Icon kann nicht verwendet werden</translation>
     </message>
 </context>
 <context>
@@ -21388,43 +22703,43 @@ Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen
     <name>BreakpointDialog</name>
     <message>
         <source>Breakpoint type:</source>
-        <translation>Typ des Haltepunkts:</translation>
+        <translation type="obsolete">Typ des Haltepunkts:</translation>
     </message>
     <message>
         <source>File name:</source>
-        <translation>Dateiname:</translation>
+        <translation type="obsolete">Dateiname:</translation>
     </message>
     <message>
         <source>Line number:</source>
-        <translation>Zeilennummer:</translation>
+        <translation type="obsolete">Zeilennummer:</translation>
     </message>
     <message>
         <source>Function:</source>
-        <translation>Funktion:</translation>
+        <translation type="obsolete">Funktion:</translation>
     </message>
     <message>
         <source>Condition:</source>
-        <translation>Bedingung:</translation>
+        <translation type="obsolete">Bedingung:</translation>
     </message>
     <message>
         <source>Ignore count:</source>
-        <translation>Anhalten erst nach:</translation>
+        <translation type="obsolete">Anhalten erst nach:</translation>
     </message>
     <message>
         <source>Thread specification:</source>
-        <translation>Thread:</translation>
+        <translation type="obsolete">Thread:</translation>
     </message>
     <message>
         <source>Address:</source>
-        <translation>Adresse:</translation>
+        <translation type="obsolete">Adresse:</translation>
     </message>
     <message>
         <source>Edit Breakpoint Properties</source>
-        <translation>Haltepunkte bearbeiten</translation>
+        <translation type="obsolete">Haltepunkte bearbeiten</translation>
     </message>
     <message>
         <source>Use full path:</source>
-        <translation>Vollständigen Pfad verwenden:</translation>
+        <translation type="obsolete">Vollständigen Pfad verwenden:</translation>
     </message>
 </context>
 <context>
@@ -21483,8 +22798,98 @@ Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen
         <translation>Funktion &quot;main()&quot;</translation>
     </message>
     <message>
+        <source>throw</source>
+        <translation>throw</translation>
+    </message>
+    <message>
+        <source>catch</source>
+        <translation>catch</translation>
+    </message>
+    <message>
+        <source>Address (Watchpoint)</source>
+        <translation>Adresse (Watchpoint)</translation>
+    </message>
+    <message>
+        <source>Specifying the module (base name of the library or executable)
+for function or file type breakpoints can significantly speed up
+debugger start-up times (CDB, LLDB).</source>
+        <translation>Die Angabe des Moduls (Basisname der Bibliothek oder der ausführbaren Datei)
+für Haltepunkte des Typs Datei/Zeile oder Funktion kann die Startzeit des Debuggers 
+erheblich reduzieren (CDB, LLDB).</translation>
+    </message>
+    <message>
+        <source>Debugger command to be executed when the breakpoint is hit.
+gdb allows for specifying a sequence of commands separated by the delimiter &apos;\n&apos;.</source>
+        <translation>Debugger-Kommando zur Ausführung beim Auslösen des Haltepunkts.
+Bei gdb kann eine durch &apos;\n&apos; getrennte Kommandosequenz angegeben werden.</translation>
+    </message>
+    <message>
         <source>Address</source>
         <translation>Adresse</translation>
+    </message>
+    <message>
+        <source>Edit Breakpoint Properties</source>
+        <translation>Haltepunkt bearbeiten</translation>
+    </message>
+    <message>
+        <source>Basic</source>
+        <translation>Grundlegende Einstellungen</translation>
+    </message>
+    <message>
+        <source>Breakpoint &amp;type:</source>
+        <translation>&amp;Typ des Haltepunkts:</translation>
+    </message>
+    <message>
+        <source>&amp;File name:</source>
+        <translation>&amp;Dateiname:</translation>
+    </message>
+    <message>
+        <source>&amp;Line number:</source>
+        <translation>&amp;Zeilennummer:</translation>
+    </message>
+    <message>
+        <source>&amp;Enabled:</source>
+        <translation>Akt&amp;iviert:</translation>
+    </message>
+    <message>
+        <source>&amp;Address:</source>
+        <translation>&amp;Adresse:</translation>
+    </message>
+    <message>
+        <source>Fun&amp;ction:</source>
+        <translation>&amp;Funktion:</translation>
+    </message>
+    <message>
+        <source>Advanced</source>
+        <translation>Erweiterte Einstellungen</translation>
+    </message>
+    <message>
+        <source>T&amp;racepoint only:</source>
+        <translation>Nur T&amp;racepoint:</translation>
+    </message>
+    <message>
+        <source>&amp;Use full path:</source>
+        <translation>Vollständigen &amp;Pfad verwenden:</translation>
+    </message>
+    <message>
+        <source>&amp;Module:</source>
+        <translation>&amp;Modul:</translation>
+    </message>
+    <message>
+        <source>&amp;Command:</source>
+        <translation>&amp;Kommando:</translation>
+    </message>
+    <message>
+        <source>C&amp;ondition:</source>
+        <translation>&amp;Bedingung:</translation>
+    </message>
+    <message>
+        <source>&amp;Ignore count:</source>
+        <translation>Anhalten &amp;erst nach:</translation>
+    </message>
+    <message>
+        <source>T&amp;hread specification:</source>
+        <translation>&amp;Thread:</translation>
     </message>
 </context>
 <context>
@@ -21499,15 +22904,15 @@ Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen
     </message>
     <message>
         <source>Log File</source>
-        <translation>Datei für Log-Inhalt</translation>
+        <translation type="obsolete">Datei für Log-Inhalt</translation>
     </message>
     <message>
         <source>Write Failure</source>
-        <translation>Fehler beim Schreiben</translation>
+        <translation type="obsolete">Fehler beim Schreiben</translation>
     </message>
     <message>
         <source>Unable to write log contents to &apos;%1&apos;: %2</source>
-        <translation>Das Log konnte nicht in die Datei &apos;%1&apos; geschrieben werden: %2</translation>
+        <translation type="obsolete">Das Log konnte nicht in die Datei &apos;%1&apos; geschrieben werden: %2</translation>
     </message>
 </context>
 <context>
@@ -21529,15 +22934,15 @@ Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen
     </message>
     <message>
         <source>Log File</source>
-        <translation>Log für Datei</translation>
+        <translation type="obsolete">Log für Datei</translation>
     </message>
     <message>
         <source>Write Failure</source>
-        <translation>Fehler beim Schreiben</translation>
+        <translation type="obsolete">Fehler beim Schreiben</translation>
     </message>
     <message>
         <source>Unable to write log contents to &apos;%1&apos;: %2</source>
-        <translation>Das Log konnte nicht in die Datei &apos;%1&apos; geschrieben werden: %2</translation>
+        <translation type="obsolete">Das Log konnte nicht in die Datei &apos;%1&apos; geschrieben werden: %2</translation>
     </message>
 </context>
 <context>
@@ -21552,6 +22957,18 @@ Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen
     <message>
         <source>Debugger Log</source>
         <translation>Debugger-Log</translation>
+    </message>
+    <message>
+        <source>Log File</source>
+        <translation>Logdatei</translation>
+    </message>
+    <message>
+        <source>Write Failure</source>
+        <translation>Fehler beim Schreiben</translation>
+    </message>
+    <message>
+        <source>Unable to write log contents to &apos;%1&apos;: %2</source>
+        <translation>Das Log konnte nicht in die Datei &apos;%1&apos; geschrieben werden: %2</translation>
     </message>
 </context>
 <context>
@@ -21595,8 +23012,20 @@ Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen
         <translation>Qt-Versionen</translation>
     </message>
     <message>
+        <source>Mobile Options</source>
+        <translation>Einstellungen für Mobilgeräte</translation>
+    </message>
+    <message>
+        <source>Symbian Specific</source>
+        <translation>Symbian-spezifisch</translation>
+    </message>
+    <message>
+        <source>Maemo Specific</source>
+        <translation>Maemo-spezifisch</translation>
+    </message>
+    <message>
         <source>Application Options</source>
-        <translation>Einstellungen der Anwendung</translation>
+        <translation type="obsolete">Einstellungen der Anwendung</translation>
     </message>
 </context>
 <context>
@@ -21612,6 +23041,10 @@ Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen
     <message>
         <source>Target UID3:</source>
         <translation>Ziel-UID3:</translation>
+    </message>
+    <message>
+        <source>Plugin&apos;s directory name:</source>
+        <translation>Ordner des Plugins:</translation>
     </message>
 </context>
 <context>
@@ -21750,15 +23183,27 @@ Fehler: %2</translation>
     </message>
     <message>
         <source>The project files listed below do not contain Maemo deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator can add the missing information to these files. </source>
-        <translation>Die unten aufgeführten Projektdateien enthalten nicht die erforderliche Maemo-Deployment-Information, das heißt, für die betreffenden Ziele kann kein Deployment durchgeführt werden und/oder sie können nicht auf einem Mobilgerät ausgeführt werden. Qt Creator kann die fehlende Information zu den Dateien hinzufügen.</translation>
+        <translation type="obsolete">Die unten aufgeführten Projektdateien enthalten nicht die erforderliche Maemo-Deployment-Information, das heißt, für die betreffenden Ziele kann kein Deployment durchgeführt werden und/oder sie können nicht auf einem Mobilgerät ausgeführt werden. Qt Creator kann die fehlende Information zu den Dateien hinzufügen.</translation>
     </message>
     <message>
         <source>Check all</source>
-        <translation>Alle markieren</translation>
+        <translation type="obsolete">Alle markieren</translation>
     </message>
     <message>
         <source>Uncheck All</source>
-        <translation>Alle Markierungen entfernen</translation>
+        <translation type="obsolete">Alle Markierungen entfernen</translation>
+    </message>
+    <message>
+        <source>The project files listed below do not contain Maemo deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator will add the missing information to these files if you check the respective rows below.</source>
+        <translation>Die unten aufgeführten Projektdateien enthalten nicht die erforderliche Maemo-Deployment-Information, das heißt, für die betreffenden Ziele kann kein Deployment durchgeführt werden und/oder sie können nicht auf einem Mobilgerät ausgeführt werden. Qt Creator kann die fehlende Information zu den Dateien hinzufügen, die in der untenstehenden Liste markiert sind.</translation>
+    </message>
+    <message>
+        <source>&amp;Check all</source>
+        <translation>&amp;Alle markieren</translation>
+    </message>
+    <message>
+        <source>&amp;Uncheck All</source>
+        <translation>Alle Markierungen &amp;entfernen</translation>
     </message>
 </context>
 <context>
@@ -21766,6 +23211,3185 @@ Fehler: %2</translation>
     <message>
         <source>Updateable Project Files</source>
         <translation>Korrigierbare Projektdateien</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::BreakCondition</name>
+    <message>
+        <source>&amp;Condition:</source>
+        <translation>&amp;Bedingung:</translation>
+    </message>
+    <message>
+        <source>&amp;Ignore count:</source>
+        <translation>Anhalten &amp;erst nach:</translation>
+    </message>
+    <message>
+        <source>&amp;Thread specification:</source>
+        <translation>&amp;Thread:</translation>
+    </message>
+</context>
+<context>
+    <name>LldbOptionsPageWidget</name>
+    <message>
+        <source>Enable LLDB</source>
+        <translation>LLDB aktivieren</translation>
+    </message>
+    <message>
+        <source>Use Gdb python dumpers</source>
+        <translation>Gdb Python Dumper verwenden</translation>
+    </message>
+</context>
+<context>
+    <name>StartRemoteEngineDialog</name>
+    <message>
+        <source>Start Remote Engine</source>
+        <translation>Entfernten Engine starten</translation>
+    </message>
+    <message>
+        <source>Host:</source>
+        <translation>Host:</translation>
+    </message>
+    <message>
+        <source>Engine path:</source>
+        <translation>Engine-Pfad:</translation>
+    </message>
+    <message>
+        <source>Inferior path:</source>
+        <translation>Zu debuggende Anwendung:</translation>
+    </message>
+    <message>
+        <source>Username:</source>
+        <translation>Nutzername:</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>Passwort:</translation>
+    </message>
+</context>
+<context>
+    <name>Macros::Internal::MacroOptionsWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Einstellungen</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Name</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation>Beschreibung</translation>
+    </message>
+    <message>
+        <source>Shortcut</source>
+        <translation>Tastenkürzel</translation>
+    </message>
+    <message>
+        <source>-</source>
+        <translation>-</translation>
+    </message>
+    <message>
+        <source>Macro</source>
+        <translation>Makro</translation>
+    </message>
+    <message>
+        <source>Description:</source>
+        <translation>Beschreibung:</translation>
+    </message>
+</context>
+<context>
+    <name>Macros::Internal::SaveDialog</name>
+    <message>
+        <source>Name:</source>
+        <translation>Name:</translation>
+    </message>
+    <message>
+        <source>Description:</source>
+        <translation>Beschreibung:</translation>
+    </message>
+    <message>
+        <source>Save Macro</source>
+        <translation>Makro speichern</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::PublishingWizardSelectionDialog</name>
+    <message>
+        <source>Publishing Wizard Selection</source>
+        <translation>Wizard zur Veröffentlichung wählen</translation>
+    </message>
+    <message>
+        <source>Available Wizards:</source>
+        <translation>Verfügbare Wizards:</translation>
+    </message>
+    <message>
+        <source>Start Wizard</source>
+        <translation>Wizard starten</translation>
+    </message>
+    <message>
+        <source>Publishing is currently not possible for project &apos;%1&apos;.</source>
+        <translation>Das Projekt &apos;%1&apos; kann nicht gegenwärtig nicht veröffentlicht werden.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::DebuggingHelper</name>
+    <message>
+        <source>Helps showing content of Qt types. Only used in older versions of gdb.</source>
+        <translation>Hilft bei der Anzeige des Inhalts von Qt-Datentypen. Wird nur von älteren Versionen von gdb benutzt.</translation>
+    </message>
+    <message>
+        <source>Gdb Helper:</source>
+        <translation>Gdb-Hilfsbibliothek:</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="obsolete">TextLabel</translation>
+    </message>
+    <message>
+        <source>Used to extract QML type information from library-based plugins.</source>
+        <translation>Wird zur Bestimmung von QML-Typinformationen für bibliotheksbasierte Plugins benutzt.</translation>
+    </message>
+    <message>
+        <source>Build</source>
+        <translation>Erstellen</translation>
+    </message>
+    <message>
+        <source>Show compiler output of last build.</source>
+        <translation>Compiler-Ausgabe des letzten Erstellungsvorgangs anzeigen</translation>
+    </message>
+    <message>
+        <source>Show Log</source>
+        <translation>Ausgabe anzeigen</translation>
+    </message>
+    <message>
+        <source>Compile debugging helpers that are checked.</source>
+        <translation>Markierte Debug-Helfer erstellen.</translation>
+    </message>
+    <message>
+        <source>Build All</source>
+        <translation>Alles erstellen</translation>
+    </message>
+    <message>
+        <source>QML Dump:</source>
+        <translation>QML-Dump:</translation>
+    </message>
+    <message>
+        <source>QML Observer:</source>
+        <translation>QML-Observer:</translation>
+    </message>
+    <message>
+        <source>A modified version of qmlviewer with support for QML/JS debugging.</source>
+        <translation>Eine modifizierte Version des qmlviewer, die das Debuggen von QML/JS unterstützt.</translation>
+    </message>
+</context>
+<context>
+    <name>MaemoDeviceConfigurationsSettingsWidget</name>
+    <message>
+        <source>Maemo Device Configurations</source>
+        <translation>Maemo-Geräte-Konfigurationen</translation>
+    </message>
+    <message>
+        <source>&amp;Configuration:</source>
+        <translation>&amp;Konfiguration:</translation>
+    </message>
+    <message>
+        <source>&amp;Name:</source>
+        <translation>&amp;Name:</translation>
+    </message>
+    <message>
+        <source>Device type:</source>
+        <translation>Gerätetyp:</translation>
+    </message>
+    <message>
+        <source>Authentication type:</source>
+        <translation>Art der Authentifizierung:</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Passwort</translation>
+    </message>
+    <message>
+        <source>&amp;Key</source>
+        <translation>Schl&amp;üssel</translation>
+    </message>
+    <message>
+        <source>&amp;Host name:</source>
+        <translation>&amp;Hostname:</translation>
+    </message>
+    <message>
+        <source>IP or host name of the device</source>
+        <translation>IP-Adresse oder Hostname des Geräts</translation>
+    </message>
+    <message>
+        <source>&amp;SSH port:</source>
+        <translation>&amp;SSH-Port:</translation>
+    </message>
+    <message>
+        <source>Free ports:</source>
+        <translation>Freie Ports:</translation>
+    </message>
+    <message>
+        <source>You can enter lists and ranges like this: 1024,1026-1028,1030</source>
+        <translation>Sie können Listen und Bereiche wie folgt angeben: 1024,1026-1028,1030</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation>TextLabel</translation>
+    </message>
+    <message>
+        <source>Connection time&amp;out:</source>
+        <translation>Zeit&amp;limit der Verbindung:</translation>
+    </message>
+    <message>
+        <source>s</source>
+        <translation>s</translation>
+    </message>
+    <message>
+        <source>&amp;Username:</source>
+        <translation>&amp;Nutzername:</translation>
+    </message>
+    <message>
+        <source>&amp;Password:</source>
+        <translation>&amp;Passwort:</translation>
+    </message>
+    <message>
+        <source>Show password</source>
+        <translation>Passwort anzeigen</translation>
+    </message>
+    <message>
+        <source>Private key file:</source>
+        <translation>Private Schlüsseldatei:</translation>
+    </message>
+    <message>
+        <source>Set as Default</source>
+        <translation>Als Vorgabe setzen</translation>
+    </message>
+    <message>
+        <source>OS type:</source>
+        <translation>Typ des Betriebsystems:</translation>
+    </message>
+    <message>
+        <source>&amp;Add</source>
+        <translation>Hinzu&amp;fügen</translation>
+    </message>
+    <message>
+        <source>&amp;Remove</source>
+        <translation>&amp;Entfernen</translation>
+    </message>
+    <message>
+        <source>Click here to check whether this device is properly set up to run Maemo projects.</source>
+        <translation>Prüft, ob das Mobilgerät zur Ausführung von Maemo-Projekten eingerichtet ist.</translation>
+    </message>
+    <message>
+        <source>&amp;Test</source>
+        <translation>&amp;Test</translation>
+    </message>
+    <message>
+        <source>&amp;Generate SSH Key ...</source>
+        <translation>&amp;Erzeuge SSH-Schlüssel...</translation>
+    </message>
+    <message>
+        <source>This will enable you to log into the device without a password.</source>
+        <translation>Ermöglicht es Ihnen, sich ohne Passwort auf dem Mobilgerät einzuloggen.</translation>
+    </message>
+    <message>
+        <source>&amp;Deploy Public Key ...</source>
+        <translation>&amp;Öffentlichen Schlüssel senden...</translation>
+    </message>
+    <message>
+        <source>Click here to see which processes are running on the device.</source>
+        <translation>Zeigt die auf dem Mobilgerät laufenden Prozesse an.</translation>
+    </message>
+    <message>
+        <source>Remote Processes ...</source>
+        <translation>Prozesse auf Gerät...</translation>
+    </message>
+    <message>
+        <source>Set As Default</source>
+        <translation>Als Vorgabe setzen</translation>
+    </message>
+    <message>
+        <source>Click here if you do not have an SSH key yet.</source>
+        <translation>Klicken Sie hier, wenn Sie noch nicht über einen SSH-Schlüssel verfügen.</translation>
+    </message>
+</context>
+<context>
+    <name>MaemoDeviceConfigWizardKeyCreationPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>WizardPage</translation>
+    </message>
+    <message>
+        <source>Qt Creator will now generate a new pair of keys. Please enter the directory to save the key files in and then press &quot;Create Keys&quot;.</source>
+        <translation>Qt Creator wird nun ein Schlüsselpaar erzeugen. Bitte geben Sie den Ordner an, in dem die Schlüsseldateien gespeichert werden sollen und betätigen Sie dann &quot;Schlüssel erzeugen&quot;.</translation>
+    </message>
+    <message>
+        <source>Directory:</source>
+        <translation>Ordner:</translation>
+    </message>
+    <message>
+        <source>Create Keys</source>
+        <translation>Schlüssel erzeugen</translation>
+    </message>
+</context>
+<context>
+    <name>MaemoDeviceConfigWizardKeyDeploymentPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>WizardPage</translation>
+    </message>
+    <message>
+        <source>To deploy the public key to your device, please execute the following steps:
+&lt;ul&gt;
+&lt;li&gt;Connect the device to your computer (unless you plan to connect via WLAN).&lt;/li&gt;
+&lt;li&gt;On the device, start the &quot;Mad Developer&quot; application.&lt;/li&gt;
+&lt;li&gt;In &quot;Mad Developer&quot;, configure the device&apos;s IP address to the one shown below (or edit the field below to match the address you have configured).&lt;/li&gt;
+&lt;li&gt;In &quot;Mad Developer&quot;, press &quot;Developer Password&quot; and enter it in the field below.&lt;/li&gt;
+&lt;li&gt;Click &quot;Deploy Key&quot;&lt;/li&gt;
+</source>
+        <translation>Um den Schlüssel zum Mobilgerät zu senden, führen Sie bitte die folgenden Schritte aus:
+&lt;ul&gt;
+&lt;li&gt;Verbinden Sie das Mobilgerät mit dem Computer (sofern kein WLAN verwendet wird).&lt;/li&gt;
+&lt;li&gt;Starten Sie den Anwendung &quot;Mad Developer&quot; auf dem Mobilgerät.&lt;/li&gt;
+&lt;li&gt;Stellen Sie die unten angezeigte IP-Adresse in der Anwendung &quot;Mad Developer&quot; ein (oder passen Sie die unten angezeigte Adresse der von Ihnen konfigurierten Adresse an).&lt;/li&gt;
+&lt;li&gt;Betätigen Sie &quot;Developer Password&quot; in der Anwendung &quot;Mad Developer&quot; und tragen Sie es in das unten gezeigte Feld &quot;Passwort&quot; ein.&lt;/li&gt;
+&lt;li&gt;Betätigen Sie &quot;Schlüssel senden&quot;.&lt;/li&gt;
+</translation>
+    </message>
+    <message>
+        <source>Device address:</source>
+        <translation>Adresse des Geräts:</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>Passwort:</translation>
+    </message>
+    <message>
+        <source>Deploy Key</source>
+        <translation>Schlüssel senden</translation>
+    </message>
+</context>
+<context>
+    <name>MaemoDeviceConfigWizardCheckPreviousKeySetupPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>WizardPage</translation>
+    </message>
+    <message>
+        <source>Has a passwordless (key-based) login already been set up for this device?</source>
+        <translation>Wurde bereits ein Login ohne Passwort für dieses Mobilgerät eingerichtet?</translation>
+    </message>
+    <message>
+        <source>Yes, and the private key is located at</source>
+        <translation>Ja, und der private Schlüssel befindet sich:</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nein</translation>
+    </message>
+</context>
+<context>
+    <name>MaemoDeviceConfigWizardReuseKeysCheckPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>WizardPage</translation>
+    </message>
+    <message>
+        <source>Do wou want to re-use an existing pair of keys or should a new one be created?</source>
+        <translation>Möchten Sie ein existierendes Schlüsselpaar wiederverwenden, oder soll ein neues erzeugt werden?</translation>
+    </message>
+    <message>
+        <source>Re-use existing keys</source>
+        <translation>Existierende Schlüsselpaar wiederverwenden</translation>
+    </message>
+    <message>
+        <source>File containing the public key:</source>
+        <translation>Datei mit öffentlichem Schlüssel:</translation>
+    </message>
+    <message>
+        <source>File containing the private key:</source>
+        <translation>Datei mit privatem Schlüssel:</translation>
+    </message>
+    <message>
+        <source>Create new keys</source>
+        <translation>Neue Schlüssel erzeugen</translation>
+    </message>
+</context>
+<context>
+    <name>MaemoDeviceConfigWizardStartPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>WizardPage</translation>
+    </message>
+    <message>
+        <source>The name to identify this configuration:</source>
+        <translation>Name der Konfiguration:</translation>
+    </message>
+    <message>
+        <source>The system running on the device:</source>
+        <translation>Auf dem Mobilgerät laufendes System:</translation>
+    </message>
+    <message>
+        <source>Maemo 5 (Fremantle)</source>
+        <translation>Maemo 5 (Fremantle)</translation>
+    </message>
+    <message>
+        <source>Maemo 6 (Harmattan)</source>
+        <translation>Maemo 6 (Harmattan)</translation>
+    </message>
+    <message>
+        <source>Meego</source>
+        <translation>Meego</translation>
+    </message>
+    <message>
+        <source>The kind of device:</source>
+        <translation>Gerätetyp:</translation>
+    </message>
+    <message>
+        <source>Emulator (Qemu)</source>
+        <translation>Emulator (Qemu)</translation>
+    </message>
+    <message>
+        <source>Hardware Device</source>
+        <translation>Mobilgerät</translation>
+    </message>
+    <message>
+        <source>The device&apos;s host name or IP address:</source>
+        <translation>Hostname oder IP-Adresse des Geräts:</translation>
+    </message>
+</context>
+<context>
+    <name>MaemoPublishingWizardPageFremantleFree</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>WizardPage</translation>
+    </message>
+    <message>
+        <source>Choose build configuration:</source>
+        <translation>Build-Konfiguration wählen:</translation>
+    </message>
+    <message>
+        <source>Only create source package, do not upload</source>
+        <translation>Nur Quellpaket erzeugen, nicht hochladen</translation>
+    </message>
+</context>
+<context>
+    <name>MaemoPublishingFileSelectionDialog</name>
+    <message>
+        <source>Choose Package Contents</source>
+        <translation>Paketinhalt festlegen</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Please select the files you want to be included in the source tarball.&lt;/b&gt;
+</source>
+        <translation>&lt;b&gt;Bitte wählen Sie die Dateien aus, die in den Tarball mit den Quellen aufgenommen werden sollen.&lt;/b&gt;
+</translation>
+    </message>
+</context>
+<context>
+    <name>MaemoPublishingResultPageFremantleFree</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>WizardPage</translation>
+    </message>
+    <message>
+        <source>Progress</source>
+        <translation>Fortschritt</translation>
+    </message>
+</context>
+<context>
+    <name>MaemoPublishingUploadSettingsPageFremantleFree</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>WizardPage</translation>
+    </message>
+    <message>
+        <source>Upload Settings</source>
+        <translation>Einstellungen hochladen</translation>
+    </message>
+    <message>
+        <source>Garage account name:</source>
+        <translation>Garage-Login:</translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Get an account&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Login erstellen&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;Request upload rights&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Berechtigung zum Hochladen anfordern&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>Private key file:</source>
+        <translation>Private Schlüsseldatei:</translation>
+    </message>
+    <message>
+        <source>Server address:</source>
+        <translation>Adresse des Servers:</translation>
+    </message>
+    <message>
+        <source>Target directory on server:</source>
+        <translation>Zielordner auf dem Server:</translation>
+    </message>
+</context>
+<context>
+    <name>MaemoQemuSettingsWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>OpenGL Mode</source>
+        <translation>OpenGL-Modus</translation>
+    </message>
+    <message>
+        <source>&amp;Hardware Acceleration</source>
+        <translation>&amp;Hardware-Beschleunigung</translation>
+    </message>
+    <message>
+        <source>&amp;Software Rendering</source>
+        <translation>&amp;Software Rendering</translation>
+    </message>
+    <message>
+        <source>&amp;Auto-detect</source>
+        <translation>&amp;Automatisch bestimmen</translation>
+    </message>
+</context>
+<context>
+    <name>MaemoRemoteProcessesDialog</name>
+    <message>
+        <source>List of Remote Processes</source>
+        <translation>Liste der entfernten Prozesse</translation>
+    </message>
+    <message>
+        <source>&amp;Filter by process name:</source>
+        <translation>Nach Namen der Prozesse &amp;filtern:</translation>
+    </message>
+    <message>
+        <source>&amp;Update List</source>
+        <translation>Liste &amp;auffrischen</translation>
+    </message>
+    <message>
+        <source>&amp;Kill Selected Process</source>
+        <translation>Ausgewählten Prozess b&amp;eenden</translation>
+    </message>
+</context>
+<context>
+    <name>S60CertificateDetailsDialog</name>
+    <message>
+        <source>Certificate&apos;s details</source>
+        <translation type="obsolete">Details des Zertifikats</translation>
+    </message>
+    <message>
+        <source>Details of Certificate</source>
+        <translation>Details zum Zertifikat</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::QtVersionInfo</name>
+    <message>
+        <source>Version name:</source>
+        <translation>Name der Version:</translation>
+    </message>
+    <message>
+        <source>qmake location:</source>
+        <translation>QMake-Pfad:</translation>
+    </message>
+    <message>
+        <source>MinGW directory:</source>
+        <translation>MinGW-Verzeichnis:</translation>
+    </message>
+    <message>
+        <source>Toolchain:</source>
+        <translation>Toolchain:</translation>
+    </message>
+    <message>
+        <source>S60 SDK:</source>
+        <translation>S60 SDK:</translation>
+    </message>
+    <message>
+        <source>CSL/GCCE directory:</source>
+        <translation>CSL/GCCE:</translation>
+    </message>
+    <message>
+        <source>Carbide directory:</source>
+        <translation>Carbide-Ordner:</translation>
+    </message>
+    <message>
+        <source>SBS v2 directory:</source>
+        <translation>SBS-v2-Ordner:</translation>
+    </message>
+    <message>
+        <source>Unable to detect MSVC version.</source>
+        <translation>Die verwendete MSVC-Version konnte nicht bestimmt werden.</translation>
+    </message>
+</context>
+<context>
+    <name>Html5AppWizardSourcesPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>WizardPage</translation>
+    </message>
+    <message>
+        <source>Main Html File</source>
+        <translation>Haupt-HTML-Datei</translation>
+    </message>
+    <message>
+        <source>Generate an index.html file</source>
+        <translation>Datei index.html erstellen</translation>
+    </message>
+    <message>
+        <source>Import an existing .html file</source>
+        <translation>Existierende .html-Datei importieren</translation>
+    </message>
+    <message>
+        <source>Load a URL</source>
+        <translation>URL laden</translation>
+    </message>
+    <message>
+        <source>http://</source>
+        <translation>http://</translation>
+    </message>
+    <message>
+        <source>Note: Unless you chose to load a URL, all files and directories that reside in the same directory as the main Html file are deployed. You can modify the contents of the directory any time before deploying.</source>
+        <translation>Hinweis: Wenn Sie keinen URL angeben, werden alle Dateien die sich im selben Ordner wie die HTML-Hauptdatei befinden, zum Deployment vorgesehen. Der Inhalt des Ordners kann vor dem Deployment-Vorgang jederzeit modifiziert werden.</translation>
+    </message>
+</context>
+<context>
+    <name>MobileAppWizardGenericOptionsPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>WizardPage</translation>
+    </message>
+    <message>
+        <source>Orientation behavior:</source>
+        <translation>Ausrichtung:</translation>
+    </message>
+</context>
+<context>
+    <name>MobileAppWizardMaemoOptionsPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>WizardPage</translation>
+    </message>
+    <message>
+        <source>Application icon (64x64):</source>
+        <translation>Icon der Anwendung (64x64):</translation>
+    </message>
+</context>
+<context>
+    <name>MobileAppWizardSymbianOptionsPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>WizardPage</translation>
+    </message>
+    <message>
+        <source>Application icon (.svg):</source>
+        <translation>Icon der Anwendung (.svg):</translation>
+    </message>
+    <message>
+        <source>Target UID3:</source>
+        <translation>Ziel-UID3:</translation>
+    </message>
+    <message>
+        <source>Enable network access</source>
+        <translation>Netzwerkzugriff gestatten</translation>
+    </message>
+</context>
+<context>
+    <name>SnippetsSettingsPage</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>Group: </source>
+        <translation>Gruppe:</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Hinzufügen</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Löschen</translation>
+    </message>
+    <message>
+        <source>Revert Built-in</source>
+        <translation>Internes Snippet rücksetzen</translation>
+    </message>
+    <message>
+        <source>Restore Removed Built-ins</source>
+        <translation>Alle internen Snippets rücksetzen</translation>
+    </message>
+    <message>
+        <source>Reset All</source>
+        <translation>Alle rücksetzen</translation>
+    </message>
+</context>
+<context>
+    <name>FlickableSpecifics</name>
+    <message>
+        <source>Flickable</source>
+        <translation>Flickable</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJS::TypeDescriptionReader</name>
+    <message>
+        <source>%1: %2</source>
+        <translation>%1: %2</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::EnvironmentModel</name>
+    <message>
+        <source>&lt;UNSET&gt;</source>
+        <translation>&lt;Nicht gesetzt&gt;</translation>
+    </message>
+    <message>
+        <source>Variable</source>
+        <translation>Variable</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Wert</translation>
+    </message>
+    <message>
+        <source>&lt;VARIABLE&gt;</source>
+        <extracomment>Name when inserting a new variable</extracomment>
+        <translation>&lt;Variable&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;VALUE&gt;</source>
+        <extracomment>Value when inserting a new variable</extracomment>
+        <translation>&lt;Wert&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::IpAddressLineEdit</name>
+    <message>
+        <source>The IP address is not valid.</source>
+        <translation>Die IP-Adresse ist ungültig.</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::QtcProcess</name>
+    <message>
+        <source>Error in command line.</source>
+        <translation>Fehler in Kommandozeile.</translation>
+    </message>
+</context>
+<context>
+    <name>Core::VcsManager</name>
+    <message>
+        <source>Version Control</source>
+        <translation>Versionskontrolle</translation>
+    </message>
+    <message>
+        <source>Would you like to remove this file from the version control system (%1)?
+Note: This might remove the local file.</source>
+        <translation>Möchten Sie die Datei aus der Versionskontrolle (%1) entfernen?
+Hinweis: Unter Umständen wird die lokale Datei gelöscht.</translation>
+    </message>
+</context>
+<context>
+    <name>CppEditor::Internal::InsertQtPropertyMembers</name>
+    <message>
+        <source>Generate missing Q_PROPERTY members...</source>
+        <translation>Fehlende Q_PROPERTY-Elemente ergänzen...</translation>
+    </message>
+</context>
+<context>
+    <name>CppEditor::Internal::CppOutlineTreeView</name>
+    <message>
+        <source>Expand All</source>
+        <translation>Alles aufklappen</translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation>Alle einklappen</translation>
+    </message>
+</context>
+<context>
+    <name>CppEditor::Internal::CppSnippetProvider</name>
+    <message>
+        <source>C++</source>
+        <translation>C++</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::MultiBreakPointsDialog</name>
+    <message>
+        <source>Edit Breakpoint Properties</source>
+        <translation>Haltepunkt bearbeiten</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Cdb::CdbOptions</name>
+    <message>
+        <source>Auto-detection of the new CDB debugging engine (%1bit) failed:
+Debugger executable: %2
+Extension library  : %3 not present.
+</source>
+        <translation type="obsolete">Die automatische Erkennung des CDB-Debugging-Engine (%1bit) schlug fehl:
+Ausführbare Datei des Debuggers: %2
+Erweiterungsbibliothek: %3 nicht vorhanden.
+</translation>
+    </message>
+    <message>
+        <source>Auto-detection of the CDB debugging engine (%1bit) failed:
+Debugger executable: %2
+Extension library  : %3 not present.
+</source>
+        <translation>Die automatische Erkennung des CDB-Debugging-Engine (%1bit) schlug fehl:
+Ausführbare Datei des Debuggers: %2
+Erweiterungsbibliothek: %3 nicht vorhanden.
+</translation>
+    </message>
+    <message>
+        <source>The new CDB debugging engine (%1bit) has been set up automatically:
+Debugger executable: %2
+Extension library  : %3
+Symbol paths       : %4
+</source>
+        <translation>Der neue CDB-Debugging-Engine (%1 bit) wurde automatisch eingerichtet:
+Ausführbare Datei: %2
+Erweiterungsbibliothek: %3
+Symbolpfade: %4
+</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Cdb::CdbBreakEventWidget</name>
+    <message>
+        <source>C++ exception</source>
+        <translation>C++-Ausnahme</translation>
+    </message>
+    <message>
+        <source>Thread creation</source>
+        <translation>Thread-Erzeugung</translation>
+    </message>
+    <message>
+        <source>Thread exit</source>
+        <translation>Thread-Terminierung</translation>
+    </message>
+    <message>
+        <source>Load Module:</source>
+        <translation>Laden eines Moduls:</translation>
+    </message>
+    <message>
+        <source>Unload Module:</source>
+        <translation>Entladen eines Moduls:</translation>
+    </message>
+    <message>
+        <source>Output:</source>
+        <translation>Ausgabe:</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::StartRemoteCdbDialog</name>
+    <message>
+        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt;  to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Der entfernte CDB muss die passende CDB-Erweiterungsbibliothek von Qt Creator (&lt;code&gt;%1&lt;/code&gt; beziehungsweise &lt;code&gt;%2&lt;/code&gt; laden.&lt;/p&gt;&lt;p&gt;Kopieren Sie sie auf den entfernten Rechner und setzen Sie die Umgebungsvariable &lt;code&gt;%3&lt;/code&gt; auf den Ordner.&lt;/p&gt;&lt;p&gt;Starten Sie den entfernten CDB als &lt;code&gt;%4 &amp;lt;ausführbare Datei&amp;gt;&lt;/code&gt; um TCP/IP als Kommunikationsprotokoll zu verwenden.&lt;/p&gt;&lt;p&gt;Geben Sie die Verbindungsparameter wie folgt an:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Start a CDB Remote Session</source>
+        <translation>Entfernte CDB-Sitzung starten</translation>
+    </message>
+    <message>
+        <source>&amp;Connection:</source>
+        <translation>&amp;Verbindung:</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::DebuggerMainWindowPrivate</name>
+    <message>
+        <source>Memory...</source>
+        <translation>Speicher...</translation>
+    </message>
+    <message>
+        <source>Debugger Toolbar</source>
+        <translation>Debugger-Werkzeugleiste</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::DebuggerPluginPrivate</name>
+    <message>
+        <source>No function selected.</source>
+        <translation>Keine Funktion ausgewählt.</translation>
+    </message>
+    <message>
+        <source>Running to function &quot;%1&quot;.</source>
+        <translation>Ausführung bis zu Funktion &apos;%1&apos;.</translation>
+    </message>
+    <message>
+        <source>Process %1</source>
+        <translation>Prozess %1</translation>
+    </message>
+    <message>
+        <source>Attaching to local process %1.</source>
+        <translation>Anhängen an lokalen Prozess %1.</translation>
+    </message>
+    <message>
+        <source>Remote: &quot;%1&quot;</source>
+        <translation>Verbindung: &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Attaching to remote server %1.</source>
+        <translation>Verbinde zu Server %1.</translation>
+    </message>
+    <message>
+        <source>Core file &quot;%1&quot;</source>
+        <translation>Core-Datei &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Attaching to core file %1.</source>
+        <translation>Debugge core-Datei %1.</translation>
+    </message>
+    <message>
+        <source>Crashed process %1</source>
+        <translation>Der Prozess %1 ist abgestürzt</translation>
+    </message>
+    <message>
+        <source>Attaching to crashed process %1</source>
+        <translation>Anhängen an abgestürzten Prozess %1</translation>
+    </message>
+    <message>
+        <source>Error evaluating command line arguments: %1</source>
+        <translation>Fehler beim Auswerten der Kommandozeilenargumente: %1</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Warnung</translation>
+    </message>
+    <message>
+        <source>Cannot attach to PID 0</source>
+        <translation>Der Debugger kann nicht an die Prozess-ID 0 angehängt werden</translation>
+    </message>
+    <message>
+        <source>Remove Breakpoint %1</source>
+        <translation>Haltepunkt %1 löschen</translation>
+    </message>
+    <message>
+        <source>Disable Breakpoint %1</source>
+        <translation>Haltepunkt %1 deaktivieren</translation>
+    </message>
+    <message>
+        <source>Enable Breakpoint %1</source>
+        <translation>Haltepunkt %1 aktivieren</translation>
+    </message>
+    <message>
+        <source>Edit Breakpoint %1...</source>
+        <translation>Haltepunkt %1 bearbeiten...</translation>
+    </message>
+    <message>
+        <source>Set Breakpoint at 0x%1</source>
+        <translation>Haltepunkt bei 0x%1 setzen</translation>
+    </message>
+    <message>
+        <source>Set Breakpoint at line %1</source>
+        <translation>Haltepunkt bei Zeile %1 setzen</translation>
+    </message>
+    <message>
+        <source>Save Debugger Log</source>
+        <translation>Debugger Log speichern</translation>
+    </message>
+    <message>
+        <source>Open Qt4 Options</source>
+        <translation>Einstellungen zur Qt4-Bibliothek öffnen</translation>
+    </message>
+    <message>
+        <source>Turn off Helper Usage</source>
+        <translation>Ausgabe-Hilfsbibliothek deaktivieren</translation>
+    </message>
+    <message>
+        <source>Continue Anyway</source>
+        <translation>Trotzdem fortsetzen</translation>
+    </message>
+    <message>
+        <source>Debugging Helper Missing</source>
+        <translation>Ausgabe-Hilfsbibliothek nicht gefunden</translation>
+    </message>
+    <message>
+        <source>The debugger could not load the debugging helper library.</source>
+        <translation>Der Debugger konnte die Ausgabe-Hilfsbibliothek nicht finden.</translation>
+    </message>
+    <message>
+        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. On the Qt4 options page, select a Qt installation and click Rebuild.</source>
+        <translation>Die Ausgabe-Hilfsbibliothek dient zur Ausgabe der Werte einiger Datentypen aus Qt- und den Standardbibliotheken. Sie muss mit jeder benutzten Qt-Version compiliert werden. Das geschieht in der Seite &apos;Qt-Einstellungen&apos; durch Auswahl der Qt-Installation und Klicken auf &apos;Erstellen&apos; für die Ausgabe-Hilfsbibliothek.</translation>
+    </message>
+    <message>
+        <source>Starting debugger &apos;%1&apos; for tool chain &apos;%2&apos;...</source>
+        <translation>Starte Debugger &apos;%1&apos; für Toolchain &apos;%2&apos;...</translation>
+    </message>
+    <message>
+        <source>QML Script Console</source>
+        <translation>QML Skript-Konsole</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>Fortsetzen</translation>
+    </message>
+    <message>
+        <source>Exit Debugger</source>
+        <translation>Debugger beenden</translation>
+    </message>
+    <message>
+        <source>Interrupt</source>
+        <translation>Anhalten</translation>
+    </message>
+    <message>
+        <source>Debugger is Busy</source>
+        <translation>Debugger arbeitet</translation>
+    </message>
+    <message>
+        <source>Abort Debugging</source>
+        <translation>Debuggen abbrechen</translation>
+    </message>
+    <message>
+        <source>Aborts debugging and resets the debugger to the initial state.</source>
+        <translation>Bricht das Debuggen ab und setzt den Debugger in den Ausgangszustand.</translation>
+    </message>
+    <message>
+        <source>Step Over</source>
+        <translation>Einzelschritt über</translation>
+    </message>
+    <message>
+        <source>Step Into</source>
+        <translation>Einzelschritt herein</translation>
+    </message>
+    <message>
+        <source>Step Out</source>
+        <translation>Einzelschritt heraus</translation>
+    </message>
+    <message>
+        <source>Run to Line</source>
+        <translation>Ausführen bis Zeile</translation>
+    </message>
+    <message>
+        <source>Run to Selected Function</source>
+        <translation>Bis zu ausgewählter Funktion laufen</translation>
+    </message>
+    <message>
+        <source>Immediately Return From Inner Function</source>
+        <translation>Sofortiges Herausspringen aus innerer Funktion</translation>
+    </message>
+    <message>
+        <source>Jump to Line</source>
+        <translation>Zeile anspringen</translation>
+    </message>
+    <message>
+        <source>Toggle Breakpoint</source>
+        <translation>Haltepunkt umschalten</translation>
+    </message>
+    <message>
+        <source>Add to Watch Window</source>
+        <translation>Zu Überwachten Ausdrücken hinzufügen</translation>
+    </message>
+    <message>
+        <source>Reverse Direction</source>
+        <translation>Umgekehrte Richtung</translation>
+    </message>
+    <message>
+        <source>Move to Called Frame</source>
+        <translation>Gehe zum aufgerufenen Stackframe</translation>
+    </message>
+    <message>
+        <source>Move to Calling Frame</source>
+        <translation>Gehe zum aufrufenden Stackframe</translation>
+    </message>
+    <message>
+        <source>Start Debugging</source>
+        <translation>Debuggen</translation>
+    </message>
+    <message>
+        <source>Start and Debug External Application...</source>
+        <translation>Debugge externe Anwendung...</translation>
+    </message>
+    <message>
+        <source>Start and Debug External Application with External Engine...</source>
+        <translation>Debugge externe Anwendung mit externem Engine...</translation>
+    </message>
+    <message>
+        <source>Attach to Running External Application...</source>
+        <translation>Debugge externe, laufende Anwendung...</translation>
+    </message>
+    <message>
+        <source>Attach to Core...</source>
+        <translation>Debugge core-Datei</translation>
+    </message>
+    <message>
+        <source>Attach to Running Tcf Agent...</source>
+        <translation>Verbinde zu Tcf-Agent...</translation>
+    </message>
+    <message>
+        <source>This attaches to a running &apos;Target Communication Framework&apos; agent.</source>
+        <translation>Verbindet zu einem laufenden Agenten, der das  &apos;Target Communication Framework&apos;-Protokoll verwendet.</translation>
+    </message>
+    <message>
+        <source>Start and Attach to Remote Application...</source>
+        <translation>An entfernte Anwendung anhängen...</translation>
+    </message>
+    <message>
+        <source>Attach to Remote CDB Session...</source>
+        <translation>Entfernte CDB-Sitzung starten...</translation>
+    </message>
+    <message>
+        <source>Detach Debugger</source>
+        <translation>Debugger abhängen</translation>
+    </message>
+    <message>
+        <source>Interrupt Debugger</source>
+        <translation>Debugger unterbrechen</translation>
+    </message>
+    <message>
+        <source>Stop Debugger</source>
+        <translation>Debugger anhalten</translation>
+    </message>
+    <message>
+        <source>Reset Debugger</source>
+        <translation>Debugger zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Threads:</source>
+        <translation>Threads:</translation>
+    </message>
+    <message>
+        <source>Symbol</source>
+        <translation>Symbol</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation>Adresse</translation>
+    </message>
+    <message>
+        <source>Code</source>
+        <translation>Code</translation>
+    </message>
+    <message>
+        <source>Section</source>
+        <translation>Abschnitt</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Name</translation>
+    </message>
+    <message>
+        <source>Symbols in &quot;%1&quot;</source>
+        <translation>Symbole in &quot;%1&quot;</translation>
+    </message>
+</context>
+<context>
+    <name>DebuggerRunControl</name>
+    <message>
+        <source>Debug</source>
+        <translation>Debuggen</translation>
+    </message>
+    <message>
+        <source>Debugger</source>
+        <translation>Debugger</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::PinnableToolTipWidget</name>
+    <message>
+        <source>Close All</source>
+        <translation>Alle schließen</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::AbstractDebuggerToolTipWidget</name>
+    <message>
+        <source>Previous</source>
+        <translation>Vorige</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Kopieren</translation>
+    </message>
+</context>
+<context>
+    <name>DebuggerEngine</name>
+    <message>
+        <source>Debugging complex command lines is currently not supported under Windows</source>
+        <translation>Komplexe Kommandozeilen werden beim Debuggen unter Windows gegenwärtig nicht unterstützt.</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::CodaGdbAdapter</name>
+    <message>
+        <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
+        <translation>Der Prozess wurde gestartet, PID: 0x%1, Thread-ID: 0x%2, Code-Segment: 0x%3, Datensegment: 0x%4.</translation>
+    </message>
+    <message>
+        <source>The reported code segment address (0x%1) might be invalid. Symbol resolution or setting breakoints may not work.</source>
+        <translation>Die erhaltene Startadresse des Codesegments (%0x1) ist eventuell ungültig. Bei Auflösen von Symbolen oder beim Setzen von Haltpunkten könnten Probleme auftreten.</translation>
+    </message>
+    <message>
+        <source>Connecting to TRK server adapter failed:
+</source>
+        <translation>Die Verbindung zum TRK-Server-Adapter schlug fehl:
+</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::IPCEngineHost</name>
+    <message>
+        <source>Fatal engine shutdown. Incompatible binary or IPC error.</source>
+        <translation>Die Engine wurde wegen einem kritischen Fehler gestoppt (inkompatible ausführbare Datei oder IPC-Fehler).</translation>
+    </message>
+    <message>
+        <source>Fatal engine shutdown. Incompatible binary or ipc error.</source>
+        <translation>Die Engine wurde wegen einem kritischen Fehler gestoppt (inkompatible ausführbare Datei oder IPC-Fehler).</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::LldbEngineHost</name>
+    <message>
+        <source>qtcreator-lldb failed to start %1</source>
+        <translation type="obsolete">qtcreator-lldb konnte nicht gestartet werden %1</translation>
+    </message>
+    <message>
+        <source>qtcreator-lldb failed to start: %1</source>
+        <translation>qtcreator-lldb konnte nicht gestartet werden: %1</translation>
+    </message>
+    <message>
+        <source>Fatal engine shutdown. Consult debugger log for details.</source>
+        <translation>Die Engine wurde wegen einem kritischen Fehler gestoppt. Das Debugger-Log enthält weiterführende Informationen.</translation>
+    </message>
+    <message>
+        <source>SSH connection error: %1</source>
+        <translation>SSH-Verbindungsfehler: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::LldbOptionsPage</name>
+    <message>
+        <source>LLDB</source>
+        <translation>LLDB</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::MemoryAgent</name>
+    <message>
+        <source>Memory $</source>
+        <translation>Speicher $</translation>
+    </message>
+    <message>
+        <source>No memory viewer available</source>
+        <translation>Es ist kein Speicher-Anzeigemodul verfügbar</translation>
+    </message>
+    <message>
+        <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
+        <translation>Der Speicherinhalt kann nicht angezeigt werden, da kein Plugin zur Anzeige binärer Daten geladen ist.</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::QmlCppEngine</name>
+    <message>
+        <source>%1 debugger activated</source>
+        <translation>Debugger %1 aktiviert</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::QmlEngine</name>
+    <message>
+        <source>QML Debugger connected.</source>
+        <translation>QML-Debugger verbunden.</translation>
+    </message>
+    <message>
+        <source>Failed to connect to debugger</source>
+        <translation>Keine Verbindung zum Debugger</translation>
+    </message>
+    <message>
+        <source>Could not connect to QML debugger server at %1:%2.</source>
+        <translation>Es konnte keine Verbindung zum QML-Debugger-Server %1 hergestellt werden: %2</translation>
+    </message>
+    <message>
+        <source>QML Debugger: Remote host closed connection.</source>
+        <translation>QML-Debugger: Der Host hat die Verbindung gechlossen.</translation>
+    </message>
+    <message>
+        <source>QML Debugger: Could not connect to service &apos;%1&apos;.</source>
+        <translation>QML-Debugger: Es konnte keine Verbindung zum Debug-Dienst &apos;%1&apos; hergestellt werden.</translation>
+    </message>
+    <message>
+        <source>Starting %1 %2</source>
+        <translation>Starte %1 %2</translation>
+    </message>
+    <message>
+        <source>Failed to start application</source>
+        <translation>Anwendung konnte nicht gestartet werden</translation>
+    </message>
+    <message>
+        <source>Application startup failed: %1</source>
+        <translation>Die Anwendung konnte nicht gestartet werden: %1</translation>
+    </message>
+    <message>
+        <source>Stopped.</source>
+        <translation>Angehalten.</translation>
+    </message>
+    <message>
+        <source> (%1 stack frames)</source>
+        <translation type="obsolete"> </translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;An Uncaught Exception occured:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Eiine unbehandelte Ausnahme ist aufgetreten:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;An Uncaught Exception occured in &lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</source>
+        <translation>&lt;p&gt;In &lt;i&gt;%1&lt;/i&gt; ist eine unbehandelte Ausnahme ist aufgetreten :&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Uncaught Exception</source>
+        <translation>Unbehandelter Ausnahmefehler</translation>
+    </message>
+    <message>
+        <source>QML Debugger disconnected.</source>
+        <translation>QML-Debugger getrennt.</translation>
+    </message>
+</context>
+<context>
+    <name>StackHandler</name>
+    <message>
+        <source>Address:</source>
+        <translation>Adresse:</translation>
+    </message>
+    <message>
+        <source>Function:</source>
+        <translation>Funktion:</translation>
+    </message>
+    <message>
+        <source>File:</source>
+        <translation>Datei:</translation>
+    </message>
+    <message>
+        <source>Line:</source>
+        <translation>Zeile:</translation>
+    </message>
+    <message>
+        <source>From:</source>
+        <translation>Von:</translation>
+    </message>
+    <message>
+        <source>To:</source>
+        <translation>Bis:</translation>
+    </message>
+</context>
+<context>
+    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
+    <message>
+        <source>Use the patience algorithmn for calculating the diff</source>
+        <translation>&quot;patience diff&quot;-Algorithmus verwenden</translation>
+    </message>
+    <message>
+        <source>Patience</source>
+        <translation>Patience</translation>
+    </message>
+    <message>
+        <source>Ignore whitespace only changes</source>
+        <translation>Änderungen der Leerzeichen nicht berücksichtigen</translation>
+    </message>
+    <message>
+        <source>Ignore Whitespace</source>
+        <translation>Leerzeichen nicht berücksichtigen</translation>
+    </message>
+</context>
+<context>
+    <name>Git::Internal::GitShowArgumentsWidget</name>
+    <message>
+        <source>Select the pretty printing format</source>
+        <translation>Ausgabeformat wählen</translation>
+    </message>
+    <message>
+        <source>oneline</source>
+        <translation>oneline</translation>
+    </message>
+    <message>
+        <source>short</source>
+        <translation>short</translation>
+    </message>
+    <message>
+        <source>medium</source>
+        <translation>medium</translation>
+    </message>
+    <message>
+        <source>full</source>
+        <translation>full</translation>
+    </message>
+    <message>
+        <source>fuller</source>
+        <translation>fuller</translation>
+    </message>
+    <message>
+        <source>email</source>
+        <translation>email</translation>
+    </message>
+    <message>
+        <source>raw</source>
+        <translation>raw</translation>
+    </message>
+</context>
+<context>
+    <name>Git::Internal::GitBlameArgumentsWidget</name>
+    <message>
+        <source>Do not show the date a change was made in the output</source>
+        <translation>Datum der Änderung in Ausgabe nicht anzeigen</translation>
+    </message>
+    <message>
+        <source>Omit Date</source>
+        <translation>Datum weglassen</translation>
+    </message>
+    <message>
+        <source>Ignore whitespace only changes</source>
+        <translation>Änderungen der Leerzeichen nicht berücksichtigen</translation>
+    </message>
+    <message>
+        <source>Ignore Whitespace</source>
+        <translation>Leerzeichen nicht berücksichtigen</translation>
+    </message>
+</context>
+<context>
+    <name>GLSLEditor::Internal::FunctionArgumentWidget</name>
+    <message>
+        <source>%1 of %2</source>
+        <translation>%1 von %2</translation>
+    </message>
+</context>
+<context>
+    <name>GLSLEditor</name>
+    <message>
+        <source>GLSL</source>
+        <translation>GLSL</translation>
+    </message>
+</context>
+<context>
+    <name>GLSLEditor::Internal::GLSLEditorPlugin</name>
+    <message>
+        <source>GLSL</source>
+        <extracomment>GLSL sub-menu in the Tools menu</extracomment>
+        <translation>GLSL</translation>
+    </message>
+    <message>
+        <source>Creates a fragment shader in the OpenGL/ES 2.0 Shading Language (GLSL/ES). Fragment shaders generate the final pixel colors for triangles, points and lines rendered with OpenGL.</source>
+        <translation>Erstellt einen Fragment Shader in der OpenGL/ES 2.0 Shading Language (GLSL/ES). Fragment Shader generieren die Farben der Pixel für von OpenGL gerenderte Dreiecke, Punkte und Linien.</translation>
+    </message>
+    <message>
+        <source>Fragment Shader (OpenGL/ES 2.0)</source>
+        <translation>Fragment Shader (OpenGL/ES 2.0)</translation>
+    </message>
+    <message>
+        <source>Creates a vertex shader in the OpenGL/ES 2.0 Shading Language (GLSL/ES). Vertex shaders transform the positions, normals and texture co-ordinates of triangles, points and lines rendered with OpenGL.</source>
+        <translation>Erstellt einen Vertex Shader in der OpenGL/ES 2.0 Shading Language (GLSL/ES). Vertex Shader transfomieren die Positionen, Normalen und Texturkoordinaten von mit OpenGL gerenderten Dreiecken, Punkten und Linien.</translation>
+    </message>
+    <message>
+        <source>Vertex Shader (OpenGL/ES 2.0)</source>
+        <translation>Vertex Shader (OpenGL/ES 2.0)</translation>
+    </message>
+    <message>
+        <source>Creates a fragment shader in the Desktop OpenGL Shading Language (GLSL). Fragment shaders generate the final pixel colors for triangles, points and lines rendered with OpenGL.</source>
+        <translation>Erstellt einen Fragment Shader in der Desktop OpenGL Shading Language (GLSL). Fragment Shader generieren die Farben der Pixel für von OpenGL gerenderte Dreiecke, Punkte und Linien.</translation>
+    </message>
+    <message>
+        <source>Fragment Shader (Desktop OpenGL)</source>
+        <translation>Fragment Shader (Desktop OpenGL)</translation>
+    </message>
+    <message>
+        <source>Creates a vertex shader in the Desktop OpenGL Shading Language (GLSL). Vertex shaders transform the positions, normals and texture co-ordinates of triangles, points and lines rendered with OpenGL.</source>
+        <translation>Erstellt einen Vertex Shader in der Desktop OpenGL Shading Language (GLSL). Vertex Shader transfomieren die Positionen, Normalen und Texturkoordinaten von mit OpenGL gerenderten Dreiecken, Punkten und Linien.</translation>
+    </message>
+    <message>
+        <source>Vertex Shader (Desktop OpenGL)</source>
+        <translation>Vertex Shader (Desktop OpenGL)</translation>
+    </message>
+    <message>
+        <source>Creates a fragment shader in the OpenGL/ES 2.0 Shading Language (GLSL/ES).  Fragment shaders generate the final pixel colors for triangles, points, and lines rendered with OpenGL.</source>
+        <translation type="obsolete">Erstellt einen Fragment Shader in der OpenGL/ES 2.0 Shading Language (GLSL/ES). Fragment Shader generieren die Farben der Pixel für von OpenGL gerenderte Dreiecke, Punkte und Linien.</translation>
+    </message>
+    <message>
+        <source>Fragment shader (OpenGL/ES 2.0)</source>
+        <translation type="obsolete">Fragment Shader (OpenGL/ES 2.0)</translation>
+    </message>
+    <message>
+        <source>Creates a vertex shader in the OpenGL/ES 2.0 Shading Language (GLSL/ES).  Vertex shaders transform the positions, normals, and texture co-ordinates of triangles, points, and lines rendered with OpenGL.</source>
+        <translation type="obsolete">Erstellt einen Vertex Shader in der OpenGL/ES 2.0 Shading Language (GLSL/ES). </translation>
+    </message>
+</context>
+<context>
+    <name>GLSLEditor::GLSLFileWizard</name>
+    <message>
+        <source>New %1</source>
+        <translation>Neue %1</translation>
+    </message>
+</context>
+<context>
+    <name>Macros::Internal::MacroLocatorFilter</name>
+    <message>
+        <source>Macros</source>
+        <translation>Makros</translation>
+    </message>
+</context>
+<context>
+    <name>Macros::MacroManager</name>
+    <message>
+        <source>Playing Macro</source>
+        <translation>Abspielen eines Makros</translation>
+    </message>
+    <message>
+        <source>An error occured while replaying the macro, execution stopped.</source>
+        <translation>Beim Abspielen eines Makros ist ein Fehler aufgetreten, die Ausführung wurde abgebrochen.</translation>
+    </message>
+    <message>
+        <source>Macro mode. Type &quot;%1&quot; to stop recording and &quot;%2&quot; to play it</source>
+        <translation>Makro-Modus. &quot;%1&quot; stoppt die Aufnahme; &quot;%2&quot; spielt sie ab</translation>
+    </message>
+    <message>
+        <source>Stop Recording Macro</source>
+        <translation>Makroaufnahme anhalten</translation>
+    </message>
+</context>
+<context>
+    <name>Macros::Internal::MacrosPlugin</name>
+    <message>
+        <source>&amp;Macros</source>
+        <translation>&amp;Makros</translation>
+    </message>
+    <message>
+        <source>Record Macro</source>
+        <translation>Makroaufnahme</translation>
+    </message>
+    <message>
+        <source>Ctrl+(</source>
+        <translation>Ctrl+(</translation>
+    </message>
+    <message>
+        <source>Alt+(</source>
+        <translation>Alt+(</translation>
+    </message>
+    <message>
+        <source>Stop Recording Macro</source>
+        <translation>Makroaufnahme anhalten</translation>
+    </message>
+    <message>
+        <source>Ctrl+)</source>
+        <translation>Ctrl+)</translation>
+    </message>
+    <message>
+        <source>Alt+)</source>
+        <translation>Alt+)</translation>
+    </message>
+    <message>
+        <source>Play Last Macro</source>
+        <translation>Letztes Makro abspielen</translation>
+    </message>
+    <message>
+        <source>Alt+R</source>
+        <translation>Alt+R</translation>
+    </message>
+    <message>
+        <source>Save Last Macro</source>
+        <translation>Letztes Makro speichern</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::ProjectsMode</name>
+    <message>
+        <source>Projects</source>
+        <translation>Projekte</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::ItemLibraryWidget</name>
+    <message>
+        <source>Library</source>
+        <comment>Title of library view</comment>
+        <translation>Bibliothek</translation>
+    </message>
+    <message>
+        <source>Items</source>
+        <comment>Title of library items view</comment>
+        <translation>Elemente</translation>
+    </message>
+    <message>
+        <source>Resources</source>
+        <comment>Title of library resources view</comment>
+        <translation>Ressourcen</translation>
+    </message>
+    <message>
+        <source>&lt;Filter&gt;</source>
+        <comment>Library search input hint text</comment>
+        <translation>&lt;Filter&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::StatesEditorModel</name>
+    <message>
+        <source>base state</source>
+        <comment>Implicit default state</comment>
+        <translation>Grundzustand</translation>
+    </message>
+    <message>
+        <source>Invalid state name</source>
+        <translation>Ungültiger Name des Zustands</translation>
+    </message>
+    <message>
+        <source>The empty string as a name is reserved for the base state.</source>
+        <translation>Eine leere Zeichenkette ist als Name des Basiszustands reserviert.</translation>
+    </message>
+    <message>
+        <source>Name already used in another state</source>
+        <translation>Der Name wird bereits von einem anderen Zustand verwendet</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::StatesEditorView</name>
+    <message>
+        <source>State%1</source>
+        <comment>Default name for newly created states</comment>
+        <translation>State%1</translation>
+    </message>
+    <message>
+        <source>base state</source>
+        <translation>Grundzustand</translation>
+    </message>
+</context>
+<context>
+    <name>JsFileOptionsPage</name>
+    <message>
+        <source>Options</source>
+        <translation>Einstellungen</translation>
+    </message>
+    <message>
+        <source>Stateless library</source>
+        <translation>Bibliothek ohne internen Zustand</translation>
+    </message>
+    <message>
+        <source>Usually each QML component instance has a unique copy of
+imported JavaScript libraries. Indicating that a library is
+stateless means that a single instance will be shared among
+all components. Stateless libraries will not be able to access
+QML component instance objects and properties directly.</source>
+        <translation>Für gewöhnlich hat jede Instanz eine QML-Komponente eine eindeutige Kopie 
+der importierten Java-Script-Bibliotheken. Eine zustandslose Bibliothek wird
+von allen Komponenten verwendet. Zustandslose Bibliotheken können nicht direkt
+auf Instanzen von QML-Komponenten-Objekten und Eigenschaften zugreifen.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSEditor::JsFileWizard</name>
+    <message>
+        <source>New %1</source>
+        <translation>Neue %1</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSEditor::QmlJSTextEditor</name>
+    <message>
+        <source>Show Qt Quick ToolBar</source>
+        <translation>Qt-Quick-Werkzeugleiste anzeigen</translation>
+    </message>
+    <message>
+        <source>Rename...</source>
+        <translation>Umbenennen...</translation>
+    </message>
+    <message>
+        <source>New id:</source>
+        <translation>Neue ID:</translation>
+    </message>
+    <message>
+        <source>Unused variable</source>
+        <translation>Unbenutzte Variable</translation>
+    </message>
+    <message>
+        <source>Refactoring</source>
+        <translation>Refactoring</translation>
+    </message>
+    <message>
+        <source>Rename id &apos;%1&apos;...</source>
+        <translation>ID &apos;%1&apos; umbenennen</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSEditor::Internal::QmlJSOutlineTreeView</name>
+    <message>
+        <source>Expand All</source>
+        <translation>Alles aufklappen</translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation>Alle einklappen</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSEditor::Internal::QmlJSSnippetProvider</name>
+    <message>
+        <source>QML</source>
+        <translation>QML</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSInspector::Internal::QmlInspectorToolBar</name>
+    <message>
+        <source>Apply Changes on Save</source>
+        <translation>Änderungen beim Speichern anwenden</translation>
+    </message>
+    <message>
+        <source>Show application on top</source>
+        <translation>Anwendung im Vordergrund zeigen</translation>
+    </message>
+    <message>
+        <source>Observer Mode</source>
+        <translation>Beobachter-Modus</translation>
+    </message>
+    <message>
+        <source>Play/Pause Animations</source>
+        <translation>Animationen pausieren/fortsetzen</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation>Auswählen</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>Vergrößern</translation>
+    </message>
+    <message>
+        <source>Color Picker</source>
+        <translation>Farbauswahl</translation>
+    </message>
+    <message>
+        <source>Animation Speed</source>
+        <translation>Animationsgeschwindigkeit</translation>
+    </message>
+    <message>
+        <source>1x</source>
+        <translation>1x</translation>
+    </message>
+    <message>
+        <source>0.5x</source>
+        <translation>0.5x</translation>
+    </message>
+    <message>
+        <source>0.25x</source>
+        <translation>0.25x</translation>
+    </message>
+    <message>
+        <source>0.125x</source>
+        <translation>0.125x</translation>
+    </message>
+    <message>
+        <source>0.1x</source>
+        <translation>0.1x</translation>
+    </message>
+    <message>
+        <source>Pause</source>
+        <translation>Pause</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSTools::Internal::FunctionFilter</name>
+    <message>
+        <source>Functions</source>
+        <translation>Funktionen</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSTools::Internal::ModelManager</name>
+    <message>
+        <source>Indexing</source>
+        <translation>Indizierung</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSTools::Internal::PluginDumper</name>
+    <message>
+        <source>Type dump of QML plugin in %0 failed.
+Errors:
+%1
+</source>
+        <translation type="obsolete">Die Ausgabe der Typen des QML-Plugins in %0 schlug fehl.
+Fehler:
+%1
+</translation>
+    </message>
+    <message>
+        <source>Type dump of QML plugin in %1 failed.
+Errors:
+%2
+</source>
+        <translation>Die Ausgabe der Typen des QML-Plugins in %1 schlug fehl.
+Fehler:
+%2
+</translation>
+    </message>
+    <message>
+        <source>Type dump of C++ plugin failed.
+First 10 lines or errors:
+
+%1
+Check &apos;General Messages&apos; output pane for details.</source>
+        <translation>Die Ausgabe der Typen des C++-Plugins schlug fehl.
+Führende 10 Zeilen der Ausgabe beziehungsweise Fehlermeldungen:
+
+%1
+Das Panel &apos;Allgemeine Ausgaben&apos; enthält weitere Informationen.
+</translation>
+    </message>
+    <message>
+        <source>Type dump of C++ plugin failed. Parse error:
+&apos;%1&apos;</source>
+        <translation>Die Ausgabe der Typen des C++-Plugins schlug fehl. Es trat ein Fehler bei der Auswertung auf:
+&apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Could not open file &apos;%1&apos; for reading.</source>
+        <translation>Die Datei &apos;%1&apos; konnte nicht zum Lesen geöffnet werden.</translation>
+    </message>
+    <message>
+        <source>Failed to parse &apos;%1&apos;.
+Error: %2</source>
+        <translation>&apos;%1&apos; konnte nicht ausgewertet werden.
+Fehler: %2</translation>
+    </message>
+    <message>
+        <source>Could not locate the helper application for dumping type information from C++ plugins.
+Please build the debugging helpers on the Qt version options page.</source>
+        <translation>Die Hilfsanwendung zum Ermitteln der Typinformationen von C++-Plugins konnte nicht gefunden werden.
+Bitte erstellen Sie die Debugger-Hilfskomponenten auf der Einstellungsseite der Qt-Versionen.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationWidget</name>
+    <message>
+        <source>Manage Qt versions</source>
+        <translation>Qt-Versionen verwalten</translation>
+    </message>
+    <message>
+        <source>Qt version:</source>
+        <translation>Qt-Version:</translation>
+    </message>
+    <message>
+        <source>Arguments:</source>
+        <translation>Argumente:</translation>
+    </message>
+    <message>
+        <source>Main QML file:</source>
+        <translation>QML-Hauptdatei:</translation>
+    </message>
+    <message>
+        <source>Debugger:</source>
+        <translation>Debugger:</translation>
+    </message>
+    <message>
+        <source>Run Environment</source>
+        <translation>Ausführungsumgebung</translation>
+    </message>
+    <message>
+        <source>System Environment</source>
+        <translation>Systemumgebung</translation>
+    </message>
+    <message>
+        <source>Invalid Qt version</source>
+        <translation>Ungültige Qt-Version</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Qt4Target</name>
+    <message>
+        <source>Desktop</source>
+        <comment>Qt4 Desktop target display name</comment>
+        <translation>Desktop</translation>
+    </message>
+    <message>
+        <source>Qt Simulator</source>
+        <comment>Qt4 Simulator target display name</comment>
+        <translation>Qt Simulator</translation>
+    </message>
+    <message>
+        <source>Maemo5</source>
+        <comment>Qt4 Maemo5 target display name</comment>
+        <translation>Maemo5</translation>
+    </message>
+    <message>
+        <source>Harmattan</source>
+        <comment>Qt4 Harmattan target display name</comment>
+        <translation>Harmattan</translation>
+    </message>
+    <message>
+        <source>Meego</source>
+        <comment>Qt4 Meego target display name</comment>
+        <translation>Meego</translation>
+    </message>
+    <message>
+        <source>Symbian Emulator</source>
+        <comment>Qt4 Symbian Emulator target display name</comment>
+        <translation>Symbian-Emulator</translation>
+    </message>
+    <message>
+        <source>Symbian Device</source>
+        <comment>Qt4 Symbian Device target display name</comment>
+        <translation>Symbian-Gerät</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::Qt4DesktopTargetFactory</name>
+    <message>
+        <source>Debug</source>
+        <translation>Debuggen</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::Qt4SimulatorTargetFactory</name>
+    <message>
+        <source>Debug</source>
+        <translation>Debuggen</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigurations</name>
+    <message>
+        <source>(default for %1)</source>
+        <translation>(Vorgabe für %1)</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigurationsSettingsWidget</name>
+    <message>
+        <source>Physical Device</source>
+        <translation>Physisches Gerät</translation>
+    </message>
+    <message>
+        <source>Emulator (Qemu)</source>
+        <translation>Emulator (Qemu)</translation>
+    </message>
+    <message>
+        <source>Choose Public Key File</source>
+        <translation>Datei mit öffentlichem Schlüssel</translation>
+    </message>
+    <message>
+        <source>Public Key Files(*.pub);;All Files (*)</source>
+        <translation>Öffentliche Schlüssel (*.pub);;Alle Dateien (*)</translation>
+    </message>
+    <message>
+        <source>Stop Deploying</source>
+        <translation>Deployment beenden</translation>
+    </message>
+    <message>
+        <source>Deployment Failed</source>
+        <translation>Deployment fehlgeschlagen</translation>
+    </message>
+    <message>
+        <source>Deployment Succeeded</source>
+        <translation>Deployment beendet</translation>
+    </message>
+    <message>
+        <source>Key was successfully deployed.</source>
+        <translation>Der Schlüssel wurde erfolgreich versandt.</translation>
+    </message>
+    <message>
+        <source>Deploy Public Key ...</source>
+        <translation>Öffentlichen Schlüssel senden...</translation>
+    </message>
+    <message>
+        <source>You will need at least one port.</source>
+        <translation>Sie benötigen mindestens einen freien Port.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigWizardStartPage</name>
+    <message>
+        <source>General Information</source>
+        <translation>Allgemeine Informationen</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
+    <message>
+        <source>Device Status Check</source>
+        <translation>Prüfen des Gerätestatus</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
+    <message>
+        <source>Existing Keys Check</source>
+        <translation>Prüfende bereits existierende Schlüssel</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
+    <message>
+        <source>Key Creation</source>
+        <translation>Schlüssel erzeugen</translation>
+    </message>
+    <message>
+        <source>Can&apos;t Create Keys</source>
+        <translation type="obsolete">Fehler beim Erzeugen der Schlüssel</translation>
+    </message>
+    <message>
+        <source>You have not entered a writable directory.</source>
+        <translation>Der angegebene Ordner ist nicht schreibbar.</translation>
+    </message>
+    <message>
+        <source>Cannot Create Keys</source>
+        <translation>Fehler beim Erzeugen der Schlüssel</translation>
+    </message>
+    <message>
+        <source>Creating keys ... </source>
+        <translation>Erzeuge Schlüssel...</translation>
+    </message>
+    <message>
+        <source>Key creation failed: %1</source>
+        <translation>Bei der Erzeugung der Schlüssel trat ein Fehler auf: %1</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>Beendet.</translation>
+    </message>
+    <message>
+        <source>Failed to save key file %1: %2</source>
+        <translation>Fehler beim Speichern der Schlüsseldatei %1: %2</translation>
+    </message>
+    <message>
+        <source>Could Not Save File</source>
+        <translation>Fehler beim Speichern</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
+    <message>
+        <source>Key Deployment</source>
+        <translation>Schlüssel senden</translation>
+    </message>
+    <message>
+        <source>Deploying... </source>
+        <translation>Sende Schlüssel...</translation>
+    </message>
+    <message>
+        <source>Key Deployment Failure</source>
+        <translation>Fehler beim Versenden des Schlüssels</translation>
+    </message>
+    <message>
+        <source>Key Deployment Success</source>
+        <translation>Schlüssel gesendet</translation>
+    </message>
+    <message>
+        <source>The key was successfully deployed. You may now close the &quot;Mad Developer&quot; application and continue.</source>
+        <translation>Der Schlüssel wurde erfolgreich gesendet. Sie können nun die Anwendung &quot;Mad Developer&quot; schließen und fortfahren.</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>Beendet.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigWizardFinalPage</name>
+    <message>
+        <source>Setup Finished</source>
+        <translation>Einrichtung beendet</translation>
+    </message>
+    <message>
+        <source>The new device configuration will now be created and a test procedure will be run to check whether Qt Creator can connect to the device and to provide some information about its features.</source>
+        <translation>Die neue Gerätekonfiguration wird nun erstellt und eine Testprozedur ausgeführt, die prüft, ob Qt Creator eine Verbindung zum Gerät herstellen kann und einige Informationen zum Gerät bereitstellt.</translation>
+    </message>
+    <message>
+        <source>Please make sure that Qemu is running, otherwise the test will fail.</source>
+        <translation>Bitte stellen Sie sicher, dass Qemu läuft, da andernfalls der Test fehlschlägt.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigWizard</name>
+    <message>
+        <source>New Device Configuration Setup</source>
+        <translation>Einrichtung einer neuen Geräte-Konfiguration</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoGlobal</name>
+    <message>
+        <source>Could not connect to host: %1</source>
+        <translation>Es konnte keine Verbindung zum Host hergestellt werden: %1</translation>
+    </message>
+    <message>
+        <source>
+Did you start Qemu?</source>
+        <translation>
+Haben Sie Qemu gestartet?</translation>
+    </message>
+    <message>
+        <source>
+Is the device connected and set up for network access?</source>
+        <translation>
+Ist das Gerät verbunden und für Netzwerkzugriff eingerichtet?</translation>
+    </message>
+    <message>
+        <source>(No device)</source>
+        <translation>(Kein Gerät)</translation>
+    </message>
+    <message>
+        <source>Failed to remove directory &apos;%1&apos;.</source>
+        <translation>Der Ordner &apos;%1&apos; konnte nicht gelöscht werden.</translation>
+    </message>
+    <message>
+        <source>Failed to remove file &apos;%1&apos;.</source>
+        <translation>Die Datei &apos;%1&apos; konnte nicht gelöscht werden.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoKeyDeployer</name>
+    <message>
+        <source>Could not read public key file &apos;%1&apos;.</source>
+        <translation>Die öffentliche Schlüsseldatei &apos;%1&apos; konnte nicht gelesen werden.</translation>
+    </message>
+    <message>
+        <source>Connection failed: %1</source>
+        <translation>Fehler bei Herstellen der Verbindung: %1</translation>
+    </message>
+    <message>
+        <source>Key deployment failed: %1.</source>
+        <translation>Das Versenden des Schlüssels schlug fehl: %1.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoPerTargetDeviceConfigurationListModel</name>
+    <message>
+        <source>(default)</source>
+        <translation>(Vorgabe)</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoPublishedProjectModel</name>
+    <message>
+        <source>Include in package</source>
+        <translation>In Paket aufnehmen</translation>
+    </message>
+    <message>
+        <source>Include</source>
+        <translation>Einschließen</translation>
+    </message>
+    <message>
+        <source>Do not include</source>
+        <translation>Ausschließen</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoPublisherFremantleFree</name>
+    <message>
+        <source>Canceled.</source>
+        <translation>Abgebrochen.</translation>
+    </message>
+    <message>
+        <source>Publishing canceled by user.</source>
+        <translation>Die Veröffentlichung wurde vom Nutzer abgebrochen.</translation>
+    </message>
+    <message>
+        <source>The project is missing some information important to publishing:</source>
+        <translation>Bei dem Projekt fehlen einige Informationen, die für die Veröffentlichung relevant sind.</translation>
+    </message>
+    <message>
+        <source>Publishing failed: Missing project information.</source>
+        <translation>Veröffentlichung schlug fehl: Fehlende Informationen</translation>
+    </message>
+    <message>
+        <source>Removing left-over temporary directory ...</source>
+        <translation>Löschen der verbliebenen temporären Ordner...</translation>
+    </message>
+    <message>
+        <source>Error removing temporary directory: %1</source>
+        <translation>Fehlschlag beim Löschen der temporären Ordner: %1</translation>
+    </message>
+    <message>
+        <source>Publishing failed: Could not create source package.</source>
+        <translation>Veröffentlichung schlug fehl: Es konnten keine Quellpakete erstellt werden.</translation>
+    </message>
+    <message>
+        <source>Setting up temporary directory ...</source>
+        <translation>Erstelle temporären Ordner...</translation>
+    </message>
+    <message>
+        <source>Error: Could not create temporary directory.</source>
+        <translation>Fehler: Es konnte kein temporärer Ordner erstellt werden.</translation>
+    </message>
+    <message>
+        <source>Error: Could not copy project directory</source>
+        <translation>Fehler: Der Projektordner konnte nicht kopiert werden.</translation>
+    </message>
+    <message>
+        <source>Error: Could not fix newlines</source>
+        <translation>Fehler: Die Zeilenende-Zeichen konnten nicht angepasst werden</translation>
+    </message>
+    <message>
+        <source>Publishing failed: Could not create package.</source>
+        <translation>Veröffentlichung schlug fehl: Es kein Paket erstellt werden.</translation>
+    </message>
+    <message>
+        <source>Cleaning up temporary directory ...</source>
+        <translation>Temporären Ordner bereinigen...</translation>
+    </message>
+    <message>
+        <source>Failed to create directory &apos;%1&apos;.</source>
+        <translation>Der Ordner &apos;%1&apos; konnte nicht erstellt werden.</translation>
+    </message>
+    <message>
+        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;.</source>
+        <translation>Die Datei &apos;%1&apos; konnte nicht nach &apos;%2&apos; kopiert werden.</translation>
+    </message>
+    <message>
+        <source>Error: Cannot open file &apos;%1&apos;.</source>
+        <translation>Fehler: Die Datei &apos;%1&apos; kann nicht geöffnet werden.</translation>
+    </message>
+    <message>
+        <source>Error: Failed to start dpkg-buildpackage.</source>
+        <translation>Fehler: dpkg-buildpackage konnte nicht gestartet werden.</translation>
+    </message>
+    <message>
+        <source>Error: dpkg-buildpackage did not succeed.</source>
+        <translation>Fehler: dpkg-buildpackage schlug fehl.</translation>
+    </message>
+    <message>
+        <source>Package creation failed.</source>
+        <translation>Die Erzeugung des Pakets schlug fehl.</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>Beendet.</translation>
+    </message>
+    <message>
+        <source>Packaging finished successfully. The following files were created:
+</source>
+        <translation>Das Paketieren war erfolgreich. Folgende Dateien wurden erstellt:
+</translation>
+    </message>
+    <message>
+        <source>Building source package...</source>
+        <translation>Erzeuge Quellpaket...</translation>
+    </message>
+    <message>
+        <source>Starting scp ...</source>
+        <translation>Starte scp...</translation>
+    </message>
+    <message>
+        <source>SSH error: %1</source>
+        <translation>SSH-Fehler: %1</translation>
+    </message>
+    <message>
+        <source>Upload failed.</source>
+        <translation>Fehlschlag beim Hochladen.</translation>
+    </message>
+    <message>
+        <source>Error uploading file: %1</source>
+        <translation>Fehler beim Hochladen der Datei: %1</translation>
+    </message>
+    <message>
+        <source>Error uploading file.</source>
+        <translation>Fehler beim Hochladen der Datei.</translation>
+    </message>
+    <message>
+        <source>All files uploaded.</source>
+        <translation>Alle Dateien wurden hochgeladen.</translation>
+    </message>
+    <message>
+        <source>Upload succeeded. You should shortly receive an email informing you about the outcome of the build process.</source>
+        <translation>Das Hochladen wurde erfolgreich beendet. Sie werden in Kürze eine E-Mail mit Informationen über den Ausgang des Build-Prozesses erhalten.</translation>
+    </message>
+    <message>
+        <source>Uploading file %1 ...</source>
+        <translation>Lade Datei %1 hoch...</translation>
+    </message>
+    <message>
+        <source>Cannot open file for reading: %1</source>
+        <translation>Die Datei %1 kann nicht zum Lesen geöffnet werden</translation>
+    </message>
+    <message>
+        <source>Cannot read file: %1</source>
+        <translation>Datei %1 kann nicht gelesen werden</translation>
+    </message>
+    <message>
+        <source>Failed to adapt desktop file &apos;%1&apos;.</source>
+        <translation>Die Desktop-Datei &apos;%1&apos; konnte nicht angepasst werden.</translation>
+    </message>
+    <message>
+        <source>The package description is empty.</source>
+        <translation>Die Beschreibung des Pakets ist leer.</translation>
+    </message>
+    <message>
+        <source>The package description is &apos;%1&apos;, which is probably not what you want.</source>
+        <translation>Die Beschreibung des Pakets lautet &apos;%1&apos;, was wahrscheinlich nicht beabsichtigt war.</translation>
+    </message>
+    <message>
+        <source>You have not set an icon for the package manager.</source>
+        <translation>Sie haben noch kein Icon für die Paketverwaltung gesetzt.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
+    <message>
+        <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
+        <translation>Veröffentlichung im Repository &quot;Extras-devel/free&quot; von Fremantle</translation>
+    </message>
+    <message>
+        <source>Upload options</source>
+        <translation>Einstellungen hochladen</translation>
+    </message>
+    <message>
+        <source>Choose a private key file</source>
+        <translation>Datei mit privatem Schlüssel auswählen</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
+    <message>
+        <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
+        <translation>Im Repository &quot;Extras-devel/free&quot; von Fremantle veröffentlichen</translation>
+    </message>
+    <message>
+        <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
+        <translation>Dieser Wizard erstellt ein Quellarchiv und lädt es auf Wunsch auf einen Build-Server hoch, wo das Projekt kompiliert, paketiert und im Repository &quot;Extras-devel free&quot; abgelegt wird, von dem die Nutzer es auf ihren N900-Geräten installieren können. Zum Hochladen ist ein Login auf garage.maemo.org erforderlich.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoPublishingWizardFremantleFree</name>
+    <message>
+        <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
+        <translation>Veröffentlichung im Repository &quot;Extras-devel/free&quot; von Fremantle</translation>
+    </message>
+    <message>
+        <source>Build Settings</source>
+        <translation>Build-Einstellungen</translation>
+    </message>
+    <message>
+        <source>Upload Settings</source>
+        <translation>Einstellungen hochladen</translation>
+    </message>
+    <message>
+        <source>Result</source>
+        <translation>Ergebnis</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoRemoteProcessesDialog</name>
+    <message>
+        <source>Remote error</source>
+        <translation type="obsolete">Fehler</translation>
+    </message>
+    <message>
+        <source>Remote Error</source>
+        <translation>Entfernter Fehler</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoRemoteProcessList</name>
+    <message>
+        <source>Connection failure: %1</source>
+        <translation>Fehler bei Herstellen der Verbindung: %1 {1?}</translation>
+    </message>
+    <message>
+        <source>Error: Remote process failed to start: %1</source>
+        <translation>Fehler: Der entfernte Prozess konnte nicht gestartet werden: %1</translation>
+    </message>
+    <message>
+        <source>Error: Remote process crashed: %1</source>
+        <translation>Fehler: Der entfernte Prozess ist abgestürzt: %1</translation>
+    </message>
+    <message>
+        <source>Remote process failed.</source>
+        <translation>Der entfernte Prozess ist fehlgeschlagen.</translation>
+    </message>
+    <message>
+        <source>
+Remote stderr was: %1</source>
+        <translation>
+Fehlerausgabe: %1</translation>
+    </message>
+    <message>
+        <source>PID</source>
+        <translation>PID</translation>
+    </message>
+    <message>
+        <source>Command Line</source>
+        <translation>Kommandozeile</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigurationsSettingsPage</name>
+    <message>
+        <source>Maemo Device Configurations</source>
+        <translation>Maemo-Geräte-Konfigurationen</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoQemuSettingsPage</name>
+    <message>
+        <source>Qemu Settings</source>
+        <translation>QEmu-Einstellungen</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoQemuCrashDialog</name>
+    <message>
+        <source>Qemu error</source>
+        <translation>Qemu-Fehler</translation>
+    </message>
+    <message>
+        <source>Qemu crashed.</source>
+        <translation>Qemu ist abgestürzt.</translation>
+    </message>
+    <message>
+        <source>Click here to change the OpenGL mode.</source>
+        <translation>Klicken Sie hier, um den OpenGL-Modus zu ändern.</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;You have configured Qemu to use OpenGL hardware acceleration, which might not be supported by your system. You could try using software rendering instead.</source>
+        <translation>&lt;p&gt;Sie haben in Qemu OpenGL-Hardwarebeschleunigung eingestellt, was von Ihrem System nicht unterstützt sein könnte. Sie könnten stattdessen Software-Rendering verwenden.</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases.You might want to use software rendering instead.</source>
+        <translation>&lt;p&gt;Sie haben in Qemu die automatische Bestimmung des OpenGL-Modus eingestellt, was nicht immer funktioniert. Sie könnten stattdessen Software-Rendering verwenden.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoUsedPortsGatherer</name>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>Verbindungsfehler: %1</translation>
+    </message>
+    <message>
+        <source>Could not start remote process: %1</source>
+        <translation>Der entfernte Prozess konnte nicht gestartet werden: %1</translation>
+    </message>
+    <message>
+        <source>Remote process crashed: %1</source>
+        <translation>Der entfernte Prozess ist abgestürzt: %1</translation>
+    </message>
+    <message>
+        <source>Remote process failed: %1</source>
+        <translation>Der Prozess konnte nicht auf demMobilgerät gestartet werden: %1</translation>
+    </message>
+    <message>
+        <source>
+Remote error output was: %1</source>
+        <translation>
+Fehlerausgabe: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::Qt4MaemoDeployConfigurationFactory</name>
+    <message>
+        <source>Deploy to Maemo5 device</source>
+        <translation>Deployment auf Maemo5-Gerät</translation>
+    </message>
+    <message>
+        <source>Deploy to Harmattan device</source>
+        <translation>Deployment auf Harmattan-Gerät</translation>
+    </message>
+    <message>
+        <source>Deploy to Meego device</source>
+        <translation>Deployment auf Meego-Gerät</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::AbstractQt4MaemoTarget</name>
+    <message>
+        <source>File &apos;%1&apos; does not exist</source>
+        <translation>Die Datei &apos;%1&apos; existiert nicht</translation>
+    </message>
+    <message>
+        <source>Cannot open file &apos;%1&apos;: %2</source>
+        <translation>Die Datei &apos;%1&apos; kann nicht geöffnet werden: %2</translation>
+    </message>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+    <message>
+        <source>Do you want to remove the packaging file(s) associated with the target &apos;%1&apos;?</source>
+        <translation>Möchten Sie die zum Ziel &apos;%1&apos; gehörigen Paketdateien auf dem Gerät löschen?</translation>
+    </message>
+    <message>
+        <source>Error creating Maemo packaging directory &apos;%1&apos;.</source>
+        <translation>Fehler beim Anlegen des Maemo-Paket-Ordners &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Add Packaging Files to Project</source>
+        <translation>Paketdateien zum Projekt hinzufügen</translation>
+    </message>
+    <message>
+        <source>Qt Creator has set up the following files to enable packaging:
+   %1
+Do you want to add them to the project?</source>
+        <translation>Qt Creator hat die folgenden Dateien zur Paketierung angelegt:
+   %1
+Möchten Sie sie zum Projekt hinzufügen?</translation>
+    </message>
+    <message>
+        <source>Error creating Maemo templates</source>
+        <translation>Fehlschlag beim Erstellen der Maemo-Vorlagendateien</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::AbstractDebBasedQt4MaemoTarget</name>
+    <message>
+        <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
+        <translation>Die Debian-Changelog-Datei &apos;%1&apos; ist in einem unbekannten Format.</translation>
+    </message>
+    <message>
+        <source>Error writing Debian changelog file &apos;%1&apos;: %2</source>
+        <translation>Fehler beim Schreiben der Debian-Changelog-Datei &apos;%1&apos;: %2</translation>
+    </message>
+    <message>
+        <source>Invalid icon data in Debian control file.</source>
+        <translation>Die Debian-Kontrolldatei enthält ungültige Icon-Daten.</translation>
+    </message>
+    <message>
+        <source>Could not read image file &apos;%1&apos;.</source>
+        <translation>Die Bilddatei &apos;%1&apos; konnte nicht gelesen werden.</translation>
+    </message>
+    <message>
+        <source>Could not export image file &apos;%1&apos;.</source>
+        <translation>Die Bilddatei &apos;%1&apos; konnte nicht exportiert werden.</translation>
+    </message>
+    <message>
+        <source>Error writing file &apos;%1&apos;: %2</source>
+        <translation>Fehler beim Schreiben der Datei %1: %2</translation>
+    </message>
+    <message>
+        <source>Unable to create Debian templates: dh_make failed (%1)</source>
+        <translation>Es konnten keine Debian-Vorlagedateien erstellt werden: dh_make schlug fehl (%1)</translation>
+    </message>
+    <message>
+        <source>Unable to create debian templates: dh_make failed (%1)</source>
+        <translation>Es konnten keine Debian-Vorlagedateien erstellt werden: dh_make schlug fehl (%1)</translation>
+    </message>
+    <message>
+        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
+        <translation>Der Debian-Ordner konnte nicht zu %1 verschoben werden.</translation>
+    </message>
+    <message>
+        <source>Packaging Error: Cannot open file &apos;%1&apos;.</source>
+        <translation>Fehler bei Paketerstellung: Die Datei &apos;%1&apos; kann nicht geöffnet werden.</translation>
+    </message>
+    <message>
+        <source>Packaging Error: Cannot write file &apos;%1&apos;.</source>
+        <translation>Fehler bei Paketerstellung: Die Datei &apos;%1&apos; kann nicht geschrieben werden.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::Qt4MaemoTargetFactory</name>
+    <message>
+        <source>Debug</source>
+        <translation>Debuggen</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::CodaRunControl</name>
+    <message>
+        <source>No device is connected. Please connect a device and try again.</source>
+        <translation>Es ist kein Gerät verbunden. Bitte stellen Sie die Verbindung zu einem Gerät her und versuchen Sie es erneut.</translation>
+    </message>
+    <message>
+        <source>Executable file: %1</source>
+        <translation>Ausführbare Datei: %1</translation>
+    </message>
+    <message>
+        <source>Connecting to &apos;%2&apos;...</source>
+        <translation type="obsolete">Verbinde zu %1...</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t open serial device: %1</source>
+        <translation type="obsolete">Die lokale Datei &apos;%1&apos; konnte nicht geöffnet werden: %2</translation>
+    </message>
+    <message>
+        <source>Connecting to &apos;%1&apos;...</source>
+        <translation>Verbinde zu &apos;%1&apos;...</translation>
+    </message>
+    <message>
+        <source>Could not open serial device: %1</source>
+        <translation>Die serielle Schnittstelle konnte nicht geöffnet werden: %1</translation>
+    </message>
+    <message>
+        <source>Connecting to %1:%2...</source>
+        <translation>Verbinde zu %1... {1:%2.?}</translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation>Fehler: %1</translation>
+    </message>
+    <message>
+        <source>Connected.</source>
+        <translation>Verbunden.</translation>
+    </message>
+    <message>
+        <source>Process has finished.</source>
+        <translation>Der Prozess wurde beendet.</translation>
+    </message>
+    <message>
+        <source>Thread has crashed: %1</source>
+        <translation>Ein Thread ist abgestürzt: %1</translation>
+    </message>
+    <message>
+        <source>The process is already running on the device. Please first close it.</source>
+        <translation>Der Prozess läuft bereits auf dem Mobilgerät. Bitte schließen Sie ihn zuerst.</translation>
+    </message>
+    <message>
+        <source>Launching: %1</source>
+        <translation>Starte: %1</translation>
+    </message>
+    <message>
+        <source>Launched.</source>
+        <translation>Gestartet.</translation>
+    </message>
+    <message>
+        <source>Launch failed: %1</source>
+        <translation>Fehlschlag beim Starten: %1</translation>
+    </message>
+    <message>
+        <source>Waiting for CODA</source>
+        <translation>Warte auf CODA</translation>
+    </message>
+    <message>
+        <source>Qt Creator is waiting for the CODA application to connect.&lt;br&gt;Please make sure the application is running on your mobile phone and the right IP address and port are configured in the project settings.</source>
+        <translation>Qt Creator wartet auf eine Verbindung zur CODA-Anwendung.&lt;br&gt;Bitte starten Sie die Anwendung auf dem Mobiltelefon und prüfen Sie die Einstellung der IP-Adresse und des Ports in der Projektkonfiguration.</translation>
+    </message>
+    <message>
+        <source>Canceled.</source>
+        <translation>Abgebrochen.</translation>
+    </message>
+    <message>
+        <source>The device &apos;%1&apos; has been disconnected</source>
+        <translation>Die Verbindung zum Gerät &apos;%1&apos; wurde getrennt</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::Qt4SymbianTarget</name>
+    <message>
+        <source>&lt;b&gt;Device:&lt;/b&gt; Not connected</source>
+        <translation>&lt;b&gt;Gerät:&lt;/b&gt; Nicht angeschlossen</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Device:&lt;/b&gt; %1</source>
+        <translation>&lt;b&gt;Gerät:&lt;/b&gt; %1</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Device:&lt;/b&gt; %1, %2</source>
+        <translation>&lt;b&gt;Gerät:&lt;/b&gt; %1, %2</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;IP address:&lt;/b&gt; %1:%2</source>
+        <translation>&lt;b&gt;IP-Addresse:&lt;/b&gt; %1:%2</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::Qt4SymbianTargetFactory</name>
+    <message>
+        <source>Debug</source>
+        <translation>Debuggen</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::S60CertificateInfo</name>
+    <message>
+        <source>The certificate &quot;%1&quot; has already expired and cannot be used.
+Expiration date: %2.</source>
+        <translation>Das Zertifikat &quot;%1&quot; ist bereits abgelaufen und kann daher nicht verwendet werden.
+Verfallsdatum: %2.</translation>
+    </message>
+    <message>
+        <source>The certificate &quot;%1&quot; is not yet valid.
+Valid from: %2.</source>
+        <translation>Das Zertifikat &quot;%1&quot; ist noch nicht gültig.
+Es gilt ab: %2.</translation>
+    </message>
+    <message>
+        <source>The certificate &quot;%1&quot; is not a valid X.509 certificate.</source>
+        <translation>Das Zertifikat &quot;%1&quot; ist kein gültiges X.509-Zertifikat.</translation>
+    </message>
+    <message>
+        <source>Type: </source>
+        <translation>Typ:</translation>
+    </message>
+    <message>
+        <source>Developer certificate</source>
+        <translation>Entwicklerzertifikat</translation>
+    </message>
+    <message>
+        <source>Self signed certificate</source>
+        <translation>Selbstsigniertes Zertifikat</translation>
+    </message>
+    <message>
+        <source>Issued by: </source>
+        <translation>Ausgestellt von: </translation>
+    </message>
+    <message>
+        <source>Issued to: </source>
+        <translation>Ausgestellt für: </translation>
+    </message>
+    <message>
+        <source>Valid from: </source>
+        <translation>Gültig ab:</translation>
+    </message>
+    <message>
+        <source>Valid to: </source>
+        <translation>Gültig bis:</translation>
+    </message>
+    <message>
+        <source>Capabilities: </source>
+        <translation>Berechtigungen:</translation>
+    </message>
+    <message numerus="yes">
+        <source>Supporting %n device(s): </source>
+        <translation>
+            <numerusform>Unterstützt ein Gerät:</numerusform>
+            <numerusform>Unterstützt %n Geräte:</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::S60CreatePackageParser</name>
+    <message>
+        <source>The binary package &apos;%1&apos; was patched to be installable after being self-signed!
+%2
+Use a developer certificate or any other signing option to prevent this patching from happening.</source>
+        <extracomment>%1 package name, %2 will be replaced by a list of patching lines.</extracomment>
+        <translation type="obsolete">Das selbstsignierte Paket &apos;%1&apos; wurd</translation>
+    </message>
+    <message>
+        <source>The binary package &apos;%1&apos; was patched to be installable after being self-signed.
+%2
+Use a developer certificate or any other signing option to prevent this patching from happening.</source>
+        <extracomment>%1 package name, %2 will be replaced by a list of patching lines.</extracomment>
+        <translation>Das selbstsignierte Paket &apos;%1&apos; wurde modifiziert, um eine Installation zu ermöglichen.
+%2
+Verwenden Sie ein Entwicklerzertifikat oder eine andere Form der Signierung, um dies zu umgehen.</translation>
+    </message>
+    <message>
+        <source>Cannot create Smart Installer package as the Smart Installer&apos;s base file is missing. Please ensure that it is located in the SDK.</source>
+        <translation>Es kann kein Smart-Installer-Paket erstellt werden, da die Basisdatei des Smart-Installers fehlt. Bitte stellen Sie sicher, dass sie im SDK vorhanden ist.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::S60RunControlBase</name>
+    <message>
+        <source>Launching</source>
+        <translation>Starte</translation>
+    </message>
+    <message>
+        <source>Please finalise the installation on your device.</source>
+        <translation>Bitte beenden Sie die Installation auf dem Mobilgerät.</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; is still running on the device.&lt;center/&gt;&lt;center&gt;Terminating it can leave the target in an inconsistent state.&lt;/center&gt;&lt;center&gt;Would you still like to terminate it?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; läuft noch auf dem Mobilgerät.&lt;center/&gt;&lt;center&gt;Ein Abbruch kann zu einem inkonsistenten Zustand des Gerätes führen.&lt;/center&gt;&lt;center&gt;Möchten Sie dennoch abbrechen?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Application Still Running</source>
+        <translation>Anwendung läuft noch</translation>
+    </message>
+    <message>
+        <source>Force Quit</source>
+        <translation>Beenden</translation>
+    </message>
+    <message>
+        <source>Keep Running</source>
+        <translation>Fortsetzen</translation>
+    </message>
+    <message>
+        <source>Finished.</source>
+        <translation>Beendet.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::TrkRunControl</name>
+    <message>
+        <source>No device is connected. Please connect a device and try again.</source>
+        <translation>Es ist kein Gerät verbunden. Bitte stellen Sie die Verbindung zu einem Gerät her und versuchen Sie es erneut.</translation>
+    </message>
+    <message>
+        <source>Executable file: %1</source>
+        <translation>Ausführbare Datei: %1</translation>
+    </message>
+    <message>
+        <source>Could not connect to phone on port &apos;%1&apos;: %2
+Check if the phone is connected and App TRK is running.</source>
+        <translation>Es konnte keine Verbindung zum Gerät über den Port &apos;%1&apos; hergestellt werden: %2
+Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos; läuft.</translation>
+    </message>
+    <message>
+        <source>Could not connect to App TRK on device: %1. Restarting App TRK might help.</source>
+        <translation>Es konnte keine Verbindung zu App TRK über den Port &apos;%1&apos; hergestellt werden. Bitte versuchen Sie, App TRK neu zu starten.</translation>
+    </message>
+    <message>
+        <source>Waiting for App TRK</source>
+        <translation>Warte auf App TRK</translation>
+    </message>
+    <message>
+        <source>Qt Creator is waiting for the TRK application to connect on %1.&lt;br&gt;Please make sure the application is running on your mobile phone and the right port is configured in the project settings.</source>
+        <translation>Qt Creator wartet auf eine Verbindung zur TRK-Anwendung.&lt;br&gt;Bitte starten Sie die Anwendung auf dem Mobiltelefon und prüfen Sie die Einstellung des Ports in der Projektkonfiguration.</translation>
+    </message>
+    <message>
+        <source>Canceled.</source>
+        <translation>Abgebrochen.</translation>
+    </message>
+    <message>
+        <source>The device &apos;%1&apos; has been disconnected</source>
+        <translation>Die Verbindung zum Gerät &apos;%1&apos; wurde getrennt</translation>
+    </message>
+    <message>
+        <source>Starting application...</source>
+        <translation>Starte Anwendung...</translation>
+    </message>
+    <message>
+        <source>Application running with pid %1.</source>
+        <translation>Die Anwendung läuft mit der Prozess-ID: %1.</translation>
+    </message>
+    <message>
+        <source>Could not start application: %1</source>
+        <translation>Die Anwendung konnte nicht gestartet werden: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::Html5AppWizardDialog</name>
+    <message>
+        <source>New Html5 Application</source>
+        <translation type="obsolete">Neue HTML5-Anwendung</translation>
+    </message>
+    <message>
+        <source>This wizard generates a Html5 application project.</source>
+        <translation type="obsolete">Dieser Wizard erstellt ein HTML5-Anwendungsprojekt.</translation>
+    </message>
+    <message>
+        <source>Html Sources</source>
+        <translation type="obsolete">HTML-Quellen</translation>
+    </message>
+    <message>
+        <source>New HTML5 Application</source>
+        <translation>Neue HTML5-Anwendung</translation>
+    </message>
+    <message>
+        <source>This wizard generates a HTML5 application project.</source>
+        <translation>Dieser Wizard erstellt ein HTML5-Anwendungsprojekt.</translation>
+    </message>
+    <message>
+        <source>HTML Sources</source>
+        <translation>HTML-Quellen</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::Html5AppWizard</name>
+    <message>
+        <source>Html5 Application</source>
+        <translation type="obsolete">HTML5-Anwendung</translation>
+    </message>
+    <message>
+        <source>Creates an Html5 application project that can contain both Html5 and C++ code and includes a Webkit view.
+
+You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects.</source>
+        <translation type="obsolete">Erstellt ein HTML5-Projekt, welches HTML5- und C++-Code enthält und WebKit zur Anzeige verwendet.
+
+Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen ausführen. Dieser Projekttyp ermöglicht zum Beispiel die Estellung eines signierten Symbian Installation System (SIS)-Paketes.</translation>
+    </message>
+    <message>
+        <source>HTML5 Application</source>
+        <translation>HTML5-Anwendung</translation>
+    </message>
+    <message>
+        <source>Creates an HTML5 application project that can contain both HTML5 and C++ code and includes a WebKit view.
+
+You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects.</source>
+        <translation>Erstellt ein HTML5-Projekt, welches HTML5- und C++-Code enthält und WebKit zur Anzeige verwendet.
+
+Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen ausführen. Dieser Projekttyp ermöglicht zum Beispiel die Estellung eines signierten Symbian Installation System (SIS)-Paketes.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::Html5AppWizardSourcesPage</name>
+    <message>
+        <source>Select Html File</source>
+        <translation>HTML-Datei auswählen</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MobileAppWizardGenericOptionsPage</name>
+    <message>
+        <source>Automatically Rotate Orientation</source>
+        <translation>Ausrichtung automatisch ändern</translation>
+    </message>
+    <message>
+        <source>Lock to Landscape Orientation</source>
+        <translation>Querformat festlegen</translation>
+    </message>
+    <message>
+        <source>Lock to Portrait Orientation</source>
+        <translation>Hochformat festlegen</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MobileAppWizardMaemoOptionsPage</name>
+    <message>
+        <source>Invalid Icon</source>
+        <translation>Ungültiges Icon</translation>
+    </message>
+    <message>
+        <source>The file is not a valid image.</source>
+        <translation>Keine gültige Bilddatei.</translation>
+    </message>
+    <message>
+        <source>Wrong Icon Size</source>
+        <translation>Ungültige Icon-Größe</translation>
+    </message>
+    <message>
+        <source>The icon needs to be 64x64 pixels big, but is not. Do you want Creator to scale it?</source>
+        <translation>Das Icon hat nicht die erforderliche Größe von 64x64 Pixel. Soll Qt Creator es skalieren?</translation>
+    </message>
+    <message>
+        <source>File Error</source>
+        <translation>Dateifehler</translation>
+    </message>
+    <message>
+        <source>Could not copy icon file.</source>
+        <translation>Die Icon-Datei konnte nicht kopiert werden.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::SubdirsProjectWizard</name>
+    <message>
+        <source>Subdirs Project</source>
+        <translation>Subdirs-Projekt</translation>
+    </message>
+    <message>
+        <source>Creates a qmake-based subdirs project. This allows you to group your projects in a tree structure.</source>
+        <translation>Erstellt qmake-basiertes Projekt vom Typ subdirs. Dies ermöglicht es Ihnen, Ihre Projekte in einer Baumstruktur zu gruppieren.</translation>
+    </message>
+    <message>
+        <source>Done &amp;&amp; Add Subproject</source>
+        <translation>Abschließen und Unterprojekt hinzufügen</translation>
+    </message>
+    <message>
+        <source>Finish &amp;&amp; Add Subproject</source>
+        <translation>Abschließen und Unterprojekt hinzufügen</translation>
+    </message>
+    <message>
+        <source>New Subproject</source>
+        <comment>Title of dialog</comment>
+        <translation>Neues Teilprojekt</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::Internal::PlainTextSnippetProvider</name>
+    <message>
+        <source>Text</source>
+        <translation>Text</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::Internal::SnippetsTableModel</name>
+    <message>
+        <source>Error</source>
+        <translation>Fehler</translation>
+    </message>
+    <message>
+        <source>Not a valid trigger.</source>
+        <translation>Kein gültiger Auslöser.</translation>
+    </message>
+    <message>
+        <source>Trigger</source>
+        <translation>Auslöser</translation>
+    </message>
+    <message>
+        <source>Trigger Variant</source>
+        <translation>Variante</translation>
+    </message>
+    <message>
+        <source>Error reverting snippet.</source>
+        <translation>Fehler beim Rücksetzen des Snippets.</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::Internal::SnippetsSettingsPagePrivate</name>
+    <message>
+        <source>Snippets</source>
+        <translation>Snippets</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Fehler</translation>
+    </message>
+    <message>
+        <source>No snippet selected.</source>
+        <translation>Kein Snippet ausgewählt.</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::Internal::SftpChannelPrivate</name>
+    <message>
+        <source>Server could not start sftp subsystem.</source>
+        <translation>Der Server konnte das sftp-Subsystem nicht starten.</translation>
+    </message>
+    <message>
+        <source>Unexpected packet of type %1.</source>
+        <translation>Unerwartetes Paket des Typs %1.</translation>
+    </message>
+    <message>
+        <source>Protocol version mismatch: Expected %1, got %2</source>
+        <translation>Die Versionen des Protokolls stimmen nicht überein: Erwartet %1, erhalten %2</translation>
+    </message>
+    <message>
+        <source>Unknown error.</source>
+        <translation>Unbekannter Fehler.</translation>
+    </message>
+    <message>
+        <source>Created remote directory &apos;%1&apos;.</source>
+        <translation>Der entfernter Ordner &apos;%1&apos; wurde angelegt.</translation>
+    </message>
+    <message>
+        <source>Remote directory &apos;%1&apos; already exists.</source>
+        <translation>Der entfernte Ordner &apos;%1&apos; ist bereits vorhanden.</translation>
+    </message>
+    <message>
+        <source>Error creating directory &apos;%1&apos;: %2</source>
+        <translation>Fehler beim Anlegen des Ordners &apos;%1&apos;: %2</translation>
+    </message>
+    <message>
+        <source>Could not open local file &apos;%1&apos;: %2</source>
+        <translation>Die lokale Datei &apos;%1&apos; konnte nicht geöffnet werden: %2</translation>
+    </message>
+    <message>
+        <source>Remote directory could not be opened for reading.</source>
+        <translation>Der entfernte Ordner konnte nicht zum Lesen geöffnet werden.</translation>
+    </message>
+    <message>
+        <source>Failed to list remote directory contents.</source>
+        <translation>Der Inhalt des entfernten Ordners konnte nicht bestimmt werden.</translation>
+    </message>
+    <message>
+        <source>Failed to close remote directory.</source>
+        <translation>Der entfernte Ordner konnte nicht geschlossen werden.</translation>
+    </message>
+    <message>
+        <source>Failed to open remote file for reading.</source>
+        <translation>Die entfernte Datei konnte nicht zum Lesen geöffnet werden.</translation>
+    </message>
+    <message>
+        <source>Failed retrieve information on the remote file (&apos;stat&apos; failed).</source>
+        <translation>Es konnte keine Information über die entfernte Datei eingeholt werden (&apos;stat&apos; schlug fehl).</translation>
+    </message>
+    <message>
+        <source>Failed to read remote file.</source>
+        <translation>Die entfernte Datei konnte nicht gelesen werden.</translation>
+    </message>
+    <message>
+        <source>Failed to close remote file.</source>
+        <translation>Die entfernte Datei konnte nicht geschlossen werden.</translation>
+    </message>
+    <message>
+        <source>Failed to open remote file for writing.</source>
+        <translation>Die entfernte Datei konnte nicht zum Schreiben geöffnet werden.</translation>
+    </message>
+    <message>
+        <source>Failed to write remote file.</source>
+        <translation>Die entfernte Datei konnte nicht geschrieben werden.</translation>
+    </message>
+    <message>
+        <source>Cannot append to remote file: Server does not support the file size attribute.</source>
+        <translation>Es können keine Daten an die entfernte Datei angehängt werden, da der Server das Dateigrößenattribut nicht unterstützt.</translation>
+    </message>
+    <message>
+        <source>Server could not start session.</source>
+        <translation>Der Server konnte keine Sitzung starten.</translation>
+    </message>
+    <message>
+        <source>Error reading local file: %1</source>
+        <translation>Fehler beim Lesen der lokalen Datei: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::Internal::SshChannelManager</name>
+    <message>
+        <source>Invalid channel id %1</source>
+        <translation>Ungültiger Kanalbezeichner %1</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::Internal::SshConnectionPrivate</name>
+    <message>
+        <source>SSH Protocol error: %1</source>
+        <translation>SSH-Protokollfehler: %1</translation>
+    </message>
+    <message>
+        <source>Botan library exception: %1</source>
+        <translation>Ausnahmefehler in der Botan-Bibliothek: %1</translation>
+    </message>
+    <message>
+        <source>Invalid protocol version: Expected &apos;2.0&apos;, got &apos;%1&apos;.</source>
+        <translation>Die Versionen des Protokolls stimmen nicht überein: Erwartet &apos;2.0&apos;, erhalten %1.</translation>
+    </message>
+    <message>
+        <source>Invalid server id &apos;%1&apos;.</source>
+        <translation>Ungültige Server-Kennzeichnung &apos;%1&apos;.</translation>
+    </message>
+    <message>
+        <source>Unexpected packet of type %1.</source>
+        <translation>Unerwartetes Paket des Typs %1.</translation>
+    </message>
+    <message>
+        <source>Could not read private key file: %1</source>
+        <translation>Die private  Schlüsseldatei %1 konnte nicht gelesen werden</translation>
+    </message>
+    <message>
+        <source>Password expired.</source>
+        <translation>Das Passwort ist abgelaufen.</translation>
+    </message>
+    <message>
+        <source>Server rejected password.</source>
+        <translation>Der Server hat das Passwort zurückgewiesen.</translation>
+    </message>
+    <message>
+        <source>Server rejected key.</source>
+        <translation>Der Server hat den Schlüssel zurückgewiesen.</translation>
+    </message>
+    <message>
+        <source>The server sent an unexpected SSH packet of type SSH_MSG_UNIMPLEMENTED.</source>
+        <translation>Der Server hat ein unerwartetes SSH-Paket des Typs SSH_MSG_UNIMPLEMENTED gesandt.</translation>
+    </message>
+    <message>
+        <source>Server closed connection: %1</source>
+        <translation>Der Server hat die Verbindung %1 geschlossen</translation>
+    </message>
+    <message>
+        <source>Connection closed unexpectedly.</source>
+        <translation>Die Verbindung wurde plötzlich geschlossen.</translation>
+    </message>
+    <message>
+        <source>Timeout waiting for reply from server.</source>
+        <translation>Überschreitung des Zeitlimits beim Warten auf Antwort vom Server.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::SubdirsProjectWizardDialog</name>
+    <message>
+        <source>This wizard generates a Qt4 subdirs project. Add subprojects to it later on by using the other wizards.</source>
+        <translation>Dieser Wizard erstellt ein Qt4-Projekt vom Typ subdirs. Mit Hilfe der anderen Wizards können später Unterprojekte hinzufügt werden.</translation>
     </message>
 </context>
 </TS>
