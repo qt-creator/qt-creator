@@ -1079,18 +1079,44 @@ extern "C" HRESULT CALLBACK test(CIDebugClient *client, PCSTR argsIn)
     return S_OK;
 }
 
-// Hook for dumping Known Structs. Not currently used.
-// Shows up in 'dv' as well as IDebugSymbolGroup::GetValueText.
+// Hook for dumping Known Structs.
+// Shows up in 'dv' (appended) as well as IDebugSymbolGroup::GetValueText.
 
-extern "C"  HRESULT CALLBACK KnownStructOutput(ULONG Flag, ULONG64 Address, PSTR StructName, PSTR Buffer, PULONG /* BufferSize */)
+extern "C"  HRESULT CALLBACK KnownStructOutput(ULONG Flag, ULONG64 Address, PSTR StructName, PSTR Buffer, PULONG BufferSize)
 {
+    static const char knownTypesC[] = "HWND__\0"; // implicitly adds terminating 0
     if (Flag == DEBUG_KNOWN_STRUCT_GET_NAMES) {
-        memcpy(Buffer, "\0\0", 2);
+        memcpy(Buffer, knownTypesC, sizeof(knownTypesC));
         return S_OK;
     }
     // Usually 260 chars buf
-    std::ostringstream str;
-    str << " KnownStructOutput 0x" << std::hex << Address << ' '<< StructName;
-    strcpy(Buffer, str.str().c_str());
+    if (!strcmp(StructName, "HWND__")) {
+        // Dump a HWND. This is usually passed around as 'HWND*' with an (opaque) pointer value.
+        // CDB dereferences it and passes it on here, which is why we get it as address.
+        RECT rectangle;
+        enum { BufSize = 1000 };
+        char buf[BufSize];
+        std::ostringstream str;
+
+        HWND hwnd;
+        memset(&rectangle, 0, sizeof(RECT));
+        memset(&hwnd, 0, sizeof(HWND));
+        // Coerce the address into a HWND (little endian)
+        memcpy(&hwnd, &Address, SymbolGroupValue::pointerSize());
+        // Dump geometry and class.
+        if (GetWindowRect(hwnd, &rectangle) && GetClassNameA(hwnd, buf, BufSize))
+            str << ' ' << rectangle.left << '+' << rectangle.top << '+'
+                << (rectangle.right - rectangle.left) << 'x' << (rectangle.bottom - rectangle.top)
+                << " '" << buf << '\'';
+        // Check size for string + 1;
+        const std::string rc = str.str();
+        const ULONG requiredBufferLength = static_cast<ULONG>(rc.size()) + 1;
+        if (requiredBufferLength >= *BufferSize) {
+            *BufferSize = requiredBufferLength;
+            return  S_FALSE;
+        }
+        strcpy(Buffer, rc.c_str());
+    }
+
     return S_OK;
 }

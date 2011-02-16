@@ -35,6 +35,8 @@ contains(ENV_LIB_PATH, ^.*amd64.*$) {
     CDB_PLATFORM=i386
 }
 
+LIBS+=-luser32
+
 TARGET = $$BASENAME
 
 message("Compiling Qt Creator CDB extension $$TARGET $$DESTDIR for $$CDB_PLATFORM using $$CDB_PATH")
