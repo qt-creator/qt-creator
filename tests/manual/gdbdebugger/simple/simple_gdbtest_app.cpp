@@ -2240,6 +2240,7 @@ void testQScriptValue(int argc, char *argv[])
     s = engine.newVariant(QVariant(QString("sss")));
     s = engine.newDate(date);
     x = s.toInt32();
+    bool xx = s.isDate();
     date = s.toDateTime();
     s.setProperty("a", QScriptValue());
     QScriptValue d = s.data();

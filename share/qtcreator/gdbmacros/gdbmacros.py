@@ -2430,6 +2430,33 @@ def qdump__QScriptValue(d, item):
     x = dd["jscValue"]["u"]
     tag = x["asBits"]["tag"]
     payload = x["asBits"]["payload"]
+    #isValid = long(x["asBits"]["tag"]) != -6   # Empty
+    #isCell = long(x["asBits"]["tag"]) == -2
+    #warn("IS CELL: %s " % isCell)
+    #isObject = False
+    #className = "UNKNOWN NAME"
+    #if isCell:
+    #    # isCell() && asCell()->isObject();
+    #    # in cell: m_structure->typeInfo().type() == ObjectType;
+    #    cellType = lookupType("QTJSC::JSCell").pointer()
+    #    cell = payload.cast(cellType).dereference()
+    #    dtype = "NO DYNAMIC TYPE"
+    #    try:
+    #        dtype = cell.dynamic_type
+    #    except:
+    #        pass
+    #    warn("DYNAMIC TYPE: %s" % dtype)
+    #    warn("STATUC  %s" % cell.type)
+    #    type = cell["m_structure"]["m_typeInfo"]["m_type"]
+    #    isObject = long(type) == 7 # ObjectType;
+    #    className = "UNKNOWN NAME"
+    #warn("IS OBJECT: %s " % isObject)
+
+    #inline bool JSCell::inherits(const ClassInfo* info) const
+    #for (const ClassInfo* ci = classInfo(); ci; ci = ci->parentClass) {
+    #    if (ci == info)
+    #        return true;
+    #return false;
 
     try:
         # This might already fail for "native" payloads.
