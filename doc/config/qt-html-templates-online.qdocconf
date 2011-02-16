@@ -5,7 +5,7 @@ HTML.postheader = \
     "    <div class=\"content\"> \n" \
     "    <div id=\"nav-logo\">\n" \
     "      <a href=\"index.html\">Home</a></div>\n" \
-    "    <a href=\"index.html\" class=\"qtref\"><span>Qt Reference Documentation</span></a>\n" \
+    "    <a href=\"index.html\" class=\"qtref\"><span>Qt Creator Manual</span></a>\n" \
     "    <div id=\"narrowsearch\"></div>\n" \
     "    <div id=\"nav-topright\">\n" \
     "      <ul>\n" \
@@ -19,42 +19,10 @@ HTML.postheader = \
     "    </div>\n" \
     "    <div id=\"shortCut\">\n" \
     "      <ul>\n" \
-    "        <li class=\"shortCut-topleft-inactive\"><span><a href=\"index.html\">Qt 4.7</a></span></li>\n" \
-    "        <li class=\"shortCut-topleft-active\"><a href=\"http://doc.qt.nokia.com\">ALL VERSIONS" \
+    "        <li class=\"shortCut-topleft-inactive\"><span><a href=\"index.html\">Qt Creator</a></span></li>\n" \
     "        </a></li>\n" \
     "      </ul>\n" \
     "     </div>\n" \
-    " <ul class=\"sf-menu\" id=\"narrowmenu\"> \n" \
-    "             <li><a href=\"#\">API Lookup</a> \n" \
-    "                 <ul> \n" \
-    "                     <li><a href=\"classes.html\">Class index</a></li> \n" \
-    "           <li><a href=\"functions.html\">Function index</a></li> \n" \
-    "           <li><a href=\"modules.html\">Modules</a></li> \n" \
-    "           <li><a href=\"namespaces.html\">Namespaces</a></li> \n" \
-    "           <li><a href=\"qtglobal.html\">Global Declarations</a></li> \n" \
-    "           <li><a href=\"qdeclarativeelements.html\">QML elements</a></li> \n" \
-    "             </ul> \n" \
-    "             </li> \n" \
-    "             <li><a href=\"#\">Qt Topics</a> \n" \
-    "                 <ul> \n" \
-    "                        <li><a href=\"qt-basic-concepts.html\">Programming with Qt</a></li>  \n" \
-    "                        <li><a href=\"qtquick.html\">Device UIs &amp; Qt Quick</a></li>  \n" \
-    "                        <li><a href=\"qt-gui-concepts.html\">UI Design with Qt</a></li>  \n" \
-    "                        <li><a href=\"developing-with-qt.html\">Cross-platform and Platform-specific</a></li>  \n" \
-    "                        <li><a href=\"platform-specific.html\">Platform-specific info</a></li>  \n" \
-    "                        <li><a href=\"technology-apis.html\">Qt and Key Technologies</a></li>  \n" \
-    "                        <li><a href=\"best-practices.html\">How-To's and Best Practices</a></li>  \n" \
-    "              </ul> \n" \
-    "                 </li> \n" \
-    "                 <li><a href=\"#\">Examples</a> \n" \
-    "                     <ul> \n" \
-    "                       <li><a href=\"all-examples.html\">Examples</a></li> \n" \
-    "                       <li><a href=\"tutorials.html\">Tutorials</a></li> \n" \
-    "                       <li><a href=\"demos.html\">Demos</a></li> \n" \
-    "                       <li><a href=\"qdeclarativeexamples.html\">QML Examples</a></li> \n" \
-    "                </ul> \n" \
-    "                     </li> \n" \
-    "                 </ul> \n" \
     "    </div>\n" \
     "  </div>\n" \
     "  <div class=\"wrapper\">\n" \
@@ -63,24 +31,8 @@ HTML.postheader = \
     "    </div>\n" \
     "    <div class=\"bd group\">\n" \
     "      <div class=\"sidebar\">\n" \
-    "        <div class=\"searchlabel\">\n" \
-    "          Search index:</div>\n" \
-    "        <div class=\"search\" id=\"sidebarsearch\">\n" \
-    "          <form id=\"qtdocsearch\" action=\"\" onsubmit=\"return false;\">\n" \
-    "            <fieldset>\n" \
-    "              <input type=\"text\" name=\"searchstring\" id=\"pageType\" value=\"\" />\n" \
-    " <div id=\"resultdialog\"> \n" \
-    " <a href=\"#\" id=\"resultclose\">Close</a> \n" \
-    " <p id=\"resultlinks\" class=\"all\"><a href=\"#\" id=\"showallresults\">All</a> | <a href=\"#\" id=\"showapiresults\">API</a> | <a href=\"#\" id=\"showarticleresults\">Articles</a> | <a href=\"#\" id=\"showexampleresults\">Examples</a></p> \n" \
-    " <p id=\"searchcount\" class=\"all\"><span id=\"resultcount\"></span><span id=\"apicount\"></span><span id=\"articlecount\"></span><span id=\"examplecount\"></span>&nbsp;results:</p> \n" \
-    " <ul id=\"resultlist\" class=\"all\"> \n" \
-    " </ul> \n" \
-    " </div> \n" \
-    "            </fieldset>\n" \
-    "          </form>\n" \
-    "        </div>\n" \
     "        <div class=\"box first bottombar\" id=\"lookup\">\n" \
-    "          <h2 title=\"API Lookup\"><span></span>\n" \
+    "          <h2 title=\"API Lookup\">\n" \
     "            API Lookup</h2>\n" \
     "          <div  id=\"list001\" class=\"list\">\n" \
     "          <ul id=\"ul001\" >\n" \

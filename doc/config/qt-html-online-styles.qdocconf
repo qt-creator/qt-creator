@@ -39,7 +39,8 @@ extraimages.HTML        = qt-logo.png \
                           page.png \
                           page_bg.png \
                           sprites-combined.png \
-                          spinner.gif
+                          spinner.gif \
+                          qtcreator-screenshots.png
     
 # Include the style sheets and scripts used.
 
