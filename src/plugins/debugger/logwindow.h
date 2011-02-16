@@ -38,6 +38,7 @@
 
 QT_BEGIN_NAMESPACE
 class QCursor;
+class QLabel;
 class QLineEdit;
 class QPlainTextEdit;
 QT_END_NAMESPACE
@@ -63,6 +64,7 @@ public:
 
 public slots:
     void clearContents();
+    void sendCommand();
     void showOutput(int channel, const QString &output);
     void showInput(int channel, const QString &input);
 
@@ -74,6 +76,7 @@ private:
     QPlainTextEdit *m_combinedText;  // combined input/output
     QPlainTextEdit *m_inputText;     // scriptable input alone
     QLineEdit *m_commandEdit;
+    QLabel *m_commandLabel;
 };
 
 
