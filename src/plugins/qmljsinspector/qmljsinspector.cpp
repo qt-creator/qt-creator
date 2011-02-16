@@ -691,8 +691,11 @@ bool InspectorUi::addQuotesForData(const QVariant &value) const
 
 void InspectorUi::setupDockWidgets()
 {
+    Debugger::DebuggerMainWindow *mw = Debugger::DebuggerPlugin::mainWindow();
+
     m_toolBar->createActions(Core::Context(Debugger::Constants::C_QMLDEBUGGER));
     m_toolBar->setObjectName("QmlInspectorToolbar");
+    mw->setToolBar(Debugger::QmlLanguage, m_toolBar->widget());
 
     m_crumblePath = new ContextCrumblePath;
     m_crumblePath->setObjectName("QmlContextPath");
@@ -709,12 +712,9 @@ void InspectorUi::setupDockWidgets()
     wlay->setMargin(0);
     wlay->setSpacing(0);
     observerWidget->setLayout(wlay);
-    wlay->addWidget(m_toolBar->widget());
     wlay->addWidget(m_crumblePath);
     wlay->addWidget(m_propertyInspector);
 
-
-    Debugger::DebuggerMainWindow *mw = Debugger::DebuggerPlugin::mainWindow();
     QDockWidget *dock = mw->createDockWidget(Debugger::QmlLanguage, observerWidget);
     dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
     dock->setTitleBarWidget(new QWidget(dock));

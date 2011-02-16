@@ -34,6 +34,8 @@
 #ifndef QMLINSPECTORTOOLBAR_H
 #define QMLINSPECTORTOOLBAR_H
 
+#include <debugger/debuggerconstants.h>
+
 #include <QtCore/QObject>
 #include <QtGui/QIcon>
 
@@ -122,7 +124,11 @@ private slots:
     void updatePlayAction();
     void updatePauseAction();
 
+    void activeDebugLanguagesChanged(Debugger::DebuggerLanguages languages);
+
 private:
+    QToolButton *m_operateByInstructionButton;
+
     QAction *m_fromQmlAction;
     QAction *m_observerModeAction;
     QAction *m_playAction;

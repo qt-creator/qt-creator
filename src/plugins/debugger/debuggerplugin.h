@@ -38,6 +38,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+QT_FORWARD_DECLARE_CLASS(QAction)
+
 namespace ProjectExplorer {
 class RunConfiguration;
 class RunControl;
@@ -65,6 +67,7 @@ public:
     // Used by QmlJSInspector.
     static bool isActiveDebugLanguage(int language);
     static DebuggerMainWindow *mainWindow();
+    static QAction *visibleDebugAction();
 
 private:
     // IPlugin implementation.

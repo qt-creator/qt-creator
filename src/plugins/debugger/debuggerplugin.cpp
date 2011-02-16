@@ -391,7 +391,6 @@ const char * const BREAK_AT_MAIN            = "Debugger.BreakAtMain";
 // Don't add '1' to the string as it shows up in the shortcut dialog.
 const char * const ADD_TO_WATCH1            = "Debugger.AddToWatch";
 const char * const ADD_TO_WATCH2            = "Debugger.AddToWatch2";
-const char * const OPERATE_BY_INSTRUCTION   = "Debugger.OperateByInstruction";
 const char * const FRAME_UP                 = "Debugger.FrameUp";
 const char * const FRAME_DOWN               = "Debugger.FrameDown";
 
@@ -3274,6 +3273,11 @@ bool DebuggerPlugin::isActiveDebugLanguage(int language)
 DebuggerMainWindow *DebuggerPlugin::mainWindow()
 {
     return theDebuggerCore->m_mainWindow;
+}
+
+QAction *DebuggerPlugin::visibleDebugAction()
+{
+    return theDebuggerCore->m_visibleDebugAction;
 }
 
 QWidget *DebugMode::widget()

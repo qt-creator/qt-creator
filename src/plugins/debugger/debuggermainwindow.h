@@ -52,12 +52,14 @@ class DebuggerMainWindowPrivate;
 
 class DEBUGGER_EXPORT DebuggerMainWindow : public Utils::FancyMainWindow
 {
+    Q_OBJECT
+
 public:
     DebuggerMainWindow();
     ~DebuggerMainWindow();
 
     // Debugger toolbars are registered with this function.
-    void setToolBar(const DebuggerLanguage &language, QWidget *widget);
+    void setToolBar(DebuggerLanguage language, QWidget *widget);
 
     // Active languages to be debugged.
     DebuggerLanguages activeDebugLanguages() const;
@@ -77,6 +79,9 @@ public:
 
     void readSettings();
     void writeSettings() const;
+
+signals:
+    void activeDebugLanguagesChanged(Debugger::DebuggerLanguages);
 
 private:
     friend class Internal::DebuggerMainWindowPrivate;
