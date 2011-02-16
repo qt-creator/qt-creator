@@ -66,14 +66,9 @@ public:
     void closeConnection();
 
     bool isConnected() const;
-    bool isUnconnected() const;
 
     QmlJsDebugClient::QDeclarativeEngineDebug *client() const;
     QmlJsDebugClient::QDeclarativeDebugConnection *connection() const;
-
-    // TODO move to private API b/w engine and adapter
-    void setMaxConnectionAttempts(int maxAttempts);
-    void setConnectionAttemptInterval(int interval);
 
     bool disableJsDebugging(bool block);
 

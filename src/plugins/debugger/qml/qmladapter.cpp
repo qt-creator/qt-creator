@@ -55,6 +55,7 @@ public:
         , m_qmlClient(0)
         , m_mainClient(0)
         , m_connectionAttempts(0)
+        , m_maxConnectionAttempts(50) // overall time: 50 x 200ms
         , m_conn(0)
     {
         m_connectionTimer.setInterval(200);
@@ -223,11 +224,6 @@ bool QmlAdapter::isConnected() const
     return d->m_conn && d->m_qmlClient && d->m_conn->state() == QAbstractSocket::ConnectedState;
 }
 
-bool QmlAdapter::isUnconnected() const
-{
-    return !d->m_conn || d->m_conn->state() == QAbstractSocket::UnconnectedState;
-}
-
 QDeclarativeEngineDebug *QmlAdapter::client() const
 {
     return d->m_mainClient;
@@ -253,15 +249,6 @@ void QmlAdapter::showConnectionErrorMessage(const QString &message)
         d->m_engine.data()->showMessage(QLatin1String("QmlJSDebugger: ") + message, LogError);
 }
 
-void QmlAdapter::setMaxConnectionAttempts(int maxAttempts)
-{
-    d->m_maxConnectionAttempts = maxAttempts;
-}
-void QmlAdapter::setConnectionAttemptInterval(int interval)
-{
-    d->m_connectionTimer.setInterval(interval);
-}
-
 bool QmlAdapter::disableJsDebugging(bool block)
 {
     if (d->m_engine.isNull())
@@ -279,7 +266,6 @@ bool QmlAdapter::disableJsDebugging(bool block)
 
     return isBlocked;
 }
-
 
 void QmlAdapter::logServiceStatusChange(const QString &service, QDeclarativeDebugClient::Status newStatus)
 {

@@ -85,11 +85,6 @@
 
 using namespace ProjectExplorer;
 
-enum {
-    MaxConnectionAttempts = 50,
-    ConnectionAttemptDefaultInterval = 200
-};
-
 namespace Debugger {
 namespace Internal {
 
@@ -258,10 +253,10 @@ void QmlEngine::connectionStartupFailed()
     case QMessageBox::Help: {
         Core::HelpManager *helpManager = Core::HelpManager::instance();
         helpManager->handleHelpRequest("qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html");
-        break;
     }
     default:
         notifyEngineRunFailed();
+        break;
     }
 }
 
@@ -364,8 +359,6 @@ void QmlEngine::shutdownEngine()
 void QmlEngine::setupEngine()
 {
     d->m_ping = 0;
-    d->m_adapter.setMaxConnectionAttempts(MaxConnectionAttempts);
-    d->m_adapter.setConnectionAttemptInterval(ConnectionAttemptDefaultInterval);
     connect(&d->m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
         SLOT(connectionError(QAbstractSocket::SocketError)));
     connect(&d->m_adapter, SIGNAL(serviceConnectionError(QString)),
