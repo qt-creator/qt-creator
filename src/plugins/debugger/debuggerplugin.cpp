@@ -3129,7 +3129,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     hbox->addSpacerItem(new QSpacerItem(4, 0));
     hbox->addWidget(m_statusLabel, 10);
 
-    m_mainWindow->setToolbar(CppLanguage, toolbarContainer);
+    m_mainWindow->setToolBar(CppLanguage, toolbarContainer);
 
     connect(action(EnableReverseDebugging),
         SIGNAL(valueChanged(QVariant)),

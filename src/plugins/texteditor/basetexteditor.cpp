@@ -5748,10 +5748,10 @@ BaseTextEditorEditable::BaseTextEditorEditable(BaseTextEditor *editor)
     using namespace Find;
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     BaseTextFind *baseTextFind = new BaseTextFind(editor);
-    connect(baseTextFind, SIGNAL(highlightAll(QString, Find::FindFlags)),
-            editor, SLOT(highlightSearchResults(QString, Find::FindFlags)));
-    connect(baseTextFind, SIGNAL(findScopeChanged(QTextCursor, QTextCursor, int, int)),
-            editor, SLOT(setFindScope(QTextCursor, QTextCursor, int, int)));
+    connect(baseTextFind, SIGNAL(highlightAll(QString,Find::FindFlags)),
+            editor, SLOT(highlightSearchResults(QString,Find::FindFlags)));
+    connect(baseTextFind, SIGNAL(findScopeChanged(QTextCursor,QTextCursor,int,int)),
+            editor, SLOT(setFindScope(QTextCursor,QTextCursor,int,int)));
     aggregate->add(baseTextFind);
     aggregate->add(editor);
 

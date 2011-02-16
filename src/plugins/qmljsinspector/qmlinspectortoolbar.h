@@ -60,6 +60,7 @@ namespace Internal {
 class QmlInspectorToolBar : public QObject
 {
     Q_OBJECT
+
 public:
     enum DesignTool {
         NoTool = 0,

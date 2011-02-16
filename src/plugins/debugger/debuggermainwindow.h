@@ -57,7 +57,7 @@ public:
     ~DebuggerMainWindow();
 
     // Debugger toolbars are registered with this function.
-    void setToolbar(const DebuggerLanguage &language, QWidget *widget);
+    void setToolBar(const DebuggerLanguage &language, QWidget *widget);
 
     // Active languages to be debugged.
     DebuggerLanguages activeDebugLanguages() const;

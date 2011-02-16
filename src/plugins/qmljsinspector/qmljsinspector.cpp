@@ -666,8 +666,7 @@ void InspectorUi::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectRef
 
     if (textEditor) {
         QDeclarativeDebugObjectReference ref = objectReferenceForLocation(fileName);
-        if (ref.debugId() != obj.debugId())
-        {
+        if (ref.debugId() != obj.debugId()) {
             m_selectionCallbackExpected = true;
             editorManager->addCurrentPositionToNavigationHistory();
             textEditor->gotoLine(source.lineNumber());
@@ -723,7 +722,7 @@ void InspectorUi::setupDockWidgets()
 
 void InspectorUi::crumblePathElementClicked(int debugId)
 {
-    QList <int> l;
+    QList<int> l;
     l << debugId;
     selectItems(l);
 }

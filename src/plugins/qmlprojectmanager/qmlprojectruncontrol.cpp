@@ -154,12 +154,8 @@ bool QmlRunControlFactory::canRun(RunConfiguration *runConfiguration,
     if (config && qmlDebugSupportInstalled) {
         if (!config->observerPath().isEmpty())
             return true;
-
-        if (config->qtVersion() && Qt4ProjectManager::QmlObserverTool::canBuild(config->qtVersion())) {
+        if (config->qtVersion() && Qt4ProjectManager::QmlObserverTool::canBuild(config->qtVersion()))
             return true;
-        } else {
-            return false;
-        }
     }
 
     return false;
@@ -172,11 +168,10 @@ RunControl *QmlRunControlFactory::create(RunConfiguration *runConfiguration,
 
     QmlProjectRunConfiguration *config = qobject_cast<QmlProjectRunConfiguration *>(runConfiguration);
     RunControl *runControl = 0;
-    if (mode == ProjectExplorer::Constants::RUNMODE) {
-       runControl = new QmlRunControl(config, mode);
-    } else if (mode == Debugger::Constants::DEBUGMODE) {
+    if (mode == ProjectExplorer::Constants::RUNMODE)
+        runControl = new QmlRunControl(config, mode);
+    else if (mode == Debugger::Constants::DEBUGMODE)
         runControl = createDebugRunControl(config);
-    }
     return runControl;
 }
 
@@ -212,7 +207,8 @@ RunControl *QmlRunControlFactory::createDebugRunControl(QmlProjectRunConfigurati
     return Debugger::DebuggerPlugin::createDebugger(params, runConfig);
 }
 
-void QmlRunControlFactory::showQmlObserverToolWarning() {
+void QmlRunControlFactory::showQmlObserverToolWarning()
+{
     QMessageBox dialog(QApplication::activeWindow());
     QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),
                                            QMessageBox::ActionRole);
@@ -236,4 +232,3 @@ void QmlRunControlFactory::showQmlObserverToolWarning() {
 
 } // namespace Internal
 } // namespace QmlProjectManager
-

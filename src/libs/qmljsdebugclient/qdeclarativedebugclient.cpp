@@ -283,6 +283,6 @@ void QDeclarativeDebugClient::messageReceived(const QByteArray &)
 {
 }
 
-}
+} // namespace QmlJsDebugClient
 
 #include <qdeclarativedebugclient.moc>
