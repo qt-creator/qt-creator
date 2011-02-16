@@ -119,13 +119,7 @@ void SimplifyTypesTest::testCase1()
     QFETCH(QString, input);
     QFETCH(QString, expected);
     const QString output = CPlusPlus::simplifySTLType(input);
-    const bool ok = output == expected;
-    if (!ok) {
-        const QString msg = QString::fromAscii("Failure: got '%1' where '%2' was expected for '%3'")
-                .arg(output, expected, input);
-        QWARN(qPrintable(msg));
-    }
-    QVERIFY2(ok, "Failure");
+    QCOMPARE(output, expected);
 }
 
 void SimplifyTypesTest::testCase1_data()
