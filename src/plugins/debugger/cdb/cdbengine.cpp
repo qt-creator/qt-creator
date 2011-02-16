@@ -411,9 +411,7 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp,
     m_watchPointY(0),
     m_ignoreCdbOutput(false)
 {
-    Utils::SavedAction *assemblerAction = theAssemblerAction();
-    m_operateByInstructionPending = assemblerAction->isChecked();
-    connect(assemblerAction, SIGNAL(triggered(bool)), this, SLOT(operateByInstructionTriggered(bool)));
+    connect(theAssemblerAction(), SIGNAL(triggered(bool)), this, SLOT(operateByInstructionTriggered(bool)));
 
     setObjectName(QLatin1String("CdbEngine"));
     connect(&m_process, SIGNAL(finished(int)), this, SLOT(processFinished()));
@@ -430,7 +428,7 @@ void CdbEngine::init()
     m_specialStopMode = NoSpecialStop;
     m_nextCommandToken  = 0;
     m_currentBuiltinCommandIndex = -1;
-    m_operateByInstructionPending = true;
+    m_operateByInstructionPending = theAssemblerAction()->isChecked();
     m_operateByInstruction = true; // Default CDB setting
     m_notifyEngineShutdownOnTermination = false;
     m_hasDebuggee = false;
@@ -463,6 +461,8 @@ void CdbEngine::operateByInstructionTriggered(bool operateByInstruction)
 
 void CdbEngine::syncOperateByInstruction(bool operateByInstruction)
 {
+    if (debug)
+        qDebug("syncOperateByInstruction current: %d new %d", m_operateByInstruction, operateByInstruction);
     if (m_operateByInstruction == operateByInstruction)
         return;
     QTC_ASSERT(m_accessible, return; )
@@ -1755,6 +1755,7 @@ void CdbEngine::handleSessionIdle(const QByteArray &messageBA)
 
     // Engine-special stop reasons: Breakpoints and setup
     const SpecialStopMode specialStopMode =  m_specialStopMode;
+
     m_specialStopMode = NoSpecialStop;
 
     switch(specialStopMode) {
