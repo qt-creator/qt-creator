@@ -107,14 +107,21 @@ bool OptionsParser::checkForTestOption()
     if (m_currentArg != QLatin1String(TEST_OPTION))
         return false;
     if (nextToken(RequiredToken)) {
-        PluginSpec *spec = m_pmPrivate->pluginByName(m_currentArg);
-        if (!spec) {
-            if (m_errorString)
-                *m_errorString = QCoreApplication::translate("PluginManager",
-                                                             "The plugin '%1' does not exist.").arg(m_currentArg);
-            m_hasError = true;
+        if(m_currentArg == "all") {
+            foreach(PluginSpec *spec, m_pmPrivate->pluginSpecs) {
+                if (spec)
+                    m_pmPrivate->testSpecs.append(spec);
+            }
         } else {
-            m_pmPrivate->testSpecs.append(spec);
+            PluginSpec *spec = m_pmPrivate->pluginByName(m_currentArg);
+            if (!spec) {
+                if (m_errorString)
+                    *m_errorString = QCoreApplication::translate("PluginManager",
+                                                                 "The plugin '%1' does not exist.").arg(m_currentArg);
+                m_hasError = true;
+            } else {
+                m_pmPrivate->testSpecs.append(spec);
+            }
         }
     }
     return true;
