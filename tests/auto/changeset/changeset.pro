@@ -1,15 +1,5 @@
 include(../qttest.pri)
 
-# Defines import symbol as empty
-DEFINES+=QTCREATOR_UTILS_STATIC_LIB
+include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
 
-UTILSDIR = ../../../src/libs
-
-SOURCES += \
-	tst_changeset.cpp \
-	$$UTILSDIR/utils/changeset.cpp
-
-HEADERS += \
-	$$UTILSDIR/utils/changeset.h
-
-INCLUDEPATH += $$UTILSDIR
+SOURCES += tst_changeset.cpp

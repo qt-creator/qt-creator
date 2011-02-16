@@ -84,6 +84,7 @@ void tst_Plugin::readStandardError()
 void tst_Plugin::runQtc()
 {
     QString test = QFileInfo(qApp->arguments().at(0)).absoluteFilePath();
+    // FIXME: this is utterly broken...
     QString qtc = QFileInfo(test).absolutePath() + "/../../../bin/qtcreator.bin";
     qtc = QFileInfo(qtc).absoluteFilePath();
     QStringList env = QProcess::systemEnvironment();

@@ -1,8 +1,8 @@
 include(../qttest.pri)
 
-DEBUGGERDIR = ../../../src/plugins/debugger
-UTILSDIR    = ../../../src/libs
-MACROSDIR   = ../../../share/qtcreator/gdbmacros
+DEBUGGERDIR = $$IDE_SOURCE_TREE/src/plugins/debugger
+UTILSDIR    = $$IDE_SOURCE_TREE/src/libs
+MACROSDIR   = $$IDE_SOURCE_TREE/share/qtcreator/gdbmacros
 
 SOURCES += \
     $$DEBUGGERDIR/gdb/gdbmi.cpp \
@@ -11,6 +11,7 @@ SOURCES += \
     tst_dumpers.cpp \
 
 DEFINES += MACROSDEBUG
+
 win32:DEFINES += _CRT_SECURE_NO_WARNINGS
 
 DEFINES -= QT_USE_FAST_CONCATENATION QT_USE_FAST_OPERATOR_PLUS

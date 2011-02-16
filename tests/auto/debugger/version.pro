@@ -1,8 +1,7 @@
 include(../qttest.pri)
 
-UTILSDIR    = ../../../src/libs
-
-DEBUGGERDIR = ../../../src/plugins/debugger
+UTILSDIR    = $$IDE_SOURCE_TREE/src/libs
+DEBUGGERDIR = $$IDE_SOURCE_TREE/src/plugins/debugger
 
 INCLUDEPATH += $$DEBUGGERDIR $$UTILSDIR
 

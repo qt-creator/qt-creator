@@ -1,13 +1,5 @@
-CONFIG += qtestlib testcase
-TEMPLATE = app
-CONFIG -= app_bundle
+include(../qttest.pri)
 
-UTILS_PATH = ../../../src/shared/proparser
-
-INCLUDEPATH += $$UTILS_PATH
-DEPENDPATH += $$UTILS_PATH
-
-SOURCES += \
-    tst_ioutils.cpp
-
-TARGET = tst_$$TARGET
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/shared
+SOURCES += tst_ioutils.cpp \
+    $$IDE_SOURCE_TREE/src/shared/proparser/ioutils.cpp

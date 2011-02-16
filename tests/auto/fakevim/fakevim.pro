@@ -1,12 +1,9 @@
 include(../qttest.pri)
 
-# Defines import symbol as empty
-DEFINES+=QTCREATOR_UTILS_STATIC_LIB
+include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
 
-include(../../../src/libs/utils/utils.pri)
-
-FAKEVIMDIR = ../../../src/plugins/fakevim
-UTILSDIR = ../../../src/libs
+FAKEVIMDIR = $$IDE_SOURCE_TREE/src/plugins/fakevim
+UTILSDIR = $$IDE_SOURCE_TREE/src/libs
 
 SOURCES += \
         $$FAKEVIMDIR/fakevimhandler.cpp \

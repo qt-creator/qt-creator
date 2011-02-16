@@ -31,9 +31,9 @@
 **
 **************************************************************************/
 
-#include "../../../src/shared/proparser/ioutils.cpp"
-
 #include <QtTest/QtTest>
+#include <proparser/ioutils.h>
+
 
 class tst_IoUtils : public QObject
 {
@@ -79,7 +79,7 @@ void tst_IoUtils::quoteArg()
     QFETCH(QString, in);
     QFETCH(QString, out);
 
-    QCOMPARE(IoUtils::shellQuote(in), out);
+    QCOMPARE(ProFileEvaluatorInternal::IoUtils::shellQuote(in), out);
 }
 
 QTEST_MAIN(tst_IoUtils)

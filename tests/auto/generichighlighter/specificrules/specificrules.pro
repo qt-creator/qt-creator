@@ -1,15 +1,16 @@
 include(../../qttest.pri)
 
-PLUGINSDIR = ../../../../src/plugins
+PLUGINSDIR = $$IDE_SOURCE_TREE/src/plugins
+GENERICHIGHLIGHTERDIR = $$PLUGINSDIR/texteditor/generichighlighter
 
 SOURCES += tst_specificrules.cpp \
-    $$PLUGINSDIR/texteditor/generichighlighter/context.cpp \
-    $$PLUGINSDIR/texteditor/generichighlighter/dynamicrule.cpp \
-    $$PLUGINSDIR/texteditor/generichighlighter/rule.cpp \
-    $$PLUGINSDIR/texteditor/generichighlighter/specificrules.cpp \
-    $$PLUGINSDIR/texteditor/generichighlighter/progressdata.cpp \
-    $$PLUGINSDIR/texteditor/generichighlighter/highlightdefinition.cpp \
-    $$PLUGINSDIR/texteditor/generichighlighter/keywordlist.cpp \
-    $$PLUGINSDIR/texteditor/generichighlighter/itemdata.cpp
+    $$GENERICHIGHLIGHTERDIR/context.cpp \
+    $$GENERICHIGHLIGHTERDIR/dynamicrule.cpp \
+    $$GENERICHIGHLIGHTERDIR/rule.cpp \
+    $$GENERICHIGHLIGHTERDIR/specificrules.cpp \
+    $$GENERICHIGHLIGHTERDIR/progressdata.cpp \
+    $$GENERICHIGHLIGHTERDIR/highlightdefinition.cpp \
+    $$GENERICHIGHLIGHTERDIR/keywordlist.cpp \
+    $$GENERICHIGHLIGHTERDIR/itemdata.cpp
 
 INCLUDEPATH += $$PLUGINSDIR

@@ -1,7 +1,7 @@
 include(../../qttest.pri)
 QT += gui
 
-PLUGINSDIR = ../../../../src/plugins
+PLUGINSDIR = $$IDE_SOURCE_TREE/src/plugins
 GENERICHIGHLIGHTERDIR = $$PLUGINSDIR/texteditor/generichighlighter
 
 SOURCES += \

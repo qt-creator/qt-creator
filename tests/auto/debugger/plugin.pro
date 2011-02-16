@@ -1,8 +1,8 @@
 include(../qttest.pri)
 
-DEBUGGERDIR = ../../../src/plugins/debugger
-UTILSDIR    = ../../../src/libs
-MACROSDIR   = ../../../share/qtcreator/gdbmacros
+DEBUGGERDIR = $$IDE_SOURCE_TREE/src/plugins/debugger
+UTILSDIR    = $$IDE_SOURCE_TREE/src/libs
+MACROSDIR   = $$IDE_SOURCE_TREE/share/qtcreator/gdbmacros
 
 SOURCES += \
     tst_plugin.cpp \
