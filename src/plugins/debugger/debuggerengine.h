@@ -182,6 +182,7 @@ public:
     virtual void removeBreakpoint(BreakpointId id);  // FIXME: make pure
     virtual void changeBreakpoint(BreakpointId id);  // FIXME: make pure
 
+    virtual bool acceptsDebuggerCommands() const { return true; }
     virtual void assignValueInDebugger(const Internal::WatchData *data,
         const QString &expr, const QVariant &value);
     virtual void selectThread(int index);

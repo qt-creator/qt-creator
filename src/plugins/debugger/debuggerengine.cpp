@@ -1475,6 +1475,7 @@ void DebuggerEngine::executeJumpToLine(const QString &, int)
 
 void DebuggerEngine::executeDebuggerCommand(const QString &)
 {
+    showStatusMessage(tr("This debugger cannot handle user input."));
 }
 
 BreakHandler *DebuggerEngine::breakHandler() const

@@ -203,9 +203,6 @@ public:
         QMenu *menu = createStandardContextMenu();
         menu->addAction(m_clearContentsAction);
         menu->addAction(m_saveContentsAction); // X11 clipboard is unreliable for long texts
-        addContextActions(menu);
-        debuggerCore()->action(ExecuteCommand)->setData(textCursor().block().text());
-        menu->addAction(debuggerCore()->action(ExecuteCommand));
         menu->addAction(debuggerCore()->action(LogTimeStamps));
         menu->addAction(debuggerCore()->action(VerboseLog));
         menu->addSeparator();
@@ -214,7 +211,6 @@ public:
         delete menu;
     }
 
-    virtual void addContextActions(QMenu *) {}
 
 private slots:
     void saveContents();
@@ -254,7 +250,7 @@ private:
     void keyPressEvent(QKeyEvent *ev)
     {
         if (ev->modifiers() == Qt::ControlModifier && ev->key() == Qt::Key_Return)
-            debuggerCore()->action(ExecuteCommand)->trigger(textCursor().block().text());
+            debuggerCore()->executeDebuggerCommand(textCursor().block().text());
         else if (ev->modifiers() == Qt::ControlModifier && ev->key() == Qt::Key_R)
             emit clearContentsRequested();
         else
@@ -278,11 +274,6 @@ private:
             n = 10 * n + c.unicode() - '0';
         }
         emit commandSelected(n);
-    }
-
-    void addContextActions(QMenu *menu)
-    {
-       menu->addAction(debuggerCore()->action(ExecuteCommand));
     }
 
     void focusInEvent(QFocusEvent *ev)
@@ -351,7 +342,7 @@ LogWindow::LogWindow(QWidget *parent)
     setWindowTitle(tr("Debugger Log"));
     setObjectName("Log");
 
-    QSplitter *m_splitter = new  Core::MiniSplitter(Qt::Horizontal);
+    QSplitter *m_splitter = new Core::MiniSplitter(Qt::Horizontal);
     m_splitter->setParent(this);
 
     // Mixed input/output.
@@ -414,7 +405,7 @@ LogWindow::LogWindow(QWidget *parent)
 
 void LogWindow::sendCommand()
 {
-    debuggerCore()->action(ExecuteCommand)->trigger(m_commandEdit->text());
+    debuggerCore()->executeDebuggerCommand(m_commandEdit->text());
 }
 
 void LogWindow::showOutput(int channel, const QString &output)

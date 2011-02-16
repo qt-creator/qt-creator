@@ -479,9 +479,9 @@ public:
     void runEngine() {}
     void shutdownEngine() {}
     void shutdownInferior() {}
-    void executeDebuggerCommand(const QString &) {}
     unsigned debuggerCapabilities() const { return 0; }
     bool acceptsBreakpoint(BreakpointId) const { return false; }
+    bool acceptsDebuggerCommands() const { return false; }
 };
 
 static DebuggerEngine *dummyEngine()
@@ -949,7 +949,7 @@ public slots:
     void aboutToUnloadSession();
     void aboutToSaveSession();
 
-    void executeDebuggerCommand();
+    void executeDebuggerCommand(const QString &command);
     void scriptExpressionEntered(const QString &expression);
     void coreShutdown();
 
@@ -2131,7 +2131,6 @@ void DebuggerPluginPrivate::setInitialState()
 
     action(AutoDerefPointers)->setEnabled(true);
     action(ExpandStack)->setEnabled(false);
-    action(ExecuteCommand)->setEnabled(false);
 
     m_scriptConsoleWindow->setEnabled(false);
 }
@@ -2263,7 +2262,6 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     action(AutoDerefPointers)->setEnabled(canDeref);
     action(AutoDerefPointers)->setEnabled(true);
     action(ExpandStack)->setEnabled(actionsEnabled);
-    action(ExecuteCommand)->setEnabled(state == InferiorStopOk);
 
     const bool notbusy = state == InferiorStopOk
         || state == DebuggerNotReady
@@ -2379,10 +2377,12 @@ void DebuggerPluginPrivate::aboutToSaveSession()
     m_breakHandler->saveSessionData();
 }
 
-void DebuggerPluginPrivate::executeDebuggerCommand()
+void DebuggerPluginPrivate::executeDebuggerCommand(const QString &command)
 {
-    if (QAction *action = qobject_cast<QAction *>(sender()))
-        currentEngine()->executeDebuggerCommand(action->data().toString());
+    if (currentEngine()->acceptsDebuggerCommands())
+        currentEngine()->executeDebuggerCommand(command);
+    else
+        showStatusMessage(tr("User commands are not accepted in the current state."));
 }
 
 void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)
@@ -2756,9 +2756,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
         SLOT(handleOperateByInstructionTriggered(bool)));
 
     connect(&m_statusTimer, SIGNAL(timeout()), SLOT(clearStatusMessage()));
-
-    connect(action(ExecuteCommand), SIGNAL(triggered()),
-        SLOT(executeDebuggerCommand()));
 
     ActionContainer *debugMenu =
         am->actionContainer(ProjectExplorer::Constants::M_DEBUG);

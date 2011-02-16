@@ -192,11 +192,10 @@ public:
 
     void contextMenuEvent(QContextMenuEvent *ev)
     {
-        debuggerCore()->action(ExecuteCommand)->setData(textCursor().block().text());
+        debuggerCore()->executeDebuggerCommand(textCursor().block().text());
         QMenu *menu = createStandardContextMenu();
         menu->addAction(m_clearContentsAction);
         menu->addAction(m_saveContentsAction); // X11 clipboard is unreliable for long texts
-        menu->addAction(debuggerCore()->action(ExecuteCommand));
         menu->addAction(debuggerCore()->action(LogTimeStamps));
         menu->addAction(debuggerCore()->action(VerboseLog));
         menu->addSeparator();
@@ -217,7 +216,7 @@ public:
                     if (c.unicode() >= 32 && c.unicode() < 128)
                         cleanCmd.append(c);
                 if (!cleanCmd.isEmpty()) {
-                    debuggerCore()->action(ExecuteCommand)->trigger(cleanCmd);
+                    debuggerCore()->executeDebuggerCommand(cleanCmd);
                     m_history.append(cleanCmd);
                 }
             }

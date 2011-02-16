@@ -397,10 +397,6 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     insertItem(CreateFullBacktrace, item);
 
     item = new SavedAction(this);
-    item->setText(tr("Execute Line"));
-    insertItem(ExecuteCommand, item);
-
-    item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("WatchdogTimeout"));
     item->setDefaultValue(20);
     insertItem(GdbWatchdogTimeout, item);

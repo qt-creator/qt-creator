@@ -115,6 +115,7 @@ private: ////////// General Interface //////////
     virtual void shutdownInferior();
     virtual void notifyInferiorSetupFailed();
 
+    virtual bool acceptsDebuggerCommands() const;
     virtual void executeDebuggerCommand(const QString &command);
     virtual QByteArray qtNamespace() const { return m_dumperHelper.qtNamespace(); }
     virtual void setQtNamespace(const QByteArray &ns)

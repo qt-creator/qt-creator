@@ -1062,17 +1062,19 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         m_commandTimer.stop();
 }
 
+bool GdbEngine::acceptsDebuggerCommands() const
+{
+    return state() == InferiorStopOk
+        || state() == InferiorUnrunnable;
+}
+
 void GdbEngine::executeDebuggerCommand(const QString &command)
 {
-    if (state() == DebuggerNotReady) {
-        showMessage(_("GDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: ") + command);
-        return;
-    }
-
+    QTC_ASSERT(acceptsDebuggerCommands(), /**/);
     m_gdbAdapter->write(command.toLatin1() + "\r\n");
 }
 
-// Called from CoreAdapter and AttachAdapter
+// This is called from CoreAdapter and AttachAdapter.
 void GdbEngine::updateAll()
 {
     if (hasPython())
