@@ -109,7 +109,7 @@ bool OptionsParser::checkForTestOption()
     if (nextToken(RequiredToken)) {
         if(m_currentArg == "all") {
             foreach(PluginSpec *spec, m_pmPrivate->pluginSpecs) {
-                if (spec)
+                if (spec && !m_pmPrivate->testSpecs.contains(spec))
                     m_pmPrivate->testSpecs.append(spec);
             }
         } else {
@@ -119,7 +119,7 @@ bool OptionsParser::checkForTestOption()
                     *m_errorString = QCoreApplication::translate("PluginManager",
                                                                  "The plugin '%1' does not exist.").arg(m_currentArg);
                 m_hasError = true;
-            } else {
+            } else if(!m_pmPrivate->testSpecs.contains(spec)) {
                 m_pmPrivate->testSpecs.append(spec);
             }
         }
