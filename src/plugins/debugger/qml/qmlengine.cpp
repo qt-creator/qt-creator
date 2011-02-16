@@ -258,11 +258,6 @@ void QmlEngine::serviceConnectionError(const QString &serviceName)
         .arg(serviceName), StatusBar);
 }
 
-void QmlEngine::pauseConnection()
-{
-    d->m_adapter.pauseConnection();
-}
-
 bool QmlEngine::canDisplayTooltip() const
 {
     return state() == InferiorRunOk || state() == InferiorStopOk;

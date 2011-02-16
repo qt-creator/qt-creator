@@ -59,7 +59,6 @@ public:
     void handleRemoteSetupFailed(const QString &message);
 
     void gotoLocation(const Location &location);
-    void pauseConnection();
     bool canDisplayTooltip() const;
 
 public slots:

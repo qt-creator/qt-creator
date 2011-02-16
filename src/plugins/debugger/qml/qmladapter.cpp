@@ -95,11 +95,6 @@ void QmlAdapter::beginConnection()
     d->m_connectionTimer.start();
 }
 
-void QmlAdapter::pauseConnection()
-{
-    d->m_connectionTimer.stop();
-}
-
 void QmlAdapter::closeConnection()
 {
     if (d->m_connectionTimer.isActive()) {

@@ -63,7 +63,6 @@ public:
     virtual ~QmlAdapter();
 
     void beginConnection();
-    void pauseConnection();
     void closeConnection();
 
     bool isConnected() const;
