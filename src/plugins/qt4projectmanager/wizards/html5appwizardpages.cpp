@@ -56,7 +56,7 @@ Html5AppWizardSourcesPage::Html5AppWizardSourcesPage(QWidget *parent)
     m_d->ui.setupUi(this);
     m_d->ui.importLineEdit->setExpectedKind(Utils::PathChooser::File);
     m_d->ui.importLineEdit->setPromptDialogFilter(QLatin1String("*.html"));
-    m_d->ui.importLineEdit->setPromptDialogTitle(tr("Select Html File"));
+    m_d->ui.importLineEdit->setPromptDialogTitle(tr("Select HTML File"));
     connect(m_d->ui.importLineEdit, SIGNAL(changed(QString)), SIGNAL(completeChanged()));
     connect(m_d->ui.importRadioButton,
             SIGNAL(toggled(bool)), SIGNAL(completeChanged()));

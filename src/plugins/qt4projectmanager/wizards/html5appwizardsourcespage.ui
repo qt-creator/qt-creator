@@ -17,7 +17,7 @@
    <item>
     <widget class="QGroupBox" name="mainQmlFileGroupBox">
      <property name="title">
-      <string>Main Html File</string>
+      <string>Main HTML File</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0" colspan="2">
@@ -108,7 +108,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Note: Unless you chose to load a URL, all files and directories that reside in the same directory as the main Html file are deployed. You can modify the contents of the directory any time before deploying.</string>
+      <string>Note: Unless you chose to load a URL, all files and directories that reside in the same directory as the main HTML file are deployed. You can modify the contents of the directory any time before deploying.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

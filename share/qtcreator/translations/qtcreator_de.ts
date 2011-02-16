@@ -23835,7 +23835,7 @@ Fehler: %2</translation>
         <translation>WizardPage</translation>
     </message>
     <message>
-        <source>Main Html File</source>
+        <source>Main HTML File</source>
         <translation>Haupt-HTML-Datei</translation>
     </message>
     <message>
@@ -23855,7 +23855,7 @@ Fehler: %2</translation>
         <translation>http://</translation>
     </message>
     <message>
-        <source>Note: Unless you chose to load a URL, all files and directories that reside in the same directory as the main Html file are deployed. You can modify the contents of the directory any time before deploying.</source>
+        <source>Note: Unless you chose to load a URL, all files and directories that reside in the same directory as the main HTML file are deployed. You can modify the contents of the directory any time before deploying.</source>
         <translation>Hinweis: Wenn Sie keinen URL angeben, werden alle Dateien die sich im selben Ordner wie die HTML-Hauptdatei befinden, zum Deployment vorgesehen. Der Inhalt des Ordners kann vor dem Deployment-Vorgang jederzeit modifiziert werden.</translation>
     </message>
 </context>
@@ -26071,15 +26071,15 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
 <context>
     <name>Qt4ProjectManager::Internal::Html5AppWizardDialog</name>
     <message>
-        <source>New Html5 Application</source>
+        <source>New HTML5 Application</source>
         <translation type="obsolete">Neue HTML5-Anwendung</translation>
     </message>
     <message>
-        <source>This wizard generates a Html5 application project.</source>
+        <source>This wizard generates a HTML5 application project.</source>
         <translation type="obsolete">Dieser Wizard erstellt ein HTML5-Anwendungsprojekt.</translation>
     </message>
     <message>
-        <source>Html Sources</source>
+        <source>HTML Sources</source>
         <translation type="obsolete">HTML-Quellen</translation>
     </message>
     <message>
@@ -26098,11 +26098,11 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
 <context>
     <name>Qt4ProjectManager::Internal::Html5AppWizard</name>
     <message>
-        <source>Html5 Application</source>
+        <source>HTML5 Application</source>
         <translation type="obsolete">HTML5-Anwendung</translation>
     </message>
     <message>
-        <source>Creates an Html5 application project that can contain both Html5 and C++ code and includes a Webkit view.
+        <source>Creates an HTML5 application project that can contain both HTML5 and C++ code and includes a Webkit view.
 
 You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects.</source>
         <translation type="obsolete">Erstellt ein HTML5-Projekt, welches HTML5- und C++-Code enthält und WebKit zur Anzeige verwendet.
@@ -26125,7 +26125,7 @@ Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen
 <context>
     <name>Qt4ProjectManager::Internal::Html5AppWizardSourcesPage</name>
     <message>
-        <source>Select Html File</source>
+        <source>Select HTML File</source>
         <translation>HTML-Datei auswählen</translation>
     </message>
 </context>
