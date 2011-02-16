@@ -744,6 +744,8 @@ BaseMimeTypeParser::ParseStage BaseMimeTypeParser::nextStage(ParseStage currentS
             return ParseAlias;
         if (startElement == QLatin1String(magicTagC))
             return ParseMagic;
+        if (startElement == QLatin1String(matchTagC))
+            return ParseMagicMatchRule;
         return ParseOtherMimeTypeSubTag;
     case ParseMagic:
         if (startElement == QLatin1String(matchTagC))
