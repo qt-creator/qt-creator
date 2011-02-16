@@ -116,11 +116,11 @@ class PropertyEditDelegate : public QItemDelegate
 
         // add quotes if it's a string
         QmlJSPropertyInspector::PropertyType propertyType = m_treeWidget->getTypeFor(index.row());
-        QChar quote('\"');
-        QChar backslash('\\');
+        const QChar quote(QLatin1Char('\"'));
 
         if ( propertyType == QmlJSPropertyInspector::StringType ) {
-            propertyValue = propertyValue.replace(quote,backslash+quote);
+            const QChar backslash(QLatin1Char('\\'));
+            propertyValue = propertyValue.replace(quote, QString(backslash) + quote);
         }
 
         if ( propertyType == QmlJSPropertyInspector::StringType || propertyType == QmlJSPropertyInspector::ColorType ) {
