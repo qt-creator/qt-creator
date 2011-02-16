@@ -65,7 +65,6 @@ signals:
 
 protected:
     void resizeEvent(QResizeEvent *);
-    void paintEvent(QPaintEvent *);
 
 private slots:
     void mapClickToIndex();

@@ -81,7 +81,6 @@ QmlInspectorToolBar::QmlInspectorToolBar(QObject *parent) :
     m_menuPauseAction(0),
     m_playIcon(QIcon(QLatin1String(":/qml/images/play-small.png"))),
     m_pauseIcon(QIcon(QLatin1String(":/qml/images/pause-small.png"))),
-    m_filterExp(0),
     m_colorBox(0),
     m_emitSignals(true),
     m_isRunning(false),
@@ -102,7 +101,6 @@ void QmlInspectorToolBar::setEnabled(bool value)
     m_zoomAction->setEnabled(value);
     m_colorPickerAction->setEnabled(value);
     m_colorBox->setEnabled(value);
-    m_filterExp->setEnabled(value);
 }
 
 void QmlInspectorToolBar::enable()
@@ -304,10 +302,6 @@ void QmlInspectorToolBar::createActions(const Core::Context &context)
     m_colorBox->setOuterBorderColor(QColor(58, 58, 58));
     toolBarLayout->addWidget(m_colorBox);
 
-    m_filterExp = new QLineEdit(m_barWidget);
-    m_filterExp->setPlaceholderText("<filter property list>");
-    toolBarLayout->addWidget(m_filterExp);
-
     setEnabled(false);
 
     connect(m_fromQmlAction, SIGNAL(triggered()), SLOT(activateFromQml()));
@@ -318,7 +312,6 @@ void QmlInspectorToolBar::createActions(const Core::Context &context)
     connect(m_selectAction, SIGNAL(triggered()), SLOT(activateSelectToolOnClick()));
     connect(m_zoomAction, SIGNAL(triggered()), SLOT(activateZoomOnClick()));
     connect(m_colorPickerAction, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
-    connect(m_filterExp, SIGNAL(textChanged(QString)), SIGNAL(filterTextChanged(QString)));
 
     Debugger::DebuggerMainWindow *mw = Debugger::DebuggerPlugin::mainWindow();
     activeDebugLanguagesChanged(mw->activeDebugLanguages());

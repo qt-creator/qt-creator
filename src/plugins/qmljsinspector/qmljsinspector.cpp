@@ -52,6 +52,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
+#include <utils/stylehelper.h>
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/findplaceholder.h>
@@ -94,6 +95,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
+#include <QtGui/QPainter>
 #include <QtGui/QSpinBox>
 #include <QtGui/QMessageBox>
 #include <QtGui/QTextBlock>
@@ -114,6 +116,24 @@ enum {
     ConnectionAttemptSimultaneousInterval = 500
 };
 
+/**
+ * A widget that has the base color.
+ */
+class StyledBackground : public QWidget
+{
+public:
+    explicit StyledBackground(QWidget *parent = 0)
+        : QWidget(parent)
+    {}
+
+protected:
+    void paintEvent(QPaintEvent *e)
+    {
+        QPainter p(this);
+        p.fillRect(e->rect(), Utils::StyleHelper::baseColor());
+    }
+};
+
 InspectorUi *InspectorUi::m_instance = 0;
 
 QmlJS::ModelManagerInterface *modelManager()
@@ -126,6 +146,7 @@ InspectorUi::InspectorUi(QObject *parent)
     , m_listeningToEditorManager(false)
     , m_toolBar(0)
     , m_crumblePath(0)
+    , m_filterExp(0)
     , m_propertyInspector(0)
     , m_settings(new InspectorSettings(this))
     , m_clientProxy(0)
@@ -708,11 +729,24 @@ void InspectorUi::setupDockWidgets()
     observerWidget->setWindowTitle(tr("QML Observer"));
     observerWidget->setObjectName(Debugger::Constants::DOCKWIDGET_QML_INSPECTOR);
 
+    QWidget *pathAndFilterWidget = new StyledBackground;
+    pathAndFilterWidget->setMaximumHeight(m_crumblePath->height());
+
+    m_filterExp = new QLineEdit;
+    m_filterExp->setPlaceholderText("Filter properties");
+    m_filterExp->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+
+    QHBoxLayout *pathAndFilterLayout = new QHBoxLayout(pathAndFilterWidget);
+    pathAndFilterLayout->setMargin(0);
+    pathAndFilterLayout->setSpacing(0);
+    pathAndFilterLayout->addWidget(m_crumblePath);
+    pathAndFilterLayout->addWidget(m_filterExp);
+
     QVBoxLayout *wlay = new QVBoxLayout(observerWidget);
     wlay->setMargin(0);
     wlay->setSpacing(0);
     observerWidget->setLayout(wlay);
-    wlay->addWidget(m_crumblePath);
+    wlay->addWidget(pathAndFilterWidget);
     wlay->addWidget(m_propertyInspector);
 
     QDockWidget *dock = mw->createDockWidget(Debugger::QmlLanguage, observerWidget);
@@ -858,7 +892,7 @@ void InspectorUi::connectSignals()
     connect(m_toolBar, SIGNAL(showAppOnTopSelected(bool)),
             m_clientProxy, SLOT(showAppOnTop(bool)));
 
-    connect(m_toolBar, SIGNAL(filterTextChanged(QString)),
+    connect(m_filterExp, SIGNAL(textChanged(QString)),
             m_propertyInspector, SLOT(filterBy(QString)));
 }
 

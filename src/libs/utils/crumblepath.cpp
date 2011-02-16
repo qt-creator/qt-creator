@@ -94,10 +94,9 @@ private:
 CrumblePathButton::CrumblePathButton(const QString &title, QWidget *parent)
     : QPushButton(title, parent), m_isHovering(false), m_isPressed(false), m_isSelected(false), m_isEnd(true)
 {
-    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
     setToolTip(title);
     setMinimumHeight(24);
-    setMaximumHeight(24);
     setMouseTracking(true);
     m_textPos.setX(18);
     m_textPos.setY(height());
@@ -218,15 +217,12 @@ QVariant CrumblePathButton::data() const
 struct CrumblePathPrivate {
     explicit CrumblePathPrivate(CrumblePath *q);
 
-    QColor m_baseColor;
     QList<CrumblePathButton*> m_buttons;
-    QWidget *m_background;
 };
 
-CrumblePathPrivate::CrumblePathPrivate(CrumblePath *q) :
-    m_baseColor(StyleHelper::baseColor()),
-    m_background(new QWidget(q))
+CrumblePathPrivate::CrumblePathPrivate(CrumblePath *q)
 {
+    Q_UNUSED(q)
 }
 
 //
@@ -238,9 +234,6 @@ CrumblePath::CrumblePath(QWidget *parent) :
     setMinimumHeight(25);
     setMaximumHeight(25);
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-
-    setBackgroundStyle();
-    d->m_background->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 }
 
 CrumblePath::~CrumblePath()
@@ -260,11 +253,6 @@ QVariant CrumblePath::dataForIndex(int index) const
     if ((index > -1) && (index < d->m_buttons.length()))
         return d->m_buttons[index]->data();
     return QVariant();
-}
-
-void CrumblePath::setBackgroundStyle()
-{
-    d->m_background->setStyleSheet("QWidget { background-color:" + d->m_baseColor.name() + ";}");
 }
 
 void CrumblePath::pushElement(const QString &title, const QVariant data)
@@ -377,9 +365,6 @@ void CrumblePath::resizeButtons()
         }
 
     }
-
-    d->m_background->setGeometry(0,0, width(), height());
-    d->m_background->update();
 }
 
 void CrumblePath::mapClickToIndex()
@@ -391,16 +376,6 @@ void CrumblePath::mapClickToIndex()
         if (QString("QPushButton") == element->metaObject()->className()) {
             emit elementClicked(static_cast<CrumblePathButton *>(element)->data().toInt());
         }
-}
-
-void CrumblePath::paintEvent(QPaintEvent *event)
-{
-    if (StyleHelper::baseColor() != d->m_baseColor) {
-        d->m_baseColor = StyleHelper::baseColor();
-        setBackgroundStyle();
-    }
-
-    QWidget::paintEvent(event);
 }
 
 } // namespace Utils
