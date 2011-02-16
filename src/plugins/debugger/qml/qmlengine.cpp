@@ -57,6 +57,8 @@
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 
+#include <coreplugin/helpmanager.h>
+
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -239,11 +241,28 @@ void QmlEngine::connectionEstablished()
 
 void QmlEngine::connectionStartupFailed()
 {
-    QMessageBox::critical(0, tr("Failed to connect to debugger"),
-        tr("Could not connect to QML debugger server at %1:%2.")
-        .arg(startParameters().qmlServerAddress)
-        .arg(startParameters().qmlServerPort));
-    notifyEngineRunFailed();
+    QMessageBox::Button button =
+            QMessageBox::critical(0, tr("Failed to connect to QML debugger"),
+                                  tr("Qt Creator could not connect to the in-process debugger at %1:%2.\n"
+                                     "Do you want to retry?")
+                                  .arg(startParameters().qmlServerAddress)
+                                  .arg(startParameters().qmlServerPort),
+                                  QMessageBox::Retry | QMessageBox::Cancel | QMessageBox::Help,
+                                  QMessageBox::Retry);
+
+    switch (button) {
+    case QMessageBox::Retry: {
+        d->m_adapter.beginConnection();
+        break;
+    }
+    case QMessageBox::Help: {
+        Core::HelpManager *helpManager = Core::HelpManager::instance();
+        helpManager->handleHelpRequest("qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html");
+        break;
+    }
+    default:
+        notifyEngineRunFailed();
+    }
 }
 
 void QmlEngine::connectionError(QAbstractSocket::SocketError socketError)

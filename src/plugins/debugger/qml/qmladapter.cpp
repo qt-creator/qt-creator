@@ -114,9 +114,9 @@ void QmlAdapter::pollInferior()
         d->m_connectionTimer.stop();
         d->m_connectionAttempts = 0;
     } else if (d->m_connectionAttempts == d->m_maxConnectionAttempts) {
-        emit connectionStartupFailed();
         d->m_connectionTimer.stop();
         d->m_connectionAttempts = 0;
+        emit connectionStartupFailed();
     } else {
         connectToViewer();
     }
