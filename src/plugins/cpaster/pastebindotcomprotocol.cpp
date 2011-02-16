@@ -109,7 +109,7 @@ static inline QByteArray format(Protocol::ContentType ct)
         return "paste_format=javascript";
         break;
     case Protocol::Diff:
-        return "paste_format=dff";
+        return "paste_format=diff"; // v3.X 'dff' -> 'diff'
         break;
     case Protocol::Xml:
         return "paste_format=xml";
