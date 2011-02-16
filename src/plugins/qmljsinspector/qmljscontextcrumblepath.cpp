@@ -39,15 +39,11 @@ namespace QmlJSInspector {
 namespace Internal {
 
 ContextCrumblePath::ContextCrumblePath(QWidget *parent)
-    : CrumblePath(parent), m_isEmpty(true)
+    : CrumblePath(parent)
+    , m_isEmpty(true)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    updateContextPath(QStringList(),QList<int>());
-}
-
-ContextCrumblePath::~ContextCrumblePath()
-{
-
+    updateContextPath(QStringList(), QList<int>());
 }
 
 void ContextCrumblePath::updateContextPath(const QStringList &path, const QList<int> &debugIds)
@@ -60,9 +56,8 @@ void ContextCrumblePath::updateContextPath(const QStringList &path, const QList<
     if (m_isEmpty) {
         pushElement(tr("[no context]"));
     } else {
-        for (int i=0; i<path.count(); i++) {
-            pushElement(path[i],QVariant(debugIds[i]));
-        }
+        for (int i=0; i<path.count(); i++)
+            pushElement(path[i], QVariant(debugIds[i]));
     }
 }
 

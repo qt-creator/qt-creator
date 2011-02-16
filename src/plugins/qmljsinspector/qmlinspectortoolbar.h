@@ -44,11 +44,11 @@ QT_FORWARD_DECLARE_CLASS(QColor)
 QT_FORWARD_DECLARE_CLASS(QToolButton)
 
 namespace Core {
-    class Context;
+class Context;
 }
 
 namespace Utils {
-    class StyledBar;
+class StyledBar;
 }
 
 namespace QmlJSInspector {

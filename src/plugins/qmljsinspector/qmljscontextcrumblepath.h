@@ -42,9 +42,10 @@ namespace Internal {
 class ContextCrumblePath : public Utils::CrumblePath
 {
     Q_OBJECT
+
 public:
     ContextCrumblePath(QWidget *parent = 0);
-    virtual ~ContextCrumblePath();
+
     bool isEmpty() const;
     int debugIdForIndex(int index) const;
 

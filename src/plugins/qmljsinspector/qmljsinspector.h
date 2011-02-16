@@ -48,20 +48,20 @@
 QT_FORWARD_DECLARE_CLASS(QLineEdit)
 
 namespace ProjectExplorer {
-    class Project;
-    class Environment;
+class Project;
+class Environment;
 }
 
 namespace TextEditor {
-    class ITextEditor;
+class ITextEditor;
 }
 
 namespace Core {
-    class IContext;
+class IContext;
 }
 
 namespace QmlJS {
-    class ModelManagerInterface;
+class ModelManagerInterface;
 }
 
 namespace QmlJSInspector {

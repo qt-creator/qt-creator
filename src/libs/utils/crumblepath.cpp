@@ -214,7 +214,8 @@ QVariant CrumblePathButton::data() const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct CrumblePathPrivate {
+struct CrumblePathPrivate
+{
     explicit CrumblePathPrivate(CrumblePath *q);
 
     QList<CrumblePathButton*> m_buttons;
@@ -244,18 +245,18 @@ CrumblePath::~CrumblePath()
 
 void CrumblePath::selectIndex(int index)
 {
-    if ((index > -1) && (index < d->m_buttons.length()))
+    if (index > -1 && index < d->m_buttons.length())
         d->m_buttons[index]->select(true);
 }
 
 QVariant CrumblePath::dataForIndex(int index) const
 {
-    if ((index > -1) && (index < d->m_buttons.length()))
+    if (index > -1 && index < d->m_buttons.length())
         return d->m_buttons[index]->data();
     return QVariant();
 }
 
-void CrumblePath::pushElement(const QString &title, const QVariant data)
+void CrumblePath::pushElement(const QString &title, const QVariant &data)
 {
     CrumblePathButton *newButton = new CrumblePathButton(title, this);
     newButton->hide();
@@ -276,9 +277,9 @@ void CrumblePath::pushElement(const QString &title, const QVariant data)
     resizeButtons();
 }
 
-void CrumblePath::addChild(const QString &title, const QVariant data)
+void CrumblePath::addChild(const QString &title, const QVariant &data)
 {
-    QTC_ASSERT(d->m_buttons.count()>0,return);
+    QTC_ASSERT(d->m_buttons.count() > 0,return);
 
     QPushButton *lastButton = d->m_buttons.last();
 
@@ -311,9 +312,8 @@ void CrumblePath::popElement()
 
 void CrumblePath::clear()
 {
-    while (!d->m_buttons.isEmpty()) {
+    while (!d->m_buttons.isEmpty())
         popElement();
-    }
 }
 
 void CrumblePath::resizeEvent(QResizeEvent *)
@@ -332,9 +332,9 @@ void CrumblePath::resizeButtons()
         // rearrange all items so that the first item is on top (added last).
 
         // compute relative sizes
-        QList <int> sizes;
+        QList<int> sizes;
         int totalSize = 0;
-        for(int i = 0; i < d->m_buttons.length() ; ++i) {
+        for (int i = 0; i < d->m_buttons.length() ; ++i) {
             CrumblePathButton *button = d->m_buttons[i];
 
             QFontMetrics fm(button->font());
@@ -346,11 +346,11 @@ void CrumblePath::resizeButtons()
         for (int i = 0; i < d->m_buttons.length() ; ++i) {
             CrumblePathButton *button = d->m_buttons[i];
 
-            int candidateSize = (sizes[i]*totalWidthLeft)/totalSize;
+            int candidateSize = (sizes[i] * totalWidthLeft) / totalSize;
             if (candidateSize < ArrowBorderSize)
                 candidateSize = ArrowBorderSize;
-            if (candidateSize > sizes[i]*1.3)
-                candidateSize = sizes[i]*1.3;
+            if (candidateSize > sizes[i] * 1.3)
+                candidateSize = sizes[i] * 1.3;
 
 
             button->setMinimumWidth(candidateSize);
@@ -363,7 +363,6 @@ void CrumblePath::resizeButtons()
             if (i > 0)
                 button->stackUnder(d->m_buttons[i - 1]);
         }
-
     }
 }
 
