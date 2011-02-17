@@ -734,7 +734,7 @@ void InspectorUi::setupDockWidgets()
     pathAndFilterWidget->setMaximumHeight(m_crumblePath->height());
 
     m_filterExp = new QLineEdit;
-    m_filterExp->setPlaceholderText("Filter properties");
+    m_filterExp->setPlaceholderText(tr("Filter properties"));
     m_filterExp->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
     QHBoxLayout *pathAndFilterLayout = new QHBoxLayout(pathAndFilterWidget);
