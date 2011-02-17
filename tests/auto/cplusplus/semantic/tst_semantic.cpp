@@ -83,13 +83,13 @@ public:
         { }
 
         virtual void report(int /*level*/,
-                            const StringLiteral *fileName,
-                            unsigned line, unsigned column,
-                            const char *format, va_list ap)
+                            const StringLiteral * /*fileName*/,
+                            unsigned /*line*/, unsigned /*column*/,
+                            const char * /*format*/, va_list /*ap*/)
         {
             ++errorCount;
 
-            qDebug() << fileName->chars()<<':'<<line<<':'<<column<<' '<<QString().vsprintf(format, ap);
+//            qDebug() << fileName->chars()<<':'<<line<<':'<<column<<' '<<QString().vsprintf(format, ap);
         }
     };
 
@@ -132,6 +132,8 @@ private slots:
     void objcSelector_2();
 
     void q_enum_1();
+
+    void diagnostic_error();
 };
 
 void tst_Semantic::function_declaration_1()
@@ -662,6 +664,16 @@ void tst_Semantic::q_enum_1()
     QVERIFY(e);
     QCOMPARE(doc->unit->spell(e->identifier_token), "e");
     QCOMPARE(e->name->identifier()->chars(), "e");
+}
+
+void tst_Semantic::diagnostic_error()
+{
+    QSharedPointer<Document> doc = document("\n"
+                                            "class Foo {}\n",
+                                            false, false);
+
+    QCOMPARE(doc->errorCount, 1U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
 }
 
 QTEST_APPLESS_MAIN(tst_Semantic)
