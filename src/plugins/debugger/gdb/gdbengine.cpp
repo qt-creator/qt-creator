@@ -4100,6 +4100,12 @@ DisassemblerLines GdbEngine::parseCliDisassembler(const GdbMi &output)
                 }
                 line.replace(pos1, pos2 - pos1, "");
             }
+            if (pos3 - pos2 == 1)
+                line.insert(pos2 + 1, "000");
+            if (pos3 - pos2 == 2)
+                line.insert(pos2 + 1, "00");
+            if (pos3 - pos2 == 3)
+                line.insert(pos2 + 1, "0");
             dlines.appendLine(DisassemblerLine(_(line)));
             continue;
         }
