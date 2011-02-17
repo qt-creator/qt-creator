@@ -7,15 +7,17 @@
 	<file>images/button16.png</file>
     <file>images/checkbox16.png</file>
 	<file>images/checkbox.png</file>
-	<file>images/label.png</file>
-	<file>images/label16.png</file>
-	<file>images/lineedit.png</file>
-	<file>images/lineedit16.png</file>
+	<file>images/choicelist16.png</file>
+	<file>images/choicelist.png</file>
 	<file>images/progressbar.png</file>
 	<file>images/progressbar16.png</file>
 	<file>images/radiobutton.png</file>
 	<file>images/radiobutton16.png</file>
 	<file>images/slider.png</file>
-	<file>images/slider16.png</file>     
-    </qresource>
+	<file>images/slider16.png</file>
+	<file>images/textarea16.png</file>
+	<file>images/textarea.png</file>
+	<file>images/window16.png</file>
+	<file>images/window.png</file> 
+	</qresource>
 </RCC>

@@ -1,28 +1,9 @@
 <metainfo>
-  <node name="Label" icon=":/symbianplugin/images/label16.png">
-    <itemlibraryentry name="Label" category="Components Symbian" libraryIcon=":/symbianplugin/images/label.png"  version="1.0" requiredImport="com.nokia.symbian">
-      <property name="width" type="int" value="100"/>
-      <property name="height" type="int" value="30"/>
-      <property name="text" type="QString" value="Label"/>
-    </itemlibraryentry>
-  </node>
   <node name="Button" icon=":/symbianplugin/images/button16.png">
     <itemlibraryentry name="Button"  category="Components Symbian" libraryIcon=":/symbianplugin/images/button.png"  version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="30"/>
       <property name="text" type="QString" value="Button"/>
-    </itemlibraryentry>
-  </node>
-  <node name="Slider" icon=":/symbianplugin/images/slider16.png">
-    <itemlibraryentry name="Slider (Horizontal)" category="Components Symbian" libraryIcon=":/symbianplugin/images/s.png"  version="1.0" requiredImport="com.nokia.symbian">
-      <property name="width" type="int" value="180"/>
-      <property name="height" type="int" value="30"/>
-      <property name="orientation" type="int" value="Qt.Horizontal"/>
-    </itemlibraryentry>
-    <itemlibraryentry name="Slider (Vertical)" category="Components Symbian" libraryIcon=":/symbianplugin/images/s.png"  version="1.0" requiredImport="com.nokia.symbian">
-      <property name="width" type="int" value="30"/>
-      <property name="height" type="int" value="180"/>
-      <property name="orientation" type="int" value="Qt.Vertical"/>
     </itemlibraryentry>
   </node>
   <node name="CheckBox" icon=":/symbianplugin/images/checkbox16.png">
@@ -32,22 +13,11 @@
       <property name="text" type="QString" value="CheckBox"/>
     </itemlibraryentry>
   </node>
-  <node name="RadioButton" icon=":/symbianplugin/images/radiobutton16.png">
-    <itemlibraryentry name="RadioButton" category="Components Symbian" libraryIcon=":/symbianplugin/images/radiobutton.png"  version="1.0" requiredImport="com.nokia.symbian">
+  <node name="ChoiceList" icon=":/symbianplugin/images/choicelist16.png">
+    <itemlibraryentry name="ChoiceList" category="Components Symbian" libraryIcon=":/symbianplugin/images/choicelist.png"  version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="180"/>
-      <property name="height" type="int" value="30"/>
-      <property name="text" type="QString" value="RadioButton"/>
-    </itemlibraryentry>
-  </node>
-  <node name="Spinner" icon=":/symbianplugin/images/item-icon16.png">
-  </node>
-  <node name="Switch" icon=":/symbianplugin/images/item-icon16.png">
-  </node>
-  <node name="LineEdit" icon=":/symbianplugin/images/lineedit16.png">
-    <itemlibraryentry name="LineEdit"  category="Components Symbian" libraryIcon=":/symbianplugin/images/lineedit.png"  version="1.0" requiredImport="com.nokia.symbian">
-      <property name="width" type="int" value="100"/>
-      <property name="height" type="int" value="30"/>
-      <property name="text" type="QString" value="LineEdit"/>
+      <property name="height" type="int" value="40"/>
+      <property name="currentValue" type="QString" value="ChoiceList"/>
     </itemlibraryentry>
   </node>
   <node name="ProgressBar" icon=":/symbianplugin/images/progressbar16.png">
@@ -56,40 +26,30 @@
       <property name="height" type="int" value="30"/>
     </itemlibraryentry>
   </node>
-  <node name="TextInputArea">
-    <itemlibraryentry name="TextInputArea"  category="Components Symbian" version="1.0" requiredImport="com.nokia.symbian">
-      <property name="width" type="int" value="100"/>
-      <property name="height" type="int" value="100"/>
-      <property name="text" type="QString" value="TextInputArea"/>
-    </itemlibraryentry>
-  </node>
-  <node name="TextEditArea">
-    <itemlibraryentry name="TextEditArea"  category="Components Symbian" version="1.0" requiredImport="com.nokia.symbian">
-      <property name="width" type="int" value="100"/>
-      <property name="height" type="int" value="100"/>
-      <property name="text" type="QString" value="TextEditArea"/>
-    </itemlibraryentry>
-  </node>
-  <node name="EscapeButton">
-    <itemlibraryentry name="EscapeButton"  category="Components Symbian" version="1.0" requiredImport="com.nokia.symbian">
-    </itemlibraryentry>
-  </node>
-  <node name="ScrollBar">
-    <itemlibraryentry name="ScrollBar (Horizontal)"  category="Components Symbian" version="1.0" requiredImport="com.nokia.symbian">
+  <node name="RadioButton" icon=":/symbianplugin/images/radiobutton16.png">
+    <itemlibraryentry name="RadioButton" category="Components Symbian" libraryIcon=":/symbianplugin/images/radiobutton.png"  version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="180"/>
       <property name="height" type="int" value="30"/>
-      <property name="orientation" type="int" value="Qt.Horizontal"/>
-    </itemlibraryentry>
-    <itemlibraryentry name="ScrollBar (Vertical)"  category="Components Symbian" version="1.0" requiredImport="com.nokia.symbian">
-      <property name="width" type="int" value="180"/>
-      <property name="height" type="int" value="30"/>
-      <property name="orientation" type="int" value="Qt.Vertical"/>
+      <property name="text" type="QString" value="RadioButton"/>
     </itemlibraryentry>
   </node>
-  <node name="ScrollDecorator">
-    <itemlibraryentry name="ScrollDecorator"  category="Components Symbian" version="1.0" requiredImport="com.nokia.symbian">
-      <property name="width" type="int" value="100"/>
-      <property name="height" type="int" value="100"/>
+  <node name="TextArea" icon=":/symbianplugin/images/textarea16.png">
+    <itemlibraryentry name="TextArea" category="Components Symbian" libraryIcon=":/symbianplugin/images/textarea.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="180"/>
+      <property name="height" type="int" value="30"/>
+      <property name="text" type="QString" value="TextArea"/>
+    </itemlibraryentry>
+  </node>
+  <node name="Slider" icon=":/symbianplugin/images/slider16.png">
+    <itemlibraryentry name="Slider" category="Components Symbian" libraryIcon=":/symbianplugin/images/slider.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="180"/>
+      <property name="height" type="int" value="30"/>
+    </itemlibraryentry>
+  </node>
+  <node name="Window" icon=":/symbianplugin/images/window16.png">
+    <itemlibraryentry name="Window" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="360"/>
+      <property name="height" type="int" value="640"/>
     </itemlibraryentry>
   </node>
 </metainfo>
