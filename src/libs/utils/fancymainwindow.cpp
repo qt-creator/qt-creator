@@ -119,14 +119,16 @@ void FancyMainWindow::updateDockWidget(QDockWidget *dockWidget)
     const QDockWidget::DockWidgetFeatures features =
             (d->m_locked) ? QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable
                        : QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable;
-    QWidget *titleBarWidget = dockWidget->titleBarWidget();
-    if (d->m_locked && !titleBarWidget && !dockWidget->isFloating())
-        titleBarWidget = new QWidget(dockWidget);
-    else if ((!d->m_locked || dockWidget->isFloating()) && titleBarWidget) {
-        delete titleBarWidget;
-        titleBarWidget = 0;
+    if (dockWidget->property("managed_dockwidget").isNull()) { // for the debugger tool bar
+        QWidget *titleBarWidget = dockWidget->titleBarWidget();
+        if (d->m_locked && !titleBarWidget && !dockWidget->isFloating())
+            titleBarWidget = new QWidget(dockWidget);
+        else if ((!d->m_locked || dockWidget->isFloating()) && titleBarWidget) {
+            delete titleBarWidget;
+            titleBarWidget = 0;
+        }
+        dockWidget->setTitleBarWidget(titleBarWidget);
     }
-    dockWidget->setTitleBarWidget(titleBarWidget);
     dockWidget->setFeatures(features);
 }
 
@@ -257,7 +259,15 @@ bool FancyMainWindow::isLocked() const
 
 QMenu *FancyMainWindow::createPopupMenu()
 {
-    QMenu *menu = QMainWindow::createPopupMenu();
+    QMenu *menu = new QMenu(this);;
+    QList<QDockWidget *> dockwidgets = qFindChildren<QDockWidget *>(this);
+    for (int i = 0; i < dockwidgets.size(); ++i) {
+        QDockWidget *dockWidget = dockwidgets.at(i);
+        if (dockWidget->property("managed_dockwidget").isNull()
+                && dockWidget->parentWidget() == this) {
+            menu->addAction(dockwidgets.at(i)->toggleViewAction());
+        }
+    }
     menu->addAction(&d->m_menuSeparator1);
     menu->addAction(&d->m_toggleLockedAction);
     menu->addAction(&d->m_menuSeparator2);

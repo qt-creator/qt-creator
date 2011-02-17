@@ -476,6 +476,7 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
     dock->setAllowedAreas(Qt::BottomDockWidgetArea);
     dock->setTitleBarWidget(new QWidget(dock));
+    dock->setProperty("managed_dockwidget", QLatin1String("true"));
     addDockWidget(Qt::BottomDockWidgetArea, dock);
     setToolBarDockWidget(dock);
 
