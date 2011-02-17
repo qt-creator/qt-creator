@@ -2181,11 +2181,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
     m_startExternalAction->setEnabled(true);
     m_attachExternalAction->setEnabled(true);
-#ifdef Q_OS_WIN
-    m_attachCoreAction->setEnabled(false);
-#else
     m_attachCoreAction->setEnabled(true);
-#endif
     m_startRemoteAction->setEnabled(true);
 
     const bool isCore = engine->startParameters().startMode == AttachCore;
