@@ -641,7 +641,6 @@ void PluginManager::startTests()
         }
         QTest::qExec(pluginSpec->plugin(), methods);
     }
-    QTimer::singleShot(1, QCoreApplication::instance(), SLOT(quit()));
 #endif
 }
 
