@@ -51,13 +51,14 @@
 #include <QtCore/QMetaProperty>
 #include <QtCore/QVariant>
 
+#include <QtGui/QApplication>
+#include <QtGui/QClipboard>
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QHeaderView>
 #include <QtGui/QItemDelegate>
 #include <QtGui/QMenu>
+#include <QtGui/QPainter>
 #include <QtGui/QResizeEvent>
-#include <QtGui/QClipboard>
-#include <QtGui/QApplication>
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -94,12 +95,18 @@ public:
                 break;
             }
             WatchLineEdit *edit = WatchLineEdit::create(type, parent);
-            if (IntegerWatchLineEdit *intEdit = qobject_cast<IntegerWatchLineEdit *>(edit))
+            edit->setFrame(false);
+            IntegerWatchLineEdit *intEdit
+                = qobject_cast<IntegerWatchLineEdit *>(edit);
+            if (intEdit)
                 intEdit->setBase(index.data(LocalsIntegerBaseRole).toInt());
             return edit;
         }
-        // Standard line edits for the rest
-        return new QLineEdit(parent);
+
+        // Standard line edits for the rest.
+        QLineEdit *lineEdit = new QLineEdit(parent);
+        lineEdit->setFrame(false);
+        return lineEdit;
     }
 
     void setModelData(QWidget *editor, QAbstractItemModel *model,

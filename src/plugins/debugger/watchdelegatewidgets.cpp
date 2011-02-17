@@ -44,9 +44,9 @@ namespace Debugger {
 namespace Internal {
 
 // Basic watch line edit.
-WatchLineEdit::WatchLineEdit(QWidget *parent) : QLineEdit(parent)
-{
-}
+WatchLineEdit::WatchLineEdit(QWidget *parent)
+    : QLineEdit(parent)
+{}
 
 QVariant WatchLineEdit::modelData() const
 {
@@ -62,7 +62,8 @@ void WatchLineEdit::setModelData(const QVariant &v)
 
  /* ------ IntegerWatchLineEdit helpers:
   *        Integer validator using different number bases. */
-class IntegerValidator : public QValidator {
+class IntegerValidator : public QValidator
+{
 public:
     explicit IntegerValidator(QObject *parent);
     virtual State validate(QString &, int &) const;
