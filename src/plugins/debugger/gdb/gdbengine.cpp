@@ -3419,13 +3419,13 @@ void GdbEngine::clearToolTip()
     m_toolTipContext.reset();
 }
 
-void GdbEngine::setToolTipExpression(const QPoint &mousePos,
+bool GdbEngine::setToolTipExpression(const QPoint &mousePos,
     TextEditor::ITextEditor *editor, const DebuggerToolTipContext &contextIn)
 {
     if (state() != InferiorStopOk || !isCppEditor(editor)) {
         //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED "
         // " OR NOT A CPPEDITOR";
-        return;
+        return false;
     }
 
     DebuggerToolTipContext context = contextIn;
@@ -3434,7 +3434,7 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
     if (DebuggerToolTipManager::debug())
         qDebug() << "GdbEngine::setToolTipExpression1 " << exp << context;
     if (exp.isEmpty())
-        return;
+        return false;
 
     // Extract the first identifier, everything else is considered
     // too dangerous.
@@ -3455,10 +3455,10 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
     exp = exp.mid(pos1, pos2 - pos1);
 
     if (exp.isEmpty() || exp.startsWith(_c('#')) || !hasLetterOrNumber(exp) || isKeyWord(exp))
-        return;
+        return false;
 
     if (exp.startsWith(_c('"')) && exp.endsWith(_c('"')))
-        return;
+        return false;
 
     if (exp.startsWith(__("++")) || exp.startsWith(__("--")))
         exp = exp.mid(2);
@@ -3467,14 +3467,14 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
         exp = exp.mid(2);
 
     if (exp.startsWith(_c('<')) || exp.startsWith(_c('[')))
-        return;
+        return false;
 
     if (hasSideEffects(exp) || exp.isEmpty())
-        return;
+        return false;
 
     if (!m_toolTipContext.isNull() && m_toolTipContext->expression == exp) {
         showToolTip();
-        return;
+        return true;
     }
 
     m_toolTipContext.reset(new GdbToolTipContext(context));
@@ -3485,7 +3485,7 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
 
     if (isSynchronous()) {
         updateLocals(QVariant());
-        return;
+        return true;
     }
 
     WatchData toolTip;
@@ -3494,6 +3494,7 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
     toolTip.iname = tooltipIName(exp);
     watchHandler()->removeData(toolTip.iname);
     watchHandler()->insertData(toolTip);
+    return true;
 }
 
 

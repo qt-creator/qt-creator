@@ -476,7 +476,7 @@ private: ////////// View & Data Stuff //////////
     //
     // Watch specific stuff
     //
-    virtual void setToolTipExpression(const QPoint &mousePos,
+    virtual bool setToolTipExpression(const QPoint &mousePos,
         TextEditor::ITextEditor *editor, const DebuggerToolTipContext &);
     virtual void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);

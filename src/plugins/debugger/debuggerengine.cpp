@@ -1239,9 +1239,10 @@ DebuggerRunControl *DebuggerEngine::runControl() const
     return d->runControl();
 }
 
-void DebuggerEngine::setToolTipExpression
+bool DebuggerEngine::setToolTipExpression
     (const QPoint &, TextEditor::ITextEditor *, const DebuggerToolTipContext &)
 {
+    return false;
 }
 
 void DebuggerEngine::updateWatchData(const WatchData &, const WatchUpdateFlags &)

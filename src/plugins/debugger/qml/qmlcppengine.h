@@ -18,7 +18,7 @@ public:
     explicit QmlCppEngine(const DebuggerStartParameters &sp);
     ~QmlCppEngine();
 
-    void setToolTipExpression(const QPoint &mousePos,
+    bool setToolTipExpression(const QPoint &mousePos,
         TextEditor::ITextEditor * editor, const DebuggerToolTipContext &);
     void updateWatchData(const WatchData &data,
         const WatchUpdateFlags &flags);

@@ -139,10 +139,10 @@ QmlCppEngine::~QmlCppEngine()
     delete d->m_cppEngine;
 }
 
-void QmlCppEngine::setToolTipExpression(const QPoint & mousePos,
+bool QmlCppEngine::setToolTipExpression(const QPoint & mousePos,
         TextEditor::ITextEditor *editor, const DebuggerToolTipContext &ctx)
 {
-    d->m_activeEngine->setToolTipExpression(mousePos, editor, ctx);
+    return d->m_activeEngine->setToolTipExpression(mousePos, editor, ctx);
 }
 
 void QmlCppEngine::updateWatchData(const WatchData &data,

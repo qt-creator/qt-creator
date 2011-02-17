@@ -512,7 +512,7 @@ static WatchData m_toolTip;
 static QPoint m_toolTipPos;
 static QHash<QString, WatchData> m_toolTipCache;
 
-void ScriptEngine::setToolTipExpression(const QPoint &mousePos,
+bool ScriptEngine::setToolTipExpression(const QPoint &mousePos,
     TextEditor::ITextEditor *editor, const DebuggerToolTipContext &ctx)
 {
     Q_UNUSED(mousePos)
@@ -520,13 +520,13 @@ void ScriptEngine::setToolTipExpression(const QPoint &mousePos,
 
     if (state() != InferiorStopOk) {
         //SDEBUG("SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED");
-        return;
+        return false;
     }
     // Check mime type and get expression (borrowing some C++ - functions)
     const QString javaScriptMimeType =
         QLatin1String("application/javascript");
     if (!editor->file() || editor->file()->mimeType() != javaScriptMimeType)
-        return;
+        return false;
 
     int line;
     int column;
@@ -544,17 +544,17 @@ void ScriptEngine::setToolTipExpression(const QPoint &mousePos,
     QToolTip::hideText();
     if (exp.isEmpty() || exp.startsWith(QLatin1Char('#')))  {
         QToolTip::hideText();
-        return;
+        return false;
     }
 
     if (!hasLetterOrNumber(exp)) {
         QToolTip::showText(m_toolTipPos, tr("'%1' contains no identifier").arg(exp));
-        return;
+        return false;
     }
 
     if (exp.startsWith(QLatin1Char('"')) && exp.endsWith(QLatin1Char('"'))) {
         QToolTip::showText(m_toolTipPos, tr("String literal %1").arg(exp));
-        return;
+        return false;
     }
 
     if (exp.startsWith(QLatin1String("++")) || exp.startsWith(QLatin1String("--")))
@@ -564,13 +564,13 @@ void ScriptEngine::setToolTipExpression(const QPoint &mousePos,
         exp.remove(0, 2);
 
     if (exp.startsWith(QLatin1Char('<')) || exp.startsWith(QLatin1Char('[')))
-        return;
+        return false;
 
     if (hasSideEffects(exp)) {
         QToolTip::showText(m_toolTipPos,
             tr("Cowardly refusing to evaluate expression '%1' "
                "with potential side effects").arg(exp));
-        return;
+        return false;
     }
 
 #if 0
@@ -584,6 +584,7 @@ void ScriptEngine::setToolTipExpression(const QPoint &mousePos,
     m_toolTip.iname = tooltipIName;
     insertData(m_toolTip);
 #endif
+    return false;
 }
 
 

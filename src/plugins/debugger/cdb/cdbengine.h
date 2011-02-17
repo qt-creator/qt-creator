@@ -85,7 +85,7 @@ public:
     virtual ~CdbEngine();
     // Factory function that returns 0 if the debug engine library cannot be found.
 
-    virtual void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor,
+    virtual bool setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor,
                                       const DebuggerToolTipContext &ctx);
     virtual void setupEngine();
     virtual void setupInferior();

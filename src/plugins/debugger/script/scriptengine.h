@@ -73,7 +73,7 @@ private:
     void executeStepI();
     void executeNextI();
 
-    void setToolTipExpression(const QPoint &mousePos,
+    bool setToolTipExpression(const QPoint &mousePos,
         TextEditor::ITextEditor *editor, const DebuggerToolTipContext &);
     void setupEngine();
     void setupInferior();

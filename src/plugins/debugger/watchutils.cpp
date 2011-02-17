@@ -148,6 +148,16 @@ QDebug operator<<(QDebug d, const Scope &scope)
 namespace Debugger {
 namespace Internal {
 
+bool isEditorDebuggable(Core::IEditor *editor)
+{
+    // Only blacklist Qml. Whitelisting would fail on C++ code in files
+    // with strange names, more harm would be done this way.
+    //   IFile *file = editor->file();
+    //   return !(file && file->mimeType() == "application/x-qml");
+    // Nowadays, even Qml is debuggable.
+    return editor;
+}
+
 QByteArray dotEscape(QByteArray str)
 {
     str.replace(' ', '.');

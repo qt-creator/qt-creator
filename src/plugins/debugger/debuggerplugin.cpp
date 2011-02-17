@@ -721,16 +721,6 @@ bool DebuggingHelperOptionPage::matches(const QString &s) const
 //
 ///////////////////////////////////////////////////////////////////////
 
-static bool isDebuggable(IEditor *editor)
-{
-    // Only blacklist Qml. Whitelisting would fail on C++ code in files
-    // with strange names, more harm would be done this way.
-    //   IFile *file = editor->file();
-    //   return !(file && file->mimeType() == "application/x-qml");
-    // Nowadays, even Qml is debuggable.
-    return editor;
-}
-
 class ContextData
 {
 public:
@@ -871,8 +861,6 @@ public slots:
     void updateBreakMenuItem(Core::IEditor *editor);
     void setBusyCursor(bool busy);
     void requestMark(TextEditor::ITextEditor *editor, int lineNumber);
-    void showToolTip(TextEditor::ITextEditor *editor,
-        const QPoint &pnt, int pos, bool *handled);
     void requestContextMenu(TextEditor::ITextEditor *editor,
         int lineNumber, QMenu *menu);
 
@@ -1776,7 +1764,7 @@ void DebuggerPluginPrivate::runScheduled()
 
 void DebuggerPluginPrivate::editorOpened(IEditor *editor)
 {
-    if (!isDebuggable(editor))
+    if (!isEditorDebuggable(editor))
         return;
     ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
     if (!textEditor)
@@ -1784,9 +1772,6 @@ void DebuggerPluginPrivate::editorOpened(IEditor *editor)
     connect(textEditor,
         SIGNAL(markRequested(TextEditor::ITextEditor*,int)),
         SLOT(requestMark(TextEditor::ITextEditor*,int)));
-    connect(editor,
-        SIGNAL(tooltipOverrideRequested(TextEditor::ITextEditor*,QPoint,int,bool*)),
-        SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int,bool*)));
     connect(textEditor,
         SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
         SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
@@ -1801,7 +1786,7 @@ void DebuggerPluginPrivate::updateBreakMenuItem(Core::IEditor *editor)
 void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     int lineNumber, QMenu *menu)
 {
-    if (!isDebuggable(editor))
+    if (!isEditorDebuggable(editor))
         return;
 
     ContextData args;
@@ -1944,26 +1929,6 @@ void DebuggerPluginPrivate::requestMark(ITextEditor *editor, int lineNumber)
         toggleBreakpointByAddress(address);
     } else if (editor->file()) {
         toggleBreakpointByFileAndLine(editor->file()->fileName(), lineNumber);
-    }
-}
-
-void DebuggerPluginPrivate::showToolTip(ITextEditor *editor,
-    const QPoint &point, int pos, bool *handled)
-{
-    if (!isDebuggable(editor))
-        return;
-    if (!boolSetting(UseToolTipsInMainEditor))
-        return;
-    if (!currentEngine())
-        return;
-    if (!currentEngine()->canDisplayTooltip())
-        return;
-    QTC_ASSERT(handled, return);
-
-    const DebuggerToolTipContext context = DebuggerToolTipContext::fromEditor(editor, pos);
-    if (context.isValid()) {
-        *handled = true;
-        currentEngine()->setToolTipExpression(point, editor, context);
     }
 }
 

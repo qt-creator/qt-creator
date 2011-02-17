@@ -471,7 +471,7 @@ void CdbEngine::syncOperateByInstruction(bool operateByInstruction)
     postCommand(m_operateByInstruction ? QByteArray("l-s") : QByteArray("l+s"), 0);
 }
 
-void CdbEngine::setToolTipExpression(const QPoint &mousePos,
+bool CdbEngine::setToolTipExpression(const QPoint &mousePos,
                                      TextEditor::ITextEditor *editor,
                                      const DebuggerToolTipContext &contextIn)
 {
@@ -479,7 +479,7 @@ void CdbEngine::setToolTipExpression(const QPoint &mousePos,
         qDebug() << Q_FUNC_INFO;
     // Need a stopped debuggee and a cpp file in a valid frame
     if (state() != InferiorStopOk || !isCppEditor(editor) || stackHandler()->currentIndex() < 0)
-        return;
+        return false;
     // Determine expression and function
     int line;
     int column;
@@ -487,20 +487,21 @@ void CdbEngine::setToolTipExpression(const QPoint &mousePos,
     const QString exp = cppExpressionAt(editor, context.position, &line, &column, &context.function);
     // Are we in the current stack frame
     if (context.function.isEmpty() || exp.isEmpty() || context.function != stackHandler()->currentFrame().function)
-        return;
+        return false;
     // No numerical or any other expressions [yet]
     if (!(exp.at(0).isLetter() || exp.at(0) == QLatin1Char('_')))
-        return;
+        return false;
     const QByteArray iname = QByteArray(localsPrefixC) + exp.toAscii();
     const QModelIndex index = watchHandler()->itemIndex(iname);
-    if (index.isValid()) {
-        DebuggerTreeViewToolTipWidget *tw = new DebuggerTreeViewToolTipWidget;
-        tw->setContext(context);
-        tw->setDebuggerModel(LocalsWatch);
-        tw->setExpression(exp);
-        tw->acquireEngine(this);
-        DebuggerToolTipManager::instance()->add(mousePos, tw);
-    }
+    if (!index.isValid())
+        return false;
+    DebuggerTreeViewToolTipWidget *tw = new DebuggerTreeViewToolTipWidget;
+    tw->setContext(context);
+    tw->setDebuggerModel(LocalsWatch);
+    tw->setExpression(exp);
+    tw->acquireEngine(this);
+    DebuggerToolTipManager::instance()->add(mousePos, tw);
+    return true;
 }
 
 // Determine full path to the CDB extension library.

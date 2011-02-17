@@ -82,7 +82,7 @@ private:
     void shutdownInferior();
     void shutdownEngine();
 
-    void setToolTipExpression(const QPoint &mousePos,
+    bool setToolTipExpression(const QPoint &mousePos,
         TextEditor::ITextEditor *editor, const DebuggerToolTipContext &);
 
     void continueInferior();

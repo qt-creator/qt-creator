@@ -62,6 +62,10 @@ class IEditor;
 class IMode;
 }
 
+namespace TextEditor {
+class ITextEditor;
+}
+
 namespace Debugger {
 class DebuggerEngine;
 
@@ -266,6 +270,8 @@ private slots:
     void slotDebuggerStateChanged(Debugger::DebuggerState);
     void slotStackFrameCompleted();
     void slotEditorOpened(Core::IEditor *);
+    void slotTooltipOverrideRequested(TextEditor::ITextEditor *editor, const QPoint &point,
+                                      int pos, bool *handled);
 
 private:
     typedef QList<QPointer<AbstractDebuggerToolTipWidget> > DebuggerToolTipWidgetList;
@@ -280,6 +286,8 @@ private:
 
     DebuggerToolTipWidgetList m_tooltips;
     bool m_debugModeActive;
+    int m_lastToolTipPos;
+    Core::IEditor *m_lastToolTipEditor;
 };
 
 } // namespace Internal

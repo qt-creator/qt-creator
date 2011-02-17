@@ -60,6 +60,7 @@ namespace Internal {
 class WatchData;
 class GdbMi;
 
+bool isEditorDebuggable(Core::IEditor *editor);
 QByteArray dotEscape(QByteArray str);
 QString currentTime();
 bool isSkippableFunction(const QString &funcName, const QString &fileName);
