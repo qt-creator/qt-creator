@@ -39,6 +39,7 @@
 #include <QtGui/QTreeView>
 
 #include <QtCore/QPointer>
+#include <QtCore/QPoint>
 #include <QtCore/QList>
 #include <QtCore/QXmlStreamWriter>
 #include <QtCore/QXmlStreamReader>
@@ -70,6 +71,7 @@ namespace Debugger {
 class DebuggerEngine;
 
 namespace Internal {
+class DraggableLabel;
 
 class PinnableToolTipWidget : public QWidget
 {
@@ -152,6 +154,9 @@ public:
     QDate creationDate() const { return m_creationDate; }
     void setCreationDate(const QDate &d) { m_creationDate = d; }
 
+    QPoint offset() const { return m_offset; }
+    void setOffset(const QPoint &o) { m_offset = o; }
+
     static AbstractDebuggerToolTipWidget *loadSessionData(QXmlStreamReader &r);
 
 public slots:
@@ -161,6 +166,9 @@ public slots:
     void releaseEngine();
     void copy();
     bool positionShow(const QPlainTextEdit *pe);
+
+private slots:
+    void slotDragged(const QPoint &p);
 
 protected:
     virtual void doAcquireEngine(Debugger::DebuggerEngine *engine) = 0;
@@ -172,11 +180,12 @@ protected:
 
 private:
     static AbstractDebuggerToolTipWidget *loadSessionDataI(QXmlStreamReader &r);
-    QLabel *m_titleLabel;
+    DraggableLabel *m_titleLabel;
     bool m_engineAcquired;
     QString m_engineType;
     DebuggerToolTipContext m_context;
     QDate m_creationDate;
+    QPoint m_offset; //!< Offset to text cursor position (user dragging).
 };
 
 class DebuggerToolTipTreeView : public QTreeView

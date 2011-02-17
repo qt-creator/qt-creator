@@ -91,6 +91,8 @@ static const char functionAttributeC[] = "function";
 static const char textPositionAttributeC[] = "position";
 static const char textLineAttributeC[] = "line";
 static const char textColumnAttributeC[] = "column";
+static const char offsetXAttributeC[] = "offset_x";
+static const char offsetYAttributeC[] = "offset_y";
 static const char engineTypeAttributeC[] = "engine";
 static const char dateAttributeC[] = "date";
 static const char treeElementC[] = "tree";
@@ -437,7 +439,7 @@ PinnableToolTipWidget::PinnableToolTipWidget(QWidget *parent) :
     m_toolButton(new QToolButton),
     m_menu(new QMenu)
 {
-    setWindowFlags(Qt::ToolTip | Qt::WindowStaysOnTopHint);
+    setWindowFlags(Qt::ToolTip);
     setAttribute(Qt::WA_DeleteOnClose);
 
     m_mainVBoxLayout->setSizeConstraint(QLayout::SetFixedSize);
@@ -511,6 +513,60 @@ void PinnableToolTipWidget::leaveEvent(QEvent *)
     }
 }
 
+/* A Label that emits a signal when the user drags for moving the parent
+ * widget around. */
+class DraggableLabel : public QLabel
+{
+    Q_OBJECT
+public:
+    explicit DraggableLabel(QWidget *parent = 0);
+
+signals:
+    void dragged(const QPoint &d);
+
+protected:
+    virtual void mousePressEvent(QMouseEvent * event);
+    virtual void mouseReleaseEvent(QMouseEvent * event);
+    virtual void mouseMoveEvent(QMouseEvent * event);
+
+private:
+    QPoint m_moveStartPos;
+};
+
+DraggableLabel::DraggableLabel(QWidget *parent) :
+    QLabel(parent), m_moveStartPos(-1, -1)
+{
+}
+
+void DraggableLabel::mousePressEvent(QMouseEvent * event)
+{
+    if (event->button() ==  Qt::LeftButton) {
+        m_moveStartPos = event->globalPos();
+        event->accept();
+    }
+    QLabel::mousePressEvent(event);
+}
+
+void DraggableLabel::mouseReleaseEvent(QMouseEvent * event)
+{
+    if (event->button() ==  Qt::LeftButton)
+        m_moveStartPos = QPoint(-1, -1);
+    QLabel::mouseReleaseEvent(event);
+}
+
+void DraggableLabel::mouseMoveEvent(QMouseEvent * event)
+{
+    if (event->buttons() &&  Qt::LeftButton) {
+        if (m_moveStartPos != QPoint(-1, -1)) {
+            const QPoint newPos = event->globalPos();
+            emit dragged(event->globalPos() - m_moveStartPos);
+            m_moveStartPos = newPos;
+        }
+        event->accept();
+        QLabel::mouseMoveEvent(event);
+    }
+}
+
 /*!
     \class DebuggerToolTipContext
 
@@ -571,10 +627,12 @@ static inline QString msgReleasedText() { return AbstractDebuggerToolTipWidget::
 
 AbstractDebuggerToolTipWidget::AbstractDebuggerToolTipWidget(QWidget *parent) :
     PinnableToolTipWidget(parent),
-    m_titleLabel(new QLabel), m_engineAcquired(false),
+    m_titleLabel(new DraggableLabel), m_engineAcquired(false),
     m_creationDate(QDate::currentDate())
 {
     m_titleLabel->setText(msgReleasedText());
+    m_titleLabel->setMinimumWidth(40); // Ensure a draggable area even if text is empty.
+    connect(m_titleLabel, SIGNAL(dragged(QPoint)), this, SLOT(slotDragged(QPoint)));
     addToolBarWidget(m_titleLabel);
     QAction *copyAction = new QAction(tr("Copy"), this);
     connect(copyAction, SIGNAL(triggered()), this, SLOT(copy()));
@@ -633,6 +691,12 @@ void AbstractDebuggerToolTipWidget::copy()
     clipboard->setText(clipboardText, QClipboard::Clipboard);
 }
 
+void AbstractDebuggerToolTipWidget::slotDragged(const QPoint &p)
+{
+    move(pos() + p);
+    m_offset += p;
+}
+
 bool AbstractDebuggerToolTipWidget::positionShow(const QPlainTextEdit *pe)
 {
     // Figure out new position of tooltip using the text edit.
@@ -650,15 +714,17 @@ bool AbstractDebuggerToolTipWidget::positionShow(const QPlainTextEdit *pe)
     }
     const QRect plainTextToolTipArea = QRect(pe->cursorRect(cursor).topLeft(), QSize(sizeHint()));
     const QRect plainTextArea = QRect(QPoint(0, 0), QPoint(pe->width(), pe->height()));
-    const QPoint screenPos = pe->mapToGlobal(plainTextToolTipArea.topLeft());
+    const QPoint screenPos = pe->mapToGlobal(plainTextToolTipArea.topLeft() + m_offset);
     const bool visible = plainTextArea.contains(plainTextToolTipArea);
     if (debugToolTips)
-        qDebug() << "DebuggerToolTipWidget::positionShow() " << m_context
+        qDebug() << "DebuggerToolTipWidget::positionShow() " << this << m_context
                  << " line: " << line << " plainTextPos " << plainTextToolTipArea
+                 << " offset: " << m_offset
                  << " Area: " << plainTextArea << " Screen pos: "
                  << screenPos << pe << " visible=" << visible
                  << " on " << pe->parentWidget()
                  << " at " << pe->mapToGlobal(QPoint(0, 0));
+
 
     if (!visible) {
         hide();
@@ -699,6 +765,14 @@ AbstractDebuggerToolTipWidget *AbstractDebuggerToolTipWidget::loadSessionDataI(Q
     context.line = attributes.value(QLatin1String(textLineAttributeC)).toString().toInt();
     context.column = attributes.value(QLatin1String(textColumnAttributeC)).toString().toInt();
     context.function = attributes.value(QLatin1String(functionAttributeC)).toString();
+    QPoint offset;
+    const QString offsetXAttribute = QLatin1String(offsetXAttributeC);
+    const QString offsetYAttribute = QLatin1String(offsetYAttributeC);
+    if (attributes.hasAttribute(offsetXAttribute))
+        offset.setX(attributes.value(offsetXAttribute).toString().toInt());
+    if (attributes.hasAttribute(offsetYAttribute))
+        offset.setY(attributes.value(offsetYAttribute).toString().toInt());
+
     const QString className = attributes.value(QLatin1String(toolTipClassAttributeC)).toString();
     const QString engineType = attributes.value(QLatin1String(engineTypeAttributeC)).toString();
     const QDate creationDate = dateFromString(attributes.value(QLatin1String(dateAttributeC)).toString());
@@ -709,7 +783,7 @@ AbstractDebuggerToolTipWidget *AbstractDebuggerToolTipWidget::loadSessionDataI(Q
         return 0;
     }
     if (debugToolTips)
-        qDebug() << "Creating tooltip " << context <<  " from " << creationDate;
+        qDebug() << "Creating tooltip " << context <<  " from " << creationDate << offset;
     AbstractDebuggerToolTipWidget *rc = 0;
     if (className == "Debugger::Internal::DebuggerTreeViewToolTipWidget")
         rc = new DebuggerTreeViewToolTipWidget;
@@ -718,6 +792,8 @@ AbstractDebuggerToolTipWidget *AbstractDebuggerToolTipWidget::loadSessionDataI(Q
         rc->setEngineType(engineType);
         rc->doLoadSessionData(r);
         rc->setCreationDate(creationDate);
+        if (!offset.isNull())
+            rc->setOffset(offset);
         rc->pin();
     } else {
         qWarning("Unable to create debugger tool tip widget of class %s", qPrintable(className));
@@ -738,6 +814,10 @@ void AbstractDebuggerToolTipWidget::saveSessionData(QXmlStreamWriter &w) const
     attributes.append(QLatin1String(textLineAttributeC), QString::number(m_context.line));
     attributes.append(QLatin1String(textColumnAttributeC), QString::number(m_context.column));
     attributes.append(QLatin1String(dateAttributeC), m_creationDate.toString(QLatin1String("yyyyMMdd")));
+    if (m_offset.x())
+        attributes.append(QLatin1String(offsetXAttributeC), QString::number(m_offset.x()));
+    if (m_offset.y())
+        attributes.append(QLatin1String(offsetYAttributeC), QString::number(m_offset.y()));
     if (!m_engineType.isEmpty())
         attributes.append(QLatin1String(engineTypeAttributeC), m_engineType);
     w.writeAttributes(attributes);
@@ -1389,3 +1469,5 @@ QStringList DebuggerToolTipManager::treeWidgetExpressions(const QString &fileNam
 
 } // namespace Internal
 } // namespace Debugger
+
+#include "debuggertooltipmanager.moc"
