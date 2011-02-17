@@ -133,14 +133,10 @@ void checkIndent(QList<Line> data, int style = 0)
         if (l.expectedIndent != -1) {
             int indent, padding;
             formatter.indentFor(b, &indent, &padding);
-            if (indent != l.expectedIndent) {
-                QFAIL(QString("Wrong indent in line %1 with text '%2', expected indent %3, got %4").arg(
-                        QString::number(i+1), l.line, QString::number(l.expectedIndent), QString::number(indent)).toLatin1().constData());
-            }
-            if (padding != l.expectedPadding) {
-                QFAIL(QString("Wrong padding in line %1 with text '%2', expected padding %3, got %4").arg(
-                        QString::number(i+1), l.line, QString::number(l.expectedPadding), QString::number(padding)).toLatin1().constData());
-            }
+            QVERIFY2(indent == l.expectedIndent, qPrintable(QString("Wrong indent in line %1 with text '%2', expected indent %3, got %4")
+                                                            .arg(QString::number(i+1), l.line, QString::number(l.expectedIndent), QString::number(indent))));
+            QVERIFY2(padding == l.expectedPadding, qPrintable(QString("Wrong padding in line %1 with text '%2', expected padding %3, got %4")
+                                                              .arg(QString::number(i+1), l.line, QString::number(l.expectedPadding), QString::number(padding))));
         }
         formatter.updateLineStateChange(b);
         ++i;
