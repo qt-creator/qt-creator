@@ -411,8 +411,8 @@ void QmlJSPropertyInspector::setColorIcon(int row)
     QPainter p(&colorpix);
     p.fillRect(1,1,recomendedLength-2,recomendedLength-2, color);
     p.setPen(Qt::black);
-    p.drawRect(0,0,recomendedLength, recomendedLength);
-    item->setIcon(QIcon(colorpix));
+    p.drawRect(0, 0, recomendedLength - 1, recomendedLength - 1);
+    item->setIcon(colorpix);
 }
 
 void QmlJSPropertyInspector::contextMenuEvent(QContextMenuEvent *ev)
