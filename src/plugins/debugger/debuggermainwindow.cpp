@@ -658,6 +658,7 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
             && m_activeDebugLanguages.testFlag(Debugger::QmlLanguage)) {
 
         // cpp + qml
+        q->toolBarDockWidget()->show();
         stackDock->show();
         watchDock->show();
         breakDock->show();
@@ -672,7 +673,7 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
             q->splitDockWidget(stackDock, qmlInspectorDock, Qt::Horizontal);
 
     } else {
-
+        q->toolBarDockWidget()->show();
         stackDock->show();
         breakDock->show();
         watchDock->show();
