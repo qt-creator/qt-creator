@@ -53,7 +53,6 @@ public:
     explicit QmlAdapterPrivate(DebuggerEngine *engine)
         : m_engine(engine)
         , m_qmlClient(0)
-        , m_mainClient(0)
         , m_connectionAttempts(0)
         , m_maxConnectionAttempts(50) // overall time: 50 x 200ms
         , m_conn(0)
@@ -63,7 +62,6 @@ public:
 
     QWeakPointer<DebuggerEngine> m_engine;
     Internal::QmlDebuggerClient *m_qmlClient;
-    QDeclarativeEngineDebug *m_mainClient;
 
     QTimer m_connectionTimer;
     int m_connectionAttempts;
@@ -187,10 +185,6 @@ void QmlAdapter::connectionStateChanged()
         {
             showConnectionStatusMessage(tr("connected.\n"));
 
-            if (!d->m_mainClient) {
-                d->m_mainClient = new QDeclarativeEngineDebug(d->m_conn, this);
-            }
-
             createDebuggerClient();
             //reloadEngines();
             emit connected();
@@ -222,11 +216,6 @@ void QmlAdapter::createDebuggerClient()
 bool QmlAdapter::isConnected() const
 {
     return d->m_conn && d->m_qmlClient && d->m_conn->state() == QAbstractSocket::ConnectedState;
-}
-
-QDeclarativeEngineDebug *QmlAdapter::client() const
-{
-    return d->m_mainClient;
 }
 
 QDeclarativeDebugConnection *QmlAdapter::connection() const

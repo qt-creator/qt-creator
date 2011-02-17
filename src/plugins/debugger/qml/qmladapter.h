@@ -67,7 +67,6 @@ public:
 
     bool isConnected() const;
 
-    QmlJsDebugClient::QDeclarativeEngineDebug *client() const;
     QmlJsDebugClient::QDeclarativeDebugConnection *connection() const;
 
     bool disableJsDebugging(bool block);
