@@ -10,5 +10,6 @@ SUBDIRS = \
     preprocessor \
     semantic \
     typeprettyprinter \
-    simplifytypes
+    simplifytypes \
+    misc
     
