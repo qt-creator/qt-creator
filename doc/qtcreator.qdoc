@@ -6546,12 +6546,11 @@
 
     \section2 Core Mode
 
-    The core mode is available only in Unix. It debugs crashed processes using
-    the \e {core} files (crash dumps) that are generated if the setting
-    is enabled in the shell.
+    The core mode it used to debug \e {core} files (crash dumps) that are
+    generated from crashed processes if the system is set up to allow this.
 
-    To enable the dumping of core files, enter the following command in the
-    shell from which the application will be launched:
+    To enable the dumping of core files on a Unix system enter the following
+    command in the shell from which the application will be launched:
 
     \code
     ulimit -c unlimited
