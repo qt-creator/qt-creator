@@ -4,8 +4,8 @@ QT += gui \
     network
 
 CONFIG += dll
-include($$PWD/../../qtcreatorlibrary.pri)
-include($$PWD/../3rdparty/botan/botan.pri)
+include(../../qtcreatorlibrary.pri)
+include(utils_dependencies.pri)
 
 include(utils-lib.pri)
 
