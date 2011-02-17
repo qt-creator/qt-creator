@@ -1,5 +1,7 @@
 
 TEMPLATE = subdirs
 
-SUBDIRS = dumpers.pro plugin.pro gdb.pro version.pro
+SUBDIRS = dumpers.pro plugin.pro version.pro
+
+!win32-msvc*: SUBDIRS += gdb.pro
 
