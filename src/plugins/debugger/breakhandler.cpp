@@ -56,6 +56,34 @@
 namespace Debugger {
 namespace Internal {
 
+static QString stateToString(BreakpointState state)
+{
+    switch (state) {
+        case BreakpointNew:
+            return BreakHandler::tr("New");
+        case BreakpointInsertRequested:
+            return BreakHandler::tr("Insertion requested");
+        case BreakpointInsertProceeding:
+            return BreakHandler::tr("Insertion proceeding");
+        case BreakpointChangeRequested:
+            return BreakHandler::tr("Change requested");
+        case BreakpointChangeProceeding:
+            return BreakHandler::tr("Change proceeding");
+        case BreakpointInserted:
+            return BreakHandler::tr("Breakpoint inserted");
+        case BreakpointRemoveRequested:
+            return BreakHandler::tr("Removal requested");
+        case BreakpointRemoveProceeding:
+            return BreakHandler::tr("Removal proceeding");
+        case BreakpointDead:
+            return BreakHandler::tr("Dead");
+        default:
+            break;
+    }
+    //: Invalid breakpoint state.
+    return BreakHandler::tr("<invalid state>");
+}
+
 BreakHandler::BreakHandler()
   : m_syncTimerId(-1)
 {}
@@ -611,9 +639,11 @@ void BreakHandler::setEnabled(BreakpointId id, bool on)
         return;
     it->data.enabled = on;
     it->destroyMarker();
-    it->state = BreakpointChangeRequested;
     updateMarker(id);
-    scheduleSynchronization();
+    if (it->engine) {
+        it->state = BreakpointChangeRequested;
+        scheduleSynchronization();
+    }
 }
 
 bool BreakHandler::isTracepoint(BreakpointId id) const
@@ -631,9 +661,12 @@ void BreakHandler::setTracepoint(BreakpointId id, bool on)
         return;
     it->data.tracepoint = on;
     it->destroyMarker();
-    it->state = BreakpointChangeRequested;
+
     updateMarker(id);
-    scheduleSynchronization();
+    if (it->engine) {
+        it->state = BreakpointChangeRequested;
+        scheduleSynchronization();
+    }
 }
 
 void BreakHandler::setMarkerFileAndLine(BreakpointId id,
@@ -826,15 +859,20 @@ void BreakHandler::removeBreakpoint(BreakpointId id)
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
-    if (it->state == BreakpointInserted) {
+    switch (it->state) {
+    case BreakpointInserted:
         setState(id, BreakpointRemoveRequested);
         scheduleSynchronization();
-    } else if (it->state == BreakpointNew) {
+        break;
+    case BreakpointNew:
         it->state = BreakpointDead;
         cleanupBreakpoint(id);
-    } else {
-        qDebug() << "CANNOT REMOVE IN STATE " << it->state;
+        break;
+    default:
+        qWarning("Warning: Cannot remove breakpoint %llu in state '%s'.",
+               id, qPrintable(stateToString(it->state)));
         it->state = BreakpointRemoveRequested;
+        break;
     }
 }
 
@@ -1031,7 +1069,7 @@ void BreakHandler::setBreakpointData(BreakpointId id, const BreakpointParameters
     if (data == it->data)
         return;
     it->data = data;
-    if (it->needsChange() && it->state != BreakpointNew) {
+    if (it->needsChange() && it->engine && it->state != BreakpointNew) {
         setState(id, BreakpointChangeRequested);
         scheduleSynchronization();
     } else {
@@ -1092,22 +1130,6 @@ static void formatAddress(QTextStream &str, quint64 address)
         str.setIntegerBase(16);
         str << address;
         str.setIntegerBase(10);
-    }
-}
-
-static QString stateToString(BreakpointState state)
-{
-    switch (state) {
-        case BreakpointNew: return "New";
-        case BreakpointInsertRequested: return "Insertion requested";
-        case BreakpointInsertProceeding: return "Insertion proceeding";
-        case BreakpointChangeRequested: return "Change requested";
-        case BreakpointChangeProceeding: return "Change proceeding";
-        case BreakpointInserted: return "Breakpoint inserted";
-        case BreakpointRemoveRequested: return "Removal requested";
-        case BreakpointRemoveProceeding: return "Removal proceeding";
-        case BreakpointDead: return "Dead";
-        default: return "<invalid state>";
     }
 }
 
