@@ -89,7 +89,7 @@ public:
         {
             ++errorCount;
 
-            qDebug() << fileName->chars()<<':'<<line<<':'<<column<<' '<<QString().sprintf(format, ap);
+            qDebug() << fileName->chars()<<':'<<line<<':'<<column<<' '<<QString().vsprintf(format, ap);
         }
     };
 
