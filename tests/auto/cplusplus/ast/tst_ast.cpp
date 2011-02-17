@@ -41,8 +41,31 @@ public:
 
     TranslationUnit *parseStatement(const QByteArray &source)
     { return parse(source, TranslationUnit::ParseStatement); }
+    
+    class Diagnostic: public DiagnosticClient {
+    public:
+        int errorCount;
+
+        Diagnostic()
+            : errorCount(0)
+        { }
+
+        virtual void report(int /*level*/,
+                            const StringLiteral *fileName,
+                            unsigned line, unsigned column,
+                            const char *format, va_list ap)
+        {
+            ++errorCount;
+
+            qDebug() << fileName->chars()<<':'<<line<<':'<<column<<' '<<QString().vsprintf(format, ap);
+        }
+    };
+
+    Diagnostic diag;    
+    
 
 private slots:
+    void initTestCase();
     // declarations
     void gcc_attributes_1();
 
@@ -1089,6 +1112,11 @@ void tst_AST::q_enum_1()
     SimpleNameAST *e = qtEnum->enumerator_list->value->asSimpleName();
     QVERIFY(e);
     QCOMPARE(unit->spell(e->identifier_token), "e");
+}
+
+void tst_AST::initTestCase()
+{
+    control.setDiagnosticClient(&diag);
 }
 
 QTEST_APPLESS_MAIN(tst_AST)
