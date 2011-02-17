@@ -77,10 +77,8 @@ void LocalPlainGdbAdapter::startAdapter()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
 
-#ifdef Q_OS_WIN
-    if (!prepareWinCommand())
+    if (!prepareCommand())
         return;
-#endif
 
     QStringList gdbArgs;
 

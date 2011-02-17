@@ -103,7 +103,7 @@ void TermGdbAdapter::startAdapter()
 //    m_stubProc.blockSignals(false);
 
 #ifdef Q_OS_WIN
-    if (!prepareWinCommand())
+    if (!prepareCommand())
         return;
 #endif
 
