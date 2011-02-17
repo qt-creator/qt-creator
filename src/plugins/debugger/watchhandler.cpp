@@ -79,6 +79,7 @@ static int generationCounter = 0;
 
 QHash<QByteArray, int> WatchHandler::m_watcherNames;
 QHash<QByteArray, int> WatchHandler::m_typeFormats;
+int WatchHandler::m_unprintableBase = 0;
 
 ////////////////////////////////////////////////////////////////////
 //
@@ -627,21 +628,41 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 
         case Qt::DisplayRole: {
             const QByteArray ns = engine()->qtNamespace();
+            QString result;
             switch (idx.column()) {
                 case 0:
                     if (data.name.isEmpty())
-                        return tr("<Edit>");
-                    if (data.name == QLatin1String("*") && item->parent)
-                        return QVariant(QLatin1Char('*') + item->parent->name);
-                    return removeInitialNamespace(data.name, ns);
+                        result = tr("<Edit>");
+                    else if (data.name == QLatin1String("*") && item->parent)
+                        result = QLatin1Char('*') + item->parent->name;
+                    else
+                        result = removeInitialNamespace(data.name, ns);
+                    break;
                 case 1:
-                    return removeInitialNamespace(truncateValue(
+                    result = removeInitialNamespace(truncateValue(
                             formattedValue(data, itemFormat(data))), ns);
+                    break;
                 case 2:
-                    return removeNamespaces(displayType(data), ns);
+                    result = removeNamespaces(displayType(data), ns);
+                    break;
                 default:
                     break;
             }
+            if (WatchHandler::m_unprintableBase == 0)
+                return result;
+            QString encoded;
+            foreach (const QChar c, result) {
+                if (c.isPrint()) {
+                    encoded += c;
+                } else if (WatchHandler::m_unprintableBase == 8) {
+                    encoded += QString("\\%1")
+                        .arg(c.unicode(), 3, 8, QLatin1Char('0'));
+                } else {
+                    encoded += QString("\\u%1")
+                        .arg(c.unicode(), 4, 16, QLatin1Char('0'));
+                }
+            }
+            return encoded;
         }
 
         case Qt::ToolTipRole:
@@ -1092,11 +1113,11 @@ WatchHandler::WatchHandler(DebuggerEngine *engine)
     m_tooltips = new WatchModel(this, TooltipsWatch);
 
     connect(debuggerCore()->action(ShowStdNamespace),
-        SIGNAL(triggered()), this, SLOT(emitAllChanged()));
+        SIGNAL(triggered()), SLOT(emitAllChanged()));
     connect(debuggerCore()->action(ShowQtNamespace),
-        SIGNAL(triggered()), this, SLOT(emitAllChanged()));
+        SIGNAL(triggered()), SLOT(emitAllChanged()));
     connect(debuggerCore()->action(SortStructMembers),
-        SIGNAL(triggered()), this, SLOT(emitAllChanged()));
+        SIGNAL(triggered()), SLOT(emitAllChanged()));
 }
 
 void WatchHandler::beginCycle(bool fullCycle)

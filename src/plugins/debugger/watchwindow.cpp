@@ -286,14 +286,31 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         mi0.data(LocalsIndividualFormatRole).toInt();
     const int effectiveIndividualFormat =
         individualFormat == -1 ? typeFormat : individualFormat;
+    const int unprintableBase = handler->unprintableBase();
 
     QMenu formatMenu;
     QList<QAction *> typeFormatActions;
     QList<QAction *> individualFormatActions;
     QAction *clearTypeFormatAction = 0;
     QAction *clearIndividualFormatAction = 0;
+    QAction *showUnprintableUnicode = 0;
+    QAction *showUnprintableOctal = 0;
+    QAction *showUnprintableHexadecimal = 0;
     formatMenu.setTitle(tr("Change Display Format..."));
-    if (idx.isValid() && !alternativeFormats.isEmpty()) {
+    if (true /*idx.isValid() && !alternativeFormats.isEmpty() */) {
+        showUnprintableUnicode =
+            formatMenu.addAction(tr("Treat All Characters as Printable"));
+        showUnprintableUnicode->setCheckable(true);
+        showUnprintableUnicode->setChecked(unprintableBase == 0);
+        showUnprintableOctal =
+            formatMenu.addAction(tr("Show Unprintable Characters as Octal"));
+        showUnprintableOctal->setCheckable(true);
+        showUnprintableOctal->setChecked(unprintableBase == 8);
+        showUnprintableHexadecimal =
+            formatMenu.addAction(tr("Show Unprintable Characters as Hexadecimal"));
+        showUnprintableHexadecimal->setCheckable(true);
+        showUnprintableHexadecimal->setChecked(unprintableBase == 16);
+        formatMenu.addSeparator();
         QAction *dummy = formatMenu.addAction(
             tr("Change Display for Type \"%1\"").arg(type));
         dummy->setEnabled(false);
@@ -515,6 +532,12 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actShowInEditor) {
         QString contents = handler->editorContents();
         debuggerCore()->openTextEditor(tr("Locals & Watchers"), contents);
+    } else if (act == showUnprintableUnicode) {
+        handler->setUnprintableBase(0);
+    } else if (act == showUnprintableOctal) {
+        handler->setUnprintableBase(8);
+    } else if (act == showUnprintableHexadecimal) {
+        handler->setUnprintableBase(16);
     } else {
         for (int i = 0; i != typeFormatActions.size(); ++i) {
             if (act == typeFormatActions.at(i))

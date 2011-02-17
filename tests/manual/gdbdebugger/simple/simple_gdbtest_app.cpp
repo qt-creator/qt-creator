@@ -2061,6 +2061,14 @@ struct Ty
 
 void testStuff()
 {
+    char *x = "0\032\0333";
+    char *y = "0\032\0333";
+    char *z = "0\032\0333";
+    int i = 1;
+}
+
+void testStuff5()
+{
     using namespace std;
     typedef map<string, list<string> > map_t;
     map_t m;
