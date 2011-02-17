@@ -535,7 +535,7 @@ inline QDeclarativeDebugObjectReference findParentRecursive( int goalDebugId,
 
 void InspectorUi::selectItems(const QList<QDeclarativeDebugObjectReference> &objectReferences)
 {
-    foreach (const QDeclarativeDebugObjectReference &objref, objectReferences)
+    foreach (const QDeclarativeDebugObjectReference &objref, objectReferences) {
         if (objref.debugId() != -1) {
             // select only the first valid element of the list
 
@@ -548,6 +548,7 @@ void InspectorUi::selectItems(const QList<QDeclarativeDebugObjectReference> &obj
             gotoObjectReferenceDefinition(objref);
             return;
         }
+    }
 }
 
 inline QString displayName(const QDeclarativeDebugObjectReference &obj)

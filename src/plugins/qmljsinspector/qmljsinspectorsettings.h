@@ -47,7 +47,7 @@ class InspectorSettings : public QObject
 
 public:
     InspectorSettings(QObject *parent = 0);
-    ~InspectorSettings();
+
     void restoreSettings(QSettings *settings);
     void saveSettings(QSettings *settings) const;
 

@@ -56,8 +56,14 @@ class PropertiesFilter : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    explicit PropertiesFilter(QObject *parent=0):QSortFilterProxyModel(parent) { setDynamicSortFilter(true); }
+    explicit PropertiesFilter(QObject *parent = 0)
+        : QSortFilterProxyModel(parent)
+    {
+        setDynamicSortFilter(true);
+    }
+
     ~PropertiesFilter() { }
+
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 };
 
@@ -65,10 +71,10 @@ class ExpressionEdit : public QDialog
 {
     Q_OBJECT
 public:
-    explicit ExpressionEdit(const QString & title, QDialog *parent=0);
+    explicit ExpressionEdit(const QString &title, QDialog *parent = 0);
 
     QString expression() const;
-    void setItemData(int objectId,const QString &propertyName);
+    void setItemData(int objectId, const QString &propertyName);
 
     virtual void accept();
 
@@ -86,7 +92,7 @@ class ColorChooserDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit ColorChooserDialog(const QString & title, QDialog *parent=0);
+    explicit ColorChooserDialog(const QString &title, QDialog *parent = 0);
 
     void setItemData(int objectId,const QString &propertyName, const QString &colorName);
 
@@ -125,18 +131,18 @@ signals:
 
 public slots:
     void setCurrentObjects(const QList<QDeclarativeDebugObjectReference> &);
-    void propertyValueEdited(const int objectId,const QString& propertyName, const QString& propertyValue);
+    void propertyValueEdited(const int objectId,const QString &propertyName, const QString &propertyValue);
     void propertyValueChanged(int debugId, const QByteArray &propertyName, const QVariant &propertyValue);
     void filterBy(const QString &expression);
 
-    void openExpressionEditor( QModelIndex &itemIndex );
-    void openColorSelector( QModelIndex &itemIndex );
+    void openExpressionEditor(const QModelIndex &itemIndex);
+    void openColorSelector(const QModelIndex &itemIndex);
 
 private:
     friend class PropertyEditDelegate;
     void buildPropertyTree(const QDeclarativeDebugObjectReference &);
     void addRow(const QString &name, const QString &value, const QString &type,
-                const int debugId=-1, bool editable=true);
+                const int debugId = -1, bool editable = true);
     void setColorIcon(int row);
 
     QVariant getData(int row, int column, int role) const;
