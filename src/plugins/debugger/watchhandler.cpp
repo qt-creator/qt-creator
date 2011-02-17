@@ -778,7 +778,7 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
     // source of a drag and drop operation and as a drop target.
 
     static const Qt::ItemFlags notEditable
-        = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+        = /* Qt::ItemIsSelectable | */ Qt::ItemIsEnabled;
     static const Qt::ItemFlags editable = notEditable | Qt::ItemIsEditable;
 
     // Disable editing if debuggee is positively running.
