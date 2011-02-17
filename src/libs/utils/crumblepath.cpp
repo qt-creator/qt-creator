@@ -94,9 +94,10 @@ private:
 CrumblePathButton::CrumblePathButton(const QString &title, QWidget *parent)
     : QPushButton(title, parent), m_isHovering(false), m_isPressed(false), m_isSelected(false), m_isEnd(true)
 {
-    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     setToolTip(title);
-    setMinimumHeight(24);
+    setMinimumHeight(25);
+    setMaximumHeight(25);
     setMouseTracking(true);
     m_textPos.setX(18);
     m_textPos.setY(height());
@@ -234,7 +235,7 @@ CrumblePath::CrumblePath(QWidget *parent) :
 {
     setMinimumHeight(25);
     setMaximumHeight(25);
-    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 }
 
 CrumblePath::~CrumblePath()

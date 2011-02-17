@@ -42,7 +42,6 @@ ContextCrumblePath::ContextCrumblePath(QWidget *parent)
     : CrumblePath(parent)
     , m_isEmpty(true)
 {
-    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     updateContextPath(QStringList(), QList<int>());
 }
 
