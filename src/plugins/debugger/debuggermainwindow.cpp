@@ -702,6 +702,8 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
         //    q->splitDockWidget(breakDock, qmlInspectorDock, Qt::Horizontal);
     }
 
+    breakDock->raise(); // Raise something sensible.
+
     q->setTrackingEnabled(true);
     q->update();
 }
