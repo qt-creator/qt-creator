@@ -97,7 +97,12 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
         str << '`';
         if (!bp.module.isEmpty())
             str << bp.module << '!';
-        str << QDir::toNativeSeparators(bp.fileName) << ':' << bp.lineNumber << '`';
+        if (bp.pathUsage == BreakpointUseShortPath) {
+            str << QFileInfo(bp.fileName).fileName();
+        } else  {
+            str << QDir::toNativeSeparators(bp.fileName);
+        }
+        str << ':' << bp.lineNumber << '`';
         break;
     case Watchpoint:
         str << "rw 1 " << hex << hexPrefixOn << bp.address << hexPrefixOff << dec;

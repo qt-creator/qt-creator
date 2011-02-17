@@ -76,6 +76,14 @@ enum BreakpointState
     BreakpointDead
 };
 
+//! \enum Debugger::Internal::BreakpointPathUsage
+enum BreakpointPathUsage
+{
+    BreakpointPathUsageEngineDefault, //!< Default value that suits the engine.
+    BreakpointUseFullPath,            //!< Use full path to avoid ambiguities. Slow with gdb.
+    BreakpointUseShortPath            //!< Use filename only, in case source files are relocated.
+};
+
 class BreakpointParameters
 {
 public:
@@ -93,7 +101,7 @@ public:
 
     BreakpointType type;     //!< Type of breakpoint.
     bool enabled;            //!< Should we talk to the debugger engine?
-    bool useFullPath;        //!< Should we use the full path when setting the bp?
+    BreakpointPathUsage pathUsage;  //!< Should we use the full path when setting the bp?
     QString fileName;        //!< Short name of source file.
     QByteArray condition;    //!< Condition associated with breakpoint.
     int ignoreCount;         //!< Ignore count associated with breakpoint.

@@ -136,17 +136,10 @@
         <item row="1" column="0">
          <widget class="QLabel" name="labelUseFullPath">
           <property name="text">
-           <string>&amp;Use full path:</string>
+           <string>Pat&amp;h:</string>
           </property>
           <property name="buddy">
-           <cstring>checkBoxUseFullPath</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QCheckBox" name="checkBoxUseFullPath">
-          <property name="text">
-           <string/>
+           <cstring>comboBoxPathUsage</cstring>
           </property>
          </widget>
         </item>
@@ -175,6 +168,25 @@
         </item>
         <item row="3" column="1">
          <widget class="QLineEdit" name="lineEditCommand"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="comboBoxPathUsage">
+          <item>
+           <property name="text">
+            <string>Use Engine Default</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Use Full Path</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Use File Name</string>
+           </property>
+          </item>
+         </widget>
         </item>
        </layout>
       </item>
@@ -212,7 +224,7 @@
         <item row="2" column="0">
          <widget class="QLabel" name="labelThreadSpec">
           <property name="text">
-           <string>T&amp;hread specification:</string>
+           <string>&amp;Thread specification:</string>
           </property>
           <property name="buddy">
            <cstring>lineEditThreadSpec</cstring>

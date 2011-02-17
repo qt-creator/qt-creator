@@ -52,7 +52,7 @@ namespace Internal {
 */
 
 BreakpointParameters::BreakpointParameters(BreakpointType t)
-  : type(t), enabled(true), useFullPath(false),
+  : type(t), enabled(true), pathUsage(BreakpointPathUsageEngineDefault),
     ignoreCount(0), lineNumber(0), address(0), threadSpec(-1),
     tracepoint(false)
 {}
@@ -61,7 +61,7 @@ bool BreakpointParameters::equals(const BreakpointParameters &rhs) const
 {
     return type == rhs.type
         && enabled == rhs.enabled
-        && useFullPath == rhs.useFullPath
+        && pathUsage == rhs.pathUsage
         && fileName == rhs.fileName
         && conditionsMatch(rhs.condition)
         && ignoreCount == rhs.ignoreCount
@@ -94,7 +94,7 @@ QString BreakpointParameters::toString() const
     ts << " LineNumber: " << lineNumber;
     ts << " Address: " << address;
     ts << " FunctionName: " << functionName;
-    ts << " UseFullPath: " << useFullPath;
+    ts << " PathUsage: " << pathUsage;
     ts << " Tracepoint: " << tracepoint;
     ts << " Module: " << module;
     ts << " Command: " << command;

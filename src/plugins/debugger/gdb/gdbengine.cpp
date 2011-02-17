@@ -2251,7 +2251,7 @@ QByteArray GdbEngine::breakpointLocation(BreakpointId id)
     if (data.type == BreakpointByAddress)
         return addressSpec(data.address);
 
-    const QString fileName = data.useFullPath
+    const QString fileName = data.pathUsage == BreakpointUseFullPath
         ? data.fileName : breakLocation(data.fileName);
     // The argument is simply a C-quoted version of the argument to the
     // non-MI "break" command, including the "original" quoting it wants.

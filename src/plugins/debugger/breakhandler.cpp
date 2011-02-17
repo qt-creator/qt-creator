@@ -270,8 +270,8 @@ void BreakHandler::saveBreakpoints()
             map.insert(_("threadspec"), data.threadSpec);
         if (!data.enabled)
             map.insert(_("disabled"), one);
-        if (data.useFullPath)
-            map.insert(_("usefullpath"), one);
+        if (data.pathUsage != BreakpointPathUsageEngineDefault)
+            map.insert(_("usefullpath"), QString::number(data.pathUsage));
         if (data.tracepoint)
             map.insert(_("tracepoint"), one);
         if (!data.module.isEmpty())
@@ -320,7 +320,7 @@ void BreakHandler::loadBreakpoints()
             data.enabled = !v.toInt();
         v = map.value(_("usefullpath"));
         if (v.isValid())
-            data.useFullPath = bool(v.toInt());
+            data.pathUsage = static_cast<BreakpointPathUsage>(v.toInt());
         v = map.value(_("tracepoint"));
         if (v.isValid())
             data.tracepoint = bool(v.toInt());
@@ -585,7 +585,7 @@ void BreakHandler::setter(BreakpointId id, const type &value) \
     SETTER(type, getter, setter)
 
 
-PROPERTY(bool, useFullPath, setUseFullPath)
+PROPERTY(BreakpointPathUsage, pathUsage, setPathUsage)
 PROPERTY(QString, fileName, setFileName)
 PROPERTY(QString, functionName, setFunctionName)
 PROPERTY(BreakpointType, type, setType)

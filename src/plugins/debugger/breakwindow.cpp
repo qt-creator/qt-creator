@@ -140,6 +140,17 @@ BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
     m_ui.labelCommand->setToolTip(commandToolTip);
     m_ui.spinBoxIgnoreCount->setMinimum(0);
     m_ui.spinBoxIgnoreCount->setMaximum(2147483647);
+    const QString pathToolTip =
+            tr("<html><head/><body><p>Determines how the path is specified when setting breakpoints:</p><ul>"
+               "<li><i>Use Engine Default</i>: Preferred setting of the debugger engine.</li>"
+               "<li><i>Use Full Path</i>: Pass full path, avoiding ambiguities should files of the same "
+               "name exist in several modules. This is the engine default for CDB and LLDB.</li>"
+               "<li><i>Use File Name</i>: Pass the file name only. This is useful "
+               "when using a source tree whose location does not match the one used when building the modules. "
+               "It is the engine default for gdb as using full paths can be slow with this engine.</li>"
+               "</ul></body></html>");
+    m_ui.labelUseFullPath->setToolTip(pathToolTip);
+    m_ui.comboBoxPathUsage->setToolTip(pathToolTip);
 }
 
 void BreakpointDialog::setType(BreakpointType type)
@@ -180,7 +191,7 @@ void BreakpointDialog::setPartsEnabled(unsigned partsMask)
     m_ui.labelLineNumber->setEnabled(partsMask & FileAndLinePart);
     m_ui.lineEditLineNumber->setEnabled(partsMask & FileAndLinePart);
     m_ui.labelUseFullPath->setEnabled(partsMask & FileAndLinePart);
-    m_ui.checkBoxUseFullPath->setEnabled(partsMask & FileAndLinePart);
+    m_ui.comboBoxPathUsage->setEnabled(partsMask & FileAndLinePart);
 
     m_ui.labelFunction->setEnabled(partsMask & FunctionPart);
     m_ui.lineEditFunction->setEnabled(partsMask & FunctionPart);
@@ -205,7 +216,7 @@ void BreakpointDialog::clearOtherParts(unsigned partsMask)
     if (invertedPartsMask & FileAndLinePart) {
         m_ui.pathChooserFileName->setPath(QString());
         m_ui.lineEditLineNumber->clear();
-        m_ui.checkBoxUseFullPath->setChecked(false);
+        m_ui.comboBoxPathUsage->setCurrentIndex(BreakpointPathUsageEngineDefault);
     }
 
     if (invertedPartsMask & FunctionPart)
@@ -232,7 +243,7 @@ void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) 
 
     if (partsMask & FileAndLinePart) {
         data->lineNumber = m_ui.lineEditLineNumber->text().toInt();
-        data->useFullPath = m_ui.checkBoxUseFullPath->isChecked();
+        data->pathUsage = static_cast<BreakpointPathUsage>(m_ui.comboBoxPathUsage->currentIndex());
         data->fileName = m_ui.pathChooserFileName->path();
     }
     if (partsMask & FunctionPart)
@@ -255,7 +266,7 @@ void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) 
 void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
 {
     m_ui.checkBoxEnabled->setChecked(data.enabled);
-    m_ui.checkBoxUseFullPath->setChecked(data.useFullPath);
+    m_ui.comboBoxPathUsage->setCurrentIndex(data.pathUsage);
     m_ui.lineEditCommand->setText(data.command);
 
     if (mask & FileAndLinePart) {

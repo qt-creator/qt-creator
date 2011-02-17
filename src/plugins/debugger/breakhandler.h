@@ -106,8 +106,8 @@ public:
 
     // Getter retrieves property value.
     // Setter sets property value and triggers update if changed.
-    bool useFullPath(BreakpointId id) const;
-    void setUseFullPath(BreakpointId, const bool &on);
+    BreakpointPathUsage pathUsage(BreakpointId id) const;
+    void setPathUsage(BreakpointId, const BreakpointPathUsage &u);
     QByteArray condition(BreakpointId id) const;
     void setCondition(BreakpointId, const QByteArray &condition);
     int ignoreCount(BreakpointId id) const;
