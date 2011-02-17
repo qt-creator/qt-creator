@@ -123,12 +123,14 @@ void QmlAdapter::pollInferior()
 
 void QmlAdapter::connectToViewer()
 {
-    if (d->m_engine.isNull() || (d->m_conn && d->m_conn->state() != QAbstractSocket::UnconnectedState))
+    if (d->m_engine.isNull()
+            || (d->m_conn && d->m_conn->state() != QAbstractSocket::UnconnectedState))
         return;
 
     QString address = d->m_engine.data()->startParameters().qmlServerAddress;
     quint16 port = d->m_engine.data()->startParameters().qmlServerPort;
-    showConnectionStatusMessage(tr("Connect to debug server %1:%2").arg(address).arg(QString::number(port)));
+    showConnectionStatusMessage(
+                tr("Connect to debug server %1:%2").arg(address).arg(QString::number(port)));
     d->m_conn->connectToHost(address, port);
 }
 
@@ -155,9 +157,8 @@ void QmlAdapter::connectionErrorOccurred(QAbstractSocket::SocketError socketErro
 void QmlAdapter::clientStatusChanged(QDeclarativeDebugClient::Status status)
 {
     QString serviceName;
-    if (QDeclarativeDebugClient *client = qobject_cast<QDeclarativeDebugClient*>(sender())) {
+    if (QDeclarativeDebugClient *client = qobject_cast<QDeclarativeDebugClient*>(sender()))
         serviceName = client->name();
-    }
 
     logServiceStatusChange(serviceName, status);
 
@@ -168,34 +169,34 @@ void QmlAdapter::clientStatusChanged(QDeclarativeDebugClient::Status status)
 void QmlAdapter::connectionStateChanged()
 {
     switch (d->m_conn->state()) {
-        case QAbstractSocket::UnconnectedState:
-        {
-            showConnectionStatusMessage(tr("disconnected.\n\n"));
-            emit disconnected();
+    case QAbstractSocket::UnconnectedState:
+    {
+        showConnectionStatusMessage(tr("disconnected.\n\n"));
+        emit disconnected();
 
-            break;
-        }
-        case QAbstractSocket::HostLookupState:
-            showConnectionStatusMessage(tr("resolving host..."));
-            break;
-        case QAbstractSocket::ConnectingState:
-            showConnectionStatusMessage(tr("connecting to debug server..."));
-            break;
-        case QAbstractSocket::ConnectedState:
-        {
-            showConnectionStatusMessage(tr("connected.\n"));
+        break;
+    }
+    case QAbstractSocket::HostLookupState:
+        showConnectionStatusMessage(tr("resolving host..."));
+        break;
+    case QAbstractSocket::ConnectingState:
+        showConnectionStatusMessage(tr("connecting to debug server..."));
+        break;
+    case QAbstractSocket::ConnectedState:
+    {
+        showConnectionStatusMessage(tr("connected.\n"));
 
-            createDebuggerClient();
-            //reloadEngines();
-            emit connected();
-            break;
-        }
-        case QAbstractSocket::ClosingState:
-            showConnectionStatusMessage(tr("closing..."));
-            break;
-        case QAbstractSocket::BoundState:
-        case QAbstractSocket::ListeningState:
-            break;
+        createDebuggerClient();
+        //reloadEngines();
+        emit connected();
+        break;
+    }
+    case QAbstractSocket::ClosingState:
+        showConnectionStatusMessage(tr("closing..."));
+        break;
+    case QAbstractSocket::BoundState:
+    case QAbstractSocket::ListeningState:
+        break;
     }
 }
 
@@ -248,15 +249,17 @@ bool QmlAdapter::disableJsDebugging(bool block)
     if (isBlocked == block)
         return block;
 
-    if (block)
+    if (block) {
         d->m_engine.data()->continueInferior();
-    else
+    } else {
         d->m_engine.data()->requestInterruptInferior();
+    }
 
     return isBlocked;
 }
 
-void QmlAdapter::logServiceStatusChange(const QString &service, QDeclarativeDebugClient::Status newStatus)
+void QmlAdapter::logServiceStatusChange(const QString &service,
+                                        QDeclarativeDebugClient::Status newStatus)
 {
     switch (newStatus) {
     case QDeclarativeDebugClient::Unavailable: {
@@ -285,9 +288,8 @@ void QmlAdapter::logServiceActivity(const QString &service, const QString &logMe
 void QmlAdapter::flushSendBuffer()
 {
     QTC_ASSERT(d->m_qmlClient->status() == QDeclarativeDebugClient::Enabled, return);
-    foreach (const QByteArray &msg, d->sendBuffer) {
+    foreach (const QByteArray &msg, d->sendBuffer)
         d->m_qmlClient->sendMessage(msg);
-    }
     d->sendBuffer.clear();
 }
 
