@@ -360,6 +360,7 @@ LogWindow::LogWindow(QWidget *parent)
 
     m_commandLabel = new QLabel(tr("Command:"), this);
     m_commandEdit = new QLineEdit(this);
+    m_commandEdit->setFrame(false);
     QHBoxLayout *commandBox = new QHBoxLayout;
     commandBox->addWidget(m_commandLabel);
     commandBox->addWidget(m_commandEdit);
