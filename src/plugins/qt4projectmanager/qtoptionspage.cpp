@@ -376,8 +376,8 @@ void QtOptionsPageWidget::buildQmlDebuggingLibrary()
 void QtOptionsPageWidget::buildQmlObserver()
 {
     DebuggingHelperBuildTask::Tools qmlDbgTools =
-            DebuggingHelperBuildTask::QmlObserver
-            | DebuggingHelperBuildTask::QmlDebugging;
+            DebuggingHelperBuildTask::QmlObserver;
+    qmlDbgTools |= DebuggingHelperBuildTask::QmlDebugging;
     buildDebuggingHelper(qmlDbgTools);
 }
 
