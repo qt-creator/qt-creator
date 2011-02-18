@@ -73,6 +73,17 @@ Qt4BaseTargetFactory *Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(const QStr
     return 0;
 }
 
+// Return name of a build configuration.
+QString Qt4BaseTargetFactory::msgBuildConfigurationName(const BuildConfigurationInfo &info)
+{
+    const QString qtVersionName = info.version->displayName();
+    return (info.buildConfig & QtVersion::DebugBuild) ?
+        //: Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.
+        tr("%1 Debug").arg(qtVersionName) :
+        //: Name of a release build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.
+        tr("%1 Release").arg(qtVersionName);
+}
+
 // -------------------------------------------------------------------------
 // Qt4BaseTarget
 // -------------------------------------------------------------------------

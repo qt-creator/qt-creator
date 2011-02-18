@@ -204,15 +204,10 @@ Qt4BaseTarget *Qt4MaemoTargetFactory::create(ProjectExplorer::Project *parent,
         target = new Qt4MeegoTarget(static_cast<Qt4Project *>(parent), id);
     Q_ASSERT(target);
 
-    foreach (const BuildConfigurationInfo &info, infos) {
-        QString displayName = info.version->displayName() + QLatin1Char(' ');
-        displayName += (info.buildConfig & QtVersion::DebugBuild) ? tr("Debug") : tr("Release");
-        target->addQt4BuildConfiguration(displayName,
-                                    info.version,
-                                    info.buildConfig,
-                                    info.additionalArguments,
-                                    info.directory);
-    }
+    foreach (const BuildConfigurationInfo &info, infos)
+        target->addQt4BuildConfiguration(msgBuildConfigurationName(info),
+                                         info.version, info.buildConfig,
+                                         info.additionalArguments, info.directory);
 
     target->addDeployConfiguration(target->deployConfigurationFactory()->create(target, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
     target->createApplicationProFiles();

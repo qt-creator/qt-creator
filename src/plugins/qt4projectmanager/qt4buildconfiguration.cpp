@@ -759,11 +759,13 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
     if (!ok || buildConfigurationName.isEmpty())
         return 0;
 
+    //: Debug build configuration. We recommend not translating it.
     qt4Target->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
                                         version,
                                         (version->defaultBuildConfig() | QtVersion::DebugBuild),
                                         QString(), QString());
     BuildConfiguration *bc =
+    //: Release build configuration. We recommend not translating it.
     qt4Target->addQt4BuildConfiguration(tr("%1 Release").arg(buildConfigurationName),
                                         version,
                                         (version->defaultBuildConfig() & ~QtVersion::DebugBuild),

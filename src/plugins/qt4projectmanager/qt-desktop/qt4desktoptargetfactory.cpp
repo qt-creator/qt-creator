@@ -161,15 +161,10 @@ Qt4BaseTarget *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent,
         return 0;
     Qt4DesktopTarget *t = new Qt4DesktopTarget(static_cast<Qt4Project *>(parent), id);
 
-    foreach (const BuildConfigurationInfo &info, infos) {
-        QString displayName = info.version->displayName() + QLatin1Char(' ');
-        displayName += (info.buildConfig & QtVersion::DebugBuild) ? tr("Debug") : tr("Release");
-        t->addQt4BuildConfiguration(displayName,
-                                    info.version,
-                                    info.buildConfig,
-                                    info.additionalArguments,
-                                    info.directory);
-    }
+    foreach (const BuildConfigurationInfo &info, infos)
+        t->addQt4BuildConfiguration(msgBuildConfigurationName(info),
+                                    info.version, info.buildConfig,
+                                    info.additionalArguments, info.directory);
 
     t->addDeployConfiguration(t->deployConfigurationFactory()->create(t, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
 

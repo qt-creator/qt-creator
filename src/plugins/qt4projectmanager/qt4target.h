@@ -116,6 +116,9 @@ public:
                                   QList<BuildConfigurationInfo> infos) = 0;
 
     static Qt4BaseTargetFactory *qt4BaseTargetFactoryForId(const QString &id);
+
+protected:
+    static QString msgBuildConfigurationName(const BuildConfigurationInfo &info);
 };
 
 } // namespace Qt4ProjectManager
