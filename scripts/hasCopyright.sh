@@ -9,10 +9,11 @@
 
 for i in $@ ; do
     if test -f "$i" && test -s "$i" ; then
-        if head -n 15 "$i" | grep Copyright > /dev/null 2>&1 ; then
+        if head -n 15 "$i" | grep Copyright > /dev/null 2>&1 &&
+	   head -n 15 "$i" | grep "No Commercial Usage" > /dev/null 2>&1 ; then
             echo "$i: Copyright."
         else
-           echo "$i: NO COPYRIGHT."
+           echo "$i: NO/WRONG COPYRIGHT."
         fi
     fi
 done
