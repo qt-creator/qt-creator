@@ -111,14 +111,14 @@ const char * const SETTINGS_EX_CMDS_ID            = "B.ExCommands";
 } // namespace FakeVim
 
 
+namespace FakeVim {
+namespace Internal {
+
 ///////////////////////////////////////////////////////////////////////
 //
 // FakeVimOptionPage
 //
 ///////////////////////////////////////////////////////////////////////
-
-namespace FakeVim {
-namespace Internal {
 
 typedef QMap<QString, QRegExp> CommandMap;
 typedef QLatin1String _;
@@ -229,9 +229,7 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
 
 void FakeVimOptionPage::copyTextEditorSettings()
 {
-    TextEditor::TabSettings ts =
-        TextEditor::TextEditorSettings::instance()->tabSettings();
-
+    TabSettings ts = TextEditorSettings::instance()->tabSettings();
     m_ui.checkBoxExpandTab->setChecked(ts.m_spacesForTabs);
     m_ui.spinBoxTabStop->setValue(ts.m_tabSize);
     m_ui.spinBoxShiftWidth->setValue(ts.m_indentSize);
@@ -270,9 +268,6 @@ bool FakeVimOptionPage::matches(const QString &s) const
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
-} // namespace Internal
-} // namespace FakeVim
-
 //const char *FAKEVIM_CONTEXT = "FakeVim";
 
 ///////////////////////////////////////////////////////////////////////
@@ -288,7 +283,11 @@ struct CommandItem
     QTreeWidgetItem *m_item;
 };
 
-Q_DECLARE_METATYPE(CommandItem *)
+} // namespace Internal
+} // namespace FakeVim
+
+
+Q_DECLARE_METATYPE(FakeVim::Internal::CommandItem *)
 
 namespace FakeVim {
 namespace Internal {
@@ -475,8 +474,152 @@ void FakeVimExCommandsPage::defaultAction()
     }
 }
 
-} // namespace Internal
-} // namespace FakeVim
+
+///////////////////////////////////////////////////////////////////////
+//
+// WordCompletion
+//
+///////////////////////////////////////////////////////////////////////
+
+class WordCompletion : public ICompletionCollector
+{
+    Q_OBJECT
+
+public:
+    WordCompletion()
+    {
+        m_editable = 0;
+        m_editor = 0;
+    }
+
+    virtual ~WordCompletion() {}
+
+    virtual bool shouldRestartCompletion()
+    {
+        //qDebug() << "SHOULD RESTART COMPLETION?";
+        return false;
+    }
+
+    virtual ITextEditable *editor() const
+    {
+        //qDebug() << "NO EDITOR?";
+        return m_editable;
+    }
+
+    virtual int startPosition() const { return m_startPosition; }
+
+    virtual bool supportsEditor(ITextEditable *) { return true; }
+
+    virtual bool triggersCompletion(ITextEditable *editable)
+    {
+        //qDebug() << "TRIGGERS?";
+        QTC_ASSERT(m_editable == editable, /**/);
+        return true;
+    }
+
+    virtual int startCompletion(ITextEditable *editable)
+    {
+        //qDebug() << "START COMPLETION";
+        QTC_ASSERT(m_editor, return -1);
+        QTC_ASSERT(m_editable == editable, return -1);
+        return m_editor->textCursor().position();
+    }
+
+    void setActive(const QString &needle, bool forward, FakeVimHandler *handler)
+    {
+        Q_UNUSED(forward);
+        m_handler = handler;
+        if (!m_handler)
+            return;
+        m_editor = qobject_cast<BaseTextEditor *>(handler->widget());
+        if (!m_editor)
+            return;
+        //qDebug() << "ACTIVATE: " << needle << forward;
+        m_needle = needle;
+        m_editable = m_editor->editableInterface();
+        m_startPosition = m_editor->textCursor().position() - needle.size();
+
+        CompletionSupport::instance()->autoComplete(m_editable, false);
+    }
+
+    void setInactive()
+    {
+        m_needle.clear();
+        m_editable = 0;
+        m_editor = 0;
+        m_handler = 0;
+        m_startPosition = -1;
+    }
+
+    virtual void completions(QList<CompletionItem> *completions)
+    {
+        QTC_ASSERT(m_editor, return);
+        QTC_ASSERT(completions, return);
+        QTextCursor tc = m_editor->textCursor();
+        tc.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+
+        QSet<QString> seen;
+
+        QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
+        while (1) {
+            tc = tc.document()->find(m_needle, tc.position(), flags);
+            if (tc.isNull())
+                break;
+            QTextCursor sel = tc;
+            sel.select(QTextCursor::WordUnderCursor);
+            QString found = sel.selectedText();
+            // Only add "real" completions.
+            if (found.startsWith(m_needle)
+                    && !seen.contains(found)
+                    && sel.anchor() != m_startPosition) {
+                seen.insert(found);
+                CompletionItem item;
+                item.collector = this;
+                item.text = found;
+                completions->append(item);
+            }
+            tc.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor);
+        }
+        //qDebug() << "COMPLETIONS" << completions->size();
+    }
+
+    virtual bool typedCharCompletes(const CompletionItem &item, QChar typedChar)
+    {
+        m_needle += typedChar;
+        //qDebug() << "COMPLETE? " << typedChar << item.text << m_needle;
+        return item.text == m_needle;
+    }
+
+    virtual void complete(const CompletionItem &item, QChar typedChar)
+    {
+        Q_UNUSED(typedChar);
+        //qDebug() << "COMPLETE: " << item.text;
+        QTC_ASSERT(m_handler, return);
+        m_handler->handleReplay(item.text.mid(m_needle.size()));
+        setInactive();
+    }
+
+    virtual bool partiallyComplete(const QList<CompletionItem> &completionItems)
+    {
+        //qDebug() << "PARTIALLY";
+        Q_UNUSED(completionItems);
+        return false;
+    }
+
+    virtual void cleanup() {}
+
+private:
+    int findStartOfName(int pos = -1) const;
+    bool isInComment() const;
+
+    FakeVimHandler *m_handler;
+    BaseTextEditor *m_editor;
+    ITextEditable *m_editable;
+    QString m_needle;
+    QString m_currentPrefix;
+    QList<CompletionItem> m_items;
+    int m_startPosition;
+};
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -484,9 +627,6 @@ void FakeVimExCommandsPage::defaultAction()
 // FakeVimPluginPrivate
 //
 ///////////////////////////////////////////////////////////////////////
-
-namespace FakeVim {
-namespace Internal {
 
 class FakeVimPluginPrivate : public QObject
 {
@@ -562,10 +702,8 @@ private:
     CommandMap m_exCommandMap;
     CommandMap m_defaultExCommandMap;
     Core::StatusBarWidget *m_statusBar;
+    WordCompletion *m_wordCompletion;
 };
-
-} // namespace Internal
-} // namespace FakeVim
 
 FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
 {
@@ -618,6 +756,18 @@ bool FakeVimPluginPrivate::initialize()
     m_editorManager = core()->editorManager();
     m_actionManager = core()->actionManager();
     QTC_ASSERT(actionManager(), return false);
+
+    m_wordCompletion = new WordCompletion;
+    q->addAutoReleasedObject(m_wordCompletion);
+/*
+    // Set completion settings and keep them up to date.
+    TextEditorSettings *textEditorSettings = TextEditorSettings::instance();
+    completion->setCompletionSettings(textEditorSettings->completionSettings());
+    connect(textEditorSettings,
+        SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
+        completion,
+        SLOT(setCompletionSettings(TextEditor::CompletionSettings)));
+*/
 
     Context globalcontext(Core::Constants::C_GLOBAL);
 
@@ -1001,15 +1151,16 @@ void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
         Find::FindPlugin::instance()->setUseFakeVim(on);
     if (on) {
         //ICore *core = ICore::instance();
-        //core->updateAdditionalContexts(Core::Context(FAKEVIM_CONTEXT), Core::Context());
+        //core->updateAdditionalContexts(Core::Context(FAKEVIM_CONTEXT),
+        // Core::Context());
         foreach (Core::IEditor *editor, m_editorToHandler.keys())
             m_editorToHandler[editor]->setupWidget();
     } else {
         //ICore *core = ICore::instance();
-        //core->updateAdditionalContexts(Core::Context(), Core::Context(FAKEVIM_CONTEXT));
+        //core->updateAdditionalContexts(Core::Context(),
+        // Core::Context(FAKEVIM_CONTEXT));
         showCommandBuffer(QString());
-        TextEditor::TabSettings ts =
-            TextEditor::TextEditorSettings::instance()->tabSettings();
+        TabSettings ts = TextEditorSettings::instance()->tabSettings();
         foreach (Core::IEditor *editor, m_editorToHandler.keys())
             m_editorToHandler[editor]->restoreWidget(ts.m_tabSize);
     }
@@ -1020,99 +1171,17 @@ void FakeVimPluginPrivate::triggerCompletions()
     FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
     if (!handler)
         return;
-    if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(handler->widget()))
-        TextEditor::CompletionSupport::instance()->
-            autoComplete(bt->editableInterface(), false);
-   //     bt->triggerCompletions();
+    if (BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(handler->widget()))
+        CompletionSupport::instance()->
+            autoComplete(editor->editableInterface(), false);
+   //     editor->triggerCompletions();
 }
-
-class WordCompletion : public ICompletionCollector
-{
-public:
-    WordCompletion(ITextEditable *editor = 0) : m_editor(editor) {}
-
-    virtual ~WordCompletion() {}
-
-    virtual bool shouldRestartCompletion() { return false; }
-
-    virtual ITextEditable *editor() const { return m_editor; }
-    virtual int startPosition() const { return 0; }
-
-    virtual bool supportsEditor(ITextEditable *editor)
-        { Q_UNUSED(editor); return true; }
-    virtual bool triggersCompletion(ITextEditable *editor)
-    {
-        qDebug() << "TRIGGERS?";
-        Q_UNUSED(editor); return false;
-    }
-    virtual int startCompletion(ITextEditable *editor)
-    {
-        qDebug() << "START COMPLETION";
-        Q_UNUSED(editor); return false;
-    }
-
-
-/*
-    QList<CompletionItem> getCompletions()
-    {
-        QList<CompletionItem> completionItems;
-        completions(&completionItems);
-        return completionItems;
-    }
-*/
-
-
-    /* This method should add all the completions it wants to show into
-       the list, based on the given cursor position. */
-    virtual void completions(QList<CompletionItem> *completions)
-    {
-        CompletionItem item;
-        item.text = "1st thing";
-        item.collector = this;
-        completions->append(item);
-    }
-    virtual bool typedCharCompletes(const CompletionItem &item, QChar typedChar)
-    {
-        qDebug() << "COMPLETE? " << typedChar;
-        Q_UNUSED(item); Q_UNUSED(typedChar); return false;
-    }
-
-    virtual void complete(const CompletionItem &item, QChar typedChar)
-    {
-        Q_UNUSED(item); Q_UNUSED(typedChar);
-        qDebug() << "COMPLETE: " << typedChar;
-    }
-    virtual bool partiallyComplete(const QList<CompletionItem> &completionItems)
-    {
-        qDebug() << "PARTIALLY";
-        Q_UNUSED(completionItems); return false;
-    }
-
-    virtual void cleanup() {}
-
-private:
-    int findStartOfName(int pos = -1) const;
-    bool isInComment() const;
-
-    ITextEditable *m_editor;
-    QList<CompletionItem> m_items;
-    int m_startPosition;
-};
 
 void FakeVimPluginPrivate::triggerSimpleCompletions(const QString &needle,
    bool forward)
 {
-    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
-    if (!handler)
-        return;
-    BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(handler->widget());
-    if (!bt)
-        return;
-    qDebug() << "NOT IMPLEMENTED, NEEDLE: " << needle << forward;
-    //WordCompletion *collector = new WordCompletion(bt->editableInterface());
-    TextEditor::CompletionSupport::instance()->
-           autoComplete(bt->editableInterface(), false);
-   //     bt->triggerCompletions();
+    m_wordCompletion->setActive(needle, forward,
+        qobject_cast<FakeVimHandler *>(sender()));
 }
 
 void FakeVimPluginPrivate::setBlockSelection(bool on)
@@ -1276,23 +1345,23 @@ void FakeVimPluginPrivate::moveToMatchingParenthesis(bool *moved, bool *forward,
         cursor->movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, 1);
         undoFakeEOL = true;
     }
-    TextEditor::TextBlockUserData::MatchType match
-        = TextEditor::TextBlockUserData::matchCursorForward(cursor);
-    if (match == TextEditor::TextBlockUserData::Match) {
+    TextBlockUserData::MatchType match
+        = TextBlockUserData::matchCursorForward(cursor);
+    if (match == TextBlockUserData::Match) {
         *moved = true;
         *forward = true;
     } else {
         if (undoFakeEOL)
             cursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
-        if (match == TextEditor::TextBlockUserData::NoMatch) {
+        if (match == TextBlockUserData::NoMatch) {
             // Backward matching is according to the character before the cursor.
             bool undoMove = false;
             if (!cursor->atBlockEnd()) {
                 cursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
                 undoMove = true;
             }
-            match = TextEditor::TextBlockUserData::matchCursorBackward(cursor);
-            if (match == TextEditor::TextBlockUserData::Match) {
+            match = TextBlockUserData::matchCursorBackward(cursor);
+            if (match == TextBlockUserData::Match) {
                 *moved = true;
                 *forward = false;
             } else if (undoMove) {
@@ -1313,8 +1382,7 @@ void FakeVimPluginPrivate::indentRegion(int beginLine, int endLine,
     if (!bt)
         return;
 
-    const TextEditor::TabSettings oldTabSettings = bt->tabSettings();
-
+    const TabSettings oldTabSettings = bt->tabSettings();
     TabSettings tabSettings;
     tabSettings.m_indentSize = theFakeVimSetting(ConfigShiftWidth)->value().toInt();
     tabSettings.m_tabSize = theFakeVimSetting(ConfigTabStop)->value().toInt();
@@ -1399,7 +1467,6 @@ CommandMap &FakeVimExCommandsPage::defaultExCommandMap()
     return m_q->defaultExCommandMap();
 }
 
-
 ///////////////////////////////////////////////////////////////////////
 //
 // FakeVimPlugin
@@ -1419,17 +1486,6 @@ bool FakeVimPlugin::initialize(const QStringList &arguments, QString *errorMessa
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
-/*
-    WordCompletion *completion = new WordCompletion;
-    addAutoReleasedObject(completion);
-    // Set completion settings and keep them up to date.
-    TextEditorSettings *textEditorSettings = TextEditorSettings::instance();
-    completion->setCompletionSettings(textEditorSettings->completionSettings());
-    connect(textEditorSettings,
-        SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
-        completion,
-        SLOT(setCompletionSettings(TextEditor::CompletionSettings)));
-*/
     return d->initialize();
 }
 
@@ -1447,6 +1503,9 @@ void FakeVimPlugin::extensionsInitialized()
     d->m_statusBar->setPosition(StatusBarWidget::Last);
     addAutoReleasedObject(d->m_statusBar);
 }
+
+} // namespace Internal
+} // namespace FakeVim
 
 #include "fakevimplugin.moc"
 

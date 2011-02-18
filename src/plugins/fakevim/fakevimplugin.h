@@ -40,7 +40,6 @@ namespace FakeVim {
 namespace Internal {
 
 class FakeVimHandler;
-
 class FakeVimPluginPrivate;
 
 class FakeVimPlugin : public ExtensionSystem::IPlugin

@@ -266,10 +266,13 @@ QDebug operator<<(QDebug ts, const Register &reg)
 
 struct SearchData
 {
-    SearchData() { init(); }
-
-    void init() { forward = true; mustMove = true; highlightMatches = true;
-        highlightCursor = true; }
+    SearchData()
+    {
+        forward = true;
+        mustMove = true;
+        highlightMatches = true;
+        highlightCursor = true;
+    }
 
     QString needle;
     bool forward;
@@ -4908,6 +4911,11 @@ void FakeVimHandler::restoreWidget(int tabSize)
 void FakeVimHandler::handleCommand(const QString &cmd)
 {
     d->handleCommand(cmd);
+}
+
+void FakeVimHandler::handleReplay(const QString &keys)
+{
+    d->replay(keys, 1);
 }
 
 void FakeVimHandler::setCurrentFileName(const QString &fileName)

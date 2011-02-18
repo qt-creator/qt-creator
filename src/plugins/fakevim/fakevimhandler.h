@@ -100,6 +100,7 @@ public slots:
     // This executes an "ex" style command taking context
     // information from the current widget.
     void handleCommand(const QString &cmd);
+    void handleReplay(const QString &keys);
 
     void installEventFilter();
 
