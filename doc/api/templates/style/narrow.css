@@ -15,7 +15,12 @@
     }
 
     .narrow .footer {
-      margin: 0;
+      margin: 0px;
+    }
+
+    .creator .header, .creator .header .content, .creator .footer, .creator .wrapper {
+      margin: 0px;
+      min-width: 300px;
     }
     .narrow .header
     {
@@ -49,7 +54,7 @@
 
     .narrow .header .qtref a
     {
-      color: #363534;
+      color: #00732F;
     }
 
     .narrow .header .qtref span
@@ -98,7 +103,7 @@
     }
     .narrow .header #shortCut ul li a
     {
-      color: #44a51c;
+      color: #00732F;
     }
 
     .narrow .wrapper .hd
@@ -126,6 +131,11 @@
         margin: 0 5px 0 5px;
     }
 
+    .creator .wrap
+    {
+        margin: 0px;
+		background:#FFFFFF;
+    }
     .narrow .wrap .toolbar
     {
       border-bottom: none;
@@ -135,7 +145,14 @@
     {
         padding-top: 15px;
     }
-
+    .creator .wrap .content
+    {
+        padding-top: 10px;
+    }
+    .creator .wrap .content .guide
+    {
+        padding-top: 15px;
+    }
     .narrow .wrap .feedback
     {
         display: none;
@@ -186,6 +203,9 @@
       *border: 1px solid #fff;
       *height: 17px;
       _height: 18px;
+	  /* to be fixed */
+	  display: none;
+	  /* to be fixed */
     }
 
     .narrow .indexbox .indexIcon {
