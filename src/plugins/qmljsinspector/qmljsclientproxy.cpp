@@ -417,7 +417,6 @@ void ClientProxy::removeAllObjectWatches()
 {
     foreach (int watchedObject, m_objectWatches.keys())
         removeObjectWatch(watchedObject);
-    Q_ASSERT(m_objectWatches.count() == 0);
 }
 
 void ClientProxy::queryEngineContext(int id)
