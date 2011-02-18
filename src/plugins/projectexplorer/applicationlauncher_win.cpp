@@ -35,6 +35,8 @@
 #include "consoleprocess.h"
 #include "winguiprocess.h"
 
+#include <utils/winutils.h>
+
 #include <QtCore/QDebug>
 
 namespace ProjectExplorer {
@@ -69,8 +71,16 @@ ApplicationLauncher::~ApplicationLauncher()
 
 void ApplicationLauncher::setWorkingDirectory(const QString &dir)
 {
-    d->m_winGuiProcess.setWorkingDirectory(dir);
-    d->m_consoleProcess.setWorkingDirectory(dir);
+    QString fixedPath = dir;
+    QString error;
+
+    // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
+    const QString longPath = Utils::getLongPathName(dir, &error);
+    if (!longPath.isEmpty())
+        fixedPath = longPath;
+
+    d->m_winGuiProcess.setWorkingDirectory(fixedPath);
+    d->m_consoleProcess.setWorkingDirectory(fixedPath);
 }
 
 void ApplicationLauncher::setEnvironment(const Utils::Environment &env)
