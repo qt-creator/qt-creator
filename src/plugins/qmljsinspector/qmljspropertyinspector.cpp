@@ -447,9 +447,9 @@ void QmlJSPropertyInspector::contextMenuEvent(QContextMenuEvent *ev)
 
 void QmlJSPropertyInspector::openExpressionEditor(const QModelIndex &itemIndex)
 {
-    QString propertyName = getData(itemIndex.row(), 0, Qt::DisplayRole).toString();
-    QString dialogText = tr("Javascript expression for ")+propertyName;
-    int objectId = getData(itemIndex.row(), 0, Qt::UserRole).toInt();
+    const QString propertyName = getData(itemIndex.row(), 0, Qt::DisplayRole).toString();
+    const QString dialogText = tr("JavaScript expression for %1").arg(propertyName);
+    const int objectId = getData(itemIndex.row(), 0, Qt::UserRole).toInt();
 
     ExpressionEdit *expressionDialog = new ExpressionEdit(dialogText);
     expressionDialog->setItemData(objectId, propertyName);
@@ -462,10 +462,10 @@ void QmlJSPropertyInspector::openExpressionEditor(const QModelIndex &itemIndex)
 
 void QmlJSPropertyInspector::openColorSelector(const QModelIndex &itemIndex)
 {
-    QString propertyName = getData(itemIndex.row(), 0, Qt::DisplayRole).toString();
-    QString dialogText = tr("Color selection for ") + propertyName;
-    int objectId = getData(itemIndex.row(), 0, Qt::UserRole).toInt();
-    QString propertyValue = getData(itemIndex.row(), 1, Qt::DisplayRole).toString();
+    const QString propertyName = getData(itemIndex.row(), 0, Qt::DisplayRole).toString();
+    const QString dialogText = tr("Color selection for %1").arg(propertyName);
+    const int objectId = getData(itemIndex.row(), 0, Qt::UserRole).toInt();
+    const QString propertyValue = getData(itemIndex.row(), 1, Qt::DisplayRole).toString();
 
     ColorChooserDialog *colorDialog = new ColorChooserDialog(dialogText);
     colorDialog->setItemData(objectId, propertyName, propertyValue);
