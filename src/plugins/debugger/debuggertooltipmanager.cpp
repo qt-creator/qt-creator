@@ -506,7 +506,8 @@ void PinnableToolTipWidget::toolButtonClicked()
 
 void PinnableToolTipWidget::leaveEvent(QEvent *)
 {
-    if (m_pinState == Unpinned && QApplication::keyboardModifiers() == Qt::NoModifier) {
+    if (!m_menu->isVisible() && m_pinState == Unpinned
+        && QApplication::keyboardModifiers() == Qt::NoModifier) {
         if (debugToolTips)
             qDebug("ToolTipWidget::leaveEvent: closing %p", this);
         close();
