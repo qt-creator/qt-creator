@@ -37,6 +37,7 @@
 
 #include <qt4projectmanager/qt4nodes.h>
 
+#include <QtCore/QDir>
 #include <QtGui/QTableWidgetItem>
 
 namespace Qt4ProjectManager {
@@ -54,7 +55,7 @@ MaemoProFilesUpdateDialog::MaemoProFilesUpdateDialog(const QList<MaemoDeployable
         new QTableWidgetItem(tr("Updateable Project Files")));
     for (int row = 0; row < models.count(); ++row) {
         QTableWidgetItem *const item
-            = new QTableWidgetItem(models.at(row)->proFilePath());
+            = new QTableWidgetItem(QDir::toNativeSeparators(models.at(row)->proFilePath()));
         item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         item->setCheckState(Qt::Unchecked);
         ui->tableWidget->setItem(row, 0, item);
