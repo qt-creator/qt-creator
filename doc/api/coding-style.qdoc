@@ -104,8 +104,9 @@
                 public/protected/private methods).
             \o  Do not reimplement methods (not even inlines,
                 nor protected or private methods).
-            \o  Check BinaryCompatibilityWorkarounds for ways to preserve binary
-                compatibility.
+            \o  Check
+                \l {http://developer.qt.nokia.com/wiki/Binary_Compatibility_Workarounds}{Binary Compatibility Workarounds}
+                for ways to preserve binary compatibility.
         \endlist
     \endlist
 
@@ -792,8 +793,8 @@
 
     \section2 Namespacing
 
-    Read QtInNamespace and keep in mind that all of Qt Creator is
-    \e{namespace aware} code.
+    Read \l {http://developer.qt.nokia.com/wiki/Qt_In_Namespace}{Qt In Namespace}
+    and keep in mind that all of Qt Creator is \e{namespace aware} code.
 
     \section2 Conventions for Public Header Files
 
