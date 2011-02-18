@@ -1660,6 +1660,7 @@
     To paste a snippet of code onto the server, select \gui{Tools} >
     \gui{Code Pasting} > \gui{Paste Snippet...} or press \key{Alt+C,Alt+P}.
 
+
     To fetch a snippet of code from the server, select \gui{Tools} >
     \gui{Code Pasting} > \gui{Fetch Snippet...} or press \key{Alt+C,Alt+F}.
 
@@ -9519,6 +9520,10 @@
     \section1 General Issues
 
     \list
+
+        \o If you change the Input Languages in Windows, Qt Creator might not
+           respond for 30 seconds. This is a known issue in the Advanced Text
+           Service of Microsoft Windows.
 
         \o Qt Creator uses SQLite for storing some of its settings. SQLite is
            known to have problems with certain NFS servers (most notably the
