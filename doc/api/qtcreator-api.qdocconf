@@ -1,4 +1,4 @@
-include(../qt-html-templates.qdocconf)
+include(../config/qt-html-templates.qdocconf)
 
 project                 = Qt Creator API
 description             = Qt Creator API Documentation
@@ -42,7 +42,7 @@ base                    = file:./html
 versionsym              = 2.0.0
 codeindent              = 1
 
-include(../qt-defines.qdocconf)
+include(../config/qt-defines.qdocconf)
 
 # macros.qdocconf
 
