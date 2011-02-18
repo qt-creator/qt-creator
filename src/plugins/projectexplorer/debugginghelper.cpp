@@ -81,17 +81,28 @@ QStringList DebuggingHelperLibrary::locationsByInstallData(const QString &qtInst
     return result;
 }
 
+static QString sourcePath()
+{
+    return Core::ICore::instance()->resourcePath() + QLatin1String("/gdbmacros/");
+}
+
+static QStringList sourceFileNames()
+{
+    return QStringList()
+            << QLatin1String("gdbmacros.cpp") << QLatin1String("gdbmacros_p.h")
+            << QLatin1String("gdbmacros.h") << QLatin1String("gdbmacros.pro")
+            << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT");
+}
+
 QString DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(const QString &qtInstallData)
 {
     if (!Core::ICore::instance())
         return QString();
 
-    const QString mainFilename = Core::ICore::instance()->resourcePath()
-            + QLatin1String("/gdbmacros/gdbmacros.cpp");
     const QStringList directories = DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
     const QStringList binFilenames = validBinaryFilenames();
 
-    return byInstallDataHelper(mainFilename, directories, binFilenames);
+    return byInstallDataHelper(sourcePath(), sourceFileNames(), directories, binFilenames);
 }
 
 QString DebuggingHelperLibrary::copy(const QString &qtInstallData,
@@ -103,16 +114,9 @@ QString DebuggingHelperLibrary::copy(const QString &qtInstallData,
     //    $USERDIR/qtc-debugging-helper/$hash
     const QStringList directories = DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
 
-    QStringList files;
-    files << QLatin1String("gdbmacros.cpp") << QLatin1String("gdbmacros_p.h")
-          << QLatin1String("gdbmacros.h") << QLatin1String("gdbmacros.pro")
-          << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT");
-
-    QString sourcePath = Core::ICore::instance()->resourcePath() + QLatin1String("/gdbmacros/");
-
     // Try to find a writeable directory.
     foreach(const QString &directory, directories)
-        if (copyFiles(sourcePath, files, directory, errorMessage)) {
+        if (copyFiles(sourcePath(), sourceFileNames(), directory, errorMessage)) {
             errorMessage->clear();
             return directory;
         }

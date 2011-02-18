@@ -52,8 +52,6 @@ QString QmlDebuggingLibrary::libraryByInstallData(const QString &qtInstallData, 
     if (!Core::ICore::instance())
         return QString();
 
-    const QString mainFilename = Core::ICore::instance()->resourcePath()
-            + QLatin1String("/qml/qmljsdebugger/qmljsdebugger.pro");
     const QStringList directories = installDirectories(qtInstallData);
 
     QStringList binFilenames;
@@ -65,7 +63,7 @@ QString QmlDebuggingLibrary::libraryByInstallData(const QString &qtInstallData, 
     }
     binFilenames << QLatin1String("libqmljsdebugger.a");
 
-    return byInstallDataHelper(mainFilename, directories, binFilenames);
+    return byInstallDataHelper(sourcePath(), sourceFileNames(), directories, binFilenames);
 }
 
 bool QmlDebuggingLibrary::canBuild(const QtVersion *qtVersion)
@@ -97,10 +95,6 @@ QString QmlDebuggingLibrary::copy(const QString &qtInstallData, QString *errorMe
 {
     const QStringList directories = QmlDebuggingLibrary::installDirectories(qtInstallData);
 
-    QString sourcePath = Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmljsdebugger/");
-
-    QStringList qmljsDebuggerFiles = recursiveFileList(QDir(sourcePath));
-
     // Try to find a writeable directory.
     foreach (const QString &directory, directories) {
         if (!mkpath(directory, errorMessage)) {
@@ -109,7 +103,7 @@ QString QmlDebuggingLibrary::copy(const QString &qtInstallData, QString *errorMe
             errorMessage->clear();
         }
 
-        if (copyFiles(sourcePath, qmljsDebuggerFiles,
+        if (copyFiles(sourcePath(), sourceFileNames(),
                       directory, errorMessage))
         {
             errorMessage->clear();
@@ -152,5 +146,14 @@ QStringList QmlDebuggingLibrary::installDirectories(const QString &qtInstallData
     return directories;
 }
 
+QString QmlDebuggingLibrary::sourcePath()
+{
+    return Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmljsdebugger/");
+}
+
+QStringList QmlDebuggingLibrary::sourceFileNames()
+{
+    return recursiveFileList(QDir(sourcePath()));
+}
 
 } // namespace

@@ -71,7 +71,8 @@ public:
 private:
     static QStringList recursiveFileList(const QDir &dir, const QString &prefix = QString());
     static QStringList installDirectories(const QString &qtInstallData);
-
+    static QString sourcePath();
+    static QStringList sourceFileNames();
 };
 
 } // namespace

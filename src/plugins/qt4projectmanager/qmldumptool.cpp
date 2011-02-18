@@ -228,6 +228,21 @@ QString QmlDumpTool::toolForProject(ProjectExplorer::Project *project, bool debu
     return QString();
 }
 
+static QString sourcePath()
+{
+    return Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmldump/");
+}
+
+static QStringList sourceFileNames()
+{
+    QStringList files;
+    files << QLatin1String("main.cpp") << QLatin1String("qmldump.pro")
+          << QLatin1String("qmlstreamwriter.cpp") << QLatin1String("qmlstreamwriter.h")
+          << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT")
+          << QLatin1String("Info.plist");
+    return files;
+}
+
 QString QmlDumpTool::toolByInstallData(const QString &qtInstallData, bool debugDump)
 {
     if (!Core::ICore::instance())
@@ -238,7 +253,7 @@ QString QmlDumpTool::toolByInstallData(const QString &qtInstallData, bool debugD
     const QStringList directories = installDirectories(qtInstallData);
     const QStringList binFilenames = validBinaryFilenames(debugDump);
 
-    return byInstallDataHelper(mainFilename, directories, binFilenames);
+    return byInstallDataHelper(sourcePath(), sourceFileNames(), directories, binFilenames);
 }
 
 QStringList QmlDumpTool::locationsByInstallData(const QString &qtInstallData, bool debugDump)
@@ -267,17 +282,9 @@ QString QmlDumpTool::copy(const QString &qtInstallData, QString *errorMessage)
 {
     const QStringList directories = QmlDumpTool::installDirectories(qtInstallData);
 
-    QStringList files;
-    files << QLatin1String("main.cpp") << QLatin1String("qmldump.pro")
-          << QLatin1String("qmlstreamwriter.cpp") << QLatin1String("qmlstreamwriter.h")
-          << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT")
-          << QLatin1String("Info.plist");
-
-    QString sourcePath = Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmldump/");
-
     // Try to find a writeable directory.
     foreach(const QString &directory, directories) {
-        if (copyFiles(sourcePath, files, directory, errorMessage)) {
+        if (copyFiles(sourcePath(), sourceFileNames(), directory, errorMessage)) {
             return directory;
         }
     }

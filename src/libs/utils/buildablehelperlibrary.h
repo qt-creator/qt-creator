@@ -59,7 +59,8 @@ public:
     static QString qtInstallHeadersDir(const QString &qmakePath);
     static QString qtInstallDataDir(const QString &qmakePath);
 
-    static QString byInstallDataHelper(const QString &mainFilename,
+    static QString byInstallDataHelper(const QString &sourcePath,
+                                       const QStringList &sourceFileNames,
                                        const QStringList &installDirectories,
                                        const QStringList &validBinaryFilenames);
 

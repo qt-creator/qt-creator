@@ -84,12 +84,10 @@ QString QmlObserverTool::toolByInstallData(const QString &qtInstallData)
     if (!Core::ICore::instance())
         return QString();
 
-    const QString mainFilename = Core::ICore::instance()->resourcePath()
-            + QLatin1String("/qml/qmlobserver/main.cpp");
     const QStringList directories = installDirectories(qtInstallData);
     const QStringList binFilenames = validBinaryFilenames();
 
-    return byInstallDataHelper(mainFilename, directories, binFilenames);
+    return byInstallDataHelper(sourcePath(), sourceFileNames(), directories, binFilenames);
 }
 
 QStringList QmlObserverTool::locationsByInstallData(const QString &qtInstallData)
@@ -129,10 +127,6 @@ QString QmlObserverTool::copy(const QString &qtInstallData, QString *errorMessag
 {
     const QStringList directories = QmlObserverTool::installDirectories(qtInstallData);
 
-    QString sourcePath = Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmlobserver/");
-
-    QStringList observerFiles = recursiveFileList(QDir(sourcePath));
-
     // Try to find a writeable directory.
     foreach(const QString &directory, directories) {
         if (!mkpath(directory, errorMessage)) {
@@ -141,7 +135,7 @@ QString QmlObserverTool::copy(const QString &qtInstallData, QString *errorMessag
             errorMessage->clear();
         }
 
-        if (copyFiles(sourcePath, observerFiles, directory, errorMessage)) {
+        if (copyFiles(sourcePath(), sourceFileNames(), directory, errorMessage)) {
             errorMessage->clear();
             return directory;
         }
@@ -180,6 +174,16 @@ QStringList QmlObserverTool::installDirectories(const QString &qtInstallData)
             << QDir::cleanPath((QCoreApplication::applicationDirPath() + QLatin1String("/../qtc-qmlobserver/") + QString::number(hash))) + slash
             << (QDesktopServices::storageLocation(QDesktopServices::DataLocation) + QLatin1String("/qtc-qmlobserver/") + QString::number(hash)) + slash;
     return directories;
+}
+
+QString QmlObserverTool::sourcePath()
+{
+    return Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmlobserver/");
+}
+
+QStringList QmlObserverTool::sourceFileNames()
+{
+    return recursiveFileList(QDir(sourcePath()));
 }
 
 } // namespace
