@@ -43,6 +43,7 @@
 #include <QtCore/QProcess>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QTextCodec>
+#include <QtGui/QMenu>
 
 namespace Core {
 namespace Internal {
@@ -176,6 +177,7 @@ signals:
 
 private slots:
     void menuActivated();
+    void openPreferences();
 
 private:
     void initialize();
@@ -193,6 +195,8 @@ private:
     QMap<QString, QList<Internal::ExternalTool *> > m_categoryMap;
     QMap<QString, QAction *> m_actions;
     QMap<QString, ActionContainer *> m_containers;
+    QAction *m_configureSeparator;
+    QAction *m_configureAction;
 
     // for sending the replaceSelectionRequested signal
     friend class Core::Internal::ExternalToolRunner;

@@ -47,7 +47,6 @@
 #include <QtCore/QFile>
 #include <QtCore/QDateTime>
 #include <QtGui/QMenu>
-#include <QtGui/QMenuItem>
 #include <QtGui/QAction>
 
 #include <QtDebug>
@@ -677,6 +676,11 @@ ExternalToolManager::~ExternalToolManager()
 
 void ExternalToolManager::initialize()
 {
+    m_configureSeparator = new QAction(this);
+    m_configureSeparator->setSeparator(true);
+    m_configureAction = new QAction(tr("Configure..."), this);
+    connect(m_configureAction, SIGNAL(triggered()), this, SLOT(openPreferences()));
+
     // add the external tools menu
     ActionManager *am = m_core->actionManager();
     ActionContainer *mexternaltools = am->createMenu(Id(Constants::M_TOOLS_EXTERNAL));
@@ -844,6 +848,10 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
     qDeleteAll(m_containers);
     // remember the new containers
     m_containers = newContainers;
+
+    // (re)add the configure menu item
+    mexternaltools->menu()->addAction(m_configureSeparator);
+    mexternaltools->menu()->addAction(m_configureAction);
 }
 
 void ExternalToolManager::readSettings(const QMap<QString, ExternalTool *> &tools,
@@ -900,4 +908,10 @@ void ExternalToolManager::writeSettings()
     settings->endGroup();
 
     settings->endGroup();
+}
+
+void ExternalToolManager::openPreferences()
+{
+    ICore::instance()->showOptionsDialog(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE),
+                                         QLatin1String(Core::Constants::SETTINGS_ID_TOOLS));
 }

@@ -49,7 +49,7 @@ ToolSettings::ToolSettings(QObject *parent) :
 
 QString ToolSettings::id() const
 {
-    return QLatin1String("G.ExternalTools");
+    return QLatin1String(Core::Constants::SETTINGS_ID_TOOLS);
 }
 
 
