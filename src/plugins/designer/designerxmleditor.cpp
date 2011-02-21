@@ -53,7 +53,7 @@ TextEditor::BaseTextEditor *DesignerXmlEditor::createEditor()
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << "DesignerXmlEditor::createEditableInterface()";
-    return m_designerEditor->textEditable();
+    return m_designerEditor->textEditor();
 }
 
 FormWindowEditor *DesignerXmlEditor::designerEditor() const
@@ -61,6 +61,6 @@ FormWindowEditor *DesignerXmlEditor::designerEditor() const
     return m_designerEditor;
 }
 
-}
+} // namespace Internal
 } // namespace Designer
 

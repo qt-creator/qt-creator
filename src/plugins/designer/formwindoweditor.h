@@ -102,7 +102,7 @@ public:
     QString contents() const;
 
     TextEditor::BaseTextDocument *textDocument();
-    TextEditor::PlainTextEditor *textEditable();
+    TextEditor::PlainTextEditor *textEditor();
 
 public slots:
     void syncXmlEditor();

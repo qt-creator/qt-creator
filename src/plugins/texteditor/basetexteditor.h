@@ -545,41 +545,38 @@ private slots:
 class TEXTEDITOR_EXPORT BaseTextEditor : public ITextEditor
 {
     Q_OBJECT
-    friend class BaseTextEditorWidget;
+
 public:
     BaseTextEditor(BaseTextEditorWidget *editorWidget);
     ~BaseTextEditor();
 
-    inline BaseTextEditorWidget *editorWidget() const { return e; }
+    friend class BaseTextEditorWidget;
+    BaseTextEditorWidget *editorWidget() const { return e; }
 
     // EditorInterface
-    inline QWidget *widget() { return e; }
-    inline Core::IFile * file() { return e->file(); }
-    inline bool createNew(const QString &contents) { return e->createNew(contents); }
-    inline bool open(const QString &fileName = QString())
-    {
-        return e->open(fileName);
-    }
-    inline QString displayName() const { return e->displayName(); }
-    inline void setDisplayName(const QString &title) { e->setDisplayName(title); emit changed(); }
+    QWidget *widget() { return e; }
+    Core::IFile * file() { return e->file(); }
+    bool createNew(const QString &contents) { return e->createNew(contents); }
+    bool open(const QString &fileName = QString()) { return e->open(fileName); }
+    QString displayName() const { return e->displayName(); }
+    void setDisplayName(const QString &title) { e->setDisplayName(title); emit changed(); }
 
-    inline QByteArray saveState() const { return e->saveState(); }
-    inline bool restoreState(const QByteArray &state) { return e->restoreState(state); }
-    virtual QWidget *toolBar();
+    QByteArray saveState() const { return e->saveState(); }
+    bool restoreState(const QByteArray &state) { return e->restoreState(state); }
+    QWidget *toolBar();
 
     // ITextEditor
     int find(const QString &string) const;
-
     int currentLine() const;
     int currentColumn() const;
     void gotoLine(int line, int column = 0) { e->gotoLine(line, column); }
     int columnCount() const;
     int rowCount() const;
 
-    inline int position(
-        ITextEditor::PositionOperation posOp = ITextEditor::Current
-        , int at = -1) const { return e->position(posOp, at); }
-    inline void convertPosition(int pos, int *line, int *column) const { e->convertPosition(pos, line, column); }
+    int position(PositionOperation posOp = Current, int at = -1) const
+    { return e->position(posOp, at); }
+    void convertPosition(int pos, int *line, int *column) const
+    { e->convertPosition(pos, line, column); }
     QRect cursorRect(int pos = -1) const;
 
     QString contents() const;
