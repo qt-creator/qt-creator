@@ -472,6 +472,18 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
                               tr("The Build found in %1 is incompatible with this target").arg(m_importLinePath->path()));
         return;
     }
+    if (m_selected == m_enabled.size() && m_importInfos.isEmpty()) {
+        // All regular builds are enabled and we didn't have a import before
+        // That means we are still in the default setup, in that case
+        // we disable all the builds
+        m_selected = 0;
+        for (int i=0; i<m_enabled.size(); ++i) {
+            m_enabled[i] = false;
+            m_checkboxes.at(i)->setChecked(false);
+        }
+    }
+
+
     ++m_selected;
     m_importEnabled << true;
 
