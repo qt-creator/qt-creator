@@ -358,7 +358,6 @@ void QmlInspectorToolBar::activateDesignModeOnClick()
 {
     bool checked = m_observerModeAction->isChecked();
 
-    m_playAction->setEnabled(checked);
     m_selectAction->setEnabled(checked);
     m_zoomAction->setEnabled(checked);
     m_colorPickerAction->setEnabled(checked);
