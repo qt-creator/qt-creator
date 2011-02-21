@@ -321,7 +321,7 @@ void GdbEngine::readDebugeeOutput(const QByteArray &data)
 {
     QString msg = m_outputCodec->toUnicode(data.constData(), data.length(),
         &m_outputCodecState);
-    showMessage(msg, AppStuff);
+    showMessage(msg, AppOutput);
 }
 
 void GdbEngine::handleResponse(const QByteArray &buff)

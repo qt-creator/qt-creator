@@ -36,6 +36,7 @@
 #include "debuggercore.h"
 #include "debuggerstartparameters.h"
 #include "stackhandler.h"
+#include "qmlengine.h"
 
 #include <utils/qtcassert.h>
 
@@ -53,7 +54,7 @@ DebuggerEngine *createCdbEngine(const DebuggerStartParameters &,
     DebuggerEngine *masterEngine, QString *);
 DebuggerEngine *createGdbEngine(const DebuggerStartParameters &,
     DebuggerEngine *masterEngine);
-DebuggerEngine *createQmlEngine(const DebuggerStartParameters &,
+QmlEngine *createQmlEngine(const DebuggerStartParameters &,
     DebuggerEngine *masterEngine);
 
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp)
@@ -88,7 +89,7 @@ private slots:
 private:
     friend class QmlCppEngine;
     QmlCppEngine *q;
-    DebuggerEngine *m_qmlEngine;
+    QmlEngine *m_qmlEngine;
     DebuggerEngine *m_cppEngine;
     DebuggerEngine *m_activeEngine;
     int m_stackBoundary;
@@ -662,6 +663,15 @@ void QmlCppEngine::handleRemoteSetupFailed(const QString &message)
     EDEBUG("MASTER REMOTE SETUP FAILED");
     d->m_qmlEngine->handleRemoteSetupFailed(message);
     d->m_cppEngine->handleRemoteSetupFailed(message);
+}
+
+void QmlCppEngine::showMessage(const QString &msg, int channel, int timeout) const
+{
+    if (channel == AppOutput || channel == AppError) {
+        // message is from CppEngine, allow qml engine to process
+        d->m_qmlEngine->filterApplicationMessage(msg, channel);
+    }
+    DebuggerEngine::showMessage(msg, channel, timeout);
 }
 
 DebuggerEngine *QmlCppEngine::cppEngine() const

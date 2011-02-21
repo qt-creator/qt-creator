@@ -61,9 +61,16 @@ public:
     void gotoLocation(const Location &location);
     bool canDisplayTooltip() const;
 
+    void showMessage(const QString &msg, int channel = LogDebug,
+                     int timeout = -1) const;
+    void filterApplicationMessage(const QString &msg, int channel);
+
 public slots:
     void messageReceived(const QByteArray &message);
     void disconnected();
+
+private slots:
+    void messageBoxFinished(int result);
 
 private:
     // DebuggerEngine implementation.

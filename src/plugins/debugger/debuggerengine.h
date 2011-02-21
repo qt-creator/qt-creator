@@ -244,7 +244,7 @@ public:
     void handleCommand(int role, const QVariant &value);
 
     // Convenience
-    Q_SLOT void showMessage(const QString &msg, int channel = LogDebug,
+    Q_SLOT virtual void showMessage(const QString &msg, int channel = LogDebug,
         int timeout = -1) const;
     Q_SLOT void showStatusMessage(const QString &msg, int timeout = -1) const;
 

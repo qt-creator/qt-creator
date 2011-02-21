@@ -43,6 +43,7 @@
 #include "debuggerstartparameters.h"
 #include "lldb/lldbenginehost.h"
 #include "debuggertooltipmanager.h"
+#include "qml/qmlengine.h"
 
 #ifdef Q_OS_WIN
 #  include "peutils.h"
@@ -82,7 +83,7 @@ DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp,
 DebuggerEngine *createScriptEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createPdbEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createTcfEngine(const DebuggerStartParameters &sp);
-DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp,
+QmlEngine *createQmlEngine(const DebuggerStartParameters &sp,
     DebuggerEngine *masterEngine);
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createLldbEngine(const DebuggerStartParameters &sp);
