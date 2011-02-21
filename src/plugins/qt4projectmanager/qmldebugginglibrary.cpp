@@ -56,12 +56,12 @@ QString QmlDebuggingLibrary::libraryByInstallData(const QString &qtInstallData, 
 
     QStringList binFilenames;
     if (debugBuild) {
-        binFilenames << QLatin1String("qmljsdebuggerd.lib");
-        binFilenames << QLatin1String("libqmljsdebuggerd.a"); // mingw
+        binFilenames << QLatin1String("QmlJSDebuggerd.lib");
+        binFilenames << QLatin1String("libQmlJSDebuggerd.a"); // mingw
     } else {
-        binFilenames << QLatin1String("qmljsdebugger.lib");
+        binFilenames << QLatin1String("QmlJSDebugger.lib");
     }
-    binFilenames << QLatin1String("libqmljsdebugger.a");
+    binFilenames << QLatin1String("libQmlJSDebugger.a");
 
     return byInstallDataHelper(sourcePath(), sourceFileNames(), directories, binFilenames);
 }

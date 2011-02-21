@@ -12,9 +12,9 @@ DEFINES += BUILD_QMLJSDEBUGGER_STATIC_LIB
 unix:QMAKE_CXXFLAGS_DEBUG += -O3
 
 DESTDIR = $$PWD
-TARGET=qmljsdebugger
+TARGET=QmlJSDebugger
 CONFIG(debug, debug|release) {
-   windows:TARGET=qmljsdebuggerd
+   windows:TARGET=QmlJSDebuggerd
 }
 
 # JS Debugging

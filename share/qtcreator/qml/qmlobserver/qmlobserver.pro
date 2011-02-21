@@ -8,9 +8,9 @@ SOURCES += main.cpp
 
 # INCLUDEPATH and library path has to be extended by qmake call
 
-DEBUGLIB=qmljsdebugger
+DEBUGLIB=QmlJSDebugger
 CONFIG(debug, debug|release) {
-    windows:DEBUGLIB = qmljsdebuggerd
+    windows:DEBUGLIB = QmlJSDebuggerd
 }
 LIBS+=-l$$DEBUGLIB
 
