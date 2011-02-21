@@ -1694,6 +1694,8 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
 
     // Prefix by pointer value
     const SymbolGroupValue v(n, ctx);
+    if (!v) // Value as such has memory read error?
+        return SymbolGroupNode::SimpleDumperFailed;
     if (SymbolGroupValue::isPointerType(v.type()))
         if (const ULONG64 pointerValue = v.pointerValue())
             str << std::showbase << std::hex << pointerValue << std::dec << std::noshowbase << ' ';
