@@ -51,6 +51,8 @@ class QTCREATOR_UTILS_EXPORT DetailsWidget : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(QString summaryText READ summaryText WRITE setSummaryText DESIGNABLE true)
+    Q_PROPERTY(bool useCheckBox READ useCheckBox WRITE setUseCheckBox DESIGNABLE true)
+    Q_PROPERTY(bool checked READ isChecked WRITE setChecked DESIGNABLE true)
     Q_PROPERTY(State state READ state WRITE setState)
     Q_ENUMS(State)
 
@@ -76,6 +78,17 @@ public:
     void setToolWidget(Utils::FadingPanel *widget);
     QWidget *toolWidget() const;
 
+    void setSummaryFontBold(bool b);
+
+    bool isChecked() const;
+    void setChecked(bool b);
+
+    bool useCheckBox();
+    void setUseCheckBox(bool b);
+    /// Sets an icon, only supported if useCheckBox is true
+    void setIcon(const QIcon &icon);
+signals:
+    void checked(bool);
 private slots:
     void setExpanded(bool);
 
