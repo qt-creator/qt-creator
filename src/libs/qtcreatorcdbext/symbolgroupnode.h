@@ -74,6 +74,8 @@ struct DumpParameters
     FormatMap individualFormats;
 };
 
+std::ostream &operator<<(std::ostream &os, const DumpParameters &);
+
 class AbstractSymbolGroupNode
 {
     AbstractSymbolGroupNode(const AbstractSymbolGroupNode&);

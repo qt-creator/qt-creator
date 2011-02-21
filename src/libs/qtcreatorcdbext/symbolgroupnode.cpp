@@ -368,7 +368,7 @@ enum DumpEncoding // WatchData encoding of GDBMI values
  * defined in watchutils.cpp.
  * As a special case, if there is no user-defined format and the
  * CDB output contains '?' indicating non-printable characters,
- * append a hex dump of the memory (auto-format). */
+ * switch to latin1 (8bit) such that the watchmodel formatting options trigger. */
 
 bool DumpParameters::recode(const std::string &type,
                             const std::string &iname,
@@ -381,7 +381,7 @@ bool DumpParameters::recode(const std::string &type,
     // read the raw memory and recode if that is possible.
     if (type.empty() || type.at(type.size() - 1) != '*')
         return false;
-    const int newFormat = format(type, iname);
+    int newFormat = format(type, iname);
     if (value->compare(0, 2, L"0x"))
         return false;
     const std::wstring::size_type quote1 = value->find(L'"', 2);
@@ -390,8 +390,13 @@ bool DumpParameters::recode(const std::string &type,
     // The user did not specify any format, still, there are '?'
     // (indicating non-printable) in what the debugger prints. In that case,
     // append a hex dump to the normal output. If there are no '?'-> all happy.
-    if (newFormat < FormatLatin1String && value->find(L'?', quote1 + 1) == std::wstring::npos)
-        return false;
+    if (newFormat < FormatLatin1String) {
+        const bool hasNonPrintable = value->find(L'?', quote1 + 1) != std::wstring::npos;
+        if (!hasNonPrintable)
+            return false; // All happy, no need to re-encode
+        // Pass as on 8-bit such that Watchmodel's reformatting can trigger.
+        newFormat = FormatLatin1String;
+    }
     const std::wstring::size_type quote2 = value->find(L'"', quote1 + 1);
     if (quote2 == std::wstring::npos)
         return false;
@@ -444,14 +449,32 @@ bool DumpParameters::recode(const std::string &type,
         *value = dataToHexW(buffer, buffer + length + 2); // UTF16 + 0
         *encoding = DumpEncodingHex_Ucs4_LittleEndian;
         break;
-    default:  // See above, append hex dump
-        value->push_back(' ');
-        value->append(dataToReadableHexW(buffer, buffer + length));
-        *encoding = DumpEncodingAscii;
-        break;
     }
     delete [] buffer;
     return true;
+}
+
+std::ostream &operator<<(std::ostream &os, const DumpParameters &d)
+{
+    if (d.dumpFlags & DumpParameters::DumpHumanReadable)
+        os << ", human-readable";
+    if (d.dumpFlags & DumpParameters::DumpComplexDumpers)
+        os << ", complex dumpers";
+    if (!d.typeFormats.empty()) {
+        os << ", type formats: ";
+        DumpParameters::FormatMap::const_iterator cend = d.typeFormats.end();
+        for (DumpParameters::FormatMap::const_iterator it = d.typeFormats.begin(); it != cend; ++it)
+            os << ' ' << it->first << ':' << it->second;
+        os << '\n';
+    }
+    if (!d.individualFormats.empty()) {
+        os << ", individual formats: ";
+        DumpParameters::FormatMap::const_iterator cend = d.individualFormats.end();
+        for (DumpParameters::FormatMap::const_iterator it = d.typeFormats.begin(); it != cend; ++it)
+            os << ' ' << it->first << ':' << it->second;
+        os << '\n';
+    }
+    return os;
 }
 
 // --------- ErrorSymbolGroupNode
