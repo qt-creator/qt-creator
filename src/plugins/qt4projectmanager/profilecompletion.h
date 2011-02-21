@@ -54,7 +54,8 @@ public:
     virtual TextEditor::ITextEditable *editor() const;
     virtual int startPosition() const;
 
-    virtual bool supportsEditor(TextEditor::ITextEditable *editor);
+    virtual bool supportsEditor(TextEditor::ITextEditable *editor) const;
+    virtual bool supportsPolicy(TextEditor::CompletionPolicy policy) const;
     virtual bool triggersCompletion(TextEditor::ITextEditable *editor);
     virtual int startCompletion(TextEditor::ITextEditable *editor);
     virtual void completions(QList<TextEditor::CompletionItem> *completions);

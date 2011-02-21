@@ -141,9 +141,14 @@ QmlJSQuickFixCollector::~QmlJSQuickFixCollector()
 {
 }
 
-bool QmlJSQuickFixCollector::supportsEditor(TextEditor::ITextEditable *editable)
+bool QmlJSQuickFixCollector::supportsEditor(TextEditor::ITextEditable *editable) const
 {
     return qobject_cast<QmlJSTextEditor *>(editable->widget()) != 0;
+}
+
+bool QmlJSQuickFixCollector::supportsPolicy(TextEditor::CompletionPolicy policy) const
+{
+    return policy == TextEditor::QuickFixCompletion;
 }
 
 TextEditor::QuickFixState *QmlJSQuickFixCollector::initializeCompletion(TextEditor::BaseTextEditor *editor)

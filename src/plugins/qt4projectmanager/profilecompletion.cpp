@@ -78,11 +78,14 @@ int ProFileCompletion::startPosition() const
     return m_startPosition;
 }
 
-bool ProFileCompletion::supportsEditor(TextEditor::ITextEditable *editor)
+bool ProFileCompletion::supportsEditor(TextEditor::ITextEditable *editor) const
 {
-    if (qobject_cast<ProFileEditorEditable *>(editor))
-        return true;
-    return false;
+    return qobject_cast<ProFileEditorEditable *>(editor) != 0;
+}
+
+bool ProFileCompletion::supportsPolicy(TextEditor::CompletionPolicy policy) const
+{
+    return policy == TextEditor::SemanticCompletion;
 }
 
 bool ProFileCompletion::triggersCompletion(TextEditor::ITextEditable *editor)

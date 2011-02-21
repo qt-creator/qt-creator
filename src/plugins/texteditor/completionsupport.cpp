@@ -67,7 +67,7 @@ private slots:
 
 public:
     QList<CompletionItem> getCompletions() const;
-    void autoComplete_helper(ITextEditable *editor, bool forced, bool quickFix);
+    void complete(ITextEditable *editor, CompletionPolicy policy, bool forced);
 
     CompletionSupport *m_support;
     Internal::CompletionWidget *m_completionList;
@@ -76,6 +76,7 @@ public:
     ITextEditable *m_editor;
     const QList<ICompletionCollector *> m_completionCollectors;
     ICompletionCollector *m_completionCollector;
+    CompletionPolicy m_policy;
 };
 
 CompletionSupportPrivate::CompletionSupportPrivate(CompletionSupport *support) :
@@ -86,7 +87,8 @@ CompletionSupportPrivate::CompletionSupportPrivate(CompletionSupport *support) :
     m_editor(0),
     m_completionCollectors(ExtensionSystem::PluginManager::instance()
                            ->getObjects<ICompletionCollector>()),
-    m_completionCollector(0)
+    m_completionCollector(0),
+    m_policy(SemanticCompletion)
 {
 }
 
@@ -131,7 +133,7 @@ void CompletionSupportPrivate::cleanupCompletions()
 
         // Only check for completion trigger when some text was entered
         if (m_editor->position() > m_startPosition)
-            autoComplete_helper(m_editor, false, /*quickFix = */ false);
+            complete(m_editor, m_policy, false);
     }
 }
 
@@ -140,28 +142,25 @@ bool CompletionSupport::isActive() const
     return d->m_completionList != 0;
 }
 
-void CompletionSupport::autoComplete(ITextEditable *editor, bool forced)
+CompletionPolicy CompletionSupport::policy() const
 {
-    d->autoComplete_helper(editor, forced, /*quickFix = */ false);
+    return d->m_policy;
 }
 
-void CompletionSupport::quickFix(ITextEditable *editor)
+void CompletionSupport::complete(ITextEditable *editor, CompletionPolicy policy, bool forced)
 {
-    d->autoComplete_helper(editor,
-                        /*forced = */ true,
-                        /*quickFix = */ true);
+    d->complete(editor, policy, forced);
 }
 
-void CompletionSupportPrivate::autoComplete_helper(ITextEditable *editor,
-    bool forced, bool quickFix)
+void CompletionSupportPrivate::complete(ITextEditable *editor, CompletionPolicy policy, bool forced)
 {
-   m_completionCollector = 0;
+    m_completionCollector = 0;
 
     foreach (ICompletionCollector *collector, m_completionCollectors) {
-        if (quickFix)
-            collector = qobject_cast<IQuickFixCollector *>(collector);
-
-        if (collector && collector->supportsEditor(editor)) {
+        QTC_ASSERT(collector, continue);
+        if (collector->supportsEditor(editor)
+                && collector->supportsPolicy(policy)) {
+            m_policy = policy;
             m_completionCollector = collector;
             break;
         }
@@ -195,7 +194,6 @@ void CompletionSupportPrivate::autoComplete_helper(ITextEditable *editor,
         }
 
         m_completionList = new Internal::CompletionWidget(m_support, editor);
-        m_completionList->setQuickFix(quickFix);
 
         connect(m_completionList, SIGNAL(itemSelected(TextEditor::CompletionItem)),
                 this, SLOT(performCompletion(TextEditor::CompletionItem)));

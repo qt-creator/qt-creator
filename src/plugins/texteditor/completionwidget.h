@@ -61,7 +61,6 @@ public:
     CompletionWidget(CompletionSupport *support, ITextEditable *editor);
     ~CompletionWidget();
 
-    void setQuickFix(bool quickFix);
     void setCompletionItems(const QList<TextEditor::CompletionItem> &completionitems);
     void showCompletions(int startPos);
 
@@ -111,16 +110,15 @@ private:
 
     CompletionListView(CompletionSupport *support, ITextEditable *editor, CompletionWidget *completionWidget);
 
-    void setQuickFix(bool quickFix);
     void setCompletionItems(const QList<TextEditor::CompletionItem> &completionitems);
     void keyboardSearch(const QString &search);
     void closeList(const QModelIndex &index);
+
 private slots:
     void maybeShowInfoTip();
-private:
 
+private:
     bool m_blockFocusOut;
-    bool m_quickFix;
     ITextEditable *m_editor;
     QWidget *m_editorWidget;
     CompletionWidget *m_completionWidget;

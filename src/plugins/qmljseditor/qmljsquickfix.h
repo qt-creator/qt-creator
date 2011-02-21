@@ -152,7 +152,8 @@ public:
     QmlJSQuickFixCollector();
     virtual ~QmlJSQuickFixCollector();
 
-    virtual bool supportsEditor(TextEditor::ITextEditable *editor);
+    virtual bool supportsEditor(TextEditor::ITextEditable *editor) const;
+    virtual bool supportsPolicy(TextEditor::CompletionPolicy policy) const;
     virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::BaseTextEditor *editor);
 
     virtual QList<TextEditor::QuickFixFactory *> quickFixFactories() const;

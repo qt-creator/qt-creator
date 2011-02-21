@@ -653,8 +653,15 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     return start;
 }
 
-bool CppCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
-{ return m_manager->isCppEditor(editor); }
+bool CppCodeCompletion::supportsPolicy(TextEditor::CompletionPolicy policy) const
+{
+    return policy == TextEditor::SemanticCompletion;
+}
+
+bool CppCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor) const
+{
+    return m_manager->isCppEditor(editor);
+}
 
 TextEditor::ITextEditable *CppCodeCompletion::editor() const
 { return m_editor; }

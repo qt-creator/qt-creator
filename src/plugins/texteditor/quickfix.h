@@ -161,6 +161,9 @@ public:
     virtual int startCompletion(TextEditor::ITextEditable *editor);
     virtual void completions(QList<TextEditor::CompletionItem> *completions);
 
+    virtual bool supportsPolicy(TextEditor::CompletionPolicy policy) const
+    { return policy == TextEditor::QuickFixCompletion; }
+
     /// See IQuickFixCollector::fix
     virtual void fix(const TextEditor::CompletionItem &item);
 

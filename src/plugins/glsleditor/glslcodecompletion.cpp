@@ -395,12 +395,14 @@ int CodeCompletion::startPosition() const
     return m_startPosition;
 }
 
-bool CodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
+bool CodeCompletion::supportsEditor(TextEditor::ITextEditable *editor) const
 {
-    if (qobject_cast<GLSLTextEditor *>(editor->widget()) != 0)
-        return true;
+    return qobject_cast<GLSLTextEditor *>(editor->widget()) != 0;
+}
 
-    return false;
+bool CodeCompletion::supportsPolicy(TextEditor::CompletionPolicy policy) const
+{
+    return policy == TextEditor::SemanticCompletion;
 }
 
 bool CodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)

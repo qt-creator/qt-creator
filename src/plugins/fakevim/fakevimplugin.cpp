@@ -492,8 +492,6 @@ public:
         m_editor = 0;
     }
 
-    virtual ~WordCompletion() {}
-
     virtual bool shouldRestartCompletion()
     {
         //qDebug() << "SHOULD RESTART COMPLETION?";
@@ -506,9 +504,20 @@ public:
         return m_editable;
     }
 
-    virtual int startPosition() const { return m_startPosition; }
+    virtual int startPosition() const
+    {
+        return m_startPosition;
+    }
 
-    virtual bool supportsEditor(ITextEditable *) { return true; }
+    virtual bool supportsEditor(ITextEditable *) const
+    {
+        return true;
+    }
+
+    virtual bool supportsPolicy(CompletionPolicy policy) const
+    {
+        return policy == TextCompletion;
+    }
 
     virtual bool triggersCompletion(ITextEditable *editable)
     {
@@ -539,7 +548,7 @@ public:
         m_editable = m_editor->editableInterface();
         m_startPosition = m_editor->textCursor().position() - needle.size();
 
-        CompletionSupport::instance()->autoComplete(m_editable, false);
+        CompletionSupport::instance()->complete(m_editable, TextCompletion, false);
     }
 
     void setInactive()
@@ -1173,7 +1182,7 @@ void FakeVimPluginPrivate::triggerCompletions()
         return;
     if (BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(handler->widget()))
         CompletionSupport::instance()->
-            autoComplete(editor->editableInterface(), false);
+            complete(editor->editableInterface(), TextCompletion, false);
    //     editor->triggerCompletions();
 }
 

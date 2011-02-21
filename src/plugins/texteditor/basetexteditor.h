@@ -35,6 +35,7 @@
 #define BASETEXTEDITOR_H
 
 #include "itexteditable.h"
+#include "icompletioncollector.h"
 
 #include <find/ifindsupport.h>
 
@@ -483,8 +484,8 @@ signals:
     void requestFontZoom(int zoom);
     void requestZoomReset();
     void requestBlockUpdate(const QTextBlock &);
-    void requestAutoCompletion(TextEditor::ITextEditable *editor, bool forced);
-    void requestQuickFix(TextEditor::ITextEditable *editor);
+    void requestCompletion(TextEditor::ITextEditable *editor,
+                           TextEditor::CompletionPolicy, bool forced);
 
 private:
     void maybeRequestAutoCompletion(const QChar &ch);

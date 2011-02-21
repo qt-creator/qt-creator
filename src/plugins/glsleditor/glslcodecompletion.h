@@ -56,7 +56,12 @@ public:
     /*
      * Returns true if this completion collector can be used with the given editor.
      */
-    virtual bool supportsEditor(TextEditor::ITextEditable *editor);
+    virtual bool supportsEditor(TextEditor::ITextEditable *editor) const;
+
+    /*
+     * Returns true if this completion collector supports the given completion policy.
+     */
+    virtual bool supportsPolicy(TextEditor::CompletionPolicy policy) const;
 
     /* This method should return whether the cursor is at a position which could
      * trigger an autocomplete. It will be called each time a character is typed in

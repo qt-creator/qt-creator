@@ -179,11 +179,6 @@ CompletionWidget::~CompletionWidget()
 {
 }
 
-void CompletionWidget::setQuickFix(bool quickFix)
-{
-    m_completionListView->setQuickFix(quickFix);
-}
-
 void CompletionWidget::setCompletionItems(const QList<TextEditor::CompletionItem> &completionitems)
 {
     m_completionListView->setCompletionItems(completionitems);
@@ -271,7 +266,6 @@ void CompletionWidget::updatePositionAndSize(int startPos)
 CompletionListView::CompletionListView(CompletionSupport *support, ITextEditable *editor, CompletionWidget *completionWidget)
     : QListView(completionWidget),
       m_blockFocusOut(false),
-      m_quickFix(false),
       m_editor(editor),
       m_editorWidget(editor->widget()),
       m_completionWidget(completionWidget),
@@ -455,7 +449,8 @@ bool CompletionListView::event(QEvent *e)
             break;
         }
 
-        if (forwardKeys && ! m_quickFix) {
+        const CompletionPolicy policy = m_support->policy();
+        if (forwardKeys && policy != QuickFixCompletion) {
             if (ke->text().length() == 1 && currentIndex().isValid() && qApp->focusWidget() == this) {
                 QChar typedChar = ke->text().at(0);
                 const CompletionItem &item = m_model->itemAt(currentIndex());
@@ -471,7 +466,7 @@ bool CompletionListView::event(QEvent *e)
             m_blockFocusOut = false;
 
             // Have the completion support update the list of items
-            m_support->autoComplete(m_editor, false);
+            m_support->complete(m_editor, policy, false);
 
             return true;
         }
@@ -482,11 +477,6 @@ bool CompletionListView::event(QEvent *e)
 void CompletionListView::keyboardSearch(const QString &search)
 {
     Q_UNUSED(search)
-}
-
-void CompletionListView::setQuickFix(bool quickFix)
-{
-    m_quickFix = quickFix;
 }
 
 void CompletionListView::setCompletionItems(const QList<TextEditor::CompletionItem> &completionItems)

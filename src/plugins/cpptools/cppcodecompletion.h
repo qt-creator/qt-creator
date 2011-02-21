@@ -79,7 +79,8 @@ public:
     int startPosition() const;
     bool shouldRestartCompletion();
     QList<TextEditor::CompletionItem> getCompletions();
-    bool supportsEditor(TextEditor::ITextEditable *editor);
+    bool supportsEditor(TextEditor::ITextEditable *editor) const;
+    bool supportsPolicy(TextEditor::CompletionPolicy policy) const;
     bool triggersCompletion(TextEditor::ITextEditable *editor);
     int startCompletion(TextEditor::ITextEditable *editor);
     void completions(QList<TextEditor::CompletionItem> *completions);

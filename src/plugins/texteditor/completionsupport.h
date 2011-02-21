@@ -35,6 +35,7 @@
 #define COMPLETIONSUPPORT_H
 
 #include <texteditor/texteditor_global.h>
+#include <texteditor/icompletioncollector.h>
 
 #include <QtCore/QObject>
 
@@ -56,10 +57,11 @@ public:
     static CompletionSupport *instance();
 
     bool isActive() const;
+    CompletionPolicy policy() const;
 
 public slots:
-    void autoComplete(TextEditor::ITextEditable *editor, bool forced);
-    void quickFix(TextEditor::ITextEditable *editor);
+    void complete(TextEditor::ITextEditable *editor,
+        TextEditor::CompletionPolicy policy, bool forced);
 
 private:
     CompletionSupport();

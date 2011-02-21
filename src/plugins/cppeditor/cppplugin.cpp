@@ -178,13 +178,11 @@ void CppPlugin::initializeEditor(CPPEditor *editor)
 
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
 
-    // auto completion
-    connect(editor, SIGNAL(requestAutoCompletion(TextEditor::ITextEditable*, bool)),
-            TextEditor::CompletionSupport::instance(), SLOT(autoComplete(TextEditor::ITextEditable*, bool)));
-
-    // quick fix
-    connect(editor, SIGNAL(requestQuickFix(TextEditor::ITextEditable*)),
-            this, SLOT(quickFix(TextEditor::ITextEditable*)));
+    // semantic auto completion and quick fix
+    connect(editor,
+            SIGNAL(requestCompletion(TextEditor::ITextEditable*,TextEditor::CompletionPolicy,bool)),
+            TextEditor::CompletionSupport::instance(),
+            SLOT(complete(TextEditor::ITextEditable*,TextEditor::CompletionPolicy,bool)));
 
     // method combo box sorting
     connect(this, SIGNAL(outlineSortingChanged(bool)),
@@ -408,7 +406,8 @@ void CppPlugin::quickFixNow()
             if (editor->isOutdated())
                 m_quickFixTimer->start(QUICKFIX_INTERVAL);
             else
-                TextEditor::CompletionSupport::instance()->quickFix(m_currentTextEditable);
+                TextEditor::CompletionSupport::instance()->
+                    complete(m_currentTextEditable, TextEditor::QuickFixCompletion, true);
         }
     }
 }

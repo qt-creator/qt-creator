@@ -510,12 +510,17 @@ int CodeCompletion::startPosition() const
 bool CodeCompletion::shouldRestartCompletion()
 { return m_restartCompletion; }
 
-bool CodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
+bool CodeCompletion::supportsEditor(TextEditor::ITextEditable *editor) const
 {
     if (qobject_cast<QmlJSTextEditor *>(editor->widget()))
         return true;
 
     return false;
+}
+
+bool CodeCompletion::supportsPolicy(TextEditor::CompletionPolicy policy) const
+{
+    return policy == TextEditor::SemanticCompletion;
 }
 
 bool CodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)

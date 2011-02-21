@@ -540,12 +540,12 @@ void BaseTextEditor::selectEncoding()
 
 void BaseTextEditor::triggerCompletions()
 {
-    emit requestAutoCompletion(editableInterface(), true);
+    emit requestCompletion(editableInterface(), TextEditor::SemanticCompletion, true);
 }
 
 void BaseTextEditor::triggerQuickFix()
 {
-    emit requestQuickFix(editableInterface());
+    emit requestCompletion(editableInterface(), TextEditor::QuickFixCompletion, true);
 }
 
 QString BaseTextEditor::msgTextTooLarge(quint64 size)
@@ -1851,7 +1851,7 @@ void BaseTextEditor::maybeRequestAutoCompletion(const QChar &ch)
         }
     } else {
         d->m_requestAutoCompletionTimer->stop();
-        emit requestAutoCompletion(editableInterface(), false);
+        emit requestCompletion(editableInterface(), TextEditor::SemanticCompletion, false);
     }
 }
 
@@ -1864,7 +1864,7 @@ void BaseTextEditor::_q_requestAutoCompletion()
 
     if (d->m_requestAutoCompletionRevision == document()->revision() &&
             d->m_requestAutoCompletionPosition == position())
-        emit requestAutoCompletion(editableInterface(), false);
+        emit requestCompletion(editableInterface(), TextEditor::SemanticCompletion, false);
 }
 
 void BaseTextEditor::insertCodeSnippet(const QTextCursor &cursor_arg, const QString &snippet)

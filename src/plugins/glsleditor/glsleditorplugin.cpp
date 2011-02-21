@@ -250,13 +250,11 @@ void GLSLEditorPlugin::initializeEditor(GLSLEditor::GLSLTextEditor *editor)
 
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
 
-//    // auto completion
-    connect(editor, SIGNAL(requestAutoCompletion(TextEditor::ITextEditable*, bool)),
-            TextEditor::CompletionSupport::instance(), SLOT(autoComplete(TextEditor::ITextEditable*, bool)));
-
-//    // quick fix
-//    connect(editor, SIGNAL(requestQuickFix(TextEditor::ITextEditable*)),
-//            this, SLOT(quickFix(TextEditor::ITextEditable*)));
+    // auto completion and quick fix
+    connect(editor,
+            SIGNAL(requestCompletion(TextEditor::ITextEditable*,TextEditor::CompletionPolicy,bool)),
+            TextEditor::CompletionSupport::instance(),
+            SLOT(autoComplete(TextEditor::ITextEditable*,TextEditor::CompletionPolicy,bool)));
 }
 
 

@@ -54,7 +54,7 @@ CppQuickFixCollector::~CppQuickFixCollector()
 {
 }
 
-bool CppQuickFixCollector::supportsEditor(TextEditor::ITextEditable *editor)
+bool CppQuickFixCollector::supportsEditor(TextEditor::ITextEditable *editor) const
 {
     return CPlusPlus::CppModelManagerInterface::instance()->isCppEditor(editor);
 }
