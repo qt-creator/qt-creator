@@ -276,7 +276,7 @@ void QmlJSEditorPlugin::initializeEditor(QmlJSEditor::QmlJSTextEditor *editor)
     connect(editor,
             SIGNAL(requestCompletion(TextEditor::ITextEditable*,TextEditor::CompletionPolicy,bool)),
             TextEditor::CompletionSupport::instance(),
-            SLOT(autoComplete(TextEditor::ITextEditable*,TextEditor::CompletionPolicy,bool)));
+            SLOT(complete(TextEditor::ITextEditable*,TextEditor::CompletionPolicy,bool)));
 }
 
 void QmlJSEditorPlugin::followSymbolUnderCursor()
