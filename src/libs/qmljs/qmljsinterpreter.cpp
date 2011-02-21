@@ -651,6 +651,9 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
         }
     }
 
+    if (_attachedType)
+        _attachedType->processMembers(processor);
+
     ObjectValue::processMembers(processor);
 }
 
@@ -1305,7 +1308,6 @@ void StringValue::accept(ValueVisitor *visitor) const
 ScopeChain::ScopeChain()
     : globalScope(0)
     , qmlTypes(0)
-    , qmlAttachedTypes(0)
 {
 }
 
@@ -1365,8 +1367,8 @@ void ScopeChain::update()
     _all += qmlScopeObjects;
     if (ids)
         _all += ids;
-    if (qmlAttachedTypes)
-        _all += qmlAttachedTypes;
+    if (qmlTypes)
+        _all += qmlTypes;
     // qmlTypes are not added on purpose
     _all += jsScopes;
 }
@@ -3424,67 +3426,4 @@ ImportInfo TypeEnvironment::importInfo(const QString &name, const Context *conte
         }
     }
     return ImportInfo();
-}
-
-namespace {
-class AttachedTypeProcessor: public MemberProcessor
-{
-    MemberProcessor *_wrapped;
-
-public:
-    AttachedTypeProcessor(MemberProcessor *wrapped) : _wrapped(wrapped) {}
-
-    static const QmlObjectValue *attachedType(const Value *v)
-    {
-        if (const QmlObjectValue *qmlValue = dynamic_cast<const QmlObjectValue *>(v)) {
-            return qmlValue->attachedType();
-        }
-        return 0;
-    }
-
-    virtual bool processProperty(const QString &name, const Value *value)
-    {
-        const QmlObjectValue *qmlValue = attachedType(value);
-        return qmlValue ? _wrapped->processProperty(name, qmlValue) : true;
-    }
-    virtual bool processEnumerator(const QString &name, const Value *value)
-    {
-        const QmlObjectValue *qmlValue = attachedType(value);
-        return qmlValue ? _wrapped->processEnumerator(name, qmlValue) : true;
-    }
-    virtual bool processSignal(const QString &name, const Value *value)
-    {
-        const QmlObjectValue *qmlValue = attachedType(value);
-        return qmlValue ? _wrapped->processSignal(name, qmlValue) : true;
-    }
-    virtual bool processSlot(const QString &name, const Value *value)
-    {
-        const QmlObjectValue *qmlValue = attachedType(value);
-        return qmlValue ? _wrapped->processSlot(name, qmlValue) : true;
-    }
-    virtual bool processGeneratedSlot(const QString &name, const Value *value)
-    {
-        const QmlObjectValue *qmlValue = attachedType(value);
-        return qmlValue ? _wrapped->processGeneratedSlot(name, qmlValue) : true;
-    }
-};
-} // anonymous namespace
-
-AttachedTypeEnvironment::AttachedTypeEnvironment(const TypeEnvironment *typeEnv)
-    : ObjectValue(typeEnv->engine())
-    , _typeEnvironment(typeEnv)
-{
-}
-
-const Value *AttachedTypeEnvironment::lookupMember(const QString &name, const Context *context,
-                                           const ObjectValue **, bool) const
-{
-    const Value *v = _typeEnvironment->lookupMember(name, context);
-    return AttachedTypeProcessor::attachedType(v);
-}
-
-void AttachedTypeEnvironment::processMembers(MemberProcessor *processor) const
-{
-    AttachedTypeProcessor wrappedProcessor(processor);
-    _typeEnvironment->processMembers(&wrappedProcessor);
 }

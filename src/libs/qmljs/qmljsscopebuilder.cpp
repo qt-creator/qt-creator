@@ -131,7 +131,6 @@ void ScopeBuilder::initializeScopeChain()
 
         if (const TypeEnvironment *typeEnvironment = _context->typeEnvironment(_doc.data())) {
             scopeChain.qmlTypes = typeEnvironment;
-            scopeChain.qmlAttachedTypes = new AttachedTypeEnvironment(typeEnvironment);
         }
     } else {
         // add scope chains for all components that import this file
