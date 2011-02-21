@@ -94,6 +94,12 @@ QString Qt4MaemoTargetFactory::displayNameForId(const QString &id) const
     return QString();
 }
 
+QIcon Qt4MaemoTargetFactory::iconForId(const QString &id) const
+{
+    Q_UNUSED(id)
+    return QIcon(":/projectexplorer/images/MaemoDevice.png");
+}
+
 bool Qt4MaemoTargetFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
 {
     if (!qobject_cast<Qt4Project *>(parent))

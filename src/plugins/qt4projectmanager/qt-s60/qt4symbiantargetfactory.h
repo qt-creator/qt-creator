@@ -48,6 +48,7 @@ public:
     QStringList supportedTargetIds(ProjectExplorer::Project *parent) const;
     bool supportsTargetId(const QString &id) const;
     QString displayNameForId(const QString &id) const;
+    QIcon iconForId(const QString &id) const;
 
     bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
     bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;

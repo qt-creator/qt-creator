@@ -81,6 +81,13 @@ QString Qt4DesktopTargetFactory::displayNameForId(const QString &id) const
     return QString();
 }
 
+QIcon Qt4DesktopTargetFactory::iconForId(const QString &id) const
+{
+    if (id == QLatin1String(Constants::DESKTOP_TARGET_ID))
+        return qApp->style()->standardIcon(QStyle::SP_ComputerIcon);
+    return QIcon();
+}
+
 bool Qt4DesktopTargetFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
 {
     if (!qobject_cast<Qt4Project *>(parent))

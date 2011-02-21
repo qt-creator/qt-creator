@@ -116,6 +116,9 @@ public:
                                   const QString &id,
                                   QList<BuildConfigurationInfo> infos) = 0;
 
+    /// only used in the TargetSetupPage
+    virtual QIcon iconForId(const QString &id) const = 0;
+
     static Qt4BaseTargetFactory *qt4BaseTargetFactoryForId(const QString &id);
 
 protected:

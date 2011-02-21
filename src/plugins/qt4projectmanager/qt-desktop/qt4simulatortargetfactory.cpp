@@ -84,6 +84,13 @@ QString Qt4SimulatorTargetFactory::displayNameForId(const QString &id) const
     return QString();
 }
 
+QIcon Qt4SimulatorTargetFactory::iconForId(const QString &id) const
+{
+    if (id == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
+        return QIcon(":/projectexplorer/images/SymbianEmulator.png");
+    return QIcon();
+}
+
 bool Qt4SimulatorTargetFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
 {
     if (!qobject_cast<Qt4Project *>(parent))

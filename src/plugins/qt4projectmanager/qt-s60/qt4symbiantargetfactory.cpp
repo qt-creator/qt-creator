@@ -89,6 +89,15 @@ QString Qt4SymbianTargetFactory::displayNameForId(const QString &id) const
     return Qt4SymbianTarget::defaultDisplayName(id);
 }
 
+QIcon Qt4SymbianTargetFactory::iconForId(const QString &id) const
+{
+    if (id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
+        return QIcon(":/projectexplorer/images/SymbianEmulator.png");
+    if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
+        return QIcon(":/projectexplorer/images/SymbianDevice.png");
+    return QIcon();
+}
+
 bool Qt4SymbianTargetFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
 {
     if (!qobject_cast<Qt4Project *>(parent))
