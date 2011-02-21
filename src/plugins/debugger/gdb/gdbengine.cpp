@@ -1861,6 +1861,7 @@ unsigned GdbEngine::debuggerCapabilities() const
         | ReloadModuleSymbolsCapability
         | BreakOnThrowAndCatchCapability
         | BreakConditionCapability
+        | TracePointCapability
         | ReturnFromFunctionCapability
         | CreateFullBacktraceCapability
         | WatchpointCapability

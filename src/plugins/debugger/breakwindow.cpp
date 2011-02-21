@@ -89,8 +89,9 @@ private:
         ThreadSpecPart = 0x20,
         AllConditionParts = ConditionPart|IgnoreCountPart|ThreadSpecPart,
         ModulePart = 0x40,
+        TracePointPart = 0x80,
         AllParts = FileAndLinePart|FunctionPart|AddressPart|ConditionPart
-                   |IgnoreCountPart|ThreadSpecPart|ModulePart
+                   |IgnoreCountPart|ThreadSpecPart|ModulePart|TracePointPart
     };
 
     void setPartsEnabled(unsigned partsMask);
@@ -116,7 +117,8 @@ BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
         m_enabledParts &= ~ConditionPart;
     if (!(engineCapabilities & BreakModuleCapability))
         m_enabledParts &= ~ModulePart;
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    if (!(engineCapabilities & TracePointCapability))
+        m_enabledParts &= ~TracePointPart;
     // Match BreakpointType (omitting unknown type).
     m_ui.setupUi(this);
     QStringList types;
@@ -208,6 +210,9 @@ void BreakpointDialog::setPartsEnabled(unsigned partsMask)
 
     m_ui.labelModule->setEnabled(partsMask & ModulePart);
     m_ui.lineEditModule->setEnabled(partsMask & ModulePart);
+
+    m_ui.labelTracepoint->setEnabled(partsMask & TracePointPart);
+    m_ui.checkBoxTracepoint->setEnabled(partsMask & TracePointPart);
 }
 
 void BreakpointDialog::clearOtherParts(unsigned partsMask)
@@ -233,12 +238,14 @@ void BreakpointDialog::clearOtherParts(unsigned partsMask)
         m_ui.lineEditThreadSpec->clear();
     if (invertedPartsMask & ModulePart)
         m_ui.lineEditModule->clear();
+
+    if (invertedPartsMask & TracePointPart)
+        m_ui.checkBoxTracepoint->setChecked(false);
 }
 
 void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) const
 {
     data->enabled = m_ui.checkBoxEnabled->isChecked();
-    data->tracepoint = m_ui.checkBoxTracepoint->isChecked();
     data->command = m_ui.lineEditCommand->text().trimmed();
 
     if (partsMask & FileAndLinePart) {
@@ -261,6 +268,9 @@ void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) 
             BreakHandler::threadSpecFromDisplay(m_ui.lineEditThreadSpec->text());
     if (partsMask & ModulePart)
         data->module = m_ui.lineEditModule->text();
+
+    if (partsMask & TracePointPart)
+        data->tracepoint = m_ui.checkBoxTracepoint->isChecked();
 }
 
 void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
@@ -272,7 +282,6 @@ void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
     if (mask & FileAndLinePart) {
         m_ui.pathChooserFileName->setPath(data.fileName);
         m_ui.lineEditLineNumber->setText(QString::number(data.lineNumber));
-        m_ui.checkBoxTracepoint->setChecked(data.tracepoint);
     }
 
     if (mask & FunctionPart)
@@ -296,6 +305,9 @@ void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
             setText(BreakHandler::displayFromThreadSpec(data.threadSpec));
     if (mask & ModulePart)
         m_ui.lineEditModule->setText(data.module);
+
+    if (mask & TracePointPart)
+        m_ui.checkBoxTracepoint->setChecked(data.tracepoint);
 }
 
 void BreakpointDialog::typeChanged(int)
@@ -308,10 +320,10 @@ void BreakpointDialog::typeChanged(int)
     case UnknownType:
         break;
     case BreakpointByFileAndLine:
-        getParts(FileAndLinePart|ModulePart|AllConditionParts, &m_savedParameters);
+        getParts(FileAndLinePart|ModulePart|AllConditionParts|TracePointPart, &m_savedParameters);
         break;
     case BreakpointByFunction:
-        getParts(FunctionPart|ModulePart|AllConditionParts, &m_savedParameters);
+        getParts(FunctionPart|ModulePart|AllConditionParts|TracePointPart, &m_savedParameters);
         break;
     case BreakpointAtThrow:
     case BreakpointAtCatch:
@@ -319,7 +331,7 @@ void BreakpointDialog::typeChanged(int)
         break;
     case BreakpointByAddress:
     case Watchpoint:
-        getParts(AddressPart|AllConditionParts, &m_savedParameters);
+        getParts(AddressPart|AllConditionParts|TracePointPart, &m_savedParameters);
         break;
     }
 
@@ -328,19 +340,19 @@ void BreakpointDialog::typeChanged(int)
     case UnknownType:
         break;
     case BreakpointByFileAndLine:
-        setParts(FileAndLinePart|AllConditionParts|ModulePart, m_savedParameters);
-        setPartsEnabled(FileAndLinePart|AllConditionParts|ModulePart);
-        clearOtherParts(FileAndLinePart|AllConditionParts|ModulePart);
+        setParts(FileAndLinePart|AllConditionParts|ModulePart|TracePointPart, m_savedParameters);
+        setPartsEnabled(FileAndLinePart|AllConditionParts|ModulePart|TracePointPart);
+        clearOtherParts(FileAndLinePart|AllConditionParts|ModulePart|TracePointPart);
         break;
     case BreakpointByFunction:
-        setParts(FunctionPart|AllConditionParts|ModulePart, m_savedParameters);
-        setPartsEnabled(FunctionPart|AllConditionParts|ModulePart);
-        clearOtherParts(FunctionPart|AllConditionParts|ModulePart);
+        setParts(FunctionPart|AllConditionParts|ModulePart|TracePointPart, m_savedParameters);
+        setPartsEnabled(FunctionPart|AllConditionParts|ModulePart|TracePointPart);
+        clearOtherParts(FunctionPart|AllConditionParts|ModulePart|TracePointPart);
         break;
     case BreakpointAtThrow:
     case BreakpointAtCatch:
-        clearOtherParts(AllConditionParts|ModulePart);
-        setPartsEnabled(AllConditionParts);
+        clearOtherParts(AllConditionParts|ModulePart|TracePointPart);
+        setPartsEnabled(AllConditionParts|TracePointPart);
         break;
     case BreakpointAtMain:
         m_ui.lineEditFunction->setText(QLatin1String("main")); // Just for display
@@ -349,9 +361,9 @@ void BreakpointDialog::typeChanged(int)
         break;
     case BreakpointByAddress:
     case Watchpoint:
-        setParts(AddressPart|AllConditionParts, m_savedParameters);
-        setPartsEnabled(AddressPart|AllConditionParts);
-        clearOtherParts(AddressPart|AllConditionParts);
+        setParts(AddressPart|AllConditionParts|TracePointPart, m_savedParameters);
+        setPartsEnabled(AddressPart|AllConditionParts|TracePointPart|TracePointPart);
+        clearOtherParts(AddressPart|AllConditionParts|TracePointPart);
         break;
     }
 }
