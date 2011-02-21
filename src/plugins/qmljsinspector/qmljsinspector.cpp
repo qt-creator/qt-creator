@@ -50,6 +50,7 @@
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerplugin.h>
 
+#include <utils/filterlineedit.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
@@ -733,7 +734,7 @@ void InspectorUi::setupDockWidgets()
     QWidget *pathAndFilterWidget = new StyledBackground;
     pathAndFilterWidget->setMaximumHeight(m_crumblePath->height());
 
-    m_filterExp = new QLineEdit;
+    m_filterExp = new Utils::FilterLineEdit;
     m_filterExp->setPlaceholderText(tr("Filter properties"));
     m_filterExp->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
