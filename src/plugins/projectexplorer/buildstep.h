@@ -45,6 +45,7 @@ namespace ProjectExplorer {
 
 class BuildConfiguration;
 class BuildStepList;
+class DeployConfiguration;
 class Target;
 
 /*
@@ -101,6 +102,7 @@ public:
     virtual bool immutable() const;
 
     BuildConfiguration *buildConfiguration() const;
+    DeployConfiguration *deployConfiguration() const;
     Target *target() const;
 
     enum OutputFormat { NormalOutput, ErrorOutput, MessageOutput, ErrorMessageOutput };

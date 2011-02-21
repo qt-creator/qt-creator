@@ -35,6 +35,7 @@
 
 #include "buildconfiguration.h"
 #include "buildsteplist.h"
+#include "deployconfiguration.h"
 #include "target.h"
 
 using namespace ProjectExplorer;
@@ -61,6 +62,14 @@ BuildConfiguration *BuildStep::buildConfiguration() const
     if (!bc)
         bc = target()->activeBuildConfiguration();
     return bc;
+}
+
+DeployConfiguration *BuildStep::deployConfiguration() const
+{
+    DeployConfiguration *dc = qobject_cast<DeployConfiguration *>(parent()->parent());
+    if (!dc)
+        dc = target()->activeDeployConfiguration();
+    return dc;
 }
 
 Target *BuildStep::target() const
