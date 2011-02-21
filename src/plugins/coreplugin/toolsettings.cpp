@@ -36,6 +36,8 @@
 #include "externaltool.h"
 #include "coreconstants.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
@@ -227,6 +229,13 @@ void ToolSettings::apply()
         if (!items.isEmpty())
             resultMap.insert(it.key(), items);
     }
+    // Remove tools that have been deleted from the settings (and are no preset)
+    foreach (ExternalTool *tool, originalTools) {
+        QTC_ASSERT(!tool->preset(), continue);
+        // TODO error handling
+        QFile::remove(tool->fileName());
+    }
+
     ExternalToolManager::instance()->setToolsByCategory(resultMap);
 }
 
