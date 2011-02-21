@@ -36,7 +36,7 @@
     <displayname xml:lang="de">In Notepad öffnen</displayname>
     <category>Text</category>
     <category xml:lang="de">Text</category>
-    <executable output="reloaddocument">
+    <executable modifiesdocument="yes">
         <path>notepad</path>
         <arguments>"%{CurrentDocument:FilePath}"</arguments>
         <workingdirectory>%{CurrentDocument:Path}</workingdirectory>
