@@ -315,6 +315,17 @@ void PathChooser::setPath(const QString &path)
     m_d->m_lineEdit->setText(QDir::toNativeSeparators(path));
 }
 
+bool PathChooser::isReadOnly() const
+{
+    return m_d->m_lineEdit->isReadOnly();
+}
+
+void PathChooser::setReadOnly(bool b)
+{
+    m_d->m_lineEdit->setReadOnly(b);
+    m_d->m_button->setEnabled(!b);
+}
+
 void PathChooser::slotBrowse()
 {
     emit beforeBrowsing();

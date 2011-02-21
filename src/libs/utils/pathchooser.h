@@ -63,6 +63,7 @@ class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
     Q_PROPERTY(Kind expectedKind READ expectedKind WRITE setExpectedKind DESIGNABLE true)
     Q_PROPERTY(QString baseDirectory READ baseDirectory WRITE setBaseDirectory DESIGNABLE true)
     Q_PROPERTY(QStringList commandVersionArguments READ commandVersionArguments WRITE setCommandVersionArguments)
+    Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly DESIGNABLE true)
 
 public:
     static const char * const browseButtonLabel;
@@ -125,6 +126,9 @@ public:
     static QString toolVersion(const QString &binary, const QStringList &arguments);
     // Install a tooltip on lineedits used for binaries showing the version.
     static void installLineEditVersionToolTip(QLineEdit *le, const QStringList &arguments);
+
+    bool isReadOnly() const;
+    void setReadOnly(bool b);
 
 private:
     // Returns overridden title or the one from <title>
