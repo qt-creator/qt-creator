@@ -110,7 +110,6 @@ public:
 
     bool supportsTargetId(const QString &id) const;
     QSet<QString> supportedTargetIds() const;
-    bool supportsMobileTarget() const;
 
     QList<ProjectExplorer::Abi> qtAbis() const;
 

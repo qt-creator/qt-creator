@@ -89,14 +89,9 @@ void ProjectLoadWizard::setupTargetPage()
     if (m_targetSetupPage)
         return;
 
-    QList<TargetSetupPage::ImportInfo> importVersions = TargetSetupPage::scanDefaultProjectDirectories(m_project);
-    importVersions.append(TargetSetupPage::importInfosForKnownQtVersions(m_project->file()->fileName()));
-
     m_targetSetupPage = new TargetSetupPage(this);
     m_targetSetupPage->setProFilePath(m_project->file()->fileName());
-    m_targetSetupPage->setImportInfos(importVersions);
-    m_targetSetupPage->setImportDirectoryBrowsingEnabled(true);
-    m_targetSetupPage->setImportDirectoryBrowsingLocation(m_project->projectDirectory());
+    m_targetSetupPage->setImportSearch(true);
     resize(900, 450);
 
     addPage(m_targetSetupPage);

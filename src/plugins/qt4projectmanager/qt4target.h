@@ -40,6 +40,19 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectnodes.h>
 
+namespace Utils {
+class DetailsWidget;
+class PathChooser;
+}
+
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QHBoxLayout;
+class QGridLayout;
+class QLabel;
+class QPushButton;
+QT_END_NAMESPACE
+
 namespace Qt4ProjectManager {
 
 class Qt4Project;
@@ -49,14 +62,31 @@ class Qt4ProFileNode;
 }
 
 struct BuildConfigurationInfo {
+    explicit BuildConfigurationInfo()
+        : version(0), buildConfig(QtVersion::QmakeBuildConfig(0)), importing(false), temporaryQtVersion(false)
+    {}
+
     explicit BuildConfigurationInfo(QtVersion *v, QtVersion::QmakeBuildConfigs bc,
-                                    const QString &aa, const QString &d) :
-        version(v), buildConfig(bc), additionalArguments(aa), directory(d)
+                                    const QString &aa, const QString &d, bool importing_ = false, bool temporaryQtVersion_ = false) :
+        version(v), buildConfig(bc), additionalArguments(aa), directory(d), importing(importing_), temporaryQtVersion(temporaryQtVersion_)
     { }
+
+    bool isValid() const
+    {
+        return version != 0;
+    }
+
     QtVersion *version;
     QtVersion::QmakeBuildConfigs buildConfig;
     QString additionalArguments;
     QString directory;
+    bool importing;
+    bool temporaryQtVersion;
+
+
+    static QList<BuildConfigurationInfo> importBuildConfigurations(const QString &proFilePath);
+    static BuildConfigurationInfo checkForBuild(const QString &directory, const QString &proFilePath);
+    static QList<BuildConfigurationInfo> filterBuildConfigurationInfos(const QList<BuildConfigurationInfo> &infos, const QString &id);
 };
 
 class Qt4BaseTarget : public ProjectExplorer::Target
@@ -101,6 +131,21 @@ private slots:
     void emitProFileEvaluateNeeded();
 };
 
+class QT4PROJECTMANAGER_EXPORT Qt4TargetSetupWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    Qt4TargetSetupWidget();
+    ~Qt4TargetSetupWidget();
+    virtual bool isTargetSelected() const = 0;
+    virtual void setTargetSelected(bool b) = 0;
+    virtual void setProFilePath(const QString &proFilePath) = 0;
+    virtual QList<BuildConfigurationInfo> usedImportInfos() = 0;
+signals:
+    void selectedToggled() const;
+    void newImportBuildConfiguration(const BuildConfigurationInfo &info);
+};
+
 class QT4PROJECTMANAGER_EXPORT Qt4BaseTargetFactory : public ProjectExplorer::ITargetFactory
 {
     Q_OBJECT
@@ -108,21 +153,99 @@ public:
     Qt4BaseTargetFactory(QObject *parent);
     ~Qt4BaseTargetFactory();
 
+    virtual Qt4TargetSetupWidget *createTargetSetupWidget(const QString &id,
+                                                          const QString &proFilePath,
+                                                          const QtVersionNumber &minimumQtVersion,
+                                                          bool importEnabled,
+                                                          QList<BuildConfigurationInfo> importInfos);
+
     virtual QString defaultShadowBuildDirectory(const QString &projectLocation, const QString &id) =0;
-    virtual QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &proFilePath) = 0;
-
-    virtual Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id) = 0;
-    virtual Qt4BaseTarget *create(ProjectExplorer::Project *parent,
-                                  const QString &id,
-                                  QList<BuildConfigurationInfo> infos) = 0;
-
+    /// used by the default implementation of createTargetSetupWidget
+    /// not needed otherwise
+    virtual QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion) = 0;
     /// only used in the TargetSetupPage
     virtual QIcon iconForId(const QString &id) const = 0;
+
+    virtual bool isMobileTarget(const QString &id) = 0;
+
+    virtual Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id) = 0;
+    virtual Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos) = 0;
+    virtual Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id, Qt4TargetSetupWidget *widget);
 
     static Qt4BaseTargetFactory *qt4BaseTargetFactoryForId(const QString &id);
 
 protected:
     static QString msgBuildConfigurationName(const BuildConfigurationInfo &info);
+};
+
+class Qt4DefaultTargetSetupWidget : public Qt4TargetSetupWidget
+{
+    Q_OBJECT
+public:
+    Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *factory,
+                                const QString &id,
+                                const QString &proFilePath,
+                                const QtVersionNumber &minimumQtVersion,
+                                bool importEnabled,
+                                QList<BuildConfigurationInfo> importInfos);
+    ~Qt4DefaultTargetSetupWidget();
+    bool isTargetSelected() const;
+    void setTargetSelected(bool b);
+    QList<BuildConfigurationInfo> usedImportInfos();
+
+    QList<BuildConfigurationInfo> buildConfigurationInfos() const;
+    void setProFilePath(const QString &proFilePath);
+
+    void setShadowBuildCheckBoxVisible(bool b);
+
+public slots:
+    void addImportClicked();
+    void checkBoxToggled(bool b);
+    void importCheckBoxToggled(bool b);
+    void pathChanged();
+    void shadowBuildingToggled();
+
+private:
+    void setBuildConfigurationInfos(const QList<BuildConfigurationInfo> &list, bool resetEnabled = true);
+    void reportIssues(int index);
+    QPair<ProjectExplorer::Task::TaskType, QString> findIssues(const BuildConfigurationInfo &info);
+    void createImportWidget(const BuildConfigurationInfo &info, int pos);
+
+    QString m_id;
+    Qt4BaseTargetFactory *m_factory;
+    QString m_proFilePath;
+    QtVersionNumber m_minimumQtVersion;
+    Utils::DetailsWidget *m_detailsWidget;
+    QGridLayout *m_importLayout;
+    QGridLayout *m_newBuildsLayout;
+    QCheckBox *m_shadowBuildEnabled;
+    QWidget *m_spacerTopWidget;
+    QWidget *m_spacerBottomWidget;
+
+    // import line widgets
+    QHBoxLayout *m_importLineLayout;
+    QLabel *m_importLineLabel;
+    Utils::PathChooser *m_importLinePath;
+    QPushButton *m_importLineButton;
+
+    void setupWidgets();
+    void clearWidgets();
+    void setupImportWidgets();
+    QString displayNameFrom(const BuildConfigurationInfo &info);
+    QList<QCheckBox *> m_checkboxes;
+    QList<Utils::PathChooser *> m_pathChoosers;
+    QList<BuildConfigurationInfo> m_infos;
+    QList<bool> m_enabled;
+    QList<QCheckBox *> m_importCheckBoxes;
+    QList<BuildConfigurationInfo> m_importInfos;
+    QList<bool> m_importEnabled;
+    QList<QLabel *> m_reportIssuesLabels;
+    bool m_directoriesEnabled;
+    bool m_hasInSourceBuild;
+    bool m_ignoreChange;
+    bool m_showImport;
+    int m_selected;
+
 };
 
 } // namespace Qt4ProjectManager

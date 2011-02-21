@@ -54,8 +54,9 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent)
     : ProjectExplorer::BaseProjectWizardDialog(parent)
 {
     m_targetsPage = new TargetSetupPage;
+    m_targetsPage->setPreferMobile(true);
+    m_targetsPage->setMinimumQtVersion(QtVersionNumber(4,7,0));
     resize(900, 450);
-    m_targetsPage->setImportDirectoryBrowsingEnabled(false);
     m_targetsPageId = addPageWithTitle(m_targetsPage, tr("Qt Versions"));
     m_genericOptionsPage = new MobileAppWizardGenericOptionsPage;
     m_genericOptionsPageId = addPageWithTitle(m_genericOptionsPage,

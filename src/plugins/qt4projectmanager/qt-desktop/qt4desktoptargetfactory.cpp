@@ -42,8 +42,10 @@
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <QtGui/QVBoxLayout>
 #include <QtGui/QApplication>
 #include <QtGui/QStyle>
+#include <QtGui/QLabel>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -67,7 +69,7 @@ bool Qt4DesktopTargetFactory::supportsTargetId(const QString &id) const
 
 QStringList Qt4DesktopTargetFactory::supportedTargetIds(ProjectExplorer::Project *parent) const
 {
-    if (!qobject_cast<Qt4Project *>(parent))
+    if (parent && !qobject_cast<Qt4Project *>(parent))
         return QStringList();
     if (!QtVersionManager::instance()->supportsTargetId(Constants::DESKTOP_TARGET_ID))
         return QStringList();
@@ -126,21 +128,29 @@ QString Qt4DesktopTargetFactory::defaultShadowBuildDirectory(const QString &proj
     return projectLocation + QLatin1String("-desktop");
 }
 
-QList<BuildConfigurationInfo> Qt4DesktopTargetFactory::availableBuildConfigurations(const QString &proFilePath)
+QList<BuildConfigurationInfo> Qt4DesktopTargetFactory::availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion)
 {
+    Q_ASSERT(id == Constants::DESKTOP_TARGET_ID);
     QList<BuildConfigurationInfo> infos;
-    QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(Constants::DESKTOP_TARGET_ID);
+    QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id, minimumQtVersion);
 
     foreach (QtVersion *version, knownVersions) {
         if (!version->isValid())
             continue;
         QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
 
-        QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), Constants::DESKTOP_TARGET_ID);
+        QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), id);
         infos.append(BuildConfigurationInfo(version, config, QString(), dir));
         infos.append(BuildConfigurationInfo(version, config ^ QtVersion::DebugBuild, QString(), dir));
     }
     return infos;
+}
+
+Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtVersionNumber &number, bool importEnabled, QList<BuildConfigurationInfo> importInfos)
+{
+    Qt4DefaultTargetSetupWidget *widget = new Qt4DefaultTargetSetupWidget(this, id, proFilePath, number, importEnabled, importInfos);
+    widget->setShadowBuildCheckBoxVisible(true);
+    return widget;
 }
 
 Qt4BaseTarget *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
@@ -162,9 +172,17 @@ Qt4BaseTarget *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent,
     return create(parent, id, infos);
 }
 
-Qt4BaseTarget *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, QList<BuildConfigurationInfo> infos)
+bool Qt4DesktopTargetFactory::isMobileTarget(const QString &id)
+{
+    Q_UNUSED(id)
+    return false;
+}
+
+Qt4BaseTarget *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos)
 {
     if (!canCreate(parent, id))
+        return 0;
+    if (infos.isEmpty())
         return 0;
     Qt4DesktopTarget *t = new Qt4DesktopTarget(static_cast<Qt4Project *>(parent), id);
 

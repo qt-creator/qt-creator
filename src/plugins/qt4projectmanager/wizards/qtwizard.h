@@ -146,9 +146,6 @@ public:
     bool setupProject(Qt4Project *project) const;
     bool isTargetSelected(const QString &targetid) const;
 
-signals:
-    void projectLocationChanged(const QString &proFileName);
-
 private slots:
     void generateProfileName(const QString &name, const QString &path);
 

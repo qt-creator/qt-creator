@@ -56,11 +56,13 @@ public:
 
     virtual bool supportsTargetId(const QString &id) const;
 
-    QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &proFilePath);
+    Qt4TargetSetupWidget *createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion, bool importEnabled, QList<BuildConfigurationInfo> importInfos);
+    bool isMobileTarget(const QString &id);
+    QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion);
     Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id);
-    Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id, QList<BuildConfigurationInfo> infos);
+    Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos);
+
 };
 }
 }
-
 #endif // QT4DESKTOPTARGETFACTORY_H

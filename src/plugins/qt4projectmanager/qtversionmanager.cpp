@@ -1377,16 +1377,6 @@ QSet<QString> QtVersion::supportedTargetIds() const
     return m_targetIds;
 }
 
-bool QtVersion::supportsMobileTarget() const
-{
-    return supportsTargetId(Constants::S60_DEVICE_TARGET_ID) ||
-           supportsTargetId(Constants::S60_EMULATOR_TARGET_ID) ||
-           supportsTargetId(Constants::MAEMO5_DEVICE_TARGET_ID) ||
-           supportsTargetId(Constants::HARMATTAN_DEVICE_TARGET_ID) ||
-           supportsTargetId(Constants::MEEGO_DEVICE_TARGET_ID) ||
-           supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID);
-}
-
 QList<ProjectExplorer::Abi> QtVersion::qtAbis() const
 {
     updateAbiAndMkspec();

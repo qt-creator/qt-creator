@@ -117,21 +117,7 @@ AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWid
 
 void QtQuickAppWizard::projectPathChanged(const QString &path) const
 {
-    const QList<TargetSetupPage::ImportInfo> &qtVersions
-        = TargetSetupPage::importInfosForKnownQtVersions(path);
-    QList<TargetSetupPage::ImportInfo> qmlQtVersions;
-    foreach (const TargetSetupPage::ImportInfo &qtVersion, qtVersions) {
-        const QString versionString = qtVersion.version->qtVersionString();
-        bool isNumber;
-        const int majorVersion = versionString.mid(0, 1).toInt(&isNumber);
-        if (!isNumber || majorVersion < 4)
-            continue;
-        const int minorVersion = versionString.mid(2, 1).toInt(&isNumber);
-        if (!isNumber || (majorVersion == 4 && minorVersion < 7))
-            continue;
-        qmlQtVersions << qtVersion;
-    }
-    m_d->wizardDialog->m_targetsPage->setImportInfos(qmlQtVersions);
+    m_d->wizardDialog->m_targetsPage->setProFilePath(path);
 }
 
 void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,

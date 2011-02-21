@@ -37,20 +37,18 @@
 #include "qt4target.h"
 #include "qtversionmanager.h"
 
-#include <QtCore/QList>
-#include <QtCore/QPair>
-#include <QtCore/QSet>
 #include <QtCore/QString>
-
-#include <QtGui/QIcon>
 #include <QtGui/QWizard>
+
 
 QT_BEGIN_NAMESPACE
 class QLabel;
 class QMenu;
 class QPushButton;
+class QSpacerItem;
 class QTreeWidget;
 class QTreeWidgetItem;
+class QVBoxLayout;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
@@ -67,97 +65,48 @@ class TargetSetupPage : public QWizardPage
     Q_OBJECT
 
 public:
-    struct ImportInfo {
-        ImportInfo() :
-            version(0),
-            isTemporary(false),
-            buildConfig(QtVersion::QmakeBuildConfig(0)),
-            isExistingBuild(false)
-        {
-            if (version && version->isValid())
-                buildConfig = version->defaultBuildConfig();
-        }
-
-        ImportInfo(const BuildConfigurationInfo &source)
-            : version(source.version),
-              isTemporary(false),
-              buildConfig(source.buildConfig),
-              additionalArguments(source.additionalArguments),
-              directory(source.directory),
-              isExistingBuild(false)
-        {}
-
-        ImportInfo(const ImportInfo &other) :
-            version(other.version),
-            isTemporary(other.isTemporary),
-            buildConfig(other.buildConfig),
-            additionalArguments(other.additionalArguments),
-            directory(other.directory),
-            isExistingBuild(other.isExistingBuild)
-        { }
-
-        QtVersion *version;
-        bool isTemporary;
-        QtVersion::QmakeBuildConfigs buildConfig;
-        QString additionalArguments;
-        QString directory;
-        bool isExistingBuild;
-    };
-
     explicit TargetSetupPage(QWidget* parent = 0);
     ~TargetSetupPage();
 
+    /// Initializes the TargetSetupPage
+    /// \note The import information is gathered in initializePage(), make sure that the right proFilePath is set before
     void initializePage();
-
-    void setImportInfos(const QList<ImportInfo> &infos);
-    QList<ImportInfo> importInfos() const;
-
-    void setImportDirectoryBrowsingEnabled(bool browsing);
-    void setImportDirectoryBrowsingLocation(const QString &directory);
+    /// Changes the default set of checked targets. For mobile Symbian, maemo5, simulator is checked
+    /// For non mobile, destkop is checked
+    /// call this before \sa initializePage()
     void setPreferMobile(bool mobile);
-
-    static QList<ImportInfo> importInfosForKnownQtVersions(const QString &proFilePath);
-    static QList<ImportInfo> filterImportInfos(const QSet<QString> &validTargets,
-                                               const QList<ImportInfo> &infos);
-
-    static QList<ImportInfo> scanDefaultProjectDirectories(Qt4Project *project);
-    static QList<ImportInfo> recursivelyCheckDirectoryForBuild(const QString &directory,
-                                                               const QString &proFile, int maxdepth = 3);
-
-    bool hasSelection() const;
-    bool isTargetSelected(const QString &targetid) const;
+    /// Sets the minimum qt version
+    /// calls this before \sa initializePage()
+    void setMinimumQtVersion(const QtVersionNumber &number);
+    /// Sets whether the TargetSetupPage looks on disk for builds of this project
+    /// call this before \sa initializePage()
+    void setImportSearch(bool b);
     bool isComplete() const;
-
-    bool setupProject(Qt4Project *project);
-
-public slots:
+    bool setupProject(Qt4ProjectManager::Qt4Project *project);
+    bool isTargetSelected(const QString &id) const;
     void setProFilePath(const QString &dir);
-    void checkAll(bool checked);
-    void checkOne(bool, QTreeWidgetItem *);
 
 private slots:
-    void itemWasChanged();
-    void checkAllButtonClicked();
-    void checkAllTriggered();
-    void uncheckAllTriggered();
-    void checkOneTriggered();
-    void addShadowBuildLocation();
-    void contextMenuRequested(const QPoint & pos);
+    void newImportBuildConfiguration(const BuildConfigurationInfo &info);
 
 private:
-    void resetInfos();
-    QPair<QIcon, QString> reportIssues(QtVersion *version, const QString &buildDir);
-    void updateVersionItem(QTreeWidgetItem *, int);
+    void setupImportInfos();
+    void cleanupImportInfos();
+    void setupWidgets();
+    void deleteWidgets();
 
-    QList<ImportInfo> m_infos;
     bool m_preferMobile;
-    bool m_toggleWillCheck;
+    bool m_importSearch;
+    QtVersionNumber m_minimumQtVersionNumber;
     QString m_proFilePath;
     QString m_defaultShadowBuildLocation;
+    QMap<QString, Qt4TargetSetupWidget *> m_widgets;
+    QHash<Qt4TargetSetupWidget *, Qt4BaseTargetFactory *> m_factories;
 
+    QVBoxLayout *m_layout;
+    QSpacerItem *m_spacer;
     Ui::TargetSetupPage *m_ui;
-
-    QMenu *m_contextMenu;
+    QList<BuildConfigurationInfo> m_importInfos;
 };
 
 } // namespace Internal

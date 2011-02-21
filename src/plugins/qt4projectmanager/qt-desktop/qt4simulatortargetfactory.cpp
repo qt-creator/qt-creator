@@ -70,7 +70,7 @@ bool Qt4SimulatorTargetFactory::supportsTargetId(const QString &id) const
 
 QStringList Qt4SimulatorTargetFactory::supportedTargetIds(ProjectExplorer::Project *parent) const
 {
-    if (!qobject_cast<Qt4Project *>(parent))
+    if (parent && !qobject_cast<Qt4Project *>(parent))
         return QStringList();
     if (!QtVersionManager::instance()->supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID))
         return QStringList();
@@ -128,20 +128,27 @@ QString Qt4SimulatorTargetFactory::defaultShadowBuildDirectory(const QString &pr
     return projectLocation + QLatin1String("-simulator");
 }
 
-QList<BuildConfigurationInfo> Qt4SimulatorTargetFactory::availableBuildConfigurations(const QString &proFilePath)
+QList<BuildConfigurationInfo> Qt4SimulatorTargetFactory::availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion)
 {
+    Q_ASSERT(id == Constants::QT_SIMULATOR_TARGET_ID);
     QList<BuildConfigurationInfo> infos;
-    QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(Constants::QT_SIMULATOR_TARGET_ID);
+    QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id, minimumQtVersion);
 
     foreach (QtVersion *version, knownVersions) {
         if (!version->isValid())
             continue;
         QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
-        QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), Constants::QT_SIMULATOR_TARGET_ID);
+        QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), id);
         infos.append(BuildConfigurationInfo(version, config, QString(), dir));
         infos.append(BuildConfigurationInfo(version, config ^ QtVersion::DebugBuild, QString(), dir));
     }
     return infos;
+}
+
+bool Qt4SimulatorTargetFactory::isMobileTarget(const QString &id)
+{
+    Q_UNUSED(id)
+    return true;
 }
 
 Qt4BaseTarget *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
@@ -162,9 +169,11 @@ Qt4BaseTarget *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *paren
     return create(parent, id, infos);
 }
 
-Qt4BaseTarget *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, QList<BuildConfigurationInfo> infos)
+Qt4BaseTarget *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos)
 {
     if (!canCreate(parent, id))
+        return 0;
+    if (infos.isEmpty())
         return 0;
     Qt4SimulatorTarget *t = new Qt4SimulatorTarget(static_cast<Qt4Project *>(parent), id);
 

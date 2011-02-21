@@ -55,15 +55,13 @@ public:
     Qt4ProjectManager::Qt4BaseTarget *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
     QString defaultShadowBuildDirectory(const QString &projectLocation, const QString &id);
 
-    virtual bool supportsTargetId(const QString &id) const;
+    bool supportsTargetId(const QString &id) const;
 
-    QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &proFilePath);
     Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id);
-    Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id, QList<BuildConfigurationInfo> infos);
+    Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos);
 
-private:
-    QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &proFilePath,
-        const QString &id);
+    QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion);
+    bool isMobileTarget(const QString &id);
 };
 
 } // namespace Internal
