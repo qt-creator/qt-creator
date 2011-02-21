@@ -6,13 +6,17 @@ include(qml.pri)
 
 SOURCES += main.cpp
 
-# INCLUDEPATH and library path has to be extended by qmake call
-
-DEBUGLIB=QmlJSDebugger
-CONFIG(debug, debug|release) {
-    windows:DEBUGLIB = QmlJSDebuggerd
+exists($$PWD/../qmljsdebugger/qmljsdebugger-src.pri) {
+    # directly compile in debugger files
+    include($$PWD/../qmljsdebugger/qmljsdebugger-src.pri)
+} else {
+    # INCLUDEPATH and library path has to be extended by qmake call
+    DEBUGLIB=QmlJSDebugger
+    CONFIG(debug, debug|release) {
+        windows:DEBUGLIB = QmlJSDebuggerd
+    }
+    LIBS+=-l$$DEBUGLIB
 }
-LIBS+=-l$$DEBUGLIB
 
 #INCLUDEPATH += ../../include/QtDeclarative
 #INCLUDEPATH += ../../src/declarative/util
