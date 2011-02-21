@@ -58,6 +58,27 @@ class QtOptionsPageWidget;
 class QtOptionsPage;
 }
 
+class QT4PROJECTMANAGER_EXPORT QtVersionNumber
+{
+public:
+    QtVersionNumber(int ma, int mi, int p);
+    QtVersionNumber(const QString &versionString);
+    QtVersionNumber();
+
+    int majorVersion;
+    int minorVersion;
+    int patchVersion;
+    bool operator <(const QtVersionNumber &b) const;
+    bool operator <=(const QtVersionNumber &b) const;
+    bool operator >(const QtVersionNumber &b) const;
+    bool operator >=(const QtVersionNumber &b) const;
+    bool operator !=(const QtVersionNumber &b) const;
+    bool operator ==(const QtVersionNumber &b) const;
+private:
+    bool checkVersionString(const QString &version) const;
+};
+
+
 class QT4PROJECTMANAGER_EXPORT QtVersion
 {
     friend class QtVersionManager;
@@ -106,8 +127,7 @@ public:
     void setQMakeCommand(const QString &path);
 
     QString qtVersionString() const;
-    bool versionNumbers(int *majorNumber, int *minorNumber, int *patchNumber) const;
-
+    QtVersionNumber qtVersion() const;
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
     QHash<QString,QString> versionInfo() const;
 
@@ -260,7 +280,8 @@ public:
     bool supportsTargetId(const QString &id) const;
     // This returns a list of versions that support the target with the given id.
     // @return A list of QtVersions that supports a target. This list may be empty!
-    QList<QtVersion *> versionsForTargetId(const QString &id) const;
+
+    QList<QtVersion *> versionsForTargetId(const QString &id, const QtVersionNumber &minimumQtVersion = QtVersionNumber()) const;
     QSet<QString> supportedTargetIds() const;
 
     // Static Methods
@@ -299,8 +320,7 @@ private:
     void updateUniqueIdToIndexMap();
 
     QtVersion *m_emptyVersion;
-    QList<QtVersion *> m_versions;
-    QMap<int, int> m_uniqueIdToIndex;
+    QMap<int, QtVersion *> m_versions;
     int m_idcount;
     // managed by QtProjectManagerPlugin
     static QtVersionManager *m_self;

@@ -332,24 +332,13 @@ bool QMakeStep::isQmlDebuggingLibrarySupported(QString *reason) const
     if (qt4BuildConfiguration()->qtVersion()->hasQmlDebuggingLibrary())
         return true;
 
-    int major, minor, patch;
-    if (!qt4BuildConfiguration()->qtVersion()->versionNumbers(&major, &minor, &patch)) {
+    if (!qt4BuildConfiguration()->qtVersion()->isValid()) {
         if (reason)
             *reason = tr("Invalid Qt version.");
         return false;
     }
 
-    // only support 4.7.1 onwards
-    bool compatibleQt = false;
-    if (major == 4) {
-        if (minor == 7) {
-            if (patch >= 1)
-                compatibleQt = true;
-        } else if (minor > 7)
-            compatibleQt = true;
-    }
-
-    if (!compatibleQt) {
+    if (qt4BuildConfiguration()->qtVersion()->qtVersion() < QtVersionNumber(4, 7 ,0)) {
         if (reason)
             *reason = tr("Requires Qt 4.7.1 or newer.");
         return false;

@@ -68,7 +68,7 @@ QString QmlDebuggingLibrary::libraryByInstallData(const QString &qtInstallData, 
 
 bool QmlDebuggingLibrary::canBuild(const QtVersion *qtVersion)
 {
-    return checkMinimumQtVersion(qtVersion->qtVersionString(), 4, 7, 1);
+    return qtVersion->qtVersion() >=  QtVersionNumber(4, 7, 1);
 }
 
 bool  QmlDebuggingLibrary::build(const QString &directory, const QString &makeCommand,

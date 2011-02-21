@@ -110,33 +110,6 @@ QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath)
     return QString();
 }
 
-bool BuildableHelperLibrary::checkMinimumQtVersion(const QString &qtVersionString, int majorVersion, int minorVersion, int patchVersion)
-{
-    int major = -1;
-    int minor = -1;
-    int patch = -1;
-
-    // check format
-    static QRegExp qtVersionRegex(QLatin1String("^\\d+\\.\\d+\\.\\d+$"));
-    if (!qtVersionRegex.exactMatch(qtVersionString))
-        return false;
-
-    QStringList parts = qtVersionString.split(QLatin1Char('.'));
-    major = parts.at(0).toInt();
-    minor = parts.at(1).toInt();
-    patch = parts.at(2).toInt();
-
-    if (major == majorVersion) {
-        if (minor == minorVersion) {
-            if (patch >= patchVersion)
-                return true;
-        } else if (minor > minorVersion)
-            return true;
-    }
-
-    return false;
-}
-
 QStringList BuildableHelperLibrary::possibleQMakeCommands()
 {
     // On windows no one has renamed qmake, right?

@@ -104,10 +104,16 @@ static T *createToolChain(const QString &id)
     return 0;
 }
 
+
+// prefer newer qts otherwise compare on id
+bool qtVersionNumberCompare(QtVersion *a, QtVersion *b)
+{
+    return a->qtVersion() > b->qtVersion() || (a->qtVersion() == b->qtVersion() && a->uniqueId() < b->uniqueId());
+}
+
 // --------------------------------------------------------------------------
 // QtVersionManager
 // --------------------------------------------------------------------------
-
 QtVersionManager *QtVersionManager::m_self = 0;
 
 QtVersionManager::QtVersionManager()
@@ -193,10 +199,9 @@ QtVersionManager::QtVersionManager()
             }
         }
 
-        m_versions.append(version);
+        m_versions.insert(version->uniqueId(), version);
     }
     s->endArray();
-    updateUniqueIdToIndexMap();
 
     ++m_idcount;
     addNewVersionsFromInstaller();
@@ -226,12 +231,12 @@ QtVersionManager *QtVersionManager::instance()
 void QtVersionManager::addVersion(QtVersion *version)
 {
     QTC_ASSERT(version != 0, return);
-    if (m_versions.contains(version))
+    if (m_versions.contains(version->uniqueId()))
         return;
 
-    m_versions.append(version);
     int uniqueId = version->uniqueId();
-    m_uniqueIdToIndex.insert(uniqueId, m_versions.count() - 1);
+    m_versions.insert(uniqueId, version);
+
     emit qtVersionsChanged(QList<int>() << uniqueId);
     writeVersionsIntoSettings();
 }
@@ -239,10 +244,8 @@ void QtVersionManager::addVersion(QtVersion *version)
 void QtVersionManager::removeVersion(QtVersion *version)
 {
     QTC_ASSERT(version != 0, return);
-    m_versions.removeAll(version);
-    int uniqueId = version->uniqueId();
-    m_uniqueIdToIndex.remove(uniqueId);
-    emit qtVersionsChanged(QList<int>() << uniqueId);
+    m_versions.remove(version->uniqueId());
+    emit qtVersionsChanged(QList<int>() << version->uniqueId());
     writeVersionsIntoSettings();
     delete version;
 }
@@ -256,13 +259,14 @@ bool QtVersionManager::supportsTargetId(const QString &id) const
     return false;
 }
 
-QList<QtVersion *> QtVersionManager::versionsForTargetId(const QString &id) const
+QList<QtVersion *> QtVersionManager::versionsForTargetId(const QString &id, const QtVersionNumber &minimumQtVersion) const
 {
     QList<QtVersion *> targetVersions;
     foreach (QtVersion *version, m_versions) {
-        if (version->supportsTargetId(id))
+        if (version->supportsTargetId(id) && version->qtVersion() >= minimumQtVersion)
             targetVersions.append(version);
     }
+    qSort(targetVersions.begin(), targetVersions.end(), &qtVersionNumberCompare);
     return targetVersions;
 }
 
@@ -341,19 +345,13 @@ int QtVersionManager::getUniqueId()
     return m_idcount++;
 }
 
-void QtVersionManager::updateUniqueIdToIndexMap()
-{
-    m_uniqueIdToIndex.clear();
-    for (int i = 0; i < m_versions.size(); ++i)
-        m_uniqueIdToIndex.insert(m_versions.at(i)->uniqueId(), i);
-}
-
 void QtVersionManager::writeVersionsIntoSettings()
 {
     QSettings *s = Core::ICore::instance()->settings();
     s->beginWriteArray(QtVersionsSectionName);
+    QMap<int, QtVersion *>::const_iterator it = m_versions.constBegin();
     for (int i = 0; i < m_versions.size(); ++i) {
-        const QtVersion *version = m_versions.at(i);
+        const QtVersion *version = it.value();
         s->setArrayIndex(i);
         s->setValue("Name", version->displayName());
         // for downwards compat
@@ -365,13 +363,18 @@ void QtVersionManager::writeVersionsIntoSettings()
             s->setValue("autodetectionSource", version->autodetectionSource());
         s->setValue("S60SDKDirectory", version->s60SDKDirectory());
         s->setValue(QLatin1String("SBSv2Directory"), version->sbsV2Directory());
+        ++it;
     }
     s->endArray();
 }
 
 QList<QtVersion *> QtVersionManager::versions() const
 {
-    return m_versions;
+    QList<QtVersion *> versions;
+    foreach (QtVersion *version, m_versions)
+        versions << version;
+    qSort(versions.begin(), versions.end(), &qtVersionNumberCompare);
+    return versions;
 }
 
 QList<QtVersion *> QtVersionManager::validVersions() const
@@ -381,22 +384,21 @@ QList<QtVersion *> QtVersionManager::validVersions() const
         if (v->isValid())
             results.append(v);
     }
+    qSort(results.begin(), results.end(), &qtVersionNumberCompare);
     return results;
 }
 
 bool QtVersionManager::isValidId(int id) const
 {
-    int pos = m_uniqueIdToIndex.value(id, -1);
-    return (pos != -1);
+    return m_versions.contains(id);
 }
 
 QtVersion *QtVersionManager::version(int id) const
 {
-    int pos = m_uniqueIdToIndex.value(id, -1);
-    if (pos != -1)
-        return m_versions.at(pos);
-
-    return m_emptyVersion;
+    QMap<int, QtVersion *>::const_iterator it = m_versions.find(id);
+    if (it == m_versions.constEnd())
+        return m_emptyVersion;
+    return it.value();
 }
 
 // FIXME: Rework this!
@@ -449,7 +451,7 @@ void QtVersionManager::addNewVersionsFromInstaller()
                 }
 
                 if (!versionWasAlreadyInList) {
-                    m_versions.append(version);
+                    m_versions.insert(version->uniqueId(), version);
                 } else {
                     // clean up
                     delete version;
@@ -457,7 +459,6 @@ void QtVersionManager::addNewVersionsFromInstaller()
             }
         }
     }
-    updateUniqueIdToIndexMap();
     settings->setValue(QLatin1String("General/LastQtVersionUpdate"), QDateTime::currentDateTime());
 }
 
@@ -483,8 +484,7 @@ void QtVersionManager::updateSystemVersion()
                                        getUniqueId(),
                                        true,
                                        PATH_AUTODETECTION_SOURCE);
-    m_versions.prepend(version);
-    updateUniqueIdToIndexMap();
+    m_versions.insert(version->uniqueId(), version);
 }
 
 QtVersion *QtVersionManager::emptyVersion() const
@@ -519,14 +519,14 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions)
     QList<QtVersion *> sortedNewVersions = newVersions;
     SortByUniqueId sortByUniqueId;
     qSort(sortedNewVersions.begin(), sortedNewVersions.end(), sortByUniqueId);
-    qSort(m_versions.begin(), m_versions.end(), sortByUniqueId);
 
     QList<int> changedVersions;
     // So we trying to find the minimal set of changed versions,
     // iterate over both sorted list
 
     // newVersions and oldVersions iterator
-    QList<QtVersion *>::const_iterator nit, nend, oit, oend;
+    QList<QtVersion *>::const_iterator nit, nend;
+    QMap<int, QtVersion *>::const_iterator oit, oend;
     nit = sortedNewVersions.constBegin();
     nend = sortedNewVersions.constEnd();
     oit = m_versions.constBegin();
@@ -561,11 +561,11 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions)
 
     qDeleteAll(m_versions);
     m_versions.clear();
-    m_versions = newVersions;
+    foreach (QtVersion *v, sortedNewVersions)
+        m_versions.insert(v->uniqueId(), v);
 
     if (!changedVersions.isEmpty())
         updateDocumentation();
-    updateUniqueIdToIndexMap();
 
     updateExamples();
     writeVersionsIntoSettings();
@@ -837,26 +837,10 @@ QString QtVersion::qtVersionString() const
     return m_qtVersionString;
 }
 
-bool QtVersion::versionNumbers(int *majorNumber, int *minorNumber, int *patchNumber) const
+QtVersionNumber QtVersion::qtVersion() const
 {
-    const QString versionString = qtVersionString();
-    if (versionString.isEmpty())
-        return false;
-
-    // check format
-    static QRegExp qtVersionRegex(QLatin1String("^\\d+\\.\\d+\\.\\d+$"));
-    if (!qtVersionRegex.exactMatch(versionString))
-        return false;
-
-    QStringList parts = versionString.split(QLatin1Char('.'));
-    if (majorNumber)
-        *majorNumber = parts.at(0).toInt();
-    if (minorNumber)
-        *minorNumber = parts.at(1).toInt();
-    if (patchNumber)
-        *patchNumber = parts.at(2).toInt();
-
-    return true;
+    //todo cache this;
+    return QtVersionNumber(qtVersionString());
 }
 
 QHash<QString,QString> QtVersion::versionInfo() const
@@ -1950,4 +1934,88 @@ QString QtVersion::examplesPath() const
 void QtVersion::invalidateCache()
 {
     m_versionInfoUpToDate = false;
+}
+
+///////////////
+// QtVersionNumber
+///////////////
+
+
+QtVersionNumber::QtVersionNumber(int ma, int mi, int p)
+    : majorVersion(ma), minorVersion(mi), patchVersion(p)
+{
+}
+
+QtVersionNumber::QtVersionNumber(const QString &versionString)
+{
+    if (!checkVersionString(versionString))
+        majorVersion = minorVersion = patchVersion = -1;
+
+    QStringList parts = versionString.split(QLatin1Char('.'));
+    majorVersion = parts.at(0).toInt();
+    minorVersion = parts.at(1).toInt();
+    patchVersion = parts.at(2).toInt();
+}
+
+QtVersionNumber::QtVersionNumber()
+{
+    majorVersion = minorVersion = patchVersion = -1;
+}
+
+
+bool QtVersionNumber::checkVersionString(const QString &version) const
+{
+    int dots = 0;
+    QString validChars = "0123456789.";
+    foreach (const QChar &c, version) {
+        if (!validChars.contains(c))
+            return false;
+        if (c == '.')
+            ++dots;
+    }
+    if (dots != 2)
+        return false;
+    return true;
+}
+
+bool QtVersionNumber::operator <(const QtVersionNumber &b) const
+{
+    if (majorVersion < b.majorVersion)
+        return true;
+    if (majorVersion > b.majorVersion)
+        return false;
+    if (minorVersion < b.minorVersion)
+        return true;
+    if (minorVersion > b.minorVersion)
+        return false;
+    if (patchVersion < b.patchVersion)
+        return true;
+    return false;
+}
+
+bool QtVersionNumber::operator >(const QtVersionNumber &b) const
+{
+    return b < *this;
+}
+
+bool QtVersionNumber::operator ==(const QtVersionNumber &b) const
+{
+    return majorVersion == b.majorVersion
+            && minorVersion == b.minorVersion
+            && patchVersion == b.patchVersion;
+}
+
+bool QtVersionNumber::operator !=(const QtVersionNumber &b) const
+{
+    return !(*this == b);
+}
+
+bool QtVersionNumber::operator <=(const QtVersionNumber &b) const
+{
+    return !(*this > b);
+}
+
+bool QtVersionNumber::operator >=(const QtVersionNumber &b) const
+{
+    return b <= *this;
 }
