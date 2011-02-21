@@ -57,7 +57,10 @@ public:
     void setDisplayName(const QString &name);
     void setDefaultDisplayName(const QString &name);
 
-    // Note: Make sure subclasses call the superclasses toMap() method!
+    // Note: Make sure subclasses call the superclasses' fromMap() method!
+    virtual bool fromMap(const QVariantMap &map);
+
+    // Note: Make sure subclasses call the superclasses' toMap() method!
     virtual QVariantMap toMap() const;
 
 signals:
@@ -66,9 +69,6 @@ signals:
 protected:
     ProjectConfiguration(QObject *parent, const QString &id);
     ProjectConfiguration(QObject *parent, const ProjectConfiguration *source);
-
-    // Note: Make sure subclasses call the superclasses toMap() method!
-    virtual bool fromMap(const QVariantMap &map);
 
 private:
     Q_DISABLE_COPY(ProjectConfiguration)
