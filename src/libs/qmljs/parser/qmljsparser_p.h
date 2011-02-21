@@ -231,7 +231,7 @@ protected:
     QList<DiagnosticMessage> diagnostic_messages;
 };
 
-} // namespace QmlJS
+} // end of namespace QmlJS
 
 
 

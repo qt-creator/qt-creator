@@ -86,7 +86,7 @@ public:
 
 uint qHash(const QmlJS::NameId &id);
 
-} // namespace QmlJS
+} // end of namespace QmlJS
 
 #if defined(Q_CC_MSVC) && _MSC_VER <= 1300
 //this ensures that code outside QmlJS can use the hash function
@@ -115,7 +115,7 @@ public:
     static QString flagsToString(int flags);
 };
 
-} // namespace Ecma
+} // end of namespace Ecma
 
 class QML_PARSER_EXPORT DiagnosticMessage
 {
@@ -166,7 +166,7 @@ public:
     void setNodePool(NodePool *nodePool);
 };
 
-} // namespace QmlJS
+} // end of namespace QmlJS
 
 QT_QML_END_NAMESPACE
 

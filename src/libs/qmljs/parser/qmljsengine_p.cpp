@@ -45,7 +45,7 @@
 #include "qmljsnodepool_p.h"
 
 #include <qnumeric.h>
-#include <QtCore/QHash>
+#include <QHash>
 
 QT_QML_BEGIN_NAMESPACE
 
@@ -207,6 +207,6 @@ void Engine::setNodePool(NodePool *nodePool)
 
 
 
-} // namespace QmlJS
+} // end of namespace QmlJS
 
 QT_QML_END_NAMESPACE

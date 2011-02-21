@@ -619,7 +619,7 @@ int Lexer::lex()
                 } else {
                     setDone(Bad);
                     err = IllegalEscapeSequence;
-                    errmsg = QCoreApplication::translate("QmlParser", "Illegal escape squence");
+                    errmsg = QCoreApplication::translate("QmlParser", "Illegal escape sequence");
                 }
             } else if (current == 'x')
                 state = InHexEscape;
