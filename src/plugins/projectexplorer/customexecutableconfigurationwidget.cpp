@@ -84,7 +84,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     layout->addRow(tr("Arguments:"), m_commandLineArgumentsLineEdit);
 
     m_workingDirectory = new CustomDirectoryPathChooser(this);
-    m_workingDirectory->setExpectedKind(Utils::PathChooser::Directory);
+    m_workingDirectory->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_workingDirectory->setBaseDirectory(rc->target()->project()->projectDirectory());
     m_workingDirectory->setEnvironment(rc->environment());
     layout->addRow(tr("Working directory:"), m_workingDirectory);

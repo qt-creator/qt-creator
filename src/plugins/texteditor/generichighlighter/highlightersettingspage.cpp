@@ -97,10 +97,10 @@ QWidget *HighlighterSettingsPage::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     m_d->m_page = new Ui::HighlighterSettingsPage;
     m_d->m_page->setupUi(w);
-    m_d->m_page->definitionFilesPath->setExpectedKind(Utils::PathChooser::Directory);
+    m_d->m_page->definitionFilesPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_d->m_page->definitionFilesPath->addButton(tr("Download Definitions"), this,
                                                SLOT(requestAvailableDefinitionsMetaData()));
-    m_d->m_page->fallbackDefinitionFilesPath->setExpectedKind(Utils::PathChooser::Directory);
+    m_d->m_page->fallbackDefinitionFilesPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_d->m_page->fallbackDefinitionFilesPath->addButton(tr("Autodetect"), this,
                                                        SLOT(resetDefinitionsLocation()));
 

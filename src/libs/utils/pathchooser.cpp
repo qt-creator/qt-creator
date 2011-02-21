@@ -188,6 +188,12 @@ public:
 
     QHBoxLayout *m_hLayout;
     PathValidatingLineEdit *m_lineEdit;
+#ifdef Q_WS_MAC
+    QPushButton *m_button;
+#else
+    QToolButton *m_button;
+#endif
+
     PathChooser::Kind m_acceptingKind;
     QString m_dialogTitleOverride;
     QString m_dialogFilter;
@@ -200,7 +206,7 @@ public:
 PathChooserPrivate::PathChooserPrivate(PathChooser *chooser) :
     m_hLayout(new QHBoxLayout),
     m_lineEdit(new PathValidatingLineEdit(chooser)),
-    m_acceptingKind(PathChooser::Directory),
+    m_acceptingKind(PathChooser::ExistingDirectory),
     m_binaryVersionToolTipEventFilter(0)
 {
 }
@@ -222,6 +228,7 @@ QString PathChooserPrivate::expandedPath(const QString &input) const
     case PathChooser::Any:
         break;
     case PathChooser::Directory:
+    case PathChooser::ExistingDirectory:
     case PathChooser::File:
         if (!m_baseDirectory.isEmpty() && QFileInfo(path).isRelative())
             return QFileInfo(m_baseDirectory + QLatin1Char('/') + path).absoluteFilePath();
@@ -261,13 +268,13 @@ PathChooser::~PathChooser()
 void PathChooser::addButton(const QString &text, QObject *receiver, const char *slotFunc)
 {
 #ifdef Q_WS_MAC
-    QPushButton *button = new QPushButton;
+    m_d->m_button = new QPushButton;
 #else
-    QToolButton *button = new QToolButton;
+    m_d->m_button = new QToolButton;
 #endif
-    button->setText(text);
-    connect(button, SIGNAL(clicked()), receiver, slotFunc);
-    m_d->m_hLayout->addWidget(button);
+    m_d->m_button->setText(text);
+    connect(m_d->m_button, SIGNAL(clicked()), receiver, slotFunc);
+    m_d->m_hLayout->addWidget(m_d->m_button);
 }
 
 QAbstractButton *PathChooser::buttonAtIndex(int index) const
@@ -324,6 +331,7 @@ void PathChooser::slotBrowse()
     QString newPath;
     switch (m_d->m_acceptingKind) {
     case PathChooser::Directory:
+    case PathChooser::ExistingDirectory:
         newPath = QFileDialog::getExistingDirectory(this,
                 makeDialogTitle(tr("Choose Directory")), predefined);
         break;
@@ -401,7 +409,7 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
 
     // Check if existing
     switch (m_d->m_acceptingKind) {
-    case PathChooser::Directory: // fall through
+    case PathChooser::ExistingDirectory: // fall through
     case PathChooser::File: // fall through
     case PathChooser::ExistingCommand:
         if (!fi.exists()) {
@@ -411,6 +419,7 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
         }
         break;
 
+    case PathChooser::Directory:
     case PathChooser::Command: // fall through
     default:
         ;
@@ -418,7 +427,7 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
 
     // Check expected kind
     switch (m_d->m_acceptingKind) {
-    case PathChooser::Directory:
+    case PathChooser::ExistingDirectory:
         if (!fi.isDir()) {
             if (errorMessage)
                 *errorMessage = tr("The path <b>%1</b> is not a directory.").arg(QDir::toNativeSeparators(expandedPath));

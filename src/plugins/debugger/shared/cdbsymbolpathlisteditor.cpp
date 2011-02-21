@@ -60,7 +60,7 @@ CacheDirectoryDialog::CacheDirectoryDialog(QWidget *parent) :
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     QFormLayout *formLayout = new QFormLayout;
-    m_chooser->setExpectedKind(Utils::PathChooser::Directory);
+    m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_chooser->setMinimumWidth(400);
     formLayout->addRow(tr("Path:"), m_chooser);
 

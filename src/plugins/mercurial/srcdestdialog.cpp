@@ -42,7 +42,7 @@ SrcDestDialog::SrcDestDialog(QWidget *parent) :
     m_ui(new Ui::SrcDestDialog)
 {
     m_ui->setupUi(this);
-    m_ui->localPathChooser->setExpectedKind(Utils::PathChooser::Directory);
+    m_ui->localPathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
 }
 
 SrcDestDialog::~SrcDestDialog()

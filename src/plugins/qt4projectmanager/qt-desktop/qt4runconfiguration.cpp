@@ -215,7 +215,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_workingDirectoryEdit = new Utils::PathChooser(this);
     m_workingDirectoryEdit->setPath(m_qt4RunConfiguration->baseWorkingDirectory());
     m_workingDirectoryEdit->setBaseDirectory(m_qt4RunConfiguration->target()->project()->projectDirectory());
-    m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
+    m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_workingDirectoryEdit->setEnvironment(m_qt4RunConfiguration->environment());
     m_workingDirectoryEdit->setPromptDialogTitle(tr("Select Working Directory"));
 

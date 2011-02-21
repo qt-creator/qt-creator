@@ -385,7 +385,7 @@ void GettingStartedWelcomePageWidget::slotOpenExample()
         QLabel *txt = new QLabel(tr("&Location:"));
         Utils::PathChooser *chooser = new Utils::PathChooser;
         txt->setBuddy(chooser);
-        chooser->setExpectedKind(Utils::PathChooser::Directory);
+        chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
         QSettings *settings = Core::ICore::instance()->settings();
         chooser->setPath(settings->value(
                 QString::fromLatin1("General/ProjectsFallbackRoot"), QDir::homePath()).toString());

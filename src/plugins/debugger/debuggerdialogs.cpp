@@ -554,7 +554,7 @@ StartExternalDialog::StartExternalDialog(QWidget *parent)
     m_ui->execFile->lineEdit()->setCompleter(
         new HistoryCompleter(m_ui->execFile->lineEdit()));
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    m_ui->workingDirectory->setExpectedKind(PathChooser::Directory);
+    m_ui->workingDirectory->setExpectedKind(PathChooser::ExistingDirectory);
     m_ui->workingDirectory->setPromptDialogTitle(tr("Select Working Directory"));
     m_ui->workingDirectory->lineEdit()->setCompleter(
         new HistoryCompleter(m_ui->workingDirectory->lineEdit()));

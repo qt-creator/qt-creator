@@ -60,7 +60,7 @@ BaseCheckoutWizardPage::BaseCheckoutWizardPage(QWidget *parent) :
     connect(d->ui.branchComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(slotChanged()));
 
-    d->ui.pathChooser->setExpectedKind(Utils::PathChooser::Directory);
+    d->ui.pathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     connect(d->ui.pathChooser, SIGNAL(validChanged()), this, SLOT(slotChanged()));
 
     d->ui.branchComboBox->setEnabled(false);
