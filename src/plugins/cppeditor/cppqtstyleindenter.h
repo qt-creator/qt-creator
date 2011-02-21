@@ -49,12 +49,12 @@ public:
     virtual void indentBlock(QTextDocument *doc,
                              const QTextBlock &block,
                              const QChar &typedChar,
-                             TextEditor::BaseTextEditor *editor);
+                             TextEditor::BaseTextEditorWidget *editor);
 
     virtual void indent(QTextDocument *doc,
                         const QTextCursor &cursor,
                         const QChar &typedChar,
-                        TextEditor::BaseTextEditor *editor);
+                        TextEditor::BaseTextEditorWidget *editor);
 };
 
 } // Internal

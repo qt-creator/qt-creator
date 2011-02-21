@@ -51,27 +51,27 @@ using namespace CMakeProjectManager::Internal;
 // ProFileEditorEditable
 //
 
-CMakeEditorEditable::CMakeEditorEditable(CMakeEditor *editor)
-  : BaseTextEditorEditable(editor),
+CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
+  : BaseTextEditor(editor),
     m_context(CMakeProjectManager::Constants::C_CMAKEEDITOR,
               TextEditor::Constants::C_TEXTEDITOR)
 { }
 
-Core::Context CMakeEditorEditable::context() const
+Core::Context CMakeEditor::context() const
 {
     return m_context;
 }
 
-Core::IEditor *CMakeEditorEditable::duplicate(QWidget *parent)
+Core::IEditor *CMakeEditor::duplicate(QWidget *parent)
 {
-    CMakeEditor *ret = new CMakeEditor(parent, qobject_cast<CMakeEditor*>(editor())->factory(),
-                                       qobject_cast<CMakeEditor*>(editor())->actionHandler());
-    ret->duplicateFrom(editor());
+    CMakeEditorWidget *w = qobject_cast<CMakeEditorWidget*>(editorWidget());
+    CMakeEditorWidget *ret = new CMakeEditorWidget(parent, w->factory(), w->actionHandler());
+    ret->duplicateFrom(w);
     TextEditor::TextEditorSettings::instance()->initializeEditor(ret);
-    return ret->editableInterface();
+    return ret->editor();
 }
 
-QString CMakeEditorEditable::id() const
+QString CMakeEditor::id() const
 {
     return QLatin1String(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
 }
@@ -80,8 +80,8 @@ QString CMakeEditorEditable::id() const
 // CMakeEditor
 //
 
-CMakeEditor::CMakeEditor(QWidget *parent, CMakeEditorFactory *factory, TextEditor::TextEditorActionHandler *ah)
-    : BaseTextEditor(parent), m_factory(factory), m_ah(ah)
+CMakeEditorWidget::CMakeEditorWidget(QWidget *parent, CMakeEditorFactory *factory, TextEditor::TextEditorActionHandler *ah)
+    : BaseTextEditorWidget(parent), m_factory(factory), m_ah(ah)
 {
     CMakeDocument *doc = new CMakeDocument();
     doc->setMimeType(QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
@@ -92,18 +92,18 @@ CMakeEditor::CMakeEditor(QWidget *parent, CMakeEditorFactory *factory, TextEdito
     baseTextDocument()->setSyntaxHighlighter(new CMakeHighlighter);
 }
 
-CMakeEditor::~CMakeEditor()
+CMakeEditorWidget::~CMakeEditorWidget()
 {
 }
 
-TextEditor::BaseTextEditorEditable *CMakeEditor::createEditableInterface()
+TextEditor::BaseTextEditor *CMakeEditorWidget::createEditor()
 {
-    return new CMakeEditorEditable(this);
+    return new CMakeEditor(this);
 }
 
-void CMakeEditor::setFontSettings(const TextEditor::FontSettings &fs)
+void CMakeEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 {
-    TextEditor::BaseTextEditor::setFontSettings(fs);
+    TextEditor::BaseTextEditorWidget::setFontSettings(fs);
     CMakeHighlighter *highlighter = qobject_cast<CMakeHighlighter*>(baseTextDocument()->syntaxHighlighter());
     if (!highlighter)
         return;

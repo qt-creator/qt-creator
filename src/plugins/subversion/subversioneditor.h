@@ -41,7 +41,7 @@
 namespace Subversion {
 namespace Internal {
 
-class SubversionEditor : public VCSBase::VCSBaseEditor
+class SubversionEditor : public VCSBase::VCSBaseEditorWidget
 {
     Q_OBJECT
 

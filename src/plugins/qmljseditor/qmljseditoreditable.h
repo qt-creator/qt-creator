@@ -38,14 +38,14 @@
 #include <texteditor/basetexteditor.h>
 
 namespace QmlJSEditor {
-class QmlJSTextEditor;
+class QmlJSTextEditorWidget;
 
-class QMLJSEDITOR_EXPORT QmlJSEditorEditable : public TextEditor::BaseTextEditorEditable
+class QMLJSEDITOR_EXPORT QmlJSEditorEditable : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 
 public:
-    explicit QmlJSEditorEditable(QmlJSTextEditor *);
+    explicit QmlJSEditorEditable(QmlJSTextEditorWidget *);
     Core::Context context() const;
 
     bool duplicateSupported() const { return true; }

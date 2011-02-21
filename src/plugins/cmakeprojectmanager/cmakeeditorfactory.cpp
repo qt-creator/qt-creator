@@ -71,9 +71,9 @@ Core::IFile *CMakeEditorFactory::open(const QString &fileName)
 
 Core::IEditor *CMakeEditorFactory::createEditor(QWidget *parent)
 {
-    CMakeEditor *rc = new CMakeEditor(parent, this, m_actionHandler);
+    CMakeEditorWidget *rc = new CMakeEditorWidget(parent, this, m_actionHandler);
     TextEditor::TextEditorSettings::instance()->initializeEditor(rc);
-    return rc->editableInterface();
+    return rc->editor();
 }
 
 QStringList CMakeEditorFactory::mimeTypes() const

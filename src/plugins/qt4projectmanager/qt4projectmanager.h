@@ -56,7 +56,7 @@ namespace Qt4ProjectManager {
 
 namespace Internal {
 class Qt4Builder;
-class ProFileEditor;
+class ProFileEditorWidget;
 class Qt4ProjectManagerPlugin;
 }
 

@@ -53,14 +53,14 @@ namespace Internal {
 class ProFileEditorFactory;
 class ProFileHighlighter;
 
-class ProFileEditor;
+class ProFileEditorWidget;
 
-class ProFileEditorEditable : public TextEditor::BaseTextEditorEditable
+class ProFileEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 
 public:
-    ProFileEditorEditable(ProFileEditor *);
+    ProFileEditor(ProFileEditorWidget *);
     Core::Context context() const;
 
     bool duplicateSupported() const { return true; }
@@ -71,14 +71,14 @@ private:
     const Core::Context m_context;
 };
 
-class ProFileEditor : public TextEditor::BaseTextEditor
+class ProFileEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
 
 public:
-    ProFileEditor(QWidget *parent, ProFileEditorFactory *factory,
+    ProFileEditorWidget(QWidget *parent, ProFileEditorFactory *factory,
                   TextEditor::TextEditorActionHandler *ah);
-    ~ProFileEditor();
+    ~ProFileEditorWidget();
 
     bool save(const QString &fileName = QString());
 
@@ -89,7 +89,7 @@ public:
     void unCommentSelection();
 protected:
     virtual Link findLinkAt(const QTextCursor &, bool resolveTarget = true);
-    TextEditor::BaseTextEditorEditable *createEditableInterface();
+    TextEditor::BaseTextEditor *createEditor();
     void contextMenuEvent(QContextMenuEvent *);
 
 public slots:

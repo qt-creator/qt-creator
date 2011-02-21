@@ -35,7 +35,7 @@
 #include "completionsupport.h"
 #include "icompletioncollector.h"
 
-#include <texteditor/itexteditable.h>
+#include <texteditor/itexteditor.h>
 
 #include <utils/faketooltip.h>
 #include <utils/qtcassert.h>
@@ -141,7 +141,8 @@ QVariant AutoCompletionModel::data(const QModelIndex &index, int role) const
 }
 
 
-CompletionWidget::CompletionWidget(CompletionSupport *support, ITextEditable *editor)
+CompletionWidget::CompletionWidget(CompletionSupport *support,
+        ITextEditor *editor)
     : QFrame(0, Qt::Popup),
       m_support(support),
       m_editor(editor),
@@ -263,7 +264,8 @@ void CompletionWidget::updatePositionAndSize(int startPos)
     setGeometry(pos.x(), pos.y(), width, height);
 }
 
-CompletionListView::CompletionListView(CompletionSupport *support, ITextEditable *editor, CompletionWidget *completionWidget)
+CompletionListView::CompletionListView(CompletionSupport *support,
+        ITextEditor *editor, CompletionWidget *completionWidget)
     : QListView(completionWidget),
       m_blockFocusOut(false),
       m_editor(editor),

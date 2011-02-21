@@ -96,7 +96,7 @@ Core::IFile *BaseVCSEditorFactory::open(const QString &fileName)
 
 Core::IEditor *BaseVCSEditorFactory::createEditor(QWidget *parent)
 {
-    VCSBaseEditor *vcsEditor = createVCSBaseEditor(m_d->m_type, parent);
+    VCSBaseEditorWidget *vcsEditor = createVCSBaseEditor(m_d->m_type, parent);
 
     vcsEditor ->setMimeType(m_d->m_mimeTypes.front());
     m_d->m_editorHandler->setupActions(vcsEditor);
@@ -106,7 +106,7 @@ Core::IEditor *BaseVCSEditorFactory::createEditor(QWidget *parent)
     connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
             vcsEditor, SLOT(setFontSettings(TextEditor::FontSettings)));
     vcsEditor->setFontSettings(settings->fontSettings());
-    return vcsEditor->editableInterface();
+    return vcsEditor->editor();
 }
 
 } // namespace VCSBase

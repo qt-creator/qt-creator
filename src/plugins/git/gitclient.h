@@ -56,7 +56,7 @@ namespace Core {
 }
 
 namespace VCSBase {
-    class VCSBaseEditor;
+    class VCSBaseEditorWidget;
 }
 
 namespace Utils {
@@ -235,9 +235,9 @@ private slots:
     void slotBlameRevisionRequested(const QString &source, QString change, int lineNumber);
 
 private:
-    VCSBase::VCSBaseEditor *findExistingVCSEditor(const char *registerDynamicProperty,
+    VCSBase::VCSBaseEditorWidget *findExistingVCSEditor(const char *registerDynamicProperty,
                                                   const QString &dynamicPropertyValue) const;
-    VCSBase::VCSBaseEditor *createVCSEditor(const QString &kind,
+    VCSBase::VCSBaseEditorWidget *createVCSEditor(const QString &kind,
                                             QString title,
                                             const QString &source,
                                             bool setSourceCodec,
@@ -246,13 +246,13 @@ private:
                                             QWidget *configWidget) const;
 
     GitCommand *createCommand(const QString &workingDirectory,
-                             VCSBase::VCSBaseEditor* editor = 0,
+                             VCSBase::VCSBaseEditorWidget* editor = 0,
                              bool outputToWindow = false,
                              int editorLineNumber = -1);
 
     GitCommand *executeGit(const QString &workingDirectory,
                            const QStringList &arguments,
-                           VCSBase::VCSBaseEditor* editor = 0,
+                           VCSBase::VCSBaseEditorWidget* editor = 0,
                            bool outputToWindow = false,
                            GitCommand::TerminationReportMode tm = GitCommand::NoReport,
                            int editorLineNumber = -1,

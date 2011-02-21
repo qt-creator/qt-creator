@@ -64,7 +64,7 @@ namespace Internal {
 // ------------ GitEditor
 GitEditor::GitEditor(const VCSBase::VCSBaseEditorParameters *type,
                      QWidget *parent)  :
-    VCSBase::VCSBaseEditor(type, parent),
+    VCSBase::VCSBaseEditorWidget(type, parent),
     m_changeNumberPattern8(QLatin1String(CHANGE_PATTERN_8C)),
     m_changeNumberPattern40(QLatin1String(CHANGE_PATTERN_40C))
 {

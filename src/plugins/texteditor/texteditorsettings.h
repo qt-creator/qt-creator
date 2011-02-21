@@ -40,7 +40,7 @@
 
 namespace TextEditor {
 
-class BaseTextEditor;
+class BaseTextEditorWidget;
 class FontSettings;
 class TabSettings;
 class StorageSettings;
@@ -69,7 +69,7 @@ public:
 
     static TextEditorSettings *instance();
 
-    void initializeEditor(BaseTextEditor *editor);
+    void initializeEditor(BaseTextEditorWidget *editor);
 
     const FontSettings &fontSettings() const;
     const TabSettings &tabSettings() const;

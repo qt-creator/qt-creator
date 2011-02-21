@@ -47,7 +47,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class BaseTextEditor;
+class BaseTextEditorWidget;
 
 class TEXTEDITOR_EXPORT Indenter
 {
@@ -62,17 +62,17 @@ public:
     virtual void indentBlock(QTextDocument *doc,
                              const QTextBlock &block,
                              const QChar &typedChar,
-                             BaseTextEditor *editor);
+                             BaseTextEditorWidget *editor);
 
     // Indent at cursor. Calls indentBlock for selection or current line.
     virtual void indent(QTextDocument *doc,
                         const QTextCursor &cursor,
                         const QChar &typedChar,
-                        BaseTextEditor *editor);
+                        BaseTextEditorWidget *editor);
 
     // Reindent at cursor. Selection will be adjusted according to the indentation
     // change of the first block.
-    virtual void reindent(QTextDocument *doc, const QTextCursor &cursor, BaseTextEditor *editor);
+    virtual void reindent(QTextDocument *doc, const QTextCursor &cursor, BaseTextEditorWidget *editor);
 };
 
 } // namespace TextEditor

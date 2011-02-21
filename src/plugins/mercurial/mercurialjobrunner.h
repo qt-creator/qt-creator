@@ -49,7 +49,7 @@ class QProcess;
 QT_END_NAMESPACE
 
 namespace VCSBase {
-class VCSBaseEditor;
+class VCSBaseEditorWidget;
 }
 
 namespace Mercurial {
@@ -66,11 +66,11 @@ public:
                     bool emitRaw=false,
                     const QVariant &cookie = QVariant());
     explicit HgTask(const QString &workingDir, const QStringList &arguments,
-                    VCSBase::VCSBaseEditor *editor,
+                    VCSBase::VCSBaseEditorWidget *editor,
                     const QVariant &cookie = QVariant());
 
     bool shouldEmit() const { return emitRaw; }
-    VCSBase::VCSBaseEditor* displayEditor() const;
+    VCSBase::VCSBaseEditorWidget* displayEditor() const;
     QStringList args() const { return arguments; }
     QString repositoryRoot() const { return m_repositoryRoot; }
 
@@ -90,7 +90,7 @@ private:
     const QStringList arguments;
     const bool emitRaw;
     const QVariant m_cookie;
-    QPointer<VCSBase::VCSBaseEditor> editor; // User might close it.
+    QPointer<VCSBase::VCSBaseEditorWidget> editor; // User might close it.
     bool m_unixTerminalDisabled;
 };
 

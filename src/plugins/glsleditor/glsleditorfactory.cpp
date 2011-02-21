@@ -93,9 +93,9 @@ Core::IFile *GLSLEditorFactory::open(const QString &fileName)
 
 Core::IEditor *GLSLEditorFactory::createEditor(QWidget *parent)
 {
-    GLSLEditor::GLSLTextEditor *rc = new GLSLEditor::GLSLTextEditor(parent);
+    GLSLEditor::GLSLTextEditorWidget *rc = new GLSLEditor::GLSLTextEditorWidget(parent);
     GLSLEditorPlugin::instance()->initializeEditor(rc);
-    return rc->editableInterface();
+    return rc->editor();
 }
 
 QStringList GLSLEditorFactory::mimeTypes() const

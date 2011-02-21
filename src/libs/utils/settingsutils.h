@@ -34,10 +34,9 @@
 #ifndef SETTINGSUTILS_H
 #define SETTINGSUTILS_H
 
+#include <QtCore/QSettings>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
-#include <QtCore/QLatin1String>
-#include <QtCore/QSettings>
 #include <QtCore/QVariant>
 
 namespace Utils {

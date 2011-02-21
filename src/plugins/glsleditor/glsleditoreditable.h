@@ -37,16 +37,16 @@
 #include <texteditor/basetexteditor.h>
 
 namespace GLSLEditor {
-class GLSLTextEditor;
+class GLSLTextEditorWidget;
 
 namespace Internal {
 
-class GLSLEditorEditable : public TextEditor::BaseTextEditorEditable
+class GLSLEditorEditable : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 
 public:
-    explicit GLSLEditorEditable(GLSLTextEditor *);
+    explicit GLSLEditorEditable(GLSLTextEditorWidget *);
     Core::Context context() const;
 
     bool duplicateSupported() const { return true; }

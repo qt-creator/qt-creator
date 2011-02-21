@@ -43,7 +43,7 @@ namespace Internal {
 
 class PerforcePlugin;
 
-class PerforceEditor : public VCSBase::VCSBaseEditor
+class PerforceEditor : public VCSBase::VCSBaseEditorWidget
 {
     Q_OBJECT
 

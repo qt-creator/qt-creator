@@ -62,7 +62,7 @@ struct FormWindowEditorPrivate
     explicit FormWindowEditorPrivate(Internal::DesignerXmlEditor *editor,
                                      QDesignerFormWindowInterface *form);
 
-    TextEditor::PlainTextEditorEditable m_textEditable;
+    TextEditor::PlainTextEditor m_textEditable;
     Internal::FormWindowFile m_file;
     Core::Context m_context;
 };
@@ -185,8 +185,8 @@ void FormWindowEditor::syncXmlEditor()
 
 void FormWindowEditor::configureXmlEditor() const
 {
-    TextEditor::PlainTextEditor *editor =
-            qobject_cast<TextEditor::PlainTextEditor *>(d->m_textEditable.editor());
+    TextEditor::PlainTextEditorWidget *editor =
+            qobject_cast<TextEditor::PlainTextEditorWidget *>(d->m_textEditable.editorWidget());
     if (editor)
         editor->configure(Core::ICore::instance()->mimeDatabase()->findByFile(
                 d->m_file.fileName()));
@@ -194,8 +194,8 @@ void FormWindowEditor::configureXmlEditor() const
 
 void FormWindowEditor::syncXmlEditor(const QString &contents)
 {
-    d->m_textEditable.editor()->setPlainText(contents);
-    d->m_textEditable.editor()->setReadOnly(true);
+    d->m_textEditable.editorWidget()->setPlainText(contents);
+    d->m_textEditable.editorWidget()->setReadOnly(true);
 }
 
 Core::IFile *FormWindowEditor::file()
@@ -271,7 +271,7 @@ TextEditor::BaseTextDocument *FormWindowEditor::textDocument()
     return qobject_cast<TextEditor::BaseTextDocument*>(d->m_textEditable.file());
 }
 
-TextEditor::PlainTextEditorEditable *FormWindowEditor::textEditable()
+TextEditor::PlainTextEditor *FormWindowEditor::textEditable()
 {
     return &d->m_textEditable;
 }

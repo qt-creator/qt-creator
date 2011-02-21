@@ -98,7 +98,7 @@ bool CppOutlineFilterModel::filterAcceptsRow(int sourceRow,
 }
 
 
-CppOutlineWidget::CppOutlineWidget(CPPEditor *editor) :
+CppOutlineWidget::CppOutlineWidget(CPPEditorWidget *editor) :
     TextEditor::IOutlineWidget(),
     m_editor(editor),
     m_treeView(new CppOutlineTreeView(this)),
@@ -197,18 +197,18 @@ bool CppOutlineWidget::syncCursor()
 
 bool CppOutlineWidgetFactory::supportsEditor(Core::IEditor *editor) const
 {
-    if (qobject_cast<CPPEditorEditable*>(editor))
+    if (qobject_cast<CPPEditor*>(editor))
         return true;
     return false;
 }
 
 TextEditor::IOutlineWidget *CppOutlineWidgetFactory::createWidget(Core::IEditor *editor)
 {
-    CPPEditorEditable *cppEditable = qobject_cast<CPPEditorEditable*>(editor);
-    CPPEditor *cppEditor = qobject_cast<CPPEditor*>(cppEditable->widget());
-    Q_ASSERT(cppEditor);
+    CPPEditor *cppEditor = qobject_cast<CPPEditor*>(editor);
+    CPPEditorWidget *cppEditorWidget = qobject_cast<CPPEditorWidget*>(cppEditor->widget());
+    Q_ASSERT(cppEditorWidget);
 
-    CppOutlineWidget *widget = new CppOutlineWidget(cppEditor);
+    CppOutlineWidget *widget = new CppOutlineWidget(cppEditorWidget);
 
     return widget;
 }

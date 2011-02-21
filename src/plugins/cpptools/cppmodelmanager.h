@@ -64,7 +64,7 @@ class IEditor;
 
 namespace TextEditor {
 class ITextEditor;
-class BaseTextEditor;
+class BaseTextEditorWidget;
 }
 
 namespace ProjectExplorer {
@@ -231,7 +231,7 @@ private:
         int revision;
         QPointer<TextEditor::ITextEditor> textEditor;
         QList<QTextEdit::ExtraSelection> selections;
-        QList<TextEditor::BaseTextEditor::BlockRange> ifdefedOutBlocks;
+        QList<TextEditor::BaseTextEditorWidget::BlockRange> ifdefedOutBlocks;
     };
 
     QList<Editor> m_todo;

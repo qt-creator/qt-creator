@@ -42,7 +42,7 @@ using namespace GLSLEditor;
 using namespace GLSLEditor::Internal;
 using namespace TextEditor;
 
-Highlighter::Highlighter(GLSLTextEditor *editor, QTextDocument *parent)
+Highlighter::Highlighter(GLSLTextEditorWidget *editor, QTextDocument *parent)
     : TextEditor::SyntaxHighlighter(parent), m_editor(editor)
 {
 }

@@ -65,8 +65,8 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget(Core::IEditor *editor) :
     layout->setMargin(0);
     layout->setSpacing(0);
 
-    if (CPPEditorEditable *cppEditable = qobject_cast<CPPEditorEditable *>(editor)) {
-        m_cppEditor = static_cast<CPPEditor *>(cppEditable->widget());
+    if (CPPEditor *cppEditor = qobject_cast<CPPEditor *>(editor)) {
+        m_cppEditor = static_cast<CPPEditorWidget *>(cppEditor->widget());
 
         m_model = new QStandardItemModel;
         m_treeView = new Utils::NavigationTreeView;
@@ -98,9 +98,9 @@ CppTypeHierarchyWidget::~CppTypeHierarchyWidget()
 
 bool CppTypeHierarchyWidget::handleEditorChange(Core::IEditor *editor)
 {
-    if (CPPEditorEditable *cppEditable = qobject_cast<CPPEditorEditable *>(editor)) {
+    if (CPPEditor *cppEditor = qobject_cast<CPPEditor *>(editor)) {
         if (m_cppEditor) {
-            m_cppEditor = static_cast<CPPEditor *>(cppEditable->widget());
+            m_cppEditor = static_cast<CPPEditorWidget *>(cppEditor->widget());
             return true;
         }
     } else if (!m_cppEditor) {
@@ -137,7 +137,7 @@ void CppTypeHierarchyWidget::buildModel(const CppClass &cppClass, QStandardItem 
         m_model->setData(m_model->indexFromItem(item), cppClass.qualifiedName(), AnnotationRole);
     m_model->setData(m_model->indexFromItem(item), cppClass.icon(), Qt::DecorationRole);
     QVariant link;
-    link.setValue(CPPEditor::Link(cppClass.link()));
+    link.setValue(CPPEditorWidget::Link(cppClass.link()));
     m_model->setData(m_model->indexFromItem(item), link, LinkRole);
 
     foreach (const CppClass &cppBase, cppClass.bases())
@@ -148,7 +148,7 @@ void CppTypeHierarchyWidget::buildModel(const CppClass &cppClass, QStandardItem 
 
 void CppTypeHierarchyWidget::onItemClicked(const QModelIndex &index)
 {
-    m_cppEditor->openLink(index.data(LinkRole).value<CPPEditor::Link>());
+    m_cppEditor->openLink(index.data(LinkRole).value<TextEditor::BaseTextEditorWidget::Link>());
 }
 
 // CppTypeHierarchyStackedWidget

@@ -58,7 +58,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/basetexteditor.h>
-#include <texteditor/itexteditable.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
@@ -267,9 +266,9 @@ static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
     return Document::Ptr();
 }
 
-static inline ITextEditable *editableAt(const QString &fileName, int line, int column)
+static inline ITextEditor *editableAt(const QString &fileName, int line, int column)
 {
-    return qobject_cast<ITextEditable *>(TextEditor::BaseTextEditor::openEditorAt(fileName, line, column));
+    return qobject_cast<ITextEditor *>(TextEditor::BaseTextEditorWidget::openEditorAt(fileName, line, column));
 }
 
 static void addDeclaration(const Snapshot &snapshot,
@@ -290,8 +289,8 @@ static void addDeclaration(const Snapshot &snapshot,
     //! \todo change this to use the Refactoring changes.
     //
 
-    if (ITextEditable *editable = editableAt(fileName, loc.line(), loc.column() - 1)) {
-        BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(editable->widget());
+    if (ITextEditor *editable = editableAt(fileName, loc.line(), loc.column() - 1)) {
+        BaseTextEditorWidget *editor = qobject_cast<BaseTextEditorWidget *>(editable->widget());
         if (editor) {
             QTextCursor tc = editor->textCursor();
             int pos = tc.position();
@@ -333,7 +332,7 @@ static Document::Ptr addDefinition(const CPlusPlus::Snapshot &docTable,
             //! \todo change this to use the Refactoring changes.
             //
 
-            if (ITextEditable *editable = editableAt(doc->fileName(), 0, 0)) {
+            if (ITextEditor *editable = editableAt(doc->fileName(), 0, 0)) {
 
                 //
                 //! \todo use the InsertionPointLocator to insert at the correct place.
@@ -616,7 +615,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     }
 
     // jump to function definition, position within code
-    TextEditor::BaseTextEditor::openEditorAt(sourceDoc->fileName(), line + 2, indentation);
+    TextEditor::BaseTextEditorWidget::openEditorAt(sourceDoc->fileName(), line + 2, indentation);
 
     return true;
 }

@@ -43,7 +43,7 @@
 
 using namespace TextEditor;
 
-QuickFixState::QuickFixState(TextEditor::BaseTextEditor *editor)
+QuickFixState::QuickFixState(TextEditor::BaseTextEditorWidget *editor)
     : _editor(editor)
 {
 }
@@ -52,7 +52,7 @@ QuickFixState::~QuickFixState()
 {
 }
 
-TextEditor::BaseTextEditor *QuickFixState::editor() const
+TextEditor::BaseTextEditorWidget *QuickFixState::editor() const
 {
     return _editor;
 }
@@ -99,7 +99,7 @@ QuickFixFactory::~QuickFixFactory()
 }
 
 QuickFixCollector::QuickFixCollector()
-    : _editable(0)
+    : m_editor(0)
 {
 }
 
@@ -107,27 +107,27 @@ QuickFixCollector::~QuickFixCollector()
 {
 }
 
-TextEditor::ITextEditable *QuickFixCollector::editor() const
+TextEditor::ITextEditor *QuickFixCollector::editor() const
 {
-    return _editable;
+    return m_editor;
 }
 
 int QuickFixCollector::startPosition() const
 {
-    return _editable->position();
+    return m_editor->position();
 }
 
-bool QuickFixCollector::triggersCompletion(TextEditor::ITextEditable *)
+bool QuickFixCollector::triggersCompletion(TextEditor::ITextEditor *)
 {
     return false;
 }
 
-int QuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
+int QuickFixCollector::startCompletion(TextEditor::ITextEditor *editable)
 {
     Q_ASSERT(editable != 0);
 
-    _editable = editable;
-    TextEditor::BaseTextEditor *editor = qobject_cast<TextEditor::BaseTextEditor *>(editable->widget());
+    m_editor = editable;
+    TextEditor::BaseTextEditorWidget *editor = qobject_cast<TextEditor::BaseTextEditorWidget *>(editable->widget());
     Q_ASSERT(editor != 0);
 
     if (TextEditor::QuickFixState *state = initializeCompletion(editor)) {
@@ -147,12 +147,12 @@ int QuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         it.toBack();
         if (it.hasPrevious()) {
             it.previous();
-            _quickFixes = it.value();
+            m_quickFixes = it.value();
         }
 
         delete state;
 
-        if (! _quickFixes.isEmpty())
+        if (! m_quickFixes.isEmpty())
             return editable->position();
     }
 
@@ -161,8 +161,8 @@ int QuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
 
 void QuickFixCollector::completions(QList<TextEditor::CompletionItem> *quickFixItems)
 {
-    for (int i = 0; i < _quickFixes.size(); ++i) {
-        TextEditor::QuickFixOperation::Ptr op = _quickFixes.at(i);
+    for (int i = 0; i < m_quickFixes.size(); ++i) {
+        TextEditor::QuickFixOperation::Ptr op = m_quickFixes.at(i);
 
         TextEditor::CompletionItem item(this);
         item.text = op->description();
@@ -175,13 +175,13 @@ void QuickFixCollector::fix(const TextEditor::CompletionItem &item)
 {
     const int index = item.data.toInt();
 
-    if (index < _quickFixes.size()) {
-        TextEditor::QuickFixOperation::Ptr quickFix = _quickFixes.at(index);
+    if (index < m_quickFixes.size()) {
+        TextEditor::QuickFixOperation::Ptr quickFix = m_quickFixes.at(index);
         quickFix->perform();
     }
 }
 
 void QuickFixCollector::cleanup()
 {
-    _quickFixes.clear();
+    m_quickFixes.clear();
 }

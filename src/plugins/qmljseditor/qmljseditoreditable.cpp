@@ -47,8 +47,8 @@
 
 namespace QmlJSEditor {
 
-QmlJSEditorEditable::QmlJSEditorEditable(QmlJSTextEditor *editor)
-    : BaseTextEditorEditable(editor)
+QmlJSEditorEditable::QmlJSEditorEditable(QmlJSTextEditorWidget *editor)
+    : BaseTextEditor(editor)
 {
     m_context.add(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);
@@ -87,7 +87,7 @@ QString QmlJSEditorEditable::preferredModeType() const
     // if we are in other mode than edit or design, use the hard-coded default.
     // because the editor opening decision is modal, it would be confusing to
     // have the user also access to this failsafe setting.
-    if (editor()->mimeType() == QLatin1String(QmlJSEditor::Constants::QML_MIMETYPE)
+    if (editorWidget()->mimeType() == QLatin1String(QmlJSEditor::Constants::QML_MIMETYPE)
         && openInDesignMode())
         return QLatin1String(Core::Constants::MODE_DESIGN_TYPE);
     return QString();
@@ -97,7 +97,7 @@ void QmlJSEditorEditable::setTextCodec(QTextCodec *codec, TextCodecReason reason
 {
     if (reason != TextCodecOtherReason) // qml is defined to be utf8
         return;
-    editor()->setTextCodec(codec);
+    editorWidget()->setTextCodec(codec);
 }
 
 } // namespace QmlJSEditor

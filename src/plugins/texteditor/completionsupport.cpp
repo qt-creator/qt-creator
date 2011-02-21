@@ -37,7 +37,7 @@
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
-#include <texteditor/itexteditable.h>
+#include <texteditor/itexteditor.h>
 #include <texteditor/completionsettings.h>
 #include <utils/qtcassert.h>
 
@@ -67,13 +67,13 @@ private slots:
 
 public:
     QList<CompletionItem> getCompletions() const;
-    void complete(ITextEditable *editor, CompletionPolicy policy, bool forced);
+    void complete(ITextEditor *editor, CompletionPolicy policy, bool forced);
 
     CompletionSupport *m_support;
     Internal::CompletionWidget *m_completionList;
     int m_startPosition;
     bool m_checkCompletionTrigger;          // Whether to check for completion trigger after cleanup
-    ITextEditable *m_editor;
+    ITextEditor *m_editor;
     const QList<ICompletionCollector *> m_completionCollectors;
     ICompletionCollector *m_completionCollector;
     CompletionPolicy m_policy;
@@ -147,12 +147,12 @@ CompletionPolicy CompletionSupport::policy() const
     return d->m_policy;
 }
 
-void CompletionSupport::complete(ITextEditable *editor, CompletionPolicy policy, bool forced)
+void CompletionSupport::complete(ITextEditor *editor, CompletionPolicy policy, bool forced)
 {
     d->complete(editor, policy, forced);
 }
 
-void CompletionSupportPrivate::complete(ITextEditable *editor, CompletionPolicy policy, bool forced)
+void CompletionSupportPrivate::complete(ITextEditor *editor, CompletionPolicy policy, bool forced)
 {
     m_completionCollector = 0;
 

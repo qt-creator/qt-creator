@@ -62,7 +62,7 @@ class CPPEDITOR_EXPORT CppQuickFixState: public TextEditor::QuickFixState
     friend class Internal::CppQuickFixCollector;
 
 public:
-    CppQuickFixState(TextEditor::BaseTextEditor *editor);
+    CppQuickFixState(TextEditor::BaseTextEditorWidget *editor);
 
     const QList<CPlusPlus::AST *> &path() const;
     CPlusPlus::Snapshot snapshot() const;

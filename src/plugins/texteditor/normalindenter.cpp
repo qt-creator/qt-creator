@@ -67,7 +67,7 @@ NormalIndenter::~NormalIndenter()
 void NormalIndenter::indentBlock(QTextDocument *doc,
                                  const QTextBlock &block,
                                  const QChar &typedChar,
-                                 BaseTextEditor *editor)
+                                 BaseTextEditorWidget *editor)
 {
     Q_UNUSED(typedChar)
 

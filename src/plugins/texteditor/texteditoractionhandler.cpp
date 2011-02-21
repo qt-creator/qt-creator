@@ -102,7 +102,7 @@ TextEditorActionHandler::TextEditorActionHandler(const char *context,
         this, SLOT(updateCurrentEditor(Core::IEditor*)));
 }
 
-void TextEditorActionHandler::setupActions(BaseTextEditor *editor)
+void TextEditorActionHandler::setupActions(BaseTextEditorWidget *editor)
 {
     initializeActions();
     editor->setActionHack(this);
@@ -564,7 +564,7 @@ void TextEditorActionHandler::updateCurrentEditor(Core::IEditor *editor)
     if (!editor)
         return;
 
-    BaseTextEditor *baseEditor = qobject_cast<BaseTextEditor *>(editor->widget());
+    BaseTextEditorWidget *baseEditor = qobject_cast<BaseTextEditorWidget *>(editor->widget());
 
     if (baseEditor && baseEditor->actionHack() == this) {
         m_currentEditor = baseEditor;
@@ -572,7 +572,7 @@ void TextEditorActionHandler::updateCurrentEditor(Core::IEditor *editor)
     }
 }
 
-const QPointer<BaseTextEditor> &TextEditorActionHandler::currentEditor() const
+const QPointer<BaseTextEditorWidget> &TextEditorActionHandler::currentEditor() const
 {
     return m_currentEditor;
 }

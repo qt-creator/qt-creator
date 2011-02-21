@@ -151,7 +151,7 @@ public:
     static DebuggerToolTipEditor currentToolTipEditor();
 
     TextEditor::ITextEditor *textEditor;
-    TextEditor::BaseTextEditor *baseTextEditor;
+    TextEditor::BaseTextEditorWidget *baseTextEditor;
     Core::IFile *file;
 };
 
@@ -160,7 +160,7 @@ DebuggerToolTipEditor::DebuggerToolTipEditor(Core::IEditor *ie) :
 {
     if (ie && ie->file() && isEditorDebuggable(ie)) {
         if (TextEditor::ITextEditor *te = qobject_cast<TextEditor::ITextEditor *>(ie)) {
-            if (TextEditor::BaseTextEditor *pe = qobject_cast<TextEditor::BaseTextEditor *>(ie->widget())) {
+            if (TextEditor::BaseTextEditorWidget *pe = qobject_cast<TextEditor::BaseTextEditorWidget *>(ie->widget())) {
                 textEditor = te;
                 baseTextEditor = pe;
                 file = ie->file();

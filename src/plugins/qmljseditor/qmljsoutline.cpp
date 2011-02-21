@@ -125,7 +125,7 @@ QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent) :
     setLayout(layout);
 }
 
-void QmlJSOutlineWidget::setEditor(QmlJSTextEditor *editor)
+void QmlJSOutlineWidget::setEditor(QmlJSTextEditorWidget *editor)
 {
     m_editor = editor;
 
@@ -257,7 +257,7 @@ TextEditor::IOutlineWidget *QmlJSOutlineWidgetFactory::createWidget(Core::IEdito
     QmlJSOutlineWidget *widget = new QmlJSOutlineWidget;
 
     QmlJSEditorEditable *qmlJSEditable = qobject_cast<QmlJSEditorEditable*>(editor);
-    QmlJSTextEditor *qmlJSEditor = qobject_cast<QmlJSTextEditor*>(qmlJSEditable->widget());
+    QmlJSTextEditorWidget *qmlJSEditor = qobject_cast<QmlJSTextEditorWidget*>(qmlJSEditable->widget());
     Q_ASSERT(qmlJSEditor);
 
     widget->setEditor(qmlJSEditor);

@@ -48,7 +48,7 @@ public:
 public:
     virtual QString groupId() const;
     virtual QString displayName() const;
-    virtual void decorateEditor(TextEditor::SnippetEditor *editor) const;
+    virtual void decorateEditor(TextEditor::SnippetEditorWidget *editor) const;
 };
 
 } // Internal

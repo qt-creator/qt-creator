@@ -43,13 +43,13 @@ namespace Internal {
 
 DesignerXmlEditor::DesignerXmlEditor(QDesignerFormWindowInterface *form,
                                      QWidget *parent) :
-    TextEditor::PlainTextEditor(parent),
+    TextEditor::PlainTextEditorWidget(parent),
     m_designerEditor(new FormWindowEditor(this, form))
 {
     setReadOnly(true);
 }
 
-TextEditor::BaseTextEditorEditable *DesignerXmlEditor::createEditableInterface()
+TextEditor::BaseTextEditor *DesignerXmlEditor::createEditor()
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << "DesignerXmlEditor::createEditableInterface()";

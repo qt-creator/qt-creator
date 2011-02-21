@@ -75,7 +75,7 @@ class QmlJSOutlineWidget : public TextEditor::IOutlineWidget
 public:
     QmlJSOutlineWidget(QWidget *parent = 0);
 
-    void setEditor(QmlJSTextEditor *editor);
+    void setEditor(QmlJSTextEditorWidget *editor);
 
     // IOutlineWidget
     virtual QList<QAction*> filterMenuActions() const;
@@ -96,7 +96,7 @@ private:
 private:
     QmlJSOutlineTreeView *m_treeView;
     QmlJSOutlineFilterModel *m_filterModel;
-    QmlJSTextEditor *m_editor;
+    QmlJSTextEditorWidget *m_editor;
 
     QAction *m_showBindingsAction;
 

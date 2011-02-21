@@ -161,7 +161,7 @@ void EditorConfiguration::apply(ITextEditor *textEditor) const
 {
     if (!m_d->m_useGlobal) {
         textEditor->setTextCodec(m_d->m_textCodec, ITextEditor::TextCodecFromProjectSetting);
-        if (BaseTextEditor *baseTextEditor = qobject_cast<BaseTextEditor *>(textEditor->widget()))
+        if (BaseTextEditorWidget *baseTextEditor = qobject_cast<BaseTextEditorWidget *>(textEditor->widget()))
             switchSettings(baseTextEditor);
     }
 }
@@ -172,7 +172,7 @@ void EditorConfiguration::setUseGlobalSettings(bool use)
     const SessionManager *session = ProjectExplorerPlugin::instance()->session();
     QList<Core::IEditor *> opened = Core::EditorManager::instance()->openedEditors();
     foreach (Core::IEditor *editor, opened) {
-        if (BaseTextEditor *baseTextEditor = qobject_cast<BaseTextEditor *>(editor->widget())) {
+        if (BaseTextEditorWidget *baseTextEditor = qobject_cast<BaseTextEditorWidget *>(editor->widget())) {
             Project *project = session->projectForFile(editor->file()->fileName());
             if (project && project->editorConfiguration() == this)
                 switchSettings(baseTextEditor);
@@ -180,7 +180,7 @@ void EditorConfiguration::setUseGlobalSettings(bool use)
     }
 }
 
-void EditorConfiguration::switchSettings(BaseTextEditor *baseTextEditor) const
+void EditorConfiguration::switchSettings(BaseTextEditorWidget *baseTextEditor) const
 {
     if (m_d->m_useGlobal)
         switchSettings_helper(TextEditorSettings::instance(), this, baseTextEditor);
@@ -191,7 +191,7 @@ void EditorConfiguration::switchSettings(BaseTextEditor *baseTextEditor) const
 template <class NewSenderT, class OldSenderT>
 void EditorConfiguration::switchSettings_helper(const NewSenderT *newSender,
                                                 const OldSenderT *oldSender,
-                                                BaseTextEditor *baseTextEditor) const
+                                                BaseTextEditorWidget *baseTextEditor) const
 {
     baseTextEditor->setTabSettings(newSender->tabSettings());
     baseTextEditor->setStorageSettings(newSender->storageSettings());
@@ -339,7 +339,7 @@ void EditorConfiguration::emitExtraEncodingSettingsChanged()
     emit extraEncodingSettingsChanged(m_d->m_extraEncodingSettings);
 }
 
-const TabSettings &actualTabSettings(const QString &fileName, const BaseTextEditor *baseTextEditor)
+const TabSettings &actualTabSettings(const QString &fileName, const BaseTextEditorWidget *baseTextEditor)
 {
     if (baseTextEditor) {
         return baseTextEditor->tabSettings();

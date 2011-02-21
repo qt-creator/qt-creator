@@ -42,7 +42,7 @@
 
 namespace TextEditor {
 class ITextEditor;
-class BaseTextEditor;
+class BaseTextEditorWidget;
 class TabSettings;
 class StorageSettings;
 class BehaviorSettings;
@@ -109,11 +109,11 @@ private slots:
     void setTextCodec(QTextCodec *textCodec);
 
 private:
-    void switchSettings(TextEditor::BaseTextEditor *baseTextEditor) const;
+    void switchSettings(TextEditor::BaseTextEditorWidget *baseTextEditor) const;
     template <class NewSenderT, class OldSenderT>
     void switchSettings_helper(const NewSenderT *newSender,
                                const OldSenderT *oldSender,
-                               TextEditor::BaseTextEditor *baseTextEditor) const;
+                               TextEditor::BaseTextEditorWidget *baseTextEditor) const;
 
     void emitTabSettingsChanged();
     void emitStorageSettingsChanged();
@@ -127,7 +127,7 @@ private:
 // the file belongs to and return the project settings. If the file doesn't belong to any
 // project return the global settings.
 PROJECTEXPLORER_EXPORT const TextEditor::TabSettings &actualTabSettings(
-    const QString &fileName, const TextEditor::BaseTextEditor *baseTextEditor);
+    const QString &fileName, const TextEditor::BaseTextEditorWidget *baseTextEditor);
 
 } // ProjectExplorer
 

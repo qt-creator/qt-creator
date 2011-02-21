@@ -62,7 +62,7 @@ namespace Internal {
 // ------------ PerforceEditor
 PerforceEditor::PerforceEditor(const VCSBase::VCSBaseEditorParameters *type,
                                QWidget *parent)  :
-    VCSBase::VCSBaseEditor(type, parent),
+    VCSBase::VCSBaseEditorWidget(type, parent),
     m_changeNumberPattern(QLatin1String("^\\d+$")),
     m_plugin(PerforcePlugin::perforcePluginInstance())
 {

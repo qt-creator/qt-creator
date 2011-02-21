@@ -42,7 +42,7 @@
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
-TextEditorOverlay::TextEditorOverlay(BaseTextEditor *editor) :
+TextEditorOverlay::TextEditorOverlay(BaseTextEditorWidget *editor) :
     QObject(editor),
     m_visible(false),
     m_borderWidth(1),

@@ -53,7 +53,7 @@ class ITextEditor;
 }
 
 namespace QmlJSEditor {
-class QmlJSTextEditor;
+class QmlJSTextEditorWidget;
 
 namespace Internal {
 
@@ -72,7 +72,7 @@ private:
     virtual void identifyMatch(TextEditor::ITextEditor *editor, int pos);
     virtual void operateTooltip(TextEditor::ITextEditor *editor, const QPoint &point);
 
-    bool matchDiagnosticMessage(QmlJSEditor::QmlJSTextEditor *qmlEditor, int pos);
+    bool matchDiagnosticMessage(QmlJSEditor::QmlJSTextEditorWidget *qmlEditor, int pos);
     bool matchColorItem(const QmlJS::LookupContext::Ptr &lookupContext,
                         const QmlJS::Document::Ptr &qmlDocument,
                         const QList<QmlJS::AST::Node *> &astPath,

@@ -43,7 +43,7 @@
 QT_FORWARD_DECLARE_CLASS(QTextDocument)
 
 namespace TextEditor {
-class BaseTextEditor;
+class BaseTextEditorWidget;
 class RefactoringChanges;
 
 class TEXTEDITOR_EXPORT RefactoringFile
@@ -83,7 +83,7 @@ protected:
     QString m_fileName;
     RefactoringChanges *m_refactoringChanges;
     mutable QTextDocument *m_document;
-    BaseTextEditor *m_editor;
+    BaseTextEditorWidget *m_editor;
     Utils::ChangeSet m_changes;
     QList<Range> m_indentRanges;
     bool m_openEditor;
@@ -107,7 +107,7 @@ public:
 
     RefactoringFile file(const QString &fileName);
 
-    BaseTextEditor *openEditor(const QString &fileName, int pos = -1);
+    BaseTextEditorWidget *openEditor(const QString &fileName, int pos = -1);
 
     /*!
        \param fileName the file to activate the editor for
@@ -118,13 +118,13 @@ public:
 
 
 private:
-    static BaseTextEditor *editorForFile(const QString &fileName,
+    static BaseTextEditorWidget *editorForFile(const QString &fileName,
                                          bool openIfClosed = false);
 
     static QList<QTextCursor> rangesToSelections(QTextDocument *document, const QList<Range> &ranges);
     virtual void indentSelection(const QTextCursor &selection,
                                  const QString &fileName,
-                                 const BaseTextEditor *textEditor) const = 0;
+                                 const BaseTextEditorWidget *textEditor) const = 0;
     virtual void fileChanged(const QString &fileName) = 0;
 
     friend class RefactoringFile;

@@ -315,11 +315,11 @@ void MercurialClient::annotate(const QString &workingDir, const QString &file,
         args << QLatin1String("-r") << revision;
     args << file;
     const QString kind = QLatin1String(Constants::ANNOTATELOG);
-    const QString id   = VCSBase::VCSBaseEditor::getSource(workingDir, QStringList(file));
+    const QString id   = VCSBase::VCSBaseEditorWidget::getSource(workingDir, QStringList(file));
     const QString title = tr("Hg Annotate %1").arg(id);
-    const QString source = VCSBase::VCSBaseEditor::getSource(workingDir, file);
+    const QString source = VCSBase::VCSBaseEditorWidget::getSource(workingDir, file);
 
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, source, true,
+    VCSBase::VCSBaseEditorWidget *editor = createVCSEditor(kind, title, source, true,
                                                      "annotate", id);
 
     QSharedPointer<HgTask> job(new HgTask(workingDir, args, editor));
@@ -335,10 +335,10 @@ void MercurialClient::diff(const QString &workingDir, const QStringList &files)
         args.append(files);
 
     const QString kind = QLatin1String(Constants::DIFFLOG);
-    const QString id = VCSBase::VCSBaseEditor::getTitleId(workingDir,files);
+    const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDir,files);
     const QString title = tr("Hg diff %1").arg(id);
-    const QString source = VCSBase::VCSBaseEditor::getSource(workingDir, files);
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, source, true,
+    const QString source = VCSBase::VCSBaseEditorWidget::getSource(workingDir, files);
+    VCSBase::VCSBaseEditorWidget *editor = createVCSEditor(kind, title, source, true,
                                                      "diff", id);
     editor->setDiffBaseDirectory(workingDir);
 
@@ -355,11 +355,11 @@ void MercurialClient::log(const QString &workingDir, const QStringList &files,
         args.append(files);
 
     const QString kind = QLatin1String(Constants::FILELOG);
-    const QString id = VCSBase::VCSBaseEditor::getTitleId(workingDir,files);
+    const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDir,files);
     const QString title = tr("Hg log %1").arg(id);
-    const QString source = VCSBase::VCSBaseEditor::getSource(workingDir, files);
+    const QString source = VCSBase::VCSBaseEditorWidget::getSource(workingDir, files);
 
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, workingDir, true,
+    VCSBase::VCSBaseEditorWidget *editor = createVCSEditor(kind, title, workingDir, true,
                                                      "log", id);
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
 
@@ -575,7 +575,7 @@ void MercurialClient::incoming(const QString &repositoryRoot, const QString &rep
     const QString kind = QLatin1String(Constants::DIFFLOG);
     const QString title = tr("Hg incoming %1").arg(id);
 
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, repositoryRoot,
+    VCSBase::VCSBaseEditorWidget *editor = createVCSEditor(kind, title, repositoryRoot,
                                                      true, "incoming", id);
 
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, editor));
@@ -594,7 +594,7 @@ void MercurialClient::outgoing(const QString &repositoryRoot)
     const QString title = tr("Hg outgoing %1").
                           arg(QDir::toNativeSeparators(repositoryRoot));
 
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, repositoryRoot, true,
+    VCSBase::VCSBaseEditorWidget *editor = createVCSEditor(kind, title, repositoryRoot, true,
                                                      "outgoing", repositoryRoot);
 
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, editor));
@@ -612,7 +612,7 @@ void MercurialClient::view(const QString &source, const QString &id)
     const QString kind = QLatin1String(Constants::DIFFLOG);
     const QString title = tr("Hg log %1").arg(id);
 
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, source,
+    VCSBase::VCSBaseEditorWidget *editor = createVCSEditor(kind, title, source,
                                                      true, "view", id);
 
     QSharedPointer<HgTask> job(new HgTask(source, args, editor));
@@ -665,29 +665,29 @@ void MercurialClient::settingsChanged()
         jobManager->restart();
 }
 
-VCSBase::VCSBaseEditor *MercurialClient::createVCSEditor(const QString &kind, QString title,
+VCSBase::VCSBaseEditorWidget *MercurialClient::createVCSEditor(const QString &kind, QString title,
                                                          const QString &source, bool setSourceCodec,
                                                          const char *registerDynamicProperty,
                                                          const QString &dynamicPropertyValue) const
 {
-    VCSBase::VCSBaseEditor *baseEditor = 0;
+    VCSBase::VCSBaseEditorWidget *baseEditor = 0;
     Core::IEditor* outputEditor = locateEditor(core, registerDynamicProperty, dynamicPropertyValue);
     const QString progressMsg = tr("Working...");
     if (outputEditor) {
         // Exists already
         outputEditor->createNew(progressMsg);
-        baseEditor = VCSBase::VCSBaseEditor::getVcsBaseEditor(outputEditor);
+        baseEditor = VCSBase::VCSBaseEditorWidget::getVcsBaseEditor(outputEditor);
         QTC_ASSERT(baseEditor, return 0);
     } else {
         outputEditor = core->editorManager()->openEditorWithContents(kind, &title, progressMsg);
         outputEditor->file()->setProperty(registerDynamicProperty, dynamicPropertyValue);
-        baseEditor = VCSBase::VCSBaseEditor::getVcsBaseEditor(outputEditor);
+        baseEditor = VCSBase::VCSBaseEditorWidget::getVcsBaseEditor(outputEditor);
         connect(baseEditor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
                 this, SLOT(slotAnnotateRevisionRequested(QString,QString,int)));
         QTC_ASSERT(baseEditor, return 0);
         baseEditor->setSource(source);
         if (setSourceCodec)
-            baseEditor->setCodec(VCSBase::VCSBaseEditor::getCodec(source));
+            baseEditor->setCodec(VCSBase::VCSBaseEditorWidget::getCodec(source));
     }
 
     core->editorManager()->activateEditor(outputEditor, Core::EditorManager::ModeSwitch);

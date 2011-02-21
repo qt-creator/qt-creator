@@ -34,7 +34,7 @@
 #ifndef BASETEXTEDITOR_H
 #define BASETEXTEDITOR_H
 
-#include "itexteditable.h"
+#include "itexteditor.h"
 #include "icompletioncollector.h"
 
 #include <find/ifindsupport.h>
@@ -67,7 +67,7 @@ namespace Internal {
 class ITextMarkable;
 
 class BaseTextDocument;
-class BaseTextEditorEditable;
+class BaseTextEditor;
 class FontSettings;
 class BehaviorSettings;
 class CompletionSettings;
@@ -118,14 +118,14 @@ private:
 };
 
 
-class TEXTEDITOR_EXPORT BaseTextEditor : public QPlainTextEdit
+class TEXTEDITOR_EXPORT BaseTextEditorWidget : public QPlainTextEdit
 {
     Q_OBJECT
     Q_PROPERTY(int verticalBlockSelectionFirstColumn READ verticalBlockSelectionFirstColumn)
     Q_PROPERTY(int verticalBlockSelectionLastColumn READ verticalBlockSelectionLastColumn)
 public:
-    BaseTextEditor(QWidget *parent);
-    ~BaseTextEditor();
+    BaseTextEditorWidget(QWidget *parent);
+    ~BaseTextEditorWidget();
 
     static ITextEditor *openEditorAt(const QString &fileName, int line, int column = 0,
                                      const QString &editorId =  QString(),
@@ -152,7 +152,7 @@ public:
         , int at = -1) const;
     void convertPosition(int pos, int *line, int *column) const;
 
-    BaseTextEditorEditable *editableInterface() const;
+    BaseTextEditor *editor() const;
     ITextMarkable *markableInterface() const;
 
     virtual void triggerCompletions();
@@ -324,7 +324,7 @@ private:
     void maybeSelectLine();
 
 public:
-    void duplicateFrom(BaseTextEditor *editor);
+    void duplicateFrom(BaseTextEditorWidget *editor);
 
 protected:
     BaseTextDocument *baseTextDocument() const;
@@ -332,7 +332,7 @@ protected:
 
     void setDefaultPath(const QString &defaultPath);
 
-    virtual BaseTextEditorEditable *createEditableInterface() = 0;
+    virtual BaseTextEditor *createEditor() = 0;
 
 private slots:
     void editorContentsChange(int position, int charsRemoved, int charsAdded);
@@ -539,19 +539,18 @@ private slots:
     void slotSelectionChanged();
     void _q_animateUpdate(int position, QPointF lastPos, QRectF rect);
     void doFoo();
-
 };
 
 
-class TEXTEDITOR_EXPORT BaseTextEditorEditable : public ITextEditable
+class TEXTEDITOR_EXPORT BaseTextEditor : public ITextEditor
 {
     Q_OBJECT
-    friend class BaseTextEditor;
+    friend class BaseTextEditorWidget;
 public:
-    BaseTextEditorEditable(BaseTextEditor *editor);
-    ~BaseTextEditorEditable();
+    BaseTextEditor(BaseTextEditorWidget *editorWidget);
+    ~BaseTextEditor();
 
-    inline BaseTextEditor *editor() const { return e; }
+    inline BaseTextEditorWidget *editorWidget() const { return e; }
 
     // EditorInterface
     inline QWidget *widget() { return e; }
@@ -600,18 +599,18 @@ public:
     inline QTextCodec *textCodec() const { return e->textCodec(); }
 
 
-    // ITextEditable
+    // ITextEditor
     void remove(int length);
     void insert(const QString &string);
     void replace(int length, const QString &string);
-    void setCurPos(int pos);
+    void setCursorPosition(int pos);
     void select(int toPos);
 
 private slots:
     void updateCursorPosition();
 
 private:
-    BaseTextEditor *e;
+    BaseTextEditorWidget *e;
     mutable QString m_contextHelpId;
     QToolBar *m_toolBar;
     Utils::LineColumnLabel *m_cursorPositionLabel;
@@ -619,6 +618,6 @@ private:
 
 } // namespace TextEditor
 
-Q_DECLARE_METATYPE(TextEditor::BaseTextEditor::Link)
+Q_DECLARE_METATYPE(TextEditor::BaseTextEditorWidget::Link)
 
 #endif // BASETEXTEDITOR_H

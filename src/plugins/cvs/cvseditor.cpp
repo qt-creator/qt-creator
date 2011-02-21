@@ -53,7 +53,7 @@ namespace Internal {
 
 CVSEditor::CVSEditor(const VCSBase::VCSBaseEditorParameters *type,
                                    QWidget *parent) :
-    VCSBase::VCSBaseEditor(type, parent),
+    VCSBase::VCSBaseEditorWidget(type, parent),
     m_revisionAnnotationPattern(QLatin1String(CVS_REVISION_AT_START_PATTERN".*$")),
     m_revisionLogPattern(QLatin1String("^revision  *("CVS_REVISION_PATTERN")$"))
 {

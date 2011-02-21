@@ -62,7 +62,7 @@ BaseHoverHandler::~BaseHoverHandler()
 void BaseHoverHandler::editorOpened(Core::IEditor *editor)
 {
     if (acceptEditor(editor)) {
-        BaseTextEditorEditable *textEditor = qobject_cast<BaseTextEditorEditable *>(editor);
+        BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(editor);
         if (textEditor) {
             connect(textEditor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*, QPoint, int)),
                     this, SLOT(showToolTip(TextEditor::ITextEditor*, QPoint, int)));
@@ -75,7 +75,7 @@ void BaseHoverHandler::editorOpened(Core::IEditor *editor)
 
 void BaseHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint &point, int pos)
 {
-    BaseTextEditor *baseEditor = baseTextEditor(editor);
+    BaseTextEditorWidget *baseEditor = baseTextEditor(editor);
     if (!baseEditor)
         return;
 
@@ -87,7 +87,7 @@ void BaseHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint
 
 void BaseHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int pos)
 {
-    BaseTextEditor *baseEditor = baseTextEditor(editor);
+    BaseTextEditorWidget *baseEditor = baseTextEditor(editor);
     if (!baseEditor)
         return;
 
@@ -171,9 +171,9 @@ void BaseHoverHandler::operateTooltip(ITextEditor *editor, const QPoint &point)
         ToolTip::instance()->show(point, TextContent(m_toolTip), editor->widget());
 }
 
-BaseTextEditor *BaseHoverHandler::baseTextEditor(ITextEditor *editor)
+BaseTextEditorWidget *BaseHoverHandler::baseTextEditor(ITextEditor *editor)
 {
     if (!editor)
         return 0;
-    return qobject_cast<BaseTextEditor *>(editor->widget());
+    return qobject_cast<BaseTextEditorWidget *>(editor->widget());
 }

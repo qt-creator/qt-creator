@@ -88,9 +88,9 @@ Core::IFile *ProFileEditorFactory::open(const QString &fileName)
 
 Core::IEditor *ProFileEditorFactory::createEditor(QWidget *parent)
 {
-    ProFileEditor *editor = new ProFileEditor(parent, this, m_actionHandler);
+    ProFileEditorWidget *editor = new ProFileEditorWidget(parent, this, m_actionHandler);
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
-    return editor->editableInterface();
+    return editor->editor();
 }
 
 QStringList ProFileEditorFactory::mimeTypes() const

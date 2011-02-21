@@ -55,7 +55,7 @@ class ICore;
 }
 
 namespace GLSLEditor {
-class GLSLTextEditor;
+class GLSLTextEditorWidget;
 
 class GLSLEDITOR_EXPORT Document
 {
@@ -83,16 +83,16 @@ private:
     GLSL::Scope *_globalScope;
     QList<Range> _cursors;
 
-    friend class GLSLTextEditor;
+    friend class GLSLTextEditorWidget;
 };
 
-class GLSLEDITOR_EXPORT GLSLTextEditor : public TextEditor::BaseTextEditor
+class GLSLEDITOR_EXPORT GLSLTextEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
 
 public:
-    GLSLTextEditor(QWidget *parent = 0);
-    ~GLSLTextEditor();
+    GLSLTextEditorWidget(QWidget *parent = 0);
+    ~GLSLTextEditorWidget();
 
     virtual void unCommentSelection();
 
@@ -114,7 +114,7 @@ private slots:
 
 protected:
     bool event(QEvent *e);
-    TextEditor::BaseTextEditorEditable *createEditableInterface();
+    TextEditor::BaseTextEditor *createEditor();
     void createToolBar(Internal::GLSLEditorEditable *editable);
 
 private:

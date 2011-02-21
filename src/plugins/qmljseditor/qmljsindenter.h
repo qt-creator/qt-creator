@@ -49,7 +49,7 @@ public:
     virtual void indentBlock(QTextDocument *doc,
                              const QTextBlock &block,
                              const QChar &typedChar,
-                             TextEditor::BaseTextEditor *editor);
+                             TextEditor::BaseTextEditorWidget *editor);
 };
 
 } // Internal

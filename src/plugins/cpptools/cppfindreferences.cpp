@@ -309,7 +309,7 @@ void CppFindReferences::searchFinished()
 void CppFindReferences::openEditor(const Find::SearchResultItem &item)
 {
     if (item.path.size() > 0) {
-        TextEditor::BaseTextEditor::openEditorAt(item.path.first(), item.lineNumber, item.textMarkPos,
+        TextEditor::BaseTextEditorWidget::openEditorAt(item.path.first(), item.lineNumber, item.textMarkPos,
                                                  QString(),
                                                  Core::EditorManager::ModeSwitch);
     } else {

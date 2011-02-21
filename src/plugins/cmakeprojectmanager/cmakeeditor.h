@@ -45,18 +45,16 @@ class FontSettings;
 }
 
 namespace CMakeProjectManager {
-
 namespace Internal {
 
-class CMakeManager;
+class CMakeEditorWidget;
 class CMakeHighlighter;
+class CMakeManager;
 
-class CMakeEditor;
-
-class CMakeEditorEditable : public TextEditor::BaseTextEditorEditable
+class CMakeEditor : public TextEditor::BaseTextEditor
 {
 public:
-    CMakeEditorEditable(CMakeEditor *);
+    CMakeEditor(CMakeEditorWidget *);
     Core::Context context() const;
 
     bool duplicateSupported() const { return true; }
@@ -67,20 +65,21 @@ private:
     const Core::Context m_context;
 };
 
-class CMakeEditor : public TextEditor::BaseTextEditor
+class CMakeEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
 
 public:
-    CMakeEditor(QWidget *parent, CMakeEditorFactory *factory, TextEditor::TextEditorActionHandler *ah);
-    ~CMakeEditor();
+    CMakeEditorWidget(QWidget *parent, CMakeEditorFactory *factory, TextEditor::TextEditorActionHandler *ah);
+    ~CMakeEditorWidget();
 
     bool save(const QString &fileName = QString());
 
     CMakeEditorFactory *factory() { return m_factory; }
     TextEditor::TextEditorActionHandler *actionHandler() const { return m_ah; }
+
 protected:
-    TextEditor::BaseTextEditorEditable *createEditableInterface();
+    TextEditor::BaseTextEditor *createEditor();
 
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);

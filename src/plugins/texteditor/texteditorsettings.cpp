@@ -224,7 +224,7 @@ TextEditorSettings *TextEditorSettings::instance()
  * Initializes editor settings. Also connects signals to keep them up to date
  * when they are changed.
  */
-void TextEditorSettings::initializeEditor(BaseTextEditor *editor)
+void TextEditorSettings::initializeEditor(BaseTextEditorWidget *editor)
 {
     // Connect to settings change signals
     connect(this, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),

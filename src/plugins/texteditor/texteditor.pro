@@ -104,7 +104,6 @@ HEADERS += texteditorplugin.h \
     displaysettings.h \
     displaysettingspage.h \
     fontsettings.h \
-    itexteditable.h \
     itexteditor.h \
     linenumberfilter.h \
     texteditor_global.h \

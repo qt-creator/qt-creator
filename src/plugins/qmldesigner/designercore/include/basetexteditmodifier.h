@@ -51,7 +51,7 @@ namespace QmlDesigner {
 class CORESHARED_EXPORT BaseTextEditModifier: public PlainTextEditModifier
 {
 public:
-    BaseTextEditModifier(TextEditor::BaseTextEditor *textEdit);
+    BaseTextEditModifier(TextEditor::BaseTextEditorWidget *textEdit);
 
     virtual void indent(int offset, int length);
 

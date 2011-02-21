@@ -51,7 +51,7 @@ using namespace Mercurial::Internal;
 using namespace Mercurial;
 
 MercurialEditor::MercurialEditor(const VCSBase::VCSBaseEditorParameters *type, QWidget *parent)
-        : VCSBase::VCSBaseEditor(type, parent),
+        : VCSBase::VCSBaseEditorWidget(type, parent),
         exactIdentifier12(QLatin1String(Constants::CHANGEIDEXACT12)),
         exactIdentifier40(QLatin1String(Constants::CHANGEIDEXACT40)),
         changesetIdentifier12(QLatin1String(Constants::CHANGESETID12)),

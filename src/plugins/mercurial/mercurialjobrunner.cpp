@@ -65,7 +65,7 @@ HgTask::HgTask(const QString &repositoryRoot,
 
 HgTask::HgTask(const QString &repositoryRoot,
                const QStringList &arguments,
-               VCSBase::VCSBaseEditor *editor,
+               VCSBase::VCSBaseEditorWidget *editor,
                const QVariant &cookie) :
     m_repositoryRoot(repositoryRoot),
     arguments(arguments),
@@ -76,7 +76,7 @@ HgTask::HgTask(const QString &repositoryRoot,
 {
 }
 
-VCSBase::VCSBaseEditor* HgTask::displayEditor() const
+VCSBase::VCSBaseEditorWidget* HgTask::displayEditor() const
 {
     return editor;
 }

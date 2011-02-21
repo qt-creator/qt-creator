@@ -67,7 +67,7 @@ class QmlJSQuickFixState: public TextEditor::QuickFixState
 
 public:
     /// Creates a new state for the given editor.
-    QmlJSQuickFixState(TextEditor::BaseTextEditor *editor);
+    QmlJSQuickFixState(TextEditor::BaseTextEditorWidget *editor);
 
     SemanticInfo semanticInfo() const;
 
@@ -152,9 +152,9 @@ public:
     QmlJSQuickFixCollector();
     virtual ~QmlJSQuickFixCollector();
 
-    virtual bool supportsEditor(TextEditor::ITextEditable *editor) const;
+    virtual bool supportsEditor(TextEditor::ITextEditor *editor) const;
     virtual bool supportsPolicy(TextEditor::CompletionPolicy policy) const;
-    virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::BaseTextEditor *editor);
+    virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::BaseTextEditorWidget *editor);
 
     virtual QList<TextEditor::QuickFixFactory *> quickFixFactories() const;
 

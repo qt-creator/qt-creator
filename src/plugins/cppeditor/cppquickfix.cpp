@@ -59,7 +59,7 @@ using namespace TextEditor;
 using namespace CPlusPlus;
 using namespace Utils;
 
-CppQuickFixState::CppQuickFixState(TextEditor::BaseTextEditor *editor)
+CppQuickFixState::CppQuickFixState(TextEditor::BaseTextEditorWidget *editor)
     : QuickFixState(editor)
 {}
 

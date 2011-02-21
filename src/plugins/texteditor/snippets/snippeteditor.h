@@ -43,18 +43,19 @@ QT_FORWARD_DECLARE_CLASS(QFocusEvent)
 
 namespace TextEditor {
 
-class SnippetEditor;
+class SnippetEditorWidget;
 class SyntaxHighlighter;
 class Indenter;
 
 // Should not be necessary in this case, but the base text editor assumes a
 // valid editable interface.
-class TEXTEDITOR_EXPORT SnippetEditorEditable : public BaseTextEditorEditable
+class TEXTEDITOR_EXPORT SnippetEditor : public BaseTextEditor
 {
     Q_OBJECT
+
 public:
-    SnippetEditorEditable(SnippetEditor *editor);
-    virtual ~SnippetEditorEditable();
+    SnippetEditor(SnippetEditorWidget *editorWidget);
+    virtual ~SnippetEditor();
 
     Core::Context context() const { return m_context; }
 
@@ -67,12 +68,13 @@ private:
     const Core::Context m_context;
 };
 
-class TEXTEDITOR_EXPORT SnippetEditor : public BaseTextEditor
+class TEXTEDITOR_EXPORT SnippetEditorWidget : public BaseTextEditorWidget
 {
     Q_OBJECT
+
 public:
-    SnippetEditor(QWidget *parent);
-    virtual ~SnippetEditor();
+    SnippetEditorWidget(QWidget *parent);
+    virtual ~SnippetEditorWidget();
 
     void setSyntaxHighlighter(SyntaxHighlighter *highlighter);
 
@@ -83,7 +85,7 @@ protected:
     virtual void focusOutEvent(QFocusEvent *event);
 
     virtual int extraAreaWidth(int * /* markWidthPtr */ = 0) const { return 0; }
-    virtual BaseTextEditorEditable *createEditableInterface();
+    virtual BaseTextEditor *createEditor();
 };
 
 } // TextEditor

@@ -62,8 +62,6 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/completionsettings.h>
-#include <texteditor/itexteditor.h>
-#include <texteditor/itexteditable.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/snippets/snippet.h>
 #include <projectexplorer/projectexplorer.h>
@@ -482,7 +480,7 @@ QIcon CppCodeCompletion::iconForSymbol(Symbol *symbol) const
 /*
   Searches backwards for an access operator.
 */
-static int startOfOperator(TextEditor::ITextEditable *editor,
+static int startOfOperator(TextEditor::ITextEditor *editor,
                            int pos, unsigned *kind,
                            bool wantFunctionCall)
 {
@@ -559,7 +557,7 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     if (start == pos)
         return start;
 
-    TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
+    TextEditor::BaseTextEditorWidget *edit = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
     QTextCursor tc(edit->textCursor());
     tc.setPosition(pos);
 
@@ -658,12 +656,12 @@ bool CppCodeCompletion::supportsPolicy(TextEditor::CompletionPolicy policy) cons
     return policy == TextEditor::SemanticCompletion;
 }
 
-bool CppCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor) const
+bool CppCodeCompletion::supportsEditor(TextEditor::ITextEditor *editor) const
 {
     return m_manager->isCppEditor(editor);
 }
 
-TextEditor::ITextEditable *CppCodeCompletion::editor() const
+TextEditor::ITextEditor *CppCodeCompletion::editor() const
 { return m_editor; }
 
 int CppCodeCompletion::startPosition() const
@@ -672,7 +670,7 @@ int CppCodeCompletion::startPosition() const
 bool CppCodeCompletion::shouldRestartCompletion()
 { return m_shouldRestartCompletion; }
 
-bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
+bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditor *editor)
 {
     m_editor = editor;
     m_automaticCompletion = false;
@@ -698,7 +696,7 @@ bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
                 const QChar firstCharacter = editor->characterAt(startOfName);
                 if (firstCharacter.isLetter() || firstCharacter == QLatin1Char('_')) {
                     // Finally check that we're not inside a comment or string (code copied from startOfOperator)
-                    TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
+                    TextEditor::BaseTextEditorWidget *edit = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
                     QTextCursor tc(edit->textCursor());
                     tc.setPosition(pos);
 
@@ -722,7 +720,7 @@ bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
     return false;
 }
 
-int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
+int CppCodeCompletion::startCompletion(TextEditor::ITextEditor *editor)
 {
     int index = startCompletionHelper(editor);
     if (index != -1) {
@@ -815,7 +813,7 @@ void CppCodeCompletion::completeObjCMsgSend(ClassOrNamespace *binding,
     }
 }
 
-bool CppCodeCompletion::tryObjCCompletion(TextEditor::BaseTextEditor *edit)
+bool CppCodeCompletion::tryObjCCompletion(TextEditor::BaseTextEditorWidget *edit)
 {
     Q_ASSERT(edit);
 
@@ -877,9 +875,9 @@ bool CppCodeCompletion::tryObjCCompletion(TextEditor::BaseTextEditor *edit)
     return true;
 }
 
-int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
+int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditor *editor)
 {
-    TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
+    TextEditor::BaseTextEditorWidget *edit = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
     if (! edit)
         return -1;
 
@@ -988,7 +986,7 @@ int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
     return startCompletionInternal(edit, fileName, line, column, expression, endOfExpression);
 }
 
-int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
+int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditorWidget *edit,
                                                const QString fileName,
                                                unsigned line, unsigned column,
                                                const QString &expr,
@@ -1304,7 +1302,7 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
         // so get the current location's enclosing scope.
 
         // get current line and column
-        TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(m_editor->widget());
+        TextEditor::BaseTextEditorWidget *edit = qobject_cast<TextEditor::BaseTextEditorWidget *>(m_editor->widget());
         int lineSigned = 0, columnSigned = 0;
         edit->convertPosition(m_editor->position(), &lineSigned, &columnSigned);
         unsigned line = lineSigned, column = columnSigned;
@@ -1411,7 +1409,7 @@ bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults)
         if (replacedDotOperator && binding) {
             // Replace . with ->
             int length = m_editor->position() - m_startPosition + 1;
-            m_editor->setCurPos(m_startPosition - 1);
+            m_editor->setCursorPosition(m_startPosition - 1);
             m_editor->replace(length, QLatin1String("->"));
             ++m_startPosition;
         }
@@ -1919,7 +1917,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item, QChar t
 
     if (item.data.isValid()) {
         if (item.data.canConvert<QString>()) {
-            TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(m_editor->widget());
+            TextEditor::BaseTextEditorWidget *edit = qobject_cast<TextEditor::BaseTextEditorWidget *>(m_editor->widget());
             QTextCursor tc = edit->textCursor();
             tc.setPosition(m_startPosition, QTextCursor::KeepAnchor);
             edit->insertCodeSnippet(tc, item.data.toString());
@@ -2062,10 +2060,10 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item, QChar t
 
     // Insert the remainder of the name
     int length = m_editor->position() - m_startPosition + extraLength;
-    m_editor->setCurPos(m_startPosition);
+    m_editor->setCursorPosition(m_startPosition);
     m_editor->replace(length, toInsert);
     if (cursorOffset)
-        m_editor->setCurPos(m_editor->position() + cursorOffset);
+        m_editor->setCursorPosition(m_editor->position() + cursorOffset);
 }
 
 bool CppCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems)

@@ -43,13 +43,13 @@
 
 namespace TextEditor {
 class TextEditorActionHandler;
-class ITextEditable;
+class ITextEditor;
 } // namespace TextEditor
 
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditor;
+class CPPEditorWidget;
 class CppQuickFixCollector;
 
 class CppPlugin : public ExtensionSystem::IPlugin
@@ -67,7 +67,7 @@ public:
     ShutdownFlag aboutToShutdown();
 
     // Connect editor to settings changed signals.
-    void initializeEditor(CPPEditor *editor);
+    void initializeEditor(CPPEditorWidget *editor);
 
     bool sortedOutline() const;
 
@@ -87,7 +87,7 @@ private slots:
     void onTaskStarted(const QString &type);
     void onAllTasksFinished(const QString &type);
     void findUsages();
-    void quickFix(TextEditor::ITextEditable *editable);
+    void quickFix(TextEditor::ITextEditor *editable);
     void quickFixNow();
     void currentEditorChanged(Core::IEditor *editor);
     void openTypeHierarchy();
@@ -109,7 +109,7 @@ private:
     CppQuickFixCollector *m_quickFixCollector;
 
     QTimer *m_quickFixTimer;
-    QPointer<TextEditor::ITextEditable> m_currentTextEditable;
+    QPointer<TextEditor::ITextEditor> m_currentEditor;
 };
 
 class CppEditorFactory : public Core::IEditorFactory

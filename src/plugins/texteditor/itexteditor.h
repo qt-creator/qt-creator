@@ -114,6 +114,17 @@ public:
     virtual QString textAt(int pos, int length) const = 0;
     virtual QChar characterAt(int pos) const = 0;
 
+    /*! Removes \a length characters to the right of the cursor. */
+    virtual void remove(int length) = 0;
+    /*! Inserts the given string to the right of the cursor. */
+    virtual void insert(const QString &string) = 0;
+    /*! Replaces \a length characters to the right of the cursor with the given string. */
+    virtual void replace(int length, const QString &string) = 0;
+    /*! Sets current cursor position to \a pos. */
+    virtual void setCursorPosition(int pos) = 0;
+    /*! Selects text between current cursor position and \a toPos. */
+    virtual void select(int toPos) = 0;
+
     virtual void triggerCompletions() = 0;
     virtual void triggerQuickFix() = 0;
 

@@ -65,7 +65,7 @@ bool GLSLIndenter::isElectricCharacter(const QChar &ch) const
 void GLSLIndenter::indentBlock(QTextDocument *doc,
                                const QTextBlock &block,
                                const QChar &typedChar,
-                               TextEditor::BaseTextEditor *editor)
+                               TextEditor::BaseTextEditorWidget *editor)
 {
     Q_UNUSED(doc)
 
@@ -93,7 +93,7 @@ void GLSLIndenter::indentBlock(QTextDocument *doc,
 void GLSLIndenter::indent(QTextDocument *doc,
                           const QTextCursor &cursor,
                           const QChar &typedChar,
-                          TextEditor::BaseTextEditor *editor)
+                          TextEditor::BaseTextEditorWidget *editor)
 {
     if (cursor.hasSelection()) {
         QTextBlock block = doc->findBlock(cursor.selectionStart());

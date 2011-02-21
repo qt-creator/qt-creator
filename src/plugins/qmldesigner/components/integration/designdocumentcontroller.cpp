@@ -269,7 +269,7 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
     connect(edit, SIGNAL(modificationChanged(bool)),
             this, SIGNAL(dirtyStateChanged(bool)));
 
-    m_d->textModifier = new BaseTextEditModifier(dynamic_cast<TextEditor::BaseTextEditor*>(m_d->textEdit.data()));
+    m_d->textModifier = new BaseTextEditModifier(dynamic_cast<TextEditor::BaseTextEditorWidget*>(m_d->textEdit.data()));
 
     m_d->componentTextModifier = 0;
 

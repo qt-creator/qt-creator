@@ -109,7 +109,7 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
     if (!m_modelManager)
         return;
 
-    QmlJSEditor::QmlJSTextEditor *qmlEditor = qobject_cast<QmlJSEditor::QmlJSTextEditor *>(editor->widget());
+    QmlJSEditor::QmlJSTextEditorWidget *qmlEditor = qobject_cast<QmlJSEditor::QmlJSTextEditorWidget *>(editor->widget());
     if (!qmlEditor)
         return;
 
@@ -138,10 +138,10 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
         setLastHelpItemIdentified(helpItem);
 }
 
-bool HoverHandler::matchDiagnosticMessage(QmlJSEditor::QmlJSTextEditor *qmlEditor, int pos)
+bool HoverHandler::matchDiagnosticMessage(QmlJSEditor::QmlJSTextEditorWidget *qmlEditor, int pos)
 {
     foreach (const QTextEdit::ExtraSelection &sel,
-             qmlEditor->extraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection)) {
+             qmlEditor->extraSelections(TextEditor::BaseTextEditorWidget::CodeWarningsSelection)) {
         if (pos >= sel.cursor.selectionStart() && pos <= sel.cursor.selectionEnd()) {
             setToolTip(sel.format.toolTip());
             return true;

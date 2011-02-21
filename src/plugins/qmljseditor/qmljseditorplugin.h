@@ -53,7 +53,7 @@ class IEditor;
 }
 
 namespace TextEditor {
-class ITextEditable;
+class ITextEditor;
 }
 
 namespace QmlJS {
@@ -63,7 +63,7 @@ namespace QmlJS {
 namespace QmlJSEditor {
 
 class QmlFileWizard;
-class QmlJSTextEditor;
+class QmlJSTextEditorWidget;
 
 namespace Internal {
 
@@ -90,7 +90,7 @@ public:
 
     QmlJSQuickFixCollector *quickFixCollector() const;
 
-    void initializeEditor(QmlJSEditor::QmlJSTextEditor *editor);
+    void initializeEditor(QmlJSEditor::QmlJSTextEditorWidget *editor);
 
 public Q_SLOTS:
     void followSymbolUnderCursor();
@@ -98,7 +98,7 @@ public Q_SLOTS:
     void showContextPane();
 
 private Q_SLOTS:
-    void quickFix(TextEditor::ITextEditable *editable);
+    void quickFix(TextEditor::ITextEditor *editable);
     void quickFixNow();
     void currentEditorChanged(Core::IEditor *editor);
 
@@ -119,7 +119,7 @@ private:
     QmlJSQuickFixCollector *m_quickFixCollector;
 
     QTimer *m_quickFixTimer;
-    QPointer<TextEditor::ITextEditable> m_currentTextEditable;
+    QPointer<TextEditor::ITextEditor> m_currentTextEditable;
     QmlTaskManager *m_qmlTaskManager;
 };
 

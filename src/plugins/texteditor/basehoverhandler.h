@@ -51,7 +51,7 @@ class IEditor;
 namespace TextEditor {
 
 class ITextEditor;
-class BaseTextEditor;
+class BaseTextEditorWidget;
 
 class TEXTEDITOR_EXPORT BaseHoverHandler : public QObject
 {
@@ -80,7 +80,7 @@ protected:
     void setLastHelpItemIdentified(const HelpItem &help);
     const HelpItem &lastHelpItemIdentified() const;
 
-    static BaseTextEditor *baseTextEditor(ITextEditor *editor);
+    static BaseTextEditorWidget *baseTextEditor(ITextEditor *editor);
 
 private:
     void clear();

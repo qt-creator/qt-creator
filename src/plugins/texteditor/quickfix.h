@@ -41,7 +41,7 @@
 
 namespace TextEditor {
 
-class BaseTextEditor;
+class BaseTextEditorWidget;
 
 /*!
     State of the editor on which the QuickFixFactory and the QuickFixOperation work.
@@ -52,13 +52,13 @@ class TEXTEDITOR_EXPORT QuickFixState
 {
 public:
     /// Creates a new state object for the given text editor.
-    QuickFixState(TextEditor::BaseTextEditor *editor);
+    QuickFixState(TextEditor::BaseTextEditorWidget *editor);
     virtual ~QuickFixState();
 
-    TextEditor::BaseTextEditor *editor() const;
+    TextEditor::BaseTextEditorWidget *editor() const;
 
 private:
-    TextEditor::BaseTextEditor *_editor;
+    TextEditor::BaseTextEditorWidget *_editor;
 };
 
 /*!
@@ -153,12 +153,12 @@ public:
     virtual ~QuickFixCollector();
 
     QList<TextEditor::QuickFixOperation::Ptr> quickFixes() const
-    { return _quickFixes; }
+    { return m_quickFixes; }
 
-    virtual TextEditor::ITextEditable *editor() const;
+    virtual TextEditor::ITextEditor *editor() const;
     virtual int startPosition() const;
-    virtual bool triggersCompletion(TextEditor::ITextEditable *editor);
-    virtual int startCompletion(TextEditor::ITextEditable *editor);
+    virtual bool triggersCompletion(TextEditor::ITextEditor *editor);
+    virtual int startCompletion(TextEditor::ITextEditor *editor);
     virtual void completions(QList<TextEditor::CompletionItem> *completions);
 
     virtual bool supportsPolicy(TextEditor::CompletionPolicy policy) const
@@ -171,13 +171,13 @@ public:
     virtual void cleanup();
 
     /// Called from #startCompletion to create a QuickFixState .
-    virtual TextEditor::QuickFixState *initializeCompletion(BaseTextEditor *editable) = 0;
+    virtual TextEditor::QuickFixState *initializeCompletion(BaseTextEditorWidget *editable) = 0;
 
     virtual QList<QuickFixFactory *> quickFixFactories() const = 0;
 
 private:
-    TextEditor::ITextEditable *_editable;
-    QList<QuickFixOperation::Ptr> _quickFixes;
+    TextEditor::ITextEditor *m_editor;
+    QList<QuickFixOperation::Ptr> m_quickFixes;
 };
 
 } // namespace TextEditor

@@ -285,11 +285,11 @@ protected:
 
 struct CanonicalSymbol
 {
-    CPPEditor *editor;
+    CPPEditorWidget *editor;
     TypeOfExpression typeOfExpression;
     SemanticInfo info;
 
-    CanonicalSymbol(CPPEditor *editor, const SemanticInfo &info)
+    CanonicalSymbol(CPPEditorWidget *editor, const SemanticInfo &info)
         : editor(editor), info(info)
     {
         typeOfExpression.init(info.doc, info.snapshot);
@@ -310,7 +310,7 @@ struct CanonicalSymbol
         return getScopeAndExpression(editor, info, cursor, code);
     }
 
-    static Scope *getScopeAndExpression(CPPEditor *editor, const SemanticInfo &info,
+    static Scope *getScopeAndExpression(CPPEditorWidget *editor, const SemanticInfo &info,
                                         const QTextCursor &cursor,
                                         QString *code)
     {
@@ -396,16 +396,16 @@ int numberOfClosedEditors = 0;
 
 } // end of anonymous namespace
 
-CPPEditorEditable::CPPEditorEditable(CPPEditor *editor)
-    : BaseTextEditorEditable(editor)
+CPPEditor::CPPEditor(CPPEditorWidget *editor)
+    : BaseTextEditor(editor)
 {
     m_context.add(CppEditor::Constants::C_CPPEDITOR);
     m_context.add(ProjectExplorer::Constants::LANG_CXX);
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);
 }
 
-CPPEditor::CPPEditor(QWidget *parent)
-    : TextEditor::BaseTextEditor(parent)
+CPPEditorWidget::CPPEditorWidget(QWidget *parent)
+    : TextEditor::BaseTextEditorWidget(parent)
     , m_currentRenameSelection(NoCurrentRenameSelection)
     , m_inRename(false)
     , m_inRenameChanged(false)
@@ -443,7 +443,7 @@ CPPEditor::CPPEditor(QWidget *parent)
     connect(&m_referencesWatcher, SIGNAL(finished()), SLOT(markSymbolsNow()));
 }
 
-CPPEditor::~CPPEditor()
+CPPEditorWidget::~CPPEditorWidget()
 {
     if (Core::EditorManager *em = Core::EditorManager::instance())
         em->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
@@ -458,14 +458,14 @@ CPPEditor::~CPPEditor()
     }
 }
 
-TextEditor::BaseTextEditorEditable *CPPEditor::createEditableInterface()
+TextEditor::BaseTextEditor *CPPEditorWidget::createEditor()
 {
-    CPPEditorEditable *editable = new CPPEditorEditable(this);
+    CPPEditor *editable = new CPPEditor(this);
     createToolBar(editable);
     return editable;
 }
 
-void CPPEditor::createToolBar(CPPEditorEditable *editable)
+void CPPEditorWidget::createToolBar(CPPEditor *editable)
 {
     m_outlineCombo = new QComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
@@ -534,55 +534,55 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     static_cast<QHBoxLayout*>(w->layout())->insertWidget(0, m_outlineCombo, 1);
 }
 
-void CPPEditor::paste()
+void CPPEditorWidget::paste()
 {
     if (m_currentRenameSelection == NoCurrentRenameSelection) {
-        BaseTextEditor::paste();
+        BaseTextEditorWidget::paste();
         return;
     }
 
     startRename();
-    BaseTextEditor::paste();
+    BaseTextEditorWidget::paste();
     finishRename();
 }
 
-void CPPEditor::cut()
+void CPPEditorWidget::cut()
 {
     if (m_currentRenameSelection == NoCurrentRenameSelection) {
-        BaseTextEditor::cut();
+        BaseTextEditorWidget::cut();
         return;
     }
 
     startRename();
-    BaseTextEditor::cut();
+    BaseTextEditorWidget::cut();
     finishRename();
 }
 
-CppModelManagerInterface *CPPEditor::modelManager() const
+CppModelManagerInterface *CPPEditorWidget::modelManager() const
 {
     return m_modelManager;
 }
 
-void CPPEditor::setMimeType(const QString &mt)
+void CPPEditorWidget::setMimeType(const QString &mt)
 {
-    BaseTextEditor::setMimeType(mt);
+    BaseTextEditorWidget::setMimeType(mt);
     setObjCEnabled(mt == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);
 }
 
-void CPPEditor::setObjCEnabled(bool onoff)
+void CPPEditorWidget::setObjCEnabled(bool onoff)
 {
     m_objcEnabled = onoff;
 }
 
-bool CPPEditor::isObjCEnabled() const
+bool CPPEditorWidget::isObjCEnabled() const
 { return m_objcEnabled; }
 
-void CPPEditor::startRename()
+void CPPEditorWidget::startRename()
 {
     m_inRenameChanged = false;
 }
 
-void CPPEditor::finishRename()
+void CPPEditorWidget::finishRename()
 {
     if (!m_inRenameChanged)
         return;
@@ -613,7 +613,7 @@ void CPPEditor::finishRename()
     m_inRename = false;
 }
 
-void CPPEditor::abortRename()
+void CPPEditorWidget::abortRename()
 {
     if (m_currentRenameSelection <= NoCurrentRenameSelection)
         return;
@@ -624,13 +624,13 @@ void CPPEditor::abortRename()
     setExtraSelections(CodeSemanticsSelection, m_renameSelections);
 }
 
-void CPPEditor::rehighlight(bool force)
+void CPPEditorWidget::rehighlight(bool force)
 {
     const SemanticHighlighter::Source source = currentSource(force);
     m_semanticHighlighter->rehighlight(source);
 }
 
-void CPPEditor::onDocumentUpdated(Document::Ptr doc)
+void CPPEditorWidget::onDocumentUpdated(Document::Ptr doc)
 {
     if (doc->fileName() != file()->fileName())
         return;
@@ -646,7 +646,7 @@ void CPPEditor::onDocumentUpdated(Document::Ptr doc)
     m_updateOutlineTimer->start();
 }
 
-const Macro *CPPEditor::findCanonicalMacro(const QTextCursor &cursor, Document::Ptr doc) const
+const Macro *CPPEditorWidget::findCanonicalMacro(const QTextCursor &cursor, Document::Ptr doc) const
 {
     if (! doc)
         return 0;
@@ -663,7 +663,7 @@ const Macro *CPPEditor::findCanonicalMacro(const QTextCursor &cursor, Document::
     return 0;
 }
 
-void CPPEditor::findUsages()
+void CPPEditorWidget::findUsages()
 {
     SemanticInfo info = m_lastSemanticInfo;
     info.snapshot = CppModelManagerInterface::instance()->snapshot();
@@ -679,7 +679,7 @@ void CPPEditor::findUsages()
 }
 
 
-void CPPEditor::renameUsagesNow(const QString &replacement)
+void CPPEditorWidget::renameUsagesNow(const QString &replacement)
 {
     SemanticInfo info = m_lastSemanticInfo;
     info.snapshot = CppModelManagerInterface::instance()->snapshot();
@@ -700,12 +700,12 @@ void CPPEditor::renameUsagesNow(const QString &replacement)
     }
 }
 
-void CPPEditor::renameUsages()
+void CPPEditorWidget::renameUsages()
 {
     renameUsagesNow();
 }
 
-bool CPPEditor::showWarningMessage() const
+bool CPPEditorWidget::showWarningMessage() const
 {
     // Restore settings
     QSettings *settings = Core::ICore::instance()->settings();
@@ -717,7 +717,7 @@ bool CPPEditor::showWarningMessage() const
     return showWarningMessage;
 }
 
-void CPPEditor::setShowWarningMessage(bool showWarningMessage)
+void CPPEditorWidget::setShowWarningMessage(bool showWarningMessage)
 {
     // Restore settings
     QSettings *settings = Core::ICore::instance()->settings();
@@ -728,13 +728,13 @@ void CPPEditor::setShowWarningMessage(bool showWarningMessage)
     settings->endGroup();
 }
 
-void CPPEditor::hideRenameNotification()
+void CPPEditorWidget::hideRenameNotification()
 {
     setShowWarningMessage(false);
     Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
 }
 
-void CPPEditor::markSymbolsNow()
+void CPPEditorWidget::markSymbolsNow()
 {
     if (m_references.isCanceled())
         return;
@@ -783,7 +783,7 @@ static QList<int> lazyFindReferences(Scope *scope, QString code, Document::Ptr d
     return QList<int>();
 }
 
-void CPPEditor::markSymbols(const QTextCursor &tc, const SemanticInfo &info)
+void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &info)
 {
     abortRename();
 
@@ -806,7 +806,7 @@ void CPPEditor::markSymbols(const QTextCursor &tc, const SemanticInfo &info)
     }
 }
 
-void CPPEditor::renameSymbolUnderCursor()
+void CPPEditorWidget::renameSymbolUnderCursor()
 {
     updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
     abortRename();
@@ -833,7 +833,7 @@ void CPPEditor::renameSymbolUnderCursor()
         renameUsages();
 }
 
-void CPPEditor::onContentsChanged(int position, int charsRemoved, int charsAdded)
+void CPPEditorWidget::onContentsChanged(int position, int charsRemoved, int charsAdded)
 {
     Q_UNUSED(position)
 
@@ -857,10 +857,10 @@ void CPPEditor::onContentsChanged(int position, int charsRemoved, int charsAdded
         updateUses();
 }
 
-void CPPEditor::updateFileName()
+void CPPEditorWidget::updateFileName()
 { }
 
-void CPPEditor::jumpToOutlineElement(int)
+void CPPEditorWidget::jumpToOutlineElement(int)
 {
     QModelIndex index = m_proxyModel->mapToSource(m_outlineCombo->view()->currentIndex());
     Symbol *symbol = m_outlineModel->symbolFromIndex(index);
@@ -870,7 +870,7 @@ void CPPEditor::jumpToOutlineElement(int)
     openCppEditorAt(linkToSymbol(symbol));
 }
 
-void CPPEditor::setSortedOutline(bool sort)
+void CPPEditorWidget::setSortedOutline(bool sort)
 {
     if (sort != sortedOutline()) {
         if (sort)
@@ -884,12 +884,12 @@ void CPPEditor::setSortedOutline(bool sort)
     }
 }
 
-bool CPPEditor::sortedOutline() const
+bool CPPEditorWidget::sortedOutline() const
 {
     return (m_proxyModel->sortColumn() == 0);
 }
 
-void CPPEditor::updateOutlineNow()
+void CPPEditorWidget::updateOutlineNow()
 {
     const Snapshot snapshot = m_modelManager->snapshot();
     Document::Ptr document = snapshot.document(file()->fileName());
@@ -909,12 +909,12 @@ void CPPEditor::updateOutlineNow()
     updateOutlineIndexNow();
 }
 
-void CPPEditor::updateOutlineIndex()
+void CPPEditorWidget::updateOutlineIndex()
 {
     m_updateOutlineIndexTimer->start();
 }
 
-void CPPEditor::highlightUses(const QList<SemanticInfo::Use> &uses,
+void CPPEditorWidget::highlightUses(const QList<SemanticInfo::Use> &uses,
                               const SemanticInfo &semanticInfo,
                               QList<QTextEdit::ExtraSelection> *selections)
 {
@@ -950,7 +950,7 @@ void CPPEditor::highlightUses(const QList<SemanticInfo::Use> &uses,
     }
 }
 
-void CPPEditor::updateOutlineIndexNow()
+void CPPEditorWidget::updateOutlineIndexNow()
 {
     if (!m_outlineModel->document())
         return;
@@ -980,19 +980,19 @@ void CPPEditor::updateOutlineIndexNow()
     }
 }
 
-void CPPEditor::updateOutlineToolTip()
+void CPPEditorWidget::updateOutlineToolTip()
 {
     m_outlineCombo->setToolTip(m_outlineCombo->currentText());
 }
 
-void CPPEditor::updateUses()
+void CPPEditorWidget::updateUses()
 {
     if (editorRevision() != m_highlightRevision)
         m_highlighter.cancel();
     m_updateUsesTimer->start();
 }
 
-void CPPEditor::updateUsesNow()
+void CPPEditorWidget::updateUsesNow()
 {
     if (m_currentRenameSelection != NoCurrentRenameSelection)
         return;
@@ -1000,7 +1000,7 @@ void CPPEditor::updateUsesNow()
     semanticRehighlight();
 }
 
-void CPPEditor::highlightSymbolUsages(int from, int to)
+void CPPEditorWidget::highlightSymbolUsages(int from, int to)
 {
     if (editorRevision() != m_highlightRevision)
         return; // outdated
@@ -1072,7 +1072,7 @@ void CPPEditor::highlightSymbolUsages(int from, int to)
     }
 }
 
-void CPPEditor::finishHighlightSymbolUsages()
+void CPPEditorWidget::finishHighlightSymbolUsages()
 {
     if (editorRevision() != m_highlightRevision)
         return; // outdated
@@ -1097,7 +1097,7 @@ void CPPEditor::finishHighlightSymbolUsages()
 }
 
 
-void CPPEditor::switchDeclarationDefinition()
+void CPPEditorWidget::switchDeclarationDefinition()
 {
     if (! m_modelManager)
         return;
@@ -1258,7 +1258,7 @@ QList<Declaration *> findMatchingDeclaration(const LookupContext &context,
 
 } // end of anonymous namespace
 
-CPPEditor::Link CPPEditor::attemptFuncDeclDef(const QTextCursor &cursor, const Document::Ptr &doc, Snapshot snapshot) const
+CPPEditorWidget::Link CPPEditorWidget::attemptFuncDeclDef(const QTextCursor &cursor, const Document::Ptr &doc, Snapshot snapshot) const
 {
     snapshot.insert(doc);
 
@@ -1327,7 +1327,7 @@ CPPEditor::Link CPPEditor::attemptFuncDeclDef(const QTextCursor &cursor, const D
     return result;
 }
 
-CPPEditor::Link CPPEditor::findMacroLink(const QByteArray &name) const
+CPPEditorWidget::Link CPPEditorWidget::findMacroLink(const QByteArray &name) const
 {
     if (! name.isEmpty()) {
         if (Document::Ptr doc = m_lastSemanticInfo.doc) {
@@ -1340,7 +1340,7 @@ CPPEditor::Link CPPEditor::findMacroLink(const QByteArray &name) const
     return Link();
 }
 
-CPPEditor::Link CPPEditor::findMacroLink(const QByteArray &name,
+CPPEditorWidget::Link CPPEditorWidget::findMacroLink(const QByteArray &name,
                                          Document::Ptr doc,
                                          const Snapshot &snapshot,
                                          QSet<QString> *processed) const
@@ -1369,14 +1369,14 @@ CPPEditor::Link CPPEditor::findMacroLink(const QByteArray &name,
     return Link();
 }
 
-QString CPPEditor::identifierUnderCursor(QTextCursor *macroCursor) const
+QString CPPEditorWidget::identifierUnderCursor(QTextCursor *macroCursor) const
 {
     macroCursor->movePosition(QTextCursor::StartOfWord);
     macroCursor->movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
     return macroCursor->selectedText();
 }
 
-CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
+CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
                                       bool resolveTarget)
 {
     Link link;
@@ -1575,12 +1575,12 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     return Link();
 }
 
-void CPPEditor::jumpToDefinition()
+void CPPEditorWidget::jumpToDefinition()
 {
     openLink(findLinkAt(textCursor()));
 }
 
-Symbol *CPPEditor::findDefinition(Symbol *symbol, const Snapshot &snapshot) const
+Symbol *CPPEditorWidget::findDefinition(Symbol *symbol, const Snapshot &snapshot) const
 {
     if (symbol->isFunction())
         return 0; // symbol is a function definition.
@@ -1591,12 +1591,12 @@ Symbol *CPPEditor::findDefinition(Symbol *symbol, const Snapshot &snapshot) cons
     return snapshot.findMatchingDefinition(symbol);
 }
 
-unsigned CPPEditor::editorRevision() const
+unsigned CPPEditorWidget::editorRevision() const
 {
     return document()->revision();
 }
 
-bool CPPEditor::isOutdated() const
+bool CPPEditorWidget::isOutdated() const
 {
     if (m_lastSemanticInfo.revision != editorRevision())
         return true;
@@ -1604,17 +1604,17 @@ bool CPPEditor::isOutdated() const
     return false;
 }
 
-SemanticInfo CPPEditor::semanticInfo() const
+SemanticInfo CPPEditorWidget::semanticInfo() const
 {
     return m_lastSemanticInfo;
 }
 
-CPlusPlus::OverviewModel *CPPEditor::outlineModel() const
+CPlusPlus::OverviewModel *CPPEditorWidget::outlineModel() const
 {
     return m_outlineModel;
 }
 
-QModelIndex CPPEditor::outlineModelIndex()
+QModelIndex CPPEditorWidget::outlineModelIndex()
 {
     if (!m_outlineModelIndex.isValid()) {
         int line = 0, column = 0;
@@ -1626,7 +1626,7 @@ QModelIndex CPPEditor::outlineModelIndex()
     return m_outlineModelIndex;
 }
 
-bool CPPEditor::event(QEvent *e)
+bool CPPEditorWidget::event(QEvent *e)
 {
     switch (e->type()) {
     case QEvent::ShortcutOverride:
@@ -1639,16 +1639,16 @@ bool CPPEditor::event(QEvent *e)
         break;
     }
 
-    return BaseTextEditor::event(e);
+    return BaseTextEditorWidget::event(e);
 }
 
-void CPPEditor::performQuickFix(int index)
+void CPPEditorWidget::performQuickFix(int index)
 {
     TextEditor::QuickFixOperation::Ptr op = m_quickFixes.at(index);
     op->perform();
 }
 
-void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
+void CPPEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     // ### enable
     // updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
@@ -1667,7 +1667,7 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));
 
     if (! isOutdated()) {
-        if (quickFixCollector->startCompletion(editableInterface()) != -1) {
+        if (quickFixCollector->startCompletion(editor()) != -1) {
             m_quickFixes = quickFixCollector->quickFixes();
 
             if (! m_quickFixes.isEmpty())
@@ -1696,10 +1696,10 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     delete menu;
 }
 
-void CPPEditor::keyPressEvent(QKeyEvent *e)
+void CPPEditorWidget::keyPressEvent(QKeyEvent *e)
 {
     if (m_currentRenameSelection == NoCurrentRenameSelection) {
-        TextEditor::BaseTextEditor::keyPressEvent(e);
+        TextEditor::BaseTextEditorWidget::keyPressEvent(e);
         return;
     }
 
@@ -1772,40 +1772,40 @@ void CPPEditor::keyPressEvent(QKeyEvent *e)
             cursor.joinPreviousEditBlock();
         m_firstRenameChange = false;
     }
-    TextEditor::BaseTextEditor::keyPressEvent(e);
+    TextEditor::BaseTextEditorWidget::keyPressEvent(e);
     if (wantEditBlock)
         cursor.endEditBlock();
     finishRename();
 }
 
-Core::Context CPPEditorEditable::context() const
+Core::Context CPPEditor::context() const
 {
     return m_context;
 }
 
-Core::IEditor *CPPEditorEditable::duplicate(QWidget *parent)
+Core::IEditor *CPPEditor::duplicate(QWidget *parent)
 {
-    CPPEditor *newEditor = new CPPEditor(parent);
-    newEditor->duplicateFrom(editor());
+    CPPEditorWidget *newEditor = new CPPEditorWidget(parent);
+    newEditor->duplicateFrom(editorWidget());
     CppPlugin::instance()->initializeEditor(newEditor);
-    return newEditor->editableInterface();
+    return newEditor->editor();
 }
 
-QString CPPEditorEditable::id() const
+QString CPPEditor::id() const
 {
     return QLatin1String(CppEditor::Constants::CPPEDITOR_ID);
 }
 
-bool CPPEditorEditable::open(const QString & fileName)
+bool CPPEditor::open(const QString & fileName)
 {
-    bool b = TextEditor::BaseTextEditorEditable::open(fileName);
-    editor()->setMimeType(Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(fileName)).type());
+    bool b = TextEditor::BaseTextEditor::open(fileName);
+    editorWidget()->setMimeType(Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(fileName)).type());
     return b;
 }
 
-void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
+void CPPEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 {
-    TextEditor::BaseTextEditor::setFontSettings(fs);
+    TextEditor::BaseTextEditorWidget::setFontSettings(fs);
     CppHighlighter *highlighter = qobject_cast<CppHighlighter*>(baseTextDocument()->syntaxHighlighter());
     if (!highlighter)
         return;
@@ -1842,20 +1842,20 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     highlighter->rehighlight();
 }
 
-void CPPEditor::setTabSettings(const TextEditor::TabSettings &ts)
+void CPPEditorWidget::setTabSettings(const TextEditor::TabSettings &ts)
 {
     CppTools::QtStyleCodeFormatter formatter;
     formatter.invalidateCache(document());
 
-    TextEditor::BaseTextEditor::setTabSettings(ts);
+    TextEditor::BaseTextEditorWidget::setTabSettings(ts);
 }
 
-void CPPEditor::unCommentSelection()
+void CPPEditorWidget::unCommentSelection()
 {
     Utils::unCommentSelection(this);
 }
 
-CPPEditor::Link CPPEditor::linkToSymbol(CPlusPlus::Symbol *symbol)
+CPPEditorWidget::Link CPPEditorWidget::linkToSymbol(CPlusPlus::Symbol *symbol)
 {
     if (!symbol)
         return Link();
@@ -1874,7 +1874,7 @@ CPPEditor::Link CPPEditor::linkToSymbol(CPlusPlus::Symbol *symbol)
     return Link(fileName, line, column);
 }
 
-bool CPPEditor::openCppEditorAt(const Link &link)
+bool CPPEditorWidget::openCppEditorAt(const Link &link)
 {
     if (link.fileName.isEmpty())
         return false;
@@ -1888,18 +1888,18 @@ bool CPPEditor::openCppEditorAt(const Link &link)
         return true;
     }
 
-    return TextEditor::BaseTextEditor::openEditorAt(link.fileName,
+    return TextEditor::BaseTextEditorWidget::openEditorAt(link.fileName,
                                                     link.line,
                                                     link.column,
                                                     Constants::CPPEDITOR_ID);
 }
 
-void CPPEditor::semanticRehighlight()
+void CPPEditorWidget::semanticRehighlight()
 {
     m_semanticHighlighter->rehighlight(currentSource());
 }
 
-void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
+void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
 {
     if (semanticInfo.revision != editorRevision()) {
         // got outdated semantic info
@@ -1953,7 +1953,7 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         m_highlighter.cancel();
 
         if (! semanticHighlighterDisabled && semanticInfo.doc) {
-            if (Core::EditorManager::instance()->currentEditor() == editableInterface()) {
+            if (Core::EditorManager::instance()->currentEditor() == editor()) {
                 LookupContext context(semanticInfo.doc, semanticInfo.snapshot);
                 CheckSymbols::Future f = CheckSymbols::go(semanticInfo.doc, context);
                 m_highlighter = f;
@@ -2076,7 +2076,7 @@ private:
 
 } // anonymous namespace
 
-SemanticHighlighter::Source CPPEditor::currentSource(bool force)
+SemanticHighlighter::Source CPPEditorWidget::currentSource(bool force)
 {
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
@@ -2215,7 +2215,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     return semanticInfo;
 }
 
-QModelIndex CPPEditor::indexForPosition(int line, int column, const QModelIndex &rootIndex) const
+QModelIndex CPPEditorWidget::indexForPosition(int line, int column, const QModelIndex &rootIndex) const
 {
     QModelIndex lastIndex = rootIndex;
 
@@ -2236,7 +2236,7 @@ QModelIndex CPPEditor::indexForPosition(int line, int column, const QModelIndex 
     return lastIndex;
 }
 
-QVector<QString> CPPEditor::highlighterFormatCategories()
+QVector<QString> CPPEditorWidget::highlighterFormatCategories()
 {
     static QVector<QString> categories;
     if (categories.isEmpty()) {

@@ -59,29 +59,29 @@ using namespace Qt4ProjectManager::Internal;
 // ProFileEditorEditable
 //
 
-ProFileEditorEditable::ProFileEditorEditable(ProFileEditor *editor)
-  : BaseTextEditorEditable(editor),
+ProFileEditor::ProFileEditor(ProFileEditorWidget *editor)
+  : BaseTextEditor(editor),
     m_context(Qt4ProjectManager::Constants::C_PROFILEEDITOR,
               TextEditor::Constants::C_TEXTEDITOR)
 {
 //    m_contexts << uidm->uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_KIND);
 }
 
-Core::Context ProFileEditorEditable::context() const
+Core::Context ProFileEditor::context() const
 {
     return m_context;
 }
 
-Core::IEditor *ProFileEditorEditable::duplicate(QWidget *parent)
+Core::IEditor *ProFileEditor::duplicate(QWidget *parent)
 {
-    ProFileEditor *ret = new ProFileEditor(parent, qobject_cast<ProFileEditor*>(editor())->factory(),
-                                           qobject_cast<ProFileEditor*>(editor())->actionHandler());
-    ret->duplicateFrom(editor());
+    ProFileEditorWidget *ret = new ProFileEditorWidget(parent, qobject_cast<ProFileEditorWidget*>(editorWidget())->factory(),
+                                           qobject_cast<ProFileEditorWidget*>(editorWidget())->actionHandler());
+    ret->duplicateFrom(editorWidget());
     TextEditor::TextEditorSettings::instance()->initializeEditor(ret);
-    return ret->editableInterface();
+    return ret->editor();
 }
 
-QString ProFileEditorEditable::id() const
+QString ProFileEditor::id() const
 {
     return QLatin1String(Qt4ProjectManager::Constants::PROFILE_EDITOR_ID);
 }
@@ -90,8 +90,8 @@ QString ProFileEditorEditable::id() const
 // ProFileEditorEditor
 //
 
-ProFileEditor::ProFileEditor(QWidget *parent, ProFileEditorFactory *factory, TextEditor::TextEditorActionHandler *ah)
-    : BaseTextEditor(parent), m_factory(factory), m_ah(ah)
+ProFileEditorWidget::ProFileEditorWidget(QWidget *parent, ProFileEditorFactory *factory, TextEditor::TextEditorActionHandler *ah)
+    : BaseTextEditorWidget(parent), m_factory(factory), m_ah(ah)
 {
     ProFileDocument *doc = new ProFileDocument();
     doc->setMimeType(QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE));
@@ -104,11 +104,11 @@ ProFileEditor::ProFileEditor(QWidget *parent, ProFileEditorFactory *factory, Tex
     m_commentDefinition.setSingleLine(QString(QLatin1Char('#')));
 }
 
-ProFileEditor::~ProFileEditor()
+ProFileEditorWidget::~ProFileEditorWidget()
 {
 }
 
-void ProFileEditor::unCommentSelection()
+void ProFileEditorWidget::unCommentSelection()
 {
     Utils::unCommentSelection(this, m_commentDefinition);
 }
@@ -125,7 +125,7 @@ static bool isValidFileNameChar(const QChar &c)
     return false;
 }
 
-ProFileEditor::Link ProFileEditor::findLinkAt(const QTextCursor &cursor,
+ProFileEditorWidget::Link ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
                                       bool /* resolveTarget */)
 {
     Link link;
@@ -202,12 +202,12 @@ ProFileEditor::Link ProFileEditor::findLinkAt(const QTextCursor &cursor,
     return link;
 }
 
-TextEditor::BaseTextEditorEditable *ProFileEditor::createEditableInterface()
+TextEditor::BaseTextEditor *ProFileEditorWidget::createEditor()
 {
-    return new ProFileEditorEditable(this);
+    return new ProFileEditor(this);
 }
 
-void ProFileEditor::contextMenuEvent(QContextMenuEvent *e)
+void ProFileEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu *menu = new QMenu();
 
@@ -224,9 +224,9 @@ void ProFileEditor::contextMenuEvent(QContextMenuEvent *e)
     delete menu;
 }
 
-void ProFileEditor::setFontSettings(const TextEditor::FontSettings &fs)
+void ProFileEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 {
-    TextEditor::BaseTextEditor::setFontSettings(fs);
+    TextEditor::BaseTextEditorWidget::setFontSettings(fs);
     ProFileHighlighter *highlighter = qobject_cast<ProFileHighlighter*>(baseTextDocument()->syntaxHighlighter());
     if (!highlighter)
         return;
@@ -244,15 +244,15 @@ void ProFileEditor::setFontSettings(const TextEditor::FontSettings &fs)
     highlighter->rehighlight();
 }
 
-void ProFileEditor::addLibrary()
+void ProFileEditorWidget::addLibrary()
 {
     AddLibraryWizard wizard(file()->fileName(), this);
     if (wizard.exec() != QDialog::Accepted)
         return;
 
-    TextEditor::BaseTextEditorEditable *editable = editableInterface();
+    TextEditor::BaseTextEditor *editable = editor();
     const int endOfDoc = editable->position(TextEditor::ITextEditor::EndOfDoc);
-    editable->setCurPos(endOfDoc);
+    editable->setCursorPosition(endOfDoc);
     QString snippet = wizard.snippet();
 
     // add extra \n in case the last line is not empty
@@ -264,7 +264,7 @@ void ProFileEditor::addLibrary()
     editable->insert(snippet);
 }
 
-void ProFileEditor::jumpToFile()
+void ProFileEditorWidget::jumpToFile()
 {
     openLink(findLinkAt(textCursor()));
 }

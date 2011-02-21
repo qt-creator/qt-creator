@@ -54,14 +54,14 @@ CppQuickFixCollector::~CppQuickFixCollector()
 {
 }
 
-bool CppQuickFixCollector::supportsEditor(TextEditor::ITextEditable *editor) const
+bool CppQuickFixCollector::supportsEditor(TextEditor::ITextEditor *editor) const
 {
     return CPlusPlus::CppModelManagerInterface::instance()->isCppEditor(editor);
 }
 
-TextEditor::QuickFixState *CppQuickFixCollector::initializeCompletion(TextEditor::BaseTextEditor *editor)
+TextEditor::QuickFixState *CppQuickFixCollector::initializeCompletion(TextEditor::BaseTextEditorWidget *editor)
 {
-    if (CPPEditor *cppEditor = qobject_cast<CPPEditor *>(editor)) {
+    if (CPPEditorWidget *cppEditor = qobject_cast<CPPEditorWidget *>(editor)) {
         const SemanticInfo info = cppEditor->semanticInfo();
 
         if (info.revision != cppEditor->editorRevision()) {

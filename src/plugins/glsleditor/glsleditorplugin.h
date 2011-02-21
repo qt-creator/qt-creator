@@ -53,7 +53,7 @@ class ActionManager;
 }
 
 namespace TextEditor {
-class ITextEditable;
+class ITextEditor;
 }
 
 namespace GLSL {
@@ -62,7 +62,7 @@ class ModelManagerInterface;
 
 namespace GLSLEditor {
 
-class GLSLTextEditor;
+class GLSLTextEditorWidget;
 
 namespace Internal {
 
@@ -86,7 +86,7 @@ public:
     static GLSLEditorPlugin *instance()
     { return m_instance; }
 
-    void initializeEditor(GLSLEditor::GLSLTextEditor *editor);
+    void initializeEditor(GLSLEditor::GLSLTextEditorWidget *editor);
 
     struct InitFile {
         GLSL::Engine *engine;
@@ -114,7 +114,7 @@ private:
     GLSLEditorFactory *m_editor;
     TextEditor::TextEditorActionHandler *m_actionHandler;
 
-    QPointer<TextEditor::ITextEditable> m_currentTextEditable;
+    QPointer<TextEditor::ITextEditor> m_currentTextEditable;
 
     InitFile m_glsl_120_frag;
     InitFile m_glsl_120_vert;

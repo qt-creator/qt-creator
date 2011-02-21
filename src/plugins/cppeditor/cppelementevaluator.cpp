@@ -84,7 +84,7 @@ namespace {
     }
 }
 
-CppElementEvaluator::CppElementEvaluator(CPPEditor *editor) :
+CppElementEvaluator::CppElementEvaluator(CPPEditorWidget *editor) :
     m_editor(editor),
     m_modelManager(CppModelManagerInterface::instance()),
     m_tc(editor->textCursor()),
@@ -264,10 +264,10 @@ void CppElement::setHelpMark(const QString &mark)
 const QString &CppElement::helpMark() const
 { return m_helpMark; }
 
-void CppElement::setLink(const CPPEditor::Link &link)
+void CppElement::setLink(const CPPEditorWidget::Link &link)
 { m_link = link; }
 
-const CPPEditor::Link &CppElement::link() const
+const CPPEditorWidget::Link &CppElement::link() const
 { return m_link; }
 
 void CppElement::setTooltip(const QString &tooltip)
@@ -301,7 +301,7 @@ CppInclude::CppInclude(const Document::Include &includeFile) :
     setHelpCategory(TextEditor::HelpItem::Brief);
     setHelpIdCandidates(QStringList(m_fileName));
     setHelpMark(m_fileName);
-    setLink(CPPEditor::Link(m_path));
+    setLink(CPPEditorWidget::Link(m_path));
     setTooltip(m_path);
 }
 
@@ -317,7 +317,7 @@ CppMacro::CppMacro(const Macro &macro) : CppElement()
     setHelpCategory(TextEditor::HelpItem::Macro);
     setHelpIdCandidates(QStringList(macro.name()));
     setHelpMark(macro.name());
-    setLink(CPPEditor::Link(macro.fileName(), macro.line()));
+    setLink(CPPEditorWidget::Link(macro.fileName(), macro.line()));
     setTooltip(macro.toString());
 }
 
@@ -344,7 +344,7 @@ CppDeclarableElement::CppDeclarableElement(Symbol *declaration) : CppElement()
     }
 
     setTooltip(overview.prettyType(declaration->type(), m_qualifiedName));
-    setLink(CPPEditor::linkToSymbol(declaration));
+    setLink(CPPEditorWidget::linkToSymbol(declaration));
     setHelpMark(m_name);
 }
 

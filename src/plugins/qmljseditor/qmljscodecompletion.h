@@ -41,7 +41,7 @@
 #include <QtCore/QPointer>
 
 namespace TextEditor {
-class ITextEditable;
+class ITextEditor;
 }
 
 namespace QmlJS {
@@ -66,13 +66,13 @@ public:
     explicit CodeCompletion(QmlJS::ModelManagerInterface *modelManager, QObject *parent = 0);
     virtual ~CodeCompletion();
 
-    virtual TextEditor::ITextEditable *editor() const;
+    virtual TextEditor::ITextEditor *editor() const;
     virtual int startPosition() const;
     virtual bool shouldRestartCompletion();
-    virtual bool supportsEditor(TextEditor::ITextEditable *editor) const;
+    virtual bool supportsEditor(TextEditor::ITextEditor *editor) const;
     virtual bool supportsPolicy(TextEditor::CompletionPolicy policy) const;
-    virtual bool triggersCompletion(TextEditor::ITextEditable *editor);
-    virtual int startCompletion(TextEditor::ITextEditable *editor);
+    virtual bool triggersCompletion(TextEditor::ITextEditor *editor);
+    virtual int startCompletion(TextEditor::ITextEditor *editor);
     virtual void completions(QList<TextEditor::CompletionItem> *completions);
     virtual bool typedCharCompletes(const TextEditor::CompletionItem &item, QChar typedChar);
     virtual void complete(const TextEditor::CompletionItem &item, QChar typedChar);
@@ -84,7 +84,7 @@ public:
 
 private:
 
-    bool maybeTriggersCompletion(TextEditor::ITextEditable *editor);
+    bool maybeTriggersCompletion(TextEditor::ITextEditor *editor);
     bool isDelimiter(QChar ch) const;
 
     bool completeUrl(const QString &relativeBasePath, const QString &urlString);
@@ -100,7 +100,7 @@ private:
             const QIcon &icon, int relevance, bool afterOn);
 
     QmlJS::ModelManagerInterface *m_modelManager;
-    TextEditor::ITextEditable *m_editor;
+    TextEditor::ITextEditor *m_editor;
     int m_startPosition;
     bool m_restartCompletion;
     TextEditor::SnippetCollector m_snippetProvider;

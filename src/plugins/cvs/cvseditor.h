@@ -41,7 +41,7 @@
 namespace CVS {
 namespace Internal {
 
-class CVSEditor : public VCSBase::VCSBaseEditor
+class CVSEditor : public VCSBase::VCSBaseEditorWidget
 {
     Q_OBJECT
 

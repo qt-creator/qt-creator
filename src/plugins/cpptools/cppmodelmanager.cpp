@@ -1006,14 +1006,14 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
             if (! textEditor)
                 continue;
 
-            TextEditor::BaseTextEditor *ed = qobject_cast<TextEditor::BaseTextEditor *>(textEditor->widget());
+            TextEditor::BaseTextEditorWidget *ed = qobject_cast<TextEditor::BaseTextEditorWidget *>(textEditor->widget());
             if (! ed)
                 continue;
 
-            QList<TextEditor::BaseTextEditor::BlockRange> blockRanges;
+            QList<TextEditor::BaseTextEditorWidget::BlockRange> blockRanges;
 
             foreach (const Document::Block &block, doc->skippedBlocks()) {
-                blockRanges.append(TextEditor::BaseTextEditor::BlockRange(block.begin(), block.end()));
+                blockRanges.append(TextEditor::BaseTextEditorWidget::BlockRange(block.begin(), block.end()));
             }
 
             QList<QTextEdit::ExtraSelection> selections;
@@ -1149,14 +1149,14 @@ void CppModelManager::updateEditorSelections()
             continue;
 
         TextEditor::ITextEditor *textEditor = ed.textEditor;
-        TextEditor::BaseTextEditor *editor = qobject_cast<TextEditor::BaseTextEditor *>(textEditor->widget());
+        TextEditor::BaseTextEditorWidget *editor = qobject_cast<TextEditor::BaseTextEditorWidget *>(textEditor->widget());
 
         if (! editor)
             continue;
         else if (editor->document()->revision() != ed.revision)
             continue; // outdated
 
-        editor->setExtraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection,
+        editor->setExtraSelections(TextEditor::BaseTextEditorWidget::CodeWarningsSelection,
                                    ed.selections);
 
         editor->setIfdefedOutBlocks(ed.ifdefedOutBlocks);

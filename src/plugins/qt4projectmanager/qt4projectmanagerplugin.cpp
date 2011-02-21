@@ -328,7 +328,7 @@ void Qt4ProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)
 void Qt4ProjectManagerPlugin::addLibrary()
 {
     Core::EditorManager *em = Core::EditorManager::instance();
-    ProFileEditor *editor = qobject_cast<ProFileEditor*>(em->currentEditor()->widget());
+    ProFileEditorWidget *editor = qobject_cast<ProFileEditorWidget*>(em->currentEditor()->widget());
     if (editor)
         editor->addLibrary();
 }
@@ -336,7 +336,7 @@ void Qt4ProjectManagerPlugin::addLibrary()
 void Qt4ProjectManagerPlugin::jumpToFile()
 {
     Core::EditorManager *em = Core::EditorManager::instance();
-    ProFileEditor *editor = qobject_cast<ProFileEditor*>(em->currentEditor()->widget());
+    ProFileEditorWidget *editor = qobject_cast<ProFileEditorWidget*>(em->currentEditor()->widget());
     if (editor)
         editor->jumpToFile();
 }

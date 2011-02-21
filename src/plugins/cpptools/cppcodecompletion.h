@@ -52,7 +52,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 class ITextEditor;
-class BaseTextEditor;
+class BaseTextEditorWidget;
 }
 
 namespace CPlusPlus {
@@ -75,14 +75,14 @@ public:
     void setObjcEnabled(bool objcEnabled)
     { m_objcEnabled = objcEnabled; }
 
-    TextEditor::ITextEditable *editor() const;
+    TextEditor::ITextEditor *editor() const;
     int startPosition() const;
     bool shouldRestartCompletion();
     QList<TextEditor::CompletionItem> getCompletions();
-    bool supportsEditor(TextEditor::ITextEditable *editor) const;
+    bool supportsEditor(TextEditor::ITextEditor *editor) const;
     bool supportsPolicy(TextEditor::CompletionPolicy policy) const;
-    bool triggersCompletion(TextEditor::ITextEditable *editor);
-    int startCompletion(TextEditor::ITextEditable *editor);
+    bool triggersCompletion(TextEditor::ITextEditor *editor);
+    int startCompletion(TextEditor::ITextEditor *editor);
     void completions(QList<TextEditor::CompletionItem> *completions);
 
     bool typedCharCompletes(const TextEditor::CompletionItem &item, QChar typedChar);
@@ -131,9 +131,9 @@ private:
 
     int findStartOfName(int pos = -1) const;
 
-    int startCompletionHelper(TextEditor::ITextEditable *editor);
+    int startCompletionHelper(TextEditor::ITextEditor *editor);
 
-    int startCompletionInternal(TextEditor::BaseTextEditor *edit,
+    int startCompletionInternal(TextEditor::BaseTextEditorWidget *edit,
                                 const QString fileName,
                                 unsigned line, unsigned column,
                                 const QString &expression,
@@ -144,13 +144,13 @@ private:
 private:
     void completeObjCMsgSend(CPlusPlus::ClassOrNamespace *binding,
                              bool staticClassAccess);
-    bool tryObjCCompletion(TextEditor::BaseTextEditor *edit);
+    bool tryObjCCompletion(TextEditor::BaseTextEditorWidget *edit);
     bool objcKeywordsWanted() const;
 
     static QStringList preprocessorCompletions;
 
     CppModelManager *m_manager;
-    TextEditor::ITextEditable *m_editor;
+    TextEditor::ITextEditor *m_editor;
     int m_startPosition;     // Position of the cursor from which completion started
     bool m_shouldRestartCompletion;
 

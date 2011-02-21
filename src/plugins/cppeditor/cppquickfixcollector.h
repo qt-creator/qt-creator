@@ -54,8 +54,8 @@ public:
     CppQuickFixCollector();
     virtual ~CppQuickFixCollector();
 
-    virtual bool supportsEditor(TextEditor::ITextEditable *editor) const;
-    virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::BaseTextEditor *editor);
+    virtual bool supportsEditor(TextEditor::ITextEditor *editor) const;
+    virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::BaseTextEditorWidget *editor);
 
     virtual QList<TextEditor::QuickFixFactory *> quickFixFactories() const;
 

@@ -41,7 +41,7 @@
 namespace TextEditor {
 
 class CompletionItem;
-class ITextEditable;
+class ITextEditor;
 class CompletionSupport;
 
 namespace Internal {
@@ -58,7 +58,7 @@ class CompletionWidget : public QFrame
     Q_OBJECT
 
 public:
-    CompletionWidget(CompletionSupport *support, ITextEditable *editor);
+    CompletionWidget(CompletionSupport *support, ITextEditor *editor);
     ~CompletionWidget();
 
     void setCompletionItems(const QList<TextEditor::CompletionItem> &completionitems);
@@ -82,7 +82,7 @@ private:
 
 private:
     CompletionSupport *m_support;
-    ITextEditable *m_editor;
+    ITextEditor *m_editor;
     CompletionListView *m_completionListView;
 };
 
@@ -108,7 +108,7 @@ protected:
 private:
     friend class CompletionWidget;
 
-    CompletionListView(CompletionSupport *support, ITextEditable *editor, CompletionWidget *completionWidget);
+    CompletionListView(CompletionSupport *support, ITextEditor *editor, CompletionWidget *completionWidget);
 
     void setCompletionItems(const QList<TextEditor::CompletionItem> &completionitems);
     void keyboardSearch(const QString &search);
@@ -119,7 +119,7 @@ private slots:
 
 private:
     bool m_blockFocusOut;
-    ITextEditable *m_editor;
+    ITextEditor *m_editor;
     QWidget *m_editorWidget;
     CompletionWidget *m_completionWidget;
     AutoCompletionModel *m_model;

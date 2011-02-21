@@ -63,7 +63,7 @@ QmlJSRefactoringFile QmlJSRefactoringChanges::file(const QString &fileName)
 
 void QmlJSRefactoringChanges::indentSelection(const QTextCursor &selection,
                                               const QString &fileName,
-                                              const TextEditor::BaseTextEditor *textEditor) const
+                                              const TextEditor::BaseTextEditorWidget *textEditor) const
 {
     // ### shares code with QmlJSTextEditor::indent
     QTextDocument *doc = selection.document();
@@ -96,7 +96,7 @@ QmlJSRefactoringFile::QmlJSRefactoringFile(const QString &fileName, QmlJSRefacto
     : RefactoringFile(fileName, refactoringChanges)
 { }
 
-QmlJSRefactoringFile::QmlJSRefactoringFile(TextEditor::BaseTextEditor *editor, QmlJS::Document::Ptr document)
+QmlJSRefactoringFile::QmlJSRefactoringFile(TextEditor::BaseTextEditorWidget *editor, QmlJS::Document::Ptr document)
     : RefactoringFile()
     , m_qmljsDocument(document)
 {

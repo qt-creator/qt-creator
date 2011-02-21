@@ -45,8 +45,6 @@
 
 namespace TextEditor {
 
-class BaseTextEditor;
-
 // Redirects slots from global actions to the respective editor.
 
 class TEXTEDITOR_EXPORT TextEditorActionHandler : public QObject
@@ -62,7 +60,7 @@ public:
     };
 
     explicit TextEditorActionHandler(const char *context, uint optionalActions = None);
-    void setupActions(BaseTextEditor *editor);
+    void setupActions(BaseTextEditorWidget *editor);
 
     void initializeActions();
 
@@ -73,7 +71,7 @@ public slots:
     void updateCopyAction();
 
 protected:
-    const QPointer<BaseTextEditor> &currentEditor() const;
+    const QPointer<BaseTextEditorWidget> &currentEditor() const;
     QAction *registerNewAction(const QString &id, bool scriptable=false, const QString &title = QString());
     QAction *registerNewAction(const QString &id, QObject *receiver, const char *slot, bool scriptable = false,
                                const QString &title = QString());
@@ -185,7 +183,7 @@ private:
     QAction *m_insertLineBelowAction;
 
     uint m_optionalActions;
-    QPointer<BaseTextEditor> m_currentEditor;
+    QPointer<BaseTextEditorWidget> m_currentEditor;
     Core::Context m_contextId;
     bool m_initialized;
 };

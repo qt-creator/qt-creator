@@ -51,7 +51,7 @@ bool Indenter::isElectricCharacter(const QChar &) const
 void Indenter::indentBlock(QTextDocument *doc,
                              const QTextBlock &block,
                              const QChar &typedChar,
-                             BaseTextEditor *editor)
+                             BaseTextEditorWidget *editor)
 {
     Q_UNUSED(doc);
     Q_UNUSED(block);
@@ -62,7 +62,7 @@ void Indenter::indentBlock(QTextDocument *doc,
 void Indenter::indent(QTextDocument *doc,
                       const QTextCursor &cursor,
                       const QChar &typedChar,
-                      BaseTextEditor *editor)
+                      BaseTextEditorWidget *editor)
 {
     if (cursor.hasSelection()) {
         QTextBlock block = doc->findBlock(cursor.selectionStart());
@@ -76,7 +76,7 @@ void Indenter::indent(QTextDocument *doc,
     }
 }
 
-void Indenter::reindent(QTextDocument *doc, const QTextCursor &cursor, BaseTextEditor *editor)
+void Indenter::reindent(QTextDocument *doc, const QTextCursor &cursor, BaseTextEditorWidget *editor)
 {
     if (cursor.hasSelection()) {
         QTextBlock block = doc->findBlock(cursor.selectionStart());

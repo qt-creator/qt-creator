@@ -292,8 +292,8 @@ private slots:
     void updateCurrentSnippetDependent(const QModelIndex &modelIndex = QModelIndex());
 
 private:
-    SnippetEditor *currentEditor() const;
-    SnippetEditor *editorAt(int i) const;
+    SnippetEditorWidget *currentEditor() const;
+    SnippetEditorWidget *editorAt(int i) const;
 
     void loadSettings();
     bool settingsChanged() const;
@@ -317,14 +317,14 @@ SnippetsSettingsPagePrivate::SnippetsSettingsPagePrivate(const QString &id) :
     m_snippetsCollectionChanged(false)
 {}
 
-SnippetEditor *SnippetsSettingsPagePrivate::currentEditor() const
+SnippetEditorWidget *SnippetsSettingsPagePrivate::currentEditor() const
 {
     return editorAt(m_ui.snippetsEditorStack->currentIndex());
 }
 
-SnippetEditor *SnippetsSettingsPagePrivate::editorAt(int i) const
+SnippetEditorWidget *SnippetsSettingsPagePrivate::editorAt(int i) const
 {
-    return static_cast<SnippetEditor *>(m_ui.snippetsEditorStack->widget(i));
+    return static_cast<SnippetEditorWidget *>(m_ui.snippetsEditorStack->widget(i));
 }
 
 void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
@@ -335,7 +335,7 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
         ExtensionSystem::PluginManager::instance()->getObjects<ISnippetProvider>();
     foreach (ISnippetProvider *provider, providers) {
         m_ui.groupCombo->addItem(provider->displayName(), provider->groupId());
-        SnippetEditor *snippetEditor = new SnippetEditor(w);
+        SnippetEditorWidget *snippetEditor = new SnippetEditorWidget(w);
         provider->decorateEditor(snippetEditor);
         m_ui.snippetsEditorStack->insertWidget(m_ui.groupCombo->count() - 1, snippetEditor);
         connect(snippetEditor, SIGNAL(snippetContentChanged()), this, SLOT(setSnippetContent()));

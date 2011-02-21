@@ -68,7 +68,7 @@ bool ProFileCompletion::shouldRestartCompletion()
     return false;
 }
 
-TextEditor::ITextEditable *ProFileCompletion::editor() const
+TextEditor::ITextEditor *ProFileCompletion::editor() const
 {
     return m_editor;
 }
@@ -78,9 +78,9 @@ int ProFileCompletion::startPosition() const
     return m_startPosition;
 }
 
-bool ProFileCompletion::supportsEditor(TextEditor::ITextEditable *editor) const
+bool ProFileCompletion::supportsEditor(TextEditor::ITextEditor *editor) const
 {
-    return qobject_cast<ProFileEditorEditable *>(editor) != 0;
+    return qobject_cast<ProFileEditor *>(editor) != 0;
 }
 
 bool ProFileCompletion::supportsPolicy(TextEditor::CompletionPolicy policy) const
@@ -88,7 +88,7 @@ bool ProFileCompletion::supportsPolicy(TextEditor::CompletionPolicy policy) cons
     return policy == TextEditor::SemanticCompletion;
 }
 
-bool ProFileCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
+bool ProFileCompletion::triggersCompletion(TextEditor::ITextEditor *editor)
 {
     m_editor = editor;
     const int pos = editor->position();
@@ -128,7 +128,7 @@ bool ProFileCompletion::isInComment() const
     return false;
 }
 
-int ProFileCompletion::startCompletion(TextEditor::ITextEditable *editor)
+int ProFileCompletion::startCompletion(TextEditor::ITextEditor *editor)
 {
     m_editor = editor;
     m_startPosition = findStartOfName();
@@ -204,10 +204,10 @@ void ProFileCompletion::complete(const TextEditor::CompletionItem &item, QChar t
         }
     }
 
-    m_editor->setCurPos(m_startPosition);
+    m_editor->setCursorPosition(m_startPosition);
     m_editor->replace(replaceLength, toInsert);
     if (cursorOffset)
-        m_editor->setCurPos(m_editor->position() + cursorOffset);
+        m_editor->setCursorPosition(m_editor->position() + cursorOffset);
 }
 
 bool ProFileCompletion::partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems)

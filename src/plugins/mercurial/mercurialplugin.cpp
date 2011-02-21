@@ -120,7 +120,7 @@ static const VCSBase::VCSBaseSubmitEditorParameters submitEditorParameters = {
 static inline const VCSBase::VCSBaseEditorParameters *findType(int ie)
 {
     const VCSBase::EditorContentType et = static_cast<VCSBase::EditorContentType>(ie);
-    return  VCSBase::VCSBaseEditor::findType(editorParameters,
+    return  VCSBase::VCSBaseEditorWidget::findType(editorParameters,
                                              sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters), et);
 }
 

@@ -45,7 +45,7 @@ QT_END_NAMESPACE
 namespace Git {
 namespace Internal {
 
-class GitEditor : public VCSBase::VCSBaseEditor
+class GitEditor : public VCSBase::VCSBaseEditorWidget
 {
     Q_OBJECT
 

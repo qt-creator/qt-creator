@@ -66,7 +66,7 @@ public:
 private:
     // Implement to create and initialize (call init()) a
     // VCSBaseEditor subclass
-    virtual VCSBaseEditor *createVCSBaseEditor(const VCSBaseEditorParameters *type,
+    virtual VCSBaseEditorWidget *createVCSBaseEditor(const VCSBaseEditorParameters *type,
                                                QWidget *parent) = 0;
 
     BaseVCSEditorFactoryPrivate *m_d;
@@ -82,7 +82,7 @@ public:
                               const char *describeSlot = 0);
 
 private:
-    virtual VCSBaseEditor *createVCSBaseEditor(const VCSBaseEditorParameters *type,
+    virtual VCSBaseEditorWidget *createVCSBaseEditor(const VCSBaseEditorParameters *type,
                                                QWidget *parent);
     QObject *m_describeReceiver;
     const char *m_describeSlot;
@@ -99,10 +99,10 @@ VCSEditorFactory<Editor>::VCSEditorFactory(const VCSBaseEditorParameters *type,
 }
 
 template <class Editor>
-VCSBaseEditor *VCSEditorFactory<Editor>::createVCSBaseEditor(const VCSBaseEditorParameters *type,
+VCSBaseEditorWidget *VCSEditorFactory<Editor>::createVCSBaseEditor(const VCSBaseEditorParameters *type,
                                                              QWidget *parent)
 {
-    VCSBaseEditor *rc = new Editor(type, parent);
+    VCSBaseEditorWidget *rc = new Editor(type, parent);
     rc->init();
     if (m_describeReceiver)
         connect(rc, SIGNAL(describeRequested(QString,QString)), m_describeReceiver, m_describeSlot);

@@ -343,9 +343,9 @@ bool BaseTextDocument::save(const QString &fileName)
 
     // When saving the current editor, make sure to maintain the cursor position for undo
     Core::IEditor *currentEditor = Core::EditorManager::instance()->currentEditor();
-    if (BaseTextEditorEditable *editable = qobject_cast<BaseTextEditorEditable*>(currentEditor)) {
+    if (BaseTextEditor *editable = qobject_cast<BaseTextEditor*>(currentEditor)) {
         if (editable->file() == this)
-            cursor.setPosition(editable->editor()->textCursor().position());
+            cursor.setPosition(editable->editorWidget()->textCursor().position());
     }
 
     cursor.beginEditBlock();

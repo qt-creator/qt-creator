@@ -49,7 +49,7 @@ class ICore;
 }
 
 namespace VCSBase{
-class VCSBaseEditor;
+class VCSBaseEditorWidget;
 }
 
 namespace Utils {
@@ -140,7 +140,7 @@ private:
     MercurialJobRunner *jobManager;
     Core::ICore *core;
 
-    VCSBase::VCSBaseEditor *createVCSEditor(const QString &kind, QString title,
+    VCSBase::VCSBaseEditorWidget *createVCSEditor(const QString &kind, QString title,
                                             const QString &source, bool setSourceCodec,
                                             const char *registerDynamicProperty,
                                             const QString &dynamicPropertyValue) const;

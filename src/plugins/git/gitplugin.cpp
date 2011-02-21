@@ -110,7 +110,7 @@ static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 static inline const VCSBase::VCSBaseEditorParameters *findType(int ie)
 {
     const VCSBase::EditorContentType et = static_cast<VCSBase::EditorContentType>(ie);
-    return  VCSBase::VCSBaseEditor::findType(editorParameters, sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters), et);
+    return  VCSBase::VCSBaseEditorWidget::findType(editorParameters, sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters), et);
 }
 
 Q_DECLARE_METATYPE(Git::Internal::GitClientMemberFunc)
@@ -599,7 +599,7 @@ void GitPlugin::blameFile()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
-    const int lineNumber = VCSBase::VCSBaseEditor::lineNumberOfCurrentEditor(state.currentFile());
+    const int lineNumber = VCSBase::VCSBaseEditorWidget::lineNumberOfCurrentEditor(state.currentFile());
     m_gitClient->blame(state.currentFileTopLevel(), QStringList(), state.relativeCurrentFile(), QString(), lineNumber);
 }
 

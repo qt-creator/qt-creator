@@ -60,7 +60,7 @@ class AnnotatedItemDelegate;
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditor;
+class CPPEditorWidget;
 
 class CppTypeHierarchyWidget : public QWidget
 {
@@ -85,7 +85,7 @@ private:
 
     void buildModel(const CppClass &cppClass, QStandardItem *item);
 
-    CPPEditor *m_cppEditor;
+    CPPEditorWidget *m_cppEditor;
     Utils::NavigationTreeView *m_treeView;
     QStandardItemModel *m_model;
     Utils::AnnotatedItemDelegate *m_delegate;

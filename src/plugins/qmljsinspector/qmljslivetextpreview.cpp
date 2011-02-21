@@ -143,7 +143,7 @@ QmlJS::ModelManagerInterface *QmlJSLiveTextPreview::modelManager()
 void QmlJSLiveTextPreview::associateEditor(Core::IEditor *editor)
 {
     if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
-        QmlJSEditor::QmlJSTextEditor* qmljsEditor = qobject_cast<QmlJSEditor::QmlJSTextEditor*>(editor->widget());
+        QmlJSEditor::QmlJSTextEditorWidget* qmljsEditor = qobject_cast<QmlJSEditor::QmlJSTextEditorWidget*>(editor->widget());
         if (qmljsEditor && !m_editors.contains(qmljsEditor)) {
             qmljsEditor->setUpdateSelectedElements(true);
             m_editors << qmljsEditor;
@@ -157,7 +157,7 @@ void QmlJSLiveTextPreview::associateEditor(Core::IEditor *editor)
 void QmlJSLiveTextPreview::unassociateEditor(Core::IEditor *oldEditor)
 {
     if (oldEditor && oldEditor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
-        QmlJSEditor::QmlJSTextEditor* qmljsEditor = qobject_cast<QmlJSEditor::QmlJSTextEditor*>(oldEditor->widget());
+        QmlJSEditor::QmlJSTextEditorWidget* qmljsEditor = qobject_cast<QmlJSEditor::QmlJSTextEditorWidget*>(oldEditor->widget());
         if (qmljsEditor && m_editors.contains(qmljsEditor)) {
             m_editors.removeOne(qmljsEditor);
             qmljsEditor->setUpdateSelectedElements(false);
@@ -639,12 +639,12 @@ void QmlJSLiveTextPreview::setClientProxy(ClientProxy *clientProxy)
         connect(m_clientProxy.data(), SIGNAL(objectTreeUpdated()),
                    SLOT(updateDebugIds()));
 
-        foreach(QWeakPointer<QmlJSEditor::QmlJSTextEditor> qmlEditor, m_editors) {
+        foreach(QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> qmlEditor, m_editors) {
             if (qmlEditor)
                 qmlEditor.data()->setUpdateSelectedElements(true);
         }
     } else {
-        foreach(QWeakPointer<QmlJSEditor::QmlJSTextEditor> qmlEditor, m_editors) {
+        foreach(QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> qmlEditor, m_editors) {
             if (qmlEditor)
                 qmlEditor.data()->setUpdateSelectedElements(false);
         }

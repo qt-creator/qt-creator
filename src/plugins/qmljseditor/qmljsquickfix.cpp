@@ -51,7 +51,7 @@ using namespace QmlJSTools;
 using namespace TextEditor;
 using TextEditor::RefactoringChanges;
 
-QmlJSQuickFixState::QmlJSQuickFixState(TextEditor::BaseTextEditor *editor)
+QmlJSQuickFixState::QmlJSQuickFixState(TextEditor::BaseTextEditorWidget *editor)
     : QuickFixState(editor)
 {
 }
@@ -141,9 +141,9 @@ QmlJSQuickFixCollector::~QmlJSQuickFixCollector()
 {
 }
 
-bool QmlJSQuickFixCollector::supportsEditor(TextEditor::ITextEditable *editable) const
+bool QmlJSQuickFixCollector::supportsEditor(TextEditor::ITextEditor *editable) const
 {
-    return qobject_cast<QmlJSTextEditor *>(editable->widget()) != 0;
+    return qobject_cast<QmlJSTextEditorWidget *>(editable->widget()) != 0;
 }
 
 bool QmlJSQuickFixCollector::supportsPolicy(TextEditor::CompletionPolicy policy) const
@@ -151,9 +151,9 @@ bool QmlJSQuickFixCollector::supportsPolicy(TextEditor::CompletionPolicy policy)
     return policy == TextEditor::QuickFixCompletion;
 }
 
-TextEditor::QuickFixState *QmlJSQuickFixCollector::initializeCompletion(TextEditor::BaseTextEditor *editor)
+TextEditor::QuickFixState *QmlJSQuickFixCollector::initializeCompletion(TextEditor::BaseTextEditorWidget *editor)
 {
-    if (QmlJSTextEditor *qmljsEditor = qobject_cast<QmlJSTextEditor *>(editor)) {
+    if (QmlJSTextEditorWidget *qmljsEditor = qobject_cast<QmlJSTextEditorWidget *>(editor)) {
         const SemanticInfo info = qmljsEditor->semanticInfo();
 
         if (! info.isValid() || qmljsEditor->isOutdated()) {

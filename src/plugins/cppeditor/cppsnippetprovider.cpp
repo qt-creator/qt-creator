@@ -66,12 +66,12 @@ QString CppSnippetProvider::displayName() const
     return QCoreApplication::translate("CppEditor::Internal::CppSnippetProvider", "C++");
 }
 
-void CppSnippetProvider::decorateEditor(TextEditor::SnippetEditor *editor) const
+void CppSnippetProvider::decorateEditor(TextEditor::SnippetEditorWidget *editor) const
 {
     CppHighlighter *highlighter = new CppHighlighter;
     const TextEditor::FontSettings &fs = TextEditor::TextEditorSettings::instance()->fontSettings();
     const QVector<QTextCharFormat> &formats =
-        fs.toTextCharFormats(CPPEditor::highlighterFormatCategories());
+        fs.toTextCharFormats(CPPEditorWidget::highlighterFormatCategories());
     highlighter->setFormats(formats.constBegin(), formats.constEnd());
     editor->setSyntaxHighlighter(highlighter);
     editor->setIndenter(new CppQtStyleIndenter);

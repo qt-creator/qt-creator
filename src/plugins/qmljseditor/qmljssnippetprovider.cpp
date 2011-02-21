@@ -66,11 +66,11 @@ QString QmlJSSnippetProvider::displayName() const
     return QCoreApplication::translate("QmlJSEditor::Internal::QmlJSSnippetProvider", "QML");
 }
 
-void QmlJSSnippetProvider::decorateEditor(TextEditor::SnippetEditor *editor) const
+void QmlJSSnippetProvider::decorateEditor(TextEditor::SnippetEditorWidget *editor) const
 {
     Highlighter *highlighter = new Highlighter;
     const TextEditor::FontSettings &fs = TextEditor::TextEditorSettings::instance()->fontSettings();
-    highlighter->setFormats(fs.toTextCharFormats(QmlJSTextEditor::highlighterFormatCategories()));
+    highlighter->setFormats(fs.toTextCharFormats(QmlJSTextEditorWidget::highlighterFormatCategories()));
     editor->setSyntaxHighlighter(highlighter);
     editor->setIndenter(new Indenter);
     editor->setAutoCompleter(new AutoCompleter);

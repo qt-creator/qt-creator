@@ -67,7 +67,7 @@ CppRefactoringFile CppRefactoringChanges::file(const QString &fileName)
 
 void CppRefactoringChanges::indentSelection(const QTextCursor &selection,
                                             const QString &fileName,
-                                            const TextEditor::BaseTextEditor *textEditor) const
+                                            const TextEditor::BaseTextEditorWidget *textEditor) const
 {
     // ### shares code with CPPEditor::indent()
     QTextDocument *doc = selection.document();
@@ -106,7 +106,7 @@ CppRefactoringFile::CppRefactoringFile(const QString &fileName, CppRefactoringCh
     m_cppDocument = snapshot.document(fileName);
 }
 
-CppRefactoringFile::CppRefactoringFile(TextEditor::BaseTextEditor *editor, CPlusPlus::Document::Ptr document)
+CppRefactoringFile::CppRefactoringFile(TextEditor::BaseTextEditorWidget *editor, CPlusPlus::Document::Ptr document)
     : RefactoringFile()
     , m_cppDocument(document)
 {

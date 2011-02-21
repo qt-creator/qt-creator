@@ -145,7 +145,7 @@ static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 static inline const VCSBase::VCSBaseEditorParameters *findType(int ie)
 {
     const VCSBase::EditorContentType et = static_cast<VCSBase::EditorContentType>(ie);
-    return  VCSBase::VCSBaseEditor::findType(editorParameters, sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters), et);
+    return  VCSBase::VCSBaseEditorWidget::findType(editorParameters, sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters), et);
 }
 
 static inline QString debugCodec(const QTextCodec *c)
@@ -525,7 +525,7 @@ void CVSPlugin::diffCommitFiles(const QStringList &files)
 
 static inline void setDiffBaseDirectory(Core::IEditor *editor, const QString &db)
 {
-    if (VCSBase::VCSBaseEditor *ve = qobject_cast<VCSBase::VCSBaseEditor*>(editor->widget()))
+    if (VCSBase::VCSBaseEditorWidget *ve = qobject_cast<VCSBase::VCSBaseEditorWidget*>(editor->widget()))
         ve->setDiffBaseDirectory(db);
 }
 
@@ -533,9 +533,9 @@ void CVSPlugin::cvsDiff(const QString &workingDir, const QStringList &files)
 {
     if (CVS::Constants::debug)
         qDebug() << Q_FUNC_INFO << files;
-    const QString source = VCSBase::VCSBaseEditor::getSource(workingDir, files);
-    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(workingDir, files);
-    const QString id = VCSBase::VCSBaseEditor::getTitleId(workingDir, files);
+    const QString source = VCSBase::VCSBaseEditorWidget::getSource(workingDir, files);
+    QTextCodec *codec = VCSBase::VCSBaseEditorWidget::getCodec(workingDir, files);
+    const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDir, files);
 
     QStringList args(QLatin1String("diff"));
     args << m_settings.cvsDiffOptions;
@@ -808,10 +808,10 @@ void CVSPlugin::filelog(const QString &workingDir,
                         const QStringList &files,
                         bool enableAnnotationContextMenu)
 {
-    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(workingDir, files);
+    QTextCodec *codec = VCSBase::VCSBaseEditorWidget::getCodec(workingDir, files);
     // no need for temp file
-    const QString id = VCSBase::VCSBaseEditor::getTitleId(workingDir, files);
-    const QString source = VCSBase::VCSBaseEditor::getSource(workingDir, files);
+    const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDir, files);
+    const QString source = VCSBase::VCSBaseEditorWidget::getSource(workingDir, files);
     QStringList args;
     args << QLatin1String("log");
     args.append(files);
@@ -831,7 +831,7 @@ void CVSPlugin::filelog(const QString &workingDir,
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::LogOutput, source, codec);
         newEditor->setProperty("logFileName", id);
         if (enableAnnotationContextMenu)
-            VCSBase::VCSBaseEditor::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
+            VCSBase::VCSBaseEditorWidget::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
     }
 }
 
@@ -945,9 +945,9 @@ void CVSPlugin::annotate(const QString &workingDir, const QString &file,
                          int lineNumber /* = -1 */)
 {
     const QStringList files(file);
-    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(workingDir, files);
-    const QString id = VCSBase::VCSBaseEditor::getTitleId(workingDir, files, revision);
-    const QString source = VCSBase::VCSBaseEditor::getSource(workingDir, file);
+    QTextCodec *codec = VCSBase::VCSBaseEditorWidget::getCodec(workingDir, files);
+    const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDir, files, revision);
+    const QString source = VCSBase::VCSBaseEditorWidget::getSource(workingDir, file);
     QStringList args;
     args << QLatin1String("annotate");
     if (!revision.isEmpty())
@@ -962,17 +962,17 @@ void CVSPlugin::annotate(const QString &workingDir, const QString &file,
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
     if (lineNumber < 1)
-        lineNumber = VCSBase::VCSBaseEditor::lineNumberOfCurrentEditor(file);
+        lineNumber = VCSBase::VCSBaseEditorWidget::lineNumberOfCurrentEditor(file);
 
     if (Core::IEditor *editor = locateEditor("annotateFileName", id)) {
         editor->createNew(response.stdOut);
-        VCSBase::VCSBaseEditor::gotoLineOfEditor(editor, lineNumber);
+        VCSBase::VCSBaseEditorWidget::gotoLineOfEditor(editor, lineNumber);
         Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
     } else {
         const QString title = QString::fromLatin1("cvs annotate %1").arg(id);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::AnnotateOutput, source, codec);
         newEditor->setProperty("annotateFileName", id);
-        VCSBase::VCSBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
+        VCSBase::VCSBaseEditorWidget::gotoLineOfEditor(newEditor, lineNumber);
     }
 }
 
@@ -1118,7 +1118,7 @@ bool CVSPlugin::describe(const QString &repositoryPath,
     for (QList<CVS_LogEntry>::iterator it = entries.begin(); it != lend; ++it) {
         // Before fiddling file names, try to find codec
         if (!codec)
-            codec = VCSBase::VCSBaseEditor::getCodec(repositoryPath, QStringList(it->file));
+            codec = VCSBase::VCSBaseEditorWidget::getCodec(repositoryPath, QStringList(it->file));
         // Run log
         QStringList args(QLatin1String("log"));
         args << (QLatin1String("-r") + it->revisions.front().revision) << it->file;
@@ -1246,7 +1246,7 @@ Core::IEditor * CVSPlugin::showOutputInEditor(const QString& title, const QStrin
         e->setSource(source);
     if (codec)
         e->setCodec(codec);
-    Core::IEditor *ie = e->editableInterface();
+    Core::IEditor *ie = e->editor();
     Core::EditorManager::instance()->activateEditor(ie, Core::EditorManager::ModeSwitch);
     return ie;
 }

@@ -85,7 +85,7 @@ static bool colonIsElectric(const QString &text)
 void CppQtStyleIndenter::indentBlock(QTextDocument *doc,
                                      const QTextBlock &block,
                                      const QChar &typedChar,
-                                     TextEditor::BaseTextEditor *editor)
+                                     TextEditor::BaseTextEditorWidget *editor)
 {
     Q_UNUSED(doc)
 
@@ -117,7 +117,7 @@ void CppQtStyleIndenter::indentBlock(QTextDocument *doc,
 void CppQtStyleIndenter::indent(QTextDocument *doc,
                                 const QTextCursor &cursor,
                                 const QChar &typedChar,
-                                TextEditor::BaseTextEditor *editor)
+                                TextEditor::BaseTextEditorWidget *editor)
 {
     if (cursor.hasSelection()) {
         QTextBlock block = doc->findBlock(cursor.selectionStart());

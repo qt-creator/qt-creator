@@ -47,8 +47,8 @@ namespace GenericProjectManager {
 namespace Internal {
 
 class Manager;
-class ProjectFilesEditable;
 class ProjectFilesEditor;
+class ProjectFilesEditorWidget;
 class ProjectFilesDocument;
 class ProjectFilesFactory;
 
@@ -75,13 +75,13 @@ private:
     QStringList m_mimeTypes;
 };
 
-class ProjectFilesEditable: public TextEditor::BaseTextEditorEditable
+class ProjectFilesEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 
 public:
-    ProjectFilesEditable(ProjectFilesEditor *editor);
-    virtual ~ProjectFilesEditable();
+    ProjectFilesEditor(ProjectFilesEditorWidget *editorWidget);
+    virtual ~ProjectFilesEditor();
 
     virtual Core::Context context() const;
     virtual QString id() const;
@@ -95,19 +95,19 @@ private:
     Core::Context m_context;
 };
 
-class ProjectFilesEditor: public TextEditor::BaseTextEditor
+class ProjectFilesEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
 
 public:
-    ProjectFilesEditor(QWidget *parent, ProjectFilesFactory *factory,
+    ProjectFilesEditorWidget(QWidget *parent, ProjectFilesFactory *factory,
                        TextEditor::TextEditorActionHandler *handler);
-    virtual ~ProjectFilesEditor();
+    virtual ~ProjectFilesEditorWidget();
 
     ProjectFilesFactory *factory() const;
     TextEditor::TextEditorActionHandler *actionHandler() const;
 
-    virtual TextEditor::BaseTextEditorEditable *createEditableInterface();
+    virtual TextEditor::BaseTextEditor *createEditor();
 
 private:
     ProjectFilesFactory *m_factory;

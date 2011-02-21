@@ -42,20 +42,20 @@
 
 using namespace TextEditor;
 
-SnippetEditorEditable::SnippetEditorEditable(SnippetEditor *editor) :
-    BaseTextEditorEditable(editor),
+SnippetEditor::SnippetEditor(SnippetEditorWidget *editor) :
+    BaseTextEditor(editor),
     m_context(Constants::SNIPPET_EDITOR_ID, Constants::C_TEXTEDITOR)
 {}
 
-SnippetEditorEditable::~SnippetEditorEditable()
+SnippetEditor::~SnippetEditor()
 {}
 
-QString SnippetEditorEditable::id() const
+QString SnippetEditor::id() const
 {
     return Constants::SNIPPET_EDITOR_ID;
 }
 
-SnippetEditor::SnippetEditor(QWidget *parent) : BaseTextEditor(parent)
+SnippetEditorWidget::SnippetEditorWidget(QWidget *parent) : BaseTextEditorWidget(parent)
 {
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     setHighlightCurrentLine(false);
@@ -63,15 +63,15 @@ SnippetEditor::SnippetEditor(QWidget *parent) : BaseTextEditor(parent)
     setParenthesesMatchingEnabled(true);
 }
 
-SnippetEditor::~SnippetEditor()
+SnippetEditorWidget::~SnippetEditorWidget()
 {}
 
-void SnippetEditor::setSyntaxHighlighter(TextEditor::SyntaxHighlighter *highlighter)
+void SnippetEditorWidget::setSyntaxHighlighter(TextEditor::SyntaxHighlighter *highlighter)
 {
     baseTextDocument()->setSyntaxHighlighter(highlighter);
 }
 
-void SnippetEditor::focusOutEvent(QFocusEvent *event)
+void SnippetEditorWidget::focusOutEvent(QFocusEvent *event)
 {
     if (event->reason() != Qt::ActiveWindowFocusReason && document()->isModified()) {
         document()->setModified(false);
@@ -79,7 +79,7 @@ void SnippetEditor::focusOutEvent(QFocusEvent *event)
     }
 }
 
-BaseTextEditorEditable *SnippetEditor::createEditableInterface()
+BaseTextEditor *SnippetEditorWidget::createEditor()
 {
-    return new SnippetEditorEditable(this);
+    return new SnippetEditor(this);
 }

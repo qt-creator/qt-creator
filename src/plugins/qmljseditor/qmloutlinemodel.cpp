@@ -273,7 +273,7 @@ private:
     int indent;
 };
 
-QmlOutlineModel::QmlOutlineModel(QmlJSTextEditor *editor) :
+QmlOutlineModel::QmlOutlineModel(QmlJSTextEditorWidget *editor) :
     QStandardItemModel(editor),
     m_textEditor(editor)
 {

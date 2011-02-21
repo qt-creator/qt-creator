@@ -41,7 +41,7 @@
 namespace Mercurial {
 namespace Internal {
 
-class MercurialEditor : public VCSBase::VCSBaseEditor
+class MercurialEditor : public VCSBase::VCSBaseEditorWidget
 {
     Q_OBJECT
 public:

@@ -88,7 +88,7 @@ public:
         NonElementBindingType // can be filtered out
     };
 
-    QmlOutlineModel(QmlJSTextEditor *editor);
+    QmlOutlineModel(QmlJSTextEditorWidget *editor);
 
     // QStandardItemModel
     QStringList mimeTypes() const;
@@ -157,7 +157,7 @@ private:
     QHash<QmlOutlineItem*,QIcon> m_itemToIcon;
     QHash<QmlOutlineItem*,QmlJS::AST::Node*> m_itemToNode;
     QHash<QmlOutlineItem*,QmlJS::AST::UiQualifiedId*> m_itemToIdNode;
-    QmlJSTextEditor *m_textEditor;
+    QmlJSTextEditorWidget *m_textEditor;
 
 
     friend class QmlOutlineModelSync;

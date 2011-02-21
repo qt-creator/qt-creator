@@ -204,7 +204,7 @@ void TextEditorPlugin::extensionsInitialized()
             this, SLOT(updateCurrentSelection(QString)));
 }
 
-void TextEditorPlugin::initializeEditor(PlainTextEditor *editor)
+void TextEditorPlugin::initializeEditor(PlainTextEditorWidget *editor)
 {
     // common actions
     m_editorFactory->actionHandler()->setupActions(editor);
@@ -271,7 +271,7 @@ void TextEditorPlugin::updateVariable(const QString &variable)
 void TextEditorPlugin::updateCurrentSelection(const QString &text)
 {
     Core::IEditor *iface = Core::EditorManager::instance()->currentEditor();
-    ITextEditable *editor = qobject_cast<ITextEditable *>(iface);
+    ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
     if (editor) {
         int pos = editor->position();
         int anchor = editor->position(ITextEditor::Anchor);
@@ -281,7 +281,7 @@ void TextEditorPlugin::updateCurrentSelection(const QString &text)
         if (selectionLength == 0)
             return;
         int start = qMin(pos, anchor);
-        editor->setCurPos(start);
+        editor->setCursorPosition(start);
         editor->replace(selectionLength, text);
     }
 }

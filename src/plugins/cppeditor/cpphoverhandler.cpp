@@ -58,7 +58,7 @@ CppHoverHandler::~CppHoverHandler()
 
 bool CppHoverHandler::acceptEditor(IEditor *editor)
 {
-    CPPEditorEditable *cppEditor = qobject_cast<CPPEditorEditable *>(editor);
+    CPPEditor *cppEditor = qobject_cast<CPPEditor *>(editor);
     if (cppEditor)
         return true;
     return false;
@@ -66,7 +66,7 @@ bool CppHoverHandler::acceptEditor(IEditor *editor)
 
 void CppHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
 {
-    CPPEditor *cppEditor = qobject_cast<CPPEditor *>(editor->widget());
+    CPPEditorWidget *cppEditor = qobject_cast<CPPEditorWidget *>(editor->widget());
     if (!cppEditor)
         return;
 

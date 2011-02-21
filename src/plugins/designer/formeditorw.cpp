@@ -723,7 +723,7 @@ EditorData FormEditorW::createEditor(QWidget *parent)
             resourceHandler, SLOT(updateResources()));
     m_editorWidget->add(data);
 
-    m_toolBar->addEditor(xmlEditor->editableInterface());
+    m_toolBar->addEditor(xmlEditor->editor());
 
     return data;
 }

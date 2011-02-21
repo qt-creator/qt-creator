@@ -92,7 +92,7 @@ QString CppEditorSupport::contents()
 unsigned CppEditorSupport::editorRevision() const
 {
     if (_textEditor) {
-        if (TextEditor::BaseTextEditor *ed = qobject_cast<TextEditor::BaseTextEditor *>(_textEditor->widget()))
+        if (TextEditor::BaseTextEditorWidget *ed = qobject_cast<TextEditor::BaseTextEditorWidget *>(_textEditor->widget()))
             return ed->document()->revision();
     }
 
@@ -109,7 +109,7 @@ void CppEditorSupport::updateDocument()
 {
     _revision = editorRevision();
 
-    if (qobject_cast<TextEditor::BaseTextEditor*>(_textEditor->widget()) != 0) {
+    if (qobject_cast<TextEditor::BaseTextEditorWidget*>(_textEditor->widget()) != 0) {
         _modelManager->stopEditorSelectionsUpdate();
     }
 

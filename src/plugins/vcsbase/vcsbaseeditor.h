@@ -76,7 +76,8 @@ enum EditorContentType {
 // Helper struct used to parametrize an editor with mime type, context
 // and id. The extension is currently only a suggestion when running
 // VCS commands with redirection.
-struct VCSBASE_EXPORT VCSBaseEditorParameters {
+struct VCSBASE_EXPORT VCSBaseEditorParameters
+{
     EditorContentType type;
     const char *id;
     const char *displayName;
@@ -90,7 +91,7 @@ struct VCSBASE_EXPORT VCSBaseEditorParameters {
 // The source property should contain the file or directory the log
 // refers to and will be emitted with describeRequested().
 // This is for VCS that need a current directory.
-class VCSBASE_EXPORT VCSBaseEditor : public TextEditor::BaseTextEditor
+class VCSBASE_EXPORT VCSBaseEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_PROPERTY(QString source READ source WRITE setSource)
     Q_PROPERTY(QString diffBaseDirectory READ diffBaseDirectory WRITE setDiffBaseDirectory)
@@ -99,15 +100,16 @@ class VCSBASE_EXPORT VCSBaseEditor : public TextEditor::BaseTextEditor
     Q_PROPERTY(QString copyRevisionTextFormat READ copyRevisionTextFormat WRITE setCopyRevisionTextFormat)
     Q_PROPERTY(bool isFileLogAnnotateEnabled READ isFileLogAnnotateEnabled WRITE setFileLogAnnotateEnabled)
     Q_OBJECT
+
 protected:
     // Initialization requires calling init() (which in turns calls
     // virtual functions).
-    explicit VCSBaseEditor(const VCSBaseEditorParameters *type,
+    explicit VCSBaseEditorWidget(const VCSBaseEditorParameters *type,
                            QWidget *parent);
 public:
     void init();
 
-    virtual ~VCSBaseEditor();
+    virtual ~VCSBaseEditorWidget();
 
     /* Force read-only: Make it a read-only, temporary file.
      * Should be set to true by version control views. It is not on
@@ -159,9 +161,9 @@ public:
     static QTextCodec *getCodec(const QString &source);
     static QTextCodec *getCodec(const QString &workingDirectory, const QStringList &files);
 
-    // Utility to return the editor from the IEditor returned by the editor
-    // manager which is a BaseTextEditable.
-    static VCSBaseEditor *getVcsBaseEditor(const Core::IEditor *editor);
+    // Utility to return the widget from the IEditor returned by the editor
+    // manager which is a BaseTextEditor.
+    static VCSBaseEditorWidget *getVcsBaseEditor(const Core::IEditor *editor);
 
     // Utility to find the line number of the current editor. Optionally,
     // pass in the file name to match it. To be used when jumping to current
@@ -199,7 +201,7 @@ public slots:
     void setPlainTextData(const QByteArray &data);
 
 protected:
-    virtual TextEditor::BaseTextEditorEditable *createEditableInterface();
+    virtual TextEditor::BaseTextEditor *createEditor();
 
     void contextMenuEvent(QContextMenuEvent *e);
     void mouseMoveEvent(QMouseEvent *e);

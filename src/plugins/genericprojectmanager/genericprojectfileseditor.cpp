@@ -70,9 +70,9 @@ Manager *ProjectFilesFactory::manager() const
 
 Core::IEditor *ProjectFilesFactory::createEditor(QWidget *parent)
 {
-    ProjectFilesEditor *ed = new ProjectFilesEditor(parent, this, m_actionHandler);
+    ProjectFilesEditorWidget *ed = new ProjectFilesEditorWidget(parent, this, m_actionHandler);
     TextEditor::TextEditorSettings::instance()->initializeEditor(ed);
-    return ed->editableInterface();
+    return ed->editor();
 }
 
 QStringList ProjectFilesFactory::mimeTypes() const
@@ -104,46 +104,46 @@ Core::IFile *ProjectFilesFactory::open(const QString &fileName)
 // ProjectFilesEditable
 ////////////////////////////////////////////////////////////////////////////////////////
 
-ProjectFilesEditable::ProjectFilesEditable(ProjectFilesEditor *editor)
-  : TextEditor::BaseTextEditorEditable(editor),
+ProjectFilesEditor::ProjectFilesEditor(ProjectFilesEditorWidget *editor)
+  : TextEditor::BaseTextEditor(editor),
     m_context(Constants::C_FILESEDITOR)
 { }
 
-ProjectFilesEditable::~ProjectFilesEditable()
+ProjectFilesEditor::~ProjectFilesEditor()
 { }
 
-Core::Context ProjectFilesEditable::context() const
+Core::Context ProjectFilesEditor::context() const
 {
     return m_context;
 }
 
-QString ProjectFilesEditable::id() const
+QString ProjectFilesEditor::id() const
 {
     return QLatin1String(Constants::FILES_EDITOR_ID);
 }
 
-bool ProjectFilesEditable::duplicateSupported() const
+bool ProjectFilesEditor::duplicateSupported() const
 {
     return true;
 }
 
-Core::IEditor *ProjectFilesEditable::duplicate(QWidget *parent)
+Core::IEditor *ProjectFilesEditor::duplicate(QWidget *parent)
 {
-    ProjectFilesEditor *parentEditor = qobject_cast<ProjectFilesEditor *>(editor());
-    ProjectFilesEditor *editor = new ProjectFilesEditor(parent,
+    ProjectFilesEditorWidget *parentEditor = qobject_cast<ProjectFilesEditorWidget *>(editorWidget());
+    ProjectFilesEditorWidget *editor = new ProjectFilesEditorWidget(parent,
                                                         parentEditor->factory(),
                                                         parentEditor->actionHandler());
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
-    return editor->editableInterface();
+    return editor->editor();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // ProjectFilesEditor
 ////////////////////////////////////////////////////////////////////////////////////////
 
-ProjectFilesEditor::ProjectFilesEditor(QWidget *parent, ProjectFilesFactory *factory,
+ProjectFilesEditorWidget::ProjectFilesEditorWidget(QWidget *parent, ProjectFilesFactory *factory,
                                        TextEditor::TextEditorActionHandler *handler)
-    : TextEditor::BaseTextEditor(parent),
+    : TextEditor::BaseTextEditorWidget(parent),
       m_factory(factory),
       m_actionHandler(handler)
 {
@@ -154,22 +154,22 @@ ProjectFilesEditor::ProjectFilesEditor(QWidget *parent, ProjectFilesFactory *fac
     handler->setupActions(this);
 }
 
-ProjectFilesEditor::~ProjectFilesEditor()
+ProjectFilesEditorWidget::~ProjectFilesEditorWidget()
 { }
 
-ProjectFilesFactory *ProjectFilesEditor::factory() const
+ProjectFilesFactory *ProjectFilesEditorWidget::factory() const
 {
     return m_factory;
 }
 
-TextEditor::TextEditorActionHandler *ProjectFilesEditor::actionHandler() const
+TextEditor::TextEditorActionHandler *ProjectFilesEditorWidget::actionHandler() const
 {
     return m_actionHandler;
 }
 
-TextEditor::BaseTextEditorEditable *ProjectFilesEditor::createEditableInterface()
+TextEditor::BaseTextEditor *ProjectFilesEditorWidget::createEditor()
 {
-    return new ProjectFilesEditable(this);
+    return new ProjectFilesEditor(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

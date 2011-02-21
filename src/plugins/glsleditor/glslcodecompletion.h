@@ -49,14 +49,14 @@ public:
     CodeCompletion(QObject *parent = 0);
     virtual ~CodeCompletion();
 
-    /* Returns the current active ITextEditable */
-    virtual TextEditor::ITextEditable *editor() const;
+    /* Returns the current active ITextEditor */
+    virtual TextEditor::ITextEditor *editor() const;
     virtual int startPosition() const;
 
     /*
      * Returns true if this completion collector can be used with the given editor.
      */
-    virtual bool supportsEditor(TextEditor::ITextEditable *editor) const;
+    virtual bool supportsEditor(TextEditor::ITextEditor *editor) const;
 
     /*
      * Returns true if this completion collector supports the given completion policy.
@@ -67,10 +67,10 @@ public:
      * trigger an autocomplete. It will be called each time a character is typed in
      * the text editor.
      */
-    virtual bool triggersCompletion(TextEditor::ITextEditable *editor);
+    virtual bool triggersCompletion(TextEditor::ITextEditor *editor);
 
     // returns starting position
-    virtual int startCompletion(TextEditor::ITextEditable *editor);
+    virtual int startCompletion(TextEditor::ITextEditor *editor);
 
     /* This method should add all the completions it wants to show into the list,
      * based on the given cursor position.
@@ -109,7 +109,7 @@ public:
 private:
     QList<TextEditor::CompletionItem> m_completions;
     QList<TextEditor::CompletionItem> m_keywordCompletions;
-    TextEditor::ITextEditable *m_editor;
+    TextEditor::ITextEditor *m_editor;
     int m_startPosition;
     bool m_restartCompletion;
     QPointer<FunctionArgumentWidget> m_functionArgumentWidget;

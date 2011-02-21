@@ -36,7 +36,7 @@
 #include <texteditor/syntaxhighlighter.h>
 
 namespace GLSLEditor {
-class GLSLTextEditor;
+class GLSLTextEditorWidget;
 
 namespace Internal {
 
@@ -61,7 +61,7 @@ public:
         NumGLSLFormats
     };
 
-    explicit Highlighter(GLSLTextEditor *editor, QTextDocument *parent);
+    explicit Highlighter(GLSLTextEditorWidget *editor, QTextDocument *parent);
     virtual ~Highlighter();
 
     void setFormats(const QVector<QTextCharFormat> &formats);
@@ -73,7 +73,7 @@ protected:
 
 private:
     QTextCharFormat m_formats[NumGLSLFormats];
-    GLSLTextEditor *m_editor;
+    GLSLTextEditorWidget *m_editor;
 };
 
 } // namespace Internal

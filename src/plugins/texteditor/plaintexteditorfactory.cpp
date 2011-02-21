@@ -85,18 +85,18 @@ Core::IFile *PlainTextEditorFactory::open(const QString &fileName)
 
 Core::IEditor *PlainTextEditorFactory::createEditor(QWidget *parent)
 {
-    PlainTextEditor *rc = new PlainTextEditor(parent);
+    PlainTextEditorWidget *rc = new PlainTextEditorWidget(parent);
     TextEditorPlugin::instance()->initializeEditor(rc);
     connect(rc, SIGNAL(configured(Core::IEditor*)),
             this, SLOT(updateEditorInfoBar(Core::IEditor*)));
-    return rc->editableInterface();
+    return rc->editor();
 }
 
 void PlainTextEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
 {
-    PlainTextEditorEditable *editorEditable = qobject_cast<PlainTextEditorEditable *>(editor);
+    PlainTextEditor *editorEditable = qobject_cast<PlainTextEditor *>(editor);
     if (editorEditable) {
-        PlainTextEditor *textEditor = static_cast<PlainTextEditor *>(editorEditable->editor());
+        PlainTextEditorWidget *textEditor = static_cast<PlainTextEditorWidget *>(editorEditable->editorWidget());
         if (textEditor->isMissingSyntaxDefinition() &&
             !textEditor->ignoreMissingSyntaxDefinition() &&
             TextEditorSettings::instance()->highlighterSettings().alertWhenNoDefinition()) {

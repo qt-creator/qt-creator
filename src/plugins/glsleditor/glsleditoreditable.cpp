@@ -47,8 +47,8 @@
 namespace GLSLEditor {
 namespace Internal {
 
-GLSLEditorEditable::GLSLEditorEditable(GLSLTextEditor *editor)
-    : BaseTextEditorEditable(editor)
+GLSLEditorEditable::GLSLEditorEditable(GLSLTextEditorWidget *editor)
+    : BaseTextEditor(editor)
 {
     m_context.add(GLSLEditor::Constants::C_GLSLEDITOR_ID);
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);

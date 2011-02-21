@@ -64,7 +64,7 @@ bool Indenter::isElectricCharacter(const QChar &ch) const
 void Indenter::indentBlock(QTextDocument *doc,
                            const QTextBlock &block,
                            const QChar &typedChar,
-                           TextEditor::BaseTextEditor *editor)
+                           TextEditor::BaseTextEditorWidget *editor)
 {
     Q_UNUSED(doc)
     Q_UNUSED(editor)

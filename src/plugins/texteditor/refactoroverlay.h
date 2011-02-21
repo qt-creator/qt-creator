@@ -40,7 +40,7 @@
 #include <QtGui/QIcon>
 
 namespace TextEditor {
-class BaseTextEditor;
+class BaseTextEditorWidget;
 
 struct  TEXTEDITOR_EXPORT RefactorMarker {
     inline bool isValid() const { return !cursor.isNull(); }
@@ -57,7 +57,7 @@ class  TEXTEDITOR_EXPORT RefactorOverlay : public QObject
 {
     Q_OBJECT
 public:
-    explicit RefactorOverlay(TextEditor::BaseTextEditor *editor);
+    explicit RefactorOverlay(TextEditor::BaseTextEditorWidget *editor);
 
     bool isEmpty() const { return m_markers.isEmpty(); }
     void paint(QPainter *painter, const QRect &clip);
@@ -72,7 +72,7 @@ public:
 private:
     void paintMarker(const RefactorMarker& marker, QPainter *painter, const QRect &clip);
     RefactorMarkers m_markers;
-    BaseTextEditor *m_editor;
+    BaseTextEditorWidget *m_editor;
     int m_maxWidth;
     const QIcon m_icon;
 };

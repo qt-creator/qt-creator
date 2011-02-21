@@ -47,7 +47,7 @@ namespace Core {
 
 namespace TextEditor {
     class BaseTextDocument;
-    class PlainTextEditorEditable;
+    class PlainTextEditor;
 }
 
 namespace Designer {
@@ -102,7 +102,7 @@ public:
     QString contents() const;
 
     TextEditor::BaseTextDocument *textDocument();
-    TextEditor::PlainTextEditorEditable *textEditable();
+    TextEditor::PlainTextEditor *textEditable();
 
 public slots:
     void syncXmlEditor();

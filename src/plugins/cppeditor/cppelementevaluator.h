@@ -59,13 +59,13 @@ class CppModelManagerInterface;
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditor;
+class CPPEditorWidget;
 class CppElement;
 
 class CppElementEvaluator
 {
 public:
-    CppElementEvaluator(CPPEditor *editor);
+    CppElementEvaluator(CPPEditorWidget *editor);
 
     void setTextCursor(const QTextCursor &tc);
     void setLookupBaseClasses(const bool lookup);
@@ -85,7 +85,7 @@ private:
                                const CPlusPlus::LookupItem &lookupItem,
                                const CPlusPlus::LookupContext &lookupContext);
 
-    CPPEditor *m_editor;
+    CPPEditorWidget *m_editor;
     CPlusPlus::CppModelManagerInterface *m_modelManager;
     QTextCursor m_tc;
     bool m_lookupBaseClasses;
@@ -101,14 +101,14 @@ public:
     const TextEditor::HelpItem::Category &helpCategory() const;
     const QStringList &helpIdCandidates() const;
     const QString &helpMark() const;
-    const CPPEditor::Link &link() const;
+    const CPPEditorWidget::Link &link() const;
     const QString &tooltip() const;
 
 protected:
     CppElement();
 
     void setHelpCategory(const TextEditor::HelpItem::Category &category);
-    void setLink(const CPPEditor::Link &link);
+    void setLink(const CPPEditorWidget::Link &link);
     void setTooltip(const QString &tooltip);
     void setHelpIdCandidates(const QStringList &candidates);
     void addHelpIdCandidate(const QString &candidate);
@@ -118,7 +118,7 @@ private:
     TextEditor::HelpItem::Category m_helpCategory;
     QStringList m_helpIdCandidates;
     QString m_helpMark;
-    CPPEditor::Link m_link;
+    CPPEditorWidget::Link m_link;
     QString m_tooltip;
 };
 

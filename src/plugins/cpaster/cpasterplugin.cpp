@@ -166,14 +166,14 @@ ExtensionSystem::IPlugin::ShutdownFlag CodepasterPlugin::aboutToShutdown()
 void CodepasterPlugin::updateActions()
 {
     const IEditor* editor = EditorManager::instance()->currentEditor();
-    const BaseTextEditorEditable *textEditor = qobject_cast<const BaseTextEditorEditable *>(editor);
+    const BaseTextEditor *textEditor = qobject_cast<const BaseTextEditor *>(editor);
     m_postEditorAction->setEnabled(textEditor != 0);
 }
 
 void CodepasterPlugin::postEditor()
 {
     const IEditor* editor = EditorManager::instance()->currentEditor();
-    const BaseTextEditorEditable *textEditor = qobject_cast<const BaseTextEditorEditable *>(editor);
+    const BaseTextEditor *textEditor = qobject_cast<const BaseTextEditor *>(editor);
     if (!textEditor)
         return;
 
@@ -181,7 +181,7 @@ void CodepasterPlugin::postEditor()
     if (data.isEmpty())
         data = textEditor->contents();
     if (!data.isEmpty())
-        post(data, textEditor->editor()->mimeType());
+        post(data, textEditor->editorWidget()->mimeType());
 }
 
 void CodepasterPlugin::postClipboard()

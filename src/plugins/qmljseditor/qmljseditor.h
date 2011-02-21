@@ -137,13 +137,13 @@ private:
     friend class Internal::SemanticHighlighter;
 };
 
-class QMLJSEDITOR_EXPORT QmlJSTextEditor : public TextEditor::BaseTextEditor
+class QMLJSEDITOR_EXPORT QmlJSTextEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
 
 public:
-    QmlJSTextEditor(QWidget *parent = 0);
-    ~QmlJSTextEditor();
+    QmlJSTextEditorWidget(QWidget *parent = 0);
+    ~QmlJSTextEditorWidget();
 
     virtual void unCommentSelection();
 
@@ -205,9 +205,9 @@ protected:
     void wheelEvent(QWheelEvent *event);
     void resizeEvent(QResizeEvent *event);
     void scrollContentsBy(int dx, int dy);
-    TextEditor::BaseTextEditorEditable *createEditableInterface();
+    TextEditor::BaseTextEditor *createEditor();
     void createToolBar(QmlJSEditorEditable *editable);
-    TextEditor::BaseTextEditor::Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true);
+    TextEditor::BaseTextEditorWidget::Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true);
 
 private:
     bool isClosingBrace(const QList<QmlJS::Token> &tokens) const;

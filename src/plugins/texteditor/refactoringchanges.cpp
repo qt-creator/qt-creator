@@ -52,18 +52,18 @@ RefactoringChanges::RefactoringChanges()
 RefactoringChanges::~RefactoringChanges()
 {
     if (!m_fileToOpen.isEmpty()) {
-        BaseTextEditor::openEditorAt(m_fileToOpen, m_lineToOpen, m_columnToOpen);
+        BaseTextEditorWidget::openEditorAt(m_fileToOpen, m_lineToOpen, m_columnToOpen);
     }
 }
 
-BaseTextEditor *RefactoringChanges::editorForFile(const QString &fileName,
+BaseTextEditorWidget *RefactoringChanges::editorForFile(const QString &fileName,
                                                   bool openIfClosed)
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
 
     const QList<Core::IEditor *> editors = editorManager->editorsForFileName(fileName);
     foreach (Core::IEditor *editor, editors) {
-        BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(editor->widget());
+        BaseTextEditorWidget *textEditor = qobject_cast<BaseTextEditorWidget *>(editor->widget());
         if (textEditor != 0)
             return textEditor;
     }
@@ -80,7 +80,7 @@ BaseTextEditor *RefactoringChanges::editorForFile(const QString &fileName,
 
     Core::IEditor *editor = editorManager->openEditor(fileName, QString(),
                                                       Core::EditorManager::NoActivate | Core::EditorManager::IgnoreNavigationHistory);
-    return qobject_cast<BaseTextEditor *>(editor->widget());
+    return qobject_cast<BaseTextEditorWidget *>(editor->widget());
 }
 
 QList<QTextCursor> RefactoringChanges::rangesToSelections(QTextDocument *document, const QList<Range> &ranges)
@@ -104,7 +104,7 @@ bool RefactoringChanges::createFile(const QString &fileName, const QString &cont
     if (QFile::exists(fileName))
         return false;
 
-    BaseTextEditor *editor = editorForFile(fileName, openEditor);
+    BaseTextEditorWidget *editor = editorForFile(fileName, openEditor);
 
     QTextDocument *document;
     if (editor)
@@ -156,9 +156,9 @@ RefactoringFile RefactoringChanges::file(const QString &fileName)
         return RefactoringFile();
 }
 
-BaseTextEditor *RefactoringChanges::openEditor(const QString &fileName, int pos)
+BaseTextEditorWidget *RefactoringChanges::openEditor(const QString &fileName, int pos)
 {
-    BaseTextEditor *editor = editorForFile(fileName, true);
+    BaseTextEditorWidget *editor = editorForFile(fileName, true);
     if (pos != -1) {
         QTextCursor cursor = editor->textCursor();
         cursor.setPosition(pos);

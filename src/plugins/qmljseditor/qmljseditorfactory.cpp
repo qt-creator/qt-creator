@@ -130,9 +130,9 @@ Core::IEditor *QmlJSEditorFactory::createEditor(QWidget *parent)
                      SLOT(updateEditorInfoBar(Core::IEditor*)));
         }
     }
-    QmlJSEditor::QmlJSTextEditor *rc = new QmlJSEditor::QmlJSTextEditor(parent);
+    QmlJSEditor::QmlJSTextEditorWidget *rc = new QmlJSEditor::QmlJSTextEditorWidget(parent);
     QmlJSEditorPlugin::instance()->initializeEditor(rc);
-    return rc->editableInterface();
+    return rc->editor();
 }
 
 QStringList QmlJSEditorFactory::mimeTypes() const

@@ -200,7 +200,7 @@ void SymbolsFindFilter::openEditor(const Find::SearchResultItem &item)
     if (!item.userData.canConvert<ModelItemInfo>())
         return;
     ModelItemInfo info = item.userData.value<ModelItemInfo>();
-    TextEditor::BaseTextEditor::openEditorAt(info.fileName,
+    TextEditor::BaseTextEditorWidget::openEditorAt(info.fileName,
                                              info.line,
                                              info.column);
 }

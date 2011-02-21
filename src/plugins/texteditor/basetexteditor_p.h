@@ -181,7 +181,7 @@ public:
     int m_lastScrollPos;
     int m_lineNumber;
 
-    BaseTextEditor *q;
+    BaseTextEditorWidget *q;
     bool m_contentsChanged;
     bool m_lastCursorChangeWasInteresting;
 
@@ -247,7 +247,7 @@ public:
     int m_visibleWrapColumn;
 
     QTextCharFormat m_linkFormat;
-    BaseTextEditor::Link m_currentLink;
+    BaseTextEditorWidget::Link m_currentLink;
     bool m_linkPressed;
 
     QTextCharFormat m_ifdefedOutFormat;
@@ -261,11 +261,11 @@ public:
     void highlightSearchResults(const QTextBlock &block, TextEditorOverlay *overlay);
     QTimer *m_delayedUpdateTimer;
 
-    BaseTextEditorEditable *m_editable;
+    BaseTextEditor *m_editor;
 
     QObject *m_actionHack;
 
-    QList<QTextEdit::ExtraSelection> m_extraSelections[BaseTextEditor::NExtraSelectionKinds];
+    QList<QTextEdit::ExtraSelection> m_extraSelections[BaseTextEditorWidget::NExtraSelectionKinds];
 
     // block selection mode
     bool m_inBlockSelectionMode;

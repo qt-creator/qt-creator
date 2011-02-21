@@ -51,13 +51,13 @@ public:
     virtual QList<TextEditor::CompletionItem> getCompletions();
     virtual bool shouldRestartCompletion();
 
-    virtual TextEditor::ITextEditable *editor() const;
+    virtual TextEditor::ITextEditor *editor() const;
     virtual int startPosition() const;
 
-    virtual bool supportsEditor(TextEditor::ITextEditable *editor) const;
+    virtual bool supportsEditor(TextEditor::ITextEditor *editor) const;
     virtual bool supportsPolicy(TextEditor::CompletionPolicy policy) const;
-    virtual bool triggersCompletion(TextEditor::ITextEditable *editor);
-    virtual int startCompletion(TextEditor::ITextEditable *editor);
+    virtual bool triggersCompletion(TextEditor::ITextEditor *editor);
+    virtual int startCompletion(TextEditor::ITextEditor *editor);
     virtual void completions(QList<TextEditor::CompletionItem> *completions);
     virtual bool typedCharCompletes(const TextEditor::CompletionItem &item, QChar typedChar);
     virtual void complete(const TextEditor::CompletionItem &item, QChar typedChar);
@@ -67,7 +67,7 @@ private:
     int findStartOfName(int pos = -1) const;
     bool isInComment() const;
 
-    TextEditor::ITextEditable *m_editor;
+    TextEditor::ITextEditor *m_editor;
     int m_startPosition;
     const QIcon m_variableIcon;
     const QIcon m_functionIcon;

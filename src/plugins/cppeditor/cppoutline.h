@@ -70,7 +70,7 @@ class CppOutlineWidget : public TextEditor::IOutlineWidget
 {
     Q_OBJECT
 public:
-    CppOutlineWidget(CPPEditor *editor);
+    CppOutlineWidget(CPPEditorWidget *editor);
 
     // IOutlineWidget
     virtual QList<QAction*> filterMenuActions() const;
@@ -86,7 +86,7 @@ private:
     bool syncCursor();
 
 private:
-    CPPEditor *m_editor;
+    CPPEditorWidget *m_editor;
     CppOutlineTreeView *m_treeView;
     CPlusPlus::OverviewModel *m_model;
     CppOutlineFilterModel *m_proxyModel;

@@ -41,7 +41,7 @@
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditor;
+class CPPEditorWidget;
 
 class SemanticInfo
 {

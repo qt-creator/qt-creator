@@ -58,14 +58,14 @@
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
-PlainTextEditorEditable::PlainTextEditorEditable(PlainTextEditor *editor)
-  : BaseTextEditorEditable(editor),
+PlainTextEditor::PlainTextEditor(PlainTextEditorWidget *editor)
+  : BaseTextEditor(editor),
     m_context(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, TextEditor::Constants::C_TEXTEDITOR)
 {
 }
 
-PlainTextEditor::PlainTextEditor(QWidget *parent)
-  : BaseTextEditor(parent),
+PlainTextEditorWidget::PlainTextEditorWidget(QWidget *parent)
+  : BaseTextEditorWidget(parent),
   m_isMissingSyntaxDefinition(false),
   m_ignoreMissingSyntaxDefinition(false)
 {
@@ -84,35 +84,35 @@ PlainTextEditor::PlainTextEditor(QWidget *parent)
     connect(Manager::instance(), SIGNAL(mimeTypesRegistered()), this, SLOT(configure()));
 }
 
-PlainTextEditor::~PlainTextEditor()
+PlainTextEditorWidget::~PlainTextEditorWidget()
 {}
 
-Core::Context PlainTextEditorEditable::context() const
+Core::Context PlainTextEditor::context() const
 {
     return m_context;
 }
 
-Core::IEditor *PlainTextEditorEditable::duplicate(QWidget *parent)
+Core::IEditor *PlainTextEditor::duplicate(QWidget *parent)
 {
-    PlainTextEditor *newEditor = new PlainTextEditor(parent);
-    newEditor->duplicateFrom(editor());
-    TextEditorPlugin::instance()->initializeEditor(newEditor);
-    return newEditor->editableInterface();
+    PlainTextEditorWidget *newWidget = new PlainTextEditorWidget(parent);
+    newWidget->duplicateFrom(editorWidget());
+    TextEditorPlugin::instance()->initializeEditor(newWidget);
+    return newWidget->editor();
 }
 
-QString PlainTextEditorEditable::id() const
+QString PlainTextEditor::id() const
 {
     return QLatin1String(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
 }
 
-void PlainTextEditor::unCommentSelection()
+void PlainTextEditorWidget::unCommentSelection()
 {
     Utils::unCommentSelection(this, m_commentDefinition);
 }
 
-void PlainTextEditor::setFontSettings(const FontSettings &fs)
+void PlainTextEditorWidget::setFontSettings(const FontSettings &fs)
 {
-    BaseTextEditor::setFontSettings(fs);
+    BaseTextEditorWidget::setFontSettings(fs);
 
     if (baseTextDocument()->syntaxHighlighter()) {
         Highlighter *highlighter =
@@ -143,9 +143,9 @@ void PlainTextEditor::setFontSettings(const FontSettings &fs)
     }
 }
 
-void PlainTextEditor::setTabSettings(const TextEditor::TabSettings &ts)
+void PlainTextEditorWidget::setTabSettings(const TextEditor::TabSettings &ts)
 {
-    BaseTextEditor::setTabSettings(ts);
+    BaseTextEditorWidget::setTabSettings(ts);
 
     if (baseTextDocument()->syntaxHighlighter()) {
         Highlighter *highlighter =
@@ -154,7 +154,7 @@ void PlainTextEditor::setTabSettings(const TextEditor::TabSettings &ts)
     }
 }
 
-void PlainTextEditor::configure()
+void PlainTextEditorWidget::configure()
 {
     Core::MimeType mimeType;
     if (file())
@@ -162,7 +162,7 @@ void PlainTextEditor::configure()
     configure(mimeType);
 }
 
-void PlainTextEditor::configure(const Core::MimeType &mimeType)
+void PlainTextEditorWidget::configure(const Core::MimeType &mimeType)
 {
     Highlighter *highlighter = new Highlighter();
     baseTextDocument()->setSyntaxHighlighter(highlighter);
@@ -202,20 +202,20 @@ void PlainTextEditor::configure(const Core::MimeType &mimeType)
 
     setFontSettings(TextEditorSettings::instance()->fontSettings());
 
-    emit configured(editableInterface());
+    emit configured(editor());
 }
 
-bool PlainTextEditor::isMissingSyntaxDefinition() const
+bool PlainTextEditorWidget::isMissingSyntaxDefinition() const
 {
     return m_isMissingSyntaxDefinition;
 }
 
-bool PlainTextEditor::ignoreMissingSyntaxDefinition() const
+bool PlainTextEditorWidget::ignoreMissingSyntaxDefinition() const
 {
     return m_ignoreMissingSyntaxDefinition;
 }
 
-QString PlainTextEditor::findDefinitionId(const Core::MimeType &mimeType,
+QString PlainTextEditorWidget::findDefinitionId(const Core::MimeType &mimeType,
                                           bool considerParents) const
 {
     QString definitionId = Manager::instance()->definitionIdByAnyMimeType(mimeType.aliases());
@@ -232,13 +232,13 @@ QString PlainTextEditor::findDefinitionId(const Core::MimeType &mimeType,
     return definitionId;
 }
 
-void PlainTextEditor::acceptMissingSyntaxDefinitionInfo()
+void PlainTextEditorWidget::acceptMissingSyntaxDefinitionInfo()
 {
     Core::ICore::instance()->showOptionsDialog(Constants::TEXT_EDITOR_SETTINGS_CATEGORY,
                                                Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS);
 }
 
-void PlainTextEditor::ignoreMissingSyntaxDefinitionInfo()
+void PlainTextEditorWidget::ignoreMissingSyntaxDefinitionInfo()
 {
     m_ignoreMissingSyntaxDefinition = true;
 }

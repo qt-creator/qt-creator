@@ -52,7 +52,7 @@ namespace QmlJS {
 }
 
 namespace QmlJSEditor {
-    class QmlJSTextEditor;
+    class QmlJSTextEditorWidget;
 }
 
 namespace QmlJSInspector {
@@ -116,7 +116,7 @@ private:
     QmlJS::Document::Ptr m_initialDoc; //the document that was loaded by the server
     QString m_filename;
 
-    QList<QWeakPointer<QmlJSEditor::QmlJSTextEditor> > m_editors;
+    QList<QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> > m_editors;
 
     bool m_applyChangesToQmlObserver;
     QmlJS::Document::Ptr m_docWithUnappliedChanges;

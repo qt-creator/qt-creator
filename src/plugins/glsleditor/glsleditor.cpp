@@ -146,8 +146,8 @@ void Document::addRange(const QTextCursor &cursor, GLSL::Scope *scope)
     _cursors.append(c);
 }
 
-GLSLTextEditor::GLSLTextEditor(QWidget *parent) :
-    TextEditor::BaseTextEditor(parent),
+GLSLTextEditorWidget::GLSLTextEditorWidget(QWidget *parent) :
+    TextEditor::BaseTextEditorWidget(parent),
     m_outlineCombo(0)
 {
     setParenthesesMatchingEnabled(true);
@@ -175,17 +175,17 @@ GLSLTextEditor::GLSLTextEditor(QWidget *parent) :
 //    }
 }
 
-GLSLTextEditor::~GLSLTextEditor()
+GLSLTextEditorWidget::~GLSLTextEditorWidget()
 {
 }
 
-int GLSLTextEditor::editorRevision() const
+int GLSLTextEditorWidget::editorRevision() const
 {
     //return document()->revision();
     return 0;
 }
 
-bool GLSLTextEditor::isOutdated() const
+bool GLSLTextEditorWidget::isOutdated() const
 {
 //    if (m_semanticInfo.revision() != editorRevision())
 //        return true;
@@ -195,10 +195,10 @@ bool GLSLTextEditor::isOutdated() const
 
 Core::IEditor *GLSLEditorEditable::duplicate(QWidget *parent)
 {
-    GLSLTextEditor *newEditor = new GLSLTextEditor(parent);
-    newEditor->duplicateFrom(editor());
+    GLSLTextEditorWidget *newEditor = new GLSLTextEditorWidget(parent);
+    newEditor->duplicateFrom(editorWidget());
     GLSLEditorPlugin::instance()->initializeEditor(newEditor);
-    return newEditor->editableInterface();
+    return newEditor->editor();
 }
 
 QString GLSLEditorEditable::id() const
@@ -208,8 +208,8 @@ QString GLSLEditorEditable::id() const
 
 bool GLSLEditorEditable::open(const QString &fileName)
 {
-    editor()->setMimeType(Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(fileName)).type());
-    bool b = TextEditor::BaseTextEditorEditable::open(fileName);
+    editorWidget()->setMimeType(Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(fileName)).type());
+    bool b = TextEditor::BaseTextEditor::open(fileName);
     return b;
 }
 
@@ -218,9 +218,9 @@ Core::Context GLSLEditorEditable::context() const
     return m_context;
 }
 
-void GLSLTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
+void GLSLTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 {
-    TextEditor::BaseTextEditor::setFontSettings(fs);
+    TextEditor::BaseTextEditorWidget::setFontSettings(fs);
     Highlighter *highlighter = qobject_cast<Highlighter*>(baseTextDocument()->syntaxHighlighter());
     if (!highlighter)
         return;
@@ -254,7 +254,7 @@ void GLSLTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
     highlighter->rehighlight();
 }
 
-QString GLSLTextEditor::wordUnderCursor() const
+QString GLSLTextEditorWidget::wordUnderCursor() const
 {
     QTextCursor tc = textCursor();
     const QChar ch = characterAt(tc.position() - 1);
@@ -267,14 +267,14 @@ QString GLSLTextEditor::wordUnderCursor() const
     return word;
 }
 
-TextEditor::BaseTextEditorEditable *GLSLTextEditor::createEditableInterface()
+TextEditor::BaseTextEditor *GLSLTextEditorWidget::createEditor()
 {
     GLSLEditorEditable *editable = new GLSLEditorEditable(this);
     createToolBar(editable);
     return editable;
 }
 
-void GLSLTextEditor::createToolBar(GLSLEditorEditable *editable)
+void GLSLTextEditorWidget::createToolBar(GLSLEditorEditable *editable)
 {
     m_outlineCombo = new QComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
@@ -301,22 +301,22 @@ void GLSLTextEditor::createToolBar(GLSLEditorEditable *editable)
     toolBar->insertWidget(actions.first(), m_outlineCombo);
 }
 
-bool GLSLTextEditor::event(QEvent *e)
+bool GLSLTextEditorWidget::event(QEvent *e)
 {
-    return BaseTextEditor::event(e);
+    return BaseTextEditorWidget::event(e);
 }
 
-void GLSLTextEditor::unCommentSelection()
+void GLSLTextEditorWidget::unCommentSelection()
 {
     Utils::unCommentSelection(this);
 }
 
-void GLSLTextEditor::updateDocument()
+void GLSLTextEditorWidget::updateDocument()
 {
     m_updateDocumentTimer->start();
 }
 
-void GLSLTextEditor::updateDocumentNow()
+void GLSLTextEditorWidget::updateDocumentNow()
 {
     m_updateDocumentTimer->stop();
 
@@ -379,7 +379,7 @@ void GLSLTextEditor::updateDocumentNow()
     }
 }
 
-int GLSLTextEditor::languageVariant() const
+int GLSLTextEditorWidget::languageVariant() const
 {
     int variant = 0;
     QString type = mimeType();
@@ -417,7 +417,7 @@ int GLSLTextEditor::languageVariant() const
     return variant;
 }
 
-Document::Ptr GLSLTextEditor::glslDocument() const
+Document::Ptr GLSLTextEditorWidget::glslDocument() const
 {
     return m_glslDocument;
 }

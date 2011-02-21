@@ -142,7 +142,7 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopy() const
 
         if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor)) {
             if (textEditor->context().contains(ProjectExplorer::Constants::LANG_QMLJS)) {
-                if (TextEditor::BaseTextEditor *ed = qobject_cast<TextEditor::BaseTextEditor *>(textEditor->widget())) {
+                if (TextEditor::BaseTextEditorWidget *ed = qobject_cast<TextEditor::BaseTextEditorWidget *>(textEditor->widget())) {
                     workingCopy.insert(key, ed->toPlainText(), ed->document()->revision());
                 }
             }

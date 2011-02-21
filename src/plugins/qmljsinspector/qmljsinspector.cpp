@@ -204,8 +204,8 @@ void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextE
 {
     Q_UNUSED(mousePos);
     if (m_clientProxy && editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
-        QmlJSEditor::QmlJSTextEditor *qmlEditor =
-                static_cast<QmlJSEditor::QmlJSTextEditor*>(editor->widget());
+        QmlJSEditor::QmlJSTextEditorWidget *qmlEditor =
+                static_cast<QmlJSEditor::QmlJSTextEditorWidget*>(editor->widget());
 
         QTextCursor tc(qmlEditor->document());
         tc.setPosition(cursorPos);
@@ -654,8 +654,8 @@ QDeclarativeDebugObjectReference InspectorUi::objectReferenceForLocation(const Q
     if (textEditor && m_clientProxy && textEditor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
         if (cursorPosition == -1)
             cursorPosition = textEditor->position();
-        QmlJSEditor::QmlJSTextEditor *qmlEditor =
-                static_cast<QmlJSEditor::QmlJSTextEditor*>(textEditor->widget());
+        QmlJSEditor::QmlJSTextEditorWidget *qmlEditor =
+                static_cast<QmlJSEditor::QmlJSTextEditorWidget*>(textEditor->widget());
 
         if (QmlJS::AST::Node *node
                 = qmlEditor->semanticInfo().declaringMemberNoProperties(cursorPosition)) {

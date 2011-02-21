@@ -71,7 +71,7 @@ class FontSettings;
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditor;
+class CPPEditorWidget;
 
 class SemanticHighlighter: public QThread, CPlusPlus::TopLevelDeclarationProcessor
 {
@@ -142,11 +142,11 @@ private:
     SemanticInfo m_lastSemanticInfo;
 };
 
-class CPPEditorEditable : public TextEditor::BaseTextEditorEditable
+class CPPEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 public:
-    CPPEditorEditable(CPPEditor *);
+    CPPEditor(CPPEditorWidget *);
     Core::Context context() const;
 
     bool duplicateSupported() const { return true; }
@@ -160,15 +160,15 @@ private:
     Core::Context m_context;
 };
 
-class CPPEditor : public TextEditor::BaseTextEditor
+class CPPEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
 
 public:
     typedef TextEditor::TabSettings TabSettings;
 
-    CPPEditor(QWidget *parent);
-    ~CPPEditor();
+    CPPEditorWidget(QWidget *parent);
+    ~CPPEditorWidget();
     void unCommentSelection();
 
     unsigned editorRevision() const;
@@ -178,8 +178,8 @@ public:
     CPlusPlus::OverviewModel *outlineModel() const;
     QModelIndex outlineModelIndex();
 
-    virtual void paste(); // reimplemented from BaseTextEditor
-    virtual void cut(); // reimplemented from BaseTextEditor
+    virtual void paste(); // reimplemented from BaseTextEditorWidget
+    virtual void cut(); // reimplemented from BaseTextEditorWidget
 
     CPlusPlus::CppModelManagerInterface *modelManager() const;
 
@@ -215,7 +215,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *);
     void keyPressEvent(QKeyEvent *);
 
-    TextEditor::BaseTextEditorEditable *createEditableInterface();
+    TextEditor::BaseTextEditor *createEditor();
 
     const CPlusPlus::Macro *findCanonicalMacro(const QTextCursor &cursor,
                                                CPlusPlus::Document::Ptr doc) const;
@@ -258,7 +258,7 @@ private:
                        const SemanticInfo &semanticInfo,
                        QList<QTextEdit::ExtraSelection> *selections);
 
-    void createToolBar(CPPEditorEditable *editable);
+    void createToolBar(CPPEditor *editable);
 
     void startRename();
     void finishRename();

@@ -41,7 +41,7 @@
 
 namespace TextEditor {
 
-class ITextEditable;
+class ITextEditor;
 class CompletionSupportPrivate;
 
 /* Completion support is responsible for querying the list of completion collectors
@@ -60,7 +60,7 @@ public:
     CompletionPolicy policy() const;
 
 public slots:
-    void complete(TextEditor::ITextEditable *editor,
+    void complete(TextEditor::ITextEditor *editor,
         TextEditor::CompletionPolicy policy, bool forced);
 
 private:

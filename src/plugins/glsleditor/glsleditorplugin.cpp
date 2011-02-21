@@ -242,7 +242,7 @@ ExtensionSystem::IPlugin::ShutdownFlag GLSLEditorPlugin::aboutToShutdown()
     return IPlugin::aboutToShutdown();
 }
 
-void GLSLEditorPlugin::initializeEditor(GLSLEditor::GLSLTextEditor *editor)
+void GLSLEditorPlugin::initializeEditor(GLSLEditor::GLSLTextEditorWidget *editor)
 {
     QTC_ASSERT(m_instance, /**/);
 

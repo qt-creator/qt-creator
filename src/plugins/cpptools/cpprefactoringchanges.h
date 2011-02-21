@@ -52,7 +52,7 @@ class CPPTOOLS_EXPORT CppRefactoringFile: public TextEditor::RefactoringFile
 public:
     CppRefactoringFile();
     CppRefactoringFile(const QString &fileName, CppRefactoringChanges *refactoringChanges);
-    CppRefactoringFile(TextEditor::BaseTextEditor *editor, CPlusPlus::Document::Ptr document);
+    CppRefactoringFile(TextEditor::BaseTextEditorWidget *editor, CPlusPlus::Document::Ptr document);
 
     CPlusPlus::Document::Ptr cppDocument() const;
 
@@ -94,7 +94,7 @@ public:
 private:
     virtual void indentSelection(const QTextCursor &selection,
                                  const QString &fileName,
-                                 const TextEditor::BaseTextEditor *textEditor) const;
+                                 const TextEditor::BaseTextEditorWidget *textEditor) const;
     virtual void fileChanged(const QString &fileName);
 
 private:

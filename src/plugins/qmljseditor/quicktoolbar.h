@@ -37,7 +37,7 @@
 #include <qmljs/qmljsicontextpane.h>
 
 namespace TextEditor {
-class BaseTextEditorEditable;
+class BaseTextEditor;
 }
 
 namespace QmlEditorWidgets {
@@ -53,8 +53,8 @@ class QuickToolBar : public QmlJS::IContextPane
 public:
    QuickToolBar(QObject *parent = 0);
    ~QuickToolBar();
-   void apply(TextEditor::BaseTextEditorEditable *editor, QmlJS::Document::Ptr document, QmlJS::LookupContext::Ptr lookupContext, QmlJS::AST::Node *node, bool update, bool force = false);
-   bool isAvailable(TextEditor::BaseTextEditorEditable *editor, QmlJS::Document::Ptr document, QmlJS::AST::Node *node);
+   void apply(TextEditor::BaseTextEditor *editor, QmlJS::Document::Ptr document, QmlJS::LookupContext::Ptr lookupContext, QmlJS::AST::Node *node, bool update, bool force = false);
+   bool isAvailable(TextEditor::BaseTextEditor *editor, QmlJS::Document::Ptr document, QmlJS::AST::Node *node);
    void setProperty(const QString &propertyName, const QVariant &value);
    void removeProperty(const QString &propertyName);
    void setEnabled(bool);
@@ -72,7 +72,7 @@ private:
     QWeakPointer<QmlEditorWidgets::ContextPaneWidget> m_widget;
     QmlJS::Document::Ptr m_doc;
     QmlJS::AST::Node *m_node;
-    TextEditor::BaseTextEditorEditable *m_editor;
+    TextEditor::BaseTextEditor *m_editor;
     bool m_blockWriting;
     QStringList m_propertyOrder;
     QStringList m_prototypes;

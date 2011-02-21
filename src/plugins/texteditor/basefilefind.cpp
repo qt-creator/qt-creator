@@ -266,7 +266,7 @@ void BaseFileFind::updateComboEntries(QComboBox *combo, bool onTop)
 void BaseFileFind::openEditor(const Find::SearchResultItem &item)
 {
     if (item.path.size() > 0) {
-        TextEditor::BaseTextEditor::openEditorAt(QDir::fromNativeSeparators(item.path.first()), item.lineNumber, item.textMarkPos,
+        TextEditor::BaseTextEditorWidget::openEditorAt(QDir::fromNativeSeparators(item.path.first()), item.lineNumber, item.textMarkPos,
                                                  QString(), Core::EditorManager::ModeSwitch);
     } else {
         Core::EditorManager::instance()->openEditor(item.text, QString(), Core::EditorManager::ModeSwitch);
@@ -334,9 +334,9 @@ QStringList BaseFileFind::replaceAll(const QString &text,
         const QList<Find::SearchResultItem> changeItems = it.value();
 
         const QList<Core::IEditor *> editors = editorManager->editorsForFileName(fileName);
-        TextEditor::BaseTextEditor *textEditor = 0;
+        TextEditor::BaseTextEditorWidget *textEditor = 0;
         foreach (Core::IEditor *editor, editors) {
-            textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
+            textEditor = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
             if (textEditor != 0)
                 break;
         }

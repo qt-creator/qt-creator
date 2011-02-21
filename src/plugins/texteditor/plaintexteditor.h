@@ -47,14 +47,14 @@ class MimeType;
 
 namespace TextEditor {
 
-class PlainTextEditor;
+class PlainTextEditorWidget;
 class Indenter;
 
-class TEXTEDITOR_EXPORT PlainTextEditorEditable : public BaseTextEditorEditable
+class TEXTEDITOR_EXPORT PlainTextEditor : public BaseTextEditor
 {
     Q_OBJECT
 public:
-    PlainTextEditorEditable(PlainTextEditor *);
+    PlainTextEditor(PlainTextEditorWidget *);
     Core::Context context() const;
 
     bool duplicateSupported() const { return true; }
@@ -66,13 +66,13 @@ private:
     const Core::Context m_context;
 };
 
-class TEXTEDITOR_EXPORT PlainTextEditor : public BaseTextEditor
+class TEXTEDITOR_EXPORT PlainTextEditorWidget : public BaseTextEditorWidget
 {
     Q_OBJECT
 
 public:
-    PlainTextEditor(QWidget *parent);
-    ~PlainTextEditor();
+    PlainTextEditorWidget(QWidget *parent);
+    ~PlainTextEditorWidget();
 
     void configure(const Core::MimeType &mimeType);
     bool isMissingSyntaxDefinition() const;
@@ -92,7 +92,7 @@ signals:
     void configured(Core::IEditor *editor);
 
 protected:
-    virtual BaseTextEditorEditable *createEditableInterface() { return new PlainTextEditorEditable(this); }    
+    virtual BaseTextEditor *createEditor() { return new PlainTextEditor(this); }
 
 private:
     QString findDefinitionId(const Core::MimeType &mimeType, bool considerParents) const;

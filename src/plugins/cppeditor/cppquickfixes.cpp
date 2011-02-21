@@ -634,7 +634,7 @@ private:
 
         ASTMatcher matcher;
         ASTPatternBuilder mk;
-        CPPEditor *editor;
+        CPPEditorWidget *editor;
         ConditionAST *condition;
         IfStatementAST *pattern;
         CoreDeclaratorAST *core;
@@ -721,7 +721,7 @@ private:
 
         ASTMatcher matcher;
         ASTPatternBuilder mk;
-        CPPEditor *editor;
+        CPPEditorWidget *editor;
         ConditionAST *condition;
         WhileStatementAST *pattern;
         CoreDeclaratorAST *core;
@@ -1628,7 +1628,7 @@ private:
                     m_name[i] = m_name.at(i).toUpper();
                 }
             }
-            static_cast<CppEditor::Internal::CPPEditor*>(state().editor())->renameUsagesNow(m_name);
+            static_cast<CppEditor::Internal::CPPEditorWidget*>(state().editor())->renameUsagesNow(m_name);
         }
 
         static bool isConvertibleUnderscore(const QString &name, int pos)
