@@ -484,8 +484,6 @@ signals:
     void requestFontZoom(int zoom);
     void requestZoomReset();
     void requestBlockUpdate(const QTextBlock &);
-    void requestCompletion(TextEditor::ITextEditable *editor,
-                           TextEditor::CompletionPolicy, bool forced);
 
 private:
     void maybeRequestAutoCompletion(const QChar &ch);

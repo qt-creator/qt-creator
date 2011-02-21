@@ -271,12 +271,6 @@ void QmlJSEditorPlugin::initializeEditor(QmlJSEditor::QmlJSTextEditor *editor)
     m_actionHandler->setupActions(editor);
 
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
-
-    // auto completion and quick fix
-    connect(editor,
-            SIGNAL(requestCompletion(TextEditor::ITextEditable*,TextEditor::CompletionPolicy,bool)),
-            TextEditor::CompletionSupport::instance(),
-            SLOT(complete(TextEditor::ITextEditable*,TextEditor::CompletionPolicy,bool)));
 }
 
 void QmlJSEditorPlugin::followSymbolUnderCursor()

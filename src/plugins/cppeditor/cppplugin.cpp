@@ -178,12 +178,6 @@ void CppPlugin::initializeEditor(CPPEditor *editor)
 
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
 
-    // semantic auto completion and quick fix
-    connect(editor,
-            SIGNAL(requestCompletion(TextEditor::ITextEditable*,TextEditor::CompletionPolicy,bool)),
-            TextEditor::CompletionSupport::instance(),
-            SLOT(complete(TextEditor::ITextEditable*,TextEditor::CompletionPolicy,bool)));
-
     // method combo box sorting
     connect(this, SIGNAL(outlineSortingChanged(bool)),
             editor, SLOT(setSortedOutline(bool)));

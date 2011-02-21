@@ -249,12 +249,6 @@ void GLSLEditorPlugin::initializeEditor(GLSLEditor::GLSLTextEditor *editor)
     m_actionHandler->setupActions(editor);
 
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
-
-    // auto completion and quick fix
-    connect(editor,
-            SIGNAL(requestCompletion(TextEditor::ITextEditable*,TextEditor::CompletionPolicy,bool)),
-            TextEditor::CompletionSupport::instance(),
-            SLOT(autoComplete(TextEditor::ITextEditable*,TextEditor::CompletionPolicy,bool)));
 }
 
 

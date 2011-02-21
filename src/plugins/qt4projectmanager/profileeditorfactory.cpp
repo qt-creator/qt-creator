@@ -90,12 +90,6 @@ Core::IEditor *ProFileEditorFactory::createEditor(QWidget *parent)
 {
     ProFileEditor *editor = new ProFileEditor(parent, this, m_actionHandler);
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
-
-    // auto completion
-    connect(editor,
-            SIGNAL(requestCompletion(TextEditor::ITextEditable*,TextEditor::CompletionPolicy,bool)),
-            TextEditor::CompletionSupport::instance(),
-            SLOT(complete(TextEditor::ITextEditable*,TextEditor::CompletionPolicy,bool)));
     return editor->editableInterface();
 }
 
