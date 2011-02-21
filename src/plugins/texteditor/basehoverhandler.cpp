@@ -82,16 +82,7 @@ void BaseHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint
     editor->setContextHelpId(QString());
 
     process(editor, pos);
-
-    const QPoint &actualPoint = point - QPoint(0,
-#ifdef Q_WS_WIN
-    24
-#else
-    16
-#endif
-    );
-
-    operateTooltip(editor, actualPoint);
+    operateTooltip(editor, point);
 }
 
 void BaseHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int pos)

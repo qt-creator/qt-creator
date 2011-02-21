@@ -2008,7 +2008,6 @@ void DebuggerPluginPrivate::cleanupViews()
 {
     m_reverseDirectionAction->setChecked(false);
     m_reverseDirectionAction->setEnabled(false);
-    m_toolTipManager->closeUnpinnedToolTips();
 
     if (!boolSetting(CloseBuffersOnExit))
         return;

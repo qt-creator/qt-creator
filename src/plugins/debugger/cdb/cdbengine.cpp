@@ -500,7 +500,7 @@ bool CdbEngine::setToolTipExpression(const QPoint &mousePos,
     tw->setDebuggerModel(LocalsWatch);
     tw->setExpression(exp);
     tw->acquireEngine(this);
-    DebuggerToolTipManager::instance()->add(mousePos, tw);
+    DebuggerToolTipManager::instance()->showToolTip(mousePos, editor, tw);
     return true;
 }
 

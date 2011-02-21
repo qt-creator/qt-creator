@@ -53,9 +53,7 @@ class QStandardItemModel;
 class QPlainTextEdit;
 class QLabel;
 class QToolBar;
-class QMenu;
 class QDebug;
-class QAction;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -72,6 +70,7 @@ class DebuggerEngine;
 
 namespace Internal {
 class DraggableLabel;
+class DebuggerToolTipEditor;
 
 class PinnableToolTipWidget : public QWidget
 {
@@ -85,32 +84,28 @@ public:
     };
 
     explicit PinnableToolTipWidget(QWidget *parent = 0);
+
     PinState pinState() const  { return m_pinState; }
 
     void addWidget(QWidget *w);
     void addToolBarWidget(QWidget *w);
-    void addMenuAction(QAction *a);
-    // Add an action to "close all". Call in constructor after populating the tool button menu.
-    void addCloseAllMenuAction();
 
 public slots:
     void pin();
 
 signals:
-    void closeAllRequested();
-
-protected:
-    virtual void leaveEvent(QEvent *ev);
+    void pinned();
 
 private slots:
     void toolButtonClicked();
 
 private:
+    virtual void doPin();
+
     PinState m_pinState;
     QVBoxLayout *m_mainVBoxLayout;
     QToolBar *m_toolBar;
     QToolButton *m_toolButton;
-    QMenu *m_menu;
 };
 
 class DebuggerToolTipContext
@@ -165,9 +160,10 @@ public slots:
     void acquireEngine(Debugger::DebuggerEngine *engine);
     void releaseEngine();
     void copy();
-    bool positionShow(const QPlainTextEdit *pe);
+    bool positionShow(const DebuggerToolTipEditor &pe);
 
 private slots:
+    virtual void doPin();
     void slotDragged(const QPoint &p);
 
 protected:
@@ -250,19 +246,18 @@ public:
 
     static DebuggerToolTipManager *instance() { return m_instance; }
     void registerEngine(DebuggerEngine *engine);
+    bool hasToolTips() const { return !m_pinnedTooltips.isEmpty(); }
 
     // Collect all expressions of DebuggerTreeViewToolTipWidget
     QStringList treeWidgetExpressions(const QString &fileName,
                                       const QString &engineType = QString(),
                                       const QString &function= QString()) const;
 
-    void add(const QPoint &p, AbstractDebuggerToolTipWidget *w);
+    void showToolTip(const QPoint &p, Core::IEditor *editor, AbstractDebuggerToolTipWidget *);
 
     virtual bool eventFilter(QObject *, QEvent *);
 
     static bool debug();
-
-signals:
 
 public slots:
     void debugModeEntered();
@@ -271,31 +266,31 @@ public slots:
     void loadSessionData();
     void saveSessionData();
     void closeAllToolTips();
-    void closeUnpinnedToolTips();
-    void hide();
+    void hide()
+;
 
 private slots:
     void slotUpdateVisibleToolTips();
     void slotDebuggerStateChanged(Debugger::DebuggerState);
     void slotStackFrameCompleted();
     void slotEditorOpened(Core::IEditor *);
+    void slotPinnedFirstTime();
     void slotTooltipOverrideRequested(TextEditor::ITextEditor *editor, const QPoint &point,
                                       int pos, bool *handled);
 
 private:
     typedef QList<QPointer<AbstractDebuggerToolTipWidget> > DebuggerToolTipWidgetList;
 
-    inline bool isActive() const { return !m_tooltips.isEmpty(); }
-    void add(AbstractDebuggerToolTipWidget *toolTipWidget);
+    void registerToolTip(AbstractDebuggerToolTipWidget *toolTipWidget);
     void moveToolTipsBy(const QPoint &distance);
     // Purge out closed (null) tooltips and return list for convenience
     DebuggerToolTipWidgetList &purgeClosedToolTips();
 
     static DebuggerToolTipManager *m_instance;
 
-    DebuggerToolTipWidgetList m_tooltips;
+    DebuggerToolTipWidgetList m_pinnedTooltips;
     bool m_debugModeActive;
-    int m_lastToolTipPos;
+    QPoint m_lastToolTipPoint;
     Core::IEditor *m_lastToolTipEditor;
 };
 

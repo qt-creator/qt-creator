@@ -52,6 +52,7 @@ public:
     virtual TipContent *clone() const = 0;
     virtual int typeId() const = 0;
     virtual bool isValid() const = 0;
+    virtual bool isInteractive() const = 0;
     virtual int showTime() const = 0;
     virtual bool equals(const TipContent &tipContent) const = 0;
 };
@@ -65,6 +66,7 @@ public:
     virtual TipContent *clone() const;
     virtual int typeId() const;
     virtual bool isValid() const;
+    virtual bool isInteractive() const;
     virtual int showTime() const;
     virtual bool equals(const TipContent &tipContent) const;
 
@@ -85,6 +87,7 @@ public:
     virtual TipContent *clone() const;
     virtual int typeId() const;
     virtual bool isValid() const;
+    virtual bool isInteractive() const;
     virtual int showTime() const;
     virtual bool equals(const TipContent &tipContent) const;
 
@@ -94,6 +97,34 @@ public:
 
 private:
     QString m_text;
+};
+
+// A content for displaying any widget (with a layout).
+class TEXTEDITOR_EXPORT WidgetContent : public TipContent
+{
+public:
+    explicit WidgetContent(QWidget *w, bool interactive = false);
+
+    virtual TipContent *clone() const;
+    virtual int typeId() const;
+    virtual bool isValid() const;
+    virtual int showTime() const;
+    virtual bool isInteractive() const;
+    void setInteractive(bool i);
+
+    virtual bool equals(const TipContent &tipContent) const;
+
+    // Helper to 'pin' (show as real window) a tooltip shown
+    // using WidgetContent
+    static bool pinToolTip(QWidget *w);
+
+    static const int WIDGET_CONTENT_ID = 42;
+
+    QWidget *widget() const { return m_widget; }
+
+private:
+    QWidget *m_widget;
+    bool m_interactive;
 };
 
 } // namespace TextEditor

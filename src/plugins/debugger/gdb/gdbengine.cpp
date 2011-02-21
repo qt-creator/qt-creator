@@ -108,10 +108,12 @@ namespace Internal {
 class GdbToolTipContext : public DebuggerToolTipContext
 {
 public:
-    GdbToolTipContext(const DebuggerToolTipContext &c) : DebuggerToolTipContext(c) {}
+    GdbToolTipContext(const DebuggerToolTipContext &c) :
+        DebuggerToolTipContext(c), editor(0) {}
 
     QPoint mousePosition;
     QString expression;
+    Core::IEditor *editor;
 };
 
 static const char winPythonVersionC[] = "python2.5";
@@ -3406,7 +3408,8 @@ bool GdbEngine::showToolTip()
     tw->setExpression(expression);
     tw->setContext(*m_toolTipContext);
     tw->acquireEngine(this);
-    DebuggerToolTipManager::instance()->add(m_toolTipContext->mousePosition, tw);
+    DebuggerToolTipManager::instance()->showToolTip(m_toolTipContext->mousePosition,
+                                                    m_toolTipContext->editor, tw);
     return true;
 }
 
@@ -3481,6 +3484,7 @@ bool GdbEngine::setToolTipExpression(const QPoint &mousePos,
     m_toolTipContext.reset(new GdbToolTipContext(context));
     m_toolTipContext->mousePosition = mousePos;
     m_toolTipContext->expression = exp;
+    m_toolTipContext->editor = editor;
     if (DebuggerToolTipManager::debug())
         qDebug() << "GdbEngine::setToolTipExpression2 " << exp << (*m_toolTipContext);
 

@@ -38,6 +38,8 @@
 #include <QtGui/QLabel>
 #include <QtGui/QPixmap>
 
+QT_FORWARD_DECLARE_CLASS(QVBoxLayout)
+
 namespace TextEditor {
 class TipContent;
 }
@@ -61,7 +63,9 @@ public:
     const TextEditor::TipContent &content() const;
 
     virtual void configure(const QPoint &pos, QWidget *w) = 0;
-    virtual bool handleContentReplacement(const TextEditor::TipContent &content) const = 0;
+    virtual bool canHandleContentReplacement(const TextEditor::TipContent &content) const = 0;
+
+    bool isInteractive() const;
 
 private:
     TextEditor::TipContent *m_tipContent;
@@ -75,7 +79,7 @@ public:
     virtual ~ColorTip();
 
     virtual void configure(const QPoint &pos, QWidget *w);
-    virtual bool handleContentReplacement(const TipContent &content) const;
+    virtual bool canHandleContentReplacement(const TipContent &content) const;
 
 private:
     virtual void paintEvent(QPaintEvent *event);
@@ -91,11 +95,29 @@ public:
     virtual ~TextTip();
 
     virtual void configure(const QPoint &pos, QWidget *w);
-    virtual bool handleContentReplacement(const TipContent &content) const;
+    virtual bool canHandleContentReplacement(const TipContent &content) const;
 
 private:
     virtual void paintEvent(QPaintEvent *event);
     virtual void resizeEvent(QResizeEvent *event);
+};
+
+class WidgetTip : public QTipLabel
+{
+    Q_OBJECT
+public:
+    explicit WidgetTip(QWidget *parent = 0);
+
+    virtual void configure(const QPoint &pos, QWidget *w);
+    virtual bool canHandleContentReplacement(const TipContent &content) const;
+
+public slots:
+    void pinToolTipWidget();
+
+private:
+    QWidget *takeWidget(Qt::WindowFlags wf = 0);
+
+    QVBoxLayout *m_layout;
 };
 
 #ifndef Q_MOC_RUN

@@ -34,6 +34,9 @@
 #include "tipfactory.h"
 #include "tipcontents.h"
 #include "tips.h"
+#include <utils/qtcassert.h>
+
+#include <QtGui/QVBoxLayout>
 
 using namespace TextEditor;
 using namespace Internal;
@@ -46,10 +49,13 @@ TipFactory::~TipFactory()
 
 Internal::QTipLabel *TipFactory::createTip(const TipContent &content, QWidget *w)
 {
-    QTipLabel *tip = 0;
     if (content.typeId() == TextContent::TEXT_CONTENT_ID)
-        tip = new TextTip(w);
-    else if (content.typeId() == ColorContent::COLOR_CONTENT_ID)
-        tip = new ColorTip(w);
-    return tip;
+        return new TextTip(w);
+    if (content.typeId() == ColorContent::COLOR_CONTENT_ID)
+        return new ColorTip(w);
+    if (content.typeId() == WidgetContent::WIDGET_CONTENT_ID)
+        return new WidgetTip(w);
+
+    QTC_ASSERT(false, return 0; )
+    return 0;
 }

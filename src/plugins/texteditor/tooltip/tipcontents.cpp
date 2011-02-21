@@ -32,10 +32,14 @@
 **************************************************************************/
 
 #include "tipcontents.h"
+#include "tooltip.h"
+#include "tips.h"
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QtGlobal>
 
-using namespace TextEditor;
+namespace TextEditor {
 
 TipContent::TipContent()
 {}
@@ -62,6 +66,11 @@ int ColorContent::typeId() const
 bool ColorContent::isValid() const
 {
     return m_color.isValid();
+}
+
+bool ColorContent::isInteractive() const
+{
+    return false;
 }
 
 int ColorContent::showTime() const
@@ -104,6 +113,11 @@ bool TextContent::isValid() const
     return !m_text.isEmpty();
 }
 
+bool TextContent::isInteractive() const
+{
+    return false;
+}
+
 int TextContent::showTime() const
 {
     return 10000 + 40 * qMax(0, m_text.length() - 100);
@@ -122,3 +136,64 @@ const QString &TextContent::text() const
 {
     return m_text;
 }
+
+WidgetContent::WidgetContent(QWidget *w, bool interactive) :
+    m_widget(w), m_interactive(interactive)
+{
+}
+
+TipContent *WidgetContent::clone() const
+{
+    return new WidgetContent(m_widget, m_interactive);
+}
+
+int WidgetContent::typeId() const
+{
+    return WIDGET_CONTENT_ID;
+}
+
+bool WidgetContent::isValid() const
+{
+    return m_widget;
+}
+
+bool WidgetContent::isInteractive() const
+{
+    return m_interactive;
+}
+
+void WidgetContent::setInteractive(bool i)
+{
+    m_interactive = i;
+}
+
+int WidgetContent::showTime() const
+{
+    return 30000;
+}
+
+bool WidgetContent::equals(const TipContent &tipContent) const
+{
+    if (typeId() == tipContent.typeId()) {
+        if (m_widget == static_cast<const WidgetContent &>(tipContent).m_widget)
+            return true;
+    }
+    return false;
+}
+
+bool WidgetContent::pinToolTip(QWidget *w)
+{
+    QTC_ASSERT(w, return false; )
+    // Find the parent WidgetTip, tell it to pin/release the
+    // widget and close.
+    for (QWidget *p = w->parentWidget(); p ; p = p->parentWidget()) {
+        if (Internal::WidgetTip *wt = qobject_cast<Internal::WidgetTip *>(p)) {
+            wt->pinToolTipWidget();
+            ToolTip::instance()->hide();
+            return true;
+        }
+    }
+    return false;
+}
+
+} // namespace TextEditor

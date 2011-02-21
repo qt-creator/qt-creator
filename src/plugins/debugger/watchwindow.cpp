@@ -485,6 +485,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(actShowInEditor);
     menu.addAction(debuggerCore()->action(SettingsDialog));
 
+    QAction *actCloseEditorToolTips = new QAction(tr("Close Editor Tooltips"), &menu);
+    actCloseEditorToolTips->setEnabled(DebuggerToolTipManager::instance()->hasToolTips());
+    menu.addAction(actCloseEditorToolTips);
+
     QAction *act = menu.exec(ev->globalPos());
     if (act == 0)
         return;
@@ -538,6 +542,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         handler->setUnprintableBase(8);
     } else if (act == showUnprintableHexadecimal) {
         handler->setUnprintableBase(16);
+    } else if (act == actCloseEditorToolTips) {
+        DebuggerToolTipManager::instance()->closeAllToolTips();
     } else {
         for (int i = 0; i != typeFormatActions.size(); ++i) {
             if (act == typeFormatActions.at(i))

@@ -43,6 +43,9 @@
 #include <QtGui/QApplication>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMouseEvent>
+#include <QtGui/QMenu>
+
+#include <QtCore/QDebug>
 
 using namespace TextEditor;
 using namespace Internal;
@@ -94,7 +97,7 @@ bool ToolTip::acceptShow(const TipContent &content,
         return false;
 
     if (isVisible()) {
-        if (m_tip->handleContentReplacement(content)) {
+        if (m_tip->canHandleContentReplacement(content)) {
             // Reuse current tip.
             QPoint localPos = pos;
             if (w)
@@ -231,6 +234,9 @@ void ToolTip::placeTip(const QPoint &pos, QWidget *w)
 
 bool ToolTip::eventFilter(QObject *o, QEvent *event)
 {
+    if (!o->isWidgetType())
+        return false;
+
     switch (event->type()) {
 #ifdef Q_WS_MAC
     case QEvent::KeyPress:
@@ -245,19 +251,38 @@ bool ToolTip::eventFilter(QObject *o, QEvent *event)
     }
 #endif
     case QEvent::Leave:
-        hideTipWithDelay();
+        if (o == m_tip) {
+            hideTipWithDelay();
+        }
+        break;
+    case QEvent::Enter:
+        // User moved cursor into tip and wants to interact.
+        if (m_tip && m_tip->isInteractive() && o == m_tip) {
+            if (m_hideDelayTimer.isActive())
+                m_hideDelayTimer.stop();
+        }
         break;
     case QEvent::WindowActivate:
     case QEvent::WindowDeactivate:
+    case QEvent::FocusOut:
+    case QEvent::FocusIn:
+        if (m_tip && !m_tip->isInteractive()) // Windows: A sequence of those occurs when interacting
+            hideTipImmediately();
+        break;
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
-    case QEvent::FocusIn:
-    case QEvent::FocusOut:
     case QEvent::Wheel:
-        hideTipImmediately();
+        if (m_tip) {
+            if (m_tip->isInteractive()) { // Do not close on interaction with the tooltip
+                if (o != m_tip && !m_tip->isAncestorOf(static_cast<QWidget *>(o))) {
+                    hideTipImmediately();
+                }
+            } else {
+                hideTipImmediately();
+            }
+        }
         break;
-
     case QEvent::MouseMove:
         if (o == m_widget &&
             !m_rect.isNull() &&

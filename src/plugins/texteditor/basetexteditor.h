@@ -235,6 +235,8 @@ public:
     void setAutoCompleter(AutoCompleter *autoCompleter);
     AutoCompleter *autoCompleter() const;
 
+    QPoint toolTipPosition(const QTextCursor &c) const;
+
 public slots:
     void setDisplayName(const QString &title);
 

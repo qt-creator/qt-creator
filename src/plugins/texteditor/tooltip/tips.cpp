@@ -35,6 +35,8 @@
 #include "tipcontents.h"
 #include "reuse.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QRect>
 #include <QtGui/QColor>
 #include <QtGui/QPainter>
@@ -47,6 +49,7 @@
 #include <QtGui/QStyleOptionFrame>
 #include <QtGui/QResizeEvent>
 #include <QtGui/QPaintEvent>
+#include <QtGui/QVBoxLayout>
 
 namespace TextEditor {
     namespace Internal {
@@ -77,6 +80,11 @@ QTipLabel::~QTipLabel()
         delete m_tipContent;
 }
 
+bool QTipLabel::isInteractive() const
+{
+    return m_tipContent && m_tipContent->isInteractive();
+}
+
 void QTipLabel::setContent(const TipContent &content)
 {
     if (m_tipContent)
@@ -104,7 +112,7 @@ void ColorTip::configure(const QPoint &pos, QWidget *w)
     update();
 }
 
-bool ColorTip::handleContentReplacement(const TipContent &content) const
+bool ColorTip::canHandleContentReplacement(const TipContent &content) const
 {
     if (content.typeId() == ColorContent::COLOR_CONTENT_ID)
         return true;
@@ -175,7 +183,7 @@ void TextTip::configure(const QPoint &pos, QWidget *w)
     resize(tipWidth, heightForWidth(tipWidth) + extraHeight);
 }
 
-bool TextTip::handleContentReplacement(const TipContent &content) const
+bool TextTip::canHandleContentReplacement(const TipContent &content) const
 {
     if (content.typeId() == TextContent::TEXT_CONTENT_ID)
         return true;
@@ -202,6 +210,61 @@ void TextTip::resizeEvent(QResizeEvent *event)
         setMask(frameMask.region);
 
     QLabel::resizeEvent(event);
+}
+
+WidgetTip::WidgetTip(QWidget *parent) :
+    QTipLabel(parent), m_layout(new QVBoxLayout)
+{
+    m_layout->setContentsMargins(0, 0, 0, 0);
+    setLayout(m_layout);
+}
+
+QWidget *WidgetTip::takeWidget(Qt::WindowFlags wf)
+{
+    // Remove widget from layout
+    if (!m_layout->count())
+        return 0;
+    QLayoutItem *item = m_layout->takeAt(0);
+    QWidget *widget = item->widget();
+    delete item;
+    if (!widget)
+        return 0;
+    widget->setParent(0, wf);
+    return widget;
+}
+
+void WidgetTip::configure(const QPoint &pos, QWidget *)
+{
+    const WidgetContent &anyContent = static_cast<const WidgetContent &>(content());
+    QWidget *widget = anyContent.widget();
+
+    QTC_ASSERT(widget && m_layout->count() == 0, return; )
+
+    move(pos);
+    m_layout->addWidget(widget);
+    m_layout->setSizeConstraint(QLayout::SetFixedSize);
+    adjustSize();
+}
+
+void WidgetTip::pinToolTipWidget()
+{
+    QTC_ASSERT(m_layout->count(), return; )
+
+    // Pin the content widget: Rip the widget out of the layout
+    // and re-show as a tooltip, with delete on close.
+    const QPoint screenPos = mapToGlobal(QPoint(0, 0));
+    QWidget *widget = takeWidget(Qt::ToolTip);
+    QTC_ASSERT(widget, return; )
+
+    widget->move(screenPos);
+    widget->show();
+    widget->setAttribute(Qt::WA_DeleteOnClose);
+}
+
+bool WidgetTip::canHandleContentReplacement(const TipContent & ) const
+{
+    // Always create a new widget.
+    return false;
 }
 
 // need to include it here to force it to be inside the namespaces

@@ -2507,6 +2507,19 @@ void BaseTextEditorPrivate::snippetTabOrBacktab(bool forward)
     q->setTextCursor(cursor);
 }
 
+// Calculate global position for a tooltip considering the left extra area.
+QPoint BaseTextEditor::toolTipPosition(const QTextCursor &c) const
+{
+    const QPoint cursorPos = mapToGlobal(cursorRect(c).bottomRight() + QPoint(1,1));
+    return cursorPos + QPoint(d->m_extraArea->width(),
+#ifdef Q_WS_WIN
+    -24
+#else
+    -16
+#endif
+    );
+}
+
 bool BaseTextEditor::viewportEvent(QEvent *event)
 {
     d->m_contentsChanged = false;
@@ -2530,15 +2543,13 @@ bool BaseTextEditor::viewportEvent(QEvent *event)
         }
 
         // Allow plugins to show tooltips
-        const QTextCursor &c = cursorForPosition(pos);
-        QPoint cursorPos = mapToGlobal(cursorRect(c).bottomRight() + QPoint(1,1));
-        cursorPos.setX(cursorPos.x() + d->m_extraArea->width());
-
+        const QTextCursor c = cursorForPosition(pos);
+        const QPoint toolTipPoint = toolTipPosition(c);
         bool handled = false;
         BaseTextEditorEditable *editable = editableInterface();
-        emit editable->tooltipOverrideRequested(editable, cursorPos, c.position(), &handled);
+        emit editable->tooltipOverrideRequested(editable, toolTipPoint, c.position(), &handled);
         if (!handled)
-            emit editable->tooltipRequested(editable, cursorPos, c.position());
+            emit editable->tooltipRequested(editable, toolTipPoint, c.position());
         return true;
     }
     return QPlainTextEdit::viewportEvent(event);
