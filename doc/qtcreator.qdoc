@@ -2624,8 +2624,9 @@
     \title Managing Projects
 
     To set up a project, you first have to decide what kind of an
-    application you want to develop: whether you want a Qt Quick user interface
-    or a Qt widget based user interface. For a Qt Quick project, you must also
+    application you want to develop: whether you want a user interface
+    based on Qt Quick, Qt widgets, or HTML5. For a Qt Quick or HTML5 project,
+    you must also
     choose the language to implement the application logic: C++ or JavaScript.
     You can also create other kinds of projects, such as Qt console
     applications, shared or static C++ libraries, or subprojects.
@@ -2688,24 +2689,41 @@
 
     \list
 
-        \o Qt Quick Projects, which use QML to define the user interface and,
+        \o Qt Quick Projects
+
+        Use QML to define the user interface and,
         optionally, C++ or JavaScript to define the application logic
 
-        \o Qt Widget Projects, which use \QD forms to define a Qt widget based
+        \o Qt Widget Projects
+
+        Use \QD forms to define a Qt widget based
         user interface and C++ to define the application logic
 
-        \o Other Projects, such as Qt console applications, shared or static
-        C++ libraries, Qt unit tests, Qt Custom Designer Widgets, or
-        subprojects
+        \o Other Projects
 
-        \o
+        \list
+
+            \o HTML5 based applications
+
+            \o Qt console applications
+
+            \o Shared or static C++ libraries
+
+            \o Qt unit tests
+
+            \o Qt Custom Designer Widgets
+
+            \o Subprojects
+
+        \endlist
 
     \endlist
 
     To create a new project, select \gui File > \gui{New File or Project} and
     select the type of your
            project.
-           The contents of the wizard dialogs depend on the project type.
+           The contents of the wizard dialogs depend on the project type and
+           the build targets that you select in the \gui {Qt Versions} dialog.
            Follow the instructions of the wizard.
 
     For examples of creating different types of projects, see
@@ -5003,17 +5021,33 @@
         environment, for example, as part of the \QSDK. You can add targets
         later in the \gui Projects mode.
 
-        The \gui {Application Options} dialog opens.
+        The \gui {Mobile Options} dialog opens.
 
-        \image qtcreator-mobile-project-app-options.png "Application Options dialog"
+        \image qtcreator-mobile-project-app-options.png "Mobile Options dialog"
 
         \o In the \gui {Orientation behavior} field, determine how the application
         behaves when the orientation of the device display rotates between portrait
         and landscape, and then click \gui{Next}.
 
-        \note Qt Creator contains a default program icon and generates a UID for testing
-        the application on a device. You only need to specify the \gui {Symbian Specific}
-        and \gui {Maemo Specific} settings if you deliver the application for public use.
+        \note This dialog opens only if you select \gui Maemo5 or
+        \gui {Symbian Device} target in the \gui {Qt Versions} dialog.
+
+        The \gui {Symbian Specific} dialog opens.
+
+        \image qtcreator-mobile-project-symbian-options.png "Symbian Specific dialog"
+
+        \note Qt Creator contains a default program icon and generates an
+        \l{Application UID}, for testing the application on a device. You only
+        need to change the icon and UID if you deliver the application for public use.
+
+        \o Click \gui Next.
+
+        The \gui {Maemo Specific} dialog opens.
+
+        \image qtcreator-mobile-project-maemo-options.png "Maemo Specific dialog"
+
+        \o In the \gui {Application icon (64x64)} field, select the application
+         icon to use on Maemo targets, or click \gui Next to use the default icon.
 
         The \gui{Project Management} dialog opens.
 
@@ -5578,11 +5612,11 @@
         \o Select \gui{File > New File or Project > Qt Widget Project > Qt Gui
         Application > Choose}.
 
-           \image qtcreator-new-project.png "New File or Project dialog"
+        \image qtcreator-new-qt-gui-application.png "New File or Project dialog"
 
         The \gui{Introduction and Project Location} dialog opens.
 
-        \image qtcreator-intro-and-location.png "Introduction and Project Location dialog"
+        \image qtcreator-intro-and-location-qt-gui.png "Introduction and Project Location dialog"
 
         \o In the \gui{Name} field, type \bold {TextFinder}.
 
@@ -5592,7 +5626,7 @@
 
         The \gui {Qt Versions} dialog opens.
 
-        \image qtcreator-new-project-qt-versions.png "Qt Versions dialog"
+        \image qtcreator-new-project-qt-versions-qt-gui.png "Qt Versions dialog"
 
         \o Select the Qt versions to use as build targets for your project, and click
         \gui{Next}.
@@ -5601,7 +5635,7 @@
 
         The \gui{Class Information} dialog opens.
 
-        \image qtcreator-class-info.png "Class Information dialog"
+        \image qtcreator-class-info-qt-gui.png "Class Information dialog"
 
         \o In the \gui{Class name} field, type \bold {TextFinder} as the class name.
 
@@ -5615,7 +5649,7 @@
 
         The \gui{Project Management} dialog opens.
 
-        \image qtcreator-new-project-summary.png "Project Management dialog"
+        \image qtcreator-new-project-summary-qt-gui.png "Project Management dialog"
 
         \o Review the project settings, and click \gui{Finish} to create the project.
 
@@ -7940,15 +7974,15 @@
 
     \list
 
-        \o \gui {Qt Quick UI} creates a Qt Quick UI project with a single QML file that
-        contains the main view. You can review Qt Quick UI projects in the QML Viewer and you
-        need not build them. You do not need to have the development environment installed on your
-        computer to create and run this type of projects.
-
         \o \gui {Qt Quick Application} creates a Qt Quick application project that can
         contain both QML and C++ code. The project includes a QDeclarativeView. You can build
         the application and deploy it on desktop and mobile target platforms. For example, you
         can create signed Symbian Installation System (SIS) packages for this type of projects.
+
+        \o \gui {Qt Quick UI} creates a Qt Quick UI project with a single QML file that
+        contains the main view. You can review Qt Quick UI projects in the QML Viewer and you
+        need not build them. You do not need to have the development environment installed on your
+        computer to create and run this type of projects.
 
         \o \gui {Custom QML Extension Plugin} creates a C++ plugin that makes it possible
         to offer extensions that can be loaded dynamically into applications by using the
@@ -7969,7 +8003,7 @@
 
         The \gui{Introduction and Project Location} dialog opens.
 
-        \image qmldesigner-new-project-location.png "Introduction and Project Location dialog"
+        \image qmldesigner-new-ui-project-location.png "Introduction and Project Location dialog"
 
         \o In the \gui Name field, give a name to the project.
 
@@ -8039,24 +8073,39 @@
         versions are displayed. Further, if you have only one supported Qt version installed,
         this dialog is skipped.
 
-        The \gui{Application Options} dialog opens.
+        The \gui {Mobile Options} dialog opens.
 
-        \image qtcreator-mobile-project-app-options.png "Application Options dialog"
+        \image qmldesigner-new-app-project-mobile-options.png "Mobile Options dialog"
 
         \o In the \gui {Orientation behavior} field, determine how the application
         behaves when the orientation of the device display rotates between portrait
-        and landscape.
+        and landscape, and then click \gui Next.
 
-        \o In the \gui {Application icon} field, select an application icon.
+        \note This dialog opens only if you select \gui Maemo5 or
+        \gui {Symbian Device} target in the \gui {Qt Versions} dialog.
 
-        \o In the \gui {Target UID3} field, specify the \l{Application UID}.
+        The \gui {Symbian Specific} dialog opens.
+
+        \image qmldesigner-new-project-symbian-options.png "Symbian Specific dialog"
+
+        \o In the \gui {Application icon (.svg)} field, select an application
+        icon for the \gui {Symbian Device} target, or use the default icon.
+
+        \o In the \gui {Target UID3} field, specify the \l{Application UID}, or
+        use the default UID.
 
         \note Qt Creator generates a UID for testing the application on a device.
         You need to change the UID when you deliver the application for public
         use.
 
-        \o If the application needs network connectivity, select the
-        \gui {Enable network access} check box, and then click \gui{Next}.
+        \o Click \gui Next.
+
+        The \gui {Maemo Specific} dialog opens.
+
+        \image qmldesigner-new-project-maemo-options.png "Maemo Specific dialog"
+
+        \o In the \gui {Application icon (64x64)} field, select the application
+         icon to use on Maemo targets, or use the default icon.
 
         The \gui {QML Sources} dialog opens.
 
