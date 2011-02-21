@@ -67,7 +67,7 @@ namespace {
 /*
 * X.509 S60 Certificate Extension
 */
-class S60CertificateExtension : Certificate_Extension
+class S60CertificateExtension : public Certificate_Extension
 {
 public:
     OID oid_of() const;
