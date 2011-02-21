@@ -3402,12 +3402,21 @@
 
     Qt Creator allows you to have multiple versions of Qt installed on
     your development PC and use different versions for each of your projects.
+    For example, \QSDK contains special Qt versions for Maemo and Symbian
+    development.
 
     If Qt Creator finds \bold qmake in the \c{PATH} environment variable, it uses
     that version. The \l{glossary-system-qt}{ qmake version of Qt} is referred
     to as \bold{Qt in PATH}. If you intend to use only one version of Qt and it
     is already in the \c{PATH} and correctly set up for command line use, you do
     not need to manually configure your Qt version.
+
+    You can add Qt versions to Qt Creator in \gui {Tools > Options... > Qt4 >
+    Qt Versions}.
+
+    Typically, you select the Qt versions for a project when you use project
+    wizards to create the project. You can add Qt versions for a project in
+    \gui Projects mode \gui {Build Settings}.
 
     \section2 Compiling Projects with MinGW in Windows
 
@@ -3471,15 +3480,19 @@
 
            \image qtcreator-qt4-qtversions-win-msvc.png
 
-        \o If the \gui {Debugging helper} is not in use, click \gui Rebuild
-        to take it to use. For more information, see \l{Using Debugging Helpers}.
+        \o If the \gui {Helpers} are available, but not in use, click
+        \gui Build for each available helper to take it to use. For more
+        information, see \l{Using Debugging Helpers}.
 
     \endlist
 
     \section2 Compiling Qt for Symbian Projects
 
-    If you are using \bold{Qt for Symbian} and your Symbian SDK is registered
-    with devices.exe, Qt Creator automatically detects the Qt version. To add a
+    If you install Qt for Symbian as a part of \QSDK, it is automatically
+    detected by Qt Creator. If you install other Symbian SDKs and register them
+    with devices.exe, Qt Creator automatically detects the Qt version.
+
+    To add a
     Qt for Symbian version:
     \list 1
         \o Select \gui Tools > \gui Options... > \gui Qt4 >
@@ -3489,7 +3502,7 @@
            \image qtcreator-qt4-qtversions-win-symbian.png
         \o To build an application for your device using GCCE, enter the path
            to the CSL ARM toolchain directory in
-           \gui{CSL\\GCCE Directory}.
+           \gui{CSL\\GCCE directory}.
 
            You do not need to specify this path if the compiler is included in
            the \c{PATH} environment variable.
@@ -3498,6 +3511,10 @@
            \gui{Carbide directory}.
 
            \note You need to have Carbide C++ version 2.0 or later installed.
+
+        \o To build an application using the Symbian build system (SBS v2) that
+           is available for Symbian OS 9.5 based SDKs, enter the path to the SBS
+           v2 toolchain directory in \gui{SBS v2 directory}.
     \endlist
 
     \section2 Compiling Projects With Linux
@@ -3511,8 +3528,8 @@
         \o Select \gui Tools > \gui Options... > \gui Qt4 >
            \gui{Qt Versions}.
         \o Click \inlineimage qtcreator-linux-add.png
-           and enter the name of the version in \gui{Version Name}.
-        \o Enter the path to the qmake binary in \gui{Path to qmake}.
+           and enter the name of the version in \gui{Version name}.
+        \o Enter the path to the qmake binary in \gui{qmake location}.
     \endlist
 
     \section2 Compiling Projects With Mac OS X
@@ -3525,7 +3542,7 @@
         \o Select \gui{Qt Creator} > \gui Preferences... > \gui{Qt Versions}.
         \o Click \inlineimage qtcreator-macosx-add.png
            and enter the name of the version in \gui{Version Name}.
-        \o Enter the path to the qmake binary in \gui{Path to Qmake}.
+        \o Enter the path to the qmake binary in \gui{qmake location}.
 
            \image qtcreator-qt4-qtversions.png
     \endlist
