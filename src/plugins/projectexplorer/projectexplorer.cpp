@@ -957,7 +957,7 @@ void ProjectExplorerPlugin::loadAction()
                                                     d->m_projectFilterString);
     if (filename.isEmpty())
         return;
-    loadProject(filename);
+    openProject(filename);
     updateActions();
 }
 
@@ -1166,18 +1166,6 @@ void ProjectExplorerPlugin::savePersistentSettings()
     }
 }
 
-void ProjectExplorerPlugin::loadProject(const QString &project)
-{
-    if (!openProject(project)) {
-        QMessageBox box(QMessageBox::Warning,
-                        tr("Failed to open project"),
-                        tr("Failed to open project:\n%1").arg(project),
-                        QMessageBox::Ok,
-                        Core::ICore::instance()->mainWindow());
-        box.exec();
-    }
-}
-
 bool ProjectExplorerPlugin::openProject(const QString &fileName)
 {
     if (debug)
@@ -1359,7 +1347,7 @@ void ProjectExplorerPlugin::restoreSession()
     connect(modeManager, SIGNAL(currentModeChanged(Core::IMode*, Core::IMode*)),
             this, SLOT(currentModeChanged(Core::IMode*, Core::IMode*)));
     connect(d->m_welcomePage, SIGNAL(requestSession(QString)), this, SLOT(loadSession(QString)));
-    connect(d->m_welcomePage, SIGNAL(requestProject(QString)), this, SLOT(loadProject(QString)));
+    connect(d->m_welcomePage, SIGNAL(requestProject(QString)), this, SLOT(openProject(QString)));
 
     QStringList combinedList;
     // Converts "filename" "+45" or "filename" ":23"

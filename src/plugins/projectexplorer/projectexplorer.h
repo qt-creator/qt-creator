@@ -80,7 +80,7 @@ public:
 
     static ProjectExplorerPlugin *instance();
 
-    bool openProject(const QString &fileName);
+    Q_SLOT bool openProject(const QString &fileName);
     QList<Project *> openProjects(const QStringList &fileNames);
 
     SessionManager *session() const;
@@ -209,7 +209,6 @@ private slots:
     void updateDeployActions();
     void slotUpdateRunActions();
 
-    void loadProject(const QString &project);
     void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode);
     void updateActions();
     void loadCustomWizards();
