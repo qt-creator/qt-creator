@@ -6,46 +6,50 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>432</width>
-    <height>173</height>
+    <width>399</width>
+    <height>302</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Compiler path:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="Utils::PathChooser" name="compilerPath"/>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>ARM version:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QComboBox" name="versionComboBox">
-     <item>
-      <property name="text">
-       <string>Version 5</string>
-      </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Compiler path:</string>
+       </property>
+      </widget>
      </item>
-     <item>
-      <property name="text">
-       <string>Version 6</string>
-      </property>
+     <item row="0" column="1">
+      <widget class="Utils::PathChooser" name="compilerPath"/>
      </item>
-    </widget>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>ARM version:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="versionComboBox">
+       <item>
+        <property name="text">
+         <string>Version 5</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Version 6</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
    </item>
-   <item row="2" column="0" colspan="2">
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -61,14 +65,14 @@
      </property>
     </spacer>
    </item>
-   <item row="3" column="0" colspan="2">
+   <item>
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>Environment variables:</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2">
+   <item>
     <widget class="QTableView" name="environmentView"/>
    </item>
   </layout>
@@ -76,8 +80,8 @@
  <customwidgets>
   <customwidget>
    <class>Utils::PathChooser</class>
-   <extends>QLineEdit</extends>
-   <header>utils/pathchooser.h</header>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -44,7 +44,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QProcess>
 
-#include <QtGui/QGridLayout>
+#include <QtGui/QFormLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QCheckBox>
 
@@ -511,17 +511,14 @@ Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
 {
     Q_ASSERT(tc);
 
-    QGridLayout *layout = new QGridLayout(this);
-    layout->addWidget(new QLabel(tr("Compiler path:")), 0, 0);
-
     m_compilerPath->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_compilerPath->setCommandVersionArguments(QStringList(QLatin1String("--version")));
-    layout->addWidget(m_compilerPath, 0, 1);
     connect(m_compilerPath, SIGNAL(changed(QString)), this, SLOT(handlePathChange()));
 
-    layout->addWidget(new QLabel(tr("Force 32bit compilation:")), 1, 0);
+    QFormLayout *layout = new QFormLayout(this);
+    layout->addRow(tr("Compiler path:"), m_compilerPath);
+    layout->addRow(tr("Force 32bit compilation:"), m_force32BitCheckBox);
 
-    layout->addWidget(m_force32BitCheckBox, 1, 1);
     connect(m_force32BitCheckBox, SIGNAL(toggled(bool)), this, SLOT(handle32BitChange()));
 
     discard();
@@ -729,7 +726,6 @@ GccToolChain *Internal::LinuxIccToolChainFactory::createToolChain(bool autoDetec
 #   include <QtCore/QUrl>
 
 namespace ProjectExplorer {
-
 void ProjectExplorerPlugin::testGccAbiGuessing_data()
 {
     QTest::addColumn<QString>("input");
