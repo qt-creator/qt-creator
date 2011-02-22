@@ -1938,8 +1938,10 @@ QtVersionNumber::QtVersionNumber(int ma, int mi, int p)
 
 QtVersionNumber::QtVersionNumber(const QString &versionString)
 {
-    if (!checkVersionString(versionString))
+    if (!checkVersionString(versionString)) {
         majorVersion = minorVersion = patchVersion = -1;
+        return;
+    }
 
     QStringList parts = versionString.split(QLatin1Char('.'));
     majorVersion = parts.at(0).toInt();
