@@ -162,13 +162,11 @@ static ProjectExplorer::Abi guessGccAbi(const QString &m)
 
     QStringList parts = machine.split(QRegExp("[ /-]"));
 
-    ProjectExplorer::Abi host = ProjectExplorer::Abi::hostAbi();
-
     ProjectExplorer::Abi::Architecture arch = ProjectExplorer::Abi::UNKNOWN_ARCHITECTURE;
     ProjectExplorer::Abi::OS os = ProjectExplorer::Abi::UNKNOWN_OS;
     ProjectExplorer::Abi::OSFlavour flavor = ProjectExplorer::Abi::UNKNOWN_OSFLAVOUR;
     ProjectExplorer::Abi::BinaryFormat format = ProjectExplorer::Abi::UNKNOWN_FORMAT;
-    int width = 32;
+    int width = 0;
     int unknownCount = 0;
 
     foreach (const QString &p, parts) {
@@ -178,6 +176,7 @@ static ProjectExplorer::Abi guessGccAbi(const QString &m)
         } else if (p == QLatin1String("i386") || p == QLatin1String("i486") || p == QLatin1String("i586")
                    || p == QLatin1String("i686") || p == QLatin1String("x86")) {
             arch = ProjectExplorer::Abi::x86;
+            width = 32;
         } else if (p == QLatin1String("arm")) {
             arch = ProjectExplorer::Abi::ARM;
             width = 32;
@@ -200,6 +199,8 @@ static ProjectExplorer::Abi guessGccAbi(const QString &m)
             os = ProjectExplorer::Abi::Windows;
             flavor = ProjectExplorer::Abi::Windows_msys;
             format = ProjectExplorer::Abi::Format_PE;
+            if (width == 0)
+                width = 32;
         } else if (p == QLatin1String("apple")) {
             os = ProjectExplorer::Abi::Mac;
             flavor = ProjectExplorer::Abi::Mac_generic;
