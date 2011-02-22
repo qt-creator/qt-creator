@@ -126,17 +126,8 @@ Qt4BaseTarget *Qt4SymbianTargetFactory::restore(ProjectExplorer::Project *parent
 
 QString Qt4SymbianTargetFactory::defaultShadowBuildDirectory(const QString &projectLocation, const QString &id)
 {
-    QString shortName = QLatin1String("unknown");
-    if (id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
-        shortName = QLatin1String("symbian_emulator");
-    else if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
-        shortName = QLatin1String("symbian");
-
-    // currently we can't have the build directory to be deeper than the source directory
-    // since that is broken in qmake
-    // Once qmake is fixed we can change that to have a top directory and
-    // subdirectories per build. (Replacing "QChar('-')" with "QChar('/') )
-    return projectLocation + QChar('-') + shortName;
+    // should not be called from anywhere, since we override Qt4BaseTarget::defaultBuldDirectory()
+    return QString();
 }
 
 QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion)
@@ -149,7 +140,7 @@ QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurati
             continue;
         bool buildAll = version->defaultBuildConfig() & QtVersion::BuildAll;
         QtVersion::QmakeBuildConfigs config = buildAll ? QtVersion::BuildAll : QtVersion::QmakeBuildConfig(0);
-        QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), id);
+        QString dir = QFileInfo(proFilePath).absolutePath(), id);
         if (id == Constants::S60_EMULATOR_TARGET_ID) {
             infos.append(BuildConfigurationInfo(version, config | QtVersion::DebugBuild, QString(), dir));
         } else {
