@@ -538,16 +538,6 @@ void BaseTextEditorWidget::selectEncoding()
     }
 }
 
-void BaseTextEditorWidget::triggerCompletions()
-{
-    CompletionSupport::instance()->complete(editor(), SemanticCompletion, true);
-}
-
-void BaseTextEditorWidget::triggerQuickFix()
-{
-    CompletionSupport::instance()->complete(editor(), QuickFixCompletion, true);
-}
-
 QString BaseTextEditorWidget::msgTextTooLarge(quint64 size)
 {
     return tr("The text is too large to be displayed (%1 MB).").

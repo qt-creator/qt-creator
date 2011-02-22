@@ -33,6 +33,7 @@
 
 #include "texteditorplugin.h"
 
+#include "completionsupport.h"
 #include "findinfiles.h"
 #include "findincurrentfile.h"
 #include "fontsettings.h"
@@ -217,7 +218,7 @@ void TextEditorPlugin::invokeCompletion()
     Core::IEditor *iface = Core::EditorManager::instance()->currentEditor();
     ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
     if (editor)
-        editor->triggerCompletions();
+        CompletionSupport::instance()->complete(editor, SemanticCompletion, true);
 }
 
 void TextEditorPlugin::invokeQuickFix()
@@ -225,7 +226,7 @@ void TextEditorPlugin::invokeQuickFix()
     Core::IEditor *iface = Core::EditorManager::instance()->currentEditor();
     ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
     if (editor)
-        editor->triggerQuickFix();
+        CompletionSupport::instance()->complete(editor, QuickFixCompletion, true);
 }
 
 void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)

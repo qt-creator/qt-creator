@@ -155,9 +155,6 @@ public:
     BaseTextEditor *editor() const;
     ITextMarkable *markableInterface() const;
 
-    virtual void triggerCompletions();
-    virtual void triggerQuickFix();
-
     QChar characterAt(int pos) const;
 
     void print(QPrinter *);
@@ -583,9 +580,6 @@ public:
     QString selectedText() const;
     QString textAt(int pos, int length) const;
     inline QChar characterAt(int pos) const { return e->characterAt(pos); }
-
-    inline void triggerCompletions() { e->triggerCompletions(); } // slot?
-    inline void triggerQuickFix() { e->triggerQuickFix(); } // slot?
 
     inline ITextMarkable *markableInterface() { return e->markableInterface(); }
 

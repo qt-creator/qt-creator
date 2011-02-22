@@ -125,9 +125,6 @@ public:
     /*! Selects text between current cursor position and \a toPos. */
     virtual void select(int toPos) = 0;
 
-    virtual void triggerCompletions() = 0;
-    virtual void triggerQuickFix() = 0;
-
     virtual ITextMarkable *markableInterface() = 0;
 
     virtual void setContextHelpId(const QString &) = 0;
