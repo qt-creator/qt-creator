@@ -126,6 +126,8 @@ Qt4BaseTarget *Qt4SymbianTargetFactory::restore(ProjectExplorer::Project *parent
 
 QString Qt4SymbianTargetFactory::defaultShadowBuildDirectory(const QString &projectLocation, const QString &id)
 {
+    Q_UNUSED(projectLocation);
+    Q_UNUSED(id);
     // should not be called from anywhere, since we override Qt4BaseTarget::defaultBuldDirectory()
     return QString();
 }
