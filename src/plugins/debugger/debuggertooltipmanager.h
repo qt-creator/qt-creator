@@ -31,8 +31,8 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_INTERNAL_DEBUGGERTOOLTIPMANAGER_H
-#define DEBUGGER_INTERNAL_DEBUGGERTOOLTIPMANAGER_H
+#ifndef DEBUGGER_DEBUGGERTOOLTIPMANAGER_H
+#define DEBUGGER_DEBUGGERTOOLTIPMANAGER_H
 
 #include "debuggerconstants.h"
 
@@ -240,6 +240,7 @@ private:
 class DebuggerToolTipManager : public QObject
 {
     Q_OBJECT
+
 public:
     explicit DebuggerToolTipManager(QObject *parent = 0);
     virtual ~DebuggerToolTipManager();
@@ -275,8 +276,8 @@ private slots:
     void slotStackFrameCompleted();
     void slotEditorOpened(Core::IEditor *);
     void slotPinnedFirstTime();
-    void slotTooltipOverrideRequested(TextEditor::ITextEditor *editor, const QPoint &point,
-                                      int pos, bool *handled);
+    void slotTooltipOverrideRequested(TextEditor::ITextEditor *editor,
+            const QPoint &point, int pos, bool *handled);
 
 private:
     typedef QList<QPointer<AbstractDebuggerToolTipWidget> > DebuggerToolTipWidgetList;
