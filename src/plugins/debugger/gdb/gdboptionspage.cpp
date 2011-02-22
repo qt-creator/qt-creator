@@ -170,7 +170,6 @@ void GdbOptionsPage::readGdbSettings() /* static */
 
 void GdbOptionsPage::writeGdbSettings() /* static */
 {
-    // FIXME: This should actually get called in response to ICore::saveSettingsRequested()
     if (!gdbMappingChanged)
         return;
 

@@ -785,6 +785,13 @@ public:
     DebuggerEngine *currentEngine() const { return m_currentEngine; }
 
 public slots:
+    void writeSettings()
+    {
+        m_debuggerSettings->writeSettings();
+        m_mainWindow->writeSettings();
+        GdbOptionsPage::writeGdbSettings();
+    }
+
     void selectThread(int index)
     {
         currentEngine()->selectThread(index);
@@ -3052,6 +3059,9 @@ void DebuggerPluginPrivate::extensionsInitialized()
     //  Connections
     //
 
+    // Core
+    connect(core, SIGNAL(saveSettingsRequested()), SLOT(writeSettings()));
+
     // TextEditor
     connect(TextEditorSettings::instance(),
         SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
@@ -3177,9 +3187,6 @@ void DebuggerPluginPrivate::aboutToShutdown()
     disconnect(sessionManager(),
         SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
         this, 0);
-    m_debuggerSettings->writeSettings();
-    m_mainWindow->writeSettings();
-    GdbOptionsPage::writeGdbSettings();
 }
 
 } // namespace Internal
