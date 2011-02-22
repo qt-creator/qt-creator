@@ -40,6 +40,8 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QSignalMapper>
 #include <QtCore/QTextStream>
 #include <QtGui/QAction>
@@ -532,12 +534,14 @@ QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
 
 void ToolChainOptionsPage::apply()
 {
+    QTC_ASSERT(m_model, return; )
     m_model->apply();
 }
 
 void ToolChainOptionsPage::finish()
 {
-    m_model->discard();
+    if (m_model)
+        m_model->discard();
 }
 
 bool ToolChainOptionsPage::matches(const QString &s) const
