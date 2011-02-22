@@ -418,6 +418,21 @@
              \o Click \gui Close to close the dialog.
 
          \endlist
+
+    \section2 Managing Device Processes
+
+    You can view processes running on the Maemo device and kill them.
+    Select \gui {Tools > Options... > Maemo > Maemo Device Configurations >
+    Remote Processes...}.
+
+    You can filter the processes by name in the \gui {List of Remote Processes}
+    dialog.
+
+    To update the process list, select \gui {Update List}.
+
+    To kill a process, select it in the list, and then select \gui {Kill
+    Selected Process}.
+
     \endif
 
     \section1 Troubleshooting
