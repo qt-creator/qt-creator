@@ -96,7 +96,7 @@ public:
     void setViewport(QWidget *widget);
 
     void clearEditorItems();
-    void createToolbar();
+    void createToolBox();
     void changeToSelectTool();
     QList<QGraphicsItem*> filterForCurrentContext(QList<QGraphicsItem*> &itemlist) const;
     QList<QGraphicsItem*> filterForSelection(QList<QGraphicsItem*> &itemlist) const;

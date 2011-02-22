@@ -49,6 +49,7 @@
 #include <QtDeclarative/QDeclarativeContext>
 #include <QtDeclarative/QDeclarativeExpression>
 #include <QtGui/QWidget>
+#include <QtGui/QVBoxLayout>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QGraphicsObject>
 #include <QtGui/QApplication>
@@ -131,7 +132,7 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
     connect(data->subcomponentEditorTool, SIGNAL(contextPathChanged(QStringList)),
             data->debugService, SLOT(contextPathUpdated(QStringList)));
 
-    data->createToolbar();
+    data->createToolBox();
 
     data->_q_changeToSingleSelectTool();
 }
@@ -866,9 +867,9 @@ QToolBar *QDeclarativeViewObserver::toolbar() const
     return data->toolbar;
 }
 
-void QDeclarativeViewObserverPrivate::createToolbar()
+void QDeclarativeViewObserverPrivate::createToolBox()
 {
-    toolbar = new QmlToolbar(q->declarativeView());
+    toolbar = new QmlToolbar;
     QObject::connect(q, SIGNAL(selectedColorChanged(QColor)),
                      toolbar, SLOT(setColorBoxColor(QColor)));
 
@@ -902,6 +903,16 @@ void QDeclarativeViewObserverPrivate::createToolbar()
     QObject::connect(q, SIGNAL(zoomToolActivated()), toolbar, SLOT(activateZoom()));
     QObject::connect(q, SIGNAL(marqueeSelectToolActivated()),
                      toolbar, SLOT(activateMarqueeSelectTool()));
+
+    QVBoxLayout *verticalLayout = new QVBoxLayout;
+    verticalLayout->setMargin(0);
+    verticalLayout->addWidget(toolbar);
+
+    QWidget *toolBox = new QWidget(q->declarativeView(), Qt::Tool);
+    toolBox->setWindowFlags(toolBox->windowFlags() & ~Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);
+    toolBox->setWindowTitle(tr("Quick Toolbox"));
+    toolBox->setLayout(verticalLayout);
+    toolBox->show();
 }
 
 } //namespace QmlJSDebugger
