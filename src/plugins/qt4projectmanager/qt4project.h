@@ -64,15 +64,6 @@ namespace Internal {
     class Qt4ProjectConfigWidget;
 
     class Qt4NodesWatcher;
-
-    class CodeModelInfo
-    {
-    public:
-        QByteArray defines;
-        QStringList includes;
-        QStringList frameworkPaths;
-        QStringList precompiledHeader;
-    };
 }
 
 class QMakeStep;

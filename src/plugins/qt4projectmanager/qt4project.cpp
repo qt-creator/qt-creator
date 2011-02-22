@@ -451,25 +451,16 @@ void Qt4Project::updateCppCodeModel()
 
     // Collect per .pro file information
     foreach (Qt4ProFileNode *pro, proFiles) {
-        Internal::CodeModelInfo info;
-        info.defines = predefinedMacros;
-        info.frameworkPaths = predefinedFrameworkPaths;
-
-        info.precompiledHeader = pro->variableValue(PrecompiledHeaderVar);
-
-        allPrecompileHeaders.append(info.precompiledHeader);
+        allPrecompileHeaders.append(pro->variableValue(PrecompiledHeaderVar));
 
         // Add custom defines
 
         foreach (const QString &def, pro->variableValue(DefinesVar)) {
             allDefinedMacros += "#define ";
-            info.defines += "#define ";
             const int index = def.indexOf(QLatin1Char('='));
             if (index == -1) {
                 allDefinedMacros += def.toLatin1();
                 allDefinedMacros += " 1\n";
-                info.defines += def.toLatin1();
-                info.defines += " 1\n";
             } else {
                 const QString name = def.left(index);
                 const QString value = def.mid(index + 1);
@@ -477,10 +468,6 @@ void Qt4Project::updateCppCodeModel()
                 allDefinedMacros += ' ';
                 allDefinedMacros += value.toLocal8Bit();
                 allDefinedMacros += '\n';
-                info.defines += name.toLatin1();
-                info.defines += ' ';
-                info.defines += value.toLocal8Bit();
-                info.defines += '\n';
             }
         }
 
@@ -488,8 +475,6 @@ void Qt4Project::updateCppCodeModel()
         foreach (const QString &includePath, proIncludePaths) {
             if (!allIncludePaths.contains(includePath))
                 allIncludePaths.append(includePath);
-            if (!info.includes.contains(includePath))
-                info.includes.append(includePath);
         }
 
 #if 0 // Experimental PKGCONFIG support
@@ -507,17 +492,6 @@ void Qt4Project::updateCppCodeModel()
             }
         }
 #endif
-
-        // Add mkspec directory
-        info.includes.append(activeBC->qtVersion()->mkspecPath());
-        info.includes.append(predefinedIncludePaths);
-
-//        qDebug()<<"Dumping code model information";
-//        qDebug()<<"for .pro file"<< pro->path();
-//        qDebug()<<info.defines;
-//        qDebug()<<info.includes;
-//        qDebug()<<info.frameworkPaths;
-//        qDebug()<<"\n";
     }
 
     // Add mkspec directory
