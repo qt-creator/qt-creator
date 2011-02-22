@@ -185,10 +185,10 @@ void FormWindowEditor::syncXmlEditor()
 
 void FormWindowEditor::configureXmlEditor() const
 {
-    TextEditor::PlainTextEditorWidget *editor =
-            qobject_cast<TextEditor::PlainTextEditorWidget *>(d->m_textEditor.editorWidget());
-    if (editor)
-        editor->configure(Core::ICore::instance()->mimeDatabase()->findByFile(
+    TextEditor::PlainTextEditorWidget *widget =
+            qobject_cast<TextEditor::PlainTextEditorWidget *>(d->m_textEditor.widget());
+    if (widget)
+        widget->configure(Core::ICore::instance()->mimeDatabase()->findByFile(
                 d->m_file.fileName()));
 }
 
