@@ -42,17 +42,17 @@
 
     \title Setting Up Development Environment for Maemo
 
-    Maemo is a software platform developed by Nokia for smartphones and
-    Internet Tablets. The Maemo SDK provides an open development environment
+    Maemo 5 (Fremantle) is a software platform developed by Nokia for
+    smartphones. The Maemo 5 SDK provides an open development environment
     for different applications on top of the Maemo platform. The necessary
-    tools from the Maemo SDK are also included in the \QSDK.
+    tools from the Maemo 5 SDK are also included in the \QSDK.
     The whole tool chain that you need to create, build, debug, run, and deploy
-    Maemo applictions is installed and configured when you install the
+    Maemo 5 applications is installed and configured when you install the
     \QSDK.
 
     \if defined(qcmanual)
     Maemo 5 is based on the Linux 2.6 operating system. For more
-    information about the Maemo platform, see
+    information about the Maemo 5 platform, see
     \l{http://maemo.org/intro/platform/}{Software Platform} on the Maemo web site.
     \endif
 
@@ -63,7 +63,7 @@
 
     \section1 Hardware and Software Requirements
 
-    To build and run Qt applications for Maemo, you need the following:
+    To build and run Qt applications for Maemo 5, you need the following:
     \list
        \o  Nokia N900 device with software update release 1.2 (V10.2010.19-1)
        or later installed.
@@ -89,7 +89,7 @@
 
     \endlist
 
-    \note The only supported build system for Maemo in Qt
+    \note The only supported build system for Maemo 5 in Qt
     Creator is qmake.
 
     \section1 Setting Up the Nokia N900
@@ -106,7 +106,7 @@
     it to the same WLAN as the development PC. The network address is displayed
     in the Mad Developer.
 
-    To use an USB connection, you need to set up the Nokia N900 as a network device
+    To use a USB connection, you need to set up the Nokia N900 as a network device
     on the development PC.
 
     \note If you plan to connect your development PC to the Nokia N900 only over WLAN, you can
@@ -131,7 +131,7 @@
          to the same network as the development PC. You can see the network
          address in the \gui wlan0 field.
 
-         \o To use an USB connection:
+         \o To use a USB connection:
 
          \list a
 
@@ -185,7 +185,7 @@
 
     Use the network configuration tools on your platform to specify the
     connection to the device on the development PC. You need to do this
-    only if you use an USB connection.
+    only if you use a USB connection.
 
     \section2 Linux
 
@@ -275,27 +275,33 @@
     \section1 Configuring Connections in Qt Creator
 
     To be able to run and debug applications on the Maemo emulator and
-    devices, you must set up a connection to the emulator and the device in the
+    devices, you must set up connections to the emulator and devices in the
     Qt Creator build and run settings.
-    \if defined(qcmanual)
     If you install \QSDK, the
-    necessary software is installed and configured automatically and you
+    connection to the Maemo emulator is configured automatically and you
     only need to configure a connection to the device.
+
+    You use a wizard to create the connections. You can edit the settings later
+    in \gui {Tools > Options... > Maemo > Maemo Device Configurations}.
+
+    \image qtcreator-maemo-device-configurations.png "Maemo Device Configurations dialog"
 
     By default, you create the connection as the \e developer user. This
     protects real user data on the device from getting corrupted during
-    testing. If you write applications that use Mobility APIs, you might want
+    testing. If you write applications that use Qt Mobility APIs, you might want
     to test them with real user data. To create a connection as a user, specify
     the \gui Username and \gui Password in Qt Creator. For more information, see
+    \if defined(qcmanual)
     \l{Testing with User Data}.
+    \else
+    the Qt Creator Manual.
     \endif
 
-    You can protect the connections between Qt Creator and the Maemo emulator
-    or a device by using either a password or an SSH key. You must always
-    use a password for the initial connection, but can then deploy an SSH
-    key and use it for subsequent connections. If you use a password, you
+
+    You can protect the connections between Qt Creator and
+    a Maemo device by using either a password or an SSH key. If you use a password, you
     must generate it in Mad Developer and enter it in Qt Creator every time
-    you connect to the Maemo emulator or to a device.
+    you connect to the Maemo device.
 
     If you do not have an SSH key, you can create it in Qt Creator.
     Encrypted keys are not supported. For more
@@ -307,89 +313,79 @@
     \endif
 
     \if defined(qcmanual)
+
+
     To configure connections between Qt Creator and the Maemo emulator or
     device:
 
     \list 1
 
-        \o If you install the Maemo emulator (QEMU) separately, you must
-           specify parameters to access it:
+        \o  To deploy applications and run them remotely on Maemo devices,
+            specify parameters for accessing devices:
 
             \list a
 
-            \o Start Mad Developer in the emulator.
-
-            \o Click \gui {Developer Password} to generate a password for
-            the connection.
-
-            \o In Qt Creator, select \gui {Tools > Options... > Projects >
-            Maemo Device Configurations > Add} to add a new configuration.
-
-            \image qtcreator-maemo-emulator-connection.png
-
-            \o In the \gui {Configuration name} field, enter a name for
-            the connection.
-
-            \o In the \gui {Device type} field, select \gui {Maemo emulator}.
-
-            \o In the \gui {Authentication type} field, select \gui Password
-            for the initial connection.
-
-            \o In the \gui Password field, enter the password from the Mad
-            Developer for the initial connection.
-
-            You can use the default values for the other fields.
-
-            \o Click \gui Test to test the connection.
-
-            \o To avoid having to specify the password every time you connect
-            to the Maemo emulator, click \gui {Deploy Key...} and select
-            the file that contains your public key.
-
-            \o When you have deployed the key to the device, change the
-            configuration to use the SSH key for protection.
-
-            \image qtcreator-maemo-emulator-connection-key.png
-
-            The default location of the private key file is displayed in the
-            \gui {Private key file} field.
-
-            \endlist
-
-            If you installed the \QSDK, a connection has been configured
-            and you only need to specify the password and deploy the SSH key.
-
-        \o  To deploy applications and run them remotely, specify parameters
-            for accessing devices:
-
-            \list a
-
-            \o Connect your device to the development PC via an USB cable or
-            a WLAN. For an USB connection, you are prompted to select the mode
+            \o Connect your device to the development PC via a USB cable or
+            a WLAN. For a USB connection, you are prompted to select the mode
             to use. Choose \gui{PC suite mode}.
 
             \note If you experience connection problems due to a USB port issue,
             switch to a different port or use WLAN to connect to the device.
 
-            \o Select \gui Tools > \gui Options... > \gui Projects >
+            \o Select \gui Tools > \gui Options... > \gui Maemo >
             \gui{Maemo Device Configurations > Add}, and add a new configuration for a
-            \gui {Remote device}.
+            hardware device.
 
             \image qtcreator-screenshot-devconf.png
 
-            \o In the \gui {Host name} field, enter the IP address from the
-            \gui usb0 or \gui wlan0 field in Mad Developer.
+            \o In the \gui {The name to identify this configuration} field,
+            enter a name for the connection.
 
-            \o Specify the other settings in the same way as for a Maemo emulator
-            connection.
+            \o In the \gui {The system running on the device} field, select
+            the software platform of the device.
 
-            \o Click \gui Test to test the connection.
+            \o In the \gui {The type of device} field, select
+            \gui {Hardware device}.
 
-            \o Click \gui OK to close the dialog.
+            \o In the \gui {The device's host name or IP address} field, enter
+            the IP address from the \gui usb0 or \gui wlan0 field in Mad Developer.
+
+            \o Click \gui Next.
+
+            \o Follow the instructions of the wizard to create the connection.
 
             \endlist
 
-         \o To specify build and run settings:
+        \o To test applications on the Maemo emulator (QEMU) separately, you must
+           create a connection to it from the development PC. If you installed
+           \QSDK, the connection is created automatically and you can omit this
+           step.
+
+            \list a
+
+                \o In Qt Creator, select \gui {Tools > Options... > Maemo >
+                Maemo Device Configurations > Add} to add a new configuration.
+
+                \image qtcreator-maemo-emulator-connection.png
+
+                \o In the \gui {The name to identify this configuration} field,
+                enter a name for
+                the connection.
+
+                \o In the \gui {The system running on the device} field, select
+                the software platform to emulate.
+
+                \o In the \gui {The type of device} field, select
+                \gui {Emulator (Qemu)}.
+
+                \o Click \gui Next.
+
+                \o Follow the instructions of the wizard to create and test the
+                connection.
+
+            \endlist
+
+            \o To specify build and run settings:
 
             \list a
 
@@ -406,78 +402,38 @@
                  deploy configuration. The configuration is named automatically. To
                  give it a new name, click \gui Rename.
 
-                 \o Select the device configuration.
+                 \o In the \gui {Device configuration} field, select the device
+                 connection or the Maemo emulator connection.
                  \image qtcreator-screenshot-run-settings.png
 
-                 \note You can either add separate run settings for both the Maemo
-                 emulator connection and the device connection or select the
-                 \gui {Device configuration} in the \gui {Deploy Step} before you
-                 run the application.
+                 \o Click \gui {<no target path set>} in \gui {Remote Directory}
+                 to specify the folder where the file is installed on the device.
+                 For example, \c {/opt/usr/bin}.
 
              \endlist
 
-         \endlist
+        \endlist
 
     \else
 
     The \QSDK installation program configured a default connection
-    to the Maemo emulator. You only need to specify the
-    password and deploy the SSH key.
+    to the Maemo emulator.
 
     \list 1
-
-        \o To specify authentication for the connection to the Maemo emulator:
-
-            \list a
-
-            \o Start Mad Developer in the emulator.
-
-            \o Click \gui {Developer Password} to generate a password for
-            the connection.
-
-            \o In Qt Creator, select \gui {Tools > Options... > Projects >
-            Maemo Device Configurations > Maemo emulator} to specify the
-            password.
-
-            \image qtcreator-maemo-emulator-connection.png
-
-            \o In the \gui {Authentication type} field, select \gui Password
-            for the initial connection.
-
-            \o In the \gui Password field, enter the password from the Mad
-            Developer for the initial connection.
-
-            You can use the default values for the other fields.
-
-            \o Click \gui Test to test the connection.
-
-            \o To avoid having to specify the password every time you connect
-            to the Maemo emulator, click \gui {Deploy Key...} and select
-            the file that contains your public key.
-
-            \o When you have deployed the key to the device, change the
-            configuration to use the SSH key for protection.
-
-            \image qtcreator-maemo-emulator-connection-key.png
-
-            The default location of the private key file is displayed in the
-            \gui {Private key file} field.
-
-            \endlist
 
         \o  To deploy applications and run them remotely, specify parameters
             for accessing devices:
 
             \list a
 
-            \o Connect your device to the development PC via an USB cable or
-            a WLAN. For an USB connection, you are prompted to select the mode
+            \o Connect your device to the development PC via a USB cable or
+            a WLAN. For a USB connection, you are prompted to select the mode
             to use. Choose \gui{PC suite mode}.
 
             \note If you experience connection problems due to a USB port issue,
             switch to a different port or use WLAN to connect to the device.
 
-            \o Select \gui Tools > \gui Options... > \gui Projects >
+            \o Select \gui Tools > \gui Options... > \gui Maemo >
             \gui{Maemo Device Configurations > Add}, and add a new configuration for a
             \gui {Remote device}.
 
@@ -545,7 +501,7 @@
         \o To specify the password, enter the following command:
         \c {passwd user}
 
-        \o In Qt Creator, Select \gui Tools > \gui Options... > \gui Projects >
+        \o In Qt Creator, Select \gui Tools > \gui Options... > \gui Maemo >
         \gui{Maemo Device Configurations}.
 
         \o Specify the username \c user and the password in the device configuration.
@@ -561,7 +517,7 @@
 
          \list 1
 
-             \o Select \gui {Tools > Options... > Projects > Maemo Device Configurations
+             \o Select \gui {Tools > Options... > Maemo > Maemo Device Configurations
              > Generate SSH Key...}.
 
              \o Click \gui {Generate SSH Key}.
