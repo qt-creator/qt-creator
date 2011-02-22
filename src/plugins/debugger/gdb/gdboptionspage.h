@@ -65,16 +65,6 @@ public:
 
     static QString settingsId();
 
-    typedef QMap<QString, QString> GdbBinaryToolChainMap;
-    static GdbBinaryToolChainMap abiToGdbMap;
-    static bool gdbMappingChanged;
-    static void readGdbSettings();
-    static void writeGdbSettings();
-
-private slots:
-    static void handleToolChainAdditions(ProjectExplorer::ToolChain *);
-    static void handleToolChainRemovals(ProjectExplorer::ToolChain *);
-
 private:
     Ui::GdbOptionsPage *m_ui;
     Utils::SavedActionSet m_group;

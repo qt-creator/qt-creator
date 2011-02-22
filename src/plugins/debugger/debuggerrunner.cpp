@@ -41,7 +41,6 @@
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
 #include "debuggerstartparameters.h"
-#include "gdb/gdboptionspage.h"
 #include "lldb/lldbenginehost.h"
 #include "debuggertooltipmanager.h"
 
@@ -382,10 +381,10 @@ ConfigurationCheck checkDebugConfiguration(const ProjectExplorer::Abi &abi)
     if (abi.binaryFormat() == Abi::Format_ELF ||
             abi.binaryFormat() == Abi::Format_Mach_O ||
             (abi.binaryFormat() == Abi::Format_PE && abi.osFlavor() == Abi::Windows_msys)) {
-        if (debuggerCore()->gdbBinaryForAbi(abi).isEmpty()) {
+        if (debuggerCore()->debuggerForAbi(abi).isEmpty()) {
             result.errorMessage = msgNoBinaryForToolChain(abi);
             result.errorMessage += QLatin1Char(' ') + msgEngineNotAvailable("Gdb");
-            result.settingsPage = GdbOptionsPage::settingsId();
+            //result.settingsPage = GdbOptionsPage::settingsId();
         }
     } else if (abi.binaryFormat() == Abi::Format_PE && abi.osFlavor() != Abi::Windows_msys) {
         result = checkCdbConfiguration(abi);

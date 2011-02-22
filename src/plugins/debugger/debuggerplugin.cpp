@@ -66,7 +66,6 @@
 #include "snapshothandler.h"
 #include "threadshandler.h"
 #include "commonoptionspage.h"
-#include "gdb/gdboptionspage.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -594,7 +593,7 @@ public slots:
     {
         m_debuggerSettings->writeSettings();
         m_mainWindow->writeSettings();
-        GdbOptionsPage::writeGdbSettings();
+        m_commonOptionsPage->writeSettings();
     }
 
     void selectThread(int index)
@@ -721,7 +720,7 @@ public slots:
     void runControlStarted(DebuggerEngine *engine);
     void runControlFinished(DebuggerEngine *engine);
     DebuggerLanguages activeLanguages() const;
-    QString gdbBinaryForAbi(const Abi &abi) const;
+    QString debuggerForAbi(const Abi &abi) const;
     void remoteCommand(const QStringList &options, const QStringList &);
 
     bool isReverseDebugging() const;
@@ -1054,6 +1053,7 @@ public:
     uint m_cmdLineEnabledEngines;
     QStringList m_arguments;
     DebuggerToolTipManager *m_toolTipManager;
+    CommonOptionsPage *m_commonOptionsPage;
 };
 
 DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
@@ -1105,6 +1105,8 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_attachCoreAction = 0;
     m_attachTcfAction = 0;
     m_detachAction = 0;
+
+    m_commonOptionsPage = 0;
 }
 
 DebuggerPluginPrivate::~DebuggerPluginPrivate()
@@ -2359,9 +2361,9 @@ void DebuggerPluginPrivate::remoteCommand(const QStringList &options,
     runScheduled();
 }
 
-QString DebuggerPluginPrivate::gdbBinaryForAbi(const Abi &abi) const
+QString DebuggerPluginPrivate::debuggerForAbi(const Abi &abi) const
 {
-    return GdbOptionsPage::abiToGdbMap.value(abi.toString());
+    return m_commonOptionsPage->debuggerForAbi(abi.toString());
 }
 
 DebuggerLanguages DebuggerPluginPrivate::activeLanguages() const
@@ -2581,8 +2583,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
     dock = m_mainWindow->createDockWidget(CppLanguage, localsAndWatchers);
     dock->setProperty(DOCKWIDGET_DEFAULT_AREA, Qt::RightDockWidgetArea);
 
+    m_commonOptionsPage = new CommonOptionsPage;
+    m_plugin->addAutoReleasedObject(m_commonOptionsPage);
+
     m_debuggerSettings->readSettings();
-    GdbOptionsPage::readGdbSettings();
+    m_commonOptionsPage->readSettings();
 
     // Do not fail to load the whole plugin if something goes wrong here.
     QString errorMessage;
@@ -2833,7 +2838,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
         cmd->setAttribute(Command::CA_NonConfigurable); // ADD_TO_WATCH1 is enough.
     }
 
-    m_plugin->addAutoReleasedObject(new CommonOptionsPage);
     QList<Core::IOptionsPage *> engineOptionPages;
     if (m_cmdLineEnabledEngines & GdbEngineType)
         addGdbOptionPages(&engineOptionPages);

@@ -4213,7 +4213,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb,
     const DebuggerStartParameters &sp = startParameters();
     m_gdb = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_PATH"));
     if (m_gdb.isEmpty() && sp.startMode != StartRemoteGdb)
-        m_gdb = debuggerCore()->gdbBinaryForAbi(startParameters().toolChainAbi);
+        m_gdb = debuggerCore()->debuggerForAbi(startParameters().toolChainAbi);
     if (m_gdb.isEmpty())
         m_gdb = gdb;
     if (m_gdb.isEmpty()) {
