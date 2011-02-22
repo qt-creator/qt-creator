@@ -151,7 +151,7 @@ QList<QGraphicsObject*> AbstractLiveEditTool::toGraphicsObjectList(const QList<Q
                                                                    &itemList)
 {
     QList<QGraphicsObject*> gfxObjects;
-    foreach(QGraphicsItem *item, itemList) {
+    foreach (QGraphicsItem *item, itemList) {
         QGraphicsObject *obj = item->toGraphicsObject();
         if (obj)
             gfxObjects << obj;

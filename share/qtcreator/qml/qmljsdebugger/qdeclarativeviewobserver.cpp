@@ -65,7 +65,7 @@ QDeclarativeViewObserverPrivate::QDeclarativeViewObserverPrivate(QDeclarativeVie
     showAppOnTop(false),
     executionPaused(false),
     slowdownFactor(1.0f),
-    toolbar(0)
+    toolBar(0)
 {
 }
 
@@ -145,9 +145,8 @@ void QDeclarativeViewObserver::setObserverContext(int contextIndex)
 {
     if (data->subcomponentEditorTool->contextIndex() != contextIndex) {
         QGraphicsObject *object = data->subcomponentEditorTool->setContext(contextIndex);
-        if (object) {
+        if (object)
             setSelectedItems(QList<QGraphicsItem*>() << object);
-        }
     }
 }
 
@@ -163,9 +162,9 @@ void QDeclarativeViewObserverPrivate::setViewport(QWidget *widget)
     if (viewport.data() == widget)
         return;
 
-    if (viewport) {
+    if (viewport)
         viewport.data()->removeEventFilter(q);
-    }
+
     viewport = widget;
     if (viewport) {
         // make sure we get mouse move events
@@ -192,7 +191,7 @@ bool QDeclarativeViewObserver::eventFilter(QObject *obj, QEvent *event)
         return QObject::eventFilter(obj, event);
     }
 
-    //Event from viewport
+    // Event from viewport
     switch (event->type()) {
     case QEvent::Leave: {
         if (leaveEvent(event))
@@ -297,18 +296,17 @@ bool QDeclarativeViewObserver::mouseReleaseEvent(QMouseEvent *event)
 
 bool QDeclarativeViewObserver::keyPressEvent(QKeyEvent *event)
 {
-    if (!data->designModeBehavior) {
+    if (!data->designModeBehavior)
         return false;
-    }
+
     data->currentTool->keyPressEvent(event);
     return true;
 }
 
 bool QDeclarativeViewObserver::keyReleaseEvent(QKeyEvent *event)
 {
-    if (!data->designModeBehavior) {
+    if (!data->designModeBehavior)
         return false;
-    }
 
     switch(event->key()) {
     case Qt::Key_V:
@@ -352,7 +350,7 @@ void QDeclarativeViewObserverPrivate::_q_createQmlObject(const QString &qml, QOb
         return;
 
     QString imports;
-    foreach(const QString &s, importList) {
+    foreach (const QString &s, importList) {
         imports += s + "\n";
     }
 
@@ -366,9 +364,8 @@ void QDeclarativeViewObserverPrivate::_q_createQmlObject(const QString &qml, QOb
         newObject->setParent(parent);
         QDeclarativeItem *parentItem = qobject_cast<QDeclarativeItem*>(parent);
         QDeclarativeItem *newItem    = qobject_cast<QDeclarativeItem*>(newObject);
-        if (parentItem && newItem) {
+        if (parentItem && newItem)
             newItem->setParentItem(parentItem);
-        }
     }
 }
 
@@ -380,9 +377,8 @@ void QDeclarativeViewObserverPrivate::_q_reparentQmlObject(QObject *object, QObj
     object->setParent(newParent);
     QDeclarativeItem *newParentItem = qobject_cast<QDeclarativeItem*>(newParent);
     QDeclarativeItem *item    = qobject_cast<QDeclarativeItem*>(object);
-    if (newParentItem && item) {
+    if (newParentItem && item)
         item->setParentItem(newParentItem);
-    }
 }
 
 void QDeclarativeViewObserverPrivate::_q_clearComponentCache()
@@ -393,9 +389,8 @@ void QDeclarativeViewObserverPrivate::_q_clearComponentCache()
 void QDeclarativeViewObserverPrivate::_q_removeFromSelection(QObject *obj)
 {
     QList<QGraphicsItem*> items = selectedItems();
-    if (QGraphicsItem *item = dynamic_cast<QGraphicsItem*>(obj)) {
+    if (QGraphicsItem *item = dynamic_cast<QGraphicsItem*>(obj))
         items.removeOne(item);
-    }
     setSelectedItems(items);
 }
 
@@ -430,10 +425,8 @@ bool QDeclarativeViewObserver::mouseDoubleClickEvent(QMouseEvent *event)
     data->subcomponentEditorTool->mouseDoubleClickEvent(event);
 
     if ((event->buttons() & Qt::LeftButton) && itemToEnter) {
-        QGraphicsObject *objectToEnter = itemToEnter->toGraphicsObject();
-        if (objectToEnter) {
+        if (QGraphicsObject *objectToEnter = itemToEnter->toGraphicsObject())
             setSelectedItems(QList<QGraphicsItem*>() << objectToEnter);
-        }
     }
 
     return true;
@@ -461,7 +454,7 @@ void QDeclarativeViewObserver::setDesignModeBehavior(bool value)
 {
     emit designModeBehaviorChanged(value);
 
-    data->toolbar->setDesignModeBehavior(value);
+    data->toolBar->setDesignModeBehavior(value);
     data->debugService->setDesignModeBehavior(value);
 
     data->designModeBehavior = value;
@@ -495,11 +488,11 @@ void QDeclarativeViewObserver::setShowAppOnTop(bool appOnTop)
         while (rootWidget->parentWidget())
             rootWidget = rootWidget->parentWidget();
         Qt::WindowFlags flags = rootWidget->windowFlags();
-        if (appOnTop) {
+        if (appOnTop)
             flags |= Qt::WindowStaysOnTopHint;
-        } else {
+        else
             flags &= ~Qt::WindowStaysOnTopHint;
-        }
+
         rootWidget->setWindowFlags(flags);
         rootWidget->show();
     }
@@ -538,8 +531,7 @@ void QDeclarativeViewObserverPrivate::setSelectedItemsForTools(QList<QGraphicsIt
 
     foreach (QGraphicsItem *item, items) {
         if (item) {
-            QGraphicsObject *obj = item->toGraphicsObject();
-            if (obj) {
+            if (QGraphicsObject *obj = item->toGraphicsObject()) {
                 QObject::connect(obj, SIGNAL(destroyed(QObject*)),
                                  this, SLOT(_q_removeFromSelection(QObject*)));
                 currentSelection.append(obj);
@@ -568,7 +560,7 @@ void QDeclarativeViewObserverPrivate::setSelectedItems(QList<QGraphicsItem *> it
 QList<QGraphicsItem *> QDeclarativeViewObserverPrivate::selectedItems()
 {
     QList<QGraphicsItem *> selection;
-    foreach(const QWeakPointer<QGraphicsObject> &selectedObject, currentSelection) {
+    foreach (const QWeakPointer<QGraphicsObject> &selectedObject, currentSelection) {
         if (selectedObject.data())
             selection << selectedObject.data();
     }
@@ -607,7 +599,7 @@ void QDeclarativeViewObserverPrivate::highlight(QList<QGraphicsObject *> items, 
         return;
 
     QList<QGraphicsObject*> objectList;
-    foreach(QGraphicsItem *item, items) {
+    foreach (QGraphicsItem *item, items) {
         QGraphicsItem *child = item;
         if (flags & ContextSensitive)
             child = subcomponentEditorTool->firstChildOfContext(item);
@@ -714,11 +706,10 @@ void QDeclarativeViewObserver::changeAnimationSpeed(qreal slowdownFactor)
 {
     data->slowdownFactor = slowdownFactor;
 
-    if (data->slowdownFactor != 0) {
+    if (data->slowdownFactor != 0)
         continueExecution(data->slowdownFactor);
-    } else {
+    else
         pauseExecution();
-    }
 }
 
 void QDeclarativeViewObserver::continueExecution(qreal slowdownFactor)
@@ -751,14 +742,13 @@ void QDeclarativeViewObserver::pauseExecution()
 
 void QDeclarativeViewObserverPrivate::_q_applyChangesFromClient()
 {
-
 }
 
 
 QList<QGraphicsItem*> QDeclarativeViewObserverPrivate::filterForSelection(
     QList<QGraphicsItem*> &itemlist) const
 {
-    foreach(QGraphicsItem *item, itemlist) {
+    foreach (QGraphicsItem *item, itemlist) {
         if (isEditorItem(item) || !subcomponentEditorTool->isChildOfContext(item))
             itemlist.removeOne(item);
     }
@@ -769,7 +759,7 @@ QList<QGraphicsItem*> QDeclarativeViewObserverPrivate::filterForSelection(
 QList<QGraphicsItem*> QDeclarativeViewObserverPrivate::filterForCurrentContext(
     QList<QGraphicsItem*> &itemlist) const
 {
-    foreach(QGraphicsItem *item, itemlist) {
+    foreach (QGraphicsItem *item, itemlist) {
 
         if (isEditorItem(item) || !subcomponentEditorTool->isDirectChildOfContext(item)) {
 
@@ -816,12 +806,11 @@ void QDeclarativeViewObserverPrivate::_q_onCurrentObjectsChanged(QList<QObject*>
 {
     QList<QGraphicsItem*> items;
     QList<QGraphicsObject*> gfxObjects;
-    foreach(QObject *obj, objects) {
+    foreach (QObject *obj, objects) {
         QDeclarativeItem* declarativeItem = qobject_cast<QDeclarativeItem*>(obj);
         if (declarativeItem) {
             items << declarativeItem;
-            QGraphicsObject *gfxObj = declarativeItem->toGraphicsObject();
-            if (gfxObj)
+            if (QGraphicsObject *gfxObj = declarativeItem->toGraphicsObject())
                 gfxObjects << gfxObj;
         }
     }
@@ -842,71 +831,68 @@ QRectF QDeclarativeViewObserver::adjustToScreenBoundaries(const QRectF &bounding
 {
     int marginFromEdge = 1;
     QRectF boundingRect(boundingRectInSceneSpace);
-    if (qAbs(boundingRect.left()) - 1 < 2) {
+    if (qAbs(boundingRect.left()) - 1 < 2)
         boundingRect.setLeft(marginFromEdge);
-    }
 
     QRect rect = data->view->rect();
-    if (boundingRect.right() >= rect.right() ) {
+
+    if (boundingRect.right() >= rect.right())
         boundingRect.setRight(rect.right() - marginFromEdge);
-    }
 
-    if (qAbs(boundingRect.top()) - 1 < 2) {
+    if (qAbs(boundingRect.top()) - 1 < 2)
         boundingRect.setTop(marginFromEdge);
-    }
 
-    if (boundingRect.bottom() >= rect.bottom() ) {
+    if (boundingRect.bottom() >= rect.bottom())
         boundingRect.setBottom(rect.bottom() - marginFromEdge);
-    }
 
     return boundingRect;
 }
 
-QToolBar *QDeclarativeViewObserver::toolbar() const
+QToolBar *QDeclarativeViewObserver::toolBar() const
 {
-    return data->toolbar;
+    return data->toolBar;
 }
 
 void QDeclarativeViewObserverPrivate::createToolBox()
 {
-    toolbar = new QmlToolbar;
+    toolBar = new QmlToolBar;
     QObject::connect(q, SIGNAL(selectedColorChanged(QColor)),
-                     toolbar, SLOT(setColorBoxColor(QColor)));
+                     toolBar, SLOT(setColorBoxColor(QColor)));
 
     QObject::connect(q, SIGNAL(designModeBehaviorChanged(bool)),
-                     toolbar, SLOT(setDesignModeBehavior(bool)));
+                     toolBar, SLOT(setDesignModeBehavior(bool)));
 
-    QObject::connect(toolbar, SIGNAL(designModeBehaviorChanged(bool)),
+    QObject::connect(toolBar, SIGNAL(designModeBehaviorChanged(bool)),
                      q, SLOT(setDesignModeBehavior(bool)));
-    QObject::connect(toolbar, SIGNAL(animationSpeedChanged(qreal)),
+    QObject::connect(toolBar, SIGNAL(animationSpeedChanged(qreal)),
                      q, SLOT(changeAnimationSpeed(qreal)));
-    QObject::connect(toolbar, SIGNAL(colorPickerSelected()), this, SLOT(_q_changeToColorPickerTool()));
-    QObject::connect(toolbar, SIGNAL(zoomToolSelected()), this, SLOT(_q_changeToZoomTool()));
-    QObject::connect(toolbar, SIGNAL(selectToolSelected()), this, SLOT(_q_changeToSingleSelectTool()));
-    QObject::connect(toolbar, SIGNAL(marqueeSelectToolSelected()),
+    QObject::connect(toolBar, SIGNAL(colorPickerSelected()), this, SLOT(_q_changeToColorPickerTool()));
+    QObject::connect(toolBar, SIGNAL(zoomToolSelected()), this, SLOT(_q_changeToZoomTool()));
+    QObject::connect(toolBar, SIGNAL(selectToolSelected()), this, SLOT(_q_changeToSingleSelectTool()));
+    QObject::connect(toolBar, SIGNAL(marqueeSelectToolSelected()),
                      this, SLOT(_q_changeToMarqueeSelectTool()));
 
-    QObject::connect(toolbar, SIGNAL(applyChangesFromQmlFileSelected()),
+    QObject::connect(toolBar, SIGNAL(applyChangesFromQmlFileSelected()),
                      this, SLOT(_q_applyChangesFromClient()));
 
-    QObject::connect(q, SIGNAL(executionStarted(qreal)), toolbar, SLOT(setAnimationSpeed(qreal)));
-    QObject::connect(q, SIGNAL(executionPaused()), toolbar, SLOT(setAnimationSpeed()));
+    QObject::connect(q, SIGNAL(executionStarted(qreal)), toolBar, SLOT(setAnimationSpeed(qreal)));
+    QObject::connect(q, SIGNAL(executionPaused()), toolBar, SLOT(setAnimationSpeed()));
 
-    QObject::connect(q, SIGNAL(selectToolActivated()), toolbar, SLOT(activateSelectTool()));
+    QObject::connect(q, SIGNAL(selectToolActivated()), toolBar, SLOT(activateSelectTool()));
 
     // disabled features
-    //connect(d->m_toolbar, SIGNAL(applyChangesToQmlFileSelected()), SLOT(applyChangesToClient()));
-    //connect(q, SIGNAL(resizeToolActivated()), d->m_toolbar, SLOT(activateSelectTool()));
-    //connect(q, SIGNAL(moveToolActivated()),   d->m_toolbar, SLOT(activateSelectTool()));
+    //connect(d->m_toolBar, SIGNAL(applyChangesToQmlFileSelected()), SLOT(applyChangesToClient()));
+    //connect(q, SIGNAL(resizeToolActivated()), d->m_toolBar, SLOT(activateSelectTool()));
+    //connect(q, SIGNAL(moveToolActivated()),   d->m_toolBar, SLOT(activateSelectTool()));
 
-    QObject::connect(q, SIGNAL(colorPickerActivated()), toolbar, SLOT(activateColorPicker()));
-    QObject::connect(q, SIGNAL(zoomToolActivated()), toolbar, SLOT(activateZoom()));
+    QObject::connect(q, SIGNAL(colorPickerActivated()), toolBar, SLOT(activateColorPicker()));
+    QObject::connect(q, SIGNAL(zoomToolActivated()), toolBar, SLOT(activateZoom()));
     QObject::connect(q, SIGNAL(marqueeSelectToolActivated()),
-                     toolbar, SLOT(activateMarqueeSelectTool()));
+                     toolBar, SLOT(activateMarqueeSelectTool()));
 
     QVBoxLayout *verticalLayout = new QVBoxLayout;
     verticalLayout->setMargin(0);
-    verticalLayout->addWidget(toolbar);
+    verticalLayout->addWidget(toolBar);
 
     QWidget *toolBox = new QWidget(q->declarativeView(), Qt::Tool);
     toolBox->setWindowFlags(toolBox->windowFlags() & ~Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);

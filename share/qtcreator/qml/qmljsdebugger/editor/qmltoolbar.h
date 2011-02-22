@@ -43,13 +43,13 @@ namespace QmlJSDebugger {
 
 class ToolBarColorBox;
 
-class QmlToolbar : public QToolBar
+class QmlToolBar : public QToolBar
 {
     Q_OBJECT
 
 public:
-    explicit QmlToolbar(QWidget *parent = 0);
-    ~QmlToolbar();
+    explicit QmlToolBar(QWidget *parent = 0);
+    ~QmlToolBar();
 
 public slots:
     void setDesignModeBehavior(bool inDesignMode);

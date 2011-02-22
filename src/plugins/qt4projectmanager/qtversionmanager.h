@@ -313,7 +313,8 @@ private:
     int getUniqueId();
     void writeVersionsIntoSettings();
     void addNewVersionsFromInstaller();
-    void updateSystemVersion(); void updateDocumentation();
+    void updateSystemVersion();
+    void updateDocumentation();
 
     static int indexOfVersionInList(const QtVersion * const version, const QList<QtVersion *> &list);
     void updateUniqueIdToIndexMap();

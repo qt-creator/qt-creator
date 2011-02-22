@@ -106,7 +106,7 @@ void BoundingRectHighlighter::animTimeout()
 
     qreal alpha = m_animFrame / float(AnimFrames);
 
-    foreach(BoundingBox *box, m_boxes) {
+    foreach (BoundingBox *box, m_boxes) {
         box->highlightPolygonEdge->setOpacity(alpha);
     }
 }
@@ -116,7 +116,7 @@ void BoundingRectHighlighter::clear()
     if (m_boxes.length()) {
         m_animTimer->stop();
 
-        foreach(BoundingBox *box, m_boxes) {
+        foreach (BoundingBox *box, m_boxes) {
             freeBoundingBox(box);
         }
     }
@@ -124,7 +124,7 @@ void BoundingRectHighlighter::clear()
 
 BoundingBox *BoundingRectHighlighter::boxFor(QGraphicsObject *item) const
 {
-    foreach(BoundingBox *box, m_boxes) {
+    foreach (BoundingBox *box, m_boxes) {
         if (box->highlightedObject.data() == item) {
             return box;
         }
@@ -140,7 +140,7 @@ void BoundingRectHighlighter::highlight(QList<QGraphicsObject*> items)
     bool animate = false;
 
     QList<BoundingBox *> newBoxes;
-    foreach(QGraphicsObject *itemToHighlight, items) {
+    foreach (QGraphicsObject *itemToHighlight, items) {
         BoundingBox *box = boxFor(itemToHighlight);
         if (!box) {
             box = createBoundingBox(itemToHighlight);
@@ -227,7 +227,7 @@ void BoundingRectHighlighter::freeBoundingBox(BoundingBox *box)
 
 void BoundingRectHighlighter::itemDestroyed(QObject *obj)
 {
-    foreach(BoundingBox *box, m_boxes) {
+    foreach (BoundingBox *box, m_boxes) {
         if (box->highlightedObject.data() == obj) {
             freeBoundingBox(box);
             break;
@@ -237,7 +237,7 @@ void BoundingRectHighlighter::itemDestroyed(QObject *obj)
 
 void BoundingRectHighlighter::highlightAll(bool animate)
 {
-    foreach(BoundingBox *box, m_boxes) {
+    foreach (BoundingBox *box, m_boxes) {
         if (box && box->highlightedObject.isNull()) {
             // clear all highlights
             clear();

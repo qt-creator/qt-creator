@@ -62,7 +62,7 @@ public:
 
     QDeclarativeView *declarativeView();
 
-    QToolBar *toolbar() const;
+    QToolBar *toolBar() const;
     static QString idStringForObject(QObject *obj);
     QRectF adjustToScreenBoundaries(const QRectF &boundingRectInSceneSpace);
 

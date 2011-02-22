@@ -182,7 +182,7 @@ void SubcomponentEditorTool::setCurrentItem(QGraphicsItem* contextItem)
     //if (parentClassName.contains(QRegExp("_QMLTYPE_\\d+")))
 
     bool containsSelectableItems = false;
-    foreach(QGraphicsItem *item, gfxObject->childItems()) {
+    foreach (QGraphicsItem *item, gfxObject->childItems()) {
         if (item->type() == Constants::EditorItemType
                 || item->type() == Constants::ResizeHandleItemType)
         {

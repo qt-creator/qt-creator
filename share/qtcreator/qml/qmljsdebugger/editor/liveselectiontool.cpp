@@ -96,11 +96,9 @@ bool LiveSelectionTool::alreadySelected(const QList<QGraphicsItem*> &itemList) c
     if (selectedItems.isEmpty())
         return false;
 
-    foreach(QGraphicsItem *item, itemList) {
-        if (selectedItems.contains(item)) {
+    foreach (QGraphicsItem *item, itemList)
+        if (selectedItems.contains(item))
             return true;
-        }
-    }
 
     return false;
 }
@@ -143,7 +141,7 @@ void LiveSelectionTool::createContextMenu(QList<QGraphicsItem*> itemList, QPoint
     bool addKeySequence = true;
     int i = 0;
 
-    foreach(QGraphicsItem * const item, itemList) {
+    foreach (QGraphicsItem * const item, itemList) {
         QString itemTitle = titleForItem(item);
         QAction *elementAction = contextMenu.addAction(itemTitle, this,
                                                        SLOT(contextMenuElementSelected()));
@@ -237,7 +235,7 @@ void LiveSelectionTool::hoverMoveEvent(QMouseEvent * event)
 //    QList<QGraphicsItem*> itemList = view()->items(event->pos());
 //    if (!itemList.isEmpty() && !m_rubberbandSelectionMode) {
 //
-//        foreach(QGraphicsItem *item, itemList) {
+//        foreach (QGraphicsItem *item, itemList) {
 //            if (item->type() == Constants::ResizeHandleItemType) {
 //                ResizeHandleItem* resizeHandle = ResizeHandleItem::fromGraphicsItem(item);
 //                if (resizeHandle)
@@ -305,7 +303,6 @@ void LiveSelectionTool::mouseReleaseEvent(QMouseEvent *event)
 
 void LiveSelectionTool::mouseDoubleClickEvent(QMouseEvent * /*event*/)
 {
-
 }
 
 void LiveSelectionTool::keyPressEvent(QKeyEvent *event)
@@ -373,7 +370,6 @@ void LiveSelectionTool::setSelectOnlyContentItems(bool selectOnlyContentItems)
 
 void LiveSelectionTool::itemsAboutToRemoved(const QList<QGraphicsItem*> &/*itemList*/)
 {
-
 }
 
 void LiveSelectionTool::clear()
@@ -387,7 +383,7 @@ void LiveSelectionTool::clear()
 
 void LiveSelectionTool::selectedItemsChanged(const QList<QGraphicsItem*> &itemList)
 {
-    foreach(QWeakPointer<QGraphicsObject> obj, m_selectedItemList) {
+    foreach (QWeakPointer<QGraphicsObject> obj, m_selectedItemList) {
         if (!obj.isNull()) {
             disconnect(obj.data(), SIGNAL(xChanged()), this, SLOT(repaintBoundingRects()));
             disconnect(obj.data(), SIGNAL(yChanged()), this, SLOT(repaintBoundingRects()));
@@ -400,7 +396,7 @@ void LiveSelectionTool::selectedItemsChanged(const QList<QGraphicsItem*> &itemLi
     QList<QGraphicsObject*> objects = toGraphicsObjectList(itemList);
     m_selectedItemList.clear();
 
-    foreach(QGraphicsObject *obj, objects) {
+    foreach (QGraphicsObject *obj, objects) {
         m_selectedItemList.append(obj);
         connect(obj, SIGNAL(xChanged()), this, SLOT(repaintBoundingRects()));
         connect(obj, SIGNAL(yChanged()), this, SLOT(repaintBoundingRects()));

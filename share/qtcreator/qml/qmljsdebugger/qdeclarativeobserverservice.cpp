@@ -77,7 +77,7 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
         ds >> itemCount;
 
         QList<QObject*> selectedObjects;
-        for(int i = 0; i < itemCount; ++i) {
+        for (int i = 0; i < itemCount; ++i) {
             int debugId = -1;
             ds >> debugId;
             QObject *obj = objectForId(debugId);
@@ -134,7 +134,7 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
         int itemCount;
         ds >> itemCount;
         m_stringIdForObjectId.clear();
-        for(int i = 0; i < itemCount; ++i) {
+        for (int i = 0; i < itemCount; ++i) {
             int itemDebugId;
             QString itemIdString;
             ds >> itemDebugId
@@ -170,7 +170,7 @@ void QDeclarativeObserverService::setCurrentObjects(QList<QObject*> objects)
     ds << QByteArray("CURRENT_OBJECTS_CHANGED")
        << objects.length();
 
-    foreach(QObject *object, objects) {
+    foreach (QObject *object, objects) {
         int id = idForObject(object);
         ds << id;
     }

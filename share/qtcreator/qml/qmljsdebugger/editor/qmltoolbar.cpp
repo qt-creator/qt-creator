@@ -43,7 +43,7 @@
 
 namespace QmlJSDebugger {
 
-QmlToolbar::QmlToolbar(QWidget *parent)
+QmlToolBar::QmlToolBar(QWidget *parent)
     : QToolBar(parent)
     , m_emitSignals(true)
     , m_isRunning(false)
@@ -150,40 +150,40 @@ QmlToolbar::QmlToolbar(QWidget *parent)
     connect(ui->fromQml, SIGNAL(triggered()), SLOT(activateFromQml()));
 }
 
-QmlToolbar::~QmlToolbar()
+QmlToolBar::~QmlToolBar()
 {
     delete ui;
 }
 
-void QmlToolbar::activateColorPicker()
+void QmlToolBar::activateColorPicker()
 {
     m_emitSignals = false;
     activateColorPickerOnClick();
     m_emitSignals = true;
 }
 
-void QmlToolbar::activateSelectTool()
+void QmlToolBar::activateSelectTool()
 {
     m_emitSignals = false;
     activateSelectToolOnClick();
     m_emitSignals = true;
 }
 
-void QmlToolbar::activateMarqueeSelectTool()
+void QmlToolBar::activateMarqueeSelectTool()
 {
     m_emitSignals = false;
     activateMarqueeSelectToolOnClick();
     m_emitSignals = true;
 }
 
-void QmlToolbar::activateZoom()
+void QmlToolBar::activateZoom()
 {
     m_emitSignals = false;
     activateZoomOnClick();
     m_emitSignals = true;
 }
 
-void QmlToolbar::setAnimationSpeed(qreal slowdownFactor)
+void QmlToolBar::setAnimationSpeed(qreal slowdownFactor)
 {
     m_emitSignals = false;
     if (slowdownFactor != 0) {
@@ -209,38 +209,38 @@ void QmlToolbar::setAnimationSpeed(qreal slowdownFactor)
     m_emitSignals = true;
 }
 
-void QmlToolbar::changeToDefaultAnimSpeed()
+void QmlToolBar::changeToDefaultAnimSpeed()
 {
     m_animationSpeed = 1.0f;
     updatePlayAction();
 }
 
-void QmlToolbar::changeToHalfAnimSpeed()
+void QmlToolBar::changeToHalfAnimSpeed()
 {
     m_animationSpeed = 2.0f;
     updatePlayAction();
 }
 
-void QmlToolbar::changeToFourthAnimSpeed()
+void QmlToolBar::changeToFourthAnimSpeed()
 {
     m_animationSpeed = 4.0f;
     updatePlayAction();
 }
 
-void QmlToolbar::changeToEighthAnimSpeed()
+void QmlToolBar::changeToEighthAnimSpeed()
 {
     m_animationSpeed = 8.0f;
     updatePlayAction();
 }
 
-void QmlToolbar::changeToTenthAnimSpeed()
+void QmlToolBar::changeToTenthAnimSpeed()
 {
     m_animationSpeed = 10.0f;
     updatePlayAction();
 }
 
 
-void QmlToolbar::setDesignModeBehavior(bool inDesignMode)
+void QmlToolBar::setDesignModeBehavior(bool inDesignMode)
 {
     m_emitSignals = false;
     ui->designmode->setChecked(inDesignMode);
@@ -248,7 +248,7 @@ void QmlToolbar::setDesignModeBehavior(bool inDesignMode)
     m_emitSignals = true;
 }
 
-void QmlToolbar::setDesignModeBehaviorOnClick(bool checked)
+void QmlToolBar::setDesignModeBehaviorOnClick(bool checked)
 {
     ui->play->setEnabled(checked);
     ui->select->setEnabled(checked);
@@ -262,12 +262,12 @@ void QmlToolbar::setDesignModeBehaviorOnClick(bool checked)
         emit designModeBehaviorChanged(checked);
 }
 
-void QmlToolbar::setColorBoxColor(const QColor &color)
+void QmlToolBar::setColorBoxColor(const QColor &color)
 {
     ui->colorBox->setColor(color);
 }
 
-void QmlToolbar::activatePlayOnClick()
+void QmlToolBar::activatePlayOnClick()
 {
     if (m_isRunning) {
         updatePauseAction();
@@ -276,7 +276,7 @@ void QmlToolbar::activatePlayOnClick()
     }
 }
 
-void QmlToolbar::updatePlayAction()
+void QmlToolBar::updatePlayAction()
 {
     m_isRunning = true;
     ui->play->setIcon(ui->pauseIcon);
@@ -287,7 +287,7 @@ void QmlToolbar::updatePlayAction()
         emit animationSpeedChanged(m_animationSpeed);
 }
 
-void QmlToolbar::updatePauseAction()
+void QmlToolBar::updatePauseAction()
 {
     m_isRunning = false;
     ui->play->setIcon(ui->playIcon);
@@ -295,7 +295,7 @@ void QmlToolbar::updatePauseAction()
         emit animationSpeedChanged(0.0f);
 }
 
-void QmlToolbar::activateColorPickerOnClick()
+void QmlToolBar::activateColorPickerOnClick()
 {
     ui->zoom->setChecked(false);
     ui->select->setChecked(false);
@@ -309,7 +309,7 @@ void QmlToolbar::activateColorPickerOnClick()
     }
 }
 
-void QmlToolbar::activateSelectToolOnClick()
+void QmlToolBar::activateSelectToolOnClick()
 {
     ui->zoom->setChecked(false);
     ui->selectMarquee->setChecked(false);
@@ -323,7 +323,7 @@ void QmlToolbar::activateSelectToolOnClick()
     }
 }
 
-void QmlToolbar::activateMarqueeSelectToolOnClick()
+void QmlToolBar::activateMarqueeSelectToolOnClick()
 {
     ui->zoom->setChecked(false);
     ui->select->setChecked(false);
@@ -337,7 +337,7 @@ void QmlToolbar::activateMarqueeSelectToolOnClick()
     }
 }
 
-void QmlToolbar::activateZoomOnClick()
+void QmlToolBar::activateZoomOnClick()
 {
     ui->select->setChecked(false);
     ui->selectMarquee->setChecked(false);
@@ -351,13 +351,13 @@ void QmlToolbar::activateZoomOnClick()
     }
 }
 
-void QmlToolbar::activateFromQml()
+void QmlToolBar::activateFromQml()
 {
     if (m_emitSignals)
         emit applyChangesFromQmlFileSelected();
 }
 
-void QmlToolbar::activateToQml()
+void QmlToolBar::activateToQml()
 {
     if (m_emitSignals)
         emit applyChangesToQmlFileSelected();

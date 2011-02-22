@@ -93,7 +93,7 @@ QPolygonF LiveSelectionIndicator::addBoundingRectToPolygon(QGraphicsItem *item, 
             polygon = polygon.united(bounding);
     }
 
-    foreach(QGraphicsItem *child, item->childItems()) {
+    foreach (QGraphicsItem *child, item->childItems()) {
         if (!QDeclarativeViewObserverPrivate::get(m_view)->isEditorItem(child))
             addBoundingRectToPolygon(child, polygon);
     }

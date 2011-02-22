@@ -50,7 +50,7 @@ class ColorPickerTool;
 class LiveLayerItem;
 class BoundingRectHighlighter;
 class SubcomponentEditorTool;
-class QmlToolbar;
+class QmlToolBar;
 class CrumblePath;
 class AbstractLiveEditTool;
 
@@ -91,7 +91,7 @@ public:
     bool executionPaused;
     qreal slowdownFactor;
 
-    QmlToolbar *toolbar;
+    QmlToolBar *toolBar;
 
     void setViewport(QWidget *widget);
 

@@ -76,7 +76,7 @@ void LiveSingleSelectionManipulator::select(SelectionType selectionType,
 {
     QGraphicsItem *selectedItem = 0;
 
-    foreach(QGraphicsItem* item, items)
+    foreach (QGraphicsItem* item, items)
     {
         //FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
         if (item

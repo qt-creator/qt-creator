@@ -310,12 +310,12 @@ qreal ZoomTool::nextZoomScale(ZoomDirection direction) const
             << 48.0f;
 
     if (direction == ZoomIn) {
-        for(int i = 0; i < zoomScales.length(); ++i) {
+        for (int i = 0; i < zoomScales.length(); ++i) {
             if (zoomScales[i] > m_currentScale || i == zoomScales.length() - 1)
                 return zoomScales[i];
         }
     } else {
-        for(int i = zoomScales.length() - 1; i >= 0; --i) {
+        for (int i = zoomScales.length() - 1; i >= 0; --i) {
             if (zoomScales[i] < m_currentScale || i == 0)
                 return zoomScales[i];
         }
