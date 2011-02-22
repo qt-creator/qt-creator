@@ -1582,20 +1582,24 @@ QString QtVersion::resolveLink(const QString &path) const
 
 QString QtVersion::qtCorePath() const
 {
-    QString path = libraryInstallPath();
-
-    QStringList toTest;
-    toTest << path + QLatin1String("/libQtCore.so.") + qtVersionString();
-    toTest << path + QLatin1String("/libQtCore.so");
-    toTest << path + QLatin1String("/QtCore.dll");
-    toTest << path + QLatin1String("/QtCored.dll");
-    toTest << path + QLatin1String("/QtCore4.dll");
-    toTest << path + QLatin1String("/QtCored4.dll");
-    toTest << path + QLatin1String("/QtCore.framework/QtCore");
-
-    foreach (const QString &path, toTest) {
-        if (QFileInfo(path).exists())
-            return path;
+    QDir libDir(libraryInstallPath());
+    QFileInfoList infoList = libDir.entryInfoList();
+    foreach (const QFileInfo &info, infoList) {
+        const QString file = info.fileName();
+        if (info.isDir()
+                && file.startsWith(QLatin1String("QtCore"))
+                && file.endsWith(QLatin1String(".framework"))) {
+            // handle Framework
+            const QString libName = file.left(file.lastIndexOf('.'));
+            return libDir.absoluteFilePath(file + '/' + libName);
+        }
+        if (info.isReadable()
+                && (file.startsWith(QLatin1String("libQtCore"))
+                    || file.startsWith(QLatin1String("QtCore")))
+                && (file.endsWith(QLatin1String(".dll"))
+                    || file.endsWith(QString::fromLatin1(".so.") + qtVersionString()))) {
+            return info.absoluteFilePath();
+        }
     }
     return QString();
 }
