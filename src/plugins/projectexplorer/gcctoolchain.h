@@ -140,7 +140,7 @@ public:
 
 protected:
     virtual GccToolChain *createToolChain(bool autoDetect);
-    QList<ToolChain *> autoDetectCompiler(const QString &path);
+    QList<ToolChain *> autoDetectCompiler(const QString &path, const Abi &);
 };
 
 } // namespace Internal

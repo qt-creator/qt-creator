@@ -442,7 +442,7 @@ ToolChain *Internal::GccToolChainFactory::create()
 
 QList<ToolChain *> Internal::GccToolChainFactory::autoDetect()
 {
-    return autoDetectCompiler(QLatin1String("gcc"));
+    return autoDetectCompiler(QLatin1String("gcc"), Abi::hostAbi());
 }
 
 // Used by the ToolChainManager to restore user-generated ToolChains
@@ -466,7 +466,7 @@ GccToolChain *Internal::GccToolChainFactory::createToolChain(bool autoDetect)
     return new GccToolChain(autoDetect);
 }
 
-QList<ToolChain *> Internal::GccToolChainFactory::autoDetectCompiler(const QString &cc)
+QList<ToolChain *> Internal::GccToolChainFactory::autoDetectCompiler(const QString &cc, const Abi &requiredAbi)
 {
     QList<ToolChain *> result;
 
@@ -480,7 +480,7 @@ QList<ToolChain *> Internal::GccToolChainFactory::autoDetectCompiler(const QStri
 
     tc->setCompilerPath(path);
     ProjectExplorer::Abi abi = tc->targetAbi();
-    if (abi.isValid())
+    if (abi.isValid() && abi == requiredAbi)
         result.append(tc);
     else
         delete tc;
@@ -615,7 +615,7 @@ QString Internal::MingwToolChainFactory::id() const
 
 QList<ToolChain *> Internal::MingwToolChainFactory::autoDetect()
 {
-    return autoDetectCompiler(QLatin1String("gcc"));
+    return autoDetectCompiler(QLatin1String("gcc"), Abi::hostAbi());
 }
 
 bool Internal::MingwToolChainFactory::canCreate()
@@ -687,7 +687,7 @@ QString Internal::LinuxIccToolChainFactory::id() const
 
 QList<ToolChain *> Internal::LinuxIccToolChainFactory::autoDetect()
 {
-    return autoDetectCompiler(QLatin1String("icpc"));
+    return autoDetectCompiler(QLatin1String("icpc"), Abi::hostAbi());
 }
 
 ToolChain *Internal::LinuxIccToolChainFactory::create()

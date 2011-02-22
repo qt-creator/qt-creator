@@ -150,6 +150,11 @@ QList<ProjectExplorer::ToolChain *> GcceToolChainFactory::autoDetect()
         GcceToolChain *tc = new GcceToolChain(true);
         tc->setCompilerPath(fullPath);
         tc->setDisplayName(tr("GCCE (%1)").arg(gcceVersion(fullPath)));
+        if (tc->targetAbi() == ProjectExplorer::Abi(ProjectExplorer::Abi::ARM,
+                                                    ProjectExplorer::Abi::Symbian,
+                                                    ProjectExplorer::Abi::Symbian_device,
+                                                    ProjectExplorer::Abi::Format_ELF,
+                                                    32))
         result.append(tc);
     }
     return result;
