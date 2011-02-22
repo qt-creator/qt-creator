@@ -40,6 +40,8 @@
 #include "qdeclarativeviewobserver.h"
 #include "qdeclarativeobserverservice.h"
 
+QT_FORWARD_DECLARE_CLASS(QSettings)
+
 namespace QmlJSDebugger {
 
 class JSDebuggerAgent;
@@ -92,6 +94,7 @@ public:
     qreal slowdownFactor;
 
     QmlToolBar *toolBar;
+    QSettings *settings;
 
     void setViewport(QWidget *widget);
 

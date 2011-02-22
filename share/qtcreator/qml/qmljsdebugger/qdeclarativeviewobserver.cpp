@@ -53,9 +53,11 @@
 #include <QtGui/QMouseEvent>
 #include <QtGui/QGraphicsObject>
 #include <QtGui/QApplication>
-#include <QtCore/QAbstractAnimation>
+#include <QtCore/QSettings>
 
 namespace QmlJSDebugger {
+
+const char * const KEY_TOOLBOX_GEOMETRY = "toolBox/geometry";
 
 const int SceneChangeUpdateInterval = 5000;
 
@@ -65,12 +67,17 @@ QDeclarativeViewObserverPrivate::QDeclarativeViewObserverPrivate(QDeclarativeVie
     showAppOnTop(false),
     executionPaused(false),
     slowdownFactor(1.0f),
-    toolBar(0)
+    toolBar(0),
+    settings(0)
 {
 }
 
 QDeclarativeViewObserverPrivate::~QDeclarativeViewObserverPrivate()
 {
+    if (toolBar) {
+        settings->setValue(QLatin1String(KEY_TOOLBOX_GEOMETRY),
+                           toolBar->window()->saveGeometry());
+    }
 }
 
 QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObject *parent) :
@@ -84,6 +91,9 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
     data->boundingRectHighlighter = new BoundingRectHighlighter(this);
     data->subcomponentEditorTool = new SubcomponentEditorTool(this);
     data->currentTool = data->selectionTool;
+    data->settings = new QSettings(QLatin1String("Nokia"),
+                                   QLatin1String("QmlObserver"),
+                                   this);
 
     // to capture ChildRemoved event when viewport changes
     data->view->installEventFilter(this);
@@ -896,6 +906,8 @@ void QDeclarativeViewObserverPrivate::createToolBox()
     toolBox->setWindowFlags(toolBox->windowFlags() & ~Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);
     toolBox->setWindowTitle(tr("Quick Toolbox"));
     toolBox->setLayout(verticalLayout);
+
+    toolBox->restoreGeometry(settings->value(QLatin1String(KEY_TOOLBOX_GEOMETRY)).toByteArray());
     toolBox->show();
 }
 
