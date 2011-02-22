@@ -3,4 +3,9 @@
 
 QT += declarative
 INCLUDEPATH += $$PWD/include
-LIBS += -L$$PWD -lQmlJSDebugger
+
+DEBUGLIB=QmlJSDebugger
+CONFIG(debug, debug|release) {
+    windows:DEBUGLIB = QmlJSDebuggerd
+}
+LIBS += -L$$PWD -l$$DEBUGLIB
