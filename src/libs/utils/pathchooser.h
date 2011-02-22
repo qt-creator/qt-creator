@@ -62,6 +62,7 @@ class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
     Q_PROPERTY(QString promptDialogTitle READ promptDialogTitle WRITE setPromptDialogTitle DESIGNABLE true)
     Q_PROPERTY(Kind expectedKind READ expectedKind WRITE setExpectedKind DESIGNABLE true)
     Q_PROPERTY(QString baseDirectory READ baseDirectory WRITE setBaseDirectory DESIGNABLE true)
+    Q_PROPERTY(QStringList commandVersionArguments READ commandVersionArguments WRITE setCommandVersionArguments)
 
 public:
     static const char * const browseButtonLabel;
@@ -112,6 +113,17 @@ public:
     QAbstractButton *buttonAtIndex(int index) const;
 
     QLineEdit *lineEdit() const;
+
+    // For PathChoosers of 'Command' type, this property specifies the arguments
+    // required to obtain the tool version (commonly, '--version'). Setting them
+    // causes the version to be displayed as a tooltip.
+    QStringList commandVersionArguments() const;
+    void setCommandVersionArguments(const QStringList &arguments);
+
+    // Utility to run a tool and return its stdout.
+    static QString toolVersion(const QString &binary, const QStringList &arguments);
+    // Install a tooltip on lineedits used for binaries showing the version.
+    static void installLineEditVersionToolTip(QLineEdit *le, const QStringList &arguments);
 
 private:
     // Returns overridden title or the one from <title>

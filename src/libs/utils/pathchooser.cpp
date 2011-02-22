@@ -37,11 +37,15 @@
 #include "environment.h"
 #include "qtcassert.h"
 
+#include "synchronousprocess.h"
+
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
+#include <QtCore/QProcess>
 
+#include <QtGui/qevent.h>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QFileDialog>
 #include <QtGui/QHBoxLayout>
@@ -84,6 +88,95 @@ bool PathValidatingLineEdit::validate(const QString &value, QString *errorMessag
     return m_chooser->validatePath(value, errorMessage);
 }
 
+// ------------------ BinaryVersionToolTipEventFilter
+// Event filter to be installed on a lineedit used for entering
+// executables, taking the arguments to print the version ('--version').
+// On a tooltip event, the version is obtained by running the binary and
+// setting its stdout as tooltip.
+
+class BinaryVersionToolTipEventFilter : public QObject
+{
+public:
+    explicit BinaryVersionToolTipEventFilter(QLineEdit *le);
+
+    virtual bool eventFilter(QObject *, QEvent *);
+
+    QStringList arguments() const { return m_arguments; }
+    void setArguments(const QStringList &arguments) { m_arguments = arguments; }
+
+    static QString toolVersion(const QString &binary, const QStringList &arguments);
+
+private:
+    // Extension point for concatenating existing tooltips.
+    virtual QString defaultToolTip() const  { return QString(); }
+
+    QStringList m_arguments;
+};
+
+BinaryVersionToolTipEventFilter::BinaryVersionToolTipEventFilter(QLineEdit *le) :
+    QObject(le)
+{
+    le->installEventFilter(this);
+}
+
+bool BinaryVersionToolTipEventFilter::eventFilter(QObject *o, QEvent *e)
+{
+    if (e->type() != QEvent::ToolTip)
+        return false;
+    QLineEdit *le = qobject_cast<QLineEdit *>(o);
+    QTC_ASSERT(le, return false; )
+
+    const QString binary = le->text();
+    if (!binary.isEmpty()) {
+        const QString version = BinaryVersionToolTipEventFilter::toolVersion(QDir::cleanPath(binary), m_arguments);
+        if (!version.isEmpty()) {
+            // Concatenate tooltips.
+            QString tooltip = QLatin1String("<html><head/><body>");
+            const QString defaultValue = defaultToolTip();
+            if (!defaultValue.isEmpty()) {
+                tooltip += QLatin1String("<p>");
+                tooltip += defaultValue;
+                tooltip += QLatin1String("</p>");
+            }
+            tooltip += QLatin1String("<pre>");
+            tooltip += version;
+            tooltip += QLatin1String("</pre><body></html>");
+            le->setToolTip(tooltip);
+        }
+    }
+    return false;
+}
+
+QString BinaryVersionToolTipEventFilter::toolVersion(const QString &binary, const QStringList &arguments)
+{
+    if (binary.isEmpty())
+        return QString();
+    QProcess proc;
+    proc.start(binary, arguments);
+    if (!proc.waitForStarted())
+        return QString();
+    if (!proc.waitForFinished()) {
+        Utils::SynchronousProcess::stopProcess(proc);
+        return QString();
+    }
+    return QString::fromLocal8Bit(proc.readAllStandardOutput());
+}
+
+// Extends BinaryVersionToolTipEventFilter to prepend the existing pathchooser
+// tooltip to display the full path.
+class PathChooserBinaryVersionToolTipEventFilter : public BinaryVersionToolTipEventFilter
+{
+public:
+    explicit PathChooserBinaryVersionToolTipEventFilter(PathChooser *pe) :
+        BinaryVersionToolTipEventFilter(pe->lineEdit()), m_pathChooser(pe) {}
+
+private:
+    virtual QString defaultToolTip() const
+        { return m_pathChooser->errorMessage(); }
+
+    const PathChooser *m_pathChooser;
+};
+
 // ------------------ PathChooserPrivate
 
 class PathChooserPrivate
@@ -101,12 +194,14 @@ public:
     QString m_initialBrowsePathOverride;
     QString m_baseDirectory;
     Environment m_environment;
+    BinaryVersionToolTipEventFilter *m_binaryVersionToolTipEventFilter;
 };
 
 PathChooserPrivate::PathChooserPrivate(PathChooser *chooser) :
     m_hLayout(new QHBoxLayout),
     m_lineEdit(new PathValidatingLineEdit(chooser)),
-    m_acceptingKind(PathChooser::Directory)
+    m_acceptingKind(PathChooser::Directory),
+    m_binaryVersionToolTipEventFilter(0)
 {
 }
 
@@ -426,6 +521,38 @@ QLineEdit *PathChooser::lineEdit() const
     if (m_d->m_lineEdit->objectName().isEmpty())
         m_d->m_lineEdit->setObjectName(objectName() + QLatin1String("LineEdit"));
     return m_d->m_lineEdit;
+}
+
+QString PathChooser::toolVersion(const QString &binary, const QStringList &arguments)
+{
+    return BinaryVersionToolTipEventFilter::toolVersion(binary, arguments);
+}
+
+void PathChooser::installLineEditVersionToolTip(QLineEdit *le, const QStringList &arguments)
+{
+    BinaryVersionToolTipEventFilter *ef = new BinaryVersionToolTipEventFilter(le);
+    ef->setArguments(arguments);
+}
+
+QStringList PathChooser::commandVersionArguments() const
+{
+    return m_d->m_binaryVersionToolTipEventFilter ?
+           m_d->m_binaryVersionToolTipEventFilter->arguments() :
+           QStringList();
+}
+
+void PathChooser::setCommandVersionArguments(const QStringList &arguments)
+{
+    if (arguments.isEmpty()) {
+        if (m_d->m_binaryVersionToolTipEventFilter) {
+            delete m_d->m_binaryVersionToolTipEventFilter;
+            m_d->m_binaryVersionToolTipEventFilter = 0;
+        }
+    } else {
+        if (!m_d->m_binaryVersionToolTipEventFilter)
+            m_d->m_binaryVersionToolTipEventFilter = new PathChooserBinaryVersionToolTipEventFilter(this);
+        m_d->m_binaryVersionToolTipEventFilter->setArguments(arguments);
+    }
 }
 
 } // namespace Utils

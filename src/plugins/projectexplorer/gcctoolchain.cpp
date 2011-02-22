@@ -504,25 +504,22 @@ QList<ToolChain *> Internal::GccToolChainFactory::autoDetectCompiler(const QStri
 // --------------------------------------------------------------------------
 
 Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
-    ToolChainConfigWidget(tc)
+    ToolChainConfigWidget(tc),
+    m_compilerPath(new Utils::PathChooser),
+    m_force32BitCheckBox(new QCheckBox)
 {
     Q_ASSERT(tc);
 
     QGridLayout *layout = new QGridLayout(this);
-    QLabel *label = new QLabel(this);
-    label->setText(tr("Compiler path:"));
-    layout->addWidget(label, 0, 0);
+    layout->addWidget(new QLabel(tr("Compiler path:")), 0, 0);
 
-    m_compilerPath = new Utils::PathChooser(this);
     m_compilerPath->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_compilerPath->setCommandVersionArguments(QStringList(QLatin1String("--version")));
     layout->addWidget(m_compilerPath, 0, 1);
     connect(m_compilerPath, SIGNAL(changed(QString)), this, SLOT(handlePathChange()));
 
-    label = new QLabel(this);
-    label->setText(tr("Force 32bit compilation:"));
-    layout->addWidget(label, 1, 0);
+    layout->addWidget(new QLabel(tr("Force 32bit compilation:")), 1, 0);
 
-    m_force32BitCheckBox = new QCheckBox(this);
     layout->addWidget(m_force32BitCheckBox, 1, 1);
     connect(m_force32BitCheckBox, SIGNAL(toggled(bool)), this, SLOT(handle32BitChange()));
 
