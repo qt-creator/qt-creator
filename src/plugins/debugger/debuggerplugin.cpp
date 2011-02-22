@@ -2333,6 +2333,7 @@ void DebuggerPluginPrivate::runControlStarted(DebuggerEngine *engine)
 
 void DebuggerPluginPrivate::runControlFinished(DebuggerEngine *engine)
 {
+    showStatusMessage(tr("Debugger finished."));
     m_snapshotHandler->removeSnapshot(engine);
     if (m_snapshotHandler->size() == 0) {
         // Last engine quits.

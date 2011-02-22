@@ -353,7 +353,6 @@ void DebuggerEngine::showStatusMessage(const QString &msg, int timeout) const
     showMessage(msg, StatusBar, timeout);
 }
 
-
 void DebuggerEngine::frameUp()
 {
     int currentIndex = stackHandler()->currentIndex();
@@ -604,12 +603,12 @@ void DebuggerEngine::handleFinished()
 {
     showMessage("HANDLE RUNCONTROL FINISHED");
     d->m_runControl = 0;
+    d->m_progress.setProgressValue(1000);
+    d->m_progress.reportFinished();
     modulesHandler()->removeAll();
     stackHandler()->removeAll();
     threadsHandler()->removeAll();
     watchHandler()->cleanup();
-    d->m_progress.setProgressValue(1000);
-    d->m_progress.reportFinished();
 }
 
 const DebuggerStartParameters &DebuggerEngine::startParameters() const

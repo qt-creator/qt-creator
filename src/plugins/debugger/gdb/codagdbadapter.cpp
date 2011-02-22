@@ -1213,7 +1213,8 @@ void CodaGdbAdapter::cleanup()
     delete m_gdbServer;
     m_gdbServer = 0;
     if (!m_codaSocketIODevice.isNull()) {
-        QAbstractSocket *socket = qobject_cast<QAbstractSocket *>(m_codaSocketIODevice.data());
+        QAbstractSocket *socket =
+            qobject_cast<QAbstractSocket *>(m_codaSocketIODevice.data());
         const bool isOpen = socket
             ? socket->state() == QAbstractSocket::ConnectedState
             : m_codaSocketIODevice->isOpen();
