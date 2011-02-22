@@ -73,21 +73,21 @@ namespace Debugger {
 namespace Internal {
 
 bool isCdbEngineEnabled(); // Check the configuration page
-ConfigurationCheck checkCdbConfiguration(const ProjectExplorer::Abi &);
+ConfigurationCheck checkCdbConfiguration(const Abi &abi);
 
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &,
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp,
     DebuggerEngine *masterEngine, QString *error);
-DebuggerEngine *createGdbEngine(const DebuggerStartParameters &,
+DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp,
     DebuggerEngine *masterEngine);
-DebuggerEngine *createScriptEngine(const DebuggerStartParameters &);
-DebuggerEngine *createPdbEngine(const DebuggerStartParameters &);
-DebuggerEngine *createTcfEngine(const DebuggerStartParameters &);
-DebuggerEngine *createQmlEngine(const DebuggerStartParameters &,
+DebuggerEngine *createScriptEngine(const DebuggerStartParameters &sp);
+DebuggerEngine *createPdbEngine(const DebuggerStartParameters &sp);
+DebuggerEngine *createTcfEngine(const DebuggerStartParameters &sp);
+DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp,
     DebuggerEngine *masterEngine);
-DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &);
-DebuggerEngine *createLldbEngine(const DebuggerStartParameters &);
+DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp);
+DebuggerEngine *createLldbEngine(const DebuggerStartParameters &sp);
 
-extern QString msgNoBinaryForToolChain(const ProjectExplorer::Abi &abi);
+extern QString msgNoBinaryForToolChain(const Abi &abi);
 
 static QString msgEngineNotAvailable(const char *engine)
 {
@@ -371,7 +371,7 @@ void DebuggerRunControl::setCustomEnvironment(Utils::Environment env)
     d->m_engine->startParameters().environment = env;
 }
 
-ConfigurationCheck checkDebugConfiguration(const ProjectExplorer::Abi &abi)
+ConfigurationCheck checkDebugConfiguration(const Abi &abi)
 {
     ConfigurationCheck result;
 
@@ -383,12 +383,17 @@ ConfigurationCheck checkDebugConfiguration(const ProjectExplorer::Abi &abi)
             (abi.binaryFormat() == Abi::Format_PE && abi.osFlavor() == Abi::Windows_msys)) {
         if (debuggerCore()->debuggerForAbi(abi).isEmpty()) {
             result.errorMessage = msgNoBinaryForToolChain(abi);
+            if (!result.errorMessage.isEmpty())
+                result.errorMessage += QLatin1Char('\n');
             result.errorMessage += QLatin1Char(' ') + msgEngineNotAvailable("Gdb");
             result.settingsPage = _(Constants::DEBUGGER_COMMON_SETTINGS_ID);
         }
-    } else if (abi.binaryFormat() == Abi::Format_PE && abi.osFlavor() != Abi::Windows_msys) {
+    } else if (abi.binaryFormat() == Abi::Format_PE
+                && abi.osFlavor() != Abi::Windows_msys) {
         result = checkCdbConfiguration(abi);
         if (!result) {
+            if (!result.errorMessage.isEmpty())
+                result.errorMessage += QLatin1Char('\n');
             result.errorMessage += msgEngineNotAvailable("Cdb");
             result.settingsPage = _("Cdb");
         }

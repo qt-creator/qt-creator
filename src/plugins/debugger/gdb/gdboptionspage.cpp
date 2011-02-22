@@ -62,17 +62,17 @@ QString GdbOptionsPage::displayName() const
 
 QString GdbOptionsPage::category() const
 {
-    return QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
+    return QLatin1String(Constants::DEBUGGER_SETTINGS_CATEGORY);
 }
 
 QString GdbOptionsPage::displayCategory() const
 {
-    return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_TR_CATEGORY);
+    return QCoreApplication::translate("Debugger", Constants::DEBUGGER_SETTINGS_TR_CATEGORY);
 }
 
 QIcon GdbOptionsPage::categoryIcon() const
 {
-    return QIcon(QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
+    return QIcon(QLatin1String(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *GdbOptionsPage::createPage(QWidget *parent)
