@@ -86,13 +86,6 @@ QString GcceToolChain::typeName() const
     return GcceToolChainFactory::tr("GCCE");
 }
 
-ProjectExplorer::Abi GcceToolChain::targetAbi() const
-{
-    return ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Symbian,
-                                ProjectExplorer::Abi::Symbian_device,
-                                ProjectExplorer::Abi::Format_ELF, false);
-}
-
 QByteArray GcceToolChain::predefinedMacros() const
 {
     if (m_predefinedMacros.isEmpty()) {

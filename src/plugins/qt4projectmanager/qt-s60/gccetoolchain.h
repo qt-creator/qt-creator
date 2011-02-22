@@ -49,7 +49,6 @@ class GcceToolChain : public ProjectExplorer::GccToolChain
 {
 public:
     QString typeName() const;
-    ProjectExplorer::Abi targetAbi() const;
 
     QByteArray predefinedMacros() const;
     void addToEnvironment(Utils::Environment &env) const;
