@@ -35,6 +35,13 @@
 
 #include "toolchain.h"
 
+#include <utils/qtcassert.h>
+#include <utils/pathchooser.h>
+
+#include <QtGui/QFormLayout>
+#include <QtGui/QGridLayout>
+#include <QtGui/QLabel>
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -46,12 +53,15 @@ class ToolChainConfigWidgetPrivate
 {
 public:
     ToolChainConfigWidgetPrivate(ToolChain *tc) :
-        m_toolChain(tc)
+        m_toolChain(tc), m_debuggerPathChooser(0)
     {
         Q_ASSERT(tc);
     }
 
+
+
     ToolChain *m_toolChain;
+    Utils::PathChooser *m_debuggerPathChooser;
 };
 
 } // namespace Internal
@@ -62,7 +72,8 @@ public:
 
 ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
     m_d(new Internal::ToolChainConfigWidgetPrivate(tc))
-{ }
+{
+}
 
 void ToolChainConfigWidget::setDisplayName(const QString &name)
 {
@@ -72,6 +83,52 @@ void ToolChainConfigWidget::setDisplayName(const QString &name)
 ToolChain *ToolChainConfigWidget::toolChain() const
 {
     return m_d->m_toolChain;
+}
+
+void ToolChainConfigWidget::emitDirty()
+{
+    emit dirty(toolChain());
+}
+
+void ToolChainConfigWidget::addDebuggerCommandControls(QFormLayout *lt,
+                                                       const QStringList &versionArguments)
+{
+    ensureDebuggerPathChooser(versionArguments);
+    lt->addRow(tr("&Debugger:"), m_d->m_debuggerPathChooser);
+}
+
+void ToolChainConfigWidget::addDebuggerCommandControls(QGridLayout *lt,
+                                                       int row, int column,
+                                                       const QStringList &versionArguments)
+{
+    ensureDebuggerPathChooser(versionArguments);
+    QLabel *label = new QLabel(tr("&Debugger:"));
+    label->setBuddy(m_d->m_debuggerPathChooser);
+    lt->addWidget(label, row, column);
+    lt->addWidget(m_d->m_debuggerPathChooser, row, column + 1);
+}
+
+void ToolChainConfigWidget::ensureDebuggerPathChooser(const QStringList &versionArguments)
+{
+    if (m_d->m_debuggerPathChooser)
+        return;
+    m_d->m_debuggerPathChooser = new Utils::PathChooser;
+    if (!versionArguments.isEmpty())
+        m_d->m_debuggerPathChooser->setCommandVersionArguments(versionArguments);
+    m_d->m_debuggerPathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    connect(m_d->m_debuggerPathChooser, SIGNAL(changed(QString)), this, SLOT(emitDirty()));
+}
+
+QString ToolChainConfigWidget::debuggerCommand() const
+{
+    QTC_ASSERT(m_d->m_debuggerPathChooser, return QString(); )
+    return m_d->m_debuggerPathChooser->path();
+}
+
+void ToolChainConfigWidget::setDebuggerCommand(const QString &d)
+{
+    QTC_ASSERT(m_d->m_debuggerPathChooser, return; )
+    m_d->m_debuggerPathChooser->setPath(d);
 }
 
 } // namespace ProjectExplorer

@@ -54,8 +54,9 @@ namespace ProjectExplorer {
 // Helpers:
 // --------------------------------------------------------------------------
 
-static const char *const COMPILER_PATH_KEY = "ProjectExplorer.GccToolChain.Path";
-static const char *const FORCE_32BIT_KEY = "ProjectExplorer.GccToolChain.Force32Bit";
+static const char compilerPathKeyC[] = "ProjectExplorer.GccToolChain.Path";
+static const char force32bitKeyC[] = "ProjectExplorer.GccToolChain.Force32Bit";
+static const char debuggerCommandKeyC[] = "ProjectExplorer.GccToolChain.Debugger";
 
 static QByteArray runGcc(const QString &gcc, const QStringList &arguments, const QStringList &env)
 {
@@ -323,6 +324,16 @@ void GccToolChain::addToEnvironment(Utils::Environment &env) const
         env.prependOrSetPath(QFileInfo(m_compilerPath).absolutePath());
 }
 
+void GccToolChain::setDebuggerCommand(const QString &d)
+{
+    m_debuggerCommand = d;
+}
+
+QString GccToolChain::debuggerCommand() const
+{
+    return m_debuggerCommand;
+}
+
 QString GccToolChain::makeCommand() const
 {
     return QLatin1String("make");
@@ -387,8 +398,9 @@ ToolChain *GccToolChain::clone() const
 QVariantMap GccToolChain::toMap() const
 {
     QVariantMap data = ToolChain::toMap();
-    data.insert(QLatin1String(COMPILER_PATH_KEY), m_compilerPath);
-    data.insert(QLatin1String(FORCE_32BIT_KEY), m_forcedTo32Bit);
+    data.insert(QLatin1String(compilerPathKeyC), m_compilerPath);
+    data.insert(QLatin1String(force32bitKeyC), m_forcedTo32Bit);
+    data.insert(QLatin1String(debuggerCommandKeyC), m_debuggerCommand);
     return data;
 }
 
@@ -397,8 +409,9 @@ bool GccToolChain::fromMap(const QVariantMap &data)
     if (!ToolChain::fromMap(data))
         return false;
 
-    m_compilerPath = data.value(QLatin1String(COMPILER_PATH_KEY)).toString();
-    m_forcedTo32Bit = data.value(QLatin1String(FORCE_32BIT_KEY)).toBool();
+    m_compilerPath = data.value(QLatin1String(compilerPathKeyC)).toString();
+    m_forcedTo32Bit = data.value(QLatin1String(force32bitKeyC)).toBool();
+    m_debuggerCommand = data.value(QLatin1String(debuggerCommandKeyC)).toString();
     return true;
 }
 
@@ -408,7 +421,8 @@ bool GccToolChain::operator ==(const ToolChain &other) const
         return false;
 
     const GccToolChain *gccTc = static_cast<const GccToolChain *>(&other);
-    return m_compilerPath == gccTc->m_compilerPath && m_forcedTo32Bit == gccTc->m_forcedTo32Bit;
+    return m_compilerPath == gccTc->m_compilerPath && m_forcedTo32Bit == gccTc->m_forcedTo32Bit
+            && m_debuggerCommand == gccTc->m_debuggerCommand;
 }
 
 ToolChainConfigWidget *GccToolChain::configurationWidget()
@@ -511,15 +525,18 @@ Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
 {
     Q_ASSERT(tc);
 
+    const QStringList gnuVersionArgs = QStringList(QLatin1String("--version"));
     m_compilerPath->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_compilerPath->setCommandVersionArguments(QStringList(QLatin1String("--version")));
+    m_compilerPath->setCommandVersionArguments(gnuVersionArgs);
     connect(m_compilerPath, SIGNAL(changed(QString)), this, SLOT(handlePathChange()));
 
     QFormLayout *layout = new QFormLayout(this);
-    layout->addRow(tr("Compiler path:"), m_compilerPath);
-    layout->addRow(tr("Force 32bit compilation:"), m_force32BitCheckBox);
+    layout->addRow(tr("&Compiler path:"), m_compilerPath);
+    layout->addRow(tr("&Force 32bit compilation:"), m_force32BitCheckBox);
 
     connect(m_force32BitCheckBox, SIGNAL(toggled(bool)), this, SLOT(handle32BitChange()));
+
+    addDebuggerCommandControls(layout, gnuVersionArgs);
 
     discard();
 }
@@ -538,6 +555,7 @@ void Internal::GccToolChainConfigWidget::apply()
     tc->forceTo32Bit(m_force32BitCheckBox->isChecked());
     tc->setCompilerPath(path);
     tc->setDisplayName(displayName); // reset display name
+    tc->setDebuggerCommand(debuggerCommand());
 }
 
 void Internal::GccToolChainConfigWidget::discard()
@@ -547,6 +565,7 @@ void Internal::GccToolChainConfigWidget::discard()
     m_compilerPath->setPath(tc->compilerPath());
     m_force32BitCheckBox->setChecked(tc->isForcedTo32Bit());
     m_force32BitCheckBox->setEnabled(tc->supports64Bit());
+    setDebuggerCommand(tc->debuggerCommand());
 }
 
 bool Internal::GccToolChainConfigWidget::isDirty() const

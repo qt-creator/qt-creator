@@ -70,6 +70,8 @@ public:
     QList<HeaderPath> systemHeaderPaths() const;
     void addToEnvironment(Utils::Environment &env) const;
     QString makeCommand() const;
+    void setDebuggerCommand(const QString &);
+    QString debuggerCommand() const;
     IOutputParser *outputParser() const;
 
     QVariantMap toMap() const;
@@ -103,6 +105,7 @@ private:
     GccToolChain(bool autodetect);
 
     QString m_compilerPath;
+    QString m_debuggerCommand;
     bool m_forcedTo32Bit;
     mutable bool m_supports64Bit;
 

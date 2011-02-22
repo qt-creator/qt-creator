@@ -64,7 +64,12 @@ public:
     QList<HeaderPath> systemHeaderPaths() const;
     void addToEnvironment(Utils::Environment &env) const;
     QString makeCommand() const;
+    void setDebuggerCommand(const QString &d);
+    virtual QString debuggerCommand() const;
     IOutputParser *outputParser() const;
+
+    virtual QVariantMap toMap() const;
+    virtual bool fromMap(const QVariantMap &data);
 
     ToolChainConfigWidget *configurationWidget();
 
@@ -74,6 +79,7 @@ public:
 private:
     QString m_varsBat; // Script to setup environment
     QString m_varsBatArg; // Argument
+    QString m_debuggerCommand;
     mutable QByteArray m_predefinedMacros;
     mutable Utils::Environment m_lastEnvironment;
     mutable Utils::Environment m_resultEnvironment;

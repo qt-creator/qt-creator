@@ -57,9 +57,10 @@ static const char *const RVCT_BINARY = "armcc";
 
 static const char *const RVCT_LICENSE_KEY = "ARMLMD_LICENSE_FILE";
 
-static const char *const RVCT_PATH_KEY = "Qt4ProjectManager.RvctToolChain.CompilerPath";
-static const char *const RVCT_ENVIRONMENT_KEY = "Qt4ProjectManager.RvctToolChain.Environment";
-static const char *const RVCT_ARM_VERSION_KEY = "Qt4ProjectManager.RvctToolChain.ArmVersion";
+static const char rvctPathKeyC[] = "Qt4ProjectManager.RvctToolChain.CompilerPath";
+static const char rvctEnvironmentKeyC[] = "Qt4ProjectManager.RvctToolChain.Environment";
+static const char rvctArmVersionKeyC[] = "Qt4ProjectManager.RvctToolChain.ArmVersion";
+static const char debuggerCommandKeyC[] = "Qt4ProjectManager.RvctToolChain.Debugger";
 
 static QString valueOf(const QList<Utils::EnvironmentItem> &items, const QString &suffix)
 {
@@ -239,7 +240,8 @@ bool RvctToolChain::operator ==(const ToolChain &other) const
     const RvctToolChain *otherPtr = dynamic_cast<const RvctToolChain *>(&other);
     return m_compilerPath == otherPtr->m_compilerPath
             && m_environmentChanges == otherPtr->m_environmentChanges
-            && m_armVersion == otherPtr->m_armVersion;
+            && m_armVersion == otherPtr->m_armVersion
+            && m_debuggerCommand == otherPtr->m_debuggerCommand;
 }
 
 void RvctToolChain::setEnvironmentChanges(const QList<Utils::EnvironmentItem> &changes)
@@ -265,6 +267,16 @@ void RvctToolChain::setCompilerPath(const QString &path)
 QString RvctToolChain::compilerPath() const
 {
     return m_compilerPath;
+}
+
+void RvctToolChain::setDebuggerCommand(const QString &d)
+{
+    m_debuggerCommand = d;
+}
+
+QString RvctToolChain::debuggerCommand() const
+{
+    return m_debuggerCommand;
 }
 
 void RvctToolChain::setArmVersion(RvctToolChain::ArmVersion av)
@@ -296,12 +308,13 @@ ProjectExplorer::ToolChain *RvctToolChain::clone() const
 QVariantMap RvctToolChain::toMap() const
 {
     QVariantMap result = ToolChain::toMap();
-    result.insert(QLatin1String(RVCT_PATH_KEY), m_compilerPath);
+    result.insert(QLatin1String(rvctPathKeyC), m_compilerPath);
     QVariantMap tmp;
     foreach (const Utils::EnvironmentItem &i, m_environmentChanges)
         tmp.insert(i.name, i.value);
-    result.insert(QLatin1String(RVCT_ENVIRONMENT_KEY), tmp);
-    result.insert(QLatin1String(RVCT_ARM_VERSION_KEY), static_cast<int>(m_armVersion));
+    result.insert(QLatin1String(rvctEnvironmentKeyC), tmp);
+    result.insert(QLatin1String(rvctArmVersionKeyC), static_cast<int>(m_armVersion));
+    result.insert(QLatin1String(debuggerCommandKeyC), m_debuggerCommand);
     return result;
 }
 
@@ -309,14 +322,14 @@ bool RvctToolChain::fromMap(const QVariantMap &data)
 {
     if (!ToolChain::fromMap(data))
         return false;
-    m_compilerPath = data.value(QLatin1String(RVCT_PATH_KEY)).toString();
+    m_compilerPath = data.value(QLatin1String(rvctPathKeyC)).toString();
 
     m_environmentChanges.clear();
-    QVariantMap tmp = data.value(QLatin1String(RVCT_ENVIRONMENT_KEY)).toMap();
+    QVariantMap tmp = data.value(QLatin1String(rvctEnvironmentKeyC)).toMap();
     for (QVariantMap::const_iterator i = tmp.constBegin(); i != tmp.constEnd(); ++i)
         m_environmentChanges.append(Utils::EnvironmentItem(i.key(), i.value().toString()));
-    m_armVersion = static_cast<ArmVersion>(data.value(QLatin1String(RVCT_ARM_VERSION_KEY), 0).toInt());
-
+    m_armVersion = static_cast<ArmVersion>(data.value(QLatin1String(rvctArmVersionKeyC), 0).toInt());
+    m_debuggerCommand = data.value(QLatin1String(debuggerCommandKeyC)).toString();
     return isValid();
 }
 
@@ -341,6 +354,7 @@ RvctToolChainConfigWidget::RvctToolChainConfigWidget(RvctToolChain *tc) :
     m_model(new Utils::EnvironmentModel(this))
 {
     m_ui->setupUi(this);
+    addDebuggerCommandControls(m_ui->formLayout, QStringList(QLatin1String("--version")));
 
     m_ui->environmentView->setModel(m_model);
     m_ui->environmentView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);

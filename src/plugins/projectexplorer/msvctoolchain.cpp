@@ -39,6 +39,7 @@
 #include <projectexplorer/projectexplorersettings.h>
 
 #include <utils/qtcprocess.h>
+#include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 
 #include <QtCore/QCoreApplication>
@@ -47,7 +48,9 @@
 #include <QtCore/QSettings>
 #include <QtCore/QTemporaryFile>
 #include <QtGui/QLabel>
-#include <QtGui/QVBoxLayout>
+#include <QtGui/QFormLayout>
+
+static const char debuggerCommandKeyC[] = "ProjectExplorer.MsvcToolChain.Debugger";
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -362,6 +365,32 @@ QString MsvcToolChain::makeCommand() const
     return QLatin1String("nmake.exe");
 }
 
+void MsvcToolChain::setDebuggerCommand(const QString &d)
+{
+    m_debuggerCommand = d;
+}
+
+QString MsvcToolChain::debuggerCommand() const
+{
+    return m_debuggerCommand;
+}
+
+QVariantMap MsvcToolChain::toMap() const
+{
+    QVariantMap data = ToolChain::toMap();
+    data.insert(QLatin1String(debuggerCommandKeyC), m_debuggerCommand);
+    return data;
+}
+
+bool MsvcToolChain::fromMap(const QVariantMap &data)
+{
+    if (!ToolChain::fromMap(data))
+        return false;
+
+    m_debuggerCommand= data.value(QLatin1String(debuggerCommandKeyC)).toString();
+    return true;
+}
+
 IOutputParser *MsvcToolChain::outputParser() const
 {
     return new MsvcParser;
@@ -389,25 +418,30 @@ ToolChain *MsvcToolChain::clone() const
 MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc) :
     ToolChainConfigWidget(tc)
 {
-    QLabel *label = new QLabel;
-    label->setText(tc->displayName());
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(label);
+    QFormLayout *formLayout = new QFormLayout(this);
+    formLayout->addRow(new QLabel(tc->displayName()));
+    addDebuggerCommandControls(formLayout);
 }
 
 void MsvcToolChainConfigWidget::apply()
 {
-    // Nothing to apply!
+    MsvcToolChain *tc = static_cast<MsvcToolChain *>(toolChain());
+    QTC_ASSERT(tc, return; );
+    tc->setDebuggerCommand(debuggerCommand());
 }
 
 void MsvcToolChainConfigWidget::discard()
 {
-    // Nothing to apply!
+    MsvcToolChain *tc = static_cast<MsvcToolChain *>(toolChain());
+    QTC_ASSERT(tc, return);
+    setDebuggerCommand(tc->debuggerCommand());
 }
 
 bool MsvcToolChainConfigWidget::isDirty() const
 {
-    return false;
+    MsvcToolChain *tc = static_cast<MsvcToolChain *>(toolChain());
+    QTC_ASSERT(tc, return false);
+    return debuggerCommand() != tc->debuggerCommand();
 }
 
 // --------------------------------------------------------------------------

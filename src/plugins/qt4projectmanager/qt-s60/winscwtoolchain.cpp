@@ -46,9 +46,9 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-static const char *const WINSCW_COMPILER_PATH_KEY = "Qt4ProjectManager.Winscw.CompilerPath";
-static const char *const WINSCW_SYSTEM_INCLUDE_PATH_KEY = "Qt4ProjectManager.Winscw.IncludePath";
-static const char *const WINSCW_SYSTEM_LIBRARY_PATH_KEY = "Qt4ProjectManager.Winscw.LibraryPath";
+static const char winscwCompilerPathKeyC[] = "Qt4ProjectManager.Winscw.CompilerPath";
+static const char winscwSystemIncludePathKeyC[] = "Qt4ProjectManager.Winscw.IncludePath";
+static const char winscwSystemLibraryPathKeyC[] = "Qt4ProjectManager.Winscw.LibraryPath";
 
 static const char *const WINSCW_DEFAULT_SYSTEM_INCLUDES[] = {
     "/MSL/MSL_C/MSL_Common/Include",
@@ -188,6 +188,10 @@ QString WinscwToolChain::makeCommand() const
 #endif
 }
 
+QString WinscwToolChain::debuggerCommand() const
+{
+    return QString();
+}
 
 QString WinscwToolChain::defaultMakeTarget() const
 {
@@ -224,9 +228,10 @@ ProjectExplorer::ToolChain *WinscwToolChain::clone() const
 QVariantMap WinscwToolChain::toMap() const
 {
     QVariantMap result = ToolChain::toMap();
-    result.insert(QLatin1String(WINSCW_COMPILER_PATH_KEY), m_compilerPath);
-    result.insert(QLatin1String(WINSCW_SYSTEM_INCLUDE_PATH_KEY), m_systemIncludePathes.join(QString(QLatin1Char(';'))));
-    result.insert(QLatin1String(WINSCW_SYSTEM_LIBRARY_PATH_KEY), m_systemLibraryPathes.join(QString(QLatin1Char(';'))));
+    result.insert(QLatin1String(winscwCompilerPathKeyC), m_compilerPath);
+    const QString semicolon = QString(QLatin1Char(';'));
+    result.insert(QLatin1String(winscwSystemIncludePathKeyC), m_systemIncludePathes.join(semicolon));
+    result.insert(QLatin1String(winscwSystemLibraryPathKeyC), m_systemLibraryPathes.join(semicolon));
     return result;
 }
 
@@ -234,10 +239,10 @@ bool WinscwToolChain::fromMap(const QVariantMap &data)
 {
     if (!ToolChain::fromMap(data))
         return false;
-    m_compilerPath = data.value(QLatin1String(WINSCW_COMPILER_PATH_KEY)).toString();
-    m_systemIncludePathes = data.value(QLatin1String(WINSCW_SYSTEM_INCLUDE_PATH_KEY)).toString().split(QLatin1Char(';'));
-    m_systemLibraryPathes = data.value(QLatin1String(WINSCW_SYSTEM_LIBRARY_PATH_KEY)).toString().split(QLatin1Char(';'));
-
+    m_compilerPath = data.value(QLatin1String(winscwCompilerPathKeyC)).toString();
+    const QChar semicolon = QLatin1Char(';');
+    m_systemIncludePathes = data.value(QLatin1String(winscwSystemIncludePathKeyC)).toString().split(semicolon);
+    m_systemLibraryPathes = data.value(QLatin1String(winscwSystemLibraryPathKeyC)).toString().split(semicolon);
     return isValid();
 }
 

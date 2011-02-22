@@ -62,6 +62,7 @@ public:
     QList<ProjectExplorer::HeaderPath> systemHeaderPaths() const;
     void addToEnvironment(Utils::Environment &env) const;
     QString makeCommand() const;
+    virtual QString debuggerCommand() const;
     QString defaultMakeTarget() const;
     ProjectExplorer::IOutputParser *outputParser() const;
 

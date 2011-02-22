@@ -38,6 +38,9 @@
 
 #include <QtGui/QWidget>
 
+QT_FORWARD_DECLARE_CLASS(QFormLayout)
+QT_FORWARD_DECLARE_CLASS(QGridLayout)
+
 namespace ProjectExplorer {
 
 namespace Internal {
@@ -68,7 +71,22 @@ public:
 signals:
     void dirty(ProjectExplorer::ToolChain *);
 
+protected slots:
+    void emitDirty();
+
+protected:
+    void addDebuggerCommandControls(QFormLayout *lt,
+                                    const QStringList &versionArguments = QStringList());
+    void addDebuggerCommandControls(QGridLayout *lt,
+                                    int row = 0, int column = 0,
+                                    const QStringList &versionArguments = QStringList());
+
+    QString debuggerCommand() const;
+    void setDebuggerCommand(const QString &d);
+
 private:
+    void ensureDebuggerPathChooser(const QStringList &versionArguments);
+
     Internal::ToolChainConfigWidgetPrivate *m_d;
 };
 
