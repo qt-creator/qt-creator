@@ -977,6 +977,7 @@ AbstractQt4MaemoTarget::ActionStatus AbstractRpmBasedQt4MaemoTarget::createSpeci
         "%files\n"
         "%defattr(-,root,root,-)"
         "/usr\n"
+        "/opt\n"
         "# Add additional files to be included in the package here.\n"
         "%pre\n"
         "# Add pre-install scripts here."
