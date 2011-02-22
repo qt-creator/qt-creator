@@ -132,7 +132,9 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
     connect(data->subcomponentEditorTool, SIGNAL(contextPathChanged(QStringList)),
             data->debugService, SLOT(contextPathUpdated(QStringList)));
 
+#if !defined(Q_OS_SYMBIAN) && !defined(Q_WS_MAEMO_5)
     data->createToolBox();
+#endif
 
     data->_q_changeToSingleSelectTool();
 }
@@ -454,7 +456,8 @@ void QDeclarativeViewObserver::setDesignModeBehavior(bool value)
 {
     emit designModeBehaviorChanged(value);
 
-    data->toolBar->setDesignModeBehavior(value);
+    if (data->toolBar)
+        data->toolBar->setDesignModeBehavior(value);
     data->debugService->setDesignModeBehavior(value);
 
     data->designModeBehavior = value;
@@ -846,11 +849,6 @@ QRectF QDeclarativeViewObserver::adjustToScreenBoundaries(const QRectF &bounding
         boundingRect.setBottom(rect.bottom() - marginFromEdge);
 
     return boundingRect;
-}
-
-QToolBar *QDeclarativeViewObserver::toolBar() const
-{
-    return data->toolBar;
 }
 
 void QDeclarativeViewObserverPrivate::createToolBox()
