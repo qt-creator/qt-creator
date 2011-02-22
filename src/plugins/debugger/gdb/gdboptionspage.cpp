@@ -45,6 +45,8 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QFileInfo>
 
+using namespace ProjectExplorer;
+
 namespace Debugger {
 namespace Internal {
 
@@ -58,7 +60,6 @@ bool GdbOptionsPage::gdbMappingChanged = true;
 void GdbOptionsPage::readGdbSettings() /* static */
 {
     // FIXME: Convert old settings!
-    using namespace ProjectExplorer;
     QSettings *settings = Core::ICore::instance()->settings();
 
     abiToGdbMap.clear();
@@ -66,7 +67,7 @@ void GdbOptionsPage::readGdbSettings() /* static */
     int size = settings->beginReadArray(GDB_MAPPING_ARRAY);
     for (int i = 0; i < size; ++i) {
         settings->setArrayIndex(i);
-        ProjectExplorer::Abi abi(settings->value(GDB_ABI_KEY).toString());
+        Abi abi(settings->value(GDB_ABI_KEY).toString());
         if (!abi.isValid())
             continue;
         QString binary = settings->value(GDB_BINARY_KEY).toString();
@@ -108,20 +109,20 @@ void GdbOptionsPage::readGdbSettings() /* static */
             case 0: // GCC
             case 1: // Linux ICC
 #ifndef Q_OS_WIN
-                abi = ProjectExplorer::Abi::hostAbi().toString();
+                abi = Abi::hostAbi().toString();
 #endif
                 break;
             case 2: // MinGW
             case 3: // MSVC
             case 4: // WINCE
 #ifdef Q_OS_WIN
-                abi = ProjectExplorer::Abi::hostAbi().toString();
+                abi = Abi::hostAbi().toString();
 #endif
                 break;
             case 5: // WINSCW
-                abi = ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Symbian,
-                                           ProjectExplorer::Abi::Symbian_emulator,
-                                           ProjectExplorer::Abi::Format_ELF,
+                abi = Abi(Abi::ARM, Abi::Symbian,
+                                           Abi::Symbian_emulator,
+                                           Abi::Format_ELF,
                                            32).toString();
                 break;
             case 6: // GCCE
@@ -130,28 +131,28 @@ void GdbOptionsPage::readGdbSettings() /* static */
             case 11: // RVCT GNUPOC
             case 12: // RVCT 4, ARM v5
             case 13: // RVCT 4, ARM v6
-                abi = ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Symbian,
-                                           ProjectExplorer::Abi::Symbian_device,
-                                           ProjectExplorer::Abi::Format_ELF,
+                abi = Abi(Abi::ARM, Abi::Symbian,
+                                           Abi::Symbian_device,
+                                           Abi::Format_ELF,
                                            32).toString();
                 break;
             case 9: // GCC Maemo5
-                abi = ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Linux,
-                                           ProjectExplorer::Abi::Linux_maemo,
-                                           ProjectExplorer::Abi::Format_ELF,
+                abi = Abi(Abi::ARM, Abi::Linux,
+                                           Abi::Linux_maemo,
+                                           Abi::Format_ELF,
                                            32).toString();
 
                 break;
             case 14: // GCC Harmattan
-                abi = ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Linux,
-                                           ProjectExplorer::Abi::Linux_harmattan,
-                                           ProjectExplorer::Abi::Format_ELF,
+                abi = Abi(Abi::ARM, Abi::Linux,
+                                           Abi::Linux_harmattan,
+                                           Abi::Format_ELF,
                                            32).toString();
                 break;
             case 15: // GCC Meego
-                abi = ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Linux,
-                                           ProjectExplorer::Abi::Linux_meego,
-                                           ProjectExplorer::Abi::Format_ELF,
+                abi = Abi(Abi::ARM, Abi::Linux,
+                                           Abi::Linux_meego,
+                                           Abi::Format_ELF,
                                            32).toString();
                 break;
             default:
@@ -226,17 +227,17 @@ QIcon GdbOptionsPage::categoryIcon() const
 QWidget *GdbOptionsPage::createPage(QWidget *parent)
 {
     // Fix up abi mapping now that the ToolChainManager is available:
-    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
+    connect(ToolChainManager::instance(), SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
             this, SLOT(handleToolChainAdditions(ProjectExplorer::ToolChain*)));
-    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
+    connect(ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
             this, SLOT(handleToolChainRemovals(ProjectExplorer::ToolChain*)));
 
     // Update mapping now that toolchains are available
-    QList<ProjectExplorer::ToolChain *> tcs =
-            ProjectExplorer::ToolChainManager::instance()->toolChains();
+    QList<ToolChain *> tcs =
+            ToolChainManager::instance()->toolChains();
 
     QStringList abiList;
-    foreach (ProjectExplorer::ToolChain *tc, tcs) {
+    foreach (ToolChain *tc, tcs) {
         const QString abi = tc->targetAbi().toString();
         if (!abiList.contains(abi))
             abiList.append(abi);
@@ -340,31 +341,31 @@ bool GdbOptionsPage::matches(const QString &s) const
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
-void GdbOptionsPage::handleToolChainAdditions(ProjectExplorer::ToolChain *tc)
+void GdbOptionsPage::handleToolChainAdditions(ToolChain *tc)
 {
-    ProjectExplorer::Abi tcAbi = tc->targetAbi();
+    Abi tcAbi = tc->targetAbi();
 
-    if (tcAbi.binaryFormat() != ProjectExplorer::Abi::Format_ELF
-            && tcAbi.binaryFormat() != ProjectExplorer::Abi::Format_Mach_O
-            && !( tcAbi.os() == ProjectExplorer::Abi::Windows
-                  && tcAbi.osFlavor() == ProjectExplorer::Abi::Windows_msys ))
+    if (tcAbi.binaryFormat() != Abi::Format_ELF
+            && tcAbi.binaryFormat() != Abi::Format_Mach_O
+            && !( tcAbi.os() == Abi::Windows
+                  && tcAbi.osFlavor() == Abi::Windows_msys ))
         return;
     if (abiToGdbMap.contains(tcAbi.toString()))
         return;
 
     QString binary;
 #ifdef Q_OS_UNIX
-    ProjectExplorer::Abi hostAbi = ProjectExplorer::Abi::hostAbi();
+    Abi hostAbi = Abi::hostAbi();
     if (hostAbi == tcAbi)
         binary = QLatin1String("gdb");
 #endif
     abiToGdbMap.insert(tc->targetAbi().toString(), binary);
 }
 
-void GdbOptionsPage::handleToolChainRemovals(ProjectExplorer::ToolChain *tc)
+void GdbOptionsPage::handleToolChainRemovals(ToolChain *tc)
 {
-    QList<ProjectExplorer::ToolChain *> tcs = ProjectExplorer::ToolChainManager::instance()->toolChains();
-    foreach (ProjectExplorer::ToolChain *current, tcs) {
+    QList<ToolChain *> tcs = ToolChainManager::instance()->toolChains();
+    foreach (ToolChain *current, tcs) {
         if (current->targetAbi() == tc->targetAbi())
             return;
     }
