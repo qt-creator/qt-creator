@@ -65,10 +65,8 @@
 
 #include "snapshothandler.h"
 #include "threadshandler.h"
+#include "commonoptionspage.h"
 #include "gdb/gdboptionspage.h"
-
-#include "ui_commonoptionspage.h"
-#include "ui_dumperoptionpage.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -83,7 +81,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/icorelistener.h>
-#include <coreplugin/manhattanstyle.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 
@@ -526,198 +523,6 @@ public:
 private:
     QWidget *m_widget;
 };
-
-
-///////////////////////////////////////////////////////////////////////
-//
-// CommonOptionsPage
-//
-///////////////////////////////////////////////////////////////////////
-
-class CommonOptionsPage : public Core::IOptionsPage
-{
-public:
-    CommonOptionsPage() {}
-
-    // IOptionsPage
-    QString id() const
-        { return _(DEBUGGER_COMMON_SETTINGS_ID); }
-    QString displayName() const
-        { return QCoreApplication::translate("Debugger", DEBUGGER_COMMON_SETTINGS_NAME); }
-    QString category() const
-        { return _(DEBUGGER_SETTINGS_CATEGORY);  }
-    QString displayCategory() const
-        { return QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY); }
-    QIcon categoryIcon() const
-        { return QIcon(QLatin1String(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON)); }
-
-    QWidget *createPage(QWidget *parent);
-    void apply() { m_group.apply(ICore::instance()->settings()); }
-    void finish() { m_group.finish(); }
-    virtual bool matches(const QString &s) const;
-
-private:
-    Ui::CommonOptionsPage m_ui;
-    Utils::SavedActionSet m_group;
-    QString m_searchKeywords;
-};
-
-QWidget *CommonOptionsPage::createPage(QWidget *parent)
-{
-    QWidget *w = new QWidget(parent);
-    m_ui.setupUi(w);
-    m_group.clear();
-
-    m_group.insert(debuggerCore()->action(ListSourceFiles),
-        m_ui.checkBoxListSourceFiles);
-    m_group.insert(debuggerCore()->action(UseAlternatingRowColors),
-        m_ui.checkBoxUseAlternatingRowColors);
-    m_group.insert(debuggerCore()->action(UseToolTipsInMainEditor),
-        m_ui.checkBoxUseToolTipsInMainEditor);
-    m_group.insert(debuggerCore()->action(CloseBuffersOnExit),
-        m_ui.checkBoxCloseBuffersOnExit);
-    m_group.insert(debuggerCore()->action(SwitchModeOnExit),
-        m_ui.checkBoxSwitchModeOnExit);
-    m_group.insert(debuggerCore()->action(AutoDerefPointers), 0);
-    m_group.insert(debuggerCore()->action(UseToolTipsInLocalsView), 0);
-    m_group.insert(debuggerCore()->action(UseToolTipsInBreakpointsView), 0);
-    m_group.insert(debuggerCore()->action(UseAddressInBreakpointsView), 0);
-    m_group.insert(debuggerCore()->action(UseAddressInStackView), 0);
-    m_group.insert(debuggerCore()->action(MaximalStackDepth),
-        m_ui.spinBoxMaximalStackDepth);
-    m_group.insert(debuggerCore()->action(ShowStdNamespace), 0);
-    m_group.insert(debuggerCore()->action(ShowQtNamespace), 0);
-    m_group.insert(debuggerCore()->action(SortStructMembers), 0);
-    m_group.insert(debuggerCore()->action(LogTimeStamps), 0);
-    m_group.insert(debuggerCore()->action(VerboseLog), 0);
-    m_group.insert(debuggerCore()->action(BreakOnThrow), 0);
-    m_group.insert(debuggerCore()->action(BreakOnCatch), 0);
-#ifdef Q_OS_WIN
-    Utils::SavedAction *registerAction = debuggerCore()->action(RegisterForPostMortem);
-    m_group.insert(registerAction,
-        m_ui.checkBoxRegisterForPostMortem);
-    connect(registerAction, SIGNAL(toggled(bool)),
-            m_ui.checkBoxRegisterForPostMortem, SLOT(setChecked(bool)));
-#endif
-
-    if (m_searchKeywords.isEmpty()) {
-        QLatin1Char sep(' ');
-        QTextStream(&m_searchKeywords)
-                << sep << m_ui.checkBoxUseAlternatingRowColors->text()
-                << sep << m_ui.checkBoxUseToolTipsInMainEditor->text()
-                << sep << m_ui.checkBoxListSourceFiles->text()
-#ifdef Q_OS_WIN
-                << sep << m_ui.checkBoxRegisterForPostMortem->text()
-#endif
-                << sep << m_ui.checkBoxCloseBuffersOnExit->text()
-                << sep << m_ui.checkBoxSwitchModeOnExit->text()
-                << sep << m_ui.labelMaximalStackDepth->text()
-                   ;
-        m_searchKeywords.remove(QLatin1Char('&'));
-    }
-#ifndef Q_OS_WIN
-    m_ui.checkBoxRegisterForPostMortem->setVisible(false);
-#endif
-    return w;
-}
-
-bool CommonOptionsPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
-}
-
-///////////////////////////////////////////////////////////////////////
-//
-// DebuggingHelperOptionPage
-//
-///////////////////////////////////////////////////////////////////////
-
-static bool oxygenStyle()
-{
-    const ManhattanStyle *ms = qobject_cast<const ManhattanStyle *>(qApp->style());
-    return ms && !qstrcmp("OxygenStyle", ms->baseStyle()->metaObject()->className());
-}
-
-class DebuggingHelperOptionPage : public Core::IOptionsPage
-{
-    Q_OBJECT // Needs tr-context.
-public:
-    DebuggingHelperOptionPage() {}
-
-    // IOptionsPage
-    QString id() const { return _("Z.DebuggingHelper"); }
-    QString displayName() const { return tr("Debugging Helper"); }
-    QString category() const { return _(DEBUGGER_SETTINGS_CATEGORY); }
-    QString displayCategory() const
-    { return QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY); }
-    QIcon categoryIcon() const
-    { return QIcon(QLatin1String(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON)); }
-
-    QWidget *createPage(QWidget *parent);
-    void apply() { m_group.apply(ICore::instance()->settings()); }
-    void finish() { m_group.finish(); }
-    virtual bool matches(const QString &s) const;
-
-private:
-    Ui::DebuggingHelperOptionPage m_ui;
-    Utils::SavedActionSet m_group;
-    QString m_searchKeywords;
-};
-
-QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
-{
-    QWidget *w = new QWidget(parent);
-    m_ui.setupUi(w);
-
-    m_ui.dumperLocationChooser->setExpectedKind(Utils::PathChooser::Command);
-    m_ui.dumperLocationChooser->setPromptDialogTitle(tr("Choose DebuggingHelper Location"));
-    m_ui.dumperLocationChooser->setInitialBrowsePathBackup(
-        ICore::instance()->resourcePath() + "../../lib");
-
-    m_group.clear();
-    m_group.insert(debuggerCore()->action(UseDebuggingHelpers),
-        m_ui.debuggingHelperGroupBox);
-    m_group.insert(debuggerCore()->action(UseCustomDebuggingHelperLocation),
-        m_ui.customLocationGroupBox);
-    // Suppress Oxygen style's giving flat group boxes bold titles.
-    if (oxygenStyle())
-        m_ui.customLocationGroupBox->setStyleSheet(_("QGroupBox::title { font: ; }"));
-
-    m_group.insert(debuggerCore()->action(CustomDebuggingHelperLocation),
-        m_ui.dumperLocationChooser);
-
-    m_group.insert(debuggerCore()->action(UseCodeModel),
-        m_ui.checkBoxUseCodeModel);
-    m_group.insert(debuggerCore()->action(ShowThreadNames),
-        m_ui.checkBoxShowThreadNames);
-
-
-#ifndef QT_DEBUG
-#if 0
-    cmd = am->registerAction(m_dumpLogAction,
-        DUMP_LOG, globalcontext);
-    //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+L")));
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F11")));
-    mdebug->addAction(cmd);
-#endif
-#endif
-
-    if (m_searchKeywords.isEmpty()) {
-        QTextStream(&m_searchKeywords)
-                << ' ' << m_ui.debuggingHelperGroupBox->title()
-                << ' ' << m_ui.customLocationGroupBox->title()
-                << ' ' << m_ui.dumperLocationLabel->text()
-                << ' ' << m_ui.checkBoxUseCodeModel->text()
-                << ' ' << m_ui.checkBoxShowThreadNames->text();
-        m_searchKeywords.remove(QLatin1Char('&'));
-    }
-    return w;
-}
-
-bool DebuggingHelperOptionPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
-}
 
 
 ///////////////////////////////////////////////////////////////////////

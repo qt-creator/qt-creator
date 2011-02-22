@@ -20,6 +20,7 @@ HEADERS += breakhandler.h \
     breakpoint.h \
     breakpointmarker.h \
     breakwindow.h \
+    commonoptionspage.h \
     consolewindow.h \
     debugger_global.h \
     debuggeractions.h \
@@ -66,6 +67,7 @@ SOURCES += breakhandler.cpp \
     breakpoint.cpp \
     breakpointmarker.cpp \
     breakwindow.cpp \
+    commonoptionspage.cpp \
     consolewindow.cpp \
     debuggeractions.cpp \
     debuggerdialogs.cpp \
