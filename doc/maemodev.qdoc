@@ -160,20 +160,15 @@
     To develop applications that use the Qt Mobility APIs, you must install the
     APIs on the devices. The APIs are not available in the Nokia N900 package
     manager, and therefore, you must install them from the command line as the
-    root user. To become the root user you must first install \c rootsh from the
-    application manager.
+    root user:
 
     \list 1
 
-        \o On the device, install \c rootsh from the \gui {Application Manager}.
-
-        \o In \gui Programs, select \c {X Terminal} to open a terminal window.
-
-        \o To switch to the root user, enter the following command:
-        \c{sudo gainroot}
+        \o On the device, in \gui Programs, select \c {X Terminal} to open a
+        terminal window.
 
         \o To install Qt Mobility libraries, enter the following command:
-        \c{apt-get install libqtm-*}
+        \c{/usr/lib/mad-developer/devrootsh apt-get install libqtm-*}
 
         \o To confirm the installation, enter: \c Y
 
@@ -232,46 +227,6 @@
     your version of Microsoft Windows you may have to unplug and re-plug the
     Nokia N900 to reload the driver with its configuration accordingly.
 
-    \if defined(qcmanual)
-    \section1 Setting Up MADDE
-
-    If you install \QSDK, the MADDE package is installed and
-    configured automatically on your development PC and you can omit this task.
-
-    \list 1
-
-    \o Download the MADDE installer file for your platform from the
-    \l{http://wiki.maemo.org/MADDE}{MADDE} site.
-
-    \o Execute the installer and follow the instructions.
-
-    \o To see which targets are available, run \c{mad-admin list targets}.
-
-    \o To install the target that starts with the string \bold fremantle, use the command:
-    \c{mad-admin create fremantle-qt-xxx}
-
-    \o In Qt Creator, register the MADDE tool chain:
-
-       \image qtcreator-screenshot-toolchain.png
-
-        \list a
-
-            \o Select \gui Tools > \gui Options... > \gui Qt4 > \gui{Qt Versions}.
-
-            \o Click \inlineimage qtcreator-windows-add.png,
-            to add a new Qt version.
-
-            The \gui{qmake Location} is the qmake
-            executable in \c{<MADDE dir>/targets/<fremantle target>/bin}.
-
-        \endlist
-
-    \endlist
-
-    When you have installed the target, you have a toolchain and a sysroot
-    environment for cross-compiling.
-    \endif
-
     \section1 Configuring Connections in Qt Creator
 
     To be able to run and debug applications on the Maemo emulator and
@@ -312,10 +267,8 @@
     the Qt Creator Manual.
     \endif
 
-    \if defined(qcmanual)
 
-
-    To configure connections between Qt Creator and the Maemo emulator or
+    To configure connections between Qt Creator and the Maemo
     device:
 
     \list 1
@@ -344,7 +297,7 @@
             \o In the \gui {The system running on the device} field, select
             the software platform of the device.
 
-            \o In the \gui {The type of device} field, select
+            \o In the \gui {The kind of device} field, select
             \gui {Hardware device}.
 
             \o In the \gui {The device's host name or IP address} field, enter
@@ -355,6 +308,8 @@
             \o Follow the instructions of the wizard to create the connection.
 
             \endlist
+
+        \if defined(qcmanual)
 
         \o To test applications on the Maemo emulator (QEMU) separately, you must
            create a connection to it from the development PC. If you installed
@@ -375,7 +330,7 @@
                 \o In the \gui {The system running on the device} field, select
                 the software platform to emulate.
 
-                \o In the \gui {The type of device} field, select
+                \o In the \gui {The kind of device} field, select
                 \gui {Emulator (Qemu)}.
 
                 \o Click \gui Next.
@@ -384,6 +339,7 @@
                 connection.
 
             \endlist
+    \endif
 
             \o To specify build and run settings:
 
@@ -394,7 +350,8 @@
 
                 \o Click \gui Projects to open the projects mode.
 
-                \o In the \gui{Build Settings} section, choose the MADDE Qt version.
+                \o In the \gui{Build Settings} section, choose the MADDE Qt version
+                that was registered by the installation program.
 
                  \image qtcreator-screenshot-build-settings.png
 
@@ -414,75 +371,6 @@
 
         \endlist
 
-    \else
-
-    The \QSDK installation program configured a default connection
-    to the Maemo emulator.
-
-    \list 1
-
-        \o  To deploy applications and run them remotely, specify parameters
-            for accessing devices:
-
-            \list a
-
-            \o Connect your device to the development PC via a USB cable or
-            a WLAN. For a USB connection, you are prompted to select the mode
-            to use. Choose \gui{PC suite mode}.
-
-            \note If you experience connection problems due to a USB port issue,
-            switch to a different port or use WLAN to connect to the device.
-
-            \o Select \gui Tools > \gui Options... > \gui Maemo >
-            \gui{Maemo Device Configurations > Add}, and add a new configuration for a
-            \gui {Remote device}.
-
-            \image qtcreator-screenshot-devconf.png
-
-            \o In the \gui {Host name} field, enter the IP address from the
-            \gui usb0 or \gui wlan0 field in Mad Developer.
-
-            \o Specify the other settings in the same way as for a Maemo emulator
-            connection.
-
-            \o Click \gui Test to test the connection.
-
-            \o Click \gui OK to close the dialog.
-
-            \endlist
-
-         \o To specify build and run settings:
-
-            \list a
-
-                \o Open a project for an application you want to develop for your
-                Nokia N900.
-
-                \o Click \gui Projects to open the projects mode.
-
-                \o In the \gui{Build Settings} section, choose the MADDE Qt version
-                that was registered by the installation program.
-
-                 \image qtcreator-screenshot-build-settings.png
-
-                 \o In the \gui{Run Settings} section, click \gui Add to add a new
-                 run configuration.
-
-                 \o Set a name and select the device configuration.
-
-                 \image qtcreator-screenshot-run-settings.png
-
-                 \note You can either add separate run settings for both the Maemo
-                  emulator connection and the device connection or select the
-                  \gui {Device configuration} before you run the application.
-
-                  \o Click the \gui Run button to build and run the application.
-
-             \endlist
-
-         \endlist
-    \endif
-
     \if defined(qcmanual)
     \section2 Testing with User Data
 
@@ -495,11 +383,8 @@
         \o On the device, in \gui Programs, select \c {X Terminal} to open a
         terminal window.
 
-        \o To switch to the root user, enter the following command:
-        \c{sudo gainroot}
-
         \o To specify the password, enter the following command:
-        \c {passwd user}
+        \c{/usr/lib/mad-developer/devrootsh passwd user}
 
         \o In Qt Creator, Select \gui Tools > \gui Options... > \gui Maemo >
         \gui{Maemo Device Configurations}.

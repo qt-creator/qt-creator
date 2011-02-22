@@ -433,14 +433,14 @@
 
     \section2 Maemo Emulator
 
-    The Maemo emulator emulates the Nokia N900 device environment. You can test
+    The Maemo 5 emulator emulates the Nokia N900 device environment. You can test
     applications in conditions practically identical to running the application
-    on a Nokia N900 device with the software update release 1.2 (V10.2010.19-1).
+    on a Nokia N900 device with the software update release 1.3 (V20.2010.36-2).
     However, it is faster to test on a real device connected to the development
     PC.
 
     The Maemo Emulator is installed as part of the \QSDK. After it is
-    installed and configured, you can start it from Qt Creator.
+    installed, you can start it from Qt Creator.
 
     \section1 Deploying
 
@@ -4254,7 +4254,7 @@
     \section2 Specifying Run Settings for Symbian Devices
 
     Qt Creator automatically detects Symbian devices that are connected to
-    the development PC with an USB cable.
+    the development PC with a USB cable.
     If only one device is detected, the application is deployed to it
     and run on it. If multiple devices are connected to the PC,
     make sure that the correct device is selected in the
@@ -4285,10 +4285,21 @@
     a device configuration in the Maemo run settings for your project.
     You can also pass command line arguments to your application.
 
-    \image qtcreator-screenshot-run-settings.png "Run settings for Maemo devices"
+    \image qtcreator-screenshot-run-settings-maemo.png "Run settings for Maemo devices"
+
+    To run and debug applications on Maemo devices, you must create connections
+    from the development PC to the devices. Click \gui {Manage device
+    configurations} to create connections. For more information, see
+    \l {Configuring Connections in Qt Creator}.
+
+    By default, Qt Creator runs the remote gdbserver daemon on the device for
+    debugging. However, if the sysroot does not match that of the device, you
+    can run remote gdb, instead. Select the \gui {Run remote gdb} option in
+    \gui {Debugging details}. Select the \gui {Set debugger} link to specify
+    settings for gdb.
 
     When you run the application on the \gui{Maemo} target, Qt Creator generates
-    a debian installation package in the build directory by default. You can deliver
+    a Debian installation package in the build directory by default. You can deliver
     the installation package to users for installation on Maemo devices that are of
     the same type and run the same firmware as the connected device. For more
     information, see \l{Deploying Applications to Maemo Devices}.
@@ -4354,41 +4365,62 @@
     You can specify settings for deploying applications to Maemo devices in the
     project .pro file. You can view the settings in the \gui {Run Settings}.
 
+    \image qtcreator-maemo-deployment.png "Deploy to device"
+
     The files to be installed are listed in the
-    \gui {Deploy to Device} step, the \gui {Files to install} field. The
+    \gui {Deploy to Device} step, the \gui {Files to install for subproject}
+    field. The
     \gui {Local File Path} field displays the location of the file on the development
     PC. The \gui {Remote Directory} field displays the folder where the file is installed on
     the device.
+    Text in red color indicates that the information is missing. Select the
+    text to edit it and add the missing information.
 
-    \image qtcreator-maemo-deployment.png "Deploy to device"
+    You can use desktop files to display icons on the home screen of the
+    device. To add desktop files to the project file, select \gui {Add Desktop
+    File}. To specify the icon file to display, select \gui {Add Launcher
+    Icon...}. To remove desktop files and icons, delete the definitions from
+    the project file.
 
-    If you develop your own libraries, Qt Creator needs to be able to access them
-    during compilation. When you install MADDE, an instance of the device file
+    If you develop your own libraries, Qt Creator needs to be able to find
+    them when you compile projects depending on them. When you install MADDE,
+    an instance of the device file
     system, called sysroot, is installed to the development PC. Libraries are copied to
     sysroot if the \gui {Also deploy to sysroot} check box is selected.
 
     \section1 Creating Debian Installation Packages
 
     When you run the application on the \gui{Maemo} target, Qt Creator generates
-    a debian installation package in the build directory by default. You can deliver
+    a Debian installation package in the build directory by default. You can deliver
     the installation package to users for installation on Maemo devices that are of
     the same type and run the same firmware as the connected device.
 
     \image qtcreator-maemo-deb-package.png "Create installation package"
 
-    The name of the installation package is displayed in the \gui {Create Package}
-    field in the \gui {Run Settings}. You can change the version number in the \gui {Version number} field.
+    The name of the installation package is displayed in the \gui {Package name}
+    field in the \gui {Create Package} step. You can change the version number
+    in the \gui {Package version} field.
 
-    Qt Creator provides templates for a set of files that must be included
-    in debian packages. To edit the files, select a file in \gui {Adapt debian
-    file} and click \gui Edit. The file opens in the text editor.
+    You can specify information that users see on a delivery channel, such as
+    Ovi Store. You can specify a short description of the application, package
+    name, and application icon.
 
-    The debian control file contains an application icon in encoded form. To add the
-    application icon to the file, select it in the \gui {Package manager icon} field.
+    The Debian control file contains an application icon in encoded form. To add the
+    application icon to the file, select it in the \gui {Icon to be displayed
+    in Package Manager} field.
     For more information about icon files and adding them manually, see
     \l{ http://wiki.maemo.org/Packaging#Displaying_an_icon_in_the_Application_Manager_next_to_your_package}{Displaying an icon in the Application Manager next to your package}.
 
     \note Qt Creator automates this process for you.
+
+    Qt Creator provides templates for a set of files that must be included
+    in Debian packages. When you create a Maemo target for a project, Qt Creator
+    asks whether packaging files are to be added to the project and to version
+    control. If you plan to edit the packaging files, add them to version
+    control.
+
+    To edit the files, select a file in \gui {Adapt Debian
+    file} and click \gui Edit. The file opens in the text editor.
 
 */
 
@@ -5087,7 +5119,7 @@
         \o mainwindow.cpp
         \o mainwindow.ui
         \o mainwindow.h
-        \o templates for debian deployment files
+        \o templates for Debian deployment files
 
     \endlist
 
@@ -5210,7 +5242,7 @@
 
     You also need to test the application on real devices. Before you can
     start testing on Symbian devices, you must connect them to the development
-    PC by using an USB cable and install the necessary software on them.
+    PC by using a USB cable and install the necessary software on them.
 
     \list 1
 
@@ -5230,7 +5262,7 @@
 
     The Maemo emulator emulates the Nokia N900 device environment. You can test
     applications in conditions practically identical to running the application
-    on a Nokia N900 device with the software update release 1.2 (V10.2010.19-1).
+    on a Nokia N900 device with the software update release 1.3 (V20.2010.36-2).
 
     For more information, see \l{Using the Maemo Emulator}.
 
@@ -6801,6 +6833,7 @@
                of Qt Creator, respectively),
                which is freely available for download from the
                \l{http://msdn.microsoft.com/en-us/default.aspx}
+
                {Microsoft Developer Network}. The Qt Creator help browser does
                not allow you to download files, and therefore, you must copy
                the above links to a browser.
@@ -8917,9 +8950,9 @@
 
     \title Using the Maemo Emulator
 
-    The Maemo emulator emulates the Nokia N900 device environment. You can test
+    The Maemo 5 emulator emulates the Nokia N900 device environment. You can test
     applications in conditions practically identical to running the application
-    on a Nokia N900 device with software update release 1.2 (V10.2010.19-1).
+    on a Nokia N900 device with software update release 1.3 (V20.2010.36-2).
     You can test user interaction by using the keypad and
     touch emulation.
 
@@ -8928,7 +8961,7 @@
     instead. For more information, see the
     \l{http://doc.qt.nokia.com/qtsimulator/index.html}{Qt Simulator Manual}.
 
-    The Maemo emulator is installed and configured as part of the \QSDK
+    The Maemo 5 emulator is installed and configured as part of the \QSDK
     package. You can also install and configure the MADDE environment and
     Maemo emulator separately. For more information, see
     \l{Setting Up Development Environment for Maemo}.
@@ -8936,33 +8969,31 @@
     \section1 Starting the Maemo Emulator
 
     The \gui {Start Maemo Emulator} button is visible if you have a project
-    open in Qt Creator for which you have added the Maemo build target
-    and if you have configured a connection between Qt Creator and the Maemo
-    Emulator.
+    open in Qt Creator for which you have added the Maemo build target.
 
-    To start the Maemo emulator:
-
-    \list 1
-
-    \o Click
+    To start the Maemo emulator, click
     \inlineimage qtcreator-maemo-emulator-button.png "Start Maemo Emulator button"
     .
-
-    \o Select \gui {Mad Developer} on the Maemo emulator, to start the Mad Developer
-    application
-
-    \o If you have not deployed an SSH key to protect the connection between
-    Qt Creator and the Maemo emulator, select \gui {Developer Password} to generate
-    a password.
-
-    \o In Qt Creator, enter the password in the connection settings:
-    \gui {Tools > Options... > Projects > Maemo Device Configurations}.
-
-    \endlist
 
     Test your application on the Maemo emulator as on a device. For a list of
     keyboard shortcuts that you can use to emulate Nokia N900 keys and functions, see
     \l {Emulating Nokia N900 Keys}.
+
+    \section1 Rendering Graphics
+
+    The Maemo emulator supports OpenGL to improve graphics rendering. Hardware
+    acceleration produces better results than software rendering. By default,
+    Qt Creator automatically detects, whether hardware acceleration is
+    supported on the development PC and tries to use it. However, sometimes
+    the results of the automatic detection are not reliable, and
+    hardware acceleration might be selected even if it is actually not
+    available on the development PC. This causes the emulator to crash.
+
+    If the Maemo emulator crashes, you are asked whether you want to try
+    software rendering, instead.
+
+    To specify the OpenGL mode, select \gui {Tools > Options... > Maemo > Qemu
+    Settings}.
 
     \section1 Emulating Nokia N900 Keys
 
