@@ -444,7 +444,12 @@ bool BaseTextDocument::open(const QString &fileName)
 
         title = fi.fileName();
 
-        QByteArray buf = file.readAll();
+        QByteArray buf;
+        try {
+            buf = file.readAll();
+        } catch (std::bad_alloc) {
+            return false;
+        }
         int bytesRead = buf.size();
 
         QTextCodec *codec = d->m_codec;
