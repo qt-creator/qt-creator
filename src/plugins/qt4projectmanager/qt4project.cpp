@@ -780,7 +780,7 @@ QString Qt4Project::defaultTopLevelBuildDirectory(const QString &profilePath)
     if (profilePath.isEmpty())
         return QString();
     QFileInfo info(profilePath);
-    return QDir(projectDirectory(profilePath) + QLatin1String("/../") + info.baseName() + QLatin1String("-build")).absolutePath();
+    return QDir::cleanPath(projectDirectory(profilePath) + QLatin1String("/../") + info.baseName() + QLatin1String("-build"));
 }
 
 void Qt4Project::asyncUpdate()
