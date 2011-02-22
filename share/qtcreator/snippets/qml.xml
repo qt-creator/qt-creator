@@ -23,7 +23,7 @@
     State {
         name: "$name$"
         PropertyChanges {
-            target: $name$
+            target: $object$
             $$
         }
     }
@@ -31,30 +31,30 @@
 <snippet group="QML" trigger="State" id="qml_state">State {
     name: "$name$"
     PropertyChanges {
-        target: $name$
+        target: $object$
         $$
     }
 }</snippet>
 <snippet group="QML" trigger="transitions" id="qml_transitions">transitions: [
     Transition {
-        from: "$name$"
-        to: "$name$"
+        from: "$fromState$"
+        to: "$toState$"
         $$
      }
 ]</snippet>
 <snippet group="QML" trigger="Transition" id="qml_transition">Transition {
-    from: "$name$"
-    to: "$name$"
+    from: "$fromState$"
+    to: "$toState$"
     $$
 }</snippet>
 <snippet group="QML" trigger="PropertyChanges" id="qml_propertychanges">PropertyChanges {
-    target: $name$
+    target: $object$
     $$
 }</snippet>
-<snippet group="QML" trigger="NumberAnimation" id="qml_numberanimationwithtargets" complement="with targets">NumberAnimation { targets: [$name$]; properties: "$name$"; duration: $200$ }</snippet>
-<snippet group="QML" trigger="NumberAnimation" id="qml_numberanimationwithtarget" complement="with target">NumberAnimation { target: $name$; property: "$name$"; to: $value$; duration: $200$ }</snippet>
-<snippet group="QML" trigger="PropertyAction" id="qml_propertyactionwithtargets" complement="with targets">PropertyAction { targets: [$name$]; properties: "$name$" }</snippet>
-<snippet group="QML" trigger="PropertyAction" id="qml_propertyactionwithtarget" complement="with target">PropertyAction { target: $name$; property: "$name$"; value: $value$ }</snippet>
+<snippet group="QML" trigger="NumberAnimation" id="qml_numberanimationwithtargets" complement="with targets">NumberAnimation { targets: [$object$]; properties: "$name$"; duration: $200$ }</snippet>
+<snippet group="QML" trigger="NumberAnimation" id="qml_numberanimationwithtarget" complement="with target">NumberAnimation { target: $object$; property: "$name$"; to: $value$; duration: $200$ }</snippet>
+<snippet group="QML" trigger="PropertyAction" id="qml_propertyactionwithtargets" complement="with targets">PropertyAction { targets: [$object$]; properties: "$name$" }</snippet>
+<snippet group="QML" trigger="PropertyAction" id="qml_propertyactionwithtarget" complement="with target">PropertyAction { target: $object$; property: "$name$"; value: $value$ }</snippet>
 <snippet group="QML" trigger="PauseAnimation" id="qml_pauseanimation">PauseAnimation { duration: $200$ }</snippet>
 <snippet group="QML" trigger="ColorAnimation" id="qml_coloranimation">ColorAnimation { from: $"white"$; to: $"black"$; duration: $200$ }</snippet>
 </snippets>
