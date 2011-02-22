@@ -38,6 +38,7 @@
 #include "modemanager.h"
 #include "fileiconprovider.h"
 #include "designmode.h"
+#include "mimedatabase.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -99,6 +100,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
 void CorePlugin::extensionsInitialized()
 {
+    m_mainWindow->mimeDatabase()->syncUserModifiedMimeTypes();
     m_mainWindow->extensionsInitialized();
 }
 

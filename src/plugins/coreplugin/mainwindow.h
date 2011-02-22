@@ -78,6 +78,7 @@ class GeneralSettings;
 class ProgressManagerPrivate;
 class ShortcutSettings;
 class ToolSettings;
+class MimeTypeSettings;
 class StatusBarManager;
 class VersionDialog;
 class SystemEditor;
@@ -179,8 +180,6 @@ private:
     void readSettings();
     void writeSettings();
 
-    void registerUserMimeTypes() const;
-
     CoreImpl *m_coreImpl;
     UniqueIDManager *m_uniqueIDManager;
     Context m_additionalContexts;
@@ -214,6 +213,7 @@ private:
     GeneralSettings *m_generalSettings;
     ShortcutSettings *m_shortcutSettings;
     ToolSettings *m_toolSettings;
+    MimeTypeSettings *m_mimeTypeSettings;
     SystemEditor *m_systemEditor;
 
     // actions

@@ -41,6 +41,7 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QMutex>
 #include <QtCore/QFileInfo>
+#include <QtCore/QPair>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;
@@ -66,6 +67,9 @@ class CORE_EXPORT IMagicMatcher
 protected:
     IMagicMatcher() {}
 public:
+    typedef QSharedPointer<IMagicMatcher> IMagicMatcherSharedPointer;
+    typedef QList<IMagicMatcherSharedPointer> IMagicMatcherList;
+
     // Check for a match on contents of a file
     virtual bool matches(const QByteArray &data) const = 0;
     // Return a priority value from 1..100
@@ -83,13 +87,19 @@ public:
     MagicRule(int startPos, int endPos);
     virtual ~MagicRule();
 
+    virtual QString matchType() const = 0;
+    virtual QString matchValue() const = 0;
     virtual bool matches(const QByteArray &data) const = 0;
 
-protected:
     int startPos() const;
     int endPos() const;
 
+    static QString toOffset(const QPair<int, int> &startEnd);
+    static QPair<int, int> fromOffset(const QString &offset);
+
 private:
+    static const QChar kColon;
+
     const int m_startPos;
     const int m_endPos;
 };
@@ -100,7 +110,11 @@ public:
     MagicStringRule(const QString &s, int startPos, int endPos);
     virtual ~MagicStringRule();
 
+    virtual QString matchType() const;
+    virtual QString matchValue() const;
     virtual bool matches(const QByteArray &data) const;
+
+    static const QString kMatchType;
 
 private:
     const QByteArray m_pattern;
@@ -112,11 +126,17 @@ public:
     MagicByteRule(const QString &s, int startPos, int endPos);
     virtual ~MagicByteRule();
 
+    virtual QString matchType() const;
+    virtual QString matchValue() const;
     virtual bool matches(const QByteArray &data) const;
 
+    static bool validateByteSequence(const QString &sequence, QList<int> *bytes = 0);
+
+    static const QString kMatchType;
+
 private:
-    QList<int> m_bytes;
     int m_bytesSize;
+    QList<int> m_bytes;
 };
 
 /* Utility class: A Magic matcher that checks a number of rules based on
@@ -125,17 +145,24 @@ class CORE_EXPORT MagicRuleMatcher : public IMagicMatcher
 {
     Q_DISABLE_COPY(MagicRuleMatcher)
 public:
-    typedef  QSharedPointer<MagicRule> MagicRuleSharedPointer;
+    typedef QSharedPointer<MagicRule> MagicRuleSharedPointer;
+    typedef QList<MagicRuleSharedPointer> MagicRuleList;
 
     MagicRuleMatcher();
+
     void add(const MagicRuleSharedPointer &rule);
+    void add(const MagicRuleList &ruleList);
+    MagicRuleList magicRules() const;
+
     virtual bool matches(const QByteArray &data) const;
 
     virtual int priority() const;
     void setPriority(int p);
 
+    // Create a list of MagicRuleMatchers from a hash of rules indexed by priorities.
+    static IMagicMatcher::IMagicMatcherList createMatchers(const QHash<int, MagicRuleList> &);
+
 private:
-    typedef QList<MagicRuleSharedPointer> MagicRuleList;
     MagicRuleList m_list;
     int m_priority;
 };
@@ -169,6 +196,9 @@ private:
 class CORE_EXPORT MimeType
 {
 public:
+    typedef IMagicMatcher::IMagicMatcherList IMagicMatcherList;
+    typedef IMagicMatcher::IMagicMatcherSharedPointer IMagicMatcherSharedPointer;
+
     MimeType();
     MimeType(const MimeType&);
     MimeType &operator=(const MimeType&);
@@ -200,9 +230,6 @@ public:
 
     // Extension over standard mime data
     QStringList suffixes() const;
-    void setSuffixes(const QStringList &);
-
-    // Extension over standard mime data
     QString preferredSuffix() const;
     bool setPreferredSuffix(const QString&);
 
@@ -216,12 +243,19 @@ public:
     // Return a filter string usable for a file dialog
     QString filterString() const;
 
-    // Add magic matcher
-    void addMagicMatcher(const QSharedPointer<IMagicMatcher> &matcher);
+    void addMagicMatcher(const IMagicMatcherSharedPointer &matcher);
+
+    const IMagicMatcherList &magicMatchers() const;
+    void setMagicMatchers(const IMagicMatcherList &matchers);
+
+    // Convenience for rule-base matchers.
+    IMagicMatcherList magicRuleMatchers() const;
+    void setMagicRuleMatchers(const IMagicMatcherList &matchers);
 
     friend QDebug operator<<(QDebug d, const MimeType &mt);
 
-    static QString formatFilterString(const QString &description, const QList<MimeGlobPattern> &globs);
+    static QString formatFilterString(const QString &description,
+                                      const QList<MimeGlobPattern> &globs);
 
 private:
     explicit MimeType(const MimeTypeData &d);
@@ -243,8 +277,10 @@ class CORE_EXPORT MimeDatabase
 {
     Q_DISABLE_COPY(MimeDatabase)
 public:
-    MimeDatabase();
+    typedef IMagicMatcher::IMagicMatcherList IMagicMatcherList;
+    typedef IMagicMatcher::IMagicMatcherSharedPointer IMagicMatcherSharedPointer;
 
+    MimeDatabase();
     ~MimeDatabase();
 
     bool addMimeTypes(const QString &fileName, QString *errorMessage);
@@ -256,27 +292,45 @@ public:
 
     // Returns a mime type or Null one if none found
     MimeType findByFile(const QFileInfo &f) const;
+
     // Convenience that mutex-locks the DB and calls a function
     // of the signature 'void f(const MimeType &, const QFileInfo &, const QString &)'
     // for each filename of a sequence. This avoids locking the DB for each
     // single file.
     template <class Iterator, typename Function>
-        inline void findByFile(Iterator i1, const Iterator &i2, Function f) const;
-
-    // Convenience
-    QString preferredSuffixByType(const QString &type) const;
-    QString preferredSuffixByFile(const QFileInfo &f) const;
+    inline void findByFile(Iterator i1, const Iterator &i2, Function f) const;
 
     // Return all known suffixes
     QStringList suffixes() const;
     bool setPreferredSuffix(const QString &typeOrAlias, const QString &suffix);
+    QString preferredSuffixByType(const QString &type) const;
+    QString preferredSuffixByFile(const QFileInfo &f) const;
 
     QStringList filterStrings() const;
+    // Return a string with all the possible file filters, for use with file dialogs
+    QString allFiltersString(QString *allFilesFilter = 0) const;
+
+    QList<MimeGlobPattern> globPatterns() const;
+    void setGlobPatterns(const QString &typeOrAlias, const QList<MimeGlobPattern> &globPatterns);
+
+    IMagicMatcherList magicMatchers() const;
+    void setMagicMatchers(const QString &typeOrAlias, const IMagicMatcherList &matchers);
+
+    QList<MimeType> mimeTypes() const;
+
+    // The mime types from the functions bellow are considered only in regard to
+    // their glob patterns and rule-based magic matchers.
+    void syncUserModifiedMimeTypes();
+    static QList<MimeType> readUserModifiedMimeTypes();
+    static void writeUserModifiedMimeTypes(const QList<MimeType> &mimeTypes);
+    void clearUserModifiedMimeTypes();
+
+    static QList<MimeGlobPattern> toGlobPatterns(const QStringList &patterns,
+                                                 int weight = MimeGlobPattern::MaxWeight);
+    static QStringList fromGlobPatterns(const QList<MimeGlobPattern> &globPatterns);
 
     friend QDebug operator<<(QDebug d, const MimeDatabase &mt);
 
-    // returns a string with all the possible file filters, for use with file dialogs
-    QString allFiltersString(QString *allFilesFilter = 0) const;
 private:
     MimeType findByFileUnlocked(const QFileInfo &f) const;
 
