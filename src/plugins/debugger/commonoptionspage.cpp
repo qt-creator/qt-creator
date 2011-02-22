@@ -96,6 +96,12 @@ QIcon CommonOptionsPage::categoryIcon() const
 void CommonOptionsPage::apply()
 {
     m_group.apply(ICore::instance()->settings());
+
+    if (m_ui.debuggerChooserWidget->isDirty()) {
+        //m_abiToDebuggerMap = m_ui.debuggerChooserWidget->debuggerMapping();
+        m_ui.debuggerChooserWidget->setDebuggerMapping(m_abiToDebuggerMap);
+        m_abiToDebuggerMapChanged = true;
+    }
 }
 
 void CommonOptionsPage::finish()
@@ -196,7 +202,7 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
     foreach (const QString &key, toRemove)
         m_abiToDebuggerMap.remove(key);
 
-    //m_ui->gdbChooserWidget->setGdbMapping(m_abiToDebuggerMap);
+    m_ui.debuggerChooserWidget->setDebuggerMapping(m_abiToDebuggerMap);
 
     return w;
 }
@@ -416,16 +422,6 @@ QIcon DebuggingHelperOptionPage::categoryIcon() const
 void DebuggingHelperOptionPage::apply()
 {
     m_group.apply(ICore::instance()->settings());
-
-/*
-    if (!m_ui) // page never shown
-        return;
-    if (m_ui->gdbChooserWidget->isDirty()) {
-        //m_abiToDebuggerMap = m_ui->gdbChooserWidget->gdbMapping();
-        m_ui->gdbChooserWidget->setGdbMapping(m_abiToDebuggerMap);
-        gdbMappingChanged = true;
-    }
-*/
 }
 
 void DebuggingHelperOptionPage::finish()

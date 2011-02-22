@@ -204,12 +204,6 @@ on slow machines. In this case, the value should be increased.</string>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>
   </customwidget>
-  <customwidget>
-   <class>Debugger::Internal::GdbChooserWidget</class>
-   <extends>QWidget</extends>
-   <header>gdb/gdbchooserwidget.h</header>
-   <container>1</container>
-  </customwidget>
  </customwidgets>
  <resources/>
  <connections/>
