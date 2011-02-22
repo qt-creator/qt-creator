@@ -102,6 +102,15 @@ void MaemoToolChain::addToEnvironment(Utils::Environment &env) const
         .arg(maddeRoot)));
     env.prependOrSet(QLatin1String("PERL5LIB"),
         QDir::toNativeSeparators(QString("%1/madlib/perl5").arg(maddeRoot)));
+
+    const QString manglePathsKey = QLatin1String("GCCWRAPPER_PATHMANGLE");
+    if (!env.hasKey(manglePathsKey)) {
+        const QStringList pathsToMangle = QStringList() << QLatin1String("/lib")
+            << QLatin1String("/opt") << QLatin1String("/usr");
+        env.set(manglePathsKey, QString());
+        foreach (const QString &path, pathsToMangle)
+            env.appendOrSet(manglePathsKey, path, QLatin1String(":"));
+    }
 }
 
 QString MaemoToolChain::sysroot() const
