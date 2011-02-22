@@ -423,7 +423,7 @@ QList<DeploymentFolder> QtQuickApp::deploymentFolders() const
     return result;
 }
 
-const int QtQuickApp::StubVersion = 10;
+const int QtQuickApp::StubVersion = 11;
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

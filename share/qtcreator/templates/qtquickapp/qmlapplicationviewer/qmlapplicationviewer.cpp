@@ -80,7 +80,7 @@ QmlApplicationViewer::QmlApplicationViewer(QWidget *parent) :
     new QmlJSDebugger::JSDebuggerAgent(engine());
 #endif
 #if defined(QMLJSDEBUGGER) && !defined(NO_QMLOBSERVER)
-    new QmlJSDebugger::QDeclarativeViewObserver(this, parent);
+    new QmlJSDebugger::QDeclarativeViewObserver(this, this);
 #endif
 }
 
