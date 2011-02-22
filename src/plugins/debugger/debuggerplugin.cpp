@@ -456,6 +456,13 @@ static QToolButton *toolButton(QAction *action)
     return button;
 }
 
+static Abi abiOfBinary(const QString &fileName)
+{
+    QList<Abi> abis = Abi::abisOfBinary(fileName);
+    if (abis.isEmpty())
+        return Abi();
+    return abis.at(0);
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -902,7 +909,7 @@ public slots:
     void runControlStarted(DebuggerEngine *engine);
     void runControlFinished(DebuggerEngine *engine);
     DebuggerLanguages activeLanguages() const;
-    QString gdbBinaryForAbi(const ProjectExplorer::Abi &abi) const;
+    QString gdbBinaryForAbi(const Abi &abi) const;
     void remoteCommand(const QStringList &options, const QStringList &);
 
     bool isReverseDebugging() const;
@@ -1233,6 +1240,7 @@ public:
     QSettings *m_coreSettings;
     bool m_gdbBinariesChanged;
     uint m_cmdLineEnabledEngines;
+    QStringList m_arguments;
     DebuggerToolTipManager *m_toolTipManager;
 };
 
@@ -1335,6 +1343,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             sp.attachPID = pid;
             sp.displayName = tr("Process %1").arg(sp.attachPID);
             sp.startMessage = tr("Attaching to local process %1.").arg(sp.attachPID);
+            sp.toolChainAbi = Abi::hostAbi();
         } else if (port) {
             sp.startMode = AttachToRemote;
             sp.remoteChannel = remoteChannel;
@@ -1349,11 +1358,13 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
             sp.startMessage = tr("Attaching to remote server %1.")
                 .arg(sp.remoteChannel);
+            sp.toolChainAbi = abiOfBinary(sp.executable);
         } else {
             sp.startMode = AttachCore;
             sp.coreFile = *it;
             sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
             sp.startMessage = tr("Attaching to core file %1.").arg(sp.coreFile);
+            sp.toolChainAbi = abiOfBinary(sp.coreFile);
         }
         m_scheduledStarts.append(sp);
         return true;
@@ -1375,6 +1386,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         sp.attachPID = it->section(':', 1, 1).toULongLong();
         sp.displayName = tr("Crashed process %1").arg(sp.attachPID);
         sp.startMessage = tr("Attaching to crashed process %1").arg(sp.attachPID);
+        sp.toolChainAbi = Abi::hostAbi();
         if (!sp.attachPID) {
             *errorMessage = DebuggerPlugin::tr("The parameter '%1' of option '%2' "
                 "does not match the pattern <handle>:<pid>.").arg(*it, option);
@@ -1430,14 +1442,8 @@ bool DebuggerPluginPrivate::parseArguments(const QStringList &args,
 bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     QString *errorMessage)
 {
-    // Do not fail to load the whole plugin if something goes wrong here.
-    if (!parseArguments(arguments, &m_cmdLineEnabledEngines, errorMessage)) {
-        *errorMessage = tr("Error evaluating command line arguments: %1")
-            .arg(*errorMessage);
-        qWarning("%s\n", qPrintable(*errorMessage));
-        errorMessage->clear();
-    }
-
+    Q_UNUSED(errorMessage);
+    m_arguments = arguments;
     // Cpp/Qml ui setup
     m_mainWindow = new DebuggerMainWindow;
 
@@ -1529,6 +1535,7 @@ void DebuggerPluginPrivate::startExternalApplication()
                    dlg.workingDirectory());
     sp.executable = dlg.executableFile();
     sp.startMode = StartExternal;
+    sp.toolChainAbi = abiOfBinary(sp.executable);
     sp.workingDirectory = dlg.workingDirectory();
     if (!dlg.executableArguments().isEmpty())
         sp.processArgs = dlg.executableArguments();
@@ -1570,6 +1577,7 @@ void DebuggerPluginPrivate::attachExternalApplication
     sp.displayName = tr("Process %1").arg(pid);
     sp.executable = binary;
     sp.startMode = AttachExternal;
+    sp.toolChainAbi = abiOfBinary(sp.executable);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1593,6 +1601,7 @@ void DebuggerPluginPrivate::attachCore(const QString &core, const QString &exe)
     sp.coreFile = core;
     sp.displayName = tr("Core file \"%1\"").arg(core);
     sp.startMode = AttachCore;
+    sp.toolChainAbi = abiOfBinary(sp.coreFile);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1606,6 +1615,7 @@ void DebuggerPluginPrivate::attachRemote(const QString &spec)
     sp.remoteArchitecture = spec.section('@', 2, 2);
     sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
     sp.startMode = AttachToRemote;
+    sp.toolChainAbi = abiOfBinary(sp.executable);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -2537,7 +2547,7 @@ void DebuggerPluginPrivate::remoteCommand(const QStringList &options,
     runScheduled();
 }
 
-QString DebuggerPluginPrivate::gdbBinaryForAbi(const ProjectExplorer::Abi &abi) const
+QString DebuggerPluginPrivate::gdbBinaryForAbi(const Abi &abi) const
 {
     return GdbOptionsPage::abiToGdbMap.value(abi.toString());
 }
@@ -2761,6 +2771,14 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     m_debuggerSettings->readSettings();
     GdbOptionsPage::readGdbSettings();
+
+    // Do not fail to load the whole plugin if something goes wrong here.
+    QString errorMessage;
+    if (!parseArguments(m_arguments, &m_cmdLineEnabledEngines, &errorMessage)) {
+        errorMessage = tr("Error evaluating command line arguments: %1")
+            .arg(errorMessage);
+        qWarning("%s\n", qPrintable(errorMessage));
+    }
 
     // Register factory of DebuggerRunControl.
     m_debuggerRunControlFactory = new DebuggerRunControlFactory

@@ -41,6 +41,7 @@
 #include <projectexplorer/abi.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDebug>
 #include <QtCore/QTextStream>
 #include <QtCore/QFileInfo>
 
