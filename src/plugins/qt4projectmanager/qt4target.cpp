@@ -739,7 +739,9 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::importBuildConfigurations(
 
     // Check for in source build first
     QString sourceDir = QFileInfo(proFilePath).absolutePath();
-    result.append(checkForBuild(sourceDir, proFilePath));
+    BuildConfigurationInfo info = checkForBuild(sourceDir, proFilePath);
+    if (info.isValid())
+        result.append(info);
 
     // If we found a in source build, we do not search for out of source builds
     if (!result.isEmpty())
@@ -752,7 +754,9 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::importBuildConfigurations(
     foreach (Qt4BaseTargetFactory *factory, factories) {
         foreach (const QString &id, factory->supportedTargetIds(0)) {
             QString expectedBuild = factory->defaultShadowBuildDirectory(defaultTopLevelBuildDirectory, id);
-            result.append(checkForBuild(expectedBuild, proFilePath));
+            BuildConfigurationInfo info = checkForBuild(expectedBuild, proFilePath);
+            if (info.isValid())
+                result.append(info);
         }
     }
     return result;
