@@ -98,8 +98,8 @@ void CommonOptionsPage::apply()
     m_group.apply(ICore::instance()->settings());
 
     if (m_ui.debuggerChooserWidget->isDirty()) {
-        //m_abiToDebuggerMap = m_ui.debuggerChooserWidget->debuggerMapping();
-        m_ui.debuggerChooserWidget->setDebuggerMapping(m_abiToDebuggerMap);
+        m_abiToDebuggerMap = m_ui.debuggerChooserWidget->debuggerMapping();
+        //m_ui.debuggerChooserWidget->setDebuggerMapping(m_abiToDebuggerMap);
         m_abiToDebuggerMapChanged = true;
     }
 }
