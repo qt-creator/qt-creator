@@ -31,31 +31,33 @@
 **
 **************************************************************************/
 
-#include "gdbchooserwidget.h"
+#include "debuggerchooserwidget.h"
 
-#include <utils/pathchooser.h>
-#include <projectexplorer/toolchain.h>
 #include <coreplugin/coreconstants.h>
 
+#include <projectexplorer/toolchain.h>
+
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QTreeView>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QStandardItem>
-#include <QtGui/QToolButton>
-#include <QtGui/QFormLayout>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QIcon>
-#include <QtGui/QGroupBox>
-#include <QtGui/QCheckBox>
-#include <QtCore/QSet>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QProcess>
+#include <QtCore/QSet>
+
+#include <QtGui/QCheckBox>
+#include <QtGui/QDialogButtonBox>
+#include <QtGui/QFormLayout>
+#include <QtGui/QGroupBox>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QIcon>
+#include <QtGui/QMessageBox>
+#include <QtGui/QPushButton>
+#include <QtGui/QStandardItem>
+#include <QtGui/QStandardItemModel>
+#include <QtGui/QToolButton>
+#include <QtGui/QTreeView>
+#include <QtGui/QVBoxLayout>
 
 enum Columns { abiColumn, binaryColumn, ColumnCount };
 
@@ -66,18 +68,19 @@ namespace Internal {
 
 // -----------------------------------------------
 
-// Obtain a tooltip for a gdb binary by running --version
-static inline QString gdbToolTip(const QString &binary)
+// Obtain a tooltip for a debugger binary by running --version
+static QString debuggerToolTip(const QString &binary)
 {
     if (binary.isEmpty())
         return QString();
     if (!QFileInfo(binary).exists())
-        return GdbChooserWidget::tr("File not found.");
+        return DebuggerChooserWidget::tr("File not found.");
     QProcess process;
     process.start(binary, QStringList(QLatin1String("--version")));
     process.closeWriteChannel();
     if (!process.waitForStarted())
-        return GdbChooserWidget::tr("Unable to run '%1': %2").arg(binary, process.errorString());
+        return DebuggerChooserWidget::tr("Unable to run '%1': %2")
+            .arg(binary, process.errorString());
     process.waitForFinished(); // That should never fail
     QString rc = QDir::toNativeSeparators(binary);
     rc += QLatin1String("\n\n");
@@ -86,19 +89,20 @@ static inline QString gdbToolTip(const QString &binary)
     return rc;
 }
 
-// GdbBinaryModel: Show gdb binaries and associated toolchains as a list.
-// Provides a delayed tooltip listing the gdb version as
+// DebuggerBinaryModel: Show toolchains and associated debugger binaries.
+// Provides a delayed tooltip listing the debugger version as
 // obtained by running it. Provides conveniences for getting/setting the maps and
 // for listing the toolchains used and the ones still available.
-class GdbBinaryModel : public QStandardItemModel {
+class DebuggerBinaryModel : public QStandardItemModel
+{
 public:
-    explicit GdbBinaryModel(QObject * parent = 0);
+    explicit DebuggerBinaryModel(QObject *parent = 0);
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
 
     // get / set data as map.
-    QMap<QString, QString> gdbMapping() const;
-    void setGdbMapping(const QMap<QString, QString> &m);
+    QMap<QString, QString> debuggerMapping() const;
+    void setDebuggerMapping(const QMap<QString, QString> &m);
 
     QString binary(int row) const;
     QString abi(int row) const;
@@ -111,23 +115,24 @@ public:
     static void setBinaryItem(QStandardItem *item, const QString &binary);
 };
 
-GdbBinaryModel::GdbBinaryModel(QObject *parent) :
+DebuggerBinaryModel::DebuggerBinaryModel(QObject *parent) :
     QStandardItemModel(0, ColumnCount, parent)
 {
     QStringList headers;
-    headers << GdbChooserWidget::tr("ABI") << GdbChooserWidget::tr("Debugger");
+    headers.append(DebuggerChooserWidget::tr("ABI"));
+    headers.append(DebuggerChooserWidget::tr("Debugger"));
     setHorizontalHeaderLabels(headers);
 }
 
-QVariant GdbBinaryModel::data(const QModelIndex &index, int role) const
+QVariant DebuggerBinaryModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid() && role == Qt::ToolTipRole) {
         // Is there a tooltip set?
         const QString itemToolTip = itemFromIndex(index)->toolTip();
         if (!itemToolTip.isEmpty())
             return QVariant(itemToolTip);
-        // Run the gdb and obtain the tooltip
-        const QString tooltip = gdbToolTip(binary(index.row()));
+        // Run the debugger and obtain the tooltip
+        const QString tooltip = debuggerToolTip(binary(index.row()));
         // Set on the whole row
         item(index.row(), abiColumn)->setToolTip(tooltip);
         item(index.row(), binaryColumn)->setToolTip(tooltip);
@@ -136,7 +141,7 @@ QVariant GdbBinaryModel::data(const QModelIndex &index, int role) const
     return QStandardItemModel::data(index, role);
 }
 
-bool GdbBinaryModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool DebuggerBinaryModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (index.isValid() && role == Qt::EditRole) {
         Q_ASSERT(index.column() == binaryColumn);
@@ -150,7 +155,7 @@ bool GdbBinaryModel::setData(const QModelIndex &index, const QVariant &value, in
     return QStandardItemModel::setData(index, value, role);
 }
 
-QMap<QString, QString> GdbBinaryModel::gdbMapping() const
+QMap<QString, QString> DebuggerBinaryModel::debuggerMapping() const
 {
     QMap<QString, QString> rc;
     const int binaryCount = rowCount();
@@ -159,24 +164,25 @@ QMap<QString, QString> GdbBinaryModel::gdbMapping() const
     return rc;
 }
 
-void GdbBinaryModel::setGdbMapping(const QMap<QString, QString> &m)
+void DebuggerBinaryModel::setDebuggerMapping(const QMap<QString, QString> &m)
 {
     removeRows(0, rowCount());
     for (QMap<QString, QString>::const_iterator i = m.constBegin(); i != m.constEnd(); ++i)
         append(i.key(), i.value());
 }
 
-QString GdbBinaryModel::binary(int row) const
+QString DebuggerBinaryModel::binary(int row) const
 {
-    return QDir::fromNativeSeparators(item(row, binaryColumn)->data(Qt::DisplayRole).toString());
+    return QDir::fromNativeSeparators(
+        item(row, binaryColumn)->data(Qt::DisplayRole).toString());
 }
 
-QString GdbBinaryModel::abi(int row) const
+QString DebuggerBinaryModel::abi(int row) const
 {
     return item(row, abiColumn)->data(Qt::DisplayRole).toString();
 }
 
-void GdbBinaryModel::setBinaryItem(QStandardItem *item, const QString &binary)
+void DebuggerBinaryModel::setBinaryItem(QStandardItem *item, const QString &binary)
 {
     item->setText(binary.isEmpty() ? QString() : QDir::toNativeSeparators(binary));
     item->setToolTip(QString());; // clean out delayed tooltip
@@ -184,26 +190,26 @@ void GdbBinaryModel::setBinaryItem(QStandardItem *item, const QString &binary)
     item->setData(false);
 }
 
-void GdbBinaryModel::setAbiItem(QStandardItem *item, const QString &abi)
+void DebuggerBinaryModel::setAbiItem(QStandardItem *item, const QString &abi)
 {
     item->setText(abi);
     item->setToolTip(QString()); // clean out delayed tooltip
     item->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
 }
 
-void GdbBinaryModel::append(const QString &abi, const QString &binary)
+void DebuggerBinaryModel::append(const QString &abi, const QString &binary)
 {
     QStandardItem *binaryItem = new QStandardItem;
     QStandardItem *abiItem = new QStandardItem;
-    GdbBinaryModel::setAbiItem(abiItem, abi);
-    GdbBinaryModel::setBinaryItem(binaryItem, binary);
+    DebuggerBinaryModel::setAbiItem(abiItem, abi);
+    DebuggerBinaryModel::setBinaryItem(binaryItem, binary);
 
     StandardItemList row;
     row << abiItem << binaryItem;
     appendRow(row);
 }
 
-bool GdbBinaryModel::isDirty() const
+bool DebuggerBinaryModel::isDirty() const
 {
     for (int i = 0; i < rowCount(); ++i) {
         if (item(i, binaryColumn)->data().toBool())
@@ -212,11 +218,11 @@ bool GdbBinaryModel::isDirty() const
     return false;
 }
 
-// ----------- GdbChooserWidget
-GdbChooserWidget::GdbChooserWidget(QWidget *parent) :
+// ----------- DebuggerChooserWidget
+DebuggerChooserWidget::DebuggerChooserWidget(QWidget *parent) :
     QWidget(parent),
     m_treeView(new QTreeView),
-    m_model(new GdbBinaryModel(m_treeView))
+    m_model(new DebuggerBinaryModel(m_treeView))
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     m_treeView->setRootIsDecorated(false);
@@ -227,19 +233,19 @@ GdbChooserWidget::GdbChooserWidget(QWidget *parent) :
     layout->addWidget(m_treeView);
 }
 
-QMap<QString, QString> GdbChooserWidget::gdbMapping() const
+QMap<QString, QString> DebuggerChooserWidget::debuggerMapping() const
 {
-    return m_model->gdbMapping();
+    return m_model->debuggerMapping();
 }
 
-void GdbChooserWidget::setGdbMapping(const QMap<QString, QString> &m)
+void DebuggerChooserWidget::setDebuggerMapping(const QMap<QString, QString> &m)
 {
-    m_model->setGdbMapping(m);
+    m_model->setDebuggerMapping(m);
     for (int c = 0; c < ColumnCount; c++)
         m_treeView->resizeColumnToContents(c);
 }
 
-bool GdbChooserWidget::isDirty() const
+bool DebuggerChooserWidget::isDirty() const
 {
     return m_model->isDirty();
 }

@@ -2,7 +2,6 @@ HEADERS += \
     $$PWD/gdbmi.h \
     $$PWD/gdbengine.h \
     $$PWD/gdboptionspage.h \
-    $$PWD/gdbchooserwidget.h \
     $$PWD/abstractgdbadapter.h \
     $$PWD/attachgdbadapter.h \
     $$PWD/coregdbadapter.h \
@@ -25,7 +24,6 @@ SOURCES += \
     $$PWD/classicgdbengine.cpp \
     $$PWD/pythongdbengine.cpp \
     $$PWD/gdboptionspage.cpp \
-    $$PWD/gdbchooserwidget.cpp \
     $$PWD/abstractgdbadapter.cpp \
     $$PWD/attachgdbadapter.cpp \
     $$PWD/coregdbadapter.cpp \

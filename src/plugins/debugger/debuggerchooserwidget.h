@@ -31,8 +31,8 @@
 **
 **************************************************************************/
 
-#ifndef GDBCHOOSERWIDGET_H
-#define GDBCHOOSERWIDGET_H
+#ifndef DEGUBBER_DEBUGGERCHOOSERWIDGET_H
+#define DEGUBBER_DEBUGGERCHOOSERWIDGET_H
 
 #include <QtCore/QMultiMap>
 #include <QtGui/QDialog>
@@ -55,20 +55,20 @@ namespace Utils {
 namespace Debugger {
 namespace Internal {
 
-class GdbBinaryModel;
+class DebuggerBinaryModel;
 
-/* GdbChooserWidget: Shows a list of gdb binary and associated toolchains with
- * 'add' and 'remove' buttons. Provides delayed tooltip showing version information.
- * Based on a multimap of binaries to toolchain. */
+/* DebuggerChooserWidget: Shows a list of toolchains and associated debugger
+ * binaries together with 'add' and 'remove' buttons.
+ * Provides delayed tooltip showing version information. */
 
-class GdbChooserWidget : public QWidget
+class DebuggerChooserWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit GdbChooserWidget(QWidget *parent = 0);
+    explicit DebuggerChooserWidget(QWidget *parent = 0);
 
-    QMap<QString, QString> gdbMapping() const;
-    void setGdbMapping(const QMap<QString, QString> &m);
+    QMap<QString, QString> debuggerMapping() const;
+    void setDebuggerMapping(const QMap<QString, QString> &m);
 
     bool isDirty() const;
 
@@ -77,10 +77,10 @@ private:
     QToolButton *createAddToolMenuButton();
 
     QTreeView *m_treeView;
-    GdbBinaryModel *m_model;
+    DebuggerBinaryModel *m_model;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // GDBCHOOSERWIDGET_H
+#endif // DEGUBBER_DEBUGGERCHOOSERWIDGET_H

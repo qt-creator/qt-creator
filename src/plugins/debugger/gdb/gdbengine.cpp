@@ -4219,7 +4219,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb,
     if (m_gdb.isEmpty()) {
         handleAdapterStartFailed(
             msgNoBinaryForToolChain(sp.toolChainAbi),
-            GdbOptionsPage::settingsId());
+            _(Constants::DEBUGGER_COMMON_SETTINGS_ID));
         return false;
     }
     QStringList gdbArgs;

@@ -24,6 +24,7 @@ HEADERS += breakhandler.h \
     consolewindow.h \
     debugger_global.h \
     debuggeractions.h \
+    debuggerchooserwidget.h \
     debuggercore.h \
     debuggerconstants.h \
     debuggerdialogs.h \
@@ -70,6 +71,7 @@ SOURCES += breakhandler.cpp \
     commonoptionspage.cpp \
     consolewindow.cpp \
     debuggeractions.cpp \
+    debuggerchooserwidget.cpp \
     debuggerdialogs.cpp \
     debuggerengine.cpp \
     debuggermainwindow.cpp \

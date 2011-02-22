@@ -92,7 +92,7 @@ extern QString msgNoBinaryForToolChain(const ProjectExplorer::Abi &abi);
 static QString msgEngineNotAvailable(const char *engine)
 {
     return DebuggerPlugin::tr("The application requires the debugger engine '%1', "
-        "which is disabled.").arg(QLatin1String(engine));
+        "which is disabled.").arg(_(engine));
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -338,7 +338,7 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
         const QString msg = tr("Cannot debug '%1' (binary format: '%2'): %3")
             .arg(sp.executable, sp.toolChainAbi.toString(), d->m_errorMessage);
         Core::ICore::instance()->showWarningWithOptions(tr("Warning"),
-            msg, QString(), QLatin1String(Constants::DEBUGGER_SETTINGS_CATEGORY),
+            msg, QString(), _(Constants::DEBUGGER_SETTINGS_CATEGORY),
             d->m_settingsIdHint);
     }
 }
@@ -384,18 +384,18 @@ ConfigurationCheck checkDebugConfiguration(const ProjectExplorer::Abi &abi)
         if (debuggerCore()->debuggerForAbi(abi).isEmpty()) {
             result.errorMessage = msgNoBinaryForToolChain(abi);
             result.errorMessage += QLatin1Char(' ') + msgEngineNotAvailable("Gdb");
-            //result.settingsPage = GdbOptionsPage::settingsId();
+            result.settingsPage = _(Constants::DEBUGGER_COMMON_SETTINGS_ID);
         }
     } else if (abi.binaryFormat() == Abi::Format_PE && abi.osFlavor() != Abi::Windows_msys) {
         result = checkCdbConfiguration(abi);
         if (!result) {
             result.errorMessage += msgEngineNotAvailable("Cdb");
-            result.settingsPage = QLatin1String("Cdb");
+            result.settingsPage = _("Cdb");
         }
     }
 
     if (!result && !result.settingsPage.isEmpty())
-        result.settingsCategory = QLatin1String(Constants::DEBUGGER_SETTINGS_CATEGORY);
+        result.settingsCategory = _(Constants::DEBUGGER_SETTINGS_CATEGORY);
 
     return result;
 }
@@ -521,8 +521,8 @@ static inline QString findQtInstallPath(const QString &qmakePath)
 {
     QProcess proc;
     QStringList args;
-    args.append(QLatin1String("-query"));
-    args.append(QLatin1String("QT_INSTALL_HEADERS"));
+    args.append(_("-query"));
+    args.append(_("QT_INSTALL_HEADERS"));
     proc.start(qmakePath, args);
     if (!proc.waitForStarted()) {
         qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(qmakePath),
@@ -565,7 +565,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     sp.dumperLibraryLocations = rc->dumperLibraryLocations();
 
     if (debuggerCore()->isActiveDebugLanguage(QmlLanguage)) {
-        sp.qmlServerAddress = QLatin1String("127.0.0.1");
+        sp.qmlServerAddress = _("127.0.0.1");
         sp.qmlServerPort = runConfiguration->qmlDebugServerPort();
 
         sp.projectDir = runConfiguration->target()->project()->projectDirectory();
@@ -575,11 +575,11 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
 
         // Makes sure that all bindings go through the JavaScript engine, so that
         // breakpoints are actually hit!
-        if (!sp.environment.hasKey(QLatin1String("QML_DISABLE_OPTIMIZER"))) {
-            sp.environment.set(QLatin1String("QML_DISABLE_OPTIMIZER"), QLatin1String("1"));
+        if (!sp.environment.hasKey(_("QML_DISABLE_OPTIMIZER"))) {
+            sp.environment.set(_("QML_DISABLE_OPTIMIZER"), _("1"));
         }
 
-        Utils::QtcProcess::addArg(&sp.processArgs, QLatin1String("-qmljsdebugger=port:")
+        Utils::QtcProcess::addArg(&sp.processArgs, _("-qmljsdebugger=port:")
                                   + QString::number(sp.qmlServerPort));
     }
 
