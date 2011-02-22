@@ -194,6 +194,7 @@ static ProjectExplorer::Abi guessGccAbi(const QString &m)
             os = ProjectExplorer::Abi::Symbian;
             flavor = ProjectExplorer::Abi::Symbian_device;
             format = ProjectExplorer::Abi::Format_ELF;
+            width = 32;
         } else if (p == QLatin1String("mingw32")) {
             arch = ProjectExplorer::Abi::x86;
             os = ProjectExplorer::Abi::Windows;
@@ -770,6 +771,9 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
     QTest::newRow("Intel 1")
             << QString::fromLatin1("86_64 x86_64 GNU/Linux")
             << QString::fromLatin1("x86-linux-generic-elf-64bit");
+    QTest::newRow("Symbian 1")
+            << QString::fromLatin1("arm-none-symbianelf")
+            << QString::fromLatin1("arm-symbian-device-elf-32bit");
 }
 
 void ProjectExplorerPlugin::testGccAbiGuessing()
