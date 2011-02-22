@@ -356,7 +356,7 @@ bool QMakeStep::isQmlDebuggingLibrarySupported(QString *reason) const
     }
 
     if (reason)
-        *reason = tr("Library not available. <a href='compile'>Compile...</a>.");
+        *reason = tr("Library not available. <a href='compile'>Compile...</a>");
 
     return false;
 }
