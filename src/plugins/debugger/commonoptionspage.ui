@@ -130,6 +130,32 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="sourcesBox">
+     <property name="title">
+      <string>Sources</string>
+     </property>
+     <layout class="QGridLayout" name="sourcesGridLayout">
+      <item row="7" column="0">
+       <widget class="QLabel" name="labelMaximalStackDepth">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Qt Sources:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+         <widget class="Utils::PathChooser" name="qtSourcesChooser" native="true">
+         </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -147,6 +173,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

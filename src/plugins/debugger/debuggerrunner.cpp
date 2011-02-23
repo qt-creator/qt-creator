@@ -601,10 +601,6 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     //qDebug() << "DUMPER: " << sp.dumperLibrary << sp.dumperLibraryLocations;
     sp.displayName = rc->displayName();
 
-    // Find qtInstallPath.
-    QString qmakePath = DebuggingHelperLibrary::findSystemQt(rc->environment());
-    if (!qmakePath.isEmpty())
-        sp.qtInstallPath = findQtInstallPath(qmakePath);
     return sp;
 }
 

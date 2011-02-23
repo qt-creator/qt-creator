@@ -400,6 +400,11 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item->setSettingsKey(debugModeGroup, QLatin1String("WatchdogTimeout"));
     item->setDefaultValue(20);
     insertItem(GdbWatchdogTimeout, item);
+
+    item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("QtSourcesLocation"));
+    item->setDefaultValue(QString());
+    insertItem(QtSourcesLocation, item);
 }
 
 

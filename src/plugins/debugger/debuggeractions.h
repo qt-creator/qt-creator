@@ -88,6 +88,7 @@ enum DebuggerActionCode
     UseDebuggingHelpers,
     UseCustomDebuggingHelperLocation,
     CustomDebuggingHelperLocation,
+    QtSourcesLocation,
 
     UseCodeModel,
     ShowThreadNames,

@@ -117,7 +117,6 @@ public:
 
     QString debuggerCommand;
     ProjectExplorer::Abi toolChainAbi;
-    QString qtInstallPath;
 
     QString dumperLibrary;
     QStringList dumperLibraryLocations;

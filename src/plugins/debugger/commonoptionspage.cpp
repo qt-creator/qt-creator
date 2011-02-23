@@ -126,6 +126,7 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
     m_group.insert(debuggerCore()->action(VerboseLog), 0);
     m_group.insert(debuggerCore()->action(BreakOnThrow), 0);
     m_group.insert(debuggerCore()->action(BreakOnCatch), 0);
+    m_group.insert(debuggerCore()->action(QtSourcesLocation), 0);
 #ifdef Q_OS_WIN
     Utils::SavedAction *registerAction = debuggerCore()->action(RegisterForPostMortem);
     m_group.insert(registerAction,

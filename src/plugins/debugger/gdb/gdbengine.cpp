@@ -4492,7 +4492,8 @@ void GdbEngine::notifyInferiorSetupFailed()
 void GdbEngine::handleInferiorPrepared()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    const QByteArray qtInstallPath = startParameters().qtInstallPath.toLocal8Bit();
+    const QByteArray qtInstallPath = 
+        debuggerCore()->action(QtSourcesLocation)->value().toString().toLocal8Bit();
     if (!qtInstallPath.isEmpty()) {
         QByteArray qtBuildPath;
 #if defined(Q_OS_WIN)
