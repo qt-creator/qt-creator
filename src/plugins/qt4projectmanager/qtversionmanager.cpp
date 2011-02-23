@@ -1536,7 +1536,7 @@ void QtVersion::updateAbiAndMkspec() const
             QList<ProjectExplorer::Abi> tmp = m_abis;
             m_abis.clear();
             foreach (const ProjectExplorer::Abi &abi, tmp)
-                m_abis.append(ProjectExplorer::Abi(abi.architecture(), abi.os(), ProjectExplorer::Abi::WindowsMSysFlavour,
+                m_abis.append(ProjectExplorer::Abi(abi.architecture(), abi.os(), ProjectExplorer::Abi::WindowsMSysFlavor,
                                                    abi.binaryFormat(), abi.wordWidth()));
         }
 #endif

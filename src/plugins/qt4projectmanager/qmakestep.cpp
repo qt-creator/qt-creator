@@ -157,8 +157,8 @@ QStringList QMakeStep::moreArguments()
     QStringList arguments;
 #if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     ProjectExplorer::ToolChain *tc = bc->toolChain();
-    if (tc && (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::HarmattanLinuxFlavour
-               || tc->targetAbi().osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavour))
+    if (tc && (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::HarmattanLinuxFlavor
+               || tc->targetAbi().osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor))
         arguments << QLatin1String("-unix");
 #endif
     if (!bc->qtVersion()->supportsShadowBuilds()) {

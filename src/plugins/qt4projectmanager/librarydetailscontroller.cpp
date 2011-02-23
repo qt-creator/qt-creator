@@ -89,8 +89,8 @@ LibraryDetailsController::LibraryDetailsController(
     // if its toolchain is maemo behave the same as we would be on linux
     if (qt4BuildConfiguration
             && qt4BuildConfiguration->toolChain()
-            && (qt4BuildConfiguration->toolChain()->targetAbi().osFlavor() == ProjectExplorer::Abi::HarmattanLinuxFlavour
-                || qt4BuildConfiguration->toolChain()->targetAbi().osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavour))
+            && (qt4BuildConfiguration->toolChain()->targetAbi().osFlavor() == ProjectExplorer::Abi::HarmattanLinuxFlavor
+                || qt4BuildConfiguration->toolChain()->targetAbi().osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor))
         m_creatorPlatform = CreatorLinux;
 #endif
 
