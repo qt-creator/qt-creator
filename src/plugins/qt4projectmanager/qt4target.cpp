@@ -448,7 +448,7 @@ QList<BuildConfigurationInfo> Qt4DefaultTargetSetupWidget::buildConfigurationInf
     for (int i=0; i < size; ++i) {
         if (m_enabled.at(i)) {
             BuildConfigurationInfo info = m_infos.at(i);
-            if (m_shadowBuildEnabled->isChecked())
+            if (!m_shadowBuildEnabled->isChecked())
                 info.directory = sourceDir;
             infos << info;
         }
