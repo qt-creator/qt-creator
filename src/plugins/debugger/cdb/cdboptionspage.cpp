@@ -36,27 +36,13 @@
 #include "debuggerconstants.h"
 #include "cdbengine.h"
 
-#ifdef Q_OS_WIN
-#    include <utils/winutils.h>
-#endif
 #include <utils/synchronousprocess.h>
 
 #include <coreplugin/icore.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QUrl>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QDateTime>
 #include <QtCore/QTextStream>
-#include <QtCore/QTimer>
-#include <QtCore/QProcess>
-#include <QtGui/QMessageBox>
 #include <QtGui/QLineEdit>
-#include <QtGui/QDesktopServices>
-
-static const char *dgbToolsDownloadLink32C = "http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx";
-static const char *dgbToolsDownloadLink64C = "http://www.microsoft.com/whdc/devtools/debugging/install64bit.Mspx";
+#include <QtGui/QCheckBox>
 
 namespace Debugger {
 namespace Internal {
@@ -173,35 +159,11 @@ QStringList CdbBreakEventWidget::breakEvents() const
     return rc;
 }
 
-static inline QString msgPathConfigNote()
-{
-#ifdef Q_OS_WIN
-    const bool is64bit = Utils::winIs64BitSystem();
-#else
-    const bool is64bit = false;
-#endif
-    const QString link = is64bit ? QLatin1String(dgbToolsDownloadLink64C) : QLatin1String(dgbToolsDownloadLink32C);
-    //: Label text for path configuration. %2 is "x-bit version".
-    return CdbOptionsPageWidget::tr(
-    "<html><body><p>Specify the path to the "
-    "<a href=\"%1\">Windows Console Debugger executable</a>"
-    " (%2) here.</p>"
-    "</body></html>").arg(link, (is64bit ? CdbOptionsPageWidget::tr("64-bit version")
-                                         : CdbOptionsPageWidget::tr("32-bit version")));
-}
-
 CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
-    QWidget(parent), m_breakEventWidget(new CdbBreakEventWidget),
-    m_reportTimer(0)
+    QWidget(parent), m_breakEventWidget(new CdbBreakEventWidget)
 {
     m_ui.setupUi(this);
-    m_ui.noteLabel->setText(msgPathConfigNote());
-    m_ui.noteLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    connect(m_ui.noteLabel, SIGNAL(linkActivated(QString)), this, SLOT(downLoadLinkActivated(QString)));
 
-    m_ui.pathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_ui.pathChooser->addButton(tr("Autodetect"), this, SLOT(autoDetect()));
-    m_ui.cdbPathGroupBox->installEventFilter(this);
     QVBoxLayout *eventLayout = new QVBoxLayout;
     eventLayout->addWidget(m_breakEventWidget);
     m_ui.eventGroupBox->setLayout(eventLayout);
@@ -209,32 +171,18 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
 
 void CdbOptionsPageWidget::setOptions(CdbOptions &o)
 {
-    m_ui.pathChooser->setPath(o.executable);
     m_ui.additionalArgumentsLineEdit->setText(o.additionalArguments);
-    m_ui.is64BitCheckBox->setChecked(o.is64bit);
     m_ui.cdbPathGroupBox->setChecked(o.enabled);
     setSymbolPaths(o.symbolPaths);
     m_ui.sourcePathListEditor->setPathList(o.sourcePaths);
     m_breakEventWidget->setBreakEvents(o.breakEvents);
 }
 
-bool CdbOptionsPageWidget::is64Bit() const
-{
-    return m_ui.is64BitCheckBox->isChecked();
-}
-
-QString CdbOptionsPageWidget::path() const
-{
-    return m_ui.pathChooser->path();
-}
-
 CdbOptions CdbOptionsPageWidget::options() const
 {
     CdbOptions  rc;
-    rc.executable = path();
     rc.additionalArguments = m_ui.additionalArgumentsLineEdit->text().trimmed();
     rc.enabled = m_ui.cdbPathGroupBox->isChecked();
-    rc.is64bit = is64Bit();
     rc.symbolPaths = symbolPaths();
     rc.sourcePaths = m_ui.sourcePathListEditor->pathList();
     rc.breakEvents = m_breakEventWidget->breakEvents();
@@ -251,126 +199,13 @@ void CdbOptionsPageWidget::setSymbolPaths(const QStringList &s)
     m_ui.symbolPathListEditor->setPathList(s);
 }
 
-void CdbOptionsPageWidget::hideReportLabel()
-{
-    m_ui.reportLabel->clear();
-    m_ui.reportLabel->setVisible(false);
-}
-
-void CdbOptionsPageWidget::autoDetect()
-{
-    QString executable;
-    QStringList checkedDirectories;
-    bool is64bit;
-    const bool ok = CdbOptions::autoDetectExecutable(&executable, &is64bit, &checkedDirectories);
-    m_ui.cdbPathGroupBox->setChecked(ok);
-    if (ok) {
-        m_ui.is64BitCheckBox->setChecked(is64bit);
-        m_ui.pathChooser->setPath(executable);
-        QString report;
-        // Now check for the extension library as well.
-        const bool allOk = checkInstallation(executable, is64Bit(), &report);
-        setReport(report, allOk);
-        // On this occasion, if no symbol paths are specified, check for an
-        // old CDB installation
-        if (symbolPaths().isEmpty())
-            setSymbolPaths(CdbOptions::oldEngineSymbolPaths(Core::ICore::instance()->settings()));
-    } else {
-        const QString msg = tr("\"Debugging Tools for Windows\" could not be found.");
-        const QString details = tr("Checked:\n%1").arg(checkedDirectories.join(QString(QLatin1Char('\n'))));
-        QMessageBox msbBox(QMessageBox::Information, tr("Autodetection"), msg, QMessageBox::Ok, this);
-        msbBox.setDetailedText(details);
-        msbBox.exec();
-    }
-}
-
-void CdbOptionsPageWidget::setReport(const QString &msg, bool success)
-{
-    // Hide label after some interval
-    if (!m_reportTimer) {
-        m_reportTimer = new QTimer(this);
-        m_reportTimer->setSingleShot(true);
-        connect(m_reportTimer, SIGNAL(timeout()), this, SLOT(hideReportLabel()));
-    } else {
-        if (m_reportTimer->isActive())
-            m_reportTimer->stop();
-    }
-    m_reportTimer->setInterval(success ? 10000 : 20000);
-    m_reportTimer->start();
-
-    m_ui.reportLabel->setText(msg);
-    m_ui.reportLabel->setStyleSheet(success ? QString() : QString::fromAscii("background-color : 'red'"));
-    m_ui.reportLabel->setVisible(true);
-}
-
-void CdbOptionsPageWidget::downLoadLinkActivated(const QString &link)
-{
-    QDesktopServices::openUrl(QUrl(link));
-}
-
 QString CdbOptionsPageWidget::searchKeywords() const
 {
     QString rc;
-    QTextStream(&rc) << m_ui.pathLabel->text() << ' ' << m_ui.symbolPathLabel->text()
+    QTextStream(&rc) << m_ui.symbolPathLabel->text()
             << ' ' << m_ui.sourcePathLabel->text();
     rc.remove(QLatin1Char('&'));
     return rc;
-}
-
-static QString cdbVersion(const QString &executable)
-{
-    QProcess cdb;
-    cdb.start(executable, QStringList(QLatin1String("-version")));
-    cdb.closeWriteChannel();
-    if (!cdb.waitForStarted())
-        return QString();
-    if (!cdb.waitForFinished()) {
-        Utils::SynchronousProcess::stopProcess(cdb);
-        return QString();
-    }
-    return QString::fromLocal8Bit(cdb.readAllStandardOutput());
-}
-
-bool CdbOptionsPageWidget::checkInstallation(const QString &executable,
-                                             bool is64Bit, QString *message)
-{
-    // 1) Check on executable
-    unsigned checkedItems = 0;
-    QString rc;
-    if (executable.isEmpty()) {
-        message->append(tr("No cdb executable specified.\n"));
-    } else {
-        const QString version = cdbVersion(executable);
-        if (version.isEmpty()) {
-            message->append(tr("Unable to determine version of %1.\n").
-                            arg(executable));
-        } else {
-            message->append(tr("Version: %1").arg(version));
-            checkedItems++;
-        }
-    }
-
-    // 2) Check on extension library
-    const QFileInfo extensionFi(CdbEngine::extensionLibraryName(is64Bit));
-    if (extensionFi.isFile()) {
-        message->append(tr("Extension library: %1, built: %2.\n").
-                        arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath())).
-                        arg(extensionFi.lastModified().toString(Qt::SystemLocaleShortDate)));
-        checkedItems++;
-    } else {
-        message->append("Extension library not found.\n");
-    }
-    return checkedItems == 2u;
-}
-
-bool CdbOptionsPageWidget::eventFilter(QObject *o, QEvent *e)
-{
-    if (o != m_ui.cdbPathGroupBox || e->type() != QEvent::ToolTip)
-        return QWidget::eventFilter(o, e);
-    QString message;
-    checkInstallation(path(), is64Bit(), &message);
-    m_ui.cdbPathGroupBox->setToolTip(message);
-    return false;
 }
 
 // ---------- CdbOptionsPage

@@ -41,14 +41,19 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
+#ifdef Q_OS_WIN
+#    include <utils/winutils.h>
+#endif
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
+#include <QtCore/QUrl>
 #include <QtCore/QTemporaryFile>
 #include <QtGui/QLabel>
 #include <QtGui/QFormLayout>
+#include <QtGui/QDesktopServices>
 
 static const char debuggerCommandKeyC[] = "ProjectExplorer.MsvcToolChain.Debugger";
 
@@ -412,6 +417,42 @@ ToolChain *MsvcToolChain::clone() const
 }
 
 // --------------------------------------------------------------------------
+// MsvcDebuggerConfigLabel
+// --------------------------------------------------------------------------
+
+static const char dgbToolsDownloadLink32C[] = "http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx";
+static const char dgbToolsDownloadLink64C[] = "http://www.microsoft.com/whdc/devtools/debugging/install64bit.Mspx";
+
+QString MsvcDebuggerConfigLabel::labelText()
+{
+#ifdef Q_OS_WIN
+    const bool is64bit = Utils::winIs64BitSystem();
+#else
+    const bool is64bit = false;
+#endif
+    const QString link = is64bit ? QLatin1String(dgbToolsDownloadLink64C) : QLatin1String(dgbToolsDownloadLink32C);
+    //: Label text for path configuration. %2 is "x-bit version".
+    return tr(
+    "<html><body><p>Specify the path to the "
+    "<a href=\"%1\">Windows Console Debugger executable</a>"
+    " (%2) here.</p>"
+    "</body></html>").arg(link, (is64bit ? tr("64-bit version")
+                                         : tr("32-bit version")));
+}
+
+MsvcDebuggerConfigLabel::MsvcDebuggerConfigLabel(QWidget *parent) :
+        QLabel(labelText(), parent)
+{
+    connect(this, SIGNAL(linkActivated(QString)), this, SLOT(slotLinkActivated(QString)));
+    setTextInteractionFlags(Qt::TextBrowserInteraction);
+}
+
+void MsvcDebuggerConfigLabel::slotLinkActivated(const QString &link)
+{
+    QDesktopServices::openUrl(QUrl(link));
+}
+
+// --------------------------------------------------------------------------
 // MsvcToolChainConfigWidget
 // --------------------------------------------------------------------------
 
@@ -420,6 +461,7 @@ MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc) :
 {
     QFormLayout *formLayout = new QFormLayout(this);
     formLayout->addRow(new QLabel(tc->displayName()));
+    formLayout->addRow(new MsvcDebuggerConfigLabel);
     addDebuggerCommandControls(formLayout, QStringList(QLatin1String("-version")));
     addDebuggerAutoDetection(this, SLOT(autoDetectDebugger()));
     addErrorLabel(formLayout);

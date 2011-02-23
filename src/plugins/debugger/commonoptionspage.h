@@ -69,18 +69,8 @@ public:
     void finish();
     bool matches(const QString &s) const;
 
-    void readSettings();
-    void writeSettings();
-    QString debuggerForAbi(const QString &abi) const;
-
-private slots:
-    void handleToolChainAdditions(ProjectExplorer::ToolChain *);
-    void handleToolChainRemovals(ProjectExplorer::ToolChain *);
-
 private:
     typedef QMap<QString, QString> AbiToDebuggerMap;
-    bool m_abiToDebuggerMapChanged;
-    AbiToDebuggerMap m_abiToDebuggerMap;
     Ui::CommonOptionsPage m_ui;
     Utils::SavedActionSet m_group;
     QString m_searchKeywords;

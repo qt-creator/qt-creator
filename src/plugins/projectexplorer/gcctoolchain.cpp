@@ -248,6 +248,7 @@ GccToolChain::GccToolChain(const QString &id, bool autodetect) :
 GccToolChain::GccToolChain(const GccToolChain &tc) :
     ToolChain(tc),
     m_compilerPath(tc.compilerPath()),
+    m_debuggerCommand(tc.debuggerCommand()),
     m_forcedTo32Bit(tc.m_forcedTo32Bit),
     m_supports64Bit(tc.m_supports64Bit),
     m_targetAbi(tc.m_targetAbi)

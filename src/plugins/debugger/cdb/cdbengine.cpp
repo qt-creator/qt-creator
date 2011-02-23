@@ -637,7 +637,19 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
     // Determine extension lib name and path to use
     // The extension is passed as relative name with the path variable set
     //(does not work with absolute path names)
-    const QFileInfo extensionFi(CdbEngine::extensionLibraryName(m_options->is64bit));
+    const QString executable = debuggerCore()->debuggerForAbi(sp.toolChainAbi);
+    if (executable.isEmpty()) {
+        *errorMessage = tr("There is no CDB executable specified.");
+        return false;
+    }
+
+    const bool is64bit =
+#ifdef Q_OS_WIN
+            Utils::winIs64BitBinary(executable);
+#else
+            false;
+#endif
+    const QFileInfo extensionFi(CdbEngine::extensionLibraryName(is64bit));
     if (!extensionFi.isFile()) {
         *errorMessage = QString::fromLatin1("Internal error: The extension %1 cannot be found.").
                 arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath()));
@@ -690,7 +702,6 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
         nativeArguments += sp.processArgs;
     }
 
-    const QString executable = m_options->executable;
     const QString msg = QString::fromLatin1("Launching %1 %2\nusing %3 of %4.").
             arg(QDir::toNativeSeparators(executable),
                 arguments.join(QString(blank)) + blank + nativeArguments,
@@ -1119,7 +1130,7 @@ void CdbEngine::handleJumpToLineAddressResolution(const CdbBuiltinCommandPtr &cm
     QByteArray registerCmd;
     ByteArrayInputStream str(registerCmd);
     // PC-register depending on 64/32bit.
-    str << "r " << (m_options->is64bit ? "rip" : "eip") << "=0x" << answer;
+    str << "r " << (startParameters().toolChainAbi.wordWidth() == 64 ? "rip" : "eip") << "=0x" << answer;
     postCommand(registerCmd, 0);
     gotoLocation(Location(cookie.fileName, cookie.lineNumber));
 }

@@ -91,6 +91,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
@@ -593,7 +594,6 @@ public slots:
     {
         m_debuggerSettings->writeSettings();
         m_mainWindow->writeSettings();
-        m_commonOptionsPage->writeSettings();
     }
 
     void selectThread(int index)
@@ -2367,7 +2367,12 @@ void DebuggerPluginPrivate::remoteCommand(const QStringList &options,
 
 QString DebuggerPluginPrivate::debuggerForAbi(const Abi &abi) const
 {
-    return m_commonOptionsPage->debuggerForAbi(abi.toString());
+    foreach (const ToolChain *tc, ToolChainManager::instance()->findToolChains(abi)) {
+        const QString debugger = tc->debuggerCommand();
+        if (!debugger.isEmpty())
+            return debugger;
+    }
+    return QString();
 }
 
 DebuggerLanguages DebuggerPluginPrivate::activeLanguages() const
@@ -2591,7 +2596,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_plugin->addAutoReleasedObject(m_commonOptionsPage);
 
     m_debuggerSettings->readSettings();
-    m_commonOptionsPage->readSettings();
 
     // Do not fail to load the whole plugin if something goes wrong here.
     QString errorMessage;

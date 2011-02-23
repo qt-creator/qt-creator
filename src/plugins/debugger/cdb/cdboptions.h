@@ -48,26 +48,19 @@ struct CdbOptions
 public:
     CdbOptions();
 
-    bool isValid() const { return enabled && !executable.isEmpty(); }
+    bool isValid() const { return enabled; }
 
-    void clearExecutable();
     void clear();
 
     void fromSettings(QSettings *s); // Writes parameters on first-time autodetect
-    bool autoDetect(const QSettings *s);
     void toSettings(QSettings *s) const;
 
     bool equals(const CdbOptions &rhs) const;
-
-    static bool autoDetectExecutable(QString *outPath, bool *is64bit = 0,
-                                     QStringList *checkedDirectories = 0);
 
     static QString settingsGroup();
     static QStringList oldEngineSymbolPaths(const QSettings *s);
 
     bool enabled;
-    bool is64bit;
-    QString executable;
     QString additionalArguments;
     QStringList symbolPaths;
     QStringList sourcePaths;

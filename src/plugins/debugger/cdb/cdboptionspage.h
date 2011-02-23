@@ -44,7 +44,7 @@
 #include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
-class QTimer;
+class QCheckBox;
 QT_END_NAMESPACE
 
 namespace Debugger {
@@ -81,26 +81,13 @@ public:
 
     QString searchKeywords() const;
 
-    virtual bool eventFilter(QObject *, QEvent *);
-
-private slots:
-    void autoDetect();
-    void downLoadLinkActivated(const QString &);
-    void hideReportLabel();
-
 private:
     QStringList symbolPaths() const;
     void setSymbolPaths(const QStringList &s);
-    void setReport(const QString &, bool success);
-    inline bool is64Bit() const;
     inline QString path() const;
-
-    static bool checkInstallation(const QString &executable, bool is64Bit,
-                                  QString *message);
 
     Ui::CdbOptionsPageWidget m_ui;
     CdbBreakEventWidget *m_breakEventWidget;
-    QTimer *m_reportTimer;
 };
 
 class CdbOptionsPage : public Core::IOptionsPage

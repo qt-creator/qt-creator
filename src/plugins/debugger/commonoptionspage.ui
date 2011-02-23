@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>356</width>
-    <height>357</height>
+    <width>361</width>
+    <height>334</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -130,39 +130,23 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>External Debuggers</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="Debugger::Internal::DebuggerChooserWidget" name="debuggerChooserWidget" native="true"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::MinimumExpanding</enum>
+     </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>10</width>
-       <height>1</height>
+       <width>0</width>
+       <height>0</height>
       </size>
      </property>
     </spacer>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>Debugger::Internal::DebuggerChooserWidget</class>
-   <extends>QWidget</extends>
-   <header>debuggerchooserwidget.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -39,6 +39,8 @@
 
 #include <utils/environment.h>
 
+#include <QtGui/QLabel>
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -105,6 +107,23 @@ public:
     QList<ToolChain *> autoDetect();
 
     ToolChainConfigWidget *configurationWidget(ToolChain *);
+};
+
+// --------------------------------------------------------------------------
+// MsvcDebuggerConfigLabel: Label displaying debugging tools download info.
+// --------------------------------------------------------------------------
+
+class MsvcDebuggerConfigLabel : public QLabel
+{
+    Q_OBJECT
+public:
+    explicit MsvcDebuggerConfigLabel(QWidget *parent = 0);
+
+private slots:
+    void slotLinkActivated(const QString &l);
+
+private:
+    static QString labelText();
 };
 
 // --------------------------------------------------------------------------
