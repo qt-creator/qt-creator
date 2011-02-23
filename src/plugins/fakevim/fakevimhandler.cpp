@@ -2774,7 +2774,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (input.isReturn()) {
         m_submode = NoSubMode;
         insertText(Register("\n"));
-        m_lastInsertion += "\n";
+        m_lastInsertion += '\n';
         insertAutomaticIndentation(true);
         setTargetColumn();
     } else if (input.isBackspace()) {
@@ -2974,7 +2974,7 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
                 sd.highlightMatches = true;
                 search(sd);
             }
-            finishMovement(m_commandPrefix + needle + "\n");
+            finishMovement(m_commandPrefix + needle + '\n');
         }
         enterCommandMode();
         highlightMatches(needle);
@@ -4613,7 +4613,7 @@ void FakeVimHandler::Private::enterExMode()
     m_mode = ExMode;
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
-    m_commandPrefix = ":";
+    m_commandPrefix = ':';
 }
 
 void FakeVimHandler::Private::recordJump()

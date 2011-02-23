@@ -151,7 +151,7 @@ void MacroManager::MacroManagerPrivate::initialize()
     QStringList files = dir.entryList(filter, QDir::Files);
 
     foreach (const QString &name, files) {
-        QString fileName = dir.absolutePath()+"/"+name;
+        QString fileName = dir.absolutePath() + '/' + name;
         Macro *macro = new Macro;
         macro->loadHeader(fileName);
         addMacro(macro);
