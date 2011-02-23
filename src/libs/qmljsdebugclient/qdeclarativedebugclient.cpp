@@ -45,12 +45,14 @@
 
 #include <QtCore/qdebug.h>
 #include <QtCore/qstringlist.h>
+#include <symbiandevicemanager.h>
 
 namespace QmlJsDebugClient {
 
 const int protocolVersion = 1;
 const QString serverId = QLatin1String("QDeclarativeDebugServer");
 const QString clientId = QLatin1String("QDeclarativeDebugClient");
+static const uchar KQmlOstProtocolId = 0x94;
 
 class QDeclarativeDebugClientPrivate
 {
@@ -69,20 +71,23 @@ public:
     QDeclarativeDebugConnectionPrivate(QDeclarativeDebugConnection *c);
     QDeclarativeDebugConnection *q;
     QPacketProtocol *protocol;
+    QIODevice *device; // Currently either a QTcpSocket or a SymbianUtils::OstChannel
 
     bool gotHello;
     QStringList serverPlugins;
     QHash<QString, QDeclarativeDebugClient *> plugins;
 
     void advertisePlugins();
+    void connectDeviceSignals();
 
 public Q_SLOTS:
     void connected();
     void readyRead();
+    void deviceAboutToClose();
 };
 
 QDeclarativeDebugConnectionPrivate::QDeclarativeDebugConnectionPrivate(QDeclarativeDebugConnection *c)
-: QObject(c), q(c), protocol(0), gotHello(false)
+: QObject(c), q(c), protocol(0), gotHello(false), device(0)
 {
     protocol = new QPacketProtocol(q, this);
     QObject::connect(c, SIGNAL(connected()), this, SLOT(connected()));
@@ -190,8 +195,15 @@ void QDeclarativeDebugConnectionPrivate::readyRead()
     }
 }
 
+void QDeclarativeDebugConnectionPrivate::deviceAboutToClose()
+{
+    // This is nasty syntax but we want to emit our own aboutToClose signal (by calling QIODevice::close())
+    // without calling the underlying device close fn as that would cause an infinite loop
+    q->QIODevice::close();
+}
+
 QDeclarativeDebugConnection::QDeclarativeDebugConnection(QObject *parent)
-: QTcpSocket(parent), d(new QDeclarativeDebugConnectionPrivate(this))
+: QIODevice(parent), d(new QDeclarativeDebugConnectionPrivate(this))
 {
 }
 
@@ -206,8 +218,111 @@ QDeclarativeDebugConnection::~QDeclarativeDebugConnection()
 
 bool QDeclarativeDebugConnection::isConnected() const
 {
-    return state() == ConnectedState;
+    return state() == QAbstractSocket::ConnectedState;
 }
+
+qint64 QDeclarativeDebugConnection::readData(char *data, qint64 maxSize)
+{
+    return d->device->read(data, maxSize);
+}
+
+qint64 QDeclarativeDebugConnection::writeData(const char *data, qint64 maxSize)
+{
+    return d->device->write(data, maxSize);
+}
+
+qint64 QDeclarativeDebugConnection::bytesAvailable() const
+{
+    return d->device->bytesAvailable();
+}
+
+bool QDeclarativeDebugConnection::isSequential() const
+{
+    return true;
+}
+
+void QDeclarativeDebugConnection::close()
+{
+    if (isOpen()) {
+        QIODevice::close();
+        d->device->close();
+        emit stateChanged(QAbstractSocket::UnconnectedState);
+    }
+}
+
+// For ease of refactoring we use QAbstractSocket's states even if we're actually using a OstChannel underneath
+// since serial ports have a subset of the socket states afaics
+QAbstractSocket::SocketState QDeclarativeDebugConnection::state() const
+{
+    QAbstractSocket *socket = qobject_cast<QAbstractSocket*>(d->device);
+    if (socket)
+        return socket->state();
+
+    SymbianUtils::OstChannel *ost = qobject_cast<SymbianUtils::OstChannel*>(d->device);
+    if (ost) {
+        //TODO we need some handshaking here
+        /*
+        if (ost->hasReceivedData())
+            return QAbstractSocket::ConnectedState;
+        else if (ost->isOpen())
+            return QAbstractSocket::ConnectingState;
+        */
+        if (ost->isOpen()) return QAbstractSocket::ConnectedState;
+    }
+
+    return QAbstractSocket::UnconnectedState;
+}
+
+void QDeclarativeDebugConnection::flush()
+{
+    QAbstractSocket *socket = qobject_cast<QAbstractSocket*>(d->device);
+    if (socket) {
+        socket->flush();
+        return;
+    }
+
+    SymbianUtils::OstChannel *ost = qobject_cast<SymbianUtils::OstChannel*>(d->device);
+    if (ost) {
+        ost->flush();
+        return;
+    }
+}
+
+void QDeclarativeDebugConnection::connectToHost(const QString &hostName, quint16 port)
+{
+    QTcpSocket *socket = new QTcpSocket(d);
+    d->device = socket;
+    d->connectDeviceSignals();
+    connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SIGNAL(stateChanged(QAbstractSocket::SocketState)));
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SIGNAL(error(QAbstractSocket::SocketError)));
+    connect(socket, SIGNAL(connected()), this, SIGNAL(connected()));
+    socket->connectToHost(hostName, port);
+    QIODevice::open(ReadWrite | Unbuffered);
+}
+
+void QDeclarativeDebugConnection::connectToOst(const QString &port)
+{
+    SymbianUtils::OstChannel *ost = SymbianUtils::SymbianDeviceManager::instance()->getOstChannel(port, KQmlOstProtocolId);
+    if (ost) {
+        ost->setParent(d);
+        d->device = ost;
+        d->connectDeviceSignals();
+        QIODevice::open(ReadWrite | Unbuffered);
+        emit stateChanged(QAbstractSocket::ConnectedState);
+        emit connected();
+    } else {
+        emit error(QAbstractSocket::HostNotFoundError);
+    }
+}
+
+void QDeclarativeDebugConnectionPrivate::connectDeviceSignals()
+{
+    connect(device, SIGNAL(bytesWritten(qint64)), q, SIGNAL(bytesWritten(qint64)));
+    connect(device, SIGNAL(readyRead()), q, SIGNAL(readyRead()));
+    connect(device, SIGNAL(aboutToClose()), this, SLOT(deviceAboutToClose()));
+}
+
+//
 
 QDeclarativeDebugClientPrivate::QDeclarativeDebugClientPrivate()
 : connection(0)

@@ -465,6 +465,13 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
     sp.serverAddress = activeDeployConf->deviceAddress();
     sp.serverPort = activeDeployConf->devicePort().toInt();
     sp.displayName = rc->displayName();
+    sp.qmlServerPort = rc->qmlDebugServerPort();
+    // TODO - is this the correct place to put this?
+    if (rc->useQmlDebugger()) {
+        if (sp.processArgs.length())
+            sp.processArgs.prepend(" ");
+        sp.processArgs.prepend(QString("-qmljsdebugger=port:%1").arg(sp.qmlServerPort));
+    }
 
     sp.communicationChannel = activeDeployConf->communicationChannel() == S60DeployConfiguration::CommunicationCodaTcpConnection?
                 Debugger::DebuggerStartParameters::CommunicationChannelTcpIp:

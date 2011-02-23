@@ -100,7 +100,7 @@ void QmlAdapter::closeConnection()
         d->m_connectionTimer.stop();
     } else {
         if (d->m_conn) {
-            d->m_conn->disconnectFromHost();
+            d->m_conn->close();
         }
     }
 }
@@ -127,11 +127,23 @@ void QmlAdapter::connectToViewer()
             || (d->m_conn && d->m_conn->state() != QAbstractSocket::UnconnectedState))
         return;
 
-    QString address = d->m_engine.data()->startParameters().qmlServerAddress;
-    quint16 port = d->m_engine.data()->startParameters().qmlServerPort;
-    showConnectionStatusMessage(
-                tr("Connect to debug server %1:%2").arg(address).arg(QString::number(port)));
-    d->m_conn->connectToHost(address, port);
+    const DebuggerStartParameters &parameters = d->m_engine.data()->startParameters();
+    if (parameters.communicationChannel == DebuggerStartParameters::CommunicationChannelUsb) {
+        if (parameters.debugClient == DebuggerStartParameters::DebugClientTrk) {
+            d->m_connectionTimer.stop();
+            showConnectionErrorMessage(tr("QML debugging is not supported when using TRK!"));
+            emit connectionStartupFailed();
+            return;
+        }
+        const QString &port = parameters.remoteChannel;
+        showConnectionStatusMessage(tr("Connecting to debug server on %1").arg(port));
+        d->m_conn->connectToOst(port);
+    } else {
+        const QString &address = parameters.qmlServerAddress;
+        quint16 port = parameters.qmlServerPort;
+        showConnectionStatusMessage(tr("Connecting to debug server %1:%2").arg(address).arg(QString::number(port)));
+        d->m_conn->connectToHost(address, port);
+    }
 }
 
 void QmlAdapter::sendMessage(const QByteArray &msg)
@@ -147,7 +159,7 @@ void QmlAdapter::sendMessage(const QByteArray &msg)
 void QmlAdapter::connectionErrorOccurred(QAbstractSocket::SocketError socketError)
 {
     showConnectionStatusMessage(tr("Error: (%1) %2", "%1=error code, %2=error message")
-                                .arg(d->m_conn->error()).arg(d->m_conn->errorString()));
+                                .arg(socketError).arg(d->m_conn->errorString()));
 
     // this is only an error if we are already connected and something goes wrong.
     if (isConnected())
