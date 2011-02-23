@@ -541,6 +541,8 @@ QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
         m_searchKeywords.remove(QLatin1Char('&'));
     }
 
+    updateState();
+
     return m_configWidget;
 }
 
