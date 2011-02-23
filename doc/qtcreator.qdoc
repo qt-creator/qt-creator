@@ -10315,15 +10315,28 @@
     \title Using Command Line Options
 
     You can start Qt Creator and specify some options from the command line.
+    For example, you can open a file to any line.
 
     To specify command line options, enter the following command in the Qt Creator
     installation or build directory:
 
-    \c {qtcreator [option] [filename]}
+    \c {qtcreator [option] [filename[:line_number]]}
+
+    \note You can use either a colon (:) or a plus sign (+) as a separator
+    between the filename and line number. You can also use a space between the
+    separator and the line number.
 
     For example:
 
-    \c {C:\qtcreator-2.1\bin>qtcreator -help}
+    \list
+
+        \o  \c {C:\qtcreator-2.1\bin>qtcreator -help}
+
+        \o  \c {C:\qtcreator-2.1\bin>qtcreator C:\TextFinder\textfinder.cpp:100}
+
+        \o  \c {C:\qtcreator-2.1\bin>qtcreator C:\TextFinder\textfinder.cpp +100}
+
+    \endlist
 
     The following table summarizes the available options:
 
