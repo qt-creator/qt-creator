@@ -744,6 +744,8 @@ QObject *createComponent(const QString &componentPath, QDeclarativeContext *cont
     tweakObjects(object);
     component.completeCreate();
 
+    Q_ASSERT(QDeclarativeEngine::contextForObject(object));
+
     return object;
 }
 
@@ -767,6 +769,8 @@ QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumb
 
     if (object && context)
         QDeclarativeEngine::setContextForObject(object, context);
+
+    Q_ASSERT(QDeclarativeEngine::contextForObject(object));
 
     return object;
 }
