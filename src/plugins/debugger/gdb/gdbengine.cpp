@@ -4207,8 +4207,17 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb,
 
     const DebuggerStartParameters &sp = startParameters();
     m_gdb = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_PATH"));
-    if (m_gdb.isEmpty() && sp.startMode != StartRemoteGdb)
-        m_gdb = debuggerCore()->debuggerForAbi(startParameters().toolChainAbi);
+    if (m_gdb.isEmpty() && sp.startMode != StartRemoteGdb) {
+        // We want the MinGW gdb also in case we got started using some compatible ABI.
+        ProjectExplorer::Abi abi = startParameters().toolChainAbi;
+        if (abi.os() == ProjectExplorer::Abi::Windows) {
+            if (abi.osFlavor() == ProjectExplorer::Abi::UNKNOWN_OSFLAVOUR || abi.osFlavor() == ProjectExplorer::Abi::Windows_msvc)
+                abi = ProjectExplorer::Abi(abi.architecture(), abi.os(),
+                                           ProjectExplorer::Abi::Windows_msys,
+                                           abi.binaryFormat(), abi.wordWidth());
+        }
+        m_gdb = debuggerCore()->debuggerForAbi(abi);
+    }
     if (m_gdb.isEmpty())
         m_gdb = gdb;
     if (m_gdb.isEmpty()) {

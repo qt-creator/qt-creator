@@ -222,16 +222,21 @@ DebuggerEngineType DebuggerRunControlPrivate::engineForMode
 
 static DebuggerEngineType engineForToolChain(const Abi &toolChain)
 {
-    if (toolChain.binaryFormat() == Abi::Format_ELF || toolChain.binaryFormat() == Abi::Format_Mach_O
-            || (toolChain.binaryFormat() == Abi::Format_PE && toolChain.osFlavor() == Abi::Windows_msys)) {
+    switch (toolChain.binaryFormat()) {
+    case Abi::Format_ELF:
+    case Abi::Format_Mach_O:
 #ifdef WITH_LLDB
             // lldb override
             if (Core::ICore::instance()->settings()->value("LLDB/enabled").toBool())
                 return LldbEngineType;
 #endif
             return GdbEngineType;
-    } else if (toolChain.binaryFormat() == Abi::Format_PE && toolChain.osFlavor() != Abi::Windows_msys) {
-            return CdbEngineType;
+   case Abi::Format_PE:
+        if (toolChain.osFlavor() == Abi::Windows_msys)
+            return GdbEngineType;
+        return CdbEngineType;
+    default:
+        break;
     }
     return NoEngineType;
 }
@@ -280,9 +285,10 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
     if (sp.processArgs.startsWith(__("@tcf@ ")))
         engineType = GdbEngineType;
 
-    if (engineType == NoEngineType
-            && sp.startMode != AttachToRemote
-            && !sp.executable.isEmpty())
+    // Override CDB by gdb if no PDB sections are found in executable
+    // (pending proper MinGW/MSys detection).
+    if ((engineType == NoEngineType || engineType == CdbEngineType)
+         && sp.startMode != AttachToRemote && !sp.executable.isEmpty())
         engineType = d->engineForExecutable(enabledEngineTypes, sp.executable);
 
     if (engineType == NoEngineType)

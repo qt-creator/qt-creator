@@ -634,10 +634,15 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
         qDebug("launchCDB startMode=%d", sp.startMode);
     const QChar blank(QLatin1Char(' '));
     // Start engine which will run until initial breakpoint:
-    // Determine extension lib name and path to use
+    // Determine binary (force MSVC), extension lib name and path to use
     // The extension is passed as relative name with the path variable set
     //(does not work with absolute path names)
-    const QString executable = debuggerCore()->debuggerForAbi(sp.toolChainAbi);
+    ProjectExplorer::Abi abi = sp.toolChainAbi;
+    if (abi.osFlavor() == ProjectExplorer::Abi::UNKNOWN_OSFLAVOUR || abi.osFlavor() == ProjectExplorer::Abi::Windows_msys)
+        abi = ProjectExplorer::Abi(abi.architecture(), abi.os(),
+                                   ProjectExplorer::Abi::Windows_msvc,
+                                   abi.binaryFormat(), abi.wordWidth());
+    const QString executable = debuggerCore()->debuggerForAbi(abi);
     if (executable.isEmpty()) {
         *errorMessage = tr("There is no CDB executable specified.");
         return false;
