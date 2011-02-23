@@ -307,7 +307,6 @@ void ToolChainModel::apply()
     foreach (ToolChainNode *n, nodes) {
         ToolChainManager::instance()->registerToolChain(n->toolChain);
     }
-    Q_ASSERT(m_toAddList.isEmpty());
 }
 
 void ToolChainModel::discard()
@@ -339,6 +338,7 @@ void ToolChainModel::discard()
             n->widget->discard();
         n->changed = false;
     }
+    reset();
 }
 
 void ToolChainModel::markForRemoval(ToolChain *tc)
@@ -351,9 +351,15 @@ void ToolChainModel::markForRemoval(ToolChain *tc)
         }
     }
     if (node) {
-        m_toRemoveList.append(node);
         emit beginRemoveRows(index(m_manualRoot), m_manualRoot->childNodes.indexOf(node), m_manualRoot->childNodes.indexOf(node));
         m_manualRoot->childNodes.removeOne(node);
+        if (m_toAddList.contains(node)) {
+            delete node->toolChain;
+            node->toolChain = 0;
+            m_toAddList.removeOne(node);
+        } else {
+            m_toRemoveList.append(node);
+        }
         emit endRemoveRows();
     }
 }
