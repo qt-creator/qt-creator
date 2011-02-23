@@ -1504,8 +1504,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
         m_currentThread = threadId;
     } else {
         QString reasontr = msgStopped(_(reason));
-        if (reason == "signal-received"
-            && debuggerCore()->boolSetting(UseMessageBoxForSignals)) {
+        if (reason == "signal-received") {
             QByteArray name = data.findChild("signal-name").data();
             QByteArray meaning = data.findChild("signal-meaning").data();
             // Ignore these as they are showing up regularly when
@@ -1517,7 +1516,8 @@ void GdbEngine::handleStop1(const GdbMi &data)
                 showMessage(_(CROSS_STOP_SIGNAL " CONSIDERED HARMLESS. CONTINUING."));
             } else {
                 showMessage(_("HANDLING SIGNAL" + name));
-                showStoppedBySignalMessageBox(_(meaning), _(name));
+                if (debuggerCore()->boolSetting(UseMessageBoxForSignals))
+                    showStoppedBySignalMessageBox(_(meaning), _(name));
                 if (!name.isEmpty() && !meaning.isEmpty())
                     reasontr = msgStoppedBySignal(_(meaning), _(name));
             }

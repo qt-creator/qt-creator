@@ -1523,7 +1523,7 @@ QString DebuggerEngine::msgStopped(const QString &reason)
 QString DebuggerEngine::msgStoppedBySignal(const QString &meaning,
     const QString &name)
 {
-    return tr("Stopped: %1 by signal %2.").arg(meaning, name);
+    return tr("Stopped: %1 (Signal %2).").arg(meaning, name);
 }
 
 QString DebuggerEngine::msgStoppedByException(const QString &description,
