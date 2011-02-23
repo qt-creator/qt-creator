@@ -286,7 +286,7 @@ MsvcToolChain::MsvcToolChain(Type type, const QString &name, Platform platform,
     m_varsBat(varsBat),
     m_varsBatArg(varsBatArg),
     m_is64bit(true),
-    m_architecture(Abi::x86)
+    m_architecture(Abi::X86Architecture)
 {
     Q_ASSERT(!name.isEmpty());
     Q_ASSERT(!m_varsBat.isEmpty());
@@ -298,7 +298,7 @@ MsvcToolChain::MsvcToolChain(Type type, const QString &name, Platform platform,
         m_is64bit = false;
         break;
     case ProjectExplorer::Internal::MsvcToolChain::ia64:
-        m_architecture = Abi::Itanium;
+        m_architecture = Abi::ItaniumArchitecture;
         break;
     case ProjectExplorer::Internal::MsvcToolChain::s64:
     case ProjectExplorer::Internal::MsvcToolChain::amd64:
@@ -318,7 +318,7 @@ QString MsvcToolChain::typeName() const
 
 Abi MsvcToolChain::targetAbi() const
 {
-    return Abi(m_architecture, Abi::Windows, Abi::Windows_msvc, Abi::Format_PE, m_is64bit ? 64 : 32);
+    return Abi(m_architecture, Abi::WindowsOS, Abi::WindowsMsvcFlavor, Abi::PEFormat, m_is64bit ? 64 : 32);
 }
 
 bool MsvcToolChain::isValid() const

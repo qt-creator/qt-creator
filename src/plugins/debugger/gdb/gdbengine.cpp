@@ -102,6 +102,8 @@
 #endif
 #include <ctype.h>
 
+using namespace ProjectExplorer;
+
 namespace Debugger {
 namespace Internal {
 
@@ -1805,7 +1807,7 @@ QString msgNoBinaryForToolChain(const ProjectExplorer::Abi &tc)
 AbstractGdbAdapter *GdbEngine::createAdapter()
 {
     const DebuggerStartParameters &sp = startParameters();
-    if (sp.toolChainAbi.os() == ProjectExplorer::Abi::Symbian) {
+    if (sp.toolChainAbi.os() == ProjectExplorer::Abi::SymbianOS) {
         // FIXME: 1 of 3 testing hacks.
         if (sp.debugClient == DebuggerStartParameters::DebugClientCoda)
             return new CodaGdbAdapter(this);
@@ -4208,13 +4210,14 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb,
     const DebuggerStartParameters &sp = startParameters();
     m_gdb = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_PATH"));
     if (m_gdb.isEmpty() && sp.startMode != StartRemoteGdb) {
-        // We want the MinGW gdb also in case we got started using some compatible ABI.
-        ProjectExplorer::Abi abi = startParameters().toolChainAbi;
-        if (abi.os() == ProjectExplorer::Abi::Windows) {
-            if (abi.osFlavor() == ProjectExplorer::Abi::UNKNOWN_OSFLAVOUR || abi.osFlavor() == ProjectExplorer::Abi::Windows_msvc)
-                abi = ProjectExplorer::Abi(abi.architecture(), abi.os(),
-                                           ProjectExplorer::Abi::Windows_msys,
-                                           abi.binaryFormat(), abi.wordWidth());
+        // We want the MinGW gdb also in case we got started using
+        // some compatible ABI.
+        Abi abi = startParameters().toolChainAbi;
+        if (abi.os() == Abi::WindowsOS) {
+            if (abi.osFlavor() == Abi::UnknownFlavor
+                    || abi.osFlavor() == Abi::WindowsMsvcFlavor)
+                abi = Abi(abi.architecture(), abi.os(), Abi::WindowsMSysFlavor,
+                          abi.binaryFormat(), abi.wordWidth());
         }
         m_gdb = debuggerCore()->debuggerForAbi(abi);
     }

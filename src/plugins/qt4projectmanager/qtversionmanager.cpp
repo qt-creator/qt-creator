@@ -1496,36 +1496,36 @@ void QtVersion::updateAbiAndMkspec() const
     // Evaluate all the information we have:
     if (!ce_sdk.isEmpty() && !ce_arch.isEmpty()) {
         // Treat windows CE as desktop.
-        m_abis.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Windows,
-                                           ProjectExplorer::Abi::Windows_ce, ProjectExplorer::Abi::Format_PE, false));
+        m_abis.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::WindowsOS,
+                                           ProjectExplorer::Abi::WindowsCEFlavor, ProjectExplorer::Abi::PEFormat, false));
         m_targetIds.insert(Constants::DESKTOP_TARGET_ID);
     } else if (makefileGenerator == QLatin1String("SYMBIAN_ABLD") ||
                makefileGenerator == QLatin1String("SYMBIAN_SBSV2") ||
                makefileGenerator == QLatin1String("SYMBIAN_UNIX")) {
         m_isBuildUsingSbsV2 = (makefileGenerator == QLatin1String("SYMBIAN_SBSV2"));
         if (S60Manager::instance()) {
-            m_abis.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Symbian,
-                                               ProjectExplorer::Abi::UNKNOWN_OSFLAVOUR,
-                                               ProjectExplorer::Abi::Format_ELF,
+            m_abis.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::SymbianOS,
+                                               ProjectExplorer::Abi::UnknownFlavor,
+                                               ProjectExplorer::Abi::ElfFormat,
                                                32));
             m_targetIds.insert(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
             m_targetIds.insert(QLatin1String(Constants::S60_EMULATOR_TARGET_ID));
         }
     } else if (MaemoGlobal::isValidMaemo5QtVersion(this)) {
-        m_abis.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Linux,
-                                           ProjectExplorer::Abi::Linux_maemo, ProjectExplorer::Abi::Format_ELF,
+        m_abis.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
+                                           ProjectExplorer::Abi::MaemoLinuxFlavor, ProjectExplorer::Abi::ElfFormat,
                                            32));
         m_targetIds.insert(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID));
     } else if (MaemoGlobal::isValidHarmattanQtVersion(this)) {
-        m_abis.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Linux,
-                                           ProjectExplorer::Abi::Linux_harmattan,
-                                           ProjectExplorer::Abi::Format_ELF,
+        m_abis.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
+                                           ProjectExplorer::Abi::HarmattanLinuxFlavor,
+                                           ProjectExplorer::Abi::ElfFormat,
                                            32));
         m_targetIds.insert(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID));
     } else if (MaemoGlobal::isValidMeegoQtVersion(this)) {
-        m_abis.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Linux,
-                                           ProjectExplorer::Abi::Linux_meego,
-                                           ProjectExplorer::Abi::Format_ELF, 32));
+        m_abis.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
+                                           ProjectExplorer::Abi::MeegoLinuxFlavor,
+                                           ProjectExplorer::Abi::ElfFormat, 32));
         m_targetIds.insert(QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID));
     } else if (qmakeCXX.contains("g++")
                || qmakeCXX == "cl" || qmakeCXX == "icl" // intel cl
@@ -1536,7 +1536,7 @@ void QtVersion::updateAbiAndMkspec() const
             QList<ProjectExplorer::Abi> tmp = m_abis;
             m_abis.clear();
             foreach (const ProjectExplorer::Abi &abi, tmp)
-                m_abis.append(ProjectExplorer::Abi(abi.architecture(), abi.os(), ProjectExplorer::Abi::Windows_msys,
+                m_abis.append(ProjectExplorer::Abi(abi.architecture(), abi.os(), ProjectExplorer::Abi::WindowsMSysFlavour,
                                                    abi.binaryFormat(), abi.wordWidth()));
         }
 #endif
@@ -1644,7 +1644,7 @@ void QtVersion::addToEnvironment(Utils::Environment &env) const
 
         env.prependOrSetPath(epocDir.filePath(QLatin1String("epoc32/tools"))); // e.g. make.exe
         // Windows only:
-        if (ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::Windows) {
+        if (ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::WindowsOS) {
             QString winDir = QLatin1String(qgetenv("WINDIR"));
             if (!winDir.isEmpty())
                 env.prependOrSetPath(QDir(winDir).filePath(QLatin1String("system32")));
@@ -1864,7 +1864,7 @@ bool QtVersion::supportsBinaryDebuggingHelper() const
 {
     if (!isValid())
         return false;
-    return qtAbis().at(0).os() != ProjectExplorer::Abi::Symbian;
+    return qtAbis().at(0).os() != ProjectExplorer::Abi::SymbianOS;
 }
 
 bool QtVersion::hasDocumentation() const

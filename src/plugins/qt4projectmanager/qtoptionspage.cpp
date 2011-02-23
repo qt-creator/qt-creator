@@ -671,7 +671,7 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
 
         ProjectExplorer::Abi qtAbi = qtVersion->qtAbis().at(0);
 
-        if (qtAbi.os() == ProjectExplorer::Abi::Symbian) {
+        if (qtAbi.os() == ProjectExplorer::Abi::SymbianOS) {
             makeS60Visible(true);
             m_versionUi->s60SDKPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->s60SDKDirectory()));
             m_versionUi->sbsV2Path->setPath(m_versions.at(index)->sbsV2Directory());

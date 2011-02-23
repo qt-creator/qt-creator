@@ -140,9 +140,9 @@ QString WinscwToolChain::typeName() const
 
 ProjectExplorer::Abi WinscwToolChain::targetAbi() const
 {
-    return ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Symbian,
-                                ProjectExplorer::Abi::Symbian_emulator,
-                                ProjectExplorer::Abi::Format_ELF, false);
+    return ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::SymbianOS,
+                                ProjectExplorer::Abi::SymbianEmulatorFlavor,
+                                ProjectExplorer::Abi::ElfFormat, false);
 }
 
 bool WinscwToolChain::isValid() const

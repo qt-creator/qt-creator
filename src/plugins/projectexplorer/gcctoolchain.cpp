@@ -165,10 +165,10 @@ static ProjectExplorer::Abi guessGccAbi(const QString &m)
 
     QStringList parts = machine.split(QRegExp("[ /-]"));
 
-    ProjectExplorer::Abi::Architecture arch = ProjectExplorer::Abi::UNKNOWN_ARCHITECTURE;
-    ProjectExplorer::Abi::OS os = ProjectExplorer::Abi::UNKNOWN_OS;
-    ProjectExplorer::Abi::OSFlavour flavor = ProjectExplorer::Abi::UNKNOWN_OSFLAVOUR;
-    ProjectExplorer::Abi::BinaryFormat format = ProjectExplorer::Abi::UNKNOWN_FORMAT;
+    ProjectExplorer::Abi::Architecture arch = ProjectExplorer::Abi::UnknownArchitecture;
+    ProjectExplorer::Abi::OS os = ProjectExplorer::Abi::UnknownOS;
+    ProjectExplorer::Abi::OSFlavor flavor = ProjectExplorer::Abi::UnknownFlavor;
+    ProjectExplorer::Abi::BinaryFormat format = ProjectExplorer::Abi::UnknownFormat;
     int width = 0;
     int unknownCount = 0;
 
@@ -178,40 +178,40 @@ static ProjectExplorer::Abi guessGccAbi(const QString &m)
             continue;
         } else if (p == QLatin1String("i386") || p == QLatin1String("i486") || p == QLatin1String("i586")
                    || p == QLatin1String("i686") || p == QLatin1String("x86")) {
-            arch = ProjectExplorer::Abi::x86;
+            arch = ProjectExplorer::Abi::X86Architecture;
             width = 32;
         } else if (p == QLatin1String("arm")) {
-            arch = ProjectExplorer::Abi::ARM;
+            arch = ProjectExplorer::Abi::ArmArchitecture;
             width = 32;
         } else if (p == QLatin1String("x86_64")) {
-            arch = ProjectExplorer::Abi::x86;
+            arch = ProjectExplorer::Abi::X86Architecture;
             width = 64;
         } else if (p == QLatin1String("w64")) {
             width = 64;
         } else if (p == QLatin1String("linux")) {
-            os = ProjectExplorer::Abi::Linux;
-            flavor = ProjectExplorer::Abi::Linux_generic;
-            format = ProjectExplorer::Abi::Format_ELF;
+            os = ProjectExplorer::Abi::LinuxOS;
+            flavor = ProjectExplorer::Abi::GenericLinuxFlavor;
+            format = ProjectExplorer::Abi::ElfFormat;
         } else if (p == QLatin1String("symbianelf")) {
-            os = ProjectExplorer::Abi::Symbian;
-            flavor = ProjectExplorer::Abi::Symbian_device;
-            format = ProjectExplorer::Abi::Format_ELF;
+            os = ProjectExplorer::Abi::SymbianOS;
+            flavor = ProjectExplorer::Abi::SymbianDeviceFlavor;
+            format = ProjectExplorer::Abi::ElfFormat;
             width = 32;
         } else if (p == QLatin1String("mingw32")) {
-            arch = ProjectExplorer::Abi::x86;
-            os = ProjectExplorer::Abi::Windows;
-            flavor = ProjectExplorer::Abi::Windows_msys;
-            format = ProjectExplorer::Abi::Format_PE;
+            arch = ProjectExplorer::Abi::X86Architecture;
+            os = ProjectExplorer::Abi::WindowsOS;
+            flavor = ProjectExplorer::Abi::WindowsMSysFlavor;
+            format = ProjectExplorer::Abi::PEFormat;
             if (width == 0)
                 width = 32;
         } else if (p == QLatin1String("apple")) {
-            os = ProjectExplorer::Abi::Mac;
-            flavor = ProjectExplorer::Abi::Mac_generic;
-            format = ProjectExplorer::Abi::Format_Mach_O;
+            os = ProjectExplorer::Abi::MacOS;
+            flavor = ProjectExplorer::Abi::GenericMacFlavor;
+            format = ProjectExplorer::Abi::MachOFormat;
         } else if (p == QLatin1String("darwin10")) {
             width = 64;
         } else if (p == QLatin1String("gnueabi")) {
-            format = ProjectExplorer::Abi::Format_ELF;
+            format = ProjectExplorer::Abi::ElfFormat;
         } else {
             ++unknownCount;
         }

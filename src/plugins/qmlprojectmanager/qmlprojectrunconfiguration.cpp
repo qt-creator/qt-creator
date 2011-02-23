@@ -291,7 +291,7 @@ ProjectExplorer::Abi QmlProjectRunConfiguration::abi() const
 {
     ProjectExplorer::Abi hostAbi = ProjectExplorer::Abi::hostAbi();
     return ProjectExplorer::Abi(hostAbi.architecture(), hostAbi.os(), hostAbi.osFlavor(),
-                                ProjectExplorer::Abi::Format_Runtime_QML, hostAbi.wordWidth());
+                                ProjectExplorer::Abi::RuntimeQmlFormat, hostAbi.wordWidth());
 }
 
 QVariantMap QmlProjectRunConfiguration::toMap() const

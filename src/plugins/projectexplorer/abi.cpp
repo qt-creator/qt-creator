@@ -42,113 +42,113 @@
 namespace ProjectExplorer {
 
 Abi::Abi(const Architecture &a, const OS &o,
-         const OSFlavour &of, const BinaryFormat &f, unsigned char w) :
+         const OSFlavor &of, const BinaryFormat &f, unsigned char w) :
     m_architecture(a), m_os(o), m_osFlavor(of), m_binaryFormat(f), m_wordWidth(w)
 {
     switch (m_os) {
-    case ProjectExplorer::Abi::UNKNOWN_OS:
-        m_osFlavor = UNKNOWN_OSFLAVOUR;
+    case ProjectExplorer::Abi::UnknownOS:
+        m_osFlavor = UnknownFlavor;
         break;
-    case ProjectExplorer::Abi::Linux:
-        if (m_osFlavor < Linux_generic || m_osFlavor > Linux_meego)
-            m_osFlavor = UNKNOWN_OSFLAVOUR;
+    case ProjectExplorer::Abi::LinuxOS:
+        if (m_osFlavor < GenericLinuxFlavor || m_osFlavor > MeegoLinuxFlavor)
+            m_osFlavor = UnknownFlavor;
         break;
-    case ProjectExplorer::Abi::Mac:
-        if (m_osFlavor < Mac_generic || m_osFlavor > Mac_generic)
-            m_osFlavor = UNKNOWN_OSFLAVOUR;
+    case ProjectExplorer::Abi::MacOS:
+        if (m_osFlavor < GenericMacFlavor || m_osFlavor > GenericMacFlavor)
+            m_osFlavor = UnknownFlavor;
         break;
-    case ProjectExplorer::Abi::Symbian:
-        if (m_osFlavor < Symbian_device || m_osFlavor > Symbian_emulator)
-            m_osFlavor = UNKNOWN_OSFLAVOUR;
+    case ProjectExplorer::Abi::SymbianOS:
+        if (m_osFlavor < SymbianDeviceFlavor || m_osFlavor > SymbianEmulatorFlavor)
+            m_osFlavor = UnknownFlavor;
         break;
-    case ProjectExplorer::Abi::UNIX:
-        if (m_osFlavor < Unix_generic || m_osFlavor > Unix_generic)
-            m_osFlavor = UNKNOWN_OSFLAVOUR;
+    case ProjectExplorer::Abi::UnixOS:
+        if (m_osFlavor < GenericUnixFlavor || m_osFlavor > GenericUnixFlavor)
+            m_osFlavor = UnknownFlavor;
         break;
-    case ProjectExplorer::Abi::Windows:
-        if (m_osFlavor < Windows_msvc || m_osFlavor > Windows_ce)
-            m_osFlavor = UNKNOWN_OSFLAVOUR;
+    case ProjectExplorer::Abi::WindowsOS:
+        if (m_osFlavor < WindowsMsvcFlavor || m_osFlavor > WindowsCEFlavor)
+            m_osFlavor = UnknownFlavor;
         break;
     }
 }
 
 Abi::Abi(const QString &abiString) :
-    m_architecture(UNKNOWN_ARCHITECTURE), m_os(UNKNOWN_OS),
-    m_osFlavor(UNKNOWN_OSFLAVOUR), m_binaryFormat(UNKNOWN_FORMAT), m_wordWidth(0)
+    m_architecture(UnknownArchitecture), m_os(UnknownOS),
+    m_osFlavor(UnknownFlavor), m_binaryFormat(UnknownFormat), m_wordWidth(0)
 {
     QStringList abiParts = abiString.split(QLatin1Char('-'));
     if (abiParts.count() >= 1) {
         if (abiParts.at(0) == QLatin1String("unknown"))
-            m_architecture = UNKNOWN_ARCHITECTURE;
+            m_architecture = UnknownArchitecture;
         else if (abiParts.at(0) == QLatin1String("arm"))
-            m_architecture = ARM;
+            m_architecture = ArmArchitecture;
         else if (abiParts.at(0) == QLatin1String("x86"))
-            m_architecture = x86;
+            m_architecture = X86Architecture;
         else if (abiParts.at(0) == QLatin1String("mips"))
-            m_architecture = Mips;
+            m_architecture = MipsArcitecture;
         else if (abiParts.at(0) == QLatin1String("ppc"))
-            m_architecture = PowerPC;
+            m_architecture = PowerPCArchitecture;
         else if (abiParts.at(0) == QLatin1String("itanium"))
-            m_architecture = Itanium;
+            m_architecture = ItaniumArchitecture;
         else
             return;
     }
 
     if (abiParts.count() >= 2) {
         if (abiParts.at(1) == QLatin1String("unknown"))
-            m_os = UNKNOWN_OS;
+            m_os = UnknownOS;
         else if (abiParts.at(1) == QLatin1String("linux"))
-            m_os = Linux;
+            m_os = LinuxOS;
         else if (abiParts.at(1) == QLatin1String("macos"))
-            m_os = Mac;
+            m_os = MacOS;
         else if (abiParts.at(1) == QLatin1String("symbian"))
-            m_os = Symbian;
+            m_os = SymbianOS;
         else if (abiParts.at(1) == QLatin1String("unix"))
-            m_os = UNIX;
+            m_os = UnixOS;
         else if (abiParts.at(1) == QLatin1String("windows"))
-            m_os = Windows;
+            m_os = WindowsOS;
         else
             return;
     }
 
     if (abiParts.count() >= 3) {
         if (abiParts.at(2) == QLatin1String("unknown"))
-            m_osFlavor = UNKNOWN_OSFLAVOUR;
-        else if (abiParts.at(2) == QLatin1String("generic") && m_os == Linux)
-            m_osFlavor = Linux_generic;
-        else if (abiParts.at(2) == QLatin1String("maemo") && m_os == Linux)
-            m_osFlavor = Linux_maemo;
-        else if (abiParts.at(2) == QLatin1String("meego") && m_os == Linux)
-            m_osFlavor = Linux_meego;
-        else if (abiParts.at(2) == QLatin1String("generic") && m_os == Mac)
-            m_osFlavor = Mac_generic;
-        else if (abiParts.at(2) == QLatin1String("device") && m_os == Symbian)
-            m_osFlavor = Symbian_device;
-        else if (abiParts.at(2) == QLatin1String("emulator") && m_os == Symbian)
-            m_osFlavor = Symbian_emulator;
-        else if (abiParts.at(2) == QLatin1String("generic") && m_os == UNIX)
-            m_osFlavor = Unix_generic;
-        else if (abiParts.at(2) == QLatin1String("msvc") && m_os == Windows)
-            m_osFlavor = Windows_msvc;
-        else if (abiParts.at(2) == QLatin1String("msys") && m_os == Windows)
-            m_osFlavor = Windows_msys;
-        else if (abiParts.at(2) == QLatin1String("ce") && m_os == Windows)
-            m_osFlavor = Windows_ce;
+            m_osFlavor = UnknownFlavor;
+        else if (abiParts.at(2) == QLatin1String("generic") && m_os == LinuxOS)
+            m_osFlavor = GenericLinuxFlavor;
+        else if (abiParts.at(2) == QLatin1String("maemo") && m_os == LinuxOS)
+            m_osFlavor = MaemoLinuxFlavor;
+        else if (abiParts.at(2) == QLatin1String("meego") && m_os == LinuxOS)
+            m_osFlavor = MeegoLinuxFlavor;
+        else if (abiParts.at(2) == QLatin1String("generic") && m_os == MacOS)
+            m_osFlavor = GenericMacFlavor;
+        else if (abiParts.at(2) == QLatin1String("device") && m_os == SymbianOS)
+            m_osFlavor = SymbianDeviceFlavor;
+        else if (abiParts.at(2) == QLatin1String("emulator") && m_os == SymbianOS)
+            m_osFlavor = SymbianEmulatorFlavor;
+        else if (abiParts.at(2) == QLatin1String("generic") && m_os == UnixOS)
+            m_osFlavor = GenericUnixFlavor;
+        else if (abiParts.at(2) == QLatin1String("msvc") && m_os == WindowsOS)
+            m_osFlavor = WindowsMsvcFlavor;
+        else if (abiParts.at(2) == QLatin1String("msys") && m_os == WindowsOS)
+            m_osFlavor = WindowsMSysFlavor;
+        else if (abiParts.at(2) == QLatin1String("ce") && m_os == WindowsOS)
+            m_osFlavor = WindowsCEFlavor;
         else
             return;
     }
 
     if (abiParts.count() >= 4) {
         if (abiParts.at(3) == QLatin1String("unknown"))
-            m_binaryFormat = UNKNOWN_FORMAT;
+            m_binaryFormat = UnknownFormat;
         else if (abiParts.at(3) == QLatin1String("elf"))
-            m_binaryFormat = Format_ELF;
+            m_binaryFormat = ElfFormat;
         else if (abiParts.at(3) == QLatin1String("pe"))
-            m_binaryFormat = Format_PE;
+            m_binaryFormat = PEFormat;
         else if (abiParts.at(3) == QLatin1String("mach_o"))
-            m_binaryFormat = Format_Mach_O;
+            m_binaryFormat = MachOFormat;
         else if (abiParts.at(3) == QLatin1String("qml_rt"))
-            m_binaryFormat = Format_Runtime_QML;
+            m_binaryFormat = RuntimeQmlFormat;
         else
             return;
     }
@@ -191,36 +191,36 @@ bool Abi::operator == (const Abi &other) const
 
 bool Abi::isCompatibleWith(const Abi &other) const
 {
-    return (architecture() == other.architecture() || other.architecture() == Abi::UNKNOWN_ARCHITECTURE)
-            && (os() == other.os() || other.os() == Abi::UNKNOWN_OS)
-            && (osFlavor() == other.osFlavor() || other.osFlavor() == Abi::UNKNOWN_OSFLAVOUR)
-            && (binaryFormat() == other.binaryFormat() || other.binaryFormat() == Abi::UNKNOWN_FORMAT)
+    return (architecture() == other.architecture() || other.architecture() == Abi::UnknownArchitecture)
+            && (os() == other.os() || other.os() == Abi::UnknownOS)
+            && (osFlavor() == other.osFlavor() || other.osFlavor() == Abi::UnknownFlavor)
+            && (binaryFormat() == other.binaryFormat() || other.binaryFormat() == Abi::UnknownFormat)
             && ((wordWidth() == other.wordWidth() && wordWidth() != 0) || other.wordWidth() == 0);
 }
 
 bool Abi::isValid() const
 {
-    return m_architecture != UNKNOWN_ARCHITECTURE
-            && m_os != UNKNOWN_OS
-            && m_osFlavor != UNKNOWN_OSFLAVOUR
-            && m_binaryFormat != UNKNOWN_FORMAT
+    return m_architecture != UnknownArchitecture
+            && m_os != UnknownOS
+            && m_osFlavor != UnknownFlavor
+            && m_binaryFormat != UnknownFormat
             && m_wordWidth != 0;
 }
 
 QString Abi::toString(const Architecture &a)
 {
     switch (a) {
-    case ARM:
+    case ArmArchitecture:
         return QLatin1String("arm");
-    case x86:
+    case X86Architecture:
         return QLatin1String("x86");
-    case Mips:
+    case MipsArcitecture:
         return QLatin1String("mips");
-    case PowerPC:
+    case PowerPCArchitecture:
         return QLatin1String("ppc");
-    case Itanium:
+    case ItaniumArchitecture:
         return QLatin1String("itanium");
-    case UNKNOWN_ARCHITECTURE: // fall through!
+    case UnknownArchitecture: // fall through!
     default:
         return QLatin1String("unknown");
     }
@@ -229,48 +229,48 @@ QString Abi::toString(const Architecture &a)
 QString Abi::toString(const OS &o)
 {
     switch (o) {
-    case Linux:
+    case LinuxOS:
         return QLatin1String("linux");
-    case Mac:
+    case MacOS:
         return QLatin1String("macos");
-    case Symbian:
+    case SymbianOS:
         return QLatin1String("symbian");
-    case UNIX:
+    case UnixOS:
         return QLatin1String("unix");
-    case Windows:
+    case WindowsOS:
         return QLatin1String("windows");
-    case UNKNOWN_OS: // fall through!
+    case UnknownOS: // fall through!
     default:
         return QLatin1String("unknown");
     };
 }
 
-QString Abi::toString(const OSFlavour &of)
+QString Abi::toString(const OSFlavor &of)
 {
     switch (of) {
-    case ProjectExplorer::Abi::Linux_generic:
+    case ProjectExplorer::Abi::GenericLinuxFlavor:
         return QLatin1String("generic");
-    case ProjectExplorer::Abi::Linux_maemo:
+    case ProjectExplorer::Abi::MaemoLinuxFlavor:
         return QLatin1String("maemo");
-    case ProjectExplorer::Abi::Linux_harmattan:
+    case ProjectExplorer::Abi::HarmattanLinuxFlavor:
         return QLatin1String("harmattan");
-    case ProjectExplorer::Abi::Linux_meego:
+    case ProjectExplorer::Abi::MeegoLinuxFlavor:
         return QLatin1String("meego");
-    case ProjectExplorer::Abi::Mac_generic:
+    case ProjectExplorer::Abi::GenericMacFlavor:
         return QLatin1String("generic");
-    case ProjectExplorer::Abi::Symbian_device:
+    case ProjectExplorer::Abi::SymbianDeviceFlavor:
         return QLatin1String("device");
-    case ProjectExplorer::Abi::Symbian_emulator:
+    case ProjectExplorer::Abi::SymbianEmulatorFlavor:
         return QLatin1String("emulator");
-    case ProjectExplorer::Abi::Unix_generic:
+    case ProjectExplorer::Abi::GenericUnixFlavor:
         return QLatin1String("generic");
-    case ProjectExplorer::Abi::Windows_msvc:
+    case ProjectExplorer::Abi::WindowsMsvcFlavor:
         return QLatin1String("msvc");
-    case ProjectExplorer::Abi::Windows_msys:
+    case ProjectExplorer::Abi::WindowsMSysFlavor:
         return QLatin1String("msys");
-    case ProjectExplorer::Abi::Windows_ce:
+    case ProjectExplorer::Abi::WindowsCEFlavor:
         return QLatin1String("ce");
-    case ProjectExplorer::Abi::UNKNOWN_OSFLAVOUR: // fall throught!
+    case ProjectExplorer::Abi::UnknownFlavor: // fall throught!
     default:
         return QLatin1String("unknown");
     }
@@ -279,15 +279,15 @@ QString Abi::toString(const OSFlavour &of)
 QString Abi::toString(const BinaryFormat &bf)
 {
     switch (bf) {
-    case Format_ELF:
+    case ElfFormat:
         return QLatin1String("elf");
-    case Format_PE:
+    case PEFormat:
         return QLatin1String("pe");
-    case Format_Mach_O:
+    case MachOFormat:
         return QLatin1String("mach_o");
-    case Format_Runtime_QML:
+    case RuntimeQmlFormat:
         return QLatin1String("qml_rt");
-    case UNKNOWN_FORMAT: // fall through!
+    case UnknownFormat: // fall through!
     default:
         return QLatin1String("unknown");
     }
@@ -304,22 +304,22 @@ QString Abi::toString(int w)
 Abi Abi::hostAbi()
 {
     Architecture arch = QTC_CPU; // define set by qmake
-    OS os = UNKNOWN_OS;
-    OSFlavour subos = UNKNOWN_OSFLAVOUR;
-    BinaryFormat format = UNKNOWN_FORMAT;
+    OS os = UnknownOS;
+    OSFlavor subos = UnknownFlavor;
+    BinaryFormat format = UnknownFormat;
 
 #if defined (Q_OS_WIN)
-    os = Windows;
-    subos = Windows_msvc;
-    format = Format_PE;
+    os = WindowsOS;
+    subos = WindowsMsvcFlavor;
+    format = PEFormat;
 #elif defined (Q_OS_LINUX)
-    os = Linux;
-    subos = Linux_generic;
-    format = Format_ELF;
+    os = LinuxOS;
+    subos = GenericLinuxFlavor;
+    format = ElfFormat;
 #elif defined (Q_OS_MAC)
-    os = Mac;
-    subos = Mac_generic;
-    format = Format_Mach_O;
+    os = MacOS;
+    subos = GenericMacFlavor;
+    format = MachOFormat;
 #endif
 
     return Abi(arch, os, subos, format, QSysInfo::WordSize);
@@ -328,15 +328,15 @@ Abi Abi::hostAbi()
 static Abi macAbiForCpu(quint32 type) {
     switch (type) {
     case 7: // CPU_TYPE_X86, CPU_TYPE_I386
-        return Abi(Abi::x86, Abi::Mac, Abi::Mac_generic, Abi::Format_Mach_O, 32);
+        return Abi(Abi::X86Architecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 32);
     case 0x01000000 +  7: // CPU_TYPE_X86_64
-        return Abi(Abi::x86, Abi::Mac, Abi::Mac_generic, Abi::Format_Mach_O, 64);
+        return Abi(Abi::X86Architecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 64);
     case 18: // CPU_TYPE_POWERPC
-        return Abi(Abi::PowerPC, Abi::Mac, Abi::Mac_generic, Abi::Format_Mach_O, 32);
+        return Abi(Abi::PowerPCArchitecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 32);
     case 0x01000000 + 18: // CPU_TYPE_POWERPC64
-        return Abi(Abi::PowerPC, Abi::Mac, Abi::Mac_generic, Abi::Format_Mach_O, 32);
+        return Abi(Abi::PowerPCArchitecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 32);
     case 12: // CPU_TYPE_ARM
-        return Abi(Abi::ARM, Abi::Mac, Abi::Mac_generic, Abi::Format_Mach_O, 32);
+        return Abi(Abi::ArmArchitecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 32);
     default:
         return Abi();
     }
@@ -363,22 +363,22 @@ QList<Abi> Abi::abisOfBinary(const QString &path)
         quint16 machine = (data.at(19) << 8) + data.at(18);
         switch (machine) {
         case 3: // EM_386
-            result.append(Abi(Abi::x86, Abi::Linux, Abi::Linux_generic, Abi::Format_ELF, 32));
+            result.append(Abi(Abi::X86Architecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
             break;
         case 8: // EM_MIPS
-            result.append(Abi(Abi::Mips, Abi::Linux, Abi::Linux_generic, Abi::Format_ELF, 32));
+            result.append(Abi(Abi::MipsArcitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
             break;
         case 20: // EM_PPC
-            result.append(Abi(Abi::PowerPC, Abi::Linux, Abi::Linux_generic, Abi::Format_ELF, 32));
+            result.append(Abi(Abi::PowerPCArchitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
             break;
         case 21: // EM_PPC64
-            result.append(Abi(Abi::PowerPC, Abi::Linux, Abi::Linux_generic, Abi::Format_ELF, 64));
+            result.append(Abi(Abi::PowerPCArchitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 64));
             break;
         case 62: // EM_X86_64
-            result.append(Abi(Abi::x86, Abi::Linux, Abi::Linux_generic, Abi::Format_ELF, 64));
+            result.append(Abi(Abi::X86Architecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 64));
             break;
         case 50: // EM_IA_64
-            result.append(Abi(Abi::Itanium, Abi::Linux, Abi::Linux_generic, Abi::Format_ELF, 64));
+            result.append(Abi(Abi::ItaniumArchitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 64));
             break;
         default:
             ;;
@@ -412,13 +412,13 @@ QList<Abi> Abi::abisOfBinary(const QString &path)
             quint16 machine = (data.at(pePos + 5) << 8) + data.at(pePos + 4);
             switch (machine) {
             case 0x8664: // x86_64
-                result.append(Abi(Abi::x86, Abi::Windows, Abi::Windows_msvc, Abi::Format_PE, 64));
+                result.append(Abi(Abi::X86Architecture, Abi::WindowsOS, Abi::WindowsMsvcFlavor, Abi::PEFormat, 64));
                 break;
             case 0x014c: // i386
-                result.append(Abi(Abi::x86, Abi::Windows, Abi::Windows_msvc, Abi::Format_PE, 32));
+                result.append(Abi(Abi::X86Architecture, Abi::WindowsOS, Abi::WindowsMsvcFlavor, Abi::PEFormat, 32));
                 break;
             case 0x0200: // ia64
-                result.append(Abi(Abi::Itanium, Abi::Windows, Abi::Windows_msvc, Abi::Format_PE, 64));
+                result.append(Abi(Abi::ItaniumArchitecture, Abi::WindowsOS, Abi::WindowsMsvcFlavor, Abi::PEFormat, 64));
                 break;
             }
         }

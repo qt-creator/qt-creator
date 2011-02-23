@@ -84,8 +84,8 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(QtVersion *version, Tools too
     ProjectExplorer::ToolChain *tc = tcList.at(0);
     tc->addToEnvironment(m_environment);
 
-    if (tc->targetAbi().os() == ProjectExplorer::Abi::Linux
-        && ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::Windows)
+    if (tc->targetAbi().os() == ProjectExplorer::Abi::LinuxOS
+        && ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::WindowsOS)
         m_target = QLatin1String("-unix");
     m_qmakeCommand = version->qmakeCommand();
     m_makeCommand = tc->makeCommand();

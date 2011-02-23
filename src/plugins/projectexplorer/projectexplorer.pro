@@ -229,7 +229,7 @@ RESOURCES += projectexplorer.qrc
 !isEmpty($$(QTC_CPU)) {
     DEFINES += QTC_CPU=$$(QTC_CPU)
 } else {
-    DEFINES += QTC_CPU=x86
+    DEFINES += QTC_CPU=X86Architecture
 }
 
 DEFINES += PROJECTEXPLORER_LIBRARY

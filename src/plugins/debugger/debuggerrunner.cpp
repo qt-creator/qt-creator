@@ -167,9 +167,9 @@ DebuggerEngineType DebuggerRunControlPrivate::engineForExecutable
     // executables.
     Abi hostAbi = Abi::hostAbi();
     ConfigurationCheck check = checkDebugConfiguration(Abi(hostAbi.architecture(),
-                                                           Abi::Windows,
+                                                           Abi::WindowsOS,
                                                            hostAbi.osFlavor(),
-                                                           Abi::Format_PE,
+                                                           Abi::PEFormat,
                                                            hostAbi.wordWidth()));
     if (!check) {
         m_errorMessage = check.errorMessage;
@@ -224,16 +224,16 @@ DebuggerEngineType DebuggerRunControlPrivate::engineForMode
 static DebuggerEngineType engineForToolChain(const Abi &toolChain)
 {
     switch (toolChain.binaryFormat()) {
-    case Abi::Format_ELF:
-    case Abi::Format_Mach_O:
+    case Abi::ElfFormat:
+    case Abi::MachOFormat:
 #ifdef WITH_LLDB
             // lldb override
             if (Core::ICore::instance()->settings()->value("LLDB/enabled").toBool())
                 return LldbEngineType;
 #endif
             return GdbEngineType;
-   case Abi::Format_PE:
-        if (toolChain.osFlavor() == Abi::Windows_msys)
+   case Abi::PEFormat:
+        if (toolChain.osFlavor() == Abi::WindowsMSysFlavor)
             return GdbEngineType;
         return CdbEngineType;
     default:
@@ -385,9 +385,9 @@ ConfigurationCheck checkDebugConfiguration(const Abi &abi)
     if (!(debuggerCore()->activeLanguages() & CppLanguage))
         return result;
 
-    if (abi.binaryFormat() == Abi::Format_ELF ||
-            abi.binaryFormat() == Abi::Format_Mach_O ||
-            (abi.binaryFormat() == Abi::Format_PE && abi.osFlavor() == Abi::Windows_msys)) {
+    if (abi.binaryFormat() == Abi::ElfFormat ||
+            abi.binaryFormat() == Abi::MachOFormat ||
+            (abi.binaryFormat() == Abi::PEFormat && abi.osFlavor() == Abi::WindowsMSysFlavor)) {
         if (debuggerCore()->debuggerForAbi(abi).isEmpty()) {
             result.errorMessage = msgNoBinaryForToolChain(abi);
             if (!result.errorMessage.isEmpty())
@@ -395,8 +395,8 @@ ConfigurationCheck checkDebugConfiguration(const Abi &abi)
             result.errorMessage += QLatin1Char(' ') + msgEngineNotAvailable("Gdb");
             result.settingsPage = _(Constants::DEBUGGER_COMMON_SETTINGS_ID);
         }
-    } else if (abi.binaryFormat() == Abi::Format_PE
-                && abi.osFlavor() != Abi::Windows_msys) {
+    } else if (abi.binaryFormat() == Abi::PEFormat
+                && abi.osFlavor() != Abi::WindowsMSysFlavor) {
         result = checkCdbConfiguration(abi);
         if (!result) {
             if (!result.errorMessage.isEmpty())

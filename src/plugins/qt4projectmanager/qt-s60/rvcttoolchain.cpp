@@ -147,8 +147,8 @@ QString RvctToolChain::typeName() const
 
 ProjectExplorer::Abi RvctToolChain::targetAbi() const
 {
-    return ProjectExplorer::Abi(ProjectExplorer::Abi::ARM, ProjectExplorer::Abi::Symbian,
-                                ProjectExplorer::Abi::Symbian_device, ProjectExplorer::Abi::Format_ELF,
+    return ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::SymbianOS,
+                                ProjectExplorer::Abi::SymbianDeviceFlavor, ProjectExplorer::Abi::ElfFormat,
                                 32);
 }
 

@@ -1354,7 +1354,7 @@ void DebuggerPluginPrivate::startExternalApplication()
     // Fixme: 1 of 3 testing hacks.
     if (sp.processArgs.startsWith(__("@tcf@ ")) || sp.processArgs.startsWith(__("@sym@ ")))
         // Set up an ARM Symbian Abi
-        sp.toolChainAbi = Abi(Abi::ARM, Abi::Symbian, Abi::Symbian_device, Abi::Format_ELF, false);
+        sp.toolChainAbi = Abi(Abi::ArmArchitecture, Abi::SymbianOS, Abi::SymbianDeviceFlavor, Abi::ElfFormat, false);
 
     if (dlg.breakAtMain()) {
 #ifdef Q_OS_WIN
@@ -1438,9 +1438,9 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
     DebuggerStartParameters sp;
     Abi hostAbi = Abi::hostAbi();
     sp.toolChainAbi = ProjectExplorer::Abi(hostAbi.architecture(),
-                                           ProjectExplorer::Abi::Windows,
-                                           ProjectExplorer::Abi::Windows_msvc,
-                                           ProjectExplorer::Abi::Format_PE,
+                                           ProjectExplorer::Abi::WindowsOS,
+                                           ProjectExplorer::Abi::WindowsMsvcFlavor,
+                                           ProjectExplorer::Abi::PEFormat,
                                            true);
     sp.startMode = AttachToRemote;
     StartRemoteCdbDialog dlg(mainWindow());

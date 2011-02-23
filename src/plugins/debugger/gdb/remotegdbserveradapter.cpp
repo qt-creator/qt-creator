@@ -77,9 +77,9 @@ RemoteGdbServerAdapter::RemoteGdbServerAdapter(GdbEngine *engine,
 
 AbstractGdbAdapter::DumperHandling RemoteGdbServerAdapter::dumperHandling() const
 {
-    if (m_abi.os() == ProjectExplorer::Abi::Symbian
-            || m_abi.os() == ProjectExplorer::Abi::Windows
-            || m_abi.binaryFormat() == ProjectExplorer::Abi::Format_ELF)
+    if (m_abi.os() == ProjectExplorer::Abi::SymbianOS
+            || m_abi.os() == ProjectExplorer::Abi::WindowsOS
+            || m_abi.binaryFormat() == ProjectExplorer::Abi::ElfFormat)
         return DumperLoadedByGdb;
     return DumperLoadedByGdbPreload;
 }

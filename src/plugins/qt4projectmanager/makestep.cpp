@@ -174,7 +174,7 @@ bool MakeStep::init()
     // but for now this is the least invasive change
 
     if (toolchain
-            && toolchain->targetAbi().binaryFormat() != ProjectExplorer::Abi::Format_PE
+            && toolchain->targetAbi().binaryFormat() != ProjectExplorer::Abi::PEFormat
             && m_makeCmd.isEmpty())
         Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
 
@@ -303,7 +303,7 @@ void MakeStepConfigWidget::updateDetails()
     QString args = m_makeStep->userArguments();
     ProjectExplorer::ToolChain *toolChain = bc->toolChain();
     if (toolChain
-        && toolChain->targetAbi().binaryFormat() != ProjectExplorer::Abi::Format_PE
+        && toolChain->targetAbi().binaryFormat() != ProjectExplorer::Abi::PEFormat
         && m_makeStep->m_makeCmd.isEmpty())
         Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
     param.setArguments(args);

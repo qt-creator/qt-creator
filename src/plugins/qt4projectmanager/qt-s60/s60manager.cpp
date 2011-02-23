@@ -154,7 +154,7 @@ S60Manager::~S60Manager()
 
 QString S60Manager::platform(const ProjectExplorer::ToolChain *tc)
 {
-    if (!tc || tc->targetAbi().os() == ProjectExplorer::Abi::Symbian)
+    if (!tc || tc->targetAbi().os() == ProjectExplorer::Abi::SymbianOS)
         return QString();
     QString target = tc->defaultMakeTarget();
     return target.right(target.lastIndexOf(QLatin1Char('-')));

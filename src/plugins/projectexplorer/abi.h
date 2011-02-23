@@ -48,63 +48,63 @@ class PROJECTEXPLORER_EXPORT Abi
 {
 public:
     enum Architecture {
-        UNKNOWN_ARCHITECTURE,
-        ARM,
-        x86,
-        Itanium,
-        Mips,
-        PowerPC
+        UnknownArchitecture,
+        ArmArchitecture,
+        X86Architecture,
+        ItaniumArchitecture,
+        MipsArcitecture,
+        PowerPCArchitecture
     };
 
     enum OS {
-        UNKNOWN_OS,
-        Linux,
-        Mac,
-        Symbian,
-        UNIX,
-        Windows
+        UnknownOS,
+        LinuxOS,
+        MacOS,
+        SymbianOS,
+        UnixOS,
+        WindowsOS
     };
 
-    enum OSFlavour {
-        UNKNOWN_OSFLAVOUR,
+    enum OSFlavor {
+        UnknownFlavor,
 
         // Linux
-        Linux_generic,
-        Linux_harmattan,
-        Linux_maemo,
-        Linux_meego,
+        GenericLinuxFlavor,
+        HarmattanLinuxFlavor,
+        MaemoLinuxFlavor,
+        MeegoLinuxFlavor,
 
         // Mac
-        Mac_generic,
+        GenericMacFlavor,
 
         // Symbian
-        Symbian_device,
-        Symbian_emulator,
+        SymbianDeviceFlavor,
+        SymbianEmulatorFlavor,
 
         // Unix
-        Unix_generic,
+        GenericUnixFlavor,
 
         // Windows
-        Windows_msvc,
-        Windows_msys,
-        Windows_ce
+        WindowsMsvcFlavor,
+        WindowsMSysFlavor,
+        WindowsCEFlavor
     };
 
     enum BinaryFormat {
-        UNKNOWN_FORMAT,
-        Format_ELF,
-        Format_Mach_O,
-        Format_PE,
-        Format_Runtime_QML
+        UnknownFormat,
+        ElfFormat,
+        MachOFormat,
+        PEFormat,
+        RuntimeQmlFormat
     };
 
     Abi() :
-        m_architecture(UNKNOWN_ARCHITECTURE), m_os(UNKNOWN_OS),
-        m_osFlavor(UNKNOWN_OSFLAVOUR), m_binaryFormat(UNKNOWN_FORMAT), m_wordWidth(0)
+        m_architecture(UnknownArchitecture), m_os(UnknownOS),
+        m_osFlavor(UnknownFlavor), m_binaryFormat(UnknownFormat), m_wordWidth(0)
     { }
 
     Abi(const Architecture &a, const OS &o,
-        const OSFlavour &so, const BinaryFormat &f, unsigned char w);
+        const OSFlavor &so, const BinaryFormat &f, unsigned char w);
     Abi(const QString &abiString);
 
     bool operator == (const Abi &other) const;
@@ -114,7 +114,7 @@ public:
 
     Architecture architecture() const { return m_architecture; }
     OS os() const { return m_os; }
-    OSFlavour osFlavor() const { return m_osFlavor; }
+    OSFlavor osFlavor() const { return m_osFlavor; }
     BinaryFormat binaryFormat() const { return m_binaryFormat; }
     unsigned char wordWidth() const { return m_wordWidth; }
 
@@ -122,7 +122,7 @@ public:
 
     static QString toString(const Architecture &a);
     static QString toString(const OS &o);
-    static QString toString(const OSFlavour &of);
+    static QString toString(const OSFlavor &of);
     static QString toString(const BinaryFormat &bf);
     static QString toString(int w);
 
@@ -132,7 +132,7 @@ public:
 private:
     Architecture m_architecture;
     OS m_os;
-    OSFlavour m_osFlavor;
+    OSFlavor m_osFlavor;
     BinaryFormat m_binaryFormat;
     unsigned char m_wordWidth;
 };

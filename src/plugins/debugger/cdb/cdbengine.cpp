@@ -299,7 +299,7 @@ static inline bool validMode(DebuggerStartMode sm)
     return true;
 }
 
-static inline QString msgCdbDisabled(const ProjectExplorer::Abi &abi)
+static inline QString msgCdbDisabled(const Abi &abi)
 {
     return CdbEngine::tr("The CDB debug engine required for %1 is currently disabled.").
             arg(abi.toString());
@@ -337,11 +337,11 @@ bool isCdbEngineEnabled()
 #endif
 }
 
-ConfigurationCheck checkCdbConfiguration(const ProjectExplorer::Abi &abi)
+ConfigurationCheck checkCdbConfiguration(const Abi &abi)
 {
     ConfigurationCheck check;
-    if (abi.binaryFormat() == ProjectExplorer::Abi::Format_PE
-            && abi.osFlavor() != ProjectExplorer::Abi::Windows_msys) {
+    if (abi.binaryFormat() == Abi::PEFormat
+            && abi.osFlavor() != Abi::WindowsMSysFlavor) {
         if (!isCdbEngineEnabled()) {
             check.errorMessage = msgCdbDisabled(abi);
             check.settingsPage = CdbOptionsPage::settingsId();
@@ -637,11 +637,11 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
     // Determine binary (force MSVC), extension lib name and path to use
     // The extension is passed as relative name with the path variable set
     //(does not work with absolute path names)
-    ProjectExplorer::Abi abi = sp.toolChainAbi;
-    if (abi.osFlavor() == ProjectExplorer::Abi::UNKNOWN_OSFLAVOUR || abi.osFlavor() == ProjectExplorer::Abi::Windows_msys)
-        abi = ProjectExplorer::Abi(abi.architecture(), abi.os(),
-                                   ProjectExplorer::Abi::Windows_msvc,
-                                   abi.binaryFormat(), abi.wordWidth());
+    Abi abi = sp.toolChainAbi;
+    if (abi.osFlavor() == Abi::UnknownFlavor
+            || abi.osFlavor() == Abi::WindowsMSysFlavor)
+        abi = Abi(abi.architecture(), abi.os(), Abi::WindowsMsvcFlavor,
+                  abi.binaryFormat(), abi.wordWidth());
     const QString executable = debuggerCore()->debuggerForAbi(abi);
     if (executable.isEmpty()) {
         *errorMessage = tr("There is no CDB executable specified.");

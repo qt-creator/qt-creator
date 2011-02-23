@@ -298,7 +298,7 @@ QString S60DeviceRunConfiguration::localExecutableFileName() const
         return QString();
 
     const ProjectExplorer::Abi hostAbi = ProjectExplorer::Abi::hostAbi();
-    if (hostAbi.os() == ProjectExplorer::Abi::Linux) {
+    if (hostAbi.os() == ProjectExplorer::Abi::LinuxOS) {
         return executableFromPackageUnix(ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg"));
     }
 
