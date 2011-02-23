@@ -225,7 +225,6 @@ QString RvctToolChain::defaultMakeTarget() const
     if (m_armVersion == ARMv6)
         return QLatin1String("armv6");
     return QLatin1String("armv5");
-
 }
 
 ProjectExplorer::IOutputParser *RvctToolChain::outputParser() const
