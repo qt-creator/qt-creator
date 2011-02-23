@@ -177,14 +177,14 @@ void IPCEngineHost::interruptInferior()
     rpcCall(InterruptInferior);
 }
 
-void IPCEngineHost::executeRunToLine(const QString &fileName, int lineNumber)
+void IPCEngineHost::executeRunToLine(const ContextData &data)
 {
     QByteArray p;
     {
         QDataStream s(&p, QIODevice::WriteOnly);
         SET_NATIVE_BYTE_ORDER(s);
-        s << fileName;
-        s << quint64(lineNumber);
+        s << data.fileName;
+        s << quint64(data.lineNumber);
     }
     rpcCall(ExecuteRunToLine, p);
 }
@@ -200,14 +200,14 @@ void IPCEngineHost::executeRunToFunction(const QString &functionName)
     rpcCall(ExecuteRunToFunction, p);
 }
 
-void IPCEngineHost::executeJumpToLine(const QString &fileName, int lineNumber)
+void IPCEngineHost::executeJumpToLine(const ContextData &data)
 {
     QByteArray p;
     {
         QDataStream s(&p, QIODevice::WriteOnly);
         SET_NATIVE_BYTE_ORDER(s);
-        s << fileName;
-        s << quint64(lineNumber);
+        s << data.fileName;
+        s << quint64(data.lineNumber);
     }
     rpcCall(ExecuteJumpToLine, p);
 }

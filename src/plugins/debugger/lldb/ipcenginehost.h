@@ -104,9 +104,9 @@ public:
     void executeNextI();
     void continueInferior();
     void interruptInferior();
-    void executeRunToLine(const QString &fileName, int lineNumber);
+    void executeRunToLine(const ContextData &data);
     void executeRunToFunction(const QString &functionName);
-    void executeJumpToLine(const QString &fileName, int lineNumber);
+    void executeJumpToLine(const ContextData &data);
     void activateFrame(int index);
     void selectThread(int index);
     void fetchDisassembler(DisassemblerAgent *);

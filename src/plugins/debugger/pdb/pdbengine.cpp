@@ -280,10 +280,9 @@ void PdbEngine::continueInferior()
     postCommand("continue", CB(handleUpdateAll));
 }
 
-void PdbEngine::executeRunToLine(const QString &fileName, int lineNumber)
+void PdbEngine::executeRunToLine(const ContextData &data)
 {
-    Q_UNUSED(fileName)
-    Q_UNUSED(lineNumber)
+    Q_UNUSED(data)
     SDEBUG("FIXME:  PdbEngine::runToLineExec()");
 }
 
@@ -293,10 +292,9 @@ void PdbEngine::executeRunToFunction(const QString &functionName)
     XSDEBUG("FIXME:  PdbEngine::runToFunctionExec()");
 }
 
-void PdbEngine::executeJumpToLine(const QString &fileName, int lineNumber)
+void PdbEngine::executeJumpToLine(const ContextData &data)
 {
-    Q_UNUSED(fileName)
-    Q_UNUSED(lineNumber)
+    Q_UNUSED(data)
     XSDEBUG("FIXME:  PdbEngine::jumpToLineExec()");
 }
 

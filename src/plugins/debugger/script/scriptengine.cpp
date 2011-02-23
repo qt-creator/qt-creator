@@ -414,12 +414,11 @@ void ScriptEngine::executeNextI()
     m_stopOnNextLine = true;
 }
 
-void ScriptEngine::executeRunToLine(const QString &fileName, int lineNumber)
+void ScriptEngine::executeRunToLine(const ContextData &data)
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     notifyInferiorRunRequested();
-    Q_UNUSED(fileName)
-    Q_UNUSED(lineNumber)
+    Q_UNUSED(data)
     SDEBUG("FIXME:  ScriptEngine::runToLineExec()");
 }
 
@@ -431,12 +430,11 @@ void ScriptEngine::executeRunToFunction(const QString &functionName)
     XSDEBUG("FIXME:  ScriptEngine::runToFunctionExec()");
 }
 
-void ScriptEngine::executeJumpToLine(const QString &fileName, int lineNumber)
+void ScriptEngine::executeJumpToLine(const ContextData &data)
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     notifyInferiorRunRequested();
-    Q_UNUSED(fileName)
-    Q_UNUSED(lineNumber)
+    Q_UNUSED(data)
     XSDEBUG("FIXME:  ScriptEngine::jumpToLineExec()");
 }
 

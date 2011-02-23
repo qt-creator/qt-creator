@@ -121,6 +121,17 @@ private:
     quint64 m_address;
 };
 
+class ContextData
+{
+public:
+    ContextData() : lineNumber(0), address(0) {}
+
+public:
+    QString fileName;
+    int lineNumber;
+    quint64 address;
+};
+
 } // namespace Internal
 
 
@@ -323,9 +334,9 @@ protected:
     virtual void interruptInferior();
     virtual void requestInterruptInferior();
 
-    virtual void executeRunToLine(const QString &fileName, int lineNumber);
+    virtual void executeRunToLine(const Internal::ContextData &data);
     virtual void executeRunToFunction(const QString &functionName);
-    virtual void executeJumpToLine(const QString &fileName, int lineNumber);
+    virtual void executeJumpToLine(const Internal::ContextData &data);
     virtual void executeDebuggerCommand(const QString &command);
 
     virtual void frameUp();
@@ -373,5 +384,7 @@ private:
 };
 
 } // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::ContextData)
 
 #endif // DEBUGGER_DEBUGGERENGINE_H

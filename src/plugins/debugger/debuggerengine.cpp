@@ -1458,7 +1458,7 @@ void DebuggerEngine::interruptInferior()
 {
 }
 
-void DebuggerEngine::executeRunToLine(const QString &, int)
+void DebuggerEngine::executeRunToLine(const ContextData &)
 {
 }
 
@@ -1466,7 +1466,7 @@ void DebuggerEngine::executeRunToFunction(const QString &)
 {
 }
 
-void DebuggerEngine::executeJumpToLine(const QString &, int)
+void DebuggerEngine::executeJumpToLine(const ContextData &)
 {
 }
 

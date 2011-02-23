@@ -108,9 +108,9 @@ public:
     virtual void continueInferior();
     virtual void interruptInferior();
 
-    virtual void executeRunToLine(const QString &fileName, int lineNumber);
+    virtual void executeRunToLine(const ContextData &data);
     virtual void executeRunToFunction(const QString &functionName);
-    virtual void executeJumpToLine(const QString &fileName, int lineNumber);
+    virtual void executeJumpToLine(const ContextData &data);
     virtual void assignValueInDebugger(const WatchData *w, const QString &expr, const QVariant &value);
     virtual void executeDebuggerCommand(const QString &command);
 

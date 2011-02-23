@@ -333,9 +333,9 @@ private: ////////// Inferior Management //////////
     void interruptInferior();
     void interruptInferiorTemporarily();
 
-    void executeRunToLine(const QString &fileName, int lineNumber);
+    void executeRunToLine(const ContextData &data);
     void executeRunToFunction(const QString &functionName);
-    void executeJumpToLine(const QString &fileName, int lineNumber);
+    void executeJumpToLine(const ContextData &data);
     void executeReturn();
 
     void handleExecuteContinue(const GdbResponse &response);

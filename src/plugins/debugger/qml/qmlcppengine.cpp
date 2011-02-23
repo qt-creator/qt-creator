@@ -384,9 +384,9 @@ void QmlCppEngine::requestInterruptInferior()
     d->m_cppEngine->requestInterruptInferior();
 }
 
-void QmlCppEngine::executeRunToLine(const QString &fileName, int lineNumber)
+void QmlCppEngine::executeRunToLine(const ContextData &data)
 {
-    d->m_activeEngine->executeRunToLine(fileName, lineNumber);
+    d->m_activeEngine->executeRunToLine(data);
 }
 
 void QmlCppEngine::executeRunToFunction(const QString &functionName)
@@ -394,9 +394,9 @@ void QmlCppEngine::executeRunToFunction(const QString &functionName)
     d->m_activeEngine->executeRunToFunction(functionName);
 }
 
-void QmlCppEngine::executeJumpToLine(const QString &fileName, int lineNumber)
+void QmlCppEngine::executeJumpToLine(const ContextData &data)
 {
-    d->m_activeEngine->executeJumpToLine(fileName, lineNumber);
+    d->m_activeEngine->executeJumpToLine(data);
 }
 
 void QmlCppEngine::executeDebuggerCommand(const QString &command)

@@ -89,9 +89,9 @@ public:
     void executeNextI();
     void continueInferior();
     void interruptInferior();
-    void executeRunToLine(const QString &fileName, int lineNumber);
+    void executeRunToLine(const ContextData &data);
     void executeRunToFunction(const QString &functionName);
-    void executeJumpToLine(const QString &fileName, int lineNumber);
+    void executeJumpToLine(const ContextData &data);
     void activateFrame(qint64);
     void selectThread(qint64);
     void disassemble(quint64 pc);

@@ -285,13 +285,12 @@ void LldbEngineGuest::interruptInferior()
     updateThreads();
 }
 
-void LldbEngineGuest::executeRunToLine(const QString &fileName, int lineNumber)
+void LldbEngineGuest::executeRunToLine(const ContextData &data);
 {
     DEBUG_FUNC_ENTER;
 
     // TODO
-    Q_UNUSED(fileName);
-    Q_UNUSED(lineNumber);
+    Q_UNUSED(data);
 }
 
 void LldbEngineGuest::executeRunToFunction(const QString &functionName)
@@ -301,13 +300,12 @@ void LldbEngineGuest::executeRunToFunction(const QString &functionName)
     // TODO
     Q_UNUSED(functionName);
 }
-void LldbEngineGuest::executeJumpToLine(const QString &fileName, int lineNumber)
+void LldbEngineGuest::executeJumpToLine(const ContextData &data);
 {
     DEBUG_FUNC_ENTER;
 
     // TODO
-    Q_UNUSED(fileName);
-    Q_UNUSED(lineNumber);
+    Q_UNUSED(data);
 }
 
 void LldbEngineGuest::activateFrame(qint64 token)

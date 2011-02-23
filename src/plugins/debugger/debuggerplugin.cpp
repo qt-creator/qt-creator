@@ -530,31 +530,31 @@ private:
 //
 ///////////////////////////////////////////////////////////////////////
 
-class ContextData
+static TextEditor::ITextEditor *currentTextEditor()
 {
-public:
-    ContextData() : lineNumber(0), address(0) {}
+    if (const Core::EditorManager *editorManager = Core::EditorManager::instance())
+            if (Core::IEditor *editor = editorManager->currentEditor())
+                return qobject_cast<TextEditor::ITextEditor*>(editor);
+    return 0;
+}
 
-public:
-    QString fileName;
-    int lineNumber;
-    quint64 address;
-};
-
-} // namespace Internal
-} // namespace Debugger
-
-Q_DECLARE_METATYPE(Debugger::Internal::ContextData)
-
+static bool currentTextEditorPosition(ContextData *data)
+{
+    if (TextEditor::ITextEditor *textEditor = currentTextEditor()) {
+        if (const Core::IFile *file = textEditor->file()) {
+            data->fileName = file->fileName();
+            data->lineNumber = textEditor->currentLine();
+            return true;
+        }
+    }
+    return false;
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
 // DebuggerPluginPrivate
 //
 ///////////////////////////////////////////////////////////////////////
-
-namespace Debugger {
-namespace Internal {
 
 static DebuggerPluginPrivate *theDebuggerCore = 0;
 
@@ -817,20 +817,18 @@ public slots:
     {
         //removeTooltip();
         currentEngine()->resetLocation();
-        QString fileName;
-        int lineNumber;
-        if (currentTextEditorPosition(&fileName, &lineNumber))
-            currentEngine()->executeJumpToLine(fileName, lineNumber);
+        ContextData data;
+        if (currentTextEditorPosition(&data))
+            currentEngine()->executeJumpToLine(data);
     }
 
     void handleExecRunToLine()
     {
         //removeTooltip();
         currentEngine()->resetLocation();
-        QString fileName;
-        int lineNumber;
-        if (currentTextEditorPosition(&fileName, &lineNumber))
-            currentEngine()->executeRunToLine(fileName, lineNumber);
+        ContextData data;
+        if (currentTextEditorPosition(&data))
+            currentEngine()->executeRunToLine(data);
     }
 
     void handleExecRunToSelectedFunction()
@@ -883,7 +881,7 @@ public slots:
         const QAction *action = qobject_cast<const QAction *>(sender());
         QTC_ASSERT(action, return);
         const ContextData data = action->data().value<ContextData>();
-        currentEngine()->executeRunToLine(data.fileName, data.lineNumber);
+        currentEngine()->executeRunToLine(data);
     }
 
     void slotJumpToLine()
@@ -891,7 +889,7 @@ public slots:
         const QAction *action = qobject_cast<const QAction *>(sender());
         QTC_ASSERT(action, return);
         const ContextData data = action->data().value<ContextData>();
-        currentEngine()->executeJumpToLine(data.fileName, data.lineNumber);
+        currentEngine()->executeJumpToLine(data);
     }
 
     void handleAddToWatchWindow()
@@ -1619,6 +1617,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
 
     ContextData args;
     args.lineNumber = lineNumber;
+    bool contextUsable = true;
 
     BreakpointId id = BreakpointId();
     if (editor->property("DisassemblerView").toBool()) {
@@ -1631,6 +1630,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
         args.address = needle.address;
         needle.lineNumber = -1;
         id = breakHandler()->findSimilarBreakpoint(needle);
+        contextUsable = args.address != 0;
     } else {
         args.fileName = editor->file()->fileName();
         id = breakHandler()
@@ -1668,27 +1668,30 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
         menu->addAction(act);
     } else {
         // Handle non-existing breakpoint.
-        const QString text = args.address ?
-                    tr("Set Breakpoint at 0x%1").arg(args.address, 0, 16) :
-                    tr("Set Breakpoint at line %1").arg(lineNumber);
+        const QString text = args.address
+            ? tr("Set Breakpoint at 0x%1").arg(args.address, 0, 16)
+            : tr("Set Breakpoint at line %1").arg(lineNumber);
         QAction *act = new QAction(text, menu);
         act->setData(QVariant::fromValue(args));
+        act->setEnabled(contextUsable);
         connect(act, SIGNAL(triggered()),
             SLOT(breakpointSetMarginActionTriggered()));
         menu->addAction(act);
     }
     // Run to, jump to line below in stopped state.
-    if (currentEngine()->state() == InferiorStopOk) {
+    if (currentEngine()->state() == InferiorStopOk && contextUsable) {
         menu->addSeparator();
-        const QString runText =
-            DebuggerEngine::tr("Run to Line %1").arg(lineNumber);
+        const QString runText = args.address
+            ? DebuggerEngine::tr("Run to Address 0x%1").arg(args.address, 0, 16)
+            : DebuggerEngine::tr("Run to Line %1").arg(args.lineNumber);
         QAction *runToLineAction  = new QAction(runText, menu);
         runToLineAction->setData(QVariant::fromValue(args));
         connect(runToLineAction, SIGNAL(triggered()), SLOT(slotRunToLine()));
         menu->addAction(runToLineAction);
         if (currentEngine()->debuggerCapabilities() & JumpToLineCapability) {
-            const QString jumpText =
-                DebuggerEngine::tr("Jump to Line %1").arg(lineNumber);
+            const QString jumpText = args.address
+                ? DebuggerEngine::tr("Jump to Address 0x%1").arg(args.address, 0, 16)
+                : DebuggerEngine::tr("Jump to Line %1").arg(args.lineNumber);
             QAction *jumpToLineAction  = new QAction(jumpText, menu);
             menu->addAction(runToLineAction);
             jumpToLineAction->setData(QVariant::fromValue(args));

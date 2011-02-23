@@ -224,11 +224,10 @@ void IPCEngineGuest::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                QString fileName;
-                quint64 lineNumber;
-                s >> fileName;
-                s >> lineNumber;
-                executeRunToLine(fileName, lineNumber);
+                ContextData data;
+                s >> data.fileName;
+                s >> data.lineNumber;
+                executeRunToLine(data);
             }
             break;
         case IPCEngineHost::ExecuteRunToFunction:
@@ -244,11 +243,10 @@ void IPCEngineGuest::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                QString fileName;
-                quint64 lineNumber;
-                s >> fileName;
-                s >> lineNumber;
-                executeJumpToLine(fileName, lineNumber);
+                ContextData data;
+                s >> data.fileName;
+                s >> data.lineNumber;
+                executeJumpToLine(data);
             }
             break;
         case IPCEngineHost::ActivateFrame:

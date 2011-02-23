@@ -103,9 +103,9 @@ protected:
     void interruptInferior();
     void requestInterruptInferior();
 
-    void executeRunToLine(const QString &fileName, int lineNumber);
+    void executeRunToLine(const ContextData &data);
     void executeRunToFunction(const QString &functionName);
-    void executeJumpToLine(const QString &fileName, int lineNumber);
+    void executeJumpToLine(const ContextData &data);
     void executeDebuggerCommand(const QString &command);
 
     void setupEngine();

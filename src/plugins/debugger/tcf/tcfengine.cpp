@@ -269,10 +269,9 @@ void TcfEngine::executeNextI()
     //SDEBUG("TcfEngine::executeNextI()");
 }
 
-void TcfEngine::executeRunToLine(const QString &fileName, int lineNumber)
+void TcfEngine::executeRunToLine(const ContextData &data)
 {
-    Q_UNUSED(fileName)
-    Q_UNUSED(lineNumber)
+    Q_UNUSED(data)
     SDEBUG("FIXME:  TcfEngine::executeRunToLine()");
 }
 
@@ -282,10 +281,9 @@ void TcfEngine::executeRunToFunction(const QString &functionName)
     XSDEBUG("FIXME:  TcfEngine::executeRunToFunction()");
 }
 
-void TcfEngine::executeJumpToLine(const QString &fileName, int lineNumber)
+void TcfEngine::executeJumpToLine(const ContextData &data)
 {
-    Q_UNUSED(fileName)
-    Q_UNUSED(lineNumber)
+    Q_UNUSED(data)
     XSDEBUG("FIXME:  TcfEngine::executeJumpToLine()");
 }
 

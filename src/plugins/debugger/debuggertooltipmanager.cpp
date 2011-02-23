@@ -132,6 +132,7 @@ static bool readStartElement(QXmlStreamReader &r, const char *name)
     return true;
 }
 
+#if 0
 static void debugMode(const QAbstractItemModel *model)
 {
     QDebug nospace = qDebug().nospace();
@@ -139,6 +140,7 @@ static void debugMode(const QAbstractItemModel *model)
     for (int r = 0; r < model->rowCount(); r++)
         nospace << '#' << r << ' ' << model->data(model->index(r, 0)).toString() << '\n';
 }
+#endif
 
 namespace Debugger {
 namespace Internal {

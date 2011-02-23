@@ -74,9 +74,9 @@ public:
     virtual void executeNextI() = 0;
     virtual void continueInferior() = 0;
     virtual void interruptInferior() = 0;
-    virtual void executeRunToLine(const QString &fileName, int lineNumber) = 0;
+    virtual void executeRunToLine(const ContextData &data) = 0;
     virtual void executeRunToFunction(const QString &functionName) = 0;
-    virtual void executeJumpToLine(const QString &fileName, int lineNumber) = 0;
+    virtual void executeJumpToLine(const ContextData &data) = 0;
     virtual void activateFrame(qint64 token) = 0;
     virtual void selectThread(qint64 token) = 0;
     virtual void disassemble(quint64 pc) = 0;

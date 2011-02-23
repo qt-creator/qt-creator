@@ -2015,17 +2015,26 @@ void GdbEngine::executeNextI()
         postCommand("-exec-next-instruction", RunRequest, CB(handleExecuteContinue));
 }
 
-void GdbEngine::executeRunToLine(const QString &fileName, int lineNumber)
+static QByteArray addressSpec(quint64 address)
+{
+    return "*0x" + QByteArray::number(address, 16);
+}
+
+void GdbEngine::executeRunToLine(const ContextData &data)
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     setTokenBarrier();
     notifyInferiorRunRequested();
-    showStatusMessage(tr("Run to line %1 requested...").arg(lineNumber), 5000);
+    showStatusMessage(tr("Run to line %1 requested...").arg(data.lineNumber), 5000);
 #if 1
-    m_targetFrame.file = fileName;
-    m_targetFrame.line = lineNumber;
-    QByteArray loc = '"' + breakLocation(fileName).toLocal8Bit() + '"' + ':'
-        + QByteArray::number(lineNumber);
+    m_targetFrame.file = data.fileName;
+    m_targetFrame.line = data.lineNumber;
+    QByteArray loc;
+    if (data.address)
+        loc = addressSpec(data.address);
+    else
+        loc = '"' + breakLocation(data.fileName).toLocal8Bit() + '"' + ':'
+            + QByteArray::number(data.lineNumber);
     postCommand("tbreak " + loc);
     postCommand("continue", RunRequest, CB(handleExecuteRunToLine));
 #else
@@ -2046,15 +2055,15 @@ void GdbEngine::executeRunToFunction(const QString &functionName)
     continueInferiorInternal();
 }
 
-void GdbEngine::executeJumpToLine(const QString &fileName, int lineNumber)
+void GdbEngine::executeJumpToLine(const ContextData &data)
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
-    StackFrame frame;
-    frame.file = fileName;
-    frame.line = lineNumber;
-#if 1
-    QByteArray loc = '"' + breakLocation(fileName).toLocal8Bit() + '"' + ':'
-        + QByteArray::number(lineNumber);
+    QByteArray loc;
+    if (data.address)
+        loc = addressSpec(data.address);
+    else
+        loc = '"' + breakLocation(data.fileName).toLocal8Bit() + '"' + ':'
+        + QByteArray::number(data.lineNumber);
     postCommand("tbreak " + loc);
     notifyInferiorRunRequested();
     postCommand("jump " + loc, RunRequest, CB(handleExecuteJumpToLine));
@@ -2064,15 +2073,6 @@ void GdbEngine::executeJumpToLine(const QString &fileName, int lineNumber)
     //  ~"run1 (argc=1, argv=0x7fffbf1f5538) at test1.cpp:242"
     //  ~"242\t x *= 2;"
     //  23^done"
-    gotoLocation(frame);
-    //setBreakpoint();
-    //postCommand("jump " + loc);
-#else
-    gotoLocation(frame);
-    setBreakpoint(fileName, lineNumber);
-    notifyInferiorRunRequested();
-    postCommand("jump " + loc, RunRequest);
-#endif
 }
 
 void GdbEngine::executeReturn()
@@ -2218,11 +2218,6 @@ QString GdbEngine::breakLocation(const QString &file) const
     if (where.isEmpty())
         return QFileInfo(file).fileName();
     return where;
-}
-
-static QByteArray addressSpec(quint64 address)
-{
-    return "*0x" + QByteArray::number(address, 16);
 }
 
 QByteArray GdbEngine::breakpointLocation(BreakpointId id)

@@ -449,10 +449,9 @@ void QmlEngine::executeNextI()
     SDEBUG("QmlEngine::executeNextI()");
 }
 
-void QmlEngine::executeRunToLine(const QString &fileName, int lineNumber)
+void QmlEngine::executeRunToLine(const ContextData &data)
 {
-    Q_UNUSED(fileName)
-    Q_UNUSED(lineNumber)
+    Q_UNUSED(data)
     SDEBUG("FIXME:  QmlEngine::executeRunToLine()");
 }
 
@@ -462,10 +461,9 @@ void QmlEngine::executeRunToFunction(const QString &functionName)
     XSDEBUG("FIXME:  QmlEngine::executeRunToFunction()");
 }
 
-void QmlEngine::executeJumpToLine(const QString &fileName, int lineNumber)
+void QmlEngine::executeJumpToLine(const ContextData &data)
 {
-    Q_UNUSED(fileName)
-    Q_UNUSED(lineNumber)
+    Q_UNUSED(data)
     XSDEBUG("FIXME:  QmlEngine::executeJumpToLine()");
 }
 

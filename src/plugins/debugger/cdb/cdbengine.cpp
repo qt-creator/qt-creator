@@ -172,20 +172,10 @@ struct MemoryViewCookie
     quint64 length;
 };
 
-struct SourceLocationCookie
-{
-    explicit SourceLocationCookie(const QString &f = QString(), int l = 0) :
-             fileName(f), lineNumber(l) {}
-
-    QString fileName;
-    int lineNumber;
-};
-
 } // namespace Internal
 } // namespace Debugger
 
 Q_DECLARE_METATYPE(Debugger::Internal::MemoryViewCookie)
-Q_DECLARE_METATYPE(Debugger::Internal::SourceLocationCookie)
 
 namespace Debugger {
 namespace Internal {
@@ -1070,12 +1060,12 @@ void CdbEngine::doInterruptInferior(SpecialStopMode sm)
 #endif
 }
 
-void CdbEngine::executeRunToLine(const QString &fileName, int lineNumber)
+void CdbEngine::executeRunToLine(const ContextData &data)
 {
     // Add one-shot breakpoint
     BreakpointParameters bp(BreakpointByFileAndLine);
-    bp.fileName = fileName;
-    bp.lineNumber = lineNumber;
+    bp.fileName = data.fileName;
+    bp.lineNumber = data.lineNumber;
     postCommand(cdbAddBreakpointCommand(bp, BreakpointId(-1), true), 0);
     continueInferior();
 }
@@ -1102,13 +1092,13 @@ void CdbEngine::setRegisterValue(int regnr, const QString &value)
     reloadRegisters();
 }
 
-void CdbEngine::executeJumpToLine(const QString & fileName, int lineNumber)
+void CdbEngine::executeJumpToLine(const ContextData &data)
 {
     QByteArray cmd;
     ByteArrayInputStream str(cmd);
     // Resolve source line address and go to that location
-    str << "? `" << QDir::toNativeSeparators(fileName) << ':' << lineNumber << '`';
-    const QVariant cookie = qVariantFromValue(SourceLocationCookie(fileName, lineNumber));
+    str << "? `" << QDir::toNativeSeparators(data.fileName) << ':' << data.lineNumber << '`';
+    const QVariant cookie = qVariantFromValue(data);
     postBuiltinCommand(cmd, 0, &CdbEngine::handleJumpToLineAddressResolution, 0, cookie);
 }
 
@@ -1123,8 +1113,8 @@ void CdbEngine::handleJumpToLineAddressResolution(const CdbBuiltinCommandPtr &cm
     if (equalPos == -1)
         return;
     answer.remove(0, equalPos + 3);
-    QTC_ASSERT(qVariantCanConvert<SourceLocationCookie>(cmd->cookie), return ; )
-    const SourceLocationCookie cookie = qvariant_cast<SourceLocationCookie>(cmd->cookie);
+    QTC_ASSERT(qVariantCanConvert<ContextData>(cmd->cookie), return);
+    const ContextData cookie = qvariant_cast<ContextData>(cmd->cookie);
 
     QByteArray registerCmd;
     ByteArrayInputStream str(registerCmd);
