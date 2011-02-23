@@ -532,8 +532,8 @@ QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
 
 void ToolChainOptionsPage::apply()
 {
-    QTC_ASSERT(m_model, return; )
-    m_model->apply();
+    if (m_model)
+        m_model->apply();
 }
 
 void ToolChainOptionsPage::finish()
