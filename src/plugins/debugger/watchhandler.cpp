@@ -1366,7 +1366,7 @@ void WatchHandler::showEditValue(const WatchData &data)
             p->waitForStarted();
             m_editHandlers[key] = p;
         }
-        p->write(input + "\n");
+        p->write(input + '\n');
     } else {
         QTC_ASSERT(false, qDebug() << "Display format: " << data.editformat);
     }

@@ -214,7 +214,7 @@ QByteArray TrkGdbAdapter::trkStepRangeMessage()
     if (from <= pc && pc <= to) {
         //to = qMax(to - 4, from);
         //to = qMax(to - 4, from);
-        showMessage("STEP IN " + hexxNumber(from) + " " + hexxNumber(to)
+        showMessage("STEP IN " + hexxNumber(from) + ' ' + hexxNumber(to)
             + " INSTEAD OF " + hexxNumber(pc));
     } else {
         from = pc;
@@ -502,8 +502,9 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         sendGdbServerAck();
         bool ok = false;
         const uint signalNumber = cmd.mid(1).toUInt(&ok, 16);
-        logMessage(QString::fromLatin1("Not implemented 'Continue with signal' %1: ").arg(signalNumber), LogWarning);
-        sendGdbServerMessage("O" + QByteArray("Console output").toHex());
+        logMessage(_("Not implemented 'Continue with signal' %1: ")
+            .arg(signalNumber), LogWarning);
+        sendGdbServerMessage('O' + QByteArray("Console output").toHex());
         sendGdbServerMessage("W81"); // "Process exited with result 1
         trkContinueAll("gdb 'C'");
     }
@@ -940,7 +941,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
         // If we do so, TRK will complain about wrong sequencing.
         //sendTrkAck(result.token);
         logMessage(QString::fromAscii(result.data), AppOutput);
-        sendGdbServerMessage("O" + result.data.toHex());
+        sendGdbServerMessage('O' + result.data.toHex());
         return;
     }
     //logMessage("READ TRK " + result.toString());
@@ -1243,13 +1244,13 @@ static QString msgMemoryReadError(int code, uint addr, uint len = 0)
 {
     const QString lenS = len ? QString::number(len) : QLatin1String("<unknown>");
     return _("Memory read error %1 at: 0x%2 %3")
-        .arg(code).arg(addr, 0 ,16).arg(lenS);
+        .arg(code).arg(addr, 0, 16).arg(lenS);
 }
 
 void TrkGdbAdapter::handleReadMemoryBuffered(const TrkResult &result)
 {
     if (extractShort(result.data.data() + 1) + 3 != result.data.size())
-        logMessage("\n BAD MEMORY RESULT: " + result.data.toHex() + "\n", LogError);
+        logMessage("\n BAD MEMORY RESULT: " + result.data.toHex() + '\n', LogError);
     const MemoryRange range = result.cookie.value<MemoryRange>();
     MEMORY_DEBUG("HANDLE READ MEMORY ***BUFFERED*** FOR " << range);
     if (const int errorCode = result.errorCode()) {
@@ -1269,7 +1270,7 @@ void TrkGdbAdapter::handleReadMemoryBuffered(const TrkResult &result)
 void TrkGdbAdapter::handleReadMemoryUnbuffered(const TrkResult &result)
 {
     if (extractShort(result.data.data() + 1) + 3 != result.data.size())
-        logMessage("\n BAD MEMORY RESULT: " + result.data.toHex() + "\n", LogError);
+        logMessage("\n BAD MEMORY RESULT: " + result.data.toHex() + '\n', LogError);
     const MemoryRange range = result.cookie.value<MemoryRange>();
     MEMORY_DEBUG("HANDLE READ MEMORY UNBUFFERED FOR " << range);
     if (const int errorCode = result.errorCode()) {
@@ -1424,7 +1425,7 @@ void TrkGdbAdapter::handleAndReportSetBreakpoint(const TrkResult &result)
     uint bpnr = extractInt(result.data.data() + 1);
     uint addr = result.cookie.toUInt();
     m_session.addressToBP[addr] = bpnr;
-    logMessage("SET BREAKPOINT " + hexxNumber(bpnr) + " "
+    logMessage("SET BREAKPOINT " + hexxNumber(bpnr) + ' '
          + stringFromArray(result.data.data()));
     sendGdbServerMessage("OK");
     //sendGdbServerMessage("OK");

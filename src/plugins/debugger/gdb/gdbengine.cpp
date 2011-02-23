@@ -3325,14 +3325,14 @@ void GdbEngine::handleRegisterListValues(const GdbResponse &response)
             GdbMi val = item.findChild("value");
             QByteArray ba;
             bool handled = false;
-            if (val.data().startsWith("{")) {
+            if (val.data().startsWith('{')) {
                 int pos1 = val.data().indexOf("v2_int32");
                 if (pos1 == -1)
                     pos1 = val.data().indexOf("v4_int32");
                 if (pos1 != -1) {
                     // FIXME: This block wastes cycles.
-                    pos1 = val.data().indexOf("{", pos1 + 1) + 1;
-                    int pos2 = val.data().indexOf("}", pos1);
+                    pos1 = val.data().indexOf('{', pos1 + 1) + 1;
+                    int pos2 = val.data().indexOf('}', pos1);
                     QByteArray ba2 = val.data().mid(pos1, pos2 - pos1);
                     foreach (QByteArray ba3, ba2.split(',')) {
                         ba3 = ba3.trimmed();

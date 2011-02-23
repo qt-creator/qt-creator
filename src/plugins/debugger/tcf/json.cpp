@@ -319,7 +319,7 @@ QByteArray JsonValue::toString(bool multiline, int indent) const
             break;
         case String:
             if (!m_name.isEmpty())
-                result += m_name + "=";
+                result += m_name + '=';
             result += '"' + escapeCString(m_data) + '"';
             break;
         case Number:
@@ -333,24 +333,24 @@ QByteArray JsonValue::toString(bool multiline, int indent) const
             if (multiline) {
                 result += "{\n";
                 dumpChildren(&result, multiline, indent + 1);
-                result += '\n' + ind(indent) + "}";
+                result += '\n' + ind(indent) + '}';
             } else {
-                result += "{";
+                result += '{';
                 dumpChildren(&result, multiline, indent + 1);
-                result += "}";
+                result += '}';
             }
             break;
         case Array:
             if (!m_name.isEmpty())
-                result += m_name + "=";
+                result += m_name + '=';
             if (multiline) {
                 result += "[\n";
                 dumpChildren(&result, multiline, indent + 1);
-                result += '\n' + ind(indent) + "]";
+                result += '\n' + ind(indent) + ']';
             } else {
-                result += "[";
+                result += '[';
                 dumpChildren(&result, multiline, indent + 1);
-                result += "]";
+                result += ']';
             }
             break;
     }
