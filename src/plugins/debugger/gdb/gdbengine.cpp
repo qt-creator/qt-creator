@@ -1916,7 +1916,7 @@ void GdbEngine::handleExecuteStep(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         // Step was finishing too quick, and a '*stopped' messages should
-        // have preceeded it, so just ignore this result.
+        // have preceded it, so just ignore this result.
         QTC_ASSERT(state() == InferiorStopOk, /**/);
         return;
     }
@@ -1979,7 +1979,7 @@ void GdbEngine::handleExecuteNext(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         // Step was finishing too quick, and a '*stopped' messages should
-        // have preceeded it, so just ignore this result.
+        // have preceded it, so just ignore this result.
         QTC_ASSERT(state() == InferiorStopOk, /**/);
         return;
     }
