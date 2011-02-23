@@ -31,6 +31,7 @@
 **
 **************************************************************************/
 
+#include "cmakeopenprojectwizard.h"
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
@@ -40,7 +41,11 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorer.h>
 #include <qtconcurrent/QtConcurrentTools>
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QCoreApplication>
@@ -60,6 +65,72 @@ CMakeManager::CMakeManager(CMakeSettingsPage *cmakeSettingsPage)
 {
     m_projectContext = Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT);
     m_projectLanguage = Core::Context(ProjectExplorer::Constants::LANG_CXX);
+
+    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
+    connect(projectExplorer, SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*, ProjectExplorer::Node*)),
+            this, SLOT(updateContextMenu(ProjectExplorer::Project*, ProjectExplorer::Node*)));
+
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+
+    Core::ActionContainer *mbuild =
+            am->actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
+    Core::ActionContainer *mproject =
+            am->actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
+    Core::ActionContainer *msubproject =
+            am->actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
+
+    m_runCMakeAction = new QAction(QIcon(), tr("Run cmake"), this);
+    Core::Command *command = am->registerAction(m_runCMakeAction, Constants::RUNCMAKE, m_projectContext);
+    command->setAttribute(Core::Command::CA_Hide);
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_PROJECT);
+    connect(m_runCMakeAction, SIGNAL(triggered()), this, SLOT(runCMake()));
+
+    m_runCMakeActionContextMenu = new QAction(QIcon(), tr("Run cmake"), this);
+    command = am->registerAction(m_runCMakeActionContextMenu, Constants::RUNCMAKECONTEXTMENU, m_projectContext);
+    command->setAttribute(Core::Command::CA_Hide);
+    mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    connect(m_runCMakeActionContextMenu, SIGNAL(triggered()), this, SLOT(runCMakeContextMenu()));
+
+}
+
+void CMakeManager::updateContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node)
+{
+    Q_UNUSED(node);
+    m_contextProject = project;
+}
+
+void CMakeManager::runCMake()
+{
+    runCMake(ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject());
+}
+
+void CMakeManager::runCMakeContextMenu()
+{
+    runCMake(m_contextProject);
+}
+
+void CMakeManager::runCMake(ProjectExplorer::Project *project)
+{
+    if (!project)
+        return;
+    CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(project);
+    if (!cmakeProject)
+        return;
+
+    if (!cmakeProject->activeTarget())
+        return;
+    if (!cmakeProject->activeTarget()->activeBuildConfiguration())
+        return;
+    CMakeBuildConfiguration *bc = cmakeProject->activeTarget()->activeBuildConfiguration();
+    CMakeOpenProjectWizard copw(this,
+                                cmakeProject->projectDirectory(),
+                                bc->buildDirectory(),
+                                CMakeOpenProjectWizard::WantToUpdate,
+                                bc->environment());
+    if (copw.exec() == QDialog::Accepted) {
+        cmakeProject->parseCMakeLists();
+    }
 }
 
 Core::Context CMakeManager::projectContext() const

@@ -36,6 +36,8 @@
 
 #include <projectexplorer/iprojectmanager.h>
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
 #include <coreplugin/icontext.h>
 
 #include <utils/environment.h>
@@ -44,6 +46,7 @@
 #include <QtCore/QFuture>
 #include <QtCore/QStringList>
 #include <QtCore/QDir>
+#include <QtGui/QAction>
 
 QT_FORWARD_DECLARE_CLASS(QProcess)
 QT_FORWARD_DECLARE_CLASS(QLabel)
@@ -84,12 +87,20 @@ public:
     static QString findCbpFile(const QDir &);
 
     static QString findDumperLibrary(const Utils::Environment &env);
+private slots:
+    void updateContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node);
+    void runCMake();
+    void runCMakeContextMenu();
 private:
+    void runCMake(ProjectExplorer::Project *project);
     static QString qtVersionForQMake(const QString &qmakePath);
     static QPair<QString, QString> findQtDir(const Utils::Environment &env);
     Core::Context m_projectContext;
     Core::Context m_projectLanguage;
     CMakeSettingsPage *m_settingsPage;
+    QAction *m_runCMakeAction;
+    QAction *m_runCMakeActionContextMenu;
+    ProjectExplorer::Project *m_contextProject;
 };
 
 struct CMakeValidator
