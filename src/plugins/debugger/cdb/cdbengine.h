@@ -248,7 +248,6 @@ private:
     mutable int m_elapsedLogTime;
     QByteArray m_extensionMessageBuffer;
     bool m_sourceStepInto;
-    unsigned m_wX86BreakpointCount;
     int m_watchPointX;
     int m_watchPointY;
     PendingBreakPointMap m_pendingBreakpointMap;

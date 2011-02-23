@@ -399,7 +399,6 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp,
     m_hasDebuggee(false),
     m_elapsedLogTime(0),
     m_sourceStepInto(false),
-    m_wX86BreakpointCount(0),
     m_watchPointX(0),
     m_watchPointY(0),
     m_ignoreCdbOutput(false)
@@ -426,7 +425,6 @@ void CdbEngine::init()
     m_notifyEngineShutdownOnTermination = false;
     m_hasDebuggee = false;
     m_sourceStepInto = false;
-    m_wX86BreakpointCount = 0;
     m_watchPointX = m_watchPointY = 0;
     m_ignoreCdbOutput = false;
 
@@ -749,6 +747,7 @@ void CdbEngine::setupInferior()
     if (debug)
         qDebug("setupInferior");
     attemptBreakpointSynchronization();
+    postCommand("sxn 0x4000001f", 0); // Do not break on WowX86 exceptions.
     postExtensionCommand("pid", QByteArray(), 0, &CdbEngine::handlePid);
 }
 
@@ -1697,18 +1696,6 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
         // pulls DLLs. Avoid showing a 'stopped' Message box.
         if (exception.exceptionCode == winExceptionStartupCompleteTrap)
             return StopNotifyStop;
-        // WOW 64 breakpoint: Report in log and continue the first one,
-        // subsequent ones are caused by interrupting the application.
-        if (exception.exceptionCode == winExceptionWX86Breakpoint) {
-            if (m_wX86BreakpointCount++) {
-                *message = tr("Interrupted (%1)").arg(description);
-                rc |= StopReportStatusMessage|StopNotifyStop;
-            } else {
-                *message = description;
-                rc |= StopIgnoreContinue|StopReportLog;
-            }
-            return rc;
-        }
         if (exception.exceptionCode == winExceptionCtrlPressed) {
             // Detect interruption by pressing Ctrl in a console and force a switch to thread 0.
             *message = msgInterrupted();
