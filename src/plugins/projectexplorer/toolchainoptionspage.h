@@ -39,7 +39,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QtCore/QAbstractItemModel>
-#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
@@ -102,11 +101,12 @@ private slots:
 private:
     QModelIndex index(ToolChainNode *, int column = 0) const;
 
-    QSharedPointer<ToolChainNode> m_autoRoot;
-    QSharedPointer<ToolChainNode> m_manualRoot;
+    ToolChainNode * m_root;
+    ToolChainNode * m_autoRoot;
+    ToolChainNode * m_manualRoot;
 
-    QList<QSharedPointer<ToolChainNode> > m_toAddList;
-    QList<QSharedPointer<ToolChainNode> > m_toRemoveList;
+    QList<ToolChainNode *> m_toAddList;
+    QList<ToolChainNode *> m_toRemoveList;
 };
 
 // --------------------------------------------------------------------------
