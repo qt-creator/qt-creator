@@ -307,6 +307,12 @@ void ToolChainModel::apply()
     foreach (ToolChainNode *n, nodes) {
         ToolChainManager::instance()->registerToolChain(n->toolChain);
     }
+    //
+    foreach (ToolChainNode *n, m_toAddList) {
+        delete n->toolChain;
+        n->toolChain = 0;
+    }
+    qDeleteAll(m_toAddList);
 }
 
 void ToolChainModel::discard()
