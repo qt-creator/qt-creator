@@ -1362,7 +1362,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-wizards.html
+    \previouspage creator-project-managing-sessions.html
     \page creator-editor-using.html
     \nextpage creator-editor-finding.html
 
@@ -2852,7 +2852,7 @@
     \contentspage index.html
     \previouspage creator-project-creating.html
     \page creator-project-opening.html
-    \nextpage creator-project-qmake.html
+    \nextpage creator-project-wizards.html
 
     \title Opening a Project
 
@@ -2919,9 +2919,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-managing-sessions.html
+    \previouspage creator-project-opening.html
     \page creator-project-wizards.html
-    \nextpage creator-editor-using.html
+    \nextpage creator-project-qmake.html
 
     \title Adding New Custom Wizards
 
@@ -3379,7 +3379,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-opening.html
+    \previouspage creator-project-wizards.html
     \page creator-project-qmake.html
     \nextpage creator-project-qmake-libraries.html
 
@@ -5914,7 +5914,7 @@
     \contentspage index.html
     \previouspage creator-remote-compiler.html
     \page creator-version-control.html
-    \nextpage creator-task-lists.html
+    \nextpage creator-editor-external.html
 
     \title Using Version Control Systems
 
@@ -6479,8 +6479,9 @@
 
 /*!
     \contentspage index.html
+    \previouspage creator-developing-symbian.html
     \page creator-project-managing-sessions.html
-    \nextpage creator-project-wizards.html
+    \nextpage creator-editor-using.html
 
     \title Managing Sessions
 
@@ -7868,6 +7869,7 @@
     \contentspage index.html
     \previouspage creator-project-cmake.html
     \page creator-project-generic.html
+    \nextpage creator-developing-maemo.html
 
     \title Setting Up a Generic Project
 
@@ -10253,7 +10255,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-version-control.html
+    \previouspage creator-editor-external.html
     \page creator-task-lists.html
     \nextpage creator-cli.html
 
