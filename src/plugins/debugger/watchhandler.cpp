@@ -1656,5 +1656,26 @@ void WatchHandler::removeTooltip()
     m_tooltips->emitAllChanged();
 }
 
+void WatchHandler::rebuildModel()
+{
+    beginCycle();
+
+    const QList<WatchItem *> watches = m_watchers->rootItem()->children;
+    for (int i = watches.size() - 1; i >= 0; i--)
+        m_watchers->destroyItem(watches.at(i));
+
+    foreach (const QString &exp, watchedExpressions()) {
+        WatchData data;
+        data.exp = exp.toLatin1();
+        data.name = exp;
+        data.iname = watcherName(data.exp);
+        data.setAllUnneeded();
+
+        insertData(data);
+    }
+
+    endCycle();
+}
+
 } // namespace Internal
 } // namespace Debugger

@@ -1844,6 +1844,7 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
     m_threadBox->setModel(engine->threadsModel());
     m_threadBox->setModelColumn(ThreadData::NameColumn);
     m_watchersWindow->setModel(engine->watchersModel());
+    engine->watchHandler()->rebuildModel();
 }
 
 static void changeFontSize(QWidget *widget, qreal size)

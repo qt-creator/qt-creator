@@ -146,6 +146,8 @@ private:
         const QString &oldBasePath, const QString &newBasePath) const;
     QString qmlImportPath() const;
 
+    void synchronizeWatchers();
+
     enum LogDirection {
         LogSend,
         LogReceive
