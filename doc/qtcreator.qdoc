@@ -92,7 +92,7 @@
                 \o \l{Pasting and Fetching Code Snippets}
                 \o \l{Configuring the Editor}
                 \o \l{Using FakeVim Mode}
-                \o \l{Using an External Editor}
+
             \endlist
        \o \l{Developing Application UI}
        \list
@@ -142,6 +142,7 @@
                 \o \l{Building with Remote Compiler}
             \endlist
        \o \l{Using Version Control Systems}
+       \o \l{Using External Tools}
        \o \l{Creating Task List Files}
        \o \l{Using Command Line Options}
        \o \l{Getting Help}
@@ -958,7 +959,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-external.html
+    \previouspage creator-editor-fakevim.html
     \page creator-design-mode.html
     \nextpage creator-visual-editor.html
 
@@ -1763,7 +1764,7 @@
     \contentspage index.html
     \previouspage creator-editor-options.html
     \page creator-editor-fakevim.html
-    \nextpage creator-editor-external.html
+    \nextpage creator-design-mode.html
 
     \title Using FakeVim Mode
 
@@ -1796,41 +1797,117 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-fakevim.html
+    \previouspage creator-version-control.html
     \page creator-editor-external.html
-    \nextpage creator-design-mode.html
+    \nextpage creator-task-lists.html
 
-    \title Using an External Editor
+    \title Using External Tools
 
+    You can use external tools directly from Qt Creator. Qt Linguist, the
+    default text editor for your system, and the \c sort tool are preconfigured
+    for use. You can change their default configurations and configure new
+    tools.
+
+    \section1 Using Qt Linguist
+
+    You can use the Qt Linguist release manager tools, lupdate and lrelease,
+    directly from Qt Creator. The lupdate tool is used to synchronize source
+    code and translations. The lrelease tool is used to create run-time
+    translation files for use by the released application.
+
+    To synchronize ts files from a translator with the application code,
+    select \gui {Tools > External > Text > Linguist > Update Translations
+    (lupdate)}.
+
+    To generate from the ts files qm translation files that can be used by an
+    application, select \gui {Tools > External > Text > Linguist > Release
+    Translations (lrelease)}.
+
+    By default, the project .pro file is passed to the tools as an argument. To
+    specify other command line arguments for the tools, select \gui {Tools >
+    External > Configure}.
+
+    For more information about Qt Linguist, see
+    \l{http://doc.qt.nokia.com/4.7/linguist-manual.html}{Qt Linguist Manual}.
+
+    \section1 Using External Text Editors
+
+    You can open files for editing in the default text editor for your system:
+    Notepad on Windows and vi on Linux and Mac OS.
     To open the file you are currently viewing in an external editor, select
-    \gui Edit > \gui Advanced > \gui{Open in External Editor}.
+    \gui {Tools > External > Text > Notepad} or \gui vi, depending on your
+    system.
 
-    To use the external editor of your choice:
+    Qt Creator looks for the editor path in the PATH environment variable
+    of your operating system.
+
+    \section1 Sorting Text Alphabetically
+
+    To sort selected text alphabetically, select \gui {Tools > External > Text
+    > Sort Selection}. The \c sort tool takes the selected text as input and
+    returns it in alphabetic order. By default, the output replaces the
+    original selection in the code editor.
+
+    To change the default configuration, select \gui {Tools > External >
+    Configure}.
+
+    \section1 Configuring External Tools
+
+    You can change the configuration of preconfigured tools and configure
+    additional tools in Qt Creator \gui Options.
+
+    You can use variables in the fields that you can select from lists
+    of available variables.
+
+    \image qtcreator-external-tools.png "External Tools options"
+
+    To configure external tools:
+
     \list 1
-        \o Add the editor path to the \c{PATH} environment variable of your
-           operating system.
-        \o In Qt Creator select \gui Tools > \gui Options... >
-           \gui Environment > \gui General.
-        \o In \gui{External editor} enter the name of the application followed
-           by \key Space and \tt{\bold %f}. For example, to open the file in
-           Smultron, enter \tt{\bold{smultron %f}}.
 
-           To further define how to open the file in the external editor, you
-           can use the following variables separated by a space:
-           \list
-            \o Current line number \tt{\bold %l}
-            \o Current column number \tt{\bold %c}
-            \o Editor's x position on the screen \tt{\bold %x}
-            \o Editor's y position on the screen \tt{\bold %y}
-            \o Editor's width in pixels \tt{\bold %w}
-            \o Editor's height in pixels \tt{\bold %h}
-            \o Editor's width in characters \tt{\bold %W}
-            \o Editor's height in characters \tt{\bold %H}
-            \o To pass % symbol to the editor \tt{\bold %%}
-           \endlist
+        \o  Select \gui {Tools > External > Configure}.
 
-           \note Not all variables work with all editors.
+        \o  Select
+            \inlineimage qtcreator-windows-add.png
+            to add a new tool. You can also select \gui {Add Category} to add a
+            new category.
+
+        \o  In the \gui Executable field, specify the executable to run. If the
+            executable is found in your system PATH variable, do not specify
+            the path to it.
+
+        \o  In the \gui Arguments field, specify optional arguments for running
+            the executable.
+
+        \o  In the \gui {Working directory} field, specify the path to the
+            working directory.
+
+        \o  In the \gui {Output pane}, select how to handle output from the
+            tool. You can ignore the output, view it in the \gui {General
+            Messages} output pane, or replace the selected text with the
+            output in the code editor.
+
+        \o  In the \gui {Error output pane}, select how to handle error messages
+            from the tool.
+
+        \o In the \gui Input field, specify text that is passed as standard
+        input to the tool.
+
     \endlist
+
+    The category and tool are added to the \gui {Tools > External} menu.
+
+    If you change the configuration of preconfigured tools, you can later
+    revert the changes by selecting the \gui Revert button.
+
+    The tool configurations that you add and modify are stored in XML format in
+    the user configuration folder. For example,
+    \c {~/config/Nokia/qtcreator/externaltools}
+    on Linux and Mac OS and
+    \c {C:\Users\username\AppData\Roaming\Nokia\qtcreator\externaltools}
+    in Windows. To share a configuration with other users, copy an XML
+    configuration file to the folder.
+
 */
 
 
