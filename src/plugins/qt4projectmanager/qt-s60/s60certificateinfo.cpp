@@ -205,7 +205,7 @@ bool S60CertificateInfo::compareCapabilities(const QStringList &givenCaps, QStri
         return true;
 
     QStringList capabilities(createCapabilityList(capabilitiesSupported()));
-    foreach (QString capability, givenCaps) {
+    foreach (const QString &capability, givenCaps) {
         if (!capabilities.contains(capability, Qt::CaseInsensitive))
             unsupportedCaps << capability;
     }

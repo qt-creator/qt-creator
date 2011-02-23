@@ -961,7 +961,7 @@ void CodaDevice::sendProcessStartCommand(const CodaCallback &callBack,
 
     QByteArray startData;
     JsonInputStream startStr(startData);
-    startStr << "" //We dont really know the drive of the working dir
+    startStr << "" //We don't really know the drive of the working dir
             << '\0' << binaryFileName << '\0' << arguments << '\0'
             << QStringList() << '\0' // Env is an array ["PATH=value"] (non-standard)
             << debugControl;
@@ -1264,7 +1264,7 @@ void CodaDevice::sendRegistersGetMRangeCommand(const CodaCallback &callBack,
 
     QVector<QByteArray> ids;
     ids.reserve(count);
-    for (unsigned i = start; i < end; i++)
+    for (unsigned i = start; i < end; ++i)
         ids.push_back(d->m_registerNames.at(i));
     sendRegistersGetMCommand(callBack, contextId, ids, QVariant(start));
 }

@@ -350,7 +350,7 @@ public:
 
     /**
    * Get a value for a specific subject_info parameter name.
-   * @param name the name of the paramter to look up. Possible names are
+   * @param name the name of the parameter to look up. Possible names are
    * "X509.Certificate.v2.key_id" or "X509v3.AuthorityKeyIdentifier".
    * @return the value(s) of the specified parameter
    */

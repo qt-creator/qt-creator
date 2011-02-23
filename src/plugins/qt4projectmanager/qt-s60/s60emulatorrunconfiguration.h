@@ -94,7 +94,7 @@ protected:
 
 private:
     void ctor();
-    void handleParserState(bool sucess);
+    void handleParserState(bool success);
     void updateTarget();
 
     QString m_proFilePath;

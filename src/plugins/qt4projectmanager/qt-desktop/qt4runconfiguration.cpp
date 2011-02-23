@@ -606,7 +606,7 @@ Utils::Environment Qt4RunConfiguration::baseEnvironment() const
     // dirs to the path
     const Qt4ProFileNode *node = qt4Target()->qt4Project()->rootProjectNode()->findProFileFor(m_proFilePath);
     if (node)
-        foreach(const QString dir, node->variableValue(LibDirectoriesVar))
+        foreach(const QString &dir, node->variableValue(LibDirectoriesVar))
             env.prependOrSetPath(dir);
 #endif
     return env;

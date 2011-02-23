@@ -76,7 +76,7 @@ QString generateCapabilitySet(uint capabilities)
     QString capabilitySet;
     for(int i = 0; i < capabilityCount; ++i)
         if (capabilities&symbianCapability[i].value)
-            capabilitySet += QLatin1String(symbianCapability[i].name) + " ";
+            capabilitySet += QLatin1String(symbianCapability[i].name) + ' ';
     return capabilitySet;
 }
 

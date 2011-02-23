@@ -265,7 +265,7 @@ void CodaRunControl::handleContextSuspended(const CodaEvent &event)
         if (me.reason() == TcfSuspendEvent::Crash)
             stop();
         else
-            m_codaDevice->sendRunControlResumeCommand(CodaCallback(), me.id()); //TODO: Should I resume automaticly
+            m_codaDevice->sendRunControlResumeCommand(CodaCallback(), me.id()); //TODO: Should I resume automatically
         break;
     default:
         if (debug)
@@ -307,7 +307,11 @@ void CodaRunControl::handleFindProcesses(const CodaCommandResult &result)
     } else {
         setProgress(maxProgress()*0.90);
         m_codaDevice->sendProcessStartCommand(CodaCallback(this, &CodaRunControl::handleCreateProcess),
-                                                executableName(), executableUid(), commandLineArguments().split(" "), QString(), true);
+                                              executableName(),
+                                              executableUid(),
+                                              commandLineArguments().split(' '),
+                                              QString(),
+                                              true);
         appendMessage(tr("Launching: %1").arg(executableName()), NormalMessageFormat);
     }
 }
