@@ -38,11 +38,13 @@
 
 #include <utils/environment.h>
 #include <utils/synchronousprocess.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QBuffer>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>
 #include <QtCore/QProcess>
+#include <QtCore/QScopedPointer>
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QLabel>
@@ -456,7 +458,12 @@ ToolChain *Internal::GccToolChainFactory::create()
 
 QList<ToolChain *> Internal::GccToolChainFactory::autoDetect()
 {
-    return autoDetectCompiler(QLatin1String("gcc"), Abi::hostAbi());
+    QStringList debuggers;
+#ifdef Q_OS_MAC
+    // Fixme Prefer lldb once it is implemented: debuggers.push_back(QLatin1String("lldb"));
+#endif
+    debuggers.push_back(QLatin1String("gdb"));
+    return autoDetectToolchains(QLatin1String("gcc"), debuggers, Abi::hostAbi());
 }
 
 // Used by the ToolChainManager to restore user-generated ToolChains
@@ -480,36 +487,46 @@ GccToolChain *Internal::GccToolChainFactory::createToolChain(bool autoDetect)
     return new GccToolChain(autoDetect);
 }
 
-QList<ToolChain *> Internal::GccToolChainFactory::autoDetectCompiler(const QString &cc, const Abi &requiredAbi)
+QList<ToolChain *> Internal::GccToolChainFactory::autoDetectToolchains(const QString &compiler,
+                                                                       const QStringList &debuggers,
+                                                                       const Abi &requiredAbi)
 {
     QList<ToolChain *> result;
 
-    QString path = Utils::Environment::systemEnvironment().searchInPath(cc);
-    if (path.isEmpty())
+    const Utils::Environment systemEnvironment = Utils::Environment::systemEnvironment();
+    const QString compilerPath = systemEnvironment.searchInPath(compiler);
+    if (compilerPath.isEmpty())
+        return result;
+    QString debuggerPath; // Find the first debugger
+    foreach (const QString &debugger, debuggers) {
+        debuggerPath = systemEnvironment.searchInPath(debugger);
+        if (!debuggerPath.isEmpty())
+            break;
+    }
+
+    // Create 64bit
+    QScopedPointer<GccToolChain> tc(createToolChain(true));
+    if (tc.isNull())
         return result;
 
-    GccToolChain *tc = createToolChain(true);
-    if (!tc)
-        return result;
-
-    tc->setCompilerPath(path);
-    ProjectExplorer::Abi abi = tc->targetAbi();
+    tc->setCompilerPath(compilerPath);
+    tc->setDebuggerCommand(debuggerPath);
+    const ProjectExplorer::Abi abi = tc->targetAbi();
     if (abi.isValid() && abi == requiredAbi)
-        result.append(tc);
-    else
-        delete tc;
+        result.append(tc.take());
 
     if (abi.wordWidth() != 64)
         return result;
 
-    tc = createToolChain(true);
-    Q_ASSERT(tc); // worked once, so should work again:-)
+    // Create 32bit
+    tc.reset(createToolChain(true));
+    QTC_ASSERT(!tc.isNull(), return result; ); // worked once, so should work again:-)
+
     tc->forceTo32Bit(true);
-    tc->setCompilerPath(path);
+    tc->setCompilerPath(compilerPath);
+    tc->setDebuggerCommand(debuggerPath);
     if (tc->targetAbi().isValid())
-        result.append(tc);
-    else
-        delete tc;
+        result.append(tc.take());
 
     return result;
 }
@@ -537,8 +554,9 @@ Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     connect(m_force32BitCheckBox, SIGNAL(toggled(bool)), this, SLOT(handle32BitChange()));
 
     addDebuggerCommandControls(layout, gnuVersionArgs);
+    addErrorLabel(layout);
 
-    discard();
+    setFromToolchain();
 }
 
 void Internal::GccToolChainConfigWidget::apply()
@@ -558,7 +576,7 @@ void Internal::GccToolChainConfigWidget::apply()
     tc->setDebuggerCommand(debuggerCommand());
 }
 
-void Internal::GccToolChainConfigWidget::discard()
+void Internal::GccToolChainConfigWidget::setFromToolchain()
 {
     GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
     Q_ASSERT(tc);
@@ -634,7 +652,7 @@ QString Internal::MingwToolChainFactory::id() const
 
 QList<ToolChain *> Internal::MingwToolChainFactory::autoDetect()
 {
-    return autoDetectCompiler(QLatin1String("gcc"), Abi::hostAbi());
+    return autoDetectToolchains(QLatin1String("gcc"), QStringList(), Abi::hostAbi());
 }
 
 bool Internal::MingwToolChainFactory::canCreate()
@@ -706,7 +724,9 @@ QString Internal::LinuxIccToolChainFactory::id() const
 
 QList<ToolChain *> Internal::LinuxIccToolChainFactory::autoDetect()
 {
-    return autoDetectCompiler(QLatin1String("icpc"), Abi::hostAbi());
+    return autoDetectToolchains(QLatin1String("icpc"),
+                                QStringList(QLatin1String("gdb")),
+                                Abi::hostAbi());
 }
 
 ToolChain *Internal::LinuxIccToolChainFactory::create()

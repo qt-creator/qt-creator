@@ -358,15 +358,15 @@ RvctToolChainConfigWidget::RvctToolChainConfigWidget(RvctToolChain *tc) :
     m_ui->environmentView->setModel(m_model);
     m_ui->environmentView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     m_ui->environmentView->horizontalHeader()->setStretchLastSection(true);
-    connect(m_model, SIGNAL(userChangesChanged()), this, SLOT(makeDirty()));
+    connect(m_model, SIGNAL(userChangesChanged()), this, SLOT(emitDirty()));
 
     m_ui->compilerPath->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui->compilerPath->setPath(tc->compilerPath());
-    connect(m_ui->compilerPath, SIGNAL(changed(QString)), this, SLOT(makeDirty()));
+    connect(m_ui->compilerPath, SIGNAL(changed(QString)), this, SLOT(emitDirty()));
     m_ui->versionComboBox->setCurrentIndex(static_cast<int>(tc->armVersion()));
-    connect(m_ui->versionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(makeDirty()));
+    connect(m_ui->versionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(emitDirty()));
 
-    discard();
+    setFromToolChain();
 }
 
 void RvctToolChainConfigWidget::apply()
@@ -382,7 +382,7 @@ void RvctToolChainConfigWidget::apply()
     m_model->setUserChanges(changes);
 }
 
-void RvctToolChainConfigWidget::discard()
+void RvctToolChainConfigWidget::setFromToolChain()
 {
     RvctToolChain *tc = static_cast<RvctToolChain *>(toolChain());
     Q_ASSERT(tc);
@@ -401,11 +401,6 @@ bool RvctToolChainConfigWidget::isDirty() const
     return tc->compilerPath() != m_ui->compilerPath->path()
             || tc->armVersion() != static_cast<RvctToolChain::ArmVersion>(m_ui->versionComboBox->currentIndex())
             || tc->environmentChanges() != environmentChanges();
-}
-
-void RvctToolChainConfigWidget::makeDirty()
-{
-    emit dirty(toolChain());
 }
 
 QList<Utils::EnvironmentItem> RvctToolChainConfigWidget::environmentChanges() const

@@ -403,12 +403,12 @@ ToolChainConfigWidget *MsvcToolChain::configurationWidget()
 
 bool MsvcToolChain::canClone() const
 {
-    return false;
+    return true;
 }
 
 ToolChain *MsvcToolChain::clone() const
 {
-    return 0;
+    return new MsvcToolChain(*this);
 }
 
 // --------------------------------------------------------------------------
@@ -420,7 +420,10 @@ MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc) :
 {
     QFormLayout *formLayout = new QFormLayout(this);
     formLayout->addRow(new QLabel(tc->displayName()));
-    addDebuggerCommandControls(formLayout);
+    addDebuggerCommandControls(formLayout, QStringList(QLatin1String("-version")));
+    addDebuggerAutoDetection(this, SLOT(autoDetectDebugger()));
+    addErrorLabel(formLayout);
+    setFromToolChain();
 }
 
 void MsvcToolChainConfigWidget::apply()
@@ -430,7 +433,7 @@ void MsvcToolChainConfigWidget::apply()
     tc->setDebuggerCommand(debuggerCommand());
 }
 
-void MsvcToolChainConfigWidget::discard()
+void MsvcToolChainConfigWidget::setFromToolChain()
 {
     MsvcToolChain *tc = static_cast<MsvcToolChain *>(toolChain());
     QTC_ASSERT(tc, return);
@@ -442,6 +445,22 @@ bool MsvcToolChainConfigWidget::isDirty() const
     MsvcToolChain *tc = static_cast<MsvcToolChain *>(toolChain());
     QTC_ASSERT(tc, return false);
     return debuggerCommand() != tc->debuggerCommand();
+}
+
+void MsvcToolChainConfigWidget::autoDetectDebugger()
+{
+    QStringList directories;
+    const QString cdbExecutable = MsvcToolChain::autoDetectCdbDebugger(&directories);
+    if (cdbExecutable.isEmpty()) {
+        const QString msg = tr("The CDB debugger could not be found in %1").arg(directories.join(QLatin1String(", ")));
+        setErrorMessage(msg);
+    } else {
+        clearErrorMessage();
+        if (cdbExecutable != debuggerCommand()) {
+            setDebuggerCommand(cdbExecutable);
+            emitDirty();
+        }
+    }
 }
 
 // --------------------------------------------------------------------------
@@ -552,7 +571,70 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
         }
     }
 #endif
+    if (!results.isEmpty()) { // Detect debugger
+        const QString cdbDebugger = MsvcToolChain::autoDetectCdbDebugger();
+        if (!cdbDebugger.isEmpty()) {
+            foreach (ToolChain *tc, results)
+                static_cast<MsvcToolChain *>(tc)->setDebuggerCommand(cdbDebugger);
+        }
+    }
     return results;
+}
+
+// Check the CDB executable and accumulate the list of checked paths
+// for reporting.
+static QString checkCdbExecutable(const QString &programDir, const QString &postfix,
+                                  QStringList *checkedDirectories = 0)
+{
+    QString executable = programDir;
+    executable += QLatin1String("/Debugging Tools For Windows");
+    executable += postfix;
+    if (checkedDirectories)
+        checkedDirectories->push_back(QDir::toNativeSeparators(executable));
+    executable += QLatin1String("/cdb.exe");
+    const QFileInfo fi(executable);
+    return fi.isFile() && fi.isExecutable() ? fi.absoluteFilePath() : QString();
+}
+
+QString MsvcToolChain::autoDetectCdbDebugger(QStringList *checkedDirectories /* = 0 */)
+{
+    // Look for $ProgramFiles/"Debugging Tools For Windows <bit-idy>/cdb.exe" and its
+    // " (x86)", " (x64)" variations.
+    static const char *postFixes[] = {"", " (x64)", " 64-bit", " (x86)", " (x32)" };
+
+    if (checkedDirectories)
+        checkedDirectories->clear();
+
+    const QString programDir = QString::fromLocal8Bit(qgetenv("ProgramFiles"));
+    if (programDir.isEmpty())
+        return QString();
+
+    // Try the post fixes
+    QString outPath;
+    for (unsigned i = 0; i < sizeof(postFixes)/sizeof(const char*); i++) {
+        outPath = checkCdbExecutable(programDir, QLatin1String(postFixes[i]), checkedDirectories);
+        if (!outPath.isEmpty())
+            return outPath;
+    }
+    // A 32bit-compile running on a 64bit system sees the 64 bit installation
+    // as "$ProgramFiles (x64)/Debugging Tools..." and (untested), a 64 bit-
+    // compile running on a 64bit system sees the 32 bit installation as
+    // "$ProgramFiles (x86)/Debugging Tools..." (assuming this works at all)
+#ifdef Q_OS_WIN64
+    outPath = checkCdbExecutable(programDir + QLatin1String(" (x32)"), QString(), checkedDirectories);
+    if (!outPath.isEmpty())
+        return QString();
+#else
+    // A 32bit process on 64 bit sees "ProgramFiles\Debg.. (x64)"
+    if (programDir.endsWith(QLatin1String(" (x86)"))) {
+        outPath = checkCdbExecutable(programDir.left(programDir.size() - 6),
+                                     QLatin1String(" (x64)"), checkedDirectories);
+
+        if (!outPath.isEmpty())
+            return QString();
+    }
+#endif
+    return QString();
 }
 
 } // namespace Internal

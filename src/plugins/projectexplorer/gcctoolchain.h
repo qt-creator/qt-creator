@@ -143,7 +143,9 @@ public:
 
 protected:
     virtual GccToolChain *createToolChain(bool autoDetect);
-    QList<ToolChain *> autoDetectCompiler(const QString &path, const Abi &);
+    QList<ToolChain *> autoDetectToolchains(const QString &compiler,
+                                            const QStringList &debuggers,
+                                            const Abi &);
 };
 
 } // namespace Internal
@@ -161,7 +163,7 @@ class GccToolChainConfigWidget : public ToolChainConfigWidget
 public:
     GccToolChainConfigWidget(GccToolChain *);
     void apply();
-    void discard();
+    void discard() { setFromToolchain(); }
     bool isDirty() const;
 
 private slots:
@@ -169,6 +171,8 @@ private slots:
     void handle32BitChange();
 
 private:
+    void setFromToolchain();
+
     Utils::PathChooser *m_compilerPath;
     QCheckBox *m_force32BitCheckBox;
 };

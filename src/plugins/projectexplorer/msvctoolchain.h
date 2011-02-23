@@ -76,6 +76,8 @@ public:
     bool canClone() const;
     ToolChain *clone() const;
 
+    static QString autoDetectCdbDebugger(QStringList *checkedDirectories = 0);
+
 private:
     QString m_varsBat; // Script to setup environment
     QString m_varsBatArg; // Argument
@@ -117,8 +119,14 @@ public:
     MsvcToolChainConfigWidget(ToolChain *);
 
     void apply();
-    void discard();
+    void discard() { setFromToolChain(); }
     bool isDirty() const;
+
+private slots:
+    void autoDetectDebugger();
+
+private:
+    void setFromToolChain();
 };
 
 } // namespace Internal

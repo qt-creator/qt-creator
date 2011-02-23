@@ -139,13 +139,11 @@ public:
     RvctToolChainConfigWidget(RvctToolChain *tc);
 
     void apply();
-    void discard();
+    void discard() { setFromToolChain(); }
     bool isDirty() const;
 
-private slots:
-    void makeDirty();
-
 private:
+    void setFromToolChain();
     QList<Utils::EnvironmentItem> environmentChanges() const;
 
     Ui::RvctToolChainConfigWidget *m_ui;

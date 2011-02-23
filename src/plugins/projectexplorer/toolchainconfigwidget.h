@@ -73,6 +73,8 @@ signals:
 
 protected slots:
     void emitDirty();
+    void setErrorMessage(const QString &);
+    void clearErrorMessage();
 
 protected:
     void addDebuggerCommandControls(QFormLayout *lt,
@@ -80,6 +82,9 @@ protected:
     void addDebuggerCommandControls(QGridLayout *lt,
                                     int row = 0, int column = 0,
                                     const QStringList &versionArguments = QStringList());
+    void addDebuggerAutoDetection(QObject *receiver, const char *autoDetectSlot);
+    void addErrorLabel(QFormLayout *lt);
+    void addErrorLabel(QGridLayout *lt, int row = 0, int column = 0, int colSpan = 1);
 
     QString debuggerCommand() const;
     void setDebuggerCommand(const QString &d);

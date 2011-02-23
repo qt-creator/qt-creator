@@ -53,7 +53,7 @@ class ToolChainConfigWidgetPrivate
 {
 public:
     ToolChainConfigWidgetPrivate(ToolChain *tc) :
-        m_toolChain(tc), m_debuggerPathChooser(0)
+        m_toolChain(tc), m_debuggerPathChooser(0), m_errorLabel(0)
     {
         Q_ASSERT(tc);
     }
@@ -62,6 +62,7 @@ public:
 
     ToolChain *m_toolChain;
     Utils::PathChooser *m_debuggerPathChooser;
+    QLabel *m_errorLabel;
 };
 
 } // namespace Internal
@@ -119,6 +120,12 @@ void ToolChainConfigWidget::ensureDebuggerPathChooser(const QStringList &version
     connect(m_d->m_debuggerPathChooser, SIGNAL(changed(QString)), this, SLOT(emitDirty()));
 }
 
+void ToolChainConfigWidget::addDebuggerAutoDetection(QObject *receiver, const char *autoDetectSlot)
+{
+    QTC_ASSERT(m_d->m_debuggerPathChooser, return; )
+    m_d->m_debuggerPathChooser->addButton(tr("Autodetect"), receiver, autoDetectSlot);
+}
+
 QString ToolChainConfigWidget::debuggerCommand() const
 {
     QTC_ASSERT(m_d->m_debuggerPathChooser, return QString(); )
@@ -130,5 +137,44 @@ void ToolChainConfigWidget::setDebuggerCommand(const QString &d)
     QTC_ASSERT(m_d->m_debuggerPathChooser, return; )
     m_d->m_debuggerPathChooser->setPath(d);
 }
+
+void ToolChainConfigWidget::addErrorLabel(QFormLayout *lt)
+{
+    if (!m_d->m_errorLabel) {
+        m_d->m_errorLabel = new QLabel;
+        m_d->m_errorLabel->setVisible(false);
+    }
+    lt->addRow(m_d->m_errorLabel);
+}
+
+void ToolChainConfigWidget::addErrorLabel(QGridLayout *lt, int row, int column, int colSpan)
+{
+    if (!m_d->m_errorLabel) {
+        m_d->m_errorLabel = new QLabel;
+        m_d->m_errorLabel->setVisible(false);
+    }
+    lt->addWidget(m_d->m_errorLabel, row, column, 1, colSpan);
+}
+
+void ToolChainConfigWidget::setErrorMessage(const QString &m)
+{
+    QTC_ASSERT(m_d->m_errorLabel, return; )
+    if (m.isEmpty()) {
+        clearErrorMessage();
+    } else {
+        m_d->m_errorLabel->setText(m);
+        m_d->m_errorLabel->setStyleSheet(QLatin1String("background-color: \"red\""));
+        m_d->m_errorLabel->setVisible(true);
+    }
+}
+
+void ToolChainConfigWidget::clearErrorMessage()
+{
+    QTC_ASSERT(m_d->m_errorLabel, return; )
+    m_d->m_errorLabel->clear();
+    m_d->m_errorLabel->setStyleSheet(QString());
+    m_d->m_errorLabel->setVisible(false);
+}
+
 
 } // namespace ProjectExplorer
