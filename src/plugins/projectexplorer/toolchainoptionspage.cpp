@@ -309,8 +309,7 @@ void ToolChainModel::apply()
     }
     //
     foreach (ToolChainNode *n, m_toAddList) {
-        delete n->toolChain;
-        n->toolChain = 0;
+        markForRemoval(n->toolChain);
     }
     qDeleteAll(m_toAddList);
 }
