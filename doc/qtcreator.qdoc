@@ -4616,7 +4616,7 @@
         \o In the \gui{Projects} view, double-click the \c{mainwindow.h} file
         to open it for editing.
 
-        \o Include the System Info header file, as illustrated by the following
+        \o Include the System Device Info header file, as illustrated by the following
         code snippet:
 
         \snippet examples/batteryindicator/mainwindow.h 1

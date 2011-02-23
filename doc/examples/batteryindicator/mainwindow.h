@@ -5,7 +5,7 @@
 #include <QtGui/QMainWindow>
 
 //! [1]
-#include <QSystemInfo>
+#include <QSystemDeviceInfo>
 //! [1]
 
 //! [2]
