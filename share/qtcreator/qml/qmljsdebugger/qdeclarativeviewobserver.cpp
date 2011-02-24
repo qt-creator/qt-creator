@@ -55,6 +55,8 @@
 #include <QtGui/QApplication>
 #include <QtCore/QSettings>
 
+static inline void initEditorResource() { Q_INIT_RESOURCE(editor); }
+
 namespace QmlJSDebugger {
 
 const char * const KEY_TOOLBOX_GEOMETRY = "toolBox/geometry";
@@ -83,6 +85,8 @@ QDeclarativeViewObserverPrivate::~QDeclarativeViewObserverPrivate()
 QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObject *parent) :
     QObject(parent), data(new QDeclarativeViewObserverPrivate(this))
 {
+    initEditorResource();
+
     data->view = view;
     data->manipulatorLayer = new LiveLayerItem(view->scene());
     data->selectionTool = new LiveSelectionTool(this);
