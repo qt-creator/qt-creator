@@ -37,14 +37,6 @@
 #include <coreplugin/basefilewizard.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
 
-namespace Utils {
-
-class FileWizardPage;
-class ProjectIntroPage;
-
-} // namespace Utils
-
-
 namespace QmlProjectManager {
 namespace Internal {
 
