@@ -215,6 +215,7 @@ S60DevicesBaseWidget::S60DevicesBaseWidget(unsigned flags, QWidget *parent) :
 S60DevicesBaseWidget::~S60DevicesBaseWidget()
 {
     delete m_ui;
+    delete m_model;
 }
 
 QStandardItem *S60DevicesBaseWidget::currentItem() const
