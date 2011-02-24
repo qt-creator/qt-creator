@@ -247,7 +247,7 @@ bool PropertyEditorNodeWrapper::exists()
 QString PropertyEditorNodeWrapper::type()
 {
     if (!(m_modelNode.isValid()))
-        return QString("");
+        return QString();
 
     return m_modelNode.simplifiedTypeName();
 

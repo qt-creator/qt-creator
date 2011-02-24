@@ -235,7 +235,7 @@ QList<QmlObjectNode> QmlModelState::allAffectedNodes() const
 QString QmlModelState::name() const
 {
     if (isBaseState())
-        return QString("");
+        return QString();
 
     return modelNode().variantProperty("name").value().toString();
 }
