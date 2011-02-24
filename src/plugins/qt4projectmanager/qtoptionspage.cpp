@@ -439,53 +439,6 @@ void QtOptionsPageWidget::removeQtDir()
     updateState();
 }
 
-// Format html table tooltip about helpers
-static inline QString msgHtmlHelperToolTip(const QString &gdbHelperPath,
-                                           const QString &qmlJsDebugLibPath,
-                                           const QString &qmlDumpPath,
-                                           const QString &qmlObserverPath)
-{
-    QFileInfo gdbHelperFI(gdbHelperPath);
-    QFileInfo qmlJsDebugLibFi(qmlJsDebugLibPath);
-    QFileInfo qmlDumpFI(qmlDumpPath);
-    QFileInfo qmlObserverFI(qmlObserverPath);
-
-    QString notFound = QtOptionsPageWidget::tr("Binary not found");
-
-    //: Tooltip showing the debugging helper library file.
-    return QtOptionsPageWidget::tr("<html><body><table>"
-                                   "<tr><td colspan=\"2\"><b>GDB debugging helpers</b></td></tr>"
-                                   "<tr><td>File:</td><td><pre>%1</pre></td></tr>"
-                                   "<tr><td>Last&nbsp;modified:</td><td>%2</td></tr>"
-                                   "<tr><td>Size:</td><td>%3 Bytes</td></tr>"
-                                   "<tr><td colspan=\"2\"><b>QML debugging library</b></td></tr>"
-                                   "<tr><td>File:</td><td><pre>%4</pre></td></tr>"
-                                   "<tr><td>Last&nbsp;modified:</td><td>%5</td></tr>"
-                                   "<tr><td>Size:</td><td>%6 Bytes</td></tr>"
-                                   "<tr><td colspan=\"2\"><b>QML type dumper</b></td></tr>"
-                                   "<tr><td>File:</td><td><pre>%7</pre></td></tr>"
-                                   "<tr><td>Last&nbsp;modified:</td><td>%8</td></tr>"
-                                   "<tr><td>Size:</td><td>%9 Bytes</td></tr>"
-                                   "<tr><td colspan=\"2\"><b>QML observer</b></td></tr>"
-                                   "<tr><td>File:</td><td><pre>%10</pre></td></tr>"
-                                   "<tr><td>Last&nbsp;modified:</td><td>%11</td></tr>"
-                                   "<tr><td>Size:</td><td>%12 Bytes</td></tr>"
-                                   "</table></body></html>"
-                                   ).
-                      arg(gdbHelperPath.isEmpty() ? notFound : QDir::toNativeSeparators(gdbHelperFI.absoluteFilePath())).
-                      arg(gdbHelperFI.lastModified().toString(Qt::SystemLocaleLongDate)).
-                      arg(gdbHelperFI.size()).
-                      arg(qmlJsDebugLibPath.isEmpty() ? notFound : QDir::toNativeSeparators(qmlJsDebugLibFi.absoluteFilePath())).
-                      arg(qmlJsDebugLibFi.lastModified().toString(Qt::SystemLocaleLongDate)).
-                      arg(qmlJsDebugLibFi.size()).
-                      arg(qmlDumpPath.isEmpty() ? notFound : QDir::toNativeSeparators(qmlDumpFI.absoluteFilePath())).
-                      arg(qmlDumpFI.lastModified().toString(Qt::SystemLocaleLongDate)).
-                      arg(qmlDumpFI.size()).
-                      arg(qmlObserverPath.isEmpty() ? notFound : QDir::toNativeSeparators(qmlObserverFI.absoluteFilePath())).
-                      arg(qmlObserverFI.lastModified().toString(Qt::SystemLocaleLongDate)).
-                      arg(qmlObserverFI.size());
-}
-
 void QtOptionsPageWidget::updateDebuggingHelperUi()
 {
     QtVersion *version = currentVersion();
