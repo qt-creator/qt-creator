@@ -4507,9 +4507,12 @@ void GdbEngine::handleInferiorPrepared()
     if (!qtInstallPath.isEmpty()) {
         QByteArray qtBuildPath;
 #if defined(Q_OS_WIN)
-        qtBuildPath = "C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.6/qt";
+        qtBuildPath = "C:/qt-greenhouse/Trolltech/Code_less_create_more/"
+            "Trolltech/Code_less_create_more/Troll/4.6/qt";
         postCommand("set substitute-path " + qtBuildPath + ' ' + qtInstallPath);
         qtBuildPath = "C:/iwmake/build_mingw_opensource";
+        postCommand("set substitute-path " + qtBuildPath + ' ' + qtInstallPath);
+        qtBuildPath = "C:/ndk_buildrepos/qt-desktop/src";
         postCommand("set substitute-path " + qtBuildPath + ' ' + qtInstallPath);
 #elif defined(Q_OS_UNIX) && !defined (Q_OS_MAC)
         qtBuildPath = "/var/tmp/qt-src";
