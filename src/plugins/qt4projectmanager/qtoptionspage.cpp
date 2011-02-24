@@ -402,6 +402,8 @@ void QtOptionsPageWidget::showDebuggingBuildLog(const QTreeWidgetItem *currentIt
 QtOptionsPageWidget::~QtOptionsPageWidget()
 {
     delete m_ui;
+    delete m_versionUi;
+    delete m_debuggingHelperUi;
     qDeleteAll(m_versions);
 }
 
