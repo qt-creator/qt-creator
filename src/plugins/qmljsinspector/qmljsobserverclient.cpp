@@ -51,7 +51,7 @@ namespace QmlJSInspector {
 namespace Internal {
 
 QmlJSObserverClient::QmlJSObserverClient(QDeclarativeDebugConnection *client,
-                                                             QObject * /*parent*/)
+                                         QObject * /*parent*/)
     : QDeclarativeDebugClient(QLatin1String("QDeclarativeObserverMode"), client) ,
     m_connection(client)
 {
@@ -78,12 +78,11 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
 
         m_currentDebugIds.clear();
 
-        for(int i = 0; i < objectCount; ++i) {
+        for (int i = 0; i < objectCount; ++i) {
             int debugId;
             ds >> debugId;
-            if (debugId != -1) {
+            if (debugId != -1)
                 m_currentDebugIds << debugId;
-            }
         }
 
         emit currentObjectsChanged(m_currentDebugIds);
@@ -166,7 +165,8 @@ QList<int> QmlJSObserverClient::currentObjects() const
     return m_currentDebugIds;
 }
 
-void QmlJSObserverClient::setCurrentObjects(const QList<int> &debugIds) {
+void QmlJSObserverClient::setCurrentObjects(const QList<int> &debugIds)
+{
     if (!m_connection || !m_connection->isConnected())
         return;
 
@@ -195,9 +195,8 @@ void recurseObjectIdList(const QDeclarativeDebugObjectReference &ref, QList<int>
 {
     debugIds << ref.debugId();
     objectIds << ref.idString();
-    foreach(const QDeclarativeDebugObjectReference &child, ref.children()) {
+    foreach (const QDeclarativeDebugObjectReference &child, ref.children())
         recurseObjectIdList(child, debugIds, objectIds);
-    }
 }
 
 void QmlJSObserverClient::setObjectIdList(const QList<QDeclarativeDebugObjectReference> &objectRoots)
@@ -208,9 +207,8 @@ void QmlJSObserverClient::setObjectIdList(const QList<QDeclarativeDebugObjectRef
     QList<int> debugIds;
     QList<QString> objectIds;
 
-    foreach(const QDeclarativeDebugObjectReference &ref, objectRoots) {
+    foreach (const QDeclarativeDebugObjectReference &ref, objectRoots)
         recurseObjectIdList(ref, debugIds, objectIds);
-    }
 
     ObserverProtocol::Message cmd = ObserverProtocol::ObjectIdList;
     ds << cmd

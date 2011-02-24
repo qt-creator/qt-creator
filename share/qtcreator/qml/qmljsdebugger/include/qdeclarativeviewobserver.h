@@ -119,6 +119,6 @@ private:
     friend class AbstractLiveEditTool;
 };
 
-} //namespace QmlJSDebugger
+} // namespace QmlJSDebugger
 
 #endif // QDECLARATIVEVIEWOBSERVER_H

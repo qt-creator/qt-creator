@@ -51,7 +51,6 @@ AbstractLiveEditTool::AbstractLiveEditTool(QDeclarativeViewObserver *editorView)
 
 AbstractLiveEditTool::~AbstractLiveEditTool()
 {
-
 }
 
 QDeclarativeViewObserver *AbstractLiveEditTool::observer() const
@@ -196,4 +195,4 @@ QString AbstractLiveEditTool::titleForItem(QGraphicsItem *item)
 }
 
 
-}
+} // namespace QmlJSDebugger
