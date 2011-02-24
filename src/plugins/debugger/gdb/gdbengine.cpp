@@ -1602,8 +1602,15 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
         foreach (const GdbMi &dumper, dumpers.children()) {
             QByteArray type = dumper.findChild("type").data();
             QStringList formats(tr("Raw structure"));
-            QString reported = _(dumper.findChild("formats").data());
-            formats.append(reported.split(_(","), QString::SkipEmptyParts));
+            foreach (const QByteArray &format,
+                     dumper.findChild("formats").data().split(',')) {
+                if (format == "Normal")
+                    formats.append(tr("Normal"));
+                else if (format == "Displayed")
+                    formats.append(tr("Displayed"));
+                else if (!format.isEmpty())
+                    formats.append(_(format));
+            }
             watchHandler()->addTypeFormats(type, formats);
         }
         const GdbMi hasInferiorThreadList = data.findChild("hasInferiorThreadList");
