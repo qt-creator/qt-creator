@@ -610,32 +610,31 @@ void QtOptionsPageWidget::makeS60Visible(bool visible)
 
 void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
 {
-    if (item) {
-        int index = indexForTreeItem(item);
-        QSharedPointerQtVersion qtVersion;
-        if (index >= 0)
-            qtVersion = m_versions.at(index);
+    makeS60Visible(false);
+    m_versionUi->errorLabel->setText("");
+    if (!item)
+        return;
 
-        if (qtVersion.isNull() || !qtVersion->isValid()) {
-            m_versionUi->errorLabel->setText("");
-            makeS60Visible(false);
-            return;
-        }
+    int index = indexForTreeItem(item);
+    QSharedPointerQtVersion qtVersion;
+    if (index < 0)
+        return;
 
-        ProjectExplorer::Abi qtAbi = qtVersion->qtAbis().at(0);
-
-        if (qtAbi.os() == ProjectExplorer::Abi::SymbianOS) {
-            makeS60Visible(true);
-            m_versionUi->s60SDKPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->s60SDKDirectory()));
-            m_versionUi->sbsV2Path->setPath(m_versions.at(index)->sbsV2Directory());
-            m_versionUi->sbsV2Path->setEnabled(m_versions.at(index)->isBuildWithSymbianSbsV2());
-        } else {
-            makeS60Visible(false);
-        }
-        m_versionUi->errorLabel->setText(m_versions.at(index)->description());
-    } else {
-        makeS60Visible(false);
+    qtVersion = m_versions.at(index);
+    if (!qtVersion->isValid()) {
+        m_versionUi->errorLabel->setText(qtVersion->invalidReason());
+        return;
     }
+
+    ProjectExplorer::Abi qtAbi = qtVersion->qtAbis().at(0);
+
+    if (qtAbi.os() == ProjectExplorer::Abi::SymbianOS) {
+        makeS60Visible(true);
+        m_versionUi->s60SDKPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->s60SDKDirectory()));
+        m_versionUi->sbsV2Path->setPath(m_versions.at(index)->sbsV2Directory());
+        m_versionUi->sbsV2Path->setEnabled(m_versions.at(index)->isBuildWithSymbianSbsV2());
+    }
+    m_versionUi->errorLabel->setText(m_versions.at(index)->description());
 }
 
 int QtOptionsPageWidget::indexForTreeItem(const QTreeWidgetItem *item) const
