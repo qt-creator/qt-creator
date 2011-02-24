@@ -83,9 +83,17 @@ public:
         m_buildTask->run(future);
     }
 
-    void updateProjectWhenDone(ProjectExplorer::Project *project, bool preferDebug)
+    void updateProjectWhenDone(QPointer<ProjectExplorer::Project> project, bool preferDebug)
     {
-        m_projectsToUpdate.insert(qMakePair(project, preferDebug));
+        foreach (const ProjectToUpdate &update, m_projectsToUpdate) {
+            if (update.project == project)
+                return;
+        }
+
+        ProjectToUpdate update;
+        update.project = project;
+        update.preferDebug = preferDebug;
+        m_projectsToUpdate += update;
     }
 
     bool hasFailed() const
@@ -123,12 +131,13 @@ private slots:
         if (!modelManager)
             return;
 
-        typedef QPair<ProjectExplorer::Project *, bool> ProjectAndDebug;
-        foreach (ProjectAndDebug projectAndDebug, m_projectsToUpdate) {
-            QmlJS::ModelManagerInterface::ProjectInfo projectInfo = modelManager->projectInfo(projectAndDebug.first);
-            projectInfo.qmlDumpPath = version->qmlDumpTool(projectAndDebug.second);
+        foreach (const ProjectToUpdate &update, m_projectsToUpdate) {
+            if (!update.project)
+                continue;
+            QmlJS::ModelManagerInterface::ProjectInfo projectInfo = modelManager->projectInfo(update.project);
+            projectInfo.qmlDumpPath = version->qmlDumpTool(update.preferDebug);
             if (projectInfo.qmlDumpPath.isEmpty())
-                projectInfo.qmlDumpPath = version->qmlDumpTool(!projectAndDebug.second);
+                projectInfo.qmlDumpPath = version->qmlDumpTool(!update.preferDebug);
             projectInfo.qmlDumpEnvironment = version->qmlToolsEnvironment();
             modelManager->updateProjectInfo(projectInfo);
         }
@@ -139,7 +148,13 @@ private slots:
     }
 
 private:
-    QSet<QPair<ProjectExplorer::Project *, bool> > m_projectsToUpdate;
+    class ProjectToUpdate {
+    public:
+        QPointer<ProjectExplorer::Project> project;
+        bool preferDebug;
+    };
+
+    QList<ProjectToUpdate> m_projectsToUpdate;
     Internal::DebuggingHelperBuildTask *m_buildTask; // deletes itself after run()
     QtVersion m_version;
     bool m_failed;
