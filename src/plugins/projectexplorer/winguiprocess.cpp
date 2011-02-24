@@ -136,6 +136,7 @@ void WinGuiProcess::run()
         }
 
         if (!dbgInterface) {
+            // Text is dublicated in qmlengine.cpp
             emit receivedDebugOutput(tr("Cannot retrieve debugging output!"), true);
             WaitForSingleObject(m_pid->hProcess, INFINITE);
         } else {

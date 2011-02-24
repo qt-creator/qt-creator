@@ -237,16 +237,25 @@ void QmlEngine::connectionEstablished()
 
 void QmlEngine::connectionStartupFailed()
 {
-    QMessageBox::Button button =
-            QMessageBox::critical(0, tr("Failed to connect to QML debugger"),
-                                  tr("Qt Creator could not connect to the in-process debugger at %1:%2.\n"
-                                     "Do you want to retry?")
-                                  .arg(startParameters().qmlServerAddress)
-                                  .arg(startParameters().qmlServerPort),
-                                  QMessageBox::Retry | QMessageBox::Cancel | QMessageBox::Help,
-                                  QMessageBox::Retry);
+    Core::ICore * const core = Core::ICore::instance();
+    QMessageBox *infoBox = new QMessageBox(core->mainWindow());
+    infoBox->setIcon(QMessageBox::Critical);
+    infoBox->setWindowTitle(tr("Qt Creator"));
+    infoBox->setText(tr("Could not connect to the in-process QML debugger.\n"
+                        "Do you want to retry?"));
+    infoBox->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel | QMessageBox::Help);
+    infoBox->setDefaultButton(QMessageBox::Retry);
+    infoBox->setModal(true);
 
-    switch (button) {
+    connect(infoBox, SIGNAL(finished(int)),
+            this, SLOT(retryMessageBoxFinished(int)));
+
+    infoBox->show();
+}
+
+void QmlEngine::retryMessageBoxFinished(int result)
+{
+    switch (result) {
     case QMessageBox::Retry: {
         d->m_adapter.beginConnection();
         break;
@@ -254,6 +263,7 @@ void QmlEngine::connectionStartupFailed()
     case QMessageBox::Help: {
         Core::HelpManager *helpManager = Core::HelpManager::instance();
         helpManager->handleHelpRequest("qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html");
+        // fall through
     }
     default:
         notifyEngineRunFailed();
@@ -281,7 +291,8 @@ bool QmlEngine::canDisplayTooltip() const
 void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
 {
     static QString qddserver = QLatin1String("QDeclarativeDebugServer: ");
-    static QString cannotRetrieve = "Cannot retrieve debugging output!";
+    //: Must be the same translation as the one in WinGuiProcess
+    static QString cannotRetrieve = tr("Cannot retrieve debugging output!");
 
     int index = msg.indexOf(qddserver);
     if (index != -1) {
@@ -297,9 +308,11 @@ void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
         if (status.startsWith(waitingForConnection)) {
             d->m_adapter.beginConnection();
         } else if (status.startsWith(unableToListen)) {
+            //: Error message shown after 'Could not connect ... debugger:"
             errorMessage = tr("The port seems to be in use.");
         } else if (status.startsWith(debuggingNotEnabled)) {
-            errorMessage = tr("The application isn't set up for QML/JS debugging.");
+            //: Error message shown after 'Could not connect ... debugger:"
+            errorMessage = tr("The application is not set up for QML/JS debugging.");
         } else if (status.startsWith(connectionEstablished)) {
             // nothing to do
         } else {
@@ -313,18 +326,16 @@ void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
             QMessageBox *infoBox = new QMessageBox(core->mainWindow());
             infoBox->setIcon(QMessageBox::Critical);
             infoBox->setWindowTitle(tr("Qt Creator"));
-            infoBox->setText(tr("Failed to connect to QML debugger\n\n"
-                                "Qt Creator could not connect to the in-process debugger at %1:%2:\n"
+            //: %3 is detailed error message
+            infoBox->setText(tr("Could not connect to the in-process QML debugger:\n"
                                 "%3")
-                             .arg(startParameters().qmlServerAddress)
-                             .arg(startParameters().qmlServerPort)
                              .arg(errorMessage));
             infoBox->setStandardButtons(QMessageBox::Ok | QMessageBox::Help);
             infoBox->setDefaultButton(QMessageBox::Ok);
             infoBox->setModal(true);
 
             connect(infoBox, SIGNAL(finished(int)),
-                    this, SLOT(messageBoxFinished(int)));
+                    this, SLOT(wrongSetupMessageBoxFinished(int)));
 
             infoBox->show();
         }
@@ -934,7 +945,7 @@ void QmlEngine::disconnected()
     notifyInferiorExited();
 }
 
-void QmlEngine::messageBoxFinished(int result)
+void QmlEngine::wrongSetupMessageBoxFinished(int result)
 {
     if (result == QMessageBox::Help) {
         Core::HelpManager *helpManager = Core::HelpManager::instance();

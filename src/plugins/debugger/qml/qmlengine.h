@@ -70,7 +70,8 @@ public slots:
     void disconnected();
 
 private slots:
-    void messageBoxFinished(int result);
+    void retryMessageBoxFinished(int result);
+    void wrongSetupMessageBoxFinished(int result);
 
 private:
     // DebuggerEngine implementation.
