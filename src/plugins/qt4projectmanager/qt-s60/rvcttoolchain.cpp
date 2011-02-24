@@ -102,7 +102,8 @@ RvctToolChain::RvctToolChain(const RvctToolChain &tc) :
     ToolChain(tc),
     m_compilerPath(tc.m_compilerPath),
     m_environmentChanges(tc.m_environmentChanges),
-    m_armVersion(tc.m_armVersion)
+    m_armVersion(tc.m_armVersion),
+    m_debuggerCommand(tc.debuggerCommand())
 { }
 
 RvctToolChain::RvctVersion RvctToolChain::version(const QString &rvctPath)
@@ -378,6 +379,7 @@ void RvctToolChainConfigWidget::apply()
     tc->setCompilerPath(m_ui->compilerPath->path());
     tc->setArmVersion(static_cast<RvctToolChain::ArmVersion>(m_ui->versionComboBox->currentIndex()));
     tc->setEnvironmentChanges(changes);
+    tc->setDebuggerCommand(debuggerCommand());
 
     m_model->setUserChanges(changes);
 }
@@ -391,6 +393,7 @@ void RvctToolChainConfigWidget::setFromToolChain()
 
     m_ui->compilerPath->setPath(tc->compilerPath());
     m_ui->versionComboBox->setCurrentIndex(static_cast<int>(tc->armVersion()));
+    setDebuggerCommand(tc->debuggerCommand());
 }
 
 bool RvctToolChainConfigWidget::isDirty() const
@@ -400,7 +403,8 @@ bool RvctToolChainConfigWidget::isDirty() const
 
     return tc->compilerPath() != m_ui->compilerPath->path()
             || tc->armVersion() != static_cast<RvctToolChain::ArmVersion>(m_ui->versionComboBox->currentIndex())
-            || tc->environmentChanges() != environmentChanges();
+            || tc->environmentChanges() != environmentChanges()
+            || tc->debuggerCommand() != debuggerCommand();
 }
 
 QList<Utils::EnvironmentItem> RvctToolChainConfigWidget::environmentChanges() const
