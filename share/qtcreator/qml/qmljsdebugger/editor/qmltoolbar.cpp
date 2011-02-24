@@ -250,7 +250,6 @@ void QmlToolBar::setDesignModeBehavior(bool inDesignMode)
 
 void QmlToolBar::setDesignModeBehaviorOnClick(bool checked)
 {
-    ui->play->setEnabled(checked);
     ui->select->setEnabled(checked);
     ui->selectMarquee->setEnabled(checked);
     ui->zoom->setEnabled(checked);
