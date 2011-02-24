@@ -136,7 +136,7 @@
      </property>
      <layout class="QGridLayout" name="sourcesGridLayout">
       <item row="7" column="0">
-       <widget class="QLabel" name="labelMaximalStackDepth">
+       <widget class="QLabel" name="labelQtSources">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
