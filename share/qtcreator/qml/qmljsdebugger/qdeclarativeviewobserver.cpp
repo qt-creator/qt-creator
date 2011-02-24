@@ -908,7 +908,7 @@ void QDeclarativeViewObserverPrivate::createToolBox()
 
     QWidget *toolBox = new QWidget(q->declarativeView(), Qt::Tool);
     toolBox->setWindowFlags(toolBox->windowFlags() & ~Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);
-    toolBox->setWindowTitle(tr("Quick Toolbox"));
+    toolBox->setWindowTitle(tr("Qt Quick Toolbox"));
     toolBox->setLayout(verticalLayout);
 
     toolBox->restoreGeometry(settings->value(QLatin1String(KEY_TOOLBOX_GEOMETRY)).toByteArray());
