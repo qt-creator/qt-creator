@@ -298,6 +298,7 @@ class FakeVimExCommandsPage : public Core::CommandMappings
 
 public:
     FakeVimExCommandsPage(FakeVimPluginPrivate *q) : m_q(q) {}
+    ~FakeVimExCommandsPage() { qDeleteAll(m_citems); }
 
     // IOptionsPage
     QString id() const { return _(Constants::SETTINGS_EX_CMDS_ID); }
@@ -331,9 +332,7 @@ QWidget *FakeVimExCommandsPage::createPage(QWidget *parent)
     setTargetHeader(tr("Ex Trigger Expression"));
     setTargetLabelText(tr("Regular expression:"));
     setTargetEditTitle(tr("Ex Command"));
-
     setImportExportEnabled(false);
-
     return w;
 }
 
