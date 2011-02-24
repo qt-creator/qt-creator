@@ -148,8 +148,13 @@ QList<BuildConfigurationInfo> Qt4DesktopTargetFactory::availableBuildConfigurati
 
 Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtVersionNumber &number, bool importEnabled, QList<BuildConfigurationInfo> importInfos)
 {
-    Qt4DefaultTargetSetupWidget *widget = new Qt4DefaultTargetSetupWidget(this, id, proFilePath, number, importEnabled, importInfos);
-    widget->setShadowBuildCheckBoxVisible(true);
+    Qt4DefaultTargetSetupWidget *widget
+            = static_cast<Qt4DefaultTargetSetupWidget *>(
+                Qt4BaseTargetFactory::createTargetSetupWidget(id,  proFilePath,
+                                                              number,  importEnabled,
+                                                              importInfos));
+    if (widget)
+        widget->setShadowBuildCheckBoxVisible(true);
     return widget;
 }
 

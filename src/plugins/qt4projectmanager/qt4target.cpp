@@ -79,7 +79,10 @@ Qt4TargetSetupWidget *Qt4BaseTargetFactory::createTargetSetupWidget(const QStrin
                                                                     bool importEnabled,
                                                                     QList<BuildConfigurationInfo> importInfos)
 {
-    return new Qt4DefaultTargetSetupWidget(this, id, proFilePath, number, importEnabled, importInfos);
+    QList<BuildConfigurationInfo> infos = this->availableBuildConfigurations(id, proFilePath, number);
+    if (infos.isEmpty())
+        return 0;
+    return new Qt4DefaultTargetSetupWidget(this, id, proFilePath, infos, number, importEnabled, importInfos);
 }
 
 Qt4BaseTarget *Qt4BaseTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, Qt4TargetSetupWidget *widget)
@@ -279,9 +282,10 @@ Qt4TargetSetupWidget::~Qt4TargetSetupWidget()
 Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *factory,
                                                          const QString &id,
                                                          const QString &proFilePath,
+                                                         const QList<BuildConfigurationInfo> &infos,
                                                          const QtVersionNumber &minimumQtVersion,
                                                          bool importEnabled,
-                                                         QList<BuildConfigurationInfo> importInfos)
+                                                         const QList<BuildConfigurationInfo> &importInfos)
     : Qt4TargetSetupWidget(),
       m_id(id),
       m_factory(factory),
@@ -370,7 +374,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
 
     setupImportWidgets();
 
-    setBuildConfigurationInfos(factory->availableBuildConfigurations(id, proFilePath, minimumQtVersion));
+    setBuildConfigurationInfos(infos);
 
     if (!m_importInfos.isEmpty())
         m_detailsWidget->setState(Utils::DetailsWidget::Expanded);

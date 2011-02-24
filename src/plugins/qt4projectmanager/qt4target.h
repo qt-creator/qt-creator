@@ -185,9 +185,10 @@ public:
     Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *factory,
                                 const QString &id,
                                 const QString &proFilePath,
+                                const QList<BuildConfigurationInfo> &info,
                                 const QtVersionNumber &minimumQtVersion,
                                 bool importEnabled,
-                                QList<BuildConfigurationInfo> importInfos);
+                                const QList<BuildConfigurationInfo> &importInfos);
     ~Qt4DefaultTargetSetupWidget();
     bool isTargetSelected() const;
     void setTargetSelected(bool b);
