@@ -79,6 +79,7 @@ void NodeInstanceSignalSpy::registerObject(QObject *spiedObject, const QString &
                  QMetaMethod metaMethod = metaProperty.notifySignal();
                  bool isConnecting = QMetaObject::connect(spiedObject, metaMethod.methodIndex(), this, methodeOffset, Qt::DirectConnection);
                  Q_ASSERT(isConnecting);
+                 Q_UNUSED(isConnecting);
                  m_indexPropertyHash.insert(methodeOffset, prefix + metaProperty.name());
                  methodeOffset++;
              }

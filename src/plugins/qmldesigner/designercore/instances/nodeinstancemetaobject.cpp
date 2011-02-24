@@ -62,6 +62,7 @@ void NodeInstanceMetaObject::createNewProperty(const QString &name)
 {
     int id = createProperty(name.toLatin1(), 0);
     Q_ASSERT(id >= 0);
+    Q_UNUSED(id)
 }
 
 int NodeInstanceMetaObject::metaCall(QMetaObject::Call call, int id, void **a)
