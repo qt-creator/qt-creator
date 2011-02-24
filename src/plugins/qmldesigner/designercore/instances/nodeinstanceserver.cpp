@@ -452,7 +452,16 @@ QDeclarativeEngine *NodeInstanceServer::engine() const
 
 QDeclarativeContext *NodeInstanceServer::context() const
 {
-    return QDeclarativeEngine::contextForObject(m_importComponentObject.data());
+    if (m_importComponentObject) {
+        QDeclarativeContext *importComponentContext = QDeclarativeEngine::contextForObject(m_importComponentObject.data());
+        if (importComponentContext) // this should be the default
+            return importComponentContext;
+    }
+
+    if (engine())
+        return engine()->rootContext();
+
+    return 0;
 }
 
 QDeclarativeView *NodeInstanceServer::delcarativeView() const
