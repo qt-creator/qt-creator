@@ -554,8 +554,6 @@ void HelpPlugin::createRightPaneContextViewer()
     layout->addWidget(toolButton(close));
 
     QWidget *rightPaneSideBar = new QWidget;
-    addAutoReleasedObject(new Core::BaseRightPaneWidget(rightPaneSideBar));
-
     m_helpViewerForSideBar = new HelpViewer(qreal(0.0), rightPaneSideBar);
     connect(m_helpViewerForSideBar, SIGNAL(openFindToolBar()), this,
         SLOT(openFindToolBar()));
@@ -834,6 +832,7 @@ HelpViewer* HelpPlugin::viewerForContextMode()
     }
 
     if (placeHolder && showSideBySide) {
+        RightPaneWidget::instance()->setWidget(m_helpViewerForSideBar->parentWidget());
         RightPaneWidget::instance()->setShown(true);
         createRightPaneContextViewer();
         return m_helpViewerForSideBar;

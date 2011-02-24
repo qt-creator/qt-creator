@@ -34,7 +34,6 @@
 #include "rightpane.h"
 
 #include <coreplugin/modemanager.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QSettings>
 
@@ -129,51 +128,36 @@ void RightPanePlaceHolder::currentModeChanged(Core::IMode *mode)
 RightPaneWidget *RightPaneWidget::m_instance = 0;
 
 RightPaneWidget::RightPaneWidget()
-    : m_shown(true), m_width(0)
+    : m_shown(true), m_width(0), m_widget(0)
 {
     m_instance = this;
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     setLayout(layout);
-
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-
-    BaseRightPaneWidget *rpw = pm->getObject<BaseRightPaneWidget>();
-    if (rpw) {
-        layout->addWidget(rpw->widget());
-    }
-    connect(pm, SIGNAL(objectAdded(QObject *)),
-            this, SLOT(objectAdded(QObject *)));
-    connect(pm, SIGNAL(aboutToRemoveObject(QObject *)),
-            this, SLOT(aboutToRemoveObject(QObject *)));
 }
 
 RightPaneWidget::~RightPaneWidget()
 {
+    clearWidget();
     m_instance = 0;
-}
-
-void RightPaneWidget::objectAdded(QObject *obj)
-{
-    BaseRightPaneWidget *rpw = qobject_cast<BaseRightPaneWidget *>(obj);
-    if (rpw) {
-        layout()->addWidget(rpw->widget());
-        setFocusProxy(rpw->widget());
-    }
-}
-
-void RightPaneWidget::aboutToRemoveObject(QObject *obj)
-{
-    BaseRightPaneWidget *rpw = qobject_cast<BaseRightPaneWidget *>(obj);
-    if (rpw) {
-        delete rpw->widget();
-    }
 }
 
 RightPaneWidget *RightPaneWidget::instance()
 {
     return m_instance;
+}
+
+void RightPaneWidget::setWidget(QWidget *widget)
+{
+    clearWidget();
+    m_widget = widget;
+    if (m_widget) {
+        m_widget->setParent(this);
+        layout()->addWidget(m_widget);
+        setFocusProxy(m_widget);
+        m_widget->show();
+    }
 }
 
 int RightPaneWidget::storedWidth()
@@ -227,21 +211,11 @@ bool RightPaneWidget::isShown()
     return m_shown;
 }
 
-/////
-// BaseRightPaneWidget
-/////
-
-BaseRightPaneWidget::BaseRightPaneWidget(QWidget *widget)
+void RightPaneWidget::clearWidget()
 {
-    m_widget = widget;
-}
-
-BaseRightPaneWidget::~BaseRightPaneWidget()
-{
-
-}
-
-QWidget *BaseRightPaneWidget::widget() const
-{
-    return m_widget;
+    if (m_widget) {
+        m_widget->hide();
+        m_widget->setParent(0);
+        m_widget = 0;
+    }
 }
