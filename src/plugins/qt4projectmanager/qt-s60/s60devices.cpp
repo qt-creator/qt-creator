@@ -186,21 +186,6 @@ S60Devices::Device S60Devices::defaultDevice() const
     return index == -1 ? Device() : m_devices.at(index);
 }
 
-QString S60Devices::cleanedRootPath(const QString &deviceRoot)
-{
-    QString path = deviceRoot;
-#ifdef Q_OS_WIN
-    // sbsv2 actually recommends having the DK on a separate drive...
-    // But qmake breaks when doing that!
-    if (path.size() > 1 && path.at(1) == QChar(':'))
-        path = path.mid(2);
-#endif
-
-    if (!path.size() || path.at(path.size()-1) != '/')
-        path.append('/');
-    return path;
-}
-
 S60Devices::StringStringPairList S60Devices::readSdkQtAssociationSettings(const QSettings *settings,
                                                                           const QString &group,
                                                                           int *defaultIndexPtr)

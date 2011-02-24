@@ -82,8 +82,6 @@ public:
 
     int findByEpocRoot(const QString &er) const;
 
-    static QString cleanedRootPath(const QString &deviceRoot);
-
 signals:
     void qtVersionsChanged();
 
