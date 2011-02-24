@@ -44,6 +44,8 @@
 
 #include "qmljsprivateapi.h"
 
+#include <observerprotocol.h>
+
 namespace QmlJSInspector {
 namespace Internal {
 
@@ -107,7 +109,9 @@ private:
         LogReceive
     };
 
-    void log(LogDirection direction, const QString &str);
+    void log(LogDirection direction,
+             QmlJSDebugger::ObserverProtocol::Message message,
+             const QString &extra = QString());
 
     QList<int> m_currentDebugIds;
     QDeclarativeDebugConnection *m_connection;

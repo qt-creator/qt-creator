@@ -41,10 +41,10 @@
 
 #include "qdeclarativeobserverservice.h"
 
+#include <observerprotocol.h>
+
 #include <QStringList>
 #include <QColor>
-
-#include <QDebug>
 
 namespace QmlJSDebugger {
 
@@ -69,10 +69,11 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
 {
     QDataStream ds(message);
 
-    QByteArray type;
+    ObserverProtocol::Message type;
     ds >> type;
 
-    if (type == "SET_CURRENT_OBJECTS") {
+    switch (type) {
+    case ObserverProtocol::SetCurrentObjects: {
         int itemCount = 0;
         ds >> itemCount;
 
@@ -87,50 +88,74 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
         }
 
         emit currentObjectsChanged(selectedObjects);
-
-    } else if (type == "RELOAD") {
+        break;
+    }
+    case ObserverProtocol::Reload: {
         emit reloadRequested();
-    } else if (type == "SET_ANIMATION_SPEED") {
+        break;
+    }
+    case ObserverProtocol::SetAnimationSpeed: {
         qreal speed;
         ds >> speed;
         emit animationSpeedChangeRequested(speed);
-    } else if (type == "CHANGE_TOOL") {
-        QByteArray toolName;
-        ds >> toolName;
-        if (toolName == "COLOR_PICKER") {
+        break;
+    }
+    case ObserverProtocol::ChangeTool: {
+        ObserverProtocol::Tool tool;
+        ds >> tool;
+        switch (tool) {
+        case ObserverProtocol::ColorPickerTool:
             emit colorPickerToolRequested();
-        } else if (toolName == "SELECT") {
+            break;
+        case ObserverProtocol::SelectTool:
             emit selectToolRequested();
-        } else if (toolName == "SELECT_MARQUEE") {
+            break;
+        case ObserverProtocol::SelectMarqueeTool:
             emit selectMarqueeToolRequested();
-        } else if (toolName == "ZOOM") {
+            break;
+        case ObserverProtocol::ZoomTool:
             emit zoomToolRequested();
+            break;
+        default:
+            qWarning() << "Warning: Unhandled tool:" << tool;
         }
-    } else if (type == "SET_DESIGN_MODE") {
+        break;
+    }
+    case ObserverProtocol::SetDesignMode: {
         bool inDesignMode;
         ds >> inDesignMode;
         emit designModeBehaviorChanged(inDesignMode);
-    } else if (type == "SHOW_APP_ON_TOP") {
+        break;
+    }
+    case ObserverProtocol::ShowAppOnTop: {
         bool showOnTop;
         ds >> showOnTop;
         emit showAppOnTopChanged(showOnTop);
-    } else if (type == "CREATE_OBJECT") {
+        break;
+    }
+    case ObserverProtocol::CreateObject: {
         QString qml;
         int parentId;
         QString filename;
         QStringList imports;
         ds >> qml >> parentId >> imports >> filename;
         emit objectCreationRequested(qml, objectForId(parentId), imports, filename);
-    } else if (type == "DESTROY_OBJECT") {
+        break;
+    }
+    case ObserverProtocol::DestroyObject: {
         int debugId;
         ds >> debugId;
         if (QObject* obj = objectForId(debugId))
             obj->deleteLater();
-    } else if (type == "MOVE_OBJECT") {
+        break;
+    }
+    case ObserverProtocol::MoveObject: {
         int debugId, newParent;
         ds >> debugId >> newParent;
         emit objectReparentRequested(objectForId(debugId), objectForId(newParent));
-    } else if (type == "OBJECT_ID_LIST") {
+        break;
+    }
+    case ObserverProtocol::ObjectIdList: {
         int itemCount;
         ds >> itemCount;
         m_stringIdForObjectId.clear();
@@ -142,12 +167,20 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
 
             m_stringIdForObjectId.insert(itemDebugId, itemIdString);
         }
-    } else if (type == "SET_CONTEXT_PATH_IDX") {
+        break;
+    }
+    case ObserverProtocol::SetContextPathIdx: {
         int contextPathIndex;
         ds >> contextPathIndex;
         emit contextPathIndexChanged(contextPathIndex);
-    } else if (type == "CLEAR_COMPONENT_CACHE") {
+        break;
+    }
+    case ObserverProtocol::ClearComponentCache: {
         emit clearComponentCacheRequested();
+        break;
+    }
+    default:
+        qWarning() << "Warning: Not handling message:" << type;
     }
 }
 
@@ -156,7 +189,7 @@ void QDeclarativeObserverService::setDesignModeBehavior(bool inDesignMode)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("SET_DESIGN_MODE")
+    ds << ObserverProtocol::SetDesignMode
        << inDesignMode;
 
     sendMessage(message);
@@ -167,7 +200,7 @@ void QDeclarativeObserverService::setCurrentObjects(QList<QObject*> objects)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("CURRENT_OBJECTS_CHANGED")
+    ds << ObserverProtocol::CurrentObjectsChanged
        << objects.length();
 
     foreach (QObject *object, objects) {
@@ -183,7 +216,7 @@ void QDeclarativeObserverService::setCurrentTool(QmlJSDebugger::Constants::Desig
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("TOOL_CHANGED")
+    ds << ObserverProtocol::ToolChanged
        << toolId;
 
     sendMessage(message);
@@ -195,7 +228,7 @@ void QDeclarativeObserverService::setAnimationSpeed(qreal slowdownFactor)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("ANIMATION_SPEED_CHANGED")
+    ds << ObserverProtocol::AnimationSpeedChanged
        << slowdownFactor;
 
     sendMessage(message);
@@ -206,7 +239,7 @@ void QDeclarativeObserverService::reloaded()
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("RELOADED");
+    ds << ObserverProtocol::Reloaded;
 
     sendMessage(message);
 }
@@ -216,7 +249,7 @@ void QDeclarativeObserverService::setShowAppOnTop(bool showAppOnTop)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("SHOW_APP_ON_TOP") << showAppOnTop;
+    ds << ObserverProtocol::ShowAppOnTop << showAppOnTop;
 
     sendMessage(message);
 }
@@ -226,7 +259,7 @@ void QDeclarativeObserverService::selectedColorChanged(const QColor &color)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("COLOR_CHANGED")
+    ds << ObserverProtocol::ColorChanged
        << color;
 
     sendMessage(message);
@@ -237,7 +270,7 @@ void QDeclarativeObserverService::contextPathUpdated(const QStringList &contextP
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << QByteArray("CONTEXT_PATH_UPDATED")
+    ds << ObserverProtocol::ContextPathUpdated
        << contextPath;
 
     sendMessage(message);

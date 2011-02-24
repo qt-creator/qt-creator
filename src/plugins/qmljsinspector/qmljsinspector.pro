@@ -34,6 +34,7 @@ qmljsinspectorsettings.cpp \
 qmljspropertyinspector.cpp
 
 include(../../libs/qmljsdebugclient/qmljsdebugclient-lib.pri)
+include(../../../share/qtcreator/qml/qmljsdebugger/protocol/protocol.pri)
 
 RESOURCES += qmljsinspector.qrc
 

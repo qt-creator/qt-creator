@@ -1,6 +1,8 @@
 INCLUDEPATH += $$PWD/include
 DEPENDPATH += $$PWD $$PWD/include editor $$PWD/qt-private
 
+include($$PWD/protocol/protocol.pri)
+
 HEADERS += \
     $$PWD/include/jsdebuggeragent.h \
     $$PWD/include/qmljsdebugger_global.h
