@@ -95,8 +95,8 @@ public:
 
     virtual void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const QString &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const QString &newParentProperty);
 
-    void setId(const QString &id);
-    QString id() const;
+    virtual void setId(const QString &id);
+    virtual QString id() const;
 
     virtual bool isQmlGraphicsItem() const;
     virtual bool isGraphicsObject() const;
