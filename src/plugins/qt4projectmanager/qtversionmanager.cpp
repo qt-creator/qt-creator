@@ -1635,9 +1635,20 @@ void QtVersion::addToEnvironment(Utils::Environment &env) const
         QString epocRootPath(systemRoot());
         QDir epocDir(epocRootPath);
 
+        // Clean up epoc root path for the environment:
         if (!epocRootPath.endsWith(QLatin1Char('/')))
             epocRootPath.append(QLatin1Char('/'));
-        env.set(QLatin1String("EPOCROOT"), QDir::toNativeSeparators(S60Devices::cleanedRootPath(epocRootPath)));
+        if (!isBuildWithSymbianSbsV2()) {
+#ifdef Q_OS_WIN
+            if (epocRootPath.count() > 2
+                    && epocRootPath.at(0).toLower() >= QLatin1Char('a')
+                    && epocRootPath.at(0).toLower() <= QLatin1Char('z')
+                    && epocRootPath.at(1) == QLatin1Char(':')) {
+                epocRootPath = epocRootPath.mid(2);
+            }
+#endif
+        }
+        env.set(QLatin1String("EPOCROOT"), QDir::toNativeSeparators(epocRootPath));
 
         env.prependOrSetPath(epocDir.filePath(QLatin1String("epoc32/tools"))); // e.g. make.exe
         // Windows only:

@@ -51,7 +51,7 @@ S60ProjectChecker::reportIssues(const QString &proFile, const QtVersion *version
     QFileInfo cppheader(epocRootDir + QLatin1String("/epoc32/include/stdapis/string.h"));
 #if defined (Q_OS_WIN)
     // Report an error if project- and epoc directory are on different drives:
-    if (!epocRootDir.startsWith(proFile.left(3), Qt::CaseInsensitive)) {
+    if (!epocRootDir.startsWith(proFile.left(3), Qt::CaseInsensitive) && !version->isBuildWithSymbianSbsV2()) {
         results.append(Task(Task::Error,
                             QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
                                                         "The Symbian SDK and the project sources must reside on the same drive."),
