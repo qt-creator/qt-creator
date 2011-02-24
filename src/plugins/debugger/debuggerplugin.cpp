@@ -94,6 +94,7 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/abi.h>
 
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
@@ -695,10 +696,11 @@ public slots:
     void startRemoteApplication();
     void startRemoteEngine();
     void attachExternalApplication();
-    void attachExternalApplication(qint64 pid, const QString &binary);
+    void attachExternalApplication(qint64 pid, const QString &binary,
+                                   const ProjectExplorer::Abi &abi = ProjectExplorer::Abi());
     void runScheduled();
     void attachCore();
-    void attachCore(const QString &core, const QString &exeFileName);
+    void attachCore(const QString &core, const QString &exeFileName, const ProjectExplorer::Abi &abi = ProjectExplorer::Abi());
     void attachRemote(const QString &spec);
     void attachRemoteTcf();
 
@@ -720,7 +722,8 @@ public slots:
     void runControlStarted(DebuggerEngine *engine);
     void runControlFinished(DebuggerEngine *engine);
     DebuggerLanguages activeLanguages() const;
-    QString debuggerForAbi(const Abi &abi) const;
+    unsigned enabledEngines() const { return m_cmdLineEnabledEngines; }
+    QString debuggerForAbi(const Abi &abi, DebuggerEngineType et = NoEngineType) const;
     void remoteCommand(const QStringList &options, const QStringList &);
 
     bool isReverseDebugging() const;
@@ -1339,6 +1342,10 @@ void DebuggerPluginPrivate::startExternalApplication()
             configValue(_("LastExternalExecutableArguments")).toString());
     dlg.setWorkingDirectory(
             configValue(_("LastExternalWorkingDirectory")).toString());
+    const QString abiString = configValue(_("LastExternalAbi")).toString();
+    if (!abiString.isEmpty())
+        dlg.setAbi(ProjectExplorer::Abi(abiString));
+
     if (dlg.exec() != QDialog::Accepted)
         return;
 
@@ -1348,9 +1355,12 @@ void DebuggerPluginPrivate::startExternalApplication()
                    dlg.executableArguments());
     setConfigValue(_("LastExternalWorkingDirectory"),
                    dlg.workingDirectory());
+    setConfigValue(_("LastExternalAbi"),
+                   dlg.abi().toString());
+
     sp.executable = dlg.executableFile();
     sp.startMode = StartExternal;
-    sp.toolChainAbi = abiOfBinary(sp.executable);
+    sp.toolChainAbi = dlg.abi();
     sp.workingDirectory = dlg.workingDirectory();
     if (!dlg.executableArguments().isEmpty())
         sp.processArgs = dlg.executableArguments();
@@ -1375,12 +1385,20 @@ void DebuggerPluginPrivate::startExternalApplication()
 void DebuggerPluginPrivate::attachExternalApplication()
 {
     AttachExternalDialog dlg(mainWindow());
-    if (dlg.exec() == QDialog::Accepted)
-        attachExternalApplication(dlg.attachPID(), dlg.executable());
+
+    const QString abiString = configValue(_("LastAttachExternalAbi")).toString();
+    if (!abiString.isEmpty())
+        dlg.setAbi(ProjectExplorer::Abi(abiString));
+
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+
+    setConfigValue(_("LastAttachExternalAbi"), dlg.abi().toString());
+    attachExternalApplication(dlg.attachPID(), dlg.executable(), dlg.abi());
 }
 
 void DebuggerPluginPrivate::attachExternalApplication
-    (qint64 pid, const QString &binary)
+    (qint64 pid, const QString &binary, const ProjectExplorer::Abi &abi)
 {
     if (pid == 0) {
         QMessageBox::warning(mainWindow(), tr("Warning"),
@@ -1392,7 +1410,7 @@ void DebuggerPluginPrivate::attachExternalApplication
     sp.displayName = tr("Process %1").arg(pid);
     sp.executable = binary;
     sp.startMode = AttachExternal;
-    sp.toolChainAbi = abiOfBinary(sp.executable);
+    sp.toolChainAbi = abi.isValid() ? abi : abiOfBinary(sp.executable);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1402,21 +1420,27 @@ void DebuggerPluginPrivate::attachCore()
     AttachCoreDialog dlg(mainWindow());
     dlg.setExecutableFile(configValue(_("LastExternalExecutableFile")).toString());
     dlg.setCoreFile(configValue(_("LastExternalCoreFile")).toString());
+    const QString abiString = configValue(_("LastExternalCoreAbi")).toString();
+    if (!abiString.isEmpty())
+        dlg.setAbi(ProjectExplorer::Abi(abiString));
+
     if (dlg.exec() != QDialog::Accepted)
         return;
+
     setConfigValue(_("LastExternalExecutableFile"), dlg.executableFile());
     setConfigValue(_("LastExternalCoreFile"), dlg.coreFile());
-    attachCore(dlg.coreFile(), dlg.executableFile());
+    setConfigValue(_("LastExternalCoreAbi"), dlg.abi().toString());
+    attachCore(dlg.coreFile(), dlg.executableFile(), dlg.abi());
 }
 
-void DebuggerPluginPrivate::attachCore(const QString &core, const QString &exe)
+void DebuggerPluginPrivate::attachCore(const QString &core, const QString &exe, const ProjectExplorer::Abi &abi)
 {
     DebuggerStartParameters sp;
     sp.executable = exe;
     sp.coreFile = core;
     sp.displayName = tr("Core file \"%1\"").arg(core);
     sp.startMode = AttachCore;
-    sp.toolChainAbi = abiOfBinary(sp.coreFile);
+    sp.toolChainAbi = abi.isValid() ? abi : abiOfBinary(sp.coreFile);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -2368,9 +2392,26 @@ void DebuggerPluginPrivate::remoteCommand(const QStringList &options,
     runScheduled();
 }
 
-QString DebuggerPluginPrivate::debuggerForAbi(const Abi &abi) const
+QString DebuggerPluginPrivate::debuggerForAbi(const Abi &abi, DebuggerEngineType et) const
 {
-    foreach (const ToolChain *tc, ToolChainManager::instance()->findToolChains(abi)) {
+    Abi searchAbi = abi;
+    // Pick the right toolchain in case cdb/gdb were started with other toolchains.
+    // Also, lldb should be preferred over gdb.
+    if (searchAbi.os() == ProjectExplorer::Abi::WindowsOS) {
+        switch (et) {
+        case CdbEngineType:
+            searchAbi = Abi(abi.architecture(), abi.os(), Abi::WindowsMsvcFlavor,
+                            abi.binaryFormat(), abi.wordWidth());
+            break;
+        case GdbEngineType:
+            searchAbi = Abi(abi.architecture(), abi.os(), Abi::WindowsMSysFlavor,
+                            abi.binaryFormat(), abi.wordWidth());
+            break;
+        default:
+            break;
+        }
+    }
+    foreach (const ToolChain *tc, ToolChainManager::instance()->findToolChains(searchAbi)) {
         const QString debugger = tc->debuggerCommand();
         if (!debugger.isEmpty())
             return debugger;
@@ -2680,11 +2721,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
-    cmd = am->registerAction(m_startRemoteLldbAction,
-        Constants::STARTREMOTELLDB, globalcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, CC::G_DEFAULT_ONE);
-
     cmd = am->registerAction(m_attachExternalAction,
         Constants::ATTACHEXTERNAL, globalcontext);
     cmd->setAttribute(Command::CA_Hide);
@@ -2702,6 +2738,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_startRemoteAction,
         Constants::ATTACHREMOTE, globalcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    mstart->addAction(cmd, CC::G_DEFAULT_ONE);
+
+    cmd = am->registerAction(m_startRemoteLldbAction,
+        Constants::STARTREMOTELLDB, globalcontext);
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 

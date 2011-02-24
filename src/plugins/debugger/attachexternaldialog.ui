@@ -28,15 +28,31 @@
      <item row="0" column="0">
       <widget class="QLabel" name="pidLabel">
        <property name="text">
-        <string>Attach to process ID:</string>
+        <string>Attach to &amp;process ID:</string>
+       </property>
+       <property name="buddy">
+        <cstring>pidLineEdit</cstring>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
       <widget class="QLineEdit" name="pidLineEdit"/>
      </item>
-     <item row="1" column="0" colspan="2">
+     <item row="2" column="0" colspan="2">
       <widget class="Utils::FilterLineEdit" name="filterWidget"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="toolchainLabel">
+       <property name="text">
+        <string>&amp;Toolchain:</string>
+       </property>
+       <property name="buddy">
+        <cstring>toolchainComboBox</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="Debugger::Internal::DebuggerToolChainComboBox" name="toolchainComboBox"/>
      </item>
     </layout>
    </item>
@@ -76,6 +92,11 @@
    <class>Utils::FilterLineEdit</class>
    <extends>Utils::FancyLineEdit</extends>
    <header location="global">utils/filterlineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Debugger::Internal::DebuggerToolChainComboBox</class>
+   <extends>QComboBox</extends>
+   <header>debuggertoolchaincombobox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

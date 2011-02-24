@@ -31,46 +31,35 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGERRUNCONTROLFACTORY_H
-#define DEBUGGERRUNCONTROLFACTORY_H
+#ifndef DEBUGGERTOOLCHAINCOMBOBOX_H
+#define DEBUGGERTOOLCHAINCOMBOBOX_H
 
-#include <projectexplorer/runconfiguration.h>
+#include <QtGui/QComboBox>
+
+namespace ProjectExplorer {
+class Abi;
+}
 
 namespace Debugger {
-class DebuggerEngine;
 namespace Internal {
 
-class DebuggerRunControlFactory
-    : public ProjectExplorer::IRunControlFactory
+// Let the user pick a toolchain/ABI associated with a debugger.
+class DebuggerToolChainComboBox : public QComboBox
 {
+    Q_OBJECT
 public:
-    explicit DebuggerRunControlFactory(QObject *parent, unsigned enabledEngines);
+    explicit DebuggerToolChainComboBox(QWidget *parent);
 
-    // This is used by the "Non-Standard" scenarios, e.g. Attach to Core.
-    // FIXME: What to do in case of a 0 runConfiguration?
-    typedef ProjectExplorer::RunConfiguration RunConfiguration;
-    typedef ProjectExplorer::RunControl RunControl;
-    DebuggerRunControl *create(const DebuggerStartParameters &sp,
-        RunConfiguration *runConfiguration = 0);
+    void init(bool hostAbiOnly);
 
-    // ProjectExplorer::IRunControlFactory
-    // FIXME: Used by qmljsinspector.cpp:469
-    RunControl *create(RunConfiguration *runConfiguration, const QString &mode);
-    bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
-
-    static DebuggerEngine *createEngine(DebuggerEngineType et,
-                                        const DebuggerStartParameters &sp,
-                                        DebuggerEngine *masterEngine,
-                                        QString *errorMessage);
+    void setAbi(const ProjectExplorer::Abi &abi);
+    ProjectExplorer::Abi abi() const;
 
 private:
-    QString displayName() const;
-    QWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
-
-    const unsigned m_enabledEngines;
+    ProjectExplorer::Abi abiAt(int index) const;
 };
 
-} // namespace Internal
 } // namespace Debugger
+} // namespace Internal
 
-#endif // DEBUGGERRUNCONTROLFACTORY_H
+#endif // DEBUGGERTOOLCHAINCOMBOBOX_H

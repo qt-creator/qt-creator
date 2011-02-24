@@ -1804,9 +1804,8 @@ int GdbEngine::currentFrame() const
     return stackHandler()->currentIndex();
 }
 
-QString msgNoBinaryForToolChain(const ProjectExplorer::Abi &tc)
+QString msgNoGdbBinaryForToolChain(const ProjectExplorer::Abi &tc)
 {
-    using namespace ProjectExplorer;
     return GdbEngine::tr("There is no gdb binary available for binaries in format '%1'")
         .arg(tc.toString());
 }
@@ -4217,22 +4216,13 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb,
     const DebuggerStartParameters &sp = startParameters();
     m_gdb = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_PATH"));
     if (m_gdb.isEmpty() && sp.startMode != StartRemoteGdb) {
-        // We want the MinGW gdb also in case we got started using
-        // some compatible ABI.
-        Abi abi = startParameters().toolChainAbi;
-        if (abi.os() == Abi::WindowsOS) {
-            if (abi.osFlavor() == Abi::UnknownFlavor
-                    || abi.osFlavor() == Abi::WindowsMsvcFlavor)
-                abi = Abi(abi.architecture(), abi.os(), Abi::WindowsMSysFlavor,
-                          abi.binaryFormat(), abi.wordWidth());
-        }
-        m_gdb = debuggerCore()->debuggerForAbi(abi);
+        m_gdb = debuggerCore()->debuggerForAbi(startParameters().toolChainAbi, GdbEngineType);
     }
     if (m_gdb.isEmpty())
         m_gdb = gdb;
     if (m_gdb.isEmpty()) {
         handleAdapterStartFailed(
-            msgNoBinaryForToolChain(sp.toolChainAbi),
+            msgNoGdbBinaryForToolChain(sp.toolChainAbi),
             _(Constants::DEBUGGER_COMMON_SETTINGS_ID));
         return false;
     }

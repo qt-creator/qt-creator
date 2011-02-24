@@ -48,7 +48,9 @@ class DEBUGGER_EXPORT QmlCppEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    explicit QmlCppEngine(const DebuggerStartParameters &sp);
+    explicit QmlCppEngine(const DebuggerStartParameters &sp,
+                          DebuggerEngineType slaveEngineType,
+                          QString *errorMessage);
     ~QmlCppEngine();
 
     bool setToolTipExpression(const QPoint &mousePos,

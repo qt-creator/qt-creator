@@ -136,9 +136,21 @@ class S60DeviceDebugRunControl : public Debugger::DebuggerRunControl
     Q_OBJECT
 public:
     explicit S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration,
-                                      const QString &mode);
+                                      const Debugger::DebuggerStartParameters &sp,
+                                      const QPair<Debugger::DebuggerEngineType, Debugger::DebuggerEngineType> &masterSlaveEngineTypes);
     virtual void start();
     virtual bool promptToStop(bool *optionalPrompt = 0) const;
+};
+
+class S60DeviceDebugRunControlFactory : public ProjectExplorer::IRunControlFactory
+{
+public:
+    explicit S60DeviceDebugRunControlFactory(QObject *parent = 0);
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const;
+
+    ProjectExplorer::RunControl* create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
+    QString displayName() const;
+    QWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration * /*runConfiguration */);
 };
 
 } // namespace Internal

@@ -468,7 +468,6 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
     sp.toolChainAbi = rc->abi();
     sp.executable = debugFileName;
     sp.executableUid = rc->executableUid();
-    sp.enabledEngines = Debugger::GdbEngineType;
     sp.serverAddress = activeDeployConf->deviceAddress();
     sp.serverPort = activeDeployConf->devicePort().toInt();
 
@@ -489,8 +488,9 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
 }
 
 S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc,
-                                                   const QString &) :
-    Debugger::DebuggerRunControl(rc, s60DebuggerStartParams(rc))
+                                                   const Debugger::DebuggerStartParameters &sp,
+                                                   const QPair<Debugger::DebuggerEngineType, Debugger::DebuggerEngineType> &masterSlaveEngineTypes) :
+    Debugger::DebuggerRunControl(rc, sp, masterSlaveEngineTypes)
 {
     if (startParameters().symbolFileName.isEmpty()) {
         const QString msg = tr("Warning: Cannot locate the symbol file belonging to %1.").
@@ -501,17 +501,6 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc
 
 void S60DeviceDebugRunControl::start()
 {
-    Debugger::ConfigurationCheck check =
-        Debugger::checkDebugConfiguration(startParameters().toolChainAbi);
-
-    if (!check) {
-        appendMessage(check.errorMessage, ErrorMessageFormat);
-        emit finished();
-        Core::ICore::instance()->showWarningWithOptions(tr("Debugger for Symbian Platform"),
-            check.errorMessage, QString(), check.settingsCategory, check.settingsPage);
-        return;
-    }
-
     appendMessage(tr("Launching debugger..."), NormalMessageFormat);
     Debugger::DebuggerRunControl::start();
 }
@@ -520,4 +509,39 @@ bool S60DeviceDebugRunControl::promptToStop(bool *) const
 {
     // We override the settings prompt
     return Debugger::DebuggerRunControl::promptToStop(0);
+}
+
+S60DeviceDebugRunControlFactory::S60DeviceDebugRunControlFactory(QObject *parent) :
+    IRunControlFactory(parent)
+{
+}
+
+bool S60DeviceDebugRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const
+{
+    return mode == QLatin1String(Debugger::Constants::DEBUGMODE)
+            && qobject_cast<S60DeviceRunConfiguration *>(runConfiguration) != 0;
+}
+
+ProjectExplorer::RunControl* S60DeviceDebugRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode)
+{
+    S60DeviceRunConfiguration *rc = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
+    QTC_ASSERT(rc && mode == QLatin1String(Debugger::Constants::DEBUGMODE), return 0);
+    const Debugger::DebuggerStartParameters startParameters = s60DebuggerStartParams(rc);
+    const Debugger::ConfigurationCheck check = Debugger::checkDebugConfiguration(startParameters);
+    if (!check) {
+        Core::ICore::instance()->showWarningWithOptions(tr("Debugger for Symbian Platform"),
+            check.errorMessage, QString(), check.settingsCategory, check.settingsPage);
+        return 0;
+    }
+    return new S60DeviceDebugRunControl(rc, startParameters, check.masterSlaveEngineTypes);
+}
+
+QString S60DeviceDebugRunControlFactory::displayName() const
+{
+    return tr("Debug on Device");
+}
+
+QWidget *S60DeviceDebugRunControlFactory::createConfigurationWidget(ProjectExplorer::RunConfiguration * /*runConfiguration */)
+{
+    return 0;
 }

@@ -131,9 +131,7 @@ S60Manager::S60Manager(QObject *parent)
     addAutoReleasedObject(new S60CreatePackageStepFactory);
     addAutoReleasedObject(new S60DeployStepFactory);
 
-    addAutoReleasedObject(new RunControlFactory<S60DeviceDebugRunControl, S60DeviceRunConfiguration>
-                          (QLatin1String(Debugger::Constants::DEBUGMODE),
-                           tr("Debug on Device"), parent));
+    addAutoReleasedObject(new S60DeviceDebugRunControlFactory);
     addAutoReleasedObject(new Qt4SymbianTargetFactory);
 
     updateQtVersions();

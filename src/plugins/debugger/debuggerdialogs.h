@@ -54,6 +54,9 @@ class StartRemoteEngineDialog;
 
 QT_END_NAMESPACE
 
+namespace ProjectExplorer {
+class Abi;
+}
 
 namespace Debugger {
 namespace Internal {
@@ -82,7 +85,15 @@ public:
     QString executableFile() const;
     QString coreFile() const;
 
+    ProjectExplorer::Abi abi() const;
+    void setAbi(const ProjectExplorer::Abi &);
+
+private slots:
+    void changed();
+
 private:
+    bool isValid() const;
+
     Ui::AttachCoreDialog *m_ui;
 };
 
@@ -96,6 +107,9 @@ public:
 
     qint64 attachPID() const;
     QString executable() const;
+
+    ProjectExplorer::Abi abi() const;
+    void setAbi(const ProjectExplorer::Abi &);
 
     virtual void accept();
 
@@ -159,7 +173,15 @@ public:
     QString workingDirectory() const;
     void setWorkingDirectory(const QString &str);
 
+    ProjectExplorer::Abi abi() const;
+    void setAbi(const ProjectExplorer::Abi &);
+
     bool breakAtMain() const;
+
+    bool isValid() const;
+
+private slots:
+    void changed();
 
 private:
     Ui::StartExternalDialog *m_ui;

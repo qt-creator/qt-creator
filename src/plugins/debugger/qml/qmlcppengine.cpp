@@ -32,14 +32,13 @@
 **************************************************************************/
 
 #include "qmlcppengine.h"
-
+#include "debuggerruncontrolfactory.h"
 #include "debuggercore.h"
 #include "debuggerstartparameters.h"
 #include "stackhandler.h"
 #include "qmlengine.h"
 
 #include <utils/qtcassert.h>
-
 
 namespace Debugger {
 namespace Internal {
@@ -50,16 +49,14 @@ enum { debug = 0 };
 
 const int ConnectionWaitTimeMs = 5000;
 
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &,
-    DebuggerEngine *masterEngine, QString *);
-DebuggerEngine *createGdbEngine(const DebuggerStartParameters &,
-    DebuggerEngine *masterEngine);
 QmlEngine *createQmlEngine(const DebuggerStartParameters &,
     DebuggerEngine *masterEngine);
 
-DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp)
+DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp,
+                                   DebuggerEngineType slaveEngineType,
+                                   QString *errorMessage)
 {
-    QmlCppEngine *newEngine = new QmlCppEngine(sp);
+    QmlCppEngine *newEngine = new QmlCppEngine(sp, slaveEngineType, errorMessage);
     if (newEngine->cppEngine())
         return newEngine;
     delete newEngine;
@@ -98,32 +95,10 @@ private:
 
 QmlCppEnginePrivate::QmlCppEnginePrivate(QmlCppEngine *parent,
         const DebuggerStartParameters &sp)
-  : q(parent)
+    : q(parent), m_qmlEngine(createQmlEngine(sp, q)),
+      m_cppEngine(0), m_activeEngine(0)
 {
-    m_stackBoundary = 0;
-    m_cppEngine = 0;
-    m_activeEngine = 0;
-    m_qmlEngine = createQmlEngine(sp, q);
-
-    if (sp.cppEngineType == GdbEngineType) {
-        m_cppEngine = createGdbEngine(sp, q);
-    } else {
-        QString errorMessage;
-        m_cppEngine = createCdbEngine(sp, q, &errorMessage);
-        if (!m_cppEngine) {
-            qWarning("%s", qPrintable(errorMessage));
-            return;
-        }
-    }
-
-    m_activeEngine = m_cppEngine;
-
-    connect(m_cppEngine->stackHandler()->model(), SIGNAL(modelReset()),
-        SLOT(cppStackChanged()), Qt::QueuedConnection);
-    connect(m_qmlEngine->stackHandler()->model(), SIGNAL(modelReset()),
-        SLOT(qmlStackChanged()), Qt::QueuedConnection);
-    connect(m_cppEngine, SIGNAL(stackFrameCompleted()), q, SIGNAL(stackFrameCompleted()));
-    connect(m_qmlEngine, SIGNAL(stackFrameCompleted()), q, SIGNAL(stackFrameCompleted()));
+    setObjectName(QLatin1String("QmlCppEnginePrivate"));
 }
 
 void QmlCppEnginePrivate::cppStackChanged()
@@ -158,12 +133,25 @@ void QmlCppEnginePrivate::qmlStackChanged()
 //
 ////////////////////////////////////////////////////////////////////////
 
-QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
+QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp,
+                           DebuggerEngineType slaveEngineType,
+                           QString *errorMessage)
     : DebuggerEngine(sp), d(new QmlCppEnginePrivate(this, sp))
 {
-//    setStateDebugging(true);
-//    d->m_cppEngine->setStateDebugging(true);
-//    d->m_qmlEngine->setStateDebugging(true);
+    setObjectName(QLatin1String("QmlCppEngine"));
+    d->m_cppEngine = DebuggerRunControlFactory::createEngine(slaveEngineType, sp, this, errorMessage);
+    if (!d->m_cppEngine) {
+        *errorMessage = tr("The slave debugging engine requires for combined QML/C++-Debugging could not be created:").arg(*errorMessage);
+        return;
+    }
+    d->m_activeEngine = d->m_cppEngine;
+
+    connect(d->m_cppEngine->stackHandler()->model(), SIGNAL(modelReset()),
+            d.data(), SLOT(cppStackChanged()), Qt::QueuedConnection);
+    connect(d->m_qmlEngine->stackHandler()->model(), SIGNAL(modelReset()),
+            d.data(), SLOT(qmlStackChanged()), Qt::QueuedConnection);
+    connect(d->m_cppEngine, SIGNAL(stackFrameCompleted()), this, SIGNAL(stackFrameCompleted()));
+    connect(d->m_qmlEngine, SIGNAL(stackFrameCompleted()), this, SIGNAL(stackFrameCompleted()));
 }
 
 QmlCppEngine::~QmlCppEngine()

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>446</width>
-    <height>269</height>
+    <width>476</width>
+    <height>294</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,27 +19,36 @@
      <item row="0" column="0">
       <widget class="QLabel" name="debuggerLabel">
        <property name="text">
-        <string>Debugger:</string>
+        <string>&amp;Debugger:</string>
+       </property>
+       <property name="buddy">
+        <cstring>debuggerPathChooser</cstring>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="Utils::PathChooser" name="debuggerPathChooser" native="true"/>
+      <widget class="Utils::PathChooser" name="debuggerPathChooser"/>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="executableLabel">
        <property name="text">
-        <string>Local executable:</string>
+        <string>Local &amp;executable:</string>
+       </property>
+       <property name="buddy">
+        <cstring>executablePathChooser</cstring>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="Utils::PathChooser" name="executablePathChooser" native="true"/>
+      <widget class="Utils::PathChooser" name="executablePathChooser"/>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="channelLabel">
        <property name="text">
-        <string>Host and port:</string>
+        <string>&amp;Host and port:</string>
+       </property>
+       <property name="buddy">
+        <cstring>channelLineEdit</cstring>
        </property>
       </widget>
      </item>
@@ -53,7 +62,10 @@
      <item row="3" column="0">
       <widget class="QLabel" name="architectureLabel">
        <property name="text">
-        <string>Architecture:</string>
+        <string>&amp;Architecture:</string>
+       </property>
+       <property name="buddy">
+        <cstring>architectureComboBox</cstring>
        </property>
       </widget>
      </item>
@@ -67,7 +79,10 @@
      <item row="4" column="0">
       <widget class="QLabel" name="gnuTargetLabel">
        <property name="text">
-        <string>GNU target</string>
+        <string>&amp;GNU target</string>
+       </property>
+       <property name="buddy">
+        <cstring>gnuTargetComboBox</cstring>
        </property>
       </widget>
      </item>
@@ -81,17 +96,23 @@
      <item row="5" column="0">
       <widget class="QLabel" name="sysrootLabel">
        <property name="text">
-        <string>Sysroot:</string>
+        <string>Sys&amp;root:</string>
+       </property>
+       <property name="buddy">
+        <cstring>sysrootPathChooser</cstring>
        </property>
       </widget>
      </item>
      <item row="5" column="1">
-      <widget class="Utils::PathChooser" name="sysrootPathChooser" native="true"/>
+      <widget class="Utils::PathChooser" name="sysrootPathChooser"/>
      </item>
      <item row="6" column="0">
       <widget class="QLabel" name="useServerStartScriptLabel">
        <property name="text">
-        <string>Use server start script:</string>
+        <string>&amp;Use server start script:</string>
+       </property>
+       <property name="buddy">
+        <cstring>useServerStartScriptCheckBox</cstring>
        </property>
       </widget>
      </item>
@@ -101,12 +122,15 @@
      <item row="7" column="0">
       <widget class="QLabel" name="serverStartScriptLabel">
        <property name="text">
-        <string>Server start script:</string>
+        <string>Server st&amp;art script:</string>
+       </property>
+       <property name="buddy">
+        <cstring>serverStartScript</cstring>
        </property>
       </widget>
      </item>
      <item row="7" column="1">
-      <widget class="Utils::PathChooser" name="serverStartScript" native="true"/>
+      <widget class="Utils::PathChooser" name="serverStartScript"/>
      </item>
     </layout>
    </item>
@@ -127,6 +151,7 @@
    <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

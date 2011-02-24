@@ -98,12 +98,13 @@ public:
     virtual void runControlFinished(DebuggerEngine *engine) = 0;
     virtual void displayDebugger(DebuggerEngine *engine, bool updateEngine) = 0;
     virtual DebuggerLanguages activeLanguages() const = 0;
+    virtual unsigned enabledEngines() const = 0;
     virtual void synchronizeBreakpoints() = 0;
 
     virtual bool initialize(const QStringList &arguments, QString *errorMessage) = 0;
     virtual QWidget *mainWindow() const = 0;
     virtual bool isDockVisible(const QString &objectName) const = 0;
-    virtual QString debuggerForAbi(const ProjectExplorer::Abi &abi) const = 0;
+    virtual QString debuggerForAbi(const ProjectExplorer::Abi &abi, DebuggerEngineType et = NoEngineType) const = 0;
     virtual void showModuleSymbols(const QString &moduleName,
         const QVector<Symbol> &symbols) = 0;
     virtual void openMemoryEditor() = 0;

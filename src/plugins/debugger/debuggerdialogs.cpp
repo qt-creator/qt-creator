@@ -48,6 +48,7 @@
 #endif
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/abi.h>
 #include <utils/synchronousprocess.h>
 #include <utils/historycompleter.h>
 #include <utils/qtcassert.h>
@@ -180,7 +181,9 @@ void ProcessListFilterModel::populate
 AttachCoreDialog::AttachCoreDialog(QWidget *parent)
   : QDialog(parent), m_ui(new Ui::AttachCoreDialog)
 {
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
+    m_ui->toolchainComboBox->init(false);
 
     m_ui->execFileName->setExpectedKind(PathChooser::File);
     m_ui->execFileName->setPromptDialogTitle(tr("Select Executable"));
@@ -192,6 +195,9 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
 
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_ui->coreFileName, SIGNAL(changed(QString)), this, SLOT(changed()));
+    connect(m_ui->execFileName, SIGNAL(changed(QString)), this, SLOT(changed()));
+    changed();
 }
 
 AttachCoreDialog::~AttachCoreDialog()
@@ -207,6 +213,7 @@ QString AttachCoreDialog::executableFile() const
 void AttachCoreDialog::setExecutableFile(const QString &fileName)
 {
     m_ui->execFileName->setPath(fileName);
+    changed();
 }
 
 QString AttachCoreDialog::coreFile() const
@@ -217,8 +224,29 @@ QString AttachCoreDialog::coreFile() const
 void AttachCoreDialog::setCoreFile(const QString &fileName)
 {
     m_ui->coreFileName->setPath(fileName);
+    changed();
 }
 
+ProjectExplorer::Abi AttachCoreDialog::abi() const
+{
+    return m_ui->toolchainComboBox->abi();
+}
+
+void AttachCoreDialog::setAbi(const ProjectExplorer::Abi &abi)
+{
+    m_ui->toolchainComboBox->setAbi(abi);
+}
+
+bool AttachCoreDialog::isValid() const
+{
+    return m_ui->toolchainComboBox->currentIndex() >= 0 &&
+           !coreFile().isEmpty();
+}
+
+void AttachCoreDialog::changed()
+{
+    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(isValid());
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -333,7 +361,9 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
     m_ui(new Ui::AttachExternalDialog),
     m_model(new ProcessListFilterModel(this))
 {
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
+    m_ui->toolchainComboBox->init(true);
     okButton()->setDefault(true);
     okButton()->setEnabled(false);
 
@@ -429,9 +459,20 @@ QString AttachExternalDialog::executable() const
     return m_model->executableForPid(attachPIDText());
 }
 
+ProjectExplorer::Abi AttachExternalDialog::abi() const
+{
+    return m_ui->toolchainComboBox->abi();
+}
+
+void AttachExternalDialog::setAbi(const ProjectExplorer::Abi &abi)
+{
+    m_ui->toolchainComboBox->setAbi(abi);
+}
+
 void AttachExternalDialog::pidChanged(const QString &pid)
 {
-    bool enabled = !pid.isEmpty() && pid != QLatin1String("0") && pid != m_selfPid;
+    const bool enabled = !pid.isEmpty() && pid != QLatin1String("0") && pid != m_selfPid
+            && m_ui->toolchainComboBox->currentIndex() >= 0;
     okButton()->setEnabled(enabled);
 }
 
@@ -460,14 +501,15 @@ AttachTcfDialog::AttachTcfDialog(QWidget *parent)
   : QDialog(parent),
     m_ui(new Ui::AttachTcfDialog)
 {
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
     m_ui->serverStartScript->setExpectedKind(PathChooser::File);
     m_ui->serverStartScript->setPromptDialogTitle(tr("Select Executable"));
 
-    connect(m_ui->useServerStartScriptCheckBox, SIGNAL(toggled(bool)), 
+    connect(m_ui->useServerStartScriptCheckBox, SIGNAL(toggled(bool)),
         this, SLOT(updateState()));
-    
+
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
@@ -548,27 +590,25 @@ void AttachTcfDialog::updateState()
 StartExternalDialog::StartExternalDialog(QWidget *parent)
   : QDialog(parent), m_ui(new Ui::StartExternalDialog)
 {
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
+    m_ui->toolChainComboBox->init(true);
     m_ui->execFile->setExpectedKind(PathChooser::File);
     m_ui->execFile->setPromptDialogTitle(tr("Select Executable"));
     m_ui->execFile->lineEdit()->setCompleter(
         new HistoryCompleter(m_ui->execFile->lineEdit()));
+    connect(m_ui->execFile, SIGNAL(changed(QString)), this, SLOT(changed()));
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
     m_ui->workingDirectory->setExpectedKind(PathChooser::ExistingDirectory);
     m_ui->workingDirectory->setPromptDialogTitle(tr("Select Working Directory"));
     m_ui->workingDirectory->lineEdit()->setCompleter(
         new HistoryCompleter(m_ui->workingDirectory->lineEdit()));
 
-    //execLabel->setHidden(false);
-    //execEdit->setHidden(false);
-    //browseButton->setHidden(false);
-
-    m_ui->execLabel->setText(tr("Executable:"));
-    m_ui->argsLabel->setText(tr("Arguments:"));
     m_ui->argsEdit->setCompleter(new HistoryCompleter(m_ui->argsEdit));
 
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    changed();
 }
 
 StartExternalDialog::~StartExternalDialog()
@@ -579,6 +619,7 @@ StartExternalDialog::~StartExternalDialog()
 void StartExternalDialog::setExecutableFile(const QString &str)
 {
     m_ui->execFile->setPath(str);
+    changed();
 }
 
 QString StartExternalDialog::executableFile() const
@@ -611,6 +652,27 @@ bool StartExternalDialog::breakAtMain() const
     return m_ui->checkBoxBreakAtMain->isChecked();
 }
 
+ProjectExplorer::Abi StartExternalDialog::abi() const
+{
+    return m_ui->toolChainComboBox->abi();
+}
+
+void StartExternalDialog::setAbi(const ProjectExplorer::Abi &abi)
+{
+    m_ui->toolChainComboBox->setAbi(abi);
+}
+
+bool StartExternalDialog::isValid() const
+{
+    return m_ui->toolChainComboBox->currentIndex() >= 0
+           && !executableFile().isEmpty();
+}
+
+void StartExternalDialog::changed()
+{
+    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(isValid());
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // StartRemoteDialog
@@ -621,6 +683,7 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
   : QDialog(parent),
     m_ui(new Ui::StartRemoteDialog)
 {
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
     m_ui->debuggerPathChooser->setExpectedKind(PathChooser::File);
@@ -912,13 +975,14 @@ StartRemoteEngineDialog::StartRemoteEngineDialog(QWidget *parent) :
     QDialog(parent) ,
     m_ui(new Ui::StartRemoteEngineDialog)
 {
-     m_ui->setupUi(this);
-     m_ui->host->setCompleter(new HistoryCompleter(m_ui->host));
-     m_ui->username->setCompleter(new HistoryCompleter(m_ui->username));
-     m_ui->enginepath->setCompleter(new HistoryCompleter(m_ui->enginepath));
-     m_ui->inferiorpath->setCompleter(new HistoryCompleter(m_ui->inferiorpath));
-     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    m_ui->setupUi(this);
+    m_ui->host->setCompleter(new HistoryCompleter(m_ui->host));
+    m_ui->username->setCompleter(new HistoryCompleter(m_ui->username));
+    m_ui->enginepath->setCompleter(new HistoryCompleter(m_ui->enginepath));
+    m_ui->inferiorpath->setCompleter(new HistoryCompleter(m_ui->inferiorpath));
+    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }
 
 StartRemoteEngineDialog::~StartRemoteEngineDialog()
@@ -949,7 +1013,6 @@ QString StartRemoteEngineDialog::enginePath() const
 {
     return m_ui->enginepath->text();
 }
-
 
 } // namespace Internal
 } // namespace Debugger

@@ -59,6 +59,7 @@
 #include <coreplugin/icore.h>
 #include <texteditor/itexteditor.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/synchronousprocess.h>
 #include <utils/winutils.h>
@@ -299,24 +300,14 @@ static inline bool validMode(DebuggerStartMode sm)
     return true;
 }
 
-static inline QString msgCdbDisabled(const Abi &abi)
-{
-    return CdbEngine::tr("The CDB debug engine required for %1 is currently disabled.").
-            arg(abi.toString());
-}
-
 // Accessed by RunControlFactory
 DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp,
     DebuggerEngine *masterEngine, QString *errorMessage)
 {
 #ifdef Q_OS_WIN
     CdbOptionsPage *op = CdbOptionsPage::instance();
-    if (!op || !op->options()->isValid()) {
-        *errorMessage = msgCdbDisabled(sp.toolChainAbi);
-        return 0;
-    }
-    if (!validMode(sp.startMode)) {
-        *errorMessage = CdbEngine::tr("The CDB debug engine does not support start mode %1.").arg(sp.startMode);
+    if (!op || !op->options()->isValid() || !validMode(sp.startMode)) {
+        *errorMessage = QLatin1String("Internal error: Invalid start parameters passed for thre CDB engine.");
         return 0;
     }
     return new CdbEngine(sp, masterEngine, op->options());
@@ -337,21 +328,45 @@ bool isCdbEngineEnabled()
 #endif
 }
 
-ConfigurationCheck checkCdbConfiguration(const Abi &abi)
+static inline QString msgNoCdbBinaryForToolChain(const ProjectExplorer::Abi &tc)
 {
-    ConfigurationCheck check;
-    if (abi.binaryFormat() == Abi::PEFormat
-            && abi.osFlavor() != Abi::WindowsMSysFlavor) {
-        if (!isCdbEngineEnabled()) {
-            check.errorMessage = msgCdbDisabled(abi);
-            check.settingsPage = CdbOptionsPage::settingsId();
-        }
-    } else {
-        check.errorMessage = CdbEngine::tr("The CDB debug engine does not support the %1 ABI.").
-                    arg(abi.toString());
-        check.settingsPage = CdbOptionsPage::settingsId();
+    return CdbEngine::tr("There is no CDB binary available for binaries in format '%1'").arg(tc.toString());
+}
+
+bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check)
+{
+#ifdef Q_OS_WIN
+    if (!isCdbEngineEnabled()) {
+        check->errorMessage = CdbEngine::tr("The CDB debug engine required for %1 is currently disabled.").
+                              arg(sp.toolChainAbi.toString());
+        check->settingsCategory = QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
+        check->settingsPage = CdbOptionsPage::settingsId();
+        return false;
     }
-    return check;
+
+    if (debuggerCore()->debuggerForAbi(sp.toolChainAbi, CdbEngineType).isEmpty()) {
+        check->errorMessage = msgNoCdbBinaryForToolChain(sp.toolChainAbi);
+        check->settingsCategory = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        check->settingsPage = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        return false;
+    }
+
+    if (!validMode(sp.startMode)) {
+        check->errorMessage = CdbEngine::tr("The CDB engine does not support start mode %1.").arg(sp.startMode);
+        return false;
+    }
+
+    if (sp.toolChainAbi.binaryFormat() != Abi::PEFormat || sp.toolChainAbi.os() != Abi::WindowsOS) {
+        check->errorMessage = CdbEngine::tr("The CDB debug engine does not support the %1 ABI.").
+                                            arg(sp.toolChainAbi.toString());
+        return false;
+    }
+    return true;
+#else
+    Q_UNUSED(sp);
+    check->errorMessage = QString::fromLatin1("Unsupported debug mode");
+    return false;
+#endif
 }
 
 void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
@@ -637,12 +652,7 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
     // Determine binary (force MSVC), extension lib name and path to use
     // The extension is passed as relative name with the path variable set
     //(does not work with absolute path names)
-    Abi abi = sp.toolChainAbi;
-    if (abi.osFlavor() == Abi::UnknownFlavor
-            || abi.osFlavor() == Abi::WindowsMSysFlavor)
-        abi = Abi(abi.architecture(), abi.os(), Abi::WindowsMsvcFlavor,
-                  abi.binaryFormat(), abi.wordWidth());
-    const QString executable = debuggerCore()->debuggerForAbi(abi);
+    const QString executable = debuggerCore()->debuggerForAbi(sp.toolChainAbi, CdbEngineType);
     if (executable.isEmpty()) {
         *errorMessage = tr("There is no CDB executable specified.");
         return false;

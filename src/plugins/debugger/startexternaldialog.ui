@@ -6,42 +6,45 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>425</width>
-    <height>151</height>
+    <width>443</width>
+    <height>213</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Start Debugger</string>
   </property>
-  <layout class="QVBoxLayout">
-   <property name="spacing">
-    <number>6</number>
-   </property>
-   <property name="margin">
-    <number>9</number>
-   </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout">
+    <layout class="QFormLayout" name="formLayout">
+     <property name="horizontalSpacing">
+      <number>6</number>
+     </property>
+     <property name="verticalSpacing">
+      <number>6</number>
+     </property>
      <property name="margin">
       <number>0</number>
-     </property>
-     <property name="spacing">
-      <number>6</number>
      </property>
      <item row="0" column="0">
       <widget class="QLabel" name="execLabel">
        <property name="text">
-        <string>Executable:</string>
+        <string>&amp;Executable:</string>
+       </property>
+       <property name="buddy">
+        <cstring>execFile</cstring>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="Utils::PathChooser" name="execFile" native="true"/>
+      <widget class="Utils::PathChooser" name="execFile"/>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="argsLabel">
        <property name="text">
-        <string>Arguments:</string>
+        <string>&amp;Arguments:</string>
+       </property>
+       <property name="buddy">
+        <cstring>argsEdit</cstring>
        </property>
       </widget>
      </item>
@@ -51,24 +54,43 @@
      <item row="2" column="0">
       <widget class="QLabel" name="workingDirectoryLabel">
        <property name="text">
-        <string>Working directory:</string>
+        <string>&amp;Working directory:</string>
+       </property>
+       <property name="buddy">
+        <cstring>workingDirectory</cstring>
        </property>
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="Utils::PathChooser" name="workingDirectory" native="true"/>
+      <widget class="Utils::PathChooser" name="workingDirectory"/>
      </item>
-     <item row="3" column="1">
+     <item row="4" column="0">
+      <widget class="QLabel" name="labelBreakAtMain">
+       <property name="text">
+        <string>Break at '&amp;main':</string>
+       </property>
+       <property name="buddy">
+        <cstring>checkBoxBreakAtMain</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
       <widget class="QCheckBox" name="checkBoxBreakAtMain">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
+     <item row="3" column="1">
+      <widget class="Debugger::Internal::DebuggerToolChainComboBox" name="toolChainComboBox"/>
+     </item>
      <item row="3" column="0">
-      <widget class="QLabel" name="labelBreakAtMain">
+      <widget class="QLabel" name="toolChainLabel">
        <property name="text">
-        <string>Break at 'main':</string>
+        <string>&amp;ToolChain:</string>
+       </property>
+       <property name="buddy">
+        <cstring>toolChainComboBox</cstring>
        </property>
       </widget>
      </item>
@@ -81,8 +103,8 @@
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>407</width>
-       <height>16</height>
+       <width>0</width>
+       <height>0</height>
       </size>
      </property>
     </spacer>
@@ -112,6 +134,11 @@
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Debugger::Internal::DebuggerToolChainComboBox</class>
+   <extends>QComboBox</extends>
+   <header>debuggertoolchaincombobox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

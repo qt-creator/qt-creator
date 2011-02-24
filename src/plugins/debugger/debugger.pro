@@ -62,7 +62,8 @@ HEADERS += breakhandler.h \
     threadshandler.h \
     watchdelegatewidgets.h \
     debuggerruncontrolfactory.h \
-    debuggertooltipmanager.h
+    debuggertooltipmanager.h \
+    debuggertoolchaincombobox.h
 
 SOURCES += breakhandler.cpp \
     breakpoint.cpp \
@@ -104,7 +105,8 @@ SOURCES += breakhandler.cpp \
     watchwindow.cpp \
     stackframe.cpp \
     watchdelegatewidgets.cpp \
-    debuggertooltipmanager.cpp
+    debuggertooltipmanager.cpp \
+    debuggertoolchaincombobox.cpp
 
 FORMS += attachexternaldialog.ui \
     attachcoredialog.ui \
