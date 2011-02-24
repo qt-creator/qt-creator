@@ -1546,7 +1546,7 @@ void QtVersion::updateAbiAndMkspec() const
     if (m_abis.isEmpty()) {
         qDebug() << "Could not find ABI for" << m_mkspecFullPath << qmakeCXX;
         qDebug() << "Qt Creator doesn't know about the system includes, "
-                    "nor the systems defines.";
+                    "nor the system defines.";
     }
 
     QStringList configValues = evaluator.values("CONFIG");
