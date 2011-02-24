@@ -58,7 +58,9 @@ DebuggerLanguageChooser::DebuggerLanguageChooser(QWidget *parent) :
 
     m_debugServerPortLabel->setBuddy(m_debugServerPort);
 
-    m_qmlDebuggerInfoLabel = new QLabel(tr("<a href=\"qthelp://com.nokia.qtcreator/doc/creator-qml-debugging.html\">What are the prerequisites?</a>"));
+    m_qmlDebuggerInfoLabel = new QLabel(tr("<a href=\"qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html\">What are the prerequisites?</a>"));
+    connect(m_qmlDebuggerInfoLabel, SIGNAL(linkActivated(QString)),
+            this, SIGNAL(openHelpUrl(QString)));
 
     connect(m_useQmlDebugger, SIGNAL(toggled(bool)), m_debugServerPort, SLOT(setEnabled(bool)));
     connect(m_useQmlDebugger, SIGNAL(toggled(bool)), m_debugServerPortLabel, SLOT(setEnabled(bool)));
@@ -130,5 +132,6 @@ void DebuggerLanguageChooser::onDebugServerPortChanged(int port)
 {
     emit qmlDebugServerPortChanged((uint)port);
 }
+
 
 } // namespace Utils

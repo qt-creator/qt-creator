@@ -62,6 +62,7 @@ signals:
     void cppLanguageToggled(bool value);
     void qmlLanguageToggled(bool value);
     void qmlDebugServerPortChanged(uint port);
+    void openHelpUrl(const QString &url);
 
 private slots:
     void useCppDebuggerToggled(bool toggled);

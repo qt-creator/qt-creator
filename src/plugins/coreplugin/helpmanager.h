@@ -71,7 +71,6 @@ public:
 
     QUrl findFile(const QUrl &url) const;
     QByteArray fileData(const QUrl &url) const;
-    void handleHelpRequest(const QString &url);
 
     QStringList registeredNamespaces() const;
     QString namespaceFromFile(const QString &file) const;
@@ -86,6 +85,9 @@ public:
     Filters userDefinedFilters() const;
     void removeUserDefinedFilter(const QString &filter);
     void addUserDefinedFilter(const QString &filter, const QStringList &attr);
+
+public slots:
+    void handleHelpRequest(const QString &url);
 
 signals:
     void setupFinished();

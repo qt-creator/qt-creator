@@ -39,6 +39,7 @@
 #include "cmaketarget.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/helpmanager.h>
 #include <projectexplorer/debugginghelper.h>
 #include <utils/qtcassert.h>
 #include <utils/debuggerlanguagechooser.h>
@@ -412,6 +413,8 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
             this, SLOT(useQmlDebuggerToggled(bool)));
     connect(m_debuggerLanguageChooser, SIGNAL(qmlDebugServerPortChanged(uint)),
             this, SLOT(qmlDebugServerPortChanged(uint)));
+    connect(m_debuggerLanguageChooser, SIGNAL(openHelpUrl(QString)),
+            Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
 
     connect(m_environmentWidget, SIGNAL(userChangesChanged()),
             this, SLOT(userChangesChanged()));

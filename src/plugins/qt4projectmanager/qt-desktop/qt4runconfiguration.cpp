@@ -49,6 +49,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/variablemanager.h>
 #include <coreplugin/ifile.h>
+#include <coreplugin/helpmanager.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/persistentsettings.h>
@@ -307,6 +308,8 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(useQmlDebuggerToggled(bool)));
     connect(m_debuggerLanguageChooser, SIGNAL(qmlDebugServerPortChanged(uint)),
             this, SLOT(qmlDebugServerPortChanged(uint)));
+    connect(m_debuggerLanguageChooser, SIGNAL(openHelpUrl(QString)),
+            Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
 
     connect(m_environmentWidget, SIGNAL(userChangesChanged()),
             this, SLOT(userChangesEdited()));
