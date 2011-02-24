@@ -58,7 +58,8 @@ public:
     double opacity() const;
 
     void setPropertyVariant(const QString &name, const QVariant &value);
-    void setBindingProperty(const QString &name, const QString &expression);
+    void setPropertyBinding(const QString &name, const QString &expression);
+    void setId(const QString &id);
     QVariant property(const QString &name) const;
     QStringList properties();
     QStringList localProperties();

@@ -83,6 +83,16 @@ void DummyNodeInstance::setPropertyVariant(const QString &/*name*/, const QVaria
 {
 }
 
+void DummyNodeInstance::setPropertyBinding(const QString &/*name*/, const QString &/*expression*/)
+{
+
+}
+
+void DummyNodeInstance::setId(const QString &/*id*/)
+{
+
+}
+
 QVariant DummyNodeInstance::property(const QString &/*name*/) const
 {
     return QVariant();
