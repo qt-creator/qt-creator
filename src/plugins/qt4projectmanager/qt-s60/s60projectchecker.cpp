@@ -86,7 +86,7 @@ S60ProjectChecker::reportIssues(const QString &proFile, const QtVersion *version
                                                         "in the project path '%1'.").arg(projectPath),
                             QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
-    if (projectName.contains(QRegExp("[^a-zA-Z0-9.]"))) {
+    if (projectName.contains(QRegExp("[^a-zA-Z0-9.-]"))) {
         results.append(Task(Task::Warning,
                             QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
                                                         "The Symbian toolchain does not handle special "
