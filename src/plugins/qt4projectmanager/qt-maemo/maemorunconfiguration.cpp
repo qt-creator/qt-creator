@@ -257,7 +257,7 @@ const QString MaemoRunConfiguration::arguments() const
 const QString MaemoRunConfiguration::dumperLib() const
 {
     Qt4BuildConfiguration *qt4bc(activeQt4BuildConfiguration());
-    return qt4bc->qtVersion()->debuggingHelperLibrary();
+    return qt4bc->qtVersion()->gdbDebuggingHelperLibrary();
 }
 
 

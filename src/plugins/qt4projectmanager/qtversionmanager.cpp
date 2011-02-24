@@ -1777,7 +1777,7 @@ QtVersion::QmakeBuildConfigs QtVersion::defaultBuildConfig() const
     return result;
 }
 
-bool QtVersion::hasDebuggingHelper() const
+bool QtVersion::hasGdbDebuggingHelper() const
 {
     updateVersionInfo();
     return m_hasDebuggingHelper;
@@ -1817,7 +1817,7 @@ Utils::Environment QtVersion::qmlToolsEnvironment() const
     return environment;
 }
 
-QString QtVersion::debuggingHelperLibrary() const
+QString QtVersion::gdbDebuggingHelperLibrary() const
 {
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
     if (qtInstallData.isEmpty())

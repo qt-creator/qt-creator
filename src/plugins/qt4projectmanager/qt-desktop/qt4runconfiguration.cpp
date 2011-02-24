@@ -661,7 +661,7 @@ QString Qt4RunConfiguration::dumperLibrary() const
 {
     QtVersion *version = qt4Target()->activeBuildConfiguration()->qtVersion();
     if (version)
-        return version->debuggingHelperLibrary();
+        return version->gdbDebuggingHelperLibrary();
     return QString();
 }
 

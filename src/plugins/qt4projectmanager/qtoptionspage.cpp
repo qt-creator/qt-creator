@@ -289,7 +289,7 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, Debuggin
 
     bool success = true;
     if (tools & DebuggingHelperBuildTask::GdbDebugging)
-        success &= qtVersion->hasDebuggingHelper();
+        success &= qtVersion->hasGdbDebuggingHelper();
     if (tools & DebuggingHelperBuildTask::QmlDebugging)
         success &= qtVersion->hasQmlDebuggingLibrary();
     if (tools & DebuggingHelperBuildTask::QmlDump)
@@ -452,7 +452,7 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         bool canBuildQmlDebuggingLib = QmlDebuggingLibrary::canBuild(version);
         bool canBuildQmlObserver = QmlObserverTool::canBuild(version);
 
-        bool hasGdbHelper = !version->debuggingHelperLibrary().isEmpty();
+        bool hasGdbHelper = !version->gdbDebuggingHelperLibrary().isEmpty();
         bool hasQmlDumper = version->hasQmlDump();
         bool hasQmlDebuggingLib = version->hasQmlDebuggingLibrary();
         bool hasQmlObserver = !version->qmlObserverTool().isEmpty();
@@ -495,7 +495,7 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         QString gdbHelperText;
         Qt::TextInteractionFlags gdbHelperTextFlags = Qt::NoTextInteraction;
         if (hasGdbHelper) {
-            gdbHelperText = QDir::toNativeSeparators(version->debuggingHelperLibrary());
+            gdbHelperText = QDir::toNativeSeparators(version->gdbDebuggingHelperLibrary());
             gdbHelperTextFlags = Qt::TextSelectableByMouse;
         } else {
             gdbHelperText =  tr("<i>Not yet built.</i>");

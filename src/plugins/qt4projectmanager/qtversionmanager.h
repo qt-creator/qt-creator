@@ -139,13 +139,13 @@ public:
     QList<ProjectExplorer::HeaderPath> systemHeaderPathes() const;
 
     bool supportsBinaryDebuggingHelper() const;
-    bool hasDebuggingHelper() const;
-    QString debuggingHelperLibrary() const;
+    QString gdbDebuggingHelperLibrary() const;
     QString qmlDebuggingHelperLibrary(bool debugVersion) const;
     QString qmlDumpTool(bool debugVersion) const;
     QString qmlObserverTool() const;
     QStringList debuggingHelperLibraryLocations() const;
 
+    bool hasGdbDebuggingHelper() const;
     bool hasQmlDump() const;
     bool hasQmlDebuggingLibrary() const;
     bool hasQmlObserver() const;
