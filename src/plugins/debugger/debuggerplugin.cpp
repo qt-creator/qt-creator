@@ -1117,6 +1117,9 @@ DebuggerPluginPrivate::~DebuggerPluginPrivate()
 
     delete m_snapshotHandler;
     m_snapshotHandler = 0;
+
+    delete m_breakHandler;
+    m_breakHandler = 0;
 }
 
 DebuggerCore *debuggerCore()
