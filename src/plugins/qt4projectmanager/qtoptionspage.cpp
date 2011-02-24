@@ -120,11 +120,7 @@ void QtOptionsPage::apply()
     m_widget->finish();
 
     QtVersionManager *vm = QtVersionManager::instance();
-    // Turn into flat list
-    QList<QtVersion *> versions;
-    foreach(const QSharedPointerQtVersion &spv, m_widget->versions())
-        versions.push_back(new QtVersion(*spv));
-    vm->setNewQtVersions(versions);
+    vm->setNewQtVersions(m_widget->versions());
 }
 
 bool QtOptionsPage::matches(const QString &s) const
@@ -145,7 +141,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
 {
     // Initialize m_versions
     foreach(QtVersion *version, versions)
-        m_versions.push_back(QSharedPointerQtVersion(new QtVersion(*version)));
+        m_versions.push_back(new QtVersion(*version));
 
     QWidget *versionInfoWidget = new QWidget();
     m_versionUi->setupUi(versionInfoWidget);
@@ -180,7 +176,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     manualItem->setFirstColumnSpanned(true);
 
     for (int i = 0; i < m_versions.count(); ++i) {
-        const QtVersion * const version = m_versions.at(i).data();
+        const QtVersion * const version = m_versions.at(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(version->isAutodetected()? autoItem : manualItem);
         item->setText(0, version->displayName());
         item->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
@@ -258,11 +254,11 @@ QtVersion *QtOptionsPageWidget::currentVersion() const
 {
     const int currentItemIndex = currentIndex();
     if (currentItemIndex >= 0 && currentItemIndex < m_versions.size())
-        return m_versions.at(currentItemIndex).data();
+        return m_versions.at(currentItemIndex);
     return 0;
 }
 
-static inline int findVersionById(const QList<QSharedPointerQtVersion> &l, int id)
+static inline int findVersionById(const QList<QtVersion *> &l, int id)
 {
     const int size = l.size();
     for (int i = 0; i < size; i++)
@@ -289,7 +285,7 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, Debuggin
     item->setData(0, BuildRunningRole,  QVariant::fromValue(buildFlags));
     item->setData(0, BuildLogRole, output);
 
-    QSharedPointerQtVersion qtVersion = m_versions.at(index);
+    QtVersion *qtVersion = m_versions.at(index);
 
     bool success = true;
     if (tools & DebuggingHelperBuildTask::GdbDebugging)
@@ -323,7 +319,7 @@ void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools t
     buildFlags |= tools;
     item->setData(0, BuildRunningRole, QVariant::fromValue(buildFlags));
 
-    QtVersion *version = m_versions.at(index).data();
+    QtVersion *version = m_versions.at(index);
     if (!version)
         return;
 
@@ -406,11 +402,12 @@ void QtOptionsPageWidget::showDebuggingBuildLog(const QTreeWidgetItem *currentIt
 QtOptionsPageWidget::~QtOptionsPageWidget()
 {
     delete m_ui;
+    qDeleteAll(m_versions);
 }
 
 void QtOptionsPageWidget::addQtDir()
 {
-    QSharedPointerQtVersion newVersion(new QtVersion(m_specifyNameString, m_specifyPathString));
+    QtVersion *newVersion = new QtVersion(m_specifyNameString, m_specifyPathString);
     m_versions.append(newVersion);
 
     QTreeWidgetItem *item = new QTreeWidgetItem(m_ui->qtdirList->topLevelItem(1));
@@ -435,7 +432,9 @@ void QtOptionsPageWidget::removeQtDir()
 
     delete item;
 
+    QtVersion *version = m_versions.at(index);
     m_versions.removeAt(index);
+    delete version;
     updateState();
 }
 
@@ -616,11 +615,11 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
         return;
 
     int index = indexForTreeItem(item);
-    QSharedPointerQtVersion qtVersion;
+
     if (index < 0)
         return;
 
-    qtVersion = m_versions.at(index);
+    QtVersion *qtVersion = m_versions.at(index);
     if (!qtVersion->isValid()) {
         m_versionUi->errorLabel->setText(qtVersion->invalidReason());
         return;
@@ -753,7 +752,7 @@ void QtOptionsPageWidget::updateCurrentQMakeLocation()
     int currentItemIndex = indexForTreeItem(currentItem);
     if (currentItemIndex < 0)
         return;
-    QtVersion *version = m_versions.at(currentItemIndex).data();
+    QtVersion *version = m_versions.at(currentItemIndex);
     QFileInfo fi(m_versionUi->qmakePath->path());
     if (!fi.exists() || !fi.isFile() || version->qmakeCommand() == fi.absoluteFilePath())
         return;
@@ -793,13 +792,12 @@ void QtOptionsPageWidget::updateCurrentSbsV2Directory()
             QDir::fromNativeSeparators(m_versionUi->sbsV2Path->path()));
 }
 
-QList<QSharedPointerQtVersion> QtOptionsPageWidget::versions() const
+QList<QtVersion *> QtOptionsPageWidget::versions() const
 {
-    QList<QSharedPointerQtVersion> result;
-    for (int i = 0; i < m_versions.count(); ++i) {
+    QList<QtVersion *> result;
+    for (int i = 0; i < m_versions.count(); ++i)
         if (m_versions.at(i)->qmakeCommand() != m_specifyPathString)
-            result.append(m_versions.at(i));
-    }
+            result.append(new QtVersion(*(m_versions.at(i))));
     return result;
 }
 

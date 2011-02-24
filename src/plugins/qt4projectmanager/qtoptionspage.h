@@ -50,7 +50,6 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 
 class QtVersion;
-typedef QSharedPointer<QtVersion> QSharedPointerQtVersion;
 
 namespace Internal {
 namespace Ui {
@@ -66,7 +65,7 @@ class QtOptionsPageWidget : public QWidget
 public:
     QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> versions);
     ~QtOptionsPageWidget();
-    QList<QSharedPointerQtVersion> versions() const;
+    QList<QtVersion *> versions() const;
     void finish();
     QString searchKeywords() const;
 
@@ -86,7 +85,7 @@ private:
     Internal::Ui::QtVersionManager *m_ui;
     Internal::Ui::QtVersionInfo *m_versionUi;
     Internal::Ui::DebuggingHelper *m_debuggingHelperUi;
-    QList<QSharedPointerQtVersion> m_versions; // Passed on to the helper build task, so, use QSharedPointerQtVersion
+    QList<QtVersion *> m_versions;
     int m_defaultVersion;
 
 private slots:
@@ -126,7 +125,7 @@ public:
     QIcon categoryIcon() const;
     QWidget *createPage(QWidget *parent);
     void apply();
-    void finish() { }
+    void finish() {}
     virtual bool matches(const QString &) const;
 
 private:
