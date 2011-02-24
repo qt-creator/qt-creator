@@ -89,7 +89,6 @@ BinEditor::BinEditor(QWidget *parent)
     : QAbstractScrollArea(parent)
 {
     m_ieditor = 0;
-    m_inLazyMode = false;
     m_baseAddr = 0;
     m_blockSize = 4096;
     m_size = 0;
@@ -161,39 +160,35 @@ void BinEditor::init()
 }
 
 
-void BinEditor::addLazyData(quint64 block, const QByteArray &data)
+void BinEditor::addData(quint64 block, const QByteArray &data)
 {
-    Q_ASSERT(m_inLazyMode);
     Q_ASSERT(data.size() == m_blockSize);
     const quint64 addr = block * m_blockSize;
     if (addr >= m_baseAddr && addr <= m_baseAddr + m_size - 1) {
-        if (m_lazyData.size() * m_blockSize >= 64 * 1024 * 1024)
-            m_lazyData.clear();
+        if (m_data.size() * m_blockSize >= 64 * 1024 * 1024)
+            m_data.clear();
         const int translatedBlock = (addr - m_baseAddr) / m_blockSize;
-        m_lazyData.insert(translatedBlock, data);
-        m_lazyRequests.remove(translatedBlock);
+        m_data.insert(translatedBlock, data);
+        m_requests.remove(translatedBlock);
         viewport()->update();
     }
 }
 
 bool BinEditor::requestDataAt(int pos, bool synchronous) const
 {
-    if (!m_inLazyMode)
-        return true;
-
     int block = pos / m_blockSize;
-    QMap<int, QByteArray>::const_iterator it = m_modifiedData.find(block);
+    BlockMap::const_iterator it = m_modifiedData.find(block);
     if (it != m_modifiedData.constEnd())
         return true;
-    it = m_lazyData.find(block);
-    if (it != m_lazyData.end())
+    it = m_data.find(block);
+    if (it != m_data.end())
         return true;
-    if (!m_lazyRequests.contains(block)) {
-        m_lazyRequests.insert(block);
+    if (!m_requests.contains(block)) {
+        m_requests.insert(block);
         emit const_cast<BinEditor*>(this)->
-            lazyDataRequested(editorInterface(), m_baseAddr / m_blockSize + block,
+            dataRequested(editor(), m_baseAddr / m_blockSize + block,
                               synchronous);
-        if (!m_lazyRequests.contains(block))
+        if (!m_requests.contains(block))
             return true; // synchronous data source
     }
     return false;
@@ -201,34 +196,26 @@ bool BinEditor::requestDataAt(int pos, bool synchronous) const
 
 bool BinEditor::requestOldDataAt(int pos) const
 {
-    if (!m_inLazyMode)
-        return false;
     int block = pos / m_blockSize;
-    QMap<int, QByteArray>::const_iterator it = m_oldLazyData.find(block);
-    return it != m_oldLazyData.end();
+    BlockMap::const_iterator it = m_oldData.find(block);
+    return it != m_oldData.end();
 }
 
 char BinEditor::dataAt(int pos, bool old) const
 {
-    if (!m_inLazyMode)
-        return m_data.at(pos);
     int block = pos / m_blockSize;
     return blockData(block, old).at(pos - (block*m_blockSize));
 }
 
 void BinEditor::changeDataAt(int pos, char c)
 {
-    if (!m_inLazyMode) {
-        m_data[pos] = c;
-        return;
-    }
     int block = pos / m_blockSize;
-    QMap<int, QByteArray>::iterator it = m_modifiedData.find(block);
+    BlockMap::iterator it = m_modifiedData.find(block);
     if (it != m_modifiedData.end()) {
         it.value()[pos - (block*m_blockSize)] = c;
     } else {
-        it = m_lazyData.find(block);
-        if (it != m_lazyData.end()) {
+        it = m_data.find(block);
+        if (it != m_data.end()) {
             QByteArray data = it.value();
             data[pos - (block*m_blockSize)] = c;
             m_modifiedData.insert(block, data);
@@ -238,9 +225,6 @@ void BinEditor::changeDataAt(int pos, char c)
 
 QByteArray BinEditor::dataMid(int from, int length, bool old) const
 {
-    if (!m_inLazyMode)
-        return m_data.mid(from, length);
-
     int end = from + length;
     int block = from / m_blockSize;
 
@@ -256,19 +240,13 @@ QByteArray BinEditor::dataMid(int from, int length, bool old) const
 QByteArray BinEditor::blockData(int block, bool old) const
 {
     if (old) {
-        QMap<int, QByteArray>::const_iterator it = m_modifiedData.find(block);
+        BlockMap::const_iterator it = m_modifiedData.find(block);
         return it != m_modifiedData.constEnd()
-                ? it.value() : m_oldLazyData.value(block, m_emptyBlock);
+                ? it.value() : m_oldData.value(block, m_emptyBlock);
     }
-    if (!m_inLazyMode) {
-        QByteArray data = m_data.mid(block * m_blockSize, m_blockSize);
-        if (data.size() < m_blockSize)
-            data.resize(m_blockSize);
-        return data;
-    }
-    QMap<int, QByteArray>::const_iterator it = m_modifiedData.find(block);
+    BlockMap::const_iterator it = m_modifiedData.find(block);
     return it != m_modifiedData.constEnd()
-            ? it.value() : m_lazyData.value(block, m_emptyBlock);
+            ? it.value() : m_data.value(block, m_emptyBlock);
 }
 
 void BinEditor::setFontSettings(const TextEditor::FontSettings &fs)
@@ -358,100 +336,63 @@ bool BinEditor::isReadOnly() const
     return m_readOnly;
 }
 
-void BinEditor::setData(const QByteArray &data)
-{
-    m_inLazyMode = false;
-    m_baseAddr = 0;
-    m_lazyData.clear();
-    m_oldLazyData.clear();
-    m_modifiedData.clear();
-    m_lazyRequests.clear();
-    m_data = data;
-    m_size = data.size();
-    m_addressBytes = 4;
-
-    m_unmodifiedState = 0;
-    m_undoStack.clear();
-    m_redoStack.clear();
-
-    init();
-    m_cursorPosition = 0;
-    verticalScrollBar()->setValue(0);
-
-    emit cursorPositionChanged(m_cursorPosition);
-    viewport()->update();
-}
-
-QByteArray BinEditor::data() const
-{
-    return m_data;
-}
-
 bool BinEditor::save(const QString &oldFileName, const QString &newFileName)
 {
-    if (m_inLazyMode) {
-        if (oldFileName != newFileName) {
-            QString tmpName;
-            {
-                QTemporaryFile tmp;
-                if (!tmp.open())
-                    return false;
-                tmpName = tmp.fileName();
-            }
-            if (!QFile::copy(oldFileName, tmpName))
+    if (oldFileName != newFileName) {
+        QString tmpName;
+        {
+            QTemporaryFile tmp;
+            if (!tmp.open())
                 return false;
-            if (QFile::exists(newFileName) && !QFile::remove(newFileName))
-                return false;
-            if (!QFile::rename(tmpName, newFileName))
-                return false;
+            tmpName = tmp.fileName();
         }
-        QFile output(newFileName);
-        if (!output.open(QIODevice::ReadWrite)) // QtBug: WriteOnly truncates.
+        if (!QFile::copy(oldFileName, tmpName))
             return false;
-        const qint64 size = output.size();
-        for (QMap<int, QByteArray>::const_iterator it = m_modifiedData.constBegin();
-            it != m_modifiedData.constEnd(); ++it) {
-            if (!output.seek(it.key() * m_blockSize))
-                return false;
-            if (output.write(it.value()) < m_blockSize)
-                return false;
-        }
-
-        // We may have padded the displayed data, so we have to make sure
-        // changes to that area are not actually written back to disk.
-        if (!output.resize(size))
+        if (QFile::exists(newFileName) && !QFile::remove(newFileName))
             return false;
-    } else {
-        QFile output(newFileName);
-        if (!output.open(QIODevice::WriteOnly | QIODevice::Truncate))
-            return false;
-        if (output.write(m_data) < m_size)
+        if (!QFile::rename(tmpName, newFileName))
             return false;
     }
+    QFile output(newFileName);
+    if (!output.open(QIODevice::ReadWrite)) // QtBug: WriteOnly truncates.
+        return false;
+    const qint64 size = output.size();
+    for (BlockMap::const_iterator it = m_modifiedData.constBegin();
+        it != m_modifiedData.constEnd(); ++it) {
+        if (!output.seek(it.key() * m_blockSize))
+            return false;
+        if (output.write(it.value()) < m_blockSize)
+            return false;
+    }
+
+    // We may have padded the displayed data, so we have to make sure
+    // changes to that area are not actually written back to disk.
+    if (!output.resize(size))
+        return false;
+
     setModified(false);
     return true;
 }
 
-void BinEditor::setLazyData(quint64 startAddr, int range, int blockSize)
+void BinEditor::setSizes(quint64 startAddr, int range, bool fixedSize, int blockSize)
 {
-    m_inLazyMode = true;
     m_blockSize = blockSize;
+    m_fixedSize = fixedSize;
     Q_ASSERT((blockSize/16) * 16 == blockSize);
     m_emptyBlock = QByteArray(blockSize, '\0');
-    m_data.clear();
     m_modifiedData.clear();
-    m_lazyRequests.clear();
+    m_requests.clear();
 
-    // In lazy mode, users can edit data in the range
+    // Users can edit data in the range
     // [startAddr - range/2, startAddr + range/2].
-    m_baseAddr = static_cast<quint64>(range/2) > startAddr
-                ? 0 : startAddr - range/2;
+    m_baseAddr = quint64(range/2) > startAddr ? 0 : startAddr - range/2;
     m_baseAddr = (m_baseAddr / blockSize) * blockSize;
+
     const quint64 maxRange = Q_UINT64_C(0xffffffffffffffff) - m_baseAddr + 1;
-    m_size = m_baseAddr != 0 && static_cast<quint64>(range) >= maxRange
-             ? maxRange : range;
+    m_size = m_baseAddr != 0 && quint64(range) >= maxRange
+              ? maxRange : range;
     m_addressBytes = (m_baseAddr + m_size < quint64(1) << 32
-                      && m_baseAddr + m_size >= m_baseAddr) ? 4 : 8;
+                   && m_baseAddr + m_size >= m_baseAddr) ? 4 : 8;
 
     m_unmodifiedState = 0;
     m_undoStack.clear();
@@ -471,15 +412,12 @@ void BinEditor::resizeEvent(QResizeEvent *)
 void BinEditor::scrollContentsBy(int dx, int dy)
 {
     viewport()->scroll(isRightToLeft() ? -dx : dx, dy * m_lineHeight);
-    if (m_inLazyMode) {
-        const QScrollBar * const scrollBar = verticalScrollBar();
-        const int scrollPos = scrollBar->value();
-        if (dy <= 0 && scrollPos == scrollBar->maximum())
-            emit newRangeRequested(editorInterface(),
-                baseAddress() + dataSize());
-        else if (dy >= 0 && scrollPos == scrollBar->minimum())
-            emit newRangeRequested(editorInterface(), baseAddress());
-    }
+    const QScrollBar * const scrollBar = verticalScrollBar();
+    const int scrollPos = scrollBar->value();
+    if (dy <= 0 && scrollPos == scrollBar->maximum())
+        emit newRangeRequested(editor(), baseAddress() + m_size);
+    else if (dy >= 0 && scrollPos == scrollBar->minimum())
+        emit newRangeRequested(editor(), baseAddress());
 }
 
 void BinEditor::changeEvent(QEvent *e)
@@ -576,10 +514,6 @@ void BinEditor::updateLines(int fromPosition, int toPosition)
 
 int BinEditor::dataIndexOf(const QByteArray &pattern, int from, bool caseSensitive) const
 {
-    if (!m_inLazyMode && caseSensitive) {
-        return m_data.indexOf(pattern, from);
-    }
-
     int trailing = pattern.size();
     if (trailing > m_blockSize)
         return -1;
@@ -613,9 +547,6 @@ int BinEditor::dataIndexOf(const QByteArray &pattern, int from, bool caseSensiti
 
 int BinEditor::dataLastIndexOf(const QByteArray &pattern, int from, bool caseSensitive) const
 {
-    if (!m_inLazyMode && caseSensitive)
-        return m_data.lastIndexOf(pattern, from);
-
     int trailing = pattern.size();
     if (trailing > m_blockSize)
         return -1;
@@ -1058,10 +989,28 @@ void BinEditor::selectAll()
 
 void BinEditor::clear()
 {
-    setData(QByteArray());
+    m_baseAddr = 0;
+    m_data.clear();
+    m_oldData.clear();
+    m_modifiedData.clear();
+    m_requests.clear();
+    m_size = 0;
+    m_addressBytes = 4;
+
+    m_unmodifiedState = 0;
+    m_undoStack.clear();
+    m_redoStack.clear();
+
+    init();
+    m_cursorPosition = 0;
+    verticalScrollBar()->setValue(0);
+
+    emit cursorPositionChanged(m_cursorPosition);
+    viewport()->update();
 }
 
-bool BinEditor::event(QEvent *e) {
+bool BinEditor::event(QEvent *e)
+{
     if (e->type() == QEvent::KeyPress) {
         switch (static_cast<QKeyEvent*>(e)->key()) {
         case Qt::Key_Tab:
@@ -1071,16 +1020,14 @@ bool BinEditor::event(QEvent *e) {
             ensureCursorVisible();
             e->accept();
             return true;
-        case Qt::Key_Down:
-            if (m_inLazyMode) {
-                const QScrollBar * const scrollBar = verticalScrollBar();
-                if (scrollBar->value() >= scrollBar->maximum() - 1) {
-                    emit newRangeRequested(editorInterface(),
-                        baseAddress() + dataSize());
-                    return true;
-                }
+        case Qt::Key_Down: {
+            const QScrollBar * const scrollBar = verticalScrollBar();
+            if (scrollBar->value() >= scrollBar->maximum() - 1) {
+                emit newRangeRequested(editor(), baseAddress() + m_size);
+                return true;
             }
             break;
+        }
         default:;
         }
     } else if (e->type() == QEvent::ToolTip) {
@@ -1220,20 +1167,14 @@ void BinEditor::keyPressEvent(QKeyEvent *e)
 
     case Qt::Key_Home:
         if (e->modifiers() & Qt::ControlModifier) {
-            if (m_inLazyMode)
-                emit startOfFileRequested(editorInterface());
-            else
-                setCursorPosition(0);
+            emit startOfFileRequested(editor());
         } else {
             setCursorPosition(m_cursorPosition/16 * 16, moveMode);
         }
         break;
     case Qt::Key_End:
         if (e->modifiers() & Qt::ControlModifier) {
-            if (m_inLazyMode)
-                emit endOfFileRequested(editorInterface());
-            else
-                setCursorPosition(m_size - 1);
+            emit endOfFileRequested(editor());
         } else {
             setCursorPosition(m_cursorPosition/16 * 16 + 15, moveMode);
         }
@@ -1474,10 +1415,10 @@ void BinEditor::setupJumpToMenuAction(QMenu *menu, QAction *actionHere,
 
 void BinEditor::jumpToAddress(quint64 address)
 {
-    if (address >= m_baseAddr && address < m_baseAddr + m_data.size())
+    if (address >= m_baseAddr && address < m_baseAddr + m_size)
         setCursorPosition(address - m_baseAddr);
-    else if (m_inLazyMode)
-        emit newRangeRequested(editorInterface(), address);
+    else
+        emit newRangeRequested(editor(), address);
 }
 
 void BinEditor::setNewWindowRequestAllowed()
@@ -1487,9 +1428,9 @@ void BinEditor::setNewWindowRequestAllowed()
 
 void BinEditor::updateContents()
 {
-    m_oldLazyData = m_lazyData;
-    m_lazyData.clear();
-    setLazyData(baseAddress() + cursorPosition(), dataSize(), m_blockSize);
+    m_oldData = m_data;
+    m_data.clear();
+    setSizes(baseAddress() + cursorPosition(), m_size, m_blockSize);
 }
 
 QPoint BinEditor::offsetToPos(int offset)
@@ -1504,7 +1445,7 @@ void BinEditor::asIntegers(int offset, int count, quint64 &beValue,
 {
     beValue = leValue = 0;
     const QByteArray &data = dataMid(offset, count, old);
-    for (int pos = 0; pos < count; ++pos) {
+    for (int pos = 0; pos < data.size(); ++pos) {
         const quint64 val = static_cast<quint64>(data.at(pos)) & 0xff;
         beValue += val << (pos * 8);
         leValue += val << ((count - pos - 1) * 8);

@@ -66,16 +66,11 @@ public:
     BinEditor(QWidget *parent = 0);
     ~BinEditor();
 
-    void setData(const QByteArray &data);
-    QByteArray data() const;
-
-    inline int dataSize() const { return m_size; }
     quint64 baseAddress() const { return m_baseAddr; }
 
-    inline bool inLazyMode() const { return m_inLazyMode; }
-    Q_INVOKABLE void setLazyData(quint64 startAddr, int range, int blockSize = 4096);
-    inline int lazyDataBlockSize() const { return m_blockSize; }
-    Q_INVOKABLE void addLazyData(quint64 block, const QByteArray &data);
+    Q_INVOKABLE void setSizes(quint64 startAddr, int range, bool fixedSize, int blockSize = 4096);
+    int dataBlockSize() const { return m_blockSize; }
+    Q_INVOKABLE void addData(quint64 block, const QByteArray &data);
     Q_INVOKABLE void setNewWindowRequestAllowed();
     Q_INVOKABLE void updateContents();
     bool save(const QString &oldFileName, const QString &newFileName);
@@ -107,8 +102,8 @@ public:
     void undo();
     void redo();
 
-    Core::IEditor *editorInterface() const { return m_ieditor; }
-    void setEditorInterface(Core::IEditor *ieditor) { m_ieditor = ieditor; }
+    Core::IEditor *editor() const { return m_ieditor; }
+    void setEditor(Core::IEditor *ieditor) { m_ieditor = ieditor; }
 
     bool hasSelection() const { return m_cursorPosition != m_anchorPosition; }
     int selectionStart() const { return qMin(m_anchorPosition, m_cursorPosition); }
@@ -136,7 +131,7 @@ Q_SIGNALS:
     void copyAvailable(bool);
     void cursorPositionChanged(int position);
 
-    void lazyDataRequested(Core::IEditor *editor, quint64 block, bool synchronous);
+    void dataRequested(Core::IEditor *editor, quint64 block, bool synchronous);
     void newWindowRequested(quint64 address);
     void newRangeRequested(Core::IEditor *, quint64 address);
     void startOfFileRequested(Core::IEditor *);
@@ -158,13 +153,12 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event);
 
 private:
-    bool m_inLazyMode;
-    QByteArray m_data;
-    QMap<int, QByteArray> m_lazyData;
-    QMap<int, QByteArray> m_oldLazyData;
+    typedef QMap<int, QByteArray> BlockMap;
+    BlockMap m_data;
+    BlockMap m_oldData;
     int m_blockSize;
-    QMap<int, QByteArray> m_modifiedData;
-    mutable QSet<int> m_lazyRequests;
+    BlockMap m_modifiedData;
+    mutable QSet<int> m_requests;
     QByteArray m_emptyBlock;
     QByteArray m_lowerBlock;
     int m_size;
@@ -198,6 +192,7 @@ private:
     int m_numVisibleLines;
 
     quint64 m_baseAddr;
+    bool m_fixedSize;
 
     bool m_cursorVisible;
     int m_cursorPosition;

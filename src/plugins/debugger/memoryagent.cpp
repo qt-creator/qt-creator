@@ -93,7 +93,7 @@ void MemoryAgent::createBinEditor(quint64 addr)
         editor->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
         editor->setProperty(Debugger::Constants::OPENED_WITH_MEMORY, true);
         connect(editor->widget(),
-            SIGNAL(lazyDataRequested(Core::IEditor *, quint64,bool)),
+            SIGNAL(dataRequested(Core::IEditor *, quint64,bool)),
             SLOT(fetchLazyData(Core::IEditor *, quint64,bool)));
         connect(editor->widget(),
             SIGNAL(newWindowRequested(quint64)),
@@ -109,8 +109,11 @@ void MemoryAgent::createBinEditor(quint64 addr)
             SLOT(handleEndOfFileRequested(Core::IEditor*)));
         m_editors << editor;
         QMetaObject::invokeMethod(editor->widget(), "setNewWindowRequestAllowed");
-        QMetaObject::invokeMethod(editor->widget(), "setLazyData",
-            Q_ARG(quint64, addr), Q_ARG(int, DataRange), Q_ARG(int, BinBlockSize));
+        QMetaObject::invokeMethod(editor->widget(), "setSizes",
+            Q_ARG(quint64, addr),
+            Q_ARG(int, DataRange),
+            Q_ARG(bool, false),
+            Q_ARG(int, BinBlockSize));
     } else {
         showMessageBox(QMessageBox::Warning,
             tr("No memory viewer available"),
@@ -131,15 +134,17 @@ void MemoryAgent::addLazyData(QObject *editorToken, quint64 addr,
 {
     IEditor *editor = qobject_cast<IEditor *>(editorToken);
     if (editor && editor->widget()) {
-        QMetaObject::invokeMethod(editor->widget(), "addLazyData",
+        QMetaObject::invokeMethod(editor->widget(), "addData",
             Q_ARG(quint64, addr / BinBlockSize), Q_ARG(QByteArray, ba));
     }
 }
 
 void MemoryAgent::provideNewRange(IEditor *editor, quint64 address)
 {
-    QMetaObject::invokeMethod(editor->widget(), "setLazyData",
-        Q_ARG(quint64, address), Q_ARG(int, DataRange),
+    QMetaObject::invokeMethod(editor->widget(), "setSizes",
+        Q_ARG(quint64, address),
+        Q_ARG(int, DataRange),
+        Q_ARG(bool, false),
         Q_ARG(int, BinBlockSize));
 }
 
