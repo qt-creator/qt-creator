@@ -701,9 +701,6 @@ QString QtVersion::toHtml() const
         } // default config.
         str << "<tr><td><b>" << QtVersionManager::tr("Version:")
             << "</b></td><td>" << qtVersionString() << "</td></tr>";
-        if (hasDebuggingHelper())
-            str << "<tr><td><b>" << QtVersionManager::tr("Debugging helper:")
-                << "</b></td><td>" << debuggingHelperLibrary() << "</td></tr>";
         const QHash<QString,QString> vInfo = versionInfo();
         if (!vInfo.isEmpty()) {
             const QHash<QString,QString>::const_iterator vcend = vInfo.constEnd();
