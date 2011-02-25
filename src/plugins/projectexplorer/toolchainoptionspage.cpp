@@ -292,8 +292,10 @@ void ToolChainModel::apply()
         Q_ASSERT(n);
         if (n->changed) {
             Q_ASSERT(n->toolChain);
-            if (!n->newName.isEmpty())
+            if (!n->newName.isEmpty()) {
                 n->toolChain->setDisplayName(n->newName);
+                n->newName.clear();
+            }
             if (n->widget)
                 n->widget->apply();
             n->changed = false;
