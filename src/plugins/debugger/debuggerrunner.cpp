@@ -56,6 +56,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/outputformat.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/applicationrunconfiguration.h> // For LocalApplication*
 
 #include <utils/synchronousprocess.h>
@@ -660,19 +661,26 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     sp.dumperLibrary = rc->dumperLibrary();
     sp.dumperLibraryLocations = rc->dumperLibraryLocations();
 
+    if (const ProjectExplorer::Target *target = runConfiguration->target()) {
+        if (const ProjectExplorer::Project *project = target->project()) {
+              sp.projectDir = project->projectDirectory();
+              if (const ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration()) {
+                  sp.projectBuildDir = buildConfig->buildDirectory();
+                  if (const ProjectExplorer::ToolChain *tc = buildConfig->toolChain())
+                    sp.debuggerCommand = tc->debuggerCommand();
+              }
+        }
+    }
+
     if (debuggerCore()->isActiveDebugLanguage(QmlLanguage)) {
         sp.qmlServerAddress = _("127.0.0.1");
         sp.qmlServerPort = runConfiguration->qmlDebugServerPort();
 
-        sp.projectDir = runConfiguration->target()->project()->projectDirectory();
-        if (runConfiguration->target()->activeBuildConfiguration())
-            sp.projectBuildDir = runConfiguration->target()
-                ->activeBuildConfiguration()->buildDirectory();
-
         // Makes sure that all bindings go through the JavaScript engine, so that
         // breakpoints are actually hit!
-        if (!sp.environment.hasKey(_("QML_DISABLE_OPTIMIZER"))) {
-            sp.environment.set(_("QML_DISABLE_OPTIMIZER"), _("1"));
+        const QString optimizerKey = _("QML_DISABLE_OPTIMIZER");
+        if (!sp.environment.hasKey(optimizerKey)) {
+            sp.environment.set(optimizerKey, _("1"));
         }
 
         Utils::QtcProcess::addArg(&sp.processArgs, _("-qmljsdebugger=port:")

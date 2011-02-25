@@ -85,8 +85,10 @@ public:
     QString executableFile() const;
     QString coreFile() const;
 
+    int abiIndex() const;
+    void setAbiIndex(int);
     ProjectExplorer::Abi abi() const;
-    void setAbi(const ProjectExplorer::Abi &);
+    QString debuggerCommand();
 
 private slots:
     void changed();
@@ -108,8 +110,10 @@ public:
     qint64 attachPID() const;
     QString executable() const;
 
+    int abiIndex() const;
+    void setAbiIndex(int);
     ProjectExplorer::Abi abi() const;
-    void setAbi(const ProjectExplorer::Abi &);
+    QString debuggerCommand();
 
     virtual void accept();
 
@@ -173,8 +177,10 @@ public:
     QString workingDirectory() const;
     void setWorkingDirectory(const QString &str);
 
+    int abiIndex() const;
+    void setAbiIndex(int);
     ProjectExplorer::Abi abi() const;
-    void setAbi(const ProjectExplorer::Abi &);
+    QString debuggerCommand();
 
     bool breakAtMain() const;
 

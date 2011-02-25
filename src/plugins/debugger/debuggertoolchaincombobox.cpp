@@ -37,10 +37,14 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QDir>
+#include <QtCore/QPair>
 
 #include <QtGui/QtEvents>
 
-Q_DECLARE_METATYPE(ProjectExplorer::Abi)
+typedef QPair<ProjectExplorer::Abi, QString> AbiDebuggerCommandPair;
+
+Q_DECLARE_METATYPE(AbiDebuggerCommandPair)
 
 namespace Debugger {
 namespace Internal {
@@ -54,12 +58,14 @@ void DebuggerToolChainComboBox::init(bool hostAbiOnly)
 {
     const ProjectExplorer::Abi hostAbi = ProjectExplorer::Abi::hostAbi();
     foreach (const ProjectExplorer::ToolChain *tc, ProjectExplorer::ToolChainManager::instance()->toolChains()) {
-        if (!hostAbiOnly || hostAbi.os() == hostAbi.os()) { // Offer MSVC and Mingw, etc.
+        const ProjectExplorer::Abi abi = tc->targetAbi();
+        if (!hostAbiOnly || hostAbi.os() == abi.os()) { // Offer MSVC and Mingw, etc.
             const QString debuggerCommand = tc->debuggerCommand();
             if (!debuggerCommand.isEmpty()) {
+                const AbiDebuggerCommandPair data(abi, debuggerCommand);
                 const QString completeBase = QFileInfo(debuggerCommand).completeBaseName();
                 const QString name = tr("%1 (%2)").arg(tc->displayName(), completeBase);
-                addItem(name, qVariantFromValue(tc->targetAbi()));
+                addItem(name, qVariantFromValue(data));
             }
         }
     }
@@ -83,17 +89,50 @@ ProjectExplorer::Abi DebuggerToolChainComboBox::abi() const
     return abiAt(currentIndex());
 }
 
+QString DebuggerToolChainComboBox::debuggerCommand() const
+{
+    return debuggerCommandAt(currentIndex());
+}
+
+QString DebuggerToolChainComboBox::debuggerCommandAt(int index) const
+{
+    if (index >= 0 && index < count()) {
+        const AbiDebuggerCommandPair abiCommandPair = qvariant_cast<AbiDebuggerCommandPair>(itemData(index));
+        return abiCommandPair.second;
+    }
+    return QString();
+}
+
 ProjectExplorer::Abi DebuggerToolChainComboBox::abiAt(int index) const
 {
-    return index >= 0 ? qvariant_cast<ProjectExplorer::Abi>(itemData(index)) :
-                        ProjectExplorer::Abi();
+    if (index >= 0 && index < count()) {
+        const AbiDebuggerCommandPair abiCommandPair = qvariant_cast<AbiDebuggerCommandPair>(itemData(index));
+        return abiCommandPair.first;
+    }
+    return ProjectExplorer::Abi();
+}
+
+static inline QString abiToolTip(const AbiDebuggerCommandPair &abiCommandPair)
+{
+    QString debugger = QDir::toNativeSeparators(abiCommandPair.second);
+    debugger.replace(QString(QLatin1Char(' ')), QLatin1String("&nbsp;"));
+    return DebuggerToolChainComboBox::tr(
+                "<html><head/><body><table><tr><td>ABI:</td><td><i>%1</i></td></tr>"
+                "<tr><td>Debugger:</td><td>%2</td></tr>").
+            arg(abiCommandPair.first.toString(),
+                QDir::toNativeSeparators(debugger));
 }
 
 bool DebuggerToolChainComboBox::event(QEvent *event)
 {
     if (event->type() == QEvent::ToolTip) {
-        const ProjectExplorer::Abi current = abi();
-        setToolTip(current.isValid() ? current.toString() : QString());
+        const int index = currentIndex();
+        if (index >= 0) {
+            const AbiDebuggerCommandPair abiCommandPair = qvariant_cast<AbiDebuggerCommandPair>(itemData(index));
+            setToolTip(abiToolTip(abiCommandPair));
+        } else {
+            setToolTip(QString());
+        }
     }
     return QComboBox::event(event);
 }

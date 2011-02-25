@@ -697,10 +697,13 @@ public slots:
     void startRemoteEngine();
     void attachExternalApplication();
     void attachExternalApplication(qint64 pid, const QString &binary,
-                                   const ProjectExplorer::Abi &abi = ProjectExplorer::Abi());
+                                   const ProjectExplorer::Abi &abi = ProjectExplorer::Abi(),
+                                   const QString &debuggerCommand = QString());
     void runScheduled();
     void attachCore();
-    void attachCore(const QString &core, const QString &exeFileName, const ProjectExplorer::Abi &abi = ProjectExplorer::Abi());
+    void attachCore(const QString &core, const QString &exeFileName,
+                    const ProjectExplorer::Abi &abi = ProjectExplorer::Abi(),
+                    const QString &debuggerCommand = QString());
     void attachRemote(const QString &spec);
     void attachRemoteTcf();
 
@@ -1342,9 +1345,7 @@ void DebuggerPluginPrivate::startExternalApplication()
             configValue(_("LastExternalExecutableArguments")).toString());
     dlg.setWorkingDirectory(
             configValue(_("LastExternalWorkingDirectory")).toString());
-    const QString abiString = configValue(_("LastExternalAbi")).toString();
-    if (!abiString.isEmpty())
-        dlg.setAbi(ProjectExplorer::Abi(abiString));
+    dlg.setAbiIndex(configValue(_("LastExternalAbiIndex")).toInt());
 
     if (dlg.exec() != QDialog::Accepted)
         return;
@@ -1355,12 +1356,12 @@ void DebuggerPluginPrivate::startExternalApplication()
                    dlg.executableArguments());
     setConfigValue(_("LastExternalWorkingDirectory"),
                    dlg.workingDirectory());
-    setConfigValue(_("LastExternalAbi"),
-                   dlg.abi().toString());
+    setConfigValue(_("LastExternalAbiIndex"), QVariant(dlg.abiIndex()));
 
     sp.executable = dlg.executableFile();
     sp.startMode = StartExternal;
     sp.toolChainAbi = dlg.abi();
+    sp.debuggerCommand = dlg.debuggerCommand();
     sp.workingDirectory = dlg.workingDirectory();
     if (!dlg.executableArguments().isEmpty())
         sp.processArgs = dlg.executableArguments();
@@ -1385,20 +1386,18 @@ void DebuggerPluginPrivate::startExternalApplication()
 void DebuggerPluginPrivate::attachExternalApplication()
 {
     AttachExternalDialog dlg(mainWindow());
-
-    const QString abiString = configValue(_("LastAttachExternalAbi")).toString();
-    if (!abiString.isEmpty())
-        dlg.setAbi(ProjectExplorer::Abi(abiString));
+    dlg.setAbiIndex(configValue(_("LastAttachExternalAbiIndex")).toInt());
 
     if (dlg.exec() != QDialog::Accepted)
         return;
 
-    setConfigValue(_("LastAttachExternalAbi"), dlg.abi().toString());
-    attachExternalApplication(dlg.attachPID(), dlg.executable(), dlg.abi());
+    setConfigValue(_("LastAttachExternalAbiIndex"), QVariant(dlg.abiIndex()));
+    attachExternalApplication(dlg.attachPID(), dlg.executable(), dlg.abi(), dlg.debuggerCommand());
 }
 
-void DebuggerPluginPrivate::attachExternalApplication
-    (qint64 pid, const QString &binary, const ProjectExplorer::Abi &abi)
+void DebuggerPluginPrivate::attachExternalApplication(qint64 pid, const QString &binary,
+                                                      const ProjectExplorer::Abi &abi,
+                                                      const QString &debuggerCommand)
 {
     if (pid == 0) {
         QMessageBox::warning(mainWindow(), tr("Warning"),
@@ -1411,6 +1410,7 @@ void DebuggerPluginPrivate::attachExternalApplication
     sp.executable = binary;
     sp.startMode = AttachExternal;
     sp.toolChainAbi = abi.isValid() ? abi : abiOfBinary(sp.executable);
+    sp.debuggerCommand = debuggerCommand;
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1420,26 +1420,28 @@ void DebuggerPluginPrivate::attachCore()
     AttachCoreDialog dlg(mainWindow());
     dlg.setExecutableFile(configValue(_("LastExternalExecutableFile")).toString());
     dlg.setCoreFile(configValue(_("LastExternalCoreFile")).toString());
-    const QString abiString = configValue(_("LastExternalCoreAbi")).toString();
-    if (!abiString.isEmpty())
-        dlg.setAbi(ProjectExplorer::Abi(abiString));
+    dlg.setAbiIndex(configValue(_("LastExternalCoreAbiIndex")).toInt());
 
     if (dlg.exec() != QDialog::Accepted)
         return;
 
     setConfigValue(_("LastExternalExecutableFile"), dlg.executableFile());
     setConfigValue(_("LastExternalCoreFile"), dlg.coreFile());
-    setConfigValue(_("LastExternalCoreAbi"), dlg.abi().toString());
+    setConfigValue(_("LastExternalCoreAbiIndex"), QVariant(dlg.abiIndex()));
     attachCore(dlg.coreFile(), dlg.executableFile(), dlg.abi());
 }
 
-void DebuggerPluginPrivate::attachCore(const QString &core, const QString &exe, const ProjectExplorer::Abi &abi)
+void DebuggerPluginPrivate::attachCore(const QString &core,
+                                       const QString &exe,
+                                       const ProjectExplorer::Abi &abi,
+                                       const QString &debuggerCommand)
 {
     DebuggerStartParameters sp;
     sp.executable = exe;
     sp.coreFile = core;
     sp.displayName = tr("Core file \"%1\"").arg(core);
     sp.startMode = AttachCore;
+    sp.debuggerCommand = debuggerCommand;
     sp.toolChainAbi = abi.isValid() ? abi : abiOfBinary(sp.coreFile);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
@@ -2378,7 +2380,7 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
     if (!sp.projectDir.isEmpty()) {
         str << "Project: " << QDir::toNativeSeparators(sp.projectDir);
         if (!sp.projectBuildDir.isEmpty())
-            str << " (built: " << QDir::toNativeSeparators(sp.projectBuildDir);
+            str << " (built: " << QDir::toNativeSeparators(sp.projectBuildDir) << ')';
         str << '\n';
     }
     if (!sp.qmlServerAddress.isEmpty())

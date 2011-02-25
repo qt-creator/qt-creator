@@ -232,9 +232,20 @@ ProjectExplorer::Abi AttachCoreDialog::abi() const
     return m_ui->toolchainComboBox->abi();
 }
 
-void AttachCoreDialog::setAbi(const ProjectExplorer::Abi &abi)
+void AttachCoreDialog::setAbiIndex(int i)
 {
-    m_ui->toolchainComboBox->setAbi(abi);
+    if (i >= 0 && i < m_ui->toolchainComboBox->count())
+        m_ui->toolchainComboBox->setCurrentIndex(i);
+}
+
+int AttachCoreDialog::abiIndex() const
+{
+    return m_ui->toolchainComboBox->currentIndex();
+}
+
+QString AttachCoreDialog::debuggerCommand()
+{
+    return m_ui->toolchainComboBox->debuggerCommand();
 }
 
 bool AttachCoreDialog::isValid() const
@@ -464,9 +475,20 @@ ProjectExplorer::Abi AttachExternalDialog::abi() const
     return m_ui->toolchainComboBox->abi();
 }
 
-void AttachExternalDialog::setAbi(const ProjectExplorer::Abi &abi)
+void AttachExternalDialog::setAbiIndex(int i)
 {
-    m_ui->toolchainComboBox->setAbi(abi);
+    if (i >= 0 && i < m_ui->toolchainComboBox->count())
+        m_ui->toolchainComboBox->setCurrentIndex(i);
+}
+
+int AttachExternalDialog::abiIndex() const
+{
+    return m_ui->toolchainComboBox->currentIndex();
+}
+
+QString AttachExternalDialog::debuggerCommand()
+{
+    return m_ui->toolchainComboBox->debuggerCommand();
 }
 
 void AttachExternalDialog::pidChanged(const QString &pid)
@@ -657,9 +679,20 @@ ProjectExplorer::Abi StartExternalDialog::abi() const
     return m_ui->toolChainComboBox->abi();
 }
 
-void StartExternalDialog::setAbi(const ProjectExplorer::Abi &abi)
+void StartExternalDialog::setAbiIndex(int i)
 {
-    m_ui->toolChainComboBox->setAbi(abi);
+    if (i >= 0 && i < m_ui->toolChainComboBox->count())
+        m_ui->toolChainComboBox->setCurrentIndex(i);
+}
+
+int StartExternalDialog::abiIndex() const
+{
+    return m_ui->toolChainComboBox->currentIndex();
+}
+
+QString StartExternalDialog::debuggerCommand()
+{
+    return m_ui->toolChainComboBox->debuggerCommand();
 }
 
 bool StartExternalDialog::isValid() const
