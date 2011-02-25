@@ -465,7 +465,7 @@ TextEditor::BaseTextEditor *CPPEditorWidget::createEditor()
     return editable;
 }
 
-void CPPEditorWidget::createToolBar(CPPEditor *editable)
+void CPPEditorWidget::createToolBar(CPPEditor *editor)
 {
     m_outlineCombo = new QComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
@@ -528,10 +528,7 @@ void CPPEditorWidget::createToolBar(CPPEditor *editable)
     connect(m_semanticHighlighter, SIGNAL(changed(CppEditor::Internal::SemanticInfo)),
             this, SLOT(updateSemanticInfo(CppEditor::Internal::SemanticInfo)));
 
-    QToolBar *toolBar = static_cast<QToolBar*>(editable->toolBar());
-    QList<QAction*> actions = toolBar->actions();
-    QWidget *w = toolBar->widgetForAction(actions.first());
-    static_cast<QHBoxLayout*>(w->layout())->insertWidget(0, m_outlineCombo, 1);
+    editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
 }
 
 void CPPEditorWidget::paste()

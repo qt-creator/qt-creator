@@ -1222,7 +1222,7 @@ TextEditor::BaseTextEditor *QmlJSTextEditorWidget::createEditor()
     return editable;
 }
 
-void QmlJSTextEditorWidget::createToolBar(QmlJSEditorEditable *editable)
+void QmlJSTextEditorWidget::createToolBar(QmlJSEditorEditable *editor)
 {
     m_outlineCombo = new QComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
@@ -1247,10 +1247,7 @@ void QmlJSTextEditorWidget::createToolBar(QmlJSEditorEditable *editable)
 
     connect(file(), SIGNAL(changed()), this, SLOT(updateFileName()));
 
-    QToolBar *toolBar = static_cast<QToolBar*>(editable->toolBar());
-
-    QList<QAction*> actions = toolBar->actions();
-    toolBar->insertWidget(actions.first(), m_outlineCombo);
+    editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
 }
 
 TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const QTextCursor &cursor, bool /*resolveTarget*/)

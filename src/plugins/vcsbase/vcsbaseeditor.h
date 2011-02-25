@@ -52,7 +52,7 @@ namespace Core {
 
 namespace VCSBase {
 
-struct VCSBaseEditorPrivate;
+struct VCSBaseEditorWidgetPrivate;
 class DiffHighlighter;
 class BaseAnnotationHighlighter;
 
@@ -248,7 +248,7 @@ private:
     QAction *createAnnotateAction(const QString &change, bool previous = false);
     QAction *createCopyRevisionAction(const QString &change);
 
-    VCSBaseEditorPrivate *d;
+    VCSBaseEditorWidgetPrivate *d;
 };
 
 } // namespace VCSBase

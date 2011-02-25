@@ -106,6 +106,7 @@ public:
     {
         QHBoxLayout *layout = new QHBoxLayout(this);
         layout->setContentsMargins(3, 0, 3, 0);
+        layout->setSpacing(2);
 
         m_patience->setToolTip(tr("Use the patience algorithmn for calculating the diff"));
         m_patience->setText(tr("Patience"));
@@ -236,6 +237,7 @@ public:
     {
         QHBoxLayout *layout = new QHBoxLayout(this);
         layout->setContentsMargins(3, 0, 3, 0);
+        layout->setSpacing(2);
 
         m_prettyFormat->setToolTip(tr("Select the pretty printing format"));
         m_prettyFormat->addItem(tr("oneline"), QLatin1String("oneline"));
@@ -247,6 +249,7 @@ public:
         m_prettyFormat->addItem(tr("raw"), QLatin1String("raw"));
         layout->addWidget(m_prettyFormat);
         m_prettyFormat->setCurrentIndex(m_settings->showPrettyFormat);
+        m_prettyFormat->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         connect(m_prettyFormat, SIGNAL(currentIndexChanged(int)), this, SLOT(testForArgumentsChanged()));
     }
 
@@ -304,6 +307,7 @@ public:
     {
         QHBoxLayout *layout = new QHBoxLayout(this);
         layout->setContentsMargins(3, 0, 3, 0);
+        layout->setSpacing(2);
 
         m_omitDate = new QToolButton;
         m_omitDate->setToolTip(tr("Do not show the date a change was made in the output"));

@@ -120,39 +120,31 @@ class VCSBaseDiffEditor : public VCSBaseEditor
 {
 public:
     VCSBaseDiffEditor(VCSBaseEditorWidget *, const VCSBaseEditorParameters *type);
-    ~VCSBaseDiffEditor();
 
-    virtual QWidget *toolBar()                { return m_toolBar; }
-    QComboBox *diffFileBrowseComboBox() const  { return m_diffFileBrowseComboBox; }
+    QComboBox *diffFileBrowseComboBox() const { return m_diffFileBrowseComboBox; }
 
 private:
-    QToolBar *m_toolBar;
     QComboBox *m_diffFileBrowseComboBox;
 };
 
 VCSBaseDiffEditor::VCSBaseDiffEditor(VCSBaseEditorWidget *w, const VCSBaseEditorParameters *type) :
     VCSBaseEditor(w, type),
-    m_toolBar(new QToolBar),
-    m_diffFileBrowseComboBox(new QComboBox(m_toolBar))
+    m_diffFileBrowseComboBox(new QComboBox)
 {
     m_diffFileBrowseComboBox->setMinimumContentsLength(20);
     // Make the combo box prefer to expand
     QSizePolicy policy = m_diffFileBrowseComboBox->sizePolicy();
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_diffFileBrowseComboBox->setSizePolicy(policy);
-    m_toolBar->addWidget(m_diffFileBrowseComboBox);
-}
 
-VCSBaseDiffEditor::~VCSBaseDiffEditor()
-{
-    delete m_toolBar;
+    insertExtraToolBarWidget(Left, m_diffFileBrowseComboBox);
 }
 
 // ----------- VCSBaseEditorPrivate
 
-struct VCSBaseEditorPrivate
+struct VCSBaseEditorWidgetPrivate
 {
-    VCSBaseEditorPrivate(const VCSBaseEditorParameters *type);
+    VCSBaseEditorWidgetPrivate(const VCSBaseEditorParameters *type);
 
     const VCSBaseEditorParameters *m_parameters;
 
@@ -167,17 +159,17 @@ struct VCSBaseEditorPrivate
     QString m_annotatePreviousRevisionTextFormat;
     QString m_copyRevisionTextFormat;
     bool m_fileLogAnnotateEnabled;
-    QToolBar *m_toolBar;
+    TextEditor::BaseTextEditor *m_editor;
     QWidget *m_configurationWidget;
 };
 
-VCSBaseEditorPrivate::VCSBaseEditorPrivate(const VCSBaseEditorParameters *type)  :
+VCSBaseEditorWidgetPrivate::VCSBaseEditorWidgetPrivate(const VCSBaseEditorParameters *type)  :
     m_parameters(type),
     m_cursorLine(-1),
     m_annotateRevisionTextFormat(VCSBaseEditorWidget::tr("Annotate \"%1\"")),
     m_copyRevisionTextFormat(VCSBaseEditorWidget::tr("Copy \"%1\"")),
     m_fileLogAnnotateEnabled(false),
-    m_toolBar(0),
+    m_editor(0),
     m_configurationWidget(0)
 {
 }
@@ -185,7 +177,7 @@ VCSBaseEditorPrivate::VCSBaseEditorPrivate(const VCSBaseEditorParameters *type) 
 // ------------ VCSBaseEditor
 VCSBaseEditorWidget::VCSBaseEditorWidget(const VCSBaseEditorParameters *type, QWidget *parent)
   : BaseTextEditorWidget(parent),
-    d(new VCSBaseEditorPrivate(type))
+    d(new VCSBaseEditorWidgetPrivate(type))
 {
     if (VCSBase::Constants::Internal::debug)
         qDebug() << "VCSBaseEditor::VCSBaseEditor" << type->type << type->id;
@@ -334,7 +326,7 @@ TextEditor::BaseTextEditor *VCSBaseEditorWidget::createEditor()
     } else {
         editor = new VCSBaseEditor(this, d->m_parameters);
     }
-    d->m_toolBar = qobject_cast<QToolBar *>(editor->toolBar());
+    d->m_editor = editor;
 
     // Pass on signals.
     connect(this, SIGNAL(describeRequested(QString,QString)),
@@ -842,20 +834,12 @@ QString VCSBaseEditorWidget::getTitleId(const QString &workingDirectory,
 
 bool VCSBaseEditorWidget::setConfigurationWidget(QWidget *w)
 {
-    if (!d->m_toolBar || d->m_configurationWidget)
+    if (!d->m_editor || d->m_configurationWidget)
         return false;
 
     d->m_configurationWidget = w;
-    if (contentType() == AnnotateOutput) {
-        QList<QAction *> actions = d->m_toolBar->actions();
-        Q_ASSERT(actions.count() >= 1);
-        QWidget *spacer = new QWidget(d->m_toolBar);
-        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-        QAction *configAction = d->m_toolBar->insertWidget(actions.at(0), w);
-        d->m_toolBar->insertWidget(configAction, spacer);
-    } else {
-        d->m_toolBar->addWidget(w);
-    }
+    d->m_editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Right, w);
+
     return true;
 }
 

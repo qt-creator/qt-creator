@@ -567,6 +567,9 @@ public:
     bool restoreState(const QByteArray &state) { return e->restoreState(state); }
     QWidget *toolBar();
 
+    enum Side { Left, Right };
+    void insertExtraToolBarWidget(Side side, QWidget *widget);
+
     // ITextEditor
     int find(const QString &string) const;
     int currentLine() const;
@@ -609,6 +612,8 @@ private:
     BaseTextEditorWidget *e;
     mutable QString m_contextHelpId;
     QToolBar *m_toolBar;
+    QWidget *m_stretchWidget;
+    QAction *m_cursorPositionLabelAction;
     Utils::LineColumnLabel *m_cursorPositionLabel;
 };
 

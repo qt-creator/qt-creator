@@ -274,7 +274,7 @@ TextEditor::BaseTextEditor *GLSLTextEditorWidget::createEditor()
     return editable;
 }
 
-void GLSLTextEditorWidget::createToolBar(GLSLEditorEditable *editable)
+void GLSLTextEditorWidget::createToolBar(GLSLEditorEditable *editor)
 {
     m_outlineCombo = new QComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
@@ -295,10 +295,7 @@ void GLSLTextEditorWidget::createToolBar(GLSLEditorEditable *editable)
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_outlineCombo->setSizePolicy(policy);
 
-    QToolBar *toolBar = static_cast<QToolBar*>(editable->toolBar());
-
-    QList<QAction*> actions = toolBar->actions();
-    toolBar->insertWidget(actions.first(), m_outlineCombo);
+    editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
 }
 
 bool GLSLTextEditorWidget::event(QEvent *e)

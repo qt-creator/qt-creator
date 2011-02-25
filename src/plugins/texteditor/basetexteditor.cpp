@@ -5775,17 +5775,13 @@ BaseTextEditor::BaseTextEditor(BaseTextEditorWidget *editor)
 
     m_cursorPositionLabel = new Utils::LineColumnLabel;
 
-    QHBoxLayout *l = new QHBoxLayout;
-    QWidget *w = new QWidget;
-    l->setMargin(0);
-    l->setContentsMargins(5, 0, 5, 0);
-    // l->addStretch(0);
-    l->addWidget(m_cursorPositionLabel);
-    w->setLayout(l);
+    m_stretchWidget = new QWidget;
+    m_stretchWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
     m_toolBar = new QToolBar;
-    m_toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    m_toolBar->addWidget(w);
+    m_toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+    m_toolBar->addWidget(m_stretchWidget);
+    m_cursorPositionLabelAction = m_toolBar->addWidget(m_cursorPositionLabel);
 
     connect(editor, SIGNAL(cursorPositionChanged()), this, SLOT(updateCursorPosition()));
 }
@@ -5799,6 +5795,21 @@ BaseTextEditor::~BaseTextEditor()
 QWidget *BaseTextEditor::toolBar()
 {
     return m_toolBar;
+}
+
+void BaseTextEditor::insertExtraToolBarWidget(BaseTextEditor::Side side,
+                                              QWidget *widget)
+{
+    if (widget->sizePolicy().horizontalPolicy() & QSizePolicy::ExpandFlag) {
+        if (m_stretchWidget)
+            m_stretchWidget->deleteLater();
+        m_stretchWidget = 0;
+    }
+
+    if (side == Right)
+        m_toolBar->insertWidget(m_cursorPositionLabelAction, widget);
+    else
+        m_toolBar->insertWidget(m_toolBar->actions().first(), widget);
 }
 
 int BaseTextEditor::find(const QString &) const
