@@ -530,7 +530,7 @@ ProjectExplorer::RunControl* S60DeviceDebugRunControlFactory::create(ProjectExpl
     const Debugger::ConfigurationCheck check = Debugger::checkDebugConfiguration(startParameters);
     if (!check) {
         Core::ICore::instance()->showWarningWithOptions(tr("Debugger for Symbian Platform"),
-            check.errorMessage, QString(), check.settingsCategory, check.settingsPage);
+            check.errorMessage, check.errorDetailsString(), check.settingsCategory, check.settingsPage);
         return 0;
     }
     return new S60DeviceDebugRunControl(rc, startParameters, check.masterSlaveEngineTypes);

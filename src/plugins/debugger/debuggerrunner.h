@@ -42,6 +42,7 @@
 
 #include <QtCore/QScopedPointer>
 #include <QtCore/QPair>
+#include <QtCore/QStringList>
 
 namespace Utils {
 class Environment;
@@ -63,8 +64,10 @@ class DEBUGGER_EXPORT ConfigurationCheck
 public:
     ConfigurationCheck();
     operator bool() const;
+    QString errorDetailsString() const;
 
     QString errorMessage;
+    QStringList errorDetails;
     QString settingsCategory;
     QString settingsPage;
     QPair<DebuggerEngineType, DebuggerEngineType> masterSlaveEngineTypes;

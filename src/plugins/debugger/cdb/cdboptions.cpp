@@ -36,7 +36,6 @@
 #include <QtCore/QSettings>
 
 static const char settingsGroupC[] = "CDB2";
-static const char enabledKeyC[] = "Enabled";
 static const char symbolPathsKeyC[] = "SymbolPaths";
 static const char sourcePathsKeyC[] = "SourcePaths";
 static const char breakEventKeyC[] = "BreakEvent";
@@ -45,7 +44,7 @@ static const char additionalArgumentsKeyC[] = "AdditionalArguments";
 namespace Debugger {
 namespace Internal {
 
-CdbOptions::CdbOptions() : enabled(false)
+CdbOptions::CdbOptions()
 {
 }
 
@@ -56,7 +55,6 @@ QString CdbOptions::settingsGroup()
 
 void CdbOptions::clear()
 {
-    enabled = false;
     symbolPaths.clear();
     sourcePaths.clear();
 }
@@ -70,7 +68,6 @@ void CdbOptions::fromSettings(QSettings *s)
 {
     clear();
     const QString keyRoot = QLatin1String(settingsGroupC) + QLatin1Char('/');
-    enabled = s->value(keyRoot + QLatin1String(enabledKeyC), QVariant(false)).toBool();
     additionalArguments = s->value(keyRoot + QLatin1String(additionalArgumentsKeyC), QString()).toString();
     symbolPaths = s->value(keyRoot + QLatin1String(symbolPathsKeyC), QStringList()).toStringList();
     sourcePaths = s->value(keyRoot + QLatin1String(sourcePathsKeyC), QStringList()).toStringList();
@@ -80,7 +77,6 @@ void CdbOptions::fromSettings(QSettings *s)
 void CdbOptions::toSettings(QSettings *s) const
 {
     s->beginGroup(QLatin1String(settingsGroupC));
-    s->setValue(QLatin1String(enabledKeyC), enabled);
     s->setValue(QLatin1String(symbolPathsKeyC), symbolPaths);
     s->setValue(QLatin1String(sourcePathsKeyC), sourcePaths);
     s->setValue(QLatin1String(breakEventKeyC), breakEvents);
@@ -90,13 +86,11 @@ void CdbOptions::toSettings(QSettings *s) const
 
 bool CdbOptions::equals(const CdbOptions &rhs) const
 {
-    return enabled == rhs.enabled
-            && additionalArguments == rhs.additionalArguments
+    return additionalArguments == rhs.additionalArguments
             && symbolPaths == rhs.symbolPaths
             && sourcePaths == rhs.sourcePaths
             && breakEvents == rhs.breakEvents;
 }
-
 
 } // namespace Internal
 } // namespace Debugger

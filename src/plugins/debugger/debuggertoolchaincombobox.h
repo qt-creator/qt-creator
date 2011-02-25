@@ -55,7 +55,11 @@ public:
     void setAbi(const ProjectExplorer::Abi &abi);
     ProjectExplorer::Abi abi() const;
 
+protected:
+    virtual bool event(QEvent *event);
+
 private:
+
     ProjectExplorer::Abi abiAt(int index) const;
 };
 

@@ -337,34 +337,34 @@ bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck
 {
 #ifdef Q_OS_WIN
     if (!isCdbEngineEnabled()) {
-        check->errorMessage = CdbEngine::tr("The CDB debug engine required for %1 is currently disabled.").
-                              arg(sp.toolChainAbi.toString());
+        check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine required for %1 is currently disabled.").
+                           arg(sp.toolChainAbi.toString()));
         check->settingsCategory = QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
         check->settingsPage = CdbOptionsPage::settingsId();
         return false;
     }
 
     if (debuggerCore()->debuggerForAbi(sp.toolChainAbi, CdbEngineType).isEmpty()) {
-        check->errorMessage = msgNoCdbBinaryForToolChain(sp.toolChainAbi);
+        check->errorDetails.push_back(msgNoCdbBinaryForToolChain(sp.toolChainAbi));
         check->settingsCategory = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
         check->settingsPage = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
         return false;
     }
 
     if (!validMode(sp.startMode)) {
-        check->errorMessage = CdbEngine::tr("The CDB engine does not support start mode %1.").arg(sp.startMode);
+        check->errorDetails.push_back(CdbEngine::tr("The CDB engine does not support start mode %1.").arg(sp.startMode));
         return false;
     }
 
     if (sp.toolChainAbi.binaryFormat() != Abi::PEFormat || sp.toolChainAbi.os() != Abi::WindowsOS) {
-        check->errorMessage = CdbEngine::tr("The CDB debug engine does not support the %1 ABI.").
-                                            arg(sp.toolChainAbi.toString());
+        check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine does not support the %1 ABI.").
+                                      arg(sp.toolChainAbi.toString()));
         return false;
     }
     return true;
 #else
     Q_UNUSED(sp);
-    check->errorMessage = QString::fromLatin1("Unsupported debug mode");
+    check->errorDetails.push_back(QString::fromLatin1("Unsupported debug mode"));
     return false;
 #endif
 }

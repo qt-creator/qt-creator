@@ -2394,6 +2394,7 @@ void DebuggerPluginPrivate::remoteCommand(const QStringList &options,
 
 QString DebuggerPluginPrivate::debuggerForAbi(const Abi &abi, DebuggerEngineType et) const
 {
+    enum { debug = 0 };
     Abi searchAbi = abi;
     // Pick the right toolchain in case cdb/gdb were started with other toolchains.
     // Also, lldb should be preferred over gdb.
@@ -2411,8 +2412,15 @@ QString DebuggerPluginPrivate::debuggerForAbi(const Abi &abi, DebuggerEngineType
             break;
         }
     }
-    foreach (const ToolChain *tc, ToolChainManager::instance()->findToolChains(searchAbi)) {
-        const QString debugger = tc->debuggerCommand();
+    if (debug)
+        qDebug() << "debuggerForAbi" << abi.toString() << searchAbi.toString() << et;
+
+    const QList<ToolChain *> toolchains = ToolChainManager::instance()->findToolChains(searchAbi);
+    // Find manually configured ones first
+    for (int i = toolchains.size() - 1; i >= 0; i--) {
+        const QString debugger = toolchains.at(i)->debuggerCommand();
+        if (debug)
+            qDebug() << i << toolchains.at(i)->displayName() << debugger;
         if (!debugger.isEmpty())
             return debugger;
     }

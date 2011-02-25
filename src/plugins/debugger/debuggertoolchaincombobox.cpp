@@ -38,6 +38,8 @@
 
 #include <QtCore/QFileInfo>
 
+#include <QtGui/QtEvents>
+
 Q_DECLARE_METATYPE(ProjectExplorer::Abi)
 
 namespace Debugger {
@@ -84,6 +86,15 @@ ProjectExplorer::Abi DebuggerToolChainComboBox::abiAt(int index) const
 {
     return index >= 0 ? qvariant_cast<ProjectExplorer::Abi>(itemData(index)) :
                         ProjectExplorer::Abi();
+}
+
+bool DebuggerToolChainComboBox::event(QEvent *event)
+{
+    if (event->type() == QEvent::ToolTip) {
+        const ProjectExplorer::Abi current = abi();
+        setToolTip(current.isValid() ? current.toString() : QString());
+    }
+    return QComboBox::event(event);
 }
 
 } // namespace Debugger

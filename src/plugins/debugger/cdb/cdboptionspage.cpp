@@ -172,7 +172,6 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
 void CdbOptionsPageWidget::setOptions(CdbOptions &o)
 {
     m_ui.additionalArgumentsLineEdit->setText(o.additionalArguments);
-    m_ui.cdbPathGroupBox->setChecked(o.enabled);
     setSymbolPaths(o.symbolPaths);
     m_ui.sourcePathListEditor->setPathList(o.sourcePaths);
     m_breakEventWidget->setBreakEvents(o.breakEvents);
@@ -182,7 +181,6 @@ CdbOptions CdbOptionsPageWidget::options() const
 {
     CdbOptions  rc;
     rc.additionalArguments = m_ui.additionalArgumentsLineEdit->text().trimmed();
-    rc.enabled = m_ui.cdbPathGroupBox->isChecked();
     rc.symbolPaths = symbolPaths();
     rc.sourcePaths = m_ui.sourcePathListEditor->pathList();
     rc.breakEvents = m_breakEventWidget->breakEvents();

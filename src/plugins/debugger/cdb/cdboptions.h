@@ -48,9 +48,9 @@ struct CdbOptions
 public:
     CdbOptions();
 
-    bool isValid() const { return enabled; }
-
     void clear();
+
+    bool isValid() { return true; }
 
     void fromSettings(QSettings *s); // Writes parameters on first-time autodetect
     void toSettings(QSettings *s) const;
@@ -60,7 +60,6 @@ public:
     static QString settingsGroup();
     static QStringList oldEngineSymbolPaths(const QSettings *s);
 
-    bool enabled;
     QString additionalArguments;
     QStringList symbolPaths;
     QStringList sourcePaths;

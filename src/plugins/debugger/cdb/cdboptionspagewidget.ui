@@ -16,10 +16,13 @@
      <item>
       <widget class="QGroupBox" name="cdbPathGroupBox">
        <property name="title">
-        <string extracomment="Placeholder">CDB</string>
+        <string extracomment="Placeholder">Startup</string>
        </property>
        <property name="checkable">
-        <bool>true</bool>
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
        </property>
        <layout class="QFormLayout" name="formLayout">
         <property name="fieldGrowthPolicy">
@@ -44,7 +47,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QGroupBox" name="pathGroupBox">
+    <widget class="QGroupBox" name="startupGroupBox">
      <property name="title">
       <string>Debugger Paths</string>
      </property>

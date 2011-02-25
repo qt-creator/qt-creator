@@ -65,10 +65,13 @@
 #include <coreplugin/icore.h>
 
 #include <QtCore/QDir>
+#include <QtCore/QDebug>
 #include <QtGui/QMessageBox>
 
 using namespace ProjectExplorer;
 using namespace Debugger::Internal;
+
+enum { debug = 0 };
 
 namespace Debugger {
 namespace Internal {
@@ -116,6 +119,17 @@ static const char *engineTypeName(DebuggerEngineType et)
         break;
     }
     return "No engine";
+}
+
+static inline QString engineTypeNames(const QList<DebuggerEngineType> &l)
+{
+    QString rc;
+    foreach (DebuggerEngineType et, l) {
+        if (!rc.isEmpty())
+            rc.append(QLatin1Char(','));
+        rc += QLatin1String(engineTypeName(et));
+    }
+    return rc;
 }
 
 static QString msgEngineNotAvailable(const char *engine)
@@ -479,7 +493,7 @@ static inline bool engineConfigurationCheck(const DebuggerStartParameters &sp,
         return checkCdbConfiguration(sp, check);
     case Debugger::GdbEngineType:
         if (debuggerCore()->debuggerForAbi(sp.toolChainAbi, et).isEmpty()) {
-            check->errorMessage = msgNoBinaryForToolChain(sp.toolChainAbi, et);
+            check->errorDetails.push_back(msgNoBinaryForToolChain(sp.toolChainAbi, et));
             check->settingsCategory = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
             check->settingsPage = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
             return false;
@@ -498,7 +512,12 @@ ConfigurationCheck::ConfigurationCheck() :
 
 ConfigurationCheck::operator bool() const
 {
-    return errorMessage.isEmpty() &&  masterSlaveEngineTypes.first != NoEngineType;
+    return errorMessage.isEmpty() &&  errorDetails.isEmpty() && masterSlaveEngineTypes.first != NoEngineType;
+}
+
+QString ConfigurationCheck::errorDetailsString() const
+{
+    return errorDetails.join(QLatin1String("\n\n"));
 }
 
 /*!
@@ -516,6 +535,10 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
     const unsigned activeLangs = debuggerCore()->activeLanguages();
     const bool qmlLanguage = activeLangs & QmlLanguage;
     const bool cppLanguage = activeLangs & CppLanguage;
+    if (debug)
+        qDebug().nospace() << "checkDebugConfiguration " << sp.toolChainAbi.toString()
+                           << " Start mode=" << sp.startMode << " Executable=" << sp.executable
+                           << " Debugger command=" << sp.debuggerCommand;
     // Get all applicable types.
     QList<DebuggerEngineType> requiredTypes;
     if (qmlLanguage && !cppLanguage) {
@@ -527,6 +550,8 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
         result.errorMessage = DebuggerPlugin::tr("Internal error: Unable to determine debugger engine type for this configuration");
         return result;
     }
+    if (debug)
+        qDebug() << " Required: " << engineTypeNames(requiredTypes);
     // Filter out disables types, command line + current settings.
     unsigned cmdLineEnabledEngines = debuggerCore()->enabledEngines();
 #ifdef CDB_ENABLED
@@ -548,12 +573,15 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
                 arg(QLatin1String(engineTypeName(usableTypes.front())));
         return result;
     }
+    if (debug)
+        qDebug() << " Usable engines: " << engineTypeNames(usableTypes);
     // Configuration check: Strip off non-configured engines.
     while (!usableTypes.isEmpty() && !engineConfigurationCheck(sp, usableTypes.front(), &result))
         usableTypes.pop_front();
+    if (debug)
+        qDebug() << "Configured engines: " << engineTypeNames(usableTypes);
     if (usableTypes.isEmpty()) {
-        result.errorMessage = DebuggerPlugin::tr("The debugger engine required for this configuration is not correctly configured:\n%1")
-                .arg(result.errorMessage);
+        result.errorMessage = DebuggerPlugin::tr("The debugger engine required for this configuration is not correctly configured.");
         return result;
     }
     // Anything left: Happy.
@@ -563,6 +591,8 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
     } else {
         result.masterSlaveEngineTypes.first = usableTypes.front();
     }
+    if (debug)
+        qDebug() << engineTypeName(result.masterSlaveEngineTypes.first) << engineTypeName(result.masterSlaveEngineTypes.second);
     return result;
 }
 
@@ -690,7 +720,7 @@ DebuggerRunControl *DebuggerRunControlFactory::create
     if (!check) {
         //appendMessage(errorMessage, true);
         Core::ICore::instance()->showWarningWithOptions(DebuggerRunControl::tr("Debugger"),
-            check.errorMessage, QString(), check.settingsCategory, check.settingsPage);
+            check.errorMessage, check.errorDetailsString(), check.settingsCategory, check.settingsPage);
         return 0;
     }
 

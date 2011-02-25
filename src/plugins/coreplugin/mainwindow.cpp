@@ -1386,7 +1386,7 @@ bool MainWindow::showWarningWithOptions(const QString &title,
         parent = this;
     QMessageBox msgBox(QMessageBox::Warning, title, text,
                        QMessageBox::Ok, parent);
-    if (details.isEmpty())
+    if (!details.isEmpty())
         msgBox.setDetailedText(details);
     QAbstractButton *settingsButton = 0;
     if (!settingsId.isEmpty() || !settingsCategory.isEmpty())
