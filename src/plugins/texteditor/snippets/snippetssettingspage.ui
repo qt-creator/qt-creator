@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>684</width>
-    <height>554</height>
+    <width>618</width>
+    <height>413</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,7 +42,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
@@ -65,22 +65,73 @@
      </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetMaximumSize</enum>
+       </property>
        <item>
-        <widget class="QPushButton" name="addButton">
-         <property name="text">
-          <string>Add</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="removeButton">
-         <property name="text">
-          <string>Remove</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QToolButton" name="addButton">
+           <property name="text">
+            <string>Add</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../coreplugin/core.qrc">
+             <normaloff>:/core/images/plus-16.png</normaloff>:/core/images/plus-16.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="removeButton">
+           <property name="text">
+            <string>Remove</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../coreplugin/core.qrc">
+             <normaloff>:/core/images/minus-16.png</normaloff>:/core/images/minus-16.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Preferred</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>60</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QToolButton" name="resetAllButton">
+           <property name="toolTip">
+            <string>Reset</string>
+           </property>
+           <property name="text">
+            <string>Reset All</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../coreplugin/core.qrc">
+             <normaloff>:/core/images/reset.png</normaloff>:/core/images/reset.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QPushButton" name="revertButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Revert Built-in</string>
          </property>
@@ -88,15 +139,14 @@
        </item>
        <item>
         <widget class="QPushButton" name="restoreRemovedButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Restore Removed Built-ins</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="resetAllButton">
-         <property name="text">
-          <string>Reset All</string>
          </property>
         </widget>
        </item>
@@ -125,6 +175,8 @@
   <tabstop>removeButton</tabstop>
   <tabstop>snippetsTable</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../../coreplugin/core.qrc"/>
+ </resources>
  <connections/>
 </ui>

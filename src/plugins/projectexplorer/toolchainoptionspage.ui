@@ -50,7 +50,7 @@
          </property>
          <property name="icon">
           <iconset resource="../coreplugin/core.qrc">
-           <normaloff>:/core/images/plus.png</normaloff>:/core/images/plus.png</iconset>
+           <normaloff>:/core/images/plus-16.png</normaloff>:/core/images/plus-16.png</iconset>
          </property>
          <property name="popupMode">
           <enum>QToolButton::InstantPopup</enum>
@@ -76,7 +76,7 @@
          </property>
          <property name="icon">
           <iconset resource="../coreplugin/core.qrc">
-           <normaloff>:/core/images/minus.png</normaloff>:/core/images/minus.png</iconset>
+           <normaloff>:/core/images/minus-16.png</normaloff>:/core/images/minus-16.png</iconset>
          </property>
         </widget>
        </item>

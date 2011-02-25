@@ -13,9 +13,9 @@
   <property name="windowTitle">
    <string>Maemo Device Configurations</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_3">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <layout class="QFormLayout" name="formLayout">
        <property name="fieldGrowthPolicy">
@@ -47,6 +47,53 @@
       </layout>
      </item>
      <item>
+      <widget class="QToolButton" name="addConfigButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
+       <property name="text">
+        <string>&amp;Add</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../coreplugin/core.qrc">
+         <normaloff>:/core/images/plus-16.png</normaloff>:/core/images/plus-16.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="removeConfigButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
+       <property name="text">
+        <string>&amp;Remove</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../coreplugin/core.qrc">
+         <normaloff>:/core/images/minus-16.png</normaloff>:/core/images/minus-16.png</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
       <widget class="QFrame" name="frame">
        <property name="frameShape">
         <enum>QFrame::StyledPanel</enum>
@@ -55,6 +102,9 @@
         <enum>QFrame::Raised</enum>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="topMargin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QWidget" name="detailsWidget" native="true">
           <property name="enabled">
@@ -67,6 +117,9 @@
            </sizepolicy>
           </property>
           <layout class="QFormLayout" name="formLayout_2">
+           <property name="topMargin">
+            <number>0</number>
+           </property>
            <item row="0" column="0">
             <widget class="QLabel" name="deviceNameLabel">
              <property name="text">
@@ -360,122 +413,99 @@
        </layout>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QPushButton" name="addConfigButton">
-       <property name="focusPolicy">
-        <enum>Qt::StrongFocus</enum>
-       </property>
-       <property name="text">
-        <string>&amp;Add</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="removeConfigButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::StrongFocus</enum>
-       </property>
-       <property name="text">
-        <string>&amp;Remove</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="testConfigButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::StrongFocus</enum>
-       </property>
-       <property name="toolTip">
-        <string>Click here to check whether this device is properly set up to run Maemo projects.</string>
-       </property>
-       <property name="text">
-        <string>&amp;Test</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="generateKeyButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::StrongFocus</enum>
-       </property>
-       <property name="toolTip">
-        <string>Click here if you do not have an SSH key yet.</string>
-       </property>
-       <property name="text">
-        <string>&amp;Generate SSH Key ...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="deployKeyButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::StrongFocus</enum>
-       </property>
-       <property name="toolTip">
-        <string>This will enable you to log into the device without a password.</string>
-       </property>
-       <property name="text">
-        <string>&amp;Deploy Public Key ...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="remoteProcessesButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::StrongFocus</enum>
-       </property>
-       <property name="toolTip">
-        <string>Click here to see which processes are running on the device.</string>
-       </property>
-       <property name="text">
-        <string>Remote Processes ...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="defaultDeviceButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::StrongFocus</enum>
-       </property>
-       <property name="text">
-        <string>Set As Default</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QPushButton" name="testConfigButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="toolTip">
+          <string>Click here to check whether this device is properly set up to run Maemo projects.</string>
+         </property>
+         <property name="text">
+          <string>&amp;Test</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="generateKeyButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="toolTip">
+          <string>Click here if you do not have an SSH key yet.</string>
+         </property>
+         <property name="text">
+          <string>&amp;Generate SSH Key ...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="deployKeyButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="toolTip">
+          <string>This will enable you to log into the device without a password.</string>
+         </property>
+         <property name="text">
+          <string>&amp;Deploy Public Key ...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="remoteProcessesButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="toolTip">
+          <string>Click here to see which processes are running on the device.</string>
+         </property>
+         <property name="text">
+          <string>Remote Processes ...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="defaultDeviceButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="text">
+          <string>Set As Default</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
@@ -493,7 +523,9 @@
    </slots>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../coreplugin/core.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>hostLineEdit</sender>
@@ -540,38 +572,6 @@
     <hint type="destinationlabel">
      <x>423</x>
      <y>336</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>addConfigButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
-   <slot>addConfig()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>465</x>
-     <y>27</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>516</x>
-     <y>118</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>removeConfigButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
-   <slot>deleteConfig()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>473</x>
-     <y>61</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>513</x>
-     <y>101</y>
     </hint>
    </hints>
   </connection>

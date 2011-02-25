@@ -58,9 +58,16 @@
       <item>
        <layout class="QHBoxLayout">
         <item>
-         <widget class="QPushButton" name="defaultButton">
+         <widget class="QToolButton" name="defaultButton">
+          <property name="toolTip">
+           <string>Reset all to default</string>
+          </property>
           <property name="text">
            <string>Defaults</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../core.qrc">
+            <normaloff>:/core/images/reset.png</normaloff>:/core/images/reset.png</iconset>
           </property>
          </widget>
         </item>
@@ -129,7 +136,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Reset</string>
+           <string>Reset to default</string>
           </property>
           <property name="text">
            <string/>
@@ -161,11 +168,6 @@
   </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>Utils::FancyLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header location="global">utils/fancylineedit.h</header>
-  </customwidget>
   <customwidget>
    <class>Utils::FilterLineEdit</class>
    <extends>QLineEdit</extends>

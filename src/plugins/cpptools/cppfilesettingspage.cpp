@@ -37,6 +37,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/mimedatabase.h>
 #include <cppeditor/cppeditorconstants.h>
 
@@ -52,6 +53,7 @@
 #include <QtCore/QTextCodec>
 #include <QtCore/QTextStream>
 
+#include <QtGui/QIcon>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
@@ -247,6 +249,7 @@ CppFileSettingsWidget::CppFileSettingsWidget(QWidget *parent) :
             m_ui->headerSuffixComboBox->addItem(suffix);
     m_ui->licenseTemplatePathChooser->setExpectedKind(Utils::PathChooser::File);
     m_ui->licenseTemplatePathChooser->addButton(tr("Edit..."), this, SLOT(slotEdit()));
+    m_ui->licenseTemplatePathChooser->buttonAtIndex(1)->setIcon(QIcon(Core::Constants::ICON_EDIT));
 }
 
 CppFileSettingsWidget::~CppFileSettingsWidget()

@@ -97,10 +97,8 @@ QWidget *CodePasterSettingsPage::createPage(QWidget *parent)
     connect(lineEdit, SIGNAL(textChanged(QString)), this, SLOT(serverChanged(QString)));
     formLayout->addRow(tr("Server:"), lineEdit);
     outerLayout->addLayout(formLayout);
-    outerLayout->addSpacerItem(new QSpacerItem(0, 30, QSizePolicy::Ignored, QSizePolicy::Fixed));
-
-    QLabel *noteLabel = new QLabel(tr("Note: Specify the host name for the CodePaster service "
-                                      "without any protocol prepended (e.g. codepaster.mycompany.com)."));
+    QLabel *noteLabel = new QLabel(tr("<i>Note: Specify the host name for the CodePaster service "
+                                      "without any protocol prepended (e.g. codepaster.mycompany.com).</i>"));
     noteLabel->setWordWrap(true);
     outerLayout->addWidget(noteLabel);
 

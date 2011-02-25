@@ -24,29 +24,41 @@
    <item row="0" column="1">
     <layout class="QVBoxLayout">
      <item>
-      <widget class="QPushButton" name="addButton">
+      <widget class="QToolButton" name="addButton">
        <property name="text">
         <string>Add</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../coreplugin/core.qrc">
+         <normaloff>:/core/images/plus-16.png</normaloff>:/core/images/plus-16.png</iconset>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="removeButton">
+      <widget class="QToolButton" name="editButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Edit</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../coreplugin/core.qrc">
+         <normaloff>:/core/images/edit.png</normaloff>:/core/images/edit.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="removeButton">
        <property name="enabled">
         <bool>false</bool>
        </property>
        <property name="text">
         <string>Remove</string>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="editButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>Edit</string>
+       <property name="icon">
+        <iconset resource="../coreplugin/core.qrc">
+         <normaloff>:/core/images/minus-16.png</normaloff>:/core/images/minus-16.png</iconset>
        </property>
       </widget>
      </item>
@@ -113,6 +125,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../coreplugin/core.qrc"/>
+ </resources>
  <connections/>
 </ui>
