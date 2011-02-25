@@ -982,6 +982,7 @@ public:
     enum Type {
         InvalidImport,
         ImplicitDirectoryImport,
+        ImplicitLibraryImport,
         LibraryImport,
         FileImport,
         DirectoryImport,

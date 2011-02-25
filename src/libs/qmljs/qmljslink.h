@@ -37,6 +37,7 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
+#include <languageutils/componentversion.h>
 
 #include <QtCore/QCoreApplication>
 
@@ -72,6 +73,14 @@ private:
     Interpreter::ObjectValue *importFile(Document::Ptr doc, const Interpreter::ImportInfo &importInfo);
     Interpreter::ObjectValue *importNonFile(Document::Ptr doc, const Interpreter::ImportInfo &importInfo);
     void importObject(Bind *bind, const QString &name, Interpreter::ObjectValue *object, NameId *targetNamespace);
+
+    void loadQmldirComponents(Interpreter::ObjectValue *import,
+                              LanguageUtils::ComponentVersion version,
+                              const LibraryInfo &libraryInfo,
+                              const QString &libraryPath);
+    void loadImplicitDirectoryImports(Interpreter::TypeEnvironment *typeEnv, Document::Ptr doc);
+    void loadImplicitLibraryImports(Interpreter::TypeEnvironment *typeEnv, const QString &path);
+    void loadImplicitDefaultImports(Interpreter::TypeEnvironment *typeEnv);
 
     void error(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);
     void warning(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);
