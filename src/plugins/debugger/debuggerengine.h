@@ -159,6 +159,8 @@ public:
     virtual void openMemoryView(quint64 addr);
     virtual void fetchMemory(Internal::MemoryAgent *, QObject *,
                              quint64 addr, quint64 length);
+    virtual void changeMemory(Internal::MemoryAgent *, QObject *,
+                              quint64 addr, const QByteArray &data);
     virtual void updateMemoryViews();
     virtual void openDisassemblerView(const Internal::Location &location);
     virtual void fetchDisassembler(Internal::DisassemblerAgent *);

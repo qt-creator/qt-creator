@@ -71,6 +71,7 @@ private:
     Q_SLOT void provideNewRange(Core::IEditor *editor, quint64 address);
     Q_SLOT void handleStartOfFileRequested(Core::IEditor *editor);
     Q_SLOT void handleEndOfFileRequested(Core::IEditor *editor);
+    Q_SLOT void handleDataChanged(Core::IEditor *editor, quint64 address, const QByteArray &data);
 
     QList<QPointer<Core::IEditor> > m_editors;
     QPointer<DebuggerEngine> m_engine;

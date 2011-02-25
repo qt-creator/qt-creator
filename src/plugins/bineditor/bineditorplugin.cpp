@@ -179,8 +179,7 @@ class BinEditorFile : public Core::IFile
     Q_OBJECT
 public:
     BinEditorFile(BinEditor *parent) :
-        Core::IFile(parent),
-        m_mimeType(QLatin1String(BINEditor::Constants::C_BINEDITOR_MIMETYPE))
+        Core::IFile(parent)
     {
         m_editor = parent;
         connect(m_editor, SIGNAL(dataRequested(Core::IEditor *, quint64, bool)),
@@ -194,7 +193,9 @@ public:
     }
     ~BinEditorFile() {}
 
-    virtual QString mimeType() const { return m_mimeType; }
+    QString mimeType() const {
+        return QLatin1String(Constants::C_BINEDITOR_MIMETYPE);
+    }
 
     bool save(const QString &fileName = QString()) {
         const QString fileNameToUse
@@ -261,19 +262,17 @@ public:
         m_fileName = filename;
     }
 
-    QString fileName() const {
-        return m_fileName;
-    }
+    QString fileName() const { return m_fileName; }
 
     QString defaultPath() const { return QString(); }
-    QString suggestedFileName() const { return QString(); }
-    QString fileFilter() const { return QString(); }
-    QString fileExtension() const { return QString(); }
 
-    bool isModified() const {
-        return m_editor->isModified();
-    }
+    QString suggestedFileName() const { return QString(); }
+
+    bool isModified() const { return m_editor->isModified(); }
+
     bool isReadOnly() const {
+        if (m_editor->editor()->property("MemoryView").toBool())
+            return false;
         const QFileInfo fi(m_fileName);
         return !fi.isWritable();
     }
@@ -304,7 +303,6 @@ public:
     }
 
 private:
-    const QString m_mimeType;
     BinEditor *m_editor;
     QString m_fileName;
 };
@@ -396,11 +394,10 @@ private:
 
 
 
-
 ///////////////////////////////// BinEditorFactory //////////////////////////////////
 
 BinEditorFactory::BinEditorFactory(BinEditorPlugin *owner) :
-    m_mimeTypes(QLatin1String(BINEditor::Constants::C_BINEDITOR_MIMETYPE)),
+    m_mimeTypes(QLatin1String(Constants::C_BINEDITOR_MIMETYPE)),
     m_owner(owner)
 {
 }

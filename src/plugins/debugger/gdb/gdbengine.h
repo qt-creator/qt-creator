@@ -482,6 +482,9 @@ private: ////////// View & Data Stuff //////////
 
     virtual void fetchMemory(MemoryAgent *agent, QObject *token,
         quint64 addr, quint64 length);
+    void handleChangeMemory(const GdbResponse &response);
+    virtual void changeMemory(MemoryAgent *agent, QObject *token,
+        quint64 addr, const QByteArray &data);
     void handleFetchMemory(const GdbResponse &response);
 
     virtual void watchPoint(const QPoint &);

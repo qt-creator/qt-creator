@@ -136,6 +136,7 @@ Q_SIGNALS:
     void newRangeRequested(Core::IEditor *, quint64 address);
     void startOfFileRequested(Core::IEditor *);
     void endOfFileRequested(Core::IEditor *);
+    void dataChanged(Core::IEditor *, quint64 address, const QByteArray &data);
 
 protected:
     void scrollContentsBy(int dx, int dy);

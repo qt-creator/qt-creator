@@ -487,6 +487,13 @@ void DebuggerEngine::fetchMemory(MemoryAgent *, QObject *,
     Q_UNUSED(length);
 }
 
+void DebuggerEngine::changeMemory(MemoryAgent *, QObject *,
+        quint64 addr, const QByteArray &data)
+{
+    Q_UNUSED(addr);
+    Q_UNUSED(data);
+}
+
 void DebuggerEngine::setRegisterValue(int regnr, const QString &value)
 {
     Q_UNUSED(regnr);

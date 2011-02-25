@@ -204,7 +204,7 @@ bool BinEditor::requestOldDataAt(int pos) const
 char BinEditor::dataAt(int pos, bool old) const
 {
     int block = pos / m_blockSize;
-    return blockData(block, old).at(pos - (block*m_blockSize));
+    return blockData(block, old).at(pos - block*m_blockSize);
 }
 
 void BinEditor::changeDataAt(int pos, char c)
@@ -221,6 +221,8 @@ void BinEditor::changeDataAt(int pos, char c)
             m_modifiedData.insert(block, data);
         }
     }
+
+    emit dataChanged(editor(), m_baseAddr + pos, QByteArray(1, c));
 }
 
 QByteArray BinEditor::dataMid(int from, int length, bool old) const

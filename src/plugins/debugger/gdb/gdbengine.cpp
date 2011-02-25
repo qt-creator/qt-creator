@@ -3860,10 +3860,26 @@ struct MemoryAgentCookie
     quint64 address;
 };
 
+void GdbEngine::changeMemory(MemoryAgent *agent, QObject *token,
+        quint64 addr, const QByteArray &data)
+{
+    QByteArray cmd = "-data-write-memory " + QByteArray::number(addr) + " d 1";
+    foreach (char c, data) {
+        cmd.append(' ');
+        cmd.append(QByteArray::number(uint(c)));
+    }
+    postCommand(cmd, NeedsStop, CB(handleChangeMemory),
+        QVariant::fromValue(MemoryAgentCookie(agent, token, addr)));
+}
+
+void GdbEngine::handleChangeMemory(const GdbResponse &response)
+{
+    Q_UNUSED(response);
+}
+
 void GdbEngine::fetchMemory(MemoryAgent *agent, QObject *token, quint64 addr,
                             quint64 length)
 {
-    //qDebug() << "GDB MEMORY FETCH" << agent << addr << length;
     postCommand("-data-read-memory " + QByteArray::number(addr) + " x 1 1 "
             + QByteArray::number(length),
         NeedsStop, CB(handleFetchMemory),

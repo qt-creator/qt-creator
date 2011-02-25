@@ -88,25 +88,27 @@ void MemoryAgent::createBinEditor(quint64 addr)
     IEditor *editor = editorManager->openEditorWithContents(
         Core::Constants::K_DEFAULT_BINARY_EDITOR_ID,
         &titlePattern);
-    editorManager->activateEditor(editor);
     if (editor) {
-        editor->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
-        editor->setProperty(Debugger::Constants::OPENED_WITH_MEMORY, true);
+        editor->setProperty(Constants::OPENED_BY_DEBUGGER, true);
+        editor->setProperty(Constants::OPENED_WITH_MEMORY, true);
         connect(editor->widget(),
-            SIGNAL(dataRequested(Core::IEditor *, quint64,bool)),
-            SLOT(fetchLazyData(Core::IEditor *, quint64,bool)));
+            SIGNAL(dataRequested(Core::IEditor*,quint64,bool)),
+            SLOT(fetchLazyData(Core::IEditor*,quint64,bool)));
         connect(editor->widget(),
             SIGNAL(newWindowRequested(quint64)),
             SLOT(createBinEditor(quint64)));
         connect(editor->widget(),
-            SIGNAL(newRangeRequested(Core::IEditor *, quint64)),
+            SIGNAL(newRangeRequested(Core::IEditor*,quint64)),
             SLOT(provideNewRange(Core::IEditor*,quint64)));
         connect(editor->widget(),
-            SIGNAL(startOfFileRequested(Core::IEditor *)),
+            SIGNAL(startOfFileRequested(Core::IEditor*)),
             SLOT(handleStartOfFileRequested(Core::IEditor*)));
         connect(editor->widget(),
             SIGNAL(endOfFileRequested(Core::IEditor *)),
             SLOT(handleEndOfFileRequested(Core::IEditor*)));
+        connect(editor->widget(),
+            SIGNAL(dataChanged(Core::IEditor*,quint64,QByteArray)),
+            SLOT(handleDataChanged(Core::IEditor*,quint64,QByteArray)));
         m_editors << editor;
         QMetaObject::invokeMethod(editor->widget(), "setNewWindowRequestAllowed");
         QMetaObject::invokeMethod(editor->widget(), "setSizes",
@@ -114,6 +116,7 @@ void MemoryAgent::createBinEditor(quint64 addr)
             Q_ARG(int, DataRange),
             Q_ARG(bool, false),
             Q_ARG(int, BinBlockSize));
+        editorManager->activateEditor(editor);
     } else {
         showMessageBox(QMessageBox::Warning,
             tr("No memory viewer available"),
@@ -161,6 +164,12 @@ void MemoryAgent::handleEndOfFileRequested(IEditor *editor)
 {
     QMetaObject::invokeMethod(editor->widget(),
         "setCursorPosition", Q_ARG(int, DataRange - 1));
+}
+
+void MemoryAgent::handleDataChanged(IEditor *editor,
+    quint64 addr, const QByteArray &data)
+{
+    m_engine->changeMemory(this, editor, addr, data);
 }
 
 void MemoryAgent::updateContents()
