@@ -70,9 +70,14 @@ public:
 
     ~ToolChainNode()
     {
+        if (parent)
+            parent->childNodes.removeOne(this);
+
         qDeleteAll(childNodes);
         // Do not delete toolchain, we do not own it.
-        delete widget;
+
+        Q_ASSERT(childNodes.isEmpty());
+        widget->deleteLater();
     }
 
     ToolChainNode *parent;
@@ -283,6 +288,7 @@ void ToolChainModel::apply()
     // Remove unused ToolChains:
     QList<ToolChainNode *> nodes = m_toRemoveList;
     foreach (ToolChainNode *n, nodes) {
+        Q_ASSERT(!n->parent);
         ToolChainManager::instance()->deregisterToolChain(n->toolChain);
     }
     Q_ASSERT(m_toRemoveList.isEmpty());
@@ -328,11 +334,13 @@ void ToolChainModel::markForRemoval(ToolChain *tc)
     if (node) {
         emit beginRemoveRows(index(m_manualRoot), m_manualRoot->childNodes.indexOf(node), m_manualRoot->childNodes.indexOf(node));
         m_manualRoot->childNodes.removeOne(node);
+        node->parent = 0;
         if (m_toAddList.contains(node)) {
             delete node->toolChain;
             node->toolChain = 0;
             m_toAddList.removeOne(node);
         } else {
+            node->parent = 0;
             m_toRemoveList.append(node);
         }
         emit endRemoveRows();
