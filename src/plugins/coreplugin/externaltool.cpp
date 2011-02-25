@@ -500,7 +500,7 @@ bool ExternalTool::save(QString *errorMessage) const
     return true;
 }
 
-bool ExternalTool::operator==(const ExternalTool &other)
+bool ExternalTool::operator==(const ExternalTool &other) const
 {
     return m_id == other.m_id
             && m_description == other.m_description
@@ -537,9 +537,9 @@ bool ExternalToolRunner::resolve()
 {
     if (!m_tool)
         return false;
-    m_resolvedExecutable = QString::null;
-    m_resolvedArguments = QString::null;
-    m_resolvedWorkingDirectory = QString::null;
+    m_resolvedExecutable.clear();
+    m_resolvedArguments.clear();
+    m_resolvedWorkingDirectory.clear();
     { // executable
         foreach (const QString &executable, m_tool->executables()) {
             QString resolved = Utils::expandMacros(executable,
@@ -813,7 +813,7 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
         it.next();
         ActionContainer *container = 0;
         const QString &containerName = it.key();
-        if (containerName == QString()) { // no displayCategory, so put into external tools menu directly
+        if (containerName.isEmpty()) { // no displayCategory, so put into external tools menu directly
             container = mexternaltools;
         } else {
             if (m_containers.contains(containerName)) {

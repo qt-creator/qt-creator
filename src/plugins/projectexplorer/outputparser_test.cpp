@@ -171,10 +171,10 @@ void OutputParserTester::taskAdded(const ProjectExplorer::Task &task)
 
 void OutputParserTester::reset()
 {
-    m_receivedStdErrChildLine = QString();
-    m_receivedStdOutChildLine = QString();
+    m_receivedStdErrChildLine.clear();
+    m_receivedStdOutChildLine.clear();
     m_receivedTasks.clear();
-    m_receivedOutput = QString();
+    m_receivedOutput.clear();
 }
 
 #endif

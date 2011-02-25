@@ -2782,7 +2782,7 @@ void GdbEngine::requestModuleSymbols(const QString &moduleName)
     QString fileName = tf.fileName();
     tf.close();
     postCommand("maint print msymbols " + fileName.toLocal8Bit()
-            + " " + moduleName.toLocal8Bit(),
+            + ' ' + moduleName.toLocal8Bit(),
         NeedsStop, CB(handleShowModuleSymbols),
         QVariant(moduleName + QLatin1Char('@') +  fileName));
 }

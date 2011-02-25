@@ -59,7 +59,7 @@ static QString quoteWinCommand(const QString &program)
 {
     const QChar doubleQuote = QLatin1Char('"');
 
-    // add the programm as the first arg ... it works better
+    // add the program as the first arg ... it works better
     QString programName = program;
     programName.replace(QLatin1Char('/'), QLatin1Char('\\'));
     if (!programName.startsWith(doubleQuote) && !programName.endsWith(doubleQuote)

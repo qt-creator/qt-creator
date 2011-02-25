@@ -127,7 +127,7 @@ static const CommandDescription commandDescriptions[] = {
  "Prints local variables of symbol group in GDBMI or debug format",
  "[-t token] [-v] [T formats] [-I formats] [-f debugfilter] [-c] [-h] [-d]\n[-e expand-list] [-u uninitialized-list]\n"
  "[-W] [-w watch-iname watch-expression] <frame-number> [iname]\n"
- "-h human-readable ouput\n"
+ "-h human-readable output\n"
  "-v increase verboseness of dumping\n"
  "-d debug output\n"
  "-f debug_filter\n"
@@ -142,7 +142,7 @@ static const CommandDescription commandDescriptions[] = {
 {"watches",
  "Prints watches variables of symbol group in GDBMI or debug format",
  "[-t token] [-v] [T formats] [-I formats] [-f debugfilter] [-c] [-h] [-d] <iname>\n"
- "-h human-readable ouput\n"
+ "-h human-readable output\n"
  "-v increase verboseness of dumping\n"
  "-d debug output\n"
  "-f debug_filter\n"

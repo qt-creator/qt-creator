@@ -353,12 +353,12 @@ void NodeInstanceServer::addImports(const QVector<AddImportContainer> &container
             importStatement += container.url().toString();
 
         if (!container.version().isEmpty())
-            importStatement += " " + container.version();
+            importStatement += ' ' + container.version();
 
         if (!container.alias().isEmpty())
             importStatement += " as " + container.alias();
 
-        importStatement.append("\n");
+        importStatement.append('\n');
 
         if (!m_importList.contains(importStatement))
             m_importList.append(importStatement);

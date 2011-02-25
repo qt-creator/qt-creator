@@ -270,7 +270,7 @@ QString Abi::toString(const OSFlavor &of)
         return QLatin1String("msys");
     case ProjectExplorer::Abi::WindowsCEFlavor:
         return QLatin1String("ce");
-    case ProjectExplorer::Abi::UnknownFlavor: // fall throught!
+    case ProjectExplorer::Abi::UnknownFlavor: // fall through!
     default:
         return QLatin1String("unknown");
     }

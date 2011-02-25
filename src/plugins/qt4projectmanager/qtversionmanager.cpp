@@ -864,7 +864,7 @@ void QtVersion::setQMakeCommand(const QString& qmakeCommand)
     m_abiUpToDate = false;
     // TODO do i need to optimize this?
     m_versionInfoUpToDate = false;
-    m_qtVersionString = QString();
+    m_qtVersionString.clear();
     updateSourcePath();
 }
 

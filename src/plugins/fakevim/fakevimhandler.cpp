@@ -1963,7 +1963,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             m_movetype = MoveExclusive;
             m_subsubmode = SearchSubSubMode;
             m_commandPrefix = QLatin1Char(m_lastSearchForward ? '/' : '?');
-            m_commandBuffer = QString();
+            m_commandBuffer.clear();
             updateMiniBuffer();
         }
     } else if (input.is('`')) {

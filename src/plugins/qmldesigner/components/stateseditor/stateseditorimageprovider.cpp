@@ -55,7 +55,7 @@ QImage StatesEditorImageProvider::requestImage(const QString &id, QSize *size, c
     if (newSize.isEmpty())
         newSize = QSize (100, 100);
 
-    QString imageId = id.split("-").first();
+    QString imageId = id.split(QLatin1Char('-')).first();
     QImage image;
 
     if (imageId == "baseState") {

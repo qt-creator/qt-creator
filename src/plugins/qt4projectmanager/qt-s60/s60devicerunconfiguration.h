@@ -101,7 +101,7 @@ private slots:
 
 private:
     void ctor();
-    void handleParserState(bool sucess);
+    void handleParserState(bool success);
 
     QString m_proFilePath;
     QString m_commandLineArguments;

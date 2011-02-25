@@ -131,7 +131,7 @@ QString Qt4DesktopTargetFactory::defaultShadowBuildDirectory(const QString &proj
 QList<BuildConfigurationInfo> Qt4DesktopTargetFactory::availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion)
 {
     Q_ASSERT(id == Constants::DESKTOP_TARGET_ID);
-    QList<BuildConfigurationInfo> infos;
+    QList<BuildConfigurationInfo> infoList;
     QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id, minimumQtVersion);
 
     foreach (QtVersion *version, knownVersions) {
@@ -140,10 +140,10 @@ QList<BuildConfigurationInfo> Qt4DesktopTargetFactory::availableBuildConfigurati
         QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
 
         QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), id);
-        infos.append(BuildConfigurationInfo(version, config, QString(), dir));
-        infos.append(BuildConfigurationInfo(version, config ^ QtVersion::DebugBuild, QString(), dir));
+        infoList.append(BuildConfigurationInfo(version, config, QString(), dir));
+        infoList.append(BuildConfigurationInfo(version, config ^ QtVersion::DebugBuild, QString(), dir));
     }
-    return infos;
+    return infoList;
 }
 
 Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtVersionNumber &number, bool importEnabled, QList<BuildConfigurationInfo> importInfos)

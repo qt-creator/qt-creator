@@ -55,13 +55,13 @@ static QString toString(Statement *statement)
 {
     ExpressionStatement *expStmt = cast<ExpressionStatement *>(statement);
     if (!expStmt)
-        return QString::null;
+        return QString();
     if (IdentifierExpression *idExp = cast<IdentifierExpression *>(expStmt->expression)) {
         return idExp->name->asString();
     } else if (StringLiteral *strExp = cast<StringLiteral *>(expStmt->expression)) {
         return strExp->value->asString();
     }
-    return QString::null;
+    return QString();
 }
 
 static QString getIdProperty(UiObjectDefinition *def)

@@ -581,7 +581,7 @@ QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlO
 
     foreach (const QString &name, orderedList) {
         QString properName = name;
-        properName.replace(".", "_");
+        properName.replace('.', '_');
 
         QString typeName = type.propertyTypeName(name);
         //alias resolution only possible with instance

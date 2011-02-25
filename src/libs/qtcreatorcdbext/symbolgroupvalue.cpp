@@ -610,7 +610,7 @@ std::string SymbolGroupValue::resolveType(const std::string &typeIn,
 
     // Use the module of the current symbol group for templates.
     // This is because resolving some template types (std::list<> has been
-    // observed to result in 'QtGui4d!std::list', which subseqently fails.
+    // observed to result in 'QtGui4d!std::list', which subsequently fails.
     if (!currentModule.empty() && stripped.find('<') != std::string::npos) {
         std::string trc = currentModule;
         trc.push_back('!');

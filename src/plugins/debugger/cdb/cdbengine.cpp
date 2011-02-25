@@ -2472,7 +2472,7 @@ static inline void formatCdbBreakPointResponse(BreakpointId id, const Breakpoint
 void CdbEngine::handleBreakPoints(const CdbExtensionCommandPtr &reply)
 {
     if (debugBreakpoints)
-        qDebug("CdbEngine::handleBreakPoints: sucess=%d: %s", reply->success, reply->reply.constData());
+        qDebug("CdbEngine::handleBreakPoints: success=%d: %s", reply->success, reply->reply.constData());
     if (!reply->success) {
         showMessage(QString::fromAscii(reply->errorMessage), LogError);
         return;

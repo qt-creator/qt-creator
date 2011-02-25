@@ -1087,8 +1087,9 @@ QSet<QString> CentralizedFolderWatcher::recursiveDirs(const QString &folder)
     QDir dir(folder);
     QStringList list = dir.entryList(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
     foreach (const QString &f, list) {
-        result.insert(folder + f + "/");
-        result += recursiveDirs(folder + f + "/");
+        const QString a = folder + f + '/';
+        result.insert(a);
+        result += recursiveDirs(a);
     }
     return result;
 }

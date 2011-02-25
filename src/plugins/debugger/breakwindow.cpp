@@ -61,7 +61,7 @@ namespace Internal {
 // breakpoint type. The controls not applicable to the current type
 // (say function name for file-and-line) are disabled and cleared out.
 // However,the values are saved and restored once the respective mode
-// is again choosen, which is done using m_savedParameters and
+// is again chosen, which is done using m_savedParameters and
 // setters/getters taking the parts mask enumeration parameter.
 //
 ///////////////////////////////////////////////////////////////////////

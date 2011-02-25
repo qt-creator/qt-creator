@@ -135,8 +135,8 @@ QStringList createHtmlCapabilityList(uint capabilities)
         while (i.hasNext()) {
             i.next();
             if (i.key() == capabilitySet[j].value) {
-                foreach (QString capability, i.value()) {
-                    result << QString("<font color=\"%1\">%2</font>")
+                foreach (const QString &capability, i.value()) {
+                    result << QString::fromAscii("<font color=\"%1\">%2</font>")
                               .arg(capabilitySet[j].color).arg(capability);
                 }
                 break;

@@ -73,9 +73,10 @@ ViewLogger::ViewLogger(QObject *parent)
 #else
     const QString tempPath = QDir::tempPath();
 #endif
-
-    QTemporaryFile *temporaryFile = new QTemporaryFile(tempPath + QString("/qmldesigner-logger-%1-XXXXXX.txt").arg(QDateTime::currentDateTime().toString(Qt::ISODate).replace(":", "-")), this);
-
+    const QString path = tempPath + QString("/qmldesigner-logger-%1-XXXXXX.txt").
+                         arg(QDateTime::currentDateTime().toString(Qt::ISODate).
+                         replace(':', '-'));
+    QTemporaryFile *temporaryFile = new QTemporaryFile(path, this);
     temporaryFile->setAutoRemove(false);
     if (temporaryFile->open()) {
         qDebug() << "QmlDesigner: Log file is:" << temporaryFile->fileName();

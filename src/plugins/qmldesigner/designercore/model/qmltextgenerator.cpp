@@ -138,7 +138,7 @@ QString QmlTextGenerator::toQml(const ModelNode &node, int indentDepth) const
     QString type = node.type();
     QString url;
     if (type.contains('/')) {
-        QStringList nameComponents = type.split("/");
+        const QStringList nameComponents = type.split('/');
         url = nameComponents.first();
         type = nameComponents.last();
     }
@@ -158,7 +158,7 @@ QString QmlTextGenerator::toQml(const ModelNode &node, int indentDepth) const
     QString result;
 
     if (!alias.isEmpty())
-        result = alias + ".";
+        result = alias + '.';
 
     result += type;
     result += QLatin1String(" {\n");

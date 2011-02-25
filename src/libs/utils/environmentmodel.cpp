@@ -325,7 +325,7 @@ void EnvironmentModel::unsetVariable(const QString &name)
     int pos = m_d->findInChanges(name);
     if (pos != -1) {
         m_d->m_items[pos].unset = true;
-        m_d->m_items[pos].value = QString();
+        m_d->m_items[pos].value.clear();
         m_d->updateResultEnvironment();
         emit dataChanged(index(row, 0, QModelIndex()), index(row, 1, QModelIndex()));
         emit userChangesChanged();

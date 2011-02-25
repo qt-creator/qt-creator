@@ -386,7 +386,8 @@ bool ItemLibraryModel::isItemVisible(int itemLibId)
 
 QString entryToImport(const ItemLibraryEntry &entry)
 {
-    return entry.requiredImport() + " " + QString::number(entry.majorVersion()) + "." + QString::number(entry.minorVersion());
+    return entry.requiredImport() + QLatin1Char(' ') + QString::number(entry.majorVersion())
+            + QLatin1Char('.') + QString::number(entry.minorVersion());
 }
 
 void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
@@ -401,7 +402,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     QStringList imports;
     foreach (const Import &import, model->imports())
         if (import.isLibraryImport())
-            imports << import.url() + " " + import.version();
+            imports << import.url() + QLatin1Char(' ') + import.version();
 
     foreach (ItemLibraryEntry entry, itemLibraryInfo->entries()) {
 

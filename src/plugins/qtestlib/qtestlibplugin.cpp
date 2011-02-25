@@ -151,7 +151,7 @@ void QTestLibPlugin::projectRunHook(ProjectExplorer::Project *proj)
     if (!proj)
         return;
 
-    m_projectDirectory = QString();
+    m_projectDirectory.clear();
     //NBS proj->setExtraApplicationRunArguments(QStringList());
     //NBS proj->setCustomApplicationOutputHandler(0);
 

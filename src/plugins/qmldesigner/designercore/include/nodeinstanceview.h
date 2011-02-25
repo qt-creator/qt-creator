@@ -81,7 +81,7 @@ class CORESHARED_EXPORT NodeInstanceView : public AbstractView, public NodeInsta
 public:
     typedef QWeakPointer<NodeInstanceView> Pointer;
 
-    NodeInstanceView(QObject *parent = 0, NodeInstanceServerInterface::RunModus runModus = NodeInstanceServerInterface::NormalModus);
+    explicit NodeInstanceView(QObject *parent = 0, NodeInstanceServerInterface::RunModus runModus = NodeInstanceServerInterface::NormalModus);
     ~NodeInstanceView();
 
     void modelAttached(Model *model);

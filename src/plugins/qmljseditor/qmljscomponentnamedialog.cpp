@@ -100,5 +100,5 @@ QString ComponentNameDialog::isValid() const
     if (path.isEmpty() || !QFileInfo(path).isDir())
         return tr("Invalid path");
 
-    return QString::null;
+    return QString();
 }

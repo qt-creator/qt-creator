@@ -708,10 +708,10 @@ void S60CreatePackageStep::resetPassphrases()
 {
     m_passphrases->beginGroup("keys");
     QStringList keys = m_passphrases->allKeys();
-    foreach (QString key, keys) {
-        m_passphrases->setValue(key, "");
+    foreach (const QString &key, keys) {
+        m_passphrases->setValue(key, QString());
     }
-    m_passphrases->remove("");
+    m_passphrases->remove(QString());
     m_passphrases->endGroup();
 }
 

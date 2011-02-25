@@ -271,12 +271,12 @@ void DisassemblerAgent::setContents(const DisassemblerLines &contents)
     for (int i = 0, n = contents.size(); i != n; ++i) {
         const DisassemblerLine &dl = contents.at(i);
         if (dl.address) {
-            str += QString("0x");
+            str += QLatin1String("0x");
             str += QString::number(dl.address, 16);
-            str += "  ";
+            str += QLatin1String("  ");
         }
         str += dl.data;
-        str += "\n";
+        str += QLatin1Char('\n');
     }
     plainTextEdit->setPlainText(str);
     plainTextEdit->setReadOnly(true);

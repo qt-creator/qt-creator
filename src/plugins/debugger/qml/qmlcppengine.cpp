@@ -368,7 +368,7 @@ void QmlCppEngine::interruptInferior()
 
 void QmlCppEngine::requestInterruptInferior()
 {
-    EDEBUG("\nMASTER REQUEST INTERUPT INFERIOR");
+    EDEBUG("\nMASTER REQUEST INTERRUPT INFERIOR");
     DebuggerEngine::requestInterruptInferior();
     d->m_cppEngine->requestInterruptInferior();
 }

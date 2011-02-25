@@ -837,7 +837,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         }
     } // qPart/qXfer
 
-    else if (cmd.startsWith("X")) {
+    else if (cmd.startsWith('X')) {
         logMessage(msgGdbPacket(QLatin1String("Write memory")));
         // X addr,length
         sendGdbServerAck();

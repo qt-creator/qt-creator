@@ -112,7 +112,7 @@ public:
     QList<IFile *> saveModifiedFiles(const QList<IFile *> &files,
                                      bool *cancelled = 0,
                                      const QString &message = QString(),
-                                     const QString &alwaysSaveMessage = QString::null,
+                                     const QString &alwaysSaveMessage = QString(),
                                      bool *alwaysSave = 0);
 
 
@@ -167,7 +167,7 @@ private:
     QList<IFile *> saveModifiedFiles(const QList<IFile *> &files,
                                bool *cancelled, bool silently,
                                const QString &message,
-                               const QString &alwaysSaveMessage = QString::null,
+                               const QString &alwaysSaveMessage = QString(),
                                bool *alwaysSave = 0);
 
     Internal::FileManagerPrivate *d;

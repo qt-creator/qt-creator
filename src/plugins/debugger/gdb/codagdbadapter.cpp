@@ -597,7 +597,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         sendGdbServerAck();
         logMessage(_("Not implemented 'Continue with signal' %1: ").arg(signalNumber),
             LogWarning);
-        sendGdbServerMessage("O" + QByteArray("Console output").toHex());
+        sendGdbServerMessage('O' + QByteArray("Console output").toHex());
         sendGdbServerMessage("W81"); // "Process exited with result 1
         sendTrkContinue();
     }

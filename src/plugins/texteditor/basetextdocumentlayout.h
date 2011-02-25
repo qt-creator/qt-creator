@@ -120,10 +120,10 @@ public:
      * indention level (or higher).
      */
     inline void setFoldingIndent(int indent) { m_foldingIndent = indent; }
-    // Set whether the first charater of the folded region will show when the code is folded.
+    // Set whether the first character of the folded region will show when the code is folded.
     inline void setFoldingStartIncluded(bool included) { m_foldingStartIncluded = included; }
     inline bool foldingStartIncluded() const { return m_foldingStartIncluded; }
-    // Set whether the last charater of the folded region will show when the code is folded.
+    // Set whether the last character of the folded region will show when the code is folded.
     inline void setFoldingEndIncluded(bool included) { m_foldingEndIncluded = included; }
     inline bool foldingEndIncluded() const { return m_foldingEndIncluded; }
     inline int lexerState() const { return m_lexerState; }

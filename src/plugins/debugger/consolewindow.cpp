@@ -310,7 +310,7 @@ void ConsoleWindow::showOutput(int channel, const QString &output)
             line.truncate(n);
             line += QLatin1String(" [...] <cut off>");
         }
-        m_console->appendPlainText(charForChannel(channel) + line + "\n");
+        m_console->appendPlainText(charForChannel(channel) + line + '\n');
     }
     QTextCursor cursor = m_console->textCursor();
     cursor.movePosition(QTextCursor::End);

@@ -208,7 +208,7 @@ void ICompletionCollector::filter(const QList<TextEditor::CompletionItem> &items
     }
     const QRegExp regExp(keyRegExp);
 
-    foreach (TextEditor::CompletionItem item, items)
+    foreach (const TextEditor::CompletionItem &item, items)
         if (regExp.indexIn(item.text) == 0)
             filteredItems->append(item);
 }

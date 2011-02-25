@@ -93,8 +93,8 @@ public:
 
     bool save(QString *errorMessage = 0) const;
 
-    bool operator==(const ExternalTool &other);
-    bool operator!=(const ExternalTool &other) { return !((*this) == other); }
+    bool operator==(const ExternalTool &other) const;
+    bool operator!=(const ExternalTool &other) const { return !((*this) == other); }
     ExternalTool &operator=(const ExternalTool &other);
 
     void setId(const QString &id);

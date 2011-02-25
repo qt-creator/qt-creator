@@ -363,7 +363,7 @@ struct InternalNode
                 // replace i.value() by i.value()->subnodes.begin()
                 QString key = i.value()->subnodes.begin().key();
                 InternalNode *keep = i.value()->subnodes.value(key);
-                keep->displayName = i.value()->displayName + "/" + keep->displayName;
+                keep->displayName = i.value()->displayName + '/' + keep->displayName;
                 newSubnodes.insert(key, keep);
                 i.value()->subnodes.clear();
                 delete i.value();
@@ -556,9 +556,9 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, ProFileReader *readerExac
 
 
     for (int i=0; i < folders.size(); ++i) {
-        QFileInfo fi(folders.at(i));
+        const QFileInfo fi(folders.at(i));
         if (fi.isRelative())
-            folders[i] = projectDir + "/" + folders.at(i);
+            folders[i] = projectDir + '/' + folders.at(i);
     }
 
 
@@ -1287,7 +1287,7 @@ QStringList Qt4ProFileNode::symbianCapabilities() const
 
     foreach (const QString &cap, m_varValues[SymbianCapabilities]) {
         QString capability = cap.toLower();
-        if (capability.startsWith("-")) {
+        if (capability.startsWith('-')) {
             lowerCasedResult.removeAll(capability.mid(1));
         } else if (capability == "all") {
             foreach (const QString &a, all)
@@ -1299,7 +1299,7 @@ QStringList Qt4ProFileNode::symbianCapabilities() const
     }
     QStringList result; //let's make the result pretty
     int index = -1;
-    foreach (QString lowerCase, lowerCasedResult) {
+    foreach (const QString &lowerCase, lowerCasedResult) {
         for (int i = 0; i < all.count(); ++i) {
             index = -1;
             if (QString::compare(lowerCase, all.at(i),
@@ -1916,7 +1916,7 @@ QString Qt4ProFileNode::uiDirPath(ProFileReader *reader) const
 {
     QString path = reader->value("UI_DIR");
     if (QFileInfo(path).isRelative())
-        path = QDir::cleanPath(buildDir() + "/" + path);
+        path = QDir::cleanPath(buildDir() + '/' + path);
     return path;
 }
 
@@ -1924,7 +1924,7 @@ QString Qt4ProFileNode::mocDirPath(ProFileReader *reader) const
 {
     QString path = reader->value("MOC_DIR");
     if (QFileInfo(path).isRelative())
-        path = QDir::cleanPath(buildDir() + "/" + path);
+        path = QDir::cleanPath(buildDir() + '/' + path);
     return path;
 }
 

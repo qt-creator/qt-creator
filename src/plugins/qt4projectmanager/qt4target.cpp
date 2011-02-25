@@ -421,7 +421,7 @@ QString Qt4DefaultTargetSetupWidget::displayNameFrom(const BuildConfigurationInf
             //: release build
             buildType = tr("release");
     }
-    return info.version->displayName() + " " + buildType;
+    return info.version->displayName() + ' ' + buildType;
 }
 
 void Qt4DefaultTargetSetupWidget::setProFilePath(const QString &proFilePath)

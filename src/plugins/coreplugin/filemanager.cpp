@@ -339,7 +339,7 @@ void FileManager::renamedFile(const QString &from, const QString &to)
     }
 }
 
-/* Removes all occurrances of the IFile from m_filesWithWatch and m_states.
+/* Removes all occurrences of the IFile from m_filesWithWatch and m_states.
    If that results in a file no longer being referenced by any IFile, this
    also removes the file watcher.
 */

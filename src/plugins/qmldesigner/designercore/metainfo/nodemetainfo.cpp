@@ -99,13 +99,13 @@ public:
     {
         const Interpreter::ASTPropertyReference *ref = dynamic_cast<const Interpreter::ASTPropertyReference*>(value);
         if (ref) {
-            QString type = "unkown";
+            QString type = "unknown";
             if (ref->ast()->memberType)
                 type = ref->ast()->memberType->asString();
             m_properties.append(qMakePair(name, type));
         } else {
             if (const Interpreter::QmlObjectValue * ov = dynamic_cast<const Interpreter::QmlObjectValue *>(value)) {
-                QString qualifiedTypeName = ov->packageName().isEmpty() ? ov->className() : ov->packageName() + "/" + ov->className();
+                QString qualifiedTypeName = ov->packageName().isEmpty() ? ov->className() : ov->packageName() + '/' + ov->className();
                 m_properties.append(qMakePair(name, qualifiedTypeName));
             } else {
                 Interpreter::TypeId typeId;
@@ -158,11 +158,11 @@ QStringList prototypes(const Interpreter::ObjectValue *ov, LookupContext::Ptr co
         const Interpreter::QmlObjectValue * qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(ov);
         if (qmlValue) {
             if (versions) {
-                list << qmlValue->packageName() + "/" + qmlValue->className() +
-                " " + QString::number(qmlValue->version().majorVersion()) +
-                "." + QString::number(qmlValue->version().minorVersion());
+                list << qmlValue->packageName() + '/' + qmlValue->className() +
+                ' ' + QString::number(qmlValue->version().majorVersion()) +
+                '.' + QString::number(qmlValue->version().minorVersion());
             } else {
-                list << qmlValue->packageName() + "/" + qmlValue->className();
+                list << qmlValue->packageName() + '/' + qmlValue->className();
             }
         } else {
             if (versions) {
@@ -385,7 +385,7 @@ QHash<QString, NodeMetaInfoPrivate::Pointer> NodeMetaInfoPrivate::m_nodeMetaInfo
 
 static inline QString stringIdentifier( const QString &type, int maj, int min)
 {
-    return type + QString::number(maj) + "_" + QString::number(min);
+    return type + QString::number(maj) + '_' + QString::number(min);
 }
 
 NodeMetaInfoPrivate::Pointer NodeMetaInfoPrivate::create(Model *model, const QString &type, int maj, int min)
@@ -492,8 +492,9 @@ bool NodeMetaInfoPrivate::isPropertyWritable(const QString &propertyName) const
         return false;
 
     if (propertyName.contains('.')) {
-        const QString objectName = propertyName.split(".").first();
-        const QString rawPropertyName = propertyName.split(".").last();
+        const QStringList parts = propertyName.split('.');
+        const QString objectName = parts.first();
+        const QString rawPropertyName = parts.last();
         const QString objectType = propertyType(objectName);
 
         if (isValueType(objectType)) {
@@ -523,8 +524,9 @@ bool NodeMetaInfoPrivate::isPropertyList(const QString &propertyName) const
         return false;
 
     if (propertyName.contains('.')) {
-        const QString objectName = propertyName.split(".").first();
-        const QString rawPropertyName = propertyName.split(".").last();
+        const QStringList parts = propertyName.split('.');
+        const QString objectName = parts.first();
+        const QString rawPropertyName = parts.last();
         const QString objectType = propertyType(objectName);
 
         if (isValueType(objectType)) {
@@ -550,8 +552,9 @@ bool NodeMetaInfoPrivate::isPropertyPointer(const QString &propertyName) const
         return false;
 
     if (propertyName.contains('.')) {
-        const QString objectName = propertyName.split(".").first();
-        const QString rawPropertyName = propertyName.split(".").last();
+        const QStringList parts = propertyName.split('.');
+        const QString objectName = parts.first();
+        const QString rawPropertyName = parts.last();
         const QString objectType = propertyType(objectName);
 
         if (isValueType(objectType)) {
@@ -577,8 +580,9 @@ bool NodeMetaInfoPrivate::isPropertyEnum(const QString &propertyName) const
         return false;
 
     if (propertyName.contains('.')) {
-        const QString objectName = propertyName.split(".").first();
-        const QString rawPropertyName = propertyName.split(".").last();
+        const QStringList parts = propertyName.split('.');
+        const QString objectName = parts.first();
+        const QString rawPropertyName = parts.last();
         const QString objectType = propertyType(objectName);
 
         if (isValueType(objectType)) {
@@ -612,8 +616,9 @@ QString NodeMetaInfoPrivate::propertyEnumScope(const QString &propertyName) cons
         return QString();
 
     if (propertyName.contains('.')) {
-        const QString objectName = propertyName.split(".").first();
-        const QString rawPropertyName = propertyName.split(".").last();
+        const QStringList parts = propertyName.split('.');
+        const QString objectName = parts.first();
+        const QString rawPropertyName = parts.last();
         const QString objectType = propertyType(objectName);
 
         if (isValueType(objectType)) {
@@ -797,7 +802,7 @@ void NodeMetaInfoPrivate::setupPrototypes()
             description.minorVersion = qmlValue->version().minorVersion();
             description.majorVersion = qmlValue->version().majorVersion();
             if (!qmlValue->packageName().isEmpty())
-                description.className = qmlValue->packageName() + "/" + description.className;
+                description.className = qmlValue->packageName() + '/' + description.className;
             m_prototypes.append(description);
         } else {
             if (lookupContext()->context()->lookupType(document(), QStringList() << ov->className()))

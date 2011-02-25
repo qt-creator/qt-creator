@@ -17,7 +17,7 @@
 // Put everything into a single project.
 static int targetDepth = 0;
 static bool forceOverWrite = false;
-static QString subProjectSeparator = "_";
+static QString subProjectSeparator = QString(QLatin1Char('_'));
 
 // FIXME: Make file classes configurable on the command line.
 static const char *defaultExtensions[] =

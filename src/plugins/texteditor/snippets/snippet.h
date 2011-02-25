@@ -44,7 +44,7 @@ namespace TextEditor {
 class TEXTEDITOR_EXPORT Snippet
 {
 public:
-    Snippet(const QString &groupId = QString(), const QString &id = QString());
+    explicit Snippet(const QString &groupId = QString(), const QString &id = QString());
     ~Snippet();
 
     const QString &id() const;

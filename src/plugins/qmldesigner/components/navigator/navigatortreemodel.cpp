@@ -573,7 +573,7 @@ QString NavigatorTreeModel::qmlTypeInQtContainer(const QString &qtContainerType)
 {
     QString typeName(qtContainerType);
     if (typeName.startsWith("QDeclarativeListProperty<") &&
-        typeName.endsWith(">")) {
+        typeName.endsWith('>')) {
         typeName.remove(0, 25);
         typeName.chop(1);
     }

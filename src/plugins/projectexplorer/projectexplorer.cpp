@@ -1353,7 +1353,8 @@ void ProjectExplorerPlugin::restoreSession()
     // Converts "filename" "+45" or "filename" ":23"
     // into     "filename+45"   and "filename:23"
     foreach (const QString &str, arguments) {
-        if (!combinedList.isEmpty() && (str.startsWith("+") || str.startsWith(":"))) {
+        if (!combinedList.isEmpty() && (str.startsWith(QLatin1Char('+'))
+                                        || str.startsWith(QLatin1Char(':')))) {
             combinedList.last().append(str);
         } else {
             combinedList << str;
@@ -2209,7 +2210,7 @@ QString ProjectExplorerPlugin::directoryFor(Node *node)
         // We figure out a commonPath from the subfolders
         QStringList list;
         foreach (FolderNode *f, folder->subFolderNodes())
-            list << f->path() + "/";
+            list << f->path() + QLatin1Char('/');
         if (list.isEmpty())
             location = path.left(path.indexOf('#'));
         else
@@ -2432,7 +2433,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
         return;
     QString orgFilePath = QFileInfo(node->path()).absoluteFilePath();
     QString dir = QFileInfo(orgFilePath).absolutePath();
-    QString newFilePath = dir + "/" + to;
+    QString newFilePath = dir + QLatin1Char('/') + to;
     Core::ICore *core = Core::ICore::instance();
     Core::IVersionControl *vc = core->vcsManager()->findVersionControlForDirectory(dir);
     bool result = false;

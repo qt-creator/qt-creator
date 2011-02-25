@@ -81,7 +81,7 @@ public slots:
 
 signals:
     void removeButtonClicked();
-    // This signal is emited whenever the target pointed to by the indices
+    // This signal is emitted whenever the target pointed to by the indices
     // has changed.
     void currentChanged(int targetIndex, int subIndex);
 

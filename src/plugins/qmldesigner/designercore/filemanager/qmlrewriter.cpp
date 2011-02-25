@@ -283,7 +283,7 @@ void QMLRewriter::includeLeadingEmptyLine(int &start) const
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *members, const QStringList &propertyOrder)
 {
-    const int objectDefinitionInsertionPoint = propertyOrder.indexOf(QString::null);
+    const int objectDefinitionInsertionPoint = propertyOrder.indexOf(QString());
 
     UiObjectMemberList *lastObjectDef = 0;
     UiObjectMemberList *lastNonObjectDef = 0;

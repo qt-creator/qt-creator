@@ -1432,7 +1432,7 @@ QString PerforcePlugin::fileNameFromPerforceName(const QString& perforceName,
     const PerforceResponse response = runP4Cmd(m_settings.topLevelSymLinkTarget(), args, flags);
     if (response.error) {
         *errorMessage = msgWhereFailed(perforceName, response.message);
-        return QString::null;
+        return QString();
     }
 
     QString output = response.stdOut;

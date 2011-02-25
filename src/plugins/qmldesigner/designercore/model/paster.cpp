@@ -69,7 +69,7 @@ public:
 
     bool operator()(QmlJS::AST::UiProgram *sourceAST) {
         m_inStates = false;
-        m_stateName = QString();
+        m_stateName.clear();
 
         Node::accept(sourceAST->imports, this);
 

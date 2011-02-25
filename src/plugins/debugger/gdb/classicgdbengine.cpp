@@ -280,7 +280,7 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
         if (debuggerCore()->boolSetting(AutoDerefPointers)) {
             // Try automatic dereferentiation
             data.exp = "(*(" + data.exp + "))";
-            data.type = data.type + "."; // FIXME: fragile HACK to avoid recursion
+            data.type = data.type + '.'; // FIXME: fragile HACK to avoid recursion
             insertData(data);
         } else {
             data.setChildrenUnneeded();

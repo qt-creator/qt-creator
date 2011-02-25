@@ -826,9 +826,9 @@ void QmlEngine::messageReceived(const QByteArray &message)
             logMessage(LogReceive, logString);
 
             QString msg = stackFrames.isEmpty()
-                ? tr("<p>An Uncaught Exception occured:</p><p>%2</p>")
+                ? tr("<p>An Uncaught Exception occurred:</p><p>%2</p>")
                     .arg(Qt::escape(error))
-                : tr("<p>An Uncaught Exception occured in <i>%1</i>:</p><p>%2</p>")
+                : tr("<p>An Uncaught Exception occurred in <i>%1</i>:</p><p>%2</p>")
                     .arg(stackFrames.value(0).file, Qt::escape(error));
             showMessageBox(QMessageBox::Information, tr("Uncaught Exception"), msg);
         } else {
