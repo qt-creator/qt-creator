@@ -57,7 +57,7 @@ void DoNothingPlugin::extensionsInitialized()
     // Do nothing
 }
 
-bool DoNothingPlugin::initialize(const QStringList& args, QString *errMsg)
+bool DoNothingPlugin::initialize(const QStringList &args, QString *errMsg)
 {
     Q_UNUSED(args);
     Q_UNUSED(errMsg);

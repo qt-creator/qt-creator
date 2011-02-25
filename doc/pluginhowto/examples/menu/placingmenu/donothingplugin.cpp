@@ -66,17 +66,17 @@ void DoNothingPlugin::extensionsInitialized()
     // Do nothing
 }
 
-bool DoNothingPlugin::initialize(const QStringList& args, QString *errMsg)
+bool DoNothingPlugin::initialize(const QStringList &args, QString *errMsg)
 {
     Q_UNUSED(args);
     Q_UNUSED(errMsg);
 
     // Fetch the action manager
-    Core::ActionManager* am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
 
     // Create a command for "DoNothing".
     QAction *action = new QAction(tr("DoNothing"),this);
-    Core::Command* cmd = am->registerAction(action,
+    Core::Command *cmd = am->registerAction(action,
         QLatin1String("DoNothingPlugin.DoNothing"),
         Core::Context(Core::Constants::C_GLOBAL));
 

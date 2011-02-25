@@ -52,12 +52,12 @@
 #include <coreplugin/icore.h>
 #include <QtGui/QComboBox>
 #include <QtGui/QCheckBox>
-#include<QFutureWatcher>
-#include<QStringListModel>
-#include<QLabel>
-#include<QFont>
-#include<QMessageBox>
-#include<QGridLayout>
+#include <QFutureWatcher>
+#include <QtGui/QStringListModel>
+#include <QtGui/QLabel>
+#include <QtGui/QFont>
+#include <QtGui/QMessageBox>
+#include <QtGui/QGridLayout>
 
 using namespace Core;
 using namespace Utils;
@@ -159,7 +159,7 @@ void HeaderFilterProgress::findAll(const QString &text,QTextDocument::FindFlags 
 
     //------------------------------------------------------------
     // Begin searching
-    QString includeline = "#include <" + text + ">";
+    QString includeline = "#include <" + text + '>';
     Find::SearchResult* result = d->searchResultWindow()->startNewSearch();
 
     d->watcher.setFuture(QFuture<FileSearchResult>());
@@ -185,7 +185,7 @@ void HeaderFilterProgress::findAll(const QString &text,QTextDocument::FindFlags 
 }
 
 
-QWidget* HeaderFilterProgress::createProgressWidget()
+QWidget *HeaderFilterProgress::createProgressWidget()
 {
     d->resultLabel = new QLabel;
     d->resultLabel->setAlignment(Qt::AlignCenter);
@@ -198,7 +198,7 @@ QWidget* HeaderFilterProgress::createProgressWidget()
     return d->resultLabel;
 }
 
-QWidget* HeaderFilterProgress::createConfigWidget()
+QWidget *HeaderFilterProgress::createConfigWidget()
 {
     return (new QLabel("This is a header filter"));
 }

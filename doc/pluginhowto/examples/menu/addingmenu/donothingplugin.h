@@ -49,7 +49,7 @@ public:
     DoNothingPlugin();
     ~DoNothingPlugin();
     void extensionsInitialized();
-    bool initialize(const QStringList & arguments, QString * errorString);
+    bool initialize(const QStringList &arguments, QString *errorString);
     ShutdownFlag shutdown();
 
 private slots:
