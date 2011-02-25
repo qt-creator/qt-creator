@@ -85,7 +85,6 @@ public:
     bool isDirty(ToolChain *) const;
 
     void apply();
-    void discard();
 
     void markForRemoval(ToolChain *);
     void markForAddition(ToolChain *);

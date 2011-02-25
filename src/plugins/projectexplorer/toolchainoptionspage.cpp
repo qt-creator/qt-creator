@@ -314,38 +314,6 @@ void ToolChainModel::apply()
     qDeleteAll(m_toAddList);
 }
 
-void ToolChainModel::discard()
-{
-    // Remove newly "added" toolchains:
-    foreach (ToolChainNode *n, m_toAddList) {
-        int pos = m_manualRoot->childNodes.indexOf(n);
-        Q_ASSERT(pos >= 0);
-        m_manualRoot->childNodes.removeAt(pos);
-
-        // Clean up Node: We still own the toolchain!
-        delete n->toolChain;
-        n->toolChain = 0;
-    }
-    qDeleteAll(m_toAddList);
-    m_toAddList.clear();
-
-    // Add "removed" toolchains again:
-    foreach (ToolChainNode *n, m_toRemoveList) {
-        m_manualRoot->childNodes.append(n);
-    }
-    m_toRemoveList.clear();
-
-    // Reset toolchains:
-    foreach (ToolChainNode *n, m_manualRoot->childNodes) {
-        Q_ASSERT(n);
-        n->newName.clear();
-        if (n->widget)
-            n->widget->discard();
-        n->changed = false;
-    }
-    reset();
-}
-
 void ToolChainModel::markForRemoval(ToolChain *tc)
 {
     ToolChainNode *node = 0;
@@ -487,7 +455,8 @@ QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
     m_ui = new Ui::ToolChainOptionsPage;
     m_ui->setupUi(m_configWidget);
 
-    m_model = new ToolChainModel(m_ui->toolChainView);
+    Q_ASSERT(!m_model);
+    m_model = new ToolChainModel;
     connect(m_model, SIGNAL(toolChainStateChanged()), this, SLOT(updateState()));
 
     m_ui->toolChainView->setModel(m_model);
@@ -553,8 +522,10 @@ void ToolChainOptionsPage::apply()
 
 void ToolChainOptionsPage::finish()
 {
-    if (m_model)
-        m_model->discard();
+    if (m_model) {
+        m_model->deleteLater();
+        m_model = 0;
+    }
 }
 
 bool ToolChainOptionsPage::matches(const QString &s) const
