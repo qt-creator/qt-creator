@@ -376,10 +376,9 @@ bool BinEditor::save(const QString &oldFileName, const QString &newFileName)
     return true;
 }
 
-void BinEditor::setSizes(quint64 startAddr, int range, bool fixedSize, int blockSize)
+void BinEditor::setSizes(quint64 startAddr, int range, int blockSize)
 {
     m_blockSize = blockSize;
-    m_fixedSize = fixedSize;
     Q_ASSERT((blockSize/16) * 16 == blockSize);
     m_emptyBlock = QByteArray(blockSize, '\0');
     m_modifiedData.clear();

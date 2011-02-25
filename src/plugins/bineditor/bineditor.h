@@ -68,7 +68,7 @@ public:
 
     quint64 baseAddress() const { return m_baseAddr; }
 
-    Q_INVOKABLE void setSizes(quint64 startAddr, int range, bool fixedSize, int blockSize = 4096);
+    Q_INVOKABLE void setSizes(quint64 startAddr, int range, int blockSize = 4096);
     int dataBlockSize() const { return m_blockSize; }
     Q_INVOKABLE void addData(quint64 block, const QByteArray &data);
     Q_INVOKABLE void setNewWindowRequestAllowed();
@@ -193,7 +193,6 @@ private:
     int m_numVisibleLines;
 
     quint64 m_baseAddr;
-    bool m_fixedSize;
 
     bool m_cursorVisible;
     int m_cursorPosition;

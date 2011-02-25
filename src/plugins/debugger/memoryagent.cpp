@@ -66,7 +66,7 @@ namespace Internal {
 
 namespace { const int DataRange = 1024 * 1024; }
 
-MemoryAgent::MemoryAgent(Debugger::DebuggerEngine *engine)
+MemoryAgent::MemoryAgent(DebuggerEngine *engine)
     : QObject(engine), m_engine(engine)
 {
     QTC_ASSERT(engine, /**/);
@@ -114,7 +114,6 @@ void MemoryAgent::createBinEditor(quint64 addr)
         QMetaObject::invokeMethod(editor->widget(), "setSizes",
             Q_ARG(quint64, addr),
             Q_ARG(int, DataRange),
-            Q_ARG(bool, false),
             Q_ARG(int, BinBlockSize));
         editorManager->activateEditor(editor);
     } else {
@@ -147,7 +146,6 @@ void MemoryAgent::provideNewRange(IEditor *editor, quint64 address)
     QMetaObject::invokeMethod(editor->widget(), "setSizes",
         Q_ARG(quint64, address),
         Q_ARG(int, DataRange),
-        Q_ARG(bool, false),
         Q_ARG(int, BinBlockSize));
 }
 
