@@ -57,6 +57,7 @@
 #include <utils/environment.h>
 #include <utils/abstractprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/fileinprojectfinder.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
@@ -93,31 +94,49 @@ namespace Internal {
 struct JSAgentBreakpointData
 {
     QByteArray functionName;
-    QByteArray fileName;
+    QByteArray fileUrl;
+    qint32 lineNumber;
+};
+
+struct JSAgentStackData
+{
+    QByteArray functionName;
+    QByteArray fileUrl;
     qint32 lineNumber;
 };
 
 uint qHash(const JSAgentBreakpointData &b)
 {
-    return b.lineNumber ^ qHash(b.fileName);
+    return b.lineNumber ^ qHash(b.fileUrl);
 }
 
 QDataStream &operator<<(QDataStream &s, const JSAgentBreakpointData &data)
 {
-    return s << data.functionName << data.fileName << data.lineNumber;
+    return s << data.functionName << data.fileUrl << data.lineNumber;
+}
+
+QDataStream &operator<<(QDataStream &s, const JSAgentStackData &data)
+{
+    return s << data.functionName << data.fileUrl << data.lineNumber;
 }
 
 QDataStream &operator>>(QDataStream &s, JSAgentBreakpointData &data)
 {
-    return s >> data.functionName >> data.fileName >> data.lineNumber;
+    return s >> data.functionName >> data.fileUrl >> data.lineNumber;
+}
+
+QDataStream &operator>>(QDataStream &s, JSAgentStackData &data)
+{
+    return s >> data.functionName >> data.fileUrl >> data.lineNumber;
 }
 
 bool operator==(const JSAgentBreakpointData &b1, const JSAgentBreakpointData &b2)
 {
-    return b1.lineNumber == b2.lineNumber && b1.fileName == b2.fileName;
+    return b1.lineNumber == b2.lineNumber && b1.fileUrl == b2.fileUrl;
 }
 
 typedef QSet<JSAgentBreakpointData> JSAgentBreakpoints;
+typedef QList<JSAgentStackData> JSAgentStackFrames;
 
 
 static QDataStream &operator>>(QDataStream &s, WatchData &data)
@@ -136,19 +155,6 @@ static QDataStream &operator>>(QDataStream &s, WatchData &data)
     return s;
 }
 
-static QDataStream &operator>>(QDataStream &s, StackFrame &frame)
-{
-    frame = StackFrame();
-    QByteArray function;
-    QByteArray file;
-    s >> function >> file >> frame.line;
-    frame.function = QString::fromUtf8(function);
-    frame.file = QString::fromUtf8(file);
-    frame.usable = QFileInfo(frame.file).isReadable();
-    return s;
-}
-
-
 class QmlEnginePrivate
 {
 public:
@@ -159,6 +165,7 @@ private:
     int m_ping;
     QmlAdapter m_adapter;
     ApplicationLauncher m_applicationLauncher;
+    Utils::FileInProjectFinder fileFinder;
 };
 
 QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
@@ -182,14 +189,6 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
 
 QmlEngine::~QmlEngine()
 {}
-
-void QmlEngine::gotoLocation(const Location &loc0)
-{
-    Location loc = loc0;
-    if (isShadowBuildProject())
-        loc.setFileName(fromShadowBuildFilename(loc0.fileName()));
-    DebuggerEngine::gotoLocation(loc);
-}
 
 void QmlEngine::setupInferior()
 {
@@ -576,18 +575,8 @@ void QmlEngine::attemptBreakpointSynchronization()
             if (handler->state(id) == BreakpointInsertRequested) {
                 handler->notifyBreakpointInsertProceeding(id);
             }
-            QString processedFilename = handler->fileName(id);
-#ifdef Q_OS_MACX
-            // Qt Quick Applications by default copy the qml directory
-            // to buildDir()/X.app/Contents/Resources
-            const QString applicationBundleDir
-                    = QFileInfo(startParameters().executable).absolutePath() + "/../..";
-            processedFilename = mangleFilenamePaths(handler->fileName(id), startParameters().projectDir, applicationBundleDir + "/Contents/Resources");
-#endif
-            if (isShadowBuildProject())
-                processedFilename = toShadowBuildFilename(processedFilename);
             JSAgentBreakpointData bp;
-            bp.fileName = processedFilename.toUtf8();
+            bp.fileUrl = QUrl::fromLocalFile(handler->fileName(id)).toString().toUtf8();
             bp.lineNumber = handler->lineNumber(id);
             bp.functionName = handler->functionName(id).toUtf8();
             breakpoints.insert(bp);
@@ -606,7 +595,7 @@ void QmlEngine::attemptBreakpointSynchronization()
     QStringList breakPointsStr;
     foreach (const JSAgentBreakpointData &bp, breakpoints) {
         breakPointsStr << QString("('%1' '%2' %3)").arg(QString(bp.functionName),
-                                  QString(bp.fileName), QString::number(bp.lineNumber));
+                                  QString(bp.fileUrl), QString::number(bp.lineNumber));
     }
     logMessage(LogSend, QString("%1 [%2]").arg(QString(cmd), breakPointsStr.join(", ")));
 
@@ -754,6 +743,38 @@ unsigned QmlEngine::debuggerCapabilities() const
         | AddWatcherCapability;*/
 }
 
+QString QmlEngine::toFileInProject(const QString &fileUrl)
+{
+    if (fileUrl.isEmpty())
+        return fileUrl;
+
+    const QString path = QUrl(fileUrl).path();
+
+    // Try to find shadow-build file in source dir first
+    if (!QUrl(fileUrl).toLocalFile().isEmpty()
+            && isShadowBuildProject()) {
+        const QString sourcePath = fromShadowBuildFilename(path);
+        if (QFileInfo(sourcePath).exists())
+            return sourcePath;
+    }
+
+    // Try whether file is absolute & exists
+    if (QFileInfo(path).isAbsolute()
+            && QFileInfo(path).exists()) {
+        return path;
+    }
+
+    if (d->fileFinder.projectDirectory().isEmpty())
+        d->fileFinder.setProjectDirectory(startParameters().projectDir);
+
+    // Try to find file with biggest common path in source directory
+    bool fileFound = false;
+    QString fileInProject = d->fileFinder.findFile(path, &fileFound);
+    if (fileFound)
+        return fileInProject;
+    return fileUrl;
+}
+
 void QmlEngine::messageReceived(const QByteArray &message)
 {
     QByteArray rwData = message;
@@ -769,7 +790,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
         QString logString = QString::fromLatin1(command);
 
-        StackFrames stackFrames;
+        JSAgentStackFrames stackFrames;
         QList<WatchData> watches;
         QList<WatchData> locals;
         stream >> stackFrames >> watches >> locals;
@@ -777,12 +798,20 @@ void QmlEngine::messageReceived(const QByteArray &message)
         logString += QString::fromLatin1(" (%1 stack frames) (%2 watches)  (%3 locals)").
                      arg(stackFrames.size()).arg(watches.size()).arg(locals.size());
 
-        for (int i = 0; i != stackFrames.size(); ++i)
-            stackFrames[i].level = i + 1;
+        StackFrames ideStackFrames;
+        for (int i = 0; i != stackFrames.size(); ++i) {
+            StackFrame frame;
+            frame.line = stackFrames.at(i).lineNumber;
+            frame.function = stackFrames.at(i).functionName;
+            frame.file = toFileInProject(stackFrames.at(i).fileUrl);
+            frame.usable = QFileInfo(frame.file).isReadable();
+            frame.level = i + 1;
+            ideStackFrames << frame;
+        }
 
-        if (stackFrames.size() && stackFrames.back().function == "<global>")
-            stackFrames.takeLast();
-        stackHandler()->setFrames(stackFrames);
+        if (ideStackFrames.size() && ideStackFrames.back().function == "<global>")
+            ideStackFrames.takeLast();
+        stackHandler()->setFrames(ideStackFrames);
 
         watchHandler()->beginCycle();
         bool needPing = false;
@@ -807,10 +836,11 @@ void QmlEngine::messageReceived(const QByteArray &message)
             }
         }
 
-        if (needPing)
+        if (needPing) {
             sendPing();
-        else
+        } else {
             watchHandler()->endCycle();
+        }
 
         bool becauseOfException;
         stream >> becauseOfException;
@@ -829,7 +859,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
                 ? tr("<p>An uncaught exception occurred:</p><p>%1</p>")
                     .arg(Qt::escape(error))
                 : tr("<p>An uncaught exception occurred in <i>%1</i>:</p><p>%2</p>")
-                    .arg(stackFrames.value(0).file, Qt::escape(error));
+                    .arg(stackFrames.value(0).fileUrl, Qt::escape(error));
             showMessageBox(QMessageBox::Information, tr("Uncaught Exception"), msg);
         } else {
             //
@@ -839,14 +869,10 @@ void QmlEngine::messageReceived(const QByteArray &message)
             QString function;
             int line = -1;
 
-            if (!stackFrames.isEmpty()) {
-                file = stackFrames.at(0).file;
-                line = stackFrames.at(0).line;
-                function = stackFrames.at(0).function;
-
-                if (isShadowBuildProject()) {
-                    file = fromShadowBuildFilename(file);
-                }
+            if (!ideStackFrames.isEmpty()) {
+                file = ideStackFrames.at(0).file;
+                line = ideStackFrames.at(0).line;
+                function = ideStackFrames.at(0).function;
             }
 
             BreakHandler *handler = breakHandler();
@@ -865,8 +891,8 @@ void QmlEngine::messageReceived(const QByteArray &message)
             logMessage(LogReceive, logString);
         }
 
-        if (!stackFrames.isEmpty())
-            gotoLocation(stackFrames.value(0));
+        if (!ideStackFrames.isEmpty())
+            gotoLocation(ideStackFrames.value(0));
 
     } else if (command == "RESULT") {
         WatchData data;
@@ -975,19 +1001,6 @@ bool QmlEngine::isShadowBuildProject() const
 QString QmlEngine::qmlImportPath() const
 {
     return startParameters().environment.value("QML_IMPORT_PATH");
-}
-
-QString QmlEngine::toShadowBuildFilename(const QString &filename) const
-{
-    QString newFilename = filename;
-    QString importPath = qmlImportPath();
-
-    newFilename = mangleFilenamePaths(filename, startParameters().projectDir, startParameters().projectBuildDir);
-    if (newFilename == filename && !importPath.isEmpty()) {
-        newFilename = mangleFilenamePaths(filename, startParameters().projectDir, importPath);
-    }
-
-    return newFilename;
 }
 
 QString QmlEngine::mangleFilenamePaths(const QString &filename,

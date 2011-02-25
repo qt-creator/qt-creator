@@ -58,7 +58,6 @@ public:
     void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
     void handleRemoteSetupFailed(const QString &message);
 
-    void gotoLocation(const Location &location);
     bool canDisplayTooltip() const;
 
     void showMessage(const QString &msg, int channel = LogDebug,
@@ -145,7 +144,6 @@ private:
     QString fromShadowBuildFilename(const QString &filename) const;
     QString mangleFilenamePaths(const QString &filename,
         const QString &oldBasePath, const QString &newBasePath) const;
-    QString toShadowBuildFilename(const QString &filename) const;
     QString qmlImportPath() const;
 
     enum LogDirection {
@@ -153,6 +151,7 @@ private:
         LogReceive
     };
     void logMessage(LogDirection direction, const QString &str);
+    QString toFileInProject(const QString &file);
 
 private:
     friend class QmlCppEngine;
