@@ -44,9 +44,10 @@
 
 #include <QtCore/qdatetime.h>
 #include <QtCore/qdebug.h>
-#include <QtCore/qurl.h>
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qset.h>
+#include <QtCore/qfileinfo.h>
+#include <QtCore/qurl.h>
 #include <QtScript/qscriptcontextinfo.h>
 #include <QtScript/qscriptengine.h>
 #include <QtScript/qscriptvalueiterator.h>
@@ -144,6 +145,8 @@ public:
     QEventLoop loop;
     QHash<qint64, QString> filenames;
     JSAgentBreakpoints breakpoints;
+    // breakpoints by filename (without path)
+    QHash<QString, JSAgentBreakpointData> fileNameToBreakpoints;
     QStringList watchExpressions;
     QSet<qint64> knownObjectIds;
 };
@@ -387,12 +390,15 @@ void JSDebuggerAgentPrivate::positionChange(qint64 scriptId, int lineNumber, int
             QPair<QString, qint32> key = qMakePair(filename, lineNumber);
             it = filenames.insert(scriptId, filename);
         }
-        JSAgentBreakpointData bp;
-        bp.fileName = it->toUtf8();
-        bp.lineNumber = lineNumber;
-        if (breakpoints.contains(bp)) {
-            stopped();
-            return;
+
+        const QString filePath = it->toUtf8();
+        JSAgentBreakpoints bps = fileNameToBreakpoints.values(QFileInfo(filePath).fileName()).toSet();
+
+        foreach (const JSAgentBreakpointData &bp, bps) {
+            if (bp.lineNumber == lineNumber) {
+                stopped();
+                return;
+            }
         }
     }
 
@@ -468,6 +474,12 @@ void JSDebuggerAgentPrivate::messageReceived(const QByteArray &message)
     ds >> command;
     if (command == "BREAKPOINTS") {
         ds >> breakpoints;
+
+        fileNameToBreakpoints.clear();
+        foreach (const JSAgentBreakpointData &bp, breakpoints) {
+            fileNameToBreakpoints.insert(QFileInfo(bp.fileName).fileName(), bp);
+        }
+
         //qDebug() << "BREAKPOINTS";
         //foreach (const JSAgentBreakpointData &bp, breakpoints)
         //    qDebug() << "BREAKPOINT: " << bp.fileName << bp.lineNumber;
