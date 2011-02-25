@@ -78,11 +78,13 @@ namespace Internal {
 
 bool isCdbEngineEnabled(); // Check the configuration page
 bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check);
-
 DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp,
     DebuggerEngine *masterEngine, QString *error);
+
+bool checkGdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check);
 DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp,
     DebuggerEngine *masterEngine);
+
 DebuggerEngine *createScriptEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createPdbEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createTcfEngine(const DebuggerStartParameters &sp);
@@ -476,34 +478,6 @@ static QList<DebuggerEngineType> engineTypes(const DebuggerStartParameters &sp)
     return result;
 }
 
-// Engine detection logic: Configuration checks.
-
-QString msgNoBinaryForToolChain(const ProjectExplorer::Abi &tc, DebuggerEngineType et)
-{
-    return DebuggerPlugin::tr("There is no binary available for debugging binaries of type '%1' using the engine '%2'").
-            arg(tc.toString(), QLatin1String(engineTypeName(et)));
-}
-
-static inline bool engineConfigurationCheck(const DebuggerStartParameters &sp,
-                                            DebuggerEngineType et,
-                                            ConfigurationCheck *check)
-{
-    switch (et) {
-    case Debugger::CdbEngineType:
-        return checkCdbConfiguration(sp, check);
-    case Debugger::GdbEngineType:
-        if (debuggerCore()->debuggerForAbi(sp.toolChainAbi, et).isEmpty()) {
-            check->errorDetails.push_back(msgNoBinaryForToolChain(sp.toolChainAbi, et));
-            check->settingsCategory = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
-            check->settingsPage = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
-            return false;
-        }
-    default:
-        break;
-    }
-    return true;
-}
-
 // Engine detection logic: ConfigurationCheck.
 ConfigurationCheck::ConfigurationCheck() :
     masterSlaveEngineTypes(NoEngineType, NoEngineType)
@@ -575,9 +549,25 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
     }
     if (debug)
         qDebug() << " Usable engines: " << engineTypeNames(usableTypes);
-    // Configuration check: Strip off non-configured engines.
-    while (!usableTypes.isEmpty() && !engineConfigurationCheck(sp, usableTypes.front(), &result))
-        usableTypes.pop_front();
+    // Configuration check: Strip off non-configured engines, find first one to use.
+    while (!usableTypes.isEmpty()) {
+        bool configurationOk = true;
+        switch (usableTypes.front()) {
+        case Debugger::CdbEngineType:
+            configurationOk = checkCdbConfiguration(sp, &result);
+            break;
+        case Debugger::GdbEngineType:
+            configurationOk = checkGdbConfiguration(sp, &result);
+            break;
+        default:
+            break;
+        }
+        if (configurationOk) {
+            break;
+        } else {
+            usableTypes.pop_front();
+        }
+    }
     if (debug)
         qDebug() << "Configured engines: " << engineTypeNames(usableTypes);
     if (usableTypes.isEmpty()) {
@@ -585,6 +575,8 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
         return result;
     }
     // Anything left: Happy.
+    result.errorMessage.clear();
+    result.errorDetails.clear();
     if (qmlLanguage && cppLanguage) {
         result.masterSlaveEngineTypes.first = QmlCppEngineType;
         result.masterSlaveEngineTypes.second = usableTypes.front();

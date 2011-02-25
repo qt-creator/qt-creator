@@ -54,10 +54,11 @@ void DebuggerToolChainComboBox::init(bool hostAbiOnly)
 {
     const ProjectExplorer::Abi hostAbi = ProjectExplorer::Abi::hostAbi();
     foreach (const ProjectExplorer::ToolChain *tc, ProjectExplorer::ToolChainManager::instance()->toolChains()) {
-        if (!hostAbiOnly || hostAbi.isCompatibleWith(tc->targetAbi())) {
+        if (!hostAbiOnly || hostAbi.os() == hostAbi.os()) { // Offer MSVC and Mingw, etc.
             const QString debuggerCommand = tc->debuggerCommand();
             if (!debuggerCommand.isEmpty()) {
-                const QString name = tr("%1 (%2)").arg(tc->displayName(), QFileInfo(debuggerCommand).baseName());
+                const QString completeBase = QFileInfo(debuggerCommand).completeBaseName();
+                const QString name = tr("%1 (%2)").arg(tc->displayName(), completeBase);
                 addItem(name, qVariantFromValue(tc->targetAbi()));
             }
         }

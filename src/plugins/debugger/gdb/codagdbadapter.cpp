@@ -377,7 +377,7 @@ void CodaGdbAdapter::startGdb()
 {
     QStringList gdbArgs;
     gdbArgs.append(_("--nx")); // Do not read .gdbinit file
-    if (!m_engine->startGdb(gdbArgs, QString(), QString())) {
+    if (!m_engine->startGdb(gdbArgs)) {
         cleanup();
         return;
     }

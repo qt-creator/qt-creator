@@ -333,6 +333,18 @@ static inline QString msgNoCdbBinaryForToolChain(const ProjectExplorer::Abi &tc)
     return CdbEngine::tr("There is no CDB binary available for binaries in format '%1'").arg(tc.toString());
 }
 
+static QString cdbBinary(const DebuggerStartParameters &sp)
+{
+    if (!sp.debuggerCommand.isEmpty()) {
+        // Do not use a GDB binary if we got started for a project with MinGW runtime.
+        const bool abiMatch = sp.toolChainAbi.os() == ProjectExplorer::Abi::WindowsOS
+                    && sp.toolChainAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvcFlavor;
+        if (abiMatch)
+            return sp.debuggerCommand;
+    }
+    return debuggerCore()->debuggerForAbi(sp.toolChainAbi, CdbEngineType);
+}
+
 bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check)
 {
 #ifdef Q_OS_WIN
@@ -341,13 +353,6 @@ bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck
                            arg(sp.toolChainAbi.toString()));
         check->settingsCategory = QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
         check->settingsPage = CdbOptionsPage::settingsId();
-        return false;
-    }
-
-    if (debuggerCore()->debuggerForAbi(sp.toolChainAbi, CdbEngineType).isEmpty()) {
-        check->errorDetails.push_back(msgNoCdbBinaryForToolChain(sp.toolChainAbi));
-        check->settingsCategory = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
-        check->settingsPage = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
         return false;
     }
 
@@ -361,6 +366,14 @@ bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck
                                       arg(sp.toolChainAbi.toString()));
         return false;
     }
+
+    if (cdbBinary(sp).isEmpty()) {
+        check->errorDetails.push_back(msgNoCdbBinaryForToolChain(sp.toolChainAbi));
+        check->settingsCategory = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        check->settingsPage = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        return false;
+    }
+
     return true;
 #else
     Q_UNUSED(sp);
@@ -652,7 +665,7 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
     // Determine binary (force MSVC), extension lib name and path to use
     // The extension is passed as relative name with the path variable set
     //(does not work with absolute path names)
-    const QString executable = debuggerCore()->debuggerForAbi(sp.toolChainAbi, CdbEngineType);
+    const QString executable = cdbBinary(sp);
     if (executable.isEmpty()) {
         *errorMessage = tr("There is no CDB executable specified.");
         return false;

@@ -123,8 +123,7 @@ void RemotePlainGdbAdapter::handleRemoteSetupDone(int gdbServerPort, int qmlPort
 
 void RemotePlainGdbAdapter::handleGdbStarted()
 {
-    if (m_engine->startGdb(QStringList(),
-            m_engine->startParameters().debuggerCommand))
+    if (m_engine->startGdb())
         m_engine->handleAdapterStarted();
 }
 

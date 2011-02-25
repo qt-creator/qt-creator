@@ -2349,6 +2349,66 @@ void DebuggerPluginPrivate::createNewDock(QWidget *widget)
     dockWidget->show();
 }
 
+static QString formatStartParameters(DebuggerStartParameters &sp)
+{
+    QString rc;
+    QTextStream str(&rc);
+    str << "Start parameters: '" << sp.displayName << "' mode: " << sp.startMode
+        << "\nABI: " << sp.toolChainAbi.toString() << '\n';
+    if (!sp.executable.isEmpty()) {
+        str << "Executable: " << QDir::toNativeSeparators(sp.executable) << ' ' << sp.processArgs;
+        if (sp.useTerminal)
+            str << " [terminal]";
+        str << '\n';
+        if (!sp.workingDirectory.isEmpty())
+            str << "Directory: " << QDir::toNativeSeparators(sp.workingDirectory) << '\n';
+        if (sp.executableUid) {
+            str << "UID: 0x";
+            str.setIntegerBase(16);
+            str << sp.executableUid << '\n';
+            str.setIntegerBase(10);
+        }
+    }
+    if (!sp.debuggerCommand.isEmpty())
+        str << "Debugger: " << QDir::toNativeSeparators(sp.debuggerCommand) << '\n';
+    if (!sp.coreFile.isEmpty())
+        str << "Core: " << QDir::toNativeSeparators(sp.coreFile) << '\n';
+    if (sp.attachPID > 0)
+        str << "PID: " << sp.attachPID << ' ' << sp.crashParameter << '\n';
+    if (!sp.projectDir.isEmpty()) {
+        str << "Project: " << QDir::toNativeSeparators(sp.projectDir);
+        if (!sp.projectBuildDir.isEmpty())
+            str << " (built: " << QDir::toNativeSeparators(sp.projectBuildDir);
+        str << '\n';
+    }
+    if (!sp.qmlServerAddress.isEmpty())
+        str << "QML server: " << sp.qmlServerAddress << ':' << sp.qmlServerPort << '\n';
+    if (!sp.remoteChannel.isEmpty()) {
+        str << "Remote: " << sp.remoteChannel << ", " << sp.remoteArchitecture << '\n';
+        if (!sp.remoteDumperLib.isEmpty())
+            str << "Remote dumpers: " << sp.remoteDumperLib << '\n';
+        if (!sp.remoteSourcesDir.isEmpty())
+            str << "Remote sources: " << sp.remoteSourcesDir << '\n';
+        if (!sp.remoteMountPoint.isEmpty())
+            str << "Remote mount point: " << sp.remoteMountPoint << " Local: " << sp.localMountDir << '\n';
+    }
+    if (!sp.gnuTarget.isEmpty())
+        str << "Gnu target: " << sp.gnuTarget << '\n';
+    if (!sp.sysRoot.isEmpty())
+        str << "Sysroot: " << sp.sysRoot << '\n';
+    if (!sp.symbolFileName.isEmpty())
+        str << "Symbol file: " << sp.symbolFileName << '\n';
+    if (sp.useServerStartScript)
+        str << "Using server start script: " << sp.serverStartScript;
+    if (!sp.dumperLibrary.isEmpty()) {
+        str << "Dumper libraries: " << QDir::toNativeSeparators(sp.dumperLibrary);
+        foreach (const QString &dl, sp.dumperLibraryLocations)
+            str << ' ' << QDir::toNativeSeparators(dl);
+        str << '\n';
+    }
+    return rc;
+}
+
 void DebuggerPluginPrivate::runControlStarted(DebuggerEngine *engine)
 {
     activateDebugMode();
@@ -2356,6 +2416,7 @@ void DebuggerPluginPrivate::runControlStarted(DebuggerEngine *engine)
             .arg(engine->objectName())
             .arg(engine->startParameters().toolChainAbi.toString());
     showMessage(message, StatusBar);
+    showMessage(formatStartParameters(engine->startParameters()), LogDebug);
     showMessage(m_debuggerSettings->dump(), LogDebug);
     m_snapshotHandler->appendSnapshot(engine);
     connectEngine(engine);

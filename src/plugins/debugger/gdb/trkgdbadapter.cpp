@@ -1475,7 +1475,7 @@ void TrkGdbAdapter::slotStartGdb()
 {
     QStringList gdbArgs;
     gdbArgs.append(QLatin1String("--nx")); // Do not read .gdbinit file
-    if (!m_engine->startGdb(gdbArgs, QString(), QString())) {
+    if (!m_engine->startGdb(gdbArgs)) {
         cleanup();
         return;
     }

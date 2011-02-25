@@ -76,6 +76,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <texteditor/itexteditor.h>
 #include <utils/qtcassert.h>
 
@@ -4203,23 +4204,62 @@ void GdbEngine::handleFetchDisassemblerByCliRangePlain(const GdbResponse &respon
         .arg(QString::fromLocal8Bit(msg)), 5000);
 }
 
+// Binary/configuration check logic.
+
+static QString gdbBinary(const DebuggerStartParameters &sp)
+{
+    // 1) Environment.
+    const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");
+    if (!envBinary.isEmpty())
+        return QString::fromLocal8Bit(envBinary);
+    // 2) Command explicitly specified.
+    if (!sp.debuggerCommand.isEmpty()) {
+#ifdef Q_OS_WIN
+        // Do not use a CDB binary if we got started for a project with MSVC runtime.
+        const bool abiMatch = sp.toolChainAbi.os() != ProjectExplorer::Abi::WindowsOS
+                || sp.toolChainAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor;
+#else
+        const bool abiMatch = true;
+#endif
+        if (abiMatch)
+            return sp.debuggerCommand;
+    }
+    // 3) Find one from toolchains.
+    return debuggerCore()->debuggerForAbi(sp.toolChainAbi, GdbEngineType);
+}
+
+bool checkGdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check)
+{
+    const QString binary = gdbBinary(sp);
+    if (gdbBinary(sp).isEmpty()) {
+        check->errorDetails.push_back(msgNoGdbBinaryForToolChain(sp.toolChainAbi));
+        check->settingsCategory = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        check->settingsPage = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        return false;
+    }
+#ifdef Q_OS_WIN
+    // See initialization below, we need an absolute path to be able to locate Python on Windows.
+    if (!QFileInfo(binary).isAbsolute()) {
+        check->errorDetails.push_back(GdbEngine::tr("The gdb location must be given as an "
+                                                    "absolute path in the debugger settings (%1).").arg(binary));
+        check->settingsCategory = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        check->settingsPage = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        return false;
+    }
+#endif
+    return true;
+}
 
 //
 // Starting up & shutting down
 //
 
-bool GdbEngine::startGdb(const QStringList &args, const QString &gdb,
-    const QString &settingsIdHint)
+bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
 {
     gdbProc()->disconnect(); // From any previous runs
 
     const DebuggerStartParameters &sp = startParameters();
-    m_gdb = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_PATH"));
-    if (m_gdb.isEmpty() && sp.startMode != StartRemoteGdb) {
-        m_gdb = debuggerCore()->debuggerForAbi(startParameters().toolChainAbi, GdbEngineType);
-    }
-    if (m_gdb.isEmpty())
-        m_gdb = gdb;
+    m_gdb = gdbBinary(sp);
     if (m_gdb.isEmpty()) {
         handleAdapterStartFailed(
             msgNoGdbBinaryForToolChain(sp.toolChainAbi),
@@ -4237,13 +4277,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb,
     // Set python path. By convention, python is located below gdb executable.
     // Extend the environment set on the process in startAdapter().
     const QFileInfo fi(m_gdb);
-    if (!fi.isAbsolute()) {
-        showMessage(_("GDB %1 DOES NOT HAVE ABSOLUTE LOCATION.").arg(m_gdb));
-        const QString msg = tr("The gdb location must be given as an "
-            "absolute path in the debugger settings.");
-        handleAdapterStartFailed(msg, settingsIdHint);
-        return false;
-    }
+    QTC_ASSERT(fi.isAbsolute(), return false; )
 
     const QString winPythonVersion = _(winPythonVersionC);
     const QDir dir = fi.absoluteDir();

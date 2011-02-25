@@ -96,9 +96,6 @@ public:
     QString projectBuildDir;
     QString projectDir;
 
-    // Used by combined cpp+qml debugging.
-    DebuggerEngineType cppEngineType;
-
     // Used by remote debugging.
     QString remoteChannel;
     QString remoteArchitecture;

@@ -79,7 +79,7 @@ void CoreGdbAdapter::startAdapter()
     QStringList args;
     args.append(_("-ex"));
     args.append(_("set auto-solib-add off"));
-    if (!m_engine->startGdb(args))
+    if (!m_engine->startGdb(args, QString()))
         return;
 
     //if (m_executable.isEmpty()) {
