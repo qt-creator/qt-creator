@@ -1012,6 +1012,17 @@ void BaseTextEditorWidget::moveLineDown()
     moveLineUpDown(false);
 }
 
+void BaseTextEditorWidget::uppercaseSelection()
+{
+    transformSelection(&QString::toUpper);
+}
+
+
+void BaseTextEditorWidget::lowercaseSelection()
+{
+    transformSelection(&QString::toLower);
+}
+
 void BaseTextEditorWidget::moveLineUpDown(bool up)
 {
     QTextCursor cursor = textCursor();
@@ -6080,4 +6091,42 @@ int BaseTextEditorWidget::rowCount() const
 {
     QFontMetricsF fm(font());
     return viewport()->rect().height() / fm.lineSpacing();
+}
+
+/**
+  Helper method to transform a selected text. If nothing is selected at the moment
+  the word under the cursor is used.
+  The type of the transformation is determined by the method pointer given.
+
+  @param method     pointer to the QString method to use for the transformation
+
+  @see uppercaseSelection, lowercaseSelection
+*/
+void BaseTextEditorWidget::transformSelection(Internal::TransformationMethod method)
+{
+    QTextCursor cursor = textCursor();
+
+    int pos    = cursor.position();
+    int anchor = cursor.anchor();
+
+    if (!cursor.hasSelection()) {
+        // if nothing is selected, select the word over the cursor
+        cursor.select(QTextCursor::WordUnderCursor);
+    }
+
+    QString text = cursor.selectedText();
+    QString transformedText = (text.*method)();
+
+    if (transformedText == text) {
+        // if the transformation does not do anything to the selection, do no create an undo step
+        return;
+    }
+
+    cursor.insertText(transformedText);
+
+    // (re)select the changed text
+    // Note: this assumes the transformation did not change the length,
+    cursor.setPosition(anchor);
+    cursor.setPosition(pos, QTextCursor::KeepAnchor);
+    setTextCursor(cursor);
 }

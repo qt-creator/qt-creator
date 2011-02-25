@@ -62,6 +62,7 @@ namespace Internal {
     class BaseTextEditorPrivate;
     class TextEditorOverlay;
     typedef QList<RefactorMarker> RefactorMarkers;
+    typedef QString (QString::*TransformationMethod)() const;
 }
 
 class ITextMarkable;
@@ -291,6 +292,9 @@ public slots:
 
     void insertLineAbove();
     void insertLineBelow();
+
+    void uppercaseSelection();
+    void lowercaseSelection();
 
     void cleanWhitespace();
 
@@ -523,6 +527,7 @@ private:
     bool camelCaseRight(QTextCursor &cursor, QTextCursor::MoveMode mode);
     bool camelCaseLeft(QTextCursor &cursor, QTextCursor::MoveMode mode);
 
+    void transformSelection(Internal::TransformationMethod method);
 
 private slots:
     // auto completion

@@ -120,6 +120,8 @@ private slots:
     void joinLines();
     void insertLineAbove();
     void insertLineBelow();
+    void uppercaseSelection();
+    void lowercaseSelection();
     void updateCurrentEditor(Core::IEditor *editor);
 
     void gotoLineStart();
@@ -181,6 +183,8 @@ private:
     QAction *m_joinLinesAction;
     QAction *m_insertLineAboveAction;
     QAction *m_insertLineBelowAction;
+    QAction *m_upperCaseSelectionAction;
+    QAction *m_lowerCaseSelectionAction;
 
     uint m_optionalActions;
     QPointer<BaseTextEditorWidget> m_currentEditor;

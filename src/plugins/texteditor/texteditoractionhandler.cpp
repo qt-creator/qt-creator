@@ -93,6 +93,10 @@ TextEditorActionHandler::TextEditorActionHandler(const char *context,
     m_copyLineUpAction(0),
     m_copyLineDownAction(0),
     m_joinLinesAction(0),
+    m_insertLineAboveAction(0),
+    m_insertLineBelowAction(0),
+    m_upperCaseSelectionAction(0),
+    m_lowerCaseSelectionAction(0),
     m_optionalActions(optionalActions),
     m_currentEditor(0),
     m_contextId(context),
@@ -305,6 +309,16 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_insertLineBelowAction, Constants::INSERT_LINE_BELOW, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Return")));
     connect(m_insertLineBelowAction, SIGNAL(triggered()), this, SLOT(insertLineBelow()));
+
+    m_upperCaseSelectionAction = new QAction(tr("Uppercase Selection"), this);
+    command = am->registerAction(m_upperCaseSelectionAction, Constants::UPPERCASE_SELECTION, m_contextId, true);
+    command->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+U")));
+    connect(m_upperCaseSelectionAction, SIGNAL(triggered()), this, SLOT(uppercaseSelection()));
+
+    m_lowerCaseSelectionAction = new QAction(tr("Lowercase Selection"), this);
+    command = am->registerAction(m_lowerCaseSelectionAction, Constants::LOWERCASE_SELECTION, m_contextId, true);
+    command->setDefaultKeySequence(QKeySequence(tr("Alt+U")));
+    connect(m_lowerCaseSelectionAction, SIGNAL(triggered()), this, SLOT(lowercaseSelection()));
 
     QAction *a = 0;
     a = new QAction(tr("Goto Line Start"), this);
@@ -532,6 +546,8 @@ FUNCTION(moveLineDown)
 FUNCTION(copyLineUp)
 FUNCTION(copyLineDown)
 FUNCTION(joinLines)
+FUNCTION(uppercaseSelection)
+FUNCTION(lowercaseSelection)
 FUNCTION(insertLineAbove)
 FUNCTION(insertLineBelow)
 
