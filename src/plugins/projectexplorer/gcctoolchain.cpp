@@ -465,7 +465,7 @@ QList<ToolChain *> Internal::GccToolChainFactory::autoDetect()
     // Fixme Prefer lldb once it is implemented: debuggers.push_back(QLatin1String("lldb"));
 #endif
     debuggers.push_back(QLatin1String("gdb"));
-    return autoDetectToolchains(QLatin1String("gcc"), debuggers, Abi::hostAbi());
+    return autoDetectToolchains(QLatin1String("g++"), debuggers, Abi::hostAbi());
 }
 
 // Used by the ToolChainManager to restore user-generated ToolChains
