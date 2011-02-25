@@ -415,6 +415,7 @@ bool GccToolChain::fromMap(const QVariantMap &data)
     m_compilerPath = data.value(QLatin1String(compilerPathKeyC)).toString();
     m_forcedTo32Bit = data.value(QLatin1String(force32bitKeyC)).toBool();
     m_debuggerCommand = data.value(QLatin1String(debuggerCommandKeyC)).toString();
+    updateId();
     return true;
 }
 

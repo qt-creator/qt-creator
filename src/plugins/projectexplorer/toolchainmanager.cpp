@@ -39,7 +39,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QSettings>
-
+#include <QtCore/QDir>
 
 static const char *const ORGANIZATION_NAME = "Nokia";
 static const char *const APPLICATION_NAME = "toolChains";
@@ -102,15 +102,21 @@ void ToolChainManager::restoreToolChains()
 
     for (int i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
-        QVariantMap tmp = settings.value(QLatin1String(TOOLCHAIN_DATA_KEY)).toMap();
+        const QVariantMap tmp = settings.value(QLatin1String(TOOLCHAIN_DATA_KEY)).toMap();
+        bool restored = false;
         foreach (ToolChainFactory *f, factories) {
-            if (!f->canRestore(tmp))
-                continue;
-            ToolChain *tc = f->restore(tmp);
-            if (!tc)
-                continue;
-            registerToolChain(tc);
+            if (f->canRestore(tmp)) {
+                if (ToolChain *tc = f->restore(tmp)) {
+                    registerToolChain(tc);
+                    restored = true;
+                    break;
+                }
+            }
         }
+        if (!restored)
+            qWarning("Warning: Unable to restore manual toolchain '%s' stored in %s.",
+                     qPrintable(ToolChainFactory::idFromMap(tmp)),
+                     qPrintable(QDir::toNativeSeparators(settings.fileName())));
     }
 }
 

@@ -167,7 +167,6 @@ public:
     virtual bool canRestore(const QVariantMap &data);
     virtual ToolChain *restore(const QVariantMap &data);
 
-protected:
     static QString idFromMap(const QVariantMap &data);
 };
 
