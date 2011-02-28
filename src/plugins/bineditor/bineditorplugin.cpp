@@ -39,6 +39,8 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 #include <QtCore/QRegExp>
+#include <QtCore/QVariant>
+
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 #include <QtGui/QMainWindow>
@@ -60,6 +62,7 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 #include <utils/reloadpromptutils.h>
+#include <utils/qtcassert.h>
 
 using namespace BINEditor;
 using namespace BINEditor::Internal;
@@ -231,6 +234,8 @@ public:
 
 private slots:
     void provideData(Core::IEditor *, quint64 block) {
+        if (m_fileName.isEmpty())
+            return;
         QFile file(m_fileName);
         if (file.open(QIODevice::ReadOnly)) {
             int blockSize = m_editor->dataBlockSize();
@@ -268,10 +273,10 @@ public:
 
     QString suggestedFileName() const { return QString(); }
 
-    bool isModified() const { return m_editor->isModified(); }
+    bool isModified() const { return m_editor->isMemoryView() ? false : m_editor->isModified(); }
 
     bool isReadOnly() const {
-        if (m_editor->editor()->property("MemoryView").toBool())
+        if (m_editor->isMemoryView())
             return false;
         const QFileInfo fi(m_fileName);
         return !fi.isWritable();
@@ -371,7 +376,7 @@ public:
 
     QWidget *toolBar() { return m_toolBar; }
 
-    bool isTemporary() const { return false; }
+    bool isTemporary() const { return m_editor->isMemoryView(); }
 
 private slots:
     void updateCursorPosition(int position) {

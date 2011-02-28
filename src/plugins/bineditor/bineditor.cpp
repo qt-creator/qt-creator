@@ -35,11 +35,13 @@
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
+#include <coreplugin/editormanager/ieditor.h>
 
 #include <QtCore/QByteArrayMatcher>
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QTemporaryFile>
+#include <QtCore/QVariant>
 
 #include <QtGui/QApplication>
 #include <QtGui/QAction>
@@ -1451,6 +1453,11 @@ void BinEditor::asIntegers(int offset, int count, quint64 &beValue,
         beValue += val << (pos * 8);
         leValue += val << ((count - pos - 1) * 8);
     }
+}
+
+bool BinEditor::isMemoryView() const
+{
+    return editor()->property("MemoryView").toBool();
 }
 
 } // namespace BINEditor
