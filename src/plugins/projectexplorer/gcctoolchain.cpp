@@ -65,7 +65,7 @@ static const char debuggerCommandKeyC[] = "ProjectExplorer.GccToolChain.Debugger
 
 static QByteArray runGcc(const QString &gcc, const QStringList &arguments, const QStringList &env)
 {
-    if (gcc.isEmpty())
+    if (gcc.isEmpty() || !QFileInfo(gcc).isExecutable())
         return QByteArray();
 
     QProcess cpp;
