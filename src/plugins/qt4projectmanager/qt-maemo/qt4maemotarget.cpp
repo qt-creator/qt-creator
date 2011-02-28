@@ -68,7 +68,6 @@ using namespace Qt4ProjectManager::Internal;
 namespace {
 const QByteArray NameFieldName("Package");
 const QByteArray IconFieldName("XB-Maemo-Icon-26");
-const QByteArray PackageManagerNameFieldName("XB-Maemo-Display-Name");
 const QByteArray ShortDescriptionFieldName("Description");
 const QByteArray PackageFieldName("Package");
 const QLatin1String PackagingDirName("qtc_packaging");
@@ -546,7 +545,7 @@ bool AbstractDebBasedQt4MaemoTarget::setPackageNameInternal(const QString &packa
 
 QString AbstractDebBasedQt4MaemoTarget::packageManagerName() const
 {
-    return QString::fromUtf8(controlFileFieldValue(PackageManagerNameFieldName, false));
+    return QString::fromUtf8(controlFileFieldValue(packageManagerNameFieldName(), false));
 }
 
 bool AbstractDebBasedQt4MaemoTarget::setPackageManagerName(const QString &name,
@@ -568,7 +567,7 @@ bool AbstractDebBasedQt4MaemoTarget::setPackageManagerNameInternal(const QString
     QString *error)
 {
     Q_UNUSED(error);
-    return setControlFieldValue(PackageManagerNameFieldName, name.toUtf8());
+    return setControlFieldValue(packageManagerNameFieldName(), name.toUtf8());
 }
 
 QString AbstractDebBasedQt4MaemoTarget::shortDescription() const
@@ -805,7 +804,7 @@ bool AbstractDebBasedQt4MaemoTarget::adaptControlFile()
 
     adaptControlFileField(controlContents, "Section", "user/hidden");
     adaptControlFileField(controlContents, "Priority", "optional");
-    adaptControlFileField(controlContents, PackageManagerNameFieldName,
+    adaptControlFileField(controlContents, packageManagerNameFieldName(),
         project()->displayName().toUtf8());
     const int buildDependsOffset = controlContents.indexOf("Build-Depends:");
     if (buildDependsOffset == -1) {
@@ -1070,6 +1069,11 @@ QString Qt4Maemo5Target::debianDirName() const
     return QLatin1String("debian_fremantle");
 }
 
+QByteArray Qt4Maemo5Target::packageManagerNameFieldName() const
+{
+    return "XB-Maemo-Display-Name";
+}
+
 Qt4HarmattanTarget::Qt4HarmattanTarget(Qt4Project *parent, const QString &id)
         : AbstractDebBasedQt4MaemoTarget(parent, id)
 {
@@ -1088,6 +1092,11 @@ QString Qt4HarmattanTarget::defaultDisplayName()
 QString Qt4HarmattanTarget::debianDirName() const
 {
     return QLatin1String("debian_harmattan");
+}
+
+QByteArray Qt4HarmattanTarget::packageManagerNameFieldName() const
+{
+    return "XSBC-Maemo-Display-Name";
 }
 
 

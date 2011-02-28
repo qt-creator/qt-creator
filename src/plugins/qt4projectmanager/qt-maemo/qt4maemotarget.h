@@ -170,6 +170,8 @@ private:
     virtual bool initAdditionalPackagingSettingsFromOtherTarget();
     virtual QStringList packagingFilePaths() const;
 
+    virtual QByteArray packageManagerNameFieldName() const=0;
+
     QString changeLogFilePath() const;
     QString controlFilePath() const;
     QByteArray controlFileFieldValue(const QString &key, bool multiLine) const;
@@ -242,6 +244,7 @@ public:
 
 private:
     virtual QString debianDirName() const;
+    virtual QByteArray packageManagerNameFieldName() const;
 };
 
 
@@ -260,6 +263,7 @@ public:
 
 private:
     virtual QString debianDirName() const;
+    virtual QByteArray packageManagerNameFieldName() const;
 };
 
 
