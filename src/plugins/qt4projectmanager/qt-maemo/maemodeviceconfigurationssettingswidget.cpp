@@ -429,6 +429,8 @@ void MaemoDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
 void MaemoDeviceConfigurationsSettingsWidget::clearDetails()
 {
     m_ui->nameLineEdit->clear();
+    m_ui->osTypeValueLabel->clear();
+    m_ui->deviceTypeValueLabel->clear();
     m_ui->hostLineEdit->clear();
     m_ui->sshPortSpinBox->clear();
     m_ui->timeoutSpinBox->clear();

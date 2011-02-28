@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>703</width>
+    <width>708</width>
     <height>421</height>
    </rect>
   </property>
@@ -375,7 +375,7 @@
            <item row="10" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
-              <widget class="Utils::PathChooser" name="keyFileLineEdit" native="true"/>
+              <widget class="Utils::PathChooser" name="keyFileLineEdit"/>
              </item>
              <item>
               <widget class="QPushButton" name="makeKeyFileDefaultButton">
@@ -389,7 +389,7 @@
            <item row="2" column="1">
             <widget class="QLabel" name="deviceTypeValueLabel">
              <property name="text">
-              <string>TextLabel</string>
+              <string/>
              </property>
             </widget>
            </item>
@@ -403,7 +403,7 @@
            <item row="1" column="1">
             <widget class="QLabel" name="osTypeValueLabel">
              <property name="text">
-              <string>TextLabel</string>
+              <string/>
              </property>
             </widget>
            </item>
