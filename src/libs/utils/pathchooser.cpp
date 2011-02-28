@@ -50,7 +50,6 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QLineEdit>
-#include <QtGui/QToolButton>
 #include <QtGui/QPushButton>
 
 /*static*/ const char * const Utils::PathChooser::browseButtonLabel =
@@ -262,11 +261,7 @@ PathChooser::~PathChooser()
 
 void PathChooser::addButton(const QString &text, QObject *receiver, const char *slotFunc)
 {
-#ifdef Q_WS_MAC
     QPushButton *button = new QPushButton;
-#else
-    QToolButton *button = new QToolButton;
-#endif
     button->setText(text);
     connect(button, SIGNAL(clicked()), receiver, slotFunc);
     m_d->m_hLayout->addWidget(button);
