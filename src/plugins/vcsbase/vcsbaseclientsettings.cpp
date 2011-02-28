@@ -119,7 +119,7 @@ void VCSBaseClientSettings::setTimeoutSeconds(int s)
     m_timeoutSeconds = s;
 }
 
-void VCSBaseClientSettings::writeSettings(QSettings *settings, const QString& group) const
+void VCSBaseClientSettings::writeSettings(QSettings *settings, const QString &group) const
 {
     settings->beginGroup(group);
     settings->setValue(QLatin1String("VCS_Path"), m_binary);
@@ -131,7 +131,7 @@ void VCSBaseClientSettings::writeSettings(QSettings *settings, const QString& gr
     settings->endGroup();
 }
 
-void VCSBaseClientSettings::readSettings(const QSettings *settings, const QString& group)
+void VCSBaseClientSettings::readSettings(const QSettings *settings, const QString &group)
 {
     const QString keyRoot = group + QLatin1Char('/');
     m_binary = settings->value(keyRoot + QLatin1String("VCS_Path"), QString()).toString();

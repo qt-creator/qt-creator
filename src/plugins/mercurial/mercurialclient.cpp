@@ -303,7 +303,7 @@ QString MercurialClient::findTopLevelForFile(const QFileInfo &file) const
 
 QString MercurialClient::vcsEditorKind(VCSCommand cmd) const
 {
-    switch(cmd)
+    switch (cmd)
     {
     case AnnotateCommand : return QLatin1String(Constants::ANNOTATELOG);
     case DiffCommand : return QLatin1String(Constants::DIFFLOG);

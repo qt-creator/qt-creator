@@ -60,11 +60,9 @@ QString CloneWizardPage::directoryFromRepository(const QString &repository) cons
     QString repo = repository.trimmed();
     if (repo.startsWith(QLatin1String("lp:")))
         return repo.mid(3);
-    else {
-        const QChar slash = QLatin1Char('/');
-        if (repo.endsWith(slash))
-            repo.truncate(repo.size() - 1);
-        // Take the basename or the repository url
-        return repo.mid(repo.lastIndexOf(slash) + 1);
-    }
+    const QChar slash = QLatin1Char('/');
+    if (repo.endsWith(slash))
+        repo.truncate(repo.size() - 1);
+    // Take the basename or the repository url
+    return repo.mid(repo.lastIndexOf(slash) + 1);
 }

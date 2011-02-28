@@ -113,12 +113,15 @@ QString BazaarClient::findTopLevelForFile(const QFileInfo &file) const
 QString BazaarClient::vcsEditorKind(VCSCommand cmd) const
 {
     switch(cmd) {
-    case AnnotateCommand : return QLatin1String(Constants::ANNOTATELOG);
-    case DiffCommand : return QLatin1String(Constants::DIFFLOG);
-    case LogCommand : return QLatin1String(Constants::FILELOG);
-    default : return QLatin1String("");
+    case AnnotateCommand:
+        return QLatin1String(Constants::ANNOTATELOG);
+    case DiffCommand:
+        return QLatin1String(Constants::DIFFLOG);
+    case LogCommand:
+        return QLatin1String(Constants::FILELOG);
+    default:
+        return QString();
     }
-    return QLatin1String("");
 }
 
 QStringList BazaarClient::cloneArguments(const QString &srcLocation,

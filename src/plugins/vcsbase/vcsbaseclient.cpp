@@ -334,24 +334,24 @@ void VCSBaseClient::statusWithSignal(const QString &repositoryRoot)
 
 QString VCSBaseClient::vcsCommandString(VCSCommand cmd) const
 {
-    switch(cmd) {
-    case CreateRepositoryCommand : return QLatin1String("init");
-    case CloneCommand : return QLatin1String("clone");
-    case AddCommand : return QLatin1String("add");
-    case RemoveCommand : return QLatin1String("remove");
-    case MoveCommand : return QLatin1String("rename");
-    case PullCommand : return QLatin1String("pull");
-    case PushCommand : return QLatin1String("push");
-    case CommitCommand : return QLatin1String("commit");
-    case ImportCommand : return QLatin1String("import");
-    case UpdateCommand : return QLatin1String("update");
-    case RevertCommand : return QLatin1String("revert");
-    case AnnotateCommand : return QLatin1String("annotate");
-    case DiffCommand : return QLatin1String("diff");
-    case LogCommand : return QLatin1String("log");
-    case StatusCommand : return QLatin1String("status");
+    switch (cmd) {
+    case CreateRepositoryCommand: return QLatin1String("init");
+    case CloneCommand: return QLatin1String("clone");
+    case AddCommand: return QLatin1String("add");
+    case RemoveCommand: return QLatin1String("remove");
+    case MoveCommand: return QLatin1String("rename");
+    case PullCommand: return QLatin1String("pull");
+    case PushCommand: return QLatin1String("push");
+    case CommitCommand: return QLatin1String("commit");
+    case ImportCommand: return QLatin1String("import");
+    case UpdateCommand: return QLatin1String("update");
+    case RevertCommand: return QLatin1String("revert");
+    case AnnotateCommand: return QLatin1String("annotate");
+    case DiffCommand: return QLatin1String("diff");
+    case LogCommand: return QLatin1String("log");
+    case StatusCommand: return QLatin1String("status");
     }
-    return QLatin1String("");
+    return QString();
 }
 
 void VCSBaseClient::statusParser(const QByteArray &data)

@@ -71,8 +71,8 @@ public:
     int timeoutSeconds() const;
     void setTimeoutSeconds(int s);
 
-    virtual void writeSettings(QSettings *settings, const QString& group) const;
-    virtual void readSettings(const QSettings *settings, const QString& group);
+    virtual void writeSettings(QSettings *settings, const QString &group) const;
+    virtual void readSettings(const QSettings *settings, const QString &group);
 
     virtual bool equals(const VCSBaseClientSettings &rhs) const;
 

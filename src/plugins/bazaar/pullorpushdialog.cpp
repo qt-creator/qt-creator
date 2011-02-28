@@ -44,14 +44,11 @@ PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent) :
 {
     m_ui->setupUi(this);
     m_ui->localPathChooser->setExpectedKind(Utils::PathChooser::Directory);
-    if (m_mode == PullMode)
-    {
+    if (m_mode == PullMode) {
         this->setWindowTitle(tr("Pull source"));
         m_ui->useExistingDirCheckBox->setVisible(false);
         m_ui->createPrefixCheckBox->setVisible(false);
-    }
-    else
-    {
+    } else {
         this->setWindowTitle(tr("Push destination"));
         m_ui->localCheckBox->setVisible(false);
     }
@@ -67,18 +64,16 @@ QString PullOrPushDialog::branchLocation() const
 {
     if (m_ui->defaultButton->isChecked())
         return QString();
-    else if (m_ui->localButton->isChecked())
+    if (m_ui->localButton->isChecked())
         return m_ui->localPathChooser->path();
-    else
-        return m_ui->urlLineEdit->text();
+    return m_ui->urlLineEdit->text();
 }
 
 bool PullOrPushDialog::isRememberOptionEnabled() const
 {
     if (m_ui->defaultButton->isChecked())
         return false;
-    else
-        return m_ui->rememberCheckBox->isChecked();
+    return m_ui->rememberCheckBox->isChecked();
 }
 
 bool PullOrPushDialog::isOverwriteOptionEnabled() const

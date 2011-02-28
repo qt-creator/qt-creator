@@ -147,7 +147,7 @@ BazaarPlugin::~BazaarPlugin()
     m_instance = 0;
 }
 
-bool BazaarPlugin::initialize(const QStringList &/*arguments*/, QString */*error_message*/)
+bool BazaarPlugin::initialize(const QStringList &/*arguments*/, QString * /*error_message*/)
 {
     typedef VCSBase::VCSEditorFactory<BazaarEditor> BazaarEditorFactory;
 
@@ -290,29 +290,29 @@ void BazaarPlugin::createFileActions(const Core::Context &context)
 void BazaarPlugin::addCurrentFile()
 {
     const VCSBase::VCSBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
-            m_client->synchronousAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
+    QTC_ASSERT(state.hasFile(), return);
+    m_client->synchronousAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void BazaarPlugin::annotateCurrentFile()
 {
     const VCSBase::VCSBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
-            m_client->annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
+    QTC_ASSERT(state.hasFile(), return);
+    m_client->annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void BazaarPlugin::diffCurrentFile()
 {
     const VCSBase::VCSBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
-            m_client->diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
+    QTC_ASSERT(state.hasFile(), return);
+    m_client->diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void BazaarPlugin::logCurrentFile()
 {
     const VCSBase::VCSBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
-            m_client->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
+    QTC_ASSERT(state.hasFile(), return);
+    m_client->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
 }
 
 void BazaarPlugin::revertCurrentFile()
@@ -333,8 +333,8 @@ void BazaarPlugin::revertCurrentFile()
 void BazaarPlugin::statusCurrentFile()
 {
     const VCSBase::VCSBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
-            m_client->status(state.currentFileTopLevel(), state.relativeCurrentFile());
+    QTC_ASSERT(state.hasFile(), return);
+    m_client->status(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void BazaarPlugin::createDirectoryActions(const Core::Context &context)
@@ -375,15 +375,15 @@ void BazaarPlugin::createDirectoryActions(const Core::Context &context)
 void BazaarPlugin::diffRepository()
 {
     const VCSBase::VCSBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
-            m_client->diff(state.topLevel());
+    QTC_ASSERT(state.hasTopLevel(), return);
+    m_client->diff(state.topLevel());
 }
 
 void BazaarPlugin::logRepository()
 {
     const VCSBase::VCSBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
-            m_client->log(state.topLevel());
+    QTC_ASSERT(state.hasTopLevel(), return);
+    m_client->log(state.topLevel());
 }
 
 void BazaarPlugin::revertAll()
