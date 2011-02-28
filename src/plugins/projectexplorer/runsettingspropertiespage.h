@@ -56,7 +56,7 @@ class RunConfigWidget;
 
 namespace Internal {
 
-const char * const RUNSETTINGS_PANEL_ID("ProjectExplorer.RunSettingsPanel");
+const char * const RUNSETTINGS_PANEL_ID = "ProjectExplorer.RunSettingsPanel";
 
 namespace Ui {
 class RunSettingsPropertiesPage;
@@ -93,7 +93,7 @@ class RunSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    RunSettingsWidget(Target *target);
+    explicit RunSettingsWidget(Target *target);
     ~RunSettingsWidget();
 
 private slots:
@@ -132,7 +132,8 @@ private:
     QMenu *m_addRunMenu;
     QMenu *m_addDeployMenu;
     bool m_ignoreChange;
-    QList<QPair<RunConfigWidget *, QLabel *> > m_subWidgets;
+    typedef QPair<RunConfigWidget *, QLabel *> RunConfigItem;
+    QList<RunConfigItem> m_subWidgets;
 };
 
 } // namespace Internal

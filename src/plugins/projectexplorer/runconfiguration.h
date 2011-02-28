@@ -43,18 +43,13 @@
 #include <QtCore/QWeakPointer>
 #include <QtGui/QWidget>
 
-QT_BEGIN_NAMESPACE
-class QString;
-QT_END_NAMESPACE
-
 namespace ProjectExplorer {
 
-class Target;
-
-class RunControl;
 class BuildConfiguration;
-class OutputFormatter;
 class IRunConfigurationAspect;
+class OutputFormatter;
+class RunControl;
+class Target;
 
 /**
  * Base class for a run configuration. A run configuration specifies how a

@@ -485,7 +485,6 @@ void RunSettingsWidget::addSubWidget(RunConfigWidget *widget)
 void RunSettingsWidget::removeSubWidgets()
 {
     // foreach does not like commas in types, it's only a macro after all
-    typedef QPair<RunConfigWidget *, QLabel *> RunConfigItem;
     foreach (const RunConfigItem &item, m_subWidgets) {
         delete item.first;
         delete item.second;
