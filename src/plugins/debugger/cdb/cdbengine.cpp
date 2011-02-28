@@ -575,7 +575,8 @@ bool CdbEngine::startConsole(const DebuggerStartParameters &sp, QString *errorMe
     connect(m_consoleStub.data(), SIGNAL(wrapperStopped()),
             SLOT(consoleStubExited()));
     m_consoleStub->setWorkingDirectory(sp.workingDirectory);
-    m_consoleStub->setEnvironment(sp.environment);
+    if (sp.environment.size())
+        m_consoleStub->setEnvironment(sp.environment);
     if (!m_consoleStub->start(sp.executable, sp.processArgs)) {
         *errorMessage = tr("The console process '%1' could not be started.").arg(sp.executable);
         return false;
@@ -738,7 +739,10 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
     showMessage(msg, LogMisc);
 
     m_outputBuffer.clear();
-    m_process.setEnvironment(mergeEnvironment(sp.environment.toStringList(), extensionFi.absolutePath()));
+    const QStringList environment = sp.environment.size() == 0 ?
+                                    QProcessEnvironment::systemEnvironment().toStringList() :
+                                    sp.environment.toStringList();
+    m_process.setEnvironment(mergeEnvironment(environment, extensionFi.absolutePath()));
     if (!sp.workingDirectory.isEmpty())
         m_process.setWorkingDirectory(sp.workingDirectory);
 
