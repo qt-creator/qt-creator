@@ -34,6 +34,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_qmljseditor \
             plugin_glsleditor \
             plugin_mercurial \
+            plugin_bazaar \
             plugin_classview \
             plugin_tasklist \
             plugin_qmljstools \
@@ -225,6 +226,11 @@ plugin_mercurial.subdir = mercurial
 plugin_mercurial.depends = plugin_vcsbase
 plugin_mercurial.depends += plugin_projectexplorer
 plugin_mercurial.depends += plugin_coreplugin
+
+plugin_bazaar.subdir = bazaar
+plugin_bazaar.depends = plugin_vcsbase
+plugin_bazaar.depends += plugin_projectexplorer
+plugin_bazaar.depends += plugin_coreplugin
 
 plugin_classview.subdir = classview
 plugin_classview.depends = plugin_coreplugin

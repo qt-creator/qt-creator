@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2010 Hugues Delorme
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -31,36 +31,41 @@
 **
 **************************************************************************/
 
-#ifndef VCSBASE_CONSTANTS_H
-#define VCSBASE_CONSTANTS_H
+#ifndef BAZAARCOMMITWIDGET_H
+#define BAZAARCOMMITWIDGET_H
 
-#include <QtCore/QtGlobal>
+#include "ui_bazaarcommitpanel.h"
 
-namespace VCSBase {
-namespace Constants {
+#include <utils/submiteditorwidget.h>
 
-const char * const VCS_SETTINGS_CATEGORY = "V.Version Control";
-const char * const VCS_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-const char * const SETTINGS_CATEGORY_VCS_ICON = ":/core/images/category_vcs.png";
-const char * const VCS_COMMON_SETTINGS_ID = "A.Common";
-const char * const VCS_COMMON_SETTINGS_NAME = QT_TRANSLATE_NOOP("VCSBase", "Common");
-
-const char * const VCS_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Project from Version Control");
-const char * const VCS_WIZARD_CATEGORY = "L.Version Control";
-
-// Ids for sort order (wizards and preferences)
-const char * const VCS_ID_BAZAAR = "B.Bazaar";
-const char * const VCS_ID_GIT = "G.Git";
-const char * const VCS_ID_MERCURIAL = "H.Mercurial";
-const char * const VCS_ID_SUBVERSION = "J.Subversion";
-const char * const VCS_ID_PERFORCE = "P.Perforce";
-const char * const VCS_ID_CVS = "Z.CVS";
-
+namespace Bazaar {
 namespace Internal {
-    enum { debug = 0 };
+
+class BranchInfo;
+
+/*submit editor widget based on git SubmitEditor
+  Some extra fields have been added to the standard SubmitEditorWidget,
+  to help to conform to the commit style that is used by both git and Bazaar*/
+
+class BazaarCommitWidget : public Utils::SubmitEditorWidget
+{
+
+public:
+    explicit BazaarCommitWidget(QWidget *parent = 0);
+
+    void setFields(const BranchInfo &branch,
+                   const QString &userName, const QString &email);
+
+    QString committer() const;
+    QStringList fixedBugs() const;
+    bool isLocalOptionEnabled() const;
+
+private:
+    QWidget *m_bazaarCommitPanel;
+    Ui::BazaarCommitPanel m_bazaarCommitPanelUi;
+};
+
 } // namespace Internal
+} // namespace Bazaar
 
-} // namespace Constants
-} // VCSBase
-
-#endif // VCSBASE_CONSTANTS_H
+#endif // BAZAARCOMMITWIDGET_H

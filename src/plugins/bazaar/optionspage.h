@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2010 Hugues Delorme
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -31,36 +31,60 @@
 **
 **************************************************************************/
 
-#ifndef VCSBASE_CONSTANTS_H
-#define VCSBASE_CONSTANTS_H
+#ifndef OPTIONSPAGE_H
+#define OPTIONSPAGE_H
 
-#include <QtCore/QtGlobal>
+#include "ui_optionspage.h"
 
-namespace VCSBase {
-namespace Constants {
+#include <vcsbase/vcsbaseoptionspage.h>
 
-const char * const VCS_SETTINGS_CATEGORY = "V.Version Control";
-const char * const VCS_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-const char * const SETTINGS_CATEGORY_VCS_ICON = ":/core/images/category_vcs.png";
-const char * const VCS_COMMON_SETTINGS_ID = "A.Common";
-const char * const VCS_COMMON_SETTINGS_NAME = QT_TRANSLATE_NOOP("VCSBase", "Common");
+#include <QtGui/QWidget>
+#include <QtCore/QPointer>
 
-const char * const VCS_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Project from Version Control");
-const char * const VCS_WIZARD_CATEGORY = "L.Version Control";
-
-// Ids for sort order (wizards and preferences)
-const char * const VCS_ID_BAZAAR = "B.Bazaar";
-const char * const VCS_ID_GIT = "G.Git";
-const char * const VCS_ID_MERCURIAL = "H.Mercurial";
-const char * const VCS_ID_SUBVERSION = "J.Subversion";
-const char * const VCS_ID_PERFORCE = "P.Perforce";
-const char * const VCS_ID_CVS = "Z.CVS";
-
+namespace Bazaar {
 namespace Internal {
-    enum { debug = 0 };
+
+class BazaarSettings;
+
+class OptionsPageWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit OptionsPageWidget(QWidget *parent = 0);
+
+    BazaarSettings settings() const;
+    void setSettings(const BazaarSettings &s);
+    QString searchKeywords() const;
+
+private:
+    Ui::OptionsPage m_ui;
+};
+
+
+class OptionsPage : public VCSBase::VCSBaseOptionsPage
+{
+    Q_OBJECT
+
+public:
+    OptionsPage();
+    QString id() const;
+    QString displayName() const;
+
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish() { }
+    bool matches(const QString &s) const;
+
+signals:
+    void settingsChanged();
+
+private:
+    QString m_searchKeywords;
+    QPointer<OptionsPageWidget> m_optionsPageWidget;
+};
+
 } // namespace Internal
+} // namespace Bazaar
 
-} // namespace Constants
-} // VCSBase
-
-#endif // VCSBASE_CONSTANTS_H
+#endif // OPTIONSPAGE_H

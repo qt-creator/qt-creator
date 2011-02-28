@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2011 Hugues Delorme
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -31,36 +31,40 @@
 **
 **************************************************************************/
 
-#ifndef VCSBASE_CONSTANTS_H
-#define VCSBASE_CONSTANTS_H
+#include "clonewizardpage.h"
+#include "cloneoptionspanel.h"
 
-#include <QtCore/QtGlobal>
+using namespace Bazaar::Internal;
 
-namespace VCSBase {
-namespace Constants {
+CloneWizardPage::CloneWizardPage(QWidget *parent)
+    : VCSBase::BaseCheckoutWizardPage(parent),
+      m_optionsPanel(new CloneOptionsPanel)
+{
+    setTitle(tr("Location"));
+    setSubTitle(tr("Specify repository URL, clone directory and path."));
+    setRepositoryLabel(tr("Clone URL:"));
+    setBranchSelectorVisible(false);
+    addLocalControl(m_optionsPanel);
+}
 
-const char * const VCS_SETTINGS_CATEGORY = "V.Version Control";
-const char * const VCS_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-const char * const SETTINGS_CATEGORY_VCS_ICON = ":/core/images/category_vcs.png";
-const char * const VCS_COMMON_SETTINGS_ID = "A.Common";
-const char * const VCS_COMMON_SETTINGS_NAME = QT_TRANSLATE_NOOP("VCSBase", "Common");
+const CloneOptionsPanel *CloneWizardPage::cloneOptionsPanel() const
+{
+    return m_optionsPanel;
+}
 
-const char * const VCS_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Project from Version Control");
-const char * const VCS_WIZARD_CATEGORY = "L.Version Control";
-
-// Ids for sort order (wizards and preferences)
-const char * const VCS_ID_BAZAAR = "B.Bazaar";
-const char * const VCS_ID_GIT = "G.Git";
-const char * const VCS_ID_MERCURIAL = "H.Mercurial";
-const char * const VCS_ID_SUBVERSION = "J.Subversion";
-const char * const VCS_ID_PERFORCE = "P.Perforce";
-const char * const VCS_ID_CVS = "Z.CVS";
-
-namespace Internal {
-    enum { debug = 0 };
-} // namespace Internal
-
-} // namespace Constants
-} // VCSBase
-
-#endif // VCSBASE_CONSTANTS_H
+QString CloneWizardPage::directoryFromRepository(const QString &repository) const
+{
+    // Bazaar repositories are generally of the form
+    // 'lp:project' or 'protocol://repositoryUrl/repository/'
+    // We are just looking for repository.
+    QString repo = repository.trimmed();
+    if (repo.startsWith(QLatin1String("lp:")))
+        return repo.mid(3);
+    else {
+        const QChar slash = QLatin1Char('/');
+        if (repo.endsWith(slash))
+            repo.truncate(repo.size() - 1);
+        // Take the basename or the repository url
+        return repo.mid(repo.lastIndexOf(slash) + 1);
+    }
+}

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2010 Hugues Delorme
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -31,36 +31,51 @@
 **
 **************************************************************************/
 
-#ifndef VCSBASE_CONSTANTS_H
-#define VCSBASE_CONSTANTS_H
+#ifndef PULLORPUSHDIALOG_H
+#define PULLORPUSHDIALOG_H
 
-#include <QtCore/QtGlobal>
+#include <QtGui/QDialog>
+#include <utils/pathchooser.h>
 
-namespace VCSBase {
-namespace Constants {
-
-const char * const VCS_SETTINGS_CATEGORY = "V.Version Control";
-const char * const VCS_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-const char * const SETTINGS_CATEGORY_VCS_ICON = ":/core/images/category_vcs.png";
-const char * const VCS_COMMON_SETTINGS_ID = "A.Common";
-const char * const VCS_COMMON_SETTINGS_NAME = QT_TRANSLATE_NOOP("VCSBase", "Common");
-
-const char * const VCS_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Project from Version Control");
-const char * const VCS_WIZARD_CATEGORY = "L.Version Control";
-
-// Ids for sort order (wizards and preferences)
-const char * const VCS_ID_BAZAAR = "B.Bazaar";
-const char * const VCS_ID_GIT = "G.Git";
-const char * const VCS_ID_MERCURIAL = "H.Mercurial";
-const char * const VCS_ID_SUBVERSION = "J.Subversion";
-const char * const VCS_ID_PERFORCE = "P.Perforce";
-const char * const VCS_ID_CVS = "Z.CVS";
-
+namespace Bazaar {
 namespace Internal {
-    enum { debug = 0 };
+
+namespace Ui {
+class PullOrPushDialog;
+}
+
+class PullOrPushDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    enum Mode {
+        PullMode,
+        PushMode
+    };
+
+    PullOrPushDialog(Mode mode, QWidget *parent = 0);
+    ~PullOrPushDialog();
+
+    // Common parameters and options
+    QString branchLocation() const;
+    bool isRememberOptionEnabled() const;
+    bool isOverwriteOptionEnabled() const;
+    QString revision() const;
+    // Pull-specific options
+    bool isLocalOptionEnabled() const;
+    // Push-specific options
+    bool isUseExistingDirectoryOptionEnabled() const;
+    bool isCreatePrefixOptionEnabled() const;
+
+protected:
+    void changeEvent(QEvent *e);
+
+private:
+    Mode m_mode;
+    Ui::PullOrPushDialog *m_ui;
+};
+
 } // namespace Internal
+} // namespace Bazaar
 
-} // namespace Constants
-} // VCSBase
-
-#endif // VCSBASE_CONSTANTS_H
+#endif // PULLORPUSHDIALOG_H

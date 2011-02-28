@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2010 Hugues Delorme
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -31,36 +31,26 @@
 **
 **************************************************************************/
 
-#ifndef VCSBASE_CONSTANTS_H
-#define VCSBASE_CONSTANTS_H
+#ifndef ANNOTATIONHIGHLIGHTER_H
+#define ANNOTATIONHIGHLIGHTER_H
 
-#include <QtCore/QtGlobal>
+#include <vcsbase/baseannotationhighlighter.h>
+#include <QtCore/QRegExp>
 
-namespace VCSBase {
-namespace Constants {
-
-const char * const VCS_SETTINGS_CATEGORY = "V.Version Control";
-const char * const VCS_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-const char * const SETTINGS_CATEGORY_VCS_ICON = ":/core/images/category_vcs.png";
-const char * const VCS_COMMON_SETTINGS_ID = "A.Common";
-const char * const VCS_COMMON_SETTINGS_NAME = QT_TRANSLATE_NOOP("VCSBase", "Common");
-
-const char * const VCS_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Project from Version Control");
-const char * const VCS_WIZARD_CATEGORY = "L.Version Control";
-
-// Ids for sort order (wizards and preferences)
-const char * const VCS_ID_BAZAAR = "B.Bazaar";
-const char * const VCS_ID_GIT = "G.Git";
-const char * const VCS_ID_MERCURIAL = "H.Mercurial";
-const char * const VCS_ID_SUBVERSION = "J.Subversion";
-const char * const VCS_ID_PERFORCE = "P.Perforce";
-const char * const VCS_ID_CVS = "Z.CVS";
-
+namespace Bazaar {
 namespace Internal {
-    enum { debug = 0 };
-} // namespace Internal
 
-} // namespace Constants
-} // VCSBase
+class BazaarAnnotationHighlighter : public VCSBase::BaseAnnotationHighlighter
+{
+public:
+    explicit BazaarAnnotationHighlighter(const ChangeNumbers &changeNumbers,
+                                         QTextDocument *document = 0);
 
-#endif // VCSBASE_CONSTANTS_H
+private:
+    virtual QString changeNumber(const QString &block) const;
+    QRegExp m_changeset;
+};
+
+} //namespace Internal
+}// namespace Bazaar
+#endif // ANNOTATIONHIGHLIGHTER_H
