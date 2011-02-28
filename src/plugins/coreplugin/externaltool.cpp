@@ -598,11 +598,7 @@ void ExternalToolRunner::run()
         m_process->setWorkingDirectory(m_resolvedWorkingDirectory);
     m_process->setCommand(m_resolvedExecutable, m_resolvedArguments);
     ICore::instance()->messageManager()->printToOutputPane(
-                tr("Starting external tool '%1'").arg(m_resolvedExecutable), false);
-    if (!m_resolvedArguments.isEmpty()) {
-        ICore::instance()->messageManager()->printToOutputPane(
-                tr("with arguments '%1'").arg(m_resolvedArguments), false);
-    }
+                tr("Starting external tool '%1' %2").arg(m_resolvedExecutable, m_resolvedArguments), false);
     m_process->start();
 }
 
