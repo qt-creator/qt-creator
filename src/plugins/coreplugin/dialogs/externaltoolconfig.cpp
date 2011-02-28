@@ -333,8 +333,13 @@ QModelIndex ExternalToolModel::addTool(const QModelIndex &atIndex)
     tool->setDisplayCategory(category);
     tool->setDisplayName(tr("New tool"));
     tool->setDescription(tr("This tool prints a line of useful text"));
+#ifdef Q_OS_WIN
+    tool->setExecutables(QStringList() << "cmd");
+    tool->setArguments(tr("/c echo Useful text"));
+#else
     tool->setExecutables(QStringList() << "echo");
     tool->setArguments(tr("Useful text"));
+#endif
 
     int pos;
     QModelIndex parent;
