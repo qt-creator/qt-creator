@@ -42,6 +42,7 @@
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
+class QWidget;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -63,7 +64,7 @@ class ToolChainModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit ToolChainModel(QObject *parent = 0);
+    explicit ToolChainModel(QWidget *configWidgetParent, QObject *parent = 0);
     ~ToolChainModel();
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -99,6 +100,7 @@ private slots:
 
 private:
     QModelIndex index(ToolChainNode *, int column = 0) const;
+    ToolChainNode *createNode(ToolChainNode *parent, ToolChain *tc, bool changed);
 
     ToolChainNode * m_root;
     ToolChainNode * m_autoRoot;
@@ -106,6 +108,8 @@ private:
 
     QList<ToolChainNode *> m_toAddList;
     QList<ToolChainNode *> m_toRemoveList;
+
+    QWidget *m_configWidgetParent;
 };
 
 // --------------------------------------------------------------------------

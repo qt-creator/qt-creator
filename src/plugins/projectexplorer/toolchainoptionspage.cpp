@@ -77,7 +77,6 @@ public:
         // Do not delete toolchain, we do not own it.
 
         Q_ASSERT(childNodes.isEmpty());
-        widget->deleteLater();
     }
 
     ToolChainNode *parent;
@@ -92,9 +91,12 @@ public:
 // ToolChainModel
 // --------------------------------------------------------------------------
 
-ToolChainModel::ToolChainModel(QObject *parent) :
-    QAbstractItemModel(parent)
+ToolChainModel::ToolChainModel(QWidget *configWidgetParent, QObject *parent) :
+    QAbstractItemModel(parent),
+    m_configWidgetParent(configWidgetParent)
 {
+    Q_ASSERT(m_configWidgetParent);
+
     connect(ToolChainManager::instance(), SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
             this, SLOT(addToolChain(ProjectExplorer::ToolChain*)));
     connect(ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
@@ -104,14 +106,7 @@ ToolChainModel::ToolChainModel(QObject *parent) :
     m_manualRoot = new ToolChainNode(0);
 
     foreach (ToolChain *tc, ToolChainManager::instance()->toolChains()) {
-        if (tc->isAutoDetected())
-            new ToolChainNode(m_autoRoot, tc);
-        else {
-            ToolChainNode *node = new ToolChainNode(m_manualRoot, tc);
-            if (node->widget)
-                connect(node->widget, SIGNAL(dirty(ProjectExplorer::ToolChain*)),
-                        this, SLOT(setDirty(ProjectExplorer::ToolChain*)));
-        }
+        addToolChain(tc);
     }
 }
 
@@ -352,8 +347,7 @@ void ToolChainModel::markForAddition(ToolChain *tc)
     int pos = m_manualRoot->childNodes.size();
     emit beginInsertRows(index(m_manualRoot), pos, pos);
 
-    ToolChainNode *node = new ToolChainNode(m_manualRoot, tc);
-    node->changed = true;
+    ToolChainNode *node = createNode(m_manualRoot, tc, true);
     m_toAddList.append(node);
 
     emit endInsertRows();
@@ -365,6 +359,17 @@ QModelIndex ToolChainModel::index(ToolChainNode *node, int column) const
         return index(node == m_autoRoot ? 0 : 1, column, QModelIndex());
     else
         return index(node->parent->childNodes.indexOf(node), column, index(node->parent));
+}
+
+ToolChainNode *ToolChainModel::createNode(ToolChainNode *parent, ToolChain *tc, bool changed)
+{
+    ToolChainNode *node = new ToolChainNode(parent, tc, changed);
+    if (node->widget) {
+        m_configWidgetParent->layout()->addWidget(node->widget);
+        connect(node->widget, SIGNAL(dirty(ProjectExplorer::ToolChain*)),
+                this, SLOT(setDirty(ProjectExplorer::ToolChain*)));
+    }
+    return node;
 }
 
 void ToolChainModel::addToolChain(ToolChain *tc)
@@ -384,7 +389,7 @@ void ToolChainModel::addToolChain(ToolChain *tc)
     int row = parent->childNodes.count();
 
     beginInsertRows(index(parent), row, row);
-    new ToolChainNode(parent, tc, true);
+    createNode(parent, tc, false);
     endInsertRows();
 
     emit toolChainStateChanged();
@@ -466,7 +471,7 @@ QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
     m_ui->setupUi(m_configWidget);
 
     Q_ASSERT(!m_model);
-    m_model = new ToolChainModel;
+    m_model = new ToolChainModel(m_configWidget);
     connect(m_model, SIGNAL(toolChainStateChanged()), this, SLOT(updateState()));
 
     m_ui->toolChainView->setModel(m_model);
@@ -547,17 +552,13 @@ void ToolChainOptionsPage::toolChainSelectionChanged(const QModelIndex &current,
                                                      const QModelIndex &previous)
 {
     Q_UNUSED(previous);
-    if (m_currentTcWidget) {
-        m_configWidget->layout()->removeWidget(m_currentTcWidget);
+    if (m_currentTcWidget)
         m_currentTcWidget->setVisible(false);
-    }
 
     m_currentTcWidget = m_model->widget(current);
 
-    if (m_currentTcWidget) {
-        m_configWidget->layout()->addWidget(m_currentTcWidget);
+    if (m_currentTcWidget)
         m_currentTcWidget->setVisible(true);
-    }
 
     updateState();
 }
