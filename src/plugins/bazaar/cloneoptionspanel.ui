@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>264</width>
-    <height>251</height>
+    <width>283</width>
+    <height>255</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,7 +42,7 @@
 This flag will allow branch to proceed</string>
         </property>
         <property name="text">
-         <string>Use exisiting directory</string>
+         <string>Use existing directory</string>
         </property>
        </widget>
       </item>

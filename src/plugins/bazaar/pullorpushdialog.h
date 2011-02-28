@@ -35,7 +35,6 @@
 #define PULLORPUSHDIALOG_H
 
 #include <QtGui/QDialog>
-#include <utils/pathchooser.h>
 
 namespace Bazaar {
 namespace Internal {

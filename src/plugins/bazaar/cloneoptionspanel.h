@@ -34,7 +34,7 @@
 #ifndef CLONEOPTIONSPANEL_H
 #define CLONEOPTIONSPANEL_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace Bazaar {
 namespace Internal {

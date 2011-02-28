@@ -216,11 +216,11 @@ void BazaarPlugin::createMenu()
     menu->setTitle(tr("Bazaar"));
 
     createFileActions(context);
-    createSeparator(context, Core::Id("FileDirSeperator"));
+    createSeparator(context, Core::Id("Bazaar.FileDirSeperator"));
     createDirectoryActions(context);
-    createSeparator(context, Core::Id("DirRepoSeperator"));
+    createSeparator(context, Core::Id("Bazaar.DirRepoSeperator"));
     createRepositoryActions(context);
-    createSeparator(context, Core::Id("Repository Management"));
+    createSeparator(context, Core::Id("Bazaar.Repository Management"));
 
     // Request the Tools menu and add the Bazaar menu to it
     Core::ActionContainer *toolsMenu = m_actionManager->actionContainer(Core::Id(Core::Constants::M_TOOLS));
@@ -263,7 +263,7 @@ void BazaarPlugin::createFileActions(const Core::Context &context)
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    createSeparator(context, Core::Id("FileDirSeperator1"));
+    createSeparator(context, Core::Id("Bazaar.FileDirSeperator1"));
 
     m_addAction = new Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = m_actionManager->registerAction(m_addAction, Core::Id(Constants::ADD), context);

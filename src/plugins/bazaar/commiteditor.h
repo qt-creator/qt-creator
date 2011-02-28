@@ -35,7 +35,6 @@
 #define COMMITEDITOR_H
 
 #include <vcsbase/vcsbasesubmiteditor.h>
-#include <QtCore/QFileInfo>
 
 namespace VCSBase {
 class SubmitFileModel;

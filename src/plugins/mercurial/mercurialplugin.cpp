@@ -218,13 +218,13 @@ void MercurialPlugin::createMenu()
     menu->setTitle(tr("Mercurial"));
 
     createFileActions(context);
-    createSeparator(context, Core::Id("FileDirSeperator"));
+    createSeparator(context, Core::Id("Mercurial.FileDirSeperator"));
     createDirectoryActions(context);
-    createSeparator(context, Core::Id("DirRepoSeperator"));
+    createSeparator(context, Core::Id("Mercurial.DirRepoSeperator"));
     createRepositoryActions(context);
-    createSeparator(context, Core::Id("Repository Management"));
+    createSeparator(context, Core::Id("Mercurial.Repository Management"));
     createRepositoryManagementActions(context);
-    createSeparator(context, Core::Id("LessUsedfunctionality"));
+    createSeparator(context, Core::Id("Mercurial.LessUsedfunctionality"));
     createLessUsedActions(context);
 
     // Request the Tools menu and add the Mercurial menu to it
@@ -268,7 +268,7 @@ void MercurialPlugin::createFileActions(const Core::Context &context)
     mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    createSeparator(context, Core::Id("FileDirSeperator1"));
+    createSeparator(context, Core::Id("Mercurial.FileDirSeperator1"));
 
     m_addAction = new Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = actionManager->registerAction(m_addAction, Core::Id(Constants::ADD), context);

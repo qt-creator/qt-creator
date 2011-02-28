@@ -45,11 +45,11 @@ PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent) :
     m_ui->setupUi(this);
     m_ui->localPathChooser->setExpectedKind(Utils::PathChooser::Directory);
     if (m_mode == PullMode) {
-        this->setWindowTitle(tr("Pull source"));
+        this->setWindowTitle(tr("Pull Source"));
         m_ui->useExistingDirCheckBox->setVisible(false);
         m_ui->createPrefixCheckBox->setVisible(false);
     } else {
-        this->setWindowTitle(tr("Push destination"));
+        this->setWindowTitle(tr("Push Destination"));
         m_ui->localCheckBox->setVisible(false);
     }
     this->adjustSize();

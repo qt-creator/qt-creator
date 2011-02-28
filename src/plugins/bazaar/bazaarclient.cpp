@@ -35,11 +35,11 @@
 #include "constants.h"
 
 #include <vcsbase/vcsbaseplugin.h>
-#include <QDir>
-#include <QFileInfo>
-#include <QTextStream>
 
-#include <QtDebug>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QTextStream>
+#include <QtCore/QtDebug>
 
 namespace {
 

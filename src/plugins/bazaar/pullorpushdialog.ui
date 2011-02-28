@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>327</width>
-    <height>334</height>
+    <width>477</width>
+    <height>388</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -38,7 +38,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="Utils::PathChooser" name="localPathChooser" native="true">
+       <widget class="Utils::PathChooser" name="localPathChooser">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -101,7 +101,7 @@ unconditionally</string>
 This flag will allow push to proceed</string>
         </property>
         <property name="text">
-         <string>Use exisiting directory</string>
+         <string>Use existing directory</string>
         </property>
        </widget>
       </item>
@@ -170,6 +170,10 @@ Local pulls are not applied to the master branch</string>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
