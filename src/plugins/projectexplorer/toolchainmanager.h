@@ -72,6 +72,8 @@ public slots:
     void registerToolChain(ProjectExplorer::ToolChain *tc);
     void deregisterToolChain(ProjectExplorer::ToolChain *tc);
 
+    void saveToolChains();
+
 signals:
     void toolChainAdded(ProjectExplorer::ToolChain *);
     // ToolChain is still valid when this call happens!
@@ -80,7 +82,7 @@ signals:
 private:
     explicit ToolChainManager(QObject *parent = 0);
 
-    // Make sure the ToolChain Manager is only created after all
+    // Make sure the this is only called after all
     // ToolChain Factories are registered!
     void restoreToolChains();
 

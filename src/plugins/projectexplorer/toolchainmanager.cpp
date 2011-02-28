@@ -35,16 +35,25 @@
 
 #include "toolchain.h"
 
+#include <coreplugin/icore.h>
+#include <projectexplorer/persistentsettings.h>
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QCoreApplication>
-#include <QtCore/QSettings>
 #include <QtCore/QDir>
+#include <QtCore/QSettings>
 
-static const char *const ORGANIZATION_NAME = "Nokia";
-static const char *const APPLICATION_NAME = "toolChains";
-static const char *const ARRAY_NAME = "ToolChain";
-static const char *const TOOLCHAIN_DATA_KEY = "Data";
+static const char *const TOOLCHAIN_DATA_KEY = "ToolChain.";
+static const char *const TOOLCHAIN_COUNT_KEY = "ToolChain.Count";
+static const char *const TOOLCHAIN_FILE_VERSION_KEY = "Version";
+
+static QString settingsFileName()
+{
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    QFileInfo settingsLocation(pm->settings()->fileName());
+    return settingsLocation.absolutePath() + QLatin1String("/toolChains.xml");
+}
 
 namespace ProjectExplorer {
 
@@ -80,12 +89,14 @@ ToolChainManager::ToolChainManager(QObject *parent) :
 {
     Q_ASSERT(!m_instance);
     m_instance = this;
+    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
+            this, SLOT(saveToolChains()));
 }
 
 void ToolChainManager::restoreToolChains()
 {
-    QList<ToolChainFactory *> factories =
-            ExtensionSystem::PluginManager::instance()->getObjects<ToolChainFactory>();
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    QList<ToolChainFactory *> factories = pm->getObjects<ToolChainFactory>();
     // Autodetect ToolChains:
     foreach (ToolChainFactory *f, factories) {
         QList<ToolChain *> tcs = f->autoDetect();
@@ -94,19 +105,29 @@ void ToolChainManager::restoreToolChains()
     }
 
     // Restore user generated ToolChains:
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope,
-                       ORGANIZATION_NAME, APPLICATION_NAME);
-    int size = settings.beginReadArray(QLatin1String(ARRAY_NAME));
-    if (size <= 0)
+    PersistentSettingsReader reader;
+    const QString fileName = settingsFileName();
+    if (!reader.load(fileName))
+        return;
+    QVariantMap data = reader.restoreValues();
+
+    // Check version:
+    int version = data.value(QLatin1String(TOOLCHAIN_FILE_VERSION_KEY), 0).toInt();
+    if (version < 1)
         return;
 
-    for (int i = 0; i < size; ++i) {
-        settings.setArrayIndex(i);
-        const QVariantMap tmp = settings.value(QLatin1String(TOOLCHAIN_DATA_KEY)).toMap();
+    int count = data.value(QLatin1String(TOOLCHAIN_COUNT_KEY), 0).toInt();
+    for (int i = 0; i < count; ++i) {
+        const QString key = QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(i);
+        if (!data.contains(key))
+            break;
+
+        const QVariantMap tcMap = data.value(key).toMap();
+
         bool restored = false;
         foreach (ToolChainFactory *f, factories) {
-            if (f->canRestore(tmp)) {
-                if (ToolChain *tc = f->restore(tmp)) {
+            if (f->canRestore(tcMap)) {
+                if (ToolChain *tc = f->restore(tcMap)) {
                     registerToolChain(tc);
                     restored = true;
                     break;
@@ -115,36 +136,39 @@ void ToolChainManager::restoreToolChains()
         }
         if (!restored)
             qWarning("Warning: Unable to restore manual toolchain '%s' stored in %s.",
-                     qPrintable(ToolChainFactory::idFromMap(tmp)),
-                     qPrintable(QDir::toNativeSeparators(settings.fileName())));
+                     qPrintable(ToolChainFactory::idFromMap(tcMap)),
+                     qPrintable(QDir::toNativeSeparators(fileName)));
     }
 }
 
 ToolChainManager::~ToolChainManager()
 {
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope,
-                       ORGANIZATION_NAME, APPLICATION_NAME);
-    settings.beginWriteArray(QLatin1String(ARRAY_NAME));
-    int count = 0;
-    foreach (ToolChain *tc, m_d->m_toolChains) {
-        if (!tc->isAutoDetected() && tc->isValid()) {
-            settings.setArrayIndex(count);
-            ++count;
-
-            QVariantMap tmp = tc->toMap();
-            if (tmp.isEmpty())
-                continue;
-            settings.setValue(QLatin1String(TOOLCHAIN_DATA_KEY), tmp);
-        }
-    }
-    settings.endArray();
-
+    // Deregister toolchains
     QList<ToolChain *> copy = m_d->m_toolChains;
     foreach (ToolChain *tc, copy)
         deregisterToolChain(tc);
 
     delete m_d;
     m_instance = 0;
+}
+
+void ToolChainManager::saveToolChains()
+{
+    PersistentSettingsWriter writer;
+    writer.saveValue(QLatin1String(TOOLCHAIN_FILE_VERSION_KEY), 1);
+
+    int count = 0;
+    foreach (ToolChain *tc, m_d->m_toolChains) {
+        if (!tc->isAutoDetected() && tc->isValid()) {
+            QVariantMap tmp = tc->toMap();
+            if (tmp.isEmpty())
+                continue;
+            writer.saveValue(QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(count), tmp);
+            ++count;
+        }
+    }
+    writer.saveValue(QLatin1String(TOOLCHAIN_COUNT_KEY), count);
+    writer.save(settingsFileName(), "QtCreatorToolChains");
 }
 
 QList<ToolChain *> ToolChainManager::toolChains() const
