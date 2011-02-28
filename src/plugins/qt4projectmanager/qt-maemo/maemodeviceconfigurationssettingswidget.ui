@@ -502,8 +502,8 @@
    <slot>hostNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>335</x>
-     <y>148</y>
+     <x>484</x>
+     <y>174</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>
@@ -518,8 +518,8 @@
    <slot>userNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>554</x>
-     <y>260</y>
+     <x>536</x>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
      <x>422</x>
@@ -534,8 +534,8 @@
    <slot>passwordEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>441</x>
-     <y>287</y>
+     <x>412</x>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
      <x>423</x>
@@ -550,8 +550,8 @@
    <slot>addConfig()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>465</x>
-     <y>27</y>
+     <x>697</x>
+     <y>33</y>
     </hint>
     <hint type="destinationlabel">
      <x>516</x>
@@ -566,8 +566,8 @@
    <slot>deleteConfig()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>473</x>
-     <y>61</y>
+     <x>697</x>
+     <y>66</y>
     </hint>
     <hint type="destinationlabel">
      <x>513</x>
@@ -582,8 +582,8 @@
    <slot>authenticationTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>202</x>
-     <y>122</y>
+     <x>228</x>
+     <y>147</y>
     </hint>
     <hint type="destinationlabel">
      <x>513</x>
@@ -598,8 +598,8 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>284</x>
-     <y>318</y>
+     <x>434</x>
+     <y>346</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -614,8 +614,8 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>284</x>
-     <y>318</y>
+     <x>434</x>
+     <y>346</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -630,8 +630,8 @@
    <slot>testConfig()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>691</x>
-     <y>63</y>
+     <x>697</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
      <x>428</x>
@@ -646,8 +646,8 @@
    <slot>deployKey()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>691</x>
-     <y>121</y>
+     <x>697</x>
+     <y>165</y>
     </hint>
     <hint type="destinationlabel">
      <x>510</x>
@@ -662,8 +662,8 @@
    <slot>authenticationTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>249</x>
-     <y>122</y>
+     <x>280</x>
+     <y>147</y>
     </hint>
     <hint type="destinationlabel">
      <x>525</x>
@@ -678,8 +678,8 @@
    <slot>configNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>371</x>
-     <y>60</y>
+     <x>520</x>
+     <y>82</y>
     </hint>
     <hint type="destinationlabel">
      <x>330</x>
@@ -694,8 +694,8 @@
    <slot>showGenerateSshKeyDialog()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>691</x>
-     <y>92</y>
+     <x>697</x>
+     <y>132</y>
     </hint>
     <hint type="destinationlabel">
      <x>358</x>
@@ -710,8 +710,8 @@
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>190</x>
-     <y>233</y>
+     <x>217</x>
+     <y>257</y>
     </hint>
     <hint type="destinationlabel">
      <x>6</x>
@@ -726,8 +726,8 @@
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>190</x>
-     <y>233</y>
+     <x>217</x>
+     <y>257</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -742,8 +742,8 @@
    <slot>sshPortEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>185</x>
-     <y>177</y>
+     <x>210</x>
+     <y>201</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -758,8 +758,8 @@
    <slot>sshPortEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>185</x>
-     <y>177</y>
+     <x>210</x>
+     <y>201</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -774,8 +774,8 @@
    <slot>showPassword(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>553</x>
-     <y>285</y>
+     <x>535</x>
+     <y>313</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -790,8 +790,8 @@
    <slot>handleFreePortsChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>315</x>
-     <y>205</y>
+     <x>310</x>
+     <y>230</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -806,28 +806,12 @@
    <slot>showRemoteProcesses()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>691</x>
-     <y>150</y>
+     <x>697</x>
+     <y>198</y>
     </hint>
     <hint type="destinationlabel">
      <x>598</x>
      <y>378</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>addConfigButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
-   <slot>addConfig()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>652</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>351</x>
-     <y>210</y>
     </hint>
    </hints>
   </connection>
@@ -838,8 +822,8 @@
    <slot>deleteConfig()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>681</x>
-     <y>20</y>
+     <x>697</x>
+     <y>63</y>
     </hint>
     <hint type="destinationlabel">
      <x>351</x>
