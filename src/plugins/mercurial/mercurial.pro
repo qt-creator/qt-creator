@@ -6,7 +6,6 @@ SOURCES += mercurialplugin.cpp \
     optionspage.cpp \
     mercurialcontrol.cpp \
     mercurialclient.cpp \
-    mercurialjobrunner.cpp \
     annotationhighlighter.cpp \
     mercurialeditor.cpp \
     revertdialog.cpp \
@@ -21,7 +20,6 @@ HEADERS += mercurialplugin.h \
     optionspage.h \
     mercurialcontrol.h \
     mercurialclient.h \
-    mercurialjobrunner.h \
     annotationhighlighter.h \
     mercurialeditor.h \
     revertdialog.h \

@@ -34,64 +34,17 @@
 #ifndef MERCURIALSETTINGS_H
 #define MERCURIALSETTINGS_H
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Mercurial {
 namespace Internal {
 
-class MercurialSettings
+class MercurialSettings : public VCSBase::VCSBaseClientSettings
 {
 public:
     MercurialSettings();
-
-    QString binary() const;
-    void setBinary(const QString &);
-
-    // Calculated.
-    QStringList standardArguments() const;
-
-    QString userName() const;
-    void setUserName(const QString &);
-
-    QString email() const;
-    void setEmail(const QString &);
-
-    int logCount() const;
-    void setLogCount(int l);
-
-    int timeoutMilliSeconds() const;
-    int timeoutSeconds() const;
-    void setTimeoutSeconds(int s);
-
-    bool prompt() const;
-    void setPrompt(bool b);
-
-    void writeSettings(QSettings *settings) const;
-    void readSettings(const QSettings *settings);
-
-    bool equals(const MercurialSettings &rhs) const;
-
-private:
-    void readSettings();
-
-    QString m_binary;
-    QStringList m_standardArguments;
-    QString m_user;
-    QString m_mail;
-    int m_logCount;
-    int m_timeoutSeconds;
-    bool m_prompt;
+    MercurialSettings& operator=(const MercurialSettings& other);
 };
-
-inline bool operator==(const MercurialSettings &s1, const MercurialSettings &s2)
-{ return s1.equals(s2); }
-inline bool operator!=(const MercurialSettings &s1, const MercurialSettings &s2)
-{ return !s1.equals(s2); }
 
 } // namespace Internal
 } // namespace Mercurial

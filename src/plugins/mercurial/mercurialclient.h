@@ -34,43 +34,27 @@
 #ifndef MERCURIALCLIENT_H
 #define MERCURIALCLIENT_H
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
-#include <QtCore/QPair>
-#include <QtCore/QSharedPointer>
-
-QT_BEGIN_NAMESPACE
-class QFileInfo;
-class QVariant;
-QT_END_NAMESPACE
-
-namespace Core {
-class ICore;
-}
-
-namespace VCSBase{
-class VCSBaseEditorWidget;
-}
-
-namespace Utils {
-    struct SynchronousProcessResponse;
-}
+#include <vcsbase/vcsbaseclient.h>
 
 namespace Mercurial {
 namespace Internal {
 
-class MercurialJobRunner;
-class HgTask;
-
-class MercurialClient : public QObject
+class MercurialClient : public VCSBase::VCSBaseClient
 {
     Q_OBJECT
 public:
-    MercurialClient();
-    ~MercurialClient();
-    bool add(const QString &workingDir, const QString &fileName);
-    bool remove(const QString &workingDir, const QString &fileName);
-    bool move(const QString &workingDir, const QString &from, const QString &to);
+    enum ExtraOptionId
+    {
+        // Commit
+        AuthorCommitOptionId,
+        AutoAddRemoveCommitOptionId
+    };
+
+    MercurialClient(const VCSBase::VCSBaseClientSettings &settings);
+    virtual bool synchronousClone(const QString &workingDir,
+                                  const QString &srcLocation,
+                                  const QString &dstLocation,
+                                  const ExtraCommandOptions &extraOptions = ExtraCommandOptions());
     bool manifestSync(const QString &repository, const QString &filename);
     QString branchQuerySync(const QString &repositoryRoot);
     bool parentRevisionsSync(const QString &workingDirectory,
@@ -83,67 +67,38 @@ public:
                               QString *description);
     bool shortDescriptionsSync(const QString &workingDirectory, const QStringList &revisions,
                               QStringList *descriptions);
-    void annotate(const QString &workingDir, const QString &files,
-                  const QString revision = QString(), int lineNumber = -1);
-    void diff(const QString &workingDir, const QStringList &files = QStringList());
-    void log(const QString &workingDir, const QStringList &files = QStringList(),
-             bool enableAnnotationContextMenu = false);
-    void import(const QString &repositoryRoot, const QStringList &files);
-    bool pullSync(const QString &repositoryRoot, const QString &repository = QString());
-    bool pushSync(const QString &repositoryRoot, const QString &repository = QString());
     void incoming(const QString &repositoryRoot, const QString &repository = QString());
     void outgoing(const QString &repositoryRoot);
-    void status(const QString &workingDir, const QString &file = QString());
-    void statusWithSignal(const QString &repository);
-    void revertFile(const QString &workingDir, const QString &file, const QString &revision = QString());
-    void revertRepository(const QString &workingDir, const QString &revision = QString());
-    bool createRepositorySync(const QString &workingDir);
-    void update(const QString &repositoryRoot, const QString &revision = QString());
-    void commit(const QString &repositoryRoot,
-                const QStringList &files,
-                const QString &commiterInfo,
-                const QString &commitMessageFile,
-                bool autoAddRemove = false);
-    bool clone(const QString &directory, const QString &url);
     QString vcsGetRepositoryURL(const QString &directory);
 
-    static QString findTopLevelForFile(const QFileInfo &file);
+public:
+    virtual QString findTopLevelForFile(const QFileInfo &file) const;
 
-signals:
-    void parsedStatus(const QList<QPair<QString, QString> > &statusList);
-    // Passes on changed signals from HgTask to Control.
-    void changed(const QVariant &v);
+protected:
+    virtual QString vcsEditorKind(VCSCommand cmd) const;
 
-public slots:
-    void view(const QString &source, const QString &id);
-    void settingsChanged();
+    virtual QStringList cloneArguments(const QString &srcLocation,
+                                       const QString &dstLocation,
+                                       const ExtraCommandOptions &extraOptions) const;
+    virtual QStringList pullArguments(const QString &srcLocation,
+                                      const ExtraCommandOptions &extraOptions) const;
+    virtual QStringList pushArguments(const QString &dstLocation,
+                                      const ExtraCommandOptions &extraOptions) const;
+    virtual QStringList commitArguments(const QStringList &files,
+                                        const QString &commitMessageFile,
+                                        const ExtraCommandOptions &extraOptions) const;
+    virtual QStringList importArguments(const QStringList &files) const;
+    virtual QStringList updateArguments(const QString &revision) const;
+    virtual QStringList revertArguments(const QString &file, const QString &revision) const;
+    virtual QStringList revertAllArguments(const QString &revision) const;
+    virtual QStringList annotateArguments(const QString &file,
+                                          const QString &revision, int lineNumber) const;
+    virtual QStringList diffArguments(const QStringList &files) const;
+    virtual QStringList logArguments(const QStringList &files) const;
+    virtual QStringList statusArguments(const QString &file) const;
+    virtual QStringList viewArguments(const QString &revision) const;
 
-private slots:
-    void statusParser(const QByteArray &data);
-    void slotAnnotateRevisionRequested(const QString &source, QString change, int lineNumber);
-
-private:
-    // Fully synchronous git execution (QProcess-based).
-    bool executeHgFullySynchronously(const QString  &workingDir,
-                                     const QStringList &args,
-                                    QByteArray *output) const;
-    // Synchronous hg execution using Utils::SynchronousProcess, with
-    // log windows updating (using VCSBasePlugin::runVCS with flags).
-    inline Utils::SynchronousProcessResponse
-        executeHgSynchronously(const QString  &workingDir, const QStringList &args,
-                               unsigned flags = 0, QTextCodec *outputCodec = 0);
-
-    void enqueueJob(const QSharedPointer<HgTask> &);
-    void revert(const QString &workingDir, const QString &argument,
-                const QString &revision, const QVariant &cookie);
-
-    MercurialJobRunner *jobManager;
-    Core::ICore *core;
-
-    VCSBase::VCSBaseEditorWidget *createVCSEditor(const QString &kind, QString title,
-                                            const QString &source, bool setSourceCodec,
-                                            const char *registerDynamicProperty,
-                                            const QString &dynamicPropertyValue) const;
+    virtual QPair<QString, QString> parseStatusLine(const QString &line) const;
 };
 
 } //namespace Internal

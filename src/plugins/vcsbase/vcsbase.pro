@@ -27,7 +27,10 @@ HEADERS += vcsbase_global.h \
     basecheckoutwizardpage.h \
     vcsbaseoutputwindow.h \
     cleandialog.h \
-    vcsbaseoptionspage.h
+    vcsbaseoptionspage.h \
+    vcsjobrunner.h \
+    vcsbaseclient.h \
+    vcsbaseclientsettings.h
 
 SOURCES += vcsplugin.cpp \
     vcsbaseplugin.cpp \
@@ -51,7 +54,10 @@ SOURCES += vcsplugin.cpp \
     basecheckoutwizardpage.cpp \
     vcsbaseoutputwindow.cpp \
     cleandialog.cpp \
-    vcsbaseoptionspage.cpp
+    vcsbaseoptionspage.cpp \
+    vcsjobrunner.cpp \
+    vcsbaseclient.cpp \
+    vcsbaseclientsettings.cpp
 
 RESOURCES += vcsbase.qrc
 

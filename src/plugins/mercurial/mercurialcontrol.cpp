@@ -89,25 +89,27 @@ bool MercurialControl::vcsOpen(const QString &filename)
 bool MercurialControl::vcsAdd(const QString &filename)
 {
     const QFileInfo fi(filename);
-    return mercurialClient->add(fi.absolutePath(), fi.fileName());
+    return mercurialClient->synchronousAdd(fi.absolutePath(), fi.fileName());
 }
 
 bool MercurialControl::vcsDelete(const QString &filename)
 {
     const QFileInfo fi(filename);
-    return mercurialClient->remove(fi.absolutePath(), fi.fileName());
+    return mercurialClient->synchronousRemove(fi.absolutePath(), fi.fileName());
 }
 
 bool MercurialControl::vcsMove(const QString &from, const QString &to)
 {
     const QFileInfo fromInfo(from);
     const QFileInfo toInfo(to);
-    return mercurialClient->move(fromInfo.absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
+    return mercurialClient->synchronousMove(fromInfo.absolutePath(),
+                                            fromInfo.absoluteFilePath(),
+                                            toInfo.absoluteFilePath());
 }
 
 bool MercurialControl::vcsCreateRepository(const QString &directory)
 {
-    return mercurialClient->createRepositorySync(directory);
+    return mercurialClient->synchronousCreateRepository(directory);
 }
 
 QString MercurialControl::vcsCreateSnapshot(const QString &)
@@ -150,7 +152,7 @@ bool MercurialControl::sccManaged(const QString &filename)
 
 bool MercurialControl::vcsCheckout(const QString &directory, const QByteArray &url)
 {
-    return mercurialClient->clone(directory,url);
+    return mercurialClient->synchronousClone(QString(), directory, url);
 }
 
 QString MercurialControl::vcsGetRepositoryURL(const QString &directory)

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2009 Brian McGillion
+** Copyright (c) 2010 Brian McGillion & Hugues Delorme
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -31,8 +31,10 @@
 **
 **************************************************************************/
 
-#ifndef MERCURIALJOBRUNNER_H
-#define MERCURIALJOBRUNNER_H
+#ifndef VCSJOBRUNNER_H
+#define VCSJOBRUNNER_H
+
+#include "vcsbase_global.h"
 
 #include <QtCore/QThread>
 #include <QtCore/QQueue>
@@ -50,66 +52,68 @@ QT_END_NAMESPACE
 
 namespace VCSBase {
 class VCSBaseEditorWidget;
-}
 
-namespace Mercurial {
-namespace Internal {
-
-class MercurialPlugin;
-
-class HgTask : public QObject
+class VCSBASE_EXPORT VCSJob : public QObject
 {
     Q_OBJECT
 public:
-    explicit HgTask(const QString &workingDir,
-                    const QStringList &arguments,
-                    bool emitRaw=false,
-                    const QVariant &cookie = QVariant());
-    explicit HgTask(const QString &workingDir, const QStringList &arguments,
-                    VCSBase::VCSBaseEditorWidget *editor,
-                    const QVariant &cookie = QVariant());
+    enum DataEmitMode {
+        NoDataEmitMode,
+        RawDataEmitMode,
+        EditorDataEmitMode
+    };
 
-    bool shouldEmit() const { return emitRaw; }
-    VCSBase::VCSBaseEditorWidget* displayEditor() const;
-    QStringList args() const { return arguments; }
-    QString repositoryRoot() const { return m_repositoryRoot; }
+    VCSJob(const QString &workingDir,
+           const QStringList &args,
+           DataEmitMode emitMode = NoDataEmitMode);
+    VCSJob(const QString &workingDir,
+           const QStringList &args,
+           VCSBase::VCSBaseEditorWidget *editor);
 
-    // Disable terminal to suppress SSH prompting.
-    bool unixTerminalDisabled() const     { return m_unixTerminalDisabled; }
-    void setUnixTerminalDisabled(bool v)  { m_unixTerminalDisabled = v; }
+    DataEmitMode dataEmitMode() const;
+    VCSBase::VCSBaseEditorWidget *displayEditor() const;
+    QStringList arguments() const;
+    QString workingDirectory() const;
+    const QVariant &cookie() const;
+    bool unixTerminalDisabled() const;
+
+    void setDisplayEditor(VCSBase::VCSBaseEditorWidget *editor);
+    void setCookie(const QVariant &cookie);
+    // Disable terminal to suppress SSH prompting
+    void setUnixTerminalDisabled(bool v);
 
 signals:
     void succeeded(const QVariant &cookie); // Use a queued connection
     void rawData(const QByteArray &data);
 
-public slots:
-    void emitSucceeded();
-
 private:
-    const QString m_repositoryRoot;
-    const QStringList arguments;
-    const bool emitRaw;
-    const QVariant m_cookie;
-    QPointer<VCSBase::VCSBaseEditorWidget> editor; // User might close it.
+    friend class VCSJobRunner;
+    const QString m_workingDir;
+    const QStringList m_arguments;
+    bool m_emitRaw;
+    QVariant m_cookie;
+    QPointer<VCSBase::VCSBaseEditorWidget> m_editor; // User might close it
     bool m_unixTerminalDisabled;
 };
 
 /* A job queue running in a separate thread, executing commands
  * and emitting status/log  signals. */
-class MercurialJobRunner : public QThread
+class VCSBASE_EXPORT VCSJobRunner : public QThread
 {
     Q_OBJECT
 public:
-    MercurialJobRunner();
-    ~MercurialJobRunner();
-    void enqueueJob(const QSharedPointer<HgTask> &job);
+    VCSJobRunner();
+    ~VCSJobRunner();
+    void enqueueJob(const QSharedPointer<VCSJob> &job);
     void restart();
 
     static QString msgStartFailed(const QString &binary, const QString &why);
     static QString msgTimeout(int timeoutSeconds);
 
-    // Set environment for a hg process to run in locale "C"
-    static void setProcessEnvironment(QProcess &p);
+    // Set environment for a VCS process to run in locale "C"
+    static void setProcessEnvironment(QProcess *p);
+
+    void setSettings(const QString &bin, const QStringList &stdArgs, int timeoutMsec);
 
 protected:
     void run();
@@ -120,20 +124,18 @@ signals:
     void output(const QByteArray &output);
 
 private:
-    void task(const QSharedPointer<HgTask> &job);
+    void task(const QSharedPointer<VCSJob> &job);
     void stop();
-    void getSettings();
 
-    QQueue<QSharedPointer<HgTask> > jobs;
-    QMutex mutex;
-    QWaitCondition waiter;
-    MercurialPlugin *plugin;
-    bool keepRunning;
-    QString binary;
-    QStringList standardArguments;
+    QQueue<QSharedPointer<VCSJob> > m_jobs;
+    QMutex m_mutex;
+    QWaitCondition m_waiter;
+    bool m_keepRunning;
+    QString m_binary;
+    QStringList m_standardArguments;
     int m_timeoutMS;
 };
 
-} //namespace Internal
-} //namespace Mercurial
-#endif // MERCURIALJOBRUNNER_H
+} //namespace VCSBase
+
+#endif // VCSJOBRUNNER_H
