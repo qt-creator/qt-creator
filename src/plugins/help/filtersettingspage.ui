@@ -114,12 +114,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QToolButton" name="filterAddButton">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="text">
         <string>Add</string>
        </property>
@@ -131,12 +125,6 @@ Add, modify, and remove document filters, which determine the documentation set 
      </item>
      <item>
       <widget class="QToolButton" name="filterRemoveButton">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="text">
         <string>Remove</string>
        </property>

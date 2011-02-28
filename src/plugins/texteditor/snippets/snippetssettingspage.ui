@@ -72,12 +72,6 @@
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QToolButton" name="addButton">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
            <property name="text">
             <string>Add</string>
            </property>
@@ -89,12 +83,6 @@
          </item>
          <item>
           <widget class="QToolButton" name="removeButton">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
            <property name="text">
             <string>Remove</string>
            </property>
@@ -122,12 +110,6 @@
          </item>
          <item>
           <widget class="QToolButton" name="resetAllButton">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
            <property name="toolTip">
             <string>Reset</string>
            </property>

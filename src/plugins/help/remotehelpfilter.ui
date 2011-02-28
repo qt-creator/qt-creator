@@ -66,12 +66,6 @@
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QToolButton" name="add">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
          <property name="minimumSize">
           <size>
            <width>21</width>
@@ -89,12 +83,6 @@
        </item>
        <item>
         <widget class="QToolButton" name="remove">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
          <property name="minimumSize">
           <size>
            <width>21</width>

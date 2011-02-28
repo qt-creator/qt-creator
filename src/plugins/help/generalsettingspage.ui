@@ -265,12 +265,6 @@
         </item>
         <item>
          <widget class="QToolButton" name="defaultPageButton">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="toolTip">
            <string>Reset to default</string>
           </property>
