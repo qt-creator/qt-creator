@@ -704,7 +704,7 @@ RunControl *DebuggerRunControlFactory::create
     return create(sp, runConfiguration);
 }
 
-QWidget *DebuggerRunControlFactory::createConfigurationWidget
+RunConfigWidget *DebuggerRunControlFactory::createConfigurationWidget
     (RunConfiguration *runConfiguration)
 {
     // NBS TODO: Add GDB-specific configuration widget

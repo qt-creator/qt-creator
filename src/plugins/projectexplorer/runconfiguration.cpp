@@ -160,6 +160,7 @@ RunConfiguration::RunConfiguration(Target *target, const QString &id) :
     m_qmlDebugServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT)
 {
     Q_ASSERT(target);
+    addExtraAspects();
 }
 
 RunConfiguration::RunConfiguration(Target *target, RunConfiguration *source) :
@@ -168,10 +169,20 @@ RunConfiguration::RunConfiguration(Target *target, RunConfiguration *source) :
     m_useQmlDebugger(source->useQmlDebugger())
 {
     Q_ASSERT(target);
+    addExtraAspects();
 }
 
 RunConfiguration::~RunConfiguration()
 {
+    qDeleteAll(m_aspects);
+}
+
+void RunConfiguration::addExtraAspects()
+{
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    foreach (IRunControlFactory *factory, pm->getObjects<IRunControlFactory>())
+        if (IRunConfigurationAspect *aspect = factory->createRunConfigurationAspect())
+            m_aspects.append(aspect);
 }
 
 bool RunConfiguration::isEnabled(BuildConfiguration *bc) const
@@ -239,6 +250,9 @@ QVariantMap RunConfiguration::toMap() const
     map.insert(QLatin1String(USE_CPP_DEBUGGER_KEY), m_useCppDebugger);
     map.insert(QLatin1String(USE_QML_DEBUGGER_KEY), m_useQmlDebugger);
     map.insert(QLatin1String(QML_DEBUG_SERVER_PORT_KEY), m_qmlDebugServerPort);
+    foreach (IRunConfigurationAspect *aspect, m_aspects)
+        map.unite(aspect->toMap());
+
     return map;
 }
 
@@ -259,7 +273,16 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
     m_useQmlDebugger = map.value(QLatin1String(USE_QML_DEBUGGER_KEY), false).toBool();
     m_qmlDebugServerPort = map.value(QLatin1String(QML_DEBUG_SERVER_PORT_KEY), Constants::QML_DEFAULT_DEBUG_SERVER_PORT).toUInt();
 
+    foreach (IRunConfigurationAspect *aspect, m_aspects)
+        if (!aspect->fromMap(map))
+            return false;
+
     return ProjectConfiguration::fromMap(map);
+}
+
+QList<IRunConfigurationAspect *> RunConfiguration::extraAspects() const
+{
+    return m_aspects;
 }
 
 ProjectExplorer::OutputFormatter *RunConfiguration::createOutputFormatter() const
@@ -301,6 +324,11 @@ IRunControlFactory::IRunControlFactory(QObject *parent)
 
 IRunControlFactory::~IRunControlFactory()
 {
+}
+
+IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect()
+{
+    return 0;
 }
 
 RunControl::RunControl(RunConfiguration *runConfiguration, QString mode)

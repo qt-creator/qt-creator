@@ -41,10 +41,10 @@
 
 #include <QtCore/QMetaType>
 #include <QtCore/QWeakPointer>
+#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
 class QString;
-class QWidget;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -54,6 +54,7 @@ class Target;
 class RunControl;
 class BuildConfiguration;
 class OutputFormatter;
+class IRunConfigurationAspect;
 
 /**
  * Base class for a run configuration. A run configuration specifies how a
@@ -103,6 +104,22 @@ public:
 
     virtual QVariantMap toMap() const;
 
+    // aspects are a mechanism to add RunControl-specific options to a RunConfiguration without
+    // subclassing the RunConfiguration for every addition, preventing a combinatorical explosion
+    // of subclasses or the need to add all options to the base class.
+    QList<IRunConfigurationAspect *> extraAspects() const;
+    template <typename T> T *extraAspect() const
+    {
+        IRunConfigurationAspect *typeCheck = static_cast<T *>(0);
+        Q_UNUSED(typeCheck);
+        T *result = 0;
+        foreach (IRunConfigurationAspect *a, m_aspects) {
+            if ((result = dynamic_cast<T *>(a)) != 0)
+                break;
+        }
+        return result;
+    }
+
     virtual ProjectExplorer::Abi abi() const;
 
 signals:
@@ -120,9 +137,23 @@ protected:
     virtual bool fromMap(const QVariantMap &map);
 
 private:
+    void addExtraAspects();
+
     bool m_useCppDebugger;
     bool m_useQmlDebugger;
     uint m_qmlDebugServerPort;
+    QList<IRunConfigurationAspect *> m_aspects;
+};
+
+class PROJECTEXPLORER_EXPORT IRunConfigurationAspect
+{
+public:
+    virtual ~IRunConfigurationAspect() {}
+    virtual QVariantMap toMap() const = 0;
+    virtual QString displayName() const = 0;
+protected:
+    friend class RunConfiguration;
+    virtual bool fromMap(const QVariantMap &map) = 0;
 };
 
 /**
@@ -163,6 +194,8 @@ signals:
     void availableCreationIdsChanged();
 };
 
+class RunConfigWidget;
+
 class PROJECTEXPLORER_EXPORT IRunControlFactory : public QObject
 {
     Q_OBJECT
@@ -175,8 +208,31 @@ public:
 
     virtual QString displayName() const = 0;
 
-    /// Returns the widget used to configure this runner. Ownership is transferred to the caller
-    virtual QWidget *createConfigurationWidget(RunConfiguration *runConfiguration) = 0;
+    /// Return an IRunConfigurationAspect to carry options for RunControls this factory can create.
+    /// If no extra options are required it is allowed to return null like the default implementation does.
+    /// This is intended to be called from the RunConfiguration constructor, so passing a RunConfiguration
+    /// pointer makes no sense because that object is under construction at the time.
+    virtual IRunConfigurationAspect *createRunConfigurationAspect();
+
+    /// Return a widget used to configure this runner. Ownership is transferred to the caller.
+    /// If @p runConfiguration is not suitable for RunControls from this factory, or no user-accesible
+    /// configuration is required, return null.
+    virtual RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration) = 0;
+};
+
+class PROJECTEXPLORER_EXPORT RunConfigWidget
+    : public QWidget
+{
+    Q_OBJECT
+public:
+    RunConfigWidget()
+        : QWidget(0)
+    {}
+
+    virtual QString displayName() const = 0;
+
+signals:
+    void displayNameChanged(const QString &);
 };
 
 /**

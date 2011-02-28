@@ -52,7 +52,7 @@ public:
 
     QString displayName() const;
 
-    QWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
+    ProjectExplorer::RunConfigWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
 
 private:
     const QString m_mode;

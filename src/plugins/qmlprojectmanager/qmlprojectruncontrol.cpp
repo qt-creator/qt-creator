@@ -180,10 +180,10 @@ QString QmlRunControlFactory::displayName() const
     return tr("Run");
 }
 
-QWidget *QmlRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
+ProjectExplorer::RunConfigWidget *QmlRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
 {
     Q_UNUSED(runConfiguration)
-    return new QLabel("TODO add Configuration widget");
+    return 0;
 }
 
 RunControl *QmlRunControlFactory::createDebugRunControl(QmlProjectRunConfiguration *runConfig)

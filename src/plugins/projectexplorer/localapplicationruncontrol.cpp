@@ -70,10 +70,10 @@ RunControl *LocalApplicationRunControlFactory::create(ProjectExplorer::RunConfig
     return new LocalApplicationRunControl(qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration), mode);
 }
 
-QWidget *LocalApplicationRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
+RunConfigWidget *LocalApplicationRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
 {
     Q_UNUSED(runConfiguration)
-    return new QLabel("TODO add Configuration widget");
+    return 0;
 }
 
 // ApplicationRunControl

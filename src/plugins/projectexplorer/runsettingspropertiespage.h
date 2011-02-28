@@ -52,6 +52,7 @@ class DeployConfigurationWidget;
 class DeployConfigurationModel;
 class RunConfiguration;
 class RunConfigurationModel;
+class RunConfigWidget;
 
 namespace Internal {
 
@@ -115,6 +116,10 @@ private:
     void updateDeployConfiguration(DeployConfiguration *);
     void setConfigurationWidget(RunConfiguration *rc);
 
+    void addRunControlWidgets();
+    void addSubWidget(RunConfigWidget *subWidget);
+    void removeSubWidgets();
+
     Target *m_target;
     RunConfigurationModel *m_runConfigurationsModel;
     DeployConfigurationModel *m_deployConfigurationModel;
@@ -127,6 +132,7 @@ private:
     QMenu *m_addRunMenu;
     QMenu *m_addDeployMenu;
     bool m_ignoreChange;
+    QList<QPair<RunConfigWidget *, QLabel *> > m_subWidgets;
 };
 
 } // namespace Internal

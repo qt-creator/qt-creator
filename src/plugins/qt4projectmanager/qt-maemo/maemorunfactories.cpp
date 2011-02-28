@@ -202,7 +202,7 @@ QString MaemoRunControlFactory::displayName() const
     return tr("Run on device");
 }
 
-QWidget *MaemoRunControlFactory::createConfigurationWidget(RunConfiguration *config)
+RunConfigWidget *MaemoRunControlFactory::createConfigurationWidget(RunConfiguration *config)
 {
     Q_UNUSED(config)
     return 0;

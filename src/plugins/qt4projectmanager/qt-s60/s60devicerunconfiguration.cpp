@@ -541,7 +541,7 @@ QString S60DeviceDebugRunControlFactory::displayName() const
     return tr("Debug on Device");
 }
 
-QWidget *S60DeviceDebugRunControlFactory::createConfigurationWidget(ProjectExplorer::RunConfiguration * /*runConfiguration */)
+ProjectExplorer::RunConfigWidget *S60DeviceDebugRunControlFactory::createConfigurationWidget(RunConfiguration* /*runConfiguration */)
 {
     return 0;
 }

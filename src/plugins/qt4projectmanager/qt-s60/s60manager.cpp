@@ -95,7 +95,7 @@ public:
         return m_name;
     }
 
-    QWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration * /*runConfiguration */) {
+    ProjectExplorer::RunConfigWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *) {
         return 0;
     }
 

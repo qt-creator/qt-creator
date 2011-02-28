@@ -44,6 +44,7 @@ namespace ProjectExplorer {
 using ProjectExplorer::IRunConfigurationFactory;
 using ProjectExplorer::IRunControlFactory;
 using ProjectExplorer::RunConfiguration;
+using ProjectExplorer::RunConfigWidget;
 using ProjectExplorer::RunControl;
 using ProjectExplorer::Target;
 
@@ -79,7 +80,7 @@ public:
     ~MaemoRunControlFactory();
 
     QString displayName() const;
-    QWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
+    RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 
     bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
     RunControl *create(RunConfiguration *runConfiguration, const QString &mode);

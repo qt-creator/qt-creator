@@ -65,7 +65,7 @@ public:
 
 private:
     QString displayName() const;
-    QWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
+    ProjectExplorer::RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 
     const unsigned m_enabledEngines;
 };

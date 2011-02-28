@@ -204,15 +204,6 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
 
     connect(m_target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
             this, SLOT(activeRunConfigurationChanged()));
-
-    // TODO: Add support for custom runner configuration widgets once we have some
-    /*
-    QList<IRunControlFactory *> runners = PluginManager::instance()->getObjects<IRunControlFactory>();
-    foreach (IRunControlFactory * runner, runners) {
-        if (runner->canRun(activeRunConfiguration))
-            m_ui->layout->addWidget(runner->createConfigurationWidget(activeRunConfiguration));
-    }
-    */
 }
 
 RunSettingsWidget::~RunSettingsWidget()
@@ -419,10 +410,13 @@ void RunSettingsWidget::setConfigurationWidget(RunConfiguration *rc)
 {
     delete m_runConfigurationWidget;
     m_runConfigurationWidget = 0;
+    removeSubWidgets();
     if (!rc)
         return;
-    m_runConfigurationWidget = m_target->activeRunConfiguration()->createConfigurationWidget();
+    m_runConfigurationWidget = rc->createConfigurationWidget();
     m_runLayout->addWidget(m_runConfigurationWidget);
+
+    addRunControlWidgets();
 }
 
 QString RunSettingsWidget::uniqueDCName(const QString &name)
@@ -453,4 +447,48 @@ QString RunSettingsWidget::uniqueRCName(const QString &name)
         result = Project::makeUnique(result, rcNames);
     }
     return result;
+}
+
+void RunSettingsWidget::addRunControlWidgets()
+{
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    foreach (IRunControlFactory *f, pm->getObjects<IRunControlFactory>()) {
+        ProjectExplorer::RunConfigWidget *rcw =
+            f->createConfigurationWidget(m_target->activeRunConfiguration());
+        if (rcw)
+            addSubWidget(rcw);
+    }
+}
+
+void RunSettingsWidget::addSubWidget(RunConfigWidget *widget)
+{
+    widget->setContentsMargins(0, 10, 0, 0);
+
+    QLabel *label = new QLabel(this);
+    label->setText(widget->displayName());
+    connect(widget, SIGNAL(displayNameChanged(QString)),
+            label, SLOT(setText(QString)));
+    QFont f = label->font();
+    f.setBold(true);
+    f.setPointSizeF(f.pointSizeF() * 1.2);
+    label->setFont(f);
+
+    label->setContentsMargins(0, 10, 0, 0);
+
+    QGridLayout *l = m_ui->gridLayout;
+    l->addWidget(label, l->rowCount(), 0, 1, -1);
+    l->addWidget(widget, l->rowCount(), 0, 1, -1);
+
+    m_subWidgets.append(qMakePair(widget, label));
+}
+
+void RunSettingsWidget::removeSubWidgets()
+{
+    // foreach does not like commas in types, it's only a macro after all
+    typedef QPair<RunConfigWidget *, QLabel *> RunConfigItem;
+    foreach (const RunConfigItem &item, m_subWidgets) {
+        delete item.first;
+        delete item.second;
+    }
+    m_subWidgets.clear();
 }

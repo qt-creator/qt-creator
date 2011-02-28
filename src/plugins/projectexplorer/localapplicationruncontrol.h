@@ -51,7 +51,7 @@ public:
     virtual bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
     virtual QString displayName() const;
     virtual RunControl* create(RunConfiguration *runConfiguration, const QString &mode);
-    virtual QWidget *createConfigurationWidget(RunConfiguration  *runConfiguration);
+    virtual RunConfigWidget *createConfigurationWidget(RunConfiguration  *runConfiguration);
 };
 
 class LocalApplicationRunControl : public RunControl

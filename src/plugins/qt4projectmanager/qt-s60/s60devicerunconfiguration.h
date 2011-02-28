@@ -150,7 +150,7 @@ public:
 
     ProjectExplorer::RunControl* create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
     QString displayName() const;
-    QWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration * /*runConfiguration */);
+    ProjectExplorer::RunConfigWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration * /*runConfiguration */);
 };
 
 } // namespace Internal

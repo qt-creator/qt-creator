@@ -77,7 +77,8 @@ public:
     virtual bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const;
     virtual ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
     virtual QString displayName() const;
-    virtual QWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
+    virtual ProjectExplorer::RunConfigWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration
+                                                                        *runConfiguration);
 
 private:
     ProjectExplorer::RunControl *createDebugRunControl(QmlProjectRunConfiguration *runConfig);
