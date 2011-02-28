@@ -2191,7 +2191,7 @@ void DebuggerPluginPrivate::aboutToUnloadSession()
 
 void DebuggerPluginPrivate::aboutToSaveSession()
 {
-    dummyEngine()->watchHandler()->loadSessionData();
+    dummyEngine()->watchHandler()->saveSessionData();
     m_toolTipManager->saveSessionData();
     m_breakHandler->saveSessionData();
 }
