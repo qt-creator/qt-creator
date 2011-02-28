@@ -1512,7 +1512,7 @@ def qdump__QRegion(d, item):
     else:
         try:
             # Fails without debug info.
-            n = str(p.dereference()["numRects"])
+            n = int(p.dereference()["numRects"])
             d.putItemCount(n)
             d.putNumChild(n)
             if d.isExpanded(item):
