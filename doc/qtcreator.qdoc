@@ -4278,6 +4278,12 @@
 
     \image qtcreator-build-environment.png "Build Environment"
 
+    \note The changes are stored in the local project specific \c{.pro.user}
+    file. Therefore, they are not suitable for sharing between developers or
+    development PCs. To share settings, incorporate them into the build system.
+    For example, if you use qmake, make the changes in the \c{.pro} file.
+
+
     \section2 Clearing the System Environment
 
     To build with a clean system environment, select the \gui {Clear system
