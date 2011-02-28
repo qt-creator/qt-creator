@@ -1364,8 +1364,8 @@ class Dumper:
                 try:
                     value = parseAndEvaluate(exp)
                     item = Item(value, iname, None, None)
-                    if not value is None:
-                        self.putAddress(value.address)
+                    #if not value is None:
+                    #    self.putAddress(value.address)
                     self.putItem(item)
                 except RuntimeError:
                     self.currentType = " "
@@ -1587,6 +1587,7 @@ class Dumper:
                 self.putValue(encodeCharArray(strptr, 100, strlen), Hex2EncodedLatin1)
                 self.putNumChild(0)
                 return
+            self.putAddress(value.address)
             self.putType(realtype)
             self.putValue(int(value))
             self.putNumChild(0)
@@ -1595,11 +1596,13 @@ class Dumper:
         if type.code == gdb.TYPE_CODE_CHAR:
             self.putType(realtype)
             self.putValue(int(value))
+            self.putAddress(value.address)
             self.putNumChild(0)
             return
 
         if value.type.code == gdb.TYPE_CODE_ARRAY:
             self.putType(realtype)
+            self.putAddress(value.address)
             self.putNumChild(1)
             baseptr = value.cast(realtype.pointer())
             self.putValue("%s" % baseptr)
@@ -1641,6 +1644,7 @@ class Dumper:
             #warn("IS DUMPABLE: %s " % type)
             #self.putAddress(value.address)
             self.putType(realtype)
+            self.putAddress(value.address)
             if nsStrippedType in qqDumpers:
                 qqDumpers[nsStrippedType](self, item)
             if str(type) in qqDumpers:
@@ -1661,6 +1665,7 @@ class Dumper:
                 self.putType(realtype)
                 self.putValue("0x0")
                 self.putNumChild(0)
+                self.putAddress(value.address)
                 return
 
             if target.code == gdb.TYPE_CODE_VOID:
@@ -1668,6 +1673,7 @@ class Dumper:
                 self.putType(realtype)
                 self.putValue(str(value))
                 self.putNumChild(0)
+                self.putAddress(value.address)
                 return
 
             if format == 0:
@@ -1681,7 +1687,7 @@ class Dumper:
                         with SubItem(self):
                             self.putItem(Item(item.value.dereference(),
                                 item.iname, "*", "*"))
-                            self.putAddress(item.value)
+                            #self.putAddress(item.value)
                 return
 
             if format == 1 or format == 2:
@@ -1864,7 +1870,7 @@ class Dumper:
                 value = item.value[field.name]
                 child = Item(value, item.iname, field.name, field.name)
                 with SubItem(self):
-                    self.putAddress(value.address)
+                    #self.putAddress(value.address)
                     self.putItem(child)
             else:
                 # Further nested.
