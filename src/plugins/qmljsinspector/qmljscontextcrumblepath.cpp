@@ -53,7 +53,7 @@ void ContextCrumblePath::updateContextPath(const QStringList &path, const QList<
 
     m_isEmpty = path.isEmpty();
     if (m_isEmpty) {
-        pushElement(tr("[no context]"));
+        pushElement(tr("[no context]"),QVariant(-1));
     } else {
         for (int i = 0; i < path.count(); i++)
             pushElement(path[i], QVariant(debugIds[i]));

@@ -758,9 +758,11 @@ void InspectorUi::setupDockWidgets()
 
 void InspectorUi::crumblePathElementClicked(int debugId)
 {
-    QList<int> l;
-    l << debugId;
-    selectItems(l);
+    if (debugId != -1) {
+        QList<int> l;
+        l << debugId;
+        selectItems(l);
+    }
 }
 
 bool InspectorUi::showExperimentalWarning()
