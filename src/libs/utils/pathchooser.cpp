@@ -188,11 +188,6 @@ public:
 
     QHBoxLayout *m_hLayout;
     PathValidatingLineEdit *m_lineEdit;
-#ifdef Q_WS_MAC
-    QPushButton *m_button;
-#else
-    QToolButton *m_button;
-#endif
 
     PathChooser::Kind m_acceptingKind;
     QString m_dialogTitleOverride;
@@ -268,13 +263,13 @@ PathChooser::~PathChooser()
 void PathChooser::addButton(const QString &text, QObject *receiver, const char *slotFunc)
 {
 #ifdef Q_WS_MAC
-    m_d->m_button = new QPushButton;
+    QPushButton *button = new QPushButton;
 #else
-    m_d->m_button = new QToolButton;
+    QToolButton *button = new QToolButton;
 #endif
-    m_d->m_button->setText(text);
-    connect(m_d->m_button, SIGNAL(clicked()), receiver, slotFunc);
-    m_d->m_hLayout->addWidget(m_d->m_button);
+    button->setText(text);
+    connect(button, SIGNAL(clicked()), receiver, slotFunc);
+    m_d->m_hLayout->addWidget(button);
 }
 
 QAbstractButton *PathChooser::buttonAtIndex(int index) const
@@ -323,7 +318,9 @@ bool PathChooser::isReadOnly() const
 void PathChooser::setReadOnly(bool b)
 {
     m_d->m_lineEdit->setReadOnly(b);
-    m_d->m_button->setEnabled(!b);
+    const QList<QAbstractButton *> &allButtons = findChildren<QAbstractButton *>();
+    foreach (QAbstractButton *button, allButtons)
+        button->setEnabled(!b);
 }
 
 void PathChooser::slotBrowse()
