@@ -276,11 +276,11 @@ void TextEditorPlugin::updateCurrentSelection(const QString &text)
     if (editor) {
         int pos = editor->position();
         int anchor = editor->position(ITextEditor::Anchor);
+        if (anchor < 0) // no selection
+            anchor = pos;
         int selectionLength = anchor-pos;
         if (selectionLength < 0)
             selectionLength = -selectionLength;
-        if (selectionLength == 0)
-            return;
         int start = qMin(pos, anchor);
         editor->setCursorPosition(start);
         editor->replace(selectionLength, text);
