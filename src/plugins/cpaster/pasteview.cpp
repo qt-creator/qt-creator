@@ -55,7 +55,8 @@ PasteView::PasteView(const QList<Protocol *> protocols,
     QDialog(parent),
     m_protocols(protocols),
     m_commentPlaceHolder(tr("<Comment>")),
-    m_mimeType(mt)
+    m_mimeType(mt),
+    m_mode(DiffChunkMode)
 {
     m_ui.setupUi(this);
 
@@ -95,6 +96,9 @@ QString PasteView::comment() const
 
 QByteArray PasteView::content() const
 {
+    if (m_mode == PlainTextMode)
+        return m_ui.plainTextEdit->toPlainText().toUtf8();
+
     QByteArray newContent;
     for (int i = 0; i < m_ui.uiPatchList->count(); ++i) {
         QListWidgetItem *item = m_ui.uiPatchList->item(i);
@@ -121,28 +125,15 @@ void PasteView::protocolChanged(int p)
     m_ui.uiComment->setEnabled(caps & Protocol::PostCommentCapability);
 }
 
-int PasteView::show(const QString &user, const QString &description, const QString &comment,
-               const FileDataList &parts)
+void PasteView::setupDialog(const QString &user, const QString &description, const QString &comment)
 {
     m_ui.uiUsername->setText(user);
     m_ui.uiDescription->setText(description);
+    m_ui.uiComment->setPlainText(comment.isEmpty() ? m_commentPlaceHolder : comment);
+}
 
-    if (comment.isEmpty())
-        m_ui.uiComment->setPlainText(m_commentPlaceHolder);
-    else
-        m_ui.uiComment->setPlainText(comment);
-
-    QByteArray content;
-    m_parts = parts;
-    m_ui.uiPatchList->clear();
-    foreach (const FileData &part, parts) {
-        QListWidgetItem *itm = new QListWidgetItem(part.filename, m_ui.uiPatchList);
-        itm->setCheckState(Qt::Checked);
-        itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-        content += part.content;
-    }
-    m_ui.uiPatchView->setPlainText(content);
-
+int PasteView::showDialog()
+{
     m_ui.uiDescription->setFocus();
     m_ui.uiDescription->selectAll();
 
@@ -159,6 +150,37 @@ int PasteView::show(const QString &user, const QString &description, const QStri
     return ret;
 }
 
+// Show up with checkable list of diff chunks.
+int PasteView::show(const QString &user, const QString &description,
+                    const QString &comment, const FileDataList &parts)
+{
+    setupDialog(user, description, comment);
+    m_ui.uiPatchList->clear();
+    m_parts = parts;
+    m_mode = DiffChunkMode;
+    QByteArray content;
+    foreach (const FileData &part, parts) {
+        QListWidgetItem *itm = new QListWidgetItem(part.filename, m_ui.uiPatchList);
+        itm->setCheckState(Qt::Checked);
+        itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+        content += part.content;
+    }
+    m_ui.stackedWidget->setCurrentIndex(0);
+    m_ui.uiPatchView->setPlainText(content);
+    return showDialog();
+}
+
+// Show up with editable plain text.
+int PasteView::show(const QString &user, const QString &description,
+                    const QString &comment, const QString &content)
+{
+    setupDialog(user, description, comment);
+    m_mode = PlainTextMode;
+    m_ui.stackedWidget->setCurrentIndex(1);
+    m_ui.plainTextEdit->setPlainText(content);
+    return showDialog();
+}
+
 void PasteView::accept()
 {
     const int index = m_ui.protocolBox->currentIndex();
@@ -170,8 +192,12 @@ void PasteView::accept()
     if (!Protocol::ensureConfiguration(protocol, this))
         return;
 
+    const QByteArray data = content();
+    if (data.isEmpty())
+        return;
+
     const Protocol::ContentType ct = Protocol::contentType(m_mimeType);
-    protocol->paste(content(), ct, user(), comment(), description());
+    protocol->paste(data, ct, user(), comment(), description());
     // Store settings and close
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(QLatin1String(groupC));

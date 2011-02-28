@@ -56,8 +56,7 @@ FileDataList splitDiffToFiles(const QByteArray &data)
                           "\\n\\-\\-\\- ([^\\n\\r]*) [0-9\\-]* [0-9:\\.]*[^\\n\\r]*";
 
     } else {
-        ret.append(FileData("<not a diff>", data));
-        return ret;
+        return FileDataList();
     }
 
     int splitIndex = 0, previousSplit = -1;

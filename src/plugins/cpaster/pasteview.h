@@ -45,13 +45,25 @@ class PasteView : public QDialog
 {
     Q_OBJECT
 public:
+    enum Mode
+    {
+        // Present a list of read-only diff chunks which the user can check for inclusion
+        DiffChunkMode,
+        // Present plain, editable text.
+        PlainTextMode
+    };
+
     explicit PasteView(const QList<Protocol *> protocols,
                        const QString &mimeType,
                        QWidget *parent);
     ~PasteView();
 
+    // Show up with checkable list of diff chunks.
     int show(const QString &user, const QString &description, const QString &comment,
              const FileDataList &parts);
+    // Show up with editable plain text.
+    int show(const QString &user, const QString &description, const QString &comment,
+             const QString &content);
 
     void setProtocol(const QString &protocol);
 
@@ -68,12 +80,16 @@ private slots:
     void protocolChanged(int);
 
 private:
+    void setupDialog(const QString &user, const QString &description, const QString &comment);
+    int showDialog();
+
     const QList<Protocol *> m_protocols;
     const QString m_commentPlaceHolder;
     const QString m_mimeType;
 
     Ui::ViewDialog m_ui;
     FileDataList m_parts;
+    Mode m_mode;
 };
 } // namespace CodePaster
 #endif // VIEW_H
