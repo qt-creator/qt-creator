@@ -57,6 +57,8 @@
 
 static const char debuggerCommandKeyC[] = "ProjectExplorer.MsvcToolChain.Debugger";
 
+enum { debug = 0 };
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -124,7 +126,7 @@ static QByteArray msvcCompilationFile()
 }
 
 // Run MSVC 'cl' compiler to obtain #defines.
-static QByteArray msvcPredefinedMacros(const QStringList &env)
+static QByteArray msvcPredefinedMacros(const Utils::Environment &env)
 {
     QByteArray predefinedMacros = "#define __MSVCRT__\n"
                       "#define __w64\n"
@@ -147,12 +149,17 @@ static QByteArray msvcPredefinedMacros(const QStringList &env)
         tmpFile.close();
     }
     QProcess cpp;
-    cpp.setEnvironment(env);
+    cpp.setEnvironment(env.toStringList());
     cpp.setWorkingDirectory(QDir::tempPath());
     QStringList arguments;
-    const QString binary = QLatin1String("cl.exe");
+    const QString binary = env.searchInPath(QLatin1String("cl.exe"));
+    if (binary.isEmpty()) {
+        qWarning("%s: The compiler binary cl.exe could not be found in the path.", Q_FUNC_INFO);
+        return predefinedMacros;
+    }
+
     arguments << QLatin1String("/EP") << QDir::toNativeSeparators(tmpFilePath);
-    cpp.start(QLatin1String("cl.exe"), arguments);
+    cpp.start(binary, arguments);
     if (!cpp.waitForStarted()) {
         qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(binary),
             qPrintable(cpp.errorString()));
@@ -186,9 +193,14 @@ static QByteArray msvcPredefinedMacros(const QStringList &env)
         }
     }
     QFile::remove(tmpFilePath);
+    if (debug)
+        qDebug() << "msvcPredefinedMacros" << predefinedMacros;
     return predefinedMacros;
 }
 
+// Windows: Expand the delayed evaluation references returned by the
+// SDK setup scripts: "PATH=!Path!;foo". Some values might expand
+// to empty and should not be added
 static QString winExpandDelayedEnvReferences(QString in, const Utils::Environment &env)
 {
     const QChar exclamationMark = QLatin1Char('!');
@@ -210,17 +222,18 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
 
 static Utils::Environment msvcReadEnvironmentSetting(const QString &varsBat,
                                                      const QString &args,
-                                                     Utils::Environment &env)
+                                                     const Utils::Environment &env)
 {
     // Run the setup script and extract the variables
+    Utils::Environment result = env;
     if (!QFileInfo(varsBat).exists())
-        return env;
+        return result;
 
     const QString tempOutputFileName = QDir::tempPath() + QLatin1String("\\qtcreator-msvc-environment.txt");
     QTemporaryFile tf(QDir::tempPath() + "\\XXXXXX.bat");
     tf.setAutoRemove(true);
     if (!tf.open())
-        return env;
+        return result;
 
     const QString filename = tf.fileName();
 
@@ -241,39 +254,54 @@ static Utils::Environment msvcReadEnvironmentSetting(const QString &varsBat,
     Utils::QtcProcess run;
     run.setEnvironment(env);
     const QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
-    run.setCommand(cmdPath, QString::fromLatin1("/c \"%1\"").arg(QDir::toNativeSeparators(filename)));
+    // Windows SDK setup scripts require command line switches for environment expansion.
+    QString cmdArguments = QLatin1String(" /E:ON /V:ON /c \"");
+    cmdArguments += QDir::toNativeSeparators(filename);
+    cmdArguments += QLatin1Char('"');
+    run.setCommand(cmdPath, cmdArguments);
+    if (debug)
+        qDebug() << "msvcReadEnvironmentSetting: " << call << cmdPath << cmdArguments
+                 << " Env: " << env.size();
     run.start();
+
     if (!run.waitForStarted()) {
         qWarning("%s: Unable to run '%s': %s", Q_FUNC_INFO, qPrintable(varsBat),
             qPrintable(run.errorString()));
-        return env;
+        return result;
     }
     if (!run.waitForFinished()) {
         qWarning("%s: Timeout running '%s'", Q_FUNC_INFO, qPrintable(varsBat));
         Utils::SynchronousProcess::stopProcess(run);
-        return env;
+        return result;
     }
     tf.close();
 
     QFile varsFile(tempOutputFileName);
     if (!varsFile.open(QIODevice::ReadOnly|QIODevice::Text))
-        return env;
+        return result;
 
     QRegExp regexp(QLatin1String("(\\w*)=(.*)"));
-    Utils::Environment result;
     while (!varsFile.atEnd()) {
         const QString line = QString::fromLocal8Bit(varsFile.readLine()).trimmed();
         if (regexp.exactMatch(line)) {
             const QString varName = regexp.cap(1);
             const QString expandedValue = winExpandDelayedEnvReferences(regexp.cap(2), env);
             if (!expandedValue.isEmpty())
-                env.set(varName, expandedValue);
+                result.set(varName, expandedValue);
         }
     }
     varsFile.close();
     varsFile.remove();
-
-    return env;
+    if (debug) {
+        const QStringList newVars = result.toStringList();
+        const QStringList oldVars = env.toStringList();
+        QDebug nsp = qDebug().nospace();
+        foreach (const QString &n, newVars) {
+            if (!oldVars.contains(n))
+                nsp << n << '\n';
+        }
+    }
+    return result;
 }
 
 // --------------------------------------------------------------------------
@@ -285,6 +313,7 @@ MsvcToolChain::MsvcToolChain(Type type, const QString &name, Platform platform,
     ToolChain(QLatin1String(Constants::MSVC_TOOLCHAIN_ID), autodetect),
     m_varsBat(varsBat),
     m_varsBatArg(varsBatArg),
+    m_lastEnvironment(Utils::Environment::systemEnvironment()),
     m_is64bit(true),
     m_architecture(Abi::X86Architecture)
 {
@@ -331,26 +360,28 @@ QByteArray MsvcToolChain::predefinedMacros() const
     if (m_predefinedMacros.isEmpty()) {
         Utils::Environment env(m_lastEnvironment);
         addToEnvironment(env);
-        m_predefinedMacros = msvcPredefinedMacros(env.toStringList());
+        m_predefinedMacros = msvcPredefinedMacros(env);
     }
     return m_predefinedMacros;
 }
 
 QList<HeaderPath> MsvcToolChain::systemHeaderPaths() const
 {
-    if (m_headerPathes.isEmpty()) {
+    if (m_headerPaths.isEmpty()) {
         Utils::Environment env(m_lastEnvironment);
         addToEnvironment(env);
         foreach (const QString &path, env.value("INCLUDE").split(QLatin1Char(';')))
-            m_headerPathes.append(HeaderPath(path, HeaderPath::GlobalHeaderPath));
+            m_headerPaths.append(HeaderPath(path, HeaderPath::GlobalHeaderPath));
     }
-    return m_headerPathes;
+    return m_headerPaths;
 }
 
 void MsvcToolChain::addToEnvironment(Utils::Environment &env) const
 {
     // We cache the full environment (incoming + modifications by setup script).
     if (!m_resultEnvironment.size() || env != m_lastEnvironment) {
+        if (debug)
+            qDebug() << "addToEnvironment: " << displayName();
         m_lastEnvironment = env;
         m_resultEnvironment = msvcReadEnvironmentSetting(m_varsBat, m_varsBatArg, env);
     }
@@ -361,11 +392,14 @@ QString MsvcToolChain::makeCommand() const
 {
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().useJom) {
         // We want jom! Try to find it.
-        QString jom = QCoreApplication::applicationDirPath() + QLatin1String("/jom.exe");
-        if (QFileInfo(jom).exists())
+        const QString jom = QLatin1String("jom.exe");
+        const QFileInfo installedJom = QFileInfo(QCoreApplication::applicationDirPath()
+                                                 + QLatin1Char('/') + jom);
+        if (installedJom.isFile() && installedJom.isExecutable()) {
+            return installedJom.absoluteFilePath();
+        } else {
             return jom;
-        else
-            return QLatin1String("jom.exe");
+        }
     }
     return QLatin1String("nmake.exe");
 }

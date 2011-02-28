@@ -38,6 +38,8 @@
 #include <QtCore/QDir>
 #endif
 
+#include <QtCore/QDebug>
+
 using namespace Utils;
 
 /**
@@ -635,6 +637,8 @@ void QtcProcess::start()
 {
     Environment env;
     if (m_haveEnv) {
+        if (m_environment.size() == 0)
+            qWarning("QtcProcess::start: Empty environment set when running '%s'.", qPrintable(m_command));
         env = m_environment;
         QProcess::setEnvironment(env.toStringList());
     } else {

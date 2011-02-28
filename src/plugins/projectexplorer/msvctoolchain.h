@@ -85,9 +85,9 @@ private:
     QString m_varsBatArg; // Argument
     QString m_debuggerCommand;
     mutable QByteArray m_predefinedMacros;
-    mutable Utils::Environment m_lastEnvironment;
-    mutable Utils::Environment m_resultEnvironment;
-    mutable QList<HeaderPath> m_headerPathes;
+    mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
+    mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC
+    mutable QList<HeaderPath> m_headerPaths;
     bool m_is64bit;
     Abi::Architecture m_architecture;
 };
