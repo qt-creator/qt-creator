@@ -1259,6 +1259,8 @@ void WatchHandler::watchExpression(const QString &exp)
     data.exp = exp.toLatin1();
     data.name = exp;
     m_watcherNames[data.exp] = watcherCounter++;
+    saveWatchers();
+
     if (exp.isEmpty())
         data.setAllUnneeded();
     data.iname = watcherName(data.exp);
@@ -1273,7 +1275,6 @@ void WatchHandler::watchExpression(const QString &exp)
         insertData(data);
     }
     updateWatchersWindow();
-    saveWatchers();
     emitAllChanged();
 }
 
