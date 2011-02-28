@@ -1541,9 +1541,11 @@ void QtVersion::updateAbiAndMkspec() const
     }
 
     if (m_abis.isEmpty()) {
-        qDebug() << "Could not find ABI for" << m_mkspecFullPath << qmakeCXX;
-        qDebug() << "Qt Creator doesn't know about the system includes, "
-                    "nor the system defines.";
+        qWarning("Warning: Could not find ABI for '%s' ('%s', %s) /%s "
+                 "Qt Creator does not know about the system includes, "
+                 "nor the system defines.",
+                 qPrintable(m_mkspecFullPath), qPrintable(displayName()),
+                 qPrintable(qmakeCommand()), qPrintable(qmakeCXX));
     }
 
     QStringList configValues = evaluator.values("CONFIG");

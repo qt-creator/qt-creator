@@ -118,6 +118,12 @@ QVariantMap Qt4BuildConfiguration::toMap() const
     return map;
 }
 
+static inline QString msgBuildConfigNotApplicable(const QString &d, const QtVersion *qtVersion,
+                                                  const Target *target)
+{
+    return QString::fromLatin1("Warning: Buildconfiguration '%1' : Qt '%2' from %3 not supported by target '%4'").
+            arg(d, qtVersion->displayName(), qtVersion->qmakeCommand(), target->id());
+}
 
 bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
 {
@@ -149,12 +155,12 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
     QtVersion *version = qtVersion();
     if (!map.contains(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.NeedsV0Update"))) { // we are not upgrading from pre-targets!
         if (version->isValid() && !version->supportedTargetIds().contains(target()->id())) {
-            qWarning() << "Buildconfiguration" << displayName() << ": Qt" << version->displayName() << "not supported by target" << target()->id();
+            qWarning("%s", qPrintable(msgBuildConfigNotApplicable(displayName(), version, target())));
             return false;
         }
     } else {
         if (!version->isValid() || !version->supportedTargetIds().contains(target()->id())) {
-            qWarning() << "Buildconfiguration" << displayName() << ": Qt" << version->displayName() << "not supported by target" << target()->id();
+            qWarning("%s", qPrintable(msgBuildConfigNotApplicable(displayName(), version, target())));
             return false;
         }
     }
@@ -168,7 +174,14 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
     }
 
     if (!toolChain()) {
-        qWarning() << "No toolchain available for" << qtVersion()->displayName() << "used in" << target()->id() << "!";
+        if (version->isValid()) {
+            qWarning("Warning: No toolchain available for '%s' from %s used in '%s'.",
+                    qPrintable(version->displayName()), qPrintable(version->qmakeCommand()),
+                    qPrintable(target()->id()));
+        } else {
+            qWarning("Warning: No toolchain available for invalid Qt version used in '%s'.",
+                     qPrintable(target()->id()));
+        }
         return false;
     }
 
