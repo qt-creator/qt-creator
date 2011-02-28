@@ -353,6 +353,11 @@ void QmlEngine::showMessage(const QString &msg, int channel, int timeout) const
     DebuggerEngine::showMessage(msg, channel, timeout);
 }
 
+bool QmlEngine::acceptsWatchesWhileRunning() const
+{
+    return true;
+}
+
 void QmlEngine::closeConnection()
 {
     disconnect(&d->m_adapter, SIGNAL(connectionStartupFailed()),

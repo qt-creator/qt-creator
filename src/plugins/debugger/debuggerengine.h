@@ -180,6 +180,8 @@ public:
     virtual void setRegisterValue(int regnr, const QString &value);
     virtual void addOptionPages(QList<Core::IOptionsPage*> *) const;
     virtual unsigned debuggerCapabilities() const;
+    virtual bool canWatchWidgets() const;
+    virtual bool acceptsWatchesWhileRunning() const;
 
     virtual bool isSynchronous() const;
     virtual QByteArray qtNamespace() const;

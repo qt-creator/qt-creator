@@ -811,7 +811,7 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
 
     // Disable editing if debuggee is positively running.
     const bool isRunning = engine() && engine()->state() == InferiorRunOk;
-    if (isRunning)
+    if (isRunning && engine() && !engine()->acceptsWatchesWhileRunning())
         return notEditable;
 
     const WatchData &data = *watchItem(idx);
@@ -1186,6 +1186,10 @@ void WatchHandler::insertData(const WatchData &data)
     if (data.isSomethingNeeded() && data.iname.contains('.')) {
         MODEL_DEBUG("SOMETHING NEEDED: " << data.toString());
         if (!m_engine->isSynchronous()) {
+            WatchModel *model = modelForIName(data.iname);
+            QTC_ASSERT(model, return);
+            model->insertData(data);
+
             m_engine->updateWatchData(data);
         } else {
             m_engine->showMessage(QLatin1String("ENDLESS LOOP: SOMETHING NEEDED: ")

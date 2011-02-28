@@ -248,6 +248,16 @@ unsigned QmlCppEngine::debuggerCapabilities() const
     return d->m_cppEngine->debuggerCapabilities();
 }
 
+bool QmlCppEngine::canWatchWidgets() const
+{
+    return d->m_activeEngine->canWatchWidgets();
+}
+
+bool QmlCppEngine::acceptsWatchesWhileRunning() const
+{
+    return d->m_activeEngine->acceptsWatchesWhileRunning();
+}
+
 bool QmlCppEngine::isSynchronous() const
 {
     return d->m_activeEngine->isSynchronous();

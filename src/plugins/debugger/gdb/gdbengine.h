@@ -110,6 +110,7 @@ private: ////////// General Interface //////////
     virtual void runEngine();
 
     virtual unsigned debuggerCapabilities() const;
+    virtual bool canWatchWidgets() const;
     virtual void detachDebugger();
     virtual void shutdownEngine();
     virtual void shutdownInferior();

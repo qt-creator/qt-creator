@@ -59,6 +59,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QPainter>
 #include <QtGui/QResizeEvent>
+#include <QtGui/QInputDialog>
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -361,15 +362,15 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     const bool actionsEnabled = engine->debuggerActionsEnabled();
     const unsigned engineCapabilities = engine->debuggerCapabilities();
-    const bool canHandleWatches =
-        actionsEnabled && (engineCapabilities & AddWatcherCapability);
+    const bool canHandleWatches = engineCapabilities & AddWatcherCapability;
     const DebuggerState state = engine->state();
+    const bool canInsertWatches = (state==InferiorStopOk) || ((state==InferiorRunOk) && engine->acceptsWatchesWhileRunning());
 
     QMenu menu;
     QAction *actInsertNewWatchItem = menu.addAction(tr("Insert New Watch Item"));
-    actInsertNewWatchItem->setEnabled(canHandleWatches);
+    actInsertNewWatchItem->setEnabled(canHandleWatches && canInsertWatches);
     QAction *actSelectWidgetToWatch = menu.addAction(tr("Select Widget to Watch"));
-    actSelectWidgetToWatch->setEnabled(canHandleWatches);
+    actSelectWidgetToWatch->setEnabled(canHandleWatches && (engine->canWatchWidgets()));
 
     // Offer to open address pointed to or variable address.
     const bool createPointerActions = pointerValue && pointerValue != address;
@@ -497,7 +498,13 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (act == actAdjustColumnWidths) {
         resizeColumnsToContents();
     } else if (act == actInsertNewWatchItem) {
-        watchExpression(QString());
+        bool ok;
+        QString newExp = QInputDialog::getText(this, tr("Enter watch expression"),
+                                   tr("Expression:"), QLineEdit::Normal,
+                                   QString(), &ok);
+        if (ok && !newExp.isEmpty()) {
+            watchExpression(newExp);
+        }
     } else if (act == actOpenMemoryEditAtVariableAddress) {
         currentEngine()->openMemoryView(address);
     } else if (act == actOpenMemoryEditAtPointerValue) {

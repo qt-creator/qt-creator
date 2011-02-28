@@ -482,7 +482,7 @@ public:
     void runEngine() {}
     void shutdownEngine() {}
     void shutdownInferior() {}
-    unsigned debuggerCapabilities() const { return 0; }
+    unsigned debuggerCapabilities() const { return AddWatcherCapability; }
     bool acceptsBreakpoint(BreakpointId) const { return false; }
     bool acceptsDebuggerCommands() const { return false; }
 };
