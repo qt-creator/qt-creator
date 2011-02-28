@@ -33,15 +33,14 @@
 #ifndef QTOPTIONSPAGE_H
 #define QTOPTIONSPAGE_H
 
+#include "debugginghelperbuildtask.h"
+
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/environment.h>
 
 #include <QtCore/QSharedPointer>
 #include <QtCore/QFutureInterface>
 
 #include <QtGui/QWidget>
-
-#include "debugginghelperbuildtask.h"
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;

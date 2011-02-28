@@ -54,6 +54,7 @@
 #include <QtGui/QFrame>
 #include <QtGui/QLabel>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QIcon>
 
 namespace Qt4ProjectManager {
 namespace Internal {

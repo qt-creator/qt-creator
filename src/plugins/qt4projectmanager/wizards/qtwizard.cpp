@@ -42,9 +42,14 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+
 #include <cpptools/cpptoolsconstants.h>
-#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/task.h>
+
+#include <extensionsystem/pluginmanager.h>
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QVariant>
 

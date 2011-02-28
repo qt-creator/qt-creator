@@ -38,6 +38,7 @@
 #include "qtversionmanager.h"
 
 #include <projectexplorer/target.h>
+#include <projectexplorer/task.h>
 #include <projectexplorer/projectnodes.h>
 
 namespace Utils {

@@ -37,7 +37,9 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include "qt_private/abstractoptionspage_p.h"
+
 #include <QtCore/QCoreApplication>
+#include <QtGui/QIcon>
 
 using namespace Designer::Internal;
 

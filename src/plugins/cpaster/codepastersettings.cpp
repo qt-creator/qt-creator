@@ -44,6 +44,7 @@
 #include <QtGui/QFormLayout>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QLabel>
+#include <QtGui/QIcon>
 #include <QtCore/QDebug>
 #include <QtCore/QVariant>
 

@@ -34,8 +34,9 @@
 #ifndef QMLDUMPTOOL_H
 #define QMLDUMPTOOL_H
 
-#include <utils/buildablehelperlibrary.h>
 #include "qt4projectmanager_global.h"
+
+#include <utils/buildablehelperlibrary.h>
 
 namespace Utils {
     class Environment;

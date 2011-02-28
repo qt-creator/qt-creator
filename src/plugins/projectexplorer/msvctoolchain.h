@@ -35,6 +35,7 @@
 #define MSVCTOOLCHAIN_H
 
 #include "toolchain.h"
+#include "abi.h"
 #include "toolchainconfigwidget.h"
 
 #include <utils/environment.h>

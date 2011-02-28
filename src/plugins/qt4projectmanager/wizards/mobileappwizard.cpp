@@ -39,6 +39,8 @@
 
 #include "qt4projectmanagerconstants.h"
 
+#include <projectexplorer/task.h>
+
 #include <QtCore/QCoreApplication>
 #include <QtGui/QIcon>
 

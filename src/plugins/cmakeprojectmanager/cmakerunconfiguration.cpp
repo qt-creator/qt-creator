@@ -41,8 +41,13 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/helpmanager.h>
 #include <projectexplorer/debugginghelper.h>
+#include <projectexplorer/environmentwidget.h>
+
+#include <utils/pathchooser.h>
+#include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
 #include <utils/debuggerlanguagechooser.h>
+
 #include <QtGui/QFormLayout>
 #include <QtGui/QLineEdit>
 #include <QtGui/QGroupBox>

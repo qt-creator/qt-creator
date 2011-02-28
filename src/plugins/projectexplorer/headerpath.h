@@ -31,31 +31,38 @@
 **
 **************************************************************************/
 
-#include "texteditoroptionspage.h"
+#ifndef HEADERPATH_H
+#define HEADERPATH_H
 
-#include "texteditorconstants.h"
+#include "projectexplorer_export.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtGui/QIcon>
+namespace ProjectExplorer {
 
-using namespace TextEditor;
-
-TextEditorOptionsPage::TextEditorOptionsPage(QObject *parent) :
-    Core::IOptionsPage(parent)
+class PROJECTEXPLORER_EXPORT HeaderPath
 {
-}
+public:
+    enum Kind {
+        GlobalHeaderPath,
+        UserHeaderPath,
+        FrameworkHeaderPath
+    };
 
-QString TextEditorOptionsPage::category() const
-{
-    return QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-}
+    HeaderPath()
+        : m_kind(GlobalHeaderPath)
+    { }
 
-QString TextEditorOptionsPage::displayCategory() const
-{
-    return QCoreApplication::translate("TextEditor", Constants::TEXT_EDITOR_SETTINGS_TR_CATEGORY);
-}
+    HeaderPath(const QString &path, Kind kind)
+        : m_path(path), m_kind(kind)
+    { }
 
-QIcon TextEditorOptionsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON));
-}
+    QString path() const { return m_path; }
+    Kind kind() const { return m_kind; }
+
+private:
+    QString m_path;
+    Kind m_kind;
+};
+
+} // namespace ProjectExplorer
+
+#endif // HEADERPATH_H

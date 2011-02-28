@@ -32,7 +32,6 @@
 **************************************************************************/
 
 #include "toolchainconfigwidget.h"
-
 #include "toolchain.h"
 
 #include <utils/qtcassert.h>
@@ -57,8 +56,6 @@ public:
     {
         Q_ASSERT(tc);
     }
-
-
 
     ToolChain *m_toolChain;
     Utils::PathChooser *m_debuggerPathChooser;
@@ -175,6 +172,5 @@ void ToolChainConfigWidget::clearErrorMessage()
     m_d->m_errorLabel->setStyleSheet(QString());
     m_d->m_errorLabel->setVisible(false);
 }
-
 
 } // namespace ProjectExplorer

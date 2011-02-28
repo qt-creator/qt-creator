@@ -38,6 +38,8 @@
 #include "ui_winscwtoolchainconfigwidget.h"
 #include "winscwparser.h"
 
+#include <projectexplorer/abi.h>
+#include <projectexplorer/headerpath.h>
 #include <utils/environment.h>
 
 #include <QtCore/QDir>

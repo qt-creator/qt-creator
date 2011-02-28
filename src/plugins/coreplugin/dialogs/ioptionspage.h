@@ -36,10 +36,10 @@
 
 #include <coreplugin/core_global.h>
 
-#include <QtGui/QIcon>
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
+class QIcon;
 class QWidget;
 QT_END_NAMESPACE
 

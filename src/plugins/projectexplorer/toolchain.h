@@ -36,12 +36,8 @@
 
 #include "projectexplorer_export.h"
 
-#include "abi.h"
-
 #include <QtCore/QObject>
 #include <QtCore/QString>
-#include <QtCore/QPair>
-#include <QtCore/QMetaType>
 #include <QtCore/QVariantMap>
 
 namespace Utils {
@@ -54,38 +50,11 @@ namespace Internal {
 class ToolChainPrivate;
 }
 
+class Abi;
 class IOutputParser;
 class ToolChainConfigWidget;
 class ToolChainFactory;
-
-// --------------------------------------------------------------------------
-// HeaderPath
-// --------------------------------------------------------------------------
-
-class PROJECTEXPLORER_EXPORT HeaderPath
-{
-public:
-    enum Kind {
-        GlobalHeaderPath,
-        UserHeaderPath,
-        FrameworkHeaderPath
-    };
-
-    HeaderPath()
-        : m_kind(GlobalHeaderPath)
-    { }
-
-    HeaderPath(const QString &path, Kind kind)
-        : m_path(path), m_kind(kind)
-    { }
-
-    QString path() const { return m_path; }
-    Kind kind() const { return m_kind; }
-
-private:
-    QString m_path;
-    Kind m_kind;
-};
+class HeaderPath;
 
 // --------------------------------------------------------------------------
 // ToolChain

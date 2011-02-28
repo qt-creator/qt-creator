@@ -46,7 +46,7 @@
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerengine.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/abi.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>

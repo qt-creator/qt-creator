@@ -37,14 +37,7 @@
 #include "projectexplorer_export.h"
 
 #include "toolchain.h"
-
-#include "toolchainconfigwidget.h"
-
-#include <utils/pathchooser.h>
-
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-QT_END_NAMESPACE
+#include "abi.h"
 
 namespace ProjectExplorer {
 
@@ -116,69 +109,6 @@ private:
     friend class ToolChainFactory;
 };
 
-
-// --------------------------------------------------------------------------
-// GccToolChainFactory
-// --------------------------------------------------------------------------
-
-namespace Internal {
-
-class GccToolChainFactory : public ToolChainFactory
-{
-    Q_OBJECT
-
-public:
-    // Name used to display the name of the toolchain that will be created.
-    QString displayName() const;
-    QString id() const;
-
-    QList<ToolChain *> autoDetect();
-
-    bool canCreate();
-    ToolChain *create();
-
-    // Used by the ToolChainManager to restore user-generated ToolChains
-    bool canRestore(const QVariantMap &data);
-    ToolChain *restore(const QVariantMap &data);
-
-protected:
-    virtual GccToolChain *createToolChain(bool autoDetect);
-    QList<ToolChain *> autoDetectToolchains(const QString &compiler,
-                                            const QStringList &debuggers,
-                                            const Abi &);
-};
-
-} // namespace Internal
-
-// --------------------------------------------------------------------------
-// GccToolChainConfigWidget
-// --------------------------------------------------------------------------
-
-namespace Internal {
-
-class GccToolChainConfigWidget : public ToolChainConfigWidget
-{
-    Q_OBJECT
-
-public:
-    GccToolChainConfigWidget(GccToolChain *);
-    void apply();
-    void discard() { setFromToolchain(); }
-    bool isDirty() const;
-
-private slots:
-    void handlePathChange();
-    void handle32BitChange();
-
-private:
-    void setFromToolchain();
-
-    Utils::PathChooser *m_compilerPath;
-    QCheckBox *m_force32BitCheckBox;
-};
-
-} // namespace Internal
-
 // --------------------------------------------------------------------------
 // MingwToolChain
 // --------------------------------------------------------------------------
@@ -197,36 +127,6 @@ private:
     friend class Internal::MingwToolChainFactory;
     friend class ToolChainFactory;
 };
-
-// --------------------------------------------------------------------------
-// MingwToolChainFactory
-// --------------------------------------------------------------------------
-
-namespace Internal {
-
-class MingwToolChainFactory : public GccToolChainFactory
-{
-    Q_OBJECT
-
-public:
-    // Name used to display the name of the toolchain that will be created.
-    QString displayName() const;
-    QString id() const;
-
-    QList<ToolChain *> autoDetect();
-
-    bool canCreate();
-    ToolChain *create();
-
-    // Used by the ToolChainManager to restore user-generated ToolChains
-    bool canRestore(const QVariantMap &data);
-    ToolChain *restore(const QVariantMap &data);
-
-protected:
-    GccToolChain *createToolChain(bool autoDetect);
-};
-
-} // namespace Internal
 
 // --------------------------------------------------------------------------
 // LinuxIccToolChain
@@ -249,34 +149,6 @@ private:
     friend class ToolChainFactory;
 };
 
-// --------------------------------------------------------------------------
-// LinuxIccToolChainFactory
-// --------------------------------------------------------------------------
-
-namespace Internal {
-
-class LinuxIccToolChainFactory : public GccToolChainFactory
-{
-    Q_OBJECT
-
-public:
-    // Name used to display the name of the toolchain that will be created.
-    QString displayName() const;
-    QString id() const;
-
-    QList<ToolChain *> autoDetect();
-
-    ToolChain *create();
-
-    // Used by the ToolChainManager to restore user-generated ToolChains
-    bool canRestore(const QVariantMap &data);
-    ToolChain *restore(const QVariantMap &data);
-
-protected:
-    GccToolChain *createToolChain(bool autoDetect);
-};
-
-} // namespace Internal
 } // namespace ProjectExplorer
 
 #endif // GCCTOOLCHAIN_H

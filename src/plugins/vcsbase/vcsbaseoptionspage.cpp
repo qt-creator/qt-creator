@@ -36,6 +36,7 @@
 #include "vcsbaseconstants.h"
 
 #include <QtCore/QCoreApplication>
+#include <QtGui/QIcon>
 
 namespace VCSBase {
 

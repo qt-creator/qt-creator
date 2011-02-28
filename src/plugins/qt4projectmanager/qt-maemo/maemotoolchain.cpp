@@ -39,6 +39,7 @@
 #include "qtversionmanager.h"
 
 #include <projectexplorer/gccparser.h>
+#include <projectexplorer/headerpath.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <utils/environment.h>
 

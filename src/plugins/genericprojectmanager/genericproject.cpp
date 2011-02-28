@@ -38,6 +38,7 @@
 #include "generictarget.h"
 
 #include <projectexplorer/buildenvironmentwidget.h>
+#include <projectexplorer/headerpath.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>

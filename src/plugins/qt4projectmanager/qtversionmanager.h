@@ -36,11 +36,7 @@
 
 #include "qt4projectmanager_global.h"
 
-#include <projectexplorer/ioutputparser.h>
-#include <projectexplorer/taskwindow.h>
 #include <projectexplorer/abi.h>
-#include <projectexplorer/task.h>
-#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QSet>
@@ -49,6 +45,12 @@
 
 namespace Utils {
 class Environment;
+}
+
+namespace ProjectExplorer {
+class HeaderPath;
+class IOutputParser;
+class Task;
 }
 
 namespace Qt4ProjectManager {

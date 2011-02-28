@@ -35,7 +35,7 @@
 
 #include "buildsteplist.h"
 #include "deployconfiguration.h"
-#include "gcctoolchain.h"
+#include "gcctoolchainfactories.h"
 #include "msvctoolchain.h"
 #include "project.h"
 #include "projectexplorersettings.h"

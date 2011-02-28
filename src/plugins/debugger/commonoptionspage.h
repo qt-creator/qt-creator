@@ -38,9 +38,7 @@
 #include "ui_dumperoptionpage.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <projectexplorer/toolchain.h>
 #include <utils/savedaction.h>
-
 
 namespace Debugger {
 namespace Internal {

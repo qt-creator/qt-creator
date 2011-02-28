@@ -36,6 +36,7 @@
 
 #include <utils/environment.h>
 #include <utils/synchronousprocess.h>
+#include <projectexplorer/headerpath.h>
 
 #include <QtCore/QDir>
 

@@ -32,13 +32,16 @@
 **************************************************************************/
 
 #include "gcctoolchain.h"
+#include "gcctoolchainfactories.h"
 #include "gccparser.h"
 #include "linuxiccparser.h"
+#include "headerpath.h"
 #include "projectexplorerconstants.h"
 
 #include <utils/environment.h>
 #include <utils/synchronousprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/pathchooser.h>
 
 #include <QtCore/QBuffer>
 #include <QtCore/QCoreApplication>

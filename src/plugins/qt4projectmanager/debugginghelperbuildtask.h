@@ -35,8 +35,11 @@
 #define DEBUGGINGHELPERBUILDTASK_H
 
 #include "qtversionmanager.h"
+
 #include <utils/environment.h>
+
 #include <QtCore/QObject>
+#include <QtCore/QMetaType>
 
 namespace Qt4ProjectManager {
 namespace Internal {

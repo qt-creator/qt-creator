@@ -35,12 +35,7 @@
 #define CMAKERUNCONFIGURATION_H
 
 #include <projectexplorer/applicationrunconfiguration.h>
-#include <projectexplorer/persistentsettings.h>
-#include <projectexplorer/environmentwidget.h>
-#include <projectexplorer/toolchain.h>
 #include <utils/environment.h>
-#include <utils/pathchooser.h>
-#include <utils/detailswidget.h>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -48,6 +43,12 @@ QT_END_NAMESPACE
 
 namespace Utils {
 class DebuggerLanguageChooser;
+class PathChooser;
+class DetailsWidget;
+}
+
+namespace ProjectExplorer {
+class EnvironmentWidget;
 }
 
 namespace CMakeProjectManager {

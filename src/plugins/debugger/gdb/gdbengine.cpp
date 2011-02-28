@@ -75,7 +75,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/abi.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <texteditor/itexteditor.h>
 #include <utils/qtcassert.h>

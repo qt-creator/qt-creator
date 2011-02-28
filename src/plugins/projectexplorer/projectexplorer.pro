@@ -105,7 +105,9 @@ HEADERS += projectexplorer.h \
     sessionnodeimpl.h \
     metatypedeclarations.h \
     publishing/publishingwizardselectiondialog.h \
-    publishing/ipublishingwizardfactory.h
+    publishing/ipublishingwizardfactory.h \
+    headerpath.h \
+    gcctoolchainfactories.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \

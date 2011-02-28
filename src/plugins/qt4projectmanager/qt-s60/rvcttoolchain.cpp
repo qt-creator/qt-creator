@@ -36,6 +36,8 @@
 #include "ui_rvcttoolchainconfigwidget.h"
 #include "qt4projectmanager/qt4projectmanagerconstants.h"
 
+#include <projectexplorer/abi.h>
+#include <projectexplorer/headerpath.h>
 #include <utils/environment.h>
 #include <utils/environmentmodel.h>
 #include <utils/synchronousprocess.h>
