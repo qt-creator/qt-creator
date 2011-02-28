@@ -39,7 +39,7 @@
 
 #include <QtCore/QSharedPointer>
 #include <QtCore/QProcess>
-#include <QtCore/QVariant>
+#include <QtCore/QVariantList>
 #include <QtCore/QMap>
 #include <QtCore/QTime>
 
@@ -123,6 +123,7 @@ public:
 
     virtual void fetchDisassembler(DisassemblerAgent *agent);
     virtual void fetchMemory(MemoryAgent *, QObject *, quint64 addr, quint64 length);
+    virtual void changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, const QByteArray &data);
 
     virtual void reloadModules();
     virtual void loadSymbols(const QString &moduleName);
@@ -168,7 +169,8 @@ private:
     {
         NoSpecialStop,
         SpecialStopSynchronizeBreakpoints,
-        SpecialStopGetWidgetAt
+        SpecialStopGetWidgetAt,
+        CustomSpecialStop // Associated with m_specialStopData, handleCustomSpecialStop()
     };
     enum ParseStackResultFlags // Flags returned by parseStackTrace
     {
@@ -188,12 +190,14 @@ private:
     void handleSessionInaccessible(unsigned long cdbExState);
     void handleSessionIdle(const QByteArray &message);
     void doInterruptInferior(SpecialStopMode sm);
+    void doInterruptInferiorCustomSpecialStop(const QVariant &v);
     void doContinueInferior();
     inline void parseOutputLine(QByteArray line);
     inline bool isCdbProcessRunning() const { return m_process.state() != QProcess::NotRunning; }
     bool canInterruptInferior() const;
     void syncOperateByInstruction(bool operateByInstruction);
     void postWidgetAtCommand();
+    void handleCustomSpecialStop(const QVariant &v);
 
     // Builtin commands
     void dummyHandler(const CdbBuiltinCommandPtr &);
@@ -253,6 +257,7 @@ private:
     PendingBreakPointMap m_pendingBreakpointMap;
     QHash<QString, QString> m_fileNameModuleHash;
     bool m_ignoreCdbOutput;
+    QVariantList m_customSpecialStopData;
 };
 
 } // namespace Internal

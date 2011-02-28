@@ -65,6 +65,8 @@ BreakpointId parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r, QString 
 QByteArray fixCdbIntegerValue(QByteArray t, bool stripLeadingZeros = false, int *basePtr = 0);
 // Convert a CDB integer value into quint64 or int64
 QVariant cdbIntegerValue(const QByteArray &t);
+// Write memory (f ...).
+QByteArray cdbWriteMemoryCommand(quint64 addr, const QByteArray &data);
 
 QString debugByteArray(const QByteArray &a);
 QString StringFromBase64EncodedUtf16(const QByteArray &a);

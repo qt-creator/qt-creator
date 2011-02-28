@@ -252,6 +252,18 @@ BreakpointId parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
     return id;
 }
 
+QByteArray cdbWriteMemoryCommand(quint64 addr, const QByteArray &data)
+{
+    QByteArray cmd;
+    ByteArrayInputStream str(cmd);
+    str.setIntegerBase(16);
+    str << "f " << addr << " L" << data.size();
+    const int count = data.size();
+    for (int i = 0 ; i < count ; i++ )
+        str << ' ' << int(data.at(i));
+    return cmd;
+}
+
 QString debugByteArray(const QByteArray &a)
 {
     QString rc;

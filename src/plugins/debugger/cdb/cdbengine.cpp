@@ -173,10 +173,20 @@ struct MemoryViewCookie
     quint64 length;
 };
 
+struct MemoryChangeCookie
+{
+    explicit MemoryChangeCookie(quint64 addr = 0, const QByteArray &d = QByteArray()) :
+                               address(addr), data(d) {}
+
+    quint64 address;
+    QByteArray data;
+};
+
 } // namespace Internal
 } // namespace Debugger
 
 Q_DECLARE_METATYPE(Debugger::Internal::MemoryViewCookie)
+Q_DECLARE_METATYPE(Debugger::Internal::MemoryChangeCookie)
 
 namespace Debugger {
 namespace Internal {
@@ -451,6 +461,7 @@ void CdbEngine::init()
     m_extensionCommandQueue.clear();
     m_extensionMessageBuffer.clear();
     m_pendingBreakpointMap.clear();
+    m_customSpecialStopData.clear();
     QTC_ASSERT(m_process.state() != QProcess::Running, Utils::SynchronousProcess::stopProcess(m_process); )
 }
 
@@ -1087,6 +1098,13 @@ void CdbEngine::interruptInferior()
     }
 }
 
+void CdbEngine::doInterruptInferiorCustomSpecialStop(const QVariant &v)
+{
+    if (m_specialStopMode == NoSpecialStop)
+        doInterruptInferior(CustomSpecialStop);
+    m_customSpecialStopData.push_back(v);
+}
+
 void CdbEngine::doInterruptInferior(SpecialStopMode sm)
 {
 #ifdef Q_OS_WIN
@@ -1446,6 +1464,17 @@ void CdbEngine::fetchMemory(MemoryAgent *agent, QObject *editor, quint64 addr, q
     postExtensionCommand("memory", args, 0, &CdbEngine::handleMemory, 0, cookie);
 }
 
+void CdbEngine::changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, const QByteArray &data)
+{
+    QTC_ASSERT(!data.isEmpty(), return; )
+    if (!m_accessible) {
+        const MemoryChangeCookie cookie(addr, data);
+        doInterruptInferiorCustomSpecialStop(qVariantFromValue(cookie));
+    } else {
+        postCommand(cdbWriteMemoryCommand(addr, data), 0);
+    }
+}
+
 void CdbEngine::handleMemory(const CdbExtensionCommandPtr &command)
 {
     QTC_ASSERT(qVariantCanConvert<MemoryViewCookie>(command->cookie), return;)
@@ -1781,6 +1810,12 @@ void CdbEngine::handleSessionIdle(const QByteArray &messageBA)
         return;
     case SpecialStopGetWidgetAt:
         postWidgetAtCommand();
+        return;
+    case CustomSpecialStop:
+        foreach (const QVariant &data, m_customSpecialStopData)
+            handleCustomSpecialStop(data);
+        m_customSpecialStopData.clear();
+        doContinueInferior();
         return;
     case NoSpecialStop:
         break;
@@ -2558,6 +2593,15 @@ void CdbEngine::postWidgetAtCommand()
     arguments.append(' ');
     arguments.append(QByteArray::number(m_watchPointY));
     postExtensionCommand("widgetat", arguments, 0, &CdbEngine::handleWidgetAt, 0);
+}
+
+void CdbEngine::handleCustomSpecialStop(const QVariant &v)
+{
+    if (qVariantCanConvert<MemoryChangeCookie>(v)) {
+        const MemoryChangeCookie changeData = qVariantValue<MemoryChangeCookie>(v);
+        postCommand(cdbWriteMemoryCommand(changeData.address, changeData.data), 0);
+        return;
+    }
 }
 
 } // namespace Internal
