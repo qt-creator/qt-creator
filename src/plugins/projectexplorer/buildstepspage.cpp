@@ -168,7 +168,11 @@ void BuildStepListWidget::addBuildStepWidget(int pos, BuildStep *step)
 
     // layout
     Utils::FadingPanel *toolWidget = new Utils::FadingPanel(s.detailsWidget);
+#ifdef Q_WS_MAC
+    QSize buttonSize(20, 20);
+#else
     QSize buttonSize(20, 26);
+#endif
 
     s.upButton = new QToolButton(toolWidget);
     s.upButton->setAutoRaise(true);
