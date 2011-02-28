@@ -92,8 +92,8 @@ void MemoryAgent::createBinEditor(quint64 addr)
         editor->setProperty(Constants::OPENED_BY_DEBUGGER, true);
         editor->setProperty(Constants::OPENED_WITH_MEMORY, true);
         connect(editor->widget(),
-            SIGNAL(dataRequested(Core::IEditor*,quint64,bool)),
-            SLOT(fetchLazyData(Core::IEditor*,quint64,bool)));
+            SIGNAL(dataRequested(Core::IEditor*,quint64)),
+            SLOT(fetchLazyData(Core::IEditor*,quint64)));
         connect(editor->widget(),
             SIGNAL(newWindowRequested(quint64)),
             SLOT(createBinEditor(quint64)));
@@ -125,9 +125,8 @@ void MemoryAgent::createBinEditor(quint64 addr)
     }
 }
 
-void MemoryAgent::fetchLazyData(IEditor *editor, quint64 block, bool sync)
+void MemoryAgent::fetchLazyData(IEditor *editor, quint64 block)
 {
-    Q_UNUSED(sync); // FIXME: needed support for incremental searching
     m_engine->fetchMemory(this, editor, BinBlockSize * block, BinBlockSize);
 }
 

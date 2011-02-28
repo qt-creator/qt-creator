@@ -185,7 +185,7 @@ public:
         Core::IFile(parent)
     {
         m_editor = parent;
-        connect(m_editor, SIGNAL(dataRequested(Core::IEditor *, quint64, bool)),
+        connect(m_editor, SIGNAL(dataRequested(Core::IEditor*,quint64)),
             this, SLOT(provideData(Core::IEditor *, quint64)));
         connect(m_editor, SIGNAL(newRangeRequested(Core::IEditor*,quint64)),
             this, SLOT(provideNewRange(Core::IEditor*,quint64)));

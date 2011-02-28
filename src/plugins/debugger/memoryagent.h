@@ -63,16 +63,18 @@ public slots:
     void createBinEditor(quint64 startAddr);
     // Called by engine to trigger update of contents.
     void updateContents();
-    // Called by enine to pass updated contents.
+    // Called by engine to pass updated contents.
     void addLazyData(QObject *editorToken, quint64 addr, const QByteArray &data);
 
-private:
-    Q_SLOT void fetchLazyData(Core::IEditor *, quint64 block, bool sync);
-    Q_SLOT void provideNewRange(Core::IEditor *editor, quint64 address);
-    Q_SLOT void handleStartOfFileRequested(Core::IEditor *editor);
-    Q_SLOT void handleEndOfFileRequested(Core::IEditor *editor);
-    Q_SLOT void handleDataChanged(Core::IEditor *editor, quint64 address, const QByteArray &data);
+private slots:
+    void fetchLazyData(Core::IEditor *, quint64 block);
+    void provideNewRange(Core::IEditor *editor, quint64 address);
+    void handleStartOfFileRequested(Core::IEditor *editor);
+    void handleEndOfFileRequested(Core::IEditor *editor);
+    void handleDataChanged(Core::IEditor *editor, quint64 address,
+        const QByteArray &data);
 
+private:
     QList<QPointer<Core::IEditor> > m_editors;
     QPointer<DebuggerEngine> m_engine;
 };

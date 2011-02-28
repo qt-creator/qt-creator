@@ -176,7 +176,7 @@ void BinEditor::addData(quint64 block, const QByteArray &data)
     }
 }
 
-bool BinEditor::requestDataAt(int pos, bool synchronous) const
+bool BinEditor::requestDataAt(int pos) const
 {
     int block = pos / m_blockSize;
     BlockMap::const_iterator it = m_modifiedData.find(block);
@@ -188,10 +188,8 @@ bool BinEditor::requestDataAt(int pos, bool synchronous) const
     if (!m_requests.contains(block)) {
         m_requests.insert(block);
         emit const_cast<BinEditor*>(this)->
-            dataRequested(editor(), m_baseAddr / m_blockSize + block,
-                              synchronous);
-        if (!m_requests.contains(block))
-            return true; // synchronous data source
+            dataRequested(editor(), m_baseAddr / m_blockSize + block);
+        return true;
     }
     return false;
 }
@@ -530,7 +528,7 @@ int BinEditor::dataIndexOf(const QByteArray &pattern, int from, bool caseSensiti
     const int end =
         qMin<qint64>(static_cast<qint64>(from) + SearchStride, m_size);
     while (from < end) {
-        if (!requestDataAt(block * m_blockSize, true))
+        if (!requestDataAt(block * m_blockSize))
             return -1;
         QByteArray data = blockData(block);
         ::memcpy(b, b + m_blockSize, trailing);
@@ -561,7 +559,7 @@ int BinEditor::dataLastIndexOf(const QByteArray &pattern, int from, bool caseSen
     int block = from / m_blockSize;
     const int lowerBound = qMax(0, from - SearchStride);
     while (from > lowerBound) {
-        if (!requestDataAt(block * m_blockSize, true))
+        if (!requestDataAt(block * m_blockSize))
             return -1;
         QByteArray data = blockData(block);
         ::memcpy(b + m_blockSize, b, trailing);

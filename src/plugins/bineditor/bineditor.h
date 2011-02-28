@@ -133,7 +133,7 @@ Q_SIGNALS:
     void copyAvailable(bool);
     void cursorPositionChanged(int position);
 
-    void dataRequested(Core::IEditor *editor, quint64 block, bool synchronous);
+    void dataRequested(Core::IEditor *editor, quint64 block);
     void newWindowRequested(quint64 address);
     void newRangeRequested(Core::IEditor *, quint64 address);
     void startOfFileRequested(Core::IEditor *);
@@ -169,7 +169,7 @@ private:
     int dataIndexOf(const QByteArray &pattern, int from, bool caseSensitive = true) const;
     int dataLastIndexOf(const QByteArray &pattern, int from, bool caseSensitive = true) const;
 
-    bool requestDataAt(int pos, bool synchronous = false) const;
+    bool requestDataAt(int pos) const;
     bool requestOldDataAt(int pos) const;
     char dataAt(int pos, bool old = false) const;
     char oldDataAt(int pos) const;
