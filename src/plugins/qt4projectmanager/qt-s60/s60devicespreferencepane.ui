@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>Qt4ProjectManager::Internal::S60DevicesPreferencePane</class>
  <widget class="QWidget" name="Qt4ProjectManager::Internal::S60DevicesPreferencePane">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>366</width>
+    <height>231</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -27,30 +35,42 @@
      <item>
       <layout class="QVBoxLayout" name="buttonLayout">
        <item>
-        <widget class="QToolButton" name="refreshButton">
+        <widget class="QPushButton" name="refreshButton">
          <property name="toolTip">
+          <string>Refresh</string>
+         </property>
+         <property name="text">
           <string>Refresh</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="addButton">
+        <widget class="QPushButton" name="addButton">
          <property name="toolTip">
+          <string>Add</string>
+         </property>
+         <property name="text">
           <string>Add</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="changeQtButton">
+        <widget class="QPushButton" name="removeButton">
          <property name="toolTip">
-          <string>Change Qt version</string>
+          <string>Remove</string>
+         </property>
+         <property name="text">
+          <string>Remove</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="removeButton">
+        <widget class="QPushButton" name="changeQtButton">
          <property name="toolTip">
-          <string>Remove</string>
+          <string>Change Qt version</string>
+         </property>
+         <property name="text">
+          <string>Change Qt Version</string>
          </property>
         </widget>
        </item>

@@ -246,7 +246,7 @@ CppFileSettingsWidget::CppFileSettingsWidget(QWidget *parent) :
         foreach (const QString &suffix, headerMt.suffixes())
             m_ui->headerSuffixComboBox->addItem(suffix);
     m_ui->licenseTemplatePathChooser->setExpectedKind(Utils::PathChooser::File);
-    m_ui->licenseTemplatePathChooser->addButton(tr("Edit..."), this, SLOT(slotEdit()));
+    m_ui->licenseTemplatePathChooser->addButton(tr("Edit"), this, SLOT(slotEdit()));
 }
 
 CppFileSettingsWidget::~CppFileSettingsWidget()

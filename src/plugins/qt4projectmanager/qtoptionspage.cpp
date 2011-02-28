@@ -160,9 +160,6 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
 
     m_ui->debuggingHelperWidget->setWidget(debuggingHelperDetailsWidget);
 
-    m_ui->addButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
-    m_ui->delButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
-
     new Utils::TreeWidgetColumnStretcher(m_ui->qtdirList, 1);
 
     // setup parent items for auto-detected and manual versions

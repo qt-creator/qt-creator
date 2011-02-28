@@ -85,14 +85,14 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
        <item>
         <widget class="QPushButton" name="addButton">
          <property name="text">
-          <string>Add...</string>
+          <string>Add</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="editButton">
          <property name="text">
-          <string>Edit...</string>
+          <string>Edit</string>
          </property>
         </widget>
        </item>
@@ -102,6 +102,19 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
           <string>Remove</string>
          </property>
         </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </item>

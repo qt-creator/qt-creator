@@ -191,13 +191,9 @@ S60DevicesBaseWidget::S60DevicesBaseWidget(unsigned flags, QWidget *parent) :
     m_model(new S60DevicesModel(flags & DeviceDefaultCheckable))
 {
     m_ui->setupUi(this);
-    m_ui->addButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PLUS)));
     connect(m_ui->addButton, SIGNAL(clicked()), this, SLOT(addDevice()));
-    m_ui->removeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_MINUS)));
     connect(m_ui->removeButton, SIGNAL(clicked()), this, SLOT(removeDevice()));
-    m_ui->refreshButton->setIcon(qApp->style()->standardIcon(QStyle::SP_BrowserReload));
     connect(m_ui->refreshButton, SIGNAL(clicked()), this, SLOT(refresh()));
-    m_ui->changeQtButton->setIcon(QIcon(QLatin1String(":/welcome/images/qt_logo.png")));
     connect(m_ui->changeQtButton, SIGNAL(clicked()), this, SLOT(changeQtVersion()));
 
     m_ui->list->setModel(m_model);

@@ -265,8 +265,11 @@
         </item>
         <item>
          <widget class="QPushButton" name="defaultPageButton">
+          <property name="toolTip">
+           <string>Reset to default</string>
+          </property>
           <property name="text">
-           <string>Restore to Default</string>
+           <string>Reset</string>
           </property>
          </widget>
         </item>

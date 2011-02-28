@@ -35,33 +35,22 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QToolButton" name="addButton">
+        <widget class="QPushButton" name="addButton">
          <property name="toolTip">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Lucida Grande'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Add tool&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>Add tool</string>
          </property>
          <property name="text">
-          <string>+</string>
-         </property>
-         <property name="popupMode">
-          <enum>QToolButton::MenuButtonPopup</enum>
+          <string>Add</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="removeButton">
+        <widget class="QPushButton" name="removeButton">
          <property name="toolTip">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Lucida Grande'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Remove tool&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>Remove tool</string>
          </property>
          <property name="text">
-          <string>-</string>
+          <string>Remove</string>
          </property>
         </widget>
        </item>
@@ -79,16 +68,12 @@ p, li { white-space: pre-wrap; }
         </spacer>
        </item>
        <item>
-        <widget class="QToolButton" name="revertButton">
+        <widget class="QPushButton" name="revertButton">
          <property name="toolTip">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Lucida Grande'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Revert tool to preset&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>Revert tool to default</string>
          </property>
          <property name="text">
-          <string>...</string>
+          <string>Reset</string>
          </property>
         </widget>
        </item>
@@ -153,7 +138,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="Utils::PathChooser" name="workingDirectory"/>
+       <widget class="Utils::PathChooser" name="workingDirectory" native="true"/>
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="outputLabel">

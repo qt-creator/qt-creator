@@ -19,14 +19,7 @@
      <property name="title">
       <string>Qt Quick Toolbars</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QCheckBox" name="textEditHelperCheckBox">
-        <property name="text">
-         <string>Always show Qt Quick Toolbar</string>
-        </property>
-       </widget>
-      </item>
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QCheckBox" name="textEditHelperCheckBoxPin">
         <property name="toolTip">
@@ -34,6 +27,13 @@
         </property>
         <property name="text">
          <string>Pin Qt Quick Toolbar</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="textEditHelperCheckBox">
+        <property name="text">
+         <string>Always show Qt Quick Toolbar</string>
         </property>
        </widget>
       </item>

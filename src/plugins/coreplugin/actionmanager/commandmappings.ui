@@ -59,8 +59,11 @@
        <layout class="QHBoxLayout">
         <item>
          <widget class="QPushButton" name="defaultButton">
+          <property name="toolTip">
+           <string>Reset all to default</string>
+          </property>
           <property name="text">
-           <string>Defaults</string>
+           <string>Reset All</string>
           </property>
          </widget>
         </item>
@@ -115,28 +118,18 @@
          <widget class="Utils::FilterLineEdit" name="targetEdit"/>
         </item>
         <item>
-         <widget class="QToolButton" name="resetButton">
+         <widget class="QPushButton" name="resetButton">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="minimumSize">
-           <size>
-            <width>27</width>
-            <height>27</height>
-           </size>
-          </property>
           <property name="toolTip">
-           <string>Reset</string>
+           <string>Reset to default</string>
           </property>
           <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset resource="../core.qrc">
-            <normaloff>:/core/images/reset.png</normaloff>:/core/images/reset.png</iconset>
+           <string>Reset</string>
           </property>
           <property name="iconSize">
            <size>
@@ -162,18 +155,11 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Utils::FancyLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header location="global">utils/fancylineedit.h</header>
-  </customwidget>
-  <customwidget>
    <class>Utils::FilterLineEdit</class>
    <extends>QLineEdit</extends>
    <header location="global">utils/filterlineedit.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../core.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

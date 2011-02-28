@@ -72,7 +72,6 @@ MacroOptionsWidget::MacroOptionsWidget(QWidget *parent) :
     m_changingCurrent(false)
 {
     m_ui->setupUi(this);
-    m_ui->removeButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
 
     connect(m_ui->treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
             this, SLOT(changeCurrentItem(QTreeWidgetItem*)));

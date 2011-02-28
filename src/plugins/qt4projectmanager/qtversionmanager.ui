@@ -42,7 +42,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QToolButton" name="addButton">
+        <widget class="QPushButton" name="addButton">
          <property name="minimumSize">
           <size>
            <width>21</width>
@@ -50,12 +50,12 @@
           </size>
          </property>
          <property name="text">
-          <string>+</string>
+          <string>Add</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="delButton">
+        <widget class="QPushButton" name="delButton">
          <property name="minimumSize">
           <size>
            <width>21</width>
@@ -63,7 +63,7 @@
           </size>
          </property>
          <property name="text">
-          <string>-</string>
+          <string>Remove</string>
          </property>
         </widget>
        </item>

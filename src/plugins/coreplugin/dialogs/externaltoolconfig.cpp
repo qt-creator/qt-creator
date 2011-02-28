@@ -399,9 +399,6 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     connect(ui->modifiesDocumentCheckbox, SIGNAL(clicked()), this, SLOT(updateCurrentItem()));
     connect(ui->inputText, SIGNAL(textChanged()), this, SLOT(updateCurrentItem()));
 
-    ui->addButton->setIcon(QIcon(QLatin1String(Constants::ICON_PLUS)));
-    ui->removeButton->setIcon(QIcon(QLatin1String(Constants::ICON_MINUS)));
-    ui->revertButton->setIcon(QIcon(QLatin1String(Constants::ICON_RESET)));
     connect(ui->revertButton, SIGNAL(clicked()), this, SLOT(revertCurrentItem()));
     connect(ui->addButton, SIGNAL(clicked()), this, SLOT(add()));
     connect(ui->removeButton, SIGNAL(clicked()), this, SLOT(removeTool()));
