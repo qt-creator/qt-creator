@@ -33,7 +33,7 @@
     <description>Sorts the selected text</description>
     <description xml:lang="de">Sortiert den ausgewählten Text</description>
     <displayname>Sort Selection</displayname>
-    <displayname xml:lang="de">Selektion Sortieren</displayname>
+    <displayname xml:lang="de">Auswahl Sortieren</displayname>
     <category>Text</category>
     <category xml:lang="de">Text</category>
     <executable output="replaceselection" error="ignore">
