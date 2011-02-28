@@ -66,7 +66,7 @@ MaemoPublisherFremantleFree::MaemoPublisherFremantleFree(const ProjectExplorer::
     m_state(Inactive),
     m_sshParams(SshConnectionParameters::DefaultProxy)
 {
-    m_sshParams.authorizationType = SshConnectionParameters::AuthorizationByKey;
+    m_sshParams.authenticationType = SshConnectionParameters::AuthenticationByKey;
     m_sshParams.timeout = 30;
     m_sshParams.port = 22;
     m_process = new QProcess(this);

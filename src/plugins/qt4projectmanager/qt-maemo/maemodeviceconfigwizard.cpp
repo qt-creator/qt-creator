@@ -407,7 +407,7 @@ private:
         m_ui->passwordLineEdit->setEnabled(false);
         m_ui->deployButton->setEnabled(false);
         Utils::SshConnectionParameters sshParams(SshConnectionParameters::NoProxy);
-        sshParams.authorizationType = SshConnectionParameters::AuthorizationByPassword;
+        sshParams.authenticationType = SshConnectionParameters::AuthenticationByPassword;
         sshParams.host = hostAddress();
         sshParams.port = MaemoDeviceConfig::defaultSshPort(MaemoDeviceConfig::Physical);
         sshParams.password = password();

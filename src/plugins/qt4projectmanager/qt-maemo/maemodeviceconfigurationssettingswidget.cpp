@@ -205,7 +205,7 @@ void MaemoDeviceConfigurationsSettingsWidget::displayCurrent()
         m_ui->deviceTypeValueLabel->setText(tr("Emulator (Qemu)"));
         m_ui->portsLineEdit->setReadOnly(true);
     }
-    if (sshParams.authorizationType == Utils::SshConnectionParameters::AuthorizationByPassword)
+    if (sshParams.authenticationType == Utils::SshConnectionParameters::AuthenticationByPassword)
         m_ui->passwordButton->setChecked(true);
     else
         m_ui->keyButton->setChecked(true);
@@ -265,9 +265,9 @@ void MaemoDeviceConfigurationsSettingsWidget::authenticationTypeChanged()
 {
     SshConnectionParameters sshParams = currentConfig()->sshParameters();
     const bool usePassword = m_ui->passwordButton->isChecked();
-    sshParams.authorizationType = usePassword
-        ? SshConnectionParameters::AuthorizationByPassword
-        : SshConnectionParameters::AuthorizationByKey;
+    sshParams.authenticationType = usePassword
+        ? SshConnectionParameters::AuthenticationByPassword
+        : SshConnectionParameters::AuthenticationByKey;
     m_devConfigs->setSshParameters(currentIndex(), sshParams);
     m_ui->pwdLineEdit->setEnabled(usePassword);
     m_ui->passwordLabel->setEnabled(usePassword);

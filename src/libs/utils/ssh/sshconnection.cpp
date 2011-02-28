@@ -76,15 +76,15 @@ namespace {
 
 
 SshConnectionParameters::SshConnectionParameters(ProxyType proxyType) :
-    timeout(0),  authorizationType(AuthorizationByKey), port(0), proxyType(proxyType)
+    timeout(0),  authenticationType(AuthenticationByKey), port(0), proxyType(proxyType)
 {
 }
 
 static inline bool equals(const SshConnectionParameters &p1, const SshConnectionParameters &p2)
 {
     return p1.host == p2.host && p1.userName == p2.userName
-            && p1.authorizationType == p2.authorizationType
-            && (p1.authorizationType == SshConnectionParameters::AuthorizationByPassword ?
+            && p1.authenticationType == p2.authenticationType
+            && (p1.authenticationType == SshConnectionParameters::AuthenticationByPassword ?
                     p1.password == p2.password : p1.privateKeyFile == p2.privateKeyFile)
             && p1.timeout == p2.timeout && p1.port == p2.port;
 }
@@ -394,7 +394,7 @@ void SshConnectionPrivate::handleNewKeysPacket()
 
 void SshConnectionPrivate::handleServiceAcceptPacket()
 {
-    if (m_connParams.authorizationType == SshConnectionParameters::AuthorizationByPassword) {
+    if (m_connParams.authenticationType == SshConnectionParameters::AuthenticationByPassword) {
         m_sendFacility.sendUserAuthByPwdRequestPacket(m_connParams.userName.toUtf8(),
             SshCapabilities::SshConnectionService, m_connParams.password.toUtf8());
     } else {
@@ -418,7 +418,7 @@ void SshConnectionPrivate::handleServiceAcceptPacket()
 
 void SshConnectionPrivate::handlePasswordExpiredPacket()
 {
-    if (m_connParams.authorizationType == SshConnectionParameters::AuthorizationByKey) {
+    if (m_connParams.authenticationType == SshConnectionParameters::AuthenticationByKey) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Got SSH_MSG_USERAUTH_PASSWD_CHANGEREQ, but did not use password.");
     }
@@ -449,7 +449,7 @@ void SshConnectionPrivate::handleUserAuthSuccessPacket()
 void SshConnectionPrivate::handleUserAuthFailurePacket()
 {
     m_timeoutTimer.stop();
-    const QString errorMsg = m_connParams.authorizationType == SshConnectionParameters::AuthorizationByPassword
+    const QString errorMsg = m_connParams.authenticationType == SshConnectionParameters::AuthenticationByPassword
         ? tr("Server rejected password.") : tr("Server rejected key.");
     throw SshClientException(SshAuthenticationError, errorMsg);
 }
