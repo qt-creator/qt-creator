@@ -264,16 +264,9 @@
          </widget>
         </item>
         <item>
-         <widget class="QToolButton" name="defaultPageButton">
-          <property name="toolTip">
-           <string>Reset to default</string>
-          </property>
+         <widget class="QPushButton" name="defaultPageButton">
           <property name="text">
-           <string>Reset to Default</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../coreplugin/core.qrc">
-            <normaloff>:/core/images/reset.png</normaloff>:/core/images/reset.png</iconset>
+           <string>Restore to Default</string>
           </property>
          </widget>
         </item>
@@ -400,8 +393,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../coreplugin/core.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

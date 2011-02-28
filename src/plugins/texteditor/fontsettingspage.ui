@@ -170,19 +170,12 @@
          </widget>
         </item>
         <item>
-         <widget class="QToolButton" name="deleteButton">
+         <widget class="QPushButton" name="deleteButton">
           <property name="enabled">
            <bool>false</bool>
           </property>
-          <property name="toolTip">
-           <string>Delete</string>
-          </property>
           <property name="text">
            <string>Delete</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../coreplugin/core.qrc">
-            <normaloff>:/core/images/minus-16.png</normaloff>:/core/images/minus-16.png</iconset>
           </property>
          </widget>
         </item>
@@ -211,8 +204,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../coreplugin/core.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

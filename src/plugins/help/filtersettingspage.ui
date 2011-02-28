@@ -113,24 +113,16 @@ Add, modify, and remove document filters, which determine the documentation set 
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QToolButton" name="filterAddButton">
+      <widget class="QPushButton" name="filterAddButton">
        <property name="text">
         <string>Add</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../coreplugin/core.qrc">
-         <normaloff>:/core/images/plus-16.png</normaloff>:/core/images/plus-16.png</iconset>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="filterRemoveButton">
+      <widget class="QPushButton" name="filterRemoveButton">
        <property name="text">
         <string>Remove</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../coreplugin/core.qrc">
-         <normaloff>:/core/images/minus-16.png</normaloff>:/core/images/minus-16.png</iconset>
        </property>
       </widget>
      </item>
@@ -151,8 +143,6 @@ Add, modify, and remove document filters, which determine the documentation set 
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../coreplugin/core.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

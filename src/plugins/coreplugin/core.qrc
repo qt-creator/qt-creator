@@ -65,9 +65,6 @@
         <file>images/category_cpp.png</file>
         <file>images/category_vcs.png</file>
         <file>images/category_qml.png</file>
-        <file>images/filtericon.png</file>
-        <file>images/plus-16.png</file>
-        <file>images/minus-16.png</file>
-        <file>images/edit.png</file>
+	<file>images/filtericon.png</file>
     </qresource>
 </RCC>

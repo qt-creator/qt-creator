@@ -217,9 +217,8 @@ const char * const G_WINDOW_OTHER        = "QtCreator.Group.Window.Other";
 const char * const G_HELP_HELP           = "QtCreator.Group.Help.Help";
 const char * const G_HELP_ABOUT          = "QtCreator.Group.Help.About";
 
-const char * const ICON_MINUS            = ":/core/images/minus-16.png";
-const char * const ICON_PLUS             = ":/core/images/plus-16.png";
-const char * const ICON_EDIT             = ":/core/images/edit.png";
+const char * const ICON_MINUS            = ":/core/images/minus.png";
+const char * const ICON_PLUS             = ":/core/images/plus.png";
 const char * const ICON_NEWFILE          = ":/core/images/filenew.png";
 const char * const ICON_OPENFILE         = ":/core/images/fileopen.png";
 const char * const ICON_SAVEFILE         = ":/core/images/filesave.png";
