@@ -82,11 +82,14 @@ namespace {
     const char * const kNo = "no";
     const char * const kTrue= "true";
     const char * const kFalse = "false";
+
+    const char * const kSpecialUncategorizedSetting = "SpecialEmptyCategoryForUncategorizedTools";
 }
 
 // #pragma mark -- ExternalTool
 
 ExternalTool::ExternalTool() :
+    m_displayCategory(QLatin1String("")), // difference between isNull and isEmpty
     m_order(-1),
     m_outputHandling(ShowInPane),
     m_errorHandling(ShowInPane),
@@ -318,6 +321,8 @@ static void localizedText(const QStringList &locales, QXmlStreamReader *reader, 
             reader->skipCurrentElement();
         }
     }
+    if (currentText->isNull()) // prefer isEmpty over isNull
+        *currentText = QLatin1String("");
 }
 
 static bool parseOutputAttribute(const QString &attribute, QXmlStreamReader *reader, ExternalTool::OutputHandling *value)
@@ -866,8 +871,11 @@ void ExternalToolManager::readSettings(const QMap<QString, ExternalTool *> &tool
 
     if (categoryMap) {
         settings->beginGroup(QLatin1String("OverrideCategories"));
-        foreach (const QString &category, settings->childGroups()) {
-            int count = settings->beginReadArray(category);
+        foreach (const QString &settingsCategory, settings->childGroups()) {
+            QString displayCategory = settingsCategory;
+            if (displayCategory == QLatin1String(kSpecialUncategorizedSetting))
+                displayCategory = QLatin1String("");
+            int count = settings->beginReadArray(settingsCategory);
             for (int i = 0; i < count; ++i) {
                 settings->setArrayIndex(i);
                 const QString &toolId = settings->value(QLatin1String("Tool")).toString();
@@ -878,7 +886,7 @@ void ExternalToolManager::readSettings(const QMap<QString, ExternalTool *> &tool
                     if (categoryMap->value(tool->displayCategory()).isEmpty())
                         categoryMap->remove(tool->displayCategory());
                     // add to new category
-                    (*categoryMap)[category].append(tool);
+                    (*categoryMap)[displayCategory].append(tool);
                 }
             }
             settings->endArray();
@@ -899,7 +907,9 @@ void ExternalToolManager::writeSettings()
     QMapIterator<QString, QList<ExternalTool *> > it(m_categoryMap);
     while (it.hasNext()) {
         it.next();
-        const QString &category = it.key();
+        QString category = it.key();
+        if (category.isEmpty())
+            category = QLatin1String(kSpecialUncategorizedSetting);
         settings->beginWriteArray(category, it.value().count());
         int i = 0;
         foreach (ExternalTool *tool, it.value()) {

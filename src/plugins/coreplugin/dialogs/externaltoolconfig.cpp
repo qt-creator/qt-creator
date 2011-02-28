@@ -179,8 +179,9 @@ QModelIndex ExternalToolModel::index(int row, int column, const QModelIndex &par
                 return createIndex(row, 0, items.at(row));
             }
         }
-    } else if (column == 0 && row < m_tools.keys().count())
+    } else if (column == 0 && row < m_tools.keys().count()) {
         return createIndex(row, 0);
+    }
     return QModelIndex();
 }
 
