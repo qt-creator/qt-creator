@@ -556,7 +556,7 @@ bool ExternalToolRunner::resolve()
             return false;
     }
     { // arguments
-        m_resolvedArguments = Utils::expandMacros(m_tool->arguments(),
+        m_resolvedArguments = Utils::QtcProcess::expandMacros(m_tool->arguments(),
                                                Core::VariableManager::instance()->macroExpander());
     }
     { // input
