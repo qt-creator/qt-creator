@@ -94,6 +94,7 @@ public:
     qreal slowdownFactor;
 
     QmlToolBar *toolBar;
+    QWidget *toolBox;
     QSettings *settings;
 
     void setViewport(QWidget *widget);
@@ -127,6 +128,8 @@ public:
     void enterContext(QGraphicsItem *itemToEnter);
 
 public slots:
+    void _q_setToolBoxVisible(bool visible);
+
     void _q_reloadView();
     void _q_onStatusChanged(QDeclarativeView::Status status);
     void _q_onCurrentObjectsChanged(QList<QObject*> objects);

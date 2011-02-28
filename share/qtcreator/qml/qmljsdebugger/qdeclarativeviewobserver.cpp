@@ -70,6 +70,7 @@ QDeclarativeViewObserverPrivate::QDeclarativeViewObserverPrivate(QDeclarativeVie
     executionPaused(false),
     slowdownFactor(1.0f),
     toolBar(0),
+    toolBox(0),
     settings(0)
 {
 }
@@ -105,6 +106,10 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
     data->setViewport(data->view->viewport());
 
     data->debugService = QDeclarativeObserverService::instance();
+
+    connect(data->debugService, SIGNAL(debuggingClientChanged(bool)),
+            data.data(), SLOT(_q_setToolBoxVisible(bool)));
+
     connect(data->debugService, SIGNAL(designModeBehaviorChanged(bool)),
             SLOT(setDesignModeBehavior(bool)));
     connect(data->debugService, SIGNAL(showAppOnTopChanged(bool)),
@@ -146,10 +151,6 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
     connect(data->subcomponentEditorTool, SIGNAL(contextPathChanged(QStringList)),
             data->debugService, SLOT(contextPathUpdated(QStringList)));
 
-#if !defined(Q_OS_SYMBIAN) && !defined(Q_WS_MAEMO_5)
-    data->createToolBox();
-#endif
-
     data->_q_changeToSingleSelectTool();
 }
 
@@ -164,6 +165,16 @@ void QDeclarativeViewObserver::setObserverContext(int contextIndex)
         if (object)
             setSelectedItems(QList<QGraphicsItem*>() << object);
     }
+}
+
+void QDeclarativeViewObserverPrivate::_q_setToolBoxVisible(bool visible)
+{
+#if !defined(Q_OS_SYMBIAN) && !defined(Q_WS_MAEMO_5)
+    if (!toolBox && visible)
+        createToolBox();
+    if (toolBox)
+        toolBox->setVisible(visible);
+#endif
 }
 
 void QDeclarativeViewObserverPrivate::_q_reloadView()
@@ -906,14 +917,13 @@ void QDeclarativeViewObserverPrivate::createToolBox()
     verticalLayout->setMargin(0);
     verticalLayout->addWidget(toolBar);
 
-    QWidget *toolBox = new QWidget(q->declarativeView(), Qt::Tool);
+    toolBox = new QWidget(q->declarativeView(), Qt::Tool);
     toolBox->setWindowFlags((toolBox->windowFlags() & ~Qt::WindowCloseButtonHint)
                             | Qt::CustomizeWindowHint);
     toolBox->setWindowTitle(tr("Qt Quick Toolbox"));
     toolBox->setLayout(verticalLayout);
 
     toolBox->restoreGeometry(settings->value(QLatin1String(KEY_TOOLBOX_GEOMETRY)).toByteArray());
-    toolBox->show();
 }
 
 } //namespace QmlJSDebugger
