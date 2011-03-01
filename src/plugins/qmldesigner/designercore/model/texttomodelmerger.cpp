@@ -83,24 +83,24 @@ static inline QString deEscape(const QString &value)
     return result;
 }
  
-static inline int fixUpMajorVersionForQtQuick(const QString &value, int i)
+static inline int fixUpMajorVersionForQt(const QString &value, int i)
 {
-    if (i == 1 && value == "QtQuick")
-        return 4;
+    if (i == 4 && value == "Qt")
+        return 1;
     else return i;
 }
 
-static inline int fixUpMinorVersionForQtQuick(const QString &value, int i)
+static inline int fixUpMinorVersionForQt(const QString &value, int i)
 {
-    if (i == 0 && value == "QtQuick")
-        return 7;
+    if (i == 7 && value == "Qt")
+        return 0;
     else return i;
 }
 
-static inline QString fixUpPackeNameForQtQuick(const QString &value)
+static inline QString fixUpPackeNameForQt(const QString &value)
 {
-    if (value == "QtQuick")
-        return "Qt";
+    if (value == "Qt")
+        return "QtQuick";
     return value;
 }
 
@@ -224,6 +224,12 @@ static bool isComponentType(const QString &type)
     return  type == QLatin1String("Component") || type == QLatin1String("Qt/Component") || type == QLatin1String("QtQuick/Component");
 }
 
+static bool isPropertyChangesType(const QString &type)
+{
+    return  type == QLatin1String("PropertyChanges") || type == QLatin1String("QtQuick/PropertyChanges") || type == QLatin1String("Qt/PropertyChanges");
+}
+
+
 } // anonymous namespace
 
 namespace QmlDesigner {
@@ -263,11 +269,11 @@ public:
 
         const Interpreter::QmlObjectValue * qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(value);
         if (qmlValue) {
-            typeName = fixUpPackeNameForQtQuick(qmlValue->packageName()) + QLatin1String("/") + qmlValue->className();
+            typeName = fixUpPackeNameForQt(qmlValue->packageName()) + QLatin1String("/") + qmlValue->className();
 
             //### todo this is just a hack to support QtQuick 1.0
-            majorVersion = fixUpMajorVersionForQtQuick(qmlValue->packageName(), qmlValue->version().majorVersion());
-            minorVersion = fixUpMinorVersionForQtQuick(qmlValue->packageName(), qmlValue->version().minorVersion());
+            majorVersion = fixUpMajorVersionForQt(qmlValue->packageName(), qmlValue->version().majorVersion());
+            minorVersion = fixUpMinorVersionForQt(qmlValue->packageName(), qmlValue->version().minorVersion());
         } else {
             for (UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
                 if (!iter->next && iter->name)
@@ -561,9 +567,9 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
                 differenceHandler.modelMissesImport(newImport);
         } else {
             QString importUri = flatten(import->importUri);
-            if (importUri == QLatin1String("QtQuick") && version == QLatin1String("1.0")) {
-                importUri = QLatin1String("Qt");
-                version = QLatin1String("4.7");
+            if (importUri == QLatin1String("Qt") && version == QLatin1String("4.7")) {
+                importUri = QLatin1String("QtQuick");
+                version = QLatin1String("1.0");
             }
 
             const Import newImport =
@@ -707,7 +713,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
         if (UiArrayBinding *array = cast<UiArrayBinding *>(member)) {
             const QString astPropertyName = flatten(array->qualifiedId);
-            if (typeName == QLatin1String("Qt/PropertyChanges") || context->lookupProperty(QString(), array->qualifiedId)) {
+            if (isPropertyChangesType(typeName) || context->lookupProperty(QString(), array->qualifiedId)) {
                 AbstractProperty modelProperty = modelNode.property(astPropertyName);
                 QList<UiObjectMember *> arrayMembers;
                 for (UiArrayMemberList *iter = array->members; iter; iter = iter->next)
@@ -741,7 +747,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 const Interpreter::Value *propertyType = 0;
                 const Interpreter::ObjectValue *containingObject = 0;
                 QString name;
-                if (context->lookupProperty(QString(), binding->qualifiedId, &propertyType, &containingObject, &name) || typeName == QLatin1String("Qt/PropertyChanges")) {
+                if (context->lookupProperty(QString(), binding->qualifiedId, &propertyType, &containingObject, &name) || isPropertyChangesType(typeName)) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName);
                     if (context->isArrayProperty(propertyType, containingObject, name)) {
                         syncArrayProperty(modelProperty, QList<QmlJS::AST::UiObjectMember*>() << member, context, differenceHandler);
@@ -849,7 +855,7 @@ QString TextToModelMerger::syncScriptBinding(ModelNode &modelNode,
         return QString();
 
     if (isLiteralValue(script)) {
-        if (modelNode.type() == QLatin1String("Qt/PropertyChanges")) {
+        if (isPropertyChangesType(modelNode.type())) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName);
             const QVariant variantValue(deEscape(stripQuotes(astValue)));
             syncVariantProperty(modelProperty, variantValue, QString(), differenceHandler);
@@ -874,7 +880,7 @@ QString TextToModelMerger::syncScriptBinding(ModelNode &modelNode,
         syncVariantProperty(modelProperty, enumValue, QString(), differenceHandler); // TODO: parse type
         return astPropertyName;
     } else { // Not an enum, so:
-        if (modelNode.type() == QLatin1String("Qt/PropertyChanges") || context->lookupProperty(prefix, script->qualifiedId)) {
+        if (isPropertyChangesType(modelNode.type()) || context->lookupProperty(prefix, script->qualifiedId)) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName);
             syncExpressionProperty(modelProperty, astValue, QString(), differenceHandler); // TODO: parse type
             return astPropertyName;

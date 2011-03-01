@@ -509,8 +509,8 @@ void PropertyEditor::updateSize()
 void PropertyEditor::setupPanes()
 {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    setupPane("Qt/Rectangle");
-    setupPane("Qt/Text");  
+    setupPane("QtQuick/Rectangle");
+    setupPane("QtQuick/Text");
     resetView();
     m_setupCompleted = true;
     QApplication::restoreOverrideCursor();
@@ -884,7 +884,8 @@ QString PropertyEditor::qmlFileName(const NodeMetaInfo &nodeInfo) const
 {
     if (nodeInfo.typeName().split('/').last() == "QDeclarativeItem")
         return "Qt/ItemPane.qml";
-    return nodeInfo.typeName() + QLatin1String("Pane.qml");
+    const QString fixedTypeName = nodeInfo.typeName().replace("QtQuick/", "Qt/");
+    return fixedTypeName + QLatin1String("Pane.qml");
 }
 
 QUrl PropertyEditor::fileToUrl(const QString &filePath) const {

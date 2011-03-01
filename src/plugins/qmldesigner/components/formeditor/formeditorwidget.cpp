@@ -327,7 +327,7 @@ QString FormEditorWidget::contextHelpId() const
     QString helpId;
     if (!nodes.isEmpty()) {
         helpId = nodes.first().type();
-        helpId.replace("Qt/", "QML.");
+        helpId.replace("QtQuick/", "QML.");
     }
 
     return helpId;

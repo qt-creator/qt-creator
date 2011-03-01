@@ -612,7 +612,7 @@ void NodeInstanceServer::resetInstanceProperty(const PropertyAbstractContainer &
 
         const QString name = propertyContainer.name();
 
-        if (activeStateInstance().isValid() && !instance.isSubclassOf("Qt/PropertyChanges")) {
+        if (activeStateInstance().isValid() && !instance.isSubclassOf("QtQuick/PropertyChanges")) {
             bool statePropertyWasReseted = activeStateInstance().resetStateProperty(instance, name, instance.resetVariant(name));
             if (!statePropertyWasReseted)
                 instance.resetProperty(name);
@@ -632,7 +632,7 @@ void NodeInstanceServer::setInstancePropertyBinding(const PropertyBindingContain
         const QString expression = bindingContainer.expression();
 
 
-        if (activeStateInstance().isValid() && !instance.isSubclassOf("Qt/PropertyChanges")) {
+        if (activeStateInstance().isValid() && !instance.isSubclassOf("QtQuick/PropertyChanges")) {
             bool stateBindingWasUpdated = activeStateInstance().updateStateBinding(instance, name, expression);
             if (!stateBindingWasUpdated) {
                 if (bindingContainer.isDynamic())
@@ -666,7 +666,7 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
         const QVariant value = valueContainer.value();
 
 
-        if (activeStateInstance().isValid() && !instance.isSubclassOf("Qt/PropertyChanges")) {
+        if (activeStateInstance().isValid() && !instance.isSubclassOf("QtQuick/PropertyChanges")) {
             bool stateValueWasUpdated = activeStateInstance().updateStateVariant(instance, name, value);
             if (!stateValueWasUpdated) {
                 if (valueContainer.isDynamic())

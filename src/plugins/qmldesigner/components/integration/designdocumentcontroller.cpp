@@ -275,7 +275,7 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
 
     //m_d->masterModel = Model::create(m_d->textModifier, m_d->searchPath, errors);
 
-    m_d->masterModel = Model::create("Qt/Rectangle", 4, 7);
+    m_d->masterModel = Model::create("QtQuick/Rectangle", 1, 0);
 
 #if defined(VIEWLOGGER)
     m_d->viewLogger = new Internal::ViewLogger(m_d->model.data());
@@ -284,7 +284,7 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
 
     m_d->masterModel->setFileUrl(m_d->searchPath);
 
-    m_d->subComponentModel = Model::create("Qt/Rectangle", 4, 7);
+    m_d->subComponentModel = Model::create("QtQuick/Rectangle", 1, 0);
     m_d->subComponentModel->setFileUrl(m_d->searchPath);
 
     m_d->subComponentManager = new SubComponentManager(m_d->masterModel->metaInfo(), this);
@@ -775,7 +775,7 @@ QString DesignDocumentController::contextHelpId() const
     QString helpId;
     if (!nodes.isEmpty()) {
         helpId = nodes.first().type();
-        helpId.replace("Qt/", "QML.");
+        helpId.replace("QtQuick/", "QML.");
     }
 
     return helpId;

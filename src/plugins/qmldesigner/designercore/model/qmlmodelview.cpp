@@ -133,7 +133,7 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
         }
 
         propertyPairList.append(qMakePair(QString("source"), QVariant(relativeImageName)));
-        newNode = createQmlItemNode("Qt/Image", 4, 7, propertyPairList);
+        newNode = createQmlItemNode("QtQuick/Image", 1, 0, propertyPairList);
         parentNode.nodeAbstractProperty("data").reparentHere(newNode);
 
         Q_ASSERT(newNode.isValid());
