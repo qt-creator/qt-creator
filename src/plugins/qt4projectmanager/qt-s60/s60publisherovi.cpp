@@ -337,11 +337,11 @@ void S60PublisherOvi::endBuild(int result)
 
     QFileInfo fi(resultFile);
     if (result == QProcess::NormalExit && fi.exists()) {
-        emit progressReport(tr("Created ") + QDir::toNativeSeparators(resultFile) + "\n", m_normalColor);
+        emit progressReport(tr("Created %1\n").arg(QDir::toNativeSeparators(resultFile)), m_normalColor);
         m_finishedAndSuccessful = true;
         emit succeeded();
     } else {
-        emit progressReport(tr(" Sis file not created due to previous errors") + "\n", m_errorColor);
+        emit progressReport(tr(" Sis file not created due to previous errors\n"), m_errorColor);
     }
     emit progressReport(tr("Done!\n"), m_commandColor);
 }
@@ -391,7 +391,7 @@ void S60PublisherOvi::runStep(int result, const QString& buildStep, const QStrin
 
          currProc->start(command);
     } else {
-        emit progressReport(tr("Sis file not created due to previous errors") + "\n", m_errorColor);
+        emit progressReport(tr("Sis file not created due to previous errors\n"), m_errorColor);
     }
 }
 

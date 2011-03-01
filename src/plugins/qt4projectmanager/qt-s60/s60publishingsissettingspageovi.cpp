@@ -136,10 +136,11 @@ void S60PublishingSisSettingsPageOvi::globalVendorNameChanged()
                         ui->globalVendorNameOkLabel,
                         ui->globalVendorNameErrorLabel,
                         ui->globalVendorNameErrorReasonLabel,
-                        tr("\"") + ui->globalVendorNameLineEdit->text() + tr("\"")+ tr(" is a default vendor name used for testing and development. <br>"
-                                                                                       "The Vendor_Name field cannot be, or contain, the name 'Nokia' in it. <br>"
-                                                                                       "It is recommended to also not use the default name of 'Vendor'/'Vendor-EN', or to leave the entry blank. <br>"
-                                                                                       "see <a href=\"http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml\">Packaging and Signing</a> for guidelines.<br>"));
+                        tr("%1 is a default vendor name used for testing and development. <br>"
+                           "The Vendor_Name field cannot be, or contain, the name 'Nokia' in it. <br>"
+                           "It is recommended to also not use the default name of 'Vendor'/'Vendor-EN', or to leave the entry blank. <br>"
+                           "see <a href=\"http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml\">Packaging and Signing</a> for guidelines.<br>")
+                        .arg("\"" + ui->globalVendorNameLineEdit->text() + "\""));
     m_publisher->setVendorName(ui->globalVendorNameLineEdit->text());
 }
 
@@ -161,10 +162,11 @@ void S60PublishingSisSettingsPageOvi::localisedVendorNamesChanged()
                         ui->localisedVendorNamesOkLabel,
                         ui->localisedVendorNamesErrorLabel,
                         ui->localisedVendorNamesErrorReasonLabel,
-                        wrongVendorNames.join(", ") + tr(" are default vendor names used for testing and development. <br>"
-                                                         "The Vendor_Name field cannot be, or contain, the name 'Nokia' in it. <br>"
-                                                         "It is recommended to also not use the default name of 'Vendor'/'Vendor-EN', or to leave the entry blank. <br>"
-                                                         "see <a href=\"http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml\">Packaging and Signing</a> for guidelines.<br>"));
+                        tr("%1 are default vendor names used for testing and development. <br>"
+                           "The Vendor_Name field cannot be, or contain, the name 'Nokia' in it. <br>"
+                           "It is recommended to also not use the default name of 'Vendor'/'Vendor-EN', or to leave the entry blank. <br>"
+                           "see <a href=\"http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml\">Packaging and Signing</a> for guidelines.<br>")
+                        .arg(wrongVendorNames.join(", ")));
     m_publisher->setVendorName(ui->localisedVendorNamesLineEdit->text());
 }
 
@@ -174,14 +176,14 @@ void S60PublishingSisSettingsPageOvi::qtVersionChanged()
 
 void S60PublishingSisSettingsPageOvi::uid3Changed()
 {
-    QString testUID3ErrorMsg = tr(" is only for testing and development.<br>"
+    QString testUID3ErrorMsg = tr("The App UID %1 is only for testing and development.<br>"
                                "SIS packages built with it, cannot be distributed via the OVI Store.<br>");
 
-    QString symbianSignedUID3ErrorMsg = tr(" is a symbiansigned.com UID. <br>"
+    QString symbianSignedUID3ErrorMsg = tr("The App UID %1 is a symbiansigned.com UID. <br>"
                                         "Apps with this UID will be rejected by Ovi Sign.<br>"
                                         "If you want to continue with this UID, sign your app on symbiansigned.com and upload the signed app to Ovi.<br>");
 
-    QString errorMsg = tr(" is not an acceptable UID.<br>"
+    QString errorMsg = tr("The App UID %1 is not an acceptable UID.<br>"
                           " SIS packages built with it, cannot be signed by Ovi.<br>");
 
     if (m_publisher->isTestUID3(ui->uid3LineEdit->text())) {
@@ -195,8 +197,7 @@ void S60PublishingSisSettingsPageOvi::uid3Changed()
                         ui->uid3ErrorLabel,
                         ui->uid3ErrorReasonLabel,
                         tr("The App UID is a global unique indentifier of the SIS package.<br>") +
-                        tr("The App UID ") + ui->uid3LineEdit->text() +
-                        errorMsg +
+                        errorMsg.arg(ui->uid3LineEdit->text()) +
                         tr("To get a unique App UID for your package file,<br>"
                            "please register at <a href=\"http://info.publish.ovi.com/\">publish.ovi.com</a>"));
 
@@ -229,9 +230,9 @@ void S60PublishingSisSettingsPageOvi::capabilitiesChanged()
     }
 
     if (!capabilitesNeedingCertifiedSigned.isEmpty())
-        errorMessage.append(capabilitesNeedingCertifiedSigned.join(", ")
-                            + tr(" need(s) to be certified signed. "
-                                 "Please go to <a href=\"symbiansigned.com\">symbiansigned.com</a> for guidance."));
+        errorMessage.append(tr("%1 need(s) to be certified signed. "
+                               "Please go to <a href=\"symbiansigned.com\">symbiansigned.com</a> for guidance.")
+                            .arg(capabilitesNeedingCertifiedSigned.join(", ")));
 
     //Check for capabilities needing manufacturer approval
     QStringList capabilitiesNeedingManufacturerApproved;
@@ -242,9 +243,7 @@ void S60PublishingSisSettingsPageOvi::capabilitiesChanged()
     }
 
     if (!capabilitiesNeedingManufacturerApproved.isEmpty()) {
-        errorMessage.append(tr("<br>")+
-                            capabilitiesNeedingManufacturerApproved.join(", ")
-                            + tr(" need(s) manufacturer approval.<br>"));
+        errorMessage.append(tr("<br>%1 need(s) manufacturer approval.<br>").arg(capabilitiesNeedingManufacturerApproved.join(", ")));
     }
 
     errorMessage.prepend(tr("Some capabilities might require a special kind of signing or approval from the manufacturer.<br>"));

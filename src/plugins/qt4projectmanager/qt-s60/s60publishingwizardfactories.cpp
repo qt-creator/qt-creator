@@ -56,7 +56,12 @@ QString S60PublishingWizardFactoryOvi::description() const
 {
     return tr("This wizard will check your resulting sis file and "
               "some of your meta data to make sure it complies with "
-              "Ovi Store submission regulations.");
+              "Ovi Store submission regulations.\n\n"
+              "This wizard is used to create sis files which can be submitted to publish to Ovi.\n\n"
+              "It cannot be used if you are using UID3s from Symbian Signed.\n\n"
+              "You cannot use it for the Certified Signed and Manufacturer level capabilities:\n"
+              "i.e. NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB\n\n"
+              "Your application will also be rejected by Ovi QA if it uses an unreleased Qt Version.");
 }
 
 bool S60PublishingWizardFactoryOvi::canCreateWizard(const Project *project) const
