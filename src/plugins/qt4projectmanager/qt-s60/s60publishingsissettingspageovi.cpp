@@ -146,7 +146,7 @@ void S60PublishingSisSettingsPageOvi::globalVendorNameChanged()
 
 void S60PublishingSisSettingsPageOvi::localisedVendorNamesChanged()
 {
-    QStringList localisedVendorNames = ui->localisedVendorNamesLineEdit->text().split(",");
+    QStringList localisedVendorNames = ui->localisedVendorNamesLineEdit->text().split(',');
 
     bool settingState = true;
     QStringList wrongVendorNames;
@@ -217,7 +217,7 @@ void S60PublishingSisSettingsPageOvi::uid3Changed()
 
 void S60PublishingSisSettingsPageOvi::capabilitiesChanged()
 {
-    QStringList capabilities = ui->capabilitiesDisplayLabel->text().split(",");
+    QStringList capabilities = ui->capabilitiesDisplayLabel->text().split(',');
     QString errorMessage;
 
     //Check for certified Signed capabilities

@@ -156,8 +156,8 @@ QString S60PublisherOvi::globalVendorName()
     QStringList vendorinfos = m_reader->values("vendorinfo");
 
     foreach (QString vendorinfo, vendorinfos) {
-        if (vendorinfo.startsWith(":")) {
-            return vendorinfo.remove(":").remove("\"").trimmed();
+        if (vendorinfo.startsWith(':')) {
+            return vendorinfo.remove(':').remove("\"").trimmed();
         }
     }
     return QString();
@@ -170,8 +170,8 @@ QString S60PublisherOvi::localisedVendorNames()
 
     QStringList localisedVendorNames;
     foreach (QString vendorinfo, vendorinfos) {
-        if (vendorinfo.startsWith("%")) {
-            localisedVendorNames = vendorinfo.remove("%{").remove("}").split(",");
+        if (vendorinfo.startsWith('%')) {
+            localisedVendorNames = vendorinfo.remove("%{").remove('}').split(',');
             foreach (QString localisedVendorName, localisedVendorNames) {
                 if (!result.isEmpty())
                     result.append(", ");
@@ -288,7 +288,7 @@ void S60PublisherOvi::runQMake()
     const ProjectExplorer::ProcessParameters * const qmakepp = qmakeStep->processParameters();
     runStep(QProcess::NormalExit,
             "Running QMake",
-            qmakepp->effectiveCommand() + QLatin1String(" ") + qmakepp->arguments(),
+            qmakepp->effectiveCommand() + ' ' + qmakepp->arguments(),
             m_qmakeProc,
             NULL);
 }
@@ -300,7 +300,7 @@ void S60PublisherOvi::runBuild(int result)
     const ProjectExplorer::ProcessParameters * const makepp = makeStep->processParameters();
     runStep(result,
             "Running Build Steps",
-            makepp->effectiveCommand() + QLatin1String(" ") + makepp->arguments(),
+            makepp->effectiveCommand() + ' ' + makepp->arguments(),
             m_buildProc,
             m_qmakeProc);
 }
@@ -324,8 +324,8 @@ void S60PublisherOvi::runCreateSis(int result)
 void S60PublisherOvi::endBuild(int result)
 {
     // show what happened in last step
-    emit progressReport(QString(m_createSisProc->readAllStandardOutput() + "\n"), m_okColor);
-    emit progressReport(QString(m_createSisProc->readAllStandardError() + "\n"), m_errorColor);
+    emit progressReport(QString(m_createSisProc->readAllStandardOutput() + '\n'), m_okColor);
+    emit progressReport(QString(m_createSisProc->readAllStandardError() + '\n'), m_errorColor);
 
     QString fileNamePostFix =  QLatin1String("_installer_unsigned.sis");
     if (m_qt4bc->qtVersion()->qtVersion() == QtVersionNumber(4,6,3) )
@@ -367,7 +367,7 @@ QString S60PublisherOvi::createdSisFilePath()
     QString resultFile = m_qt4bc->buildDirectory() + "/" + m_qt4project->displayName() + fileNamePostFix;
     QFileInfo fi(resultFile);
 
-    return fi.exists() ? QDir::toNativeSeparators(m_qt4bc->buildDirectory()+ "/" + m_qt4project->displayName() + fileNamePostFix) : QString();
+    return fi.exists() ? QDir::toNativeSeparators(m_qt4bc->buildDirectory()+ '/' + m_qt4project->displayName() + fileNamePostFix) : QString();
 }
 
 bool S60PublisherOvi::hasSucceeded()
@@ -380,14 +380,14 @@ void S60PublisherOvi::runStep(int result, const QString& buildStep, const QStrin
     // todo react to readyRead() instead of reading all at the end
     // show what happened in last step
     if (prevProc) {
-        emit progressReport(QString(prevProc->readAllStandardOutput() + "\n"), m_okColor);
-        emit progressReport(QString(prevProc->readAllStandardError() + "\n"), m_errorColor);
+        emit progressReport(QString(prevProc->readAllStandardOutput() + '\n'), m_okColor);
+        emit progressReport(QString(prevProc->readAllStandardError() + '\n'), m_errorColor);
     }
 
     // if the last state finished ok then run the build.
     if (result == QProcess::NormalExit) {
-         emit progressReport(buildStep + "\n", m_commandColor);
-         emit progressReport(command + "\n", m_commandColor);
+         emit progressReport(buildStep + '\n', m_commandColor);
+         emit progressReport(command + '\n', m_commandColor);
 
          currProc->start(command);
     } else {
