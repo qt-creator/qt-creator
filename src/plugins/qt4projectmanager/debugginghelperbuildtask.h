@@ -34,14 +34,14 @@
 #ifndef DEBUGGINGHELPERBUILDTASK_H
 #define DEBUGGINGHELPERBUILDTASK_H
 
-#include "qtversionmanager.h"
-
 #include <utils/environment.h>
 
 #include <QtCore/QObject>
+#include <QtCore/QFutureInterface>
 #include <QtCore/QMetaType>
 
 namespace Qt4ProjectManager {
+class QtVersion;
 namespace Internal {
 
 class DebuggingHelperBuildTask : public QObject {
@@ -57,7 +57,7 @@ public:
     };
     Q_DECLARE_FLAGS(Tools, DebuggingHelper)
 
-    explicit DebuggingHelperBuildTask(QtVersion *version, Tools tools = AllTools);
+    explicit DebuggingHelperBuildTask(const QtVersion *version, Tools tools = AllTools);
     virtual ~DebuggingHelperBuildTask();
 
     void run(QFutureInterface<void> &future);

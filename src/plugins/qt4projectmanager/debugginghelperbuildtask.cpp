@@ -35,8 +35,8 @@
 #include "qmldumptool.h"
 #include "qmlobservertool.h"
 #include "qmldebugginglibrary.h"
-#include "qt4projectmanager/qt4projectmanagerconstants.h"
-
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qt4projectmanager/qtversionmanager.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/debugginghelper.h>
 
@@ -47,7 +47,7 @@ using namespace Qt4ProjectManager::Internal;
 using ProjectExplorer::DebuggingHelperLibrary;
 
 
-DebuggingHelperBuildTask::DebuggingHelperBuildTask(QtVersion *version, Tools tools)
+DebuggingHelperBuildTask::DebuggingHelperBuildTask(const QtVersion *version, Tools tools)
 {
     if (!version || !version->isValid())
         return;
