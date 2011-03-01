@@ -42,9 +42,12 @@
 
 
 
+QT_BEGIN_NAMESPACE
 namespace Ui {
 class S60PublishingBuildSettingsPageOvi;
 }
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
 class Project;
 }

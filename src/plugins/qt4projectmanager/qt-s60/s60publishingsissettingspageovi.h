@@ -38,11 +38,11 @@
 
 #include <QtGui/QWizardPage>
 
+QT_BEGIN_NAMESPACE
 namespace Ui {
 class S60PublishingSisSettingsPageOvi;
 }
 
-QT_BEGIN_NAMESPACE
 class QLabel;
 QT_END_NAMESPACE
 
