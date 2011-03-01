@@ -34,8 +34,6 @@
 #ifndef ISNIPPETEDITORDECORATOR_H
 #define ISNIPPETEDITORDECORATOR_H
 
-#include "snippet.h"
-
 #include <texteditor/texteditor_global.h>
 
 #include <QtCore/QObject>
