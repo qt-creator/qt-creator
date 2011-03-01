@@ -184,10 +184,17 @@ void EnvironmentWidget::setUserChanges(const QList<Utils::EnvironmentItem> &list
     updateSummaryText();
 }
 
+bool sortEnvironmentItem(const Utils::EnvironmentItem &a, const Utils::EnvironmentItem &b)
+{
+    return a.name < b.name;
+}
+
 void EnvironmentWidget::updateSummaryText()
 {
+    QList<Utils::EnvironmentItem> list = d->m_model->userChanges();
+    qSort(list.begin(), list.end(), &sortEnvironmentItem);
+
     QString text;
-    const QList<Utils::EnvironmentItem> &list = d->m_model->userChanges();
     foreach (const Utils::EnvironmentItem &item, list) {
         if (item.name != Utils::EnvironmentModel::tr("<VARIABLE>")) {
             text.append("<br>");
