@@ -83,6 +83,12 @@
 #include <string>
 #include <vector>
 
+#define USE_PRIVATE 1
+
+#if USE_PRIVATE
+#include <QtCore/private/qobject_p.h>
+#endif
+
 #if defined(__GNUC__) && !defined(__llvm__) && !defined(Q_OS_MAC)
 #    define USE_GCC_EXT 1
 #    undef __DEPRECATED
@@ -124,6 +130,75 @@ namespace nsX {
 namespace nsY {
 int z;
 }
+}
+
+#if USE_PRIVATE
+
+class DerivedObjectPrivate : public QObjectPrivate
+{
+public:
+    DerivedObjectPrivate() : m_extraX(43), m_extraY(44) {}
+
+    int m_extraX;
+    int m_extraY;
+};
+
+class DerivedObject : public QObject
+{
+    Q_OBJECT
+
+public:
+    DerivedObject() {}
+
+    Q_PROPERTY(int x READ x WRITE setX)
+    Q_PROPERTY(int y READ y WRITE setY)
+
+    int x() const;
+    void setX(int x);
+    int y() const;
+    void setY(int y);
+
+private:
+    Q_DECLARE_PRIVATE(DerivedObject)
+};
+
+int DerivedObject::x() const
+{
+    Q_D(const DerivedObject);
+    return d->m_extraX;
+}
+
+void DerivedObject::setX(int x)
+{
+    Q_D(DerivedObject);
+    d->m_extraX = x;
+}
+
+int DerivedObject::y() const
+{
+    Q_D(const DerivedObject);
+    return d->m_extraY;
+}
+
+void DerivedObject::setY(int y)
+{
+    Q_D(DerivedObject);
+    d->m_extraY = y;
+}
+
+#endif
+
+
+void testPrivate()
+{
+#if USE_PRIVATE
+    DerivedObject ob;
+    ob.setX(23);
+    ob.setX(25);
+    ob.setX(26);
+    ob.setX(63);
+    ob.setX(32);
+#endif
 }
 
 namespace nsXY = nsX::nsY;
@@ -2248,6 +2323,7 @@ void testQScriptValue(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
+    testPrivate();
     testMemoryView();
     //testQSettings();
     //testWCout0();
