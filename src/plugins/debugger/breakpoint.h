@@ -107,6 +107,9 @@ public:
     int ignoreCount;         //!< Ignore count associated with breakpoint.
     int lineNumber;          //!< Line in source file.
     quint64 address;         //!< Address for watchpoints.
+    uint size;               //!< Size of watched area for watchpoints.
+    uint bitpos;             //!< Location of watched bitfield within watched area.
+    uint bitsize;            //!< Size of watched bitfield within watched area.
     int threadSpec;          //!< Thread specification.
     QString functionName;
     QString module;          //!< module for file name

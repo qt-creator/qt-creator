@@ -80,12 +80,10 @@ public:
     // Find a breakpoint matching approximately the data in needle.
     BreakpointId findSimilarBreakpoint(const BreakpointResponse &needle) const;
     BreakpointId findBreakpointByNumber(int bpNumber) const;
-    BreakpointId findWatchpointByAddress(quint64 address) const;
+    BreakpointId findWatchpoint(const BreakpointParameters &data) const;
     BreakpointId findBreakpointByFunction(const QString &functionName) const;
     BreakpointId findBreakpointByIndex(const QModelIndex &index) const;
     BreakpointIds findBreakpointsByIndex(const QList<QModelIndex> &list) const;
-    void setWatchpointByAddress(quint64 address);
-    bool hasWatchpointAt(quint64 address) const;
     void updateMarkers();
 
     static QIcon breakpointIcon();

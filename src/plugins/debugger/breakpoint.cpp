@@ -53,7 +53,8 @@ namespace Internal {
 
 BreakpointParameters::BreakpointParameters(BreakpointType t)
   : type(t), enabled(true), pathUsage(BreakpointPathUsageEngineDefault),
-    ignoreCount(0), lineNumber(0), address(0), threadSpec(-1),
+    ignoreCount(0), lineNumber(0), address(0), size(0),
+    bitpos(0), bitsize(0), threadSpec(-1),
     tracepoint(false)
 {}
 

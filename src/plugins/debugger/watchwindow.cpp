@@ -654,7 +654,15 @@ void WatchWindow::setModelData
 
 void WatchWindow::setWatchpoint(quint64 address)
 {
-    breakHandler()->setWatchpointByAddress(address);
+    BreakpointParameters data(Watchpoint);
+    data.address = address;
+    BreakpointId id = breakHandler()->findWatchpoint(data);
+    if (id) {
+        qDebug() << "WATCHPOINT EXISTS";
+        //   removeBreakpoint(index);
+        return;
+    }
+    breakHandler()->appendBreakpoint(data);
 }
 
 } // namespace Internal

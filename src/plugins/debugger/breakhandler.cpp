@@ -240,31 +240,16 @@ const BreakpointParameters &BreakHandler::breakpointData(BreakpointId id) const
     return it->data;
 }
 
-BreakpointId BreakHandler::findWatchpointByAddress(quint64 address) const
+BreakpointId BreakHandler::findWatchpoint(const BreakpointParameters &data) const
 {
     ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
     for ( ; it != et; ++it)
-        if (it->data.isWatchpoint() && it->data.address == address)
+        if (it->data.isWatchpoint()
+                && it->data.address == data.address
+                && it->data.size == data.size
+                && it->data.bitpos == data.bitpos)
             return it.key();
     return BreakpointId();
-}
-
-void BreakHandler::setWatchpointByAddress(quint64 address)
-{
-    const int id = findWatchpointByAddress(address);
-    if (id) {
-        qDebug() << "WATCHPOINT EXISTS";
-        //   removeBreakpoint(index);
-        return;
-    }
-    BreakpointParameters data(Watchpoint);
-    data.address = address;
-    appendBreakpoint(data);
-}
-
-bool BreakHandler::hasWatchpointAt(quint64 address) const
-{
-    return findWatchpointByAddress(address);
 }
 
 void BreakHandler::saveBreakpoints()
