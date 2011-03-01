@@ -22,7 +22,7 @@ win32 {
     LIBS += -ladvapi32 -luser32
 }
 
-unix {
+unix:*-gcc* {
     QMAKE_CFLAGS += -fPIC -ansi -fpermissive -finline-functions -Wno-long-long
     QMAKE_CXXFLAGS += -fPIC -ansi -fpermissive -finline-functions -Wno-long-long
     QMAKE_CXXFLAGS_HIDESYMS -= -fvisibility-inlines-hidden # for ubuntu 7.04
