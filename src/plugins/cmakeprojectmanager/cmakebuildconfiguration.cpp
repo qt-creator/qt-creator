@@ -55,15 +55,13 @@ const char * const BUILD_DIRECTORY_KEY("CMakeProjectManager.CMakeBuildConfigurat
 } // namespace
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeTarget *parent) :
-    BuildConfiguration(parent, QLatin1String(CMAKE_BC_ID)),
-    m_toolChain(0)
+    BuildConfiguration(parent, QLatin1String(CMAKE_BC_ID))
 {
     m_buildDirectory = cmakeTarget()->defaultBuildDirectory();
 }
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeTarget *parent, CMakeBuildConfiguration *source) :
     BuildConfiguration(parent, source),
-    m_toolChain(0),
     m_buildDirectory(source->m_buildDirectory),
     m_msvcVersion(source->m_msvcVersion)
 {
@@ -74,7 +72,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeTarget *parent, CMakeBuild
 QVariantMap CMakeBuildConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::BuildConfiguration::toMap());
-    map.insert(QLatin1String(TOOLCHAIN_KEY), m_toolChain ? m_toolChain->id() : QString());
+    map.insert(QLatin1String(TOOLCHAIN_KEY), toolChain() ? toolChain()->id() : QString());
     map.insert(QLatin1String(BUILD_DIRECTORY_KEY), m_buildDirectory);
     return map;
 }
@@ -84,8 +82,34 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
     if (!BuildConfiguration::fromMap(map))
         return false;
 
-    m_toolChain = ProjectExplorer::ToolChainManager::instance()->
-            findToolChain(map.value(QLatin1String(TOOLCHAIN_KEY)).toString());
+    setToolChain(ProjectExplorer::ToolChainManager::instance()->
+            findToolChain(map.value(QLatin1String(TOOLCHAIN_KEY)).toString()));
+
+    if (!toolChain()) {
+        // restoring from older versions?
+        QList<ProjectExplorer::ToolChain *> list = ProjectExplorer::ToolChainManager::instance()->toolChains();
+        if (!map.value("CMakeProjectManager.CMakeBuildConfiguration.MsvcVersion").toString().isEmpty()) {
+            foreach (ProjectExplorer::ToolChain *tc, list) {
+                if (tc->id().startsWith(ProjectExplorer::Constants::MSVC_TOOLCHAIN_ID)) {
+                    setToolChain(tc);
+                    break;
+                }
+            }
+        } else {
+#ifdef Q_OS_WIN
+            QString toolChainId = ProjectExplorer::Constants::MINGW_TOOLCHAIN_ID;
+#else
+            QString toolChainId = ProjectExplorer::Constants::GCC_TOOLCHAIN_ID;
+#endif
+            foreach (ProjectExplorer::ToolChain *tc, list) {
+                if (tc->id().startsWith(toolChainId)) {
+                    setToolChain(tc);
+                    break;
+                }
+            }
+        }
+    }
+
     m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY), cmakeTarget()->defaultBuildDirectory()).toString();
 
     return true;
@@ -93,7 +117,6 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
 
 CMakeBuildConfiguration::~CMakeBuildConfiguration()
 {
-    delete m_toolChain;
 }
 
 CMakeTarget *CMakeBuildConfiguration::cmakeTarget() const
@@ -117,16 +140,16 @@ void CMakeBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
 
 ProjectExplorer::IOutputParser *CMakeBuildConfiguration::createOutputParser() const
 {
-    if (m_toolChain)
-        return m_toolChain->outputParser();
+    if (toolChain())
+        return toolChain()->outputParser();
     return 0;
 }
 
 Utils::Environment CMakeBuildConfiguration::baseEnvironment() const
 {
     Utils::Environment env = BuildConfiguration::baseEnvironment();
-    if (m_toolChain)
-        m_toolChain->addToEnvironment(env);
+    if (toolChain())
+        toolChain()->addToEnvironment(env);
     return env;
 }
 

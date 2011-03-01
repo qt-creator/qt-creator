@@ -73,8 +73,6 @@ protected:
     virtual bool fromMap(const QVariantMap &map);
 
 private:
-    void updateToolChain() const;
-    mutable ProjectExplorer::ToolChain *m_toolChain;
     QString m_buildDirectory;
     QString m_msvcVersion;
 };
