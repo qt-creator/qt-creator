@@ -86,7 +86,8 @@ static QByteArray runGcc(const QString &gcc, const QStringList &arguments, const
         qWarning("%s: '%s' crashed.", Q_FUNC_INFO, qPrintable(gcc));
         return QByteArray();
     }
-    return cpp.readAllStandardOutput();
+
+    return cpp.readAllStandardOutput() + "\n" + cpp.readAllStandardError();
 }
 
 static QByteArray gccPredefinedMacros(const QString &gcc, const QStringList &env)
@@ -126,6 +127,7 @@ static QList<HeaderPath> gccHeaderPathes(const QString &gcc, const QStringList &
     QByteArray line;
     QByteArray data = runGcc(gcc, arguments, env);
     QBuffer cpp(&data);
+    cpp.open(QIODevice::ReadOnly);
     while (cpp.canReadLine()) {
         line = cpp.readLine();
         if (line.startsWith("#include"))
