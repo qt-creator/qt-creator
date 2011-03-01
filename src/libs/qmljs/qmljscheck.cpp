@@ -174,8 +174,10 @@ public:
                             fileName.prepend(QDir::separator());
                             fileName.prepend(_doc->path());
                         }
-                        if (!QFileInfo(fileName).exists())
+                        if (!QFileInfo(fileName).exists()) {
                             _message.message = Check::tr("file or directory does not exist");
+                            _message.kind = DiagnosticMessage::Warning;
+                        }
                     }
                 }
             }
