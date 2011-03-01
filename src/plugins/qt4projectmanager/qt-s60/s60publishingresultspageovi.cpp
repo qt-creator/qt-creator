@@ -41,8 +41,8 @@ namespace Internal {
 
 S60PublishingResultsPageOvi::S60PublishingResultsPageOvi(S60PublisherOvi *publisher, QWidget *parent) :
     QWizardPage(parent),
-    m_publisher(publisher),
-    ui(new Ui::S60PublishingResultsPageOvi)
+    ui(new Ui::S60PublishingResultsPageOvi),
+  m_publisher(publisher)
 {
     ui->setupUi(this);
     connect(m_publisher, SIGNAL(progressReport(QString,QColor)), SLOT(updateResultsPage(QString,QColor)));
