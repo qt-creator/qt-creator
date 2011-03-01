@@ -1752,6 +1752,10 @@ void GdbEngine::notifyAdapterShutdownFailed()
 void GdbEngine::notifyAdapterShutdownOk()
 {
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
+    if (state() != EngineShutdownRequested) {
+        qDebug("XXXXX");
+        showMessage(_("ASSERT"));
+    }
     showMessage(_("INITIATE GDBENGINE SHUTDOWN IN STATE %1, PROC: %2")
         .arg(lastGoodState()).arg(gdbProc()->state()));
     m_commandsDoneCallback = 0;

@@ -988,10 +988,11 @@ void CodaGdbAdapter::sendRunControlTerminateCommand()
 void CodaGdbAdapter::handleRunControlTerminate(const CodaCommandResult &)
 {
     QString msg = QString::fromLatin1("CODA disconnected");
-    const bool emergencyShutdown = m_gdbProc.state() != QProcess::Running;
+    const bool emergencyShutdown = m_gdbProc.state() != QProcess::Running
+                                   && state() != EngineShutdownOk;
     if (emergencyShutdown)
-        msg += QString::fromLatin1(" (emergency shutdown");
-    logMessage(msg);
+        msg += QString::fromLatin1(" (emergency shutdown)");
+    logMessage(msg, LogMisc);
     if (emergencyShutdown) {
         cleanup();
         m_engine->notifyAdapterShutdownOk();
