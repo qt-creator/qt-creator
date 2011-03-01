@@ -1157,16 +1157,18 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
                 const ServerNodeInstance instance = property.first;
                 const QString propertyName = property.second;
 
-                if (instance.isRootNodeInstance() && (propertyName == "width" || propertyName == "height"))
-                    adjustSceneRect = true;
+                if (instance.isValid()) {
+                    if (instance.isRootNodeInstance() && (propertyName == "width" || propertyName == "height"))
+                        adjustSceneRect = true;
 
-                if (propertyName.contains("anchors") && informationChangedInstanceSet.contains(instance))
-                    informationChangedInstanceSet.insert(instance);
+                    if (propertyName.contains("anchors") && informationChangedInstanceSet.contains(instance))
+                        informationChangedInstanceSet.insert(instance);
 
-                if (propertyName == "parent") {
-                    informationChangedInstanceSet.insert(instance);
-                    parentChangedSet.insert(instance);
-                } else {
+                    if (propertyName == "parent") {
+                        informationChangedInstanceSet.insert(instance);
+                        parentChangedSet.insert(instance);
+                    }
+
                     propertyChangedList.append(property);
                 }
             }
