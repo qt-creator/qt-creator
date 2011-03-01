@@ -141,10 +141,12 @@ public:
     {
         m_extraX = 43;
         m_extraY.append("xxx");
+        m_extraZ = 1;
     }
 
     int m_extraX;
     QStringList m_extraY;
+    uint m_extraZ : 1;
 };
 
 class DerivedObject : public QObject
@@ -158,11 +160,14 @@ public:
 
     Q_PROPERTY(int x READ x WRITE setX)
     Q_PROPERTY(QStringList y READ y WRITE setY)
+    Q_PROPERTY(uint z READ z WRITE setZ)
 
     int x() const;
     void setX(int x);
     QStringList y() const;
     void setY(QStringList y);
+    uint z() const;
+    void setZ(uint z);
 
 private:
     Q_DECLARE_PRIVATE(DerivedObject)
@@ -192,11 +197,30 @@ void DerivedObject::setY(QStringList y)
     d->m_extraY = y;
 }
 
+uint DerivedObject::z() const
+{
+    Q_D(const DerivedObject);
+    return d->m_extraZ;
+}
+
+void DerivedObject::setZ(uint z)
+{
+    Q_D(DerivedObject);
+    d->m_extraZ = z;
+}
+
 #endif
 
+struct S
+{
+    uint x : 1;
+    uint y : 1;
+};
 
 void testPrivate()
 {
+    S s;
+    s.x = 1;
 #if USE_PRIVATE
     DerivedObject ob;
     ob.setX(23);
