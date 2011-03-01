@@ -147,6 +147,7 @@ public:
     int m_extraX;
     QStringList m_extraY;
     uint m_extraZ : 1;
+    bool m_extraA : 1;
     bool m_extraB;
 };
 
@@ -184,6 +185,8 @@ void DerivedObject::setX(int x)
 {
     Q_D(DerivedObject);
     d->m_extraX = x;
+    d->m_extraA = !d->m_extraA;
+    d->m_extraB = !d->m_extraB;
 }
 
 QStringList DerivedObject::y() const
@@ -216,9 +219,11 @@ struct S
 {
     uint x : 1;
     uint y : 1;
+    bool c : 1;
     bool b;
     float f;
     double d;
+    qreal q;
     int i;
 };
 

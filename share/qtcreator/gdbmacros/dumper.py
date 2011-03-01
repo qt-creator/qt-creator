@@ -1594,7 +1594,9 @@ class Dumper:
             except:
                 pass
 
-        if type.code == gdb.TYPE_CODE_INT:
+        typedefStrippedType = stripTypedefs(type)
+
+        if typedefStrippedType.code == gdb.TYPE_CODE_INT:
             if self.alienSource and str(type) == "unsigned long long":
                 strlen = value % (1L<<32)
                 strptr = value / (1L<<32)
@@ -1609,15 +1611,15 @@ class Dumper:
             self.putNumChild(0)
             return
 
-        if type.code == gdb.TYPE_CODE_CHAR:
+        if typedefStrippedType.code == gdb.TYPE_CODE_CHAR:
             self.putType(realtype)
             self.putValue(int(value))
             self.putAddress(value.address)
             self.putNumChild(0)
             return
 
-        if type.code == gdb.TYPE_CODE_FLT \
-                or type.code == gdb.TYPE_CODE_BOOL:
+        if typedefStrippedType.code == gdb.TYPE_CODE_FLT \
+                or typedefStrippedType.code == gdb.TYPE_CODE_BOOL:
             self.putType(realtype)
             self.putValue(value)
             self.putAddress(value.address)
@@ -1640,8 +1642,6 @@ class Dumper:
                     child = Item(value, item.iname, None, item.name)
                     self.putFields(child)
             return
-
-        typedefStrippedType = stripTypedefs(type)
 
         if isSimpleType(typedefStrippedType):
             #warn("IS SIMPLE: %s " % type)
