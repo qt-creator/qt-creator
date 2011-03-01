@@ -213,6 +213,12 @@ public:
                                  const QStringList &additionalLibraries = QStringList(),
                                  const QVariant &cookie = QVariant());
 
+    // Just launch a process, don't attempt to attach the debugger to it
+    void sendRunProcessCommand(const CodaCallback &callBack,
+                               const QString &processName,
+                               QStringList arguments = QStringList(),
+                               const QVariant &cookie = QVariant());
+
     // Preferred over Processes:Terminate by TCF TRK.
     void sendRunControlTerminateCommand(const CodaCallback &callBack,
                                         const QByteArray &id,

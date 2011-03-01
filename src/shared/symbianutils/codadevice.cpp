@@ -968,6 +968,20 @@ void CodaDevice::sendProcessStartCommand(const CodaCallback &callBack,
     sendCodaMessage(MessageWithReply, ProcessesService, "start", startData, callBack, cookie);
 }
 
+void CodaDevice::sendRunProcessCommand(const CodaCallback &callBack,
+                                       const QString &processName,
+                                       QStringList arguments,
+                                       const QVariant &cookie)
+{
+    QByteArray startData;
+    JsonInputStream startStr(startData);
+    startStr << "" //We don't really know the drive of the working dir
+            << '\0' << processName << '\0' << arguments << '\0'
+            << QStringList() << '\0' // Env is an array ["PATH=value"] (non-standard)
+            << false; // Don't attach debugger
+    sendCodaMessage(MessageWithReply, ProcessesService, "start", startData, callBack, cookie);
+}
+
 void CodaDevice::sendSettingsEnableLogCommand()
 {
 
