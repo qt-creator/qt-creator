@@ -243,8 +243,8 @@ public:
         : m_snapshot(snapshot)
         , m_doc(doc)
         , m_context(new Interpreter::Context)
-        , m_lookupContext(LookupContext::create(doc, snapshot, QList<AST::Node*>()))
         , m_link(m_context, doc, snapshot, importPaths)
+        , m_lookupContext(LookupContext::create(doc, snapshot, *m_context, QList<AST::Node*>()))
         , m_scopeBuilder(m_context, doc, snapshot)
     {
     }
@@ -501,12 +501,15 @@ public:
     LookupContext::Ptr lookupContext() const
     { return m_lookupContext; }
 
+    QList<DiagnosticMessage> diagnosticLinkMessages() const
+    { return m_link.diagnosticMessages(); }
+
 private:
     Snapshot m_snapshot;
     Document::Ptr m_doc;
     Interpreter::Context *m_context;
-    LookupContext::Ptr m_lookupContext;
     Link m_link;
+    LookupContext::Ptr m_lookupContext;
     ScopeBuilder m_scopeBuilder;
 };
 
