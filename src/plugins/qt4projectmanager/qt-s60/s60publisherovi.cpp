@@ -160,7 +160,7 @@ QString S60PublisherOvi::getGlobalVendorNameFromProFile()
             return vendorinfo.remove(":").remove("\"").trimmed();
         }
     }
-    return "";
+    return QString();
 }
 
 QString S60PublisherOvi::getLocalisedVendorNamesFromProFile()
@@ -180,7 +180,7 @@ QString S60PublisherOvi::getLocalisedVendorNamesFromProFile()
             return result;
         }
     }
-    return "";
+    return QString();
 }
 
 bool S60PublisherOvi::isVendorNameValid(const QString &vendorName)
@@ -391,7 +391,7 @@ void S60PublisherOvi::runStep(int result, const QString& buildStep, const QStrin
 
          currProc->start(command);
     } else {
-        emit progressReport(tr("Sis file not created due to previous errors\n"), m_errorColor);
+        emit progressReport(tr("Sis file not created due to previous errors\n") , m_errorColor);
     }
 }
 
