@@ -112,6 +112,9 @@ void GcceToolChain::addToEnvironment(Utils::Environment &env) const
     env.set(QString::fromLatin1("SBS_GCCE") + version.remove(QLatin1Char('.'))
             + QLatin1String("BIN"),
             QDir::toNativeSeparators(QFileInfo(compilerPath()).absolutePath()));
+    // Required for SBS, which checks the version output from its tools
+    // and gets confused by localized output.
+    env.set(QLatin1String("LANG"), QString(QLatin1Char('C')));
 }
 
 QString GcceToolChain::defaultMakeTarget() const
