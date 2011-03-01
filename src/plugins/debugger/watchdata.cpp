@@ -144,6 +144,8 @@ WatchData::WatchData() :
     state(InitialState),
     editformat(0),
     address(0),
+    bitpos(0),
+    bitsize(0),
     generation(-1),
     hasChildren(false),
     valueEnabled(true),

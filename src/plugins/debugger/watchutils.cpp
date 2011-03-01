@@ -1399,6 +1399,12 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
     mi = item.findChild("typeformats");
     if (mi.isValid())
         data.typeFormats = QString::fromUtf8(mi.data());
+    mi = item.findChild("bitpos");
+    if (mi.isValid())
+        data.bitpos = mi.data().toInt();
+    mi = item.findChild("bitsize");
+    if (mi.isValid())
+        data.bitsize = mi.data().toInt();
 
     setWatchDataValue(data, item);
     setWatchDataAddress(data, item.findChild("addr"));

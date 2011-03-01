@@ -128,6 +128,8 @@ public:
     QByteArray type;         // Type for further processing
     QString    displayedType;// Displayed type (optional)
     quint64    address;      // Displayed address
+    uint       bitpos;       // Position within bit fields
+    uint       bitsize;      // Size in case of bit fields
     qint32     generation;   // When updated?
     bool hasChildren;
     bool valueEnabled;       // Value will be enabled or not

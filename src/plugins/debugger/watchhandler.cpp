@@ -285,9 +285,12 @@ static QString removeInitialNamespace(QString str, const QByteArray &ns)
 
 QString WatchModel::displayType(const WatchData &data) const
 {
-    return data.displayedType.isEmpty()
+    QString base = data.displayedType.isEmpty()
         ? niceTypeHelper(data.type)
         : data.displayedType;
+    if (data.bitsize)
+        base += QString(":%1").arg(data.bitsize);
+    return base;
 }
 
 static int formatToIntegerBase(int format)
