@@ -1833,8 +1833,9 @@ class Dumper:
 
                 #warn("FIELD NAME: %s" % field.name)
                 #warn("FIELD TYPE: %s" % field.type)
-                # The 'field.is_base_class' attribute exists in gdb 7.0.X and later only.
-                # Symbian gdb is 6.8 as of 20.10.2010. TODO: Remove once Symbian gdb is up to date.
+                # The 'field.is_base_class' attribute exists in gdb 7.0.X
+                # and later only. Symbian gdb is 6.8 as of 20.10.2010.
+                # TODO: Remove once Symbian gdb is up to date.
                 if hasattr(field, 'is_base_class'):
                     isBaseClass = field.is_base_class
                 else:

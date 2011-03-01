@@ -321,7 +321,8 @@ def qdump__QFixed(d, item):
 # gives as of 2010-11-02
 #
 #  type = enum N::S::E {N::S::zero, N::S::one, N::S::two} \n
-#    Traceback (most recent call last): File "<string>", line 1, in <module> RuntimeError: No type named N::S::E.
+#    Traceback (most recent call last): File "<string>", line 1,
+#      in <module> RuntimeError: No type named N::S::E.
 #  type = enum N::S::E {N::S::zero, N::S::one, N::S::two} \n  N::S::E
 #  type = enum N::S::E {N::S::zero, N::S::one, N::S::two} \n  N::S::E
 #
@@ -629,7 +630,8 @@ def qdumpHelper__QMap(d, item, forceLong):
                 with SubItem(d):
                     key = node["key"]
                     value = node["value"]
-                    #if isSimpleType(item.value.type): # or isStringType(d, item.value.type):
+                    #if isSimpleType(item.value.type):
+                    # or isStringType(d, item.value.type):
                     if isSimpleKey and isSimpleValue:
                         #d.putType(valueType)
                         if forceLong:
@@ -766,7 +768,8 @@ def qdump__QObject(d, item):
                 # FIXME: Make this global. Don't leak.
                 variant = "'%sQVariant'" % d.ns
                 # Avoid malloc symbol clash with QVector
-                gdb.execute("set $d = (%s*)calloc(sizeof(%s), 1)" % (variant, variant))
+                gdb.execute("set $d = (%s*)calloc(sizeof(%s), 1)"
+                    % (variant, variant))
                 gdb.execute("set $d.d.is_shared = 0")
 
                 with Children(d, [propertyCount, 500]):
@@ -802,32 +805,40 @@ def qdump__QObject(d, item):
                     for i in xrange(staticPropertyCount):
                         with SubItem(d):
                             offset = propertyData + 3 * i
-                            propertyName = extractCString(metaStringData, metaData[offset])
-                            propertyType = extractCString(metaStringData, metaData[offset + 1])
+                            propertyName = extractCString(metaStringData,
+                                                          metaData[offset])
+                            propertyType = extractCString(metaStringData,
+                                                          metaData[offset + 1])
                             d.putName(propertyName)
                             #flags = metaData[offset + 2]
                             #warn("FLAGS: %s " % flags)
                             #warn("PROPERTY: %s %s " % (propertyType, propertyName))
                             # #exp = '((\'%sQObject\'*)%s)->property("%s")' \
                             #     % (d.ns, item.value.address, propertyName)
-                            #exp = '"((\'%sQObject\'*)%s)"' % (d.ns, item.value.address,)
+                            #exp = '"((\'%sQObject\'*)%s)"' %
+                            #(d.ns, item.value.address,)
                             #warn("EXPRESSION:  %s" % exp)
                             value = call(item.value, "property",
                                 str(cleanAddress(metaStringData + metaData[offset])))
                             value1 = value["d"]
                             #warn("   CODE: %s" % value1["type"])
-                            # Type 1 and 2 are bool and int. Try to save a few cycles in this case:
+                            # Type 1 and 2 are bool and int.
+                            # Try to save a few cycles in this case:
                             if int(value1["type"]) > 2:
                                 # Poke back value
-                                gdb.execute("set $d.d.data.ull = %s" % value1["data"]["ull"])
-                                gdb.execute("set $d.d.type = %s" % value1["type"])
-                                gdb.execute("set $d.d.is_null = %s" % value1["is_null"])
+                                gdb.execute("set $d.d.data.ull = %s"
+                                        % value1["data"]["ull"])
+                                gdb.execute("set $d.d.type = %s"
+                                        % value1["type"])
+                                gdb.execute("set $d.d.is_null = %s"
+                                        % value1["is_null"])
                                 value = parseAndEvaluate("$d").dereference()
                             val, inner, innert = qdumpHelper__QVariant(d, value)
                             if len(inner):
                                 # Build-in types.
                                 d.putType(inner)
-                                name = "%s.properties.%d" % (item.iname, i + dynamicPropertyCount)
+                                name = "%s.properties.%d" \
+                                    % (item.iname, i + dynamicPropertyCount)
                                 d.putItem(Item(val, item.iname + ".properties",
                                                     propertyName, propertyName))
 
@@ -871,7 +882,8 @@ def qdump__QObject(d, item):
                     for i in xrange(connectionListCount):
                         first = p.dereference()["first"]
                         while not isNull(first):
-                            d.putSubItem(Item(first.dereference(), item.iname + ".connections", pp))
+                            d.putSubItem(Item(first.dereference(),
+                                item.iname + ".connections", pp))
                             first = first["next"]
                             # We need to enforce some upper limit.
                             pp += 1
@@ -896,7 +908,8 @@ def qdump__QObject(d, item):
                     for signal in xrange(signalCount):
                         with SubItem(d):
                             offset = metaData[14 + 5 * signal]
-                            d.putField("iname", "%s.signals.%d" % (item.iname, signal))
+                            d.putField("iname", "%s.signals.%d"
+                                % (item.iname, signal))
                             d.putName("signal %d" % signal)
                             d.putType(" ")
                             d.putValue(extractCString(metaStringData, offset))
@@ -1044,64 +1057,6 @@ def qdump__QObject(d, item):
 
 
 
-#     checkAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
-#     const QObject *ob = reinterpret_cast<const QObject *>(d.data)
-#     const QMetaObject *mo = ob->metaObject()
-#     d.putValue(ob->objectName(), 2)
-#     d.putField("type", d.ns + "QObject")
-#     d.putField("displayedtype", mo->className())
-#     d.putField("numchild", 4)
-#     if d.isExpanded(item):
-#         int slotCount = 0
-#         int signalCount = 0
-#         for (int i = mo->methodCount(); --i >= 0; ) {
-#             QMetaMethod::MethodType mt = mo->method(i).methodType()
-#             signalCount += (mt == QMetaMethod::Signal)
-#             slotCount += (mt == QMetaMethod::Slot)
-#         }
-#         with Children(d):
-#             with SubItem(d):
-#                 d.putName("properties")
-#                 // using 'addr' does not work in gdb as 'exp' is recreated as
-#                 // (type *)addr, and here we have different 'types':
-#                 // QObject vs QObjectPropertyList!
-#                 d.putField("addr", d.data)
-#                 d.putField("type", d.ns + "QObjectPropertyList")
-#                 d.putItemCount(mo->propertyCount())
-#                 d.putField("numchild", mo->propertyCount())
-#             with SubItem(d):
-#                 d.putName("signals")
-#                 d.putField("addr", d.data)
-#                 d.putField("type", d.ns + "QObjectSignalList")
-#                 d.putItemCount(signalCount)
-#                 d.putField("numchild", signalCount)
-#             with SubItem(d):
-#                 d.putName("slots")
-#                 d.putField("addr", d.data)
-#                 d.putField("type", d.ns + "QObjectSlotList")
-#                 d.putItemCount(slotCount)
-#                 d.putField("numchild", slotCount)
-#             const QObjectList objectChildren = ob->children()
-#             if !objectChildren.empty()) {
-#                 with SubItem(d):
-#                    d.putName("children")
-#                    d.putField("addr", d.data)
-#                    d.putField("type", ns + "QObjectChildList")
-#                    d.putItemCount(objectChildren.size())
-#                    d.putField("numchild", objectChildren.size())
-#             with SubItem(d):
-#                 d.putName("parent")
-#                 if isSimpleType(item.value.type):
-#                     d.putItem(d, ns + "QObject *", ob->parent())
-#     #if 1
-#             with SubItem(d):
-#                 d.putName("className")
-#                 d.putValue(ob->metaObject()->className())
-#                 d.putField("type", "")
-#                 d.putField("numchild", "0")
-#     #endif
-
-
 # static const char *sizePolicyEnumValue(QSizePolicy::Policy p)
 # {
 #     switch (p) {
@@ -1171,289 +1126,6 @@ def qdump__QObject(d, item):
 #         d.putValue(flagsValue.constData())
 #     d.putNumChild(0)
 # }
-#
-# #ifndef QT_BOOTSTRAPPED
-# static void dumpQObjectProperty(QDumper &d)
-# {
-#     const QObject *ob = (const QObject *)d.data
-#     const QMetaObject *mob = ob->metaObject()
-#     // extract "local.Object.property"
-#     QString iname = d.iname
-#     const int dotPos = iname.lastIndexOf(QLatin1Char('.'))
-#     if dotPos == -1)
-#         return
-#     iname.remove(0, dotPos + 1)
-#     const int index = mob->indexOfProperty(iname.toAscii())
-#     if index == -1)
-#         return
-#     const QMetaProperty mop = mob->property(index)
-#     const QVariant value = mop.read(ob)
-#     const bool isInteger = value.type() == QVariant::Int
-#     if isInteger and mop.isEnumType()) {
-#         dumpMetaEnumValue(d, mop, value.toInt())
-#     } elif isInteger and mop.isFlagType()) {
-#         dumpMetaFlagValue(d, mop, value.toInt())
-#     } else {
-#         dumpQVariant(d, &value)
-#     }
-#     d.disarm()
-# }
-#
-# static void dumpQObjectMethodList(QDumper &d)
-# {
-#     const QObject *ob = (const QObject *)d.data
-#     const QMetaObject *mo = ob->metaObject()
-#     d.putField("addr", "<synthetic>")
-#     d.putField("type", ns + "QObjectMethodList")
-#     d.putField("numchild", mo->methodCount())
-#     if d.isExpanded(item):
-#         d.putField("childtype", ns + "QMetaMethod::Method")
-#         d.putField("childnumchild", "0")
-#         with Children(d):
-#            for (int i = 0; i != mo->methodCount(); ++i) {
-#                const QMetaMethod & method = mo->method(i)
-#                int mt = method.methodType()
-#                with SubItem(d):
-#                    d.beginItem("name")
-#                        d.put(i).put(" ").put(mo->indexOfMethod(method.signature()))
-#                        d.put(" ").put(method.signature())
-#                    d.endItem()
-#                    d.beginItem("value")
-#                        d.put((mt == QMetaMethod::Signal ? "<Signal>" : "<Slot>"))
-#                        d.put(" (").put(mt).put(")")
-#                    d.endItem()
-#
-# def qConnectionType(type):
-#     Qt::ConnectionType connType = static_cast<Qt::ConnectionType>(type)
-#     const char *output = "unknown"
-#     switch (connType) {
-#         case Qt::AutoConnection: output = "auto"; break
-#         case Qt::DirectConnection: output = "direct"; break
-#         case Qt::QueuedConnection: output = "queued"; break
-#         case Qt::BlockingQueuedConnection: output = "blockingqueued"; break
-#         case 3: output = "autocompat"; break
-# #if QT_VERSION >= 0x040600
-#         case Qt::UniqueConnection: break; // Can't happen.
-# #endif
-#     return output
-#
-# #if QT_VERSION >= 0x040400
-# static const ConnectionList &qConnectionList(const QObject *ob, int signalNumber)
-# {
-#     static const ConnectionList emptyList
-#     const ObjectPrivate *p = reinterpret_cast<const ObjectPrivate *>(dfunc(ob))
-#     if !p->connectionLists)
-#         return emptyList
-#     typedef QVector<ConnectionList> ConnLists
-#     const ConnLists *lists = reinterpret_cast<const ConnLists *>(p->connectionLists)
-#     // there's an optimization making the lists only large enough to hold the
-#     // last non-empty item
-#     if signalNumber >= lists->size())
-#         return emptyList
-#     return lists->at(signalNumber)
-# }
-# #endif
-#
-# // Write party involved in a slot/signal element,
-# // avoid to recursion to self.
-# static inline void dumpQObjectConnectionPart(QDumper &d,
-#                                               const QObject *owner,
-#                                               const QObject *partner,
-#                                               int number, const char *namePostfix)
-# {
-#     with SubItem(d):
-#         d.beginItem("name")
-#         d.put(number).put(namePostfix)
-#         d.endItem()
-#         if partner == owner) {
-#             d.putValue("<this>")
-#             d.putField("type", owner->metaObject()->className())
-#             d.putField("numchild", 0)
-#             d.putField("addr", owner)
-#         } else {
-#       if isSimpleType(item.value.type):
-#           d.putItem(ns + "QObject *", partner)
-#
-# static void dumpQObjectSignal(QDumper &d)
-# {
-#     unsigned signalNumber = d.extraInt[0]
-#
-#     d.putField("addr", "<synthetic>")
-#     d.putField("numchild", "1")
-#     d.putField("type", ns + "QObjectSignal")
-#
-# #if QT_VERSION >= 0x040400
-#     if d.isExpanded(item):
-#         const QObject *ob = reinterpret_cast<const QObject *>(d.data)
-#         with Children(d):
-#              const ConnectionList &connList = qConnectionList(ob, signalNumber)
-#              for (int i = 0; i != connList.size(); ++i) {
-#                  const Connection &conn = connectionAt(connList, i)
-#                  dumpQObjectConnectionPart(d, ob, conn.receiver, i, " receiver")
-#                  with SubItem(d):
-#                      d.beginItem("name")
-#                          d.put(i).put(" slot")
-#                      d.endItem()
-#                      d.putField("type", "")
-#                      if conn.receiver)
-#                          d.putValue(conn.receiver->metaObject()->method(conn.method).signature())
-#                      else
-#                          d.putValue("<invalid receiver>")
-#                      d.putField("numchild", "0")
-#                  with SubItem(d):
-#                      d.beginItem("name")
-#                          d.put(i).put(" type")
-#                      d.endItem()
-#                      d.putField("type", "")
-#                      d.beginItem("value")
-#                          d.put("<").put(qConnectionType(conn.connectionType)).put(" connection>")
-#                      d.endItem()
-#                      d.putField("numchild", "0")
-#         d.putField("numchild", connList.size())
-# #endif
-#
-# static void dumpQObjectSignalList(QDumper &d)
-# {
-#     const QObject *ob = reinterpret_cast<const QObject *>(d.data)
-#     const QMetaObject *mo = ob->metaObject()
-#     int count = 0
-#     const int methodCount = mo->methodCount()
-#     for (int i = methodCount; --i >= 0; )
-#         count += (mo->method(i).methodType() == QMetaMethod::Signal)
-#     d.putField("type", ns + "QObjectSignalList")
-#     d.putItemCount(count)
-#     d.putField("addr", d.data)
-#     d.putField("numchild", count)
-# #if QT_VERSION >= 0x040400
-#     if d.isExpanded(item):
-#         with Children(d):
-#         for (int i = 0; i != methodCount; ++i) {
-#             const QMetaMethod & method = mo->method(i)
-#             if method.methodType() == QMetaMethod::Signal) {
-#                 int k = mo->indexOfSignal(method.signature())
-#                 const ConnectionList &connList = qConnectionList(ob, k)
-#                 with SubItem(d):
-#                     d.putName(k)
-#                     d.putValue(method.signature())
-#                     d.putField("numchild", connList.size())
-#                     d.putField("addr", d.data)
-#                     d.putField("type", ns + "QObjectSignal")
-# #endif
-#
-# static void dumpQObjectSlot(QDumper &d)
-# {
-#     int slotNumber = d.extraInt[0]
-#
-#     d.putField("addr", d.data)
-#     d.putField("numchild", "1")
-#     d.putField("type", ns + "QObjectSlot")
-#
-# #if QT_VERSION >= 0x040400
-#     if d.isExpanded(item):
-#         with Children(d):
-#             int numchild = 0
-#             const QObject *ob = reinterpret_cast<const QObject *>(d.data)
-#             const ObjectPrivate *p = reinterpret_cast<const ObjectPrivate *>(dfunc(ob))
-# #####if QT_VERSION >= 0x040600
-#             int s = 0
-#             for (SenderList senderList = p->senders; senderList != 0
-#                  senderList = senderList->next, ++s) {
-#                 const QObject *sender = senderList->sender
-#                 int signal = senderList->method; // FIXME: 'method' is wrong.
-# #####else
-#             for (int s = 0; s != p->senders.size(); ++s) {
-#                 const QObject *sender = senderAt(p->senders, s)
-#                 int signal = signalAt(p->senders, s)
-# #####endif
-#                 const ConnectionList &connList = qConnectionList(sender, signal)
-#                 for (int i = 0; i != connList.size(); ++i) {
-#                     const Connection &conn = connectionAt(connList, i)
-#                     if conn.receiver == ob and conn.method == slotNumber) {
-#                         ++numchild
-#                         const QMetaMethod &method = sender->metaObject()->method(signal)
-#                         dumpQObjectConnectionPart(d, ob, sender, s, " sender")
-#                         with SubItem(d):
-#                             d.beginItem("name")
-#                                 d.put(s).put(" signal")
-#                             d.endItem()
-#                             d.putField("type", "")
-#                             d.putValue(method.signature())
-#                             d.putField("numchild", "0")
-#                         with SubItem(d):
-#                             d.beginItem("name")
-#                                 d.put(s).put(" type")
-#                             d.endItem()
-#                             d.putField("type", "")
-#                             d.beginItem("value")
-#                                 d.put("<").put(qConnectionType(conn.method))
-#                                 d.put(" connection>")
-#                             d.endItem()
-#                             d.putField("numchild", "0")
-#                     }
-#                 }
-#             }
-#         d.putField("numchild", numchild)
-#     }
-# #endif
-#     d.disarm()
-# }
-#
-# static void dumpQObjectSlotList(QDumper &d)
-# {
-#     const QObject *ob = reinterpret_cast<const QObject *>(d.data)
-# #if QT_VERSION >= 0x040400
-#     const ObjectPrivate *p = reinterpret_cast<const ObjectPrivate *>(dfunc(ob))
-# #endif
-#     const QMetaObject *mo = ob->metaObject()
-#
-#     int count = 0
-#     const int methodCount = mo->methodCount()
-#     for (int i = methodCount; --i >= 0; )
-#         count += (mo->method(i).methodType() == QMetaMethod::Slot)
-#
-#     d.putField("numchild", count)
-#     d.putItemCount(count)
-#     d.putField("type", ns + "QObjectSlotList")
-#     if d.isExpanded(item):
-#         with Children(d):
-#      #if QT_VERSION >= 0x040400
-#              for (int i = 0; i != methodCount; ++i) {
-#                  const QMetaMethod & method = mo->method(i)
-#                  if method.methodType() == QMetaMethod::Slot) {
-#                      with SubItem(d):
-#                           int k = mo->indexOfSlot(method.signature())
-#                           d.putName(k)
-#                           d.putValue(method.signature())
-#
-#                           // count senders. expensive...
-#                           int numchild = 0
-#      #if QT_VERSION      >= 0x040600
-#                           int s = 0
-#                           for (SenderList senderList = p->senders; senderList != 0
-#                                senderList = senderList->next, ++s) {
-#                               const QObject *sender = senderList->sender
-#                               int signal = senderList->method; // FIXME: 'method' is wrong.
-#      #else
-#                           for (int s = 0; s != p->senders.size(); ++s) {
-#                               const QObject *sender = senderAt(p->senders, s)
-#                               int signal = signalAt(p->senders, s)
-#      #endif
-#                               const ConnectionList &connList = qConnectionList(sender, signal)
-#                               for (int c = 0; c != connList.size(); ++c) {
-#                                   const Connection &conn = connectionAt(connList, c)
-#                                   if conn.receiver == ob and conn.method == k)
-#                                       ++numchild
-#                               }
-#                           }
-#                           d.putField("numchild", numchild)
-#                           d.putField("addr", d.data)
-#                           d.putField("type", ns + "QObjectSlot")
-#                  }
-#              }
-#      #endif
-#
-# #endif // QT_BOOTSTRAPPED
-
 
 def qdump__QPixmap(d, item):
     painters = item.value["painters"]
