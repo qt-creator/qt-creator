@@ -667,7 +667,8 @@ bool NodeMetaInfoPrivate::cleverCheckType(const QString &otherType) const
     const LanguageUtils::FakeMetaObject::Export exp =
             getQmlObjectValue()->metaObject()->exportInPackage(package);
     const QString convertedName = exp.type;
-        return QString(package + "/" + typeName) == QString(package + "/" + convertedName);
+
+    return typeName == convertedName;
 }
 
 QVariant::Type NodeMetaInfoPrivate::variantTypeId(const QString &properyName) const
@@ -997,9 +998,11 @@ QString NodeMetaInfo::componentFileName() const
 
 bool NodeMetaInfo::availableInVersion(int majorVersion, int minorVersion) const
 {
-    return ((majorVersion > m_privateData->majorVersion())
-            || (majorVersion == m_privateData->majorVersion() && minorVersion >= m_privateData->minorVersion()))
-            || (majorVersion == -1 && minorVersion == -1);
+    if (majorVersion == -1 && minorVersion == -1)
+        return true;
+
+    return (m_privateData->majorVersion() >= majorVersion)
+        || (majorVersion == m_privateData->majorVersion() && m_privateData->minorVersion() >= minorVersion);
 }
 
 bool NodeMetaInfo::isSubclassOf(const QString &type, int majorVersion, int minorVersion) const
