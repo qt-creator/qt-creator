@@ -153,6 +153,10 @@ signals:
     void changeLogChanged();
     void controlChanged();
 
+protected:
+    bool adaptControlFileField(QByteArray &document, const QByteArray &fieldName,
+        const QByteArray &newFieldValue);
+
 private slots:
     void handleDebianDirContentsChanged();
     void handleDebianFileChanged(const QString &filePath);
@@ -170,6 +174,7 @@ private:
     virtual bool initAdditionalPackagingSettingsFromOtherTarget();
     virtual QStringList packagingFilePaths() const;
 
+    virtual void addAdditionalControlFileFields(QByteArray &controlContents)=0;
     virtual QByteArray packageManagerNameFieldName() const=0;
 
     QString changeLogFilePath() const;
@@ -177,8 +182,6 @@ private:
     QByteArray controlFileFieldValue(const QString &key, bool multiLine) const;
     bool setControlFieldValue(const QByteArray &fieldName,
         const QByteArray &fieldValue);
-    bool adaptControlFileField(QByteArray &document, const QByteArray &fieldName,
-        const QByteArray &newFieldValue);
     bool adaptRulesFile();
     bool adaptControlFile();
     bool setPackageManagerIconInternal(const QString &iconFilePath,
@@ -243,6 +246,7 @@ public:
     static QString defaultDisplayName();
 
 private:
+    virtual void addAdditionalControlFileFields(QByteArray &controlContents);
     virtual QString debianDirName() const;
     virtual QByteArray packageManagerNameFieldName() const;
 };
@@ -262,6 +266,7 @@ public:
     static QString defaultDisplayName();
 
 private:
+    virtual void addAdditionalControlFileFields(QByteArray &controlContents);
     virtual QString debianDirName() const;
     virtual QByteArray packageManagerNameFieldName() const;
 };
@@ -277,28 +282,6 @@ public:
 private:
     virtual QString specFileName() const;
 };
-
-/*
-class Qt4MeegoArmTarget : public AbstractRpmBasedQt4MaemoTarget
-{
-public:
-    explicit Qt4MeegoArmTarget(Qt4Project *parent, const QString &id);
-    virtual ~Qt4MeegoArmTarget();
-    static QString defaultDisplayName();
-private:
-    virtual QString specFileName() const;
-};
-
-class Qt4MeegoIa32Target : public AbstractRpmBasedQt4MaemoTarget
-{
-public:
-    explicit Qt4MeegoIa32Target(Qt4Project *parent, const QString &id);
-    virtual ~Qt4MeegoIa32Target();
-    static QString defaultDisplayName();
-private:
-    virtual QString specFileName() const;
-};
-*/
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

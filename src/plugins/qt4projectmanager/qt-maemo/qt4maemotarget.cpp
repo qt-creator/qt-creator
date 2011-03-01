@@ -820,6 +820,7 @@ bool AbstractDebBasedQt4MaemoTarget::adaptControlFile()
             ", libqt4-dev");
     }
 
+    addAdditionalControlFileFields(controlContents);
     controlFile.resize(0);
     controlFile.write(controlContents);
     controlFile.close();
@@ -836,7 +837,7 @@ bool AbstractDebBasedQt4MaemoTarget::initAdditionalPackagingSettingsFromOtherTar
     foreach (const Target * const t, project()->targets()) {
         const AbstractDebBasedQt4MaemoTarget *target
             = qobject_cast<const AbstractDebBasedQt4MaemoTarget *>(t);
-        if (target) {
+        if (target && target != this) {
             return setControlFieldValue(IconFieldName,
                 target->controlFileFieldValue(IconFieldName, true));
         }
@@ -1064,6 +1065,11 @@ QString Qt4Maemo5Target::defaultDisplayName()
         "Qt4 Maemo5 target display name");
 }
 
+void Qt4Maemo5Target::addAdditionalControlFileFields(QByteArray &controlContents)
+{
+    Q_UNUSED(controlContents);
+}
+
 QString Qt4Maemo5Target::debianDirName() const
 {
     return QLatin1String("debian_fremantle");
@@ -1087,6 +1093,12 @@ QString Qt4HarmattanTarget::defaultDisplayName()
 {
     return QApplication::translate("Qt4ProjectManager::Qt4Target", "Harmattan",
         "Qt4 Harmattan target display name");
+}
+
+void Qt4HarmattanTarget::addAdditionalControlFileFields(QByteArray &controlContents)
+{
+    adaptControlFileField(controlContents, "XB-Meego-Desktop-Entry", "");
+    adaptControlFileField(controlContents, "XB-MeeGo-Desktop-Entry-Filename", "");
 }
 
 QString Qt4HarmattanTarget::debianDirName() const
@@ -1119,42 +1131,3 @@ QString Qt4MeegoTarget::specFileName() const
 {
     return QLatin1String("meego.spec");
 }
-
-/*
-Qt4MeegoArmTarget::Qt4MeegoArmTarget(Qt4Project *parent, const QString &id)
-       : AbstractRpmBasedQt4MaemoTarget(parent, id)
-{
-}
-
-Qt4MeegoArmTarget::~Qt4MeegoArmTarget() {}
-
-QString Qt4MeegoArmTarget::defaultDisplayName()
-{
-    return QApplication::translate("Qt4ProjectManager::Qt4Target",
-        "Meego (ARM)", "Qt4 Meego/ARM target display name");
-}
-
-QString Qt4MeegoArmTarget::specFileName() const
-{
-    return QLatin1String("meego-arm");
-}
-
-
-Qt4MeegoIa32Target::Qt4MeegoIa32Target(Qt4Project *parent, const QString &id)
-       : AbstractRpmBasedQt4MaemoTarget(parent, id)
-{
-}
-
-Qt4MeegoIa32Target::~Qt4MeegoIa32Target() {}
-
-QString Qt4MeegoIa32Target::defaultDisplayName()
-{
-    return QApplication::translate("Qt4ProjectManager::Qt4Target",
-        "Meego (IA32)", "Qt4 Meego/IA32 target display name");
-}
-
-QString Qt4MeegoIa32Target::specFileName() const
-{
-    return QLatin1String("meego-ia32");
-}
-*/
