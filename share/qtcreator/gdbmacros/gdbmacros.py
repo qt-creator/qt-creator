@@ -725,8 +725,8 @@ def qdump__QObject(d, item):
                 iname = item.iname + ".data"
                 if d.isExpandedIName(iname):
                     with Children(d):
-                        child = Item(d_ptr, item.iname)
-                        d.putFields(child)
+                        child = Item(d_ptr, iname)
+                        d.putFields(child, False)
 
 
         d.putFields(item)
@@ -803,6 +803,7 @@ def qdump__QObject(d, item):
                     # Static properties.
                     propertyData = metaData[7]
                     for i in xrange(staticPropertyCount):
+                      with NoAddress(d):
                         with SubItem(d):
                             offset = propertyData + 3 * i
                             propertyName = extractCString(metaStringData,
@@ -844,19 +845,22 @@ def qdump__QObject(d, item):
 
                             else:
                                 # User types.
-                           #    func = "typeToName(('%sQVariant::Type')%d)" % (d.ns, variantType)
+                           #    func = "typeToName(('%sQVariant::Type')%d)"
+                           #       % (d.ns, variantType)
                            #    type = str(call(item.value, func))
                            #    type = type[type.find('"') + 1 : type.rfind('"')]
                            #    type = type.replace("Q", d.ns + "Q") # HACK!
                            #    data = call(item.value, "constData")
-                           #    tdata = data.cast(lookupType(type).pointer()).dereference()
+                           #    tdata = data.cast(lookupType(type).pointer())
+                           #      .dereference()
                            #    d.putValue("(%s)" % tdata.type)
                            #    d.putType(tdata.type)
                            #    d.putNumChild(1)
                            #    if d.isExpanded(item):
                            #        with Children(d):
-                           #           d.putSubItem(Item(tdata, item.iname, "data", "data"))
-                                warn("FIXME: CUSTOM QOBJECT PROPERTIES NOT IMPLEMENTED: %s %s"
+                           #           d.putSubItem(Item(tdata, item.iname,
+                           #             "data", "data"))
+                                warn("FIXME: CUSTOM QOBJECT PROPERTY: %s %s"
                                     % (propertyType, innert))
                                 d.putType(propertyType)
                                 d.putValue("...")
@@ -1611,6 +1615,7 @@ def qdump__QVariant(d, item):
     if d.isExpanded(item):
         with Children(d):
             #warn("TDATA: %s" % tdata)
+          with NoAddress(d):
             d.putSubItem(Item(tdata, item.iname, "data", "data"))
     return tdata.type
 

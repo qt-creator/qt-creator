@@ -293,6 +293,18 @@ class OutputSafer:
         return False
 
 
+class NoAddress:
+    def __init__(self, d):
+        self.d = d
+
+    def __enter__(self):
+        self.savedPrintsAddress = self.d.printsAddress
+        self.d.printsAddress = False
+
+    def __exit__(self, exType, exValue, exTraceBack):
+        self.d.printsAddress = self.savedPrintsAddress
+
+
 class SubItem:
     def __init__(self, d):
         self.d = d
@@ -1114,6 +1126,7 @@ SalCommand()
 class Dumper:
     def __init__(self, args):
         self.output = ""
+        self.printsAddress = True
         self.currentChildType = ""
         self.currentChildNumChild = -1
         self.currentMaxNumChilds = -1
@@ -1402,7 +1415,8 @@ class Dumper:
             self.currentTypePriority = priority
 
     def putAddress(self, addr):
-        self.put('addr="%s",' % cleanAddress(addr))
+        if self.printsAddress:
+            self.put('addr="%s",' % cleanAddress(addr))
 
     def putNumChild(self, numchild):
         #warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
@@ -1731,8 +1745,10 @@ class Dumper:
                 innerType = realtype.target()
                 innerTypeName = str(innerType.unqualified())
                 # Never dereference char types.
-                if innerTypeName != "char" and innerTypeName != "signed char" \
-                   and innerTypeName != "unsigned char" and innerTypeName != "wchar_t":
+                if innerTypeName != "char" \
+                        and innerTypeName != "signed char" \
+                        and innerTypeName != "unsigned char"  \
+                        and innerTypeName != "wchar_t":
                     self.putType(innerType)
                     savedCurrentChildType = self.currentChildType
                     self.currentChildType = stripClassTag(str(innerType))
@@ -1806,7 +1822,7 @@ class Dumper:
             with Children(self):
                self.putFields(item)
 
-    def putFields(self, item):
+    def putFields(self, item, dumpBase = True):
             value = item.value
             type = stripTypedefs(value.type)
             fields = extractFields(type)
@@ -1844,12 +1860,13 @@ class Dumper:
                     # Field is base type. We cannot use field.name as part
                     # of the iname as it might contain spaces and other
                     # strange characters.
-                    child = Item(value.cast(field.type),
-                        item.iname, "@%d" % baseNumber, field.name)
-                    baseNumber += 1
-                    with SubItem(self):
-                        self.put('iname="%s",' % child.iname)
-                        self.putItem(child)
+                    if dumpBase:
+                        child = Item(value.cast(field.type),
+                            item.iname, "@%d" % baseNumber, field.name)
+                        baseNumber += 1
+                        with SubItem(self):
+                            self.put('iname="%s",' % child.iname)
+                            self.putItem(child)
                 elif len(field.name) == 0:
                     # Anonymous union. We need a dummy name to distinguish
                     # multiple anonymous unions in the struct.

@@ -137,10 +137,14 @@ int z;
 class DerivedObjectPrivate : public QObjectPrivate
 {
 public:
-    DerivedObjectPrivate() : m_extraX(43), m_extraY(44) {}
+    DerivedObjectPrivate()
+    {
+        m_extraX = 43;
+        m_extraY.append("xxx");
+    }
 
     int m_extraX;
-    int m_extraY;
+    QStringList m_extraY;
 };
 
 class DerivedObject : public QObject
@@ -153,12 +157,12 @@ public:
     {}
 
     Q_PROPERTY(int x READ x WRITE setX)
-    Q_PROPERTY(int y READ y WRITE setY)
+    Q_PROPERTY(QStringList y READ y WRITE setY)
 
     int x() const;
     void setX(int x);
-    int y() const;
-    void setY(int y);
+    QStringList y() const;
+    void setY(QStringList y);
 
 private:
     Q_DECLARE_PRIVATE(DerivedObject)
@@ -176,13 +180,13 @@ void DerivedObject::setX(int x)
     d->m_extraX = x;
 }
 
-int DerivedObject::y() const
+QStringList DerivedObject::y() const
 {
     Q_D(const DerivedObject);
     return d->m_extraY;
 }
 
-void DerivedObject::setY(int y)
+void DerivedObject::setY(QStringList y)
 {
     Q_D(DerivedObject);
     d->m_extraY = y;
