@@ -408,19 +408,38 @@ QList<Abi> Abi::abisOfBinary(const QString &path)
         // Windows PE
         // Windows can have its magic bytes everywhere...
         int pePos = data.indexOf("PE\0\0");
-        if (pePos >= 0 && pePos + 5 < data.size()) {
+        if (pePos >= 0 && pePos + 72 < data.size()) {
+            Architecture arch = UnknownArchitecture;
+            OSFlavor flavor = UnknownFlavor;
+            int width = 0;
+
+            // Get machine field from COFF file header
             quint16 machine = (data.at(pePos + 5) << 8) + data.at(pePos + 4);
             switch (machine) {
             case 0x8664: // x86_64
-                result.append(Abi(Abi::X86Architecture, Abi::WindowsOS, Abi::WindowsMsvcFlavor, Abi::PEFormat, 64));
+                arch = Abi::X86Architecture;
+                width = 64;
                 break;
             case 0x014c: // i386
-                result.append(Abi(Abi::X86Architecture, Abi::WindowsOS, Abi::WindowsMsvcFlavor, Abi::PEFormat, 32));
+                arch = Abi::X86Architecture;
+                width = 32;
                 break;
             case 0x0200: // ia64
-                result.append(Abi(Abi::ItaniumArchitecture, Abi::WindowsOS, Abi::WindowsMsvcFlavor, Abi::PEFormat, 64));
+                arch = Abi::ItaniumArchitecture;
+                width = 64;
                 break;
             }
+
+            // Get Major and Minor Image Version from optional header fields
+            quint32 image = (data.at(pePos + 71) << 24) + (data.at(pePos + 70) << 16)
+                    + (data.at(pePos + 69) << 8) + data.at(pePos + 68);
+            if (image == 1) // Image is 1 for mingw and 4.something for MSVC
+                flavor = WindowsMSysFlavor;
+            else
+                flavor = WindowsMsvcFlavor;
+
+            if (arch != UnknownArchitecture && flavor != UnknownFlavor && width != 0)
+                result.append(Abi(arch, WindowsOS, flavor, PEFormat, width));
         }
     }
     return result;
