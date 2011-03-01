@@ -76,7 +76,7 @@ void StatesEditorView::removeState(int nodeId)
     try {
         if (nodeId > 0 && hasModelNodeForInternalId(nodeId)) {
             ModelNode stateNode(modelNodeForInternalId(nodeId));
-            Q_ASSERT(stateNode.metaInfo().isSubclassOf("QtQuick/State", -1, -1));
+            Q_ASSERT(stateNode.metaInfo().isSubclassOf("QtQuick.State", -1, -1));
             NodeListProperty parentProperty = stateNode.parentProperty().toNodeListProperty();
 
             if (parentProperty.count() <= 1) {

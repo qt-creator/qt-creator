@@ -142,7 +142,7 @@ NodeInstanceView::~NodeInstanceView()
 
 bool isSkippedNode(const ModelNode &node)
 {
-    static QStringList skipList =  QStringList() << "Qt/ListModel" << "QtQuick/ListModel";
+    static QStringList skipList =  QStringList() << "Qt.ListModel" << "QtQuick.ListModel";
 
     if (skipList.contains(node.type()))
         return true;

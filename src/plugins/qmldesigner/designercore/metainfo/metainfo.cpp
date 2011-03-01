@@ -98,7 +98,7 @@ void MetaInfoPrivate::initialize()
 
 QString static inline stripPrefix(const QString &typeName)
 {
-    QStringList list = typeName.split('/');
+    QStringList list = typeName.split('.');
     if (list.count() == 2)
         return list.last();
     return typeName;
@@ -109,7 +109,7 @@ static inline bool isDepricatedQtType(const QString &typeName)
     if (typeName.length() < 8)
         return false;
 
-    return typeName.contains("QtQuick/");
+    return typeName.contains("Qt.");
 }
 
 void MetaInfoPrivate::parseXmlFiles()

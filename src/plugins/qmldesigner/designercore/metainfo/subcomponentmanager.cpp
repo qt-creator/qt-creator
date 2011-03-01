@@ -317,7 +317,7 @@ void SubComponentManagerPrivate::unregisterQmlFile(const QFileInfo &fileInfo, co
 {
     QString componentName = fileInfo.baseName();
     if (!qualifier.isEmpty())
-        componentName = qualifier + '/' + componentName;
+        componentName = qualifier + '.' + componentName;
 }
 
 static inline bool isDepricatedQtType(const QString &typeName)
@@ -325,7 +325,7 @@ static inline bool isDepricatedQtType(const QString &typeName)
     if (typeName.length() < 8)
         return false;
 
-    return typeName.contains("QtQuick/");
+    return typeName.contains("Qt.");
 }
 
 
@@ -338,7 +338,7 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
         QString fixedQualifier = qualifier;
         if (qualifier.right(1) == QLatin1String("."))
             fixedQualifier.chop(1); //remove last char if it is a dot
-        componentName = fixedQualifier + '/' + componentName;
+        componentName = fixedQualifier + '.' + componentName;
     }
 
     if (debug)

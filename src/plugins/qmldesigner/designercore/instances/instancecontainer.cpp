@@ -43,6 +43,7 @@ InstanceContainer::InstanceContainer()
 InstanceContainer::InstanceContainer(qint32 instanceId, const QString &type, int majorNumber, int minorNumber, const QString &componentPath)
     : m_instanceId(instanceId), m_type(type), m_majorNumber(majorNumber), m_minorNumber(minorNumber), m_componentPath(componentPath)
 {
+    m_type.replace(".", "/");
 }
 
 qint32 InstanceContainer::instanceId() const

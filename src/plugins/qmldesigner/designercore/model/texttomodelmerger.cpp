@@ -221,12 +221,12 @@ static inline QVariant convertDynamicPropertyValueToVariant(const QString &astVa
 
 static bool isComponentType(const QString &type)
 {
-    return  type == QLatin1String("Component") || type == QLatin1String("Qt/Component") || type == QLatin1String("QtQuick/Component");
+    return  type == QLatin1String("Component") || type == QLatin1String("Qt.Component") || type == QLatin1String("QtQuick.Component");
 }
 
 static bool isPropertyChangesType(const QString &type)
 {
-    return  type == QLatin1String("PropertyChanges") || type == QLatin1String("QtQuick/PropertyChanges") || type == QLatin1String("Qt/PropertyChanges");
+    return  type == QLatin1String("PropertyChanges") || type == QLatin1String("QtQuick.PropertyChanges") || type == QLatin1String("Qt.PropertyChanges");
 }
 
 
@@ -269,7 +269,7 @@ public:
 
         const Interpreter::QmlObjectValue * qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(value);
         if (qmlValue) {
-            typeName = fixUpPackeNameForQt(qmlValue->packageName()) + QLatin1String("/") + qmlValue->className();
+            typeName = fixUpPackeNameForQt(qmlValue->packageName()) + QLatin1String(".") + qmlValue->className();
 
             //### todo this is just a hack to support QtQuick 1.0
             majorVersion = fixUpMajorVersionForQt(qmlValue->packageName(), qmlValue->version().majorVersion());

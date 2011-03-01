@@ -231,7 +231,7 @@ bool ChangeTypeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, 
     bool result = false;
 
     QString newNodeType = m_node.type();
-    const int slashIdx = newNodeType.lastIndexOf('/');
+    const int slashIdx = newNodeType.lastIndexOf('.');
     if (slashIdx != -1)
         newNodeType = newNodeType.mid(slashIdx + 1);
 

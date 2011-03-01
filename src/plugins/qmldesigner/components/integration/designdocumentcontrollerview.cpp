@@ -155,7 +155,7 @@ void DesignDocumentControllerView::fromClipboard()
 
 QString DesignDocumentControllerView::toText() const
 {
-    QScopedPointer<Model> outputModel(Model::create("QtQuick/Rectangle", 1, 0));
+    QScopedPointer<Model> outputModel(Model::create("QtQuick.Rectangle", 1, 0));
     outputModel->setMetaInfo(model()->metaInfo());
     QPlainTextEdit textEdit;
     textEdit.setPlainText("import Qt 4.7; Item {}");
@@ -177,7 +177,7 @@ QString DesignDocumentControllerView::toText() const
 
 void DesignDocumentControllerView::fromText(QString text)
 {
-    QScopedPointer<Model> inputModel(Model::create("QtQuick/Rectangle", 1, 0));
+    QScopedPointer<Model> inputModel(Model::create("QtQuick.Rectangle", 1, 0));
     inputModel->setMetaInfo(model()->metaInfo());
     inputModel->setFileUrl(model()->fileUrl());
     QPlainTextEdit textEdit;

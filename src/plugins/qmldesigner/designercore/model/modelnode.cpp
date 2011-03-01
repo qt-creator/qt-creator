@@ -248,7 +248,7 @@ QString ModelNode::simplifiedTypeName() const
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
 
-    return type().split(QLatin1Char('/')).last();
+    return type().split(QLatin1Char('.')).last();
 }
 
 /*! \brief Returns whether the node is valid

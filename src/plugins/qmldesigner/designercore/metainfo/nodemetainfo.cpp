@@ -104,8 +104,8 @@ public:
                 type = ref->ast()->memberType->asString();
             m_properties.append(qMakePair(name, type));
         } else {
-            if (const Interpreter::QmlObjectValue * ov = dynamic_cast<const Interpreter::QmlObjectValue *>(value)) {
-                QString qualifiedTypeName = ov->packageName().isEmpty() ? ov->className() : ov->packageName() + '/' + ov->className();
+            if (const Interpreter::QmlObjectValue * ov = dynamic_cast<const Interpreter::QmlObjectValue *>(value)) {               
+                QString qualifiedTypeName = ov->packageName().isEmpty() ? ov->className() : ov->packageName() + "." + ov->className();
                 m_properties.append(qMakePair(name, qualifiedTypeName));
             } else {
                 Interpreter::TypeId typeId;
@@ -158,11 +158,11 @@ QStringList prototypes(const Interpreter::ObjectValue *ov, LookupContext::Ptr co
         const Interpreter::QmlObjectValue * qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(ov);
         if (qmlValue) {
             if (versions) {
-                list << qmlValue->packageName() + '/' + qmlValue->className() +
-                ' ' + QString::number(qmlValue->version().majorVersion()) +
-                '.' + QString::number(qmlValue->version().minorVersion());
+                list << qmlValue->packageName() + "." + qmlValue->className() +
+                " " + QString::number(qmlValue->version().majorVersion()) +
+                "." + QString::number(qmlValue->version().minorVersion());
             } else {
-                list << qmlValue->packageName() + '/' + qmlValue->className();
+                list << qmlValue->packageName() + "." + qmlValue->className();
             }
         } else {
             if (versions) {
@@ -424,14 +424,14 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
             setupPrototypes();
             m_isValid = true;
         } else {
-            m_qualfiedTypeName = m_qualfiedTypeName.split('/').last();
+            m_qualfiedTypeName = m_qualfiedTypeName.split('.').last();
             const Interpreter::ObjectValue *objectValue = getObjectValue();
             if (objectValue) {
                 const Interpreter::QmlObjectValue *qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(objectValue);
                 if (qmlValue) {
                     m_majorVersion = qmlValue->version().majorVersion();
                     m_minorVersion = qmlValue->version().minorVersion();
-                    m_qualfiedTypeName = qmlValue->packageName() + '/' + qmlValue->className();
+                    m_qualfiedTypeName = qmlValue->packageName() + '.' + qmlValue->className();
                 } else {
                     m_isComponent = true;
                 }
@@ -654,7 +654,7 @@ bool NodeMetaInfoPrivate::cleverCheckType(const QString &otherType) const
     if (isComponent())
         return false;
 
-    QStringList split = otherType.split('/');
+    QStringList split = otherType.split('.');
     QString package;
     QString typeName = otherType;
     if (split.count() > 1) {
@@ -662,7 +662,7 @@ bool NodeMetaInfoPrivate::cleverCheckType(const QString &otherType) const
         typeName = split.at(1);
     }
     if (packageName() == package)
-        return QString(package + "/" + typeName) == qualfiedTypeName();
+        return QString(package + "." + typeName) == qualfiedTypeName();
 
     const LanguageUtils::FakeMetaObject::Export exp =
             getQmlObjectValue()->metaObject()->exportInPackage(package);
@@ -755,7 +755,7 @@ QString NodeMetaInfoPrivate::lookupName() const
     QString className = m_qualfiedTypeName;
     QString packageName;
 
-    QStringList packageClassName = m_qualfiedTypeName.split(QLatin1Char('/'));
+    QStringList packageClassName = m_qualfiedTypeName.split(QLatin1Char('.'));
     if (packageClassName.size() > 1) {
         className = packageClassName.takeLast();
         packageName = packageClassName.join(QLatin1String("."));
@@ -770,8 +770,6 @@ QString NodeMetaInfoPrivate::lookupName() const
 QStringList NodeMetaInfoPrivate::lookupNameComponent() const
 {
     QString tempString = m_qualfiedTypeName;
-    tempString.replace('/', '.');
-
     return tempString.split(".");
 }
 
@@ -803,7 +801,7 @@ void NodeMetaInfoPrivate::setupPrototypes()
             description.minorVersion = qmlValue->version().minorVersion();
             description.majorVersion = qmlValue->version().majorVersion();
             if (!qmlValue->packageName().isEmpty())
-                description.className = qmlValue->packageName() + '/' + description.className;
+                description.className = qmlValue->packageName() + "." + description.className;
             m_prototypes.append(description);
         } else {
             if (lookupContext()->context()->lookupType(document(), QStringList() << ov->className()))
