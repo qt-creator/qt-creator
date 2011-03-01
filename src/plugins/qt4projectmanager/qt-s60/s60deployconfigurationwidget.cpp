@@ -74,6 +74,16 @@ namespace Internal {
 const char STARTING_DRIVE_LETTER = 'C';
 const char LAST_DRIVE_LETTER = 'Z';
 
+QString formatDriveText(const S60DeployConfiguration::DeviceDrive &drive)
+{
+    char driveLetter = QChar::toUpper(static_cast<ushort>(drive.first));
+    if (drive.second <= 0)
+        return QString("%1:").arg(driveLetter);
+    if (drive.second >= 1024)
+        return QString("%1:%2 MB").arg(driveLetter).arg(drive.second);
+    return QString("%1:%2 kB").arg(driveLetter).arg(drive.second);
+}
+
 S60DeployConfigurationWidget::S60DeployConfigurationWidget(QWidget *parent)
     : ProjectExplorer::DeployConfigurationWidget(parent),
       m_detailsWidget(new Utils::DetailsWidget),
@@ -187,6 +197,8 @@ void S60DeployConfigurationWidget::init(ProjectExplorer::DeployConfiguration *dc
     updateTargetInformation();
     connect(m_deployConfiguration, SIGNAL(targetInformationChanged()),
             this, SLOT(updateTargetInformation()));
+    connect(m_deployConfiguration, SIGNAL(availableDeviceDrivesChanged()),
+            this, SLOT(updateInstallationDrives()));
 }
 
 QWidget *S60DeployConfigurationWidget::createCommunicationChannel()
@@ -240,14 +252,28 @@ QWidget *S60DeployConfigurationWidget::createCommunicationChannel()
 void S60DeployConfigurationWidget::updateInstallationDrives()
 {
     m_installationDriveCombo->clear();
-    for (int i = STARTING_DRIVE_LETTER; i <= LAST_DRIVE_LETTER; ++i) {
-        m_installationDriveCombo->addItem(QString("%1:").arg(static_cast<char>(i)), qVariantFromValue(i));
+    const QList<S60DeployConfiguration::DeviceDrive> &availableDrives(m_deployConfiguration->availableDeviceDrives());
+    int index = 0;
+    char currentDrive = QChar::toUpper(static_cast<ushort>(m_deployConfiguration->installationDrive()));
+    if (availableDrives.isEmpty()) {
+        for (int i = STARTING_DRIVE_LETTER; i <= LAST_DRIVE_LETTER; ++i) {
+            m_installationDriveCombo->addItem(QString("%1:").arg(static_cast<char>(i)), QChar(i));
+        }
+        index = currentDrive - STARTING_DRIVE_LETTER;
+    } else {
+        for (int i = 0; i < availableDrives.count(); ++i) {
+            const S60DeployConfiguration::DeviceDrive& drive(availableDrives.at(i));
+            char driveLetter = QChar::toUpper(static_cast<ushort>(drive.first));
+            m_installationDriveCombo->addItem(formatDriveText(drive),
+                                              QChar(driveLetter));
+            if (currentDrive == driveLetter)
+                index = i;
+        }
     }
-    int index = QChar::toUpper(static_cast<ushort>(m_deployConfiguration->installationDrive())) - STARTING_DRIVE_LETTER;
-
-    Q_ASSERT(index >= 0 && index <= LAST_DRIVE_LETTER-STARTING_DRIVE_LETTER);
+    QTC_ASSERT(index >= 0 && index <= m_installationDriveCombo->count(), return);
 
     m_installationDriveCombo->setCurrentIndex(index);
+    setInstallationDrive(index);
 }
 
 void S60DeployConfigurationWidget::silentInstallChanged(int state)
@@ -309,7 +335,11 @@ void S60DeployConfigurationWidget::updateTargetInformation()
 
 void S60DeployConfigurationWidget::setInstallationDrive(int index)
 {
-    m_deployConfiguration->setInstallationDrive(static_cast<char>(STARTING_DRIVE_LETTER + index));
+    QTC_ASSERT(index >= 0, return);
+    QTC_ASSERT(index < m_installationDriveCombo->count(), return);
+
+    QChar driveLetter(m_installationDriveCombo->itemData(index).toChar());
+    m_deployConfiguration->setInstallationDrive(driveLetter.toAscii());
 }
 
 void S60DeployConfigurationWidget::setSerialPort(int index)

@@ -357,7 +357,10 @@ char S60DeployConfiguration::installationDrive() const
 
 void S60DeployConfiguration::setInstallationDrive(char drive)
 {
+    if (m_installationDrive == drive)
+        return;
     m_installationDrive = drive;
+    emit installationDriveChanged();
 }
 
 bool S60DeployConfiguration::silentInstall() const
@@ -410,6 +413,17 @@ void S60DeployConfiguration::setCommunicationChannel(CommunicationChannel channe
         m_communicationChannel = channel;
         emit communicationChannelChanged();
     }
+}
+
+void S60DeployConfiguration::setAvailableDeviceDrives(QList<DeviceDrive> drives)
+{
+    m_availableDeviceDrives = drives;
+    emit availableDeviceDrivesChanged();
+}
+
+const QList<S60DeployConfiguration::DeviceDrive> &S60DeployConfiguration::availableDeviceDrives() const
+{
+    return m_availableDeviceDrives;
 }
 
 // ======== S60DeployConfigurationFactory
