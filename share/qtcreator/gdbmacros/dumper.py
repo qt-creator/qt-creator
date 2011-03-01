@@ -1878,6 +1878,10 @@ class Dumper:
                     with SubItem(self):
                         child = Item(value[field.name],
                             item.iname, field.name, field.name)
+                        bitsize = getattr(field, "bitsize", None)
+                        if not bitsize is None:
+                            self.put("bitsize=\"%s\",bitpos=\"%s\","
+                                    % (bitsize, bitpos))
                         self.putItem(child)
 
 
