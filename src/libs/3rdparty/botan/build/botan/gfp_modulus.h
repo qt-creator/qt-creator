@@ -18,7 +18,7 @@
 namespace Botan
 {
 
-class BOTAN_DLL GFpElement;
+class GFpElement;
 /**
 * This class represents a GFpElement modulus including the modulus related
 * values necessary for the montgomery multiplication.
