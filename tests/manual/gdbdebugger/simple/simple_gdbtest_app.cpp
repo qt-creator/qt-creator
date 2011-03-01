@@ -148,7 +148,9 @@ class DerivedObject : public QObject
     Q_OBJECT
 
 public:
-    DerivedObject() {}
+    DerivedObject()
+       : QObject(*new DerivedObjectPrivate, 0)
+    {}
 
     Q_PROPERTY(int x READ x WRITE setX)
     Q_PROPERTY(int y READ y WRITE setY)
