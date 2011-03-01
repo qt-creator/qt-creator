@@ -44,8 +44,8 @@ namespace Internal {
 
 S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60PublisherOvi *publisher, const ProjectExplorer::Project *project, QWidget *parent) :
     QWizardPage(parent),
-    m_publisher(publisher),
-    m_ui(new Ui::S60PublishingBuildSettingsPageOvi)
+    m_ui(new Ui::S60PublishingBuildSettingsPageOvi),
+    m_publisher(publisher)
 {
     m_ui->setupUi(this);
 

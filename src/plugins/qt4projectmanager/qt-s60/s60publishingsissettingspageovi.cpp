@@ -43,8 +43,8 @@ namespace Internal {
 
 S60PublishingSisSettingsPageOvi::S60PublishingSisSettingsPageOvi(S60PublisherOvi *publisher, QWidget *parent) :
     QWizardPage(parent),
-    m_publisher(publisher),
-    ui(new Ui::S60PublishingSisSettingsPageOvi)
+    ui(new Ui::S60PublishingSisSettingsPageOvi),
+    m_publisher(publisher)
 {
     ui->setupUi(this);
 
