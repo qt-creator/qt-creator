@@ -104,26 +104,26 @@ public:
     void cleanUp();
     void completeCreation();
 
-    QString getGlobalVendorNameFromProFile();
-    QString getLocalisedVendorNamesFromProFile();
+    QString globalVendorName();
+    QString localisedVendorNames();
     bool isVendorNameValid(const QString &vendorName);
 
-    QString getQtVersionFromProFile();
+    QString qtVersion();
 
-    QString getUID3FromProFile();
+    QString uid3();
     bool isUID3Valid(const QString &uid3);
     bool isTestUID3(const QString &uid3);
     bool isKnownSymbianSignedUID3(const QString &uid3);
 
-    QString getCapabilitiesFromProFile();
+    QString capabilities();
     bool isCapabilityOneOf(const QString &capability, CapabilityLevel level);
 
     void updateProFile();
     void updateProFile(const QString &var, const QString &values);
     void buildSis();
 
-    QString getCreatedSisFileContainingFolder();
-    QString getCreatedSisFilePath();
+    QString createdSisFileContainingFolder();
+    QString createdSisFilePath();
 
     bool hasSucceeded();
 

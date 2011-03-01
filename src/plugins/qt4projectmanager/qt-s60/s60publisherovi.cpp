@@ -151,7 +151,7 @@ void S60PublisherOvi::completeCreation()
     m_createSisProc->setWorkingDirectory(m_qt4bc->buildDirectory());
 }
 
-QString S60PublisherOvi::getGlobalVendorNameFromProFile()
+QString S60PublisherOvi::globalVendorName()
 {
     QStringList vendorinfos = m_reader->values("vendorinfo");
 
@@ -163,7 +163,7 @@ QString S60PublisherOvi::getGlobalVendorNameFromProFile()
     return QString();
 }
 
-QString S60PublisherOvi::getLocalisedVendorNamesFromProFile()
+QString S60PublisherOvi::localisedVendorNames()
 {
     QStringList vendorinfos = m_reader->values("vendorinfo");
     QString result;
@@ -192,12 +192,12 @@ bool S60PublisherOvi::isVendorNameValid(const QString &vendorName)
     return true;
 }
 
-QString S60PublisherOvi::getQtVersionFromProFile()
+QString S60PublisherOvi::qtVersion()
 {
     return m_qt4bc->qtVersion()->displayName();
 }
 
-QString S60PublisherOvi::getUID3FromProFile()
+QString S60PublisherOvi::uid3()
 {
     return m_reader->value("TARGET.UID3");
 }
@@ -224,7 +224,7 @@ bool S60PublisherOvi::isKnownSymbianSignedUID3(const QString &uid3)
     return ok && (hex >= SymbianSignedUnprotectedStart && hex <= SymbianSignedUnprotectedEnd);
 }
 
-QString S60PublisherOvi::getCapabilitiesFromProFile()
+QString S60PublisherOvi::capabilities()
 {
     return m_reader->values("TARGET.CAPABILITY").join(", ");
 }
@@ -346,7 +346,7 @@ void S60PublisherOvi::endBuild(int result)
     emit progressReport(tr("Done!\n"), m_commandColor);
 }
 
-QString S60PublisherOvi::getCreatedSisFileContainingFolder()
+QString S60PublisherOvi::createdSisFileContainingFolder()
 {
     QString fileNamePostFix =  QLatin1String("_installer_unsigned.sis");
     if (m_qt4bc->qtVersion()->qtVersion() == QtVersionNumber(4,6,3) )
@@ -358,7 +358,7 @@ QString S60PublisherOvi::getCreatedSisFileContainingFolder()
     return fi.exists() ? QDir::toNativeSeparators(m_qt4bc->buildDirectory()) : QString();
 }
 
-QString S60PublisherOvi::getCreatedSisFilePath()
+QString S60PublisherOvi::createdSisFilePath()
 {
     QString fileNamePostFix =  QLatin1String("_installer_unsigned.sis");
     if (m_qt4bc->qtVersion()->qtVersion() == QtVersionNumber(4,6,3) )

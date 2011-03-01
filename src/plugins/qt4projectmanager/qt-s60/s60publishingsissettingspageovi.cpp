@@ -76,26 +76,26 @@ void S60PublishingSisSettingsPageOvi::initializePage()
     showWarningsForUnenforcableChecks();
 
     //Check Global Vendor Name
-    ui->globalVendorNameLineEdit->setText(m_publisher->getGlobalVendorNameFromProFile());
+    ui->globalVendorNameLineEdit->setText(m_publisher->globalVendorName());
     globalVendorNameChanged();
     connect(ui->globalVendorNameLineEdit,SIGNAL(textChanged(QString)),SLOT(globalVendorNameChanged()));
 
     //Check Localised Vendor Names
-    ui->localisedVendorNamesLineEdit->setText(m_publisher->getLocalisedVendorNamesFromProFile());
+    ui->localisedVendorNamesLineEdit->setText(m_publisher->localisedVendorNames());
     localisedVendorNamesChanged();
     connect(ui->localisedVendorNamesLineEdit,SIGNAL(textChanged(QString)),SLOT(localisedVendorNamesChanged()));
 
     //Check Qt Version Used in Builds
-    ui->qtVersionDisplayLabel->setText(m_publisher->getQtVersionFromProFile());
+    ui->qtVersionDisplayLabel->setText(m_publisher->qtVersion());
     qtVersionChanged();
 
     //Check UID3
-    ui->uid3LineEdit->setText(m_publisher->getUID3FromProFile());
+    ui->uid3LineEdit->setText(m_publisher->uid3());
     uid3Changed();
     connect(ui->uid3LineEdit,SIGNAL(textChanged(QString)),SLOT(uid3Changed()));
 
     //Check for capabilities which are not signed for
-    ui->capabilitiesDisplayLabel->setText(m_publisher->getCapabilitiesFromProFile());
+    ui->capabilitiesDisplayLabel->setText(m_publisher->capabilities());
     capabilitiesChanged();
 }
 

@@ -78,7 +78,7 @@ void S60PublishingResultsPageOvi::updateResultsPage(const QString& status, QColo
 void S60PublishingResultsPageOvi::openFileLocation()
 {
 #ifdef Q_OS_WIN
-    QProcess::startDetached("explorer /select,"+ m_publisher->getCreatedSisFilePath());
+    QProcess::startDetached("explorer /select,"+ m_publisher->createdSisFilePath());
 #else
     QDesktopServices::openUrl(QUrl("file:///" + m_publisher->getCreatedSisFileContainingFolder()));
 #endif
