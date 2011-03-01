@@ -120,13 +120,13 @@ int Rule::column() const
 { return m_column; }
 
 void Rule::addChild(const QSharedPointer<Rule> &rule)
-{ m_childRules.append(rule); }
+{ m_children.append(rule); }
 
-bool Rule::hasChild() const
-{ return !m_childRules.isEmpty(); }
+bool Rule::hasChildren() const
+{ return !m_children.isEmpty(); }
 
-const QList<QSharedPointer<Rule> > &Rule::childs() const
-{ return m_childRules; }
+const QList<QSharedPointer<Rule> > &Rule::children() const
+{ return m_children; }
 
 void Rule::setDefinition(const QSharedPointer<HighlightDefinition> &definition)
 { m_definition = definition; }

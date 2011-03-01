@@ -66,9 +66,9 @@ public:
     bool isUnderlined() const;
     bool isUnderlinedSpecified() const;
 
-    void setStrikedOut(const QString &striked);
-    bool isStrikedOut() const;
-    bool isStrikedOutSpecified() const;
+    void setStrikeOut(const QString &strike);
+    bool isStrikeOut() const;
+    bool isStrikeOutSpecified() const;
 
     bool isCustomized() const;
 
@@ -80,7 +80,7 @@ private:
     bool m_underlined;
     bool m_underlinedSpecified;
     bool m_strikedOut;
-    bool m_strikedOutSpecified;
+    bool m_strikeOutSpecified;
     bool m_isCustomized;
     QString m_style;
     QColor m_color;

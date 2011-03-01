@@ -260,8 +260,8 @@ void Highlighter::iterateThroughRules(const QString &text,
                 createWillContinueBlock();
                 progress->setWillContinueLine(false);
             } else {
-                if (rule->hasChild())
-                    iterateThroughRules(text, length, progress, true, rule->childs());
+                if (rule->hasChildren())
+                    iterateThroughRules(text, length, progress, true, rule->children());
 
                 if (!rule->context().isEmpty() && contextChangeRequired(rule->context())) {
                     m_currentCaptures = progress->captures();
@@ -406,8 +406,8 @@ void Highlighter::applyFormat(int offset,
                     format.setFontWeight(toFontWeight(itemData->isBold()));
                 if (itemData->isUnderlinedSpecified())
                     format.setFontUnderline(itemData->isUnderlined());
-                if (itemData->isStrikedOutSpecified())
-                    format.setFontStrikeOut(itemData->isStrikedOut());
+                if (itemData->isStrikeOutSpecified())
+                    format.setFontStrikeOut(itemData->isStrikeOut());
             }
 
             setFormat(offset, count, format);

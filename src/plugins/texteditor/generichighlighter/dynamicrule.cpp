@@ -52,7 +52,7 @@ bool DynamicRule::isActive() const
 void DynamicRule::replaceExpressions(const QStringList &captures)
 {
     doReplaceExpressions(captures);
-    updateDynamicRules(childs(), captures);
+    updateDynamicRules(children(), captures);
 }
 
 namespace TextEditor {

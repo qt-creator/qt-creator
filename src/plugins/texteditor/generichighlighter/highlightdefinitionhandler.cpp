@@ -273,7 +273,7 @@ void HighlightDefinitionHandler::itemDataElementStarted(const QXmlAttributes &at
     itemData->setItalic(atts.value(kItalic));
     itemData->setBold(atts.value(kBold));
     itemData->setUnderlined(atts.value(kUnderline));
-    itemData->setStrikedOut(atts.value(kStrikeout));
+    itemData->setStrikeOut(atts.value(kStrikeout));
 }
 
 void HighlightDefinitionHandler::commentElementStarted(const QXmlAttributes &atts) const

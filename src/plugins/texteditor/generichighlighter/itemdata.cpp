@@ -45,7 +45,7 @@ ItemData::ItemData() :
     m_underlined(false),
     m_underlinedSpecified(false),
     m_strikedOut(false),
-    m_strikedOutSpecified(false),
+    m_strikeOutSpecified(false),
     m_isCustomized(false)
 {}
 
@@ -122,20 +122,20 @@ bool ItemData::isUnderlined() const
 bool ItemData::isUnderlinedSpecified() const
 { return m_underlinedSpecified; }
 
-void ItemData::setStrikedOut(const QString &striked)
+void ItemData::setStrikeOut(const QString &strike)
 {
-    if (!striked.isEmpty()) {
-        m_strikedOut = toBool(striked);
-        m_strikedOutSpecified = true;
+    if (!strike.isEmpty()) {
+        m_strikedOut = toBool(strike);
+        m_strikeOutSpecified = true;
         m_isCustomized = true;
     }
 }
 
-bool ItemData::isStrikedOut() const
+bool ItemData::isStrikeOut() const
 { return m_strikedOut; }
 
-bool ItemData::isStrikedOutSpecified() const
-{ return m_strikedOutSpecified; }
+bool ItemData::isStrikeOutSpecified() const
+{ return m_strikeOutSpecified; }
 
 bool ItemData::isCustomized() const
 { return m_isCustomized; }

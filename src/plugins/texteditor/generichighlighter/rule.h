@@ -72,8 +72,8 @@ public:
     int column() const;
 
     void addChild(const QSharedPointer<Rule> &rule);
-    const QList<QSharedPointer<Rule> > &childs() const;
-    bool hasChild() const;
+    const QList<QSharedPointer<Rule> > &children() const;
+    bool hasChildren() const;
 
     void setDefinition(const QSharedPointer<HighlightDefinition> &definition);
     const QSharedPointer<HighlightDefinition> &definition() const;
@@ -155,7 +155,7 @@ private:
     int m_column;
     bool m_consumesNonSpace;
 
-    QList<QSharedPointer<Rule> > m_childRules;
+    QList<QSharedPointer<Rule> > m_children;
 
     // Rules are represented within contexts. However, they have their own definition because
     // of externally included rules.
