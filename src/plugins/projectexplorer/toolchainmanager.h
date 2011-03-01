@@ -85,6 +85,8 @@ private:
     // Make sure the this is only called after all
     // ToolChain Factories are registered!
     void restoreToolChains();
+    void restoreToolChains(const QString &fileName, bool autoDetected = false);
+
 
     Internal::ToolChainManagerPrivate *const m_d;
 

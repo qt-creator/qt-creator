@@ -145,6 +145,11 @@ void ToolChain::setId(const QString &id)
     m_d->m_id = id;
 }
 
+void ToolChain::setAutoDetected(bool autodetect)
+{
+    m_d->m_autodetect = autodetect;
+}
+
 bool ToolChain::fromMap(const QVariantMap &data)
 {
     Q_ASSERT(!isAutoDetected());

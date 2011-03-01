@@ -47,12 +47,13 @@
 static const char *const TOOLCHAIN_DATA_KEY = "ToolChain.";
 static const char *const TOOLCHAIN_COUNT_KEY = "ToolChain.Count";
 static const char *const TOOLCHAIN_FILE_VERSION_KEY = "Version";
+static const char *const TOOLCHAIN_FILENAME = "/toolChains.xml";
 
 static QString settingsFileName()
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     QFileInfo settingsLocation(pm->settings()->fileName());
-    return settingsLocation.absolutePath() + QLatin1String("/toolChains.xml");
+    return settingsLocation.absolutePath() + QLatin1String(TOOLCHAIN_FILENAME);
 }
 
 namespace ProjectExplorer {
@@ -104,41 +105,9 @@ void ToolChainManager::restoreToolChains()
             registerToolChain(tc);
     }
 
-    // Restore user generated ToolChains:
-    PersistentSettingsReader reader;
-    const QString fileName = settingsFileName();
-    if (!reader.load(fileName))
-        return;
-    QVariantMap data = reader.restoreValues();
-
-    // Check version:
-    int version = data.value(QLatin1String(TOOLCHAIN_FILE_VERSION_KEY), 0).toInt();
-    if (version < 1)
-        return;
-
-    int count = data.value(QLatin1String(TOOLCHAIN_COUNT_KEY), 0).toInt();
-    for (int i = 0; i < count; ++i) {
-        const QString key = QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(i);
-        if (!data.contains(key))
-            break;
-
-        const QVariantMap tcMap = data.value(key).toMap();
-
-        bool restored = false;
-        foreach (ToolChainFactory *f, factories) {
-            if (f->canRestore(tcMap)) {
-                if (ToolChain *tc = f->restore(tcMap)) {
-                    registerToolChain(tc);
-                    restored = true;
-                    break;
-                }
-            }
-        }
-        if (!restored)
-            qWarning("Warning: Unable to restore manual toolchain '%s' stored in %s.",
-                     qPrintable(ToolChainFactory::idFromMap(tcMap)),
-                     qPrintable(QDir::toNativeSeparators(fileName)));
-    }
+    restoreToolChains(settingsFileName(), false);
+    restoreToolChains(Core::ICore::instance()->resourcePath()
+                      + QLatin1String("/Nokia") + QLatin1String(TOOLCHAIN_FILENAME), true);
 }
 
 ToolChainManager::~ToolChainManager()
@@ -169,6 +138,48 @@ void ToolChainManager::saveToolChains()
     }
     writer.saveValue(QLatin1String(TOOLCHAIN_COUNT_KEY), count);
     writer.save(settingsFileName(), "QtCreatorToolChains");
+}
+
+void ToolChainManager::restoreToolChains(const QString &fileName, bool autoDetected)
+{
+    PersistentSettingsReader reader;
+    if (!reader.load(fileName))
+        return;
+    QVariantMap data = reader.restoreValues();
+
+    // Check version:
+    int version = data.value(QLatin1String(TOOLCHAIN_FILE_VERSION_KEY), 0).toInt();
+    if (version < 1)
+        return;
+
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    QList<ToolChainFactory *> factories = pm->getObjects<ToolChainFactory>();
+
+    int count = data.value(QLatin1String(TOOLCHAIN_COUNT_KEY), 0).toInt();
+    for (int i = 0; i < count; ++i) {
+        const QString key = QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(i);
+        if (!data.contains(key))
+            break;
+
+        const QVariantMap tcMap = data.value(key).toMap();
+
+        bool restored = false;
+        foreach (ToolChainFactory *f, factories) {
+            if (f->canRestore(tcMap)) {
+                if (ToolChain *tc = f->restore(tcMap)) {
+                    tc->setAutoDetected(autoDetected);
+
+                    registerToolChain(tc);
+                    restored = true;
+                    break;
+                }
+            }
+        }
+        if (!restored)
+            qWarning("Warning: Unable to restore manual toolchain '%s' stored in %s.",
+                     qPrintable(ToolChainFactory::idFromMap(tcMap)),
+                     qPrintable(QDir::toNativeSeparators(fileName)));
+    }
 }
 
 QList<ToolChain *> ToolChainManager::toolChains() const

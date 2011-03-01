@@ -51,10 +51,11 @@ class ToolChainPrivate;
 }
 
 class Abi;
+class HeaderPath;
 class IOutputParser;
 class ToolChainConfigWidget;
 class ToolChainFactory;
-class HeaderPath;
+class ToolChainManager;
 
 // --------------------------------------------------------------------------
 // ToolChain
@@ -109,8 +110,11 @@ protected:
     virtual bool fromMap(const QVariantMap &data);
 
 private:
+    void setAutoDetected(bool);
+
     Internal::ToolChainPrivate *const m_d;
 
+    friend class ToolChainManager;
     friend class ToolChainFactory;
 };
 
