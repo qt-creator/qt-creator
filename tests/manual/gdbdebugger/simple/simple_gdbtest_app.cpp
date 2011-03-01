@@ -147,6 +147,7 @@ public:
     int m_extraX;
     QStringList m_extraY;
     uint m_extraZ : 1;
+    bool m_extraB;
 };
 
 class DerivedObject : public QObject
@@ -215,6 +216,10 @@ struct S
 {
     uint x : 1;
     uint y : 1;
+    bool b;
+    float f;
+    double d;
+    int i;
 };
 
 void testPrivate()

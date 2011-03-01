@@ -1498,6 +1498,7 @@ class Dumper:
         with SubItem(self):
             self.putName(name)
             self.putValue(value)
+            self.putAddress(value.address)
             self.putType("int")
             self.putNumChild(0)
 
@@ -1505,6 +1506,7 @@ class Dumper:
         with SubItem(self):
             self.putName(name)
             self.putValue(value)
+            self.putAddress(value.address)
             self.putType("bool")
             self.putNumChild(0)
 
@@ -1610,6 +1612,14 @@ class Dumper:
         if type.code == gdb.TYPE_CODE_CHAR:
             self.putType(realtype)
             self.putValue(int(value))
+            self.putAddress(value.address)
+            self.putNumChild(0)
+            return
+
+        if type.code == gdb.TYPE_CODE_FLT \
+                or type.code == gdb.TYPE_CODE_BOOL:
+            self.putType(realtype)
+            self.putValue(value)
             self.putAddress(value.address)
             self.putNumChild(0)
             return
