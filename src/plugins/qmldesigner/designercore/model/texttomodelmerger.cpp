@@ -608,8 +608,13 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         m_document = doc;
 
         QList<RewriterView::Error> errors;
+
+        foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, ctxt.diagnosticLinkMessages()) {
+            errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
+        }
+
         Check check(doc, snapshot, m_lookupContext->context());
-        check.setIgnoreTypeErrors(true);
+        check.setOptions(check.options() & ~Check::ErrCheckTypeErrors);
         foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, check())
             if (diagnosticMessage.isError())
             errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));

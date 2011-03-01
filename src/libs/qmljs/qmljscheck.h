@@ -58,10 +58,6 @@ public:
 
     QList<DiagnosticMessage> operator()();
 
-
-    void setIgnoreTypeErrors(bool ignore)
-    { _ignoreTypeErrors = ignore; }
-
     enum Option {
         WarnDangerousNonStrictEqualityChecks = 1 << 0,
         WarnAllNonStrictEqualityChecks       = 1 << 1,
@@ -74,9 +70,16 @@ public:
         WarnUseBeforeDeclaration             = 1 << 8,
         WarnDuplicateDeclaration             = 1 << 9,
         WarnDeclarationsNotStartOfFunction   = 1 << 10,
-        WarnCaseWithoutFlowControlEnd        = 1 << 11
+        WarnCaseWithoutFlowControlEnd        = 1 << 11,
+        ErrCheckTypeErrors                   = 1 << 12
     };
     Q_DECLARE_FLAGS(Options, Option)
+
+    const Options options() const
+    { return _options; }
+
+    void setOptions(Options options)
+    { _options = options; }
 
 protected:
     virtual bool preVisit(AST::Node *ast);
@@ -130,7 +133,6 @@ private:
 
     QList<DiagnosticMessage> _messages;
 
-    bool _ignoreTypeErrors;
     Options _options;
 
     const Interpreter::Value *_lastValue;

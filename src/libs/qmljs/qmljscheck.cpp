@@ -371,11 +371,10 @@ Check::Check(Document::Ptr doc, const Snapshot &snapshot, const Context *linkedC
     , _snapshot(snapshot)
     , _context(*linkedContextNoScope)
     , _scopeBuilder(&_context, doc, snapshot)
-    , _ignoreTypeErrors(false)
     , _options(WarnDangerousNonStrictEqualityChecks | WarnBlocks | WarnWith
           | WarnVoid | WarnCommaExpression | WarnExpressionStatement
           | WarnAssignInCondition | WarnUseBeforeDeclaration | WarnDuplicateDeclaration
-          | WarnCaseWithoutFlowControlEnd)
+          | WarnCaseWithoutFlowControlEnd | ErrCheckTypeErrors)
     , _lastValue(0)
 {
 }
@@ -474,7 +473,7 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     _scopeBuilder.push(ast);
 
     if (! _context.lookupType(_doc.data(), typeId)) {
-        if (! _ignoreTypeErrors)
+        if (_options & ErrCheckTypeErrors)
             error(typeId->identifierToken,
                   Check::tr("unknown type"));
         // suppress subsequent errors about scope object lookup by clearing
