@@ -10,6 +10,7 @@ QT += network
 SOURCES += $$PWD/environment.cpp \
     $$PWD/environmentmodel.cpp \
     $$PWD/qtcprocess.cpp \
+    $$PWD/abstractprocess.cpp \
     $$PWD/reloadpromptutils.cpp \
     $$PWD/stringutils.cpp \
     $$PWD/filesearch.cpp \

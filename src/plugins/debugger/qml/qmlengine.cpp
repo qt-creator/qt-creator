@@ -55,6 +55,7 @@
 #include <projectexplorer/applicationlauncher.h>
 
 #include <utils/environment.h>
+#include <utils/abstractprocess.h>
 #include <utils/qtcassert.h>
 
 #include <coreplugin/icore.h>
@@ -291,10 +292,8 @@ bool QmlEngine::canDisplayTooltip() const
 void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
 {
     static QString qddserver = QLatin1String("QDeclarativeDebugServer: ");
-    //: Must be the same translation as the one in WinGuiProcess
-    static QString cannotRetrieve = tr("Cannot retrieve debugging output!");
 
-    int index = msg.indexOf(qddserver);
+    const int index = msg.indexOf(qddserver);
     if (index != -1) {
         QString status = msg;
         status.remove(0, index + qddserver.length()); // chop of 'QDeclarativeDebugServer: '
@@ -339,7 +338,7 @@ void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
 
             infoBox->show();
         }
-    } else if (msg.contains(cannotRetrieve)) {
+    } else if (msg.contains(Utils::AbstractProcess::msgWinCannotRetrieveDebuggingOutput())) {
         // we won't get debugging output, so just try to connect ...
         d->m_adapter.beginConnection();
     }

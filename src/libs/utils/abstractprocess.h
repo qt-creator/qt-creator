@@ -45,14 +45,14 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT AbstractProcess
 {
 public:
-    AbstractProcess() {}
-    virtual ~AbstractProcess() {}
+    AbstractProcess();
+    virtual ~AbstractProcess();
 
-    QString workingDirectory() const { return m_workingDir; }
-    void setWorkingDirectory(const QString &dir) { m_workingDir = dir; }
+    QString workingDirectory() const;
+    void setWorkingDirectory(const QString &dir);
 
-    void setEnvironment(const Environment &env) { m_environment = env; }
-    Environment environment() const { return m_environment; }
+    void setEnvironment(const Environment &env);
+    Environment environment() const;
 
     virtual bool start(const QString &program, const QString &args) = 0;
     virtual void stop() = 0;
@@ -60,6 +60,8 @@ public:
     virtual bool isRunning() const = 0;
     virtual qint64 applicationPID() const = 0;
     virtual int exitCode() const = 0;
+
+    static QString msgWinCannotRetrieveDebuggingOutput();
 
 //signals:
     virtual void processMessage(const QString &error, bool isError) = 0;

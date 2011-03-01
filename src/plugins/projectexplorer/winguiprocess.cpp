@@ -35,6 +35,7 @@
 #include "consoleprocess.h"
 
 #include <utils/qtcprocess.h>
+#include <utils/winutils.h>
 
 #include <QtCore/QDir>
 
@@ -131,13 +132,14 @@ void WinGuiProcess::run()
                                               &si, m_pid);
 
         if (!started) {
-            emit processMessage(tr("The process could not be started!"), true);
+            emit processMessage(tr("The process could not be started: %1").
+                                arg(Utils::winErrorMessage(GetLastError())), true);
             break;
         }
 
         if (!dbgInterface) {
-            // Text is dublicated in qmlengine.cpp
-            emit receivedDebugOutput(tr("Cannot retrieve debugging output!"), true);
+            // Text is filtered in qmlengine.cpp
+            emit receivedDebugOutput(Utils::AbstractProcess::msgWinCannotRetrieveDebuggingOutput(), true);
             WaitForSingleObject(m_pid->hProcess, INFINITE);
         } else {
             LPSTR  message;
