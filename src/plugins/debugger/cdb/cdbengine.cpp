@@ -1124,9 +1124,15 @@ void CdbEngine::doInterruptInferior(SpecialStopMode sm)
 void CdbEngine::executeRunToLine(const ContextData &data)
 {
     // Add one-shot breakpoint
-    BreakpointParameters bp(BreakpointByFileAndLine);
-    bp.fileName = data.fileName;
-    bp.lineNumber = data.lineNumber;
+    BreakpointParameters bp;
+    if (data.address) {
+        bp.type =BreakpointByAddress;
+        bp.address = data.address;
+    } else {
+        bp.type =BreakpointByFileAndLine;
+        bp.fileName = data.fileName;
+        bp.lineNumber = data.lineNumber;
+    }
     postCommand(cdbAddBreakpointCommand(bp, BreakpointId(-1), true), 0);
     continueInferior();
 }
@@ -1155,12 +1161,31 @@ void CdbEngine::setRegisterValue(int regnr, const QString &value)
 
 void CdbEngine::executeJumpToLine(const ContextData &data)
 {
-    QByteArray cmd;
-    ByteArrayInputStream str(cmd);
-    // Resolve source line address and go to that location
-    str << "? `" << QDir::toNativeSeparators(data.fileName) << ':' << data.lineNumber << '`';
-    const QVariant cookie = qVariantFromValue(data);
-    postBuiltinCommand(cmd, 0, &CdbEngine::handleJumpToLineAddressResolution, 0, cookie);
+    if (data.address) {
+        // Goto address directly.
+        jumpToAddress(data.address);
+        gotoLocation(Location(data.address));
+    } else {
+        // Jump to source line: Resolve source line address and go to that location
+        QByteArray cmd;
+        ByteArrayInputStream str(cmd);
+        str << "? `" << QDir::toNativeSeparators(data.fileName) << ':' << data.lineNumber << '`';
+        const QVariant cookie = qVariantFromValue(data);
+        postBuiltinCommand(cmd, 0, &CdbEngine::handleJumpToLineAddressResolution, 0, cookie);
+    }
+}
+
+void CdbEngine::jumpToAddress(quint64 address)
+{
+    // Fake a jump to address by setting the PC register.
+    QByteArray registerCmd;
+    ByteArrayInputStream str(registerCmd);
+    // PC-register depending on 64/32bit.
+    str << "r " << (startParameters().toolChainAbi.wordWidth() == 64 ? "rip" : "eip") << '=';
+    str.setHexPrefix(true);
+    str.setIntegerBase(16);
+    str << address;
+    postCommand(registerCmd, 0);
 }
 
 void CdbEngine::handleJumpToLineAddressResolution(const CdbBuiltinCommandPtr &cmd)
@@ -1169,20 +1194,20 @@ void CdbEngine::handleJumpToLineAddressResolution(const CdbBuiltinCommandPtr &cm
         return;
     // Evaluate expression: 5365511549 = 00000001`3fcf357d
     // Set register 'rip' to hex address and goto lcoation
-    QByteArray answer = cmd->reply.front();
+    QString answer = QString::fromAscii(cmd->reply.front()).trimmed();
     const int equalPos = answer.indexOf(" = ");
     if (equalPos == -1)
         return;
     answer.remove(0, equalPos + 3);
-    QTC_ASSERT(qVariantCanConvert<ContextData>(cmd->cookie), return);
-    const ContextData cookie = qvariant_cast<ContextData>(cmd->cookie);
-
-    QByteArray registerCmd;
-    ByteArrayInputStream str(registerCmd);
-    // PC-register depending on 64/32bit.
-    str << "r " << (startParameters().toolChainAbi.wordWidth() == 64 ? "rip" : "eip") << "=0x" << answer;
-    postCommand(registerCmd, 0);
-    gotoLocation(Location(cookie.fileName, cookie.lineNumber));
+    answer.remove(QLatin1Char('`'));
+    bool ok;
+    const quint64 address = answer.toLongLong(&ok, 16);
+    if (ok && address) {
+        QTC_ASSERT(qVariantCanConvert<ContextData>(cmd->cookie), return);
+        const ContextData cookie = qvariant_cast<ContextData>(cmd->cookie);
+        jumpToAddress(address);
+        gotoLocation(Location(cookie.fileName, cookie.lineNumber));
+    }
 }
 
 void CdbEngine::assignValueInDebugger(const WatchData *w, const QString &expr, const QVariant &value)

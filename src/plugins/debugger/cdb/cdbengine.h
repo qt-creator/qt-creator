@@ -205,6 +205,7 @@ private:
     void handleRegisters(const CdbBuiltinCommandPtr &);
     void handleDisassembler(const CdbBuiltinCommandPtr &);
     void handleJumpToLineAddressResolution(const CdbBuiltinCommandPtr &);
+    void jumpToAddress(quint64 address);
     // Extension commands
     void handleThreads(const CdbExtensionCommandPtr &);
     void handlePid(const CdbExtensionCommandPtr &reply);
