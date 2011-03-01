@@ -129,7 +129,7 @@
      <item row="2" column="1">
       <widget class="QLabel" name="qmlDebuggingLibStatus">
        <property name="text">
-        <string>TextLabel</string>
+        <string notr="true">TextLabel</string>
        </property>
       </widget>
      </item>

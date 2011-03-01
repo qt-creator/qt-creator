@@ -529,7 +529,7 @@ ProjectExplorer::RunControl* S60DeviceDebugRunControlFactory::create(ProjectExpl
     const Debugger::DebuggerStartParameters startParameters = s60DebuggerStartParams(rc);
     const Debugger::ConfigurationCheck check = Debugger::checkDebugConfiguration(startParameters);
     if (!check) {
-        Core::ICore::instance()->showWarningWithOptions(tr("Debugger for Symbian Platform"),
+        Core::ICore::instance()->showWarningWithOptions(S60DeviceDebugRunControl::tr("Debugger for Symbian Platform"),
             check.errorMessage, check.errorDetailsString(), check.settingsCategory, check.settingsPage);
         return 0;
     }
@@ -538,7 +538,7 @@ ProjectExplorer::RunControl* S60DeviceDebugRunControlFactory::create(ProjectExpl
 
 QString S60DeviceDebugRunControlFactory::displayName() const
 {
-    return tr("Debug on Device");
+    return S60DeviceDebugRunControl::tr("Debug on Device");
 }
 
 ProjectExplorer::RunConfigWidget *S60DeviceDebugRunControlFactory::createConfigurationWidget(RunConfiguration* /*runConfiguration */)

@@ -180,7 +180,7 @@ QtVersionManager::QtVersionManager()
             ProjectExplorer::MingwToolChain *tc = createToolChain<ProjectExplorer::MingwToolChain>(ProjectExplorer::Constants::MINGW_TOOLCHAIN_ID);
             if (tc) {
                 tc->setCompilerPath(QDir::fromNativeSeparators(mingwDir) + QLatin1String("/bin/gcc.exe"));
-                tc->setDisplayName(tr("Mingw from %1").arg(version->displayName()));
+                tc->setDisplayName(tr("MinGW from %1").arg(version->displayName()));
                 ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
             }
         }

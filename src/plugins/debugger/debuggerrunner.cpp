@@ -522,7 +522,7 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
         requiredTypes = engineTypes(sp);
     }
     if (requiredTypes.isEmpty()) {
-        result.errorMessage = DebuggerPlugin::tr("Internal error: Unable to determine debugger engine type for this configuration");
+        result.errorMessage = QLatin1String("Internal error: Unable to determine debugger engine type for this configuration");
         return result;
     }
     if (debug)
