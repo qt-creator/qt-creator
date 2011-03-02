@@ -184,6 +184,11 @@ void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &futur
     Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
     QSet<QString> knownSuffixes = QSet<QString>::fromList(mimeDatabase->suffixes());
 
+    QHash<QString, Core::MimeType> userModified;
+    const QList<Core::MimeType> &userMimeTypes = mimeDatabase->readUserModifiedMimeTypes();
+    foreach (const Core::MimeType &userMimeType, userMimeTypes)
+        userModified.insert(userMimeType.type(), userMimeType);
+
     foreach (const QString &path, definitionsPaths) {
         if (path.isEmpty())
             continue;
@@ -227,25 +232,35 @@ void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &futur
                 m_idByMimeType.insert(type, id);
                 Core::MimeType mimeType = mimeDatabase->findByType(type);
                 if (mimeType.isNull()) {
-                    if (globPatterns.isEmpty()) {
-                        foreach (const QString &pattern, metaData->patterns()) {
-                            static const QLatin1String mark("*.");
-                            if (pattern.startsWith(mark)) {
-                                const QString &suffix = pattern.right(pattern.length() - 2);
-                                if (!knownSuffixes.contains(suffix))
-                                    knownSuffixes.insert(suffix);
-                                else
-                                    continue;
-                            }
-                            QRegExp regExp(pattern, Qt::CaseSensitive, QRegExp::Wildcard);
-                            globPatterns.append(Core::MimeGlobPattern(regExp, 50));
-                        }
-                    }
-
                     mimeType.setType(type);
                     mimeType.setSubClassesOf(textPlain);
                     mimeType.setComment(metaData->name());
-                    mimeType.setGlobPatterns(globPatterns);
+
+                    // If there's a user modification for this mime type, we want to use the
+                    // modified patterns and rule-based matchers. If not, just consider what
+                    // is specified in the definition file.
+                    QHash<QString, Core::MimeType>::const_iterator it =
+                        userModified.find(mimeType.type());
+                    if (it == userModified.end()) {
+                        if (globPatterns.isEmpty()) {
+                            foreach (const QString &pattern, metaData->patterns()) {
+                                static const QLatin1String mark("*.");
+                                if (pattern.startsWith(mark)) {
+                                    const QString &suffix = pattern.right(pattern.length() - 2);
+                                    if (!knownSuffixes.contains(suffix))
+                                        knownSuffixes.insert(suffix);
+                                    else
+                                        continue;
+                                }
+                                QRegExp regExp(pattern, Qt::CaseSensitive, QRegExp::Wildcard);
+                                globPatterns.append(Core::MimeGlobPattern(regExp, 50));
+                            }
+                        }
+                        mimeType.setGlobPatterns(globPatterns);
+                    } else {
+                        mimeType.setGlobPatterns(it.value().globPatterns());
+                        mimeType.setMagicRuleMatchers(it.value().magicRuleMatchers());
+                    }
 
                     mimeDatabase->addMimeType(mimeType);
                     future.reportResult(mimeType);
@@ -275,6 +290,8 @@ void Manager::registerMimeTypesFinished()
 QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileInfo &fileInfo)
 {
     static const QLatin1Char kSemiColon(';');
+    static const QLatin1Char kSpace(' ');
+    static const QLatin1Char kDash('-');
     static const QLatin1String kLanguage("language");
     static const QLatin1String kArtificial("text/x-artificial-");
 
@@ -304,7 +321,7 @@ QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileIn
                 // There are definitions which do not specify a MIME type, but specify file
                 // patterns. Creating an artificial MIME type is a workaround.
                 QString artificialType(kArtificial);
-                artificialType.append(metaData->name());
+                artificialType.append(metaData->name().trimmed().replace(kSpace, kDash));
                 mimeTypes.append(artificialType);
             }
             metaData->setMimeTypes(mimeTypes);

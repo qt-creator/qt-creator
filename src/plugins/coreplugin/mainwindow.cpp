@@ -40,6 +40,7 @@
 #include "editormanager.h"
 #include "externaltool.h"
 #include "toolsettings.h"
+#include "mimetypesettings.h"
 #include "fancytabwidget.h"
 #include "filemanager.h"
 #include "generalsettings.h"
@@ -152,6 +153,7 @@ MainWindow::MainWindow() :
     m_generalSettings(new GeneralSettings),
     m_shortcutSettings(new ShortcutSettings),
     m_toolSettings(new ToolSettings),
+    m_mimeTypeSettings(new MimeTypeSettings),
     m_systemEditor(new SystemEditor),
     m_focusToEditor(0),
     m_newAction(0),
@@ -256,6 +258,7 @@ MainWindow::~MainWindow()
     pm->removeObject(m_shortcutSettings);
     pm->removeObject(m_generalSettings);
     pm->removeObject(m_toolSettings);
+    pm->removeObject(m_mimeTypeSettings);
     pm->removeObject(m_systemEditor);
     delete m_externalToolManager;
     m_externalToolManager = 0;
@@ -267,6 +270,8 @@ MainWindow::~MainWindow()
     m_generalSettings = 0;
     delete m_toolSettings;
     m_toolSettings = 0;
+    delete m_mimeTypeSettings;
+    m_mimeTypeSettings = 0;
     delete m_systemEditor;
     m_systemEditor = 0;
     delete m_settings;
@@ -325,8 +330,8 @@ bool MainWindow::init(QString *errorMessage)
     pm->addObject(m_generalSettings);
     pm->addObject(m_shortcutSettings);
     pm->addObject(m_toolSettings);
+    pm->addObject(m_mimeTypeSettings);
     pm->addObject(m_systemEditor);
-
 
     // Add widget to the bottom, we create the view here instead of inside the
     // OutputPaneManager, since the StatusBarManager needs to be initialized before
@@ -351,8 +356,6 @@ void MainWindow::extensionsInitialized()
 
     readSettings();
     updateContext();
-
-    registerUserMimeTypes();
 
     emit m_coreImpl->coreAboutToOpen();
     show();
@@ -1396,16 +1399,4 @@ bool MainWindow::showWarningWithOptions(const QString &title,
         return showOptionsDialog(settingsCategory, settingsId);
     }
     return false;
-}
-
-void MainWindow::registerUserMimeTypes() const
-{
-    // This is to temporarily allow user specific MIME types (without recompilation).
-    // Be careful with the file contents. Otherwise unpredictable behavior might arise.
-    const QString &fileName = m_coreImpl->userResourcePath() + QLatin1String("/mimetypes.xml");
-    if (QFile::exists(fileName)) {
-        QString error;
-        if (!m_coreImpl->mimeDatabase()->addMimeTypes(fileName, &error))
-            qWarning() << error;
-    }
 }

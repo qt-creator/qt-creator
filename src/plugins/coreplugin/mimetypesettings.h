@@ -31,44 +31,42 @@
 **
 **************************************************************************/
 
-// WARNING: This code is shared with the qmlplugindump tool code in Qt.
-//          Modifications to this file need to be applied there.
+#ifndef MIMETYPESETTINGSPAGE_H
+#define MIMETYPESETTINGSPAGE_H
 
-#ifndef QMLSTREAMWRITER_H
-#define QMLSTREAMWRITER_H
+#include "ioptionspage.h"
 
-#include <QtCore/QIODevice>
-#include <QtCore/QList>
-#include <QtCore/QString>
 #include <QtCore/QScopedPointer>
-#include <QtCore/QPair>
 
-class QmlStreamWriter
+namespace Core {
+namespace Internal {
+
+class MimeTypeSettingsPrivate;
+
+class MimeTypeSettings : public IOptionsPage
 {
-public:
-    QmlStreamWriter(QByteArray *array);
+    Q_OBJECT
 
-    void writeStartDocument();
-    void writeEndDocument();
-    void writeLibraryImport(const QString &uri, int majorVersion, int minorVersion, const QString &as = QString());
-    //void writeFilesystemImport(const QString &file, const QString &as = QString());
-    void writeStartObject(const QString &component);
-    void writeEndObject();
-    void writeScriptBinding(const QString &name, const QString &rhs);
-    void writeScriptObjectLiteralBinding(const QString &name, const QList<QPair<QString, QString> > &keyValue);
-    void writeArrayBinding(const QString &name, const QStringList &elements);
-    void write(const QString &data);
+public:
+    MimeTypeSettings(QObject *parent = 0);
+    virtual ~MimeTypeSettings();
+
+    virtual QString id() const;
+    virtual QString displayName() const;
+    virtual QString category() const;
+    virtual QString displayCategory() const;
+    virtual QIcon categoryIcon() const;
+    virtual bool matches(const QString &s) const;
+
+    virtual QWidget *createPage(QWidget *parent);
+    virtual void apply();
+    virtual void finish();
 
 private:
-    void writeIndent();
-    void writePotentialLine(const QByteArray &line);
-    void flushPotentialLinesWithNewlines();
-
-    int m_indentDepth;
-    QList<QByteArray> m_pendingLines;
-    int m_pendingLineLength;
-    bool m_maybeOneline;
-    QScopedPointer<QIODevice> m_stream;
+    QScopedPointer<MimeTypeSettingsPrivate> m_d;
 };
 
-#endif // QMLSTREAMWRITER_H
+} // Internal
+} // Core
+
+#endif // MIMETYPESETTINGSPAGE_H

@@ -1043,7 +1043,7 @@ void CodaGdbAdapter::startAdapter()
         m_codaSocketIODevice = codaSocket;
     } else {
         m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()
-            ->getTcfPort(parameters.remoteChannel);
+            ->getCodaDevice(parameters.remoteChannel);
         bool ok = m_codaDevice && m_codaDevice->device()->isOpen();
 
         if (!ok) {
@@ -1233,7 +1233,7 @@ void CodaGdbAdapter::cleanup()
         // Ensure process is stopped after being suspended.
         sendRunControlTerminateCommand();
         disconnect(m_codaDevice.data(), 0, this, 0);
-        SymbianUtils::SymbianDeviceManager::instance()->releaseTcfPort(m_codaDevice);
+        SymbianUtils::SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
     }
 }
 

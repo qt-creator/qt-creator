@@ -355,7 +355,7 @@ SymbianDeviceManager::TrkDevicePtr
     return rc;
 }
 
-CodaDevicePtr SymbianDeviceManager::getTcfPort(const QString &port)
+CodaDevicePtr SymbianDeviceManager::getCodaDevice(const QString &port)
 {
     ensureInitialized();
     const int idx = findByPortName(port);
@@ -419,7 +419,7 @@ void SymbianDeviceManager::customEvent(QEvent *event)
     }
 }
 
-void SymbianDeviceManager::releaseTcfPort(CodaDevicePtr &port)
+void SymbianDeviceManager::releaseCodaDevice(CodaDevicePtr &port)
 {
     if (port) {
         // Check if this was the last reference to the port, if so close it after a short delay
@@ -613,4 +613,106 @@ SYMBIANUTILS_EXPORT QDebug operator<<(QDebug d, const SymbianDeviceManager &sdm)
     return d;
 }
 
-} // namespace SymbianUtilsInternal
+OstChannel *SymbianDeviceManager::getOstChannel(const QString &port, uchar channelId)
+{
+    CodaDevicePtr coda = getCodaDevice(port);
+    if (coda.isNull() || !coda->device()->isOpen())
+        return 0;
+    return new OstChannel(coda, channelId);
+}
+
+struct OstChannelPrivate
+{
+    CodaDevicePtr m_codaPtr;
+    QByteArray m_dataBuffer;
+    uchar m_channelId;
+    bool m_hasReceivedData;
+};
+
+OstChannel::OstChannel(const CodaDevicePtr &codaPtr, uchar channelId)
+    : d(new OstChannelPrivate)
+{
+    d->m_codaPtr = codaPtr;
+    d->m_channelId = channelId;
+    d->m_hasReceivedData = false;
+    connect(codaPtr.data(), SIGNAL(unknownEvent(uchar, QByteArray)), this, SLOT(ostDataReceived(uchar,QByteArray)));
+    connect(codaPtr->device().data(), SIGNAL(aboutToClose()), this, SLOT(deviceAboutToClose()));
+    QIODevice::open(ReadWrite|Unbuffered);
+}
+
+void OstChannel::close()
+{
+    QIODevice::close();
+    if (d && d->m_codaPtr.data()) {
+        disconnect(d->m_codaPtr.data(), 0, this, 0);
+        SymbianDeviceManager::instance()->releaseCodaDevice(d->m_codaPtr);
+    }
+}
+
+OstChannel::~OstChannel()
+{
+    close();
+    delete d;
+}
+
+void OstChannel::flush()
+{
+    //TODO d->m_codaPtr->device()-
+}
+
+qint64 OstChannel::bytesAvailable() const
+{
+    return d->m_dataBuffer.size();
+}
+
+bool OstChannel::isSequential() const
+{
+    return true;
+}
+
+qint64 OstChannel::readData(char *data, qint64 maxSize)
+{
+    qint64 amount = qMin(maxSize, (qint64)d->m_dataBuffer.size());
+    qMemCopy(data, d->m_dataBuffer.constData(), amount);
+    d->m_dataBuffer.remove(0, amount);
+    return amount;
+}
+
+qint64 OstChannel::writeData(const char *data, qint64 maxSize)
+{
+    static const qint64 KMaxOstPayload = 1022;
+    // If necessary, split the packet up
+    while (maxSize) {
+        QByteArray dataBuf = QByteArray::fromRawData(data, qMin(KMaxOstPayload, maxSize));
+        d->m_codaPtr->writeCustomData(d->m_channelId, dataBuf);
+        data += dataBuf.length();
+        maxSize -= dataBuf.length();
+    }
+    return maxSize;
+}
+
+void OstChannel::ostDataReceived(uchar channelId, const QByteArray &aData)
+{
+    if (channelId == d->m_channelId) {
+        d->m_hasReceivedData = true;
+        d->m_dataBuffer.append(aData);
+        emit readyRead();
+    }
+}
+
+Coda::CodaDevice& OstChannel::codaDevice() const
+{
+    return *d->m_codaPtr;
+}
+
+bool OstChannel::hasReceivedData() const
+{
+    return isOpen() && d->m_hasReceivedData;
+}
+
+void OstChannel::deviceAboutToClose()
+{
+    close();
+}
+
+} // namespace SymbianUtils

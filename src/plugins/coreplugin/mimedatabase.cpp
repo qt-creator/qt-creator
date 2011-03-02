@@ -33,6 +33,7 @@
 
 #include "mimedatabase.h"
 #include "coreconstants.h"
+#include "icore.h"
 
 #include <utils/qtcassert.h>
 
@@ -40,9 +41,11 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
+#include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QLocale>
 #include <QtCore/QMap>
+#include <QtCore/QHash>
 #include <QtCore/QMultiHash>
 #include <QtCore/QRegExp>
 #include <QtCore/QSharedData>
@@ -50,10 +53,11 @@
 #include <QtCore/QStringList>
 #include <QtCore/QTextStream>
 #include <QtCore/QMutexLocker>
-
-#include <QtXml/QXmlStreamReader>
+#include <QtCore/QXmlStreamReader>
+#include <QtCore/QXmlStreamWriter>
 
 #include <algorithm>
+#include <functional>
 
 enum { debugMimeDB = 0 };
 
@@ -211,6 +215,8 @@ bool HeuristicTextMagicMatcher::matches(const QByteArray &data) const
 } // namespace Internal
 
 // MagicRule
+const QChar MagicRule::kColon(QLatin1Char(':'));
+
 MagicRule::MagicRule(int startPos, int endPos) : m_startPos(startPos), m_endPos(endPos)
 {
 }
@@ -229,6 +235,20 @@ int MagicRule::endPos() const
     return m_endPos;
 }
 
+QString MagicRule::toOffset(const QPair<int, int> &startEnd)
+{
+    return QString(QLatin1String("%1:%2")).arg(startEnd.first).arg(startEnd.second);
+}
+
+QPair<int, int> MagicRule::fromOffset(const QString &offset)
+{
+    const QStringList &startEnd = offset.split(kColon);
+    Q_ASSERT(startEnd.size() == 2);
+    return qMakePair(startEnd.at(0).toInt(), startEnd.at(1).toInt());
+}
+
+const QString MagicStringRule::kMatchType("string");
+
 MagicStringRule::MagicStringRule(const QString &s, int startPos, int endPos) :
     MagicRule(startPos, endPos), m_pattern(s.toUtf8())
 {
@@ -236,6 +256,16 @@ MagicStringRule::MagicStringRule(const QString &s, int startPos, int endPos) :
 
 MagicStringRule::~MagicStringRule()
 {
+}
+
+QString MagicStringRule::matchType() const
+{
+    return kMatchType;
+}
+
+QString MagicStringRule::matchValue() const
+{
+    return m_pattern;
 }
 
 bool MagicStringRule::matches(const QByteArray &data) const
@@ -254,26 +284,49 @@ bool MagicStringRule::matches(const QByteArray &data) const
     return rc;
 }
 
+const QString MagicByteRule::kMatchType(QLatin1String("byte"));
+
 MagicByteRule::MagicByteRule(const QString &s, int startPos, int endPos) :
-    MagicRule(startPos, endPos)
+    MagicRule(startPos, endPos), m_bytesSize(0)
 {
-    // Expect an hex format value like this: \0x7f\0x45\0x4c\0x46
-    const QStringList &bytes = s.split(QLatin1Char('\\'), QString::SkipEmptyParts);
-    foreach (const QString &byte, bytes) {
-        bool ok;
-        const int hex = byte.toInt(&ok, 16);
-        if (ok) {
-            m_bytes.push_back(hex);
-        } else {
-            m_bytes.clear();
-            break;
-        }
-    }
-    m_bytesSize = m_bytes.size();
+    if (validateByteSequence(s, &m_bytes))
+        m_bytesSize = m_bytes.size();
+    else
+        m_bytes.clear();
 }
 
 MagicByteRule::~MagicByteRule()
 {
+}
+
+bool MagicByteRule::validateByteSequence(const QString &sequence, QList<int> *bytes)
+{
+    // Expect an hex format value like this: \0x7f\0x45\0x4c\0x46
+    const QStringList &byteSequence = sequence.split(QLatin1Char('\\'), QString::SkipEmptyParts);
+    foreach (const QString &byte, byteSequence) {
+        bool ok;
+        const int hex = byte.toInt(&ok, 16);
+        if (ok) {
+            if (bytes)
+                bytes->push_back(hex);
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
+
+QString MagicByteRule::matchType() const
+{
+    return kMatchType;
+}
+
+QString MagicByteRule::matchValue() const
+{
+    QString value;
+    foreach (int byte, m_bytes)
+        value.append(QString(QLatin1String("\\0x%1")).arg(byte, 0, 16));
+    return value;
 }
 
 bool MagicByteRule::matches(const QByteArray &data) const
@@ -307,7 +360,17 @@ MagicRuleMatcher::MagicRuleMatcher() :
 
 void MagicRuleMatcher::add(const MagicRuleSharedPointer &rule)
 {
-    m_list.push_back(rule);
+    m_list.append(rule);
+}
+
+void MagicRuleMatcher::add(const MagicRuleList &ruleList)
+{
+    m_list.append(ruleList);
+}
+
+MagicRuleMatcher::MagicRuleList MagicRuleMatcher::magicRules() const
+{
+    return m_list;
 }
 
 bool MagicRuleMatcher::matches(const QByteArray &data) const
@@ -327,6 +390,20 @@ int MagicRuleMatcher::priority() const
 void MagicRuleMatcher::setPriority(int p)
 {
     m_priority = p;
+}
+
+IMagicMatcher::IMagicMatcherList MagicRuleMatcher::createMatchers(
+    const QHash<int, MagicRuleList> &rulesByPriority)
+{
+    IMagicMatcher::IMagicMatcherList matchers;
+    QHash<int, MagicRuleList>::const_iterator ruleIt = rulesByPriority.begin();
+    for (; ruleIt != rulesByPriority.end(); ++ruleIt) {
+        MagicRuleMatcher *magicRuleMatcher = new MagicRuleMatcher();
+        magicRuleMatcher->setPriority(ruleIt.key());
+        magicRuleMatcher->add(ruleIt.value());
+        matchers.append(IMagicMatcher::IMagicMatcherSharedPointer(magicRuleMatcher));
+    }
+    return matchers;
 }
 
 // GlobPattern
@@ -353,8 +430,15 @@ unsigned MimeGlobPattern::weight() const
 class MimeTypeData : public QSharedData {
 public:
     typedef QHash<QString,QString> LocaleHash;
+
+    MimeTypeData();
+
     void clear();
+    void assignSuffix(const QString &pattern);
+    void assignSuffixes(const QStringList &patterns);
     void debug(QTextStream &str, int indent = 0) const;
+
+    const QRegExp suffixPattern;
 
     QString type;
     QString comment;
@@ -365,11 +449,16 @@ public:
     QStringList subClassesOf;
     QString preferredSuffix;
     QStringList suffixes;
-
-    typedef QSharedPointer<IMagicMatcher> IMagicMatcherSharedPointer;
-    typedef QList<IMagicMatcherSharedPointer> IMagicMatcherList;
-    IMagicMatcherList magicMatchers;
+    IMagicMatcher::IMagicMatcherList magicMatchers;
 };
+
+MimeTypeData::MimeTypeData()
+    // RE to match a suffix glob pattern: "*.ext" (and not sth like "Makefile" or
+    // "*.log[1-9]"
+    : suffixPattern(QLatin1String("^\\*\\.[\\w+]+$"))
+{
+    QTC_ASSERT(suffixPattern.isValid(), /**/);
+}
 
 void MimeTypeData::clear()
 {
@@ -381,6 +470,22 @@ void MimeTypeData::clear()
     preferredSuffix.clear();
     suffixes.clear();
     magicMatchers.clear();
+}
+
+void MimeTypeData::assignSuffix(const QString &pattern)
+{
+    if (suffixPattern.exactMatch(pattern)) {
+        const QString suffix = pattern.right(pattern.size() - 2);
+        suffixes.push_back(suffix);
+        if (preferredSuffix.isEmpty())
+            preferredSuffix = suffix;
+    }
+}
+
+void MimeTypeData::assignSuffixes(const QStringList &patterns)
+{
+    foreach (const QString &pattern, patterns)
+        assignSuffix(pattern);
 }
 
 void MimeTypeData::debug(QTextStream &str, int indent) const
@@ -516,6 +621,13 @@ QList<MimeGlobPattern> MimeType::globPatterns() const
 void MimeType::setGlobPatterns(const QList<MimeGlobPattern> &g)
 {
     m_d->globPatterns = g;
+
+    QString oldPrefferedSuffix = m_d->preferredSuffix;
+    m_d->suffixes.clear();
+    m_d->preferredSuffix.clear();
+    m_d->assignSuffixes(MimeDatabase::fromGlobPatterns(g));
+    if (m_d->preferredSuffix != oldPrefferedSuffix && m_d->suffixes.contains(oldPrefferedSuffix))
+        m_d->preferredSuffix = oldPrefferedSuffix;
 }
 
 QStringList MimeType::subClassesOf() const
@@ -608,7 +720,7 @@ unsigned MimeType::matchesFileByContent(Internal::FileMatchContext &c) const
 
     const QByteArray data = c.data();
     if (!data.isEmpty()) {
-        foreach (const MimeTypeData::IMagicMatcherSharedPointer &matcher, m_d->magicMatchers) {
+        foreach (const IMagicMatcher::IMagicMatcherSharedPointer &matcher, m_d->magicMatchers) {
             if (matcher->matches(data)) {
                 const unsigned magicPriority = matcher->priority();
                 if (magicPriority > priority)
@@ -624,14 +736,50 @@ QStringList MimeType::suffixes() const
     return m_d->suffixes;
 }
 
-void MimeType::setSuffixes(const QStringList &s)
-{
-    m_d->suffixes = s;
-}
-
-void MimeType::addMagicMatcher(const QSharedPointer<IMagicMatcher> &matcher)
+void MimeType::addMagicMatcher(const IMagicMatcherSharedPointer &matcher)
 {
     m_d->magicMatchers.push_back(matcher);
+}
+
+const MimeType::IMagicMatcherList &MimeType::magicMatchers() const
+{
+    return m_d->magicMatchers;
+}
+
+void MimeType::setMagicMatchers(const IMagicMatcherList &matchers)
+{
+    m_d->magicMatchers = matchers;
+}
+
+namespace {
+struct RemovePred : std::unary_function<MimeType::IMagicMatcherSharedPointer, bool>
+{
+    RemovePred(bool keepRuleBased) : m_keepRuleBase(keepRuleBased) {}
+    bool m_keepRuleBase;
+
+    bool operator()(const MimeType::IMagicMatcherSharedPointer &matcher) {
+        if ((m_keepRuleBase && !dynamic_cast<MagicRuleMatcher *>(matcher.data()))
+                || (!m_keepRuleBase && dynamic_cast<MagicRuleMatcher *>(matcher.data())))
+            return true;
+        return false;
+    }
+};
+} // Anonymous
+
+MimeType::IMagicMatcherList MimeType::magicRuleMatchers() const
+{
+    IMagicMatcherList ruleMatchers = m_d->magicMatchers;
+    ruleMatchers.erase(std::remove_if(ruleMatchers.begin(), ruleMatchers.end(), RemovePred(true)),
+                       ruleMatchers.end());
+    return ruleMatchers;
+}
+
+void MimeType::setMagicRuleMatchers(const IMagicMatcherList &matchers)
+{
+    m_d->magicMatchers.erase(std::remove_if(m_d->magicMatchers.begin(), m_d->magicMatchers.end(),
+                                            RemovePred(false)),
+                             m_d->magicMatchers.end());
+    m_d->magicMatchers.append(matchers);
 }
 
 QDebug operator<<(QDebug d, const MimeType &mt)
@@ -652,7 +800,7 @@ namespace Internal {
 class BaseMimeTypeParser {
     Q_DISABLE_COPY(BaseMimeTypeParser)
 public:
-    BaseMimeTypeParser();
+    BaseMimeTypeParser() {}
     virtual ~BaseMimeTypeParser() {}
 
     bool parse(QIODevice *dev, const QString &fileName, QString *errorMessage);
@@ -676,17 +824,7 @@ private:
                   ParseError };
 
     static ParseStage nextStage(ParseStage currentStage, const QStringRef &startElement);
-
-    const QRegExp m_suffixPattern;
 };
-
-BaseMimeTypeParser:: BaseMimeTypeParser() :
-    // RE to match a suffix glob pattern: "*.ext" (and not sth like "Makefile" or
-    // "*.log[1-9]"
-    m_suffixPattern(QLatin1String("^\\*\\.[\\w+]+$"))
-{
-    QTC_ASSERT(m_suffixPattern.isValid(), /**/);
-}
 
 void BaseMimeTypeParser::addGlobPattern(const QString &pattern, const QString &weight, MimeTypeData *d) const
 {
@@ -706,12 +844,7 @@ void BaseMimeTypeParser::addGlobPattern(const QString &pattern, const QString &w
     else
         d->globPatterns.push_back(MimeGlobPattern(wildCard, weight.toInt()));
 
-    if (m_suffixPattern.exactMatch(pattern)) {
-        const QString suffix = pattern.right(pattern.size() - 2);
-        d->suffixes.push_back(suffix);
-        if (d->preferredSuffix.isEmpty())
-            d->preferredSuffix = suffix;
-    }
+    d->assignSuffix(pattern);
 }
 
 BaseMimeTypeParser::ParseStage BaseMimeTypeParser::nextStage(ParseStage currentStage, const QStringRef &startElement)
@@ -934,10 +1067,10 @@ MimeMapEntry::MimeMapEntry(const MimeType &t, int aLevel) :
  * - Provide quick lookup by file type.
  * This basically rules out some pointer-based tree, so the structure chosen
  * is:
- * - An alias map <QString->QString> for mapping aliases to types
- * - A Map <QString-MimeMapEntry> for the types (MimeMapEntry being a pair of
+ * - An alias map QString->QString for mapping aliases to types
+ * - A Map QString->MimeMapEntry for the types (MimeMapEntry being a pair of
  *   MimeType and (hierarchy) level.
- * - A map  <QString->QString> representing parent->child relations (enabling
+ * - A map  QString->QString representing parent->child relations (enabling
  *   recursing over children)
  * Using strings avoids dangling pointers.
  * The hierarchy level is used for mapping by file types. When findByFile()
@@ -958,16 +1091,31 @@ public:
     bool addMimeTypes(QIODevice *device, QString *errorMessage);
     bool addMimeType(MimeType mt);
 
-    // Returns a mime type or Null one if none found
     MimeType findByType(const QString &type) const;
-    // Returns a mime type or Null one if none found
     MimeType findByFile(const QFileInfo &f) const;
 
+    QStringList filterStrings() const;
+
+    QStringList suffixes() const;
     bool setPreferredSuffix(const QString &typeOrAlias, const QString &suffix);
 
-    // Return all known suffixes
-    QStringList suffixes() const;
-    QStringList filterStrings() const;
+    QList<MimeGlobPattern> globPatterns() const;
+    void setGlobPatterns(const QString &typeOrAlias, const QList<MimeGlobPattern> &globPatterns);
+
+    QList<QSharedPointer<IMagicMatcher> > magicMatchers() const;
+    void setMagicMatchers(const QString &typeOrAlias,
+                          const QList<QSharedPointer<IMagicMatcher> > &matchers);
+
+    QList<MimeType> mimeTypes() const;
+
+    void syncUserModifiedMimeTypes();
+    static QList<MimeType> readUserModifiedMimeTypes();
+    static void writeUserModifiedMimeTypes(const QList<MimeType> &mimeTypes);
+    void clearUserModifiedMimeTypes();
+
+    static QList<MimeGlobPattern> toGlobPatterns(const QStringList &patterns,
+                                                 int weight = MimeGlobPattern::MaxWeight);
+    static QStringList fromGlobPatterns(const QList<MimeGlobPattern> &globPatterns);
 
     void debug(QTextStream &str) const;
 
@@ -975,6 +1123,11 @@ private:
     typedef QHash<QString, MimeMapEntry> TypeMimeTypeMap;
     typedef QHash<QString, QString> AliasMap;
     typedef QMultiHash<QString, QString> ParentChildrenMap;
+
+    static const QChar kSemiColon;
+    static const QString kModifiedMimeTypesFile;
+    static QString kModifiedMimeTypesPath;
+
 
     bool addMimeTypes(QIODevice *device, const QString &fileName, QString *errorMessage);
     inline const QString &resolveAlias(const QString &name) const;
@@ -988,9 +1141,15 @@ private:
     int m_maxLevel;
 };
 
+const QChar MimeDatabasePrivate::kSemiColon(QLatin1Char(';'));
+const QString MimeDatabasePrivate::kModifiedMimeTypesFile(QLatin1String("modifiedmimetypes.xml"));
+QString MimeDatabasePrivate::kModifiedMimeTypesPath;
+
 MimeDatabasePrivate::MimeDatabasePrivate() :
     m_maxLevel(-1)
 {
+    // Assign here to avoid non-local static data initialization issues.
+    kModifiedMimeTypesPath = ICore::instance()->userResourcePath() + QLatin1String("/mimetypes/");
 }
 
 namespace Internal {
@@ -1230,6 +1389,197 @@ QStringList MimeDatabasePrivate::filterStrings() const
     return rc;
 }
 
+QList<MimeGlobPattern> MimeDatabasePrivate::globPatterns() const
+{
+    QList<MimeGlobPattern> globPatterns;
+    const TypeMimeTypeMap::const_iterator cend = m_typeMimeTypeMap.constEnd();
+    for (TypeMimeTypeMap::const_iterator it = m_typeMimeTypeMap.constBegin(); it != cend; ++it)
+        globPatterns.append(it.value().type.globPatterns());
+    return globPatterns;
+}
+
+void MimeDatabasePrivate::setGlobPatterns(const QString &typeOrAlias,
+                                          const QList<MimeGlobPattern> &globPatterns)
+{
+    TypeMimeTypeMap::iterator tit =  m_typeMimeTypeMap.find(resolveAlias(typeOrAlias));
+    if (tit != m_typeMimeTypeMap.end())
+        tit.value().type.setGlobPatterns(globPatterns);
+}
+
+QList<QSharedPointer<IMagicMatcher> > MimeDatabasePrivate::magicMatchers() const
+{
+    QList<QSharedPointer<IMagicMatcher> > magicMatchers;
+    const TypeMimeTypeMap::const_iterator cend = m_typeMimeTypeMap.constEnd();
+    for (TypeMimeTypeMap::const_iterator it = m_typeMimeTypeMap.constBegin(); it != cend; ++it)
+        magicMatchers.append(it.value().type.magicMatchers());
+    return magicMatchers;
+}
+
+void MimeDatabasePrivate::setMagicMatchers(const QString &typeOrAlias,
+                                           const QList<QSharedPointer<IMagicMatcher> > &matchers)
+{
+    TypeMimeTypeMap::iterator tit =  m_typeMimeTypeMap.find(resolveAlias(typeOrAlias));
+    if (tit != m_typeMimeTypeMap.end())
+        tit.value().type.setMagicMatchers(matchers);
+}
+
+QList<MimeType> MimeDatabasePrivate::mimeTypes() const
+{
+    QList<MimeType> mimeTypes;
+    const TypeMimeTypeMap::const_iterator cend = m_typeMimeTypeMap.constEnd();
+    for (TypeMimeTypeMap::const_iterator it = m_typeMimeTypeMap.constBegin(); it != cend; ++it)
+        mimeTypes.append(it.value().type);
+    return mimeTypes;
+}
+
+void MimeDatabasePrivate::syncUserModifiedMimeTypes()
+{
+    QHash<QString, MimeType> userModified;
+    const QList<MimeType> &userMimeTypes = readUserModifiedMimeTypes();
+    foreach (const MimeType &userMimeType, userMimeTypes)
+        userModified.insert(userMimeType.type(), userMimeType);
+
+    TypeMimeTypeMap::iterator end = m_typeMimeTypeMap.end();
+    QHash<QString, MimeType>::const_iterator userMimeEnd = userModified.end();
+    for (TypeMimeTypeMap::iterator it = m_typeMimeTypeMap.begin(); it != end; ++it) {
+        QHash<QString, MimeType>::const_iterator userMimeIt =
+            userModified.find(it.value().type.type());
+        if (userMimeIt != userMimeEnd) {
+            it.value().type.setGlobPatterns(userMimeIt.value().globPatterns());
+            it.value().type.setMagicRuleMatchers(userMimeIt.value().magicRuleMatchers());
+        }
+    }
+}
+
+QList<MimeType> MimeDatabasePrivate::readUserModifiedMimeTypes()
+{
+    typedef MagicRuleMatcher::MagicRuleList MagicRuleList;
+    typedef MagicRuleMatcher::MagicRuleSharedPointer MagicRuleSharedPointer;
+
+    QList<MimeType> mimeTypes;
+    QFile file(kModifiedMimeTypesPath + kModifiedMimeTypesFile);
+    if (file.open(QFile::ReadOnly)) {
+        MimeType mimeType;
+        QHash<int, MagicRuleList> rules;
+        QXmlStreamReader reader(&file);
+        QXmlStreamAttributes atts;
+        while (!reader.atEnd()) {
+            switch (reader.readNext()) {
+            case QXmlStreamReader::StartElement:
+                atts = reader.attributes();
+                if (reader.name() == mimeTypeTagC) {
+                    mimeType.setType(atts.value(mimeTypeAttributeC).toString());
+                    const QString &patterns = atts.value(patternAttributeC).toString();
+                    mimeType.setGlobPatterns(toGlobPatterns(patterns.split(kSemiColon)));
+                } else if (reader.name() == matchTagC) {
+                    const QString &value = atts.value(matchValueAttributeC).toString();
+                    const QString &type = atts.value(matchTypeAttributeC).toString();
+                    const QString &offset = atts.value(matchOffsetAttributeC).toString();
+                    QPair<int, int> range = MagicRule::fromOffset(offset);
+                    const int priority = atts.value(priorityAttributeC).toString().toInt();
+
+                    MagicRule *magicRule;
+                    if (type == MagicStringRule::kMatchType)
+                        magicRule = new MagicStringRule(value, range.first, range.second);
+                    else
+                        magicRule = new MagicByteRule(value, range.first, range.second);
+                    rules[priority].append(MagicRuleSharedPointer(magicRule));
+                }
+                break;
+            case QXmlStreamReader::EndElement:
+                if (reader.name() == mimeTypeTagC) {
+                    mimeType.setMagicRuleMatchers(MagicRuleMatcher::createMatchers(rules));
+                    mimeTypes.append(mimeType);
+                    mimeType.clear();
+                    rules.clear();
+                }
+                break;
+            default:
+                break;
+            }
+        }
+        if (reader.hasError())
+            qWarning() << kModifiedMimeTypesFile << reader.errorString() << reader.lineNumber()
+                       << reader.columnNumber();
+        file.close();
+    }
+    return mimeTypes;
+}
+
+void MimeDatabasePrivate::writeUserModifiedMimeTypes(const QList<MimeType> &mimeTypes)
+{
+    // Keep mime types modified which are already on file.
+    QList<MimeType> allModifiedMimeTypes = mimeTypes;
+    allModifiedMimeTypes.append(readUserModifiedMimeTypes());
+
+    if (QFile::exists(kModifiedMimeTypesPath) || QDir().mkpath(kModifiedMimeTypesPath)) {
+        QFile file(kModifiedMimeTypesPath + kModifiedMimeTypesFile);
+        if (file.open(QFile::WriteOnly | QFile::Truncate)) {
+            // Notice this file only represents user modifications. It is writen in a
+            // convienient way for synchronization, which is similar to but not exactly the
+            // same format we use for the embedded mime type files.
+            QXmlStreamWriter writer(&file);
+            writer.setAutoFormatting(true);
+            writer.writeStartDocument();
+            writer.writeStartElement(QLatin1String(mimeInfoTagC));
+            foreach (const MimeType &mimeType, allModifiedMimeTypes) {
+                writer.writeStartElement(mimeTypeTagC);
+                writer.writeAttribute(mimeTypeAttributeC, mimeType.type());
+                writer.writeAttribute(patternAttributeC,
+                                      fromGlobPatterns(mimeType.globPatterns()).join(kSemiColon));
+                const QList<QSharedPointer<IMagicMatcher> > &matchers = mimeType.magicMatchers();
+                foreach (const QSharedPointer<IMagicMatcher> &matcher, matchers) {
+                    // Only care about rule-based matchers.
+                    if (MagicRuleMatcher *ruleMatcher =
+                        dynamic_cast<MagicRuleMatcher *>(matcher.data())) {
+                        const MagicRuleMatcher::MagicRuleList &rules = ruleMatcher->magicRules();
+                        foreach (const MagicRuleMatcher::MagicRuleSharedPointer &rule, rules) {
+                            writer.writeStartElement(matchTagC);
+                            writer.writeAttribute(matchValueAttributeC, rule->matchValue());
+                            writer.writeAttribute(matchTypeAttributeC, rule->matchType());
+                            writer.writeAttribute(matchOffsetAttributeC,
+                                                  MagicRule::toOffset(
+                                                      qMakePair(rule->startPos(), rule->endPos())));
+                            writer.writeAttribute(priorityAttributeC,
+                                                  QString::number(ruleMatcher->priority()));
+                            writer.writeEndElement();
+                        }
+                    }
+                }
+                writer.writeEndElement();
+            }
+            writer.writeEndElement();
+            writer.writeEndDocument();
+            file.close();
+        }
+    }
+}
+
+void MimeDatabasePrivate::clearUserModifiedMimeTypes()
+{
+    // This removes the user's file. However, the operation will actually take place the next time
+    // Creator starts, since we currently don't support removing stuff from the mime database.
+    QFile::remove(kModifiedMimeTypesPath + kModifiedMimeTypesFile);
+}
+
+QList<MimeGlobPattern> MimeDatabasePrivate::toGlobPatterns(const QStringList &patterns, int weight)
+{
+    QList<MimeGlobPattern> globPatterns;
+    foreach (const QString &pattern, patterns) {
+        QRegExp regExp(pattern, Qt::CaseSensitive, QRegExp::Wildcard);
+        globPatterns.append(Core::MimeGlobPattern(regExp, weight));
+    }
+    return globPatterns;
+}
+
+QStringList MimeDatabasePrivate::fromGlobPatterns(const QList<MimeGlobPattern> &globPatterns)
+{
+    QStringList patterns;
+    foreach (const MimeGlobPattern &globPattern, globPatterns)
+        patterns.append(globPattern.regExp().pattern());
+    return patterns;
+}
+
 void MimeDatabasePrivate::debug(QTextStream &str) const
 {
     str << ">MimeDatabase\n";
@@ -1308,7 +1658,7 @@ QStringList MimeDatabase::suffixes() const
 QStringList MimeDatabase::filterStrings() const
 {
     m_mutex.lock();
-    const  QStringList rc = m_d->filterStrings();
+    const QStringList rc = m_d->filterStrings();
     m_mutex.unlock();
     return rc;
 }
@@ -1336,6 +1686,70 @@ QString MimeDatabase::allFiltersString(QString *allFilesFilter) const
     return filters.join(QLatin1String(";;"));
 }
 
+QList<MimeGlobPattern> MimeDatabase::globPatterns() const
+{
+    m_mutex.lock();
+    const QList<MimeGlobPattern> rc = m_d->globPatterns();
+    m_mutex.unlock();
+    return rc;
+}
+
+void MimeDatabase::setGlobPatterns(const QString &typeOrAlias,
+                                   const QList<MimeGlobPattern> &globPatterns)
+{
+    m_mutex.lock();
+    m_d->setGlobPatterns(typeOrAlias, globPatterns);
+    m_mutex.unlock();
+}
+
+MimeDatabase::IMagicMatcherList MimeDatabase::magicMatchers() const
+{
+    m_mutex.lock();
+    const IMagicMatcherList rc = m_d->magicMatchers();
+    m_mutex.unlock();
+    return rc;
+}
+
+void MimeDatabase::setMagicMatchers(const QString &typeOrAlias,
+                                    const IMagicMatcherList &matchers)
+{
+    m_mutex.lock();
+    m_d->setMagicMatchers(typeOrAlias, matchers);
+    m_mutex.unlock();
+}
+
+QList<MimeType> MimeDatabase::mimeTypes() const
+{
+    m_mutex.lock();
+    const QList<MimeType> &mimeTypes = m_d->mimeTypes();
+    m_mutex.unlock();
+    return mimeTypes;
+}
+
+void MimeDatabase::syncUserModifiedMimeTypes()
+{
+    m_mutex.lock();
+    m_d->syncUserModifiedMimeTypes();
+    m_mutex.unlock();
+}
+
+void MimeDatabase::clearUserModifiedMimeTypes()
+{
+    m_mutex.lock();
+    m_d->clearUserModifiedMimeTypes();
+    m_mutex.unlock();
+}
+
+QList<MimeType> MimeDatabase::readUserModifiedMimeTypes()
+{
+    return MimeDatabasePrivate::readUserModifiedMimeTypes();
+}
+
+void MimeDatabase::writeUserModifiedMimeTypes(const QList<MimeType> &mimeTypes)
+{
+    MimeDatabasePrivate::writeUserModifiedMimeTypes(mimeTypes);
+}
+
 QString MimeDatabase::preferredSuffixByType(const QString &type) const
 {
     if (const MimeType mt = findByType(type))
@@ -1356,6 +1770,16 @@ bool MimeDatabase::setPreferredSuffix(const QString &typeOrAlias, const QString 
     const bool rc = m_d->setPreferredSuffix(typeOrAlias, suffix);
     m_mutex.unlock();
     return rc;
+}
+
+QList<MimeGlobPattern> MimeDatabase::toGlobPatterns(const QStringList &patterns, int weight)
+{
+    return MimeDatabasePrivate::toGlobPatterns(patterns, weight);
+}
+
+QStringList MimeDatabase::fromGlobPatterns(const QList<MimeGlobPattern> &globPatterns)
+{
+    return MimeDatabasePrivate::fromGlobPatterns(globPatterns);
 }
 
 QDebug operator<<(QDebug d, const MimeDatabase &mt)

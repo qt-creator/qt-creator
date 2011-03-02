@@ -55,9 +55,9 @@ namespace Internal {
 void RegisterPostMortemAction::registerNow(const QVariant &value)
 {
     const bool boolValue = value.toBool();
-    const QString debuggerExe = QCoreApplication::applicationDirPath() + QLatin1Char('/')
-                                + debuggerApplicationFileC + QLatin1String(".exe");
-    const std::wstring debuggerWString = QDir::toNativeSeparators(debuggerExe).toStdWString();
+    const QString debuggerExe = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + QLatin1Char('/')
+                                + debuggerApplicationFileC + QLatin1String(".exe"));
+    const ushort *debuggerWString = debuggerExe.utf16();
 
     CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
     SHELLEXECUTEINFO shExecInfo;
@@ -65,7 +65,7 @@ void RegisterPostMortemAction::registerNow(const QVariant &value)
     shExecInfo.fMask  = SEE_MASK_NOCLOSEPROCESS;
     shExecInfo.hwnd   = NULL;
     shExecInfo.lpVerb = L"runas";
-    shExecInfo.lpFile = debuggerWString.data();
+    shExecInfo.lpFile = reinterpret_cast<LPCWSTR>(debuggerWString);
     shExecInfo.lpParameters = boolValue ? L"-register" : L"-unregister";
     shExecInfo.lpDirectory  = NULL;
     shExecInfo.nShow        = SW_SHOWNORMAL;

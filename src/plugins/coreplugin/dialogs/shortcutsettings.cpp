@@ -75,7 +75,7 @@ ShortcutSettings::~ShortcutSettings()
 
 QString ShortcutSettings::id() const
 {
-    return QLatin1String("D.Keyboard");
+    return QLatin1String(Core::Constants::SETTINGS_ID_SHORTCUTS);
 }
 
 QString ShortcutSettings::displayName() const

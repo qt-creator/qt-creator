@@ -31,44 +31,53 @@
 **
 **************************************************************************/
 
-// WARNING: This code is shared with the qmlplugindump tool code in Qt.
-//          Modifications to this file need to be applied there.
+#ifndef MIMETYPEMAGICDIALOG_H
+#define MIMETYPEMAGICDIALOG_H
 
-#ifndef QMLSTREAMWRITER_H
-#define QMLSTREAMWRITER_H
+#include "ui_mimetypemagicdialog.h"
 
-#include <QtCore/QIODevice>
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QPair>
+namespace Core {
+namespace Internal {
 
-class QmlStreamWriter
+struct MagicData
 {
-public:
-    QmlStreamWriter(QByteArray *array);
+    MagicData() {}
+    MagicData(const QString &value, const QString &type, int start, int end, int p)
+        : m_value(value)
+        , m_type(type)
+        , m_start(start)
+        , m_end(end)
+        , m_priority(p) {}
 
-    void writeStartDocument();
-    void writeEndDocument();
-    void writeLibraryImport(const QString &uri, int majorVersion, int minorVersion, const QString &as = QString());
-    //void writeFilesystemImport(const QString &file, const QString &as = QString());
-    void writeStartObject(const QString &component);
-    void writeEndObject();
-    void writeScriptBinding(const QString &name, const QString &rhs);
-    void writeScriptObjectLiteralBinding(const QString &name, const QList<QPair<QString, QString> > &keyValue);
-    void writeArrayBinding(const QString &name, const QStringList &elements);
-    void write(const QString &data);
-
-private:
-    void writeIndent();
-    void writePotentialLine(const QByteArray &line);
-    void flushPotentialLinesWithNewlines();
-
-    int m_indentDepth;
-    QList<QByteArray> m_pendingLines;
-    int m_pendingLineLength;
-    bool m_maybeOneline;
-    QScopedPointer<QIODevice> m_stream;
+    QString m_value;
+    QString m_type;
+    int m_start;
+    int m_end;
+    int m_priority;
 };
 
-#endif // QMLSTREAMWRITER_H
+class MimeTypeMagicDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit MimeTypeMagicDialog(QWidget *parent = 0);
+
+    void setMagicData(const MagicData &data);
+    MagicData magicData() const;
+
+protected:
+    void changeEvent(QEvent *e);
+
+private slots:
+    void applyRecommended(bool checked);
+    void validateAccept();
+
+private:
+    Ui::MimeTypeMagicDialog ui;
+};
+
+} // Internal
+} // Core
+
+#endif // MIMETYPEMAGICDIALOG_H

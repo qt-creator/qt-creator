@@ -41,6 +41,7 @@
 #include <symbianutils/launcher.h>
 #include <symbianutils/bluetoothlistener.h>
 #include <symbianutils/symbiandevicemanager.h>
+#include <codadevice.h>
 
 #include "trkruncontrol.h"
 
@@ -73,6 +74,51 @@ namespace Internal {
 
 const char STARTING_DRIVE_LETTER = 'C';
 const char LAST_DRIVE_LETTER = 'Z';
+
+static const quint32 CODA_UID = 0x20021f96;
+
+QString formatDriveText(const S60DeployConfiguration::DeviceDrive &drive)
+{
+    char driveLetter = QChar::toUpper(static_cast<ushort>(drive.first));
+    if (drive.second <= 0)
+        return QString("%1:").arg(driveLetter);
+    if (drive.second >= 1024)
+        return QString("%1:%2 MB").arg(driveLetter).arg(drive.second);
+    return QString("%1:%2 kB").arg(driveLetter).arg(drive.second);
+}
+
+void startTable(QString &text)
+{
+    const char startTableC[] = "<html></head><body><table>";
+    if (text.contains(startTableC))
+        return;
+    text.append(startTableC);
+}
+
+void finishTable(QString &text)
+{
+    const char stopTableC[] = "</table></body></html>";
+    text.replace(stopTableC, QLatin1String(""));
+    text.append(stopTableC);
+}
+
+void addToTable(QTextStream &stream, const QString &key, const QString &value)
+{
+    const char tableRowStartC[] = "<tr><td><b>";
+    const char tableRowSeparatorC[] = "</b></td><td>";
+    const char tableRowEndC[] = "</td></tr>";
+    stream << tableRowStartC << key << tableRowSeparatorC << value << tableRowEndC;
+}
+
+void addErrorToTable(QTextStream &stream, const QString &key, const QString &value)
+{
+    const char tableRowStartC[] = "<tr><td><b>";
+    const char tableRowSeparatorC[] = "</b></td><td>";
+    const char tableRowEndC[] = "</td></tr>";
+    const char errorSpanStartC[] = "<span style=\"font-weight:600; color:red; \">";
+    const char errorSpanEndC[] = "</span>";
+    stream << tableRowStartC << errorSpanStartC << key << tableRowSeparatorC << value << errorSpanEndC << tableRowEndC;
+}
 
 S60DeployConfigurationWidget::S60DeployConfigurationWidget(QWidget *parent)
     : ProjectExplorer::DeployConfigurationWidget(parent),
@@ -178,6 +224,7 @@ void S60DeployConfigurationWidget::init(ProjectExplorer::DeployConfiguration *dc
     QHBoxLayout *infoHBoxLayout = new QHBoxLayout;
     m_deviceInfoLabel->setWordWrap(true);
     m_deviceInfoLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+    m_deviceInfoLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
     infoHBoxLayout->addWidget(m_deviceInfoLabel);
     infoHBoxLayout->addWidget(m_deviceInfoButton);
     m_deviceInfoButton->setIcon(qApp->style()->standardIcon(QStyle::SP_MessageBoxInformation));
@@ -187,6 +234,8 @@ void S60DeployConfigurationWidget::init(ProjectExplorer::DeployConfiguration *dc
     updateTargetInformation();
     connect(m_deployConfiguration, SIGNAL(targetInformationChanged()),
             this, SLOT(updateTargetInformation()));
+    connect(m_deployConfiguration, SIGNAL(availableDeviceDrivesChanged()),
+            this, SLOT(updateInstallationDrives()));
 }
 
 QWidget *S60DeployConfigurationWidget::createCommunicationChannel()
@@ -240,14 +289,28 @@ QWidget *S60DeployConfigurationWidget::createCommunicationChannel()
 void S60DeployConfigurationWidget::updateInstallationDrives()
 {
     m_installationDriveCombo->clear();
-    for (int i = STARTING_DRIVE_LETTER; i <= LAST_DRIVE_LETTER; ++i) {
-        m_installationDriveCombo->addItem(QString("%1:").arg(static_cast<char>(i)), qVariantFromValue(i));
+    const QList<S60DeployConfiguration::DeviceDrive> &availableDrives(m_deployConfiguration->availableDeviceDrives());
+    int index = 0;
+    char currentDrive = QChar::toUpper(static_cast<ushort>(m_deployConfiguration->installationDrive()));
+    if (availableDrives.isEmpty()) {
+        for (int i = STARTING_DRIVE_LETTER; i <= LAST_DRIVE_LETTER; ++i) {
+            m_installationDriveCombo->addItem(QString("%1:").arg(static_cast<char>(i)), QChar(i));
+        }
+        index = currentDrive - STARTING_DRIVE_LETTER;
+    } else {
+        for (int i = 0; i < availableDrives.count(); ++i) {
+            const S60DeployConfiguration::DeviceDrive& drive(availableDrives.at(i));
+            char driveLetter = QChar::toUpper(static_cast<ushort>(drive.first));
+            m_installationDriveCombo->addItem(formatDriveText(drive),
+                                              QChar(driveLetter));
+            if (currentDrive == driveLetter)
+                index = i;
+        }
     }
-    int index = QChar::toUpper(static_cast<ushort>(m_deployConfiguration->installationDrive())) - STARTING_DRIVE_LETTER;
-
-    Q_ASSERT(index >= 0 && index <= LAST_DRIVE_LETTER-STARTING_DRIVE_LETTER);
+    QTC_ASSERT(index >= 0 && index <= m_installationDriveCombo->count(), return);
 
     m_installationDriveCombo->setCurrentIndex(index);
+    setInstallationDrive(index);
 }
 
 void S60DeployConfigurationWidget::silentInstallChanged(int state)
@@ -280,7 +343,8 @@ void S60DeployConfigurationWidget::updateSerialDevices()
         const QString newPortName = device(newIndex).portName();
         m_deployConfiguration->setSerialPortName(newPortName);
     }
-    if (m_deployConfiguration->communicationChannel() != S60DeployConfiguration::CommunicationTrkSerialConnection)
+    if (m_deployConfiguration->communicationChannel() != S60DeployConfiguration::CommunicationTrkSerialConnection
+            && m_deployConfiguration->communicationChannel() != S60DeployConfiguration::CommunicationCodaSerialConnection)
         m_deviceInfoButton->setEnabled(false);
 }
 
@@ -309,7 +373,11 @@ void S60DeployConfigurationWidget::updateTargetInformation()
 
 void S60DeployConfigurationWidget::setInstallationDrive(int index)
 {
-    m_deployConfiguration->setInstallationDrive(static_cast<char>(STARTING_DRIVE_LETTER + index));
+    QTC_ASSERT(index >= 0, return);
+    QTC_ASSERT(index < m_installationDriveCombo->count(), return);
+
+    QChar driveLetter(m_installationDriveCombo->itemData(index).toChar());
+    m_deployConfiguration->setInstallationDrive(driveLetter.toAscii());
 }
 
 void S60DeployConfigurationWidget::setSerialPort(int index)
@@ -425,10 +493,10 @@ void S60DeployConfigurationWidget::slotWaitingForTrkClosed()
 
 void S60DeployConfigurationWidget::updateDeviceInfo()
 {
-    //TODO: No CODA device info! Implement it when it is available
     if (m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationTrkSerialConnection) {
         QTC_ASSERT(!m_infoLauncher, return)
-                setDeviceInfoLabel(tr("Connecting..."));
+
+        setDeviceInfoLabel(tr("Connecting..."));
         // Do a launcher run with the ping protocol. Prompt to connect and
         // go asynchronous afterwards to pop up launch trk box if a timeout occurs.
         QString message;
@@ -466,9 +534,185 @@ void S60DeployConfigurationWidget::updateDeviceInfo()
         }
         // Wait for either timeout or results
         m_deviceInfoButton->setEnabled(false);
+    } else if (m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationCodaSerialConnection) {
+        setDeviceInfoLabel(tr("Connecting..."));
+        const SymbianUtils::SymbianDevice commDev = currentDevice();
+        m_codaInfoDevice = SymbianUtils::SymbianDeviceManager::instance()->getCodaDevice(commDev.portName());
+        if (!m_codaInfoDevice->device()->isOpen()) {
+            setDeviceInfoLabel(m_codaInfoDevice->device()->errorString(), true);
+            return;
+        }
+        //TODO error handling - for now just throw the command at coda
+        m_codaInfoDevice->sendSymbianOsDataGetQtVersionCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getQtVersionCommandResult));
+        m_deviceInfoButton->setEnabled(false);
     } else
-        setDeviceInfoLabel(tr("Information about the device is not available when using CODA."), true);
+        setDeviceInfoLabel(tr("Currently there is no information about device for this connection type."), true);
 }
+
+ void S60DeployConfigurationWidget::getQtVersionCommandResult(const Coda::CodaCommandResult &result)
+ {
+     if (result.type == Coda::CodaCommandResult::FailReply) {
+         setDeviceInfoLabel(tr("No device information available"), true);
+         m_deviceInfoButton->setEnabled(true);
+         return;
+     } else if (result.type == Coda::CodaCommandResult::CommandErrorReply){
+         QString message;
+         startTable(message);
+         QTextStream str(&message);
+         addErrorToTable(str, tr("Qt version: "), tr("Not installed on device"));
+         finishTable(message);
+         setDeviceInfoLabel(message, false);
+     } else {
+         QString resultString;
+         if (result.values.count()) {
+             QHash<QString, QVariant> obj = result.values[0].toVariant().toHash();
+             QString ver = obj.value("qVersion").toString();
+
+             startTable(resultString);
+             QTextStream str(&resultString);
+             addToTable(str, tr("Qt version: "), ver);
+             QString systemVersion;
+
+             int symVer = obj.value("symbianVersion").toInt();
+             // Ugh why won't QSysInfo define these on non-symbian builds...
+             switch (symVer) {
+             case 10:
+                 systemVersion.append("Symbian OS v9.2");
+                 break;
+             case 20:
+                 systemVersion.append("Symbian OS v9.3");
+                 break;
+             case 30:
+                 systemVersion.append("Symbian OS v9.4 / Symbian^1");
+                 break;
+             case 40:
+                 systemVersion.append("Symbian^2");
+                 break;
+             case 50:
+                 systemVersion.append("Symbian^3");
+                 break;
+             case 60:
+                 systemVersion.append("Symbian^4");
+                 break;
+             default:
+                 systemVersion.append(tr("Unrecognised Symbian version 0x%1").arg(symVer, 0, 16));
+                 break;
+             }
+             systemVersion.append(", ");
+             int s60Ver = obj.value("s60Version").toInt();
+             switch (s60Ver) {
+             case 10:
+                 systemVersion.append("S60 3rd Edition Feature Pack 1");
+                 break;
+             case 20:
+                 systemVersion.append("S60 3rd Edition Feature Pack 2");
+                 break;
+             case 30:
+                 systemVersion.append("S60 5th Edition");
+                 break;
+             case 40:
+                 systemVersion.append("S60 5th Edition Feature Pack 1");
+                 break;
+             case 50:
+                 systemVersion.append("S60 5th Edition Feature Pack 2");
+                 break;
+             default:
+                 systemVersion.append(tr("Unrecognised S60 version 0x%1").arg(symVer, 0, 16));
+                 break;
+             }
+             addToTable(str, tr("OS version: "), systemVersion);
+             finishTable(resultString);
+         }
+         setDeviceInfoLabel(resultString);
+     }
+     m_codaInfoDevice->sendSymbianOsDataGetRomInfoCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getRomInfoResult));
+ }
+
+ void S60DeployConfigurationWidget::getRomInfoResult(const Coda::CodaCommandResult &result)
+ {
+     if (result.type == Coda::CodaCommandResult::SuccessReply && result.values.count()) {
+         QString resultString = m_deviceInfoLabel->text();
+         startTable(resultString);
+         QTextStream str(&resultString);
+
+         QVariantHash obj = result.values[0].toVariant().toHash();
+         QString romVersion = obj.value("romVersion", tr("unknown")).toString();
+         romVersion.replace('\n', " "); // The ROM string is split across multiple lines, for some reason.
+         addToTable(str, tr("ROM version: "), romVersion);
+
+         QString pr = obj.value("prInfo").toString();
+         if (pr.length())
+             addToTable(str, tr("Release:"), pr);
+         finishTable(resultString);
+         setDeviceInfoLabel(resultString);
+     }
+
+     QList<quint32> packagesOfInterest;
+     packagesOfInterest.append(CODA_UID);
+     m_codaInfoDevice->sendSymbianInstallGetPackageInfoCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getInstalledPackagesResult), packagesOfInterest);
+ }
+
+ void S60DeployConfigurationWidget::getInstalledPackagesResult(const Coda::CodaCommandResult &result)
+ {
+     if (result.type == Coda::CodaCommandResult::SuccessReply && result.values.count()) {
+         QString resultString = m_deviceInfoLabel->text();
+         startTable(resultString);
+         QTextStream str(&resultString);
+
+         QVariantList resultsList = result.values[0].toVariant().toList();
+         foreach (const QVariant& var, resultsList) {
+             QVariantHash obj = var.toHash();
+             if (obj.value("uid").toString().toUInt(0, 16) == CODA_UID) {
+                 if (!obj.value("error").isNull()) {
+                     // How can coda not be installed? Presumably some UID wrongness...
+                     addErrorToTable(str, tr("CODA version: "), tr("Error reading CODA version"));
+                 } else {
+                     QVariantList version = obj.value("version").toList();
+                     addToTable(str, tr("CODA version: "),
+                                QString("%1.%2.%3").arg(version[0].toInt())
+                                                   .arg(version[1].toInt())
+                                                   .arg(version[2].toInt()));
+                 }
+             }
+         }
+         finishTable(resultString);
+         setDeviceInfoLabel(resultString);
+     }
+
+     QStringList keys;
+     keys << QLatin1String("EDisplayXPixels");
+     keys << QLatin1String("EDisplayYPixels");
+     //keys << "EMemoryRAMFree";
+     m_codaInfoDevice->sendSymbianOsDataGetHalInfoCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getHalResult), keys);
+ }
+
+ void S60DeployConfigurationWidget::getHalResult(const Coda::CodaCommandResult &result)
+ {
+     if (result.type == Coda::CodaCommandResult::SuccessReply && result.values.count()) {
+         QString resultString = m_deviceInfoLabel->text();
+         QVariantList resultsList = result.values[0].toVariant().toList();
+         int x = 0;
+         int y = 0;
+         foreach (const QVariant& var, resultsList) {
+             QVariantHash obj = var.toHash();
+             if (obj.value("name").toString() == "EDisplayXPixels")
+                 x = obj.value("value").toInt();
+             else if (obj.value("name").toString() == "EDisplayYPixels")
+                 y = obj.value("value").toInt();
+         }
+         if (x && y) {
+             startTable(resultString);
+             QTextStream str(&resultString);
+             addToTable(str, tr("Screen size: "), QString("%1x%2").arg(x).arg(y));
+             finishTable(resultString);
+             setDeviceInfoLabel(resultString);
+         }
+     }
+
+     // Done with collecting info
+     m_deviceInfoButton->setEnabled(true);
+     SymbianUtils::SymbianDeviceManager::instance()->releaseCodaDevice(m_codaInfoDevice);
+ }
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

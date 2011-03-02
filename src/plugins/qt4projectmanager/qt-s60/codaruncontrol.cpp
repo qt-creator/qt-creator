@@ -117,7 +117,7 @@ bool CodaRunControl::setupLauncher()
     if (m_serialPort.length()) {
         // We get the port from SymbianDeviceManager
         appendMessage(tr("Connecting to '%1'...").arg(m_serialPort), NormalMessageFormat);
-        m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getTcfPort(m_serialPort);
+        m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getCodaDevice(m_serialPort);
 
         bool ok = m_codaDevice && m_codaDevice->device()->isOpen();
         if (!ok) {
@@ -333,7 +333,7 @@ void CodaRunControl::finishRunControl()
     m_runningProcessId.clear();
     if (m_codaDevice) {
         disconnect(m_codaDevice.data(), 0, this, 0);
-        SymbianUtils::SymbianDeviceManager::instance()->releaseTcfPort(m_codaDevice);
+        SymbianUtils::SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
     }
     m_state = StateUninit;
     emit finished();
@@ -344,7 +344,7 @@ QMessageBox *CodaRunControl::createCodaWaitingMessageBox(QWidget *parent)
     const QString title  = tr("Waiting for CODA");
     const QString text = tr("Qt Creator is waiting for the CODA application to connect.<br>"
                             "Please make sure the application is running on "
-                            "your mobile phone and the right IP address and port are "
+                            "your mobile phone and the right IP address and/or port are "
                             "configured in the project settings.");
     QMessageBox *mb = new QMessageBox(QMessageBox::Information, title, text, QMessageBox::Cancel, parent);
     return mb;

@@ -36,7 +36,7 @@
 
 #include "symbianutils_global.h"
 
-#include <QtCore/QObject>
+#include <QtCore/QIODevice>
 #include <QtCore/QExplicitlySharedDataPointer>
 #include <QtCore/QSharedPointer>
 
@@ -56,6 +56,7 @@ namespace SymbianUtils {
 
 struct SymbianDeviceManagerPrivate;
 class SymbianDeviceData;
+class OstChannel;
 
 enum DeviceCommunicationType {
     SerialPortCommunication = 0,
@@ -152,11 +153,15 @@ public:
     // Gets the CodaDevice, which may or may not be open depending on what other clients have already acquired it.
     // Therefore once clients have set up any signals and slots they required, they should check CodaDevice::device()->isOpen()
     // and if false, the open failed and they should check device()->errorString() if required.
-    // Caller should call releaseTcfPort if they want the port to auto-close itself
-    CodaDevicePtr getTcfPort(const QString &port);
+    // Caller should call releaseCodaDevice if they want the port to auto-close itself
+    CodaDevicePtr getCodaDevice(const QString &port);
+
+    // Note this function makes no guarantee that someone else isn't already listening on this channel id, or that there is anything on the other end
+    // Returns NULL if the port couldn't be opened
+    OstChannel *getOstChannel(const QString &port, uchar channelId);
 
     // Caller is responsible for disconnecting any signals from aPort - do not assume the CodaDevice will be deleted as a result of this call. On return aPort will be clear()ed.
-    void releaseTcfPort(CodaDevicePtr &aPort);
+    void releaseCodaDevice(CodaDevicePtr &aPort);
 
     int findByPortName(const QString &p) const;
     QString friendlyNameForPort(const QString &port) const;
@@ -187,6 +192,38 @@ private:
 };
 
 SYMBIANUTILS_EXPORT QDebug operator<<(QDebug d, const SymbianDeviceManager &);
+
+struct OstChannelPrivate;
+
+class SYMBIANUTILS_EXPORT OstChannel : public QIODevice
+{
+    Q_OBJECT
+
+public:
+    void close();
+    ~OstChannel();
+    void flush();
+
+    qint64 bytesAvailable() const;
+    bool isSequential() const;
+    bool hasReceivedData() const;
+
+    Coda::CodaDevice &codaDevice() const;
+
+private slots:
+    void ostDataReceived(uchar channelId, const QByteArray &aData);
+    void deviceAboutToClose();
+
+private:
+    OstChannel(const CodaDevicePtr &codaPtr, uchar channelId);
+    Q_DISABLE_COPY(OstChannel)
+    qint64 readData(char *data, qint64 maxSize);
+    qint64 writeData(const char *data, qint64 maxSize);
+
+private:
+    OstChannelPrivate *d;
+    friend class SymbianDeviceManager;
+};
 
 } // namespace SymbianUtils
 

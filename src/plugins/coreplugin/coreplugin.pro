@@ -91,7 +91,9 @@ SOURCES += mainwindow.cpp \
     externaltool.cpp \
     dialogs/externaltoolconfig.cpp \
     toolsettings.cpp \
-    variablechooser.cpp
+    variablechooser.cpp \
+    mimetypemagicdialog.cpp \
+    mimetypesettings.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -180,7 +182,9 @@ HEADERS += mainwindow.h \
     externaltool.h \
     dialogs/externaltoolconfig.h \
     toolsettings.h \
-    variablechooser.h
+    variablechooser.h \
+    mimetypemagicdialog.h \
+    mimetypesettings.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \
@@ -189,7 +193,10 @@ FORMS += dialogs/newdialog.ui \
     editormanager/openeditorsview.ui \
     generalsettings.ui \
     dialogs/externaltoolconfig.ui \
-    variablechooser.ui
+    variablechooser.ui \
+    mimetypesettingspage.ui \
+    mimetypemagicdialog.ui
+
 RESOURCES += core.qrc \
     fancyactionbar.qrc
 

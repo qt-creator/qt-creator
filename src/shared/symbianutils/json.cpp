@@ -41,6 +41,7 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QDebug>
 #include <QtCore/QStringList>
+#include <QtCore/QVariant>
 
 #include <ctype.h>
 
@@ -414,6 +415,45 @@ QByteArray JsonValue::toString(bool multiline, int indent) const
     }
     return result;
 }
+
+
+QVariant JsonValue::toVariant() const
+{
+    switch (m_type) {
+    case String:
+        return QString(m_data);
+    case Number: {
+        bool ok;
+        qint64 val = QString(m_data).toLongLong(&ok);
+        if (ok)
+            return val;
+        return QVariant();
+    }
+    case Object: {
+        QHash<QString, QVariant> hash;
+        for (int i = 0; i < m_children.size(); ++i) {
+            QString name(m_children[i].name());
+            QVariant val = m_children[i].toVariant();
+            hash.insert(name, val);
+        }
+        return hash;
+    }
+    case Array: {
+        QList<QVariant> list;
+        for (int i = 0; i < m_children.size(); ++i) {
+            list.append(m_children[i].toVariant());
+        }
+        return list;
+    }
+    case Boolean:
+        return data() == QByteArray("true");
+    case Invalid:
+    case NullObject:
+    default:
+        return QVariant();
+    }
+}
+
 
 void JsonValue::fromString(const QByteArray &ba)
 {
