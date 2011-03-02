@@ -252,8 +252,11 @@ bool ExternalToolModel::setData(const QModelIndex &modelIndex, const QVariant &v
             categories.append(string);
             qSort(categories);
             int newIndex = categories.indexOf(string);
-            if (newIndex != previousIndex)
-                beginMoveRows(QModelIndex(), previousIndex, previousIndex, QModelIndex(), newIndex);
+            if (newIndex != previousIndex) {
+                // we have same parent so we have to do special stuff for beginMoveRows...
+                int beginMoveRowsSpecialIndex = (previousIndex < newIndex ? newIndex + 1 : newIndex);
+                beginMoveRows(QModelIndex(), previousIndex, previousIndex, QModelIndex(), beginMoveRowsSpecialIndex);
+            }
             QList<ExternalTool *> items = m_tools.take(category);
             m_tools.insert(string, items);
             if (newIndex != previousIndex)
