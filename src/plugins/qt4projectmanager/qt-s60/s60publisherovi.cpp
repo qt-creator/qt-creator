@@ -266,7 +266,7 @@ void S60PublisherOvi::updateProFile(const QString &var, const QString &values)
 
     //todo: after ossi has added scope profile writing, make sure the following works
     //QString scope("symbian");
-    ProWriter::addVarValues(profile, &lines, m_qt4project->rootProjectNode()->path(), QStringList() << values, var);
+    ProWriter::addVarValues(profile, &lines, QStringList() << values, var);
 
     if (qfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         qfile.write(lines.join("\n").toLocal8Bit());

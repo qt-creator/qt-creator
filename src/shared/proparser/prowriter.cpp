@@ -175,17 +175,8 @@ static const ushort *skipToken(ushort tok, const ushort *&tokPtr, int &lineNo)
 }
 
 void ProWriter::addVarValues(ProFile *profile, QStringList *lines,
-    const QDir &proFileDir, const QStringList &values, const QString &var,
-    bool valuesAreFiles)
+    const QStringList &values, const QString &var)
 {
-    QStringList valuesToWrite;
-    if (valuesAreFiles) {
-        foreach (const QString &v, values)
-            valuesToWrite << proFileDir.relativeFilePath(v);
-    } else {
-        valuesToWrite = values;
-    }
-
     // Check if variable item exists as child of root item
     const ushort *tokPtr = profile->tokPtr();
     int lineNo = 0;
@@ -213,7 +204,7 @@ void ProWriter::addVarValues(ProFile *profile, QStringList *lines,
                     }
                 }
                 QString added;
-                foreach (const QString &v, valuesToWrite)
+                foreach (const QString &v, values)
                     added += QLatin1String("    ") + v + QLatin1String(" \\\n");
                 added.chop(3);
                 lines->insert(lineNo, added);
@@ -227,9 +218,19 @@ void ProWriter::addVarValues(ProFile *profile, QStringList *lines,
 
     // Create & append new variable item
     QString added = QLatin1Char('\n') + var + QLatin1String(" +=");
-    foreach (const QString &v, valuesToWrite)
+    foreach (const QString &v, values)
         added += QLatin1String(" \\\n    ") + v;
     *lines << added;
+}
+
+void ProWriter::addFiles(ProFile *profile, QStringList *lines,
+    const QDir &proFileDir, const QStringList &values, const QString &var)
+{
+    QStringList valuesToWrite;
+    foreach (const QString &v, values)
+        valuesToWrite << proFileDir.relativeFilePath(v);
+
+    addVarValues(profile, lines, valuesToWrite, var);
 }
 
 static void findProVariables(const ushort *tokPtr, const QStringList &vars,
@@ -256,24 +257,16 @@ static void findProVariables(const ushort *tokPtr, const QStringList &vars,
     }
 }
 
-QStringList ProWriter::removeVarValues(ProFile *profile, QStringList *lines,
-    const QDir &proFileDir, const QStringList &values, const QStringList &vars,
-    bool valuesAreFiles)
+QList<int> ProWriter::removeVarValues(ProFile *profile, QStringList *lines,
+    const QStringList &values, const QStringList &vars)
 {
-    QStringList notChanged = values;
+    QList<int> notChanged;
+    // yeah, this is a bit silly
+    for (int i = 0; i < values.size(); i++)
+        notChanged << i;
 
     QList<int> varLines;
     findProVariables(profile->tokPtr(), vars, &varLines);
-
-    QStringList valuesToFind;
-    if (valuesAreFiles) {
-        // This is a tad stupid - basically, it can remove only entries which
-        // the above code added.
-        foreach (const QString &absoluteFilePath, values)
-            valuesToFind << proFileDir.relativeFilePath(absoluteFilePath);
-    } else {
-        valuesToFind = values;
-    }
 
     // This code expects proVars to be sorted by the variables' appearance in the file.
     int delta = 1;
@@ -326,9 +319,9 @@ QStringList ProWriter::removeVarValues(ProFile *profile, QStringList *lines,
                        colNo++;
                    }
                    const QString fn = line.mid(varCol, colNo - varCol);
-                   const int pos = valuesToFind.indexOf(fn);
+                   const int pos = values.indexOf(fn);
                    if (pos != -1) {
-                       notChanged.removeOne(values.at(pos));
+                       notChanged.removeOne(pos);
                        if (colNo < lineLen)
                            colNo++;
                        else if (varCol)
@@ -378,5 +371,20 @@ QStringList ProWriter::removeVarValues(ProFile *profile, QStringList *lines,
        }
      nextVar: ;
     }
+    return notChanged;
+}
+
+QStringList ProWriter::removeFiles(ProFile *profile, QStringList *lines,
+    const QDir &proFileDir, const QStringList &values, const QStringList &vars)
+{
+    // This is a tad stupid - basically, it can remove only entries which
+    // the above code added.
+    QStringList valuesToFind;
+    foreach (const QString &absoluteFilePath, values)
+        valuesToFind << proFileDir.relativeFilePath(absoluteFilePath);
+
+    QStringList notChanged;
+    foreach (int i, removeVarValues(profile, lines, valuesToFind, vars))
+        notChanged.append(values.at(i));
     return notChanged;
 }
