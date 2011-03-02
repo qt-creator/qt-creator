@@ -1129,6 +1129,9 @@
 
     To view lists of files or projects, instead, select \gui {File System},
     \gui {Open Documents}, or \gui Projects in the menu.
+    To view several types of content at a time, split the sidebar by clicking
+    \inlineimage qtcreator-splitbar.png
+    .
 
     \section2 Switching Parent Elements
 
