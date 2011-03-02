@@ -198,11 +198,12 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         m_ui.checkBoxUseCoreSearch);
 
     connect(m_ui.pushButtonCopyTextEditorSettings, SIGNAL(clicked()),
-        this, SLOT(copyTextEditorSettings()));
+        SLOT(copyTextEditorSettings()));
     connect(m_ui.pushButtonSetQtStyle, SIGNAL(clicked()),
-        this, SLOT(setQtStyle()));
+        SLOT(setQtStyle()));
     connect(m_ui.pushButtonSetPlainStyle, SIGNAL(clicked()),
-        this, SLOT(setPlainStyle()));
+        SLOT(setPlainStyle()));
+
     if (m_searchKeywords.isEmpty()) {
         QLatin1Char sep(' ');
         QTextStream(&m_searchKeywords)
@@ -674,6 +675,9 @@ private slots:
     void indentRegion(int beginLine, int endLine, QChar typedChar);
     void handleExCommand(bool *handled, const ExCommand &cmd);
 
+    void writeSettings();
+    void readSettings();
+
     void handleDelayedQuitAll(bool forced);
     void handleDelayedQuit(bool forced, Core::IEditor *editor);
 
@@ -699,14 +703,11 @@ private:
     void triggerAction(const QString &code);
     void setActionChecked(const QString &code, bool check);
 
-    void readSettings(QSettings *settings);
-    void writeSettings(QSettings *settings);
-
     typedef int (*DistFunction)(const QRect &cursor, const QRect &other);
     void moveSomewhere(DistFunction f);
 
     CommandMap &exCommandMap() { return m_exCommandMap; }
-    CommandMap &defaultExCommandMap() { return m_exCommandMap; }
+    CommandMap &defaultExCommandMap() { return m_defaultExCommandMap; }
     CommandMap m_exCommandMap;
     CommandMap m_defaultExCommandMap;
     Core::StatusBarWidget *m_statusBar;
@@ -754,8 +755,6 @@ void FakeVimPluginPrivate::onCoreAboutToClose()
 
 void FakeVimPluginPrivate::aboutToShutdown()
 {
-    theFakeVimSettings()->writeSettings(ICore::instance()->settings());
-    writeSettings(ICore::instance()->settings());
 }
 
 bool FakeVimPluginPrivate::initialize()
@@ -781,11 +780,10 @@ bool FakeVimPluginPrivate::initialize()
 
     m_fakeVimOptionsPage = new FakeVimOptionPage;
     q->addObject(m_fakeVimOptionsPage);
-    theFakeVimSettings()->readSettings(ICore::instance()->settings());
 
     m_fakeVimExCommandsPage = new FakeVimExCommandsPage(this);
     q->addObject(m_fakeVimExCommandsPage);
-    readSettings(core()->settings());
+    readSettings();
 
     Core::Command *cmd = 0;
     cmd = actionManager()->registerAction(theFakeVimSetting(ConfigUseFakeVim),
@@ -824,16 +822,19 @@ static const char *exCommandMapGroup = "FakeVimExCommand";
 static const char *reKey = "RegEx";
 static const char *idKey = "Command";
 
-void FakeVimPluginPrivate::writeSettings(QSettings *settings)
+void FakeVimPluginPrivate::writeSettings()
 {
-    settings->beginWriteArray(_(exCommandMapGroup));
+    QSettings *settings = ICore::instance()->settings();
 
+    theFakeVimSettings()->writeSettings(settings);
+
+    settings->beginWriteArray(_(exCommandMapGroup));
     int count = 0;
     typedef CommandMap::const_iterator Iterator;
     const Iterator end = exCommandMap().constEnd();
     for (Iterator it = exCommandMap().constBegin(); it != end; ++it) {
-        const QString &id = it.key();
-        const QRegExp &re = it.value();
+        const QString id = it.key();
+        const QRegExp re = it.value();
 
         if ((defaultExCommandMap().contains(id) && defaultExCommandMap()[id] != re)
             || (!defaultExCommandMap().contains(id) && !re.pattern().isEmpty())) {
@@ -847,10 +848,13 @@ void FakeVimPluginPrivate::writeSettings(QSettings *settings)
     settings->endArray();
 }
 
-void FakeVimPluginPrivate::readSettings(QSettings *settings)
+void FakeVimPluginPrivate::readSettings()
 {
-    exCommandMap() = defaultExCommandMap();
+    QSettings *settings = ICore::instance()->settings();
 
+    theFakeVimSettings()->readSettings(settings);
+
+    exCommandMap() = defaultExCommandMap();
     int size = settings->beginReadArray(_(exCommandMapGroup));
     for (int i = 0; i < size; ++i) {
         settings->setArrayIndex(i);
@@ -876,7 +880,7 @@ void FakeVimPluginPrivate::maybeReadVimRc()
     QPlainTextEdit editor;
     FakeVimHandler handler(&editor);
     handler.handleCommand("source " + fileName);
-    theFakeVimSettings()->writeSettings(core()->settings());
+    //writeSettings();
     //qDebug() << theFakeVimSetting(ConfigShiftWidth)->value();
 }
 
@@ -1106,34 +1110,37 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
     m_editorToHandler[editor] = handler;
 
     connect(handler, SIGNAL(extraInformationChanged(QString)),
-        this, SLOT(showExtraInformation(QString)));
+        SLOT(showExtraInformation(QString)));
     connect(handler, SIGNAL(commandBufferChanged(QString)),
-        this, SLOT(showCommandBuffer(QString)));
+        SLOT(showCommandBuffer(QString)));
     connect(handler, SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
-        this, SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
+        SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
     connect(handler, SIGNAL(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)),
-        this, SLOT(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)));
+        SLOT(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)));
     connect(handler, SIGNAL(indentRegion(int,int,QChar)),
-        this, SLOT(indentRegion(int,int,QChar)));
+        SLOT(indentRegion(int,int,QChar)));
     connect(handler, SIGNAL(checkForElectricCharacter(bool*,QChar)),
-        this, SLOT(checkForElectricCharacter(bool*,QChar)));
+        SLOT(checkForElectricCharacter(bool*,QChar)));
     connect(handler, SIGNAL(requestSetBlockSelection(bool)),
-        this, SLOT(setBlockSelection(bool)));
+        SLOT(setBlockSelection(bool)));
     connect(handler, SIGNAL(requestHasBlockSelection(bool*)),
-        this, SLOT(hasBlockSelection(bool*)));
+        SLOT(hasBlockSelection(bool*)));
     connect(handler, SIGNAL(completionRequested()),
-        this, SLOT(triggerCompletions()));
+        SLOT(triggerCompletions()));
     connect(handler, SIGNAL(simpleCompletionRequested(QString,bool)),
-        this, SLOT(triggerSimpleCompletions(QString,bool)));
+        SLOT(triggerSimpleCompletions(QString,bool)));
     connect(handler, SIGNAL(windowCommandRequested(int)),
-        this, SLOT(windowCommand(int)));
+        SLOT(windowCommand(int)));
     connect(handler, SIGNAL(findRequested(bool)),
-        this, SLOT(find(bool)));
+        SLOT(find(bool)));
     connect(handler, SIGNAL(findNextRequested(bool)),
-        this, SLOT(findNext(bool)));
+        SLOT(findNext(bool)));
 
     connect(handler, SIGNAL(handleExCommandRequested(bool*,ExCommand)),
-        this, SLOT(handleExCommand(bool*,ExCommand)));
+        SLOT(handleExCommand(bool*,ExCommand)));
+
+    connect(core(), SIGNAL(saveSettingsRequested()),
+        SLOT(writeSettings()));
 
     handler->setCurrentFileName(editor->file()->fileName());
     handler->installEventFilter();
