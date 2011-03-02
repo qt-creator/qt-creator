@@ -1153,6 +1153,12 @@
     The \gui Items pane displays the QML elements grouped by type: your own QML
     components, basic elements, interaction elements, views, and widgets.
 
+    Sets of UI components with the MeeGo and Symbian look and feel have been
+    defined for Qt Quick. They are based on standard QML elements. To view the
+    UI components in \gui {QML Components}, click
+    \inlineimage qtcreator-filter.png
+    and select \gui {MeeGo Components} or \gui {Symbian Components}.
+
     \image qmldesigner-qml-components.png "QML Components pane"
 
     The \gui {Resources} pane displays the images and other files that you copy to
