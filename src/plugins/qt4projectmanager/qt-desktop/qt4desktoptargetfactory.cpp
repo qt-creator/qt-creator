@@ -32,6 +32,7 @@
 **************************************************************************/
 
 #include "qt4desktoptargetfactory.h"
+#include "buildconfigurationinfo.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4project.h"
 #include "qt4runconfiguration.h"
@@ -102,7 +103,7 @@ bool Qt4DesktopTargetFactory::canRestore(ProjectExplorer::Project *parent, const
     return canCreate(parent, idFromMap(map));
 }
 
-Qt4BaseTarget *Qt4DesktopTargetFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
+ProjectExplorer::Target  *Qt4DesktopTargetFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
@@ -146,7 +147,7 @@ QList<BuildConfigurationInfo> Qt4DesktopTargetFactory::availableBuildConfigurati
     return infoList;
 }
 
-Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtVersionNumber &number, bool importEnabled, QList<BuildConfigurationInfo> importInfos)
+ Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtVersionNumber &number, bool importEnabled, QList<BuildConfigurationInfo> importInfos)
 {
     Qt4DefaultTargetSetupWidget *widget
             = static_cast<Qt4DefaultTargetSetupWidget *>(
@@ -158,7 +159,7 @@ Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QSt
     return widget;
 }
 
-Qt4BaseTarget *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
+ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -183,7 +184,7 @@ bool Qt4DesktopTargetFactory::isMobileTarget(const QString &id)
     return false;
 }
 
-Qt4BaseTarget *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos)
+ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos)
 {
     if (!canCreate(parent, id))
         return 0;

@@ -32,6 +32,7 @@
 **************************************************************************/
 
 #include "qt4simulatortargetfactory.h"
+#include "buildconfigurationinfo.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4project.h"
 #include "qt4runconfiguration.h"
@@ -103,7 +104,7 @@ bool Qt4SimulatorTargetFactory::canRestore(ProjectExplorer::Project *parent, con
     return canCreate(parent, idFromMap(map));
 }
 
-Qt4BaseTarget *Qt4SimulatorTargetFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
+ProjectExplorer::Target *Qt4SimulatorTargetFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
@@ -151,7 +152,7 @@ bool Qt4SimulatorTargetFactory::isMobileTarget(const QString &id)
     return true;
 }
 
-Qt4BaseTarget *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
+ProjectExplorer::Target *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -169,7 +170,7 @@ Qt4BaseTarget *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *paren
     return create(parent, id, infos);
 }
 
-Qt4BaseTarget *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos)
+ProjectExplorer::Target *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos)
 {
     if (!canCreate(parent, id))
         return 0;

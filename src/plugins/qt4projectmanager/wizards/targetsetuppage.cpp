@@ -34,11 +34,12 @@
 #include "targetsetuppage.h"
 
 #include "ui_targetsetuppage.h"
-
+#include "buildconfigurationinfo.h"
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4target.h"
 #include "qtversionmanager.h"
+#include "qt4basetargetfactory.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/task.h>
@@ -199,19 +200,15 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
             }
         }
 
-        Qt4BaseTarget *target = factory->create(project, it.key(), it.value());
-        if (target)
+        if (ProjectExplorer::Target *target = factory->create(project, it.key(), it.value()))
             project->addTarget(target);
     }
 
     // Create a desktop target if nothing else was set up:
     if (project->targets().isEmpty()) {
-        Qt4BaseTargetFactory *tf = Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(Constants::DESKTOP_TARGET_ID);
-        if (tf) {
-            Qt4BaseTarget *target = tf->create(project, Constants::DESKTOP_TARGET_ID);
-            if (target)
+        if (Qt4BaseTargetFactory *tf = Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(Constants::DESKTOP_TARGET_ID))
+            if (ProjectExplorer::Target *target = tf->create(project, Constants::DESKTOP_TARGET_ID))
                 project->addTarget(target);
-        }
     }
 
     // Select active target

@@ -32,6 +32,7 @@
 **************************************************************************/
 
 #include "qt4maemotargetfactory.h"
+#include "buildconfigurationinfo.h"
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt-maemo/maemodeploystep.h"
@@ -110,7 +111,7 @@ bool Qt4MaemoTargetFactory::canRestore(ProjectExplorer::Project *parent, const Q
     return canCreate(parent, idFromMap(map));
 }
 
-Qt4BaseTarget *Qt4MaemoTargetFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
+ProjectExplorer::Target *Qt4MaemoTargetFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
@@ -171,7 +172,7 @@ bool Qt4MaemoTargetFactory::isMobileTarget(const QString &id)
     return true;
 }
 
-Qt4BaseTarget *Qt4MaemoTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
+ProjectExplorer::Target *Qt4MaemoTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -190,7 +191,7 @@ Qt4BaseTarget *Qt4MaemoTargetFactory::create(ProjectExplorer::Project *parent, c
     return create(parent, id, infos);
 }
 
-Qt4BaseTarget *Qt4MaemoTargetFactory::create(ProjectExplorer::Project *parent,
+ProjectExplorer::Target *Qt4MaemoTargetFactory::create(ProjectExplorer::Project *parent,
     const QString &id, const QList<BuildConfigurationInfo> &infos)
 {
     if (!canCreate(parent, id))

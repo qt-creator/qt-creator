@@ -32,11 +32,12 @@
 **************************************************************************/
 
 #include "qt4target.h"
+#include "buildconfigurationinfo.h"
 
 #include "makestep.h"
 #include "qmakestep.h"
 #include "qt4project.h"
-#include "qt4projectmanagerconstants.h"
+#include "qt4basetargetfactory.h"
 #include "qt4projectconfigwidget.h"
 
 #include <coreplugin/icore.h>
@@ -85,7 +86,7 @@ Qt4TargetSetupWidget *Qt4BaseTargetFactory::createTargetSetupWidget(const QStrin
     return new Qt4DefaultTargetSetupWidget(this, id, proFilePath, infos, number, importEnabled, importInfos);
 }
 
-Qt4BaseTarget *Qt4BaseTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, Qt4TargetSetupWidget *widget)
+ProjectExplorer::Target *Qt4BaseTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, Qt4TargetSetupWidget *widget)
 {
     if (!widget->isTargetSelected())
         return 0;
@@ -264,8 +265,8 @@ void Qt4BaseTarget::emitProFileEvaluateNeeded()
 // Qt4TargetSetupWidget
 // -------------------------------------------------------------------------
 
-Qt4TargetSetupWidget::Qt4TargetSetupWidget()
-    : QWidget(0)
+Qt4TargetSetupWidget::Qt4TargetSetupWidget(QWidget *parent)
+    : QWidget(parent)
 {
 
 }

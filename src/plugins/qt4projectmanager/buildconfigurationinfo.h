@@ -31,40 +31,39 @@
 **
 **************************************************************************/
 
-#ifndef QT4MAEMOTARGETFACTORY_H
-#define QT4MAEMOTARGETFACTORY_H
+#ifndef BUILDCONFIGURATIONINFO_H
+#define BUILDCONFIGURATIONINFO_H
 
-#include "qt4basetargetfactory.h"
+#include "qtversionmanager.h"
 
 namespace Qt4ProjectManager {
-namespace Internal {
+struct QT4PROJECTMANAGER_EXPORT BuildConfigurationInfo {
+    explicit BuildConfigurationInfo()
+        : version(0), buildConfig(QtVersion::QmakeBuildConfig(0)), importing(false), temporaryQtVersion(false)
+    {}
 
-class Qt4MaemoTargetFactory : public Qt4BaseTargetFactory
-{
-    Q_OBJECT
-public:
-    Qt4MaemoTargetFactory(QObject *parent = 0);
-    ~Qt4MaemoTargetFactory();
+    explicit BuildConfigurationInfo(QtVersion *v, QtVersion::QmakeBuildConfigs bc,
+                                    const QString &aa, const QString &d, bool importing_ = false, bool temporaryQtVersion_ = false) :
+        version(v), buildConfig(bc), additionalArguments(aa), directory(d), importing(importing_), temporaryQtVersion(temporaryQtVersion_)
+    { }
 
-    QStringList supportedTargetIds(ProjectExplorer::Project *parent) const;
-    QString displayNameForId(const QString &id) const;
-    QIcon iconForId(const QString &id) const;
+    bool isValid() const
+    {
+        return version != 0;
+    }
 
-    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
-    bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
-    ProjectExplorer::Target *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
-    QString defaultShadowBuildDirectory(const QString &projectLocation, const QString &id);
+    QtVersion *version;
+    QtVersion::QmakeBuildConfigs buildConfig;
+    QString additionalArguments;
+    QString directory;
+    bool importing;
+    bool temporaryQtVersion;
 
-    bool supportsTargetId(const QString &id) const;
-
-    ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id);
-    ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos);
-
-    QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion);
-    bool isMobileTarget(const QString &id);
+    static QList<BuildConfigurationInfo> importBuildConfigurations(const QString &proFilePath);
+    static BuildConfigurationInfo checkForBuild(const QString &directory, const QString &proFilePath);
+    static QList<BuildConfigurationInfo> filterBuildConfigurationInfos(const QList<BuildConfigurationInfo> &infos, const QString &id);
 };
 
-} // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // QT4MAEMOTARGETFACTORY_H
+#endif // BUILDCONFIGURATIONINFO_H

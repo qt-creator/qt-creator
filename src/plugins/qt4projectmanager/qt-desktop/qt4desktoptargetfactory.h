@@ -34,7 +34,7 @@
 #ifndef QT4DESKTOPTARGETFACTORY_H
 #define QT4DESKTOPTARGETFACTORY_H
 
-#include "qt4target.h"
+#include "qt4basetargetfactory.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -51,7 +51,7 @@ public:
 
     bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
     bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
-    Qt4ProjectManager::Qt4BaseTarget *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
+    ProjectExplorer::Target  *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
     QString defaultShadowBuildDirectory(const QString &projectLocation, const QString &id);
 
     virtual bool supportsTargetId(const QString &id) const;
@@ -59,8 +59,8 @@ public:
     Qt4TargetSetupWidget *createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion, bool importEnabled, QList<BuildConfigurationInfo> importInfos);
     bool isMobileTarget(const QString &id);
     QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion);
-    Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id);
-    Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos);
+    ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id);
+    ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos);
 
 };
 }

@@ -31,40 +31,32 @@
 **
 **************************************************************************/
 
-#ifndef QT4MAEMOTARGETFACTORY_H
-#define QT4MAEMOTARGETFACTORY_H
+#ifndef QT4TARGETSETUPWIDGET_H
+#define QT4TARGETSETUPWIDGET_H
 
-#include "qt4basetargetfactory.h"
+#include "qt4projectmanager_global.h"
+
+#include <QtGui/QWidget>
 
 namespace Qt4ProjectManager {
-namespace Internal {
+struct BuildConfigurationInfo;
 
-class Qt4MaemoTargetFactory : public Qt4BaseTargetFactory
+class QT4PROJECTMANAGER_EXPORT Qt4TargetSetupWidget : public QWidget
 {
     Q_OBJECT
 public:
-    Qt4MaemoTargetFactory(QObject *parent = 0);
-    ~Qt4MaemoTargetFactory();
+    explicit Qt4TargetSetupWidget(QWidget *parent = 0);
+    ~Qt4TargetSetupWidget();
+    virtual bool isTargetSelected() const = 0;
+    virtual void setTargetSelected(bool b) = 0;
+    virtual void setProFilePath(const QString &proFilePath) = 0;
+    virtual QList<BuildConfigurationInfo> usedImportInfos() = 0;
 
-    QStringList supportedTargetIds(ProjectExplorer::Project *parent) const;
-    QString displayNameForId(const QString &id) const;
-    QIcon iconForId(const QString &id) const;
-
-    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
-    bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
-    ProjectExplorer::Target *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
-    QString defaultShadowBuildDirectory(const QString &projectLocation, const QString &id);
-
-    bool supportsTargetId(const QString &id) const;
-
-    ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id);
-    ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos);
-
-    QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion);
-    bool isMobileTarget(const QString &id);
+signals:
+    void selectedToggled() const;
+    void newImportBuildConfiguration(const BuildConfigurationInfo &info);
 };
 
-} // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // QT4MAEMOTARGETFACTORY_H
+#endif // QT4TARGETSETUPWIDGET_H

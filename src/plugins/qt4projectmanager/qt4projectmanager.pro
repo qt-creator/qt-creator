@@ -71,7 +71,10 @@ HEADERS += \
     qmldebugginglibrary.h \
     profilecompletion.h \
     profilekeywords.h \
-    debugginghelperbuildtask.h
+    debugginghelperbuildtask.h \
+    qt4targetsetupwidget.h \
+    qt4basetargetfactory.h \
+    buildconfigurationinfo.h
 SOURCES += qt4projectmanagerplugin.cpp \
     qtparser.cpp \
     qt4projectmanager.cpp \

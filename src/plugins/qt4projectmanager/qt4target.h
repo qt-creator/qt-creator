@@ -35,6 +35,7 @@
 #define QT4TARGET_H
 
 #include "qt4buildconfiguration.h"
+#include "qt4targetsetupwidget.h"
 #include "qtversionmanager.h"
 
 #include <projectexplorer/target.h>
@@ -55,40 +56,12 @@ class QPushButton;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
-
 class Qt4Project;
+class Qt4BaseTargetFactory;
 
 namespace Internal {
 class Qt4ProFileNode;
 }
-
-struct BuildConfigurationInfo {
-    explicit BuildConfigurationInfo()
-        : version(0), buildConfig(QtVersion::QmakeBuildConfig(0)), importing(false), temporaryQtVersion(false)
-    {}
-
-    explicit BuildConfigurationInfo(QtVersion *v, QtVersion::QmakeBuildConfigs bc,
-                                    const QString &aa, const QString &d, bool importing_ = false, bool temporaryQtVersion_ = false) :
-        version(v), buildConfig(bc), additionalArguments(aa), directory(d), importing(importing_), temporaryQtVersion(temporaryQtVersion_)
-    { }
-
-    bool isValid() const
-    {
-        return version != 0;
-    }
-
-    QtVersion *version;
-    QtVersion::QmakeBuildConfigs buildConfig;
-    QString additionalArguments;
-    QString directory;
-    bool importing;
-    bool temporaryQtVersion;
-
-
-    static QList<BuildConfigurationInfo> importBuildConfigurations(const QString &proFilePath);
-    static BuildConfigurationInfo checkForBuild(const QString &directory, const QString &proFilePath);
-    static QList<BuildConfigurationInfo> filterBuildConfigurationInfos(const QList<BuildConfigurationInfo> &infos, const QString &id);
-};
 
 class Qt4BaseTarget : public ProjectExplorer::Target
 {
@@ -130,53 +103,6 @@ private slots:
     void onAddedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void onProFileEvaluateNeeded(Qt4ProjectManager::Qt4BuildConfiguration *bc);
     void emitProFileEvaluateNeeded();
-};
-
-class QT4PROJECTMANAGER_EXPORT Qt4TargetSetupWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    Qt4TargetSetupWidget();
-    ~Qt4TargetSetupWidget();
-    virtual bool isTargetSelected() const = 0;
-    virtual void setTargetSelected(bool b) = 0;
-    virtual void setProFilePath(const QString &proFilePath) = 0;
-    virtual QList<BuildConfigurationInfo> usedImportInfos() = 0;
-signals:
-    void selectedToggled() const;
-    void newImportBuildConfiguration(const BuildConfigurationInfo &info);
-};
-
-class QT4PROJECTMANAGER_EXPORT Qt4BaseTargetFactory : public ProjectExplorer::ITargetFactory
-{
-    Q_OBJECT
-public:
-    Qt4BaseTargetFactory(QObject *parent);
-    ~Qt4BaseTargetFactory();
-
-    virtual Qt4TargetSetupWidget *createTargetSetupWidget(const QString &id,
-                                                          const QString &proFilePath,
-                                                          const QtVersionNumber &minimumQtVersion,
-                                                          bool importEnabled,
-                                                          QList<BuildConfigurationInfo> importInfos);
-
-    virtual QString defaultShadowBuildDirectory(const QString &projectLocation, const QString &id) =0;
-    /// used by the default implementation of createTargetSetupWidget
-    /// not needed otherwise
-    virtual QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion) = 0;
-    /// only used in the TargetSetupPage
-    virtual QIcon iconForId(const QString &id) const = 0;
-
-    virtual bool isMobileTarget(const QString &id) = 0;
-
-    virtual Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id) = 0;
-    virtual Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos) = 0;
-    virtual Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id, Qt4TargetSetupWidget *widget);
-
-    static Qt4BaseTargetFactory *qt4BaseTargetFactoryForId(const QString &id);
-
-protected:
-    static QString msgBuildConfigurationName(const BuildConfigurationInfo &info);
 };
 
 class Qt4DefaultTargetSetupWidget : public Qt4TargetSetupWidget
