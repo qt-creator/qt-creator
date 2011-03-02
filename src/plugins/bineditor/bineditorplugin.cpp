@@ -224,7 +224,7 @@ public:
         if (offset < static_cast<quint64>(file.size())
             && file.open(QIODevice::ReadOnly)) {
             m_fileName = fileName;
-            m_editor->setSizes(offset, file.size(), true);
+            m_editor->setSizes(offset, file.size());
             m_editor->editor()->setDisplayName(QFileInfo(fileName).fileName());
             file.close();
             return true;
