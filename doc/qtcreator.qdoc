@@ -1367,6 +1367,17 @@
     \inlineimage qmldesigner-only-select-items-with-content.png
     button.
 
+    \section2 Previewing Element Size
+
+    The width and height of the root item in a QML file determine the size of
+    the QML element. To experiment with different sizes, enter values in the
+    \gui Height and \gui Width fields on the canvas toolbar. The changes are
+    displayed in the \gui States pane and on the canvas, but the property
+    values are not changed permanently in the QML file. You can permanently
+    change the property values in the \gui Properties pane.
+
+    \image qmldesigner-preview-size.png "Canvas width and height"
+
 */
 
 
