@@ -54,6 +54,8 @@ public:
     bool openDesignMode;
     int itemSpacing;
     int snapMargin;    
+    int canvasWidth;
+    int canvasHeight;
 };
 
 inline bool operator==(const DesignerSettings &s1, const DesignerSettings &s2)

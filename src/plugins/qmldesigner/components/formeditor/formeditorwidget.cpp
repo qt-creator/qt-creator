@@ -244,6 +244,17 @@ void FormEditorWidget::updateActions()
     }
 }
 
+
+void FormEditorWidget::resetView()
+{
+    setRootItemRect(QRectF());
+}
+
+void FormEditorWidget::centerScene()
+{
+    m_graphicsView->centerOn(rootItemRect().center());
+}
+
 ZoomAction *FormEditorWidget::zoomAction() const
 {
     return m_zoomAction.data();

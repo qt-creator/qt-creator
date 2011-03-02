@@ -80,6 +80,10 @@ public:
 
     void updateActions();
 
+    void resetView();
+    void centerScene();
+
+
 protected:
     void enterEvent(QEvent *event);
     void wheelEvent(QWheelEvent *event);

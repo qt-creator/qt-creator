@@ -76,6 +76,12 @@ public:
 
     void updateAllFormEditorItems();
 
+    void setupScene();
+    void resetScene();
+
+    double canvasWidth() const;
+    double canvasHeight() const;
+
     bool hasItemForQmlItemNode(const QmlItemNode &qmlItemNode) const;
 
     void synchronizeTransformation(const QmlItemNode &qmlItemNode);

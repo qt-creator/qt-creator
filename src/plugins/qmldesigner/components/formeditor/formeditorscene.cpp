@@ -36,6 +36,10 @@
 #include "formeditorwidget.h"
 #include "formeditoritem.h"
 #include "movemanipulator.h"
+#include "qmldesignerplugin.h"
+#include "designersettings.h"
+
+
 #include <metainfo.h>
 #include <QGraphicsSceneDragDropEvent>
 
@@ -60,18 +64,13 @@ namespace QmlDesigner {
 FormEditorScene::FormEditorScene(FormEditorWidget *view, FormEditorView *editorView)
         : QGraphicsScene(),
         m_editorView(editorView),
-        m_formLayerItem(new LayerItem(this)),
-        m_manipulatorLayerItem(new LayerItem(this)),
         m_paintMode(NormalMode),
         m_showBoundingRects(true)
 {
-    m_manipulatorLayerItem->setZValue(1.0);
-    m_formLayerItem->setZValue(0.0);
-    m_formLayerItem->setFlag(QGraphicsItem::ItemClipsChildrenToShape, false);
+    setupScene();
     view->setScene(this);
     setItemIndexMethod(QGraphicsScene::NoIndex);
-
-//    setItemIndexMethod(QGraphicsScene::NoIndex);
+    setSceneRect(-canvasWidth()/2., -canvasHeight()/2., canvasWidth(), canvasHeight());
 }
 
 FormEditorScene::~FormEditorScene()
@@ -81,12 +80,40 @@ FormEditorScene::~FormEditorScene()
 }
 
 
+void FormEditorScene::setupScene()
+{
+    m_formLayerItem = new LayerItem(this);
+    qDebug() << "formLayerItem" << m_formLayerItem.data();
+    m_manipulatorLayerItem = new LayerItem(this);
+    qDebug() << "manipulatorLayerItem" << m_manipulatorLayerItem.data();
+    m_manipulatorLayerItem->setZValue(1.0);
+    m_formLayerItem->setZValue(0.0);
+    m_formLayerItem->setFlag(QGraphicsItem::ItemClipsChildrenToShape, false);
+}
+
+void FormEditorScene::resetScene()
+{
+    foreach(QGraphicsItem *item, m_manipulatorLayerItem->childItems())
+       removeItem(item);
+}
+
 FormEditorItem* FormEditorScene::itemForQmlItemNode(const QmlItemNode &qmlItemNode) const
 {
     Q_ASSERT(hasItemForQmlItemNode(qmlItemNode));
     return m_qmlItemNodeItemHash.value(qmlItemNode);
 }
 
+double FormEditorScene::canvasWidth() const
+{
+    DesignerSettings settings = Internal::BauhausPlugin::pluginInstance()->settings();
+    return settings.canvasWidth;
+}
+
+double FormEditorScene::canvasHeight() const
+{
+    DesignerSettings settings = Internal::BauhausPlugin::pluginInstance()->settings();
+    return settings.canvasHeight;
+}
 
 QList<FormEditorItem*> FormEditorScene::itemsForQmlItemNodes(const QList<QmlItemNode> &nodeList) const
 {

@@ -147,6 +147,8 @@ void FormEditorView::modelAboutToBeDetached(Model *model)
     m_dragTool->clear();
     m_scene->clearFormEditorItems();
     m_formEditorWidget->updateActions();
+    m_formEditorWidget->resetView();
+    scene()->resetScene();
 
     QmlModelView::modelAboutToBeDetached(model);
 }
@@ -451,6 +453,8 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
         if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
             scene()->synchronizeParent(qmlItemNode);
             itemNodeList.append(scene()->itemForQmlItemNode(qmlItemNode));
+            if (qmlItemNode.isRootModelNode())
+                m_formEditorWidget->centerScene();
         }
     }
     currentTool()->instancesCompleted(itemNodeList);
