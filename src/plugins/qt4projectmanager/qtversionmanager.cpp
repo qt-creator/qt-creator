@@ -1587,23 +1587,27 @@ QString QtVersion::resolveLink(const QString &path) const
 
 QString QtVersion::qtCorePath() const
 {
-    QDir libDir(libraryInstallPath());
-    QFileInfoList infoList = libDir.entryInfoList();
-    foreach (const QFileInfo &info, infoList) {
-        const QString file = info.fileName();
-        if (info.isDir()
-                && file.startsWith(QLatin1String("QtCore"))
-                && file.endsWith(QLatin1String(".framework"))) {
-            // handle Framework
-            const QString libName = file.left(file.lastIndexOf('.'));
-            return libDir.absoluteFilePath(file + '/' + libName);
-        }
-        if (info.isReadable()
-                && (file.startsWith(QLatin1String("libQtCore"))
-                    || file.startsWith(QLatin1String("QtCore")))
-                && (file.endsWith(QLatin1String(".dll"))
-                    || file.endsWith(QString::fromLatin1(".so.") + qtVersionString()))) {
-            return info.absoluteFilePath();
+    QList<QDir> dirs;
+    dirs << QDir(libraryInstallPath()) << QDir(versionInfo().value(QLatin1String("QT_INSTALL_BINS")));
+    foreach (const QDir &d, dirs) {
+        QFileInfoList infoList = d.entryInfoList();
+        foreach (const QFileInfo &info, infoList) {
+            const QString file = info.fileName();
+            if (info.isDir()
+                    && file.startsWith(QLatin1String("QtCore"))
+                    && file.endsWith(QLatin1String(".framework"))) {
+                // handle Framework
+                const QString libName = file.left(file.lastIndexOf('.'));
+                return info.absoluteFilePath() + '/' + libName;
+            }
+            if (info.isReadable()
+                    && (file.startsWith(QLatin1String("libQtCore"))
+                        || file.startsWith(QLatin1String("QtCore")))
+                    && (file.endsWith(QLatin1String(".dll"))
+                        || file.endsWith(QString::fromLatin1(".so.") + qtVersionString())
+                        || file.endsWith(".la"))) {
+                return info.absoluteFilePath();
+            }
         }
     }
     return QString();
