@@ -34,13 +34,7 @@
 #ifndef S60PUBLISHINGBUILDSETTINGSPAGEOVI_H
 #define S60PUBLISHINGBUILDSETTINGSPAGEOVI_H
 
-#include "ui_s60publishingbuildsettingspageovi.h"
-#include "qt4buildconfiguration.h"
-
-#include <projectexplorer/buildconfiguration.h>
 #include <QtGui/QWizardPage>
-
-
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -50,6 +44,7 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 class Project;
+class BuildConfiguration;
 }
 
 namespace Qt4ProjectManager {

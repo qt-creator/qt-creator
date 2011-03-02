@@ -30,7 +30,9 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
+
 #include "s60publishingsissettingspageovi.h"
+#include "ui_s60publishingsissettingspageovi.h"
 #include "s60publisherovi.h"
 #include "s60certificateinfo.h"
 

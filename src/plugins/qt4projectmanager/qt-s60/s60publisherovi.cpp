@@ -36,18 +36,21 @@
 #include "s60certificateinfo.h"
 #include "s60manager.h"
 
-#include <qt4projectmanager/qmakestep.h>
-#include <qt4projectmanager/makestep.h>
-#include <qt4projectmanager/qt4project.h>
-#include <profilereader.h>
-#include <projectexplorer/project.h>
-#include <prowriter.h>
-#include <qtversionmanager.h>
+#include "qt4buildconfiguration.h"
+#include "qmakestep.h"
+#include "makestep.h"
+#include "qt4project.h"
+#include "qtversionmanager.h"
+
+#include "profilereader.h"
+#include "prowriter.h"
+
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/buildstep.h>
+
 #include <utils/qtcassert.h>
 
-#include "projectexplorer/buildsteplist.h"
-#include "projectexplorer/buildstep.h"
-#include "projectexplorer/abstractprocessstep.h"
+#include <QtCore/QProcess>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -151,7 +154,7 @@ void S60PublisherOvi::completeCreation()
     m_createSisProc->setWorkingDirectory(m_qt4bc->buildDirectory());
 }
 
-QString S60PublisherOvi::globalVendorName()
+QString S60PublisherOvi::globalVendorName() const
 {
     QStringList vendorinfos = m_reader->values("vendorinfo");
 
@@ -163,7 +166,7 @@ QString S60PublisherOvi::globalVendorName()
     return QString();
 }
 
-QString S60PublisherOvi::localisedVendorNames()
+QString S60PublisherOvi::localisedVendorNames() const
 {
     QStringList vendorinfos = m_reader->values("vendorinfo");
     QString result;
@@ -183,7 +186,7 @@ QString S60PublisherOvi::localisedVendorNames()
     return QString();
 }
 
-bool S60PublisherOvi::isVendorNameValid(const QString &vendorName)
+bool S60PublisherOvi::isVendorNameValid(const QString &vendorName) const
 {
     //Check the given vendor name
     foreach (const QString &rejectedVendorName, m_rejectedVendorNames)
@@ -192,17 +195,17 @@ bool S60PublisherOvi::isVendorNameValid(const QString &vendorName)
     return true;
 }
 
-QString S60PublisherOvi::qtVersion()
+QString S60PublisherOvi::qtVersion() const
 {
     return m_qt4bc->qtVersion()->displayName();
 }
 
-QString S60PublisherOvi::uid3()
+QString S60PublisherOvi::uid3() const
 {
     return m_reader->value("TARGET.UID3");
 }
 
-bool S60PublisherOvi::isUID3Valid(const QString &uid3)
+bool S60PublisherOvi::isUID3Valid(const QString &uid3) const
 {
     bool ok;
     ulong hex = uid3.trimmed().toULong(&ok, 0);
@@ -210,26 +213,26 @@ bool S60PublisherOvi::isUID3Valid(const QString &uid3)
     return ok && (hex >= AssignedRestrictedStart && hex <= AssignedRestrictedEnd);
 }
 
-bool S60PublisherOvi::isTestUID3(const QString &uid3)
+bool S60PublisherOvi::isTestUID3(const QString &uid3) const
 {
     bool ok;
     ulong hex = uid3.trimmed().toULong(&ok, 0);
     return ok && (hex >= TestStart && hex <=TestEnd);
 }
 
-bool S60PublisherOvi::isKnownSymbianSignedUID3(const QString &uid3)
+bool S60PublisherOvi::isKnownSymbianSignedUID3(const QString &uid3) const
 {
     bool ok;
     ulong hex = uid3.trimmed().toULong(&ok, 0);
     return ok && (hex >= SymbianSignedUnprotectedStart && hex <= SymbianSignedUnprotectedEnd);
 }
 
-QString S60PublisherOvi::capabilities()
+QString S60PublisherOvi::capabilities() const
 {
     return m_reader->values("TARGET.CAPABILITY").join(", ");
 }
 
-bool S60PublisherOvi::isCapabilityOneOf(const QString &capability, CapabilityLevel level)
+bool S60PublisherOvi::isCapabilityOneOf(const QString &capability, CapabilityLevel level) const
 {
     QStringList capabilitiesInLevel;
     if (level == CertifiedSigned)

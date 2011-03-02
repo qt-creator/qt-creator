@@ -30,14 +30,17 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
+
 #include "s60publishingbuildsettingspageovi.h"
 #include "s60publisherovi.h"
+#include "ui_s60publishingbuildsettingspageovi.h"
+#include "qt4buildconfiguration.h"
+#include "qt4projectmanagerconstants.h"
 
-#include <QtGui/QAbstractButton>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanagerconstants.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
+
+#include <QtGui/QAbstractButton>
 
 namespace Qt4ProjectManager {
 namespace Internal {

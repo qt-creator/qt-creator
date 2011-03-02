@@ -30,14 +30,15 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
+
 #include "s60publishingwizardfactories.h"
 #include "s60publishingwizardovi.h"
 
-#include <projectexplorer/target.h>
-#include <qt4projectmanager/qmakestep.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include "qmakestep.h"
+#include "qt4project.h"
+#include "qt4projectmanagerconstants.h"
 
+#include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;
 

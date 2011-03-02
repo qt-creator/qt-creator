@@ -34,8 +34,6 @@
 #ifndef S60PUBLISHINGSISSETTINGSPAGEOVI_H
 #define S60PUBLISHINGSISSETTINGSPAGEOVI_H
 
-#include "ui_s60publishingsissettingspageovi.h"
-
 #include <QtGui/QWizardPage>
 
 QT_BEGIN_NAMESPACE

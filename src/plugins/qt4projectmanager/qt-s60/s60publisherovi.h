@@ -34,16 +34,18 @@
 #define S60PUBLISHEROVI_H
 
 #include <QtCore/QObject>
-#include <QtCore/QProcess>
 #include <QtGui/QColor>
 
-#include "qt4buildconfiguration.h"
+QT_BEGIN_NAMESPACE
+class QProcess;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 class Project;
 }
 
 namespace Qt4ProjectManager {
+class Qt4BuildConfiguration;
 class Qt4Project;
 namespace Internal {
 class Qt4SymbianTarget;
@@ -104,19 +106,19 @@ public:
     void cleanUp();
     void completeCreation();
 
-    QString globalVendorName();
-    QString localisedVendorNames();
-    bool isVendorNameValid(const QString &vendorName);
+    QString globalVendorName() const;
+    QString localisedVendorNames() const;
+    bool isVendorNameValid(const QString &vendorName) const;
 
-    QString qtVersion();
+    QString qtVersion() const;
 
-    QString uid3();
-    bool isUID3Valid(const QString &uid3);
-    bool isTestUID3(const QString &uid3);
-    bool isKnownSymbianSignedUID3(const QString &uid3);
+    QString uid3() const;
+    bool isUID3Valid(const QString &uid3) const;
+    bool isTestUID3(const QString &uid3) const;
+    bool isKnownSymbianSignedUID3(const QString &uid3) const;
 
-    QString capabilities();
-    bool isCapabilityOneOf(const QString &capability, CapabilityLevel level);
+    QString capabilities() const;
+    bool isCapabilityOneOf(const QString &capability, CapabilityLevel level) const;
 
     void updateProFile();
     void updateProFile(const QString &var, const QString &values);

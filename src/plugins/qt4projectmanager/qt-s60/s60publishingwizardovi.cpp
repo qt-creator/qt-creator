@@ -38,8 +38,12 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+
 #include "s60publishingwizardovi.h"
 #include "s60publisherovi.h"
+#include "s60publishingbuildsettingspageovi.h"
+#include "s60publishingsissettingspageovi.h"
+#include "s60publishingresultspageovi.h"
 
 using namespace ProjectExplorer;
 

@@ -42,11 +42,7 @@
 #ifndef S60PUBLISHINGWIZARDOVI_H
 #define S60PUBLISHINGWIZARDOVI_H
 
-#include "s60publishingbuildsettingspageovi.h"
-#include "s60publishingsissettingspageovi.h"
-#include "s60publishingresultspageovi.h"
-
-#include <QWizard>
+#include <QtGui/QWizard>
 
 namespace ProjectExplorer {
 class Project;
@@ -55,6 +51,9 @@ class Project;
 namespace Qt4ProjectManager {
 namespace Internal {
 class S60PublisherOvi;
+class S60PublishingBuildSettingsPageOvi;
+class S60PublishingSisSettingsPageOvi;
+class S60PublishingResultsPageOvi;
 
 class S60PublishingWizardOvi : public QWizard
 {
@@ -68,8 +67,8 @@ private:
     S60PublishingBuildSettingsPageOvi *m_buildSettingsPage;
     S60PublishingSisSettingsPageOvi *m_sisSettingsPage;
     S60PublishingResultsPageOvi *m_resultsPage;
-
 };
+
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
