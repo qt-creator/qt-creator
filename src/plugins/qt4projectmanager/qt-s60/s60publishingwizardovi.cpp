@@ -51,7 +51,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 S60PublishingWizardOvi::S60PublishingWizardOvi(const Project *project, QWidget *parent) :
-    QWizard(parent),
+    Wizard(parent),
     m_publisher(new S60PublisherOvi(this))
 {
     setWindowTitle(tr("Publishing to Ovi Store"));

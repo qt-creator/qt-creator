@@ -55,27 +55,26 @@ enum PageId { BuildSettingsPageId, UploadSettingsPageId, ResultPageId };
 
 MaemoPublishingWizardFremantleFree::MaemoPublishingWizardFremantleFree(const Project *project,
     QWidget *parent) :
-    QWizard(parent),
+    Wizard(parent),
     m_project(project),
     m_publisher(new MaemoPublisherFremantleFree(project, this))
 {
     setOption(NoCancelButton, false);
-    const QString titleText
-        = tr("Publishing to Fremantle's \"Extras-devel free\" Repository");
+    setWindowTitle(tr("Publishing to Fremantle's \"Extras-devel free\" Repository"));
+
     m_buildSettingsPage
         = new MaemoPublishingBuildSettingsPageFremantleFree(project, m_publisher);
-    m_buildSettingsPage->setTitle(titleText);
-    m_buildSettingsPage->setSubTitle(tr("Build Settings"));
+    m_buildSettingsPage->setTitle(tr("Build Settings"));
     setPage(BuildSettingsPageId, m_buildSettingsPage);
+
     m_uploadSettingsPage
         = new MaemoPublishingUploadSettingsPageFremantleFree(m_publisher);
-    m_uploadSettingsPage->setTitle(titleText);
-    m_uploadSettingsPage->setSubTitle(tr("Upload Settings"));
+    m_uploadSettingsPage->setTitle(tr("Upload Settings"));
     m_uploadSettingsPage->setCommitPage(true);
     setPage(UploadSettingsPageId, m_uploadSettingsPage);
+
     m_resultPage = new MaemoPublishingResultPageFremantleFree(m_publisher);
-    m_resultPage->setTitle(titleText);
-    m_resultPage->setSubTitle(tr("Result"));
+    m_resultPage->setTitle(tr("Result"));
     setPage(ResultPageId, m_resultPage);
 }
 

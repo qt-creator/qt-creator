@@ -41,7 +41,7 @@
 #ifndef MAEMOPUBLISHINGWIZARDFREMANTLEFREE_H
 #define MAEMOPUBLISHINGWIZARDFREMANTLEFREE_H
 
-#include <QtGui/QWizard>
+#include <utils/wizard.h>
 
 namespace ProjectExplorer {
 class Project;
@@ -54,7 +54,7 @@ class MaemoPublisherFremantleFree;
 class MaemoPublishingUploadSettingsPageFremantleFree;
 class MaemoPublishingBuildSettingsPageFremantleFree;
 
-class MaemoPublishingWizardFremantleFree : public QWizard
+class MaemoPublishingWizardFremantleFree : public Utils::Wizard
 {
     Q_OBJECT
 public:

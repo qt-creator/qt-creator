@@ -169,7 +169,7 @@ void S60PublishingSisSettingsPageOvi::localisedVendorNamesChanged()
                            "It is recommended to also not use the default name of 'Vendor'/'Vendor-EN', or to leave the entry blank. <br>"
                            "see <a href=\"http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml\">Packaging and Signing</a> for guidelines.<br>")
                         .arg(wrongVendorNames.join(", ")));
-    m_publisher->setVendorName(ui->localisedVendorNamesLineEdit->text());
+    m_publisher->setLocalVendorNames(ui->localisedVendorNamesLineEdit->text());
 }
 
 void S60PublishingSisSettingsPageOvi::qtVersionChanged()

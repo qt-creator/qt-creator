@@ -42,7 +42,7 @@
 #ifndef S60PUBLISHINGWIZARDOVI_H
 #define S60PUBLISHINGWIZARDOVI_H
 
-#include <QtGui/QWizard>
+#include <utils/wizard.h>
 
 namespace ProjectExplorer {
 class Project;
@@ -55,7 +55,7 @@ class S60PublishingBuildSettingsPageOvi;
 class S60PublishingSisSettingsPageOvi;
 class S60PublishingResultsPageOvi;
 
-class S60PublishingWizardOvi : public QWizard
+class S60PublishingWizardOvi : public Utils::Wizard
 {
     Q_OBJECT
 public:

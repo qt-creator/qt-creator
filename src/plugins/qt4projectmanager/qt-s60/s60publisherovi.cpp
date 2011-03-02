@@ -108,9 +108,9 @@ void S60PublisherOvi::setVendorName(const QString &vendorName)
     m_vendorName = vendorName;
 }
 
-void S60PublisherOvi::setLocalVendorName(const QString &localVendorName)
+void S60PublisherOvi::setLocalVendorNames(const QString &localVendorNames)
 {
-    m_localVendorName = localVendorName;
+    m_localVendorNames = localVendorNames;
 }
 
 void S60PublisherOvi::setAppUid(const QString &appuid)
@@ -271,7 +271,7 @@ void S60PublisherOvi::updateProFile(const QString &var, const QString &values)
 
 void S60PublisherOvi::updateProFile()
 {
-    updateProFile("vendorinfo","%{\""+ m_vendorName + "\"} :\""+ m_localVendorName+ "\"");
+    updateProFile("vendorinfo", "\"%{\\\"" + m_localVendorNames + "\\\"}\" \":\\\"" + m_vendorName + "\\\"\"" );
     updateProFile("TARGET.UID3", m_appUid);
 }
 

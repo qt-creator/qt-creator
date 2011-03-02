@@ -130,7 +130,7 @@ public:
     bool hasSucceeded();
 
     void setVendorName(const QString &vendorName);
-    void setLocalVendorName(const QString &localVendorName);
+    void setLocalVendorNames(const QString &localVendorNames);
     void setAppUid(const QString &appuid);
 
 signals:
@@ -163,7 +163,7 @@ private:
     QStringList m_capabilitiesForCertifiedSigned;
     QStringList m_capabilitesForManufacturerApproved;
     QString m_vendorName;
-    QString m_localVendorName;
+    QString m_localVendorNames;
     QString m_appUid;
 
     bool m_finishedAndSuccessful;
