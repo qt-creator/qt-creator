@@ -10328,6 +10328,16 @@
 
     \endlist
 
+    \section1 Qt Quick Designer Issues
+
+    \list
+
+        \o  \QMLD uses external processes (QML Puppet) to render and preview
+            images and to collect data. Executing C++ code might cause the QML
+            Puppet to crash. If it crashes, an error message is displayed and
+            you can continue editing the QML file in the code editor.
+
+    \endlist
 */
 
 
