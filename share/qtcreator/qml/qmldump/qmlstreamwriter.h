@@ -31,6 +31,9 @@
 **
 **************************************************************************/
 
+// WARNING: This code is shared with the qmlplugindump tool code in Qt.
+//          Modifications to this file need to be applied there.
+
 #ifndef QMLSTREAMWRITER_H
 #define QMLSTREAMWRITER_H
 

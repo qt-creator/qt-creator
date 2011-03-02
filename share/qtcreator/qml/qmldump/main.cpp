@@ -31,6 +31,9 @@
 **
 **************************************************************************/
 
+// WARNING: This code is shared with the qmlplugindump tool code in Qt.
+//          Modifications to this file need to be applied there.
+
 #include <QtDeclarative/QtDeclarative>
 #include <QtDeclarative/private/qdeclarativemetatype_p.h>
 #include <QtDeclarative/private/qdeclarativeopenmetaobject_p.h>
