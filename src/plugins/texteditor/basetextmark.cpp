@@ -73,6 +73,11 @@ public:
     {
         m_parent->documentClosingFor(this);
     }
+
+    virtual Priority priority() const
+    {
+        return m_parent->priority();
+    }
 private:
     BaseTextMark *m_parent;
 };

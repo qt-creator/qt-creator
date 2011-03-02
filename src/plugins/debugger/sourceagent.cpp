@@ -84,6 +84,8 @@ public:
     void updateBlock(const QTextBlock & /*block*/) {}
     void removedFromEditor() {}
     void documentClosing() {}
+    TextEditor::ITextMark::Priority priority() const
+        { return TextEditor::ITextMark::HighPriority; }
 };
 
 class SourceAgentPrivate

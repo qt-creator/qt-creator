@@ -78,6 +78,8 @@ public:
     void updateBlock(const QTextBlock & /*block*/) {}
     void removedFromEditor() {}
     void documentClosing() {}
+    TextEditor::ITextMark::Priority priority() const
+        { return TextEditor::ITextMark::HighPriority; }
 };
 
 class BreakpointMarker2 : public TextEditor::ITextMark
@@ -90,6 +92,8 @@ public:
     void updateBlock(const QTextBlock &) {}
     void removedFromEditor() {}
     void documentClosing() {}
+    TextEditor::ITextMark::Priority priority() const
+        { return TextEditor::ITextMark::NormalPriority; }
 
 private:
     QIcon m_icon;

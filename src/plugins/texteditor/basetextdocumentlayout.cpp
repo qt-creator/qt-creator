@@ -378,6 +378,17 @@ void TextBlockUserData::setCodeFormatterData(CodeFormatterData *data)
     m_codeFormatterData = data;
 }
 
+void TextBlockUserData::addMark(ITextMark *mark)
+{
+    int i = 0;
+    for ( ; i < m_marks.size(); ++i) {
+        if (mark->priority() < m_marks.at(i)->priority())
+            break;
+    }
+    m_marks.insert(i, mark);
+}
+
+
 BaseTextDocumentLayout::BaseTextDocumentLayout(QTextDocument *doc)
     :QPlainTextDocumentLayout(doc) {
     lastSaveRevision = 0;

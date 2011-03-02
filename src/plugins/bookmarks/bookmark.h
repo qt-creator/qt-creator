@@ -59,6 +59,7 @@ public:
     void updateLineNumber(int lineNumber);
     void updateBlock(const QTextBlock &block);
     void removedFromEditor();
+    TextEditor::ITextMark::Priority priority() const { return TextEditor::ITextMark::LowPriority; }
 
     QString filePath() const;
     QString fileName() const;

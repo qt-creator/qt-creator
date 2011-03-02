@@ -52,6 +52,8 @@ public:
     void updateBlock(const QTextBlock &);
     void removedFromEditor();
     void updateLineNumber(int lineNumber);
+    TextEditor::ITextMark::Priority priority() const { return TextEditor::ITextMark::NormalPriority; }
+
 private:
     BreakpointId m_id;
     friend class BreakHandler;

@@ -67,6 +67,16 @@ public:
     virtual void updateBlock(const QTextBlock &block) = 0;
     virtual void removedFromEditor() = 0;
     virtual void documentClosing() = 0;
+
+    // determine order on markers on the same line.
+    enum Priority
+    {
+        LowPriority,
+        NormalPriority,
+        HighPriority // shown on top.
+    };
+
+    virtual Priority priority() const = 0;
 };
 
 typedef QList<ITextMark *> TextMarks;

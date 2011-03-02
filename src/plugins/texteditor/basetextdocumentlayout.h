@@ -80,7 +80,7 @@ public:
     ~TextBlockUserData();
 
     inline TextMarks marks() const { return m_marks; }
-    inline void addMark(ITextMark *mark) { m_marks += mark; }
+    void addMark(ITextMark *mark);
     inline bool removeMark(ITextMark *mark) { return m_marks.removeAll(mark); }
     inline bool hasMark(ITextMark *mark) const { return m_marks.contains(mark); }
     inline void clearMarks() { m_marks.clear(); }

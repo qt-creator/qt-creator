@@ -143,6 +143,7 @@ public:
     void updateLineNumber(int /*lineNumber*/) {}
     void updateBlock(const QTextBlock & /*block*/) {}
     void removedFromEditor() {}
+    TextEditor::ITextMark::Priority priority() const { return TextEditor::ITextMark::HighPriority; }
 };
 
 

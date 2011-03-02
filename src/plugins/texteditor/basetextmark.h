@@ -35,16 +35,12 @@
 #define BASETEXTMARK_H
 
 #include "texteditor_global.h"
-#include <QtCore/QObject>
+#include "itexteditor.h"
 
 QT_BEGIN_NAMESPACE
 class QIcon;
 class QTextBlock;
 QT_END_NAMESPACE
-
-namespace Core {
-class IEditor;
-}
 
 namespace TextEditor {
 
@@ -82,6 +78,8 @@ public:
     int lineNumber() const { return m_line; }
 
     void moveMark(const QString &filename, int line);
+
+    virtual TextEditor::ITextMark::Priority priority() const = 0;
 
 private slots:
     void init();
