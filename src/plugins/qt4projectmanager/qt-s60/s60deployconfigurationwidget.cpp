@@ -546,7 +546,7 @@ void S60DeployConfigurationWidget::updateDeviceInfo()
         m_codaInfoDevice->sendSymbianOsDataGetQtVersionCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getQtVersionCommandResult));
         m_deviceInfoButton->setEnabled(false);
     } else
-        setDeviceInfoLabel(tr("Currently there is no information about device for this connection type."), true);
+        setDeviceInfoLabel(tr("Currently there is no information about the device for this connection type."), true);
 }
 
  void S60DeployConfigurationWidget::getQtVersionCommandResult(const Coda::CodaCommandResult &result)
@@ -570,7 +570,7 @@ void S60DeployConfigurationWidget::updateDeviceInfo()
 
              startTable(resultString);
              QTextStream str(&resultString);
-             addToTable(str, tr("Qt version: "), ver);
+             addToTable(str, tr("Qt version:"), ver);
              QString systemVersion;
 
              int symVer = obj.value("symbianVersion").toInt();
@@ -620,7 +620,7 @@ void S60DeployConfigurationWidget::updateDeviceInfo()
                  systemVersion.append(tr("Unrecognised S60 version 0x%1").arg(symVer, 0, 16));
                  break;
              }
-             addToTable(str, tr("OS version: "), systemVersion);
+             addToTable(str, tr("OS version:"), systemVersion);
              finishTable(resultString);
          }
          setDeviceInfoLabel(resultString);
@@ -638,7 +638,7 @@ void S60DeployConfigurationWidget::updateDeviceInfo()
          QVariantHash obj = result.values[0].toVariant().toHash();
          QString romVersion = obj.value("romVersion", tr("unknown")).toString();
          romVersion.replace('\n', " "); // The ROM string is split across multiple lines, for some reason.
-         addToTable(str, tr("ROM version: "), romVersion);
+         addToTable(str, tr("ROM version:"), romVersion);
 
          QString pr = obj.value("prInfo").toString();
          if (pr.length())
@@ -668,7 +668,7 @@ void S60DeployConfigurationWidget::updateDeviceInfo()
                      addErrorToTable(str, tr("CODA version: "), tr("Error reading CODA version"));
                  } else {
                      QVariantList version = obj.value("version").toList();
-                     addToTable(str, tr("CODA version: "),
+                     addToTable(str, tr("CODA version:"),
                                 QString("%1.%2.%3").arg(version[0].toInt())
                                                    .arg(version[1].toInt())
                                                    .arg(version[2].toInt()));
@@ -703,7 +703,7 @@ void S60DeployConfigurationWidget::updateDeviceInfo()
          if (x && y) {
              startTable(resultString);
              QTextStream str(&resultString);
-             addToTable(str, tr("Screen size: "), QString("%1x%2").arg(x).arg(y));
+             addToTable(str, tr("Screen size:"), QString("%1x%2").arg(x).arg(y));
              finishTable(resultString);
              setDeviceInfoLabel(resultString);
          }

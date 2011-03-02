@@ -194,7 +194,7 @@ bool VCSBaseClient::vcsFullySynchronousExec(const QString &workingDir,
     if (!Utils::SynchronousProcess::readDataFromProcess(vcsProcess, m_clientSettings.timeoutMilliSeconds(),
                                                         output, &stdErr, true)) {
         Utils::SynchronousProcess::stopProcess(vcsProcess);
-        outputWindow->appendError(VCSJobRunner::msgTimeout(m_clientSettings.timeoutSeconds()));
+        outputWindow->appendError(VCSJobRunner::msgTimeout(binary, m_clientSettings.timeoutSeconds()));
         return false;
     }
     if (!stdErr.isEmpty())

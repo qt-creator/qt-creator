@@ -197,9 +197,9 @@ QString VCSJobRunner::msgStartFailed(const QString &binary, const QString &why)
             arg(QDir::toNativeSeparators(binary), why);
 }
 
-QString VCSJobRunner::msgTimeout(int timeoutSeconds)
+QString VCSJobRunner::msgTimeout(const QString &binary, int timeoutSeconds)
 {
-    return tr("Timed out after %1s waiting for mercurial process to finish.").arg(timeoutSeconds);
+    return tr("Timed out after %1s waiting for the process %2 to finish.").arg(timeoutSeconds).arg(binary);
 }
 
 // Set environment for a VCS process to run in locale "C". Note that there appears
@@ -281,7 +281,7 @@ void VCSJobRunner::task(const QSharedPointer<VCSJob> &job)
 
     if (!Utils::SynchronousProcess::readDataFromProcess(*vcsProcess, m_timeoutMS, &stdOutput, &stdErr, false)) {
         Utils::SynchronousProcess::stopProcess(*vcsProcess);
-        emit error(msgTimeout(m_timeoutMS / 1000));
+        emit error(msgTimeout(m_binary, m_timeoutMS / 1000));
         return;
     }
 

@@ -291,7 +291,8 @@ bool QmlEngine::canDisplayTooltip() const
 
 void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
 {
-    static QString qddserver = QLatin1String("QDeclarativeDebugServer: ");
+    static const QString qddserver = QLatin1String("QDeclarativeDebugServer: ");
+    static const QString cannotRetrieveDebuggingOutput = Utils::AbstractProcess::msgWinCannotRetrieveDebuggingOutput();
 
     const int index = msg.indexOf(qddserver);
     if (index != -1) {
@@ -325,9 +326,8 @@ void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
             QMessageBox *infoBox = new QMessageBox(core->mainWindow());
             infoBox->setIcon(QMessageBox::Critical);
             infoBox->setWindowTitle(tr("Qt Creator"));
-            //: %3 is detailed error message
-            infoBox->setText(tr("Could not connect to the in-process QML debugger:\n"
-                                "%3")
+            //: %1 is detailed error message
+            infoBox->setText(tr("Could not connect to the in-process QML debugger:\n%1")
                              .arg(errorMessage));
             infoBox->setStandardButtons(QMessageBox::Ok | QMessageBox::Help);
             infoBox->setDefaultButton(QMessageBox::Ok);
@@ -338,7 +338,7 @@ void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
 
             infoBox->show();
         }
-    } else if (msg.contains(Utils::AbstractProcess::msgWinCannotRetrieveDebuggingOutput())) {
+    } else if (msg.contains(cannotRetrieveDebuggingOutput)) {
         // we won't get debugging output, so just try to connect ...
         d->m_adapter.beginConnection();
     }
@@ -821,13 +821,14 @@ void QmlEngine::messageReceived(const QByteArray &message)
             QString error;
             stream >> error;
 
-            logString += QLatin1String(" ") + error;
+            logString += QLatin1Char(' ');
+            logString += error;
             logMessage(LogReceive, logString);
 
             QString msg = stackFrames.isEmpty()
-                ? tr("<p>An Uncaught Exception occurred:</p><p>%2</p>")
+                ? tr("<p>An uncaught exception occurred:</p><p>%1</p>")
                     .arg(Qt::escape(error))
-                : tr("<p>An Uncaught Exception occurred in <i>%1</i>:</p><p>%2</p>")
+                : tr("<p>An uncaught exception occurred in <i>%1</i>:</p><p>%2</p>")
                     .arg(stackFrames.value(0).file, Qt::escape(error));
             showMessageBox(QMessageBox::Information, tr("Uncaught Exception"), msg);
         } else {

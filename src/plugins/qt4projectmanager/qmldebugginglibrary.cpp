@@ -76,7 +76,7 @@ bool  QmlDebuggingLibrary::build(const QString &directory, const QString &makeCo
                              const Utils::Environment &env, const QString &targetMode,
                              const QStringList &qmakeArguments, QString *output,  QString *errorMessage)
 {
-    return buildHelper(QCoreApplication::translate("Qt4ProjectManager::QmlDebuggingLibrary", "Qml Debugging"),
+    return buildHelper(QCoreApplication::translate("Qt4ProjectManager::QmlDebuggingLibrary", "QML Debugging"),
                        QLatin1String("qmljsdebugger.pro"),
                        directory, makeCommand, qmakeCommand, mkspec, env, targetMode,
                        qmakeArguments, output, errorMessage);
@@ -111,7 +111,7 @@ QString QmlDebuggingLibrary::copy(const QString &qtInstallData, QString *errorMe
         }
     }
     *errorMessage = QCoreApplication::translate("Qt4ProjectManager::QmlDebuggingLibrary",
-                                                "Qml Debugging library could not be built in any of the directories:\n- %1\n\nReason: %2")
+                                                "QML Debugging library could not be built in any of the directories:\n- %1\n\nReason: %2")
                     .arg(directories.join(QLatin1String("\n- ")), *errorMessage);
     return QString();
 }

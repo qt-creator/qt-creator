@@ -108,7 +108,7 @@ public:
     void restart();
 
     static QString msgStartFailed(const QString &binary, const QString &why);
-    static QString msgTimeout(int timeoutSeconds);
+    static QString msgTimeout(const QString &binary, int timeoutSeconds);
 
     // Set environment for a VCS process to run in locale "C"
     static void setProcessEnvironment(QProcess *p);

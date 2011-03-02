@@ -47,7 +47,7 @@
       <item row="2" column="0">
        <widget class="QRadioButton" name="urlButton">
         <property name="toolTip">
-         <string>e.g. https://[user[:pass]@]host[:port]/[path]</string>
+         <string>for example https://[user[:pass]@]host[:port]/[path]</string>
         </property>
         <property name="text">
          <string>Specify Url:</string>
@@ -60,7 +60,7 @@
          <bool>false</bool>
         </property>
         <property name="toolTip">
-         <string>e.g. https://[user[:pass]@]host[:port]/[path]</string>
+         <string>for example https://[user[:pass]@]host[:port]/[path]</string>
         </property>
        </widget>
       </item>
@@ -97,7 +97,7 @@ unconditionally</string>
       <item row="3" column="0" colspan="2">
        <widget class="QCheckBox" name="useExistingDirCheckBox">
         <property name="toolTip">
-         <string>By default push will fail if the target directory exists, but does not already have a control directory.
+         <string>By default, push will fail if the target directory exists, but does not already have a control directory.
 This flag will allow push to proceed</string>
         </property>
         <property name="text">

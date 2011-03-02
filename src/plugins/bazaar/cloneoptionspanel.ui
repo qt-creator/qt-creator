@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>283</width>
-    <height>255</height>
+    <height>278</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -38,7 +38,7 @@
       <item row="0" column="0" colspan="2">
        <widget class="QCheckBox" name="useExistingDirCheckBox">
         <property name="toolTip">
-         <string>By default branch will fail if the target directory exists, but does not already have a control directory.
+         <string>By default, branch will fail if the target directory exists, but does not already have a control directory.
 This flag will allow branch to proceed</string>
         </property>
         <property name="text">

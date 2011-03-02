@@ -193,7 +193,7 @@ void MaemoToolChain::setQtVersionId(int id)
     m_targetAbi = version->qtAbis().at(0);
 
     updateId();
-    setDisplayName(MaemoToolChainFactory::tr("Maemo Gcc for %1").arg(version->displayName()));
+    setDisplayName(MaemoToolChainFactory::tr("Maemo GCC for %1").arg(version->displayName()));
 }
 
 int MaemoToolChain::qtVersionId() const

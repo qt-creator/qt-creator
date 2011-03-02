@@ -437,7 +437,8 @@ ExternalTool * ExternalTool::createFromFile(const QString &fileName, QString *er
     QFile file(info.absoluteFilePath());
     if (!file.open(QIODevice::ReadOnly)) {
         if (errorMessage)
-            *errorMessage = tr("Could not open tool specification %1 for reading").arg(fileName);
+            *errorMessage = tr("Could not open tool specification %1 for reading: %2").
+                            arg(fileName, file.errorString());
         return 0;
     }
     const QByteArray &bytes = file.readAll();
@@ -470,7 +471,8 @@ bool ExternalTool::save(QString *errorMessage) const
     QFile file(m_fileName);
     if (!file.open(QIODevice::WriteOnly)) {
         if (errorMessage)
-            *errorMessage = tr("Could not write tool specification %1").arg(m_fileName);
+            *errorMessage = tr("Could not write tool specification %1: %2").
+                            arg(m_fileName, file.errorString());
         return false;
     }
     QXmlStreamWriter out(&file);

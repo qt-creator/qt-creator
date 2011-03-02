@@ -243,7 +243,7 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
     cmd = am->registerAction(m_dumpLogAction,
         DUMP_LOG, globalcontext);
     //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+L")));
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F11")));
+    cmd->setDefaultKeySequence(QKeySequence(QCoreApplication::translate("Debugger", "Ctrl+Shift+F11")));
     mdebug->addAction(cmd);
 #endif
 #endif
