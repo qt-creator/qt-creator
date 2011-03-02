@@ -59,13 +59,13 @@
     For more information about developing applications for the Maemo 5
     platform, select \gui {Help > Index} and look for \gui {Platform Notes},
     or see
-    \l{http://doc.qt.nokia.com/qt-maemo-4.6/platform-notes.html}{Platform Notes - Maemo 5}.
+    \l{http://doc.qt.nokia.com/qt-maemo/platform-notes-maemo5.html}{Platform Notes - Maemo 5}.
 
     \section1 Hardware and Software Requirements
 
     To build and run Qt applications for Maemo 5, you need the following:
     \list
-       \o  Nokia N900 device with software update release 1.2 (V10.2010.19-1)
+       \o  Nokia N900 device with software update release 1.3 (V20.2010.36-2)
        or later installed.
 
        \if defined(qcmanual)
