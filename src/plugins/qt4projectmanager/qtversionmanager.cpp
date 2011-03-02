@@ -1604,8 +1604,7 @@ QString QtVersion::qtCorePath() const
                     && (file.startsWith(QLatin1String("libQtCore"))
                         || file.startsWith(QLatin1String("QtCore")))
                     && (file.endsWith(QLatin1String(".dll"))
-                        || file.endsWith(QString::fromLatin1(".so.") + qtVersionString())
-                        || file.endsWith(".la"))) {
+                        || file.endsWith(QString::fromLatin1(".so.") + qtVersionString()))) {
                 return info.absoluteFilePath();
             }
         }
