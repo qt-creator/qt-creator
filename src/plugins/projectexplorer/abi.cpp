@@ -38,6 +38,7 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QSysInfo>
+#include <QtCore/QDebug>
 
 namespace ProjectExplorer {
 
