@@ -475,6 +475,9 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 if (!isQmlStepBreakpoint1(number) && isQmlStepBreakpoint2(number)) {
                     BreakpointId id = breakHandler()->findBreakpointByNumber(number);
                     updateBreakpointDataFromOutput(id, bkpt);
+                    BreakpointResponse response = breakHandler()->response(id);
+                    if (response.correctedLineNumber == 0)
+                        attemptAdjustBreakpointLocation(id);
                 }
             } else {
                 qDebug() << "IGNORED ASYNC OUTPUT"
@@ -2155,8 +2158,11 @@ void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkp
         } else if (child.hasName("func")) {
             response.functionName = _(child.data());
         } else if (child.hasName("addr")) {
-            // <MULTIPLE> happens in constructors. In this case there are
-            // _two_ fields named "addr" in the response. On Linux that is...
+            // <MULTIPLE> happens in constructors, inline functions, and 
+            // at other places like 'foreach' lines. In this case there are
+            // fields named "addr" in the response and/or the address
+            // is called <MULTIPLE>.
+            //qDebug() << "ADDR: " << child.data() << (child.data() == "<MULTIPLE>");
             if (child.data().startsWith("0x")) {
                 response.address = child.data().mid(2).toULongLong(0, 16);
             } else {
@@ -2404,6 +2410,12 @@ void GdbEngine::handleBreakList(const GdbMi &table)
         BreakpointId id = breakHandler()->findSimilarBreakpoint(needle);
         if (id != BreakpointId(-1)) {
             updateBreakpointDataFromOutput(id, bkpt);
+            BreakpointResponse response = breakHandler()->response(id);
+            if (response.correctedLineNumber == 0)
+                attemptAdjustBreakpointLocation(id);
+            if (response.multiple && response.addresses.isEmpty())
+                postCommand("info break " + QByteArray::number(response.number),
+                    NeedsStop, CB(handleBreakListMultiple), QVariant(id));
         } else {
             qDebug() << "  NOTHING SUITABLE FOUND";
             showMessage(_("CANNOT FIND BP: " + bkpt.toString()));
@@ -2411,6 +2423,16 @@ void GdbEngine::handleBreakList(const GdbMi &table)
     }
 
     m_breakListOutdated = false;
+}
+
+void GdbEngine::handleBreakListMultiple(const GdbResponse &response)
+{
+    QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
+    const BreakpointId id = response.cookie.toInt();
+    BreakHandler *handler = breakHandler();
+    BreakpointResponse br = handler->response(id);
+    br.addresses.append(0);
+    handler->setResponse(id, br);
 }
 
 void GdbEngine::handleBreakDisable(const GdbResponse &response)

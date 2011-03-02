@@ -1249,17 +1249,27 @@ QString BreakHandler::BreakpointItem::toToolTip() const
     formatAddress(str, data.address);
     str << "</td><td>";
     formatAddress(str, response.address);
+    str << "</td></tr>";
+    if (response.multiple) {
+        str << "<tr><td>" << tr("Multiple Addresses:")
+            << "</td><td>";
+        foreach (quint64 address, response.addresses) {
+            formatAddress(str, data.address);
+            str << " ";
+        }
+        str << "</td></tr>";
+    }
     if (!data.command.isEmpty() || !response.command.isEmpty()) {
-        str << "</td></tr>"
-            << "<tr><td>" << tr("Command:")
+        str << "<tr><td>" << tr("Command:")
             << "</td><td>" << data.command
-            << "</td><td>" << response.command<< "</td></tr>";
+            << "</td><td>" << response.command
+            << "</td></tr>";
     }
     if (!data.condition.isEmpty() || !response.condition.isEmpty()) {
-        str << "</td></tr>"
-            << "<tr><td>" << tr("Condition:")
+        str << "<tr><td>" << tr("Condition:")
             << "</td><td>" << data.condition
-            << "</td><td>" << response.condition << "</td></tr>";
+            << "</td><td>" << response.condition
+            << "</td></tr>";
     }
     if (data.ignoreCount || response.ignoreCount) {
         str << "<tr><td>" << tr("Ignore Count:") << "</td><td>";
@@ -1268,10 +1278,10 @@ QString BreakHandler::BreakpointItem::toToolTip() const
         str << "</td><td>";
         if (response.ignoreCount)
             str << response.ignoreCount;
+        str << "</td></tr>";
     }
     if (data.threadSpec >= 0 || response.threadSpec >= 0) {
-        str << "</td></tr>"
-            << "<tr><td>" << tr("Thread Specification:")
+        str << "<tr><td>" << tr("Thread Specification:")
             << "</td><td>";
         if (data.threadSpec >= 0)
             str << data.threadSpec;
