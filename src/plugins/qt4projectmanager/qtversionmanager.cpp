@@ -1606,7 +1606,7 @@ QString QtVersion::qtCorePath() const
                         || file.startsWith(QLatin1String("QtCore"))) {
                     // Only handle static libs if we can not find dynamic ones:
                     if (file.endsWith(".a"))
-                        staticLibs.append(file);
+                        staticLibs.append(info);
                     else if (file.endsWith(QLatin1String(".dll"))
                                 || file.endsWith(QString::fromLatin1(".so.") + qtVersionString()))
                         return info.absoluteFilePath();

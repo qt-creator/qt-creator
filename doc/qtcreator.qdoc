@@ -1129,6 +1129,9 @@
 
     To view lists of files or projects, instead, select \gui {File System},
     \gui {Open Documents}, or \gui Projects in the menu.
+    To view several types of content at a time, split the sidebar by clicking
+    \inlineimage qtcreator-splitbar.png
+    .
 
     \section2 Switching Parent Elements
 
@@ -1149,6 +1152,12 @@
     The \gui {Library} pane contains two tabs: \gui {Items} and \gui {Resources}.
     The \gui Items pane displays the QML elements grouped by type: your own QML
     components, basic elements, interaction elements, views, and widgets.
+
+    Sets of UI components with the MeeGo and Symbian look and feel have been
+    defined for Qt Quick. They are based on standard QML elements. To view the
+    UI components in \gui {QML Components}, click
+    \inlineimage qtcreator-filter.png
+    and select \gui {MeeGo Components} or \gui {Symbian Components}.
 
     \image qmldesigner-qml-components.png "QML Components pane"
 
@@ -1357,6 +1366,17 @@
     by default, click the
     \inlineimage qmldesigner-only-select-items-with-content.png
     button.
+
+    \section2 Previewing Element Size
+
+    The width and height of the root item in a QML file determine the size of
+    the QML element. To experiment with different sizes, enter values in the
+    \gui Height and \gui Width fields on the canvas toolbar. The changes are
+    displayed in the \gui States pane and on the canvas, but the property
+    values are not changed permanently in the QML file. You can permanently
+    change the property values in the \gui Properties pane.
+
+    \image qmldesigner-preview-size.png "Canvas width and height"
 
 */
 
@@ -1924,6 +1944,10 @@
     needs. To configure the editor, select  \gui Tools > \gui{Options...} >
     \gui{Text Editor}.
 
+    These settings apply to all projects. To specify editor behavior for an
+    open project, select \gui {Projects > Editor Settings}. For more
+    information, see \l{Specifying Editor Settings}.
+
     \image qtcreator-font-colors.png "Text editor options"
 
     You can perform the following configuration actions:
@@ -1939,6 +1963,9 @@
            text wrapping or \l{Moving to symbol definition or declaration}
            {moving to symbol definition or declaration}
            in \gui Display.
+        \o Add, modify, and remove \l{Editing Code Snippets}{code snippets} in
+           \gui Snippets.
+        \o Edit \l{Recording and Playing Macros}{macros} in \gui Macros.
         \o Configure \l{Completing Code}{code completion} in \gui Completion.
     \endlist
 
@@ -2101,6 +2128,12 @@
     }
 
     \endcode
+
+\section2 File Encoding
+
+    To define the default file encoding, select the desired encoding in
+    \gui {Default encoding}. By default, Qt Creator uses the file encoding
+    used by your system.
 
 */
 
@@ -4278,6 +4311,12 @@
 
     \image qtcreator-build-environment.png "Build Environment"
 
+    \note The changes are stored in the local project specific \c{.pro.user}
+    file. Therefore, they are not suitable for sharing between developers or
+    development PCs. To share settings, incorporate them into the build system.
+    For example, if you use qmake, make the changes in the \c{.pro} file.
+
+
     \section2 Clearing the System Environment
 
     To build with a clean system environment, select the \gui {Clear system
@@ -5039,9 +5078,26 @@
 
     \title Specifying Editor Settings
 
-    To define the default file encoding, select the desired encoding in \gui Projects >
-    \gui{Editor Settings}. By default, the Qt Creator uses the file encoding
-    used by your system.
+    You can configure the code editor according to your needs. You can specify
+    editor behavior either globally for all projects or separately for each
+    project. To specify global editor behavior, select \gui {Tools > Options...
+    > Text Editor > Behavior}.
+
+    To configure the editor behavior for the current project, deselect the
+    \gui {Use global settings} check box in the \gui {Editor Settings} for the
+    project. For more information about the settings, see:
+
+    \list
+
+        \o \l{Indenting Code}
+
+        \o \l{File Encoding}
+
+        \o \l{Moving to Symbol Definition or Declaration}
+
+        \o \l{Configuring Fonts}
+
+    \endlist
 
     \image qtcreator-editor-settings.png "Editor Settings view"
 
@@ -7208,9 +7264,9 @@
 
     \list
 
-        \o \c {C:\qtcreator-2.1\bin>qtcreator -debug 2000}
+        \o \c {C:\qtcreator\bin>qtcreator -debug 2000}
 
-        \o \c {C:\qtcreator-2.1\bin>qtcreator -debug core.2000}
+        \o \c {C:\qtcreator\bin>qtcreator -debug core.2000}
 
     \endlist
 
@@ -8351,6 +8407,8 @@
         adds a single line of editable formatted text that can be validated.
         \o \l{http://doc.qt.nokia.com/4.7/qml-textinput.html}{Text Input}
         adds a single line of editable plain text that can be validated.
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-webview.html}{Web View}
+        adds Web content to a canvas.
 
     \endlist
 
@@ -8640,7 +8698,7 @@
 
     \endlist
 
-    \section1 Organizing Items on Screens
+    \section1 Using Data Models
 
     You can create the following types of views to organize items provided by
     \l{http://doc.qt.nokia.com/4.7/qdeclarativemodels.html}{data models}:
@@ -8648,12 +8706,38 @@
     \list
 
         \o \l{http://doc.qt.nokia.com/4.7/qml-gridview.html}{Grid View}
+        provides a grid vizualization of a model.
+
         \o \l{http://doc.qt.nokia.com/4.7/qml-listview.html}{List View}
+        provides a list vizualization of a model.
+
         \o \l{http://doc.qt.nokia.com/4.7/qml-pathview.html}{Path View}
+        visualizes the contents of a model along a path.
 
     \endlist
 
     In the code editor, write the code to use the data models.
+
+    \section1 Positioning Items on Screens
+
+    You can use the following items to arrange items on screens:
+
+    \list
+
+        \o  \l{http://doc.qt.nokia.com/4.7-snapshot/qml-column.html}{Column}
+            arranges its child items vertically.
+
+        \o  \l{http://doc.qt.nokia.com/4.7-snapshot/qml-row.html}{Row}
+            arranges its child items horizontally.
+
+        \o  \l{http://doc.qt.nokia.com/4.7-snapshot/qml-grid.html}{Grid}
+            arranges its child items so that they are aligned in a grid and
+            are not overlapping.
+
+        \o  \l{http://doc.qt.nokia.com/4.7-snapshot/qml-flow.html}{Flow}
+            arranges its children side by side, wrapping as necessary.
+
+    \endlist
 
     \section1 Using States
 
@@ -10143,7 +10227,7 @@
 
     \title Known Issues
 
-    This section lists known issues in Qt Creator version 2.1.0.
+    This section lists known issues in Qt Creator version 2.2.0.
     The development team is aware of them, and therefore, you do not need to
     report them as bugs.
 
@@ -10244,6 +10328,16 @@
 
     \endlist
 
+    \section1 Qt Quick Designer Issues
+
+    \list
+
+        \o  \QMLD uses external processes (QML Puppet) to render and preview
+            images and to collect data. Executing C++ code might cause the QML
+            Puppet to crash. If it crashes, an error message is displayed and
+            you can continue editing the QML file in the code editor.
+
+    \endlist
 */
 
 
@@ -10423,11 +10517,11 @@
 
     \list
 
-        \o  \c {C:\qtcreator-2.1\bin>qtcreator -help}
+        \o  \c {C:\qtcreator\bin>qtcreator -help}
 
-        \o  \c {C:\qtcreator-2.1\bin>qtcreator C:\TextFinder\textfinder.cpp:100}
+        \o  \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp:100}
 
-        \o  \c {C:\qtcreator-2.1\bin>qtcreator C:\TextFinder\textfinder.cpp +100}
+        \o  \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp +100}
 
     \endlist
 

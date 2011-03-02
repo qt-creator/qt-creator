@@ -98,25 +98,25 @@
 
     \section2 Developing for Symbian^3
 
+    \note The command names and paths depend on the \QSDK version that is
+    installed.
+
     \list 1
 
-        \o Choose \gui {Start > Qt SDK > Symbian^3 > Install Qt 4.7.1 to
-        Symbian^3 Device}. Follow the instructions on the screen to install Qt
+        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.2 > Install Qt 4.7.2 for
+        Symbian^3 on Device}. Follow the instructions on the screen to install Qt
         libraries to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^3 > Install QtMobility 1.1.0 to
-        Symbian^3 Device}
+        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.2 > Install QtMobility 1.1.0 for
+        Symbian^3 on Device}
         and follow the instructions on the screen to install Qt
         mobility libraries to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^3 > Install TRK (Debug Agent)
-        to Symbian^3 Device} and follow the instructions on the screen to install
+        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.2 > Install TRK
+        (Debug Agent) for Symbian^3 on Device} and follow the
+        instructions on the screen to install
         the TRK
         debugging application to the device.
-
-        \o Choose \gui {Start > Qt SDK > Symbian^3 > Install QML Viewer
-        to Symbian^3 Device} and follow the instructions on the screen to
-        install \QQV to the device.
 
     \endlist
 
@@ -125,24 +125,24 @@
     Symbian^1 incorporates Symbian OS and S60 5th Edition (S60 5.0), which is
     built on Symbian OS v9.4.
 
+    \note The command names and paths depend on the \QSDK version that is
+    installed.
+
     \list 1
 
-        \o Choose \gui {Start > Qt SDK > Symbian^1 > Install Qt 4.7.1 to Symbian^1
-        Device}. Follow the instructions on the screen to install Qt
+        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.2 > Install Qt 4.7.1
+        for Symbian^1 on Device}. Follow the instructions on the screen to install Qt
         libraries to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^1 > Install QtMobility 1.1.0 to
-        Symbian^1 Device} and follow the instructions on the screen to install Qt
+        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.2 > Install QtMobility 1.1.0
+        for Symbian^1 on Device} and follow the instructions on the screen to install Qt
         mobility libraries to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^1 > Install TRK (Debug Agent)
-        to Symbian^1 Device} and follow the instructions on the screen to install
+        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.2 > Install TRK
+        (Debug Agent)} for the type of the connected device and follow the
+        instructions on the screen to install
         the TRK
         debugging application to the device.
-
-        \o Choose \gui {Start > Qt SDK > Symbian^1 > Install QML Viewer
-        to Symbian^3 Device} and follow the instructions on the screen to
-        install \QQV to the device.
 
     \endlist
 
