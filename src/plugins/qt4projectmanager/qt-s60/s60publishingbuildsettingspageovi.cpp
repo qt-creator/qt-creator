@@ -89,6 +89,9 @@ S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60Publishe
 
     //change the build configuration if the user changes it
     connect(m_ui->chooseBuildConfigDropDown, SIGNAL(currentIndexChanged(int)), this, SLOT(buildConfigChosen()));
+
+    if (!m_bc)
+        wizard()->button(QWizard::NextButton)->setDisabled(true);
 }
 
 void S60PublishingBuildSettingsPageOvi::buildConfigChosen()
