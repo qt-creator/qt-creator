@@ -292,7 +292,7 @@ void S60PublisherOvi::runQMake()
             "Running QMake",
             qmakepp->effectiveCommand() + ' ' + qmakepp->arguments(),
             m_qmakeProc,
-            NULL);
+            0);
 }
 
 void S60PublisherOvi::runBuild(int result)

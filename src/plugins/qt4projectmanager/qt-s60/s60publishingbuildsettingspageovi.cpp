@@ -71,7 +71,7 @@ S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60Publishe
         m_ui->chooseBuildConfigDropDown->addItem(qt4bc->displayName(), QVariant::fromValue(static_cast<ProjectExplorer::BuildConfiguration *>(qt4bc)));
 
 
-    m_bc = NULL;
+    m_bc = 0;
 
     // todo more intelligent selection? prefer newer versions?
     foreach (Qt4BuildConfiguration *qt4bc, list)
@@ -92,7 +92,7 @@ S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60Publishe
 
 bool S60PublishingBuildSettingsPageOvi::isComplete() const
 {
-    return (m_bc != NULL);
+    return (m_bc != 0);
 }
 
 void S60PublishingBuildSettingsPageOvi::buildConfigChosen()
