@@ -41,6 +41,124 @@
 
 namespace ProjectExplorer {
 
+// --------------------------------------------------------------------------
+// Helpers
+// --------------------------------------------------------------------------
+
+static Abi macAbiForCpu(quint32 type) {
+    switch (type) {
+    case 7: // CPU_TYPE_X86, CPU_TYPE_I386
+        return Abi(Abi::X86Architecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 32);
+    case 0x01000000 +  7: // CPU_TYPE_X86_64
+        return Abi(Abi::X86Architecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 64);
+    case 18: // CPU_TYPE_POWERPC
+        return Abi(Abi::PowerPCArchitecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 32);
+    case 0x01000000 + 18: // CPU_TYPE_POWERPC64
+        return Abi(Abi::PowerPCArchitecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 32);
+    case 12: // CPU_TYPE_ARM
+        return Abi(Abi::ArmArchitecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 32);
+    default:
+        return Abi();
+    }
+}
+
+static QList<Abi> abiOf(const QByteArray &data)
+{
+    QList<Abi> result;
+
+    if (data.size() >= 20
+            && static_cast<unsigned char>(data.at(0)) == 0x7f && static_cast<unsigned char>(data.at(1)) == 'E'
+            && static_cast<unsigned char>(data.at(2)) == 'L' && static_cast<unsigned char>(data.at(3)) == 'F') {
+        // ELF format:
+        quint16 machine = (data.at(19) << 8) + data.at(18);
+        switch (machine) {
+        case 3: // EM_386
+            result.append(Abi(Abi::X86Architecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
+            break;
+        case 8: // EM_MIPS
+            result.append(Abi(Abi::MipsArcitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
+            break;
+        case 20: // EM_PPC
+            result.append(Abi(Abi::PowerPCArchitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
+            break;
+        case 21: // EM_PPC64
+            result.append(Abi(Abi::PowerPCArchitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 64));
+            break;
+        case 62: // EM_X86_64
+            result.append(Abi(Abi::X86Architecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 64));
+            break;
+        case 50: // EM_IA_64
+            result.append(Abi(Abi::ItaniumArchitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 64));
+            break;
+        default:
+            ;;
+        }
+    } else if (data.size() >= 8
+               && (static_cast<unsigned char>(data.at(0)) == 0xce || static_cast<unsigned char>(data.at(0)) == 0xcf)
+               && static_cast<unsigned char>(data.at(1)) == 0xfa
+               && static_cast<unsigned char>(data.at(2)) == 0xed && static_cast<unsigned char>(data.at(3)) == 0xfe) {
+        // Mach-O format (Mac non-fat binary, 32 and 64bit magic)
+        quint32 type = (data.at(7) << 24) + (data.at(6) << 16) + (data.at(5) << 8) + data.at(4);
+        result.append(macAbiForCpu(type));
+    } else if (data.size() >= 8
+               && static_cast<unsigned char>(data.at(0)) == 0xca && static_cast<unsigned char>(data.at(1)) == 0xfe
+               && static_cast<unsigned char>(data.at(2)) == 0xba && static_cast<unsigned char>(data.at(3)) == 0xbe) {
+        // Mac fat binary:
+        quint32 count = (data.at(4) << 24) + (data.at(5) << 16) + (data.at(6) << 8) + data.at(7);
+        int pos = 8;
+        for (quint32 i = 0; i < count; ++i) {
+            if (data.size() <= pos + 4)
+                break;
+
+            quint32 type = (data.at(pos) << 24) + (data.at(pos + 1) << 16) + (data.at(pos + 2) << 8) + data.at(pos + 3);
+            result.append(macAbiForCpu(type));
+            pos += 20;
+        }
+    } else {
+        // Windows PE
+        // Windows can have its magic bytes everywhere...
+        int pePos = data.indexOf("PE\0\0");
+        if (pePos >= 0 && pePos + 72 < data.size()) {
+            Abi::Architecture arch = Abi::UnknownArchitecture;
+            Abi::OSFlavor flavor = Abi::UnknownFlavor;
+            int width = 0;
+
+            // Get machine field from COFF file header
+            quint16 machine = (data.at(pePos + 5) << 8) + data.at(pePos + 4);
+            switch (machine) {
+            case 0x8664: // x86_64
+                arch = Abi::X86Architecture;
+                width = 64;
+                break;
+            case 0x014c: // i386
+                arch = Abi::X86Architecture;
+                width = 32;
+                break;
+            case 0x0200: // ia64
+                arch = Abi::ItaniumArchitecture;
+                width = 64;
+                break;
+            }
+
+            // Get Major and Minor Image Version from optional header fields
+            quint32 image = (data.at(pePos + 71) << 24) + (data.at(pePos + 70) << 16)
+                    + (data.at(pePos + 69) << 8) + data.at(pePos + 68);
+            if (image == 1) // Image is 1 for mingw and 4.something for MSVC
+                flavor = Abi::WindowsMSysFlavor;
+            else
+                flavor = Abi::WindowsMsvcFlavor;
+
+            if (arch != Abi::UnknownArchitecture && flavor != Abi::UnknownFlavor && width != 0)
+                result.append(Abi(arch, Abi::WindowsOS, flavor, Abi::PEFormat, width));
+        }
+    }
+    return result;
+}
+
+// --------------------------------------------------------------------------
+// Abi
+// --------------------------------------------------------------------------
+
 Abi::Abi(const Architecture &a, const OS &o,
          const OSFlavor &of, const BinaryFormat &f, unsigned char w) :
     m_architecture(a), m_os(o), m_osFlavor(of), m_binaryFormat(f), m_wordWidth(w)
@@ -325,23 +443,6 @@ Abi Abi::hostAbi()
     return Abi(arch, os, subos, format, QSysInfo::WordSize);
 }
 
-static Abi macAbiForCpu(quint32 type) {
-    switch (type) {
-    case 7: // CPU_TYPE_X86, CPU_TYPE_I386
-        return Abi(Abi::X86Architecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 32);
-    case 0x01000000 +  7: // CPU_TYPE_X86_64
-        return Abi(Abi::X86Architecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 64);
-    case 18: // CPU_TYPE_POWERPC
-        return Abi(Abi::PowerPCArchitecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 32);
-    case 0x01000000 + 18: // CPU_TYPE_POWERPC64
-        return Abi(Abi::PowerPCArchitecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 32);
-    case 12: // CPU_TYPE_ARM
-        return Abi(Abi::ArmArchitecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 32);
-    default:
-        return Abi();
-    }
-}
-
 QList<Abi> Abi::abisOfBinary(const QString &path)
 {
     QList<Abi> result;
@@ -354,94 +455,42 @@ QList<Abi> Abi::abisOfBinary(const QString &path)
 
     f.open(QFile::ReadOnly);
     QByteArray data = f.read(1024);
-    f.close();
+    if (data.size() >= 67
+            && static_cast<unsigned char>(data.at(0)) == '!' && static_cast<unsigned char>(data.at(1)) == '<'
+            && static_cast<unsigned char>(data.at(2)) == 'a' && static_cast<unsigned char>(data.at(3)) == 'r'
+            && static_cast<unsigned char>(data.at(4)) == 'c' && static_cast<unsigned char>(data.at(5)) == 'h'
+            && static_cast<unsigned char>(data.at(6)) == '>' && static_cast<unsigned char>(data.at(7)) == 0x0a) {
+        // We got an ar file: possibly a static lib for ELF or Mach-O
 
-    if (data.size() >= 20
-            && static_cast<unsigned char>(data.at(0)) == 0x7f && static_cast<unsigned char>(data.at(1)) == 'E'
-            && static_cast<unsigned char>(data.at(2)) == 'L' && static_cast<unsigned char>(data.at(3)) == 'F') {
-        // ELF format:
-        quint16 machine = (data.at(19) << 8) + data.at(18);
-        switch (machine) {
-        case 3: // EM_386
-            result.append(Abi(Abi::X86Architecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
-            break;
-        case 8: // EM_MIPS
-            result.append(Abi(Abi::MipsArcitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
-            break;
-        case 20: // EM_PPC
-            result.append(Abi(Abi::PowerPCArchitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
-            break;
-        case 21: // EM_PPC64
-            result.append(Abi(Abi::PowerPCArchitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 64));
-            break;
-        case 62: // EM_X86_64
-            result.append(Abi(Abi::X86Architecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 64));
-            break;
-        case 50: // EM_IA_64
-            result.append(Abi(Abi::ItaniumArchitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 64));
-            break;
-        default:
-            ;;
-        }
-    } else if (data.size() >= 8
-               && (static_cast<unsigned char>(data.at(0)) == 0xce || static_cast<unsigned char>(data.at(0)) == 0xcf)
-               && static_cast<unsigned char>(data.at(1)) == 0xfa
-               && static_cast<unsigned char>(data.at(2)) == 0xed && static_cast<unsigned char>(data.at(3)) == 0xfe) {
-        // Mach-O format (Mac non-fat binary, 32 and 64bit magic)
-        quint32 type = (data.at(7) << 24) + (data.at(6) << 16) + (data.at(5) << 8) + data.at(4);
-        result.append(macAbiForCpu(type));
-    } else if (data.size() >= 8
-               && static_cast<unsigned char>(data.at(0)) == 0xca && static_cast<unsigned char>(data.at(1)) == 0xfe
-               && static_cast<unsigned char>(data.at(2)) == 0xba && static_cast<unsigned char>(data.at(3)) == 0xbe) {
-        // Mac fat binary:
-        quint32 count = (data.at(4) << 24) + (data.at(5) << 16) + (data.at(6) << 8) + data.at(7);
-        int pos = 8;
-        for (quint32 i = 0; i < count; ++i) {
-            if (data.size() <= pos + 4)
-                break;
+        data = data.mid(8); // Cut of ar file magic
+        quint64 offset = 8;
 
-            quint32 type = (data.at(pos) << 24) + (data.at(pos + 1) << 16) + (data.at(pos + 2) << 8) + data.at(pos + 3);
-            result.append(macAbiForCpu(type));
-            pos += 20;
-        }
-    } else {
-        // Windows PE
-        // Windows can have its magic bytes everywhere...
-        int pePos = data.indexOf("PE\0\0");
-        if (pePos >= 0 && pePos + 72 < data.size()) {
-            Architecture arch = UnknownArchitecture;
-            OSFlavor flavor = UnknownFlavor;
-            int width = 0;
-
-            // Get machine field from COFF file header
-            quint16 machine = (data.at(pePos + 5) << 8) + data.at(pePos + 4);
-            switch (machine) {
-            case 0x8664: // x86_64
-                arch = Abi::X86Architecture;
-                width = 64;
-                break;
-            case 0x014c: // i386
-                arch = Abi::X86Architecture;
-                width = 32;
-                break;
-            case 0x0200: // ia64
-                arch = Abi::ItaniumArchitecture;
-                width = 64;
+        while (!data.isEmpty()) {
+            if (data.at(58) != 0x60 || data.at(59) != 0x0a) {
+                qWarning() << path << ": Thought it was an ar-file, but it is not!";
                 break;
             }
 
-            // Get Major and Minor Image Version from optional header fields
-            quint32 image = (data.at(pePos + 71) << 24) + (data.at(pePos + 70) << 16)
-                    + (data.at(pePos + 69) << 8) + data.at(pePos + 68);
-            if (image == 1) // Image is 1 for mingw and 4.something for MSVC
-                flavor = WindowsMSysFlavor;
-            else
-                flavor = WindowsMsvcFlavor;
+            const QString fileName = QString::fromLocal8Bit(data.mid(0, 16));
+            quint64 fileNameOffset = 0;
+            if (fileName.startsWith(QLatin1String("#1/")))
+                fileNameOffset = fileName.mid(3).toInt();
+            const QString fileLength = QString::fromAscii(data.mid(48, 10));
 
-            if (arch != UnknownArchitecture && flavor != UnknownFlavor && width != 0)
-                result.append(Abi(arch, WindowsOS, flavor, PEFormat, width));
+            data = data.mid(60 + fileNameOffset);
+            offset += fileLength.toInt() + 60 /* header */;
+            result = abiOf(data);
+            if (!result.isEmpty())
+                break;
+
+            f.seek(offset);
+            data = f.read(1024);
         }
+    } else {
+        result = abiOf(data);
     }
+    f.close();
+
     return result;
 }
 
