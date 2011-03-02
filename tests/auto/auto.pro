@@ -10,7 +10,7 @@ SUBDIRS += \
     fakevim \
     generichighlighter \
 #    icheckbuild \
-#    profilewriter \
+    profilewriter \
     ioutils \
     qtcprocess \
     utils_stringutils \

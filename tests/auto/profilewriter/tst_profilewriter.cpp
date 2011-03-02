@@ -31,13 +31,32 @@
 **
 **************************************************************************/
 
-#include "profileevaluator.h"
-#include "prowriter.h"
+#include <profileparser.h>
+#include <prowriter.h>
 
 #include <QtTest/QtTest>
-//#include <QtCore/QSet>
 
 #define BASE_DIR "/some/stuff"
+
+///////////// callbacks for parser/evaluator
+
+static void print(const QString &fileName, int lineNo, const QString &msg)
+{
+    if (lineNo)
+        qWarning("%s(%d): %s", qPrintable(fileName), lineNo, qPrintable(msg));
+    else
+        qWarning("%s", qPrintable(msg));
+}
+
+class ParseHandler : public ProFileParserHandler {
+public:
+    virtual void parseError(const QString &fileName, int lineNo, const QString &msg)
+        { print(fileName, lineNo, msg); }
+};
+
+static ParseHandler parseHandler;
+
+//////////////// the actual autotest
 
 class tst_ProFileWriter : public QObject
 {
@@ -259,12 +278,11 @@ void tst_ProFileWriter::edit()
     QStringList lines = input.split(QLatin1String("\n"));
     QStringList vars; vars << QLatin1String("SOURCES");
 
-    ProFileOption option;
-    ProFileEvaluator reader(&option);
-    ProFile *proFile = reader.parsedProFile(BASE_DIR "/test.pro", input);
+    ProFileParser parser(0, &parseHandler);
+    ProFile *proFile = parser.parsedProFile(QLatin1String(BASE_DIR "/test.pro"), false, &input);
     QVERIFY(proFile);
     if (add)
-        Qt4ProjectManager::Internal::ProWriter::addFiles(proFile, &lines, baseDir, files, vars);
+        Qt4ProjectManager::Internal::ProWriter::addFiles(proFile, &lines, baseDir, files, vars.at(0));
     else
         Qt4ProjectManager::Internal::ProWriter::removeFiles(proFile, &lines, baseDir, files, vars);
 
@@ -290,9 +308,8 @@ void tst_ProFileWriter::multiVar()
             << QString::fromLatin1(BASE_DIR "/bak");
     QStringList vars; vars << QLatin1String("SOURCES") << QLatin1String("HEADERS");
 
-    ProFileOption option;
-    ProFileEvaluator reader(&option);
-    ProFile *proFile = reader.parsedProFile(BASE_DIR "/test.pro", input);
+    ProFileParser parser(0, &parseHandler);
+    ProFile *proFile = parser.parsedProFile(QLatin1String(BASE_DIR "/test.pro"), false, &input);
     QVERIFY(proFile);
     Qt4ProjectManager::Internal::ProWriter::removeFiles(proFile, &lines, baseDir, files, vars);
 
