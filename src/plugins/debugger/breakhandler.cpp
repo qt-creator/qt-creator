@@ -1254,7 +1254,7 @@ QString BreakHandler::BreakpointItem::toToolTip() const
         str << "<tr><td>" << tr("Multiple Addresses:")
             << "</td><td>";
         foreach (quint64 address, response.addresses) {
-            formatAddress(str, data.address);
+            formatAddress(str, address);
             str << " ";
         }
         str << "</td></tr>";
