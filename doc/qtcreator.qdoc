@@ -7214,9 +7214,9 @@
 
     \list
 
-        \o \c {C:\qtcreator-2.1\bin>qtcreator -debug 2000}
+        \o \c {C:\qtcreator\bin>qtcreator -debug 2000}
 
-        \o \c {C:\qtcreator-2.1\bin>qtcreator -debug core.2000}
+        \o \c {C:\qtcreator\bin>qtcreator -debug core.2000}
 
     \endlist
 
@@ -10149,7 +10149,7 @@
 
     \title Known Issues
 
-    This section lists known issues in Qt Creator version 2.1.0.
+    This section lists known issues in Qt Creator version 2.2.0.
     The development team is aware of them, and therefore, you do not need to
     report them as bugs.
 
@@ -10429,11 +10429,11 @@
 
     \list
 
-        \o  \c {C:\qtcreator-2.1\bin>qtcreator -help}
+        \o  \c {C:\qtcreator\bin>qtcreator -help}
 
-        \o  \c {C:\qtcreator-2.1\bin>qtcreator C:\TextFinder\textfinder.cpp:100}
+        \o  \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp:100}
 
-        \o  \c {C:\qtcreator-2.1\bin>qtcreator C:\TextFinder\textfinder.cpp +100}
+        \o  \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp +100}
 
     \endlist
 
