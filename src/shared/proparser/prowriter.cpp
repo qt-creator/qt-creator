@@ -174,53 +174,86 @@ static const ushort *skipToken(ushort tok, const ushort *&tokPtr, int &lineNo)
     return 0;
 }
 
-void ProWriter::addVarValues(ProFile *profile, QStringList *lines,
-    const QStringList &values, const QString &var)
+bool ProWriter::locateVarValues(const ushort *tokPtr, const QString &var, int *bestLine)
 {
-    // Check if variable item exists as child of root item
-    const ushort *tokPtr = profile->tokPtr();
     int lineNo = 0;
     QString tmp;
     const ushort *lastXpr = 0;
     while (ushort tok = *tokPtr++) {
         if (tok == TokAssign || tok == TokAppend || tok == TokAppendUnique) {
             if (getLiteral(lastXpr, tokPtr - 1, tmp) && var == tmp) {
-                for (--lineNo; lineNo < lines->count(); lineNo++) {
-                    QString line = lines->at(lineNo);
-                    int idx = line.indexOf(QLatin1Char('#'));
-                    if (idx >= 0)
-                        line.truncate(idx);
-                    while (line.endsWith(QLatin1Char(' ')) || line.endsWith(QLatin1Char('\t')))
-                        line.chop(1);
-                    if (line.isEmpty()) {
-                        if (idx >= 0)
-                            continue;
-                        break;
-                    }
-                    if (!line.endsWith(QLatin1Char('\\'))) {
-                        (*lines)[lineNo].insert(line.length(), QLatin1String(" \\"));
-                        lineNo++;
-                        break;
-                    }
-                }
-                QString added;
-                foreach (const QString &v, values)
-                    added += QLatin1String("    ") + v + QLatin1String(" \\\n");
-                added.chop(3);
-                lines->insert(lineNo, added);
-                return;
+                *bestLine = lineNo - 1;
+                return true;
             }
             skipExpression(++tokPtr, lineNo);
         } else {
             lastXpr = skipToken(tok, tokPtr, lineNo);
         }
     }
+    *bestLine = qMax(lineNo - 1, 0);
+    return false;
+}
 
-    // Create & append new variable item
-    QString added = QLatin1Char('\n') + var + QLatin1String(" +=");
-    foreach (const QString &v, values)
-        added += QLatin1String(" \\\n    ") + v;
-    *lines << added;
+static int skipContLines(QStringList *lines, int lineNo, bool addCont)
+{
+    for (; lineNo < lines->count(); lineNo++) {
+        QString line = lines->at(lineNo);
+        int idx = line.indexOf(QLatin1Char('#'));
+        if (idx >= 0)
+            line.truncate(idx);
+        while (line.endsWith(QLatin1Char(' ')) || line.endsWith(QLatin1Char('\t')))
+            line.chop(1);
+        if (line.isEmpty()) {
+            if (idx >= 0)
+                continue;
+            break;
+        }
+        if (!line.endsWith(QLatin1Char('\\'))) {
+            if (addCont)
+                (*lines)[lineNo].insert(line.length(), QLatin1String(" \\"));
+            lineNo++;
+            break;
+        }
+    }
+    return lineNo;
+}
+
+void ProWriter::putVarValues(ProFile *profile, QStringList *lines,
+    const QStringList &values, const QString &var, PutFlags flags)
+{
+    int lineNo;
+    if (locateVarValues(profile->tokPtr(), var, &lineNo)) {
+        if (flags & ReplaceValues) {
+            // remove continuation lines with old values
+            int lNo = skipContLines(lines, lineNo, false);
+            lines->erase(lines->begin() + lineNo + 1, lines->begin() + lNo);
+            // remove rest of the line
+            QString &line = (*lines)[lineNo];
+            int eqs = line.indexOf(QLatin1Char('='));
+            if (eqs >= 0) // If this is not true, we mess up the file a bit.
+                line.truncate(eqs + 1);
+            // put new values
+            foreach (const QString &v, values)
+                line += ((flags & MultiLine) ? QLatin1String(" \\\n    ") : QLatin1String(" ")) + v;
+        } else {
+            lineNo = skipContLines(lines, lineNo, true);
+            QString added;
+            foreach (const QString &v, values)
+                added += QLatin1String("    ") + v + QLatin1String(" \\\n");
+            added.chop(3);
+            lines->insert(lineNo, added);
+        }
+    } else {
+        // Create & append new variable item
+        QString added;
+        int lNo = skipContLines(lines, lineNo, false);
+        if (lNo)
+            added += QLatin1Char('\n');
+        added += var + QLatin1String((flags & AppendOperator) ? " +=" : " =");
+        foreach (const QString &v, values)
+            added += ((flags & MultiLine) ? QLatin1String(" \\\n    ") : QLatin1String(" ")) + v;
+        lines->insert(lNo, added);
+    }
 }
 
 void ProWriter::addFiles(ProFile *profile, QStringList *lines,
@@ -230,7 +263,7 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines,
     foreach (const QString &v, values)
         valuesToWrite << proFileDir.relativeFilePath(v);
 
-    addVarValues(profile, lines, valuesToWrite, var);
+    putVarValues(profile, lines, valuesToWrite, var, AppendValues | MultiLine | AppendOperator);
 }
 
 static void findProVariables(const ushort *tokPtr, const QStringList &vars,

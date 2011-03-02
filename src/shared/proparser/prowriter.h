@@ -49,8 +49,18 @@ namespace Internal {
 class ProWriter
 {
 public:
-    static void addVarValues(ProFile *profile, QStringList *lines,
-        const QStringList &values, const QString &var);
+    enum PutFlag {
+        AppendValues = 0,
+        ReplaceValues = 1,
+        OneLine = 0, // this works only when replacing (or adding a new assignment)
+        MultiLine = 2,
+        AssignOperator = 0, // ignored when changing an existing assignment
+        AppendOperator = 4
+    };
+    Q_DECLARE_FLAGS(PutFlags, PutFlag)
+
+    static void putVarValues(ProFile *profile, QStringList *lines,
+        const QStringList &values, const QString &var, PutFlags flags);
     static QList<int> removeVarValues(ProFile *profile, QStringList *lines,
         const QStringList &values, const QStringList &vars);
 
@@ -58,7 +68,12 @@ public:
          const QDir &proFileDir, const QStringList &filePaths, const QString &var);
     static QStringList removeFiles(ProFile *profile, QStringList *lines,
         const QDir &proFileDir, const QStringList &filePaths, const QStringList &vars);
+
+private:
+    static bool locateVarValues(const ushort *tokPtr, const QString &var, int *bestLine);
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(ProWriter::PutFlags)
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
