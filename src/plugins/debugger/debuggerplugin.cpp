@@ -486,13 +486,6 @@ public:
     bool acceptsDebuggerCommands() const { return false; }
 };
 
-static DebuggerEngine *dummyEngine()
-{
-    static DummyEngine dummy;
-    return &dummy;
-}
-
-
 ///////////////////////////////////////////////////////////////////////
 //
 // DebugMode
@@ -589,6 +582,7 @@ public:
     void connectEngine(DebuggerEngine *engine);
     void disconnectEngine() { connectEngine(0); }
     DebuggerEngine *currentEngine() const { return m_currentEngine; }
+    DebuggerEngine *dummyEngine();
 
 public slots:
     void writeSettings()
@@ -1058,10 +1052,12 @@ public:
     QStringList m_arguments;
     DebuggerToolTipManager *m_toolTipManager;
     CommonOptionsPage *m_commonOptionsPage;
+    DummyEngine *m_dummyEngine;
 };
 
 DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
-    m_toolTipManager(new DebuggerToolTipManager(this))
+    m_toolTipManager(new DebuggerToolTipManager(this)),
+    m_dummyEngine(0)
 {
     qRegisterMetaType<WatchData>("WatchData");
     qRegisterMetaType<ContextData>("ContextData");
@@ -1126,6 +1122,16 @@ DebuggerPluginPrivate::~DebuggerPluginPrivate()
 
     delete m_breakHandler;
     m_breakHandler = 0;
+}
+
+DebuggerEngine *DebuggerPluginPrivate::dummyEngine()
+{
+    if (!m_dummyEngine) {
+        m_dummyEngine = new DummyEngine;
+        m_dummyEngine->setParent(this);
+        m_dummyEngine->setObjectName(_("DummyEngine"));
+    }
+    return m_dummyEngine;
 }
 
 DebuggerCore *debuggerCore()
