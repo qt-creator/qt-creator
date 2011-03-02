@@ -1924,6 +1924,10 @@
     needs. To configure the editor, select  \gui Tools > \gui{Options...} >
     \gui{Text Editor}.
 
+    These settings apply to all projects. To specify editor behavior for an
+    open project, select \gui {Projects > Editor Settings}. For more
+    information, see \l{Specifying Editor Settings}.
+
     \image qtcreator-font-colors.png "Text editor options"
 
     You can perform the following configuration actions:
@@ -1939,6 +1943,9 @@
            text wrapping or \l{Moving to symbol definition or declaration}
            {moving to symbol definition or declaration}
            in \gui Display.
+        \o Add, modify, and remove \l{Editing Code Snippets}{code snippets} in
+           \gui Snippets.
+        \o Edit \l{Recording and Playing Macros}{macros} in \gui Macros.
         \o Configure \l{Completing Code}{code completion} in \gui Completion.
     \endlist
 
@@ -2101,6 +2108,12 @@
     }
 
     \endcode
+
+\section2 File Encoding
+
+    To define the default file encoding, select the desired encoding in
+    \gui {Default encoding}. By default, Qt Creator uses the file encoding
+    used by your system.
 
 */
 
@@ -5045,9 +5058,26 @@
 
     \title Specifying Editor Settings
 
-    To define the default file encoding, select the desired encoding in \gui Projects >
-    \gui{Editor Settings}. By default, the Qt Creator uses the file encoding
-    used by your system.
+    You can configure the code editor according to your needs. You can specify
+    editor behavior either globally for all projects or separately for each
+    project. To specify global editor behavior, select \gui {Tools > Options...
+    > Text Editor > Behavior}.
+
+    To configure the editor behavior for the current project, deselect the
+    \gui {Use global settings} check box in the \gui {Editor Settings} for the
+    project. For more information about the settings, see:
+
+    \list
+
+        \o \l{Indenting Code}
+
+        \o \l{File Encoding}
+
+        \o \l{Moving to Symbol Definition or Declaration}
+
+        \o \l{Configuring Fonts}
+
+    \endlist
 
     \image qtcreator-editor-settings.png "Editor Settings view"
 
