@@ -118,7 +118,7 @@ static QList<Abi> abiOf(const QByteArray &data)
     } else {
         // Windows PE
         // Windows can have its magic bytes everywhere...
-        int pePos = data.indexOf("PE\0\0");
+        int pePos = data.indexOf(QByteArray("PE\0\0", 4));
         if (pePos >= 0 && pePos + 72 < data.size()) {
             Abi::Architecture arch = Abi::UnknownArchitecture;
             Abi::OSFlavor flavor = Abi::UnknownFlavor;
