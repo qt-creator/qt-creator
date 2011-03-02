@@ -76,6 +76,9 @@ Argument *arg(const QString &name, const FullySpecifiedType &ty)
 FullySpecifiedType voidTy()
 { return FullySpecifiedType(new VoidType); }
 
+FullySpecifiedType intTy()
+{ return FullySpecifiedType(new IntegerType(IntegerType::Int)); }
+
 FullySpecifiedType fnTy(const QString &name, const FullySpecifiedType &ret)
 {
     Function *fn = new Function(unit, 0, nameId(name));
@@ -181,6 +184,17 @@ void tst_TypePrettyPrinter::basic_data()
     addRow(ref(arr(arr(voidTy()))), "void (&)[][]");
     addRow(ref(arr(ref(voidTy()))), "void &(&)[]");
     addRow(arr(ref(arr(voidTy()))), "void (&[])[]");
+
+    // rvalue references
+    addRow(rref(voidTy()), "void &&");
+    addRow(rref(cnst(voidTy())), "const void &&");
+
+    addRow(rref(arr(voidTy())), "void (&&)[]");
+    addRow(rref(arr(arr(voidTy()))), "void (&&)[][]");
+
+    // simple functions
+    addRow(ptr(fnTy("foo", voidTy(), intTy())), "void (*foo)(int)", "foo");
+    addRow(ptr(fnTy("foo", voidTy(), ptr(voidTy()))), "void (*foo)(void *)", "foo");
 }
 
 void tst_TypePrettyPrinter::basic()
