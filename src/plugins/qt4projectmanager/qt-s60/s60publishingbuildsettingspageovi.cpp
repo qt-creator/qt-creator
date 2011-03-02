@@ -71,7 +71,7 @@ S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60Publishe
         m_ui->chooseBuildConfigDropDown->addItem(qt4bc->displayName(), QVariant::fromValue(static_cast<ProjectExplorer::BuildConfiguration *>(qt4bc)));
 
 
-    m_bc = 0;
+    m_bc = NULL;
 
     // todo more intelligent selection? prefer newer versions?
     foreach (Qt4BuildConfiguration *qt4bc, list)
@@ -84,17 +84,15 @@ S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60Publishe
     m_ui->chooseBuildConfigDropDown->setSizeAdjustPolicy(QComboBox::AdjustToContentsOnFirstShow);
     int focusedIndex = m_ui->chooseBuildConfigDropDown->findData(QVariant::fromValue(m_bc));
     m_ui->chooseBuildConfigDropDown->setCurrentIndex(focusedIndex);
-
     m_publisher->setBuildConfiguration(static_cast<Qt4BuildConfiguration *>(m_bc));
-
     //change the build configuration if the user changes it
     connect(m_ui->chooseBuildConfigDropDown, SIGNAL(currentIndexChanged(int)), this, SLOT(buildConfigChosen()));
+    connect(this, SIGNAL(buildChosen()), SIGNAL(completeChanged()));
 }
 
-void S60PublishingBuildSettingsPageOvi::initializePage()
+bool S60PublishingBuildSettingsPageOvi::isComplete() const
 {
-    if (!m_bc)
-        wizard()->button(QWizard::NextButton)->setDisabled(true);
+    return (m_bc != NULL);
 }
 
 void S60PublishingBuildSettingsPageOvi::buildConfigChosen()
@@ -104,6 +102,7 @@ void S60PublishingBuildSettingsPageOvi::buildConfigChosen()
         return;
     m_bc = m_ui->chooseBuildConfigDropDown->itemData(currentIndex).value<ProjectExplorer::BuildConfiguration *>();
     m_publisher->setBuildConfiguration(static_cast<Qt4BuildConfiguration *>(m_bc));
+    emit buildChosen();
 }
 
 S60PublishingBuildSettingsPageOvi::~S60PublishingBuildSettingsPageOvi()

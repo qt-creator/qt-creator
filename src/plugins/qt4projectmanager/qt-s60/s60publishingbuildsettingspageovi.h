@@ -58,7 +58,10 @@ public:
     explicit S60PublishingBuildSettingsPageOvi(S60PublisherOvi *publisher, const ProjectExplorer::Project *project, QWidget *parent = 0);
     ~S60PublishingBuildSettingsPageOvi();
 
-    void initializePage();
+    virtual bool isComplete() const;
+
+signals:
+    void buildChosen();
 
 private slots:
     void buildConfigChosen();
