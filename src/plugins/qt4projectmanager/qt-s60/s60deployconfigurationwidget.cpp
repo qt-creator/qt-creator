@@ -75,7 +75,8 @@ namespace Internal {
 const char STARTING_DRIVE_LETTER = 'C';
 const char LAST_DRIVE_LETTER = 'Z';
 
-static const quint32 CODA_UID = 0x20021f96;
+static const quint32 CODA_UID = 0x20021F96;
+static const quint32 QTMOBILITY_UID = 0x2002AC89;
 
 QString formatDriveText(const S60DeployConfiguration::DeviceDrive &drive)
 {
@@ -649,6 +650,7 @@ void S60DeployConfigurationWidget::updateDeviceInfo()
 
      QList<quint32> packagesOfInterest;
      packagesOfInterest.append(CODA_UID);
+     packagesOfInterest.append(QTMOBILITY_UID);
      m_codaInfoDevice->sendSymbianInstallGetPackageInfoCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getInstalledPackagesResult), packagesOfInterest);
  }
 
@@ -662,17 +664,35 @@ void S60DeployConfigurationWidget::updateDeviceInfo()
          QVariantList resultsList = result.values[0].toVariant().toList();
          foreach (const QVariant& var, resultsList) {
              QVariantHash obj = var.toHash();
-             if (obj.value("uid").toString().toUInt(0, 16) == CODA_UID) {
-                 if (!obj.value("error").isNull()) {
-                     // How can coda not be installed? Presumably some UID wrongness...
-                     addErrorToTable(str, tr("CODA version: "), tr("Error reading CODA version"));
-                 } else {
-                     QVariantList version = obj.value("version").toList();
-                     addToTable(str, tr("CODA version:"),
-                                QString("%1.%2.%3").arg(version[0].toInt())
-                                                   .arg(version[1].toInt())
-                                                   .arg(version[2].toInt()));
-                 }
+             bool ok = false;
+             uint uid = obj.value("uid").toString().toUInt(&ok, 16);
+             if (ok) {
+                bool error = !obj.value("error").isNull();
+                QString versionString;
+                if (!error) {
+                    QVariantList version = obj.value("version").toList();
+                    versionString = QString("%1.%2.%3").arg(version[0].toInt())
+                            .arg(version[1].toInt())
+                            .arg(version[2].toInt());
+                }
+                switch (uid) {
+                case CODA_UID: {
+                    if (error) {
+                        // How can coda not be installed? Presumably some UID wrongness...
+                        addErrorToTable(str, tr("CODA version: "), tr("Error reading CODA version"));
+                    } else
+                        addToTable(str, tr("CODA version: "), versionString);
+                }
+                break;
+                case QTMOBILITY_UID: {
+                    if (error)
+                        addErrorToTable(str, tr("QtMobility version: "), tr("Error reading QtMobility version"));
+                    else
+                        addToTable(str, tr("QtMobility version: "), versionString);
+                }
+                break;
+                default: break;
+                }
              }
          }
          finishTable(resultString);
