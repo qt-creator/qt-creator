@@ -41,6 +41,7 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QDebug>
 #include <QtCore/QStringList>
+#include <QtCore/QVariant>
 
 #include <ctype.h>
 
