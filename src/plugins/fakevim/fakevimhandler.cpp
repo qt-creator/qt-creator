@@ -3755,7 +3755,7 @@ void FakeVimHandler::Private::highlightMatches(const QString &needle0)
         QString needle = needle0;
         vimPatternToQtPattern(&needle, &flags);
         QRegExp needleExp(needle);
-        while (1) {
+        while (!tc.atEnd()) {
             tc = tc.document()->find(needleExp, tc.position(), flags);
             if (tc.isNull())
                 break;
