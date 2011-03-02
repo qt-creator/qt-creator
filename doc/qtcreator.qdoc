@@ -8407,6 +8407,8 @@
         adds a single line of editable formatted text that can be validated.
         \o \l{http://doc.qt.nokia.com/4.7/qml-textinput.html}{Text Input}
         adds a single line of editable plain text that can be validated.
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-webview.html}{Web View}
+        adds Web content to a canvas.
 
     \endlist
 
@@ -8696,7 +8698,7 @@
 
     \endlist
 
-    \section1 Organizing Items on Screens
+    \section1 Using Data Models
 
     You can create the following types of views to organize items provided by
     \l{http://doc.qt.nokia.com/4.7/qdeclarativemodels.html}{data models}:
@@ -8704,12 +8706,38 @@
     \list
 
         \o \l{http://doc.qt.nokia.com/4.7/qml-gridview.html}{Grid View}
+        provides a grid vizualization of a model.
+
         \o \l{http://doc.qt.nokia.com/4.7/qml-listview.html}{List View}
+        provides a list vizualization of a model.
+
         \o \l{http://doc.qt.nokia.com/4.7/qml-pathview.html}{Path View}
+        visualizes the contents of a model along a path.
 
     \endlist
 
     In the code editor, write the code to use the data models.
+
+    \section1 Positioning Items on Screens
+
+    You can use the following items to arrange items on screens:
+
+    \list
+
+        \o  \l{http://doc.qt.nokia.com/4.7-snapshot/qml-column.html}{Column}
+            arranges its child items vertically.
+
+        \o  \l{http://doc.qt.nokia.com/4.7-snapshot/qml-row.html}{Row}
+            arranges its child items horizontally.
+
+        \o  \l{http://doc.qt.nokia.com/4.7-snapshot/qml-grid.html}{Grid}
+            arranges its child items so that they are aligned in a grid and
+            are not overlapping.
+
+        \o  \l{http://doc.qt.nokia.com/4.7-snapshot/qml-flow.html}{Flow}
+            arranges its children side by side, wrapping as necessary.
+
+    \endlist
 
     \section1 Using States
 
