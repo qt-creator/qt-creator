@@ -61,6 +61,11 @@ namespace SymbianUtils {
 class SymbianDevice;
 }
 
+namespace Coda {
+    class CodaDevice;
+    struct CodaCommandResult;
+}
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -102,6 +107,11 @@ private:
 
     QWidget * createCommunicationChannel();
 
+    void getQtVersionCommandResult(const Coda::CodaCommandResult &result);
+    void getRomInfoResult(const Coda::CodaCommandResult &result);
+    void getInstalledPackagesResult(const Coda::CodaCommandResult &result);
+    void getHalResult(const Coda::CodaCommandResult &result);
+
     S60DeployConfiguration *m_deployConfiguration;
     Utils::DetailsWidget *m_detailsWidget;
     QComboBox *m_serialPortsCombo;
@@ -117,6 +127,7 @@ private:
     Utils::IpAddressLineEdit *m_ipAddress;
     QRadioButton *m_trkRadioButton;
     QRadioButton *m_codaRadioButton;
+    QSharedPointer<Coda::CodaDevice> m_codaInfoDevice;
 };
 
 } // namespace Internal

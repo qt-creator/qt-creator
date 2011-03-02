@@ -131,11 +131,6 @@ http://dev.eclipse.org/svnroot/dsdp/org.eclipse.tm.tcf/trunk/docs/TCF%20Services
  * Commands can be sent along with callbacks that are passed a
  * CodaCommandResult and an opaque QVariant cookie. In addition, events are emitted.
  *
- * Note: As of 11.8.2010, TCF Trk 4.0.5 does not currently support 'Registers::getm'
- * (get multiple registers). So, CodaDevice emulates it by sending a sequence of
- * single commands. As soon as 'Registers::getm' is natively supported, all code
- * related to 'FakeRegisterGetm' should be removed. The workaround requires that
- * the register name is known.
  * CODA notes:
  * - Commands are accepted only after receiving the Locator Hello event
  * - Serial communication initiation sequence:
@@ -351,6 +346,10 @@ public:
                                             const QByteArray &file,
                                             const QVariant &cookie = QVariant());
 
+    void sendSymbianInstallGetPackageInfoCommand(const Coda::CodaCallback &callBack,
+                                                 const QList<quint32> &packages,
+                                                 const QVariant &cookie = QVariant());
+
     void sendLoggingAddListenerCommand(const CodaCallback &callBack,
                                        const QVariant &cookie = QVariant());
 
@@ -362,6 +361,16 @@ public:
                                                 const QByteArray &processName,
                                                 const QByteArray &uid,
                                                 const QVariant &cookie = QVariant());
+
+    void sendSymbianOsDataGetQtVersionCommand(const CodaCallback &callBack,
+                                              const QVariant &cookie = QVariant());
+
+    void sendSymbianOsDataGetRomInfoCommand(const CodaCallback &callBack,
+                                            const QVariant &cookie = QVariant());
+
+    void sendSymbianOsDataGetHalInfoCommand(const CodaCallback &callBack,
+                                            const QStringList &keys = QStringList(),
+                                            const QVariant &cookie = QVariant());
 
     // Settings
     void sendSettingsEnableLogCommand();

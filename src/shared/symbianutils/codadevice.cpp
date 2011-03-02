@@ -936,8 +936,6 @@ void CodaDevice::sendProcessStartCommand(const CodaCallback &callBack,
     const QString sysBin = QLatin1String("c:/sys/bin");
     const QString binaryFileName  = slashPos == -1 ? binaryIn : binaryIn.mid(slashPos + 1);
 
-    // Fixup: Does argv[0] convention exist on Symbian?
-    arguments.push_front(binaryFileName);
     if (workingDirectory.isEmpty())
         workingDirectory = sysBin;
 
@@ -1316,8 +1314,7 @@ void CodaDevice::sendRegistersSetCommand(const CodaCallback &callBack,
                             value, cookie);
 }
 
-//static const char outputListenerIDC[] = "org.eclipse.cdt.debug.edc.ui.ProgramOutputConsoleLogger";
-static const char outputListenerIDC[] = "ProgramOutputConsoleLogger"; //TODO: this one might be the correct one
+static const char outputListenerIDC[] = "ProgramOutputConsoleLogger";
 
 void CodaDevice::sendLoggingAddListenerCommand(const CodaCallback &callBack,
                                                  const QVariant &cookie)
@@ -1344,6 +1341,34 @@ void CodaDevice::sendSymbianOsDataFindProcessesCommand(const CodaCallback &callB
     JsonInputStream str(data);
     str << processName << '\0' << uid;
     sendCodaMessage(MessageWithReply, SymbianOSData, "findRunningProcesses", data, callBack, cookie);
+}
+
+void CodaDevice::sendSymbianOsDataGetQtVersionCommand(const CodaCallback &callBack,
+                                                      const QVariant &cookie)
+{
+    sendCodaMessage(MessageWithReply, SymbianOSData, "getQtVersion", QByteArray(), callBack, cookie);
+}
+
+void CodaDevice::sendSymbianOsDataGetRomInfoCommand(const CodaCallback &callBack,
+                                                      const QVariant &cookie)
+{
+    sendCodaMessage(MessageWithReply, SymbianOSData, "getRomInfo", QByteArray(), callBack, cookie);
+}
+
+void CodaDevice::sendSymbianOsDataGetHalInfoCommand(const CodaCallback &callBack,
+                                                    const QStringList &keys,
+                                                    const QVariant &cookie)
+{
+    QByteArray data;
+    JsonInputStream str(data);
+    str << '[';
+    for (int i = 0; i < keys.count(); ++i) {
+        if (i)
+            str << ',';
+        str << keys[i];
+    }
+    str << ']';
+    sendCodaMessage(MessageWithReply, SymbianOSData, "getHalInfo", data, callBack, cookie);
 }
 
 void Coda::CodaDevice::sendFileSystemOpenCommand(const Coda::CodaCallback &callBack,
@@ -1409,4 +1434,24 @@ void Coda::CodaDevice::sendSymbianInstallUIInstallCommand(const Coda::CodaCallba
     str << file;
     sendCodaMessage(MessageWithReply, SymbianInstallService, "installWithUI", data, callBack, cookie);
 }
+
+void Coda::CodaDevice::sendSymbianInstallGetPackageInfoCommand(const Coda::CodaCallback &callBack,
+                                                               const QList<quint32> &packages,
+                                                               const QVariant &cookie)
+{
+    QByteArray data;
+    JsonInputStream str(data);
+    str << '[';
+    for (int i = 0; i < packages.count(); ++i) {
+        if (i)
+            str << ',';
+        QString pkgString;
+        pkgString.setNum(packages[i], 16);
+        str << pkgString;
+    }
+    str << ']';
+    sendCodaMessage(MessageWithReply, SymbianInstallService, "getPackageInfo", data, callBack, cookie);
+}
+
+
 } // namespace Coda

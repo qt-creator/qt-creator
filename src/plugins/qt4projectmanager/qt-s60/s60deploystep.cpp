@@ -317,7 +317,7 @@ void S60DeployStep::stop()
     } else {
         if (m_codaDevice) {
             disconnect(m_codaDevice.data(), 0, this, 0);
-            SymbianUtils::SymbianDeviceManager::instance()->releaseTcfPort(m_codaDevice);
+            SymbianUtils::SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
         }
     }
     emit finished(false);
@@ -384,7 +384,7 @@ void S60DeployStep::startDeployment()
         }
     } else if (m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection) {
         appendMessage(tr("Deploying application to '%1'...").arg(m_serialPortFriendlyName), false);
-        m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getTcfPort(m_serialPortName);
+        m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getCodaDevice(m_serialPortName);
         bool ok = m_codaDevice && m_codaDevice->device()->isOpen();
         if (!ok) {
             QString deviceError = tr("No such port");
@@ -442,7 +442,7 @@ void S60DeployStep::run(QFutureInterface<bool> &fi)
 
     if (m_codaDevice) {
         disconnect(m_codaDevice.data(), 0, this, 0);
-        SymbianUtils::SymbianDeviceManager::instance()->releaseTcfPort(m_codaDevice);
+        SymbianUtils::SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
     }
 
     delete m_eventLoop;

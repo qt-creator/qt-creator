@@ -87,6 +87,8 @@ public:
     void fromString(const QByteArray &str);
     void setStreamOutput(const QByteArray &name, const QByteArray &content);
 
+    QVariant toVariant() const;
+
 private:
     static QByteArray parseCString(const char *&from, const char *to);
     static QByteArray parseNumber(const char *&from, const char *to);
