@@ -9,6 +9,7 @@ headerdirs              = . \
                           ../../src/libs/aggregation \
                           ../../src/libs/cplusplus \
                           ../../src/libs/extensionsystem \
+                          ../../src/libs/utils \
                           ../../src/libs/qtcreatorcdbext \
                           ../../src/plugins/coreplugin \
                           ../../src/plugins/find \
@@ -19,6 +20,7 @@ sourcedirs              = . \
                           ../../src/libs/aggregation \
                           ../../src/libs/cplusplus \
                           ../../src/libs/extensionsystem \
+                          ../../src/libs/utils \
                           ../../src/libs/qtcreatorcdbext \
                           ../../src/plugins/coreplugin \
                           ../../src/plugins/find \

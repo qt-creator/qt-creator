@@ -43,21 +43,13 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-/*
-
-The class fixes QTreeWidget to resize all columns to contents, except one
-stretching column. As opposed to standard QTreeWidget, all columns are
-still interactively resizable.
-
-*/
-
 class QTCREATOR_UTILS_EXPORT TreeWidgetColumnStretcher : public QObject
 {
-    int m_columnToStretch;
+    const int m_columnToStretch;
 public:
-    TreeWidgetColumnStretcher(QTreeWidget *treeWidget, int columnToStretch);
+    explicit TreeWidgetColumnStretcher(QTreeWidget *treeWidget, int columnToStretch);
 
-    bool eventFilter(QObject *obj, QEvent *ev);
+    virtual bool eventFilter(QObject *obj, QEvent *ev);
 };
 
 } // namespace Utils

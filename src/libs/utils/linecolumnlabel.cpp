@@ -33,6 +33,13 @@
 
 #include "linecolumnlabel.h"
 
+/*!
+    \class Utils::LineColumnLabel
+
+    \brief A label suitable for displaying cursor positions, etc. with a fixed
+    width derived from a sample text.
+*/
+
 namespace Utils {
 
 LineColumnLabel::LineColumnLabel(QWidget *parent)

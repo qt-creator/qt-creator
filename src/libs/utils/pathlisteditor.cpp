@@ -50,6 +50,24 @@
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 
+/*!
+    \class Utils::PathListEditor
+
+    \brief A control that let's the user edit a list of (directory) paths
+    using the platform separator (';',':').
+
+    Typically used for
+    path lists controlled by environment variables, such as
+    PATH. It is based on a QPlainTextEdit as it should
+    allow for convenient editing and non-directory type elements like
+    \code
+    "etc/mydir1:$SPECIAL_SYNTAX:/etc/mydir2".
+    \endcode
+
+    When pasting text into it, the platform separator will be replaced
+    by new line characters for convenience.
+ */
+
 namespace Utils {
 
 // ------------ PathListPlainTextEdit:

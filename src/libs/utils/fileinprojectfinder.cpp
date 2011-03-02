@@ -38,21 +38,24 @@
 
 namespace Utils {
 
-/**
-  \class FileInProjectFinder
+/*!
+  \class Utils::FileInProjectFinder
 
-  Helper class to find the 'original' file in the project directory for a given file path.
+  \brief Helper class to find the 'original' file in the project directory for a given file path.
 
   Often files are copied in the build + deploy process. findFile() searches for an existing file
   in the project directory for a given file path:
 
   E.g. following file paths:
-      C:/app-build-desktop/qml/app/main.qml (shadow build directory)
-      C:/Private/e3026d63/qml/app/main.qml  (Application data folder on Symbian device)
-      /Users/x/app-build-desktop/App.app/Contents/Resources/qml/App/main.qml (folder on Mac OS X)
- should all be mapped to
-      $PROJECTDIR/qml/app/main.qml
-  */
+  \list
+  \i C:/app-build-desktop/qml/app/main.qml (shadow build directory)
+  \i C:/Private/e3026d63/qml/app/main.qml  (Application data folder on Symbian device)
+  \i /Users/x/app-build-desktop/App.app/Contents/Resources/qml/App/main.qml (folder on Mac OS X)
+  \endlist
+
+ should all be mapped to $PROJECTDIR/qml/app/main.qml
+*/
+
 FileInProjectFinder::FileInProjectFinder()
 {
 }

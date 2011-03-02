@@ -52,25 +52,6 @@ class SshChannelManager;
 class SshSendFacility;
 } // namespace Internal
 
-/*
- * This class provides SFTP operations.
- * Objects are created via SshConnection::createSftpChannel().
- * The channel needs to be initialized with
- * a call to initialize() and is closed via closeChannel(). After closing
- * a channel, no more operations are possible. It cannot be re-opened
- * using initialize(); use SshConnection::createSftpChannel() if you need
- * a new one.
- * After the initialized() signal has been emitted, operations can be started.
- * All SFTP operations are asynchronous (non-blocking) and can be in-flight
- * simultaneously (though callers must ensure that concurrently running jobs
- * are independent of each other, e.g. they must not write to the same file).
- * Operations are identified by their job id, which is returned by
- * the respective member function. If the function can right away detect that
- * the operation cannot succeed, it returns SftpInvalidJob. If an error occurs
- * later, the finished() signal is emitted for the respective job with a
- * non-empty error string.
- * Note that directory names must not have a trailing slash.
- */
 class QTCREATOR_UTILS_EXPORT SftpChannel : public QObject
 {
     Q_OBJECT

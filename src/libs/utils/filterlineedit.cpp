@@ -33,15 +33,21 @@
 
 #include "filterlineedit.h"
 
+/*!
+    \class Utils::FilterLineEdit
+
+    \brief A fancy line edit customized for filtering purposes with a clear button.
+*/
+
 namespace Utils {
 
 FilterLineEdit::FilterLineEdit(QWidget *parent) :
    FancyLineEdit(parent),
    m_lastFilterText(text())
 {
-    // KDE has custom icons for this. Notice that icon namings are counter intuitive
-    // If these icons are not avaiable we use the freedesktop standard name before
-    // falling back to a bundled resource
+    // KDE has custom icons for this. Notice that icon namings are counter intuitive.
+    // If these icons are not available we use the freedesktop standard name before
+    // falling back to a bundled resource.
     QIcon icon = QIcon::fromTheme(layoutDirection() == Qt::LeftToRight ?
                      QLatin1String("edit-clear-locationbar-rtl") :
                      QLatin1String("edit-clear-locationbar-ltr"),

@@ -46,6 +46,11 @@ enum { leftContentsMargin = 2,
        bottomContentsMargin = 1,
        pixmapWidth = 24 };
 
+/*!
+    \class Utils::WelcomeModeLabel
+    \brief Label usable for headers of a Welcome page.
+*/
+
 namespace Utils {
 
 WelcomeModeLabel::WelcomeModeLabel(QWidget *parent) :
@@ -246,6 +251,11 @@ WelcomeModeTreeWidgetPrivate::WelcomeModeTreeWidgetPrivate() :
 {
     layout->setMargin(0);
 }
+
+/*!
+    \class Utils::WelcomeModeTreeWidget
+    \brief Show an itemized list with arrows and emits a signal on click.
+*/
 
 WelcomeModeTreeWidget::WelcomeModeTreeWidget(QWidget *parent) :
         QWidget(parent), m_d(new WelcomeModeTreeWidgetPrivate)

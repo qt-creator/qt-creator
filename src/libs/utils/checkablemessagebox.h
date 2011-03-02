@@ -44,10 +44,6 @@ namespace Utils {
 
 struct CheckableMessageBoxPrivate;
 
-/* A messagebox suitable for questions with a
- * "Do not ask me again" checkbox. Emulates the QMessageBox API with
- * static conveniences. The message label can open external URLs. */
-
 class QTCREATOR_UTILS_EXPORT CheckableMessageBox : public QDialog
 {
     Q_OBJECT

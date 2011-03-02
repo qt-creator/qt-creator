@@ -35,7 +35,18 @@
 #include <QtGui/QTreeWidget>
 #include <QtGui/QHideEvent>
 #include <QtGui/QHeaderView>
+
 using namespace Utils;
+
+/*!
+    \class Utils::TreeWidgetColumnStretcher
+
+    \brief The class fixes QTreeWidget to resize all columns to contents, except one
+    stretching column.
+
+    As opposed to standard QTreeWidget, all columns are
+    still interactively resizable.
+*/
 
 TreeWidgetColumnStretcher::TreeWidgetColumnStretcher(QTreeWidget *treeWidget, int columnToStretch)
         : QObject(treeWidget->header()), m_columnToStretch(columnToStretch)

@@ -41,11 +41,6 @@ namespace Utils {
 
 class FileWizardPage;
 
-/*
-   Standard wizard for a single file letting the user choose name
-   and path. Custom pages can be added via Core::IWizardExtension.
-*/
-
 class QTCREATOR_UTILS_EXPORT FileWizardDialog : public Wizard {
     Q_OBJECT
     Q_DISABLE_COPY(FileWizardDialog)

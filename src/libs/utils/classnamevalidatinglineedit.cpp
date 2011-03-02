@@ -38,6 +38,13 @@
 #include <QtCore/QDebug>
 #include <QtCore/QRegExp>
 
+/*!
+    \class Utils::ClassNameValidatingLineEdit
+
+    \brief A Line edit that validates a C++ class name and emits a signal
+    to derive suggested file names from it.
+*/
+
 namespace Utils {
 
 struct ClassNameValidatingLineEditPrivate {

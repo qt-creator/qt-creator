@@ -34,6 +34,16 @@
 #include "filewizardpage.h"
 #include "ui_filewizardpage.h"
 
+/*!
+  \class Utils::FileWizardPage
+
+  \brief Standard wizard page for a single file letting the user choose name
+  and path.
+
+  The name and path labels can be changed. By default they are simply "Name:"
+  and "Path:".
+*/
+
 namespace Utils {
 
 struct FileWizardPagePrivate

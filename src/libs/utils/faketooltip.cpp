@@ -36,6 +36,14 @@
 #include <QtGui/QStyleOption>
 #include <QtGui/QStylePainter>
 
+/*!
+    \class Utils::FakeToolTip
+
+    \brief A widget that pretends to be a tooltip.
+
+    By default it has Qt::WA_DeleteOnClose set.
+*/
+
 namespace Utils {
 
 FakeToolTip::FakeToolTip(QWidget *parent) :

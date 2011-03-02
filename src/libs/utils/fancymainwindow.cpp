@@ -49,6 +49,15 @@ static const char dockWidgetActiveState[] = "DockWidgetActiveState";
 
 namespace Utils {
 
+/*! \class Utils::FancyMainWindow
+
+    \brief MainWindow with dock widgets and additional "lock" functionality
+    (locking the dock widgets in place) and "reset layout" functionality.
+
+    The dock actions and the additional actions should be accessible
+    in a Window-menu.
+*/
+
 struct FancyMainWindowPrivate
 {
     FancyMainWindowPrivate();

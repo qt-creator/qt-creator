@@ -40,15 +40,6 @@
 
 namespace Utils {
 
-/* ParameterAction: Intended for actions that act on a 'current',
- * string-type parameter (typically file name) and have 2 states:
- * 1) <no current parameter> displaying "Do XX" (empty text)
- * 2) <parameter present> displaying "Do XX with %1".
- * Provides a slot to set the parameter, changing display
- * and enabled state accordingly.
- * The text passed in should already be translated; parameterText
- * should contain a %1 where the parameter is to be inserted. */
-
 class QTCREATOR_UTILS_EXPORT ParameterAction : public QAction
 {
     Q_ENUMS(EnablingMode)

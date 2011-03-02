@@ -40,6 +40,15 @@
 #include <QtGui/QKeyEvent>
 #endif
 
+/*!
+   \class Utils::NavigationTreeView
+
+   \brief General TreeView for any Side Bar widget.
+
+   Common initialization etc, e.g. Mac specific behaviour.
+   \sa Core::NavigationView, Core::INavigationWidgetFactory
+ */
+
 namespace Utils {
 
 NavigationTreeView::NavigationTreeView(QWidget *parent)

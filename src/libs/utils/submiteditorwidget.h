@@ -53,24 +53,6 @@ namespace Utils {
 class SubmitFieldWidget;
 struct SubmitEditorWidgetPrivate;
 
-/* The submit editor presents the commit message in a text editor and an
- * checkable list of modified files in a list window. The user can delete
- * files from the list by unchecking them or diff the selection
- * by doubleclicking. A list model which contains the file in a column
- * specified by fileNameColumn should be set using setFileModel().
- *
- * Additionally, standard creator actions  can be registered:
- * Undo/redo will be set up to work with the description editor.
- * Submit will be set up to be enabled according to checkstate.
- * Diff will be set up to trigger diffSelected().
- *
- * Note that the actions are connected by signals; in the rare event that there
- * are several instances of the SubmitEditorWidget belonging to the same
- * context active, the actions must be registered/unregistered in the editor
- * change event.
- * Care should be taken to ensure the widget is deleted properly when the
- * editor closes. */
-
 class QTCREATOR_UTILS_EXPORT SubmitEditorWidget : public QWidget
 {
     Q_OBJECT

@@ -50,19 +50,6 @@ class SshRemoteProcessPrivate;
 class SshSendFacility;
 } // namespace Internal
 
-
-/*
- * This class implements an SSH channel for running a remote process.
- * Objects are created via SshConnection::createRemoteProcess.
- * The process is started via the start() member function.
- * A closeChannel() function is provided, but rarely useful, because
- *    a) when the process ends, the channel is closed automatically, and
- *    b) closing a channel will not necessarily kill the remote process.
- * Therefore, the only sensible use case for calling closeChannel() is to
- * get rid of an SshRemoteProces object before the process is actually started.
- * Note that the process does not have a terminal, so you can't use it
- * for applications that require one.
- */
 class QTCREATOR_UTILS_EXPORT SshRemoteProcess : public QObject
 {
     Q_OBJECT

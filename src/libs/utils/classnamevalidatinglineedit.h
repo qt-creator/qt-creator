@@ -41,9 +41,6 @@ namespace Utils {
 
 struct ClassNameValidatingLineEditPrivate;
 
-/* A Line edit that validates a C++ class name and emits a signal
- * to derive suggested file names from it. */
-
 class QTCREATOR_UTILS_EXPORT ClassNameValidatingLineEdit
   : public Utils::BaseValidatingLineEdit
 {

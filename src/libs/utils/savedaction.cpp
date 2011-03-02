@@ -48,9 +48,7 @@
 #include <QtGui/QSpinBox>
 #include <QtGui/QGroupBox>
 
-
 using namespace Utils;
-
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -63,9 +61,6 @@ using namespace Utils;
 
     \brief The SavedAction class is a helper class for actions with persistent
     state.
-
-    \ingroup utils
-
 */
 
 SavedAction::SavedAction(QObject *parent)
@@ -425,7 +420,6 @@ void SavedAction::trigger(const QVariant &data)
     setData(data);
     QAction::trigger();
 }
-
 
 //////////////////////////////////////////////////////////////////////////
 //

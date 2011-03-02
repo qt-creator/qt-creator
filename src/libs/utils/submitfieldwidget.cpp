@@ -55,6 +55,18 @@ static void inline setComboBlocked(QComboBox *cb, int index)
     cb->blockSignals(blocked);
 }
 
+/*!
+    \class Utils::SubmitFieldWidget
+    \brief A widget for editing submit message fields like "reviewed-by:",
+    "signed-off-by:".
+
+    It displays them in a vertical row of combo/line edit fields
+    that is modeled after the target address controls of mail clients.
+    When choosing a different field in the combo, a new row is opened if text
+    has been entered for the current field. Optionally, a "Browse..." button and
+    completer can be added.
+*/
+
 namespace Utils {
 
 // Field/Row entry

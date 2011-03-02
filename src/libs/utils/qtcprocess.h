@@ -43,9 +43,6 @@
 namespace Utils {
 class AbstractMacroExpander;
 
-/*!
-  This class provides functionality for dealing with shell-quoted process arguments.
-*/
 class QTCREATOR_UTILS_EXPORT QtcProcess : public QProcess
 {
     Q_OBJECT

@@ -40,10 +40,6 @@
 
 namespace Utils {
 
-/**
- * A widget that pretends to be a tooltip. By default it has
- * Qt::WA_DeleteOnClose set.
- */
 class QTCREATOR_UTILS_EXPORT FakeToolTip : public QWidget
 {
     Q_OBJECT

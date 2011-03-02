@@ -42,13 +42,6 @@ namespace Utils {
 
 struct FileWizardPagePrivate;
 
-/**
- * Standard wizard page for a single file letting the user choose name
- * and path. Sets the "FileNames" QWizard field.
- *
- * The name and path labels can be changed. By default they are simply "Name:"
- * and "Path:".
- */
 class QTCREATOR_UTILS_EXPORT FileWizardPage : public QWizardPage
 {
     Q_OBJECT

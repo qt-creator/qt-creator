@@ -37,6 +37,13 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QDebug>
 
+/*!
+  \class Utils::FileNameValidatingLineEdit
+
+  \brief A control that let's the user choose a (base) file name, based on a QLineEdit. Has
+   some validation logic for embedding into QWizardPage.
+*/
+
 namespace Utils {
 
 #define WINDOWS_DEVICES "CON|AUX|PRN|COM1|COM2|LPT1|LPT2|NUL"

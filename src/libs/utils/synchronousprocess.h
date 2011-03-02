@@ -80,26 +80,6 @@ struct QTCREATOR_UTILS_EXPORT SynchronousProcessResponse
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse &);
 
-/* SynchronousProcess: Runs a synchronous process in its own event loop
- * that blocks only user input events. Thus, it allows for the gui to
- * repaint and append output to log windows.
- *
- * The stdOut(), stdErr() signals are emitted unbuffered as the process
- * writes them.
- *
- * The stdOutBuffered(), stdErrBuffered() signals are emitted with complete
- * lines based on the '\n' marker if they are enabled using
- * stdOutBufferedSignalsEnabled()/setStdErrBufferedSignalsEnabled().
- * They would typically be used for log windows.
- *
- * There is a timeout handling that takes effect after the last data have been
- * read from stdout/stdin (as opposed to waitForFinished(), which measures time
- * since it was invoked). It is thus also suitable for slow processes that continously
- * output data (like version system operations).
- *
- * The property timeOutMessageBoxEnabled influences whether a message box is
- * shown asking the user if they want to kill the process on timeout (default: false). */
-
 class QTCREATOR_UTILS_EXPORT SynchronousProcess : public QObject
 {
     Q_OBJECT

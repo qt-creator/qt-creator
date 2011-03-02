@@ -52,6 +52,15 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QPushButton>
 
+/*!
+    \class Utils::PathChooser
+
+    \brief A control that let's the user choose a path, consisting of a QLineEdit and
+    a "Browse" button.
+
+    Has some validation logic for embedding into QWizardPage.
+*/
+
 /*static*/ const char * const Utils::PathChooser::browseButtonLabel =
 #ifdef Q_WS_MAC
                    QT_TRANSLATE_NOOP("Utils::PathChooser", "Choose...");

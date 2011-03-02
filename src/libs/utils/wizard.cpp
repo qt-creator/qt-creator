@@ -42,6 +42,13 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QStyle>
 
+/*! \class Utils::Wizard
+
+  \brief A wizard with a progress bar on the left.
+
+  Informs the user about the progress.
+*/
+
 namespace Utils {
 
 class ProgressItemWidget : public QWidget

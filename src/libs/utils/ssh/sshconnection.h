@@ -70,11 +70,6 @@ struct QTCREATOR_UTILS_EXPORT SshConnectionParameters
 QTCREATOR_UTILS_EXPORT bool operator==(const SshConnectionParameters &p1, const SshConnectionParameters &p2);
 QTCREATOR_UTILS_EXPORT bool operator!=(const SshConnectionParameters &p1, const SshConnectionParameters &p2);
 
-/*
- * This class provides an SSH connection, implementing protocol version 2.0
- * It can spawn channels for remote execution and SFTP operations (version 3).
- * It operates asynchronously (non-blocking) and is not thread-safe.
- */
 class QTCREATOR_UTILS_EXPORT SshConnection : public QObject
 {
     Q_OBJECT

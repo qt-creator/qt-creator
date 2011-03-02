@@ -39,6 +39,28 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
+
+/*!
+    \class Utils::ProjectIntroPage
+
+    \brief Standard wizard page for a project, letting the user choose name
+    and path.
+
+    Looks similar to FileWizardPage, but provides additional
+    functionality:
+    \list
+    \o Description label at the top for displaying introductory text
+    \o It does on the fly validation (connected to changed()) and displays
+       warnings/errors in a status label at the bottom (the page is complete
+       when fully validated, validatePage() is thus not implemented).
+    \endlist
+
+    Note: Careful when changing projectintropage.ui. It must have main
+    geometry cleared and QLayout::SetMinimumSize constraint on the main
+    layout, otherwise, QWizard will squeeze it due to its strange expanding
+    hacks.
+*/
+
 namespace Utils {
 
 struct ProjectIntroPagePrivate

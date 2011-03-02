@@ -40,7 +40,6 @@
 namespace Utils {
 class SshRemoteProcessRunnerPrivate;
 
-// Convenience class for running a remote process over an SSH connection.
 class QTCREATOR_UTILS_EXPORT SshRemoteProcessRunner : public QObject
 {
     Q_OBJECT

@@ -38,10 +38,6 @@
 
 namespace Utils {
 
-/**
- * A control that let's the user choose a file name, based on a QLineEdit. Has
- * some validation logic for embedding into QWizardPage.
- */
 class QTCREATOR_UTILS_EXPORT FileNameValidatingLineEdit : public BaseValidatingLineEdit
 {
     Q_OBJECT

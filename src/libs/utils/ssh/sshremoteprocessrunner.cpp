@@ -35,6 +35,12 @@
 
 #define ASSERT_STATE(states) assertState(states, Q_FUNC_INFO)
 
+/*!
+    \class Utils::SshRemoteProcessRunner
+
+    \brief Convenience class for running a remote process over an SSH connection.
+*/
+
 namespace Utils {
 
 class SshRemoteProcessRunnerPrivate : public QObject

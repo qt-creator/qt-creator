@@ -40,18 +40,11 @@
 
 namespace Utils {
 
-/*!
-   \class NavigationTreeView
-   \sa Core::NavigationView, Core::INavigationWidgetFactory
-
-   General TreeView for any Side Bar widget. Common initialization etc, e.g. Mac specific behaviour.
- */
-
 class QTCREATOR_UTILS_EXPORT NavigationTreeView : public QTreeView
 {
     Q_OBJECT
 public:
-    NavigationTreeView(QWidget *parent = 0);
+    explicit NavigationTreeView(QWidget *parent = 0);
 
 protected:
     void focusInEvent(QFocusEvent *event);

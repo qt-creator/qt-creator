@@ -44,18 +44,26 @@
 #include <QtGui/QScrollArea>
 #include <QtGui/QApplication>
 
+/*!
+    \class Utils::DetailsWidget
+
+    \brief Widget a button to expand a 'Details' area.
+
+    This widget is using a grid layout and places the items
+    in the following way:
+
+    \code
++------------+-------------------------+---------------+
++summaryLabel|              toolwidget | detailsButton |
++------------+-------------------------+---------------+
+|                  widget                              |
++------------+-------------------------+---------------+
+    \endcode
+*/
+
 namespace Utils {
 
     static const int MARGIN=8;
-
-    // This widget is using a grid layout and places the items
-    // in the following way:
-    //
-    // +------------+-------------------------+---------------+
-    // +summaryLabel|              toolwidget | detailsButton |
-    // +------------+-------------------------+---------------+
-    // |                  widget                              |
-    // +------------+-------------------------+---------------+
 
     struct DetailsWidgetPrivate {
         DetailsWidgetPrivate(QWidget *parent);

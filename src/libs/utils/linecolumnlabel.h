@@ -39,9 +39,6 @@
 
 namespace Utils {
 
-/* A label suitable for displaying cursor positions, etc. with a fixed
- * with derived from a sample text. */
-
 class  QTCREATOR_UTILS_EXPORT LineColumnLabel : public QLabel
 {
     Q_DISABLE_COPY(LineColumnLabel)

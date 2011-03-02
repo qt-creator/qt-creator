@@ -60,6 +60,10 @@
     \o Implements the plugin loader framework. Provides a base class for plugins and
     basic mechanisms for plugin interaction like an object pool.
 
+    \row
+    \o \l{Utils}
+    \o General utility library.
+
     \endtable
 
     \section2 Additional libraries

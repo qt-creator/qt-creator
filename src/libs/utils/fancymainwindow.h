@@ -46,10 +46,6 @@ namespace Utils {
 
 struct FancyMainWindowPrivate;
 
-// MainWindow with dock widgets and additional "lock" functionality
-// (locking the dock widgets in place) and "reset layout" functionality.
-// The dock actions and the additional actions should be accessible
-// in a Window-menu.
 class QTCREATOR_UTILS_EXPORT FancyMainWindow : public QMainWindow
 {
     Q_OBJECT

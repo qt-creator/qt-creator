@@ -50,6 +50,37 @@
 #    include <unistd.h>
 #endif
 
+/*!
+    \class Utils::SynchronousProcess
+
+    \brief Runs a synchronous process in its own event loop
+    that blocks only user input events. Thus, it allows for the gui to
+    repaint and append output to log windows.
+
+    The stdOut(), stdErr() signals are emitted unbuffered as the process
+    writes them.
+
+    The stdOutBuffered(), stdErrBuffered() signals are emitted with complete
+    lines based on the '\n' marker if they are enabled using
+    stdOutBufferedSignalsEnabled()/setStdErrBufferedSignalsEnabled().
+    They would typically be used for log windows.
+
+    There is a timeout handling that takes effect after the last data have been
+    read from stdout/stdin (as opposed to waitForFinished(), which measures time
+    since it was invoked). It is thus also suitable for slow processes that continously
+    output data (like version system operations).
+
+    The property timeOutMessageBoxEnabled influences whether a message box is
+    shown asking the user if they want to kill the process on timeout (default: false).
+
+    There are also static utility functions for dealing with fully synchronous
+    processes, like reading the output with correct timeout handling.
+
+    Caution: This class should NOT be used if there is a chance that the process
+    triggers opening dialog boxes (for example, by file watchers triggering),
+    as this will cause event loop problems.
+*/
+
 enum { debug = 0 };
 enum { syncDebug = 0 };
 

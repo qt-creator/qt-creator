@@ -37,6 +37,27 @@
 
 enum { debug = 0 };
 
+/*!
+    \namespace Utils
+    General utility library namespace
+*/
+
+/*! \class Utils::BaseValidatingLineEdit
+
+    \brief Base class for line edits that perform validation.
+
+    Performs validation in a virtual  validate() function to be implemented in
+    derived classes.
+    When invalid, the text color will turn red and a tooltip will
+    contain the error message. This approach is less intrusive than a
+    QValidator which will prevent the user from entering certain characters.
+
+    The widget has a concept of an "initialText" which can be something like
+    "<Enter name here>". This results in state 'DisplayingInitialText', which
+    is not valid, but is not marked red.
+*/
+
+
 namespace Utils {
 
 struct BaseValidatingLineEditPrivate {
