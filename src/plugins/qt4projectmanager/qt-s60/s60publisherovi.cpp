@@ -271,8 +271,7 @@ void S60PublisherOvi::updateProFile(const QString &var, const QString &values)
 
 void S60PublisherOvi::updateProFile()
 {
-    updateProFile("vendor", m_vendorName);
-    updateProFile("localised vendor", m_localVendorName);
+    updateProFile("vendorinfo","%{\""+ m_vendorName + "\"} :\""+ m_localVendorName+ "\"");
     updateProFile("TARGET.UID3", m_appUid);
 }
 
