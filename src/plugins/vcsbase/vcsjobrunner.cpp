@@ -45,8 +45,12 @@
 #include <QtCore/QString>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
+#include <QtCore/QQueue>
+#include <QtCore/QMutex>
+#include <QtCore/QWaitCondition>
+#include <QtCore/QSharedPointer>
 
-using namespace VCSBase;
+namespace VCSBase {
 
 VCSJob::VCSJob(const QString &workingDir,
                const QStringList &args,
@@ -124,10 +128,26 @@ void VCSJob::setUnixTerminalDisabled(bool v)
     m_unixTerminalDisabled = v;
 }
 
+class VCSJobRunnerPrivate
+{
+public:
+    VCSJobRunnerPrivate();
 
+    QQueue<QSharedPointer<VCSJob> > m_jobs;
+    QMutex m_mutex;
+    QWaitCondition m_waiter;
+    bool m_keepRunning;
+    QString m_binary;
+    QStringList m_standardArguments;
+    int m_timeoutMS;
+};
 
-VCSJobRunner::VCSJobRunner() :
-    m_keepRunning(true)
+VCSJobRunnerPrivate::VCSJobRunnerPrivate() :
+    m_keepRunning(true), m_timeoutMS(30000)
+{
+}
+
+VCSJobRunner::VCSJobRunner() : d(new VCSJobRunnerPrivate)
 {
     VCSBase::VCSBaseOutputWindow *ow = VCSBase::VCSBaseOutputWindow::instance();
     connect(this, SIGNAL(error(QString)),
@@ -144,12 +164,12 @@ VCSJobRunner::~VCSJobRunner()
 void VCSJobRunner::stop()
 {
     {
-        QMutexLocker mutexLocker(&m_mutex); Q_UNUSED(mutexLocker);
-        m_keepRunning = false;
+        QMutexLocker mutexLocker(&d->m_mutex); Q_UNUSED(mutexLocker);
+        d->m_keepRunning = false;
         //Create a dummy task to break the cycle
         QSharedPointer<VCSJob> job(0);
-        m_jobs.enqueue(job);
-        m_waiter.wakeAll();
+        d->m_jobs.enqueue(job);
+        d->m_waiter.wakeAll();
     }
 
     wait();
@@ -158,34 +178,34 @@ void VCSJobRunner::stop()
 void VCSJobRunner::restart()
 {
     stop();
-    m_mutex.lock();
-    m_keepRunning = true;
-    m_mutex.unlock();
+    d->m_mutex.lock();
+    d->m_keepRunning = true;
+    d->m_mutex.unlock();
     start();
 }
 
 void VCSJobRunner::enqueueJob(const QSharedPointer<VCSJob> &job)
 {
-    QMutexLocker mutexLocker(&m_mutex); Q_UNUSED(mutexLocker);
-    m_jobs.enqueue(job);
-    m_waiter.wakeAll();
+    QMutexLocker mutexLocker(&d->m_mutex); Q_UNUSED(mutexLocker);
+    d->m_jobs.enqueue(job);
+    d->m_waiter.wakeAll();
 }
 
 void VCSJobRunner::run()
 {
     forever {
-        m_mutex.lock();
-        while (m_jobs.count() == 0)
-            m_waiter.wait(&m_mutex);
+        d->m_mutex.lock();
+        while (d->m_jobs.count() == 0)
+            d->m_waiter.wait(&d->m_mutex);
 
-        if (!m_keepRunning) {
-            m_jobs.clear();
-            m_mutex.unlock();
+        if (!d->m_keepRunning) {
+            d->m_jobs.clear();
+            d->m_mutex.unlock();
             return;
         }
 
-        QSharedPointer<VCSJob> job = m_jobs.dequeue();
-        m_mutex.unlock();
+        QSharedPointer<VCSJob> job = d->m_jobs.dequeue();
+        d->m_mutex.unlock();
 
         task(job);
     }
@@ -218,9 +238,9 @@ void VCSJobRunner::setSettings(const QString &bin,
                                const QStringList &stdArgs,
                                int timeoutMsec)
 {
-    m_binary = bin;
-    m_standardArguments = stdArgs;
-    m_timeoutMS = timeoutMsec;
+    d->m_binary = bin;
+    d->m_standardArguments = stdArgs;
+    d->m_timeoutMS = timeoutMsec;
 }
 
 void VCSJobRunner::task(const QSharedPointer<VCSJob> &job)
@@ -250,8 +270,8 @@ void VCSJobRunner::task(const QSharedPointer<VCSJob> &job)
         break;
     }
 
-    const QStringList args = m_standardArguments + taskData->arguments();
-    emit commandStarted(VCSBase::VCSBaseOutputWindow::msgExecutionLogEntry(taskData->workingDirectory(), m_binary, args));
+    const QStringList args = d->m_standardArguments + taskData->arguments();
+    emit commandStarted(VCSBase::VCSBaseOutputWindow::msgExecutionLogEntry(taskData->workingDirectory(), d->m_binary, args));
     //infom the user of what we are going to try and perform
 
     if (Constants::Internal::debug)
@@ -267,10 +287,10 @@ void VCSJobRunner::task(const QSharedPointer<VCSJob> &job)
     vcsProcess->setWorkingDirectory(taskData->workingDirectory());
     VCSJobRunner::setProcessEnvironment(vcsProcess.data());
 
-    vcsProcess->start(m_binary, args);
+    vcsProcess->start(d->m_binary, args);
 
     if (!vcsProcess->waitForStarted()) {
-        emit error(msgStartFailed(m_binary, vcsProcess->errorString()));
+        emit error(msgStartFailed(d->m_binary, vcsProcess->errorString()));
         return;
     }
 
@@ -279,9 +299,9 @@ void VCSJobRunner::task(const QSharedPointer<VCSJob> &job)
     QByteArray stdOutput;
     QByteArray stdErr;
 
-    if (!Utils::SynchronousProcess::readDataFromProcess(*vcsProcess, m_timeoutMS, &stdOutput, &stdErr, false)) {
+    if (!Utils::SynchronousProcess::readDataFromProcess(*vcsProcess, d->m_timeoutMS, &stdOutput, &stdErr, false)) {
         Utils::SynchronousProcess::stopProcess(*vcsProcess);
-        emit error(msgTimeout(m_binary, m_timeoutMS / 1000));
+        emit error(msgTimeout(d->m_binary, d->m_timeoutMS / 1000));
         return;
     }
 
@@ -305,3 +325,5 @@ void VCSJobRunner::task(const QSharedPointer<VCSJob> &job)
     //output signal connection must be made
     disconnect(this, SIGNAL(output(QByteArray)), 0, 0);
 }
+
+} // namespace VCSBase

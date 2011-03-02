@@ -37,14 +37,12 @@
 #include "vcsbase_global.h"
 
 #include <QtCore/QThread>
-#include <QtCore/QQueue>
-#include <QtCore/QMutex>
-#include <QtCore/QWaitCondition>
 #include <QtCore/QStringList>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QVariant>
 #include <QtCore/QString>
 #include <QtCore/QPointer>
+#include <QtCore/QSharedPointer>
+#include <QtCore/QScopedPointer>
+#include <QtCore/QVariant>
 
 QT_BEGIN_NAMESPACE
 class QProcess;
@@ -52,6 +50,7 @@ QT_END_NAMESPACE
 
 namespace VCSBase {
 class VCSBaseEditorWidget;
+class VCSJobRunnerPrivate;
 
 class VCSBASE_EXPORT VCSJob : public QObject
 {
@@ -127,13 +126,7 @@ private:
     void task(const QSharedPointer<VCSJob> &job);
     void stop();
 
-    QQueue<QSharedPointer<VCSJob> > m_jobs;
-    QMutex m_mutex;
-    QWaitCondition m_waiter;
-    bool m_keepRunning;
-    QString m_binary;
-    QStringList m_standardArguments;
-    int m_timeoutMS;
+    QScopedPointer<VCSJobRunnerPrivate> d;
 };
 
 } //namespace VCSBase

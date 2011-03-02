@@ -40,6 +40,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QPair>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QScopedPointer>
 #include <QtCore/QHash>
 #include <QtCore/QVariant>
 
@@ -60,8 +61,8 @@ namespace VCSBase {
 
 class VCSBaseEditorWidget;
 class VCSBaseClientSettings;
-class VCSJobRunner;
 class VCSJob;
+class VCSBaseClientPrivate;
 
 class VCSBASE_EXPORT VCSBaseClient : public QObject
 {
@@ -69,7 +70,7 @@ class VCSBASE_EXPORT VCSBaseClient : public QObject
 public:
     typedef QHash<int, QVariant> ExtraCommandOptions;
 
-    VCSBaseClient(const VCSBaseClientSettings &settings);
+    explicit VCSBaseClient(const VCSBaseClientSettings &settings);
     ~VCSBaseClient();
     virtual bool synchronousCreateRepository(const QString &workingDir);
     virtual bool synchronousClone(const QString &workingDir,
@@ -180,9 +181,7 @@ private slots:
     void slotAnnotateRevisionRequested(const QString &source, QString change, int lineNumber);
 
 private:
-    VCSJobRunner *m_jobManager;
-    Core::ICore *m_core;
-    const VCSBaseClientSettings& m_clientSettings;
+    QScopedPointer<VCSBaseClientPrivate> d;
 };
 
 } //namespace VCSBase
