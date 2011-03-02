@@ -56,11 +56,11 @@ leave room for the Qt 4 target page.
     <!-- Create a 2nd wizard page with parameters -->
     <fieldpagetitle>Custom QML Extension  Plugin Parameters</fieldpagetitle>
     <fields>
-        <field mandatory="false" name="ObjectName">
+        <field mandatory="true" name="ObjectName">
             <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9_]+$'  defaulttext="MyItem"/>
             <fielddescription>Object Class-name:</fielddescription>
         </field>
-        <field mandatory="false" name="Uri">
+        <field mandatory="true" name="Uri">
             <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9]+([A-Za-z0-9-]*[A-Za-z0-9]+)?(\.[A-Za-z0-9]+([-A-Za-z0-9]*[A-Za-z0-9]+)?)*$' defaulttext="com.mycompany.qmlcomponents"/>
             <fielddescription>URI:</fielddescription>
         </field>
