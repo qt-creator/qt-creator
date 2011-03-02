@@ -1779,9 +1779,10 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
         exception.fromGdbMI(stopReason);
         QString description = exception.toString();
 #ifdef Q_OS_WIN
-        // It is possible to hit on a startup trap while stepping (if something
+        // It is possible to hit on a startup trap or WOW86 exception while stepping (if something
         // pulls DLLs. Avoid showing a 'stopped' Message box.
-        if (exception.exceptionCode == winExceptionStartupCompleteTrap)
+        if (exception.exceptionCode == winExceptionStartupCompleteTrap
+            || exception.exceptionCode == winExceptionWX86Breakpoint)
             return StopNotifyStop;
         if (exception.exceptionCode == winExceptionCtrlPressed) {
             // Detect interruption by pressing Ctrl in a console and force a switch to thread 0.
