@@ -6571,18 +6571,21 @@
 
     The locator allows you to browse not only files, but any items
     defined by \bold{locator filters}. By default, the locator contains
-    filters which locate:
+    filters for:
     \list
-        \o  Any open document
-        \o  Files anywhere on your file system
-        \o  Files belonging to your project, such as source, header resource,
+        \o  Locating any open document
+        \o  Locating files anywhere on your file system
+        \o  Locating iles belonging to your project, such as source, header resource,
             and .ui files
-        \o  Class and method definitions in your project or anywhere referenced
+        \o  Locating class and method definitions in your project or anywhere
+            referenced
             from your project
-        \o  Class and method definitions in the current document
-        \o  Help topics, including Qt documentation
-        \o  Specific line in the document displayed in your editor
-
+        \o  Locating class and method definitions in the current document
+        \o  Locating a specific line in the document displayed in your editor
+        \o  Opening help topics, including Qt documentation
+        \o  Performing web searches
+        \o  Running text editing macros that you record and save. For more
+            information, see \l{Using Text Editing Macros}
     \endlist
 
     To use a specific locator filter, type the assigned prefix followed by
@@ -6634,6 +6637,10 @@
             \o  \tt{\bold{? \e{Help topic}}}
             \o  \image qtcreator-locator-help.png
         \row
+            \o  Search for a term by using a web search engine.
+            \o  \tt{\bold{r \e{Search term}}}
+            \o  \image qtcreator-locator-web.png
+        \row
             \o  Go to an open file.
             \o  \tt{\bold{o \e{File name}}}
             \o  \image qtcreator-locator-opendocs.png
@@ -6657,6 +6664,10 @@
             \o  Go to a method definition.
             \o  \tt{\bold{m \e{Method name}}}
             \o  \image qtcreator-locator-methods.png
+        \row
+            \o  Execute a text editing macro.
+            \o  \tt{\bold{rm \e{Macro name}}}
+            \o  \image qtcreator-locator-macros.png
     \endtable
 
     \section2 Creating Locator Filters
@@ -6690,7 +6701,36 @@
         \o Click OK.
     \endlist
 
-    \section3 Configuring the Locator Cache
+    \section2 Adding Web Search Engines
+
+    You can use the \gui {Web Search (\c r)} locator filter to perform
+    web searches. URLs and search commands for Bing, Google, Yahoo! Search,
+    cplusplus.com, and Wikipedia are configured by default.
+
+    To find out the format of the search command to use for your favorite
+    web search engine, perform a search in your browser and copy the resulting
+    URL to the locator filter configuration. Replace the search term with the
+    variable \c {%1}.
+
+    To add URLs and search commands to the list:
+
+    \list 1
+
+        \o  Select \gui {Tools > Options > Locator > Web Search (prefix: r) >
+            Edit}.
+
+        \o  Select \gui Add to add a new entry to the list.
+
+            \image qtcreator-add-online-doc.png "Filter Configuration dialog"
+
+        \o  Double-click the new entry to specify a URL and a search command.
+            For example, http://www.google.com/search?q=%1.
+
+        \o  Click \gui OK.
+
+    \endlist
+
+    \section2 Configuring the Locator Cache
 
     The locator searches the files matching your file pattern in the
     directories you have selected and caches that information. The cache for
