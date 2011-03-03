@@ -54,20 +54,16 @@ public:
 
     QValidator *m_ipAddressValidator;
     QColor m_validColor;
-    bool m_addressIsValid;
 };
 
-IpAddressLineEditPrivate::IpAddressLineEditPrivate() :
-    m_addressIsValid(true)
+IpAddressLineEditPrivate::IpAddressLineEditPrivate()
 {
 }
 
 IpAddressLineEdit::IpAddressLineEdit(QWidget* parent) :
-    QLineEdit(parent),
+    BaseValidatingLineEdit(parent),
     m_d(new IpAddressLineEditPrivate())
 {
-    m_d->m_validColor = palette().color(QPalette::Text);
-
     const char * ipAddressRegExpPattern = "^\\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\."
             "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\."
             "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\."
@@ -76,8 +72,6 @@ IpAddressLineEdit::IpAddressLineEdit(QWidget* parent) :
 
     QRegExp ipAddressRegExp(ipAddressRegExpPattern);
     m_d->m_ipAddressValidator = new QRegExpValidator(ipAddressRegExp, this);
-
-    connect(this, SIGNAL(textChanged(QString)), this, SLOT(validateAddress(QString)));
 }
 
 IpAddressLineEdit::~IpAddressLineEdit()
@@ -85,36 +79,25 @@ IpAddressLineEdit::~IpAddressLineEdit()
     delete m_d;
 }
 
-bool IpAddressLineEdit::isValid() const
+bool IpAddressLineEdit::validate(const QString &value, QString *errorMessage) const
 {
-    return m_d->m_addressIsValid;
-}
-
-void IpAddressLineEdit::validateAddress(const QString &string)
-{
-    QString copy = string;
+    QString copy = value;
     int offset = 0;
     bool isValid = m_d->m_ipAddressValidator->validate(copy, offset) == QValidator::Acceptable;
-
-    if (isValid != m_d->m_addressIsValid) {
-        if (isValid) {
-            QPalette pal(palette());
-            pal.setColor(QPalette::Text, m_d->m_validColor);
-            setPalette(pal);
-            emit validAddressChanged(copy);
-        } else {
-            QPalette pal(palette());
-            pal.setColor(QPalette::Text, Qt::red);
-            setPalette(pal);
-            setToolTip(tr("The IP address is not valid."));
-        }
-        m_d->m_addressIsValid = isValid;
-    } else {
-        if (isValid)
-            emit validAddressChanged(copy);
-        else
-            emit invalidAddressChanged();
+    if (!isValid) {
+        *errorMessage =  tr("The IP address is not valid.");
+        return false;
     }
+    return true;
+}
+
+void IpAddressLineEdit::slotChanged(const QString &t)
+{
+    Utils::BaseValidatingLineEdit::slotChanged(t);
+    if (isValid())
+        emit validAddressChanged(t);
+    else
+        emit invalidAddressChanged();
 }
 
 } // namespace Utils

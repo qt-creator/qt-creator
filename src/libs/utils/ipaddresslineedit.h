@@ -35,28 +35,28 @@
 #define IPADDRESSLINEEDIT_H
 
 #include "utils_global.h"
-
-#include <QtGui/QLineEdit>
+#include "basevalidatinglineedit.h"
 
 namespace Utils {
 
 class IpAddressLineEditPrivate;
 
-class QTCREATOR_UTILS_EXPORT IpAddressLineEdit : public QLineEdit
+class QTCREATOR_UTILS_EXPORT IpAddressLineEdit : public Utils::BaseValidatingLineEdit
 {
+    Q_DISABLE_COPY(IpAddressLineEdit)
     Q_OBJECT
+
 public:
     explicit IpAddressLineEdit(QWidget* parent = 0);
     virtual ~IpAddressLineEdit();
-
-    bool isValid() const;
 
 signals:
     void validAddressChanged(const QString& address);
     void invalidAddressChanged();
 
-private slots:
-    void validateAddress(const QString &string);
+protected:
+    virtual bool validate(const QString &value, QString *errorMessage) const;
+    virtual void slotChanged(const QString &t);
 
 private:
     IpAddressLineEditPrivate *m_d;

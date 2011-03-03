@@ -381,6 +381,7 @@ QString S60DeployConfiguration::deviceAddress() const
 void S60DeployConfiguration::setDeviceAddress(const QString &address)
 {
     if (m_deviceAddress != address) {
+        qDebug() << __FUNCTION__ << address;
         m_deviceAddress = address;
         emit deviceAddressChanged();
     }
@@ -394,6 +395,7 @@ QString S60DeployConfiguration::devicePort() const
 void S60DeployConfiguration::setDevicePort(const QString &port)
 {
     if (m_devicePort != port) {
+        qDebug() << __FUNCTION__ << port;
         if (port.isEmpty()) //setup the default CODA's port
             m_devicePort = QLatin1String(DEFAULT_TCF_TRK_TCP_PORT);
         else
