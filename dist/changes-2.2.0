@@ -8,9 +8,11 @@ git clone git://gitorious.org/qt-creator/qt-creator.git
 git log --cherry-pick --pretty=oneline origin/master...origin/2.1
 
 General
+   * Added support for running user defined external tools (Tools->External)
 
 Editing
    * Add new Inkpot color scheme
+   * Moved 'Open in External Editor' to Tools->External->Text
 
 Project Support
 
