@@ -34,11 +34,11 @@
 #include "abi.h"
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QSysInfo>
-#include <QtCore/QDebug>
 
 namespace ProjectExplorer {
 
@@ -61,6 +61,48 @@ static Abi macAbiForCpu(quint32 type) {
     default:
         return Abi();
     }
+}
+
+static QList<Abi> parseCoffHeader(const QByteArray &data)
+{
+    QList<Abi> result;
+    if (data.size() < 20)
+        return result;
+
+    Abi::Architecture arch = Abi::UnknownArchitecture;
+    Abi::OSFlavor flavor = Abi::UnknownFlavor;
+    int width = 0;
+
+    // Get machine field from COFF file header
+    quint16 machine = (data.at(1) << 8) + data.at(0);
+    switch (machine) {
+    case 0x8664: // x86_64
+        arch = Abi::X86Architecture;
+        width = 64;
+        break;
+    case 0x014c: // i386
+        arch = Abi::X86Architecture;
+        width = 32;
+        break;
+    case 0x0200: // ia64
+        arch = Abi::ItaniumArchitecture;
+        width = 64;
+        break;
+    }
+
+    if (data.size() >= 68) {
+        // Get Major and Minor Image Version from optional header fields
+        quint32 image = (data.at(67) << 24) + (data.at(66) << 16) + (data.at(65) << 8) + data.at(64);
+        if (image == 1) // Image is 1 for mingw and higher for MSVC (4.something in some encoding)
+            flavor = Abi::WindowsMSysFlavor;
+        else
+            flavor = Abi::WindowsMsvcFlavor;
+    }
+
+    if (arch != Abi::UnknownArchitecture && width != 0)
+        result.append(Abi(arch, Abi::WindowsOS, flavor, Abi::PEFormat, width));
+
+    return result;
 }
 
 static QList<Abi> abiOf(const QByteArray &data)
@@ -119,39 +161,8 @@ static QList<Abi> abiOf(const QByteArray &data)
         // Windows PE
         // Windows can have its magic bytes everywhere...
         int pePos = data.indexOf(QByteArray("PE\0\0", 4));
-        if (pePos >= 0 && pePos + 72 < data.size()) {
-            Abi::Architecture arch = Abi::UnknownArchitecture;
-            Abi::OSFlavor flavor = Abi::UnknownFlavor;
-            int width = 0;
-
-            // Get machine field from COFF file header
-            quint16 machine = (data.at(pePos + 5) << 8) + data.at(pePos + 4);
-            switch (machine) {
-            case 0x8664: // x86_64
-                arch = Abi::X86Architecture;
-                width = 64;
-                break;
-            case 0x014c: // i386
-                arch = Abi::X86Architecture;
-                width = 32;
-                break;
-            case 0x0200: // ia64
-                arch = Abi::ItaniumArchitecture;
-                width = 64;
-                break;
-            }
-
-            // Get Major and Minor Image Version from optional header fields
-            quint32 image = (data.at(pePos + 71) << 24) + (data.at(pePos + 70) << 16)
-                    + (data.at(pePos + 69) << 8) + data.at(pePos + 68);
-            if (image == 1) // Image is 1 for mingw and 4.something for MSVC
-                flavor = Abi::WindowsMSysFlavor;
-            else
-                flavor = Abi::WindowsMsvcFlavor;
-
-            if (arch != Abi::UnknownArchitecture && flavor != Abi::UnknownFlavor && width != 0)
-                result.append(Abi(arch, Abi::WindowsOS, flavor, Abi::PEFormat, width));
-        }
+        if (pePos >= 0)
+            result = parseCoffHeader(data.mid(pePos + 4));
     }
     return result;
 }
@@ -454,6 +465,8 @@ QList<Abi> Abi::abisOfBinary(const QString &path)
     if (!f.exists())
         return result;
 
+    bool windowsStatic = path.endsWith(QLatin1String(".lib"));
+
     f.open(QFile::ReadOnly);
     QByteArray data = f.read(1024);
     if (data.size() >= 67
@@ -467,7 +480,7 @@ QList<Abi> Abi::abisOfBinary(const QString &path)
         quint64 offset = 8;
 
         while (!data.isEmpty()) {
-            if (data.at(58) != 0x60 || data.at(59) != 0x0a) {
+            if ((data.at(58) != 0x60 || data.at(59) != 0x0a)) {
                 qWarning() << path << ": Thought it was an ar-file, but it is not!";
                 break;
             }
@@ -478,13 +491,18 @@ QList<Abi> Abi::abisOfBinary(const QString &path)
                 fileNameOffset = fileName.mid(3).toInt();
             const QString fileLength = QString::fromAscii(data.mid(48, 10));
 
-            data = data.mid(60 + fileNameOffset);
+            int toSkip = 60 + fileNameOffset;
             offset += fileLength.toInt() + 60 /* header */;
-            result = abiOf(data);
+            if (windowsStatic) {
+                if (fileName == QLatin1String("/0              "))
+                    result = parseCoffHeader(data.mid(toSkip, 20));
+            } else {
+                result = abiOf(data.mid(toSkip));
+            }
             if (!result.isEmpty())
                 break;
 
-            f.seek(offset);
+            f.seek(offset + (offset % 2)); // ar is 2 byte alligned
             data = f.read(1024);
         }
     } else {

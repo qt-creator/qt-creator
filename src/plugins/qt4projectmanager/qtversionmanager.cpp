@@ -1589,9 +1589,10 @@ QString QtVersion::qtCorePath() const
 {
     QList<QDir> dirs;
     dirs << QDir(libraryInstallPath()) << QDir(versionInfo().value(QLatin1String("QT_INSTALL_BINS")));
+
+    QFileInfoList staticLibs;
     foreach (const QDir &d, dirs) {
         QFileInfoList infoList = d.entryInfoList();
-        QFileInfoList staticLibs;
         foreach (const QFileInfo &info, infoList) {
             const QString file = info.fileName();
             if (info.isDir()
@@ -1605,7 +1606,7 @@ QString QtVersion::qtCorePath() const
                 if (file.startsWith(QLatin1String("libQtCore"))
                         || file.startsWith(QLatin1String("QtCore"))) {
                     // Only handle static libs if we can not find dynamic ones:
-                    if (file.endsWith(".a"))
+                    if (file.endsWith(".a") || file.endsWith(".lib"))
                         staticLibs.append(info);
                     else if (file.endsWith(QLatin1String(".dll"))
                                 || file.endsWith(QString::fromLatin1(".so.") + qtVersionString()))
@@ -1613,10 +1614,10 @@ QString QtVersion::qtCorePath() const
                 }
             }
         }
-        // Return path to first static library found:
-        if (!staticLibs.isEmpty())
-            return staticLibs.at(0).absoluteFilePath();
     }
+    // Return path to first static library found:
+    if (!staticLibs.isEmpty())
+        return staticLibs.at(0).absoluteFilePath();
     return QString();
 }
 
