@@ -141,6 +141,7 @@ private:
     HelpMode *m_mode;
     Core::ICore *m_core;
     CentralWidget *m_centralWidget;
+    QWidget *m_rightPaneSideBarWidget;
     HelpViewer *m_helpViewerForSideBar;
 
     Core::SideBarItem *m_contentItem;

@@ -128,7 +128,7 @@ void RightPanePlaceHolder::currentModeChanged(Core::IMode *mode)
 RightPaneWidget *RightPaneWidget::m_instance = 0;
 
 RightPaneWidget::RightPaneWidget()
-    : m_shown(true), m_width(0), m_widget(0)
+    : m_shown(true), m_width(0)
 {
     m_instance = this;
 

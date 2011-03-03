@@ -128,6 +128,7 @@ HelpPlugin::HelpPlugin()
     : m_mode(0),
     m_core(0),
     m_centralWidget(0),
+    m_rightPaneSideBarWidget(0),
     m_helpViewerForSideBar(0),
     m_contentItem(0),
     m_indexItem(0),
@@ -145,6 +146,7 @@ HelpPlugin::HelpPlugin()
 
 HelpPlugin::~HelpPlugin()
 {
+    delete m_rightPaneSideBarWidget;
 }
 
 bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
@@ -328,7 +330,9 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     if (QLayout *layout = m_centralWidget->layout()) {
         layout->setSpacing(0);
-        layout->addWidget(new Core::FindToolBarPlaceHolder(m_centralWidget));
+        Core::FindToolBarPlaceHolder *fth = new Core::FindToolBarPlaceHolder(m_centralWidget);
+        fth->setObjectName(QLatin1String("HelpFindToolBarPlaceHolder"));
+        layout->addWidget(fth);
     }
 
     HelpIndexFilter *helpIndexFilter = new HelpIndexFilter();
@@ -526,7 +530,7 @@ void HelpPlugin::resetFilter()
 
 void HelpPlugin::createRightPaneContextViewer()
 {
-    if (m_helpViewerForSideBar)
+    if (m_rightPaneSideBarWidget)
         return;
 
     Utils::StyledBar *toolBar = new Utils::StyledBar();
@@ -553,21 +557,23 @@ void HelpPlugin::createRightPaneContextViewer()
     layout->addStretch();
     layout->addWidget(toolButton(close));
 
-    QWidget *rightPaneSideBar = new QWidget;
-    m_helpViewerForSideBar = new HelpViewer(qreal(0.0), rightPaneSideBar);
+    m_rightPaneSideBarWidget = new QWidget;
+    m_helpViewerForSideBar = new HelpViewer(qreal(0.0));
     connect(m_helpViewerForSideBar, SIGNAL(openFindToolBar()), this,
         SLOT(openFindToolBar()));
 #if !defined(QT_NO_WEBKIT)
     m_helpViewerForSideBar->pageAction(QWebPage::OpenLinkInNewWindow)->setVisible(false);
 #endif
 
-    QVBoxLayout *rightPaneLayout = new QVBoxLayout(rightPaneSideBar);
+    QVBoxLayout *rightPaneLayout = new QVBoxLayout(m_rightPaneSideBarWidget);
     rightPaneLayout->setMargin(0);
     rightPaneLayout->setSpacing(0);
     rightPaneLayout->addWidget(toolBar);
     rightPaneLayout->addWidget(m_helpViewerForSideBar);
-    rightPaneLayout->addWidget(new Core::FindToolBarPlaceHolder(rightPaneSideBar));
-    rightPaneSideBar->setFocusProxy(m_helpViewerForSideBar);
+    Core::FindToolBarPlaceHolder *fth = new Core::FindToolBarPlaceHolder(m_rightPaneSideBarWidget);
+    fth->setObjectName(QLatin1String("HelpRightPaneFindToolBarPlaceHolder"));
+    rightPaneLayout->addWidget(fth);
+    m_rightPaneSideBarWidget->setFocusProxy(m_helpViewerForSideBar);
 
     Aggregation::Aggregate *agg = new Aggregation::Aggregate();
     agg->add(m_helpViewerForSideBar);
@@ -832,7 +838,7 @@ HelpViewer* HelpPlugin::viewerForContextMode()
     }
 
     if (placeHolder && showSideBySide) {
-        RightPaneWidget::instance()->setWidget(m_helpViewerForSideBar->parentWidget());
+        RightPaneWidget::instance()->setWidget(m_rightPaneSideBarWidget);
         RightPaneWidget::instance()->setShown(true);
         createRightPaneContextViewer();
         return m_helpViewerForSideBar;

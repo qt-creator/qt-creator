@@ -37,6 +37,7 @@
 #include "core_global.h"
 
 #include <QtGui/QWidget>
+#include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -93,7 +94,7 @@ private:
     void clearWidget();
     bool m_shown;
     int m_width;
-    QWidget *m_widget;
+    QPointer<QWidget> m_widget;
     static RightPaneWidget *m_instance;
 };
 
