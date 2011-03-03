@@ -64,5 +64,4 @@ private:
 
 } // namespace Utils
 
-
 #endif // IPADDRESSLINEEDIT_H
