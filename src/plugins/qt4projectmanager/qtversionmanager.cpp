@@ -1768,6 +1768,8 @@ QString QtVersion::invalidReason() const
                                            "Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?");
     if (m_abiUpToDate && m_mkspecFullPath.isEmpty())
         return QCoreApplication::translate("QtVersion", "The default mkspec symlink is broken.");
+    if (m_abiUpToDate && m_abis.isEmpty())
+        return QCoreApplication::translate("QtVersion", "Failed to detect the ABI(s) used by the Qt version.");
     return QString();
 }
 
