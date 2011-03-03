@@ -1204,6 +1204,58 @@
     For more information on the JavaScript environment provided by QML, see
     \l{http://doc.qt.nokia.com/4.7/qdeclarativejavascript.html}{Integrating JavaScript}.
 
+    \section2 Loading Placeholder Data
+
+    Often, QML applications are prototyped with fake data that is later
+    replaced by real data sources from C++ plugins. QML Viewer loads fake data
+    into the application context: it looks for a directory named \e dummydata
+    in the same directory as the target QML file, loads any .qml files in that
+    directory as QML objects, and binds them to the root context as properties.
+    For more information, see
+    \l{http://doc.qt.nokia.com/latest/qmlviewer.html}{QML Viewer}.
+
+    You can use dummydata files also to specify fake properties for QML
+    components that you open for editing in \QMLD.
+    A QML component provides a way of defining a new UI element that you can
+    re-use in other QML files. A component is generally defined in its own QML
+    file. You can use property binding to specify the properties of a component
+    to make it easily reusable.
+
+    For example, you can create a button bar component (buttonbar.qml) that
+    inherits its width from the screen that is its parent:
+
+    \code
+
+    import QtQuick 1.0
+
+    Item {
+        width: parent.width
+        }
+
+    \endcode
+
+    However, when you open the QML file for editing in \QMLD, the button bar
+    component does not have a width, because it is specified outside the QML
+    file (in the QML file that specifies the screen). To specify a fake width
+    for the component, create a \c <component>_dummydata.qml file (here,
+    buttonbar_dummydata.qml) that specifies the component width and copy it to
+    the \c dummydata directory.
+
+    For example:
+
+    \code
+    import QtQuick 1.0
+    import QmlDesigner 1.0
+
+    DummyContextObject {
+        parent: QtObject {
+        property real width: 1000
+        }
+    }
+    \endcode
+
+    The file is reloaded if you change it.
+
     \section2 Setting Anchors and Margins
 
     In addition to arranging elements in a grid, row, or column, you can use
