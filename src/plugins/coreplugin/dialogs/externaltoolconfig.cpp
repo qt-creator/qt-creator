@@ -107,7 +107,9 @@ QVariant ExternalToolModel::data(const QString &category, int role) const
     switch (role) {
     case Qt::DisplayRole:
     case Qt::EditRole:
-        return category.isEmpty() ? tr("External Tools Menu") : category;
+        return category.isEmpty() ? tr("Uncategorized") : category;
+    case Qt::ToolTipRole:
+        return category.isEmpty() ? tr("Tools that will appear directly under the External Tools menu.") : QVariant();
     default:
         break;
     }
