@@ -99,6 +99,13 @@ public:
     virtual ProjectExplorer::ToolChain *toolChain() const;
     virtual void setToolChain(ProjectExplorer::ToolChain *tc);
 
+    enum BuildType {
+        Unknown,
+        Debug,
+        Release
+    };
+    virtual BuildType buildType() const = 0;
+
 signals:
     void environmentChanged();
     void buildDirectoryChanged();

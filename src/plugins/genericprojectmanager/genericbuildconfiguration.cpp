@@ -223,3 +223,9 @@ BuildConfiguration *GenericBuildConfigurationFactory::restore(ProjectExplorer::T
     delete bc;
     return 0;
 }
+
+BuildConfiguration::BuildType GenericBuildConfiguration::buildType() const
+{
+    return Unknown;
+}
+

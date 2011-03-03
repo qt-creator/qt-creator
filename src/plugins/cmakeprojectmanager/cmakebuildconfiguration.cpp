@@ -273,3 +273,36 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::restore(ProjectExplorer
     delete bc;
     return 0;
 }
+
+ProjectExplorer::BuildConfiguration::BuildType CMakeBuildConfiguration::buildType() const
+{
+    QString cmakeBuildType;
+    QFile cmakeCache(buildDirectory() + "/CMakeCache.txt");
+    if (cmakeCache.open(QIODevice::ReadOnly)) {
+        while (!cmakeCache.atEnd()) {
+            QString line = cmakeCache.readLine();
+            if (line.startsWith("CMAKE_BUILD_TYPE")) {
+                if (int pos = line.indexOf('=')) {
+                    cmakeBuildType = line.mid(pos + 1).trimmed();
+                }
+                break;
+            }
+        }
+        cmakeCache.close();
+    }
+
+    // Cover all common CMake build types
+    if (cmakeBuildType.compare("Release", Qt::CaseInsensitive) == 0
+        || cmakeBuildType.compare("MinSizeRel", Qt::CaseInsensitive) == 0)
+    {
+        return Release;
+    } else if (cmakeBuildType.compare("Debug", Qt::CaseInsensitive) == 0
+               || cmakeBuildType.compare("debugfull", Qt::CaseInsensitive) == 0
+               || cmakeBuildType.compare("RelWithDebInfo", Qt::CaseInsensitive) == 0)
+    {
+        return Debug;
+    }
+
+    return Unknown;
+}
+

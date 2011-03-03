@@ -68,6 +68,8 @@ public:
 
     Utils::Environment baseEnvironment() const;
 
+    BuildType buildType() const;
+
 protected:
     CMakeBuildConfiguration(CMakeTarget *parent, CMakeBuildConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);

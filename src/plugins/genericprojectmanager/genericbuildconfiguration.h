@@ -62,6 +62,8 @@ public:
 
     ProjectExplorer::IOutputParser *createOutputParser() const;
 
+    BuildType buildType() const;
+
 protected:
     GenericBuildConfiguration(GenericTarget *parent, GenericBuildConfiguration *source);
     GenericBuildConfiguration(GenericTarget *parent, const QString &id);

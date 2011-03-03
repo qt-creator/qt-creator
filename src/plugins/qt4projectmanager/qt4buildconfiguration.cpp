@@ -868,3 +868,12 @@ void Qt4BuildConfiguration::importFromBuildDirectory()
         }
     }
 }
+
+BuildConfiguration::BuildType Qt4BuildConfiguration::buildType() const
+{
+    if (qmakeBuildConfiguration() & QtVersion::DebugBuild)
+        return Debug;
+    else
+        return Release;
+}
+

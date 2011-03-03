@@ -124,6 +124,8 @@ public:
     /// \internal For Qt4Project, since that manages the parsing information
     void setEnabled(bool enabled);
 
+    BuildType buildType() const;
+
 public slots:
     void importFromBuildDirectory();
 
