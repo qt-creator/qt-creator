@@ -74,7 +74,8 @@ ToolChain::ToolChain(const ToolChain &other) :
     m_d(new Internal::ToolChainPrivate(other.id(), false))
 {
     // leave the autodetection bit at false.
-    m_d->m_displayName = other.displayName();
+    m_d->m_displayName = QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
+            .arg(other.displayName());
 }
 
 ToolChain::~ToolChain()
