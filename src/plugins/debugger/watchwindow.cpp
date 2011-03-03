@@ -601,6 +601,8 @@ void WatchWindow::setModel(QAbstractItemModel *model)
 
     connect(model, SIGNAL(layoutChanged()), SLOT(resetHelper()));
     connect(model, SIGNAL(enableUpdates(bool)), SLOT(setUpdatesEnabled(bool)));
+    // Potentially left in disabled state in case engine crashes when expanding.
+    setUpdatesEnabled(true);
 }
 
 void WatchWindow::setUpdatesEnabled(bool enable)
