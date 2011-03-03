@@ -8463,7 +8463,7 @@
         \o \l{http://doc.qt.nokia.com/4.7/qml-textinput.html}{Text Input}
         adds a single line of editable plain text that can be validated.
         \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-webview.html}{Web View}
-        adds Web content to a canvas.
+        adds web content to a canvas.
 
     \endlist
 
