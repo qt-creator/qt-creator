@@ -143,7 +143,7 @@
             \endlist
        \o \l{Using Version Control Systems}
        \o \l{Using External Tools}
-       \o \l{Creating Task List Files}
+       \o \l{Showing Task List Files in the Build Issues Pane}
        \o \l{Using Command Line Options}
        \o \l{Getting Help}
        \o \l{Tips and Tricks}
@@ -763,7 +763,8 @@
     imported to the pane. Press \key F6 and \key Shift+F6 to jump from one issue
     to the next.
 
-    For more information about creating task files, see \l{Creating Task List Files}.
+    For more information about creating task files, see
+    \l{Showing Task List Files in the Build Issues Pane}.
 
     \section2 Search Results
 
@@ -10496,11 +10497,22 @@
     \page creator-task-lists.html
     \nextpage creator-cli.html
 
-    \title Creating Task List Files
+    \title Showing Task List Files in the Build Issues Pane
 
-    You can load tasks from task lists to the \gui{Build Issues} pane. You can
-    either create the task lists manually or create scripts to generate them from
-    output of static code analysis tools, for example.
+    Code scanning and analysis tools typically create report files in ASCII-form,
+    consisting of lines containing file name, line number and an error message.
+    Stack traces obtained from crash reports take a similar form.
+    Traditionally, one would fix these issues by manually navigating to the
+    occurrences and correcting them, which is tedious.
+
+    Qt Creator makes this very easy by providing a way to load these files into
+    the \gui{Build Issues} pane,  so that the corresponding source code can be navigated
+    to by clicking on the message. For this to work, the files need to be converted to the
+    \l{Task List File Format}, which can be easily achieved by using conversion
+    scripts based on standard text processing tools of the operating system.
+
+    The resulting task list files can then be loaded by choosing
+    \gui{File} -> \gui{Open}.
 
     For an example of a script that checks new lines of code and matches them
     against regular expressions to generate a task list, see \c{scripts\mytasks.pl}
