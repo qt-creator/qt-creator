@@ -468,7 +468,7 @@ void S60DeployStep::slotSerialPong(const QString &message)
         qDebug() << "CODA serial pong:" << message;
 }
 
-void S60DeployStep::slotCodaEvent (const Coda::CodaEvent &event)
+void S60DeployStep::slotCodaEvent(const Coda::CodaEvent &event)
 {
     if (debug)
         qDebug() << "CODA event:" << "Type:" << event.type() << "Message:" << event.toString();

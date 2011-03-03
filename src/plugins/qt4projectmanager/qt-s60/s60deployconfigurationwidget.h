@@ -63,6 +63,7 @@ class SymbianDevice;
 
 namespace Coda {
     class CodaDevice;
+    class CodaEvent;
     struct CodaCommandResult;
 }
 
@@ -83,6 +84,9 @@ public:
 
     void init(ProjectExplorer::DeployConfiguration *dc);
 
+signals:
+    void infoCollected();
+
 private slots:
     void updateTargetInformation();
     void updateInstallationDrives();
@@ -95,9 +99,10 @@ private slots:
     void slotWaitingForTrkClosed();
     void silentInstallChanged(int);
     void updateCommunicationChannel();
-    void updateDebugClient();
     void updateWlanAddress(const QString &address);
     void cleanWlanAddress();
+    void codaEvent(const Coda::CodaEvent &event);
+    void collectingInfoFinished();
 
 private:
     inline SymbianUtils::SymbianDevice device(int i) const;
@@ -128,6 +133,7 @@ private:
     QRadioButton *m_trkRadioButton;
     QRadioButton *m_codaRadioButton;
     QSharedPointer<Coda::CodaDevice> m_codaInfoDevice;
+    QString m_deviceInfo;
 };
 
 } // namespace Internal
