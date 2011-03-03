@@ -90,6 +90,7 @@
                 \o \l{Using Qt Quick Toolbars}
                 \o \l{Searching With the Locator}
                 \o \l{Pasting and Fetching Code Snippets}
+                \o \l{Using Text Editing Macros}
                 \o \l{Configuring the Editor}
                 \o \l{Using FakeVim Mode}
 
@@ -1833,6 +1834,39 @@
 
 */
 
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-locator.html
+    \page creator-macros.html
+    \nextpage creator-editor-options.html
+
+    \title Using Text Editing Macros
+
+    When you have a file open in the code editor, you can record a keyboard
+    sequence as a macro. You can then play the macro to repeat the sequence.
+    You can save the latest macro and assign a keyboard shortcut for running
+    it or run it from the locator.
+
+    To record a text editing macro, select \gui {Tools > Macros > Record Macro}
+    or press \key {Alt+(}. To stop recording, select \gui {Tools > Macros >
+    Stop Recording Macro} or press \key {Alt+)}.
+
+    To play the last macro, select \gui {Tools > Macros > Play Last Macro} or
+    press \key {Alt+R}.
+
+    To save the last macro, select \gui {Tools > Macros > Save Last Macro}.
+
+    To assign a keyboard shortcut to a text editing macro, select \gui {Tools >
+    Options... > Environment > Keyboard}. For more information, see
+    \l{Configuring Keyboard Shortcuts}.
+
+    You can also use the \c rm locator filter to run a macro. For more
+    information, see \l{Searching With the Locator}.
+
+    To view and remove saved macros, select \gui {Tools > Options... > Text
+    Editor > Macros}.
+
+*/
 
 /*!
     \contentspage index.html
@@ -2018,7 +2052,8 @@
            in \gui Display.
         \o Add, modify, and remove \l{Editing Code Snippets}{code snippets} in
            \gui Snippets.
-        \o Edit \l{Recording and Playing Macros}{macros} in \gui Macros.
+        \o View and remove \l{Using Text Editing Macros}{text editing macros}
+           in \gui Macros.
         \o Configure \l{Completing Code}{code completion} in \gui Completion.
     \endlist
 
