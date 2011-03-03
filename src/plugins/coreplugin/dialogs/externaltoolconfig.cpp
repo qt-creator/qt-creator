@@ -452,8 +452,8 @@ void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &t
             itemCopy.append(new ExternalTool(tool));
         toolsCopy.insert(it.key(), itemCopy);
     }
-    if (!toolsCopy.contains(QString()))
-        toolsCopy.insert(QString(), QList<ExternalTool *>());
+    if (!toolsCopy.contains(QString("")))
+        toolsCopy.insert(QString(""), QList<ExternalTool *>());
     m_model->setTools(toolsCopy);
     ui->toolTree->expandAll();
 }
