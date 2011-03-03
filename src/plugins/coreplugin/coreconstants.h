@@ -261,6 +261,8 @@ const char * const SETTINGS_DEFAULTTEXTENCODING = "General/DefaultFileEncoding";
 
 const char * const ALL_FILES_FILTER      = QT_TRANSLATE_NOOP("Core", "All Files (*)");
 
+const char * const VARIABLE_SUPPORT_PROPERTY = "QtCreator.VariableSupport";
+
 const int TARGET_ICON_SIZE = 32;
 
 } // namespace Constants

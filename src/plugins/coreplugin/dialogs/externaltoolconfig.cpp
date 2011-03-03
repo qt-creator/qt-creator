@@ -37,6 +37,7 @@
 #include <utils/qtcassert.h>
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/variablechooser.h>
 
 #include <QtCore/QTextStream>
 #include <QtCore/QFile>
@@ -398,6 +399,11 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     connect(ui->toolTree->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(handleCurrentChanged(QModelIndex,QModelIndex)));
 
+    ui->executable->lineEdit()->setProperty(Constants::VARIABLE_SUPPORT_PROPERTY, true);
+    ui->arguments->setProperty(Constants::VARIABLE_SUPPORT_PROPERTY, true);
+    ui->workingDirectory->lineEdit()->setProperty(Constants::VARIABLE_SUPPORT_PROPERTY, true);
+    ui->inputText->setProperty(Constants::VARIABLE_SUPPORT_PROPERTY, true);
+
     connect(ui->description, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
     connect(ui->executable, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
     connect(ui->executable, SIGNAL(browsingFinished()), this, SLOT(updateCurrentItem()));
@@ -420,7 +426,8 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     connect(addCategory, SIGNAL(triggered()), this, SLOT(addCategory()));
 
     showInfoForItem(QModelIndex());
-//    updateButtons(ui->toolTree->currentItem());
+
+    new VariableChooser(this);
 }
 
 ExternalToolConfig::~ExternalToolConfig()

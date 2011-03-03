@@ -36,6 +36,8 @@
 
 #include "core_global.h"
 
+#include <utils/fancylineedit.h>
+
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
 #include <QtGui/QLineEdit>
@@ -59,16 +61,19 @@ public:
 
 private slots:
     void updateDescription(const QString &variable);
-    void updateCurrentEditor(QWidget *widget);
+    void updateCurrentEditor(QWidget *old, QWidget *widget);
     void handleItemActivated(QListWidgetItem *item);
     void insertVariable(const QString &variable);
 
 private:
+    void createIconButton();
+
     Ui::VariableChooser *ui;
     QString m_defaultDescription;
     QPointer<QLineEdit> m_lineEdit;
     QPointer<QTextEdit> m_textEdit;
     QPointer<QPlainTextEdit> m_plainTextEdit;
+    QPointer<Utils::IconButton> m_iconButton;
 };
 
 
