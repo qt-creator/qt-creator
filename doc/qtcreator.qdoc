@@ -1930,8 +1930,8 @@
     You can change the configuration of preconfigured tools and configure
     additional tools in Qt Creator \gui Options.
 
-    You can use variables in the fields that you can select from lists
-    of available variables.
+    You can use Qt Creator variables in the fields that you can select from
+    lists of available Qt Creator variables.
 
     \image qtcreator-external-tools.png "External Tools options"
 
@@ -4274,7 +4274,8 @@
     The executable name is specified in the executable fields: \gui qmake,
     \gui Make, \gui Command, or \gui Executable. It is either derived from the
     project or specified manually. When you specify executables manually, you
-    can reference environment variables and macros. However, no quoting rules
+    can reference environment variables and Qt Creator variables. However, no
+    quoting rules
     apply.
 
     You can specify command-line arguments in the arguments fields: \gui {Additional
@@ -4289,16 +4290,17 @@
 
     You can use any environment variables as values in the fields. For a list
     of variable names, click \gui {Build Environment > Details} in the
-    \gui {Build Settings}. Variables are referenced using the platform's native
+    \gui {Build Settings}. Environment variables are referenced using the native
     syntax: $VARNAME or ${VARNAME} on Unix and %VARNAME% on Windows.
 
-    \section2 Using Macros
+    \section2 Using Qt Creator Variables
 
-    You can use macros in arguments, executable paths, and working directories.
-    The macros take care of quoting their expansions, so you do not need to
+    You can use Qt Creator variables in arguments, executable paths, and working
+    directories.
+    The variables take care of quoting their expansions, so you do not need to
     put them in quotes.
 
-    The following macros are available:
+    The following Qt Creator variables are available:
 
     \list
 
