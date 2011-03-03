@@ -57,7 +57,7 @@ RemoteFilterOptions::RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *pare
 
 void RemoteFilterOptions::addNewItem()
 {
-    QListWidgetItem *item = new QListWidgetItem(tr("Double click to edit item."));
+    QListWidgetItem *item = new QListWidgetItem(tr("Double-click to edit item."));
     m_ui.listWidget->addItem(item);
     item->setSelected(true);
     item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -91,7 +91,7 @@ RemoteHelpFilter::~RemoteHelpFilter()
 
 QString RemoteHelpFilter::displayName() const
 {
-    return tr("Online Documentation");
+    return tr("Web Search");
 }
 
 QString RemoteHelpFilter::id() const
