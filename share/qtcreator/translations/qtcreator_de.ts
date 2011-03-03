@@ -13726,7 +13726,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <source>QML Observer could not be found.</source>
-        <translation>Der QML-Betrachter konnte nicht gefunden werden.</translation>
+        <translation>Der QML-Beobachter konnte nicht gefunden werden.</translation>
     </message>
     <message>
         <source>QML Observer is used to offer debugging features for QML applications, such as interactive debugging and inspection tools. It must be compiled for each used Qt version separately. On the Qt4 options page, select the current Qt installation and click Rebuild.</source>
