@@ -659,8 +659,10 @@ protected:
         if (StringLiteralAST *nameAst = ast->expression_list->next->next->next->value->asStringLiteral())
             nameLit = translationUnit()->stringLiteral(nameAst->literal_token);
         if (!nameLit) {
-            translationUnit()->warning(ast->expression_list->next->next->next->value->firstToken(),
-                                       "The type will only be available in Qt Creator's QML editors when the type name is a string literal");
+            // disable this warning for now, we don't want to encourage using string literals if they don't mean to
+            // in the future, we will also accept annotations for the qmlRegisterType arguments in comments
+//            translationUnit()->warning(ast->expression_list->next->next->next->value->firstToken(),
+//                                       "The type will only be available in Qt Creator's QML editors when the type name is a string literal");
             return false;
         }
 
@@ -700,9 +702,10 @@ protected:
             exportedType.majorVersion = QString::fromUtf8(majorLit->chars(), majorLit->size()).toInt();
             exportedType.minorVersion = QString::fromUtf8(minorLit->chars(), minorLit->size()).toInt();
         } else {
-            translationUnit()->warning(ast->base_expression->firstToken(),
-                                       "The module will not be available in Qt Creator's QML editors because the uri and version numbers\n"
-                                       "cannot be determined by static analysis. The type will still be available globally.");
+            // disable this warning, see above for details
+//            translationUnit()->warning(ast->base_expression->firstToken(),
+//                                       "The module will not be available in Qt Creator's QML editors because the uri and version numbers\n"
+//                                       "cannot be determined by static analysis. The type will still be available globally.");
             exportedType.packageName = QLatin1String("<default>");
         }
 
