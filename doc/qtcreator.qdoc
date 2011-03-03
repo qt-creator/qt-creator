@@ -8787,7 +8787,7 @@
             are not overlapping.
 
         \o  \l{http://doc.qt.nokia.com/4.7-snapshot/qml-flow.html}{Flow}
-            arranges its children side by side, wrapping as necessary.
+            arranges its child items side by side, wrapping as necessary.
 
     \endlist
 
