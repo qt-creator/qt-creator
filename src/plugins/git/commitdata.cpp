@@ -147,6 +147,7 @@ bool CommitData::parseFilesFromStatus(const QString &output)
     const QString branchIndicator = QLatin1String(kBranchIndicatorC);
     const QString commitIndicator = QLatin1String("# Changes to be committed:");
     const QString notUpdatedIndicator = QLatin1String("# Changed but not updated:");
+    const QString notUpdatedIndicatorGit174 = QLatin1String("# Changes not staged for commit:");
     const QString untrackedIndicator = QLatin1String("# Untracked files:");
 
     State s = None;
@@ -165,7 +166,7 @@ bool CommitData::parseFilesFromStatus(const QString &output)
             s = CommitFiles;
             continue;
         }
-        if (line.startsWith(notUpdatedIndicator)) {
+        if (line.startsWith(notUpdatedIndicator) || line.startsWith(notUpdatedIndicatorGit174)) {
             s = NotUpdatedFiles;
             continue;
         }
