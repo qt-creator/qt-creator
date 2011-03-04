@@ -123,7 +123,10 @@ BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
     m_ui.setupUi(this);
     QStringList types;
     types << tr("File and Line Number") << tr("Function Name") << tr("Address")
-          << tr("throw") << tr("catch") << tr("Function \"main()\"")
+          << tr("throw") << tr("catch")
+          << tr("Function \"main()\"")
+          << tr("fork") << tr("exec")
+          << tr("vfork") << tr("syscall")
           << tr("Address (Watchpoint)");
     QTC_ASSERT(types.size() == Watchpoint, return; )
     m_ui.comboBoxType->addItems(types);
@@ -137,20 +140,26 @@ BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
     m_ui.lineEditModule->setToolTip(moduleToolTip);
     const QString commandToolTip =
         tr("Debugger command to be executed when the breakpoint is hit.\n"
-           "gdb allows for specifying a sequence of commands separated by the delimiter '\\n'.");
+           "gdb allows for specifying a sequence of commands separated by "
+           "the delimiter '\\n'.");
     m_ui.lineEditCommand->setToolTip(commandToolTip);
     m_ui.labelCommand->setToolTip(commandToolTip);
     m_ui.spinBoxIgnoreCount->setMinimum(0);
     m_ui.spinBoxIgnoreCount->setMaximum(2147483647);
     const QString pathToolTip =
-            tr("<html><head/><body><p>Determines how the path is specified when setting breakpoints:</p><ul>"
-               "<li><i>Use Engine Default</i>: Preferred setting of the debugger engine.</li>"
-               "<li><i>Use Full Path</i>: Pass full path, avoiding ambiguities should files of the same "
-               "name exist in several modules. This is the engine default for CDB and LLDB.</li>"
-               "<li><i>Use File Name</i>: Pass the file name only. This is useful "
-               "when using a source tree whose location does not match the one used when building the modules. "
-               "It is the engine default for gdb as using full paths can be slow with this engine.</li>"
-               "</ul></body></html>");
+        tr("<html><head/><body><p>Determines how the path is specified "
+                "when setting breakpoints:</p><ul>"
+           "<li><i>Use Engine Default</i>: Preferred setting of the "
+                "debugger engine.</li>"
+           "<li><i>Use Full Path</i>: Pass full path, avoiding ambiguities "
+                "should files of the same name exist in several modules. "
+                "This is the engine default for CDB and LLDB.</li>"
+           "<li><i>Use File Name</i>: Pass the file name only. This is "
+                "useful when using a source tree whose location does "
+                "not match the one used when building the modules. "
+                "It is the engine default for gdb as using full paths can "
+                "be slow with this engine.</li>"
+           "</ul></body></html>");
     m_ui.labelUseFullPath->setToolTip(pathToolTip);
     m_ui.comboBoxPathUsage->setToolTip(pathToolTip);
 }
@@ -328,6 +337,10 @@ void BreakpointDialog::typeChanged(int)
     case BreakpointAtThrow:
     case BreakpointAtCatch:
     case BreakpointAtMain:
+    case BreakpointAtFork:
+    case BreakpointAtExec:
+    case BreakpointAtVFork:
+    case BreakpointAtSysCall:
         break;
     case BreakpointByAddress:
     case Watchpoint:
@@ -351,6 +364,10 @@ void BreakpointDialog::typeChanged(int)
         break;
     case BreakpointAtThrow:
     case BreakpointAtCatch:
+    case BreakpointAtFork:
+    case BreakpointAtExec:
+    case BreakpointAtVFork:
+    case BreakpointAtSysCall:
         clearOtherParts(AllConditionParts|ModulePart|TracePointPart);
         setPartsEnabled(AllConditionParts|TracePointPart);
         break;
@@ -384,10 +401,11 @@ bool BreakpointDialog::showDialog(BreakpointParameters *data)
 }
 
 // Dialog allowing changing properties of multiple breakpoints at a time.
-class MultiBreakPointsDialog : public QDialog {
+class MultiBreakPointsDialog : public QDialog
+{
     Q_OBJECT
 public:
-    explicit MultiBreakPointsDialog(unsigned engineCapabilities = AllDebuggerCapabilities, QWidget *parent = 0);
+    MultiBreakPointsDialog(unsigned engineCapabilities, QWidget *parent = 0);
 
     QString condition() const { return m_ui.lineEditCondition->text(); }
     int ignoreCount() const { return m_ui.spinBoxIgnoreCount->value(); }
@@ -403,7 +421,7 @@ private:
     Ui::BreakCondition m_ui;
 };
 
-MultiBreakPointsDialog::MultiBreakPointsDialog(unsigned engineCapabilities,QWidget *parent) :
+MultiBreakPointsDialog::MultiBreakPointsDialog(unsigned engineCapabilities, QWidget *parent) :
     QDialog(parent)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -577,10 +595,6 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *addBreakpointAction =
         new QAction(tr("Add Breakpoint..."), this);
-    QAction *breakAtThrowAction =
-        new QAction(tr("Set Breakpoint at \"throw\""), this);
-    QAction *breakAtCatchAction =
-        new QAction(tr("Set Breakpoint at \"catch\""), this);
 
     menu.addAction(addBreakpointAction);
     menu.addAction(deleteAction);
@@ -592,11 +606,6 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     //menu.addAction(deleteByFileAction);
     menu.addSeparator();
     menu.addAction(synchronizeAction);
-    if (engineCapabilities & BreakOnThrowAndCatchCapability) {
-        menu.addSeparator();
-        menu.addAction(breakAtThrowAction);
-        menu.addAction(breakAtCatchAction);
-    }
     menu.addSeparator();
     menu.addAction(debuggerCore()->action(UseToolTipsInBreakpointsView));
     menu.addAction(debuggerCore()->action(UseAddressInBreakpointsView));
@@ -627,10 +636,6 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         setBreakpointsEnabled(selectedIds, !enabled);
     else if (act == addBreakpointAction)
         addBreakpoint();
-    else if (act == breakAtThrowAction)
-        handler->appendBreakpoint(BreakpointParameters(BreakpointAtThrow));
-    else if (act == breakAtCatchAction)
-        handler->appendBreakpoint(BreakpointParameters(BreakpointAtCatch));
 }
 
 void BreakWindow::setBreakpointsEnabled(const BreakpointIds &ids, bool enabled)

@@ -1029,26 +1029,29 @@ bool BreakHandler::needsChange(BreakpointId id) const
     return it->needsChange();
 }
 
-void BreakHandler::setResponse(BreakpointId id, const BreakpointResponse &response, bool takeOver)
+void BreakHandler::setResponse(BreakpointId id,
+    const BreakpointResponse &response, bool takeOver)
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
     BreakpointItem &item = it.value();
     item.response = response;
     item.destroyMarker();
-    // Take over corrected values from response
+    // Take over corrected values from response.
     if (takeOver) {
         if (item.data.type == BreakpointByFileAndLine
             && response.correctedLineNumber > 0)
             item.data.lineNumber = response.correctedLineNumber;
-        if ((item.data.type == BreakpointByFileAndLine || item.data.type == BreakpointByFunction)
-            && !response.module.isEmpty())
+        if ((item.data.type == BreakpointByFileAndLine
+                    || item.data.type == BreakpointByFunction)
+                && !response.module.isEmpty())
             item.data.module = response.module;
     }
     updateMarker(id);
 }
 
-void BreakHandler::setBreakpointData(BreakpointId id, const BreakpointParameters &data)
+void BreakHandler::setBreakpointData(BreakpointId id,
+    const BreakpointParameters &data)
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
@@ -1177,6 +1180,18 @@ QString BreakHandler::BreakpointItem::toToolTip() const
             break;
         case BreakpointAtCatch:
             t = tr("Breakpoint at \"catch\"");
+            break;
+        case BreakpointAtFork:
+            t = tr("Breakpoint at \"fork\"");
+            break;
+        case BreakpointAtExec:
+            t = tr("Breakpoint at \"exec\"");
+            break;
+        case BreakpointAtVFork:
+            t = tr("Breakpoint at \"vfork\"");
+            break;
+        case BreakpointAtSysCall:
+            t = tr("Breakpoint at \"syscall\"");
             break;
         case BreakpointAtMain:
             t = tr("Breakpoint at Function \"main()\"");

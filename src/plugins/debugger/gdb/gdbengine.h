@@ -370,6 +370,7 @@ private: ////////// View & Data Stuff //////////
     void handleBreakInfo(const GdbResponse &response);
     void handleBreakThreadSpec(const GdbResponse &response);
     void handleWatchInsert(const GdbResponse &response);
+    void handleCatchInsert(const GdbResponse &response);
     void handleInfoLine(const GdbResponse &response);
     void extractDataFromInfoBreak(const QString &output, BreakpointId);
     void updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkpt);

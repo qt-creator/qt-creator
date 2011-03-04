@@ -44,6 +44,7 @@
 #include <QtCore/QList>
 #include <QtCore/QMap>
 #include <QtCore/QPointer>
+#include <QtCore/QProcess>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QSettings>
@@ -2397,6 +2398,16 @@ void testBoostSharedPtr()
 #endif
 }
 
+void testFork()
+{
+    QProcess proc;
+    proc.start("/bin/ls");
+    proc.waitForFinished();
+    QByteArray ba = proc.readAllStandardError();
+    ba.append('x');
+    ba.append('x');
+}
+
 int main(int argc, char *argv[])
 {
     testPrivate();
@@ -2493,7 +2504,7 @@ int main(int argc, char *argv[])
     testBoostOptional();
     testBoostSharedPtr();
 
-    //*(int *)0 = 0;
+    testFork();
 
     testQObject(argc, argv);
 

@@ -1873,7 +1873,8 @@ unsigned GdbEngine::debuggerCapabilities() const
         | CreateFullBacktraceCapability
         | WatchpointCapability
         | AddWatcherCapability
-        | ShowModuleSymbolsCapability;
+        | ShowModuleSymbolsCapability
+        | CatchCapability;
 
     if (startParameters().startMode == AttachCore)
         return caps;
@@ -2314,6 +2315,16 @@ void GdbEngine::attemptAdjustBreakpointLocation(BreakpointId id)
         CB(handleInfoLine), id);
 }
 
+void GdbEngine::handleCatchInsert(const GdbResponse &response)
+{
+    BreakHandler *handler = breakHandler();
+    BreakpointId id(response.cookie.toInt());
+    if (response.resultClass == GdbResultDone) {
+        handler->notifyBreakpointInsertOk(id);
+        attemptAdjustBreakpointLocation(id);
+    }
+}
+
 void GdbEngine::handleBreakInsert1(const GdbResponse &response)
 {
     BreakHandler *handler = breakHandler();
@@ -2644,10 +2655,31 @@ void GdbEngine::insertBreakpoint(BreakpointId id)
     BreakHandler *handler = breakHandler();
     QTC_ASSERT(handler->state(id) == BreakpointInsertRequested, /**/);
     handler->notifyBreakpointInsertProceeding(id);
-    if (handler->type(id) == Watchpoint) {
+    BreakpointType type = handler->type(id);
+    if (type == Watchpoint) {
         postCommand("watch " + addressSpec(handler->address(id)),
             NeedsStop | RebuildBreakpointModel,
             CB(handleWatchInsert), id);
+        return;
+    }
+    if (type == BreakpointAtFork) {
+        postCommand("catch fork", NeedsStop | RebuildBreakpointModel,
+            CB(handleCatchInsert), id);
+        return;
+    }
+    if (type == BreakpointAtVFork) {
+        postCommand("catch vfork", NeedsStop | RebuildBreakpointModel,
+            CB(handleCatchInsert), id);
+        return;
+    }
+    if (type == BreakpointAtExec) {
+        postCommand("catch exec", NeedsStop | RebuildBreakpointModel,
+            CB(handleCatchInsert), id);
+        return;
+    }
+    if (type == BreakpointAtSysCall) {
+        postCommand("catch syscall", NeedsStop | RebuildBreakpointModel,
+            CB(handleCatchInsert), id);
         return;
     }
 

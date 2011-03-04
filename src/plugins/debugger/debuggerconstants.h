@@ -171,12 +171,13 @@ enum DebuggerCapabilities
     BreakOnThrowAndCatchCapability = 0x200,
     BreakConditionCapability = 0x400, //!< Conditional Breakpoints
     BreakModuleCapability = 0x800, //!< Breakpoint specification includes module
-    TracePointCapability = 0x1000, //!< Breakpoint specification includes module
+    TracePointCapability = 0x1000,
     ReturnFromFunctionCapability = 0x2000,
     CreateFullBacktraceCapability = 0x4000,
     AddWatcherCapability = 0x8000,
     WatchpointCapability = 0x10000,
     ShowModuleSymbolsCapability = 0x20000,
+    CatchCapability = 0x40000, //!< fork, vfork, syscall
     AllDebuggerCapabilities = 0xFFFFFFFF
 };
 

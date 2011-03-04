@@ -59,6 +59,10 @@ enum BreakpointType
     BreakpointAtThrow,
     BreakpointAtCatch,
     BreakpointAtMain,
+    BreakpointAtFork,
+    BreakpointAtExec,
+    BreakpointAtVFork,
+    BreakpointAtSysCall,
     Watchpoint
 };
 
