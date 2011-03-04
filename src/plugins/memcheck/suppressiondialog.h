@@ -65,6 +65,8 @@ public:
     virtual void accept();
     virtual void reject();
 
+    bool shouldShow() const;
+
 private slots:
     void validate();
 

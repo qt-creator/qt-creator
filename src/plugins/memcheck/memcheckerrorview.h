@@ -111,12 +111,16 @@ signals:
 public slots:
     void settingsChanged(AnalyzerSettings *settings);
 
+private slots:
+    void suppressError();
+
 protected:
     void resizeEvent(QResizeEvent *e);
     void contextMenuEvent(QContextMenuEvent *e);
 
 private:
     QAction *m_copyAction;
+    QAction *m_suppressAction;
     QString m_defaultSuppFile;
     AnalyzerSettings *m_settings;
 };

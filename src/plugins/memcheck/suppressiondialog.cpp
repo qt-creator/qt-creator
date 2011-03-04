@@ -156,7 +156,12 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, QWidget *parent, Q
             SLOT(validate()));
 
     QString suppressions;
-    foreach(const QModelIndex &index, m_view->selectionModel()->selectedRows()) {
+    QModelIndexList indizes = m_view->selectionModel()->selectedRows();
+    if (indizes.isEmpty() && m_view->selectionModel()->currentIndex().isValid()) {
+        // can happen when using arrow keys to navigate and shortcut to trigger suppression
+        indizes << m_view->selectionModel()->currentIndex();
+    }
+    foreach(const QModelIndex &index, indizes) {
         Error error = m_view->model()->data(index, ErrorListModel::ErrorRole).value<Error>();
         if (!error.suppression().isNull())
             m_errors << error;
@@ -168,6 +173,11 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, QWidget *parent, Q
     m_ui->suppressionEdit->setPlainText(suppressions);
 
     setWindowTitle(tr("Save Suppression"));
+}
+
+bool SuppressionDialog::shouldShow() const
+{
+    return !m_errors.isEmpty();
 }
 
 void SuppressionDialog::accept()

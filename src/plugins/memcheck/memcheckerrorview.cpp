@@ -429,6 +429,14 @@ MemcheckErrorView::MemcheckErrorView(QWidget *parent)
     m_copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     connect(m_copyAction, SIGNAL(triggered()), itemDelegate(), SLOT(copy()));
     addAction(m_copyAction);
+
+    m_suppressAction = new QAction(this);
+    m_suppressAction->setText(tr("Suppress Error"));
+    m_suppressAction->setIcon(QIcon(QLatin1String(":/qmldesigner/images/eye_crossed.png")));
+    m_suppressAction->setShortcut(QKeySequence(Qt::Key_Delete));
+    m_suppressAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    connect(m_suppressAction, SIGNAL(triggered()), this, SLOT(suppressError()));
+    addAction(m_suppressAction);
 }
 
 MemcheckErrorView::~MemcheckErrorView()
@@ -474,9 +482,9 @@ void MemcheckErrorView::settingsChanged(AnalyzerSettings *settings)
 void MemcheckErrorView::contextMenuEvent(QContextMenuEvent *e)
 {
     const QModelIndexList indizes = selectionModel()->selectedRows();
-    if (indizes.isEmpty()) {
+    if (indizes.isEmpty())
         return;
-    }
+
 
     QList<Error> errors;
     foreach(const QModelIndex &index, indizes) {
@@ -488,16 +496,19 @@ void MemcheckErrorView::contextMenuEvent(QContextMenuEvent *e)
     QMenu menu;
     menu.addAction(m_copyAction);
     menu.addSeparator();
-    QAction *suppress = menu.addAction(tr("Suppress Error(s)", "", errors.size()));
-    suppress->setIcon(QIcon(QLatin1String(":/qmldesigner/images/eye_crossed.png")));
-    suppress->setEnabled(!errors.isEmpty());
+    menu.addAction(m_suppressAction);
+    m_suppressAction->setEnabled(!errors.isEmpty());
+    menu.exec(e->globalPos());
+}
 
-    if (QAction *executed = menu.exec(e->globalPos())) {
-        if (executed == suppress) {
-            SuppressionDialog *dialog = new SuppressionDialog(this);
-            dialog->setModal(true);
-            dialog->show();
-            dialog->setAttribute(Qt::WA_DeleteOnClose, true);
-        }
+void MemcheckErrorView::suppressError()
+{
+    SuppressionDialog *dialog = new SuppressionDialog(this);
+    if (dialog->shouldShow()) {
+        dialog->setModal(true);
+        dialog->show();
+        dialog->setAttribute(Qt::WA_DeleteOnClose, true);
+    } else {
+        delete dialog;
     }
 }
