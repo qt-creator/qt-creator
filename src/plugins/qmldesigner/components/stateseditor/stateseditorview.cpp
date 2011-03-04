@@ -198,6 +198,11 @@ bool StatesEditorView::validStateName(const QString &name) const
     return true;
 }
 
+QString StatesEditorView::currentStateName() const
+{
+    return currentState().isValid() ? currentState().name() : QString();
+}
+
 void StatesEditorView::renameState(int nodeId, const QString &newName)
 {
     if (hasModelNodeForInternalId(nodeId)) {

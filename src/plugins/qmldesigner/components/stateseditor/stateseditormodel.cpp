@@ -169,7 +169,10 @@ void StatesEditorModel::removeState(int stateIndex)
 }
 
 void StatesEditorModel::renameState(int nodeId, const QString &newName)
-{    
+{
+    if (newName == m_statesEditorView->currentStateName())
+        return;
+
     if (newName.isEmpty() ||! m_statesEditorView->validStateName(newName)) {
         QMessageBox::warning(0, tr("Invalid state name"),
                              newName.isEmpty() ?
