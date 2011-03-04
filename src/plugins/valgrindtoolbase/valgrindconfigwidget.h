@@ -58,12 +58,6 @@ public:
     ValgrindConfigWidget(ValgrindSettings *settings, QWidget *parent);
     virtual ~ValgrindConfigWidget();
 
-    // ### remove the following?
-    QString valgrindExe() const;
-
-public slots:
-    void setValgrindExe(const QString &exe);
-
 private:
     ValgrindSettings *m_settings;
     Ui::ValgrindConfigWidget *m_ui;

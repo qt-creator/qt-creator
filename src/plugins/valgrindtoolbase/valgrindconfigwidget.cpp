@@ -54,22 +54,11 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindSettings *settings, QWidget *
     m_ui->valgrindExeChooser->setPromptDialogTitle(tr("Valgrind Command"));
 
     m_ui->valgrindExeChooser->setPath(m_settings->valgrindExecutable());
-    connect(m_ui->valgrindExeChooser, SIGNAL(changed(QString)), SLOT(setValgrindExe(QString)));
-    connect(m_settings, SIGNAL(valgrindExecutableChanged(QString)), SLOT(setValgrindExe(QString)));
+    connect(m_ui->valgrindExeChooser, SIGNAL(changed(QString)), m_settings, SLOT(setValgrindExecutable(QString)));
+    connect(m_settings, SIGNAL(valgrindExecutableChanged(QString)), m_ui->valgrindExeChooser, SLOT(setPath(QString)));
 }
 
 ValgrindConfigWidget::~ValgrindConfigWidget()
 {
     delete m_ui;
-}
-
-void ValgrindConfigWidget::setValgrindExe(const QString &exe)
-{
-    m_ui->valgrindExeChooser->setPath(exe);
-    m_settings->setValgrindExecutable(exe);
-}
-
-QString ValgrindConfigWidget::valgrindExe() const
-{
-    return m_ui->valgrindExeChooser->path();
 }

@@ -63,14 +63,7 @@ public:
     void setSuppressions(const QStringList &files);
     QStringList suppressions() const;
 
-    // ### remove the following?
-    int numCallers() const;
-    bool trackOrigins() const;
-
-public slots:
-    void setNumCallers(int callers);
-    void setTrackOrigins(bool enable);
-
+public Q_SLOTS:
     void slotAddSuppression();
     void slotRemoveSuppression();
     void slotSuppressionsRemoved(const QStringList &files);

@@ -62,12 +62,12 @@ MemcheckConfigWidget::MemcheckConfigWidget(AbstractMemcheckSettings *settings, Q
             this, SLOT(slotRemoveSuppression()));
 
     m_ui->numCallers->setValue(m_settings->numCallers());
-    connect(m_ui->numCallers, SIGNAL(valueChanged(int)), SLOT(setNumCallers(int)));
-    connect(m_settings, SIGNAL(numCallersChanged(int)), SLOT(setNumCallers(int)));
+    connect(m_ui->numCallers, SIGNAL(valueChanged(int)), m_settings, SLOT(setNumCallers(int)));
+    connect(m_settings, SIGNAL(numCallersChanged(int)), m_ui->numCallers, SLOT(setValue(int)));
 
     m_ui->trackOrigins->setChecked(m_settings->trackOrigins());
-    connect(m_ui->trackOrigins, SIGNAL(toggled(bool)), SLOT(setTrackOrigins(bool)));
-    connect(m_settings, SIGNAL(trackOriginsChanged(bool)), SLOT(setTrackOrigins(bool)));
+    connect(m_ui->trackOrigins, SIGNAL(toggled(bool)), m_settings, SLOT(setTrackOrigins(bool)));
+    connect(m_settings, SIGNAL(trackOriginsChanged(bool)), m_ui->trackOrigins, SLOT(setChecked(bool)));
 
     connect(m_settings, SIGNAL(suppressionFilesRemoved(QStringList)),
             this, SLOT(slotSuppressionsRemoved(QStringList)));
@@ -161,28 +161,6 @@ QStringList MemcheckConfigWidget::suppressions() const
         ret << m_model->item(i)->text();
 
     return ret;
-}
-
-void MemcheckConfigWidget::setNumCallers(int callers)
-{
-    m_ui->numCallers->setValue(callers);
-    m_settings->setNumCallers(callers);
-}
-
-int MemcheckConfigWidget::numCallers() const
-{
-    return m_ui->numCallers->value();
-}
-
-void MemcheckConfigWidget::setTrackOrigins(bool enable)
-{
-    m_ui->trackOrigins->setChecked(enable);
-    m_settings->setTrackOrigins(enable);
-}
-
-bool MemcheckConfigWidget::trackOrigins() const
-{
-    return m_ui->trackOrigins->isChecked();
 }
 
 void MemcheckConfigWidget::slotSuppressionSelectionChanged()
