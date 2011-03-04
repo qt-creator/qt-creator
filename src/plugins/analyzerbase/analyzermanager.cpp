@@ -302,6 +302,7 @@ QWidget *AnalyzerManager::AnalyzerManagerPrivate::createMainWindow()
     dock->setObjectName(QLatin1String("Analyzer Toolbar"));
     dock->setWidget(analyzeToolBar);
     dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    dock->setProperty("managed_dockwidget", QLatin1String("true"));
     dock->setAllowedAreas(Qt::BottomDockWidgetArea);
     // hide title bar
     dock->setTitleBarWidget(new QWidget(dock));
