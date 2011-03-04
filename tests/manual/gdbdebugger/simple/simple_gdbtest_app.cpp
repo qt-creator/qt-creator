@@ -87,6 +87,7 @@
 #define USE_BOOST 1
 
 #if USE_BOOST
+#include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
 #endif
 
@@ -2360,9 +2361,24 @@ void testQScriptValue(int argc, char *argv[])
     s = engine.newDate(date);
     x = s.toInt32();
     bool xx = s.isDate();
+    Q_UNUSED(xx);
     date = s.toDateTime();
     s.setProperty("a", QScriptValue());
     QScriptValue d = s.data();
+}
+
+void testBoostOptional()
+{
+#if USE_BOOST
+    boost::optional<int> i;
+    i = 1;
+    boost::optional<QStringList> sl;
+    sl = (QStringList() << "xxx" << "yyy");
+    sl.get().append("zzz");
+    i = 3;
+    i = 4;
+    i = 5;
+#endif
 }
 
 void testBoostSharedPtr()
@@ -2375,6 +2391,7 @@ void testBoostSharedPtr()
     boost::shared_ptr<int> s;
     boost::shared_ptr<int> i(new int(43));
     boost::shared_ptr<int> j = i;
+    boost::shared_ptr<QStringList> sl(new QStringList);
     int k = 2;
     ++k;
 #endif
@@ -2473,6 +2490,7 @@ int main(int argc, char *argv[])
     testQVector();
     testQVectorOfQList();
 
+    testBoostOptional();
     testBoostSharedPtr();
 
     //*(int *)0 = 0;
