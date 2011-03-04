@@ -37,6 +37,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_bazaar \
             plugin_classview \
             plugin_tasklist \
+            plugin_analyzerbase \
             plugin_qmljstools \
             plugin_macros \
             debugger/dumper.pro
@@ -241,6 +242,10 @@ plugin_classview.depends += plugin_texteditor
 plugin_tasklist.subdir = tasklist
 plugin_tasklist.depends = plugin_coreplugin
 plugin_tasklist.depends += plugin_projectexplorer
+
+plugin_analyzerbase.subdir = analyzerbase
+plugin_analyzerbase.depends = plugin_coreplugin
+plugin_analyzerbase.depends += plugin_projectexplorer
 
 plugin_qmljstools.subdir = qmljstools
 plugin_qmljstools.depends = plugin_projectexplorer
