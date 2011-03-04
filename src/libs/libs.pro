@@ -16,6 +16,11 @@ SUBDIRS   = \
     qmleditorwidgets \
     symbianutils
 
+
+!win32 {
+    SUBDIRS += valgrind
+}
+
 # Windows: Compile Qt Creator CDB extension if Debugging tools can be detected.    
 win32 {
     include(qtcreatorcdbext/cdb_detect.pri)
