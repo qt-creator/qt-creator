@@ -115,10 +115,13 @@ static ModelNode resolveBinding(const QString &binding, ModelNode currentNode, A
             else
                 return ModelNode(); //binding not valid
         } else if (currentNode.hasProperty(element)) {
-            if (currentNode.property(element).isNodeProperty())
+            if (currentNode.property(element).isNodeProperty()) {
                 currentNode = currentNode.nodeProperty(element).modelNode();
-            else
-                return ModelNode(); //binding not valid
+            } else {
+                currentNode = view->modelNodeForId(element); //id
+                if (!currentNode.isValid())
+                    return ModelNode(); //binding not valid
+            }
         } else {
             currentNode = view->modelNodeForId(element); //id
         }
