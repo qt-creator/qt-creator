@@ -73,7 +73,7 @@ public:
 
     virtual QString id() const = 0;
     virtual QString displayName() const = 0;
-    virtual QWidget* createConfigWidget(QWidget *parent) = 0;
+    virtual QWidget *createConfigWidget(QWidget *parent) = 0;
 };
 
 /**
@@ -86,8 +86,8 @@ public:
     AbstractAnalyzerSubConfigFactory(){}
     ~AbstractAnalyzerSubConfigFactory(){}
 
-    virtual AbstractAnalyzerSubConfig* createGlobalSubConfig() = 0;
-    virtual AbstractAnalyzerSubConfig* createProjectSubConfig() = 0;
+    virtual AbstractAnalyzerSubConfig *createGlobalSubConfig() = 0;
+    virtual AbstractAnalyzerSubConfig *createProjectSubConfig() = 0;
 };
 
 /**
@@ -103,12 +103,12 @@ class ANALYZER_EXPORT AnalyzerSubConfigFactory : public AbstractAnalyzerSubConfi
 public:
     AnalyzerSubConfigFactory(){}
 
-    AbstractAnalyzerSubConfig* createGlobalSubConfig()
+    AbstractAnalyzerSubConfig *createGlobalSubConfig()
     {
         return new GlobalConfigT;
     }
 
-    AbstractAnalyzerSubConfig* createProjectSubConfig()
+    AbstractAnalyzerSubConfig *createProjectSubConfig()
     {
         return new ProjectConfigT;
     }
@@ -128,19 +128,19 @@ public:
     template<class T>
     T* subConfig() const
     {
-        return findChild<T*>();
+        return findChild<T *>();
     }
 
-    QList<AbstractAnalyzerSubConfig*> subConfigs() const
+    QList<AbstractAnalyzerSubConfig *> subConfigs() const
     {
-        return findChildren<AbstractAnalyzerSubConfig*>();
+        return findChildren<AbstractAnalyzerSubConfig *>();
     }
 
     QVariantMap defaults() const;
     virtual QVariantMap toMap() const;
 
 protected:
-    void addSubConfig(AbstractAnalyzerSubConfig* config)
+    void addSubConfig(AbstractAnalyzerSubConfig *config)
     {
         config->setParent(this);
     }

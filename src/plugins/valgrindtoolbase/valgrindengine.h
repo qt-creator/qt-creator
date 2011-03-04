@@ -37,7 +37,8 @@
 #define VALGRINDENGINE_H
 
 #include "valgrindtoolbase_global.h"
-#include "ianalyzerengine.h"
+
+#include <analyzerbase/ianalyzerengine.h>
 
 #include <utils/environment.h>
 
@@ -68,7 +69,7 @@ public:
 protected:
     virtual QString progressTitle() const = 0;
     virtual QStringList toolArguments() const = 0;
-    virtual Valgrind::ValgrindRunner* runner() = 0;
+    virtual Valgrind::ValgrindRunner *runner() = 0;
 
     AnalyzerSettings *m_settings;
     QFutureInterface<void> *m_progress;

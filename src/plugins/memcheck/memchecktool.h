@@ -36,7 +36,7 @@
 #ifndef MEMCHECKTOOL_H
 #define MEMCHECKTOOL_H
 
-#include "ianalyzertool.h"
+#include <analyzerbase/ianalyzertool.h>
 
 #include <QSortFilterProxyModel>
 #include <QSharedPointer>

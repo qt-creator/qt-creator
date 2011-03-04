@@ -124,7 +124,7 @@ public:
     QWidget *createContents();
     QWidget *createMainWindow();
 
-    void addDock(IAnalyzerTool* tool, Qt::DockWidgetArea area, QDockWidget* dockWidget);
+    void addDock(IAnalyzerTool *tool, Qt::DockWidgetArea area, QDockWidget *dockWidget);
     void startTool();
 
     AnalyzerManager *q;
@@ -276,7 +276,7 @@ QWidget *AnalyzerManager::AnalyzerManagerPrivate::createMainWindow()
     QHBoxLayout *analyzeToolBarLayout = new QHBoxLayout(analyzeToolBar);
     analyzeToolBarLayout->setMargin(0);
     analyzeToolBarLayout->setSpacing(0);
-    QToolButton* startButton = toolButton(m_startAction);
+    QToolButton *startButton = toolButton(m_startAction);
     analyzeToolBarLayout->addWidget(startButton);
     analyzeToolBarLayout->addWidget(toolButton(m_stopAction));
     analyzeToolBarLayout->addWidget(new Utils::StyledSeparator);
@@ -475,7 +475,7 @@ void AnalyzerManager::modeChanged(IMode *mode)
     d->m_mainWindow->setDockActionsVisible(mode->id() == Constants::MODE_ANALYZE);
 }
 
-void AnalyzerManager::selectTool(IAnalyzerTool* tool)
+void AnalyzerManager::selectTool(IAnalyzerTool *tool)
 {
     QTC_ASSERT(d->m_tools.contains(tool), return);
     toolSelected(d->m_tools.indexOf(tool));
@@ -488,7 +488,7 @@ void AnalyzerManager::toolSelected(int idx)
         return;
     selectingTool = true;
 
-    IAnalyzerTool* oldTool = currentTool();
+    IAnalyzerTool *oldTool = currentTool();
     if (oldTool) {
         saveToolSettings(oldTool);
 
@@ -510,7 +510,7 @@ void AnalyzerManager::toolSelected(int idx)
     d->m_toolGroup->actions().at(idx)->setChecked(true);
     d->m_toolBox->setCurrentIndex(idx);
 
-    IAnalyzerTool* newTool = currentTool();
+    IAnalyzerTool *newTool = currentTool();
 
     if (QWidget *toolbarWidget = d->m_toolToolbarWidgets.value(newTool))
         d->m_toolbarStackedWidget->setCurrentWidget(toolbarWidget);
@@ -546,7 +546,7 @@ void AnalyzerManager::addTool(IAnalyzerTool *tool)
         selectTool(tool); // the first tool gets selected automatically due to signal emission from toolbox
     tool->initialize(plugin);
 
-    QSettings* defaultSettings = new QSettings(this);
+    QSettings *defaultSettings = new QSettings(this);
     d->m_defaultSettings[tool] = defaultSettings;
     d->m_mainWindow->saveSettings(defaultSettings);
 

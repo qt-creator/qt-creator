@@ -110,7 +110,7 @@ QStringList MemcheckEngine::suppressionFiles() const
     return m_settings->subConfig<AbstractMemcheckSettings>()->suppressionFiles();
 }
 
-void MemcheckEngine::status(const Valgrind::XmlProtocol::Status &status)
+void MemcheckEngine::status(const Status &status)
 {
     m_progress->setProgressValue(status.state() + 1);
 }

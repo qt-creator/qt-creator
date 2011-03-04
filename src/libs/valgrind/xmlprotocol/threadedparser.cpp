@@ -130,7 +130,7 @@ void ThreadedParser::parse(QIODevice *device)
             Qt::QueuedConnection);
 
 
-    Thread* thread = new Thread;
+    Thread *thread = new Thread;
     d->parserThread = thread;
     connect(thread, SIGNAL(finished()),
             thread, SLOT(deleteLater()));

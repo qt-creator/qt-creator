@@ -194,20 +194,18 @@ QVariantMap MemcheckGlobalSettings::toMap() const
     return map;
 }
 
-MemcheckGlobalSettings* globalMemcheckSettings()
+MemcheckGlobalSettings *globalMemcheckSettings()
 {
-    MemcheckGlobalSettings* ret = AnalyzerGlobalSettings::instance()->subConfig<MemcheckGlobalSettings>();
+    MemcheckGlobalSettings *ret = AnalyzerGlobalSettings::instance()->subConfig<MemcheckGlobalSettings>();
     QTC_ASSERT(ret, return 0);
     return ret;
 }
 
 MemcheckProjectSettings::MemcheckProjectSettings()
 {
-    // take defaults from global settings
-    fromMap(globalMemcheckSettings()->toMap());
 }
 
-bool MemcheckProjectSettings::fromMap(const QVariantMap& map)
+bool MemcheckProjectSettings::fromMap(const QVariantMap &map)
 {
     AbstractMemcheckSettings::fromMap(map);
     setIfPresent(map, addedSuppressionFilesC, &m_addedSuppressionFiles);

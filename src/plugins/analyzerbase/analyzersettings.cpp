@@ -73,7 +73,7 @@ AnalyzerSettings::~AnalyzerSettings()
 bool AnalyzerSettings::fromMap(const QVariantMap &map)
 {
     bool ret = true;
-    foreach(AbstractAnalyzerSubConfig* config, subConfigs()) {
+    foreach(AbstractAnalyzerSubConfig *config, subConfigs()) {
         ret = ret && config->fromMap(map);
     }
     return ret;
@@ -82,7 +82,7 @@ bool AnalyzerSettings::fromMap(const QVariantMap &map)
 QVariantMap AnalyzerSettings::defaults() const
 {
     QVariantMap map;
-    foreach(AbstractAnalyzerSubConfig* config, subConfigs()) {
+    foreach(AbstractAnalyzerSubConfig *config, subConfigs()) {
         map.unite(config->defaults());
     }
     return map;
@@ -91,7 +91,7 @@ QVariantMap AnalyzerSettings::defaults() const
 QVariantMap AnalyzerSettings::toMap() const
 {
     QVariantMap map;
-    foreach(AbstractAnalyzerSubConfig* config, subConfigs()) {
+    foreach(AbstractAnalyzerSubConfig *config, subConfigs()) {
         map.unite(config->toMap());
     }
     return map;
@@ -176,7 +176,7 @@ QString AnalyzerProjectSettings::displayName() const
     return tr("Analyzer Settings");
 }
 
-bool AnalyzerProjectSettings::fromMap(const QVariantMap& map)
+bool AnalyzerProjectSettings::fromMap(const QVariantMap &map)
 {
     return AnalyzerSettings::fromMap(map);
 }

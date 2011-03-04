@@ -157,7 +157,7 @@ public:
 
     Utils::FancyMainWindow *mainWindow() const;
 
-    void selectTool(IAnalyzerTool* tool);
+    void selectTool(IAnalyzerTool *tool);
 
 private slots:
     void startTool();

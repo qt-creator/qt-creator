@@ -36,7 +36,7 @@
 #ifndef ANALYZER_INTERNAL_MEMCHECKSETTINGS_H
 #define ANALYZER_INTERNAL_MEMCHECKSETTINGS_H
 
-#include "analyzersettings.h"
+#include <analyzerbase/analyzersettings.h>
 
 namespace Analyzer {
 namespace Internal {
@@ -66,7 +66,7 @@ public:
 
     virtual QString id() const;
     virtual QString displayName() const;
-    virtual QWidget* createConfigWidget(QWidget *parent);
+    virtual QWidget *createConfigWidget(QWidget *parent);
 
 public slots:
     void setNumCallers(int);

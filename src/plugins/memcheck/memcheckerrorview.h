@@ -109,7 +109,7 @@ signals:
     void resized();
 
 public slots:
-    void settingsChanged(AnalyzerSettings* settings);
+    void settingsChanged(AnalyzerSettings *settings);
 
 protected:
     void resizeEvent(QResizeEvent *e);

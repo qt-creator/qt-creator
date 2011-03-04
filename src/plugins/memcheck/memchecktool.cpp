@@ -542,7 +542,7 @@ void MemcheckTool::updateErrorFilter()
 {
     QTC_ASSERT(m_settings, return);
 
-    AbstractMemcheckSettings* memcheckSettings = m_settings->subConfig<AbstractMemcheckSettings>();
+    AbstractMemcheckSettings *memcheckSettings = m_settings->subConfig<AbstractMemcheckSettings>();
     QTC_ASSERT(memcheckSettings, return);
     memcheckSettings->setFilterExternalIssues(!m_filterProjectAction->isChecked());
 

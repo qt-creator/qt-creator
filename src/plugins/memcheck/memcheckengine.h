@@ -67,7 +67,7 @@ private slots:
 private:
     QString progressTitle() const;
     QStringList toolArguments() const;
-    Valgrind::ValgrindRunner* runner();
+    Valgrind::ValgrindRunner *runner();
 
     Valgrind::XmlProtocol::ThreadedParser m_parser;
     Valgrind::Memcheck::MemcheckRunner m_runner;

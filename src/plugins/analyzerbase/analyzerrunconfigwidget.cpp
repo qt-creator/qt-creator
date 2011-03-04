@@ -71,7 +71,7 @@ void AnalyzerRunConfigWidget::setRunConfiguration(ProjectExplorer::RunConfigurat
     AnalyzerProjectSettings *settings = rc->extraAspect<AnalyzerProjectSettings>();
     QTC_ASSERT(settings, return);
 
-    foreach(AbstractAnalyzerSubConfig* config, settings->subConfigs()) {
+    foreach(AbstractAnalyzerSubConfig *config, settings->subConfigs()) {
         m_tabWidget->addTab(config->createConfigWidget(this), config->displayName());
     }
 }
