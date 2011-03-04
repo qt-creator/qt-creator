@@ -4,5 +4,6 @@
         <sub-class-of type="text/plain"/>
         <comment>Qt Creator task list file</comment>
         <glob pattern="*.tasks"/>
+        <glob pattern="*.tasks.txt"/>
     </mime-type>
 </mime-info>
