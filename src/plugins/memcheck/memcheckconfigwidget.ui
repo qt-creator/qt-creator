@@ -99,6 +99,9 @@
       </item>
       <item row="2" column="1">
        <widget class="QSpinBox" name="numCallers">
+        <property name="minimum">
+         <number>5</number>
+        </property>
         <property name="maximum">
          <number>50</number>
         </property>
