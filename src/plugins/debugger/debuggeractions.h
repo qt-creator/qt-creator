@@ -35,6 +35,7 @@
 #define DEBUGGER_ACTIONS_H
 
 #include <QtCore/QHash>
+#include <QtCore/QMap>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -46,6 +47,22 @@ class SavedAction;
 
 namespace Debugger {
 namespace Internal {
+
+// Global debugger options that are not stored as saved action.
+class GlobalDebuggerOptions
+{
+public:
+    typedef QMap<QString, QString> SourcePathMap;
+
+    void toSettings(QSettings *) const;
+    void fromSettings(QSettings *);
+    bool equals(const GlobalDebuggerOptions &rhs) const { return sourcePathMap == rhs.sourcePathMap; }
+
+    SourcePathMap sourcePathMap;
+};
+
+inline bool operator==(const GlobalDebuggerOptions &o1, const GlobalDebuggerOptions &o2) { return o1.equals(o2); }
+inline bool operator!=(const GlobalDebuggerOptions &o1, const GlobalDebuggerOptions &o2) { return !o1.equals(o2); }
 
 class DebuggerSettings : public QObject
 {
@@ -88,7 +105,6 @@ enum DebuggerActionCode
     UseDebuggingHelpers,
     UseCustomDebuggingHelperLocation,
     CustomDebuggingHelperLocation,
-    QtSourcesLocation,
 
     UseCodeModel,
     ShowThreadNames,

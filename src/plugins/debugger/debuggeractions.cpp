@@ -47,9 +47,44 @@
 using namespace Utils;
 
 static const char debugModeSettingsGroupC[] = "DebugMode";
+static const char sourcePathMappingArrayNameC[] = "SourcePathMappings";
+static const char sourcePathMappingSourceKeyC[] = "Source";
+static const char sourcePathMappingTargetKeyC[] = "Target";
 
 namespace Debugger {
 namespace Internal {
+
+void GlobalDebuggerOptions::toSettings(QSettings *s) const
+{
+    s->beginWriteArray(QLatin1String(sourcePathMappingArrayNameC));
+    if (!sourcePathMap.isEmpty()) {
+        const QString sourcePathMappingSourceKey = QLatin1String(sourcePathMappingSourceKeyC);
+        const QString sourcePathMappingTargetKey = QLatin1String(sourcePathMappingTargetKeyC);
+        int i = 0;
+        const SourcePathMap::const_iterator cend = sourcePathMap.constEnd();
+        for (SourcePathMap::const_iterator it = sourcePathMap.constBegin(); it != cend; ++it, ++i) {
+            s->setArrayIndex(i);
+            s->setValue(sourcePathMappingSourceKey, it.key());
+            s->setValue(sourcePathMappingTargetKey, it.value());
+        }
+    }
+    s->endArray();
+}
+
+void GlobalDebuggerOptions::fromSettings(QSettings *s)
+{
+    sourcePathMap.clear();
+    if (const int count = s->beginReadArray(QLatin1String(sourcePathMappingArrayNameC))) {
+        const QString sourcePathMappingSourceKey = QLatin1String(sourcePathMappingSourceKeyC);
+        const QString sourcePathMappingTargetKey = QLatin1String(sourcePathMappingTargetKeyC);
+        for (int i = 0; i < count; ++i) {
+             s->setArrayIndex(i);
+             sourcePathMap.insert(s->value(sourcePathMappingSourceKey).toString(),
+                                  s->value(sourcePathMappingTargetKey).toString());
+        }
+    }
+    s->endArray();
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -400,13 +435,7 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item->setSettingsKey(debugModeGroup, QLatin1String("WatchdogTimeout"));
     item->setDefaultValue(20);
     insertItem(GdbWatchdogTimeout, item);
-
-    item = new SavedAction(this);
-    item->setSettingsKey(debugModeGroup, QLatin1String("QtSourcesLocation"));
-    item->setDefaultValue(QString());
-    insertItem(QtSourcesLocation, item);
 }
-
 
 DebuggerSettings::~DebuggerSettings()
 {
@@ -450,7 +479,7 @@ QString DebuggerSettings::dump() const
         if (!key.isEmpty()) {
             const QString current = item->value().toString();
             const QString default_ = item->defaultValue().toString();
-            ts << '\n' << key << ": " << current 
+            ts << '\n' << key << ": " << current
                << "  (default: " << default_ << ")";
             if (current != default_)
                 ts <<  "  ***";

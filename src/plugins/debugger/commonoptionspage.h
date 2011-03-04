@@ -40,8 +40,13 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/savedaction.h>
 
+#include <QtCore/QSharedPointer>
+#include <QtCore/QPointer>
+#include <QtGui/QWidget>
+
 namespace Debugger {
 namespace Internal {
+class GlobalDebuggerOptions;
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -49,12 +54,27 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
+class CommonOptionsPageWidget : public QWidget
+{
+public:
+    explicit CommonOptionsPageWidget(const QSharedPointer<Utils::SavedActionSet> &group, QWidget *parent = 0);
+
+    QString searchKeyWords() const;
+    GlobalDebuggerOptions globalOptions() const;
+    void setGlobalOptions(const GlobalDebuggerOptions &go);
+
+private:
+    Ui::CommonOptionsPage m_ui;
+    const QSharedPointer<Utils::SavedActionSet> m_group;
+};
+
 class CommonOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    CommonOptionsPage();
+    explicit CommonOptionsPage(const QSharedPointer<GlobalDebuggerOptions> &go);
+    virtual ~CommonOptionsPage();
 
     // IOptionsPage
     QString id() const;
@@ -68,10 +88,10 @@ public:
     bool matches(const QString &s) const;
 
 private:
-    typedef QMap<QString, QString> AbiToDebuggerMap;
-    Ui::CommonOptionsPage m_ui;
-    Utils::SavedActionSet m_group;
+    const QSharedPointer<GlobalDebuggerOptions> m_options;
+    QSharedPointer<Utils::SavedActionSet> m_group;
     QString m_searchKeywords;
+    QPointer<CommonOptionsPageWidget> m_widget;
 };
 
 

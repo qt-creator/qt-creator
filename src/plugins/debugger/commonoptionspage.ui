@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>361</width>
+    <width>387</width>
     <height>334</height>
    </rect>
   </property>
@@ -130,30 +130,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="sourcesBox">
-     <property name="title">
-      <string>Sources</string>
-     </property>
-     <layout class="QGridLayout" name="sourcesGridLayout">
-      <item row="7" column="0">
-       <widget class="QLabel" name="labelQtSources">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Qt Sources:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1">
-         <widget class="Utils::PathChooser" name="qtSourcesChooser" native="true">
-         </widget>
-      </item>
-     </layout>
-    </widget>
+    <widget class="Debugger::Internal::DebuggerSourcePathMappingWidget" name="sourcesMappingWidget"/>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -175,9 +152,10 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Utils::PathChooser</class>
-   <extends>QWidget</extends>
-   <header location="global">utils/pathchooser.h</header>
+   <class>Debugger::Internal::DebuggerSourcePathMappingWidget</class>
+   <extends>QGroupBox</extends>
+   <header>debuggersourcepathmappingwidget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -39,6 +39,7 @@
 #include <projectexplorer/abi.h>
 
 #include <QtCore/QObject>
+#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QIcon;
@@ -64,6 +65,7 @@ class BreakHandler;
 class SnapshotHandler;
 class Symbol;
 class DebuggerToolTipManager;
+class GlobalDebuggerOptions;
 
 class DebuggerCore : public QObject
 {
@@ -116,6 +118,7 @@ public:
     virtual QString stringSetting(int code) const = 0;
 
     virtual DebuggerToolTipManager *toolTipManager() const = 0;
+    virtual QSharedPointer<GlobalDebuggerOptions> globalDebuggerOptions() const = 0;
 };
 
 // This is the only way to access the global object.

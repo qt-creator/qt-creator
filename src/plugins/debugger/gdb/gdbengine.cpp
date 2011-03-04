@@ -4564,22 +4564,19 @@ void GdbEngine::notifyInferiorSetupFailed()
 void GdbEngine::handleInferiorPrepared()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    const QByteArray qtInstallPath = 
-        debuggerCore()->action(QtSourcesLocation)->value().toString().toLocal8Bit();
-    if (!qtInstallPath.isEmpty()) {
-        QByteArray qtBuildPath;
-#if defined(Q_OS_WIN)
-        qtBuildPath = "C:/qt-greenhouse/Trolltech/Code_less_create_more/"
-            "Trolltech/Code_less_create_more/Troll/4.6/qt";
-        postCommand("set substitute-path " + qtBuildPath + ' ' + qtInstallPath);
-        qtBuildPath = "C:/iwmake/build_mingw_opensource";
-        postCommand("set substitute-path " + qtBuildPath + ' ' + qtInstallPath);
-        qtBuildPath = "C:/ndk_buildrepos/qt-desktop/src";
-        postCommand("set substitute-path " + qtBuildPath + ' ' + qtInstallPath);
-#elif defined(Q_OS_UNIX) && !defined (Q_OS_MAC)
-        qtBuildPath = "/var/tmp/qt-src";
-        postCommand("set substitute-path " + qtBuildPath + ' ' + qtInstallPath);
-#endif
+
+    // Apply source path mappings from global options.
+    const QSharedPointer<GlobalDebuggerOptions> globalOptions = debuggerCore()->globalDebuggerOptions();
+    if (!globalOptions->sourcePathMap.isEmpty()) {
+        typedef GlobalDebuggerOptions::SourcePathMap::const_iterator SourcePathMapIterator;
+        const SourcePathMapIterator cend = globalOptions->sourcePathMap.constEnd();
+        for (SourcePathMapIterator it = globalOptions->sourcePathMap.constBegin(); it != cend; ++it) {
+            QByteArray command = "set substitute-path ";
+            command += it.key().toLocal8Bit();
+            command += ' ';
+            command += it.value().toLocal8Bit();
+            postCommand(command);
+        }
     }
 
     // Initial attempt to set breakpoints.
