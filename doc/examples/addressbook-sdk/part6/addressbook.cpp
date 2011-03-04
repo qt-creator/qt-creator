@@ -102,7 +102,7 @@ void AddressBook::submitContact()
     QString name = ui->nameLine->text();
     QString address = ui->addressText->toPlainText();
 
-    if (name == "" || address == "") {
+    if (name.isEmpty() || address.isEmpty()) {
         QMessageBox::information(this, tr("Empty Field"),
             tr("Please enter a name and address."));
         updateInterface(NavigationMode);
