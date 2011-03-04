@@ -43,7 +43,8 @@ SUBDIRS   = plugin_coreplugin \
             debugger/dumper.pro
 
 !win32 {
-     SUBDIRS += plugin_valgrindtoolbase
+     SUBDIRS += plugin_valgrindtoolbase \
+                plugin_memcheck
 }
 
 linux-* {
@@ -255,6 +256,11 @@ plugin_analyzerbase.depends += plugin_projectexplorer
     plugin_valgrindtoolbase.subdir = valgrindtoolbase
     plugin_valgrindtoolbase.depends = plugin_coreplugin
     plugin_valgrindtoolbase.depends += plugin_analyzerbase
+
+    plugin_memcheck.subdir = memcheck
+    plugin_memcheck.depends = plugin_coreplugin
+    plugin_memcheck.depends += plugin_analyzerbase
+    plugin_memcheck.depends += plugin_valgrindtoolbase
 }
 
 plugin_qmljstools.subdir = qmljstools
