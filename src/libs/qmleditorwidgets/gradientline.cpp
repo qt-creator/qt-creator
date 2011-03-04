@@ -54,8 +54,6 @@ void GradientLine::setGradient(const QLinearGradient &gradient)
     m_gradient = gradient;
     m_useGradient = true;
     readGradient();
-    emit gradientChanged();
-
 }
 
 static inline QColor invertColor(const QColor color)
@@ -106,6 +104,8 @@ void GradientLine::setActiveColor(const QColor &newColor)
     m_colorList.removeAt(currentColorIndex());
     m_colorList.insert(currentColorIndex(), m_activeColor);
     updateGradient();
+    emit gradientChanged();
+    emit activeColorChanged();
     update();
 }
 
@@ -141,6 +141,7 @@ void GradientLine::keyPressEvent(QKeyEvent * event)
             m_stops.removeAt(currentColorIndex());
             m_colorList.removeAt(currentColorIndex());
             updateGradient();
+            emit gradientChanged();
             setCurrentIndex(0);
             //delete item
         }
@@ -271,6 +272,7 @@ void GradientLine::mouseReleaseEvent(QMouseEvent *event)
                 m_stops.removeAt(currentColorIndex());
                 m_colorList.removeAt(currentColorIndex());
                 updateGradient();
+                emit gradientChanged();
                 setCurrentIndex(0);
                 //delete item
             }
@@ -293,6 +295,7 @@ void GradientLine::mouseReleaseEvent(QMouseEvent *event)
     m_dragActive = false;
     m_yOffset = 0;
     updateGradient();
+    emit gradientChanged();
     update();
     setFocus(Qt::MouseFocusReason);
 }
@@ -349,7 +352,6 @@ void GradientLine::updateGradient()
             stops.append(QPair<qreal, QColor>(m_stops.at(i), m_colorList.at(i)));
         }
         m_gradient.setStops(stops);
-        emit gradientChanged();
     } else {
         if (!active())
             return;

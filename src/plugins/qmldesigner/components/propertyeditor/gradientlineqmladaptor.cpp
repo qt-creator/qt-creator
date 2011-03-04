@@ -94,8 +94,8 @@ void GradientLineQmlAdaptor::setupGradient()
         foreach (const ModelNode &stopNode, stopList) {
             QmlObjectNode stopObjectNode = stopNode;
             if (stopObjectNode.isValid()) {
-                qreal position = stopNode.variantProperty("position").value().toReal();
-                QColor color = stopNode.variantProperty("color").value().value<QColor>();
+                qreal position = stopObjectNode.modelValue("position").toReal();
+                QColor color = stopObjectNode.modelValue("color").value<QColor>();
                 stops.append( QPair<qreal, QColor>(position, color));
             }
         }
@@ -119,8 +119,6 @@ void GradientLineQmlAdaptor::writeGradient()
     if (!m_itemNode.modelNode().metaInfo().hasProperty(gradientName()))
         return;
     try {
-        RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
-
         ModelNode modelNode = m_itemNode.modelNode();
 
         QString oldId;
@@ -132,6 +130,9 @@ void GradientLineQmlAdaptor::writeGradient()
             }
 
             ModelNode gradientNode = modelNode.view()->createModelNode("QtQuick.Gradient", 1, 0);
+            modelNode.nodeProperty(gradientName()).reparentHere(gradientNode);
+
+            RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
 
             if (!oldId.isNull())
                 gradientNode.setId(oldId);
@@ -142,7 +143,6 @@ void GradientLineQmlAdaptor::writeGradient()
                 gradientStopNode.variantProperty("color") = normalizeColor(stops.at(i).second);
                 gradientNode.nodeListProperty("stops").reparentHere(gradientStopNode);
             }
-            modelNode.nodeProperty(gradientName()).reparentHere(gradientNode);
         } else { //state
             if  (!modelNode.hasProperty(gradientName())) {
                 qWarning(" GradientLine::updateGradient: no gradient in state");
