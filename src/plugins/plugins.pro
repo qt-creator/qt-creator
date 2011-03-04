@@ -42,6 +42,10 @@ SUBDIRS   = plugin_coreplugin \
             plugin_macros \
             debugger/dumper.pro
 
+!win32 {
+     SUBDIRS += plugin_valgrindtoolbase
+}
+
 linux-* {
      SUBDIRS += debugger/ptracepreload.pro
 }
@@ -246,6 +250,12 @@ plugin_tasklist.depends += plugin_projectexplorer
 plugin_analyzerbase.subdir = analyzerbase
 plugin_analyzerbase.depends = plugin_coreplugin
 plugin_analyzerbase.depends += plugin_projectexplorer
+
+!win32 {
+    plugin_valgrindtoolbase.subdir = valgrindtoolbase
+    plugin_valgrindtoolbase.depends = plugin_coreplugin
+    plugin_valgrindtoolbase.depends += plugin_analyzerbase
+}
 
 plugin_qmljstools.subdir = qmljstools
 plugin_qmljstools.depends = plugin_projectexplorer
