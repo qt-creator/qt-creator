@@ -89,6 +89,7 @@ Q_DECLARE_METATYPE(Debugger::Internal::MemoryAgent*)
 
 enum { debug = 0 };
 enum { debugLocals = 0 };
+enum { debugSourceMapping = 0 };
 enum { debugWatches = 0 };
 enum { debugBreakpoints = 0 };
 
@@ -462,6 +463,19 @@ void CdbEngine::init()
     m_extensionMessageBuffer.clear();
     m_pendingBreakpointMap.clear();
     m_customSpecialStopData.clear();
+
+    // Create local list of mappings in native separators
+    m_sourcePathMappings.clear();
+    const QSharedPointer<GlobalDebuggerOptions> globalOptions = debuggerCore()->globalDebuggerOptions();
+    if (!globalOptions->sourcePathMap.isEmpty()) {
+        typedef GlobalDebuggerOptions::SourcePathMap::const_iterator SourcePathMapIterator;
+        m_sourcePathMappings.reserve(globalOptions->sourcePathMap.size());
+        const SourcePathMapIterator cend = globalOptions->sourcePathMap.constEnd();
+        for (SourcePathMapIterator it = globalOptions->sourcePathMap.constBegin(); it != cend; ++it) {
+            m_sourcePathMappings.push_back(SourcePathMapping(QDir::toNativeSeparators(it.key()),
+                                                             QDir::toNativeSeparators(it.value())));
+        }
+    }
     QTC_ASSERT(m_process.state() != QProcess::Running, Utils::SynchronousProcess::stopProcess(m_process); )
 }
 
@@ -2359,24 +2373,46 @@ void CdbEngine::attemptBreakpointSynchronization()
         postCommandSequence(CommandListBreakPoints);
 }
 
-QString CdbEngine::normalizeFileName(const QString &f)
+// Pass a file name through source mapping and normalize upper/lower case (for the editor
+// manager to correctly process it) and convert to clean path.
+CdbEngine::NormalizedSourceFileName CdbEngine::sourceMapNormalizeFileNameFromDebugger(const QString &f)
 {
-    QMap<QString, QString>::const_iterator it = m_normalizedFileCache.constFind(f);
+    // 1) Check cache.
+    QMap<QString, NormalizedSourceFileName>::const_iterator it = m_normalizedFileCache.constFind(f);
     if (it != m_normalizedFileCache.constEnd())
         return it.value();
-    const QString winF = QDir::toNativeSeparators(f);
-#ifdef Q_OS_WIN
-    QString normalized = winNormalizeFileName(winF);
-#else
-    QString normalized = winF;
-#endif
-    if (normalized.isEmpty()) { // At least upper case drive letter
-        normalized = winF;
-        if (normalized.size() > 2 && normalized.at(1) == QLatin1Char(':'))
-            normalized[0] = normalized.at(0).toUpper();
+    if (debugSourceMapping)
+        qDebug(">sourceMapNormalizeFileNameFromDebugger %s", qPrintable(f));
+    // Do we have source path mappings? ->Apply.
+    QString fileName = QDir::toNativeSeparators(f);
+    if (!m_sourcePathMappings.isEmpty()) {
+        foreach (const SourcePathMapping &m, m_sourcePathMappings) {
+            if (fileName.startsWith(m.first, Qt::CaseInsensitive)) {
+                fileName.replace(0, m.first.size(), m.second);
+                break;
+            }
+        }
     }
-    m_normalizedFileCache.insert(f, normalized);
-    return normalized;
+    // Up/lower case normalization according to Windows.
+#ifdef Q_OS_WIN
+    QString normalized = winNormalizeFileName(fileName);
+#else
+    QString normalized = fileName;
+#endif
+    if (debugSourceMapping)
+        qDebug(" sourceMapNormalizeFileNameFromDebugger %s->%s", qPrintable(fileName), qPrintable(normalized));
+    // Check if it really exists, that is normalize worked and QFileInfo confirms it.
+    const bool exists = !normalized.isEmpty() && QFileInfo(normalized).isFile();
+    NormalizedSourceFileName result(QDir::cleanPath(normalized.isEmpty() ? fileName : normalized), exists);
+    if (!exists) {
+        // At least upper case drive letter if failed.
+        if (result.fileName.size() > 2 && result.fileName.at(1) == QLatin1Char(':'))
+            result.fileName[0] = result.fileName.at(0).toUpper();
+    }
+    m_normalizedFileCache.insert(f, result);
+    if (debugSourceMapping)
+        qDebug("<sourceMapNormalizeFileNameFromDebugger %s %d", qPrintable(result.fileName), result.exists);
+    return result;
 }
 
 // Parse frame from GDBMI. Duplicate of the gdb code, but that
@@ -2394,7 +2430,7 @@ static StackFrames parseFrames(const GdbMi &gdbmi)
         if (fullName.isValid()) {
             frame.file = QFile::decodeName(fullName.data());
             frame.line = frameMi.findChild("line").data().toInt();
-            frame.usable = QFileInfo(frame.file).isFile();
+            frame.usable = false; // To be decided after source path mapping.
         }
         frame.function = QLatin1String(frameMi.findChild("func").data());
         frame.from = QLatin1String(frameMi.findChild("from").data());
@@ -2422,7 +2458,9 @@ unsigned CdbEngine::parseStackTrace(const GdbMi &data, bool sourceStepInto)
             return ParseStackStepInto;
         }
         if (hasFile) {
-            frames[i].file = QDir::cleanPath(normalizeFileName(frames.at(i).file));
+            const NormalizedSourceFileName fileName = sourceMapNormalizeFileNameFromDebugger(frames.at(i).file);
+            frames[i].file = fileName.fileName;
+            frames[i].usable = fileName.exists;
             if (current == -1 && frames[i].usable)
                 current = i;
         }

@@ -42,6 +42,8 @@
 #include <QtCore/QVariantList>
 #include <QtCore/QMap>
 #include <QtCore/QTime>
+#include <QtCore/QPair>
+#include <QtCore/QList>
 
 namespace Utils {
 class ConsoleProcess;
@@ -164,6 +166,14 @@ private slots:
 
 private:
     typedef QHash<BreakpointId, BreakpointResponse> PendingBreakPointMap;
+    typedef QPair<QString, QString> SourcePathMapping;
+    struct NormalizedSourceFileName // Struct for caching mapped/normalized source files.
+    {
+        NormalizedSourceFileName(const QString &fn = QString(), bool e = false) : fileName(fn), exists(e) {}
+
+        QString fileName;
+        bool exists;
+    };
 
     enum SpecialStopMode
     {
@@ -218,8 +228,7 @@ private:
     void handleWidgetAt(const CdbExtensionCommandPtr &);
     void handleBreakPoints(const CdbExtensionCommandPtr &);
     void handleBreakPoints(const GdbMi &value);
-
-    QString normalizeFileName(const QString &f);
+    NormalizedSourceFileName sourceMapNormalizeFileNameFromDebugger(const QString &f);
     void updateLocalVariable(const QByteArray &iname);
     void updateLocals(bool forNewStackFrame = false);
     int elapsedLogTime() const;
@@ -243,7 +252,7 @@ private:
     QList<CdbBuiltinCommandPtr> m_builtinCommandQueue;
     int m_currentBuiltinCommandIndex; //!< Current command whose output is recorded.
     QList<CdbExtensionCommandPtr> m_extensionCommandQueue;
-    QMap<QString, QString> m_normalizedFileCache;
+    QMap<QString, NormalizedSourceFileName> m_normalizedFileCache;
     const QByteArray m_extensionCommandPrefixBA; //!< Library name used as prefix
     bool m_operateByInstructionPending; //!< Creator operate by instruction action changed.
     bool m_operateByInstruction;
@@ -259,6 +268,7 @@ private:
     QHash<QString, QString> m_fileNameModuleHash;
     bool m_ignoreCdbOutput;
     QVariantList m_customSpecialStopData;
+    QList<SourcePathMapping> m_sourcePathMappings;
 };
 
 } // namespace Internal
