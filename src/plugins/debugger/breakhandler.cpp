@@ -84,6 +84,37 @@ static QString stateToString(BreakpointState state)
     return BreakHandler::tr("<invalid state>");
 }
 
+static QString typeToString(BreakpointType type)
+{
+    switch (type) {
+        case BreakpointByFileAndLine:
+            return BreakHandler::tr("Breakpoint by File and Line");
+        case BreakpointByFunction:
+            return BreakHandler::tr("Breakpoint by Function");
+        case BreakpointByAddress:
+            return BreakHandler::tr("Breakpoint by Address");
+        case BreakpointAtThrow:
+            return BreakHandler::tr("Breakpoint at \"throw\"");
+        case BreakpointAtCatch:
+            return BreakHandler::tr("Breakpoint at \"catch\"");
+        case BreakpointAtFork:
+            return BreakHandler::tr("Breakpoint at \"fork\"");
+        case BreakpointAtExec:
+            return BreakHandler::tr("Breakpoint at \"exec\"");
+        case BreakpointAtVFork:
+            return BreakHandler::tr("Breakpoint at \"vfork\"");
+        case BreakpointAtSysCall:
+            return BreakHandler::tr("Breakpoint at \"syscall\"");
+        case BreakpointAtMain:
+            return BreakHandler::tr("Breakpoint at Function \"main()\"");
+        case Watchpoint:
+            return BreakHandler::tr("Watchpoint");
+        case UnknownType:
+            break;
+    }
+    return BreakHandler::tr("Unknown Breakpoint Type");
+}
+
 BreakHandler::BreakHandler()
   : m_syncTimerId(-1)
 {}
@@ -471,12 +502,16 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                     return response.functionName;
                 if (!data.functionName.isEmpty())
                     return data.functionName;
-                if (data.type == BreakpointAtMain)
-                    return tr("Breakpoint at \"main\"");
-                if (data.type == BreakpointAtCatch)
-                    return tr("Break when catching exceptions");
-                if (data.type == BreakpointAtThrow)
-                    return tr("Break when throwing exceptions");
+                if (data.type == BreakpointAtMain
+                        || data.type == BreakpointAtThrow
+                        || data.type == BreakpointAtCatch
+                        || data.type == BreakpointAtFork
+                        || data.type == BreakpointAtExec
+                        || data.type == BreakpointAtVFork
+                        || data.type == BreakpointAtSysCall)
+                    return typeToString(data.type);
+                if (data.type == Watchpoint)
+                    return tr("Watchpoint at 0x%1").arg(data.address, 0, 16);
                 return empty;
             }
             break;
@@ -1163,47 +1198,6 @@ QIcon BreakHandler::BreakpointItem::icon() const
 
 QString BreakHandler::BreakpointItem::toToolTip() const
 {
-    QString t;
-
-    switch (data.type) {
-        case BreakpointByFileAndLine:
-            t = tr("Breakpoint by File and Line");
-            break;
-        case BreakpointByFunction:
-            t = tr("Breakpoint by Function");
-            break;
-        case BreakpointByAddress:
-            t = tr("Breakpoint by Address");
-            break;
-        case BreakpointAtThrow:
-            t = tr("Breakpoint at \"throw\"");
-            break;
-        case BreakpointAtCatch:
-            t = tr("Breakpoint at \"catch\"");
-            break;
-        case BreakpointAtFork:
-            t = tr("Breakpoint at \"fork\"");
-            break;
-        case BreakpointAtExec:
-            t = tr("Breakpoint at \"exec\"");
-            break;
-        case BreakpointAtVFork:
-            t = tr("Breakpoint at \"vfork\"");
-            break;
-        case BreakpointAtSysCall:
-            t = tr("Breakpoint at \"syscall\"");
-            break;
-        case BreakpointAtMain:
-            t = tr("Breakpoint at Function \"main()\"");
-            break;
-        case Watchpoint:
-            t = tr("Watchpoint");
-            break;
-        case UnknownType:
-            t = tr("Unknown Breakpoint Type");
-            break;
-    }
-
     QString rc;
     QTextStream str(&rc);
     str << "<html><body><table>"
@@ -1222,7 +1216,7 @@ QString BreakHandler::BreakpointItem::toToolTip() const
             << "</td><td>" << response.number << "</td></tr>";
     }
     str << "<tr><td>" << tr("Breakpoint Type:")
-        << "</td><td>" << t << "</td></tr>";
+        << "</td><td>" << typeToString(data.type) << "</td></tr>";
     if (!response.extra.isEmpty()) {
         str << "<tr><td>" << tr("Extra Information:")
             << "</td><td>" << response.extra << "</td></tr>";    }
