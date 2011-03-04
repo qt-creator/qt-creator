@@ -52,7 +52,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 
-#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -131,7 +130,6 @@ public:
     AnalyzerMode *m_mode;
     AnalyzerRunControlFactory *m_runControlFactory;
     ProjectExplorer::RunControl *m_currentRunControl;
-    bool m_isWaitingForBuild;
     Utils::FancyMainWindow *m_mainWindow;
     QList<IAnalyzerTool*> m_tools;
     QActionGroup *m_toolGroup;
@@ -154,7 +152,6 @@ AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager 
     m_mode(0),
     m_runControlFactory(0),
     m_currentRunControl(0),
-    m_isWaitingForBuild(false),
     m_mainWindow(0),
     m_toolGroup(0),
     m_startAction(0),
@@ -366,7 +363,6 @@ bool buildTypeAcceppted(IAnalyzerTool::ToolMode toolMode,
 
 void AnalyzerManager::AnalyzerManagerPrivate::startTool()
 {
-    QTC_ASSERT(!m_isWaitingForBuild, return);
     QTC_ASSERT(!m_currentRunControl, return);
 
     // make sure our mode is shown
@@ -429,7 +425,6 @@ void AnalyzerManager::AnalyzerManagerPrivate::startTool()
             return;
     }
 
-    m_isWaitingForBuild = true;
     pe->runProject(pro, Constants::MODE_ANALYZE);
 
     m_startAction->setEnabled(false);
@@ -449,8 +444,6 @@ AnalyzerManager::AnalyzerManager(QObject *parent) :
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(modeChanged(Core::IMode*)));
     ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
-    connect(pe->buildManager(), SIGNAL(buildQueueFinished(bool)),
-            this, SLOT(buildQueueFinished(bool)));
     connect(pe, SIGNAL(updateRunActions()),
             this, SLOT(updateRunActions()));
 }
@@ -606,26 +599,8 @@ void AnalyzerManager::runControlCreated(AnalyzerRunControl *rc)
     connect(rc, SIGNAL(finished()), this, SLOT(handleToolFinished()));
 }
 
-void AnalyzerManager::buildQueueFinished(bool success)
-{
-    // maybe that wasn't for our build
-    if (!d->m_isWaitingForBuild)
-        return;
-    d->m_isWaitingForBuild = false;
-    if (success)
-        return;
-    // note that the RunControl is started, if it is started, before we get here.
-    QTC_ASSERT(!d->m_currentRunControl, qt_noop());
-    handleToolFinished();
-}
-
 void AnalyzerManager::stopTool()
 {
-    if (d->m_isWaitingForBuild) {
-        QTC_ASSERT(!d->m_currentRunControl, qt_noop());
-        ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
-        pe->buildManager()->cancel();
-    }
     if (!d->m_currentRunControl)
         return;
 

@@ -167,7 +167,6 @@ private slots:
     void toolSelected(QAction *);
     void modeChanged(Core::IMode *mode);
     void runControlCreated(AnalyzerRunControl *);
-    void buildQueueFinished(bool success);
     void resetLayout();
     void saveToolSettings(IAnalyzerTool *tool);
     void loadToolSettings(IAnalyzerTool *tool);
