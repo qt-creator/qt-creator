@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="chooseBuildConfigLabel">
      <property name="text">
-      <string>Choose a build configuration</string>
+      <string>Choose a build configuration:</string>
      </property>
     </widget>
    </item>
@@ -41,7 +41,7 @@
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Only Qt versions above 4.6.3 are made available in this wizard.
-This is because previous Qt Versions have limitations in building suitable sis files.</string>
+Previous Qt versions have limitations in building suitable SIS files.</string>
      </property>
     </widget>
    </item>

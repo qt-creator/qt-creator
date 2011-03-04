@@ -188,10 +188,15 @@ QString S60PublisherOvi::localisedVendorNames() const
 
 bool S60PublisherOvi::isVendorNameValid(const QString &vendorName) const
 {
-    //Check the given vendor name
+    // vendorName cannot containg "Nokia"
+    if (vendorName.trimmed().contains(Constants::REJECTED_VENDOR_NAMES_NOKIA, Qt::CaseInsensitive))
+        return false;
+
+    // vendorName cannot be any of the rejected vendor names
     foreach (const QString &rejectedVendorName, m_rejectedVendorNames)
         if (vendorName.trimmed().compare(rejectedVendorName, Qt::CaseInsensitive) == 0)
             return false;
+
     return true;
 }
 

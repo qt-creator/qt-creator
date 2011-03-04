@@ -50,19 +50,21 @@ S60PublishingWizardFactoryOvi::S60PublishingWizardFactoryOvi(QObject *parent)
 
 QString S60PublishingWizardFactoryOvi::displayName() const
 {
-    return tr("Publish for Qt Symbian Application on Ovi Store ");
+    return tr("Publish Qt Symbian Applications to Ovi Store");
 }
 
 QString S60PublishingWizardFactoryOvi::description() const
 {
-    return tr("This wizard will check your resulting sis file and "
-              "some of your meta data to make sure it complies with "
-              "Ovi Store submission regulations.\n\n"
-              "This wizard is used to create sis files which can be submitted to publish to Ovi.\n\n"
-              "It cannot be used if you are using UID3s from Symbian Signed.\n\n"
+    return tr("This wizard checks "
+              "your project file to make sure it complies with "
+              "Ovi Store submission criteria.\n\n"
+              "The wizard creates SIS files that can be submitted "
+              "to Publish to Ovi.\n\n"
+              "You cannot use it if you use application UIDs from Symbian Signed.\n\n"
               "You cannot use it for the Certified Signed and Manufacturer level capabilities:\n"
-              "i.e. NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB\n\n"
-              "Your application will also be rejected by Ovi QA if it uses an unreleased Qt Version.");
+              "NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB.\n\n"
+              "Your application will also be rejected by Ovi QA if you choose "
+              "an unreleased Qt version on the next page.");
 }
 
 bool S60PublishingWizardFactoryOvi::canCreateWizard(const Project *project) const

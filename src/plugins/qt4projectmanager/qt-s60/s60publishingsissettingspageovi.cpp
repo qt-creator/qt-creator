@@ -139,8 +139,9 @@ void S60PublishingSisSettingsPageOvi::globalVendorNameChanged()
                         ui->globalVendorNameErrorLabel,
                         ui->globalVendorNameErrorReasonLabel,
                         tr("%1 is a default vendor name used for testing and development. <br>"
-                           "The Vendor_Name field cannot be, or contain, the name 'Nokia' in it. <br>"
-                           "It is recommended to also not use the default name of 'Vendor'/'Vendor-EN', or to leave the entry blank. <br>"
+                           "The Vendor_Name field cannot contain the name 'Nokia'. <br>"
+                           "You are advised against using the default names 'Vendor' and 'Vendor-EN'. <br>"
+                           "You should also not leave the entry blank. <br>"
                            "see <a href=\"http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml\">Packaging and Signing</a> for guidelines.<br>")
                         .arg("\"" + ui->globalVendorNameLineEdit->text() + "\""));
     m_publisher->setVendorName(ui->globalVendorNameLineEdit->text());
@@ -160,15 +161,20 @@ void S60PublishingSisSettingsPageOvi::localisedVendorNamesChanged()
         }
     }
 
+    QString pluralOrSingular = tr("is a default vendor name");
+    if (wrongVendorNames.count() > 1)
+        pluralOrSingular = tr("are default vendor names");
+
     reflectSettingState(settingState,
                         ui->localisedVendorNamesOkLabel,
                         ui->localisedVendorNamesErrorLabel,
                         ui->localisedVendorNamesErrorReasonLabel,
-                        tr("%1 are default vendor names used for testing and development. <br>"
-                           "The Vendor_Name field cannot be, or contain, the name 'Nokia' in it. <br>"
-                           "It is recommended to also not use the default name of 'Vendor'/'Vendor-EN', or to leave the entry blank. <br>"
-                           "see <a href=\"http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml\">Packaging and Signing</a> for guidelines.<br>")
-                        .arg(wrongVendorNames.join(", ")));
+                        tr("%1 %2 used for testing and development. <br>"
+                           "The Vendor_Name field cannot contain the name 'Nokia'. <br>"
+                           "You are advised against using the default names 'Vendor' and 'Vendor-EN'. <br>"
+                           "You should also not leave the entry blank. <br>"
+                           "See <a href=\"http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml\">"
+                           "Packaging and Signing</a> for guidelines.<br>").arg(wrongVendorNames.join(", "), pluralOrSingular));
     m_publisher->setLocalVendorNames(ui->localisedVendorNamesLineEdit->text());
 }
 
@@ -178,15 +184,19 @@ void S60PublishingSisSettingsPageOvi::qtVersionChanged()
 
 void S60PublishingSisSettingsPageOvi::uid3Changed()
 {
-    QString testUID3ErrorMsg = tr("The App UID %1 is only for testing and development.<br>"
-                               "SIS packages built with it, cannot be distributed via the OVI Store.<br>");
+    QString testUID3ErrorMsg = tr("The application UID %1 is only for testing and development.<br>"
+                               "SIS packages built with it cannot be distributed via the Ovi Store.<br>");
 
-    QString symbianSignedUID3ErrorMsg = tr("The App UID %1 is a symbiansigned.com UID. <br>"
-                                        "Apps with this UID will be rejected by Ovi Sign.<br>"
-                                        "If you want to continue with this UID, sign your app on symbiansigned.com and upload the signed app to Ovi.<br>");
+    QString symbianSignedUID3ErrorMsg = tr("The application UID %1 is a symbiansigned.com UID. <br>"
+                                        "Applications with this UID will be rejected by "
+                                        "Application Signing Services for Ovi Store.<br>"
+                                        "If you want to continue with a symbiansigned.com UID, "
+                                        "sign your application on symbiansigned.com and upload the "
+                                        "signed application to Publish to Ovi.<br>");
 
-    QString errorMsg = tr("The App UID %1 is not an acceptable UID.<br>"
-                          " SIS packages built with it, cannot be signed by Ovi.<br>");
+    QString errorMsg = tr("The application UID %1 is not an acceptable UID.<br>"
+                          "SIS packages built with it cannot be signed by "
+                          "Application Signing Services for Ovi Store.<br>");
 
     if (m_publisher->isTestUID3(ui->uid3LineEdit->text())) {
         errorMsg = testUID3ErrorMsg;
@@ -198,16 +208,20 @@ void S60PublishingSisSettingsPageOvi::uid3Changed()
                         ui->uid3OkLabel,
                         ui->uid3ErrorLabel,
                         ui->uid3ErrorReasonLabel,
-                        tr("The App UID is a global unique indentifier of the SIS package.<br>") +
+                        tr("The application UID is a global unique indentifier of the SIS package.<br>") +
                         errorMsg.arg(ui->uid3LineEdit->text()) +
-                        tr("To get a unique App UID for your package file,<br>"
+                        tr("To get a unique application UID for your package file,<br>"
                            "please register at <a href=\"http://info.publish.ovi.com/\">publish.ovi.com</a>"));
 
     if (m_publisher->isUID3Valid(ui->uid3LineEdit->text())) {
         ui->uid3WarningLabel->show();
-        ui->uid3WarningReasonLabel->setText("If this UID is from symbiansigned.com, It will be rejected by Ovi Sign.<br>"
-                                            "If you want to continue with this UID, sign your app on symbiansigned.com and upload the signed app to Ovi.<br>"
-                                            "It is however recommended you obtain a UID from <a href=\"http://info.publish.ovi.com/\">publish.ovi.com</a>");
+        ui->uid3WarningReasonLabel->setText("If this UID is from symbiansigned.com, It will be "
+                                            "rejected by Application Signing Services for Ovi Store.<br>"
+                                            "If you want to continue with a symbiansigned.com UID, "
+                                            "sign your application on symbiansigned.com and upload "
+                                            "the signed application to Publish to Ovi.<br>"
+                                            "It is, however, recommended that you obtain a UID from "
+                                            "<a href=\"http://info.publish.ovi.com/\">publish.ovi.com</a>");
         ui->uid3WarningReasonLabel->show();
     } else {
         ui->uid3WarningLabel->hide();

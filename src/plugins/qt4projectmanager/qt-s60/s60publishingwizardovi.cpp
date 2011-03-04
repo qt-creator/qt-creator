@@ -61,12 +61,12 @@ S60PublishingWizardOvi::S60PublishingWizardOvi(const Project *project, QWidget *
     addPage(m_buildSettingsPage);
 
     m_sisSettingsPage = new S60PublishingSisSettingsPageOvi(m_publisher);
-    m_sisSettingsPage->setTitle(tr(".Pro File Checks"));
+    m_sisSettingsPage->setTitle(tr("Project File Checks"));
     m_sisSettingsPage->setCommitPage(true);
     addPage(m_sisSettingsPage);
 
     m_resultsPage = new S60PublishingResultsPageOvi(m_publisher);
-    m_resultsPage->setTitle(tr("Creating Uploadable Sis File"));
+    m_resultsPage->setTitle(tr("Creating an Uploadable SIS File"));
     m_resultsPage->setFinalPage(true);
     addPage(m_resultsPage);
 

@@ -26,7 +26,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="globalVendorNameLabel">
      <property name="text">
-      <string>Global Vendor Name</string>
+      <string>Global vendor name:</string>
      </property>
     </widget>
    </item>
@@ -43,7 +43,7 @@
    <item row="8" column="0">
     <widget class="QLabel" name="qtVersionLabel">
      <property name="text">
-      <string>Qt Version used in builds</string>
+      <string>Qt version used in builds:</string>
      </property>
     </widget>
    </item>
@@ -76,7 +76,7 @@
    <item row="12" column="0">
     <widget class="QLabel" name="uid3Label">
      <property name="text">
-      <string>App UID</string>
+      <string>Application UID:</string>
      </property>
     </widget>
    </item>
@@ -100,7 +100,7 @@
    <item row="18" column="0">
     <widget class="QLabel" name="capabilitiesLabel">
      <property name="text">
-      <string>Capabilities</string>
+      <string>Capabilities:</string>
      </property>
     </widget>
    </item>
@@ -264,7 +264,7 @@
    <item row="4" column="0">
     <widget class="QLabel" name="localisedVendorNamesLabel">
      <property name="text">
-      <string>Localised Vendor Names</string>
+      <string>Localised vendor names:</string>
      </property>
     </widget>
    </item>
