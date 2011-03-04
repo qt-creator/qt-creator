@@ -71,6 +71,14 @@ void AnalyzerRunConfigWidget::setRunConfiguration(ProjectExplorer::RunConfigurat
     AnalyzerProjectSettings *settings = rc->extraAspect<AnalyzerProjectSettings>();
     QTC_ASSERT(settings, return);
 
+    // update summary text
+    QStringList tools;
+    foreach(AbstractAnalyzerSubConfig *config, settings->subConfigs()) {
+        tools << QString("<strong>%1</strong>").arg(config->displayName());
+    }
+    m_detailsWidget->setSummaryText(tr("Available settings: %1").arg(tools.join(", ")));
+
+    // add tabs for each config
     foreach(AbstractAnalyzerSubConfig *config, settings->subConfigs()) {
         m_tabWidget->addTab(config->createConfigWidget(this), config->displayName());
     }
