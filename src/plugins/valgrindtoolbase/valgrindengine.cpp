@@ -39,6 +39,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/ioutputpane.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/futureprogress.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/applicationrunconfiguration.h>
 
@@ -76,8 +77,9 @@ void ValgrindEngine::start()
 {
     emit starting(this);
 
-    Core::ICore::instance()->progressManager()->addTask(m_progress->future(),
+    Core::FutureProgress* fp = Core::ICore::instance()->progressManager()->addTask(m_progress->future(),
                                                         progressTitle(), "valgrind");
+    fp->setKeepOnFinish(Core::FutureProgress::DontKeepOnFinish);
     m_progress->reportStarted();
 
 #if VALGRIND_DEBUG_OUTPUT
