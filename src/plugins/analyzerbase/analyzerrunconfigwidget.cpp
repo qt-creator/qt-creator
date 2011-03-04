@@ -40,9 +40,8 @@
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
 
-#include <QStandardItemModel>
-#include <QFileDialog>
 #include <QDebug>
+#include <QGroupBox>
 #include <QVBoxLayout>
 
 using namespace Analyzer;
@@ -50,9 +49,11 @@ using namespace Analyzer::Internal;
 
 AnalyzerRunConfigWidget::AnalyzerRunConfigWidget()
     : m_detailsWidget(new Utils::DetailsWidget(this))
-    , m_tabWidget(new QTabWidget(this))
 {
-    m_detailsWidget->setWidget(m_tabWidget);
+    QWidget* mainWidget = new QWidget(this);
+    new QVBoxLayout(mainWidget);
+    m_detailsWidget->setWidget(mainWidget);
+
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_detailsWidget);
@@ -66,7 +67,6 @@ QString AnalyzerRunConfigWidget::displayName() const
 void AnalyzerRunConfigWidget::setRunConfiguration(ProjectExplorer::RunConfiguration *rc)
 {
     QTC_ASSERT(rc, return);
-    m_tabWidget->clear();
 
     AnalyzerProjectSettings *settings = rc->extraAspect<AnalyzerProjectSettings>();
     QTC_ASSERT(settings, return);
@@ -78,8 +78,11 @@ void AnalyzerRunConfigWidget::setRunConfiguration(ProjectExplorer::RunConfigurat
     }
     m_detailsWidget->setSummaryText(tr("Available settings: %1").arg(tools.join(", ")));
 
-    // add tabs for each config
+    // add group boxes for each sub config
+    QLayout* layout = m_detailsWidget->widget()->layout();
     foreach(AbstractAnalyzerSubConfig *config, settings->subConfigs()) {
-        m_tabWidget->addTab(config->createConfigWidget(this), config->displayName());
+        QGroupBox* box = new QGroupBox(config->displayName());
+        QWidget* widget = config->createConfigWidget(this);
+        layout->addWidget(widget);
     }
 }

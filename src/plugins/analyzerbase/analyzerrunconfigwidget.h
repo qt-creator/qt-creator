@@ -39,8 +39,6 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-#include <QTabWidget>
-
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;
 
@@ -66,12 +64,12 @@ class AnalyzerRunConfigWidget : public ProjectExplorer::RunConfigWidget
 public:
     AnalyzerRunConfigWidget();
 
-    QString displayName() const;
+    virtual QString displayName() const;
+
     void setRunConfiguration(ProjectExplorer::RunConfiguration *rc);
 
 private:
     Utils::DetailsWidget *m_detailsWidget;
-    QTabWidget *m_tabWidget;
 };
 
 }
