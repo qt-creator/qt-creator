@@ -87,6 +87,7 @@ share/doc/qtcreator/qtcreator.qch
 src/tools/gen-cpp-ast/generate-ast
 src/tools/mkvisitor/cplusplus0
 src/tools/qml/qmldump/qmldump
+src/tools/valgrindfake/valgrind-fake
 
 # Tests
 #------
