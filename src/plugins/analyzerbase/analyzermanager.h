@@ -133,6 +133,7 @@ public:
 
     static AnalyzerManager *instance();
 
+    bool isInitialized() const;
     void shutdown();
 
     /**

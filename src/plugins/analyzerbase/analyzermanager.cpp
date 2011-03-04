@@ -119,6 +119,14 @@ public:
     AnalyzerManagerPrivate(AnalyzerManager *qq);
     ~AnalyzerManagerPrivate();
 
+    /**
+     * After calling this, a proper instance of Core::IMore is initialized
+     * It is delayed since an analyzer mode makes no sense without analyzer tools
+     *
+     * \note Call this before adding a tool to the manager
+     */
+    void delayedInit();
+
     void setupActions();
     QWidget *createContents();
     QWidget *createMainWindow();
@@ -150,6 +158,8 @@ public:
     // list of dock widgets to prevent memory leak
     typedef QWeakPointer<QDockWidget> DockPtr;
     QList<DockPtr> m_dockWidgets;
+
+    bool m_initialized;
 };
 
 AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
@@ -166,7 +176,8 @@ AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager 
     m_toolBoxSeparator(0),
     m_viewsMenu(0),
     m_resizeEventFilter(new DockWidgetEventFilter(qq)),
-    m_toolbarStackedWidget(0)
+    m_toolbarStackedWidget(0),
+    m_initialized(false)
 {
     m_runControlFactory = new AnalyzerRunControlFactory();
     AnalyzerPlugin::instance()->addAutoReleasedObject(m_runControlFactory);
@@ -174,10 +185,6 @@ AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager 
             q, SLOT(runControlCreated(AnalyzerRunControl *)));
 
     setupActions();
-
-    m_mode = new AnalyzerMode(q);
-    m_mode->setWidget(createContents());
-    AnalyzerPlugin::instance()->addAutoReleasedObject(m_mode);
 }
 
 AnalyzerManager::AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
@@ -226,6 +233,17 @@ void AnalyzerManager::AnalyzerManagerPrivate::setupActions()
     m_menu->addSeparator();
 
     m_viewsMenu = am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
+}
+
+void AnalyzerManager::AnalyzerManagerPrivate::delayedInit()
+{
+    if (m_initialized)
+        return;
+
+    m_mode = new AnalyzerMode(q);
+    m_mode->setWidget(createContents());
+    AnalyzerPlugin::instance()->addAutoReleasedObject(m_mode);
+    m_initialized = true;
 }
 
 QWidget *AnalyzerManager::AnalyzerManagerPrivate::createContents()
@@ -465,6 +483,11 @@ AnalyzerManager::~AnalyzerManager()
     delete d;
 }
 
+bool AnalyzerManager::isInitialized() const
+{
+    return d->m_initialized;
+}
+
 void AnalyzerManager::shutdown()
 {
     saveToolSettings(currentTool());
@@ -477,7 +500,11 @@ AnalyzerManager * AnalyzerManager::instance()
 
 void AnalyzerManager::modeChanged(IMode *mode)
 {
-    d->m_mainWindow->setDockActionsVisible(mode->id() == Constants::MODE_ANALYZE);
+    const bool makeVisible = mode->id() == Constants::MODE_ANALYZE;
+    if (!makeVisible)
+        return;
+
+    d->m_mainWindow->setDockActionsVisible(makeVisible);
 }
 
 void AnalyzerManager::selectTool(IAnalyzerTool *tool)
@@ -535,6 +562,8 @@ void AnalyzerManager::toolSelected(QAction *action)
 
 void AnalyzerManager::addTool(IAnalyzerTool *tool)
 {
+    d->delayedInit(); // be sure that there is a valid IMode instance
+
     Internal::AnalyzerPlugin *plugin = Internal::AnalyzerPlugin::instance();
     QAction *action = new QAction(tool->displayName(), d->m_toolGroup);
     action->setData(d->m_tools.count());
@@ -586,13 +615,11 @@ QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QStrin
 
 IAnalyzerTool *AnalyzerManager::currentTool() const
 {
-    QTC_ASSERT(!d->m_tools.isEmpty(), return 0);
-
     if (!d->m_toolGroup->checkedAction()) {
         return 0;
     }
 
-    return d->m_tools.at(d->m_toolGroup->checkedAction()->data().toInt());
+    return d->m_tools.value(d->m_toolGroup->checkedAction()->data().toInt());
 }
 
 QList<IAnalyzerTool *> AnalyzerManager::tools() const
@@ -655,6 +682,9 @@ void AnalyzerManager::loadToolSettings(IAnalyzerTool *tool)
 
 void AnalyzerManager::saveToolSettings(IAnalyzerTool *tool)
 {
+    if (!tool)
+        return; // no active tool, do nothing
+
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + tool->id());
     d->m_mainWindow->saveSettings(settings);
