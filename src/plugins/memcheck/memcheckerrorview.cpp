@@ -359,11 +359,11 @@ void MemcheckErrorDelegate::currentChanged(const QModelIndex &now, const QModelI
 
 void MemcheckErrorDelegate::layoutChanged()
 {
-    if (!m_detailsWidget)
-        return;
-
-    if (!m_detailsIndex.isValid())
-        currentChanged(QModelIndex(), QModelIndex());
+    if (m_detailsWidget) {
+        m_detailsWidget->deleteLater();
+        m_detailsWidget = 0;
+        m_detailsIndex = QModelIndex();
+    }
 }
 
 void MemcheckErrorDelegate::viewResized()
