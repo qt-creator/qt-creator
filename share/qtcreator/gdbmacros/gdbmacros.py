@@ -1661,8 +1661,8 @@ def qdump__QWeakPointer(d, item):
     check(int(strongref) <= int(weakref))
     check(int(weakref) <= 10*1000*1000)
 
-    innerType = templateArgument(item.value.type, 0)
     if isSimpleType(value.dereference().type):
+        d.putNumChild(3)
         d.putItem(Item(value.dereference(), item.iname, None))
     else:
         d.putValue("")
@@ -1968,6 +1968,42 @@ def qdump__boost__optional(d, item):
         else:
             value = storage.cast(type)
         d.putItem(Item(value, item.iname))
+
+def qdump__boost__shared_ptr(d, item):
+    # s                  boost::shared_ptr<int>
+    #    pn              boost::detail::shared_count
+    #        pi_ 0x0     boost::detail::sp_counted_base *
+    #    px      0x0     int *
+    if isNull(item.value["pn"]["pi_"]):
+        d.putValue("(null)")
+        d.putNumChild(0)
+        return
+
+    if isNull(item.value["px"]):
+        d.putValue("(null)")
+        d.putNumChild(0)
+        return
+
+    countedbase = item.value["pn"]["pi_"].dereference()
+    weakcount = countedbase["weak_count_"]
+    usecount = countedbase["use_count_"]
+    check(int(weakcount) >= 0)
+    check(int(weakcount) <= int(usecount))
+    check(int(usecount) <= 10*1000*1000)
+
+    value = item.value["px"].dereference()
+    if isSimpleType(value.type):
+        d.putNumChild(3)
+        d.putItem(Item(value, item.iname, None))
+    else:
+        d.putValue("")
+
+    d.putNumChild(3)
+    if d.isExpanded(item):
+        with Children(d, 3):
+            d.putSubItem(Item(value, item.iname, "data", "data"))
+            d.putIntItem("weakcount", weakcount)
+            d.putIntItem("usecount", usecount)
 
 
 #######################################################################

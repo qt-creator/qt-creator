@@ -84,6 +84,11 @@
 #include <vector>
 
 #define USE_PRIVATE 1
+#define USE_BOOST 1
+
+#if USE_BOOST
+#include <boost/shared_ptr.hpp>
+#endif
 
 #if USE_PRIVATE
 #include <QtCore/private/qobject_p.h>
@@ -105,7 +110,6 @@
 #include <xmmintrin.h>
 #include <stddef.h>
 #endif
-
 Q_DECLARE_METATYPE(QHostAddress)
 Q_DECLARE_METATYPE(QList<int>)
 Q_DECLARE_METATYPE(QStringList)
@@ -2361,6 +2365,21 @@ void testQScriptValue(int argc, char *argv[])
     QScriptValue d = s.data();
 }
 
+void testBoostSharedPtr()
+{
+#if USE_BOOST
+    QSharedPointer<int> qs;
+    QSharedPointer<int> qi(new int(43));
+    QSharedPointer<int> qj = qi;
+
+    boost::shared_ptr<int> s;
+    boost::shared_ptr<int> i(new int(43));
+    boost::shared_ptr<int> j = i;
+    int k = 2;
+    ++k;
+#endif
+}
+
 int main(int argc, char *argv[])
 {
     testPrivate();
@@ -2454,6 +2473,7 @@ int main(int argc, char *argv[])
     testQVector();
     testQVectorOfQList();
 
+    testBoostSharedPtr();
 
     //*(int *)0 = 0;
 
