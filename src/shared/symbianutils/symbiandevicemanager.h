@@ -186,7 +186,7 @@ private:
     SymbianDeviceList serialPorts() const;
     SymbianDeviceList blueToothDevices() const;
     void customEvent(QEvent *event);
-    void constructTcfPort(CodaDevicePtr& device, const QString& portName);
+    void constructCodaPort(CodaDevicePtr& device, const QString& portName);
 
     SymbianDeviceManagerPrivate *d;
 };

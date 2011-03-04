@@ -274,7 +274,7 @@ struct SymbianDeviceManagerPrivate {
     //QSignalMapper *m_destroyReleaseMapper;
     // The following 2 variables are needed to manage requests for a TCF port not coming from the main thread
     int m_constructTcfPortEventType;
-    QMutex m_tcfPortWaitMutex;
+    QMutex m_codaPortWaitMutex;
 };
 
 class QConstructTcfPortEvent : public QEvent
@@ -375,16 +375,16 @@ CodaDevicePtr SymbianDeviceManager::getCodaDevice(const QString &port)
         // Check we instanciate in the correct thread - we can't afford to create the CodaDevice (and more specifically, open the VirtualSerialDevice) in a thread that isn't guaranteed to be long-lived.
         // Therefore, if we're not in SymbianDeviceManager's thread, rejig things so it's opened in the main thread
         if (QThread::currentThread() != thread()) {
-            // SymbianDeviceManager is owned by the current thread
-            d->m_tcfPortWaitMutex.lock();
+            // SymbianDeviceManager is owned by the main thread
+            d->m_codaPortWaitMutex.lock();
             QWaitCondition waiter;
             QCoreApplication::postEvent(this, new QConstructTcfPortEvent((QEvent::Type)d->m_constructTcfPortEventType, port, &devicePtr, &waiter));
-            waiter.wait(&d->m_tcfPortWaitMutex);
+            waiter.wait(&d->m_codaPortWaitMutex);
             // When the wait returns (due to the wakeAll in SymbianDeviceManager::customEvent), the CodaDevice will be fully set up
-            d->m_tcfPortWaitMutex.unlock();
+            d->m_codaPortWaitMutex.unlock();
         } else {
             // We're in the main thread, just set it up directly
-            constructTcfPort(devicePtr, port);
+            constructCodaPort(devicePtr, port);
         }
     // We still carry on in the case we failed to open so the client can access the IODevice's errorString()
     }
@@ -393,9 +393,9 @@ CodaDevicePtr SymbianDeviceManager::getCodaDevice(const QString &port)
     return devicePtr;
 }
 
-void SymbianDeviceManager::constructTcfPort(CodaDevicePtr& device, const QString& portName)
+void SymbianDeviceManager::constructCodaPort(CodaDevicePtr& device, const QString& portName)
 {
-    QMutexLocker locker(&d->m_tcfPortWaitMutex);
+    QMutexLocker locker(&d->m_codaPortWaitMutex);
     if (device.isNull()) {
         device = QSharedPointer<Coda::CodaDevice>(new Coda::CodaDevice);
         const QSharedPointer<SymbianUtils::VirtualSerialDevice> serialDevice(new SymbianUtils::VirtualSerialDevice(portName));
@@ -414,7 +414,7 @@ void SymbianDeviceManager::customEvent(QEvent *event)
 {
     if (event->type() == d->m_constructTcfPortEventType) {
         QConstructTcfPortEvent* constructEvent = static_cast<QConstructTcfPortEvent*>(event);
-        constructTcfPort(*constructEvent->m_device, constructEvent->m_portName);
+        constructCodaPort(*constructEvent->m_device, constructEvent->m_portName);
         constructEvent->m_waiter->wakeAll(); // Should only ever be one thing waiting on this
     }
 }
@@ -680,7 +680,7 @@ qint64 OstChannel::readData(char *data, qint64 maxSize)
 
 qint64 OstChannel::writeData(const char *data, qint64 maxSize)
 {
-    static const qint64 KMaxOstPayload = 1022;
+    static const qint64 KMaxOstPayload = 1024;
     // If necessary, split the packet up
     while (maxSize) {
         QByteArray dataBuf = QByteArray::fromRawData(data, qMin(KMaxOstPayload, maxSize));

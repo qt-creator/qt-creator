@@ -134,7 +134,7 @@ bool CodaRunControl::setupLauncher()
         m_codaDevice->sendSerialPing(false);
     } else {
         // For TCP we don't use device manager, we just set it up directly
-        m_codaDevice = QSharedPointer<Coda::CodaDevice>(new Coda::CodaDevice);
+        m_codaDevice = QSharedPointer<Coda::CodaDevice>(new Coda::CodaDevice, &QObject::deleteLater); // finishRunControl, which deletes m_codaDevice, can get called from within a coda callback, so need to use deleteLater
         connect(m_codaDevice.data(), SIGNAL(error(QString)), this, SLOT(slotError(QString)));
         connect(m_codaDevice.data(), SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
         connect(m_codaDevice.data(), SIGNAL(tcfEvent(Coda::CodaEvent)), this, SLOT(slotCodaEvent(Coda::CodaEvent)));
