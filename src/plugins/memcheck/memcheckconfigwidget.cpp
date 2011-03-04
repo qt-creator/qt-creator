@@ -77,6 +77,10 @@ MemcheckConfigWidget::MemcheckConfigWidget(AbstractMemcheckSettings *settings, Q
     m_model->clear();
     foreach(const QString &file, m_settings->suppressionFiles())
         m_model->appendRow(new QStandardItem(file));
+
+    connect(m_ui->suppressionList->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(slotSuppressionSelectionChanged()));
+    slotSuppressionSelectionChanged();
 }
 
 MemcheckConfigWidget::~MemcheckConfigWidget()
@@ -179,4 +183,9 @@ void MemcheckConfigWidget::setTrackOrigins(bool enable)
 bool MemcheckConfigWidget::trackOrigins() const
 {
     return m_ui->trackOrigins->isChecked();
+}
+
+void MemcheckConfigWidget::slotSuppressionSelectionChanged()
+{
+    m_ui->removeSuppression->setEnabled(m_ui->suppressionList->selectionModel()->hasSelection());
 }

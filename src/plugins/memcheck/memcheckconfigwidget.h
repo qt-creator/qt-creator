@@ -75,6 +75,7 @@ public slots:
     void slotRemoveSuppression();
     void slotSuppressionsRemoved(const QStringList &files);
     void slotSuppressionsAdded(const QStringList &files);
+    void slotSuppressionSelectionChanged();
 
 private:
     AbstractMemcheckSettings *m_settings;
