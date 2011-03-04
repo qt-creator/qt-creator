@@ -1,0 +1,6 @@
+# How to Compile
+
+cd qtc-build # go to your build folder of qtc
+mkdir valgrind-test
+cd valgrind-test
+qmake CONFIG+=debug IDE_BUILD_TREE=$(readlink -f ..) ../../path/to/qtc/tests/valgrind
