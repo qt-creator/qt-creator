@@ -1498,7 +1498,16 @@ void GdbEngine::handleStop1(const GdbMi &data)
         const int bpNumber = wpt.findChild("number").data().toInt();
         const BreakpointId id = breakHandler()->findBreakpointByNumber(bpNumber);
         const quint64 bpAddress = wpt.findChild("exp").data().mid(1).toULongLong(0, 0);
-        showStatusMessage(msgWatchpointTriggered(id, bpNumber, bpAddress));
+        QString msg = msgWatchpointTriggered(id, bpNumber, bpAddress);
+        GdbMi value = data.findChild("value");
+        GdbMi oldValue = value.findChild("old");
+        GdbMi newValue = value.findChild("new");
+        if (oldValue.isValid() && newValue.isValid()) {
+            msg += QLatin1Char(' ');
+            msg += tr("Value changed from %1 to %2.")
+                .arg(_(oldValue.data())).arg(_(newValue.data()));
+        }
+        showStatusMessage(msg);
     } else if (reason == "breakpoint-hit") {
         GdbMi gNumber = data.findChild("bkptno"); // 'number' or 'bkptno'?
         if (!gNumber.isValid())
