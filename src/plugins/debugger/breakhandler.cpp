@@ -741,6 +741,7 @@ void BreakHandler::setState(BreakpointId id, BreakpointState state)
     }
 
     it->state = state;
+    layoutChanged();
 }
 
 void BreakHandler::notifyBreakpointChangeAfterInsertNeeded(BreakpointId id)

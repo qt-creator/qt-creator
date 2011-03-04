@@ -2265,6 +2265,16 @@ QByteArray GdbEngine::breakpointLocation(BreakpointId id)
         + QByteArray::number(data.lineNumber) + '"';
 }
 
+QByteArray GdbEngine::breakpointLocation2(BreakpointId id)
+{
+    BreakHandler *handler = breakHandler();
+    const BreakpointParameters &data = handler->breakpointData(id);
+    const QString fileName = data.pathUsage == BreakpointUseFullPath
+        ? data.fileName : breakLocation(data.fileName);
+    return  GdbMi::escapeCString(fileName).toLocal8Bit() + ':'
+        + QByteArray::number(data.lineNumber);
+}
+
 void GdbEngine::handleWatchInsert(const GdbResponse &response)
 {
     const int id = response.cookie.toInt();
@@ -2333,7 +2343,7 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
         // Some versions of gdb like "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4)"
         // know how to do pending breakpoints using CLI but not MI. So try
         // again with MI.
-        QByteArray cmd = "break " + breakpointLocation(id);
+        QByteArray cmd = "break " + breakpointLocation2(id);
         postCommand(cmd, NeedsStop | RebuildBreakpointModel,
             CB(handleBreakInsert2), id);
     }
@@ -2341,15 +2351,15 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
 
 void GdbEngine::handleBreakInsert2(const GdbResponse &response)
 {
-    if (response.resultClass == GdbResultError) {
-        if (m_gdbVersion < 60800 && !m_isMacGdb) {
-            // This gdb version doesn't "do" pending breakpoints.
-            // Not much we can do about it except implementing the
-            // logic on top of shared library events, and that's not
-            // worth the effort.
-        } else {
-            QTC_ASSERT(false, /**/);
-        }
+    if (response.resultClass == GdbResultDone) {
+        BreakpointId id(response.cookie.toInt());
+        attemptAdjustBreakpointLocation(id);
+        breakHandler()->notifyBreakpointInsertOk(id);
+    } else {
+        // Note: gdb < 60800  doesn't "do" pending breakpoints.
+        // Not much we can do about it except implementing the
+        // logic on top of shared library events, and that's not
+        // worth the effort.
     }
 }
 
@@ -2641,7 +2651,7 @@ void GdbEngine::insertBreakpoint(BreakpointId id)
         return;
     }
 
-    QByteArray cmd;
+    QByteArray cmd = "xxx";
     if (handler->isTracepoint(id)) {
         cmd = "-break-insert -a -f ";
     } else if (m_isMacGdb) {
