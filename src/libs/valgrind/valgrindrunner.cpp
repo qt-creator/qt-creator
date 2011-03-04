@@ -154,7 +154,7 @@ void ValgrindRunner::setDebuggeeExecutable(const QString &executable)
     d->debuggeeExecutable = executable;
 }
 
-QString ValgrindRunner::debuggeArguments() const
+QString ValgrindRunner::debuggeeArguments() const
 {
     return d->debuggeeArguments;
 }

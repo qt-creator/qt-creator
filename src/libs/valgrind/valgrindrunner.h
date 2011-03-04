@@ -64,7 +64,7 @@ public:
     void setValgrindArguments(const QStringList &toolArguments);
     QString debuggeeExecutable() const;
     void setDebuggeeExecutable(const QString &executable);
-    QString debuggeArguments() const;
+    QString debuggeeArguments() const;
     void setDebuggeeArguments(const QString &arguments);
 
     void setWorkingDirectory(const QString &path);
