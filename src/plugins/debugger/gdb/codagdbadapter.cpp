@@ -1040,7 +1040,6 @@ void CodaGdbAdapter::startAdapter()
         setupTrkDeviceSignals();
         codaSocket = QSharedPointer<QTcpSocket>(new QTcpSocket);
         m_codaDevice->setDevice(codaSocket);
-        m_codaSocketIODevice = codaSocket;
     } else {
         m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()
             ->getCodaDevice(parameters.remoteChannel);
@@ -1213,22 +1212,6 @@ void CodaGdbAdapter::cleanup()
 {
     delete m_gdbServer;
     m_gdbServer = 0;
-    if (!m_codaSocketIODevice.isNull()) {
-        QAbstractSocket *socket =
-            qobject_cast<QAbstractSocket *>(m_codaSocketIODevice.data());
-        const bool isOpen = socket
-            ? socket->state() == QAbstractSocket::ConnectedState
-            : m_codaSocketIODevice->isOpen();
-        if (isOpen) {
-            // Ensure process is stopped after being suspended.
-            sendRunControlTerminateCommand();
-            if (socket) {
-                socket->disconnect();
-            } else {
-                m_codaSocketIODevice->close();
-            }
-        }
-    } //!m_trkIODevice.isNull()
     if (m_codaDevice) {
         // Ensure process is stopped after being suspended.
         sendRunControlTerminateCommand();
