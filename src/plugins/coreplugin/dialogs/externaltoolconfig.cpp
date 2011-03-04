@@ -416,11 +416,13 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     connect(ui->inputText, SIGNAL(textChanged()), this, SLOT(updateCurrentItem()));
 
     connect(ui->revertButton, SIGNAL(clicked()), this, SLOT(revertCurrentItem()));
-    connect(ui->addButton, SIGNAL(clicked()), this, SLOT(add()));
     connect(ui->removeButton, SIGNAL(clicked()), this, SLOT(removeTool()));
 
     QMenu *menu = new QMenu(ui->addButton);
     ui->addButton->setMenu(menu);
+    QAction *addTool = new QAction(tr("Add Tool"), this);
+    menu->addAction(addTool);
+    connect(addTool, SIGNAL(triggered()), this, SLOT(addTool()));
     QAction *addCategory = new QAction(tr("Add Category"), this);
     menu->addAction(addCategory);
     connect(addCategory, SIGNAL(triggered()), this, SLOT(addCategory()));
@@ -566,13 +568,11 @@ void ExternalToolConfig::revertCurrentItem()
     showInfoForItem(index);
 }
 
-void ExternalToolConfig::add()
+void ExternalToolConfig::addTool()
 {
     QModelIndex currentIndex = ui->toolTree->selectionModel()->currentIndex();
-    if (!currentIndex.isValid()) {
-        addCategory();
-        return;
-    }
+    if (!currentIndex.isValid()) // default to Uncategorized
+        currentIndex = m_model->index(0, 0);
     QModelIndex index = m_model->addTool(currentIndex);
     ui->toolTree->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Clear);
     ui->toolTree->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);

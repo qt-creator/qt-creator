@@ -109,7 +109,7 @@ private slots:
     void revertCurrentItem();
     void updateButtons(const QModelIndex &index);
     void updateCurrentItem();
-    void add();
+    void addTool();
     void removeTool();
     void addCategory();
 
