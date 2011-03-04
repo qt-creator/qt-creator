@@ -51,6 +51,9 @@ static const QLatin1String addedSuppressionFilesC("Analyzer.Valgrind.AddedSupres
 static const QLatin1String filterExternalIssuesC("Analyzer.Valgrind.FilterExternalIssues");
 static const QLatin1String visibleErrorKindsC("Analyzer.Valgrind.VisibleErrorKinds");
 
+static const QLatin1String lastSuppressionDirectoryC("Analyzer.Valgrind.LastSuppressionDirectory");
+static const QLatin1String lastSuppressionHistoryC("Analyzer.Valgrind.LastSuppressionHistory");
+
 AbstractMemcheckSettings::AbstractMemcheckSettings(QObject *parent)
 : AbstractAnalyzerSubConfig(parent)
 {
@@ -66,7 +69,6 @@ QVariantMap AbstractMemcheckSettings::defaults() const
     QVariantMap map;
     map.insert(numCallersC, 25);
     map.insert(trackOriginsC, true);
-    map.insert(suppressionFilesC, QStringList());
     map.insert(filterExternalIssuesC, true);
 
     QVariantList defaultErrorKinds;
@@ -182,10 +184,41 @@ void MemcheckGlobalSettings::removeSuppressionFiles(const QStringList &suppressi
         m_suppressionFiles.removeAll(s);
 }
 
+QString MemcheckGlobalSettings::lastSuppressionDialogDirectory() const
+{
+    return m_lastSuppressionDirectory;
+}
+
+void MemcheckGlobalSettings::setLastSuppressionDialogDirectory(const QString &directory)
+{
+    m_lastSuppressionDirectory = directory;
+}
+
+QStringList MemcheckGlobalSettings::lastSuppressionDialogHistory() const
+{
+    return m_lastSuppressionHistory;
+}
+
+void MemcheckGlobalSettings::setLastSuppressionDialogHistory(const QStringList &history)
+{
+    m_lastSuppressionHistory = history;
+}
+
+QVariantMap MemcheckGlobalSettings::defaults() const
+{
+    QVariantMap ret = AbstractMemcheckSettings::defaults();
+    ret.insert(suppressionFilesC, QStringList());
+    ret.insert(lastSuppressionDirectoryC, QString());
+    ret.insert(lastSuppressionHistoryC, QStringList());
+    return ret;
+}
+
 bool MemcheckGlobalSettings::fromMap(const QVariantMap &map)
 {
     AbstractMemcheckSettings::fromMap(map);
     m_suppressionFiles = map.value(suppressionFilesC).toStringList();
+    m_lastSuppressionDirectory = map.value(lastSuppressionDirectoryC).toString();
+    m_lastSuppressionHistory = map.value(lastSuppressionHistoryC).toStringList();
     return true;
 }
 
@@ -193,6 +226,8 @@ QVariantMap MemcheckGlobalSettings::toMap() const
 {
     QVariantMap map = AbstractMemcheckSettings::toMap();
     map.insert(suppressionFilesC, m_suppressionFiles);
+    map.insert(lastSuppressionDirectoryC, m_lastSuppressionDirectory);
+    map.insert(lastSuppressionHistoryC, m_lastSuppressionHistory);
     return map;
 }
 
@@ -210,6 +245,14 @@ MemcheckProjectSettings::MemcheckProjectSettings(QObject *parent)
 
 MemcheckProjectSettings::~MemcheckProjectSettings()
 {
+}
+
+QVariantMap MemcheckProjectSettings::defaults() const
+{
+    QVariantMap ret = AbstractMemcheckSettings::defaults();
+    ret.insert(addedSuppressionFilesC, QStringList());
+    ret.insert(removedSuppressionFilesC, QStringList());
+    return ret;
 }
 
 bool MemcheckProjectSettings::fromMap(const QVariantMap &map)

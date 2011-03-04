@@ -39,6 +39,8 @@
 
 #include "memchecksettings.h"
 
+#include <utils/qtcassert.h>
+
 #include <QStandardItemModel>
 #include <QFileDialog>
 #include <QDebug>
@@ -91,8 +93,13 @@ MemcheckConfigWidget::~MemcheckConfigWidget()
 void MemcheckConfigWidget::slotAddSuppression()
 {
     QFileDialog dialog;
+    dialog.setNameFilter(tr("Valgrind Suppression File (*.supp);;All Files (*)"));
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
     dialog.setFileMode(QFileDialog::ExistingFiles);
+    MemcheckGlobalSettings *conf = Analyzer::AnalyzerGlobalSettings::instance()->subConfig<MemcheckGlobalSettings>();
+    QTC_ASSERT(conf, return);
+    dialog.setDirectory(conf->lastSuppressionDialogDirectory());
+    dialog.setHistory(conf->lastSuppressionDialogHistory());
 
     if (dialog.exec() == QDialog::Accepted) {
         foreach(const QString &file, dialog.selectedFiles())
@@ -100,6 +107,9 @@ void MemcheckConfigWidget::slotAddSuppression()
 
         m_settings->addSuppressionFiles(dialog.selectedFiles());
     }
+
+    conf->setLastSuppressionDialogDirectory(dialog.directory().absolutePath());
+    conf->setLastSuppressionDialogHistory(dialog.history());
 }
 
 void MemcheckConfigWidget::slotSuppressionsAdded(const QStringList &files)

@@ -107,12 +107,22 @@ public:
     void removeSuppressionFiles(const QStringList &);
 
     QVariantMap toMap() const;
+    QVariantMap defaults() const;
+
+    // internal settings which don't require any UI
+    void setLastSuppressionDialogDirectory(const QString &directory);
+    QString lastSuppressionDialogDirectory() const;
+
+    void setLastSuppressionDialogHistory(const QStringList &history);
+    QStringList lastSuppressionDialogHistory() const;
 
 protected:
     bool fromMap(const QVariantMap &map);
 
 private:
     QStringList m_suppressionFiles;
+    QString m_lastSuppressionDirectory;
+    QStringList m_lastSuppressionHistory;
 };
 
 /**
@@ -131,6 +141,7 @@ public:
     void removeSuppressionFiles(const QStringList &suppressions);
 
     QVariantMap toMap() const;
+    QVariantMap defaults() const;
 
 protected:
     bool fromMap(const QVariantMap &map);
