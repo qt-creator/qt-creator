@@ -2369,6 +2369,10 @@ Qt Creator kann sich nicht anhängen.</translation>
         <translation>Modul:</translation>
     </message>
     <message>
+        <source>Multiple Addresses:</source>
+        <translation>Mehrere Adressen:</translation>
+    </message>
+    <message>
         <source>Command:</source>
         <translation>Kommando:</translation>
     </message>
@@ -12538,6 +12542,18 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <source>Item spacing:</source>
         <translation>Abstand:</translation>
     </message>
+    <message>
+        <source>Canvas</source>
+        <translation>Leinwand</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Breite</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>Höhe</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::TestWizardPage</name>
@@ -18578,8 +18594,16 @@ Fehlerausgabe: %1</translation>
         <translation>ROM-Version:</translation>
     </message>
     <message>
+        <source>QtMobility version: </source>
+        <translation>QtMobility-Version: </translation>
+    </message>
+    <message>
+        <source>Error reading QtMobility version</source>
+        <translation>Fehler beim Lesen der QtMobility-Version</translation>
+    </message>
+    <message>
         <source>CODA version:</source>
-        <translation>CODA-Version:</translation>
+        <translation type="obsolete">CODA-Version:</translation>
     </message>
     <message>
         <source>Screen size:</source>
