@@ -316,7 +316,7 @@ PropertyEditor::~PropertyEditor()
 static inline QString fixTypeNameForPanes(const QString &typeName)
 {
     QString fixedTypeName = typeName;
-    fixedTypeName.replace(".", "/");
+    fixedTypeName.replace('.', '/');
     fixedTypeName.replace("QtQuick/", "Qt/");
     return fixedTypeName;
 }
@@ -891,7 +891,7 @@ void PropertyEditor::reloadQml()
 QString PropertyEditor::qmlFileName(const NodeMetaInfo &nodeInfo) const
 {
     if (nodeInfo.typeName().split('.').last() == "QDeclarativeItem")
-        return "Qt/ItemPane.qml";    
+        return "Qt/ItemPane.qml";
     const QString fixedTypeName = fixTypeNameForPanes(nodeInfo.typeName());
     return fixedTypeName + QLatin1String("Pane.qml");
 }

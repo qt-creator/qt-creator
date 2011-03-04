@@ -100,7 +100,7 @@ void SiblingComboBox::setup()
             parentString += parent.simplifiedTypeName();
         else
             parentString += parent.id();
-        parentString += ")";
+        parentString += ')';
         insertItem(0, parentString);
     }
     setCurrentIndex(m_itemList.indexOf(m_selectedItemNode));

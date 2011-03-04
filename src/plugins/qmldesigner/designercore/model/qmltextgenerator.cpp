@@ -138,7 +138,7 @@ QString QmlTextGenerator::toQml(const ModelNode &node, int indentDepth) const
     QString type = node.type();
     QString url;
     if (type.contains('.')) {
-        QStringList nameComponents = type.split(".");
+        QStringList nameComponents = type.split('.');
         url = nameComponents.first();
         type = nameComponents.last();
     }
