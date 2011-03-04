@@ -53,7 +53,8 @@ static const QLatin1String groupC("Analyzer");
 
 AnalyzerGlobalSettings *AnalyzerGlobalSettings::m_instance = 0;
 
-AbstractAnalyzerSubConfig::AbstractAnalyzerSubConfig()
+AbstractAnalyzerSubConfig::AbstractAnalyzerSubConfig(QObject *parent)
+: QObject(parent)
 {
 
 }
@@ -62,7 +63,8 @@ AbstractAnalyzerSubConfig::~AbstractAnalyzerSubConfig()
 {
 }
 
-AnalyzerSettings::AnalyzerSettings()
+AnalyzerSettings::AnalyzerSettings(QObject *parent)
+: QObject(parent)
 {
 }
 
@@ -97,7 +99,8 @@ QVariantMap AnalyzerSettings::toMap() const
     return map;
 }
 
-AnalyzerGlobalSettings::AnalyzerGlobalSettings()
+AnalyzerGlobalSettings::AnalyzerGlobalSettings(QObject *parent)
+: AnalyzerSettings(parent)
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
@@ -106,7 +109,8 @@ AnalyzerGlobalSettings::AnalyzerGlobalSettings()
 AnalyzerGlobalSettings *AnalyzerGlobalSettings::instance()
 {
     if (!m_instance)
-        m_instance = new AnalyzerGlobalSettings;
+        m_instance = new AnalyzerGlobalSettings(AnalyzerPlugin::instance());
+
     return m_instance;
 }
 
@@ -147,7 +151,7 @@ void AnalyzerGlobalSettings::registerSubConfigFactory(AbstractAnalyzerSubConfigF
 {
     m_subConfigFactories << factory;
 
-    AbstractAnalyzerSubConfig *config = factory->createGlobalSubConfig();
+    AbstractAnalyzerSubConfig *config = factory->createGlobalSubConfig(this);
     addSubConfig(config);
     AnalyzerPlugin::instance()->addAutoReleasedObject(new AnalyzerOptionsPage(config));
 
@@ -159,16 +163,21 @@ QList<AbstractAnalyzerSubConfigFactory *> AnalyzerGlobalSettings::subConfigFacto
     return m_subConfigFactories;
 }
 
-AnalyzerProjectSettings::AnalyzerProjectSettings()
+AnalyzerProjectSettings::AnalyzerProjectSettings(QObject *parent)
+: AnalyzerSettings(parent)
 {
     // add sub configs
     foreach(AbstractAnalyzerSubConfigFactory *factory, AnalyzerGlobalSettings::instance()->subConfigFactories()) {
-        addSubConfig(factory->createProjectSubConfig());
+        addSubConfig(factory->createProjectSubConfig(parent));
     }
 
     // take defaults from global settings
     AnalyzerGlobalSettings *gs = AnalyzerGlobalSettings::instance();
     fromMap(gs->toMap());
+}
+
+AnalyzerProjectSettings::~AnalyzerProjectSettings()
+{
 }
 
 QString AnalyzerProjectSettings::displayName() const

@@ -64,7 +64,7 @@ class ANALYZER_EXPORT AbstractAnalyzerSubConfig : public QObject
 {
     Q_OBJECT
 public:
-    AbstractAnalyzerSubConfig();
+    AbstractAnalyzerSubConfig(QObject *parent);
     virtual ~AbstractAnalyzerSubConfig();
 
     virtual QVariantMap defaults() const = 0;
@@ -86,8 +86,8 @@ public:
     AbstractAnalyzerSubConfigFactory(){}
     ~AbstractAnalyzerSubConfigFactory(){}
 
-    virtual AbstractAnalyzerSubConfig *createGlobalSubConfig() = 0;
-    virtual AbstractAnalyzerSubConfig *createProjectSubConfig() = 0;
+    virtual AbstractAnalyzerSubConfig *createGlobalSubConfig(QObject *parent) = 0;
+    virtual AbstractAnalyzerSubConfig *createProjectSubConfig(QObject *parent) = 0;
 };
 
 /**
@@ -103,14 +103,14 @@ class ANALYZER_EXPORT AnalyzerSubConfigFactory : public AbstractAnalyzerSubConfi
 public:
     AnalyzerSubConfigFactory(){}
 
-    AbstractAnalyzerSubConfig *createGlobalSubConfig()
+    AbstractAnalyzerSubConfig *createGlobalSubConfig(QObject *parent)
     {
-        return new GlobalConfigT;
+        return new GlobalConfigT(parent);
     }
 
-    AbstractAnalyzerSubConfig *createProjectSubConfig()
+    AbstractAnalyzerSubConfig *createProjectSubConfig(QObject *parent)
     {
-        return new ProjectConfigT;
+        return new ProjectConfigT(parent);
     }
 };
 
@@ -147,7 +147,7 @@ protected:
 
     virtual bool fromMap(const QVariantMap &map);
 
-    AnalyzerSettings();
+    AnalyzerSettings(QObject *parent);
 };
 
 
@@ -170,7 +170,7 @@ public:
     QList<AbstractAnalyzerSubConfigFactory *> subConfigFactories() const;
 
 private:
-    AnalyzerGlobalSettings();
+    AnalyzerGlobalSettings(QObject *parent);
     static AnalyzerGlobalSettings *m_instance;
     QList<AbstractAnalyzerSubConfigFactory *> m_subConfigFactories;
 };
@@ -182,7 +182,8 @@ class ANALYZER_EXPORT AnalyzerProjectSettings : public AnalyzerSettings, public 
 {
     Q_OBJECT
 public:
-    AnalyzerProjectSettings();
+    AnalyzerProjectSettings(QObject *parent = 0);
+    virtual ~AnalyzerProjectSettings();
 
     QString displayName() const;
 

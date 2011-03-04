@@ -53,7 +53,7 @@ class VALGRINDTOOLBASE_EXPORT ValgrindSettings : public AbstractAnalyzerSubConfi
 {
     Q_OBJECT
 public:
-    ValgrindSettings();
+    ValgrindSettings(QObject *parent);
     virtual ~ValgrindSettings();
 
     virtual QVariantMap toMap() const;

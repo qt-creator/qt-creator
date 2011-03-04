@@ -76,7 +76,7 @@ void AnalyzerPlugin::AnalyzerPluginPrivate::initialize(const QStringList &argume
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
-    m_manager = new AnalyzerManager;
+    m_manager = new AnalyzerManager(q);
 }
 
 
@@ -92,6 +92,7 @@ AnalyzerPlugin::~AnalyzerPlugin()
     // Unregister objects from the plugin manager's object pool
     // Delete members
     delete d;
+    m_instance = 0;
 }
 
 bool AnalyzerPlugin::initialize(const QStringList &arguments, QString *errorString)

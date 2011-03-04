@@ -48,7 +48,7 @@ class AbstractMemcheckSettings : public AbstractAnalyzerSubConfig
 {
     Q_OBJECT
 public:
-    AbstractMemcheckSettings();
+    AbstractMemcheckSettings(QObject *parent);
     virtual ~AbstractMemcheckSettings();
 
     virtual bool fromMap(const QVariantMap &map);
@@ -98,7 +98,7 @@ class MemcheckGlobalSettings : public AbstractMemcheckSettings
 {
     Q_OBJECT
 public:
-    MemcheckGlobalSettings();
+    MemcheckGlobalSettings(QObject *parent);
     virtual ~MemcheckGlobalSettings();
 
     QStringList suppressionFiles() const;
@@ -122,7 +122,8 @@ class MemcheckProjectSettings : public AbstractMemcheckSettings
 {
     Q_OBJECT
 public:
-    MemcheckProjectSettings();
+    MemcheckProjectSettings(QObject *parent);
+    virtual ~MemcheckProjectSettings();
 
     QStringList suppressionFiles() const;
     // in the project-specific settings we store a diff to the global list

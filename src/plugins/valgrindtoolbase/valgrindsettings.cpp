@@ -49,7 +49,8 @@ static const QLatin1String groupC("Analyzer");
 
 static const QLatin1String valgrindExeC("Analyzer.Valgrind.ValgrindExecutable");
 
-ValgrindSettings::ValgrindSettings()
+ValgrindSettings::ValgrindSettings(QObject *parent)
+: AbstractAnalyzerSubConfig(parent)
 {
 }
 

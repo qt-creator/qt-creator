@@ -140,11 +140,16 @@ public:
     Utils::StyledSeparator *m_toolBoxSeparator;
     ActionContainer *m_viewsMenu;
     typedef QPair<Qt::DockWidgetArea, QDockWidget*> ToolWidgetPair;
-    QMap<IAnalyzerTool*, QList<ToolWidgetPair> > m_toolWidgets;
+    typedef QList<ToolWidgetPair> ToolWidgetPairList;
+    QMap<IAnalyzerTool*, ToolWidgetPairList> m_toolWidgets;
     DockWidgetEventFilter *m_resizeEventFilter;
     QMap<IAnalyzerTool*, QWidget*> m_toolToolbarWidgets;
     QStackedWidget *m_toolbarStackedWidget;
     QMap<IAnalyzerTool *, QSettings *> m_defaultSettings;
+
+    // list of dock widgets to prevent memory leak
+    typedef QWeakPointer<QDockWidget> DockPtr;
+    QList<DockPtr> m_dockWidgets;
 };
 
 AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
@@ -177,6 +182,12 @@ AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager 
 
 AnalyzerManager::AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
 {
+    // as we have to setParent(0) on dock widget that are not selected,
+    // we keep track of all and make sure we don't leak any
+    foreach(const DockPtr &ptr, m_dockWidgets) {
+        if (ptr)
+            delete ptr.data();
+    }
 }
 
 void AnalyzerManager::AnalyzerManagerPrivate::setupActions()
@@ -561,6 +572,7 @@ QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QStrin
     QTC_ASSERT(!widget->objectName().isEmpty(), qt_noop());
 
     QDockWidget *dockWidget = d->m_mainWindow->addDockForWidget(widget);
+    d->m_dockWidgets << AnalyzerManagerPrivate::DockPtr(dockWidget);
     dockWidget->setWindowTitle(title);
 
     d->m_toolWidgets[tool] << qMakePair(area, dockWidget);

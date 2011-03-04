@@ -51,7 +51,8 @@ static const QLatin1String addedSuppressionFilesC("Analyzer.Valgrind.AddedSupres
 static const QLatin1String filterExternalIssuesC("Analyzer.Valgrind.FilterExternalIssues");
 static const QLatin1String visibleErrorKindsC("Analyzer.Valgrind.VisibleErrorKinds");
 
-AbstractMemcheckSettings::AbstractMemcheckSettings()
+AbstractMemcheckSettings::AbstractMemcheckSettings(QObject *parent)
+: AbstractAnalyzerSubConfig(parent)
 {
 }
 
@@ -154,7 +155,8 @@ QWidget* AbstractMemcheckSettings::createConfigWidget(QWidget *parent)
     return new MemcheckConfigWidget(this, parent);
 }
 
-MemcheckGlobalSettings::MemcheckGlobalSettings()
+MemcheckGlobalSettings::MemcheckGlobalSettings(QObject *parent)
+: AbstractMemcheckSettings(parent)
 {
 }
 
@@ -201,7 +203,12 @@ MemcheckGlobalSettings *globalMemcheckSettings()
     return ret;
 }
 
-MemcheckProjectSettings::MemcheckProjectSettings()
+MemcheckProjectSettings::MemcheckProjectSettings(QObject *parent)
+: AbstractMemcheckSettings(parent)
+{
+}
+
+MemcheckProjectSettings::~MemcheckProjectSettings()
 {
 }
 
