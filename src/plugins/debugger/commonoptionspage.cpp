@@ -180,8 +180,8 @@ void CommonOptionsPage::apply()
 
 void CommonOptionsPage::finish()
 {
-    QTC_ASSERT(!m_group.isNull(), return; )
-    m_group->finish();
+    if (!m_group.isNull())
+        m_group->finish();
 }
 
 QWidget *CommonOptionsPage::createPage(QWidget *parent)
