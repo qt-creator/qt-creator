@@ -5017,7 +5017,8 @@
     described in the
     \l {http://wiki.forum.nokia.com/index.php/Guide_to_Publishing_Qt_Applications_to_the_Ovi_Store}{Guide to Publishing Qt Applications to the Ovi Store} wiki.
 
-    This section describes, how to use Qt Creator to generate SIS packages that
+    This section describes how to use Qt Creator publishing wizards to
+    generate installation packages that
     you can publish to Ovi Store.
 
     \section1 Publishing Qt Content for Symbian Devices
@@ -5025,101 +5026,70 @@
     You can use the \e {Application Signing Services for Ovi Store} to get your
     application Express Signed for
     free by Nokia. Make sure to use the \l{Application UID}{application UID} that you
-    receive from Ovi Publisher Support. Then create an unsigned SIS package and submit
-    it to signing. When you receive the signed package back, package it with
-    Nokia Smart Installer for Symbian before submitting it to Ovi Publishing.
+    receive from Ovi Publisher Support.
 
-    If the application uses functions that require advanced
+    The \gui {Publish Qt Symbian Applications to Ovi Store} wizard allows you
+    to check that your application can be
+    published on Ovi Store. It checks that the application UID, vendor name,
+    and the capabilities used meet the Ovi Publishing criteria.
+
+    If you use Symbian Signed UIDs or the application uses functions that
+    require advanced
     \l{Capabilities and Signing}{capabilities}, you must
     use the standard Symbian Signed process to have the application Symbian Signed
     (using the Certified Signed path or the manufacturer-specific channel).
+    For more information, see \l{Deploying Applications to Symbian Devices}.
 
     \note At the time of writing this document, the distribution of Qt 4.7.x based
-    applications is not supported by neither Ovi Store nor Smart Installer.
+    applications is supported by neither Ovi Store nor Smart Installer.
     For up-to-date information about the packages available for distribution, see the
     \l{http://wiki.forum.nokia.com/index.php/Nokia_Smart_Installer_for_Symbian}{Nokia Smart Installer for Symbian}
     wiki.
 
-    To create a SIS package that you can submit to Ovi Publishing:
+    To use the publishing wizard:
 
     \list 1
 
-        \o Make sure that the source directory is clean. For example, if you use git,
-        enter the following command:
+        \o Select the \gui {Symbian Device} build target for your project.
 
-        \c {git clean -dfx}
+        \o Choose \gui {Build > Publish Project}.
 
-        \o Click \gui Projects to edit the \gui {Build Settings} for the
-        \gui {Symbian Device} target.
+        \o Select \gui {Publish Qt Symbian Applications to Ovi Store}, and then
+        select \gui {Start Wizard}.
 
-        \o Select the \gui Release configuration.
+        \o Select the Qt version and device type to build against and click
+        \gui Next. We recommend that you select a release configuration.
 
-        \o Open the \gui {Run Settings}.
+        \o The wizard checks the information in the project file against the
+        Ovi Publishing criteria and indicates possible problems. You can fix
+        some of the problems in the wizard.
 
-        \o In the \gui {Create SIS Package} step, select the \gui {Not signed} option.
+        \image qtcreator-publishing-wizard-symbian.png "Project File Checks dialog"
 
-        \o In the \gui {Deploy SIS Package} step, click \gui {Remove Item} to
-        skip the step of copying the SIS file to a device. The SIS file is created
-        in the project folder.
+        \o Select \gui Commit to save changes and create the .sis file. The
+        .sis file is packaged with Nokia Smart Installer for Symbian.
 
-        \image qtcreator-remove-deploy-step.png "Removing deploy steps"
+        \o Choose \gui {Open Containing Folder} to open the folder where the
+        .sis file was created.
 
-        \o Check that the project .pro file uses the correct UID for the application and
-        the correct vendor information, as illustrated by the following code snippet:
+        \o Submit the created .sis file to Ovi Publishing as a Qt Content item.
 
-       \code
-       symbian {
-            TARGET.UID3 = 0x2000D7D1
-
-            vendorinfo = \
-            "%{\"CustomVendor-EN\"}" \
-            ":\"CustomVendor\""
-
-            my_deployment.pkg_prerules = vendorinfo
-            DEPLOYMENT += my_deployment
-        }
-        \endcode
-
-        \note Ovi Store does not accept the application if the localized and non-localized
-        vendor information in the package file  do not match the publisher name. That is,
-        it cannot be \e Nokia, \e Vendor, or \e Vendor-EN.
-
-        \o Choose \gui {Build > Run Project}.
-
-        \o Submit the created .sis file to Application Signing Services for Ovi
-        Store for certification.
-
-        \note Ensure that your application complies with the Ovi Store
-        publishing requirements.
-
-        \o After receiving the signed .sis file from Ovi Publisher Support,
-        copy it over the old application.sis.
-
-        \note The instructions below assume that you have installed \QSDK.
-
-        \o To package Nokia Smart Installer for Symbian with the application, choose
-        \gui {Start > Qt SDK > Symbian > Qt for Symbian Command Prompt}
-        to open the Qt command line environment.
-
-        \o Change to the project directory. For example:
-
-        \c{cd C:\Sources\Application}
-
-        \o To create a Smart Installer wrapper package, enter the following
-        command:
-
-        \c {C:\Sources\Application> make ok_installer_sis QT_SIS_CERTIFICATE=publisherid.cer QT_SIS_KEY=publisherid.key}
-
-        \o Submit the created wrapped .sis file, application_installer.sis, to
-        Ovi Publishing as a Qt Content item.
+        \note You cannot use this .sis file for testing.
 
     \endlist
 
     \note After you change the application UID, you must use the developer
     certificate-key pair that you receive from Ovi Publisher Support for testing
-    the application on devices. Self-signing cannot be
-    applied when UIDs from the trusted range 0x2xxxxxxx are used. For more
+    the application on devices. The following error message is displayed on the
+    device if you use UIDs from the trusted range (0x2xxxxxxx) in a self-signed
+    application: \gui {Unable to install a trusted application from a trusted
+    supplier.} For more
     information, see \l{http://wiki.forum.nokia.com/index.php/UID}{UID}.
+
+    If you try to use more capabilites than the certificate permits, the
+    following error message is displayed on the device: \gui {Requested
+    application access not granted.} For example, if you try to install a
+    self-signed application that uses a system capability.
 
     \section1 Publishing Qt Content for Maemo Devices
 
