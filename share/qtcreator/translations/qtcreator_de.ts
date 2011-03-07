@@ -24063,7 +24063,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     <name>Debugger::Internal::DebuggerToolChainComboBox</name>
     <message>
         <source>%1 (%2)</source>
-        <translation>%1 (%1)</translation>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</source>
