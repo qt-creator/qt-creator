@@ -18,12 +18,12 @@ sources.fileextensions  = "qtcreator.qdoc maemodev.qdoc symbiandev.qdoc addressb
 
 qhp.projects            = QtCreator
 qhp.QtCreator.file             = qtcreator.qhp
-qhp.QtCreator.namespace        = com.nokia.qtcreator.2095
+qhp.QtCreator.namespace        = com.nokia.qtcreator.$QTC_VERSION_TAG
 qhp.QtCreator.virtualFolder    = doc
 qhp.QtCreator.indexTitle       = Qt Creator
-qhp.QtCreator.filterAttributes = qtcreator 2.0.95
-qhp.QtCreator.customFilters.QtCreator.name = Qt Creator 2.0.95
-qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator 2.0.95
+qhp.QtCreator.filterAttributes = qtcreator $QTC_VERSION
+qhp.QtCreator.customFilters.QtCreator.name = Qt Creator $QTC_VERSION
+qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator $QTC_VERSION
 qhp.QtCreator.indexRoot        =
 
 qhp.QtCreator.subprojects = manual
