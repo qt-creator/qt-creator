@@ -2264,7 +2264,26 @@ bool CdbEngine::stateAcceptsBreakpointChanges() const
 
 bool CdbEngine::acceptsBreakpoint(BreakpointId id) const
 {
-    return DebuggerEngine::isCppBreakpoint(breakHandler()->breakpointData(id));
+    const BreakpointParameters &data = breakHandler()->breakpointData(id);
+    if (!DebuggerEngine::isCppBreakpoint(data))
+        return false;
+    switch (data.type) {
+    case UnknownType:
+    case BreakpointAtFork:
+    case BreakpointAtVFork:
+    case BreakpointAtSysCall:
+        return false;
+    case Watchpoint:
+    case BreakpointByFileAndLine:
+    case BreakpointByFunction:
+    case BreakpointByAddress:
+    case BreakpointAtThrow:
+    case BreakpointAtCatch:
+    case BreakpointAtMain:
+    case BreakpointAtExec:
+        break;
+    }
+    return true;
 }
 
 void CdbEngine::attemptBreakpointSynchronization()

@@ -389,29 +389,5 @@ bool isFatalWinException(long code)
     return true;
 }
 
-// Special function names in MSVC runtime
-const char *winMSVCThrowFunction = "CxxThrowException";
-const char *winMSVCCatchFunction = "__CxxCallCatchBlock";
-
-BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
-{
-    if (p.type == BreakpointAtThrow) {
-        BreakpointParameters rc(BreakpointByFunction);
-        rc.functionName = QLatin1String(winMSVCThrowFunction);
-        return rc;
-    }
-    if (p.type == BreakpointAtCatch) {
-        BreakpointParameters rc(BreakpointByFunction);
-        rc.functionName = QLatin1String(winMSVCCatchFunction);
-        return rc;
-    }
-    if (p.type == BreakpointAtMain) {
-        BreakpointParameters rc(BreakpointByFunction);
-        rc.functionName = QLatin1String("main");
-        return rc;
-    }
-    return p;
-}
-
 } // namespace Internal
 } // namespace Debugger

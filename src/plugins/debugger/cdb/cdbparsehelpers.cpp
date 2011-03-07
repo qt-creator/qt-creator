@@ -94,18 +94,49 @@ static inline QString cdbBreakPointFileName(const BreakpointParameters &bp,
     return cdbSourcePathMapping(QDir::toNativeSeparators(bp.fileName), sourcePathMapping, SourceToDebugger);
 }
 
-// Convert breakpoint in CDB syntax. (applying source path mappings using native paths).
+static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
+{
+    switch (p.type) {
+    case UnknownType:
+    case BreakpointByFileAndLine:
+    case BreakpointByFunction:
+    case BreakpointByAddress:
+    case BreakpointAtFork:
+    case BreakpointAtVFork:
+    case BreakpointAtSysCall:
+    case Watchpoint:
+        break;
+    case BreakpointAtExec: { // Emulate by breaking on CreateProcessW().
+        BreakpointParameters rc(BreakpointByFunction);
+        rc.module = QLatin1String("kernel32");
+        rc.functionName = QLatin1String("CreateProcessW");
+        return rc;
+    }
+    case BreakpointAtThrow: {
+        BreakpointParameters rc(BreakpointByFunction);
+        rc.functionName = QLatin1String("CxxThrowException"); // MSVC runtime. Potentially ambiguous.
+        return rc;
+    }
+    case BreakpointAtCatch: {
+        BreakpointParameters rc(BreakpointByFunction);
+        rc.functionName = QLatin1String("__CxxCallCatchBlock"); // MSVC runtime. Potentially ambiguous.
+        return rc;
+    }
+    case BreakpointAtMain: {
+        BreakpointParameters rc(BreakpointByFunction);
+        rc.functionName = QLatin1String("main");
+        return rc;
+    }
+    } // switch
+    return p;
+}
+
 QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
                                    const QList<QPair<QString, QString> > &sourcePathMapping,
                                    BreakpointId id /* = BreakpointId(-1) */,
                                    bool oneshot)
 {
-#ifdef Q_OS_WIN
     const BreakpointParameters bp = fixWinMSVCBreakpoint(bpIn);
-#else
-    const BreakpointParameters bp = bpIn;
-#endif
-
     QByteArray rc;
     ByteArrayInputStream str(rc);
 
@@ -121,6 +152,10 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
     if (oneshot)
         str << "/1 ";
     switch (bp.type) {
+    case BreakpointAtFork:
+    case BreakpointAtExec:
+    case BreakpointAtVFork:
+    case BreakpointAtSysCall:
     case UnknownType:
     case BreakpointAtCatch:
     case BreakpointAtThrow:
@@ -141,7 +176,7 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
             str << bp.module << '!';
         str << cdbBreakPointFileName(bp, sourcePathMapping) << ':' << bp.lineNumber << '`';
         break;
-    case Watchpoint:
+    case Watchpoint: // Read/write 1 byte
         str << "rw 1 " << hex << hexPrefixOn << bp.address << hexPrefixOff << dec;
         break;
     }

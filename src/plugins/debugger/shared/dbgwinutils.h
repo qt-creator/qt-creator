@@ -42,8 +42,6 @@ QT_FORWARD_DECLARE_CLASS(QTextStream)
 namespace Debugger {
 namespace Internal {
 
-class BreakpointParameters;
-
 struct ProcData; // debuggerdialogs, used by the process listing dialogs
 
 QList<ProcData> winProcessList();
@@ -91,13 +89,6 @@ bool isFatalWinException(long code);
 
 // Check for EXCEPTION_BREAKPOINT, EXCEPTION_SINGLE_STEP
 bool isDebuggerWinException(long code);
-
-// fix up breakpoints (catch/throw, etc).
-BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p);
-
-// Special function names in MSVC runtime
-extern const char *winMSVCThrowFunction;
-extern const char *winMSVCCatchFunction;
 
 } // namespace Internal
 } // namespace Debugger
