@@ -95,11 +95,16 @@ QString FileInProjectFinder::findFile(const QString &originalPath, bool *success
 
     const QChar separator = QLatin1Char('/');
     if (originalPath.startsWith(m_projectDir + separator)) {
+        if (success)
+            *success = true;
         return originalPath;
     }
 
-    if (m_cache.contains(originalPath))
+    if (m_cache.contains(originalPath)) {
+        if (success)
+            *success = true;
         return m_cache.value(originalPath);
+    }
 
     // Strip directories one by one from the beginning of the path,
     // and see if the new relative path exists in the build directory.
