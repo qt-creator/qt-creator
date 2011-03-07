@@ -493,10 +493,10 @@ void S60DeployConfigurationWidget::slotWaitingForTrkClosed()
 
 void S60DeployConfigurationWidget::updateDeviceInfo()
 {
+    setDeviceInfoLabel(tr("Connecting"));
     if (m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationTrkSerialConnection) {
         QTC_ASSERT(!m_infoLauncher, return)
 
-        setDeviceInfoLabel(tr("Connecting..."));
         // Do a launcher run with the ping protocol. Prompt to connect and
         // go asynchronous afterwards to pop up launch trk box if a timeout occurs.
         QString message;
@@ -535,7 +535,6 @@ void S60DeployConfigurationWidget::updateDeviceInfo()
         // Wait for either timeout or results
         m_deviceInfoButton->setEnabled(false);
     } else if (m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationCodaSerialConnection) {
-        setDeviceInfoLabel(tr("Connecting..."));
         const SymbianUtils::SymbianDevice commDev = currentDevice();
         m_codaInfoDevice = SymbianUtils::SymbianDeviceManager::instance()->getCodaDevice(commDev.portName());
         if (!m_codaInfoDevice->device()->isOpen()) {
@@ -546,8 +545,6 @@ void S60DeployConfigurationWidget::updateDeviceInfo()
         m_codaInfoDevice->sendSymbianOsDataGetQtVersionCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getQtVersionCommandResult));
         m_deviceInfoButton->setEnabled(false);
     } else if(m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationCodaTcpConnection) {
-        setDeviceInfoLabel(tr("Connecting..."));
-
         // collectingInfoFinished, which deletes m_codaDevice, can get called from within a coda callback, so need to use deleteLater
         m_codaInfoDevice =  QSharedPointer<Coda::CodaDevice>(new Coda::CodaDevice, &QObject::deleteLater);
         connect(m_codaInfoDevice.data(), SIGNAL(tcfEvent(Coda::CodaEvent)), this, SLOT(codaEvent(Coda::CodaEvent)));
@@ -565,6 +562,7 @@ void S60DeployConfigurationWidget::codaEvent(const Coda::CodaEvent &event)
 {
     switch (event.type()) {
     case Coda::CodaEvent::LocatorHello: // Commands accepted now
+        setDeviceInfoLabel(m_deviceInfoLabel->text() + '.');
         m_codaInfoDevice->sendSymbianOsDataGetQtVersionCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getQtVersionCommandResult));
         break;
     default:
@@ -574,6 +572,7 @@ void S60DeployConfigurationWidget::codaEvent(const Coda::CodaEvent &event)
 
  void S60DeployConfigurationWidget::getQtVersionCommandResult(const Coda::CodaCommandResult &result)
  {
+     setDeviceInfoLabel(m_deviceInfoLabel->text() + '.');
      m_deviceInfo.clear();
      if (result.type == Coda::CodaCommandResult::FailReply) {
          setDeviceInfoLabel(tr("No device information available"), true);
@@ -652,6 +651,7 @@ void S60DeployConfigurationWidget::codaEvent(const Coda::CodaEvent &event)
 
  void S60DeployConfigurationWidget::getRomInfoResult(const Coda::CodaCommandResult &result)
  {
+     setDeviceInfoLabel(m_deviceInfoLabel->text() + '.');
      if (result.type == Coda::CodaCommandResult::SuccessReply && result.values.count()) {
          startTable(m_deviceInfo);
          QTextStream str(&m_deviceInfo);
@@ -675,6 +675,7 @@ void S60DeployConfigurationWidget::codaEvent(const Coda::CodaEvent &event)
 
 void S60DeployConfigurationWidget::getInstalledPackagesResult(const Coda::CodaCommandResult &result)
 {
+    setDeviceInfoLabel(m_deviceInfoLabel->text() + '.');
     if (result.type == Coda::CodaCommandResult::SuccessReply && result.values.count()) {
         startTable(m_deviceInfo);
         QTextStream str(&m_deviceInfo);
@@ -725,6 +726,7 @@ void S60DeployConfigurationWidget::getInstalledPackagesResult(const Coda::CodaCo
 
  void S60DeployConfigurationWidget::getHalResult(const Coda::CodaCommandResult &result)
  {
+     setDeviceInfoLabel(m_deviceInfoLabel->text() + '.');
      if (result.type == Coda::CodaCommandResult::SuccessReply && result.values.count()) {
          QVariantList resultsList = result.values[0].toVariant().toList();
          int x = 0;
