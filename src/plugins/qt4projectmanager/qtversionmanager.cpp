@@ -1495,6 +1495,7 @@ void QtVersion::updateAbiAndMkspec() const
     QString ce_sdk = evaluator.values("CE_SDK").join(QLatin1String(" "));
     QString ce_arch = evaluator.value("CE_ARCH");
 
+    const QString coreLibrary = qtCorePath();
 
     // Evaluate all the information we have:
     if (!ce_sdk.isEmpty() && !ce_arch.isEmpty()) {
@@ -1533,7 +1534,7 @@ void QtVersion::updateAbiAndMkspec() const
     } else if (qmakeCXX.contains("g++")
                || qmakeCXX == "cl" || qmakeCXX == "icl" // intel cl
                || qmakeCXX == QLatin1String("icpc")) {
-        m_abis = ProjectExplorer::Abi::abisOfBinary(qtCorePath());
+        m_abis = ProjectExplorer::Abi::abisOfBinary(coreLibrary);
 #if defined (Q_OS_WIN)
         if (makefileGenerator == "MINGW") {
             QList<ProjectExplorer::Abi> tmp = m_abis;
@@ -1546,12 +1547,12 @@ void QtVersion::updateAbiAndMkspec() const
         m_targetIds.insert(QLatin1String(Constants::DESKTOP_TARGET_ID));
     }
 
-    if (m_abis.isEmpty()) {
-        qWarning("Warning: Could not find ABI for '%s' ('%s', %s) /%s "
+    if (m_abis.isEmpty() && !coreLibrary.isEmpty()) {
+        qWarning("Warning: Could not find ABI for '%s' ('%s', %s)/%s by looking at %s:"
                  "Qt Creator does not know about the system includes, "
                  "nor the system defines.",
                  qPrintable(m_mkspecFullPath), qPrintable(displayName()),
-                 qPrintable(qmakeCommand()), qPrintable(qmakeCXX));
+                 qPrintable(qmakeCommand()), qPrintable(qmakeCXX), qPrintable(coreLibrary));
     }
 
     QStringList configValues = evaluator.values("CONFIG");
