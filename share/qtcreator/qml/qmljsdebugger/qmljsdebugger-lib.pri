@@ -9,3 +9,5 @@ CONFIG(debug, debug|release) {
     windows:DEBUGLIB = QmlJSDebuggerd
 }
 LIBS += -L$$PWD -l$$DEBUGLIB
+
+DEFINES += QMLJSDEBUGGER
