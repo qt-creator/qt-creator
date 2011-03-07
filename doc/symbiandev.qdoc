@@ -41,15 +41,32 @@
 
     \title Setting Up Development Environment for Symbian
 
+    When you install \QSDK, the build and run settings for Symbian devices
+    are set up automatically. You only need to connect the devices to the
+    development PC.
+
+    Connect the device to the development PC with an USB cable in
+    PC Suite Mode. If you have not previously used the device with Ovi Suite
+    or PC Suite, all the necessary drivers are installed automatically.
+    This takes approximately one minute.
+
+    To run Qt applications on Symbian devices, you must install the software
+    that Qt applications require, typically Qt, Qt Mobility, QtWebkit, and Open C.
+    The \QSDK installation program creates shortcuts for installing
+    the required applications on Symbian devices. You can also use any of
+    the standard methods for installing applications.
+
+    The tool chain for building applications locally on the development PC for
+    the \gui {Symbian Device} target is only supported on Windows.
+    If you develop on Linux or Mac OS, you must use the Remote Compiler
+    interface to a compilation service at Forum Nokia.
+
     For more information about developing applications for the Symbian
     platform, select \gui {Help > Index} and look for \gui {Platform Notes},
     or see
     \l{http://doc.qt.nokia.com/4.7/platform-notes-symbian.html}{Platform Notes - Symbian}.
 
     \section1 Hardware and Software Requirements
-
-    Windows is the only development platform for the Symbian target
-    supported at the moment.
 
     For deploying and running applications on the device, you need the
     following:
@@ -65,12 +82,16 @@
         \o \e Qt installed on the device
          \o \e {Qt Mobility APIs} installed on the device, if you use them in
          applications
-         \o \QQV to run Qt Quick applications on Symbian^3 devices.
+        \o \e {QtWebKit} installed on the device, if you use web functionality
+         in applications
     \endlist
 
     In addition, you can install example applications, demos, and utility
     applications, such as Nokia Energy Profiler and Nokia Performance Manager,
     on devices.
+
+    The \QSDK installation program creates shortcuts for installing
+    the applications on Symbian devices.
 
     \if defined(qcmanual)
     To run your applications in the Symbian emulator, you also need
@@ -78,15 +99,6 @@
     \endif
 
     \section1 Installing Required Applications on Devices
-
-    The \QSDK installation program creates shortcuts for installing
-    the required applications on Symbian devices (you can also use any of
-    the standard methods for installing applications on devices).
-
-    Connect the device to the development PC with an USB cable in
-    PC Suite Mode. If you have not previously used the device with Ovi Suite
-    or PC Suite, all the necessary drivers are installed automatically.
-    This takes approximately one minute.
 
     Separate installation packages are provided for Symbian^3 and Symbian^1
     devices. To check the Symbian platform version of your device, see
@@ -118,6 +130,10 @@
         the TRK
         debugging application to the device.
 
+        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.2 > Install QtWebKit
+        for for Qt 4.7.2 on Symbian^3 Device} and follow the
+        instructions on the screen to install QtWebKit to the device.
+
     \endlist
 
     \section2 Developing for Symbian^1
@@ -143,6 +159,10 @@
         instructions on the screen to install
         the TRK
         debugging application to the device.
+
+        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.2 > Install QtWebKit
+        for for Qt 4.7.2 on Symbian^1 Device} and follow the
+        instructions on the screen to install QtWebKit to the device.
 
     \endlist
 
