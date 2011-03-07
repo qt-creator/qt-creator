@@ -149,7 +149,7 @@ QString AbstractMemcheckSettings::id() const
 
 QString AbstractMemcheckSettings::displayName() const
 {
-    return tr("Memory Analyzation");
+    return tr("Memory Analysis");
 }
 
 QWidget* AbstractMemcheckSettings::createConfigWidget(QWidget *parent)

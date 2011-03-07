@@ -20,7 +20,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Memory Analyzation Options</string>
+      <string>Memory Analysis Options</string>
      </property>
      <layout class="QFormLayout" name="formLayout_4">
       <property name="fieldGrowthPolicy">

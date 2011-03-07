@@ -54,18 +54,19 @@
 
 #include <utils/qtcassert.h>
 
-#include <QDir>
-#include <QLabel>
-#include <QListView>
-#include <QPainter>
-#include <QScrollBar>
-#include <QSortFilterProxyModel>
-#include <QVBoxLayout>
-#include <QDebug>
-#include <QAction>
-#include <QClipboard>
-#include <QApplication>
-#include <QMenu>
+#include <QtCore/QDir>
+#include <QtCore/QDebug>
+
+#include <QtGui/QLabel>
+#include <QtGui/QListView>
+#include <QtGui/QPainter>
+#include <QtGui/QScrollBar>
+#include <QtGui/QSortFilterProxyModel>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QAction>
+#include <QtGui/QClipboard>
+#include <QtGui/QApplication>
+#include <QtGui/QMenu>
 
 using namespace Analyzer;
 using namespace Analyzer::Internal;
@@ -151,7 +152,7 @@ static QString makeFrameName(const Frame &frame, const QString &relativeTo,
     }
 
     if (!fn.isEmpty())
-        return QObject::tr("%1 in %2").arg(Qt::escape(fn), path);
+        return QCoreApplication::tr("Analyzer::Internal", "%1 in %2").arg(Qt::escape(fn), path);
     else if (!path.isEmpty())
         return path;
     else
@@ -182,8 +183,9 @@ QString errorLocation(const QModelIndex &index, const Error &error,
     };
     QTC_ASSERT(model, return QString());
 
-    return QObject::tr("in %1").arg(makeFrameName(model->findRelevantFrame(error), relativeToPath(),
-                                                  link, linkAttr));
+    return QCoreApplication::tr("Analyzer::Internal", "in %1").
+            arg(makeFrameName(model->findRelevantFrame(error), relativeToPath(),
+                              link, linkAttr));
 }
 
 QWidget *MemcheckErrorDelegate::createDetailsWidget(const QModelIndex &errorIndex, QWidget *parent) const

@@ -84,6 +84,11 @@ static QString stateToString(BreakpointState state)
     return BreakHandler::tr("<invalid state>");
 }
 
+static QString msgBreakpointAtSpecialFunc(const char *func)
+{
+    return BreakHandler::tr("Breakpoint at \"%1\"").arg(QString::fromAscii(func));
+}
+
 static QString typeToString(BreakpointType type)
 {
     switch (type) {
@@ -94,17 +99,17 @@ static QString typeToString(BreakpointType type)
         case BreakpointByAddress:
             return BreakHandler::tr("Breakpoint by Address");
         case BreakpointAtThrow:
-            return BreakHandler::tr("Breakpoint at \"throw\"");
+            return msgBreakpointAtSpecialFunc("throw");
         case BreakpointAtCatch:
-            return BreakHandler::tr("Breakpoint at \"catch\"");
+            return msgBreakpointAtSpecialFunc("catch");
         case BreakpointAtFork:
-            return BreakHandler::tr("Breakpoint at \"fork\"");
+            return msgBreakpointAtSpecialFunc("fork");
         case BreakpointAtExec:
-            return BreakHandler::tr("Breakpoint at \"exec\"");
+            return msgBreakpointAtSpecialFunc("exec");
         case BreakpointAtVFork:
-            return BreakHandler::tr("Breakpoint at \"vfork\"");
+            return msgBreakpointAtSpecialFunc("vfork");
         case BreakpointAtSysCall:
-            return BreakHandler::tr("Breakpoint at \"syscall\"");
+            return msgBreakpointAtSpecialFunc("syscall");
         case BreakpointAtMain:
             return BreakHandler::tr("Breakpoint at Function \"main()\"");
         case Watchpoint:

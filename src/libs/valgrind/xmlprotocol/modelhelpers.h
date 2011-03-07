@@ -36,7 +36,7 @@
 #ifndef LIBVALGRIND_PROTOCOL_MODELHELPERS_H
 #define LIBVALGRIND_PROTOCOL_MODELHELPERS_H
 
-#include <QtGlobal>
+#include <QtCore/QtGlobal>
 
 QT_BEGIN_NAMESPACE
 class QString;
