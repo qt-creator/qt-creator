@@ -53,8 +53,50 @@
 namespace Debugger {
 namespace Internal {
 
-// Convert breakpoint in CDB syntax.
+// Perform mapping on parts of the source tree as reported by/passed to debugger
+// in case the user has specified such mappings in the global settings.
+// That is, when debugging an executable built from 'X:\buildsrv\foo.cpp' and using a local
+// source tree under 'c:\src', the user would specify a mapping 'X:\buildsrv'->'c:\src'
+// and file names passed to breakpoints and reported stack traces can be converted.
+QString cdbSourcePathMapping(QString fileName,
+                             const QList<QPair<QString, QString> > &sourcePathMapping,
+                             SourcePathMode mode)
+{
+    typedef QPair<QString, QString> SourcePathMapping;
+
+    if (fileName.isEmpty() || sourcePathMapping.isEmpty())
+        return fileName;
+    foreach (const SourcePathMapping &m, sourcePathMapping) {
+        const QString &source = mode == DebuggerToSource ? m.first : m.second;
+        const int sourceSize = source.size();
+        // Map parts of the path and ensure a slash follows.
+        if (fileName.size() > sourceSize && fileName.startsWith(source, Qt::CaseInsensitive)) {
+            const QChar next = fileName.at(sourceSize);
+            if (next == QLatin1Char('\\') || next == QLatin1Char('/')) {
+                const QString &target = mode == DebuggerToSource ? m.second: m.first;
+                fileName.replace(0, sourceSize, target);
+                return fileName;
+            }
+        }
+    }
+    return fileName;
+}
+
+// Determine file name to be used for breakpoints. Convert to native and, unless short path
+// is set, perform reverse lookup in the source path mappings.
+static inline QString cdbBreakPointFileName(const BreakpointParameters &bp,
+                                            const QList<QPair<QString, QString> > &sourcePathMapping)
+{
+    if (bp.fileName.isEmpty())
+        return bp.fileName;
+    if (bp.pathUsage == BreakpointUseShortPath)
+        return QFileInfo(bp.fileName).fileName();
+    return cdbSourcePathMapping(QDir::toNativeSeparators(bp.fileName), sourcePathMapping, SourceToDebugger);
+}
+
+// Convert breakpoint in CDB syntax. (applying source path mappings using native paths).
 QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
+                                   const QList<QPair<QString, QString> > &sourcePathMapping,
                                    BreakpointId id /* = BreakpointId(-1) */,
                                    bool oneshot)
 {
@@ -97,12 +139,7 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
         str << '`';
         if (!bp.module.isEmpty())
             str << bp.module << '!';
-        if (bp.pathUsage == BreakpointUseShortPath) {
-            str << QFileInfo(bp.fileName).fileName();
-        } else  {
-            str << QDir::toNativeSeparators(bp.fileName);
-        }
-        str << ':' << bp.lineNumber << '`';
+        str << cdbBreakPointFileName(bp, sourcePathMapping) << ':' << bp.lineNumber << '`';
         break;
     case Watchpoint:
         str << "rw 1 " << hex << hexPrefixOn << bp.address << hexPrefixOff << dec;

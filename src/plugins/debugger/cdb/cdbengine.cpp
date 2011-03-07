@@ -1147,7 +1147,7 @@ void CdbEngine::executeRunToLine(const ContextData &data)
         bp.fileName = data.fileName;
         bp.lineNumber = data.lineNumber;
     }
-    postCommand(cdbAddBreakpointCommand(bp, BreakpointId(-1), true), 0);
+    postCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings, BreakpointId(-1), true), 0);
     continueInferior();
 }
 
@@ -1157,7 +1157,7 @@ void CdbEngine::executeRunToFunction(const QString &functionName)
     BreakpointParameters bp(BreakpointByFunction);
     bp.functionName = functionName;
 
-    postCommand(cdbAddBreakpointCommand(bp, BreakpointId(-1), true), 0);
+    postCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings, BreakpointId(-1), true), 0);
     continueInferior();
 }
 
@@ -2329,7 +2329,7 @@ void CdbEngine::attemptBreakpointSynchronization()
         }
         switch (handler->state(id)) {
         case BreakpointInsertRequested:
-            postCommand(cdbAddBreakpointCommand(parameters, id, false), 0);
+            postCommand(cdbAddBreakpointCommand(parameters, m_sourcePathMappings, id, false), 0);
             if (!parameters.enabled)
                 postCommand("bd " + QByteArray::number(id), 0);
             handler->notifyBreakpointInsertProceeding(id);
@@ -2351,7 +2351,7 @@ void CdbEngine::attemptBreakpointSynchronization()
                 // Delete and re-add, triggering update
                 addedChanged = true;
                 postCommand("bc " + QByteArray::number(id), 0);
-                postCommand(cdbAddBreakpointCommand(parameters, id, false), 0);
+                postCommand(cdbAddBreakpointCommand(parameters, m_sourcePathMappings, id, false), 0);
                 m_pendingBreakpointMap.insert(id, response);
             }
             handler->notifyBreakpointChangeOk(id);
@@ -2384,15 +2384,8 @@ CdbEngine::NormalizedSourceFileName CdbEngine::sourceMapNormalizeFileNameFromDeb
     if (debugSourceMapping)
         qDebug(">sourceMapNormalizeFileNameFromDebugger %s", qPrintable(f));
     // Do we have source path mappings? ->Apply.
-    QString fileName = QDir::toNativeSeparators(f);
-    if (!m_sourcePathMappings.isEmpty()) {
-        foreach (const SourcePathMapping &m, m_sourcePathMappings) {
-            if (fileName.startsWith(m.first, Qt::CaseInsensitive)) {
-                fileName.replace(0, m.first.size(), m.second);
-                break;
-            }
-        }
-    }
+    const QString fileName = cdbSourcePathMapping(QDir::toNativeSeparators(f), m_sourcePathMappings,
+                                                  DebuggerToSource);
     // Up/lower case normalization according to Windows.
 #ifdef Q_OS_WIN
     QString normalized = winNormalizeFileName(fileName);

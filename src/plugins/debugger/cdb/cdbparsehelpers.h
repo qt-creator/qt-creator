@@ -39,6 +39,7 @@
 #include <QtCore/QtGlobal>
 #include <QtCore/QList>
 #include <QtCore/QVector>
+#include <QtCore/QPair>
 #include <QtCore/QByteArray>
 
 QT_BEGIN_NAMESPACE
@@ -54,8 +55,17 @@ struct ThreadData;
 class Register;
 class GdbMi;
 
-// Convert breakpoint in CDB syntax.
-QByteArray cdbAddBreakpointCommand(const BreakpointParameters &d, BreakpointId id = BreakpointId(-1), bool oneshot = false);
+// Perform mapping on parts of the source tree as reported by/passed to debugger
+// in case the user has specified such mappings in the global settings.
+enum SourcePathMode { DebuggerToSource, SourceToDebugger };
+QString cdbSourcePathMapping(QString fileName,
+                             const QList<QPair<QString, QString> > &sourcePathMapping,
+                             SourcePathMode mode);
+
+// Convert breakpoint in CDB syntax (applying source path mappings using native paths).
+QByteArray cdbAddBreakpointCommand(const BreakpointParameters &d,
+                                   const QList<QPair<QString, QString> > &sourcePathMapping,
+                                   BreakpointId id = BreakpointId(-1), bool oneshot = false);
 // Parse extension command listing breakpoints.
 // Note that not all fields are returned, since file, line, function are encoded
 // in the expression (that is in addition deleted on resolving for a bp-type breakpoint).
