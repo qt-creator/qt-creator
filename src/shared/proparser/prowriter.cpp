@@ -174,23 +174,44 @@ static const ushort *skipToken(ushort tok, const ushort *&tokPtr, int &lineNo)
     return 0;
 }
 
-bool ProWriter::locateVarValues(const ushort *tokPtr, const QString &var, int *bestLine)
+bool ProWriter::locateVarValues(const ushort *tokPtr,
+    const QString &scope, const QString &var, int *scopeStart, int *bestLine)
 {
-    int lineNo = 0;
+    const bool inScope = scope.isEmpty();
+    int lineNo = *scopeStart + 1;
     QString tmp;
     const ushort *lastXpr = 0;
+    bool fresh = true;
     while (ushort tok = *tokPtr++) {
-        if (tok == TokAssign || tok == TokAppend || tok == TokAppendUnique) {
+        if (inScope && (tok == TokAssign || tok == TokAppend || tok == TokAppendUnique)) {
             if (getLiteral(lastXpr, tokPtr - 1, tmp) && var == tmp) {
                 *bestLine = lineNo - 1;
                 return true;
             }
             skipExpression(++tokPtr, lineNo);
+            fresh = true;
         } else {
-            lastXpr = skipToken(tok, tokPtr, lineNo);
+            if (!inScope && tok == TokCondition && *tokPtr == TokBranch
+                && getLiteral(lastXpr, tokPtr - 1, tmp) && scope == tmp) {
+                *scopeStart = lineNo - 1;
+                if (locateVarValues(tokPtr + 3, QString(), var, scopeStart, bestLine))
+                    return true;
+            }
+            const ushort *oTokPtr = skipToken(tok, tokPtr, lineNo);
+            if (tok != TokLine) {
+                if (oTokPtr) {
+                    if (fresh)
+                        lastXpr = oTokPtr;
+                } else if (tok == TokNot || tok == TokAnd || tok == TokOr) {
+                    fresh = false;
+                } else {
+                    fresh = true;
+                }
+            }
         }
     }
-    *bestLine = qMax(lineNo - 1, 0);
+    if (inScope || *scopeStart < 0)
+        *bestLine = qMax(lineNo - 1, 0);
     return false;
 }
 
@@ -219,10 +240,11 @@ static int skipContLines(QStringList *lines, int lineNo, bool addCont)
 }
 
 void ProWriter::putVarValues(ProFile *profile, QStringList *lines,
-    const QStringList &values, const QString &var, PutFlags flags)
+    const QStringList &values, const QString &var, PutFlags flags, const QString &scope)
 {
-    int lineNo;
-    if (locateVarValues(profile->tokPtr(), var, &lineNo)) {
+    QString indent = scope.isEmpty() ? QString() : QLatin1String("    ");
+    int scopeStart = -1, lineNo;
+    if (locateVarValues(profile->tokPtr(), scope, var, &scopeStart, &lineNo)) {
         if (flags & ReplaceValues) {
             // remove continuation lines with old values
             int lNo = skipContLines(lines, lineNo, false);
@@ -234,24 +256,38 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines,
                 line.truncate(eqs + 1);
             // put new values
             foreach (const QString &v, values)
-                line += ((flags & MultiLine) ? QLatin1String(" \\\n    ") : QLatin1String(" ")) + v;
+                line += ((flags & MultiLine) ? QLatin1String(" \\\n    ") + indent : QString::fromLatin1(" ")) + v;
         } else {
             lineNo = skipContLines(lines, lineNo, true);
             QString added;
             foreach (const QString &v, values)
-                added += QLatin1String("    ") + v + QLatin1String(" \\\n");
+                added += QLatin1String("    ") + indent + v + QLatin1String(" \\\n");
             added.chop(3);
             lines->insert(lineNo, added);
         }
     } else {
         // Create & append new variable item
         QString added;
+        if (!scope.isEmpty()) {
+            if (scopeStart < 0) {
+                added = QLatin1Char('\n') + scope + QLatin1String(" {");
+            } else {
+                QRegExp rx(QLatin1String("(\\s*") + scope + QLatin1String("\\s*:\\s*).*"));
+                if (rx.exactMatch(lines->at(scopeStart))) {
+                    (*lines)[scopeStart].replace(0, rx.cap(1).length(),
+                                                 QString(scope + QLatin1String(" {\n    ")));
+                    scopeStart = -1;
+                }
+            }
+        }
         int lNo = skipContLines(lines, lineNo, false);
-        if (lNo)
+        if (lNo != scopeStart + 1)
             added += QLatin1Char('\n');
-        added += var + QLatin1String((flags & AppendOperator) ? " +=" : " =");
+        added += indent + var + QLatin1String((flags & AppendOperator) ? " +=" : " =");
         foreach (const QString &v, values)
-            added += ((flags & MultiLine) ? QLatin1String(" \\\n    ") : QLatin1String(" ")) + v;
+            added += ((flags & MultiLine) ? QLatin1String(" \\\n    ") + indent : QString::fromLatin1(" ")) + v;
+        if (!scope.isEmpty() && scopeStart < 0)
+            added += QLatin1String("\n}");
         lines->insert(lNo, added);
     }
 }

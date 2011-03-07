@@ -60,7 +60,8 @@ public:
     Q_DECLARE_FLAGS(PutFlags, PutFlag)
 
     static void putVarValues(ProFile *profile, QStringList *lines,
-        const QStringList &values, const QString &var, PutFlags flags);
+        const QStringList &values, const QString &var, PutFlags flags,
+        const QString &scope = QString());
     static QList<int> removeVarValues(ProFile *profile, QStringList *lines,
         const QStringList &values, const QStringList &vars);
 
@@ -70,7 +71,8 @@ public:
         const QDir &proFileDir, const QStringList &filePaths, const QStringList &vars);
 
 private:
-    static bool locateVarValues(const ushort *tokPtr, const QString &var, int *bestLine);
+    static bool locateVarValues(const ushort *tokPtr,
+        const QString &scope, const QString &var, int *scopeStart, int *bestLine);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(ProWriter::PutFlags)
