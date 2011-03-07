@@ -539,11 +539,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // Actions
     //
 
-    // new session action
-    d->m_sessionManagerAction = new QAction(tr("Session Manager..."), this);
-    cmd = am->registerAction(d->m_sessionManagerAction, Constants::NEWSESSION, globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence());
-
     // new action
     d->m_newAction = new QAction(tr("New Project..."), this);
     cmd = am->registerAction(d->m_newAction, Constants::NEWPROJECT, globalcontext);
@@ -588,6 +583,22 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(mfile->menu(), SIGNAL(aboutToShow()),
         this, SLOT(updateRecentProjectMenu()));
 
+    // recent session menu
+    Core::ActionContainer *msession = am->createMenu(Constants::M_SESSION);
+    msession->menu()->setTitle(tr("Recent Sessions"));
+    msession->setOnAllDisabledBehavior(Core::ActionContainer::Show);
+    mfile->addMenu(msession, Core::Constants::G_FILE_OPEN);
+    d->m_sessionMenu = msession->menu();
+    connect(mfile->menu(), SIGNAL(aboutToShow()),
+            this, SLOT(updateSessionMenu()));
+
+    // session manager action
+    d->m_sessionManagerAction = new QAction(tr("Session Manager..."), this);
+    cmd = am->registerAction(d->m_sessionManagerAction, Constants::NEWSESSION, globalcontext);
+    mfile->addAction(cmd, Core::Constants::G_FILE_OPEN);
+    cmd->setDefaultKeySequence(QKeySequence());
+
+
     // XXX same action?
     // unload action
     d->m_unloadAction = new Utils::ParameterAction(tr("Close Project"), tr("Close Project \"%1\""),
@@ -602,15 +613,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = am->registerAction(d->m_clearSession, Constants::CLEARSESSION, globalcontext);
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
-
-    // session menu
-    Core::ActionContainer *msession = am->createMenu(Constants::M_SESSION);
-    msession->menu()->setTitle(tr("Session"));
-    msession->setOnAllDisabledBehavior(Core::ActionContainer::Show);
-    mfile->addMenu(msession, Core::Constants::G_FILE_PROJECT);
-    d->m_sessionMenu = msession->menu();
-    connect(mfile->menu(), SIGNAL(aboutToShow()),
-            this, SLOT(updateSessionMenu()));
 
     // build session action
     QIcon buildIcon(Constants::ICON_BUILD);
@@ -2541,9 +2543,6 @@ void ProjectExplorerPlugin::updateSessionMenu()
             act->setChecked(true);
     }
     d->m_sessionMenu->addActions(ag->actions());
-    d->m_sessionMenu->addSeparator();
-    d->m_sessionMenu->addAction(d->m_sessionManagerAction);
-
     d->m_sessionMenu->setEnabled(true);
 }
 
