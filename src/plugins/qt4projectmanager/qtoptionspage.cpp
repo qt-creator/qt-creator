@@ -145,7 +145,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
 
     QWidget *versionInfoWidget = new QWidget();
     m_versionUi->setupUi(versionInfoWidget);
-    m_versionUi->qmakePath->setExpectedKind(Utils::PathChooser::File);
+    m_versionUi->qmakePath->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_versionUi->qmakePath->setPromptDialogTitle(tr("Select qmake Executable"));
     m_versionUi->s60SDKPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_versionUi->s60SDKPath->setPromptDialogTitle(tr("Select S60 SDK Root"));
