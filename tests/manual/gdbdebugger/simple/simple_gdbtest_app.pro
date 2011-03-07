@@ -8,6 +8,7 @@ SOURCES +=  simple_gdbtest_app.cpp
 QT += network
 QT += script
 #unix: QMAKE_CXXFLAGS += -msse2
+#DEFINES += USE_BOOST=1
 
 message("this says <foo & bar>")
 

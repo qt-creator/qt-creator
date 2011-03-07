@@ -85,7 +85,7 @@
 #include <vector>
 
 #define USE_PRIVATE 1
-#define USE_BOOST 1
+//#define USE_BOOST 1
 
 #if USE_BOOST
 #include <boost/optional.hpp>
