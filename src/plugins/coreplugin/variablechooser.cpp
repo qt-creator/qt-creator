@@ -104,7 +104,7 @@ void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
     m_lineEdit = 0;
     m_textEdit = 0;
     m_plainTextEdit = 0;
-    QVariant variablesSupportProperty = variablesSupportProperty = widget->property(Constants::VARIABLE_SUPPORT_PROPERTY);
+    QVariant variablesSupportProperty = widget->property(Constants::VARIABLE_SUPPORT_PROPERTY);
     bool supportsVariables = (variablesSupportProperty.isValid()
                               ? variablesSupportProperty.toBool() : false);
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget)) {
