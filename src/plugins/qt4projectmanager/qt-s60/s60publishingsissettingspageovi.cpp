@@ -161,20 +161,20 @@ void S60PublishingSisSettingsPageOvi::localisedVendorNamesChanged()
         }
     }
 
-    QString pluralOrSingular = tr("is a default vendor name");
+    QString pluralOrSingular = tr("%1 is a default vendor name used for testing and development.").arg(wrongVendorNames.join(", "));
     if (wrongVendorNames.count() > 1)
-        pluralOrSingular = tr("are default vendor names");
+        pluralOrSingular = tr("%1 are default vendor names used for testing and development.").arg(wrongVendorNames.join(", "));
 
     reflectSettingState(settingState,
                         ui->localisedVendorNamesOkLabel,
                         ui->localisedVendorNamesErrorLabel,
                         ui->localisedVendorNamesErrorReasonLabel,
-                        tr("%1 %2 used for testing and development. <br>"
+                        tr("%1 <br>"
                            "The Vendor_Name field cannot contain the name 'Nokia'. <br>"
                            "You are advised against using the default names 'Vendor' and 'Vendor-EN'. <br>"
                            "You should also not leave the entry blank. <br>"
                            "See <a href=\"http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml\">"
-                           "Packaging and Signing</a> for guidelines.<br>").arg(wrongVendorNames.join(", "), pluralOrSingular));
+                           "Packaging and Signing</a> for guidelines.<br>").arg(pluralOrSingular));
     m_publisher->setLocalVendorNames(ui->localisedVendorNamesLineEdit->text());
 }
 
