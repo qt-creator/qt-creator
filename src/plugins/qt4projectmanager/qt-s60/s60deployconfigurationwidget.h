@@ -136,6 +136,7 @@ private:
     Utils::IpAddressLineEdit *m_ipAddress;
     QRadioButton *m_trkRadioButton;
     QRadioButton *m_codaRadioButton;
+    QLabel *m_codaInfoLabel;
     QSharedPointer<Coda::CodaDevice> m_codaInfoDevice;
     QString m_deviceInfo;
     QTimer *m_codaTimeout;

@@ -43,6 +43,8 @@
 #include <symbianutils/symbiandevicemanager.h>
 #include <codadevice.h>
 
+#include <coreplugin/helpmanager.h>
+
 #include "codaruncontrol.h"
 #include "trkruncontrol.h"
 
@@ -140,6 +142,7 @@ S60DeployConfigurationWidget::S60DeployConfigurationWidget(QWidget *parent)
       m_ipAddress(new Utils::IpAddressLineEdit),
       m_trkRadioButton(new QRadioButton(tr("TRK"))),
       m_codaRadioButton(new QRadioButton(tr("CODA"))),
+      m_codaInfoLabel(new QLabel(tr("<a href=\"qthelp://com.nokia.qtcreator/doc/creator-developing-symbian.html\">What are the prerequisites?</a>"))),
       m_codaTimeout(new QTimer(this))
 {
 }
@@ -195,7 +198,11 @@ void S60DeployConfigurationWidget::init(ProjectExplorer::DeployConfiguration *dc
             this, SLOT(updateSerialDevices()));
 
     //Debug Client
+    QVBoxLayout *debugClientContentVBoxLayout = new QVBoxLayout;
+    debugClientContentVBoxLayout->addWidget(m_codaInfoLabel);
+
     QHBoxLayout *debugClientHBoxLayout = new QHBoxLayout;
+    debugClientContentVBoxLayout->addLayout(debugClientHBoxLayout);
 
     QVBoxLayout *debugClientVBoxLayout = new QVBoxLayout;
     debugClientVBoxLayout->addWidget(m_trkRadioButton);
@@ -209,7 +216,7 @@ void S60DeployConfigurationWidget::init(ProjectExplorer::DeployConfiguration *dc
     debugClientHBoxLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
 
     QGroupBox *debugClientGroupBox = new QGroupBox(tr("Device Agent"));
-    debugClientGroupBox->setLayout(debugClientHBoxLayout);
+    debugClientGroupBox->setLayout(debugClientContentVBoxLayout);
 
     bool usingTrk = m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationTrkSerialConnection;
     m_trkRadioButton->setChecked(usingTrk);
@@ -221,6 +228,8 @@ void S60DeployConfigurationWidget::init(ProjectExplorer::DeployConfiguration *dc
 
     connect(m_trkRadioButton, SIGNAL(clicked()), this, SLOT(updateCommunicationChannel()));
     connect(m_codaRadioButton, SIGNAL(clicked()), this, SLOT(updateCommunicationChannel()));
+    connect(m_codaInfoLabel, SIGNAL(linkActivated(QString)),
+            Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
 
     formLayout->addRow(debugClientGroupBox);
 
