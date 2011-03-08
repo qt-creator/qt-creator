@@ -529,7 +529,16 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentPropert
                             }
                         }
 
-                        parentProperty.reparentHere(node);
+                        if (parentProperty.isDefaultProperty() && parentProperty.parentModelNode().metaInfo().isSubclassOf("QtQuick.QDeclarativeBasePositioner", -1, -1)) {
+                             ModelNode currentNode = node;
+                             if (currentNode.hasProperty("x"))
+                                 currentNode.removeProperty("x");
+                             if (currentNode.hasProperty("y"))
+                                 currentNode.removeProperty("y");
+                             parentProperty.reparentHere(currentNode);
+                        } else {
+                            parentProperty.reparentHere(node);
+                        }
                     }
 
                     if (parentProperty.isNodeListProperty()) {
