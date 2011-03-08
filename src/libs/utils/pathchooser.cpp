@@ -406,11 +406,6 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
 {
     QString expandedPath = m_d->expandedPath(path);
 
-    QString displayPath = expandedPath;
-    if (expandedPath.isEmpty())
-        //: Selected path is not valid:
-        displayPath = tr("<not valid>");
-
     if (expandedPath.isEmpty()) {
         if (errorMessage)
             *errorMessage = tr("The path must not be empty.");
