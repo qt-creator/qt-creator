@@ -1036,7 +1036,7 @@ void CodaGdbAdapter::startAdapter()
     QSharedPointer<QTcpSocket> codaSocket;
     if (parameters.communicationChannel ==
             DebuggerStartParameters::CommunicationChannelTcpIp) {
-        m_codaDevice = QSharedPointer<CodaDevice>(new CodaDevice);
+        m_codaDevice = QSharedPointer<CodaDevice>(new CodaDevice, &CodaDevice::deleteLater);
         setupTrkDeviceSignals();
         codaSocket = QSharedPointer<QTcpSocket>(new QTcpSocket);
         m_codaDevice->setDevice(codaSocket);
