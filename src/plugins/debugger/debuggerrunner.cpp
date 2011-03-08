@@ -541,8 +541,14 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
 #endif
     QList<DebuggerEngineType> usableTypes;
     foreach (DebuggerEngineType et, requiredTypes)
-        if (et & cmdLineEnabledEngines)
+        if (et & cmdLineEnabledEngines) {
             usableTypes.push_back(et);
+        } else {
+            const QString msg = DebuggerPlugin::tr("The debugger engine '%1' preferred for "
+                                                   "debugging binaries of type %2 is disabled.").
+                    arg(engineTypeName(et), sp.toolChainAbi.toString());
+            debuggerCore()->showMessage(msg, LogWarning);
+        }
     if (usableTypes.isEmpty()) {
         result.errorMessage = DebuggerPlugin::tr("This configuration requires the debugger engine %1, which is disabled.").
                 arg(QLatin1String(engineTypeName(usableTypes.front())));
@@ -566,6 +572,11 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
         if (configurationOk) {
             break;
         } else {
+            const QString msg = DebuggerPlugin::tr("The debugger engine '%1' preferred "
+                                                   "for debugging binaries of type %2 is not set up correctly: %3").
+                                arg(engineTypeName(usableTypes.front()), sp.toolChainAbi.toString(),
+                                    result.errorDetails.isEmpty() ? QString() : result.errorDetails.back());
+            debuggerCore()->showMessage(msg, LogWarning);
             usableTypes.pop_front();
         }
     }
