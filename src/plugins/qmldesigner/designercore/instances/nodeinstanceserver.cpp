@@ -1161,7 +1161,7 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
                     if (instance.isRootNodeInstance() && (propertyName == "width" || propertyName == "height"))
                         adjustSceneRect = true;
 
-                    if (propertyName.contains("anchors") && informationChangedInstanceSet.contains(instance))
+                    if (propertyName.contains("anchors"))
                         informationChangedInstanceSet.insert(instance);
 
                     if (propertyName == "parent") {
