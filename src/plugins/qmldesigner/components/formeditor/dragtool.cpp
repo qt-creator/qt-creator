@@ -146,7 +146,6 @@ void DragTool::beginWithPoint(const QPointF &beginPoint)
 
     m_moveManipulator.setItem(m_movingItem.data());
     m_moveManipulator.begin(beginPoint);
-
 }
 
 void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, QmlItemNode parentNode, QPointF scenePos)
@@ -163,8 +162,6 @@ void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, QmlIt
     QList<QmlItemNode> nodeList;
     nodeList.append(m_dragNode);    
     m_selectionIndicator.setItems(scene()->itemsForQmlItemNodes(nodeList));
-
-    QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::hide();
 }
 
 void DragTool::createQmlItemNodeFromImage(const QString &imageName, QmlItemNode parentNode, QPointF scenePos)
@@ -182,8 +179,6 @@ void DragTool::createQmlItemNodeFromImage(const QString &imageName, QmlItemNode 
     QList<QmlItemNode> nodeList;
     nodeList.append(m_dragNode);
     m_selectionIndicator.setItems(scene()->itemsForQmlItemNodes(nodeList));
-
-    QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::hide();
 }
 
 FormEditorItem* DragTool::calculateContainer(const QPointF &point, FormEditorItem * currentItem)
@@ -195,7 +190,7 @@ FormEditorItem* DragTool::calculateContainer(const QPointF &point, FormEditorIte
              return formEditorItem;
     }
 
-    if (scene()->rootFormEditorItem() && scene()->rootFormEditorItem()->boundingRect().adjusted(-100, -100, 100, 100).contains(point))
+    if (scene()->rootFormEditorItem())
         return scene()->rootFormEditorItem();
     return 0;
 }
@@ -215,6 +210,7 @@ void DragTool::instancesCompleted(const QList<FormEditorItem*> &itemList)
     foreach (FormEditorItem* item, itemList)
         if (item->qmlItemNode() == m_dragNode)
             clearMoveDelay();
+    QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::hide();
 }
 
 void DragTool::clearMoveDelay()
@@ -314,6 +310,8 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
 {
     if (m_blockMove)
         return;
+    if (QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::isAnimated())
+        return;
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
        event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
         event->accept();
@@ -334,7 +332,7 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
             if (m_dragNode.modelNode().isValid())
                 return;
 
-            FormEditorItem *parentItem = calculateContainer(event->scenePos());
+            FormEditorItem *parentItem = calculateContainer(scenePos);
             if (!parentItem)
                 return;
             QmlItemNode parentNode;
