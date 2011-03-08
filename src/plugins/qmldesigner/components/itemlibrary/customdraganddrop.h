@@ -60,6 +60,9 @@ public:
     void startDrag();
     void grabMouseSafely();
 
+    bool isAnimated() const
+    { return m_timeLine.state() == QTimeLine::Running; }
+
 public slots:
     void animateDrag(int frame);
 
@@ -87,6 +90,7 @@ public:
     static void leave(QWidget *target, QPoint globalPos);
     static void move(QWidget *target, QPoint globalPos);
     static void drop(QWidget *target, QPoint globalPos);
+    static bool isAnimated();
     static void hide()
     { instance()->m_isVisible = false; }
     static void show()
