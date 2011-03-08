@@ -490,7 +490,10 @@ QString PathChooser::homePath()
 
 void PathChooser::setExpectedKind(Kind expected)
 {
+    if (m_d->m_acceptingKind == expected)
+        return;
     m_d->m_acceptingKind = expected;
+    m_d->m_lineEdit->triggerChanged();
 }
 
 PathChooser::Kind PathChooser::expectedKind() const
