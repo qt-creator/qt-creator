@@ -62,8 +62,8 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     layout->setMargin(0);
 
     m_executableChooser = new Utils::PathChooser(this);
-    m_executableChooser->setEnvironment(rc->environment());
     m_executableChooser->setExpectedKind(Utils::PathChooser::Command);
+    m_executableChooser->setEnvironment(rc->environment());
     layout->addRow(tr("Executable:"), m_executableChooser);
 
     m_commandLineArgumentsLineEdit = new QLineEdit(this);
