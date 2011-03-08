@@ -95,6 +95,11 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 #endif
    applicationPath += "/qmlpuppet";
 
+   QByteArray envImportPath = qgetenv("QTCREATOR_QMLPUPPET_PATH");
+   if (!envImportPath.isEmpty()) {
+       applicationPath = envImportPath;
+   }
+
    m_qmlPuppetEditorProcess = new QProcess;
    connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
    connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetEditorProcess.data(), SLOT(kill()));
