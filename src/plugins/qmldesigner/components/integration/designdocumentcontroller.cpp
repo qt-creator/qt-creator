@@ -287,9 +287,6 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
     m_d->subComponentModel = Model::create("QtQuick.Rectangle", 1, 0);
     m_d->subComponentModel->setFileUrl(m_d->searchPath);
 
-    m_d->subComponentManager = new SubComponentManager(m_d->masterModel->metaInfo(), this);
-    m_d->subComponentManager->update(m_d->searchPath, m_d->textModifier->text().toUtf8());
-
     m_d->rewriterView = new RewriterView(RewriterView::Amend, m_d->masterModel.data());
     m_d->rewriterView->setTextModifier( m_d->textModifier);
     connect(m_d->rewriterView.data(), SIGNAL(errorsChanged(const QList<RewriterView::Error> &)),
@@ -298,7 +295,8 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
     m_d->masterModel->attachView(m_d->rewriterView.data());
     m_d->model = m_d->masterModel;
 
-
+    m_d->subComponentManager = new SubComponentManager(m_d->masterModel->metaInfo(), this);
+    m_d->subComponentManager->update(m_d->searchPath, m_d->model->imports());
 
     loadCurrentModel();
 

@@ -37,10 +37,9 @@
 #include <QDir>
 #include <QMetaType>
 #include <QUrl>
-#include <QDeclarativeEngine>
-#include <private/qdeclarativemetatype_p.h>
 #include <QFileSystemWatcher>
-#include <private/qdeclarativedom_p.h>
+#include <import.h>
+
 
 enum { debug = false };
 
@@ -85,7 +84,7 @@ class SubComponentManagerPrivate : QObject {
 public:
     SubComponentManagerPrivate(MetaInfo metaInfo, SubComponentManager *q);
 
-    void addImport(int pos, const QDeclarativeDomImport &import);
+    void addImport(int pos, const Import &import);
     void removeImport(int pos);
     void parseDirectories();
 
@@ -97,12 +96,11 @@ public slots:
 public:
     QList<QFileInfo> watchedFiles(const QString &canonicalDirPath);
     void unregisterQmlFile(const QFileInfo &fileInfo, const QString &qualifier);
-    void registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier, const QDeclarativeDomDocument &document,  bool addToLibrary);
+    void registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier, bool addToLibrary);
 
     SubComponentManager *m_q;
 
     MetaInfo m_metaInfo;
-    QDeclarativeEngine m_engine;
 
     QFileSystemWatcher m_watcher;
 
@@ -111,7 +109,7 @@ public:
 
     QUrl m_filePath;
 
-    QList<QDeclarativeDomImport> m_imports;
+    QList<Import> m_imports;
 };
 
 SubComponentManagerPrivate::SubComponentManagerPrivate(MetaInfo metaInfo, SubComponentManager *q) :
@@ -121,20 +119,20 @@ SubComponentManagerPrivate::SubComponentManagerPrivate(MetaInfo metaInfo, SubCom
     connect(&m_watcher, SIGNAL(directoryChanged(QString)), this, SLOT(parseDirectory(QString)));
 }
 
-void SubComponentManagerPrivate::addImport(int pos, const QDeclarativeDomImport &import)
+void SubComponentManagerPrivate::addImport(int pos, const Import &import)
 {
     if (debug)
-        qDebug() << Q_FUNC_INFO << pos << import.uri();
+        qDebug() << Q_FUNC_INFO << pos << import.file().toAscii();
 
-    if (import.type() == QDeclarativeDomImport::File) {
-        QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.uri()).toLocalFile());
+    if (import.isFileImport()) {
+        QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.file()).toLocalFile());
         if (dirInfo.exists() && dirInfo.isDir()) {
             const QString canonicalDirPath = dirInfo.canonicalFilePath();
             m_watcher.addPath(canonicalDirPath);
-            m_dirToQualifier.insertMulti(canonicalDirPath, import.qualifier());
+            //m_dirToQualifier.insertMulti(canonicalDirPath, import.qualifier()); ### todo: proper support for import as
         }
     } else {
-        QString url = import.uri();
+        QString url = import.url();
         
         url.replace(QLatin1Char('.'), QLatin1Char('/'));
 
@@ -144,7 +142,7 @@ void SubComponentManagerPrivate::addImport(int pos, const QDeclarativeDomImport 
             if (dirInfo.exists() && dirInfo.isDir()) {
                 const QString canonicalDirPath = dirInfo.canonicalFilePath();
                 m_watcher.addPath(canonicalDirPath);
-                m_dirToQualifier.insertMulti(canonicalDirPath, import.qualifier());
+                //m_dirToQualifier.insertMulti(canonicalDirPath, import.qualifier()); ### todo: proper support for import as
             }
         }
         // TODO: QDeclarativeDomImport::Library
@@ -155,21 +153,21 @@ void SubComponentManagerPrivate::addImport(int pos, const QDeclarativeDomImport 
 
 void SubComponentManagerPrivate::removeImport(int pos)
 {
-    const QDeclarativeDomImport import = m_imports.takeAt(pos);
+    const Import import = m_imports.takeAt(pos);
 
-    if (import.type() == QDeclarativeDomImport::File) {
-        const QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.uri()).toLocalFile());
+    if (import.isFileImport()) {
+        const QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.file()).toLocalFile());
         const QString canonicalDirPath = dirInfo.canonicalFilePath();
 
-        m_dirToQualifier.remove(canonicalDirPath, import.qualifier());
+        //m_dirToQualifier.remove(canonicalDirPath, import.qualifier()); ### todo: proper support for import as
 
         if (!m_dirToQualifier.contains(canonicalDirPath))
             m_watcher.removePath(canonicalDirPath);
 
-        foreach (const QFileInfo &monitoredFile, watchedFiles(canonicalDirPath)) {
-            if (!m_dirToQualifier.contains(canonicalDirPath))
-            unregisterQmlFile(monitoredFile, import.qualifier());
-        }
+//        foreach (const QFileInfo &monitoredFile, watchedFiles(canonicalDirPath)) { ### todo: proper support for import as
+//            if (!m_dirToQualifier.contains(canonicalDirPath))
+//                unregisterQmlFile(monitoredFile, import.qualifier());
+//        }
     } else {
             // TODO: QDeclarativeDomImport::Library
     }
@@ -184,14 +182,14 @@ void SubComponentManagerPrivate::parseDirectories()
             parseDirectory(dirInfo.canonicalFilePath());
     }
 
-    foreach (const QDeclarativeDomImport &import, m_imports) {
-        if (import.type() == QDeclarativeDomImport::File) {
-            QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.uri()).toLocalFile());
+    foreach (const Import &import, m_imports) {
+        if (import.isFileImport()) {
+            QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.file()).toLocalFile());
             if (dirInfo.exists() && dirInfo.isDir()) {
                 parseDirectory(dirInfo.canonicalFilePath());
             }
         } else {
-            QString url = import.uri();
+            QString url = import.url();
             foreach(const QString path, importPaths()) {
                 url.replace(QLatin1Char('.'), QLatin1Char('/'));
                 url  = path + QLatin1String("/") + url;
@@ -281,17 +279,11 @@ void SubComponentManagerPrivate::parseFile(const QString &canonicalFilePath, boo
         return;
     }
 
-    QDeclarativeDomDocument document;
-    if (!document.load(&m_engine, file.readAll(), QUrl::fromLocalFile(canonicalFilePath))) {
-        // TODO: Put the errors somewhere?
-        qWarning() << "Could not load qml file " << canonicalFilePath;
-        return;
-    }
-
     QString dir = QFileInfo(canonicalFilePath).path();
     foreach (const QString &qualifier, m_dirToQualifier.values(dir)) {
-        registerQmlFile(canonicalFilePath, qualifier, document, addToLibrary);
+        registerQmlFile(canonicalFilePath, qualifier, addToLibrary);
     }
+    registerQmlFile(canonicalFilePath, QString(), addToLibrary);
 }
 
 void SubComponentManagerPrivate::parseFile(const QString &canonicalFilePath)
@@ -330,7 +322,7 @@ static inline bool isDepricatedQtType(const QString &typeName)
 
 
 void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier,
-                                                 const QDeclarativeDomDocument &, bool addToLibrary)
+                                                 bool addToLibrary)
 {
     QString componentName = fileInfo.baseName();
 
@@ -386,27 +378,7 @@ QStringList SubComponentManager::qmlFiles() const
     return m_d->m_watcher.files();
 }
 
-static bool importEqual(const QDeclarativeDomImport &import1, const QDeclarativeDomImport &import2)
-{
-    return import1.type() == import2.type()
-           && import1.uri() == import2.uri()
-           && import1.version() == import2.version()
-           && import1.qualifier() == import2.qualifier();
-}
-
-void SubComponentManager::update(const QUrl &filePath, const QByteArray &data)
-{
-    QDeclarativeEngine engine;
-    QDeclarativeDomDocument document;
-
-    QList<QDeclarativeDomImport> imports;
-    if (document.load(&engine, data, filePath))
-        imports = document.imports();
-
-    update(filePath, imports);
-}
-
-void SubComponentManager::update(const QUrl &filePath, const QList<QDeclarativeDomImport> &imports)
+void SubComponentManager::update(const QUrl &filePath, const QList<Import> &imports)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << filePath << imports.size();
@@ -446,7 +418,7 @@ void SubComponentManager::update(const QUrl &filePath, const QList<QDeclarativeD
     // skip first list items until the lists differ
     int i = 0;
     while (i < qMin(imports.size(), m_d->m_imports.size())) {
-        if (!importEqual(imports.at(i), m_d->m_imports.at(i)))
+        if (!(imports.at(i) == m_d->m_imports.at(i)))
             break;
         ++i;
     }
