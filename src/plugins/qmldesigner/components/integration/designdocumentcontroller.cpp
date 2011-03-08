@@ -151,6 +151,19 @@ Model *DesignDocumentController::masterModel() const
     return m_d->masterModel.data();
 }
 
+
+void DesignDocumentController::detachNodeInstanceView()
+{
+    if (m_d->nodeInstanceView)
+        model()->detachView(m_d->nodeInstanceView.data());
+}
+
+void DesignDocumentController::attachNodeInstanceView()
+{
+    if (m_d->nodeInstanceView)
+        model()->attachView(m_d->nodeInstanceView.data());
+}
+
 QWidget *DesignDocumentController::centralWidget() const
 {
     return qobject_cast<QWidget*>(parent());
@@ -180,8 +193,10 @@ void DesignDocumentController::blockModelSync(bool block)
 
     if (m_d->textModifier) {
         if (m_d->syncBlocked) {
+            detachNodeInstanceView();
             m_d->textModifier->deactivateChangeSignals();
         } else {
+            attachNodeInstanceView();
             m_d->textModifier->reactivateChangeSignals();
         }
     }
