@@ -40,8 +40,8 @@
 #include "modelhelpers.h"
 #include <utils/qtcassert.h>
 
-#include <QDir>
-#include <QVector>
+#include <QtCore/QDir>
+#include <QtCore/QVector>
 
 using namespace Valgrind;
 using namespace Valgrind::XmlProtocol;

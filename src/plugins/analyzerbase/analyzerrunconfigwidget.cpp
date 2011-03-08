@@ -40,9 +40,9 @@
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
 
-#include <QDebug>
-#include <QGroupBox>
-#include <QVBoxLayout>
+#include <QtCore/QDebug>
+#include <QtGui/QGroupBox>
+#include <QtGui/QVBoxLayout>
 
 using namespace Analyzer;
 using namespace Analyzer::Internal;
@@ -82,6 +82,7 @@ void AnalyzerRunConfigWidget::setRunConfiguration(ProjectExplorer::RunConfigurat
     QLayout* layout = m_detailsWidget->widget()->layout();
     foreach(AbstractAnalyzerSubConfig *config, settings->subConfigs()) {
         QGroupBox* box = new QGroupBox(config->displayName());
+        Q_UNUSED(box)
         QWidget* widget = config->createConfigWidget(this);
         layout->addWidget(widget);
     }

@@ -38,8 +38,8 @@
 
 #include "../valgrind_global.h"
 
-#include <QMetaType>
-#include <QSharedDataPointer>
+#include <QtCore/QMetaType>
+#include <QtCore/QSharedDataPointer>
 
 QT_BEGIN_NAMESPACE
 class QString;

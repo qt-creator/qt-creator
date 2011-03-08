@@ -39,8 +39,8 @@
 
 #include <analyzerbase/analyzersettings.h>
 
-#include <QStringList>
-#include <QtPlugin>
+#include <QtCore/QStringList>
+#include <QtCore/QtPlugin>
 
 using namespace Analyzer;
 using namespace Analyzer::Internal;

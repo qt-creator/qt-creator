@@ -45,10 +45,10 @@
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
 
-#include <QtPlugin>
-#include <QMessageBox>
-#include <QMainWindow>
-#include <QApplication>
+#include <QtCore/QtPlugin>
+#include <QtGui/QMessageBox>
+#include <QtGui/QMainWindow>
+#include <QtGui/QApplication>
 
 using namespace Analyzer;
 using namespace Analyzer::Internal;

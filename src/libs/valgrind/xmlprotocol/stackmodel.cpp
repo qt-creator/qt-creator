@@ -37,11 +37,12 @@
 #include "error.h"
 #include "frame.h"
 #include "stack.h"
+#include "modelhelpers.h"
+
 #include <utils/qtcassert.h>
 
-#include <QDir>
-#include <QVector>
-#include "modelhelpers.h"
+#include <QtCore/QDir>
+#include <QtCore/QVector>
 
 using namespace Valgrind;
 using namespace Valgrind::XmlProtocol;

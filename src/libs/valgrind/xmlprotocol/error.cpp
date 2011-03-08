@@ -38,12 +38,12 @@
 #include "stack.h"
 #include "suppression.h"
 
-#include <QSharedData>
-#include <QString>
-#include <QTextStream>
-#include <QVector>
+#include <QtCore/QSharedData>
+#include <QtCore/QString>
+#include <QtCore/QTextStream>
+#include <QtCore/QVector>
 
-#include <QtAlgorithms>
+#include <QtCore/QtAlgorithms>
 
 using namespace Valgrind;
 using namespace Valgrind::XmlProtocol;

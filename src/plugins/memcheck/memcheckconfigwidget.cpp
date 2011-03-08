@@ -41,9 +41,9 @@
 
 #include <utils/qtcassert.h>
 
-#include <QStandardItemModel>
-#include <QFileDialog>
-#include <QDebug>
+#include <QtGui/QStandardItemModel>
+#include <QtGui/QFileDialog>
+#include <QtCore/QDebug>
 
 using namespace Analyzer::Internal;
 

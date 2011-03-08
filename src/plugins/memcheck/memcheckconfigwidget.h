@@ -37,7 +37,7 @@
 #ifndef ANALYZER_INTERNAL_MEMCHECKCONFIGWIDGET_H
 #define ANALYZER_INTERNAL_MEMCHECKCONFIGWIDGET_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;

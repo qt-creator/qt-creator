@@ -38,8 +38,8 @@
 
 #include <analyzerbase/ianalyzertool.h>
 
-#include <QSortFilterProxyModel>
-#include <QSharedPointer>
+#include <QtGui/QSortFilterProxyModel>
+#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QItemSelection;

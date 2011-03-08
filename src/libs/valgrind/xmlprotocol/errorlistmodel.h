@@ -38,8 +38,8 @@
 
 #include "../valgrind_global.h"
 
-#include <QAbstractItemModel>
-#include <QSharedPointer>
+#include <QtCore/QAbstractItemModel>
+#include <QtCore/QSharedPointer>
 
 namespace Valgrind {
 namespace XmlProtocol {

@@ -40,7 +40,7 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
-#include <QSettings>
+#include <QtCore/QSettings>
 
 using namespace Analyzer::Internal;
 using namespace Analyzer;

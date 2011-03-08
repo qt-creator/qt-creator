@@ -36,14 +36,14 @@
 #ifndef ANALYZERCONSTANTS_H
 #define ANALYZERCONSTANTS_H
 
-#include <QtGlobal>
+#include <QtCore/QtGlobal>
 
 namespace Analyzer {
 namespace Constants {
 
 // modes and their priorities
 const char * const MODE_ANALYZE   = "Analyzer.Mode.Analyze";
-const int          P_MODE_ANALYZE = 60;
+const int          P_MODE_ANALYZE = 76;
 
 // context
 const char * const C_ANALYZEMODE = "Analyzer.AnalyzeMode";

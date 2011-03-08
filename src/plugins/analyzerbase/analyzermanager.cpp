@@ -34,6 +34,7 @@
 **************************************************************************/
 
 #include "analyzermanager.h"
+#include "analyzerconstants.h"
 
 #include "ianalyzertool.h"
 #include "analyzerplugin.h"
@@ -51,6 +52,9 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/imode.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
@@ -69,23 +73,22 @@
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QDockWidget>
-#include <QVariant>
-#include <QAction>
-#include <QMenu>
-#include <QMenuBar>
-#include <QToolButton>
-#include <QComboBox>
-#include <QStackedWidget>
-#include <QDebug>
-#include <QDialog>
-#include <QApplication>
-#include <QLabel>
-#include <QCheckBox>
-#include <QDialogButtonBox>
-
+#include <QtCore/QVariant>
+#include <QtCore/QDebug>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QDockWidget>
+#include <QtGui/QAction>
+#include <QtGui/QMenu>
+#include <QtGui/QMenuBar>
+#include <QtGui/QToolButton>
+#include <QtGui/QComboBox>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QDialog>
+#include <QtGui/QApplication>
+#include <QtGui/QLabel>
+#include <QtGui/QCheckBox>
+#include <QtGui/QDialogButtonBox>
 
 using namespace Core;
 using namespace Analyzer;
@@ -93,6 +96,20 @@ using namespace Analyzer::Internal;
 
 namespace Analyzer {
 namespace Internal {
+
+class DockWidgetEventFilter : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit DockWidgetEventFilter(QObject *parent = 0) : QObject(parent) {}
+
+signals:
+    void widgetResized();
+
+protected:
+    virtual bool eventFilter(QObject *obj, QEvent *event);
+};
 
 bool DockWidgetEventFilter::eventFilter(QObject *obj, QEvent *event)
 {
@@ -108,6 +125,44 @@ bool DockWidgetEventFilter::eventFilter(QObject *obj, QEvent *event)
 }
 
 // AnalyzerMode ////////////////////////////////////////////////////
+
+class AnalyzerMode : public Core::IMode
+{
+    Q_OBJECT
+
+public:
+    AnalyzerMode(QObject *parent = 0)
+        : Core::IMode(parent)
+        , m_widget(0)
+    {}
+
+    ~AnalyzerMode()
+    {
+        // Make sure the editor manager does not get deleted.
+        if (m_widget) {
+            delete m_widget;
+            m_widget = 0;
+        }
+        Core::EditorManager::instance()->setParent(0);
+    }
+
+    QString displayName() const { return tr("Analyze"); }
+    QIcon icon() const { return QIcon(":/images/analyzer_mode.png"); }
+    int priority() const { return Constants::P_MODE_ANALYZE; }
+    QWidget *widget() { return m_widget; }
+    QString id() const { return QLatin1String(Constants::MODE_ANALYZE); }
+    QString type() const { return Core::Constants::MODE_EDIT_TYPE; }
+    Core::Context context() const
+    {
+        return Core::Context(Core::Constants::C_EDITORMANAGER, Constants::C_ANALYZEMODE,
+                             Core::Constants::C_NAVIGATION_PANE);
+    }
+    QString contextHelpId() const { return QString(); }
+    void setWidget(QWidget *widget) { m_widget = widget; }
+
+private:
+    QWidget *m_widget;
+};
 
 } // namespace Internal
 } // namespace Analyzer
@@ -181,8 +236,8 @@ AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager 
 {
     m_runControlFactory = new AnalyzerRunControlFactory();
     AnalyzerPlugin::instance()->addAutoReleasedObject(m_runControlFactory);
-    connect(m_runControlFactory, SIGNAL(runControlCreated(AnalyzerRunControl *)),
-            q, SLOT(runControlCreated(AnalyzerRunControl *)));
+    connect(m_runControlFactory, SIGNAL(runControlCreated(Analyzer::Internal::AnalyzerRunControl *)),
+            q, SLOT(runControlCreated(Analyzer::Internal::AnalyzerRunControl *)));
 
     setupActions();
 }
@@ -699,3 +754,5 @@ void AnalyzerManager::updateRunActions()
     bool startEnabled = !d->m_currentRunControl && pe->canRun(project, Constants::MODE_ANALYZE);
     d->m_startAction->setEnabled(startEnabled);
 }
+
+#include "analyzermanager.moc"

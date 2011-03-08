@@ -37,14 +37,8 @@
 #define ANALYZERMANAGER_H
 
 #include "analyzerbase_global.h"
-#include "analyzerconstants.h"
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/imode.h>
-
-#include <QObject>
-#include <QIcon>
+#include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -60,68 +54,10 @@ class FancyMainWindow;
 }
 
 namespace Analyzer {
-
 class IAnalyzerTool;
-
 namespace Internal {
-
 class AnalyzerRunControl;
-
-class DockWidgetEventFilter : public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit DockWidgetEventFilter(QObject *parent = 0) : QObject(parent) {}
-
-signals:
-    void widgetResized();
-
-protected:
-    virtual bool eventFilter(QObject *obj, QEvent *event);
-};
-
-class AnalyzerMode : public Core::IMode
-{
-    Q_OBJECT
-
-public:
-    AnalyzerMode(QObject *parent = 0)
-        : Core::IMode(parent)
-        , m_widget(0)
-    {}
-
-    ~AnalyzerMode()
-    {
-        // Make sure the editor manager does not get deleted.
-        if (m_widget) {
-            delete m_widget;
-            m_widget = 0;
-        }
-        Core::EditorManager::instance()->setParent(0);
-    }
-
-    QString displayName() const { return tr("Analyze"); }
-    QIcon icon() const { return QIcon(":/images/analyzer_mode.png"); }
-    int priority() const { return Constants::P_MODE_ANALYZE; }
-    QWidget *widget() { return m_widget; }
-    QString id() const { return QLatin1String(Constants::MODE_ANALYZE); }
-    QString type() const { return Core::Constants::MODE_EDIT_TYPE; }
-    Core::Context context() const
-    {
-        return Core::Context(Core::Constants::C_EDITORMANAGER, Constants::C_ANALYZEMODE,
-                             Core::Constants::C_NAVIGATION_PANE);
-    }
-    QString contextHelpId() const { return QString(); }
-    void setWidget(QWidget *widget) { m_widget = widget; }
-
-private:
-    QWidget *m_widget;
-};
-
-}
-
-using Analyzer::Internal::AnalyzerRunControl;
+} // namespace Internal
 
 class ANALYZER_EXPORT AnalyzerManager : public QObject
 {
@@ -167,10 +103,10 @@ private slots:
     void toolSelected(int);
     void toolSelected(QAction *);
     void modeChanged(Core::IMode *mode);
-    void runControlCreated(AnalyzerRunControl *);
+    void runControlCreated(Analyzer::Internal::AnalyzerRunControl *);
     void resetLayout();
-    void saveToolSettings(IAnalyzerTool *tool);
-    void loadToolSettings(IAnalyzerTool *tool);
+    void saveToolSettings(Analyzer::IAnalyzerTool *tool);
+    void loadToolSettings(Analyzer::IAnalyzerTool *tool);
     void updateRunActions();
 
 private:

@@ -36,9 +36,9 @@
 #include "stack.h"
 #include "frame.h"
 
-#include <QSharedData>
-#include <QString>
-#include <QVector>
+#include <QtCore/QSharedData>
+#include <QtCore/QString>
+#include <QtCore/QVector>
 
 #include <algorithm>
 

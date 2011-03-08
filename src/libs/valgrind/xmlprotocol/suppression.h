@@ -38,7 +38,7 @@
 
 #include "../valgrind_global.h"
 
-#include <QSharedDataPointer>
+#include <QtCore/QSharedDataPointer>
 
 QT_BEGIN_NAMESPACE
 class QString;

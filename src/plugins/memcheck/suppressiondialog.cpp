@@ -48,8 +48,8 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
-#include <QFile>
-#include <QPushButton>
+#include <QtCore/QFile>
+#include <QtGui/QPushButton>
 
 #include <valgrind/xmlprotocol/suppression.h>
 #include <valgrind/xmlprotocol/errorlistmodel.h>

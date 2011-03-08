@@ -40,8 +40,8 @@
 
 #include <projectexplorer/task.h>
 
-#include <QObject>
-#include <QString>
+#include <QtCore/QObject>
+#include <QtCore/QString>
 
 namespace ProjectExplorer {
 class RunConfiguration;

@@ -35,10 +35,10 @@
 
 #include "suppression.h"
 
-#include <QSharedData>
-#include <QString>
-#include <QVector>
-#include <QTextStream>
+#include <QtCore/QSharedData>
+#include <QtCore/QString>
+#include <QtCore/QVector>
+#include <QtCore/QTextStream>
 
 #include <algorithm>
 

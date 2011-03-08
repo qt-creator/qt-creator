@@ -38,13 +38,14 @@
 #include "analyzeroptionspage.h"
 #include "analyzersettings.h"
 
-#include <QCoreApplication>
-#include <QLatin1String>
-#include <QWidget>
-#include <QDebug>
-#include <QIcon>
-
 #include <coreplugin/icore.h>
+
+#include <QtCore/QCoreApplication>
+#include <QtCore/QLatin1String>
+#include <QtCore/QDebug>
+
+#include <QtGui/QIcon>
+#include <QtGui/QWidget>
 
 using namespace Analyzer;
 using namespace Analyzer::Internal;
