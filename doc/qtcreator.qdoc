@@ -435,7 +435,7 @@
 
     The Maemo emulator emulates the Nokia N900 device environment. You can test
     applications in conditions practically identical to running the application
-    on a Nokia N900 device with the software update release 1.2 (V10.2010.19-1).
+    on a Nokia N900 device with the software update release 1.3 (V20.2010.36-2).
     However, it is faster to test on a real device connected to the development
     PC.
 
@@ -4699,7 +4699,7 @@
 
     The Maemo emulator emulates the Nokia N900 device environment. You can test
     applications in conditions practically identical to running the application
-    on a Nokia N900 device with the software update release 1.2 (V10.2010.19-1).
+    on a Nokia N900 device with the software update release 1.3 (V20.2010.36-2).
 
     For more information, see \l{Using the Maemo Emulator}.
 
@@ -8412,7 +8412,7 @@
 
     The Maemo emulator emulates the Nokia N900 device environment. You can test
     applications in conditions practically identical to running the application
-    on a Nokia N900 device with software update release 1.2 (V10.2010.19-1).
+    on a Nokia N900 device with software update release 1.3 (V20.2010.36-2).
     You can test user interaction by using the keypad and
     touch emulation.
 
