@@ -482,7 +482,7 @@ void JSDebuggerAgentPrivate::messageReceived(const QByteArray &message)
 
         fileNameToBreakpoints.clear();
         foreach (const JSAgentBreakpointData &bp, breakpoints) {
-            fileNameToBreakpoints.insert(fileName(bp.fileUrl), bp);
+            fileNameToBreakpoints.insertMulti(fileName(bp.fileUrl), bp);
         }
 
         //qDebug() << "BREAKPOINTS";
