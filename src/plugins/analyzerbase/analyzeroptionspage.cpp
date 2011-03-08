@@ -72,7 +72,7 @@ QString AnalyzerOptionsPage::category() const
 
 QString AnalyzerOptionsPage::displayCategory() const
 {
-    return QCoreApplication::tr("Analyzer", Constants::ANALYZER_SETTINGS_TR_CATEGORY);
+    return QCoreApplication::translate("Analyzer", Constants::ANALYZER_SETTINGS_TR_CATEGORY);
 }
 
 QIcon AnalyzerOptionsPage::categoryIcon() const
