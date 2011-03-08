@@ -34,8 +34,6 @@
 #ifndef S60MANAGER_H
 #define S60MANAGER_H
 
-#include "s60devices.h"
-
 #include <QtCore/QObject>
 
 namespace ProjectExplorer {
@@ -43,9 +41,7 @@ class ToolChain;
 }
 
 namespace Qt4ProjectManager {
-class QtVersion;
 namespace Internal {
-class S60Devices;
 
 class S60Manager : public QObject
 {
@@ -55,21 +51,12 @@ public:
     ~S60Manager();
     static S60Manager *instance();
 
-    S60Devices *devices() const { return m_devices; }
-    S60Devices::Device deviceForQtVersion(const Qt4ProjectManager::QtVersion *version) const;
-    QString deviceIdFromDetectionSource(const QString &autoDetectionSource) const;
-
     static QString platform(const ProjectExplorer::ToolChain *tc);
-
-private slots:
-    void updateQtVersions();
 
 private:
     void addAutoReleasedObject(QObject *p);
 
     static S60Manager *m_instance;
-
-    S60Devices *m_devices;
     QObjectList m_pluginObjects;
 };
 

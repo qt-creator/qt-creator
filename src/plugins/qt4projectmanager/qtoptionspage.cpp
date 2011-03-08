@@ -592,7 +592,7 @@ void QtOptionsPageWidget::updateState()
     m_versionUi->nameEdit->setEnabled(enabled && !isAutodetected);
     m_versionUi->qmakePath->setEnabled(enabled && !isAutodetected);
     bool s60SDKPathEnabled = enabled &&
-                             (isAutodetected ? version->s60SDKDirectory().isEmpty() : true);
+                             (isAutodetected ? version->systemRoot().isEmpty() : true);
     m_versionUi->s60SDKPath->setEnabled(s60SDKPathEnabled);
 
     updateDebuggingHelperUi();
@@ -628,7 +628,7 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
 
     if (qtAbi.os() == ProjectExplorer::Abi::SymbianOS) {
         makeS60Visible(true);
-        m_versionUi->s60SDKPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->s60SDKDirectory()));
+        m_versionUi->s60SDKPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->systemRoot()));
         m_versionUi->sbsV2Path->setPath(m_versions.at(index)->sbsV2Directory());
         m_versionUi->sbsV2Path->setEnabled(m_versions.at(index)->isBuildWithSymbianSbsV2());
     }
@@ -776,8 +776,7 @@ void QtOptionsPageWidget::updateCurrentS60SDKDirectory()
     int currentItemIndex = indexForTreeItem(currentItem);
     if (currentItemIndex < 0)
         return;
-    m_versions[currentItemIndex]->setS60SDKDirectory(
-            QDir::fromNativeSeparators(m_versionUi->s60SDKPath->path()));
+    m_versions[currentItemIndex]->setSystemRoot(m_versionUi->s60SDKPath->path());
 }
 
 void QtOptionsPageWidget::updateCurrentSbsV2Directory()
@@ -787,8 +786,7 @@ void QtOptionsPageWidget::updateCurrentSbsV2Directory()
     int currentItemIndex = indexForTreeItem(currentItem);
     if (currentItemIndex < 0)
         return;
-    m_versions[currentItemIndex]->setSbsV2Directory(
-            QDir::fromNativeSeparators(m_versionUi->sbsV2Path->path()));
+    m_versions[currentItemIndex]->setSbsV2Directory(m_versionUi->sbsV2Path->path());
 }
 
 QList<QtVersion *> QtOptionsPageWidget::versions() const

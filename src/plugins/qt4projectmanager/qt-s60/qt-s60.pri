@@ -1,9 +1,4 @@
-!isEmpty(SUPPORT_QT_S60) {
-    DEFINES += QTCREATOR_WITH_S60
-}
-SOURCES += $$PWD/s60devices.cpp \
-    $$PWD/s60devicespreferencepane.cpp \
-    $$PWD/s60manager.cpp \
+SOURCES += $$PWD/s60manager.cpp \
     $$PWD/sbsv2parser.cpp \
     $$PWD/winscwtoolchain.cpp \
     $$PWD/gccetoolchain.cpp \
@@ -39,9 +34,7 @@ SOURCES += $$PWD/s60devices.cpp \
     $$PWD/s60publishingbuildsettingspageovi.cpp \
     $$PWD/s60publishingresultspageovi.cpp
 
-HEADERS += $$PWD/s60devices.h \
-    $$PWD/s60devicespreferencepane.h \
-    $$PWD/s60manager.h \
+HEADERS += $$PWD/s60manager.h \
     $$PWD/sbsv2parser.h \
     $$PWD/winscwtoolchain.h \
     $$PWD/gccetoolchain.h \
@@ -77,8 +70,7 @@ HEADERS += $$PWD/s60devices.h \
     $$PWD/s60publishingbuildsettingspageovi.h \
     $$PWD/s60publishingresultspageovi.h
 
-FORMS += $$PWD/s60devicespreferencepane.ui \
-    $$PWD/s60createpackagestep.ui \
+FORMS += $$PWD/s60createpackagestep.ui \
     $$PWD/s60certificatedetailsdialog.ui \
     $$PWD/rvcttoolchainconfigwidget.ui \
     $$PWD/winscwtoolchainconfigwidget.ui \

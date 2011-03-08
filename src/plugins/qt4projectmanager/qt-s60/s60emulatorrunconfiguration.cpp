@@ -187,7 +187,7 @@ QString S60EmulatorRunConfiguration::executable() const
 {
     Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
     QtVersion *qtVersion = qt4bc->qtVersion();
-    QString baseDir = S60Manager::instance()->deviceForQtVersion(qtVersion).epocRoot;
+    QString baseDir = qtVersion->systemRoot();
     QString qmakeBuildConfig = "urel";
     if (qt4bc->qmakeBuildConfiguration() & QtVersion::DebugBuild)
         qmakeBuildConfig = "udeb";
