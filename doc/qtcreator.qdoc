@@ -3519,6 +3519,9 @@
     not supported on the development PC. You can choose from a set of supported
     devices, such as S60 3rd Edition or S60 5th Edition devices.
 
+    You need a Forum Nokia user account to use the Remote Compiler. You can
+    create an account for free at \l{http://www.forum.nokia.com/}{Forum Nokia}.
+
     \note Remote Compiler is an experimental component that is installed as
     part of \QSDK.
 
