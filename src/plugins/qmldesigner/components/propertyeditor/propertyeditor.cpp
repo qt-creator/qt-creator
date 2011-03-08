@@ -824,6 +824,16 @@ void PropertyEditor::bindingPropertiesChanged(const QList<BindingProperty>& prop
     }
 }
 
+
+void PropertyEditor::instanceInformationsChange(const QVector<ModelNode> &nodeList)
+{
+    if (!m_selectedNode.isValid())
+        return;
+
+    if (nodeList.contains(m_selectedNode))
+        m_currentType->m_backendAnchorBinding.setup(QmlItemNode(m_selectedNode));
+}
+
 void PropertyEditor::nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId)
 {
     QmlModelView::nodeIdChanged(node, newId, oldId);
