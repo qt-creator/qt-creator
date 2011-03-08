@@ -32,9 +32,9 @@
 **************************************************************************/
 
 #include "s60manager.h"
-#include "qtversionmanager.h"
+//#include "qtversionmanager.h"
 
-#include "s60devicespreferencepane.h"
+//#include "s60devicespreferencepane.h"
 #include "s60emulatorrunconfiguration.h"
 #include "s60devicerunconfiguration.h"
 #include "s60createpackagestep.h"
@@ -59,10 +59,6 @@
 #include <QtGui/QMainWindow>
 
 #include <QtCore/QDir>
-
-namespace {
-    const char S60_AUTODETECTION_SOURCE[] = "QTS60";
-}
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -109,18 +105,13 @@ private:
 
 S60Manager *S60Manager::instance() { return m_instance; }
 
-S60Manager::S60Manager(QObject *parent)
-    : QObject(parent), m_devices(S60Devices::createS60Devices(this))
+S60Manager::S60Manager(QObject *parent) : QObject(parent)
 {
     m_instance = this;
 
     addAutoReleasedObject(new GcceToolChainFactory);
     addAutoReleasedObject(new RvctToolChainFactory);
     addAutoReleasedObject(new WinscwToolChainFactory);
-
-#ifdef QTCREATOR_WITH_S60
-    addAutoReleasedObject(new S60DevicesPreferencePane(m_devices, this));
-#endif
 
     addAutoReleasedObject(new S60EmulatorRunConfigurationFactory);
     addAutoReleasedObject(new RunControlFactory<S60EmulatorRunControl, S60EmulatorRunConfiguration>
@@ -137,9 +128,6 @@ S60Manager::S60Manager(QObject *parent)
 
     addAutoReleasedObject(new S60PublishingWizardFactoryOvi);
 
-    updateQtVersions();
-    connect(m_devices, SIGNAL(qtVersionsChanged()),
-            this, SLOT(updateQtVersions()));
     connect(Core::ICore::instance()->mainWindow(), SIGNAL(deviceChange()),
             SymbianUtils::SymbianDeviceManager::instance(), SLOT(update()));
 }
@@ -165,109 +153,6 @@ void S60Manager::addAutoReleasedObject(QObject *o)
 {
     ExtensionSystem::PluginManager::instance()->addObject(o);
     m_pluginObjects.push_back(o);
-}
-
-QString S60Manager::deviceIdFromDetectionSource(const QString &autoDetectionSource) const
-{
-    if (autoDetectionSource.startsWith(S60_AUTODETECTION_SOURCE))
-        return autoDetectionSource.mid(QString(S60_AUTODETECTION_SOURCE).length()+1);
-    return QString();
-}
-
-static inline QString qmakeFromQtDir(const QString &qtDir)
-{
-    QString qmake = qtDir + QLatin1String("/bin/qmake");
-#ifdef Q_OS_WIN
-    qmake += QLatin1String(".exe");
-#endif
-    return qmake;
-}
-
-void S60Manager::updateQtVersions()
-{
-    // This assumes that the QtVersionManager has already read
-    // the Qt versions from the settings
-    QtVersionManager *versionManager = QtVersionManager::instance();
-    QList<QtVersion *> versions = versionManager->versions();
-    QList<QtVersion *> handledVersions;
-    QList<QtVersion *> versionsToAdd;
-    foreach (const S60Devices::Device &device, m_devices->devices()) {
-        if (device.qt.isEmpty()) // no Qt version found for this sdk
-            continue;
-        QtVersion *deviceVersion = 0;
-        // look if we have a respective Qt version already
-        foreach (QtVersion *version, versions) {
-            if (version->isAutodetected()
-                    && deviceIdFromDetectionSource(version->autodetectionSource()) == device.id) {
-                deviceVersion = version;
-                break;
-            }
-        }
-        if (deviceVersion) {
-            deviceVersion->setQMakeCommand(qmakeFromQtDir(device.qt));
-            deviceVersion->setDisplayName(QString("%1 (Qt %2)").arg(device.id, deviceVersion->qtVersionString()));
-            handledVersions.append(deviceVersion);
-        } else {
-            deviceVersion = new QtVersion(QString("%1 (Qt %2)").arg(device.id), qmakeFromQtDir(device.qt),
-                                          true, QString("%1.%2").arg(S60_AUTODETECTION_SOURCE, device.id));
-            deviceVersion->setDisplayName(deviceVersion->displayName().arg(deviceVersion->qtVersionString()));
-            versionsToAdd.append(deviceVersion);
-        }
-        deviceVersion->setS60SDKDirectory(device.epocRoot);
-    }
-    // remove old autodetected versions
-    foreach (QtVersion *version, versions) {
-        if (version->isAutodetected()
-                && version->autodetectionSource().startsWith(S60_AUTODETECTION_SOURCE)
-                && !handledVersions.contains(version)) {
-            versionManager->removeVersion(version);
-        }
-    }
-    // add new versions
-    foreach (QtVersion *version, versionsToAdd) {
-        versionManager->addVersion(version);
-    }
-}
-
-S60Devices::Device S60Manager::deviceForQtVersion(const Qt4ProjectManager::QtVersion *version) const
-{
-    Q_ASSERT(version);
-    S60Devices::Device device;
-    QString deviceId;
-    if (version->isAutodetected())
-        deviceId = deviceIdFromDetectionSource(version->autodetectionSource());
-    if (deviceId.isEmpty()) { // it's not an s60 autodetected version
-        // try to find a device entry belonging to the root given in Qt prefs
-        QString sdkRoot = version->s60SDKDirectory();
-        if (sdkRoot.isEmpty()) { // no sdk explicitly set in the preferences
-            // check if EPOCROOT is set and use that
-            QString epocRootEnv = QProcessEnvironment::systemEnvironment()
-                                  .value(QLatin1String("EPOCROOT"));
-            if (!epocRootEnv.isEmpty())
-                sdkRoot = QDir::fromNativeSeparators(epocRootEnv);
-        }
-        if (sdkRoot.isEmpty()) { // no sdk set via preference or EPOCROOT
-            // try default device
-            device = m_devices->defaultDevice();
-        } else {
-            device = m_devices->deviceForEpocRoot(sdkRoot);
-        }
-        if (device.epocRoot.isEmpty()) { // no device found
-            // check if we can construct a dummy one
-            if (QFile::exists(QString::fromLatin1("%1/epoc32").arg(sdkRoot))) {
-                device.epocRoot = sdkRoot;
-                device.toolsRoot = device.epocRoot;
-                device.isDefault = false;
-                device.name = QString::fromLatin1("Manual");
-                device.id = QString::fromLatin1("Manual");
-            }
-        }
-        // override any Qt version that might be still autodetected
-        device.qt = QFileInfo(QFileInfo(version->qmakeCommand()).path()).path();
-    } else {
-        device = m_devices->deviceForId(deviceId);
-    }
-    return device;
 }
 
 } // namespace internal

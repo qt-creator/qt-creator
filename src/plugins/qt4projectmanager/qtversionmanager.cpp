@@ -171,7 +171,7 @@ QtVersionManager::QtVersionManager()
                                            id,
                                            isAutodetected,
                                            autodetectionSource);
-        version->setS60SDKDirectory(s->value("S60SDKDirectory").toString());
+        version->setSystemRoot(s->value("S60SDKDirectory").toString());
         version->setSbsV2Directory(s->value(QLatin1String("SBSv2Directory")).toString());
 
         // Update from 2.1 or earlier:
@@ -213,12 +213,8 @@ QtVersionManager::QtVersionManager()
     addNewVersionsFromInstaller();
     updateSystemVersion();
 
-    writeVersionsIntoSettings();
-
-    updateDocumentation();
-
     // cannot call from ctor, needs to get connected extenernally first
-    QTimer::singleShot(0, this, SLOT(updateExamples()));
+    QTimer::singleShot(0, this, SLOT(updateSettings()));
 }
 
 QtVersionManager::~QtVersionManager()
@@ -300,8 +296,12 @@ void QtVersionManager::updateDocumentation()
     helpManager->registerDocumentation(files);
 }
 
-void QtVersionManager::updateExamples()
+void QtVersionManager::updateSettings()
 {
+    writeVersionsIntoSettings();
+
+    updateDocumentation();
+
     QtVersion *version = 0;
     QList<QtVersion*> candidates;
 
@@ -367,7 +367,7 @@ void QtVersionManager::writeVersionsIntoSettings()
         s->setValue("isAutodetected", version->isAutodetected());
         if (version->isAutodetected())
             s->setValue("autodetectionSource", version->autodetectionSource());
-        s->setValue("S60SDKDirectory", version->s60SDKDirectory());
+        s->setValue("S60SDKDirectory", version->systemRoot());
         s->setValue(QLatin1String("SBSv2Directory"), version->sbsV2Directory());
         ++it;
     }
@@ -444,7 +444,7 @@ void QtVersionManager::addNewVersionsFromInstaller()
             if (QFile::exists(newVersionData[1])) {
                 QtVersion *version = new QtVersion(newVersionData[0], newVersionData[1], m_idcount++ );
                 if (newVersionData.count() >= 3)
-                    version->setS60SDKDirectory(QDir::fromNativeSeparators(newVersionData[2]));
+                    version->setSystemRoot(QDir::fromNativeSeparators(newVersionData[2]));
                 if (newVersionData.count() >= 4)
                     version->setSbsV2Directory(QDir::fromNativeSeparators(newVersionData[3]));
 
@@ -573,7 +573,7 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions)
     if (!changedVersions.isEmpty())
         updateDocumentation();
 
-    updateExamples();
+    updateSettings();
     writeVersionsIntoSettings();
 
     if (!changedVersions.isEmpty())
@@ -1333,38 +1333,17 @@ QString QtVersion::qmlviewerCommand() const
     return m_qmlviewerCommand;
 }
 
+void QtVersion::setSystemRoot(const QString &root)
+{
+    if (root == m_systemRoot)
+        return;
+    m_systemRoot = root;
+    m_abiUpToDate = false;
+}
+
 QString QtVersion::systemRoot() const
 {
-    if (m_systemRoot.isNull()) {
-        if (supportsTargetId(Constants::S60_DEVICE_TARGET_ID)
-                || supportsTargetId(Constants::S60_EMULATOR_TARGET_ID)) {
-            S60Devices::Device device = S60Manager::instance()->deviceForQtVersion(this);
-
-            m_systemRoot = device.epocRoot;
-            if (!m_systemRoot.endsWith(QLatin1Char('/')))
-                m_systemRoot.append(QLatin1Char('/'));
-
-        } else if (supportsTargetId(Constants::MAEMO5_DEVICE_TARGET_ID) ||
-                   supportsTargetId(Constants::HARMATTAN_DEVICE_TARGET_ID)) {
-            QFile file(QDir::cleanPath(MaemoGlobal::targetRoot(this))
-                       + QLatin1String("/information"));
-            if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                QTextStream stream(&file);
-                while (!stream.atEnd()) {
-                    const QString &line = stream.readLine().trimmed();
-                    const QStringList &list = line.split(QLatin1Char(' '));
-                    if (list.count() <= 1)
-                        continue;
-                    if (list.at(0) == QLatin1String("sysroot")) {
-                        m_systemRoot = MaemoGlobal::maddeRoot(this)
-                                + QLatin1String("/sysroots/") + list.at(1);
-                    }
-                }
-            }
-        }
-        if (m_systemRoot.isNull())
-            m_systemRoot = QLatin1String("");
-    }
+    updateAbiAndMkspec();
     return m_systemRoot;
 }
 
@@ -1391,6 +1370,8 @@ void QtVersion::updateAbiAndMkspec() const
 {
     if (m_id == -1 || m_abiUpToDate)
         return;
+
+    m_abiUpToDate = true;
 
     m_targetIds.clear();
     m_abis.clear();
@@ -1570,9 +1551,35 @@ void QtVersion::updateAbiAndMkspec() const
         m_targetIds.clear();
         m_targetIds.insert(QLatin1String(Constants::QT_SIMULATOR_TARGET_ID));
     }
-
     ProFileCacheManager::instance()->decRefCount();
-    m_abiUpToDate = true;
+
+    // Set up systemroot
+    if (supportsTargetId(Constants::MAEMO5_DEVICE_TARGET_ID)
+            || supportsTargetId(Constants::HARMATTAN_DEVICE_TARGET_ID)) {
+        if (m_systemRoot.isNull()) {
+            QFile file(QDir::cleanPath(MaemoGlobal::targetRoot(this))
+                       + QLatin1String("/information"));
+            if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                QTextStream stream(&file);
+                while (!stream.atEnd()) {
+                    const QString &line = stream.readLine().trimmed();
+                    const QStringList &list = line.split(QLatin1Char(' '));
+                    if (list.count() <= 1)
+                        continue;
+                    if (list.at(0) == QLatin1String("sysroot")) {
+                        m_systemRoot = MaemoGlobal::maddeRoot(this)
+                                + QLatin1String("/sysroots/") + list.at(1);
+                    }
+                }
+            }
+        }
+    } else if (supportsTargetId(Constants::S60_DEVICE_TARGET_ID)
+           || supportsTargetId(Constants::S60_EMULATOR_TARGET_ID)) {
+        if (!m_systemRoot.endsWith(QLatin1Char('/')))
+            m_systemRoot.append(QLatin1Char('/'));
+    } else {
+        m_systemRoot = QLatin1String("");
+    }
 }
 
 QString QtVersion::resolveLink(const QString &path) const
@@ -1620,17 +1627,6 @@ QString QtVersion::qtCorePath() const
     if (!staticLibs.isEmpty())
         return staticLibs.at(0).absoluteFilePath();
     return QString();
-}
-
-QString QtVersion::s60SDKDirectory() const
-{
-    return m_s60SDKDirectory;
-}
-
-void QtVersion::setS60SDKDirectory(const QString &directory)
-{
-    m_s60SDKDirectory = directory;
-    m_abiUpToDate = false;
 }
 
 QString QtVersion::sbsV2Directory() const
