@@ -180,6 +180,7 @@ private:
 
     static InspectorUi *m_instance;
     bool m_selectionCallbackExpected;
+    bool m_cursorPositionChangedExternally;
 };
 
 } // Internal

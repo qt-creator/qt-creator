@@ -155,6 +155,7 @@ InspectorUi::InspectorUi(QObject *parent)
     , m_debugQuery(0)
     , m_debugProject(0)
     , m_selectionCallbackExpected(false)
+    , m_cursorPositionChangedExternally(false)
 {
     m_instance = this;
     m_toolBar = new QmlInspectorToolBar(this);
@@ -385,6 +386,7 @@ void InspectorUi::changeSelectedItems(const QList<QDeclarativeDebugObjectReferen
         m_selectionCallbackExpected = false;
         return;
     }
+    m_cursorPositionChangedExternally = true;
 
     // QmlJSLiveTextPreview doesn't provide valid references, only correct debugIds. We need to remap them
     QList <QDeclarativeDebugObjectReference> realList;
@@ -671,6 +673,11 @@ QDeclarativeDebugObjectReference InspectorUi::objectReferenceForLocation(const Q
 
 void InspectorUi::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectReference &obj)
 {
+    if (m_cursorPositionChangedExternally) {
+        m_cursorPositionChangedExternally = false;
+        return;
+    }
+
     QDeclarativeDebugFileReference source = obj.source();
     QString fileName = source.url().toLocalFile();
 
