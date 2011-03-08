@@ -1661,6 +1661,7 @@
     \gui{Code Pasting} > \gui{Paste Snippet...} or press \key{Alt+C,Alt+P}.
 
 
+
     To fetch a snippet of code from the server, select \gui{Tools} >
     \gui{Code Pasting} > \gui{Fetch Snippet...} or press \key{Alt+C,Alt+F}.
 
@@ -3962,7 +3963,7 @@
     (Express Signing). Participants can submit an unsigned SIS file to Ovi
     Publishing for signing. For more information about how
     to participate, see
-    {http://wiki.forum.nokia.com/index.php/Guide_to_Publishing_Qt_Applications_to_the_Ovi_Store}{Guide to Publishing Qt Applications to the Ovi Store}.
+    \l{http://wiki.forum.nokia.com/index.php/Guide_to_Publishing_Qt_Applications_to_the_Ovi_Store}{Guide to Publishing Qt Applications to the Ovi Store}.
 
     There are also options that do not require you to get a Publisher ID. For
     more detail about how the Symbian Signed process works, see
