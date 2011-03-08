@@ -41,9 +41,10 @@
 #include <QObject>
 #include <QString>
 #include <QUrl>
-#include <private/qdeclarativedom_p.h>
 
 namespace QmlDesigner {
+
+class Import;
 
 class CORESHARED_EXPORT SubComponentManager : public QObject
 {
@@ -52,8 +53,7 @@ public:
     explicit SubComponentManager(MetaInfo metaInfo, QObject *parent = 0);
     ~SubComponentManager();
 
-    void update(const QUrl &fileUrl, const QByteArray &data);
-    void update(const QUrl &fileUrl, const QList<QDeclarativeDomImport> &imports);
+    void update(const QUrl &fileUrl, const QList<Import> &imports);
 
     QStringList qmlFiles() const;
     QStringList directories() const;
