@@ -368,10 +368,8 @@ void FormEditorScene::reparentItem(const QmlItemNode &node, const QmlItemNode &n
 
 FormEditorItem* FormEditorScene::rootFormEditorItem() const
 {
-    QList<QGraphicsItem*> childItemList(m_formLayerItem->childItems());
-    if (!childItemList.isEmpty())
-        return FormEditorItem::fromQGraphicsItem(childItemList.first());
-
+     if (hasItemForQmlItemNode(editorView()->rootModelNode()))
+         return itemForQmlItemNode(editorView()->rootModelNode());
     return 0;
 }
 
