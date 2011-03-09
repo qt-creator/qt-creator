@@ -38,7 +38,7 @@
     <category xml:lang="de">Text</category>
     <executable modifiesdocument="yes">
         <path>xterm</path>
-        <arguments>-geom %{CurrentDocument:ColumnCount}x%{CurrentDocument:RowCount}+%{CurrentDocument:XPos}+%{CurrentDocument:YPos} -e vi "%{CurrentDocument:FilePath}" +%{CurrentDocument:Row} +"normal %{CurrentDocument:Column}|"</arguments>
+        <arguments>-geom %{CurrentDocument:ColumnCount}x%{CurrentDocument:RowCount}+%{CurrentDocument:XPos}+%{CurrentDocument:YPos} -e vi "%{CurrentDocument:FilePath}" +%{CurrentDocument:Row}</arguments>
         <workingdirectory>%{CurrentDocument:Path}</workingdirectory>
     </executable>
 </externaltool>
