@@ -654,11 +654,11 @@ void PreviewLabel::paintEvent(QPaintEvent *event)
             if (m_left >= 0)
                 p.drawLine(m_left * m_zoom, 4, m_left * m_zoom, height() - 4);
             if (m_right >= 0)
-                p.drawLine(width() - m_right * m_zoom, 4, width() - m_right * m_zoom, height() - 4);
+                p.drawLine(width() - m_right * m_zoom - 1, 4, width() - m_right * m_zoom - 1, height() - 4);
             if (m_top >= 0)
                 p.drawLine(4, m_top * m_zoom, width() - 4, m_top * m_zoom);
             if (m_bottom >= 0)
-                p.drawLine(4, height() - m_bottom * m_zoom, width() - 4, height() - m_bottom * m_zoom);
+                p.drawLine(4, height() - m_bottom * m_zoom - 1, width() - 4, height() - m_bottom * m_zoom - 1);
         }
 
         {
@@ -671,11 +671,11 @@ void PreviewLabel::paintEvent(QPaintEvent *event)
             if (m_left >= 0)
                 p.drawLine(m_left * m_zoom, 4, m_left * m_zoom, height() - 4);
             if (m_right >= 0)
-                p.drawLine(width() - m_right * m_zoom, 4, width() - m_right * m_zoom, height() - 4);
+                p.drawLine(width() - m_right * m_zoom - 1, 4, width() - m_right * m_zoom - 1, height() - 4);
             if (m_top >= 0)
                 p.drawLine(4, m_top * m_zoom, width() - 4, m_top * m_zoom);
             if (m_bottom >= 0)
-                p.drawLine(4, height() - m_bottom * m_zoom, width() - 4, height() - m_bottom * m_zoom);
+                p.drawLine(4, height() - m_bottom * m_zoom - 1, width() - 4, height() - m_bottom * m_zoom - 1);
         }
     }
 }
@@ -689,6 +689,8 @@ void PreviewLabel::mousePressEvent(QMouseEvent * event)
 {
     if (!m_borderImage)
         return QLabel::mouseMoveEvent(event);
+
+    bool bottom = false;
 
     if (event->button() == Qt::LeftButton) {
         if (QApplication::overrideCursor())
@@ -717,11 +719,15 @@ void PreviewLabel::mousePressEvent(QMouseEvent * event)
             event->accept();
             m_hooverInfo->setText("Bottom " + QString::number(m_bottom));
             m_hooverInfo->show();
+            bottom = true;
         } else {
             QLabel::mousePressEvent(event);
         }
         m_startPos = event->pos();
-        m_hooverInfo->move(mapToParent(event->pos()) + QPoint(0, 40));
+        if (bottom)
+            m_hooverInfo->move(mapToParent(m_startPos) + QPoint(0, -10));
+        else
+            m_hooverInfo->move(mapToParent(m_startPos) + QPoint(0, 40));
         m_hooverInfo->resize(m_hooverInfo->sizeHint());
         m_hooverInfo->raise();
     }
@@ -809,6 +815,7 @@ void PreviewLabel::mouseMoveEvent(QMouseEvent * event)
         return QLabel::mouseMoveEvent(event);
 
     QPoint p = event->pos();
+    bool bottom = false;
     if (m_dragging_left) {
         m_left = p.x() / m_zoom;
         m_left = limitPositive(m_left);
@@ -832,6 +839,7 @@ void PreviewLabel::mouseMoveEvent(QMouseEvent * event)
         m_bottom = limitPositive(m_bottom);
         event->accept();
         m_hooverInfo->setText("Bottom " + QString::number(m_bottom));
+        bottom = true;
         update();
     } else if (rangeCheck(m_left * m_zoom, p.x())) {
         QApplication::setOverrideCursor(QCursor(Qt::SizeHorCursor));
@@ -853,6 +861,7 @@ void PreviewLabel::mouseMoveEvent(QMouseEvent * event)
         event->accept();
         m_hooverInfo->setText("Bottom " + QString::number(m_bottom));
         m_hooverInfo->show();
+        bottom = true;
     } else {
         if (QApplication::overrideCursor())
             QApplication::restoreOverrideCursor();
@@ -860,7 +869,10 @@ void PreviewLabel::mouseMoveEvent(QMouseEvent * event)
         m_hooverInfo->hide();
     }
     m_startPos = p;
-    m_hooverInfo->move(mapToParent(p) + QPoint(0, 40));
+    if (bottom)
+        m_hooverInfo->move(mapToParent(p) + QPoint(0, -10));
+    else
+        m_hooverInfo->move(mapToParent(p) + QPoint(0, 40));
     m_hooverInfo->resize(m_hooverInfo->sizeHint());
     m_hooverInfo->raise();
 }
@@ -889,7 +901,7 @@ PreviewDialog::PreviewDialog(QWidget *parent) : DragWidget(parent)
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
     QHBoxLayout *horizontalLayout2 = new QHBoxLayout();
     layout->setMargin(0);
-    layout->setContentsMargins(2, 2, 2, 6);
+    layout->setContentsMargins(2, 2, 2, 16);
     layout->setSpacing(4);
     QToolButton *toolButton = new QToolButton(this);
     QIcon icon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
