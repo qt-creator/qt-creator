@@ -275,7 +275,8 @@ QList<JSAgentWatchData> JSDebuggerAgentPrivate::getLocals(QScriptContext *ctx)
         QScriptValue thisObject = ctx->thisObject();
         locals = expandObject(activationObject);
         if (thisObject.isObject()
-                && thisObject.objectId() != engine()->globalObject().objectId())
+                && thisObject.objectId() != engine()->globalObject().objectId()
+                && QScriptValueIterator(thisObject).hasNext())
             locals.prepend(fromScriptValue("this", thisObject));
         recordKnownObjects(locals);
         knownObjectIds << activationObject.objectId();
