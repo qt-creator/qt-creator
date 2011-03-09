@@ -7,9 +7,6 @@ include(texteditor_dependencies.pri)
 INCLUDEPATH += generichighlighter \
     tooltip \
     snippets
-DEPENDPATH += generichighlighter \
-    tooltip \
-    snippets
 SOURCES += texteditorplugin.cpp \
     textfilewizard.cpp \
     plaintexteditor.cpp \

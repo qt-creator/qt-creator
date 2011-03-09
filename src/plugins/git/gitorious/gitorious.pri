@@ -1,6 +1,5 @@
 QT += network
 INCLUDEPATH+=$$PWD
-DEPENDPATH+=$$PWD
 
 HEADERS += $$PWD/gitoriousclonewizard.h \
            $$PWD/gitorioushostwizardpage.h \

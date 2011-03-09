@@ -7,7 +7,6 @@ QT += script \
 DEFINES += TEST_EXPORTS
 INCLUDEPATH += $$PWD \
     $$PWD/include
-DEPENDPATH += $$PWD $$PWD/include
 SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/instances/nodeinstanceview.cpp \
     $$PWD/model/rewriterview.cpp \

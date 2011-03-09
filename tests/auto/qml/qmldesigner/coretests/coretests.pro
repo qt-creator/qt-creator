@@ -25,8 +25,6 @@ QT += script \
 DEFINES+=QTCREATORDIR=\\\"$$IDE_BUILD_TREE\\\"
 DEFINES+=QT_CREATOR QTCREATOR_TEST
 
-DEPENDPATH += ..
-DEPENDPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/include
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore
 

@@ -6,7 +6,6 @@ contains(CONFIG, dll) {
 
 include(parser/parser.pri)
 
-DEPENDPATH += $$PWD
 INCLUDEPATH += $$PWD/..
 
 HEADERS += \

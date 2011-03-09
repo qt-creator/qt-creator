@@ -2,7 +2,6 @@ QT = core gui
 macx:CONFIG -= app_bundle
 TEMPLATE = app
 TARGET = generate-ast
-DEPENDPATH += .
 INCLUDEPATH += . ../../libs
 
 include(../../libs/cplusplus/cplusplus-lib.pri)

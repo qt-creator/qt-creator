@@ -2,7 +2,6 @@ CONFIG += console
 QT -= gui
 TEMPLATE = app
 TARGET =
-DEPENDPATH += .
 INCLUDEPATH += .
 DESTDIR = .
 
