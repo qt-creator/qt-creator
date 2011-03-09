@@ -724,11 +724,9 @@ unsigned MimeType::matchesData(const QByteArray &data) const
     unsigned priority = 0;
     if (!data.isEmpty()) {
         foreach (const IMagicMatcher::IMagicMatcherSharedPointer &matcher, m_d->magicMatchers) {
-            if (matcher->matches(data)) {
-                const unsigned magicPriority = matcher->priority();
-                if (magicPriority > priority)
-                    priority = magicPriority;
-            }
+            const unsigned magicPriority = matcher->priority();
+            if (magicPriority > priority && matcher->matches(data))
+                priority = magicPriority;
         }
     }
     return priority;
