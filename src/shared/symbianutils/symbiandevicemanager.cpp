@@ -267,11 +267,11 @@ SYMBIANUTILS_EXPORT QDebug operator<<(QDebug d, const SymbianDevice &cd)
 
 // ------------- SymbianDeviceManagerPrivate
 struct SymbianDeviceManagerPrivate {
-    SymbianDeviceManagerPrivate() : m_initialized(false) /*, m_destroyReleaseMapper(0),*/ {}
+    SymbianDeviceManagerPrivate() : m_initialized(false), m_devicesLock(QMutex::Recursive) {}
 
     bool m_initialized;
     SymbianDeviceManager::SymbianDeviceList m_devices;
-    //QSignalMapper *m_destroyReleaseMapper;
+    QMutex m_devicesLock; // Used for protecting access to m_devices and serialising getCodaDevice/delayedClosePort
     // The following 2 variables are needed to manage requests for a TCF port not coming from the main thread
     int m_constructTcfPortEventType;
     QMutex m_codaPortWaitMutex;
@@ -305,11 +305,13 @@ SymbianDeviceManager::~SymbianDeviceManager()
 SymbianDeviceManager::SymbianDeviceList SymbianDeviceManager::devices() const
 {
     ensureInitialized();
+    QMutexLocker lock(&d->m_devicesLock);
     return d->m_devices;
 }
 
 QString SymbianDeviceManager::toString() const
 {
+    QMutexLocker lock(&d->m_devicesLock);
     QString rc;
     QTextStream str(&rc);
     str << d->m_devices.size() << " devices:\n";
@@ -334,6 +336,7 @@ int SymbianDeviceManager::findByPortName(const QString &p) const
 
 QString SymbianDeviceManager::friendlyNameForPort(const QString &port) const
 {
+    QMutexLocker lock(&d->m_devicesLock);
     const int idx = findByPortName(port);
     return idx == -1 ? QString() : d->m_devices.at(idx).friendlyName();
 }
@@ -358,6 +361,7 @@ SymbianDeviceManager::TrkDevicePtr
 CodaDevicePtr SymbianDeviceManager::getCodaDevice(const QString &port)
 {
     ensureInitialized();
+    QMutexLocker lock(&d->m_devicesLock);
     const int idx = findByPortName(port);
     if (idx == -1) {
         qWarning("Attempt to acquire device '%s' that does not exist.", qPrintable(port));
@@ -422,6 +426,7 @@ void SymbianDeviceManager::customEvent(QEvent *event)
 void SymbianDeviceManager::releaseCodaDevice(CodaDevicePtr &port)
 {
     if (port) {
+        QMutexLocker(&d->m_devicesLock);
         // Check if this was the last reference to the port, if so close it after a short delay
         foreach (const SymbianDevice& device, d->m_devices) {
             if (device.m_data->codaDevice.data() == port.data()) {
@@ -442,6 +447,7 @@ void SymbianDeviceManager::releaseCodaDevice(CodaDevicePtr &port)
 void SymbianDeviceManager::delayedClosePort()
 {
     // Find any coda ports that are still open but have a reference count of zero, and delete them
+    QMutexLocker(&d->m_devicesLock);
     foreach (const SymbianDevice& device, d->m_devices) {
         Coda::CodaDevice* codaDevice = device.m_data->codaDevice.data();
         if (codaDevice && device.m_data->deviceAcquired == 0 && codaDevice->device()->isOpen()) {
@@ -483,6 +489,8 @@ void SymbianDeviceManager::ensureInitialized() const
 
 void SymbianDeviceManager::update(bool emitSignals)
 {
+    QMutexLocker lock(&d->m_devicesLock);
+
     static int n = 0;
     typedef SymbianDeviceList::iterator SymbianDeviceListIterator;
 
@@ -502,6 +510,7 @@ void SymbianDeviceManager::update(bool emitSignals)
     }
     // Merge the lists and emit the respective added/removed signals, assuming
     // no one can plug a different device on the same port at the speed of lightning
+    SymbianDeviceList removedDevices;
     if (!d->m_devices.isEmpty()) {
         // Find deleted devices
         for (SymbianDeviceListIterator oldIt = d->m_devices.begin(); oldIt != d->m_devices.end(); ) {
@@ -511,25 +520,33 @@ void SymbianDeviceManager::update(bool emitSignals)
                 SymbianDevice toBeDeleted = *oldIt;
                 toBeDeleted.forcedClose();
                 oldIt = d->m_devices.erase(oldIt);
-                if (emitSignals)
-                    emit deviceRemoved(toBeDeleted);
+                removedDevices.append(toBeDeleted);
             }
         }
     }
+    SymbianDeviceList addedDevices;
     if (!newDevices.isEmpty()) {
         // Find new devices and insert in order
         foreach(const SymbianDevice &newDevice, newDevices) {
             if (!d->m_devices.contains(newDevice)) {
                 d->m_devices.append(newDevice);
-                if (emitSignals)
-                    emit deviceAdded(newDevice);
+                addedDevices.append(newDevice);
             }
         }
         if (d->m_devices.size() > 1)
             qStableSort(d->m_devices.begin(), d->m_devices.end());
     }
-    if (emitSignals)
+
+    lock.unlock();
+    if (emitSignals) {
+        foreach (const SymbianDevice &device, removedDevices) {
+            emit deviceRemoved(device);
+        }
+        foreach (const SymbianDevice &device, addedDevices) {
+            emit deviceAdded(device);
+        }
         emit updated();
+    }
 
     if (debug)
         qDebug("<SerialDeviceLister::update\n%s\n", qPrintable(toString()));
