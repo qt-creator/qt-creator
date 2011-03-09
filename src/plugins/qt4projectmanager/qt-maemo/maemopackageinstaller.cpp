@@ -115,12 +115,12 @@ void AbstractMaemoPackageInstaller::handleInstallationFinished(int exitStatus)
 
 void AbstractMaemoPackageInstaller::handleInstallerOutput(const QByteArray &output)
 {
-    emit stdout(QString::fromUtf8(output));
+    emit stdoutData(QString::fromUtf8(output));
 }
 
 void AbstractMaemoPackageInstaller::handleInstallerErrorOutput(const QByteArray &output)
 {
-    emit stderr(QString::fromUtf8(output));
+    emit stderrData(QString::fromUtf8(output));
 }
 
 void AbstractMaemoPackageInstaller::setFinished()
@@ -134,7 +134,7 @@ void AbstractMaemoPackageInstaller::setFinished()
 MaemoDebianPackageInstaller::MaemoDebianPackageInstaller(QObject *parent)
     : AbstractMaemoPackageInstaller(parent)
 {
-    connect(this, SIGNAL(stderr(QString)),
+    connect(this, SIGNAL(stderrData(QString)),
         SLOT(handleInstallerErrorOutput(QString)));
 }
 

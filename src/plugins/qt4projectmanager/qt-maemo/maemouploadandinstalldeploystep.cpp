@@ -83,9 +83,9 @@ void MaemoUploadAndInstallDeployStep::ctor()
         m_installer = new MaemoRpmPackageInstaller(this);
     else
         m_installer = new MaemoTarPackageInstaller(this);
-    connect(m_installer, SIGNAL(stdout(QString)),
+    connect(m_installer, SIGNAL(stdoutData(QString)),
         SLOT(handleRemoteStdout(QString)));
-    connect(m_installer, SIGNAL(stderr(QString)),
+    connect(m_installer, SIGNAL(stderrData(QString)),
         SLOT(handleRemoteStderr(QString)));
     connect(m_installer, SIGNAL(finished(QString)),
         SLOT(handleInstallationFinished(QString)));

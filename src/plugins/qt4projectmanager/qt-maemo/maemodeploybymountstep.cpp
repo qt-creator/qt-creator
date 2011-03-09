@@ -217,9 +217,9 @@ void MaemoMountAndInstallDeployStep::ctor()
         m_installer = new MaemoDebianPackageInstaller(this);
     else
         m_installer = new MaemoRpmPackageInstaller(this);
-    connect(m_installer, SIGNAL(stdout(QString)),
+    connect(m_installer, SIGNAL(stdoutData(QString)),
         SLOT(handleRemoteStdout(QString)));
-    connect(m_installer, SIGNAL(stderr(QString)),
+    connect(m_installer, SIGNAL(stderrData(QString)),
         SLOT(handleRemoteStderr(QString)));
     connect(m_installer, SIGNAL(finished(QString)),
         SLOT(handleInstallationFinished(QString)));
@@ -293,9 +293,9 @@ void MaemoMountAndCopyDeployStep::ctor()
     setDefaultDisplayName(DisplayName);
 
     m_copyFacility = new MaemoRemoteCopyFacility(this);
-    connect(m_copyFacility, SIGNAL(stdout(QString)),
+    connect(m_copyFacility, SIGNAL(stdoutData(QString)),
         SLOT(handleRemoteStdout(QString)));
-    connect(m_copyFacility, SIGNAL(stderr(QString)),
+    connect(m_copyFacility, SIGNAL(stderrData(QString)),
         SLOT(handleRemoteStderr(QString)));
     connect(m_copyFacility, SIGNAL(progress(QString)),
         SLOT(handleProgressReport(QString)));

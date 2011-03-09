@@ -33,6 +33,7 @@
 #include "maemoremotecopyfacility.h"
 
 #include "maemoglobal.h"
+#include <QtCore/QDir>
 
 #include <utils/ssh/sshconnection.h>
 #include <utils/ssh/sshremoteprocessrunner.h>
@@ -92,12 +93,12 @@ void MaemoRemoteCopyFacility::handleConnectionError()
 
 void MaemoRemoteCopyFacility::handleRemoteStdout(const QByteArray &output)
 {
-    emit stdout(QString::fromUtf8(output));
+    emit stdoutData(QString::fromUtf8(output));
 }
 
 void MaemoRemoteCopyFacility::handleRemoteStderr(const QByteArray &output)
 {
-    emit stderr(QString::fromUtf8(output));
+    emit stderrData(QString::fromUtf8(output));
 }
 
 void MaemoRemoteCopyFacility::handleCopyFinished(int exitStatus)

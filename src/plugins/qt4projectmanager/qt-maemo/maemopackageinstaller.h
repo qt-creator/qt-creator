@@ -57,8 +57,8 @@ public:
     void cancelInstallation();
 
 signals:
-    void stdout(const QString &output);
-    void stderr(const QString &output);
+    void stdoutData(const QString &output);
+    void stderrData(const QString &output);
     void finished(const QString &errorMsg = QString());
 
 protected:

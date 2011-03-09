@@ -633,7 +633,7 @@ const QString MaemoRpmPackageCreationStep::CreatePackageId
 
 
 
-class PROJECTEXPLORER_EXPORT CreateTarStepWidget : public BuildStepConfigWidget
+class CreateTarStepWidget : public BuildStepConfigWidget
 {
     Q_OBJECT
 public:

@@ -60,8 +60,8 @@ public:
     void cancel();
 
 signals:
-    void stdout(const QString &output);
-    void stderr(const QString &output);
+    void stdoutData(const QString &output);
+    void stderrData(const QString &output);
     void progress(const QString &message);
     void fileCopied(const MaemoDeployable &deployable);
     void finished(const QString &errorMsg = QString());
