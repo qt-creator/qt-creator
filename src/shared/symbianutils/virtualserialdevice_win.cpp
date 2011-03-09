@@ -73,6 +73,23 @@ QString windowsPortName(const QString& port)
 // Copied from \creator\src\libs\utils\winutils.cpp
 QString winErrorMessage(unsigned long error)
 {
+    // Some of the windows error messages are a bit too obscure
+    switch (error)
+        {
+    case ERROR_FILE_NOT_FOUND:
+    case ERROR_NOT_FOUND:
+        return VirtualSerialDevice::tr("Port not found");
+        break;
+    case ERROR_ACCESS_DENIED:
+        return VirtualSerialDevice::tr("Port in use");
+    case ERROR_SEM_TIMEOUT: // Bluetooth ports sometimes return this
+        return VirtualSerialDevice::tr("Timed out");
+    case ERROR_NETWORK_UNREACHABLE:
+        return VirtualSerialDevice::tr("Port unreachable"); // I don't know what this error indicates... from observation, that the windows Bluetooth stack has got itself into a state and needs resetting
+    default:
+        break;
+        }
+
     QString rc = QString::fromLatin1("#%1: ").arg(error);
     ushort *lpMsgBuf;
 
