@@ -589,19 +589,18 @@ void S60DeployConfigurationWidget::codaEvent(const Coda::CodaEvent &event)
 
 void S60DeployConfigurationWidget::getQtVersionCommandResult(const Coda::CodaCommandResult &result)
 {
-    codaIncreaseProgress();
     m_deviceInfo.clear();
     if (result.type == Coda::CodaCommandResult::FailReply) {
         setDeviceInfoLabel(tr("No device information available"), true);
         SymbianUtils::SymbianDeviceManager::instance()->releaseCodaDevice(m_codaInfoDevice);
         m_deviceInfoButton->setEnabled(true);
+        m_codaTimeout->stop();
         return;
     } else if (result.type == Coda::CodaCommandResult::CommandErrorReply){
         startTable(m_deviceInfo);
         QTextStream str(&m_deviceInfo);
         addErrorToTable(str, tr("Qt version: "), tr("Not installed on device"));
         finishTable(m_deviceInfo);
-        setDeviceInfoLabel(m_deviceInfo, false);
     } else {
         if (result.values.count()) {
             QHash<QString, QVariant> obj = result.values[0].toVariant().toHash();
@@ -663,6 +662,7 @@ void S60DeployConfigurationWidget::getQtVersionCommandResult(const Coda::CodaCom
             finishTable(m_deviceInfo);
         }
     }
+    codaIncreaseProgress();
     m_codaInfoDevice->sendSymbianOsDataGetRomInfoCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getRomInfoResult));
 }
 
