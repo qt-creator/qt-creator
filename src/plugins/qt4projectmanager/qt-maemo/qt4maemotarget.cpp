@@ -35,7 +35,6 @@
 
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
-#include "maemopertargetdeviceconfigurationlistmodel.h"
 #include "maemorunconfiguration.h"
 #include "maemotoolchain.h"
 #include "qt4maemodeployconfiguration.h"
@@ -110,8 +109,7 @@ bool adaptTagValue(QByteArray &document, const QByteArray &fieldName,
 AbstractQt4MaemoTarget::AbstractQt4MaemoTarget(Qt4Project *parent, const QString &id) :
     Qt4BaseTarget(parent, id),
     m_filesWatcher(new QFileSystemWatcher(this)),
-    m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this)),
-    m_deployConfigurationFactory(new Qt4MaemoDeployConfigurationFactory(this))
+    m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this))
 {
     setIcon(QIcon(":/projectexplorer/images/MaemoDevice.png"));
     connect(parent, SIGNAL(addedTarget(ProjectExplorer::Target*)),
@@ -162,11 +160,6 @@ QList<ProjectExplorer::ToolChain *> AbstractQt4MaemoTarget::possibleToolChains(P
 Qt4BuildConfigurationFactory *AbstractQt4MaemoTarget::buildConfigurationFactory() const
 {
     return m_buildConfigurationFactory;
-}
-
-ProjectExplorer::DeployConfigurationFactory *AbstractQt4MaemoTarget::deployConfigurationFactory() const
-{
-    return m_deployConfigurationFactory;
 }
 
 QString AbstractQt4MaemoTarget::defaultBuildDirectory() const
@@ -368,12 +361,6 @@ bool AbstractQt4MaemoTarget::initPackagingSettingsFromOtherTarget()
         }
     }
     return initAdditionalPackagingSettingsFromOtherTarget();
-}
-
-void AbstractQt4MaemoTarget::initDeviceConfigurationsModel()
-{
-    m_deviceConfigurationsListModel
-        = new MaemoPerTargetDeviceConfigurationListModel(this);
 }
 
 void AbstractQt4MaemoTarget::raiseError(const QString &reason)
@@ -713,7 +700,7 @@ AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpeci
     QProcess dh_makeProc;
     QString error;
     const Qt4BuildConfiguration * const bc = activeBuildConfiguration();
-    MaemoPackageCreationStep::preparePackagingProcess(&dh_makeProc, bc,
+    AbstractMaemoPackageCreationStep::preparePackagingProcess(&dh_makeProc, bc,
         projectDir.path() + QLatin1Char('/') + PackagingDirName);
     const QString dhMakeDebianDir = projectDir.path() + QLatin1Char('/')
         + PackagingDirName + QLatin1String("/debian");
@@ -721,7 +708,7 @@ AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpeci
     const QStringList dh_makeArgs = QStringList() << QLatin1String("dh_make")
         << QLatin1String("-s") << QLatin1String("-n") << QLatin1String("-p")
         << (defaultPackageFileName() + QLatin1Char('_')
-            + MaemoPackageCreationStep::DefaultVersionNumber);
+            + AbstractMaemoPackageCreationStep::DefaultVersionNumber);
     if (!MaemoGlobal::callMad(dh_makeProc, dh_makeArgs, activeBuildConfiguration()->qtVersion(), true)
             || !dh_makeProc.waitForStarted()) {
         raiseError(tr("Unable to create Debian templates: dh_make failed (%1)")
@@ -1054,7 +1041,6 @@ Qt4Maemo5Target::Qt4Maemo5Target(Qt4Project *parent, const QString &id)
         : AbstractDebBasedQt4MaemoTarget(parent, id)
 {
     setDisplayName(defaultDisplayName());
-    initDeviceConfigurationsModel();
 }
 
 Qt4Maemo5Target::~Qt4Maemo5Target() {}
@@ -1084,7 +1070,6 @@ Qt4HarmattanTarget::Qt4HarmattanTarget(Qt4Project *parent, const QString &id)
         : AbstractDebBasedQt4MaemoTarget(parent, id)
 {
     setDisplayName(defaultDisplayName());
-    initDeviceConfigurationsModel();
 }
 
 Qt4HarmattanTarget::~Qt4HarmattanTarget() {}
@@ -1116,7 +1101,6 @@ Qt4MeegoTarget::Qt4MeegoTarget(Qt4Project *parent, const QString &id)
        : AbstractRpmBasedQt4MaemoTarget(parent, id)
 {
     setDisplayName(defaultDisplayName());
-    initDeviceConfigurationsModel();
 }
 
 Qt4MeegoTarget::~Qt4MeegoTarget() {}

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>618</width>
+    <width>727</width>
     <height>122</height>
    </rect>
   </property>
@@ -51,6 +51,13 @@
       <widget class="QRadioButton" name="meegoButton">
        <property name="text">
         <string>Meego</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="genericLinuxButton">
+       <property name="text">
+        <string>Generic Linux</string>
        </property>
       </widget>
      </item>

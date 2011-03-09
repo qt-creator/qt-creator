@@ -44,10 +44,12 @@
 #include <qt4projectmanager/qtversionmanager.h>
 #include <utils/environment.h>
 
-#include <QtGui/QDesktopServices>
+#include <QtCore/QDateTime>
 #include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <QtCore/QProcess>
 #include <QtCore/QString>
+#include <QtGui/QDesktopServices>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -57,9 +59,23 @@ static const QLatin1String binQmake("/bin/qmake" EXEC_SUFFIX);
 
 bool MaemoGlobal::isMaemoTargetId(const QString &id)
 {
-    return id == QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID)
-        || id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID)
-        || id == QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID);
+    return isFremantleTargetId(id) || isHarmattanTargetId(id)
+        || isMeegoTargetId(id);
+}
+
+bool MaemoGlobal::isFremantleTargetId(const QString &id)
+{
+    return id == QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID);
+}
+
+bool MaemoGlobal::isHarmattanTargetId(const QString &id)
+{
+    return id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID);
+}
+
+bool MaemoGlobal::isMeegoTargetId(const QString &id)
+{
+    return id == QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID);
 }
 
 bool MaemoGlobal::isValidMaemo5QtVersion(const QtVersion *version)
@@ -78,7 +94,7 @@ bool MaemoGlobal::isValidMeegoQtVersion(const Qt4ProjectManager::QtVersion *vers
 }
 
 bool MaemoGlobal::isValidMaemoQtVersion(const QtVersion *qtVersion,
-    MaemoVersion maemoVersion)
+    OsVersion maemoVersion)
 {
     if (version(qtVersion) != maemoVersion)
         return false;
@@ -149,7 +165,7 @@ QString MaemoGlobal::failedToConnectToServerMessage(const Utils::SshConnection::
                 || connection->errorState() == Utils::SshSocketError) {
             errorMsg += tr("\nDid you start Qemu?");
         }
-    } else if (connection->errorState() == Utils::SshTimeoutError) {
+   } else if (connection->errorState() == Utils::SshTimeoutError) {
         errorMsg += tr("\nIs the device connected and set up for network access?");
     }
     return errorMsg;
@@ -187,7 +203,7 @@ QString MaemoGlobal::madCommand(const QtVersion *qtVersion)
     return maddeRoot(qtVersion) + QLatin1String("/bin/mad");
 }
 
-MaemoGlobal::MaemoVersion MaemoGlobal::version(const QtVersion *qtVersion)
+MaemoGlobal::OsVersion MaemoGlobal::version(const QtVersion *qtVersion)
 {
     const QString &name = targetName(qtVersion);
     if (name.startsWith(QLatin1String("fremantle")))
@@ -196,7 +212,7 @@ MaemoGlobal::MaemoVersion MaemoGlobal::version(const QtVersion *qtVersion)
         return Maemo6;
     if (name.startsWith(QLatin1String("meego")))
         return Meego;
-    return static_cast<MaemoVersion>(-1);
+    return static_cast<OsVersion>(-1);
 }
 
 QString MaemoGlobal::architecture(const QtVersion *qtVersion)
@@ -244,6 +260,25 @@ bool MaemoGlobal::removeRecursively(const QString &filePath, QString &error)
     return true;
 }
 
+bool MaemoGlobal::isFileNewerThan(const QString &filePath,
+    const QDateTime &timeStamp)
+{
+    QFileInfo fileInfo(filePath);
+    if (!fileInfo.exists() || fileInfo.lastModified() >= timeStamp)
+        return true;
+    if (fileInfo.isDir()) {
+        const QStringList dirContents = QDir(filePath)
+            .entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        foreach (const QString &curFileName, dirContents) {
+            const QString curFilePath
+                = filePath + QLatin1Char('/') + curFileName;
+            if (isFileNewerThan(curFilePath, timeStamp))
+                return true;
+        }
+    }
+    return false;
+}
+
 bool MaemoGlobal::callMad(QProcess &proc, const QStringList &args,
     const QtVersion *qtVersion, bool useTarget)
 {
@@ -289,20 +324,27 @@ QStringList MaemoGlobal::targetArgs(const QtVersion *qtVersion, bool useTarget)
     return args;
 }
 
-QString MaemoGlobal::maemoVersionToString(MaemoVersion version)
+QString MaemoGlobal::osVersionToString(OsVersion version)
 {
     switch (version) {
     case Maemo5: return QLatin1String("Maemo 5/Fremantle");
     case Maemo6: return QLatin1String("Maemo 6/Harmattan");
     case Meego: return QLatin1String("Meego");
+    case GenericLinux: return QLatin1String("Other Linux");
     }
     Q_ASSERT(false);
     return QString();
 }
 
-MaemoGlobal::PackagingSystem MaemoGlobal::packagingSystem(MaemoVersion maemoVersion)
+MaemoGlobal::PackagingSystem MaemoGlobal::packagingSystem(OsVersion osVersion)
 {
-    return maemoVersion == Meego ? Rpm : Dpkg;
+    switch (osVersion) {
+    case Maemo5: case Maemo6: return Dpkg;
+    case Meego: return Rpm;
+    case GenericLinux: return Tar;
+    default: qFatal("%s: Missing case in switch.", Q_FUNC_INFO);
+    }
+    return static_cast<PackagingSystem>(-1);
 }
 
 MaemoGlobal::FileUpdate::FileUpdate(const QString &fileName)

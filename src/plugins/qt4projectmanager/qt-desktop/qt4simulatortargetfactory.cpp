@@ -182,7 +182,7 @@ ProjectExplorer::Target *Qt4SimulatorTargetFactory::create(ProjectExplorer::Proj
         t->addQt4BuildConfiguration(msgBuildConfigurationName(info), info.version, info.buildConfig,
                                     info.additionalArguments, info.directory);
 
-    t->addDeployConfiguration(t->deployConfigurationFactory()->create(t, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
+    t->addDeployConfiguration(t->createDeployConfiguration(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
 
     t->createApplicationProFiles();
 

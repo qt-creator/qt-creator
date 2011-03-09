@@ -85,7 +85,9 @@ public:
     virtual DeployConfiguration *activeDeployConfiguration() const;
     void setActiveDeployConfiguration(DeployConfiguration *configuration);
 
-    virtual DeployConfigurationFactory *deployConfigurationFactory() const = 0;
+    QStringList availableDeployConfigurationIds();
+    QString displayNameForDeployConfigurationId(const QString &id);
+    DeployConfiguration *createDeployConfiguration(const QString &id);
 
     // Running
     QList<RunConfiguration *> runConfigurations() const;

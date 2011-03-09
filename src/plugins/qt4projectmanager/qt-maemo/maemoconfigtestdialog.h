@@ -77,6 +77,7 @@ private:
     QString parseTestOutput();
     void handleGeneralTestResult(int exitStatus);
     void handleMadDeveloperTestResult(int exitStatus);
+    void testPorts();
     void finish();
 
     Ui_MaemoConfigTestDialog *m_ui;

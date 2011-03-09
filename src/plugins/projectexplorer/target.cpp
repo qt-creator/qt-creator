@@ -41,6 +41,7 @@
 #include "toolchainmanager.h"
 
 #include <limits>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QIcon>
@@ -69,6 +70,9 @@ namespace ProjectExplorer {
 class TargetPrivate {
 public:
     TargetPrivate();
+
+    QList<DeployConfigurationFactory *> deployFactories() const;
+
     bool m_isEnabled;
     QIcon m_icon;
     QIcon m_overlayIcon;
@@ -88,6 +92,11 @@ TargetPrivate::TargetPrivate() :
     m_activeDeployConfiguration(0),
     m_activeRunConfiguration(0)
 {
+}
+
+QList<DeployConfigurationFactory *> TargetPrivate::deployFactories() const
+{
+    return ExtensionSystem::PluginManager::instance()->getObjects<DeployConfigurationFactory>();
 }
 
 
@@ -199,7 +208,7 @@ void Target::addDeployConfiguration(DeployConfiguration *dc)
     QTC_ASSERT(dc && !d->m_deployConfigurations.contains(dc), return);
     Q_ASSERT(dc->target() == this);
 
-    if (!deployConfigurationFactory())
+    if (d->deployFactories().isEmpty())
         return;
 
     // Check that we don't have a configuration with the same displayName
@@ -258,6 +267,32 @@ void Target::setActiveDeployConfiguration(DeployConfiguration *dc)
         d->m_activeDeployConfiguration = dc;
         emit activeDeployConfigurationChanged(d->m_activeDeployConfiguration);
     }
+}
+
+QStringList Target::availableDeployConfigurationIds()
+{
+    QStringList ids;
+    foreach (const DeployConfigurationFactory * const factory, d->deployFactories())
+        ids << factory->availableCreationIds(this);
+    return ids;
+}
+
+QString Target::displayNameForDeployConfigurationId(const QString &id)
+{
+    foreach (const DeployConfigurationFactory * const factory, d->deployFactories()) {
+        if (factory->availableCreationIds(this).contains(id))
+            return factory->displayNameForId(id);
+    }
+    return QString();
+}
+
+DeployConfiguration *Target::createDeployConfiguration(const QString &id)
+{
+    foreach (DeployConfigurationFactory * const factory, d->deployFactories()) {
+        if (factory->canCreate(this, id))
+            return factory->create(this, id);
+    }
+    return 0;
 }
 
 QList<RunConfiguration *> Target::runConfigurations() const
@@ -451,15 +486,20 @@ bool Target::fromMap(const QVariantMap &map)
         if (!map.contains(key))
             return false;
         DeployConfiguration *dc = 0;
-        if (deployConfigurationFactory())
-            dc = deployConfigurationFactory()->restore(this, map.value(key).toMap());
+        foreach (DeployConfigurationFactory * const factory, d->deployFactories()) {
+            QVariantMap valueMap = map.value(key).toMap();
+            if (factory->canRestore(this, valueMap)) {
+                dc = factory->restore(this, valueMap);
+                break;
+            }
+        }
         if (!dc)
             continue;
         addDeployConfiguration(dc);
         if (i == activeConfiguration)
             setActiveDeployConfiguration(dc);
     }
-    if (deployConfigurations().isEmpty() && deployConfigurationFactory())
+    if (deployConfigurations().isEmpty() && d->deployFactories().isEmpty())
         return false;
 
     int rcCount(map.value(QLatin1String(RC_COUNT_KEY), 0).toInt(&ok));

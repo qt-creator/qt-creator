@@ -37,9 +37,7 @@
 #include "maemodeployable.h"
 #include "maemodeployables.h"
 #include "maemodeviceconfigurations.h"
-#include "maemomountspecification.h"
 
-#include <utils/ssh/sftpdefs.h>
 #include <projectexplorer/buildstep.h>
 
 #include <QtCore/QHash>
@@ -50,24 +48,23 @@
 
 QT_BEGIN_NAMESPACE
 class QEventLoop;
-class QProcess;
-class QTimer;
 QT_END_NAMESPACE
 
 namespace Utils {
-class SftpChannel;
 class SshConnection;
-class SshRemoteProcess;
 }
 
 namespace Qt4ProjectManager {
 class Qt4BuildConfiguration;
 namespace Internal {
-class MaemoRemoteMounter;
+class AbstractMaemoPackageCreationStep;
+class AbstractMaemoPackageInstaller;
+class MaemoDeploymentMounter;
 class MaemoDeviceConfig;
-class MaemoPackageCreationStep;
+class MaemoPackageUploader;
+class MaemoRemoteCopyFacility;
 class MaemoToolChain;
-class MaemoUsedPortsGatherer;
+class Qt4MaemoDeployConfiguration;
 
 class MaemoDeployStep : public ProjectExplorer::BuildStep
 {
@@ -83,12 +80,8 @@ public:
     bool currentlyNeedsDeployment(const QString &host,
         const MaemoDeployable &deployable) const;
     void setDeployed(const QString &host, const MaemoDeployable &deployable);
-    QSharedPointer<MaemoDeployables> deployables() const { return m_deployables; }
-    QSharedPointer<Utils::SshConnection> sshConnection() const { return m_connection; }
     MaemoPortList freePorts() const;
-
-    bool isDeployToSysrootEnabled() const { return m_deployToSysroot; }
-    void setDeployToSysrootEnabled(bool deploy) { m_deployToSysroot = deploy; }
+    Qt4MaemoDeployConfiguration *maemoDeployConfig() const;
 
     Q_INVOKABLE void stop();
 
@@ -106,27 +99,18 @@ private slots:
     void handleMountError(const QString &errorMsg);
     void handleMountDebugOutput(const QString &output);
     void handleProgressReport(const QString &progressMsg);
-    void handleCopyProcessFinished(int exitStatus);
-    void handleSysrootInstallerFinished();
-    void handleSysrootInstallerOutput();
-    void handleSysrootInstallerErrorOutput();
-    void handleSftpChannelInitialized();
-    void handleSftpChannelInitializationFailed(const QString &error);
-    void handleSftpJobFinished(Utils::SftpJobId job, const QString &error);
-    void handleSftpChannelClosed();
-    void handleInstallationFinished(int exitStatus);
-    void handleDeviceInstallerOutput(const QByteArray &output);
-    void handleDeviceInstallerErrorOutput(const QByteArray &output);
-    void handlePortsGathererError(const QString &errorMsg);
-    void handlePortListReady();
+    void handleUploadFinished(const QString &errorMsg);
+    void handleInstallationFinished(const QString &errorMsg);
+    void handleFileCopied(const MaemoDeployable &deployable);
+    void handleCopyingFinished(const QString &errorMsg);
+    void handleRemoteStdout(const QString &output);
+    void handleRemoteStderr(const QString &output);
     void handleDeviceConfigurationsUpdated();
 
 private:
     enum State {
-        Inactive, StopRequested, InstallingToSysroot, Connecting,
-        UnmountingOldDirs, UnmountingCurrentDirs, GatheringPorts, Mounting,
-        InstallingToDevice, UnmountingCurrentMounts, CopyingFile,
-        InitializingSftp, Uploading
+        Inactive, StopRequested, Connecting, Uploading, Mounting, Installing,
+        Copying, Unmounting
     };
 
     MaemoDeployStep(ProjectExplorer::BuildStepList *bc,
@@ -134,7 +118,6 @@ private:
     virtual bool init();
     virtual void run(QFutureInterface<bool> &fi);
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    virtual bool immutable() const { return true; }
     virtual QVariantMap toMap() const;
     virtual bool fromMap(const QVariantMap &map);
 
@@ -143,43 +126,33 @@ private:
     void writeOutput(const QString &text, OutputFormat = MessageOutput);
     void addDeployTimesToMap(QVariantMap &map) const;
     void getDeployTimesFromMap(const QVariantMap &map);
-    const MaemoPackageCreationStep *packagingStep() const;
+    const AbstractMaemoPackageCreationStep *packagingStep() const;
     QString deployMountPoint() const;
     const MaemoToolChain *toolChain() const;
-    void copyNextFileToDevice();
-    void installToSysroot();
     QString uploadDir() const;
     void connectToDevice();
-    void unmountOldDirs();
-    void setupMount();
-    void prepareSftpConnection();
+    void upload();
     void runPackageInstaller(const QString &packageFilePath);
+    void mount();
+    void setDeploymentFinished();
     void setState(State newState);
-    void unmount();
     void setDeviceConfig(MaemoDeviceConfig::Id internalId);
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
 
     static const QLatin1String Id;
 
-    QSharedPointer<MaemoDeployables> m_deployables;
     QSharedPointer<Utils::SshConnection> m_connection;
-    QProcess *m_sysrootInstaller;
-    typedef QPair<MaemoDeployable, QSharedPointer<Utils::SshRemoteProcess> > DeviceDeployAction;
-    QScopedPointer<DeviceDeployAction> m_currentDeviceDeployAction;
     QList<MaemoDeployable> m_filesToCopy;
-    MaemoRemoteMounter *m_mounter;
-    bool m_deployToSysroot;
-    QSharedPointer<Utils::SftpChannel> m_uploader;
-    QSharedPointer<Utils::SshRemoteProcess> m_deviceInstaller;
+    MaemoDeploymentMounter *m_mounter;
+    MaemoPackageUploader *m_uploader;
+    AbstractMaemoPackageInstaller *m_installer;
+    MaemoRemoteCopyFacility *m_copyFacility;
 
     bool m_needsInstall;
     typedef QPair<MaemoDeployable, QString> DeployablePerHost;
     QHash<DeployablePerHost, QDateTime> m_lastDeployed;
     QSharedPointer<const MaemoDeviceConfig> m_deviceConfig;
     QSharedPointer<const MaemoDeviceConfig> m_cachedDeviceConfig;
-    MaemoUsedPortsGatherer *m_portsGatherer;
-    MaemoPortList m_freePorts;
-    QByteArray m_installerStderr;
     State m_state;
     bool m_hasError;
 };

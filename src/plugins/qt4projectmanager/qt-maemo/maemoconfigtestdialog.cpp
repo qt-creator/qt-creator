@@ -86,7 +86,12 @@ void MaemoConfigTestDialog::startConfigTest()
         : tr("Testing configuration...");
     m_ui->testResultEdit->setPlainText(testingText);
     m_closeButton->setText(tr("Stop Test"));
-    m_testProcessRunner = SshRemoteProcessRunner::create(m_config->sshParameters());
+
+    // We need to explicitly create the connection here, because the other
+    // constructor uses a managed connection, i.e. it might re-use an
+    // existing one, which we explicitly don't want here.
+    m_testProcessRunner = SshRemoteProcessRunner::create(SshConnection::create(m_config->sshParameters()));
+
     connect(m_testProcessRunner.data(), SIGNAL(connectionError(Utils::SshError)),
         this, SLOT(handleConnectionError()));
     connect(m_testProcessRunner.data(), SIGNAL(processClosed(int)), this,
@@ -95,12 +100,15 @@ void MaemoConfigTestDialog::startConfigTest()
         SIGNAL(processOutputAvailable(QByteArray)), this,
         SLOT(processSshOutput(QByteArray)));
     const QLatin1String sysInfoCmd("uname -rsm");
-    const bool osUsesRpm = MaemoGlobal::packagingSystem(m_config->osVersion()) == MaemoGlobal::Rpm;
-    const QLatin1String qtInfoCmd(osUsesRpm
-        ? "rpm -qa 'libqt*' --queryformat '%{NAME} %{VERSION}\\n'"
-        : "dpkg-query -W -f '${Package} ${Version} ${Status}\n' 'libqt*' "
-          "|grep ' installed$'");
-    QString command(sysInfoCmd + " && " + qtInfoCmd);
+    QString command = sysInfoCmd;
+    if (m_config->osVersion() != MaemoGlobal::GenericLinux) {
+        const bool osUsesRpm = MaemoGlobal::packagingSystem(m_config->osVersion()) == MaemoGlobal::Rpm;
+        const QLatin1String qtInfoCmd(osUsesRpm
+            ? "rpm -qa 'libqt*' --queryformat '%{NAME} %{VERSION}\\n'"
+            : "dpkg-query -W -f '${Package} ${Version} ${Status}\n' 'libqt*' "
+              "|grep ' installed$'");
+        command += QLatin1String(" && ") + qtInfoCmd;
+    }
     m_testProcessRunner->run(command.toUtf8());
 }
 
@@ -137,13 +145,18 @@ void MaemoConfigTestDialog::handleGeneralTestResult(int exitStatus)
         || m_testProcessRunner->process()->exitCode() != 0) {
         m_ui->testResultEdit->setPlainText(tr("Remote process failed: %1")
             .arg(m_testProcessRunner->process()->errorString()));
-    } else {
+   } else {
         const QString &output = parseTestOutput();
         if (!m_qtVersionOk) {
             m_ui->errorLabel->setText(tr("Qt version mismatch! "
                 " Expected Qt on device: 4.6.2 or later."));
         }
         m_ui->testResultEdit->setPlainText(output);
+    }
+
+    if (m_config->osVersion() == MaemoGlobal::GenericLinux) {
+        testPorts();
+        return;
     }
 
     m_currentTest = MadDeveloperTest;
@@ -164,11 +177,7 @@ void MaemoConfigTestDialog::handleMadDeveloperTestResult(int exitStatus)
             + QLatin1String("<br>") + tr("Mad Developer is not installed.<br>"
                   "You will not be able to deploy to this device."));
     }
-    if (m_config->freePorts().hasMore())
-        m_portsGatherer->start(m_testProcessRunner->connection(),
-            m_config->freePorts());
-    else
-        finish();
+    testPorts();
 }
 
 void MaemoConfigTestDialog::handlePortListFailure(const QString &errMsg)
@@ -191,6 +200,15 @@ void MaemoConfigTestDialog::handlePortListReady()
     }
     m_ui->testResultEdit->appendPlainText(output);
     finish();
+}
+
+void MaemoConfigTestDialog::testPorts()
+{
+    if (m_config->freePorts().hasMore())
+        m_portsGatherer->start(m_testProcessRunner->connection(),
+            m_config->freePorts());
+    else
+        finish();
 }
 
 void MaemoConfigTestDialog::finish()
@@ -235,6 +253,11 @@ QString MaemoConfigTestDialog::parseTestOutput()
 
     output = tr("Hardware architecture: %1\n").arg(unamePattern.cap(2));
     output.append(tr("Kernel version: %1\n").arg(unamePattern.cap(1)));
+    if (m_config->osVersion() == MaemoGlobal::GenericLinux) {
+        m_qtVersionOk = true;
+        return output;
+    }
+
     const bool osUsesRpm = MaemoGlobal::packagingSystem(m_config->osVersion()) == MaemoGlobal::Rpm;
     const QRegExp packagePattern(QLatin1String(osUsesRpm
         ? "(libqt\\S+) ((\\d+)\\.(\\d+)\\.(\\d+))"

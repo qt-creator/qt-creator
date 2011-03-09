@@ -18,7 +18,6 @@ HEADERS += \
     $$PWD/maemoqemumanager.h \
     $$PWD/maemodeployables.h \
     $$PWD/maemodeployable.h \
-    $$PWD/maemodeploystep.h \
     $$PWD/maemodeploystepwidget.h \
     $$PWD/maemodeploystepfactory.h \
     $$PWD/maemoglobal.h \
@@ -49,7 +48,16 @@ HEADERS += \
     $$PWD/qt4maemodeployconfiguration.h \
     $$PWD/maemodeviceconfigwizard.h \
     $$PWD/maemokeydeployer.h \
-    $$PWD/maemopertargetdeviceconfigurationlistmodel.h
+    $$PWD/maemopertargetdeviceconfigurationlistmodel.h \
+    $$PWD/maemodeployconfigurationwidget.h \
+    $$PWD/maemoinstalltosysrootstep.h \
+    $$PWD/maemodeploymentmounter.h \
+    $$PWD/maemopackageuploader.h \
+    $$PWD/maemopackageinstaller.h \
+    $$PWD/maemoremotecopyfacility.h \
+    $$PWD/abstractmaemodeploystep.h \
+    $$PWD/maemodeploybymountstep.h \
+    $$PWD/maemouploadandinstalldeploystep.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -69,7 +77,6 @@ SOURCES += \
     $$PWD/maemodeployablelistmodel.cpp \
     $$PWD/maemoqemumanager.cpp \
     $$PWD/maemodeployables.cpp \
-    $$PWD/maemodeploystep.cpp \
     $$PWD/maemodeploystepwidget.cpp \
     $$PWD/maemodeploystepfactory.cpp \
     $$PWD/maemoglobal.cpp \
@@ -99,7 +106,16 @@ SOURCES += \
     $$PWD/qt4maemodeployconfiguration.cpp \
     $$PWD/maemodeviceconfigwizard.cpp \
     $$PWD/maemokeydeployer.cpp \
-    $$PWD/maemopertargetdeviceconfigurationlistmodel.cpp
+    $$PWD/maemopertargetdeviceconfigurationlistmodel.cpp \
+    $$PWD/maemodeployconfigurationwidget.cpp \
+    $$PWD/maemoinstalltosysrootstep.cpp \
+    $$PWD/maemodeploymentmounter.cpp \
+    $$PWD/maemopackageuploader.cpp \
+    $$PWD/maemopackageinstaller.cpp \
+    $$PWD/maemoremotecopyfacility.cpp \
+    $$PWD/abstractmaemodeploystep.cpp \
+    $$PWD/maemodeploybymountstep.cpp \
+    $$PWD/maemouploadandinstalldeploystep.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \
@@ -118,6 +134,8 @@ FORMS += \
     $$PWD/maemodeviceconfigwizardpreviouskeysetupcheckpage.ui \
     $$PWD/maemodeviceconfigwizardreusekeyscheckpage.ui \
     $$PWD/maemodeviceconfigwizardkeycreationpage.ui \
-    $$PWD/maemodeviceconfigwizardkeydeploymentpage.ui
+    $$PWD/maemodeviceconfigwizardkeydeploymentpage.ui \
+    $$PWD/maemodeployconfigurationwidget.ui \
+    $$PWD/maemodeviceconfigwizardlogindatapage.ui
 
 RESOURCES += $$PWD/qt-maemo.qrc

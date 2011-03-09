@@ -110,13 +110,14 @@ QTCREATOR_UTILS_EXPORT bool operator!=(const SshConnectionParameters &p1, const 
 
 // TODO: Mechanism for checking the host key. First connection to host: save, later: compare
 
-SshConnection::Ptr SshConnection::create()
+SshConnection::Ptr SshConnection::create(const SshConnectionParameters &serverInfo)
 {
     doStaticInitializationsIfNecessary();
-    return Ptr(new SshConnection);
+    return Ptr(new SshConnection(serverInfo));
 }
 
-SshConnection::SshConnection() : d(new Internal::SshConnectionPrivate(this))
+SshConnection::SshConnection(const SshConnectionParameters &serverInfo)
+    : d(new Internal::SshConnectionPrivate(this, serverInfo))
 {
     connect(d, SIGNAL(connected()), this, SIGNAL(connected()),
         Qt::QueuedConnection);
@@ -128,9 +129,9 @@ SshConnection::SshConnection() : d(new Internal::SshConnectionPrivate(this))
         SIGNAL(error(Utils::SshError)), Qt::QueuedConnection);
 }
 
-void SshConnection::connectToHost(const SshConnectionParameters &serverInfo)
+void SshConnection::connectToHost()
 {
-    d->connectToHost(serverInfo);
+    d->connectToHost();
 }
 
 void SshConnection::disconnectFromHost()
@@ -188,14 +189,17 @@ QSharedPointer<SftpChannel> SshConnection::createSftpChannel()
 
 namespace Internal {
 
-SshConnectionPrivate::SshConnectionPrivate(SshConnection *conn)
+SshConnectionPrivate::SshConnectionPrivate(SshConnection *conn,
+    const SshConnectionParameters &serverInfo)
     : m_socket(new QTcpSocket(this)), m_state(SocketUnconnected),
       m_sendFacility(m_socket),
       m_channelManager(new SshChannelManager(m_sendFacility, this)),
-      m_connParams(SshConnectionParameters::DefaultProxy),
-      m_error(SshNoError), m_ignoreNextPacket(false), m_conn(conn)
+      m_connParams(serverInfo), m_error(SshNoError), m_ignoreNextPacket(false),
+      m_conn(conn)
 {
     setupPacketHandlers();
+    m_socket->setProxy(m_connParams.proxyType == SshConnectionParameters::DefaultProxy
+        ? QNetworkProxy::DefaultProxy : QNetworkProxy::NoProxy);
     m_timeoutTimer.setSingleShot(true);
     m_keepAliveTimer.setSingleShot(true);
     m_keepAliveTimer.setInterval(10000);
@@ -581,7 +585,7 @@ void SshConnectionPrivate::sendKeepAlivePacket()
     m_timeoutTimer.start(5000);
 }
 
-void SshConnectionPrivate::connectToHost(const SshConnectionParameters &serverInfo)
+void SshConnectionPrivate::connectToHost()
 {
     m_incomingData.clear();
     m_incomingPacket.reset();
@@ -596,12 +600,9 @@ void SshConnectionPrivate::connectToHost(const SshConnectionParameters &serverIn
     connect(m_socket, SIGNAL(disconnected()), this,
         SLOT(handleSocketDisconnected()));
     connect(&m_timeoutTimer, SIGNAL(timeout()), this, SLOT(handleTimeout()));
-    this->m_connParams = serverInfo;
     m_state = SocketConnecting;
     m_timeoutTimer.start(m_connParams.timeout * 1000);
-    m_socket->setProxy(m_connParams.proxyType == SshConnectionParameters::DefaultProxy
-        ? QNetworkProxy::DefaultProxy : QNetworkProxy::NoProxy);
-    m_socket->connectToHost(serverInfo.host, serverInfo.port);
+    m_socket->connectToHost(m_connParams.host, m_connParams.port);
 }
 
 void SshConnectionPrivate::closeConnection(SshErrorCode sshError,

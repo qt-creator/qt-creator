@@ -319,10 +319,9 @@ void RunSettingsWidget::currentDeployConfigurationChanged(int index)
 void RunSettingsWidget::aboutToShowDeployMenu()
 {
     m_addDeployMenu->clear();
-    DeployConfigurationFactory *factory = m_target->deployConfigurationFactory();
-    QStringList ids = factory->availableCreationIds(m_target);
+    QStringList ids = m_target->availableDeployConfigurationIds();
     foreach (const QString &id, ids) {
-        QAction *action = m_addDeployMenu->addAction(factory->displayNameForId(id));;
+        QAction *action = m_addDeployMenu->addAction(m_target->displayNameForDeployConfigurationId(id));
         action->setData(QVariant(id));
         connect(action, SIGNAL(triggered()),
                 this, SLOT(addDeployConfiguration()));
@@ -335,7 +334,7 @@ void RunSettingsWidget::addDeployConfiguration()
     if (!act)
         return;
     QString id = act->data().toString();
-    DeployConfiguration *newDc = m_target->deployConfigurationFactory()->create(m_target, id);
+    DeployConfiguration *newDc = m_target->createDeployConfiguration(id);
     if (!newDc)
         return;
     m_target->addDeployConfiguration(newDc);

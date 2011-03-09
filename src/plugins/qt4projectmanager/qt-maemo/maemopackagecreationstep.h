@@ -54,38 +54,32 @@ namespace Qt4ProjectManager {
 class Qt4BuildConfiguration;
 
 namespace Internal {
-class MaemoDeployStep;
 class MaemoDeployableListModel;
 class AbstractQt4MaemoTarget;
 class AbstractDebBasedQt4MaemoTarget;
 class AbstractRpmBasedQt4MaemoTarget;
+class Qt4MaemoDeployConfiguration;
 
-class MaemoPackageCreationStep : public ProjectExplorer::BuildStep
+class AbstractMaemoPackageCreationStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
-    friend class MaemoPackageCreationFactory;
 public:
-    MaemoPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
-    ~MaemoPackageCreationStep();
+    virtual ~AbstractMaemoPackageCreationStep();
 
-    QString packageFilePath() const;
-    bool isPackagingEnabled() const;
-    void setPackagingEnabled(bool enabled) { m_packagingEnabled = enabled; }
+    virtual QString packageFilePath() const;
 
     QString versionString(QString *error) const;
     bool setVersionString(const QString &version, QString *error);
 
     static void preparePackagingProcess(QProcess *proc,
         const Qt4BuildConfiguration *bc, const QString &workingDir);
-    static QString packagingCommand(const Qt4BuildConfiguration *bc,
-        const QString &commandName);
-    static void ensureShlibdeps(QByteArray &rulesContent);
 
     QString projectName() const;
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
     AbstractQt4MaemoTarget *maemoTarget() const;
     AbstractDebBasedQt4MaemoTarget *debBasedMaemoTarget() const;
     AbstractRpmBasedQt4MaemoTarget *rpmBasedMaemoTarget() const;
+    Qt4MaemoDeployConfiguration *deployConfig() const;
 
     static const QLatin1String DefaultVersionNumber;
 
@@ -93,47 +87,109 @@ signals:
     void packageFilePathChanged();
     void qtVersionChanged();
 
+protected:
+    AbstractMaemoPackageCreationStep(ProjectExplorer::BuildStepList *bsl,
+        const QString &id);
+    AbstractMaemoPackageCreationStep(ProjectExplorer::BuildStepList *buildConfig,
+                             AbstractMaemoPackageCreationStep *other);
+
+    void raiseError(const QString &shortMsg,
+        const QString &detailedMsg = QString());
+    bool callPackagingCommand(QProcess *proc, const QStringList &arguments);
+    static QString replaceDots(const QString &name);
+    QString buildDirectory() const;
+
 private slots:
     void handleBuildOutput();
     void handleBuildConfigChanged();
 
 private:
-    MaemoPackageCreationStep(ProjectExplorer::BuildStepList *buildConfig,
-                             MaemoPackageCreationStep *other);
-
     void ctor();
     virtual bool init();
     virtual void run(QFutureInterface<bool> &fi);
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    virtual bool immutable() const { return true; }
-    virtual QVariantMap toMap() const;
-    virtual bool fromMap(const QVariantMap &map);
 
-    bool createPackage(QProcess *buildProc);
-    bool copyDebianFiles(bool inSourceBuild);
+    virtual bool createPackage(QProcess *buildProc)=0;
+    virtual bool isMetaDataNewerThan(const QDateTime &packageDate) const=0;
+
     static QString nativePath(const QFile &file);
     bool packagingNeeded() const;
-    bool isFileNewerThan(const QString &filePath,
-        const QDateTime &timeStamp) const;
-    void raiseError(const QString &shortMsg,
-                    const QString &detailedMsg = QString());
-    QString buildDirectory() const;
-    MaemoDeployStep * deployStep() const;
-    void checkProjectName();
-    void adaptRulesFile(const QString &rulesFilePath);
-    void addWorkaroundForHarmattanBug(QByteArray &rulesFileContent,
-        int &insertPos, const MaemoDeployableListModel *model,
-        const QString &desktopFileDir);
+
+    const Qt4BuildConfiguration *m_lastBuildConfig;
+};
+
+
+class MaemoDebianPackageCreationStep : public AbstractMaemoPackageCreationStep
+{
+    Q_OBJECT
+    friend class MaemoPackageCreationFactory;
+public:
+    MaemoDebianPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
+
+    static void ensureShlibdeps(QByteArray &rulesContent);
+
+private:
+    MaemoDebianPackageCreationStep(ProjectExplorer::BuildStepList *buildConfig,
+        MaemoDebianPackageCreationStep *other);
+
+    virtual bool createPackage(QProcess *buildProc);
+    virtual bool isMetaDataNewerThan(const QDateTime &packageDate) const;
+
+    void ctor();
+    static QString packagingCommand(const Qt4BuildConfiguration *bc,
+        const QString &commandName);
+    bool copyDebianFiles(bool inSourceBuild);
     void addSedCmdToRulesFile(QByteArray &rulesFileContent, int &insertPos,
         const QString &desktopFilePath, const QByteArray &oldString,
         const QByteArray &newString);
-    static QString replaceDots(const QString &name);
+    void addWorkaroundForHarmattanBug(QByteArray &rulesFileContent,
+        int &insertPos, const MaemoDeployableListModel *model,
+        const QString &desktopFileDir);
+    void checkProjectName();
+    void adaptRulesFile(const QString &rulesFilePath);
+
+    static const QString CreatePackageId;
+};
+
+class MaemoRpmPackageCreationStep : public AbstractMaemoPackageCreationStep
+{
+    Q_OBJECT
+    friend class MaemoPackageCreationFactory;
+public:
+    MaemoRpmPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
+
+private:
+    virtual bool createPackage(QProcess *buildProc);
+    virtual bool isMetaDataNewerThan(const QDateTime &packageDate) const;
+
+    MaemoRpmPackageCreationStep(ProjectExplorer::BuildStepList *buildConfig,
+        MaemoRpmPackageCreationStep *other);
+
+    void ctor();
     static QString rpmBuildDir(const Qt4BuildConfiguration *bc);
 
-    static const QLatin1String CreatePackageId;
+    static const QString CreatePackageId;
+};
 
-    bool m_packagingEnabled;
-    const Qt4BuildConfiguration *m_lastBuildConfig;
+class MaemoTarPackageCreationStep : public AbstractMaemoPackageCreationStep
+{
+    Q_OBJECT
+    friend class MaemoPackageCreationFactory;
+public:
+    MaemoTarPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
+
+    virtual QString packageFilePath() const;
+private:
+    virtual bool createPackage(QProcess *buildProc);
+    virtual bool isMetaDataNewerThan(const QDateTime &packageDate) const;
+    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+
+    MaemoTarPackageCreationStep(ProjectExplorer::BuildStepList *buildConfig,
+        MaemoTarPackageCreationStep *other);
+
+    void ctor();
+
+    static const QString CreatePackageId;
 };
 
 } // namespace Internal

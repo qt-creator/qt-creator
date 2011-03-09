@@ -35,11 +35,11 @@
 #include "buildconfigurationinfo.h"
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
-#include "qt-maemo/maemodeploystep.h"
 #include "maemoglobal.h"
-#include "qt-maemo/maemopackagecreationstep.h"
-#include "qt-maemo/maemorunconfiguration.h"
-#include "qt-maemo/qt4maemotarget.h"
+#include "maemopackagecreationstep.h"
+#include "maemorunconfiguration.h"
+#include "qt4maemodeployconfiguration.h"
+#include "qt4maemotarget.h"
 
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -198,12 +198,18 @@ ProjectExplorer::Target *Qt4MaemoTargetFactory::create(ProjectExplorer::Project 
         return 0;
 
     AbstractQt4MaemoTarget *target = 0;
-    if (id == QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
+    QStringList deployConfigIds;
+    if (id == QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID)) {
         target = new Qt4Maemo5Target(static_cast<Qt4Project *>(parent), id);
-    else if (id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
+        deployConfigIds << Qt4MaemoDeployConfiguration::FremantleWithPackagingId
+            << Qt4MaemoDeployConfiguration::FremantleWithoutPackagingId;
+    } else if (id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID)) {
         target = new Qt4HarmattanTarget(static_cast<Qt4Project *>(parent), id);
-    else if (id == QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID))
+        deployConfigIds << Qt4MaemoDeployConfiguration::HarmattanId;
+    } else if (id == QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID)) {
         target = new Qt4MeegoTarget(static_cast<Qt4Project *>(parent), id);
+        deployConfigIds << Qt4MaemoDeployConfiguration::MeegoId;
+    }
     Q_ASSERT(target);
 
     foreach (const BuildConfigurationInfo &info, infos)
@@ -211,7 +217,9 @@ ProjectExplorer::Target *Qt4MaemoTargetFactory::create(ProjectExplorer::Project 
                                          info.version, info.buildConfig,
                                          info.additionalArguments, info.directory);
 
-    target->addDeployConfiguration(target->deployConfigurationFactory()->create(target, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
+    foreach (const QString &deployConfigId, deployConfigIds) {
+        target->addDeployConfiguration(target->createDeployConfiguration(deployConfigId));
+    }
     target->createApplicationProFiles();
     if (target->runConfigurations().isEmpty())
         target->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(target));

@@ -39,17 +39,17 @@ using namespace ProjectExplorer;
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoPerTargetDeviceConfigurationListModel::MaemoPerTargetDeviceConfigurationListModel(Target *target)
-    : QAbstractListModel(target)
+MaemoPerTargetDeviceConfigurationListModel::MaemoPerTargetDeviceConfigurationListModel(QObject *parent,
+    const Target *target) : QAbstractListModel(parent)
 {
-    if (qobject_cast<Qt4Maemo5Target *>(target))
+    if (qobject_cast<const Qt4Maemo5Target *>(target))
         m_targetOsVersion = MaemoGlobal::Maemo5;
-    else if (qobject_cast<Qt4HarmattanTarget *>(target))
+    else if (qobject_cast<const Qt4HarmattanTarget *>(target))
         m_targetOsVersion = MaemoGlobal::Maemo6;
-    else if (qobject_cast<Qt4MeegoTarget *>(target))
+    else if (qobject_cast<const Qt4MeegoTarget *>(target))
         m_targetOsVersion = MaemoGlobal::Meego;
     else
-        Q_ASSERT(false);
+        m_targetOsVersion = MaemoGlobal::GenericLinux;
     const MaemoDeviceConfigurations * const devConfs
         = MaemoDeviceConfigurations::instance();
     connect(devConfs, SIGNAL(modelReset()), this, SIGNAL(modelReset()));
@@ -64,6 +64,8 @@ int MaemoPerTargetDeviceConfigurationListModel::rowCount(const QModelIndex &pare
     const MaemoDeviceConfigurations * const devConfs
         = MaemoDeviceConfigurations::instance();
     const int devConfsCount = devConfs->rowCount();
+    if (m_targetOsVersion == MaemoGlobal::GenericLinux)
+        return devConfsCount;
     for (int i = 0; i < devConfsCount; ++i) {
         if (devConfs->deviceAt(i)->osVersion() == m_targetOsVersion)
             ++count;
@@ -79,7 +81,7 @@ QVariant MaemoPerTargetDeviceConfigurationListModel::data(const QModelIndex &ind
     const MaemoDeviceConfig::ConstPtr &devConf = deviceAt(index.row());
     Q_ASSERT(devConf);
     QString displayedName = devConf->name();
-    if (devConf->isDefault())
+    if (devConf->isDefault() && devConf->osVersion() == m_targetOsVersion)
         displayedName += QLatin1Char(' ') + tr("(default)");
     return displayedName;
 }
@@ -89,6 +91,8 @@ MaemoDeviceConfig::ConstPtr MaemoPerTargetDeviceConfigurationListModel::deviceAt
     int currentRow = -1;
     const MaemoDeviceConfigurations * const devConfs
         = MaemoDeviceConfigurations::instance();
+    if (m_targetOsVersion == MaemoGlobal::GenericLinux)
+        return devConfs->deviceAt(idx);
     const int devConfsCount = devConfs->rowCount();
     for (int i = 0; i < devConfsCount; ++i) {
         if (devConfs->deviceAt(i)->osVersion() == m_targetOsVersion) {
@@ -109,7 +113,8 @@ MaemoDeviceConfig::ConstPtr MaemoPerTargetDeviceConfigurationListModel::find(Mae
 {
     const MaemoDeviceConfig::ConstPtr &devConf
         = MaemoDeviceConfigurations::instance()->find(id);
-    return devConf && devConf->osVersion() == m_targetOsVersion
+    return devConf && (devConf->osVersion() == m_targetOsVersion
+            || m_targetOsVersion == MaemoGlobal::GenericLinux)
         ? devConf : defaultDeviceConfig();
 }
 

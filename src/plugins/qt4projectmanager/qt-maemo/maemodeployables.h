@@ -53,16 +53,16 @@ QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace Qt4ProjectManager {
 class Qt4BuildConfiguration;
+class Qt4BaseTarget;
 
 namespace Internal {
 class Qt4ProFileNode;
-class AbstractQt4MaemoTarget;
 
 class MaemoDeployables : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    MaemoDeployables(const AbstractQt4MaemoTarget *target);
+    MaemoDeployables(const Qt4BaseTarget *target);
     ~MaemoDeployables();
     void setUnmodified();
     bool isModified() const;
@@ -84,7 +84,7 @@ private:
 
     QList<MaemoDeployableListModel *> m_listModels;
     UpdateSettingsMap m_updateSettings;
-    const AbstractQt4MaemoTarget * const m_target;
+    const Qt4BaseTarget * const m_target;
     QTimer *const m_updateTimer;
 };
 

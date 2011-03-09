@@ -227,28 +227,58 @@ MaemoDeviceConfig::Ptr MaemoDeviceConfig::create(const ConstPtr &other)
 }
 
 MaemoDeviceConfig::Ptr MaemoDeviceConfig::createHardwareConfig(const QString &name,
-    MaemoGlobal::MaemoVersion osVersion, const QString &hostName,
-    const QString privateKeyFilePath, Id &nextId)
+    MaemoGlobal::OsVersion osVersion, const QString &hostName,
+    const QString &privateKeyFilePath, Id &nextId)
 {
     Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
     sshParams.authenticationType = Utils::SshConnectionParameters::AuthenticationByKey;
     sshParams.host = hostName;
+    sshParams.userName = defaultUser(osVersion);
     sshParams.privateKeyFile = privateKeyFilePath;
     return Ptr(new MaemoDeviceConfig(name, osVersion, Physical, sshParams, nextId));
 }
 
+MaemoDeviceConfig::Ptr MaemoDeviceConfig::createGenericLinuxConfigUsingPassword(const QString &name,
+    const QString &hostName, const QString &userName, const QString &password,
+    Id &nextId)
+{
+    Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
+    sshParams.authenticationType
+        = Utils::SshConnectionParameters::AuthenticationByPassword;
+    sshParams.host = hostName;
+    sshParams.userName = userName;
+    sshParams.password = password;
+    return Ptr(new MaemoDeviceConfig(name, MaemoGlobal::GenericLinux, Physical,
+        sshParams, nextId));
+}
+
+MaemoDeviceConfig::Ptr MaemoDeviceConfig::createGenericLinuxConfigUsingKey(const QString &name,
+    const QString &hostName, const QString &userName, const QString &privateKeyFile,
+    Id &nextId)
+{
+    Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
+    sshParams.authenticationType
+        = Utils::SshConnectionParameters::AuthenticationByKey;
+    sshParams.host = hostName;
+    sshParams.userName = userName;
+    sshParams.privateKeyFile = privateKeyFile;
+    return Ptr(new MaemoDeviceConfig(name, MaemoGlobal::GenericLinux, Physical,
+        sshParams, nextId));
+}
+
 MaemoDeviceConfig::Ptr MaemoDeviceConfig::createEmulatorConfig(const QString &name,
-    MaemoGlobal::MaemoVersion osVersion, Id &nextId)
+    MaemoGlobal::OsVersion osVersion, Id &nextId)
 {
     Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
     sshParams.authenticationType = Utils::SshConnectionParameters::AuthenticationByPassword;
-    sshParams.host = defaultHost(Emulator);
+    sshParams.host = defaultHost(Emulator, osVersion);
+    sshParams.userName = defaultUser(osVersion);
     sshParams.password = defaultQemuPassword(osVersion);
     return Ptr(new MaemoDeviceConfig(name, osVersion, Emulator, sshParams, nextId));
 }
 
 MaemoDeviceConfig::MaemoDeviceConfig(const QString &name,
-    MaemoGlobal::MaemoVersion osVersion, DeviceType devType,
+    MaemoGlobal::OsVersion osVersion, DeviceType devType,
     const Utils::SshConnectionParameters &sshParams, Id &nextId)
     : m_sshParameters(sshParams),
       m_name(name),
@@ -259,7 +289,6 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QString &name,
       m_internalId(nextId++)
 {
     m_sshParameters.port = defaultSshPort(m_type);
-    m_sshParameters.userName = defaultUser(m_osVersion);
     m_sshParameters.timeout = DefaultTimeout;
 }
 
@@ -267,7 +296,7 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
         Id &nextId)
     : m_sshParameters(Utils::SshConnectionParameters::NoProxy),
       m_name(settings.value(NameKey).toString()),
-      m_osVersion(static_cast<MaemoGlobal::MaemoVersion>(settings.value(OsVersionKey, MaemoGlobal::Maemo5).toInt())),
+      m_osVersion(static_cast<MaemoGlobal::OsVersion>(settings.value(OsVersionKey, MaemoGlobal::Maemo5).toInt())),
       m_type(static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt())),
       m_portsSpec(settings.value(PortsSpecKey, defaultPortsSpec(m_type)).toString()),
       m_isDefault(settings.value(IsDefaultKey, false).toBool()),
@@ -275,7 +304,7 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
 {
     if (m_internalId == nextId)
         ++nextId;
-    m_sshParameters.host = settings.value(HostKey, defaultHost(m_type)).toString();
+    m_sshParameters.host = settings.value(HostKey, defaultHost(m_type, m_osVersion)).toString();
     m_sshParameters.port = settings.value(SshPortKey, defaultSshPort(m_type)).toInt();
     m_sshParameters.userName = settings.value(UserNameKey, defaultUser(m_osVersion)).toString();
     m_sshParameters.authenticationType
@@ -314,8 +343,10 @@ QString MaemoDeviceConfig::defaultPortsSpec(DeviceType type) const
     return QLatin1String(type == Physical ? "10000-10100" : "13219,14168");
 }
 
-QString MaemoDeviceConfig::defaultHost(DeviceType type)
+QString MaemoDeviceConfig::defaultHost(DeviceType type, MaemoGlobal::OsVersion osVersion)
 {
+    if (osVersion == MaemoGlobal::GenericLinux)
+        return QString();
     return type == Physical ? DefaultHostNameHW : DefaultHostNameSim;
 }
 
@@ -330,7 +361,7 @@ QString MaemoDeviceConfig::defaultPublicKeyFilePath()
     return defaultPrivateKeyFilePath() + QLatin1String(".pub");
 }
 
-QString MaemoDeviceConfig::defaultUser(MaemoGlobal::MaemoVersion osVersion)
+QString MaemoDeviceConfig::defaultUser(MaemoGlobal::OsVersion osVersion)
 {
     switch (osVersion) {
     case MaemoGlobal::Maemo5:
@@ -338,13 +369,15 @@ QString MaemoDeviceConfig::defaultUser(MaemoGlobal::MaemoVersion osVersion)
         return QLatin1String("developer");
     case MaemoGlobal::Meego:
         return QLatin1String("meego");
+    case MaemoGlobal::GenericLinux:
+        return QString();
     default:
-        Q_ASSERT(false);
+        qFatal("%s: Missing switch case.", Q_FUNC_INFO);
         return QString();
     }
 }
 
-QString MaemoDeviceConfig::defaultQemuPassword(MaemoGlobal::MaemoVersion osVersion)
+QString MaemoDeviceConfig::defaultQemuPassword(MaemoGlobal::OsVersion osVersion)
 {
     switch (osVersion) {
     case MaemoGlobal::Maemo5:
@@ -438,16 +471,33 @@ void MaemoDeviceConfigurations::save()
 }
 
 void MaemoDeviceConfigurations::addHardwareDeviceConfiguration(const QString &name,
-    MaemoGlobal::MaemoVersion osVersion, const QString &hostName,
-    const QString privateKeyFilePath)
+    MaemoGlobal::OsVersion osVersion, const QString &hostName,
+    const QString &privateKeyFilePath)
 {
     const MaemoDeviceConfig::Ptr &devConf = MaemoDeviceConfig::createHardwareConfig(name,
         osVersion, hostName, privateKeyFilePath, m_nextId);
     addConfiguration(devConf);
 }
 
+void MaemoDeviceConfigurations::addGenericLinuxConfigurationUsingPassword(const QString &name,
+    const QString &hostName, const QString &userName, const QString &password)
+{
+    const MaemoDeviceConfig::Ptr &devConf
+        = MaemoDeviceConfig::createGenericLinuxConfigUsingPassword(name,
+              hostName, userName, password, m_nextId);
+    addConfiguration(devConf);
+}
+
+void MaemoDeviceConfigurations::addGenericLinuxConfigurationUsingKey(const QString &name,
+    const QString &hostName, const QString &userName, const QString &privateKeyFilePath)
+{
+    const MaemoDeviceConfig::Ptr &devConf = MaemoDeviceConfig::createGenericLinuxConfigUsingKey(name,
+        hostName, userName, privateKeyFilePath, m_nextId);
+    addConfiguration(devConf);
+}
+
 void MaemoDeviceConfigurations::addEmulatorDeviceConfiguration(const QString &name,
-    MaemoGlobal::MaemoVersion osVersion)
+    MaemoGlobal::OsVersion osVersion)
 {
     const MaemoDeviceConfig::Ptr &devConf
         = MaemoDeviceConfig::createEmulatorConfig(name, osVersion, m_nextId);
@@ -468,7 +518,7 @@ void MaemoDeviceConfigurations::removeConfiguration(int idx)
     Q_ASSERT(idx >= 0 && idx < rowCount());
     beginRemoveRows(QModelIndex(), idx, idx);
     const bool wasDefault = deviceAt(idx)->m_isDefault;
-    const MaemoGlobal::MaemoVersion osVersion = deviceAt(idx)->osVersion();
+    const MaemoGlobal::OsVersion osVersion = deviceAt(idx)->osVersion();
     m_devConfigs.removeAt(idx);
     endRemoveRows();
     if (wasDefault) {
@@ -551,6 +601,7 @@ void MaemoDeviceConfigurations::load()
     ensureDefaultExists(MaemoGlobal::Maemo5);
     ensureDefaultExists(MaemoGlobal::Maemo6);
     ensureDefaultExists(MaemoGlobal::Meego);
+    ensureDefaultExists(MaemoGlobal::GenericLinux);
 }
 
 MaemoDeviceConfig::ConstPtr MaemoDeviceConfigurations::deviceAt(int idx) const
@@ -573,7 +624,7 @@ MaemoDeviceConfig::ConstPtr MaemoDeviceConfigurations::find(MaemoDeviceConfig::I
     return index == -1 ? MaemoDeviceConfig::ConstPtr() : deviceAt(index);
 }
 
-MaemoDeviceConfig::ConstPtr MaemoDeviceConfigurations::defaultDeviceConfig(const MaemoGlobal::MaemoVersion osVersion) const
+MaemoDeviceConfig::ConstPtr MaemoDeviceConfigurations::defaultDeviceConfig(const MaemoGlobal::OsVersion osVersion) const
 {
     foreach (const MaemoDeviceConfig::ConstPtr &devConf, m_devConfigs) {
         if (devConf->m_isDefault && devConf->osVersion() == osVersion)
@@ -596,7 +647,7 @@ MaemoDeviceConfig::Id MaemoDeviceConfigurations::internalId(MaemoDeviceConfig::C
     return devConf ? devConf->m_internalId : MaemoDeviceConfig::InvalidId;
 }
 
-void MaemoDeviceConfigurations::ensureDefaultExists(MaemoGlobal::MaemoVersion osVersion)
+void MaemoDeviceConfigurations::ensureDefaultExists(MaemoGlobal::OsVersion osVersion)
 {
     if (!defaultDeviceConfig(osVersion)) {
         foreach (const MaemoDeviceConfig::Ptr &devConf, m_devConfigs) {
@@ -622,7 +673,7 @@ QVariant MaemoDeviceConfigurations::data(const QModelIndex &index, int role) con
     QString name = devConf->name();
     if (devConf->m_isDefault) {
         name += QLatin1Char(' ') + tr("(default for %1)")
-            .arg(MaemoGlobal::maemoVersionToString(devConf->osVersion()));
+            .arg(MaemoGlobal::osVersionToString(devConf->osVersion()));
     }
     return name;
 }

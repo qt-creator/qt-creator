@@ -42,20 +42,20 @@
 #include "maemodeployables.h"
 
 #include "maemoprofilesupdatedialog.h"
-#include "qt4maemotarget.h"
 
 #include <profileevaluator.h>
 #include <projectexplorer/buildstep.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qt4target.h>
 
 #include <QtCore/QTimer>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoDeployables::MaemoDeployables(const AbstractQt4MaemoTarget *target)
+MaemoDeployables::MaemoDeployables(const Qt4BaseTarget *target)
     : m_target(target), m_updateTimer(new QTimer(this))
 {
     QTimer::singleShot(0, this, SLOT(init()));

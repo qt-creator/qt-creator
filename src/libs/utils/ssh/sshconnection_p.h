@@ -78,10 +78,11 @@ class SshConnectionPrivate : public QObject
     Q_OBJECT
     friend class Utils::SshConnection;
 public:
-    SshConnectionPrivate(SshConnection *conn);
+    SshConnectionPrivate(SshConnection *conn,
+        const SshConnectionParameters &serverInfo);
     ~SshConnectionPrivate();
 
-    void connectToHost(const SshConnectionParameters &serverInfo);
+    void connectToHost();
     void closeConnection(SshErrorCode sshError, SshError userError,
         const QByteArray &serverErrorString, const QString &userErrorString);
     QSharedPointer<SshRemoteProcess> createRemoteProcess(const QByteArray &command);
@@ -150,7 +151,7 @@ private:
     SshIncomingPacket m_incomingPacket;
     SshSendFacility m_sendFacility;
     SshChannelManager * const m_channelManager;
-    SshConnectionParameters m_connParams;
+    const SshConnectionParameters m_connParams;
     QByteArray m_incomingData;
     SshError m_error;
     QString m_errorString;

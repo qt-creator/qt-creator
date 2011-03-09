@@ -31,36 +31,191 @@
 **
 **************************************************************************/
 
-#include "maemodeploystep.h"
-#include "maemopackagecreationstep.h"
 #include "qt4maemodeployconfiguration.h"
 
+#include "maemodeploybymountstep.h"
+#include "maemodeployconfigurationwidget.h"
+#include "maemodeployables.h"
+#include "maemoinstalltosysrootstep.h"
+#include "maemopertargetdeviceconfigurationlistmodel.h"
+#include "maemopackagecreationstep.h"
+#include "maemouploadandinstalldeploystep.h"
+#include "qt4maemotarget.h"
+
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/target.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qt4projectmanager/qt4target.h>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace ProjectExplorer;
 
-Qt4MaemoDeployConfigurationFactory::Qt4MaemoDeployConfigurationFactory(QObject *parent) :
-    ProjectExplorer::DeployConfigurationFactory(parent)
+namespace Qt4ProjectManager {
+namespace Internal {
+namespace {
+const QString OldDeployConfigId = QLatin1String("2.2MaemoDeployConfig");
+} // namespace
+
+Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(Target *target,
+    const QString &id) : DeployConfiguration(target, id)
+{
+    // A MaemoDeployables object is only dependent on the active build
+    // configuration and therefore can (and should) be shared among all
+    // deploy steps. The per-target device configurations model is
+    // similarly only dependent on the target.
+    const QList<DeployConfiguration *> &deployConfigs
+        = this->target()->deployConfigurations();
+    foreach (const DeployConfiguration * const dc, deployConfigs) {
+        const Qt4MaemoDeployConfiguration * const mdc
+            = qobject_cast<const Qt4MaemoDeployConfiguration *>(dc);
+        if (mdc) {
+            m_deployables = mdc->deployables();
+            m_devConfModel = mdc->m_devConfModel;
+            break;
+        }
+    }
+    if (!m_deployables) {
+        m_deployables = QSharedPointer<MaemoDeployables>(new MaemoDeployables(qobject_cast<Qt4BaseTarget *>(target)));
+        m_devConfModel = new MaemoPerTargetDeviceConfigurationListModel(this, target);
+    }
+}
+
+Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
+    DeployConfiguration *source) : DeployConfiguration(target, source)
+{
+    m_deployables = qobject_cast<Qt4MaemoDeployConfiguration *>(source)->deployables();
+}
+
+Qt4MaemoDeployConfiguration::~Qt4MaemoDeployConfiguration() {}
+
+DeployConfigurationWidget *Qt4MaemoDeployConfiguration::configurationWidget() const
+{
+    return new MaemoDeployConfigurationWidget;
+}
+
+const QString Qt4MaemoDeployConfiguration::FremantleWithPackagingId
+    = QLatin1String("DeployToFremantleWithPackaging");
+const QString Qt4MaemoDeployConfiguration::FremantleWithoutPackagingId
+    = QLatin1String("DeployToFremantleWithoutPackaging");
+const QString Qt4MaemoDeployConfiguration::HarmattanId
+    = QLatin1String("DeployToHarmattan");
+const QString Qt4MaemoDeployConfiguration::MeegoId
+    = QLatin1String("DeployToMeego");
+const QString Qt4MaemoDeployConfiguration::GenericLinuxId
+    = QLatin1String("DeployToGenericLinux");
+
+
+Qt4MaemoDeployConfigurationFactory::Qt4MaemoDeployConfigurationFactory(QObject *parent)
+    : DeployConfigurationFactory(parent)
 { }
 
-ProjectExplorer::DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(ProjectExplorer::Target *parent, const QString &id)
+QStringList Qt4MaemoDeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    ProjectExplorer::DeployConfiguration *dc = ProjectExplorer::DeployConfigurationFactory::create(parent, id);
+    QStringList ids;
+    if (qobject_cast<Qt4Maemo5Target *>(parent)) {
+        ids << Qt4MaemoDeployConfiguration::FremantleWithPackagingId
+            << Qt4MaemoDeployConfiguration::FremantleWithoutPackagingId;
+    } else if (qobject_cast<Qt4HarmattanTarget *>(parent)) {
+        ids << Qt4MaemoDeployConfiguration::HarmattanId;
+    } else if (qobject_cast<Qt4MeegoTarget *>(parent)) {
+        ids << Qt4MaemoDeployConfiguration::MeegoId;
+    } /*else if (qobject_cast<Qt4BaseTarget *>(parent)) { // TODO: Check for Linux
+        ids << Qt4MaemoDeployConfiguration::GenericLinuxId;
+    }*/
 
-    if (!dc)
-        return 0;
-    if (parent->id() == QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
-        dc->setDefaultDisplayName(tr("Deploy to Maemo5 device"));
-    if (parent->id() == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
-        dc->setDefaultDisplayName(tr("Deploy to Harmattan device"));
-    if (parent->id() == QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID))
-        dc->setDefaultDisplayName(tr("Deploy to Meego device"));
-    dc->stepList()->insertStep(0, new MaemoPackageCreationStep(dc->stepList()));
-    dc->stepList()->insertStep(1, new MaemoDeployStep(dc->stepList()));
+    return ids;
+}
 
+QString Qt4MaemoDeployConfigurationFactory::displayNameForId(const QString &id) const
+{
+    if (id == Qt4MaemoDeployConfiguration::FremantleWithoutPackagingId)
+        return tr("Copy files to Maemo5 device");
+    else if (id == Qt4MaemoDeployConfiguration::FremantleWithPackagingId)
+        return tr("Build Debian package and install to Maemo5 device");
+    else if (id == Qt4MaemoDeployConfiguration::HarmattanId)
+        return tr("Build Debian package and install to Harmattan device");
+    else if (id == Qt4MaemoDeployConfiguration::MeegoId)
+        return tr("Build RPM package and install to Meego device");
+    else if (id == Qt4MaemoDeployConfiguration::GenericLinuxId)
+        return tr("Build tarball and install to Linux host");
+    return QString();
+}
+
+bool Qt4MaemoDeployConfigurationFactory::canCreate(Target *parent,
+    const QString &id) const
+{
+    return availableCreationIds(parent).contains(id);
+}
+
+DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(Target *parent,
+    const QString &id)
+{
+    Q_ASSERT(canCreate(parent, id));
+
+    DeployConfiguration * const dc
+        = new Qt4MaemoDeployConfiguration(parent, id);
+    dc->setDefaultDisplayName(displayNameForId(id));
+
+    if (id == Qt4MaemoDeployConfiguration::FremantleWithoutPackagingId) {
+        dc->stepList()->insertStep(0, new MaemoCopyToSysrootStep(dc->stepList()));
+        dc->stepList()->insertStep(1, new MaemoMountAndCopyDeployStep(dc->stepList()));
+    } else if (id == Qt4MaemoDeployConfiguration::FremantleWithPackagingId) {
+        dc->stepList()->insertStep(0, new MaemoDebianPackageCreationStep(dc->stepList()));
+        dc->stepList()->insertStep(1, new MaemoInstallDebianPackageToSysrootStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new MaemoMountAndInstallDeployStep(dc->stepList()));
+    } else if (id == Qt4MaemoDeployConfiguration::HarmattanId) {
+        dc->stepList()->insertStep(0, new MaemoDebianPackageCreationStep(dc->stepList()));
+        dc->stepList()->insertStep(1, new MaemoInstallDebianPackageToSysrootStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new MaemoUploadAndInstallDeployStep(dc->stepList()));
+    } else if (id == Qt4MaemoDeployConfiguration::MeegoId) {
+        dc->stepList()->insertStep(0, new MaemoRpmPackageCreationStep(dc->stepList()));
+        dc->stepList()->insertStep(1, new MaemoInstallRpmPackageToSysrootStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new MaemoUploadAndInstallDeployStep(dc->stepList()));
+    } else if (id == Qt4MaemoDeployConfiguration::GenericLinuxId) {
+        dc->stepList()->insertStep(0, new MaemoTarPackageCreationStep(dc->stepList()));
+        dc->stepList()->insertStep(1, new MaemoUploadAndInstallDeployStep(dc->stepList()));
+    }
     return dc;
 }
+
+bool Qt4MaemoDeployConfigurationFactory::canRestore(Target *parent,
+    const QVariantMap &map) const
+{
+    return canCreate(parent, idFromMap(map))
+        || (idFromMap(map) == OldDeployConfigId
+            && qobject_cast<AbstractQt4MaemoTarget *>(parent));
+}
+
+DeployConfiguration *Qt4MaemoDeployConfigurationFactory::restore(Target *parent,
+    const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return 0;
+    QString id = idFromMap(map);
+    if (id == OldDeployConfigId) {
+        if (qobject_cast<Qt4Maemo5Target *>(parent))
+            id = Qt4MaemoDeployConfiguration::FremantleWithPackagingId;
+        else if (qobject_cast<Qt4HarmattanTarget *>(parent))
+            id = Qt4MaemoDeployConfiguration::HarmattanId;
+        else if (qobject_cast<Qt4MeegoTarget *>(parent))
+            id = Qt4MaemoDeployConfiguration::MeegoId;
+    }
+    Qt4MaemoDeployConfiguration * const dc
+        = new Qt4MaemoDeployConfiguration(parent, id);
+    if (!dc->fromMap(map)) {
+        delete dc;
+        return 0;
+    }
+    return dc;
+}
+
+DeployConfiguration *Qt4MaemoDeployConfigurationFactory::clone(Target *parent,
+    DeployConfiguration *product)
+{
+    if (!canClone(parent, product))
+        return 0;
+    return new Qt4MaemoDeployConfiguration(parent, product);
+}
+
+} // namespace Internal
+} // namespace Qt4ProjectManager

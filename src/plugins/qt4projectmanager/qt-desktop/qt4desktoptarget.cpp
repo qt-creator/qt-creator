@@ -44,8 +44,7 @@ using namespace Qt4ProjectManager::Internal;
 
 Qt4DesktopTarget::Qt4DesktopTarget(Qt4Project *parent, const QString &id) :
     Qt4BaseTarget(parent, id),
-    m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this)),
-    m_deployConfigurationFactory(new ProjectExplorer::DeployConfigurationFactory(this))
+    m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this))
 {
     setDisplayName(defaultDisplayName());
     setIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
@@ -63,11 +62,6 @@ QString Qt4DesktopTarget::defaultDisplayName()
 Qt4BuildConfigurationFactory *Qt4DesktopTarget::buildConfigurationFactory() const
 {
     return m_buildConfigurationFactory;
-}
-
-ProjectExplorer::DeployConfigurationFactory *Qt4DesktopTarget::deployConfigurationFactory() const
-{
-    return m_deployConfigurationFactory;
 }
 
 void Qt4DesktopTarget::createApplicationProFiles()

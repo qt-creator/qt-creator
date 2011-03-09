@@ -34,12 +34,46 @@
 #ifndef QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
 #define QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
 
+#include"maemodeployables.h"
+
 #include <projectexplorer/deployconfiguration.h>
+
+#include <QtCore/QSharedPointer>
 
 namespace Qt4ProjectManager {
 namespace Internal {
+class MaemoPerTargetDeviceConfigurationListModel;
 
-class Target;
+class Qt4MaemoDeployConfiguration : public ProjectExplorer::DeployConfiguration
+{
+    Q_OBJECT
+
+public:
+    virtual ~Qt4MaemoDeployConfiguration();
+
+    virtual ProjectExplorer::DeployConfigurationWidget *configurationWidget() const;
+
+    QSharedPointer<MaemoDeployables> deployables() const { return m_deployables; }
+    MaemoPerTargetDeviceConfigurationListModel *deviceConfigModel() const { return m_devConfModel; }
+
+    static const QString FremantleWithPackagingId;
+    static const QString FremantleWithoutPackagingId;
+    static const QString HarmattanId;
+    static const QString MeegoId;
+    static const QString GenericLinuxId;
+
+private:
+    friend class Qt4MaemoDeployConfigurationFactory;
+
+    Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
+        const QString &id);
+    Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
+        ProjectExplorer::DeployConfiguration *source);
+
+    QSharedPointer<MaemoDeployables> m_deployables;
+    MaemoPerTargetDeviceConfigurationListModel *m_devConfModel;
+};
+
 
 class Qt4MaemoDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
@@ -48,7 +82,16 @@ class Qt4MaemoDeployConfigurationFactory : public ProjectExplorer::DeployConfigu
 public:
     explicit Qt4MaemoDeployConfigurationFactory(QObject *parent = 0);
 
-    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    virtual QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
+    virtual QString displayNameForId(const QString &id) const;
+    virtual bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
+    virtual ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    virtual bool canRestore(ProjectExplorer::Target *parent,
+        const QVariantMap &map) const;
+    virtual ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent,
+        const QVariantMap &map);
+    virtual ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
+        ProjectExplorer::DeployConfiguration *product);
 };
 
 } // namespace Internal

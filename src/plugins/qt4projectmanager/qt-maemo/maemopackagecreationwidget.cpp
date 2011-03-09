@@ -62,13 +62,13 @@ using namespace ProjectExplorer;
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep *step)
+// TODO: Split up into dedicated widgets for Debian and RPM steps.
+MaemoPackageCreationWidget::MaemoPackageCreationWidget(AbstractMaemoPackageCreationStep *step)
     : ProjectExplorer::BuildStepConfigWidget(),
       m_step(step),
       m_ui(new Ui::MaemoPackageCreationWidget)
 {
     m_ui->setupUi(this);
-    m_ui->skipCheckBox->setChecked(!m_step->isPackagingEnabled());
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QTimer::singleShot(0, this, SLOT(initGui()));
 }
@@ -84,12 +84,6 @@ void MaemoPackageCreationWidget::init()
 
 void MaemoPackageCreationWidget::initGui()
 {
-    // The "remove" stuff below is fragile; be careful when editing the UI file.
-    m_ui->skipCheckBox->setChecked(!m_step->isPackagingEnabled());
-    if (!m_step->maemoTarget()->allowsPackagingDisabling()) {
-        m_ui->skipCheckBox->hide();
-        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(0, QFormLayout::FieldRole));
-    }
     m_ui->shortDescriptionLineEdit->setMaxLength(60);
     updateVersionInfo();
     versionInfoChanged();
@@ -115,12 +109,14 @@ void MaemoPackageCreationWidget::initGui()
         m_ui->editDebianFileLabel->hide();
         m_ui->debianFilesComboBox->hide();
         m_ui->editDebianFileButton->hide();
+
+        // This is fragile; be careful when editing the UI file.
+        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(4, QFormLayout::LabelRole));
+        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(4, QFormLayout::FieldRole));
         m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(5, QFormLayout::LabelRole));
         m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(5, QFormLayout::FieldRole));
         m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(6, QFormLayout::LabelRole));
         m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(6, QFormLayout::FieldRole));
-        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(7, QFormLayout::LabelRole));
-        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(7, QFormLayout::FieldRole));
         handleSpecFileUpdate();
         connect(m_step->rpmBasedMaemoTarget(), SIGNAL(specFileChanged()),
             SLOT(handleSpecFileUpdate()));
@@ -152,7 +148,7 @@ void MaemoPackageCreationWidget::updateVersionInfo()
     QString versionString = m_step->versionString(&error);
     if (versionString.isEmpty()) {
         QMessageBox::critical(this, tr("No Version Available."), error);
-        versionString = MaemoPackageCreationStep::DefaultVersionNumber;
+        versionString = AbstractMaemoPackageCreationStep::DefaultVersionNumber;
     }
     const QStringList list = versionString.split(QLatin1Char('.'),
         QString::SkipEmptyParts);
@@ -248,32 +244,13 @@ void MaemoPackageCreationWidget::setShortDescription()
 
 QString MaemoPackageCreationWidget::summaryText() const
 {
-    const QString constantString = tr("<b>Create Package:</b> ");
-    const QString dynamicString = m_step->isPackagingEnabled()
-        ? QDir::toNativeSeparators(m_step->packageFilePath())
-        : tr("(Packaging disabled)");
-    return constantString + dynamicString;
+    return tr("<b>Create Package:</b> ")
+        + QDir::toNativeSeparators(m_step->packageFilePath());
 }
 
 QString MaemoPackageCreationWidget::displayName() const
 {
     return m_step->displayName();
-}
-
-void MaemoPackageCreationWidget::handleSkipButtonToggled(bool checked)
-{
-    m_ui->major->setEnabled(!checked);
-    m_ui->minor->setEnabled(!checked);
-    m_ui->patch->setEnabled(!checked);
-    m_ui->debianFilesComboBox->setEnabled(!checked);
-    m_ui->editDebianFileButton->setEnabled(!checked);
-    m_ui->editSpecFileButton->setEnabled(!checked);
-    m_ui->packageManagerIconButton->setEnabled(!checked);
-    m_ui->packageNameLineEdit->setEnabled(!checked);
-    m_ui->packageManagerNameLineEdit->setEnabled(!checked);
-    m_ui->shortDescriptionLineEdit->setEnabled(!checked);
-    m_step->setPackagingEnabled(!checked);
-    emit updateSummary();
 }
 
 void MaemoPackageCreationWidget::versionInfoChanged()

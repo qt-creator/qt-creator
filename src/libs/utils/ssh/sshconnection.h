@@ -78,9 +78,9 @@ public:
     enum State { Unconnected, Connecting, Connected };
     typedef QSharedPointer<SshConnection> Ptr;
 
-    static Ptr create();
+    static Ptr create(const SshConnectionParameters &serverInfo);
 
-    void connectToHost(const SshConnectionParameters &serverInfo);
+    void connectToHost();
     void disconnectFromHost();
     State state() const;
     SshError errorState() const;
@@ -98,11 +98,11 @@ signals:
     void error(Utils::SshError);
 
 private:
-    SshConnection();
+    SshConnection(const SshConnectionParameters &serverInfo);
 
     Internal::SshConnectionPrivate *d;
 };
 
-} // namespace Internal
+} // namespace Utils
 
 #endif // SSHCONNECTION_H

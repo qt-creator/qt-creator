@@ -50,13 +50,13 @@ QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
-class MaemoPackageCreationStep;
+class AbstractMaemoPackageCreationStep;
 
 class MaemoPackageCreationWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    MaemoPackageCreationWidget(MaemoPackageCreationStep *step);
+    MaemoPackageCreationWidget(AbstractMaemoPackageCreationStep *step);
     ~MaemoPackageCreationWidget();
 
     virtual void init();
@@ -64,7 +64,6 @@ public:
     virtual QString displayName() const;
 
 private slots:
-    void handleSkipButtonToggled(bool checked);
     void editDebianFile();
     void editSpecFile();
     void versionInfoChanged();
@@ -85,7 +84,7 @@ private:
     void updateShortDescription();
     void editFile(const QString &filePath);
 
-    MaemoPackageCreationStep * const m_step;
+    AbstractMaemoPackageCreationStep * const m_step;
     Ui::MaemoPackageCreationWidget * const m_ui;
 };
 

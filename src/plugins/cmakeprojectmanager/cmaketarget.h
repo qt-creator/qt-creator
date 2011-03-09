@@ -64,7 +64,6 @@ public:
     CMakeBuildConfiguration *activeBuildConfiguration() const;
 
     CMakeBuildConfigurationFactory *buildConfigurationFactory() const;
-    ProjectExplorer::DeployConfigurationFactory *deployConfigurationFactory() const;
 
     QString defaultBuildDirectory() const;
 
@@ -76,7 +75,6 @@ private slots:
 
 private:
     CMakeBuildConfigurationFactory *m_buildConfigurationFactory;
-    ProjectExplorer::DeployConfigurationFactory *m_deployConfigurationFactory;
 };
 
 class CMakeTargetFactory : public ProjectExplorer::ITargetFactory

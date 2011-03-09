@@ -38,6 +38,7 @@
 #include "s60emulatorrunconfiguration.h"
 #include "s60devicerunconfiguration.h"
 #include "s60createpackagestep.h"
+#include "s60deployconfiguration.h"
 #include "s60deploystep.h"
 #include "s60runcontrolfactory.h"
 
@@ -125,6 +126,7 @@ S60Manager::S60Manager(QObject *parent) : QObject(parent)
 
     addAutoReleasedObject(new S60DeviceDebugRunControlFactory);
     addAutoReleasedObject(new Qt4SymbianTargetFactory);
+    addAutoReleasedObject(new S60DeployConfigurationFactory);
 
     addAutoReleasedObject(new S60PublishingWizardFactoryOvi);
 

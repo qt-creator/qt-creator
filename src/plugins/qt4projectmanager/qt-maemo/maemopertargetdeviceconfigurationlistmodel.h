@@ -48,7 +48,8 @@ class MaemoPerTargetDeviceConfigurationListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit MaemoPerTargetDeviceConfigurationListModel(ProjectExplorer::Target *target);
+    explicit MaemoPerTargetDeviceConfigurationListModel(QObject *parent, const
+        ProjectExplorer::Target *target);
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index,
@@ -63,7 +64,7 @@ signals:
     void updated();
 
 private:
-    MaemoGlobal::MaemoVersion m_targetOsVersion;
+    MaemoGlobal::OsVersion m_targetOsVersion;
 };
 
 } // namespace Internal

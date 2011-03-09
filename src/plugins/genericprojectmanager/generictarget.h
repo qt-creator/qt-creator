@@ -70,7 +70,6 @@ public:
     GenericProject *genericProject() const;
 
     GenericBuildConfigurationFactory *buildConfigurationFactory() const;
-    ProjectExplorer::DeployConfigurationFactory *deployConfigurationFactory() const;
     GenericBuildConfiguration *activeBuildConfiguration() const;
 
 protected:
@@ -78,7 +77,6 @@ protected:
 
 private:
     GenericBuildConfigurationFactory *m_buildConfigurationFactory;
-    ProjectExplorer::DeployConfigurationFactory *m_deployConfigurationFactory;
 };
 
 class GenericTargetFactory : public ProjectExplorer::ITargetFactory

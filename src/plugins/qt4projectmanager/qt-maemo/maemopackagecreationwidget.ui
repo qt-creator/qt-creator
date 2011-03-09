@@ -18,44 +18,21 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QCheckBox" name="skipCheckBox">
-     <property name="toolTip">
-      <string>Check this if you want the files below to be deployed directly.</string>
-     </property>
-     <property name="text">
-      <string>Skip packaging step</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <layout class="QFormLayout" name="formLayout">
      <property name="fieldGrowthPolicy">
       <enum>QFormLayout::ExpandingFieldsGrow</enum>
      </property>
-     <item row="0" column="1">
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="1" column="0">
+     <item row="0" column="0">
       <widget class="QLabel" name="packageNameLabel">
        <property name="text">
         <string>Package name:</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="0" column="1">
       <widget class="QLineEdit" name="packageNameLineEdit"/>
      </item>
-     <item row="2" column="0">
+     <item row="1" column="0">
       <widget class="QLabel" name="label">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -74,7 +51,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="1" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QLabel" name="label_2">
@@ -169,35 +146,35 @@
        </item>
       </layout>
      </item>
-     <item row="4" column="0">
+     <item row="3" column="0">
       <widget class="QLabel" name="shortDescriptionLabel">
        <property name="text">
         <string>Short package description:</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="3" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_5">
        <item>
         <widget class="QLineEdit" name="shortDescriptionLineEdit"/>
        </item>
       </layout>
      </item>
-     <item row="5" column="0">
+     <item row="4" column="0">
       <widget class="QLabel" name="packageManagerNameLabel">
        <property name="text">
         <string>Name to be displayed in Package Manager:</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
+     <item row="4" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
         <widget class="QLineEdit" name="packageManagerNameLineEdit"/>
        </item>
       </layout>
      </item>
-     <item row="6" column="0">
+     <item row="5" column="0">
       <widget class="QLabel" name="packageManagerIconLabel">
        <property name="minimumSize">
         <size>
@@ -210,7 +187,7 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="5" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
         <widget class="QToolButton" name="packageManagerIconButton">
@@ -249,14 +226,14 @@
        </item>
       </layout>
      </item>
-     <item row="7" column="0">
+     <item row="6" column="0">
       <widget class="QLabel" name="editDebianFileLabel">
        <property name="text">
         <string>Adapt Debian file:</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="6" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QComboBox" name="debianFilesComboBox"/>
@@ -283,7 +260,7 @@
        </item>
       </layout>
      </item>
-     <item row="8" column="1">
+     <item row="7" column="1">
       <widget class="QPushButton" name="editSpecFileButton">
        <property name="text">
         <string>Edit spec file</string>
@@ -296,22 +273,6 @@
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>skipCheckBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MaemoPackageCreationWidget</receiver>
-   <slot>handleSkipButtonToggled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>129</x>
-     <y>18</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>240</x>
-     <y>31</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>major</sender>
    <signal>valueChanged(int)</signal>

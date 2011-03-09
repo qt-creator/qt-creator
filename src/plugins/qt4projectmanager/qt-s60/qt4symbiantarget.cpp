@@ -43,6 +43,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <symbianutils/symbiandevicemanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <QtGui/QPainter>
 #include <QtGui/QApplication>
 
@@ -53,8 +54,7 @@ Qt4SymbianTarget::Qt4SymbianTarget(Qt4Project *parent, const QString &id) :
     Qt4BaseTarget(parent, id),
     m_connectedPixmap(QLatin1String(":/projectexplorer/images/ConnectionOn.png")),
     m_disconnectedPixmap(QLatin1String(":/projectexplorer/images/ConnectionOff.png")),
-    m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this)),
-    m_deployConfigurationFactory(new S60DeployConfigurationFactory(this))
+    m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this))
 {
     setDisplayName(defaultDisplayName(id));
     setIcon(iconForId(id));
@@ -90,11 +90,6 @@ QIcon Qt4SymbianTarget::iconForId(const QString &id)
 Qt4BuildConfigurationFactory *Qt4SymbianTarget::buildConfigurationFactory() const
 {
     return m_buildConfigurationFactory;
-}
-
-ProjectExplorer::DeployConfigurationFactory *Qt4SymbianTarget::deployConfigurationFactory() const
-{
-    return m_deployConfigurationFactory;
 }
 
 QList<ProjectExplorer::ToolChain *> Qt4SymbianTarget::possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const

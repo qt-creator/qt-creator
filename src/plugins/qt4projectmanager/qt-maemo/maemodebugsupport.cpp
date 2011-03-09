@@ -34,8 +34,8 @@
 
 #include "maemodebugsupport.h"
 
+#include "abstractmaemodeploystep.h"
 #include "maemodeployables.h"
-#include "maemodeploystep.h"
 #include "maemoglobal.h"
 #include "maemosshrunner.h"
 #include "maemousedportsgatherer.h"

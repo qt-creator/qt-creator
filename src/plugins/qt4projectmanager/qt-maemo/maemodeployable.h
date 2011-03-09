@@ -42,6 +42,8 @@ namespace Internal {
 
 struct MaemoDeployable
 {
+    MaemoDeployable() {}
+
     MaemoDeployable(const QString &localFilePath, const QString &remoteDir)
         : localFilePath(localFilePath), remoteDir(remoteDir) {}
 

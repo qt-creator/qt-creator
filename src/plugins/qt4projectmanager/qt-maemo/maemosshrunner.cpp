@@ -34,7 +34,6 @@
 
 #include "maemosshrunner.h"
 
-#include "maemodeploystep.h"
 #include "maemoglobal.h"
 #include "maemoqemumanager.h"
 #include "maemoremotemounter.h"
@@ -43,6 +42,7 @@
 #include "maemousedportsgatherer.h"
 
 #include <utils/ssh/sshconnection.h>
+#include <utils/ssh/sshconnectionmanager.h>
 #include <utils/ssh/sshremoteprocess.h>
 
 #include <QtCore/QFileInfo>
@@ -69,7 +69,7 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent,
       m_mountSpecs(runConfig->remoteMounts()->mountSpecs()),
       m_state(Inactive)
 {
-    m_connection = runConfig->deployStep()->sshConnection();
+    m_connection = SshConnectionManager::instance().acquireConnection(m_devConfig->sshParameters());
     m_mounter->setBuildConfiguration(runConfig->activeQt4BuildConfiguration());
     if (debugging && runConfig->useRemoteGdb()) {
         m_mountSpecs << MaemoMountSpecification(runConfig->localDirToMountForRemoteGdb(),
@@ -118,20 +118,15 @@ void MaemoSshRunner::start()
     setState(Connecting);
     m_exitStatus = -1;
     m_freePorts = m_initialFreePorts;
-    if (m_connection)
-        disconnect(m_connection.data(), 0, this, 0);
-    const bool reUse = isConnectionUsable();
-    if (!reUse)
-        m_connection = SshConnection::create();
     connect(m_connection.data(), SIGNAL(connected()), this,
         SLOT(handleConnected()));
     connect(m_connection.data(), SIGNAL(error(Utils::SshError)), this,
         SLOT(handleConnectionFailure()));
-    if (reUse) {
+    if (isConnectionUsable()) {
         handleConnected();
     } else {
         emit reportProgress(tr("Connecting to device..."));
-        m_connection->connectToHost(m_devConfig->sshParameters());
+        m_connection->connectToHost();
     }
 }
 
@@ -319,6 +314,7 @@ void MaemoSshRunner::setState(State newState)
         m_portsGatherer->stop();
         if (m_connection) {
             disconnect(m_connection.data(), 0, this, 0);
+            SshConnectionManager::instance().releaseConnection(m_connection);
             m_connection = SshConnection::Ptr();
         }
         if (m_cleaner)

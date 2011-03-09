@@ -33,13 +33,14 @@
 
 #include "maemorunconfiguration.h"
 
+#include "abstractmaemodeploystep.h"
 #include "maemodeployables.h"
-#include "maemodeploystep.h"
 #include "maemoglobal.h"
 #include "maemoqemumanager.h"
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfigurationwidget.h"
 #include "maemotoolchain.h"
+#include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
 #include "qtoutputformatter.h"
 
@@ -213,7 +214,7 @@ QString MaemoRunConfiguration::defaultDisplayName()
 
 MaemoDeviceConfig::ConstPtr MaemoRunConfiguration::deviceConfig() const
 {
-    const MaemoDeployStep * const step = deployStep();
+    const AbstractMaemoDeployStep * const step = deployStep();
     return step ? step->deviceConfig() : MaemoDeviceConfig::ConstPtr();
 }
 
@@ -231,9 +232,14 @@ const QString MaemoRunConfiguration::gdbCmd() const
     return QDir::toNativeSeparators(targetRoot() + QLatin1String("/bin/gdb"));
 }
 
-MaemoDeployStep *MaemoRunConfiguration::deployStep() const
+Qt4MaemoDeployConfiguration *MaemoRunConfiguration::deployConfig() const
 {
-    return MaemoGlobal::buildStep<MaemoDeployStep>(target()->activeDeployConfiguration());
+    return qobject_cast<Qt4MaemoDeployConfiguration *>(target()->activeDeployConfiguration());
+}
+
+AbstractMaemoDeployStep *MaemoRunConfiguration::deployStep() const
+{
+    return MaemoGlobal::earlierBuildStep<AbstractMaemoDeployStep>(deployConfig(), 0);
 }
 
 const QString MaemoRunConfiguration::sysRoot() const
@@ -299,10 +305,7 @@ QString MaemoRunConfiguration::localExecutableFilePath() const
 
 QString MaemoRunConfiguration::remoteExecutableFilePath() const
 {
-    const MaemoDeployStep * const step = deployStep();
-    return step
-        ? step->deployables()->remoteExecutableFilePath(localExecutableFilePath())
-        : QString();
+    return deployConfig()->deployables()->remoteExecutableFilePath(localExecutableFilePath());
 }
 
 MaemoPortList MaemoRunConfiguration::freePorts() const
@@ -356,8 +359,8 @@ void MaemoRunConfiguration::handleDeployConfigChanged()
     DeployConfiguration * const activeDeployConf
         = target()->activeDeployConfiguration();
     for (int i = 0; i < deployConfigs.count(); ++i) {
-        MaemoDeployStep * const step
-            = MaemoGlobal::buildStep<MaemoDeployStep>(deployConfigs.at(i));
+        AbstractMaemoDeployStep * const step
+            = MaemoGlobal::earlierBuildStep<AbstractMaemoDeployStep>(deployConfigs.at(i), 0);
         if (!step)
             continue;
         if (deployConfigs.at(i) == activeDeployConf) {

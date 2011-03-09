@@ -36,6 +36,7 @@
 
 #include <utils/environment.h>
 
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
 
@@ -47,6 +48,7 @@
     MaemoGlobal::assertState<State>(expected, actual, Q_FUNC_INFO)
 
 QT_BEGIN_NAMESPACE
+class QDateTime;
 class QProcess;
 class QString;
 QT_END_NAMESPACE
@@ -61,8 +63,8 @@ class MaemoGlobal
 {
     Q_DECLARE_TR_FUNCTIONS(Qt4ProjectManager::Internal::MaemoGlobal)
 public:
-    enum MaemoVersion { Maemo5, Maemo6, Meego };
-    enum PackagingSystem { Dpkg, Rpm };
+    enum OsVersion { Maemo5, Maemo6, Meego, GenericLinux };
+    enum PackagingSystem { Dpkg, Rpm, Tar };
 
     class FileUpdate {
     public:
@@ -73,6 +75,9 @@ public:
     };
 
     static bool isMaemoTargetId(const QString &id);
+    static bool isFremantleTargetId(const QString &id);
+    static bool isHarmattanTargetId(const QString &id);
+    static bool isMeegoTargetId(const QString &id);
     static bool isValidMaemo5QtVersion(const Qt4ProjectManager::QtVersion *version);
     static bool isValidHarmattanQtVersion(const Qt4ProjectManager::QtVersion *version);
     static bool isValidMeegoQtVersion(const Qt4ProjectManager::QtVersion *version);
@@ -90,7 +95,7 @@ public:
     static QString targetRoot(const QtVersion *qtVersion);
     static QString targetName(const QtVersion *qtVersion);
     static QString madCommand(const QtVersion *qtVersion);
-    static MaemoVersion version(const QtVersion *qtVersion);
+    static OsVersion version(const QtVersion *qtVersion);
     // TODO: IS this still needed with Qt Version having an Abi?
     static QString architecture(const QtVersion *version);
 
@@ -99,21 +104,23 @@ public:
     static bool callMadAdmin(QProcess &proc, const QStringList &args,
         const QtVersion *qtVersion, bool useTarget);
 
-    static QString maemoVersionToString(MaemoVersion version);
+    static QString osVersionToString(OsVersion version);
 
-    static PackagingSystem packagingSystem(MaemoVersion maemoVersion);
+    static PackagingSystem packagingSystem(OsVersion osVersion);
 
     static bool removeRecursively(const QString &filePath, QString &error);
 
-    template<class T> static T *buildStep(const ProjectExplorer::DeployConfiguration *dc)
+    static bool isFileNewerThan(const QString &filePath,
+        const QDateTime &timeStamp);
+
+    template<class T> static T *earlierBuildStep(const ProjectExplorer::DeployConfiguration *dc,
+        const ProjectExplorer::BuildStep *laterBuildStep)
     {
-        if (!dc)
-            return 0;
-        ProjectExplorer::BuildStepList *bsl = dc->stepList();
-        if (!bsl)
-            return 0;
+        const ProjectExplorer::BuildStepList * const bsl = dc->stepList();
         const QList<ProjectExplorer::BuildStep *> &buildSteps = bsl->steps();
-        for (int i = buildSteps.count() - 1; i >= 0; --i) {
+        for (int i = 0; i < buildSteps.count(); ++i) {
+            if (buildSteps.at(i) == laterBuildStep)
+                return 0;
             if (T * const step = qobject_cast<T *>(buildSteps.at(i)))
                 return step;
         }
@@ -137,7 +144,7 @@ public:
 
 private:
     static bool isValidMaemoQtVersion(const Qt4ProjectManager::QtVersion *qtVersion,
-        MaemoVersion maemoVersion);
+        OsVersion maemoVersion);
     static QString madAdminCommand(const QtVersion *qtVersion);
     static bool callMaddeShellScript(QProcess &proc, const QtVersion *qtVersion,
         const QString &command, const QStringList &args, bool useTarget);

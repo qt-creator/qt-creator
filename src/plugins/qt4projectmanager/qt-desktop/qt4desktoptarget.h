@@ -51,7 +51,6 @@ public:
     virtual ~Qt4DesktopTarget();
 
     Internal::Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
-    ProjectExplorer::DeployConfigurationFactory *deployConfigurationFactory() const;
 
     void createApplicationProFiles();
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
@@ -60,7 +59,6 @@ public:
 
 private:
     Internal::Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
-    ProjectExplorer::DeployConfigurationFactory *m_deployConfigurationFactory;
 };
 
 } // namespace Internal

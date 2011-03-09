@@ -196,7 +196,7 @@ void MaemoDeviceConfigurationsSettingsWidget::displayCurrent()
 {
     const MaemoDeviceConfig::ConstPtr &current = currentConfig();
     m_ui->defaultDeviceButton->setEnabled(!current->isDefault());
-    m_ui->osTypeValueLabel->setText(MaemoGlobal::maemoVersionToString(current->osVersion()));
+    m_ui->osTypeValueLabel->setText(MaemoGlobal::osVersionToString(current->osVersion()));
     const SshConnectionParameters &sshParams = current->sshParameters();
     if (current->type() == MaemoDeviceConfig::Physical) {
         m_ui->deviceTypeValueLabel->setText(tr("Physical Device"));

@@ -65,8 +65,7 @@ QString displayNameForId(const QString &id) {
 
 CMakeTarget::CMakeTarget(CMakeProject *parent) :
     ProjectExplorer::Target(parent, QLatin1String(DEFAULT_CMAKE_TARGET_ID)),
-    m_buildConfigurationFactory(new CMakeBuildConfigurationFactory(this)),
-    m_deployConfigurationFactory(new ProjectExplorer::DeployConfigurationFactory(this))
+    m_buildConfigurationFactory(new CMakeBuildConfigurationFactory(this))
 {
     setDefaultDisplayName(displayNameForId(id()));
     setIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
@@ -100,11 +99,6 @@ CMakeBuildConfiguration *CMakeTarget::activeBuildConfiguration() const
 CMakeBuildConfigurationFactory *CMakeTarget::buildConfigurationFactory() const
 {
     return m_buildConfigurationFactory;
-}
-
-ProjectExplorer::DeployConfigurationFactory *CMakeTarget::deployConfigurationFactory() const
-{
-    return m_deployConfigurationFactory;
 }
 
 QString CMakeTarget::defaultBuildDirectory() const
@@ -228,7 +222,7 @@ CMakeTarget *CMakeTargetFactory::create(ProjectExplorer::Project *parent, const 
 
     t->addBuildConfiguration(bc);
 
-    t->addDeployConfiguration(t->deployConfigurationFactory()->create(t, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
+    t->addDeployConfiguration(t->createDeployConfiguration(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
 
     t->updateRunConfigurations();
 

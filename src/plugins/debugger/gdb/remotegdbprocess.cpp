@@ -37,12 +37,13 @@
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/ssh/sshconnectionmanager.h>
 
 #include <QtCore/QFileInfo>
 
 #include <ctype.h>
 
-using namespace Core;
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
@@ -91,11 +92,15 @@ void RemoteGdbProcess::realStart(const QString &cmd, const QStringList &args,
     m_gdbOutput.clear();
     m_errorOutput.clear();
     m_inputToSend.clear();
-    m_conn = Utils::SshConnection::create();
-    connect(m_conn.data(), SIGNAL(connected()), this, SLOT(handleConnected()));
+    m_conn = SshConnectionManager::instance().acquireConnection(m_connParams);
     connect(m_conn.data(), SIGNAL(error(Utils::SshError)), this,
         SLOT(handleConnectionError()));
-    m_conn->connectToHost(m_connParams);
+    if (m_conn->state() == SshConnection::Connected) {
+        handleConnected();
+    } else {
+        connect(m_conn.data(), SIGNAL(connected()), this, SLOT(handleConnected()));
+        m_conn->connectToHost();
+    }
 }
 
 void RemoteGdbProcess::handleConnected()
@@ -386,7 +391,8 @@ void RemoteGdbProcess::setState(State newState)
             m_fifoCreator = Utils::SshRemoteProcess::Ptr();
         }
         disconnect(m_conn.data(), 0, this, 0);
-        m_conn->disconnectFromHost();
+        SshConnectionManager::instance().releaseConnection(m_conn);
+        m_conn.clear();
     }
 }
 

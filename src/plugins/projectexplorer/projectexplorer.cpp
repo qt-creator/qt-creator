@@ -850,6 +850,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     addAutoReleasedObject(new ProjectTreeWidgetFactory);
     addAutoReleasedObject(new FolderNavigationWidgetFactory);
+    addAutoReleasedObject(new DeployConfigurationFactory);
 
     if (QSettings *s = core->settings()) {
         const QStringList fileNames = s->value("ProjectExplorer/RecentProjects/FileNames").toStringList();

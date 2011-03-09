@@ -46,7 +46,6 @@ QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher)
 namespace Qt4ProjectManager {
 class Qt4Project;
 namespace Internal {
-class MaemoPerTargetDeviceConfigurationListModel;
 class Qt4MaemoDeployConfigurationFactory;
 
 class AbstractQt4MaemoTarget : public Qt4BaseTarget
@@ -58,7 +57,6 @@ public:
     virtual ~AbstractQt4MaemoTarget();
 
     Internal::Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
-    ProjectExplorer::DeployConfigurationFactory *deployConfigurationFactory() const;
     QString defaultBuildDirectory() const;
     void createApplicationProFiles();
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
@@ -87,9 +85,6 @@ public:
     // TODO: Is this needed with the ABI info we have?
     DebugArchitecture debugArchitecture() const;
 
-    MaemoPerTargetDeviceConfigurationListModel *deviceConfigurationsModel() const {
-        return m_deviceConfigurationsListModel;
-    }
     QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
 
 protected:
@@ -122,8 +117,6 @@ private:
     virtual bool initAdditionalPackagingSettingsFromOtherTarget()=0;
 
     Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
-    Qt4MaemoDeployConfigurationFactory *m_deployConfigurationFactory;
-    MaemoPerTargetDeviceConfigurationListModel * m_deviceConfigurationsListModel;
 };
 
 

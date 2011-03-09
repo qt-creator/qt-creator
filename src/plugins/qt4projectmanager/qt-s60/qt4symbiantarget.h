@@ -52,7 +52,6 @@ public:
     virtual ~Qt4SymbianTarget();
 
     Internal::Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
-    ProjectExplorer::DeployConfigurationFactory *deployConfigurationFactory() const;
 
     QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
 
@@ -76,7 +75,6 @@ private:
     const QPixmap m_disconnectedPixmap;
 
     Internal::Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
-    ProjectExplorer::DeployConfigurationFactory *m_deployConfigurationFactory;
 };
 } // namespace Internal
 } // namespace Qt4ProjectManager

@@ -34,7 +34,6 @@
 
 #include "maemoruncontrol.h"
 
-#include "maemodeploystep.h"
 #include "maemoglobal.h"
 #include "maemorunconfiguration.h"
 #include "maemosshrunner.h"
@@ -44,7 +43,6 @@
 
 #include <QtGui/QMessageBox>
 
-using namespace Core;
 using namespace ProjectExplorer;
 
 namespace Qt4ProjectManager {

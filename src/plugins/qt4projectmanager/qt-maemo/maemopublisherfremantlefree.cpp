@@ -33,10 +33,10 @@
 #include "maemopublisherfremantlefree.h"
 
 #include "maemodeployablelistmodel.h"
-#include "maemodeploystep.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemopublishingfileselectiondialog.h"
+#include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
 
 #include <coreplugin/ifile.h>
@@ -156,7 +156,7 @@ void MaemoPublisherFremantleFree::createPackage()
     }
 
     emit progressReport(tr("Cleaning up temporary directory ..."));
-    MaemoPackageCreationStep::preparePackagingProcess(m_process,
+    AbstractMaemoPackageCreationStep::preparePackagingProcess(m_process,
             m_buildConfig, m_tmpProjectDir);
     setState(RunningQmake);
     ProjectExplorer::AbstractProcessStep * const qmakeStep
@@ -223,7 +223,7 @@ bool MaemoPublisherFremantleFree::copyRecursively(const QString &srcFilePath,
             rulesContents.replace("$(MAKE) clean", "# $(MAKE) clean");
             rulesContents.replace("# Add here commands to configure the package.",
                 "qmake " + QFileInfo(m_project->file()->fileName()).fileName().toLocal8Bit());
-            MaemoPackageCreationStep::ensureShlibdeps(rulesContents);
+            MaemoDebianPackageCreationStep::ensureShlibdeps(rulesContents);
             rulesFile.resize(0);
             rulesFile.write(rulesContents);
         }
@@ -520,12 +520,12 @@ void MaemoPublisherFremantleFree::finishWithFailure(const QString &progressMsg,
 bool MaemoPublisherFremantleFree::updateDesktopFiles(QString *error) const
 {
     bool success = true;
-    MaemoDeployStep * const deployStep
-        = MaemoGlobal::buildStep<MaemoDeployStep>(m_buildConfig->target()
-              ->activeDeployConfiguration());
-    for (int i = 0; i < deployStep->deployables()->modelCount(); ++i) {
-        const MaemoDeployableListModel * const model
-            = deployStep->deployables()->modelAt(i);
+    const Qt4MaemoDeployConfiguration * const deployConfig
+        = qobject_cast<Qt4MaemoDeployConfiguration *>(m_buildConfig->target()->activeDeployConfiguration());
+    const QSharedPointer<MaemoDeployables> deployables
+        = deployConfig->deployables();
+    for (int i = 0; i < deployables->modelCount(); ++i) {
+        const MaemoDeployableListModel * const model = deployables->modelAt(i);
         QString desktopFilePath = model->localDesktopFilePath();
         if (desktopFilePath.isEmpty())
             continue;

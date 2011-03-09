@@ -48,6 +48,7 @@ class MaemoRunConfigurationFactory;
 class MaemoDeviceConfigurationsSettingsPage;
 class MaemoQemuManager;
 class MaemoQemuSettingsPage;
+class Qt4MaemoDeployConfigurationFactory;
 class Qt4MaemoTargetFactory;
 class MaemoToolChainFactory;
 
@@ -68,6 +69,7 @@ private:
 
     MaemoRunControlFactory *m_runControlFactory;
     MaemoRunConfigurationFactory *m_runConfigurationFactory;
+    Qt4MaemoDeployConfigurationFactory *m_deployConfigurationFactory;
     MaemoPackageCreationFactory *m_packageCreationFactory;
     MaemoDeployStepFactory *m_deployStepFactory;
     MaemoDeviceConfigurationsSettingsPage *m_deviceConfigurationsSettingsPage;

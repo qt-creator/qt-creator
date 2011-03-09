@@ -35,13 +35,13 @@
 #include "maemorunconfigurationwidget.h"
 
 #include "maemodeployables.h"
-#include "maemodeploystep.h"
 #include "maemodeviceenvreader.h"
 #include "maemomanager.h"
 #include "maemoglobal.h"
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
 #include "maemosettingspages.h"
+#include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
 
 #include <coreplugin/coreconstants.h>
@@ -313,11 +313,8 @@ void MaemoRunConfigurationWidget::handleActiveDeployConfigurationChanged()
 {
     if (m_deployablesConnected)
         return;
-    MaemoDeployStep * const deployStep = m_runConfiguration->deployStep();
-    if (!deployStep)
-        return;
-    connect(deployStep->deployables().data(), SIGNAL(modelReset()),
-        SLOT(handleDeploySpecsChanged()));
+    connect(m_runConfiguration->deployConfig()->deployables().data(),
+        SIGNAL(modelReset()), SLOT(handleDeploySpecsChanged()));
    handleDeploySpecsChanged();
    m_deployablesConnected = true;
    disconnect(m_runConfiguration->target(),

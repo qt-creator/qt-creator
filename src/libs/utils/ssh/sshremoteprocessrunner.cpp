@@ -33,6 +33,8 @@
 
 #include "sshremoteprocessrunner.h"
 
+#include "sshconnectionmanager.h"
+
 #define ASSERT_STATE(states) assertState(states, Q_FUNC_INFO)
 
 /*!
@@ -51,6 +53,7 @@ public:
         QObject *parent);
     SshRemoteProcessRunnerPrivate(const SshConnection::Ptr &connection,
         QObject *parent);
+    ~SshRemoteProcessRunnerPrivate();
     void run(const QByteArray &command);
     QByteArray command() const { return m_command; }
 
@@ -79,27 +82,32 @@ private:
     void assertState(State allowedState, const char *func);
 
     State m_state;
+    bool m_needsRelease;
     QByteArray m_command;
-    const SshConnectionParameters m_params;
 };
 
 
 SshRemoteProcessRunnerPrivate::SshRemoteProcessRunnerPrivate(const SshConnectionParameters &params,
     QObject *parent)
     : QObject(parent),
-      m_connection(SshConnection::create()),
+      m_connection(SshConnectionManager::instance().acquireConnection(params)),
       m_state(Inactive),
-      m_params(params)
+      m_needsRelease(true)
 {
 }
 
 SshRemoteProcessRunnerPrivate::SshRemoteProcessRunnerPrivate(const SshConnection::Ptr &connection,
     QObject *parent)
-    : QObject(parent),
-      m_connection(connection),
-      m_state(Inactive),
-      m_params(connection->connectionParameters())
+        : QObject(parent),
+          m_connection(connection),
+          m_state(Inactive),
+          m_needsRelease(false)
 {
+}
+
+SshRemoteProcessRunnerPrivate::~SshRemoteProcessRunnerPrivate()
+{
+    setState(Inactive);
 }
 
 void SshRemoteProcessRunnerPrivate::run(const QByteArray &command)
@@ -117,7 +125,7 @@ void SshRemoteProcessRunnerPrivate::run(const QByteArray &command)
     } else {
         connect(m_connection.data(), SIGNAL(connected()),
             SLOT(handleConnected()));
-        m_connection->connectToHost(m_params);
+        m_connection->connectToHost();
     }
 }
 
@@ -182,6 +190,8 @@ void SshRemoteProcessRunnerPrivate::setState(State state)
             if (m_process)
                 disconnect(m_process.data(), 0, this, 0);
             disconnect(m_connection.data(), 0, this, 0);
+            if (m_needsRelease)
+                SshConnectionManager::instance().releaseConnection(m_connection);
         }
     }
 }

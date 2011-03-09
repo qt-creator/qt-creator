@@ -58,8 +58,7 @@ using namespace GenericProjectManager::Internal;
 
 GenericTarget::GenericTarget(GenericProject *parent) :
     ProjectExplorer::Target(parent, QLatin1String(GENERIC_DESKTOP_TARGET_ID)),
-    m_buildConfigurationFactory(new GenericBuildConfigurationFactory(this)),
-    m_deployConfigurationFactory(new ProjectExplorer::DeployConfigurationFactory(this))
+    m_buildConfigurationFactory(new GenericBuildConfigurationFactory(this))
 {
     setDefaultDisplayName(QApplication::translate("GenericProjectManager::GenericTarget",
                                                   GENERIC_DESKTOP_TARGET_DISPLAY_NAME));
@@ -83,11 +82,6 @@ GenericProject *GenericTarget::genericProject() const
 GenericBuildConfigurationFactory *GenericTarget::buildConfigurationFactory() const
 {
     return m_buildConfigurationFactory;
-}
-
-ProjectExplorer::DeployConfigurationFactory *GenericTarget::deployConfigurationFactory() const
-{
-    return m_deployConfigurationFactory;
 }
 
 GenericBuildConfiguration *GenericTarget::activeBuildConfiguration() const
@@ -165,7 +159,7 @@ GenericTarget *GenericTargetFactory::create(ProjectExplorer::Project *parent, co
 
     t->addBuildConfiguration(bc);
 
-    t->addDeployConfiguration(t->deployConfigurationFactory()->create(t, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
+    t->addDeployConfiguration(t->createDeployConfiguration(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
 
     // Add a runconfiguration. The CustomExecutableRC one will query the user
     // for its settings, so it is a good choice here.

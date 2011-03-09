@@ -34,6 +34,7 @@
 #include "maemomanager.h"
 
 #include "maemoconstants.h"
+#include "maemodeployable.h"
 #include "maemodeploystepfactory.h"
 #include "maemodeviceconfigurations.h"
 #include "maemoglobal.h"
@@ -43,6 +44,7 @@
 #include "maemorunfactories.h"
 #include "maemosettingspages.h"
 #include "maemotoolchain.h"
+#include "qt4maemodeployconfiguration.h"
 #include "qt4maemotargetfactory.h"
 #include "qt4projectmanager/qtversionmanager.h"
 #include "qt4projectmanager/qt4projectmanagerconstants.h"
@@ -65,6 +67,7 @@ MaemoManager::MaemoManager()
     : QObject(0)
     , m_runControlFactory(new MaemoRunControlFactory(this))
     , m_runConfigurationFactory(new MaemoRunConfigurationFactory(this))
+    , m_deployConfigurationFactory(new Qt4MaemoDeployConfigurationFactory(this))
     , m_packageCreationFactory(new MaemoPackageCreationFactory(this))
     , m_deployStepFactory(new MaemoDeployStepFactory(this))
     , m_deviceConfigurationsSettingsPage(new MaemoDeviceConfigurationsSettingsPage(this))
@@ -83,12 +86,15 @@ MaemoManager::MaemoManager()
     pluginManager->addObject(m_toolChainFactory);
     pluginManager->addObject(m_runControlFactory);
     pluginManager->addObject(m_runConfigurationFactory);
+    pluginManager->addObject(m_deployConfigurationFactory);
     pluginManager->addObject(m_packageCreationFactory);
     pluginManager->addObject(m_deployStepFactory);
     pluginManager->addObject(m_deviceConfigurationsSettingsPage);
     pluginManager->addObject(m_qemuSettingsPage);
     pluginManager->addObject(m_publishingFactoryFremantleFree);
     pluginManager->addObject(m_maemoTargetFactory);
+
+    qRegisterMetaType<MaemoDeployable>("MaemoDeployable");
 }
 
 MaemoManager::~MaemoManager()
@@ -100,6 +106,7 @@ MaemoManager::~MaemoManager()
     pluginManager->removeObject(m_deviceConfigurationsSettingsPage);
     pluginManager->removeObject(m_deployStepFactory);
     pluginManager->removeObject(m_packageCreationFactory);
+    pluginManager->removeObject(m_deployConfigurationFactory);
     pluginManager->removeObject(m_runConfigurationFactory);
     pluginManager->removeObject(m_runControlFactory);
     pluginManager->removeObject(m_toolChainFactory);
