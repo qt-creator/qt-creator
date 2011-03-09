@@ -34,8 +34,6 @@
 #ifndef GCCETOOLCHAIN_H
 #define GCCETOOLCHAIN_H
 
-#include "s60devices.h"
-
 #include <projectexplorer/gcctoolchain.h>
 
 namespace Qt4ProjectManager {

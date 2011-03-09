@@ -37,7 +37,6 @@
 #include "qt4project.h"
 #include "qt4target.h"
 #include "s60manager.h"
-#include "s60devices.h"
 #include "s60runconfigbluetoothstarter.h"
 #include "qt4projectmanagerconstants.h"
 #include "qtoutputformatter.h"
