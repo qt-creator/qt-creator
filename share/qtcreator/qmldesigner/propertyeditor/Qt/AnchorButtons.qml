@@ -26,6 +26,7 @@ QWidget {
         fixedHeight: 28
 		height: fixedHeight
         styleSheetFile: "anchortop.css";
+        toolTip: enabled ? qsTr("Set top anchor") : qsTr("Setting anchors in states is not supported.")
 
         checked: anchorBackend.topAnchored;
         onReleased: {
@@ -49,6 +50,7 @@ QWidget {
 		height: fixedHeight
 
         styleSheetFile: "anchorbottom.css";
+        toolTip: enabled ? qsTr("Set bottom anchor") : qsTr("Setting anchors in states is not supported.")
 
         checked: anchorBackend.bottomAnchored;
         onReleased: {
@@ -71,6 +73,7 @@ QWidget {
 		height: fixedHeight
 
         styleSheetFile: "anchorleft.css";
+        toolTip: enabled ? qsTr("Set left anchor") : qsTr("Setting anchors in states is not supported.")
 
         checked: anchorBackend.leftAnchored;
         onReleased: {
@@ -93,6 +96,7 @@ QWidget {
 		height: fixedHeight
 
         styleSheetFile: "anchorright.css";
+        toolTip: enabled ? qsTr("Set right anchor") : qsTr("Setting anchors in states is not supported.")
 
         checked: anchorBackend.rightAnchored;
         onReleased: {
@@ -125,6 +129,7 @@ QWidget {
 		height: fixedHeight
 
         styleSheetFile: "anchorfill.css";
+        toolTip: enabled ? qsTr("Fill to parent") : qsTr("Setting anchors in states is not supported.")
         checkable: true
 
         onReleased: {              
@@ -157,6 +162,7 @@ QWidget {
 		height: fixedHeight
 
 		styleSheetFile: "anchorvertical.css";
+                toolTip: enabled ? qsTr("Set vertical anchor") : qsTr("Setting anchors in states is not supported.")
 
         checked: anchorBackend.verticalCentered;
         onReleased: {
@@ -181,6 +187,7 @@ QWidget {
 		height: fixedHeight
         
 		styleSheetFile: "anchorhorizontal.css";
+                toolTip: enabled ? qsTr("Set horizontal anchor") : qsTr("Setting anchors in states is not supported.")
 
         checked: anchorBackend.horizontalCentered;
         onReleased: {

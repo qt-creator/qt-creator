@@ -50,6 +50,7 @@ QWidget {
         
         styleSheetFile: "styledbuttonleft.css"                
         iconFromFile: "images/icon_color_solid.png"
+        toolTip: qsTr("Solid color")
 
         onToggled: {
             if (checked) {
@@ -74,6 +75,7 @@ QWidget {
 
         styleSheetFile: "styledbuttonmiddle.css"
         iconFromFile: "images/icon_color_gradient.png"
+        toolTip: qsTr("Gradient")
 
         onToggled: {
             if (checked) {
@@ -97,6 +99,7 @@ QWidget {
         fixedHeight: 28
         styleSheetFile: "styledbuttonright.css"
         iconFromFile: "images/icon_color_none.png"
+        toolTip: qsTr("Transparent")
 
         onToggled: {
             if (checked) {
