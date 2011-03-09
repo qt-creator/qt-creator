@@ -655,17 +655,13 @@ void HelpPlugin::activateHelpMode()
 
 void HelpPlugin::switchToHelpMode()
 {
-    QUrl source = m_helpViewerForSideBar->source();
-    if (source == QUrl(Help::Constants::AboutBlank))
-        source = QUrl();
-    switchToHelpMode(source);
+    switchToHelpMode(m_helpViewerForSideBar->source());
 }
 
 void HelpPlugin::switchToHelpMode(const QUrl &source)
 {
     activateHelpMode();
-    if (!source.isEmpty())
-        m_centralWidget->setSource(source);
+    m_centralWidget->setSource(source);
     m_centralWidget->setFocus();
 }
 
@@ -881,7 +877,6 @@ void HelpPlugin::activateContext()
             viewer->setHtml(tr("<html><head><title>No Documentation</title>"
                 "</head><body><br/><center><b>%1</b><br/>No documentation "
                 "available.</center></body></html>").arg(m_idFromContext));
-            viewer->setFocus(); // we still want the F1+F1 shortcut behavior
         } else {
             int version = 0;
             const QRegExp exp("(\\d+)");
