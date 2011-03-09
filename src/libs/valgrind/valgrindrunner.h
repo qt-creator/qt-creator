@@ -36,7 +36,7 @@
 #ifndef VALGRIND_RUNNER_H
 #define VALGRIND_RUNNER_H
 
-#include <QProcess>
+#include <QtCore/QProcess>
 
 #include "valgrind_global.h"
 

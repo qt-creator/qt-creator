@@ -35,9 +35,9 @@
 
 #include "valgrindprocess.h"
 
-#include <QDebug>
-#include <QEventLoop>
-#include <QFileInfo>
+#include <QtCore/QDebug>
+#include <QtCore/QEventLoop>
+#include <QtCore/QFileInfo>
 
 namespace Valgrind {
 namespace Internal {

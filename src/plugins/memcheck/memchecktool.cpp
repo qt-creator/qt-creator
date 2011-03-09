@@ -73,21 +73,22 @@
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
 
-#include <QString>
-#include <QLatin1String>
-#include <QFileInfo>
-#include <QDockWidget>
-#include <QFile>
-#include <QDir>
-#include <QHBoxLayout>
-#include <QComboBox>
-#include <QLabel>
-#include <QSpinBox>
-#include <QAction>
-#include <QMenu>
-#include <QMessageBox>
-#include <QToolButton>
-#include <QCheckBox>
+#include <QtCore/QString>
+#include <QtCore/QLatin1String>
+#include <QtCore/QFileInfo>
+#include <QtCore/QFile>
+#include <QtCore/QDir>
+
+#include <QtGui/QDockWidget>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QComboBox>
+#include <QtGui/QLabel>
+#include <QtGui/QSpinBox>
+#include <QtGui/QAction>
+#include <QtGui/QMenu>
+#include <QtGui/QMessageBox>
+#include <QtGui/QToolButton>
+#include <QtGui/QCheckBox>
 #include <utils/stylehelper.h>
 
 using namespace Analyzer;

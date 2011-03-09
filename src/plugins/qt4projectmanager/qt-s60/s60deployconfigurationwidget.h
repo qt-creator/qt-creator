@@ -86,6 +86,7 @@ public:
 
 signals:
     void infoCollected();
+    void codaConnected();
 
 private slots:
     void updateTargetInformation();
@@ -103,6 +104,9 @@ private slots:
     void cleanWlanAddress();
     void codaEvent(const Coda::CodaEvent &event);
     void collectingInfoFinished();
+    void codaTimeout();
+    void codaCanceled();
+    void codaIncreaseProgress();
 
 private:
     inline SymbianUtils::SymbianDevice device(int i) const;
@@ -132,8 +136,10 @@ private:
     Utils::IpAddressLineEdit *m_ipAddress;
     QRadioButton *m_trkRadioButton;
     QRadioButton *m_codaRadioButton;
+    QLabel *m_codaInfoLabel;
     QSharedPointer<Coda::CodaDevice> m_codaInfoDevice;
     QString m_deviceInfo;
+    QTimer *m_codaTimeout;
 };
 
 } // namespace Internal

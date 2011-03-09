@@ -44,9 +44,9 @@
 
 #include <valgrind/valgrindrunner.h>
 
-#include <QString>
-#include <QByteArray>
-#include <QFutureInterface>
+#include <QtCore/QString>
+#include <QtCore/QByteArray>
+#include <QtCore/QFutureInterface>
 
 namespace Analyzer {
 

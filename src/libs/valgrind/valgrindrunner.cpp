@@ -40,7 +40,7 @@
 
 #include <utils/environment.h>
 
-#include <QEventLoop>
+#include <QtCore/QEventLoop>
 
 using namespace Valgrind;
 

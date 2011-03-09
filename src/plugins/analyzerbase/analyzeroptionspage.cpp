@@ -38,13 +38,14 @@
 #include "analyzeroptionspage.h"
 #include "analyzersettings.h"
 
-#include <QCoreApplication>
-#include <QLatin1String>
-#include <QWidget>
-#include <QDebug>
-#include <QIcon>
-
 #include <coreplugin/icore.h>
+
+#include <QtCore/QCoreApplication>
+#include <QtCore/QLatin1String>
+#include <QtCore/QDebug>
+
+#include <QtGui/QIcon>
+#include <QtGui/QWidget>
 
 using namespace Analyzer;
 using namespace Analyzer::Internal;
@@ -72,7 +73,7 @@ QString AnalyzerOptionsPage::category() const
 
 QString AnalyzerOptionsPage::displayCategory() const
 {
-    return QCoreApplication::tr("Analyzer", Constants::ANALYZER_SETTINGS_TR_CATEGORY);
+    return QCoreApplication::translate("Analyzer", Constants::ANALYZER_SETTINGS_TR_CATEGORY);
 }
 
 QIcon AnalyzerOptionsPage::categoryIcon() const

@@ -72,7 +72,7 @@ public:
     ProjectExplorer::RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 
 signals:
-    void runControlCreated(AnalyzerRunControl *);
+    void runControlCreated(Analyzer::Internal::AnalyzerRunControl *);
 };
 
 

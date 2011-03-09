@@ -406,11 +406,6 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
 {
     QString expandedPath = m_d->expandedPath(path);
 
-    QString displayPath = expandedPath;
-    if (expandedPath.isEmpty())
-        //: Selected path is not valid:
-        displayPath = tr("<not valid>");
-
     if (expandedPath.isEmpty()) {
         if (errorMessage)
             *errorMessage = tr("The path must not be empty.");
@@ -495,7 +490,10 @@ QString PathChooser::homePath()
 
 void PathChooser::setExpectedKind(Kind expected)
 {
+    if (m_d->m_acceptingKind == expected)
+        return;
     m_d->m_acceptingKind = expected;
+    m_d->m_lineEdit->triggerChanged();
 }
 
 PathChooser::Kind PathChooser::expectedKind() const

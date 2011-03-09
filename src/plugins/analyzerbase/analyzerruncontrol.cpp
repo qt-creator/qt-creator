@@ -49,10 +49,10 @@
 #include <projectexplorer/taskhub.h>
 #include <coreplugin/ioutputpane.h>
 
-#include <QDebug>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QMessageBox>
+#include <QtCore/QDebug>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QMessageBox>
 
 using namespace Analyzer;
 using namespace Analyzer::Internal;

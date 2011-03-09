@@ -152,7 +152,7 @@ static QString makeFrameName(const Frame &frame, const QString &relativeTo,
     }
 
     if (!fn.isEmpty())
-        return QCoreApplication::tr("Analyzer::Internal", "%1 in %2").arg(Qt::escape(fn), path);
+        return QCoreApplication::translate("Analyzer::Internal", "%1 in %2").arg(Qt::escape(fn), path);
     else if (!path.isEmpty())
         return path;
     else
@@ -183,7 +183,7 @@ QString errorLocation(const QModelIndex &index, const Error &error,
     };
     QTC_ASSERT(model, return QString());
 
-    return QCoreApplication::tr("Analyzer::Internal", "in %1").
+    return QCoreApplication::translate("Analyzer::Internal", "in %1").
             arg(makeFrameName(model->findRelevantFrame(error), relativeToPath(),
                               link, linkAttr));
 }

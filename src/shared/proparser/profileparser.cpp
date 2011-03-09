@@ -384,6 +384,8 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                     }
                 }
                 if (end == cur) { // Line with only a comment (sans whitespace)
+                    if (m_markLine == m_lineNo)
+                        m_markLine++;
                     // Qmake bizarreness: such lines do not affect line continuations
                     goto ignore;
                 }

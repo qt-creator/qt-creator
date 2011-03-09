@@ -39,7 +39,7 @@
 
 #include "valgrindsettings.h"
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 using namespace Analyzer::Internal;
 

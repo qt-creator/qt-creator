@@ -41,9 +41,9 @@
 #include "suppression.h"
 #include <utils/qtcassert.h>
 
-#include <QMetaType>
-#include <QThread>
-#include <QSharedPointer>
+#include <QtCore/QMetaType>
+#include <QtCore/QThread>
+#include <QtCore/QSharedPointer>
 
 using namespace Valgrind;
 using namespace Valgrind::XmlProtocol;

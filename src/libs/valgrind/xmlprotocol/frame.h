@@ -38,7 +38,7 @@
 
 #include "../valgrind_global.h"
 
-#include <QSharedDataPointer>
+#include <QtCore/QSharedDataPointer>
 
 namespace Valgrind {
 namespace XmlProtocol {

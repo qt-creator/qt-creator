@@ -40,8 +40,8 @@
 
 #include "valgrindtoolbase_global.h"
 
-#include <QObject>
-#include <QVariant>
+#include <QtCore/QObject>
+#include <QtCore/QVariant>
 
 namespace Analyzer {
 namespace Internal {

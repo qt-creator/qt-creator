@@ -111,9 +111,9 @@ void ToolChainConfigWidget::ensureDebuggerPathChooser(const QStringList &version
     if (m_d->m_debuggerPathChooser)
         return;
     m_d->m_debuggerPathChooser = new Utils::PathChooser;
+    m_d->m_debuggerPathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     if (!versionArguments.isEmpty())
         m_d->m_debuggerPathChooser->setCommandVersionArguments(versionArguments);
-    m_d->m_debuggerPathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     connect(m_d->m_debuggerPathChooser, SIGNAL(changed(QString)), this, SLOT(emitDirty()));
 }
 

@@ -41,8 +41,8 @@
 #include "memchecktool.h"
 #include "memchecksettings.h"
 
-#include <QStringList>
-#include <QtPlugin>
+#include <QtCore/QStringList>
+#include <QtCore/QtPlugin>
 
 using namespace Analyzer;
 using namespace Analyzer::Internal;

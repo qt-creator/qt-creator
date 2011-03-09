@@ -1,3 +1,4 @@
+include(../qttest.pri)
 include(../../../src/shared/proparser/proparser.pri)
 
 SOURCES += \

@@ -44,7 +44,7 @@
 #include <valgrind/xmlprotocol/error.h>
 #include <utils/qtcassert.h>
 
-#include <QSettings>
+#include <QtCore/QSettings>
 
 using namespace Analyzer;
 using namespace Analyzer::Internal;

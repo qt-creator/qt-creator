@@ -41,10 +41,10 @@
 
 #include <utils/qtcassert.h>
 
-#include <QTcpServer>
-#include <QTcpSocket>
-#include <QEventLoop>
-#include <QNetworkInterface>
+#include <QtNetwork/QTcpServer>
+#include <QtNetwork/QTcpSocket>
+#include <QtNetwork/QNetworkInterface>
+#include <QtCore/QEventLoop>
 
 using namespace Valgrind::Memcheck;
 

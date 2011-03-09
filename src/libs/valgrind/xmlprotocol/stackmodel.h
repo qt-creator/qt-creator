@@ -38,7 +38,7 @@
 
 #include "../valgrind_global.h"
 
-#include <QAbstractItemModel>
+#include <QtCore/QAbstractItemModel>
 
 namespace Valgrind {
 namespace XmlProtocol {

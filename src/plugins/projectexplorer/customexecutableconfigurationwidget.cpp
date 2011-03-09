@@ -54,21 +54,6 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-class CustomDirectoryPathChooser : public Utils::PathChooser
-{
-public:
-    CustomDirectoryPathChooser(QWidget *parent)
-        : Utils::PathChooser(parent)
-    {
-    }
-    virtual bool validatePath(const QString &path, QString *errorMessage = 0)
-    {
-        Q_UNUSED(path)
-        Q_UNUSED(errorMessage)
-        return true;
-    }
-};
-
 CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomExecutableRunConfiguration *rc)
     : m_ignoreChange(false), m_runConfiguration(rc)
 {
@@ -77,16 +62,16 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     layout->setMargin(0);
 
     m_executableChooser = new Utils::PathChooser(this);
-    m_executableChooser->setEnvironment(rc->environment());
     m_executableChooser->setExpectedKind(Utils::PathChooser::Command);
+    m_executableChooser->setEnvironment(rc->environment());
     layout->addRow(tr("Executable:"), m_executableChooser);
 
     m_commandLineArgumentsLineEdit = new QLineEdit(this);
     m_commandLineArgumentsLineEdit->setMinimumWidth(200); // this shouldn't be fixed here...
     layout->addRow(tr("Arguments:"), m_commandLineArgumentsLineEdit);
 
-    m_workingDirectory = new CustomDirectoryPathChooser(this);
-    m_workingDirectory->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    m_workingDirectory = new Utils::PathChooser(this);
+    m_workingDirectory->setExpectedKind(Utils::PathChooser::Directory);
     m_workingDirectory->setBaseDirectory(rc->target()->project()->projectDirectory());
     m_workingDirectory->setEnvironment(rc->environment());
     layout->addRow(tr("Working directory:"), m_workingDirectory);

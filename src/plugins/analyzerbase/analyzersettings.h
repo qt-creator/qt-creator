@@ -36,8 +36,8 @@
 #ifndef ANALYZER_INTERNAL_ANALYZERSETTINGS_H
 #define ANALYZER_INTERNAL_ANALYZERSETTINGS_H
 
-#include <QObject>
-#include <QVariant>
+#include <QtCore/QObject>
+#include <QtCore/QVariant>
 
 #include "analyzerbase_global.h"
 

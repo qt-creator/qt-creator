@@ -38,7 +38,7 @@
 
 #include "analyzerbase_global.h"
 
-#include <QObject>
+#include <QtCore/QObject>
 
 namespace ProjectExplorer {
 class RunConfiguration;

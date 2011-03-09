@@ -49,42 +49,33 @@ namespace Internal {
 class ProWriter
 {
 public:
+    enum PutFlag {
+        AppendValues = 0,
+        ReplaceValues = 1,
+        OneLine = 0, // this works only when replacing (or adding a new assignment)
+        MultiLine = 2,
+        AssignOperator = 0, // ignored when changing an existing assignment
+        AppendOperator = 4
+    };
+    Q_DECLARE_FLAGS(PutFlags, PutFlag)
+
+    static void putVarValues(ProFile *profile, QStringList *lines,
+        const QStringList &values, const QString &var, PutFlags flags,
+        const QString &scope = QString());
+    static QList<int> removeVarValues(ProFile *profile, QStringList *lines,
+        const QStringList &values, const QStringList &vars);
+
     static void addFiles(ProFile *profile, QStringList *lines,
-         const QDir &proFileDir, const QStringList &filePaths, const QString &var)
-    {
-        addVarValues(profile, lines, proFileDir, filePaths, var, true);
-    }
-
+         const QDir &proFileDir, const QStringList &filePaths, const QString &var);
     static QStringList removeFiles(ProFile *profile, QStringList *lines,
-        const QDir &proFileDir, const QStringList &filePaths,
-        const QStringList &vars)
-    {
-        return removeVarValues(profile, lines, proFileDir, filePaths, vars, true);
-    }
-
-    static void addVarValues(ProFile *profile, QStringList *lines,
-        const QDir &proFileDir, const QStringList &values, const QString &var)
-    {
-        addVarValues(profile, lines, proFileDir, values, var, false);
-    }
-
-    static QStringList removeVarValues(ProFile *profile, QStringList *lines,
-        const QDir &proFileDir, const QStringList &values,
-        const QStringList &vars)
-    {
-        return removeVarValues(profile, lines, proFileDir, values, vars, false);
-    }
+        const QDir &proFileDir, const QStringList &filePaths, const QStringList &vars);
 
 private:
-
-    static void addVarValues(ProFile *profile, QStringList *lines,
-        const QDir &proFileDir, const QStringList &values, const QString &var,
-        bool valuesAreFiles);
-
-    static QStringList removeVarValues(ProFile *profile, QStringList *lines,
-        const QDir &proFileDir, const QStringList &values,
-        const QStringList &vars, bool valuesAreFiles);
+    static bool locateVarValues(const ushort *tokPtr,
+        const QString &scope, const QString &var, int *scopeStart, int *bestLine);
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(ProWriter::PutFlags)
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

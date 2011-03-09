@@ -37,7 +37,7 @@
 #ifndef ANALYZER_VALGRIND_INTERNAL_SUPPRESSIONDIALOG_H
 #define ANALYZER_VALGRIND_INTERNAL_SUPPRESSIONDIALOG_H
 
-#include <QDialog>
+#include <QtGui/QDialog>
 
 #include <valgrind/xmlprotocol/error.h>
 

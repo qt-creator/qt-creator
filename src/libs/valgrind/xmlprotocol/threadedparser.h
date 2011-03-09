@@ -38,7 +38,7 @@
 
 #include "../valgrind_global.h"
 
-#include <QObject>
+#include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;
