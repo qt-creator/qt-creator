@@ -299,7 +299,7 @@ void CodaGdbAdapter::handleTargetRemote(const GdbResponse &record)
         if (debug)
             qDebug() << "handleTargetRemote" << m_session.toString();
     } else {
-        QString msg = tr("Connecting to TRK server adapter failed:\n")
+        QString msg = tr("Connecting to CODA server adapter failed:\n")
             + QString::fromLocal8Bit(record.data.findChild("msg").data());
         m_engine->notifyInferiorSetupFailed(msg);
     }
@@ -1232,7 +1232,7 @@ void CodaGdbAdapter::shutdownAdapter()
         m_engine->notifyAdapterShutdownOk();
     } else {
         // Something is wrong, gdb crashed. Kill debuggee (see handleDeleteProcess2)
-        if (m_codaDevice->device()->isOpen()) {
+        if (m_codaDevice && m_codaDevice->device()->isOpen()) {
             logMessage("Emergency shutdown of CODA", LogError);
             sendRunControlTerminateCommand();
         }
