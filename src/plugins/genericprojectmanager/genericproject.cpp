@@ -330,6 +330,8 @@ void GenericProject::setToolChain(ToolChain *tc)
         return;
 
     m_toolChain = tc;
+    refresh(Configuration);
+
     emit toolChainChanged(m_toolChain);
 }
 
@@ -421,13 +423,14 @@ bool GenericProject::fromMap(const QVariantMap &map)
     }
 
     QString id = map.value(QLatin1String(TOOLCHAIN_KEY)).toString();
+    const ToolChainManager *toolChainManager = ToolChainManager::instance();
+
     if (!id.isNull()) {
-        setToolChain(ToolChainManager::instance()->findToolChain(id));
+        setToolChain(toolChainManager->findToolChain(id));
     } else {
-        QList<ToolChain *> tcs =
-                ToolChainManager::instance()->findToolChains(Abi::hostAbi());
+        QList<ToolChain *> tcs = toolChainManager->findToolChains(Abi::hostAbi());
         if (tcs.isEmpty())
-            tcs = ToolChainManager::instance()->toolChains();
+            tcs = toolChainManager->toolChains();
         if (!tcs.isEmpty())
             setToolChain(tcs.at(0));
     }
