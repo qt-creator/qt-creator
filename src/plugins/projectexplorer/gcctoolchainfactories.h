@@ -36,6 +36,7 @@
 
 #include "toolchain.h"
 #include "toolchainconfigwidget.h"
+#include "abi.h"
 
 #include <QtCore/QList>
 
