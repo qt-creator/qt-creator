@@ -207,28 +207,23 @@ void GenericProject::refresh(RefreshOptions options)
     CPlusPlus::CppModelManagerInterface *modelManager =
         CPlusPlus::CppModelManagerInterface::instance();
 
-    if (m_toolChain && modelManager) {
-        const QByteArray predefinedMacros = m_toolChain->predefinedMacros();
-
+    if (modelManager) {
         CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
-        pinfo.defines = predefinedMacros;
-        pinfo.defines += '\n';
-        pinfo.defines += m_defines;
 
-        QStringList allIncludePaths;
-        QStringList allFrameworkPaths;
+        if (m_toolChain) {
+            pinfo.defines = m_toolChain->predefinedMacros();
+            pinfo.defines += '\n';
 
-        foreach (const HeaderPath &headerPath, m_toolChain->systemHeaderPaths()) {
-            if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
-                allFrameworkPaths.append(headerPath.path());
-            else
-                allIncludePaths.append(headerPath.path());
+            foreach (const HeaderPath &headerPath, m_toolChain->systemHeaderPaths()) {
+                if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
+                    pinfo.frameworkPaths.append(headerPath.path());
+                else
+                    pinfo.includePaths.append(headerPath.path());
+            }
         }
 
-        allIncludePaths += this->allIncludePaths();
-
-        pinfo.frameworkPaths = allFrameworkPaths;
-        pinfo.includePaths = allIncludePaths;
+        pinfo.includePaths += allIncludePaths();
+        pinfo.defines += m_defines;
 
         // ### add _defines.
         pinfo.sourceFiles = files();
