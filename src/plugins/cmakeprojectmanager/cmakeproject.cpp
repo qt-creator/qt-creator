@@ -285,7 +285,11 @@ bool CMakeProject::parseCMakeLists()
     if (!activeBC->toolChain())
         return true;
 
-    QStringList allIncludePaths;
+    QStringList allIncludePaths;   
+    // This explicitly adds -I. to the include paths
+    allIncludePaths.append(projectDirectory());
+    allIncludePaths.append(cbpparser.includeFiles());
+
     QStringList allFrameworkPaths;
     QList<ProjectExplorer::HeaderPath> allHeaderPaths = activeBC->toolChain()->systemHeaderPaths();
     foreach (const ProjectExplorer::HeaderPath &headerPath, allHeaderPaths) {
@@ -294,10 +298,7 @@ bool CMakeProject::parseCMakeLists()
         else
             allIncludePaths.append(headerPath.path());
     }
-    // This explicitly adds -I. to the include paths
-    allIncludePaths.append(projectDirectory());
 
-    allIncludePaths.append(cbpparser.includeFiles());
     CPlusPlus::CppModelManagerInterface *modelmanager =
             CPlusPlus::CppModelManagerInterface::instance();
     if (modelmanager) {
