@@ -7977,7 +7977,7 @@
         \o Select \gui Projects, and then select the \gui QML check box in the
         \gui {Run Settings}, to enable QML debugging.
 
-        \o Compile the debugging helpers. For more information, see
+        \o Compile the QML Observer debugging helper. For more information, see
         \l{Debugging Helpers for QML}.
 
     \endlist
@@ -7986,24 +7986,27 @@
 
         \list 1
 
-        \o Modify the project file to comment in the following line:
+        \o Select \gui Projects, and then select the \gui {Link QML debugging
+        library} check box in \gui {Build Steps}.
 
-    \c {DEFINES += QMLJSDEBUGGER}.
+        You might have to compile the library first, by selecting the
+        \gui Compile link.
 
-        \o Select \gui Projects, and then select the \gui QML check box in the
-        \gui {Run Settings}, to enable QML debugging.
+        \image qml-link-debugging-library.png "Build Steps"
 
-        \o In the \gui {Target selector}, select a debug configuration for
-        the target.
+        \note Debugging requires opening a socket at a well-known port, which
+        presents a security risk. Anyone on the Internet could connect to the
+        application that you are debugging and execute any JavaScript
+        functions. Therefore, you must make sure that the port is properly
+        protected by a firewall.
 
-        \image qtcreator-target-selector-debug.png "Target selector"
+        \o In the \gui {Run Settings}, select the \gui QML check box to enable
+        QML debugging.
 
-        \o Select \gui {Build > Rebuild Project} to clean and rebuild the project
-        in debug mode.
+        \o Select \gui {Build > Rebuild Project} to clean and rebuild the
+        project.
 
     \endlist
-
-    You can create debug configurations for project targets in the \gui Projects mode.
 
     \section1 Starting QML Debugging
 
@@ -8058,13 +8061,14 @@
 
     Reloading is enabled by default. To disable it, click
     \inlineimage qml-observer-bar-reload.png "Apply Changes on Save button"
-    in the \gui {QML Observer} view.
+    on the toolbar.
 
     \section1 Inspecting QML at Runtime
 
     While the application is running, you can use the \gui {QML Observer} view to
     explore the object structure, debug animations, and inspect colors.
     To open the \gui {QML Observer} view, choose \gui {Window > View > QML Observer}.
+    The view shows the properties of the currently selected QML element.
 
     \image qml-observer-view.png "QML Observer view"
 
@@ -8072,11 +8076,14 @@
     mode to jump to the position in code where an element is defined. To switch to
     the observe mode, click
     \inlineimage qml-observer-bar-observe.png
-    in the \gui {QML Observer} view.
+    on the toolbar.
 
     Click elements in the running application to jump to their definitions in the code.
     Double-click elements to browse the element hierarchy. The hierarchy is displayed
     as bread crumbs in the \gui {QML Observer} view.
+
+    To move the application running in \QQV to the front, select the
+    \gui {Show Application on Top} button.
 
     You can also right-click an element in the running application to view the element
     hierarchy as a context menu. Select an element to jump to its definition in code.
@@ -8093,16 +8100,14 @@
 
     \image qml-observer.png
 
-    To play and pause animations in the running application, click the \gui {Play/Pause Animations}
-    button in the \gui {QML Observer} view or \gui {Debugging > Animations > Pause} or press
+    To play and pause animations in the running application, select the
+    \gui {Play/Pause Animations} button on the toolbar or \gui {Debugging >
+    Animations > Pause}, or press
     \key {Ctrl+.}.
 
-    To step through an animation, select \gui {Debugging > Animations > Pause & Step}
-    or press \key {Ctrl+,}.
-
-    To set step duration in milliseconds, select \gui {Debugging > Animations > Set Step}.
     To change the speed at which animations are played, select a value in \gui {Debugging
-    > Animations}.
+    > Animations} or click and hold down the \gui {Play/Pause Animations}
+    button to select a value.
 
 */
 
