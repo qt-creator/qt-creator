@@ -290,6 +290,9 @@ void ItemLibraryWidget::updateImports()
 QList<QToolButton *> ItemLibraryWidget::createToolBarWidgets()
 {
     QList<QToolButton *> buttons;
+
+    return buttons; //import managment gets disabled for now (TODO ###)
+
     buttons << new QToolButton();
     buttons.first()->setText("I ");
     buttons.first()->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
