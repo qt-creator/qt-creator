@@ -45,6 +45,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
+#include <projectexplorer/toolchainmanager.h>
 
 using ProjectExplorer::idFromMap;
 using namespace Qt4ProjectManager;
@@ -139,8 +140,9 @@ QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurati
     QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id, minimumQtVersion);
 
     foreach (QtVersion *version, knownVersions) {
-        if (!version->isValid())
+        if (!version->isValid() || !version->toolChainAvailable())
             continue;
+
         bool buildAll = version->defaultBuildConfig() & QtVersion::BuildAll;
         QtVersion::QmakeBuildConfigs config = buildAll ? QtVersion::BuildAll : QtVersion::QmakeBuildConfig(0);
         QString dir = QFileInfo(proFilePath).absolutePath(), id;

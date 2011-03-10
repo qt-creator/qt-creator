@@ -136,7 +136,7 @@ QList<BuildConfigurationInfo> Qt4DesktopTargetFactory::availableBuildConfigurati
     QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id, minimumQtVersion);
 
     foreach (QtVersion *version, knownVersions) {
-        if (!version->isValid())
+        if (!version->isValid() || !version->toolChainAvailable())
             continue;
         QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
 
