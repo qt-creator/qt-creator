@@ -18,7 +18,8 @@ SOURCES += \
     analyzermanager.cpp \
     analyzersettings.cpp \
     analyzeroptionspage.cpp \
-    analyzerrunconfigwidget.cpp
+    analyzerrunconfigwidget.cpp \
+    analyzeroutputpane.cpp
 
 HEADERS += \
     ianalyzerengine.h \
@@ -30,7 +31,8 @@ HEADERS += \
     analyzermanager.h \
     analyzersettings.h \
     analyzeroptionspage.h \
-    analyzerrunconfigwidget.h
+    analyzerrunconfigwidget.h \
+    analyzeroutputpane.h
 
 RESOURCES += \
     analyzerbase.qrc

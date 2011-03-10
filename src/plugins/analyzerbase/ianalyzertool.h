@@ -40,6 +40,9 @@
 
 #include <QtCore/QObject>
 
+QT_FORWARD_DECLARE_CLASS(QAbstractItemView)
+QT_FORWARD_DECLARE_CLASS(QAbstractItemModel)
+
 namespace ProjectExplorer {
 class RunConfiguration;
 }
@@ -49,8 +52,65 @@ class IPlugin;
 }
 
 namespace Analyzer {
-
 class IAnalyzerEngine;
+
+class ANALYZER_EXPORT IAnalyzerOutputPaneAdapter : public QObject
+{
+    Q_OBJECT
+public:
+    explicit IAnalyzerOutputPaneAdapter(QObject *parent = 0);
+    virtual ~IAnalyzerOutputPaneAdapter();
+
+    virtual QWidget *toolBarWidget() = 0;
+    virtual QWidget *paneWidget() = 0;
+    virtual void clearContents() = 0;
+    virtual void setFocus() = 0;
+    virtual bool hasFocus() const = 0;
+    virtual bool canFocus() const = 0;
+    virtual bool canNavigate() const = 0;
+    virtual bool canNext() const = 0;
+    virtual bool canPrevious() const = 0;
+    virtual void goToNext() = 0;
+    virtual void goToPrev() = 0;
+
+signals:
+    void popup(bool withFocus);
+    void navigationStatusChanged();
+};
+
+class ANALYZER_EXPORT ListItemViewOutputPaneAdapter : public IAnalyzerOutputPaneAdapter
+{
+    Q_OBJECT
+public:
+    explicit ListItemViewOutputPaneAdapter(QObject *parent = 0);
+
+    virtual QWidget *paneWidget();
+    virtual void setFocus();
+    virtual bool hasFocus() const;
+    virtual bool canFocus() const;
+    virtual bool canNavigate() const;
+    virtual bool canNext() const;
+    virtual bool canPrevious() const;
+    virtual void goToNext();
+    virtual void goToPrev();
+
+    bool showOnRowsInserted() const;
+    void setShowOnRowsInserted(bool v);
+
+protected:
+    int currentRow() const;
+    void setCurrentRow(int);
+    int rowCount() const;
+    void connectNavigationSignals(QAbstractItemModel *);
+    virtual QAbstractItemView *createItemView() = 0;
+
+private slots:
+    void slotRowsInserted();
+
+private:
+    QAbstractItemView *m_listView;
+    bool m_showOnRowsInserted;
+};
 
 class ANALYZER_EXPORT IAnalyzerTool : public QObject
 {
@@ -77,6 +137,8 @@ public:
     QString modeString();
 
     virtual void initialize(ExtensionSystem::IPlugin *plugin) = 0;
+
+    virtual IAnalyzerOutputPaneAdapter *outputPaneAdapter();
 
     virtual IAnalyzerEngine *createEngine(ProjectExplorer::RunConfiguration *runConfiguration) = 0;
 };

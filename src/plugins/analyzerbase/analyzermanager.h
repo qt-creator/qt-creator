@@ -57,6 +57,7 @@ namespace Analyzer {
 class IAnalyzerTool;
 namespace Internal {
 class AnalyzerRunControl;
+class AnalyzerOutputPane;
 } // namespace Internal
 
 class ANALYZER_EXPORT AnalyzerManager : public QObject
@@ -64,7 +65,7 @@ class ANALYZER_EXPORT AnalyzerManager : public QObject
     Q_OBJECT
 
 public:
-    explicit AnalyzerManager(QObject *parent = 0);
+    explicit AnalyzerManager(Internal::AnalyzerOutputPane *op, QObject *parent = 0);
     ~AnalyzerManager();
 
     static AnalyzerManager *instance();
@@ -83,18 +84,11 @@ public:
     QDockWidget *createDockWidget(IAnalyzerTool *tool, const QString &title, QWidget *widget,
                                   Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
 
-    /**
-     * Add the given @p widget into this mode's toolbar.
-     *
-     * It will be shown whenever this tool is selected by the user.
-     *
-     * @Note The manager will take ownership of @p widget.
-     */
-    void setToolbar(Analyzer::IAnalyzerTool *tool, QWidget *widget);
-
     Utils::FancyMainWindow *mainWindow() const;
 
     void selectTool(IAnalyzerTool *tool);
+
+    QList<QWidget *> outputPaneToolBarWidgets() const;
 
 private slots:
     void startTool();

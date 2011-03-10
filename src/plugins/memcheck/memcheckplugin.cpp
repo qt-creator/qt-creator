@@ -63,7 +63,6 @@ bool MemcheckPlugin::initialize(const QStringList &/*arguments*/, QString */*err
     AnalyzerGlobalSettings::instance()->registerSubConfigFactory(new MemcheckConfigFactory);
 
     AnalyzerManager::instance()->addTool(new MemcheckTool(this));
-
     return true;
 }
 
