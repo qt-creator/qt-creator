@@ -107,6 +107,7 @@ public:
         const OSFlavor &so, const BinaryFormat &f, unsigned char w);
     Abi(const QString &abiString);
 
+    bool operator != (const Abi &other) const;
     bool operator == (const Abi &other) const;
     bool isCompatibleWith(const Abi &other) const;
 
