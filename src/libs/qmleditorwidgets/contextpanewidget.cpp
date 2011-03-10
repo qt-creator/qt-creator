@@ -362,6 +362,7 @@ bool ContextPaneWidget::setType(const QStringList &types)
     }
     if (types.contains("Rectangle")) {
         m_currentWidget = m_rectangleWidget;
+        m_rectangleWidget->enabableGradientEditing(!isPropertyChanges());
         m_rectangleWidget->show();
         resize(sizeHint());
         return true;

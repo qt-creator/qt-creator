@@ -147,6 +147,8 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
 
     const Interpreter::ObjectValue *scopeObject = document->bind()->findQmlObject(node);
 
+    bool isPropertyChanges = false;
+
     if (!lookupContext.isNull() && scopeObject) {
         m_prototypes.clear();
         foreach (const Interpreter::ObjectValue *object,
@@ -155,6 +157,7 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
         }
 
         if (m_prototypes.contains("PropertyChanges")) {
+            isPropertyChanges = true;
             const Interpreter::ObjectValue *targetObject = getPropertyChangesTarget(node, lookupContext);
             m_prototypes.clear();
             if (targetObject) {
@@ -230,7 +233,9 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
                 offset = QPoint(400 - reg.boundingRect().width() + 10 ,0);
             QPoint p3 = editor->editorWidget()->mapToParent(editor->editorWidget()->viewport()->mapToParent(reg.boundingRect().topRight()) + offset);
             p2.setX(p1.x());
-            contextWidget()->setType(m_prototypes);
+            contextWidget()->setIsPropertyChanges(isPropertyChanges);
+            if (!update)
+                contextWidget()->setType(m_prototypes);
             if (!update)
                 contextWidget()->activate(p3 , p1, p2, QuickToolBarSettings::get().pinContextPane);
             else
