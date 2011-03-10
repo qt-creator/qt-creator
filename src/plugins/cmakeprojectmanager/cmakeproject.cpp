@@ -285,7 +285,7 @@ bool CMakeProject::parseCMakeLists()
     if (!activeBC->toolChain())
         return true;
 
-    QStringList allIncludePaths;   
+    QStringList allIncludePaths;
     // This explicitly adds -I. to the include paths
     allIncludePaths.append(projectDirectory());
     allIncludePaths.append(cbpparser.includeFiles());
