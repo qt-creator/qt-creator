@@ -465,9 +465,9 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericTarget *target)
     connect(m_toolChainChooser, SIGNAL(activated(int)), this, SLOT(toolChainSelected(int)));
     connect(m_target->genericProject(), SIGNAL(toolChainChanged(ProjectExplorer::ToolChain*)),
             this, SLOT(toolChainChanged(ProjectExplorer::ToolChain*)));
-    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainAdded(ToolChain*)),
+    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
             this, SLOT(updateToolChainList()));
-    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainRemoved(ToolChain*)),
+    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
             this, SLOT(updateToolChainList()));
 }
 
