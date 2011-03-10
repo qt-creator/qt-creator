@@ -294,6 +294,7 @@ void CMakeSettingsPage::pathCmakeFinished()
 void CMakeSettingsPage::cmakeFinished(CMakeValidator *cmakeValidator) const
 {
     if (cmakeValidator->process) {
+        cmakeValidator->process->waitForFinished();
         QString response = cmakeValidator->process->readAll();
         QRegExp versionRegexp(QLatin1String("^cmake version ([\\d\\.]*)"));
         versionRegexp.indexIn(response);
