@@ -867,8 +867,8 @@ void testQList()
 #endif
  }
 
-namespace A {
-namespace B {
+namespace nsA {
+namespace nsB {
 
 struct SomeType
 {
@@ -876,8 +876,8 @@ struct SomeType
     int a;
 };
 
-} // namespace B
-} // namespace A
+} // namespace nsB
+} // namespace nsA
 
 void testQMap()
 {
@@ -916,11 +916,11 @@ void testQMap()
 #endif
 
 #if 1
-    QList<A::B::SomeType *> x;
-    x.append(new A::B::SomeType(1));
-    x.append(new A::B::SomeType(2));
-    x.append(new A::B::SomeType(3));
-    QMap<QString, QList<A::B::SomeType *> > mlt;
+    QList<nsA::nsB::SomeType *> x;
+    x.append(new nsA::nsB::SomeType(1));
+    x.append(new nsA::nsB::SomeType(2));
+    x.append(new nsA::nsB::SomeType(3));
+    QMap<QString, QList<nsA::nsB::SomeType *> > mlt;
     mlt["foo"] = x;
     mlt["bar"] = x;
     mlt["1"] = x;
@@ -2408,8 +2408,28 @@ void testFork()
     ba.append('x');
 }
 
+class A
+{
+public:
+A() : test(7) {}
+int test;
+void doSomething() const;
+};
+
+void A::doSomething() const
+{
+    std::cout << test << std::endl;
+}
+
+void testStuffA()
+{
+    A a;
+    a.doSomething();
+}
+
 int main(int argc, char *argv[])
 {
+    testStuffA();
     testPrivate();
     testMemoryView();
     //testQSettings();
