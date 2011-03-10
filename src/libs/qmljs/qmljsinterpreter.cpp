@@ -2015,7 +2015,7 @@ const QLatin1String CppQmlTypes::defaultPackage("<default>");
 const QLatin1String CppQmlTypes::cppPackage("<cpp>");
 
 template <typename T>
-void CppQmlTypes::load(Engine *engine, const T &objects)
+QList<QmlObjectValue *> CppQmlTypes::load(Engine *engine, const T &objects)
 {
     // load
     QList<QmlObjectValue *> newObjects;
@@ -2031,10 +2031,12 @@ void CppQmlTypes::load(Engine *engine, const T &objects)
     foreach (QmlObjectValue *object, newObjects) {
         setPrototypes(object);
     }
+
+    return newObjects;
 }
 // explicitly instantiate load for list and hash
-template void CppQmlTypes::load< QList<FakeMetaObject::ConstPtr> >(Engine *, const QList<FakeMetaObject::ConstPtr> &);
-template void CppQmlTypes::load< QHash<QString, FakeMetaObject::ConstPtr> >(Engine *, const QHash<QString, FakeMetaObject::ConstPtr> &);
+template QList<QmlObjectValue *> CppQmlTypes::load< QList<FakeMetaObject::ConstPtr> >(Engine *, const QList<FakeMetaObject::ConstPtr> &);
+template QList<QmlObjectValue *> CppQmlTypes::load< QHash<QString, FakeMetaObject::ConstPtr> >(Engine *, const QHash<QString, FakeMetaObject::ConstPtr> &);
 
 QList<QmlObjectValue *> CppQmlTypes::typesForImport(const QString &packageName, ComponentVersion version) const
 {

@@ -180,10 +180,6 @@ void Link::populateImportedTypes(TypeEnvironment *typeEnv, Document::Ptr doc)
     // qml files in the same directory are available without explicit imports
     loadImplicitDirectoryImports(typeEnv, doc);
 
-    // implicit imports:
-    // a qmldir file in the same directory gets automatically imported at the highest version
-    loadImplicitLibraryImports(typeEnv, doc->path());
-
     // explicit imports, whether directories, files or libraries
     foreach (const ImportInfo &info, doc->bind()->imports()) {
         ObjectValue *import = d->importCache.value(ImportCacheKey(info));
@@ -191,7 +187,7 @@ void Link::populateImportedTypes(TypeEnvironment *typeEnv, Document::Ptr doc)
             switch (info.type()) {
             case ImportInfo::FileImport:
             case ImportInfo::DirectoryImport:
-                import = importFile(doc, info);
+                import = importFileOrDirectory(doc, info);
                 break;
             case ImportInfo::LibraryImport:
                 import = importNonFile(doc, info);
@@ -215,7 +211,7 @@ void Link::populateImportedTypes(TypeEnvironment *typeEnv, Document::Ptr doc)
 
     import "http://www.ovi.com/" as Ovi
 */
-ObjectValue *Link::importFile(Document::Ptr, const ImportInfo &importInfo)
+ObjectValue *Link::importFileOrDirectory(Document::Ptr doc, const ImportInfo &importInfo)
 {
     Q_D(Link);
 
@@ -225,6 +221,9 @@ ObjectValue *Link::importFile(Document::Ptr, const ImportInfo &importInfo)
     if (importInfo.type() == ImportInfo::DirectoryImport
             || importInfo.type() == ImportInfo::ImplicitDirectoryImport) {
         import = new ObjectValue(engine());
+
+        importLibrary(doc, import, path, importInfo);
+
         const QList<Document::Ptr> &documentsInDirectory = d->snapshot.documentsInDirectory(path);
         foreach (Document::Ptr importedDoc, documentsInDirectory) {
             if (importedDoc->bind()->rootObjectValue()) {
@@ -263,33 +262,10 @@ ObjectValue *Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo
         libraryPath += QDir::separator();
         libraryPath += packagePath;
 
-        const LibraryInfo libraryInfo = d->snapshot.libraryInfo(libraryPath);
-        if (!libraryInfo.isValid())
-            continue;
-
-        importFound = true;
-
-        if (!libraryInfo.plugins().isEmpty()) {
-            if (libraryInfo.dumpStatus() == LibraryInfo::DumpNotStartedOrRunning) {
-                ModelManagerInterface *modelManager = ModelManagerInterface::instance();
-                if (modelManager)
-                    modelManager->loadPluginTypes(libraryPath, importPath,
-                                                  packageName, version.toString());
-                warning(doc, locationFromRange(importInfo.ast()->firstSourceLocation(),
-                                               importInfo.ast()->lastSourceLocation()),
-                        tr("Library contains C++ plugins, type dump is in progress."));
-            } else if (libraryInfo.dumpStatus() == LibraryInfo::DumpError) {
-                error(doc, locationFromRange(importInfo.ast()->firstSourceLocation(),
-                                             importInfo.ast()->lastSourceLocation()),
-                      libraryInfo.dumpError());
-            } else {
-                engine()->cppQmlTypes().load(engine(), libraryInfo.metaObjects());
-            }
+        if (importLibrary(doc, import, libraryPath, importInfo, importPath)) {
+            importFound = true;
+            break;
         }
-
-        loadQmldirComponents(import, version, libraryInfo, libraryPath);
-
-        break;
     }
 
     // if there are cpp-based types for this package, use them too
@@ -308,6 +284,61 @@ ObjectValue *Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo
     }
 
     return import;
+}
+
+bool Link::importLibrary(Document::Ptr doc, Interpreter::ObjectValue *import,
+                         const QString &libraryPath,
+                         const Interpreter::ImportInfo &importInfo,
+                         const QString &importPath)
+{
+    Q_D(Link);
+
+    const LibraryInfo libraryInfo = d->snapshot.libraryInfo(libraryPath);
+    if (!libraryInfo.isValid())
+        return false;
+
+    const ComponentVersion version = importInfo.version();
+    const UiImport *ast = importInfo.ast();
+    SourceLocation errorLoc;
+    if (ast)
+        errorLoc = locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation());
+
+    if (!libraryInfo.plugins().isEmpty()) {
+        if (libraryInfo.dumpStatus() == LibraryInfo::DumpNotStartedOrRunning) {
+            ModelManagerInterface *modelManager = ModelManagerInterface::instance();
+            if (modelManager) {
+                if (importInfo.type() == ImportInfo::LibraryImport) {
+                    modelManager->loadPluginTypes(
+                                libraryPath, importPath,
+                                importInfo.name(), version.toString());
+                } else {
+                    modelManager->loadPluginTypes(
+                                libraryPath, libraryPath,
+                                QString(), version.toString());
+                }
+            }
+            if (errorLoc.isValid()) {
+                warning(doc, errorLoc,
+                        tr("Library contains C++ plugins, type dump is in progress."));
+            }
+        } else if (libraryInfo.dumpStatus() == LibraryInfo::DumpError) {
+            if (errorLoc.isValid()) {
+                error(doc, errorLoc, libraryInfo.dumpError());
+            }
+        } else {
+            QList<QmlObjectValue *> loadedObjects =
+                    engine()->cppQmlTypes().load(engine(), libraryInfo.metaObjects());
+            foreach (QmlObjectValue *object, loadedObjects) {
+                if (object->packageName().isEmpty()) {
+                    import->setProperty(object->className(), object);
+                }
+            }
+        }
+    }
+
+    loadQmldirComponents(import, version, libraryInfo, libraryPath);
+
+    return true;
 }
 
 UiQualifiedId *Link::qualifiedTypeNameId(Node *node)
@@ -341,6 +372,13 @@ void Link::loadQmldirComponents(Interpreter::ObjectValue *import, ComponentVersi
 {
     Q_D(Link);
 
+    // if the version isn't valid, import the latest
+    if (!version.isValid()) {
+        const int maxVersion = std::numeric_limits<int>::max();
+        version = ComponentVersion(maxVersion, maxVersion);
+    }
+
+
     QSet<QString> importedTypes;
     foreach (const QmlDirParser::Component &component, libraryInfo.components()) {
         if (importedTypes.contains(component.typeName))
@@ -364,57 +402,17 @@ void Link::loadImplicitDirectoryImports(TypeEnvironment *typeEnv, Document::Ptr 
 {
     Q_D(Link);
 
-    ImportInfo implcitDirectoryImportInfo(ImportInfo::ImplicitDirectoryImport, doc->path());
+    ImportInfo implcitDirectoryImportInfo(
+                ImportInfo::ImplicitDirectoryImport, doc->path());
+
     ObjectValue *directoryImport = d->importCache.value(ImportCacheKey(implcitDirectoryImportInfo));
     if (!directoryImport) {
-        directoryImport = importFile(doc, implcitDirectoryImportInfo);
+        directoryImport = importFileOrDirectory(doc, implcitDirectoryImportInfo);
         if (directoryImport)
             d->importCache.insert(ImportCacheKey(implcitDirectoryImportInfo), directoryImport);
     }
     if (directoryImport)
         typeEnv->addImport(directoryImport, implcitDirectoryImportInfo);
-}
-
-void Link::loadImplicitLibraryImports(TypeEnvironment *typeEnv, const QString &path)
-{
-    Q_D(Link);
-
-    ImportInfo implicitLibraryImportInfo(ImportInfo::ImplicitLibraryImport, path);
-    ObjectValue *libraryImport = d->importCache.value(ImportCacheKey(implicitLibraryImportInfo));
-    LibraryInfo libraryInfo = d->snapshot.libraryInfo(path);
-    if (!libraryImport && libraryInfo.isValid()) {
-        libraryImport = new ObjectValue(engine());
-        ComponentVersion latestVersion(std::numeric_limits<int>::max(),
-                                       std::numeric_limits<int>::max());
-
-        loadQmldirComponents(libraryImport, latestVersion, libraryInfo, path);
-
-        // ### since there is no way of determining the plugin URI, we can't dump
-        // the plugin if it has not been dumped already.
-        if (!libraryInfo.plugins().isEmpty()
-                && libraryInfo.dumpStatus() == LibraryInfo::DumpDone) {
-            // add types to the engine
-            engine()->cppQmlTypes().load(engine(), libraryInfo.metaObjects());
-
-            // guess a likely URI
-            QMap<QString, int> uris;
-            foreach (const FakeMetaObject::ConstPtr &fmo, libraryInfo.metaObjects()) {
-                foreach (const FakeMetaObject::Export &exp, fmo->exports()) {
-                    ++uris[exp.package];
-                }
-            }
-            if (!uris.isEmpty()) {
-                const QString uri = (uris.end() - 1).key();
-
-                foreach (QmlObjectValue *object,
-                         engine()->cppQmlTypes().typesForImport(uri, latestVersion)) {
-                    libraryImport->setProperty(object->className(), object);
-                }
-            }
-        }
-    }
-    if (libraryImport)
-        typeEnv->addImport(libraryImport, implicitLibraryImportInfo);
 }
 
 void Link::loadImplicitDefaultImports(TypeEnvironment *typeEnv)
