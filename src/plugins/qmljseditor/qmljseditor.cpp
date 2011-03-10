@@ -691,6 +691,7 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
 
 QmlJSTextEditorWidget::~QmlJSTextEditorWidget()
 {
+    hideContextPane();
     m_semanticHighlighter->abort();
     m_semanticHighlighter->wait();
 }
