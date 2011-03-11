@@ -604,12 +604,8 @@ void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &st
         return;
     }
 
-    CommitEditor *commitEditor = qobject_cast<CommitEditor *>(editor);
-
-    if (!commitEditor) {
-        outputWindow->appendError(tr("Unable to create a commit editor."));
-        return;
-    }
+    QTC_ASSERT(qobject_cast<CommitEditor *>(editor), return)
+    CommitEditor *commitEditor = static_cast<CommitEditor *>(editor);
 
     const QString msg = tr("Commit changes for \"%1\".").
                         arg(QDir::toNativeSeparators(m_submitRepository));
