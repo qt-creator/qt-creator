@@ -301,6 +301,9 @@ QWidget *S60DeployConfigurationWidget::createCommunicationChannel()
     communicationChannelGridLayout->addLayout(wlanChannelLayout, 1, 1);
 
     communicationChannelGroupBox->setLayout(communicationChannelGridLayout);
+
+    updateCommunicationChannel();
+
     return communicationChannelGroupBox;
 }
 
