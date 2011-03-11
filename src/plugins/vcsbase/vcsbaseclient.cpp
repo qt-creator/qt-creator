@@ -431,8 +431,8 @@ void VCSBaseClient::settingsChanged()
 {
     if (d->m_jobManager) {
         d->m_jobManager->setSettings(d->m_clientSettings.binary(),
-                                  d->m_clientSettings.standardArguments(),
-                                  d->m_clientSettings.timeoutMilliSeconds());
+                                     d->m_clientSettings.standardArguments(),
+                                     d->m_clientSettings.timeoutMilliSeconds());
         d->m_jobManager->restart();
     }
 }
@@ -477,8 +477,8 @@ void VCSBaseClient::enqueueJob(const QSharedPointer<VCSJob> &job)
     if (!d->m_jobManager) {
         d->m_jobManager = new VCSJobRunner();
         d->m_jobManager->setSettings(d->m_clientSettings.binary(),
-                                  d->m_clientSettings.standardArguments(),
-                                  d->m_clientSettings.timeoutMilliSeconds());
+                                     d->m_clientSettings.standardArguments(),
+                                     d->m_clientSettings.timeoutMilliSeconds());
         d->m_jobManager->start();
     }
     d->m_jobManager->enqueueJob(job);

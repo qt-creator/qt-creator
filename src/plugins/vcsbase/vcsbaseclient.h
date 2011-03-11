@@ -162,7 +162,7 @@ protected:
     QString vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const;
     void enqueueJob(const QSharedPointer<VCSJob> &);
     // Fully synchronous VCS execution (QProcess-based)
-    bool vcsFullySynchronousExec(const QString  &workingDir,
+    bool vcsFullySynchronousExec(const QString &workingDir,
                                  const QStringList &args,
                                  QByteArray *output);
     // Synchronous VCS execution using Utils::SynchronousProcess, with
