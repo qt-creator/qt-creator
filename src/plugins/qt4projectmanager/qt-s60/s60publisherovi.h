@@ -162,6 +162,7 @@ private:
     QStringList m_rejectedVendorNames;
     QStringList m_capabilitiesForCertifiedSigned;
     QStringList m_capabilitesForManufacturerApproved;
+    QString m_vendorInfoVariable;
     QString m_vendorName;
     QString m_localVendorNames;
     QString m_appUid;

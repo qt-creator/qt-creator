@@ -110,7 +110,12 @@ void S60PublisherOvi::setVendorName(const QString &vendorName)
 
 void S60PublisherOvi::setLocalVendorNames(const QString &localVendorNames)
 {
-    m_localVendorNames = localVendorNames;
+    QStringList vendorNames = localVendorNames.split(',');
+    QStringList resultingList;
+    foreach (QString vendorName, vendorNames) {
+        resultingList.append("\\\"" +vendorName.trimmed()+"\\\"");
+    }
+    m_localVendorNames = resultingList.join(", ");
 }
 
 void S60PublisherOvi::setAppUid(const QString &appuid)
@@ -152,11 +157,30 @@ void S60PublisherOvi::completeCreation()
 
     m_createSisProc->setEnvironment(m_qt4bc->environment().toStringList());
     m_createSisProc->setWorkingDirectory(m_qt4bc->buildDirectory());
+
+    // set up access to vendor names
+
+    QStringList deploymentLevelVars = m_reader->values("DEPLOYMENT");
+    QStringList vendorInfoVars;
+    QStringList valueLevelVars;
+
+    foreach (QString deploymentLevelVar, deploymentLevelVars) {
+        vendorInfoVars = m_reader->values(deploymentLevelVar+".pkg_prerules");
+        foreach(QString vendorInfoVar, vendorInfoVars) {
+            valueLevelVars = m_reader->values(vendorInfoVar);
+            foreach(QString valueLevelVar, valueLevelVars) {
+                if (valueLevelVar.startsWith("%{\"")) {
+                    m_vendorInfoVariable = vendorInfoVar;
+                    break;
+                }
+            }
+        }
+    }
 }
 
 QString S60PublisherOvi::globalVendorName() const
 {
-    QStringList vendorinfos = m_reader->values("vendorinfo");
+    QStringList vendorinfos = m_reader->values(m_vendorInfoVariable);
 
     foreach (QString vendorinfo, vendorinfos) {
         if (vendorinfo.startsWith(':')) {
@@ -168,7 +192,7 @@ QString S60PublisherOvi::globalVendorName() const
 
 QString S60PublisherOvi::localisedVendorNames() const
 {
-    QStringList vendorinfos = m_reader->values("vendorinfo");
+    QStringList vendorinfos = m_reader->values(m_vendorInfoVariable);
     QString result;
 
     QStringList localisedVendorNames;
@@ -265,7 +289,7 @@ void S60PublisherOvi::updateProFile(const QString &var, const QString &values)
     }
 
     ProWriter::putVarValues(profile, &lines, QStringList() << values, var,
-                            ProWriter::ReplaceValues | ProWriter::OneLine | ProWriter::AssignOperator,
+                            ProWriter::ReplaceValues | ProWriter::OneLine | ProWriter::AppendOperator,
                             "symbian");
 
     if (qfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -276,7 +300,13 @@ void S60PublisherOvi::updateProFile(const QString &var, const QString &values)
 
 void S60PublisherOvi::updateProFile()
 {
-    updateProFile("vendorinfo", "\"%{\\\"" + m_localVendorNames + "\\\"}\" \":\\\"" + m_vendorName + "\\\"\"" );
+    if (m_vendorInfoVariable.isEmpty()) {
+        m_vendorInfoVariable = "vendorinfo";
+        updateProFile("my_deployment.pkg_prerules", m_vendorInfoVariable);
+        updateProFile("DEPLOYMENT", "my_deployment");
+    }
+
+    updateProFile(m_vendorInfoVariable, "\"%{" + m_localVendorNames + "}\" \":\\\"" + m_vendorName + "\\\"\"" );
     updateProFile("TARGET.UID3", m_appUid);
 }
 
