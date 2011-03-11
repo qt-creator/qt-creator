@@ -131,6 +131,7 @@ AnalyzerRunControl::~AnalyzerRunControl()
 {
     if (m_isRunning)
         stop();
+    delete m_engine;
 }
 
 void AnalyzerRunControl::start()

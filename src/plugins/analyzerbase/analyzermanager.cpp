@@ -101,7 +101,7 @@ using namespace Analyzer::Internal;
 // A separate 'Analzye' mode is not used in Qt Creator 2.2.
 // Consider re-introducing it if a real use case for a separate main window with docks
 // appears.
-enum { useAnalyzeMode = 0 };
+enum { useAnalyzeMode = 1 };
 
 namespace Analyzer {
 namespace Internal {

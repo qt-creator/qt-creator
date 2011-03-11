@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/qml">
+        <file>Detail.qml</file>
+        <file>Elapsed.qml</file>
+        <file>Label.qml</file>
+        <file>lock.png</file>
+        <file>MainView.js</file>
+        <file>MainView.qml</file>
+        <file>popup.png</file>
+        <file>range.png</file>
+        <file>RangeDetails.qml</file>
+        <file>RangeMover.qml</file>
+        <file>RecordButton.qml</file>
+        <file>ToolButton.qml</file>
+    </qresource>
+</RCC>
