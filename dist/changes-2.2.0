@@ -33,6 +33,7 @@ Linux (GNOME and KDE)
 Windows
 
 Symbian Target
+   * Added support for the new on-device debugging agent (CODA)
 
 Maemo Target
 
