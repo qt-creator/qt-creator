@@ -59,7 +59,7 @@ bool QmlObserverTool::canBuild(const QtVersion *qtVersion)
 {
     return (qtVersion->supportsTargetId(Constants::DESKTOP_TARGET_ID)
             || qtVersion->supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID))
-            && (qtVersion->qtVersion() > QtVersionNumber(4, 7, 1));
+            && (qtVersion->qtVersion() >= QtVersionNumber(4, 7, 1));
 }
 
 QString QmlObserverTool::toolForProject(ProjectExplorer::Project *project)
