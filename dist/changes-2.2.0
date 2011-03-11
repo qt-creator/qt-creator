@@ -13,8 +13,17 @@ General
 Editing
    * Add new Inkpot color scheme
    * Moved 'Open in External Editor' to Tools->External->Text
+   * Add UTF-8 BOM support
 
 Project Support
+   * QMake project support should be more robust against syntax errors
+   * Treatment of command line arguments of processes started from build
+     and run configurations underwent heavy modifications:
+     - argument lists use native shell syntax; this affects quoting and
+       environment variable expansion most
+     - the SOURCEDIR and BUILDDIR environment variables were replaced
+       with %{sourceDir} and %{buildDir} macros
+     - this affects working directories and executable paths as well
 
 Debugging
 
@@ -42,6 +51,7 @@ Designer
 Version control plugins
 
 Wizards
+   * Support new keywords %MONTH% and %DAY% for C++ template file
 
 Additional credits go to:
    * The Inkpot color scheme was based on the Vim color scheme by
