@@ -215,6 +215,7 @@ private slots:
     void updateVariable(const QString &variable);
 
     void publishProject();
+    void updateWelcomePage();
 
 #ifdef WITH_TESTS
     void testGccOutputParsers_data();
@@ -252,7 +253,6 @@ private:
     IRunControlFactory *findRunControlFactory(RunConfiguration *config, const QString &mode);
 
     void addToRecentProjects(const QString &fileName, const QString &displayName);
-    void updateWelcomePage();
 
     static ProjectExplorerPlugin *m_instance;
     ProjectExplorerPluginPrivate *d;
