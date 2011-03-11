@@ -68,12 +68,7 @@ QString ViewLogger::time() const
 ViewLogger::ViewLogger(QObject *parent)
     : AbstractView(parent)
 {
-#ifdef Q_OS_MAC
-    const QString tempPath = "/tmp";
-#else
-    const QString tempPath = QDir::tempPath();
-#endif
-    const QString path = tempPath + QString("/qmldesigner-logger-%1-XXXXXX.txt").
+    const QString path = QDir::tempPath() + QString("/qmldesigner-logger-%1-XXXXXX.txt").
                          arg(QDateTime::currentDateTime().toString(Qt::ISODate).
                          replace(':', '-'));
     QTemporaryFile *temporaryFile = new QTemporaryFile(path, this);
