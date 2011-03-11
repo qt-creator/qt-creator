@@ -512,7 +512,7 @@ void AnalyzerManager::AnalyzerManagerPrivate::startTool()
 // AnalyzerManager ////////////////////////////////////////////////////
 AnalyzerManager *AnalyzerManager::m_instance = 0;
 
-AnalyzerManager::AnalyzerManager(Internal::AnalyzerOutputPane *op, QObject *parent) :
+AnalyzerManager::AnalyzerManager(AnalyzerOutputPane *op, QObject *parent) :
     QObject(parent),
     d(new AnalyzerManagerPrivate(this))
 {
