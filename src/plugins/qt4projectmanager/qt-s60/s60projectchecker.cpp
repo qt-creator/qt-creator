@@ -44,12 +44,11 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 QList<ProjectExplorer::Task>
-S60ProjectChecker::reportIssues(const QString &proFile, const QtVersion *version)
+S60ProjectChecker::reportIssues(const QString &proFile)
 {
     QList<ProjectExplorer::Task> results;
-    const QString epocRootDir = version->systemRoot();
-    QFileInfo cppheader(epocRootDir + QLatin1String("/epoc32/include/stdapis/string.h"));
 #if defined (Q_OS_WIN)
+    const QString epocRootDir = version->systemRoot();
     // Report an error if project- and epoc directory are on different drives:
     if (!epocRootDir.startsWith(proFile.left(3), Qt::CaseInsensitive) && !version->isBuildWithSymbianSbsV2()) {
         results.append(Task(Task::Error,
@@ -58,19 +57,6 @@ S60ProjectChecker::reportIssues(const QString &proFile, const QtVersion *version
                             QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
 #endif
-    // Report an error if EPOC root is not set:
-    if (epocRootDir.isEmpty() || !QDir(epocRootDir).exists()) {
-        results.append(Task(Task::Error,
-                            QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
-                                                        "The Symbian SDK was not found for Qt version %1.").arg(version->displayName()),
-                            QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-    }
-    if (!cppheader.exists()) {
-        results.append(Task(Task::Error,
-                            QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
-                                                        "The \"Open C/C++ plugin\" is not installed in the Symbian SDK or the Symbian SDK path is misconfigured for Qt version %1.").arg(version->displayName()),
-                            QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-    }
 
     // Warn of strange characters in project name and path:
     const QString projectName = proFile.mid(proFile.lastIndexOf(QLatin1Char('/')) + 1);
@@ -98,8 +84,8 @@ S60ProjectChecker::reportIssues(const QString &proFile, const QtVersion *version
 }
 
 QList<ProjectExplorer::Task>
-S60ProjectChecker::reportIssues(const Qt4Project *project, const QtVersion *version)
+S60ProjectChecker::reportIssues(const Qt4Project *project)
 {
     QString proFile = project->file()->fileName();
-    return reportIssues(proFile, version);
+    return reportIssues(proFile);
 }

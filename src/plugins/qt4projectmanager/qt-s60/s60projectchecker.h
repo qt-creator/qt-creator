@@ -50,14 +50,14 @@ public:
     /// @return a list of tasks, ordered on severity (errors first, then
     ///         warnings and finally info items.
     static QList<ProjectExplorer::Task>
-    reportIssues(const QString &proFile, const QtVersion *version);
+    reportIssues(const QString &proFile);
 
     /// Check a project/Qt version combination on possible issues with
     /// its symbian setup.
     /// @return a list of tasks, ordered on severity (errors first, then
     ///         warnings and finally info items.
     static QList<ProjectExplorer::Task>
-    reportIssues(const Qt4Project *project, const QtVersion *version);
+    reportIssues(const Qt4Project *project);
 };
 
 } // namespace Internal

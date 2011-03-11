@@ -239,6 +239,8 @@ private:
     mutable QSet<QString> m_targetIds;
 
     mutable bool m_isBuildUsingSbsV2;
+    mutable bool m_qmakeIsExecutable;
+    mutable bool m_validSystemRoot;
 };
 
 struct QMakeAssignment

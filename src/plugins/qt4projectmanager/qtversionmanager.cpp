@@ -612,7 +612,9 @@ QtVersion::QtVersion(const QString &name, const QString &qmakeCommand, int id,
     m_defaultConfigIsDebugAndRelease(true),
     m_hasExamples(false),
     m_hasDemos(false),
-    m_hasDocumentation(false)
+    m_hasDocumentation(false),
+    m_qmakeIsExecutable(false),
+    m_validSystemRoot(true)
 {
     if (id == -1)
         m_id = getUniqueId();
@@ -637,7 +639,9 @@ QtVersion::QtVersion(const QString &name, const QString &qmakeCommand,
     m_defaultConfigIsDebugAndRelease(true),
     m_hasExamples(false),
     m_hasDemos(false),
-    m_hasDocumentation(false)
+    m_hasDocumentation(false),
+    m_qmakeIsExecutable(false),
+    m_validSystemRoot(true)
 {
     m_id = getUniqueId();
     setQMakeCommand(qmakeCommand);
@@ -658,7 +662,9 @@ QtVersion::QtVersion(const QString &qmakeCommand, bool isAutodetected, const QSt
     m_defaultConfigIsDebugAndRelease(true),
     m_hasExamples(false),
     m_hasDemos(false),
-    m_hasDocumentation(false)
+    m_hasDocumentation(false),
+    m_qmakeIsExecutable(false),
+    m_validSystemRoot(true)
 {
     m_id = getUniqueId();
     setQMakeCommand(qmakeCommand);
@@ -679,7 +685,9 @@ QtVersion::QtVersion()
     m_defaultConfigIsDebugAndRelease(true),
     m_hasExamples(false),
     m_hasDemos(false),
-    m_hasDocumentation(false)
+    m_hasDocumentation(false) ,
+    m_qmakeIsExecutable(false),
+    m_validSystemRoot(true)
 {
     setQMakeCommand(QString());
 }
@@ -802,7 +810,7 @@ QtVersion::reportIssues(const QString &proFile, const QString &buildDir)
     QSet<QString> targets = supportedTargetIds();
     if (targets.contains(Constants::S60_DEVICE_TARGET_ID) ||
         targets.contains(Constants::S60_EMULATOR_TARGET_ID))
-        results.append(S60ProjectChecker::reportIssues(proFile, this));
+        results.append(S60ProjectChecker::reportIssues(proFile));
     return results;
 }
 
@@ -1153,8 +1161,6 @@ static bool queryQMakeVariables(const QString &binary, QHash<QString, QString> *
 {
     const int timeOutMS = 30000; // Might be slow on some machines.
     QFileInfo qmake(binary);
-    if (!qmake.exists() || !qmake.isExecutable())
-        return false;
     static const char * const variables[] = {
              "QT_VERSION",
              "QT_INSTALL_DATA",
@@ -1217,6 +1223,13 @@ void QtVersion::updateVersionInfo() const
     m_hasQmlDump = false;
     m_hasQmlDebuggingLibrary = false;
     m_hasQmlObserver = false;
+    m_qmakeIsExecutable = true;
+
+    QFileInfo fi(qmakeCommand());
+    if (!fi.exists() || !fi.isExecutable()) {
+        m_qmakeIsExecutable = false;
+        return;
+    }
 
     if (!queryQMakeVariables(qmakeCommand(), &m_versionInfo))
         return;
@@ -1387,6 +1400,7 @@ void QtVersion::updateAbiAndMkspec() const
 
     m_targetIds.clear();
     m_abis.clear();
+    m_validSystemRoot = true;
 
 //    qDebug()<<"Finding mkspec for"<<qmakeCommand();
 
@@ -1587,8 +1601,15 @@ void QtVersion::updateAbiAndMkspec() const
         }
     } else if (supportsTargetId(Constants::S60_DEVICE_TARGET_ID)
            || supportsTargetId(Constants::S60_EMULATOR_TARGET_ID)) {
+        if (m_systemRoot.isEmpty())
+            m_validSystemRoot = false;
+
         if (!m_systemRoot.endsWith(QLatin1Char('/')))
             m_systemRoot.append(QLatin1Char('/'));
+
+        QFileInfo cppheader(m_systemRoot + QLatin1String("epoc32/include/stdapis/string.h"));
+        if (!cppheader.exists())
+            m_validSystemRoot = false;
     } else {
         m_systemRoot = QLatin1String("");
     }
@@ -1759,7 +1780,9 @@ bool QtVersion::isValid() const
             && !m_notInstalled
             && m_versionInfo.contains("QT_INSTALL_BINS")
             && (!m_mkspecFullPath.isEmpty() || !m_abiUpToDate)
-            && !m_abis.isEmpty();
+            && !m_abis.isEmpty()
+            && m_qmakeIsExecutable
+            && m_validSystemRoot;
 }
 
 bool QtVersion::toolChainAvailable() const
@@ -1778,6 +1801,8 @@ QString QtVersion::invalidReason() const
         return QString();
     if (qmakeCommand().isEmpty())
         return QCoreApplication::translate("QtVersion", "No qmake path set");
+    if (!m_qmakeIsExecutable)
+        return QCoreApplication::translate("QtVersion", "qmake does not exist or is not executable");
     if (displayName().isEmpty())
         return QCoreApplication::translate("QtVersion", "Qt version has no name");
     if (m_notInstalled)
@@ -1789,6 +1814,8 @@ QString QtVersion::invalidReason() const
         return QCoreApplication::translate("QtVersion", "The default mkspec symlink is broken.");
     if (m_abiUpToDate && m_abis.isEmpty())
         return QCoreApplication::translate("QtVersion", "Failed to detect the ABI(s) used by the Qt version.");
+    if (!m_validSystemRoot)
+        return QCoreApplication::translate("QtVersion", "The \"Open C/C++ plugin\" is not installed in the Symbian SDK or the Symbian SDK path is misconfigured");
     return QString();
 }
 
