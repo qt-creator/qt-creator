@@ -1816,6 +1816,7 @@
     \gui{Code Pasting} > \gui{Paste Snippet...} or press \key{Alt+C,Alt+P}.
 
 
+
     To fetch a snippet of code from the server, select \gui{Tools} >
     \gui{Code Pasting} > \gui{Fetch Snippet...} or press \key{Alt+C,Alt+F}.
 
@@ -4526,30 +4527,25 @@
 
     \image qmldesigner-run-custom-exe.png "Run settings for custom executables"
 
-    \section1 Specifying Run Settings for Qt Quick Projects
+    \section1 Specifying Run Settings for Qt Quick UI Projects
 
-    Select run settings in the \gui {Run configuration} field. The settings
-    are specified automatically and, you mostly need to change them if you
-    develop applications that use both C++ and QML:
+    You can specify run settings for the \gui Desktop target:
 
     \list
 
-        \o \gui {Custom QML Viewer} is the path to the \QQV executable.
-        Qt Creator ships with a specific version of \QQV and imported
-        modules, which is used by default. If you develop Qt Quick applications
-        that contain C++ plugins, you must select the \QQV version
-        shipped with your Qt version here.
+        \o In the \gui {Qt version} field, select a Qt version that has support
+        for QML.
 
-        \o \gui {QML Viewer arguments} sets arguments for running \QQV.
-        The \c{-I <directory>} argument searches for C++ or QML plugins from
-        the project folder. For a list of available arguments, enter \c {qml --help}
-        on the command line.
+        \o In the \gui Arguments field, you can specify command line arguments
+        to be passed to the executable.
 
-        \o \gui {Main QML file} is the Qt Quick project file.
+        \o In the \gui {Main QML file}, select the file that \QQV will be
+        started with.
 
-        \o \gui Debugger allows you to select the languages to debug:
+        \o In the \gui Debugger group, select the languages to debug:
         \gui{C++} and \gui QML. \gui {Debug port} is the port to access \QQV.
         You can use any free port in the registered port range.
+        For more information, see \l{Debugging Qt Quick Projects}.
 
     \endlist
 
@@ -4558,7 +4554,7 @@
     execute any JavaScript functions. Therefore, you must make sure that the port
     is properly protected by a firewall.
 
-    \image qmldesigner-run-settings.png "Run settings for Qt Quick projects"
+    \image qmldesigner-run-settings.png "Run settings for Qt Quick UI projects"
 
 
 */
