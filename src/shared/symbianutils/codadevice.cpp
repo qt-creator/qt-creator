@@ -254,11 +254,13 @@ QString CodaCommandResult::errorString() const
         commandError.write(str);
         break;
     }
-    // Append the failed command for reference
-    str << " (Command was: '";
-    QByteArray printableRequest = request;
-    printableRequest.replace('\0', '|');
-    str << printableRequest << "')";
+    if (debug) {
+        // Append the failed command for reference
+        str << " (Command was: '";
+        QByteArray printableRequest = request;
+        printableRequest.replace('\0', '|');
+        str << printableRequest << "')";
+    }
     return rc;
 }
 

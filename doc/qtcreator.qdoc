@@ -144,6 +144,7 @@
             \endlist
        \o \l{Using Version Control Systems}
        \o \l{Using External Tools}
+       \o \l{Editing MIME Types}
        \o \l{Showing Task List Files in the Build Issues Pane}
        \o \l{Using Command Line Options}
        \o \l{Getting Help}
@@ -1796,7 +1797,7 @@
     \contentspage index.html
     \previouspage creator-editor-locator.html
     \page creator-editor-codepasting.html
-    \nextpage creator-editor-options.html
+    \nextpage creator-macros.html
 
     \title Pasting and Fetching Code Snippets
 
@@ -1837,7 +1838,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-locator.html
+    \previouspage creator-editor-codepasting.html
     \page creator-macros.html
     \nextpage creator-editor-options.html
 
@@ -1908,7 +1909,7 @@
     \contentspage index.html
     \previouspage creator-version-control.html
     \page creator-editor-external.html
-    \nextpage creator-task-lists.html
+    \nextpage creator-mime-types.html
 
     \title Using External Tools
 
@@ -2022,7 +2023,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-codepasting.html
+    \previouspage creator-macros.html
     \page creator-editor-options.html
     \nextpage creator-editor-fakevim.html
 
@@ -7977,7 +7978,7 @@
         \o Select \gui Projects, and then select the \gui QML check box in the
         \gui {Run Settings}, to enable QML debugging.
 
-        \o Compile the debugging helpers. For more information, see
+        \o Compile the QML Observer debugging helper. For more information, see
         \l{Debugging Helpers for QML}.
 
     \endlist
@@ -7986,24 +7987,27 @@
 
         \list 1
 
-        \o Modify the project file to comment in the following line:
+        \o Select \gui Projects, and then select the \gui {Link QML debugging
+        library} check box in \gui {Build Steps}.
 
-    \c {DEFINES += QMLJSDEBUGGER}.
+        You might have to compile the library first, by selecting the
+        \gui Compile link.
 
-        \o Select \gui Projects, and then select the \gui QML check box in the
-        \gui {Run Settings}, to enable QML debugging.
+        \image qml-link-debugging-library.png "Build Steps"
 
-        \o In the \gui {Target selector}, select a debug configuration for
-        the target.
+        \note Debugging requires opening a socket at a well-known port, which
+        presents a security risk. Anyone on the Internet could connect to the
+        application that you are debugging and execute any JavaScript
+        functions. Therefore, you must make sure that the port is properly
+        protected by a firewall.
 
-        \image qtcreator-target-selector-debug.png "Target selector"
+        \o In the \gui {Run Settings}, select the \gui QML check box to enable
+        QML debugging.
 
-        \o Select \gui {Build > Rebuild Project} to clean and rebuild the project
-        in debug mode.
+        \o Select \gui {Build > Rebuild Project} to clean and rebuild the
+        project.
 
     \endlist
-
-    You can create debug configurations for project targets in the \gui Projects mode.
 
     \section1 Starting QML Debugging
 
@@ -8058,13 +8062,14 @@
 
     Reloading is enabled by default. To disable it, click
     \inlineimage qml-observer-bar-reload.png "Apply Changes on Save button"
-    in the \gui {QML Observer} view.
+    on the toolbar.
 
     \section1 Inspecting QML at Runtime
 
     While the application is running, you can use the \gui {QML Observer} view to
     explore the object structure, debug animations, and inspect colors.
     To open the \gui {QML Observer} view, choose \gui {Window > View > QML Observer}.
+    The view shows the properties of the currently selected QML element.
 
     \image qml-observer-view.png "QML Observer view"
 
@@ -8072,11 +8077,14 @@
     mode to jump to the position in code where an element is defined. To switch to
     the observe mode, click
     \inlineimage qml-observer-bar-observe.png
-    in the \gui {QML Observer} view.
+    on the toolbar.
 
     Click elements in the running application to jump to their definitions in the code.
     Double-click elements to browse the element hierarchy. The hierarchy is displayed
     as bread crumbs in the \gui {QML Observer} view.
+
+    To move the application running in \QQV to the front, select the
+    \gui {Show Application on Top} button.
 
     You can also right-click an element in the running application to view the element
     hierarchy as a context menu. Select an element to jump to its definition in code.
@@ -8093,16 +8101,14 @@
 
     \image qml-observer.png
 
-    To play and pause animations in the running application, click the \gui {Play/Pause Animations}
-    button in the \gui {QML Observer} view or \gui {Debugging > Animations > Pause} or press
+    To play and pause animations in the running application, select the
+    \gui {Play/Pause Animations} button on the toolbar or \gui {Debugging >
+    Animations > Pause}, or press
     \key {Ctrl+.}.
 
-    To step through an animation, select \gui {Debugging > Animations > Pause & Step}
-    or press \key {Ctrl+,}.
-
-    To set step duration in milliseconds, select \gui {Debugging > Animations > Set Step}.
     To change the speed at which animations are played, select a value in \gui {Debugging
-    > Animations}.
+    > Animations} or click and hold down the \gui {Play/Pause Animations}
+    button to select a value.
 
 */
 
@@ -10539,30 +10545,30 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-external.html
+    \previouspage creator-mime-types.html
     \page creator-task-lists.html
     \nextpage creator-cli.html
 
     \title Showing Task List Files in the Build Issues Pane
 
-    Code scanning and analysis tools typically create report files in ASCII-form,
-    consisting of lines containing file name, line number and an error message.
-    Stack traces obtained from crash reports take a similar form.
-    Traditionally, one would fix these issues by manually navigating to the
-    occurrences and correcting them, which is tedious.
+    Code scanning and analysis tools create report files in ASCII format.
+    Usually, the report files consist of lines that contain a file name, a line
+    number, and an error message. A similar format is used for stack traces
+    obtained from crash reports. Traditionally, you would fix the errors by
+    manually navigating to them and correcting them, which is tedious.
 
     Qt Creator makes this very easy by providing a way to load these files into
-    the \gui{Build Issues} pane,  so that the corresponding source code can be navigated
-    to by clicking on the message. For this to work, the files need to be converted to the
-    \l{Task List File Format}, which can be easily achieved by using conversion
-    scripts based on standard text processing tools of the operating system.
+    the \gui{Build Issues} pane. You can navigate to the corresponding source
+    code by clicking the error message. But first you must convert the files to
+    the \l{Task List File Format} by using conversion scripts that based on
+    standard text processing tools of the operating system.
 
-    The resulting task list files can then be loaded by choosing
-    \gui{File} -> \gui{Open}.
-
+    In addition, you can generate task list files from code.
     For an example of a script that checks new lines of code and matches them
     against regular expressions to generate a task list, see \c{scripts\mytasks.pl}
     in the Qt Creator repository.
+
+    To open task list files, choose \gui{File} > \gui{Open}.
 
     \section1 Task List File Format
 
@@ -10705,6 +10711,279 @@
             For more information about managing sessions, see \l{Managing Sessions}.
 
     \endtable
+
+
+    */
+
+
+    /*!
+    \contentspage index.html
+    \previouspage creator-editor-external.html
+    \page creator-mime-types.html
+    \nextpage creator-task-lists.html
+
+    \title Editing MIME Types
+
+    Qt Creator uses the
+    \l{http://en.wikipedia.org/wiki/Internet_media_type}{Internet media type}
+    (MIME type) of the file to determine which mode and editor to use for
+    opening the file. For example, Qt Creator opens C++ source and header files
+    in the C++ editor, and Qt widget based UI files (.ui) in \QD.
+
+    To identify the MIME type of a file, Qt Creator uses matching by pattern
+    and matching by contents. First, Qt Creator looks at the filename to check
+    whether it matches the patterns specified for any MIME type. If no match is
+    found, it checks the contents of the file for magic headers specified for the
+    file.
+
+    The magic headers can contain text strings or bytes. The type of the
+    header value, string or byte, determines how Qt Creator interprets the
+    value. Qt Creator searches for the value within a specified
+    range in the files and takes the priority of the magic header into account.
+    If you specify wide search ranges, openging files in Qt Creator might take
+    a long time. Therefore, you are advised to use the recommended values for
+    the range and priority of the magic header.
+
+    If your files do not match the predefined MIME types, you can edit the
+    MIME types to add filename extensions and magic headers. You cannot
+    add new MIME types, however.
+
+    To edit MIME types:
+
+    \list 1
+
+        \o  Select \gui {Tools > Options... > Environment > MIME Types}.
+
+            \image qtcreator-mime-types.png "MIME Types"
+
+        \o  In \gui {MIME Type}, select a MIME type.
+
+        \o  In \gui Patterns, add the filename extension for the type of files
+            that you want to identify as having this MIME type.
+
+        \o  Click \gui Add to add \gui {Magic Headers}.
+
+            \image qtcreator-mime-types-magic-header.png "Magic Header"
+
+        \o  In the \gui Value field, specify a text string or bytes that
+            appear in the files.
+
+        \o  In the \gui Type field, select the type of the value.
+
+        \note You are recommended not to change the range and priority, because
+        it might cause problems when opening files in Qt Creator.
+
+        \o  Click \gui OK.
+
+    \endlist
+
+    To revert all the changes you have made to the MIME type definitions,
+    select \gui {Reset All}.
+
+    \note If you now select \gui OK or \gui Apply, you permanently lose all
+    your own patterns and magic headers. The changes are reverted the next
+    time you start Qt Creator.
+
+    */
+
+
+    /*!
+    \contentspage index.html
+    \previouspage creator-task-lists.html
+    \page creator-faq.html
+    \nextpage creator-help.html
+
+    \title FAQ
+
+    This section lists some frequently asked questions about Qt Creator and
+    answers to them.
+
+    \section1 General
+
+    \section2 How do I reset all Qt Creator settings?
+
+    Qt Creator creates two files and a directory: \c QtCreator.db,
+    \c QtCreator.ini, and \c qtcreator. The location depends on the platform.
+    On Linux, Unix, and Mac OS, the files are located in \c {~/.config/Nokia},
+    on Windows XP in
+    \c {<drive>:\Documents and Settings\<username>\Application Data\Nokia}, and
+    on Windows Vista and Windows 7 in
+    \c {<drive>:\Users\<username>\AppData\Roaming\Nokia}. For all versions,
+    try this path: \c {APPDATA\Nokia}.
+
+    \section2 Qt Creator comes with MinGW, should I use this version with Qt?
+
+    Until Qt  both Qt and Qt Creator have been shipping with a MinGW version which uses MinGW 3.4. Starting with the 1.2.90 Tech Preview, Qt Creator ships with a more recent MinGW GCC 4.4, which Qt 4.6 final will also be using. GCC 3.4 and GCC 4.4 are not binary compatible. So if you try to use Qt 4.6 beta and before with Qt Creator 1.2.90 and older, tell Qt Creator to use the MinGW from Qt by setting “MinGw location” to the according MinGW directory in Tools –> Options –> Qt4 –> Qt Versions.
+
+    \section2 Qt Creator does not find a helper application, such as git or a compiler.
+
+    Make sure the application is in your system PATH when starting Qt Creator.
+    Also select \gui {Tools > Options} to check the settings specified for the
+    application. Many plugins specify either the path to the tool they need or
+    the environment they run in.
+
+    This is especially relevant for the Mac OS where \c {/usr/local/bin} might
+    not be in the path when Qt Creator is started.
+
+    \section2 How do I change the language for Qt Creator?
+
+    Qt Creator has been localized into several languages. If the system
+    language is one of the supported languages, it is automatically selected.
+    To change the language, select \gui {Tools > Options > Environment} and
+    select a language in the \gui Language field. The change takes effect after
+    you restart Qt Creator.
+
+    \section1 Qt Designer
+
+    \section2 Custom widgets not loaded in Design mode even though it works in standalone \QD.
+
+    \QD fetches plugins from standard locations and loads the plugins that
+    match its build key. The locations are different for standalone and
+    integrated \QD.
+
+    For more information, see \l{Adding Qt Designer Plugins}.
+
+    \section1 Help
+
+    \section2 The Qt Reference Documentation missing and context help cannot find topics.
+
+    Qt Creator comes fully integrated with Qt documentation and
+    examples using the Qt Help plugin.
+
+    \note The integrated Qt Reference Documentation is only available for Qt
+    4.4 and later.
+
+    Qt Creator, \QSDK, and other Qt deliverables contain documentation
+    as .qch files. All the documentation is accessible in the \gui Help mode.
+
+    To view the documentation that is available and to add documentation,
+    select \gui {Tools > Options... > Help > Documentation}.
+
+    For more information, see \l{Adding External Documentation}.
+
+    \section1 Debugger
+
+    \section2 The debugger does not work.
+
+    First, make sure you use at least version 1.2.1. Several debugger related bug fixed in this version. Then, there is a “Debugger View” (under “Debug –> Views –> Debugger”).
+
+Note: Up to Qt Creator 1.2, the view was called “Gdb View”. The contents of the pane on the right hand side is most helpful. It is advised to attach it to any debugger related report on the mailing list (qt-creator@trolltech.com) or to put it on http://creator.pastebin.com [creator.pastebin.com] before asking people on IRC (#qt-creator at FreeNode).
+
+    \section2 Does debugging on Mac need some special setup?
+
+    If you want to debug into frameworks, such as Qt code, you need to set
+
+    \c{?1 DYLD_IMAGE_SUFFIX=_debug}
+
+
+(there is an option for that in the Qt4 run configuration). Also XCode 3.x is preferred.
+
+    \section2 The built-in debugger is slow during startup and runtime, especially on Windows.
+
+    The debugger which ships with Creator in the Qt SDK on Windows is GDB from MinGW. Unfortunately, GDB is quite slow on Windows in general. Qt Creator interacts with GDB and adds custom dumpers for Qt types, and is thus not the problem of the slowness. Note that Creator can be used with MSVC on Windows, too – even for debugging.
+
+    \section2 How do I enable the debugging helpers for Qt’s bootstrapped applications (moc, qmake, etc)
+
+    The bootstrapped applications are built in a way that is incompatible with
+    the default build of the debugging helpers. To work around this, add
+    gdbmacros.cpp to the compiled sources in the application Makefile.
+
+    Choose \gui {Tools > Options > Debugger > Debugging Helper > Use debugging
+    helper from custom location}, and specify an invalid location, such as
+    \c{/dev/null}.
+
+    For more information, see \l{Using Debugging Helpers}.
+
+    \section2 The debugger does not hit my breakpoints
+
+    You might have created a release build that does not contain debug
+    information. A gcc debug build should have the “-g” option on the compiler command line. Check that this option is present in the “Compile output” pane (Alt-4). If not, adjust your build settings in the “Project” tab.
+
+When using the Locals & Watches window to inspect a pointer variable, expanding the variable’s tree item shows another tree item level instead of directly showing the members of the pointer variable. That’s ugly.
+
+There’s a “Dereference pointers automatically” item in the Locals and Watchers context menu.
+
+    \section2 If I have a choice of gdb versions, which should I use?
+
+    Use the gdb version delivered with Qt Creator or Qt SDK. Except for Mac OS,
+
+
+?1 sudo dpkg -i gdb_6.8-3ubuntu2_[arch].deb
+
+
+    \section2 The debugger tells me <not in scope> for some variables that are definitely in scope. What happened?
+
+The message is created by the debugging helpers. Qt Creator posts an expression to the gdb command line to invoke the debugging helpers, including the address of the object to examine. In some cases this address is modified by gdb before actually calling the helper function. It is unclear why and when this happens, but if it happens, the debugging helpers operate on wrong data and come to wrong conclusions, the most likely outcome is that it will find garbage and declare the variable as <not in scope>.
+
+    \section2 What’s up with Python in the debugger?
+
+Qt Creator is able to take advantage of using gdb builds that enable python scripting. It is currently only used for creating the contents of the Locals and Watcher view, but we might use it for stack display later. Using python scripting has three major advantages for us:
+
+There is no need to inject code (“Debugging helpers”) into the debugged process to “nicely display”, say, QStringList or std::map contents. The code injection was a constant source of trouble and introduced extra stress on the debugged process, something one usually does not want when debugging.
+It is now easily possible to extend the “Debugging helpers” to other types. No compilation required, just a few lines of python.
+Python scripting vastly reduces the communication overhead compared to the previous “pure MI” based solution.
+So while in theory all is fine now, in practice there are some obstacles:
+
+There is no python-enabled gdb for Mac. Mac will have to continue injection with C++ based debugging helpers.
+On the Symbian platform and the AppTRK tool used artificially restricts gdb’s ability to talk to the device, so extracting e.g. QObject properties is not possible.
+There is no gdb to talk to MSVC compiled applications on Windows. So “nice display” only works in a limited fashion using injection of C++ based Debugging helpers and cdb.
+Also, the official gdb 7.0 release will not work as it crashes quite often due to http://sourceware.org/bugzilla/show_bug.cgi?id=10884 [sourceware.org]
+
+Official gdb 7.0.1 works, but requires a few nasty workarounds on the Creator side as it does not have all the python features Qt Creators would like to use. Find updated sources for Ubuntu 9.10 (Karmic) by adding the following to your /etc/apt/sources.list:
+
+
+?123      deb http://ppa.launchpad.net/daniel-molkentin/gdb/ubuntu karmic main deb-src http://ppa.launchpad.net/daniel-molkentin/gdb/ubuntu karmic main
+
+
+To use Qt Creator’s new python based gdb integration you need
+
+gdb 7.0.1 or later – or –
+self-compiled gdb from Archer:
+Python 2.5 or later (Kubuntu: python2.6-dev)
+A gdb from Archer:
+Checkout the sources:
+
+?123 git clone git://sourceware.org/git/archer.git  cd archer git checkout -b archer-tromey-python origin/archer-tromey-python
+
+Build it:
+
+?12 ./configure —with-python —disable-werror make
+
+Your new gdb will emerge as gdb/gdb
+Point Creator’s gdb path (Options –> Debugger –> Gdb –> Gdb Location) to your Python-enabled gdb or use the QTC_DEBUGGER_PATH environment variable
+Start debugging as usual.
+Go to the Debugger –> Views –> Debugger view to check if everything is ok. Close to the beginning there is a command ‘help bb’ issued, check whether it returns with a ‘done’ or an ‘error’ reply.
+
+    \section2 Are there prebuilt gdb binaries you recommend?
+
+Yes:
+
+For Linux/x86: ftp://ftp.qt.nokia.com/misc/gdb/gdb-python-linux-i686 [ftp.qt.nokia.com]
+For Linux/x86_64: ftp://ftp.qt.nokia.com/misc/gdb/gdb-python-linux-x86_64 [ftp.qt.nokia.com]
+Why is stepping into functions in shared libraries so slow on Linux?
+
+There was a gdb bug (http://sourceware.org/bugzilla/show_bug.cgi?id=11198 [sourceware.org]) which has been fixed by now. It has also been suggested that
+
+
+?1 sudo apt-get install libc6-dbg
+
+
+solves the problem on Ubuntu machines.
+
+    \section1 Code Editor
+
+    How can I get code-completion to work on the standard headers and phonon?
+
+    That does work only with builds from March 31 2009 or newer.
+
+    \section1 Compilation
+
+    How can I make use of my multi-core CPU with Qt Creator?
+
+On Linux and Mac OS X, go to Project Mode, select your configuration in the build settings tab, locate the Build Steps entry and add -j <num> where <num> is the amount of cores in your CPU.
+
+On Windows, nmake does not support the -j parameter. Instead, we provide a drop-in replacement called jom. You can download a precompiled version of jom from the Qt FTP. Put jom.exe in a location in PATH. Go to the location described above and set jom.exe as the make command. Note: Unlike GNU make, jom will automatically detect your cores and will spawn as many parallel processes as your CPU has cores. You can override this behavior by using the -j parameter as described above.
+
 
 
     */
