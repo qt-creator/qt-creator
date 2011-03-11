@@ -1797,7 +1797,7 @@
     \contentspage index.html
     \previouspage creator-editor-locator.html
     \page creator-editor-codepasting.html
-    \nextpage creator-editor-options.html
+    \nextpage creator-macros.html
 
     \title Pasting and Fetching Code Snippets
 
@@ -1838,7 +1838,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-locator.html
+    \previouspage creator-editor-codepasting.html
     \page creator-macros.html
     \nextpage creator-editor-options.html
 
@@ -2023,7 +2023,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-codepasting.html
+    \previouspage creator-macros.html
     \page creator-editor-options.html
     \nextpage creator-editor-fakevim.html
 
