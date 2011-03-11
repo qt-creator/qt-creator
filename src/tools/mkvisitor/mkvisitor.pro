@@ -1,7 +1,6 @@
 QT = core gui
 macx:CONFIG -= app_bundle
 TARGET = cplusplus0
-DEPENDPATH += .
 INCLUDEPATH += . ../../libs
 
 include(../../libs/cplusplus/cplusplus-lib.pri)

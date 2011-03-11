@@ -261,6 +261,7 @@ private:
     explicit MimeType(const MimeTypeData &d);
     unsigned matchesFileBySuffix(Internal::FileMatchContext &c) const;
     unsigned matchesFileByContent(Internal::FileMatchContext &c) const;
+    unsigned matchesData(const QByteArray &data) const;
 
     friend class Internal::BaseMimeTypeParser;
     friend class MimeDatabasePrivate;
@@ -292,6 +293,9 @@ public:
 
     // Returns a mime type or Null one if none found
     MimeType findByFile(const QFileInfo &f) const;
+
+    // Returns a mime type or Null one if none found
+    MimeType findByData(const QByteArray &data) const;
 
     // Convenience that mutex-locks the DB and calls a function
     // of the signature 'void f(const MimeType &, const QFileInfo &, const QString &)'

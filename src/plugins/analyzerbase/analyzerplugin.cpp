@@ -36,6 +36,7 @@
 #include "analyzerplugin.h"
 #include "analyzerconstants.h"
 #include "analyzermanager.h"
+#include "analyzeroutputpane.h"
 
 #include <coreplugin/imode.h>
 #include <coreplugin/coreconstants.h>
@@ -76,7 +77,9 @@ void AnalyzerPlugin::AnalyzerPluginPrivate::initialize(const QStringList &argume
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
-    m_manager = new AnalyzerManager(q);
+    AnalyzerOutputPane *outputPane =  new AnalyzerOutputPane;
+    q->addAutoReleasedObject(outputPane);
+    m_manager = new AnalyzerManager(outputPane, q);
 }
 
 

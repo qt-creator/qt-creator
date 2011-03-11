@@ -29,13 +29,6 @@ INCLUDEPATH	+= $$QT_BUILD_TREE/include \
                    $$QT_BUILD_TREE/include/QtCore \
                    $$QT_BUILD_TREE/include/QtXml \
                    $$QT_SOURCE_TREE/src/xml
-DEPENDPATH	+= $$INCLUDEPATH \
-                   $$QT_SOURCE_TREE/src/corelib/global \
-                   $$QT_SOURCE_TREE/src/corelib/kernel \
-                   $$QT_SOURCE_TREE/src/corelib/tools \
-                   $$QT_SOURCE_TREE/src/corelib/io \
-                   $$QT_SOURCE_TREE/src/corelib/codecs \
-                   $$QT_SOURCE_TREE/src/xml
 
 hpux-acc*|hpuxi-acc* {
     LIBS += $$QT_BUILD_TREE/src/tools/bootstrap/libbootstrap.a

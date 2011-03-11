@@ -254,10 +254,10 @@ void QtVersionManager::removeVersion(QtVersion *version)
 
 bool QtVersionManager::supportsTargetId(const QString &id) const
 {
-    foreach (QtVersion *version, m_versions) {
-        if (version->supportsTargetId(id))
+    QList<QtVersion *> versions = QtVersionManager::instance()->versionsForTargetId(id);
+    foreach (QtVersion *v, versions)
+        if (v->isValid() && v->toolChainAvailable())
             return true;
-    }
     return false;
 }
 
@@ -1748,6 +1748,16 @@ bool QtVersion::isValid() const
             && m_versionInfo.contains("QT_INSTALL_BINS")
             && (!m_mkspecFullPath.isEmpty() || !m_abiUpToDate)
             && !m_abis.isEmpty();
+}
+
+bool QtVersion::toolChainAvailable() const
+{
+    if (!isValid())
+        return false;
+    foreach (const ProjectExplorer::Abi &abi, qtAbis())
+        if (!ProjectExplorer::ToolChainManager::instance()->findToolChains(abi).isEmpty())
+            return true;
+    return false;
 }
 
 QString QtVersion::invalidReason() const

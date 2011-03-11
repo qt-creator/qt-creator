@@ -528,6 +528,9 @@ void PropertyEditor::otherPropertyChanged(const QmlObjectNode &fxObjectNode, con
 {
     QmlModelView::otherPropertyChanged(fxObjectNode, propertyName);
 
+    if (!m_selectedNode.isValid())
+        return;
+
     if (fxObjectNode.isValid() && m_currentType && fxObjectNode == m_selectedNode && fxObjectNode.currentState().isValid()) {
         AbstractProperty property = fxObjectNode.modelNode().property(propertyName);
         if (fxObjectNode == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == fxObjectNode) {
@@ -542,6 +545,9 @@ void PropertyEditor::otherPropertyChanged(const QmlObjectNode &fxObjectNode, con
 void PropertyEditor::transformChanged(const QmlObjectNode &fxObjectNode, const QString &propertyName)
 {
     QmlModelView::transformChanged(fxObjectNode, propertyName);
+
+    if (!m_selectedNode.isValid())
+        return;
 
     if (fxObjectNode.isValid() && m_currentType && fxObjectNode == m_selectedNode && fxObjectNode.currentState().isValid()) {
         AbstractProperty property = fxObjectNode.modelNode().property(propertyName);

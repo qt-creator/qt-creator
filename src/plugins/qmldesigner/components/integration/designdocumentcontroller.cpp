@@ -78,6 +78,7 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QUndoStack>
 #include <QtGui/QPlainTextEdit>
+#include <QtGui/QApplication>
 
 enum {
     debug = false
@@ -366,6 +367,8 @@ void DesignDocumentController::changeCurrentModelTo(const ModelNode &componentNo
 
 void DesignDocumentController::loadCurrentModel()
 {
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
     Q_ASSERT(m_d->masterModel);
     Q_ASSERT(m_d->model);
     m_d->model->setMasterModel(m_d->masterModel.data());
@@ -399,6 +402,7 @@ void DesignDocumentController::loadCurrentModel()
 
     m_d->documentLoaded = true;
     Q_ASSERT(m_d->masterModel);
+    QApplication::restoreOverrideCursor();
 }
 
 QList<RewriterView::Error> DesignDocumentController::loadMaster(const QByteArray &qml)

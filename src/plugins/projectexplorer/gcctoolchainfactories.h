@@ -36,9 +36,12 @@
 
 #include "toolchain.h"
 #include "toolchainconfigwidget.h"
+#include "abi.h"
+
+#include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
-class QCheckBox;
+class QComboBox;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -91,13 +94,16 @@ public:
 
 private slots:
     void handlePathChange();
-    void handle32BitChange();
+    void handleAbiChange();
 
 private:
+    void populateAbiList(const QList<Abi> &);
     void setFromToolchain();
 
     Utils::PathChooser *m_compilerPath;
-    QCheckBox *m_force32BitCheckBox;
+    QComboBox *m_abiComboBox;
+
+    QList<Abi> m_abiList;
 };
 
 // --------------------------------------------------------------------------

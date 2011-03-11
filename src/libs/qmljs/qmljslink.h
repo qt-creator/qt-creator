@@ -70,16 +70,20 @@ private:
     void linkImports();
 
     void populateImportedTypes(Interpreter::TypeEnvironment *typeEnv, Document::Ptr doc);
-    Interpreter::ObjectValue *importFile(Document::Ptr doc, const Interpreter::ImportInfo &importInfo);
+    Interpreter::ObjectValue *importFileOrDirectory(Document::Ptr doc, const Interpreter::ImportInfo &importInfo);
     Interpreter::ObjectValue *importNonFile(Document::Ptr doc, const Interpreter::ImportInfo &importInfo);
     void importObject(Bind *bind, const QString &name, Interpreter::ObjectValue *object, NameId *targetNamespace);
 
+    bool importLibrary(Document::Ptr doc,
+                       Interpreter::ObjectValue *import,
+                       const QString &libraryPath,
+                       const Interpreter::ImportInfo &importInfo,
+                       const QString &importPath = QString());
     void loadQmldirComponents(Interpreter::ObjectValue *import,
                               LanguageUtils::ComponentVersion version,
                               const LibraryInfo &libraryInfo,
                               const QString &libraryPath);
     void loadImplicitDirectoryImports(Interpreter::TypeEnvironment *typeEnv, Document::Ptr doc);
-    void loadImplicitLibraryImports(Interpreter::TypeEnvironment *typeEnv, const QString &path);
     void loadImplicitDefaultImports(Interpreter::TypeEnvironment *typeEnv);
 
     void error(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);

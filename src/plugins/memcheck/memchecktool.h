@@ -48,6 +48,7 @@ class QModelIndex;
 class QAction;
 class QSpinBox;
 class QCheckBox;
+class QMenu;
 QT_END_NAMESPACE
 
 namespace Valgrind {
@@ -58,11 +59,9 @@ class Error;
 }
 
 namespace Analyzer {
-
 class AnalyzerSettings;
-
 namespace Internal {
-
+class MemCheckOutputPaneAdapter;
 class MemcheckErrorView;
 class FrameFinder;
 
@@ -95,7 +94,13 @@ public:
 
     void initialize(ExtensionSystem::IPlugin *plugin);
 
+    virtual IAnalyzerOutputPaneAdapter *outputPaneAdapter();
     IAnalyzerEngine *createEngine(ProjectExplorer::RunConfiguration *runConfiguration);
+
+    // For the output pane adapter.
+    MemcheckErrorView *ensurePaneErrorView();
+    QWidget *createPaneToolBarWidget();
+    void clearErrorView();
 
 private slots:
     void settingsDestroyed(QObject *settings);
@@ -104,13 +109,9 @@ private slots:
     void engineStarting(const IAnalyzerEngine *engine);
     void parserError(const Valgrind::XmlProtocol::Error &error);
     void internalParserError(const QString &errorString);
-
-    void slotNext();
-    void slotPrev();
-    void slotClear();
-
     void updateErrorFilter();
     void suppressionActionTriggered();
+    QMenu *filterMenu() const;
 
 private:
     AnalyzerSettings *m_settings;
@@ -120,13 +121,11 @@ private:
     MemcheckErrorFilterProxyModel *m_errorProxyModel;
     MemcheckErrorView *m_errorView;
 
-    QAction *m_prevAction;
-    QAction *m_nextAction;
-    QAction *m_clearAction;
     QList<QAction *> m_errorFilterActions;
     QAction *m_filterProjectAction;
     QList<QAction *> m_suppressionActions;
     QAction *m_suppressionSeparator;
+    MemCheckOutputPaneAdapter *m_outputPaneAdapter;
 };
 
 } // namespace Internal

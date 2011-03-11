@@ -616,7 +616,7 @@ public:
     static const QLatin1String cppPackage;
 
     template <typename T>
-    void load(Interpreter::Engine *interpreter, const T &objects);
+    QList<QmlObjectValue *> load(Interpreter::Engine *interpreter, const T &objects);
 
     QList<Interpreter::QmlObjectValue *> typesForImport(const QString &prefix, LanguageUtils::ComponentVersion version) const;
     Interpreter::QmlObjectValue *typeByCppName(const QString &cppName) const;
@@ -982,7 +982,6 @@ public:
     enum Type {
         InvalidImport,
         ImplicitDirectoryImport,
-        ImplicitLibraryImport,
         LibraryImport,
         FileImport,
         DirectoryImport,

@@ -712,20 +712,21 @@ unsigned MimeType::matchesFileBySuffix(Internal::FileMatchContext &c) const
 
 unsigned MimeType::matchesFileByContent(Internal::FileMatchContext &c) const
 {
-    unsigned priority = 0;
-
     // Nope, try magic matchers on context data
     if (m_d->magicMatchers.isEmpty())
-        return priority;
+        return 0;
 
-    const QByteArray data = c.data();
+    return matchesData(c.data());
+}
+
+unsigned MimeType::matchesData(const QByteArray &data) const
+{
+    unsigned priority = 0;
     if (!data.isEmpty()) {
         foreach (const IMagicMatcher::IMagicMatcherSharedPointer &matcher, m_d->magicMatchers) {
-            if (matcher->matches(data)) {
-                const unsigned magicPriority = matcher->priority();
-                if (magicPriority > priority)
-                    priority = magicPriority;
-            }
+            const unsigned magicPriority = matcher->priority();
+            if (magicPriority > priority && matcher->matches(data))
+                priority = magicPriority;
         }
     }
     return priority;
@@ -1093,6 +1094,7 @@ public:
 
     MimeType findByType(const QString &type) const;
     MimeType findByFile(const QFileInfo &f) const;
+    MimeType findByData(const QByteArray &data) const;
 
     QStringList filterStrings() const;
 
@@ -1132,6 +1134,7 @@ private:
     bool addMimeTypes(QIODevice *device, const QString &fileName, QString *errorMessage);
     inline const QString &resolveAlias(const QString &name) const;
     MimeType findByFile(const QFileInfo &f, unsigned *priority) const;
+    MimeType findByData(const QByteArray &data, unsigned *priority) const;
     void determineLevels();
     void raiseLevelRecursion(MimeMapEntry &e, int level);
 
@@ -1358,6 +1361,49 @@ MimeType MimeDatabasePrivate::findByFile(const QFileInfo &f, unsigned *priorityP
         for (TypeMimeTypeMap::const_iterator it = m_typeMimeTypeMap.constBegin(); it != cend; ++it)
             if (it.value().level == level) {
                 const unsigned contentPriority = it.value().type.matchesFileByContent(context);
+                if (contentPriority && contentPriority > *priorityPtr) {
+                    *priorityPtr = contentPriority;
+                    candidate = it.value().type;
+                }
+            }
+
+    return candidate;
+}
+
+// Debugging wrapper around findByData()
+MimeType MimeDatabasePrivate::findByData(const QByteArray &data) const
+{
+    unsigned priority = 0;
+    if (debugMimeDB)
+        qDebug() << '>' << Q_FUNC_INFO << data.left(20).toHex();
+    const MimeType rc = findByData(data, &priority);
+    if (debugMimeDB) {
+        if (rc) {
+            qDebug() << "<MimeDatabase::findByData: match prio=" << priority << rc.type();
+        } else {
+            qDebug() << "<MimeDatabase::findByData: no match";
+        }
+    }
+    return rc;
+}
+
+// Returns a mime type or Null one if none found
+MimeType MimeDatabasePrivate::findByData(const QByteArray &data, unsigned *priorityPtr) const
+{
+    // Is the hierarchy set up in case we find several matches?
+    if (m_maxLevel < 0) {
+        MimeDatabasePrivate *db = const_cast<MimeDatabasePrivate *>(this);
+        db->determineLevels();
+    }
+
+    *priorityPtr = 0;
+    MimeType candidate;
+
+    const TypeMimeTypeMap::const_iterator cend = m_typeMimeTypeMap.constEnd();
+    for (int level = m_maxLevel; level >= 0; level--)
+        for (TypeMimeTypeMap::const_iterator it = m_typeMimeTypeMap.constBegin(); it != cend; ++it)
+            if (it.value().level == level) {
+                const unsigned contentPriority = it.value().type.matchesData(data);
                 if (contentPriority && contentPriority > *priorityPtr) {
                     *priorityPtr = contentPriority;
                     candidate = it.value().type;
@@ -1619,6 +1665,14 @@ MimeType MimeDatabase::findByFile(const QFileInfo &f) const
 {
     m_mutex.lock();
     const MimeType rc = findByFileUnlocked(f);
+    m_mutex.unlock();
+    return rc;
+}
+
+MimeType MimeDatabase::findByData(const QByteArray &data) const
+{
+    m_mutex.lock();
+    const MimeType rc = m_d->findByData(data);
     m_mutex.unlock();
     return rc;
 }

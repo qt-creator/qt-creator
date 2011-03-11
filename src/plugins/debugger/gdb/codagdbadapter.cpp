@@ -256,18 +256,8 @@ void CodaGdbAdapter::handleCodaRunControlModuleLoadContextSuspendedEvent(const C
             m_session.codeseg = minfo.codeAddress;
             m_session.dataseg = minfo.dataAddress;
             logMessage(startMsg(m_session), LogMisc);
-            // 26.8.2010: When paging occurs in S^3, bogus starting ROM addresses
-            // like 0x500000 or 0x40000 are reported. Warn about symbol resolution
-            // errors. Code duplicated in TrkAdapter. @TODO: Hopefully fixed in
-            // future TRK versions.
-            if ((m_session.codeseg  & 0xFFFFF) == 0) {
-                const QString warnMessage = tr("The reported code segment address "
-                    "(0x%1) might be invalid. Symbol resolution or setting breakoints "
-                    "may not work.").arg(m_session.codeseg, 0, 16);
-                logMessage(warnMessage, LogError);
-            }
 
-	    const QByteArray symbolFile = m_symbolFile.toLocal8Bit();
+            const QByteArray symbolFile = m_symbolFile.toLocal8Bit();
             if (symbolFile.isEmpty()) {
                 logMessage(_("WARNING: No symbol file available."), LogError);
             } else {
@@ -299,7 +289,7 @@ void CodaGdbAdapter::handleTargetRemote(const GdbResponse &record)
         if (debug)
             qDebug() << "handleTargetRemote" << m_session.toString();
     } else {
-        QString msg = tr("Connecting to TRK server adapter failed:\n")
+        QString msg = tr("Connecting to CODA server adapter failed:\n")
             + QString::fromLocal8Bit(record.data.findChild("msg").data());
         m_engine->notifyInferiorSetupFailed(msg);
     }
@@ -1232,7 +1222,7 @@ void CodaGdbAdapter::shutdownAdapter()
         m_engine->notifyAdapterShutdownOk();
     } else {
         // Something is wrong, gdb crashed. Kill debuggee (see handleDeleteProcess2)
-        if (m_codaDevice->device()->isOpen()) {
+        if (m_codaDevice && m_codaDevice->device()->isOpen()) {
             logMessage("Emergency shutdown of CODA", LogError);
             sendRunControlTerminateCommand();
         }

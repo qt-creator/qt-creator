@@ -242,8 +242,7 @@ public:
                 // some qmltype names are missing the actual names, ignore that import
                 if (qmlTyName.endsWith('/'))
                     continue;
-                if (!relocatableModuleUri.isNull()
-                        && qmlTyName.startsWith(relocatableModuleUri + QLatin1Char('/'))) {
+                if (qmlTyName.startsWith(relocatableModuleUri + QLatin1Char('/'))) {
                     qmlTyName.remove(0, relocatableModuleUri.size() + 1);
                 }
                 exports += enquote(QString("%1 %2.%3").arg(
@@ -410,6 +409,7 @@ void printUsage(const QString &appName)
 {
     qWarning() << qPrintable(QString(
                                  "Usage: %1 [--notrelocatable] module.uri version [module/import/path]\n"
+                                 "       %1 --path path/to/qmldir/directory [version]\n"
                                  "       %1 --builtins\n"
                                  "Example: %1 Qt.labs.particles 4.7 /home/user/dev/qt-install/imports").arg(
                                  appName));
@@ -445,6 +445,7 @@ int main(int argc, char *argv[])
     QString pluginImportVersion;
     QString pluginImportPath;
     bool relocatable = true;
+    bool pathImport = false;
     if (args.size() >= 3) {
         QStringList positionalArgs;
         foreach (const QString &arg, args) {
@@ -455,20 +456,32 @@ int main(int argc, char *argv[])
 
             if (arg == QLatin1String("--notrelocatable")) {
                 relocatable = false;
+            } else if (arg == QLatin1String("--path")) {
+                pathImport = true;
             } else {
                 qWarning() << "Invalid argument: " << arg;
                 return EXIT_INVALIDARGUMENTS;
             }
         }
 
-        if (positionalArgs.size() != 3 && positionalArgs.size() != 4) {
-            qWarning() << "Incorrect number of positional arguments";
-            return EXIT_INVALIDARGUMENTS;
+        if (!pathImport) {
+            if (positionalArgs.size() != 3 && positionalArgs.size() != 4) {
+                qWarning() << "Incorrect number of positional arguments";
+                return EXIT_INVALIDARGUMENTS;
+            }
+            pluginImportUri = positionalArgs[1];
+            pluginImportVersion = positionalArgs[2];
+            if (positionalArgs.size() >= 4)
+                pluginImportPath = positionalArgs[3];
+        } else {
+            if (positionalArgs.size() != 2 && positionalArgs.size() != 3) {
+                qWarning() << "Incorrect number of positional arguments";
+                return EXIT_INVALIDARGUMENTS;
+            }
+            pluginImportPath = positionalArgs[1];
+            if (positionalArgs.size() == 3)
+                pluginImportVersion = positionalArgs[2];
         }
-        pluginImportUri = positionalArgs[1];
-        pluginImportVersion = positionalArgs[2];
-        if (positionalArgs.size() >= 4)
-            pluginImportPath = positionalArgs[3];
     }
 
     QDeclarativeView view;
@@ -483,11 +496,16 @@ int main(int argc, char *argv[])
     // this will hold the meta objects we want to dump information of
     QSet<const QMetaObject *> metas;
 
-    if (pluginImportUri.isEmpty()) {
+    if (pluginImportUri.isEmpty() && !pathImport) {
         metas = defaultReachable;
     } else {
         // find all QMetaObjects reachable when the specified module is imported
-        importCode += QString("import %0 %1\n").arg(pluginImportUri, pluginImportVersion).toAscii();
+        if (!pathImport) {
+            importCode += QString("import %0 %1\n").arg(pluginImportUri, pluginImportVersion).toAscii();
+        } else {
+            // pluginImportVersion can be empty
+            importCode += QString("import \"%1\" %2\n").arg(pluginImportPath, pluginImportVersion).toAscii();
+        }
 
         // create a component with these imports to make sure the imports are valid
         // and to populate the declarative meta type system

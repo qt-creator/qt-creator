@@ -310,6 +310,11 @@ QString Abi::toString() const
     return dn.join(QLatin1String("-"));
 }
 
+bool Abi::operator != (const Abi &other) const
+{
+    return !operator ==(other);
+}
+
 bool Abi::operator == (const Abi &other) const
 {
     return m_architecture == other.m_architecture

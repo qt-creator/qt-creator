@@ -16,10 +16,6 @@ INCLUDEPATH += dialogs \
     editormanager \
     progressmanager \
     scriptmanager
-DEPENDPATH += dialogs \
-    actionmanager \
-    editormanager \
-    scriptmanager
 SOURCES += mainwindow.cpp \
     editmode.cpp \
     tabpositionindicator.cpp \

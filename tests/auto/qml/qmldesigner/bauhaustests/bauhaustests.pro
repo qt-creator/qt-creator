@@ -4,7 +4,6 @@ CONFIG += qtestlib testcase
 
 ##DEFINES += DONT_MESS_WITH_QDEBUG
 
-DEPENDPATH += ..
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/include
 
 TARGET = tst_bauhaus

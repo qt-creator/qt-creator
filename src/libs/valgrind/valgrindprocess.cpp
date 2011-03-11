@@ -106,8 +106,14 @@ void LocalValgrindProcess::run(const QString &valgrindExecutable, const QStringL
 {
     QString arguments;
     Utils::QtcProcess::addArgs(&arguments, valgrindArguments);
+#ifdef Q_OS_MAC
+    // May be slower to start but without it we get no filenames for symbols.
+    Utils::QtcProcess::addArg(&arguments, QLatin1String("--dsymutil=yes"));
+#endif
+
     Utils::QtcProcess::addArg(&arguments, debuggeeExecutable);
     Utils::QtcProcess::addArgs(&arguments, debuggeeArguments);
+
     m_process.setCommand(valgrindExecutable, arguments);
     m_process.start();
     m_process.waitForStarted();

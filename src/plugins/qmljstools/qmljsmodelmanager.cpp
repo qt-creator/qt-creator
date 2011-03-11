@@ -349,6 +349,56 @@ static void findNewFileImports(const Document::Ptr &doc, const Snapshot &snapsho
     }
 }
 
+static bool findNewQmlLibraryInPath(const QString &path,
+                                    const Snapshot &snapshot,
+                                    ModelManager *modelManager,
+                                    QStringList *importedFiles,
+                                    QSet<QString> *scannedPaths,
+                                    QSet<QString> *newLibraries)
+{
+    // if we know there is a library, done
+    if (snapshot.libraryInfo(path).isValid())
+        return true;
+    if (newLibraries->contains(path))
+        return true;
+
+    const QDir dir(path);
+    QFile qmldirFile(dir.filePath(QLatin1String("qmldir")));
+    if (!qmldirFile.exists())
+        return false;
+
+#ifdef Q_OS_WIN
+    // QTCREATORBUG-3402 - be case sensitive even here?
+#endif
+
+    // found a new library!
+    qmldirFile.open(QFile::ReadOnly);
+    QString qmldirData = QString::fromUtf8(qmldirFile.readAll());
+
+    QmlDirParser qmldirParser;
+    qmldirParser.setSource(qmldirData);
+    qmldirParser.parse();
+
+    const QString libraryPath = QFileInfo(qmldirFile).absolutePath();
+    newLibraries->insert(libraryPath);
+    modelManager->updateLibraryInfo(libraryPath,
+                                    LibraryInfo(qmldirParser));
+
+    // scan the qml files in the library
+    foreach (const QmlDirParser::Component &component, qmldirParser.components()) {
+        if (! component.fileName.isEmpty()) {
+            const QFileInfo componentFileInfo(dir.filePath(component.fileName));
+            const QString path = QDir::cleanPath(componentFileInfo.absolutePath());
+            if (! scannedPaths->contains(path)) {
+                *importedFiles += qmlFilesInDirectory(path);
+                scannedPaths->insert(path);
+            }
+        }
+    }
+
+    return true;
+}
+
 static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snapshot,
                            ModelManager *modelManager,
                            QStringList *importedFiles, QSet<QString> *scannedPaths, QSet<QString> *newLibraries)
@@ -356,53 +406,23 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
     // scan library imports
     const QStringList importPaths = modelManager->importPaths();
     foreach (const Interpreter::ImportInfo &import, doc->bind()->imports()) {
-        if (import.type() != Interpreter::ImportInfo::LibraryImport)
-            continue;
-        foreach (const QString &importPath, importPaths) {
-            const QString targetPath = QDir(importPath).filePath(import.name());
+        if (import.type() == Interpreter::ImportInfo::LibraryImport) {
+            foreach (const QString &importPath, importPaths) {
+                const QString targetPath = QDir(importPath).filePath(import.name());
 
-            // if we know there is a library, done
-            if (snapshot.libraryInfo(targetPath).isValid())
-                break;
-            if (newLibraries->contains(targetPath))
-                break;
-
-            // check for a qmldir file
-            const QDir targetDir(targetPath);
-            QFile qmldirFile(targetDir.filePath(QLatin1String("qmldir")));
-            if (!qmldirFile.exists())
-                continue;
-
-#ifdef Q_OS_WIN
-            // QTCREATORBUG-3402 - be case sensitive even here?
-#endif
-
-            // found a new library!
-            qmldirFile.open(QFile::ReadOnly);
-            QString qmldirData = QString::fromUtf8(qmldirFile.readAll());
-
-            QmlDirParser qmldirParser;
-            qmldirParser.setSource(qmldirData);
-            qmldirParser.parse();
-
-            const QString libraryPath = QFileInfo(qmldirFile).absolutePath();
-            newLibraries->insert(libraryPath);
-            modelManager->updateLibraryInfo(libraryPath,
-                                            LibraryInfo(qmldirParser));
-
-            // scan the qml files in the library
-            foreach (const QmlDirParser::Component &component, qmldirParser.components()) {
-                if (! component.fileName.isEmpty()) {
-                    const QFileInfo componentFileInfo(targetDir.filePath(component.fileName));
-                    const QString path = QDir::cleanPath(componentFileInfo.absolutePath());
-                    if (! scannedPaths->contains(path)) {
-                        *importedFiles += qmlFilesInDirectory(path);
-                        scannedPaths->insert(path);
-                    }
-                }
+                if (findNewQmlLibraryInPath(targetPath, snapshot, modelManager,
+                                            importedFiles, scannedPaths, newLibraries))
+                    break;
             }
+        } else if (import.type() == Interpreter::ImportInfo::DirectoryImport) {
+            const QString targetPath = import.name();
+            findNewQmlLibraryInPath(targetPath, snapshot, modelManager,
+                                    importedFiles, scannedPaths, newLibraries);
         }
     }
+
+    findNewQmlLibraryInPath(doc->path(), snapshot, modelManager,
+                            importedFiles, scannedPaths, newLibraries);
 }
 
 static bool suffixMatches(const QString &fileName, const Core::MimeType &mimeType)

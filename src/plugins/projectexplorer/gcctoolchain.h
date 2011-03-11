@@ -56,6 +56,8 @@ class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 public:
     QString typeName() const;
     Abi targetAbi() const;
+    QList<Abi> supportedAbis() const;
+    void setTargetAbi(const Abi &);
 
     bool isValid() const;
 
@@ -77,11 +79,6 @@ public:
     void setCompilerPath(const QString &);
     QString compilerPath() const;
 
-    bool isForcedTo32Bit() const;
-    void forceTo32Bit(bool);
-
-    bool supports64Bit() const;
-
     ToolChain *clone() const;
 
 protected:
@@ -97,12 +94,13 @@ protected:
 private:
     GccToolChain(bool autodetect);
 
+    void updateSupportedAbis() const;
+
     QString m_compilerPath;
     QString m_debuggerCommand;
-    bool m_forcedTo32Bit;
-    mutable bool m_supports64Bit;
 
-    mutable Abi m_targetAbi;
+    Abi m_targetAbi;
+    mutable QList<Abi> m_supportedAbis;
     mutable QList<HeaderPath> m_headerPathes;
 
     friend class Internal::GccToolChainFactory;

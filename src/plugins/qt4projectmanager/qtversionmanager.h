@@ -95,7 +95,8 @@ public:
     QtVersion();
     ~QtVersion();
 
-    bool isValid() const; //TOOD check that the dir exists and the name is non empty
+    bool isValid() const;
+    bool toolChainAvailable() const;
     QString invalidReason() const;
     QString description() const;
     bool isAutodetected() const { return m_isAutodetected; }

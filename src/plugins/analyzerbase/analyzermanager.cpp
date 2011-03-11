@@ -40,6 +40,7 @@
 #include "analyzerplugin.h"
 #include "analyzerruncontrol.h"
 #include "analyzeroptionspage.h"
+#include "analyzeroutputpane.h"
 
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/findplaceholder.h>
@@ -93,6 +94,11 @@
 using namespace Core;
 using namespace Analyzer;
 using namespace Analyzer::Internal;
+
+// A separate 'Analzye' mode is not used in Qt Creator 2.2.
+// Consider re-introducing it if a real use case for a separate main window with docks
+// appears.
+enum { useAnalyzeMode = 0 };
 
 namespace Analyzer {
 namespace Internal {
@@ -183,14 +189,15 @@ public:
     void delayedInit();
 
     void setupActions();
-    QWidget *createContents();
-    QWidget *createMainWindow();
+    QWidget *createModeContents();
+    QWidget *createModeMainWindow();
 
     void addDock(IAnalyzerTool *tool, Qt::DockWidgetArea area, QDockWidget *dockWidget);
     void startTool();
 
     AnalyzerManager *q;
     AnalyzerMode *m_mode;
+    AnalyzerOutputPane *m_outputpane;
     AnalyzerRunControlFactory *m_runControlFactory;
     ProjectExplorer::RunControl *m_currentRunControl;
     Utils::FancyMainWindow *m_mainWindow;
@@ -200,14 +207,11 @@ public:
     QAction *m_stopAction;
     QMenu *m_menu;
     QComboBox *m_toolBox;
-    Utils::StyledSeparator *m_toolBoxSeparator;
     ActionContainer *m_viewsMenu;
     typedef QPair<Qt::DockWidgetArea, QDockWidget*> ToolWidgetPair;
     typedef QList<ToolWidgetPair> ToolWidgetPairList;
     QMap<IAnalyzerTool*, ToolWidgetPairList> m_toolWidgets;
     DockWidgetEventFilter *m_resizeEventFilter;
-    QMap<IAnalyzerTool*, QWidget*> m_toolToolbarWidgets;
-    QStackedWidget *m_toolbarStackedWidget;
     QMap<IAnalyzerTool *, QSettings *> m_defaultSettings;
 
     // list of dock widgets to prevent memory leak
@@ -220,6 +224,7 @@ public:
 AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
     q(qq),
     m_mode(0),
+    m_outputpane(0),
     m_runControlFactory(0),
     m_currentRunControl(0),
     m_mainWindow(0),
@@ -227,17 +232,19 @@ AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager 
     m_startAction(0),
     m_stopAction(0),
     m_menu(0),
-    m_toolBox(0),
-    m_toolBoxSeparator(0),
+    m_toolBox(new QComboBox),
     m_viewsMenu(0),
     m_resizeEventFilter(new DockWidgetEventFilter(qq)),
-    m_toolbarStackedWidget(0),
     m_initialized(false)
 {
+    m_toolBox->setObjectName(QLatin1String("AnalyzerManagerToolBox"));
     m_runControlFactory = new AnalyzerRunControlFactory();
     AnalyzerPlugin::instance()->addAutoReleasedObject(m_runControlFactory);
     connect(m_runControlFactory, SIGNAL(runControlCreated(Analyzer::Internal::AnalyzerRunControl *)),
             q, SLOT(runControlCreated(Analyzer::Internal::AnalyzerRunControl *)));
+
+    connect(m_toolBox, SIGNAL(currentIndexChanged(int)),
+            q, SLOT(toolSelected(int)));
 
     setupActions();
 }
@@ -295,17 +302,20 @@ void AnalyzerManager::AnalyzerManagerPrivate::delayedInit()
     if (m_initialized)
         return;
 
-    m_mode = new AnalyzerMode(q);
-    m_mode->setWidget(createContents());
-    AnalyzerPlugin::instance()->addAutoReleasedObject(m_mode);
+    if (useAnalyzeMode) {
+        m_mode = new AnalyzerMode(q);
+        m_mode->setWidget(createModeContents());
+        AnalyzerPlugin::instance()->addAutoReleasedObject(m_mode);
+    }
     m_initialized = true;
 }
 
-QWidget *AnalyzerManager::AnalyzerManagerPrivate::createContents()
+QWidget *AnalyzerManager::AnalyzerManagerPrivate::createModeContents()
 {
+    QTC_ASSERT(useAnalyzeMode, return 0; )
     // right-side window with editor, output etc.
     MiniSplitter *mainWindowSplitter = new MiniSplitter;
-    mainWindowSplitter->addWidget(createMainWindow());
+    mainWindowSplitter->addWidget(createModeMainWindow());
     mainWindowSplitter->addWidget(new OutputPanePlaceHolder(m_mode, mainWindowSplitter));
     mainWindowSplitter->setStretchFactor(0, 10);
     mainWindowSplitter->setStretchFactor(1, 0);
@@ -327,9 +337,19 @@ static QToolButton *toolButton(QAction *action)
     return button;
 }
 
-QWidget *AnalyzerManager::AnalyzerManagerPrivate::createMainWindow()
+QWidgetList AnalyzerManager::outputPaneToolBarWidgets() const
 {
+    QWidgetList result;
+    result << toolButton(d->m_startAction) << toolButton(d->m_stopAction)
+           << new Utils::StyledSeparator << d->m_toolBox;
+    return result;
+}
+
+QWidget *AnalyzerManager::AnalyzerManagerPrivate::createModeMainWindow()
+{
+    QTC_ASSERT(useAnalyzeMode, return 0; )
     m_mainWindow = new Utils::FancyMainWindow();
+    m_mainWindow->setObjectName(QLatin1String("AnalyzerManagerMainWindow"));
     connect(m_mainWindow, SIGNAL(resetLayout()),
             q, SLOT(resetLayout()));
     m_mainWindow->setDocumentMode(true);
@@ -352,35 +372,6 @@ QWidget *AnalyzerManager::AnalyzerManagerPrivate::createMainWindow()
     documentAndRightPane->setStretchFactor(0, 1);
     documentAndRightPane->setStretchFactor(1, 0);
 
-    Utils::StyledBar *analyzeToolBar = new Utils::StyledBar;
-    analyzeToolBar->setProperty("topBorder", true);
-    QHBoxLayout *analyzeToolBarLayout = new QHBoxLayout(analyzeToolBar);
-    analyzeToolBarLayout->setMargin(0);
-    analyzeToolBarLayout->setSpacing(0);
-    QToolButton *startButton = toolButton(m_startAction);
-    analyzeToolBarLayout->addWidget(startButton);
-    analyzeToolBarLayout->addWidget(toolButton(m_stopAction));
-    analyzeToolBarLayout->addWidget(new Utils::StyledSeparator);
-    m_toolBox = new QComboBox;
-    connect(m_toolBox, SIGNAL(currentIndexChanged(int)),
-            q, SLOT(toolSelected(int)));
-    analyzeToolBarLayout->addWidget(m_toolBox);
-    m_toolBoxSeparator = new Utils::StyledSeparator;
-    analyzeToolBarLayout->addWidget(m_toolBoxSeparator);
-    m_toolbarStackedWidget = new QStackedWidget;
-    analyzeToolBarLayout->addWidget(m_toolbarStackedWidget);
-    analyzeToolBarLayout->addStretch();
-
-    QDockWidget *dock = new QDockWidget(tr("Analyzer Toolbar"));
-    dock->setObjectName(QLatin1String("Analyzer Toolbar"));
-    dock->setWidget(analyzeToolBar);
-    dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
-    dock->setProperty("managed_dockwidget", QLatin1String("true"));
-    dock->setAllowedAreas(Qt::BottomDockWidgetArea);
-    // hide title bar
-    dock->setTitleBarWidget(new QWidget(dock));
-    m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dock);
-    m_mainWindow->setToolBarDockWidget(dock);
 
     QWidget *centralWidget = new QWidget;
     m_mainWindow->setCentralWidget(centralWidget);
@@ -399,7 +390,7 @@ QWidget *AnalyzerManager::AnalyzerManagerPrivate::createMainWindow()
 void AnalyzerManager::AnalyzerManagerPrivate::addDock(IAnalyzerTool *tool, Qt::DockWidgetArea area,
                                                       QDockWidget *dockWidget)
 {
-    QTC_ASSERT(tool == q->currentTool(), return)
+    QTC_ASSERT(useAnalyzeMode && tool == q->currentTool(), return)
 
     dockWidget->setParent(m_mainWindow);
     m_mainWindow->addDockWidget(area, dockWidget);
@@ -448,10 +439,11 @@ bool buildTypeAcceppted(IAnalyzerTool::ToolMode toolMode,
 
 void AnalyzerManager::AnalyzerManagerPrivate::startTool()
 {
-    QTC_ASSERT(!m_currentRunControl, return);
-
+    QTC_ASSERT(!m_currentRunControl && q->currentTool(), return);
     // make sure our mode is shown
-    ModeManager::instance()->activateMode(m_mode->id());
+    m_outputpane->popup();
+    if (m_mode)
+        ModeManager::instance()->activateMode(m_mode->id());
 
     ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
 
@@ -520,14 +512,16 @@ void AnalyzerManager::AnalyzerManagerPrivate::startTool()
 // AnalyzerManager ////////////////////////////////////////////////////
 AnalyzerManager *AnalyzerManager::m_instance = 0;
 
-AnalyzerManager::AnalyzerManager(QObject *parent) :
+AnalyzerManager::AnalyzerManager(Internal::AnalyzerOutputPane *op, QObject *parent) :
     QObject(parent),
     d(new AnalyzerManagerPrivate(this))
 {
     m_instance = this;
+    d->m_outputpane = op;
 
-    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(modeChanged(Core::IMode*)));
+    if (useAnalyzeMode)
+        connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
+                this, SLOT(modeChanged(Core::IMode*)));
     ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
     connect(pe, SIGNAL(updateRunActions()),
             this, SLOT(updateRunActions()));
@@ -545,7 +539,8 @@ bool AnalyzerManager::isInitialized() const
 
 void AnalyzerManager::shutdown()
 {
-    saveToolSettings(currentTool());
+    if (useAnalyzeMode)
+        saveToolSettings(currentTool());
 }
 
 AnalyzerManager * AnalyzerManager::instance()
@@ -555,6 +550,7 @@ AnalyzerManager * AnalyzerManager::instance()
 
 void AnalyzerManager::modeChanged(IMode *mode)
 {
+    QTC_ASSERT(d->m_mainWindow, return; )
     const bool makeVisible = mode->id() == Constants::MODE_ANALYZE;
     if (!makeVisible)
         return;
@@ -576,7 +572,7 @@ void AnalyzerManager::toolSelected(int idx)
     selectingTool = true;
 
     IAnalyzerTool *oldTool = currentTool();
-    if (oldTool) {
+    if (useAnalyzeMode && oldTool != 0) {
         saveToolSettings(oldTool);
 
         ActionManager *am = ICore::instance()->actionManager();
@@ -599,13 +595,13 @@ void AnalyzerManager::toolSelected(int idx)
 
     IAnalyzerTool *newTool = currentTool();
 
-    if (QWidget *toolbarWidget = d->m_toolToolbarWidgets.value(newTool))
-        d->m_toolbarStackedWidget->setCurrentWidget(toolbarWidget);
-
-    foreach(const AnalyzerManagerPrivate::ToolWidgetPair &widget, d->m_toolWidgets.value(newTool)) {
-        d->addDock(newTool, widget.first, widget.second);
+    if (useAnalyzeMode) {
+        foreach (const AnalyzerManagerPrivate::ToolWidgetPair &widget, d->m_toolWidgets.value(newTool)) {
+            d->addDock(newTool, widget.first, widget.second);
+        }
+        loadToolSettings(newTool);
     }
-    loadToolSettings(newTool);
+    d->m_outputpane->setTool(newTool);
 
     selectingTool = false;
 }
@@ -628,33 +624,23 @@ void AnalyzerManager::addTool(IAnalyzerTool *tool)
     d->m_toolGroup->setVisible(d->m_toolGroup->actions().count() > 1);
     d->m_tools.append(tool);
     d->m_toolBox->addItem(tool->displayName());
-    d->m_toolBox->setVisible(d->m_toolBox->count() > 1);
-    d->m_toolBoxSeparator->setVisible(d->m_toolBox->isVisible());
-
+    d->m_toolBox->setEnabled(d->m_toolBox->count() > 1);
     if (currentTool() != tool)
         selectTool(tool); // the first tool gets selected automatically due to signal emission from toolbox
     tool->initialize(plugin);
 
-    QSettings *defaultSettings = new QSettings(this);
-    d->m_defaultSettings[tool] = defaultSettings;
-    d->m_mainWindow->saveSettings(defaultSettings);
-
-    loadToolSettings(tool);
-}
-
-void AnalyzerManager::setToolbar(IAnalyzerTool *tool, QWidget *widget)
-{
-    d->m_toolToolbarWidgets[tool] = widget;
-    d->m_toolbarStackedWidget->addWidget(widget);
-
-    if (currentTool() == tool)
-        d->m_toolbarStackedWidget->setCurrentWidget(widget);
+    if (useAnalyzeMode) {
+        QSettings *defaultSettings = new QSettings(this);
+        d->m_defaultSettings[tool] = defaultSettings;
+        d->m_mainWindow->saveSettings(defaultSettings);
+        loadToolSettings(tool);
+    }
 }
 
 QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QString &title,
                                                QWidget *widget, Qt::DockWidgetArea area)
 {
-    QTC_ASSERT(!widget->objectName().isEmpty(), qt_noop());
+    QTC_ASSERT(useAnalyzeMode && !widget->objectName().isEmpty(), return 0;);
 
     QDockWidget *dockWidget = d->m_mainWindow->addDockForWidget(widget);
     d->m_dockWidgets << AnalyzerManagerPrivate::DockPtr(dockWidget);
@@ -727,6 +713,7 @@ void AnalyzerManager::resetLayout()
 
 void AnalyzerManager::loadToolSettings(IAnalyzerTool *tool)
 {
+    QTC_ASSERT(d->m_mainWindow, return; )
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + tool->id());
     if (settings->value("ToolSettingsSaved", false).toBool()) {
@@ -739,6 +726,7 @@ void AnalyzerManager::saveToolSettings(IAnalyzerTool *tool)
 {
     if (!tool)
         return; // no active tool, do nothing
+    QTC_ASSERT(d->m_mainWindow, return ; )
 
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + tool->id());
@@ -751,7 +739,8 @@ void AnalyzerManager::updateRunActions()
 {
     ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
     ProjectExplorer::Project *project = pe->startupProject();
-    bool startEnabled = !d->m_currentRunControl && pe->canRun(project, Constants::MODE_ANALYZE);
+    bool startEnabled = !d->m_currentRunControl && pe->canRun(project, Constants::MODE_ANALYZE)
+            && currentTool();
     d->m_startAction->setEnabled(startEnabled);
 }
 

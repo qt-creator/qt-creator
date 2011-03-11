@@ -25,8 +25,6 @@ CONFIG += qtestlib testcase
 DEFINES+=QTCREATORDIR=\\\"$$IDE_SOURCE_TREE\\\"
 DEFINES+=QT_CREATOR QTCREATOR_TEST
 
-DEPENDPATH += .
-
 include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
 include($$IDE_SOURCE_TREE/src/plugins/qmljstools/qmljstools.pri)
 

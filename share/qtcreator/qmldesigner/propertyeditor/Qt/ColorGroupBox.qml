@@ -175,6 +175,7 @@ QExtGroupBox {
                         fixedWidth: 22;
                         width: fixedWidth
                         height: fixedHeight
+                        toolTip: qsTr("Color editor")
 
                         onClicked: {
                             if (colorGroupBox.animated)

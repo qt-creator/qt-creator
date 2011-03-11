@@ -43,8 +43,4 @@ HEADERS += propertyeditor.h \
     
 QT += declarative
 RESOURCES += propertyeditor.qrc
-FORMS += behaviordialog.ui \
-         contextpanetext.ui \
-         contextpanewidgetrectangle.ui \
-         contextpanewidgetimage.ui \
-         contextpanewidgetborderimage.ui
+FORMS += behaviordialog.ui

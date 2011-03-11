@@ -144,9 +144,8 @@ bool CodaRunControl::setupLauncher()
         codaSocket->connectToHost(m_address, m_port);
         m_state = StateConnecting;
         appendMessage(tr("Connecting to %1:%2...").arg(m_address).arg(m_port), NormalMessageFormat);
-
     }
-    QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
+    QTimer::singleShot(5000, this, SLOT(checkForTimeout()));
     if (debug)
         m_codaDevice->setVerbose(debug);
 
