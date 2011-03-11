@@ -185,8 +185,8 @@ bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &futu
             return false;
 
         QStringList qmakeArgs;
-        qmakeArgs << QLatin1String("INCLUDEPATH+=") + qmlDebuggingDirectory + "/include";
-        qmakeArgs << QLatin1String("LIBS+=-L") + qmlDebuggingDirectory;
+        qmakeArgs << QLatin1String("INCLUDEPATH+=\"\\\"") + qmlDebuggingDirectory + "include\\\"\"";
+        qmakeArgs << QLatin1String("LIBS+=-L\"\\\"") + qmlDebuggingDirectory + QLatin1String("\\\"\"");
 
         if (!QmlObserverTool::build(qmlObserverDirectory, m_makeCommand, m_qmakeCommand, m_mkspec,
                                     m_environment, m_target, qmakeArgs, output, &m_errorMessage))
