@@ -51,12 +51,12 @@ using namespace Bazaar::Internal;
 using namespace Bazaar;
 
 BazaarEditor::BazaarEditor(const VCSBase::VCSBaseEditorParameters *type, QWidget *parent)
-        : VCSBase::VCSBaseEditorWidget(type, parent),
-        m_exactIdentifier12(QLatin1String(Constants::CHANGEIDEXACT12)),
-        m_exactIdentifier40(QLatin1String(Constants::CHANGEIDEXACT40)),
-        m_changesetIdentifier12(QLatin1String(Constants::CHANGESETID12)),
-        m_changesetIdentifier40(QLatin1String(Constants::CHANGESETID40)),
-        m_diffIdentifier(QLatin1String(Constants::DIFFIDENTIFIER))
+    : VCSBase::VCSBaseEditorWidget(type, parent),
+      m_exactIdentifier12(QLatin1String(Constants::CHANGEIDEXACT12)),
+      m_exactIdentifier40(QLatin1String(Constants::CHANGEIDEXACT40)),
+      m_changesetIdentifier12(QLatin1String(Constants::CHANGESETID12)),
+      m_changesetIdentifier40(QLatin1String(Constants::CHANGESETID40)),
+      m_diffIdentifier(QLatin1String(Constants::DIFFIDENTIFIER))
 {
     setAnnotateRevisionTextFormat(tr("Annotate %1"));
     setAnnotatePreviousRevisionTextFormat(tr("Annotate parent revision %1"));
@@ -104,7 +104,7 @@ VCSBase::BaseAnnotationHighlighter *BazaarEditor::createAnnotationHighlighter(co
 
 QString BazaarEditor::fileNameFromDiffSpecification(const QTextBlock &diffFileSpec) const
 {
-   const QString filechangeId(QLatin1String("+++ b/"));
+    const QString filechangeId(QLatin1String("+++ b/"));
     QTextBlock::iterator iterator;
     for (iterator = diffFileSpec.begin(); !(iterator.atEnd()); iterator++) {
         QTextFragment fragment = iterator.fragment();
