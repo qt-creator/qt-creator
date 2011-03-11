@@ -40,11 +40,11 @@
 #include "qt-maemo/maemoglobal.h"
 #include "qt-maemo/maemomanager.h"
 #include "qt-s60/s60manager.h"
-#include "qt-s60/s60projectchecker.h"
 #include "qt-s60/abldparser.h"
 #include "qt-s60/sbsv2parser.h"
 #include "qt-s60/gccetoolchain.h"
 #include "qt-s60/winscwtoolchain.h"
+#include "qt4basetargetfactory.h"
 
 #include "qmlobservertool.h"
 #include "qmldumptool.h"
@@ -84,6 +84,8 @@
 #include <QtCore/QDir>
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopServices>
+
+#include <algorithm>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -766,7 +768,7 @@ ProjectExplorer::IOutputParser *QtVersion::createOutputParser() const
 }
 
 QList<ProjectExplorer::Task>
-QtVersion::reportIssues(const QString &proFile, const QString &buildDir)
+QtVersion::reportIssues(const QString &proFile, const QString &buildDir, bool includeTargetSpecificErrors)
 {
     QList<ProjectExplorer::Task> results;
 
@@ -807,10 +809,33 @@ QtVersion::reportIssues(const QString &proFile, const QString &buildDir)
                                              QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
 
+#if defined (Q_OS_WIN)
     QSet<QString> targets = supportedTargetIds();
     if (targets.contains(Constants::S60_DEVICE_TARGET_ID) ||
-        targets.contains(Constants::S60_EMULATOR_TARGET_ID))
-        results.append(S60ProjectChecker::reportIssues(proFile));
+            targets.contains(Constants::S60_EMULATOR_TARGET_ID)) {
+        const QString epocRootDir = systemRoot();
+        // Report an error if project- and epoc directory are on different drives:
+        if (!epocRootDir.startsWith(proFile.left(3), Qt::CaseInsensitive) && !isBuildWithSymbianSbsV2()) {
+            results.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
+                                                 QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
+                                                                             "The Symbian SDK and the project sources must reside on the same drive."),
+                                                 QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+    }
+#endif
+
+    if (includeTargetSpecificErrors) {
+        QList<Qt4BaseTargetFactory *> factories;
+        foreach (const QString &id, supportedTargetIds())
+            if (Qt4BaseTargetFactory *factory = Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(id))
+                factories << factory;
+
+        qSort(factories);
+        QList<Qt4BaseTargetFactory *>::iterator newend = std::unique(factories.begin(), factories.end());
+        QList<Qt4BaseTargetFactory *>::iterator it = factories.begin();
+        for ( ; it != newend; ++it)
+            results.append((*it)->reportIssues(proFile));
+    }
     return results;
 }
 

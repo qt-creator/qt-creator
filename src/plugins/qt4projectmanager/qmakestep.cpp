@@ -244,7 +244,7 @@ bool QMakeStep::init()
         node = qt4bc->subNodeBuild();
     QString proFile = node->path();
 
-    m_tasks = qt4BuildConfiguration()->qtVersion()->reportIssues(proFile, workingDirectory);
+    m_tasks = qt4BuildConfiguration()->qtVersion()->reportIssues(proFile, workingDirectory, true);
     m_scriptTemplate = node->projectType() == ScriptTemplate;
 
     return AbstractProcessStep::init();

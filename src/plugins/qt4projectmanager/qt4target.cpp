@@ -116,6 +116,11 @@ QString Qt4BaseTargetFactory::msgBuildConfigurationName(const BuildConfiguration
         tr("%1 Release").arg(qtVersionName);
 }
 
+QList<ProjectExplorer::Task> Qt4BaseTargetFactory::reportIssues(const QString &proFile)
+{
+    return QList<ProjectExplorer::Task>();
+}
+
 // -------------------------------------------------------------------------
 // Qt4BaseTarget
 // -------------------------------------------------------------------------
@@ -536,6 +541,7 @@ void Qt4DefaultTargetSetupWidget::setBuildConfigurationInfos(const QList<BuildCo
         clearWidgets();
         setupWidgets();
     } else {
+        bool foundIssues = false;
         m_ignoreChange = true;
         QString sourceDir = QFileInfo(m_proFilePath).absolutePath();
         for (int i=0; i < m_checkboxes.size(); ++i) {
@@ -546,9 +552,11 @@ void Qt4DefaultTargetSetupWidget::setBuildConfigurationInfos(const QList<BuildCo
                 m_pathChoosers[i]->setPath(info.directory);
             else
                 m_pathChoosers[i]->setPath(sourceDir);
-            reportIssues(i);
+            foundIssues &= reportIssues(i);
         }
         m_ignoreChange = false;
+        if (foundIssues)
+            m_detailsWidget->setState(Utils::DetailsWidget::Expanded);
     }
 }
 
@@ -575,6 +583,7 @@ void Qt4DefaultTargetSetupWidget::setupWidgets()
 {
     m_ignoreChange = true;
     QString sourceDir = QFileInfo(m_proFilePath).absolutePath();
+    bool foundIssues = false;
     for (int i = 0; i < m_infos.size(); ++i) {
         const BuildConfigurationInfo &info = m_infos.at(i);
         QCheckBox *checkbox = new QCheckBox;
@@ -604,8 +613,10 @@ void Qt4DefaultTargetSetupWidget::setupWidgets()
         m_checkboxes.append(checkbox);
         m_pathChoosers.append(pathChooser);
         m_reportIssuesLabels.append(reportIssuesLabel);
-        reportIssues(i);
+        foundIssues = reportIssues(i);
     }
+    if (foundIssues)
+        m_detailsWidget->setState(Utils::DetailsWidget::Expanded);
     m_ignoreChange = false;
 }
 
@@ -685,12 +696,13 @@ void Qt4DefaultTargetSetupWidget::shadowBuildingToggled()
     m_ignoreChange = false;
 }
 
-void Qt4DefaultTargetSetupWidget::reportIssues(int index)
+bool Qt4DefaultTargetSetupWidget::reportIssues(int index)
 {
     QPair<ProjectExplorer::Task::TaskType, QString> issues = findIssues(m_infos.at(index));
     QLabel *reportIssuesLabel = m_reportIssuesLabels.at(index);
     reportIssuesLabel->setText(issues.second);
     reportIssuesLabel->setVisible(issues.first != ProjectExplorer::Task::Unknown);
+    return issues.first != ProjectExplorer::Task::Unknown;
 }
 
 QPair<ProjectExplorer::Task::TaskType, QString> Qt4DefaultTargetSetupWidget::findIssues(const BuildConfigurationInfo &info)
@@ -701,7 +713,7 @@ QPair<ProjectExplorer::Task::TaskType, QString> Qt4DefaultTargetSetupWidget::fin
     QString buildDir = info.directory;
     QtVersion *version = info.version;
 
-    QList<ProjectExplorer::Task> issues = version->reportIssues(m_proFilePath, buildDir);
+    QList<ProjectExplorer::Task> issues = version->reportIssues(m_proFilePath, buildDir, false);
 
     QString text;
     ProjectExplorer::Task::TaskType highestType = ProjectExplorer::Task::Unknown;

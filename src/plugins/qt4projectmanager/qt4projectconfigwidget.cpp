@@ -368,7 +368,8 @@ void Qt4ProjectConfigWidget::updateImportLabel()
     if (m_buildConfiguration->shadowBuild())
         buildDirectory = m_buildConfiguration->buildDirectory();
     QList<ProjectExplorer::Task> issues = m_buildConfiguration->qtVersion()->reportIssues(m_buildConfiguration->target()->project()->file()->fileName(),
-                                                                                          buildDirectory);
+                                                                                          buildDirectory,
+                                                                                          true);
 
     if (incompatibleBuild) {
         m_ui->problemLabel->setVisible(true);
