@@ -26,12 +26,53 @@ Project Support
      - this affects working directories and executable paths as well
 
 Debugging
+   * Reworked global architecture to allow multiple debugging sessions (for
+     different projects, combined Qml/C++ debugging, project 'snapshots', ...)
+   * Reworked breakpoint handling: new special breakpoint types for "break
+     on throw", "break on main", data breakpoints.
+   * Introduce combined c++/qml debugging (combined stack, cross-step)
+   * Rework per-type and per-item selection of display formats
+   * New dumpers for QTextCursor, QTextDocument, __m128, QScriptValue
+     QBasicAtomicPointer, bit fields, boost::shared_ptr
+   * Improve dumpers for QRegion, QVariant (custom types), QSharedPointer,
+     QMultiMap (QTCREATORBUG-3122), QObject, QWeakPointer
+   * Make alphabetic structure member sorting optional
+   * Make dumpers robust in case of missing debug information
+   * Improve python dumper profiling support
+   * Improve stepping performance
+   * Enable breakpoint setting from a disassembler view, QTCREATORBUG-3667
+   * Fix display of shadowed variables.
+   * Fix display of data containing quoote characters, QTCREATORBUG-3084
+   * Fix display of C style 'typedef struct X { ... } X;
+   * Fix stack/break view updates after manual module loading, QTCREATORBUG-3427
+   * Fix 'Jump To/Run to' when in instruction-wise mode
+   * Several fixed to the "watcher" handling
+   * Allow re-running debugger engines, QTCREATORBUG-3073
+   * Robust process control after -exec-interrupt errors, QTCREATORBUG-2850
+   * Robust detection of Qt-in-namespace builds
+   * Handle "live updates" in the memory view
+   * Make memory view writable
+   * Improve starting debugger session directly from the command line
+
+BinEditor:
+   * Visualize data differences after updates
+   * Fix selection if cursor is left of anchor
+   * Allow copying also if selection is "backwards"
+   * Do not draw blinking cursor when there is a selection
+
 
 Help
 
 QML/JS Support
+   * Gui cosmetics in JS debugger: Show stack frame level, only valid
+     line numbers in stack view, do not show function code, show dummy
+     child entry for empty arrays
 
 FakeVim:
+   * Implement Ctrl-N/Ctrl-P
+   * Implement 's' in visual block mode
+   * Fix Alt-Gr handling on Windows
+   * Handle more Ctrl-W + <x> commands
 
 Platform Specific
 
@@ -52,6 +93,13 @@ Version control plugins
 
 Wizards
    * Support new keywords %MONTH% and %DAY% for C++ template file
+
+Misc
+   * Create infrastructure to setup "soft dependencies" between plugins
+   * Add a little tool 'qtpromaker' doing the job of 'qmake -project', but
+     much faster to make Qt Creator usable to quickly inspect and navigate
+     "alien" codebases a way to easily set up dummy .pro files is needed.
+   * Start documenting Qt Creator's coding style guidelines
 
 Additional credits go to:
    * The Inkpot color scheme was based on the Vim color scheme by
