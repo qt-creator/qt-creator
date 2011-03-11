@@ -297,7 +297,7 @@ ProjectExplorer::Project *Qt4Manager::contextProject() const
 
 void Qt4Manager::runQMake()
 {
-    runQMake(projectExplorer()->currentProject(), 0);
+    runQMake(projectExplorer()->startupProject(), 0);
 }
 
 void Qt4Manager::runQMakeContextMenu()
