@@ -2114,9 +2114,11 @@ void CppQmlTypes::setPrototypes(QmlObjectValue *object)
     FakeMetaObject::ConstPtr fmo = object->metaObject();
 
     // resolve attached type
-    if (!fmo->attachedTypeName().isEmpty()) {
+    // don't do it if the attached type name is the object itself (happens for QDeclarativeKeysAttached)
+    if (!fmo->attachedTypeName().isEmpty()
+            && fmo->className() != fmo->attachedTypeName()) {
         QmlObjectValue *attachedObject = typeByCppName(fmo->attachedTypeName());
-        if (attachedObject)
+        if (attachedObject && attachedObject != object)
             object->setAttachedType(attachedObject);
     }
 
