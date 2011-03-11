@@ -193,6 +193,8 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &m)
         } else if (p == QLatin1String("x86_64")) {
             arch = ProjectExplorer::Abi::X86Architecture;
             width = 64;
+        } else if (p == QLatin1String("powerpc")) {
+            arch = ProjectExplorer::Abi::PowerPCArchitecture;
         } else if (p == QLatin1String("w64")) {
             width = 64;
         } else if (p == QLatin1String("linux")) {
@@ -217,6 +219,8 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &m)
             format = ProjectExplorer::Abi::MachOFormat;
         } else if (p == QLatin1String("darwin10")) {
             width = 64;
+        } else if (p == QLatin1String("darwin9")) {
+            width = 32;
         } else if (p == QLatin1String("gnueabi")) {
             format = ProjectExplorer::Abi::ElfFormat;
         } else {
@@ -230,13 +234,9 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &m)
     if (os == Abi::MacOS) {
         // Apple does PPC and x86!
         abiList << ProjectExplorer::Abi(arch, os, flavor, format, width);
-        if (width == 64)
-            abiList << ProjectExplorer::Abi(arch, os, flavor, format, 32);
-        if (arch != Abi::PowerPCArchitecture) {
-            abiList << ProjectExplorer::Abi(Abi::PowerPCArchitecture, os, flavor, format, width);
-            if (width == 64)
-                abiList << ProjectExplorer::Abi(Abi::PowerPCArchitecture, os, flavor, format, 32);
-        }
+        abiList << ProjectExplorer::Abi(arch, os, flavor, format, width == 64 ? 32 : 64);
+        abiList << ProjectExplorer::Abi(arch == Abi::X86Architecture ? Abi::PowerPCArchitecture : Abi::X86Architecture, os, flavor, format, width);
+        abiList << ProjectExplorer::Abi(arch == Abi::X86Architecture ? Abi::PowerPCArchitecture : Abi::X86Architecture, os, flavor, format, width == 64 ? 32 : 64);
     } else if (width == 64) {
         abiList << ProjectExplorer::Abi(arch, os, flavor, format, width);
         abiList << ProjectExplorer::Abi(arch, os, flavor, format, 32);
@@ -828,6 +828,18 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
                               << QLatin1String("x86-macos-generic-mach_o-32bit")
                               << QLatin1String("ppc-macos-generic-mach_o-64bit")
                               << QLatin1String("ppc-macos-generic-mach_o-32bit"));
+    QTest::newRow("Mac 2")
+            << QString::fromLatin1("powerpc-apple-darwin10")
+            << (QStringList() << QLatin1String("ppc-macos-generic-mach_o-64bit")
+                              << QLatin1String("ppc-macos-generic-mach_o-32bit")
+                              << QLatin1String("x86-macos-generic-mach_o-64bit")
+                              << QLatin1String("x86-macos-generic-mach_o-32bit"));
+    QTest::newRow("Mac 3")
+            << QString::fromLatin1("i686-apple-darwin9")
+            << (QStringList() << QLatin1String("x86-macos-generic-mach_o-32bit")
+                              << QLatin1String("x86-macos-generic-mach_o-64bit")
+                              << QLatin1String("ppc-macos-generic-mach_o-32bit")
+                              << QLatin1String("ppc-macos-generic-mach_o-64bit"));
     QTest::newRow("Intel 1")
             << QString::fromLatin1("86_64 x86_64 GNU/Linux")
             << (QStringList() << QLatin1String("x86-linux-generic-elf-64bit")
