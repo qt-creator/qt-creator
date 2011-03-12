@@ -1,6 +1,7 @@
 INCLUDEPATH *= $$PWD
 
 QT += network
+win32:include(../../private_headers.pri)
 
 # Input
 HEADERS += $$PWD/symbianutils_global.h \
