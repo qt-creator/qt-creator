@@ -38,8 +38,10 @@
 #include "bazaarclient.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <utils/qtcassert.h>
 #include <vcsbase/diffhighlighter.h>
 
+#include <QtCore/QRegExp>
 #include <QtCore/QString>
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextBlock>
@@ -47,15 +49,14 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
+# define BZR_CHANGE_PATTERN "[0-9]+"
+
 using namespace Bazaar::Internal;
 using namespace Bazaar;
 
 BazaarEditor::BazaarEditor(const VCSBase::VCSBaseEditorParameters *type, QWidget *parent)
     : VCSBase::VCSBaseEditorWidget(type, parent),
-      m_exactIdentifier12(QLatin1String(Constants::CHANGEIDEXACT12)),
-      m_exactIdentifier40(QLatin1String(Constants::CHANGEIDEXACT40)),
-      m_changesetIdentifier12(QLatin1String(Constants::CHANGESETID12)),
-      m_changesetIdentifier40(QLatin1String(Constants::CHANGESETID40)),
+      m_exactChangesetId(QLatin1String(Constants::CHANGESET_ID_EXACT)),
       m_diffIdentifier(QLatin1String(Constants::DIFFIDENTIFIER))
 {
     setAnnotateRevisionTextFormat(tr("Annotate %1"));
@@ -65,16 +66,22 @@ BazaarEditor::BazaarEditor(const VCSBase::VCSBaseEditorParameters *type, QWidget
 QSet<QString> BazaarEditor::annotationChanges() const
 {
     QSet<QString> changes;
-    const QString data = toPlainText();
-    if (data.isEmpty())
+    const QString txt = toPlainText();
+    if (txt.isEmpty())
         return changes;
 
-    int position = 0;
-    while ((position = m_changesetIdentifier12.indexIn(data, position)) != -1) {
-        changes.insert(m_changesetIdentifier12.cap(1));
-        position += m_changesetIdentifier12.matchedLength();
+    QRegExp changeNumRx(QLatin1String("^("BZR_CHANGE_PATTERN") "));
+    QTC_ASSERT(changeNumRx.isValid(), return changes);
+    if (changeNumRx.indexIn(txt) != -1) {
+        changes.insert(changeNumRx.cap(1));
+        changeNumRx.setPattern(QLatin1String("\n("BZR_CHANGE_PATTERN") "));
+        QTC_ASSERT(changeNumRx.isValid(), return changes);
+        int pos = 0;
+        while ((pos = changeNumRx.indexIn(txt, pos)) != -1) {
+            pos += changeNumRx.matchedLength();
+            changes.insert(changeNumRx.cap(1));
+        }
     }
-
     return changes;
 }
 
@@ -84,9 +91,7 @@ QString BazaarEditor::changeUnderCursor(const QTextCursor &cursorIn) const
     cursor.select(QTextCursor::WordUnderCursor);
     if (cursor.hasSelection()) {
         const QString change = cursor.selectedText();
-        if (m_exactIdentifier12.exactMatch(change))
-            return change;
-        if (m_exactIdentifier40.exactMatch(change))
+        if (m_exactChangesetId.exactMatch(change))
             return change;
     }
     return QString();
