@@ -399,7 +399,7 @@ void VCSBaseClient::view(const QString &source, const QString &id)
     VCSBase::VCSBaseEditorWidget *editor = createVCSEditor(kind, title, source,
                                                            true, "view", id);
 
-    QSharedPointer<VCSJob> job(new VCSJob(source, args, editor));
+    QSharedPointer<VCSJob> job(new VCSJob(QFileInfo(source).absolutePath(), args, editor));
     enqueueJob(job);
 }
 
