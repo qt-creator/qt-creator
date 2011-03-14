@@ -55,7 +55,7 @@ private:
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileSpec) const;
 
     const QRegExp m_exactChangesetId;
-    const QRegExp m_diffIdentifier;
+    const QRegExp m_diffFileId;
 };
 
 } // namespace Internal

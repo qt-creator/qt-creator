@@ -57,7 +57,7 @@ using namespace Bazaar;
 BazaarEditor::BazaarEditor(const VCSBase::VCSBaseEditorParameters *type, QWidget *parent)
     : VCSBase::VCSBaseEditorWidget(type, parent),
       m_exactChangesetId(QLatin1String(Constants::CHANGESET_ID_EXACT)),
-      m_diffIdentifier(QLatin1String(Constants::DIFFIDENTIFIER))
+      m_diffFileId(QLatin1String("^(=== modified file '.*'$)"))
 {
     setAnnotateRevisionTextFormat(tr("Annotate %1"));
     setAnnotatePreviousRevisionTextFormat(tr("Annotate parent revision %1"));
@@ -99,7 +99,7 @@ QString BazaarEditor::changeUnderCursor(const QTextCursor &cursorIn) const
 
 VCSBase::DiffHighlighter *BazaarEditor::createDiffHighlighter() const
 {
-    return new VCSBase::DiffHighlighter(m_diffIdentifier);
+    return new VCSBase::DiffHighlighter(m_diffFileId);
 }
 
 VCSBase::BaseAnnotationHighlighter *BazaarEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
