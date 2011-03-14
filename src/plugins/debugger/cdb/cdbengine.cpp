@@ -940,8 +940,15 @@ void CdbEngine::processFinished()
             notifyEngineShutdownOk();
         }
     } else {
-        STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSpontaneousShutdown")
-        notifyEngineSpontaneousShutdown();
+        // The QML/CPP engine relies on the standard sequence of InferiorShutDown,etc.
+        // Otherwise, we take a shortcut.
+        if (isSlaveEngine()) {
+            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorExited")
+            notifyInferiorExited();
+        } else {
+            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSpontaneousShutdown")
+            notifyEngineSpontaneousShutdown();
+        }
     }
 }
 
