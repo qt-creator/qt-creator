@@ -186,8 +186,8 @@ void FormEditorStack::modeAboutToChange(Core::IMode *m)
     if (Designer::Constants::Internal::debug && m)
         qDebug() << "FormEditorStack::modeAboutToChange"  << m->id();
 
-    // Sync the editor when leaving design mode
-    if (m && m->id() == QLatin1String(Core::Constants::MODE_DESIGN))
+    // Sync the editor when entering edit mode
+    if (m && m->id() == QLatin1String(Core::Constants::MODE_EDIT))
         foreach(const EditorData &data, m_formEditors)
             data.formWindowEditor->syncXmlEditor();
 }
