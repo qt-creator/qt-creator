@@ -544,12 +544,14 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
         if (et & cmdLineEnabledEngines) {
             usableTypes.push_back(et);
         } else {
-            result.errorDetails.push_back(DebuggerPlugin::tr("The debugger engine '%1' is disabled.").
-                                          arg(engineTypeName(et)));
+            const QString msg = DebuggerPlugin::tr("The debugger engine '%1' preferred for "
+                                                   "debugging binaries of type %2 is disabled.").
+                    arg(engineTypeName(et), sp.toolChainAbi.toString());
+            debuggerCore()->showMessage(msg, LogWarning);
         }
     if (usableTypes.isEmpty()) {
         result.errorMessage = DebuggerPlugin::tr("This configuration requires the debugger engine %1, which is disabled.").
-                arg(QLatin1String(engineTypeName(requiredTypes.front())));
+                arg(QLatin1String(engineTypeName(usableTypes.front())));
         return result;
     }
     if (debug)
@@ -570,6 +572,11 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
         if (configurationOk) {
             break;
         } else {
+            const QString msg = DebuggerPlugin::tr("The debugger engine '%1' preferred "
+                                                   "for debugging binaries of type %2 is not set up correctly: %3").
+                                arg(engineTypeName(usableTypes.front()), sp.toolChainAbi.toString(),
+                                    result.errorDetails.isEmpty() ? QString() : result.errorDetails.back());
+            debuggerCore()->showMessage(msg, LogWarning);
             usableTypes.pop_front();
         }
     }
@@ -578,16 +585,6 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
     if (usableTypes.isEmpty()) {
         result.errorMessage = DebuggerPlugin::tr("The debugger engine required for this configuration is not correctly configured.");
         return result;
-    }
-    // Inform verbosely about MinGW-gdb/CDB fallbacks.
-    if (!result.errorDetails.isEmpty()) {
-        const QString msg = DebuggerPlugin::tr(
-            "The preferred debugger engine for debugging binaries of type '%1' is not available.\n"
-            "The debugger engine '%2' will be used as a fallback.\nDetails: %3").
-                arg(sp.toolChainAbi.toString(), engineTypeName(usableTypes.front()),
-                    result.errorDetails.join(QString(QLatin1Char('\n'))));
-        debuggerCore()->showMessage(msg, LogWarning);
-        showMessageBox(QMessageBox::Warning, "Warning", msg);
     }
     // Anything left: Happy.
     result.errorMessage.clear();
