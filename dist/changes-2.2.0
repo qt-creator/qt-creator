@@ -63,10 +63,38 @@ BinEditor:
 
 Help
 
+C++ Support
+   * Add QuickFix for implementing setters/getters for a Q_PROPERTY
+   * Add documentation about QuickFixes
+   * Fix switch statement indentation for GNU and Whitesmiths
+     style, QTCREATORBUG-2994
+   * Fix indentation of labels
+
 QML/JS Support
    * Gui cosmetics in JS debugger: Show stack frame level, only valid
      line numbers in stack view, do not show function code, show dummy
      child entry for empty arrays
+   * Add wizard for creating JavaScript files, QTCREATORBUG-3070
+   * Add local-file completion for url properties, QTCREATORBUG-2619
+   * Add warning about invalid files in url properties
+   * Add file name completion in imports, QTCREATORBUG-3067
+   * Add a locator filter for JS functions, QTCREATORBUG-2607
+   * Add JSlint-style warnings about common JS pitfalls, QTCREATORBUG-3071
+   * Add completion for attached properties like Component.onCompleted
+   * Allow QML modules to ship predumped type description files.
+   * Reenable instantiating component scope detection, QTCREATORBUG-2835
+   * Improve error reporting of failed plugin dumps
+   * Complete a trailing '{' for 'A on b' object bindings, QTCREATORBUG-2642
+   * Highlight capitalized types, QTCREATORBUG-2658
+   * Re-dump a plugin if the shared library/dll changes, QTCREATORBUG-3047
+   * Build qmldump in debug and release version on Windows, QTCREATORBUG-3549
+   * Change qmldump to output QML instead of XML
+   * Fix automatic '.' import to also pick up QML modules, QTCREATORBUG-3768
+   * Fix code model update when files are renamed, QTCREATORBUG-2986
+   * Fix incorrect completion when brace is on separate line, QTCREATORBUG-2658
+   * Fix quote autoinsertion in string literals, QTCREATORBUG-2155, QTCREATORBUG-3244
+   * Fix '{' not being an electric character, QTCREATORBUG-3405
+   * Fix indentation of 'foo: Namesp.Type {', QTCREATORBUG-3371
 
 FakeVim:
    * Implement Ctrl-N/Ctrl-P
