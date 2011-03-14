@@ -51,6 +51,7 @@ class QTCREATOR_UTILS_EXPORT DetailsWidget : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(QString summaryText READ summaryText WRITE setSummaryText DESIGNABLE true)
+    Q_PROPERTY(QString additionalSummaryText READ additionalSummaryText WRITE setAdditionalSummaryText DESIGNABLE true)
     Q_PROPERTY(bool useCheckBox READ useCheckBox WRITE setUseCheckBox DESIGNABLE true)
     Q_PROPERTY(bool checked READ isChecked WRITE setChecked DESIGNABLE true)
     Q_PROPERTY(State state READ state WRITE setState)
@@ -68,6 +69,9 @@ public:
 
     void setSummaryText(const QString &text);
     QString summaryText() const;
+
+    void setAdditionalSummaryText(const QString &text);
+    QString additionalSummaryText() const;
 
     void setState(State state);
     State state() const;
@@ -87,6 +91,7 @@ public:
     void setUseCheckBox(bool b);
     /// Sets an icon, only supported if useCheckBox is true
     void setIcon(const QIcon &icon);
+
 signals:
     void checked(bool);
 private slots:
@@ -103,6 +108,7 @@ private:
     void changeHoverState(bool hovered);
 
     DetailsWidgetPrivate *d;
+    QString m_additionalSummaryText;
 };
 
 } // namespace Utils

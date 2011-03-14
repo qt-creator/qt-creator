@@ -56,6 +56,8 @@
 +------------+-------------------------+---------------+
 +summaryLabel|              toolwidget | detailsButton |
 +------------+-------------------------+---------------+
++                additional summary                    |
++------------+-------------------------+---------------+
 |                  widget                              |
 +------------+-------------------------+---------------+
     \endcode
@@ -72,6 +74,7 @@ namespace Utils {
         QGridLayout *m_grid;
         QLabel *m_summaryLabel;
         QCheckBox *m_summaryCheckBox;
+        QLabel *m_additionalSummaryLabel;
         Utils::FadingPanel *m_toolWidget;
         QWidget *m_widget;
 
@@ -88,6 +91,7 @@ namespace Utils {
             m_grid(new QGridLayout),
             m_summaryLabel(new QLabel(parent)),
             m_summaryCheckBox(new QCheckBox(parent)),
+            m_additionalSummaryLabel(new QLabel(parent)),
             m_toolWidget(0),
             m_widget(0),
             m_state(DetailsWidget::Collapsed),
@@ -108,10 +112,16 @@ namespace Utils {
         d->m_summaryCheckBox->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
         d->m_summaryCheckBox->setVisible(false);
 
+        d->m_additionalSummaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        d->m_additionalSummaryLabel->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
+        d->m_additionalSummaryLabel->setWordWrap(true);
+        d->m_additionalSummaryLabel->setVisible(false);
+
         d->m_grid->setContentsMargins(0, 0, 0, 0);
         d->m_grid->setSpacing(0);
         d->m_grid->addWidget(d->m_summaryLabel, 0, 0);
         d->m_grid->addWidget(d->m_detailsButton, 0, 2);
+        d->m_grid->addWidget(d->m_additionalSummaryLabel, 1, 0, 1, 3);
         setLayout(d->m_grid);
 
         connect(d->m_detailsButton, SIGNAL(toggled(bool)),
@@ -209,6 +219,17 @@ namespace Utils {
         return d->m_summaryLabel->text();
     }
 
+    QString DetailsWidget::additionalSummaryText() const
+    {
+        return d->m_additionalSummaryLabel->text();
+    }
+
+    void DetailsWidget::setAdditionalSummaryText(const QString &text)
+    {
+        d->m_additionalSummaryLabel->setText(text);
+        d->m_additionalSummaryLabel->setVisible(!text.isEmpty());
+    }
+
     DetailsWidget::State DetailsWidget::state() const
     {
         return d->m_state;
@@ -269,7 +290,7 @@ namespace Utils {
 
         if (d->m_widget) {
             d->m_widget->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
-            d->m_grid->addWidget(d->m_widget, 1, 0, 1, 3);
+            d->m_grid->addWidget(d->m_widget, 2, 0, 1, 3);
         }
         updateControls();
     }
