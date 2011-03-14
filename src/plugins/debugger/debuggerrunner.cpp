@@ -104,13 +104,14 @@ static const char *engineTypeName(DebuggerEngineType et)
     case Debugger::NoEngineType:
         break;
     case Debugger::GdbEngineType:
-        return "Gdb";
+        return "Gdb engine";
     case Debugger::ScriptEngineType:
         return "Script engine";
     case Debugger::CdbEngineType:
         return "Cdb engine";
     case Debugger::PdbEngineType:
-        return "Pdb engine";    case Debugger::TcfEngineType:
+        return "Pdb engine";
+    case Debugger::TcfEngineType:
         return "Tcf engine";
     case Debugger::QmlEngineType:
         return "QML engine";
@@ -129,7 +130,7 @@ static inline QString engineTypeNames(const QList<DebuggerEngineType> &l)
     QString rc;
     foreach (DebuggerEngineType et, l) {
         if (!rc.isEmpty())
-            rc.append(QLatin1Char(','));
+            rc.append(QLatin1String(", "));
         rc += QLatin1String(engineTypeName(et));
     }
     return rc;
@@ -495,6 +496,31 @@ QString ConfigurationCheck::errorDetailsString() const
     return errorDetails.join(QLatin1String("\n\n"));
 }
 
+// Convenience helper to check whether an engine is enabled and configured
+// correctly.
+static inline bool canUseEngine(DebuggerEngineType et,
+                                const DebuggerStartParameters &sp,
+                                unsigned cmdLineEnabledEngines,
+                                ConfigurationCheck *result)
+{
+    // Enabled?
+    if ((et & cmdLineEnabledEngines) == 0) {
+        result->errorDetails.push_back(DebuggerPlugin::tr("The debugger engine '%1' is disabled.").
+                                       arg(engineTypeName(et)));
+        return false;
+    }
+    // Configured.
+    switch (et) {
+    case Debugger::CdbEngineType:
+        return checkCdbConfiguration(sp, result);
+    case Debugger::GdbEngineType:
+        return checkGdbConfiguration(sp, result);
+    default:
+        break;
+    }
+    return true;
+}
+
 /*!
     \fn ConfigurationCheck checkDebugConfiguration(unsigned cmdLineEnabledEngines,
                                                    const DebuggerStartParameters &sp)
@@ -529,71 +555,56 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
         qDebug() << " Required: " << engineTypeNames(requiredTypes);
     // Filter out disables types, command line + current settings.
     unsigned cmdLineEnabledEngines = debuggerCore()->enabledEngines();
-#ifdef CDB_ENABLED
-     if (!isCdbEngineEnabled() && !Cdb::isCdbEngineEnabled())
-         cmdLineEnabledEngines &= ~CdbEngineType;
-#endif
 #ifdef WITH_LLDB
     if (!Core::ICore::instance()->settings()->value(QLatin1String("LLDB/enabled")).toBool())
         cmdLineEnabledEngines &= ~LldbEngineType;
 #else
      cmdLineEnabledEngines &= ~LldbEngineType;
 #endif
-    QList<DebuggerEngineType> usableTypes;
-    foreach (DebuggerEngineType et, requiredTypes)
-        if (et & cmdLineEnabledEngines) {
-            usableTypes.push_back(et);
+    DebuggerEngineType usableType = NoEngineType;
+    QList<DebuggerEngineType> unavailableTypes;
+    foreach (DebuggerEngineType et, requiredTypes) {
+        if (canUseEngine(et, sp, cmdLineEnabledEngines, &result)) {
+            usableType = et;
+            break;
         } else {
-            const QString msg = DebuggerPlugin::tr("The debugger engine '%1' preferred for "
-                                                   "debugging binaries of type %2 is disabled.").
-                    arg(engineTypeName(et), sp.toolChainAbi.toString());
-            debuggerCore()->showMessage(msg, LogWarning);
+            unavailableTypes.push_back(et);
         }
-    if (usableTypes.isEmpty()) {
-        result.errorMessage = DebuggerPlugin::tr("This configuration requires the debugger engine %1, which is disabled.").
-                arg(QLatin1String(engineTypeName(usableTypes.front())));
+    }
+    if (usableType == NoEngineType) {
+        if (requiredTypes.size() == 1) {
+            result.errorMessage = DebuggerPlugin::tr(
+                "The debugger engine '%1' required for debugging binaries of the type '%2'"
+                " is not configured correctly.").
+                arg(QLatin1String(engineTypeName(requiredTypes.front())), sp.toolChainAbi.toString());
+        } else {
+            result.errorMessage = DebuggerPlugin::tr(
+                "None of the debugger engines '%1' capable of debugging binaries of the type '%2'"
+                " is configured correctly.").
+                arg(engineTypeNames(requiredTypes), sp.toolChainAbi.toString());
+        }
         return result;
     }
     if (debug)
-        qDebug() << " Usable engines: " << engineTypeNames(usableTypes);
-    // Configuration check: Strip off non-configured engines, find first one to use.
-    while (!usableTypes.isEmpty()) {
-        bool configurationOk = true;
-        switch (usableTypes.front()) {
-        case Debugger::CdbEngineType:
-            configurationOk = checkCdbConfiguration(sp, &result);
-            break;
-        case Debugger::GdbEngineType:
-            configurationOk = checkGdbConfiguration(sp, &result);
-            break;
-        default:
-            break;
-        }
-        if (configurationOk) {
-            break;
-        } else {
-            const QString msg = DebuggerPlugin::tr("The debugger engine '%1' preferred "
-                                                   "for debugging binaries of type %2 is not set up correctly: %3").
-                                arg(engineTypeName(usableTypes.front()), sp.toolChainAbi.toString(),
-                                    result.errorDetails.isEmpty() ? QString() : result.errorDetails.back());
-            debuggerCore()->showMessage(msg, LogWarning);
-            usableTypes.pop_front();
-        }
-    }
-    if (debug)
-        qDebug() << "Configured engines: " << engineTypeNames(usableTypes);
-    if (usableTypes.isEmpty()) {
-        result.errorMessage = DebuggerPlugin::tr("The debugger engine required for this configuration is not correctly configured.");
-        return result;
+        qDebug() << "Configured engine: " << engineTypeName(usableType);
+    // Inform verbosely about MinGW-gdb/CDB fallbacks. Do not complain about LLDB, for now.
+    if (!result.errorDetails.isEmpty() && unavailableTypes.count(LldbEngineType) != unavailableTypes.size()) {
+        const QString msg = DebuggerPlugin::tr(
+            "The preferred debugger engine for debugging binaries of type '%1' is not available.\n"
+            "The debugger engine '%2' will be used as a fallback.\nDetails: %3").
+                arg(sp.toolChainAbi.toString(), engineTypeName(usableType),
+                    result.errorDetails.join(QString(QLatin1Char('\n'))));
+        debuggerCore()->showMessage(msg, LogWarning);
+        showMessageBox(QMessageBox::Warning, "Warning", msg);
     }
     // Anything left: Happy.
     result.errorMessage.clear();
     result.errorDetails.clear();
     if (qmlLanguage && cppLanguage) {
         result.masterSlaveEngineTypes.first = QmlCppEngineType;
-        result.masterSlaveEngineTypes.second = usableTypes.front();
+        result.masterSlaveEngineTypes.second = usableType;
     } else {
-        result.masterSlaveEngineTypes.first = usableTypes.front();
+        result.masterSlaveEngineTypes.first = usableType;
     }
     if (debug)
         qDebug() << engineTypeName(result.masterSlaveEngineTypes.first) << engineTypeName(result.masterSlaveEngineTypes.second);
