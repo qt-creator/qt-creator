@@ -147,7 +147,7 @@ BazaarPlugin::~BazaarPlugin()
     m_instance = 0;
 }
 
-bool BazaarPlugin::initialize(const QStringList &/*arguments*/, QString * /*error_message*/)
+bool BazaarPlugin::initialize(const QStringList &/*arguments*/, QString * /*errorMessage*/)
 {
     typedef VCSBase::VCSEditorFactory<BazaarEditor> BazaarEditorFactory;
 
