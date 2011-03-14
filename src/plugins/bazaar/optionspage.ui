@@ -21,7 +21,7 @@
      </property>
      <layout class="QFormLayout" name="formLayout_3">
       <item row="0" column="0">
-       <widget class="QLabel" name="mercurialCommandLabel">
+       <widget class="QLabel" name="commandLabel">
         <property name="text">
          <string>Command:</string>
         </property>
