@@ -130,9 +130,10 @@
                 \o \l{Debugging the Example Application}
                 \o \l{Interacting with the Debugger}
                 \o \l{Setting Up Debugger}
-                \o \l{Debugger Modes of Operation}
+                \o \l{Launching the Debugger in Different Modes}
                 \o \l{Using Debugging Helpers}
                 \o \l{Debugging Qt Quick Projects}
+                \o \l{Troubleshooting Debugger}
             \endlist
        \o \l{Using the Maemo Emulator}
        \o \l{Deploying Applications to Mobile Devices}
@@ -6792,11 +6793,12 @@
         requirements for installation. Typically, the interaction between Qt Creator
         and the native debugger is set up automatically and you do not need to do anything.
 
-        \o \l{Debugger Modes of Operation} describes the operating modes in which the
+        \o \l{Launching the Debugger in Different Modes} describes the operating modes in which the
         debugger plugin runs, depending on where and how the process is started and run.
 
         \o \l{Using Debugging Helpers} describes how to get more detailed data
         on complex data.
+
 
         \o \l{Debugging Qt Quick Projects} describes how to debug Qt Quick projects.
 
@@ -6810,7 +6812,7 @@
     \page creator-debugger-operating-modes.html
     \nextpage creator-debugging-helpers.html
 
-    \title Debugger Modes of Operation
+    \title Launching the Debugger in Different Modes
 
     The debugger plugin runs in different operating modes depending on where and
     how the process is started and run. Some of the modes are only available for
@@ -7061,23 +7063,26 @@
             \o Notes
         \row
             \o Gdb
-            \o On Linux, install version 7.0.1, 7.1, or preferably, 7.2 or
-               later. On Mac OS X, install Apple gdb version 6.3.50-20050815
-            (build 1344) or later.
+            \o On Linux and Windows, use the Python-enabled gdb versions that
+            are installed when you install Qt Creator and Qt SDK. On Mac OS X,
+            use the gdb provided with Xcode.
+            For a custom target, you can build your own Python-enabled gdb.
+            Follow the instructions on
+            \l{http://developer.qt.nokia.com/wiki/QtCreatorBuildGdb}{Building Gdb}.
 
         \row
             \o Debugging tools for Windows
             \o Using this engine requires you to install the
                \e{Debugging tools for Windows}
-               \l{http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx}{32-bit}
+               \l{http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx}
                or
-               \l{http://www.microsoft.com/whdc/devtools/debugging/install64bit.Mspx}{64-bit}
+               \l{http://www.microsoft.com/whdc/devtools/debugging/install64bit.Mspx}
                package (Version 6.11.1.404 for the 32-bit or the 64-bit version
                of Qt Creator, respectively),
-               which is freely available for download from the
-               \l{http://msdn.microsoft.com/en-us/default.aspx}
+               which are freely available for download from the
+               \l{http://msdn.microsoft.com/en-us/default.aspx}{Microsoft Developer Network}.
 
-               {Microsoft Developer Network}. The Qt Creator help browser does
+               The Qt Creator help browser does
                not allow you to download files, and therefore, you must copy
                the above links to a browser.
 
@@ -7107,12 +7112,12 @@
               flag in your run configuration, in \gui Projects mode. In the run
               configuration, select \gui{Use debug version of frameworks}.
 
-              For more detailed information about debugging on the Mac, see:
-              \l http://developer.apple.com/mac/library/technotes/tn2004/tn2124.html
+              For more detailed information about debugging on the Mac OS X, see:
+              \l{http://developer.apple.com/mac/library/technotes/tn2004/tn2124.html}{Mac OS X Debugging Magic}.
 
-        \note The Mac OS X Snow Leopard (10.6) has a bug, that can be worked
-              around as described in the link provided below:
-              \l http://bugreports.qt.nokia.com/browse/QTBUG-4962.
+        \note The Mac OS X Snow Leopard (10.6) has a bug that might cause the
+              application to crash. For a workaround, see:
+              \l{http://bugreports.qt.nokia.com/browse/QTBUG-4962}{QTBUG-4962}.
 
     \endtable
 
@@ -7566,6 +7571,36 @@
 
     \section1 Debugging Helpers Based on Python
 
+    Qt Creator uses gdb builds that enable Python scripting to display
+    information in the \gui {Locals and Watchers} view. When Python scripting
+    is used, code (Debugging helpers) does not need to be injected into the
+    debugged process to nicely display QStringList or \c std::map contents, for
+    example.
+
+    The code injection caused problems and put an extra stress on the debugged
+    process. You can now easily extend the debugging helpers to other types. No
+    compilation is required, just adding a few lines of Python.
+
+    Python scripting vastly reduces the communication overhead compared
+    with the previous solution. However, there are some obstacles:
+
+    \list
+
+        \o  There is no Python-enabled gdb for Mac OS. Mac OS continues
+            injection with C++ based debugging helpers.
+
+        \o  On the Symbian platform, an on-device debugging agent restricts the
+            communication between gdb and the device. Therefore, extracting
+            QObject properties, for example, is not possible.
+
+        \o  There is no gdb to communicate with MSVC compiled applications on
+            Windows. So information can be displayed nicely only in a limited
+            fashion by using a cdb extension DLL.
+
+    \endlist
+
+    \section2 Extending the Python Based Debugging Helpers
+
     On platforms featuring a Python-enabled version of the gdb debugger,
     the data extraction is done by a Python script. This is more robust
     as the script execution is separated from the debugged process. It
@@ -7847,6 +7882,17 @@
     with. Select \gui{Tools > Options... > Qt4 > Qt Versions}.
 
     \note QML Observer requires Qt 4.7.1 or later.
+
+    \section2 Enabling Debugging Helpers for Qt's Bootstrapped Applications
+
+    Qt's bootstrapped applications (such as moc and qmake) are built in a way
+    that is incompatible with the default build of the debugging helpers. To
+    work around this, add gdbmacros.cpp to the compiled sources in the
+    application Makefile.
+
+    Choose \gui {Tools > Options > Debugger > Debugging Helper > Use debugging
+    helper from custom location}, and specify an invalid location, such as
+    \c{/dev/null}.
 
 */
 
@@ -10422,8 +10468,7 @@
            by 'Wave \reg Systems' is installed and active (causing crashes in \c{vxvault.dll)}).
 
         \o Gdb may take long to load debugging symbols, especially from large
-           libraries like \c libQtWebKit. Starting the debugging module can
-           take up to several minutes without visible progress.
+           libraries.
 
         \o Setting breakpoints in code that is compiled into the binary more
            than once does not work.
