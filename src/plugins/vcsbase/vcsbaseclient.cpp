@@ -290,7 +290,7 @@ void VCSBaseClient::log(const QString &workingDir, const QStringList &files,
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const QString source = VCSBase::VCSBaseEditorWidget::getSource(workingDir, files);
 
-    VCSBase::VCSBaseEditorWidget *editor = createVCSEditor(kind, title, workingDir, true,
+    VCSBase::VCSBaseEditorWidget *editor = createVCSEditor(kind, title, source, true,
                                                            vcsCmdString.toLatin1().constData(), id);
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
 
