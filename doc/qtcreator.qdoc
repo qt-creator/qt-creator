@@ -2925,7 +2925,7 @@
     select the type of your
            project.
            The contents of the wizard dialogs depend on the project type and
-           the build targets that you select in the \gui {Qt Versions} dialog.
+           the build targets that you select in the \gui {Target Setup} dialog.
            Follow the instructions of the wizard.
 
     For examples of creating different types of projects, see
@@ -3071,7 +3071,7 @@
     installed on the development PC. Select the Qt versions that you want to use to build
     the project for each target.
 
-    \image qtcreator-open-project-targets.png "Qt Versions dialog"
+    \image qtcreator-open-project-targets.png "Target Setup dialog"
 
     The status \gui New indicates that Qt Creator did not find an existing build
     for a particular development environment (Qt version) and target. Therefore,
@@ -5263,9 +5263,9 @@
         \o In the \gui {Create in} field, enter the path for the project files. For example,
         \c {C:\Qt\examples}, and then click \gui{Next}.
 
-        The \gui{Qt Versions} dialog opens.
+        The \gui{Target Setup} dialog opens.
 
-        \image qtcreator-mobile-project-qt-versions.png "Qt Versions dialog"
+        \image qtcreator-mobile-project-qt-versions.png "Target Setup dialog"
 
         \o Select \gui Maemo, \gui {Qt Simulator}, and \gui {Symbian Device} targets,
         and click \gui{Next}.
@@ -5283,7 +5283,7 @@
         and landscape, and then click \gui{Next}.
 
         \note This dialog opens only if you select \gui Maemo5 or
-        \gui {Symbian Device} target in the \gui {Qt Versions} dialog.
+        \gui {Symbian Device} target in the \gui {Target Setup} dialog.
 
         The \gui {Symbian Specific} dialog opens.
 
@@ -5877,9 +5877,9 @@
         \o In the \gui {Create in} field, enter the path for the project files. For example,
         \c {C:\Qt\examples}, and then click \gui{Next}.
 
-        The \gui {Qt Versions} dialog opens.
+        The \gui {Target Setup} dialog opens.
 
-        \image qtcreator-new-project-qt-versions-qt-gui.png "Qt Versions dialog"
+        \image qtcreator-new-project-qt-versions-qt-gui.png "Target Setup dialog"
 
         \o Select the Qt versions to use as build targets for your project, and click
         \gui{Next}.
@@ -8408,9 +8408,9 @@
 
         \o Click \gui{Next}.
 
-        The \gui {Qt Versions} dialog opens.
+        The \gui {Target Setup} dialog opens.
 
-        \image qmldesigner-new-project-qt-versions.png "Qt Versions dialog"
+        \image qmldesigner-new-project-qt-versions.png "Target Setup dialog"
 
         \o Select the Qt versions to use as build targets for your project,
         and then click \gui{Next}.
@@ -8428,7 +8428,7 @@
         and landscape, and then click \gui Next.
 
         \note This dialog opens only if you select \gui Maemo5 or
-        \gui {Symbian Device} target in the \gui {Qt Versions} dialog.
+        \gui {Symbian Device} target in the \gui {Target Setup} dialog.
 
         The \gui {Symbian Specific} dialog opens.
 
