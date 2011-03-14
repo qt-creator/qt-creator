@@ -285,6 +285,21 @@ Qt4TargetSetupWidget::~Qt4TargetSetupWidget()
 // Qt4DefaultTargetSetupWidget
 // -------------------------------------------------------------------------
 
+QString issuesListToString(const QList<ProjectExplorer::Task> &issues)
+{
+    QStringList lines;
+    foreach (const ProjectExplorer::Task &t, issues) {
+        // set severity:
+        QString severity;
+        if (t.type == ProjectExplorer::Task::Error)
+            severity = QCoreApplication::translate("Qt4DefaultTargetSetupWidget", "<b>Error:</b> ", "Severity is Task::Error");
+        else if (t.type == ProjectExplorer::Task::Warning)
+            severity = QCoreApplication::translate("Qt4DefaultTargetSetupWidget", "<b>Warning:</b> ", "Severity is Task::Warning");
+        lines.append(severity + t.description);
+    }
+    return lines.join("<br>");
+}
+
 Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *factory,
                                                          const QString &id,
                                                          const QString &proFilePath,
@@ -316,6 +331,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     m_detailsWidget->setChecked(true);
     m_detailsWidget->setSummaryFontBold(true);
     m_detailsWidget->setIcon(factory->iconForId(id));
+    m_detailsWidget->setAdditionalSummaryText(issuesListToString(factory->reportIssues(m_proFilePath)));
     vboxLayout->addWidget(m_detailsWidget);
 
     QWidget *widget = new QWidget;
@@ -433,6 +449,7 @@ QString Qt4DefaultTargetSetupWidget::displayNameFrom(const BuildConfigurationInf
 void Qt4DefaultTargetSetupWidget::setProFilePath(const QString &proFilePath)
 {
     m_proFilePath = proFilePath;
+    m_detailsWidget->setAdditionalSummaryText(issuesListToString(m_factory->reportIssues(m_proFilePath)));
     setBuildConfigurationInfos(m_factory->availableBuildConfigurations(m_id, proFilePath, m_minimumQtVersion), false);
 }
 
