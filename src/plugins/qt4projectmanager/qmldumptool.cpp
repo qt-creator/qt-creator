@@ -71,7 +71,7 @@ public:
         : m_buildTask(new DebuggingHelperBuildTask(version, DebuggingHelperBuildTask::QmlDump))
         , m_failed(false)
     {
-        qmlDumpBuilds()->insert(m_version.uniqueId(), this);
+        qmlDumpBuilds()->insert(version->uniqueId(), this);
 
         connect(m_buildTask, SIGNAL(finished(int,DebuggingHelperBuildTask::Tools,QString)),
                 this, SLOT(finish(int,DebuggingHelperBuildTask::Tools,QString)),
@@ -156,7 +156,6 @@ private:
 
     QList<ProjectToUpdate> m_projectsToUpdate;
     Internal::DebuggingHelperBuildTask *m_buildTask; // deletes itself after run()
-    QtVersion m_version;
     bool m_failed;
 };
 } // end of anonymous namespace
