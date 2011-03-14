@@ -139,8 +139,10 @@ bool BazaarControl::vcsAnnotate(const QString &file, int line)
     return true;
 }
 
-bool BazaarControl::vcsCheckout(const QString &/*directory*/, const QByteArray &/*url*/)
+bool BazaarControl::vcsCheckout(const QString &directory, const QByteArray &url)
 {
+    Q_UNUSED(directory);
+    Q_UNUSED(url);
     return false;
 }
 
