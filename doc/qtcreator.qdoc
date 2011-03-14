@@ -5509,7 +5509,7 @@
         to build the application and run it in Qt Simulator.
 
         \o To see the compilation progress, press \key{Alt+4} to open the
-        \gui Compile Output pane.
+        \gui {Compile Output} pane.
 
         The \gui Build progress bar on the toolbar turns green when the project
         is successfully built. The application opens in Qt Simulator.
@@ -7883,7 +7883,7 @@
 
     \note QML Observer requires Qt 4.7.1 or later.
 
-    \section2 Enabling Debugging Helpers for Qt's Bootstrapped Applications
+    \section1 Enabling Debugging Helpers for Qt's Bootstrapped Applications
 
     Qt's bootstrapped applications (such as moc and qmake) are built in a way
     that is incompatible with the default build of the debugging helpers. To
