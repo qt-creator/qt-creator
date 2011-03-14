@@ -416,7 +416,7 @@ void QDeclarativeViewObserverPrivate::_q_clearComponentCache()
 void QDeclarativeViewObserverPrivate::_q_removeFromSelection(QObject *obj)
 {
     QList<QGraphicsItem*> items = selectedItems();
-    if (QGraphicsItem *item = dynamic_cast<QGraphicsItem*>(obj))
+    if (QGraphicsItem *item = qobject_cast<QGraphicsObject*>(obj))
         items.removeOne(item);
     setSelectedItems(items);
 }
