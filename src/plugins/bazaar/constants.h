@@ -44,7 +44,7 @@ const char * const BAZAARDEFAULT = "bzr";
 //changeset identifiers
 const char * const CHANGESET_ID = "([0-9]+)"; // match and capture
 const char * const CHANGESET_ID_EXACT = "[0-9]+"; // match
-const char * const DIFFIDENTIFIER = "^[-+]{3,3} [ab]{1,1}.*"; // match e.g. +++ b/filename
+const char * const DIFF_ID = "^[-+]{3,3} [ab]{1,1}.*"; // match e.g. +++ b/filename
 
 //BaseEditorParameters
 const char * const COMMANDLOG_ID = "Bazaar Command Log Editor";
