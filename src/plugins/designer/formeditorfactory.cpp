@@ -65,7 +65,7 @@ FormEditorFactory::FormEditorFactory()
 
 QString FormEditorFactory::id() const
 {
-    return QLatin1String(DESIGNER_XML_EDITOR_ID);
+    return QLatin1String(K_DESIGNER_XML_EDITOR_ID);
 }
 
 QString FormEditorFactory::displayName() const
