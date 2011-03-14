@@ -15,6 +15,13 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QLabel" name="noValidQtVersionsLabel">
+     <property name="text">
+      <string>&lt;b&gt;No valid qt versions found.&lt;/b&gt;&lt;br&gt; Please add a qt version in Tools/Options or via the maintenance tool of the SDK.</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <widget class="QLabel" name="descriptionLabel">
@@ -64,7 +71,7 @@
         <x>0</x>
         <y>0</y>
         <width>541</width>
-        <height>415</height>
+        <height>381</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2"/>

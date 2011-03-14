@@ -137,6 +137,16 @@ void TargetSetupPage::setupWidgets()
         }
     }
     m_layout->addSpacerItem(m_spacer);
+    if (m_widgets.isEmpty()) {
+        // Oh no one can create any targets
+        m_ui->scrollArea->setVisible(false);
+        m_ui->descriptionLabel->setVisible(false);
+        m_ui->noValidQtVersionsLabel->setVisible(true);
+    } else {
+        m_ui->scrollArea->setVisible(true);
+        m_ui->descriptionLabel->setVisible(true);
+        m_ui->noValidQtVersionsLabel->setVisible(false);
+    }
 }
 
 void TargetSetupPage::deleteWidgets()
