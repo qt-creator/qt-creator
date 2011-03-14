@@ -528,6 +528,7 @@ QList<ToolChain *> Internal::GccToolChainFactory::autoDetectToolchains(const QSt
         tc->setCompilerPath(compilerPath);
         tc->setDebuggerCommand(debuggerPath);
         tc->setTargetAbi(abi);
+        tc->setDisplayName(tc->defaultDisplayName()); // reset displayname
 
         result.append(tc.take());
     }
