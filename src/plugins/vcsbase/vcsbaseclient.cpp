@@ -439,7 +439,9 @@ void VCSBaseClient::settingsChanged()
 
 QString VCSBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const
 {
-    return d->m_clientSettings.binary() + QLatin1Char(' ') + vcsCmd + QLatin1Char(' ') + sourceId;
+    return QFileInfo(d->m_clientSettings.binary()).baseName() +
+            QLatin1Char(' ') + vcsCmd + QLatin1Char(' ') +
+            QFileInfo(sourceId).fileName();
 }
 
 VCSBase::VCSBaseEditorWidget *VCSBaseClient::createVCSEditor(const QString &kind, QString title,
