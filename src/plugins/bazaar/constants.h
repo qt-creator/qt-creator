@@ -42,10 +42,8 @@ const char * const BAZAARREPO = ".bzr";
 const char * const BAZAARDEFAULT = "bzr";
 
 //changeset identifiers
-const char * const CHANGESETID12 = " ([a-f0-9]{12,12}) "; //match 12 hex chars and capture
-const char * const CHANGESETID40 = " ([a-f0-9]{40,40}) ";
-const char * const CHANGEIDEXACT12 = "[a-f0-9]{12,12}"; //match 12 hex chars a
-const char * const CHANGEIDEXACT40 = "[a-f0-9]{40,40}";
+const char * const CHANGESET_ID = "([0-9]+)"; // match and capture
+const char * const CHANGESET_ID_EXACT = "[0-9]+"; // match
 const char * const DIFFIDENTIFIER = "^[-+]{3,3} [ab]{1,1}.*"; // match e.g. +++ b/filename
 
 //BaseEditorParameters
