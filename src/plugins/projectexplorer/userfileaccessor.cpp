@@ -443,12 +443,12 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
                 QApplication::translate("ProjectExplorer::UserFileAccessor",
                     "Using Old Project Settings File"),
                 QApplication::translate("ProjectExplorer::UserFileAccessor",
-                    "A versioned backup of the .user settings file will be used, "
+                    "<html><head/><body><p>A versioned backup of the .user settings file will be used, "
                     "because the non-versioned file was created by an incompatible "
-                    "newer version of Qt Creator.\n"
+                    "newer version of Qt Creator.</p><p>"
                     "Project settings changes made since the last time this version "
                     "of Qt Creator was used with this project are ignored, and changes "
-                    "made now will <b>not</b> be propagated to the newer version."),
+                    "made now will <b>not</b> be propagated to the newer version.</p></body></html>"),
                 QMessageBox::Ok);
         project->setProperty(USERFILE_PROP, fileName);
         skipBackup = true;
