@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</class>
  <widget class="QWidget" name="ProjectExplorer::Internal::ProjectExplorerSettingsPageUi">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>313</width>
+    <height>491</height>
+   </rect>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <widget class="QGroupBox" name="directoryGroupBox">
@@ -71,14 +79,14 @@
       <item>
        <widget class="QCheckBox" name="showCompileOutputCheckBox">
         <property name="text">
-         <string>Show compiler output on building</string>
+         <string>Open compiler output pane when building</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="showRunOutputCheckBox">
         <property name="text">
-         <string>Pop up application output pane on running</string>
+         <string>Open application output pane when running</string>
         </property>
        </widget>
       </item>
