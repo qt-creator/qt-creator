@@ -427,6 +427,11 @@ void VCSBaseClient::commit(const QString &repositoryRoot,
     enqueueJob(job);
 }
 
+const VCSBaseClientSettings &VCSBaseClient::settings() const
+{
+    return d->m_clientSettings;
+}
+
 void VCSBaseClient::settingsChanged()
 {
     if (d->m_jobManager) {

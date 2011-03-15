@@ -105,6 +105,8 @@ public:
 
     virtual QString findTopLevelForFile(const QFileInfo &file) const = 0;
 
+    const VCSBaseClientSettings &settings() const;
+
 signals:
     void parsedStatus(const QList<QPair<QString, QString> > &statusList);
     // Passes on changed signals from VCSJob to Control
