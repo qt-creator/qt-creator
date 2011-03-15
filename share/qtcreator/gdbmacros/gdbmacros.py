@@ -2274,3 +2274,69 @@ if False:
             input = "plot [%s=%f:%f] %s" % (var, min, max, f)
             d.putDisplay(DisplayProcess, input, "gnuplot")
 
+
+if False:
+
+    def qdump__tree_entry(d, item):
+        value = item.value
+        d.putValue("len: %s, offset: %s, type: %s" %
+            (value["blocklength"], value["offset"], value["type"]))
+        d.putNumChild(0)
+
+    def qdump__tree(d, item):
+        value = item.value
+        count = value["count"]
+        entries = value["entries"]
+        base = value["base"].cast(lookupType("char").pointer())
+        d.putItemCount(count)
+        d.putNumChild(count)
+        if d.isExpanded(item):
+          with Children(d):
+            with SubItem(d):
+              iname = item.iname + ".tree"
+              d.putField("iname", iname)
+              d.putName("tree")
+              d.putValue(" ")
+              d.putType(" ")
+              d.putNumChild(1)
+              if d.isExpandedIName(iname):
+                with Children(d):
+                  for i in xrange(count):
+                      d.putSubItem(Item(entries[i], iname))
+            with SubItem(d):
+              iname = item.iname + ".data"
+              d.putField("iname", iname)
+              d.putName("data")
+              d.putValue(" ")
+              d.putType(" ")
+              d.putNumChild(1)
+              if d.isExpandedIName(iname):
+                 with Children(d):
+                    for i in xrange(count):
+                      with SubItem(d):
+                        iiname = iname + "." + str(i)
+                        entry = entries[i]
+                        mpitype = str(entry["type"])
+                        d.putField("iname", iiname)
+                        d.putName("%s" % i)
+                        d.putType(mpitype)
+                        length = int(entry["blocklength"])
+                        offset = int(entry["offset"])
+                        d.putValue("%s items at %s" % (length, offset))
+                        if mpitype == "MPI_INT":
+                          innerType = "int"
+                        elif mpitype == "MPI_CHAR":
+                          innerType = "char"
+                        elif mpitype == "MPI_DOUBLE":
+                          innerType = "double"
+                        else:
+                          length = 0
+                        d.putNumChild(length)
+                        if d.isExpandedIName(iiname):
+                           with Children(d):
+                              t = lookupType(innerType).pointer()
+                              p = (base + offset).cast(t)
+                              for j in range(length):
+                                d.putSubItem(Item(p.dereference(), iiname))
+                                p = p + 1
+

@@ -2427,8 +2427,98 @@ void testStuffA()
     a.doSomething();
 }
 
+
+struct structdata
+{
+    int ints[8];
+    char chars[32];
+    double doubles[5];
+};
+
+enum type_t { MPI_LB, MPI_INT, MPI_CHAR, MPI_DOUBLE, MPI_UB };
+
+struct tree_entry
+{
+    tree_entry() {}
+    tree_entry(int l, int o, type_t t)
+        : blocklength(l), offset(o), type(t)
+    {}
+
+    int blocklength;
+    int offset;
+    type_t type;
+};
+
+struct tree
+{
+    enum kind_t { STRUCT };
+
+    void *base;
+    kind_t kind;
+    int count;
+    tree_entry entries[20];
+};
+
+void testMPI()
+{
+    structdata buffer = {
+        //{MPI_LB},
+        {0, 1024, 2048, 3072, 4096, 5120, 6144 },
+        {"message to 1 of 2: hello"},
+        {0, 3.14, 6.2831853071795862, 9.4247779607693793, 13},
+        //{MPI_UB}
+    };
+
+    tree x;
+    x.base = &buffer;
+    x.kind = tree::STRUCT;
+    x.count = 5;
+    x.entries[0] = tree_entry(1, -4, MPI_LB);
+    x.entries[1] = tree_entry(5,  0, MPI_INT);
+    x.entries[2] = tree_entry(7, 47, MPI_CHAR);
+    x.entries[3] = tree_entry(2, 76, MPI_DOUBLE);
+    x.entries[4] = tree_entry(1, 100, MPI_UB);
+
+
+    int i = x.count;
+    i = buffer.ints[0];
+    i = buffer.ints[1];
+    i = buffer.ints[2];
+    i = buffer.ints[3];
+    /*
+            gdb) print datatype
+            > $3 = {
+            >   kind = STRUCT,
+            >   count = 5,
+            >   entries = {{
+            >       blocklength = 1,
+            >       offset = -4,
+            >       type = MPI_LB
+            >     }, {
+            >       blocklength = 5,
+            >       offset = 0,
+            >       type = MPI_INT
+            >     }, {
+            >       blocklength = 7,
+            >       offset = 47,
+            >       type = MPI_CHAR
+            >     }, {
+            >       blocklength = 2,
+            >       offset = 76,
+            >       type = MPI_DOUBLE
+            >     }, {
+            >       blocklength = 1,
+            >       offset = 100,
+            >       type = MPI_UB
+            >     }}
+            > }
+    */
+
+}
+
 int main(int argc, char *argv[])
 {
+    testMPI();
     testStuffA();
     testPrivate();
     testMemoryView();
