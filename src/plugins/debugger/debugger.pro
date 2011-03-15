@@ -138,11 +138,7 @@ include(gdb/gdb.pri)
 include(script/script.pri)
 include(pdb/pdb.pri)
 include(lldb/lldbhost.pri)
-
-contains(QT_CONFIG, declarative) {
-    QT += declarative
-    include(qml/qml.pri)
-}
+include(qml/qml.pri)
 
 include(tcf/tcf.pri)
 include(shared/shared.pri)
