@@ -104,6 +104,9 @@ QML/JS Support
    * Fix quote autoinsertion in string literals, QTCREATORBUG-2155, QTCREATORBUG-3244
    * Fix '{' not being an electric character, QTCREATORBUG-3405
    * Fix indentation of 'foo: Namesp.Type {', QTCREATORBUG-3371
+   * Added qml tooltips for property inspection at debug time
+   * Extended QML Observer for inspection and tweaking of item's properties
+   * Added navigation of the object tree in the QML Observer through a crumble path
 
 FakeVim:
    * Implement Ctrl-N/Ctrl-P
