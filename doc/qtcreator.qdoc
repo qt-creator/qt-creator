@@ -5078,17 +5078,32 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-deployment-maemo.html
+    \previouspage creator-publishing-to-maemo-extras.html
     \page creator-publish-ovi.html
     \nextpage creator-remote-compiler.html
 
     \title Publishing Applications to Ovi Store
 
+    Ovi Store is the global content market of Nokia, which reaches millions of
+    people worldwide. Consumers can access Ovi Store through either of these
+    platforms:
+
+    \list
+
+        \o  Ovi Store applications on mobile devices
+
+        \o  Web browsers on desktop computers, laptops, netbooks, and tablets
+
+    \endlist
+
+    Consumers have access to a wide selection of content and can download
+    content in a few easy clicks.
+
     The process and requirements to publish Qt applications to Ovi Store are
     described in the
     \l {http://wiki.forum.nokia.com/index.php/Guide_to_Publishing_Qt_Applications_to_the_Ovi_Store}{Guide to Publishing Qt Applications to the Ovi Store} wiki.
 
-    This section describes how to use Qt Creator publishing wizards to
+    This section describes how to
     generate installation packages that
     you can publish to Ovi Store.
 
