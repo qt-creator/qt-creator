@@ -39,10 +39,6 @@
 #include "qt4projectmanagerconstants.h"
 #include "qt4target.h"
 #include "qtversionmanager.h"
-#include "qmldumptool.h"
-#include "qmlobservertool.h"
-#include "qmldebugginglibrary.h"
-#include "debugginghelperbuildtask.h"
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/debugginghelper.h>
@@ -439,20 +435,22 @@ void QtOptionsPageWidget::removeQtDir()
 
 void QtOptionsPageWidget::updateDebuggingHelperUi()
 {
-    QtVersion *version = currentVersion();
+    const QtVersion *version = currentVersion();
     const QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
 
     if (!version || !version->supportsBinaryDebuggingHelper()) {
         m_ui->debuggingHelperWidget->setVisible(false);
     } else {
-        bool canBuildQmlDumper = QmlDumpTool::canBuild(version);
-        bool canBuildQmlDebuggingLib = QmlDebuggingLibrary::canBuild(version);
-        bool canBuildQmlObserver = QmlObserverTool::canBuild(version);
+        const DebuggingHelperBuildTask::Tools availableTools = DebuggingHelperBuildTask::availableTools(version);
+        const bool canBuildGdbHelper = availableTools & DebuggingHelperBuildTask::GdbDebugging;
+        const bool canBuildQmlDumper = availableTools & DebuggingHelperBuildTask::QmlDump;
+        const bool canBuildQmlDebuggingLib = availableTools & DebuggingHelperBuildTask::QmlDebugging;
+        const bool canBuildQmlObserver = availableTools & DebuggingHelperBuildTask::QmlObserver;
 
-        bool hasGdbHelper = !version->gdbDebuggingHelperLibrary().isEmpty();
-        bool hasQmlDumper = version->hasQmlDump();
-        bool hasQmlDebuggingLib = version->hasQmlDebuggingLibrary();
-        bool hasQmlObserver = !version->qmlObserverTool().isEmpty();
+        const bool hasGdbHelper = !version->gdbDebuggingHelperLibrary().isEmpty();
+        const bool hasQmlDumper = version->hasQmlDump();
+        const bool hasQmlDebuggingLib = version->hasQmlDebuggingLibrary();
+        const bool hasQmlObserver = !version->qmlObserverTool().isEmpty();
 
         bool isBuildingGdbHelper = false;
         bool isBuildingQmlDumper = false;
@@ -495,11 +493,15 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
             gdbHelperText = QDir::toNativeSeparators(version->gdbDebuggingHelperLibrary());
             gdbHelperTextFlags = Qt::TextSelectableByMouse;
         } else {
-            gdbHelperText =  tr("<i>Not yet built.</i>");
+            if (canBuildGdbHelper) {
+                gdbHelperText =  tr("<i>Not yet built.</i>");
+            } else {
+                gdbHelperText =  tr("<i>Not needed.</i>");
+            }
         }
         m_debuggingHelperUi->gdbHelperStatus->setText(gdbHelperText);
         m_debuggingHelperUi->gdbHelperStatus->setTextInteractionFlags(gdbHelperTextFlags);
-        m_debuggingHelperUi->gdbHelperBuildButton->setEnabled(!isBuildingGdbHelper);
+        m_debuggingHelperUi->gdbHelperBuildButton->setEnabled(canBuildGdbHelper && !isBuildingGdbHelper);
 
         QString qmlDumpStatusText;
         Qt::TextInteractionFlags qmlDumpStatusTextFlags = Qt::NoTextInteraction;
@@ -535,7 +537,7 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
             if (qmlDebuggingLibStatusText != debugPath) {
                 if (!qmlDebuggingLibStatusText.isEmpty()
                         && !debugPath.isEmpty()) {
-                    qmlDebuggingLibStatusText += QLatin1String("\n");
+                    qmlDebuggingLibStatusText += QLatin1Char('\n');
                 }
                 qmlDebuggingLibStatusText += debugPath;
             }

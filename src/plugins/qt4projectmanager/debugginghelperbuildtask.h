@@ -62,13 +62,15 @@ public:
 
     void run(QFutureInterface<void> &future);
 
+    static Tools availableTools(const QtVersion *version);
+
 signals:
     void finished(int qtVersionId, DebuggingHelperBuildTask::Tools tools, const QString &output);
 
 private:
     bool buildDebuggingHelper(QFutureInterface<void> &future, QString *output);
 
-    Tools m_tools;
+    const Tools m_tools;
 
     int m_qtId;
     QString m_qtInstallData;
