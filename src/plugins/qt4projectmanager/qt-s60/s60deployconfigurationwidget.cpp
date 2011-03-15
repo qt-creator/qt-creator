@@ -555,6 +555,10 @@ void S60DeployConfigurationWidget::updateDeviceInfo()
     } else if (m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationCodaSerialConnection) {
         const SymbianUtils::SymbianDevice commDev = currentDevice();
         m_codaInfoDevice = SymbianUtils::SymbianDeviceManager::instance()->getCodaDevice(commDev.portName());
+        if (m_codaInfoDevice.isNull()) {
+            setDeviceInfoLabel(tr("Unable to create CODA connection. Please try again."), true);
+            return;
+        }
         if (!m_codaInfoDevice->device()->isOpen()) {
             setDeviceInfoLabel(m_codaInfoDevice->device()->errorString(), true);
             return;

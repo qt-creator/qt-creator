@@ -384,7 +384,7 @@ void S60DeployStep::startDeployment()
         }
     } else if (m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection) {
         appendMessage(tr("Deploying application to '%1'...").arg(m_serialPortFriendlyName), false);
-        m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getCodaDevice(m_serialPortName);
+        m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getCodaDevice(m_serialPortName);       
         bool ok = m_codaDevice && m_codaDevice->device()->isOpen();
         if (!ok) {
             QString deviceError = tr("No such port");
