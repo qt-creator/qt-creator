@@ -34,6 +34,7 @@
 #include "bazaarclient.h"
 #include "constants.h"
 
+#include <vcsbase/vcsbaseclientsettings.h>
 #include <vcsbase/vcsbaseplugin.h>
 
 #include <QtCore/QDir>
@@ -72,6 +73,15 @@ namespace Internal {
 BazaarClient::BazaarClient(const VCSBase::VCSBaseClientSettings &settings) :
     VCSBase::VCSBaseClient(settings)
 {
+}
+
+bool BazaarClient::synchronousSetUserId()
+{
+    QStringList args;
+    args << QLatin1String("whoami")
+         << QString("%1 <%2>").arg(settings().userName()).arg(settings().email());
+    QByteArray stdOut;
+    return vcsFullySynchronousExec(QDir::currentPath(), args, &stdOut);
 }
 
 BranchInfo BazaarClient::synchronousBranchQuery(const QString &repositoryRoot) const

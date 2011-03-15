@@ -71,6 +71,7 @@ public:
 
     BazaarClient(const VCSBase::VCSBaseClientSettings &settings);
 
+    bool synchronousSetUserId();
     BranchInfo synchronousBranchQuery(const QString &repositoryRoot) const;
     virtual QString findTopLevelForFile(const QFileInfo &file) const;
 

@@ -205,7 +205,10 @@ const BazaarSettings &BazaarPlugin::settings() const
 void BazaarPlugin::setSettings(const BazaarSettings &settings)
 {
     if (settings != m_bazaarSettings) {
-        m_bazaarSettings = settings;
+      const bool userIdChanged = !m_bazaarSettings.sameUserId(settings);
+      m_bazaarSettings = settings;
+      if (userIdChanged)
+          client()->synchronousSetUserId();
     }
 }
 

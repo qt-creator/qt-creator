@@ -48,5 +48,10 @@ BazaarSettings& BazaarSettings::operator=(const BazaarSettings& other)
     return *this;
 }
 
+bool BazaarSettings::sameUserId(const BazaarSettings& other) const
+{
+    return userName() == other.userName() && email() == other.email();
+}
+
 } // namespace Internal
 } // namespace Bazaar

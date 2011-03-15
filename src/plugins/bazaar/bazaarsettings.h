@@ -44,6 +44,7 @@ class BazaarSettings : public VCSBase::VCSBaseClientSettings
 public:
     BazaarSettings();
     BazaarSettings& operator=(const BazaarSettings& other);
+    bool sameUserId(const BazaarSettings& other) const;
 };
 
 } // namespace Internal
