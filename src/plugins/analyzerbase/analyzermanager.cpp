@@ -70,6 +70,7 @@
 #include <utils/fancymainwindow.h>
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
+#include <utils/checkablemessagebox.h>
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
@@ -90,6 +91,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QCheckBox>
 #include <QtGui/QDialogButtonBox>
+#include <QtGui/QMainWindow>
 
 using namespace Core;
 using namespace Analyzer;
@@ -464,38 +466,25 @@ void AnalyzerManager::AnalyzerManagerPrivate::startTool()
         const QString currentMode = buildType == ProjectExplorer::BuildConfiguration::Debug ? tr("Debug") : tr("Release");
 
         QSettings *settings = Core::ICore::instance()->settings();
-        const QString configKey = QString("%1/%2").arg(Constants::MODE_ANALYZE, "AnalyzeCorrectMode");
+        const QString configKey = QLatin1String(Constants::MODE_ANALYZE) + QLatin1Char('/') + QLatin1String("AnalyzeCorrectMode");
         int ret;
         if (settings->contains(configKey)) {
             ret = settings->value(configKey, QDialog::Accepted).toInt();
         } else {
-            QDialog dialog;
-            dialog.setWindowTitle(tr("Run %1 in %2 mode?").arg(toolName).arg(currentMode));
-            QGridLayout *layout = new QGridLayout;
-            QLabel *iconLabel = new QLabel;
-            iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-            QIcon icon = dialog.style()->standardIcon(QStyle::SP_MessageBoxInformation);
-            dialog.setWindowIcon(icon);
-            iconLabel->setPixmap(icon.pixmap(QSize(icon.actualSize(QSize(64, 64)))));
-            layout->addWidget(iconLabel, 0, 0);
-            QLabel *textLabel = new QLabel;
-            textLabel->setWordWrap(true);
-            textLabel->setText(tr("You are trying to run %1 on an application in %2 mode. "
-                                "%1 is designed to be used in %3 mode.\n\n"
-                                "Do you want to continue and run %1 in %2 mode?").arg(toolName).arg(currentMode).arg(toolMode));
-            layout->addWidget(textLabel, 0, 1);
-            QCheckBox *dontAskAgain = new QCheckBox;
-            dontAskAgain->setText(tr("&Do not ask again"));
-            layout->addWidget(dontAskAgain, 1, 0, 1, 2);
-            QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Yes | QDialogButtonBox::Cancel);
-            connect(buttons, SIGNAL(accepted()),
-                    &dialog, SLOT(accept()));
-            connect(buttons, SIGNAL(rejected()),
-                    &dialog, SLOT(reject()));
-            layout->addWidget(buttons, 2, 0, 1, 2);
-            dialog.setLayout(layout);
-            ret = dialog.exec();
-            if (dontAskAgain->isChecked() && ret == QDialog::Accepted)
+            const QString title = tr("Run %1 in %2 Mode?").arg(toolName).arg(currentMode);
+            const QString message = tr("<html><head/><body><p>You are trying to run the tool '%1' on an application in %2 mode. "
+                                       "The tool is designed to be used in %3 mode.</p><p>"
+                                       "Do you want to continue and run it in %2 mode?</p></body></html>").
+                                       arg(toolName).arg(currentMode).arg(toolMode);
+            const QString checkBoxText = tr("&Do not ask again");
+            bool checkBoxSetting = false;
+            const QDialogButtonBox::StandardButton button =
+                Utils::CheckableMessageBox::question(Core::ICore::instance()->mainWindow(), title, message, checkBoxText,
+                                                     &checkBoxSetting, QDialogButtonBox::Yes|QDialogButtonBox::Cancel,
+                                                     QDialogButtonBox::Cancel);
+            ret = button == QDialogButtonBox::Yes ? QDialog::Accepted : QDialog::Rejected;
+
+            if (checkBoxSetting && ret == QDialog::Accepted)
                 settings->setValue(configKey, ret);
         }
         if (ret == QDialog::Rejected)
