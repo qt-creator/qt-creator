@@ -239,8 +239,6 @@ void ProFileParser::finalizeHashStr(ushort *buf, uint len)
     buf[-2] = (ushort)(hash >> 16);
 }
 
-// We know that the buffer cannot grow larger than the input string,
-// and the read() functions rely on it.
 bool ProFileParser::read(ProFile *pro, const QString &in)
 {
     m_fileName = pro->fileName();
