@@ -431,6 +431,7 @@ void S60DeployConfigurationWidget::updateCommunicationChannelUi()
         if (channel == S60DeployConfiguration::CommunicationCodaTcpConnection) {
             m_ipAddress->setDisabled(false);
             m_serialPortsCombo->setDisabled(true);
+            m_deviceInfoButton->setEnabled(true);
         } else {
             m_ipAddress->setDisabled(true);
             m_serialPortsCombo->setDisabled(false);
@@ -460,6 +461,7 @@ void S60DeployConfigurationWidget::updateCommunicationChannel()
             m_ipAddress->setDisabled(false);
             m_serialPortsCombo->setDisabled(true);
             m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationCodaTcpConnection);
+            m_deviceInfoButton->setEnabled(true);
         } else {
             m_ipAddress->setDisabled(true);
             m_serialPortsCombo->setDisabled(false);
