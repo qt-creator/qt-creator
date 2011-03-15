@@ -169,7 +169,7 @@ void QDeclarativeViewObserver::setObserverContext(int contextIndex)
 
 void QDeclarativeViewObserverPrivate::_q_setToolBoxVisible(bool visible)
 {
-#if !defined(Q_OS_SYMBIAN) && !defined(Q_WS_MAEMO_5)
+#if !defined(Q_OS_SYMBIAN) && !defined(Q_WS_MAEMO_5) && !defined(Q_WS_SIMULATOR)
     if (!toolBox && visible)
         createToolBox();
     if (toolBox)
