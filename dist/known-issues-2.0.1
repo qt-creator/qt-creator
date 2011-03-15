@@ -1,9 +1,0 @@
-
-Mac:
-  DYLD_IMAGE_SUFFIX does not work on Mac OS X Snow Leopard. So don't use the
-  corresponding setting in the Projects tab.
-  See: http://wimleers.com/blog/dyld-image-suffix-causing-havoc-on-mac-os-x-snow-leopard
-  A possible workaround is:
-    sudo mv /usr/lib/libSystem.B_debug.dylib /usr/lib/libSystem.B_debug.dylib.backup
-    sudo cp /usr/lib/libSystem.B.dylib /usr/lib/libSystem.B_debug.dylib.backup
-
