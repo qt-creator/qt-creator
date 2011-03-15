@@ -100,6 +100,7 @@ private slots:
     void slotWaitingForTrkClosed();
     void silentInstallChanged(int);
     void updateCommunicationChannel();
+    void updateCommunicationChannelUi();
     void updateWlanAddress(const QString &address);
     void cleanWlanAddress();
     void codaEvent(const Coda::CodaEvent &event);

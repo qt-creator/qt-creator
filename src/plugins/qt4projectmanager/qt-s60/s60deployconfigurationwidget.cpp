@@ -302,7 +302,7 @@ QWidget *S60DeployConfigurationWidget::createCommunicationChannel()
 
     communicationChannelGroupBox->setLayout(communicationChannelGridLayout);
 
-    updateCommunicationChannel();
+    updateCommunicationChannelUi();
 
     return communicationChannelGroupBox;
 }
@@ -413,6 +413,32 @@ void S60DeployConfigurationWidget::setSerialPort(int index)
     clearDeviceInfo();
 }
 
+void S60DeployConfigurationWidget::updateCommunicationChannelUi()
+{
+    S60DeployConfiguration::CommunicationChannel channel = m_deployConfiguration->communicationChannel();
+    if (channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
+        m_trkRadioButton->setChecked(true);
+        m_codaRadioButton->setChecked(false);
+        m_serialRadioButton->setChecked(true);
+        m_wlanRadioButton->setDisabled(true);
+        m_ipAddress->setDisabled(true);
+        m_serialPortsCombo->setDisabled(false);
+        updateSerialDevices();
+    } else {
+        m_trkRadioButton->setChecked(false);
+        m_codaRadioButton->setChecked(true);
+        m_wlanRadioButton->setDisabled(false);
+        if (channel == S60DeployConfiguration::CommunicationCodaTcpConnection) {
+            m_ipAddress->setDisabled(false);
+            m_serialPortsCombo->setDisabled(true);
+        } else {
+            m_ipAddress->setDisabled(true);
+            m_serialPortsCombo->setDisabled(false);
+            updateSerialDevices();
+        }
+    }
+}
+
 void S60DeployConfigurationWidget::updateCommunicationChannel()
 {
     if (!m_trkRadioButton->isChecked() && !m_codaRadioButton->isChecked())
@@ -434,7 +460,6 @@ void S60DeployConfigurationWidget::updateCommunicationChannel()
             m_ipAddress->setDisabled(false);
             m_serialPortsCombo->setDisabled(true);
             m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationCodaTcpConnection);
-            m_deviceInfoButton->setEnabled(true);
         } else {
             m_ipAddress->setDisabled(true);
             m_serialPortsCombo->setDisabled(false);
