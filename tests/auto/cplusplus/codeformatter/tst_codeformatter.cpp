@@ -71,6 +71,7 @@ private Q_SLOTS:
     void braceList();
     void bug1();
     void bug2();
+    void bug3();
     void switch1();
     void memberInitializer();
     void templates();
@@ -666,6 +667,23 @@ void tst_CodeFormatter::bug2()
          << Line("    ~         : (direction == DirectionSouth ? sourceRect.bottom() : sourceRect.top());")
          << Line("}")
          ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::bug3()
+{
+    QList<Line> data;
+    data << Line("class AutoAttack")
+         << Line("{")
+         << Line("public:")
+         << Line("    AutoAttack(unsigned delay, unsigned warmup)")
+         << Line("    ~   : mWarmup(warmup && warmup < delay ? warmup : delay >> 2)")
+         << Line("    {}")
+         << Line("    unsigned getWarmup() const { return mWarmup; }")
+         << Line("private:")
+         << Line("    unsigned mWarmup;")
+         << Line("}")
+            ;
     checkIndent(data);
 }
 
