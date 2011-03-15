@@ -86,7 +86,7 @@ private:
                 special(other.special), inBranch(other.inBranch) {}
         ushort *start; // Where this block started; store length here
         int braceLevel; // Nesting of braces in scope
-        bool special; // Single-line conditionals cannot have else branches
+        bool special; // Single-line conditionals inside loops, etc. cannot have else branches
         bool inBranch; // The 'else' branch of the previous TokBranch is still open
     };
 

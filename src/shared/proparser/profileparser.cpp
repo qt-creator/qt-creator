@@ -840,6 +840,7 @@ void ProFileParser::leaveScope(ushort *&tokPtr)
     m_blockstack.resize(m_blockstack.size() - 1);
 }
 
+// If we are on a fresh line, close all open one-line scopes.
 void ProFileParser::flushScopes(ushort *&tokPtr)
 {
     if (m_state == StNew) {
@@ -854,6 +855,7 @@ void ProFileParser::flushScopes(ushort *&tokPtr)
     }
 }
 
+// If there is a pending conditional, enter a new scope, otherwise flush scopes.
 void ProFileParser::flushCond(ushort *&tokPtr)
 {
     if (m_state == StCond) {
@@ -899,6 +901,8 @@ void ProFileParser::finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr)
                 }
                 BlockScope &top = m_blockstack.top();
                 if (m_canElse && (!top.special || top.braceLevel)) {
+                    // A list of tests (the last one likely with side effects),
+                    // but no assignment, scope, etc.
                     putTok(tokPtr, TokBranch);
                     // Put empty then block
                     putBlockLen(tokPtr, 0);
