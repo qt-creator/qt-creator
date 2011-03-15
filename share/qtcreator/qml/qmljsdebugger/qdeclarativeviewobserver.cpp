@@ -63,24 +63,56 @@ const char * const KEY_TOOLBOX_GEOMETRY = "toolBox/geometry";
 
 const int SceneChangeUpdateInterval = 5000;
 
+
+class ToolBox : public QWidget
+{
+    Q_OBJECT
+
+public:
+    ToolBox(QWidget *parent = 0);
+    ~ToolBox();
+
+    QmlToolBar *toolBar() const { return m_toolBar; }
+
+private:
+    QSettings m_settings;
+    QmlToolBar *m_toolBar;
+};
+
+ToolBox::ToolBox(QWidget *parent)
+    : QWidget(parent, Qt::Tool)
+    , m_settings(QLatin1String("Nokia"), QLatin1String("QmlObserver"), this)
+    , m_toolBar(new QmlToolBar)
+{
+    setWindowFlags((windowFlags() & ~Qt::WindowCloseButtonHint) | Qt::CustomizeWindowHint);
+    setWindowTitle(tr("Qt Quick Toolbox"));
+
+    QVBoxLayout *verticalLayout = new QVBoxLayout;
+    verticalLayout->setMargin(0);
+    verticalLayout->addWidget(m_toolBar);
+    setLayout(verticalLayout);
+
+    restoreGeometry(m_settings.value(QLatin1String(KEY_TOOLBOX_GEOMETRY)).toByteArray());
+}
+
+ToolBox::~ToolBox()
+{
+    m_settings.setValue(QLatin1String(KEY_TOOLBOX_GEOMETRY), saveGeometry());
+}
+
+
 QDeclarativeViewObserverPrivate::QDeclarativeViewObserverPrivate(QDeclarativeViewObserver *q) :
     q(q),
     designModeBehavior(false),
     showAppOnTop(false),
     executionPaused(false),
     slowdownFactor(1.0f),
-    toolBar(0),
-    toolBox(0),
-    settings(0)
+    toolBox(0)
 {
 }
 
 QDeclarativeViewObserverPrivate::~QDeclarativeViewObserverPrivate()
 {
-    if (toolBar) {
-        settings->setValue(QLatin1String(KEY_TOOLBOX_GEOMETRY),
-                           toolBar->window()->saveGeometry());
-    }
 }
 
 QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObject *parent) :
@@ -96,9 +128,6 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
     data->boundingRectHighlighter = new BoundingRectHighlighter(this);
     data->subcomponentEditorTool = new SubcomponentEditorTool(this);
     data->currentTool = data->selectionTool;
-    data->settings = new QSettings(QLatin1String("Nokia"),
-                                   QLatin1String("QmlObserver"),
-                                   this);
 
     // to capture ChildRemoved event when viewport changes
     data->view->installEventFilter(this);
@@ -169,7 +198,7 @@ void QDeclarativeViewObserver::setObserverContext(int contextIndex)
 
 void QDeclarativeViewObserverPrivate::_q_setToolBoxVisible(bool visible)
 {
-#if !defined(Q_OS_SYMBIAN) && !defined(Q_WS_MAEMO_5)
+#if !defined(Q_OS_SYMBIAN) && !defined(Q_WS_MAEMO_5) && !defined(Q_WS_SIMULATOR)
     if (!toolBox && visible)
         createToolBox();
     if (toolBox)
@@ -416,7 +445,7 @@ void QDeclarativeViewObserverPrivate::_q_clearComponentCache()
 void QDeclarativeViewObserverPrivate::_q_removeFromSelection(QObject *obj)
 {
     QList<QGraphicsItem*> items = selectedItems();
-    if (QGraphicsItem *item = dynamic_cast<QGraphicsItem*>(obj))
+    if (QGraphicsItem *item = qobject_cast<QGraphicsObject*>(obj))
         items.removeOne(item);
     setSelectedItems(items);
 }
@@ -481,8 +510,8 @@ void QDeclarativeViewObserver::setDesignModeBehavior(bool value)
 {
     emit designModeBehaviorChanged(value);
 
-    if (data->toolBar)
-        data->toolBar->setDesignModeBehavior(value);
+    if (data->toolBox)
+        data->toolBox->toolBar()->setDesignModeBehavior(value);
     data->debugService->setDesignModeBehavior(value);
 
     data->designModeBehavior = value;
@@ -878,7 +907,10 @@ QRectF QDeclarativeViewObserver::adjustToScreenBoundaries(const QRectF &bounding
 
 void QDeclarativeViewObserverPrivate::createToolBox()
 {
-    toolBar = new QmlToolBar;
+    toolBox = new ToolBox(q->declarativeView());
+
+    QmlToolBar *toolBar = toolBox->toolBar();
+
     QObject::connect(q, SIGNAL(selectedColorChanged(QColor)),
                      toolBar, SLOT(setColorBoxColor(QColor)));
 
@@ -912,18 +944,8 @@ void QDeclarativeViewObserverPrivate::createToolBox()
     QObject::connect(q, SIGNAL(zoomToolActivated()), toolBar, SLOT(activateZoom()));
     QObject::connect(q, SIGNAL(marqueeSelectToolActivated()),
                      toolBar, SLOT(activateMarqueeSelectTool()));
-
-    QVBoxLayout *verticalLayout = new QVBoxLayout;
-    verticalLayout->setMargin(0);
-    verticalLayout->addWidget(toolBar);
-
-    toolBox = new QWidget(q->declarativeView(), Qt::Tool);
-    toolBox->setWindowFlags((toolBox->windowFlags() & ~Qt::WindowCloseButtonHint)
-                            | Qt::CustomizeWindowHint);
-    toolBox->setWindowTitle(tr("Qt Quick Toolbox"));
-    toolBox->setLayout(verticalLayout);
-
-    toolBox->restoreGeometry(settings->value(QLatin1String(KEY_TOOLBOX_GEOMETRY)).toByteArray());
 }
 
-} //namespace QmlJSDebugger
+} // namespace QmlJSDebugger
+
+#include "qdeclarativeviewobserver.moc"

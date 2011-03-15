@@ -40,8 +40,6 @@
 #include "qdeclarativeviewobserver.h"
 #include "qdeclarativeobserverservice.h"
 
-QT_FORWARD_DECLARE_CLASS(QSettings)
-
 namespace QmlJSDebugger {
 
 class JSDebuggerAgent;
@@ -52,7 +50,7 @@ class ColorPickerTool;
 class LiveLayerItem;
 class BoundingRectHighlighter;
 class SubcomponentEditorTool;
-class QmlToolBar;
+class ToolBox;
 class CrumblePath;
 class AbstractLiveEditTool;
 
@@ -93,9 +91,7 @@ public:
     bool executionPaused;
     qreal slowdownFactor;
 
-    QmlToolBar *toolBar;
-    QWidget *toolBox;
-    QSettings *settings;
+    ToolBox *toolBox;
 
     void setViewport(QWidget *widget);
 

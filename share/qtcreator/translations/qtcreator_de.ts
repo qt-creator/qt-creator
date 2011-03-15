@@ -972,11 +972,11 @@
     </message>
     <message>
         <source>Sources</source>
-        <translation>Quelldateien</translation>
+        <translation type="obsolete">Quelldateien</translation>
     </message>
     <message>
         <source>Qt Sources:</source>
-        <translation>Qt-Quellen:</translation>
+        <translation type="obsolete">Qt-Quellen:</translation>
     </message>
 </context>
 <context>
@@ -2297,15 +2297,15 @@ Qt Creator kann sich nicht anhängen.</translation>
     </message>
     <message>
         <source>Breakpoint at &quot;main&quot;</source>
-        <translation>Halte bei &quot;main&quot;</translation>
+        <translation type="obsolete">Halte bei &quot;main&quot;</translation>
     </message>
     <message>
         <source>Break when catching exceptions</source>
-        <translation>Beim Fangen von Ausnahmen anhalten</translation>
+        <translation type="obsolete">Beim Fangen von Ausnahmen anhalten</translation>
     </message>
     <message>
         <source>Break when throwing exceptions</source>
-        <translation>Beim Auslösen von Ausnahmen anhalten</translation>
+        <translation type="obsolete">Beim Auslösen von Ausnahmen anhalten</translation>
     </message>
     <message>
         <source>Breakpoint by File and Line</source>
@@ -2321,11 +2321,11 @@ Qt Creator kann sich nicht anhängen.</translation>
     </message>
     <message>
         <source>Breakpoint at &quot;throw&quot;</source>
-        <translation>Halte bei &quot;throw&quot;</translation>
+        <translation type="obsolete">Halte bei &quot;throw&quot;</translation>
     </message>
     <message>
         <source>Breakpoint at &quot;catch&quot;</source>
-        <translation>Halte bei &quot;catch&quot;</translation>
+        <translation type="obsolete">Halte bei &quot;catch&quot;</translation>
     </message>
     <message>
         <source>Breakpoint at Function &quot;main()&quot;</source>
@@ -2335,6 +2335,10 @@ Qt Creator kann sich nicht anhängen.</translation>
         <source>Unknown Breakpoint Type</source>
         <translatorcomment>Haeh?</translatorcomment>
         <translation>Unbekannter Haltepunkt-Typ</translation>
+    </message>
+    <message>
+        <source>Watchpoint at 0x%1</source>
+        <translation>Watchpoint bei 0x%1</translation>
     </message>
     <message>
         <source>Enabled</source>
@@ -2391,6 +2395,10 @@ Qt Creator kann sich nicht anhängen.</translation>
     <message>
         <source>Number</source>
         <translation>Zahl</translation>
+    </message>
+    <message>
+        <source>Breakpoint at &quot;%1&quot;</source>
+        <translation>Haltepunkt bei &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Function</source>
@@ -2505,11 +2513,11 @@ Qt Creator kann sich nicht anhängen.</translation>
     </message>
     <message>
         <source>Set Breakpoint at &quot;throw&quot;</source>
-        <translation>Haltepunkt bei &quot;throw&quot; setzen</translation>
+        <translation type="obsolete">Haltepunkt bei &quot;throw&quot; setzen</translation>
     </message>
     <message>
         <source>Set Breakpoint at &quot;catch&quot;</source>
-        <translation>Haltepunkt bei &quot;catch&quot; setzen</translation>
+        <translation type="obsolete">Haltepunkt bei &quot;catch&quot; setzen</translation>
     </message>
     <message>
         <source>Add Breakpoint</source>
@@ -2935,6 +2943,10 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     <message>
         <source>Target line hit. Stopped</source>
         <translation>Zeile erreicht / Angehalten</translation>
+    </message>
+    <message>
+        <source>Value changed from %1 to %2.</source>
+        <translation>Wert von %1 auf %2 geändert.</translation>
     </message>
     <message>
         <source>Normal</source>
@@ -8109,7 +8121,7 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Session</source>
-        <translation>Sitzung</translation>
+        <translation type="obsolete">Sitzung</translation>
     </message>
     <message>
         <source>Build All</source>
@@ -8298,6 +8310,10 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     <message>
         <source>Recent P&amp;rojects</source>
         <translation>Zuletzt bearbeitete P&amp;rojekte</translation>
+    </message>
+    <message>
+        <source>Recent Sessions</source>
+        <translation>Zuletzt benutzte Sitzungen</translation>
     </message>
     <message>
         <source>Build Project &quot;%1&quot;</source>
@@ -9438,35 +9454,35 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <name>Qt4ProjectManager::Internal::S60DevicesPreferencePane</name>
     <message>
         <source>Form</source>
-        <translation>Formular</translation>
+        <translation type="obsolete">Formular</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation>Aktualisieren</translation>
+        <translation type="obsolete">Aktualisieren</translation>
     </message>
     <message>
         <source>S60 SDKs</source>
-        <translation>S60 SDKs</translation>
+        <translation type="obsolete">S60 SDKs</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>Fehler</translation>
+        <translation type="obsolete">Fehler</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation>Hinzufügen</translation>
+        <translation type="obsolete">Hinzufügen</translation>
     </message>
     <message>
         <source>Change Qt version</source>
-        <translation>Qt-Version ändern</translation>
+        <translation type="obsolete">Qt-Version ändern</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>Entfernen</translation>
+        <translation type="obsolete">Entfernen</translation>
     </message>
     <message>
         <source>Change Qt Version</source>
-        <translation>Qt-Version ändern</translation>
+        <translation type="obsolete">Qt-Version ändern</translation>
     </message>
 </context>
 <context>
@@ -11450,7 +11466,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <source>&lt;not valid&gt;</source>
         <extracomment>Selected path is not valid:</extracomment>
-        <translation>&lt;ungültig&gt;</translation>
+        <translation type="obsolete">&lt;ungültig&gt;</translation>
     </message>
     <message>
         <source>The path must not be empty.</source>
@@ -12080,23 +12096,23 @@ p, li { white-space: pre-wrap; }
     <name>Qt4ProjectManager::Internal::S60Devices::Device</name>
     <message>
         <source>Id:</source>
-        <translation>ID:</translation>
+        <translation type="obsolete">ID:</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation>Name:</translation>
+        <translation type="obsolete">Name:</translation>
     </message>
     <message>
         <source>EPOC:</source>
-        <translation>EPOC:</translation>
+        <translation type="obsolete">EPOC:</translation>
     </message>
     <message>
         <source>Tools:</source>
-        <translation>Tools:</translation>
+        <translation type="obsolete">Tools:</translation>
     </message>
     <message>
         <source>Qt:</source>
-        <translation>Qt:</translation>
+        <translation type="obsolete">Qt:</translation>
     </message>
 </context>
 <context>
@@ -13158,7 +13174,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <source>Unable to create a commit editor.</source>
-        <translation>Es konnte kein Editor für die Abgabe angelegt werden.</translation>
+        <translation type="obsolete">Es konnte kein Editor für die Abgabe angelegt werden.</translation>
     </message>
     <message>
         <source>Commit changes for &quot;%1&quot;.</source>
@@ -13972,6 +13988,10 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <source>The default mkspec symlink is broken.</source>
         <translation>Der symbolische Link zu der Vorgabe-mkspec ist fehlerhaft.</translation>
+    </message>
+    <message>
+        <source>Failed to detect the ABI(s) used by the Qt version.</source>
+        <translation>Die ABI(s) der Qt-Version konnten nicht bestimmt werden.</translation>
     </message>
     <message>
         <source>Desktop</source>
@@ -16042,45 +16062,45 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     <name>Qt4ProjectManager::Internal::S60DevicesBaseWidget</name>
     <message>
         <source>Default</source>
-        <translation>Vorgabe</translation>
+        <translation type="obsolete">Vorgabe</translation>
     </message>
     <message>
         <source>SDK Location</source>
-        <translation>SDK-Pfad</translation>
+        <translation type="obsolete">SDK-Pfad</translation>
     </message>
     <message>
         <source>Qt Location</source>
-        <translation>Qt-Pfad</translation>
+        <translation type="obsolete">Qt-Pfad</translation>
     </message>
     <message>
         <source>Choose Qt folder</source>
-        <translation>Qt-Ordner</translation>
+        <translation type="obsolete">Qt-Ordner</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::S60DevicesModel</name>
     <message>
         <source>No Qt installed</source>
-        <translation>Qt ist nicht installiert</translation>
+        <translation type="obsolete">Qt ist nicht installiert</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::GnuPocS60DevicesWidget</name>
     <message>
         <source>Step 1 of 2: Choose GnuPoc folder</source>
-        <translation>Schritt 1 von 2: GnuPoc-Ordner wählen</translation>
+        <translation type="obsolete">Schritt 1 von 2: GnuPoc-Ordner wählen</translation>
     </message>
     <message>
         <source>Step 2 of 2: Choose Qt folder</source>
-        <translation>Schritt 2 von 2: Qt-Ordner wählen</translation>
+        <translation type="obsolete">Schritt 2 von 2: Qt-Ordner wählen</translation>
     </message>
     <message>
         <source>Adding GnuPoc</source>
-        <translation>GnuPoc hinzufügen</translation>
+        <translation type="obsolete">GnuPoc hinzufügen</translation>
     </message>
     <message>
         <source>GnuPoc and Qt folders must not be identical.</source>
-        <translation>GnuPoc-Ordner und Qt-Ordner müssen sich unterscheiden.</translation>
+        <translation type="obsolete">GnuPoc-Ordner und Qt-Ordner müssen sich unterscheiden.</translation>
     </message>
 </context>
 <context>
@@ -16815,7 +16835,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>Double click to edit item.</source>
-        <translation>&lt;Doppelklick zum Bearbeiten&gt;</translation>
+        <translation type="obsolete">&lt;Doppelklick zum Bearbeiten&gt;</translation>
     </message>
     <message>
         <source>Add</source>
@@ -16824,6 +16844,10 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>Remove</source>
         <translation>Löschen</translation>
+    </message>
+    <message>
+        <source>Double-click to edit item.</source>
+        <translation>Doppelklicken Sie zum Bearbeiten.</translation>
     </message>
 </context>
 <context>
@@ -17409,12 +17433,40 @@ Server: %2.</translation>
         <translation>Diese Anwendung erfordert den Debugger &apos;%1&apos;, der gegenwärtig deaktiviert ist.</translation>
     </message>
     <message>
+        <source>The debugger engine &apos;%1&apos; is disabled.</source>
+        <translation>Der Debugger-Engine &apos;%1&apos; ist deaktiviert.</translation>
+    </message>
+    <message>
+        <source>The debugger engine &apos;%1&apos; required for debugging binaries of the type &apos;%2&apos; is not configured correctly.</source>
+        <translation>Der zum Debuggen von ausführbaren Dateien des Typs &apos;%2&apos; erforderliche Debugger-Engine &apos;%1&apos; ist nicht richtig eingerichtet.</translation>
+    </message>
+    <message>
+        <source>None of the debugger engines &apos;%1&apos; capable of debugging binaries of the type &apos;%2&apos; is configured correctly.</source>
+        <translation>Keiner der zum Debuggen von ausführbaren Dateien des Typs &apos;%2&apos; geeigneten Debugger-Engines &apos;%1&apos; ist richtig eingerichtet.</translation>
+    </message>
+    <message>
+        <source>The preferred debugger engine for debugging binaries of type &apos;%1&apos; is not available.
+The debugger engine &apos;%2&apos; will be used as a fallback.
+Details: %3</source>
+        <translation>Der zum Debuggen von ausführbaren Dateien des Typs &apos;%1&apos; am besten geeignete Debugger-Engine ist nicht verfügbar.
+Es wird stattdesen der Debugger-Engine &apos;%2&apos; benutzt.
+Details: %3</translation>
+    </message>
+    <message>
+        <source>The debugger engine &apos;%1&apos; preferred for debugging binaries of type %2 is disabled.</source>
+        <translation type="obsolete">Der für zum Debuggen von ausführbaren Dateien des Typs &apos;%2&apos; erforderliche Debugger-Engine %1 ist gegenwärtig deaktiviert.</translation>
+    </message>
+    <message>
         <source>This configuration requires the debugger engine %1, which is disabled.</source>
-        <translation>Diese Konfiguration erfordert den Debugger-Engine &apos;%1&apos;, der gegenwärtig deaktiviert ist.</translation>
+        <translation type="obsolete">Diese Konfiguration erfordert den Debugger-Engine &apos;%1&apos;, der gegenwärtig deaktiviert ist.</translation>
+    </message>
+    <message>
+        <source>The debugger engine &apos;%1&apos; preferred for debugging binaries of type %2 is not set up correctly: %3</source>
+        <translation type="obsolete">Der für zum Debuggen von ausführbaren Dateien des Typs &apos;%2&apos; erforderliche Debugger-Engine %1 ist nicht richtig konfiguriert: %3</translation>
     </message>
     <message>
         <source>The debugger engine required for this configuration is not correctly configured.</source>
-        <translation>Der für diese Konfiguration erforderliche Debugger-Engine ist nicht richtig konfiguriert.</translation>
+        <translation type="obsolete">Der für diese Konfiguration erforderliche Debugger-Engine ist nicht richtig konfiguriert.</translation>
     </message>
 </context>
 <context>
@@ -17589,7 +17641,11 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     <name>Help::Internal::RemoteHelpFilter</name>
     <message>
         <source>Online Documentation</source>
-        <translation>Online-Dokumentation</translation>
+        <translation type="obsolete">Online-Dokumentation</translation>
+    </message>
+    <message>
+        <source>Web Search</source>
+        <translation>Web-Suche</translation>
     </message>
 </context>
 <context>
@@ -17795,8 +17851,12 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     <message>
         <source>A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.
 Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.</source>
-        <translation>Es wird eine versionierte Sicherungskopie der .user-Datei benutzt, da die aktuelle Datei von einer neuen, inkompatiblen Version von Qt Creator erzeugt wurde.
+        <translation type="obsolete">Es wird eine versionierte Sicherungskopie der .user-Datei benutzt, da die aktuelle Datei von einer neuen, inkompatiblen Version von Qt Creator erzeugt wurde.
 Änderungen der Projekteinstellungen, die nach der letzten Benutzung dieser Version von Qt Creator für dieses Projekt vorgenommen wurden, werden nicht berücksichtigt, und die jetzt folgenden Änderungen werden &lt;b&gt;nicht&lt;/b&gt; auf die neue Version übertragen.</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Es wird eine versionierte Sicherungskopie der .user-Datei benutzt, da die aktuelle Datei von einer neuen, inkompatiblen Version von Qt Creator erzeugt wurde.&lt;/p&gt;&lt;p&gt;Änderungen der Projekteinstellungen, die nach der letzten Benutzung dieser Version von Qt Creator für dieses Projekt vorgenommen wurden, werden nicht berücksichtigt, und die jetzt folgenden Änderungen werden &lt;b&gt;nicht&lt;/b&gt; auf die neue Version übertragen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Project Settings File from a different Environment?</source>
@@ -18542,6 +18602,10 @@ Fehlerausgabe: %1</translation>
         <translation>CODA</translation>
     </message>
     <message>
+        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-developing-symbian.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-developing-symbian.html&quot;&gt;Was sind die Voraussetzungen?&lt;/a&gt;</translation>
+    </message>
+    <message>
         <source>Installation file:</source>
         <translation>Installationspaket:</translation>
     </message>
@@ -18556,6 +18620,14 @@ Fehlerausgabe: %1</translation>
     <message>
         <source>Device Agent</source>
         <translation>Hilfsprogramm auf dem Mobilgerät</translation>
+    </message>
+    <message>
+        <source>Connecting</source>
+        <translation>Verbinde</translation>
+    </message>
+    <message>
+        <source>Unable to create CODA connection. Please try again.</source>
+        <translation>Es konnte keine Vebindung zu CODA hergestellt werden. Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Currently there is no information about the device for this connection type.</source>
@@ -18659,7 +18731,7 @@ Fehlerausgabe: %1</translation>
     </message>
     <message>
         <source>Connecting...</source>
-        <translation>Verbinde...</translation>
+        <translation type="obsolete">Verbinde...</translation>
     </message>
 </context>
 <context>
@@ -18732,6 +18804,10 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
         <translation>Die lokale Datei %1 konnte nicht geöffnet werden: %2</translation>
     </message>
     <message>
+        <source>Installation failed: %1; see %2 for descriptions of the error codes</source>
+        <translation>Die Installation schlug fehl: %1; siehe %2 für eine Beschreibung der Fehlercodes</translation>
+    </message>
+    <message>
         <source>Failed to close the remote file: %1</source>
         <translation>Die entfernte Datei konnte nicht geschlossen werden: %1</translation>
     </message>
@@ -18785,7 +18861,7 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
     </message>
     <message>
         <source>Installation failed: %1</source>
-        <translation>Die Installation schlug fehl: %1</translation>
+        <translation type="obsolete">Die Installation schlug fehl: %1</translation>
     </message>
     <message>
         <source>Installation</source>
@@ -19412,6 +19488,22 @@ Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen
         <translation>catch</translation>
     </message>
     <message>
+        <source>fork</source>
+        <translation>fork</translation>
+    </message>
+    <message>
+        <source>exec</source>
+        <translation>exec</translation>
+    </message>
+    <message>
+        <source>vfork</source>
+        <translation>vfork</translation>
+    </message>
+    <message>
+        <source>syscall</source>
+        <translation>syscall</translation>
+    </message>
+    <message>
         <source>Address (Watchpoint)</source>
         <translation>Adresse (Watchpoint)</translation>
     </message>
@@ -19787,7 +19879,7 @@ Fehler: %2</translation>
     </message>
     <message>
         <source>The project files listed below do not contain Maemo deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator will add the missing information to these files if you check the respective rows below.</source>
-        <translation>Die unten aufgeführten Projektdateien enthalten nicht die erforderliche Maemo-Deployment-Information, das heißt, für die betreffenden Ziele kann kein Deployment durchgeführt werden und/oder sie können nicht auf einem Mobilgerät ausgeführt werden. Qt Creator kann die fehlende Information zu den Dateien hinzufügen, die in der untenstehenden Liste markiert sind.</translation>
+        <translation type="unfinished">Die unten aufgeführten Projektdateien enthalten nicht die erforderliche Maemo-Deployment-Information, das heißt, für die betreffenden Ziele kann kein Deployment durchgeführt werden und/oder sie können nicht auf einem Mobilgerät ausgeführt werden. Bitte wählen Sie die Projekte aus, in denen Qt Creator die fehlenden Informationen hinzufügen soll.</translation>
     </message>
     <message>
         <source>&amp;Check all</source>
@@ -20961,13 +21053,19 @@ Hinweis: Unter Umständen wird die lokale Datei gelöscht.</translation>
         <translation>Der Prozess wurde gestartet, PID: 0x%1, Thread-ID: 0x%2, Code-Segment: 0x%3, Datensegment: 0x%4.</translation>
     </message>
     <message>
+        <source>Connecting to CODA server adapter failed:
+</source>
+        <translation>Die Verbindung zum CODA-Server-Adapter schlug fehl:
+</translation>
+    </message>
+    <message>
         <source>The reported code segment address (0x%1) might be invalid. Symbol resolution or setting breakoints may not work.</source>
-        <translation>Die erhaltene Startadresse des Codesegments (%0x1) ist eventuell ungültig. Bei Auflösen von Symbolen oder beim Setzen von Haltpunkten könnten Probleme auftreten.</translation>
+        <translation type="obsolete">Die erhaltene Startadresse des Codesegments (%0x1) ist eventuell ungültig. Bei Auflösen von Symbolen oder beim Setzen von Haltpunkten könnten Probleme auftreten.</translation>
     </message>
     <message>
         <source>Connecting to TRK server adapter failed:
 </source>
-        <translation>Die Verbindung zum TRK-Server-Adapter schlug fehl:
+        <translation type="obsolete">Die Verbindung zum TRK-Server-Adapter schlug fehl:
 </translation>
     </message>
 </context>
@@ -22272,6 +22370,10 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
         <translation>Verbinde zu &apos;%1&apos;...</translation>
     </message>
     <message>
+        <source>Unable to create CODA connection. Please try again.</source>
+        <translation>Es konnte keine Vebindung zu CODA hergestellt werden. Bitte versuchen Sie es erneut.</translation>
+    </message>
+    <message>
         <source>Could not open serial device: %1</source>
         <translation>Die serielle Schnittstelle konnte nicht geöffnet werden: %1</translation>
     </message>
@@ -23187,6 +23289,10 @@ Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
         <translation>Ändert aktuelles Dokument</translation>
     </message>
     <message>
+        <source>Add Tool</source>
+        <translation>Werkzeug hinzufügen</translation>
+    </message>
+    <message>
         <source>Add Category</source>
         <translation>Kategorie hinzufügen</translation>
     </message>
@@ -23306,6 +23412,10 @@ Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
         <source>Reset All</source>
         <translation>Alle rücksetzen</translation>
     </message>
+    <message>
+        <source>Registered MIME Types</source>
+        <translation>Registrierte MIME-Typen</translation>
+    </message>
 </context>
 <context>
     <name>Core::VariableChooser</name>
@@ -23316,6 +23426,10 @@ Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
     <message>
         <source>Select a variable to insert.</source>
         <translation>Wählen Sie eine Variable aus, die eingefügt werden soll.</translation>
+    </message>
+    <message>
+        <source>Insert variable</source>
+        <translation>Variablen einfügen</translation>
     </message>
 </context>
 <context>
@@ -23927,7 +24041,15 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     <name>Core::Internal::ExternalToolModel</name>
     <message>
         <source>External Tools Menu</source>
-        <translation>Menü für externe Werkzeuge</translation>
+        <translation type="obsolete">Menü für externe Werkzeuge</translation>
+    </message>
+    <message>
+        <source>Uncategorized</source>
+        <translation>keine</translation>
+    </message>
+    <message>
+        <source>Tools that will appear directly under the External Tools menu.</source>
+        <translation>Werkzeuge, die direkt unter dem Menü Externe Werkzeuge erscheinen.</translation>
     </message>
     <message>
         <source>New category</source>
@@ -24084,8 +24206,12 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
         <translation>&amp;Compiler-Pfad:</translation>
     </message>
     <message>
+        <source>&amp;ABI:</source>
+        <translation>&amp;ABI:</translation>
+    </message>
+    <message>
         <source>&amp;Force 32bit compilation:</source>
-        <translation>32bit-Kompilierung:</translation>
+        <translation type="obsolete">32bit-Kompilierung:</translation>
     </message>
 </context>
 <context>
@@ -24408,11 +24534,21 @@ Fehler: %2</translation>
     </message>
     <message>
         <source>Choose a build configuration</source>
-        <translation>Build-Konfiguration wählen</translation>
+        <translation type="obsolete">Build-Konfiguration wählen</translation>
     </message>
     <message>
         <source>Only Qt versions above 4.6.3 are made available in this wizard.
 This is because previous Qt Versions have limitations in building suitable sis files.</source>
+        <translation type="obsolete">Dieser Wizard zeigt nur Qt-Versionen nach Version 4.6.3 an, da in den vorangegangenen Versionen
+Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translation>
+    </message>
+    <message>
+        <source>Choose a build configuration:</source>
+        <translation>Build-Konfiguration wählen:</translation>
+    </message>
+    <message>
+        <source>Only Qt versions above 4.6.3 are made available in this wizard.
+Previous Qt versions have limitations in building suitable SIS files.</source>
         <translation>Dieser Wizard zeigt nur Qt-Versionen nach Version 4.6.3 an, da in den vorangegangenen Versionen
 Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translation>
     </message>
@@ -24432,11 +24568,11 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
     </message>
     <message>
         <source>Global Vendor Name</source>
-        <translation>Eindeutiger Anbietername</translation>
+        <translation type="obsolete">Eindeutiger Anbietername</translation>
     </message>
     <message>
         <source>Qt Version used in builds</source>
-        <translation>Bei Erstellung verwendete Qt-Version</translation>
+        <translation type="obsolete">Bei Erstellung verwendete Qt-Version</translation>
     </message>
     <message>
         <source>Current Qt Version</source>
@@ -24444,7 +24580,7 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
     </message>
     <message>
         <source>App UID</source>
-        <translation>UID der Anwendung</translation>
+        <translation type="obsolete">UID der Anwendung</translation>
     </message>
     <message>
         <source>Current UID3</source>
@@ -24452,7 +24588,7 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
     </message>
     <message>
         <source>Capabilities</source>
-        <translation>Berechtigungen:</translation>
+        <translation type="obsolete">Berechtigungen:</translation>
     </message>
     <message>
         <source>Current set of capabilities</source>
@@ -24465,6 +24601,26 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
     <message>
         <source>Localised Vendor Names</source>
         <translation>Lokalisierte Anbieternamen</translation>
+    </message>
+    <message>
+        <source>Global vendor name:</source>
+        <translation>Eindeutiger Anbietername:</translation>
+    </message>
+    <message>
+        <source>Qt version used in builds:</source>
+        <translation>Bei Erstellung verwendete Qt-Version:</translation>
+    </message>
+    <message>
+        <source>Application UID:</source>
+        <translation>UID der Anwendung:</translation>
+    </message>
+    <message>
+        <source>Capabilities:</source>
+        <translation>Berechtigungen:</translation>
+    </message>
+    <message>
+        <source>Localised vendor names:</source>
+        <translation>Lokalisierte Anbieternamen:</translation>
     </message>
 </context>
 <context>
@@ -24516,30 +24672,66 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
     <name>Qt4ProjectManager::Internal::S60PublishingSisSettingsPageOvi</name>
     <message>
         <source>%1 is a default vendor name used for testing and development. &lt;br&gt;The Vendor_Name field cannot be, or contain, the name &apos;Nokia&apos; in it. &lt;br&gt;It is recommended to also not use the default name of &apos;Vendor&apos;/&apos;Vendor-EN&apos;, or to leave the entry blank. &lt;br&gt;see &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
-        <translation>%1 ist ein zum Testen und zur Entwicklung vorgegebener Anbietername. &lt;br&gt;Das Feld Vendor_Name darf nicht aus dem Namen &apos;Nokia&apos; bestehen oder diesen enthalten. &lt;br&gt;Es davon abgeraten, den Vorgabenamen &apos;Vendor&apos;/&apos;Vendor-EN&apos; zu verwenden oder das Feld leerzulassen. &lt;br&gt;siehe &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Paketierungs- und Signierungsrichtlinien&lt;/a&gt;.&lt;br&gt;</translation>
+        <translation type="obsolete">%1 ist ein zum Testen und zur Entwicklung vorgegebener Anbietername. &lt;br&gt;Das Feld Vendor_Name darf nicht aus dem Namen &apos;Nokia&apos; bestehen oder diesen enthalten. &lt;br&gt;Es davon abgeraten, den Vorgabenamen &apos;Vendor&apos;/&apos;Vendor-EN&apos; zu verwenden oder das Feld leerzulassen. &lt;br&gt;siehe &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Paketierungs- und Signierungsrichtlinien&lt;/a&gt;.&lt;br&gt;</translation>
     </message>
     <message>
         <source>%1 are default vendor names used for testing and development. &lt;br&gt;The Vendor_Name field cannot be, or contain, the name &apos;Nokia&apos; in it. &lt;br&gt;It is recommended to also not use the default name of &apos;Vendor&apos;/&apos;Vendor-EN&apos;, or to leave the entry blank. &lt;br&gt;see &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
-        <translation>%1 sind zum Testen und zur Entwicklung vorgegebene Anbieternamen. &lt;br&gt;Das Feld Vendor_Name darf nicht aus dem Namen &apos;Nokia&apos; bestehen oder diesen enthalten. &lt;br&gt;Es davon abgeraten, den Vorgabenamen &apos;Vendor&apos;/&apos;Vendor-EN&apos; zu verwenden oder das Feld leerzulassen. &lt;br&gt;siehe &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Paketierungs- und Signierungsrichtlinien&lt;/a&gt;.&lt;br&gt;</translation>
+        <translation type="obsolete">%1 sind zum Testen und zur Entwicklung vorgegebene Anbieternamen. &lt;br&gt;Das Feld Vendor_Name darf nicht aus dem Namen &apos;Nokia&apos; bestehen oder diesen enthalten. &lt;br&gt;Es davon abgeraten, den Vorgabenamen &apos;Vendor&apos;/&apos;Vendor-EN&apos; zu verwenden oder das Feld leerzulassen. &lt;br&gt;siehe &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Paketierungs- und Signierungsrichtlinien&lt;/a&gt;.&lt;br&gt;</translation>
     </message>
     <message>
         <source>The App UID %1 is only for testing and development.&lt;br&gt;SIS packages built with it, cannot be distributed via the OVI Store.&lt;br&gt;</source>
-        <translation>Die Anwendungs-UID %1 kann nur zum Testen und zur Entwicklung verwendet werden.&lt;br&gt;Damit erstellte SIS-Pakete können nicht über den Ovi Store verbreitet werden.&lt;br&gt;</translation>
+        <translation type="obsolete">Die Anwendungs-UID %1 kann nur zum Testen und zur Entwicklung verwendet werden.&lt;br&gt;Damit erstellte SIS-Pakete können nicht über den Ovi Store verbreitet werden.&lt;br&gt;</translation>
     </message>
     <message>
         <source>The App UID %1 is a symbiansigned.com UID. &lt;br&gt;Apps with this UID will be rejected by Ovi Sign.&lt;br&gt;If you want to continue with this UID, sign your app on symbiansigned.com and upload the signed app to Ovi.&lt;br&gt;</source>
-        <translation>Die Anwendungs-UID %1 wurde von symbiansigned.com vergeben.&lt;br&gt;Anwendungen mit dieser UID werden von Ovi Sign nicht akzeptiert.&lt;br&gt;Wenn Sie diese UID weiter verwenden möchten, signieren Sie bitte Ihre Anwendungauf symbiansigned.com und laden Sie die signierte Anwendung zu Ovi hoch.&lt;br&gt;</translation>
+        <translation type="obsolete">Die Anwendungs-UID %1 wurde von symbiansigned.com vergeben.&lt;br&gt;Anwendungen mit dieser UID werden von Ovi Sign nicht akzeptiert.&lt;br&gt;Wenn Sie diese UID weiter verwenden möchten, signieren Sie bitte Ihre Anwendungauf symbiansigned.com und laden Sie die signierte Anwendung zu Ovi hoch.&lt;br&gt;</translation>
     </message>
     <message>
         <source>The App UID %1 is not an acceptable UID.&lt;br&gt; SIS packages built with it, cannot be signed by Ovi.&lt;br&gt;</source>
-        <translation>Die Anwendungs-UID %1 ist ungültig.&lt;br&gt;Damit erstellte SIS-Pakete können nicht von Ovi signiert werden.&lt;br&gt;</translation>
+        <translation type="obsolete">Die Anwendungs-UID %1 ist ungültig.&lt;br&gt;Damit erstellte SIS-Pakete können nicht von Ovi signiert werden.&lt;br&gt;</translation>
     </message>
     <message>
         <source>The App UID is a global unique indentifier of the SIS package.&lt;br&gt;</source>
-        <translation>Die Anwendungs-UID ist ein global eindeutiger Bezeichner eines SIS-Paketes.&lt;br&gt;</translation>
+        <translation type="obsolete">Die Anwendungs-UID ist ein global eindeutiger Bezeichner eines SIS-Paketes.&lt;br&gt;</translation>
     </message>
     <message>
         <source>To get a unique App UID for your package file,&lt;br&gt;please register at &lt;a href=&quot;http://info.publish.ovi.com/&quot;&gt;publish.ovi.com&lt;/a&gt;</source>
+        <translation type="obsolete">Um eine eindeutige Anwendungs-UID für Ihre Paketdatei zu erhalten,&lt;br&gt;registrieren Sie sich bitte bei &lt;a href=&quot;http://info.publish.ovi.com/&quot;&gt;publish.ovi.com&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>%1 is a default vendor name used for testing and development. &lt;br&gt;The Vendor_Name field cannot contain the name &apos;Nokia&apos;. &lt;br&gt;You are advised against using the default names &apos;Vendor&apos; and &apos;Vendor-EN&apos;. &lt;br&gt;You should also not leave the entry blank. &lt;br&gt;see &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
+        <translation>%1 ist ein zum Testen und zur Entwicklung vorgegebener Anbietername. &lt;br&gt;Das Feld Vendor_Name darf den Namen &apos;Nokia&apos; nicht enthalten.&lt;br&gt;Es davon abgeraten, die Vorgabenamen &apos;Vendor&apos; oder &apos;Vendor-EN&apos; zu verwenden.&lt;br&gt;Das Feld sollte auch nicht leer sein.&lt;br&gt;siehe &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Paketierungs- und Signierungsrichtlinien&lt;/a&gt;.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>%1 is a default vendor name used for testing and development.</source>
+        <translation>%1 ist ein zum Testen und zur Entwicklung vorgegebener Anbietername.</translation>
+    </message>
+    <message>
+        <source>%1 are default vendor names used for testing and development.</source>
+        <translation>%1 sind zum Testen und zur Entwicklung vorgegebene Anbieternamen.</translation>
+    </message>
+    <message>
+        <source>%1 &lt;br&gt;The Vendor_Name field cannot contain the name &apos;Nokia&apos;. &lt;br&gt;You are advised against using the default names &apos;Vendor&apos; and &apos;Vendor-EN&apos;. &lt;br&gt;You should also not leave the entry blank. &lt;br&gt;See &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
+        <translation>%1 &lt;br&gt;Das Feld Vendor_Name darf den Namen &apos;Nokia&apos; nicht enthalten.&lt;br&gt;Es davon abgeraten, die Vorgabenamen &apos;Vendor&apos; oder &apos;Vendor-EN&apos; zu verwenden.&lt;br&gt;Das Feld sollte auch nicht leer sein.&lt;br&gt;siehe &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Paketierungs- und Signierungsrichtlinien&lt;/a&gt;.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>The application UID %1 is only for testing and development.&lt;br&gt;SIS packages built with it cannot be distributed via the Ovi Store.&lt;br&gt;</source>
+        <translation>Die Anwendungs-UID %1 kann nur zum Testen und zur Entwicklung verwendet werden.&lt;br&gt;Damit erstellte SIS-Pakete können nicht über den Ovi Store verbreitet werden.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>The application UID %1 is a symbiansigned.com UID. &lt;br&gt;Applications with this UID will be rejected by Application Signing Services for Ovi Store.&lt;br&gt;If you want to continue with a symbiansigned.com UID, sign your application on symbiansigned.com and upload the signed application to Publish to Ovi.&lt;br&gt;</source>
+        <translation>Die Anwendungs-UID %1 stammt von symbiansigned.com.&lt;br&gt;Anwendungen mit dieser UID werden von den Application Signing Services von Ovi Store zurückgewiesen.&lt;br&gt;Wenn Sie eine von symbiansigned.com stammende UID verwenden möchten, lassen Sie bitte Ihre Anwendung von symbiansigned.com signieren und laden die signierte Anwendung zu Publish to Ovi hoch.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>The application UID %1 is not an acceptable UID.&lt;br&gt;SIS packages built with it cannot be signed by Application Signing Services for Ovi Store.&lt;br&gt;</source>
+        <translation>Die Anwendungs-UID %1 ist ungültig.&lt;br&gt;Damit erstellte SIS-Paketdateien können von den Application Signing Services des Ovi Store nicht signiert werden.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>The application UID is a global unique indentifier of the SIS package.&lt;br&gt;</source>
+        <translation>Die Anwendungs-UID ist ein global eindeutiger Bezeichner eines SIS-Paketes.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>To get a unique application UID for your package file,&lt;br&gt;please register at &lt;a href=&quot;http://info.publish.ovi.com/&quot;&gt;publish.ovi.com&lt;/a&gt;</source>
         <translation>Um eine eindeutige Anwendungs-UID für Ihre Paketdatei zu erhalten,&lt;br&gt;registrieren Sie sich bitte bei &lt;a href=&quot;http://info.publish.ovi.com/&quot;&gt;publish.ovi.com&lt;/a&gt;</translation>
     </message>
     <message>
@@ -24563,7 +24755,7 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
     <name>Qt4ProjectManager::Internal::S60PublishingWizardFactoryOvi</name>
     <message>
         <source>Publish for Qt Symbian Application on Ovi Store </source>
-        <translation>Veröffentlichen als Qt Symbian-Anwendung im Ovi-Store</translation>
+        <translation type="obsolete">Veröffentlichen als Qt Symbian-Anwendung im Ovi-Store</translation>
     </message>
     <message>
         <source>This wizard will check your resulting sis file and some of your meta data to make sure it complies with Ovi Store submission regulations.
@@ -24576,13 +24768,39 @@ You cannot use it for the Certified Signed and Manufacturer level capabilities:
 i.e. NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB
 
 Your application will also be rejected by Ovi QA if it uses an unreleased Qt Version.</source>
-        <translation>Dieser Wizard prüft Ihr SIS-Paketdatei und deren Metadaten um sicherzustellen, dass sie den Bestimmungen von Ovi Store entsprechen.
+        <translation type="obsolete">Dieser Wizard prüft Ihr SIS-Paketdatei und deren Metadaten um sicherzustellen, dass sie den Bestimmungen von Ovi Store entsprechen.
 
 Dieser Wizard erstellt SIS-Paketdateien, die zur Veröffentlichung auf Ovi eingereicht werden können.
 
 Er kann nicht im Zusammenhang mit UID3s von Symbian Signed verwendet werden.
 
 Zertifikatssignierte oder Herstellerberechtigungen werden ebenfalls nicht unterstützt, zum Beispiel:
+NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM und TCB
+
+Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version zurückgewiesen.</translation>
+    </message>
+    <message>
+        <source>Publish Qt Symbian Applications to Ovi Store</source>
+        <translation>Veröffentlichen als Qt Symbian-Anwendung im Ovi-Store</translation>
+    </message>
+    <message>
+        <source>This wizard checks your project file to make sure it complies with Ovi Store submission criteria.
+
+The wizard creates SIS files that can be submitted to Publish to Ovi.
+
+You cannot use it if you use application UIDs from Symbian Signed.
+
+You cannot use it for the Certified Signed and Manufacturer level capabilities:
+NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB.
+
+Your application will also be rejected by Ovi QA if you choose an unreleased Qt version on the next page.</source>
+        <translation>Dieser Wizard prüft Ihre Projektdatei um sicherzustellen, dass sie den Bestimmungen von Ovi Store entspricht.
+
+Dieser Wizard erstellt SIS-Paketdateien, die zur Veröffentlichung auf Ovi eingereicht werden können.
+
+Er kann nicht im Zusammenhang mit UIDs von Symbian Signed verwendet werden.
+
+Er kann ebenfalls nicht für zertifikatssignierte oder Herstellerberechtigungen verwendet werden:
 NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM und TCB
 
 Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version zurückgewiesen.</translation>
@@ -24599,12 +24817,20 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
         <translation>Build-Konfiguration</translation>
     </message>
     <message>
+        <source>Project File Checks</source>
+        <translation>An Projektdatei vorgenommene Überprüfungen</translation>
+    </message>
+    <message>
+        <source>Creating an Uploadable SIS File</source>
+        <translation>Erzeuge hochladbare SIS-Datei</translation>
+    </message>
+    <message>
         <source>.Pro File Checks</source>
-        <translation>Überprüfung der .Pro-Dateien</translation>
+        <translation type="obsolete">Überprüfung der .Pro-Dateien</translation>
     </message>
     <message>
         <source>Creating Uploadable Sis File</source>
-        <translation>Erzeuge hochladbare SIS-Datei</translation>
+        <translation type="obsolete">Erzeuge hochladbare SIS-Datei</translation>
     </message>
 </context>
 <context>
@@ -24642,6 +24868,638 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
     <message>
         <source>MIME Types</source>
         <translation>MIME-Typen</translation>
+    </message>
+</context>
+<context>
+    <name>MemcheckConfigWidget</name>
+    <message>
+        <source>Memory Analysis Options</source>
+        <translation>Einstellungen zur Speicheranalyse</translation>
+    </message>
+    <message>
+        <source>Backtrace frame count:</source>
+        <translation>Stack-Frames:</translation>
+    </message>
+    <message>
+        <source>Suppressions:</source>
+        <translation>Ausschlüsse:</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Hinzufügen</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Löschen</translation>
+    </message>
+    <message>
+        <source>Track origins of uninitialized memory</source>
+        <translation>Herkunft von nicht initialisiertem Speicher verfolgen</translation>
+    </message>
+</context>
+<context>
+    <name>SuppressionDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialog</translation>
+    </message>
+    <message>
+        <source>Suppression File:</source>
+        <translation>Ausschluss-Datei:</translation>
+    </message>
+    <message>
+        <source>Suppression:</source>
+        <translation>Ausschlüsse:</translation>
+    </message>
+</context>
+<context>
+    <name>ValgrindConfigWidget</name>
+    <message>
+        <source>Common Valgrind Options</source>
+        <translation>Allgemeine Valgrind-Optionen</translation>
+    </message>
+    <message>
+        <source>Valgrind executable:</source>
+        <translation>Ausführbare Datei von Valgrind:</translation>
+    </message>
+</context>
+<context>
+    <name>AnchorButtons</name>
+    <message>
+        <source>Set top anchor</source>
+        <translation>Oberen Anker setzen</translation>
+    </message>
+    <message>
+        <source>Setting anchors in states is not supported.</source>
+        <translation>Anker koennen nicht innerhalb von States gesetzt werden.</translation>
+    </message>
+    <message>
+        <source>Set bottom anchor</source>
+        <translation>Unteren Anker setzen</translation>
+    </message>
+    <message>
+        <source>Set left anchor</source>
+        <translation>Linken Anker setzen</translation>
+    </message>
+    <message>
+        <source>Set right anchor</source>
+        <translation>Rechten Anker setzen</translation>
+    </message>
+    <message>
+        <source>Fill to parent</source>
+        <translation>Übergeordnetes Element ausfüllen</translation>
+    </message>
+    <message>
+        <source>Set vertical anchor</source>
+        <translation>Vertikalen Anker setzen</translation>
+    </message>
+    <message>
+        <source>Set horizontal anchor</source>
+        <translation>Horizontalen Anker setzen</translation>
+    </message>
+</context>
+<context>
+    <name>ColorGroupBox</name>
+    <message>
+        <source>Color editor</source>
+        <translation>Farb-Editor</translation>
+    </message>
+</context>
+<context>
+    <name>ColorTypeButtons</name>
+    <message>
+        <source>Solid color</source>
+        <translation>Füllfarbe</translation>
+    </message>
+    <message>
+        <source>Gradient</source>
+        <translation>Gradient</translation>
+    </message>
+    <message>
+        <source>Transparent</source>
+        <translation>Transparent</translation>
+    </message>
+</context>
+<context>
+    <name>Valgrind::XmlProtocol::ErrorListModel</name>
+    <message>
+        <source>What</source>
+        <translation>Was</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Ort</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>Datei</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>Zeile</translation>
+    </message>
+    <message>
+        <source>Unique</source>
+        <translation>Eindeutig</translation>
+    </message>
+    <message>
+        <source>Thread ID</source>
+        <translation>Thread-ID</translation>
+    </message>
+    <message>
+        <source>Kind</source>
+        <translation>Art</translation>
+    </message>
+    <message>
+        <source>Leaked Blocks</source>
+        <translation>Nicht freigegebene Blöcke</translation>
+    </message>
+    <message>
+        <source>Leaked Bytes</source>
+        <translation>Nicht freigegebene Bytes</translation>
+    </message>
+    <message>
+        <source>Helgrind Thread ID</source>
+        <translation>Helgrind Thread-ID</translation>
+    </message>
+</context>
+<context>
+    <name>Valgrind::XmlProtocol</name>
+    <message>
+        <source>Function:</source>
+        <translation>Funktion:</translation>
+    </message>
+    <message>
+        <source>Location:</source>
+        <translation>Ort:</translation>
+    </message>
+    <message>
+        <source>Instruction pointer:</source>
+        <translation>Instruktionszeiger:</translation>
+    </message>
+    <message>
+        <source>Object:</source>
+        <translation>Objekt:</translation>
+    </message>
+</context>
+<context>
+    <name>Valgrind::XmlProtocol::Parser</name>
+    <message>
+        <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
+        <translation>&quot;%1&quot; (%2) ist keine gültige Hexadezimalzahl</translation>
+    </message>
+    <message>
+        <source>trying to read element text although current position is not start of element</source>
+        <translation>es wurde versucht, Elementtext auszulesen, obwohl nicht auf Startelement positioniert</translation>
+    </message>
+    <message>
+        <source>Unexpected child element while reading element text</source>
+        <translation>Unerwartetes Unterelement angetroffen beim Lesen von Elementtext</translation>
+    </message>
+    <message>
+        <source>Unexpected token type %1</source>
+        <translation>Unerwartetes Token %1</translation>
+    </message>
+    <message>
+        <source>Could not parse protocol version from &quot;%1&quot;</source>
+        <translation>Die Protokollversion konnte nicht aus &quot;%1&quot; bestimmt werden</translation>
+    </message>
+    <message>
+        <source>XmlProtocol version %1 not supported (supported version: 4)</source>
+        <translation>Die Protokollversion %1 wird nicht unterstützt (Unterstützte Version: 4)</translation>
+    </message>
+    <message>
+        <source>Valgrind tool &quot;%1&quot; not supported</source>
+        <translation>Das Valgrind-Werkzeug&quot;%1&quot; ist nicht unterstützt</translation>
+    </message>
+    <message>
+        <source>Unknown memcheck error kind &quot;%1&quot;</source>
+        <translation>Unbekannte memcheck-Fehlerkategorie &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Unknown helgrind error kind &quot;%1&quot;</source>
+        <translation>Unbekannte helgrind-Fehlerkategorie &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Unknown ptrcheck error kind &quot;%1&quot;</source>
+        <translation>Unbekannte ptrcheck-Fehlerkategorie &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Could not parse error kind, tool not yet set.</source>
+        <translation>Die Fehlerkategorie konnte nicht bestimmt werden, da kein Werkzeug aktiv ist.</translation>
+    </message>
+    <message>
+        <source>Unknown state &quot;%1&quot;</source>
+        <translation>Unbekannter Zustand &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Unexpected exception caught during parsing.</source>
+        <translation>Beim Parsen ist eine unerwartete Ausnahme aufgetreten.</translation>
+    </message>
+</context>
+<context>
+    <name>Valgrind::XmlProtocol::StackModel</name>
+    <message>
+        <source>Description</source>
+        <translation>Beschreibung</translation>
+    </message>
+    <message>
+        <source>Instruction Pointer</source>
+        <translation>Instruktionszeiger</translation>
+    </message>
+    <message>
+        <source>Object</source>
+        <translation>Objekt</translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation>Funktion</translation>
+    </message>
+    <message>
+        <source>Directory</source>
+        <translation>Ordner</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>Datei</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>Zeile</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer</name>
+    <message>
+        <source>Analyzer</source>
+        <translation>Analyse</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::Internal::AnalyzerMode</name>
+    <message>
+        <source>Analyze</source>
+        <translation>Analyse</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::AnalyzerManager</name>
+    <message>
+        <source>Start &amp;Analyzer</source>
+        <translation>Analyse &amp;starten</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>Starten</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Anhalten</translation>
+    </message>
+    <message>
+        <source>Debug</source>
+        <translation>Debug</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+    <message>
+        <source>Run %1 in %2 Mode?</source>
+        <translation>Soll %1 im Modus %2 ausgeführt werden?</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &apos;%1&apos; on an application in %2 mode. The tool is designed to be used in %3 mode.&lt;/p&gt;&lt;p&gt;Do you want to continue and run it in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sie versuchen, das Werkzeug &apos;%1&apos; mit einer Anwendung im Modus %2 zu betreiben. Das Werkzeug ist zur Verwendung im Modus %3 vorgesehen.&lt;/p&gt;&lt;p&gt;Möchten Sie trotzdem fortsetzen und es im Modus %2 laufen lassen?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Run %1 in %2 mode?</source>
+        <translation type="obsolete">Soll %1 im Modus %2 ausgeführt werden?</translation>
+    </message>
+    <message>
+        <source>&amp;Do not ask again</source>
+        <translation>&amp;Nicht noch einmal nachfragen</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::Internal::AnalyzerPlugin</name>
+    <message>
+        <source>Analyzer</source>
+        <extracomment>Category under which Analyzer tasks are listed in build issues view</extracomment>
+        <translation>Analyse</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::Internal::AnalyzerRunConfigWidget</name>
+    <message>
+        <source>Analyzer Settings</source>
+        <translation>Analyse-Einstellungen</translation>
+    </message>
+    <message>
+        <source>Available settings: %1</source>
+        <translation>Verfügbare Einstellungen: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::Internal::AnalyzerRunControlFactory</name>
+    <message>
+        <source>Analyzer</source>
+        <translation>Analysewerkzeug</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::Internal::AnalyzerRunControl</name>
+    <message>
+        <source>Build Issues</source>
+        <translation>Build-Probleme</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::AnalyzerProjectSettings</name>
+    <message>
+        <source>Analyzer Settings</source>
+        <translation>Analyse-Einstellungen</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::IAnalyzerTool</name>
+    <message>
+        <source>Debug</source>
+        <translation>Debug</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::DebuggerSourcePathMappingWidget</name>
+    <message>
+        <source>&lt;new source&gt;</source>
+        <translation>&lt;neue Quelle&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;new target&gt;</source>
+        <translation>&lt;neues Ziel&gt;</translation>
+    </message>
+    <message>
+        <source>Source path</source>
+        <translation>Quellpfad</translation>
+    </message>
+    <message>
+        <source>Target path</source>
+        <translation>Zielpfad</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Hinzufügen</translation>
+    </message>
+    <message>
+        <source>Add Qt sources...</source>
+        <translation>Qt-Quellen hinzufügen...</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Löschen</translation>
+    </message>
+    <message>
+        <source>Source Paths Mapping</source>
+        <translation>Quellpfad-Zuordnung</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mappings of source file folders to be used in the debugger can be entered here.&lt;/p&gt;&lt;p&gt;This is useful when using a copy of the source tree at a location different from the one at which the modules where built, for example, while doing remote debugging.&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hier können Zuordnungen für die beim Debuggen benutzten Quelldateien festgelegt werden.&lt;/p&gt;&lt;p&gt;Das ist nützlich, wenn eine lokale Kopie des Quelldateibaums verwendet wird, der sich von der beim Erstellen der Module verwendeten unterscheidet, zum Beispiel beim Remote-Debuggen.&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Add a mapping for Qt&apos;s source folders when using an unpatched version of Qt.</source>
+        <translation>Fügt eine Umsetzung für die Qt-Quellen hinzu, für den Fall, das eine nicht gepatchte Version von Qt benutzt wird.</translation>
+    </message>
+    <message>
+        <source>The source path contained in the executable&apos;s debug information as reported by the debugger</source>
+        <translation>Der in der ausführbaren Datei enthaltene Quellpfad, der vom Debugger verwendet wird</translation>
+    </message>
+    <message>
+        <source>&amp;Source path:</source>
+        <translation>&amp;Quellpfad:</translation>
+    </message>
+    <message>
+        <source>The actual location of the source tree on the local machine</source>
+        <translation>Ordner, der die Quelldateien auf dem lokalen Rechner enthält</translation>
+    </message>
+    <message>
+        <source>&amp;Target path:</source>
+        <translation>&amp;Zielpfad:</translation>
+    </message>
+    <message>
+        <source>Qt Sources</source>
+        <translation>Qt-Quellen</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::Internal::MemcheckConfigWidget</name>
+    <message>
+        <source>Valgrind Suppression File (*.supp);;All Files (*)</source>
+        <translation>Valgrind Ausschlussdatei (*.supp);;Alle Dateien (*)</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::Internal::MemcheckEngine</name>
+    <message>
+        <source>Analyzing Memory</source>
+        <translation>Analysiere Speicher</translation>
+    </message>
+    <message>
+        <source>Analyzing memory of %1</source>
+        <translation>Analysiere Speicher von %1</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::Internal</name>
+    <message>
+        <source>%1 in %2</source>
+        <translation>%1 in %2</translation>
+    </message>
+    <message>
+        <source>in %1</source>
+        <translation>in %1</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::Internal::MemcheckErrorView</name>
+    <message>
+        <source>Copy Selection</source>
+        <translation>Auswahl kopieren</translation>
+    </message>
+    <message>
+        <source>Suppress Error</source>
+        <translation>Fehler unterdrücken</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::Internal::AbstractMemcheckSettings</name>
+    <message>
+        <source>Memory Analysis</source>
+        <translation>Speicheranalyse</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::Internal::MemcheckTool</name>
+    <message>
+        <source>Analyze Memory</source>
+        <translation>Speicheranalyse</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation type="obsolete">Löschen</translation>
+    </message>
+    <message>
+        <source>Previous Item</source>
+        <translation type="obsolete">Vorangehender Eintrag</translation>
+    </message>
+    <message>
+        <source>Next Item</source>
+        <translation type="obsolete">Nächster Eintrag</translation>
+    </message>
+    <message>
+        <source>Error Filter</source>
+        <translation>Fehlerfilter</translation>
+    </message>
+    <message>
+        <source>Definite Memory Leaks</source>
+        <translation>Definitive Speicherlecks</translation>
+    </message>
+    <message>
+        <source>Possible Memory Leaks</source>
+        <translation>Potentielle Speicherlecks</translation>
+    </message>
+    <message>
+        <source>Use of Uninitialized Memory</source>
+        <translation>Benutzung von nicht initialisiertem Speicher</translation>
+    </message>
+    <message>
+        <source>Invalid Frees</source>
+        <translation>Ungültige Verwendung von free</translation>
+    </message>
+    <message>
+        <source>External Errors</source>
+        <translation>Externe Fehler</translation>
+    </message>
+    <message>
+        <source>Show issues originating outside currently opened projects.</source>
+        <translation>Zeigt Fehler an, deren Ursache außerhalb der aktuellen Projekte liegt.</translation>
+    </message>
+    <message>
+        <source>Suppressions</source>
+        <translation>Ausschlüsse</translation>
+    </message>
+    <message>
+        <source>These suppression files where used in the last memory analyzer run.</source>
+        <translation>Die Ausschlussdateien wurden beim letzten Lauf der Speicheranalyse verwendet.</translation>
+    </message>
+    <message>
+        <source>Internal Error</source>
+        <translation>Interner Fehler</translation>
+    </message>
+    <message>
+        <source>Error occurred parsing valgrind output: %1</source>
+        <translation>Fehler beim Auswerten der valgrind-Ausgabe: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::Internal::SuppressionDialog</name>
+    <message>
+        <source>Select Suppression File</source>
+        <translation>Ausschluss-Datei wählen</translation>
+    </message>
+    <message>
+        <source>Save Suppression</source>
+        <translation>Ausschlüsse speichern</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::ToolChain</name>
+    <message>
+        <source>Clone of %1</source>
+        <translation>Kopie von %1</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::Internal::ValgrindConfigWidget</name>
+    <message>
+        <source>Valgrind Command</source>
+        <translation>Valgrind-Kommando</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::Internal::ValgrindEngine</name>
+    <message>
+        <source>Valgrind options: %1</source>
+        <translation>Allgemeine Valgrind-Optionen: %1</translation>
+    </message>
+    <message>
+        <source>Working directory: %1</source>
+        <translation>Arbeitsverzeichnis: %1</translation>
+    </message>
+    <message>
+        <source>Command-line arguments: %1</source>
+        <translation>Kommandozeilenargumente: %1</translation>
+    </message>
+    <message>
+        <source>** Analysing finished **</source>
+        <translation>** Analyse beendet **</translation>
+    </message>
+    <message>
+        <source>** Error: &quot;%1&quot; could not be started: %2 **</source>
+        <translation>** Fehler: &quot;%1&quot; konnte nicht gestartet werden: %2 **</translation>
+    </message>
+    <message>
+        <source>** Error: no valgrind executable set **</source>
+        <translation>** Fehler: Es ist keine ausführbare Datei für valgrind konfiguriert **</translation>
+    </message>
+    <message>
+        <source>** Process Terminated **</source>
+        <translation>** Prozess beendet **</translation>
+    </message>
+    <message>
+        <source>Application Output</source>
+        <translation>Ausgabe der Anwendung</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::Internal::ValgrindSettings</name>
+    <message>
+        <source>Generic Settings</source>
+        <translation>Allgemeine Einstellungen</translation>
+    </message>
+</context>
+<context>
+    <name>SymbianUtils::VirtualSerialDevice</name>
+    <message>
+        <source>Port not found</source>
+        <translation>Port nicht gefunden</translation>
+    </message>
+    <message>
+        <source>Port in use</source>
+        <translation>Der Port ist bereits in Verwendung</translation>
+    </message>
+    <message>
+        <source>Timed out</source>
+        <translation>Zeitlimit überschritten</translation>
+    </message>
+    <message>
+        <source>Port unreachable</source>
+        <translation>Port nicht erreichbar</translation>
+    </message>
+</context>
+<context>
+    <name>Analyzer::Internal::AnalyzerOutputPane</name>
+    <message>
+        <source>No current analysis tool</source>
+        <translation>Kein aktives Analysewerkzeug</translation>
+    </message>
+    <message>
+        <source>Analysis</source>
+        <translation>Analyse</translation>
     </message>
 </context>
 </TS>

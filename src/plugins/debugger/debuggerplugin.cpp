@@ -1117,8 +1117,7 @@ DebuggerPluginPrivate::~DebuggerPluginPrivate()
     delete m_debuggerSettings;
     m_debuggerSettings = 0;
 
-    delete m_mainWindow;
-    m_mainWindow = 0;
+    // Mainwindow will be deleted by debug mode.
 
     delete m_snapshotHandler;
     m_snapshotHandler = 0;

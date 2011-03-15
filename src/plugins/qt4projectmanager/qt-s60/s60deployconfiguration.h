@@ -131,6 +131,7 @@ private:
     QString createPackageName(const QString &baseName) const;
     bool isDebug() const;
     bool isStaticLibrary(const Qt4ProFileNode &projectNode) const;
+    bool hasSisPackage(const Qt4ProFileNode &projectNode) const;
 
 private:
     ProjectExplorer::BuildConfiguration *m_activeBuildConfiguration;

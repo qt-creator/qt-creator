@@ -56,6 +56,17 @@
     the required applications on Symbian devices. You can also use any of
     the standard methods for installing applications.
 
+    To debug applications on Symbian devices by using the Qt Creator \gui Debug
+    mode, you must install an on-device debugging agent on the device. You have
+    a choice between App TRK and CODA debugging agents. For more information,
+    see
+    \if defined(qcmanual)
+    \l{Using On-device Debugging Agents}.
+    \else
+    \e \l{http://doc.qt.nokia.com/qtcreator-latest/creator-developing-symbian.html}{Using On-device Debugging Agents}.
+    \endif
+
+
     The tool chain for building applications locally on the development PC for
     the \gui {Symbian Device} target is only supported on Windows.
     If you develop on Linux or Mac OS, you must use the Remote Compiler
@@ -72,14 +83,9 @@
     following:
     \list
         \o The Nokia USB drivers that come with \e{PC Suite} or \e{Ovi Suite}
-        \o The
-            \if defined(qcmanual)
-            \l{http://tools.ext.nokia.com/trk/}{App TRK}
-            \else
-            \e {App TRK}
-            \endif
-            application for your device
-        \o \e Qt installed on the device
+        \o An on-device debugging agent, \e {App TRK} or \e CODA, installed on
+           the device
+         \o \e Qt installed on the device
          \o \e {Qt Mobility APIs} installed on the device, if you use them in
          applications
         \o \e {QtWebKit} installed on the device, if you use web functionality
@@ -97,6 +103,7 @@
     To run your applications in the Symbian emulator, you also need
     to install Carbide.c++ v2.0.0 or higher.
     \endif
+
 
     \section1 Installing Required Applications on Devices
 
@@ -127,8 +134,7 @@
         \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.2 > Install TRK
         (Debug Agent) for Symbian^3 on Device} and follow the
         instructions on the screen to install
-        the TRK
-        debugging application to the device.
+        the App TRK debugging agent to the device.
 
         \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.2 > Install QtWebKit
         for for Qt 4.7.2 on Symbian^3 Device} and follow the
@@ -157,8 +163,7 @@
         \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.2 > Install TRK
         (Debug Agent)} for the type of the connected device and follow the
         instructions on the screen to install
-        the TRK
-        debugging application to the device.
+        the App TRK debugging agent to the device.
 
         \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.2 > Install QtWebKit
         for for Qt 4.7.2 on Symbian^1 Device} and follow the
@@ -169,7 +174,59 @@
     In addition, you can install an example application and demos to Symbian^1
     devices.
 
+
     \if defined(qcmanual)
+    \section1 Using On-device Debugging Agents
+
+    CODA is a new on-device debugging agent that will eventually replace App TRK.
+    You can choose which debugging agent to use in the \gui {Run Settings} for
+    the project.
+
+    CODA offers the following benefits:
+
+    \list
+
+        \o  Extended error information
+
+        \o  Debugging over WLAN
+
+        \o  Extended information about the device
+
+    \endlist
+
+    CODA differs from App TRK in the following ways:
+
+    \list
+
+        \o  Coda does not support debugging over a Bluetooth connection.
+
+        \o  Coda supports only Symbian^1 and Symbian^3 devices. It does not
+            support S60 3rd Edition devices.
+
+    \endlist
+
+    \section2 Installing Debugging Agents
+
+    You can download CODA from the
+    \l{http://tools.ext.nokia.com/coda/}{CODA download server}:
+
+    \list
+
+        \o  Symbian^1 versions of CODA are located in the pf5250 folder.
+
+        \o  Symbian^3 versions of CODA are located in the tb92 folder.
+
+    \endlist
+
+    The builds that are marked as \e delta builds work on top of App TRK, and
+    therefore, App TRK and CODA can co-exist on a device. Other than the delta
+    builds cannot be installed on a device where App TRK is installed.
+
+    The \QSDK installation program creates a shortcut for installing
+    App TRK on Symbian devices, but you can also download and install it
+    separately from the
+    \l{http://tools.ext.nokia.com/trk/}{App TRK download server}.
+
     \section1 Adding Symbian Platform SDKs
 
     \QSDK contains all the tools you need for developing Qt applications for
@@ -177,7 +234,7 @@
     install additional Symbian Platform SDKs:
 
     \list
-        \o \l{http://www.forum.nokia.com/main/resources/tools_and_sdks/S60SDK/}
+        \o \l{http://www.forum.nokia.com/info/sw.nokia.com/id/ec866fab-4b76-49f6-b5a5-af0631419e9c/S60_All_in_One_SDKs.html}
            {S60 Platform SDK 3rd Edition FP1 or higher}.
         \o Either the GCCE ARM Toolchain that is included in the Symbian
            SDKs, or RVCT 2.2 [build 686] or later (which is not available free
@@ -229,7 +286,8 @@
         The tool tip of the target selector shows more details about the actual
         device that will be used when you run your application.
 
-        \o Start the \gui{App TRK} application on your device and deny the
+        \o Start the debugging application, App TRK or CODA, on the device and
+        deny the
         Bluetooth connection.
 
         \o Select \gui Options to select USB as connection type.

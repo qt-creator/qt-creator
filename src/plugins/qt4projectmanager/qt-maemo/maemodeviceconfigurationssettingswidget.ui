@@ -322,7 +322,7 @@
            <item row="10" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
-              <widget class="Utils::PathChooser" name="keyFileLineEdit"/>
+              <widget class="Utils::PathChooser" name="keyFileLineEdit" native="true"/>
              </item>
              <item>
               <widget class="QPushButton" name="makeKeyFileDefaultButton">
@@ -518,8 +518,8 @@
    <slot>userNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>536</x>
-     <y>286</y>
+     <x>540</x>
+     <y>317</y>
     </hint>
     <hint type="destinationlabel">
      <x>422</x>
@@ -534,8 +534,8 @@
    <slot>passwordEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>412</x>
-     <y>314</y>
+     <x>424</x>
+     <y>349</y>
     </hint>
     <hint type="destinationlabel">
      <x>423</x>
@@ -556,22 +556,6 @@
     <hint type="destinationlabel">
      <x>516</x>
      <y>118</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>removeConfigButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
-   <slot>deleteConfig()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>697</x>
-     <y>66</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>513</x>
-     <y>101</y>
     </hint>
    </hints>
   </connection>
@@ -598,8 +582,8 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>434</x>
-     <y>346</y>
+     <x>344</x>
+     <y>383</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -614,8 +598,8 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>434</x>
-     <y>346</y>
+     <x>344</x>
+     <y>383</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -647,7 +631,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>697</x>
-     <y>165</y>
+     <y>163</y>
     </hint>
     <hint type="destinationlabel">
      <x>510</x>
@@ -662,8 +646,8 @@
    <slot>authenticationTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>280</x>
-     <y>147</y>
+     <x>279</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
      <x>525</x>
@@ -695,7 +679,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>697</x>
-     <y>132</y>
+     <y>131</y>
     </hint>
     <hint type="destinationlabel">
      <x>358</x>
@@ -710,8 +694,8 @@
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>217</x>
-     <y>257</y>
+     <x>222</x>
+     <y>285</y>
     </hint>
     <hint type="destinationlabel">
      <x>6</x>
@@ -726,8 +710,8 @@
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>217</x>
-     <y>257</y>
+     <x>222</x>
+     <y>285</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -774,8 +758,8 @@
    <slot>showPassword(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>535</x>
-     <y>313</y>
+     <x>539</x>
+     <y>347</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -807,7 +791,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>697</x>
-     <y>198</y>
+     <y>195</y>
     </hint>
     <hint type="destinationlabel">
      <x>598</x>

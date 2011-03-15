@@ -118,9 +118,11 @@ bool CodaRunControl::setupLauncher()
         // We get the port from SymbianDeviceManager
         appendMessage(tr("Connecting to '%1'...").arg(m_serialPort), NormalMessageFormat);
         m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getCodaDevice(m_serialPort);
-
-        bool ok = m_codaDevice && m_codaDevice->device()->isOpen();
-        if (!ok) {
+        if (m_codaDevice.isNull()) {
+            appendMessage(tr("Unable to create CODA connection. Please try again."), ErrorMessageFormat);
+            return false;
+        }
+        if (!m_codaDevice->device()->isOpen()) {
             appendMessage(tr("Could not open serial device: %1").arg(m_codaDevice->device()->errorString()), ErrorMessageFormat);
             return false;
         }

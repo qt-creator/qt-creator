@@ -99,6 +99,7 @@ public:
     QString userArguments();
     void setUserArguments(const QString &arguments);
     void setClean(bool clean);
+    bool isClean() const;
 
     QVariantMap toMap() const;
 

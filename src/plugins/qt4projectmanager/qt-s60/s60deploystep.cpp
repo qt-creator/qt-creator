@@ -384,7 +384,7 @@ void S60DeployStep::startDeployment()
         }
     } else if (m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection) {
         appendMessage(tr("Deploying application to '%1'...").arg(m_serialPortFriendlyName), false);
-        m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getCodaDevice(m_serialPortName);
+        m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getCodaDevice(m_serialPortName);       
         bool ok = m_codaDevice && m_codaDevice->device()->isOpen();
         if (!ok) {
             QString deviceError = tr("No such port");
@@ -570,7 +570,10 @@ void S60DeployStep::handleSymbianInstall(const Coda::CodaCommandResult &result)
         else
             initFileInstallation();
     } else {
-        reportError(tr("Installation failed: %1").arg(result.errorString()));
+        reportError(tr("Installation failed: %1; "
+                       "see %2 for descriptions of the error codes")
+                    .arg(result.errorString(),
+                         QLatin1String("http://wiki.forum.nokia.com/index.php/Symbian_OS_Error_Codes")));
     }
 }
 

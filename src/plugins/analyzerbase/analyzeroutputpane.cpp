@@ -205,9 +205,11 @@ void AnalyzerOutputPane::createWidgets(QWidget *paneParent)
     m_paneWidget->setObjectName(objectName() + QLatin1String("Widget"));
     m_paneStackedLayout->addWidget(new QLabel(tr("No current analysis tool")));
 
-    m_toolbarStackedWidget = new QStackedWidget;
-    m_toolBarSeparator = new Utils::StyledSeparator;
+    // Temporarily assign to (wrong) parent to suppress flicker in conjunction with QStackedWidget.
+    m_toolbarStackedWidget = new QStackedWidget(paneParent);
     m_toolbarStackedWidget->setObjectName(objectName() + QLatin1String("ToolBarStackedWidget"));
+    m_toolBarSeparator = new Utils::StyledSeparator(paneParent);
+    m_toolBarSeparator->setObjectName(objectName() + QLatin1String("ToolBarSeparator"));
 
     // Add adapters added before.
     const int adapterCount = m_adapters.size();

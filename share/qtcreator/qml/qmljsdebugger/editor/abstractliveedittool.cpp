@@ -88,11 +88,7 @@ bool AbstractLiveEditTool::topItemIsMovable(const QList<QGraphicsItem*> & itemLi
     QGraphicsItem *firstSelectableItem = topMovableGraphicsItem(itemList);
     if (firstSelectableItem == 0)
         return false;
-
-    QDeclarativeItem *declarativeItem
-            = dynamic_cast<QDeclarativeItem*>(firstSelectableItem->toGraphicsObject());
-
-    if (declarativeItem != 0)
+    if (toQDeclarativeItem(firstSelectableItem) != 0)
         return true;
 
     return false;
@@ -122,7 +118,7 @@ bool AbstractLiveEditTool::topItemIsResizeHandle(const QList<QGraphicsItem*> &/*
 
 QDeclarativeItem *AbstractLiveEditTool::toQDeclarativeItem(QGraphicsItem *item)
 {
-    return dynamic_cast<QDeclarativeItem*>(item->toGraphicsObject());
+    return qobject_cast<QDeclarativeItem*>(item->toGraphicsObject());
 }
 
 QGraphicsItem *AbstractLiveEditTool::topMovableGraphicsItem(const QList<QGraphicsItem*> &itemList)

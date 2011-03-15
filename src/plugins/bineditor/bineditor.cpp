@@ -343,7 +343,7 @@ bool BinEditor::save(const QString &oldFileName, const QString &newFileName)
     if (oldFileName != newFileName) {
         QString tmpName;
         {
-            QTemporaryFile tmp;
+            QTemporaryFile tmp(newFileName + QLatin1String("_XXXXXX.new"));
             if (!tmp.open())
                 return false;
             tmpName = tmp.fileName();

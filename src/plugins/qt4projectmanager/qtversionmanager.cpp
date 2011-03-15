@@ -177,31 +177,38 @@ QtVersionManager::QtVersionManager()
         // Update from 2.1 or earlier:
         QString mingwDir = s->value(QLatin1String("MingwDirectory")).toString();
         if (!mingwDir.isEmpty()) {
-            ProjectExplorer::MingwToolChain *tc = createToolChain<ProjectExplorer::MingwToolChain>(ProjectExplorer::Constants::MINGW_TOOLCHAIN_ID);
-            if (tc) {
-                tc->setCompilerPath(QDir::fromNativeSeparators(mingwDir) + QLatin1String("/bin/gcc.exe"));
-                tc->setDisplayName(tr("MinGW from %1").arg(version->displayName()));
-                ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
+            QFileInfo fi(mingwDir + QLatin1String("/bin/g++.exe"));
+            if (fi.exists() && fi.isExecutable()) {
+                ProjectExplorer::MingwToolChain *tc = createToolChain<ProjectExplorer::MingwToolChain>(ProjectExplorer::Constants::MINGW_TOOLCHAIN_ID);
+                if (tc) {
+                    tc->setCompilerPath(fi.absoluteFilePath());
+                    tc->setDisplayName(tr("MinGW from %1").arg(version->displayName()));
+                    ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
+                }
             }
         }
         QString mwcDir = s->value(QLatin1String("MwcDirectory")).toString();
         if (!mwcDir.isEmpty()) {
-            WinscwToolChain *tc = createToolChain<WinscwToolChain>(Constants::WINSCW_TOOLCHAIN_ID);
-            if (tc) {
-                tc->setCompilerPath(QDir::fromNativeSeparators(mwcDir)
-                                    + QLatin1String("/x86Build/Symbian_Tools/Command_Line_Tools/mwwinrc.exe"));
-                tc->setDisplayName(tr("WINSCW from %1").arg(version->displayName()));
-                ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
+            QFileInfo fi(mwcDir + QLatin1String("/x86Build/Symbian_Tools/Command_Line_Tools/mwwinrc.exe"));
+            if (fi.exists() && fi.isExecutable()) {
+                WinscwToolChain *tc = createToolChain<WinscwToolChain>(Constants::WINSCW_TOOLCHAIN_ID);
+                if (tc) {
+                    tc->setCompilerPath(fi.absoluteFilePath());
+                    tc->setDisplayName(tr("WINSCW from %1").arg(version->displayName()));
+                    ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
+                }
             }
         }
         QString gcceDir = s->value(QLatin1String("GcceDirectory")).toString();
         if (!gcceDir.isEmpty()) {
-            GcceToolChain *tc = createToolChain<GcceToolChain>(Constants::GCCE_TOOLCHAIN_ID);
-            if (tc) {
-                tc->setCompilerPath(QDir::fromNativeSeparators(gcceDir)
-                                    + QLatin1String("/bin/arm-none-symbianelf-g++.exe"));
-                tc->setDisplayName(tr("GCCE from %1").arg(version->displayName()));
-                ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
+            QFileInfo fi(gcceDir + QLatin1String("/bin/arm-none-symbianelf-g++.exe"));
+            if (fi.exists() && fi.isExecutable()) {
+                GcceToolChain *tc = createToolChain<GcceToolChain>(Constants::GCCE_TOOLCHAIN_ID);
+                if (tc) {
+                    tc->setCompilerPath(fi.absoluteFilePath());
+                    tc->setDisplayName(tr("GCCE from %1").arg(version->displayName()));
+                    ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
+                }
             }
         }
 
@@ -369,6 +376,11 @@ void QtVersionManager::writeVersionsIntoSettings()
             s->setValue("autodetectionSource", version->autodetectionSource());
         s->setValue("S60SDKDirectory", version->systemRoot());
         s->setValue(QLatin1String("SBSv2Directory"), version->sbsV2Directory());
+        // Remove obsolete settings: New toolchains would be created at each startup
+        // otherwise, overriding manually set ones.
+        s->remove(QLatin1String("MingwDirectory"));
+        s->remove(QLatin1String("MwcDirectory"));
+        s->remove(QLatin1String("GcceDirectory"));
         ++it;
     }
     s->endArray();

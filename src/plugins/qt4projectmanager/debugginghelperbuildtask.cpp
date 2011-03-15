@@ -39,6 +39,8 @@
 #include <qt4projectmanager/qtversionmanager.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/debugginghelper.h>
+#include <projectexplorer/abi.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QCoreApplication>
 
@@ -47,7 +49,8 @@ using namespace Qt4ProjectManager::Internal;
 using ProjectExplorer::DebuggingHelperLibrary;
 
 
-DebuggingHelperBuildTask::DebuggingHelperBuildTask(const QtVersion *version, Tools tools)
+DebuggingHelperBuildTask::DebuggingHelperBuildTask(const QtVersion *version, Tools tools) :
+    m_tools(tools & availableTools(version))
 {
     if (!version || !version->isValid())
         return;
@@ -90,35 +93,32 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const QtVersion *version, Too
     m_qmakeCommand = version->qmakeCommand();
     m_makeCommand = tc->makeCommand();
     m_mkspec = version->mkspec();
-
-    m_tools = tools;
-
-    // Check the build requirements of the tools
-
-    if (m_tools & QmlDump) {
-        if (!QmlDumpTool::canBuild(version)) {
-            m_tools ^= QmlDump;
-        }
-    }
-
-    if (m_tools & QmlObserver) {
-        if (!QmlObserverTool::canBuild(version)) {
-            m_tools ^= QmlObserver;
-        } else {
-            m_tools |= QmlDebugging;
-        }
-    }
-
-    if (m_tools & QmlDebugging) {
-        if (!QmlDebuggingLibrary::canBuild(version)) {
-            m_tools ^= QmlDebugging;
-            m_tools &= ~QmlObserver; // remove observer if set
-        }
-    }
 }
 
 DebuggingHelperBuildTask::~DebuggingHelperBuildTask()
 {
+}
+
+DebuggingHelperBuildTask::Tools DebuggingHelperBuildTask::availableTools(const QtVersion *version)
+{
+    QTC_ASSERT(version, return 0; )
+    // Check the build requirements of the tools
+    DebuggingHelperBuildTask::Tools tools = 0;
+    // Gdb helpers are needed on Mac/gdb only.
+    foreach (const ProjectExplorer::Abi &abi, version->qtAbis()) {
+        if (abi.os() == ProjectExplorer::Abi::MacOS) {
+            tools |= DebuggingHelperBuildTask::GdbDebugging;
+            break;
+        }
+    }
+    if (QmlDumpTool::canBuild(version))
+        tools |= QmlDump;
+    if (QmlDebuggingLibrary::canBuild(version)) {
+        tools |= QmlDebugging;
+        if (QmlObserverTool::canBuild(version))
+            tools |= QmlObserver; // requires QML debugging.
+    }
+    return tools;
 }
 
 void DebuggingHelperBuildTask::run(QFutureInterface<void> &future)
@@ -185,8 +185,8 @@ bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &futu
             return false;
 
         QStringList qmakeArgs;
-        qmakeArgs << QLatin1String("INCLUDEPATH+=") + qmlDebuggingDirectory + "/include";
-        qmakeArgs << QLatin1String("LIBS+=-L") + qmlDebuggingDirectory;
+        qmakeArgs << QLatin1String("INCLUDEPATH+=\"\\\"") + qmlDebuggingDirectory + "include\\\"\"";
+        qmakeArgs << QLatin1String("LIBS+=-L\"\\\"") + qmlDebuggingDirectory + QLatin1String("\\\"\"");
 
         if (!QmlObserverTool::build(qmlObserverDirectory, m_makeCommand, m_qmakeCommand, m_mkspec,
                                     m_environment, m_target, qmakeArgs, output, &m_errorMessage))

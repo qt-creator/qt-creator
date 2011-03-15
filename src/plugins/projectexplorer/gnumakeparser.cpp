@@ -456,12 +456,7 @@ void ProjectExplorerPlugin::testGnuMakeParserTaskMangling()
     QFETCH(Task, outputTask);
 
     // setup files:
-    QString tempdir;
-#if defined Q_OS_WIN
-    tempdir = QDir::fromNativeSeparators(qgetenv("TEMP"));
-#else
-    tempdir = QLatin1String("/tmp");
-#endif
+    QString tempdir = QDir::tempPath();
     tempdir.append(QChar('/'));
     tempdir.append(QUuid::createUuid().toString());
     tempdir.append(QChar('/'));

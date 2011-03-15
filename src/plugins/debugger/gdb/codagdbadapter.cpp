@@ -1033,8 +1033,8 @@ void CodaGdbAdapter::startAdapter()
     } else {
         m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()
             ->getCodaDevice(parameters.remoteChannel);
-        bool ok = m_codaDevice && m_codaDevice->device()->isOpen();
 
+        bool ok = !m_codaDevice.isNull() && m_codaDevice->device()->isOpen();
         if (!ok) {
             QString msg = QString("Couldn't open serial device %1")
                     .arg(parameters.remoteChannel);

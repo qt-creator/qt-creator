@@ -103,6 +103,11 @@ void MakeStep::setClean(bool clean)
     m_clean = clean;
 }
 
+bool MakeStep::isClean() const
+{
+    return m_clean;
+}
+
 QVariantMap MakeStep::toMap() const
 {
     QVariantMap map(ProjectExplorer::AbstractProcessStep::toMap());
@@ -163,7 +168,7 @@ bool MakeStep::init()
 
     Utils::QtcProcess::addArgs(&args, m_userArgs);
 
-    if (!m_clean) {
+    if (!isClean()) {
         if (!bc->defaultMakeTarget().isEmpty())
             Utils::QtcProcess::addArg(&args, bc->defaultMakeTarget());
     }
@@ -172,7 +177,6 @@ bool MakeStep::init()
     // FIXME doing this without the user having a way to override this is rather bad
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
-
     if (toolchain
             && toolchain->targetAbi().binaryFormat() != ProjectExplorer::Abi::PEFormat
             && m_makeCmd.isEmpty())
@@ -295,12 +299,17 @@ void MakeStepConfigWidget::updateDetails()
         emit updateSummary();
         return;
     }
+
+    QString args = m_makeStep->userArguments();
+    if (!m_makeStep->isClean()) {
+        if (!bc->defaultMakeTarget().isEmpty())
+            Utils::QtcProcess::addArg(&args, bc->defaultMakeTarget());
+    }
     // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the
     // absolute file path
     // FIXME doing this without the user having a way to override this is rather bad
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
-    QString args = m_makeStep->userArguments();
     ProjectExplorer::ToolChain *toolChain = bc->toolChain();
     if (toolChain
         && toolChain->targetAbi().binaryFormat() != ProjectExplorer::Abi::PEFormat

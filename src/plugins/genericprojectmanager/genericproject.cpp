@@ -207,28 +207,23 @@ void GenericProject::refresh(RefreshOptions options)
     CPlusPlus::CppModelManagerInterface *modelManager =
         CPlusPlus::CppModelManagerInterface::instance();
 
-    if (m_toolChain && modelManager) {
-        const QByteArray predefinedMacros = m_toolChain->predefinedMacros();
-
+    if (modelManager) {
         CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
-        pinfo.defines = predefinedMacros;
-        pinfo.defines += '\n';
-        pinfo.defines += m_defines;
 
-        QStringList allIncludePaths;
-        QStringList allFrameworkPaths;
+        if (m_toolChain) {
+            pinfo.defines = m_toolChain->predefinedMacros();
+            pinfo.defines += '\n';
 
-        foreach (const HeaderPath &headerPath, m_toolChain->systemHeaderPaths()) {
-            if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
-                allFrameworkPaths.append(headerPath.path());
-            else
-                allIncludePaths.append(headerPath.path());
+            foreach (const HeaderPath &headerPath, m_toolChain->systemHeaderPaths()) {
+                if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
+                    pinfo.frameworkPaths.append(headerPath.path());
+                else
+                    pinfo.includePaths.append(headerPath.path());
+            }
         }
 
-        allIncludePaths += this->allIncludePaths();
-
-        pinfo.frameworkPaths = allFrameworkPaths;
-        pinfo.includePaths = allIncludePaths;
+        pinfo.includePaths += allIncludePaths();
+        pinfo.defines += m_defines;
 
         // ### add _defines.
         pinfo.sourceFiles = files();
@@ -335,6 +330,8 @@ void GenericProject::setToolChain(ToolChain *tc)
         return;
 
     m_toolChain = tc;
+    refresh(Configuration);
+
     emit toolChainChanged(m_toolChain);
 }
 
@@ -426,13 +423,14 @@ bool GenericProject::fromMap(const QVariantMap &map)
     }
 
     QString id = map.value(QLatin1String(TOOLCHAIN_KEY)).toString();
+    const ToolChainManager *toolChainManager = ToolChainManager::instance();
+
     if (!id.isNull()) {
-        setToolChain(ToolChainManager::instance()->findToolChain(id));
+        setToolChain(toolChainManager->findToolChain(id));
     } else {
-        QList<ToolChain *> tcs =
-                ToolChainManager::instance()->findToolChains(Abi::hostAbi());
+        QList<ToolChain *> tcs = toolChainManager->findToolChains(Abi::hostAbi());
         if (tcs.isEmpty())
-            tcs = ToolChainManager::instance()->toolChains();
+            tcs = toolChainManager->toolChains();
         if (!tcs.isEmpty())
             setToolChain(tcs.at(0));
     }
@@ -470,9 +468,9 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericTarget *target)
     connect(m_toolChainChooser, SIGNAL(activated(int)), this, SLOT(toolChainSelected(int)));
     connect(m_target->genericProject(), SIGNAL(toolChainChanged(ProjectExplorer::ToolChain*)),
             this, SLOT(toolChainChanged(ProjectExplorer::ToolChain*)));
-    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainAdded(ToolChain*)),
+    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
             this, SLOT(updateToolChainList()));
-    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainRemoved(ToolChain*)),
+    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
             this, SLOT(updateToolChainList()));
 }
 

@@ -225,8 +225,9 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
                 else // stream_op_cont already
                     turnInto(stream_op_cont);
                 break;
+            case T_RPAREN:
             case T_COMMA:
-            case T_SEMICOLON:   leave(); continue; // always nested, propagate semicolon
+            case T_SEMICOLON:   leave(); continue; // always nested, propagate
             } break;
 
         case member_init_open:

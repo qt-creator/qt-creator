@@ -627,9 +627,6 @@ bool SessionManager::loadImpl(const QString &fileName)
     if (debug)
         qDebug() << "SessionManager - restoring session returned " << success;
 
-    if (success)
-        emit sessionLoaded();
-
     return success;
 }
 
@@ -1031,6 +1028,7 @@ bool SessionManager::loadSession(const QString &session)
     if (QFileInfo(fileName).exists()) {
         if (loadImpl(fileName)) {
             updateName(session);
+            emit sessionLoaded();
             return true;
         }
     } else {
@@ -1038,6 +1036,7 @@ bool SessionManager::loadSession(const QString &session)
         if (!createImpl(sessionNameToFileName(session)))
             return false;
         updateName(session);
+        emit sessionLoaded();
         return true;
     }
     return false;

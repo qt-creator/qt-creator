@@ -295,12 +295,7 @@ QString S60DeviceRunConfiguration::localExecutableFileName() const
     if (!ti.valid)
         return QString();
 
-    const ProjectExplorer::Abi hostAbi = ProjectExplorer::Abi::hostAbi();
-    if (hostAbi.os() == ProjectExplorer::Abi::LinuxOS) {
-        return executableFromPackageUnix(ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg"));
-    }
-
-    ProjectExplorer::ToolChain *tc = qt4Target()->activeBuildConfiguration()->toolChain();
+    ProjectExplorer::ToolChain *tc = target()->activeBuildConfiguration()->toolChain();
     return localExecutableFromVersion(qtVersion(), symbianTarget(), targetName(), tc);
 }
 

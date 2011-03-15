@@ -9,20 +9,107 @@ git log --cherry-pick --pretty=oneline origin/master...origin/2.1
 
 General
    * Added support for running user defined external tools (Tools->External)
+   * Moved toolchain definitions out of Qt versions. You can now define
+     toolchains in Tools->Options->ToolChains. Creator now supports
+     more than one instance of each kind of toolchain.
 
 Editing
    * Add new Inkpot color scheme
    * Moved 'Open in External Editor' to Tools->External->Text
+   * Add UTF-8 BOM support
 
 Project Support
+   * QMake project support should be more robust against syntax errors
+   * Treatment of command line arguments of processes started from build
+     and run configurations underwent heavy modifications:
+     - argument lists use native shell syntax; this affects quoting and
+       environment variable expansion most
+     - the SOURCEDIR and BUILDDIR environment variables were replaced
+       with %{sourceDir} and %{buildDir} macros
+     - this affects working directories and executable paths as well
 
 Debugging
+   * Rewrote debugging engine using the Microsoft Console Debugger (CDB)
+     for debugging executables built with Microsoft Visual Studio,
+     resulting in significant speed-up and better display of data
+     types, supporting both 32bit and 64bit versions of the
+     Debugging Tools for Windows.
+   * Made it possible to pin debugger tooltips.
+   * Reworked global architecture to allow multiple debugging sessions (for
+     different projects, combined Qml/C++ debugging, project 'snapshots', ...)
+   * Reworked breakpoint handling: new special breakpoint types for "break
+     on throw", "break on main", data breakpoints.
+   * Introduce combined c++/qml debugging (combined stack, cross-step)
+   * Rework per-type and per-item selection of display formats
+   * New dumpers for QTextCursor, QTextDocument, __m128, QScriptValue
+     QBasicAtomicPointer, bit fields, boost::shared_ptr
+   * Improve dumpers for QRegion, QVariant (custom types), QSharedPointer,
+     QMultiMap (QTCREATORBUG-3122), QObject, QWeakPointer
+   * Make alphabetic structure member sorting optional
+   * Make dumpers robust in case of missing debug information
+   * Improve python dumper profiling support
+   * Improve stepping performance
+   * Enable breakpoint setting from a disassembler view, QTCREATORBUG-3667
+   * Fix display of shadowed variables.
+   * Fix display of data containing quoote characters, QTCREATORBUG-3084
+   * Fix display of C style 'typedef struct X { ... } X;
+   * Fix stack/break view updates after manual module loading, QTCREATORBUG-3427
+   * Fix 'Jump To/Run to' when in instruction-wise mode
+   * Several fixed to the "watcher" handling
+   * Allow re-running debugger engines, QTCREATORBUG-3073
+   * Robust process control after -exec-interrupt errors, QTCREATORBUG-2850
+   * Robust detection of Qt-in-namespace builds
+   * Handle "live updates" in the memory view
+   * Make memory view writable
+   * Improve starting debugger session directly from the command line
+
+BinEditor:
+   * Visualize data differences after updates
+   * Fix selection if cursor is left of anchor
+   * Allow copying also if selection is "backwards"
+   * Do not draw blinking cursor when there is a selection
+
 
 Help
 
+C++ Support
+   * Add QuickFix for implementing setters/getters for a Q_PROPERTY
+   * Add documentation about QuickFixes
+   * Fix switch statement indentation for GNU and Whitesmiths
+     style, QTCREATORBUG-2994
+   * Fix indentation of labels
+
 QML/JS Support
+   * Gui cosmetics in JS debugger: Show stack frame level, only valid
+     line numbers in stack view, do not show function code, show dummy
+     child entry for empty arrays
+   * Add wizard for creating JavaScript files, QTCREATORBUG-3070
+   * Add local-file completion for url properties, QTCREATORBUG-2619
+   * Add warning about invalid files in url properties
+   * Add file name completion in imports, QTCREATORBUG-3067
+   * Add a locator filter for JS functions, QTCREATORBUG-2607
+   * Add JSlint-style warnings about common JS pitfalls, QTCREATORBUG-3071
+   * Add completion for attached properties like Component.onCompleted
+   * Allow QML modules to ship predumped type description files.
+   * Reenable instantiating component scope detection, QTCREATORBUG-2835
+   * Improve error reporting of failed plugin dumps
+   * Complete a trailing '{' for 'A on b' object bindings, QTCREATORBUG-2642
+   * Highlight capitalized types, QTCREATORBUG-2658
+   * Re-dump a plugin if the shared library/dll changes, QTCREATORBUG-3047
+   * Build qmldump in debug and release version on Windows, QTCREATORBUG-3549
+   * Change qmldump to output QML instead of XML
+   * Fix automatic '.' import to also pick up QML modules, QTCREATORBUG-3768
+   * Fix code model update when files are renamed, QTCREATORBUG-2986
+   * Fix incorrect completion when brace is on separate line, QTCREATORBUG-2658
+   * Fix quote autoinsertion in string literals, QTCREATORBUG-2155, QTCREATORBUG-3244
+   * Fix '{' not being an electric character, QTCREATORBUG-3405
+   * Fix indentation of 'foo: Namesp.Type {', QTCREATORBUG-3371
 
 FakeVim:
+   * Implement Ctrl-N/Ctrl-P
+   * Implement 's' in visual block mode
+   * Fix Alt-Gr handling on Windows
+   * Handle more Ctrl-W + <x> commands
 
 Platform Specific
 
@@ -33,6 +120,7 @@ Linux (GNOME and KDE)
 Windows
 
 Symbian Target
+   * Added support for the new on-device debugging agent (CODA)
 
 Maemo Target
 
@@ -41,6 +129,14 @@ Designer
 Version control plugins
 
 Wizards
+   * Support new keywords %MONTH% and %DAY% for C++ template file
+
+Misc
+   * Create infrastructure to setup "soft dependencies" between plugins
+   * Add a little tool 'qtpromaker' doing the job of 'qmake -project', but
+     much faster to make Qt Creator usable to quickly inspect and navigate
+     "alien" codebases a way to easily set up dummy .pro files is needed.
+   * Start documenting Qt Creator's coding style guidelines
 
 Additional credits go to:
    * The Inkpot color scheme was based on the Vim color scheme by

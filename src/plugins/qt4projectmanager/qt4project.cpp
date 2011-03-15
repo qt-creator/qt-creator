@@ -877,7 +877,7 @@ void Qt4Project::addDefaultBuild()
 
 void Qt4Project::proFileParseError(const QString &errorMessage)
 {
-    Core::ICore::instance()->messageManager()->printToOutputPane(errorMessage);
+    Core::ICore::instance()->messageManager()->printToOutputPanePopup(errorMessage);
 }
 
 ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc)

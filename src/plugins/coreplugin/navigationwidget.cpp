@@ -79,8 +79,10 @@ NavigationWidgetPlaceHolder::NavigationWidgetPlaceHolder(Core::IMode *mode, QWid
 NavigationWidgetPlaceHolder::~NavigationWidgetPlaceHolder()
 {
     if (m_current == this) {
-        NavigationWidget::instance()->setParent(0);
-        NavigationWidget::instance()->hide();
+        if (NavigationWidget *nw = NavigationWidget::instance()) {
+            nw->setParent(0);
+            nw->hide();
+        }
     }
 }
 

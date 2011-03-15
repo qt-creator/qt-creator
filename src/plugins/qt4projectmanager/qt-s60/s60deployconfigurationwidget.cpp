@@ -301,6 +301,9 @@ QWidget *S60DeployConfigurationWidget::createCommunicationChannel()
     communicationChannelGridLayout->addLayout(wlanChannelLayout, 1, 1);
 
     communicationChannelGroupBox->setLayout(communicationChannelGridLayout);
+
+    updateCommunicationChannelUi();
+
     return communicationChannelGroupBox;
 }
 
@@ -408,6 +411,33 @@ void S60DeployConfigurationWidget::setSerialPort(int index)
     m_deployConfiguration->setSerialPortName(d.portName());
     m_deviceInfoButton->setEnabled(index >= 0);
     clearDeviceInfo();
+}
+
+void S60DeployConfigurationWidget::updateCommunicationChannelUi()
+{
+    S60DeployConfiguration::CommunicationChannel channel = m_deployConfiguration->communicationChannel();
+    if (channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
+        m_trkRadioButton->setChecked(true);
+        m_codaRadioButton->setChecked(false);
+        m_serialRadioButton->setChecked(true);
+        m_wlanRadioButton->setDisabled(true);
+        m_ipAddress->setDisabled(true);
+        m_serialPortsCombo->setDisabled(false);
+        updateSerialDevices();
+    } else {
+        m_trkRadioButton->setChecked(false);
+        m_codaRadioButton->setChecked(true);
+        m_wlanRadioButton->setDisabled(false);
+        if (channel == S60DeployConfiguration::CommunicationCodaTcpConnection) {
+            m_ipAddress->setDisabled(false);
+            m_serialPortsCombo->setDisabled(true);
+            m_deviceInfoButton->setEnabled(true);
+        } else {
+            m_ipAddress->setDisabled(true);
+            m_serialPortsCombo->setDisabled(false);
+            updateSerialDevices();
+        }
+    }
 }
 
 void S60DeployConfigurationWidget::updateCommunicationChannel()
@@ -552,6 +582,10 @@ void S60DeployConfigurationWidget::updateDeviceInfo()
     } else if (m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationCodaSerialConnection) {
         const SymbianUtils::SymbianDevice commDev = currentDevice();
         m_codaInfoDevice = SymbianUtils::SymbianDeviceManager::instance()->getCodaDevice(commDev.portName());
+        if (m_codaInfoDevice.isNull()) {
+            setDeviceInfoLabel(tr("Unable to create CODA connection. Please try again."), true);
+            return;
+        }
         if (!m_codaInfoDevice->device()->isOpen()) {
             setDeviceInfoLabel(m_codaInfoDevice->device()->errorString(), true);
             return;
