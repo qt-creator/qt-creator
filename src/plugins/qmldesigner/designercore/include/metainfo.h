@@ -67,7 +67,7 @@ class CORESHARED_EXPORT MetaInfo
     friend class QmlDesigner::Internal::ModelPrivate;
     friend class QmlDesigner::Internal::MetaInfoParser;
     friend class QmlDesigner::Internal::SubComponentManagerPrivate;
-    friend bool QmlDesigner::operator==(const MetaInfo &, const MetaInfo &);
+    friend bool operator==(const MetaInfo &, const MetaInfo &);
 
 public:
     MetaInfo(const MetaInfo &metaInfo);
