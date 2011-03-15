@@ -26,6 +26,12 @@ Project Support
      - this affects working directories and executable paths as well
 
 Debugging
+   * Rewrote debugging engine using the Microsoft Console Debugger (CDB)
+     for debugging executables built with Microsoft Visual Studio,
+     resulting in significant speed-up and better display of data
+     types, supporting both 32bit and 64bit versions of the
+     Debugging Tools for Windows.
+   * Made it possible to pin debugger tooltips.
    * Reworked global architecture to allow multiple debugging sessions (for
      different projects, combined Qml/C++ debugging, project 'snapshots', ...)
    * Reworked breakpoint handling: new special breakpoint types for "break
