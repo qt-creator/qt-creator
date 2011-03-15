@@ -137,10 +137,10 @@ QDateTime CodaCommandResult::tcfTimeToQDateTime(quint64 tcfTimeMS)
 void CodaCommandError::write(QTextStream &str) const
 {
     if (isError()) {
-        if (timeMS)
+        if (debug && timeMS)
             str << CodaCommandResult::tcfTimeToQDateTime(timeMS).toString(Qt::ISODate) << ": ";
-        str << "Error code: " << code
-                << " '" << format << '\'';
+        str << "'" << format << '\'' //for symbian the format is the real error message
+                << " Code: " << code;
         if (!alternativeOrganization.isEmpty())
             str << " ('" << alternativeOrganization << "', code: " << alternativeCode << ')';
     } else{
