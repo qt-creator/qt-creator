@@ -60,6 +60,7 @@ macx {
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 
 CONFIG += plugin plugin_with_soname
+linux*:QMAKE_LFLAGS += $$QMAKE_LFLAGS_NOUNDEF
 
 !macx {
     target.path = /$$IDE_LIBRARY_BASENAME/qtcreator/plugins/$$PROVIDER

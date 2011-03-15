@@ -146,12 +146,6 @@ unix {
     UI_DIR = $${OUT_PWD}/.uic
 }
 
-linux-g++* {
-    # Bail out on non-selfcontained libraries. Just a security measure
-    # to prevent checking in code that does not compile on other platforms.
-    QMAKE_LFLAGS += -Wl,--allow-shlib-undefined -Wl,--no-undefined
-}
-
 win32-msvc* { 
     #Don't warn about sprintf, fopen etc being 'unsafe'
     DEFINES += _CRT_SECURE_NO_WARNINGS
