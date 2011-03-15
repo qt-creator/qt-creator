@@ -176,8 +176,10 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
             str << bp.module << '!';
         str << cdbBreakPointFileName(bp, sourcePathMapping) << ':' << bp.lineNumber << '`';
         break;
-    case Watchpoint: // Read/write 1 byte
-        str << "rw 1 " << hex << hexPrefixOn << bp.address << hexPrefixOff << dec;
+    case Watchpoint: { // Read/write, no space here
+        const unsigned size = bp.size ? bp.size : 1;
+        str << "r" << size << ' ' << hex << hexPrefixOn << bp.address << hexPrefixOff << dec;
+    }
         break;
     }
     if (bp.ignoreCount)
