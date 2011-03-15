@@ -27,6 +27,8 @@ Project Support
      - the SOURCEDIR and BUILDDIR environment variables were replaced
        with %{sourceDir} and %{buildDir} macros
      - this affects working directories and executable paths as well
+   * CMake: Add Ui completion, changes in .ui files are picked up without
+     a rebuild.
 
 Debugging
    * Rewrote debugging engine using the Microsoft Console Debugger (CDB)
