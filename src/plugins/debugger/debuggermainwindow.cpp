@@ -507,6 +507,7 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     splitter->addWidget(mainWindowSplitter);
     splitter->setStretchFactor(0, 0);
     splitter->setStretchFactor(1, 1);
+    splitter->setObjectName(QLatin1String("DebugModeWidget"));
     return splitter;
 }
 
