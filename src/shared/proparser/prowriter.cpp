@@ -271,7 +271,7 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines,
             if (scopeStart < 0) {
                 added = QLatin1Char('\n') + scope + QLatin1String(" {");
             } else {
-                QRegExp rx(QLatin1String("(\\s*") + scope + QLatin1String("\\s*:\\s*).*"));
+                QRegExp rx(QLatin1String("(\\s*") + scope + QLatin1String("\\s*:\\s*)[^\\s{].*"));
                 if (rx.exactMatch(lines->at(scopeStart))) {
                     (*lines)[scopeStart].replace(0, rx.cap(1).length(),
                                                  QString(scope + QLatin1String(" {\n    ")));

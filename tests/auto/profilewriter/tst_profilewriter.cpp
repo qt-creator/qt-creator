@@ -395,6 +395,17 @@ void tst_ProFileWriter::adds_data()
             "}"
         },
         {
+            PW::AppendValues|PW::AppendOperator|PW::OneLine,
+            "scoped new / pseudo-oneline-scope", f_foo, "dog",
+            "# test file\n"
+            "dog: {\n"
+            "}",
+            "# test file\n"
+            "dog: {\n"
+            "    SOURCES += foo\n"
+            "}"
+        },
+        {
             PW::AppendValues|PW::AppendOperator|PW::MultiLine,
             "scoped append", f_foo, "dog",
             "# test file\n"
