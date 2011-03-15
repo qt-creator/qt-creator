@@ -193,6 +193,19 @@ void tst_ProFileWriter::adds_data()
         },
         {
             PW::AppendValues|PW::AppendOperator|PW::MultiLine,
+            "add new after some scope", f_foo, 0,
+            "unix {\n"
+            "    SOMEVAR = foo\n"
+            "}",
+            "unix {\n"
+            "    SOMEVAR = foo\n"
+            "}\n"
+            "\n"
+            "SOURCES += \\\n"
+            "    foo"
+        },
+        {
+            PW::AppendValues|PW::AppendOperator|PW::MultiLine,
             "add to existing (wrong operator)", f_foo, 0,
             "SOURCES = some files",
             "SOURCES = some files \\\n"
@@ -344,6 +357,41 @@ void tst_ProFileWriter::adds_data()
             "    HEADERS += yo\n"
             "\n"
             "    SOURCES += foo\n"
+            "}"
+        },
+        {
+            PW::AppendValues|PW::AppendOperator|PW::OneLine,
+            "scoped new / extend oneline scope with multiline body", f_foo, "dog",
+            "# test file\n"
+            "dog:HEADERS += yo \\\n"
+            "        you\n"
+            "\n"
+            "blubb()",
+            "# test file\n"
+            "dog {\n"
+            "    HEADERS += yo \\\n"
+            "        you\n"
+            "\n"
+            "    SOURCES += foo\n"
+            "}\n"
+            "\n"
+            "blubb()"
+        },
+        {
+            PW::AppendValues|PW::AppendOperator|PW::MultiLine,
+            "add new after some scope inside scope", f_foo, "dog",
+            "dog {\n"
+            "    unix {\n"
+            "        SOMEVAR = foo\n"
+            "    }\n"
+            "}",
+            "dog {\n"
+            "    unix {\n"
+            "        SOMEVAR = foo\n"
+            "    }\n"
+            "\n"
+            "    SOURCES += \\\n"
+            "        foo\n"
             "}"
         },
         {

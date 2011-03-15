@@ -210,8 +210,6 @@ bool ProWriter::locateVarValues(const ushort *tokPtr,
             }
         }
     }
-    if (inScope || *scopeStart < 0)
-        *bestLine = qMax(lineNo - 1, 0);
     return false;
 }
 
@@ -268,6 +266,7 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines,
     } else {
         // Create & append new variable item
         QString added;
+        int lNo = lines->count();
         if (!scope.isEmpty()) {
             if (scopeStart < 0) {
                 added = QLatin1Char('\n') + scope + QLatin1String(" {");
@@ -276,11 +275,29 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines,
                 if (rx.exactMatch(lines->at(scopeStart))) {
                     (*lines)[scopeStart].replace(0, rx.cap(1).length(),
                                                  QString(scope + QLatin1String(" {\n    ")));
+                    lNo = skipContLines(lines, scopeStart, false);
                     scopeStart = -1;
                 }
             }
         }
-        int lNo = skipContLines(lines, lineNo, false);
+        if (scopeStart >= 0) {
+            lNo = scopeStart;
+            int braces = 0;
+            do {
+                const QString &line = (*lines).at(lNo);
+                for (int i = 0; i < line.size(); i++)
+                    // This is pretty sick, but qmake does pretty much the same ...
+                    if (line.at(i) == QLatin1Char('{')) {
+                        ++braces;
+                    } else if (line.at(i) == QLatin1Char('}')) {
+                        if (!--braces)
+                            break;
+                    } else if (line.at(i) == QLatin1Char('#')) {
+                        break;
+                    }
+            } while (braces && ++lNo < lines->size());
+        }
+        for (; lNo > scopeStart + 1 && lines->at(lNo - 1).isEmpty(); lNo--) ;
         if (lNo != scopeStart + 1)
             added += QLatin1Char('\n');
         added += indent + var + QLatin1String((flags & AppendOperator) ? " +=" : " =");
