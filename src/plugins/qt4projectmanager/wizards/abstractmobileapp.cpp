@@ -43,7 +43,6 @@
 #endif // CREATORLESSTEST
 
 namespace Qt4ProjectManager {
-namespace Internal {
 
 AbstractGeneratedFileInfo::AbstractGeneratedFileInfo()
     : fileType(ExtendedFile)
@@ -474,5 +473,4 @@ void AbstractMobileApp::insertParameter(QString &line, const QString &parameter)
         QLatin1Char('(') + parameter + QLatin1Char(')'));
 }
 
-} // namespace Internal
 } // namespace Qt4ProjectManager

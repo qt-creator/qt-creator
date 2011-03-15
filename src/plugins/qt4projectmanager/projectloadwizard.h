@@ -38,9 +38,9 @@
 
 namespace Qt4ProjectManager {
 class Qt4Project;
+class TargetSetupPage;
 
 namespace Internal {
-class TargetSetupPage;
 
 class ProjectLoadWizard : public QWizard
 {

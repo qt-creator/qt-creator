@@ -34,28 +34,31 @@
 #ifndef ABSTRACTMOBILEAPPWIZARD_H
 #define ABSTRACTMOBILEAPPWIZARD_H
 
+#include <qt4projectmanager/qt4projectmanager_global.h>
 #include <coreplugin/basefilewizard.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
 
 namespace Qt4ProjectManager {
-namespace Internal {
 
 class AbstractMobileApp;
+class TargetSetupPage;
+
+namespace Internal {
 class MobileAppWizardGenericOptionsPage;
 class MobileAppWizardSymbianOptionsPage;
 class MobileAppWizardMaemoOptionsPage;
+}
 
-class AbstractMobileAppWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
+/// \internal
+class QT4PROJECTMANAGER_EXPORT AbstractMobileAppWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
 {
     Q_OBJECT
+
 protected:
     explicit AbstractMobileAppWizardDialog(QWidget *parent = 0);
 
 public:
-    MobileAppWizardGenericOptionsPage *m_genericOptionsPage;
-    MobileAppWizardSymbianOptionsPage *m_symbianOptionsPage;
-    MobileAppWizardMaemoOptionsPage *m_maemoOptionsPage;
-    class TargetSetupPage *m_targetsPage;
+    TargetSetupPage *targetsPage() const;
 
 protected:
     int addPageWithTitle(QWizardPage *page, const QString &title);
@@ -63,10 +66,16 @@ protected:
     virtual void cleanupPage(int id);
 
 private:
+
     virtual int nextId() const;
 
     int idOfNextGenericPage() const;
     Utils::WizardProgressItem *itemOfNextGenericPage() const;
+
+    Internal::MobileAppWizardGenericOptionsPage *m_genericOptionsPage;
+    Internal::MobileAppWizardSymbianOptionsPage *m_symbianOptionsPage;
+    Internal::MobileAppWizardMaemoOptionsPage *m_maemoOptionsPage;
+    TargetSetupPage *m_targetsPage;
 
     int m_genericOptionsPageId;
     int m_symbianOptionsPageId;
@@ -76,9 +85,12 @@ private:
     Utils::WizardProgressItem *m_genericItem;
     Utils::WizardProgressItem *m_symbianItem;
     Utils::WizardProgressItem *m_maemoItem;
+
+    friend class AbstractMobileAppWizard;
 };
 
-class AbstractMobileAppWizard : public Core::BaseFileWizard
+/// \internal
+class QT4PROJECTMANAGER_EXPORT AbstractMobileAppWizard : public Core::BaseFileWizard
 {
     Q_OBJECT
 protected:
@@ -107,7 +119,6 @@ private:
         QString *errorMessage) const=0;
 };
 
-} // namespace Internal
 } // namespace Qt4ProjectManager
 
 #endif // ABSTRACTMOBILEAPPWIZARD_H

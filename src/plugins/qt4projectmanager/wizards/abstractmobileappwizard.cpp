@@ -48,7 +48,6 @@
 #include <QtGui/QIcon>
 
 namespace Qt4ProjectManager {
-namespace Internal {
 
 AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent)
     : ProjectExplorer::BaseProjectWizardDialog(parent)
@@ -58,13 +57,13 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent)
     m_targetsPage->setMinimumQtVersion(QtVersionNumber(4,7,0));
     resize(900, 450);
     m_targetsPageId = addPageWithTitle(m_targetsPage, tr("Qt Versions"));
-    m_genericOptionsPage = new MobileAppWizardGenericOptionsPage;
+    m_genericOptionsPage = new Internal::MobileAppWizardGenericOptionsPage;
     m_genericOptionsPageId = addPageWithTitle(m_genericOptionsPage,
         tr("Mobile Options"));
-    m_symbianOptionsPage = new MobileAppWizardSymbianOptionsPage;
+    m_symbianOptionsPage = new Internal::MobileAppWizardSymbianOptionsPage;
     m_symbianOptionsPageId = addPageWithTitle(m_symbianOptionsPage,
         QLatin1String("    ") + tr("Symbian Specific"));
-    m_maemoOptionsPage = new MobileAppWizardMaemoOptionsPage;
+    m_maemoOptionsPage = new Internal::MobileAppWizardMaemoOptionsPage;
     m_maemoOptionsPageId = addPageWithTitle(m_maemoOptionsPage,
         QLatin1String("    ") + tr("Maemo Specific"));
 
@@ -76,6 +75,11 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent)
     m_targetItem->setNextShownItem(0);
     m_genericItem->setNextShownItem(0);
     m_symbianItem->setNextShownItem(0);
+}
+
+TargetSetupPage *AbstractMobileAppWizardDialog::targetsPage() const
+{
+    return m_targetsPage;
 }
 
 int AbstractMobileAppWizardDialog::addPageWithTitle(QWizardPage *page, const QString &title)
@@ -250,5 +254,4 @@ void AbstractMobileAppWizard::useProjectPath(const QString &projectName,
     projectPathChanged(app()->path(AbstractMobileApp::AppPro));
 }
 
-} // namespace Internal
 } // namespace Qt4ProjectManager

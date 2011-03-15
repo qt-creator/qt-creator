@@ -45,11 +45,11 @@
 namespace Qt4ProjectManager {
 
 class Qt4Project;
+class TargetSetupPage;
 
 namespace Internal {
 
 class ModulesPage;
-class TargetSetupPage;
 
 /* Base class for wizard creating Qt projects using QtProjectParameters.
  * To implement a project wizard, overwrite:

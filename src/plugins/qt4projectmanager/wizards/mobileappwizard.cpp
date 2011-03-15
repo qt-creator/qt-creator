@@ -105,13 +105,13 @@ Core::BaseFileWizardParameters MobileAppWizard::parameters()
 AbstractMobileAppWizardDialog *MobileAppWizard::createWizardDialogInternal(QWidget *parent) const
 {
     m_d->wizardDialog = new MobileAppWizardDialog(parent);
-    m_d->wizardDialog->m_targetsPage->setPreferMobile(true);
+    m_d->wizardDialog->targetsPage()->setPreferMobile(true);
     return m_d->wizardDialog;
 }
 
 void MobileAppWizard::projectPathChanged(const QString &path) const
 {
-    m_d->wizardDialog->m_targetsPage->setProFilePath(path);
+    m_d->wizardDialog->targetsPage()->setProFilePath(path);
 }
 
 void MobileAppWizard::prepareGenerateFiles(const QWizard *w,
