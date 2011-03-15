@@ -9,6 +9,9 @@ git log --cherry-pick --pretty=oneline origin/master...origin/2.1
 
 General
    * Added support for running user defined external tools (Tools->External)
+   * Moved toolchain definitions out of Qt versions. You can now define
+     toolchains in Tools->Options->ToolChains. Creator now supports
+     more than one instance of each kind of toolchain.
 
 Editing
    * Add new Inkpot color scheme
