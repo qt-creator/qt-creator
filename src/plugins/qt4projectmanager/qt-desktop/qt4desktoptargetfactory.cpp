@@ -154,8 +154,10 @@ QList<BuildConfigurationInfo> Qt4DesktopTargetFactory::availableBuildConfigurati
                 Qt4BaseTargetFactory::createTargetSetupWidget(id,  proFilePath,
                                                               number,  importEnabled,
                                                               importInfos));
-    if (widget)
+    if (widget) {
         widget->setShadowBuildCheckBoxVisible(true);
+        widget->setBuildConfiguraionComboBoxVisible(true);
+    }
     return widget;
 }
 

@@ -52,6 +52,7 @@ class QCheckBox;
 class QHBoxLayout;
 class QGridLayout;
 class QLabel;
+class QComboBox;
 class QPushButton;
 QT_END_NAMESPACE
 
@@ -125,15 +126,27 @@ public:
     void setProFilePath(const QString &proFilePath);
 
     void setShadowBuildCheckBoxVisible(bool b);
+    void setBuildConfiguraionComboBoxVisible(bool b);
 
-public slots:
+    enum BuildConfigurationTemplate { PERQT = 0,
+                                      ONEQT = 1,
+                                      MANUALLY = 2,
+                                      NONE = 3 };
+    BuildConfigurationTemplate buildConfigurationTemplate() const;
+    void setBuildConfigurationTemplate(BuildConfigurationTemplate value);
+
+    void storeSettings() const;
+private slots:
     void addImportClicked();
     void checkBoxToggled(bool b);
     void importCheckBoxToggled(bool b);
     void pathChanged();
     void shadowBuildingToggled();
+    void buildConfigurationComboBoxChanged();
+    void qtVersionChanged();
 
 private:
+    void updateWidgetVisibility();
     void setBuildConfigurationInfos(const QList<BuildConfigurationInfo> &list, bool resetEnabled = true);
     bool reportIssues(int index);
     QPair<ProjectExplorer::Task::TaskType, QString> findIssues(const BuildConfigurationInfo &info);
@@ -147,6 +160,10 @@ private:
     QGridLayout *m_importLayout;
     QGridLayout *m_newBuildsLayout;
     QCheckBox *m_shadowBuildEnabled;
+    QLabel *m_buildConfigurationLabel;
+    QComboBox *m_buildConfigurationComboBox;
+    QLabel *m_versionLabel;
+    QComboBox *m_versionComboBox;
     QWidget *m_spacerTopWidget;
     QWidget *m_spacerBottomWidget;
 
@@ -168,12 +185,14 @@ private:
     QList<BuildConfigurationInfo> m_importInfos;
     QList<bool> m_importEnabled;
     QList<QLabel *> m_reportIssuesLabels;
+    QList<bool> m_issues;
     bool m_directoriesEnabled;
     bool m_hasInSourceBuild;
     bool m_ignoreChange;
     bool m_showImport;
-    int m_selected;
-
+    bool m_buildConfigurationTemplateUnchanged;
+    int m_selected; // Number of selected buildconfiguartions
+    int m_qtVersionId; // version id for "One Qt" entry
 };
 
 } // namespace Qt4ProjectManager
