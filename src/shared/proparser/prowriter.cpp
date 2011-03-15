@@ -403,6 +403,7 @@ QList<int> ProWriter::removeVarValues(ProFile *profile, QStringList *lines,
                        idx -= len;
                        if (idx >= 0)
                            line.insert(idx, QLatin1String("# ") + fn + QLatin1Char(' '));
+                       chars = line.data();
                        killed = true;
                    } else {
                        saved = true;
