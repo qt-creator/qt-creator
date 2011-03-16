@@ -4363,7 +4363,9 @@ void BaseTextEditorWidget::indentOrUnindent(bool doIndent)
         QTextBlock startBlock = doc->findBlock(start);
         QTextBlock endBlock = doc->findBlock(end-1).next();
 
-        if (startBlock.next() == endBlock) { // Only one line selected
+        if (startBlock.next() == endBlock
+                && (start > startBlock.position() || end < endBlock.position() - 1)) {
+            // Only one line partially selected.
             cursor.removeSelectedText();
         } else {
             for (QTextBlock block = startBlock; block != endBlock; block = block.next()) {
