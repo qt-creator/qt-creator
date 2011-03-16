@@ -2408,15 +2408,18 @@ void testFork()
     ba.append('x');
 }
 
+typedef void *VoidPtr;
+typedef const void *CVoidPtr;
+
 class A
 {
 public:
-A() : test(7) {}
-int test;
-void doSomething() const;
+    A() : test(7) {}
+    int test;
+    void doSomething(CVoidPtr cp) const;
 };
 
-void A::doSomething() const
+void A::doSomething(CVoidPtr cp) const
 {
     std::cout << test << std::endl;
 }
@@ -2424,7 +2427,9 @@ void A::doSomething() const
 void testStuffA()
 {
     A a;
-    a.doSomething();
+    VoidPtr p = &a;
+    CVoidPtr cp = &a;
+    a.doSomething(cp);
 }
 
 

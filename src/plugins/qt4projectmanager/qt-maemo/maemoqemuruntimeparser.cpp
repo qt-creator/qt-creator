@@ -424,7 +424,8 @@ MaemoQemuSettings::OpenGlMode MaemoQemuRuntimeParserV2::openGlTagToEnum(const QS
         return MaemoQemuSettings::SoftwareRendering;
     if (tag == QLatin1String("autodetect"))
         return MaemoQemuSettings::AutoDetect;
-    QTC_ASSERT(false, return MaemoQemuSettings::AutoDetect);
+    QTC_ASSERT(false, /**/);
+    return MaemoQemuSettings::AutoDetect;
 }
 
 }   // namespace Internal
