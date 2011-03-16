@@ -239,9 +239,13 @@ QStringList HelpManager::findKeywords(const QString &key, int maxHits) const
     DbCleaner cleaner(name);
     QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
     if (db.driver() && db.driver()->lastError().type() == QSqlError::NoError) {
-        const QStringList &registeredDocs = d->m_helpEngine->registeredDocumentations();
+        QHelpEngineCore core(collectionFilePath());
+        core.setAutoSaveFilter(false);
+        core.setCurrentFilter(tr("Unfiltered"));
+        core.setupData();
+        const QStringList &registeredDocs = core.registeredDocumentations();
         foreach (const QString &nameSpace, registeredDocs) {
-            db.setDatabaseName(d->m_helpEngine->documentationFileName(nameSpace));
+            db.setDatabaseName(core.documentationFileName(nameSpace));
             if (db.open()) {
                 QSqlQuery query = QSqlQuery(db);
                 query.setForwardOnly(true);
