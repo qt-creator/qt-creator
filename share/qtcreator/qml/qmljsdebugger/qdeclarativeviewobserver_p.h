@@ -89,7 +89,7 @@ public:
     bool showAppOnTop;
 
     bool executionPaused;
-    qreal slowdownFactor;
+    qreal slowDownFactor;
 
     ToolBox *toolBox;
 

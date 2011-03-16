@@ -224,7 +224,6 @@ void QDeclarativeObserverService::setCurrentTool(QmlJSDebugger::Constants::Desig
 
 void QDeclarativeObserverService::setAnimationSpeed(qreal slowdownFactor)
 {
-
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
