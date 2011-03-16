@@ -2366,11 +2366,16 @@ void CdbEngine::attemptBreakpointSynchronization()
             handler->notifyBreakpointInsertOk(id);
             m_pendingBreakpointMap.insert(id, response);
             addedChanged = true;
+            // Ensure enabled/disabled is correct in handler and line number is there.
+            handler->setResponse(id, response);
             if (debugBreakpoints)
                 qDebug("Adding %llu %s\n", id, qPrintable(response.toString()));
             break;
         case BreakpointChangeRequested:
             handler->notifyBreakpointChangeProceeding(id);
+            if (debugBreakpoints)
+                qDebug("Changing %llu:\n    %s\nTo %s\n", id, qPrintable(handler->response(id).toString()),
+                       qPrintable(parameters.toString()));
             if (parameters.enabled != handler->response(id).enabled) {
                 // Change enabled/disabled breakpoints without triggering update.
                 postCommand((parameters.enabled ? "be " : "bd ") + QByteArray::number(id), 0);
@@ -2385,8 +2390,6 @@ void CdbEngine::attemptBreakpointSynchronization()
                 m_pendingBreakpointMap.insert(id, response);
             }
             handler->notifyBreakpointChangeOk(id);
-            if (debugBreakpoints)
-                qDebug("Changing %llu %s\n", id, qPrintable(response.toString()));
             break;
         case BreakpointRemoveRequested:
             postCommand("bc " + QByteArray::number(id), 0);
@@ -2639,6 +2642,8 @@ void CdbEngine::handleBreakPoints(const GdbMi &value)
                 currentResponse.pending = reportedResponse.pending;
                 currentResponse.enabled = reportedResponse.enabled;
                 formatCdbBreakPointResponse(id, currentResponse, str);
+                if (debugBreakpoints)
+                    qDebug("  Setting for %llu: %s\n", id, qPrintable(currentResponse.toString()));
                 handler->setResponse(id, currentResponse);
                 m_pendingBreakpointMap.erase(it);
             }
