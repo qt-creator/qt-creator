@@ -119,13 +119,16 @@ void TargetSetupPage::setupWidgets()
     QList<Qt4BaseTargetFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
     foreach (Qt4BaseTargetFactory *factory, factories) {
         QStringList ids = factory->supportedTargetIds(0);
+        bool atLeastOneTargetSelected = false;
         foreach (const QString &id, ids) {
             QList<BuildConfigurationInfo> infos = BuildConfigurationInfo::filterBuildConfigurationInfos(m_importInfos, id);
             Qt4TargetSetupWidget *widget =
                     factory->createTargetSetupWidget(id, m_proFilePath, m_minimumQtVersionNumber, m_importSearch, infos);
             if (widget) {
-                widget->setTargetSelected( (m_preferMobile == factory->isMobileTarget(id) && m_importInfos.isEmpty())
-                                           || !infos.isEmpty());
+                bool selectTarget = (m_preferMobile == factory->isMobileTarget(id) && m_importInfos.isEmpty())
+                        || !infos.isEmpty();
+                widget->setTargetSelected(selectTarget) ;
+                atLeastOneTargetSelected |= selectTarget;
                 m_widgets.insert(id, widget);
                 m_factories.insert(widget, factory);
                 m_layout->addWidget(widget);
@@ -135,7 +138,14 @@ void TargetSetupPage::setupWidgets()
                         this, SLOT(newImportBuildConfiguration(BuildConfigurationInfo)));
             }
         }
+        if (!atLeastOneTargetSelected) {
+            Qt4TargetSetupWidget *widget = m_widgets.value(Constants::DESKTOP_TARGET_ID);
+            if (widget)
+                widget->setTargetSelected(true);
+        }
     }
+
+
     m_layout->addSpacerItem(m_spacer);
     if (m_widgets.isEmpty()) {
         // Oh no one can create any targets
