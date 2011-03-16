@@ -142,9 +142,6 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
     connect(m_fetchAction, SIGNAL(triggered()), this, SLOT(fetch()));
     cpContainer->addAction(command);
 
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(updateActions()));
-    updateActions();
     return true;
 }
 
@@ -163,25 +160,19 @@ ExtensionSystem::IPlugin::ShutdownFlag CodepasterPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-void CodepasterPlugin::updateActions()
-{
-    const IEditor* editor = EditorManager::instance()->currentEditor();
-    const BaseTextEditor *textEditor = qobject_cast<const BaseTextEditor *>(editor);
-    m_postEditorAction->setEnabled(textEditor != 0);
-}
-
 void CodepasterPlugin::postEditor()
 {
-    const IEditor* editor = EditorManager::instance()->currentEditor();
-    const BaseTextEditor *textEditor = qobject_cast<const BaseTextEditor *>(editor);
-    if (!textEditor)
-        return;
-
-    QString data = textEditor->selectedText();
-    if (data.isEmpty())
-        data = textEditor->contents();
-    if (!data.isEmpty())
-        post(data, textEditor->editorWidget()->mimeType());
+    QString data;
+    QString mimeType;
+    if (const IEditor* editor = EditorManager::instance()->currentEditor()) {
+        if (const BaseTextEditor *textEditor = qobject_cast<const BaseTextEditor *>(editor)) {
+            data = textEditor->selectedText();
+            if (data.isEmpty())
+                data = textEditor->contents();
+            mimeType = textEditor->editorWidget()->mimeType();
+        }
+    }
+    post(data, mimeType);
 }
 
 void CodepasterPlugin::postClipboard()

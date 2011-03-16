@@ -117,7 +117,7 @@ AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWid
 
 void QtQuickAppWizard::projectPathChanged(const QString &path) const
 {
-    m_d->wizardDialog->m_targetsPage->setProFilePath(path);
+    m_d->wizardDialog->targetsPage()->setProFilePath(path);
 }
 
 void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,

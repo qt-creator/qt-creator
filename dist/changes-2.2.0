@@ -27,6 +27,8 @@ Project Support
      - the SOURCEDIR and BUILDDIR environment variables were replaced
        with %{sourceDir} and %{buildDir} macros
      - this affects working directories and executable paths as well
+   * CMake: Add Ui completion, changes in .ui files are picked up without
+     a rebuild.
 
 Debugging
    * Rewrote debugging engine using the Microsoft Console Debugger (CDB)
@@ -39,10 +41,10 @@ Debugging
      different projects, combined Qml/C++ debugging, project 'snapshots', ...)
    * Reworked breakpoint handling: new special breakpoint types for "break
      on throw", "break on main", data breakpoints.
-   * Introduce combined c++/qml debugging (combined stack, cross-step)
+   * Introduce combined c++/qml debugging (combined stack, cross-step) (gdb only)
    * Rework per-type and per-item selection of display formats
    * New dumpers for QTextCursor, QTextDocument, __m128, QScriptValue
-     QBasicAtomicPointer, bit fields, boost::shared_ptr
+     QBasicAtomicPointer, bit fields, boost::shared_ptr (gdb only)
    * Improve dumpers for QRegion, QVariant (custom types), QSharedPointer,
      QMultiMap (QTCREATORBUG-3122), QObject, QWeakPointer
    * Make alphabetic structure member sorting optional
@@ -51,8 +53,8 @@ Debugging
    * Improve stepping performance
    * Enable breakpoint setting from a disassembler view, QTCREATORBUG-3667
    * Fix display of shadowed variables.
-   * Fix display of data containing quoote characters, QTCREATORBUG-3084
-   * Fix display of C style 'typedef struct X { ... } X;
+   * Fix display of data containing quote characters, QTCREATORBUG-3084
+   * Fix display of C style 'typedef struct X { ... } X; 
    * Fix stack/break view updates after manual module loading, QTCREATORBUG-3427
    * Fix 'Jump To/Run to' when in instruction-wise mode
    * Several fixed to the "watcher" handling
@@ -60,7 +62,7 @@ Debugging
    * Robust process control after -exec-interrupt errors, QTCREATORBUG-2850
    * Robust detection of Qt-in-namespace builds
    * Handle "live updates" in the memory view
-   * Make memory view writable
+   * Make memory view writable (gdb only)
    * Improve starting debugger session directly from the command line
 
 BinEditor:
@@ -104,6 +106,9 @@ QML/JS Support
    * Fix quote autoinsertion in string literals, QTCREATORBUG-2155, QTCREATORBUG-3244
    * Fix '{' not being an electric character, QTCREATORBUG-3405
    * Fix indentation of 'foo: Namesp.Type {', QTCREATORBUG-3371
+   * Added qml tooltips for property inspection at debug time
+   * Extended QML Observer for inspection and tweaking of item's properties
+   * Added navigation of the object tree in the QML Observer through a crumble path
 
 FakeVim:
    * Implement Ctrl-N/Ctrl-P
@@ -132,6 +137,7 @@ Wizards
    * Support new keywords %MONTH% and %DAY% for C++ template file
 
 Misc
+   * MemCheck (from Valgrind) integration (Linux, Mac)
    * Create infrastructure to setup "soft dependencies" between plugins
    * Add a little tool 'qtpromaker' doing the job of 'qmake -project', but
      much faster to make Qt Creator usable to quickly inspect and navigate

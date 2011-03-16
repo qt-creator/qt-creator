@@ -31,36 +31,37 @@
 **
 **************************************************************************/
 
-#ifndef PROJECTLOADWIZARD_H
-#define PROJECTLOADWIZARD_H
+#ifndef UTILS_STATUSLABEL_H
+#define UTILS_STATUSLABEL_H
 
-#include <QtGui/QWizard>
+#include "utils_global.h"
 
-namespace Qt4ProjectManager {
-class Qt4Project;
-class TargetSetupPage;
+QT_FORWARD_DECLARE_CLASS(QTimer)
 
-namespace Internal {
+#include <QtGui/QLabel>
 
-class ProjectLoadWizard : public QWizard
+namespace Utils {
+
+class QTCREATOR_UTILS_EXPORT StatusLabel : public QLabel
 {
     Q_OBJECT
 public:
-    explicit ProjectLoadWizard(Qt4Project *project, QWidget * parent = 0, Qt::WindowFlags flags = 0);
-    virtual ~ProjectLoadWizard();
-    virtual void done(int result);
-    void execDialog();
+    explicit StatusLabel(QWidget *parent = 0);
+
+public slots:
+    void showStatusMessage(const QString &message, int timeoutMS = 5000);
+    void clearStatusMessage();
+
+private slots:
+    void slotTimeout();
 
 private:
-    void setupTargetPage();
+    void stopTimer();
 
-    void applySettings();
-
-    Qt4Project *m_project;
-    TargetSetupPage *m_targetSetupPage;
+    QTimer *m_timer;
+    QString m_lastPermanentStatusMessage;
 };
 
-} // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace Utils
 
-#endif // PROJECTLOADWIZARD_H
+#endif // UTILS_STATUSLABEL_H

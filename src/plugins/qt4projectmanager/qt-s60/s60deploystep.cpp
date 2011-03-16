@@ -200,9 +200,6 @@ bool S60DeployStep::init()
             return true;
         }
 
-        if (debug)
-            m_launcher->setVerbose(debug);
-
         // Prompt the user to start up the Bluetooth connection
         const trk::PromptStartCommunicationResult src =
                 S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
@@ -466,6 +463,7 @@ void S60DeployStep::slotSerialPong(const QString &message)
 {
     if (debug)
         qDebug() << "CODA serial pong:" << message;
+    handleConnected();
 }
 
 void S60DeployStep::slotCodaEvent(const Coda::CodaEvent &event)
@@ -474,17 +472,23 @@ void S60DeployStep::slotCodaEvent(const Coda::CodaEvent &event)
         qDebug() << "CODA event:" << "Type:" << event.type() << "Message:" << event.toString();
 
     switch (event.type()) {
-    case Coda::CodaEvent::LocatorHello: {// Commands accepted now
-        m_state = StateConnected;
-        emit codaConnected();
-        startTransferring();
+    case Coda::CodaEvent::LocatorHello:
+        handleConnected();
         break;
-    }
     default:
         if (debug)
             qDebug() << "Unhandled event:" << "Type:" << event.type() << "Message:" << event.toString();
         break;
     }
+}
+
+void S60DeployStep::handleConnected()
+{
+    if (m_state >= StateConnected)
+        return;
+    m_state = StateConnected;
+    emit codaConnected();
+    startTransferring();
 }
 
 void S60DeployStep::initFileSending()
@@ -639,7 +643,6 @@ void S60DeployStep::checkForTimeout()
 {
     if (m_state != StateConnecting)
         return;
-
     QMessageBox *mb = CodaRunControl::createCodaWaitingMessageBox(Core::ICore::instance()->mainWindow());
     connect(this, SIGNAL(codaConnected()), mb, SLOT(close()));
     connect(this, SIGNAL(finished()), mb, SLOT(close()));

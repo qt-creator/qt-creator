@@ -31,36 +31,57 @@
 **
 **************************************************************************/
 
-#ifndef PROJECTLOADWIZARD_H
-#define PROJECTLOADWIZARD_H
+#include "statuslabel.h"
 
-#include <QtGui/QWizard>
+#include <QtCore/QTimer>
 
-namespace Qt4ProjectManager {
-class Qt4Project;
-class TargetSetupPage;
+/*!
+    \class Utils::StatusLabel
 
-namespace Internal {
+    \brief A status label that displays messages for a while with a timeout.
+*/
 
-class ProjectLoadWizard : public QWizard
+namespace Utils {
+
+StatusLabel::StatusLabel(QWidget *parent) : QLabel(parent), m_timer(0)
 {
-    Q_OBJECT
-public:
-    explicit ProjectLoadWizard(Qt4Project *project, QWidget * parent = 0, Qt::WindowFlags flags = 0);
-    virtual ~ProjectLoadWizard();
-    virtual void done(int result);
-    void execDialog();
+    // A manual size let's us shrink below minimum text width which is what
+    // we want in [fake] status bars.
+    setMinimumSize(QSize(30, 10));
+}
 
-private:
-    void setupTargetPage();
+void StatusLabel::stopTimer()
+{
+    if (m_timer && m_timer->isActive())
+        m_timer->stop();
+}
 
-    void applySettings();
+void StatusLabel::showStatusMessage(const QString &message, int timeoutMS)
+{
+    setText(message);
+    if (timeoutMS > 0) {
+        if (!m_timer) {
+            m_timer = new QTimer(this);
+            m_timer->setSingleShot(true);
+            connect(m_timer, SIGNAL(timeout()), this, SLOT(slotTimeout()));
+        }
+        m_timer->start(timeoutMS);
+    } else {
+        m_lastPermanentStatusMessage = message;
+        stopTimer();
+    }
+}
 
-    Qt4Project *m_project;
-    TargetSetupPage *m_targetSetupPage;
-};
+void StatusLabel::slotTimeout()
+{
+    setText(m_lastPermanentStatusMessage);
+}
 
-} // namespace Internal
-} // namespace Qt4ProjectManager
+void StatusLabel::clearStatusMessage()
+{
+    stopTimer();
+    m_lastPermanentStatusMessage.clear();
+    clear();
+}
 
-#endif // PROJECTLOADWIZARD_H
+} // namespace Utils

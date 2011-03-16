@@ -34,6 +34,7 @@
 #ifndef ABSTRACTMOBILEAPP_H
 #define ABSTRACTMOBILEAPP_H
 
+#include "../qt4projectmanager_global.h"
 #include <QtCore/QFileInfo>
 #include <QtCore/QPair>
 
@@ -44,9 +45,9 @@
 QT_FORWARD_DECLARE_CLASS(QTextStream)
 
 namespace Qt4ProjectManager {
-namespace Internal {
 
-struct AbstractGeneratedFileInfo
+/// \internal
+struct QT4PROJECTMANAGER_EXPORT AbstractGeneratedFileInfo
 {
     enum FileType {
         MainCppFile,
@@ -70,7 +71,8 @@ struct AbstractGeneratedFileInfo
 
 typedef QPair<QString, QString> DeploymentFolder; // QPair<.source, .target>
 
-class AbstractMobileApp : public QObject
+/// \internal
+class QT4PROJECTMANAGER_EXPORT AbstractMobileApp : public QObject
 {
     Q_OBJECT
 
@@ -177,7 +179,6 @@ private:
     bool m_networkEnabled;
 };
 
-} // namespace Internal
 } // namespace Qt4ProjectManager
 
 #endif // ABSTRACTMOBILEAPP_H

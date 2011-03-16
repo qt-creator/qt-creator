@@ -249,7 +249,7 @@ public:
     ProFileEvaluatorHandler *m_handler;
 
     enum ExpandFunc {
-        E_MEMBER=1, E_FIRST, E_LAST, E_SIZE, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
+        E_INVALID = 0, E_MEMBER, E_FIRST, E_LAST, E_SIZE, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
         E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
         E_FIND, E_SYSTEM, E_UNIQUE, E_QUOTE, E_ESCAPE_EXPAND,
         E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE,
@@ -257,7 +257,7 @@ public:
     };
 
     enum TestFunc {
-        T_REQUIRES=1, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
+        T_INVALID = 0, T_REQUIRES, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
         T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
         T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
         T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_MESSAGE, T_IF
@@ -2321,7 +2321,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                 }
             }
             break;
-        case 0:
+        case E_INVALID:
             evalError(fL1S("'%1' is not a recognized replace function")
                       .arg(func.toQString(m_tmp1)));
             break;
@@ -2814,7 +2814,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
 
             return ReturnFalse;
         }
-        case 0:
+        case T_INVALID:
             evalError(fL1S("'%1' is not a recognized test function")
                       .arg(function.toQString(m_tmp1)));
             return ReturnFalse;

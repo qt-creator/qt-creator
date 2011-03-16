@@ -71,6 +71,7 @@
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/statuslabel.h>
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
@@ -210,6 +211,7 @@ public:
     QMenu *m_menu;
     QComboBox *m_toolBox;
     ActionContainer *m_viewsMenu;
+    Utils::StatusLabel *m_statusLabel;
     typedef QPair<Qt::DockWidgetArea, QDockWidget*> ToolWidgetPair;
     typedef QList<ToolWidgetPair> ToolWidgetPairList;
     QMap<IAnalyzerTool*, ToolWidgetPairList> m_toolWidgets;
@@ -236,6 +238,7 @@ AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager 
     m_menu(0),
     m_toolBox(new QComboBox),
     m_viewsMenu(0),
+    m_statusLabel(new Utils::StatusLabel),
     m_resizeEventFilter(new DockWidgetEventFilter(qq)),
     m_initialized(false)
 {
@@ -339,12 +342,13 @@ static QToolButton *toolButton(QAction *action)
     return button;
 }
 
-QWidgetList AnalyzerManager::outputPaneToolBarWidgets() const
+void AnalyzerManager::addOutputPaneToolBarWidgets(QWidgetList *list) const
 {
-    QWidgetList result;
-    result << toolButton(d->m_startAction) << toolButton(d->m_stopAction)
-           << new Utils::StyledSeparator << d->m_toolBox;
-    return result;
+    list->prepend(d->m_toolBox);
+    list->prepend(toolButton(d->m_stopAction));
+    list->prepend(toolButton(d->m_startAction));
+    (*list) << new Utils::StyledSeparator << d->m_statusLabel;
+
 }
 
 QWidget *AnalyzerManager::AnalyzerManagerPrivate::createModeMainWindow()
@@ -731,6 +735,28 @@ void AnalyzerManager::updateRunActions()
     bool startEnabled = !d->m_currentRunControl && pe->canRun(project, Constants::MODE_ANALYZE)
             && currentTool();
     d->m_startAction->setEnabled(startEnabled);
+}
+
+void AnalyzerManager::showStatusMessage(const QString &message, int timeoutMS)
+{
+    d->m_statusLabel->showStatusMessage(message, timeoutMS);
+}
+
+void AnalyzerManager::showPermanentStatusMessage(const QString &message)
+{
+    showStatusMessage(message, -1);
+}
+
+QString AnalyzerManager::msgToolStarted(const QString &name)
+{
+    return tr("Tool '%1' started...").arg(name);
+}
+
+QString AnalyzerManager::msgToolFinished(const QString &name, int issuesFound)
+{
+    return issuesFound ?
+        tr("Tool '%1' finished, %n issues were found.", 0, issuesFound).arg(name) :
+        tr("Tool '%1' finished, no issues were found.").arg(name);
 }
 
 #include "analyzermanager.moc"

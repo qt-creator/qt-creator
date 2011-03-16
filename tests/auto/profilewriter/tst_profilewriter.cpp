@@ -193,6 +193,19 @@ void tst_ProFileWriter::adds_data()
         },
         {
             PW::AppendValues|PW::AppendOperator|PW::MultiLine,
+            "add new after some scope", f_foo, 0,
+            "unix {\n"
+            "    SOMEVAR = foo\n"
+            "}",
+            "unix {\n"
+            "    SOMEVAR = foo\n"
+            "}\n"
+            "\n"
+            "SOURCES += \\\n"
+            "    foo"
+        },
+        {
+            PW::AppendValues|PW::AppendOperator|PW::MultiLine,
             "add to existing (wrong operator)", f_foo, 0,
             "SOURCES = some files",
             "SOURCES = some files \\\n"
@@ -347,6 +360,52 @@ void tst_ProFileWriter::adds_data()
             "}"
         },
         {
+            PW::AppendValues|PW::AppendOperator|PW::OneLine,
+            "scoped new / extend oneline scope with multiline body", f_foo, "dog",
+            "# test file\n"
+            "dog:HEADERS += yo \\\n"
+            "        you\n"
+            "\n"
+            "blubb()",
+            "# test file\n"
+            "dog {\n"
+            "    HEADERS += yo \\\n"
+            "        you\n"
+            "\n"
+            "    SOURCES += foo\n"
+            "}\n"
+            "\n"
+            "blubb()"
+        },
+        {
+            PW::AppendValues|PW::AppendOperator|PW::MultiLine,
+            "add new after some scope inside scope", f_foo, "dog",
+            "dog {\n"
+            "    unix {\n"
+            "        SOMEVAR = foo\n"
+            "    }\n"
+            "}",
+            "dog {\n"
+            "    unix {\n"
+            "        SOMEVAR = foo\n"
+            "    }\n"
+            "\n"
+            "    SOURCES += \\\n"
+            "        foo\n"
+            "}"
+        },
+        {
+            PW::AppendValues|PW::AppendOperator|PW::OneLine,
+            "scoped new / pseudo-oneline-scope", f_foo, "dog",
+            "# test file\n"
+            "dog: {\n"
+            "}",
+            "# test file\n"
+            "dog: {\n"
+            "    SOURCES += foo\n"
+            "}"
+        },
+        {
             PW::AppendValues|PW::AppendOperator|PW::MultiLine,
             "scoped append", f_foo, "dog",
             "# test file\n"
@@ -396,6 +455,7 @@ void tst_ProFileWriter::adds()
     ProFile *proFile = parser.parsedProFile(QLatin1String(BASE_DIR "/test.pro"), false, &input);
     QVERIFY(proFile);
     PW::putVarValues(proFile, &lines, values, var, PW::PutFlags(flags), scope);
+    proFile->deref();
 
     QCOMPARE(lines.join(QLatin1String("\n")), output);
 }
@@ -565,6 +625,7 @@ void tst_ProFileWriter::removes()
     ProFile *proFile = parser.parsedProFile(QLatin1String(BASE_DIR "/test.pro"), false, &input);
     QVERIFY(proFile);
     Qt4ProjectManager::Internal::ProWriter::removeVarValues(proFile, &lines, values, vars);
+    proFile->deref();
 
     QCOMPARE(lines.join(QLatin1String("\n")), output);
 }
@@ -592,6 +653,7 @@ void tst_ProFileWriter::multiVar()
     ProFile *proFile = parser.parsedProFile(QLatin1String(BASE_DIR "/test.pro"), false, &input);
     QVERIFY(proFile);
     Qt4ProjectManager::Internal::ProWriter::removeFiles(proFile, &lines, baseDir, files, vars);
+    proFile->deref();
 
     QCOMPARE(lines.join(QLatin1String("\n")), output);
 }
@@ -613,6 +675,7 @@ void tst_ProFileWriter::addFiles()
     Qt4ProjectManager::Internal::ProWriter::addFiles(proFile, &lines, QDir(BASE_DIR),
             QStringList() << QString::fromLatin1(BASE_DIR "/sub/bar.cpp"),
             QLatin1String("SOURCES"));
+    proFile->deref();
 
     QCOMPARE(lines.join(QLatin1String("\n")), output);
 }
@@ -633,6 +696,7 @@ void tst_ProFileWriter::removeFiles()
     Qt4ProjectManager::Internal::ProWriter::removeFiles(proFile, &lines, QDir(BASE_DIR),
             QStringList() << QString::fromLatin1(BASE_DIR "/sub/bar.cpp"),
             QStringList() << QLatin1String("SOURCES") << QLatin1String("HEADERS"));
+    proFile->deref();
 
     QCOMPARE(lines.join(QLatin1String("\n")), output);
 }

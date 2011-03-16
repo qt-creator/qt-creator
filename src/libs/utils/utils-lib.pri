@@ -57,6 +57,7 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/annotateditemdelegate.cpp \
     $$PWD/fileinprojectfinder.cpp \
     $$PWD/ipaddresslineedit.cpp \
+    $$PWD/statuslabel.cpp \
     $$PWD/ssh/sshsendfacility.cpp \
     $$PWD/ssh/sshremoteprocess.cpp \
     $$PWD/ssh/sshpacketparser.cpp \
@@ -171,7 +172,7 @@ HEADERS += $$PWD/environment.h \
     $$PWD/ssh/sftpchannel_p.h \
     $$PWD/ssh/sshremoteprocessrunner.h \
     $$PWD/ssh/sshconnectionmanager.h \
-    $$PWD/settingsutils.h
+    $$PWD/statuslabel.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

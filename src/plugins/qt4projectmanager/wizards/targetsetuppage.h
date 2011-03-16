@@ -34,8 +34,9 @@
 #ifndef TARGETSETUPPAGE_H
 #define TARGETSETUPPAGE_H
 
-#include "qt4target.h"
-#include "qtversionmanager.h"
+#include <qt4target.h>
+#include <qtversionmanager.h>
+#include <qt4projectmanager_global.h>
 
 #include <QtCore/QString>
 #include <QtGui/QWizard>
@@ -55,12 +56,13 @@ namespace Qt4ProjectManager {
 class Qt4Project;
 
 namespace Internal {
-
 namespace Ui {
 class TargetSetupPage;
 }
+}
 
-class TargetSetupPage : public QWizardPage
+/// \internal
+class QT4PROJECTMANAGER_EXPORT TargetSetupPage : public QWizardPage
 {
     Q_OBJECT
 
@@ -105,11 +107,10 @@ private:
 
     QVBoxLayout *m_layout;
     QSpacerItem *m_spacer;
-    Ui::TargetSetupPage *m_ui;
+    Internal::Ui::TargetSetupPage *m_ui;
     QList<BuildConfigurationInfo> m_importInfos;
 };
 
-} // namespace Internal
 } // namespace Qt4ProjectManager
 
 #endif // TARGETSETUPPAGE_H

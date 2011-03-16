@@ -86,6 +86,7 @@ private slots:
 private:
     void initCommunication();
 
+    void handleConnected();
     void handleModuleLoadSuspended(const Coda::CodaEvent &event);
     void handleContextSuspended(const Coda::CodaEvent &event);
     void handleContextAdded(const Coda::CodaEvent &event);

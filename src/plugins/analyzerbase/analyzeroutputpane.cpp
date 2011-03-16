@@ -227,8 +227,9 @@ QWidgetList AnalyzerOutputPane::toolBarWidgets() const
         qDebug() << "AnalyzerOutputPane::toolBarWidget";
     QTC_ASSERT(isInitialized(), return QWidgetList(); )
 
-    QWidgetList list = AnalyzerManager::instance()->outputPaneToolBarWidgets();
+    QWidgetList list;
     list << m_toolBarSeparator << m_toolbarStackedWidget;
+    AnalyzerManager::instance()->addOutputPaneToolBarWidgets(&list);
     return list;
 }
 

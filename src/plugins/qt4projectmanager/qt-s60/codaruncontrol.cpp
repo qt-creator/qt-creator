@@ -186,6 +186,7 @@ void CodaRunControl::slotSerialPong(const QString &message)
 {
     if (debug > 1)
         qDebug() << "CODA serial pong:" << message;
+    handleConnected();
 }
 
 void CodaRunControl::slotCodaEvent(const CodaEvent &event)
@@ -194,13 +195,9 @@ void CodaRunControl::slotCodaEvent(const CodaEvent &event)
         qDebug() << "CODA event:" << "Type:" << event.type() << "Message:" << event.toString();
 
     switch (event.type()) {
-    case CodaEvent::LocatorHello: { // Commands accepted now
-        m_state = StateConnected;
-        appendMessage(tr("Connected."), NormalMessageFormat);
-        setProgress(maxProgress()*0.80);
-        initCommunication();
-    }
-    break;
+    case CodaEvent::LocatorHello:
+        handleConnected();
+        break;
     case CodaEvent::RunControlContextRemoved:
         handleContextRemoved(event);
         break;
@@ -228,6 +225,16 @@ void CodaRunControl::slotCodaEvent(const CodaEvent &event)
 void CodaRunControl::initCommunication()
 {
     m_codaDevice->sendLoggingAddListenerCommand(CodaCallback(this, &CodaRunControl::handleAddListener));
+}
+
+void CodaRunControl::handleConnected()
+{
+    if (m_state >= StateConnected)
+        return;
+    m_state = StateConnected;
+    appendMessage(tr("Connected."), NormalMessageFormat);
+    setProgress(maxProgress()*0.80);
+    initCommunication();
 }
 
 void CodaRunControl::handleContextRemoved(const CodaEvent &event)

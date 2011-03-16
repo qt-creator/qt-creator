@@ -89,16 +89,40 @@ QString BreakpointParameters::toString() const
 {
     QString result;
     QTextStream ts(&result);
-    ts << " FileName: " << fileName;
-    ts << " Condition: " << condition;
-    ts << " IgnoreCount: " << ignoreCount;
-    ts << " LineNumber: " << lineNumber;
-    ts << " Address: " << address;
-    ts << " FunctionName: " << functionName;
-    ts << " PathUsage: " << pathUsage;
-    ts << " Tracepoint: " << tracepoint;
-    ts << " Module: " << module;
-    ts << " Command: " << command;
+    ts << "Type: " << type;
+    switch (type) {
+        break;
+    case Debugger::Internal::BreakpointByFileAndLine:
+        ts << " FileName: " << fileName << ':' << lineNumber
+           << " PathUsage: " << pathUsage;
+        break;
+    case Debugger::Internal::BreakpointByFunction:
+        ts << " FunctionName: " << functionName;
+        break;
+    case Debugger::Internal::BreakpointByAddress:
+    case Debugger::Internal::Watchpoint:
+        ts << " Address: " << address;
+        break;
+    case Debugger::Internal::BreakpointAtThrow:
+    case Debugger::Internal::BreakpointAtCatch:
+    case Debugger::Internal::BreakpointAtMain:
+    case Debugger::Internal::BreakpointAtFork:
+    case Debugger::Internal::BreakpointAtExec:
+    case Debugger::Internal::BreakpointAtVFork:
+    case Debugger::Internal::BreakpointAtSysCall:
+        break;
+    }
+    ts << (enabled ? " [enabled]" : " [disabled]");
+    if (!condition.isEmpty())
+        ts << " Condition: " << condition;
+    if (ignoreCount)
+        ts << " IgnoreCount: " << ignoreCount;
+    if (tracepoint)
+        ts << " [tracepoint]";
+    if (!module.isEmpty())
+        ts << " Module: " << module;
+    if (!command.isEmpty())
+        ts << " Command: " << command;
     return result;
 }
 
@@ -121,14 +145,19 @@ BreakpointResponse::BreakpointResponse()
 
 QString BreakpointResponse::toString() const
 {
-    QString result;
+    QString result = BreakpointParameters::toString();
     QTextStream ts(&result);
     ts << " Number: " << number;
-    ts << " Pending: " << pending;
-    ts << " FullName: " << fullName;
-    ts << " Multiple: " << multiple;
-    ts << " Extra: " << extra;
-    ts << " CorrectedLineNumber: " << correctedLineNumber;
+    if (pending)
+        ts << " [pending]";
+    if (!fullName.isEmpty())
+        ts << " FullName: " << fullName;
+    if (multiple)
+        ts << " Multiple: " << multiple;
+    if (!extra.isEmpty())
+        ts << " Extra: " << extra;
+    if (correctedLineNumber)
+        ts << " CorrectedLineNumber: " << correctedLineNumber;
     return result + BreakpointParameters::toString();
 }
 
