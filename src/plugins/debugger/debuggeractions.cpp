@@ -131,6 +131,7 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item->setDefaultValue(false);
     item->setSettingsKey(debugModeGroup,
         QLatin1String("AlwaysAdjustThreadsColumnWidths"));
+    insertItem(AlwaysAdjustThreadsColumnWidths, item);
 
     item = new SavedAction(this);
     item->setText(tr("Always Adjust Column Widths to Contents"));
@@ -139,6 +140,7 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item->setDefaultValue(false);
     item->setSettingsKey(debugModeGroup,
         QLatin1String("AlwaysAdjustRegistersColumnWidths"));
+    insertItem(AlwaysAdjustRegistersColumnWidths, item);
 
     item = new SavedAction(this);
     item->setText(tr("Always Adjust Column Widths to Contents"));
@@ -147,6 +149,7 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item->setDefaultValue(false);
     item->setSettingsKey(debugModeGroup,
         QLatin1String("AlwaysAdjustSnapshotsColumnWidths"));
+    insertItem(AlwaysAdjustSnapshotsColumnWidths, item);
 
     item = new SavedAction(this);
     item->setText(tr("Always Adjust Column Widths to Contents"));
@@ -155,6 +158,7 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item->setDefaultValue(false);
     item->setSettingsKey(debugModeGroup,
         QLatin1String("AlwaysAdjustBreakpointsColumnWidths"));
+    insertItem(AlwaysAdjustBreakpointsColumnWidths, item);
 
     item = new SavedAction(this);
     item->setText(tr("Always Adjust Column Widths to Contents"));
@@ -163,8 +167,8 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item->setDefaultValue(false);
     item->setSettingsKey(debugModeGroup,
         QLatin1String("AlwaysAdjustModulesColumnWidths"));
+    insertItem(AlwaysAdjustModulesColumnWidths, item);
 
-    insertItem(AlwaysAdjustStackColumnWidths, item);
     item = new SavedAction(this);
     item->setText(tr("Use Alternating Row Colors"));
     item->setSettingsKey(debugModeGroup, QLatin1String("UseAlternatingRowColours"));
