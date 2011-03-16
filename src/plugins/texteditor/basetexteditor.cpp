@@ -4363,34 +4363,39 @@ void BaseTextEditorWidget::indentOrUnindent(bool doIndent)
         QTextBlock startBlock = doc->findBlock(start);
         QTextBlock endBlock = doc->findBlock(end-1).next();
 
-        for (QTextBlock block = startBlock; block != endBlock; block = block.next()) {
-            QString text = block.text();
-            int indentPosition = tabSettings.lineIndentPosition(text);
-            if (!doIndent && !indentPosition)
-                indentPosition = tabSettings.firstNonSpace(text);
-            int targetColumn = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition), doIndent);
-            cursor.setPosition(block.position() + indentPosition);
-            cursor.insertText(tabSettings.indentationString(0, targetColumn, block));
-            cursor.setPosition(block.position());
-            cursor.setPosition(block.position() + indentPosition, QTextCursor::KeepAnchor);
+        if (startBlock.next() == endBlock) { // Only one line selected
             cursor.removeSelectedText();
+        } else {
+            for (QTextBlock block = startBlock; block != endBlock; block = block.next()) {
+                QString text = block.text();
+                int indentPosition = tabSettings.lineIndentPosition(text);
+                if (!doIndent && !indentPosition)
+                    indentPosition = tabSettings.firstNonSpace(text);
+                int targetColumn = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition), doIndent);
+                cursor.setPosition(block.position() + indentPosition);
+                cursor.insertText(tabSettings.indentationString(0, targetColumn, block));
+                cursor.setPosition(block.position());
+                cursor.setPosition(block.position() + indentPosition, QTextCursor::KeepAnchor);
+                cursor.removeSelectedText();
+            }
+            cursor.endEditBlock();
+            return;
         }
-        cursor.endEditBlock();
-    } else {
-        // Indent or unindent at cursor position
-        QTextBlock block = cursor.block();
-        QString text = block.text();
-        int indentPosition = cursor.positionInBlock();
-        int spaces = tabSettings.spacesLeftFromPosition(text, indentPosition);
-        int startColumn = tabSettings.columnAt(text, indentPosition - spaces);
-        int targetColumn = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition), doIndent);
-        cursor.setPosition(block.position() + indentPosition);
-        cursor.setPosition(block.position() + indentPosition - spaces, QTextCursor::KeepAnchor);
-        cursor.removeSelectedText();
-        cursor.insertText(tabSettings.indentationString(startColumn, targetColumn, block));
-        cursor.endEditBlock();
-        setTextCursor(cursor);
     }
+
+    // Indent or unindent at cursor position
+    QTextBlock block = cursor.block();
+    QString text = block.text();
+    int indentPosition = cursor.positionInBlock();
+    int spaces = tabSettings.spacesLeftFromPosition(text, indentPosition);
+    int startColumn = tabSettings.columnAt(text, indentPosition - spaces);
+    int targetColumn = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition), doIndent);
+    cursor.setPosition(block.position() + indentPosition);
+    cursor.setPosition(block.position() + indentPosition - spaces, QTextCursor::KeepAnchor);
+    cursor.removeSelectedText();
+    cursor.insertText(tabSettings.indentationString(startColumn, targetColumn, block));
+    cursor.endEditBlock();
+    setTextCursor(cursor);
 }
 
 void BaseTextEditorWidget::handleHomeKey(bool anchor)
