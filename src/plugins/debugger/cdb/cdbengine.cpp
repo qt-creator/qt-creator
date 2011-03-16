@@ -1779,13 +1779,17 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
     const int threadId = stopReason.findChild("threadId").data().toInt();
     if (reason == "breakpoint") {
         // Note: Internal breakpoints (run to line) are reported with id=0.
+        // Step out creates temporary breakpoints with id 10000.
         BreakpointId id = 0;
         int number = 0;
         const GdbMi breakpointIdG = stopReason.findChild("breakpointId");
         if (breakpointIdG.isValid()) {
             id = breakpointIdG.data().toULongLong();
-            if (id)
+            if (id && breakHandler()->engineBreakpointIds(this).contains(id)) {
                 number = breakHandler()->response(id).number;
+            } else {
+                id = 0;
+            }
         }
         if (id && breakHandler()->type(id) == Watchpoint) {
             *message = msgWatchpointTriggered(id, number, breakHandler()->address(id), QString::number(threadId));
