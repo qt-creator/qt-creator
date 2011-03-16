@@ -76,14 +76,14 @@ public slots:
 
 signals:
     void toolChainAdded(ProjectExplorer::ToolChain *);
-    // ToolChain is still valid when this call happens!
+    // Tool chain is still valid when this call happens!
     void toolChainRemoved(ProjectExplorer::ToolChain *);
 
 private:
     explicit ToolChainManager(QObject *parent = 0);
 
     // Make sure the this is only called after all
-    // ToolChain Factories are registered!
+    // Tool chain Factories are registered!
     void restoreToolChains();
     void restoreToolChains(const QString &fileName, bool autoDetected = false);
 

@@ -378,7 +378,7 @@ void QtVersionManager::writeVersionsIntoSettings()
             s->setValue("autodetectionSource", version->autodetectionSource());
         s->setValue("S60SDKDirectory", version->systemRoot());
         s->setValue(QLatin1String("SBSv2Directory"), version->sbsV2Directory());
-        // Remove obsolete settings: New toolchains would be created at each startup
+        // Remove obsolete settings: New tool chains would be created at each startup
         // otherwise, overriding manually set ones.
         s->remove(QLatin1String("MingwDirectory"));
         s->remove(QLatin1String("MwcDirectory"));
@@ -1912,7 +1912,7 @@ Utils::Environment QtVersion::qmlToolsEnvironment() const
     Utils::Environment environment = Utils::Environment::systemEnvironment();
     addToEnvironment(environment);
 
-    // add preferred toolchain, as that is how the tools are built, compare QtVersion::buildDebuggingHelperLibrary
+    // add preferred tool chain, as that is how the tools are built, compare QtVersion::buildDebuggingHelperLibrary
     QList<ProjectExplorer::ToolChain *> alltc =
             ProjectExplorer::ToolChainManager::instance()->findToolChains(qtAbis().at(0));
     if (!alltc.isEmpty())

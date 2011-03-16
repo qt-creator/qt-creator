@@ -516,7 +516,7 @@ void GenericBuildSettingsWidget::updateToolChainList()
 
     QList<ToolChain *> tcs = ToolChainManager::instance()->toolChains();
     if (!m_target->genericProject()->toolChain()) {
-        m_toolChainChooser->addItem(tr("<Invalid Toolchain>"), qVariantFromValue(static_cast<void *>(0)));
+        m_toolChainChooser->addItem(tr("<Invalid tool chain>"), qVariantFromValue(static_cast<void *>(0)));
         m_toolChainChooser->setCurrentIndex(0);
     }
     foreach (ToolChain *tc, tcs) {

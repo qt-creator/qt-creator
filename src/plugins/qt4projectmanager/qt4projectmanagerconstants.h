@@ -128,7 +128,7 @@ const char * const HARMATTAN_DEVICE_TARGET_ID = "Qt4ProjectManager.Target.Harmat
 const char * const MEEGO_DEVICE_TARGET_ID = "Qt4ProjectManager.Target.MeegoDeviceTarget";
 const char * const QT_SIMULATOR_TARGET_ID = "Qt4ProjectManager.Target.QtSimulatorTarget";
 
-// ToolChains:
+// Tool chains:
 const char * const GCCE_TOOLCHAIN_ID = "Qt4ProjectManager.ToolChain.GCCE";
 const char * const MAEMO_TOOLCHAIN_ID = "Qt4ProjectManager.ToolChain.Maemo";
 const char * const RVCT_TOOLCHAIN_ID = "Qt4ProjectManager.ToolChain.RVCT";

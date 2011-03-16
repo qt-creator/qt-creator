@@ -137,7 +137,7 @@ public:
     bool canCreate();
     ProjectExplorer::ToolChain *create();
 
-    // Used by the ToolChainManager to restore user-generated ToolChains
+    // Used by the ToolChainManager to restore user-generated tool chains
     bool canRestore(const QVariantMap &data);
     ProjectExplorer::ToolChain *restore(const QVariantMap &data);
 };

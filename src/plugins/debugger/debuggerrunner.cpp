@@ -325,7 +325,7 @@ RunConfiguration *DebuggerRunControl::runConfiguration() const
 
 ////////////////////////////////////////////////////////////////////////
 //
-// Engine detection logic: Detection functions depending on toolchain, binary,
+// Engine detection logic: Detection functions depending on tool chain, binary,
 // etc. Return a list of possible engines (order of prefererence) without
 // consideration of configuration, etc.
 //

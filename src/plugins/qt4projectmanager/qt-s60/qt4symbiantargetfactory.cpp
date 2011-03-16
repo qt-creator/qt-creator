@@ -148,14 +148,14 @@ QList<ProjectExplorer::Task> Qt4SymbianTargetFactory::reportIssues(const QString
     if (projectPath.contains(QLatin1Char(' '))) {
         results.append(Task(Task::Warning,
                             QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
-                                                        "The Symbian toolchain does not handle spaces "
+                                                        "The Symbian tool chain does not handle spaces "
                                                         "in the project path '%1'.").arg(projectPath),
                             QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
     if (projectName.contains(QRegExp("[^a-zA-Z0-9.-]"))) {
         results.append(Task(Task::Warning,
                             QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
-                                                        "The Symbian toolchain does not handle special "
+                                                        "The Symbian tool chain does not handle special "
                                                         "characters in the project name '%1' well.")
                             .arg(projectName),
                             QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));

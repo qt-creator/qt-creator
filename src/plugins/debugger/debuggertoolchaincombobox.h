@@ -43,7 +43,7 @@ class Abi;
 namespace Debugger {
 namespace Internal {
 
-// Let the user pick a toolchain/ABI associated with a debugger.
+// Let the user pick a tool chain/ABI associated with a debugger.
 class DebuggerToolChainComboBox : public QComboBox
 {
     Q_OBJECT

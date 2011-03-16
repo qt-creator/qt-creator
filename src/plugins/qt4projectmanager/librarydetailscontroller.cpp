@@ -86,7 +86,7 @@ LibraryDetailsController::LibraryDetailsController(
     // take active build configuration for it
     Qt4BuildConfiguration *qt4BuildConfiguration =
             qobject_cast<Qt4BuildConfiguration *>(project->activeTarget()->activeBuildConfiguration());
-    // if its toolchain is maemo behave the same as we would be on linux
+    // if its tool chain is maemo behave the same as we would be on linux
     if (qt4BuildConfiguration
             && qt4BuildConfiguration->toolChain()
             && (qt4BuildConfiguration->toolChain()->targetAbi().osFlavor() == ProjectExplorer::Abi::HarmattanLinuxFlavor

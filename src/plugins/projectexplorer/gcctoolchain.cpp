@@ -477,7 +477,7 @@ QList<ToolChain *> Internal::GccToolChainFactory::autoDetect()
     return autoDetectToolchains(QLatin1String("g++"), debuggers, Abi::hostAbi());
 }
 
-// Used by the ToolChainManager to restore user-generated ToolChains
+// Used by the ToolChainManager to restore user-generated tool chains
 bool Internal::GccToolChainFactory::canRestore(const QVariantMap &data)
 {
     return idFromMap(data).startsWith(QLatin1String(Constants::GCC_TOOLCHAIN_ID) + QLatin1Char(':'));

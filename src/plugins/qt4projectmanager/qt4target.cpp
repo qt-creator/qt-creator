@@ -236,7 +236,7 @@ Qt4BuildConfiguration *Qt4BaseTarget::addQt4BuildConfiguration(QString displayNa
 
     bc->setQMakeBuildConfiguration(qmakeBuildConfiguration);
 
-    // Finally set the qt version & ToolChain
+    // Finally set the qt version & tool chain
     bc->setQtVersion(qtversion);
     if (!directory.isEmpty())
         bc->setShadowBuildAndDirectory(directory != project()->projectDirectory(), directory);

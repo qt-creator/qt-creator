@@ -3679,7 +3679,7 @@
            \gui{Qt Versions}.
         \o Qt Creator automatically sets the correct environment variables for
            compilation. Select the internal version number of the installed
-           Microsoft Visual C++ tool chain in the \gui Toolchain list.
+           Microsoft Visual C++ tool chain in the \gui tool chain list.
 
            \image qtcreator-qt4-qtversions-win-msvc.png
 
@@ -3704,12 +3704,12 @@
 
            \image qtcreator-qt4-qtversions-win-symbian.png
         \o To build an application for your device using GCCE, enter the path
-           to the CSL ARM toolchain directory in
+           to the CSL ARM tool chain directory in
            \gui{CSL\\GCCE directory}.
 
            You do not need to specify this path if the compiler is included in
            the \c{PATH} environment variable.
-        \o To build an application for the emulator (WINSCW toolchain), enter
+        \o To build an application for the emulator (WINSCW tool chain), enter
            the path to your Carbide C++ installation directory in
            \gui{Carbide directory}.
 
@@ -3717,7 +3717,7 @@
 
         \o To build an application using the Symbian build system (SBS v2) that
            is available for Symbian OS 9.5 based SDKs, enter the path to the SBS
-           v2 toolchain directory in \gui{SBS v2 directory}.
+           v2 tool chain directory in \gui{SBS v2 directory}.
     \endlist
 
     \section2 Compiling Projects With Linux
@@ -3910,7 +3910,7 @@
 
      \section1 Setting Up a Project
 
-    When you install the \QSDK, the build and run settings for the toolchains
+    When you install the \QSDK, the build and run settings for the tool chains
     delivered with the \QSDK are set up automatically.
 
     To view and modify the settings for currently open projects, switch to the
@@ -4091,7 +4091,7 @@
 
     \endlist
 
-        Qt Creator uses the compiler specified in the MADDE toolchain to
+        Qt Creator uses the compiler specified in the MADDE tool chain to
         build the application.
 
         Qt Creator generates an installation package, installs it on the device,
@@ -7996,7 +7996,7 @@
     workspaces that you can use in the compiler environment of your choice.
 
     Since Qt Creator 1.1, CMake configuration files are supported.
-    Qt Creator 1.3 supports the Microsoft Toolchain if the CMake version
+    Qt Creator 1.3 supports the Microsoft tool chain if the CMake version
     is at least 2.8.
 
     \section1 Setting the Path for CMake

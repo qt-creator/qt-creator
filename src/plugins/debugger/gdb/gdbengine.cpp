@@ -4313,7 +4313,7 @@ static QString gdbBinary(const DebuggerStartParameters &sp)
         if (abiMatch)
             return sp.debuggerCommand;
     }
-    // 3) Find one from toolchains.
+    // 3) Find one from tool chains.
     return debuggerCore()->debuggerForAbi(sp.toolChainAbi, GdbEngineType);
 }
 

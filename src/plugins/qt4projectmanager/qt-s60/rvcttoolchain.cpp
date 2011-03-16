@@ -453,7 +453,7 @@ QList<ProjectExplorer::ToolChain *> RvctToolChainFactory::autoDetect()
         rvcts.insert(key, values);
     }
 
-    // Set up toolchains for each RVCT.. set
+    // Set up tool chains for each RVCT.. set
     QList<ProjectExplorer::ToolChain *> result;
     for (QMap<QString, QList<Utils::EnvironmentItem> >::const_iterator i = rvcts.constBegin();
          i != rvcts.constEnd(); ++i) {

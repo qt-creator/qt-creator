@@ -87,7 +87,7 @@
      <item row="3" column="0">
       <widget class="QLabel" name="toolChainLabel">
        <property name="text">
-        <string>&amp;ToolChain:</string>
+        <string>&amp;Tool chain:</string>
        </property>
        <property name="buddy">
         <cstring>toolChainComboBox</cstring>

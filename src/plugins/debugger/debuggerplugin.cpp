@@ -2454,7 +2454,7 @@ QString DebuggerPluginPrivate::debuggerForAbi(const Abi &abi, DebuggerEngineType
 {
     enum { debug = 0 };
     Abi searchAbi = abi;
-    // Pick the right toolchain in case cdb/gdb were started with other toolchains.
+    // Pick the right tool chain in case cdb/gdb were started with other tool chains.
     // Also, lldb should be preferred over gdb.
     if (searchAbi.os() == ProjectExplorer::Abi::WindowsOS) {
         switch (et) {

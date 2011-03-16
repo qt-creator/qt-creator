@@ -288,7 +288,7 @@ QList<ProjectExplorer::ToolChain *> MaemoToolChainFactory::createToolChainList(c
     foreach (int i, changes) {
         QtVersion *v = vm->version(i);
         if (!v) {
-            // remove ToolChain:
+            // remove tool chain:
             QList<ProjectExplorer::ToolChain *> toRemove;
             foreach (ProjectExplorer::ToolChain *tc, tcm->toolChains()) {
                 if (!tc->id().startsWith(QLatin1String(Constants::MAEMO_TOOLCHAIN_ID)))
@@ -302,7 +302,7 @@ QList<ProjectExplorer::ToolChain *> MaemoToolChainFactory::createToolChainList(c
         } else if (v->supportsTargetId(Constants::MAEMO5_DEVICE_TARGET_ID)
                    || v->supportsTargetId(Constants::HARMATTAN_DEVICE_TARGET_ID)
                    || v->supportsTargetId(Constants::MEEGO_DEVICE_TARGET_ID)) {
-            // add ToolChain:
+            // add tool chain:
             MaemoToolChain *mTc = new MaemoToolChain(true);
             mTc->setQtVersionId(i);
             QString target = "Maemo 5";
