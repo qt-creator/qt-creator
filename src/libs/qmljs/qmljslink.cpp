@@ -308,9 +308,12 @@ bool Link::importLibrary(Document::Ptr doc, Interpreter::ObjectValue *import,
             ModelManagerInterface *modelManager = ModelManagerInterface::instance();
             if (modelManager) {
                 if (importInfo.type() == ImportInfo::LibraryImport) {
-                    modelManager->loadPluginTypes(
-                                libraryPath, importPath,
-                                importInfo.name(), version.toString());
+                    if (importInfo.version().isValid()) {
+                        const QString uri = importInfo.name().replace(QDir::separator(), QLatin1Char('.'));
+                        modelManager->loadPluginTypes(
+                                    libraryPath, importPath,
+                                    uri, version.toString());
+                    }
                 } else {
                     modelManager->loadPluginTypes(
                                 libraryPath, libraryPath,
