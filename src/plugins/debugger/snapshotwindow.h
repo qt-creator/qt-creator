@@ -61,7 +61,6 @@ private:
     void keyPressEvent(QKeyEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
 
-    bool m_alwaysResizeColumnsToContents;
     SnapshotHandler *m_snapshotHandler;
 };
 

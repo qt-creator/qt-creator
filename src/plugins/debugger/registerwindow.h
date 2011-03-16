@@ -56,8 +56,6 @@ public slots:
 private:
     void resizeEvent(QResizeEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
-
-    bool m_alwaysResizeColumnsToContents;
 };
 
 } // namespace Internal

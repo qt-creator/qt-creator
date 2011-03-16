@@ -442,10 +442,8 @@ MultiBreakPointsDialog::MultiBreakPointsDialog(unsigned engineCapabilities, QWid
 ///////////////////////////////////////////////////////////////////////
 
 BreakWindow::BreakWindow(QWidget *parent)
-  : QTreeView(parent)
+    : QTreeView(parent)
 {
-    m_alwaysResizeColumnsToContents = false;
-
     QAction *act = debuggerCore()->action(UseAlternatingRowColors);
     setFrameStyle(QFrame::NoFrame);
     setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -463,6 +461,9 @@ BreakWindow::BreakWindow(QWidget *parent)
     connect(debuggerCore()->action(UseAddressInBreakpointsView),
         SIGNAL(toggled(bool)),
         SLOT(showAddressColumn(bool)));
+    connect(debuggerCore()->action(AlwaysAdjustBreakpointsColumnWidths),
+        SIGNAL(toggled(bool)),
+        SLOT(setAlwaysResizeColumnsToContents(bool)));
 }
 
 void BreakWindow::showAddressColumn(bool on)
@@ -559,12 +560,6 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *adjustColumnAction =
         new QAction(tr("Adjust Column Widths to Contents"), &menu);
 
-    QAction *alwaysAdjustAction =
-        new QAction(tr("Always Adjust Column Widths to Contents"), &menu);
-
-    alwaysAdjustAction->setCheckable(true);
-    alwaysAdjustAction->setChecked(m_alwaysResizeColumnsToContents);
-
     QAction *editBreakpointAction =
         new QAction(tr("Edit Breakpoint..."), &menu);
     editBreakpointAction->setEnabled(!selectedIds.isEmpty());
@@ -610,7 +605,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(debuggerCore()->action(UseToolTipsInBreakpointsView));
     menu.addAction(debuggerCore()->action(UseAddressInBreakpointsView));
     menu.addAction(adjustColumnAction);
-    menu.addAction(alwaysAdjustAction);
+    menu.addAction(debuggerCore()->action(AlwaysAdjustBreakpointsColumnWidths));
     menu.addSeparator();
     menu.addAction(debuggerCore()->action(SettingsDialog));
 
@@ -624,8 +619,6 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         deleteBreakpoints(breakpointsInFile);
     else if (act == adjustColumnAction)
         resizeColumnsToContents();
-    else if (act == alwaysAdjustAction)
-        setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == editBreakpointAction)
         editBreakpoints(selectedIds);
     else if (act == associateBreakpointAction)
@@ -729,7 +722,6 @@ void BreakWindow::resizeColumnsToContents()
 
 void BreakWindow::setAlwaysResizeColumnsToContents(bool on)
 {
-    m_alwaysResizeColumnsToContents = on;
     QHeaderView::ResizeMode mode = on
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     for (int i = model()->columnCount(); --i >= 0; )

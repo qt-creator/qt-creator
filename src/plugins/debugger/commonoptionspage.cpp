@@ -54,38 +54,47 @@ using namespace ProjectExplorer;
 namespace Debugger {
 namespace Internal {
 
-CommonOptionsPageWidget::CommonOptionsPageWidget(const QSharedPointer<Utils::SavedActionSet> &group, QWidget *parent) :
-    QWidget(parent), m_group(group)
+CommonOptionsPageWidget::CommonOptionsPageWidget
+    (const QSharedPointer<Utils::SavedActionSet> &group, QWidget *parent)
+  : QWidget(parent), m_group(group)
 {
     m_ui.setupUi(this);
+
+    DebuggerCore *dc = debuggerCore();
     m_group->clear();
 
-    m_group->insert(debuggerCore()->action(ListSourceFiles),
+    m_group->insert(dc->action(ListSourceFiles),
         m_ui.checkBoxListSourceFiles);
-    m_group->insert(debuggerCore()->action(UseAlternatingRowColors),
+    m_group->insert(dc->action(UseAlternatingRowColors),
         m_ui.checkBoxUseAlternatingRowColors);
-    m_group->insert(debuggerCore()->action(UseToolTipsInMainEditor),
+    m_group->insert(dc->action(UseToolTipsInMainEditor),
         m_ui.checkBoxUseToolTipsInMainEditor);
-    m_group->insert(debuggerCore()->action(CloseBuffersOnExit),
+    m_group->insert(dc->action(CloseBuffersOnExit),
         m_ui.checkBoxCloseBuffersOnExit);
-    m_group->insert(debuggerCore()->action(SwitchModeOnExit),
+    m_group->insert(dc->action(SwitchModeOnExit),
         m_ui.checkBoxSwitchModeOnExit);
-    m_group->insert(debuggerCore()->action(AutoDerefPointers), 0);
-    m_group->insert(debuggerCore()->action(UseToolTipsInLocalsView), 0);
-    m_group->insert(debuggerCore()->action(UseToolTipsInBreakpointsView), 0);
-    m_group->insert(debuggerCore()->action(UseAddressInBreakpointsView), 0);
-    m_group->insert(debuggerCore()->action(UseAddressInStackView), 0);
-    m_group->insert(debuggerCore()->action(MaximalStackDepth),
+    m_group->insert(dc->action(AutoDerefPointers), 0);
+    m_group->insert(dc->action(UseToolTipsInLocalsView), 0);
+    m_group->insert(dc->action(AlwaysAdjustLocalsColumnWidths), 0);
+    m_group->insert(dc->action(AlwaysAdjustThreadsColumnWidths), 0);
+    m_group->insert(dc->action(AlwaysAdjustSnapshotsColumnWidths), 0);
+    m_group->insert(dc->action(AlwaysAdjustBreakpointsColumnWidths), 0);
+    m_group->insert(dc->action(AlwaysAdjustModulesColumnWidths), 0);
+    m_group->insert(dc->action(UseToolTipsInBreakpointsView), 0);
+    m_group->insert(dc->action(UseAddressInBreakpointsView), 0);
+    m_group->insert(dc->action(UseAddressInStackView), 0);
+    m_group->insert(dc->action(AlwaysAdjustStackColumnWidths), 0);
+    m_group->insert(dc->action(MaximalStackDepth),
         m_ui.spinBoxMaximalStackDepth);
-    m_group->insert(debuggerCore()->action(ShowStdNamespace), 0);
-    m_group->insert(debuggerCore()->action(ShowQtNamespace), 0);
-    m_group->insert(debuggerCore()->action(SortStructMembers), 0);
-    m_group->insert(debuggerCore()->action(LogTimeStamps), 0);
-    m_group->insert(debuggerCore()->action(VerboseLog), 0);
-    m_group->insert(debuggerCore()->action(BreakOnThrow), 0);
-    m_group->insert(debuggerCore()->action(BreakOnCatch), 0);
+    m_group->insert(dc->action(ShowStdNamespace), 0);
+    m_group->insert(dc->action(ShowQtNamespace), 0);
+    m_group->insert(dc->action(SortStructMembers), 0);
+    m_group->insert(dc->action(LogTimeStamps), 0);
+    m_group->insert(dc->action(VerboseLog), 0);
+    m_group->insert(dc->action(BreakOnThrow), 0);
+    m_group->insert(dc->action(BreakOnCatch), 0);
 #ifdef Q_OS_WIN
-    Utils::SavedAction *registerAction = debuggerCore()->action(RegisterForPostMortem);
+    Utils::SavedAction *registerAction = dc->action(RegisterForPostMortem);
     m_group->insert(registerAction,
         m_ui.checkBoxRegisterForPostMortem);
     connect(registerAction, SIGNAL(toggled(bool)),
@@ -253,26 +262,28 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
     m_ui.setupUi(w);
 
     m_ui.dumperLocationChooser->setExpectedKind(Utils::PathChooser::Command);
-    m_ui.dumperLocationChooser->setPromptDialogTitle(QCoreApplication::translate("Debugger",
-                                                                                 "Choose DebuggingHelper Location"));
+    m_ui.dumperLocationChooser->setPromptDialogTitle(QCoreApplication::translate
+        ("Debugger", "Choose DebuggingHelper Location"));
     m_ui.dumperLocationChooser->setInitialBrowsePathBackup(
         ICore::instance()->resourcePath() + "../../lib");
 
     m_group.clear();
-    m_group.insert(debuggerCore()->action(UseDebuggingHelpers),
+    DebuggerCore *dc = debuggerCore();
+
+    m_group.insert(dc->action(UseDebuggingHelpers),
         m_ui.debuggingHelperGroupBox);
-    m_group.insert(debuggerCore()->action(UseCustomDebuggingHelperLocation),
+    m_group.insert(dc->action(UseCustomDebuggingHelperLocation),
         m_ui.customLocationGroupBox);
     // Suppress Oxygen style's giving flat group boxes bold titles.
     if (oxygenStyle())
         m_ui.customLocationGroupBox->setStyleSheet(_("QGroupBox::title { font: ; }"));
 
-    m_group.insert(debuggerCore()->action(CustomDebuggingHelperLocation),
+    m_group.insert(dc->action(CustomDebuggingHelperLocation),
         m_ui.dumperLocationChooser);
 
-    m_group.insert(debuggerCore()->action(UseCodeModel),
+    m_group.insert(dc->action(UseCodeModel),
         m_ui.checkBoxUseCodeModel);
-    m_group.insert(debuggerCore()->action(ShowThreadNames),
+    m_group.insert(dc->action(ShowThreadNames),
         m_ui.checkBoxShowThreadNames);
 
 

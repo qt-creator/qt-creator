@@ -90,8 +90,6 @@ enum DebuggerActionCode
 {
     // General
     SettingsDialog,
-    AdjustColumnWidths,
-    AlwaysAdjustColumnWidths,
     UseAlternatingRowColors,
     UseMessageBoxForSignals,
     AutoQuit,
@@ -128,12 +126,14 @@ enum DebuggerActionCode
     MaximalStackDepth,
     ExpandStack,
     CreateFullBacktrace,
+    AlwaysAdjustStackColumnWidths,
 
     // Watchers & Locals
     ShowStdNamespace,
     ShowQtNamespace,
     SortStructMembers,
     AutoDerefPointers,
+    AlwaysAdjustLocalsColumnWidths,
 
     // Source List
     ListSourceFiles,
@@ -147,10 +147,23 @@ enum DebuggerActionCode
     AllPluginBreakpoints,
     SelectedPluginBreakpoints,
     AdjustBreakpointLocations,
+    AlwaysAdjustBreakpointsColumnWidths,
     NoPluginBreakpoints,
     SelectedPluginBreakpointsPattern,
     BreakOnThrow,
-    BreakOnCatch
+    BreakOnCatch,
+
+    // Registers
+    AlwaysAdjustRegistersColumnWidths,
+
+    // Snapshots
+    AlwaysAdjustSnapshotsColumnWidths,
+
+    // Threads
+    AlwaysAdjustThreadsColumnWidths,
+
+    // Modules
+    AlwaysAdjustModulesColumnWidths
 };
 
 } // namespace Internal

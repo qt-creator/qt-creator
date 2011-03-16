@@ -50,7 +50,7 @@ namespace Debugger {
 namespace Internal {
 
 ThreadsWindow::ThreadsWindow(QWidget *parent)
-    : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
+    : QTreeView(parent)
 {
     QAction *act = debuggerCore()->action(UseAlternatingRowColors);
 
@@ -64,9 +64,12 @@ ThreadsWindow::ThreadsWindow(QWidget *parent)
     header()->setDefaultAlignment(Qt::AlignLeft);
 
     connect(this, SIGNAL(activated(QModelIndex)),
-        this, SLOT(rowActivated(QModelIndex)));
+        SLOT(rowActivated(QModelIndex)));
     connect(act, SIGNAL(toggled(bool)),
-        this, SLOT(setAlternatingRowColorsHelper(bool)));
+        SLOT(setAlternatingRowColorsHelper(bool)));
+    connect(debuggerCore()->action(AlwaysAdjustThreadsColumnWidths),
+        SIGNAL(toggled(bool)),
+        SLOT(setAlwaysResizeColumnsToContents(bool)));
 }
 
 void ThreadsWindow::rowActivated(const QModelIndex &index)
@@ -87,10 +90,7 @@ void ThreadsWindow::contextMenuEvent(QContextMenuEvent *ev)
     QMenu menu;
     QAction *adjustColumnAction =
         menu.addAction(tr("Adjust Column Widths to Contents"));
-    QAction *alwaysAdjustColumnAction =
-        menu.addAction(tr("Always Adjust Column Widths to Contents"));
-    alwaysAdjustColumnAction->setCheckable(true);
-    alwaysAdjustColumnAction->setChecked(m_alwaysResizeColumnsToContents);
+    menu.addAction(debuggerCore()->action(AlwaysAdjustThreadsColumnWidths));
     menu.addSeparator();
 
     menu.addAction(debuggerCore()->action(SettingsDialog));
@@ -99,11 +99,8 @@ void ThreadsWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (!act)
         return;
 
-    if (act == adjustColumnAction) {
+    if (act == adjustColumnAction)
         resizeColumnsToContents();
-    } else if (act == alwaysAdjustColumnAction) {
-        setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
-    }
 }
 
 void ThreadsWindow::resizeColumnsToContents()
@@ -115,7 +112,6 @@ void ThreadsWindow::resizeColumnsToContents()
 
 void ThreadsWindow::setAlwaysResizeColumnsToContents(bool on)
 {
-    m_alwaysResizeColumnsToContents = on;
     QHeaderView::ResizeMode mode = on
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     header()->setResizeMode(0, mode);

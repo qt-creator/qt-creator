@@ -70,8 +70,6 @@ private:
     void editBreakpoints(const BreakpointIds &ids);
     void associateBreakpoint(const BreakpointIds &ids, int thread);
     void setBreakpointsEnabled(const BreakpointIds &ids, bool enabled);
-
-    bool m_alwaysResizeColumnsToContents;
 };
 
 } // namespace Internal

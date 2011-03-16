@@ -158,7 +158,7 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 RegisterWindow::RegisterWindow(QWidget *parent)
-  : QTreeView(parent), m_alwaysResizeColumnsToContents(true)
+  : QTreeView(parent)
 {
     QAction *act = debuggerCore()->action(UseAlternatingRowColors);
     setFrameStyle(QFrame::NoFrame);
@@ -170,6 +170,9 @@ RegisterWindow::RegisterWindow(QWidget *parent)
 
     connect(act, SIGNAL(toggled(bool)),
         SLOT(setAlternatingRowColorsHelper(bool)));
+    connect(debuggerCore()->action(AlwaysAdjustRegistersColumnWidths),
+        SIGNAL(toggled(bool)),
+        SLOT(setAlwaysResizeColumnsToContents(bool)));
 }
 
 void RegisterWindow::resizeEvent(QResizeEvent *ev)
@@ -223,10 +226,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addSeparator();
 
     QAction *actAdjust = menu.addAction(tr("Adjust Column Widths to Contents"));
-    QAction *actAlwaysAdjust =
-        menu.addAction(tr("Always Adjust Column Widths to Contents"));
-    actAlwaysAdjust->setCheckable(true);
-    actAlwaysAdjust->setChecked(m_alwaysResizeColumnsToContents);
+    menu.addAction(debuggerCore()->action(AlwaysAdjustRegistersColumnWidths));
     menu.addSeparator();
 
     menu.addAction(debuggerCore()->action(SettingsDialog));
@@ -235,8 +235,6 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     if (act == actAdjust)
         resizeColumnsToContents();
-    else if (act == actAlwaysAdjust)
-        setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == actReload)
         engine->reloadRegisters();
     else if (act == actShowMemory)
@@ -259,7 +257,6 @@ void RegisterWindow::resizeColumnsToContents()
 
 void RegisterWindow::setAlwaysResizeColumnsToContents(bool on)
 {
-    m_alwaysResizeColumnsToContents = on;
     QHeaderView::ResizeMode mode = on
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     header()->setResizeMode(0, mode);

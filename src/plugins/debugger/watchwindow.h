@@ -57,7 +57,6 @@ public:
 
 public slots:
     void resizeColumnsToContents();
-    void setAlwaysResizeColumnsToContents(bool on = true);
     void setModel(QAbstractItemModel *model);
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
     void watchExpression(const QString &exp);
@@ -68,6 +67,7 @@ private:
     Q_SLOT void expandNode(const QModelIndex &idx);
     Q_SLOT void collapseNode(const QModelIndex &idx);
     Q_SLOT void setUpdatesEnabled(bool enable);
+    Q_SLOT void setAlwaysResizeColumnsToContents(bool on);
 
     void keyPressEvent(QKeyEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
@@ -84,7 +84,6 @@ private:
     void setModelData(int role, const QVariant &value = QVariant(),
         const QModelIndex &index = QModelIndex());
 
-    bool m_alwaysResizeColumnsToContents;
     Type m_type;
     bool m_grabbing;
 };

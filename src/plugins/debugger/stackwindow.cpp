@@ -59,7 +59,7 @@ static DebuggerEngine *currentEngine()
 }
 
 StackWindow::StackWindow(QWidget *parent)
-    : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
+    : QTreeView(parent)
 {
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(QFrame::NoFrame);
@@ -83,6 +83,9 @@ StackWindow::StackWindow(QWidget *parent)
         SLOT(reloadFullStack()));
     connect(debuggerCore()->action(MaximalStackDepth), SIGNAL(triggered()),
         SLOT(reloadFullStack()));
+    connect(debuggerCore()->action(AlwaysAdjustStackColumnWidths),
+        SIGNAL(triggered(bool)),
+        SLOT(setAlwaysResizeColumnsToContents(bool)));
     showAddressColumn(false);
 }
 
@@ -154,12 +157,7 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(debuggerCore()->action(UseAddressInStackView));
 
     QAction *actAdjust = menu.addAction(tr("Adjust Column Widths to Contents"));
-
-    QAction *actAlwaysAdjust =
-        menu.addAction(tr("Always Adjust Column Widths to Contents"));
-    actAlwaysAdjust->setCheckable(true);
-    actAlwaysAdjust->setChecked(m_alwaysResizeColumnsToContents);
-
+    menu.addAction(debuggerCore()->action(AlwaysAdjustStackColumnWidths));
     menu.addSeparator();
 
     menu.addAction(debuggerCore()->action(SettingsDialog));
@@ -172,8 +170,6 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
         copyContentsToClipboard();
     else if (act == actAdjust)
         resizeColumnsToContents();
-    else if (act == actAlwaysAdjust)
-        setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == actShowMemory)
         engine->openMemoryView(address);
     else if (act == actShowDisassembler)
@@ -215,7 +211,6 @@ void StackWindow::resizeColumnsToContents()
 
 void StackWindow::setAlwaysResizeColumnsToContents(bool on)
 {
-    m_alwaysResizeColumnsToContents = on;
     QHeaderView::ResizeMode mode =
         on ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     for (int i = model()->columnCount(); --i >= 0; )

@@ -60,8 +60,6 @@ private:
     void setModel(QAbstractItemModel *model);
     void contextMenuEvent(QContextMenuEvent *ev);
     void copyContentsToClipboard();
-
-    bool m_alwaysResizeColumnsToContents;
 };
 
 } // namespace Internal

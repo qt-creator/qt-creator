@@ -58,7 +58,6 @@ namespace Internal {
 ///////////////////////////////////////////////////////////////////////
 
 SnapshotWindow::SnapshotWindow(SnapshotHandler *handler)
-    : m_alwaysResizeColumnsToContents(false)
 {
     m_snapshotHandler = handler;
 
@@ -76,6 +75,9 @@ SnapshotWindow::SnapshotWindow(SnapshotHandler *handler)
         SLOT(rowActivated(QModelIndex)));
     connect(act, SIGNAL(toggled(bool)),
         SLOT(setAlternatingRowColorsHelper(bool)));
+    connect(debuggerCore()->action(AlwaysAdjustSnapshotsColumnWidths),
+        SIGNAL(toggled(bool)),
+        SLOT(setAlwaysResizeColumnsToContents(bool)));
 }
 
 void SnapshotWindow::rowActivated(const QModelIndex &index)
@@ -107,21 +109,14 @@ void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *actCreate = menu.addAction(tr("Create Snapshot"));
     actCreate->setEnabled(idx.data(SnapshotCapabilityRole).toBool());
-
     menu.addSeparator();
 
     QAction *actRemove = menu.addAction(tr("Remove Snapshot"));
     actRemove->setEnabled(idx.isValid());
-
     menu.addSeparator();
 
     QAction *actAdjust = menu.addAction(tr("Adjust Column Widths to Contents"));
-
-    QAction *actAlwaysAdjust =
-        menu.addAction(tr("Always Adjust Column Widths to Contents"));
-    actAlwaysAdjust->setCheckable(true);
-    actAlwaysAdjust->setChecked(m_alwaysResizeColumnsToContents);
-
+    menu.addAction(debuggerCore()->action(AlwaysAdjustSnapshotsColumnWidths));
     menu.addSeparator();
 
     menu.addAction(debuggerCore()->action(SettingsDialog));
@@ -134,8 +129,6 @@ void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
         removeSnapshot(idx.row());
     else if (act == actAdjust)
         resizeColumnsToContents();
-    else if (act == actAlwaysAdjust)
-        setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
 }
 
 void SnapshotWindow::removeSnapshot(int i)
@@ -151,7 +144,6 @@ void SnapshotWindow::resizeColumnsToContents()
 
 void SnapshotWindow::setAlwaysResizeColumnsToContents(bool on)
 {
-    m_alwaysResizeColumnsToContents = on;
     QHeaderView::ResizeMode mode =
         on ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     for (int i = model()->columnCount(); --i >= 0; )
