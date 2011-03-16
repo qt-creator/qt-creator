@@ -167,6 +167,7 @@ private:
     void appendMessage(const QString &error, bool isError);
     void reportError(const QString &error);
 
+    void handleConnected();
     void handleSymbianInstall(const Coda::CodaCommandResult &result);
     void handleFileSystemOpen(const Coda::CodaCommandResult &result);
     void handleFileSystemWrite(const Coda::CodaCommandResult &result);
