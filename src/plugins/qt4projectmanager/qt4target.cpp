@@ -118,6 +118,7 @@ QString Qt4BaseTargetFactory::msgBuildConfigurationName(const BuildConfiguration
 
 QList<ProjectExplorer::Task> Qt4BaseTargetFactory::reportIssues(const QString &proFile)
 {
+    Q_UNUSED(proFile);
     return QList<ProjectExplorer::Task>();
 }
 
