@@ -570,7 +570,7 @@ void Qt4DefaultTargetSetupWidget::setBuildConfigurationInfos(const QList<BuildCo
                 m_pathChoosers[i]->setPath(info.directory);
             else
                 m_pathChoosers[i]->setPath(sourceDir);
-            foundIssues &= reportIssues(i);
+            foundIssues |= reportIssues(i);
         }
         m_ignoreChange = false;
         if (foundIssues)
@@ -631,7 +631,7 @@ void Qt4DefaultTargetSetupWidget::setupWidgets()
         m_checkboxes.append(checkbox);
         m_pathChoosers.append(pathChooser);
         m_reportIssuesLabels.append(reportIssuesLabel);
-        foundIssues = reportIssues(i);
+        foundIssues |= reportIssues(i);
     }
     if (foundIssues)
         m_detailsWidget->setState(Utils::DetailsWidget::Expanded);
