@@ -430,6 +430,8 @@ IAnalyzerEngine *MemcheckTool::createEngine(ProjectExplorer::RunConfiguration *r
             this, SLOT(parserError(Valgrind::XmlProtocol::Error)));
     connect(engine, SIGNAL(internalParserError(QString)),
             this, SLOT(internalParserError(QString)));
+    connect(engine, SIGNAL(finished()), this, SLOT(finished()));
+    AnalyzerManager::instance()->showStatusMessage(AnalyzerManager::msgToolStarted(displayName()));
     return engine;
 }
 
@@ -521,6 +523,12 @@ IAnalyzerOutputPaneAdapter *MemcheckTool::outputPaneAdapter()
     if (!m_outputPaneAdapter)
         m_outputPaneAdapter = new MemCheckOutputPaneAdapter(this);
     return m_outputPaneAdapter;
+}
+
+void MemcheckTool::finished()
+{
+    const QString msg = AnalyzerManager::msgToolFinished(displayName(), m_errorModel->rowCount());
+    AnalyzerManager::instance()->showStatusMessage(msg);
 }
 
 } // namespace Internal

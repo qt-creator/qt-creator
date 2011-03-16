@@ -106,6 +106,7 @@
 #include <utils/savedaction.h>
 #include <utils/styledbar.h>
 #include <utils/proxyaction.h>
+#include <utils/statuslabel.h>
 
 #include <qml/scriptconsole.h>
 
@@ -746,8 +747,6 @@ public slots:
     void updateWatchersWindow();
     void onCurrentProjectChanged(ProjectExplorer::Project *project);
 
-    void clearStatusMessage();
-
     void sessionLoaded();
     void aboutToUnloadSession();
     void aboutToSaveSession();
@@ -1018,7 +1017,7 @@ public:
     QIcon m_interruptIcon;
     QIcon m_locationMarkIcon;
 
-    QLabel *m_statusLabel;
+    Utils::StatusLabel *m_statusLabel;
     QComboBox *m_threadBox;
 
     BreakWindow *m_breakWindow;
@@ -1037,7 +1036,6 @@ public:
     ScriptConsole *m_scriptConsoleWindow;
 
     bool m_busy;
-    QTimer m_statusTimer;
     QString m_lastPermanentStatusMessage;
 
     mutable CPlusPlus::Snapshot m_codeModelSnapshot;
@@ -2152,11 +2150,6 @@ void DebuggerPluginPrivate::dumpLog()
     ts << m_logWindow->combinedContents();
 }
 
-void DebuggerPluginPrivate::clearStatusMessage()
-{
-    m_statusLabel->setText(m_lastPermanentStatusMessage);
-}
-
 /*! Activates the previous mode when the current mode is the debug mode. */
 void DebuggerPluginPrivate::activatePreviousMode()
 {
@@ -2216,15 +2209,8 @@ void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)
 {
     showMessage(msg0, LogStatus);
     QString msg = msg0;
-    msg.replace(QLatin1Char('\n'), QString());
-    m_statusLabel->setText(msg);
-    if (timeout > 0) {
-        m_statusTimer.setSingleShot(true);
-        m_statusTimer.start(timeout);
-    } else {
-        m_lastPermanentStatusMessage = msg;
-        m_statusTimer.stop();
-    }
+    msg.remove(QLatin1Char('\n'));
+    m_statusLabel->showStatusMessage(msg, timeout);
 }
 
 void DebuggerPluginPrivate::scriptExpressionEntered(const QString &expression)
@@ -2550,8 +2536,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     m_busy = false;
 
-    m_statusLabel = new QLabel;
-    m_statusLabel->setMinimumSize(QSize(30, 10));
+    m_statusLabel = new Utils::StatusLabel;
 
     m_breakHandler = new BreakHandler;
     m_breakWindow = new BreakWindow;
@@ -2673,8 +2658,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     connect(action(OperateByInstruction), SIGNAL(triggered(bool)),
         SLOT(handleOperateByInstructionTriggered(bool)));
-
-    connect(&m_statusTimer, SIGNAL(timeout()), SLOT(clearStatusMessage()));
 
     ActionContainer *debugMenu =
         am->actionContainer(ProjectExplorer::Constants::M_DEBUG);

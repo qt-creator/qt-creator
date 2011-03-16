@@ -111,6 +111,7 @@ private slots:
     void internalParserError(const QString &errorString);
     void updateErrorFilter();
     void suppressionActionTriggered();
+    void finished();
     QMenu *filterMenu() const;
 
 private:

@@ -88,7 +88,14 @@ public:
 
     void selectTool(IAnalyzerTool *tool);
 
-    QList<QWidget *> outputPaneToolBarWidgets() const;
+    void addOutputPaneToolBarWidgets(QList<QWidget *>  *) const;
+
+    static QString msgToolStarted(const QString &name);
+    static QString msgToolFinished(const QString &name, int issuesFound);
+
+public slots:
+    void showStatusMessage(const QString &message, int timeoutMS = 10000);
+    void showPermanentStatusMessage(const QString &message);
 
 private slots:
     void startTool();
