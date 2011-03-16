@@ -345,7 +345,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
 
     m_importLineLayout = new QHBoxLayout();
     m_importLineLabel = new QLabel();
-    m_importLineLabel->setText(tr("Import build from:"));
+    m_importLineLabel->setText(tr("Add build from:"));
     m_importLineLayout->addWidget(m_importLineLabel);
 
     m_importLinePath = new Utils::PathChooser();
