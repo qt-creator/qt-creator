@@ -263,6 +263,8 @@
 
         \o Mercurial
 
+        \o Bazaar
+
     \endlist
 
     The functions available to you in Qt Creator depend on the version control
@@ -6210,29 +6212,33 @@
     Version control systems supported by Qt Creator are:
     \table
         \header
-            \i \bold{Version Control System}
-            \i \bold{Address}
-            \i \bold{Notes}
+            \i Version Control System
+            \i Address
+            \i Notes
         \row
-            \i  \bold{Git}
-            \i  \l{http://git-scm.com/}
-            \i
+            \i  Bazaar
+            \i  \l{http://bazaar.canonical.com/}
+            \i  Qt Creator 2.2 and later
         \row
-            \i  \bold{Subversion}
-            \i  \l{http://subversion.tigris.org/}
-            \i
-        \row
-            \i  \bold{Perforce}
-            \i  \l{http://www.perforce.com}
-            \i  Server version 2006.1 and later
-        \row
-            \i  \bold{CVS}
+            \i  CVS
             \i  \l{http://www.cvshome.org}
             \i
         \row
-            \i  \bold{Mercurial}
+            \i  Git
+            \i  \l{http://git-scm.com/}
+            \i
+        \row
+            \i  Mercurial
             \i  \l{http://mercurial.selenic.com/}
             \i  Qt Creator 2.0 and later
+        \row
+            \i  Perforce
+            \i  \l{http://www.perforce.com}
+            \i  Server version 2006.1 and later
+        \row
+            \i  Subversion
+            \i  \l{http://subversion.apache.org/}
+            \i
     \endtable
 
 
@@ -6297,21 +6303,35 @@
              Reviewed-by:
              Signed-off-by:
              \endcode
-    \endlist
 
     The fields above appear below the submit message. They provide completion
     for the aliases/public user names specified in the
     \e{User/alias configuration file} as well as a button that opens the
     aforementioned user name dialog.
 
+    \o    \gui{SSH prompt command} specifies an ssh-askpass command that you
+          can use (on Linux) to prompt the user for a password when using SSH.
+          For example, \c ssh-askpass or \c x11-ssh-askpass, depending on the
+          ssh-askpass implementation that you use.
+
+    \endlist
+
     \section1 Creating VCS Repositories for New Projects
 
-    Qt Creator allows for creating VCS repositories for version
+    Qt Creator allows you to create repositories for version
     control systems that support local repository creation, such as
-    Git or Mercurial.
+    Git, Mercurial, or Bazaar.
     When creating a new project by selecting \gui File >
     \gui{New File or Project...}, you can choose a version
     control system in the final wizard page.
+
+    You can also select \gui Tools and then select \gui {Create Repository...}
+    in the submenu for the version control system.
+
+    To import a project that is under version control, choose \gui {File >
+    New File or Project... > Project from Version Control} and select the
+    version control system that you use. Follow the instructions of the
+    wizard to import the project.
 
     \section1 Using Version Control Systems
 
@@ -6355,8 +6375,7 @@
     \section2 Viewing Versioning History and Change Details
 
     Display the versioning history of a file by selecting \gui{Log}
-    (for Git and Mercurial) or \gui{Filelog} (for CVS, Perforce, and
-    Subversion). Typically, the log output contains the date, the commit
+    or \gui{Filelog}. Typically, the log output contains the date, the commit
     message, and a change or revision identifier. Click on the identifier to
     display a description of the change including the diff.
     Right-clicking on an identifier brings up a context menu that lets you
@@ -6426,6 +6445,68 @@
 
     \endlist
 
+    \section2 Viewing Status
+
+    You can select \gui{Status...} to view the status of the project or
+    repository.
+
+    \section2 Updating the Working Tree
+
+    You can select \gui Update to update your working tree with the latest
+    changes from the branch. Some version control systems allow you to choose
+    between updating the current project and updating all projects.
+
+    With Git, you stash your changes and then pull the changes from the
+    repository.
+
+    \section2 Deleting Files
+
+    You can select \gui Delete to delete obsolete files from the repository.
+
+    With Git, you delete the files from the working tree and then stage the
+    deleted files for a commit.
+
+    \section2 Using Additional Bazaar Functions
+
+    Bazaar is a free version control system sponsored by Canonical.
+
+    The \gui Bazaar submenu contains the following additional items:
+
+    \table
+        \header
+            \o  Menu Item
+            \o  Description
+        \row
+            \i  \gui{Pull...}
+            \i  Turn the branch into a mirror of another branch.
+        \row
+            \i  \gui{Push...}
+            \i  Update a mirror of the branch.
+
+    \endtable
+
+    \section2 Using Additional CVS Functions
+
+    CVS is an open source version control system.
+
+    The \gui CVS submenu contains the following additional items:
+
+    \table
+        \header
+            \o  Menu Item
+            \o  Description
+        \row
+            \i  \gui{Edit}
+            \i  Open a file for editing.
+        \row
+            \i  \gui{Push...}
+            \i  Push changes to the remote repository.
+        \row
+            \i  \gui{Unedit}
+            \i  Discard the changes that you made in a file.
+
+    \endtable
+
     \section2 Using Additional Git Functions
 
     Git is a fast decentralized version control system. Git is available
@@ -6434,7 +6515,9 @@
     The \gui Git submenu contains the following additional items:
 
     \table
-
+        \header
+            \o  Menu Item
+            \o  Description
         \row
             \i  \gui {Patch > Apply from Editor/Apply from File...}
             \i  Patches are rewriting instructions that can be applied to a set of files.
@@ -6453,6 +6536,9 @@
                 of patches and project files) are displayed in the \gui {Clean Repository}
                 dialog. Select the files to delete and click \gui Delete. This allows you to
                 clean a build completely.
+        \row
+            \i  \gui{Launch gitk}
+            \i  Start the commit viewer for Git, gitk.
 
         \row
             \i  \gui{Branches...}
@@ -6472,6 +6558,10 @@
             \i  \gui{Show Commit...}
             \i  Select a commit to view. Enter the SHA of the commit
                 in the \gui Change field.
+        \row
+            \i  \gui{Amend Last Commit...}
+            \i  Revert the last commit.
+
     \endtable
 
     \section3 Using Stashes
@@ -6483,6 +6573,9 @@
     Qt Creator exposes this functionality in the \gui{Tools > Git > Stash} menu.
 
     \table
+        \header
+            \o  Menu Item
+            \o  Description
         \row
             \i  \gui{Stashes...}
             \i  Display a dialog that shows all known stashes with options to restore,
@@ -6506,9 +6599,14 @@
 
     \section2 Using Additional Mercurial Functionality
 
+    Mercurial is a free, distributed source control management tool.
+
     The \gui Mercurial submenu contains the following additional items:
 
     \table
+        \header
+            \o  Menu Item
+            \o  Description
         \row
             \i  \gui{Import}
             \i  Apply changes from a patch file.
@@ -6524,11 +6622,14 @@
             \i  \gui{Pull}
             \i  Pull changes from the remote repository.
         \row
-            \i  \gui{Update}
-            \i  Look at an earlier version of the code.
-    \endtable
+            \i  \gui{Push}
+            \i  Push changes to the remote repository.
+     \endtable
 
     \section2 Using Additional Perforce Functions
+
+    Perforce is a fast software configuration management system developed by
+    Perforce Software.
 
     When you start Qt Creator, it looks for the executable specified
     in the \gui{P4 command} field in \gui{Tools > Options... > Version
@@ -6547,6 +6648,9 @@
     The \gui Perforce submenu contains the following additional items:
 
     \table
+        \header
+            \o  Menu Item
+            \o  Description
         \row
             \i  \gui{Describe...}
             \i  View information about changelists and the files in them.
@@ -6559,27 +6663,22 @@
         \row
             \i  \gui{Pending Changes...}
             \i  Group files for commit.
-        \row
-            \i  \gui{Update All/Update Current Project}
-            \i  Fetch the current version of the current project or all
-            projects from the repository.
-
     \endtable
 
     \section2 Using Additional Subversion Functions
 
+    Subversion is an open source version control system.
+
     The \gui Subversion submenu contains the following additional items:
 
     \table
+        \header
+            \o  Menu Item
+            \o  Description
         \row
             \i  \gui{Describe...}
             \i  Display commit log messages for a revision.
-        \row
-            \i  \gui{Update Project/Update Repository}
-            \i  Update your working copy.
     \endtable
-
-
 
 */
 
