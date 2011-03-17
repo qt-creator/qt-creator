@@ -124,17 +124,10 @@ void ToolBarColorBox::contextMenuEvent(QContextMenuEvent *ev)
     contextMenu.exec(ev->globalPos());
 }
 
-void ToolBarColorBox::mouseDoubleClickEvent(QMouseEvent *)
-{
-    QColorDialog dialog(m_color);
-    dialog.show();
-}
-
 void ToolBarColorBox::copyColorToClipboard()
 {
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(m_color.name());
 }
-
 
 } // namespace QmlJSInspector

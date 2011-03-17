@@ -52,7 +52,6 @@ public:
 
 protected:
     void contextMenuEvent(QContextMenuEvent *ev);
-    void mouseDoubleClickEvent(QMouseEvent *);
     void mousePressEvent(QMouseEvent *ev);
     void mouseMoveEvent(QMouseEvent *ev);
 private slots:
