@@ -356,13 +356,12 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     m_importLineButton = new QPushButton;
     m_importLineButton->setText(tr("Add Build"));
     m_importLineLayout->addWidget(m_importLineButton);
+    m_importLineLayout->addStretch();
     layout->addLayout(m_importLineLayout);
 
-    if (!m_showImport) {
-        m_importLineLabel->setVisible(false);
-        m_importLinePath->setVisible(false);
-        m_importLineButton->setVisible(false);
-    }
+    m_importLineLabel->setVisible(false);
+    m_importLinePath->setVisible(false);
+    m_importLineButton->setVisible(m_showImport);
 
     m_spacerTopWidget = new QWidget;
     m_spacerTopWidget->setMinimumHeight(12);
@@ -486,6 +485,11 @@ QList<BuildConfigurationInfo> Qt4DefaultTargetSetupWidget::buildConfigurationInf
 
 void Qt4DefaultTargetSetupWidget::addImportClicked()
 {
+    if (!m_importLineLabel->isVisible()) {
+        m_importLineLabel->setVisible(true);
+        m_importLinePath->setVisible(true);
+        return;
+    }
     BuildConfigurationInfo info = BuildConfigurationInfo::checkForBuild(m_importLinePath->path(), m_proFilePath);
     if (!info.isValid()) {
         QMessageBox::critical(Core::ICore::instance()->mainWindow(),
