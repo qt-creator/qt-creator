@@ -682,6 +682,9 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case LocalsExpressionRole:
             return QVariant(expression(item));
 
+        case LocalsRawExpressionRole:
+            return data.exp;
+
         case LocalsINameRole:
             return data.iname;
 
