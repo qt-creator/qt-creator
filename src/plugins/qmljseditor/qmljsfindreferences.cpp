@@ -645,6 +645,10 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     if (!scope)
         return;
 
+    // report a dummy usage to indicate the search is starting
+    FindReferences::Usage usage;
+    future.reportResult(usage);
+
     QStringList files;
     foreach (const Document::Ptr &doc, snapshot) {
         // ### skip files that don't contain the name token
@@ -663,18 +667,11 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
 
 void FindReferences::findUsages(const QString &fileName, quint32 offset)
 {
-    Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchOnly);
-
-    connect(search, SIGNAL(activated(Find::SearchResultItem)),
-            this, SLOT(openEditor(Find::SearchResultItem)));
-
     findAll_helper(fileName, offset);
 }
 
 void FindReferences::findAll_helper(const QString &fileName, quint32 offset)
 {
-    _resultWindow->popup(true);
-
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
 
@@ -682,16 +679,26 @@ void FindReferences::findAll_helper(const QString &fileName, quint32 offset)
                 &find_helper, modelManager->workingCopy(),
                 modelManager->snapshot(), fileName, offset);
     m_watcher.setFuture(result);
-
-    Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
-    Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching"),
-                                                              QmlJSEditor::Constants::TASK_SEARCH);
-
-    connect(progress, SIGNAL(clicked()), _resultWindow, SLOT(popup()));
 }
 
 void FindReferences::displayResults(int first, int last)
 {
+    // the first usage is always a dummy to indicate we now start searching
+    if (first == 0) {
+        Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchOnly);
+        connect(search, SIGNAL(activated(Find::SearchResultItem)),
+                this, SLOT(openEditor(Find::SearchResultItem)));
+        _resultWindow->popup(true);
+
+        Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
+        Core::FutureProgress *progress = progressManager->addTask(
+                    m_watcher.future(), tr("Searching"),
+                    QmlJSEditor::Constants::TASK_SEARCH);
+        connect(progress, SIGNAL(clicked()), _resultWindow, SLOT(popup()));
+
+        ++first;
+    }
+
     for (int index = first; index != last; ++index) {
         Usage result = m_watcher.future().resultAt(index);
         _resultWindow->addResult(result.path,
