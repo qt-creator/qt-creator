@@ -97,6 +97,7 @@ public:
 
     bool isValid() const;
     bool toolChainAvailable() const;
+
     QString invalidReason() const;
     QString description() const;
     bool isAutodetected() const { return m_isAutodetected; }
