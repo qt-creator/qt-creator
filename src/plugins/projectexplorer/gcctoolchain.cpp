@@ -672,7 +672,9 @@ QString Internal::MingwToolChainFactory::id() const
 
 QList<ToolChain *> Internal::MingwToolChainFactory::autoDetect()
 {
-    return autoDetectToolchains(QLatin1String("g++"), QStringList(), Abi::hostAbi());
+    Abi ha = Abi::hostAbi();
+    return autoDetectToolchains(QLatin1String("g++"), QStringList(),
+                                Abi(ha.architecture(), Abi::WindowsOS, Abi::WindowsMSysFlavor, Abi::PEFormat, ha.wordWidth()));
 }
 
 bool Internal::MingwToolChainFactory::canCreate()
