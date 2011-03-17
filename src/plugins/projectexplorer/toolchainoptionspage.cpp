@@ -442,7 +442,7 @@ QString ToolChainOptionsPage::id() const
 
 QString ToolChainOptionsPage::displayName() const
 {
-    return tr("Tool chains");
+    return tr("Tool Chains");
 }
 
 QString ToolChainOptionsPage::category() const
@@ -452,7 +452,7 @@ QString ToolChainOptionsPage::category() const
 
 QString ToolChainOptionsPage::displayCategory() const
 {
-    return tr("Tool chains");
+    return tr("Tool Chains");
 }
 
 QIcon ToolChainOptionsPage::categoryIcon() const
@@ -517,7 +517,7 @@ QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
     if (m_searchKeywords.isEmpty()) {
         QLatin1Char sep(' ');
         QTextStream stream(&m_searchKeywords);
-        stream << tr("Tool chains");
+        stream << tr("Tool Chains");
         foreach (ToolChainFactory *f, m_factories)
             stream << sep << f->displayName();
 
