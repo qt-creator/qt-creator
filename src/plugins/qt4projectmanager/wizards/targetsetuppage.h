@@ -34,9 +34,9 @@
 #ifndef TARGETSETUPPAGE_H
 #define TARGETSETUPPAGE_H
 
-#include <qt4target.h>
-#include <qtversionmanager.h>
-#include <qt4projectmanager_global.h>
+#include "../qt4target.h"
+#include "../qtversionmanager.h"
+#include "../qt4projectmanager_global.h"
 
 #include <QtCore/QString>
 #include <QtGui/QWizard>
