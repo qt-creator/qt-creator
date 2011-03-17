@@ -307,7 +307,7 @@ public slots:
     void defaultAction();
 
 private:
-    QList<QTreeWidgetItem *> m_citems;
+    //QList<QTreeWidgetItem *> m_citems;
     FakeVimPluginPrivate *m_q;
 };
 
@@ -337,7 +337,7 @@ void FakeVimExCommandsPage::initialize()
 
         QTreeWidgetItem *item = new QTreeWidgetItem;
         item->setData(0, CommandRole, int(c->id()));
-        m_citems.append(item);
+        //m_citems.append(item);
 
         const QString name = uidm->stringForUniqueIdentifier(c->id());
         const int pos = name.indexOf(QLatin1Char('.'));
@@ -431,16 +431,22 @@ void FakeVimExCommandsPage::removeTargetIdentifier()
 void FakeVimExCommandsPage::defaultAction()
 {
     UniqueIDManager *uidm = UniqueIDManager::instance();
-    foreach (QTreeWidgetItem *item, m_citems) {
-        const int id = item->data(0, CommandRole).toInt();
-        const QString name = uidm->stringForUniqueIdentifier(id);
-        QString regex;
-        if (defaultExCommandMap().contains(name))
-            regex = defaultExCommandMap()[name].pattern();
-        setModified(item, false);
-        item->setText(2, regex);
-        if (item == commandList()->currentItem())
-            commandChanged(item);
+    int n = commandList()->topLevelItemCount();
+    for (int i = 0; i != n; ++i) {
+        QTreeWidgetItem *section = commandList()->topLevelItem(i);
+        int m = section->childCount();
+        for (int j = 0; j != m; ++j) {
+            QTreeWidgetItem *item = section->child(j);
+            const int id = item->data(0, CommandRole).toInt();
+            const QString name = uidm->stringForUniqueIdentifier(id);
+            QString regex;
+            if (defaultExCommandMap().contains(name))
+                regex = defaultExCommandMap()[name].pattern();
+            setModified(item, false);
+            item->setText(2, regex);
+            if (item == commandList()->currentItem())
+                commandChanged(item);
+        }
     }
 }
 
