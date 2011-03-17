@@ -148,12 +148,31 @@ bool S60DeployConfiguration::isStaticLibrary(const Qt4ProFileNode &projectNode) 
     return false;
 }
 
+bool S60DeployConfiguration::isApplication(const Qt4ProFileNode &projectNode) const
+{
+    return projectNode.projectType() == ApplicationTemplate;
+}
+
+bool S60DeployConfiguration::isDeployable(const Qt4ProFileNode &projectNode) const
+{
+    const QStringList &deployment(projectNode.variableValue(Deployment));
+    // default_*deployment are default for DEPLOYMENT
+    const char * defaultDeploymentStart = "default_";
+    const char * defaultDeploymentEnd = "deployment";
+
+    //we need to filter out the default_*deployment
+    for (int i = deployment.count() - 1; i >= 0; --i) {
+        const QString var = deployment.at(i);
+        if (!var.startsWith(QLatin1String(defaultDeploymentStart))
+                || !var.endsWith(QLatin1String(defaultDeploymentEnd)))
+            return true;
+    }
+    return false;
+}
+
 bool S60DeployConfiguration::hasSisPackage(const Qt4ProFileNode &projectNode) const
 {
-    if (projectNode.projectType() != ApplicationTemplate
-            && projectNode.projectType() != LibraryTemplate)
-        return false;
-    return !isStaticLibrary(projectNode);
+    return isDeployable(projectNode) || isApplication(projectNode);
 }
 
 QStringList S60DeployConfiguration::signedPackages() const

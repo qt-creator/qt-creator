@@ -1745,6 +1745,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
                     QLatin1String("QML_IMPORT_PATH"), m_projectDir);
         newVarValues[Makefile] = m_readerExact->values("MAKEFILE");
         newVarValues[SymbianCapabilities] = m_readerExact->values("TARGET.CAPABILITY");
+        newVarValues[Deployment] = m_readerExact->values("DEPLOYMENT");
 
         if (m_varValues != newVarValues) {
             Qt4VariablesHash oldValues = m_varValues;

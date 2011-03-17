@@ -104,7 +104,8 @@ enum Qt4Variable {
     ConfigVar,
     QmlImportPathVar,
     Makefile,
-    SymbianCapabilities
+    SymbianCapabilities,
+    Deployment
 };
 
 class Qt4PriFileNode;
