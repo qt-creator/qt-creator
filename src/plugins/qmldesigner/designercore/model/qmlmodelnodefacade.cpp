@@ -48,7 +48,7 @@ QmlModelNodeFacade::~QmlModelNodeFacade()
 
 bool QmlModelNodeFacade::isValid() const
 {
-    return modelNode().isValid() && qmlModelView() && qmlModelView()->hasInstanceForModelNode(modelNode()) && qmlModelView()->instanceForModelNode(modelNode()).isValid();
+    return modelNode().isValid() && qmlModelView() && qmlModelView()->nodeInstanceView() && qmlModelView()->hasInstanceForModelNode(modelNode()) && qmlModelView()->instanceForModelNode(modelNode()).isValid();
 }
 
 QmlModelView* QmlModelNodeFacade::qmlModelView() const
