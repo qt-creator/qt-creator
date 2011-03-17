@@ -54,7 +54,7 @@ template <typename T> static void setIfPresent(const QVariantMap &map, const QSt
 {
     if (!map.contains(key))
         return;
-    *val = map.value(key).value<T>();
+    *val = map.value(key).template value<T>();
 }
 
 /**
