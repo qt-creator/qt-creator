@@ -174,9 +174,11 @@ int ListItemViewOutputPaneAdapter::currentRow() const
 
 void ListItemViewOutputPaneAdapter::setCurrentRow(int r)
 {
-    QTC_ASSERT(m_listView, return; )
+    QTC_ASSERT(m_listView, return)
+
     const QModelIndex index = m_listView->model()->index(r, 0);
-    m_listView->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect|QItemSelectionModel::Current);
+    m_listView->selectionModel()->setCurrentIndex(index,
+            QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     m_listView->scrollTo(index);
 }
 
