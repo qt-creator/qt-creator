@@ -91,6 +91,7 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     m_declarativeView->setAcceptDrops(false);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
+    setMinimumHeight(160);
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(m_declarativeView.data());
