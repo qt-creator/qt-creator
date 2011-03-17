@@ -204,7 +204,7 @@ void TextEditorActionHandler::createActions()
 
     m_copyLineAction = new QAction(tr("Copy &Line"), this);
     command = am->registerAction(m_copyLineAction, Constants::COPY_LINE, m_contextId);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Ins")));
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Ins")));
     connect(m_copyLineAction, SIGNAL(triggered()), this, SLOT(copyLine()));
 
     m_deleteLineAction = new QAction(tr("Delete &Line"), this);

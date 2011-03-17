@@ -5031,7 +5031,7 @@ void BaseTextEditorWidget::cutLine()
     cut();
 }
 
-// control+shift+insert
+// ctrl+ins
 void BaseTextEditorWidget::copyLine()
 {
     QTextCursor prevCursor = textCursor();
