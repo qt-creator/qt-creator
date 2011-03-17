@@ -64,7 +64,7 @@ QString windowsPortName(const QString& port)
 {
     // Add the \\.\ to the name if it's a COM port and doesn't already have it
     QString winPortName(port);
-    if (winPortName.startsWith("COM")) {
+    if (winPortName.startsWith(QLatin1String("COM"))) {
         winPortName.prepend("\\\\.\\");
     }
     return winPortName;
@@ -112,7 +112,8 @@ bool VirtualSerialDevice::open(OpenMode mode)
 
     d->portHandle = CreateFileA(windowsPortName(portName).toAscii(), GENERIC_READ|GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
     if (d->portHandle == INVALID_HANDLE_VALUE) {
-        setErrorString(winErrorMessage(GetLastError()));
+        setErrorString(tr("The port %1 could not be opened: %2").
+                       arg(portName, winErrorMessage(GetLastError())));
         return false;
     }
 
@@ -162,13 +163,14 @@ bool VirtualSerialDevice::open(OpenMode mode)
 
     if (!SetCommMask(d->portHandle, EV_RXCHAR)) {
         // What to do?
-        qWarning("Couldn't set comm mask, err=%d", (int)GetLastError());
+        qWarning("%s: Could not set comm mask, err=%d", Q_FUNC_INFO, (int)GetLastError());
     }
     bool result = WaitCommEvent(d->portHandle, &d->commEventMask, &d->commEventOverlapped);
     Q_ASSERT(result == false); // Can't see how it would make sense to be anything else...
     (void)result; // For release build
     if (GetLastError() != ERROR_IO_PENDING) {
-        setErrorString(QString("%1 waiting for read notifications from %2").arg(winErrorMessage(GetLastError())).arg(portName));
+        setErrorString(tr("An error occurred while waiting for read notifications from %1: %2").
+                       arg(portName, winErrorMessage(GetLastError())));
         close();
         return false;
     }
@@ -239,7 +241,8 @@ qint64 VirtualSerialDevice::readData(char *data, qint64 maxSize)
     }
 
     // If we reach here an error has occurred
-    setErrorString(QString("%1 reading from %2").arg(winErrorMessage(GetLastError())).arg(portName));
+    setErrorString(tr("An error occurred while reading from %1: %2").
+                   arg(portName, winErrorMessage(GetLastError())));
     return -1;
 }
 
@@ -270,7 +273,8 @@ qint64 VirtualSerialDevice::writeNextBuffer(QMutexLocker& locker)
         return bufLen;
     }
     else {
-        setErrorString(QString("%1 writing to %2").arg(winErrorMessage(GetLastError())).arg(portName));
+        setErrorString(tr("An error occurred while writing to %1: %2").
+                       arg(portName, winErrorMessage(GetLastError())));
         pendingWrites.removeFirst();
         return -1;
     }
@@ -280,7 +284,8 @@ void VirtualSerialDevice::writeCompleted()
 {
     QMutexLocker locker(&lock);
     if (pendingWrites.count() == 0) {
-        qWarning("writeCompleted called when there are no pending writes!");
+        qWarning("%s: writeCompleted called when there are no pending writes on %s!",
+                 Q_FUNC_INFO, qPrintable(portName));
         return;
     }
 
@@ -327,7 +332,8 @@ bool VirtualSerialDevice::waitForBytesWritten(int msecs)
         DWORD bytesWritten;
         BOOL ok = GetOverlappedResult(d->portHandle, &d->writeOverlapped, &bytesWritten, TRUE);
         if (!ok) {
-            setErrorString(QString("%1 syncing on waitForBytesWritten for %2").arg(winErrorMessage(GetLastError())).arg(portName));
+            setErrorString(tr("An error occurred while syncing on waitForBytesWritten for %1: %2").
+                           arg(portName, winErrorMessage(GetLastError())));
             return false;
         }
         Q_ASSERT(bytesWritten == (DWORD)pendingWrites.first().length());
@@ -336,7 +342,8 @@ bool VirtualSerialDevice::waitForBytesWritten(int msecs)
         return true;
     }
     else {
-        setErrorString(QString("%1 in waitForBytesWritten for %2").arg(winErrorMessage(GetLastError())).arg(portName));
+        setErrorString(QString("An error occured in waitForBytesWritten() for %1: %2").
+                       arg(portName, winErrorMessage(GetLastError())));
         return false;
     }
 }
