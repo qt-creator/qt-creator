@@ -77,6 +77,8 @@ QT_BEGIN_NAMESPACE
 using namespace ProStringConstants;
 
 
+#define fL1S(s) QString::fromLatin1(s)
+
 ///////////////////////////////////////////////////////////////////////
 //
 // ProFileOption
@@ -106,20 +108,45 @@ ProFileOption::~ProFileOption()
 
 void ProFileOption::setCommandLineArguments(const QStringList &args)
 {
-    cmdargs = args;
+    QStringList _precmds, _preconfigs, _postcmds, _postconfigs;
+    bool after = false;
 
     setHostTargetMode();
-    bool targetModeSet = false;
-    for (int i = args.count() - 1; !targetModeSet && i >= 0; --i) {
-        for (int j = 0; j < modeMapSize; ++j) {
-            const TargetModeMapElement &mapElem = modeMap[j];
-            if (args.at(i) == QLatin1String(mapElem.qmakeOption)) {
-                target_mode = mapElem.targetMode;
-                targetModeSet = true;
-                break;
+
+    bool isConf = false;
+    foreach (const QString &arg, args) {
+        if (isConf) {
+            isConf = false;
+            if (after)
+                _postconfigs << arg;
+            else
+                _preconfigs << arg;
+        } else if (arg.startsWith(QLatin1Char('-'))) {
+            if (arg == QLatin1String("-after")) {
+                after = true;
+            } else if (arg == QLatin1String("-config")) {
+                isConf = true;
+            } else if (arg == QLatin1String("-win32")) {
+                target_mode = TARG_WIN_MODE;
+            } else if (arg == QLatin1String("-unix")) {
+                target_mode = TARG_UNIX_MODE;
+            } else if (arg == QLatin1String("-macx")) {
+                target_mode = TARG_MACX_MODE;
             }
+        } else if (arg.contains(QLatin1Char('='))) {
+            if (after)
+                _postcmds << arg;
+            else
+                _precmds << arg;
         }
     }
+
+    if (!_preconfigs.isEmpty())
+        _precmds << (fL1S("CONFIG += ") + _preconfigs.join(fL1S(" ")));
+    precmds = _precmds.join(fL1S("\n"));
+    if (!_postconfigs.isEmpty())
+        _postcmds << (fL1S("CONFIG += ") + _postconfigs.join(fL1S(" ")));
+    postcmds = _postcmds.join(fL1S("\n"));
 }
 
 void ProFileOption::setHostTargetMode()
@@ -135,21 +162,11 @@ void ProFileOption::setHostTargetMode()
 #endif
 }
 
-const struct ProFileOption::TargetModeMapElement ProFileOption::modeMap[] = {
-    { "-unix", TARG_UNIX_MODE },
-    { "-macx", TARG_MACX_MODE },
-    { "-win32", TARG_WIN_MODE }
-};
-const int ProFileOption::modeMapSize
-    = sizeof ProFileOption::modeMap / sizeof ProFileOption::modeMap[0];
-
 ///////////////////////////////////////////////////////////////////////
 //
 // ProFileEvaluator::Private
 //
 ///////////////////////////////////////////////////////////////////////
-
-#define fL1S(s) QString::fromLatin1(s)
 
 class ProFileEvaluator::Private
 {
@@ -177,6 +194,7 @@ public:
     static ALWAYS_INLINE void skipHashStr(const ushort *&tokPtr);
     void skipExpression(const ushort *&tokPtr);
 
+    void visitCmdLine(const QString &cmds);
     VisitReturn visitProFile(ProFile *pro, ProFileEvaluatorHandler::EvalFileType type,
                              ProFileEvaluator::LoadFlags flags);
     VisitReturn visitProBlock(ProFile *pro, const ushort *tokPtr);
@@ -1149,6 +1167,18 @@ void ProFileEvaluator::Private::visitProVariable(
     }
 }
 
+void ProFileEvaluator::Private::visitCmdLine(const QString &cmds)
+{
+    if (!cmds.isEmpty()) {
+        if (ProFile *pro = m_parser->parsedProBlock(fL1S("(command line)"), cmds)) {
+            m_locationStack.push(m_current);
+            visitProBlock(pro, pro->tokPtr());
+            m_current = m_locationStack.pop();
+            pro->deref();
+        }
+    }
+}
+
 ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
         ProFile *pro, ProFileEvaluatorHandler::EvalFileType type,
         ProFileEvaluator::LoadFlags flags)
@@ -1310,20 +1340,14 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
             if (tgt.isEmpty())
                 tgt.append(ProString(QFileInfo(pro->fileName()).baseName(), NoHash));
 
-        if (!m_option->cmdargs.isEmpty()) {
-            if (ProFile *pro = m_parser->parsedProBlock(
-                    fL1S("(command line)"), m_option->cmdargs.join(fL1S("\n")))) {
-                m_locationStack.push(m_current);
-                visitProBlock(pro, pro->tokPtr());
-                m_current = m_locationStack.pop();
-                pro->deref();
-            }
-        }
+        visitCmdLine(m_option->precmds);
     }
 
     visitProBlock(pro, pro->tokPtr());
 
     if (flags & LoadPostFiles) {
+        visitCmdLine(m_option->postcmds);
+
             evaluateFeatureFile(QLatin1String("default_post.prf"));
 
             QSet<QString> processed;

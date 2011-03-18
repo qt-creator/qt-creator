@@ -156,9 +156,11 @@ int main(int argc, char **argv)
     if (args.count() && args.first() == QLatin1String("-v"))
         level = 0, args.removeFirst();
     if (args.count() < 2)
-        qFatal("need at least two arguments: [-v] <cumulative?> <filenme> [<out_pwd>]");
+        qFatal("need at least two arguments: [-v] <cumulative?> <filenme> [<out_pwd> [<qmake options>]]");
 
     ProFileOption option;
+    if (args.count() >= 4)
+        option.setCommandLineArguments(args.mid(3));
     ProFileParser parser(0, &parseHandler);
 
     static const struct {

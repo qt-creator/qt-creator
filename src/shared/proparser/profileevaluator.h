@@ -176,12 +176,6 @@ struct ProFileOption
     //QString pro_ext;
     //QString res_ext;
 
-    static const struct TargetModeMapElement {
-        const char * const qmakeOption;
-        const TARG_MODE targetMode;
-    } modeMap[];
-    static const int modeMapSize;
-
     // -nocache, -cache, -spec, QMAKESPEC
     // -set persistent value
     void setCommandLineArguments(const QStringList &args);
@@ -195,7 +189,7 @@ struct ProFileOption
     ProFileEvaluator::FunctionDefs base_functions;
     QStringList feature_roots;
     QString qmakespec_name;
-    QStringList cmdargs;
+    QString precmds, postcmds;
 #ifdef PROEVALUATOR_THREAD_SAFE
     QMutex mutex;
     QWaitCondition cond;
