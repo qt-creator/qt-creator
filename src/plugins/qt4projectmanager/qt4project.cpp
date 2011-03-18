@@ -888,7 +888,7 @@ ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode, Q
         m_proFileOption = new ProFileOption;
         m_proFileOptionRefCnt = 0;
 
-        if (!bc && activeTarget() && activeTarget()->activeBuildConfiguration())
+        if (!bc && activeTarget())
             bc = activeTarget()->activeBuildConfiguration();
 
         if (bc) {
