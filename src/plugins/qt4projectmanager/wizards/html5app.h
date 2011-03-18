@@ -86,6 +86,9 @@ public:
     void setMainHtml(Mode mode, const QString &data = QString());
     Mode mainHtmlMode() const;
 
+    void setTouchOptimizedNavigationEnabled(bool enabled);
+    bool touchOptimizedNavigationEnabled() const;
+
 #ifndef CREATORLESSTEST
     virtual Core::GeneratedFiles generateFiles(QString *errorMessage) const;
 #else
@@ -111,6 +114,7 @@ private:
     QFileInfo m_indexHtmlFile;
     Mode m_mainHtmlMode;
     QString m_mainHtmlData;
+    bool m_touchOptimizedNavigationEnabled;
 };
 
 } // namespace Internal

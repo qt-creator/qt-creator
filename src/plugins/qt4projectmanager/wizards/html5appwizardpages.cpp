@@ -43,15 +43,15 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class Html5AppWizardSourcesPagePrivate
+class Html5AppWizardOptionsPagePrivate
 {
     Ui::Html5AppWizardSourcesPage ui;
-    friend class Html5AppWizardSourcesPage;
+    friend class Html5AppWizardOptionsPage;
 };
 
-Html5AppWizardSourcesPage::Html5AppWizardSourcesPage(QWidget *parent)
+Html5AppWizardOptionsPage::Html5AppWizardOptionsPage(QWidget *parent)
     : QWizardPage(parent)
-    , m_d(new Html5AppWizardSourcesPagePrivate)
+    , m_d(new Html5AppWizardOptionsPagePrivate)
 {
     m_d->ui.setupUi(this);
     m_d->ui.importLineEdit->setExpectedKind(Utils::PathChooser::File);
@@ -66,12 +66,12 @@ Html5AppWizardSourcesPage::Html5AppWizardSourcesPage(QWidget *parent)
     m_d->ui.generateRadioButton->setChecked(true);
 }
 
-Html5AppWizardSourcesPage::~Html5AppWizardSourcesPage()
+Html5AppWizardOptionsPage::~Html5AppWizardOptionsPage()
 {
     delete m_d;
 }
 
-Html5App::Mode Html5AppWizardSourcesPage::mainHtmlMode() const
+Html5App::Mode Html5AppWizardOptionsPage::mainHtmlMode() const
 {
     Html5App::Mode result = Html5App::ModeGenerate;
     if (m_d->ui.importRadioButton->isChecked())
@@ -81,7 +81,7 @@ Html5App::Mode Html5AppWizardSourcesPage::mainHtmlMode() const
     return result;
 }
 
-QString Html5AppWizardSourcesPage::mainHtmlData() const
+QString Html5AppWizardOptionsPage::mainHtmlData() const
 {
     switch (mainHtmlMode()) {
     case Html5App::ModeImport: return m_d->ui.importLineEdit->path();
@@ -91,12 +91,22 @@ QString Html5AppWizardSourcesPage::mainHtmlData() const
     }
 }
 
-bool Html5AppWizardSourcesPage::isComplete() const
+void Html5AppWizardOptionsPage::setTouchOptimizationEndabled(bool enabled)
+{
+    m_d->ui.touchOptimizationCheckBox->setChecked(enabled);
+}
+
+bool Html5AppWizardOptionsPage::touchOptimizationEndabled() const
+{
+    return m_d->ui.touchOptimizationCheckBox->isChecked();
+}
+
+bool Html5AppWizardOptionsPage::isComplete() const
 {
     return mainHtmlMode() != Html5App::ModeImport || m_d->ui.importLineEdit->isValid();
 }
 
-void Html5AppWizardSourcesPage::setLineEditsEnabled()
+void Html5AppWizardOptionsPage::setLineEditsEnabled()
 {
     m_d->ui.importLineEdit->setEnabled(m_d->ui.importRadioButton->isChecked());
     m_d->ui.urlLineEdit->setEnabled(m_d->ui.urlRadioButton->isChecked());

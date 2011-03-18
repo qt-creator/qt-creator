@@ -94,6 +94,7 @@ int main(int argc, char *argv[])
         sAppNew.setProjectPath(projectPath);
         sAppNew.setProjectName(QLatin1String("html5_imported_scenario_01"));
         sAppNew.setMainHtml(Html5App::ModeImport, QLatin1String("../appwizards/htmlimportscenario_01/themainhtml.html"));
+        sAppNew.setTouchOptimizedNavigationEnabled(true);
         qDebug() << sAppNew.path(Html5App::MainHtml);
         if (!sAppNew.generateFiles(&errorMessage))
            return 1;

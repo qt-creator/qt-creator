@@ -40,24 +40,26 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class Html5AppWizardSourcesPage : public QWizardPage
+class Html5AppWizardOptionsPage : public QWizardPage
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Html5AppWizardSourcesPage)
+    Q_DISABLE_COPY(Html5AppWizardOptionsPage)
 
 public:
-    explicit Html5AppWizardSourcesPage(QWidget *parent = 0);
-    virtual ~Html5AppWizardSourcesPage();
+    explicit Html5AppWizardOptionsPage(QWidget *parent = 0);
+    virtual ~Html5AppWizardOptionsPage();
 
     Html5App::Mode mainHtmlMode() const;
     QString mainHtmlData() const;
+    void setTouchOptimizationEndabled(bool enabled);
+    bool touchOptimizationEndabled() const;
     virtual bool isComplete() const;
 
 private slots:
     void setLineEditsEnabled();
 
 private:
-    class Html5AppWizardSourcesPagePrivate *m_d;
+    class Html5AppWizardOptionsPagePrivate *m_d;
 };
 
 } // namespace Internal
