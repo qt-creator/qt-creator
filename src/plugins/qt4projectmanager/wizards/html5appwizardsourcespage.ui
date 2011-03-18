@@ -134,7 +134,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Touch optimized navigation will make the HTML page flickable and enlarge the area of touch sensitive elements. If use a JavaScript framework which optimizes the touch interaction, leave the checkbox unchecked.</string>
+         <string>Touch optimized navigation will make the HTML page flickable and enlarge the area of touch sensitive elements. If you use a JavaScript framework which optimizes the touch interaction, leave the checkbox unchecked.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
