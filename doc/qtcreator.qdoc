@@ -647,8 +647,7 @@
         \o \gui {Class View} shows the class hierarchy of the currently
             open projects.
         \o \gui Outline shows the symbol hierachy of a C++ file and the element hierarchy of a QML file.
-        \o \gui {Type Hierarchy} shows the base classes of a class. For
-            more information, see \l{Viewing Type Hierarchy}.
+        \o \gui {Type Hierarchy} shows the base classes of a class.
 
     \endlist
 
@@ -725,6 +724,11 @@
            .
 
     \endlist
+
+    \section2 Viewing Type Hierarchy
+
+    To view the base classes of a class, right-click the class and select
+    \gui {Open Type Hierarchy}  or press \key {Ctrl+Shift+T}.
 
     \section1 Viewing Output
 
@@ -1781,11 +1785,6 @@
 
     To switch between the definition and declaration of a symbol, press \key {Shift+F2}
     or right-click the symbol and select \gui {Switch Between Method Declaration/Definition}.
-
-    \section1 Viewing Type Hierarchy
-
-    To view the base classes of a class, right-click the class and select
-    \gui {Open Type Hierarchy}  or press \key {Ctrl+Shift+T}.
 
     \section1 Using Update Code Model
 
