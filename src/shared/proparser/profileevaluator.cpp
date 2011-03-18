@@ -104,6 +104,24 @@ ProFileOption::~ProFileOption()
 {
 }
 
+void ProFileOption::setCommandLineArguments(const QStringList &args)
+{
+    cmdargs = args;
+
+    setHostTargetMode();
+    bool targetModeSet = false;
+    for (int i = args.count() - 1; !targetModeSet && i >= 0; --i) {
+        for (int j = 0; j < modeMapSize; ++j) {
+            const TargetModeMapElement &mapElem = modeMap[j];
+            if (args.at(i) == QLatin1String(mapElem.qmakeOption)) {
+                target_mode = mapElem.targetMode;
+                targetModeSet = true;
+                break;
+            }
+        }
+    }
+}
+
 void ProFileOption::setHostTargetMode()
 {
 #if defined(Q_OS_WIN32)
@@ -241,8 +259,6 @@ public:
     QStack<QHash<ProString, ProStringList> > m_valuemapStack;         // VariableName must be us-ascii, the content however can be non-us-ascii.
     QHash<const ProFile*, QHash<ProString, ProStringList> > m_filevaluemap; // Variables per include file
     QString m_tmp1, m_tmp2, m_tmp3, m_tmp[2]; // Temporaries for efficient toQString
-
-    QStringList m_cmdArgs;
 
     ProFileOption *m_option;
     ProFileParser *m_parser;
@@ -1294,9 +1310,9 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
             if (tgt.isEmpty())
                 tgt.append(ProString(QFileInfo(pro->fileName()).baseName(), NoHash));
 
-        if (!m_cmdArgs.isEmpty()) {
+        if (!m_option->cmdargs.isEmpty()) {
             if (ProFile *pro = m_parser->parsedProBlock(
-                    fL1S("(command line)"), m_cmdArgs.join(fL1S("\n")))) {
+                    fL1S("(command line)"), m_option->cmdargs.join(fL1S("\n")))) {
                 m_locationStack.push(m_current);
                 visitProBlock(pro, pro->tokPtr());
                 m_current = m_locationStack.pop();
@@ -3250,24 +3266,6 @@ void ProFileEvaluator::setCumulative(bool on)
 void ProFileEvaluator::setOutputDir(const QString &dir)
 {
     d->m_outputDir = dir;
-}
-
-void ProFileEvaluator::setCommandLineArguments(const QStringList &args)
-{
-    d->m_cmdArgs = args;
-
-    d->m_option->setHostTargetMode();
-    bool targetModeSet = false;
-    for (int i = args.count() - 1; !targetModeSet && i >= 0; --i) {
-        for (int j = 0; j < ProFileOption::modeMapSize; ++j) {
-            const ProFileOption::TargetModeMapElement &mapElem = ProFileOption::modeMap[j];
-            if (args.at(i) == QLatin1String(mapElem.qmakeOption)) {
-                d->m_option->target_mode = mapElem.targetMode;
-                targetModeSet = true;
-                break;
-            }
-        }
-    }
 }
 
 QT_END_NAMESPACE

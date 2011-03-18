@@ -1466,15 +1466,6 @@ void Qt4ProFileNode::setupReader()
     m_readerExact->setCumulative(false);
 
     m_readerCumulative = m_project->createProFileReader(this);
-
-    // Find out what flags we pass on to qmake
-    QStringList args;
-    if (QMakeStep *qs = m_project->activeTarget()->activeBuildConfiguration()->qmakeStep())
-        args = qs->parserArguments();
-    else
-        args = m_project->activeTarget()->activeBuildConfiguration()->configCommandLineArguments();
-    m_readerExact->setCommandLineArguments(args);
-    m_readerCumulative->setCommandLineArguments(args);
 }
 
 Qt4ProFileNode::EvalResult Qt4ProFileNode::evaluate()

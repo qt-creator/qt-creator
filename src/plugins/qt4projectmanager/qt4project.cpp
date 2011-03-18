@@ -898,6 +898,13 @@ ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode, Q
                 if (bc->toolChain())
                     m_proFileOption->sysroot = bc->qtVersion()->systemRoot();
             }
+
+            QStringList args;
+            if (QMakeStep *qs = bc->qmakeStep())
+                args = qs->parserArguments();
+            else
+                args = bc->configCommandLineArguments();
+            m_proFileOption->setCommandLineArguments(args);
         }
 
         ProFileCacheManager::instance()->incRefCount();

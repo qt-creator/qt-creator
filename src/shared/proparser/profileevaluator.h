@@ -114,10 +114,6 @@ public:
     void setCumulative(bool on); // Default is true!
     void setOutputDir(const QString &dir); // Default is empty
 
-    // -nocache, -cache, -spec, QMAKESPEC
-    // -set persistent value
-    void setCommandLineArguments(const QStringList &args);
-
     enum LoadFlag {
         LoadProOnly = 0,
         LoadPreFiles = 1,
@@ -186,6 +182,10 @@ struct ProFileOption
     } modeMap[];
     static const int modeMapSize;
 
+    // -nocache, -cache, -spec, QMAKESPEC
+    // -set persistent value
+    void setCommandLineArguments(const QStringList &args);
+
   private:
     void setHostTargetMode();
 
@@ -195,6 +195,7 @@ struct ProFileOption
     ProFileEvaluator::FunctionDefs base_functions;
     QStringList feature_roots;
     QString qmakespec_name;
+    QStringList cmdargs;
 #ifdef PROEVALUATOR_THREAD_SAFE
     QMutex mutex;
     QWaitCondition cond;
