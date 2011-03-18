@@ -7390,7 +7390,7 @@
         \o Retrieves the contents of local variables.
         \o Examines \gui Watchers.
         \o Updates the \gui Registers, \gui Modules, and \gui Disassembler
-           views if you are debugging the C++ language.
+           views if you are debugging the C++ based applications.
     \endlist
 
     You can use the \gui Debug mode views to examine the data in more detail.
@@ -7399,10 +7399,12 @@
 
     \list
 
-       \o To finish debugging, press \key{Shift+F5}.
+       \o  To finish debugging, press \key{Shift+F5}.
        \o  To execute a line of code as a whole, press \key{F10}.
        \o  To step into a function or a subfunction, press \key{F11}.
        \o  To continue running the program, press \key{F5}.
+       \o  To run to the selected function when you are stepping into a nested
+           function, press \key{Ctrl+F6}.
 
     \endlist
 
@@ -10343,6 +10345,9 @@
         \row
             \o Toggle breakpoint
             \o F9
+        \row
+            \o Run to selected function
+            \o Ctrl+F6
     \endtable
 
 
