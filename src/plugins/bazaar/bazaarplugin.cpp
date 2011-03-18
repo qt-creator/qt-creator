@@ -205,10 +205,10 @@ const BazaarSettings &BazaarPlugin::settings() const
 void BazaarPlugin::setSettings(const BazaarSettings &settings)
 {
     if (settings != m_bazaarSettings) {
-      const bool userIdChanged = !m_bazaarSettings.sameUserId(settings);
-      m_bazaarSettings = settings;
-      if (userIdChanged)
-          client()->synchronousSetUserId();
+        const bool userIdChanged = !m_bazaarSettings.sameUserId(settings);
+        m_bazaarSettings = settings;
+        if (userIdChanged)
+            client()->synchronousSetUserId();
     }
 }
 
@@ -553,7 +553,7 @@ void BazaarPlugin::showCommitWidget(const QList<QPair<QString, QString> > &statu
     if (!m_changeLogPattern.endsWith(QLatin1Char('/')))
         m_changeLogPattern += QLatin1Char('/');
     m_changeLogPattern += QLatin1String("qtcreator-bzr-XXXXXX.msg");
-    m_changeLog = new QTemporaryFile(m_changeLogPattern,  this);
+    m_changeLog = new QTemporaryFile(m_changeLogPattern, this);
     if (!m_changeLog->open()) {
         outputWindow->appendError(tr("Unable to generate a temporary file for the commit editor."));
         return;
