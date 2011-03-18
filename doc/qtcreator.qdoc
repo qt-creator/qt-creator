@@ -612,6 +612,7 @@
     You can use Qt Creator in the following modes:
 
     \list
+        \o \gui Welcome mode for opening projects.
         \o \gui{\l{Using the Editor}{Edit}} mode for editing project and source files.
         \o \gui{\l{Developing Application UI}{Design}} mode for designing and developing
            application user interfaces. This mode is available for UI files (.ui or
