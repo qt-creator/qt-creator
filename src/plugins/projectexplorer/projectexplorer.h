@@ -61,6 +61,7 @@ class IRunControlFactory;
 class Project;
 class Node;
 class BuildConfiguration;
+class ProjectNode;
 
 namespace Internal {
 class ProjectFileFactory;
@@ -120,6 +121,7 @@ public:
     void runProject(Project *pro, const QString &mode);
     void runRunConfiguration(ProjectExplorer::RunConfiguration *rc, const QString &mode);
 
+    void addExistingFiles(ProjectExplorer::ProjectNode *projectNode, const QStringList &filePaths);
     void addExistingFiles(const QStringList &filePaths);
 
 signals:

@@ -2267,8 +2267,13 @@ void ProjectExplorerPlugin::addExistingFiles()
 void ProjectExplorerPlugin::addExistingFiles(const QStringList &filePaths)
 {
     ProjectNode *projectNode = qobject_cast<ProjectNode*>(d->m_currentNode->projectNode());
+    addExistingFiles(projectNode, filePaths);
+}
+
+void ProjectExplorerPlugin::addExistingFiles(ProjectNode *projectNode, const QStringList &filePaths)
+{
     Core::ICore *core = Core::ICore::instance();
-    const QString dir = directoryFor(d->m_currentNode);
+    const QString dir = directoryFor(projectNode);
     QStringList fileNames = filePaths;
     QHash<FileType, QString> fileTypeToFiles;
     foreach (const QString &fileName, fileNames) {

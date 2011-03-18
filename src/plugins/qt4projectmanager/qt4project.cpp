@@ -348,6 +348,8 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetWasChanged()));
 
+    emit fromMapFinished();
+
     return true;
 }
 

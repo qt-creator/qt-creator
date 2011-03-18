@@ -191,6 +191,7 @@ signals:
     void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node, bool);
     void proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
     void buildDirectoryInitialized();
+    void fromMapFinished();
 
 public slots:
     void proFileParseError(const QString &errorMessage);

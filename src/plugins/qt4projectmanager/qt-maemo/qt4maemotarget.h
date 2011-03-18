@@ -104,6 +104,7 @@ protected:
 
 private slots:
     void handleTargetAdded(ProjectExplorer::Target *target);
+    void handleFromMapFinished();
     void handleTargetToBeRemoved(ProjectExplorer::Target *target);
 
 private:
