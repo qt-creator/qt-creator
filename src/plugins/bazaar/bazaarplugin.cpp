@@ -627,12 +627,20 @@ bool BazaarPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submit
         break;
     }
 
-    const QStringList files = commitEditor->checkedFiles();
+    QStringList files = commitEditor->checkedFiles();
     if (!files.empty()) {
         //save the commit message
         m_core->fileManager()->blockFileChange(editorFile);
         editorFile->save();
         m_core->fileManager()->unblockFileChange(editorFile);
+
+        //rewrite entries of the form 'file => newfile' to 'newfile' because
+        //this would mess the commit command
+        for (QStringList::iterator iFile = files.begin(); iFile != files.end(); ++iFile) {
+            const QStringList parts = iFile->split(" => ", QString::SkipEmptyParts);
+            if (!parts.isEmpty())
+                *iFile = parts.last();
+        }
 
         const BazaarCommitWidget* commitWidget = commitEditor->commitWidget();
         BazaarClient::ExtraCommandOptions extraOptions;
