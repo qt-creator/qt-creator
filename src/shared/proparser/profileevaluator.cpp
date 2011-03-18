@@ -3028,7 +3028,8 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName)
     if (!fn.endsWith(QLatin1String(".prf")))
         fn += QLatin1String(".prf");
 
-    if (!fileName.contains((ushort)'/') || !IoUtils::exists(resolvePath(fn))) {
+    if ((!fileName.contains((ushort)'/') && !fileName.contains((ushort)'\\'))
+        || !IoUtils::exists(resolvePath(fn))) {
         if (m_option->feature_roots.isEmpty())
             m_option->feature_roots = qmakeFeaturePaths();
         int start_root = 0;
