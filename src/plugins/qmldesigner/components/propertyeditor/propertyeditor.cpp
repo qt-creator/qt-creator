@@ -373,6 +373,7 @@ void PropertyEditor::changeValue(const QString &propertyName)
                 try {
                     m_selectedNode.setId(newId);
                 } catch (InvalidIdException &e) { //better save then sorry
+                    value->setValue(m_selectedNode.id());
                     QMessageBox::warning(0, tr("Invalid Id"), e.description());
                 }
             } else { //there is already an id, so we refactor
