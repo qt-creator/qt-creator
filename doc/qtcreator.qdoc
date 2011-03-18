@@ -7425,21 +7425,35 @@
 
     \image qtcreator-debug-breakpoints.png "Breakpoints view"
 
-    Typically, breakpoints are associated with a source code file and line, or
-    the start of a function -- both are allowed in Qt Creator.
+    You can associate breakpoints with:
+
+    \list
+
+        \o  Source code files and lines
+
+        \o  Functions
+
+        \o  Addresses
+
+        \o  Throwing and catching exceptions
+
+        \o  Some system calls, such as \c fork(), \c vfork(), and \c exec()
+
+    \endlist
+
+    You can also set watchpoints to monitor the changes in a block of memory
+    at a particular address when a program is running.
 
     The interruption of a program by a breakpoint can be restricted with
     certain conditions.
 
-    To set a breakpoint:
+    To set a breakpoint at a particular line you want the program to stop,
+    click the left margin or press \key F9 (\key F8 for Mac OS X).
 
-    \list
-       \o At a particular line you want the program to stop, click the
-          left margin or press \key F9 (\key F8 for Mac OS X).
-       \o At a function that you want the program to interrupt, enter the
-          function's name in \gui{Set Breakpoint at Function...} located in the
-          context menu of the \gui{Breakpoints} view.
-    \endlist
+    To set breakpoints and watchpoints select \gui {Add Breakpoint...} in
+    the context menu in the \gui Breakpoints view.
+
+    \image qtcreator-add-breakpoint.png "Add Breakpoints" dialog
 
     \note You can remove a breakpoint:
     \list
@@ -7453,6 +7467,28 @@
     You can set and delete breakpoints before the program starts running or
     while it is running under the debugger's control. Breakpoints are saved
     together with a session.
+
+    \section2 Setting Watchpoints
+
+    To set a watchpoint at an address:
+
+    \list 1
+
+        \o  Right-click in the \gui Breakpoints view to open the context menu,
+            and select \gui {Add Breakpoint...}.
+
+        \o  In the \gui {Breakpoint type} field, select \gui {Address
+            (Watchpoint)}.
+
+        \o  In the \gui Address field, specify the address of the memory block.
+
+        \o  Select \gui OK.
+
+    \endlist
+
+    If the address is displayed in the \gui {Locals and Watchers} view, you can
+    select \gui {Add Watchpoint at Object's Address} in the context menu to set
+    the watchpoint.
 
     \section1 Viewing Call Stack Trace
 
