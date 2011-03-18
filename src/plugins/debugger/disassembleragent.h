@@ -57,6 +57,7 @@ public:
     void setTryMixed(bool on);
     void setLocation(const Location &location);
     const Location &location() const;
+    void scheduleResetLocation();
     void resetLocation();
     void setContents(const DisassemblerLines &contents);
     void updateLocationMarker();
