@@ -67,6 +67,7 @@
 #include "stackhandler.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
+#include "debuggersourcepathmappingwidget.h"
 
 #ifdef Q_OS_WIN
 #    include "dbgwinutils.h"
@@ -4614,14 +4615,18 @@ void GdbEngine::notifyInferiorSetupFailed()
 
 void GdbEngine::handleInferiorPrepared()
 {
+    typedef GlobalDebuggerOptions::SourcePathMap SourcePathMap;
+    typedef SourcePathMap::const_iterator SourcePathMapIterator;
+
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
     // Apply source path mappings from global options.
-    const QSharedPointer<GlobalDebuggerOptions> globalOptions = debuggerCore()->globalDebuggerOptions();
-    if (!globalOptions->sourcePathMap.isEmpty()) {
-        typedef GlobalDebuggerOptions::SourcePathMap::const_iterator SourcePathMapIterator;
-        const SourcePathMapIterator cend = globalOptions->sourcePathMap.constEnd();
-        for (SourcePathMapIterator it = globalOptions->sourcePathMap.constBegin(); it != cend; ++it) {
+    const SourcePathMap sourcePathMap =
+            DebuggerSourcePathMappingWidget::mergePlatformQtPath(startParameters().qtInstallPath,
+                                                                 debuggerCore()->globalDebuggerOptions()->sourcePathMap);
+    if (!sourcePathMap.isEmpty()) {
+        const SourcePathMapIterator cend = sourcePathMap.constEnd();
+        for (SourcePathMapIterator it = sourcePathMap.constBegin(); it != cend; ++it) {
             QByteArray command = "set substitute-path ";
             command += it.key().toLocal8Bit();
             command += ' ';

@@ -374,5 +374,24 @@ void DebuggerSourcePathMappingWidget::slotEditTargetFieldChanged()
     }
 }
 
+/* Merge settings for an installed Qt (unless another setting
+ * is already in the map. */
+DebuggerSourcePathMappingWidget::SourcePathMap
+    DebuggerSourcePathMappingWidget::mergePlatformQtPath(const QString &qtInstallPath,
+                                                         const SourcePathMap &in)
+{
+    SourcePathMap rc = in;
+    const size_t buildPathCount = sizeof(qtBuildPaths)/sizeof(const char *);
+    if (qtInstallPath.isEmpty() || buildPathCount == 0)
+        return rc;
+
+    for (size_t i = 0; i < buildPathCount; i++) {
+        const QString buildPath = QString::fromLatin1(qtBuildPaths[i]);
+        if (!rc.contains(buildPath)) // Do not overwrite user settings.
+            rc.insert(buildPath, qtInstallPath);
+    }
+    return rc;
+}
+
 } // namespace Internal
 } // namespace Debugger

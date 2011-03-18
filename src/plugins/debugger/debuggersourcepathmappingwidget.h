@@ -66,6 +66,11 @@ public:
     SourcePathMap sourcePathMap() const;
     void setSourcePathMap(const SourcePathMap &);
 
+    /* Merge settings for an installed Qt (unless another setting
+     * is already in the map. */
+    static SourcePathMap mergePlatformQtPath(const QString &qtInstallPath,
+                                             const SourcePathMap &in);
+
 signals:
 
 private slots:
