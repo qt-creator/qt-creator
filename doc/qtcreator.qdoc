@@ -2894,17 +2894,17 @@
 
     \list
 
-        \o Qt Quick Projects
+        \o Qt Quick Project
 
         Use QML to define the user interface and,
         optionally, C++ or JavaScript to define the application logic
 
-        \o Qt Widget Projects
+        \o Qt Widget Project
 
         Use \QD forms to define a Qt widget based
         user interface and C++ to define the application logic
 
-        \o Other Projects
+        \o Other Project
 
         \list
 
@@ -2921,6 +2921,12 @@
             \o Subprojects
 
         \endlist
+
+        \o Project from Version Control
+
+        Import a project from a supported version control system. For more
+        information on how version control systems are integrated in
+        Qt Creator, see \l{Using Version Control Systems}.
 
     \endlist
 
