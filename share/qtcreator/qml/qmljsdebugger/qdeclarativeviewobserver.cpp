@@ -147,7 +147,9 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
     connect(data->debugService, SIGNAL(currentObjectsChanged(QList<QObject*>)),
             data.data(), SLOT(_q_onCurrentObjectsChanged(QList<QObject*>)));
     connect(data->debugService, SIGNAL(animationSpeedChangeRequested(qreal)),
-            SLOT(onAnimationSpeedChangeRequested(qreal)));
+            SLOT(animationSpeedChangeRequested(qreal)));
+    connect(data->debugService, SIGNAL(executionPauseChangeRequested(bool)),
+            SLOT(executionPausedChangeRequested(bool)));
     connect(data->debugService, SIGNAL(colorPickerToolRequested()),
             data.data(), SLOT(_q_changeToColorPickerTool()));
     connect(data->debugService, SIGNAL(selectMarqueeToolRequested()),
@@ -753,18 +755,14 @@ void QDeclarativeViewObserverPrivate::_q_changeContextPathIndex(int index)
     subcomponentEditorTool->setContext(index);
 }
 
-void QDeclarativeViewObserver::setAnimationSpeed(qreal factor)
+void QDeclarativeViewObserver::setAnimationSpeed(qreal slowDownFactor)
 {
-    Q_ASSERT(factor > 0);
-    if (data->slowDownFactor == factor)
+    Q_ASSERT(slowDownFactor > 0);
+    if (data->slowDownFactor == slowDownFactor)
         return;
 
-    data->slowDownFactor = factor;
-    emit animationSpeedChanged(factor);
-
-    const float effectiveFactor = data->executionPaused ? 0 : factor;
-    onAnimationSpeedChangeRequested(effectiveFactor);
-    data->debugService->setAnimationSpeed(effectiveFactor);
+    animationSpeedChangeRequested(slowDownFactor);
+    data->debugService->setAnimationSpeed(slowDownFactor);
 }
 
 void QDeclarativeViewObserver::setExecutionPaused(bool paused)
@@ -772,25 +770,30 @@ void QDeclarativeViewObserver::setExecutionPaused(bool paused)
     if (data->executionPaused == paused)
         return;
 
-    const float effectiveFactor = paused ? 0 : data->slowDownFactor;
-    onAnimationSpeedChangeRequested(effectiveFactor);
-    data->debugService->setAnimationSpeed(effectiveFactor);
+    executionPausedChangeRequested(paused);
+    data->debugService->setExecutionPaused(paused);
 }
 
-void QDeclarativeViewObserver::onAnimationSpeedChangeRequested(qreal factor)
+void QDeclarativeViewObserver::animationSpeedChangeRequested(qreal factor)
 {
-    const bool paused = factor == 0;
-
-    if (!paused && data->slowDownFactor != factor) {
+    if (data->slowDownFactor != factor) {
         data->slowDownFactor = factor;
         emit animationSpeedChanged(factor);
     }
+
+    const float effectiveFactor = data->executionPaused ? 0 : factor;
+    QDeclarativeDebugHelper::setAnimationSlowDownFactor(effectiveFactor);
+}
+
+void QDeclarativeViewObserver::executionPausedChangeRequested(bool paused)
+{
     if (data->executionPaused != paused) {
         data->executionPaused = paused;
         emit executionPausedChanged(paused);
     }
 
-    QDeclarativeDebugHelper::setAnimationSlowDownFactor(factor);
+    const float effectiveFactor = paused ? 0 : data->slowDownFactor;
+    QDeclarativeDebugHelper::setAnimationSlowDownFactor(effectiveFactor);
 }
 
 

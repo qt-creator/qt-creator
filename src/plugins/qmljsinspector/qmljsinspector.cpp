@@ -884,6 +884,8 @@ void InspectorUi::connectSignals()
             m_toolBar, SLOT(setSelectedColor(QColor)));
     connect(m_clientProxy, SIGNAL(animationSpeedChanged(qreal)),
             m_toolBar, SLOT(setAnimationSpeed(qreal)));
+    connect(m_clientProxy, SIGNAL(executionPausedChanged(bool)),
+            m_toolBar, SLOT(setExecutionPaused(bool)));
 
     connect(m_toolBar, SIGNAL(applyChangesFromQmlFileTriggered(bool)),
             this, SLOT(setApplyChangesToQmlObserver(bool)));
@@ -894,6 +896,8 @@ void InspectorUi::connectSignals()
             m_clientProxy, SLOT(reloadQmlViewer()));
     connect(m_toolBar, SIGNAL(animationSpeedChanged(qreal)),
             m_clientProxy, SLOT(setAnimationSpeed(qreal)));
+    connect(m_toolBar, SIGNAL(executionPausedChanged(bool)),
+            m_clientProxy, SLOT(setExecutionPaused(bool)));
     connect(m_toolBar, SIGNAL(colorPickerSelected()),
             m_clientProxy, SLOT(changeToColorPickerTool()));
     connect(m_toolBar, SIGNAL(zoomToolSelected()),

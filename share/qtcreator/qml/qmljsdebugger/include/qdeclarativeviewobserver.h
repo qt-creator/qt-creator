@@ -110,7 +110,8 @@ protected:
     void setSelectedItemsForTools(QList<QGraphicsItem *> items);
 
 private slots:
-    void onAnimationSpeedChangeRequested(qreal factor);
+    void animationSpeedChangeRequested(qreal factor);
+    void executionPausedChangeRequested(bool paused);
 
 private:
     Q_DISABLE_COPY(QDeclarativeViewObserver)

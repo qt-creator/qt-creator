@@ -86,6 +86,8 @@ void ClientProxy::connectToServer()
         SIGNAL(selectMarqueeToolActivated()));
     connect(m_observerClient, SIGNAL(animationSpeedChanged(qreal)),
         SIGNAL(animationSpeedChanged(qreal)));
+    connect(m_observerClient, SIGNAL(executionPausedChanged(bool)),
+        SIGNAL(executionPausedChanged(bool)));
     connect(m_observerClient, SIGNAL(designModeBehaviorChanged(bool)),
         SIGNAL(designModeBehaviorChanged(bool)));
     connect(m_observerClient, SIGNAL(showAppOnTopChanged(bool)),
@@ -545,10 +547,16 @@ void ClientProxy::setDesignModeBehavior(bool inDesignMode)
         m_observerClient->setDesignModeBehavior(inDesignMode);
 }
 
-void ClientProxy::setAnimationSpeed(qreal slowdownFactor)
+void ClientProxy::setAnimationSpeed(qreal slowDownFactor)
 {
     if (isConnected())
-        m_observerClient->setAnimationSpeed(slowdownFactor);
+        m_observerClient->setAnimationSpeed(slowDownFactor);
+}
+
+void ClientProxy::setExecutionPaused(bool paused)
+{
+    if (isConnected())
+        m_observerClient->setExecutionPaused(paused);
 }
 
 void ClientProxy::changeToColorPickerTool()
