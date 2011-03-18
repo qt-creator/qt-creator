@@ -409,7 +409,9 @@ void CMakeRunPage::initializePage()
             ProjectExplorer::Abi targetAbi = tc->targetAbi();
             QVariant tcVariant = qVariantFromValue(static_cast<void *>(tc));
             if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
-                if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvcFlavor)
+                if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
+                        || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
+                        || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor)
                     m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(tc->displayName()), tcVariant);
                 else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor)
                     m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(tc->displayName()), tcVariant);
@@ -450,10 +452,10 @@ void CMakeRunPage::runCMake()
 
     QString generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
     if (tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS) {
-        if (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMsvcFlavor)
-            generator = QLatin1String("-GCodeBlocks - NMake Makefiles");
-        else
+        if (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor)
             generator = QLatin1String("-GCodeBlocks - MinGW Makefiles");
+        else
+            generator = QLatin1String("-GCodeBlocks - NMake Makefiles");
     }
 
 

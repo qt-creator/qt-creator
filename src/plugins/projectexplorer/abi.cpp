@@ -93,10 +93,24 @@ static QList<Abi> parseCoffHeader(const QByteArray &data)
     if (data.size() >= 68) {
         // Get Major and Minor Image Version from optional header fields
         quint32 image = (data.at(67) << 24) + (data.at(66) << 16) + (data.at(65) << 8) + data.at(64);
-        if (image == 1) // Image is 1 for mingw and higher for MSVC (4.something in some encoding)
+        if (image == 1) { // Image is 1 for mingw and higher for MSVC (4.something in some encoding)
             flavor = Abi::WindowsMSysFlavor;
-        else
-            flavor = Abi::WindowsMsvcFlavor;
+        } else {
+            switch (data.at(22)) {
+            case 8:
+                flavor = Abi::WindowsMsvc2005Flavor;
+                break;
+            case 9:
+                flavor = Abi::WindowsMsvc2008Flavor;
+                break;
+            case 10:
+                flavor = Abi::WindowsMsvc2010Flavor;
+                break;
+            default:
+                // Keep unknown flavor
+                break;
+            }
+        }
     }
 
     if (arch != Abi::UnknownArchitecture && width != 0)
@@ -196,7 +210,7 @@ Abi::Abi(const Architecture &a, const OS &o,
             m_osFlavor = UnknownFlavor;
         break;
     case ProjectExplorer::Abi::WindowsOS:
-        if (m_osFlavor < WindowsMsvcFlavor || m_osFlavor > WindowsCEFlavor)
+        if (m_osFlavor < WindowsMsvc2005Flavor || m_osFlavor > WindowsCEFlavor)
             m_osFlavor = UnknownFlavor;
         break;
     }
@@ -258,8 +272,12 @@ Abi::Abi(const QString &abiString) :
             m_osFlavor = SymbianEmulatorFlavor;
         else if (abiParts.at(2) == QLatin1String("generic") && m_os == UnixOS)
             m_osFlavor = GenericUnixFlavor;
-        else if (abiParts.at(2) == QLatin1String("msvc") && m_os == WindowsOS)
-            m_osFlavor = WindowsMsvcFlavor;
+        else if (abiParts.at(2) == QLatin1String("msvc2005") && m_os == WindowsOS)
+            m_osFlavor = WindowsMsvc2005Flavor;
+        else if (abiParts.at(2) == QLatin1String("msvc2008") && m_os == WindowsOS)
+            m_osFlavor = WindowsMsvc2008Flavor;
+        else if (abiParts.at(2) == QLatin1String("msvc2010") && m_os == WindowsOS)
+            m_osFlavor = WindowsMsvc2010Flavor;
         else if (abiParts.at(2) == QLatin1String("msys") && m_os == WindowsOS)
             m_osFlavor = WindowsMSysFlavor;
         else if (abiParts.at(2) == QLatin1String("ce") && m_os == WindowsOS)
@@ -399,8 +417,12 @@ QString Abi::toString(const OSFlavor &of)
         return QLatin1String("emulator");
     case ProjectExplorer::Abi::GenericUnixFlavor:
         return QLatin1String("generic");
-    case ProjectExplorer::Abi::WindowsMsvcFlavor:
-        return QLatin1String("msvc");
+    case ProjectExplorer::Abi::WindowsMsvc2005Flavor:
+        return QLatin1String("msvc2005");
+    case ProjectExplorer::Abi::WindowsMsvc2008Flavor:
+        return QLatin1String("msvc2008");
+    case ProjectExplorer::Abi::WindowsMsvc2010Flavor:
+        return QLatin1String("msvc2010");
     case ProjectExplorer::Abi::WindowsMSysFlavor:
         return QLatin1String("msys");
     case ProjectExplorer::Abi::WindowsCEFlavor:
@@ -445,7 +467,15 @@ Abi Abi::hostAbi()
 
 #if defined (Q_OS_WIN)
     os = WindowsOS;
-    subos = WindowsMsvcFlavor;
+#if _MSC_VER == 1600
+    subos = WindowsMsvc2010Flavor;
+#elif _MSC_VER == 1500
+    subos = WindowsMsvc2008Flavor;
+#elif _MSC_VER == 1400
+    subos = WindowsMsvc2005Flavor;
+#elif defined (mingw32)
+    subos = WindowsMSysFlavor;
+#endif
     format = PEFormat;
 #elif defined (Q_OS_LINUX)
     os = LinuxOS;

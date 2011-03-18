@@ -1474,7 +1474,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
     Abi hostAbi = Abi::hostAbi();
     sp.toolChainAbi = ProjectExplorer::Abi(hostAbi.architecture(),
                                            ProjectExplorer::Abi::WindowsOS,
-                                           ProjectExplorer::Abi::WindowsMsvcFlavor,
+                                           ProjectExplorer::Abi::WindowsMsvc2010Flavor,
                                            ProjectExplorer::Abi::PEFormat,
                                            true);
     sp.startMode = AttachToRemote;
@@ -2461,7 +2461,7 @@ QString DebuggerPluginPrivate::debuggerForAbi(const Abi &abi, DebuggerEngineType
     if (searchAbi.os() == ProjectExplorer::Abi::WindowsOS) {
         switch (et) {
         case CdbEngineType:
-            searchAbi = Abi(abi.architecture(), abi.os(), Abi::WindowsMsvcFlavor,
+            searchAbi = Abi(abi.architecture(), abi.os(), Abi::WindowsMsvc2010Flavor,
                             abi.binaryFormat(), abi.wordWidth());
             break;
         case GdbEngineType:

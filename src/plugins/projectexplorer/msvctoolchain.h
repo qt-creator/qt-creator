@@ -55,8 +55,8 @@ public:
     enum Type { WindowsSDK, VS };
     enum Platform { s32, s64, ia64, amd64 };
 
-    MsvcToolChain(Type type, const QString &name, Platform platform, const QString &varsBat,
-                  const QString &varsBatArg, bool autodetect = false);
+    MsvcToolChain(const QString &name, const Abi &abi,
+                  const QString &varsBat, const QString &varsBatArg, bool autodetect = false);
 
     QString typeName() const;
     Abi targetAbi() const;
@@ -89,8 +89,7 @@ private:
     mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
     mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC
     mutable QList<HeaderPath> m_headerPaths;
-    bool m_is64bit;
-    Abi::Architecture m_architecture;
+    Abi m_abi;
 };
 
 // --------------------------------------------------------------------------

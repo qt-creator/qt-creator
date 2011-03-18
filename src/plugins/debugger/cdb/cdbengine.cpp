@@ -349,7 +349,9 @@ static QString cdbBinary(const DebuggerStartParameters &sp)
     if (!sp.debuggerCommand.isEmpty()) {
         // Do not use a GDB binary if we got started for a project with MinGW runtime.
         const bool abiMatch = sp.toolChainAbi.os() == ProjectExplorer::Abi::WindowsOS
-                    && sp.toolChainAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvcFlavor;
+                    && (sp.toolChainAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
+                        || sp.toolChainAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
+                        || sp.toolChainAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor);
         if (abiMatch)
             return sp.debuggerCommand;
     }
