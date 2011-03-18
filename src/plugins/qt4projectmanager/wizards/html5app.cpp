@@ -149,12 +149,10 @@ void Html5App::handleCurrentProFileTemplateLine(const QString &line,
     QTextStream &proFileTemplate, QTextStream &proFile,
     bool &commentOutNextLine) const
 {
+    Q_UNUSED(proFileTemplate)
     Q_UNUSED(proFile)
-    if (line.contains(QLatin1String("# INCLUDE_DEPLOYMENT_PRI"))) {
-        proFileTemplate.readLine(); // eats 'include(deployment.pri)'
-    } else if (line.contains(QLatin1String("# TOUCH_OPTIMIZED_NAVIGATION"))) {
+    if (line.contains(QLatin1String("# TOUCH_OPTIMIZED_NAVIGATION")))
         commentOutNextLine = !m_touchOptimizedNavigationEnabled;
-    }
 }
 
 #ifndef CREATORLESSTEST

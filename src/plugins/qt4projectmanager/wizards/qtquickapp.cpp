@@ -243,8 +243,6 @@ void QtQuickApp::handleCurrentProFileTemplateLine(const QString &line,
         }
 
         proFile << endl;
-    } else if (line.contains(QLatin1String("# INCLUDE_DEPLOYMENT_PRI"))) {
-        proFileTemplate.readLine(); // eats 'include(deployment.pri)'
     }
 }
 
