@@ -48,6 +48,7 @@
 #include <projectexplorer/toolchainmanager.h>
 
 using ProjectExplorer::idFromMap;
+using ProjectExplorer::Task;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
@@ -132,6 +133,34 @@ QString Qt4SymbianTargetFactory::defaultShadowBuildDirectory(const QString &proj
     Q_UNUSED(id);
     // should not be called from anywhere, since we override Qt4BaseTarget::defaultBuldDirectory()
     return QString();
+}
+
+QList<ProjectExplorer::Task> Qt4SymbianTargetFactory::reportIssues(const QString &proFile)
+{
+    QList<ProjectExplorer::Task> results;
+    // Warn of strange characters in project name and path:
+    const QString projectName = proFile.mid(proFile.lastIndexOf(QLatin1Char('/')) + 1);
+    QString projectPath = proFile.left(proFile.lastIndexOf(QLatin1Char('/')));
+#if defined (Q_OS_WIN)
+    if (projectPath.at(1) == QChar(':') && projectPath.at(0).toUpper() >= QChar('A') && projectPath.at(0).toUpper() <= QChar('Z'))
+        projectPath = projectPath.mid(2);
+#endif
+    if (projectPath.contains(QLatin1Char(' '))) {
+        results.append(Task(Task::Warning,
+                            QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
+                                                        "The Symbian tool chain does not handle spaces "
+                                                        "in the project path '%1'.").arg(projectPath),
+                            QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+    }
+    if (projectName.contains(QRegExp("[^a-zA-Z0-9.-]"))) {
+        results.append(Task(Task::Warning,
+                            QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
+                                                        "The Symbian tool chain does not handle special "
+                                                        "characters in the project name '%1' well.")
+                            .arg(projectName),
+                            QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+    }
+    return results;
 }
 
 QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion)

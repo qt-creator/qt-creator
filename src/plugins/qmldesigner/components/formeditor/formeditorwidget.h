@@ -95,6 +95,7 @@ private slots:
     void setZoomLevel(double zoomLevel);
     void changeRootItemWidth(const QString &widthText);
     void changeRootItemHeight(const QString &heightText);
+    void resetNodeInstanceView();
 
 private:
     QWeakPointer<FormEditorView> m_formEditorView;
@@ -111,6 +112,7 @@ private:
     QWeakPointer<QAction> m_selectOnlyContentItemsAction;
     QWeakPointer<LineEditAction> m_rootWidthAction;
     QWeakPointer<LineEditAction> m_rootHeightAction;
+    QWeakPointer<QAction> m_resetAction;
 };
 
 

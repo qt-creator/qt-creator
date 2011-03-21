@@ -34,7 +34,6 @@
 #include "qmakestep.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <proparser/profileevaluator.h>
 #include "qmakeparser.h"
 #include "qt4buildconfiguration.h"
 #include "qt4project.h"
@@ -244,7 +243,7 @@ bool QMakeStep::init()
         node = qt4bc->subNodeBuild();
     QString proFile = node->path();
 
-    m_tasks = qt4BuildConfiguration()->qtVersion()->reportIssues(proFile, workingDirectory);
+    m_tasks = qt4BuildConfiguration()->qtVersion()->reportIssues(proFile, workingDirectory, true);
     m_scriptTemplate = node->projectType() == ScriptTemplate;
 
     return AbstractProcessStep::init();
@@ -370,20 +369,9 @@ void QMakeStep::setLinkQmlDebuggingLibrary(bool enable)
 QStringList QMakeStep::parserArguments()
 {
     QStringList result;
-    for (Utils::QtcProcess::ConstArgIterator ait(allArguments()); ait.next(); ) {
-        const QString &arg = ait.value();
-        if (arg.contains(QLatin1Char('='))) {
-            result << arg;
-        } else {
-            for (int i = 0; i < ProFileOption::modeMapSize; ++i) {
-                // Workaround: Apple GCC does not like ProFileOption::modeMap[i], because the array's bounds are not known
-                if (QLatin1String((&ProFileOption::modeMap[0] + i)->qmakeOption) == arg) {
-                    result << arg;
-                    break;
-                }
-            }
-        }
-    }
+    for (Utils::QtcProcess::ConstArgIterator ait(allArguments()); ait.next(); )
+        if (ait.isSimple())
+            result << ait.value();
     return result;
 }
 

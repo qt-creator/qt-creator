@@ -99,6 +99,10 @@ public:
     bool setType(const QStringList &types);
     bool acceptsType(const QStringList &types);
     QWidget* currentWidget() const { return m_currentWidget; }
+    void setIsPropertyChanges(bool b)
+    { m_isPropertyChanges = b; }
+    bool isPropertyChanges() const
+    { return m_isPropertyChanges; }
 
 public slots:
     void onTogglePane();
@@ -143,6 +147,7 @@ private:
     QString m_colorName;
     QPoint m_originalPos;
     bool m_pinned;
+    bool m_isPropertyChanges;
 };
 
 } //QmlDesigner

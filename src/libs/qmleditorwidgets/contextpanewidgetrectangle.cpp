@@ -45,7 +45,8 @@ ContextPaneWidgetRectangle::ContextPaneWidgetRectangle(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ContextPaneWidgetRectangle),
     m_gradientLineDoubleClicked(false),
-    m_gradientTimer(-1)
+    m_gradientTimer(-1),
+    m_enableGradientEditing(true)
 {
     ui->setupUi(this);
 
@@ -112,7 +113,7 @@ void ContextPaneWidgetRectangle::setProperties(QmlJS::PropertyReader *propertyRe
     ui->gradientLabel->setEnabled(true);
     ui->gradientLine->setEnabled(true);
 
-    if (m_hasGradient) {
+    if (m_hasGradient && isGradientEditingEnabled()) {
         bool isBound;
         ui->colorGradient->setChecked(true);
         ui->gradientLine->setGradient(propertyReader->parseGradient("gradient", &isBound));
@@ -122,8 +123,8 @@ void ContextPaneWidgetRectangle::setProperties(QmlJS::PropertyReader *propertyRe
             ui->colorColorButton->setColor("invalidColor");
         }
     } else {
-        //ui->gradientLine->setEnabled(false);
-        //ui->gradientLabel->setEnabled(false);
+        ui->gradientLine->setEnabled(false);
+        ui->gradientLabel->setEnabled(false);
         setColor();
     }
 
@@ -132,6 +133,12 @@ void ContextPaneWidgetRectangle::setProperties(QmlJS::PropertyReader *propertyRe
         m_gradientTimer = -1;
     }
 
+    ui->colorGradient->setEnabled(isGradientEditingEnabled());
+}
+
+void ContextPaneWidgetRectangle::enabableGradientEditing(bool b)
+{
+    m_enableGradientEditing = b;
 }
 
 void ContextPaneWidgetRectangle::onBorderColorButtonToggled(bool flag)
@@ -194,22 +201,27 @@ void ContextPaneWidgetRectangle::onGradientClicked()
         stops.append(QGradientStop(0, ui->colorColorButton->convertedColor()));
         stops.append(QGradientStop(1, Qt::white));
         gradient.setStops(stops);
+        ui->gradientLine->setEnabled(true);
         ui->gradientLine->setGradient(gradient);
     }
 }
 
 void ContextPaneWidgetRectangle::onColorNoneClicked()
 {
-    if (ui->colorNone->isChecked()) {        
+    if (ui->colorNone->isChecked()) {
+        ui->colorGradient->setEnabled(isGradientEditingEnabled());
         emit removeAndChangeProperty("gradient", "color", "transparent", true);
     }
+    ui->colorGradient->setEnabled(isGradientEditingEnabled());
 }
 
 void ContextPaneWidgetRectangle::onColorSolidClicked()
 {
     if (ui->colorSolid->isChecked()) {
+        ui->gradientLine->setEnabled(false);
         emit removeAndChangeProperty("gradient", "color", "\"black\"", true);
     }
+    ui->colorGradient->setEnabled(isGradientEditingEnabled());
 }
 
 void ContextPaneWidgetRectangle::onBorderNoneClicked()

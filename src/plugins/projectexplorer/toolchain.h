@@ -77,7 +77,7 @@ public:
 
     virtual bool isValid() const = 0;
 
-    /// Returns a list of target ids that this ToolChain is restricted to.
+    /// Returns a list of target ids that this tool chain is restricted to.
     /// An empty list is shows that the toolchain is compatible with all targets.
     virtual QStringList restrictedToTargets() const;
 
@@ -96,7 +96,7 @@ public:
     virtual bool canClone() const;
     virtual ToolChain *clone() const = 0;
 
-    // Used by the toolchainmanager to save user-generated ToolChains.
+    // Used by the toolchainmanager to save user-generated tool chains.
     // Make sure to call this method when deriving!
     virtual QVariantMap toMap() const;
 
@@ -127,7 +127,7 @@ class PROJECTEXPLORER_EXPORT ToolChainFactory : public QObject
     Q_OBJECT
 
 public:
-    // Name used to display the name of the toolchain that will be created.
+    // Name used to display the name of the tool chain that will be created.
     virtual QString displayName() const = 0;
     virtual QString id() const = 0;
 
@@ -136,7 +136,7 @@ public:
     virtual bool canCreate();
     virtual ToolChain *create();
 
-    // Used by the ToolChainManager to restore user-generated ToolChains
+    // Used by the ToolChainManager to restore user-generated tool chains
     virtual bool canRestore(const QVariantMap &data);
     virtual ToolChain *restore(const QVariantMap &data);
 

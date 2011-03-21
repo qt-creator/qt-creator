@@ -66,7 +66,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     centralWidget->setLayout(m_layout);
     m_layout->addSpacerItem(m_spacer);
 
-    setTitle(tr("Target setup"));
+    setTitle(tr("Target Setup"));
 }
 
 void TargetSetupPage::initializePage()
@@ -119,13 +119,16 @@ void TargetSetupPage::setupWidgets()
     QList<Qt4BaseTargetFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
     foreach (Qt4BaseTargetFactory *factory, factories) {
         QStringList ids = factory->supportedTargetIds(0);
+        bool atLeastOneTargetSelected = false;
         foreach (const QString &id, ids) {
             QList<BuildConfigurationInfo> infos = BuildConfigurationInfo::filterBuildConfigurationInfos(m_importInfos, id);
             Qt4TargetSetupWidget *widget =
                     factory->createTargetSetupWidget(id, m_proFilePath, m_minimumQtVersionNumber, m_importSearch, infos);
             if (widget) {
-                widget->setTargetSelected( (m_preferMobile == factory->isMobileTarget(id) && m_importInfos.isEmpty())
-                                           || !infos.isEmpty());
+                bool selectTarget = (m_preferMobile == factory->isMobileTarget(id) && m_importInfos.isEmpty())
+                        || !infos.isEmpty();
+                widget->setTargetSelected(selectTarget) ;
+                atLeastOneTargetSelected |= selectTarget;
                 m_widgets.insert(id, widget);
                 m_factories.insert(widget, factory);
                 m_layout->addWidget(widget);
@@ -135,8 +138,25 @@ void TargetSetupPage::setupWidgets()
                         this, SLOT(newImportBuildConfiguration(BuildConfigurationInfo)));
             }
         }
+        if (!atLeastOneTargetSelected) {
+            Qt4TargetSetupWidget *widget = m_widgets.value(Constants::DESKTOP_TARGET_ID);
+            if (widget)
+                widget->setTargetSelected(true);
+        }
     }
+
+
     m_layout->addSpacerItem(m_spacer);
+    if (m_widgets.isEmpty()) {
+        // Oh no one can create any targets
+        m_ui->scrollArea->setVisible(false);
+        m_ui->descriptionLabel->setVisible(false);
+        m_ui->noValidQtVersionsLabel->setVisible(true);
+    } else {
+        m_ui->scrollArea->setVisible(true);
+        m_ui->descriptionLabel->setVisible(true);
+        m_ui->noValidQtVersionsLabel->setVisible(false);
+    }
 }
 
 void TargetSetupPage::deleteWidgets()

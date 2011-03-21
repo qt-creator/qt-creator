@@ -77,6 +77,8 @@ QT_BEGIN_NAMESPACE
 using namespace ProStringConstants;
 
 
+#define fL1S(s) QString::fromLatin1(s)
+
 ///////////////////////////////////////////////////////////////////////
 //
 // ProFileOption
@@ -94,7 +96,9 @@ ProFileOption::ProFileOption()
 #endif
     qmakespec = QString::fromLocal8Bit(qgetenv("QMAKESPEC").data());
 
-    setHostTargetMode();
+    host_mode = HOST_UNKNOWN_MODE;
+    target_mode = TARG_UNKNOWN_MODE;
+
 #ifdef PROEVALUATOR_THREAD_SAFE
     base_inProgress = false;
 #endif
@@ -104,34 +108,67 @@ ProFileOption::~ProFileOption()
 {
 }
 
-void ProFileOption::setHostTargetMode()
+void ProFileOption::setCommandLineArguments(const QStringList &args)
 {
-#if defined(Q_OS_WIN32)
-    target_mode = TARG_WIN_MODE;
-#elif defined(Q_OS_MAC)
-    target_mode = TARG_MACX_MODE;
-#elif defined(Q_OS_QNX6)
-    target_mode = TARG_QNX6_MODE;
-#else
-    target_mode = TARG_UNIX_MODE;
-#endif
+    QStringList _precmds, _preconfigs, _postcmds, _postconfigs;
+    bool after = false;
+
+    bool isConf = false;
+    foreach (const QString &arg, args) {
+        if (isConf) {
+            isConf = false;
+            if (after)
+                _postconfigs << arg;
+            else
+                _preconfigs << arg;
+        } else if (arg.startsWith(QLatin1Char('-'))) {
+            if (arg == QLatin1String("-after")) {
+                after = true;
+            } else if (arg == QLatin1String("-config")) {
+                isConf = true;
+            } else if (arg == QLatin1String("-win32")) {
+                host_mode = HOST_WIN_MODE;
+                target_mode = TARG_WIN_MODE;
+            } else if (arg == QLatin1String("-unix")) {
+                host_mode = HOST_UNIX_MODE;
+                target_mode = TARG_UNIX_MODE;
+            } else if (arg == QLatin1String("-macx")) {
+                host_mode = HOST_MACX_MODE;
+                target_mode = TARG_MACX_MODE;
+            }
+        } else if (arg.contains(QLatin1Char('='))) {
+            if (after)
+                _postcmds << arg;
+            else
+                _precmds << arg;
+        }
+    }
+
+    if (!_preconfigs.isEmpty())
+        _precmds << (fL1S("CONFIG += ") + _preconfigs.join(fL1S(" ")));
+    precmds = _precmds.join(fL1S("\n"));
+    if (!_postconfigs.isEmpty())
+        _postcmds << (fL1S("CONFIG += ") + _postconfigs.join(fL1S(" ")));
+    postcmds = _postcmds.join(fL1S("\n"));
+
+    if (host_mode != HOST_UNKNOWN_MODE)
+        applyHostMode();
 }
 
-const struct ProFileOption::TargetModeMapElement ProFileOption::modeMap[] = {
-    { "-unix", TARG_UNIX_MODE },
-    { "-macx", TARG_MACX_MODE },
-    { "-win32", TARG_WIN_MODE }
-};
-const int ProFileOption::modeMapSize
-    = sizeof ProFileOption::modeMap / sizeof ProFileOption::modeMap[0];
+void ProFileOption::applyHostMode()
+{
+   if (host_mode == HOST_WIN_MODE) {
+       dir_sep = fL1S("\\");
+   } else {
+       dir_sep = fL1S("/");
+   }
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
 // ProFileEvaluator::Private
 //
 ///////////////////////////////////////////////////////////////////////
-
-#define fL1S(s) QString::fromLatin1(s)
 
 class ProFileEvaluator::Private
 {
@@ -159,6 +196,7 @@ public:
     static ALWAYS_INLINE void skipHashStr(const ushort *&tokPtr);
     void skipExpression(const ushort *&tokPtr);
 
+    void visitCmdLine(const QString &cmds);
     VisitReturn visitProFile(ProFile *pro, ProFileEvaluatorHandler::EvalFileType type,
                              ProFileEvaluator::LoadFlags flags);
     VisitReturn visitProBlock(ProFile *pro, const ushort *tokPtr);
@@ -213,6 +251,9 @@ public:
     VisitReturn evaluateBoolFunction(const FunctionDef &func, const QList<ProStringList> &argumentsList,
                                      const ProString &function);
 
+    bool modesForGenerator(const QString &gen,
+            ProFileOption::HOST_MODE *host_mode, ProFileOption::TARG_MODE *target_mode) const;
+    void validateModes() const;
     QStringList qmakeMkspecPaths() const;
     QStringList qmakeFeaturePaths() const;
 
@@ -241,8 +282,6 @@ public:
     QStack<QHash<ProString, ProStringList> > m_valuemapStack;         // VariableName must be us-ascii, the content however can be non-us-ascii.
     QHash<const ProFile*, QHash<ProString, ProStringList> > m_filevaluemap; // Variables per include file
     QString m_tmp1, m_tmp2, m_tmp3, m_tmp[2]; // Temporaries for efficient toQString
-
-    QStringList m_cmdArgs;
 
     ProFileOption *m_option;
     ProFileParser *m_parser;
@@ -280,10 +319,9 @@ static struct {
     QString strfalse;
     QString strunix;
     QString strmacx;
-    QString strqnx6;
-    QString strmac9;
     QString strmac;
     QString strwin32;
+    QString strsymbian;
     ProString strCONFIG;
     ProString strARGS;
     QString strDot;
@@ -310,10 +348,9 @@ void ProFileEvaluator::Private::initStatics()
     statics.strfalse = QLatin1String("false");
     statics.strunix = QLatin1String("unix");
     statics.strmacx = QLatin1String("macx");
-    statics.strqnx6 = QLatin1String("qnx6");
-    statics.strmac9 = QLatin1String("mac9");
     statics.strmac = QLatin1String("mac");
     statics.strwin32 = QLatin1String("win32");
+    statics.strsymbian = QLatin1String("symbian");
     statics.strCONFIG = ProString("CONFIG");
     statics.strARGS = ProString("ARGS");
     statics.strDot = QLatin1String(".");
@@ -1133,6 +1170,18 @@ void ProFileEvaluator::Private::visitProVariable(
     }
 }
 
+void ProFileEvaluator::Private::visitCmdLine(const QString &cmds)
+{
+    if (!cmds.isEmpty()) {
+        if (ProFile *pro = m_parser->parsedProBlock(fL1S("(command line)"), cmds)) {
+            m_locationStack.push(m_current);
+            visitProBlock(pro, pro->tokPtr());
+            m_current = m_locationStack.pop();
+            pro->deref();
+        }
+    }
+}
+
 ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
         ProFile *pro, ProFileEvaluatorHandler::EvalFileType type,
         ProFileEvaluator::LoadFlags flags)
@@ -1294,20 +1343,14 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
             if (tgt.isEmpty())
                 tgt.append(ProString(QFileInfo(pro->fileName()).baseName(), NoHash));
 
-        if (!m_cmdArgs.isEmpty()) {
-            if (ProFile *pro = m_parser->parsedProBlock(
-                    fL1S("(command line)"), m_cmdArgs.join(fL1S("\n")))) {
-                m_locationStack.push(m_current);
-                visitProBlock(pro, pro->tokPtr());
-                m_current = m_locationStack.pop();
-                pro->deref();
-            }
-        }
+        visitCmdLine(m_option->precmds);
     }
 
     visitProBlock(pro, pro->tokPtr());
 
     if (flags & LoadPostFiles) {
+        visitCmdLine(m_option->postcmds);
+
             evaluateFeatureFile(QLatin1String("default_post.prf"));
 
             QSet<QString> processed;
@@ -1358,25 +1401,23 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
     QString mkspecs_concat = QLatin1String("/mkspecs");
     QString features_concat = QLatin1String("/features");
     QStringList concat;
+
+    validateModes();
     switch (m_option->target_mode) {
     case ProFileOption::TARG_MACX_MODE:
         concat << QLatin1String("/features/mac");
         concat << QLatin1String("/features/macx");
         concat << QLatin1String("/features/unix");
         break;
+    default: // Can't happen, just make the compiler shut up
     case ProFileOption::TARG_UNIX_MODE:
         concat << QLatin1String("/features/unix");
         break;
     case ProFileOption::TARG_WIN_MODE:
         concat << QLatin1String("/features/win32");
         break;
-    case ProFileOption::TARG_MAC9_MODE:
-        concat << QLatin1String("/features/mac");
-        concat << QLatin1String("/features/mac9");
-        break;
-    case ProFileOption::TARG_QNX6_MODE:
-        concat << QLatin1String("/features/qnx6");
-        concat << QLatin1String("/features/unix");
+    case ProFileOption::TARG_SYMBIAN_MODE:
+        concat << QLatin1String("/features/symbian");
         break;
     }
     concat << features_concat;
@@ -1753,6 +1794,88 @@ ProStringList ProFileEvaluator::Private::expandVariableReferences(
     return ret;
 }
 
+bool ProFileEvaluator::Private::modesForGenerator(const QString &gen,
+        ProFileOption::HOST_MODE *host_mode, ProFileOption::TARG_MODE *target_mode) const
+{
+    if (gen == fL1S("UNIX")) {
+#ifdef Q_OS_MAC
+        *host_mode = ProFileOption::HOST_MACX_MODE;
+        *target_mode = ProFileOption::TARG_MACX_MODE;
+#else
+        *host_mode = ProFileOption::HOST_UNIX_MODE;
+        *target_mode = ProFileOption::TARG_UNIX_MODE;
+#endif
+    } else if (gen == fL1S("MSVC.NET") || gen == fL1S("BMAKE") || gen == fL1S("MSBUILD")) {
+        *host_mode = ProFileOption::HOST_WIN_MODE;
+        *target_mode = ProFileOption::TARG_WIN_MODE;
+    } else if (gen == fL1S("MINGW")) {
+#if defined(Q_OS_MAC)
+        *host_mode = ProFileOption::HOST_MACX_MODE;
+#elif defined(Q_OS_UNIX)
+        *host_mode = ProFileOption::HOST_UNIX_MODE;
+#else
+        *host_mode = ProFileOption::HOST_WIN_MODE;
+#endif
+        *target_mode = ProFileOption::TARG_WIN_MODE;
+    } else if (gen == fL1S("PROJECTBUILDER") || gen == fL1S("XCODE")) {
+        *host_mode = ProFileOption::HOST_MACX_MODE;
+        *target_mode = ProFileOption::TARG_MACX_MODE;
+    } else if (gen == fL1S("SYMBIAN_ABLD") || gen == fL1S("SYMBIAN_SBSV2")
+               || gen == fL1S("SYMBIAN_UNIX") || gen == fL1S("SYMBIAN_MINGW")) {
+#if defined(Q_OS_MAC)
+        *host_mode = ProFileOption::HOST_MACX_MODE;
+#elif defined(Q_OS_UNIX)
+        *host_mode = ProFileOption::HOST_UNIX_MODE;
+#else
+        *host_mode = ProFileOption::HOST_WIN_MODE;
+#endif
+        *target_mode = ProFileOption::TARG_SYMBIAN_MODE;
+    } else {
+        evalError(fL1S("Unknown generator specified: %1").arg(gen));
+        return false;
+    }
+    return true;
+}
+
+void ProFileEvaluator::Private::validateModes() const
+{
+    if (m_option->host_mode == ProFileOption::HOST_UNKNOWN_MODE
+        || m_option->target_mode == ProFileOption::TARG_UNKNOWN_MODE) {
+        const QHash<ProString, ProStringList> &vals =
+                m_option->base_valuemap.isEmpty() ? m_valuemapStack[0] : m_option->base_valuemap;
+        ProFileOption::HOST_MODE host_mode;
+        ProFileOption::TARG_MODE target_mode;
+        const ProStringList &gen = vals.value(ProString("MAKEFILE_GENERATOR"));
+        if (gen.isEmpty()) {
+            evalError(fL1S("Using OS scope before setting MAKEFILE_GENERATOR"));
+        } else if (modesForGenerator(gen.at(0).toQString(), &host_mode, &target_mode)) {
+            if (m_option->host_mode == ProFileOption::HOST_UNKNOWN_MODE) {
+                m_option->host_mode = host_mode;
+                m_option->applyHostMode();
+            }
+
+            if (m_option->target_mode == ProFileOption::TARG_UNKNOWN_MODE) {
+                const ProStringList &tgt = vals.value(ProString("TARGET_PLATFORM"));
+                if (!tgt.isEmpty()) {
+                    const QString &os = tgt.at(0).toQString();
+                    if (os == statics.strunix)
+                        m_option->target_mode = ProFileOption::TARG_UNIX_MODE;
+                    else if (os == statics.strmacx)
+                        m_option->target_mode = ProFileOption::TARG_MACX_MODE;
+                    else if (os == statics.strsymbian)
+                        m_option->target_mode = ProFileOption::TARG_SYMBIAN_MODE;
+                    else if (os == statics.strwin32)
+                        m_option->target_mode = ProFileOption::TARG_WIN_MODE;
+                    else
+                        evalError(fL1S("Unknown target platform specified: %1").arg(os));
+                } else {
+                    m_option->target_mode = target_mode;
+                }
+            }
+        }
+    }
+}
+
 bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex)
 {
     // magic types for easy flipping
@@ -1761,30 +1884,28 @@ bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex
     if (config == statics.strfalse)
         return false;
 
-    // mkspecs
-    if ((m_option->target_mode == m_option->TARG_MACX_MODE
-            || m_option->target_mode == m_option->TARG_QNX6_MODE
-            || m_option->target_mode == m_option->TARG_UNIX_MODE)
-          && config == statics.strunix)
-        return true;
-    if (m_option->target_mode == m_option->TARG_MACX_MODE && config == statics.strmacx)
-        return true;
-    if (m_option->target_mode == m_option->TARG_QNX6_MODE && config == statics.strqnx6)
-        return true;
-    if (m_option->target_mode == m_option->TARG_MAC9_MODE && config == statics.strmac9)
-        return true;
-    if ((m_option->target_mode == m_option->TARG_MAC9_MODE
-            || m_option->target_mode == m_option->TARG_MACX_MODE)
-          && config == statics.strmac)
-        return true;
-    if (m_option->target_mode == m_option->TARG_WIN_MODE && config == statics.strwin32)
-        return true;
+    if (config == statics.strunix) {
+        validateModes();
+        return m_option->target_mode == ProFileOption::TARG_UNIX_MODE
+               || m_option->target_mode == ProFileOption::TARG_MACX_MODE
+               || m_option->target_mode == ProFileOption::TARG_SYMBIAN_MODE;
+    } else if (config == statics.strmacx || config == statics.strmac) {
+        validateModes();
+        return m_option->target_mode == ProFileOption::TARG_MACX_MODE;
+    } else if (config == statics.strsymbian) {
+        validateModes();
+        return m_option->target_mode == ProFileOption::TARG_SYMBIAN_MODE;
+    } else if (config == statics.strwin32) {
+        validateModes();
+        return m_option->target_mode == ProFileOption::TARG_WIN_MODE;
+    }
 
     if (regex && (config.contains(QLatin1Char('*')) || config.contains(QLatin1Char('?')))) {
         QString cfg = config;
         cfg.detach(); // Keep m_tmp out of QRegExp's cache
         QRegExp re(cfg, Qt::CaseSensitive, QRegExp::Wildcard);
 
+        // mkspecs
         if (re.exactMatch(m_option->qmakespec_name))
             return true;
 
@@ -2886,6 +3007,7 @@ ProStringList ProFileEvaluator::Private::values(const ProString &variableName) c
             ret = currentDirectory();
             break;
         case V_DIR_SEPARATOR:
+            validateModes();
             ret = m_option->dir_sep;
             break;
         case V_DIRLIST_SEPARATOR:
@@ -3028,7 +3150,8 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName)
     if (!fn.endsWith(QLatin1String(".prf")))
         fn += QLatin1String(".prf");
 
-    if (!fileName.contains((ushort)'/') || !IoUtils::exists(resolvePath(fn))) {
+    if ((!fileName.contains((ushort)'/') && !fileName.contains((ushort)'\\'))
+        || !IoUtils::exists(resolvePath(fn))) {
         if (m_option->feature_roots.isEmpty())
             m_option->feature_roots = qmakeFeaturePaths();
         int start_root = 0;
@@ -3095,7 +3218,8 @@ bool ProFileEvaluator::Private::evaluateFileInto(
 void ProFileEvaluator::Private::evalError(const QString &message) const
 {
     if (!m_skipLevel)
-        m_handler->evalError(m_current.pro->fileName(), m_current.line, message);
+        m_handler->evalError(m_current.line ? m_current.pro->fileName() : QString(),
+                             m_current.line, message);
 }
 
 
@@ -3249,24 +3373,6 @@ void ProFileEvaluator::setCumulative(bool on)
 void ProFileEvaluator::setOutputDir(const QString &dir)
 {
     d->m_outputDir = dir;
-}
-
-void ProFileEvaluator::setCommandLineArguments(const QStringList &args)
-{
-    d->m_cmdArgs = args;
-
-    d->m_option->setHostTargetMode();
-    bool targetModeSet = false;
-    for (int i = args.count() - 1; !targetModeSet && i >= 0; --i) {
-        for (int j = 0; j < ProFileOption::modeMapSize; ++j) {
-            const ProFileOption::TargetModeMapElement &mapElem = ProFileOption::modeMap[j];
-            if (args.at(i) == QLatin1String(mapElem.qmakeOption)) {
-                d->m_option->target_mode = mapElem.targetMode;
-                targetModeSet = true;
-                break;
-            }
-        }
-    }
 }
 
 QT_END_NAMESPACE

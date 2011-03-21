@@ -98,7 +98,7 @@ void ToolChainManager::restoreToolChains()
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     QList<ToolChainFactory *> factories = pm->getObjects<ToolChainFactory>();
-    // Autodetect ToolChains:
+    // Autodetect tool chains:
     foreach (ToolChainFactory *f, factories) {
         QList<ToolChain *> tcs = f->autoDetect();
         foreach (ToolChain *tc, tcs)
@@ -112,7 +112,7 @@ void ToolChainManager::restoreToolChains()
 
 ToolChainManager::~ToolChainManager()
 {
-    // Deregister toolchains
+    // Deregister tool chains
     QList<ToolChain *> copy = m_d->m_toolChains;
     foreach (ToolChain *tc, copy)
         deregisterToolChain(tc);
@@ -176,7 +176,7 @@ void ToolChainManager::restoreToolChains(const QString &fileName, bool autoDetec
             }
         }
         if (!restored)
-            qWarning("Warning: Unable to restore manual toolchain '%s' stored in %s.",
+            qWarning("Warning: Unable to restore manual tool chain '%s' stored in %s.",
                      qPrintable(ToolChainFactory::idFromMap(tcMap)),
                      qPrintable(QDir::toNativeSeparators(fileName)));
     }

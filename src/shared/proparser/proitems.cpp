@@ -340,7 +340,8 @@ ProFile::ProFile(const QString &fileName)
       m_ok(true)
 {
     if (!fileName.startsWith(QLatin1Char('(')))
-        m_directoryName = fileName.left(fileName.lastIndexOf(QLatin1Char('/')));
+        m_directoryName = QFileInfo( // qmake sickness: canonicalize only the directory!
+                fileName.left(fileName.lastIndexOf(QLatin1Char('/')))).canonicalFilePath();
 }
 
 ProFile::~ProFile()

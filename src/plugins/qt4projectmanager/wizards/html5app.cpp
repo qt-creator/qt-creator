@@ -55,6 +55,7 @@ const QString appViewerOriginsSubDir(appViewerBaseName + QLatin1Char('/'));
 Html5App::Html5App()
     : AbstractMobileApp()
     , m_mainHtmlMode(ModeGenerate)
+    , m_touchOptimizedNavigationEnabled(false)
 {
 }
 
@@ -72,6 +73,16 @@ void Html5App::setMainHtml(Mode mode, const QString &data)
 Html5App::Mode Html5App::mainHtmlMode() const
 {
     return m_mainHtmlMode;
+}
+
+void Html5App::setTouchOptimizedNavigationEnabled(bool enabled)
+{
+    m_touchOptimizedNavigationEnabled = enabled;
+}
+
+bool Html5App::touchOptimizedNavigationEnabled() const
+{
+    return m_touchOptimizedNavigationEnabled;
 }
 
 QString Html5App::pathExtended(int fileType) const
@@ -138,11 +149,10 @@ void Html5App::handleCurrentProFileTemplateLine(const QString &line,
     QTextStream &proFileTemplate, QTextStream &proFile,
     bool &commentOutNextLine) const
 {
+    Q_UNUSED(proFileTemplate)
     Q_UNUSED(proFile)
-    Q_UNUSED(commentOutNextLine)
-    if (line.contains(QLatin1String("# INCLUDE_DEPLOYMENT_PRI"))) {
-        proFileTemplate.readLine(); // eats 'include(deployment.pri)'
-    }
+    if (line.contains(QLatin1String("# TOUCH_OPTIMIZED_NAVIGATION")))
+        commentOutNextLine = !m_touchOptimizedNavigationEnabled;
 }
 
 #ifndef CREATORLESSTEST

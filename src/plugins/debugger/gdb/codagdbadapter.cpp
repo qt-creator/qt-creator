@@ -72,7 +72,7 @@
 enum { debug = 0 };
 
 /* Libraries we want to be notified about (pending introduction of a 'notify all'
- * setting in TCF TRK, Bug #11842 */
+ * setting in Coda, Bug #11842 */
 static const char *librariesC[] = {
 "pipelib.ldd", "rpipe.dll", "libc.dll",
 "libdl.dll", "libm.dll", "libpthread.dll",
@@ -115,7 +115,7 @@ static inline QString startMsg(const trk::Session &session)
  * When continuing in sendTrkContinue(), we delete this thread, since we cannot
  * know whether it will exist at the next stop.
  * Also note that threads continue running in Symbian even if one crashes.
- * TODO: - Maybe thread reporting will be improved in TCF TRK?
+ * TODO: - Maybe thread reporting will be improved in Coda?
  *       - Stop all threads once one stops?
  *       - Breakpoints do not trigger in threads other than the main thread. */
 
@@ -154,9 +154,11 @@ void CodaGdbAdapter::setupTrkDeviceSignals()
     connect(m_codaDevice.data(), SIGNAL(error(QString)),
         this, SLOT(codaDeviceError(QString)));
     connect(m_codaDevice.data(), SIGNAL(logMessage(QString)),
-        this, SLOT(trkLogMessage(QString)));
+        this, SLOT(codaLogMessage(QString)));
     connect(m_codaDevice.data(), SIGNAL(tcfEvent(Coda::CodaEvent)),
         this, SLOT(codaEvent(Coda::CodaEvent)));
+    connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),
+            this, SLOT(codaDeviceRemoved(SymbianUtils::SymbianDevice)));
 }
 
 CodaGdbAdapter::~CodaGdbAdapter()
@@ -179,7 +181,7 @@ void CodaGdbAdapter::setVerbose(int verbose)
         m_codaDevice->setVerbose(m_verbose);
 }
 
-void CodaGdbAdapter::trkLogMessage(const QString &msg)
+void CodaGdbAdapter::codaLogMessage(const QString &msg)
 {
     logMessage(_("TRK ") + msg);
 }
@@ -240,7 +242,7 @@ void CodaGdbAdapter::handleCodaRunControlModuleLoadContextSuspendedEvent(const C
                 m_session.modules.removeAt(index);
                 m_session.libraries.removeAt(index);
             } else {
-                // Might happen with preliminary version of TCF TRK.
+                // Might happen with preliminary version of Coda.
                 qWarning("Received unload for module '%s' for which no load was received.",
                          qPrintable(moduleName));
             }
@@ -292,6 +294,17 @@ void CodaGdbAdapter::handleTargetRemote(const GdbResponse &record)
         QString msg = tr("Connecting to CODA server adapter failed:\n")
             + QString::fromLocal8Bit(record.data.findChild("msg").data());
         m_engine->notifyInferiorSetupFailed(msg);
+    }
+}
+
+void CodaGdbAdapter::codaDeviceRemoved(const SymbianUtils::SymbianDevice &dev)
+{
+    const DebuggerStartParameters &parameters = startParameters();
+    if (state() != DebuggerNotReady && !m_codaDevice.isNull() && parameters.remoteChannel == dev.portName()) {
+        const QString message = QString::fromLatin1("Device '%1' has been disconnected.").arg(dev.friendlyName());
+        logMessage(message);
+        m_engine->handleAdapterCrashed(message);
+        cleanup();
     }
 }
 
@@ -968,7 +981,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
 void CodaGdbAdapter::sendRunControlTerminateCommand()
 {
     // Requires id of main thread to terminate.
-    // Note that calling 'Settings|set|removeExecutable' crashes TCF TRK,
+    // Note that calling 'Settings|set|removeExecutable' crashes Coda,
     // so, it is apparently not required.
     m_codaDevice->sendRunControlTerminateCommand(
         CodaCallback(this, &CodaGdbAdapter::handleRunControlTerminate),
@@ -1085,7 +1098,7 @@ void CodaGdbAdapter::startAdapter()
 
     if (parameters.communicationChannel ==
             DebuggerStartParameters::CommunicationChannelTcpIp) {
-        logMessage(_("Connecting to TCF TRK on %1:%2")
+        logMessage(_("Connecting to Coda on %1:%2")
                    .arg(codaServerAddress).arg(codaServerPort));
         codaSocket->connectToHost(codaServerAddress, codaServerPort);
     } else {
@@ -1121,7 +1134,7 @@ void CodaGdbAdapter::addThread(unsigned id)
                 m_session.mainTid = id;
         }
         // We cannot retrieve register values unless the registers of that
-        // thread have been retrieved (TCF TRK oddity).
+        // thread have been retrieved (Coda oddity).
         const QByteArray contextId = RunControlContext::tcfId(m_session.pid, id);
         m_codaDevice->sendRegistersGetChildrenCommand(
             CodaCallback(this, &CodaGdbAdapter::handleRegisterChildren),

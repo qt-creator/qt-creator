@@ -114,28 +114,6 @@ void ClientProxy::clientStatusChanged(QDeclarativeDebugClient::Status status)
     updateConnected();
 }
 
-void ClientProxy::disconnectFromServer()
-{
-    delete m_engineClient;
-    m_engineClient = 0;
-
-    delete m_observerClient;
-    m_observerClient = 0;
-
-    delete m_engineQuery;
-    m_engineQuery = 0;
-
-    delete m_contextQuery;
-    m_contextQuery = 0;
-
-    qDeleteAll(m_objectTreeQuery);
-    m_objectTreeQuery.clear();
-
-    removeAllObjectWatches();
-
-    updateConnected();
-}
-
 void ClientProxy::refreshObjectTree()
 {
     if (!m_contextQuery) {
@@ -328,7 +306,7 @@ bool ClientProxy::resetBindingForObject(int objectDebugId, const QString& proper
     return result;
 }
 
-QDeclarativeDebugExpressionQuery *ClientProxy::queryExpressionResult(int objectDebugId, const QString &expr, QObject *parent)
+QDeclarativeDebugExpressionQuery *ClientProxy::queryExpressionResult(int objectDebugId, const QString &expr)
 {
     if (objectDebugId == -1)
         return 0;
@@ -339,7 +317,8 @@ QDeclarativeDebugExpressionQuery *ClientProxy::queryExpressionResult(int objectD
     bool block = m_adapter->disableJsDebugging(true);
 
     log(LogSend, QString("EVAL_EXPRESSION %1 %2").arg(QString::number(objectDebugId), expr));
-    QDeclarativeDebugExpressionQuery *query = m_engineClient->queryExpressionResult(objectDebugId,expr,parent);
+    QDeclarativeDebugExpressionQuery *query
+            = m_engineClient->queryExpressionResult(objectDebugId, expr, m_engineClient);
 
     m_adapter->disableJsDebugging(block);
     return query;
@@ -370,7 +349,7 @@ bool ClientProxy::addObjectWatch(int objectDebugId)
     // is flooding the debugging output log!
     // log(LogSend, QString("WATCH_PROPERTY %1").arg(objectDebugId));
 
-    QDeclarativeDebugWatch *watch = m_engineClient->addWatch(ref, this);
+    QDeclarativeDebugWatch *watch = m_engineClient->addWatch(ref, m_engineClient);
     m_objectWatches.insert(objectDebugId, watch);
 
     connect(watch,SIGNAL(valueChanged(QByteArray,QVariant)),this,SLOT(objectWatchTriggered(QByteArray,QVariant)));
@@ -434,7 +413,8 @@ void ClientProxy::queryEngineContext(int id)
 
     log(LogSend, QString("LIST_OBJECTS %1").arg(QString::number(id)));
 
-    m_contextQuery = m_engineClient->queryRootContexts(QDeclarativeDebugEngineReference(id), this);
+    m_contextQuery = m_engineClient->queryRootContexts(QDeclarativeDebugEngineReference(id),
+                                                       m_engineClient);
     if (!m_contextQuery->isWaiting())
         contextChanged();
     else
@@ -468,7 +448,8 @@ void ClientProxy::fetchContextObjectRecursive(const QDeclarativeDebugContextRefe
 
         log(LogSend, QString("FETCH_OBJECT %1").arg(obj.idString()));
 
-        QDeclarativeDebugObjectQuery* query = m_engineClient->queryObjectRecursive(obj, this);
+        QDeclarativeDebugObjectQuery* query
+                = m_engineClient->queryObjectRecursive(obj, m_engineClient);
         if (!query->isWaiting()) {
             query->deleteLater(); //ignore errors;
         } else {
@@ -654,7 +635,7 @@ void ClientProxy::reloadEngines()
 
     log(LogSend, QString("LIST_ENGINES"));
 
-    m_engineQuery = m_engineClient->queryAvailableEngines(this);
+    m_engineQuery = m_engineClient->queryAvailableEngines(m_engineClient);
     if (!m_engineQuery->isWaiting()) {
         updateEngineList();
     } else {

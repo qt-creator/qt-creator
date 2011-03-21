@@ -224,11 +224,8 @@ void QtQuickApp::handleCurrentProFileTemplateLine(const QString &line,
     QTextStream &proFileTemplate, QTextStream &proFile,
     bool &commentOutNextLine) const
 {
-    if (line.contains(QLatin1String("# QMLJSDEBUGGER"))) {
-        // ### disabled for now; figure out the private headers problem first.
-        //commentOutNextLine = true;
-        Q_UNUSED(commentOutNextLine)
-    } else if (line.contains(QLatin1String("# QML_IMPORT_PATH"))) {
+    Q_UNUSED(commentOutNextLine)
+    if (line.contains(QLatin1String("# QML_IMPORT_PATH"))) {
         QString nextLine = proFileTemplate.readLine(); // eats 'QML_IMPORT_PATH ='
         if (!nextLine.startsWith(QLatin1String("QML_IMPORT_PATH =")))
             return;
@@ -243,8 +240,6 @@ void QtQuickApp::handleCurrentProFileTemplateLine(const QString &line,
         }
 
         proFile << endl;
-    } else if (line.contains(QLatin1String("# INCLUDE_DEPLOYMENT_PRI"))) {
-        proFileTemplate.readLine(); // eats 'include(deployment.pri)'
     }
 }
 

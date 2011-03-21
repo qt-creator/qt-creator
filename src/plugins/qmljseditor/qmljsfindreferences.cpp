@@ -363,18 +363,29 @@ private:
 class FindTargetExpression: protected Visitor
 {
 public:
-    FindTargetExpression(Document::Ptr doc)
-        : _doc(doc)
+    FindTargetExpression(Document::Ptr doc, Context *context)
+        : _doc(doc), _context(context)
     {
     }
 
-    QPair<Node *, QString> operator()(quint32 offset)
+    void operator()(quint32 offset)
     {
-        _result = qMakePair((Node *)0, QString());
+        _name = QString::null;
+        _scope = 0;
+        _objectNode = 0;
         _offset = offset;
         if (_doc)
             Node::accept(_doc->ast(), this);
-        return _result;
+    }
+
+    QString name() const
+    { return _name; }
+
+    const ObjectValue *scope()
+    {
+        if (!_scope)
+            _context->lookup(_name, &_scope);
+        return _scope;
     }
 
 protected:
@@ -398,15 +409,15 @@ protected:
     virtual bool visit(IdentifierExpression *node)
     {
         if (containsOffset(node->identifierToken))
-            _result.second = node->name->asString();
+            _name = node->name->asString();
         return true;
     }
 
     virtual bool visit(FieldMemberExpression *node)
     {
         if (containsOffset(node->identifierToken)) {
-            _result.first = node->base;
-            _result.second = node->name->asString();
+            setScope(node->base);
+            _name = node->name->asString();
             return false;
         }
         return true;
@@ -424,13 +435,29 @@ protected:
 
     virtual bool visit(UiObjectBinding *node)
     {
-        return !checkBindingName(node->qualifiedId);
+        if (!checkBindingName(node->qualifiedId)) {
+            Node *oldObjectNode = _objectNode;
+            _objectNode = node;
+            accept(node->initializer);
+            _objectNode = oldObjectNode;
+        }
+        return false;
+    }
+
+    virtual bool visit(UiObjectDefinition *node)
+    {
+        Node *oldObjectNode = _objectNode;
+        _objectNode = node;
+        accept(node->initializer);
+        _objectNode = oldObjectNode;
+        return false;
     }
 
     virtual bool visit(UiPublicMember *node)
     {
         if (containsOffset(node->identifierToken)) {
-            _result.second = node->name->asString();
+            _scope = _doc->bind()->findQmlObject(_objectNode);
+            _name = node->name->asString();
             return false;
         }
         return true;
@@ -444,7 +471,7 @@ protected:
     virtual bool visit(FunctionExpression *node)
     {
         if (containsOffset(node->identifierToken)) {
-            _result.second = node->name->asString();
+            _name = node->name->asString();
             return false;
         }
         return true;
@@ -453,7 +480,7 @@ protected:
     virtual bool visit(VariableDeclaration *node)
     {
         if (containsOffset(node->identifierToken)) {
-            _result.second = node->name->asString();
+            _name = node->name->asString();
             return false;
         }
         return true;
@@ -473,14 +500,26 @@ private:
     bool checkBindingName(UiQualifiedId *id)
     {
         if (id && id->name && !id->next && containsOffset(id->identifierToken)) {
-            _result.second = id->name->asString();
+            _scope = _doc->bind()->findQmlObject(_objectNode);
+            _name = id->name->asString();
             return true;
         }
         return false;
     }
 
-    QPair<Node *, QString> _result;
+    void setScope(Node *node)
+    {
+        Evaluate evaluate(_context);
+        const Value *v = evaluate(node);
+        if (v)
+            _scope = v->asObjectValue();
+    }
+
+    QString _name;
+    const ObjectValue *_scope;
+    Node *_objectNode;
     Document::Ptr _doc;
+    Context *_context;
     quint32 _offset;
 };
 
@@ -593,26 +632,22 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     ScopeAstPath astPath(doc);
     builder.push(astPath(offset));
 
-    FindTargetExpression findTarget(doc);
-    QPair<Node *, QString> target = findTarget(offset);
-    const QString &name = target.second;
+    FindTargetExpression findTarget(doc, &context);
+    findTarget(offset);
+    const QString &name = findTarget.name();
     if (name.isEmpty())
         return;
 
-    const ObjectValue *scope = 0;
-    if (target.first) {
-        Evaluate evaluate(&context);
-        const Value *v = evaluate(target.first);
-        if (v)
-            scope = v->asObjectValue();
-    } else {
-        context.lookup(name, &scope);
-    }
+    const ObjectValue *scope = findTarget.scope();
     if (!scope)
         return;
     scope->lookupMember(name, &context, &scope);
     if (!scope)
         return;
+
+    // report a dummy usage to indicate the search is starting
+    FindReferences::Usage usage;
+    future.reportResult(usage);
 
     QStringList files;
     foreach (const Document::Ptr &doc, snapshot) {
@@ -632,18 +667,11 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
 
 void FindReferences::findUsages(const QString &fileName, quint32 offset)
 {
-    Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchOnly);
-
-    connect(search, SIGNAL(activated(Find::SearchResultItem)),
-            this, SLOT(openEditor(Find::SearchResultItem)));
-
     findAll_helper(fileName, offset);
 }
 
 void FindReferences::findAll_helper(const QString &fileName, quint32 offset)
 {
-    _resultWindow->popup(true);
-
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
 
@@ -651,16 +679,26 @@ void FindReferences::findAll_helper(const QString &fileName, quint32 offset)
                 &find_helper, modelManager->workingCopy(),
                 modelManager->snapshot(), fileName, offset);
     m_watcher.setFuture(result);
-
-    Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
-    Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching"),
-                                                              QmlJSEditor::Constants::TASK_SEARCH);
-
-    connect(progress, SIGNAL(clicked()), _resultWindow, SLOT(popup()));
 }
 
 void FindReferences::displayResults(int first, int last)
 {
+    // the first usage is always a dummy to indicate we now start searching
+    if (first == 0) {
+        Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchOnly);
+        connect(search, SIGNAL(activated(Find::SearchResultItem)),
+                this, SLOT(openEditor(Find::SearchResultItem)));
+        _resultWindow->popup(true);
+
+        Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
+        Core::FutureProgress *progress = progressManager->addTask(
+                    m_watcher.future(), tr("Searching"),
+                    QmlJSEditor::Constants::TASK_SEARCH);
+        connect(progress, SIGNAL(clicked()), _resultWindow, SLOT(popup()));
+
+        ++first;
+    }
+
     for (int index = first; index != last; ++index) {
         Usage result = m_watcher.future().resultAt(index);
         _resultWindow->addResult(result.path,

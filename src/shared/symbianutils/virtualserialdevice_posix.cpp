@@ -68,13 +68,15 @@ bool VirtualSerialDevice::open(OpenMode mode)
 
     d->portHandle = ::open(portName.toAscii().constData(), O_RDWR | O_NONBLOCK | O_NOCTTY);
     if (d->portHandle == -1) {
-        setErrorString(QString("Posix error %1 opening %2").arg(errno).arg(portName));
+        setErrorString(tr("The port %1 could not be opened: %2 (POSIX error %3)").
+                       arg(portName, QString::fromLocal8Bit(strerror(errno))).arg(errno));
         return false;
         }
 
     struct termios termInfo;
     if (tcgetattr(d->portHandle, &termInfo) < 0) {
-        setErrorString(QString::fromLatin1("Unable to retrieve terminal settings: %1 %2").arg(errno).arg(QString::fromAscii(strerror(errno))));
+        setErrorString(tr("Unable to retrieve terminal settings of port %1: %2 (POSIX error %3)").
+                       arg(portName, QString::fromLocal8Bit(strerror(errno))).arg(errno));
         close();
         return false;
     }
@@ -93,7 +95,8 @@ bool VirtualSerialDevice::open(OpenMode mode)
     termInfo.c_cc[VSUSP] = _POSIX_VDISABLE;
 
     if (tcsetattr(d->portHandle, TCSAFLUSH, &termInfo) < 0) {
-        setErrorString(QString::fromLatin1("Unable to apply terminal settings: %1 %2").arg(errno).arg(QString::fromAscii(strerror(errno))));
+        setErrorString(tr("Unable to apply terminal settings to port %1: %2 (POSIX error %3)").
+                       arg(portName, QString::fromLocal8Bit(strerror(errno))).arg(errno));
         close();
         return false;
     }
@@ -189,12 +192,14 @@ bool VirtualSerialDevice::tryWrite(const char *data, qint64 maxSize, qint64& byt
         if (result == -1) {
             if (errno == EAGAIN)
                 return true; // Need to wait
-            setErrorString(QString("Posix error %1 from write to %2").arg(errno).arg(portName));
+            setErrorString(tr("Cannot write to port %1: %2 (POSIX error %3)").
+                           arg(portName, QString::fromLocal8Bit(strerror(errno))).arg(errno));
+
             bytesWritten = -1;
             return false;
         } else {
             if (result == 0)
-                qWarning("Zero bytes written to port!");
+                qWarning("%s: Zero bytes written to port %s!", Q_FUNC_INFO, qPrintable(portName));
             bytesWritten += result;
             maxSize -= result;
             data += result;
@@ -303,7 +308,8 @@ bool VirtualSerialDevice::waitForBytesWritten(int msecs)
             // Timeout
             return false;
         } else if (ret < 0) {
-            setErrorString(QString("Posix error %1 returned from select in waitForBytesWritten").arg(errno));
+            setErrorString(tr("The function select() returned an error on port %1: %2 (POSIX error %3)").
+                           arg(portName, QString::fromLocal8Bit(strerror(errno))).arg(errno));
             return false;
         } else {
             bool needToWait = tryFlushPendingBuffers(locker, StopAfterWritingOneBuffer);

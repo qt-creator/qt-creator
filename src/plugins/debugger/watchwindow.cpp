@@ -147,16 +147,13 @@ private:
 
 WatchWindow::WatchWindow(Type type, QWidget *parent)
   : QTreeView(parent),
-    m_alwaysResizeColumnsToContents(true),
     m_type(type)
 {
     m_grabbing = false;
 
-    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
     setFrameStyle(QFrame::NoFrame);
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setWindowTitle(tr("Locals and Watchers"));
-    setAlternatingRowColors(act->isChecked());
     setIndentation(indentation() * 9/10);
     setUniformRowHeights(true);
     setItemDelegate(new WatchDelegate(this));
@@ -164,12 +161,19 @@ WatchWindow::WatchWindow(Type type, QWidget *parent)
     setAcceptDrops(true);
     setDropIndicatorShown(true);
 
-    connect(act, SIGNAL(toggled(bool)),
-        this, SLOT(setAlternatingRowColorsHelper(bool)));
+    QAction *useColors = debuggerCore()->action(UseAlternatingRowColors);
+    setAlternatingRowColors(useColors->isChecked());
+
+    QAction *adjustColumns = debuggerCore()->action(AlwaysAdjustLocalsColumnWidths);
+
+    connect(useColors, SIGNAL(toggled(bool)),
+        SLOT(setAlternatingRowColorsHelper(bool)));
+    connect(adjustColumns, SIGNAL(triggered(bool)),
+        SLOT(setAlwaysResizeColumnsToContents(bool)));
     connect(this, SIGNAL(expanded(QModelIndex)),
-        this, SLOT(expandNode(QModelIndex)));
+        SLOT(expandNode(QModelIndex)));
     connect(this, SIGNAL(collapsed(QModelIndex)),
-        this, SLOT(collapseNode(QModelIndex)));
+        SLOT(collapseNode(QModelIndex)));
 }
 
 void WatchWindow::expandNode(const QModelIndex &idx)
@@ -187,7 +191,7 @@ void WatchWindow::keyPressEvent(QKeyEvent *ev)
     if (ev->key() == Qt::Key_Delete && m_type == WatchersType) {
         QModelIndex idx = currentIndex();
         QModelIndex idx1 = idx.sibling(idx.row(), 0);
-        QString exp = idx1.data().toString();
+        QString exp = idx1.data(LocalsRawExpressionRole).toString();
         removeWatchExpression(exp);
     } else if (ev->key() == Qt::Key_Return
             && ev->modifiers() == Qt::ControlModifier
@@ -468,12 +472,9 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *actAdjustColumnWidths =
         menu.addAction(tr("Adjust Column Widths to Contents"));
-    QAction *actAlwaysAdjustColumnWidth =
-        menu.addAction(tr("Always Adjust Column Widths to Contents"));
-    actAlwaysAdjustColumnWidth->setCheckable(true);
-    actAlwaysAdjustColumnWidth->setChecked(m_alwaysResizeColumnsToContents);
-
+    menu.addAction(debuggerCore()->action(AlwaysAdjustLocalsColumnWidths));
     menu.addSeparator();
+
     QAction *actClearCodeModelSnapshot
         = new QAction(tr("Refresh Code Model Snapshot"), &menu);
     actClearCodeModelSnapshot->setEnabled(actionsEnabled
@@ -495,8 +496,6 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     if (act == actAdjustColumnWidths) {
         resizeColumnsToContents();
-    } else if (act == actAlwaysAdjustColumnWidth) {
-        setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     } else if (act == actInsertNewWatchItem) {
         watchExpression(QString());
     } else if (act == actOpenMemoryEditAtVariableAddress) {
@@ -566,7 +565,6 @@ void WatchWindow::setAlwaysResizeColumnsToContents(bool on)
 {
     if (!header())
         return;
-    m_alwaysResizeColumnsToContents = on;
     QHeaderView::ResizeMode mode = on
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     header()->setResizeMode(0, mode);
@@ -594,10 +592,13 @@ void WatchWindow::setModel(QAbstractItemModel *model)
     QTreeView::setModel(model);
 
     setRootIsDecorated(true);
-    header()->setDefaultAlignment(Qt::AlignLeft);
-    header()->setResizeMode(QHeaderView::ResizeToContents);
-    if (m_type != LocalsType)
-        header()->hide();
+    if (header()) {
+        setAlwaysResizeColumnsToContents(
+            debuggerCore()->boolSetting(AlwaysAdjustLocalsColumnWidths));
+        header()->setDefaultAlignment(Qt::AlignLeft);
+        if (m_type != LocalsType)
+            header()->hide();
+    }
 
     connect(model, SIGNAL(layoutChanged()), SLOT(resetHelper()));
     connect(model, SIGNAL(enableUpdates(bool)), SLOT(setUpdatesEnabled(bool)));

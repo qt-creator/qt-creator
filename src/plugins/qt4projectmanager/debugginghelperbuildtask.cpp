@@ -81,7 +81,7 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const QtVersion *version, Too
         m_errorMessage =
                 QCoreApplication::translate(
                     "QtVersion",
-                    "The Qt Version has no toolchain.");
+                    "The Qt Version has no tool chain.");
         return;
     }
     ProjectExplorer::ToolChain *tc = tcList.at(0);

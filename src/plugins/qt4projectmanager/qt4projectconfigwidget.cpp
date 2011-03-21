@@ -136,14 +136,14 @@ void Qt4ProjectConfigWidget::updateDetails()
                 .arg(versionString,
                      version ? version->invalidReason() : tr("No Qt Version found.")));
     } else {
-        // Qt Version, Build Directory and Toolchain
+        // Qt Version, Build Directory and tool chain
         m_detailsContainer->setSummaryText(
                 tr("using Qt version: <b>%1</b><br>"
                    "with tool chain <b>%2</b><br>"
                    "building in <b>%3</b>")
                 .arg(versionString,
                      m_buildConfiguration->toolChain() ? m_buildConfiguration->toolChain()->displayName() :
-                                                         tr("<Invalid ToolChain>"),
+                                                         tr("<Invalid tool chain>"),
                      QDir::toNativeSeparators(m_buildConfiguration->buildDirectory())));
     }
 }
@@ -368,7 +368,8 @@ void Qt4ProjectConfigWidget::updateImportLabel()
     if (m_buildConfiguration->shadowBuild())
         buildDirectory = m_buildConfiguration->buildDirectory();
     QList<ProjectExplorer::Task> issues = m_buildConfiguration->qtVersion()->reportIssues(m_buildConfiguration->target()->project()->file()->fileName(),
-                                                                                          buildDirectory);
+                                                                                          buildDirectory,
+                                                                                          true);
 
     if (incompatibleBuild) {
         m_ui->problemLabel->setVisible(true);
@@ -477,11 +478,11 @@ void Qt4ProjectConfigWidget::updateToolChainCombo()
                                          qVariantFromValue(static_cast<void *>(toolchain)));
     m_ignoreChange = true;
     if (!m_buildConfiguration->toolChain() || toolchains.isEmpty()) {
-        m_ui->toolChainComboBox->addItem(tr("<Invalid Toolchain>"), qVariantFromValue(static_cast<void *>(0)));
+        m_ui->toolChainComboBox->addItem(tr("<Invalid tool chain>"), qVariantFromValue(static_cast<void *>(0)));
         m_ui->toolChainComboBox->setCurrentIndex(m_ui->toolChainComboBox->count() - 1);
     } else if (toolchains.contains(m_buildConfiguration->toolChain())) {
         m_ui->toolChainComboBox->setCurrentIndex(toolchains.indexOf(m_buildConfiguration->toolChain()));
-    } else { // reset to some sensible toolchain
+    } else { // reset to some sensible tool chain
         ToolChain *tc = 0;
         if (!toolchains.isEmpty())
             tc = toolchains.at(0);

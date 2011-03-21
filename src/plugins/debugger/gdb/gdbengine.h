@@ -137,6 +137,7 @@ private: ////////// Gdb Process Management //////////
     void handleGdbExit(const GdbResponse &response);
     void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
     void handleRemoteSetupFailed(const QString &message);
+    void handleNamespaceExtraction(const GdbResponse &response);
 
     void handleAdapterStarted();
     void defaultInferiorShutdown(const char *cmd);
@@ -432,6 +433,7 @@ private: ////////// View & Data Stuff //////////
     //void handleFetchDisassemblerByMiRangeMixed(const GdbResponse &response);
     //void handleFetchDisassemblerByMiRangePlain(const GdbResponse &response);
     void handleDisassemblerCheck(const GdbResponse &response);
+    void handleBreakOnQFatal(const GdbResponse &response);
     DisassemblerLines parseDisassembler(const GdbMi &data);
     DisassemblerLines parseCliDisassembler(const GdbMi &lines);
     DisassemblerLines parseMiDisassembler(const GdbMi &lines);
@@ -581,11 +583,13 @@ private: ////////// View & Data Stuff //////////
     void handleSetQmlStepBreakpoint(const GdbResponse &response);
     bool isQmlStepBreakpoint1(int bpnr) const;
     bool isQmlStepBreakpoint2(int bpnr) const;
+    bool isQFatalBreakpoint(int bpnr) const;
 
     // HACK:
     StackFrame m_targetFrame;
     QByteArray m_currentThread;
     QString m_lastWinException;
+    int m_qFatalBreakpointNumber;
 };
 
 } // namespace Internal

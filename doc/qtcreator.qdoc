@@ -263,6 +263,8 @@
 
         \o Mercurial
 
+        \o Bazaar
+
     \endlist
 
     The functions available to you in Qt Creator depend on the version control
@@ -610,6 +612,7 @@
     You can use Qt Creator in the following modes:
 
     \list
+        \o \gui Welcome mode for opening projects.
         \o \gui{\l{Using the Editor}{Edit}} mode for editing project and source files.
         \o \gui{\l{Developing Application UI}{Design}} mode for designing and developing
            application user interfaces. This mode is available for UI files (.ui or
@@ -644,8 +647,7 @@
         \o \gui {Class View} shows the class hierarchy of the currently
             open projects.
         \o \gui Outline shows the symbol hierachy of a C++ file and the element hierarchy of a QML file.
-        \o \gui {Type Hierarchy} shows the base classes of a class. For
-            more information, see \l{Viewing Type Hierarchy}.
+        \o \gui {Type Hierarchy} shows the base classes of a class.
 
     \endlist
 
@@ -722,6 +724,11 @@
            .
 
     \endlist
+
+    \section2 Viewing Type Hierarchy
+
+    To view the base classes of a class, right-click the class and select
+    \gui {Open Type Hierarchy}  or press \key {Ctrl+Shift+T}.
 
     \section1 Viewing Output
 
@@ -1779,11 +1786,6 @@
     To switch between the definition and declaration of a symbol, press \key {Shift+F2}
     or right-click the symbol and select \gui {Switch Between Method Declaration/Definition}.
 
-    \section1 Viewing Type Hierarchy
-
-    To view the base classes of a class, right-click the class and select
-    \gui {Open Type Hierarchy}  or press \key {Ctrl+Shift+T}.
-
     \section1 Using Update Code Model
 
     To refresh the internal information in Qt Creator pertaining to your code,
@@ -1979,8 +1981,7 @@
 
         \o  Select \gui {Tools > External > Configure}.
 
-        \o  Select
-            \inlineimage qtcreator-windows-add.png
+        \o  Select \gui {Add > Add Tool}
             to add a new tool. You can also select \gui {Add Category} to add a
             new category.
 
@@ -2892,17 +2893,17 @@
 
     \list
 
-        \o Qt Quick Projects
+        \o Qt Quick Project
 
         Use QML to define the user interface and,
         optionally, C++ or JavaScript to define the application logic
 
-        \o Qt Widget Projects
+        \o Qt Widget Project
 
         Use \QD forms to define a Qt widget based
         user interface and C++ to define the application logic
 
-        \o Other Projects
+        \o Other Project
 
         \list
 
@@ -2919,6 +2920,12 @@
             \o Subprojects
 
         \endlist
+
+        \o Project from Version Control
+
+        Import a project from a supported version control system. For more
+        information on how version control systems are integrated in
+        Qt Creator, see \l{Using Version Control Systems}.
 
     \endlist
 
@@ -3679,7 +3686,7 @@
            \gui{Qt Versions}.
         \o Qt Creator automatically sets the correct environment variables for
            compilation. Select the internal version number of the installed
-           Microsoft Visual C++ tool chain in the \gui Toolchain list.
+           Microsoft Visual C++ tool chain in the \gui tool chain list.
 
            \image qtcreator-qt4-qtversions-win-msvc.png
 
@@ -3704,12 +3711,12 @@
 
            \image qtcreator-qt4-qtversions-win-symbian.png
         \o To build an application for your device using GCCE, enter the path
-           to the CSL ARM toolchain directory in
+           to the CSL ARM tool chain directory in
            \gui{CSL\\GCCE directory}.
 
            You do not need to specify this path if the compiler is included in
            the \c{PATH} environment variable.
-        \o To build an application for the emulator (WINSCW toolchain), enter
+        \o To build an application for the emulator (WINSCW tool chain), enter
            the path to your Carbide C++ installation directory in
            \gui{Carbide directory}.
 
@@ -3717,7 +3724,7 @@
 
         \o To build an application using the Symbian build system (SBS v2) that
            is available for Symbian OS 9.5 based SDKs, enter the path to the SBS
-           v2 toolchain directory in \gui{SBS v2 directory}.
+           v2 tool chain directory in \gui{SBS v2 directory}.
     \endlist
 
     \section2 Compiling Projects With Linux
@@ -3910,7 +3917,7 @@
 
      \section1 Setting Up a Project
 
-    When you install the \QSDK, the build and run settings for the toolchains
+    When you install the \QSDK, the build and run settings for the tool chains
     delivered with the \QSDK are set up automatically.
 
     To view and modify the settings for currently open projects, switch to the
@@ -4091,7 +4098,7 @@
 
     \endlist
 
-        Qt Creator uses the compiler specified in the MADDE toolchain to
+        Qt Creator uses the compiler specified in the MADDE tool chain to
         build the application.
 
         Qt Creator generates an installation package, installs it on the device,
@@ -6210,29 +6217,33 @@
     Version control systems supported by Qt Creator are:
     \table
         \header
-            \i \bold{Version Control System}
-            \i \bold{Address}
-            \i \bold{Notes}
+            \i Version Control System
+            \i Address
+            \i Notes
         \row
-            \i  \bold{Git}
-            \i  \l{http://git-scm.com/}
-            \i
+            \i  Bazaar
+            \i  \l{http://bazaar.canonical.com/}
+            \i  Qt Creator 2.2 and later
         \row
-            \i  \bold{Subversion}
-            \i  \l{http://subversion.tigris.org/}
-            \i
-        \row
-            \i  \bold{Perforce}
-            \i  \l{http://www.perforce.com}
-            \i  Server version 2006.1 and later
-        \row
-            \i  \bold{CVS}
+            \i  CVS
             \i  \l{http://www.cvshome.org}
             \i
         \row
-            \i  \bold{Mercurial}
+            \i  Git
+            \i  \l{http://git-scm.com/}
+            \i
+        \row
+            \i  Mercurial
             \i  \l{http://mercurial.selenic.com/}
             \i  Qt Creator 2.0 and later
+        \row
+            \i  Perforce
+            \i  \l{http://www.perforce.com}
+            \i  Server version 2006.1 and later
+        \row
+            \i  Subversion
+            \i  \l{http://subversion.apache.org/}
+            \i
     \endtable
 
 
@@ -6297,21 +6308,35 @@
              Reviewed-by:
              Signed-off-by:
              \endcode
-    \endlist
 
     The fields above appear below the submit message. They provide completion
     for the aliases/public user names specified in the
     \e{User/alias configuration file} as well as a button that opens the
     aforementioned user name dialog.
 
+    \o    \gui{SSH prompt command} specifies an ssh-askpass command that you
+          can use (on Linux) to prompt the user for a password when using SSH.
+          For example, \c ssh-askpass or \c x11-ssh-askpass, depending on the
+          ssh-askpass implementation that you use.
+
+    \endlist
+
     \section1 Creating VCS Repositories for New Projects
 
-    Qt Creator allows for creating VCS repositories for version
+    Qt Creator allows you to create repositories for version
     control systems that support local repository creation, such as
-    Git or Mercurial.
+    Git, Mercurial, or Bazaar.
     When creating a new project by selecting \gui File >
     \gui{New File or Project...}, you can choose a version
     control system in the final wizard page.
+
+    You can also select \gui Tools and then select \gui {Create Repository...}
+    in the submenu for the version control system.
+
+    To import a project that is under version control, choose \gui {File >
+    New File or Project... > Project from Version Control} and select the
+    version control system that you use. Follow the instructions of the
+    wizard to import the project.
 
     \section1 Using Version Control Systems
 
@@ -6355,8 +6380,7 @@
     \section2 Viewing Versioning History and Change Details
 
     Display the versioning history of a file by selecting \gui{Log}
-    (for Git and Mercurial) or \gui{Filelog} (for CVS, Perforce, and
-    Subversion). Typically, the log output contains the date, the commit
+    or \gui{Filelog}. Typically, the log output contains the date, the commit
     message, and a change or revision identifier. Click on the identifier to
     display a description of the change including the diff.
     Right-clicking on an identifier brings up a context menu that lets you
@@ -6426,6 +6450,68 @@
 
     \endlist
 
+    \section2 Viewing Status
+
+    You can select \gui{Status...} to view the status of the project or
+    repository.
+
+    \section2 Updating the Working Tree
+
+    You can select \gui Update to update your working tree with the latest
+    changes from the branch. Some version control systems allow you to choose
+    between updating the current project and updating all projects.
+
+    With Git, you stash your changes and then pull the changes from the
+    repository.
+
+    \section2 Deleting Files
+
+    You can select \gui Delete to delete obsolete files from the repository.
+
+    With Git, you delete the files from the working tree and then stage the
+    deleted files for a commit.
+
+    \section2 Using Additional Bazaar Functions
+
+    Bazaar is a free version control system sponsored by Canonical.
+
+    The \gui Bazaar submenu contains the following additional items:
+
+    \table
+        \header
+            \o  Menu Item
+            \o  Description
+        \row
+            \i  \gui{Pull...}
+            \i  Turn the branch into a mirror of another branch.
+        \row
+            \i  \gui{Push...}
+            \i  Update a mirror of the branch.
+
+    \endtable
+
+    \section2 Using Additional CVS Functions
+
+    CVS is an open source version control system.
+
+    The \gui CVS submenu contains the following additional items:
+
+    \table
+        \header
+            \o  Menu Item
+            \o  Description
+        \row
+            \i  \gui{Edit}
+            \i  Open a file for editing.
+        \row
+            \i  \gui{Push...}
+            \i  Push changes to the remote repository.
+        \row
+            \i  \gui{Unedit}
+            \i  Discard the changes that you made in a file.
+
+    \endtable
+
     \section2 Using Additional Git Functions
 
     Git is a fast decentralized version control system. Git is available
@@ -6434,7 +6520,9 @@
     The \gui Git submenu contains the following additional items:
 
     \table
-
+        \header
+            \o  Menu Item
+            \o  Description
         \row
             \i  \gui {Patch > Apply from Editor/Apply from File...}
             \i  Patches are rewriting instructions that can be applied to a set of files.
@@ -6453,6 +6541,9 @@
                 of patches and project files) are displayed in the \gui {Clean Repository}
                 dialog. Select the files to delete and click \gui Delete. This allows you to
                 clean a build completely.
+        \row
+            \i  \gui{Launch gitk}
+            \i  Start the commit viewer for Git, gitk.
 
         \row
             \i  \gui{Branches...}
@@ -6472,6 +6563,10 @@
             \i  \gui{Show Commit...}
             \i  Select a commit to view. Enter the SHA of the commit
                 in the \gui Change field.
+        \row
+            \i  \gui{Amend Last Commit...}
+            \i  Revert the last commit.
+
     \endtable
 
     \section3 Using Stashes
@@ -6483,6 +6578,9 @@
     Qt Creator exposes this functionality in the \gui{Tools > Git > Stash} menu.
 
     \table
+        \header
+            \o  Menu Item
+            \o  Description
         \row
             \i  \gui{Stashes...}
             \i  Display a dialog that shows all known stashes with options to restore,
@@ -6506,9 +6604,14 @@
 
     \section2 Using Additional Mercurial Functionality
 
+    Mercurial is a free, distributed source control management tool.
+
     The \gui Mercurial submenu contains the following additional items:
 
     \table
+        \header
+            \o  Menu Item
+            \o  Description
         \row
             \i  \gui{Import}
             \i  Apply changes from a patch file.
@@ -6524,11 +6627,14 @@
             \i  \gui{Pull}
             \i  Pull changes from the remote repository.
         \row
-            \i  \gui{Update}
-            \i  Look at an earlier version of the code.
-    \endtable
+            \i  \gui{Push}
+            \i  Push changes to the remote repository.
+     \endtable
 
     \section2 Using Additional Perforce Functions
+
+    Perforce is a fast software configuration management system developed by
+    Perforce Software.
 
     When you start Qt Creator, it looks for the executable specified
     in the \gui{P4 command} field in \gui{Tools > Options... > Version
@@ -6547,6 +6653,9 @@
     The \gui Perforce submenu contains the following additional items:
 
     \table
+        \header
+            \o  Menu Item
+            \o  Description
         \row
             \i  \gui{Describe...}
             \i  View information about changelists and the files in them.
@@ -6559,27 +6668,22 @@
         \row
             \i  \gui{Pending Changes...}
             \i  Group files for commit.
-        \row
-            \i  \gui{Update All/Update Current Project}
-            \i  Fetch the current version of the current project or all
-            projects from the repository.
-
     \endtable
 
     \section2 Using Additional Subversion Functions
 
+    Subversion is an open source version control system.
+
     The \gui Subversion submenu contains the following additional items:
 
     \table
+        \header
+            \o  Menu Item
+            \o  Description
         \row
             \i  \gui{Describe...}
             \i  Display commit log messages for a revision.
-        \row
-            \i  \gui{Update Project/Update Repository}
-            \i  Update your working copy.
     \endtable
-
-
 
 */
 
@@ -7285,7 +7389,7 @@
         \o Retrieves the contents of local variables.
         \o Examines \gui Watchers.
         \o Updates the \gui Registers, \gui Modules, and \gui Disassembler
-           views if you are debugging the C++ language.
+           views if you are debugging the C++ based applications.
     \endlist
 
     You can use the \gui Debug mode views to examine the data in more detail.
@@ -7294,10 +7398,12 @@
 
     \list
 
-       \o To finish debugging, press \key{Shift+F5}.
+       \o  To finish debugging, press \key{Shift+F5}.
        \o  To execute a line of code as a whole, press \key{F10}.
        \o  To step into a function or a subfunction, press \key{F11}.
        \o  To continue running the program, press \key{F5}.
+       \o  To run to the selected function when you are stepping into a nested
+           function, press \key{Ctrl+F6}.
 
     \endlist
 
@@ -7318,21 +7424,35 @@
 
     \image qtcreator-debug-breakpoints.png "Breakpoints view"
 
-    Typically, breakpoints are associated with a source code file and line, or
-    the start of a function -- both are allowed in Qt Creator.
+    You can associate breakpoints with:
+
+    \list
+
+        \o  Source code files and lines
+
+        \o  Functions
+
+        \o  Addresses
+
+        \o  Throwing and catching exceptions
+
+        \o  Some system calls, such as \c fork(), \c vfork(), and \c exec()
+
+    \endlist
+
+    You can also set watchpoints to monitor the changes in a block of memory
+    at a particular address when a program is running.
 
     The interruption of a program by a breakpoint can be restricted with
     certain conditions.
 
-    To set a breakpoint:
+    To set a breakpoint at a particular line you want the program to stop,
+    click the left margin or press \key F9 (\key F8 for Mac OS X).
 
-    \list
-       \o At a particular line you want the program to stop, click the
-          left margin or press \key F9 (\key F8 for Mac OS X).
-       \o At a function that you want the program to interrupt, enter the
-          function's name in \gui{Set Breakpoint at Function...} located in the
-          context menu of the \gui{Breakpoints} view.
-    \endlist
+    To set breakpoints and watchpoints select \gui {Add Breakpoint...} in
+    the context menu in the \gui Breakpoints view.
+
+    \image qtcreator-add-breakpoint.png "Add Breakpoints" dialog
 
     \note You can remove a breakpoint:
     \list
@@ -7346,6 +7466,28 @@
     You can set and delete breakpoints before the program starts running or
     while it is running under the debugger's control. Breakpoints are saved
     together with a session.
+
+    \section2 Setting Watchpoints
+
+    To set a watchpoint at an address:
+
+    \list 1
+
+        \o  Right-click in the \gui Breakpoints view to open the context menu,
+            and select \gui {Add Breakpoint...}.
+
+        \o  In the \gui {Breakpoint type} field, select \gui {Address
+            (Watchpoint)}.
+
+        \o  In the \gui Address field, specify the address of the memory block.
+
+        \o  Select \gui OK.
+
+    \endlist
+
+    If the address is displayed in the \gui {Locals and Watchers} view, you can
+    select \gui {Add Watchpoint at Object's Address} in the context menu to set
+    the watchpoint.
 
     \section1 Viewing Call Stack Trace
 
@@ -7436,7 +7578,22 @@
 
     \note The set of watched items is saved in your session.
 
-    \section1 Debugging the C++ Language
+    \section1 Directly Interacting with Native Debuggers
+
+    In some cases, it is convenient to directly interact with the command
+    line of the native debugger. In Qt Creator, you can use the left
+    pane of the \gui {Debugger Log} view for that purpose. When you press
+    \key {Ctrl+Return}, the contents of the line under the text cursor
+    are sent directly to the native debugger. Alternatively, you
+    can use the line edit at the bottom of the view. Output is displayed in the
+    right pane of the \gui {Debugger Log} view.
+
+    \note Usually, you do not need this feature, because Qt Creator provides
+    you with better ways to handle the task. For example, instead of using the
+    gdb \c print command from the command line, you can create a watcher item
+    in the \gui{Locals and Watchers} view and examine the expression there.
+
+    \section1 Debugging C++ Based Applications
 
     The following sections describe additional debugging functions that apply
     only to debugging C++.
@@ -7996,7 +8153,7 @@
     workspaces that you can use in the compiler environment of your choice.
 
     Since Qt Creator 1.1, CMake configuration files are supported.
-    Qt Creator 1.3 supports the Microsoft Toolchain if the CMake version
+    Qt Creator 1.3 supports the Microsoft tool chain if the CMake version
     is at least 2.8.
 
     \section1 Setting the Path for CMake
@@ -10238,6 +10395,9 @@
         \row
             \o Toggle breakpoint
             \o F9
+        \row
+            \o Run to selected function
+            \o Ctrl+F6
     \endtable
 
 
@@ -10561,6 +10721,18 @@
         \o Setting breakpoints in files that do not have unique absolute
            paths may fail. For example, remounting parts of a file system
            using the --bind mount option.
+
+        \o You must use a workaround to use the DYLD_IMAGE_SUFFIX option in the
+           \gui Projects tab on Mac OS X  Snow Leopard. For more information on
+           the issue, see
+           \l{http://wimleers.com/blog/dyld-image-suffix-causing-havoc-on-mac-os-x-snow-leopard}{DYLD_IMAGE_SUFFIX causing havoc on Mac OS X Snow Leopard}.
+
+           To use the option, enter the following commands in the Terminal
+           application:
+           \code
+           sudo mv /usr/lib/libSystem.B_debug.dylib /usr/lib/libSystem.B_debug.dylib.backup
+           sudo cp /usr/lib/libSystem.B.dylib /usr/lib/libSystem.B_debug.dylib.backup
+           \endcode
 
     \endlist
 

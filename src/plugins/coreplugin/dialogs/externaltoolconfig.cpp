@@ -311,7 +311,7 @@ void ExternalToolModel::revertTool(const QModelIndex &modelIndex)
 
 QModelIndex ExternalToolModel::addCategory()
 {
-    const QString &categoryBase = tr("New category");
+    const QString &categoryBase = tr("New Category");
     QString category = categoryBase;
     int count = 0;
     while (m_tools.contains(category)) {
@@ -337,7 +337,7 @@ QModelIndex ExternalToolModel::addTool(const QModelIndex &atIndex)
 
     ExternalTool *tool = new ExternalTool;
     tool->setDisplayCategory(category);
-    tool->setDisplayName(tr("New tool"));
+    tool->setDisplayName(tr("New Tool"));
     tool->setDescription(tr("This tool prints a line of useful text"));
 #ifdef Q_OS_WIN
     tool->setExecutables(QStringList() << "cmd");

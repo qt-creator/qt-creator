@@ -57,6 +57,7 @@ public:
     explicit ContextPaneWidgetRectangle(QWidget *parent = 0);
     ~ContextPaneWidgetRectangle();
     void setProperties(QmlJS::PropertyReader *propertyReader);
+    void enabableGradientEditing(bool);
 
 public slots:
     void onBorderColorButtonToggled(bool);
@@ -82,12 +83,15 @@ protected:
 
 private:
     void setColor();
+    bool isGradientEditingEnabled() const
+    { return m_enableGradientEditing; }
     Ui::ContextPaneWidgetRectangle *ui;
     bool m_hasBorder;
     bool m_hasGradient;
     bool m_none;
     bool m_gradientLineDoubleClicked;
     int m_gradientTimer;
+    bool m_enableGradientEditing;
 };
 
 } //QmlDesigner

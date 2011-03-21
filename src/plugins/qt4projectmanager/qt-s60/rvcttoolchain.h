@@ -159,7 +159,7 @@ class RvctToolChainFactory : public ProjectExplorer::ToolChainFactory
     Q_OBJECT
 
 public:
-    // Name used to display the name of the toolchain that will be created.
+    // Name used to display the name of the tool chain that will be created.
     QString displayName() const;
     QString id() const;
 
@@ -168,7 +168,7 @@ public:
     bool canCreate();
     ProjectExplorer::ToolChain *create();
 
-    // Used by the ToolChainManager to restore user-generated ToolChains
+    // Used by the ToolChainManager to restore user-generated tool chains
     bool canRestore(const QVariantMap &data);
     ProjectExplorer::ToolChain *restore(const QVariantMap &data);
 };

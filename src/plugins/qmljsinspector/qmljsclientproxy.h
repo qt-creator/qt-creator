@@ -67,7 +67,7 @@ public:
 
     bool setMethodBodyForObject(int objectDebugId, const QString &methodName, const QString &methodBody);
     bool resetBindingForObject(int objectDebugId, const QString &propertyName);
-    QDeclarativeDebugExpressionQuery *queryExpressionResult(int objectDebugId, const QString &expr, QObject *parent=0);
+    QDeclarativeDebugExpressionQuery *queryExpressionResult(int objectDebugId, const QString &expr);
     void clearComponentCache();
 
     bool addObjectWatch(int objectDebugId);
@@ -133,7 +133,6 @@ public slots:
     void setContextPathIndex(int contextIndex);
 
 private slots:
-    void disconnectFromServer();
     void connectToServer();
     void clientStatusChanged(QDeclarativeDebugClient::Status status);
 

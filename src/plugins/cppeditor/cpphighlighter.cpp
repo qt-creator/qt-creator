@@ -90,7 +90,8 @@ void CppHighlighter::highlightBlock(const QString &text)
     Parentheses parentheses;
     parentheses.reserve(20); // assume wizard level ;-)
 
-    bool highlightAsPreprocessor = false;
+    bool expectPreprocessorKeyword = false;
+    bool onlyHighlightComments = false;
 
     for (int i = 0; i < tokens.size(); ++i) {
         const Token &tk = tokens.at(i);
@@ -135,20 +136,28 @@ void CppHighlighter::highlightBlock(const QString &text)
             }
         }
 
-        bool highlightCurrentWordAsPreprocessor = highlightAsPreprocessor;
+        bool highlightCurrentWordAsPreprocessor = expectPreprocessorKeyword;
 
-        if (highlightAsPreprocessor)
-            highlightAsPreprocessor = false;
+        if (expectPreprocessorKeyword)
+            expectPreprocessorKeyword = false;
+
+        if (onlyHighlightComments && !tk.isComment())
+            continue;
 
         if (i == 0 && tk.is(T_POUND)) {
             highlightLine(text, tk.begin(), tk.length(), m_formats[CppPreprocessorFormat]);
-            highlightAsPreprocessor = true;
-
+            expectPreprocessorKeyword = true;
         } else if (highlightCurrentWordAsPreprocessor &&
-                   (tk.isKeyword() || tk.is(T_IDENTIFIER)) && isPPKeyword(text.midRef(tk.begin(), tk.length())))
+                   (tk.isKeyword() || tk.is(T_IDENTIFIER)) && isPPKeyword(text.midRef(tk.begin(), tk.length()))) {
             setFormat(tk.begin(), tk.length(), m_formats[CppPreprocessorFormat]);
+            const QStringRef ppKeyword = text.midRef(tk.begin(), tk.length());
+            if (ppKeyword == QLatin1String("error")
+                    || ppKeyword == QLatin1String("warning")
+                    || ppKeyword == QLatin1String("pragma")) {
+                onlyHighlightComments = true;
+            }
 
-        else if (tk.is(T_NUMERIC_LITERAL))
+        } else if (tk.is(T_NUMERIC_LITERAL))
             setFormat(tk.begin(), tk.length(), m_formats[CppNumberFormat]);
 
         else if (tk.is(T_STRING_LITERAL) || tk.is(T_CHAR_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL) ||

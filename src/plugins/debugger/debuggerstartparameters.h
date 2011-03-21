@@ -96,6 +96,7 @@ public:
     QString projectBuildDir;
     QString projectDir;
 
+    QString qtInstallPath;
     // Used by remote debugging.
     QString remoteChannel;
     QString remoteArchitecture;

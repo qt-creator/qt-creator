@@ -116,7 +116,7 @@
       <item row="1" column="1">
        <widget class="Utils::PathChooser" name="executable">
         <property name="expectedKind">
-         <enum>Utils::PathChooser::ExistingCommand</enum>
+         <enum>Utils::PathChooser::Command</enum>
         </property>
        </widget>
       </item>
@@ -138,7 +138,11 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="Utils::PathChooser" name="workingDirectory"/>
+       <widget class="Utils::PathChooser" name="workingDirectory">
+        <property name="expectedKind">
+         <enum>Utils::PathChooser::Directory</enum>
+        </property>
+       </widget>
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="outputLabel">
@@ -162,12 +166,12 @@
         </item>
         <item>
          <property name="text">
-          <string>Show in pane</string>
+          <string>Show in Pane</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Replace selection</string>
+          <string>Replace Selection</string>
          </property>
         </item>
        </widget>
@@ -196,12 +200,12 @@
         </item>
         <item>
          <property name="text">
-          <string>Show in pane</string>
+          <string>Show in Pane</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Replace selection</string>
+          <string>Replace Selection</string>
          </property>
         </item>
        </widget>

@@ -64,6 +64,7 @@
 #include <utils/fancymainwindow.h>
 #include <utils/qtcprocess.h>
 #include <coreplugin/icore.h>
+#include <utils/buildablehelperlibrary.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
@@ -325,7 +326,7 @@ RunConfiguration *DebuggerRunControl::runConfiguration() const
 
 ////////////////////////////////////////////////////////////////////////
 //
-// Engine detection logic: Detection functions depending on toolchain, binary,
+// Engine detection logic: Detection functions depending on tool chain, binary,
 // etc. Return a list of possible engines (order of prefererence) without
 // consideration of configuration, etc.
 //
@@ -684,6 +685,11 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     sp.dumperLibraryLocations = rc->dumperLibraryLocations();
 
     if (const ProjectExplorer::Target *target = runConfiguration->target()) {
+        if (QByteArray(target->metaObject()->className()).contains("Qt4")) {
+            const QString qmake = Utils::BuildableHelperLibrary::findSystemQt(sp.environment);
+            if (!qmake.isEmpty())
+                sp.qtInstallPath = findQtInstallPath(qmake);
+        }
         if (const ProjectExplorer::Project *project = target->project()) {
               sp.projectDir = project->projectDirectory();
               if (const ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration()) {

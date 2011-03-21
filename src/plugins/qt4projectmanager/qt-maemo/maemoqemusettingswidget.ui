@@ -23,14 +23,14 @@
       <item>
        <widget class="QRadioButton" name="hardwareAccelerationButton">
         <property name="text">
-         <string>&amp;Hardware Acceleration</string>
+         <string>&amp;Hardware acceleration</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QRadioButton" name="softwareRenderingButton">
         <property name="text">
-         <string>&amp;Software Rendering</string>
+         <string>&amp;Software rendering</string>
         </property>
        </widget>
       </item>

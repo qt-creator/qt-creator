@@ -280,6 +280,8 @@ QByteArray AbstractMobileApp::generateProFile(QString *errorMessage) const
             }
             if (foldersCount > 0)
                 out << "DEPLOYMENTFOLDERS = " << folders.join(QLatin1String(" ")) << endl;
+        } else if (line.contains(QLatin1String("# INCLUDE_DEPLOYMENT_PRI"))) {
+            in.readLine(); // eats 'include(deployment.pri)'
         } else {
             handleCurrentProFileTemplateLine(line, in, out, commentOutNextLine);
         }

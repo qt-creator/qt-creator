@@ -15,4 +15,7 @@
     <qresource prefix="/icon/selection">
         <file>selectonlycontentitems.png</file>
     </qresource>
+    <qresource prefix="/icon">
+        <file>reset.png</file>
+    </qresource>
 </RCC>

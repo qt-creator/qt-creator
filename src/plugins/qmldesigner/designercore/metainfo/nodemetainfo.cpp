@@ -339,9 +339,14 @@ public:
 
     static Pointer create(Model *model, const QString &type, int maj = -1, int min = -1);
 
-     QSet<QString> prototypeCache()
+     QSet<QString> &prototypeCachePositives()
      {
-         return m_prototypeCache;
+         return m_prototypeCachePositives;
+     }
+
+     QSet<QString> &prototypeCacheNegatives()
+     {
+         return m_prototypeCacheNegatives;
      }
 
      static void clearCache()
@@ -370,7 +375,8 @@ private:
     QStringList m_localProperties;
     QString m_defaultPropertyName;
     QList<TypeDescription> m_prototypes;
-    QSet<QString> m_prototypeCache;
+    QSet<QString> m_prototypeCachePositives;
+    QSet<QString> m_prototypeCacheNegatives;
 
     //storing the pointer would not be save
     QmlJS::LookupContext *lookupContext() const;
@@ -1014,16 +1020,20 @@ bool NodeMetaInfo::isSubclassOf(const QString &type, int majorVersion, int minor
         && availableInVersion(majorVersion, minorVersion))
         return true;
 
-    if (m_privateData->prototypeCache().contains(Internal::stringIdentifier(type, majorVersion, minorVersion)))
+    if (m_privateData->prototypeCachePositives().contains(Internal::stringIdentifier(type, majorVersion, minorVersion)))
         return true; //take a shortcut - optimization
+
+    if (m_privateData->prototypeCacheNegatives().contains(Internal::stringIdentifier(type, majorVersion, minorVersion)))
+        return false; //take a shortcut - optimization
 
     foreach (const NodeMetaInfo &superClass, superClasses()) {
         if (superClass.m_privateData->cleverCheckType(type)
             && superClass.availableInVersion(majorVersion, minorVersion)) {
-                m_privateData->prototypeCache().insert(Internal::stringIdentifier(type, majorVersion, minorVersion));
+                m_privateData->prototypeCachePositives().insert(Internal::stringIdentifier(type, majorVersion, minorVersion));
             return true;
         }
     }
+    m_privateData->prototypeCacheNegatives().insert(Internal::stringIdentifier(type, majorVersion, minorVersion));
     return false;
 }
 

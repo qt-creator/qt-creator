@@ -109,6 +109,7 @@ private slots:
     void debuggingHelperBuildFinished(int qtVersionId, DebuggingHelperBuildTask::Tools tools, const QString &output);
 
 private:
+    void updateDescriptionLabel();
     void showDebuggingBuildLog(const QTreeWidgetItem *currentItem);
 };
 

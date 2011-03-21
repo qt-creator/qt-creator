@@ -230,10 +230,11 @@ void PasteBinDotComProtocol::list()
     QTC_ASSERT(!m_listReply, return;)
 
     // fire request
-    m_listReply = httpGet(QLatin1String("http://") + hostName(true));
+    const QString url = QLatin1String("http://") + hostName(true) + QLatin1String("/archive");
+    m_listReply = httpGet(url);
     connect(m_listReply, SIGNAL(finished()), this, SLOT(listFinished()));
     if (debug)
-        qDebug() << "list: sending " << m_listReply;
+        qDebug() << "list: sending " << url << m_listReply;
 }
 
 static inline void padString(QString *s, int len)
@@ -243,85 +244,186 @@ static inline void padString(QString *s, int len)
         s->append(QString(missing, QLatin1Char(' ')));
 }
 
-/* Quick & dirty: Parse the <div>-elements with the "Recent Posts" listing
- * out of the page.
+/* Quick & dirty: Parse out the 'archive' table as of 16.3.2011:
 \code
-<div class="content_left_title">Recent Posts</div>
-    <div class="content_left_box">
-        <div class="clb_top"><a href="http://pastebin.com/id">User</a></div>
-        <div class="clb_bottom"><span>Title</div>
+ <table class="maintable" cellspacing="0">
+   <tr class="top">
+    <th scope="col" align="left">Name / Title</th>
+    <th scope="col" align="left">Posted</th>
+    <th scope="col" align="left">Expires</th>
+    <th scope="col" align="left">Size</th>
+    <th scope="col" align="left">Syntax</th>
+    <th scope="col" align="left">User</th>
+   </tr>
+   <tr class="g">
+    <td class="icon"><a href="/8ZRqkcaP">Untitled</a></td>
+    <td>2 sec ago</td>
+    <td>Never</td>
+    <td>9.41 KB</td>
+    <td><a href="/archive/text">None</a></td>
+    <td>a guest</td>
+   </tr>
+   <tr>
 \endcode */
+
+enum ParseState
+{
+    OutSideTable, WithinTable, WithinTableRow, WithinTableHeaderElement,
+    WithinTableElement, WithinTableElementAnchor, ParseError
+};
+
+static inline ParseState nextOpeningState(ParseState current, const QStringRef &element)
+{
+    switch (current) {
+    case OutSideTable:
+        if (element == QLatin1String("table"))
+            return WithinTable;
+        return OutSideTable;
+    case WithinTable:
+        if (element == QLatin1String("tr"))
+            return WithinTableRow;
+        break;
+    case WithinTableRow:
+        if (element == QLatin1String("td"))
+            return WithinTableElement;
+        if (element == QLatin1String("th"))
+            return WithinTableHeaderElement;
+        break;
+    case WithinTableElement:
+        if (element == QLatin1String("a"))
+            return WithinTableElementAnchor;
+        break;
+    case WithinTableHeaderElement:
+    case WithinTableElementAnchor:
+    case ParseError:
+        break;
+    }
+    return ParseError;
+}
+
+static inline ParseState nextClosingState(ParseState current, const QStringRef &element)
+{
+    switch (current) {
+    case OutSideTable:
+        return OutSideTable;
+    case WithinTable:
+        if (element == QLatin1String("table"))
+            return OutSideTable;
+        break;
+    case WithinTableRow:
+        if (element == QLatin1String("tr"))
+            return WithinTable;
+        break;
+    case WithinTableElement:
+        if (element == QLatin1String("td"))
+            return WithinTableRow;
+        break;
+    case WithinTableHeaderElement:
+        if (element == QLatin1String("th"))
+            return WithinTableRow;
+        break;
+    case WithinTableElementAnchor:
+        if (element == QLatin1String("a"))
+            return WithinTableElement;
+        break;
+    case ParseError:
+        break;
+    }
+    return ParseError;
+}
 
 static inline QStringList parseLists(QIODevice *io)
 {
-    enum State { OutsideRecentPostList, InsideRecentPostList,
-                 InsideRecentPostBox, InsideRecentPost };
+    enum { maxEntries = 200 }; // Limit the archive, which can grow quite large.
 
     QStringList rc;
     QXmlStreamReader reader(io);
+    ParseState state = OutSideTable;
+    int tableRow = 0;
+    int tableColumn = 0;
 
-    const QString classAttribute = QLatin1String("class");
-    const QString divElement = QLatin1String("div");
-    const QString anchorElement = QLatin1String("a");
-    const QString spanElement = QLatin1String("span");
-    State state = OutsideRecentPostList;
+    const QString hrefAttribute = QLatin1String("href");
+
+    QString link;
+    QString user;
+    QString description;
+
     while (!reader.atEnd()) {
         switch(reader.readNext()) {
         case QXmlStreamReader::StartElement:
-            // Inside a <div> of an entry: Anchor or description
-            if (state == InsideRecentPost) {
-                if (reader.name() == anchorElement) { // Anchor
-                    // Strip host from link
-                    QString link = reader.attributes().value(QLatin1String("href")).toString();
-                    const int slashPos = link.lastIndexOf(QLatin1Char('/'));
-                    if (slashPos != -1)
-                        link.remove(0, slashPos + 1);
-                    const QString user = reader.readElementText();
-                    rc.push_back(link + QLatin1Char(' ') + user);
-                } else if (reader.name() == spanElement) { // <span> with description
-                    const QString description = reader.readElementText();
-                    QTC_ASSERT(!rc.isEmpty(), return rc; )
-                    padString(&rc.back(), 25);
-                    rc.back() += QLatin1Char(' ');
-                    rc.back() += description;
+            state = nextOpeningState(state, reader.name());
+            switch (state) {
+            case WithinTableRow:
+                tableColumn = 0;
+                break;
+            case OutSideTable:
+            case WithinTable:
+            case WithinTableHeaderElement:
+            case WithinTableElement:
+                break;
+            case WithinTableElementAnchor: // 'href="/svb5K8wS"'
+                if (tableColumn == 0) {
+                    link = reader.attributes().value(hrefAttribute).toString();
+                    if (link.startsWith(QLatin1Char('/')))
+                        link.remove(0, 1);
                 }
-            } else if (reader.name() == divElement) { // "<div>" state switching
-                switch (state) {
-                // Check on the contents as there are several lists.
-                case OutsideRecentPostList:
-                    if (reader.attributes().value(classAttribute) == QLatin1String("content_left_title")
-                            && reader.readElementText() == QLatin1String("Recent Posts"))
-                        state = InsideRecentPostList;
-                    break;
-                case InsideRecentPostList:
-                    if (reader.attributes().value(classAttribute) == QLatin1String("content_left_box"))
-                        state = InsideRecentPostBox;
-                    break;
-                case InsideRecentPostBox:
-                    state = InsideRecentPost;
-                    break;
-                default:
-                    break;
-                }
-            } // divElement
+                break;
+            case ParseError:
+                return rc;
+            } // switch startelement state
             break;
         case QXmlStreamReader::EndElement:
-            if (reader.name() == divElement) {
-                switch (state) {
-                case InsideRecentPost:
-                    state = InsideRecentPostBox;
-                    break;
-                case InsideRecentPostBox: // Stop parsing  when leaving the box.
+            state = nextClosingState(state, reader.name());
+            switch (state) {
+            case OutSideTable:
+                if (tableRow) // Seen the table, bye.
                     return rc;
-                    break;
-                default:
-                    break;
+                break;
+            case WithinTable:
+                if (tableRow && !user.isEmpty() && !link.isEmpty() && !description.isEmpty()) {
+                    QString entry = link;
+                    entry += QLatin1Char(' ');
+                    entry += user;
+                    entry += QLatin1Char(' ');
+                    entry += description;
+                    rc.push_back(entry);
+                    if (rc.size() >= maxEntries)
+                        return rc;
                 }
-            }
+                tableRow++;
+                user.clear();
+                link.clear();
+                description.clear();
+                break;
+            case WithinTableRow:
+                tableColumn++;
+                break;
+            case WithinTableHeaderElement:
+            case WithinTableElement:
+            case WithinTableElementAnchor:
+                break;
+            case ParseError:
+                return rc;
+            } // switch endelement state
+            break;
+        case QXmlStreamReader::Characters:
+            switch (state) {
+                break;
+            case WithinTableElement:
+                if (tableColumn == 5)
+                    user = reader.text().toString();
+                break;
+            case WithinTableElementAnchor:
+                if (tableColumn == 0)
+                    description = reader.text().toString();
+                break;
+            default:
+                break;
+            } // switch characters read state
             break;
        default:
             break;
-        }
+        } // switch reader state
     }
     return rc;
 }

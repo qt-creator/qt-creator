@@ -40,6 +40,7 @@
 #include <QtDebug>
 #include <QGraphicsSceneDragDropEvent>
 #include <nodemetainfo.h>
+#include <nodeproperty.h>
 
 namespace QmlDesigner {
 
@@ -194,6 +195,14 @@ void AbstractFormEditorTool::dragMoveEvent(QGraphicsSceneDragDropEvent * /* even
     Q_ASSERT(false);
 }
 
+static inline bool checkIfNodeIsAView(const ModelNode &node)
+{
+    return node.metaInfo().isValid() &&
+            (node.metaInfo().isSubclassOf("QtQuick.ListView", -1, -1) ||
+             node.metaInfo().isSubclassOf("QtQuick.GridView", -1, -1) ||
+             node.metaInfo().isSubclassOf("QtQuick.PathView", -1, -1));
+}
+
 void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event)
 {
     FormEditorItem *formEditorItem = topFormEditorItem(itemList);
@@ -201,6 +210,11 @@ void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &
         ModelNode doubleClickNode = formEditorItem->qmlItemNode().modelNode();
         if (doubleClickNode.metaInfo().isComponent()) {
             Core::EditorManager::instance()->openEditor(doubleClickNode.metaInfo().componentFileName());
+            event->accept();
+        } else if (checkIfNodeIsAView(doubleClickNode) &&
+                   doubleClickNode.hasNodeProperty("delegate") &&
+                   doubleClickNode.nodeProperty("delegate").modelNode().metaInfo().isComponent()) {
+            Core::EditorManager::instance()->openEditor(doubleClickNode.nodeProperty("delegate").modelNode().metaInfo().componentFileName());
             event->accept();
         }
     }

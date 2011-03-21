@@ -61,6 +61,7 @@ NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &
 void NodeInstanceMetaObject::createNewProperty(const QString &name)
 {
     int id = createProperty(name.toLatin1(), 0);
+    setValue(id, QVariant());
     Q_ASSERT(id >= 0);
     Q_UNUSED(id)
 }

@@ -496,6 +496,12 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node, const QString
     }
 }
 
+void NodeInstanceView::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &, const QList<QVariant> &)
+{
+    if (view && identifier == QLatin1String("reset QmlPuppet"))
+        restartProcess();
+}
+
 void NodeInstanceView::rewriterBeginTransaction()
 {
 

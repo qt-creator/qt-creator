@@ -541,17 +541,15 @@ bool QDeclarativeViewObserver::showAppOnTop() const
 void QDeclarativeViewObserver::setShowAppOnTop(bool appOnTop)
 {
     if (data->view) {
-        QWidget *rootWidget = data->view;
-        while (rootWidget->parentWidget())
-            rootWidget = rootWidget->parentWidget();
-        Qt::WindowFlags flags = rootWidget->windowFlags();
+        QWidget *window = data->view->window();
+        Qt::WindowFlags flags = window->windowFlags();
         if (appOnTop)
             flags |= Qt::WindowStaysOnTopHint;
         else
             flags &= ~Qt::WindowStaysOnTopHint;
 
-        rootWidget->setWindowFlags(flags);
-        rootWidget->show();
+        window->setWindowFlags(flags);
+        window->show();
     }
 
     data->showAppOnTop = appOnTop;

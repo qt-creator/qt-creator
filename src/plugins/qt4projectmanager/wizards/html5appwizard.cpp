@@ -54,19 +54,19 @@ public:
     explicit Html5AppWizardDialog(QWidget *parent = 0);
 
 private:
-    class Html5AppWizardSourcesPage *m_htmlSourcesPage;
+    class Html5AppWizardOptionsPage *m_htmlOptionsPage;
     friend class Html5AppWizard;
 };
 
 Html5AppWizardDialog::Html5AppWizardDialog(QWidget *parent)
     : AbstractMobileAppWizardDialog(parent)
-    , m_htmlSourcesPage(0)
+    , m_htmlOptionsPage(0)
 {
     setWindowTitle(tr("New HTML5 Application"));
     setIntroDescription(tr("This wizard generates a HTML5 application project."));
 
-    m_htmlSourcesPage = new Html5AppWizardSourcesPage;
-    addPageWithTitle(m_htmlSourcesPage, tr("HTML Sources"));
+    m_htmlOptionsPage = new Html5AppWizardOptionsPage;
+    addPageWithTitle(m_htmlOptionsPage, tr("HTML Options"));
 }
 
 
@@ -112,6 +112,8 @@ Core::BaseFileWizardParameters Html5AppWizard::parameters()
 AbstractMobileAppWizardDialog *Html5AppWizard::createWizardDialogInternal(QWidget *parent) const
 {
     m_d->wizardDialog = new Html5AppWizardDialog(parent);
+    m_d->wizardDialog->m_htmlOptionsPage->setTouchOptimizationEndabled(
+                m_d->app->touchOptimizedNavigationEnabled());
     return m_d->wizardDialog;
 }
 
@@ -125,8 +127,10 @@ void Html5AppWizard::prepareGenerateFiles(const QWizard *w,
 {
     Q_UNUSED(errorMessage)
     const Html5AppWizardDialog *wizard = qobject_cast<const Html5AppWizardDialog*>(w);
-    m_d->app->setMainHtml(wizard->m_htmlSourcesPage->mainHtmlMode(),
-                          wizard->m_htmlSourcesPage->mainHtmlData());
+    m_d->app->setMainHtml(wizard->m_htmlOptionsPage->mainHtmlMode(),
+                          wizard->m_htmlOptionsPage->mainHtmlData());
+    m_d->app->setTouchOptimizedNavigationEnabled(
+                wizard->m_htmlOptionsPage->touchOptimizationEndabled());
 }
 
 QString Html5AppWizard::fileToOpenPostGeneration() const

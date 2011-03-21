@@ -14,8 +14,10 @@
 	<file>images/progressbar.png</file>
 	<file>images/progressbar16.png</file>
 	<file>images/radiobutton.png</file>
-	<file>images/radiobutton16.png</file>
-	<file>images/slider.png</file>
-	<file>images/slider16.png</file>     
+    <file>images/radiobutton16.png</file>
+    <file>images/slider.png</file>
+    <file>images/slider16.png</file>
+    <file>images/window.png</file>
+    <file>images/window16.png</file>
     </qresource>
 </RCC>

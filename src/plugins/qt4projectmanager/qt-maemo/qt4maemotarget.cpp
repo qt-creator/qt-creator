@@ -113,8 +113,9 @@ AbstractQt4MaemoTarget::AbstractQt4MaemoTarget(Qt4Project *parent, const QString
 {
     setIcon(QIcon(":/projectexplorer/images/MaemoDevice.png"));
     connect(parent, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-        this, SLOT(handleTargetAdded(ProjectExplorer::Target*)),
-        Qt::QueuedConnection); // Otherwise ProjextExplorerPlugin::addExistingFiles() won't be ready.
+        this, SLOT(handleTargetAdded(ProjectExplorer::Target*)));
+    connect(parent, SIGNAL(fromMapFinished()),
+        this, SLOT(handleFromMapFinished()));
 }
 
 AbstractQt4MaemoTarget::~AbstractQt4MaemoTarget()
@@ -266,11 +267,24 @@ QSharedPointer<QFile> AbstractQt4MaemoTarget::openFile(const QString &filePath,
     return file;
 }
 
+void AbstractQt4MaemoTarget::handleFromMapFinished()
+{
+    handleTargetAdded(this);
+}
+
 void AbstractQt4MaemoTarget::handleTargetAdded(ProjectExplorer::Target *target)
 {
     if (target != this)
         return;
 
+    if (!project()->rootProjectNode()) {
+        // Project is not fully setup yet, happens on new project
+        // we wait for the fromMapFinished that comes afterwards
+        return;
+    }
+
+    disconnect(project(), SIGNAL(fromMapFinished()),
+        this, SLOT(handleFromMapFinished()));
     disconnect(project(), SIGNAL(addedTarget(ProjectExplorer::Target*)),
         this, SLOT(handleTargetAdded(ProjectExplorer::Target*)));
     connect(project(), SIGNAL(aboutToRemoveTarget(ProjectExplorer::Target*)),
@@ -339,7 +353,7 @@ AbstractQt4MaemoTarget::ActionStatus AbstractQt4MaemoTarget::createTemplates()
                       .arg(files.join(QLatin1String("\n   "))),
                   QMessageBox::Yes | QMessageBox::No);
         if (button == QMessageBox::Yes)
-            ProjectExplorer::ProjectExplorerPlugin::instance()->addExistingFiles(files);
+            ProjectExplorer::ProjectExplorerPlugin::instance()->addExistingFiles(project()->rootProjectNode(), files);
     }
     return actionStatus;
 }

@@ -82,6 +82,46 @@ static inline QString deEscape(const QString &value)
 
     return result;
 }
+
+static inline unsigned char convertHex(ushort c)
+{
+    if (c >= '0' && c <= '9')
+        return (c - '0');
+    else if (c >= 'a' && c <= 'f')
+        return (c - 'a' + 10);
+    else
+        return (c - 'A' + 10);
+}
+
+static inline unsigned char convertHex(ushort c1, ushort c2)
+{
+    return ((convertHex(c1) << 4) + convertHex(c2));
+}
+
+QChar convertUnicode(ushort c1, ushort c2,
+                             ushort c3, ushort c4)
+{
+    return QChar((convertHex(c3) << 4) + convertHex(c4),
+                  (convertHex(c1) << 4) + convertHex(c2));
+}
+
+static inline bool isHexDigit(ushort c)
+{
+    return ((c >= '0' && c <= '9')
+            || (c >= 'a' && c <= 'f')
+            || (c >= 'A' && c <= 'F'));
+}
+
+
+static inline QString fixEscapedUnicodeChar(const QString &value) //convert "\u2939"
+{
+    if (value.count() == 6 && value.at(0) == '\\' && value.at(1) == 'u' &&
+        isHexDigit(value.at(2).unicode()) && isHexDigit(value.at(3).unicode()) &&
+        isHexDigit(value.at(4).unicode()) && isHexDigit(value.at(5).unicode())) {
+            return convertUnicode(value.at(2).unicode(), value.at(3).unicode(), value.at(4).unicode(), value.at(5).unicode());
+    }
+    return value;
+}
  
 static inline int fixUpMajorVersionForQt(const QString &value, int i)
 {
@@ -201,7 +241,7 @@ static inline int propertyType(const QString &typeName)
 static inline QVariant convertDynamicPropertyValueToVariant(const QString &astValue,
                                                             const QString &astType)
 {
-    const QString cleanedValue = deEscape(stripQuotes(astValue.trimmed()));
+    const QString cleanedValue = fixEscapedUnicodeChar(deEscape(stripQuotes(astValue.trimmed())));
 
     if (astType.isEmpty())
         return QString();
@@ -405,7 +445,7 @@ public:
     QVariant convertToVariant(const QString &astValue, const QString &propertyPrefix, UiQualifiedId *propertyId)
     {
         const bool hasQuotes = astValue.trimmed().left(1) == QLatin1String("\"") && astValue.trimmed().right(1) == QLatin1String("\"");
-        const QString cleanedValue = deEscape(stripQuotes(astValue.trimmed()));
+        const QString cleanedValue = fixEscapedUnicodeChar(deEscape(stripQuotes(astValue.trimmed())));
         const Interpreter::Value *property = 0;
         const Interpreter::ObjectValue *containingObject = 0;
         QString name;

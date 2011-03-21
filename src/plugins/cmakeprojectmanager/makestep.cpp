@@ -313,7 +313,7 @@ void MakeStepConfigWidget::updateDetails()
         param.setArguments(arguments);
         m_summaryText = param.summary(displayName());
     } else {
-        m_summaryText = tr("<b>Unknown Toolchain</b>");
+        m_summaryText = tr("<b>Unknown tool chain</b>");
     }
     emit updateSummary();
 }

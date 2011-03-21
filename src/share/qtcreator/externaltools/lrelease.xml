@@ -32,7 +32,7 @@
 <externaltool id="lrelease">
     <description>Creates qm translation files that can be used by an application from the translator's ts files</description>
     <description xml:lang="de">Erstellt die von Anwendungen nutzbaren qm-Dateien aus ts-Dateien von Übersetzern</description>
-    <displayname>Release translations (lrelease)</displayname>
+    <displayname>Release Translations (lrelease)</displayname>
     <displayname xml:lang="de">Übersetzungen veröffentlichen (lrelease)</displayname>
     <category>Linguist</category>
     <category xml:lang="de">Linguist</category>

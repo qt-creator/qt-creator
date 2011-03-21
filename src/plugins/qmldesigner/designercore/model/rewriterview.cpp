@@ -158,7 +158,7 @@ void RewriterView::modelAttached(Model *model)
 
     ModelAmender differenceHandler(m_textToModelMerger.data());
     const QString qmlSource = m_textModifier->text();
-    if (m_textToModelMerger->load(qmlSource.toUtf8(), differenceHandler)) {
+    if (m_textToModelMerger->load(qmlSource, differenceHandler)) {
         lastCorrectQmlSource = qmlSource;
     }
 }

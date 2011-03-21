@@ -348,6 +348,8 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetWasChanged()));
 
+    emit fromMapFinished();
+
     return true;
 }
 
@@ -886,7 +888,7 @@ ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode, Q
         m_proFileOption = new ProFileOption;
         m_proFileOptionRefCnt = 0;
 
-        if (!bc && activeTarget() && activeTarget()->activeBuildConfiguration())
+        if (!bc && activeTarget())
             bc = activeTarget()->activeBuildConfiguration();
 
         if (bc) {
@@ -896,6 +898,13 @@ ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode, Q
                 if (bc->toolChain())
                     m_proFileOption->sysroot = bc->qtVersion()->systemRoot();
             }
+
+            QStringList args;
+            if (QMakeStep *qs = bc->qmakeStep())
+                args = qs->parserArguments();
+            else
+                args = bc->configCommandLineArguments();
+            m_proFileOption->setCommandLineArguments(args);
         }
 
         ProFileCacheManager::instance()->incRefCount();

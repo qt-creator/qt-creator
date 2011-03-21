@@ -36,6 +36,7 @@
 
 #include "qt4projectmanager_global.h"
 
+#include <projectexplorer/task.h>
 #include <projectexplorer/target.h>
 
 #include <QtCore/QList>
@@ -62,6 +63,8 @@ public:
     /// used by the default implementation of createTargetSetupWidget
     /// not needed otherwise
     virtual QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion) = 0;
+
+    virtual QList<ProjectExplorer::Task> reportIssues(const QString &proFile);
     /// only used in the TargetSetupPage
     virtual QIcon iconForId(const QString &id) const = 0;
 

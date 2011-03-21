@@ -621,20 +621,29 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
         return;
 
     QtVersion *qtVersion = m_versions.at(index);
-    if (!qtVersion->isValid()) {
-        m_versionUi->errorLabel->setText(qtVersion->invalidReason());
-        return;
-    }
 
-    ProjectExplorer::Abi qtAbi = qtVersion->qtAbis().at(0);
-
-    if (qtAbi.os() == ProjectExplorer::Abi::SymbianOS) {
-        makeS60Visible(true);
-        m_versionUi->s60SDKPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->systemRoot()));
-        m_versionUi->sbsV2Path->setPath(m_versions.at(index)->sbsV2Directory());
-        m_versionUi->sbsV2Path->setEnabled(m_versions.at(index)->isBuildWithSymbianSbsV2());
+    QList<ProjectExplorer::Abi> abis = qtVersion->qtAbis();
+    if (!abis.isEmpty()) {
+        ProjectExplorer::Abi qtAbi = qtVersion->qtAbis().at(0);
+        if (qtAbi.os() == ProjectExplorer::Abi::SymbianOS) {
+            makeS60Visible(true);
+            m_versionUi->s60SDKPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->systemRoot()));
+            m_versionUi->sbsV2Path->setPath(m_versions.at(index)->sbsV2Directory());
+            m_versionUi->sbsV2Path->setEnabled(m_versions.at(index)->isBuildWithSymbianSbsV2());
+        }
     }
-    m_versionUi->errorLabel->setText(m_versions.at(index)->description());
+    updateDescriptionLabel();
+}
+
+void QtOptionsPageWidget::updateDescriptionLabel()
+{
+    QtVersion *version = currentVersion();
+    if (!version)
+        m_versionUi->errorLabel->setText("");
+    else if (version->isValid())
+        m_versionUi->errorLabel->setText(version->description());
+    else
+        m_versionUi->errorLabel->setText(version->invalidReason());
 }
 
 int QtOptionsPageWidget::indexForTreeItem(const QTreeWidgetItem *item) const
@@ -701,7 +710,7 @@ void QtOptionsPageWidget::updateCurrentQtName()
         return;
     m_versions[currentItemIndex]->setDisplayName(m_versionUi->nameEdit->text());
     currentItem->setText(0, m_versions[currentItemIndex]->displayName());
-    m_versionUi->errorLabel->setText(m_versions.at(currentItemIndex)->description());
+    updateDescriptionLabel();
 }
 
 
@@ -779,6 +788,7 @@ void QtOptionsPageWidget::updateCurrentS60SDKDirectory()
     if (currentItemIndex < 0)
         return;
     m_versions[currentItemIndex]->setSystemRoot(m_versionUi->s60SDKPath->path());
+    updateDescriptionLabel();
 }
 
 void QtOptionsPageWidget::updateCurrentSbsV2Directory()
@@ -789,6 +799,7 @@ void QtOptionsPageWidget::updateCurrentSbsV2Directory()
     if (currentItemIndex < 0)
         return;
     m_versions[currentItemIndex]->setSbsV2Directory(m_versionUi->sbsV2Path->path());
+    updateDescriptionLabel();
 }
 
 QList<QtVersion *> QtOptionsPageWidget::versions() const

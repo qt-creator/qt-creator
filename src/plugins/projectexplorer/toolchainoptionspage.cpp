@@ -74,7 +74,7 @@ public:
             parent->childNodes.removeOne(this);
 
         qDeleteAll(childNodes);
-        // Do not delete toolchain, we do not own it.
+        // Do not delete tool chain, we do not own it.
 
         Q_ASSERT(childNodes.isEmpty());
     }
@@ -280,7 +280,7 @@ void ToolChainModel::setDirty(ToolChain *tc)
 
 void ToolChainModel::apply()
 {
-    // Remove unused ToolChains:
+    // Remove unused tool chains:
     QList<ToolChainNode *> nodes = m_toRemoveList;
     foreach (ToolChainNode *n, nodes) {
         Q_ASSERT(!n->parent);
@@ -288,7 +288,7 @@ void ToolChainModel::apply()
     }
     Q_ASSERT(m_toRemoveList.isEmpty());
 
-    // Update toolchains:
+    // Update tool chains:
     foreach (ToolChainNode *n, m_manualRoot->childNodes) {
         Q_ASSERT(n);
         if (n->changed) {
@@ -305,7 +305,7 @@ void ToolChainModel::apply()
         }
     }
 
-    // Add new (and already updated) toolchains
+    // Add new (and already updated) tool chains
     nodes = m_toAddList;
     foreach (ToolChainNode *n, nodes) {
         ToolChainManager::instance()->registerToolChain(n->toolChain);
@@ -442,7 +442,7 @@ QString ToolChainOptionsPage::id() const
 
 QString ToolChainOptionsPage::displayName() const
 {
-    return tr("Toolchains");
+    return tr("Tool Chains");
 }
 
 QString ToolChainOptionsPage::category() const
@@ -452,7 +452,7 @@ QString ToolChainOptionsPage::category() const
 
 QString ToolChainOptionsPage::displayCategory() const
 {
-    return tr("Toolchains");
+    return tr("Tool Chains");
 }
 
 QIcon ToolChainOptionsPage::categoryIcon() const
@@ -517,7 +517,7 @@ QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
     if (m_searchKeywords.isEmpty()) {
         QLatin1Char sep(' ');
         QTextStream stream(&m_searchKeywords);
-        stream << tr("Toolchains");
+        stream << tr("Tool Chains");
         foreach (ToolChainFactory *f, m_factories)
             stream << sep << f->displayName();
 

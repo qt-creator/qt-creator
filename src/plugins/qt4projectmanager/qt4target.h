@@ -135,7 +135,7 @@ public slots:
 
 private:
     void setBuildConfigurationInfos(const QList<BuildConfigurationInfo> &list, bool resetEnabled = true);
-    void reportIssues(int index);
+    bool reportIssues(int index);
     QPair<ProjectExplorer::Task::TaskType, QString> findIssues(const BuildConfigurationInfo &info);
     void createImportWidget(const BuildConfigurationInfo &info, int pos);
 

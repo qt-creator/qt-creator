@@ -114,10 +114,6 @@ public:
     void setCumulative(bool on); // Default is true!
     void setOutputDir(const QString &dir); // Default is empty
 
-    // -nocache, -cache, -spec, QMAKESPEC
-    // -set persistent value
-    void setCommandLineArguments(const QStringList &args);
-
     enum LoadFlag {
         LoadProOnly = 0,
         LoadPreFiles = 1,
@@ -175,26 +171,29 @@ struct ProFileOption
     QHash<QString, QString> properties;
     QString sysroot;
 
-    enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE, TARG_QNX6_MODE };
-    TARG_MODE target_mode;
     //QString pro_ext;
     //QString res_ext;
 
-    static const struct TargetModeMapElement {
-        const char * const qmakeOption;
-        const TARG_MODE targetMode;
-    } modeMap[];
-    static const int modeMapSize;
+    // -nocache, -cache, -spec, QMAKESPEC
+    // -set persistent value
+    void setCommandLineArguments(const QStringList &args);
 
   private:
-    void setHostTargetMode();
-
     friend class ProFileEvaluator;
     friend class ProFileEvaluator::Private;
+
+    void applyHostMode();
+
     QHash<ProString, ProStringList> base_valuemap; // Cached results of qmake.conf, .qmake.cache & default_pre.prf
     ProFileEvaluator::FunctionDefs base_functions;
     QStringList feature_roots;
     QString qmakespec_name;
+    QString precmds, postcmds;
+    enum HOST_MODE { HOST_UNKNOWN_MODE, HOST_UNIX_MODE, HOST_WIN_MODE, HOST_MACX_MODE };
+    HOST_MODE host_mode;
+    enum TARG_MODE { TARG_UNKNOWN_MODE, TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE,
+                     TARG_SYMBIAN_MODE };
+    TARG_MODE target_mode;
 #ifdef PROEVALUATOR_THREAD_SAFE
     QMutex mutex;
     QWaitCondition cond;

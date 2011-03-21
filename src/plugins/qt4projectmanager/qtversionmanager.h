@@ -97,6 +97,7 @@ public:
 
     bool isValid() const;
     bool toolChainAvailable() const;
+
     QString invalidReason() const;
     QString description() const;
     bool isAutodetected() const { return m_isAutodetected; }
@@ -189,7 +190,7 @@ public:
     /// its symbian setup.
     /// @return a list of tasks, ordered on severity (errors first, then
     ///         warnings and finally info items.
-    QList<ProjectExplorer::Task> reportIssues(const QString &proFile, const QString &buildDir);
+    QList<ProjectExplorer::Task> reportIssues(const QString &proFile, const QString &buildDir, bool includeTargetSpecificErrors);
 
     ProjectExplorer::IOutputParser *createOutputParser() const;
 
@@ -239,6 +240,8 @@ private:
     mutable QSet<QString> m_targetIds;
 
     mutable bool m_isBuildUsingSbsV2;
+    mutable bool m_qmakeIsExecutable;
+    mutable bool m_validSystemRoot;
 };
 
 struct QMakeAssignment

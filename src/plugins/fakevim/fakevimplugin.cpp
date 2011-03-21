@@ -277,21 +277,7 @@ bool FakeVimOptionPage::matches(const QString &s) const
 //
 ///////////////////////////////////////////////////////////////////////
 
-struct CommandItem
-{
-    Command *m_cmd;
-    QString m_regex;
-    QTreeWidgetItem *m_item;
-};
-
-} // namespace Internal
-} // namespace FakeVim
-
-
-Q_DECLARE_METATYPE(FakeVim::Internal::CommandItem *)
-
-namespace FakeVim {
-namespace Internal {
+enum { CommandRole = Qt::UserRole };
 
 class FakeVimExCommandsPage : public Core::CommandMappings
 {
@@ -299,7 +285,7 @@ class FakeVimExCommandsPage : public Core::CommandMappings
 
 public:
     FakeVimExCommandsPage(FakeVimPluginPrivate *q) : m_q(q) {}
-    ~FakeVimExCommandsPage() { qDeleteAll(m_citems); }
+    ~FakeVimExCommandsPage() {}
 
     // IOptionsPage
     QString id() const { return _(Constants::SETTINGS_EX_CMDS_ID); }
@@ -321,8 +307,7 @@ public slots:
     void defaultAction();
 
 private:
-    void setRegex(const QString &regex);
-    QList<CommandItem *> m_citems;
+    //QList<QTreeWidgetItem *> m_citems;
     FakeVimPluginPrivate *m_q;
 };
 
@@ -350,11 +335,9 @@ void FakeVimExCommandsPage::initialize()
         if (c->action() && c->action()->isSeparator())
             continue;
 
-        CommandItem *ci = new CommandItem;
         QTreeWidgetItem *item = new QTreeWidgetItem;
-        ci->m_cmd = c;
-        ci->m_item = item;
-        m_citems.append(ci);
+        item->setData(0, CommandRole, int(c->id()));
+        //m_citems.append(item);
 
         const QString name = uidm->stringForUniqueIdentifier(c->id());
         const int pos = name.indexOf(QLatin1Char('.'));
@@ -383,16 +366,13 @@ void FakeVimExCommandsPage::initialize()
         } else {
             item->setText(1, c->shortcut()->whatsThis());
         }
-        if (exCommandMap().contains(name)) {
-            ci->m_regex = exCommandMap()[name].pattern();
-        } else {
-            ci->m_regex.clear();
-        }
 
-        item->setText(2, ci->m_regex);
-        item->setData(0, Qt::UserRole, qVariantFromValue(ci));
+        QString regex;
+        if (exCommandMap().contains(name))
+            regex = exCommandMap()[name].pattern();
+        item->setText(2, regex);
 
-        if (ci->m_regex != defaultExCommandMap()[name].pattern())
+        if (regex != defaultExCommandMap()[name].pattern())
             setModified(item, true);
     }
 
@@ -402,12 +382,8 @@ void FakeVimExCommandsPage::initialize()
 void FakeVimExCommandsPage::commandChanged(QTreeWidgetItem *current)
 {
     CommandMappings::commandChanged(current);
-
-    if (!current || !current->data(0, Qt::UserRole).isValid())
-        return;
-
-    CommandItem *citem = qVariantValue<CommandItem *>(current->data(0, Qt::UserRole));
-    targetEdit()->setText(citem->m_regex);
+    if (current)
+        targetEdit()->setText(current->text(2));
 }
 
 void FakeVimExCommandsPage::targetIdentifierChanged()
@@ -417,39 +393,34 @@ void FakeVimExCommandsPage::targetIdentifierChanged()
         return;
 
     UniqueIDManager *uidm = UniqueIDManager::instance();
-    CommandItem *citem = qVariantValue<CommandItem *>(current->data(0, Qt::UserRole));
-    const QString name = uidm->stringForUniqueIdentifier(citem->m_cmd->id());
+    int id = current->data(0, CommandRole).toInt();
+    const QString name = uidm->stringForUniqueIdentifier(id);
+    const QString regex = targetEdit()->text();
 
     if (current->data(0, Qt::UserRole).isValid()) {
-        citem->m_regex = targetEdit()->text();
-        current->setText(2, citem->m_regex);
-        exCommandMap()[name] = QRegExp(citem->m_regex);
+        current->setText(2, regex);
+        exCommandMap()[name] = QRegExp(regex);
     }
 
-    if (citem->m_regex != defaultExCommandMap()[name].pattern())
+    if (regex != defaultExCommandMap()[name].pattern())
         setModified(current, true);
     else
         setModified(current, false);
 
 }
 
-void FakeVimExCommandsPage::setRegex(const QString &regex)
-{
-    targetEdit()->setText(regex);
-}
-
 void FakeVimExCommandsPage::resetTargetIdentifier()
 {
-    UniqueIDManager *uidm = UniqueIDManager::instance();
     QTreeWidgetItem *current = commandList()->currentItem();
-    if (current && current->data(0, Qt::UserRole).isValid()) {
-        CommandItem *citem = qVariantValue<CommandItem *>(current->data(0, Qt::UserRole));
-        const QString &name = uidm->stringForUniqueIdentifier(citem->m_cmd->id());
-        if (defaultExCommandMap().contains(name))
-            setRegex(defaultExCommandMap()[name].pattern());
-        else
-            setRegex(QString());
-    }
+    if (!current)
+        return;
+    UniqueIDManager *uidm = UniqueIDManager::instance();
+    int id = current->data(0, CommandRole).toInt();
+    const QString name = uidm->stringForUniqueIdentifier(id);
+    QString regex;
+    if (defaultExCommandMap().contains(name))
+        regex = defaultExCommandMap()[name].pattern();
+    targetEdit()->setText(regex);
 }
 
 void FakeVimExCommandsPage::removeTargetIdentifier()
@@ -460,17 +431,22 @@ void FakeVimExCommandsPage::removeTargetIdentifier()
 void FakeVimExCommandsPage::defaultAction()
 {
     UniqueIDManager *uidm = UniqueIDManager::instance();
-    foreach (CommandItem *item, m_citems) {
-        const QString &name = uidm->stringForUniqueIdentifier(item->m_cmd->id());
-        if (defaultExCommandMap().contains(name)) {
-            item->m_regex = defaultExCommandMap()[name].pattern();
-        } else {
-            item->m_regex.clear();
+    int n = commandList()->topLevelItemCount();
+    for (int i = 0; i != n; ++i) {
+        QTreeWidgetItem *section = commandList()->topLevelItem(i);
+        int m = section->childCount();
+        for (int j = 0; j != m; ++j) {
+            QTreeWidgetItem *item = section->child(j);
+            const int id = item->data(0, CommandRole).toInt();
+            const QString name = uidm->stringForUniqueIdentifier(id);
+            QString regex;
+            if (defaultExCommandMap().contains(name))
+                regex = defaultExCommandMap()[name].pattern();
+            setModified(item, false);
+            item->setText(2, regex);
+            if (item == commandList()->currentItem())
+                commandChanged(item);
         }
-        setModified(item->m_item, false);
-        item->m_item->setText(2, item->m_regex);
-        if (item->m_item == commandList()->currentItem())
-            commandChanged(item->m_item);
     }
 }
 

@@ -86,12 +86,14 @@ public:
     
     QHash<QString, DisassemblerLines> cache;
     QString mimeType;
+    bool m_resetLocationScheduled;
 };
 
 DisassemblerAgentPrivate::DisassemblerAgentPrivate()
   : editor(0),
     tryMixed(true),
-    mimeType(_("text/x-qtcreator-generic-asm"))
+    mimeType(_("text/x-qtcreator-generic-asm")),
+    m_resetLocationScheduled(false)
 {
     locationMark = new ITextMark;
     locationMark->setIcon(debuggerCore()->locationMarkIcon());
@@ -133,11 +135,19 @@ void DisassemblerAgent::cleanup()
     d->cache.clear();
 }
 
+void DisassemblerAgent::scheduleResetLocation()
+{
+    d->m_resetLocationScheduled = true;
+}
+
 void DisassemblerAgent::resetLocation()
 {
     if (!d->editor)
         return;
-    d->editor->markableInterface()->removeMark(d->locationMark);
+    if (d->m_resetLocationScheduled) {
+        d->m_resetLocationScheduled = false;
+        d->editor->markableInterface()->removeMark(d->locationMark);
+    }
 }
 
 static QString frameKey(const Location &loc)

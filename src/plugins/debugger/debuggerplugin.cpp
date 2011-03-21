@@ -1474,7 +1474,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
     Abi hostAbi = Abi::hostAbi();
     sp.toolChainAbi = ProjectExplorer::Abi(hostAbi.architecture(),
                                            ProjectExplorer::Abi::WindowsOS,
-                                           ProjectExplorer::Abi::WindowsMsvcFlavor,
+                                           ProjectExplorer::Abi::WindowsMsvc2010Flavor,
                                            ProjectExplorer::Abi::PEFormat,
                                            true);
     sp.startMode = AttachToRemote;
@@ -2377,6 +2377,8 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
             str << " (built: " << QDir::toNativeSeparators(sp.projectBuildDir) << ')';
         str << '\n';
     }
+    if (!sp.qtInstallPath.isEmpty())
+        str << "Qt: " << QDir::toNativeSeparators(sp.qtInstallPath) << '\n';
     if (!sp.qmlServerAddress.isEmpty())
         str << "QML server: " << sp.qmlServerAddress << ':' << sp.qmlServerPort << '\n';
     if (!sp.remoteChannel.isEmpty()) {
@@ -2454,12 +2456,12 @@ QString DebuggerPluginPrivate::debuggerForAbi(const Abi &abi, DebuggerEngineType
 {
     enum { debug = 0 };
     Abi searchAbi = abi;
-    // Pick the right toolchain in case cdb/gdb were started with other toolchains.
+    // Pick the right tool chain in case cdb/gdb were started with other tool chains.
     // Also, lldb should be preferred over gdb.
     if (searchAbi.os() == ProjectExplorer::Abi::WindowsOS) {
         switch (et) {
         case CdbEngineType:
-            searchAbi = Abi(abi.architecture(), abi.os(), Abi::WindowsMsvcFlavor,
+            searchAbi = Abi(abi.architecture(), abi.os(), Abi::WindowsMsvc2010Flavor,
                             abi.binaryFormat(), abi.wordWidth());
             break;
         case GdbEngineType:

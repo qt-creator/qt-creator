@@ -53,7 +53,7 @@ ToolBarColorBox::ToolBarColorBox(QWidget *parent) :
     QLabel(parent)
 {
     m_copyHexColor = new QAction(QIcon(QLatin1String(":/qml/images/color-picker-hicontrast.png")),
-                                 tr("Copy"), this);
+                                 tr("Copy Color"), this);
     connect(m_copyHexColor, SIGNAL(triggered()), SLOT(copyColorToClipboard()));
     setScaledContents(false);
 }
@@ -114,12 +114,6 @@ void ToolBarColorBox::contextMenuEvent(QContextMenuEvent *ev)
     QMenu contextMenu;
     contextMenu.addAction(m_copyHexColor);
     contextMenu.exec(ev->globalPos());
-}
-
-void ToolBarColorBox::mouseDoubleClickEvent(QMouseEvent *)
-{
-    QColorDialog dialog(m_color);
-    dialog.show();
 }
 
 void ToolBarColorBox::copyColorToClipboard()

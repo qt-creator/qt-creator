@@ -55,8 +55,6 @@ private slots:
 private:
     void contextMenuEvent(QContextMenuEvent *ev);
     void setModel(QAbstractItemModel *model);
-
-    bool m_alwaysResizeColumnsToContents;
 };
 
 } // namespace Internal

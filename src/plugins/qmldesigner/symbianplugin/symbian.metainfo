@@ -6,8 +6,29 @@
       <property name="text" type="QString" value="Button"/>
     </itemlibraryentry>
   </node>
+  <node name="ToolButton" icon=":/symbianplugin/images/button16.png">
+    <itemlibraryentry name="ToolButton"  category="Components Symbian" libraryIcon=":/symbianplugin/images/button.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="100"/>
+      <property name="height" type="int" value="30"/>
+      <property name="text" type="QString" value="Button"/>
+    </itemlibraryentry>
+  </node>
+  <node name="TabButton" icon=":/symbianplugin/images/button16.png">
+    <itemlibraryentry name="TabButton"  category="Components Symbian" libraryIcon=":/symbianplugin/images/button.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="100"/>
+      <property name="height" type="int" value="30"/>
+      <property name="text" type="QString" value="Button"/>
+    </itemlibraryentry>
+  </node>
   <node name="CheckBox" icon=":/symbianplugin/images/checkbox16.png">
     <itemlibraryentry name="CheckBox" category="Components Symbian" libraryIcon=":/symbianplugin/images/checkbox.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="180"/>
+      <property name="height" type="int" value="30"/>
+      <property name="text" type="QString" value="CheckBox"/>
+    </itemlibraryentry>
+  </node>
+  <node name="BusyIndicator" icon=":/symbianplugin/images/button16.png">
+    <itemlibraryentry name="BusyIndicator" category="Components Symbian" libraryIcon=":/symbianplugin/images/button.png"  version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="180"/>
       <property name="height" type="int" value="30"/>
       <property name="text" type="QString" value="CheckBox"/>
@@ -40,6 +61,13 @@
       <property name="text" type="QString" value="TextArea"/>
     </itemlibraryentry>
   </node>
+  <node name="TextField" icon=":/symbianplugin/images/textarea16.png">
+    <itemlibraryentry name="TextField" category="Components Symbian" libraryIcon=":/symbianplugin/images/textarea.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="180"/>
+      <property name="height" type="int" value="30"/>
+      <property name="text" type="QString" value="TextArea"/>
+    </itemlibraryentry>
+  </node>
   <node name="Slider" icon=":/symbianplugin/images/slider16.png">
     <itemlibraryentry name="Slider" category="Components Symbian" libraryIcon=":/symbianplugin/images/slider.png"  version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="180"/>
@@ -50,6 +78,48 @@
     <itemlibraryentry name="Window" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="360"/>
       <property name="height" type="int" value="640"/>
+    </itemlibraryentry>
+  </node>
+  <node name="Frame" icon=":/symbianplugin/images/window16.png">
+    <itemlibraryentry name="Frame" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="360"/>
+      <property name="height" type="int" value="640"/>
+    </itemlibraryentry>
+  </node>
+  <node name="Page" icon=":/symbianplugin/images/window16.png">
+    <itemlibraryentry name="Page" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="360"/>
+      <property name="height" type="int" value="640"/>
+    </itemlibraryentry>
+  </node>
+  <node name="TabBarLayout" icon=":/symbianponlugin/images/window16.png">
+    <itemlibraryentry name="TabBarLayout" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="360"/>
+      <property name="height" type="int" value="40"/>
+    </itemlibraryentry>
+  </node>
+  <node name="TabGroup" icon=":/symbianponlugin/images/window16.png">
+    <itemlibraryentry name="TabGroup" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="360"/>
+      <property name="height" type="int" value="40"/>
+    </itemlibraryentry>
+  </node>
+  <node name="ToolBar" icon=":/symbianponlugin/images/window16.png">
+    <itemlibraryentry name="ToolBar" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="360"/>
+      <property name="height" type="int" value="40"/>
+    </itemlibraryentry>
+  </node>
+  <node name="TabBar" icon=":/symbianponlugin/images/window16.png">
+    <itemlibraryentry name="TabBar" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="360"/>
+      <property name="height" type="int" value="40"/>
+    </itemlibraryentry>
+  </node>
+  <node name="Icon" icon=":/symbianponlugin/images/window16.png">
+    <itemlibraryentry name="Icon" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="32"/>
+      <property name="height" type="int" value="32"/>
     </itemlibraryentry>
   </node>
 </metainfo>

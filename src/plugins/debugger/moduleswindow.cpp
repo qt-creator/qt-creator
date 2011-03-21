@@ -59,7 +59,7 @@ namespace Debugger {
 namespace Internal {
 
 ModulesWindow::ModulesWindow(QWidget *parent)
-  : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
+  : QTreeView(parent)
 {
     QAction *act = debuggerCore()->action(UseAlternatingRowColors);
     setWindowTitle(tr("Modules"));
@@ -73,6 +73,9 @@ ModulesWindow::ModulesWindow(QWidget *parent)
         SLOT(moduleActivated(QModelIndex)));
     connect(act, SIGNAL(toggled(bool)),
         SLOT(setAlternatingRowColorsHelper(bool)));
+    connect(debuggerCore()->action(AlwaysAdjustModulesColumnWidths),
+        SIGNAL(toggled(bool)),
+        SLOT(setAlwaysResizeColumnsToContents(bool)));
 }
 
 void ModulesWindow::moduleActivated(const QModelIndex &index)
@@ -165,10 +168,7 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addSeparator();
     QAction *actAdjustColumnWidths =
         menu.addAction(tr("Adjust Column Widths to Contents"));
-    QAction *actAlwaysAdjustColumnWidth =
-        menu.addAction(tr("Always Adjust Column Widths to Contents"));
-    actAlwaysAdjustColumnWidth->setCheckable(true);
-    actAlwaysAdjustColumnWidth->setChecked(m_alwaysResizeColumnsToContents);
+    menu.addAction(debuggerCore()->action(AlwaysAdjustModulesColumnWidths));
     menu.addSeparator();
     menu.addAction(debuggerCore()->action(SettingsDialog));
 
@@ -177,21 +177,19 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (act == actUpdateModuleList)
         engine->reloadModules();
     else if (act == actAdjustColumnWidths)
-      resizeColumnsToContents();
-    else if (act == actAlwaysAdjustColumnWidth)
-      setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
+        resizeColumnsToContents();
     else if (act == actShowModuleSources)
-      engine->loadSymbols(name);
+        engine->loadSymbols(name);
     else if (act == actLoadSymbolsForAllModules)
-      engine->loadAllSymbols();
+        engine->loadAllSymbols();
     else if (act == actExamineAllModules)
-      engine->examineModules();
+        engine->examineModules();
     else if (act == actLoadSymbolsForModule)
-      engine->loadSymbols(name);
+        engine->loadSymbols(name);
     else if (act == actEditFile)
-      engine->gotoLocation(name);
+        engine->gotoLocation(name);
     else if (act == actShowModuleSymbols)
-      engine->requestModuleSymbols(name);
+        engine->requestModuleSymbols(name);
     else if (actShowDependencies && act == actShowDependencies)
         QProcess::startDetached(QLatin1String("depends"), QStringList(fileName));
 }
@@ -206,7 +204,6 @@ void ModulesWindow::resizeColumnsToContents()
 
 void ModulesWindow::setAlwaysResizeColumnsToContents(bool on)
 {
-    m_alwaysResizeColumnsToContents = on;
     QHeaderView::ResizeMode mode = on
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     header()->setResizeMode(0, mode);
