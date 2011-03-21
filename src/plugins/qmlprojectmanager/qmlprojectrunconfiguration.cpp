@@ -188,12 +188,11 @@ QString QmlProjectRunConfiguration::canonicalCapsPath(const QString &fileName)
     QString canonicalPath = QFileInfo(fileName).canonicalFilePath();
 
 #if defined(Q_OS_WIN32)
-    QString error;
     // don't know whether the shortpath step is really needed,
     // but we do this in QtDeclarative too.
-    QString path = Utils::getShortPathName(canonicalPath, &error);
+    QString path = Utils::getShortPathName(canonicalPath);
     if (!path.isEmpty())
-        path = Utils::getLongPathName(canonicalPath, &error);
+        path = Utils::getLongPathName(canonicalPath);
     if (!path.isEmpty())
         canonicalPath = path;
 #endif
