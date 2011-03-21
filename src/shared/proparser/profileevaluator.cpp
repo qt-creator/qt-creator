@@ -3218,7 +3218,8 @@ bool ProFileEvaluator::Private::evaluateFileInto(
 void ProFileEvaluator::Private::evalError(const QString &message) const
 {
     if (!m_skipLevel)
-        m_handler->evalError(m_current.pro->fileName(), m_current.line, message);
+        m_handler->evalError(m_current.line ? m_current.pro->fileName() : QString(),
+                             m_current.line, message);
 }
 
 
