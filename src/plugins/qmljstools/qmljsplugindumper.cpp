@@ -275,8 +275,8 @@ void PluginDumper::dump(const Plugin &plugin)
     connect(process, SIGNAL(finished(int)), SLOT(qmlPluginTypeDumpDone(int)));
     connect(process, SIGNAL(error(QProcess::ProcessError)), SLOT(qmlPluginTypeDumpError(QProcess::ProcessError)));
     QStringList args;
+    args << QLatin1String("--notrelocatable");
     if (plugin.importUri.isEmpty()) {
-        args << "--notrelocatable ";
         args << QLatin1String("--path");
         args << plugin.importPath;
         if (ComponentVersion(plugin.importVersion).isValid())
