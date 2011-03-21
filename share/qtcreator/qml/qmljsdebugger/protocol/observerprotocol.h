@@ -77,12 +77,12 @@ public:
 
     static inline QString toString(Message message)
     {
-        return staticMetaObject.enumerator(0).key(message);
+        return staticMetaObject.enumerator(0).valueToKey(message);
     }
 
     static inline QString toString(Tool tool)
     {
-        return staticMetaObject.enumerator(1).key(tool);
+        return staticMetaObject.enumerator(1).valueToKey(tool);
     }
 };
 
