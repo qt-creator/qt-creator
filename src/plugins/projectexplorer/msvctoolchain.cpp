@@ -103,16 +103,18 @@ static Abi findAbiOfMsvc(MsvcToolChain::Type type, MsvcToolChain::Platform platf
 
     QString msvcVersionString = version;
     if (type == MsvcToolChain::WindowsSDK) {
-        if (version.startsWith("7."))
-            msvcVersionString = "10.0";
-        else if (version.startsWith("6.1"))
-            msvcVersionString = "9.0";
+        if (version.startsWith(QLatin1String("7.")))
+            msvcVersionString = QLatin1String("10.0");
+        else if (version.startsWith(QLatin1String("6.1"))
+                 || (version.startsWith(QLatin1String("6.0")) && version != QLatin1String("6.0")))
+            // The 6.0 SDK is shipping MSVC2005, Starting at 6.0a it is MSVC2008.
+            msvcVersionString = QLatin1String("9.0");
         else
-            msvcVersionString = "8.0";
+            msvcVersionString = QLatin1String("8.0");
     }
-    if (msvcVersionString.startsWith("10."))
+    if (msvcVersionString.startsWith(QLatin1String("10.")))
         flavor = Abi::WindowsMsvc2010Flavor;
-    else if (msvcVersionString.startsWith("9."))
+    else if (msvcVersionString.startsWith(QLatin1String("9.")))
         flavor = Abi::WindowsMsvc2008Flavor;
     else
         flavor = Abi::WindowsMsvc2005Flavor;
