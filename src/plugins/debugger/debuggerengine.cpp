@@ -125,29 +125,6 @@ QDebug operator<<(QDebug str, const DebuggerStartParameters &sp)
 }
 
 
-///////////////////////////////////////////////////////////////////////
-//
-// LocationMark
-//
-///////////////////////////////////////////////////////////////////////
-
-// Used in "real" editors
-class LocationMark : public TextEditor::BaseTextMark
-{
-public:
-    LocationMark(const QString &fileName, int linenumber)
-        : BaseTextMark(fileName, linenumber)
-    {}
-
-    QIcon icon() const { return debuggerCore()->locationMarkIcon(); }
-    void updateLineNumber(int /*lineNumber*/) {}
-    void updateBlock(const QTextBlock & /*block*/) {}
-    void removedFromEditor() {}
-    TextEditor::ITextMark::Priority priority() const { return TextEditor::ITextMark::HighPriority; }
-};
-
-
-
 //////////////////////////////////////////////////////////////////////
 //
 // DebuggerEnginePrivate
@@ -587,8 +564,12 @@ void DebuggerEngine::gotoLocation(const Location &loc)
     if (texteditor)
         texteditor->gotoLine(line, 0);
 
-    if (loc.needsMarker())
-        d->m_locationMark.reset(new LocationMark(file, line));
+    if (loc.needsMarker()) {
+        d->m_locationMark.reset(new TextEditor::BaseTextMark);
+        d->m_locationMark->setLocation(file, line);
+        d->m_locationMark->setIcon(debuggerCore()->locationMarkIcon());
+        d->m_locationMark->setPriority(TextEditor::ITextMark::HighPriority);
+    }
 
     // FIXME: Breaks with split views.
     if (!d->m_memoryAgent.hasVisibleEditor() || loc.needsRaise())

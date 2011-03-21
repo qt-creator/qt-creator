@@ -58,6 +58,7 @@
 #include <QtCore/QPointer>
 
 using namespace Core;
+using namespace TextEditor;
 
 namespace Debugger {
 namespace Internal {
@@ -67,38 +68,6 @@ namespace Internal {
 // DisassemblerAgent
 //
 ///////////////////////////////////////////////////////////////////////
-
-class LocationMark2 : public TextEditor::ITextMark
-{
-public:
-    LocationMark2() {}
-
-    QIcon icon() const { return debuggerCore()->locationMarkIcon(); }
-    void updateLineNumber(int /*lineNumber*/) {}
-    void updateBlock(const QTextBlock & /*block*/) {}
-    void removedFromEditor() {}
-    void documentClosing() {}
-    TextEditor::ITextMark::Priority priority() const
-        { return TextEditor::ITextMark::HighPriority; }
-};
-
-class BreakpointMarker2 : public TextEditor::ITextMark
-{
-public:
-    BreakpointMarker2(const QIcon &icon) : m_icon(icon) {}
-
-    QIcon icon() const { return m_icon; }
-    void updateLineNumber(int) {}
-    void updateBlock(const QTextBlock &) {}
-    void removedFromEditor() {}
-    void documentClosing() {}
-    TextEditor::ITextMark::Priority priority() const
-        { return TextEditor::ITextMark::NormalPriority; }
-
-private:
-    QIcon m_icon;
-};
-
 
 class DisassemblerAgentPrivate
 {
@@ -112,8 +81,8 @@ public:
     Location location;
     bool tryMixed;
     QPointer<DebuggerEngine> engine;
-    TextEditor::ITextMark *locationMark;
-    QList<TextEditor::ITextMark *> breakpointMarks;
+    ITextMark *locationMark;
+    QList<ITextMark *> breakpointMarks;
     
     QHash<QString, DisassemblerLines> cache;
     QString mimeType;
@@ -122,9 +91,11 @@ public:
 DisassemblerAgentPrivate::DisassemblerAgentPrivate()
   : editor(0),
     tryMixed(true),
-    locationMark(new LocationMark2),
     mimeType(_("text/x-qtcreator-generic-asm"))
 {
+    locationMark = new ITextMark;
+    locationMark->setIcon(debuggerCore()->locationMarkIcon());
+    locationMark->setPriority(TextEditor::ITextMark::HighPriority);
 }
 
 DisassemblerAgentPrivate::~DisassemblerAgentPrivate()
@@ -337,7 +308,9 @@ void DisassemblerAgent::updateBreakpointMarkers()
         const int lineNumber = contents.lineForAddress(address);
         if (!lineNumber)
             continue;
-        BreakpointMarker2 *marker = new BreakpointMarker2(handler->icon(id));
+        ITextMark *marker = new ITextMark;
+        marker->setIcon(handler->icon(id));
+        marker->setPriority(ITextMark::NormalPriority);
         d->breakpointMarks.append(marker);
         d->editor->markableInterface()->addMark(marker, lineNumber);
     }

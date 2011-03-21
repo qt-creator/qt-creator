@@ -45,14 +45,12 @@ namespace Internal {
 class BreakpointMarker : public TextEditor::BaseTextMark
 {
     Q_OBJECT
+
 public:
     BreakpointMarker(BreakpointId id, const QString &fileName, int lineNumber);
     ~BreakpointMarker();
-    QIcon icon() const;
-    void updateBlock(const QTextBlock &);
     void removedFromEditor();
     void updateLineNumber(int lineNumber);
-    TextEditor::ITextMark::Priority priority() const { return TextEditor::ITextMark::NormalPriority; }
 
 private:
     BreakpointId m_id;

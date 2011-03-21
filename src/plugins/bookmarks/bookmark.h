@@ -54,19 +54,16 @@ class Bookmark : public TextEditor::BaseTextMark
 public:
     Bookmark(const QString &fileName, int lineNumber, BookmarkManager *manager);
 
-    QIcon icon() const;
-
     void updateLineNumber(int lineNumber);
     void updateBlock(const QTextBlock &block);
     void removedFromEditor();
-    TextEditor::ITextMark::Priority priority() const { return TextEditor::ITextMark::LowPriority; }
 
     QString filePath() const;
     QString fileName() const;
     QString path() const;
     QString lineText() const;
 
-    inline int lineNumber() const { return m_lineNumber; }
+    int lineNumber() const { return m_lineNumber; }
 
 private:
     BookmarkManager *m_manager;

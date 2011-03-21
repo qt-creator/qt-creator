@@ -3710,10 +3710,9 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
                 if (d->m_marksVisible) {
                     int xoffset = 0;
                     foreach (ITextMark *mrk, userData->marks()) {
-                        int x = 0;
-                        int radius = fmLineSpacing - 1;
-                        QRect r(x + xoffset, top, radius, radius);
-                        mrk->icon().paint(&painter, r, Qt::AlignCenter);
+                        const int radius = fmLineSpacing - 1;
+                        const QRect r(xoffset, top, radius, radius);
+                        mrk->paint(&painter, r);
                         xoffset += 2;
                     }
                 }

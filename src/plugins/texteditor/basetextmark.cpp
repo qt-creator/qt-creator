@@ -42,72 +42,34 @@
 #include <QtGui/QIcon>
 
 namespace TextEditor {
-namespace Internal {
 
-class InternalMark : public TextEditor::ITextMark
-{
-public:
-    explicit InternalMark(BaseTextMark *parent) : m_parent(parent) {}
-
-    virtual QIcon icon() const
-    {
-        return m_parent->icon();
-    }
-
-    virtual void updateLineNumber(int lineNumber)
-    {
-        return m_parent->updateLineNumber(lineNumber);
-    }
-
-    virtual void updateBlock(const QTextBlock &block)
-    {
-        return m_parent->updateBlock(block);
-    }
-
-    virtual void removedFromEditor()
-    {
-        m_parent->childRemovedFromEditor(this);
-    }
-
-    virtual void documentClosing()
-    {
-        m_parent->documentClosingFor(this);
-    }
-
-    virtual Priority priority() const
-    {
-        return m_parent->priority();
-    }
-private:
-    BaseTextMark *m_parent;
-};
-
-} // namespace Internal
-
-BaseTextMark::BaseTextMark(const QString &filename, int line)
-    : m_markableInterface(0)
-    , m_internalMark(0)
-    , m_fileName(filename)
-    , m_line(line)
-    , m_init(false)
-{
-    // Why is this?
-    QTimer::singleShot(0, this, SLOT(init()));
-}
+BaseTextMark::BaseTextMark()
+    : m_markableInterface(0), m_init(false)
+{}
 
 BaseTextMark::~BaseTextMark()
 {
     // oha we are deleted
     if (m_markableInterface)
-        m_markableInterface->removeMark(m_internalMark);
+        m_markableInterface->removeMark(this);
     removeInternalMark();
+}
+
+void BaseTextMark::setLocation(const QString &fileName, int line)
+{
+    m_fileName = fileName;
+    m_line = line;
+    //init();
+    // This basically mimics 'two phase initialization'
+    QTimer::singleShot(0, this, SLOT(init()));
 }
 
 void BaseTextMark::init()
 {
     m_init = true;
     Core::EditorManager *em = Core::EditorManager::instance();
-    connect(em, SIGNAL(editorOpened(Core::IEditor *)), this, SLOT(editorOpened(Core::IEditor *)));
+    connect(em, SIGNAL(editorOpened(Core::IEditor *)),
+        SLOT(editorOpened(Core::IEditor *)));
 
     foreach (Core::IEditor *editor, em->openedEditors())
         editorOpened(editor);
@@ -125,9 +87,7 @@ void BaseTextMark::editorOpened(Core::IEditor *editor)
     if (ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor)) {
         if (m_markableInterface == 0) { // We aren't added to something
             m_markableInterface = textEditor->markableInterface();
-            m_internalMark = new Internal::InternalMark(this);
-
-            if (m_markableInterface->addMark(m_internalMark, m_line)) {
+            if (m_markableInterface->addMark(this, m_line)) {
                 // Handle reload of text documents, readding the mark as necessary
                 connect(textEditor->file(), SIGNAL(reloaded()),
                         this, SLOT(documentReloaded()), Qt::UniqueConnection);
@@ -148,56 +108,37 @@ void BaseTextMark::documentReloaded()
         return;
 
     m_markableInterface = doc->documentMarker();
-    m_internalMark = new Internal::InternalMark(this);
 
-    if (!m_markableInterface->addMark(m_internalMark, m_line))
+    if (!m_markableInterface->addMark(this, m_line))
         removeInternalMark();
-}
-
-void BaseTextMark::childRemovedFromEditor(Internal::InternalMark *mark)
-{
-    Q_UNUSED(mark)
-    // m_internalMark was removed from the editor
-    removeInternalMark();
-    removedFromEditor();
-}
-
-void BaseTextMark::documentClosingFor(Internal::InternalMark *mark)
-{
-    Q_UNUSED(mark)
-    removeInternalMark();
 }
 
 void BaseTextMark::removeInternalMark()
 {
-    delete m_internalMark;
-    m_internalMark = 0;
     m_markableInterface = 0;
 }
 
-//#include <QDebug>
-
 void BaseTextMark::updateMarker()
 {
-    //qDebug()<<"BaseTextMark::updateMarker()"<<m_markableInterface<<m_internalMark;
+    //qDebug()<<"BaseTextMark::updateMarker()"<<m_markableInterface<<this;
     if (m_markableInterface)
-        m_markableInterface->updateMark(m_internalMark);
+        m_markableInterface->updateMark(this);
 }
 
 void BaseTextMark::moveMark(const QString & /* filename */, int /* line */)
 {
     Core::EditorManager *em = Core::EditorManager::instance();
     if (!m_init) {
-        connect(em, SIGNAL(editorOpened(Core::IEditor *)), this, SLOT(editorOpened(Core::IEditor *)));
+        connect(em, SIGNAL(editorOpened(Core::IEditor *)),
+            SLOT(editorOpened(Core::IEditor *)));
         m_init = true;
     }
 
     if (m_markableInterface)
-        m_markableInterface->removeMark(m_internalMark);
-    // This is only necessary since m_internalMark is created in editorOpened
-    removeInternalMark();
+        m_markableInterface->removeMark(this);
 
     foreach (Core::IEditor *editor, em->openedEditors())
         editorOpened(editor);
 }
+
 } // namespace TextEditor

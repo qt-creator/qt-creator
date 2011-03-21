@@ -37,49 +37,37 @@
 #include "texteditor_global.h"
 #include "itexteditor.h"
 
+#include <QtCore/QPointer>
+#include <QtGui/QIcon>
+
 QT_BEGIN_NAMESPACE
-class QIcon;
 class QTextBlock;
+class QPainter;
 QT_END_NAMESPACE
 
 namespace TextEditor {
 
 class ITextMarkable;
 
-namespace Internal {
-class InternalMark;
-}
-
-class TEXTEDITOR_EXPORT BaseTextMark : public QObject
+class TEXTEDITOR_EXPORT BaseTextMark : public TextEditor::ITextMark
 {
-    friend class Internal::InternalMark;
     Q_OBJECT
 
 public:
-    explicit BaseTextMark(const QString &filename, int line);
+    BaseTextMark();
     virtual ~BaseTextMark();
 
-    // return your icon here
-    virtual QIcon icon() const = 0;
+    // our location in the "owning" edtitor
+    virtual void setLocation(const QString &fileName, int lineNumber);
 
-    // called if the linenumber changes
-    virtual void updateLineNumber(int lineNumber) = 0;
-
-    // called whenever the text of the block for the marker changed
-    virtual void updateBlock(const QTextBlock &block) = 0;
-
-    // called if the block containing this mark has been removed
-    // if this also removes your mark call this->deleteLater();
-    virtual void removedFromEditor() = 0;
     // call this if the icon has changed.
     void updateMarker();
+
     // access to internal data
     QString fileName() const { return m_fileName; }
     int lineNumber() const { return m_line; }
 
     void moveMark(const QString &filename, int line);
-
-    virtual TextEditor::ITextMark::Priority priority() const = 0;
 
 private slots:
     void init();
@@ -87,13 +75,9 @@ private slots:
     void documentReloaded();
 
 private:
-    void childRemovedFromEditor(Internal::InternalMark *mark);
-    void documentClosingFor(Internal::InternalMark *mark);
     void removeInternalMark();
 
-    ITextMarkable *m_markableInterface;
-    Internal::InternalMark *m_internalMark;
-
+    QPointer<ITextMarkable> m_markableInterface;
     QString m_fileName;
     int m_line;
     bool m_init;

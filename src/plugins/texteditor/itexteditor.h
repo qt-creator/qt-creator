@@ -41,13 +41,15 @@
 #include <QtCore/QObject>
 #include <QtCore/QList>
 #include <QtCore/QMap>
+#include <QtGui/QIcon>
 
 QT_BEGIN_NAMESPACE
-class QMenu;
-class QTextBlock;
 class QIcon;
-class QRect;
+class QMenu;
+class QPainter;
 class QPoint;
+class QRect;
+class QTextBlock;
 QT_END_NAMESPACE
 
 namespace TextEditor {
@@ -61,13 +63,6 @@ public:
     ITextMark(QObject *parent = 0) : QObject(parent) {}
     virtual ~ITextMark() {}
 
-    virtual QIcon icon() const = 0;
-
-    virtual void updateLineNumber(int lineNumber) = 0;
-    virtual void updateBlock(const QTextBlock &block) = 0;
-    virtual void removedFromEditor() = 0;
-    virtual void documentClosing() = 0;
-
     // determine order on markers on the same line.
     enum Priority
     {
@@ -76,7 +71,18 @@ public:
         HighPriority // shown on top.
     };
 
-    virtual Priority priority() const = 0;
+    virtual void paint(QPainter *painter, const QRect &rect) const;
+    virtual void updateLineNumber(int lineNumber);
+    virtual void updateBlock(const QTextBlock &block);
+    virtual void removedFromEditor();
+    virtual void documentClosing();
+    virtual void setIcon(const QIcon &icon);
+    virtual Priority priority() const;
+    virtual void setPriority(Priority prioriy);
+
+private:
+    QIcon m_icon;
+    Priority m_priority;
 };
 
 typedef QList<ITextMark *> TextMarks;

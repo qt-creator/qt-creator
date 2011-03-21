@@ -74,20 +74,6 @@ using namespace Core;
 namespace Debugger {
 namespace Internal {
 
-class LocationMarkFoo : public TextEditor::ITextMark
-{
-public:
-    LocationMarkFoo() {}
-
-    QIcon icon() const { return debuggerCore()->locationMarkIcon(); }
-    void updateLineNumber(int /*lineNumber*/) {}
-    void updateBlock(const QTextBlock & /*block*/) {}
-    void removedFromEditor() {}
-    void documentClosing() {}
-    TextEditor::ITextMark::Priority priority() const
-        { return TextEditor::ITextMark::HighPriority; }
-};
-
 class SourceAgentPrivate
 {
 public:
@@ -104,9 +90,11 @@ public:
 
 SourceAgentPrivate::SourceAgentPrivate()
   : editor(0)
-  , locationMark(new LocationMarkFoo)
   , producer("remote")
 {
+    locationMark = new TextEditor::ITextMark;
+    locationMark->setIcon(debuggerCore()->locationMarkIcon());
+    locationMark->setPriority(TextEditor::ITextMark::HighPriority);
 }
 
 SourceAgentPrivate::~SourceAgentPrivate()
