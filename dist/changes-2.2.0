@@ -21,6 +21,7 @@ Editing
      - syntax checking
      - highlighting
      - code completion.
+   * Add 'expand/collapse all' context menu entry to Outline pane
 
 Project Support
    * QMake project support should be more robust against syntax errors
@@ -69,13 +70,13 @@ Debugging
    * Handle "live updates" in the memory view
    * Make memory view writable (gdb only)
    * Improve starting debugger session directly from the command line
-
+   * Improve debugging helpers dialog
+ 
 BinEditor:
    * Visualize data differences after updates
    * Fix selection if cursor is left of anchor
    * Allow copying also if selection is "backwards"
    * Do not draw blinking cursor when there is a selection
-
 
 Help
 
@@ -90,9 +91,6 @@ C++ Support
    * Snippets for class/struct/loops.
 
 QML/JS Support
-   * Gui cosmetics in JS debugger: Show stack frame level, only valid
-     line numbers in stack view, do not show function code, show dummy
-     child entry for empty arrays
    * Add wizard for creating JavaScript files, QTCREATORBUG-3070
    * Add local-file completion for url properties, QTCREATORBUG-2619
    * Add warning about invalid files in url properties
@@ -114,9 +112,23 @@ QML/JS Support
    * Fix quote autoinsertion in string literals, QTCREATORBUG-2155, QTCREATORBUG-3244
    * Fix '{' not being an electric character, QTCREATORBUG-3405
    * Fix indentation of 'foo: Namesp.Type {', QTCREATORBUG-3371
+   * .qmlproject format: Allow specifying the 'mainFile' qml file, bump version to 1.1
+   * Qt Quick UI project: allow user to change run environment
+   
+QML/JS Debugging:
+   * Compile qmljsdebugger code as static library, and link it based on checkbox in qmake step
+      (replaces QMLJSDEBUGGER_PATH / QMLJSDEBUGGER define)
+   * Qt Quick Application: Allow debugging also in release builds, improve error diagnostics
+   * Gui cosmetics in JS debugger: Show stack frame level, only valid
+     line numbers in stack view, do not show function code, show dummy
+     child entry for empty arrays
    * Added qml tooltips for property inspection at debug time
    * Extended QML Observer for inspection and tweaking of item's properties
    * Added navigation of the object tree in the QML Observer through a crumble path
+   * Add 'show app on top' option
+   * Move toolbar from Observer tab to the main toolbar space
+   * Support setting of breakpoints in .qml files embedded as qrc resources
+   * Improve 'linkification' of QML errors in Application Output pane
 
 FakeVim:
    * Implement Ctrl-N/Ctrl-P
