@@ -17,6 +17,10 @@ Editing
    * Add new Inkpot color scheme
    * Moved 'Open in External Editor' to Tools->External->Text
    * Add UTF-8 BOM support
+   * GLSL Support with:
+     - syntax checking
+     - highlighting
+     - code completion.
 
 Project Support
    * QMake project support should be more robust against syntax errors
