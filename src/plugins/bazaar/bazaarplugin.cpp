@@ -248,7 +248,7 @@ void BazaarPlugin::createFileActions(const Core::Context &context)
     m_diffFile = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = m_actionManager->registerAction(m_diffFile, Core::Id(Constants::DIFF), context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+B,Alt+D")));
+    command->setDefaultKeySequence(QKeySequence(tr("ALT+Z,Alt+D")));
     connect(m_diffFile, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -256,7 +256,7 @@ void BazaarPlugin::createFileActions(const Core::Context &context)
     m_logFile = new Utils::ParameterAction(tr("Log Current File"), tr("Log \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = m_actionManager->registerAction(m_logFile, Core::Id(Constants::LOG), context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+B,Alt+L")));
+    command->setDefaultKeySequence(QKeySequence(tr("ALT+Z,Alt+L")));
     connect(m_logFile, SIGNAL(triggered()), this, SLOT(logCurrentFile()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -264,7 +264,7 @@ void BazaarPlugin::createFileActions(const Core::Context &context)
     m_statusFile = new Utils::ParameterAction(tr("Status Current File"), tr("Status \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = m_actionManager->registerAction(m_statusFile, Core::Id(Constants::STATUS), context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+B,Alt+S")));
+    command->setDefaultKeySequence(QKeySequence(tr("ALT+Z,Alt+S")));
     connect(m_statusFile, SIGNAL(triggered()), this, SLOT(statusCurrentFile()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -441,7 +441,7 @@ void BazaarPlugin::createRepositoryActions(const Core::Context &context)
     action = new QAction(tr("Commit..."), this);
     m_repositoryActionList.append(action);
     command = m_actionManager->registerAction(action, Core::Id(Constants::COMMIT), context);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+B,Alt+C")));
+    command->setDefaultKeySequence(QKeySequence(tr("ALT+Z,Alt+C")));
     connect(action, SIGNAL(triggered()), this, SLOT(commit()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
