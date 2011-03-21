@@ -9,9 +9,9 @@ git log --cherry-pick --pretty=oneline origin/master...origin/2.1
 
 General
    * Added support for running user defined external tools (Tools->External)
-   * Moved toolchain definitions out of Qt versions. You can now define
-     toolchains in Tools->Options->ToolChains. Creator now supports
-     more than one instance of each kind of toolchain.
+   * Moved toolchain definitions out of Qt versions.
+      * You can now define toolchains in Tools->Options->ToolChains
+      * Creator now supports more than one instance of each kind of toolchain
 
 Editing
    * Add new Inkpot color scheme
@@ -20,8 +20,9 @@ Editing
    * GLSL Support with:
      - syntax checking
      - highlighting
-     - code completion.
+     - code completion
    * Add 'expand/collapse all' context menu entry to Outline pane
+   * Support for user defined macros was contributed by Nicolas Arnaud-Cormos
 
 Project Support
    * QMake project support should be more robust against syntax errors
@@ -34,19 +35,19 @@ Project Support
      - this affects working directories and executable paths as well
    * CMake: Add Ui completion, changes in .ui files are picked up without
      a rebuild.
-   * Syntax highlighting and completion for QMake project files.
+   * Syntax highlighting and completion for QMake project files
 
 Debugging
    * Rewrote debugging engine using the Microsoft Console Debugger (CDB)
      for debugging executables built with Microsoft Visual Studio,
      resulting in significant speed-up and better display of data
      types, supporting both 32bit and 64bit versions of the
-     Debugging Tools for Windows.
+     Debugging Tools for Windows
    * Made it possible to pin debugger tooltips.
    * Reworked global architecture to allow multiple debugging sessions (for
      different projects, combined Qml/C++ debugging, project 'snapshots', ...)
    * Reworked breakpoint handling: new special breakpoint types for "break
-     on throw", "break on main", data breakpoints.
+     on throw", "break on main", data breakpoints
    * Introduce combined c++/qml debugging (combined stack, cross-step) (gdb only)
    * Rework per-type and per-item selection of display formats
    * New dumpers for QTextCursor, QTextDocument, __m128, QScriptValue
@@ -88,7 +89,7 @@ C++ Support
    * Fix indentation of labels
    * Highlighting for virtual functions
    * Navigate to correct overloaded function/method
-   * Snippets for class/struct/loops.
+   * Snippets for class/struct/loops
 
 QML/JS Support
    * Add wizard for creating JavaScript files, QTCREATORBUG-3070
@@ -162,10 +163,12 @@ Misc
    * Create infrastructure to setup "soft dependencies" between plugins
    * Add a little tool 'qtpromaker' doing the job of 'qmake -project', but
      much faster to make Qt Creator usable to quickly inspect and navigate
-     "alien" codebases a way to easily set up dummy .pro files is needed.
+     "alien" codebases a way to easily set up dummy .pro files is needed
    * Start documenting Qt Creator's coding style guidelines
 
 Additional credits go to:
    * The Inkpot color scheme was based on the Vim color scheme by
      Ciaran McCreesh, adapted for Qt Creator by Jan Kundrát and
-     subsequently updated by Campbell Barton.
+     subsequently updated by Campbell Barton
+   * Hugues Delorme for the bazaar plugin which he continues to improve
+   * Nicolas Arnaud-Cormos for the Macro plugin
