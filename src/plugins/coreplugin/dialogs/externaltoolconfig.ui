@@ -166,12 +166,12 @@
         </item>
         <item>
          <property name="text">
-          <string>Show in pane</string>
+          <string>Show in Pane</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Replace selection</string>
+          <string>Replace Selection</string>
          </property>
         </item>
        </widget>
@@ -200,12 +200,12 @@
         </item>
         <item>
          <property name="text">
-          <string>Show in pane</string>
+          <string>Show in Pane</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Replace selection</string>
+          <string>Replace Selection</string>
          </property>
         </item>
        </widget>

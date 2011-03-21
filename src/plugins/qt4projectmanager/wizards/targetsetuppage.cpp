@@ -66,7 +66,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     centralWidget->setLayout(m_layout);
     m_layout->addSpacerItem(m_spacer);
 
-    setTitle(tr("Target setup"));
+    setTitle(tr("Target Setup"));
 }
 
 void TargetSetupPage::initializePage()

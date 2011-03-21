@@ -124,9 +124,9 @@ void ImageViewerActionHandler::createActions()
                       d_ptr->context, QKeySequence(tr("Ctrl+0")));
     registerNewAction(FitToScreen, Constants::ACTION_FIT_TO_SCREEN, tr("Fit To Screen"),
                       d_ptr->context, QKeySequence(tr("Ctrl+=")));
-    registerNewAction(Background, Constants::ACTION_BACKGROUND, tr("Switch background"),
+    registerNewAction(Background, Constants::ACTION_BACKGROUND, tr("Switch Background"),
                       d_ptr->context, QKeySequence(tr("Ctrl+[")));
-    registerNewAction(Outline, Constants::ACTION_OUTLINE, tr("Switch outline"),
+    registerNewAction(Outline, Constants::ACTION_OUTLINE, tr("Switch Outline"),
                       d_ptr->context, QKeySequence(tr("Ctrl+]")));
 }
 
