@@ -537,9 +537,13 @@
 
     \list
         \o  Do not use exceptions, unless you know what you do.
+
         \o  Do not use RTTI (Run-Time Type Information; that is, the typeinfo
             struct, the dynamic_cast or the typeid operators, including throwing
             exceptions), unless you know what you do.
+
+        \o  Do not use virtual inheritance, unless you know what you do.
+
         \o  Use templates wisely, not just because you can.
 
             Hint: Use the compile autotest to see whether a C++ feature is supported
@@ -559,12 +563,13 @@
                   either use the qdoc \c {\unicode} command or use the relevant macro.
                   For example: \c{\uuml} for \uuml.
            \endlist
+
         \o  Use static keywords instead of anonymous namespaces whenever possible.
             A name localized to the compilation unit with static is
             guaranteed to have internal linkage. For names declared in anonymous
             namespaces, the C++ standard unfortunately mandates external linkage
-            (ISO/IEC 14882, 7.1.1/6, or see various discussions about this on the gcc mailing
-            lists).
+            (ISO/IEC 14882, 7.1.1/6, or see various discussions about this on the gcc
+            mailing lists).
     \endlist
 
     \section3 Null Pointers
