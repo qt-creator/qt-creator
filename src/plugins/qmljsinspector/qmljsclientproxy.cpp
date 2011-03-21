@@ -114,28 +114,6 @@ void ClientProxy::clientStatusChanged(QDeclarativeDebugClient::Status status)
     updateConnected();
 }
 
-void ClientProxy::disconnectFromServer()
-{
-    delete m_engineClient;
-    m_engineClient = 0;
-
-    delete m_observerClient;
-    m_observerClient = 0;
-
-    delete m_engineQuery;
-    m_engineQuery = 0;
-
-    delete m_contextQuery;
-    m_contextQuery = 0;
-
-    qDeleteAll(m_objectTreeQuery);
-    m_objectTreeQuery.clear();
-
-    removeAllObjectWatches();
-
-    updateConnected();
-}
-
 void ClientProxy::refreshObjectTree()
 {
     if (!m_contextQuery) {

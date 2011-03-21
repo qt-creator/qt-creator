@@ -133,7 +133,6 @@ public slots:
     void setContextPathIndex(int contextIndex);
 
 private slots:
-    void disconnectFromServer();
     void connectToServer();
     void clientStatusChanged(QDeclarativeDebugClient::Status status);
 
