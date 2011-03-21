@@ -7579,7 +7579,22 @@
 
     \note The set of watched items is saved in your session.
 
-    \section1 Debugging the C++ Language
+    \section1 Directly Interacting with Native Debuggers
+
+    In some cases, it is convenient to directly interact with the command
+    line of the native debugger. In Qt Creator, you can use the left
+    pane of the \gui {Debugger Log} view for that purpose. When you press
+    \key {Ctrl+Return}, the contents of the line under the text cursor
+    are sent directly to the native debugger. Alternatively, you
+    can use the line edit at the bottom of the view. Output is displayed in the
+    right pane of the \gui {Debugger Log} view.
+
+    \note Usually, you do not need this feature, because Qt Creator provides
+    you with better ways to handle the task. For example, instead of using the
+    gdb \c print command from the command line, you can create a watcher item
+    in the \gui{Locals and Watchers} view and examine the expression there.
+
+    \section1 Debugging C++ Based Applications
 
     The following sections describe additional debugging functions that apply
     only to debugging C++.
