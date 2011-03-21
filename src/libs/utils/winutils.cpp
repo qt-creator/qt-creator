@@ -160,7 +160,7 @@ QTCREATOR_UTILS_EXPORT QString getShortPathName(const QString &name, QString *er
         return name;
     QScopedArrayPointer<TCHAR> buffer(new TCHAR[length]);
     (*getShortPathNameW)(nameC, buffer.data(), length);
-    const QString rc = QString::fromUtf16(reinterpret_cast<const ushort *>(buffer.data()), length);
+    const QString rc = QString::fromUtf16(reinterpret_cast<const ushort *>(buffer.data()), length - 1);
     return rc;
 }
 
@@ -192,7 +192,7 @@ QTCREATOR_UTILS_EXPORT QString getLongPathName(const QString &name, QString *err
         return name;
     QScopedArrayPointer<TCHAR> buffer(new TCHAR[length]);
     (*getLongPathNameW)(nameC, buffer.data(), length);
-    const QString rc = QString::fromUtf16(reinterpret_cast<const ushort *>(buffer.data()), length);
+    const QString rc = QString::fromUtf16(reinterpret_cast<const ushort *>(buffer.data()), length - 1);
     return rc;
 }
 
