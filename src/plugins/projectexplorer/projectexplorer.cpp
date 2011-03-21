@@ -1748,25 +1748,25 @@ void ProjectExplorerPlugin::deploySession()
 void ProjectExplorerPlugin::cleanProjectOnly()
 {
     queue(QList<Project *>() << session()->startupProject(),
-          QStringList() << Constants::BUILDSTEPS_CLEAN << Constants::BUILDSTEPS_CLEAN);
+          QStringList() << Constants::BUILDSTEPS_CLEAN);
 }
 
 void ProjectExplorerPlugin::cleanProject()
 {
     queue(d->m_session->projectOrder(session()->startupProject()),
-          QStringList() << Constants::BUILDSTEPS_CLEAN << Constants::BUILDSTEPS_CLEAN);
+          QStringList() << Constants::BUILDSTEPS_CLEAN);
 }
 
 void ProjectExplorerPlugin::cleanProjectContextMenu()
 {
     queue(d->m_session->projectOrder(d->m_currentProject),
-          QStringList() << Constants::BUILDSTEPS_CLEAN << Constants::BUILDSTEPS_CLEAN);
+          QStringList() << Constants::BUILDSTEPS_CLEAN);
 }
 
 void ProjectExplorerPlugin::cleanSession()
 {
     queue(d->m_session->projectOrder(),
-          QStringList() << Constants::BUILDSTEPS_CLEAN << Constants::BUILDSTEPS_CLEAN);
+          QStringList() << Constants::BUILDSTEPS_CLEAN);
 }
 
 void ProjectExplorerPlugin::runProject()
