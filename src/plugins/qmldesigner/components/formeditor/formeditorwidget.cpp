@@ -166,6 +166,15 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addAction(m_zoomAction.data());
     upperActions.append(m_zoomAction.data());
     m_toolBox->addRightSideAction(m_zoomAction.data());
+
+    m_resetAction = new QAction(tr("Reset view (R)"), this);
+    m_resetAction->setShortcut(Qt::Key_R);
+    m_resetAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    m_resetAction->setIcon(QPixmap(":/icon/reset.png"));
+    connect(m_resetAction.data(), SIGNAL(triggered(bool)), this, SLOT(resetNodeInstanceView()));
+    addAction(m_resetAction.data());
+    upperActions.append(m_resetAction.data());
+    m_toolBox->addRightSideAction(m_resetAction.data());
 }
 
 void FormEditorWidget::enterEvent(QEvent *event)
@@ -201,6 +210,12 @@ void FormEditorWidget::changeRootItemHeight(const QString &heighText)
     } else {
         m_formEditorView->rootModelNode().setAuxiliaryData("height", QVariant());
     }
+}
+
+void FormEditorWidget::resetNodeInstanceView()
+{
+    m_formEditorView->setCurrentState(m_formEditorView->baseState());
+    m_formEditorView->emitCustomNotification(QLatin1String("reset QmlPuppet"));
 }
 
 void FormEditorWidget::changeAnchorTool(bool checked)
