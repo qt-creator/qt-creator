@@ -58,6 +58,10 @@ namespace Coda {
     class CodaRunControlModuleLoadContextSuspendedEvent;
 }
 
+namespace SymbianUtils {
+class SymbianDevice;
+}
+
 namespace Debugger {
 namespace Internal {
 
@@ -153,7 +157,9 @@ private:
     //
     Q_SLOT void handleGdbConnection();
     Q_SLOT void readGdbServerCommand();
-    Q_SLOT void codaDeviceError(const QString  &);
+    Q_SLOT void codaDeviceError(const QString &);
+    Q_SLOT void codaDeviceRemoved(const SymbianUtils::SymbianDevice &dev);
+
     void startGdb();
     Q_SLOT void codaEvent(const Coda::CodaEvent &knownEvent);
     void handleCodaRunControlModuleLoadContextSuspendedEvent(const Coda::CodaRunControlModuleLoadContextSuspendedEvent &e);
@@ -171,7 +177,7 @@ private:
     void gdbSetCurrentThread(const QByteArray &cmd, const char *why);
 
     void logMessage(const QString &msg, int channel = LogDebug);  // triggers output() if m_verbose
-    Q_SLOT void trkLogMessage(const QString &msg);
+    Q_SLOT void codaLogMessage(const QString &msg);
 
     QPointer<QTcpServer> m_gdbServer;
     QPointer<QTcpSocket> m_gdbConnection;
