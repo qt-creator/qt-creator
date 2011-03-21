@@ -152,6 +152,7 @@ Maemo Target
 Designer
 
 Version control plugins
+   * Bazaar support was contributed by Hugues Delorme
 
 Wizards
    * Support new keywords %MONTH% and %DAY% for C++ template file
