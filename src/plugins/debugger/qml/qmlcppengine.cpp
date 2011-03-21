@@ -577,6 +577,7 @@ void QmlCppEngine::slaveEngineStateChanged
                 notifyInferiorStopOk();
             } else if (state() == EngineRunRequested) {
                 EDEBUG("... AN INFERIOR FAILED STARTUP, OTHER STOPPED EXPECTEDLY");
+                notifyEngineRunAndInferiorStopOk();
             } else {
                 EDEBUG("... AN INFERIOR STOPPED SPONTANEOUSLY");
                 notifyInferiorSpontaneousStop();
