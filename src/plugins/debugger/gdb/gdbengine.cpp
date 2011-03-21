@@ -4736,7 +4736,10 @@ void GdbEngine::handleAdapterCrashed(const QString &msg)
     // Don't bother with state transitions - this can happen in any state and
     // the end result is always the same, so it makes little sense to find a
     // "path" which does not assert.
-    notifyEngineSetupFailed();
+    if (state() == EngineSetupRequested)
+        notifyEngineSetupFailed();
+    else
+        notifyEngineIll();
 
     // No point in being friendly here ...
     gdbProc()->kill();
