@@ -3559,7 +3559,8 @@ int BaseTextEditorWidget::extraAreaWidth(int *markWidthPtr) const
 
     if (d->m_lineNumbersVisible) {
         QFont fnt = d->m_extraArea->font();
-        // this works under the assumption that bold or italic can only make a font wider
+        // this works under the assumption that bold or italic
+        // can only make a font wider
         fnt.setBold(d->m_currentLineNumberFormat.font().bold());
         fnt.setItalic(d->m_currentLineNumberFormat.font().italic());
         const QFontMetrics linefm(fnt);
@@ -3709,10 +3710,11 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
             if (TextBlockUserData *userData = static_cast<TextBlockUserData*>(block.userData())) {
                 if (d->m_marksVisible) {
                     int xoffset = 0;
-                    foreach (ITextMark *mrk, userData->marks()) {
-                        const int radius = fmLineSpacing - 1;
-                        const QRect r(xoffset, top, radius, radius);
-                        mrk->paint(&painter, r);
+                    foreach (ITextMark *mark, userData->marks()) {
+                        const int height = fmLineSpacing - 1;
+                        const int width = int(.5 + height * mark->widthFactor());
+                        const QRect r(xoffset, top, width, height);
+                        mark->paint(&painter, r);
                         xoffset += 2;
                     }
                 }

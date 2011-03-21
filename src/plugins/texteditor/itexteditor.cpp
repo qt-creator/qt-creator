@@ -73,6 +73,14 @@ ITextMark::Priority ITextMark::priority() const
     return m_priority;
 }
 
+
+double ITextMark::widthFactor() const
+{
+    return 1.0;
+}
+
+
+
 QMap<QString, QString> ITextEditor::openedTextEditorsContents()
 {
     QMap<QString, QString> workingCopy;

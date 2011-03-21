@@ -79,6 +79,7 @@ public:
     virtual void setIcon(const QIcon &icon);
     virtual Priority priority() const;
     virtual void setPriority(Priority prioriy);
+    virtual double widthFactor() const;
 
 private:
     QIcon m_icon;
