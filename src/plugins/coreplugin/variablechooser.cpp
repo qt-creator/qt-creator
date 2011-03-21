@@ -155,7 +155,7 @@ void VariableChooser::handleItemActivated(QListWidgetItem *item)
 
 void VariableChooser::insertVariable(const QString &variable)
 {
-    const QString &text = QLatin1String("${") + variable + QLatin1String("}");
+    const QString &text = QLatin1String("%{") + variable + QLatin1String("}");
     if (m_lineEdit) {
         m_lineEdit->insert(text);
         m_lineEdit->activateWindow();
