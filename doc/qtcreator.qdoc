@@ -1981,8 +1981,7 @@
 
         \o  Select \gui {Tools > External > Configure}.
 
-        \o  Select
-            \inlineimage qtcreator-windows-add.png
+        \o  Select \gui {Add > Add Tool}
             to add a new tool. You can also select \gui {Add Category} to add a
             new category.
 
