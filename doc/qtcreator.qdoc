@@ -10723,6 +10723,18 @@
            paths may fail. For example, remounting parts of a file system
            using the --bind mount option.
 
+        \o You must use a workaround to use the DYLD_IMAGE_SUFFIX option in the
+           \gui Projects tab on Mac OS X  Snow Leopard. For more information on
+           the issue, see
+           \l{http://wimleers.com/blog/dyld-image-suffix-causing-havoc-on-mac-os-x-snow-leopard}{DYLD_IMAGE_SUFFIX causing havoc on Mac OS X Snow Leopard}.
+
+           To use the option, enter the following commands in the Terminal
+           application:
+           \code
+           sudo mv /usr/lib/libSystem.B_debug.dylib /usr/lib/libSystem.B_debug.dylib.backup
+           sudo cp /usr/lib/libSystem.B.dylib /usr/lib/libSystem.B_debug.dylib.backup
+           \endcode
+
     \endlist
 
     \section1 Qt Quick Designer Issues
