@@ -215,6 +215,7 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
     m_stackNeeded = false;
     m_preparedForQmlBreak = false;
     m_disassembleUsesComma = false;
+    m_qFatalBreakpointNumber = 0;
 
     invalidateSourcesList();
 
@@ -1246,7 +1247,8 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
     if (bkptno && frame.isValid()
             && !isQmlStepBreakpoint1(bkptno)
-            && !isQmlStepBreakpoint2(bkptno)) {
+            && !isQmlStepBreakpoint2(bkptno)
+            && !isQFatalBreakpoint(bkptno)) {
         // Use opportunity to update the breakpoint marker position.
         BreakHandler *handler = breakHandler();
         //qDebug() << " PROBLEM: " << m_qmlBreakpointNumbers << bkptno
@@ -1268,7 +1270,8 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     if (lineNumber && !debuggerCore()->boolSetting(OperateByInstruction)
             && QFileInfo(fullName).exists()
             && !isQmlStepBreakpoint1(bkptno)
-            && !isQmlStepBreakpoint2(bkptno))
+            && !isQmlStepBreakpoint2(bkptno)
+            && !isQFatalBreakpoint(bkptno))
         gotoLocation(Location(fullName, lineNumber));
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
@@ -2169,7 +2172,7 @@ void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkp
         } else if (child.hasName("func")) {
             response.functionName = _(child.data());
         } else if (child.hasName("addr")) {
-            // <MULTIPLE> happens in constructors, inline functions, and 
+            // <MULTIPLE> happens in constructors, inline functions, and
             // at other places like 'foreach' lines. In this case there are
             // fields named "addr" in the response and/or the address
             // is called <MULTIPLE>.
@@ -2437,6 +2440,8 @@ void GdbEngine::handleBreakList(const GdbMi &table)
         BreakpointResponse needle;
         needle.number = bkpt.findChild("number").data().toInt();
         if (isQmlStepBreakpoint2(needle.number))
+            continue;
+        if (isQFatalBreakpoint(needle.number))
             continue;
         BreakpointId id = breakHandler()->findSimilarBreakpoint(needle);
         if (id != BreakpointId(-1)) {
@@ -4622,8 +4627,10 @@ void GdbEngine::handleInferiorPrepared()
 
     // Apply source path mappings from global options.
     const SourcePathMap sourcePathMap =
-            DebuggerSourcePathMappingWidget::mergePlatformQtPath(startParameters().qtInstallPath,
-                                                                 debuggerCore()->globalDebuggerOptions()->sourcePathMap);
+            DebuggerSourcePathMappingWidget::mergePlatformQtPath(
+                startParameters().qtInstallPath,
+                debuggerCore()->globalDebuggerOptions()->sourcePathMap);
+
     if (!sourcePathMap.isEmpty()) {
         const SourcePathMapIterator cend = sourcePathMap.constEnd();
         for (SourcePathMapIterator it = sourcePathMap.constBegin(); it != cend; ++it) {
@@ -4653,6 +4660,52 @@ void GdbEngine::handleInferiorPrepared()
 void GdbEngine::finishInferiorSetup()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    // Extract Qt namespace.
+    QString fileName;
+    {
+        QTemporaryFile symbols(QDir::tempPath() + _("/gdb_ns_"));
+        symbols.open();
+        fileName = symbols.fileName();
+    }
+    postCommand("maint print msymbols " + fileName.toLocal8Bit(),
+        CB(handleNamespaceExtraction), fileName);
+}
+
+void GdbEngine::handleNamespaceExtraction(const GdbResponse &response)
+{
+    QFile file(response.cookie.toString());
+    file.open(QIODevice::ReadOnly);
+    QByteArray ba = file.readAll();
+    //file.remove();
+    int pos = ba.indexOf("7QString9fromAscii");
+    int pos1 = pos - 1;
+    while (pos1 > 0 && ba.at(pos1) != 'N' && ba.at(pos1) > '@')
+        --pos1;
+    ++pos1;
+    const QByteArray ns = ba.mid(pos1, pos - pos1);
+    if (ns.isEmpty()) {
+        showMessage(_("FOUND NON-NAMESPACED QT"));
+    } else {
+        showMessage(_("FOUND NAMESPACED QT: " + ns));
+        setQtNamespace(ns + "::");
+    }
+    postCommand("-break-insert -f '" + qtNamespace() + "qFatal'",
+         CB(handleBreakOnQFatal));
+}
+
+void GdbEngine::handleBreakOnQFatal(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        GdbMi bkpt = response.data.findChild("bkpt");
+        GdbMi number = bkpt.findChild("number");
+        int bpnr = number.data().toInt();
+        if (bpnr) {
+            m_qFatalBreakpointNumber = bpnr;
+            postCommand("-break-commands " + number.data() + " return");
+        }
+    }
+
+    // Continue setup.
     notifyInferiorSetupOk();
 }
 
@@ -4784,6 +4837,11 @@ bool GdbEngine::isQmlStepBreakpoint2(int bpnr) const
 {
     //qDebug() << "CHECK 2: " << m_qmlBreakpointNumbers[2] << bpnr;
     return bpnr && m_qmlBreakpointNumbers[2] == bpnr;
+}
+
+bool GdbEngine::isQFatalBreakpoint(int bpnr) const
+{
+    return bpnr && m_qFatalBreakpointNumber == bpnr;
 }
 
 //

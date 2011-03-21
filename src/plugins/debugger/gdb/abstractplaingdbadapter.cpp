@@ -93,36 +93,6 @@ void AbstractPlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &respon
 
 void AbstractPlainGdbAdapter::runEngine()
 {
-    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    QString fileName;
-    {
-        QTemporaryFile symbols(QDir::tempPath() + "/gdb_ns_");
-        symbols.open();
-        fileName = symbols.fileName();
-    }
-    m_engine->postCommand("maint print msymbols " + fileName.toLocal8Bit(),
-        CB(handleNamespaceExtraction), fileName);
-}
-
-void AbstractPlainGdbAdapter::handleNamespaceExtraction(const GdbResponse &response)
-{
-    QFile file(response.cookie.toString());
-    file.open(QIODevice::ReadOnly);
-    QByteArray ba = file.readAll();
-    file.remove();
-    int pos = ba.indexOf("7QString9fromAscii");
-    int pos1 = pos - 1;
-    while (pos1 > 0 && ba.at(pos1) != 'N' && ba.at(pos1) > '@')
-        --pos1;
-    ++pos1;
-    const QByteArray ns = ba.mid(pos1, pos - pos1);
-    if (!ns.isEmpty())
-        m_engine->setQtNamespace(ns + "::");
-    doRunEngine();
-}
-
-void AbstractPlainGdbAdapter::doRunEngine()
-{
     m_engine->postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
 }
 

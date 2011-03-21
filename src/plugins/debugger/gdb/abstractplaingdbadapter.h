@@ -52,7 +52,6 @@ public:
 
 protected:
     void handleInfoTarget(const GdbResponse &response);
-    void handleNamespaceExtraction(const GdbResponse &response);
 
 private:
     virtual QByteArray execFilePath() const = 0;
@@ -61,7 +60,6 @@ private:
     virtual QString fromLocalEncoding(const QByteArray &ba) const = 0;
     void handleExecRun(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);
-    void doRunEngine();
 };
 
 } // namespace Debugger
