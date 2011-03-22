@@ -703,7 +703,7 @@ void MainWindow::registerDefaultActions()
 
     // Select All
     icon = QIcon::fromTheme(QLatin1String("edit-select-all"));
-    tmpaction = new QAction(icon, tr("&Select All"), this);
+    tmpaction = new QAction(icon, tr("Select &All"), this);
     cmd = am->registerAction(tmpaction, Constants::SELECTALL, globalContext);
     cmd->setDefaultKeySequence(QKeySequence::SelectAll);
     medit->addAction(cmd, Constants::G_EDIT_SELECTALL);
