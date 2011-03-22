@@ -32,6 +32,7 @@
 **************************************************************************/
 
 #include "msvctoolchain.h"
+
 #include "msvcparser.h"
 #include "projectexplorerconstants.h"
 #include "headerpath.h"
@@ -42,9 +43,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
-#ifdef Q_OS_WIN
-#    include <utils/winutils.h>
-#endif
+#include <utils/winutils.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
