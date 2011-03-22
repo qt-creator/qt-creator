@@ -161,8 +161,19 @@ void DesignDocumentController::detachNodeInstanceView()
 
 void DesignDocumentController::attachNodeInstanceView()
 {
+    QmlModelState state;
     if (m_d->nodeInstanceView)
         model()->attachView(m_d->nodeInstanceView.data());
+
+    //We go back to base state (and back again) to avoid side effects from text editing.
+    if (m_d->statesEditorView) {
+        state = m_d->statesEditorView->currentState();
+        m_d->statesEditorView->setCurrentState(m_d->statesEditorView->baseState());
+
+    }
+
+    if (state.isValid() && m_d->statesEditorView)
+        m_d->statesEditorView->setCurrentState(state);
 }
 
 QWidget *DesignDocumentController::centralWidget() const
