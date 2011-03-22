@@ -230,7 +230,7 @@ bool QtOptionsPageWidget::eventFilter(QObject *o, QEvent *e)
     const int index = indexForTreeItem(item);
     if (index == -1)
         return false;
-    const QString tooltip = m_versions.at(index)->toHtml();
+    const QString tooltip = m_versions.at(index)->toHtml(true);
     QToolTip::showText(helpEvent->globalPos(), tooltip, m_ui->qtdirList);
     helpEvent->accept();
     return true;

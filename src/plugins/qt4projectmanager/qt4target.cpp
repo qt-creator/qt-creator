@@ -593,6 +593,8 @@ void Qt4DefaultTargetSetupWidget::createImportWidget(const BuildConfigurationInf
     QCheckBox *checkBox = new QCheckBox;
     checkBox->setText(tr("Import build from %1").arg(info.directory));
     checkBox->setChecked(m_importEnabled.at(pos));
+    if (info.version)
+        checkBox->setToolTip(info.version->toHtml(false));
     m_importLayout->addWidget(checkBox, pos, 0, 1, 2);
 
     connect(checkBox, SIGNAL(toggled(bool)),
@@ -611,6 +613,8 @@ void Qt4DefaultTargetSetupWidget::setupWidgets()
         QCheckBox *checkbox = new QCheckBox;
         checkbox->setText(displayNameFrom(info));
         checkbox->setChecked(m_enabled.at(i));
+        if (info.version)
+            checkbox->setToolTip(info.version->toHtml(false));
         m_newBuildsLayout->addWidget(checkbox, i * 2, 0);
 
         Utils::PathChooser *pathChooser = new Utils::PathChooser();

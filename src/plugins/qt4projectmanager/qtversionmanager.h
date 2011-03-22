@@ -182,7 +182,7 @@ public:
     Q_DECLARE_FLAGS(QmakeBuildConfigs, QmakeBuildConfig)
 
     QmakeBuildConfigs defaultBuildConfig() const;
-    QString toHtml() const;
+    QString toHtml(bool verbose) const;
 
     bool supportsShadowBuilds() const;
 
