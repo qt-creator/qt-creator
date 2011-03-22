@@ -926,7 +926,7 @@ void DebuggerEngine::notifyInferiorStopOk()
 
 void DebuggerEngine::notifyInferiorSpontaneousStop()
 {
-    showMessage(_("NOTE: INFERIOR SPONTANEOUES STOP"));
+    showMessage(_("NOTE: INFERIOR SPONTANEOUS STOP"));
     QTC_ASSERT(state() == InferiorRunOk, qDebug() << this << state());
     setState(InferiorStopOk);
 }
