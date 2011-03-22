@@ -100,8 +100,8 @@
 using namespace Core::Constants;
 using namespace Help::Internal;
 
-const char * const SB_INDEX = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Index");
-const char * const SB_CONTENTS = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Contents");
+const char * const SB_INDEX = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "&Index");
+const char * const SB_CONTENTS = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "&Contents");
 const char * const SB_BOOKMARKS = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Bookmarks");
 const char * const SB_SEARCH = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Search");
 
