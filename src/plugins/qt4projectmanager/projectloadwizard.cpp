@@ -50,7 +50,7 @@ ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::W
 {
     Q_ASSERT(project);
 
-    setWindowTitle(tr("Project setup"));
+    setWindowTitle(tr("Project Setup"));
 
     setupTargetPage();
 

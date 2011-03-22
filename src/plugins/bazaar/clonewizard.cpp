@@ -64,7 +64,7 @@ QString CloneWizard::description() const
 
 QString CloneWizard::displayName() const
 {
-    return tr("Bazaar Clone (or branch)");
+    return tr("Bazaar Clone (Or Branch)");
 }
 
 QList<QWizardPage*> CloneWizard::createParameterPages(const QString &path)

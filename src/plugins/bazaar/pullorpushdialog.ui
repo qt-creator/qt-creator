@@ -17,13 +17,13 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Branch location</string>
+      <string>Branch Location</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
        <widget class="QRadioButton" name="defaultButton">
         <property name="text">
-         <string>Default Location</string>
+         <string>Default location</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -50,7 +50,7 @@
          <string>for example https://[user[:pass]@]host[:port]/[path]</string>
         </property>
         <property name="text">
-         <string>Specify Url:</string>
+         <string>Specify URL:</string>
         </property>
        </widget>
       </item>
