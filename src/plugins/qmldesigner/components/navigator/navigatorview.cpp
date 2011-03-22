@@ -53,7 +53,6 @@ NavigatorView::NavigatorView(QObject* parent) :
     m_widget->setTreeModel(m_treeModel.data());
 
     connect(treeWidget()->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(changeSelection(QItemSelection,QItemSelection)));
-    connect(treeWidget(), SIGNAL(doubleClicked(QModelIndex)), this, SLOT(changeToComponent(QModelIndex)));
     treeWidget()->setIndentation(treeWidget()->indentation() * 0.5);
 
     NameItemDelegate *idDelegate = new NameItemDelegate(this,m_treeModel.data());
