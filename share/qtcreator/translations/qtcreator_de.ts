@@ -24138,7 +24138,7 @@ Fehler: %2</translation>
     <name>Qt4ProjectManager::Qt4DefaultTargetSetupWidget</name>
     <message>
         <source>Add build from:</source>
-        <translation>Build aus hinzufügen:</translation>
+        <translation>Build hinzufügen aus:</translation>
     </message>
     <message>
         <source>Add Build</source>
