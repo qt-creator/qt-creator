@@ -107,7 +107,7 @@ signals:
     void selectMarqueeToolActivated();
     void zoomToolActivated();
     void animationSpeedChanged(qreal slowDownFactor);
-    void executionPausedChanged(bool paused);
+    void animationPausedChanged(bool paused);
     void designModeBehaviorChanged(bool inDesignMode);
     void showAppOnTopChanged(bool showAppOnTop);
     void serverReloaded();
@@ -122,7 +122,7 @@ public slots:
 
     void setDesignModeBehavior(bool inDesignMode);
     void setAnimationSpeed(qreal slowDownFactor);
-    void setExecutionPaused(bool paused);
+    void setAnimationPaused(bool paused);
     void changeToColorPickerTool();
     void changeToZoomTool();
     void changeToSelectTool();

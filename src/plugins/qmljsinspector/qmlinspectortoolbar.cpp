@@ -154,7 +154,7 @@ void QmlInspectorToolBar::setAnimationSpeed(qreal slowDownFactor)
     m_emitSignals = true;
 }
 
-void QmlInspectorToolBar::setExecutionPaused(bool paused)
+void QmlInspectorToolBar::setAnimationPaused(bool paused)
 {
     if (m_paused == paused)
         return;
@@ -338,7 +338,7 @@ void QmlInspectorToolBar::activateDesignModeOnClick()
 void QmlInspectorToolBar::activatePlayOnClick()
 {
     m_paused = !m_paused;
-    emit executionPausedChanged(m_paused);
+    emit animationPausedChanged(m_paused);
     updatePlayAction();
 }
 

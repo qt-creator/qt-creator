@@ -195,7 +195,7 @@ void QmlToolBar::setAnimationSpeed(qreal slowDownFactor)
     m_emitSignals = true;
 }
 
-void QmlToolBar::setExecutionPaused(bool paused)
+void QmlToolBar::setAnimationPaused(bool paused)
 {
     if (m_paused == paused)
         return;
@@ -240,7 +240,7 @@ void QmlToolBar::setColorBoxColor(const QColor &color)
 void QmlToolBar::activatePlayOnClick()
 {
     m_paused = !m_paused;
-    emit executionPausedChanged(m_paused);
+    emit animationPausedChanged(m_paused);
     updatePlayAction();
 }
 

@@ -66,7 +66,7 @@ public:
     void setDesignModeBehavior(bool inDesignMode);
     void setCurrentObjects(QList<QObject*> items);
     void setAnimationSpeed(qreal slowDownFactor);
-    void setExecutionPaused(bool paused);
+    void setAnimationPaused(bool paused);
     void setCurrentTool(QmlJSDebugger::Constants::DesignTool toolId);
     void reloaded();
     void setShowAppOnTop(bool showAppOnTop);

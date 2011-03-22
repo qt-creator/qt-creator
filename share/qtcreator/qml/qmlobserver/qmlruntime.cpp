@@ -787,7 +787,7 @@ void QDeclarativeViewer::createMenu()
     speedAction->setData(10.0f);
     playSpeedMenuActions->addAction(speedAction);
 
-    pauseAnimationsAction = playSpeedMenu->addAction(tr("Pause"), observer, SLOT(setExecutionPaused(bool)));
+    pauseAnimationsAction = playSpeedMenu->addAction(tr("Pause"), observer, SLOT(setAnimationPaused(bool)));
     pauseAnimationsAction->setCheckable(true);
     pauseAnimationsAction->setShortcut(QKeySequence("Ctrl+."));
 
@@ -801,7 +801,7 @@ void QDeclarativeViewer::createMenu()
     playSpeedAction->setMenu(playSpeedMenu);
 
     connect(observer, SIGNAL(animationSpeedChanged(qreal)), SLOT(animationSpeedChanged(qreal)));
-    connect(observer, SIGNAL(executionPausedChanged(bool)), pauseAnimationsAction, SLOT(setChecked(bool)));
+    connect(observer, SIGNAL(animationPausedChanged(bool)), pauseAnimationsAction, SLOT(setChecked(bool)));
 
     showWarningsWindow = new QAction(tr("Show Warnings"), this);
     showWarningsWindow->setCheckable((true));
@@ -1080,12 +1080,12 @@ void QDeclarativeViewer::toggleRecording()
 
 void QDeclarativeViewer::pauseAnimations()
 {
-    observer->setExecutionPaused(true);
+    observer->setAnimationPaused(true);
 }
 
 void QDeclarativeViewer::stepAnimations()
 {
-    observer->setExecutionPaused(false);
+    observer->setAnimationPaused(false);
     QTimer::singleShot(m_stepSize, this, SLOT(pauseAnimations()));
  }
 

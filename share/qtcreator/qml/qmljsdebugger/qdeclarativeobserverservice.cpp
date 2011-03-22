@@ -100,7 +100,7 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
         emit animationSpeedChangeRequested(speed);
         break;
     }
-    case ObserverProtocol::SetExecutionPaused: {
+    case ObserverProtocol::SetAnimationPaused: {
         bool paused;
         ds >> paused;
         emit executionPauseChangeRequested(paused);
@@ -239,12 +239,12 @@ void QDeclarativeObserverService::setAnimationSpeed(qreal slowDownFactor)
     sendMessage(message);
 }
 
-void QDeclarativeObserverService::setExecutionPaused(bool paused)
+void QDeclarativeObserverService::setAnimationPaused(bool paused)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << ObserverProtocol::ExecutionPausedChanged
+    ds << ObserverProtocol::AnimationPausedChanged
        << paused;
 
     sendMessage(message);

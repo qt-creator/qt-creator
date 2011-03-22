@@ -114,13 +114,13 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
         emit animationSpeedChanged(slowDownFactor);
         break;
     }
-    case ObserverProtocol::ExecutionPausedChanged: {
+    case ObserverProtocol::AnimationPausedChanged: {
         bool paused;
         ds >> paused;
 
         log(LogReceive, type, paused ? QLatin1String("true") : QLatin1String("false"));
 
-        emit executionPausedChanged(paused);
+        emit animationPausedChanged(paused);
         break;
     }
     case ObserverProtocol::SetDesignMode: {
@@ -318,7 +318,7 @@ void QmlJSObserverClient::setAnimationSpeed(qreal slowDownFactor)
     sendMessage(message);
 }
 
-void QmlJSObserverClient::setExecutionPaused(bool paused)
+void QmlJSObserverClient::setAnimationPaused(bool paused)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -326,7 +326,7 @@ void QmlJSObserverClient::setExecutionPaused(bool paused)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ObserverProtocol::Message cmd = ObserverProtocol::SetExecutionPaused;
+    ObserverProtocol::Message cmd = ObserverProtocol::SetAnimationPaused;
     ds << cmd
        << paused;
 

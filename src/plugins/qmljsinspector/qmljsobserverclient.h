@@ -60,7 +60,7 @@ public:
     void reloadViewer();
     void setDesignModeBehavior(bool inDesignMode);
     void setAnimationSpeed(qreal slowDownFactor);
-    void setExecutionPaused(bool paused);
+    void setAnimationPaused(bool paused);
     void changeToColorPickerTool();
     void changeToSelectTool();
     void changeToSelectMarqueeTool();
@@ -93,7 +93,7 @@ signals:
     void selectMarqueeToolActivated();
     void zoomToolActivated();
     void animationSpeedChanged(qreal slowdownFactor);
-    void executionPausedChanged(bool paused);
+    void animationPausedChanged(bool paused);
     void designModeBehaviorChanged(bool inDesignMode);
     void showAppOnTopChanged(bool showAppOnTop);
     void reloaded(); // the server has reloadetd he document

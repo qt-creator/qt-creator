@@ -105,7 +105,7 @@ QDeclarativeViewObserverPrivate::QDeclarativeViewObserverPrivate(QDeclarativeVie
     q(q),
     designModeBehavior(false),
     showAppOnTop(false),
-    executionPaused(false),
+    animationPaused(false),
     slowDownFactor(1.0f),
     toolBox(0)
 {
@@ -149,7 +149,7 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
     connect(data->debugService, SIGNAL(animationSpeedChangeRequested(qreal)),
             SLOT(animationSpeedChangeRequested(qreal)));
     connect(data->debugService, SIGNAL(executionPauseChangeRequested(bool)),
-            SLOT(executionPausedChangeRequested(bool)));
+            SLOT(animationPausedChangeRequested(bool)));
     connect(data->debugService, SIGNAL(colorPickerToolRequested()),
             data.data(), SLOT(_q_changeToColorPickerTool()));
     connect(data->debugService, SIGNAL(selectMarqueeToolRequested()),
@@ -386,7 +386,7 @@ bool QDeclarativeViewObserver::keyReleaseEvent(QKeyEvent *event)
             data->subcomponentEditorTool->setCurrentItem(data->selectedItems().first());
         break;
     case Qt::Key_Space:
-        setExecutionPaused(!data->executionPaused);
+        setAnimationPaused(!data->animationPaused);
         break;
     default:
         break;
@@ -765,13 +765,13 @@ void QDeclarativeViewObserver::setAnimationSpeed(qreal slowDownFactor)
     data->debugService->setAnimationSpeed(slowDownFactor);
 }
 
-void QDeclarativeViewObserver::setExecutionPaused(bool paused)
+void QDeclarativeViewObserver::setAnimationPaused(bool paused)
 {
-    if (data->executionPaused == paused)
+    if (data->animationPaused == paused)
         return;
 
-    executionPausedChangeRequested(paused);
-    data->debugService->setExecutionPaused(paused);
+    animationPausedChangeRequested(paused);
+    data->debugService->setAnimationPaused(paused);
 }
 
 void QDeclarativeViewObserver::animationSpeedChangeRequested(qreal factor)
@@ -781,15 +781,15 @@ void QDeclarativeViewObserver::animationSpeedChangeRequested(qreal factor)
         emit animationSpeedChanged(factor);
     }
 
-    const float effectiveFactor = data->executionPaused ? 0 : factor;
+    const float effectiveFactor = data->animationPaused ? 0 : factor;
     QDeclarativeDebugHelper::setAnimationSlowDownFactor(effectiveFactor);
 }
 
-void QDeclarativeViewObserver::executionPausedChangeRequested(bool paused)
+void QDeclarativeViewObserver::animationPausedChangeRequested(bool paused)
 {
-    if (data->executionPaused != paused) {
-        data->executionPaused = paused;
-        emit executionPausedChanged(paused);
+    if (data->animationPaused != paused) {
+        data->animationPaused = paused;
+        emit animationPausedChanged(paused);
     }
 
     const float effectiveFactor = paused ? 0 : data->slowDownFactor;
@@ -918,7 +918,7 @@ void QDeclarativeViewObserverPrivate::createToolBox()
     QObject::connect(toolBar, SIGNAL(designModeBehaviorChanged(bool)),
                      q, SLOT(setDesignModeBehavior(bool)));
     QObject::connect(toolBar, SIGNAL(animationSpeedChanged(qreal)), q, SLOT(setAnimationSpeed(qreal)));
-    QObject::connect(toolBar, SIGNAL(executionPausedChanged(bool)), q, SLOT(setExecutionPaused(bool)));
+    QObject::connect(toolBar, SIGNAL(animationPausedChanged(bool)), q, SLOT(setAnimationPaused(bool)));
     QObject::connect(toolBar, SIGNAL(colorPickerSelected()), this, SLOT(_q_changeToColorPickerTool()));
     QObject::connect(toolBar, SIGNAL(zoomToolSelected()), this, SLOT(_q_changeToZoomTool()));
     QObject::connect(toolBar, SIGNAL(selectToolSelected()), this, SLOT(_q_changeToSingleSelectTool()));
@@ -929,7 +929,7 @@ void QDeclarativeViewObserverPrivate::createToolBox()
                      this, SLOT(_q_applyChangesFromClient()));
 
     QObject::connect(q, SIGNAL(animationSpeedChanged(qreal)), toolBar, SLOT(setAnimationSpeed(qreal)));
-    QObject::connect(q, SIGNAL(executionPausedChanged(bool)), toolBar, SLOT(setExecutionPaused(bool)));
+    QObject::connect(q, SIGNAL(animationPausedChanged(bool)), toolBar, SLOT(setAnimationPaused(bool)));
 
     QObject::connect(q, SIGNAL(selectToolActivated()), toolBar, SLOT(activateSelectTool()));
 

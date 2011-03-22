@@ -62,11 +62,11 @@ public slots:
     void activateZoom();
 
     void setAnimationSpeed(qreal slowDownFactor);
-    void setExecutionPaused(bool paused);
+    void setAnimationPaused(bool paused);
 
 signals:
     void animationSpeedChanged(qreal factor);
-    void executionPausedChanged(bool paused);
+    void animationPausedChanged(bool paused);
 
     void designModeBehaviorChanged(bool inDesignMode);
     void colorPickerSelected();

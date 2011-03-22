@@ -49,7 +49,7 @@ class ObserverProtocol : public QObject
 public:
     enum Message {
         AnimationSpeedChanged  = 0,
-        ExecutionPausedChanged = 19, // highest value
+        AnimationPausedChanged = 19, // highest value
         ChangeTool             = 1,
         ClearComponentCache    = 2,
         ColorChanged           = 3,
@@ -62,7 +62,7 @@ public:
         Reload                 = 10,
         Reloaded               = 11,
         SetAnimationSpeed      = 12,
-        SetExecutionPaused     = 18,
+        SetAnimationPaused     = 18,
         SetContextPathIdx      = 13,
         SetCurrentObjects      = 14,
         SetDesignMode          = 15,

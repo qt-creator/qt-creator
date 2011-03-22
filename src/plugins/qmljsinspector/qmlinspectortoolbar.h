@@ -87,7 +87,7 @@ public slots:
     void activateZoomTool();
 
     void setAnimationSpeed(qreal slowDownFactor);
-    void setExecutionPaused(bool paused);
+    void setAnimationPaused(bool paused);
 
     void setDesignModeBehavior(bool inDesignMode);
     void setShowAppOnTop(bool showAppOnTop);
@@ -105,7 +105,7 @@ signals:
     void showAppOnTopSelected(bool isChecked);
 
     void animationSpeedChanged(qreal slowdownFactor);
-    void executionPausedChanged(bool paused);
+    void animationPausedChanged(bool paused);
 
 private slots:
     void activateDesignModeOnClick();

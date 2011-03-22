@@ -74,7 +74,7 @@ public Q_SLOTS:
     void setShowAppOnTop(bool appOnTop);
 
     void setAnimationSpeed(qreal factor);
-    void setExecutionPaused(bool paused);
+    void setAnimationPaused(bool paused);
 
     void setObserverContext(int contextIndex);
 
@@ -89,7 +89,7 @@ Q_SIGNALS:
     void selectedColorChanged(const QColor &color);
 
     void animationSpeedChanged(qreal factor);
-    void executionPausedChanged(bool paused);
+    void animationPausedChanged(bool paused);
 
     void inspectorContextCleared();
     void inspectorContextPushed(const QString &contextTitle);
@@ -111,7 +111,7 @@ protected:
 
 private slots:
     void animationSpeedChangeRequested(qreal factor);
-    void executionPausedChangeRequested(bool paused);
+    void animationPausedChangeRequested(bool paused);
 
 private:
     Q_DISABLE_COPY(QDeclarativeViewObserver)
