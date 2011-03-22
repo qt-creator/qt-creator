@@ -89,14 +89,37 @@ bool SymbolGroupValue::isValid() const
     return m_node != 0 && m_context.dataspaces != 0;
 }
 
+// Debug helper
+static void formatNodeError(const AbstractSymbolGroupNode *n, std::ostream &os)
+{
+    const AbstractSymbolGroupNode::AbstractSymbolGroupNodePtrVector &children = n->children();
+    const VectorIndexType size = children.size();
+    if (const SymbolGroupNode *sn = n->asSymbolGroupNode()) {
+        os << "type: " << sn->type() << ", raw value: \"" << wStringToString(sn->symbolGroupRawValue())
+           << "\", 0x" << std::hex << sn->address() << ", " << std::dec;
+    }
+    if (size) {
+        os << "children (" << size << "): [";
+        for (VectorIndexType i = 0; i < size; i++)
+            os << ' ' << children.at(i)->name();
+        os << ']';
+    } else {
+        os << "No children";
+    }
+}
+
 SymbolGroupValue SymbolGroupValue::operator[](unsigned index) const
 {
     if (ensureExpanded())
         if (index < m_node->children().size())
             if (SymbolGroupNode *n = m_node->childAt(index)->asSymbolGroupNode())
                 return SymbolGroupValue(n, m_context);
-    if (isValid() && SymbolGroupValue::verbose)
-        DebugPrint() << name() << "::operator[" << index << "](const char*) failed.";
+    if (isValid() && SymbolGroupValue::verbose) {
+        DebugPrint dp;
+        dp << name() << "::operator[](#" << index << ") failed. ";
+        if (m_node)
+            formatNodeError(m_node, dp);
+    }
     return SymbolGroupValue(m_errorMessage);
 }
 
@@ -125,8 +148,12 @@ SymbolGroupValue SymbolGroupValue::operator[](const char *name) const
         if (AbstractSymbolGroupNode *child = m_node->childByIName(name))
             if (SymbolGroupNode *n = child->asSymbolGroupNode())
                 return SymbolGroupValue(n, m_context);
-    if (isValid() && SymbolGroupValue::verbose) // Do not report subsequent errors
-        DebugPrint() << this->name() << "::operator[](" << name << ") failed.";
+    if (isValid() && SymbolGroupValue::verbose) { // Do not report subsequent errors
+        DebugPrint dp;
+        dp << this->name() << "::operator[](\"" << name << "\") failed. ";
+        if (m_node)
+            formatNodeError(m_node, dp);
+    }
     return SymbolGroupValue(m_errorMessage);
 }
 
