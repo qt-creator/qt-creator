@@ -343,8 +343,7 @@ void BauhausPlugin::extensionsInitialized()
 {
     m_designMode = ExtensionSystem::PluginManager::instance()->getObject<Core::DesignMode>();
 
-    m_mimeTypes << "application/x-qml" << "application/javascript"
-                << "application/x-javascript" << "text/javascript";
+    m_mimeTypes << "application/x-qml";
 
     m_designMode->registerDesignWidget(m_mainWidget, m_mimeTypes, m_context->context());
     connect(m_designMode, SIGNAL(actionsUpdated(Core::IEditor*)), SLOT(updateActions(Core::IEditor*)));
