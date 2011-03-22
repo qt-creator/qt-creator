@@ -1185,6 +1185,10 @@ Sollen sie überschrieben werden?</translation>
         <translation>Alle Teilungen aufheben</translation>
     </message>
     <message>
+        <source>Ad&amp;vanced</source>
+        <translation>Er&amp;weitert</translation>
+    </message>
+    <message>
         <source>Full path of the current document including file name.</source>
         <translation>Vollständiger Pfad des aktuellen Dokuments einschließlich Dateiname.</translation>
     </message>
@@ -1207,10 +1211,6 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <source>Save %1 &amp;As...</source>
         <translation>Speichere &apos;%1&apos; &amp;unter...</translation>
-    </message>
-    <message>
-        <source>&amp;Advanced</source>
-        <translation>&amp;Weitere</translation>
     </message>
     <message>
         <source>Opening File</source>
@@ -1532,7 +1532,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>&amp;Einfügen</translation>
     </message>
     <message>
-        <source>&amp;Select All</source>
+        <source>Select &amp;All</source>
         <translation>Alles Aus&amp;wählen</translation>
     </message>
     <message>
@@ -9010,7 +9010,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
 <context>
     <name>Qt4ProjectManager::Internal::ProjectLoadWizard</name>
     <message>
-        <source>Project setup</source>
+        <source>Project Setup</source>
         <translation>Projekt einrichten</translation>
     </message>
 </context>
@@ -11565,10 +11565,6 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>WizardPage</translation>
     </message>
     <message>
-        <source>Checkout Directory:</source>
-        <translation>Verzeichnis:</translation>
-    </message>
-    <message>
         <source>...</source>
         <translation>...</translation>
     </message>
@@ -11601,12 +11597,16 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Der Pfad, unter dem der Ordner mit dem Checkout erstellt wird.</translation>
     </message>
     <message>
-        <source>Checkout Path:</source>
+        <source>The local directory that will contain the code after the checkout.</source>
+        <translation>Der lokale Ordner, welcher nach dem Checkout den Code enthalten wird.</translation>
+    </message>
+    <message>
+        <source>Checkout path:</source>
         <translation>Checkout-Pfad:</translation>
     </message>
     <message>
-        <source>The local directory that will contain the code after the checkout.</source>
-        <translation>Der lokale Ordner, welcher nach dem Checkout den Code enthalten wird.</translation>
+        <source>Checkout directory:</source>
+        <translation>Verzeichnis:</translation>
     </message>
 </context>
 <context>
@@ -22834,20 +22834,8 @@ Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
         <translation>Dialog</translation>
     </message>
     <message>
-        <source>Branch location</source>
-        <translation>Branch</translation>
-    </message>
-    <message>
-        <source>Default Location</source>
-        <translation>Vorgabe</translation>
-    </message>
-    <message>
         <source>Local filesystem:</source>
         <translation>Dateisystem:</translation>
-    </message>
-    <message>
-        <source>Specify Url:</source>
-        <translation>URL:</translation>
     </message>
     <message>
         <source>Options</source>
@@ -22910,6 +22898,18 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt</translatio
 This flag will allow push to proceed</source>
         <translation>Normalerweise schlägt eine Branch-Operation fehl, wenn der Zielordner vorhanden ist und keinen Versionskontroll-Ordner hat.
 Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
+    </message>
+    <message>
+        <source>Branch Location</source>
+        <translation>Branch</translation>
+    </message>
+    <message>
+        <source>Default location</source>
+        <translation>Vorgabe</translation>
+    </message>
+    <message>
+        <source>Specify URL:</source>
+        <translation>URL:</translation>
     </message>
 </context>
 <context>
@@ -23718,7 +23718,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
         <translation>Erstellt einen Clone eines Bazaar-Branches und versucht, das darin enthaltene Projekt zu laden.</translation>
     </message>
     <message>
-        <source>Bazaar Clone (or branch)</source>
+        <source>Bazaar Clone (Or Branch)</source>
         <translation>Bazaar Clone (bzw. Branch)</translation>
     </message>
 </context>
@@ -23802,6 +23802,12 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
 </context>
 <context>
     <name>Core::Internal::ExternalToolRunner</name>
+    <message>
+        <source>Could not find executable for &apos;%1&apos; (expanded &apos;%2&apos;)
+</source>
+        <translation>Die ausführbare Datei von &apos;%1&apos; (expandiert: &apos;%2&apos;) konnte nicht gefunden werden
+</translation>
+    </message>
     <message>
         <source>Starting external tool &apos;%1&apos; %2</source>
         <translation>Starte externes Werkzeug &apos;%1&apos; %2</translation>
