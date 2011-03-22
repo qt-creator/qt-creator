@@ -529,7 +529,8 @@ bool ExternalTool::operator==(const ExternalTool &other) const
 ExternalToolRunner::ExternalToolRunner(const ExternalTool *tool)
     : m_tool(new ExternalTool(tool)),
       m_process(0),
-      m_outputCodec(QTextCodec::codecForLocale())
+      m_outputCodec(QTextCodec::codecForLocale()),
+      m_hasError(false)
 {
     run();
 }
@@ -540,6 +541,16 @@ ExternalToolRunner::~ExternalToolRunner()
         delete m_tool;
 }
 
+bool ExternalToolRunner::hasError() const
+{
+    return m_hasError;
+}
+
+QString ExternalToolRunner::errorString() const
+{
+    return m_errorString;
+}
+
 bool ExternalToolRunner::resolve()
 {
     if (!m_tool)
@@ -548,14 +559,27 @@ bool ExternalToolRunner::resolve()
     m_resolvedArguments.clear();
     m_resolvedWorkingDirectory.clear();
     { // executable
+        QStringList expandedExecutables; /* for error message */
         foreach (const QString &executable, m_tool->executables()) {
-            QString resolved = Utils::expandMacros(executable,
+            QString expanded = Utils::expandMacros(executable,
                                                    Core::VariableManager::instance()->macroExpander());
+            expandedExecutables << expanded;
             m_resolvedExecutable =
-                    Utils::Environment::systemEnvironment().searchInPath(resolved);
+                    Utils::Environment::systemEnvironment().searchInPath(expanded);
+            if (!m_resolvedExecutable.isEmpty())
+                break;
         }
-        if (m_resolvedExecutable.isEmpty())
+        if (m_resolvedExecutable.isEmpty()) {
+            m_hasError = true;
+            for (int i = 0; i < expandedExecutables.size(); ++i) {
+                m_errorString += tr("Could not find executable for '%1' (expanded '%2')\n")
+                        .arg(m_tool->executables().at(i))
+                        .arg(expandedExecutables.at(i));
+            }
+            if (!m_errorString.isEmpty())
+                m_errorString.chop(1);
             return false;
+        }
     }
     { // arguments
         m_resolvedArguments = Utils::QtcProcess::expandMacros(m_tool->arguments(),
@@ -759,7 +783,10 @@ void ExternalToolManager::menuActivated()
     QTC_ASSERT(action, return);
     ExternalTool *tool = m_tools.value(action->data().toString());
     QTC_ASSERT(tool, return);
-    new ExternalToolRunner(tool);
+    ExternalToolRunner *runner = new ExternalToolRunner(tool);
+    if (runner->hasError()) {
+        ICore::instance()->messageManager()->printToOutputPane(runner->errorString(), true);
+    }
 }
 
 QMap<QString, QList<Internal::ExternalTool *> > ExternalToolManager::toolsByCategory() const

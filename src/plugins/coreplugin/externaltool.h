@@ -135,6 +135,9 @@ public:
     ExternalToolRunner(const ExternalTool *tool);
     ~ExternalToolRunner();
 
+    bool hasError() const;
+    QString errorString() const;
+
 private slots:
     void started();
     void finished(int exitCode, QProcess::ExitStatus status);
@@ -157,6 +160,8 @@ private:
     QTextCodec::ConverterState m_errorCodecState;
     QString m_processOutput;
     QString m_expectedFileName;
+    bool m_hasError;
+    QString m_errorString;
 };
 
 } // Internal
