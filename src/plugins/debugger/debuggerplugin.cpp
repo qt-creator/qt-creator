@@ -2455,34 +2455,44 @@ void DebuggerPluginPrivate::remoteCommand(const QStringList &options,
 QString DebuggerPluginPrivate::debuggerForAbi(const Abi &abi, DebuggerEngineType et) const
 {
     enum { debug = 0 };
-    Abi searchAbi = abi;
+    QList<Abi> searchAbis;
+    searchAbis.push_back(abi);
     // Pick the right tool chain in case cdb/gdb were started with other tool chains.
     // Also, lldb should be preferred over gdb.
-    if (searchAbi.os() == ProjectExplorer::Abi::WindowsOS) {
+    if (abi.os() == ProjectExplorer::Abi::WindowsOS) {
         switch (et) {
         case CdbEngineType:
-            searchAbi = Abi(abi.architecture(), abi.os(), Abi::WindowsMsvc2010Flavor,
-                            abi.binaryFormat(), abi.wordWidth());
+            searchAbis.clear();
+            searchAbis.push_back(Abi(abi.architecture(), abi.os(), Abi::WindowsMsvc2010Flavor,
+                                     abi.binaryFormat(), abi.wordWidth()));
+            searchAbis.push_back(Abi(abi.architecture(), abi.os(), Abi::WindowsMsvc2008Flavor,
+                                     abi.binaryFormat(), abi.wordWidth()));
+            searchAbis.push_back(Abi(abi.architecture(), abi.os(), Abi::WindowsMsvc2005Flavor,
+                                     abi.binaryFormat(), abi.wordWidth()));
             break;
         case GdbEngineType:
-            searchAbi = Abi(abi.architecture(), abi.os(), Abi::WindowsMSysFlavor,
-                            abi.binaryFormat(), abi.wordWidth());
+            searchAbis.clear();
+            searchAbis.push_back(Abi(abi.architecture(), abi.os(), Abi::WindowsMSysFlavor,
+                                     abi.binaryFormat(), abi.wordWidth()));
             break;
         default:
             break;
         }
     }
     if (debug)
-        qDebug() << "debuggerForAbi" << abi.toString() << searchAbi.toString() << et;
+        qDebug() << "debuggerForAbi" << abi.toString() << searchAbis.size()
+                 << searchAbis.front().toString() << et;
 
-    const QList<ToolChain *> toolchains = ToolChainManager::instance()->findToolChains(searchAbi);
-    // Find manually configured ones first
-    for (int i = toolchains.size() - 1; i >= 0; i--) {
-        const QString debugger = toolchains.at(i)->debuggerCommand();
-        if (debug)
-            qDebug() << i << toolchains.at(i)->displayName() << debugger;
-        if (!debugger.isEmpty())
-            return debugger;
+    foreach (const Abi &searchAbi, searchAbis) {
+        const QList<ToolChain *> toolchains = ToolChainManager::instance()->findToolChains(searchAbi);
+        // Find manually configured ones first
+        for (int i = toolchains.size() - 1; i >= 0; i--) {
+            const QString debugger = toolchains.at(i)->debuggerCommand();
+            if (debug)
+                qDebug() << i << toolchains.at(i)->displayName() << debugger;
+            if (!debugger.isEmpty())
+                return debugger;
+        }
     }
     return QString();
 }
