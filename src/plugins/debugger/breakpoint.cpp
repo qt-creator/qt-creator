@@ -91,25 +91,25 @@ QString BreakpointParameters::toString() const
     QTextStream ts(&result);
     ts << "Type: " << type;
     switch (type) {
-        break;
-    case Debugger::Internal::BreakpointByFileAndLine:
+    case BreakpointByFileAndLine:
         ts << " FileName: " << fileName << ':' << lineNumber
            << " PathUsage: " << pathUsage;
         break;
-    case Debugger::Internal::BreakpointByFunction:
+    case BreakpointByFunction:
         ts << " FunctionName: " << functionName;
         break;
-    case Debugger::Internal::BreakpointByAddress:
-    case Debugger::Internal::Watchpoint:
+    case BreakpointByAddress:
+    case Watchpoint:
         ts << " Address: " << address;
         break;
-    case Debugger::Internal::BreakpointAtThrow:
-    case Debugger::Internal::BreakpointAtCatch:
-    case Debugger::Internal::BreakpointAtMain:
-    case Debugger::Internal::BreakpointAtFork:
-    case Debugger::Internal::BreakpointAtExec:
-    case Debugger::Internal::BreakpointAtVFork:
-    case Debugger::Internal::BreakpointAtSysCall:
+    case BreakpointAtThrow:
+    case BreakpointAtCatch:
+    case BreakpointAtMain:
+    case BreakpointAtFork:
+    case BreakpointAtExec:
+    case BreakpointAtVFork:
+    case BreakpointAtSysCall:
+    case UnknownType:
         break;
     }
     ts << (enabled ? " [enabled]" : " [disabled]");

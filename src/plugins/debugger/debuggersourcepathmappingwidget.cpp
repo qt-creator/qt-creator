@@ -53,14 +53,15 @@
 
 // Qt's various build paths for unpatched versions.
 #if defined(Q_OS_WIN)
-static const char* qtBuildPaths[] = {
-"C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.6/qt",
-"C:/iwmake/build_mingw_opensource",
-"C:/ndk_buildrepos/qt-desktop/src"};
+static const char *qtBuildPaths[] = {
+    "C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.6/qt",
+    "C:/iwmake/build_mingw_opensource",
+    "C:/ndk_buildrepos/qt-desktop/src"
+};
 #elif defined(Q_OS_MAC)
-static const char* qtBuildPaths[] = {};
+static const char *qtBuildPaths[] = {};
 #else
-static const char* qtBuildPaths[] = {"/var/tmp/qt-src"};
+static const char *qtBuildPaths[] = {"/var/tmp/qt-src"};
 #endif
 
 enum { SourceColumn, TargetColumn, ColumnCount };
@@ -85,7 +86,7 @@ public:
     explicit SourcePathMappingModel(QObject *parent);
 
     SourcePathMap sourcePathMap() const;
-    void setSourcePathMap(const SourcePathMap&);
+    void setSourcePathMap(const SourcePathMap &map);
 
     Mapping mappingAt(int row) const;
     bool isNewPlaceHolderAt(int row) { return isNewPlaceHolder(rawMappingAt(row)); }
@@ -114,7 +115,8 @@ SourcePathMappingModel::SourcePathMappingModel(QObject *parent) :
     m_newTargetPlaceHolder(DebuggerSourcePathMappingWidget::tr("<new target>"))
 {
     QStringList headers;
-    headers << DebuggerSourcePathMappingWidget::tr("Source path") << DebuggerSourcePathMappingWidget::tr("Target path");
+    headers.append(DebuggerSourcePathMappingWidget::tr("Source path"));
+    headers.append(DebuggerSourcePathMappingWidget::tr("Target path"));
     setHorizontalHeaderLabels(headers);
 }
 
@@ -122,7 +124,7 @@ SourcePathMappingModel::SourcePathMap SourcePathMappingModel::sourcePathMap() co
 {
     SourcePathMap rc;
     const int rows = rowCount();
-    for (int r = 0; r < rows; r++) {
+    for (int r = 0; r != rows; ++r) {
         const QPair<QString, QString> m = mappingAt(r); // Skip placeholders.
         if (!m.first.isEmpty() && !m.second.isEmpty())
             rc.insert(m.first, m.second);
@@ -135,9 +137,13 @@ bool SourcePathMappingModel::isNewPlaceHolder(const Mapping &m) const
 {
     const QLatin1Char lessThan('<');
     const QLatin1Char greaterThan('<');
-    return m.first.isEmpty() || m.first.startsWith(lessThan) || m.first.endsWith(greaterThan)
+    return m.first.isEmpty()
+           || m.first.startsWith(lessThan)
+           || m.first.endsWith(greaterThan)
            || m.first == m_newSourcePlaceHolder
-           || m.second.isEmpty() || m.second.startsWith(lessThan) || m.second.endsWith(greaterThan)
+           || m.second.isEmpty()
+           || m.second.startsWith(lessThan)
+           || m.second.endsWith(greaterThan)
            || m.second == m_newTargetPlaceHolder;
 }
 
@@ -241,7 +247,8 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
     connect(m_sourceLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotEditSourceFieldChanged()));
     connect(m_targetChooser, SIGNAL(changed(QString)), this, SLOT(slotEditTargetFieldChanged()));
     QFormLayout *editLayout = new QFormLayout;
-    const QString sourceToolTip = tr("The source path contained in the executable's debug information as reported by the debugger");
+    const QString sourceToolTip = tr("The source path contained in the "
+        "executable's debug information as reported by the debugger");
     QLabel *editSourceLabel = new QLabel(tr("&Source path:"));
     editSourceLabel->setToolTip(sourceToolTip);
     m_sourceLineEdit->setToolTip(sourceToolTip);
@@ -342,8 +349,8 @@ void DebuggerSourcePathMappingWidget::slotAddQt()
     const QString qtSourcesPath = QFileDialog::getExistingDirectory(this, tr("Qt Sources"));
     if (qtSourcesPath.isEmpty())
         return;
-    const size_t buildPathCount = sizeof(qtBuildPaths)/sizeof(const char *);
-    for (size_t i = 0; i < buildPathCount; i++)
+    const size_t buildPathCount = sizeof(qtBuildPaths)/sizeof(qtBuildPaths[0]);
+    for (size_t i = 0; i != buildPathCount; ++i)
         m_model->addMapping(QString::fromLatin1(qtBuildPaths[i]), qtSourcesPath);
     resizeColumns();
     setCurrentRow(m_model->rowCount() - 1);
@@ -381,11 +388,11 @@ DebuggerSourcePathMappingWidget::SourcePathMap
                                                          const SourcePathMap &in)
 {
     SourcePathMap rc = in;
-    const size_t buildPathCount = sizeof(qtBuildPaths)/sizeof(const char *);
+    const size_t buildPathCount = sizeof(qtBuildPaths)/sizeof(qtBuildPaths[0]);
     if (qtInstallPath.isEmpty() || buildPathCount == 0)
         return rc;
 
-    for (size_t i = 0; i < buildPathCount; i++) {
+    for (size_t i = 0; i != buildPathCount; i++) {
         const QString buildPath = QString::fromLatin1(qtBuildPaths[i]);
         if (!rc.contains(buildPath)) // Do not overwrite user settings.
             rc.insert(buildPath, qtInstallPath);
