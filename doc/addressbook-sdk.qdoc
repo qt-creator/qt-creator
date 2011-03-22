@@ -977,7 +977,7 @@
 
     Otherwise, instantiate a QDataStream object, \c in, set its version as
     above and read the serialized data into hte \c contacts data structure. The
-    \c contacs object is emptied before data is read into it to simplify the
+    \c contacts object is emptied before data is read into it to simplify the
     file reading process. A more advanced method would be to read the contacts
     into a temporary QMap object, and copy over non-duplicate contacts into
     \c contacts.
