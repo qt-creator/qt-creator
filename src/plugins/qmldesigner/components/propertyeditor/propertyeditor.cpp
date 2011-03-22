@@ -599,7 +599,11 @@ QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlO
     qSort(orderedList);
 
     foreach (const QString &name, orderedList) {
+
+        if (name.startsWith(QLatin1String("__")))
+            continue; //private API
         QString properName = name;
+
         properName.replace('.', '_');
 
         QString typeName = type.propertyTypeName(name);
