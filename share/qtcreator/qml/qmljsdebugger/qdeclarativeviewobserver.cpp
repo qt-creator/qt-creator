@@ -136,8 +136,9 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
 
     data->debugService = QDeclarativeObserverService::instance();
 
-    connect(data->debugService, SIGNAL(debuggingClientChanged(bool)),
-            data.data(), SLOT(_q_setToolBoxVisible(bool)));
+    // tool box is disabled
+    //connect(data->debugService, SIGNAL(debuggingClientChanged(bool)),
+    //        data.data(), SLOT(_q_setToolBoxVisible(bool)));
 
     connect(data->debugService, SIGNAL(designModeBehaviorChanged(bool)),
             SLOT(setDesignModeBehavior(bool)));
@@ -205,6 +206,8 @@ void QDeclarativeViewObserverPrivate::_q_setToolBoxVisible(bool visible)
         createToolBox();
     if (toolBox)
         toolBox->setVisible(visible);
+#else
+    Q_UNUSED(visible)
 #endif
 }
 
