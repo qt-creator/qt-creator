@@ -75,8 +75,7 @@
                 \o \l{Creating a Project}
                 \o \l{Opening a Project}
                 \o \l{Adding New Custom Wizards}
-                \o \l{Setting Up a qmake Project}
-                \o \l{Adding Libraries to qmake Projects}
+                \o \l{Adding Libraries to Projects}
                 \o \l{Setting Up a CMake Project}
                 \o \l{Setting Up a Generic Project}
                 \o \l{Setting Up Development Environment for Maemo}
@@ -121,7 +120,10 @@
                 \o \l{Building Applications for Multiple Targets}
                 \o \l{Running Applications on Multiple Targets}
                 \o \l{Specifying Build Settings}
-                \o \l{Specifying Run Settings}
+                   \list
+                       \o \l{Adding Qt Versions}
+                       \o \l{Adding Tool Chains}
+                   \endlist
                 \o \l{Specifying Editor Settings}
                 \o \l{Specifying Dependencies}
             \endlist
@@ -2840,13 +2842,25 @@
     the necessary files for you. You can add your own custom wizards to
     standardize the way subprojects and classes are added to a project.
 
-    You also need to choose a build system for the project. Qt Creator is
-    integrated with cross-platform systems for build automation: qmake and
-    CMake. In addition, you can import generic projects that do not use qmake
-    or CMake, and specify that Qt Creator ignores your build system.
+    The wizards set up projects to use the Qt build tool, qmake. It is a
+    cross-platform system for build automation that helps simplify the build
+    process for development projects across different platforms. qmake
+    automates the generation of build configurations so that only a few lines
+    of information are needed to create each configuration. For more
+    information about qmake, see the
+    \l{http://qt.nokia.com/doc/4.7/qmake-manual.html}{qmake Manual}.
 
-    If you want to develop applications for Symbian devices, you must choose
-    qmake or a compilation service at Forum Nokia to build the applications for
+    You can modify the build and run settings for qmake projects in the
+    \gui Projects mode.
+
+    Alternatively, you can use the CMake build automation system and set up the
+    projects manually. In addition, you can import generic projects that do not
+    use qmake or CMake. This allows you to use Qt Creator as a code editor. For
+    generic projects, Qt Creator ignores your build system.
+
+    To develop applications for Symbian devices, you use
+    qmake and the local Symbian compiler (on Windows) or qmake and a compilation
+    service at Forum Nokia (on Linux and Mac OS) to build the applications for
     the Symbian devices target. The interface to the compilation service, Remote
     Compiler, is installed as a part of the \QSDK. For more information, see
     \l{Building with Remote Compiler}.
@@ -2867,8 +2881,7 @@
         \o \l{Creating a Project}
         \o \l{Opening a Project}
         \o \l{Adding New Custom Wizards}
-        \o \l{Setting Up a qmake Project}
-        \o \l{Adding Libraries to qmake Projects}
+        \o \l{Adding Libraries to Projects}
         \o \l{Setting Up a CMake Project}
         \o \l{Setting Up a Generic Project}
         \o \l{Setting Up Development Environment for Maemo}
@@ -2942,9 +2955,13 @@
     For more information about creating Qt Quick projects, see
     \l {Creating Qt Quick Projects}.
 
-    To change the location of the project directory, and to make changes in
-    the build and run settings, select \gui{Tools} > \gui{Options...} >
+    To change the location of the project directory, and to specify settings
+    for building and running projects, select \gui{Tools} > \gui{Options...} >
     \gui{Projects} > \gui{General}.
+
+    To specify build and run settings for different target platforms, select
+    \gui Projects.
+
     \section1 Adding Files to Projects
 
     You can use wizards also to add individual files to your projects.
@@ -3053,7 +3070,7 @@
     pane, and select \gui {Remove Subproject} in the context menu.
 
     To specify dependencies, use the \gui{Add Library} wizard. For more information,
-    see \l{Adding Libraries to qmake Projects}.
+    see \l{Adding Libraries to Projects}.
 
 */
 
@@ -3130,7 +3147,7 @@
     \contentspage index.html
     \previouspage creator-project-opening.html
     \page creator-project-wizards.html
-    \nextpage creator-project-qmake.html
+    \nextpage creator-project-qmake-libraries.html
 
     \title Adding New Custom Wizards
 
@@ -3588,60 +3605,168 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-wizards.html
+    \previouspage creator-build-settings.html
     \page creator-project-qmake.html
-    \nextpage creator-project-qmake-libraries.html
+    \nextpage creator-tool-chains.html
 
-    \title Setting Up a qmake Project
-
-    The qmake tool helps simplify the build process for development projects
-    across different platforms. qmake automates the generation of makefiles
-    so that only a few lines of information are needed to create each makefile.
-    qmake can be used for any software project, whether it is written in Qt or not.
-
-    The qmake tool generates a makefile based on the information in a project
-    file that is generated by Qt Creator. It can generate makefiles for MinGW,
-    Microsoft Visual studio, and CSL ARM in Windows, and GNU Compiler Collection
-    (GCC) in Linux and Mac OS X.
-
-    For more information about qmake, see the
-    \l{http://qt.nokia.com/doc/4.7/qmake-manual.html}{qmake Manual}.
-
-    \section1 Selecting the Qt Version
+    \title Adding Qt Versions
 
     Qt Creator allows you to have multiple versions of Qt installed on
-    your development PC and use different versions for each of your projects.
-    For example, \QSDK contains special Qt versions for Maemo and Symbian
-    development.
+    your development PC and use different versions to build your projects for
+    different targets. For example, \QSDK contains special Qt versions for
+    Maemo and Symbian development.
 
-    If Qt Creator finds \bold qmake in the \c{PATH} environment variable, it uses
-    that version. The \l{glossary-system-qt}{ qmake version of Qt} is referred
-    to as \bold{Qt in PATH}. If you intend to use only one version of Qt and it
-    is already in the \c{PATH} and correctly set up for command line use, you do
-    not need to manually configure your Qt version.
+    Qt Creator checks the directories listed in the \c{PATH} environment
+    variable for the qmake executable. If a qmake executable is found, it is
+    referred to as \bold{Qt in PATH} and selected as the Qt version to use
+    in the \gui Projects mode in the \gui {Build Settings}. If Qt Creator
+    cannot find qmake, the value in the \gui {Qt version} field might be
+    invalid and you might need to change it.
 
-    You can add Qt versions to Qt Creator in \gui {Tools > Options... > Qt4 >
-    Qt Versions}.
+    Qt Creator automatically detects the Qt versions that are registered by
+    your system or by \QSDK. To view the settings for each Qt version, move the
+    mouse pointer over it in the list. To add Qt versions, select
+    \gui {Tools > Options... > Qt4 > Qt Versions}.
 
     Typically, you select the Qt versions for a project when you use project
     wizards to create the project. You can add Qt versions for a project in
-    \gui Projects mode \gui {Build Settings}.
+    \gui {Build Settings}.
 
-    \section2 Compiling Projects with MinGW in Windows
+    \section2 Setting Up New Qt Versions
 
-    To add a Qt version for \bold MinGW:
+    To add a Qt version:
+
+        \list 1
+
+            \o  Select \gui Tools > \gui Options... > \gui Qt4 > \gui Add.
+
+                \image qtcreator-qt4-qtversions-add.png
+
+            \o  In the \gui{qmake location} field, enter the path to the
+                directory where the qmake executable is located.
+
+            \o  In the \gui{Version name} field, edit the name that Qt Creator
+                suggests for the Qt version.
+
+                Qt Creator automatically determines the path to the binaries in
+                the Qt installation and displays it in the dialog.
+
+            \o  In the \gui Helpers section, you can build the debugging
+                helpers that are available for the Qt version. This is
+                necessary, because the internal data structures of Qt can
+                change between versions. For more information, see
+                \l{Using Debugging Helpers}.
+
+        \endlist
+
+    \section2 Setting Up Qt for Symbian Versions
+
+    If you install Qt for Symbian as a part of \QSDK, it is automatically
+    detected by Qt Creator. If you install other Symbian SDKs and register them
+    with devices.exe, Qt Creator automatically detects the Qt version.
+
+    If the selected Qt version was built using the SBSv2 build system, that
+    is available for Symbian OS 9.5 based SDKs, Qt Creator builds your projects
+    using this build system. The \gui {SBS v2 directory} field is enabled and
+    you must specify the path to the directory where the SBS executable (for
+    example, sbs.bat on Windows) is located.
+
+    To add a Qt for Symbian version:
+
     \list 1
-        \o Select \gui Tools > \gui Options... > \gui Qt4 >
-           \gui{Qt Versions}.
-        \o Click \inlineimage qtcreator-windows-add.png
-           and enter the name of the version in the \gui{Version name} field.
-        \o Enter the qmake binary path in the \gui{qmake location} field.
-        \o Enter the MinGW installation path in the \gui{MinGW directory} field.
 
-           \image qtcreator-qt4-qtversions-win-mingw.png
+        \o  Select \gui Tools > \gui Options... > \gui Qt4 > \gui{Qt Versions}.
+
+        \o  Select the Qt for Symbian version you want the Qt Creator to use.
+
+            \image qtcreator-qt4-qtversions-win-symbian.png
+
+            For more information about how to add tool chains for using the
+            GCCE and WINSCW compilers, see \l{Adding Tool Chains}.
+
+        \o  In the \gui {S60 SDK} field, enter the path to the directory where
+            the Symbian SDK is located.
+
+        \o  In the \gui {SBS v2 directory} field, enter the path to the
+            directory where the SBS v2 executable is located.
+
     \endlist
 
-    \section3 Troubleshooting MinGW Compilation Errors
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-project-qmake.html
+    \page creator-tool-chains.html
+    \nextpage creator-editor-settings.html
+
+    \title Adding Tool Chains
+
+    A \e {tool chain} specifies a compiler and a debugger and other necessary
+    tools for building an application that is targeted for a particular desktop
+    or mobile platform. Qt Creator automatically detects the tool chains that
+    are registered by your system or by \QSDK.
+
+    You can add tool chains to build applications by using other compilers or
+    with different versions of the automatically detected compilers:
+
+    \list
+
+        \o  GNU Compiler Collection (GCC) is a cross compiler for Linux and
+            Mac OS X.
+
+        \o  MinGW (Minimalist GNU for Windows) is a native software port of GCC
+            and GNU Binutils for use in the development of native Microsoft
+            Windows applications on Windows or as cross compiler. MinGW is
+            distributed together with Qt Creator and Qt SDK for Windows.
+
+        \o  GCCE (GNU Compiler Collection for Embedded) is an ARM-based
+            compiler used in Symbian OS 9 and distributed together with the
+            Symbian OS 9 SDKs.
+
+        \o  RVCT is an ARM-bases compiler for building applications for Symbian
+            devices (requires a license).
+
+        \o  WINSCW is a compiler for building applications that can be run or
+            debugged on the Symbian Emulator. It is distributed together with
+            Symbian SDKs.
+
+    \endlist
+
+    To build an application using MinGW or GCCE, specify the paths to the
+    directories where the compiler and debugger are located and select the
+    application binary interface (ABI) version from the list of available
+    versions.
+
+    Qt Creator allows you to select a tool chain that matches the Qt version
+    in the \gui Projects mode \gui {Build Settins}.
+
+    To add tool chains:
+
+    \list 1
+
+        \o  Select \gui {Tools > Options... Tool Chains > Add} and select a
+            compiler in the list.
+
+            To clone the selected tool chain, select \gui {Clone}.
+
+        \o  In the \gui Name column, double-click the name to change it.
+
+        \o  In the \gui{Compiler path} field, enter the path to the directory
+            where the compiler is located. For WINSCW, enter the path to the
+            Carbide C++ installation directory here.
+
+            \image qtcreator-toolchains.png
+
+            The other settings to specify depend on the tool chain.
+
+        \o  For RVCT, select the ARM version to use in the \gui {ARM version}
+            field.
+
+    \endlist
+
+    \section2 Troubleshooting MinGW Compilation Errors
 
     If error messages displayed in the \gui {Compile Output} pane contain
     paths where slashes are missing (for example, C:QtSDK),
@@ -3654,10 +3779,10 @@
     \endcode
 
     If these commands show paths, they have been added to the global PATH variable
-    during the installation of a toolkit based on Cygwin or MinGW, even though
+    during the installation of a tool chain based on Cygwin or MinGW, even though
     this is against Windows conventions.
 
-    To keep working with the third-party toolkit, create a new shell link
+    To keep working with the third-party tool chain, create a new shell link
     that adds the required paths (as Visual Studio and Qt do). The shell link
     must point to cmd.exe, as illustrated by the following example:
 
@@ -3666,106 +3791,27 @@
     where the /K parameter carries out the command specified in the bat file.
 
     Create the myenv.bat file at \e path_to, which should be in a convenient location.
-    In the file, specify the paths to the toolkits. For example,
+    In the file, specify the paths to the tool chains. For example,
 
     \c  {set PATH=C:\path1;C:\path2;%PATH%}
 
-    where \e path1 and \e path2 are paths to the toolkits.
+    where \e path1 and \e path2 are paths to the tool chains.
 
     Finally, remove the paths from the global PATH, reboot the computer, and
     run the \c where commands again to verify that the global PATH is now clean.
 
-    You can use the shell link to run the tools in the third-party toolkits.
-
-    \section2 Compiling Projects with Microsoft Visual C++
-
-    To add a Qt version for a \bold{Microsoft Visual C++} compiler:
-    \list 1
-        \o Select \gui Tools > \gui Options... > \gui Qt4 >
-           \gui{Qt Versions}.
-        \o Qt Creator automatically sets the correct environment variables for
-           compilation. Select the internal version number of the installed
-           Microsoft Visual C++ tool chain in the \gui tool chain list.
-
-           \image qtcreator-qt4-qtversions-win-msvc.png
-
-        \o If the \gui {Helpers} are available, but not in use, click
-        \gui Build for each available helper to take it to use. For more
-        information, see \l{Using Debugging Helpers}.
-
-    \endlist
-
-    \section2 Compiling Qt for Symbian Projects
-
-    If you install Qt for Symbian as a part of \QSDK, it is automatically
-    detected by Qt Creator. If you install other Symbian SDKs and register them
-    with devices.exe, Qt Creator automatically detects the Qt version.
-
-    To add a
-    Qt for Symbian version:
-    \list 1
-        \o Select \gui Tools > \gui Options... > \gui Qt4 >
-           \gui{Qt Versions}.
-        \o Select the \gui{S60 SDK} you want the Qt Creator to use.
-
-           \image qtcreator-qt4-qtversions-win-symbian.png
-        \o To build an application for your device using GCCE, enter the path
-           to the CSL ARM tool chain directory in
-           \gui{CSL\\GCCE directory}.
-
-           You do not need to specify this path if the compiler is included in
-           the \c{PATH} environment variable.
-        \o To build an application for the emulator (WINSCW tool chain), enter
-           the path to your Carbide C++ installation directory in
-           \gui{Carbide directory}.
-
-           \note You need to have Carbide C++ version 2.0 or later installed.
-
-        \o To build an application using the Symbian build system (SBS v2) that
-           is available for Symbian OS 9.5 based SDKs, enter the path to the SBS
-           v2 tool chain directory in \gui{SBS v2 directory}.
-    \endlist
-
-    \section2 Compiling Projects With Linux
-
-    To compile a project in Qt Creator, Linux uses GNU Compiler Collection
-    (GCC). Intel Compiler Collection (ICC) is supported as a drop-in
-    replacement for GCC.
-
-    To add a Qt version:
-    \list 1
-        \o Select \gui Tools > \gui Options... > \gui Qt4 >
-           \gui{Qt Versions}.
-        \o Click \inlineimage qtcreator-linux-add.png
-           and enter the name of the version in \gui{Version name}.
-        \o Enter the path to the qmake binary in \gui{qmake location}.
-    \endlist
-
-    \section2 Compiling Projects With Mac OS X
-
-    To compile a project in Qt Creator, Mac OS X uses GNU Compiler Collection
-    (GCC), which is part of Xcode.
-
-    To add a Qt version:
-    \list 1
-        \o Select \gui{Qt Creator} > \gui Preferences... > \gui{Qt Versions}.
-        \o Click \inlineimage qtcreator-macosx-add.png
-           and enter the name of the version in \gui{Version Name}.
-        \o Enter the path to the qmake binary in \gui{qmake location}.
-
-           \image qtcreator-qt4-qtversions.png
-    \endlist
+    You can use the shell link to run the tools in the third-party tool chains.
 
 */
 
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-qmake.html
+    \previouspage creator-project-wizards.html
     \page creator-project-qmake-libraries.html
     \nextpage creator-project-cmake.html
 
-    \title Adding Libraries to qmake Projects
+    \title Adding Libraries to Projects
 
     In addition to Qt libraries, you can add other libraries to your projects.
     The way the library is added depends on whether it is a system library or
@@ -3983,6 +4029,8 @@
     the \gui {Build Issues} output pane. More detailed information is displayed in
     the \gui {Compile Output} pane.
 
+    To build an application:
+
     \list 1
 
         \o Select a target for the project.
@@ -4183,8 +4231,9 @@
 
         \o If you cannot select \gui {Symbian Emulator} as target, check that
         Carbide.c++ is installed correctly and that the path to the Carbide.c++
-        installation directory is specified in the \gui{Carbide directory} field
-        in the build settings.
+        installation directory is specified for the WINSCW tool chain in the
+        \gui{Compiler path} field
+        in \gui {Tools > Options... > Tool Chains}.
 
         \o If the emulator process cannot be started, try closing Qt Creator and
            starting the application directly from your file manager. Having
@@ -4258,7 +4307,7 @@
     \contentspage index.html
     \previouspage creator-running-targets.html
     \page creator-build-settings.html
-    \nextpage creator-run-settings.html
+    \nextpage creator-project-qmake.html
 
     \title Specifying Build Settings
 
@@ -4286,25 +4335,26 @@
     \list 1
         \o Select the build configuration you want to edit in
            \gui{Edit Build Configuration}.
-        \o In section \gui General, you can specify:
-        \list
-            \o The \l{glossary-project-qt}{Qt version} you want to use to
-               build your project. For more information, see
-               \l{Selecting the Qt version}.
-            \o The tool chain required to build the project.
+        \o In the \gui {Qt version} field, select the Qt version to use for
+           building project. You can add Qt versions to the list if they are
+           installed on the development PC, but were not detected
+           automatically. For more information, see \l{Adding Qt Versions}.
+        \o In the \gui {Tool chain} field, select the tool chain required
+           to build the project. The tool chains that are compatible with the
+           selected Qt version are listed. You can add tool chains to the list
+           if they are not automatically detected. For more information, see
+           \l{Adding Tool Chains}.
 
-               \note Only tool chains that are compatible with the selected Qt version
-               are available.
-            \o The build directory for the project.
-               By default, projects are built in a separate directory
-               from the source directory, as \l{glossary-shadow-build}{shadow builds}.
+        \o In the \gui {Build directory} field, specify the build directory for
+           the project.
+           By default, projects are built in a separate directory from the
+           source directory, as \l{glossary-shadow-build}{shadow builds}.
                This keeps the files generated for each target platform separate.
 
                \note Shadow building is not supported by the Symbian build system.
                Also, shadow building on Windows is not supported for Maemo.
                If you only build for one target platform, you can deselect
                the \gui{Shadow build} checkbox.
-        \endlist
     \endlist
 
     \note The build configuration for the \gui{Symbian Device} target
@@ -4433,9 +4483,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-build-settings.html
     \page creator-run-settings.html
-    \nextpage creator-editor-settings.html
 
     \title Specifying Run Settings
 
@@ -4526,7 +4574,7 @@
 
     \section1 Specifying a Custom Executable to Run
 
-    If you use cmake or the generic project type in Qt Creator, or want
+    If you use CMake or the generic project type in Qt Creator, or want
     to run a custom desktop executable, create a \gui {Custom Executable}
     run configuration for your project. For example, when working on a library,
     you can run a test application that links against the library.
@@ -5224,7 +5272,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-run-settings.html
+    \previouspage creator-tool-chains.html
     \page creator-editor-settings.html
     \nextpage creator-build-dependencies.html
 
@@ -6764,6 +6812,7 @@
 
     By default the following filters are enabled and you do not need to use
     their prefixes explicitly:
+
     \list
         \o Going to a line in the current file (l).
         \o Going to an open file (o).
@@ -8146,9 +8195,11 @@
 
     \title Setting Up a CMake Project
 
-    CMake is an alternative to qmake for automating the generation of makefiles.
+    CMake is an alternative to qmake for automating the generation of build
+    configurations.
     It controls the software compilation process by using simple configuration
-    files, called CMakeLists.txt files. CMake generates native makefiles and
+    files, called CMakeLists.txt files. CMake generates native build
+    configurations and
     workspaces that you can use in the compiler environment of your choice.
 
     Since Qt Creator 1.1, CMake configuration files are supported.
