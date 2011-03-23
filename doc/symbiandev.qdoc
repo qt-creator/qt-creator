@@ -122,22 +122,22 @@
 
     \list 1
 
-        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.2 > Install Qt 4.7.2 for
+        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.3 > Install Qt 4.7.3 for
         Symbian^3 on Device}. Follow the instructions on the screen to install Qt
         libraries to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.2 > Install QtMobility 1.1.0 for
+        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.3 > Install QtMobility 1.1.2 for
         Symbian^3 on Device}
         and follow the instructions on the screen to install Qt
         mobility libraries to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.2 > Install TRK
+        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.3 > Install TRK
         (Debug Agent) for Symbian^3 on Device} and follow the
         instructions on the screen to install
         the App TRK debugging agent to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.2 > Install QtWebKit
-        for for Qt 4.7.2 on Symbian^3 Device} and follow the
+        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.3 > Install QtWebKit
+        for for Qt 4.7.3 on Symbian^3 Device} and follow the
         instructions on the screen to install QtWebKit to the device.
 
     \endlist
@@ -152,21 +152,21 @@
 
     \list 1
 
-        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.2 > Install Qt 4.7.1
+        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.3 > Install Qt 4.7.3
         for Symbian^1 on Device}. Follow the instructions on the screen to install Qt
         libraries to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.2 > Install QtMobility 1.1.0
+        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.3 > Install QtMobility 1.1.2
         for Symbian^1 on Device} and follow the instructions on the screen to install Qt
         mobility libraries to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.2 > Install TRK
+        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.3 > Install TRK
         (Debug Agent)} for the type of the connected device and follow the
         instructions on the screen to install
         the App TRK debugging agent to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.2 > Install QtWebKit
-        for for Qt 4.7.2 on Symbian^1 Device} and follow the
+        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.3 > Install QtWebKit
+        for for Qt 4.7.3 on Symbian^1 Device} and follow the
         instructions on the screen to install QtWebKit to the device.
 
     \endlist
