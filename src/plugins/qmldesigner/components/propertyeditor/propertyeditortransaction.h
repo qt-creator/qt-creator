@@ -53,6 +53,7 @@ protected:
 private:
     QmlDesigner::PropertyEditor *m_propertyEditor;
     QmlDesigner::RewriterTransaction m_rewriterTransaction;
+    int m_timerId;
 };
 
 } //QmlDesigner
