@@ -499,7 +499,7 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
     }
 
     if (!info.version->supportsTargetId(m_id)) {
-        QMessageBox::critical(Core::ICore::instance()->mainWindow(),
+        QMessageBox::critical(this,
                               tr("Incompatible build found"),
                               tr("The Build found in %1 is incompatible with this target").arg(m_importLinePath->path()));
         return;
