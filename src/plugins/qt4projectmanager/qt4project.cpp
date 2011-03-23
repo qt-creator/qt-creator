@@ -747,19 +747,6 @@ bool Qt4Project::wasEvaluateCanceled()
     return m_cancelEvaluate;
 }
 
-QString Qt4Project::defaultTopLevelBuildDirectory() const
-{
-    return defaultTopLevelBuildDirectory(file()->fileName());
-}
-
-QString Qt4Project::defaultTopLevelBuildDirectory(const QString &profilePath)
-{
-    if (profilePath.isEmpty())
-        return QString();
-    QFileInfo info(profilePath);
-    return QDir::cleanPath(projectDirectory(profilePath) + QLatin1String("/../") + info.baseName() + QLatin1String("-build"));
-}
-
 void Qt4Project::asyncUpdate()
 {
     if (debug)

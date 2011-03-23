@@ -112,11 +112,6 @@ QList<ProjectExplorer::ToolChain *> Qt4SymbianTarget::possibleToolChains(Project
     return tmp;
 }
 
-QString Qt4SymbianTarget::defaultBuildDirectory() const
-{
-    return project()->projectDirectory();
-}
-
 void Qt4SymbianTarget::createApplicationProFiles()
 {
     removeUnconfiguredCustomExectutableRunConfigurations();

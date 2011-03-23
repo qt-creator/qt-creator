@@ -97,6 +97,67 @@ ProjectExplorer::Target *Qt4BaseTargetFactory::create(ProjectExplorer::Project *
     return create(parent, id, w->buildConfigurationInfos());
 }
 
+QList<BuildConfigurationInfo> Qt4BaseTargetFactory::availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion)
+{
+    QList<BuildConfigurationInfo> infoList;
+    QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id, minimumQtVersion);
+
+    foreach (QtVersion *version, knownVersions) {
+        if (!version->isValid() || !version->toolChainAvailable())
+            continue;
+        QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
+        BuildConfigurationInfo info = BuildConfigurationInfo(version, config, QString(), QString());
+        info.directory = shadowBuildDirectory(proFilePath, id, msgBuildConfigurationName(info));
+        infoList.append(info);
+
+        info.buildConfig = config ^ QtVersion::DebugBuild;
+        info.directory = shadowBuildDirectory(proFilePath, id, msgBuildConfigurationName(info));
+        infoList.append(info);
+    }
+    return infoList;
+}
+
+QString sanitize(const QString &input)
+{
+    QString result;
+    result.reserve(input.size());
+    foreach (const QChar &c, input) {
+        if ((c >= 'a' && c <='z')
+                || (c >= 'A' && c <= 'Z')
+                || (c >= '0' && c <= '9')
+                || c == '-'
+                || c == '_')
+            result.append(c);
+        else
+            result.append('_');
+    }
+    return result;
+}
+
+QString projectDirectory(const QString &proFile)
+{
+    if (proFile.isEmpty())
+        return QString();
+    QFileInfo info(proFile);
+    return info.absoluteDir().path();
+}
+
+QString Qt4BaseTargetFactory::shadowBuildDirectory(const QString &profilePath, const QString &id, const QString &suffix)
+{
+    if (profilePath.isEmpty())
+        return QString();
+    QFileInfo info(profilePath);
+
+    QString base = QDir::cleanPath(projectDirectory(profilePath) + QLatin1String("/../") + info.baseName() + QLatin1String("-build-"));
+    return base + buildNameForId(id) + QLatin1String("-") + sanitize(suffix);
+}
+
+QString Qt4BaseTargetFactory::buildNameForId(const QString &id) const
+{
+    Q_UNUSED(id);
+    return QString();
+}
+
 Qt4BaseTargetFactory *Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(const QString &id)
 {
     QList<Qt4BaseTargetFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
@@ -156,12 +217,6 @@ Qt4BuildConfiguration *Qt4BaseTarget::activeBuildConfiguration() const
 Qt4Project *Qt4BaseTarget::qt4Project() const
 {
     return static_cast<Qt4Project *>(project());
-}
-
-QString Qt4BaseTarget::defaultBuildDirectory() const
-{
-    Qt4BaseTargetFactory *fac = Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(id());
-    return fac->defaultShadowBuildDirectory(qt4Project()->defaultTopLevelBuildDirectory(), id());
 }
 
 QList<ProjectExplorer::ToolChain *> Qt4BaseTarget::possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const
@@ -977,13 +1032,17 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::importBuildConfigurations(
     // Check for builds in build directoy
     QList<Qt4BaseTargetFactory *> factories =
             ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
-    QString defaultTopLevelBuildDirectory = Qt4Project::defaultTopLevelBuildDirectory(proFilePath);
     foreach (Qt4BaseTargetFactory *factory, factories) {
         foreach (const QString &id, factory->supportedTargetIds(0)) {
-            QString expectedBuild = factory->defaultShadowBuildDirectory(defaultTopLevelBuildDirectory, id);
-            BuildConfigurationInfo info = checkForBuild(expectedBuild, proFilePath);
-            if (info.isValid())
-                result.append(info);
+            QString expectedBuildprefix = factory->shadowBuildDirectory(proFilePath, id, "");
+            QString baseDir = QFileInfo(expectedBuildprefix).absolutePath();
+            foreach (const QString &dir, QDir(baseDir).entryList()) {
+                if (dir.startsWith(expectedBuildprefix)) {
+                    BuildConfigurationInfo info = checkForBuild(dir, proFilePath);
+                    if (info.isValid())
+                        result.append(info);
+                }
+            }
         }
     }
     return result;

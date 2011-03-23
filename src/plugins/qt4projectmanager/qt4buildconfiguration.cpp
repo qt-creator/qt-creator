@@ -125,17 +125,21 @@ static inline QString msgBuildConfigNotApplicable(const QString &d, const QtVers
             arg(d, qtVersion->displayName(), qtVersion->qmakeCommand(), target->id());
 }
 
+#include "qt4basetargetfactory.h"
+
 bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
 {
     if (!BuildConfiguration::fromMap(map))
         return false;
 
     m_shadowBuild = map.value(QLatin1String(USE_SHADOW_BUILD_KEY), true).toBool();
-    m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY), qt4Target()->defaultBuildDirectory()).toString();
     m_qtVersionId = map.value(QLatin1String(QT_VERSION_ID_KEY)).toInt();
     ProjectExplorer::ToolChain *tc = 0;
     tc = ProjectExplorer::ToolChainManager::instance()->findToolChain(map.value(QLatin1String(TOOLCHAIN_KEY)).toString());
     m_qmakeBuildConfiguration = QtVersion::QmakeBuildConfigs(map.value(QLatin1String(BUILD_CONFIGURATION_KEY)).toInt());
+    m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY), defaultShadowBuildDirectory()).toString();
+
+    m_lastEmmitedBuildDirectory = buildDirectory();
 
     // Pick a Qt version if the default version is used:
     // We assume that the default Qt version was used in earlier versions of Qt creator.
@@ -190,12 +194,6 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
 
 void Qt4BuildConfiguration::ctor()
 {
-    m_buildDirectory = qt4Target()->defaultBuildDirectory();
-    if (m_buildDirectory == target()->project()->projectDirectory())
-        m_shadowBuild = false;
-
-    m_lastEmmitedBuildDirectory = buildDirectory();
-
     connect(this, SIGNAL(environmentChanged()),
             this, SLOT(emitBuildDirectoryChanged()));
 
@@ -237,6 +235,13 @@ Utils::Environment Qt4BuildConfiguration::baseEnvironment() const
     return env;
 }
 
+QString Qt4BuildConfiguration::defaultShadowBuildDirectory() const
+{
+    Qt4BaseTargetFactory *factory = Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(qt4Target()->id());
+    // todo displayName isn't ideal
+    return factory->shadowBuildDirectory(qt4Target()->qt4Project()->file()->fileName(), qt4Target()->id(), displayName());
+}
+
 /// returns the unexpanded build directory
 QString Qt4BuildConfiguration::rawBuildDirectory() const
 {
@@ -245,7 +250,7 @@ QString Qt4BuildConfiguration::rawBuildDirectory() const
         if (!m_buildDirectory.isEmpty())
             workingDirectory = m_buildDirectory;
         else
-            workingDirectory = qt4Target()->defaultBuildDirectory();
+            workingDirectory = defaultShadowBuildDirectory();
     }
     if (workingDirectory.isEmpty())
         workingDirectory = target()->project()->projectDirectory();
@@ -291,7 +296,7 @@ bool Qt4BuildConfiguration::shadowBuild() const
 QString Qt4BuildConfiguration::shadowBuildDirectory() const
 {
     if (m_buildDirectory.isEmpty())
-        return qt4Target()->defaultBuildDirectory();
+        return defaultShadowBuildDirectory();
     return m_buildDirectory;
 }
 
@@ -393,6 +398,7 @@ void Qt4BuildConfiguration::setQMakeBuildConfiguration(QtVersion::QmakeBuildConf
 
     emit proFileEvaluateNeeded(this);
     emit qmakeBuildConfigurationChanged();
+    emitBuildDirectoryChanged();
 }
 
 void Qt4BuildConfiguration::emitProFileEvaluteNeeded()

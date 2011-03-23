@@ -58,7 +58,7 @@ public:
     virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos);
     virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, Qt4TargetSetupWidget *widget);
 
-    QString defaultShadowBuildDirectory(const QString &projectLocation, const QString &id);
+    QString shadowBuildDirectory(const QString &profilePath, const QString &id, const QString &suffix);
     QList<ProjectExplorer::Task> reportIssues(const QString &proFile);
     QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion);
     bool isMobileTarget(const QString &id);

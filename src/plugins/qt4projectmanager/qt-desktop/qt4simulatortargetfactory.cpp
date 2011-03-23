@@ -92,6 +92,13 @@ QIcon Qt4SimulatorTargetFactory::iconForId(const QString &id) const
     return QIcon();
 }
 
+QString Qt4SimulatorTargetFactory::buildNameForId(const QString &id) const
+{
+    if (id == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
+        return QLatin1String("simulator");
+    return QString();
+}
+
 bool Qt4SimulatorTargetFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
 {
     if (!qobject_cast<Qt4Project *>(parent))
@@ -115,35 +122,6 @@ ProjectExplorer::Target *Qt4SimulatorTargetFactory::restore(ProjectExplorer::Pro
         return target;
     delete target;
     return 0;
-}
-
-QString Qt4SimulatorTargetFactory::defaultShadowBuildDirectory(const QString &projectLocation, const QString &id)
-{
-    if (id != QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
-        return QString();
-
-    // currently we can't have the build directory to be deeper than the source directory
-    // since that is broken in qmake
-    // Once qmake is fixed we can change that to have a top directory and
-    // subdirectories per build. (Replacing "QChar('-')" with "QChar('/') )
-    return projectLocation + QLatin1String("-simulator");
-}
-
-QList<BuildConfigurationInfo> Qt4SimulatorTargetFactory::availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion)
-{
-    Q_ASSERT(id == Constants::QT_SIMULATOR_TARGET_ID);
-    QList<BuildConfigurationInfo> infos;
-    QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id, minimumQtVersion);
-
-    foreach (QtVersion *version, knownVersions) {
-        if (!version->isValid() || !version->toolChainAvailable())
-            continue;
-        QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
-        QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), id);
-        infos.append(BuildConfigurationInfo(version, config, QString(), dir));
-        infos.append(BuildConfigurationInfo(version, config ^ QtVersion::DebugBuild, QString(), dir));
-    }
-    return infos;
 }
 
 bool Qt4SimulatorTargetFactory::isMobileTarget(const QString &id)

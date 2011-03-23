@@ -44,6 +44,7 @@
 namespace Qt4ProjectManager {
 class Qt4TargetSetupWidget;
 class QtVersionNumber;
+class QtVersion;
 struct BuildConfigurationInfo;
 
 class QT4PROJECTMANAGER_EXPORT Qt4BaseTargetFactory : public ProjectExplorer::ITargetFactory
@@ -59,10 +60,15 @@ public:
                                                           bool importEnabled,
                                                           QList<BuildConfigurationInfo> importInfos);
 
-    virtual QString defaultShadowBuildDirectory(const QString &projectLocation, const QString &id) =0;
+    /// suffix should be unique
+    virtual QString shadowBuildDirectory(const QString &profilePath, const QString &id, const QString &suffix);
+    /// used by the default implementation of shadowBuildDirectory
+    virtual QString buildNameForId(const QString &id) const;
+
     /// used by the default implementation of createTargetSetupWidget
     /// not needed otherwise
-    virtual QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion) = 0;
+    /// by default creates one debug + one release buildconfiguration per qtversion
+    virtual QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion);
 
     virtual QList<ProjectExplorer::Task> reportIssues(const QString &proFile);
     /// only used in the TargetSetupPage

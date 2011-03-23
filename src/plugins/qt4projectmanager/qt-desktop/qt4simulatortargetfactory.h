@@ -55,12 +55,11 @@ public:
     bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
     bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
     ProjectExplorer::Target *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
-    QString defaultShadowBuildDirectory(const QString &projectLocation, const QString &id);
 
     bool supportsTargetId(const QString &id) const;
 
-    QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion);
     bool isMobileTarget(const QString &id);
+    QString buildNameForId(const QString &id) const;
     ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id);
     ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos);
 };

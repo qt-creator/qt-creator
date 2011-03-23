@@ -158,6 +158,7 @@ private:
     void ctor();
     void pickValidQtVersion();
     QString rawBuildDirectory() const;
+    QString defaultShadowBuildDirectory() const;
 
     bool m_shadowBuild;
     bool m_isEnabled;

@@ -179,9 +179,6 @@ public:
     /// \internal
     bool wasEvaluateCanceled();
 
-    QString defaultTopLevelBuildDirectory() const;
-    static QString defaultTopLevelBuildDirectory(const QString &profilePath);
-
     Internal::CentralizedFolderWatcher *centralizedFolderWatcher();
 
     // For Qt4ProFileNode after a on disk change

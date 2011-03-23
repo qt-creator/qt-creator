@@ -84,6 +84,13 @@ QString Qt4DesktopTargetFactory::displayNameForId(const QString &id) const
     return QString();
 }
 
+QString Qt4DesktopTargetFactory::buildNameForId(const QString &id) const
+{
+    if (id == QLatin1String(Constants::DESKTOP_TARGET_ID))
+        return QLatin1String("desktop");
+    return QString();
+}
+
 QIcon Qt4DesktopTargetFactory::iconForId(const QString &id) const
 {
     if (id == QLatin1String(Constants::DESKTOP_TARGET_ID))
@@ -117,37 +124,7 @@ ProjectExplorer::Target  *Qt4DesktopTargetFactory::restore(ProjectExplorer::Proj
     return 0;
 }
 
-QString Qt4DesktopTargetFactory::defaultShadowBuildDirectory(const QString &projectLocation, const QString &id)
-{
-    if (id != QLatin1String(Constants::DESKTOP_TARGET_ID))
-        return QString();
-
-    // currently we can't have the build directory to be deeper than the source directory
-    // since that is broken in qmake
-    // Once qmake is fixed we can change that to have a top directory and
-    // subdirectories per build. (Replacing "QChar('-')" with "QChar('/') )
-    return projectLocation + QLatin1String("-desktop");
-}
-
-QList<BuildConfigurationInfo> Qt4DesktopTargetFactory::availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion)
-{
-    Q_ASSERT(id == Constants::DESKTOP_TARGET_ID);
-    QList<BuildConfigurationInfo> infoList;
-    QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id, minimumQtVersion);
-
-    foreach (QtVersion *version, knownVersions) {
-        if (!version->isValid() || !version->toolChainAvailable())
-            continue;
-        QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
-
-        QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), id);
-        infoList.append(BuildConfigurationInfo(version, config, QString(), dir));
-        infoList.append(BuildConfigurationInfo(version, config ^ QtVersion::DebugBuild, QString(), dir));
-    }
-    return infoList;
-}
-
- Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtVersionNumber &number, bool importEnabled, QList<BuildConfigurationInfo> importInfos)
+Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtVersionNumber &number, bool importEnabled, QList<BuildConfigurationInfo> importInfos)
 {
     Qt4DefaultTargetSetupWidget *widget
             = static_cast<Qt4DefaultTargetSetupWidget *>(

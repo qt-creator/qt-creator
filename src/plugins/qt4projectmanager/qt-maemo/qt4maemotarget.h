@@ -57,7 +57,6 @@ public:
     virtual ~AbstractQt4MaemoTarget();
 
     Internal::Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
-    QString defaultBuildDirectory() const;
     void createApplicationProFiles();
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
 

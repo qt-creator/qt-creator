@@ -85,7 +85,6 @@ public:
                                                             QString directory);
 
     virtual void createApplicationProFiles() = 0;
-    virtual QString defaultBuildDirectory() const;
 
     virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n) = 0;
 

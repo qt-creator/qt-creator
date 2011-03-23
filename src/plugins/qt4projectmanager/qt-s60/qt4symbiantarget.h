@@ -55,8 +55,6 @@ public:
 
     QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
 
-    QString defaultBuildDirectory() const;
-
     void createApplicationProFiles();
     virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
 

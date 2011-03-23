@@ -131,39 +131,25 @@ ProjectExplorer::Target *Qt4MaemoTargetFactory::restore(ProjectExplorer::Project
     return 0;
 }
 
-QString Qt4MaemoTargetFactory::defaultShadowBuildDirectory(const QString &projectLocation, const QString &id)
+QString Qt4MaemoTargetFactory::buildNameForId(const QString &id) const
 {
-    QString suffix;
     if (id == QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
-        suffix = QLatin1String("maemo");
+        return QLatin1String("maemo");
     else if (id == QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
-        suffix = QLatin1String("harmattan");
+        return QLatin1String("harmattan");
     else if (id == QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID))
-        suffix = QLatin1String("meego");
+        return QLatin1String("meego");
     else
         return QString();
-
-    // currently we can't have the build directory to be deeper than the source directory
-    // since that is broken in qmake
-    // Once qmake is fixed we can change that to have a top directory and
-    // subdirectories per build. (Replacing "QChar('-')" with "QChar('/') )
-    return projectLocation + QLatin1Char('-') + suffix;
 }
 
-QList<BuildConfigurationInfo> Qt4MaemoTargetFactory::availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion)
+QString Qt4MaemoTargetFactory::shadowBuildDirectory(const QString &profilePath, const QString &id, const QString &suffix)
 {
-    QList<BuildConfigurationInfo> infos;
-    QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id, minimumQtVersion);
-
-    foreach (QtVersion *version, knownVersions) {
-        if (!version->isValid() || !version->toolChainAvailable())
-            continue;
-        QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
-        QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), id);
-        infos.append(BuildConfigurationInfo(version, config, QString(), dir));
-        infos.append(BuildConfigurationInfo(version, config ^ QtVersion::DebugBuild, QString(), dir));
-    }
-    return infos;
+    //TODO why?
+#if defined(Q_OS_WIN)
+    return projectDirectory;
+#endif
+    return Qt4BaseTargetFactory::shadowBuildDirectory(profilePath, id, suffix);
 }
 
 bool Qt4MaemoTargetFactory::isMobileTarget(const QString &id)

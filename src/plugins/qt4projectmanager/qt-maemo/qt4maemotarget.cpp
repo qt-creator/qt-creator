@@ -163,15 +163,6 @@ Qt4BuildConfigurationFactory *AbstractQt4MaemoTarget::buildConfigurationFactory(
     return m_buildConfigurationFactory;
 }
 
-QString AbstractQt4MaemoTarget::defaultBuildDirectory() const
-{
-    //TODO why?
-#if defined(Q_OS_WIN)
-    return project()->projectDirectory();
-#endif
-    return Qt4BaseTarget::defaultBuildDirectory();
-}
-
 void AbstractQt4MaemoTarget::createApplicationProFiles()
 {
     removeUnconfiguredCustomExectutableRunConfigurations();
