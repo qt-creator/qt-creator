@@ -107,6 +107,7 @@ enum Command {
     CmdIdle,
     CmdHelp,
     CmdMemory,
+    CmdExpression,
     CmdStack,
     CmdShutdownex,
     CmdAddWatch,
@@ -165,6 +166,7 @@ static const CommandDescription commandDescriptions[] = {
  "Intended to be used with .idle_cmd to obtain proper stop notification.",""},
 {"help","Prints help.",""},
 {"memory","Prints memory contents in Base64 encoding.","[-t token] <address> <length>"},
+{"expression","Prints expression value.","[-t token] <expression>"},
 {"stack","Prints stack in GDBMI format.","[-t token] [max-frames]"},
 {"shutdownex","Unhooks output callbacks.\nNeeds to be called explicitly only in case of remote debugging.",""},
 {"addwatch","Add watch expression","<iname> <expression>"},
@@ -920,6 +922,32 @@ extern "C" HRESULT CALLBACK memory(CIDebugClient *Client, PCSTR argsIn)
         ExtensionContext::instance().reportLong('R', token, "memory", memory);
         if (!errorMessage.empty())
             ExtensionContext::instance().report('W', token, 0, "memory", errorMessage.c_str());
+    }
+    return S_OK;
+}
+
+extern "C" HRESULT CALLBACK expression(CIDebugClient *Client, PCSTR argsIn)
+{
+    ExtensionCommandContext exc(Client);
+    std::string errorMessage;
+    LONG64 value = 0;
+    int token = 0;
+
+    do {
+        const StringVector tokens = commandTokens<StringVector>(argsIn, &token);
+        if (tokens.size()  != 1) {
+
+            errorMessage = singleLineUsage(commandDescriptions[CmdExpression]);
+            break;
+        }
+        if (!evaluateInt64Expression(exc.control(), tokens.front(), &value, &errorMessage))
+            break;
+    } while (false);
+
+    if (errorMessage.empty()) {
+        ExtensionContext::instance().reportLong('R', token, "expression", toString(value));
+    } else {
+        ExtensionContext::instance().report('N', token, 0, "expression", errorMessage.c_str());
     }
     return S_OK;
 }

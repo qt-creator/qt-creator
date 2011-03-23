@@ -756,3 +756,54 @@ std::string gdbmiBreakpoints(CIDebugControl *ctrl,
     str << ']';
     return str.str();
 }
+
+std::string msgEvaluateExpressionFailed(const std::string &expression,
+                                        const std::string &why)
+{
+    std::ostringstream str;
+    str << "Failed to evaluate expression '" << expression << "': " << why;
+    return str.str();
+}
+
+bool evaluateExpression(CIDebugControl *control, const std::string expression,
+                        ULONG desiredType, DEBUG_VALUE *v, std::string *errorMessage)
+{
+    // Ensure we are in C++
+    ULONG oldSyntax;
+    HRESULT hr = control->GetExpressionSyntax(&oldSyntax);
+    if (FAILED(hr)) {
+        *errorMessage = msgEvaluateExpressionFailed(expression, msgDebugEngineComFailed("GetExpressionSyntax", hr));
+        return false;
+    }
+    if (oldSyntax != DEBUG_EXPR_CPLUSPLUS) {
+        HRESULT hr = control->SetExpressionSyntax(DEBUG_EXPR_CPLUSPLUS);
+        if (FAILED(hr)) {
+            *errorMessage = msgEvaluateExpressionFailed(expression, msgDebugEngineComFailed("SetExpressionSyntax", hr));
+            return false;
+        }
+    }
+    hr = control->Evaluate(expression.c_str(), desiredType, v, NULL);
+    if (FAILED(hr)) {
+        *errorMessage = msgEvaluateExpressionFailed(expression, msgDebugEngineComFailed("Evaluate", hr));
+        return false;
+    }
+    if (oldSyntax != DEBUG_EXPR_CPLUSPLUS) {
+        HRESULT hr = control->SetExpressionSyntax(oldSyntax);
+        if (FAILED(hr)) {
+            *errorMessage = msgEvaluateExpressionFailed(expression, msgDebugEngineComFailed("SetExpressionSyntax", hr));
+            return false;
+        }
+    }
+    return true;
+}
+
+bool evaluateInt64Expression(CIDebugControl *control, const std::string expression,
+                            LONG64 *v, std::string *errorMessage)
+{
+    *v= 0;
+    DEBUG_VALUE dv;
+    if (!evaluateExpression(control, expression, DEBUG_VALUE_INT64, &dv, errorMessage))
+        return false;
+    *v = dv.I64;
+    return true;
+}

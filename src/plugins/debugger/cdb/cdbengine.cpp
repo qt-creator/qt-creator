@@ -183,11 +183,19 @@ struct MemoryChangeCookie
     QByteArray data;
 };
 
+struct ConditionalBreakPointCookie
+{
+    ConditionalBreakPointCookie(BreakpointId i = 0) : id(i) {}
+    BreakpointId id;
+    GdbMi stopReason;
+};
+
 } // namespace Internal
 } // namespace Debugger
 
 Q_DECLARE_METATYPE(Debugger::Internal::MemoryViewCookie)
 Q_DECLARE_METATYPE(Debugger::Internal::MemoryChangeCookie)
+Q_DECLARE_METATYPE(Debugger::Internal::ConditionalBreakPointCookie)
 
 namespace Debugger {
 namespace Internal {
@@ -1051,6 +1059,7 @@ unsigned CdbEngine::debuggerCapabilities() const
     return DisassemblerCapability | RegisterCapability | ShowMemoryCapability
            |WatchpointCapability|JumpToLineCapability|AddWatcherCapability
            |BreakOnThrowAndCatchCapability // Sort-of: Can break on throw().
+           |BreakConditionCapability|TracePointCapability
            |BreakModuleCapability;
 }
 
@@ -1755,9 +1764,25 @@ enum StopActionFlags
     StopShutdownInProgress = 0x80 // Shutdown in progress
 };
 
+static inline QString msgTracePointTriggered(BreakpointId id, const int number,
+                                             const QString &threadId)
+{
+    return CdbEngine::tr("Trace point %1 (%2) in thread %3 triggered.")
+            .arg(id).arg(number).arg(threadId);
+}
+
+static inline QString msgCheckingConditionalBreakPoint(BreakpointId id, const int number,
+                                                       const QByteArray &condition,
+                                                       const QString &threadId)
+{
+    return CdbEngine::tr("Conditional breakpoint %1 (%2) in thread %3 triggered, examining expression '%4'.")
+            .arg(id).arg(number).arg(threadId, QString::fromAscii(condition));
+}
+
 unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
                                       QString *message,
-                                      QString *exceptionBoxMessage)
+                                      QString *exceptionBoxMessage,
+                                      bool conditionalBreakPointTriggered)
 {
     // Report stop reason (GDBMI)
     unsigned rc  = 0;
@@ -1788,7 +1813,22 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
         if (breakpointIdG.isValid()) {
             id = breakpointIdG.data().toULongLong();
             if (id && breakHandler()->engineBreakpointIds(this).contains(id)) {
-                number = breakHandler()->response(id).number;
+                const BreakpointResponse parameters =  breakHandler()->response(id);
+                // Trace point? Just report.
+                number = parameters.number;
+                if (parameters.tracepoint) {
+                    *message = msgTracePointTriggered(id, number, QString::number(threadId));
+                    return StopReportLog|StopIgnoreContinue;
+                }
+                // Trigger evaluation of BP expression unless we are already in the response.
+                if (!conditionalBreakPointTriggered && !parameters.condition.isEmpty()) {
+                    *message = msgCheckingConditionalBreakPoint(id, number, parameters.condition,
+                                                                QString::number(threadId));
+                    ConditionalBreakPointCookie cookie(id);
+                    cookie.stopReason = stopReason;
+                    evaluateExpression(parameters.condition, qVariantFromValue(cookie));
+                    return StopReportLog;
+                }
             } else {
                 id = 0;
             }
@@ -1879,14 +1919,19 @@ void CdbEngine::handleSessionIdle(const QByteArray &messageBA)
         notifyEngineSetupOk();
         return;
     }
+    GdbMi stopReason;
+    stopReason.fromString(messageBA);
+    processStop(stopReason, false);
+}
 
+void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointTriggered)
+{
     // Further examine stop and report to user
     QString message;
     QString exceptionBoxMessage;
-    GdbMi stopReason;
-    stopReason.fromString(messageBA);
     int forcedThreadId = -1;
-    const unsigned stopFlags = examineStopReason(stopReason, &message, &exceptionBoxMessage);
+    const unsigned stopFlags = examineStopReason(stopReason, &message, &exceptionBoxMessage,
+                                                 conditionalBreakPointTriggered);
     // Do the non-blocking log reporting
     if (stopFlags & StopReportLog)
         showMessage(message, LogMisc);
@@ -1894,7 +1939,7 @@ void CdbEngine::handleSessionIdle(const QByteArray &messageBA)
         showStatusMessage(message);
     if (stopFlags & StopReportParseError)
         showMessage(message, LogError);
-    // Ignore things like WOW64
+    // Ignore things like WOW64, report tracepoints.
     if (stopFlags & StopIgnoreContinue) {
         postCommand("g", 0);
         return;
@@ -2511,6 +2556,41 @@ void CdbEngine::handleStackTrace(const CdbExtensionCommandPtr &command)
     } else {
         showMessage(command->errorMessage, LogError);
     }
+}
+
+void CdbEngine::handleExpression(const CdbExtensionCommandPtr &command)
+{
+    int value = 0;
+    if (command->success) {
+        value = command->reply.toInt();
+    } else {
+        showMessage(command->errorMessage, LogError);
+    }
+    // Is this a conditional breakpoint?
+    if (command->cookie.isValid() && qVariantCanConvert<ConditionalBreakPointCookie>(command->cookie)) {
+        const ConditionalBreakPointCookie cookie = qvariant_cast<ConditionalBreakPointCookie>(command->cookie);
+        const QString message = value ?
+            tr("Value %1 obtained from evaluating the condition of breakpoint %2, stopping.").
+            arg(value).arg(cookie.id) :
+            tr("Value 0 obtained from evaluating the condition of breakpoint %1, continuing.").
+            arg(cookie.id);
+        showMessage(message, LogMisc);
+        // Stop if evaluation is true, else continue
+        if (value) {
+            processStop(cookie.stopReason, true);
+        } else {
+            postCommand("g", 0);
+        }
+    }
+}
+
+void CdbEngine::evaluateExpression(QByteArray exp, const QVariant &cookie)
+{
+    if (exp.contains(' ') && !exp.startsWith('"')) {
+        exp.prepend('"');
+        exp.append('"');
+    }
+    postExtensionCommand("expression", exp, 0, &CdbEngine::handleExpression, 0, cookie);
 }
 
 void CdbEngine::dummyHandler(const CdbBuiltinCommandPtr &command)

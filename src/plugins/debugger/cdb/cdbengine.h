@@ -191,7 +191,9 @@ private:
     bool startConsole(const DebuggerStartParameters &sp, QString *errorMessage);
     void init();
     unsigned examineStopReason(const GdbMi &stopReason, QString *message,
-                               QString *exceptionBoxMessage);
+                               QString *exceptionBoxMessage,
+                               bool conditionalBreakPointTriggered = false);
+    void processStop(const GdbMi &stopReason, bool conditionalBreakPointTriggered = false);
     bool commandsPending() const;
     void handleExtensionMessage(char t, int token, const QByteArray &what, const QByteArray &message);
     bool doSetupEngine(QString *errorMessage);
@@ -208,6 +210,7 @@ private:
     void syncOperateByInstruction(bool operateByInstruction);
     void postWidgetAtCommand();
     void handleCustomSpecialStop(const QVariant &v);
+    void evaluateExpression(QByteArray exp, const QVariant &cookie = QVariant());
 
     // Builtin commands
     void dummyHandler(const CdbBuiltinCommandPtr &);
@@ -215,6 +218,7 @@ private:
     void handleRegisters(const CdbBuiltinCommandPtr &);
     void handleDisassembler(const CdbBuiltinCommandPtr &);
     void handleJumpToLineAddressResolution(const CdbBuiltinCommandPtr &);
+    void handleExpression(const CdbExtensionCommandPtr &);
     void jumpToAddress(quint64 address);
     // Extension commands
     void handleThreads(const CdbExtensionCommandPtr &);

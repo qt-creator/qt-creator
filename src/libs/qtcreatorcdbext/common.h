@@ -46,7 +46,7 @@
 #include <wdbgexts.h>
 #include <dbgeng.h>
 
-typedef IDebugControl CIDebugControl;
+typedef IDebugControl3 CIDebugControl;
 typedef IDebugSymbols3 CIDebugSymbols;
 typedef IDebugSymbolGroup2 CIDebugSymbolGroup;
 typedef IDebugClient5 CIDebugClient;

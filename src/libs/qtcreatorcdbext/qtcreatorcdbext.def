@@ -16,6 +16,7 @@ modules
 idle
 help
 memory
+expression
 shutdownex
 test
 stack

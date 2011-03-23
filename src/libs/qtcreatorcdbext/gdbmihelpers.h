@@ -173,4 +173,10 @@ std::string gdbmiStack(CIDebugControl *debugControl, CIDebugSymbols *debugSymbol
 std::string widgetAt(const SymbolGroupValueContext &ctx,
                      int x, int y, std::string *errorMessage);
 
+bool evaluateExpression(CIDebugControl *control, const std::string expression,
+                        ULONG desiredType, DEBUG_VALUE *v, std::string *errorMessage);
+
+bool evaluateInt64Expression(CIDebugControl *control, const std::string expression,
+                             LONG64 *, std::string *errorMessage);
+
 #endif // THREADLIST_H
